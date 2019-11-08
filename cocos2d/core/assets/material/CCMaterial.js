@@ -32,6 +32,7 @@ const textureUtil = require('../../utils/texture-util');
 import murmurhash2 from '../../../renderer/murmurhash2_gc';
 import utils from './utils';
 import materialPool from './material-pool';
+import CustomProperties from './custom-properties';
 
 /**
  * !#en Material Asset.
@@ -93,7 +94,7 @@ let Material = cc.Class({
                     cc.error('Can not set an empty effect asset.');
                     return;
                 }
-                this._effect = this._effectAsset.getInstantiatedEffect();;
+                this._effect = new CustomProperties(this._effectAsset.getEffect());
             }
         },
 
@@ -235,14 +236,7 @@ let Material = cc.Class({
     },
 
     getHash () {
-        if (!this._dirty) return this._hash;
-        
-        if (!this._manualHash) {
-            this.updateHash();
-        }
-
-        this._dirty = false;
-        return this._hash;
+        return this._effect && this._effect.getHash();
     },
 
     onLoad () {

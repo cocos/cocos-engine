@@ -31,11 +31,17 @@ let EffectAsset = cc.Class({
     _initEffect () {
         if (this._effect) return;
         this._effect = Effect.parseEffect(this);
+        Object.freeze(this._effect);
     },
 
     getInstantiatedEffect () {
         this._initEffect();
         return this._effect.clone();
+    },
+
+    getEffect () {
+        this._initEffect();
+        return this._effect;
     }
 });
 

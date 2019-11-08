@@ -314,8 +314,8 @@ export default class Base {
     }
 
     // for each pass
-    for (let i = 0; i < technique._passes.length; ++i) {
-      let pass = technique._passes[i];
+    for (let i = 0; i < effect._passes.length; ++i) {
+      let pass = effect._passes[i];
       let count = ia.count;
 
       // set vertex buffer

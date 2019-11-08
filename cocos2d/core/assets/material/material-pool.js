@@ -39,7 +39,7 @@ class MaterialPool extends Pool {
     }
     
     put (mat) {
-        if (!this.enabled) {
+        if (!this.enabled || !mat._owner) {
             return;
         }
 
