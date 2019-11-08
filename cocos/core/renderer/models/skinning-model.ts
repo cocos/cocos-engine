@@ -137,14 +137,13 @@ export class SkinningModel extends Model {
                 stride: UBOSkinningTexture.SIZE,
             });
         }
-        this.uploadAnimation(this.uploadedAnim);
     }
 
     public uploadAnimation (anim: AnimationClip | null) {
         if (!this._skeleton) { return; }
         this.uploadedAnim = anim;
-        const texture = this.uploadedAnim ?
-        this._scene.texturePool.getJointsTextureWithAnimation(this._skeleton, this.uploadedAnim) :
+        const texture = anim ?
+        this._scene.texturePool.getJointsTextureWithAnimation(this._skeleton, anim) :
             this._scene.texturePool.getDefaultJointsTexture(this._skeleton);
         JointsAnimationInfo.switchClip(this._transform.uuid, anim);
         this._applyJointsTexture(texture);
