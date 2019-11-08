@@ -6,7 +6,7 @@ import { AmmoShape } from './shapes/ammo-shape';
 import { ArrayCollisionMatrix } from '../utils/array-collision-matrix';
 import { TupleDictionary } from '../utils/tuple-dictionary';
 import { TriggerEventObject, CollisionEventObject } from './ammo-const';
-import { Ammo2CocosVec3, Cocos2AmmoVec3 } from './ammo-util';
+import { Ammo2CocosVec3, Cocos2AmmoVec3, Cocos2AmmoQuat } from './ammo-util';
 import { ray } from '../../core/geom-utils';
 import { IRaycastOptions, IPhysicsWorld } from '../spec/i-physics-world';
 import { PhysicsRayResult, PhysicMaterial } from '../framework';
@@ -15,6 +15,9 @@ import { AmmoInstance } from './ammo-instance';
 import { AmmoCollisionFilterGroups } from './ammo-enum';
 
 const contactsPool = [] as any;
+const v3_0 = new Vec3();
+const bt_closetHit_cb = new Ammo.ClosestRayResultCallback(new Ammo.btVector3(), new Ammo.btVector3());
+const bt_allHits_cb = new Ammo.AllHitsRayResultCallback(new Ammo.btVector3(), new Ammo.btVector3());
 
 export class AmmoWorld implements IPhysicsWorld {
 
@@ -139,10 +142,11 @@ export class AmmoWorld implements IPhysicsWorld {
                     item.contacts.push(manifoldPoint);
 
                     // physics material
-                    if (shape0.sharedMaterial && shape1.sharedMaterial) {
-                        manifoldPoint.m_combinedFriction = shape0.sharedMaterial.friction * shape1.sharedMaterial.friction;
-                        manifoldPoint.m_combinedRestitution = shape0.sharedMaterial.restitution * shape1.sharedMaterial.restitution;
-                    }
+                    // if (shape0.sharedMaterial && shape1.sharedMaterial) {
+                    //     manifoldPoint.m_combinedFriction = shape0.sharedMaterial.friction * shape1.sharedMaterial.friction;
+                    //     manifoldPoint.m_combinedRestitution = shape0.sharedMaterial.restitution * shape1.sharedMaterial.restitution;
+                    //     manifoldPoint.m_combinedRollingFriction = 0;
+                    // }
                 }
             }
         }
@@ -151,7 +155,21 @@ export class AmmoWorld implements IPhysicsWorld {
     }
 
     raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, resultes: PhysicsRayResult[]): boolean {
-        throw new Error("Method not implemented.");
+        let from = Cocos2AmmoVec3(bt_allHits_cb.m_rayFromWorld, worldRay.o);
+        worldRay.computeHit(v3_0, options.maxDistance);
+        let to = Cocos2AmmoVec3(bt_allHits_cb.m_rayToWorld, v3_0);
+
+        bt_allHits_cb.m_collisionFilterGroup = -1;
+        bt_allHits_cb.m_collisionFilterMask = -1;
+        bt_allHits_cb.m_closestHitFraction = 1;
+        (bt_allHits_cb.m_collisionObject as any) = null;
+
+        this._world.rayTest(from, to, bt_allHits_cb);
+        if (bt_allHits_cb.hasHit()) {
+            console.log('all hits :', bt_allHits_cb.m_hitFractions, bt_allHits_cb.m_collisionObjects);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -159,36 +177,27 @@ export class AmmoWorld implements IPhysicsWorld {
      * @return True if any body was hit.
      */
     raycastClosest (worldRay: ray, options: any, result: PhysicsRayResult): boolean {
-        const ammoFrom = new Ammo.btVector3();
-        const ammoTo = new Ammo.btVector3();
-        // vec3CreatorToAmmo(ammoFrom, from);
-        // vec3CreatorToAmmo(ammoTo, to);
+        let from = Cocos2AmmoVec3(bt_closetHit_cb.m_rayFromWorld, worldRay.o);
+        worldRay.computeHit(v3_0, options.maxDistance);
+        let to = Cocos2AmmoVec3(bt_closetHit_cb.m_rayToWorld, v3_0);
 
-        const closestRayResultCallback = new Ammo.ClosestRayResultCallback(ammoFrom, ammoTo);
-        // const rayCallBack = Ammo.castObject(closestRayResultCallback, Ammo.RayResultCallback);
-        // rayCallBack.set_m_closestHitFraction(1);
-        // rayCallBack.set_m_collisionObject(null);
-        // closestRayResultCallback.get_m_rayFromWorld().setValue(from.x, from.y, from.z);
-        // closestRayResultCallback.get_m_rayToWorld().setValue(to.x, to.y, to.z);
+        bt_closetHit_cb.m_collisionFilterGroup = -1;
+        bt_closetHit_cb.m_collisionFilterMask = -1;
+        bt_closetHit_cb.m_closestHitFraction = 1;
+        (bt_closetHit_cb.m_collisionObject as any) = null;
 
-        this._world.rayTest(ammoFrom, ammoTo, closestRayResultCallback);
-        if (!closestRayResultCallback.hasHit()) {
-            return false;
+        this._world.rayTest(from, to, bt_closetHit_cb);
+        if (bt_closetHit_cb.hasHit()) {
+            const btObj = bt_closetHit_cb.m_collisionObject;
+            const index = btObj.getUserIndex();
+            const shared = AmmoInstance.bodyAndGhosts['KEY' + index];
+            const shape = shared.wrappedShapes[0];
+            Ammo2CocosVec3(v3_0, bt_closetHit_cb.m_hitPointWorld);
+            const distance = Vec3.distance(worldRay.o, v3_0);
+            result._assign(v3_0, distance, shape.collider);
+            return true;
         }
-
-        const ammoObject = closestRayResultCallback.get_m_collisionObject()!;
-        // const wrappedBody = this._getWrappedBody(ammoObject);
-        // if (!wrappedBody) {
-        //     return false;
-        // }
-
-        // vec3AmmoToCreator(this._hitPoint, closestRayResultCallback.get_m_hitPointWorld());
-        // vec3AmmoToCreator(this._hitNormal, closestRayResultCallback.get_m_hitNormalWorld());
-        // const distance = Vec3.distance(from, this._hitPoint);
-
-        throw new Error(`not impl.`);
-        // result._assign(this._hitPoint, distance, null, wrappedBody);
-        // return true;
+        return false;
     }
 
     getSharedBody (node: Node, wrappedBody?: AmmoRigidBody) {
