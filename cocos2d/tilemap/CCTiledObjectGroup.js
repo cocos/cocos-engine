@@ -128,6 +128,7 @@ let TiledObjectGroup = cc.Class({
         this._mapInfo = mapInfo;
         this._properties = groupInfo.getProperties();
         this._offset = cc.v2(groupInfo.offset.x, -groupInfo.offset.y);
+        this._opacity = groupInfo._opacity;
 
         let mapSize = mapInfo._mapSize;
         let tileSize = mapInfo._tileSize;
@@ -150,6 +151,7 @@ let TiledObjectGroup = cc.Class({
         let leftTopY = height * (1 - this.node.anchorY);
 
         let objects = groupInfo._objects;
+        let aliveNodes = {};
         for (let i = 0, l = objects.length; i < l; i++) {
             let object = objects[i];
             let objType = object.type;
@@ -172,7 +174,9 @@ let TiledObjectGroup = cc.Class({
             }
 
             if (objType === TMXObjectType.TEXT) {
-                let textName = "text" + object.id;
+                let textName = "GROUP_TEXT" + object.id;
+                aliveNodes[textName] = true;
+
                 let textNode = this.node.getChildByName(textName);
                 if (!textNode) {
                     textNode = new cc.Node();
@@ -186,6 +190,7 @@ let TiledObjectGroup = cc.Class({
                 textNode.name = textName;
                 textNode.parent = this.node;
                 textNode.color = object.color;
+                textNode.opacity = this._opacity;
 
                 let label = textNode.getComponent(cc.Label);
                 if (!label) {
@@ -206,10 +211,12 @@ let TiledObjectGroup = cc.Class({
             if (objType === TMXObjectType.IMAGE) {
                 let grid = texGrids[(object.gid & FLIPPED_MASK) >>> 0];
                 if (!grid) continue;
-                let imgName = "img" + object.id;
+                let imgName = "GROUP_IMAGE" + object.id;
+                aliveNodes[imgName] = true;
+
                 let imgNode = this.node.getChildByName(imgName);
                 if (!imgNode) {
-                    imgNode = new cc.PrivateNode();
+                    imgNode = new cc.Node();
                 }
                 imgNode.anchorX = 0;
                 imgNode.anchorY = 0;
@@ -218,20 +225,37 @@ let TiledObjectGroup = cc.Class({
                 imgNode.y = -object.offset.y + leftTopY;
                 imgNode.name = imgName;
                 imgNode.parent = this.node;
-                
+                imgNode.opacity = this._opacity;
+
                 let sp = imgNode.getComponent(cc.Sprite);
                 if (!sp) {
                     sp = imgNode.addComponent(cc.Sprite);
                 }
-                sp.spriteFrame = new cc.SpriteFrame();
-                let rect = cc.rect(grid);
-                sp.spriteFrame.setTexture(grid.tileset.sourceImage, rect);
+                let spf = new cc.SpriteFrame();
+                spf.setTexture(grid.tileset.sourceImage, cc.rect(grid));
+                sp.spriteFrame = spf;
 
                 imgNode.width = object.width;
                 imgNode.height = object.height;
             }
         }
         this._objects = objects;
+
+        // destroy old name or useless node
+        let children = this.node.children;
+        let oldImgExp = /^img\d+$/;
+        let oldTxtExp = /^text\d+$/;
+        let newTxtExp = /^GROUP_TEXT\d+$/;
+        let newImgExp = /^GROUP_IMAGE\d+$/;
+        for (let i = 0, n = children.length; i < n; i++) {
+            let c = children[i];
+            let cName = c._name;
+            let isOld = oldImgExp.test(cName);
+            isOld = isOld || oldTxtExp.test(cName);
+            let isNew = newTxtExp.test(cName);
+            isNew = isNew || newImgExp.test(cName);
+            if (isOld || (isNew && !aliveNodes[cName])) c.destroy();
+        }
     }
 });
 
