@@ -1,4 +1,4 @@
-import { EPSILON } from './utils';
+import { EPSILON, FLOAT_ARRAY_TYPE } from './utils';
 
 /**
  * Mathematical 4x4 matrix.
@@ -30,8 +30,8 @@ class mat4 {
   /**
    * Creates a matrix, with elements specified separately.
    *
-   * @param {Number} m00 - Value assigned to element at column 0 row 0.
-   * @param {Number} m01 - Value assigned to element at column 0 row 1.
+   * @param {Number|Float32Array|Float64Array} m00 - Value assigned to element at column 0 row 0 or array of matrix elements.
+   * @param {Number|Boolean} m01 - Value assigned to element at column 0 row 1 or whether you need a deep copy of the parameter passed in parameter 1.
    * @param {Number} m02 - Value assigned to element at column 0 row 2.
    * @param {Number} m03 - Value assigned to element at column 0 row 3.
    * @param {Number} m04 - Value assigned to element at column 1 row 0.
@@ -53,17 +53,16 @@ class mat4 {
     m08 = 0, m09 = 0, m10 = 1, m11 = 0,
     m12 = 0, m13 = 0, m14 = 0, m15 = 1
   ) {
-    if (m00 instanceof Float32Array) {
+    if (typeof m00 === 'object') {
         // deep copy
         if (m01) {
-            this.m = new Float32Array(16);
+            this.m = new m00.constructor(16);
             this.m.set(m00);
         } else {
             this.m = m00;
         }
     } else {
-        this.m = new Float32Array(16);
-
+        this.m = new FLOAT_ARRAY_TYPE(16);
         let m = this.m;
         /**
          * The element at column 0 row 0.

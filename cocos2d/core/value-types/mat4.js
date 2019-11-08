@@ -28,6 +28,7 @@ const js = require('../platform/js');
 const CCClass = require('../platform/CCClass');
 
 import { mat4 } from '../vmath';
+import { FLOAT_ARRAY_TYPE } from '../vmath/utils';
 
 /**
  * !#en Representation of 4*4 matrix.
@@ -62,7 +63,7 @@ import { mat4 } from '../vmath';
  * @param {Number} m33 Component in column 3, row 3 position (index 15)
  */
 function Mat4 (m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
-    this.m = new Float32Array(16);
+    this.m = new FLOAT_ARRAY_TYPE(16);
     let tm = this.m;
     tm[0] = m00;
     tm[1] = m01;

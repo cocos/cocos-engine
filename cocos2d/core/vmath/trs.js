@@ -7,7 +7,7 @@ export default class trs {
     /**
      * 
      * @param {Quat} out 
-     * @param {Float32Array} a 
+     * @param {Float32Array|Float64Array} a 
      * @return {Quat}
      */
     static toRotation (out, a) {
@@ -20,9 +20,9 @@ export default class trs {
 
     /**
      * 
-     * @param {Float32Array} out 
+     * @param {Float32Array|Float64Array} out 
      * @param {Quat} a 
-     * @return {Float32Array}
+     * @return {Float32Array|Float64Array}
      */
     static fromRotation (out, a) {
         out[3] = a.x;
@@ -35,7 +35,7 @@ export default class trs {
     /**
      * 
      * @param {Vec3} out 
-     * @param {Float32Array} a 
+     * @param {Float32Array|Float64Array} a 
      * @return {Vec3}
      */
     static toEuler (out, a) {
@@ -46,9 +46,9 @@ export default class trs {
 
     /**
      * 
-     * @param {Float32Array} out 
+     * @param {Float32Array|Float64Array} out 
      * @param {Vec3} a 
-     * @return {Float32Array}
+     * @return {Float32Array|Float64Array}
      */
     static fromEuler (out, a) {
         quat.fromEuler(tmp_quat, a.x, a.y, a.z);
@@ -58,11 +58,11 @@ export default class trs {
 
     /**
      * 
-     * @param {Float32Array} out 
+     * @param {Float32Array|Float64Array} out 
      * @param {Number} x 
      * @param {Number} y 
      * @param {Number} z 
-     * @return {Float32Array}
+     * @return {Float32Array|Float64Array}
      */
     static fromEulerNumber (out, x, y, z) {
         quat.fromEuler(tmp_quat, x, y, z);
@@ -73,7 +73,7 @@ export default class trs {
     /**
      * 
      * @param {Vec3} out 
-     * @param {Float32Array} a 
+     * @param {Float32Array|Float64Array} a 
      * @return {Vec3}
      */
     static toScale (out, a) {
@@ -85,9 +85,9 @@ export default class trs {
 
     /**
      * 
-     * @param {Float32Array} out 
+     * @param {Float32Array|Float64Array} out 
      * @param {Vec3} a 
-     * @return {Float32Array}
+     * @return {Float32Array|Float64Array}
      */
     static fromScale (out, a) {
         out[7] = a.x;
@@ -99,7 +99,7 @@ export default class trs {
     /**
      * 
      * @param {Vec3} out 
-     * @param {Float32Array} a 
+     * @param {Float32Array|Float64Array} a 
      * @return {Vec3}
      */
     static toPosition (out, a) {
@@ -111,9 +111,9 @@ export default class trs {
 
     /**
      * 
-     * @param {Float32Array} out 
+     * @param {Float32Array|Float64Array} out 
      * @param {Vec3} a 
-     * @return {Float32Array}
+     * @return {Float32Array|Float64Array}
      */
     static fromPosition (out, a) {
         out[0] = a.x;
@@ -124,7 +124,7 @@ export default class trs {
 
     /**
      * 
-     * @param {Float32Array} out 
+     * @param {Float32Array|Float64Array} out 
      * @param {Number} a 
      */
     static fromAngleZ (out, a) {

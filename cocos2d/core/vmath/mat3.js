@@ -1,4 +1,4 @@
-import { EPSILON } from './utils';
+import { EPSILON, FLOAT_ARRAY_TYPE } from './utils';
 import vec3 from './vec3';
 
 /**
@@ -31,8 +31,8 @@ class mat3 {
   /**
    * Creates a matrix, with elements specified separately.
    *
-   * @param {Number} m00 - Value assigned to element at column 0 row 0.
-   * @param {Number} m01 - Value assigned to element at column 0 row 1.
+   * @param {Number|Float32Array|Float64Array} m00 - Value assigned to element at column 0 row 0 or array of matrix elements.
+   * @param {Number|Boolean} m01 - Value assigned to element at column 0 row 1 or whether you need a deep copy of the parameter passed in parameter 1.
    * @param {Number} m02 - Value assigned to element at column 0 row 2.
    * @param {Number} m03 - Value assigned to element at column 1 row 0.
    * @param {Number} m04 - Value assigned to element at column 1 row 1.
@@ -46,16 +46,16 @@ class mat3 {
     m03 = 0, m04 = 1, m05 = 0,
     m06 = 0, m07 = 0, m08 = 1
   ) {
-    if (m00 instanceof Float32Array) {
+    if (typeof m00 === 'object') {
         // deep copy
         if (m01) {
-            this.m = new Float32Array(9);
+            this.m = new m00.constructor(9);
             this.m.set(m00);
         } else {
             this.m = m00;
         }
     } else {
-        this.m = new Float32Array(9);
+        this.m = new FLOAT_ARRAY_TYPE(9);
         let m = this.m;
         /**
          * The element at column 0 row 0.

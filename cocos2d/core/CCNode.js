@@ -1415,9 +1415,9 @@ let NodeDefines = {
         if (!this._spaceInfo) {
             if (CC_EDITOR || CC_TEST) {
                 this._spaceInfo = {
-                    trs: new Float32Array(10),
-                    localMat: new Float32Array(16),
-                    worldMat: new Float32Array(16),
+                    trs: new Float64Array(10),
+                    localMat: new Float64Array(16),
+                    worldMat: new Float64Array(16),
                 }
             } else {
                 this._spaceInfo = nodeMemPool.pop();            
