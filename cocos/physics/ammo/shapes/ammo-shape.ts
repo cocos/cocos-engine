@@ -14,7 +14,12 @@ const v3_0 = new Vec3();
 export class AmmoShape implements IBaseShape {
 
     get sharedMaterial () { return this._collider.sharedMaterial; }
-    set material (v: PhysicMaterial) { };
+    set material (v: PhysicMaterial) {
+        if (!this._isTrigger && this._isEnabled) {
+            this._sharedBody.body.setFriction(v.friction);
+            this._sharedBody.body.setRestitution(v.restitution);
+        }
+    }
 
     set center (v: IVec3Like) {
         Vec3.copy(v3_0, v);
@@ -23,7 +28,7 @@ export class AmmoShape implements IBaseShape {
         if (this._btCompound) {
             this._btCompound.updateChildTransform(this.index, this.transform);
         }
-    };
+    }
 
     set isTrigger (v: boolean) {
         if (this._isTrigger == v)
@@ -94,6 +99,8 @@ export class AmmoShape implements IBaseShape {
         } else {
             this._sharedBody.bodyEnabled = true;
         }
+
+        this.material = this.collider.sharedMaterial!;
     }
 
     onDisable () {
