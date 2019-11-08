@@ -1247,9 +1247,7 @@ let NodeDefines = {
                     this._localZOrder = (this._localZOrder & 0x0000ffff) | (value << 16);
                     this.emit(EventType.SIBLING_ORDER_CHANGED);
 
-                    if (this._parent) {
-                        this._onSiblingIndexChanged();
-                    }
+                    this._onSiblingIndexChanged();
                 }
             }
         },
@@ -1303,7 +1301,9 @@ let NodeDefines = {
 
     _onSiblingIndexChanged () {
         // update rendering scene graph, sort them by arrivalOrder
-        this._parent._delaySort();
+        if (this._parent) {
+            this._parent._delaySort();
+        }
     },
 
     _onPreDestroy () {
