@@ -2,12 +2,12 @@
  * @category pipeline.ppfx
  */
 
+import { ccclass } from '../../data/class-decorator';
 import { GFXBindingLayout } from '../../gfx/binding-layout';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXClearFlag, GFXCommandBufferType, IGFXColor } from '../../gfx/define';
 import { UBOGlobal } from '../define';
-import { RenderFlow } from '../render-flow';
-import { IRenderStageInfo, RenderStage } from '../render-stage';
+import { IRenderStageInfo, RenderStage, IRenderStageDesc } from '../render-stage';
 import { RenderView } from '../render-view';
 
 const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
@@ -18,36 +18,45 @@ const bufs: GFXCommandBuffer[] = [];
  * 色调映射渲染阶段。
  *
  */
+@ccclass('ToneMapStage')
 export class ToneMapStage extends RenderStage {
 
     private _hTexSampler: number = 0;
     private _hBlendTexSampler: number = 0;
     private _bindingLayout: GFXBindingLayout | null = null;
 
-    constructor (flow: RenderFlow) {
-        super(flow);
+    constructor () {
+        super();
     }
 
     public initialize (info: IRenderStageInfo): boolean {
 
-        if (info.name !== undefined) {
-            this._name = info.name;
-        }
-
-        this._priority = info.priority;
+        super.initialize(info);
 
         if (info.framebuffer !== undefined) {
             this._framebuffer = info.framebuffer ;
         }
 
+        this._createCmdBuffer();
+
+        this.rebuild();
+        return true;
+    }
+
+    public onAssetLoaded (desc: IRenderStageDesc) {
+
+        super.onAssetLoaded(desc);
+
+        this._createCmdBuffer();
+
+        this.rebuild();
+    }
+
+    private _createCmdBuffer () {
         this._cmdBuff = this._device.createCommandBuffer({
             allocator: this._device.commandAllocator,
             type: GFXCommandBufferType.PRIMARY,
         });
-
-        this.rebuild();
-
-        return true;
     }
 
     public destroy () {
@@ -70,11 +79,11 @@ export class ToneMapStage extends RenderStage {
         this._bindingLayout =  this._pso!.pipelineLayout.layouts[0];
 
         this._pass.bindBuffer(UBOGlobal.BLOCK.binding, globalUBO!.buffer!);
-        this._pass.bindTextureView(this._hTexSampler, this._pipeline.curShadingTexView);
+        this._pass.bindTextureView(this._hTexSampler, this._pipeline.getTextureView(this._pipeline.currShading)!);
 
         if (this._pipeline.useSMAA) {
             this._hBlendTexSampler = this._pass.getBinding('u_blendTexSampler')!;
-            this._pass.bindTextureView(this._hBlendTexSampler, this._pipeline.smaaBlendTexView);
+            this._pass.bindTextureView(this._hBlendTexSampler, this._pipeline.getTextureView('smaaBlend')!);
         }
 
         this._pass.update();

@@ -3,6 +3,7 @@
  */
 
 import { Material } from '../assets/material';
+import { ccclass, property } from '../data/class-decorator';
 import { GFXDevice } from '../gfx/device';
 import { RenderPipeline } from './render-pipeline';
 import { IRenderStageInfo, RenderStage } from './render-stage';
@@ -13,14 +14,20 @@ import { RenderView } from './render-view';
  * 渲染流程描述信息。
  */
 export interface IRenderFlowInfo {
+    pipeline: RenderPipeline;
     name?: string;
     priority: number;
+}
+
+export interface IRenderFlowDesc {
+    pipeline: RenderPipeline;
 }
 
 /**
  * @zh
  * 渲染流程。
  */
+@ccclass('RenderFlow')
 export abstract class RenderFlow {
 
     public get device (): GFXDevice {
@@ -63,31 +70,48 @@ export abstract class RenderFlow {
      * @zh
      * 名称。
      */
+    @property({
+        displayOrder: 0,
+    })
     protected _name: string = '';
 
     /**
      * @zh
      * 优先级。
      */
+    @property({
+        displayOrder: 1,
+    })
     protected _priority: number = 0;
-
-    /**
-     * @zh
-     * 渲染阶段数组。
-     */
-    protected _stages: RenderStage[] = [];
 
     /**
      * @zh
      * 材质。
      */
-    protected _material: Material = new Material();
+    @property({
+        type: cc.Material,
+        displayOrder: 2,
+    })
+    protected _material: cc.Material = null;
+
+    /**
+     * @zh
+     * 渲染阶段数组。
+     */
+    @property({
+        type: [RenderStage],
+        displayOrder: 3,
+    })
+    protected _stages: RenderStage[] = [];
 
     /**
      * 构造函数。
      * @param pipeline 渲染管线。
      */
-    constructor (pipeline: RenderPipeline) {
+    constructor () {
+    }
+
+    private _setPipeline (pipeline: RenderPipeline) {
         this._device = pipeline.device;
         this._pipeline = pipeline;
     }
@@ -97,7 +121,27 @@ export abstract class RenderFlow {
      * 初始化函数。
      * @param info 渲染流程描述信息。
      */
-    public abstract initialize (info: IRenderFlowInfo): boolean;
+    public initialize (info: IRenderFlowInfo): boolean {
+        if (info.name !== undefined) {
+            this._name = info.name;
+        }
+
+        this._priority = info.priority;
+
+        this._setPipeline(info.pipeline);
+
+        return true;
+    }
+
+    /**
+     * 把序列化数据转换成运行时数据
+     */
+    public onAssetLoaded (desc: IRenderFlowDesc) {
+        this._setPipeline(desc.pipeline);
+        for (let i = 0; i < this._stages.length; i++) {
+            this._stages[i].onAssetLoaded({ flow: this });
+        }
+    }
 
     /**
      * @zh
@@ -141,10 +185,10 @@ export abstract class RenderFlow {
      * @param info 渲染阶段描述信息。
      */
     public createStage<T extends RenderStage> (
-        clazz: new(flow: RenderFlow) => T,
+        clazz: new() => T,
         info: IRenderStageInfo): RenderStage | null {
 
-        const stage: RenderStage = new clazz(this);
+        const stage: RenderStage = new clazz();
         if (stage.initialize(info)) {
             this._stages.push(stage);
             this._stages.sort((a, b) => {
@@ -168,3 +212,5 @@ export abstract class RenderFlow {
         this._stages = [];
     }
 }
+
+cc.RenderFlow = RenderFlow;

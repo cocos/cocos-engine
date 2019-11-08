@@ -2,8 +2,8 @@
  * @category pipeline.forward
  */
 
+import { ccclass } from '../../data/class-decorator';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
-import { RenderPipeline } from '../render-pipeline';
 import { ForwardStage } from './forward-stage';
 
 /**
@@ -18,14 +18,15 @@ export enum ForwardStagePriority {
  * @zh
  * 前向渲染流程。
  */
+@ccclass('ForwardFlow')
 export class ForwardFlow extends RenderFlow {
 
     /**
      * 构造函数。
      * @param pipeline 渲染管线。
      */
-    constructor (pipeline: RenderPipeline) {
-        super(pipeline);
+    constructor () {
+        super();
     }
 
     /**
@@ -35,13 +36,10 @@ export class ForwardFlow extends RenderFlow {
      */
     public initialize (info: IRenderFlowInfo): boolean {
 
-        if (info.name !== undefined) {
-            this._name = info.name;
-        }
-
-        this._priority = info.priority;
+        super.initialize(info);
 
         this.createStage(ForwardStage, {
+            flow: this,
             name: 'ForwardStage',
             priority: ForwardStagePriority.FORWARD,
         });

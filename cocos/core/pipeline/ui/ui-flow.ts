@@ -5,7 +5,6 @@
 
 import { UBOGlobal } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
-import { RenderPipeline } from '../render-pipeline';
 import { RenderView } from '../render-view';
 import { UIStage } from './ui-stage';
 
@@ -15,17 +14,13 @@ import { UIStage } from './ui-stage';
  */
 export class UIFlow extends RenderFlow {
 
-    constructor (pipeline: RenderPipeline) {
-        super(pipeline);
+    constructor () {
+        super();
     }
 
     public initialize (info: IRenderFlowInfo): boolean {
 
-        if (info.name !== undefined) {
-            this._name = info.name;
-        }
-
-        this._priority = info.priority;
+        super.initialize(info);
 
         const mainWindow = this._pipeline.root.mainWindow;
         if (!mainWindow || !mainWindow.framebuffer) {
@@ -33,6 +28,7 @@ export class UIFlow extends RenderFlow {
         }
 
         this.createStage(UIStage, {
+            flow:this,
             name: 'UIStage',
             priority: 0,
             framebuffer:  mainWindow.framebuffer,

@@ -978,6 +978,10 @@ export class Game extends EventTarget {
             cc.game.resume();
         });
     }
+
+    private setRenderPipeline (rppl) {
+        cc.director.root.setRenderPipeline(rppl.renderPipeline);
+    }
 }
 
 cc.Game = Game;

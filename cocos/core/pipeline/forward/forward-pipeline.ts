@@ -3,6 +3,7 @@
  */
 
 import { intersect, sphere } from '../../geom-utils';
+import { ccclass } from '../../data/class-decorator';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXRenderPass } from '../../gfx/render-pass';
@@ -15,11 +16,11 @@ import { SpotLight } from '../../renderer/scene/spot-light';
 import { Root } from '../../root';
 import { cullDirectionalLight, cullSphereLight, cullSpotLight } from '../culling';
 import { PIPELINE_FLOW_FORWARD, PIPELINE_FLOW_TONEMAP, RenderPassStage, UBOForwardLight } from '../define';
-import { ToneMapFlow } from '../ppfx/tonemap-flow';
-import { IRenderPipelineInfo, RenderPipeline } from '../render-pipeline';
+import { RenderPipeline, IRenderPipelineInfo, IRenderPipelineDesc } from '../render-pipeline';
 import { RenderView } from '../render-view';
 import { UIFlow } from '../ui/ui-flow';
 import { ForwardFlow } from './forward-flow';
+import { ToneMapFlow } from '../ppfx/tonemap-flow';
 
 /**
  * @zh
@@ -40,6 +41,7 @@ const _tempVec3 = new Vec3();
  * @zh
  * 前向渲染管线。
  */
+@ccclass('ForwardPipeline')
 export class ForwardPipeline extends RenderPipeline {
 
     /**
@@ -80,8 +82,8 @@ export class ForwardPipeline extends RenderPipeline {
      * 构造函数。
      * @param root Root类实例。
      */
-    constructor (root: Root) {
-        super(root);
+    constructor () {
+        super();
         this._validLights = [];
         this._lightIndexOffset = [];
         this._lightIndices = [];
@@ -94,12 +96,73 @@ export class ForwardPipeline extends RenderPipeline {
      */
     public initialize (info: IRenderPipelineInfo): boolean {
 
+        super.initialize(info);
         if (!this._initialize(info)) {
             return false;
         }
 
-        this._name = 'ForwardPipeline';
+        // create flows
 
+        this.createFlow(ForwardFlow, {
+            pipeline: this,
+            name: PIPELINE_FLOW_FORWARD,
+            priority: ForwardFlowPriority.FORWARD,
+        });
+
+        if (this._usePostProcess) {
+            if (this._useSMAA) {
+                /*
+                this.createFlow(SMAAEdgeFlow, {
+                    name: PIPELINE_FLOW_SMAA,
+                    priority: 0,
+                });
+                */
+            }
+            this.createFlow(ToneMapFlow, {
+                pipeline: this,
+                name: PIPELINE_FLOW_TONEMAP,
+                priority: 0,
+            });
+        }
+
+        this.createFlow(UIFlow, {
+            pipeline: this,
+            name: 'UIFlow',
+            priority: ForwardFlowPriority.UI,
+        });
+
+        return true;
+    }
+
+    public onAssetLoaded (desc: IRenderPipelineDesc) {
+        super.onAssetLoaded(desc);
+        if (!this._initRenderResource()) {
+            return false;
+        }
+        this.activateFlow(this.getFlow(PIPELINE_FLOW_FORWARD)!);
+
+        if (this._usePostProcess) {
+            if (this._useSMAA) {
+                /*
+                this.createFlow(SMAAEdgeFlow, {
+                    name: PIPELINE_FLOW_SMAA,
+                    priority: 0,
+                });
+                */
+            }
+            this.activateFlow(this.getFlow(PIPELINE_FLOW_TONEMAP)!);
+        }
+
+        this.createFlow(UIFlow, {
+            pipeline: this,
+            name: 'UIFlow',
+            priority: ForwardFlowPriority.UI,
+        });
+
+        return true;
+    }
+
+    protected createUBOs (): boolean {
         if (!this._globalBindings.get(UBOForwardLight.BLOCK.name)) {
             const lightsUBO = this._root.device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
@@ -117,48 +180,7 @@ export class ForwardPipeline extends RenderPipeline {
                 buffer: lightsUBO,
             });
         }
-
-        const mainWindow = this._root.mainWindow;
-        let windowPass: GFXRenderPass | null = null;
-
-        if (mainWindow) {
-            windowPass = mainWindow.renderPass;
-        }
-
-        if (!windowPass) {
-            console.error('RenderPass of main window is null.');
-            return false;
-        }
-
-        this.addRenderPass(RenderPassStage.DEFAULT, windowPass);
-
-        // create flows
-        this.createFlow(ForwardFlow, {
-            name: PIPELINE_FLOW_FORWARD,
-            priority: ForwardFlowPriority.FORWARD,
-        });
-
-        if (this._usePostProcess) {
-            if (this._useSMAA) {
-                /*
-                this.createFlow(SMAAEdgeFlow, {
-                    name: PIPELINE_FLOW_SMAA,
-                    priority: 0,
-                });
-                */
-            }
-            this.createFlow(ToneMapFlow, {
-                name: PIPELINE_FLOW_TONEMAP,
-                priority: 0,
-            });
-        }
-
-        this.createFlow(UIFlow, {
-            name: 'UIFlow',
-            priority: ForwardFlowPriority.UI,
-        });
-
-        return true;
+        return super.createUBOs();
     }
 
     /**

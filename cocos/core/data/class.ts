@@ -375,7 +375,36 @@ function define (className, baseClass, mixins, options) {
 
     const cls = doDefine(className, baseClass, mixins, options);
 
+    // for RenderPipeline, RenderFlow, RenderStage
+    const isRenderPipeline = js.isChildClassOf(baseClass, cc.RenderPipeline);
+    const isRenderFlow = js.isChildClassOf(baseClass, cc.RenderFlow);
+    const isRenderStage = js.isChildClassOf(baseClass, cc.RenderStage);
+
+    const isRender = isRenderPipeline || isRenderFlow || isRenderStage || false;
+
+    if (isRender) {
+        let renderName = '';
+        if (isRenderPipeline) {
+            renderName = 'render_pipeline';
+        } else if (isRenderFlow) {
+            renderName = 'render_flow';
+        } else if (isRenderStage) {
+            renderName = 'render_stage';
+        }
+
+        if (renderName) {
+            js._setClassId(className, cls);
+            if (CC_EDITOR) {
+                // 增加了 hidden: 开头标识，使它最终不会显示在 Editor inspector 的添加组件列表里
+                // @ts-ignore
+                // tslint:disable-next-line:no-unused-expression
+                window.EditorExtends && window.EditorExtends.Component.addMenu(cls, `hidden:${renderName}/${className}`, -1);
+            }
+        }
+    }
+
     if (frame) {
+        // 基础的 ts, js 脚本组件
         if (js.isChildClassOf(baseClass, Component)) {
             const uuid = frame.uuid;
             if (uuid) {

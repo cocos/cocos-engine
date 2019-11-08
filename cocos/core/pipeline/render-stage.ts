@@ -2,30 +2,62 @@
  * @category pipeline
  */
 
+import { ccclass, property } from '../data/class-decorator';
+import { ccenum } from '../value-types/enum';
 import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { IGFXColor, IGFXRect } from '../gfx/define';
 import { GFXDevice } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXPipelineState } from '../gfx/pipeline-state';
 import { Pass } from '../renderer';
+import { IRenderPass } from './define';
+import { getPhaseID } from './pass-phase';
 import { RenderFlow } from './render-flow';
 import { RenderPipeline } from './render-pipeline';
+import { opaqueCompareFn, RenderQueue, transparentCompareFn } from './render-queue';
 import { RenderView } from './render-view';
+
+export enum RenderQueueSortMode {
+    FRONT_TO_BACK,
+    BACK_TO_FRONT,
+}
+
+ccenum(RenderQueueSortMode);
 
 /**
  * @zh
  * 渲染阶段描述信息。
  */
 export interface IRenderStageInfo {
+    flow: RenderFlow;
     name?: string;
     priority: number;
     framebuffer?: GFXFramebuffer;
+}
+
+export interface IRenderStageDesc {
+    flow: RenderFlow;
+}
+
+@ccclass('RenderQueueDesc')
+class RenderQueueDesc {
+    @property
+    public isTransparent: boolean = false;
+    @property({
+        type: RenderQueueSortMode,
+    })
+    public sortMode: RenderQueueSortMode = RenderQueueSortMode.FRONT_TO_BACK;
+    @property({
+        type: [String],
+    })
+    public stages: string[] = [];
 }
 
 /**
  * @zh
  * 渲染阶段。
  */
+@ccclass('RenderStage')
 export abstract class RenderStage {
 
     /**
@@ -62,6 +94,37 @@ export abstract class RenderStage {
 
     /**
      * @zh
+     * 名称。
+     */
+    @property({
+        displayOrder: 0,
+    })
+    protected _name: string = '';
+
+    /**
+     * @zh
+     * 优先级。
+     */
+    @property({
+        displayOrder: 1,
+    })
+    protected _priority: number = 0;
+
+    @property({
+        displayOrder: 2,
+    })
+    protected frameBuffer: string = '';
+
+    @property({
+        type: [RenderQueueDesc],
+        displayOrder: 3,
+    })
+    protected renderQueues: RenderQueueDesc[] = [];
+
+    protected _renderQueues: RenderQueue[] = [];
+
+    /**
+     * @zh
      * 渲染流程。
      */
     protected _flow: RenderFlow;
@@ -77,18 +140,6 @@ export abstract class RenderStage {
      * GFX设备。
      */
     protected _device: GFXDevice;
-
-    /**
-     * @zh
-     * 名称。
-     */
-    protected _name: string = '';
-
-    /**
-     * @zh
-     * 优先级。
-     */
-    protected _priority: number = 0;
 
     /**
      * @zh
@@ -142,7 +193,10 @@ export abstract class RenderStage {
      * 构造函数。
      * @param flow 渲染流程。
      */
-    constructor (flow: RenderFlow) {
+    constructor () {
+    }
+
+    private _setFlow (flow: RenderFlow) {
         this._flow = flow;
         this._pipeline = flow.pipeline;
         this._device = flow.device;
@@ -161,7 +215,50 @@ export abstract class RenderStage {
      * 初始化函数。
      * @param info 渲染阶段描述信息。
      */
-    public abstract initialize (info: IRenderStageInfo): boolean;
+    public initialize (info: IRenderStageInfo): boolean {
+        if (info.name !== undefined) {
+            this._name = info.name;
+        }
+
+        this._priority = info.priority;
+
+        this._setFlow(info.flow);
+
+        return true;
+    }
+
+    /**
+     * 把序列化数据转换成运行时数据
+     */
+    public onAssetLoaded (desc: IRenderStageDesc) {
+        this._setFlow(desc.flow);
+        for (let i = 0; i < this.renderQueues.length; i++) {
+            let phase = 0;
+            for (const p of this.renderQueues[i].stages) {
+                phase |= getPhaseID(p);
+            }
+            let sortFunc: (a: IRenderPass, b: IRenderPass) => number = opaqueCompareFn;
+            switch (this.renderQueues[i].sortMode) {
+                case RenderQueueSortMode.BACK_TO_FRONT:
+                    sortFunc = transparentCompareFn;
+                    break;
+                case RenderQueueSortMode.FRONT_TO_BACK:
+                    sortFunc = opaqueCompareFn;
+                    break;
+            }
+            this._renderQueues[i] = new RenderQueue({
+                isTransparent: this.renderQueues[i].isTransparent,
+                phases: phase,
+                sortFunc,
+            });
+        }
+
+        if (this.frameBuffer === 'window') {
+            this._framebuffer = this._flow.pipeline.root.mainWindow!.framebuffer!;
+        } else {
+            this._framebuffer = this._flow.pipeline.getFrameBuffer(this.frameBuffer);
+        }
+    }
 
     /**
      * @zh
@@ -235,3 +332,5 @@ export abstract class RenderStage {
         this._renderArea.height = height;
     }
 }
+
+cc.RenderStage = RenderStage;
