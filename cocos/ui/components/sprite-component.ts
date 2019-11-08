@@ -671,7 +671,7 @@ export class SpriteComponent extends UIRenderComponent {
             }
         }
 /*
-        if (CC_EDITOR&&this._atlas==null) {
+        if (CC_EDITOR) {
             // Set atlas
             this._applyAtlas(spriteFrame);
         }
@@ -694,17 +694,14 @@ export class SpriteComponent extends UIRenderComponent {
      *
      * @returns
      */
-    public changeSpriteFrameFromAtlas (name:string) {
-        if(this._atlas){
-            const sprite = this._atlas!.getSpriteFrame(name);
-            this._markForUpdateUvDirty();
-            this._spriteFrame=sprite;  
-            this.markForUpdateRenderData(true);
-        }else{
+    public changeSpriteFrameFromAtlas (name: string) {
+        if(!this._atlas) {
+            console.warn('SpriteAtlas is null.');
             return;
         }
+        const sprite = this._atlas.getSpriteFrame(name);
+        this.spriteFrame = sprite;
     }
-
 }
 
 cc.SpriteComponent = SpriteComponent;
