@@ -70,11 +70,13 @@ export class AudioPlayerWeb extends AudioPlayer {
             this._sourceNode.buffer = this._audio;
             this._sourceNode.loop = this._loop;
             this._sourceNode.connect(this._gainNode);
-            this._sourceNode.start(0, this._offset);
-            this._state = PlayingState.PLAYING;
             this._startTime = this._context.currentTime;
             // delay eval here to yield uniform behavior with other platforms
-            cc.director.once(cc.Director.EVENT_AFTER_UPDATE, () => { this._eventTarget.emit('started'); });
+            cc.director.once(cc.Director.EVENT_AFTER_UPDATE, () => {
+                this._sourceNode.start(0, this._offset);
+                this._eventTarget.emit('started');
+                this._state = PlayingState.PLAYING;
+            });
             /* still not supported by all platforms *
             this._sourceNode.onended = this._on_ended;
             /* doing it manually for now */

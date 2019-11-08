@@ -35,7 +35,7 @@ import { IGFXAttribute } from '../../gfx/input-assembler';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { Pool, RecyclePool } from '../../memop';
 import { CachedArray } from '../../memop/cached-array';
-import { UniformBinding } from '../../pipeline/define';
+import { UniformBinding, CameraDefaultMask } from '../../pipeline/define';
 import { Camera } from '../../renderer/scene/camera';
 import { Model } from '../../renderer/scene/model';
 import { RenderScene } from '../../renderer/scene/render-scene';
@@ -244,7 +244,7 @@ export class UI {
             camera = this._screens[i].camera;
             if (camera) {
                 const matRecord = this._canvasMaterials.get(camera.view.visibility)!;
-                camera.view.visibility -= 1;
+                camera.view.visibility = Layers.BitMask.UI_2D | (i + 1);
                 this._canvasMaterials.set(camera.view.visibility, matRecord);
             }
         }

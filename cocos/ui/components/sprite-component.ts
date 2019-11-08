@@ -428,6 +428,10 @@ export class SpriteComponent extends UIRenderComponent {
     // static State = State;
 
     public __preload () {
+        if (this._useGrayscale) {
+            this._instanceMaterialType = InstanceMaterialType.GRAYSCALE;
+        }
+
         if (super.__preload) {
             super.__preload();
         }

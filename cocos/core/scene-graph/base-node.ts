@@ -30,14 +30,14 @@
 import { Component } from '../components/component';
 import { ccclass, property } from '../data/class-decorator';
 import { CCObject } from '../data/object';
+import { Event } from '../event';
+import { errorID, warnID } from '../platform/debug';
 import { SystemEventType } from '../platform/event-manager/event-enum';
 import { ISchedulable } from '../scheduler';
 import IdGenerator from '../utils/id-generator';
 import { IBaseNode } from '../utils/interfaces';
 import * as js from '../utils/js';
 import { baseNodePolyfill } from './base-node-dev';
-import { errorID, warnID } from '../platform/debug';
-import { Event } from '../event';
 import { NodeEventProcessor } from './node-event-processor';
 
 /**
@@ -1104,7 +1104,6 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
             componentInstance.destroy();
         }
     }
-
 
     // EVENT PROCESSING
 

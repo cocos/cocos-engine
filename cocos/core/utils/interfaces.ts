@@ -23,13 +23,13 @@
  THE SOFTWARE.
 */
 
-import { SystemEventType } from '../platform/event-manager/event-enum';
-import { Mat4, Quat, Size, Vec2, Vec3 } from '../math';
-import { Scene } from '../scene-graph/scene';
-import { NodeEventProcessor } from '../scene-graph/node-event-processor';
 import { Component } from '../components/component';
 import { Event } from '../event';
-import { TransformDirtyBit, NodeSpace } from '../scene-graph/node-enum';
+import { Mat4, Quat, Size, Vec2, Vec3 } from '../math';
+import { SystemEventType } from '../platform/event-manager/event-enum';
+import { NodeSpace, TransformDirtyBit } from '../scene-graph/node-enum';
+import { NodeEventProcessor } from '../scene-graph/node-event-processor';
+import { Scene } from '../scene-graph/scene';
 
 export interface IBaseNode {
 
@@ -187,18 +187,6 @@ export interface IBaseNode {
     addChild (child: this): void;
 
     /**
-     * @zh 移除节点中指定的子节点
-     * @param child 孩子节点
-     */
-    removeChild (child: this, cleanup?: boolean): void;
-
-    /**
-    * @zh 插入子节点到指定位置
-    * @param siblingIndex 指定位置
-    */
-    insertChild (child: this, siblingIndex: number): void;
-
-    /**
      * @en Returns a child from the container given its uuid.
      * @zh 通过 uuid 获取节点的子节点。
      * @param uuid - The uuid to find the child node.
@@ -294,7 +282,7 @@ export interface IBaseNode {
      * node.removeChild(newNode);
      * ```
      */
-    removeChild (child: this): void;
+    removeChild (child: this, cleanup?: boolean): void;
 
     /**
      * @en
@@ -346,7 +334,6 @@ export interface IBaseNode {
      */
     removeComponent<T extends Component> (classConstructor: Constructor<T>): void;
     removeComponent (classNameOrInstance: string | Component): void;
-    removeComponent (component: string | Component | any): void;
 
     _removeComponent (component: Component): void;
 
@@ -743,5 +730,5 @@ export interface INode extends IBaseNode {
      */
     pauseSystemEvents (recursive: boolean): void;
     resumeSystemEvents (recursive: boolean): void;
-    _updateSiblingIndex(): void;
+    _updateSiblingIndex (): void;
 }

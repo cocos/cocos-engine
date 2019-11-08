@@ -28,11 +28,11 @@
  */
 
 import { ccclass, property } from '../data/class-decorator';
+import { Mat4, Quat, Vec3 } from '../math';
+import { warnID } from '../platform/debug';
 import { RenderScene } from '../renderer/scene/render-scene';
 import { BaseNode } from './base-node';
 import { SceneGlobals } from './scene-globals';
-import { Vec3, Quat, Mat4 } from '../math';
-import { warnID } from '../platform/debug';
 
 /**
  * @en
@@ -45,14 +45,13 @@ import { warnID } from '../platform/debug';
 @ccclass('cc.Scene')
 export class Scene extends BaseNode {
 
-    protected _inited: boolean;
-    protected _prefabSyncedInLiveReload = false;
+    get renderScene () {
+        return this._renderScene;
+    }
 
-    // Support Node access parent data from Scene
-    protected _pos = new Vec3(0, 0, 0);
-    protected _rot = new Quat(0, 0, 0, 1);
-    protected _scale = new Vec3(1, 1, 1);
-    protected _mat = Mat4.IDENTITY;
+    get globals () {
+        return this._globals;
+    }
 
     /**
      * @en Indicates whether all (directly or indirectly) static referenced assets of this scene are releasable by default after scene unloading.
@@ -71,13 +70,15 @@ export class Scene extends BaseNode {
     public _renderScene: RenderScene | null = null;
     public dependAssets = null; // cache all depend assets for auto release
 
-    get renderScene () {
-        return this._renderScene;
-    }
+    protected _inited: boolean;
+    protected _prefabSyncedInLiveReload = false;
 
-    get globals () {
-        return this._globals;
-    }
+    // support Node access parent data from Scene
+    protected _pos = Vec3.ZERO;
+    protected _rot = Quat.IDENTITY;
+    protected _scale = Vec3.ONE;
+    protected _mat = Mat4.IDENTITY;
+    protected _dirtyFlags = 0;
 
     constructor (name: string) {
         super(name);
@@ -94,44 +95,6 @@ export class Scene extends BaseNode {
         this._activeInHierarchy = false;
         return success;
     }
-
-    public getPosition (out?: Vec3): Vec3 {
-        if (out) {
-            return Vec3.set(out, this._pos.x, this._pos.y, this._pos.z);
-        } else {
-            return Vec3.copy(new Vec3(), this._pos);
-        }
-    }
-
-    public getRotation (out?: Quat): Quat {
-        if (out) {
-            return Quat.set(out, this._rot.x, this._rot.y, this._rot.z, this._rot.w);
-        } else {
-            return Quat.copy(new Quat(), this._rot);
-        }
-    }
-
-    public getScale (out?: Vec3): Vec3 {
-        if (out) {
-            return Vec3.set(out, this._scale.x, this._scale.y, this._scale.z);
-        } else {
-            return Vec3.copy(new Vec3(), this._scale);
-        }
-    }
-
-    public getWorldPosition (out?: Vec3) {
-        return this.getPosition(out);
-    }
-
-    public getWorldRotation (out?: Quat) {
-        return this.getRotation(out);
-    }
-
-    public getWorldScale (out?: Vec3) {
-        return this.getScale(out);
-    }
-
-    public updateWorldTransform () { }
 
     public addComponent (typeOrClassName: string | Function) {
         warnID(3822);
@@ -151,6 +114,29 @@ export class Scene extends BaseNode {
     public _onBatchRestored () {
         this._onBatchCreated();
     }
+
+    // transform helpers
+
+    public getPosition (out?: Vec3): Vec3 { return Vec3.copy(out || new Vec3(), Vec3.ZERO); }
+    public getRotation (out?: Quat): Quat { return Quat.copy(out || new Quat(), Quat.IDENTITY); }
+    public getScale (out?: Vec3): Vec3 { return Vec3.copy(out || new Vec3(), Vec3.ONE); }
+    public getWorldPosition (out?: Vec3) { return Vec3.copy(out || new Vec3(), Vec3.ZERO); }
+    public getWorldRotation (out?: Quat) { return Quat.copy(out || new Quat(), Quat.IDENTITY); }
+    public getWorldScale (out?: Vec3) { return Vec3.copy(out || new Vec3(), Vec3.ONE); }
+    public getWorldMatrix (out?: Mat4): Mat4 { return Mat4.copy(out || new Mat4(), Mat4.IDENTITY); }
+    public getWorldRS (out?: Mat4): Mat4 { return Mat4.copy(out || new Mat4(), Mat4.IDENTITY); }
+    public getWorldRT (out?: Mat4): Mat4 { return Mat4.copy(out || new Mat4(), Mat4.IDENTITY); }
+    public get position (): Readonly<Vec3> { return Vec3.ZERO; }
+    public get worldPosition (): Readonly<Vec3> { return Vec3.ZERO; }
+    public get rotation (): Readonly<Quat> { return Quat.IDENTITY; }
+    public get worldRotation (): Readonly<Quat> { return Quat.IDENTITY; }
+    public get scale (): Readonly<Vec3> { return Vec3.ONE; }
+    public get worldScale (): Readonly<Vec3> { return Vec3.ONE; }
+    public get eulerAngles (): Readonly<Vec3> { return Vec3.ZERO; }
+    public get worldMatrix (): Readonly<Mat4> { return Mat4.IDENTITY; }
+    public updateWorldTransform () {}
+
+    // life-cycle call backs
 
     protected _instantiate () { }
 
