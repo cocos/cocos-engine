@@ -846,11 +846,16 @@ cc.TiledMap.fillTextureGrids = function (tileset, texGrids, texId) {
         count = rows * cols,
 
         gid = tileset.firstGid,
-        maxGid = tileset.firstGid + count,
         grid = null,
         override = texGrids[gid] ? true : false,
         texelCorrect = cc.macro.FIX_ARTIFACTS_BY_STRECHING_TEXEL_TMX ? 0.5 : 0;
 
+    // Tiledmap may not be partitioned into blocks, resulting in a count value of 0
+    if (count <= 0) {
+        count = 1;
+    }
+
+    let maxGid = tileset.firstGid + count;
     for (; gid < maxGid; ++gid) {
         // Avoid overlapping
         if (override && !texGrids[gid]) {
