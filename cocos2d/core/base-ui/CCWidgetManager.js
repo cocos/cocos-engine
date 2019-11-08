@@ -26,9 +26,7 @@
 
 var Event;
 
-// Widget depends on WidgetManager
-// The main process needs the require widget
-// for cocos-creator/2d-tasks/issues/1894
+// Support serializing widget in asset db, see cocos-creator/2d-tasks/issues/1894
 if (!CC_EDITOR || !Editor.isMainProcess) {
   Event = require('../CCNode').EventType;
 }
