@@ -1071,7 +1071,7 @@ export default class Vec3 extends ValueType {
      * @return {Vec3} returns this
      * @chainable
      */
-    addSelf (vector: Vec3): Vec3 {
+    addSelf (vector: Vec3): this {
         this.x += vector.x;
         this.y += vector.y;
         this.z += vector.z;
