@@ -120,6 +120,7 @@ let Material = cc.Class({
             return Material.getInstantiatedMaterial(builtinMaterial, renderComponent);
         },
         getInstantiatedMaterial (mat, renderComponent) {
+            if (!mat) return mat;
             if (mat._owner === renderComponent) {
                 return mat;
             }

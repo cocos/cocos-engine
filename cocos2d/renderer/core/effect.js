@@ -111,7 +111,7 @@ class Effect {
             }
         }
         else {
-            if (value) {
+            if (value && !ArrayBuffer.isView(value)) {
                 if (prop.type === enums.PARAM_TEXTURE_2D) {
                     prop.value = value.getImpl();
                 }
