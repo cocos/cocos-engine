@@ -895,7 +895,7 @@ cc.RotateTo = cc.Class({
      */
     initWithDuration:function (duration, dstAngle) {
         if (cc.ActionInterval.prototype.initWithDuration.call(this, duration)) {
-            this._dstAngle = dstAngle;
+            this._dstAngle = -dstAngle;
             return true;
         }
         return false;
