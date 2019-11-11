@@ -865,22 +865,6 @@ export default class Vec4 extends ValueType {
     }
 
     /**
-     * !#en Subtracts one vector from this. If you want to save result to another vector, use subtract() instead.
-     * !#zh 向量减法。如果你想保存结果到另一个向量，可使用 subtract() 代替。
-     * @method subtractSelf
-     * @param {Vec4} vector
-     * @return {Vec4} returns this
-     * @chainable
-     */
-    subtractSelf (vector: Vec4): this {
-        this.x -= vector.x;
-        this.y -= vector.y;
-        this.z -= vector.z;
-        this.w -= vector.w;
-        return this;
-    }
-
-    /**
      * !#en Subtracts one vector from this, and returns the new result.
      * !#zh 向量减法，并返回新结果。
      * @method subtract
