@@ -157,7 +157,7 @@ export class AmmoWorld implements IPhysicsWorld {
         this.emitEvents();
     }
 
-    raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, resultes: PhysicsRayResult[]): boolean {
+    raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         let from = Cocos2AmmoVec3(this.allHitsCB.m_rayFromWorld, worldRay.o);
         worldRay.computeHit(v3_0, options.maxDistance);
         let to = Cocos2AmmoVec3(this.allHitsCB.m_rayToWorld, v3_0);
@@ -165,11 +165,31 @@ export class AmmoWorld implements IPhysicsWorld {
         this.allHitsCB.m_collisionFilterGroup = -1;
         this.allHitsCB.m_collisionFilterMask = -1;
         this.allHitsCB.m_closestHitFraction = 1;
+        this.allHitsCB.m_shapePart = -1;
         (this.allHitsCB.m_collisionObject as any) = null;
+        this.allHitsCB.m_shapeParts.clear();
+        this.allHitsCB.m_hitFractions.clear();
+        this.allHitsCB.m_collisionObjects.clear();
 
         this._world.rayTest(from, to, this.allHitsCB);
         if (this.allHitsCB.hasHit()) {
-            console.log('all hits :', this.allHitsCB.m_hitFractions, this.allHitsCB.m_collisionObjects);
+            for (let i = 0, n = this.allHitsCB.m_collisionObjects.size(); i < n; i++) {
+                const shapeIndex = this.allHitsCB.m_shapeParts.at(i);
+                const btObj = this.allHitsCB.m_collisionObjects.at(i);
+                const index = btObj.getUserIndex();
+                const shared = AmmoInstance.bodyAndGhosts['KEY' + index];
+                // if (shared.wrappedShapes.length > shapeIndex) {
+                const shape = shared.wrappedShapes[shapeIndex];
+                const hitFraction = this.allHitsCB.m_hitFractions.at(i);
+                v3_0.x = from.x() + hitFraction * (to.x() - from.x());
+                v3_0.y = from.y() + hitFraction * (to.y() - from.y());
+                v3_0.z = from.z() + hitFraction * (to.z() - from.z());
+                const distance = Vec3.distance(worldRay.o, v3_0);
+                const r = pool.add();
+                r._assign(v3_0, distance, shape.collider);
+                results.push(r);
+                // }
+            }
             return true;
         }
         return false;
@@ -194,11 +214,14 @@ export class AmmoWorld implements IPhysicsWorld {
             const btObj = this.closeHitCB.m_collisionObject;
             const index = btObj.getUserIndex();
             const shared = AmmoInstance.bodyAndGhosts['KEY' + index];
-            const shape = shared.wrappedShapes[0];
+            const shapeIndex = this.closeHitCB.m_shapePart;
+            // if (shared.wrappedShapes.length > shapeIndex) {
+            const shape = shared.wrappedShapes[shapeIndex];
             Ammo2CocosVec3(v3_0, this.closeHitCB.m_hitPointWorld);
             const distance = Vec3.distance(worldRay.o, v3_0);
             result._assign(v3_0, distance, shape.collider);
             return true;
+            // }
         }
         return false;
     }
