@@ -15,7 +15,7 @@ class MaterialPool extends Pool {
         let pool = this._pool;
 
         let instance;
-        if (!CC_EDITOR && this.enabled) {
+        if (this.enabled) {
             let uuid = exampleMat.effectAsset._uuid;
             if (pool[uuid]) {
                 let key = 
