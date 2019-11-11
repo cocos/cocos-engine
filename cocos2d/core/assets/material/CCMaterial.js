@@ -134,8 +134,7 @@ let Material = cc.Class({
      * @param {Material} mat
      */
     copy (mat) {
-        this._effect = mat.effect.clone();
-        this._effectAsset = mat._effectAsset;
+        this.effectAsset = mat.effectAsset;
 
         for (let name in mat._defines) {
             this.define(name, mat._defines[name]);
