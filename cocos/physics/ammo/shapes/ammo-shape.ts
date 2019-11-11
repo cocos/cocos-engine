@@ -179,6 +179,7 @@ export class AmmoShape implements IBaseShape {
     }
 
     /**DEBUG */
+    _trans = new Ammo.btTransform();
     UP (n: Node) {
         let wt: Ammo.btTransform;
         if (this._isTrigger) {
@@ -187,17 +188,13 @@ export class AmmoShape implements IBaseShape {
             wt = this._sharedBody.body.getWorldTransform();
         }
         const lt = this.transform;
-        _trans.setIdentity();
-        _trans.op_mul(wt).op_mul(lt);
-        let origin = _trans.getOrigin();
+        this._trans.setIdentity();
+        this._trans.op_mul(wt).op_mul(lt);
+        let origin = this._trans.getOrigin();
         n.worldPosition = new Vec3(origin.x(), origin.y(), origin.z());
-        let rotation = _trans.getRotation();
+        let rotation = this._trans.getRotation();
         n.worldRotation = new Quat(rotation.x(), rotation.y(), rotation.z(), rotation.w());
         let scale = this.shape.getLocalScaling();
         n.scale = new Vec3(scale.x(), scale.y(), scale.z());
     }
 }
-
-/** debug */
-const _trans = new Ammo.btTransform();
-_trans.setIdentity();

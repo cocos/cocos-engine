@@ -16,8 +16,8 @@ import { AmmoCollisionFilterGroups } from './ammo-enum';
 
 const contactsPool = [] as any;
 const v3_0 = new Vec3();
-const bt_closetHit_cb = new Ammo.ClosestRayResultCallback(new Ammo.btVector3(), new Ammo.btVector3());
-const bt_allHits_cb = new Ammo.AllHitsRayResultCallback(new Ammo.btVector3(), new Ammo.btVector3());
+// const bt_closetHit_cb = new Ammo.ClosestRayResultCallback(new Ammo.btVector3(), new Ammo.btVector3());
+// const bt_allHits_cb = new Ammo.AllHitsRayResultCallback(new Ammo.btVector3(), new Ammo.btVector3());
 
 export class AmmoWorld implements IPhysicsWorld {
 
@@ -45,6 +45,9 @@ export class AmmoWorld implements IPhysicsWorld {
     readonly collisionArrayMat = new ArrayCollisionMatrix();
     readonly contactsDic = new TupleDictionary();
     readonly oldContactsDic = new TupleDictionary();
+
+    readonly closeHitCB = new Ammo.ClosestRayResultCallback(new Ammo.btVector3(), new Ammo.btVector3());
+    readonly allHitsCB = new Ammo.AllHitsRayResultCallback(new Ammo.btVector3(), new Ammo.btVector3());
 
     constructor (options?: any) {
         const collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
@@ -155,18 +158,18 @@ export class AmmoWorld implements IPhysicsWorld {
     }
 
     raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, resultes: PhysicsRayResult[]): boolean {
-        let from = Cocos2AmmoVec3(bt_allHits_cb.m_rayFromWorld, worldRay.o);
+        let from = Cocos2AmmoVec3(this.allHitsCB.m_rayFromWorld, worldRay.o);
         worldRay.computeHit(v3_0, options.maxDistance);
-        let to = Cocos2AmmoVec3(bt_allHits_cb.m_rayToWorld, v3_0);
+        let to = Cocos2AmmoVec3(this.allHitsCB.m_rayToWorld, v3_0);
 
-        bt_allHits_cb.m_collisionFilterGroup = -1;
-        bt_allHits_cb.m_collisionFilterMask = -1;
-        bt_allHits_cb.m_closestHitFraction = 1;
-        (bt_allHits_cb.m_collisionObject as any) = null;
+        this.allHitsCB.m_collisionFilterGroup = -1;
+        this.allHitsCB.m_collisionFilterMask = -1;
+        this.allHitsCB.m_closestHitFraction = 1;
+        (this.allHitsCB.m_collisionObject as any) = null;
 
-        this._world.rayTest(from, to, bt_allHits_cb);
-        if (bt_allHits_cb.hasHit()) {
-            console.log('all hits :', bt_allHits_cb.m_hitFractions, bt_allHits_cb.m_collisionObjects);
+        this._world.rayTest(from, to, this.allHitsCB);
+        if (this.allHitsCB.hasHit()) {
+            console.log('all hits :', this.allHitsCB.m_hitFractions, this.allHitsCB.m_collisionObjects);
             return true;
         }
         return false;
@@ -177,22 +180,22 @@ export class AmmoWorld implements IPhysicsWorld {
      * @return True if any body was hit.
      */
     raycastClosest (worldRay: ray, options: any, result: PhysicsRayResult): boolean {
-        let from = Cocos2AmmoVec3(bt_closetHit_cb.m_rayFromWorld, worldRay.o);
+        let from = Cocos2AmmoVec3(this.closeHitCB.m_rayFromWorld, worldRay.o);
         worldRay.computeHit(v3_0, options.maxDistance);
-        let to = Cocos2AmmoVec3(bt_closetHit_cb.m_rayToWorld, v3_0);
+        let to = Cocos2AmmoVec3(this.closeHitCB.m_rayToWorld, v3_0);
 
-        bt_closetHit_cb.m_collisionFilterGroup = -1;
-        bt_closetHit_cb.m_collisionFilterMask = -1;
-        bt_closetHit_cb.m_closestHitFraction = 1;
-        (bt_closetHit_cb.m_collisionObject as any) = null;
+        this.closeHitCB.m_collisionFilterGroup = -1;
+        this.closeHitCB.m_collisionFilterMask = -1;
+        this.closeHitCB.m_closestHitFraction = 1;
+        (this.closeHitCB.m_collisionObject as any) = null;
 
-        this._world.rayTest(from, to, bt_closetHit_cb);
-        if (bt_closetHit_cb.hasHit()) {
-            const btObj = bt_closetHit_cb.m_collisionObject;
+        this._world.rayTest(from, to, this.closeHitCB);
+        if (this.closeHitCB.hasHit()) {
+            const btObj = this.closeHitCB.m_collisionObject;
             const index = btObj.getUserIndex();
             const shared = AmmoInstance.bodyAndGhosts['KEY' + index];
             const shape = shared.wrappedShapes[0];
-            Ammo2CocosVec3(v3_0, bt_closetHit_cb.m_hitPointWorld);
+            Ammo2CocosVec3(v3_0, this.closeHitCB.m_hitPointWorld);
             const distance = Vec3.distance(worldRay.o, v3_0);
             result._assign(v3_0, distance, shape.collider);
             return true;
