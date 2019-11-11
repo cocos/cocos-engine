@@ -135,7 +135,7 @@ class TrailSegment {
     // public _print () {
     //     let msg = String();
     //     this.iterateElement(this, (target: object, e: ITrailElement, p: Particle, dt: number) => {
-    //         msg += 'pos:' + e.position.toString() + '\nlifetime:' + e.lifetime + '\nwidth:' + e.width + '\nvelocity:' + e.velocity.toString() + '\n';
+    //         msg += 'pos:' + e.position.toString() + ' lifetime:' + e.lifetime + ' dir:' + e.direction + ' velocity:' + e.velocity.toString() + '\n';
     //         return false;
     //     }, null, 0);
     //     console.log(msg);
@@ -515,12 +515,11 @@ export default class TrailModule {
                 Vec3.subtract(lastSecondTrail.velocity, _temp_vec3_1, _temp_vec3);
                 Vec3.normalize(lastSecondTrail.velocity, lastSecondTrail.velocity);
                 this._checkDirectionReverse(lastSecondTrail, lastThirdTrail);
-                this._vbF32![this.vbOffset - this._vertSize / 4 - 4] = lastSecondTrail.velocity.x;
-                this._vbF32![this.vbOffset - this._vertSize / 4 - 3] = lastSecondTrail.velocity.y;
-                this._vbF32![this.vbOffset - this._vertSize / 4 - 2] = lastSecondTrail.velocity.z;
-                this._vbF32![this.vbOffset - 4] = lastSecondTrail.velocity.x;
-                this._vbF32![this.vbOffset - 3] = lastSecondTrail.velocity.y;
-                this._vbF32![this.vbOffset - 2] = lastSecondTrail.velocity.z;
+                // refresh last trail segment data
+                this.vbOffset -= this._vertSize / 4 * 2;
+                this.ibOffset -= 6;
+                // _bcIdx = (_bcIdx - 6 + 9) % 9;  // <wireframe debug>
+                this._fillVertexBuffer(lastSecondTrail, this.colorOverTrail.evaluate(textCoordSeg, 1), indexOffset, textCoordSeg, trailNum - 1, PRE_TRIANGLE_INDEX | NEXT_TRIANGLE_INDEX);
                 Vec3.subtract(_temp_trailEle.velocity, _temp_trailEle.position, lastSecondTrail.position);
                 Vec3.normalize(_temp_trailEle.velocity, _temp_trailEle.velocity);
                 this._checkDirectionReverse(_temp_trailEle, lastSecondTrail);
@@ -670,4 +669,17 @@ export default class TrailModule {
             currElement.direction = prevElement.direction;
         }
     }
+
+    // <debug use>
+    // private _printVB() {
+    //     let log = new String();
+    //     for (let i = 0; i < this.vbOffset; i++) {
+    //         log += 'pos:' + this._vbF32![i++].toFixed(2) + ',' + this._vbF32![i++].toFixed(2) + ',' + this._vbF32![i++].toFixed(2) + ' dir:' + this._vbF32![i++].toFixed(0) + ' ';
+    //         i += 6;
+    //         log += 'vel:' + this._vbF32![i++].toFixed(2) + ',' + this._vbF32![i++].toFixed(2) + ',' + this._vbF32![i++].toFixed(2) + '\n';
+    //     }
+    //     if (log.length > 0) {
+    //         console.log(log);
+    //     }
+    // }
 }
