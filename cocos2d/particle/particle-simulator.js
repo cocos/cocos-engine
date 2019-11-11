@@ -167,7 +167,7 @@ Simulator.prototype.emitParticle = function (pos) {
     particle.startPos.y = pos.y;
 
     // aspect ratio
-    particle.aspectRatio = psys.aspectRatio ? psys.aspectRatio : 1;
+    particle.aspectRatio = psys.aspectRatio || 1;
 
     // direction
     let worldRotation = getWorldRotation(psys.node);
