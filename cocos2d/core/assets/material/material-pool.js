@@ -18,7 +18,9 @@ class MaterialPool extends Pool {
         if (!CC_EDITOR && this.enabled) {
             let uuid = exampleMat.effectAsset._uuid;
             if (pool[uuid]) {
-                let key = utils.serializeDefines(exampleMat._effect._defines);
+                let key = 
+                    utils.serializeDefines(exampleMat._effect._defines) +
+                    utils.serializeTechniques(exampleMat._effect._techniques);
                 instance = pool[uuid][key] && pool[uuid][key].pop();
             }
         }
@@ -48,7 +50,9 @@ class MaterialPool extends Pool {
         if (!pool[uuid]) {
             pool[uuid] = {};
         }
-        let key = utils.serializeDefines(mat._effect._defines);
+        let key = 
+            utils.serializeDefines(mat._effect._defines) +
+            utils.serializeTechniques(mat._effect._techniques);
         if (!pool[uuid][key]) {
             pool[uuid][key] = [];
         }
