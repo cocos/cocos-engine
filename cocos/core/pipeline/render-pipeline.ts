@@ -1128,6 +1128,8 @@ export abstract class RenderPipeline {
 
         // update UBOGlobal
         fv[UBOGlobal.TIME_OFFSET] = this._root.cumulativeTime;
+        fv[UBOGlobal.TIME_OFFSET + 1] = this._root.frameTime;
+        fv[UBOGlobal.TIME_OFFSET + 2] = cc.director.getTotalFrames();
 
         fv[UBOGlobal.SCREEN_SIZE_OFFSET] = device.width;
         fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1] = device.height;
