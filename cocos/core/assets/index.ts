@@ -40,7 +40,7 @@ export {default as JsonAsset} from './json-asset';
 export {default as AssetLibrary} from './asset-library';
 export { ImageAsset } from './image-asset';
 export { Texture2D } from './texture-2d';
-export { TextureCube } from './texture-cube'
+export { TextureCube } from './texture-cube';
 export { TTFFont } from './ttf-font';
 export { LabelAtlas } from './label-atlas';
 export { BitmapFont } from './bitmap-font';
@@ -53,4 +53,5 @@ export { Material } from './material';
 export { Mesh } from './mesh';
 export { Skeleton } from './skeleton';
 export { RenderTexture } from './render-texture';
+export { default as RenderPipelineAsset } from './render-pipeline-asset';
 

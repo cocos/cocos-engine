@@ -72,6 +72,7 @@ export abstract class RenderFlow {
      */
     @property({
         displayOrder: 0,
+        visible: true
     })
     protected _name: string = '';
 
@@ -81,6 +82,7 @@ export abstract class RenderFlow {
      */
     @property({
         displayOrder: 1,
+        visible: true
     })
     protected _priority: number = 0;
 
@@ -91,6 +93,7 @@ export abstract class RenderFlow {
     @property({
         type: cc.Material,
         displayOrder: 2,
+        visible: true
     })
     protected _material: cc.Material = null;
 
@@ -101,6 +104,7 @@ export abstract class RenderFlow {
     @property({
         type: [RenderStage],
         displayOrder: 3,
+        visible: true
     })
     protected _stages: RenderStage[] = [];
 

@@ -244,6 +244,7 @@ export abstract class RenderPipeline {
 
     @property({
         type: [RenderFlow],
+        visible: true
     })
     protected _flows: RenderFlow[] = [];
 
@@ -297,7 +298,6 @@ export abstract class RenderPipeline {
      * @param root Root类实例。
      */
     constructor () {
-        super();
     }
 
     public getTextureView (name: string) {

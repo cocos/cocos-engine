@@ -98,6 +98,7 @@ export abstract class RenderStage {
      */
     @property({
         displayOrder: 0,
+        visible: true
     })
     protected _name: string = '';
 
@@ -107,17 +108,20 @@ export abstract class RenderStage {
      */
     @property({
         displayOrder: 1,
+        visible: true
     })
     protected _priority: number = 0;
 
     @property({
         displayOrder: 2,
+        visible: true
     })
     protected frameBuffer: string = '';
 
     @property({
         type: [RenderQueueDesc],
         displayOrder: 3,
+        visible: true
     })
     protected renderQueues: RenderQueueDesc[] = [];
 

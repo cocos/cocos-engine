@@ -980,7 +980,8 @@ export class Game extends EventTarget {
     }
 
     private setRenderPipeline (rppl) {
-        cc.director.root.setRenderPipeline(rppl.renderPipeline);
+        // cc.director.root.setRenderPipeline(rppl.renderPipeline);
+        cc.director.root.setRenderPipeline(rppl);
     }
 }
 
