@@ -101,13 +101,7 @@ export class ForwardPipeline extends RenderPipeline {
             return false;
         }
 
-        // create flows
-
-        this.createFlow(ForwardFlow, {
-            pipeline: this,
-            name: PIPELINE_FLOW_FORWARD,
-            priority: ForwardFlowPriority.FORWARD,
-        });
+        this.activateFlow(this.getFlow(PIPELINE_FLOW_FORWARD)!);
 
         if (this._usePostProcess) {
             if (this._useSMAA) {
@@ -118,18 +112,13 @@ export class ForwardPipeline extends RenderPipeline {
                 });
                 */
             }
-            this.createFlow(ToneMapFlow, {
-                pipeline: this,
-                name: PIPELINE_FLOW_TONEMAP,
-                priority: 0,
-            });
+            this.activateFlow(this.getFlow(PIPELINE_FLOW_TONEMAP)!);
         }
 
-        this.createFlow(UIFlow, {
-            pipeline: this,
-            name: 'UIFlow',
-            priority: ForwardFlowPriority.UI,
-        });
+        const uiFlow = new UIFlow();
+        uiFlow.name = 'UIFlow';
+        uiFlow.priority = ForwardFlowPriority.UI;
+        this.activateFlow(uiFlow);
 
         return true;
     }

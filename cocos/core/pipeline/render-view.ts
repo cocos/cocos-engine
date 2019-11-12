@@ -208,7 +208,7 @@ export class RenderView {
 
     public setExecuteFlows (flows: string[]) {
         this.flows.length = 0;
-        const pipelineFlows = cc.director.root.pipeline.flows;
+        const pipelineFlows = cc.director.root.pipeline.activeFlows;
         for (const f of pipelineFlows) {
             if (flows.indexOf(f.name) !== -1) {
                 this.flows.push(f);
