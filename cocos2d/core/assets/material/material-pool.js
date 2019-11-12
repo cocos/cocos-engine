@@ -9,6 +9,9 @@ import Pool from '../../utils/pool';
  * }
  */
 class MaterialPool extends Pool {
+    // default disabled material pool
+    enabled = false;
+    
     _pool = {};
 
     get (exampleMat, renderComponent) {
