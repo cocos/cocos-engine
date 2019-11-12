@@ -57,11 +57,30 @@ export class AmmoSharedBody {
         return this.ghostStruct.ghost;
     }
 
+    get collisionFilterGroup () { return this._collisionFilterGroup; }
+    set collisionFilterGroup (v: number) {
+        if (v != this._collisionFilterGroup) {
+            this._collisionFilterGroup = v;
+            this.updateByReAdd();
+        }
+    }
+
+    get collisionFilterMask () { return this._collisionFilterMask; }
+    set collisionFilterMask (v: number) {
+        if (v != this._collisionFilterMask) {
+            this._collisionFilterMask = v;
+            this.updateByReAdd();
+        }
+    }
+
     readonly id: number;
     readonly node: Node;
     readonly wrappedWorld: AmmoWorld;
     readonly bodyStruct: IAmmoBodyStruct;
     readonly ghostStruct: IAmmoGhostStruct;
+
+    private _collisionFilterGroup: number = 1;
+    private _collisionFilterMask: number = -1;
 
     private ref: number = 0;
     private bodyIndex: number = -1;
@@ -166,8 +185,9 @@ export class AmmoSharedBody {
         AmmoInstance.ghostStructs['KEY' + this.ghostStruct.id] = this.ghostStruct;
         this.ghost.setUserIndex(this.ghostStruct.id);
 
-        this.body.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
-        this.ghost.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
+        /** DEBUG */
+        // this.body.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
+        // this.ghost.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
     }
 
     addShape (v: AmmoShape, isTrigger: boolean) {
@@ -273,6 +293,33 @@ export class AmmoSharedBody {
             this.ghostStruct.wrappedShapes[i].updateScale();
         }
         this.ghost.activate();
+    }
+
+    // private updateGroupMask () {
+    //     const body = this.bodyStruct.body;
+    //     const bodyProxy = body.getBroadphaseHandle();
+    //     bodyProxy.m_collisionFilterGroup = this.collisionFilterGroup;
+    //     bodyProxy.m_collisionFilterMask = this.collisionFilterMask;
+    //     const ghost = this.ghostStruct.ghost;
+    //     const ghostProxy = ghost.getBroadphaseHandle();
+    //     ghostProxy.m_collisionFilterGroup = this.collisionFilterGroup;
+    //     ghostProxy.m_collisionFilterMask = this.collisionFilterMask;
+    // }
+
+    updateByReAdd () {
+        /**
+         * see: https://pybullet.org/Bullet/phpBB3/viewtopic.php?f=9&t=5312&p=19094&hilit=how+to+change+group+mask#p19097
+         */
+        if (this.bodyIndex >= 0) {
+            this.wrappedWorld.removeSharedBody(this);
+            this.wrappedWorld.addSharedBody(this);
+            this.bodyIndex = this.wrappedWorld.bodies.length;
+        }
+        if (this.ghostIndex >= 0) {
+            this.wrappedWorld.removeGhostObject(this);
+            this.wrappedWorld.addGhostObject(this);
+            this.ghostIndex = this.wrappedWorld.ghosts.length;
+        }
     }
 
     private destroy () {

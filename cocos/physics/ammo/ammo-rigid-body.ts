@@ -58,19 +58,13 @@ export class AmmoRigidBody implements IRigidBody {
 
     set mass (value: number) {
         // See https://studiofreya.com/game-maker/bullet-physics/bullet-physics-how-to-change-body-mass/
-        const wrappedWorld = this._sharedBody.wrappedWorld;
         const localInertia = this._sharedBody.bodyStruct.localInertia;
-        if (wrappedWorld) {
-            wrappedWorld.removeSharedBody(this._sharedBody);
-        }
         localInertia.setValue(1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
         if (this._btCompoundShape.getNumChildShapes() > 0) {
             this._btCompoundShape.calculateLocalInertia(this._rigidBody.mass, localInertia);
         }
         this._btBody.setMassProps(value, localInertia);
-        if (wrappedWorld) {
-            wrappedWorld.addSharedBody(this._sharedBody);
-        }
+        this._sharedBody.updateByReAdd();
     }
 
     set linearDamping (value: number) {
@@ -92,11 +86,6 @@ export class AmmoRigidBody implements IRigidBody {
     }
 
     set useGravity (value: boolean) {
-        const wrappedWorld = this._sharedBody.wrappedWorld;
-        if (wrappedWorld) {
-            wrappedWorld.removeSharedBody(this._sharedBody);
-        }
-
         let m_rigidBodyFlag = this._btBody.getFlags()
         if (value) {
             m_rigidBodyFlag &= (~AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY);
@@ -105,10 +94,7 @@ export class AmmoRigidBody implements IRigidBody {
             m_rigidBodyFlag |= AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY;
         }
         this._btBody.setFlags(m_rigidBodyFlag);
-
-        if (wrappedWorld) {
-            wrappedWorld.addSharedBody(this._sharedBody);
-        }
+        this._sharedBody.updateByReAdd();
     }
 
     set fixedRotation (value: boolean) {
@@ -256,28 +242,36 @@ export class AmmoRigidBody implements IRigidBody {
     }
 
     /** group mask */
-    setGroup (v: number): void {
-        throw new Error("Method not implemented.");
-    }
     getGroup (): number {
-        throw new Error("Method not implemented.");
+        return this._sharedBody.collisionFilterGroup;
     }
+
+    setGroup (v: number): void {
+        this._sharedBody.collisionFilterGroup = v;
+    }
+
     addGroup (v: number): void {
-        throw new Error("Method not implemented.");
+        this._sharedBody.collisionFilterGroup |= v;
     }
+
     removeGroup (v: number): void {
-        throw new Error("Method not implemented.");
+        this._sharedBody.collisionFilterGroup &= ~v;
     }
-    setMask (v: number): void {
-        throw new Error("Method not implemented.");
-    }
+
     getMask (): number {
-        throw new Error("Method not implemented.");
+        return this._sharedBody.collisionFilterMask;
     }
+
+    setMask (v: number): void {
+        this._sharedBody.collisionFilterMask = v;
+    }
+
     addMask (v: number): void {
-        throw new Error("Method not implemented.");
+        this._sharedBody.collisionFilterMask |= v;
     }
+
     removeMask (v: number): void {
-        throw new Error("Method not implemented.");
+        this._sharedBody.collisionFilterMask &= ~v;
     }
+
 }

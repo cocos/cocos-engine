@@ -13,11 +13,14 @@ const v3_0 = new Vec3();
 
 export class AmmoShape implements IBaseShape {
 
-    get sharedMaterial () { return this._collider.sharedMaterial; }
     set material (v: PhysicMaterial) {
         if (!this._isTrigger && this._isEnabled) {
-            this._sharedBody.body.setFriction(v.friction);
-            this._sharedBody.body.setRestitution(v.restitution);
+            if (this._btCompound) {
+                this._btCompound.setMaterial(this._index, v.friction, v.restitution);
+            } else {
+                this._sharedBody.body.setFriction(v.friction);
+                this._sharedBody.body.setRestitution(v.restitution);
+            }
         }
     }
 
@@ -26,7 +29,7 @@ export class AmmoShape implements IBaseShape {
         v3_0.multiply(this._collider.node.worldScale);
         Cocos2AmmoVec3(this.transform.getOrigin(), v3_0);
         if (this._btCompound) {
-            this._btCompound.updateChildTransform(this.index, this.transform);
+            this._btCompound.updateChildTransform(this._index, this.transform);
         }
     }
 
@@ -130,36 +133,37 @@ export class AmmoShape implements IBaseShape {
         (this.scale as any) = null;
     }
 
-    setGroup (v: number): void {
-        throw new Error("Method not implemented.");
+    /** group mask */
+    getGroup (): number {
+        return this._sharedBody.collisionFilterGroup;
     }
 
-    getGroup (): number {
-        throw new Error("Method not implemented.");
+    setGroup (v: number): void {
+        this._sharedBody.collisionFilterGroup = v;
     }
 
     addGroup (v: number): void {
-        throw new Error("Method not implemented.");
+        this._sharedBody.collisionFilterGroup |= v;
     }
 
     removeGroup (v: number): void {
-        throw new Error("Method not implemented.");
-    }
-
-    setMask (v: number): void {
-        throw new Error("Method not implemented.");
+        this._sharedBody.collisionFilterGroup &= ~v;
     }
 
     getMask (): number {
-        throw new Error("Method not implemented.");
+        return this._sharedBody.collisionFilterMask;
+    }
+
+    setMask (v: number): void {
+        this._sharedBody.collisionFilterMask = v;
     }
 
     addMask (v: number): void {
-        throw new Error("Method not implemented.");
+        this._sharedBody.collisionFilterMask |= v;
     }
 
     removeMask (v: number): void {
-        throw new Error("Method not implemented.");
+        this._sharedBody.collisionFilterMask &= ~v;
     }
 
     setCompound (compound: Ammo.btCompoundShape | null) {

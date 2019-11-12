@@ -53,47 +53,10 @@ export class AmmoWorld implements IPhysicsWorld {
         const collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
         this._btDispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration);
         this._btBroadphase = new Ammo.btDbvtBroadphase();
-        // this._btBroadphase.getOverlappingPairCache().setInternalGhostPairCallback(new Ammo.btGhostPairCallback());
         this._btSolver = new Ammo.btSequentialImpulseConstraintSolver();
         this._world = new Ammo.btDiscreteDynamicsWorld(this._btDispatcher, this._btBroadphase, this._btSolver, collisionConfiguration);
         this._btGravity = new Ammo.btVector3(0, -10, 0);
         this._world.setGravity(this._btGravity);
-
-        // btGImpactCollisionAlgorithm::registerAlgorithm((btCollisionDispatcher *)dispatcher);
-
-        // /** shared static body */
-        // {
-        //     this.sharedStaticCompoundShape = new Ammo.btCompoundShape(true);
-        //     let localInertia = new Ammo.btVector3(0, 0, 0);
-        //     this.sharedStaticCompoundShape.calculateLocalInertia(0, localInertia);
-        //     let myMotionState = new Ammo.btDefaultMotionState();
-        //     let rbInfo = new Ammo.btRigidBodyConstructionInfo(0, myMotionState, this.sharedStaticCompoundShape, localInertia);
-        //     this.sharedStaticBody = new Ammo.btRigidBody(rbInfo);
-
-        //     /** TODO: change to btCollisionObject */
-        //     // this.sharedStaticBody = new Ammo.btCollisionObject();
-
-        //     this._btWorld.addCollisionObject(this.sharedStaticBody);
-        //     this.sharedStaticBody.setUserIndex(-2);
-        // }
-
-        // /** shared trigger body */
-        // {
-        //     this.sharedTriggerCompoundShape = new Ammo.btCompoundShape(true);
-        //     let localInertia = new Ammo.btVector3(0, 0, 0);
-        //     this.sharedTriggerCompoundShape.calculateLocalInertia(0, localInertia);
-        //     let myMotionState = new Ammo.btDefaultMotionState();
-        //     let rbInfo = new Ammo.btRigidBodyConstructionInfo(0, myMotionState, this.sharedTriggerCompoundShape, localInertia);
-        //     this.sharedTriggerBody = new Ammo.btRigidBody(rbInfo);
-
-        //     /** TODO: change to btCollisionObject */
-        //     // this.sharedTriggerBody = new Ammo.btCollisionObject();
-
-        //     this.sharedTriggerBody.setCollisionFlags(AmmoCollisionFlags.CF_NO_CONTACT_RESPONSE);
-        //     this._btWorld.addCollisionObject(this.sharedTriggerBody);
-        //     this.sharedTriggerBody.setUserIndex(-3);
-        // }
-
     }
 
     step (timeStep: number, fixTimeStep?: number, maxSubStep?: number) {
@@ -143,13 +106,6 @@ export class AmmoWorld implements IPhysicsWorld {
                         );
                     }
                     item.contacts.push(manifoldPoint);
-
-                    // physics material
-                    // if (shape0.sharedMaterial && shape1.sharedMaterial) {
-                    //     manifoldPoint.m_combinedFriction = shape0.sharedMaterial.friction * shape1.sharedMaterial.friction;
-                    //     manifoldPoint.m_combinedRestitution = shape0.sharedMaterial.restitution * shape1.sharedMaterial.restitution;
-                    //     manifoldPoint.m_combinedRollingFriction = 0;
-                    // }
                 }
             }
         }
@@ -234,7 +190,7 @@ export class AmmoWorld implements IPhysicsWorld {
         const i = this.bodies.indexOf(sharedBody);
         if (i < 0) {
             this.bodies.push(sharedBody);
-            this._world.addRigidBody(sharedBody.body);
+            this._world.addRigidBody(sharedBody.body, sharedBody.collisionFilterGroup, sharedBody.collisionFilterMask);
         }
     }
 
@@ -250,7 +206,7 @@ export class AmmoWorld implements IPhysicsWorld {
         const i = this.ghosts.indexOf(sharedBody);
         if (i < 0) {
             this.ghosts.push(sharedBody);
-            this._world.addCollisionObject(sharedBody.ghost, AmmoCollisionFilterGroups.SensorTrigger, -1);
+            this._world.addCollisionObject(sharedBody.ghost, sharedBody.collisionFilterGroup, sharedBody.collisionFilterMask);
         }
     }
 
