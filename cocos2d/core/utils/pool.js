@@ -1,6 +1,6 @@
 
 export default class Pool {
-    enabled = true;
+    enabled = !CC_EDITOR;
     count = 0;
     maxSize = 1024;
 
