@@ -36,7 +36,7 @@ import { Mat4, Quat, Vec3 } from '../../math';
 import { ITextureBufferHandle, TextureBufferPool } from '../core/texture-buffer-pool';
 
 // change here and cc-skinning.chunk to use other skinning algorithms
-const uploadJointData = uploadJointDataDQS;
+const uploadJointData = uploadJointDataLBS;
 
 export enum JointsMediumType {
     NONE, // for non-skinning models only
