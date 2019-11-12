@@ -1393,7 +1393,7 @@ let NodeDefines = {
 
     _onHierarchyChanged (oldParent) {
         this._updateOrderOfArrival();
-        this.groupIndex = _getActualGroupIndex(this);
+        _updateCullingMask(this);
         if (this._parent) {
             this._parent._delaySort();
         }
@@ -1538,7 +1538,10 @@ let NodeDefines = {
         this._updateOrderOfArrival();
 
         // synchronize groupIndex
-        this.groupIndex = _getActualGroupIndex(this);
+        this._cullingMask = 1 << _getActualGroupIndex(this);
+        if (CC_JSB && CC_NATIVERENDERER) {
+            this._proxy && this._proxy.updateCullingMask();
+        };
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
@@ -1566,7 +1569,10 @@ let NodeDefines = {
     _onBatchRestored () {
         this._upgrade_1x_to_2x();
 
-        this.groupIndex = _getActualGroupIndex(this);
+        this._cullingMask = 1 << _getActualGroupIndex(this);
+        if (CC_JSB && CC_NATIVERENDERER) {
+            this._proxy && this._proxy.updateCullingMask();
+        };
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
