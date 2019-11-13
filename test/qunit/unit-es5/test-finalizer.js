@@ -139,7 +139,7 @@ test('persistNode', function () {
     scene3._id = 'scene 3';
     var sp = new cc.SpriteFrame();
     sp._uuid = 'AAA';
-    sp._addRef();
+    sp.addRef();
     var tex = new cc.Texture2D();
     tex.loaded = true;
     sp.setTexture(tex);
