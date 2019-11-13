@@ -33,22 +33,8 @@ export class ForwardStage extends RenderStage {
         this._opaqueBatchedQueue = new RenderBatchedQueue();
     }
 
-    /**
-     * @zh
-     * 初始化函数。
-     * @param info 渲染阶段描述信息。
-     */
-    public initialize (info: IRenderStageInfo): boolean {
-
-        super.initialize(info);
-
-        this._createCmdBuffer();
-
-        return true;
-    }
-
-    public onAssetLoaded (desc: IRenderStageDesc) {
-        super.onAssetLoaded(desc);
+    public enable (desc: IRenderStageDesc) {
+        super.enable(desc);
         this._createCmdBuffer();
     }
 

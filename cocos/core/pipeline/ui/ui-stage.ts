@@ -8,6 +8,7 @@ import { getPhaseID } from '../pass-phase';
 import { RenderQueue, transparentCompareFn } from '../render-queue';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
+import { RenderFlow } from '../render-flow';
 
 const bufs: GFXCommandBuffer[] = [];
 const colors: IGFXColor[] = [];
@@ -18,32 +19,16 @@ const colors: IGFXColor[] = [];
  */
 export class UIStage extends RenderStage {
 
-    private _uiQueue: RenderQueue;
-
     constructor () {
         super();
     }
 
-    public initialize (info: IRenderStageInfo): boolean {
-
-        super.initialize(info);
-
-        if (info.framebuffer !== undefined) {
-            this._framebuffer = info.framebuffer;
-        }
-
-        this._uiQueue = new RenderQueue({
-            isTransparent: true,
-            phases: getPhaseID('default'),
-            sortFunc: transparentCompareFn,
-        });
-
+    public enable(flow: RenderFlow) {
+        super.enable(flow);
         this._cmdBuff = this._device.createCommandBuffer({
             allocator: this._device.commandAllocator,
             type: GFXCommandBufferType.PRIMARY,
         });
-
-        return true;
     }
 
     public destroy () {
@@ -62,16 +47,16 @@ export class UIStage extends RenderStage {
 
     public render (view: RenderView) {
 
-        this._uiQueue.clear();
+        this._renderQueues[0].clear();
 
         for (const ro of this._pipeline.renderObjects) {
             for (let i = 0; i < ro.model.subModelNum; i++) {
                 for (let j = 0; j < ro.model.getSubModel(i).passes.length; j++) {
-                    this._uiQueue.insertRenderPass(ro, i, j);
+                    this._renderQueues[0].insertRenderPass(ro, i, j);
                 }
             }
         }
-        this._uiQueue.sort();
+        this._renderQueues[0].sort();
 
         const framebuffer = view.window!.framebuffer;
 
@@ -91,7 +76,7 @@ export class UIStage extends RenderStage {
         cmdBuff.beginRenderPass(framebuffer, this._renderArea,
             camera.clearFlag, colors, camera.clearDepth, camera.clearStencil);
 
-        cmdBuff.execute(this._uiQueue.cmdBuffs.array, this._uiQueue.cmdBuffCount);
+        cmdBuff.execute(this._renderQueues[0].cmdBuffs.array, this._renderQueues[0].cmdBuffCount);
 
         cmdBuff.endRenderPass();
         cmdBuff.end();

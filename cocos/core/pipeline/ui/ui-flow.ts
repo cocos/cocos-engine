@@ -7,6 +7,7 @@ import { UBOGlobal } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderView } from '../render-view';
 import { UIStage } from './ui-stage';
+import { RenderQueueSortMode } from '../render-stage';
 
 /**
  * @zh
@@ -22,17 +23,18 @@ export class UIFlow extends RenderFlow {
 
         super.initialize(info);
 
-        const mainWindow = this._pipeline.root.mainWindow;
-        if (!mainWindow || !mainWindow.framebuffer) {
-            return false;
-        }
-
-        this.createStage(UIStage, {
-            flow:this,
+        let uiStage = new UIStage();
+        uiStage.initialize({
             name: 'UIStage',
             priority: 0,
-            framebuffer:  mainWindow.framebuffer,
+            renderQueues: [{
+                isTransparent: true,
+                stages: ['default'],
+                sortMode: RenderQueueSortMode.BACK_TO_FRONT,
+            }],
+            framebuffer: 'window'
         });
+        this._stages.push(uiStage);
 
         return true;
     }

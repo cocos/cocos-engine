@@ -10,7 +10,7 @@ import { GFXDevice } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXPipelineState } from '../gfx/pipeline-state';
 import { Pass } from '../renderer';
-import { IRenderPass } from './define';
+import { IRenderPass, IRenderQueueDesc } from './define';
 import { getPhaseID } from './pass-phase';
 import { RenderFlow } from './render-flow';
 import { RenderPipeline } from './render-pipeline';
@@ -29,14 +29,10 @@ ccenum(RenderQueueSortMode);
  * 渲染阶段描述信息。
  */
 export interface IRenderStageInfo {
-    flow: RenderFlow;
     name?: string;
     priority: number;
-    framebuffer?: GFXFramebuffer;
-}
-
-export interface IRenderStageDesc {
-    flow: RenderFlow;
+    renderQueues?: RenderQueueDesc[];
+    framebuffer?: string;
 }
 
 @ccclass('RenderQueueDesc')
@@ -200,23 +196,9 @@ export abstract class RenderStage {
     constructor () {
     }
 
-    private _setFlow (flow: RenderFlow) {
-        this._flow = flow;
-        this._pipeline = flow.pipeline;
-        this._device = flow.device;
-
-        if (!this._flow.pipeline.root.device) {
-            throw new Error('');
-        }
-
-        this._device = this._flow.pipeline.root.device;
-        this._clearColors = [{ r: 0.3, g: 0.6, b: 0.9, a: 1.0 }];
-        this._renderArea = { x: 0, y: 0, width: 0, height: 0 };
-    }
-
     /**
      * @zh
-     * 初始化函数。
+     * 初始化函数，用于不从资源加载RenderPipeline时使用。
      * @param info 渲染阶段描述信息。
      */
     public initialize (info: IRenderStageInfo): boolean {
@@ -226,7 +208,12 @@ export abstract class RenderStage {
 
         this._priority = info.priority;
 
-        this._setFlow(info.flow);
+        if(info.framebuffer)
+            this.frameBuffer = info.framebuffer;
+
+        if (info.renderQueues) {
+            this.renderQueues = info.renderQueues;
+        }
 
         return true;
     }
@@ -234,8 +221,20 @@ export abstract class RenderStage {
     /**
      * 把序列化数据转换成运行时数据
      */
-    public onAssetLoaded (desc: IRenderStageDesc) {
-        this._setFlow(desc.flow);
+    public enable (flow: RenderFlow) {
+        this._flow = flow;
+        this._pipeline = flow.pipeline;
+        this._device = flow.device;
+
+        if (!this._flow.pipeline.root.device) {
+            throw new Error('');
+        }
+
+        this._device = this._flow.pipeline.root.device;
+        
+        this._clearColors = [{ r: 0.3, g: 0.6, b: 0.9, a: 1.0 }];
+        this._renderArea = { x: 0, y: 0, width: 0, height: 0 };
+
         for (let i = 0; i < this.renderQueues.length; i++) {
             let phase = 0;
             for (const p of this.renderQueues[i].stages) {

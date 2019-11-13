@@ -14,13 +14,9 @@ import { RenderView } from './render-view';
  * 渲染流程描述信息。
  */
 export interface IRenderFlowInfo {
-    pipeline: RenderPipeline;
     name?: string;
     priority: number;
-}
-
-export interface IRenderFlowDesc {
-    pipeline: RenderPipeline;
+    material?: Material;
 }
 
 /**
@@ -115,11 +111,6 @@ export abstract class RenderFlow {
     constructor () {
     }
 
-    private _setPipeline (pipeline: RenderPipeline) {
-        this._device = pipeline.device;
-        this._pipeline = pipeline;
-    }
-
     /**
      * @zh
      * 初始化函数。
@@ -132,7 +123,8 @@ export abstract class RenderFlow {
 
         this._priority = info.priority;
 
-        this._setPipeline(info.pipeline);
+        if (info.material)
+            this._material = info.material;
 
         return true;
     }
@@ -140,10 +132,16 @@ export abstract class RenderFlow {
     /**
      * 把序列化数据转换成运行时数据
      */
-    public onAssetLoaded (desc: IRenderFlowDesc) {
-        this._setPipeline(desc.pipeline);
+    public enable(pipeline: RenderPipeline) {
+        this._device = pipeline.device;
+        this._pipeline = pipeline;
+        pipeline.enableFlow(this);
+        this._enableStages();
+    }
+
+    protected _enableStages() {
         for (let i = 0; i < this._stages.length; i++) {
-            this._stages[i].onAssetLoaded({ flow: this });
+            this._stages[i].enable(this);
         }
     }
 
@@ -179,29 +177,6 @@ export abstract class RenderFlow {
     public render (view: RenderView) {
         for (const stage of this._stages) {
             stage.render(view);
-        }
-    }
-
-    /**
-     * @zh
-     * 创建渲染阶段。
-     * @param clazz 渲染阶段类。
-     * @param info 渲染阶段描述信息。
-     */
-    public createStage<T extends RenderStage> (
-        clazz: new() => T,
-        info: IRenderStageInfo): RenderStage | null {
-
-        const stage: RenderStage = new clazz();
-        if (stage.initialize(info)) {
-            this._stages.push(stage);
-            this._stages.sort((a, b) => {
-                return a.priority - b.priority;
-            });
-
-            return stage;
-        } else {
-            return null;
         }
     }
 

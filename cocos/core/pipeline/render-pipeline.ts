@@ -41,13 +41,15 @@ const _v4Zero = new Vec4(0.0, 0.0, 0.0, 0.0);
  * 渲染流程描述信息。
  */
 export interface IRenderPipelineInfo {
-    root: Root;
     name?: string;
     enablePostProcess?: boolean;
     enableHDR?: boolean;
     enableMSAA?: boolean;
     enableSMAA?: boolean;
     enableIBL?: boolean;
+    renderTextures?: RenderTextureDesc[];
+    framebuffers?: FrameBufferDesc[];
+    renderPasses?: RenderPassDesc[];
 }
 
 export interface IRenderPipelineDesc {
@@ -314,25 +316,55 @@ export abstract class RenderPipeline {
 
     /**
      * @zh
-     * 初始化函数。
+     * 初始化函数，用于不从资源加载RenderPipeline的情况。
      * @param info 渲染管线描述信息。
      */
     public initialize (info: IRenderPipelineInfo) {
-        this._setRoot(info.root);
         this._name = info.name || String();
+        
+        if (info.enablePostProcess !== undefined) {
+            this._usePostProcess = info.enablePostProcess;
+        } else {
+            // We disable post process now, post process will be enabled in furture.
+            this._usePostProcess = false;
+        }
+
+        this._isHDR = (info.enableHDR !== undefined ? info.enableHDR : true);
+
+        // Config Anti-Aliasing
+        this._useSMAA = info.enableSMAA !== undefined ? info.enableSMAA : false;
+        this._useMSAA = info.enableMSAA !== undefined ? info.enableMSAA : false;
+
+        if (info.renderTextures)
+            this.renderTextures = info.renderTextures;
+        if (info.framebuffers)
+            this.framebuffers = info.framebuffers;
+        if (info.renderPasses)
+            this.renderPasses = info.renderPasses;
     }
 
     /**
-     * 当RenderPipeline资源加载完成后，初始化运行时数据
+     * 当RenderPipeline资源加载完成后，启用相应的flow
      * @param desc
      */
-    public onAssetLoaded (desc: IRenderPipelineDesc) {
-        this._setRoot(desc.root);
-    }
-
-    private _setRoot (root: Root) {
+    public enable (root: Root) {
         this._root = root;
         this._device = root.device;
+        
+        if (!this._initRenderResource()) {
+            console.error('RenderPipeline:' + this._name + ' startup failed!');
+        }
+    }
+
+    /**
+     * 激活一个RenderFlow，将其添加到可执行的RenderFlow数组中
+     * @param flow 运行时会执行的RenderFlow
+     */
+    private enableFlow (flow: RenderFlow) {
+        this._activeFlows.push(flow);
+        this._activeFlows.sort((a: RenderFlow, b: RenderFlow) => {
+            return a.priority - b.priority;
+        });
     }
 
     /**
@@ -444,38 +476,6 @@ export abstract class RenderPipeline {
 
     /**
      * @zh
-     * 创建渲染流程。
-     */
-    public createFlow<T extends RenderFlow> (
-        clazz: new () => T,
-        info: IRenderFlowInfo): RenderFlow | null {
-        const flow: RenderFlow = new clazz();
-        if (flow.initialize(info)) {
-            this.addToActiveFlow(flow);
-            return flow;
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * 激活一个RenderFlow，将其添加到可执行的RenderFlow数组中
-     * @param flow 运行时会执行的RenderFlow
-     */
-    protected activateFlow (flow: RenderFlow) {
-        flow.onAssetLoaded({ pipeline: this });
-        this.addToActiveFlow(flow);
-    }
-
-    private addToActiveFlow (flow: RenderFlow) {
-        this._activeFlows.push(flow);
-        this._activeFlows.sort((a: RenderFlow, b: RenderFlow) => {
-            return a.priority - b.priority;
-        });
-    }
-
-    /**
-     * @zh
      * 销毁全部渲染流程。
      */
     public destroyFlows () {
@@ -510,29 +510,6 @@ export abstract class RenderPipeline {
         for (const scene of this._root.scenes) {
             scene.onPipelineChange();
         }
-    }
-
-    /**
-     * @zh
-     * 内部初始化函数。
-     * @param info 渲染流程描述信息。
-     */
-    protected _initialize (info: IRenderPipelineInfo): boolean {
-
-        if (info.enablePostProcess !== undefined) {
-            this._usePostProcess = info.enablePostProcess;
-        } else {
-            // We disable post process now, post process will be enabled in furture.
-            this._usePostProcess = false;
-        }
-
-        this._isHDR = (info.enableHDR !== undefined ? info.enableHDR : true);
-
-        // Config Anti-Aliasing
-        this._useSMAA = info.enableSMAA !== undefined ? info.enableSMAA : false;
-        this._useMSAA = info.enableMSAA !== undefined ? info.enableMSAA : false;
-
-        return this._initRenderResource();
     }
 
     protected _initRenderResource () {

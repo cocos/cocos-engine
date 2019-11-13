@@ -89,19 +89,9 @@ export class ForwardPipeline extends RenderPipeline {
         this._lightIndices = [];
     }
 
-    /**
-     * @zh
-     * 初始化函数。
-     * @param info 渲染管线描述信息。
-     */
-    public initialize (info: IRenderPipelineInfo): boolean {
-
-        super.initialize(info);
-        if (!this._initialize(info)) {
-            return false;
-        }
-
-        this.activateFlow(this.getFlow(PIPELINE_FLOW_FORWARD)!);
+    public enable (root: Root) {
+        super.enable(root);
+        this.getFlow(PIPELINE_FLOW_FORWARD)!.enable(this);
 
         if (this._usePostProcess) {
             if (this._useSMAA) {
@@ -112,41 +102,16 @@ export class ForwardPipeline extends RenderPipeline {
                 });
                 */
             }
-            this.activateFlow(this.getFlow(PIPELINE_FLOW_TONEMAP)!);
+            this.getFlow(PIPELINE_FLOW_TONEMAP)!.enable(this);
         }
 
         const uiFlow = new UIFlow();
-        uiFlow.name = 'UIFlow';
-        uiFlow.priority = ForwardFlowPriority.UI;
-        this.activateFlow(uiFlow);
-
-        return true;
-    }
-
-    public onAssetLoaded (desc: IRenderPipelineDesc) {
-        super.onAssetLoaded(desc);
-        if (!this._initRenderResource()) {
-            return false;
-        }
-        this.activateFlow(this.getFlow(PIPELINE_FLOW_FORWARD)!);
-
-        if (this._usePostProcess) {
-            if (this._useSMAA) {
-                /*
-                this.createFlow(SMAAEdgeFlow, {
-                    name: PIPELINE_FLOW_SMAA,
-                    priority: 0,
-                });
-                */
-            }
-            this.activateFlow(this.getFlow(PIPELINE_FLOW_TONEMAP)!);
-        }
-
-        this.createFlow(UIFlow, {
-            pipeline: this,
+        uiFlow.initialize({
             name: 'UIFlow',
             priority: ForwardFlowPriority.UI,
         });
+        this._flows.push(uiFlow);
+        uiFlow.enable(this);
 
         return true;
     }

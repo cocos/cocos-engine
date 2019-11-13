@@ -31,24 +31,6 @@ export class ForwardFlow extends RenderFlow {
 
     /**
      * @zh
-     * 初始化函数。
-     * @param info 渲染流程描述信息。
-     */
-    public initialize (info: IRenderFlowInfo): boolean {
-
-        super.initialize(info);
-
-        this.createStage(ForwardStage, {
-            flow: this,
-            name: 'ForwardStage',
-            priority: ForwardStagePriority.FORWARD,
-        });
-
-        return true;
-    }
-
-    /**
-     * @zh
      * 销毁函数。
      */
     public destroy () {
