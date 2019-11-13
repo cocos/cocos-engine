@@ -13,49 +13,7 @@ import { AmmoSharedBody } from './ammo-shared-body';
 
 export class AmmoRigidBody implements IRigidBody {
 
-    get isEnabled () { return this._isEnabled; }
-    get rigidBody () { return this._rigidBody; }
-
-    private static idCounter = 0;
-    readonly id: number;
-
-    private _isEnabled = false;
-    private _sharedBody!: AmmoSharedBody;
-    private get _btBody () { return this._sharedBody.body };
-    private get _btCompoundShape () { return this._sharedBody.bodyCompoundShape };
-    private _rigidBody!: RigidBodyComponent;
-
-    constructor () {
-        this.id = AmmoRigidBody.idCounter++;
-    }
-
-    __preload (com: RigidBodyComponent) {
-        this._rigidBody = com;
-        this._sharedBody = (PhysicsSystem.instance.physicsWorld as AmmoWorld).getSharedBody(this._rigidBody.node as Node, this);
-        this._sharedBody.reference = true;
-    }
-
-    onEnable () {
-        this._isEnabled = true;
-        this.mass = this._rigidBody.mass;
-        this.allowSleep = this._rigidBody.allowSleep;
-        this.linearDamping = this._rigidBody.linearDamping;
-        this.angularDamping = this._rigidBody.angularDamping;
-        this.useGravity = this._rigidBody.useGravity;
-        this.isKinematic = this._rigidBody.isKinematic;
-        this.fixedRotation = this._rigidBody.fixedRotation;
-        this.linearFactor = this._rigidBody.linearFactor;
-        this.angularFactor = this._rigidBody.angularFactor;
-        this._sharedBody.bodyEnabled = true;
-    }
-
-    onDisable () {
-        this._isEnabled = false;
-        this._sharedBody.bodyEnabled = false;
-    }
-
     /** property */
-
     set mass (value: number) {
         // See https://studiofreya.com/game-maker/bullet-physics/bullet-physics-how-to-change-body-mass/
         const localInertia = this._sharedBody.bodyStruct.localInertia;
@@ -148,6 +106,57 @@ export class AmmoRigidBody implements IRigidBody {
             }
         }
     }
+
+    get isEnabled () { return this._isEnabled; }
+    get rigidBody () { return this._rigidBody; }
+
+    private static idCounter = 0;
+    readonly id: number;
+
+    private _isEnabled = false;
+    private _sharedBody!: AmmoSharedBody;
+    private get _btBody () { return this._sharedBody.body };
+    private get _btCompoundShape () { return this._sharedBody.bodyCompoundShape };
+    private _rigidBody!: RigidBodyComponent;
+
+    constructor () {
+        this.id = AmmoRigidBody.idCounter++;
+    }
+
+    /** LIFECYCLE */
+
+    __preload (com: RigidBodyComponent) {
+        this._rigidBody = com;
+        this._sharedBody = (PhysicsSystem.instance.physicsWorld as AmmoWorld).getSharedBody(this._rigidBody.node as Node, this);
+        this._sharedBody.reference = true;
+    }
+
+    onEnable () {
+        this._isEnabled = true;
+        this.mass = this._rigidBody.mass;
+        this.allowSleep = this._rigidBody.allowSleep;
+        this.linearDamping = this._rigidBody.linearDamping;
+        this.angularDamping = this._rigidBody.angularDamping;
+        this.useGravity = this._rigidBody.useGravity;
+        this.isKinematic = this._rigidBody.isKinematic;
+        this.fixedRotation = this._rigidBody.fixedRotation;
+        this.linearFactor = this._rigidBody.linearFactor;
+        this.angularFactor = this._rigidBody.angularFactor;
+        this._sharedBody.bodyEnabled = true;
+    }
+
+    onDisable () {
+        this._isEnabled = false;
+        this._sharedBody.bodyEnabled = false;
+    }
+
+    onDestroy () {
+        this._sharedBody.reference = false;
+        (this._rigidBody as any) = null;
+        (this._sharedBody as any) = null;        
+    }
+
+    /** INTERFACE */
 
     wakeUp (force?: boolean): void {
         this._btBody.activate(force);
