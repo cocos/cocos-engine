@@ -1,6 +1,6 @@
 
 import { EffectAsset } from '../../assets/effect-asset';
-import { GFXCommandBuffer } from '../../gfx/command-buffer';
+import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../../gfx/command-buffer';
 import { GFXCommandBufferType, GFXStatus } from '../../gfx/define';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
@@ -18,6 +18,10 @@ import { SphereLight } from './sphere-light';
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
 const _qt = new Quat();
+const _info: IGFXCommandBufferInfo = {
+    allocator: null!,
+    type: GFXCommandBufferType.SECONDARY,
+};
 
 export class PlanarShadows {
 
@@ -226,15 +230,12 @@ export class PlanarShadows {
 
     protected _createOrReuseCommandBuffer (cb?: GFXCommandBuffer) {
         const device = this._scene.root.device;
-        const info = {
-            allocator: device.commandAllocator,
-            type: GFXCommandBufferType.SECONDARY,
-        };
+        _info.allocator = device.commandAllocator;
         if (cb) {
             if (cb.status === GFXStatus.SUCCESS) { cb.destroy(); }
-            cb.initialize(info);
+            cb.initialize(_info);
         } else {
-            cb = device.createCommandBuffer(info);
+            cb = device.createCommandBuffer(_info);
         }
         return cb;
     }
