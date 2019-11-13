@@ -1,4 +1,4 @@
-import Ammo from 'ammo.js';
+import Ammo from '@cocos/ammo';
 import { AmmoShape } from "./ammo-shape";
 import { Vec3 } from "../../../core";
 import { BoxColliderComponent } from '../../../../exports/physics-framework';

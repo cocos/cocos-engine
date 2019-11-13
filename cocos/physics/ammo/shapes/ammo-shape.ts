@@ -1,4 +1,4 @@
-import Ammo from 'ammo.js';
+import Ammo from '@cocos/ammo';
 import { Vec3, Quat } from "../../../core/math";
 import { ColliderComponent, RigidBodyComponent, PhysicMaterial, PhysicsSystem } from "../../../../exports/physics-framework";
 import { AmmoWorld } from '../ammo-world';

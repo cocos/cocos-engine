@@ -1,4 +1,4 @@
-import Ammo from 'ammo.js';
+import Ammo from '@cocos/ammo';
 import { Quat, Vec3 } from '../../core/math';
 import { TransformDirtyBit } from '../../core/scene-graph/node-enum';
 import { Node } from '../../core';

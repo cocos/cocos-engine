@@ -1,4 +1,4 @@
-import Ammo from 'ammo.js';
+import Ammo from '@cocos/ammo';
 import { Vec3 } from "../../core/math";
 import { AmmoSharedBody } from "./ammo-shared-body";
 import { AmmoRigidBody } from "./ammo-rigid-body";

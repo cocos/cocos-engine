@@ -1,4 +1,4 @@
-import Ammo from 'ammo.js';
+import Ammo from '@cocos/ammo';
 
 export enum AmmoCollisionFlags {
     CF_STATIC_OBJECT = 1,

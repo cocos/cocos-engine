@@ -99,6 +99,6 @@
   },
   "dependencies": {
     "@cocos/cannon": "^1.0.4",
-    "ammo.js": "github:cocos-creator/ammo.js#cocos-dev"
+    "@cocos/ammo": "github:cocos-creator/ammo.js#cocos-master"
   }
 }

@@ -1,4 +1,4 @@
-import Ammo from 'ammo.js';
+import Ammo from '@cocos/ammo';
 import { ColliderComponent, TriggerEventType, CollisionEventType, IContactEquation } from '../../../exports/physics-framework';
 
 // export const defaultShape = new Ammo.btBoxShape(new Ammo.btVector3(0.5, 0.5, 0.5));

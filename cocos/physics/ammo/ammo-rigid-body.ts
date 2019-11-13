@@ -1,4 +1,4 @@
-import Ammo from 'ammo.js';
+import Ammo from '@cocos/ammo';
 import { Vec3, Node } from "../../core";
 import { AmmoWorld } from "./ammo-world";
 import { Cocos2AmmoVec3, Ammo2CocosVec3 } from "./ammo-util";
