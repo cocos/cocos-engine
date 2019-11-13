@@ -35,7 +35,7 @@ import { Mat4, Rect, Size, Vec2, Vec3 } from '../../../core/math';
 import { aabb } from '../../geom-utils';
 import { CanvasComponent } from './canvas-component';
 import { director } from '../../director';
-import { Layers } from '../../scene-graph/layers';
+import { UIRenderComponent } from './ui-render-component';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
@@ -300,8 +300,10 @@ export class UITransformComponent extends Component {
 
         // hack: discuss how to distribute 3D event
         let visibility = -1;
-        const renderComp = this.node.getComponent(cc.UIRenderComponent) as any;
-        if (!renderComp) {
+        const renderComp = this.node.getComponent('cc.UIRenderComponent') as UIRenderComponent;
+        // hack: there is no render component and no initialization of the render component
+        // perhaps visibility should be stored on uitransform
+        if (!renderComp || renderComp.visibility < 0) {
             visibility = this._getVisibility();
         } else {
             visibility = renderComp.visibility;
