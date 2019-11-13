@@ -1,4 +1,4 @@
-import { vec3, color4 } from '../../vmath';
+import { Vec3, Color } from '../../value-types';
 
 export default class Particle {
     particleSystem = null;
@@ -22,15 +22,15 @@ export default class Particle {
 
     constructor (particleSystem) {
         this.particleSystem = particleSystem;
-        this.position = vec3.create(0, 0, 0);
-        this.velocity = vec3.create(0, 0, 0);
-        this.animatedVelocity = vec3.create(0, 0, 0);
-        this.ultimateVelocity = vec3.create(0, 0, 0);
-        this.angularVelocity = vec3.create(0, 0, 0);
-        this.axisOfRotation = vec3.create(0, 0, 0);
-        this.rotation = vec3.create(0, 0, 0);
-        this.startSize = vec3.create(0, 0, 0);
-        this.size = vec3.create(0, 0, 0);
+        this.position = new Vec3(0, 0, 0);
+        this.velocity = new Vec3(0, 0, 0);
+        this.animatedVelocity = new Vec3(0, 0, 0);
+        this.ultimateVelocity = new Vec3(0, 0, 0);
+        this.angularVelocity = new Vec3(0, 0, 0);
+        this.axisOfRotation = new Vec3(0, 0, 0);
+        this.rotation = new Vec3(0, 0, 0);
+        this.startSize = new Vec3(0, 0, 0);
+        this.size = new Vec3(0, 0, 0);
         this.startColor = cc.Color.WHITE.clone();
         this.color = cc.Color.WHITE.clone();
         this.randomSeed = 0; // uint

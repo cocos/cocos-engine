@@ -1,6 +1,6 @@
 import { ccclass, property } from '../../../platform/CCClassDecorator';
 import Enum from '../../../platform/CCEnum';
-import { lerp, pseudoRandom, repeat } from '../../../vmath';
+import { lerp, pseudoRandom, repeat } from '../../../value-types';
 import CurveRange from './curve-range';
 
 // tslint:disable: max-line-length

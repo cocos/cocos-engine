@@ -1,35 +1,35 @@
-import { mat4, quat, random, randomRange, randomRangeInt, vec2, vec3 } from '../../vmath';
-import { sign } from '../../vmath/bits';
+import { Mat4, Quat, random, randomRange, randomRangeInt, Vec2, Vec3 } from '../../value-types';
+import { sign } from '../../value-types/bits';
 import { Space } from './enum';
 
-export const particleEmitZAxis = vec3.create(0, 0, -1);
+export const particleEmitZAxis = new Vec3(0, 0, -1);
 
 export function calculateTransform (systemSpace, moduleSpace, worldTransform, outQuat) {
     if (moduleSpace !== systemSpace) {
         if (systemSpace === Space.World) {
-            mat4.getRotation(outQuat, worldTransform);
+            Mat4.getRotation(outQuat, worldTransform);
         }
         else {
-            mat4.invert(worldTransform, worldTransform);
-            mat4.getRotation(outQuat, worldTransform);
+            Mat4.invert(worldTransform, worldTransform);
+            Mat4.getRotation(outQuat, worldTransform);
         }
         return true;
     }
     else {
-        quat.set(outQuat, 0, 0, 0, 1);
+        Quat.set(outQuat, 0, 0, 0, 1);
         return false;
     }
 }
 
 export function fixedAngleUnitVector2 (out, theta) {
-    vec2.set(out, Math.cos(theta), Math.sin(theta));
+    Vec2.set(out, Math.cos(theta), Math.sin(theta));
 }
 
 export function randomUnitVector2 (out) {
     const a = randomRange(0, 2 * Math.PI);
     const x = Math.cos(a);
     const y = Math.sin(a);
-    vec2.set(out, x, y);
+    Vec2.set(out, x, y);
 }
 
 export function randomUnitVector (out) {
@@ -38,39 +38,39 @@ export function randomUnitVector (out) {
     const r = Math.sqrt(1 - z * z);
     const x = r * Math.cos(a);
     const y = r * Math.sin(a);
-    vec3.set(out, x, y, z);
+    Vec3.set(out, x, y, z);
 }
 
 export function randomPointInUnitSphere (out) {
     randomUnitVector(out);
-    vec3.scale(out, out, random());
+    Vec3.scale(out, out, random());
 }
 
 export function randomPointBetweenSphere (out, minRadius, maxRadius) {
     randomUnitVector(out);
-    vec3.scale(out, out, minRadius + (maxRadius - minRadius) * random());
+    Vec3.scale(out, out, minRadius + (maxRadius - minRadius) * random());
 }
 
 export function randomPointInUnitCircle (out) {
     randomUnitVector2(out);
     out.z = 0;
-    vec3.scale(out, out, random());
+    Vec3.scale(out, out, random());
 }
 
 export function randomPointBetweenCircle (out, minRadius, maxRadius) {
     randomUnitVector2(out);
     out.z = 0;
-    vec3.scale(out, out, minRadius + (maxRadius - minRadius) * random());
+    Vec3.scale(out, out, minRadius + (maxRadius - minRadius) * random());
 }
 
 export function randomPointBetweenCircleAtFixedAngle (out, minRadius, maxRadius, theta) {
     fixedAngleUnitVector2(out, theta);
     out.z = 0;
-    vec3.scale(out, out, minRadius + (maxRadius - minRadius) * random());
+    Vec3.scale(out, out, minRadius + (maxRadius - minRadius) * random());
 }
 
 export function randomPointInCube (out, extents) {
-    vec3.set(out,
+    Vec3.set(out,
         randomRange(-extents.x, extents.x),
         randomRange(-extents.y, extents.y),
         randomRange(-extents.z, extents.z));

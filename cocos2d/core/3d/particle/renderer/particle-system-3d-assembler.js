@@ -1,4 +1,4 @@
-import { mat4, vec2, vec3, vec4 } from '../../../vmath';
+import { Mat4, Vec2, Vec3, Vec4 } from '../../../value-types';
 import { GFXFormat } from '../../../../renderer/gfx/define';
 import gfx from '../../../../renderer/gfx';
 import ParticleBatchModel from './particle-batch-model';
@@ -12,10 +12,10 @@ import ParticleSystem3D from '../particle-system-3d';
 const { ccclass, property } = require('../../../platform/CCClassDecorator');
 
 // tslint:disable: max-line-length
-const _tempAttribUV = vec3.create();
-const _tempAttribUV0 = vec2.create();
-const _tempAttribColor = vec4.create();
-const _tempWorldTrans = mat4.create();
+const _tempAttribUV = new Vec3();
+const _tempAttribUV0 = new Vec2();
+const _tempAttribColor = new Vec4();
+const _tempWorldTrans = new Mat4();
 
 let _tempScale = new Float32Array(4);
 let _tempLenScale = new Float32Array(4);
@@ -164,7 +164,7 @@ export default class ParticleSystem3DAssembler extends Assembler {
 
         let material = this._particleSystem.sharedMaterials[0];
         let mat = material ? this._particleSystem.particleMaterial : this._defaultMat;
-        vec4.array(_tempScale, this._node_scale);
+        Vec4.toArray(_tempScale, this._node_scale);
         mat.setProperty('scale', _tempScale);
 
         if (this._particleSystem.velocityOvertimeModule.enable) {
@@ -179,7 +179,7 @@ export default class ParticleSystem3DAssembler extends Assembler {
         for (let i = 0; i < this._particles.length; ++i) {
             const p = this._particles.data[i];
             p.remainingLifetime -= dt;
-            vec3.set(p.animatedVelocity, 0, 0, 0);
+            Vec3.set(p.animatedVelocity, 0, 0, 0);
 
             if (p.remainingLifetime < 0.0) {
                 if (this._particleSystem.trailModule.enable) {
@@ -203,7 +203,7 @@ export default class ParticleSystem3DAssembler extends Assembler {
             if (this._particleSystem.velocityOvertimeModule.enable) {
                 this._particleSystem.velocityOvertimeModule.animate(p);
             } else {
-                vec3.copy(p.ultimateVelocity, p.velocity);
+                Vec3.copy(p.ultimateVelocity, p.velocity);
             }
 
             if (this._particleSystem.limitVelocityOvertimeModule.enable) {
@@ -215,7 +215,7 @@ export default class ParticleSystem3DAssembler extends Assembler {
             if (this._particleSystem.textureAnimationModule.enable) {
                 this._particleSystem.textureAnimationModule.animate(p);
             }
-            vec3.scaleAndAdd(p.position, p.position, p.ultimateVelocity, dt); // apply velocity.
+            Vec3.scaleAndAdd(p.position, p.position, p.ultimateVelocity, dt); // apply velocity.
             if (this._particleSystem.trailModule.enable) {
                 this._particleSystem.trailModule.animate(p, dt);
             }
@@ -375,11 +375,11 @@ export default class ParticleSystem3DAssembler extends Assembler {
         }
 
         if (this._particleSystem.textureAnimationModule.enable) {
-            vec2.set(this.frameTile_velLenScale, this._particleSystem.textureAnimationModule.numTilesX, this._particleSystem.textureAnimationModule.numTilesY);
+            Vec2.set(this.frameTile_velLenScale, this._particleSystem.textureAnimationModule.numTilesX, this._particleSystem.textureAnimationModule.numTilesY);
         }
 
-        vec4.array(_tempLenScale, this.frameTile_velLenScale);
-        mat.setProperty('frameTile_velLenScale', _tempLenScale);
+        Vec4.toArray(_tempLenScale, this.frameTile_velLenScale);
+        mat.setProperty('frameTile_velLenScale', this.frameTile_velLenScale);
 
         this._particleSystem.setMaterial(0, mat);
     }

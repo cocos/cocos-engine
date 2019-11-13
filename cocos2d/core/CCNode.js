@@ -25,7 +25,7 @@
 
 'use strict';
 
-import { mat4, vec2, vec3, quat, trs } from './vmath';
+import { Mat4, Vec2, Vec3, Quat, Trs } from './value-types';
 
 const BaseNode = require('./utils/base-node');
 const PrefabHelper = require('./utils/prefab-helper');
@@ -48,47 +48,47 @@ var ActionManagerExist = !!cc.ActionManager;
 var emptyFunc = function () {};
 
 // getWorldPosition temp var
-var _gwpVec3 = cc.v3();
-var _gwpQuat = cc.quat();
+var _gwpVec3 = new Vec3();
+var _gwpQuat = new Quat();
 
 // _invTransformPoint temp var
-var _tpVec3a = cc.v3();
-var _tpVec3b = cc.v3();
-var _tpQuata = cc.quat();
-var _tpQuatb = cc.quat();
+var _tpVec3a = new Vec3();
+var _tpVec3b = new Vec3();
+var _tpQuata = new Quat();
+var _tpQuatb = new Quat();
 
 // setWorldPosition temp var
-var _swpVec3 = cc.v3();
+var _swpVec3 = new Vec3();
 
 // getWorldScale temp var
-var _gwsVec3 = cc.v3();
+var _gwsVec3 = new Vec3();
 
 // setWorldScale temp var
-var _swsVec3 = cc.v3();
+var _swsVec3 = new Vec3();
 
 // getWorldRT temp var
-var _gwrtVec3a = cc.v3();
-var _gwrtVec3b = cc.v3();
-var _gwrtQuata = cc.quat();
-var _gwrtQuatb = cc.quat();
+var _gwrtVec3a = new Vec3();
+var _gwrtVec3b = new Vec3();
+var _gwrtQuata = new Quat();
+var _gwrtQuatb = new Quat();
 
 // lookAt temp var
-var _laVec3 = cc.v3();
-var _laQuat = quat.create();
+var _laVec3 = new Vec3();
+var _laQuat = new Quat();
 
 // _hitTest temp var
-var _htVec3a = cc.v3();
-var _htVec3b = cc.v3();
+var _htVec3a = new Vec3();
+var _htVec3b = new Vec3();
 
 // getWorldRotation temp var
-var _gwrQuat = cc.quat();
+var _gwrQuat = new Quat();
 
 // setWorldRotation temp var
-var _swrQuat = cc.quat();
+var _swrQuat = new Quat();
 
-var _quata = cc.quat();
-var _mat4_temp = mat4.create();
-var _vec3_temp = vec3.create();
+var _quata = new Quat();
+var _mat4_temp = cc.mat4();
+var _vec3_temp = new Vec3();
 
 var _cachedArray = new Array(16);
 _cachedArray.length = 0;
@@ -358,6 +358,19 @@ var _mouseEvents = [
     EventType.MOUSE_WHEEL,
 ];
 
+var _skewNeedWarn = true;
+var _skewWarn = function (value, node) {
+    if (value !== 0) {
+        var nodePath = "";
+        if (CC_EDITOR) {
+            var NodeUtils = Editor.require('scene://utils/node');
+            nodePath = `Node: ${NodeUtils.getNodePath(node)}.`
+        }
+        _skewNeedWarn && cc.warn("`cc.Node.skewX/Y` is deprecated since v2.2.1, please use 3D node instead.", nodePath);
+        !CC_EDITOR && (_skewNeedWarn = false);
+    }
+}
+
 var _currentHovered = null;
 
 var _touchStartHandler = function (touch, event) {
@@ -593,7 +606,7 @@ function updateLocalMatrix3D () {
         // Update transform
         let t = this._matrix;
         let tm = t.m;
-        mat4.fromTRSArray(t, this._trs);
+        Trs.toMat4(t, this._trs);
 
         // skew
         if (this._skewX || this._skewY) {
@@ -684,10 +697,10 @@ function calculWorldMatrix3D () {
 
     if (this._parent) {
         let parentMat = this._parent._worldMatrix;
-        mat4.mul(this._worldMatrix, parentMat, this._matrix);
+        Mat4.mul(this._worldMatrix, parentMat, this._matrix);
     }
     else {
-        mat4.copy(this._worldMatrix, this._matrix);
+        Mat4.copy(this._worldMatrix, this._matrix);
     }
     this._worldMatDirty = false;
 }
@@ -704,7 +717,7 @@ function calculWorldMatrix2D () {
         this._mulMat(this._worldMatrix, parent._worldMatrix, this._matrix);
     }
     else {
-        mat4.copy(this._worldMatrix, this._matrix);
+        Mat4.copy(this._worldMatrix, this._matrix);
     }
     this._worldMatDirty = false;
 }
@@ -731,7 +744,7 @@ function mulMat2D (out, a, b) {
     }
 }
 
-const mulMat3D = mat4.mul;
+const mulMat3D = Mat4.mul;
 
 /**
  * !#en
@@ -823,7 +836,7 @@ let NodeDefines = {
         /**
          * !#en The position (x, y) of the node in its parent's coordinates.
          * !#zh 节点在父节点坐标系中的位置（x, y）。
-         * @property {Vec2} position
+         * @property {Vec3} position
          * @example
          * cc.log("Node Position: " + node.position);
          */
@@ -981,8 +994,8 @@ let NodeDefines = {
                 return this._eulerAngles.z;
             },
             set (value) {
-                vec3.set(this._eulerAngles, 0, 0, value);   
-                trs.fromAngleZ(this._trs, value);
+                Vec3.set(this._eulerAngles, 0, 0, value);   
+                Trs.fromAngleZ(this._trs, value);
                 this.setLocalDirty(LocalDirtyFlag.ROTATION);
 
                 if (this._eventMask & ROTATION_ON) {
@@ -1028,10 +1041,10 @@ let NodeDefines = {
                     this._eulerAngles.x = value;
                     // Update quaternion from rotation
                     if (this._eulerAngles.x === this._eulerAngles.y) {
-                        trs.fromAngleZ(this._trs, -value);
+                        Trs.fromAngleZ(this._trs, -value);
                     }
                     else {
-                        trs.fromEulerNumber(this._trs, value, this._eulerAngles.y, 0);
+                        Trs.fromEulerNumber(this._trs, value, this._eulerAngles.y, 0);
                     }
                     this.setLocalDirty(LocalDirtyFlag.ROTATION);
 
@@ -1068,10 +1081,10 @@ let NodeDefines = {
                     this._eulerAngles.y = value;
                     // Update quaternion from rotation
                     if (this._eulerAngles.x === this._eulerAngles.y) {
-                        trs.fromAngleZ(this._trs, -value);
+                        Trs.fromAngleZ(this._trs, -value);
                     }
                     else {
-                        trs.fromEulerNumber(this._trs, this._eulerAngles.x, value, 0);
+                        Trs.fromEulerNumber(this._trs, this._eulerAngles.x, value, 0);
                     }
                     this.setLocalDirty(LocalDirtyFlag.ROTATION);
 
@@ -1088,14 +1101,14 @@ let NodeDefines = {
                     return this._eulerAngles;
                 }
                 else {
-                    return trs.toEuler(this._eulerAngles, this._trs);
+                    return Trs.toEuler(this._eulerAngles, this._trs);
                 }
             }, set (v) {
                 if (CC_EDITOR) {
                     this._eulerAngles.set(v);
                 }
             
-                trs.fromEuler(this._trs, v);
+                Trs.fromEuler(this._trs, v);
                 this.setLocalDirty(LocalDirtyFlag.ROTATION);
                 !CC_NATIVERENDERER && (this._renderFlag |= RenderFlow.FLAG_TRANSFORM);
             }
@@ -1106,7 +1119,7 @@ let NodeDefines = {
         quat: {
             get () {
                 let trs = this._trs;
-                return cc.quat(trs[3], trs[4], trs[5], trs[6]);
+                return new Quat(trs[3], trs[4], trs[5], trs[6]);
             }, set (v) {
                 this.setRotation(v);
             }
@@ -1210,14 +1223,20 @@ let NodeDefines = {
          * @example
          * node.skewX = 0;
          * cc.log("Node SkewX: " + node.skewX);
+         * @deprecated since v2.2.1
          */
         skewX: {
             get () {
                 return this._skewX;
             },
             set (value) {
+                _skewWarn(value, this);
+
                 this._skewX = value;
                 this.setLocalDirty(LocalDirtyFlag.SKEW);
+                if (CC_JSB && CC_NATIVERENDERER) {
+                    this._proxy.updateSkew();
+                }
             }
         },
 
@@ -1229,14 +1248,20 @@ let NodeDefines = {
          * @example
          * node.skewY = 0;
          * cc.log("Node SkewY: " + node.skewY);
+         * @deprecated since v2.2.1
          */
         skewY: {
             get () {
                 return this._skewY;
             },
             set (value) {
+                _skewWarn(value, this);
+
                 this._skewY = value;
                 this.setLocalDirty(LocalDirtyFlag.SKEW);
+                if (CC_JSB && CC_NATIVERENDERER) {
+                    this._proxy.updateSkew();
+                }
             }
         },
 
@@ -1651,10 +1676,10 @@ let NodeDefines = {
         }
 
         let spaceInfo = this._spaceInfo;
-        this._matrix = mat4.create(spaceInfo.localMat);
-        mat4.identity(this._matrix);
-        this._worldMatrix = mat4.create(spaceInfo.worldMat);
-        mat4.identity(this._worldMatrix);
+        this._matrix = cc.mat4(spaceInfo.localMat);
+        Mat4.identity(this._matrix);
+        this._worldMatrix = cc.mat4(spaceInfo.worldMat);
+        Mat4.identity(this._worldMatrix);
         this._localMatDirty = LocalDirtyFlag.ALL;
         this._worldMatDirty = true;
 
@@ -1684,20 +1709,20 @@ let NodeDefines = {
 
     _toEuler () {
         if (this.is3DNode) {
-            trs.toEuler(this._eulerAngles, this._trs);
+            Trs.toEuler(this._eulerAngles, this._trs);
         }
         else {
             let z = Math.asin(this._trs[5]) / ONE_DEGREE * 2;
-            vec3.set(this._eulerAngles, 0, 0, z);
+            Vec3.set(this._eulerAngles, 0, 0, z);
         }
     },
 
     _fromEuler () {
         if (this.is3DNode) {
-            trs.fromEuler(this._trs, this._eulerAngles);
+            Trs.fromEuler(this._trs, this._eulerAngles);
         }
         else {
-            trs.fromAngleZ(this._trs, this._eulerAngles.z);
+            Trs.fromAngleZ(this._trs, this._eulerAngles.z);
         }
     },
 
@@ -1723,6 +1748,13 @@ let NodeDefines = {
         if (this._zIndex !== undefined) {
             this._localZOrder = this._zIndex << 16;
             this._zIndex = undefined;
+        }
+
+        if (CC_EDITOR) {
+            if (this._skewX !== 0 || this._skewY !== 0) {
+                var NodeUtils = Editor.require('scene://utils/node');
+                cc.warn("`cc.Node.skewX/Y` is deprecated since v2.2.1, please use 3D node instead.", `Node: ${NodeUtils.getNodePath(this)}.`);
+            }
         }
 
         this._fromEuler();
@@ -2253,10 +2285,10 @@ let NodeDefines = {
 
         this._updateWorldMatrix();
         // If scale is 0, it can't be hit.
-        if (!mat4.invert(_mat4_temp, this._worldMatrix)) {
+        if (!Mat4.invert(_mat4_temp, this._worldMatrix)) {
             return false;
         }
-        vec2.transformMat4(testPt, cameraPt, _mat4_temp);
+        Vec2.transformMat4(testPt, cameraPt, _mat4_temp);
         testPt.x += this._anchorPoint.x * w;
         testPt.y += this._anchorPoint.y * h;
 
@@ -2481,8 +2513,8 @@ let NodeDefines = {
      * cc.log("Node Position: " + node.getPosition());
      */
     getPosition (out) {
-        out = out || cc.v3();
-        return trs.toPosition(out, this._trs);
+        out = out || new Vec3();
+        return Trs.toPosition(out, this._trs);
     },
 
     /**
@@ -2555,7 +2587,7 @@ let NodeDefines = {
      */
     getScale (out) {
         if (out !== undefined) {
-            return trs.toScale(out, this._trs);
+            return Trs.toScale(out, this._trs);
         }
         else {
             cc.warnID(1400, 'cc.Node.getScale', 'cc.Node.scale or cc.Node.getScale(cc.Vec3)');
@@ -2617,8 +2649,8 @@ let NodeDefines = {
      * @return {Quat} Quaternion object represents the rotation
      */
     getRotation (out) {
-        if (out instanceof cc.Quat) {
-            return trs.toRotation(out, this._trs);
+        if (out instanceof Quat) {
+            return Trs.toRotation(out, this._trs);
         }
         else {
             if (CC_DEBUG) {
@@ -2637,20 +2669,20 @@ let NodeDefines = {
      * @param {Number} [z] z value of quternion
      * @param {Number} [w] w value of quternion
      */
-    setRotation (quat, y, z, w) {
-        if (typeof quat === 'number' && y === undefined) {
+    setRotation (rotation, y, z, w) {
+        if (typeof rotation === 'number' && y === undefined) {
             if (CC_DEBUG) {
                 cc.warn("`cc.Node.setRotation(degree)` is deprecated since v2.1.0, please set `-cc.Node.angle` instead. (`this.node.setRotation(x)` -> `this.node.angle = -x`)");
             }
-            this.angle = -quat;
+            this.angle = -rotation;
         }
         else {
-            let x = quat;
+            let x = rotation;
             if (y === undefined) {
-                x = quat.x;
-                y = quat.y;
-                z = quat.z;
-                w = quat.w;
+                x = rotation.x;
+                y = rotation.y;
+                z = rotation.z;
+                w = rotation.w;
             }
 
             let trs = this._trs;
@@ -2805,23 +2837,23 @@ let NodeDefines = {
         if (this._parent) {
             this._parent._invTransformPoint(out, pos);
         } else {
-            vec3.copy(out, pos);
+            Vec3.copy(out, pos);
         }
 
         let ltrs = this._trs;
         // out = parent_inv_pos - pos
-        trs.toPosition(_tpVec3a, ltrs);
-        vec3.sub(out, out, _tpVec3a);
+        Trs.toPosition(_tpVec3a, ltrs);
+        Vec3.sub(out, out, _tpVec3a);
 
         // out = inv(rot) * out
-        trs.toRotation(_tpQuata, ltrs);
-        quat.conjugate(_tpQuatb, _tpQuata);
-        vec3.transformQuat(out, out, _tpQuatb);
+        Trs.toRotation(_tpQuata, ltrs);
+        Quat.conjugate(_tpQuatb, _tpQuata);
+        Vec3.transformQuat(out, out, _tpQuatb);
 
         // out = (1/scale) * out
-        trs.toScale(_tpVec3a, ltrs);
-        vec3.inverseSafe(_tpVec3b, _tpVec3a);
-        vec3.mul(out, out, _tpVec3b);
+        Trs.toScale(_tpVec3a, ltrs);
+        Vec3.inverseSafe(_tpVec3b, _tpVec3a);
+        Vec3.mul(out, out, _tpVec3b);
 
         return out;
     },
@@ -2834,20 +2866,20 @@ let NodeDefines = {
      * @return {Vec3}
      */
     getWorldPosition (out) {
-        trs.toPosition(out, this._trs);
+        Trs.toPosition(out, this._trs);
         let curr = this._parent;
         let ltrs;
         while (curr) {
             ltrs = curr._trs;
             // out = parent_scale * pos
-            trs.toScale(_gwpVec3, ltrs);
-            vec3.mul(out, out, _gwpVec3);
+            Trs.toScale(_gwpVec3, ltrs);
+            Vec3.mul(out, out, _gwpVec3);
             // out = parent_quat * out
-            trs.toRotation(_gwpQuat, ltrs);
-            vec3.transformQuat(out, out, _gwpQuat);
+            Trs.toRotation(_gwpQuat, ltrs);
+            Vec3.transformQuat(out, out, _gwpQuat);
             // out = out + pos
-            trs.toPosition(_gwpVec3, ltrs);
-            vec3.add(out, out, _gwpVec3);
+            Trs.toPosition(_gwpVec3, ltrs);
+            Vec3.add(out, out, _gwpVec3);
             curr = curr._parent;
         }
         return out;
@@ -2869,9 +2901,9 @@ let NodeDefines = {
             this._parent._invTransformPoint(_swpVec3, pos);
         }
         else {
-            vec3.copy(_swpVec3, pos);
+            Vec3.copy(_swpVec3, pos);
         }
-        trs.fromPosition(ltrs, _swpVec3);
+        Trs.fromPosition(ltrs, _swpVec3);
         this.setLocalDirty(LocalDirtyFlag.POSITION);
 
         // fast check event
@@ -2894,12 +2926,12 @@ let NodeDefines = {
      * @return {Quat}
      */
     getWorldRotation (out) {
-        trs.toRotation(_gwrQuat, this._trs);
-        quat.copy(out, _gwrQuat);
+        Trs.toRotation(_gwrQuat, this._trs);
+        Quat.copy(out, _gwrQuat);
         let curr = this._parent;
         while (curr) {
-            trs.toRotation(_gwrQuat, curr._trs);
-            quat.mul(out, _gwrQuat, out);
+            Trs.toRotation(_gwrQuat, curr._trs);
+            Quat.mul(out, _gwrQuat, out);
             curr = curr._parent;
         }
         return out;
@@ -2914,13 +2946,13 @@ let NodeDefines = {
     setWorldRotation (val) {
         if (this._parent) {
             this._parent.getWorldRotation(_swrQuat);
-            quat.conjugate(_swrQuat, _swrQuat);
-            quat.mul(_swrQuat, _swrQuat, val);
+            Quat.conjugate(_swrQuat, _swrQuat);
+            Quat.mul(_swrQuat, _swrQuat, val);
         }
         else {
-            quat.copy(_swrQuat, val);
+            Quat.copy(_swrQuat, val);
         }
-        trs.fromRotation(this._trs, _swrQuat);
+        Trs.fromRotation(this._trs, _swrQuat);
         if (CC_EDITOR) {
             this._toEuler();
         }
@@ -2935,12 +2967,12 @@ let NodeDefines = {
      * @return {Vec3}
      */
     getWorldScale (out) {
-        trs.toScale(_gwsVec3, this._trs);
-        vec3.copy(out, _gwsVec3);
+        Trs.toScale(_gwsVec3, this._trs);
+        Vec3.copy(out, _gwsVec3);
         let curr = this._parent;
         while (curr) {
-            trs.toScale(_gwsVec3, curr._trs);
-            vec3.mul(out, out, _gwsVec3);
+            Trs.toScale(_gwsVec3, curr._trs);
+            Vec3.mul(out, out, _gwsVec3);
             curr = curr._parent;
         }
         return out;
@@ -2955,12 +2987,12 @@ let NodeDefines = {
     setWorldScale (scale) {
         if (this._parent) {
             this._parent.getWorldScale(_swsVec3);
-            vec3.div(_swsVec3, scale, _swsVec3);
+            Vec3.div(_swsVec3, scale, _swsVec3);
         }
         else {
-            vec3.copy(_swsVec3, scale);
+            Vec3.copy(_swsVec3, scale);
         }
-        trs.fromScale(this._trs, _swsVec3);
+        Trs.fromScale(this._trs, _swsVec3);
         this.setLocalDirty(LocalDirtyFlag.SCALE);
     },
 
@@ -2968,26 +3000,26 @@ let NodeDefines = {
         let opos = _gwrtVec3a;
         let orot = _gwrtQuata;
         let ltrs = this._trs;
-        trs.toPosition(opos, ltrs);
-        trs.toRotation(orot, ltrs);
+        Trs.toPosition(opos, ltrs);
+        Trs.toRotation(orot, ltrs);
 
         let curr = this._parent;
         while (curr) {
             ltrs = curr._trs;
             // opos = parent_lscale * lpos
-            trs.toScale(_gwrtVec3b, ltrs);
-            vec3.mul(opos, opos, _gwrtVec3b);
+            Trs.toScale(_gwrtVec3b, ltrs);
+            Vec3.mul(opos, opos, _gwrtVec3b);
             // opos = parent_lrot * opos
-            trs.toRotation(_gwrtQuatb, ltrs);
-            vec3.transformQuat(opos, opos, _gwrtQuatb);
+            Trs.toRotation(_gwrtQuatb, ltrs);
+            Vec3.transformQuat(opos, opos, _gwrtQuatb);
             // opos = opos + lpos
-            trs.toPosition(_gwrtVec3b, ltrs);
-            vec3.add(opos, opos, _gwrtVec3b);
+            Trs.toPosition(_gwrtVec3b, ltrs);
+            Vec3.add(opos, opos, _gwrtVec3b);
             // orot = lrot * orot
-            quat.mul(orot, _gwrtQuatb, orot);
+            Quat.mul(orot, _gwrtQuatb, orot);
             curr = curr._parent;
         }
-        mat4.fromRT(out, orot, opos);
+        Mat4.fromRT(out, orot, opos);
         return out;
     },
 
@@ -3000,9 +3032,9 @@ let NodeDefines = {
      */
     lookAt (pos, up) {
         this.getWorldPosition(_laVec3);
-        vec3.sub(_laVec3, _laVec3, pos); // NOTE: we use -z for view-dir
-        vec3.normalize(_laVec3, _laVec3);
-        quat.fromViewUp(_laQuat, _laVec3, up);
+        Vec3.sub(_laVec3, _laVec3, pos); // NOTE: we use -z for view-dir
+        Vec3.normalize(_laVec3, _laVec3);
+        Quat.fromViewUp(_laQuat, _laVec3, up);
     
         this.setWorldRotation(_laQuat);
     },
@@ -3021,7 +3053,7 @@ let NodeDefines = {
             this._mulMat(this._worldMatrix, parent._worldMatrix, this._matrix);
         }
         else {
-            mat4.copy(this._worldMatrix, this._matrix);
+            Mat4.copy(this._worldMatrix, this._matrix);
         }
         this._worldMatDirty = false;
     },
@@ -3071,7 +3103,7 @@ let NodeDefines = {
      */
     getLocalMatrix (out) {
         this._updateLocalMatrix();
-        return mat4.copy(out, this._matrix);
+        return Mat4.copy(out, this._matrix);
     },
     
     /**
@@ -3087,7 +3119,7 @@ let NodeDefines = {
      */
     getWorldMatrix (out) {
         this._updateWorldMatrix();
-        return mat4.copy(out, this._worldMatrix);
+        return Mat4.copy(out, this._worldMatrix);
     },
 
     /**
@@ -3107,15 +3139,15 @@ let NodeDefines = {
      */
     convertToNodeSpaceAR (worldPoint, out) {
         this._updateWorldMatrix();
-        mat4.invert(_mat4_temp, this._worldMatrix);
+        Mat4.invert(_mat4_temp, this._worldMatrix);
 
         if (worldPoint instanceof cc.Vec2) {
             out = out || new cc.Vec2();
-            return vec2.transformMat4(out, worldPoint, _mat4_temp);
+            return Vec2.transformMat4(out, worldPoint, _mat4_temp);
         }
         else {
             out = out || new cc.Vec3();
-            return vec3.transformMat4(out, worldPoint, _mat4_temp);
+            return Vec3.transformMat4(out, worldPoint, _mat4_temp);
         }
     },
 
@@ -3138,11 +3170,11 @@ let NodeDefines = {
         this._updateWorldMatrix();
         if (nodePoint instanceof cc.Vec2) {
             out = out || new cc.Vec2();
-            return vec2.transformMat4(out, nodePoint, this._worldMatrix);
+            return Vec2.transformMat4(out, nodePoint, this._worldMatrix);
         }
         else {
             out = out || new cc.Vec3();
-            return vec3.transformMat4(out, nodePoint, this._worldMatrix);
+            return Vec3.transformMat4(out, nodePoint, this._worldMatrix);
         }
     },
 
@@ -3163,9 +3195,9 @@ let NodeDefines = {
      */
     convertToNodeSpace (worldPoint) {
         this._updateWorldMatrix();
-        mat4.invert(_mat4_temp, this._worldMatrix);
+        Mat4.invert(_mat4_temp, this._worldMatrix);
         let out = new cc.Vec2();
-        vec2.transformMat4(out, worldPoint, _mat4_temp);
+        Vec2.transformMat4(out, worldPoint, _mat4_temp);
         out.x += this._anchorPoint.x * this._contentSize.width;
         out.y += this._anchorPoint.y * this._contentSize.height;
         return out;
@@ -3189,7 +3221,7 @@ let NodeDefines = {
             nodePoint.x - this._anchorPoint.x * this._contentSize.width,
             nodePoint.y - this._anchorPoint.y * this._contentSize.height
         );
-        return vec2.transformMat4(out, out, this._worldMatrix);
+        return Vec2.transformMat4(out, out, this._worldMatrix);
     },
 
     /**
@@ -3215,8 +3247,8 @@ let NodeDefines = {
         _vec3_temp.x = -this._anchorPoint.x * contentSize.width;
         _vec3_temp.y = -this._anchorPoint.y * contentSize.height;
 
-        mat4.copy(_mat4_temp, this._matrix);
-        mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
+        Mat4.copy(_mat4_temp, this._matrix);
+        Mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
         return AffineTrans.fromMat4(out, _mat4_temp);
     },
 
@@ -3266,8 +3298,8 @@ let NodeDefines = {
         _vec3_temp.x = -this._anchorPoint.x * contentSize.width;
         _vec3_temp.y = -this._anchorPoint.y * contentSize.height;
 
-        mat4.copy(_mat4_temp, this._worldMatrix);
-        mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
+        Mat4.copy(_mat4_temp, this._worldMatrix);
+        Mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
 
         return AffineTrans.fromMat4(out, _mat4_temp);
     },
@@ -3315,7 +3347,7 @@ let NodeDefines = {
             out = AffineTrans.identity();
         }
         this._updateLocalMatrix();
-        mat4.invert(_mat4_temp, this._matrix);
+        Mat4.invert(_mat4_temp, this._matrix);
         return AffineTrans.fromMat4(out, _mat4_temp);
     },
 
@@ -3335,7 +3367,7 @@ let NodeDefines = {
             out = AffineTrans.identity();
         }
         this._updateWorldMatrix();
-        mat4.invert(_mat4_temp, this._worldMatrix);
+        Mat4.invert(_mat4_temp, this._worldMatrix);
         return AffineTrans.fromMat4(out, _mat4_temp);
     },
 
@@ -3421,7 +3453,7 @@ let NodeDefines = {
             width, 
             height);
 
-        var parentMat = mat4.mul(this._worldMatrix, parentMat, this._matrix);
+        var parentMat = Mat4.mul(this._worldMatrix, parentMat, this._matrix);
         rect.transformMat4(rect, parentMat);
 
         //query child's BoundingBox
@@ -3565,12 +3597,12 @@ let NodeDefines = {
         this.is3DNode = this.is3DNode;
 
         if (!this._matrix) {
-            this._matrix = mat4.create(this._spaceInfo.localMat);
-            mat4.identity(this._matrix);
+            this._matrix = cc.mat4(this._spaceInfo.localMat);
+            Mat4.identity(this._matrix);
         }
         if (!this._worldMatrix) {
-            this._worldMatrix = mat4.create(this._spaceInfo.worldMat);
-            mat4.identity(this._worldMatrix);
+            this._worldMatrix = cc.mat4(this._spaceInfo.worldMat);
+            Mat4.identity(this._worldMatrix);
         }
 
         this._localMatDirty = LocalDirtyFlag.ALL;
@@ -3772,9 +3804,9 @@ let _p = Node.prototype;
 js.getset(_p, 'position', _p.getPosition, _p.setPosition, false, true);
 
 if (CC_EDITOR) {
-    let vec3_tmp = cc.v3();
+    let vec3_tmp = new Vec3();
     cc.js.getset(_p, 'worldEulerAngles', function () {
-        let angles = cc.v3(this._eulerAngles);
+        let angles = new Vec3(this._eulerAngles);
         let parent = this.parent;
         while (parent) {
             angles.addSelf(parent._eulerAngles);

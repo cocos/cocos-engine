@@ -1,6 +1,6 @@
 import { ccclass, property } from '../../../platform/CCClassDecorator';
 import Enum from '../../../platform/CCEnum';
-import { lerp, repeat } from '../../../vmath';
+import { lerp, repeat } from '../../../value-types';
 
 // tslint:disable: max-line-length
 

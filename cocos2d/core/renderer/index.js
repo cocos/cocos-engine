@@ -59,7 +59,7 @@ function _initBuiltins(device) {
  * @class renderer
  * @static
  */
-cc.renderer = module.exports = {
+export default cc.renderer = {
     Texture2D: null,
 
     InputAssembler: InputAssembler,

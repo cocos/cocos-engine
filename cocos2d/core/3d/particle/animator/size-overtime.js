@@ -1,5 +1,5 @@
 import { ccclass, property } from '../../../platform/CCClassDecorator';
-import { pseudoRandom, vec3 } from '../../../vmath';
+import { pseudoRandom, Vec3 } from '../../../value-types';
 import CurveRange from './curve-range';
 
 // tslint:disable: max-line-length
@@ -54,7 +54,7 @@ export default class SizeOvertimeModule {
 
     animate (particle) {
         if (!this.separateAxes) {
-            vec3.scale(particle.size, particle.startSize, this.size.evaluate(1 - particle.remainingLifetime / particle.startLifetime, pseudoRandom(particle.randomSeed + SIZE_OVERTIME_RAND_OFFSET)));
+            Vec3.scale(particle.size, particle.startSize, this.size.evaluate(1 - particle.remainingLifetime / particle.startLifetime, pseudoRandom(particle.randomSeed + SIZE_OVERTIME_RAND_OFFSET)));
         } else {
             const currLifetime = 1 - particle.remainingLifetime / particle.startLifetime;
             const sizeRand = pseudoRandom(particle.randomSeed + SIZE_OVERTIME_RAND_OFFSET);

@@ -1,5 +1,5 @@
 import { ccclass, property } from '../../platform/CCClassDecorator';
-import { repeat } from '../../vmath';
+import { repeat } from '../../value-types';
 import CurveRange from './animator/curve-range';
 
 @ccclass('cc.Burst')

@@ -1,6 +1,6 @@
 import { ccclass, property } from '../../../platform/CCClassDecorator';
 import Enum from '../../../platform/CCEnum';
-import { color4 } from '../../../vmath';
+import { Color } from '../../../value-types';
 import { Gradient, AlphaKey, ColorKey } from './gradient';
 
 const GRADIENT_MODE_FIX = 0;

@@ -1,5 +1,5 @@
 import { ccclass, property } from '../../../platform/CCClassDecorator'
-import { pseudoRandom } from '../../../vmath';
+import { pseudoRandom, Color } from '../../../value-types';
 import GradientRange from './gradient-range';
 
 // tslint:disable: max-line-length
@@ -27,7 +27,7 @@ export default class ColorOvertimeModule {
     animate (particle) {
         if (this._enable) {
             particle.color.set(particle.startColor);
-            particle.color.multiply(this.color.evaluate(1.0 - particle.remainingLifetime / particle.startLifetime, pseudoRandom(particle.randomSeed + COLOR_OVERTIME_RAND_OFFSET)));
+            Color.multiply(particle.color, particle.color, this.color.evaluate(1.0 - particle.remainingLifetime / particle.startLifetime, pseudoRandom(particle.randomSeed + COLOR_OVERTIME_RAND_OFFSET)));
         }
     }
 }

@@ -687,6 +687,7 @@ let TiledMap = cc.Class({
                     node.addChild(child);
                 }
 
+                child.setSiblingIndex(i);
                 child.active = layerInfo.visible;
 
                 if (layerInfo instanceof cc.TMXLayerInfo) {

@@ -1,4 +1,4 @@
-import { repeat } from '../../../vmath';
+import { repeat } from '../../../value-types';
 import { evalOptCurve, OptimizedKey } from '../../../geom-utils/curve';
 import { Mode } from './curve-range';
 

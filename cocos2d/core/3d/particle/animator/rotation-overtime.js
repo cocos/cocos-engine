@@ -1,5 +1,5 @@
 import { ccclass, property } from '../../../platform/CCClassDecorator';
-import { pseudoRandom } from '../../../vmath';
+import { pseudoRandom } from '../../../value-types';
 import CurveRange from './curve-range';
 
 // tslint:disable: max-line-length

@@ -23,9 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Mat4 from '../../value-types/mat4';
+
 const AnimationClip = require('../../../animation/animation-clip');
 const JointMatrixCurve = require('./CCJointMatrixCurve');
-import mat4 from '../../vmath/mat4';
 
 function maxtrixToArray (matrix) {
     let data = new Float32Array(16);
@@ -176,11 +177,11 @@ let SkeletonAnimationClip = cc.Class({
                     }
                 }
 
-                matrix = mat4.create();
-                mat4.fromRTS(matrix, node.quat, node.position, node.scale);
+                matrix = cc.mat4();
+                Mat4.fromRTS(matrix, node.quat, node.position, node.scale);
 
                 if (pm) {
-                    mat4.mul(matrix, pm, matrix);
+                    Mat4.mul(matrix, pm, matrix);
                 }
 
                 if (!props._jointMatrix) {
@@ -189,8 +190,8 @@ let SkeletonAnimationClip = cc.Class({
 
                 let bindWorldMatrix;
                 if (node.uniqueBindPose) {
-                    bindWorldMatrix = mat4.create();
-                    mat4.mul(bindWorldMatrix, matrix, node.uniqueBindPose);
+                    bindWorldMatrix = cc.mat4();
+                    Mat4.mul(bindWorldMatrix, matrix, node.uniqueBindPose);
                 }
 
                 if (!jointMatrixMap[node.path]) {

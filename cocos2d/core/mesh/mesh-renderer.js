@@ -25,13 +25,11 @@
 
 import Assembler from '../renderer/assembler';
 import gfx from '../../renderer/gfx';
-import vec3 from '../vmath/vec3';
-import mat4 from '../vmath/mat4';
+import Vec3 from '../value-types/vec3';
 
 const MeshRenderer = require('./CCMeshRenderer');
 
-let _tmp_vec3 = cc.v3();
-let _tmp_mat4 = cc.mat4();
+let _tmp_vec3 = new Vec3();
 
 export default class MeshRendererAssembler extends Assembler {
     constructor (comp) {
@@ -138,7 +136,7 @@ export default class MeshRendererAssembler extends Assembler {
             let attrOffset = element.offset / 4;
          
             if (element.name === gfx.ATTR_POSITION || element.name === gfx.ATTR_NORMAL) {
-                let transformMat4 = element.name === gfx.ATTR_NORMAL ? vec3.transformMat4Normal : vec3.transformMat4;
+                let transformMat4 = element.name === gfx.ATTR_NORMAL ? Vec3.transformMat4Normal : Vec3.transformMat4;
                 for (let j = 0; j < vertexCount; j++) {
                     let offset = j * floatCount + attrOffset;
 

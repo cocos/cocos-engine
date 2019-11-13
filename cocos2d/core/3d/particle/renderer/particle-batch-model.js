@@ -25,6 +25,7 @@ export default class ParticleBatchModel{
         this._vertAttrsFloatCount = 0;
         this._vData = null;
         this._uintVData = null;
+        this._ibData = null;
         this._mesh = null;
         this._ia = null;
     }
@@ -95,6 +96,7 @@ export default class ParticleBatchModel{
             );
             
             this._vData = vbData;
+            this._ibData = ibData;
             this._ia = new InputAssembler(vb, ib);
             this._ia._start = 0;
             this._ia._count = 0;

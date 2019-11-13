@@ -1,5 +1,5 @@
 import { ccclass, property } from '../../../platform/CCClassDecorator';
-import { vec3, toRadian} from '../../../vmath';
+import { Vec3, toRadian, Color} from '../../../value-types';
 import { GFXFormat, GFXFormatInfos, GFXPrimitiveMode } from '../../../../renderer/gfx/define';
 import gfx from '../../../../renderer/gfx';
 import Model from '../../../../renderer/scene/model';
@@ -19,8 +19,8 @@ const DIRECTION_THRESHOLD = Math.cos(toRadian(100));
 const _temp_trailEle = { position: cc.v3(), velocity: cc.v3() };
 const _temp_quat = cc.quat();
 const _temp_xform = cc.mat4();
-const _temp_vec3 = cc.v3();
-const _temp_vec3_1 = cc.v3();
+const _temp_Vec3 = cc.v3();
+const _temp_Vec3_1 = cc.v3();
 const _temp_color = cc.color();
 
 
@@ -361,13 +361,13 @@ export default class TrailModule {
         }
         let lastSeg = trail.getElement(trail.end - 1);
         if (this._needTransform) {
-            vec3.transformMat4(_temp_vec3, p.position, _temp_xform);
+            Vec3.transformMat4(_temp_Vec3, p.position, _temp_xform);
         } else {
-            vec3.copy(_temp_vec3, p.position);
+            Vec3.copy(_temp_Vec3, p.position);
         }
         if (lastSeg) {
             trail.iterateElement(this, this._updateTrailElement, p, scaledDt);
-            if (vec3.squaredDistance(lastSeg.position, _temp_vec3) < this._minSquaredDistance) {
+            if (Vec3.squaredDistance(lastSeg.position, _temp_Vec3) < this._minSquaredDistance) {
                 return;
             }
         }
@@ -375,7 +375,7 @@ export default class TrailModule {
         if (!lastSeg) {
             return;
         }
-        vec3.copy(lastSeg.position, _temp_vec3);
+        Vec3.copy(lastSeg.position, _temp_Vec3);
         lastSeg.lifetime = 0;
         if (this.widthFromParticle) {
             lastSeg.width = p.size.x * this.widthRatio.evaluate(0, 1);
@@ -385,15 +385,15 @@ export default class TrailModule {
         const trailNum = trail.count();
         if (trailNum === 2) {
             const lastSecondTrail = trail.getElement(trail.end - 2);
-            vec3.subtract(lastSecondTrail.velocity, lastSeg.position, lastSecondTrail.position);
+            Vec3.subtract(lastSecondTrail.velocity, lastSeg.position, lastSecondTrail.position);
         } else if (trailNum > 2) {
             const lastSecondTrail = trail.getElement(trail.end - 2);
             const lastThirdTrail = trail.getElement(trail.end - 3);
-            vec3.subtract(_temp_vec3, lastThirdTrail.position, lastSecondTrail.position);
-            vec3.subtract(_temp_vec3_1, lastSeg.position, lastSecondTrail.position);
-            vec3.subtract(lastSecondTrail.velocity, _temp_vec3_1, _temp_vec3);
-            if (vec3.equals(cc.Vec3.ZERO, lastSecondTrail.velocity)) {
-                vec3.copy(lastSecondTrail.velocity, _temp_vec3);
+            Vec3.subtract(_temp_Vec3, lastThirdTrail.position, lastSecondTrail.position);
+            Vec3.subtract(_temp_Vec3_1, lastSeg.position, lastSecondTrail.position);
+            Vec3.subtract(lastSecondTrail.velocity, _temp_Vec3_1, _temp_Vec3);
+            if (Vec3.equals(cc.Vec3.ZERO, lastSecondTrail.velocity)) {
+                Vec3.copy(lastSecondTrail.velocity, _temp_Vec3);
             }
         }
         if (this.colorFromParticle) {
@@ -407,7 +407,7 @@ export default class TrailModule {
         trailEle.lifetime += dt;
         if (trail.colorFromParticle) {
             trailEle.color.set(p.color);
-            trailEle.color.multiply(trail.colorOvertime.evaluate(1.0 - p.remainingLifetime / p.startLifetime, 1));
+            Color.multiply(trailEle.color, trailEle.color, trail.colorOvertime.evaluate(1.0 - p.remainingLifetime / p.startLifetime, 1));
         } else {
             trailEle.color.set(trail.colorOvertime.evaluate(1.0 - p.remainingLifetime / p.startLifetime, 1));
         }
@@ -439,7 +439,7 @@ export default class TrailModule {
             const indexOffset = this.vbOffset * 4 / this._vertSize;
             const end = trailSeg.start >= trailSeg.end ? trailSeg.end + trailSeg.trailElements.length : trailSeg.end;
             const trailNum = end - trailSeg.start;
-            // const lastSegRatio = vec3.distance(trailSeg.getTailElement()!.position, p.position) / this._minParticleDistance;
+            // const lastSegRatio = Vec3.distance(trailSeg.getTailElement()!.position, p.position) / this._minParticleDistance;
             const textCoordSeg = 1 / (trailNum /*- 1 + lastSegRatio*/);
             const startSegEle = trailSeg.trailElements[trailSeg.start];
             this._fillVertexBuffer(startSegEle, this.colorOverTrail.evaluate(1, 1), indexOffset, 1, 0, NEXT_TRIANGLE_INDEX);
@@ -449,28 +449,28 @@ export default class TrailModule {
                 this._fillVertexBuffer(segEle, this.colorOverTrail.evaluate(1 - j / trailNum, 1), indexOffset, 1 - j * textCoordSeg, j, PRE_TRIANGLE_INDEX | NEXT_TRIANGLE_INDEX);
             }
             if (this._needTransform) {
-                vec3.transformMat4(_temp_trailEle.position, p.position, _temp_xform);
+                Vec3.transformMat4(_temp_trailEle.position, p.position, _temp_xform);
             } else {
-                vec3.copy(_temp_trailEle.position, p.position);
+                Vec3.copy(_temp_trailEle.position, p.position);
             }
             if (trailNum === 1 || trailNum === 2) {
                 const lastSecondTrail = trailSeg.getElement(trailSeg.end - 1);
-                vec3.subtract(lastSecondTrail.velocity, _temp_trailEle.position, lastSecondTrail.position);
+                Vec3.subtract(lastSecondTrail.velocity, _temp_trailEle.position, lastSecondTrail.position);
                 this._vbF32[this.vbOffset - this._vertSize / 4 - 4] = lastSecondTrail.velocity.x;
                 this._vbF32[this.vbOffset - this._vertSize / 4 - 3] = lastSecondTrail.velocity.y;
                 this._vbF32[this.vbOffset - this._vertSize / 4 - 2] = lastSecondTrail.velocity.z;
                 this._vbF32[this.vbOffset - 4] = lastSecondTrail.velocity.x;
                 this._vbF32[this.vbOffset - 3] = lastSecondTrail.velocity.y;
                 this._vbF32[this.vbOffset - 2] = lastSecondTrail.velocity.z;
-                vec3.subtract(_temp_trailEle.velocity, _temp_trailEle.position, lastSecondTrail.position);
+                Vec3.subtract(_temp_trailEle.velocity, _temp_trailEle.position, lastSecondTrail.position);
                 this._checkDirectionReverse(_temp_trailEle, lastSecondTrail);
             } else if (trailNum > 2) {
                 const lastSecondTrail = trailSeg.getElement(trailSeg.end - 1);
                 const lastThirdTrail = trailSeg.getElement(trailSeg.end - 2);
-                vec3.subtract(_temp_vec3, lastThirdTrail.position, lastSecondTrail.position);
-                vec3.subtract(_temp_vec3_1, _temp_trailEle.position, lastSecondTrail.position);
-                vec3.subtract(lastSecondTrail.velocity, _temp_vec3_1, _temp_vec3);
-                vec3.normalize(lastSecondTrail.velocity, lastSecondTrail.velocity);
+                Vec3.subtract(_temp_Vec3, lastThirdTrail.position, lastSecondTrail.position);
+                Vec3.subtract(_temp_Vec3_1, _temp_trailEle.position, lastSecondTrail.position);
+                Vec3.subtract(lastSecondTrail.velocity, _temp_Vec3_1, _temp_Vec3);
+                Vec3.normalize(lastSecondTrail.velocity, lastSecondTrail.velocity);
                 this._checkDirectionReverse(lastSecondTrail, lastThirdTrail);
                 this._vbF32[this.vbOffset - this._vertSize / 4 - 4] = lastSecondTrail.velocity.x;
                 this._vbF32[this.vbOffset - this._vertSize / 4 - 3] = lastSecondTrail.velocity.y;
@@ -478,14 +478,14 @@ export default class TrailModule {
                 this._vbF32[this.vbOffset - 4] = lastSecondTrail.velocity.x;
                 this._vbF32[this.vbOffset - 3] = lastSecondTrail.velocity.y;
                 this._vbF32[this.vbOffset - 2] = lastSecondTrail.velocity.z;
-                vec3.subtract(_temp_trailEle.velocity, _temp_trailEle.position, lastSecondTrail.position);
-                vec3.normalize(_temp_trailEle.velocity, _temp_trailEle.velocity);
+                Vec3.subtract(_temp_trailEle.velocity, _temp_trailEle.position, lastSecondTrail.position);
+                Vec3.normalize(_temp_trailEle.velocity, _temp_trailEle.velocity);
                 this._checkDirectionReverse(_temp_trailEle, lastSecondTrail);
             }
             _temp_trailEle.width = p.size.x;
             _temp_trailEle.color = p.color;
 
-            if (vec3.equals(_temp_trailEle.velocity, cc.Vec3.ZERO)) {
+            if (Vec3.equals(_temp_trailEle.velocity, cc.Vec3.ZERO)) {
                 this.ibOffset -= 3;
             } else {
                 this._fillVertexBuffer(_temp_trailEle, this.colorOverTrail.evaluate(0, 1), indexOffset, 0, trailNum, PRE_TRIANGLE_INDEX);
@@ -506,7 +506,7 @@ export default class TrailModule {
         this._vbF32[this.vbOffset++] = trailSeg.velocity.y;
         this._vbF32[this.vbOffset++] = trailSeg.velocity.z;
         _temp_color.set(trailSeg.color);
-        _temp_color.multiply(colorModifer);
+        Color.multiply(_temp_color, _temp_color, colorModifer);
         this._vbUint32[this.vbOffset++] = _temp_color._val;
         this._vbF32[this.vbOffset++] = trailSeg.position.x;
         this._vbF32[this.vbOffset++] = trailSeg.position.y;
@@ -540,7 +540,7 @@ export default class TrailModule {
     }
 
     _checkDirectionReverse (currElement, prevElement) {
-        if (vec3.dot(currElement.velocity, prevElement.velocity) < DIRECTION_THRESHOLD) {
+        if (Vec3.dot(currElement.velocity, prevElement.velocity) < DIRECTION_THRESHOLD) {
             currElement.direction = 1 - prevElement.direction;
         } else {
             currElement.direction = prevElement.direction;

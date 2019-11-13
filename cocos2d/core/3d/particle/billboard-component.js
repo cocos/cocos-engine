@@ -6,7 +6,7 @@ import gfx from '../../../renderer/gfx';
 import { Color } from "../../value-types";
 import Model from "../../../renderer/scene/model";
 import Component from "../../components/CCComponent";
-import { toRadian, toDegree } from "../../../core/vmath";
+import { toRadian, toDegree } from "../../../core/value-types";
 
 const Material = require('../../assets/material/CCMaterial');
 

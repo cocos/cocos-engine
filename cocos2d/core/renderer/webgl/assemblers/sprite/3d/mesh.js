@@ -23,11 +23,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Vec3 from '../../../../../value-types/vec3';
 const Assembler3D = require('../../../../assembler-3d');
 const MeshAssembler = require('../2d/mesh');
 
-let vec3 = cc.vmath.vec3;
-let vec3_temp = cc.v3();
+let vec3_temp = new Vec3();
 
 export default class MeshAssembler3D extends MeshAssembler {
     
@@ -41,8 +41,8 @@ cc.js.mixin(MeshAssembler3D.prototype, Assembler3D, {
      
         let floatsPerVert = this.floatsPerVert;
         for (let i = 0, l = local.length/2; i < l; i++) {
-            vec3.set(vec3_temp, local[i*2], local[i*2+1], 0);
-            vec3.transformMat4(vec3_temp, vec3_temp, matrix);
+            Vec3.set(vec3_temp, local[i*2], local[i*2+1], 0);
+            Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
 
             let dstOffset = floatsPerVert * i;
             world[dstOffset] = vec3_temp.x;

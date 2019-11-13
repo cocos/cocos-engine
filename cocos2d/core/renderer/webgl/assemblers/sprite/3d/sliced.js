@@ -23,12 +23,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Vec3 from '../../../../../value-types/vec3';
+
 const Assembler3D = require('../../../../assembler-3d');
 const SlicedAssembler = require('../2d/sliced');
 
-const vec3 = cc.vmath.vec3;
-const vec3_temp_local = vec3.create();
-const vec3_temp_world = vec3.create();
+const vec3_temp_local = new Vec3();
+const vec3_temp_world = new Vec3();
 
 export default class SlicedAssembler3D extends SlicedAssembler {
     
@@ -46,8 +47,8 @@ cc.js.mixin(SlicedAssembler3D.prototype, Assembler3D, {
             for (let col = 0; col < 4; ++col) {
                 let localColX = local[col * 2];
                 
-                vec3.set(vec3_temp_local, localColX, localRowY, 0);
-                vec3.transformMat4(vec3_temp_world, vec3_temp_local, matrix);
+                Vec3.set(vec3_temp_local, localColX, localRowY, 0);
+                Vec3.transformMat4(vec3_temp_world, vec3_temp_local, matrix);
 
                 let worldIndex = (row * 4 + col) * floatsPerVert;
                 world[worldIndex] = vec3_temp_world.x;

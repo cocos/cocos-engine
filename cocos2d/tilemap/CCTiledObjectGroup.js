@@ -224,7 +224,8 @@ let TiledObjectGroup = cc.Class({
                     sp = imgNode.addComponent(cc.Sprite);
                 }
                 sp.spriteFrame = new cc.SpriteFrame();
-                sp.spriteFrame.setTexture(grid.tileset.sourceImage, grid);
+                let rect = cc.rect(grid);
+                sp.spriteFrame.setTexture(grid.tileset.sourceImage, rect);
 
                 imgNode.width = object.width;
                 imgNode.height = object.height;

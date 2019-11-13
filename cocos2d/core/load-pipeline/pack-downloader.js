@@ -39,6 +39,7 @@ var PackState = {
 function UnpackerData () {
     this.unpacker = null;
     this.state = PackState.Invalid;
+    this.duration = 0;
 }
 
 // {assetUuid: packUuid|[packUuid]}
@@ -53,12 +54,19 @@ var packIndices = {};
 // We have to cache all packs in global because for now there's no operation context in loader.
 var globalUnpackers = {};
 
+var toBeChecked = [];
+
+var timer = null;
+var checkPeriod = 5000;
 
 function error (uuid, packUuid) {
     return new Error('Can not retrieve ' + uuid + ' from packer ' + packUuid);
 }
 
 module.exports = {
+    // two minutes
+    msToRelease: 2 * 60 * 1000,
+
     initPacks: function (packs) {
         packIndices = packs;
         uuidToPack = {};
@@ -81,6 +89,7 @@ module.exports = {
                 cc.errorID(4916, uuid);
                 return callback(err);
             }
+            globalUnpackers[packUuid].url = packUrl;
             var res = self._doLoadNewPack(uuid, packUuid, packJson);
             if (res) {
                 callback(null, res);
@@ -102,6 +111,7 @@ module.exports = {
             unpackerData.unpacker.load(packIndices[packUuid], packJson);
             unpackerData.state = PackState.Loaded;
         }
+        // can not release subdomain packed json because it would not be reloaded. 
     },
 
     _doLoadNewPack: function (uuid, packUuid, packedJson) {
@@ -120,6 +130,23 @@ module.exports = {
             }
             unpackerData.unpacker.load(packIndices[packUuid], packedJson);
             unpackerData.state = PackState.Loaded;
+            unpackerData.duration = 0;
+            toBeChecked.push(packUuid);
+            var self = this;
+            if (!timer) timer = setInterval(function () {
+                var maxDuration = self.msToRelease / checkPeriod;
+                for (var i = toBeChecked.length - 1; i >= 0; i--) {
+                    var id = toBeChecked[i];
+                    var pack = globalUnpackers[id];
+                    if (++pack.duration > maxDuration) {
+                        self.release(id);
+                    }
+                }
+                if (toBeChecked.length === 0) { 
+                    clearInterval(timer);
+                    timer = null;
+                }
+            }, checkPeriod);
         }
 
         return unpackerData.unpacker.retrieve(uuid);
@@ -165,6 +192,8 @@ module.exports = {
 
         var unpackerData = globalUnpackers[packUuid];
         if (unpackerData && unpackerData.state === PackState.Loaded) {
+            // update duration
+            unpackerData.duration = 0;
             // ensure async
             var json = unpackerData.unpacker.retrieve(uuid);
             if (json) {
@@ -186,6 +215,15 @@ module.exports = {
         }
         // Return null to let caller know it's loading asynchronously
         return null;
+    },
+
+    release (packUuid) {
+        var unpackerData = globalUnpackers[packUuid];
+        if (unpackerData) {
+            cc.loader.release(unpackerData.url);
+            delete globalUnpackers[packUuid];
+            cc.js.array.fastRemove(toBeChecked, packUuid);
+        }
     }
 };
 
