@@ -70,18 +70,10 @@ export class Model {
         return this._enabled;
     }
 
-    /**
-     * Get the hosting node of this camera
-     * @returns the hosting node
-     */
     get node () {
         return this._node;
     }
 
-    /**
-     * Set the hosting node of this model
-     * @param {Node} node the hosting node
-     */
     set node (node: INode) {
         this._node = node;
     }
@@ -155,23 +147,24 @@ export class Model {
     protected _node: INode;
     protected _transform: INode;
     protected _id: number;
-    protected _enabled: boolean = false;
+    protected _enabled = false;
     protected _visFlags = Layers.Enum.NONE;
-    protected _cameraID: number = -1;
-    protected _userKey: number = -1;
+    protected _cameraID = -1;
+    protected _userKey = -1;
     protected _worldBounds: aabb | null = null;
     protected _modelBounds: aabb | null = null;
     protected _subModels: SubModel[] = [];
-    protected _matPSORecord: Map<Material, GFXPipelineState[]>;
-    protected _matRefCount: Map<Material, number>;
-    protected _uboLocal: UBOLocal;
+    protected _implantPSOs: GFXPipelineState[] = [];
+    protected _matPSORecord = new Map<Material, GFXPipelineState[]>();
+    protected _matRefCount = new Map<Material, number>();
+    protected _uboLocal = new UBOLocal();
     protected _localUBO: GFXBuffer | null = null;
-    protected _localBindings: Map<string, IInternalBindingInst> = new Map<string, IInternalBindingInst>();
-    protected _inited: boolean = false;
-    protected _uboUpdated: boolean = false;
-    protected _castShadow: boolean = false;
-    protected _isDynamicBatching: boolean = false;
-    private _transformUpdated: boolean = true;
+    protected _localBindings = new Map<string, IInternalBindingInst>();
+    protected _inited = false;
+    protected _uboUpdated = false;
+    protected _castShadow = false;
+    protected _isDynamicBatching = false;
+    private _transformUpdated = true;
 
     /**
      * Setup a default empty model
@@ -179,12 +172,8 @@ export class Model {
     constructor (scene: RenderScene, node: INode) {
         this._device = cc.director.root!.device;
         this._scene = scene;
+        this._node = this._transform = node;
         this._id = this._scene.generateModelId();
-        this._transform = this._node = node;
-
-        this._matPSORecord = new Map<Material, GFXPipelineState[]>();
-        this._matRefCount = new Map<Material, number>();
-        this._uboLocal = new UBOLocal();
     }
 
     public destroy () {
@@ -328,6 +317,15 @@ export class Model {
             }
             m.updateCommandBuffer();
         }
+    }
+
+    public insertImplantPSO (pso: GFXPipelineState) {
+        this._implantPSOs.push(pso);
+    }
+
+    public removeImplantPSO (pso: GFXPipelineState) {
+        const idx = this._implantPSOs.indexOf(pso);
+        if (idx >= 0) { this._implantPSOs.splice(idx, 1); }
     }
 
     protected createPipelineState (mat: Material): GFXPipelineState[] {

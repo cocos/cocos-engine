@@ -677,6 +677,7 @@ export class Pass {
     get device () { return this._device; }
     get bindings () { return this._bindings; }
     get shader () { return this._shader!; }
+    get renderPass () { return this._renderPass!; }
     get dynamics () { return this._dynamics; }
     get batchedBuffer () { return this._batchedBuffer; }
     get blocks () { return this._blocks; }
