@@ -33,7 +33,7 @@ import { ccclass, disallowMultiple, executeInEditMode, executionOrder, menu, pro
 import { Vec3, Color } from '../../math';
 import { GFXClearFlag } from '../../gfx/define';
 import { Camera } from '../../renderer';
-import { UITransformComponent } from './ui-transfrom-component';
+import { UITransformComponent } from './ui-transform-component';
 import { Node } from '../../scene-graph/node';
 import { RenderTexture } from '../../assets/render-texture';
 import { GFXWindow } from '../../gfx/window';

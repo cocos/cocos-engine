@@ -40,7 +40,7 @@ import { LabelOutlineComponent } from './label-outline-component';
 import { SpriteComponent } from './sprite-component';
 import { UIComponent } from '../../core/components/ui-base/ui-component';
 import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
-import { UITransformComponent } from '../../core/components/ui-base/ui-transfrom-component';
+import { UITransformComponent } from '../../core/components/ui-base/ui-transform-component';
 import { INode } from '../../core/utils/interfaces';
 import { assert, warnID } from '../../core/platform/debug';
 import { loader } from '../../core/load-pipeline';

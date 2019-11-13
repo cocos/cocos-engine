@@ -28,10 +28,10 @@
  */
 
 import { Component } from '../component';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
-import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
-import { EventListener, ILinstenerMask } from '../../../core/platform/event-manager/event-listener';
-import { Mat4, Rect, Size, Vec2, Vec3 } from '../../../core/math';
+import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
+import { SystemEventType } from '../../platform/event-manager/event-enum';
+import { EventListener, ILinstenerMask } from '../../platform/event-manager/event-listener';
+import { Mat4, Rect, Size, Vec2, Vec3 } from '../../math';
 import { aabb } from '../../geom-utils';
 import { CanvasComponent } from './canvas-component';
 import { director } from '../../director';

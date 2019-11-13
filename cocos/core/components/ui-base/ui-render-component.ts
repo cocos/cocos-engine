@@ -44,7 +44,7 @@ import { Material } from '../../assets';
 import { RenderableComponent } from '../../../core/3d/framework/renderable-component';
 import { IAssembler, IAssemblerManager } from '../../renderer/ui/base';
 import { UIComponent } from './ui-component';
-import { UITransformComponent } from './ui-transfrom-component';
+import { UITransformComponent } from './ui-transform-component';
 import { director } from '../../director';
 
 // hack
