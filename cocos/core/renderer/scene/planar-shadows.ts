@@ -18,7 +18,7 @@ import { SphereLight } from './sphere-light';
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
 const _qt = new Quat();
-const info: IGFXCommandBufferInfo = {
+const _info: IGFXCommandBufferInfo = {
     allocator: null!,
     type: GFXCommandBufferType.SECONDARY,
 };
@@ -230,12 +230,12 @@ export class PlanarShadows {
 
     protected _createOrReuseCommandBuffer (cb?: GFXCommandBuffer) {
         const device = this._scene.root.device;
-        info.allocator = device.commandAllocator;
+        _info.allocator = device.commandAllocator;
         if (cb) {
             if (cb.status === GFXStatus.SUCCESS) { cb.destroy(); }
-            cb.initialize(info);
+            cb.initialize(_info);
         } else {
-            cb = device.createCommandBuffer(info);
+            cb = device.createCommandBuffer(_info);
         }
         return cb;
     }
