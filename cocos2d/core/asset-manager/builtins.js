@@ -39,13 +39,11 @@ const finalizer = require('./finalizer');
  */
 var builtins = {
     
-    _assets: new Cache(), // builtin assets
+    _assets: new Cache({ material: new Cache(), effect: new Cache() }), // builtin assets
 
     _loadBuiltins (name, cb) {
         let dirname = name  + 's';
-        let builtin = new Cache();
-        this._assets.add(name, builtin);
-
+        let builtin = this._assets.get(name);
         return cc.assetManager._bundles.get('internal').loadDir(dirname, null, null, (err, assets) => {
             if (err) {
                 cc.error(err);
@@ -128,9 +126,8 @@ var builtins = {
                 finalizer.unlock(asset);
                 finalizer.release(asset, true);
             });
-            assets.destroy();
+            assets.clear();
         })
-        this._assets.clear();
     }
 }
 
