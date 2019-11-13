@@ -4,7 +4,7 @@ import { property, ccclass, menu, executionOrder } from '../data/class-decorator
 import { view } from './view';
 import { SpriteComponent } from '../../ui/components/sprite-component';
 import { Node } from '../scene-graph';
-import { UITransformComponent } from '../components/ui-base/ui-transfrom-component';
+import { UITransformComponent } from '../components/ui-base/ui-transform-component';
 import { SpriteFrame, ImageAsset } from '../assets';
 import { Rect } from '../math';
 

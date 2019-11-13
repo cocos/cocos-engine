@@ -2,7 +2,7 @@
  * @category pipeline
  */
 
-import { UITransformComponent } from '../components/ui-base/ui-transfrom-component';
+import { UITransformComponent } from '../components/ui-base/ui-transform-component';
 import { CameraComponent } from '../3d/framework';
 import { Vec3 } from '../math';
 import { Node } from '../scene-graph';
