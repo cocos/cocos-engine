@@ -213,8 +213,11 @@ export class PlanarShadows {
 
     protected _createPSO (model: Model) {
         const pass = model instanceof SkinningModel ? this._passSkinning : this._passNormal;
-        // @ts-ignore
+        // @ts-ignore TS2445
         const pso = model._doCreatePSO(pass);
+        for (let i = 0; i < model.subModelNum; i++) {
+            model.subModels[i].psos!.push(pso); // join model PSO list to sync binding layouts
+        }
         pso.pipelineLayout.layouts[0].update();
         return pso;
     }
