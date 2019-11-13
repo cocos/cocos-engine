@@ -231,65 +231,66 @@ export class AmmoWorld implements IPhysicsWorld {
             const shape0: AmmoShape = data.shape0;
             const shape1: AmmoShape = data.shape1;
             this.oldContactsDic.set(shape0.id, shape1.id, data);
-
             const collider0 = shape0.collider;
             const collider1 = shape1.collider;
-            const isTrigger = collider0.isTrigger || collider1.isTrigger;
-            if (isTrigger) {
-                if (this.triggerArrayMat.get(shape0.id, shape1.id)) {
-                    TriggerEventObject.type = 'onTriggerStay';
-                } else {
-                    TriggerEventObject.type = 'onTriggerEnter';
-                    this.triggerArrayMat.set(shape0.id, shape1.id, true);
-                }
-                TriggerEventObject.selfCollider = collider0;
-                TriggerEventObject.otherCollider = collider1;
-                collider0.emit(TriggerEventObject.type, TriggerEventObject);
-
-                TriggerEventObject.selfCollider = collider1;
-                TriggerEventObject.otherCollider = collider0;
-                collider1.emit(TriggerEventObject.type, TriggerEventObject);
-            } else {
-                if (this.collisionArrayMat.get(shape0.id, shape1.id)) {
-                    CollisionEventObject.type = 'onCollisionStay';
-                } else {
-                    CollisionEventObject.type = 'onCollisionEnter';
-                    this.collisionArrayMat.set(shape0.id, shape1.id, true);
-                }
-
-                for (let i = 0; i < data.contacts.length; i++) {
-                    const cq = data.contacts[i] as Ammo.btManifoldPoint;
-                    if (contactsPool.length > 0) {
-                        const c = contactsPool.pop();
-                        Ammo2CocosVec3(c.contactA, cq.m_positionWorldOnA);
-                        Ammo2CocosVec3(c.contactB, cq.m_positionWorldOnB);
-                        Ammo2CocosVec3(c.normal, cq.m_normalWorldOnB);
-                        CollisionEventObject.contacts.push(c);
+            if (collider0 && collider1) {
+                const isTrigger = collider0.isTrigger || collider1.isTrigger;
+                if (isTrigger) {
+                    if (this.triggerArrayMat.get(shape0.id, shape1.id)) {
+                        TriggerEventObject.type = 'onTriggerStay';
                     } else {
-                        const c = {
-                            contactA: Ammo2CocosVec3(new Vec3(), cq.m_positionWorldOnA),
-                            contactB: Ammo2CocosVec3(new Vec3(), cq.m_positionWorldOnB),
-                            normal: Ammo2CocosVec3(new Vec3(), cq.m_normalWorldOnB),
-                        };
-                        CollisionEventObject.contacts.push(c);
+                        TriggerEventObject.type = 'onTriggerEnter';
+                        this.triggerArrayMat.set(shape0.id, shape1.id, true);
                     }
+                    TriggerEventObject.selfCollider = collider0;
+                    TriggerEventObject.otherCollider = collider1;
+                    collider0.emit(TriggerEventObject.type, TriggerEventObject);
+
+                    TriggerEventObject.selfCollider = collider1;
+                    TriggerEventObject.otherCollider = collider0;
+                    collider1.emit(TriggerEventObject.type, TriggerEventObject);
+                } else {
+                    if (this.collisionArrayMat.get(shape0.id, shape1.id)) {
+                        CollisionEventObject.type = 'onCollisionStay';
+                    } else {
+                        CollisionEventObject.type = 'onCollisionEnter';
+                        this.collisionArrayMat.set(shape0.id, shape1.id, true);
+                    }
+
+                    for (let i = 0; i < data.contacts.length; i++) {
+                        const cq = data.contacts[i] as Ammo.btManifoldPoint;
+                        if (contactsPool.length > 0) {
+                            const c = contactsPool.pop();
+                            Ammo2CocosVec3(c.contactA, cq.m_positionWorldOnA);
+                            Ammo2CocosVec3(c.contactB, cq.m_positionWorldOnB);
+                            Ammo2CocosVec3(c.normal, cq.m_normalWorldOnB);
+                            CollisionEventObject.contacts.push(c);
+                        } else {
+                            const c = {
+                                contactA: Ammo2CocosVec3(new Vec3(), cq.m_positionWorldOnA),
+                                contactB: Ammo2CocosVec3(new Vec3(), cq.m_positionWorldOnB),
+                                normal: Ammo2CocosVec3(new Vec3(), cq.m_normalWorldOnB),
+                            };
+                            CollisionEventObject.contacts.push(c);
+                        }
+                    }
+
+                    CollisionEventObject.selfCollider = collider0;
+                    CollisionEventObject.otherCollider = collider1;
+                    collider0.emit(CollisionEventObject.type, CollisionEventObject);
+
+                    CollisionEventObject.selfCollider = collider1;
+                    CollisionEventObject.otherCollider = collider0;
+                    collider1.emit(CollisionEventObject.type, CollisionEventObject);
                 }
 
-                CollisionEventObject.selfCollider = collider0;
-                CollisionEventObject.otherCollider = collider1;
-                collider0.emit(CollisionEventObject.type, CollisionEventObject);
+                if (this.oldContactsDic.get(shape0.id, shape1.id) == null) {
+                    this.oldContactsDic.set(shape0.id, shape1.id, data);
+                }
 
-                CollisionEventObject.selfCollider = collider1;
-                CollisionEventObject.otherCollider = collider0;
-                collider1.emit(CollisionEventObject.type, CollisionEventObject);
+                shape0.sharedBody.syncSceneToPhysics();
+                shape1.sharedBody.syncSceneToPhysics();
             }
-
-            if (this.oldContactsDic.get(shape0.id, shape1.id) == null) {
-                this.oldContactsDic.set(shape0.id, shape1.id, data);
-            }
-
-            shape0.sharedBody.syncSceneToPhysics();
-            shape1.sharedBody.syncSceneToPhysics();
         }
 
         /** TODO: 待一致，此处 trigger 和 collsion 事件，
@@ -304,65 +305,67 @@ export class AmmoWorld implements IPhysicsWorld {
             const shape1: AmmoShape = data.shape1;
             const collider0 = shape0.collider;
             const collider1 = shape1.collider;
-            const isTrigger = collider0.isTrigger || collider1.isTrigger;
-            if (this.contactsDic.getDataByKey(key) == null) {
-                if (isTrigger) {
-                    // emit exit
-                    if (this.triggerArrayMat.get(shape0.id, shape1.id)) {
-                        TriggerEventObject.type = 'onTriggerExit';
-                        TriggerEventObject.selfCollider = collider0;
-                        TriggerEventObject.otherCollider = collider1;
-                        collider0.emit(TriggerEventObject.type, TriggerEventObject);
+            if (collider0 && collider1) {
+                const isTrigger = collider0.isTrigger || collider1.isTrigger;
+                if (this.contactsDic.getDataByKey(key) == null) {
+                    if (isTrigger) {
+                        // emit exit
+                        if (this.triggerArrayMat.get(shape0.id, shape1.id)) {
+                            TriggerEventObject.type = 'onTriggerExit';
+                            TriggerEventObject.selfCollider = collider0;
+                            TriggerEventObject.otherCollider = collider1;
+                            collider0.emit(TriggerEventObject.type, TriggerEventObject);
 
-                        TriggerEventObject.selfCollider = collider1;
-                        TriggerEventObject.otherCollider = collider0;
-                        collider1.emit(TriggerEventObject.type, TriggerEventObject);
+                            TriggerEventObject.selfCollider = collider1;
+                            TriggerEventObject.otherCollider = collider0;
+                            collider1.emit(TriggerEventObject.type, TriggerEventObject);
 
-                        this.triggerArrayMat.set(shape0.id, shape1.id, false);
-                        this.oldContactsDic.set(shape0.id, shape1.id, null);
-                    }
-                }
-                else {
-                    // emit exit
-                    if (this.collisionArrayMat.get(shape0.id, shape1.id)) {
-                        for (let j = CollisionEventObject.contacts.length; j--;) {
-                            contactsPool.push(CollisionEventObject.contacts.pop());
+                            this.triggerArrayMat.set(shape0.id, shape1.id, false);
+                            this.oldContactsDic.set(shape0.id, shape1.id, null);
                         }
-
-                        for (let i = 0; i < data.contacts.length; i++) {
-                            const cq = data.contacts[i] as Ammo.btManifoldPoint;
-                            if (contactsPool.length > 0) {
-                                const c = contactsPool.pop();
-                                Ammo2CocosVec3(c.contactA, cq.m_positionWorldOnA);
-                                Ammo2CocosVec3(c.contactB, cq.m_positionWorldOnB);
-                                Ammo2CocosVec3(c.normal, cq.m_normalWorldOnB);
-                                CollisionEventObject.contacts.push(c);
-                            } else {
-                                const c = {
-                                    contactA: Ammo2CocosVec3(new Vec3(), cq.m_positionWorldOnA),
-                                    contactB: Ammo2CocosVec3(new Vec3(), cq.m_positionWorldOnB),
-                                    normal: Ammo2CocosVec3(new Vec3(), cq.m_normalWorldOnB),
-                                };
-                                CollisionEventObject.contacts.push(c);
+                    }
+                    else {
+                        // emit exit
+                        if (this.collisionArrayMat.get(shape0.id, shape1.id)) {
+                            for (let j = CollisionEventObject.contacts.length; j--;) {
+                                contactsPool.push(CollisionEventObject.contacts.pop());
                             }
+
+                            for (let i = 0; i < data.contacts.length; i++) {
+                                const cq = data.contacts[i] as Ammo.btManifoldPoint;
+                                if (contactsPool.length > 0) {
+                                    const c = contactsPool.pop();
+                                    Ammo2CocosVec3(c.contactA, cq.m_positionWorldOnA);
+                                    Ammo2CocosVec3(c.contactB, cq.m_positionWorldOnB);
+                                    Ammo2CocosVec3(c.normal, cq.m_normalWorldOnB);
+                                    CollisionEventObject.contacts.push(c);
+                                } else {
+                                    const c = {
+                                        contactA: Ammo2CocosVec3(new Vec3(), cq.m_positionWorldOnA),
+                                        contactB: Ammo2CocosVec3(new Vec3(), cq.m_positionWorldOnB),
+                                        normal: Ammo2CocosVec3(new Vec3(), cq.m_normalWorldOnB),
+                                    };
+                                    CollisionEventObject.contacts.push(c);
+                                }
+                            }
+
+                            CollisionEventObject.type = 'onCollisionExit';
+                            CollisionEventObject.selfCollider = collider0;
+                            CollisionEventObject.otherCollider = collider1;
+                            collider0.emit(CollisionEventObject.type, CollisionEventObject);
+
+                            CollisionEventObject.selfCollider = collider1;
+                            CollisionEventObject.otherCollider = collider0;
+                            collider1.emit(CollisionEventObject.type, CollisionEventObject);
+
+                            this.collisionArrayMat.set(shape0.id, shape1.id, false);
+                            this.oldContactsDic.set(shape0.id, shape1.id, null);
                         }
-
-                        CollisionEventObject.type = 'onCollisionExit';
-                        CollisionEventObject.selfCollider = collider0;
-                        CollisionEventObject.otherCollider = collider1;
-                        collider0.emit(CollisionEventObject.type, CollisionEventObject);
-
-                        CollisionEventObject.selfCollider = collider1;
-                        CollisionEventObject.otherCollider = collider0;
-                        collider1.emit(CollisionEventObject.type, CollisionEventObject);
-
-                        this.collisionArrayMat.set(shape0.id, shape1.id, false);
-                        this.oldContactsDic.set(shape0.id, shape1.id, null);
                     }
-                }
 
-                shape0.sharedBody.syncSceneToPhysics();
-                shape1.sharedBody.syncSceneToPhysics();
+                    shape0.sharedBody.syncSceneToPhysics();
+                    shape1.sharedBody.syncSceneToPhysics();
+                }
             }
         }
 
