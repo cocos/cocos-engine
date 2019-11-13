@@ -165,9 +165,16 @@ export class SkinningModel extends Model {
         for (const submodel of this._subModels) {
             if (!submodel.psos) { continue; }
             for (const pso of submodel.psos) {
-                pso.pipelineLayout.layouts[0].bindTextureView(UniformJointsTexture.binding, texture.handle.texView);
-                pso.pipelineLayout.layouts[0].bindSampler(UniformJointsTexture.binding, sampler);
+                const bindingLayout = pso.pipelineLayout.layouts[0];
+                bindingLayout.bindTextureView(UniformJointsTexture.binding, texture.handle.texView);
+                bindingLayout.bindSampler(UniformJointsTexture.binding, sampler);
             }
+        }
+        for (const pso of this._implantPSOs) {
+            const bindingLayout = pso.pipelineLayout.layouts[0];
+            bindingLayout.bindTextureView(UniformJointsTexture.binding, texture.handle.texView);
+            bindingLayout.bindSampler(UniformJointsTexture.binding, sampler);
+            bindingLayout.update();
         }
     }
 
@@ -175,12 +182,13 @@ export class SkinningModel extends Model {
         const pso = super._doCreatePSO(pass, { CC_USE_SKINNING: selectJointsMediumType(this._device) });
         const { buffer, texture } = this._jointsMedium;
         const animInfo = JointsAnimationInfo.get(this._transform.uuid);
-        pso.pipelineLayout.layouts[0].bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);
-        pso.pipelineLayout.layouts[0].bindBuffer(UBOSkinningAnimation.BLOCK.binding, animInfo.buffer);
+        const bindingLayout = pso.pipelineLayout.layouts[0];
+        bindingLayout.bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);
+        bindingLayout.bindBuffer(UBOSkinningAnimation.BLOCK.binding, animInfo.buffer);
         const sampler = samplerLib.getSampler(this._device, jointsTextureSamplerHash);
         if (texture) {
-            pso.pipelineLayout.layouts[0].bindTextureView(UniformJointsTexture.binding, texture.handle.texView);
-            pso.pipelineLayout.layouts[0].bindSampler(UniformJointsTexture.binding, sampler);
+            bindingLayout.bindTextureView(UniformJointsTexture.binding, texture.handle.texView);
+            bindingLayout.bindSampler(UniformJointsTexture.binding, sampler);
         }
         return pso;
     }
