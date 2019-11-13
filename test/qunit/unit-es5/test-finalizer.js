@@ -140,6 +140,9 @@ test('persistNode', function () {
     var sp = new cc.SpriteFrame();
     sp._uuid = 'AAA';
     sp._addRef();
+    var tex = new cc.Texture2D();
+    tex.loaded = true;
+    sp.setTexture(tex);
     cc.assetManager._assets.add('AAA', sp);
     var persistNode = new cc.Node();
     persistNode.addComponent(cc.Sprite).spriteFrame = sp;
