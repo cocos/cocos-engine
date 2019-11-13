@@ -1370,12 +1370,13 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         if (!destroyByParent) {
             // remove from parent
             if (parent) {
+                this.emit(SystemEventType.PARENT_CHANGED, this);
                 // During destroy process, siblingIndex is not relyable
                 const childIndex = parent._children.indexOf(this);
                 parent._children.splice(childIndex, 1);
                 this._siblingIndex = 0;
                 if (parent.emit) {
-                    parent.emit('child-removed', this);
+                    parent.emit(SystemEventType.CHILD_REMOVED, this);
                 }
             }
         }
