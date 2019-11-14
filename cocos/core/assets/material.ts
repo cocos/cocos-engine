@@ -381,8 +381,6 @@ export class Material extends Asset {
                     let props = this._props[pass.idxInTech];
                     if (!props) { props = this._props[i] = {}; }
                     for (const p in props) {
-                        const val = props[p];
-                        if (!val) { continue; }
                         this._uploadProperty(pass, p, props[p]);
                     }
                 });

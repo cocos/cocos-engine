@@ -33,7 +33,6 @@ import { BufferBlob } from '../3d/misc/buffer-blob';
 import { GFXBuffer } from '../gfx/buffer';
 import {
     GFXAttributeName,
-    GFXBufferFlagBit,
     GFXBufferUsageBit,
     GFXFormat,
     GFXFormatInfos,
@@ -43,7 +42,7 @@ import {
 } from '../gfx/define';
 import { GFXDevice } from '../gfx/device';
 import { IGFXAttribute } from '../gfx/input-assembler';
-import { Root } from '../root';
+import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { Asset } from './asset';
 import { postLoadMesh } from './utils/mesh-utils';
 
@@ -336,6 +335,11 @@ export class Mesh extends Asset {
         return this._data;
     }
 
+    get hash () {
+        if (!this._hash && this._data) { this._hash = murmurhash2_32_gc(this._data, 666); }
+        return this._hash;
+    }
+
     /**
      * 是否具有平铺的缓冲。
      */
@@ -350,7 +354,10 @@ export class Mesh extends Asset {
     };
 
     @property
-    private _dataLength: number = 0;
+    private _dataLength = 0;
+
+    @property
+    private _hash = 0;
 
     private _data: Uint8Array | null = null;
     private _initialized = false;
@@ -481,6 +488,7 @@ export class Mesh extends Asset {
         this.destroyRenderingMesh();
         this._struct = info.struct;
         this._data = info.data;
+        this._hash = 0;
         this.loaded = true;
         this.emit('load');
     }

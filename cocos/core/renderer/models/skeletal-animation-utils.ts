@@ -29,10 +29,11 @@
 
 import { AnimationClip } from '../../animation/animation-clip';
 import { SkelAnimDataHub } from '../../animation/skeletal-animation-data-hub';
+import { Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { aabb } from '../../geom-utils';
 import { GFXBuffer } from '../../gfx/buffer';
-import { GFXAddress, GFXBufferUsageBit, GFXFilter, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit } from '../../gfx/define';
+import { GFXAddress, GFXAttributeName, GFXBufferUsageBit, GFXFilter, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
 import { Mat4, Quat, Vec3 } from '../../math';
 import { UBOSkinningAnimation } from '../../pipeline/define';
@@ -159,6 +160,8 @@ export class JointsTexturePool {
 
     public destroy () {
         this._pool.destroy();
+        AnimatedBoundsInfo.clear();
+        JointsAnimationInfo.clear();
     }
 
     /**
@@ -260,45 +263,101 @@ export class JointsAnimationInfo {
         return info;
     }
 
+    public static clear () {
+        for (const info of JointsAnimationInfo.pool.values()) {
+            info.buffer.destroy();
+        }
+        JointsAnimationInfo.pool.clear();
+    }
+
     protected static pool = new Map<string, IAnimInfo>();
 }
 
-const v3_t = new Vec3();
-const v3_t2 = new Vec3();
+const v3_3 = new Vec3();
+const v3_4 = new Vec3();
+const ab_1 = new aabb();
 
 export class AnimatedBoundsInfo {
-    public static get (skeleton: Skeleton, clip: AnimationClip) {
+    public static get (mesh: Mesh, skeleton: Skeleton, clip: AnimationClip) {
         const hash = skeleton.hash ^ clip.hash;
-        const list: aabb[] = AnimatedBoundsInfo.pool.get(hash) || [];
+        const list: aabb[] = AnimatedBoundsInfo.fullClipBoundsPool.get(hash) || [];
         if (list.length) { return list; }
+        const innerHash = mesh.hash ^ skeleton.hash;
+        let perJointBounds = AnimatedBoundsInfo.perJointBoundsPool.get(innerHash);
+        if (!perJointBounds) {
+            perJointBounds = AnimatedBoundsInfo.getBoneSpacePerJointBounds(mesh, skeleton);
+            AnimatedBoundsInfo.perJointBoundsPool.set(innerHash, perJointBounds);
+        }
         const frames = clip.keys[0].length;
-        for (let frame = 0; frame < frames; frame++) {
+        for (let fid = 0; fid < frames; fid++) {
             list.push(new aabb(Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity));
         }
         const data = SkelAnimDataHub.getOrExtract(clip);
-        // per frame bounding box approx
-        for (let i = 0; i < skeleton.joints.length; i++) {
-            const nodeData = data[skeleton.joints[i]];
-            if (!nodeData || !nodeData.props) { continue; }
+        const joints = skeleton.joints;
+        // per frame bounding box
+        for (let i = 0; i < joints.length; i++) {
+            const nodeData = data[joints[i]];
+            const bound = perJointBounds[i];
+            if (!bound || !nodeData || !nodeData.props) { continue; }
             const matrix = nodeData.props.worldMatrix.values;
-            for (let frame = 0; frame < frames; frame++) {
-                const m = matrix[frame];
-                const info = list[frame];
-                Vec3.set(v3_t, m.m12, m.m13, m.m14);
-                Vec3.min(info.center, info.center, v3_t);
-                Vec3.max(info.halfExtents, info.halfExtents, v3_t);
+            for (let fid = 0; fid < frames; fid++) {
+                const m = matrix[fid];
+                const info = list[fid];
+                aabb.transform(ab_1, bound, m);
+                ab_1.getBoundary(v3_3, v3_4);
+                Vec3.min(info.center, info.center, v3_3);
+                Vec3.max(info.halfExtents, info.halfExtents, v3_4);
             }
         }
-        for (let frame = 0; frame < frames; frame++) {
-            const { center, halfExtents } = list[frame];
-            Vec3.add(v3_t, center, halfExtents);
-            Vec3.subtract(v3_t2, halfExtents, center);
-            Vec3.multiplyScalar(center, v3_t, 0.5);
-            Vec3.multiplyScalar(halfExtents, v3_t2, 0.5);
+        for (let fid = 0; fid < frames; fid++) {
+            const { center, halfExtents } = list[fid];
+            aabb.fromPoints(list[fid], center, halfExtents);
         }
-        AnimatedBoundsInfo.pool.set(hash, list);
+        AnimatedBoundsInfo.fullClipBoundsPool.set(hash, list);
         return list;
     }
 
-    protected static pool = new Map<number, aabb[]>();
+    public static getBoneSpacePerJointBounds (mesh: Mesh, skeleton: Skeleton) {
+        const bounds: Array<aabb | null> = [];
+        const valid: boolean[] = [];
+        const bindposes = skeleton.bindposes;
+        for (let i = 0; i < bindposes.length; i++) {
+            bounds.push(new aabb(Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity));
+            valid.push(false);
+        }
+        for (let p = 0; p < mesh.struct.primitives.length; p++) {
+            const joints = mesh.readAttribute(p, GFXAttributeName.ATTR_JOINTS);
+            const weights = mesh.readAttribute(p, GFXAttributeName.ATTR_WEIGHTS);
+            const positions = mesh.readAttribute(p, GFXAttributeName.ATTR_POSITION);
+            if (!joints || !weights || !positions) { continue; }
+            const vertCount = Math.min(joints.length / 4, weights.length / 4, positions.length / 3);
+            for (let i = 0; i < vertCount; i++) {
+                Vec3.set(v3_3, positions[3 * i + 0], positions[3 * i + 1], positions[3 * i + 2]);
+                for (let j = 0; j < 4; ++j) {
+                    const idx = 4 * i + j;
+                    const joint = joints[idx];
+                    if (weights[idx] === 0 || joint >= bindposes.length) { continue; }
+                    Vec3.transformMat4(v3_4, v3_3, bindposes[joint]);
+                    valid[joint] = true;
+                    const b = bounds[joint]!;
+                    Vec3.min(b.center, b.center, v3_4);
+                    Vec3.max(b.halfExtents, b.halfExtents, v3_4);
+                }
+            }
+        }
+        for (let i = 0; i < bindposes.length; i++) {
+            const b = bounds[i]!;
+            if (!valid[i]) { bounds[i] = null; }
+            else { aabb.fromPoints(b, b.center, b.halfExtents); }
+        }
+        return bounds;
+    }
+
+    public static clear () {
+        AnimatedBoundsInfo.perJointBoundsPool.clear();
+        AnimatedBoundsInfo.fullClipBoundsPool.clear();
+    }
+
+    protected static perJointBoundsPool = new Map<number, Array<aabb | null>>(); // Mesh ^ Skeleton
+    protected static fullClipBoundsPool = new Map<number, aabb[]>(); // Skeleton ^ AnimationClip
 }

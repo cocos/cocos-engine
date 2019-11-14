@@ -28,6 +28,7 @@
  */
 
 import { AnimationClip } from '../../animation/animation-clip';
+import { Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { aabb } from '../../geom-utils';
 import { GFXBuffer } from '../../gfx/buffer';
@@ -57,9 +58,7 @@ export class SkinningModel extends Model {
     private _jointsMedium: IJointsInfo;
     private _skeleton: Skeleton | null = null;
     private _staticModelBounds: aabb | null = null;
-    private _boundOffset = new Vec3();
-    private _boundScale = new Vec3(1, 1, 1);
-    private _tmpModelBounds = new aabb();
+    private _mesh: Mesh | null = null;
 
     constructor (scene: RenderScene, node: INode) {
         super(scene, node);
@@ -77,9 +76,10 @@ export class SkinningModel extends Model {
         }
     }
 
-    public bindSkeleton (skeleton: Skeleton | null, skinningRoot: INode | null) {
+    public bindSkeleton (skeleton: Skeleton | null, skinningRoot: INode | null, mesh: Mesh | null) {
         this._skeleton = skeleton;
-        if (!skeleton || !skinningRoot) { return; }
+        this._mesh = mesh;
+        if (!skeleton || !skinningRoot || !mesh) { return; }
         this._transform = skinningRoot;
         this._jointsMedium.animInfo = JointsAnimationInfo.get(skinningRoot.uuid);
         if (!this._jointsMedium.buffer) {
@@ -90,7 +90,6 @@ export class SkinningModel extends Model {
                 stride: UBOSkinningTexture.SIZE,
             });
         }
-        this._updateBoundMapping();
     }
 
     public updateTransform () {
@@ -98,10 +97,8 @@ export class SkinningModel extends Model {
         if (!this.uploadedAnim) { return; }
         const { animInfo, boundsInfo } = this._jointsMedium;
         const skelBound = boundsInfo![animInfo!.data[1]];
-        Vec3.add(this._tmpModelBounds.center, skelBound.center, this._boundOffset);
-        Vec3.multiply(this._tmpModelBounds.halfExtents, skelBound.halfExtents, this._boundScale);
         const node = this._transform;
-        if (this._worldBounds) { // just do it every frame
+        if (this._worldBounds) {
             // @ts-ignore TS2339
             skelBound.transform(node._mat, node._pos, node._rot, node._scale, this._worldBounds);
         }
@@ -118,17 +115,16 @@ export class SkinningModel extends Model {
     public createBoundingShape (minPos?: Vec3, maxPos?: Vec3) {
         super.createBoundingShape(minPos, maxPos);
         this._staticModelBounds = this._modelBounds && aabb.clone(this._modelBounds);
-        this._updateBoundMapping();
     }
 
     public uploadAnimation (anim: AnimationClip | null) {
-        if (!this._skeleton) { return; }
+        if (!this._skeleton || !this._mesh) { return; }
         this.uploadedAnim = anim;
         const texture = anim ? this._scene.texturePool.getJointsTextureWithAnimation(this._skeleton, anim) :
             this._scene.texturePool.getDefaultJointsTexture(this._skeleton);
         JointsAnimationInfo.switchClip(this._jointsMedium.animInfo!, anim);
         this._applyJointsTexture(texture);
-        this._jointsMedium.boundsInfo = anim ? AnimatedBoundsInfo.get(this._skeleton, anim) : null;
+        this._jointsMedium.boundsInfo = anim ? AnimatedBoundsInfo.get(this._mesh, this._skeleton, anim) : null;
         this._modelBounds = anim ? this._staticModelBounds : null; // don't calc bounds again in Model
     }
 
@@ -173,14 +169,5 @@ export class SkinningModel extends Model {
             bindingLayout.bindSampler(UniformJointsTexture.binding, sampler);
         }
         return pso;
-    }
-
-    protected _updateBoundMapping () {
-        if (!this._staticModelBounds || !this._skeleton) { return; }
-        const skelBound = this._skeleton.bounds;
-        const meshBound = this._staticModelBounds;
-        // Vec3.subtract(this._boundOffset, meshBound.center, skelBound.center);
-        Vec3.divide(this._boundScale, meshBound.halfExtents, skelBound.halfExtents);
-        Vec3.max(this._boundScale, this._boundScale, Vec3.ONE);
     }
 }
