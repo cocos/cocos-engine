@@ -92,9 +92,9 @@ export class ForwardPipeline extends RenderPipeline {
         this._flows.push(forwardFlow);
     }
 
-    public enable (root: Root) {
-        super.enable(root);
-        this.getFlow(PIPELINE_FLOW_FORWARD)!.enable(this);
+    public activate (root: Root) {
+        super.activate(root);
+        this.getFlow(PIPELINE_FLOW_FORWARD)!.activate(this);
 
         if (this._usePostProcess) {
             if (this._useSMAA) {
@@ -105,13 +105,13 @@ export class ForwardPipeline extends RenderPipeline {
                 });
                 */
             }
-            this.getFlow(PIPELINE_FLOW_TONEMAP)!.enable(this);
+            this.getFlow(PIPELINE_FLOW_TONEMAP)!.activate(this);
         }
 
         const uiFlow = new UIFlow();
         uiFlow.initialize(UIFlow.initInfo);
         this._flows.push(uiFlow);
-        uiFlow.enable(this);
+        uiFlow.activate(this);
 
         return true;
     }

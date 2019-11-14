@@ -279,7 +279,7 @@ export class Root {
 
     public setRenderPipeline (rppl: RenderPipeline) {
         this._pipeline = rppl;
-        this._pipeline.enable(this);
+        this._pipeline.activate(this);
         this._ui = new UI(this);
         if (!this._ui.initialize()) {
             this.destroy();

@@ -221,7 +221,7 @@ export abstract class RenderStage {
     /**
      * 把序列化数据转换成运行时数据
      */
-    public enable (flow: RenderFlow) {
+    public activate (flow: RenderFlow) {
         this._flow = flow;
         this._pipeline = flow.pipeline;
         this._device = flow.device;

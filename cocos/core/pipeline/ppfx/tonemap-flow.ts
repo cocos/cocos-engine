@@ -5,6 +5,8 @@
 import { ccclass } from '../../data/class-decorator';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ToneMapStage } from './tonemap-stage';
+import { PIPELINE_FLOW_TONEMAP } from '../define';
+import { ForwardFlowPriority } from '../forward/enum';
 
 /**
  * @zh
@@ -12,6 +14,11 @@ import { ToneMapStage } from './tonemap-stage';
  */
 @ccclass('ToneMapFlow')
 export class ToneMapFlow extends RenderFlow {
+
+    public static initInfo: IRenderFlowInfo = {
+        name: PIPELINE_FLOW_TONEMAP,
+        priority: ForwardFlowPriority.FORWARD + 1,
+    };
 
     constructor () {
         super();
@@ -25,14 +32,9 @@ export class ToneMapFlow extends RenderFlow {
             defines: { CC_USE_SMAA: this._pipeline.useSMAA },
         });
 
-        const framebuffer = this._pipeline.root.mainWindow!.framebuffer!;
-
-        this.createStage(ToneMapStage, {
-            flow: this,
-            name: 'ToneMapStage',
-            priority: 0,
-            framebuffer,
-        });
+        const toneStage = new ToneMapStage();
+        toneStage.initialize(ToneMapStage.initInfo);
+        this._stages.push(toneStage);
 
         return true;
     }

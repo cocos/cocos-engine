@@ -28,7 +28,7 @@ export class ForwardFlow extends RenderFlow {
         super();
     }
 
-    public initialize(info:IRenderFlowInfo){
+    public initialize(info: IRenderFlowInfo) {
         super.initialize(info);
         const forwardStage = new ForwardStage();
         forwardStage.initialize(ForwardStage.initInfo);

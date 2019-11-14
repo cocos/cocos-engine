@@ -9,6 +9,7 @@ import { GFXClearFlag, GFXCommandBufferType, IGFXColor } from '../../gfx/define'
 import { UBOGlobal } from '../define';
 import { IRenderStageInfo, RenderStage, IRenderStageDesc } from '../render-stage';
 import { RenderView } from '../render-view';
+import { RenderFlow } from '../render-flow';
 
 const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
@@ -21,6 +22,12 @@ const bufs: GFXCommandBuffer[] = [];
 @ccclass('ToneMapStage')
 export class ToneMapStage extends RenderStage {
 
+    public static initInfo: IRenderStageInfo = {
+        name: 'ToneMapStage',
+        priority: 0,
+        framebuffer: 'window'
+    }
+
     private _hTexSampler: number = 0;
     private _hBlendTexSampler: number = 0;
     private _bindingLayout: GFXBindingLayout | null = null;
@@ -29,23 +36,9 @@ export class ToneMapStage extends RenderStage {
         super();
     }
 
-    public initialize (info: IRenderStageInfo): boolean {
+    public activate (flow: RenderFlow) {
 
-        super.initialize(info);
-
-        if (info.framebuffer !== undefined) {
-            this._framebuffer = info.framebuffer ;
-        }
-
-        this._createCmdBuffer();
-
-        this.rebuild();
-        return true;
-    }
-
-    public onAssetLoaded (desc: IRenderStageDesc) {
-
-        super.onAssetLoaded(desc);
+        super.activate(flow);
 
         this._createCmdBuffer();
 

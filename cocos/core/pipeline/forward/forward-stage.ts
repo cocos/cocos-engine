@@ -51,8 +51,8 @@ export class ForwardStage extends RenderStage {
         this._opaqueBatchedQueue = new RenderBatchedQueue();
     }
 
-    public enable (desc: IRenderStageDesc) {
-        super.enable(desc);
+    public activate (desc: IRenderStageDesc) {
+        super.activate(desc);
         this._createCmdBuffer();
     }
 

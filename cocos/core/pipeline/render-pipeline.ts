@@ -347,7 +347,7 @@ export abstract class RenderPipeline {
      * 当RenderPipeline资源加载完成后，启用相应的flow
      * @param desc
      */
-    public enable (root: Root) {
+    public activate (root: Root) {
         this._root = root;
         this._device = root.device;
         
@@ -360,7 +360,7 @@ export abstract class RenderPipeline {
      * 激活一个RenderFlow，将其添加到可执行的RenderFlow数组中
      * @param flow 运行时会执行的RenderFlow
      */
-    private enableFlow (flow: RenderFlow) {
+    private activateFlow (flow: RenderFlow) {
         this._activeFlows.push(flow);
         this._activeFlows.sort((a: RenderFlow, b: RenderFlow) => {
             return a.priority - b.priority;

@@ -130,17 +130,20 @@ export abstract class RenderFlow {
     /**
      * 把序列化数据转换成运行时数据
      */
-    public enable(pipeline: RenderPipeline) {
+    public activate(pipeline: RenderPipeline) {
         this._device = pipeline.device;
         this._pipeline = pipeline;
-        pipeline.enableFlow(this);
-        this._enableStages();
+        pipeline.activateFlow(this);
+        this._activateStages();
     }
 
-    protected _enableStages() {
+    protected _activateStages() {
         for (let i = 0; i < this._stages.length; i++) {
-            this._stages[i].enable(this);
+            this._stages[i].activate(this);
         }
+        this._stages.sort((a, b) => {
+            return a.priority - b.priority;
+        })
     }
 
     /**

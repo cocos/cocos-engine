@@ -34,8 +34,8 @@ export class UIStage extends RenderStage {
         super();
     }
 
-    public enable(flow: RenderFlow) {
-        super.enable(flow);
+    public activate(flow: RenderFlow) {
+        super.activate(flow);
         this._cmdBuff = this._device.createCommandBuffer({
             allocator: this._device.commandAllocator,
             type: GFXCommandBufferType.PRIMARY,
