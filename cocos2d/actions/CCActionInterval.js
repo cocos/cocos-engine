@@ -881,7 +881,6 @@ cc.RotateTo = cc.Class({
     extends: cc.ActionInterval,
 
     ctor:function (duration, dstAngle) {
-        dstAngle *= cc.macro.ROTATE_ACTION_CCW ? 1 : -1;
         this._startAngle = 0;
         this._dstAngle = 0;
         this._angle = 0;
