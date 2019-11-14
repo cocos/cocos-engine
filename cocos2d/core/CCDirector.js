@@ -207,6 +207,14 @@ cc.Director.prototype = {
             this._physicsManager = null;
         }
 
+        // physics3d system
+        if (cc.PhysicsSystem) {
+            this._physicsSystem = new cc.PhysicsSystem();
+            this._scheduler.scheduleUpdate(this._physicsSystem, Scheduler.PRIORITY_SYSTEM, false);
+        } else {
+            this._physicsSystem = null;
+        }
+
         // WidgetManager
         if (cc._widgetManager) {
             cc._widgetManager.init(this);
@@ -1183,6 +1191,22 @@ cc.Director.PROJECTION_CUSTOM = 3;
  * @deprecated since v2.0
  */
 cc.Director.PROJECTION_DEFAULT = cc.Director.PROJECTION_2D;
+
+/**
+ * The event which will be triggered before the physics process.<br/>
+ * 物理过程之前所触发的事件。
+ * @event Director.EVENT_BEFORE_PHYSICS
+ * @readonly
+ */
+cc.Director.EVENT_BEFORE_PHYSICS = 'director_before_physics';
+
+/**
+ * The event which will be triggered after the physics process.<br/>
+ * 物理过程之后所触发的事件。
+ * @event Director.EVENT_AFTER_PHYSICS
+ * @readonly
+ */
+cc.Director.EVENT_AFTER_PHYSICS = 'director_after_physics';
 
 /**
  * @module cc

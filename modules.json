@@ -349,5 +349,14 @@
       "./polyfill/typescript.js"
     ],
     "hide": true
+  },
+  {
+    "name": "3D Collision",
+    "since": "2.2.2",
+    "entries": [
+      "./cocos2d/core/3d/physics/exports/physics-builtin.ts",
+      "./cocos2d/core/3d/physics/exports/physics-framework.ts"
+    ],
+    "dependencies": ["3D"]
   }
 ]

@@ -1,17 +1,39 @@
-import { Mat4, Quat, Vec3 } from '../../../core/math';
+/*
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+  not use Cocos Creator software for developing other software or tools that's
+  used for developing games. You are not granted to publish, distribute,
+  sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
+import { Mat4, Quat, Vec3 } from '../../../../value-types';
 import { BuiltinSharedBody } from '../builtin-shared-body';
 import { IBuiltinShape } from '../builtin-interface';
 import { BuiltinObject } from '../object/builtin-object';
-import { ColliderComponent, RigidBodyComponent, PhysicMaterial, PhysicsSystem } from '../../../../exports/physics-framework';
+import { ColliderComponent, PhysicsSystem } from '../../exports/physics-framework';
 import { IBaseShape } from '../../spec/i-physics-spahe';
-import { IVec3Like } from '../../../core/math/type-define';
+import { IVec3Like } from '../../../../value-types/type-define';
 import { BuiltInWorld } from '../builtin-world';
-import { Node } from '../../../core';
 
 export class BuiltinShape extends BuiltinObject implements IBaseShape {
-    set material (v: PhysicMaterial) { }
     set isTrigger (v: boolean) { }
-    get attachedRigidBody (): RigidBodyComponent | null { return null; }
 
     set center (v: IVec3Like) {
         Vec3.copy(this._localShape.center, v);
@@ -44,7 +66,7 @@ export class BuiltinShape extends BuiltinObject implements IBaseShape {
 
     __preload (comp: ColliderComponent) {
         this._collider = comp;
-        this._sharedBody = (PhysicsSystem.instance.physicsWorld as BuiltInWorld).getSharedBody(this._collider.node as Node);
+        this._sharedBody = (PhysicsSystem.instance.physicsWorld as BuiltInWorld).getSharedBody(this._collider.node);
         this._sharedBody.reference = true;
     }
 

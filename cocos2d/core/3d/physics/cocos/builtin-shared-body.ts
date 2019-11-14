@@ -1,14 +1,33 @@
-/**
- * @hidden
- */
+/*
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { Mat4, Quat, Vec3 } from '../../core/math';
-import { intersect } from '../../core/geom-utils';
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+  not use Cocos Creator software for developing other software or tools that's
+  used for developing games. You are not granted to publish, distribute,
+  sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
+import { Mat4, Quat, Vec3 } from '../../../value-types';
+import { intersect } from '../../../geom-utils';
 import { BuiltInWorld } from './builtin-world';
 import { BuiltinObject } from './object/builtin-object';
 import { BuiltinShape } from './shapes/builtin-shape';
-import { Node } from '../../core';
-// tslint:disable: prefer-for-of
 
 const m4_0 = new Mat4();
 const v3_0 = new Vec3();
@@ -22,7 +41,7 @@ export class BuiltinSharedBody extends BuiltinObject {
 
     private static readonly sharedBodesMap = new Map<string, BuiltinSharedBody>();
 
-    static getSharedBody (node: Node, wrappedWorld: BuiltInWorld) {
+    static getSharedBody (node: any, wrappedWorld: BuiltInWorld) {
         const key = node.uuid;
         if (BuiltinSharedBody.sharedBodesMap.has(key)) {
             return BuiltinSharedBody.sharedBodesMap.get(key)!;
@@ -72,11 +91,11 @@ export class BuiltinSharedBody extends BuiltinObject {
     private index: number = -1;
     private ref: number = 0;
 
-    readonly node: Node;
+    readonly node: any;
     readonly world: BuiltInWorld;
     readonly shapes: BuiltinShape[] = [];
 
-    private constructor (node: Node, world: BuiltInWorld) {
+    private constructor (node: any, world: BuiltInWorld) {
         super();
         this._id = BuiltinSharedBody.idCounter++;
         this.node = node;
@@ -119,7 +138,8 @@ export class BuiltinSharedBody extends BuiltinObject {
     }
 
     syncSceneToPhysics () {
-        if (this.node.hasChangedFlags) {
+        // todo: how to know position changed
+        // if (this.node.hasChangedFlags) {
             this.node.getWorldMatrix(m4_0);
             v3_0.set(this.node.worldPosition);
             quat_0.set(this.node.worldRotation);
@@ -127,7 +147,7 @@ export class BuiltinSharedBody extends BuiltinObject {
             for (let i = 0; i < this.shapes.length; i++) {
                 this.shapes[i].transform(m4_0, v3_0, quat_0, v3_1);
             }
-        }
+        // }
     }
 
     syncInitial () {

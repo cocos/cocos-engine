@@ -1,18 +1,34 @@
-/**
- * @category physics
- */
+/*
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { ccclass, property } from '../../../../core/data/class-decorator';
-import { EventTarget } from '../../../../core/event';
-import { CallbacksInvoker, ICallbackTable } from '../../../../core/event/callbacks-invoker';
-import { applyMixins, IEventTarget } from '../../../../core/event/event-target-factory';
-import { createMap } from '../../../../core/utils/js';
-import { Vec3 } from '../../../../core/math';
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+  not use Cocos Creator software for developing other software or tools that's
+  used for developing games. You are not granted to publish, distribute,
+  sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
+import { ccclass, property } from '../../../../../platform/CCClassDecorator';
+import CallbacksInvoker from '../../../../../platform/callbacks-invoker';
+import js  from '../../../../../platform/js';
+import { Vec3 } from '../../../../../value-types';
 import { CollisionCallback, CollisionEventType, TriggerCallback, TriggerEventType } from '../../physics-interface';
-import { RigidBodyComponent } from '../rigid-body-component';
-import { PhysicMaterial } from '../../assets/physic-material';
-import { PhysicsSystem } from '../../physics-system';
-import { Component, error } from '../../../../core';
+import CCComponent from '../../../../../components/CCComponent';
 import { IBaseShape } from '../../../spec/i-physics-spahe';
 
 /**
@@ -20,69 +36,15 @@ import { IBaseShape } from '../../../spec/i-physics-spahe';
  * 碰撞器的基类
  */
 @ccclass('cc.ColliderComponent')
-export class ColliderComponent extends Component implements IEventTarget {
+export class ColliderComponent extends CCComponent {
 
     /**
      * @zh
      * 存储注册事件的回调列表，请不要直接修改。
      */
-    public _callbackTable: ICallbackTable = createMap(true);
+    public _callbackTable: any = js.createMap(true);
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
-
-    @property({
-        type: PhysicMaterial,
-        displayName: 'Material',
-        displayOrder: -1,
-        tooltip:'源材质',
-    })
-    public get sharedMaterial () {
-        return this._material;
-    }
-
-    public set sharedMaterial (value) {
-        if (CC_EDITOR) {
-            this._material = value;
-        } else {
-            this.material = value;
-        }
-    }
-
-    public get material () {
-        if (!CC_PHYSICS_BUILTIN) {
-            if (this._isSharedMaterial && this._material != null) {
-                this._material.off('physics_material_update', this._updateMaterial, this);
-                this._material = this._material.clone();
-                this._material.on('physics_material_update', this._updateMaterial, this);
-                this._isSharedMaterial = false;
-            }
-        }
-        return this._material;
-    }
-
-    public set material (value) {
-        if (!CC_EDITOR) {
-            if (!CC_PHYSICS_BUILTIN) {
-                if (value != null && this._material != null) {
-                    if (this._material._uuid != value._uuid) {
-                        this._material.off('physics_material_update', this._updateMaterial, this);
-                        value.on('physics_material_update', this._updateMaterial, this);
-                        this._isSharedMaterial = false;
-                        this._material = value;
-                    }
-                } else if (value != null && this._material == null) {
-                    value.on('physics_material_update', this._updateMaterial, this);
-                    this._material = value;
-                } else if (value == null && this._material != null) {
-                    this._material!.off('physics_material_update', this._updateMaterial, this);
-                    this._material = value;
-                }
-                this._updateMaterial();
-            } else {
-                this._material = value;
-            }
-        }
-    }
 
     /**
      * @en
@@ -127,16 +89,6 @@ export class ColliderComponent extends Component implements IEventTarget {
         }
     }
 
-    /**
-     * @en
-     * get the collider attached rigidbody, this may be null
-     * @zh
-     * 获取碰撞器所绑定的刚体组件，可能为 null
-     */
-    public get attachedRigidbody (): RigidBodyComponent | null {
-        return this.shape.attachedRigidBody;
-    }
-
     public get shape () {
         return this._shape;
     }
@@ -144,11 +96,6 @@ export class ColliderComponent extends Component implements IEventTarget {
     /// PRIVATE PROPERTY ///
 
     protected _shape!: IBaseShape;
-
-    protected _isSharedMaterial: boolean = true;
-
-    @property({ type: PhysicMaterial })
-    protected _material: PhysicMaterial | null = null;
 
     @property
     protected _isTrigger: boolean = false;
@@ -158,7 +105,7 @@ export class ColliderComponent extends Component implements IEventTarget {
 
     protected get _assertOnload (): boolean {
         const r = this._isOnLoadCalled == 0;
-        if (r) { error('Physics Error: Please make sure that the node has been added to the scene'); }
+        if (r) { cc.error('Physics Error: Please make sure that the node has been added to the scene'); }
         return !r;
     }
 
@@ -302,9 +249,6 @@ export class ColliderComponent extends Component implements IEventTarget {
 
     protected onLoad () {
         if (!CC_EDITOR) {
-            if (!CC_PHYSICS_BUILTIN) {
-                this.sharedMaterial = this._material == null ? PhysicsSystem.instance.defaultMaterial : this._material;
-            }
             this._shape.onLoad!();
         }
 
@@ -336,4 +280,14 @@ export class ColliderComponent extends Component implements IEventTarget {
 
 }
 
-applyMixins(ColliderComponent, [CallbacksInvoker, EventTarget]);
+function applyMixins (derivedCtor: any, baseCtors: any[]) {
+    baseCtors.forEach((baseCtor) => {
+        Object.getOwnPropertyNames(baseCtor.prototype).forEach((name) => {
+            if (name !== 'constructor') {
+                // @ts-ignore
+                Object.defineProperty(derivedCtor.prototype, name, Object.getOwnPropertyDescriptor(baseCtor.prototype, name));
+            }
+        });
+    });
+}
+applyMixins(ColliderComponent, [CallbacksInvoker, cc.EventTarget]);

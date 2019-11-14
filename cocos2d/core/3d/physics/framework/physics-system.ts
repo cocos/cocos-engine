@@ -1,24 +1,46 @@
-/**
- * @category physics
- */
+/*
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { Vec3 } from '../../core/math';
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+  not use Cocos Creator software for developing other software or tools that's
+  used for developing games. You are not granted to publish, distribute,
+  sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { createPhysicsWorld } from './instance';
-import { director, Director } from '../../core/director';
-import { System } from '../../core/components';
-import { PhysicMaterial } from './assets/physic-material';
-import { Layers, RecyclePool } from '../../core';
-import { ray } from '../../core/geom-utils';
+import { RecyclePool } from '../../../../renderer/memop';
+import { Layers } from '../layers'
+import { Ray } from '../../../geom-utils';
 import { PhysicsRayResult } from './physics-ray-result';
-import { property, ccclass } from '../../core/data/class-decorator';
+import { property, ccclass } from '../../../platform/CCClassDecorator';
+
+let director = cc.director;
+let Director = cc.Director;
 
 /**
  * @zh
  * 物理系统。
  */
 @ccclass("cc.PhysicsSystem")
-export class PhysicsSystem extends System {
+export class PhysicsSystem {
+    protected _executeInEditMode = false;
 
     /**
      * @zh
@@ -40,23 +62,7 @@ export class PhysicsSystem extends System {
     }
     set allowSleep (v: boolean) {
         this._allowSleep = v;
-        if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
-            this.physicsWorld.allowSleep = this._allowSleep;
-        }
     }
-
-    // shielding for alpha version
-    // /**
-    //  * @zh
-    //  * 获取或设置是否只运行一步。
-    //  * @param {boolean} b
-    //  */
-    // get singleStep () {
-    //     return this._singleStep;
-    // }
-    // set singleStep (b: boolean) {
-    //     this._singleStep = b;
-    // }
 
     /**
      * @zh
@@ -94,41 +100,6 @@ export class PhysicsSystem extends System {
         this._useFixedTime = value;
     }
 
-    /**
-     * @zh
-     * 获取或设置物理世界的重力数值，默认为 (0, -10, 0)
-     */
-    get gravity (): Vec3 {
-        return this._gravity;
-    }
-    set gravity (gravity: Vec3) {
-        this._gravity.set(gravity);
-        if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
-            this.physicsWorld.gravity = gravity;
-        }
-    }
-
-    /**
-     * @zh
-     * 获取全局的默认物理材质，注意：builtin 时为 null
-     */
-    get defaultMaterial (): PhysicMaterial | null {
-        return this._material;
-    }
-
-    // shielding for alpha version
-    // /**
-    //  * @zh
-    //  * 获取或设置物理每秒模拟的帧率。
-    //  */
-    // get frameRate () {
-    //     return this._frameRate;
-    // }
-    // set frameRate (value: number) {
-    //     this._frameRate = value;
-    //     this._deltaTime = 1 / this._frameRate;
-    // }
-
     static readonly instance: PhysicsSystem;
     static readonly ID: 'physics';
 
@@ -143,9 +114,6 @@ export class PhysicsSystem extends System {
     private _allowSleep = true;
 
     @property
-    private readonly _gravity = new Vec3(0, -10, 0);
-
-    @property
     private _maxSubStep = 1;
 
     @property
@@ -154,11 +122,6 @@ export class PhysicsSystem extends System {
     @property
     private _useFixedTime = true;
 
-    // private _frameRate = 60;
-    // private _singleStep = false;
-
-    private readonly _material: PhysicMaterial | null = null;
-
     private readonly raycastOptions: IRaycastOptions = {
         'group': -1,
         'mask': -1,
@@ -166,22 +129,12 @@ export class PhysicsSystem extends System {
         'maxDistance': Infinity
     }
 
-    private readonly raycastResultPool = new RecyclePool<PhysicsRayResult>(() => {
+    private readonly raycastResultPool = new RecyclePool(() => {
         return new PhysicsRayResult();
     }, 1);
 
     private constructor () {
-        super();
         this.physicsWorld = createPhysicsWorld();
-        if (!CC_PHYSICS_BUILTIN) {
-            this.gravity = this._gravity;
-            this.allowSleep = this._allowSleep;
-            this._material = new PhysicMaterial();
-            this._material.friction = 0.6;
-            this._material.restitution = -1;
-            this._material.on('physics_material_update', this._updateMaterial, this);
-            this.physicsWorld.defaultMaterial = this._material;
-        }
     }
 
     /**
@@ -189,7 +142,7 @@ export class PhysicsSystem extends System {
      * 执行一次物理系统的模拟，目前将在每帧自动执行一次。
      * @param deltaTime 与上一次执行相差的时间，目前为每帧消耗时间
      */
-    postUpdate (deltaTime: number) {
+    lateUpdate (deltaTime: number) {
         if (CC_EDITOR && !this._executeInEditMode) {
             return;
         }
@@ -221,7 +174,7 @@ export class PhysicsSystem extends System {
      * @return boolean 表示是否有检测到碰撞盒
      * @note 由于目前 Layer 还未完善，mask 暂时失效，请留意更新公告
      */
-    raycast (worldRay: ray, mask: number = Layers.Enum.DEFAULT, maxDistance = Infinity, queryTrigger = true): boolean {
+    raycast (worldRay: Ray, mask: number = Layers.Enum.DEFAULT, maxDistance = Infinity, queryTrigger = true): boolean {
         this.raycastResultPool.reset();
         this.raycastResults.length = 0;
         this.raycastOptions.mask = mask;
@@ -240,22 +193,10 @@ export class PhysicsSystem extends System {
      * @return boolean 表示是否有检测到碰撞盒
      * @note 由于目前 Layer 还未完善，mask 暂时失效，请留意更新公告
      */
-    raycastClosest (worldRay: ray, mask: number = Layers.Enum.DEFAULT, maxDistance = Infinity, queryTrigger = true): boolean {
+    raycastClosest (worldRay: Ray, mask: number = Layers.Enum.DEFAULT, maxDistance = Infinity, queryTrigger = true): boolean {
         this.raycastOptions.mask = mask;
         this.raycastOptions.maxDistance = maxDistance;
         this.raycastOptions.queryTrigger = queryTrigger;
         return this.physicsWorld.raycastClosest(worldRay, this.raycastOptions, this.raycastClosestResult);
     }
-
-    private _updateMaterial () {
-        if (!CC_PHYSICS_BUILTIN) {
-            this.physicsWorld.defaultMaterial = this._material;
-        }
-    }
 }
-
-director.on(Director.EVENT_INIT, function () {
-    const sys = new cc.PhysicsSystem();
-    cc.PhysicsSystem.instance = sys;
-    director.registerSystem(PhysicsSystem.ID, sys, 0);
-});

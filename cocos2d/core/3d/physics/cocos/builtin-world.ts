@@ -1,19 +1,39 @@
-/**
- * @hidden
- */
+/*
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { Vec3 } from '../../core/math';
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+  not use Cocos Creator software for developing other software or tools that's
+  used for developing games. You are not granted to publish, distribute,
+  sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
+import { Vec3 } from '../../../value-types';
 import { PhysicsRayResult } from '../framework/physics-ray-result';
 import { BuiltinSharedBody } from './builtin-shared-body';
 import { BuiltinShape } from './shapes/builtin-shape';
 import { ArrayCollisionMatrix } from './utils/array-collision-matrix';
-import { ray, intersect } from '../../core/geom-utils';
-import { RecyclePool, Node } from '../../core';
+import { Ray, intersect } from '../../../geom-utils';
+import { RecyclePool } from '../../../../renderer/memop';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
-import { IVec3Like } from '../../core/math/type-define';
-import { PhysicMaterial } from './../framework/assets/physic-material';
+import { IVec3Like } from '../../../value-types/type-define';
 import { TriggerEventType } from '../framework/physics-interface';
-import { ColliderComponent } from '../../../exports/physics-framework';
+import { ColliderComponent } from '../exports/physics-framework';
 
 const hitPoint = new Vec3();
 const TriggerEventObject = {
@@ -30,7 +50,6 @@ const TriggerEventObject = {
 export class BuiltInWorld implements IPhysicsWorld {
     set gravity (v: IVec3Like) { }
     set allowSleep (v: boolean) { }
-    set defaultMaterial (v: PhysicMaterial) { }
 
     readonly shapeArr: BuiltinShape[] = [];
     readonly bodies: BuiltinSharedBody[] = [];
@@ -69,7 +88,7 @@ export class BuiltInWorld implements IPhysicsWorld {
         this.emitTriggerEvent();
     }
 
-    raycastClosest (worldRay: ray, options: IRaycastOptions, out: PhysicsRayResult): boolean {
+    raycastClosest (worldRay: Ray, options: IRaycastOptions, out: PhysicsRayResult): boolean {
         let tmp_d = Infinity;
         const max_d = options.maxDistance!;
         const mask = options.mask!;
@@ -97,7 +116,7 @@ export class BuiltInWorld implements IPhysicsWorld {
         return !(tmp_d == Infinity);
     }
 
-    raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    raycast (worldRay: Ray, options: IRaycastOptions, pool: RecyclePool, results: PhysicsRayResult[]): boolean {
         const max_d = options.maxDistance!;
         const mask = options.mask!;
         for (let i = 0; i < this.bodies.length; i++) {
@@ -122,7 +141,7 @@ export class BuiltInWorld implements IPhysicsWorld {
         return results.length > 0;
     }
 
-    getSharedBody (node: Node): BuiltinSharedBody {
+    getSharedBody (node: any): BuiltinSharedBody {
         return BuiltinSharedBody.getSharedBody(node, this);
     }
 

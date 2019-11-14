@@ -23,11 +23,7 @@
  THE SOFTWARE.
 */
 
-/**
- * @category scene-graph
- */
-
-import { BitMask, Enum } from '../value-types';
+import { BitMask } from './bitmask';
 
 // built-in layers, users can use 0~19 bits, 20~31 are system preserve bits.
 const layerList = {
@@ -50,7 +46,7 @@ const layerList = {
  */
 export class Layers {
 
-  public static Enum = Enum(layerList);
+  public static Enum = cc.Enum(layerList);
   public static BitMask = BitMask(Object.assign({}, layerList));
 
   /**

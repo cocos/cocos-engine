@@ -23,11 +23,8 @@
  THE SOFTWARE.
 */
 
-/**
- * @category core/value-types
- */
-
-import { value } from '../utils/js';
+import js from '../../platform/js';
+let value = js.value;
 
 export function BitMask<T> (obj: T): T {
     if ('__bitmask__' in obj) {
