@@ -8,7 +8,7 @@ import { aabb } from '../../geom-utils';
 import { IGFXAttribute } from '../../gfx/input-assembler';
 import { Mat4, Vec3 } from '../../math';
 import { IGeometry } from '../../primitive/define';
-import { JointsAnimationInfo } from '../../renderer/models/skinning-model';
+import { JointsAnimationInfo } from '../../renderer/models/skeletal-animation-utils';
 import { INode } from '../../utils/interfaces';
 import { SkinningModelComponent } from '../framework';
 import { BufferBlob } from './buffer-blob';

@@ -30,9 +30,13 @@
 import { AnimationClip } from '../../animation/animation-clip';
 import { SkelAnimDataHub } from '../../animation/skeletal-animation-data-hub';
 import { Skeleton } from '../../assets/skeleton';
-import { GFXFormat, GFXFormatInfos } from '../../gfx/define';
+import { aabb } from '../../geom-utils';
+import { GFXBuffer } from '../../gfx/buffer';
+import { GFXAddress, GFXBufferUsageBit, GFXFilter, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
 import { Mat4, Quat, Vec3 } from '../../math';
+import { UBOSkinningAnimation } from '../../pipeline/define';
+import { genSamplerHash } from '../core/sampler-lib';
 import { ITextureBufferHandle, TextureBufferPool } from '../core/texture-buffer-pool';
 
 // change here and cc-skinning.chunk to use other skinning algorithms
@@ -121,6 +125,15 @@ export interface IJointsTextureHandle {
     handle: ITextureBufferHandle;
 }
 
+export const jointsTextureSamplerHash = genSamplerHash([
+    GFXFilter.POINT,
+    GFXFilter.POINT,
+    GFXFilter.NONE,
+    GFXAddress.CLAMP,
+    GFXAddress.CLAMP,
+    GFXAddress.CLAMP,
+]);
+
 export class JointsTexturePool {
 
     private _device: GFXDevice;
@@ -203,4 +216,89 @@ export class JointsTexturePool {
             this._textureBuffers.delete(texture.hash);
         }
     }
+}
+
+export interface IAnimInfo {
+    buffer: GFXBuffer;
+    data: Float32Array;
+    dirty: boolean;
+}
+
+export class JointsAnimationInfo {
+    public static create (nodeID: string) {
+        const res = JointsAnimationInfo.pool.get(nodeID);
+        if (res) { return res; }
+        const buffer = cc.director.root.device.createBuffer({
+            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: UBOSkinningAnimation.SIZE,
+            stride: UBOSkinningAnimation.SIZE,
+        });
+        const data = new Float32Array([1, 0, 0, 0]);
+        buffer.update(data);
+        const info = { buffer, data, dirty: false };
+        JointsAnimationInfo.pool.set(nodeID, info);
+        return info;
+    }
+
+    public static destroy (nodeID: string) {
+        const info = JointsAnimationInfo.pool.get(nodeID);
+        if (!info) { return; }
+        info.buffer.destroy();
+        JointsAnimationInfo.pool.delete(nodeID);
+    }
+
+    public static get (nodeID: string) {
+        return JointsAnimationInfo.pool.get(nodeID) || JointsAnimationInfo.create(-1 as any);
+    }
+
+    public static switchClip (info: IAnimInfo, clip: AnimationClip | null) {
+        info.data[0] = clip ? clip.keys[0].length : 1;
+        info.data[1] = 0;
+        info.buffer.update(info.data);
+        info.dirty = false;
+        return info;
+    }
+
+    protected static pool = new Map<string, IAnimInfo>();
+}
+
+const v3_t = new Vec3();
+const v3_t2 = new Vec3();
+
+export class AnimatedBoundsInfo {
+    public static get (skeleton: Skeleton, clip: AnimationClip) {
+        const hash = skeleton.hash ^ clip.hash;
+        const list: aabb[] = AnimatedBoundsInfo.pool.get(hash) || [];
+        if (list.length) { return list; }
+        const frames = clip.keys[0].length;
+        for (let frame = 0; frame < frames; frame++) {
+            list.push(new aabb(Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity));
+        }
+        const data = SkelAnimDataHub.getOrExtract(clip);
+        // per frame bounding box approx
+        for (let i = 0; i < skeleton.joints.length; i++) {
+            const nodeData = data[skeleton.joints[i]];
+            if (!nodeData || !nodeData.props) { continue; }
+            const matrix = nodeData.props.worldMatrix.values;
+            for (let frame = 0; frame < frames; frame++) {
+                const m = matrix[frame];
+                const info = list[frame];
+                Vec3.set(v3_t, m.m12, m.m13, m.m14);
+                Vec3.min(info.center, info.center, v3_t);
+                Vec3.max(info.halfExtents, info.halfExtents, v3_t);
+            }
+        }
+        for (let frame = 0; frame < frames; frame++) {
+            const { center, halfExtents } = list[frame];
+            Vec3.add(v3_t, center, halfExtents);
+            Vec3.subtract(v3_t2, halfExtents, center);
+            Vec3.multiplyScalar(center, v3_t, 0.5);
+            Vec3.multiplyScalar(halfExtents, v3_t2, 0.5);
+        }
+        AnimatedBoundsInfo.pool.set(hash, list);
+        return list;
+    }
+
+    protected static pool = new Map<number, aabb[]>();
 }

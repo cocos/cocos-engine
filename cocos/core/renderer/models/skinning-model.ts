@@ -29,73 +29,25 @@
 
 import { AnimationClip } from '../../animation/animation-clip';
 import { Skeleton } from '../../assets/skeleton';
+import { aabb } from '../../geom-utils';
 import { GFXBuffer } from '../../gfx/buffer';
-import { GFXAddress, GFXBufferUsageBit, GFXFilter, GFXMemoryUsageBit } from '../../gfx/define';
+import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
+import { Vec3 } from '../../math';
 import { UBOSkinningAnimation, UBOSkinningTexture, UniformJointsTexture } from '../../pipeline/define';
 import { INode } from '../../utils/interfaces';
 import { Pass } from '../core/pass';
-import { genSamplerHash, samplerLib } from '../core/sampler-lib';
+import { samplerLib } from '../core/sampler-lib';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
-import { IJointsTextureHandle, selectJointsMediumType } from './joints-texture-utils';
-
-export interface IJointsAnimInfo {
-    buffer: GFXBuffer;
-    data: Float32Array;
-}
-
-export class JointsAnimationInfo {
-    public static create (nodeID: string) {
-        const res = JointsAnimationInfo.pool.get(nodeID);
-        if (res) { return res; }
-        const buffer = cc.director.root.device.createBuffer({
-            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: UBOSkinningAnimation.SIZE,
-            stride: UBOSkinningAnimation.SIZE,
-        });
-        const data = new Float32Array([1, 0, 0, 0]);
-        buffer.update(data);
-        const info = { buffer, data };
-        JointsAnimationInfo.pool.set(nodeID, info);
-        return info;
-    }
-
-    public static destroy (nodeID: string) {
-        const info = JointsAnimationInfo.pool.get(nodeID);
-        if (!info) { return; }
-        info.buffer.destroy();
-        JointsAnimationInfo.pool.delete(nodeID);
-    }
-
-    public static switchClip (nodeID: string, clip: AnimationClip | null) {
-        const info = JointsAnimationInfo.pool.get(nodeID);
-        if (!info) { return; }
-        info.data[0] = clip ? clip.keys[0].length : 1;
-        info.data[1] = 0;
-        info.buffer.update(info.data);
-    }
-
-    public static get (nodeID: string) {
-        return JointsAnimationInfo.pool.get(nodeID) || JointsAnimationInfo.create(-1 as any);
-    }
-
-    protected static pool = new Map<string, IJointsAnimInfo>();
-}
-
-const jointsTextureSamplerHash = genSamplerHash([
-    GFXFilter.POINT,
-    GFXFilter.POINT,
-    GFXFilter.NONE,
-    GFXAddress.CLAMP,
-    GFXAddress.CLAMP,
-    GFXAddress.CLAMP,
-]);
+import { AnimatedBoundsInfo, IAnimInfo, IJointsTextureHandle,
+    JointsAnimationInfo, jointsTextureSamplerHash, selectJointsMediumType } from './skeletal-animation-utils';
 
 interface IJointsInfo {
     buffer: GFXBuffer | null;
     jointsTextureInfo: Float32Array;
     texture: IJointsTextureHandle | null;
+    animInfo: IAnimInfo | null;
+    boundsInfo: aabb[] | null;
 }
 
 export class SkinningModel extends Model {
@@ -104,17 +56,17 @@ export class SkinningModel extends Model {
 
     private _jointsMedium: IJointsInfo;
     private _skeleton: Skeleton | null = null;
-
-    get worldBounds () {
-        return this.uploadedAnim ? null : this._worldBounds;
-    }
+    private _staticModelBounds: aabb | null = null;
+    private _boundOffset = new Vec3();
+    private _boundScale = new Vec3(1, 1, 1);
+    private _tmpModelBounds = new aabb();
 
     constructor (scene: RenderScene, node: INode) {
         super(scene, node);
         this._type = 'skinning';
         const jointsTextureInfo = new Float32Array(4);
         const texture = this._scene.texturePool.getDefaultJointsTexture();
-        this._jointsMedium = { buffer: null, jointsTextureInfo, texture };
+        this._jointsMedium = { buffer: null, jointsTextureInfo, texture, animInfo: null, boundsInfo: null };
     }
 
     public destroy () {
@@ -129,6 +81,7 @@ export class SkinningModel extends Model {
         this._skeleton = skeleton;
         if (!skeleton || !skinningRoot) { return; }
         this._transform = skinningRoot;
+        this._jointsMedium.animInfo = JointsAnimationInfo.get(skinningRoot.uuid);
         if (!this._jointsMedium.buffer) {
             this._jointsMedium.buffer = this._device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
@@ -137,16 +90,46 @@ export class SkinningModel extends Model {
                 stride: UBOSkinningTexture.SIZE,
             });
         }
+        this._updateBoundMapping();
+    }
+
+    public updateTransform () {
+        super.updateTransform();
+        if (!this.uploadedAnim) { return; }
+        const { animInfo, boundsInfo } = this._jointsMedium;
+        const skelBound = boundsInfo![animInfo!.data[1]];
+        Vec3.add(this._tmpModelBounds.center, skelBound.center, this._boundOffset);
+        Vec3.multiply(this._tmpModelBounds.halfExtents, skelBound.halfExtents, this._boundScale);
+        const node = this._transform;
+        if (this._worldBounds) { // just do it every frame
+            // @ts-ignore TS2339
+            skelBound.transform(node._mat, node._pos, node._rot, node._scale, this._worldBounds);
+        }
+    }
+
+    // update fid buffer only when visible
+    public updateUBOs () {
+        if (!super.updateUBOs()) { return false; }
+        const info = this._jointsMedium.animInfo!;
+        if (info.dirty) { info.buffer.update(info.data); info.dirty = false; }
+        return true;
+    }
+
+    public createBoundingShape (minPos?: Vec3, maxPos?: Vec3) {
+        super.createBoundingShape(minPos, maxPos);
+        this._staticModelBounds = this._modelBounds && aabb.clone(this._modelBounds);
+        this._updateBoundMapping();
     }
 
     public uploadAnimation (anim: AnimationClip | null) {
         if (!this._skeleton) { return; }
         this.uploadedAnim = anim;
-        const texture = anim ?
-        this._scene.texturePool.getJointsTextureWithAnimation(this._skeleton, anim) :
+        const texture = anim ? this._scene.texturePool.getJointsTextureWithAnimation(this._skeleton, anim) :
             this._scene.texturePool.getDefaultJointsTexture(this._skeleton);
-        JointsAnimationInfo.switchClip(this._transform.uuid, anim);
+        JointsAnimationInfo.switchClip(this._jointsMedium.animInfo!, anim);
         this._applyJointsTexture(texture);
+        this._jointsMedium.boundsInfo = anim ? AnimatedBoundsInfo.get(this._skeleton, anim) : null;
+        this._modelBounds = anim ? this._staticModelBounds : null; // don't calc bounds again in Model
     }
 
     protected _applyJointsTexture (texture: IJointsTextureHandle | null) {
@@ -180,16 +163,24 @@ export class SkinningModel extends Model {
 
     protected _doCreatePSO (pass: Pass) {
         const pso = super._doCreatePSO(pass, { CC_USE_SKINNING: selectJointsMediumType(this._device) });
-        const { buffer, texture } = this._jointsMedium;
-        const animInfo = JointsAnimationInfo.get(this._transform.uuid);
+        const { buffer, texture, animInfo } = this._jointsMedium;
         const bindingLayout = pso.pipelineLayout.layouts[0];
         bindingLayout.bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);
-        bindingLayout.bindBuffer(UBOSkinningAnimation.BLOCK.binding, animInfo.buffer);
+        bindingLayout.bindBuffer(UBOSkinningAnimation.BLOCK.binding, animInfo!.buffer);
         const sampler = samplerLib.getSampler(this._device, jointsTextureSamplerHash);
         if (texture) {
             bindingLayout.bindTextureView(UniformJointsTexture.binding, texture.handle.texView);
             bindingLayout.bindSampler(UniformJointsTexture.binding, sampler);
         }
         return pso;
+    }
+
+    protected _updateBoundMapping () {
+        if (!this._staticModelBounds || !this._skeleton) { return; }
+        const skelBound = this._skeleton.bounds;
+        const meshBound = this._staticModelBounds;
+        // Vec3.subtract(this._boundOffset, meshBound.center, skelBound.center);
+        Vec3.divide(this._boundScale, meshBound.halfExtents, skelBound.halfExtents);
+        Vec3.max(this._boundScale, this._boundScale, Vec3.ONE);
     }
 }

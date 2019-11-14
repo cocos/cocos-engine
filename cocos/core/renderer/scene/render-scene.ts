@@ -7,7 +7,7 @@ import { Root } from '../../root';
 import { Layers } from '../../scene-graph/layers';
 import { Node } from '../../scene-graph/node';
 import { INode } from '../../utils/interfaces';
-import { JointsTexturePool } from '../models/joints-texture-utils';
+import { JointsTexturePool } from '../models/skeletal-animation-utils';
 import { Ambient } from './ambient';
 import { Camera, ICameraInfo } from './camera';
 import { DirectionalLight } from './directional-light';

@@ -8,7 +8,7 @@ import { Color, Mat4, Quat, Vec3 } from '../../math';
 import { CachedArray } from '../../memop/cached-array';
 import { IInternalBindingInst, UBOShadow } from '../../pipeline/define';
 import { Pass } from '../core/pass';
-import { selectJointsMediumType } from '../models/joints-texture-utils';
+import { selectJointsMediumType } from '../models/skeletal-animation-utils';
 import { SkinningModel } from '../models/skinning-model';
 import { DirectionalLight } from './directional-light';
 import { Model } from './model';

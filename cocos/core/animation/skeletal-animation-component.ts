@@ -29,7 +29,7 @@
 
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../data/class-decorator';
 import { Mat4 } from '../math';
-import { IJointsAnimInfo, JointsAnimationInfo } from '../renderer/models/skinning-model';
+import { IJointsAnimInfo, JointsAnimationInfo } from '../renderer/models/skeletal-animation-utils';
 import { Node } from '../scene-graph/node';
 import { INode } from '../utils/interfaces';
 import { AnimationClip } from './animation-clip';
@@ -80,7 +80,7 @@ export class SkeletalAnimationComponent extends AnimationComponent {
 
     @property({
         type: [Socket],
-        tooltip:'骨骼',
+        tooltip: 'Joint Sockets',
     })
     get sockets () {
         return this._sockets;
@@ -93,12 +93,14 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     protected _animInfo: IJointsAnimInfo | null = null;
 
     set frameID (fid: number) {
-        if (!this._animInfo) { return; }
-        const { data, buffer } = this._animInfo;
-        data[1] = fid; buffer.update(data);
+        const info = this._animInfo;
+        if (!info) { return; }
+        info.data[1] = fid;
+        info.dirty = true;
     }
     get frameID () {
-        return this._animInfo && this._animInfo.data[1] || 0;
+        const info = this._animInfo;
+        return info && info.data[1] || 0;
     }
 
     public onLoad () {
