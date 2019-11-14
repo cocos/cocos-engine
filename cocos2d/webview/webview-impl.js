@@ -42,6 +42,7 @@ let WebViewImpl = cc.Class({
         this._div = null;
         this._iframe = null;
         this._listener = null;
+        this._forceUpdate = false;
 
         // update matrix cache
         this._m00 = 0;
@@ -80,6 +81,7 @@ let WebViewImpl = cc.Class({
         if (iframe) {
             let cbs = this.__eventListeners, self = this;
             cbs.load = function () {
+                self._forceUpdate = true;
                 self._dispatchEvent(WebViewImpl.EventType.LOADED);
             };
             cbs.error = function () {
@@ -349,7 +351,8 @@ let WebViewImpl = cc.Class({
         }
 
         let _mat4_tempm = _mat4_temp.m;
-        if (this._m00 === _mat4_tempm[0] && this._m01 === _mat4_tempm[1] &&
+        if (!this._forceUpdate &&
+            this._m00 === _mat4_tempm[0] && this._m01 === _mat4_tempm[1] &&
             this._m04 === _mat4_tempm[4] && this._m05 === _mat4_tempm[5] &&
             this._m12 === _mat4_tempm[12] && this._m13 === _mat4_tempm[13] &&
             this._w === node._contentSize.width && this._h === node._contentSize.height) {
@@ -393,6 +396,7 @@ let WebViewImpl = cc.Class({
 
         // chagned iframe opacity
         this._setOpacity(node.opacity);
+        this._forceUpdate = false;
     }
 });
 
