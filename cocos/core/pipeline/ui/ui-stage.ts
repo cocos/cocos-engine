@@ -36,8 +36,8 @@ export class UIStage extends RenderStage {
 
     public activate(flow: RenderFlow) {
         super.activate(flow);
-        this._cmdBuff = this._device.createCommandBuffer({
-            allocator: this._device.commandAllocator,
+        this._cmdBuff = this._device!.createCommandBuffer({
+            allocator: this._device!.commandAllocator,
             type: GFXCommandBufferType.PRIMARY,
         });
     }
@@ -60,7 +60,7 @@ export class UIStage extends RenderStage {
 
         this._renderQueues[0].clear();
 
-        for (const ro of this._pipeline.renderObjects) {
+        for (const ro of this._pipeline!.renderObjects) {
             for (let i = 0; i < ro.model.subModelNum; i++) {
                 for (let j = 0; j < ro.model.getSubModel(i).passes.length; j++) {
                     this._renderQueues[0].insertRenderPass(ro, i, j);
@@ -76,16 +76,21 @@ export class UIStage extends RenderStage {
         const camera = view.camera!;
 
         const vp = camera.viewport;
-        this._renderArea.x = vp.x * camera.width;
-        this._renderArea.y = vp.y * camera.height;
-        this._renderArea.width = vp.width * camera.width;
-        this._renderArea.height = vp.height * camera.height;
+        this._renderArea!.x = vp.x * camera.width;
+        this._renderArea!.y = vp.y * camera.height;
+        this._renderArea!.width = vp.width * camera.width;
+        this._renderArea!.height = vp.height * camera.height;
 
         colors[0] = camera.clearColor;
 
         cmdBuff.begin();
+<<<<<<< HEAD
         cmdBuff.beginRenderPass(framebuffer, this._renderArea,
             camera.clearFlag, colors, camera.clearDepth, camera.clearStencil);
+=======
+        cmdBuff.beginRenderPass(framebuffer, this._renderArea!,
+            camera.clearFlag, [camera.clearColor], camera.clearDepth, camera.clearStencil);
+>>>>>>> fix ci error
 
         cmdBuff.execute(this._renderQueues[0].cmdBuffs.array, this._renderQueues[0].cmdBuffCount);
 
@@ -93,6 +98,6 @@ export class UIStage extends RenderStage {
         cmdBuff.end();
 
         bufs[0] = cmdBuff;
-        this._device.queue.submit(bufs);
+        this._device!.queue.submit(bufs);
     }
 }

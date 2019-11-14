@@ -6,7 +6,7 @@ import { Material } from '../assets/material';
 import { ccclass, property } from '../data/class-decorator';
 import { GFXDevice } from '../gfx/device';
 import { RenderPipeline } from './render-pipeline';
-import { IRenderStageInfo, RenderStage } from './render-stage';
+import { RenderStage } from './render-stage';
 import { RenderView } from './render-view';
 
 /**
@@ -26,27 +26,27 @@ export interface IRenderFlowInfo {
 @ccclass('RenderFlow')
 export abstract class RenderFlow {
 
-    public get device (): GFXDevice {
-        return this._device;
+    public get device(): GFXDevice {
+        return this._device!;
     }
 
-    public get pipeline (): RenderPipeline {
-        return this._pipeline;
+    public get pipeline(): RenderPipeline {
+        return this._pipeline!;
     }
 
-    public get name (): string {
+    public get name(): string {
         return this._name;
     }
 
-    public get priority (): number {
+    public get priority(): number {
         return this._priority;
     }
 
-    public get stages (): RenderStage[] {
+    public get stages(): RenderStage[] {
         return this._stages!;
     }
 
-    public get material (): Material {
+    public get material(): Material | null {
         return this._material;
     }
 
@@ -54,13 +54,13 @@ export abstract class RenderFlow {
      * @zh
      * GFX设备。
      */
-    protected _device: GFXDevice;
+    protected _device: GFXDevice | null = null;
 
     /**
      * @zh
      * 渲染管线。
      */
-    protected _pipeline: RenderPipeline;
+    protected _pipeline: RenderPipeline | null = null;
 
     /**
      * @zh
@@ -91,7 +91,7 @@ export abstract class RenderFlow {
         displayOrder: 2,
         visible: true
     })
-    protected _material: cc.Material = null;
+    protected _material: Material | null = null;
 
     /**
      * @zh
@@ -108,7 +108,7 @@ export abstract class RenderFlow {
      * 构造函数。
      * @param pipeline 渲染管线。
      */
-    constructor () {
+    constructor() {
     }
 
     /**
@@ -116,7 +116,7 @@ export abstract class RenderFlow {
      * 初始化函数。
      * @param info 渲染流程描述信息。
      */
-    public initialize (info: IRenderFlowInfo) {
+    public initialize(info: IRenderFlowInfo) {
         if (info.name !== undefined) {
             this._name = info.name;
         }
@@ -133,7 +133,7 @@ export abstract class RenderFlow {
     public activate(pipeline: RenderPipeline) {
         this._device = pipeline.device;
         this._pipeline = pipeline;
-        pipeline.activateFlow(this);
+        (pipeline as any).activateFlow(this);
         this._activateStages();
     }
 
@@ -150,13 +150,13 @@ export abstract class RenderFlow {
      * @zh
      * 销毁函数。
      */
-    public abstract destroy ();
+    public abstract destroy();
 
     /**
      * @zh
      * 重构函数。
      */
-    public abstract rebuild ();
+    public abstract rebuild();
 
     /**
      * @zh
@@ -164,7 +164,7 @@ export abstract class RenderFlow {
      * @param width 屏幕宽度。
      * @param height 屏幕高度。
      */
-    public resize (width: number, height: number) {
+    public resize(width: number, height: number) {
         for (const stage of this._stages) {
             stage.resize(width, height);
         }
@@ -175,7 +175,7 @@ export abstract class RenderFlow {
      * 渲染函数。
      * @param view 渲染视图。
      */
-    public render (view: RenderView) {
+    public render(view: RenderView) {
         for (const stage of this._stages) {
             stage.render(view);
         }
@@ -185,7 +185,7 @@ export abstract class RenderFlow {
      * @zh
      * 销毁全部渲染阶段。
      */
-    public destroyStages () {
+    public destroyStages() {
         for (const stage of this._stages) {
             stage.destroy();
         }

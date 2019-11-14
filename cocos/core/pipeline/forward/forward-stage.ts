@@ -9,9 +9,10 @@ import { Layers } from '../../scene-graph';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderQueue } from '../render-queue';
-import { IRenderStageInfo, RenderStage, IRenderStageDesc, RenderQueueSortMode } from '../render-stage';
+import { IRenderStageInfo, RenderStage, RenderQueueSortMode } from '../render-stage';
 import { RenderView } from '../render-view';
 import { ForwardStagePriority } from './enum';
+import { RenderFlow } from '../render-flow';
 
 const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
@@ -51,8 +52,8 @@ export class ForwardStage extends RenderStage {
         this._opaqueBatchedQueue = new RenderBatchedQueue();
     }
 
-    public activate (desc: IRenderStageDesc) {
-        super.activate(desc);
+    public activate (flow: RenderFlow) {
+        super.activate(flow);
         this._createCmdBuffer();
     }
 
@@ -93,7 +94,7 @@ export class ForwardStage extends RenderStage {
         this._opaqueBatchedQueue.clear();
         this._renderQueues.forEach(this.clearRenderQueue);
 
-        const renderObjects = this._pipeline.renderObjects;
+        const renderObjects = this._pipeline!.renderObjects;
         for (let i = 0; i < renderObjects.length; ++i) {
             const ro = renderObjects[i];
             if (ro.model.isDynamicBatching) {
@@ -131,15 +132,15 @@ export class ForwardStage extends RenderStage {
         const cmdBuff = this._cmdBuff!;
 
         const vp = camera.viewport;
-        this._renderArea.x = vp.x * camera.width;
-        this._renderArea.y = vp.y * camera.height;
-        this._renderArea.width = vp.width * camera.width * this.pipeline.shadingScale;
-        this._renderArea.height = vp.height * camera.height * this.pipeline.shadingScale;
+        this._renderArea!.x = vp.x * camera.width;
+        this._renderArea!.y = vp.y * camera.height;
+        this._renderArea!.width = vp.width * camera.width * this.pipeline!.shadingScale;
+        this._renderArea!.height = vp.height * camera.height * this.pipeline!.shadingScale;
 
         if (camera.clearFlag & GFXClearFlag.COLOR) {
-            if (this._pipeline.isHDR) {
+            if (this._pipeline!.isHDR) {
                 SRGBToLinear(colors[0], camera.clearColor);
-                const scale = this._pipeline.fpScale / camera.exposure;
+                const scale = this._pipeline!.fpScale / camera.exposure;
                 colors[0].r *= scale;
                 colors[0].g *= scale;
                 colors[0].b *= scale;
@@ -150,11 +151,11 @@ export class ForwardStage extends RenderStage {
             }
         }
 
-        if (this._pipeline.usePostProcess) {
-            if (!this._pipeline.useMSAA) {
-                this._framebuffer = this._pipeline.getFrameBuffer(this._pipeline.currShading);
+        if (this._pipeline!.usePostProcess) {
+            if (!this._pipeline!.useMSAA) {
+                this._framebuffer = this._pipeline!.getFrameBuffer(this._pipeline!.currShading)!;
             } else {
-                this._framebuffer = this._pipeline.getFrameBuffer('msaa');
+                this._framebuffer = this._pipeline!.getFrameBuffer('msaa')!;
             }
         } else {
             this._framebuffer = view.window!.framebuffer;
@@ -163,7 +164,7 @@ export class ForwardStage extends RenderStage {
         const planarShadow = camera.scene.planarShadows;
 
         cmdBuff.begin();
-        cmdBuff.beginRenderPass(this._framebuffer!, this._renderArea,
+        cmdBuff.beginRenderPass(this._framebuffer!, this._renderArea!,
             camera.clearFlag, colors, camera.clearDepth, camera.clearStencil);
 
         cmdBuff.execute(this._renderQueues[0].cmdBuffs.array, this._renderQueues[0].cmdBuffCount);
@@ -179,21 +180,21 @@ export class ForwardStage extends RenderStage {
         cmdBuff.end();
 
         bufs[0] = cmdBuff;
-        this._device.queue.submit(bufs);
+        this._device!.queue.submit(bufs);
 
-        if (this._pipeline.useMSAA) {
-            this._device.blitFramebuffer(
-                this._framebuffer,
-                this._pipeline.getFrameBuffer(this._pipeline.currShading),
-                this._renderArea,
-                this._renderArea,
+        if (this._pipeline!.useMSAA) {
+            this._device!.blitFramebuffer(
+                this._framebuffer!,
+                this._pipeline!.getFrameBuffer(this._pipeline!.currShading)!,
+                this._renderArea!,
+                this._renderArea!,
                 GFXFilter.POINT);
         }
     }
 
     private _createCmdBuffer () {
-        this._cmdBuff = this._device.createCommandBuffer({
-            allocator: this._device.commandAllocator,
+        this._cmdBuff = this._device!.createCommandBuffer({
+            allocator: this._device!.commandAllocator,
             type: GFXCommandBufferType.PRIMARY,
         });
     }

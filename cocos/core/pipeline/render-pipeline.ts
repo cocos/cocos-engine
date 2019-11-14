@@ -68,7 +68,7 @@ export abstract class RenderPipeline {
      * Root类对象。
      */
     public get root (): Root {
-        return this._root;
+        return this._root!;
     }
 
     /**
@@ -76,7 +76,7 @@ export abstract class RenderPipeline {
      * GFX设备。
      */
     public get device (): GFXDevice {
-        return this._device;
+        return this._device!;
     }
 
     /**
@@ -239,8 +239,8 @@ export abstract class RenderPipeline {
         return this._useDynamicBatching;
     }
 
-    protected _root: Root;
-    protected _device: GFXDevice;
+    protected _root: Root | null = null;
+    protected _device: GFXDevice | null = null;
     protected _name: string = 'BasePipeline';
     protected _renderObjects: IRenderObject[] = [];
 
@@ -507,7 +507,7 @@ export abstract class RenderPipeline {
     public updateMacros () {
         programLib.destroyShaderByDefines(this._macros);
         this._macros.CC_USE_HDR = (this._isHDR);
-        for (const scene of this._root.scenes) {
+        for (const scene of this._root!.scenes) {
             scene.onPipelineChange();
         }
     }
@@ -515,9 +515,9 @@ export abstract class RenderPipeline {
     protected _initRenderResource () {
 
         if (this._usePostProcess) {
-            if (this._device.hasFeature(GFXFeature.FORMAT_R11G11B10F) ||
-                this._device.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT) ||
-                this._device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
+            if (this._device!.hasFeature(GFXFeature.FORMAT_R11G11B10F) ||
+                this._device!.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT) ||
+                this._device!.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
                 this._isHDRSupported = true;
             }
 
@@ -531,18 +531,18 @@ export abstract class RenderPipeline {
 
         if (this._isHDR && this._isHDRSupported) {
             // Try to use HDR format
-            if (this._device.hasFeature(GFXFeature.COLOR_HALF_FLOAT) &&
-                this._device.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT_LINEAR)) {
-                if (this._device.hasFeature(GFXFeature.FORMAT_R11G11B10F)) {
+            if (this._device!.hasFeature(GFXFeature.COLOR_HALF_FLOAT) &&
+                this._device!.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT_LINEAR)) {
+                if (this._device!.hasFeature(GFXFeature.FORMAT_R11G11B10F)) {
                     this._colorFmt = GFXFormat.R11G11B10F;
                     this._isHDR = true;
-                } else if (this._device.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT)) {
+                } else if (this._device!.hasFeature(GFXFeature.TEXTURE_HALF_FLOAT)) {
                     this._colorFmt = GFXFormat.RGBA16F;
                     this._isHDR = true;
                 }
-            } else if (this._device.hasFeature(GFXFeature.COLOR_FLOAT) &&
-                this._device.hasFeature(GFXFeature.TEXTURE_FLOAT_LINEAR)) {
-                if (this._device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
+            } else if (this._device!.hasFeature(GFXFeature.COLOR_FLOAT) &&
+                this._device!.hasFeature(GFXFeature.TEXTURE_FLOAT_LINEAR)) {
+                if (this._device!.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
                     this._colorFmt = GFXFormat.RGBA32F;
                     this._isHDR = true;
                 }
@@ -555,8 +555,8 @@ export abstract class RenderPipeline {
             this._colorFmt = GFXFormat.RGBA8;
         }
 
-        if (this._device.depthBits === 24) {
-            if (this._device.stencilBits === 8) {
+        if (this._device!.depthBits === 24) {
+            if (this._device!.stencilBits === 8) {
                 this._depthStencilFmt = GFXFormat.D24S8;
             } else {
                 this._depthStencilFmt = GFXFormat.D24;
@@ -571,8 +571,8 @@ export abstract class RenderPipeline {
 
         // this._shadingScale = this._device.devicePixelRatio;
         this._shadingScale = 1.0;
-        this._shadingWidth = Math.floor(this._device.nativeWidth);
-        this._shadingHeight = Math.floor(this._device.nativeHeight);
+        this._shadingWidth = Math.floor(this._device!.nativeWidth);
+        this._shadingHeight = Math.floor(this._device!.nativeHeight);
 
         console.info('USE_POST_PROCESS: ' + this._usePostProcess);
         if (this._usePostProcess) {
@@ -586,28 +586,28 @@ export abstract class RenderPipeline {
         console.info('SHADING_DEPTH_FORMAT: ' + GFXFormatInfos[this._depthStencilFmt].name);
 
         for (const rtd of this.renderTextures) {
-            this._renderTextures.set(rtd.name, this._device.createTexture({
+            this._renderTextures.set(rtd.name, this._device!.createTexture({
                 type: rtd.type,
                 usage: rtd.usage,
                 format: this._getTextureFormat(rtd.format, rtd.usage),
                 width: rtd.width === -1 ? this._shadingWidth : rtd.width,
                 height: rtd.height === -1 ? this._shadingHeight : rtd.height,
             }));
-            this._textureViews.set(rtd.name, this._device.createTextureView({
+            this._textureViews.set(rtd.name, this._device!.createTextureView({
                 texture: this._renderTextures.get(rtd.name)!,
                 type: rtd.viewType,
                 format: this._getTextureFormat(rtd.format, rtd.usage),
             }));
         }
         for (const rpd of this.renderPasses) {
-            this._renderPasses.set(rpd.index, this._device.createRenderPass({
+            this._renderPasses.set(rpd.index, this._device!.createRenderPass({
                 colorAttachments: rpd.colorAttachments,
                 depthStencilAttachment: rpd.depthStencilAttachment,
             }));
         }
 
         for (const fbd of this.framebuffers) {
-            this._frameBuffers.set(fbd.name, this._device.createFramebuffer({
+            this._frameBuffers.set(fbd.name, this._device!.createFramebuffer({
                 renderPass: this._renderPasses.get(fbd.renderPass)!,
                 colorViews: fbd.colorViews.map((value) => {
                     return this._textureViews.get(value)!;
@@ -624,7 +624,7 @@ export abstract class RenderPipeline {
             return false;
         }
 
-        const mainWindow = this._root.mainWindow;
+        const mainWindow = this._root!.mainWindow;
         let windowPass: GFXRenderPass | null = null;
 
         if (mainWindow) {
@@ -715,7 +715,7 @@ export abstract class RenderPipeline {
         const vbStride = Float32Array.BYTES_PER_ELEMENT * 4;
         const vbSize = vbStride * 4;
 
-        this._quadVB = this._device.createBuffer({
+        this._quadVB = this._device!.createBuffer({
             usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
             size: vbSize,
@@ -739,7 +739,7 @@ export abstract class RenderPipeline {
         const ibStride = Uint8Array.BYTES_PER_ELEMENT;
         const ibSize = ibStride * 6;
 
-        this._quadIB = this._device.createBuffer({
+        this._quadIB = this._device!.createBuffer({
             usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
             size: ibSize,
@@ -763,7 +763,7 @@ export abstract class RenderPipeline {
             { name: 'a_texCoord', format: GFXFormat.RG32F },
         ];
 
-        this._quadIA = this._device.createInputAssembler({
+        this._quadIA = this._device!.createInputAssembler({
             attributes,
             vertexBuffers: [this._quadVB],
             indexBuffer: this._quadIB,
@@ -799,7 +799,7 @@ export abstract class RenderPipeline {
      */
     protected createUBOs (): boolean {
         if (!this._globalBindings.get(UBOGlobal.BLOCK.name)) {
-            const globalUBO = this._root.device.createBuffer({
+            const globalUBO = this._root!.device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                 size: UBOGlobal.SIZE,
@@ -813,7 +813,7 @@ export abstract class RenderPipeline {
         }
 
         if (!this._globalBindings.get(UBOShadow.BLOCK.name)) {
-            const shadowUBO = this._root.device.createBuffer({
+            const shadowUBO = this._root!.device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                 size: UBOShadow.SIZE,
@@ -862,16 +862,20 @@ export abstract class RenderPipeline {
 
         const camera = view.camera;
         const scene = camera.scene;
-        const device = this._root.device;
+        const device = this._root!.device;
 
         const mainLight = scene.mainLight;
         const ambient = scene.ambient;
         const fv = this._uboGlobal.view;
 
         // update UBOGlobal
+<<<<<<< HEAD
         fv[UBOGlobal.TIME_OFFSET] = this._root.cumulativeTime;
         fv[UBOGlobal.TIME_OFFSET + 1] = this._root.frameTime;
         fv[UBOGlobal.TIME_OFFSET + 2] = cc.director.getTotalFrames();
+=======
+        fv[UBOGlobal.TIME_OFFSET] = this._root!.cumulativeTime;
+>>>>>>> fix ci error
 
         fv[UBOGlobal.SCREEN_SIZE_OFFSET] = device.width;
         fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1] = device.height;

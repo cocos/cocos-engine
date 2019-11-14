@@ -118,7 +118,7 @@ export class ForwardPipeline extends RenderPipeline {
 
     protected createUBOs (): boolean {
         if (!this._globalBindings.get(UBOForwardLight.BLOCK.name)) {
-            const lightsUBO = this._root.device.createBuffer({
+            const lightsUBO = this._root!.device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                 size: UBOForwardLight.SIZE,

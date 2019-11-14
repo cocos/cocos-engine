@@ -10,7 +10,7 @@ import { GFXDevice } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXPipelineState } from '../gfx/pipeline-state';
 import { Pass } from '../renderer';
-import { IRenderPass, IRenderQueueDesc } from './define';
+import { IRenderPass } from './define';
 import { getPhaseID } from './pass-phase';
 import { RenderFlow } from './render-flow';
 import { RenderPipeline } from './render-pipeline';
@@ -60,7 +60,7 @@ export abstract class RenderStage {
      * @zh
      * 渲染流程。
      */
-    public get flow (): RenderFlow {
+    public get flow(): RenderFlow | null {
         return this._flow;
     }
 
@@ -68,7 +68,7 @@ export abstract class RenderStage {
      * @zh
      * 渲染管线。
      */
-    public get pipeline (): RenderPipeline {
+    public get pipeline(): RenderPipeline | null {
         return this._pipeline;
     }
 
@@ -127,19 +127,19 @@ export abstract class RenderStage {
      * @zh
      * 渲染流程。
      */
-    protected _flow: RenderFlow;
+    protected _flow: RenderFlow | null = null;
 
     /**
      * @zh
      * 渲染管线。
      */
-    protected _pipeline: RenderPipeline;
+    protected _pipeline: RenderPipeline | null = null;
 
     /**
      * @zh
      * GFX设备。
      */
-    protected _device: GFXDevice;
+    protected _device: GFXDevice | null = null;
 
     /**
      * @zh
@@ -157,7 +157,7 @@ export abstract class RenderStage {
      * @zh
      * 清空颜色数组。
      */
-    protected _clearColors: IGFXColor[];
+    protected _clearColors: IGFXColor[] | null = null;
 
     /**
      * @zh
@@ -175,7 +175,7 @@ export abstract class RenderStage {
      * @zh
      * 渲染区域。
      */
-    protected _renderArea: IGFXRect;
+    protected _renderArea: IGFXRect | null = null;
 
     /**
      * @zh
@@ -259,7 +259,7 @@ export abstract class RenderStage {
         if (this.frameBuffer === 'window') {
             this._framebuffer = this._flow.pipeline.root.mainWindow!.framebuffer!;
         } else {
-            this._framebuffer = this._flow.pipeline.getFrameBuffer(this.frameBuffer);
+            this._framebuffer = this._flow.pipeline.getFrameBuffer(this.frameBuffer)!;
         }
     }
 
@@ -295,10 +295,10 @@ export abstract class RenderStage {
      * 设置清空颜色。
      */
     public setClearColor (color: IGFXColor) {
-        if (this._clearColors.length > 0) {
-            this._clearColors[0] = color;
+        if (this._clearColors!.length > 0) {
+            this._clearColors![0] = color;
         } else {
-            this._clearColors.push(color);
+            this._clearColors!.push(color);
         }
     }
 
@@ -331,8 +331,8 @@ export abstract class RenderStage {
      * 设置渲染区域。
      */
     public setRenderArea (width: number, height: number) {
-        this._renderArea.width = width;
-        this._renderArea.height = height;
+        this._renderArea!.width = width;
+        this._renderArea!.height = height;
     }
 }
 

@@ -28,8 +28,8 @@ export class ToneMapFlow extends RenderFlow {
         super.initialize(info);
 
         const material = this._material;
-        material.recompileShaders({
-            defines: { CC_USE_SMAA: this._pipeline.useSMAA },
+        material!.recompileShaders({
+            CC_USE_SMAA: this._pipeline!.useSMAA
         });
 
         const toneStage = new ToneMapStage();
@@ -49,7 +49,7 @@ export class ToneMapFlow extends RenderFlow {
     public rebuild () {
         if (this._material) {
             this._material.recompileShaders({
-                defines: { CC_USE_SMAA: this._pipeline.useSMAA },
+                CC_USE_SMAA: this._pipeline!.useSMAA
             });
         }
 

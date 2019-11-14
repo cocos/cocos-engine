@@ -7,7 +7,7 @@ export default class RenderPipelineAsset extends Asset {
     @property({
         type: RenderPipeline,
     })
-    public renderPipeline: RenderPipeline;
+    public renderPipeline: RenderPipeline | null = null;
 }
 
 cc.RenderPipelineAsset = RenderPipelineAsset;
