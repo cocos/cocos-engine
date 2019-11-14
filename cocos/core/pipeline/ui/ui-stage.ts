@@ -6,7 +6,7 @@ import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXCommandBufferType, IGFXColor } from '../../gfx/define';
 import { getPhaseID } from '../pass-phase';
 import { RenderQueue, transparentCompareFn } from '../render-queue';
-import { IRenderStageInfo, RenderStage } from '../render-stage';
+import { IRenderStageInfo, RenderStage, RenderQueueSortMode } from '../render-stage';
 import { RenderView } from '../render-view';
 import { RenderFlow } from '../render-flow';
 
@@ -18,6 +18,17 @@ const colors: IGFXColor[] = [];
  * UI渲阶段。
  */
 export class UIStage extends RenderStage {
+
+    public static initInfo: IRenderStageInfo = {
+        name: 'UIStage',
+        priority: 0,
+        renderQueues: [{
+            isTransparent: true,
+            stages: ['default'],
+            sortMode: RenderQueueSortMode.BACK_TO_FRONT,
+        }],
+        framebuffer: 'window'
+    };
 
     constructor () {
         super();

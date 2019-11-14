@@ -329,7 +329,7 @@ export abstract class RenderPipeline {
             this._usePostProcess = false;
         }
 
-        this._isHDR = (info.enableHDR !== undefined ? info.enableHDR : true);
+        this._isHDR = (info.enableHDR !== undefined ? info.enableHDR : false);
 
         // Config Anti-Aliasing
         this._useSMAA = info.enableSMAA !== undefined ? info.enableSMAA : false;

@@ -21,15 +21,7 @@ import { RenderView } from '../render-view';
 import { UIFlow } from '../ui/ui-flow';
 import { ForwardFlow } from './forward-flow';
 import { ToneMapFlow } from '../ppfx/tonemap-flow';
-
-/**
- * @zh
- * 前向渲染流程优先级。
- */
-export enum ForwardFlowPriority {
-    FORWARD = 0,
-    UI = 10,
-}
+import { ForwardFlowPriority } from './enum';
 
 const _vec4Array = new Float32Array(4);
 const _sphere = sphere.create(0, 0, 0, 1);
@@ -43,6 +35,10 @@ const _tempVec3 = new Vec3();
  */
 @ccclass('ForwardPipeline')
 export class ForwardPipeline extends RenderPipeline {
+
+    public static initInfo: IRenderPipelineInfo = {
+        name: 'ForwardPipeline',
+    };
 
     /**
      * @zh
@@ -89,6 +85,13 @@ export class ForwardPipeline extends RenderPipeline {
         this._lightIndices = [];
     }
 
+    public initialize(info: IRenderPipelineInfo) {
+        super.initialize(info);
+        const forwardFlow = new ForwardFlow();
+        forwardFlow.initialize(ForwardFlow.initInfo);
+        this._flows.push(forwardFlow);
+    }
+
     public enable (root: Root) {
         super.enable(root);
         this.getFlow(PIPELINE_FLOW_FORWARD)!.enable(this);
@@ -106,10 +109,7 @@ export class ForwardPipeline extends RenderPipeline {
         }
 
         const uiFlow = new UIFlow();
-        uiFlow.initialize({
-            name: 'UIFlow',
-            priority: ForwardFlowPriority.UI,
-        });
+        uiFlow.initialize(UIFlow.initInfo);
         this._flows.push(uiFlow);
         uiFlow.enable(this);
 

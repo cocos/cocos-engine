@@ -9,8 +9,9 @@ import { Layers } from '../../scene-graph';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderQueue } from '../render-queue';
-import { IRenderStageInfo, RenderStage, IRenderStageDesc } from '../render-stage';
+import { IRenderStageInfo, RenderStage, IRenderStageDesc, RenderQueueSortMode } from '../render-stage';
 import { RenderView } from '../render-view';
+import { ForwardStagePriority } from './enum';
 
 const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
@@ -21,6 +22,23 @@ const bufs: GFXCommandBuffer[] = [];
  */
 @ccclass('ForwardStage')
 export class ForwardStage extends RenderStage {
+
+    public static initInfo: IRenderStageInfo = {
+        name: 'ForwardStage',
+        priority: ForwardStagePriority.FORWARD,
+        renderQueues: [
+            {
+                isTransparent: false,
+                sortMode: RenderQueueSortMode.FRONT_TO_BACK,
+                stages: ['default'],
+            },
+            {
+                isTransparent: true,
+                sortMode: RenderQueueSortMode.BACK_TO_FRONT,
+                stages: ['default', 'planarShadow'],
+            }
+        ]
+    };
 
     private _opaqueBatchedQueue: RenderBatchedQueue;
 

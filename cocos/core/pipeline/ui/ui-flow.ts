@@ -8,12 +8,18 @@ import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderView } from '../render-view';
 import { UIStage } from './ui-stage';
 import { RenderQueueSortMode } from '../render-stage';
+import { ForwardFlowPriority } from '../forward/enum';
 
 /**
  * @zh
  * UI渲染流程。
  */
 export class UIFlow extends RenderFlow {
+
+    public static initInfo: IRenderFlowInfo = {
+        name: 'UIFlow',
+        priority: ForwardFlowPriority.UI,
+    };
 
     constructor () {
         super();
@@ -24,16 +30,7 @@ export class UIFlow extends RenderFlow {
         super.initialize(info);
 
         let uiStage = new UIStage();
-        uiStage.initialize({
-            name: 'UIStage',
-            priority: 0,
-            renderQueues: [{
-                isTransparent: true,
-                stages: ['default'],
-                sortMode: RenderQueueSortMode.BACK_TO_FRONT,
-            }],
-            framebuffer: 'window'
-        });
+        uiStage.initialize(UIStage.initInfo);
         this._stages.push(uiStage);
 
         return true;

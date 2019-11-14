@@ -116,7 +116,7 @@ export abstract class RenderFlow {
      * 初始化函数。
      * @param info 渲染流程描述信息。
      */
-    public initialize (info: IRenderFlowInfo): boolean {
+    public initialize (info: IRenderFlowInfo) {
         if (info.name !== undefined) {
             this._name = info.name;
         }
@@ -125,8 +125,6 @@ export abstract class RenderFlow {
 
         if (info.material)
             this._material = info.material;
-
-        return true;
     }
 
     /**
