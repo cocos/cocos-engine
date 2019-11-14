@@ -217,15 +217,16 @@ export class PlanarShadows {
 
     protected _createPSO (model: Model) {
         const pass = model instanceof SkinningModel ? this._passSkinning : this._passNormal;
-        // @ts-ignore
+        // @ts-ignore TS2445
         const pso = model._doCreatePSO(pass);
+        model.insertImplantPSO(pso); // add back to model to sync binding layouts
         pso.pipelineLayout.layouts[0].update();
         return pso;
     }
 
     protected _destroyPSO (model: Model, pso: GFXPipelineState) {
         const pass = model instanceof SkinningModel ? this._passSkinning : this._passNormal;
-        return pass.destroyPipelineState(pso);
+        model.removeImplantPSO(pso); pass.destroyPipelineState(pso);
     }
 
     protected _createOrReuseCommandBuffer (cb?: GFXCommandBuffer) {

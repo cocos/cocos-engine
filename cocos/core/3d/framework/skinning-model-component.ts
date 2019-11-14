@@ -53,9 +53,11 @@ export class SkinningModelComponent extends ModelComponent {
     @property(Node)
     protected _skinningRoot: INode | null = null;
 
+    protected _clip: AnimationClip | null = null;
+
     /**
-     * @en The bone nodes
-     * @zh 骨骼节点。
+     * @en The skeleton resource
+     * @zh 骨骼资源。
      */
     @property({
         type: Skeleton,
@@ -91,6 +93,7 @@ export class SkinningModelComponent extends ModelComponent {
     }
 
     public uploadAnimation (clip: AnimationClip | null) {
+        this._clip = clip;
         if (this._model) { (this._model as SkinningModel).uploadAnimation(clip); }
     }
 
@@ -110,6 +113,10 @@ export class SkinningModelComponent extends ModelComponent {
     }
 
     private _update () {
-        if (this._model) { (this._model as SkinningModel).bindSkeleton(this._skeleton, this._skinningRoot); }
+        if (this._model) {
+            const model = (this._model as SkinningModel);
+            model.bindSkeleton(this._skeleton, this._skinningRoot);
+            model.uploadAnimation(this._clip);
+        }
     }
 }

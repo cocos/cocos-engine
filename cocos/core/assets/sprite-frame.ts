@@ -643,8 +643,8 @@ export class SpriteFrame extends Asset {
         uvSliced.length = 0;
         if (this._rotated) {
             temp_uvs[0].u = (rect.x + rect.height) / atlasWidth;
-            temp_uvs[1].u = (rect.x + bottomHeight + centerHeight) / atlasWidth;
-            temp_uvs[2].u = (rect.x + bottomHeight) / atlasWidth;
+            temp_uvs[1].u = (rect.x + topHeight + centerHeight) / atlasWidth;
+            temp_uvs[2].u = (rect.x + topHeight) / atlasWidth;
             temp_uvs[3].u = (rect.x) / atlasWidth;
             temp_uvs[3].v = (rect.y + rect.width) / atlasHeight;
             temp_uvs[2].v = (rect.y + leftWidth + centerWidth) / atlasHeight;

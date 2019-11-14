@@ -272,7 +272,7 @@ export class RenderScene {
      * @param mask mask 用于标记所有要检测的层，默认为 Default | UI2D
      * @param distance 射线检测的最大距离, 默认为 Infinity
      * @returns boolean , 射线是否有击中
-     * @nete 通过 this.rayResultAll 可以获取到最近的结果
+     * @note 通过 this.rayResultAll 可以获取到最近的结果
      */
     public raycastAll (worldRay: ray, mask = Layers.Enum.DEFAULT | Layers.Enum.UI_2D, distance = Infinity): boolean {
         const r_3d = this.raycastAllModels(worldRay, mask, distance);
@@ -300,7 +300,7 @@ export class RenderScene {
      * @param mask 用于标记所有要检测的层，默认为 Default
      * @param distance 射线检测的最大距离, 默认为 Infinity
      * @returns boolean , 射线是否有击中
-     * @nete 通过 this.rayResultModels 可以获取到最近的结果
+     * @note 通过 this.rayResultModels 可以获取到最近的结果
      */
     public raycastAllModels (worldRay: ray, mask = Layers.Enum.DEFAULT, distance = Infinity): boolean {
         pool.reset();
@@ -391,10 +391,10 @@ export class RenderScene {
      * @zh
      * 传入一条射线检测场景中所有的 Canvas 以及 Canvas 下的 Node
      * @param worldRay 世界射线
-     * @param mask 用于标记所有要检测的层，默认为 UI2D
+     * @param mask 用于标记所有要检测的层，默认为 UI_2D
      * @param distance 射线检测的最大距离, 默认为 Infinity
      * @returns boolean , 射线是否有击中
-     * @nete 通过 this.rayResultCanvas 可以获取到最近的结果
+     * @note 通过 this.rayResultCanvas 可以获取到最近的结果
      */
     public raycastAllCanvas (worldRay: ray, mask = Layers.Enum.UI_2D, distance = Infinity): boolean {
         poolUI.reset();

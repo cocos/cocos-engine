@@ -212,7 +212,11 @@ function visitNode (node: any) {
         if ((!CC_EDITOR || widgetManager.animationState!.animatedSinceLastFrame) && widget.alignMode !== AlignMode.ALWAYS) {
             widget.enabled = false;
         } else {
-            activeWidgets.push(widget);
+            if (cc.isValid(node, true)) {
+                activeWidgets.push(widget);
+            } else {
+                return;
+            }
         }
     }
     const children = node.children;
