@@ -354,8 +354,8 @@
     "name": "3D Collider",
     "since": "2.2.2",
     "entries": [
-      "./cocos2d/core/3d/physics/exports/physics-builtin.ts",
-      "./cocos2d/core/3d/physics/exports/physics-framework.ts"
+      "./cocos2d/core/3d/collider/exports/collider-builtin.ts",
+      "./cocos2d/core/3d/collider/exports/collider-framework.ts"
     ],
     "dependencies": ["3D"]
   }

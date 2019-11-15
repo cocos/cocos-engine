@@ -321,6 +321,11 @@ module.exports = {
             'category': '碰撞组件所属类别',
             'mask': '可以与碰撞组件相碰撞的组件掩码'
         },
+        'collider3D': {
+            'center': '碰撞器中心点',
+            'size': '包围盒尺寸',
+            'radius': '包围球半径',
+        },
         'particle_system': {
             'preview': '在编辑器模式下预览粒子，启用后选中粒子时，粒子将自动播放',
             'custom': '是否自定义粒子属性',

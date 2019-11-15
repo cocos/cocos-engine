@@ -208,12 +208,12 @@ cc.Director.prototype = {
         }
 
         // physics3d system
-        if (cc.PhysicsSystem) {
-            this._physicsSystem = new cc.PhysicsSystem();
-            cc.PhysicsSystem.instance = this._physicsSystem;
-            this._scheduler.scheduleUpdate(this._physicsSystem, Scheduler.PRIORITY_SYSTEM, false);
+        if (cc.Collision3DManager) {
+            this._collision3DManager = new cc.Collision3DManager();
+            cc.Collision3DManager.instance = this._collision3DManager;
+            this._scheduler.scheduleUpdate(this._collision3DManager, Scheduler.PRIORITY_SYSTEM, false);
         } else {
-            this._physicsSystem = null;
+            this._collision3DManager = null;
         }
 
         // WidgetManager

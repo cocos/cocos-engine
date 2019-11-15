@@ -317,6 +317,11 @@ module.exports = {
             'category': 'Collider component category',
             'mask': 'The collider mask can collide with this collider'
         },
+        'collider3D': {
+            'center': 'The center point of the collider',
+            'size': 'The size of the box, in local space',
+            'radius': 'The radius of the sphere',
+        },
         'particle_system': {
             'preview': 'Play particle in edit mode',
             'custom': 'If set custom to true, then use custom properties insteadof read particle file',

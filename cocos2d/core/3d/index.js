@@ -1,8 +1,8 @@
 
 if (!CC_TEST && (!CC_EDITOR || !Editor.isMainProcess)) {
     require('./primitive');
-    require('./physics/exports/physics-builtin');
-    require('./physics/exports/physics-framework');
+    require('./collider/exports/collider-builtin');
+    require('./collider/exports/collider-framework');
 }
 
 require('./CCModel');
