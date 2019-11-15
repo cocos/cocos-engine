@@ -50,7 +50,7 @@ var Component = cc.Class({
     extends: CCObject,
 
     ctor: CC_EDITOR ? function () {
-        if (window._Scene && _Scene.AssetsWatcher) {
+        if ((typeof _Scene !== "undefined") && _Scene.AssetsWatcher) {
             _Scene.AssetsWatcher.initComponent(this);
         }
         this._id = Editor.Utils.UuidUtils.uuid();
