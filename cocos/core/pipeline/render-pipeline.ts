@@ -41,7 +41,6 @@ const _v4Zero = new Vec4(0.0, 0.0, 0.0, 0.0);
  * 渲染流程描述信息。
  */
 export interface IRenderPipelineInfo {
-    name?: string;
     enablePostProcess?: boolean;
     enableHDR?: boolean;
     enableMSAA?: boolean;
@@ -84,7 +83,7 @@ export abstract class RenderPipeline {
      * 名称。
      */
     public get name (): string {
-        return this._name;
+        return this.constructor.name;
     }
 
     /**
@@ -241,7 +240,6 @@ export abstract class RenderPipeline {
 
     protected _root: Root | null = null;
     protected _device: GFXDevice | null = null;
-    protected _name: string = 'BasePipeline';
     protected _renderObjects: IRenderObject[] = [];
 
     @property({
@@ -320,7 +318,6 @@ export abstract class RenderPipeline {
      * @param info 渲染管线描述信息。
      */
     public initialize (info: IRenderPipelineInfo) {
-        this._name = info.name || String();
         
         if (info.enablePostProcess !== undefined) {
             this._usePostProcess = info.enablePostProcess;
@@ -352,7 +349,7 @@ export abstract class RenderPipeline {
         this._device = root.device;
         
         if (!this._initRenderResource()) {
-            console.error('RenderPipeline:' + this._name + ' startup failed!');
+            console.error('RenderPipeline:' + this.name + ' startup failed!');
         }
     }
 

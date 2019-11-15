@@ -37,7 +37,6 @@ const _tempVec3 = new Vec3();
 export class ForwardPipeline extends RenderPipeline {
 
     public static initInfo: IRenderPipelineInfo = {
-        name: 'ForwardPipeline',
     };
 
     /**
