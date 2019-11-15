@@ -36,8 +36,8 @@ import { ColliderComponent } from './collider-component';
 import { IBoxShape } from '../../../spec/i-collider-spahe';
 
 /**
- * @zh
- * 盒子碰撞器
+ * !#en Box Collider
+ * !#zh 盒子碰撞器
  */
 @ccclass('cc.BoxColliderComponent')
 @executionOrder(98)

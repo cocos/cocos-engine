@@ -30,9 +30,6 @@ import { Ray } from '../../../geom-utils';
 import { ColliderRayResult } from './collider-ray-result';
 import { property, ccclass } from '../../../platform/CCClassDecorator';
 
-let director = cc.director;
-let Director = cc.Director;
-
 /**
  * !#en The collision system.
  * !#zh 碰撞系统。
@@ -52,42 +49,6 @@ export class Collision3DManager {
         this._enable = value;
     }
 
-    /**
-     * @zh
-     * 获取或设置每帧模拟的最大子步数。
-     */
-    get maxSubStep () {
-        return this._maxSubStep;
-    }
-
-    set maxSubStep (value: number) {
-        this._maxSubStep = value;
-    }
-
-    /**
-     * @zh
-     * 获取或设置每步模拟消耗的固定时间。
-     */
-    get deltaTime () {
-        return this._deltaTime;
-    }
-
-    set deltaTime (value: number) {
-        this._deltaTime = value;
-    }
-
-    /**
-     * @zh
-     * 获取或设置是否使用固定的时间步长。
-     */
-    get useFixedTime () {
-        return this._useFixedTime;
-    }
-
-    set useFixedTime (value: boolean) {
-        this._useFixedTime = value;
-    }
-
     static readonly instance: Collision3DManager;
 
     readonly colliderWorld: IColliderWorld;
@@ -96,18 +57,6 @@ export class Collision3DManager {
 
     @property
     private _enable = true;
-
-    @property
-    private _allowSleep = true;
-
-    @property
-    private _maxSubStep = 1;
-
-    @property
-    private _deltaTime = 1.0 / 60.0;
-
-    @property
-    private _useFixedTime = true;
 
     private readonly raycastOptions: IRaycastOptions = {
         'groupIndex': -1,
@@ -119,14 +68,14 @@ export class Collision3DManager {
     }, 1);
 
     private constructor () {
-        director._scheduler && director._scheduler.enableForTarget(this);
+        cc.director._scheduler && cc.director._scheduler.enableForTarget(this);
         this.colliderWorld = createColliderWorld();
     }
 
     /**
-     * @zh
-     * 执行一次物理系统的模拟，目前将在每帧自动执行一次。
-     * @param deltaTime 与上一次执行相差的时间，目前为每帧消耗时间
+     * !#en A physical system simulation is performed once and will now be performed automatically once per frame.
+     * !#zh 执行一次物理系统的模拟，目前将在每帧自动执行一次。
+     * @param deltaTime A physical system simulation is performed once and will now be performed automatically once per frame.
      */
     update (deltaTime: number) {
         if (CC_EDITOR && !this._executeInEditMode) {
@@ -135,29 +84,16 @@ export class Collision3DManager {
         if (!this._enable) {
             return;
         }
-
-        director.emit(Director.EVENT_BEFORE_PHYSICS);
-
-        if (this._useFixedTime) {
-            this.colliderWorld.step(this._deltaTime);
-        } else {
-            this.colliderWorld.step(this._deltaTime, deltaTime, this._maxSubStep);
-        }
-        // if (this._singleStep) {
-        //     this._enable = false;
-        // }
-
-        director.emit(Director.EVENT_AFTER_PHYSICS);
+        this.colliderWorld.step(deltaTime);
     }
 
     /**
-     * @zh
-     * 检测所有的碰撞盒，并记录所有被检测到的结果，通过 PhysicsSystem.instance.raycastResults 访问结果
-     * @param worldRay 世界空间下的一条射线
-     * @param groupIndex 碰撞组
-     * @param maxDistance 最大检测距离
-     * @return boolean 表示是否有检测到碰撞盒
-     * @note 由于目前 Layer 还未完善，mask 暂时失效，请留意更新公告
+     * !#en Collision detect all the boxes, and record all the detected results, through `cc.Collision3DManager.instance.raycastResults` access results
+     * !#zh 检测所有的碰撞盒，并记录所有被检测到的结果，通过 `cc.Collision3DManager.instance.raycastResults` 访问结果
+     * @param worldRay A ray in world space
+     * @param groupIndex Collision group
+     * @param maxDistance Maximum detection distance
+     * @return boolean Indicates whether a collision box has been detected
      */
     raycast (worldRay: Ray, groupIndex: number = 0, maxDistance = Infinity): boolean {
         this.raycastResultPool.reset();
@@ -168,13 +104,12 @@ export class Collision3DManager {
     }
 
     /**
-     * @zh
-     * 检测所有的碰撞盒，并记录与射线距离最短的检测结果，通过 PhysicsSystem.instance.raycastClosestResult 访问结果
-     * @param worldRay 世界空间下的一条射线
-     * @param groupIndex 碰撞组
-     * @param maxDistance 最大检测距离
-     * @return boolean 表示是否有检测到碰撞盒
-     * @note 由于目前 Layer 还未完善，mask 暂时失效，请留意更新公告
+     * !#en Collision detect all the boxes, and record and ray test results with the shortest distance by `cc.Collision3DManager.instance.raycastClosestResult` access results
+     * 检测所有的碰撞盒，并记录与射线距离最短的检测结果，通过 `cc.Collision3DManager.instance.raycastClosestResult` 访问结果
+     * @param worldRay A ray in world space
+     * @param groupIndex Collision group
+     * @param maxDistance Maximum detection distance
+     * @return boolean Indicates whether a collision box has been detected
      */
     raycastClosest (worldRay: Ray, groupIndex: number = 0, maxDistance = Infinity): boolean {
         this.raycastOptions.groupIndex = groupIndex;

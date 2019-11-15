@@ -35,8 +35,8 @@ import { ColliderComponent } from './collider-component';
 import { ISphereShape } from '../../../spec/i-collider-spahe';
 
 /**
- * @zh
- * 球碰撞器
+ * !#en Sphere collider
+ * !#zh 球碰撞器
  */
 @ccclass('cc.SphereColliderComponent')
 @executionOrder(98)
