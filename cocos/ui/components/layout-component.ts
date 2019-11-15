@@ -36,6 +36,7 @@ import { UITransformComponent } from '../../core/components/ui-base/ui-transfrom
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { INode } from '../../core/utils/interfaces';
 import { director, Director } from '../../core/director';
+import { TransformDirtyBit } from '../../core/scene-graph/node-enum';
 const NodeEvent = SystemEventType;
 /**
  * @zh
@@ -540,7 +541,7 @@ export class LayoutComponent extends Component {
     private _addChildrenEventListeners () {
         const children = this.node.children;
         for (const child of children) {
-            child.on(NodeEvent.SCALE_PART, this._doScaleDirty, this);
+            child.on(NodeEvent.TRANSFORM_CHANGED, this._doScaleDirty, this);
             child.on(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
             child.on(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
             child.on(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
@@ -551,7 +552,7 @@ export class LayoutComponent extends Component {
     private _removeChildrenEventListeners () {
         const children = this.node.children;
         for (const child of children) {
-            child.off(NodeEvent.SCALE_PART, this._doScaleDirty, this);
+            child.off(NodeEvent.TRANSFORM_CHANGED, this._doScaleDirty, this);
             child.off(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
             child.off(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
             child.off(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
@@ -560,7 +561,7 @@ export class LayoutComponent extends Component {
     }
 
     private _childAdded (child: INode) {
-        child.on(NodeEvent.SCALE_PART, this._doScaleDirty, this);
+        child.on(NodeEvent.TRANSFORM_CHANGED, this._doScaleDirty, this);
         child.on(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
         child.on(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
         child.on(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
@@ -570,7 +571,7 @@ export class LayoutComponent extends Component {
     }
 
     private _childRemoved (child: INode) {
-        child.off(NodeEvent.SCALE_PART, this._doScaleDirty, this);
+        child.off(NodeEvent.TRANSFORM_CHANGED, this._doScaleDirty, this);
         child.off(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
         child.off(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
         child.off(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
@@ -1085,8 +1086,8 @@ export class LayoutComponent extends Component {
         return this._affectedByScale ? Math.abs(value) : 1;
     }
 
-    private _transformDirty(type: SystemEventType){
-        if(type !== SystemEventType.POSITION_PART){
+    private _transformDirty (type: TransformDirtyBit) {
+        if (!(type & TransformDirtyBit.POSITION)){
             return;
         }
 
@@ -1097,8 +1098,10 @@ export class LayoutComponent extends Component {
         this._layoutDirty = true;
     }
 
-    private _doScaleDirty () {
-        this._layoutDirty = this._layoutDirty || this._affectedByScale;
+    private _doScaleDirty (type: TransformDirtyBit) {
+        if (type & TransformDirtyBit.SCALE){
+            this._layoutDirty = this._layoutDirty || this._affectedByScale;
+        }
     }
 
 }

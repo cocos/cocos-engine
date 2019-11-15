@@ -211,9 +211,7 @@ export class Node extends BaseNode implements INode {
         this.invalidateChildren(TransformDirtyBit.TRS);
         this._eulerDirty = true;
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART);
-            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.ROTATION_PART);
-            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.SCALE_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformDirtyBit.TRS);
         }
     }
 
@@ -395,7 +393,7 @@ export class Node extends BaseNode implements INode {
 
         this.invalidateChildren(TransformDirtyBit.POSITION);
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformDirtyBit.POSITION);
         }
     }
 
@@ -422,7 +420,7 @@ export class Node extends BaseNode implements INode {
 
         this.invalidateChildren(TransformDirtyBit.ROTATION);
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.ROTATION_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformDirtyBit.ROTATION);
         }
     }
 
@@ -551,7 +549,7 @@ export class Node extends BaseNode implements INode {
 
         this.invalidateChildren(TransformDirtyBit.POSITION);
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformDirtyBit.POSITION);
         }
     }
 
@@ -595,7 +593,7 @@ export class Node extends BaseNode implements INode {
 
         this.invalidateChildren(TransformDirtyBit.ROTATION);
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.ROTATION_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformDirtyBit.ROTATION);
         }
     }
 
@@ -613,7 +611,7 @@ export class Node extends BaseNode implements INode {
 
         this.invalidateChildren(TransformDirtyBit.ROTATION);
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.ROTATION_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformDirtyBit.ROTATION);
         }
     }
 
@@ -655,7 +653,7 @@ export class Node extends BaseNode implements INode {
 
         this.invalidateChildren(TransformDirtyBit.SCALE);
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.SCALE_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformDirtyBit.SCALE);
         }
     }
 
@@ -725,7 +723,7 @@ export class Node extends BaseNode implements INode {
 
         this.invalidateChildren(TransformDirtyBit.POSITION);
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformDirtyBit.POSITION);
         }
     }
 
@@ -776,7 +774,7 @@ export class Node extends BaseNode implements INode {
 
         this.invalidateChildren(TransformDirtyBit.ROTATION);
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.ROTATION_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformDirtyBit.ROTATION);
         }
     }
 
@@ -799,7 +797,7 @@ export class Node extends BaseNode implements INode {
 
         this.invalidateChildren(TransformDirtyBit.ROTATION);
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.ROTATION_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformDirtyBit.ROTATION);
         }
     }
 
@@ -857,7 +855,7 @@ export class Node extends BaseNode implements INode {
 
         this.invalidateChildren(TransformDirtyBit.SCALE);
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.SCALE_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformDirtyBit.SCALE);
         }
     }
 

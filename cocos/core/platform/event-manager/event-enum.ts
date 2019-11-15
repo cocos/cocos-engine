@@ -128,30 +128,6 @@ export enum SystemEventType {
     TRANSFORM_CHANGED = 'transform-changed',
 
     /**
-     * @en
-     * The event type for position changed.
-     *
-     * @zh
-     * 节点位置改变事件
-     */
-    POSITION_PART = 'position-part',
-
-    /**
-     * @en
-     * The event type for rotation changed.
-     *
-     * @zh
-     * 节点旋转事件
-     */
-    ROTATION_PART = 'rotation-part',
-
-    /**
-     * @en The event type for scale changed.
-     * @zh 节点缩放事件
-     */
-    SCALE_PART = 'scale-part',
-
-    /**
      * @en The event type for press the devicemotion event, you can use its value directly: 'devicemotion'.
      * @zh
      */

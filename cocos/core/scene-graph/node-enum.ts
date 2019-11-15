@@ -27,6 +27,8 @@
  * @category scene-graph
  */
 
+import { ccenum } from '../value-types/enum';
+
 export enum NodeSpace {
     LOCAL,
     WORLD,
@@ -41,3 +43,7 @@ export enum TransformDirtyBit {
     TRS = TransformDirtyBit.POSITION | TransformDirtyBit.ROTATION | TransformDirtyBit.SCALE,
     TRS_MASK = ~TransformDirtyBit.TRS,
 }
+
+ccenum(TransformDirtyBit);
+
+cc.TransformDirtyBit = TransformDirtyBit;

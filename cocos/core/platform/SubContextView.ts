@@ -207,13 +207,11 @@ export class SubContextView extends Component {
 
     private _registerNodeEvent () {
         this.node.on(Node.EventType.TRANSFORM_CHANGED, this.updateSubContextViewport, this);
-        this.node.on(Node.EventType.SCALE_PART, this.updateSubContextViewport, this);
         this.node.on(Node.EventType.SIZE_CHANGED, this.updateSubContextViewport, this);
     }
 
     private _unregisterNodeEvent () {
         this.node.off(Node.EventType.TRANSFORM_CHANGED, this.updateSubContextViewport, this);
-        this.node.off(Node.EventType.SCALE_PART, this.updateSubContextViewport, this);
         this.node.off(Node.EventType.SIZE_CHANGED, this.updateSubContextViewport, this);
     }
 

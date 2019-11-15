@@ -40,6 +40,7 @@ import { Scene } from '../../core/scene-graph';
 import { Node } from '../../core/scene-graph/node';
 import { INode } from '../../core/utils/interfaces';
 import { ccenum } from '../../core/value-types/enum';
+import { TransformDirtyBit } from '../../core/scene-graph/node-enum';
 
 const _zeroVec3 = new Vec3();
 
@@ -727,8 +728,8 @@ export class WidgetComponent extends Component {
         this._removeParentEvent();
     }
 
-    public _adjustWidgetToAllowMovingInEditor (eventType: SystemEventType) {
-        if (/*!CC_EDITOR ||*/ eventType !== SystemEventType.POSITION_PART) {
+    public _adjustWidgetToAllowMovingInEditor (eventType: TransformDirtyBit) {
+        if (/*!CC_EDITOR ||*/ !(eventType & TransformDirtyBit.POSITION)) {
             return;
         }
 
