@@ -56,6 +56,7 @@ let VideoPlayerImpl = cc.Class({
         this._visible = false;
         this._playing = false;
         this._ignorePause = false;
+        this._forceUpdate = false;
 
         // update matrix cache
         this._m00 = 0;
@@ -76,6 +77,7 @@ let VideoPlayerImpl = cc.Class({
         let cbs = this.__eventListeners;
         cbs.loadedmetadata = function () {
             self._loadedmeta = true;
+            self._forceUpdate = true;
             if (self._waitingFullscreen) {
                 self._waitingFullscreen = false;
                 self._toggleFullscreen(true);
@@ -121,6 +123,7 @@ let VideoPlayerImpl = cc.Class({
                 video.readyState === READY_STATE.HAVE_METADATA) {
                 video.currentTime = 0;
                 self._loaded = true;
+                self._forceUpdate = true;
                 self._dispatchEvent(VideoPlayerImpl.EventType.READY_TO_PLAY);
                 self._updateVisibility();
             }
@@ -447,7 +450,8 @@ let VideoPlayerImpl = cc.Class({
         }
 
         let _mat4_tempm = _mat4_temp.m;
-        if (this._m00 === _mat4_tempm[0] && this._m01 === _mat4_tempm[1] &&
+        if (!this._forceUpdate &&
+            this._m00 === _mat4_tempm[0] && this._m01 === _mat4_tempm[1] &&
             this._m04 === _mat4_tempm[4] && this._m05 === _mat4_tempm[5] &&
             this._m12 === _mat4_tempm[12] && this._m13 === _mat4_tempm[13] &&
             this._w === node._contentSize.width && this._h === node._contentSize.height) {
@@ -498,6 +502,7 @@ let VideoPlayerImpl = cc.Class({
         this._video.style['-webkit-transform'] = matrix;
         this._video.style['transform-origin'] = '0px 100% 0px';
         this._video.style['-webkit-transform-origin'] = '0px 100% 0px';
+        this._forceUpdate = false;
     }
 });
 
