@@ -770,7 +770,7 @@ let Camera = cc.Class({
         fov = Math.atan(Math.tan(fov / 2) / this.zoomRatio) * 2;
         this._camera.setFov(fov);
         this._camera.setOrthoHeight(height / 2 / this.zoomRatio);
-        this.node.setRotation(0, 0, 0, 0);
+        this.node.setRotation(0, 0, 0, 1);
     },
 
     beforeDraw () {
