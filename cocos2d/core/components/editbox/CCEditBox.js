@@ -713,25 +713,33 @@ let EditBox = cc.Class({
     },
 
     editBoxEditingDidBegan () {
-        cc.Component.EventHandler.emitEvents(this.editingDidBegan, this);
-        this.node.emit('editing-did-began', this);
+        if (this.editingDidBegan) {
+            cc.Component.EventHandler.emitEvents(this.editingDidBegan, this);
+            this.node.emit('editing-did-began', this);
+        }
     },
 
     editBoxEditingDidEnded () {
-        cc.Component.EventHandler.emitEvents(this.editingDidEnded, this);
-        this.node.emit('editing-did-ended', this);
+        if (this.editingDidEnded) {
+            cc.Component.EventHandler.emitEvents(this.editingDidEnded, this);
+            this.node.emit('editing-did-ended', this);
+        }
     },
 
     editBoxTextChanged (text) {
         text = this._updateLabelStringStyle(text, true);
         this.string = text;
-        cc.Component.EventHandler.emitEvents(this.textChanged, text, this);
-        this.node.emit('text-changed', this);
+        if (this.textChanged) {
+            cc.Component.EventHandler.emitEvents(this.textChanged, text, this);
+            this.node.emit('text-changed', this);
+        }
     },
 
     editBoxEditingReturn() {
-        cc.Component.EventHandler.emitEvents(this.editingReturn, this);
-        this.node.emit('editing-return', this);
+        if (this.editingReturn) {
+            cc.Component.EventHandler.emitEvents(this.editingReturn, this);
+            this.node.emit('editing-return', this);
+        }
     },
 
     onEnable () {
