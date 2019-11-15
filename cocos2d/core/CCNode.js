@@ -488,15 +488,25 @@ var _mouseWheelHandler = function (event) {
 function _searchMaskInParent (node) {
     var Mask = cc.Mask;
     if (Mask) {
-        var index = 0;
+        let index = 0;
+        let temp = {
+            index: -1,
+            node: null,
+            next: null
+        };
+        let list = temp;
         for (var curr = node; curr && cc.Node.isNode(curr); curr = curr._parent, ++index) {
             if (curr.getComponent(Mask)) {
-                return {
+                temp.next = {
                     index: index,
-                    node: curr
-                };
+                    node: curr,
+                    next: null
+                }
+                temp = temp.next;
             }
         }
+
+        return list;
     }
     return null;
 }
@@ -1374,17 +1384,7 @@ let NodeDefines = {
             // ActionManager & EventManager
             actionManager && actionManager.resumeTarget(this);
             eventManager.resumeTarget(this);
-            if (this._touchListener) {
-                var mask = this._touchListener.mask = _searchMaskInParent(this);
-                if (this._mouseListener) {
-                    this._mouseListener.mask = mask;
-                }
-            }
-            else if (this._mouseListener) {
-                this._mouseListener.mask = _searchMaskInParent(this);
-            }
-        }
-        else {
+        } else {
             // deactivate
             actionManager && actionManager.pauseTarget(this);
             eventManager.pauseTarget(this);
@@ -1403,6 +1403,8 @@ let NodeDefines = {
         if (cc._widgetManager) {
             cc._widgetManager._nodesOrderDirty = true;
         }
+
+        this._checkListenerMask();
 
         // Node proxy
         if (CC_JSB && CC_NATIVERENDERER) {
@@ -1601,6 +1603,18 @@ let NodeDefines = {
     },
 
     // EVENT TARGET
+    _checkListenerMask () {
+        if (!this._activeInHierarchy) return;
+
+        if (this._touchListener) {
+            var mask = this._touchListener.mask = _searchMaskInParent(this);
+            if (this._mouseListener) {
+                this._mouseListener.mask = mask;
+            }
+        } else if (this._mouseListener) {
+            this._mouseListener.mask = _searchMaskInParent(this);
+        }
+    },
 
     _checknSetupSysEvent (type) {
         let newAdded = false;
@@ -2045,30 +2059,36 @@ let NodeDefines = {
         testPt.x += this._anchorPoint.x * w;
         testPt.y += this._anchorPoint.y * h;
 
+        let hit = false;
         if (testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h) {
+            hit = true;
             if (listener && listener.mask) {
-                var mask = listener.mask;
-                var parent = this;
-                for (var i = 0; parent && i < mask.index; ++i, parent = parent.parent) {
-                }
+                let mask = listener.mask;
+                let parent = this;
                 // find mask parent, should hit test it
-                if (parent === mask.node) {
-                    var comp = parent.getComponent(cc.Mask);
-                    return (comp && comp.enabledInHierarchy) ? comp._hitTest(cameraPt) : true;
-                }
-                // mask parent no longer exists
-                else {
-                    listener.mask = null;
-                    return true;
+                for (let i = 0; parent && mask.next; ++i, parent = parent.parent) {
+                    if (i === mask.next.index) {
+                        if (parent === mask.next.node) {
+                            let comp = parent.getComponent(cc.Mask);
+                            if (comp && comp.enabledInHierarchy && comp._hitTest(cameraPt)) {
+                                mask = mask.next;
+                            } else {
+                                hit = false;
+                                break
+                            }
+                        } else {
+                            // mask parent no longer exists
+                            mask.next = null;
+                        }
+                    } else if (i > mask.next.index) {
+                        // mask parent no longer exists
+                        mask.next = null;
+                    }
                 }
             }
-            else {
-                return true;
-            }
-        }
-        else {
-            return false;
-        }
+        } 
+
+        return hit;
     },
 
     /**
