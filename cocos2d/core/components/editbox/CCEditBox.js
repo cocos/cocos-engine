@@ -713,14 +713,14 @@ let EditBox = cc.Class({
     },
 
     editBoxEditingDidBegan () {
-        if (this.editingDidBegan) {
+        if (cc.isValid(this)) {
             cc.Component.EventHandler.emitEvents(this.editingDidBegan, this);
             this.node.emit('editing-did-began', this);
         }
     },
 
     editBoxEditingDidEnded () {
-        if (this.editingDidEnded) {
+        if (cc.isValid(this)) {
             cc.Component.EventHandler.emitEvents(this.editingDidEnded, this);
             this.node.emit('editing-did-ended', this);
         }
@@ -729,14 +729,14 @@ let EditBox = cc.Class({
     editBoxTextChanged (text) {
         text = this._updateLabelStringStyle(text, true);
         this.string = text;
-        if (this.textChanged) {
+        if (cc.isValid(this)) {
             cc.Component.EventHandler.emitEvents(this.textChanged, text, this);
             this.node.emit('text-changed', this);
         }
     },
 
     editBoxEditingReturn() {
-        if (this.editingReturn) {
+        if (cc.isValid(this)) {
             cc.Component.EventHandler.emitEvents(this.editingReturn, this);
             this.node.emit('editing-return', this);
         }
