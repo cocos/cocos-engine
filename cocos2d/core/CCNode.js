@@ -1384,6 +1384,8 @@ let NodeDefines = {
             // ActionManager & EventManager
             actionManager && actionManager.resumeTarget(this);
             eventManager.resumeTarget(this);
+            // Search Mask in parent
+            this._checkListenerMask();
         } else {
             // deactivate
             actionManager && actionManager.pauseTarget(this);
@@ -1404,8 +1406,10 @@ let NodeDefines = {
             cc._widgetManager._nodesOrderDirty = true;
         }
 
-        this._checkListenerMask();
-
+        if (oldParent) {
+            this._checkListenerMask();
+        }
+        
         // Node proxy
         if (CC_JSB && CC_NATIVERENDERER) {
             this._proxy.updateParent();
