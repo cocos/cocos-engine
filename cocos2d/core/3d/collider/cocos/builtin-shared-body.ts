@@ -26,7 +26,6 @@
 import { Mat4, Quat, Vec3 } from '../../../value-types';
 import { intersect } from '../../../geom-utils';
 import { BuiltInWorld } from './builtin-world';
-import { BuiltinObject } from './object/builtin-object';
 import { BuiltinShape } from './shapes/builtin-shape';
 
 const m4_0 = new Mat4();
@@ -37,7 +36,7 @@ const quat_0 = new Quat();
 /**
  * Built-in static collider, no physical forces involved
  */
-export class BuiltinSharedBody extends BuiltinObject {
+export class BuiltinSharedBody {
 
     private static readonly sharedBodesMap = new Map<string, BuiltinSharedBody>();
 
@@ -96,7 +95,6 @@ export class BuiltinSharedBody extends BuiltinObject {
     readonly shapes: BuiltinShape[] = [];
 
     private constructor (node: any, world: BuiltInWorld) {
-        super();
         this._id = BuiltinSharedBody.idCounter++;
         this.node = node;
         this.world = world;
@@ -108,12 +106,6 @@ export class BuiltinSharedBody extends BuiltinObject {
 
             for (let j = 0; j < body.shapes.length; j++) {
                 const shapeB = body.shapes[j];
-
-                // first, Check collision filter masks
-                if ((shapeA.collisionFilterGroup & shapeB.collisionFilterMask) === 0 ||
-                    (shapeB.collisionFilterGroup & shapeA.collisionFilterMask) === 0) {
-                    continue;
-                }
 
                 if (intersect.resolve(shapeA.worldShape, shapeB.worldShape)) {
                     this.world.shapeArr.push(shapeA);

@@ -26,37 +26,37 @@
 import { ColliderComponent } from './components/collider/collider-component';
 
 /**
- * !#en Trigger event.
+ * !#en Collider event.
  * !#zh 触发事件。
  */
-export interface ITriggerEvent {
+export interface IColliderEvent {
     /**
      * !#en The type of event fired.
      * !#zh 触发的事件类型。
      */
-    readonly type: TriggerEventType;
+    readonly type: CollisionEventType;
 
     /**
-     * !#en Triggers its own collider in the event.
+     * !#en Colliders its own collider in the event.
      * !#zh 触发事件中的自己的碰撞器。
      */
     readonly selfCollider: ColliderComponent;
 
     /**
-     * !#en Triggers another collider in the event
+     * !#en Colliders another collider in the event
      * !#zh 触发事件中的另一个碰撞器
      */
     readonly otherCollider: ColliderComponent;
 }
 
 /**
- * !#en The value type definition of the trigger event.
+ * !#en The value type definition of the collider event.
  * !#zh 触发事件的值类型定义。
  */
-export type TriggerEventType = 'onTriggerEnter' | 'onTriggerStay' | 'onTriggerExit';
+export type CollisionEventType = 'onCollisionEnter' | 'onCollisionStay' | 'onCollisionExit';
 
 /**
  * !#en The callback signature definition of the event that was fired.
  * !#zh 触发事件的回调函数签名定义。
  */
-export type TriggerCallback = (event: ITriggerEvent) => void;
+export type CollisionCallback = (event: IColliderEvent) => void;

@@ -24,11 +24,10 @@
  ****************************************************************************/
 
 import { ILifecycle } from './i-lifecycle'
-import { IGroupMask } from './i-group-mask'
 import { IVec3Like } from '../../../value-types/math';
 import { ColliderComponent } from '../exports/collider-framework';
 
-export interface IBaseShape extends ILifecycle, IGroupMask {
+export interface IBaseShape extends ILifecycle {
     readonly collider: ColliderComponent;
     center: IVec3Like;
 }

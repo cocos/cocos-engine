@@ -27,7 +27,7 @@ import { ccclass, property } from '../../../../../platform/CCClassDecorator';
 import CallbacksInvoker from '../../../../../platform/callbacks-invoker';
 import js from '../../../../../platform/js';
 import { Vec3 } from '../../../../../value-types';
-import { TriggerCallback, TriggerEventType } from '../../collider-interface';
+import { CollisionCallback, CollisionEventType } from '../../collider-interface';
 import CCComponent from '../../../../../components/CCComponent';
 import { IBaseShape } from '../../../spec/i-collider-spahe';
 
@@ -90,127 +90,53 @@ export class ColliderComponent extends CCComponent {
     /**
      * !#en Register callbacks related to triggering events.
      * !#zh 注册触发事件或碰撞事件相关的回调。
-     * @param type The type of trigger event can be 'onTriggerEnter', 'onTriggerStay', 'onTriggerExit';
+     * @param type The type of collider event can be 'onCollisionEnter', 'onCollisionStay', 'onCollisionExit';
      * @param callback Registered callback function
      * @param target Optional argument that executes the target of the callback function
      * @param useCapture Optional. When set to true, the listener will fire during the capture phase or during the bubbling phase. The default is false.
      */
-    public on (type: TriggerEventType, callback: TriggerCallback, target?: Object, useCapture?: any): any {
+    public on (type: CollisionEventType, callback: CollisionCallback, target?: Object, useCapture?: any): any {
     }
 
     /**
-     * !#en Cancels the callback associated with a registered trigger event.
+     * !#en Cancels the callback associated with a registered collider event.
      * !#zh 取消已经注册的触发事件或碰撞事件相关的回调。
-     * @param type The type of trigger event can be 'onTriggerEnter', 'onTriggerStay', 'onTriggerExit';
+     * @param type The type of collider event can be 'onCollisionEnter', 'onCollisionStay', 'onCollisionExit';
      * @param callback Registered callback function.
      * @param target Optional argument that executes the target of the callback function.
      * @param useCapture Optional. When set to true, the listener will fire during the capture phase or during the bubbling phase. The default is false.
      */
-    public off (type: TriggerEventType, callback: TriggerCallback, target?: Object, useCapture?: any) {
+    public off (type: CollisionEventType, callback: CollisionCallback, target?: Object, useCapture?: any) {
     }
 
     /**
      * !#en Registers callbacks related to triggering events, but only executes once.
      * !#zh 注册触发事件或碰撞事件相关的回调，但只会执行一次。
-     ** @param type The type of trigger event can be 'onTriggerEnter', 'onTriggerStay', 'onTriggerExit';
+     ** @param type The type of collider event can be 'onCollisionEnter', 'onCollisionStay', 'onCollisionExit';
      * @param callback Registered callback function.
      * @param target Optional argument that executes the target of the callback function.
      * @param useCapture Optional. When set to true, the listener will fire during the capture phase or during the bubbling phase. The default is false.
      */
-    public once (type: TriggerEventType, callback: TriggerCallback, target?: Object, useCapture?: any): any {
+    public once (type: CollisionEventType, callback: CollisionCallback, target?: Object, useCapture?: any): any {
     }
 
     /**
      * IEventTarget implementations, they will be overwrote with the same implementation in EventTarget by applyMixins
      */
-    public targetOff (keyOrTarget?: TriggerEventType | Object): void {
+    public targetOff (keyOrTarget?: CollisionEventType | Object): void {
     }
 
     public dispatchEvent (event: Event): void {
     }
 
-    public hasEventListener (key: TriggerEventType, callback?: TriggerCallback, target?: Object): boolean {
+    public hasEventListener (key: CollisionEventType, callback?: CollisionCallback, target?: Object): boolean {
         return false;
     }
 
-    public removeAll (keyOrTarget?: TriggerEventType | Object): void {
+    public removeAll (keyOrTarget?: CollisionEventType | Object): void {
     }
 
-    public emit (key: TriggerEventType, ...args: any[]): void {
-    }
-
-    /// GROUP MASK ///
-
-    /**
-     * !#en Set group values.
-     * !#zh 设置分组值。
-     * @param v Integers, ranging from 2 to the 0 to 2 to the 31
-     */
-    public setGroup (v: number): void {
-        this._shape!.setGroup(v);
-    }
-
-    /**
-     * !#en Gets the group value.
-     * !#zh 获取分组值。
-     * @returns Integers, ranging from 2 to the 0 to 2 to the 31
-     */
-    public getGroup (): number {
-        return this._shape.getGroup();
-    }
-
-    /**
-     * !#en Add a group value to fill in the group you want to join.
-     * !#zh 添加分组值，可填要加入的 group。
-     * @param v Integers, ranging from 2 to the 0 to 2 to the 31
-     */
-    public addGroup (v: number) {
-        this._shape.addGroup(v);
-    }
-
-    /**
-     * !#en Subtract the group value to fill in the group to be removed.
-     * !#zh 减去分组值，可填要移除的 group。
-     * @param v Integers, ranging from 2 to the 0 to 2 to the 31
-     */
-    public removeGroup (v: number) {
-        this._shape.removeGroup(v);
-    }
-
-    /**
-     * !#en Gets the mask value.
-     * !#zh 获取掩码值。
-     * @returns Integers, ranging from 2 to the 0 to 2 to the 31
-     */
-    public getMask (): number {
-        return this._shape.getMask();
-    }
-
-    /**
-     * !#en Sets the mask value.
-     * !#zh 设置掩码值。
-     * @param v Integers, ranging from 2 to the 0 to 2 to the 31
-     */
-    public setMask (v: number) {
-        this._shape.setMask(v);
-    }
-
-    /**
-     * !#en Add mask values to fill in groups that need to be checked.
-     * !#zh 添加掩码值，可填入需要检查的 group。
-     * @param v Integers, ranging from 2 to the 0 to 2 to the 31
-     */
-    public addMask (v: number) {
-        this._shape.addMask(v);
-    }
-
-    /**
-     * !#en Subtract the mask value to fill in groups that do not need to be checked.
-     * !#zh 减去掩码值，可填入不需要检查的 group。
-     * @param v Integers, ranging from 2 to the 0 to 2 to the 31
-     */
-    public removeMask (v: number) {
-        this._shape.removeMask(v);
+    public emit (key: CollisionEventType, ...args: any[]): void {
     }
 
     /// COMPONENT LIFECYCLE ///

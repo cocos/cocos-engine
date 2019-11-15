@@ -29,9 +29,7 @@ import { Ray } from '../../../geom-utils';
 import { RecyclePool } from '../../../../renderer/memop';
 
 export interface IRaycastOptions {
-    mask: number;
-    group: number;
-    queryTrigger: boolean;
+    groupIndex: number;
     maxDistance: number;
 }
 

@@ -26,13 +26,12 @@
 import { Mat4, Quat, Vec3 } from '../../../../value-types';
 import { BuiltinSharedBody } from '../builtin-shared-body';
 import { IBuiltinShape } from '../builtin-interface';
-import { BuiltinObject } from '../object/builtin-object';
 import { ColliderComponent, Collision3DManager } from '../../exports/collider-framework';
 import { IBaseShape } from '../../spec/i-collider-spahe';
 import { IVec3Like } from '../../../../value-types/math';
 import { BuiltInWorld } from '../builtin-world';
 
-export class BuiltinShape extends BuiltinObject implements IBaseShape {
+export class BuiltinShape implements IBaseShape {
     set center (v: IVec3Like) {
         Vec3.copy(this._localShape.center, v);
     }

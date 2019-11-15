@@ -26,7 +26,6 @@
 import { IColliderWorld, IRaycastOptions } from '../spec/i-collider-world';
 import { createColliderWorld } from './instance';
 import { RecyclePool } from '../../../../renderer/memop';
-import { Layers } from '../layers'
 import { Ray } from '../../../geom-utils';
 import { ColliderRayResult } from './collider-ray-result';
 import { property, ccclass } from '../../../platform/CCClassDecorator';
@@ -43,25 +42,14 @@ export class Collision3DManager {
     protected _executeInEditMode = false;
 
     /**
-     * @zh
-     * 获取或设置是否启用物理系统，可以用于暂停或继续运行物理系统。
+     * !#en Gets or sets whether the collision system is enabled and can be used to suspend or continue running the collision system.
+     * !#zh 获取或设置是否启用碰撞系统，可以用于暂停或继续运行碰撞系统。
      */
     get enable (): boolean {
         return this._enable;
     }
     set enable (value: boolean) {
         this._enable = value;
-    }
-
-    /**
-     * @zh
-     * 获取或设置物理系统是否允许自动休眠，默认为 true
-     */
-    get allowSleep (): boolean {
-        return this._allowSleep;
-    }
-    set allowSleep (v: boolean) {
-        this._allowSleep = v;
     }
 
     /**
@@ -122,9 +110,7 @@ export class Collision3DManager {
     private _useFixedTime = true;
 
     private readonly raycastOptions: IRaycastOptions = {
-        'group': -1,
-        'mask': -1,
-        'queryTrigger': true,
+        'groupIndex': -1,
         'maxDistance': Infinity
     }
 
@@ -168,18 +154,16 @@ export class Collision3DManager {
      * @zh
      * 检测所有的碰撞盒，并记录所有被检测到的结果，通过 PhysicsSystem.instance.raycastResults 访问结果
      * @param worldRay 世界空间下的一条射线
-     * @param mask 掩码
+     * @param groupIndex 碰撞组
      * @param maxDistance 最大检测距离
-     * @param queryTrigger 是否检测触发器
      * @return boolean 表示是否有检测到碰撞盒
      * @note 由于目前 Layer 还未完善，mask 暂时失效，请留意更新公告
      */
-    raycast (worldRay: Ray, mask: number = Layers.Enum.DEFAULT, maxDistance = Infinity, queryTrigger = true): boolean {
+    raycast (worldRay: Ray, groupIndex: number = 0, maxDistance = Infinity): boolean {
         this.raycastResultPool.reset();
         this.raycastResults.length = 0;
-        this.raycastOptions.mask = mask;
+        this.raycastOptions.groupIndex = groupIndex;
         this.raycastOptions.maxDistance = maxDistance;
-        this.raycastOptions.queryTrigger = queryTrigger;
         return this.colliderWorld.raycast(worldRay, this.raycastOptions, this.raycastResultPool, this.raycastResults);
     }
 
@@ -187,16 +171,14 @@ export class Collision3DManager {
      * @zh
      * 检测所有的碰撞盒，并记录与射线距离最短的检测结果，通过 PhysicsSystem.instance.raycastClosestResult 访问结果
      * @param worldRay 世界空间下的一条射线
-     * @param mask 掩码
+     * @param groupIndex 碰撞组
      * @param maxDistance 最大检测距离
-     * @param queryTrigger 是否检测触发器
      * @return boolean 表示是否有检测到碰撞盒
      * @note 由于目前 Layer 还未完善，mask 暂时失效，请留意更新公告
      */
-    raycastClosest (worldRay: Ray, mask: number = Layers.Enum.DEFAULT, maxDistance = Infinity, queryTrigger = true): boolean {
-        this.raycastOptions.mask = mask;
+    raycastClosest (worldRay: Ray, groupIndex: number = 0, maxDistance = Infinity): boolean {
+        this.raycastOptions.groupIndex = groupIndex;
         this.raycastOptions.maxDistance = maxDistance;
-        this.raycastOptions.queryTrigger = queryTrigger;
         return this.colliderWorld.raycastClosest(worldRay, this.raycastOptions, this.raycastClosestResult);
     }
 }
