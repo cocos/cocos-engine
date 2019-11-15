@@ -1008,9 +1008,9 @@ cc.RotateBy = cc.Class({
 
     reverse:function () {
         var action = new cc.RotateBy();
+        action.initWithDuration(this._duration, -this._deltaAngle);
         this._cloneDecoration(action);
         this._reverseEaseList(action);
-        action.initWithDuration(this._duration, -this._deltaAngle);
         return action;
     }
 });
