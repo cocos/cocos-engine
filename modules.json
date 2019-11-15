@@ -351,7 +351,7 @@
     "hide": true
   },
   {
-    "name": "3D Collision",
+    "name": "3D Collider",
     "since": "2.2.2",
     "entries": [
       "./cocos2d/core/3d/physics/exports/physics-builtin.ts",

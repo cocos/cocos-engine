@@ -31,7 +31,7 @@ import { ArrayCollisionMatrix } from './utils/array-collision-matrix';
 import { Ray, intersect } from '../../../geom-utils';
 import { RecyclePool } from '../../../../renderer/memop';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
-import { IVec3Like } from '../../../value-types/type-define';
+import { IVec3Like } from '../../../value-types/';
 import { TriggerEventType } from '../framework/physics-interface';
 import { ColliderComponent } from '../exports/physics-framework';
 

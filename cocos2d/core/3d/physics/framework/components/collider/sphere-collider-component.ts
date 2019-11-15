@@ -40,7 +40,7 @@ import { ISphereShape } from '../../../spec/i-physics-spahe';
  */
 @ccclass('cc.SphereColliderComponent')
 @executionOrder(98)
-@menu('Components/SphereCollider')
+@menu('i18n:MAIN_MENU.component.collider/Sphere Collider 3D')
 @executeInEditMode
 export class SphereColliderComponent extends ColliderComponent {
 
@@ -82,3 +82,5 @@ export class SphereColliderComponent extends ColliderComponent {
         }
     }
 }
+
+cc.SphereColliderComponent = SphereColliderComponent;

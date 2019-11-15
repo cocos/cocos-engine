@@ -23,5 +23,5 @@
  THE SOFTWARE.
 */
 
-import '../cocos/physics/cocos/instantiate';
+import '../cocos/instantiate';
 export * from '../framework/physics-interface';

@@ -29,6 +29,7 @@ import Mat4 from './mat4';
 import CCClass from '../platform/CCClass';
 import misc from '../utils/misc';
 import { EPSILON, random } from './utils';
+import { IVec2Like, IMat4Like, IMat3Like } from './math';
 
 let _x: number = 0.0;
 let _y: number = 0.0;

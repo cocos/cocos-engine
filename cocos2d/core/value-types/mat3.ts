@@ -3,6 +3,7 @@ import Vec3 from './vec3';
 import Vec2 from './vec2';
 import Mat4 from './mat4';
 import Quat from './quat';
+import { IMat3Like } from './math';
 
 /**
  * Mathematical 3x3 matrix.

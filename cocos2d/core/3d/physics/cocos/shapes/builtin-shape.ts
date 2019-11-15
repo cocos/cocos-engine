@@ -29,7 +29,7 @@ import { IBuiltinShape } from '../builtin-interface';
 import { BuiltinObject } from '../object/builtin-object';
 import { ColliderComponent, PhysicsSystem } from '../../exports/physics-framework';
 import { IBaseShape } from '../../spec/i-physics-spahe';
-import { IVec3Like } from '../../../../value-types/type-define';
+import { IVec3Like } from '../../../../value-types/math';
 import { BuiltInWorld } from '../builtin-world';
 
 export class BuiltinShape extends BuiltinObject implements IBaseShape {

@@ -134,6 +134,7 @@ export class PhysicsSystem {
     }, 1);
 
     private constructor () {
+        director._scheduler && director._scheduler.enableForTarget(this);
         this.physicsWorld = createPhysicsWorld();
     }
 
@@ -142,7 +143,7 @@ export class PhysicsSystem {
      * 执行一次物理系统的模拟，目前将在每帧自动执行一次。
      * @param deltaTime 与上一次执行相差的时间，目前为每帧消耗时间
      */
-    lateUpdate (deltaTime: number) {
+    update (deltaTime: number) {
         if (CC_EDITOR && !this._executeInEditMode) {
             return;
         }

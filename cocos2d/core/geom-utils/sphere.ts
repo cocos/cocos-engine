@@ -2,7 +2,7 @@
  * @category geometry
  */
 
-import { Mat4, Quat, Vec3 } from '../math';
+import { Mat4, Quat, Vec3 } from '../value-types';
 import enums from './enums';
 
 const _v3_tmp = new Vec3();
@@ -70,7 +70,7 @@ export default class sphere {
      */
     public static fromPoints (out: sphere, minPos: Vec3, maxPos: Vec3): sphere {
         Vec3.multiplyScalar(out.center, Vec3.add(_v3_tmp, minPos, maxPos), 0.5);
-        out.radius = Vec3.subtract(_v3_tmp, maxPos, minPos).length() * 0.5;
+        out.radius = Vec3.subtract(_v3_tmp, maxPos, minPos).len() * 0.5;
         return out;
     }
 

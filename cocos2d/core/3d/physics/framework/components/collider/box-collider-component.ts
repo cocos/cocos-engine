@@ -41,7 +41,7 @@ import { IBoxShape } from '../../../spec/i-physics-spahe';
  */
 @ccclass('cc.BoxColliderComponent')
 @executionOrder(98)
-@menu('Components/BoxCollider')
+@menu('i18n:MAIN_MENU.component.collider/Box Collider 3D')
 @executeInEditMode
 export class BoxColliderComponent extends ColliderComponent {
 
@@ -85,3 +85,5 @@ export class BoxColliderComponent extends ColliderComponent {
     }
 
 }
+
+cc.BoxColliderComponent = BoxColliderComponent;

@@ -291,3 +291,5 @@ function applyMixins (derivedCtor: any, baseCtors: any[]) {
     });
 }
 applyMixins(ColliderComponent, [CallbacksInvoker, cc.EventTarget]);
+
+cc.ColliderComponent = ColliderComponent;

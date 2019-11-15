@@ -24,7 +24,7 @@
 */
 
 import { Mat4, Quat, Vec3 } from '../../../value-types';
-import { IVec3Like, IQuatLike } from '../../../value-types/type-define';
+import { IVec3Like, IQuatLike } from '../../../value-types/';
 
 /**
  * declare interface

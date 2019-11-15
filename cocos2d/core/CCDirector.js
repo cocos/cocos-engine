@@ -210,6 +210,7 @@ cc.Director.prototype = {
         // physics3d system
         if (cc.PhysicsSystem) {
             this._physicsSystem = new cc.PhysicsSystem();
+            cc.PhysicsSystem.instance = this._physicsSystem;
             this._scheduler.scheduleUpdate(this._physicsSystem, Scheduler.PRIORITY_SYSTEM, false);
         } else {
             this._physicsSystem = null;

@@ -2,7 +2,7 @@
  * @category geometry
  */
 
-import { Mat3, Mat4, Quat, Vec3 } from '../math';
+import { Mat3, Mat4, Quat, Vec3 } from '../value-types';
 import enums from './enums';
 
 const _v3_tmp = new Vec3();
@@ -11,9 +11,10 @@ const _m3_tmp = new Mat3();
 
 // https://zeuxcg.org/2010/10/17/aabb-from-obb-with-component-wise-abs/
 const transform_extent_m3 = (out: Vec3, extent: Vec3, m3: Mat3) => {
-    _m3_tmp.m00 = Math.abs(m3.m00); _m3_tmp.m01 = Math.abs(m3.m01); _m3_tmp.m02 = Math.abs(m3.m02);
-    _m3_tmp.m03 = Math.abs(m3.m03); _m3_tmp.m04 = Math.abs(m3.m04); _m3_tmp.m05 = Math.abs(m3.m05);
-    _m3_tmp.m06 = Math.abs(m3.m06); _m3_tmp.m07 = Math.abs(m3.m07); _m3_tmp.m08 = Math.abs(m3.m08);
+    let m3_tmpm = _m3_tmp.m, m3m = m3.m;
+    m3_tmpm[0] = Math.abs(m3m[0]); m3_tmpm[1] = Math.abs(m3m[1]); m3_tmpm[2] = Math.abs(m3m[2]);
+    m3_tmpm[3] = Math.abs(m3m[3]); m3_tmpm[4] = Math.abs(m3m[4]); m3_tmpm[5] = Math.abs(m3m[5]);
+    m3_tmpm[6] = Math.abs(m3m[6]); m3_tmpm[7] = Math.abs(m3m[7]); m3_tmpm[8] = Math.abs(m3m[8]);
     Vec3.transformMat3(out, extent, _m3_tmp);
 };
 
@@ -72,11 +73,12 @@ export default class obb {
      * @returns 克隆出的新对象。
      */
     public static clone (a: obb) {
+        let aom = a.orientation.m;
         return new obb(a.center.x, a.center.y, a.center.z,
             a.halfExtents.x, a.halfExtents.y, a.halfExtents.z,
-            a.orientation.m00, a.orientation.m01, a.orientation.m02,
-            a.orientation.m03, a.orientation.m04, a.orientation.m05,
-            a.orientation.m06, a.orientation.m07, a.orientation.m08);
+            aom[0], aom[1], aom[2],
+            aom[3], aom[4], aom[5],
+            aom[6], aom[7], aom[8]);
     }
 
     /**

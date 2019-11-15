@@ -24,7 +24,7 @@
 */
 
 import { Vec3 } from '../../../value-types';
-import { IVec3Like, IQuatLike } from '../../../value-types/type-define';
+import { IVec3Like, IQuatLike } from '../../../value-types/math';
 
 export function stringfyVec3 (value: IVec3Like): string {
         return `(x: ${value.x}, y: ${value.y}, z: ${value.z})`;    
