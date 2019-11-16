@@ -191,9 +191,9 @@ Object.assign(WebEditBoxImpl.prototype, {
         }
         this._editing = true;
         _currentEditBoxImpl = this;
+        this._delegate.editBoxEditingDidBegan();
         this._showDom();
         this._elem.focus();  // set focus
-        this._delegate.editBoxEditingDidBegan();  
     },
 
     endEditing () {
