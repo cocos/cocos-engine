@@ -24,8 +24,6 @@
  ****************************************************************************/
 
 import { ccclass, property } from '../../../../../platform/CCClassDecorator';
-import CallbacksInvoker from '../../../../../platform/callbacks-invoker';
-import js from '../../../../../platform/js';
 import { Vec3 } from '../../../../../value-types';
 import { CollisionCallback, CollisionEventType } from '../../collider-interface';
 import CCComponent from '../../../../../components/CCComponent';
@@ -37,12 +35,6 @@ import { IBaseShape } from '../../../spec/i-collider-spahe';
  */
 @ccclass('cc.ColliderComponent')
 export class ColliderComponent extends CCComponent {
-
-    /**
-     * !#en Store the callback list of registration events. Do not modify it directly.
-     * !#zh 存储注册事件的回调列表，请不要直接修改。
-     */
-    public _callbackTable: any = js.createMap(true);
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
@@ -83,7 +75,10 @@ export class ColliderComponent extends CCComponent {
         return !r;
     }
 
-    protected constructor () { super() }
+    protected constructor () { 
+        super();
+        cc.EventTarget.call(this);
+    }
 
     /// EVENT INTERFACE ///
 
@@ -173,4 +168,4 @@ export class ColliderComponent extends CCComponent {
     }
 }
 
-cc.js.mixin(ColliderComponent.prototype, CallbacksInvoker.prototype, cc.EventTarget.prototype);
+cc.js.mixin(ColliderComponent.prototype, cc.EventTarget.prototype);
