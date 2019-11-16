@@ -1,28 +1,48 @@
-/**
- * @category geometry
- */
+/****************************************************************************
+ Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
 
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
 import { Vec3 } from '../value-types';
 import enums from './enums';
 
 /**
- * @zh
+ * !#zh
  * 基础几何 line。
  */
 // tslint:disable-next-line:class-name
 export default class line {
 
     /**
-     * @en
+     * !#en
      * create a new line
-     * @zh
+     * !#zh
      * 创建一个新的 line。
-     * @param sx 起点的 x 部分。
-     * @param sy 起点的 y 部分。
-     * @param sz 起点的 z 部分。
-     * @param ex 终点的 x 部分。
-     * @param ey 终点的 y 部分。
-     * @param ez 终点的 z 部分。
+     * @param sx The x part of the starting point.
+     * @param sy The y part of the starting point.
+     * @param sz The z part of the starting point.
+     * @param ex The x part of the end point.
+     * @param ey The y part of the end point.
+     * @param ez The z part of the end point.
      * @return
      */
     public static create (sx: number, sy: number, sz: number, ex: number, ey: number, ez: number) {
@@ -30,12 +50,12 @@ export default class line {
     }
 
     /**
-     * @en
+     * !#en
      * Creates a new line initialized with values from an existing line
-     * @zh
+     * !#zh
      * 克隆一个新的 line。
-     * @param a 克隆的来源。
-     * @return 克隆出的对象。
+     * @param a The source of cloning.
+     * @return The cloned object.
      */
     public static clone (a: line) {
         return new line(
@@ -45,13 +65,13 @@ export default class line {
     }
 
     /**
-     * @en
+     * !#en
      * Copy the values from one line to another
-     * @zh
+     * !#zh
      * 复制一个线的值到另一个。
-     * @param out 接受操作的对象。
-     * @param a 复制的来源。
-     * @return 接受操作的对象。
+     * @param out The object that accepts the action.
+     * @param a The source of the copy.
+     * @return The object that accepts the action.
      */
     public static copy (out: line, a: line) {
         Vec3.copy(out.s, a.s);
@@ -61,14 +81,14 @@ export default class line {
     }
 
     /**
-     * @en
+     * !#en
      * create a line from two points
-     * @zh
+     * !#zh
      * 用两个点创建一个线。
-     * @param out 接受操作的对象。
-     * @param start 起点。
-     * @param end 终点。
-     * @return out 接受操作的对象。
+     * @param out The object that accepts the action.
+     * @param start The starting point.
+     * @param end At the end.
+     * @return out The object that accepts the action.
      */
     public static fromPoints (out: line, start: Vec3, end: Vec3) {
         Vec3.copy(out.s, start);
@@ -77,18 +97,18 @@ export default class line {
     }
 
     /**
-     * @en
+     * !#en
      * Set the components of a Vec3 to the given values
-     * @zh
+     * !#zh
      * 将给定线的属性设置为给定值。
-     * @param out 接受操作的对象。
-     * @param sx 起点的 x 部分。
-     * @param sy 起点的 y 部分。
-     * @param sz 起点的 z 部分。
-     * @param ex 终点的 x 部分。
-     * @param ey 终点的 y 部分。
-     * @param ez 终点的 z 部分。
-     * @return out 接受操作的对象。
+     * @param out The object that accepts the action.
+     * @param sx The x part of the starting point.
+     * @param sy The y part of the starting point.
+     * @param sz The z part of the starting point.
+     * @param ex The x part of the end point.
+     * @param ey The y part of the end point.
+     * @param ez The z part of the end point.
+     * @return out The object that accepts the action.
      */
     public static set (out: line, sx: number, sy: number, sz: number, ex: number, ey: number, ez: number) {
         out.s.x = sx;
@@ -102,23 +122,29 @@ export default class line {
     }
 
     /**
-     * @zh
+     * !#en
+     * Calculate the length of the line.
+     * !#zh
      * 计算线的长度。
-     * @param a 要计算的线。
-     * @return 长度。
+     * @param a The line to calculate.
+     * @return Length.
      */
     public static len (a: line) {
         return Vec3.distance(a.s, a.e);
     }
 
     /**
-     * @zh
+     * !#en
+     * Start points.
+     * !#zh
      * 起点。
      */
     public s: Vec3;
 
     /**
-     * @zh
+     * !#en
+     * End points.
+     * !#zh
      * 终点。
      */
     public e: Vec3;
@@ -126,13 +152,14 @@ export default class line {
     private _type: number;
 
     /**
-     * 构造一条线。
-     * @param sx 起点的 x 部分。
-     * @param sy 起点的 y 部分。
-     * @param sz 起点的 z 部分。
-     * @param ex 终点的 x 部分。
-     * @param ey 终点的 y 部分。
-     * @param ez 终点的 z 部分。
+     * !#en Construct a line.
+     * !#zh 构造一条线。
+     * @param sx The x part of the starting point.
+     * @param sy The y part of the starting point.
+     * @param sz The z part of the starting point.
+     * @param ex The x part of the end point.
+     * @param ey The y part of the end point.
+     * @param ez The z part of the end point.
      */
     constructor (sx = 0, sy = 0, sz = 0, ex = 0, ey = 0, ez = -1) {
         this._type = enums.SHAPE_LINE;
@@ -141,10 +168,12 @@ export default class line {
     }
 
     /**
-     * @zh
+     * !#en
+     * Calculate the length of the line.
+     * !#zh
      * 计算线的长度。
-     * @param a 要计算的线。
-     * @return 长度。
+     * @param a The line to calculate.
+     * @return Length.
      */
     public length () {
         return Vec3.distance(this.s, this.e);

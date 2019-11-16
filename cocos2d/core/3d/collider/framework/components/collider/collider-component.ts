@@ -89,7 +89,7 @@ export class ColliderComponent extends CCComponent {
 
     /**
      * !#en Register callbacks related to triggering events.
-     * !#zh 注册触发事件或碰撞事件相关的回调。
+     * !#zh 注册碰撞事件相关的回调。
      * @param type The type of collider event can be 'onCollisionEnter', 'onCollisionStay', 'onCollisionExit';
      * @param callback Registered callback function
      * @param target Optional argument that executes the target of the callback function
@@ -100,7 +100,7 @@ export class ColliderComponent extends CCComponent {
 
     /**
      * !#en Cancels the callback associated with a registered collider event.
-     * !#zh 取消已经注册的触发事件或碰撞事件相关的回调。
+     * !#zh 取消已经注册的碰撞事件相关的回调。
      * @param type The type of collider event can be 'onCollisionEnter', 'onCollisionStay', 'onCollisionExit';
      * @param callback Registered callback function.
      * @param target Optional argument that executes the target of the callback function.
@@ -111,7 +111,7 @@ export class ColliderComponent extends CCComponent {
 
     /**
      * !#en Registers callbacks related to triggering events, but only executes once.
-     * !#zh 注册触发事件或碰撞事件相关的回调，但只会执行一次。
+     * !#zh 注册碰撞事件相关的回调，但只会执行一次。
      ** @param type The type of collider event can be 'onCollisionEnter', 'onCollisionStay', 'onCollisionExit';
      * @param callback Registered callback function.
      * @param target Optional argument that executes the target of the callback function.
@@ -174,4 +174,3 @@ export class ColliderComponent extends CCComponent {
 }
 
 cc.js.mixin(ColliderComponent.prototype, CallbacksInvoker.prototype, cc.EventTarget.prototype);
-cc.ColliderComponent = ColliderComponent;

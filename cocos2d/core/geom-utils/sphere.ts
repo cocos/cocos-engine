@@ -1,6 +1,27 @@
-/**
- * @category geometry
- */
+/****************************************************************************
+ Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
 
 import { Mat4, Quat, Vec3 } from '../value-types';
 import enums from './enums';
@@ -9,47 +30,47 @@ const _v3_tmp = new Vec3();
 function maxComponent (v: Vec3) { return Math.max(Math.max(v.x, v.y), v.z); }
 
 /**
- * @zh
+ * !#zh
  * 基础几何 轴对齐球。
  */
 // tslint:disable-next-line: class-name
 export default class sphere {
 
     /**
-     * @en
+     * !#en
      * create a new sphere
-     * @zh
+     * !#zh
      * 创建一个新的 sphere 实例。
-     * @param cx 形状的相对于原点的 X 坐标。
-     * @param cy 形状的相对于原点的 Y 坐标。
-     * @param cz 形状的相对于原点的 Z 坐标。
-     * @param r 球体的半径
-     * @return {sphere} 返回一个 sphere。
+     * @param cx X coordinates of the shape relative to the origin.
+     * @param cy Y coordinates of the shape relative to the origin.
+     * @param cz Z coordinates of the shape relative to the origin.
+     * @param r Radius of sphere
+     * @return {sphere} Returns a sphere.
      */
     public static create (cx: number, cy: number, cz: number, r: number): sphere {
         return new sphere(cx, cy, cz, r);
     }
 
     /**
-     * @en
+     * !#en
      * clone a new sphere
-     * @zh
+     * !#zh
      * 克隆一个新的 sphere 实例。
-     * @param {sphere} p 克隆的目标。
-     * @return {sphere} 克隆出的示例。
+     * @param {sphere} p The target of cloning.
+     * @return {sphere} The cloned instance.
      */
     public static clone (p: sphere): sphere {
         return new sphere(p.center.x, p.center.y, p.center.z, p.radius);
     }
 
     /**
-     * @en
+     * !#en
      * copy the values from one sphere to another
-     * @zh
+     * !#zh
      * 将从一个 sphere 的值复制到另一个 sphere。
-     * @param {sphere} out 接受操作的 sphere。
-     * @param {sphere} a 被复制的 sphere。
-     * @return {sphere} out 接受操作的 sphere。
+     * @param {sphere} out Accept the sphere of operations.
+     * @param {sphere} a Sphere being copied.
+     * @return {sphere} out Accept the sphere of operations.
      */
     public static copy (out: sphere, p: sphere): sphere {
         Vec3.copy(out.center, p.center);
@@ -59,14 +80,14 @@ export default class sphere {
     }
 
     /**
-     * @en
+     * !#en
      * create a new bounding sphere from two corner points
-     * @zh
+     * !#zh
      * 从两个点创建一个新的 sphere。
-     * @param out - 接受操作的 sphere。
-     * @param minPos - sphere 的最小点。
-     * @param maxPos - sphere 的最大点。
-     * @returns {sphere} out 接受操作的 sphere。
+     * @param out - Accept the sphere of operations.
+     * @param minPos - The smallest point of sphere.
+     * @param maxPos - The maximum point of sphere.
+     * @returns {sphere} out Accept the sphere of operations.
      */
     public static fromPoints (out: sphere, minPos: Vec3, maxPos: Vec3): sphere {
         Vec3.multiplyScalar(out.center, Vec3.add(_v3_tmp, minPos, maxPos), 0.5);
@@ -75,15 +96,15 @@ export default class sphere {
     }
 
     /**
-     * @en Set the components of a sphere to the given values
-     * @zh 将球体的属性设置为给定的值。
+     * !#en Set the components of a sphere to the given values
+     * !#zh 将球体的属性设置为给定的值。
      *
-     * @param {sphere} out 接受操作的 sphere。
-     * @param cx 形状的相对于原点的 X 坐标。
-     * @param cy 形状的相对于原点的 Y 坐标。
-     * @param cz 形状的相对于原点的 Z 坐标。
-     * @param {number} r 半径。
-     * @return {sphere} out 接受操作的 sphere。
+     * @param {sphere} out Accept the sphere of operations.
+     * @param cx X coordinates of the shape relative to the origin.
+     * @param cy Y coordinates of the shape relative to the origin.
+     * @param cz Z coordinates of the shape relative to the origin.
+     * @param {number} r Radius.
+     * @return {sphere} out Accept the sphere of operations.
      * @function
      */
     public static set (out: sphere, cx: number, cy: number, cz: number, r: number): sphere {
@@ -96,13 +117,15 @@ export default class sphere {
     }
 
     /**
-     * @zh
+     * !#en
+     * The center of the local coordinate.
+     * !#zh
      * 本地坐标的中心点。
      */
     public center: Vec3;
 
     /**
-     * @zh
+     * !#zh
      * 半径。
      */
     public radius: number;
@@ -110,11 +133,14 @@ export default class sphere {
     protected _type: number;
 
     /**
+     * !#en
+     * Construct a sphere.
+     * !#zh
      * 构造一个球。
-     * @param cx 该球的世界坐标的 X 坐标。
-     * @param cy 该球的世界坐标的 Y 坐标。
-     * @param cz 该球的世界坐标的 Z 坐标。
-     * @param {number} r 半径。
+     * @param cx The x-coordinate of the sphere's world coordinates.
+     * @param cy The y-coordinate of the sphere's world coordinates.
+     * @param cz The z-coordinate of the sphere's world coordinates.
+     * @param {number} r Radius.
      */
     constructor (cx: number = 0, cy: number = 0, cz: number = 0, r: number = 1) {
         this._type = enums.SHAPE_SPHERE;
@@ -123,7 +149,9 @@ export default class sphere {
     }
 
     /**
-     * @zh
+     * !#en
+     * Clone.
+     * !#zh
      * 获得克隆。
      */
     public clone () {
@@ -131,21 +159,23 @@ export default class sphere {
     }
 
     /**
-     * @zh
+     * !#en
+     * Copy sphere
+     * !#zh
      * 拷贝对象。
-     * @param a 拷贝的目标。
+     * @param a Copy target.
      */
     public copy (a: sphere) {
         return sphere.copy(this, a);
     }
 
     /**
-     * @en
+     * !#en
      * Get the bounding points of this shape
-     * @zh
+     * !#zh
      * 获取此形状的边界点。
-     * @param {Vec3} minPos 最小点。
-     * @param {Vec3} maxPos 最大点。
+     * @param {Vec3} minPos
+     * @param {Vec3} maxPos
      */
     public getBoundary (minPos: Vec3, maxPos: Vec3) {
         Vec3.set(minPos, this.center.x - this.radius, this.center.y - this.radius, this.center.z - this.radius);
@@ -153,15 +183,15 @@ export default class sphere {
     }
 
     /**
-     * @en
+     * !#en
      * Transform this shape
-     * @zh
+     * !#zh
      * 将 out 根据这个 sphere 的数据进行变换。
-     * @param m 变换的矩阵。
-     * @param pos 变换的位置部分。
-     * @param rot 变换的旋转部分。
-     * @param scale 变换的缩放部分。
-     * @param out 变换的目标。
+     * @param m The transformation matrix.
+     * @param pos The position part of the transformation.
+     * @param rot The rotating part of the transformation.
+     * @param scale The scaling part of the transformation.
+     * @param out The target of the transformation.
      */
     public transform (m: Mat4, pos: Vec3, rot: Quat, scale: Vec3, out: sphere) {
         Vec3.transformMat4(out.center, this.center, m);
@@ -169,21 +199,23 @@ export default class sphere {
     }
 
     /**
-     * @zh
+     * !#zh
      * 将 out 根据这个 sphere 的数据进行变换。
-     * @param m 变换的矩阵。
-     * @param rot 变换的旋转部分。
-     * @param out 变换的目标。
+     * @param m The transformation matrix.
+     * @param rot The rotating part of the transformation.
+     * @param out The target of the transformation.
      */
     public translateAndRotate (m: Mat4, rot: Quat, out: sphere){
         Vec3.transformMat4(out.center, this.center, m);
     }
 
     /**
-     * @zh
+     * !#en
+     * Scale out based on the sphere data.
+     * !#zh
      *  将 out 根据这个 sphere 的数据进行缩放。
-     * @param scale 缩放值。
-     * @param out 缩放的目标。
+     * @param scale Scale value
+     * @param out Scale target
      */
     public setScale (scale: Vec3, out: sphere) {
         out.radius = this.radius * maxComponent(scale);

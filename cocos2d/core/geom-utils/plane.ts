@@ -1,6 +1,27 @@
-/**
- * @category geometry
- */
+/****************************************************************************
+ Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
 
 import { Mat4, Vec3, Vec4 } from '../value-types';
 import enums from './enums';
@@ -11,21 +32,21 @@ const temp_mat = cc.mat4();
 const temp_vec4 = cc.v4();
 
 /**
- * @zh
+ * !#zh
  * 基础几何 plane。
  */
 // tslint:disable-next-line:class-name
 export default class plane {
 
     /**
-     * @en
+     * !#en
      * create a new plane
-     * @zh
+     * !#zh
      * 创建一个新的 plane。
-     * @param nx 法向分量的 x 部分。
-     * @param ny 法向分量的 y 部分。
-     * @param nz 法向分量的 z 部分。
-     * @param d 与原点的距离。
+     * @param nx The x part of the normal component.
+     * @param ny The y part of the normal component.
+     * @param nz The z part of the normal component.
+     * @param d Distance from the origin.
      * @return
      */
     public static create (nx: number, ny: number, nz: number, d: number) {
@@ -33,25 +54,25 @@ export default class plane {
     }
 
     /**
-     * @en
+     * !#en
      * clone a new plane
-     * @zh
+     * !#zh
      * 克隆一个新的 plane。
-     * @param p 克隆的来源。
-     * @return 克隆出的对象。
+     * @param p The source of cloning.
+     * @return The cloned object.
      */
     public static clone (p: plane) {
         return new plane(p.n.x, p.n.y, p.n.z, p.d);
     }
 
     /**
-     * @en
+     * !#en
      * copy the values from one plane to another
-     * @zh
+     * !#zh
      * 复制一个平面的值到另一个。
-     * @param out 接受操作的对象。
-     * @param p 复制的来源。
-     * @return 接受操作的对象。
+     * @param out The object that accepts the action.
+     * @param p The source of the copy.
+     * @return The object that accepts the action.
      */
     public static copy (out: plane, p: plane) {
         Vec3.copy(out.n, p.n);
@@ -61,15 +82,15 @@ export default class plane {
     }
 
     /**
-     * @en
+     * !#en
      * create a plane from three points
-     * @zh
+     * !#zh
      * 用三个点创建一个平面。
-     * @param out 接受操作的对象。
-     * @param a 点 a。
-     * @param b 点 b。
-     * @param c 点 c。
-     * @return out 接受操作的对象。
+     * @param out The object that accepts the action.
+     * @param a Point a。
+     * @param b Point b。
+     * @param c Point c。
+     * @return out The object that accepts the action.
      */
     public static fromPoints (out: plane, a: Vec3, b: Vec3, c: Vec3) {
         Vec3.subtract(v1, b, a);
@@ -82,16 +103,16 @@ export default class plane {
     }
 
     /**
-     * @en
+     * !#en
      * Set the components of a plane to the given values
-     * @zh
+     * !#zh
      * 将给定平面的属性设置为给定值。
-     * @param out 接受操作的对象。
-     * @param nx 法向分量的 x 部分。
-     * @param ny 法向分量的 y 部分。
-     * @param nz 法向分量的 z 部分。
-     * @param d 与原点的距离。
-     * @return out 接受操作的对象。
+     * @param out The object that accepts the action.
+     * @param nx The x part of the normal component.
+     * @param ny The y part of the normal component.
+     * @param nz The z part of the normal component.
+     * @param d Distance from the origin.
+     * @return out The object that accepts the action.
      */
     public static set (out: plane, nx: number, ny: number, nz: number, d: number) {
         out.n.x = nx;
@@ -103,14 +124,14 @@ export default class plane {
     }
 
     /**
-     * @en
+     * !#en
      * create plane from normal and point
-     * @zh
+     * !#zh
      * 用一条法线和一个点创建平面。
-     * @param out 接受操作的对象。
-     * @param normal 平面的法线。
-     * @param point 平面上的一点。
-     * @return out 接受操作的对象。
+     * @param out The object that accepts the action.
+     * @param normal The normal of a plane.
+     * @param point A point on the plane.
+     * @return out The object that accepts the action.
      */
     public static fromNormalAndPoint (out: plane, normal: Vec3, point: Vec3) {
         Vec3.copy(out.n, normal);
@@ -120,13 +141,13 @@ export default class plane {
     }
 
     /**
-     * @en
+     * !#en
      * normalize a plane
-     * @zh
+     * !#zh
      * 归一化一个平面。
-     * @param out 接受操作的对象。
-     * @param a 操作的源数据。
-     * @return out 接受操作的对象。
+     * @param out The object that accepts the action.
+     * @param a Source data for operations.
+     * @return out The object that accepts the action.
      */
     public static normalize (out: plane, a: plane) {
         const len = a.n.len();
@@ -138,13 +159,17 @@ export default class plane {
     }
 
     /**
-     * @zh
+     * !#en
+     * A normal vector.
+     * !#zh
      * 法线向量。
      */
     public n: Vec3;
 
     /**
-     * @zh
+     * !#en
+     * The distance from the origin to the plane.
+     * !#zh
      * 原点到平面的距离。
      */
     public d: number;
@@ -152,11 +177,12 @@ export default class plane {
     private _type: number;
 
     /**
-     * 构造一个平面。
-     * @param nx 法向分量的 x 部分。
-     * @param ny 法向分量的 y 部分。
-     * @param nz 法向分量的 z 部分。
-     * @param d 与原点的距离。
+     * !#en Construct a plane.
+     * !#zh 构造一个平面。
+     * @param nx The x part of the normal component.
+     * @param ny The y part of the normal component.
+     * @param nz The z part of the normal component.
+     * @param d Distance from the origin.
      */
     constructor (nx = 0, ny = 1, nz = 0, d = 0) {
         this._type = enums.SHAPE_PLANE;
@@ -165,7 +191,9 @@ export default class plane {
     }
 
     /**
-     * @zh
+     * !#en
+     * Transform a plane.
+     * !#zh
      * 变换一个平面。
      * @param mat
      */

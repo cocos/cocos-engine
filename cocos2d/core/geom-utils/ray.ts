@@ -1,42 +1,63 @@
-/**
- * @category geometry
- */
+/****************************************************************************
+ Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
 
 import { Vec3 } from '../value-types';
 import enums from './enums';
 import { IVec3Like } from '../value-types/math';
 
 /**
- * @zh
+ * !#zh
  * 基础几何 射线。
  */
 // tslint:disable-next-line:class-name
 export default class ray {
 
     /**
-     * @en
+     * !#en
      * create a new ray
-     * @zh
+     * !#zh
      * 创建一条射线。
-     * @param {number} ox 起点的 x 部分。
-     * @param {number} oy 起点的 y 部分。
-     * @param {number} oz 起点的 z 部分。
-     * @param {number} dx 方向的 x 部分。
-     * @param {number} dy 方向的 y 部分。
-     * @param {number} dz 方向的 z 部分。
-     * @return {ray} 射线。
+     * @param {number} ox The x part of the starting point.
+     * @param {number} oy The y part of the starting point.
+     * @param {number} oz The z part of the starting point.
+     * @param {number} dx X in the direction.
+     * @param {number} dy Y in the direction.
+     * @param {number} dz Z in the direction.
+     * @return {ray}
      */
     public static create (ox: number = 0, oy: number = 0, oz: number = 0, dx: number = 0, dy: number = 0, dz: number = 1): ray {
         return new ray(ox, oy, oz, dx, dy, dz);
     }
 
     /**
-     * @en
+     * !#en
      * Creates a new ray initialized with values from an existing ray
-     * @zh
+     * !#zh
      * 从一条射线克隆出一条新的射线。
-     * @param {ray} a 克隆的目标。
-     * @return {ray} 克隆出的新对象。
+     * @param {ray} a Clone target
+     * @return {ray} Clone result
      */
     public static clone (a: ray): ray {
         return new ray(
@@ -46,13 +67,13 @@ export default class ray {
     }
 
     /**
-     * @en
+     * !#en
      * Copy the values from one ray to another
-     * @zh
+     * !#zh
      * 将从一个 ray 的值复制到另一个 ray。
-     * @param {ray} out 接受操作的 ray。
-     * @param {ray} a 被复制的 ray。
-     * @return {ray} out 接受操作的 ray。
+     * @param {ray} out Accept the ray of the operation.
+     * @param {ray} a Copied ray.
+     * @return {ray} out Accept the ray of the operation.
      */
     public static copy (out: ray, a: ray): ray {
         Vec3.copy(out.o, a.o);
@@ -62,14 +83,14 @@ export default class ray {
     }
 
     /**
-     * @en
+     * !#en
      * create a ray from two points
-     * @zh
+     * !#zh
      * 用两个点创建一条射线。
-     * @param {ray} out 接受操作的射线。
-     * @param {Vec3} origin 射线的起点。
-     * @param {Vec3} target 射线上的一点。
-     * @return {ray} out 接受操作的射线。
+     * @param {ray} out Receive the operating ray.
+     * @param {Vec3} origin Origin of ray
+     * @param {Vec3} target A point on a ray.
+     * @return {ray} out Receive the operating ray.
      */
     public static fromPoints (out: ray, origin: Vec3, target: Vec3): ray {
         Vec3.copy(out.o, origin);
@@ -78,18 +99,18 @@ export default class ray {
     }
 
     /**
-     * @en
+     * !#en
      * Set the components of a ray to the given values
-     * @zh
+     * !#zh
      * 将给定射线的属性设置为给定的值。
-     * @param {ray} out 接受操作的射线。
-     * @param {number} ox 起点的 x 部分。
-     * @param {number} oy 起点的 y 部分。
-     * @param {number} oz 起点的 z 部分。
-     * @param {number} dx 方向的 x 部分。
-     * @param {number} dy 方向的 y 部分。
-     * @param {number} dz 方向的 z 部分。
-     * @return {ray} out 接受操作的射线。
+     * @param {ray} out Receive the operating ray.
+     * @param {number} ox The x part of the starting point.
+     * @param {number} oy The y part of the starting point.
+     * @param {number} oz The z part of the starting point.
+     * @param {number} dx X in the direction.
+     * @param {number} dy Y in the direction.
+     * @param {number} dz Z in the direction.
+     * @return {ray} out Receive the operating ray.
      */
     public static set (out: ray, ox: number, oy: number, oz: number, dx: number, dy: number, dz: number): ray {
         out.o.x = ox;
@@ -103,13 +124,17 @@ export default class ray {
     }
 
     /**
-     * @zh
+     * !#en
+     * Start point.
+     * !#zh
      * 起点。
      */
     public o: Vec3;
 
     /**
-     * @zh
+     * !#e
+     * Direction
+     * !#zh
      * 方向。
      */
     public d: Vec3;
@@ -117,13 +142,14 @@ export default class ray {
     private _type: number;
 
     /**
-     * 构造一条射线。
-     * @param {number} ox 起点的 x 部分。
-     * @param {number} oy 起点的 y 部分。
-     * @param {number} oz 起点的 z 部分。
-     * @param {number} dx 方向的 x 部分。
-     * @param {number} dy 方向的 y 部分。
-     * @param {number} dz 方向的 z 部分。
+     * !#en Construct a ray.
+     * !#zh 构造一条射线。
+     * @param {number} ox The x part of the starting point.
+     * @param {number} oy The y part of the starting point.
+     * @param {number} oz The z part of the starting point.
+     * @param {number} dx X in the direction.
+     * @param {number} dy Y in the direction.
+     * @param {number} dz Z in the direction.
      */
     constructor (ox: number = 0, oy: number = 0, oz: number = 0,
         dx: number = 0, dy: number = 0, dz: number = -1) {

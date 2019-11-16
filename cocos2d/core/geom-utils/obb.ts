@@ -1,6 +1,27 @@
-/**
- * @category geometry
- */
+/****************************************************************************
+ Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
 
 import { Mat3, Mat4, Quat, Vec3 } from '../value-types';
 import enums from './enums';
@@ -19,14 +40,14 @@ const transform_extent_m3 = (out: Vec3, extent: Vec3, m3: Mat3) => {
 };
 
 /**
- * @zh
+ * !#zh
  * 基础几何  方向包围盒。
  */
 // tslint:disable-next-line:class-name
 export default class obb {
 
     /**
-     * @zh
+     * !#zh
      * 获取形状的类型。
      */
     get type () {
@@ -34,26 +55,26 @@ export default class obb {
     }
 
     /**
-     * @en
+     * !#en
      * create a new obb
-     * @zh
+     * !#zh
      * 创建一个新的 obb 实例。
-     * @param cx 形状的相对于原点的 X 坐标。
-     * @param cy 形状的相对于原点的 Y 坐标。
-     * @param cz 形状的相对于原点的 Z 坐标。
-     * @param hw - obb 宽度的一半。
-     * @param hh - obb 高度的一半。
-     * @param hl - obb 长度的一半。
-     * @param ox_1 方向矩阵参数。
-     * @param ox_2 方向矩阵参数。
-     * @param ox_3 方向矩阵参数。
-     * @param oy_1 方向矩阵参数。
-     * @param oy_2 方向矩阵参数。
-     * @param oy_3 方向矩阵参数。
-     * @param oz_1 方向矩阵参数。
-     * @param oz_2 方向矩阵参数。
-     * @param oz_3 方向矩阵参数。
-     * @return 返回一个 obb。
+     * @param cx X coordinates of the shape relative to the origin.
+     * @param cy Y coordinates of the shape relative to the origin.
+     * @param cz Z coordinates of the shape relative to the origin.
+     * @param hw Obb is half the width.
+     * @param hh Obb is half the height.
+     * @param hl Obb is half the Length.
+     * @param ox_1 Direction matrix parameter.
+     * @param ox_2 Direction matrix parameter.
+     * @param ox_3 Direction matrix parameter.
+     * @param oy_1 Direction matrix parameter.
+     * @param oy_2 Direction matrix parameter.
+     * @param oy_3 Direction matrix parameter.
+     * @param oz_1 Direction matrix parameter.
+     * @param oz_2 Direction matrix parameter.
+     * @param oz_3 Direction matrix parameter.
+     * @return Direction Box.
      */
     public static create (
         cx: number, cy: number, cz: number,
@@ -65,12 +86,12 @@ export default class obb {
     }
 
     /**
-     * @en
+     * !#en
      * clone a new obb
-     * @zh
+     * !#zh
      * 克隆一个 obb。
-     * @param a 克隆的目标。
-     * @returns 克隆出的新对象。
+     * @param a The target of cloning.
+     * @returns New object cloned.
      */
     public static clone (a: obb) {
         let aom = a.orientation.m;
@@ -82,13 +103,13 @@ export default class obb {
     }
 
     /**
-     * @en
+     * !#en
      * copy the values from one obb to another
-     * @zh
+     * !#zh
      * 将从一个 obb 的值复制到另一个 obb。
-     * @param {obb} out 接受操作的 obb。
-     * @param {obb} a 被复制的 obb。
-     * @return {obb} out 接受操作的 obb。
+     * @param {obb} out Obb that accepts the operation.
+     * @param {obb} a Obb being copied.
+     * @return {obb} out Obb that accepts the operation.
      */
     public static copy (out: obb, a: obb): obb {
         Vec3.copy(out.center, a.center);
@@ -99,14 +120,14 @@ export default class obb {
     }
 
     /**
-     * @en
+     * !#en
      * create a new obb from two corner points
-     * @zh
+     * !#zh
      * 用两个点创建一个新的 obb。
-     * @param out - 接受操作的 obb。
-     * @param minPos - obb 的最小点。
-     * @param maxPos - obb 的最大点。
-     * @returns {obb} out 接受操作的 obb。
+     * @param out Obb that accepts the operation.
+     * @param minPos The smallest point of obb.
+     * @param maxPos Obb's maximum point.
+     * @returns {obb} out Obb that accepts the operation.
      */
     public static fromPoints (out: obb, minPos: Vec3, maxPos: Vec3): obb {
         Vec3.multiplyScalar(out.center, Vec3.add(_v3_tmp, minPos, maxPos), 0.5);
@@ -116,25 +137,25 @@ export default class obb {
     }
 
     /**
-     * @en
+     * !#en
      * Set the components of a obb to the given values
-     * @zh
+     * !#zh
      * 将给定 obb 的属性设置为给定的值。
-     * @param cx - obb 的原点的 X 坐标。
-     * @param cy - obb 的原点的 Y 坐标。
-     * @param cz - obb 的原点的 Z 坐标。
-     * @param hw - obb 宽度的一半。
-     * @param hh - obb 高度的一半。
-     * @param hl - obb 长度的一半。
-     * @param ox_1 方向矩阵参数。
-     * @param ox_2 方向矩阵参数。
-     * @param ox_3 方向矩阵参数。
-     * @param oy_1 方向矩阵参数。
-     * @param oy_2 方向矩阵参数。
-     * @param oy_3 方向矩阵参数。
-     * @param oz_1 方向矩阵参数。
-     * @param oz_2 方向矩阵参数。
-     * @param oz_3 方向矩阵参数。
+     * @param cx X coordinates of the shape relative to the origin.
+     * @param cy Y coordinates of the shape relative to the origin.
+     * @param cz Z coordinates of the shape relative to the origin.
+     * @param hw Obb is half the width.
+     * @param hh Obb is half the height.
+     * @param hl Obb is half the Length.
+     * @param ox_1 Direction matrix parameter.
+     * @param ox_2 Direction matrix parameter.
+     * @param ox_3 Direction matrix parameter.
+     * @param oy_1 Direction matrix parameter.
+     * @param oy_2 Direction matrix parameter.
+     * @param oy_3 Direction matrix parameter.
+     * @param oz_1 Direction matrix parameter.
+     * @param oz_2 Direction matrix parameter.
+     * @param oz_3 Direction matrix parameter.
      * @return {obb} out
      */
     public static set (
@@ -151,19 +172,25 @@ export default class obb {
     }
 
     /**
-     * @zh
+     * !#en
+     * The center of the local coordinate.
+     * !#zh
      * 本地坐标的中心点。
      */
     public center: Vec3;
 
     /**
-     * @zh
+     * !#en
+     * Half the length, width, and height.
+     * !#zh
      * 长宽高的一半。
      */
     public halfExtents: Vec3;
 
     /**
-     * @zh
+     * !#en
+     * Direction matrix.
+     * !#zh
      * 方向矩阵。
      */
     public orientation: Mat3;
@@ -182,12 +209,12 @@ export default class obb {
     }
 
     /**
-     * @en
+     * !#en
      * Get the bounding points of this shape
-     * @zh
+     * !#zh
      * 获取 obb 的最小点和最大点。
-     * @param {Vec3} minPos 最小点。
-     * @param {Vec3} maxPos 最大点。
+     * @param {Vec3} minPos
+     * @param {Vec3} maxPos
      */
     public getBoundary (minPos: Vec3, maxPos: Vec3) {
         transform_extent_m3(_v3_tmp, this.halfExtents, this.orientation);
@@ -196,14 +223,14 @@ export default class obb {
     }
 
     /**
-     * Transform this shape
-     * @zh
+     * !#en Transform this shape
+     * !#zh
      * 将 out 根据这个 obb 的数据进行变换。
-     * @param m 变换的矩阵。
-     * @param pos 变换的位置部分。
-     * @param rot 变换的旋转部分。
-     * @param scale 变换的缩放部分。
-     * @param out 变换的目标。
+     * @param m The transformation matrix.
+     * @param pos The position part of the transformation.
+     * @param rot The rotating part of the transformation.
+     * @param scale The scaling part of the transformation.
+     * @param out Target of transformation.
      */
     public transform (m: Mat4, pos: Vec3, rot: Quat, scale: Vec3, out: obb) {
         Vec3.transformMat4(out.center, this.center, m);
@@ -213,11 +240,13 @@ export default class obb {
     }
 
     /**
-     * @zh
+     * !#en
+     * Transform out based on this obb data.
+     * !#zh
      * 将 out 根据这个 obb 的数据进行变换。
-     * @param m 变换的矩阵。
-     * @param rot 变换的旋转部分。
-     * @param out 变换的目标。
+     * @param m The transformation matrix.
+     * @param rot The rotating part of the transformation.
+     * @param out Target of transformation.
      */
     public translateAndRotate (m: Mat4, rot: Quat, out: obb){
         Vec3.transformMat4(out.center, this.center, m);
@@ -226,10 +255,12 @@ export default class obb {
     }
 
     /**
-     * @zh
-     *  将 out 根据这个 obb 的数据进行缩放。
-     * @param scale 缩放值。
-     * @param out 缩放的目标。
+     * !#en
+     * Scale out based on this obb data.
+     * !#zh
+     * 将 out 根据这个 obb 的数据进行缩放。
+     * @param scale Scale value.
+     * @param out Scaled target.
      */
     public setScale (scale: Vec3, out: obb) {
         Vec3.multiply(out.halfExtents, this.halfExtents, scale);

@@ -1,6 +1,27 @@
-/**
- * @category geometry
- */
+/****************************************************************************
+ Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
 
 import { Vec3 } from '../value-types';
 import aabb from './aabb';
@@ -16,27 +37,27 @@ const u = new Array(3);
 const e = new Array(3);
 
 /**
- * @en
+ * !#en
  * the distance between a point and a plane
- * @zh
+ * !#zh
  * 计算点和平面之间的距离。
- * @param {Vec3} point 点。
- * @param {plane} plane 平面。
- * @return 距离。
+ * @param {Vec3} point
+ * @param {plane} plane
+ * @return Distance
  */
 export function point_plane (point: Vec3, plane_: plane) {
     return Vec3.dot(plane_.n, point) - plane_.d;
 }
 
 /**
- * @en
+ * !#en
  * the closest point on plane to a given point
- * @zh
+ * !#zh
  * 计算平面上最接近给定点的点。
- * @param out 最近点。
- * @param point 给定点。
- * @param plane 平面。
- * @return 最近点。
+ * @param out Closest point
+ * @param point Given point
+ * @param plane
+ * @return Closest point
  */
 export function pt_point_plane (out: Vec3, point: Vec3, plane_: plane) {
     const t = point_plane(point, plane_);
@@ -44,14 +65,14 @@ export function pt_point_plane (out: Vec3, point: Vec3, plane_: plane) {
 }
 
 /**
- * @en
+ * !#en
  * the closest point on aabb to a given point
- * @zh
+ * !#zh
  * 计算 aabb 上最接近给定点的点。
- * @param {Vec3} out 最近点。
- * @param {Vec3} point 给定点。
- * @param {aabb} aabb 轴对齐包围盒。
- * @return {Vec3} 最近点。
+ * @param {Vec3} out Closest point.
+ * @param {Vec3} point Given point.
+ * @param {aabb} aabb Align the axis around the box.
+ * @return {Vec3} Closest point.
  */
 export function pt_point_aabb (out: Vec3, point: Vec3, aabb_: aabb): Vec3 {
     Vec3.copy(out, point);
@@ -69,14 +90,14 @@ export function pt_point_aabb (out: Vec3, point: Vec3, aabb_: aabb): Vec3 {
 }
 
 /**
- * @en
+ * !#en
  * the closest point on obb to a given point
- * @zh
+ * !#zh
  * 计算 obb 上最接近给定点的点。
- * @param {Vec3} out 最近点。
- * @param {Vec3} point 给定点。
- * @param {obb} obb 方向包围盒。
- * @return {Vec3} 最近点。
+ * @param {Vec3} out Closest point
+ * @param {Vec3} point Given point
+ * @param {obb} obb Direction box
+ * @return {Vec3} closest point
  */
 export function pt_point_obb (out: Vec3, point: Vec3, obb_: obb): Vec3 {
     let obbm = obb_.orientation.m;
