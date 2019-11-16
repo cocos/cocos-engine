@@ -207,13 +207,22 @@ cc.Director.prototype = {
             this._physicsManager = null;
         }
 
-        // physics3d system
+        // collision 3d manager
         if (cc.Collision3DManager) {
             this._collision3DManager = new cc.Collision3DManager();
             cc.Collision3DManager.instance = this._collision3DManager;
             this._scheduler.scheduleUpdate(this._collision3DManager, Scheduler.PRIORITY_SYSTEM, false);
         } else {
             this._collision3DManager = null;
+        }
+
+        // physics 3d manager
+        if (cc.Physics3DManager) {
+            this._physics3DManager = new cc.Physics3DManager();
+            cc.Physics3DManager.instance = this._physics3DManager;
+            this._scheduler.scheduleUpdate(this._physics3DManager, Scheduler.PRIORITY_SYSTEM, false);
+        } else {
+            this._physics3DManager = null;
         }
 
         // WidgetManager
