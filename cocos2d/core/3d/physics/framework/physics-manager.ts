@@ -26,7 +26,7 @@
 import { Vec3 } from '../../../value-types';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { createPhysicsWorld } from './instance';
-import { PhysicMaterial } from './assets/physic-material';
+import { PhysicsMaterial } from './assets/physics-material';
 import { RecyclePool } from '../../../../renderer/memop';
 import { Ray } from '../../../geom-utils';
 import { PhysicsRayResult } from './physics-ray-result';
@@ -134,7 +134,7 @@ export class Physics3DManager {
      * !#zh
      * 获取全局的默认物理材质，注意：builtin 时为 null
      */
-    get defaultMaterial (): PhysicMaterial | null {
+    get defaultMaterial (): PhysicsMaterial | null {
         return this._material;
     }
 
@@ -151,7 +151,7 @@ export class Physics3DManager {
     private _allowSleep = true;
 
     @property
-    private readonly _gravity = new Vec3(0, -10, 0);
+    private readonly _gravity = new Vec3(0, -1000, 0);
 
     @property
     private _maxSubStep = 1;
@@ -162,7 +162,7 @@ export class Physics3DManager {
     @property
     private _useFixedTime = true;
 
-    private readonly _material: PhysicMaterial | null = null;
+    private readonly _material: cc.PhysicsMaterial | null = null;
 
     private readonly raycastOptions: IRaycastOptions = {
         'groupIndex': -1,
@@ -179,7 +179,7 @@ export class Physics3DManager {
         this.physicsWorld = createPhysicsWorld();
         this.gravity = this._gravity;
         this.allowSleep = this._allowSleep;
-        this._material = new PhysicMaterial();
+        this._material = new PhysicsMaterial();
         this._material.friction = 0.6;
         this._material.restitution = -1;
         this._material.on('physics_material_update', this._updateMaterial, this);

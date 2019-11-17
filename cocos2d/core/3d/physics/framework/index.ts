@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 import { Physics3DManager } from './physics-manager';
-import { PhysicMaterial } from './assets/physic-material';
 import { PhysicsRayResult } from './physics-ray-result';
 import { PhysicsBoxColliderComponent } from './components/collider/box-collider-component';
 import { PhysicsColliderComponent } from './components/collider/collider-component';
@@ -40,8 +39,6 @@ export {
     PhysicsBoxColliderComponent,
     PhysicsSphereColliderComponent,
     RigidBodyComponent,
-
-    PhysicMaterial,
 };
 
 cc.Physics3DManager = Physics3DManager;
@@ -49,7 +46,6 @@ cc.PhysicsColliderComponent = PhysicsColliderComponent;
 cc.PhysicsBoxColliderComponent = PhysicsBoxColliderComponent;
 cc.PhysicsSphereColliderComponent = PhysicsSphereColliderComponent;
 cc.RigidBodyComponent = RigidBodyComponent;
-cc.PhysicMaterial = PhysicMaterial;
 cc.PhysicsRayResult = PhysicsRayResult;
 cc.ConstantForce = ConstantForce;
 

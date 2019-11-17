@@ -27,7 +27,7 @@ import { ccclass, property } from '../../../../../platform/CCClassDecorator';
 import { Vec3 } from '../../../../../value-types';
 import { CollisionCallback, CollisionEventType, TriggerCallback, TriggerEventType } from '../../physics-interface';
 import { RigidBodyComponent } from '../rigid-body-component';
-import { PhysicMaterial } from '../../assets/physic-material';
+import { PhysicsMaterial } from '../../assets/physics-material';
 import { Physics3DManager } from '../../physics-manager';
 import { IBaseShape } from '../../../spec/i-physics-spahe';
 
@@ -43,7 +43,7 @@ export class PhysicsColliderComponent extends cc.Component {
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
     @property({
-        type: PhysicMaterial,
+        type: PhysicsMaterial,
         displayName: 'Material',
         displayOrder: -1
     })
@@ -91,7 +91,7 @@ export class PhysicsColliderComponent extends cc.Component {
      * !#en
      * get or set the collider is trigger, this will be always trigger if using builtin.
      * !#zh
-     * 获取或设置碰撞器是否为触发器，若使用 builtin ，属性值无论真假 ，此碰撞器都为触发器。
+     * 获取或设置碰撞器是否为触发器
      */
     @property({
         displayOrder: 0
@@ -148,8 +148,8 @@ export class PhysicsColliderComponent extends cc.Component {
 
     protected _isSharedMaterial: boolean = true;
 
-    @property({ type: PhysicMaterial })
-    protected _material: PhysicMaterial | null = null;
+    @property({ type: PhysicsMaterial })
+    protected _material: PhysicsMaterial | null = null;
 
     @property
     protected _isTrigger: boolean = false;

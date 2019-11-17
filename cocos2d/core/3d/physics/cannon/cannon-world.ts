@@ -32,14 +32,14 @@ import { Ray } from '../../../geom-utils';
 import { RecyclePool } from '../../../../renderer/memop';
 import { CannonSharedBody } from './cannon-shared-body';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
-import { PhysicMaterial, PhysicsRayResult } from '../framework';
+import { PhysicsMaterial, PhysicsRayResult } from '../framework';
 export class CannonWorld implements IPhysicsWorld {
 
     get world () {
         return this._world;
     }
 
-    set defaultMaterial (mat: PhysicMaterial) {
+    set defaultMaterial (mat: PhysicsMaterial) {
         this._world.defaultMaterial.friction = mat.friction;
         this._world.defaultMaterial.restitution = mat.restitution;
         if (CannonShape.idToMaterial[mat._uuid] != null) {

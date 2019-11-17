@@ -26,10 +26,10 @@
 import { ccclass, property } from '../../../../platform/CCClassDecorator';
 import { equals } from '../../../../value-types';
 
-@ccclass('cc.PhysicMaterial')
-export class PhysicMaterial extends cc.Asset {
+@ccclass('cc.PhysicsMaterial')
+export class PhysicsMaterial extends cc.Asset {
 
-    public static allMaterials: PhysicMaterial[] = [];
+    public static allMaterials: PhysicsMaterial[] = [];
 
     private static _idCounter: number = 0;
 
@@ -76,14 +76,14 @@ export class PhysicMaterial extends cc.Asset {
     constructor () {
         super();
         cc.EventTarget.call(this);
-        PhysicMaterial.allMaterials.push(this);
+        PhysicsMaterial.allMaterials.push(this);
         if (this._uuid == '') {
-            this._uuid = 'pm_' + PhysicMaterial._idCounter++;
+            this._uuid = 'pm_' + PhysicsMaterial._idCounter++;
         }
     }
 
     public clone () {
-        let c = new PhysicMaterial();
+        let c = new PhysicsMaterial();
         c._friction = this._friction;
         c._restitution = this._restitution;
         return c;
@@ -91,9 +91,9 @@ export class PhysicMaterial extends cc.Asset {
 
     public destroy (): boolean {
         if (super.destroy()) {
-            let idx = PhysicMaterial.allMaterials.indexOf(this);
+            let idx = PhysicsMaterial.allMaterials.indexOf(this);
             if (idx >= 0) {
-                PhysicMaterial.allMaterials.splice(idx, 1);
+                PhysicsMaterial.allMaterials.splice(idx, 1);
             }
             return true;
         } else {
@@ -103,4 +103,5 @@ export class PhysicMaterial extends cc.Asset {
 
 }
 
-cc.js.mixin(PhysicMaterial.prototype, cc.EventTarget.prototype);
+cc.js.mixin(PhysicsMaterial.prototype, cc.EventTarget.prototype);
+cc.PhysicsMaterial = PhysicsMaterial;

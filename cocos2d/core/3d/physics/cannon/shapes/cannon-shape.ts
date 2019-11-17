@@ -27,7 +27,7 @@ import CANNON from '../../../../../../external/cannon/cannon';
 import { Vec3 } from '../../../../value-types';
 import { getWrap, setWrap } from '../../framework/util';
 import { commitShapeUpdates } from '../cannon-util';
-import { PhysicMaterial } from '../../framework/assets/physic-material';
+import { PhysicsMaterial } from '../../framework/assets/physics-material';
 import { IBaseShape } from '../../spec/i-physics-spahe';
 import { IVec3Like } from '../../../../value-types/math';
 import { CannonSharedBody } from '../cannon-shared-body';
@@ -59,7 +59,7 @@ export class CannonShape implements IBaseShape {
 
     get sharedBody (): CannonSharedBody { return this._sharedBody; }
 
-    set material (mat: PhysicMaterial) {
+    set material (mat: PhysicsMaterial) {
         if (mat == null) {
             (this._shape!.material as unknown) = null;
         } else {

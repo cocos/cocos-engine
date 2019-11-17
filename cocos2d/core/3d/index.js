@@ -11,6 +11,7 @@ require('./CCModel');
 require('./skeleton/CCSkeleton');
 require('./skeleton/CCSkeletonAnimationClip');
 require('./actions');
+require('./physics/framework/assets/physics-material');
 
 if (!CC_EDITOR || !Editor.isMainProcess) {
     require('./skeleton/CCSkeletonAnimation');
