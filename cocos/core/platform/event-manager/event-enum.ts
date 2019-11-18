@@ -120,10 +120,18 @@ export enum SystemEventType {
 
     /**
      * @en
-     * The event type for position, rotation, scale changed.
+     * The event type for position, rotation, scale changed.If need to know which event is,please use callback first parameter type and [[Node.TransformBit]]
      *
      * @zh
-     * 节点改变位置、旋转或缩放事件.
+     * 节点改变位置、旋转或缩放事件。如果具体需要判断是哪一个事件，可通过判断回调的第一个参数类型是 [[Node.TransformBit]] 中的哪一个来获取
+     * @example
+     * ```
+     * this.node.on(Node.EventType.TRANSFORM_CHANGED, (type)=>{
+     *  if (type & Node.TransformBit.POSITION) {
+     *       //...
+     *   }
+     * }, this);
+     * ```
      */
     TRANSFORM_CHANGED = 'transform-changed',
 

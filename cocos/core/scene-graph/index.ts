@@ -35,6 +35,5 @@ export { Layers } from './layers';
 export { find } from './find';
 export { PrivateNode } from './private-node';
 export { default as NodeActivator } from './node-activator';
-export { TransformDirtyBit } from './node-enum';
 
 import './deprecated';

@@ -36,7 +36,7 @@ import { UITransformComponent } from '../../core/components/ui-base/ui-transfrom
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { INode } from '../../core/utils/interfaces';
 import { director, Director } from '../../core/director';
-import { TransformDirtyBit } from '../../core/scene-graph/node-enum';
+import { TransformBit } from '../../core/scene-graph/node-enum';
 const NodeEvent = SystemEventType;
 /**
  * @zh
@@ -1086,8 +1086,8 @@ export class LayoutComponent extends Component {
         return this._affectedByScale ? Math.abs(value) : 1;
     }
 
-    private _transformDirty (type: TransformDirtyBit) {
-        if (!(type & TransformDirtyBit.POSITION)){
+    private _transformDirty (type: TransformBit) {
+        if (!(type & TransformBit.POSITION)){
             return;
         }
 
@@ -1098,8 +1098,8 @@ export class LayoutComponent extends Component {
         this._layoutDirty = true;
     }
 
-    private _doScaleDirty (type: TransformDirtyBit) {
-        if (type & TransformDirtyBit.SCALE){
+    private _doScaleDirty (type: TransformBit) {
+        if (type & TransformBit.SCALE){
             this._layoutDirty = this._layoutDirty || this._affectedByScale;
         }
     }

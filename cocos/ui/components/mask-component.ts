@@ -39,7 +39,7 @@ import { UI } from '../../core/renderer/ui/ui';
 import { Node } from '../../core/scene-graph';
 import { ccenum } from '../../core/value-types/enum';
 import { GraphicsComponent } from './graphics-component';
-import { TransformDirtyBit } from '../../core/scene-graph/node-enum';
+import { TransformBit } from '../../core/scene-graph/node-enum';
 
 const _worldMatrix = new Mat4();
 const _vec2_temp = new Vec2();
@@ -393,8 +393,8 @@ export class MaskComponent extends UIRenderComponent {
         render.commitComp(this, null, this._postAssembler!);
     }
 
-    protected _nodeStateChange (type: TransformDirtyBit) {
-        if (type & TransformDirtyBit.POSITION) {
+    protected _nodeStateChange (type: TransformBit) {
+        if (type & TransformBit.POSITION) {
             return;
         }
 
