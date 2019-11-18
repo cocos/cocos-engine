@@ -424,6 +424,7 @@ let Button = cc.Class({
 
     __preload () {
         this._applyTarget();
+        this._resetState();
     },
 
     _resetState () {
@@ -441,10 +442,6 @@ let Button = cc.Class({
             target.setScale(originalScale.x, originalScale.y);
         }
         this._transitionFinished = true;
-    },
-
-    onLoad () {
-        this._updateState();
     },
 
     onEnable () {
