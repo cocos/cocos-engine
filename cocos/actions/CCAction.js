@@ -25,8 +25,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('../core/platform/CCClass');
-const misc = require('../core/utils/misc');
+import * as math from '../core/math/index';
 
 /**
  * @module cc
@@ -534,7 +533,7 @@ cc.Follow = cc.Class({
             if (this._boundaryFullyCovered)
                 return;
 
-	        this.target.setPosition(misc.clampf(tempPos.x, this.leftBoundary, this.rightBoundary), misc.clampf(tempPos.y, this.bottomBoundary, this.topBoundary));
+	        this.target.setPosition(math.clamp(tempPos.x, this.leftBoundary, this.rightBoundary), math.clamp(tempPos.y, this.bottomBoundary, this.topBoundary));
         } else {
             this.target.setPosition(tempPos.x, tempPos.y);
         }

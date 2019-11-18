@@ -11,6 +11,12 @@ let TweenAction = cc.Class({
         opts.progress = opts.progress || this.progress;
         if (opts.easing && typeof opts.easing === 'string') {
             let easingName = opts.easing;
+            /** adapter */
+            let initialChar = easingName.charAt(0);
+            if(/[A-Z]/.test(initialChar)){
+                easingName = easingName.replace(initialChar, initialChar.toLowerCase());
+                easingName = easingName.replace(RegExp('-'), '');
+            }
             opts.easing = cc.easing[easingName];
             !opts.easing && cc.warnID(1031, easingName);
         }
@@ -220,10 +226,10 @@ Tween.prototype.start = function () {
         return this;
     }
     if (this._finalAction) {
-        cc.director.getActionManager().removeAction(this._finalAction);
+        cc.TweenSystem.instance.ActionManager.removeAction(this._finalAction);
     }
     this._finalAction = this._union();
-    cc.director.getActionManager().addAction(this._finalAction, this._target, false);
+    cc.TweenSystem.instance.ActionManager.addAction(this._finalAction, this._target, false);
     return this;
 };
 
@@ -237,7 +243,7 @@ Tween.prototype.start = function () {
  */
 Tween.prototype.stop = function () {
     if (this._finalAction) {
-        cc.director.getActionManager().removeAction(this._finalAction);
+        cc.TweenSystem.instance.ActionManager.removeAction(this._finalAction);
     }
     return this;
 };
@@ -503,18 +509,5 @@ for (let i = 0; i < keys.length; i++) {
         return this;
     };
 }
-
-/**
- * @module cc
- */
-
-/**
- * @method tween
- * @param {Object} [target] - the target to animate
- * @return {Tween}
- */
-cc.tween = function (target) {
-    return new Tween(target);
-};
 
 cc.Tween = Tween;

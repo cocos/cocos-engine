@@ -25,8 +25,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('../core/platform/CCClass');
-var js = require('../core/platform/js');
+import * as js from './../core/utils/js';
 
 /*
  * @class HashElement
@@ -65,7 +64,7 @@ cc.ActionManager = function () {
     this._hashTargets = js.createMap(true);
     this._arrayTargets = [];
     this._currentTarget = null;
-    cc.director._scheduler && cc.director._scheduler.enableForTarget(this);
+    // cc.director._scheduler && cc.director._scheduler.enableForTarget(this);
 };
 cc.ActionManager.prototype = {
     constructor: cc.ActionManager,
