@@ -18,9 +18,10 @@ class AssemblerPool extends Pool {
     _pool = {};
 
     put (assembler) {
+        if (!assembler) return;
         if (!this.enabled) {
             if (CC_JSB && CC_NATIVERENDERER) {
-                assembler && assembler.destroy && assembler.destroy();
+                assembler.destroy && assembler.destroy();
             }
             return;
         }
