@@ -28,6 +28,10 @@ import ValueType from './value-type';
 import CCClass from '../platform/CCClass';
 import misc from '../utils/misc';
 
+let _r: number = 0;
+let _g: number = 0;
+let _b: number = 0;
+let _a: number = 0;
 
 /**
  * !#en
@@ -808,6 +812,19 @@ export default class Color extends ValueType {
 
     _fastSetA (alpha) {
         this._val = ((this._val & 0x00ffffff) | (alpha << 24)) >>> 0;
+    }
+
+    /**
+     * @zh 将当前颜色乘以与指定颜色
+     * @param other 指定的颜色。
+     */
+    multiply (other: Color) {
+        _r = ((this._val & 0x000000ff) * other.r) >> 8;
+        _g = ((this._val & 0x0000ff00) * other.g) >> 8;
+        _b = ((this._val & 0x00ff0000) * other.b) >> 8;
+        _a = ((this._val & 0xff000000) >>> 8) * other.a;
+        this._val = (_a & 0xff000000) | (_b & 0x00ff0000) | (_g & 0x0000ff00) | (_r & 0x000000ff);
+        return this;
     }
 }
 

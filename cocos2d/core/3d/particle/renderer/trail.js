@@ -134,14 +134,17 @@ export default class TrailModule {
     }
 
     set enable (val) {
-        if (val && !this._ia) {
-            this._createModel();
+        if (val) {
+            this._createTrailData();
         }
+
         if (val && !this._enable) {
             this._enable = val;
             this._particleSystem._assembler._updateTrailMaterial();
         }
+
         this._enable = val;
+        this._particleSystem._assembler._updateTrailEnable(this._enable);
     }
 
     /**
@@ -285,10 +288,6 @@ export default class TrailModule {
     }
 
     destroy () {
-        if (this._ia) {
-            this._ia = null;
-        }
-
         if (this._trailSegments) {
             this._trailSegments.clear((obj) => { obj.trailElements.length = 0; });
             this._trailSegments = null;
@@ -296,36 +295,29 @@ export default class TrailModule {
     }
 
     clear () {
-
+        if (this.enable) {
+            const trailIter = this._particleTrail.values();
+            let trail = trailIter.next();
+            while (!trail.done) {
+                trail.value.clear();
+                trail = trailIter.next();
+            }
+            this._particleTrail.clear();
+            this.updateTrailBuffer();
+        }
     }
 
-    _createModel () {
-        if (this._ia) {
-            return;
+    _createTrailData () {
+        let model = this._particleSystem._assembler._model;
+        
+        if (model) {
+            model.createTrailData(this._gfxVFmt, this._trailNum);
+
+            let subData = model._subDatas[1];
+            this._vbF32 = subData.getVData();
+            this._vbUint32 = subData.getVData(Uint32Array);
+            this._iBuffer = subData.iData;
         }
-
-        // vb
-        const vBuffer = new ArrayBuffer(this._vertSize * (this._trailNum + 1) * 2);
-        this._vbF32 = new Float32Array(vBuffer);
-        this._vbUint32 = new Uint32Array(vBuffer);
-        let vb = new gfx.VertexBuffer(
-            renderer.device,
-            this._gfxVFmt,
-            gfx.USAGE_DYNAMIC,
-            vBuffer
-        );
-
-        // ib
-        this._iBuffer = new Uint16Array(this._trailNum * 6);
-        let ib = new gfx.IndexBuffer(
-            renderer.device,
-            gfx.INDEX_FMT_UINT16,
-            gfx.USAGE_DYNAMIC,
-            this._iBuffer,
-            this._trailNum * 6
-        );
-
-        this._ia = new InputAssembler(vb, ib);
     }
 
     _updateMaterial () {
@@ -407,7 +399,7 @@ export default class TrailModule {
         trailEle.lifetime += dt;
         if (trail.colorFromParticle) {
             trailEle.color.set(p.color);
-            Color.multiply(trailEle.color, trailEle.color, trail.colorOvertime.evaluate(1.0 - p.remainingLifetime / p.startLifetime, 1));
+            trailEle.color.multiply(trail.colorOvertime.evaluate(1.0 - p.remainingLifetime / p.startLifetime, 1));
         } else {
             trailEle.color.set(trail.colorOvertime.evaluate(1.0 - p.remainingLifetime / p.startLifetime, 1));
         }
@@ -428,9 +420,10 @@ export default class TrailModule {
         }
     }
 
-    updateRenderData () {
+    updateTrailBuffer () {
         this.vbOffset = 0;
         this.ibOffset = 0;
+
         for (const p of this._particleTrail.keys()) {
             const trailSeg = this._particleTrail.get(p);
             if (trailSeg.start === -1) {
@@ -506,7 +499,7 @@ export default class TrailModule {
         this._vbF32[this.vbOffset++] = trailSeg.velocity.y;
         this._vbF32[this.vbOffset++] = trailSeg.velocity.z;
         _temp_color.set(trailSeg.color);
-        Color.multiply(_temp_color, _temp_color, colorModifer);
+        _temp_color.multiply(colorModifer);
         this._vbUint32[this.vbOffset++] = _temp_color._val;
         this._vbF32[this.vbOffset++] = trailSeg.position.x;
         this._vbF32[this.vbOffset++] = trailSeg.position.y;
@@ -532,10 +525,10 @@ export default class TrailModule {
     }
 
     updateIA (count) {
-        if (this._ia) {
-            this._ia._count = count;
-            this._ia._vertexBuffer.update(0, this._vbF32);
-            this._ia._indexBuffer.update(0, this._iBuffer);
+        let model = this._particleSystem._assembler._model;
+        
+        if (model) {
+            model.updateIA(1, count, true, true);
         }
     }
 

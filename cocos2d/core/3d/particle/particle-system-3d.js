@@ -506,7 +506,10 @@ export default class ParticleSystem3D extends RenderComponent {
      * 将所有粒子从粒子系统中清除
      */
     clear () {
-        this._assembler.clear();
+        if (this.enabledInHierarchy) {
+            this._assembler.clear();
+            this.trailModule.clear();
+        }
     }
 
     getParticleCount () {
@@ -555,11 +558,11 @@ export default class ParticleSystem3D extends RenderComponent {
             }
 
             // update render data
-            this._assembler._updateRenderData();
+            this._assembler.updateParticleBuffer();
 
             // update trail
             if (this.trailModule.enable) {
-                this.trailModule.updateRenderData();
+                this.trailModule.updateTrailBuffer();
             }
         }
     }

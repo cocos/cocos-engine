@@ -27,7 +27,7 @@ export default class ColorOvertimeModule {
     animate (particle) {
         if (this._enable) {
             particle.color.set(particle.startColor);
-            Color.multiply(particle.color, particle.color, this.color.evaluate(1.0 - particle.remainingLifetime / particle.startLifetime, pseudoRandom(particle.randomSeed + COLOR_OVERTIME_RAND_OFFSET)));
+            particle.color.multiply(this.color.evaluate(1.0 - particle.remainingLifetime / particle.startLifetime, pseudoRandom(particle.randomSeed + COLOR_OVERTIME_RAND_OFFSET)));
         }
     }
 }

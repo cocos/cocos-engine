@@ -136,7 +136,7 @@ export default class ParticleSystem3DAssembler extends Assembler {
 
     clear () {
         this._particles.reset();
-        this._updateRenderData();
+        this.updateParticleBuffer();
     }
 
     _getFreeParticle () {
@@ -224,7 +224,7 @@ export default class ParticleSystem3DAssembler extends Assembler {
     }
 
     // internal function
-    _updateRenderData () {
+    updateParticleBuffer () {
         // update vertex buffer
         let idx = 0;
         const uploadVel = this._particleSystem.renderMode === RenderMode.StrecthedBillboard;
@@ -268,8 +268,7 @@ export default class ParticleSystem3DAssembler extends Assembler {
             }
         }
 
-        // because we use index buffer, per particle index count = 6.
-        this._model.updateIA(this._particles.length);
+        this._model.updateIA(0, this._particles.length * 6, true);
     }
 
     updateShaderUniform () {
@@ -404,6 +403,17 @@ export default class ParticleSystem3DAssembler extends Assembler {
         }
     }
 
+    _updateTrailEnable (enable) {
+        if (!this._model) {
+            return;
+        }
+
+        let subData = this._model._subDatas[1];
+        if (subData) {
+            subData.enable = enable;
+        }
+    }
+
     _updateModel () {
         if (!this._model) {
             return;
@@ -419,19 +429,26 @@ export default class ParticleSystem3DAssembler extends Assembler {
     }
 
     fillBuffers (comp, renderer) {
-        renderer._flush()
-        if (this._model) {
-            renderer.material = comp.sharedMaterials[0];
-            renderer.cullingMask = comp.node._cullingMask;
-            renderer.node = comp.node;
-            renderer._flushIA(this._model._ia);
-        }
+        if (!this._model) return;
 
-        if (this._particleSystem.trailModule.enable) {
-            renderer.material = this._particleSystem.trailMaterial;
-            renderer.cullingMask = comp.node._cullingMask;
-            renderer.node = comp.node;
-            renderer._flushIA(this._particleSystem.trailModule._ia);
+        this._model._uploadData();
+
+        let submeshes = this._model._subMeshes;
+        let subDatas = this._model._subDatas;
+        let materials = comp.sharedMaterials;
+        renderer._flush()
+        for (let i = 0, len = submeshes.length; i < len; i++) {
+            let ia = submeshes[i];
+            let meshData = subDatas[i];
+            let material = materials[i];
+
+            if (meshData.enable) {
+                renderer.material = material;
+                renderer.cullingMask = comp.node._cullingMask;
+                renderer.node = comp.node;
+
+                renderer._flushIA(ia);
+            }
         }
     }
 }
