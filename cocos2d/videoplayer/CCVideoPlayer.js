@@ -325,7 +325,7 @@ let VideoPlayer = cc.Class({
             if (!CC_EDITOR) {
                 impl.seekTo(this.currentTime);
                 impl.setKeepAspectRatioEnabled(this.keepAspectRatio);
-                impl.setFullScreenEnabled(this.isFullscreen);
+                impl.setFullScreenEnabled(this._isFullscreen);
                 this.pause();
 
                 impl.setEventListener(EventType.PLAYING, this.onPlaying.bind(this));
