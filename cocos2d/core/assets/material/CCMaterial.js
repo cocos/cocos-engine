@@ -29,8 +29,6 @@ const PixelFormat = Texture.PixelFormat;
 const EffectAsset = require('../CCEffectAsset');
 const textureUtil = require('../../utils/texture-util');
 
-import murmurhash2 from '../../../renderer/murmurhash2_gc';
-import utils from './utils';
 import materialPool from './material-pool';
 import CustomProperties from './custom-properties';
 
@@ -49,7 +47,6 @@ let Material = cc.Class({
         this._dirty = true;
         this._effect = null;
         this._owner = null;
-        this._hash = 0;
     },
 
     properties: {
@@ -94,7 +91,8 @@ let Material = cc.Class({
                     cc.error('Can not set an empty effect asset.');
                     return;
                 }
-                this._effect = new CustomProperties(this._effectAsset.getEffect());
+
+                this._effect = this._effectAsset.getInstantiatedEffect();
             }
         },
 
@@ -108,7 +106,7 @@ let Material = cc.Class({
             get () {
                 return this._owner;
             }
-        }
+        },
     },
 
     statics: {
@@ -130,20 +128,9 @@ let Material = cc.Class({
         }
     },
 
-    /**
-     *
-     * @param {Material} mat
-     */
-    copy (mat) {
-        this.effectAsset = mat.effectAsset;
-
-        for (let name in mat._defines) {
-            this.define(name, mat._defines[name]);
-        }
-
-        for (let name in mat._props) {
-            this.setProperty(name, mat._props[name]);
-        }
+    setAsVariant (mat) {
+        this._effect = new CustomProperties(mat.effect);
+        this._effectAsset = mat._effectAsset;
     },
 
     /**
@@ -154,7 +141,6 @@ let Material = cc.Class({
     setProperty (name, val, force) {
         if (this._props[name] === val && !force) return;
         this._props[name] = val;
-        this._dirty = true;
 
         if (this._effect) {
             if (val instanceof Texture) {
@@ -197,47 +183,20 @@ let Material = cc.Class({
     define (name, val, force) {
         if (this._defines[name] === val && !force) return;
         this._defines[name] = val;
-        this._dirty = true;
-
-        if (this._effect) {
-            this._effect.define(name, val);
-        }
+        this._effect && this._effect.define(name, val);
     },
 
     getDefine (name) {
         return this._defines[name];
     },
 
-    setDirty (dirty) {
-        this._dirty = dirty;
-    },
-
     updateHash (hash) {
-        if (hash === undefined || hash === null) {
-            hash = this.computeHash();
-        } else {
-            this._manualHash = true;
-        }
-        this._dirty = false;
-        this._hash = hash;
-        if (this._effect) {
-            this._effect.updateHash(this._hash);
-        }
-    },
-
-    computeHash () {
-        let effect = this._effect;
-        let hashStr = '';
-        if (effect) {
-            hashStr += utils.serializeDefines(effect._defines);
-            hashStr += utils.serializeTechniques(effect._techniques);
-            hashStr += utils.serializeUniforms(effect._properties);
-        }
-        return murmurhash2(hashStr, 666);
+        this._manualHash = hash;
+        this._effect && this._effect.updateHash(hash);
     },
 
     getHash () {
-        return this._effect && this._effect.getHash();
+        return this._manualHash || (this._effect && this._effect.getHash());
     },
 
     onLoad () {

@@ -4,21 +4,25 @@ import gfx from '../gfx';
 
 let _shdID = 0;
 
-function _generateDefines(defineList) {
-  let defines = [];
-  let cache = {}
+function _getValueFromDefineList (name, defineList) {
+  let value;
   for (let i = defineList.length - 1; i >= 0; i--) {
-    let defs = defineList[i];
-    for (let def in defs) {
-      let result = defs[def];
-      if (result === undefined) continue;
-      if (cache[def] !== undefined) continue;
-      if (typeof result !== 'number') {
-        result = result ? 1 : 0;
-      }
-      cache[def] = result;
-      defines.push(`#define ${def} ${result}`);
+    value = defineList[i][name];
+    if (value !== undefined) {
+      return value;
     }
+  }
+}
+
+function _generateDefines(tmpDefines, defineList) {
+  let defines = [];
+  for (let i = 0; i < tmpDefines.length; i++) {
+    let name = tmpDefines[i].name;
+    let value = _getValueFromDefineList(name, defineList);
+    if (typeof result !== 'number') {
+      value = value ? 1 : 0;
+    }
+    defines.push(`#define ${name} ${value}`);
   }
   return defines.join('\n') + '\n';
 }
@@ -204,7 +208,7 @@ export default class ProgramLib {
     for (let i = 0; i < tmpl.defines.length; ++i) {
       let tmplDefs = tmpl.defines[i];
       
-      let value = this._getValueFromDefineList(tmplDefs.name, defineList);
+      let value = _getValueFromDefineList(tmplDefs.name, defineList);
       if (value === undefined) {
         continue;
       }
@@ -231,7 +235,7 @@ export default class ProgramLib {
 
     // get template
     let tmpl = this._templates[name];
-    let customDef = _generateDefines(defineList);
+    let customDef = _generateDefines(tmpl.defines, defineList);
     let vert = _replaceMacroNums(tmpl.vert, defineList);
     vert = customDef + _unrollLoops(vert);
     if (!this._highpSupported) {
@@ -268,16 +272,6 @@ export default class ProgramLib {
     this._cache[key] = program;
 
     return program;
-  }
-
-  _getValueFromDefineList (name, defineList) {
-    let value;
-    for (let i = defineList.length - 1; i >= 0; i--) {
-      value = defineList[i][name];
-      if (value !== undefined) {
-        return value;
-      }
-    }
   }
 
   _checkPrecision () {

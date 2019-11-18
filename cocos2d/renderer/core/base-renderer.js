@@ -108,7 +108,7 @@ export default class Base {
           ia: null,
           effect: null,
           defines: null,
-          technique: null,
+          passes: [],
           sortKey: -1,
           uniforms: null
         };
@@ -202,19 +202,28 @@ export default class Base {
 
       for (let j = 0; j < this._drawItemsPools.length; ++j) {
         let drawItem = this._drawItemsPools.data[j];
-        let tech = drawItem.effect.getTechnique(stage);
-
-        if (tech) {
-          let stageItem = stageItems.add();
-          stageItem.model = drawItem.model;
-          stageItem.node = drawItem.node;
-          stageItem.ia = drawItem.ia;
-          stageItem.effect = drawItem.effect;
-          stageItem.defines = drawItem.defines;
-          stageItem.technique = tech;
-          stageItem.sortKey = -1;
-          stageItem.uniforms = drawItem.uniforms;
+        let passes = drawItem.effect._passes;
+        
+        let stageItem = stageItems.add();
+        stageItem.passes.length = 0;
+        for (let k = 0; k < passes.length; k++) {
+          if (stage === passes[k]._stage) {
+            stageItem.passes.push(passes[k]);
+          }
         }
+
+        if (stageItem.passes.length === 0 ) {
+          stageItems._count--;
+          continue;
+        }
+
+        stageItem.model = drawItem.model;
+        stageItem.node = drawItem.node;
+        stageItem.ia = drawItem.ia;
+        stageItem.effect = drawItem.effect;
+        stageItem.defines = drawItem.defines;
+        stageItem.sortKey = -1;
+        stageItem.uniforms = drawItem.uniforms;
       }
 
       let stageInfo = _stageInfos.add();
@@ -278,7 +287,7 @@ export default class Base {
   _draw(item) {
     const device = this._device;
     const programLib = this._programLib;
-    const { node, ia, uniforms, technique, defines, effect } = item;
+    const { node, ia, uniforms, passes, defines, effect } = item;
 
     // reset the pool
     // NOTE: we can use drawCounter optimize this
@@ -314,8 +323,8 @@ export default class Base {
     }
 
     // for each pass
-    for (let i = 0; i < effect._passes.length; ++i) {
-      let pass = effect._passes[i];
+    for (let i = 0; i < passes.length; ++i) {
+      let pass = passes[i];
       let count = ia.count;
 
       // set vertex buffer

@@ -258,15 +258,12 @@ export default class ForwardRenderer extends BaseRenderer {
   _sortItems (items) {
     // sort items
     items.sort((a, b) => {
-      let techA = a.technique;
-      let techB = b.technique;
+      // if (a.layer !== b.layer) {
+      //   return a.layer - b.layer;
+      // }
 
-      if (techA._layer !== techB._layer) {
-        return techA._layer - techB._layer;
-      }
-
-      if (techA._passes.length !== techB._passes.length) {
-        return techA._passes.length - techB._passes.length;
+      if (a.passes.length !== b.passes.length) {
+        return a.passes.length - b.passes.length;
       }
 
       return a.sortKey - b.sortKey;

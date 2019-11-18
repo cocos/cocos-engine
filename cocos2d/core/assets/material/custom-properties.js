@@ -5,11 +5,43 @@ import Effect from '../../../renderer/core/effect';
 const gfx = cc.gfx;
 
 export default class CustomProperties {
-    constructor (effect) {
+    constructor(effect) {
+        if (effect instanceof CustomProperties) {
+            effect = effect.effect;
+        }
+        this.init(effect);
+    }
+
+    get effect () {
+        return this._effect;
+    }
+    set effect (v) {
+        this._effect = v;
+        this._onEffectChanged();
+    }
+
+    _onEffectChanged () {
+    }
+
+    switchTechnique (name) {
+        let techniques = effect._techniques;
+        for (let i = 0; i < techniques.length; i++) {
+            if (techniques[i].name === name) {
+                this._technique = techniques[i];
+                return;
+            }
+        }
+
+        cc.warn(`Can not find technique with name [${name}]`);
+    }
+
+    init (effect) {
         this._effect = effect;
-        this._properties = {};
-        this._defines = {};
-        this._dirty = false;
+        
+        this._dirty = true;
+
+        this._properties = Object.setPrototypeOf({}, effect._properties);
+        this._defines = Object.setPrototypeOf({}, effect._defines);
 
         this._passes = [];
         if (effect) {
@@ -19,13 +51,6 @@ export default class CustomProperties {
                 this._passes[i] = Object.setPrototypeOf({}, passes[i]);
             }
         }
-    }
-
-    get effect () {
-        return this._effect;
-    }
-    set effect (v) {
-        this._effect = v;
     }
 
     _createProp (name) {
@@ -50,7 +75,7 @@ export default class CustomProperties {
     }
 
     setProperty (name, value) {
-        let uniform = this._properties[name];
+        let uniform =  this._properties.hasOwnProperty(name);
         if (!uniform) {
             uniform = this._createProp(name);
         }
@@ -77,19 +102,23 @@ export default class CustomProperties {
     }
 
     extractProperties (out = []) {
-        if (this._effect) {
-            out.push(this._effect._properties);
-        }
+        // if (this._effect) {
+        //     out.push(this._effect._properties);
+        // }
         out.push(this._properties);
         return out;
     }
 
     extractDefines (out = []) {
-        if (this._effect) {
-            out.push(this._effect._defines);
-        }
+        // if (this._effect) {
+        //     out.push(this._effect._defines);
+        // }
         out.push(this._defines);
         return out;
+    }
+
+    updateHash () {
+
     }
 
     getHash () {
@@ -101,13 +130,17 @@ export default class CustomProperties {
         hash += utils.serializeUniforms(this._properties);
 
         let effect = this._effect;
-        if (effect) {
+        if (this._effect) {
             hash += utils.serializeDefines(effect._defines);
             hash += utils.serializeTechniques(effect._techniques);
             hash += utils.serializeUniforms(effect._properties);
         }
 
-        return this._hash = murmurhash2(hash, 666);
+        this._hash = murmurhash2(hash, 666);
+
+        this.updateHash(this._hash);
+
+        return this._hash;
     }
 
     setPassState (state, passIndex = -1) {
@@ -121,11 +154,14 @@ export default class CustomProperties {
             }
         }
         else {
-            let pass = passes[0];
+            let pass = passes[passIndex];
+            if (!pass) return;
             for (let name in state) {
                 pass['_' + name] = state[name];
             }
         }
+
+        this._dirty = true;
     }
 
     setCullMode (cullMode = gfx.CULL_BACK) {
@@ -174,7 +210,7 @@ export default class CustomProperties {
         });
     }
 
-    getTechnique (stage) {
+    getTechnique () {
         return this._technique;
     }
 }

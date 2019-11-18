@@ -42,6 +42,9 @@ export default class Pass {
     this._stencilZFailOpBack = gfx.STENCIL_OP_KEEP;
     this._stencilZPassOpBack = gfx.STENCIL_OP_KEEP;
     this._stencilWriteMaskBack = 0xff;
+
+    this._stage = '';
+    this._properties = {};
   }
 
   setCullMode(cullMode = gfx.CULL_BACK) {
@@ -120,6 +123,14 @@ export default class Pass {
     this._stencilZFailOpBack = stencilZFailOp;
     this._stencilZPassOpBack = stencilZPassOp;
     this._stencilWriteMaskBack = stencilWriteMask;
+  }
+
+  setStage (stage) {
+    this._stage = stage;
+  }
+
+  setProperties (properties) {
+    this._properties = properties;
   }
 
   clone () {

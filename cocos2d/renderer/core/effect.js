@@ -11,12 +11,15 @@ class Effect {
     /**
      * @param {Array} techniques
      */
-    constructor(name, techniques, properties = {}, defines = {}, dependencies = []) {
+    constructor(name, techniques, properties = {}, defines = {}, asset) {
+        this.init(name, techniques, properties, defines, asset);
+    }
+
+    init (name, techniques, properties, defines) {
         this._name = name;
         this._techniques = techniques;
         this._properties = properties;
         this._defines = defines;
-        this._dependencies = dependencies;
     }
 
     clear() {
@@ -70,19 +73,19 @@ class Effect {
     }
 
     getTechnique(stage) {
-        let stageID = config.stageID(stage);
-        if (stageID === -1) {
-            return null;
-        }
+        // let stageID = config.stageID(stage);
+        // if (stageID === -1) {
+        //     return null;
+        // }
 
-        for (let i = 0; i < this._techniques.length; ++i) {
-            let tech = this._techniques[i];
-            if (tech.stageIDs & stageID) {
-                return tech;
-            }
-        }
+        // for (let i = 0; i < this._techniques.length; ++i) {
+        //     let tech = this._techniques[i];
+        //     if (tech.stageIDs & stageID) {
+        //         return tech;
+        //     }
+        // }
 
-        return null;
+        return this._techniques[0];
     }
 
     getProperty(name) {
@@ -151,6 +154,50 @@ class Effect {
         }
 
         this._defines[name] = value;
+    }
+
+    extractProperties(out = {}) {
+        Object.assign(out, this._properties);
+        return out;
+    }
+
+    extractDefines(out = {}) {
+        Object.assign(out, this._defines);
+        return out;
+    }
+
+    clone () {
+        let defines = this.extractDefines({});
+
+        let newProperties = {};
+        let properties = this._properties;
+        for (let name in properties) {
+            let prop = properties[name];
+            let newProp = newProperties[name] = {};
+
+            let value = prop.value;
+            if (Array.isArray(value)) {
+                newProp.value = value.concat();
+            }
+            else if (ArrayBuffer.isView(value)) {
+                newProp.value = new value.__proto__.constructor(value);
+            }
+            else {
+                newProp.value = value;
+            }
+
+            for (let name in prop) {
+                if (name === 'value') continue;
+                newProp[name] = prop[name];
+            }
+        }
+
+        let techniques = [];
+        for (let i = 0; i < this._techniques.length; i++) {
+            techniques.push(this._techniques[i].clone());
+        }
+
+        return new Effect(this._name, techniques, newProperties, defines);
     }
 }
 
@@ -229,6 +276,9 @@ Effect.parseTechniques = function (effect) {
             passes[k].setStencilBack(depthStencilState.stencilTest, depthStencilState.stencilFuncBack, depthStencilState.stencilRefBack, depthStencilState.stencilMaskBack,
                 depthStencilState.stencilFailOpBack, depthStencilState.stencilZFailOpBack, depthStencilState.stencilZPassOpBack, depthStencilState.stencilWriteMaskBack);
             }
+
+            let stage = pass.stage || 'opaque';
+            passes[k].setStage(stage);
         }
         techniques[j] = new Technique(tech.stages, passes, tech.layer);
     }
@@ -258,11 +308,8 @@ Effect.parseEffect = function (effect) {
             defines[d.name] = enums2default[d.type];
         })
     });
-    // extensions
-    let extensions = programs.reduce((acc, cur) => acc = acc.concat(cur.extensions), []);
-    extensions = extensions.map(e => Object.assign({}, e) );
 
-    return new cc.Effect(effect.name, techniques, uniforms, defines, extensions, effect);
+    return new cc.Effect(effect.name, techniques, uniforms, defines, effect);
 };
 
 if (CC_EDITOR) {
