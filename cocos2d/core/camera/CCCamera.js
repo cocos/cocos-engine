@@ -151,7 +151,7 @@ let Camera = cc.Class({
         _ortho: true,
         _rect: cc.rect(0, 0, 1, 1),
         _renderStages: 1,
-        _alignScreen: true,
+        _alignWithScreen: true,
 
         /**
          * !#en
@@ -399,14 +399,14 @@ let Camera = cc.Class({
         /**
          * !#en Whether auto align camera viewport to screen
          * !#zh 是否自动将摄像机的视口对准屏幕
-         * @property {Boolean} alignScreen
+         * @property {Boolean} alignWithScreen
          */
-        alignScreen: {
+        alignWithScreen: {
             get () {
-                return this._alignScreen;
+                return this._alignWithScreen;
             },
             set (v) {
-                this._alignScreen = v;
+                this._alignWithScreen = v;
             }
         },
 
@@ -751,7 +751,7 @@ let Camera = cc.Class({
         }
     },
 
-    _onAlignScreen () {
+    _onAlignWithScreen () {
         let height = cc.game.canvas.height / cc.view._scaleY;
 
         let targetTexture = this._targetTexture;
@@ -776,8 +776,8 @@ let Camera = cc.Class({
     beforeDraw () {
         if (!this._camera) return;
 
-        if (this._alignScreen) {
-            this._onAlignScreen();
+        if (this._alignWithScreen) {
+            this._onAlignWithScreen();
         }
         else {
             this._camera.setFov(this._fov * cc.macro.RAD);
