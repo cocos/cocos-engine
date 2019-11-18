@@ -42,6 +42,7 @@ import {
 } from '../gfx/define';
 import { GFXDevice } from '../gfx/device';
 import { IGFXAttribute } from '../gfx/input-assembler';
+import { DataPoolManager } from '../renderer/data-pool-manager';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { Asset } from './asset';
 import { postLoadMesh } from './utils/mesh-utils';
@@ -452,6 +453,7 @@ export class Mesh extends Asset {
      */
     public destroy () {
         this.destroyRenderingMesh();
+        (cc.director.root.dataPoolManager as DataPoolManager).releaseMesh(this);
         return super.destroy();
     }
 

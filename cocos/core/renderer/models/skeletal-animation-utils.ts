@@ -57,7 +57,6 @@ export function selectJointsMediumType (device: GFXDevice) {
     }
 }
 
-const id_m4 = Object.freeze(new Mat4());
 const m4_1 = new Mat4();
 const dq_0 = new Quat();
 const dq_1 = new Quat();
@@ -119,13 +118,6 @@ const _jointsFormat = {
     [JointsMediumType.RGBA32F]: GFXFormat.RGBA32F,
 };
 
-export interface IJointsTextureHandle {
-    pixelOffset: number;
-    refCount: number;
-    hash: number;
-    handle: ITextureBufferHandle;
-}
-
 export const jointsTextureSamplerHash = genSamplerHash([
     GFXFilter.POINT,
     GFXFilter.POINT,
@@ -135,19 +127,25 @@ export const jointsTextureSamplerHash = genSamplerHash([
     GFXAddress.CLAMP,
 ]);
 
+export interface IJointsTextureHandle {
+    pixelOffset: number;
+    refCount: number;
+    clipHash: number;
+    skeletonHash: number;
+    readyToBeDeleted: boolean;
+    handle: ITextureBufferHandle;
+}
+
 export class JointsTexturePool {
 
     private _device: GFXDevice;
     private _pool: TextureBufferPool;
-    private _textureBuffers: Map<number, IJointsTextureHandle> = new Map();
+    private _textureBuffers: Map<number, IJointsTextureHandle> = new Map(); // per skeleton per clip
     private _formatSize = 0;
 
-    constructor (device: GFXDevice) {
+    constructor (device: GFXDevice, maxChunks = 8) {
         this._device = device;
         this._pool = new TextureBufferPool(device);
-    }
-
-    public initialize (maxChunks: number = 8) {
         const format = _jointsFormat[selectJointsMediumType(this._device)];
         this._formatSize = GFXFormatInfos[format].size;
         const scale = 16 / this._formatSize;
@@ -158,10 +156,9 @@ export class JointsTexturePool {
         });
     }
 
-    public destroy () {
+    public clear () {
         this._pool.destroy();
-        AnimatedBoundsInfo.clear();
-        JointsAnimationInfo.clear();
+        this._textureBuffers.clear();
     }
 
     /**
@@ -173,10 +170,11 @@ export class JointsTexturePool {
         if (texture) { texture.refCount++; return texture; }
         const handle = this._pool.alloc(len * 12 * Float32Array.BYTES_PER_ELEMENT);
         if (!handle) { return null; }
-        texture = { pixelOffset: handle.start / this._formatSize, refCount: 1, hash: len, handle };
+        texture = { pixelOffset: handle.start / this._formatSize, refCount: 1,
+            skeletonHash: len, clipHash: 0, readyToBeDeleted: false, handle };
         const textureBuffer = new Float32Array(len * 12);
         for (let i = 0; i < len; i++) {
-            uploadJointData(textureBuffer, 12 * i, id_m4, i === 0);
+            uploadJointData(textureBuffer, 12 * i, Mat4.IDENTITY, i === 0);
         }
         this._pool.update(handle, textureBuffer.buffer);
         this._textureBuffers.set(len, texture);
@@ -194,7 +192,8 @@ export class JointsTexturePool {
         const bufSize = skeleton.joints.length * 12 * frames;
         const handle = this._pool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT);
         if (!handle) { return null; }
-        texture = { pixelOffset: handle.start / this._formatSize, refCount: 1, hash, handle };
+        texture = { pixelOffset: handle.start / this._formatSize, refCount: 1,
+            skeletonHash: skeleton.hash, clipHash: clip.hash, readyToBeDeleted: false, handle };
         const textureBuffer = new Float32Array(bufSize);
         const data = SkelAnimDataHub.getOrExtract(clip);
         for (let i = 0; i < skeleton.joints.length; i++) {
@@ -213,10 +212,35 @@ export class JointsTexturePool {
         return texture;
     }
 
-    public releaseTexture (texture: IJointsTextureHandle) {
-        if (--texture.refCount === 0) {
-            this._pool.free(texture.handle);
-            this._textureBuffers.delete(texture.hash);
+    public releaseHandle (handle: IJointsTextureHandle, decr = true) {
+        if (decr && handle.refCount > 0) { handle.refCount--; }
+        if (!handle.refCount && handle.readyToBeDeleted) {
+            this._pool.free(handle.handle);
+            this._textureBuffers.delete(handle.skeletonHash ^ handle.clipHash);
+        }
+    }
+
+    public releaseSkeleton (skeleton: Skeleton) {
+        const it = this._textureBuffers.values();
+        let res = it.next();
+        while (!res.done) {
+            if (res.value.skeletonHash === skeleton.hash) {
+                res.value.readyToBeDeleted = true;
+                this.releaseHandle(res.value, false);
+            }
+            res = it.next();
+        }
+    }
+
+    public releaseAnimationClip (clip: AnimationClip) {
+        const it = this._textureBuffers.values();
+        let res = it.next();
+        while (!res.done) {
+            if (res.value.clipHash === clip.hash) {
+                res.value.readyToBeDeleted = true;
+                this.releaseHandle(res.value, false);
+            }
+            res = it.next();
         }
     }
 }
@@ -228,10 +252,17 @@ export interface IAnimInfo {
 }
 
 export class JointsAnimationInfo {
-    public static create (nodeID: string) {
-        const res = JointsAnimationInfo.pool.get(nodeID);
+    private _pool = new Map<string, IAnimInfo>(); // per node
+    private _device: GFXDevice;
+
+    constructor (device: GFXDevice) {
+        this._device = device;
+    }
+
+    public create (nodeID: string) {
+        const res = this._pool.get(nodeID);
         if (res) { return res; }
-        const buffer = cc.director.root.device.createBuffer({
+        const buffer = this._device.createBuffer({
             usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
             size: UBOSkinningAnimation.SIZE,
@@ -240,22 +271,22 @@ export class JointsAnimationInfo {
         const data = new Float32Array([1, 0, 0, 0]);
         buffer.update(data);
         const info = { buffer, data, dirty: false };
-        JointsAnimationInfo.pool.set(nodeID, info);
+        this._pool.set(nodeID, info);
         return info;
     }
 
-    public static destroy (nodeID: string) {
-        const info = JointsAnimationInfo.pool.get(nodeID);
+    public destroy (nodeID: string) {
+        const info = this._pool.get(nodeID);
         if (!info) { return; }
         info.buffer.destroy();
-        JointsAnimationInfo.pool.delete(nodeID);
+        this._pool.delete(nodeID);
     }
 
-    public static get (nodeID: string) {
-        return JointsAnimationInfo.pool.get(nodeID) || JointsAnimationInfo.create(-1 as any);
+    public get (nodeID: string) {
+        return this._pool.get(nodeID) || this.create(-1 as any);
     }
 
-    public static switchClip (info: IAnimInfo, clip: AnimationClip | null) {
+    public switchClip (info: IAnimInfo, clip: AnimationClip | null) {
         info.data[0] = clip ? clip.keys[0].length : 1;
         info.data[1] = 0;
         info.buffer.update(info.data);
@@ -263,14 +294,12 @@ export class JointsAnimationInfo {
         return info;
     }
 
-    public static clear () {
-        for (const info of JointsAnimationInfo.pool.values()) {
+    public clear () {
+        for (const info of this._pool.values()) {
             info.buffer.destroy();
         }
-        JointsAnimationInfo.pool.clear();
+        this._pool.clear();
     }
-
-    protected static pool = new Map<string, IAnimInfo>();
 }
 
 const v3_3 = new Vec3();
@@ -278,15 +307,16 @@ const v3_4 = new Vec3();
 const ab_1 = new aabb();
 
 export class AnimatedBoundsInfo {
-    public static get (mesh: Mesh, skeleton: Skeleton, clip: AnimationClip) {
-        const hash = skeleton.hash ^ clip.hash;
-        const list: aabb[] = AnimatedBoundsInfo.fullClipBoundsPool.get(hash) || [];
+    private _perJointBoundsPool = new Map<number, Map<number, Array<aabb | null>>>(); // per Mesh per Skeleton
+    private _fullClipBoundsPool = new Map<number, Map<number, aabb[]>>(); // per Skeleton per AnimationClip
+
+    public get (mesh: Mesh, skeleton: Skeleton, clip: AnimationClip) {
+        const list: aabb[] = this._getFullClipBounds(skeleton, clip) || [];
         if (list.length) { return list; }
-        const innerHash = mesh.hash ^ skeleton.hash;
-        let perJointBounds = AnimatedBoundsInfo.perJointBoundsPool.get(innerHash);
+        let perJointBounds = this._getPerJointBounds(mesh, skeleton);
         if (!perJointBounds) {
-            perJointBounds = AnimatedBoundsInfo.getBoneSpacePerJointBounds(mesh, skeleton);
-            AnimatedBoundsInfo.perJointBoundsPool.set(innerHash, perJointBounds);
+            perJointBounds = this.getBoneSpacePerJointBounds(mesh, skeleton);
+            this._setPerJointBounds(mesh, skeleton, perJointBounds);
         }
         const frames = clip.keys[0].length;
         for (let fid = 0; fid < frames; fid++) {
@@ -313,11 +343,11 @@ export class AnimatedBoundsInfo {
             const { center, halfExtents } = list[fid];
             aabb.fromPoints(list[fid], center, halfExtents);
         }
-        AnimatedBoundsInfo.fullClipBoundsPool.set(hash, list);
+        this._setFullClipBounds(skeleton, clip, list);
         return list;
     }
 
-    public static getBoneSpacePerJointBounds (mesh: Mesh, skeleton: Skeleton) {
+    public getBoneSpacePerJointBounds (mesh: Mesh, skeleton: Skeleton) {
         const bounds: Array<aabb | null> = [];
         const valid: boolean[] = [];
         const bindposes = skeleton.bindposes;
@@ -353,11 +383,53 @@ export class AnimatedBoundsInfo {
         return bounds;
     }
 
-    public static clear () {
-        AnimatedBoundsInfo.perJointBoundsPool.clear();
-        AnimatedBoundsInfo.fullClipBoundsPool.clear();
+    public clear () {
+        this._perJointBoundsPool.clear();
+        this._fullClipBoundsPool.clear();
     }
 
-    protected static perJointBoundsPool = new Map<number, Array<aabb | null>>(); // Mesh ^ Skeleton
-    protected static fullClipBoundsPool = new Map<number, aabb[]>(); // Skeleton ^ AnimationClip
+    public releaseMesh (mesh: Mesh) {
+        this._perJointBoundsPool.delete(mesh.hash);
+    }
+
+    public releaseSkeleton (skeleton: Skeleton) {
+        const it = this._perJointBoundsPool.values();
+        let res = it.next();
+        while (!res.done) {
+            res.value.delete(skeleton.hash);
+            res = it.next();
+        }
+        this._fullClipBoundsPool.delete(skeleton.hash);
+    }
+
+    public releaseAnimationClip (clip: AnimationClip) {
+        const it = this._fullClipBoundsPool.values();
+        let res = it.next();
+        while (!res.done) {
+            res.value.delete(clip.hash);
+            res = it.next();
+        }
+    }
+
+    private _getPerJointBounds (mesh: Mesh, skeleton: Skeleton) {
+        const m = this._perJointBoundsPool.get(mesh.hash);
+        return m && m.get(skeleton.hash);
+    }
+
+    private _getFullClipBounds (skeleton: Skeleton, clip: AnimationClip) {
+        const m = this._fullClipBoundsPool.get(skeleton.hash);
+        return m && m.get(clip.hash);
+    }
+
+    private _setPerJointBounds (mesh: Mesh, skeleton: Skeleton, bounds: Array<aabb | null>) {
+        let m = this._perJointBoundsPool.get(mesh.hash);
+        if (!m) { m = new Map<number, Array<aabb | null>>(); }
+        m.set(skeleton.hash, bounds);
+    }
+
+    private _setFullClipBounds (skeleton: Skeleton, clip: AnimationClip, bounds: aabb[]) {
+        let m = this._fullClipBoundsPool.get(skeleton.hash);
+        if (!m) { m = new Map<number, aabb[]>(); }
+        m.set(clip.hash, bounds);
+    }
 }

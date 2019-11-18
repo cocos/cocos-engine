@@ -77,6 +77,7 @@ export class SkeletalAnimationComponent extends AnimationComponent {
 
     @property({ type: [Socket] })
     public _sockets: Socket[] = [];
+    protected _animMgr: JointsAnimationInfo = null!;
 
     @property({
         type: [Socket],
@@ -105,12 +106,13 @@ export class SkeletalAnimationComponent extends AnimationComponent {
 
     public onLoad () {
         super.onLoad();
-        this._animInfo = JointsAnimationInfo.create(this.node.uuid);
+        this._animMgr = cc.director.root.dataPoolManager.jointsAnimationInfo;
+        this._animInfo = this._animMgr.create(this.node.uuid);
     }
 
     public onDestroy () {
         if (this._animInfo) {
-            JointsAnimationInfo.destroy(this.node.uuid);
+            this._animMgr.destroy(this.node.uuid);
             this._animInfo = null;
         }
         super.onDestroy();

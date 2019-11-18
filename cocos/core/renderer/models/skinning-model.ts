@@ -40,8 +40,7 @@ import { Pass } from '../core/pass';
 import { samplerLib } from '../core/sampler-lib';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
-import { AnimatedBoundsInfo, IAnimInfo, IJointsTextureHandle,
-    JointsAnimationInfo, jointsTextureSamplerHash, selectJointsMediumType } from './skeletal-animation-utils';
+import { IAnimInfo, IJointsTextureHandle, jointsTextureSamplerHash, selectJointsMediumType } from './skeletal-animation-utils';
 
 interface IJointsInfo {
     buffer: GFXBuffer | null;
@@ -64,7 +63,7 @@ export class SkinningModel extends Model {
         super(scene, node);
         this._type = 'skinning';
         const jointsTextureInfo = new Float32Array(4);
-        const texture = this._scene.texturePool.getDefaultJointsTexture();
+        const texture = this._scene.root.dataPoolManager.jointsTexturePool.getDefaultJointsTexture();
         this._jointsMedium = { buffer: null, jointsTextureInfo, texture, animInfo: null, boundsInfo: null };
     }
 
@@ -81,7 +80,7 @@ export class SkinningModel extends Model {
         this._mesh = mesh;
         if (!skeleton || !skinningRoot || !mesh) { return; }
         this._transform = skinningRoot;
-        this._jointsMedium.animInfo = JointsAnimationInfo.get(skinningRoot.uuid);
+        this._jointsMedium.animInfo = this._scene.root.dataPoolManager.jointsAnimationInfo.get(skinningRoot.uuid);
         if (!this._jointsMedium.buffer) {
             this._jointsMedium.buffer = this._device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
@@ -120,20 +119,19 @@ export class SkinningModel extends Model {
     public uploadAnimation (anim: AnimationClip | null) {
         if (!this._skeleton || !this._mesh) { return; }
         this.uploadedAnim = anim;
-        const texture = anim ? this._scene.texturePool.getJointsTextureWithAnimation(this._skeleton, anim) :
-            this._scene.texturePool.getDefaultJointsTexture(this._skeleton);
-        JointsAnimationInfo.switchClip(this._jointsMedium.animInfo!, anim);
+        const resMgr = this._scene.root.dataPoolManager;
+        const texture = anim ? resMgr.jointsTexturePool.getJointsTextureWithAnimation(this._skeleton, anim) :
+            resMgr.jointsTexturePool.getDefaultJointsTexture(this._skeleton);
+        resMgr.jointsAnimationInfo.switchClip(this._jointsMedium.animInfo!, anim);
         this._applyJointsTexture(texture);
-        this._jointsMedium.boundsInfo = anim ? AnimatedBoundsInfo.get(this._mesh, this._skeleton, anim) : null;
+        this._jointsMedium.boundsInfo = anim ? resMgr.animatedBoundsInfo.get(this._mesh, this._skeleton, anim) : null;
         this._modelBounds = anim ? this._staticModelBounds : null; // don't calc bounds again in Model
     }
 
     protected _applyJointsTexture (texture: IJointsTextureHandle | null) {
         if (!texture) { return; }
-        // we skip freeing the joints texture by default as an aggressive caching strategy
-        // toggle the following when memory usage becomes more important than stable performance
-        // const oldTex = this._jointsMedium.texture;
-        // if (oldTex && oldTex !== texture) { this._scene.texturePool.releaseTexture(oldTex); }
+        const oldTex = this._jointsMedium.texture;
+        if (oldTex && oldTex !== texture) { this._scene.root.dataPoolManager.jointsTexturePool.releaseHandle(oldTex); }
         this._jointsMedium.texture = texture;
         const { buffer, jointsTextureInfo } = this._jointsMedium;
         jointsTextureInfo[0] = texture.handle.texture.width;

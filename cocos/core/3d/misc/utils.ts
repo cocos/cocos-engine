@@ -1,15 +1,10 @@
 
 import { GFXAttributeName, GFXFormat, GFXFormatInfos, GFXFormatType, GFXPrimitiveMode, IGFXFormatInfo } from '../../gfx/define';
 export { find } from '../../scene-graph/find';
-import { SkelAnimDataHub } from '../../animation/skeletal-animation-data-hub';
 import { Mesh } from '../../assets/mesh';
-import { Skeleton } from '../../assets/skeleton';
-import { aabb } from '../../geom-utils';
 import { IGFXAttribute } from '../../gfx/input-assembler';
-import { Mat4, Vec3 } from '../../math';
+import { Vec3 } from '../../math';
 import { IGeometry } from '../../primitive/define';
-import { JointsAnimationInfo } from '../../renderer/models/skeletal-animation-utils';
-import { SkinningModelComponent } from '../framework/skinning-model-component';
 import { BufferBlob } from './buffer-blob';
 
 /**
