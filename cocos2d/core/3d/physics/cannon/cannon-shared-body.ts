@@ -83,7 +83,7 @@ export class CannonSharedBody {
             if (this.index < 0) {
                 this.index = this.wrappedWorld.bodies.length;
                 this.wrappedWorld.addSharedBody(this);
-                this.syncInitial();
+                this.syncSceneToPhysics();
             }
         } else {
             if (this.index >= 0) {
@@ -164,22 +164,6 @@ export class CannonSharedBody {
             Quat.copy(quat_0, this.body.quaternion);
             this.node.setWorldPosition(v3_0);
             this.node.setWorldRotation(quat_0);
-        }
-    }
-
-    syncInitial () {
-        this.node.getWorldPosition(v3_0);
-        this.node.getWorldRotation(quat_0);
-        Vec3.copy(this.body.position, v3_0);
-        Quat.copy(this.body.quaternion, quat_0);
-
-        this.node.getWorldScale(v3_0);
-        for (let i = 0; i < this.shapes.length; i++) {
-            this.shapes[i].setScale(v3_0);
-        }
-
-        if (this.body.isSleeping()) {
-            this.body.wakeUp();
         }
     }
 

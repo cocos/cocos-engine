@@ -65,12 +65,11 @@ export class BuiltinSharedBody {
             if (this.index < 0) {
                 this.index = this.world.bodies.length;
                 this.world.addSharedBody(this);
-                this.syncInitial();
+                this.syncSceneToPhysics();
             }
         } else {
             if (this.index >= 0) {
                 const isRemove = (this.shapes.length == 0);
-
                 if (isRemove) {
                     this.index = -1;
                     this.world.removeSharedBody(this);
@@ -130,16 +129,6 @@ export class BuiltinSharedBody {
     }
 
     syncSceneToPhysics () {
-        this.node.getWorldMatrix(m4_0);
-        this.node.getWorldPosition(v3_0);
-        this.node.getWorldRotation(quat_0);
-        this.node.getWorldScale(v3_1);
-        for (let i = 0; i < this.shapes.length; i++) {
-            this.shapes[i].transform(m4_0, v3_0, quat_0, v3_1);
-        }
-    }
-
-    syncInitial () {
         this.node.getWorldMatrix(m4_0);
         this.node.getWorldPosition(v3_0);
         this.node.getWorldRotation(quat_0);
