@@ -742,15 +742,32 @@ export default class Vec2 extends ValueType {
      * !#zh 向量加法。
      * @method add
      * @param {Vec2} vector
+     * @param {Vec2} [out]
      * @return {Vec2} returns this
      * @chainable
      * @example
      * var v = cc.v2(10, 10);
      * v.add(cc.v2(5, 5));// return Vec2 {x: 15, y: 15};
      */
-    add (vector: Vec2): this {
+    add (vector: Vec2, out?: Vec2): Vec2 {
+        out = out || new Vec2();
+        out.x += vector.x;
+        out.y += vector.y;
+        return out;
+    }
+
+    /**
+     * !#en Adds this vector. If you want to save result to another vector, use add() instead.
+     * !#zh 向量加法。如果你想保存结果到另一个向量，使用 add() 代替。
+     * @method addSelf
+     * @param {Vec2} vector
+     * @return {Vec2} returns this
+     * @chainable
+     */
+    addSelf (vector: Vec2): this {
         this.x += vector.x;
         this.y += vector.y;
+        this.z += vector.z;
         return this;
     }
 

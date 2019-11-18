@@ -34,7 +34,6 @@ export { default as Size} from './size';
 export { default as Color} from './color';
 export { default as Quat} from './quat';
 export { default as Trs} from './trs';
-export { default as Bits} from './bits';
 export * from './utils';
 
 cc.math = module.exports;

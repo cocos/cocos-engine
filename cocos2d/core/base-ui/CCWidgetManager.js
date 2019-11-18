@@ -24,7 +24,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var Event = require('../CCNode').EventType;
+var Event;
+
+// Support serializing widget in asset db, see cocos-creator/2d-tasks/issues/1894
+if (!CC_EDITOR || !Editor.isMainProcess) {
+  Event = require('../CCNode').EventType;
+}
 
 var TOP     = 1 << 0;
 var MID     = 1 << 1;   // vertical center
