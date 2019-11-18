@@ -28,7 +28,7 @@ import { Vec3 } from '../../../../value-types';
 import { maxComponent } from '../../framework/util';
 import { commitShapeUpdates } from '../cannon-util';
 import { CannonShape } from './cannon-shape';
-import { ISphereShape } from '../../spec/i-physics-spahe';
+import { ISphereShape } from '../../spec/i-physics-shape';
 import { PhysicsSphereColliderComponent } from '../../exports/physics-framework';
 
 const v3_0 = new Vec3();

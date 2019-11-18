@@ -25,7 +25,7 @@
 
 import { Sphere } from '../../../../geom-utils';
 import { BuiltinShape } from './builtin-shape';
-import { ISphereShape } from '../../spec/i-collider-spahe';
+import { ISphereShape } from '../../spec/i-collider-shape';
 import { maxComponent } from '../../framework/util';
 import { SphereColliderComponent } from '../../exports/collider-framework';
 import { Vec3 } from '../../../../value-types';

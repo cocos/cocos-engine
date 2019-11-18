@@ -29,7 +29,7 @@ import { CollisionCallback, CollisionEventType, TriggerCallback, TriggerEventTyp
 import { RigidBodyComponent } from '../rigid-body-component';
 import { PhysicsMaterial } from '../../assets/physics-material';
 import { Physics3DManager } from '../../physics-manager';
-import { IBaseShape } from '../../../spec/i-physics-spahe';
+import { IBaseShape } from '../../../spec/i-physics-shape';
 
 /**
  * !#en

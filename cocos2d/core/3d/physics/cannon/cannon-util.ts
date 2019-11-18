@@ -26,7 +26,7 @@
 import CANNON from '../../../../../external/cannon/cannon';
 import { getWrap } from '../framework/util';
 import { Vec3 } from '../../../value-types';
-import { IBaseShape } from '../spec/i-physics-spahe';
+import { IBaseShape } from '../spec/i-physics-shape';
 import { PhysicsRayResult } from '../framework';
 import { IRaycastOptions } from '../spec/i-physics-world';
 

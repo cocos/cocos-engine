@@ -32,7 +32,7 @@ import {
 } from '../../../../../platform/CCClassDecorator';
 import { createSphereShape } from '../../instance';
 import { PhysicsColliderComponent } from './collider-component';
-import { ISphereShape } from '../../../spec/i-physics-spahe';
+import { ISphereShape } from '../../../spec/i-physics-shape';
 
 /**
  * !#en

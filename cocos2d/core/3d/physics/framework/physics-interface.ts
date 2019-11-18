@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 import { Vec3 } from '../../../value-types';
-import { ColliderComponent } from './components/collider/collider-component';
+import { PhysicsColliderComponent } from './components/collider/collider-component';
 
 /**
  * !#en
@@ -47,7 +47,7 @@ export interface ITriggerEvent {
      * !#zh
      * 触发事件中的自己的碰撞器
      */
-    readonly selfCollider: ColliderComponent;
+    readonly selfCollider: PhysicsColliderComponent;
 
     /**
      * !#en
@@ -55,7 +55,7 @@ export interface ITriggerEvent {
      * !#zh
      * 触发事件中的另一个碰撞器
      */
-    readonly otherCollider: ColliderComponent;
+    readonly otherCollider: PhysicsColliderComponent;
 }
 
 /**
@@ -127,7 +127,7 @@ export interface ICollisionEvent {
      * !#zh
      * 碰撞中的自己的碰撞器。
      */
-    readonly selfCollider: ColliderComponent;
+    readonly selfCollider: PhysicsColliderComponent;
 
     /**
      * !#en
@@ -135,7 +135,7 @@ export interface ICollisionEvent {
      * !#zh
      * 碰撞中的另一个碰撞器。
      */
-    readonly otherCollider: ColliderComponent;
+    readonly otherCollider: PhysicsColliderComponent;
 
     /**
      * !#en

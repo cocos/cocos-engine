@@ -25,10 +25,10 @@
 
 import { ILifecycle } from './i-lifecycle'
 import { IVec3Like } from "../../../value-types/math";
-import { ColliderComponent, RigidBodyComponent } from '../exports/physics-framework';
+import { PhysicsColliderComponent, RigidBodyComponent } from '../exports/physics-framework';
 
 export interface IBaseShape extends ILifecycle {
-    readonly collider: ColliderComponent;
+    readonly collider: PhysicsColliderComponent;
     readonly attachedRigidBody: RigidBodyComponent | null;
     material: any;
     isTrigger: boolean;

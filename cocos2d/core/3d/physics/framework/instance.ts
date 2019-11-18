@@ -26,7 +26,7 @@
 import { Vec3 } from '../../../value-types';
 import { BoxShape, PhysicsWorld, RigidBody, SphereShape } from './physics-selector';
 import { IRigidBody } from '../spec/I-rigid-body';
-import { IBoxShape, ISphereShape } from '../spec/i-physics-spahe';
+import { IBoxShape, ISphereShape } from '../spec/i-physics-shape';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 
 export function createPhysicsWorld (): IPhysicsWorld {

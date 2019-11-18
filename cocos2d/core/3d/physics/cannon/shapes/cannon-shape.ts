@@ -28,7 +28,7 @@ import { Vec3 } from '../../../../value-types';
 import { getWrap, setWrap } from '../../framework/util';
 import { commitShapeUpdates } from '../cannon-util';
 import { PhysicsMaterial } from '../../framework/assets/physics-material';
-import { IBaseShape } from '../../spec/i-physics-spahe';
+import { IBaseShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../../value-types/math';
 import { CannonSharedBody } from '../cannon-shared-body';
 import { CannonWorld } from '../cannon-world';

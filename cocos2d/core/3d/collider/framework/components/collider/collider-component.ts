@@ -27,7 +27,7 @@ import { ccclass, property } from '../../../../../platform/CCClassDecorator';
 import { Vec3 } from '../../../../../value-types';
 import { CollisionCallback, CollisionEventType } from '../../collider-interface';
 import CCComponent from '../../../../../components/CCComponent';
-import { IBaseShape } from '../../../spec/i-collider-spahe';
+import { IBaseShape } from '../../../spec/i-collider-shape';
 
 /**
  * !#en The base class of the collider

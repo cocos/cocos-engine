@@ -26,7 +26,7 @@
 import { Vec3 } from '../../../../value-types';
 import { Obb } from '../../../../geom-utils';
 import { BuiltinShape } from './builtin-shape';
-import { IBoxShape } from '../../spec/i-collider-spahe';
+import { IBoxShape } from '../../spec/i-collider-shape';
 import { BoxColliderComponent } from '../../exports/collider-framework';
 
 let _worldScale = new Vec3();

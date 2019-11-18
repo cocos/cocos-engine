@@ -33,7 +33,7 @@ import {
 import { Vec3 } from '../../../../../value-types';
 import { createBoxShape } from '../../instance';
 import { ColliderComponent } from './collider-component';
-import { IBoxShape } from '../../../spec/i-collider-spahe';
+import { IBoxShape } from '../../../spec/i-collider-shape';
 
 /**
  * !#en Box Collider

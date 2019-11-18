@@ -234,7 +234,7 @@ export class RigidBodyComponent extends cc.Component {
      * 获取是否是唤醒的状态。
      */
     public get isAwake (): boolean {
-        if (this._assertOnload) {
+        if (this._assertOnload && !CC_EDITOR) {
             return this._body.isAwake;
         }
         return false;
@@ -247,7 +247,7 @@ export class RigidBodyComponent extends cc.Component {
      * 获取是否是可进入休眠的状态。
      */
     public get isSleepy (): boolean {
-        if (this._assertOnload) {
+        if (this._assertOnload && !CC_EDITOR) {
             return this._body.isSleepy;
         }
         return false;
@@ -260,7 +260,7 @@ export class RigidBodyComponent extends cc.Component {
      * 获取是否是正在休眠的状态。
      */
     public get isSleeping (): boolean {
-        if (this._assertOnload) {
+        if (this._assertOnload && !CC_EDITOR) {
             return this._body.isSleeping;
         }
         return false;
@@ -309,7 +309,7 @@ export class RigidBodyComponent extends cc.Component {
 
     constructor () {
         super();
-        if (!CC_EDITOR ) {
+        if (!CC_EDITOR) {
             this._body = createRigidBody();
         }
     }
@@ -351,7 +351,7 @@ export class RigidBodyComponent extends cc.Component {
      * @param relativePoint The point of action, relative to the center of the rigid body
      */
     public applyForce (force: Vec3, relativePoint?: Vec3) {
-        if (this._assertOnload) {
+        if (this._assertOnload && !CC_EDITOR) {
             this._body.applyForce(force, relativePoint);
         }
     }
@@ -365,7 +365,7 @@ export class RigidBodyComponent extends cc.Component {
      * @param localPoint Point of application
      */
     public applyLocalForce (force: Vec3, localPoint?: Vec3) {
-        if (this._assertOnload) {
+        if (this._assertOnload && !CC_EDITOR) {
             this._body.applyLocalForce(force, localPoint);
         }
     }
@@ -379,7 +379,7 @@ export class RigidBodyComponent extends cc.Component {
      * @param relativePoint The point of action, relative to the center of the rigid body
      */
     public applyImpulse (impulse: Vec3, relativePoint?: Vec3) {
-        if (this._assertOnload) {
+        if (this._assertOnload && !CC_EDITOR) {
             this._body.applyImpulse(impulse, relativePoint);
         }
     }
@@ -393,19 +393,19 @@ export class RigidBodyComponent extends cc.Component {
      * @param localPoint Point of application
      */
     public applyLocalImpulse (impulse: Vec3, localPoint?: Vec3) {
-        if (this._assertOnload) {
+        if (this._assertOnload && !CC_EDITOR) {
             this._body.applyLocalImpulse(impulse, localPoint);
         }
     }
 
     public applyTorque (torque: Vec3) {
-        if (this._assertOnload) {
+        if (this._assertOnload && !CC_EDITOR) {
             this._body.applyTorque(torque);
         }
     }
 
     public applyLocalTorque (torque: Vec3) {
-        if (this._assertOnload) {
+        if (this._assertOnload && !CC_EDITOR) {
             this._body.applyLocalTorque(torque);
         }
     }
@@ -417,7 +417,7 @@ export class RigidBodyComponent extends cc.Component {
      * 唤醒刚体。
      */
     public wakeUp () {
-        if (this._assertOnload) {
+        if (this._assertOnload && !CC_EDITOR) {
             this._body.wakeUp();
         }
     }
@@ -429,7 +429,7 @@ export class RigidBodyComponent extends cc.Component {
      * 休眠刚体。
      */
     public sleep () {
-        if (this._assertOnload) {
+        if (this._assertOnload && !CC_EDITOR) {
             this._body.sleep();
         }
     }
@@ -442,7 +442,7 @@ export class RigidBodyComponent extends cc.Component {
      * @param out Vec3
      */
     public getLinearVelocity (out: Vec3) {
-        if (this._assertOnload) {
+        if (this._assertOnload && !CC_EDITOR) {
             this._body.getLinearVelocity(out);
         }
     }
@@ -455,7 +455,7 @@ export class RigidBodyComponent extends cc.Component {
      * @param value Vec3
      */
     public setLinearVelocity (value: Vec3): void {
-        if (this._assertOnload) {
+        if (this._assertOnload && !CC_EDITOR) {
             this._body.setLinearVelocity(value);
         }
     }
@@ -468,7 +468,7 @@ export class RigidBodyComponent extends cc.Component {
      * @param out Vec3
      */
     public getAngularVelocity (out: Vec3) {
-        if (this._assertOnload) {
+        if (this._assertOnload && !CC_EDITOR) {
             this._body.getAngularVelocity(out);
         }
     }
@@ -481,7 +481,7 @@ export class RigidBodyComponent extends cc.Component {
      * @param value Vec3
      */
     public setAngularVelocity (value: Vec3): void {
-        if (this._assertOnload) {
+        if (this._assertOnload && !CC_EDITOR) {
             this._body.setAngularVelocity(value);
         }
     }

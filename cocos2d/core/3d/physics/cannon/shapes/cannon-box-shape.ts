@@ -27,7 +27,7 @@ import CANNON from '../../../../../../external/cannon/cannon';
 import { Vec3 } from '../../../../value-types';
 import { commitShapeUpdates } from '../cannon-util';
 import { CannonShape } from './cannon-shape';
-import { IBoxShape } from '../../spec/i-physics-spahe';
+import { IBoxShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../../value-types/math';
 import { PhysicsBoxColliderComponent } from '../../exports/physics-framework';
 

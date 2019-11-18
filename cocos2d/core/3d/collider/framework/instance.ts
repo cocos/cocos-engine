@@ -25,7 +25,7 @@
 
 import { Vec3 } from '../../../value-types';
 import { BoxShape, ColliderWorld, SphereShape } from './collider-selector';
-import { IBoxShape, ISphereShape } from '../spec/i-collider-spahe';
+import { IBoxShape, ISphereShape } from '../spec/i-collider-shape';
 import { IColliderWorld } from '../spec/i-collider-world';
 
 export function createColliderWorld (): IColliderWorld {
