@@ -84,13 +84,8 @@ export class UIStage extends RenderStage {
         colors[0] = camera.clearColor;
 
         cmdBuff.begin();
-<<<<<<< HEAD
-        cmdBuff.beginRenderPass(framebuffer, this._renderArea,
-            camera.clearFlag, colors, camera.clearDepth, camera.clearStencil);
-=======
         cmdBuff.beginRenderPass(framebuffer, this._renderArea!,
             camera.clearFlag, [camera.clearColor], camera.clearDepth, camera.clearStencil);
->>>>>>> fix ci error
 
         cmdBuff.execute(this._renderQueues[0].cmdBuffs.array, this._renderQueues[0].cmdBuffCount);
 

@@ -60,7 +60,7 @@ export abstract class RenderStage {
      * @zh
      * 渲染流程。
      */
-    public get flow(): RenderFlow | null {
+    public get flow(): RenderFlow {
         return this._flow;
     }
 
@@ -68,7 +68,7 @@ export abstract class RenderStage {
      * @zh
      * 渲染管线。
      */
-    public get pipeline(): RenderPipeline | null {
+    public get pipeline(): RenderPipeline {
         return this._pipeline;
     }
 
@@ -127,13 +127,13 @@ export abstract class RenderStage {
      * @zh
      * 渲染流程。
      */
-    protected _flow: RenderFlow | null = null;
+    protected _flow: RenderFlow = null!;
 
     /**
      * @zh
      * 渲染管线。
      */
-    protected _pipeline: RenderPipeline | null = null;
+    protected _pipeline: RenderPipeline = null!;
 
     /**
      * @zh

@@ -94,7 +94,7 @@ export class ForwardStage extends RenderStage {
         this._opaqueBatchedQueue.clear();
         this._renderQueues.forEach(this.clearRenderQueue);
 
-        const renderObjects = this._pipeline!.renderObjects;
+        const renderObjects = this._pipeline.renderObjects;
         for (let i = 0; i < renderObjects.length; ++i) {
             const ro = renderObjects[i];
             if (ro.model.isDynamicBatching) {
@@ -138,9 +138,9 @@ export class ForwardStage extends RenderStage {
         this._renderArea!.height = vp.height * camera.height * this.pipeline!.shadingScale;
 
         if (camera.clearFlag & GFXClearFlag.COLOR) {
-            if (this._pipeline!.isHDR) {
+            if (this._pipeline.isHDR) {
                 SRGBToLinear(colors[0], camera.clearColor);
-                const scale = this._pipeline!.fpScale / camera.exposure;
+                const scale = this._pipeline.fpScale / camera.exposure;
                 colors[0].r *= scale;
                 colors[0].g *= scale;
                 colors[0].b *= scale;
@@ -151,11 +151,11 @@ export class ForwardStage extends RenderStage {
             }
         }
 
-        if (this._pipeline!.usePostProcess) {
-            if (!this._pipeline!.useMSAA) {
-                this._framebuffer = this._pipeline!.getFrameBuffer(this._pipeline!.currShading)!;
+        if (this._pipeline.usePostProcess) {
+            if (!this._pipeline.useMSAA) {
+                this._framebuffer = this._pipeline.getFrameBuffer(this._pipeline!.currShading)!;
             } else {
-                this._framebuffer = this._pipeline!.getFrameBuffer('msaa')!;
+                this._framebuffer = this._pipeline.getFrameBuffer('msaa')!;
             }
         } else {
             this._framebuffer = view.window!.framebuffer;
@@ -182,10 +182,10 @@ export class ForwardStage extends RenderStage {
         bufs[0] = cmdBuff;
         this._device!.queue.submit(bufs);
 
-        if (this._pipeline!.useMSAA) {
+        if (this._pipeline.useMSAA) {
             this._device!.blitFramebuffer(
                 this._framebuffer!,
-                this._pipeline!.getFrameBuffer(this._pipeline!.currShading)!,
+                this._pipeline.getFrameBuffer(this._pipeline.currShading)!,
                 this._renderArea!,
                 this._renderArea!,
                 GFXFilter.POINT);

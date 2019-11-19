@@ -31,7 +31,7 @@ export abstract class RenderFlow {
     }
 
     public get pipeline(): RenderPipeline {
-        return this._pipeline!;
+        return this._pipeline;
     }
 
     public get name(): string {
@@ -60,7 +60,7 @@ export abstract class RenderFlow {
      * @zh
      * 渲染管线。
      */
-    protected _pipeline: RenderPipeline | null = null;
+    protected _pipeline: RenderPipeline = null!;
 
     /**
      * @zh
