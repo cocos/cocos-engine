@@ -16,5 +16,7 @@ export default class RenderData {
             v: 0.0,
         };
     }
+    
+    this.vertices.length = v;
   }
 }
