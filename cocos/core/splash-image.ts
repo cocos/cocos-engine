@@ -166,27 +166,13 @@ export class SplashScreen {
             this.effect.shaders = this.program.shaders;
             this.effect.onLoaded();
 
-
             this.callBack = null;
             this.cancelAnimate = false;
             this.startTime = -1;
             this.clearColors = [this.setting.clearColor];
             this.device = device;
-
-            /** IOS adapt, use native size */
             this.screenWidth = this.device.width;
             this.screenHeight = this.device.height;
-            if (this.device.nativeWidth < this.device.nativeHeight) {
-                if (this.device.width > this.device.height) {
-                    this.screenWidth = this.device.height;
-                    this.screenHeight = this.device.width;
-                }
-            } else {
-                if (this.device.width < this.device.height) {
-                    this.screenWidth = this.device.height;
-                    this.screenHeight = this.device.width;
-                }
-            }
 
             this.image = new Image();
             this.image.onload = this.init.bind(this);

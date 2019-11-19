@@ -106,7 +106,7 @@ export class RenderScene {
      * 获取 raycastSingleModel 后的检测结果
      */
     get rayResultSingleModel () {
-        return this.rayResultSingleModel;
+        return resultSingleModel;
     }
 
     public static registerCreateFunc (root: Root) {
