@@ -25,7 +25,7 @@ export class WebGL2GFXBindingLayout extends GFXBindingLayout {
             const binding = info.bindings[i];
             this._bindingUnits[i] = {
                 binding: binding.binding,
-                type: binding.type,
+                type: binding.bindingType,
                 name: binding.name,
                 buffer: null,
                 texView: null,
@@ -41,7 +41,7 @@ export class WebGL2GFXBindingLayout extends GFXBindingLayout {
             const binding = info.bindings[i];
             this._gpuBindingLayout.gpuBindings[i] = {
                 binding: binding.binding,
-                type: binding.type,
+                type: binding.bindingType,
                 name: binding.name,
                 gpuBuffer: null,
                 gpuTexView: null,

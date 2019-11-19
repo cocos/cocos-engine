@@ -1,5 +1,5 @@
 /**
- * @category gemotry-utils
+ * @category geometry
  */
 
 export { default as enums } from './enums';

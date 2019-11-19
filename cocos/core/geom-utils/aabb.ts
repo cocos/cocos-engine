@@ -1,5 +1,5 @@
 /**
- * @category gemotry-utils
+ * @category geometry
  */
 
 import { Mat3, Mat4, Quat, Vec3 } from '../../core/math';
@@ -91,8 +91,10 @@ export default class aabb {
      * @returns {aabb} out 接受操作的 aabb。
      */
     public static fromPoints (out: aabb, minPos: Vec3, maxPos: Vec3): aabb {
-        Vec3.multiplyScalar(out.center, Vec3.add(_v3_tmp, minPos, maxPos), 0.5);
-        Vec3.multiplyScalar(out.halfExtents, Vec3.subtract(_v3_tmp2, maxPos, minPos), 0.5);
+        Vec3.add(_v3_tmp, maxPos, minPos);
+        Vec3.subtract(_v3_tmp2, maxPos, minPos);
+        Vec3.multiplyScalar(out.center, _v3_tmp, 0.5);
+        Vec3.multiplyScalar(out.halfExtents, _v3_tmp2, 0.5);
         return out;
     }
 

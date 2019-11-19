@@ -4,7 +4,7 @@ import { SpriteFrame } from '../../assets/sprite-frame';
 import { Texture2D } from '../../assets/texture-2d';
 import { TextureCube } from '../../assets/texture-cube';
 import { GFXDevice } from '../../gfx/device';
-import { selectJointsMediumType } from '../../renderer/models/joints-texture-utils';
+import { selectJointsMediumType } from '../../renderer/models/skeletal-animation-utils';
 import effects from './effects';
 
 class BuiltinResMgr {
@@ -171,8 +171,14 @@ class BuiltinResMgr {
         // sprite material
         const spriteColorMtl = new cc.Material();
         spriteColorMtl._uuid = 'ui-sprite-material';
-        spriteColorMtl.initialize({ defines: { USE_TEXTURE: true }, effectName: 'builtin-sprite' });
+        spriteColorMtl.initialize({ defines: { USE_TEXTURE: true, IS_GRAY: false }, effectName: 'builtin-sprite' });
         resources[spriteColorMtl._uuid] = spriteColorMtl;
+
+        // sprite gray material
+        const spriteGrayMtl = new cc.Material();
+        spriteGrayMtl._uuid = 'ui-sprite-gray-material';
+        spriteGrayMtl.initialize({ defines: { USE_TEXTURE: true, IS_GRAY: true }, effectName: 'builtin-sprite' });
+        resources[spriteGrayMtl._uuid] = spriteGrayMtl;
 
         // default particle material
         const defaultParticleMtl = new cc.Material();

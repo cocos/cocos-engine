@@ -1,6 +1,7 @@
 
 import { EffectAsset } from '../../assets/effect-asset';
-import { GFXCommandBuffer } from '../../gfx/command-buffer';
+import { aabb, frustum, intersect } from '../../geom-utils';
+import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../../gfx/command-buffer';
 import { GFXCommandBufferType, GFXStatus } from '../../gfx/define';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
@@ -8,7 +9,7 @@ import { Color, Mat4, Quat, Vec3 } from '../../math';
 import { CachedArray } from '../../memop/cached-array';
 import { IInternalBindingInst, UBOShadow } from '../../pipeline/define';
 import { Pass } from '../core/pass';
-import { selectJointsMediumType } from '../models/joints-texture-utils';
+import { selectJointsMediumType } from '../models/skeletal-animation-utils';
 import { SkinningModel } from '../models/skinning-model';
 import { DirectionalLight } from './directional-light';
 import { Model } from './model';
@@ -17,7 +18,12 @@ import { SphereLight } from './sphere-light';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
+const _ab = new aabb();
 const _qt = new Quat();
+const _info: IGFXCommandBufferInfo = {
+    allocator: null!,
+    type: GFXCommandBufferType.SECONDARY,
+};
 
 export class PlanarShadows {
 
@@ -150,11 +156,15 @@ export class PlanarShadows {
         this._globalBindings.buffer!.update(this.data);
     }
 
-    public updateCommandBuffers () {
+    public updateCommandBuffers (frstm: frustum) {
         this._cmdBuffs.clear();
         if (!this._scene.mainLight.enabled) { return; }
         for (const model of this._scene.models) {
             if (!model.enabled || !model.node || !model.castShadow) { continue; }
+            if (model.worldBounds) {
+                aabb.transform(_ab, model.worldBounds, this._matLight);
+                if (!intersect.aabb_frustum(_ab, frstm)) { continue; }
+            }
             let pso = this._psoRecord.get(model); let newOne = false;
             if (!pso) { pso = this._createPSO(model); this._psoRecord.set(model, pso); newOne = true; }
             if (!model.UBOUpdated) { model.updateUBOs(); } // for those outside the frustum
@@ -213,28 +223,26 @@ export class PlanarShadows {
 
     protected _createPSO (model: Model) {
         const pass = model instanceof SkinningModel ? this._passSkinning : this._passNormal;
-        // @ts-ignore
+        // @ts-ignore TS2445
         const pso = model._doCreatePSO(pass);
+        model.insertImplantPSO(pso); // add back to model to sync binding layouts
         pso.pipelineLayout.layouts[0].update();
         return pso;
     }
 
     protected _destroyPSO (model: Model, pso: GFXPipelineState) {
         const pass = model instanceof SkinningModel ? this._passSkinning : this._passNormal;
-        return pass.destroyPipelineState(pso);
+        model.removeImplantPSO(pso); pass.destroyPipelineState(pso);
     }
 
     protected _createOrReuseCommandBuffer (cb?: GFXCommandBuffer) {
         const device = this._scene.root.device;
-        const info = {
-            allocator: device.commandAllocator,
-            type: GFXCommandBufferType.SECONDARY,
-        };
+        _info.allocator = device.commandAllocator;
         if (cb) {
             if (cb.status === GFXStatus.SUCCESS) { cb.destroy(); }
-            cb.initialize(info);
+            cb.initialize(_info);
         } else {
-            cb = device.createCommandBuffer(info);
+            cb = device.createCommandBuffer(_info);
         }
         return cb;
     }

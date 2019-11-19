@@ -39,11 +39,12 @@ export class WebGLGFXPipelineState extends GFXPipelineState {
 
         this._primitive = info.primitive;
         this._shader = info.shader;
-        this._is = info.is;
-        this._rs = info.rs;
-        this._dss = info.dss;
-        this._bs = info.bs;
+        this._is = info.inputState;
+        this._rs = info.rasterizerState;
+        this._dss = info.depthStencilState;
+        this._bs = info.blendState;
         this._dynamicStates = info.dynamicStates || [];
+        this._hash = info.hash;
 
         this._layout = info.layout;
         this._renderPass = info.renderPass;
@@ -51,9 +52,9 @@ export class WebGLGFXPipelineState extends GFXPipelineState {
         this._gpuPipelineState = {
             glPrimitive: WebGLPrimitives[info.primitive],
             gpuShader: (info.shader as WebGLGFXShader).gpuShader,
-            rs: info.rs,
-            dss: info.dss,
-            bs: info.bs,
+            rs: info.rasterizerState,
+            dss: info.depthStencilState,
+            bs: info.blendState,
             dynamicStates: (info.dynamicStates !== undefined ? info.dynamicStates : []),
             gpuLayout: (info.layout as WebGLGFXPipelineLayout).gpuPipelineLayout,
             gpuRenderPass: (info.renderPass as WebGLGFXRenderPass).gpuRenderPass,

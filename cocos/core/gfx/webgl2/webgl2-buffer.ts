@@ -113,7 +113,7 @@ export class WebGL2GFXBuffer extends GFXBuffer {
         } else {
             buffSize = (buffer as ArrayBuffer).byteLength;
         }
-        if (this._bufferView) {
+        if (this._bufferView && buffer !== this._bufferView.buffer) {
             const view = new Uint8Array(buffer as ArrayBuffer, 0, size);
             this._bufferView.set(view, offset);
         }

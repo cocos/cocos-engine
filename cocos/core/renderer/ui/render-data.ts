@@ -30,6 +30,8 @@
 import { Pool, RecyclePool } from '../../memop';
 import { Material } from '../../assets';
 import { Color } from '../../math';
+import { GFXTextureView } from '../../gfx';
+import { MeshBuffer } from '../../../ui';
 
 export interface IRenderData {
     x: number;
@@ -126,7 +128,7 @@ export class RenderData extends BaseRenderData {
     }
 }
 
-export class IARenderData extends BaseRenderData {
+export class MeshRenderData extends BaseRenderData {
     public vData: Float32Array = new Float32Array(256 * 9 * Float32Array.BYTES_PER_ELEMENT);
     public iData: Uint16Array = new Uint16Array(256 * 6);
     public vertexStart = 0;
@@ -189,7 +191,7 @@ const _dataPool = new Pool(() => {
         u: 0,
         v: 0,
         color: Color.WHITE.clone(),
-    } as IRenderData;
+    };
 }, 128);
 
 const _pool = new RecyclePool(() => {

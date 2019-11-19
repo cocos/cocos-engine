@@ -46,8 +46,8 @@ This is all you have to do to setup engine development environment.
 ## Links
 
 - [Official site](http://www.cocos.com/en)
-- [Forum](https://forum.cocos.com/c/3D)
-- [Documentation](https://github.com/cocos-creator/docs-3d)
-- API Referencess: Not yet published
-- Download: To be announced
+- [Forum](https://forum.cocos.org/c/3D)
+- [Documentation](https://docs.cocos.com/creator3d/manual/zh)
+- [API Referencess](https://docs.cocos.com/creator3d/api/zh)
+- [Download](https://www.cocos.com/creator3d)
 - Road Map: To be announced

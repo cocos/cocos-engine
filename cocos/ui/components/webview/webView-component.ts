@@ -77,7 +77,9 @@ export class WebviewComponent extends UIComponent {
      * @zh
      * 指定 WebView 加载的网址，它应该是一个 http 或者 https 开头的字符串。
      */
-    @property
+    @property({
+        tooltip:'指定 WebView 加载的网址，它应该是一个 http 或者 https 开头的字符串',
+    })
     get url () {
         return this._url;
     }
@@ -100,6 +102,7 @@ export class WebviewComponent extends UIComponent {
      */
     @property({
         type: EventHandler,
+        tooltip:'WebView 的回调事件，当网页加载过程中，加载完成后或者加载出错时都会回调此函数',
     })
     public webviewEvents: EventHandler[] = [];
 

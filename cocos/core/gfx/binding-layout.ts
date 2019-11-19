@@ -14,7 +14,7 @@ import { GFXTextureView } from './texture-view';
  */
 export interface IGFXBinding {
     binding: number;
-    type: GFXBindingType;
+    bindingType: GFXBindingType;
     name: string;
 }
 

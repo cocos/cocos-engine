@@ -118,11 +118,11 @@ export class WebGL2GPUSampler {
     public minLOD: number = 0;
     public maxLOD: number = 1000;
 
-    public glMinFilter: GLenum = WebGL2RenderingContext.NONE;
-    public glMagFilter: GLenum = WebGL2RenderingContext.NONE;
-    public glWrapS: GLenum = WebGL2RenderingContext.NONE;
-    public glWrapT: GLenum = WebGL2RenderingContext.NONE;
-    public glWrapR: GLenum = WebGL2RenderingContext.NONE;
+    public glMinFilter: GLenum = 0;
+    public glMagFilter: GLenum = 0;
+    public glWrapS: GLenum = 0;
+    public glWrapT: GLenum = 0;
+    public glWrapR: GLenum = 0;
 }
 
 export class WebGL2GPUInput {
@@ -199,7 +199,7 @@ export class WebGL2GPUPipelineLayout {
 
 export class WebGL2GPUPipelineState {
 
-    public glPrimitive: GLenum = WebGL2RenderingContext.TRIANGLES;
+    public glPrimitive: GLenum = 0x0004; // WebGLRenderingContext.TRIANGLES
     public gpuShader: WebGL2GPUShader | null = null;
     public rs: GFXRasterizerState = new GFXRasterizerState();
     public dss: GFXDepthStencilState = new GFXDepthStencilState();

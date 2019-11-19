@@ -314,14 +314,14 @@ export class Material extends Asset {
             const len = propsArray.length;
             for (let i = 0; i < len; i++) {
                 const props = propsArray[i];
-                for (const p of Object.keys(props)) {
+                for (const p in props) {
                     if (p === name) { return props[p]; }
                 }
             }
         } else {
             if (passIdx >= this._props.length) { console.warn(`illegal pass index: ${passIdx}.`); return null; }
             const props = this._props[passIdx];
-            for (const p of Object.keys(props)) {
+            for (const p in props) {
                 if (p === name) { return props[p]; }
             }
         }
@@ -380,9 +380,7 @@ export class Material extends Asset {
                 this._passes.forEach((pass, i) => {
                     let props = this._props[pass.idxInTech];
                     if (!props) { props = this._props[i] = {}; }
-                    for (const p of Object.keys(props)) {
-                        const val = props[p];
-                        if (!val) { continue; }
+                    for (const p in props) {
                         this._uploadProperty(pass, p, props[p]);
                     }
                 });
@@ -428,7 +426,7 @@ export class Material extends Asset {
     protected _onPassesChange () {
         let str = '';
         for (const pass of this._passes) {
-            str += pass.serializePipelineStates();
+            str += Pass.getPSOHash(pass);
         }
         this._hash = murmurhash2_32_gc(str, 666);
         if (this._owner) {

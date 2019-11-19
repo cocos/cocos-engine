@@ -27,7 +27,6 @@
  * @category component/audio
  */
 
-import { director, Director } from '../../core/director';
 import { clamp } from '../../core/math/utils';
 import sys from '../../core/platform/sys';
 import { AudioPlayer, IAudioInfo, PlayingState } from './player';
@@ -71,11 +70,13 @@ export class AudioPlayerWeb extends AudioPlayer {
             this._sourceNode.buffer = this._audio;
             this._sourceNode.loop = this._loop;
             this._sourceNode.connect(this._gainNode);
-            this._sourceNode.start(0, this._offset);
-            this._state = PlayingState.PLAYING;
             this._startTime = this._context.currentTime;
             // delay eval here to yield uniform behavior with other platforms
-            director.once(Director.EVENT_AFTER_UPDATE, () => { this._eventTarget.emit('started'); });
+            cc.director.once(cc.Director.EVENT_AFTER_UPDATE, () => {
+                this._sourceNode.start(0, this._offset);
+                this._eventTarget.emit('started');
+                this._state = PlayingState.PLAYING;
+            });
             /* still not supported by all platforms *
             this._sourceNode.onended = this._on_ended;
             /* doing it manually for now */
@@ -96,7 +97,8 @@ export class AudioPlayerWeb extends AudioPlayer {
                 cc.game.canvas.removeEventListener('mouseup', this._on_gesture);
             });
         };
-        if (this._context.state !== 'running') {
+        // Chrome41/Firefox40 below don't have resume
+        if (this._context.state !== 'running' && this._context.resume) {
             cc.game.canvas.addEventListener('touchend', this._on_gesture);
             cc.game.canvas.addEventListener('mouseup', this._on_gesture);
         }

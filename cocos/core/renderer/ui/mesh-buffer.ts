@@ -40,10 +40,6 @@ export class MeshBuffer {
     public vb: GFXBuffer | null = null;
     public ib: GFXBuffer | null = null;
     public ia: GFXInputAssembler | null = null;
-    // public vbCount: number = 0;
-    // public vbSize: number = 0;
-    // public ibCount: number = 0;
-    // public ibSize: number = 0;
 
     public byteStart: number = 0;
     public byteOffset: number = 0;
@@ -93,15 +89,6 @@ export class MeshBuffer {
         });
 
         this._reallocBuffer();
-
-        // const batch = this._bufferBatchPool.add();
-        // batch.vb = vb;
-        // batch.ib = ib;
-        // batch.ia = ia;
-        // batch.vf32 = null;
-        // batch.vui16 = null;
-        // batch.vbSize = vb.size;
-        // batch.ibSize = ib.size;
     }
 
     public request (vertexCount = 4, indiceCount = 6) {
@@ -140,10 +127,6 @@ export class MeshBuffer {
     }
 
     public reset () {
-        // this._arrOffset = 0;
-        // this._vb = this._vbArr[0];
-        // this._ib = this._ibArr[0];
-
         this.byteStart = 0;
         this.byteOffset = 0;
         this.indiceStart = 0;
@@ -155,17 +138,6 @@ export class MeshBuffer {
     }
 
     public destroy () {
-        // for (const key in this._vbArr) {
-        //     const vb = this._vbArr[key];
-        //     vb.destroy();
-        // }
-        // this._vbArr = undefined;
-
-        // for (const key in this._ibArr) {
-        //     const ib = this._ibArr[key];
-        //     ib.destroy();
-        // }
-        // this._ibArr = undefined;
         this.ib!.destroy();
         this.vb!.destroy();
         this.ia!.destroy();
@@ -198,7 +170,7 @@ export class MeshBuffer {
         this._reallocIData(true);
     }
 
-    private _reallocVData (copyOldData) {
+    private _reallocVData (copyOldData: boolean) {
         let oldVData;
         if (this.vData) {
             oldVData = new Uint8Array(this.vData.buffer);
@@ -214,7 +186,7 @@ export class MeshBuffer {
         }
     }
 
-    private _reallocIData (copyOldData) {
+    private _reallocIData (copyOldData: boolean) {
         const oldIData = this.iData;
 
         this.iData = new Uint16Array(this._initIDataCount);

@@ -54,11 +54,12 @@ const defaultInfo = [
   GFXAddress.WRAP,
   GFXAddress.WRAP,
   GFXAddress.WRAP,
-  16,
+  8,
   GFXComparisonFunc.NEVER,
   0, 0, 0,
   0, 0, 0, 0,
 ];
+const defaultHash = genSamplerHash(defaultInfo);
 
 const gfxInfo: IGFXSamplerInfo = {};
 
@@ -99,12 +100,9 @@ class SamplerLib {
      * @param info 目标 sampler 属性
      */
     public getSampler (device: GFXDevice, hash: number) {
+        if (hash === 0) { hash = defaultHash; }
         const cache = this._cache[hash];
         if (cache) { return cache; }
-
-        if (hash === 0) {
-            hash = genSamplerHash(defaultInfo);
-        }
 
         gfxInfo.minFilter     = (hash & 3);
         gfxInfo.magFilter     = ((hash >> 2) & 3);
@@ -117,7 +115,7 @@ class SamplerLib {
         gfxInfo.minLOD        = ((hash >> 20) & 15);
         gfxInfo.maxLOD        = ((hash >> 24) & 15);
         gfxInfo.mipLODBias    = ((hash >> 28) & 15);
-        gfxInfo.borderColor = { r: 0, g: 0, b: 0, a: 0 };
+        gfxInfo.borderColor   = { r: 0, g: 0, b: 0, a: 0 };
 
         const sampler = this._cache[hash] = device.createSampler(gfxInfo);
         return sampler;

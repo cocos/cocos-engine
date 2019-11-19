@@ -45,7 +45,6 @@ import { RenderableComponent } from '../../../core/3d/framework/renderable-compo
 import { IAssembler, IAssemblerManager } from '../../renderer/ui/base';
 import { UIComponent } from './ui-component';
 import { UITransformComponent } from './ui-transform-component';
-import { director } from '../../director';
 
 // hack
 ccenum(GFXBlendFactor);
@@ -66,6 +65,12 @@ export enum InstanceMaterialType {
      * 着色器带颜色和贴图属性。
      */
     ADDCOLORANDTEXTURE = 1,
+
+    /**
+     * @zh
+     * 着色器带颜色和贴图属性,并使用灰度模式。
+     */
+    GRAYSCALE = 2,
 }
 
 /**
@@ -92,6 +97,7 @@ export class UIRenderComponent extends UIComponent {
     @property({
         type: GFXBlendFactor,
         displayOrder: 0,
+        tooltip:'原图混合模式',
     })
     get srcBlendFactor () {
         return this._srcBlendFactor;
@@ -119,6 +125,7 @@ export class UIRenderComponent extends UIComponent {
     @property({
         type: GFXBlendFactor,
         displayOrder: 1,
+        tooltip:'目标混合模式',
     })
     get dstBlendFactor () {
         return this._dstBlendFactor;
@@ -141,6 +148,7 @@ export class UIRenderComponent extends UIComponent {
      */
     @property({
         displayOrder: 2,
+        tooltip:'渲染颜色',
     })
     // @constget
     get color (): Readonly<Color> {
@@ -166,6 +174,7 @@ export class UIRenderComponent extends UIComponent {
     @property({
         type: Material,
         displayOrder: 3,
+        tooltip:'源材质',
     })
     get sharedMaterial () {
         return this._sharedMaterial;
@@ -323,7 +332,7 @@ export class UIRenderComponent extends UIComponent {
         }
     }
 
-    public postUpdateAssembler(render: UI) {
+    public postUpdateAssembler (render: UI) {
         super.postUpdateAssembler(render);
         if (this._renderFlag) {
             this._postRender(render);
@@ -331,10 +340,10 @@ export class UIRenderComponent extends UIComponent {
     }
 
     // 开始提交渲染数据给中转站
-    protected _render(render: UI) { }
+    protected _render (render: UI) { }
 
     // 开始提交渲染数据给中转站
-    protected _postRender(render: UI) { }
+    protected _postRender (render: UI) { }
 
     // 像组装器更新渲染数据
     protected _checkAndUpdateRenderData (){
@@ -402,6 +411,9 @@ export class UIRenderComponent extends UIComponent {
                     break;
                 case InstanceMaterialType.ADDCOLORANDTEXTURE:
                     mat = Material.getInstantiatedMaterial(cc.builtinResMgr.get('ui-sprite-material'), new RenderableComponent(), CC_EDITOR ? true : false);
+                    break;
+                case InstanceMaterialType.GRAYSCALE:
+                    mat = Material.getInstantiatedMaterial(cc.builtinResMgr.get('ui-sprite-gray-material'), new RenderableComponent(), CC_EDITOR ? true : false);
                     break;
             }
         }

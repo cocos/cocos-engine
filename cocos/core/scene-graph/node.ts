@@ -29,21 +29,18 @@
 
 import { UIComponent, UITransformComponent } from '../components/ui-base';
 import { ccclass, property } from '../data/class-decorator';
-import Event from '../event/event';
 import { Mat3, Mat4, Quat, Size, Vec2, Vec3 } from '../math';
 import { SystemEventType } from '../platform/event-manager/event-enum';
 import { eventManager } from '../platform/event-manager/event-manager';
 import { INode } from '../utils/interfaces';
-import { BaseNode } from './base-node';
+import { BaseNode, TRANFORM_ON } from './base-node';
 import { Layers } from './layers';
 import { NodeSpace, TransformDirtyBit } from './node-enum';
-import { NodeEventProcessor } from './node-event-processor';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
 const q_b = new Quat();
 const array_a = new Array(10);
-const TRANFORM_ON = 1 << 0;
 const qt_1 = new Quat();
 const m3_1 = new Mat3();
 const m3_scaling = new Mat3();
@@ -77,14 +74,10 @@ export class Node extends BaseNode implements INode {
      */
     public static TransformDirtyBit = TransformDirtyBit;
 
-    /**
-     * @zh
-     * 指定对象是否是普通的场景节点？
-     * @param obj 待测试的节点
-     */
-    public static isNode (obj: object | null): obj is Node {
-        return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
-    }
+    // UI 部分的脏数据
+    public _uiTransfromComp: UITransformComponent | null = null;
+    public _uiComp: UIComponent | null = null;
+    public _static = false;
 
     // world transform, don't access this directly
     protected _pos = new Vec3();
@@ -109,11 +102,14 @@ export class Node extends BaseNode implements INode {
     protected _dirtyFlags = TransformDirtyBit.NONE; // does the world transform need to update?
     protected _eulerDirty = false;
 
-    protected _eventProcessor: NodeEventProcessor = new NodeEventProcessor(this as INode);
-    protected _eventMask = 0;
-    private _uiTransfromComp: UITransformComponent | null = null;
-    // tslint:disable-next-line: member-ordering
-    public _uiComp: UIComponent | null = null;
+    /**
+     * @zh
+     * 指定对象是否是普通的场景节点？
+     * @param obj 待测试的节点
+     */
+    public static isNode (obj: object | null): obj is Node {
+        return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
+    }
 
     /**
      * @zh
@@ -236,8 +232,7 @@ export class Node extends BaseNode implements INode {
      * 当前节点面向的前方方向
      */
     get forward (): Vec3 {
-        this.getWorldRotation(q_a);
-        return Vec3.transformQuat(new Vec3(), Vec3.UNIT_Z, q_a);
+        return Vec3.transformQuat(new Vec3(), Vec3.UNIT_Z, this.worldRotation);
     }
     set forward (dir: Vec3) {
         const len = dir.length();
@@ -313,10 +308,6 @@ export class Node extends BaseNode implements INode {
         this.uiTransfromComp!.anchorY = value;
     }
 
-    get eventProcessor () {
-        return this._eventProcessor;
-    }
-
     // ===============================
     // hierarchy
     // ===============================
@@ -389,7 +380,7 @@ export class Node extends BaseNode implements INode {
             this._lpos.z += v3_a.z;
         } else if (space === NodeSpace.WORLD) {
             if (this._parent) {
-                Quat.invert(q_a, this.worldRotation);
+                Quat.invert(q_a, this._parent.worldRotation);
                 Vec3.transformQuat(v3_a, trans, q_a);
                 const scale = this.worldScale;
                 this._lpos.x += v3_a.x / scale.x;
@@ -946,55 +937,6 @@ export class Node extends BaseNode implements INode {
 
     public setContentSize (size: Size | number, height?: number) {
         this.uiTransfromComp!.setContentSize(size, height);
-    }
-
-    // Event: maybe remove
-
-    public on (type: string | SystemEventType, callback: Function, target?: Object, useCapture?: any) {
-        switch (type) {
-            case SystemEventType.TRANSFORM_CHANGED:
-                this._eventMask |= TRANFORM_ON;
-                break;
-        }
-        this._eventProcessor.on(type, callback, target, useCapture);
-    }
-
-    public off (type: string, callback?: Function, target?: Object, useCapture?: any) {
-        this._eventProcessor.off(type, callback, target, useCapture);
-
-        const hasListeners = this._eventProcessor.hasEventListener(type);
-        // All listener removed
-        if (!hasListeners) {
-            switch (type) {
-                case SystemEventType.TRANSFORM_CHANGED:
-                    this._eventMask &= ~TRANFORM_ON;
-                    break;
-            }
-        }
-    }
-
-    public once (type: string, callback: Function, target?: Object, useCapture?: any) {
-        this._eventProcessor.once(type, callback, target, useCapture);
-    }
-
-    public emit (type: string, ...args: any[]) {
-        this._eventProcessor.emit(type, ...args);
-    }
-
-    public dispatchEvent (event: Event) {
-        this._eventProcessor.dispatchEvent(event);
-    }
-
-    public hasEventListener (type: string) {
-        return this._eventProcessor.hasEventListener(type);
-    }
-
-    public targetOff (target: string | Object) {
-        this._eventProcessor.targetOff(target);
-        // Check for event mask reset
-        if ((this._eventMask & TRANFORM_ON) && !this._eventProcessor.hasEventListener(SystemEventType.TRANSFORM_CHANGED)) {
-            this._eventMask &= ~TRANFORM_ON;
-        }
     }
 
     public pauseSystemEvents (recursive: boolean): void {

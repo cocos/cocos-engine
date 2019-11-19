@@ -2,8 +2,9 @@
  * @hidden
  */
 
-import { replaceProperty } from '../utils/deprecated';
+import { replaceProperty, removeProperty } from '../utils/deprecated';
 import line from './line';
+import intersect from './intersect';
 
 replaceProperty(line.prototype, 'line', [
     {
@@ -15,3 +16,9 @@ replaceProperty(line.prototype, 'line', [
         newName: 'len',
     },
 ]);
+
+removeProperty(intersect, 'intersect', [
+    {
+        name: 'line_quad'
+    }
+])

@@ -3,7 +3,7 @@
  */
 
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXClearFlag, GFXCommandBufferType } from '../../gfx/define';
+import { GFXCommandBufferType, IGFXColor } from '../../gfx/define';
 import { getPhaseID } from '../pass-phase';
 import { RenderFlow } from '../render-flow';
 import { RenderQueue, transparentCompareFn } from '../render-queue';
@@ -11,6 +11,7 @@ import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 
 const bufs: GFXCommandBuffer[] = [];
+const colors: IGFXColor[] = [];
 
 /**
  * @zh
@@ -88,9 +89,11 @@ export class UIStage extends RenderStage {
         this._renderArea.width = vp.width * camera.width;
         this._renderArea.height = vp.height * camera.height;
 
+        colors[0] = camera.clearColor;
+
         cmdBuff.begin();
         cmdBuff.beginRenderPass(framebuffer, this._renderArea,
-            camera.clearFlag, [camera.clearColor], camera.clearDepth, camera.clearStencil);
+            camera.clearFlag, colors, camera.clearDepth, camera.clearStencil);
 
         cmdBuff.execute(this._uiQueue.cmdBuffs.array, this._uiQueue.cmdBuffCount);
 

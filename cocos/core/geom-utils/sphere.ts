@@ -1,5 +1,5 @@
 /**
- * @category gemotry-utils
+ * @category geometry
  */
 
 import { Mat4, Quat, Vec3 } from '../math';
@@ -77,7 +77,7 @@ export default class sphere {
     /**
      * @en Set the components of a sphere to the given values
      * @zh 将球体的属性设置为给定的值。
-     * 
+     *
      * @param {sphere} out 接受操作的 sphere。
      * @param cx 形状的相对于原点的 X 坐标。
      * @param cy 形状的相对于原点的 Y 坐标。

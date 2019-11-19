@@ -51,6 +51,7 @@ export class ConstantForce extends Component {
      */
     @property({
         displayOrder: 0,
+        tooltip:'世界朝向的力',
     })
     public get force () {
         return this._force;
@@ -69,6 +70,7 @@ export class ConstantForce extends Component {
      */
     @property({
         displayOrder: 1,
+        tooltip:'本地朝向的力',
     })
     public get localForce () {
         return this._localForce;
@@ -87,6 +89,7 @@ export class ConstantForce extends Component {
      */
     @property({
         displayOrder: 2,
+        tooltip:'世界朝向的扭转力',
     })
     public get torque () {
         return this._torque;
@@ -105,6 +108,7 @@ export class ConstantForce extends Component {
      */
     @property({
         displayOrder: 3,
+        tooltip:'本地朝向的扭转力',
     })
     public get localTorque () {
         return this._localTorque;

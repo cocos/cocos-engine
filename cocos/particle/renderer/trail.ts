@@ -31,7 +31,7 @@ const _temp_vec3 = new Vec3();
 const _temp_vec3_1 = new Vec3();
 const _temp_color = new Color();
 
-const barycentric = [1,0,0, 0,1,0, 0,0,1]; // <wirframe debug>
+const barycentric = [1,0,0, 0,1,0, 0,0,1]; // <wireframe debug>
 let _bcIdx = 0;
 
 interface ITrailElement {
@@ -135,7 +135,7 @@ class TrailSegment {
     // public _print () {
     //     let msg = String();
     //     this.iterateElement(this, (target: object, e: ITrailElement, p: Particle, dt: number) => {
-    //         msg += 'pos:' + e.position.toString() + '\nlifetime:' + e.lifetime + '\nwidth:' + e.width + '\nvelocity:' + e.velocity.toString() + '\n';
+    //         msg += 'pos:' + e.position.toString() + ' lifetime:' + e.lifetime + ' dir:' + e.direction + ' velocity:' + e.velocity.toString() + '\n';
     //         return false;
     //     }, null, 0);
     //     console.log(msg);
@@ -178,6 +178,7 @@ export default class TrailModule {
     @property({
         type: TrailMode,
         displayOrder: 1,
+        tooltip:'Particle在每个粒子的运动轨迹上形成拖尾效果',
     })
     public mode = TrailMode.Particles;
 
@@ -187,6 +188,7 @@ export default class TrailModule {
     @property({
         type: CurveRange,
         displayOrder: 3,
+        tooltip:'拖尾的生命周期',
     })
     public lifeTime = new CurveRange();
 
@@ -198,6 +200,7 @@ export default class TrailModule {
      */
     @property({
         displayOrder: 5,
+        tooltip:'粒子每生成一个拖尾节点所运行的最短距离',
     })
     public get minParticleDistance () {
         return this._minParticleDistance;
@@ -211,6 +214,7 @@ export default class TrailModule {
     @property({
         type: Space,
         displayOrder: 6,
+        tooltip:'拖尾所在的坐标系，World在世界坐标系中运行，Local在本地坐标系中运行',
     })
     public get space () {
         return this._space;
@@ -228,6 +232,7 @@ export default class TrailModule {
      */
     @property({
         displayOrder: 7,
+        tooltip:'拖尾是否跟随粒子一起消失',
     })
     public existWithParticles = true;
 
@@ -237,11 +242,13 @@ export default class TrailModule {
     @property({
         type: TextureMode,
         displayOrder: 8,
+        tooltip:'贴图在拖尾上的展开形式，Stretch贴图覆盖在整条拖尾上，Repeat贴图覆盖在一段拖尾上',
     })
     public textureMode = TextureMode.Stretch;
 
     @property({
         displayOrder: 9,
+        tooltip:'拖尾宽度继承自粒子大小'
     })
     public widthFromParticle = true;
 
@@ -251,23 +258,27 @@ export default class TrailModule {
     @property({
         type: CurveRange,
         displayOrder: 10,
+        tooltip:'拖尾宽度，如果继承自粒子则是粒子大小的比例',
     })
     public widthRatio = new CurveRange();
 
     @property({
         displayOrder: 11,
+        tooltip:'拖尾颜色是否继承自粒子'
     })
     public colorFromParticle = false;
 
     @property({
         type: GradientRange,
         displayOrder: 12,
+        tooltip:'拖尾颜色随拖尾自身长度的颜色渐变'
     })
     public colorOverTrail = new GradientRange();
 
     @property({
         type: GradientRange,
         displayOrder: 13,
+        tooltip:'拖尾颜色随时间的颜色渐变'
     })
     public colorOvertime = new GradientRange();
 
@@ -510,20 +521,25 @@ export default class TrailModule {
                 const lastThirdTrail = trailSeg.getElement(trailSeg.end - 2)!;
                 Vec3.subtract(_temp_vec3, lastThirdTrail.position, lastSecondTrail.position);
                 Vec3.subtract(_temp_vec3_1, _temp_trailEle.position, lastSecondTrail.position);
+                Vec3.normalize(_temp_vec3,_temp_vec3);
+                Vec3.normalize(_temp_vec3_1,_temp_vec3_1);
                 Vec3.subtract(lastSecondTrail.velocity, _temp_vec3_1, _temp_vec3);
                 Vec3.normalize(lastSecondTrail.velocity, lastSecondTrail.velocity);
                 this._checkDirectionReverse(lastSecondTrail, lastThirdTrail);
-                this._vbF32![this.vbOffset - this._vertSize / 4 - 4] = lastSecondTrail.velocity.x;
-                this._vbF32![this.vbOffset - this._vertSize / 4 - 3] = lastSecondTrail.velocity.y;
-                this._vbF32![this.vbOffset - this._vertSize / 4 - 2] = lastSecondTrail.velocity.z;
-                this._vbF32![this.vbOffset - 4] = lastSecondTrail.velocity.x;
-                this._vbF32![this.vbOffset - 3] = lastSecondTrail.velocity.y;
-                this._vbF32![this.vbOffset - 2] = lastSecondTrail.velocity.z;
+                // refresh last trail segment data
+                this.vbOffset -= this._vertSize / 4 * 2;
+                this.ibOffset -= 6;
+                // _bcIdx = (_bcIdx - 6 + 9) % 9;  // <wireframe debug>
+                this._fillVertexBuffer(lastSecondTrail, this.colorOverTrail.evaluate(textCoordSeg, 1), indexOffset, textCoordSeg, trailNum - 1, PRE_TRIANGLE_INDEX | NEXT_TRIANGLE_INDEX);
                 Vec3.subtract(_temp_trailEle.velocity, _temp_trailEle.position, lastSecondTrail.position);
                 Vec3.normalize(_temp_trailEle.velocity, _temp_trailEle.velocity);
                 this._checkDirectionReverse(_temp_trailEle, lastSecondTrail);
             }
-            _temp_trailEle.width = p.size.x;
+            if (this.widthFromParticle) {
+                _temp_trailEle.width = p.size.x * this.widthRatio.evaluate(0, 1)!;
+            } else {
+                _temp_trailEle.width = this.widthRatio.evaluate(0, 1)!;
+            }
             _temp_trailEle.color = p.color;
 
             if (Vec3.equals(_temp_trailEle.velocity, Vec3.ZERO)) {
@@ -664,4 +680,17 @@ export default class TrailModule {
             currElement.direction = prevElement.direction;
         }
     }
+
+    // <debug use>
+    // private _printVB() {
+    //     let log = new String();
+    //     for (let i = 0; i < this.vbOffset; i++) {
+    //         log += 'pos:' + this._vbF32![i++].toFixed(2) + ',' + this._vbF32![i++].toFixed(2) + ',' + this._vbF32![i++].toFixed(2) + ' dir:' + this._vbF32![i++].toFixed(0) + ' ';
+    //         i += 6;
+    //         log += 'vel:' + this._vbF32![i++].toFixed(2) + ',' + this._vbF32![i++].toFixed(2) + ',' + this._vbF32![i++].toFixed(2) + '\n';
+    //     }
+    //     if (log.length > 0) {
+    //         console.log(log);
+    //     }
+    // }
 }

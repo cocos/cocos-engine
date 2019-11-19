@@ -6,13 +6,15 @@
 import { Asset } from '../assets/asset';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { ccclass, property } from '../data/class-decorator';
+import { CompactValueTypeArray } from '../data/utils/compact-value-type-array';
 import { errorID } from '../platform/debug';
+import { DataPoolManager } from '../renderer/data-pool-manager';
 import binarySearchEpsilon from '../utils/binary-search';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { AnimCurve, CurveValueAdapter, IPropertyCurveData, RatioSampler } from './animation-curve';
+import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { ComponentModifier, HierachyModifier, TargetModifier } from './target-modifier';
 import { WrapMode as AnimationWrapMode } from './types';
-import { CompactValueTypeArray } from '../data/utils/compact-value-type-array';
 
 export interface IObjectCurveData {
     [propertyName: string]: IPropertyCurveData;
@@ -312,6 +314,12 @@ export class AnimationClip extends Asset {
      */
     public hasEvents () {
         return this.events.length !== 0;
+    }
+
+    public destroy () {
+        (cc.director.root.dataPoolManager as DataPoolManager).releaseAnimationClip(this);
+        SkelAnimDataHub.destroy(this);
+        return super.destroy();
     }
 
     protected _createPropertyCurves () {

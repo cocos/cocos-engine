@@ -58,7 +58,7 @@ export class SkeletalAnimationState extends AnimationState {
         super.onPlay();
         const comps = this._targetNode!.getComponentsInChildren(SkinningModelComponent);
         for (let i = 0; i < comps.length; ++i) {
-            const comp = comps[i] as SkinningModelComponent;
+            const comp = comps[i];
             if (comp.skinningRoot === this._targetNode) {
                 comp.uploadAnimation(this.clip);
             }

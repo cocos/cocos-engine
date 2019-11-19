@@ -31,8 +31,6 @@ import { AnimationClip } from '../../animation';
 import { Material } from '../../assets/material';
 import { Skeleton } from '../../assets/skeleton';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
-import { GFXDevice } from '../../gfx/device';
-import { selectJointsMediumType } from '../../renderer/models/joints-texture-utils';
 import { SkinningModel } from '../../renderer/models/skinning-model';
 import { Node } from '../../scene-graph/node';
 import { INode } from '../../utils/interfaces';
@@ -55,11 +53,15 @@ export class SkinningModelComponent extends ModelComponent {
     @property(Node)
     protected _skinningRoot: INode | null = null;
 
+    protected _clip: AnimationClip | null = null;
+
     /**
-     * @en The bone nodes
-     * @zh 骨骼节点。
+     * @en The skeleton resource
+     * @zh 骨骼资源。
      */
-    @property({ type: Skeleton })
+    @property({
+        type: Skeleton,
+    })
     get skeleton () {
         return this._skeleton;
     }
@@ -72,7 +74,9 @@ export class SkinningModelComponent extends ModelComponent {
     /**
      * 骨骼根节点的引用。
      */
-    @property({ type: Node })
+    @property({
+        type: Node,
+    })
     get skinningRoot (): INode | null {
         return this._skinningRoot;
     }
@@ -87,6 +91,7 @@ export class SkinningModelComponent extends ModelComponent {
     }
 
     public uploadAnimation (clip: AnimationClip | null) {
+        this._clip = clip;
         if (this._model) { (this._model as SkinningModel).uploadAnimation(clip); }
     }
 
@@ -94,14 +99,6 @@ export class SkinningModelComponent extends ModelComponent {
         // should bind skeleton before super create pso
         this._update();
         super._updateModelParams();
-    }
-
-    protected _onMaterialModified (index: number, material: Material | null) {
-        const device: GFXDevice = cc.director.root!.device;
-        const type = selectJointsMediumType(device);
-        const mat = this.getMaterial(index) || this._getBuiltinMaterial();
-        mat.recompileShaders({ CC_USE_SKINNING: type });
-        super._onMaterialModified(index, mat);
     }
 
     protected _getModelConstructor () {
@@ -114,7 +111,10 @@ export class SkinningModelComponent extends ModelComponent {
     }
 
     private _update () {
-        if (this._model) { (this._model as SkinningModel).bindSkeleton(this._skeleton, this._skinningRoot); }
-        this._materials.forEach((material, index) => material && this._onMaterialModified(index, material));
+        if (this._model) {
+            const model = (this._model as SkinningModel);
+            model.bindSkeleton(this._skeleton, this._skinningRoot, this._mesh);
+            model.uploadAnimation(this._clip);
+        }
     }
 }

@@ -3,11 +3,15 @@
  */
 
 import { GFXBindingLayout } from '../../gfx/binding-layout';
-import { GFXClearFlag, GFXCommandBufferType } from '../../gfx/define';
+import { GFXCommandBuffer } from '../../gfx/command-buffer';
+import { GFXClearFlag, GFXCommandBufferType, IGFXColor } from '../../gfx/define';
 import { UBOGlobal } from '../define';
 import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
+
+const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
+const bufs: GFXCommandBuffer[] = [];
 
 /**
  * @zh
@@ -89,7 +93,7 @@ export class ToneMapStage extends RenderStage {
 
             this._cmdBuff.begin();
             this._cmdBuff.beginRenderPass(framebuffer, this._renderArea,
-                GFXClearFlag.ALL, [{ r: 0.0, g: 0.0, b: 0.0, a: 1.0 }], 1.0, 0);
+                GFXClearFlag.ALL, colors, 1.0, 0);
             this._cmdBuff.bindPipelineState(this._pso!);
             this._cmdBuff.bindBindingLayout(this._pso!.pipelineLayout.layouts[0]);
             this._cmdBuff.bindInputAssembler(this._pipeline.quadIA);
@@ -98,7 +102,8 @@ export class ToneMapStage extends RenderStage {
             this._cmdBuff.end();
         }
 
-        this._device.queue.submit([this._cmdBuff!]);
+        bufs[0] = this._cmdBuff!;
+        this._device.queue.submit(bufs);
 
         // this._pipeline.swapFBOs();
     }

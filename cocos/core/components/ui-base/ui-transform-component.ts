@@ -60,6 +60,7 @@ export class UITransformComponent extends Component {
      */
     @property({
         displayOrder: 0,
+        tooltip:'内容尺寸',
     })
     // @constget
     get contentSize (): Readonly<Size> {
@@ -138,6 +139,7 @@ export class UITransformComponent extends Component {
      */
     @property({
         displayOrder: 1,
+        tooltip:'锚点位置',
     })
     // @constget
     get anchorPoint (): Readonly<Vec2> {
@@ -328,7 +330,7 @@ export class UITransformComponent extends Component {
 
         if (testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h) {
             if (listener && listener.mask) {
-                const mask = listener.mask as ILinstenerMask;
+                const mask = listener.mask as IListenerMask;
                 let parent: any = this.node;
                 // find mask parent, should hit test it
                 for (let i = 0; parent && i < mask.index; ++i, parent = parent.parent) {

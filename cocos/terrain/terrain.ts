@@ -41,7 +41,9 @@ export const TERRAIN_HEIGHT_FACTORY = 1.0 / 512.0;
  */
 @ccclass('cc.TerrainInfo')
 export class TerrainInfo {
-    @property
+    @property({
+        tooltip:'地形Tile的大小',
+    })
     public tileSize: number = 1;
     @property
     public blockCount: number[] = [1, 1];
@@ -77,9 +79,13 @@ export class TerrainInfo {
 
 @ccclass('cc.TerrainLayer')
 export class TerrainLayer {
-    @property
+    @property({
+        tooltip:'当前Layer的纹理',
+    })
     public detailMap: Texture2D|null = null;
-    @property
+    @property({
+        tooltip:'纹理的平铺大小，值越小会在同样大小的区域内进行更多次的平铺',
+    })
     public tileSize: number = 1;
 }
 

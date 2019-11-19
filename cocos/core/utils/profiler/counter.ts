@@ -1,4 +1,3 @@
-import { ccclass } from '../../../core/data/class-decorator';
 
 export interface ICounterOption {
     desc: string;
@@ -9,15 +8,15 @@ export interface ICounterOption {
     below?: number;
     over?: number;
     color?: string;
+    isInteger?: boolean;
 }
 
-@ccclass('cc.Counter')
 export class Counter {
-    get value (){
+    get value () {
         return this._value;
     }
 
-    set value (val){
+    set value (val) {
         this._value = val;
     }
 
@@ -40,9 +39,10 @@ export class Counter {
         this._average(this._value, now);
     }
 
-    public human (isPoint = true) {
-        const v = this._opts.average ? this._averageValue : this._value;
-        return isPoint ? Math.round(v * 100) / 100 : Math.round(v);
+    public human () {
+        const { average, isInteger } = this._opts;
+        const v = average ? this._averageValue : this._value;
+        return isInteger ? Math.round(v) : Math.round(v * 100) / 100;
     }
 
     public alarm () {

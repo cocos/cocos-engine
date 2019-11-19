@@ -35,6 +35,7 @@ import { ccclass, executionOrder, menu } from '../../core/data/class-decorator';
 import { director } from '../../core/director';
 import { RenderPriority } from '../../core/pipeline/define';
 import { UI } from '../../core/renderer/ui/ui';
+import { Model } from '../../core/renderer';
 
 /**
  * @zh
@@ -45,6 +46,8 @@ import { UI } from '../../core/renderer/ui/ui';
 @executionOrder(110)
 @menu('UI/Model')
 export class UIModelComponent extends UIComponent {
+
+    private _models: Model[] | null = null;
 
     public get modelComponent () {
         return this._modelComponent;
@@ -60,7 +63,8 @@ export class UIModelComponent extends UIComponent {
         }
 
         this._modelComponent._sceneGetter = director.root!.ui.getRenderSceneGetter();
-        this._modelComponent.recreateModel();
+        this._modelComponent._changeSceneInModel();
+        this._models = this._modelComponent._collectModels();
     }
 
     public onDestroy () {
@@ -71,13 +75,16 @@ export class UIModelComponent extends UIComponent {
 
         this._modelComponent._sceneGetter = null;
         if (cc.isValid(this.node, true)) {
-            this._modelComponent.recreateModel();
+            this._modelComponent._changeSceneInModel();
         }
+        this._models = null;
     }
 
     public updateAssembler (render: UI) {
-        if (this._modelComponent) {
-            render.commitModel.call(render, this, this._modelComponent._getModel(), this._modelComponent.material);
+        if (this._models) {
+            for(const m of this._models){
+                render.commitModel.call(render, this, m, this._modelComponent!.material);
+            }
             return true;
         }
 
@@ -88,6 +95,17 @@ export class UIModelComponent extends UIComponent {
         this._fitUIRenderQueue();
     }
 
+    /**
+     * TODO: refactor using Pass.createPipelineState(null, overriddenPass)
+     * ```
+     * const overriddenPass = new Pass(); // global scope
+     * // when creating PSO
+     * Pass.fillinPipelineInfo(overriddenPass, passes[j]);
+     * Pass.fillinPipelineInfo(overriddenPass, { priority: RenderPriority.MAX - 11, blendState: { targets: [ { blend: true } ] } });
+     * const pso = passes[j].createPipelineState(null, overriddenPass);
+     * // ...
+     * ```
+     */
     private _fitUIRenderQueue () {
         if (!this._modelComponent) {
             return;

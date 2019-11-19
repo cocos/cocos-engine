@@ -85,11 +85,10 @@ export enum UniformBinding {
     UBO_SHADOW = MAX_BINDING_SUPPORTED - 2,
 
     UBO_LOCAL = MAX_BINDING_SUPPORTED - 3,
-    UBO_LOCAL_BATCHED = MAX_BINDING_SUPPORTED - 4,
-    UBO_FORWARD_LIGHTS = MAX_BINDING_SUPPORTED - 5,
-    UBO_SKINNING_ANIMATION = MAX_BINDING_SUPPORTED - 6,
-    UBO_SKINNING_TEXTURE = MAX_BINDING_SUPPORTED - 7,
-    UBO_UI = MAX_BINDING_SUPPORTED - 8,
+    UBO_FORWARD_LIGHTS = MAX_BINDING_SUPPORTED - 4,
+    UBO_SKINNING_ANIMATION = MAX_BINDING_SUPPORTED - 5,
+    UBO_SKINNING_TEXTURE = MAX_BINDING_SUPPORTED - 6,
+    UBO_UI = MAX_BINDING_SUPPORTED - 7,
 
     // samplers
     SAMPLER_JOINTS = MAX_BINDING_SUPPORTED + 1,
@@ -184,18 +183,15 @@ export const localBindingsDesc: Map<string, IInternalBindingDesc> = new Map<stri
  * 本地 UBO。
  */
 export class UBOLocal {
-    public static BATCHING_COUNT: number = 10;
     public static MAT_WORLD_OFFSET: number = 0;
     public static MAT_WORLD_IT_OFFSET: number = UBOLocal.MAT_WORLD_OFFSET + 16;
-    public static MAT_WORLDS_OFFSET: number = UBOLocal.MAT_WORLD_IT_OFFSET + 16;
-    public static COUNT: number = UBOLocal.MAT_WORLDS_OFFSET + 16 * UBOLocal.BATCHING_COUNT;
+    public static COUNT: number = UBOLocal.MAT_WORLD_IT_OFFSET + 16;
     public static SIZE: number = UBOLocal.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
         binding: UniformBinding.UBO_LOCAL, name: 'CCLocal', members: [
             { name: 'cc_matWorld', type: GFXType.MAT4, count: 1 },
             { name: 'cc_matWorldIT', type: GFXType.MAT4, count: 1 },
-            { name: 'cc_matWorlds', type: GFXType.MAT4, count: UBOLocal.BATCHING_COUNT },
         ],
     };
 
@@ -204,6 +200,25 @@ export class UBOLocal {
 localBindingsDesc.set(UBOLocal.BLOCK.name, {
     type: GFXBindingType.UNIFORM_BUFFER,
     blockInfo: UBOLocal.BLOCK,
+});
+
+export class UBOLocalBatched {
+    public static BATCHING_COUNT: number = 10;
+    public static MAT_WORLDS_OFFSET: number = 0;
+    public static COUNT: number = 16 * UBOLocalBatched.BATCHING_COUNT;
+    public static SIZE: number = UBOLocalBatched.COUNT * 4;
+
+    public static BLOCK: GFXUniformBlock = {
+        binding: UniformBinding.UBO_LOCAL, name: 'CCLocalBatched', members: [
+            { name: 'cc_matWorlds', type: GFXType.MAT4, count: UBOLocalBatched.BATCHING_COUNT },
+        ],
+    };
+
+    public view: Float32Array = new Float32Array(UBOLocalBatched.COUNT);
+}
+localBindingsDesc.set(UBOLocalBatched.BLOCK.name, {
+    type: GFXBindingType.UNIFORM_BUFFER,
+    blockInfo: UBOLocalBatched.BLOCK,
 });
 
 /**

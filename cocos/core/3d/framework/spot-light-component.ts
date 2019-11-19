@@ -35,7 +35,7 @@ import { SpotLight } from '../../renderer/scene/spot-light';
 import { LightComponent, PhotometricTerm } from './light-component';
 
 @ccclass('cc.SpotLightComponent')
-@menu('Components/SpotLight')
+@menu('Light/SpotLight')
 @executeInEditMode
 export class SpotLightComponent extends LightComponent {
 
@@ -56,7 +56,10 @@ export class SpotLightComponent extends LightComponent {
     /**
      * 光通量。
      */
-    @property({ unit: 'lm' })
+    @property({
+        unit: 'lm',
+        tooltip:'光通量',
+    })
     get luminousPower () {
         return this._luminance * nt2lm(this._size);
     }
@@ -68,7 +71,10 @@ export class SpotLightComponent extends LightComponent {
     /**
      * 亮度。
      */
-    @property({ unit: 'cd/m²' })
+    @property({
+        unit: 'cd/m²',
+        tooltip:'亮度',
+    })
     get luminance () {
         return this._luminance;
     }
@@ -80,7 +86,10 @@ export class SpotLightComponent extends LightComponent {
     /**
      * 指定光通量或亮度。
      */
-    @property({ type: PhotometricTerm })
+    @property({
+        type: PhotometricTerm,
+        tooltip:'指定光通量或亮度',
+    })
     get term () {
         return this._term;
     }
@@ -94,7 +103,9 @@ export class SpotLightComponent extends LightComponent {
      * @zh
      * 针对聚光灯和点光源设置光源大小。
      */
-    @property
+    @property({
+        tooltip:'针对聚光灯和点光源设置光源大小',
+    })
     get size () {
         return this._size;
     }
@@ -109,7 +120,9 @@ export class SpotLightComponent extends LightComponent {
      * @zh
      * 针对聚光灯和点光源设置光源范围。
      */
-    @property
+    @property({
+        tooltip:'针对聚光灯和点光源设置光源范围',
+    })
     get range () {
         return this._range;
     }
@@ -127,6 +140,7 @@ export class SpotLightComponent extends LightComponent {
     @property({
         slide: true,
         range: [2, 180, 1],
+        tooltip:'聚光灯锥角',
     })
     get spotAngle () {
         return this._spotAngle;

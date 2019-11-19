@@ -169,13 +169,14 @@ export class GFXInputState {
 export interface IGFXPipelineStateInfo {
     primitive: GFXPrimitiveMode;
     shader: GFXShader;
-    is: GFXInputState;
-    rs: GFXRasterizerState;
-    dss: GFXDepthStencilState;
-    bs: GFXBlendState;
+    inputState: GFXInputState;
+    rasterizerState: GFXRasterizerState;
+    depthStencilState: GFXDepthStencilState;
+    blendState: GFXBlendState;
     dynamicStates?: GFXDynamicState[];
     layout: GFXPipelineLayout;
     renderPass: GFXRenderPass;
+    hash: number;
 }
 
 /**
@@ -226,6 +227,14 @@ export abstract class GFXPipelineState extends GFXObject {
 
     /**
      * @zh
+     * GFX输入状态。
+     */
+    public get inputState (): GFXInputState {
+        return this._is as GFXInputState;
+    }
+
+    /**
+     * @zh
      * GFX动态状态数组。
      */
     public get dynamicStates (): GFXDynamicState[] {
@@ -246,6 +255,14 @@ export abstract class GFXPipelineState extends GFXObject {
      */
     public get renderPass (): GFXRenderPass {
         return this._renderPass as GFXRenderPass;
+    }
+
+    /**
+     * @zh
+     * 此管线状态的 hash。
+     */
+    public get hash (): number {
+        return this._hash;
     }
 
     /**
@@ -307,6 +324,12 @@ export abstract class GFXPipelineState extends GFXObject {
      * GFX渲染过程。
      */
     protected _renderPass: GFXRenderPass | null = null;
+
+    /**
+     * @zh
+     * 此管线状态的 hash。
+     */
+    protected _hash: number = 0;
 
     /**
      * 构造函数。
