@@ -61,7 +61,6 @@ export class SkinningModelComponent extends ModelComponent {
      */
     @property({
         type: Skeleton,
-        tooltip:'骨骼节点',
     })
     get skeleton () {
         return this._skeleton;
@@ -77,7 +76,6 @@ export class SkinningModelComponent extends ModelComponent {
      */
     @property({
         type: Node,
-        tooltip:'骨骼蒙皮根节点',
     })
     get skinningRoot (): INode | null {
         return this._skinningRoot;
@@ -115,7 +113,7 @@ export class SkinningModelComponent extends ModelComponent {
     private _update () {
         if (this._model) {
             const model = (this._model as SkinningModel);
-            model.bindSkeleton(this._skeleton, this._skinningRoot);
+            model.bindSkeleton(this._skeleton, this._skinningRoot, this._mesh);
             model.uploadAnimation(this._clip);
         }
     }

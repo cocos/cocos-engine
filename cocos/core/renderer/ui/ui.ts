@@ -26,6 +26,7 @@
  * @hidden
  */
 
+import { UIStaticBatchComponent } from '../../../ui';
 import { Material } from '../../assets/material';
 import { CanvasComponent, UIComponent, UIRenderComponent } from '../../components/ui-base';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
@@ -35,7 +36,7 @@ import { IGFXAttribute } from '../../gfx/input-assembler';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { Pool, RecyclePool } from '../../memop';
 import { CachedArray } from '../../memop/cached-array';
-import { UniformBinding, CameraDefaultMask } from '../../pipeline/define';
+import { UniformBinding } from '../../pipeline/define';
 import { Camera } from '../../renderer/scene/camera';
 import { Model } from '../../renderer/scene/model';
 import { RenderScene } from '../../renderer/scene/render-scene';
@@ -45,10 +46,9 @@ import { INode } from '../../utils/interfaces';
 import { MeshBuffer } from './mesh-buffer';
 import { StencilManager } from './stencil-manager';
 import { UIBatchModel } from './ui-batch-model';
+import { UIDrawBatch } from './ui-draw-batch';
 import { UIMaterial } from './ui-material';
 import * as UIVertexFormat from './ui-vertex-format';
-import { UIStaticBatchComponent } from '../../../ui';
-import { UIDrawBatch } from './ui-draw-batch';
 
 /**
  * @zh
@@ -65,7 +65,7 @@ export class UI {
     }
 
     set currBufferBatch (value) {
-        if(!value){
+        if (!value){
             return;
         }
 
@@ -411,7 +411,7 @@ export class UI {
 
         StencilManager.sharedManager!.handleMaterial(mat);
 
-        const curDrawBatch = this._currStaticRoot ? this._currStaticRoot.requireDrawBatch(): this._drawBatchPool.alloc();
+        const curDrawBatch = this._currStaticRoot ? this._currStaticRoot.requireDrawBatch() : this._drawBatchPool.alloc();
         curDrawBatch.camera = uiCanvas && uiCanvas.camera;
         curDrawBatch.bufferBatch = buffer;
         curDrawBatch.material = mat;

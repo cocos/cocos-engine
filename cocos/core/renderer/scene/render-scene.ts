@@ -7,7 +7,6 @@ import { Root } from '../../root';
 import { Layers } from '../../scene-graph/layers';
 import { Node } from '../../scene-graph/node';
 import { INode } from '../../utils/interfaces';
-import { JointsTexturePool } from '../models/joints-texture-utils';
 import { Ambient } from './ambient';
 import { Camera, ICameraInfo } from './camera';
 import { DirectionalLight } from './directional-light';
@@ -78,10 +77,6 @@ export class RenderScene {
         return this._models;
     }
 
-    get texturePool () {
-        return this._texturePool;
-    }
-
     /**
      * @zh
      * 获取 raycastAllCanvas 后的检测结果
@@ -130,7 +125,6 @@ export class RenderScene {
     private _spotLights: SpotLight[] = [];
     private _models: Model[] = [];
     private _modelId: number = 0;
-    private _texturePool: JointsTexturePool;
 
     constructor (root: Root) {
         this._root = root;
@@ -142,12 +136,10 @@ export class RenderScene {
         this._ambient = new Ambient(this);
         this._skybox = new Skybox(this);
         this._planarShadows = new PlanarShadows(this);
-        this._texturePool = new JointsTexturePool(root.device);
     }
 
     public initialize (info: IRenderSceneInfo): boolean {
         this._name = info.name;
-        this._texturePool.initialize();
         return true;
     }
 
@@ -158,7 +150,6 @@ export class RenderScene {
         this.destroyModels();
         this._skybox.destroy();
         this._planarShadows.destroy();
-        this._texturePool.destroy();
     }
 
     public createCamera (info: ICameraInfo): Camera {

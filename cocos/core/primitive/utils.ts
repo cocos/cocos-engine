@@ -76,7 +76,7 @@ export function toWavefrontOBJ (primitive: IGeometry, scale = 1) {
 /**
  * @deprecated
  */
-export function normals (positions: number[], normals: number[], length = 1) {
+export function normals (positions: number[], nms: number[], length = 1) {
     const verts = new Array(2 * positions.length);
 
     for (let i = 0; i < positions.length / 3; ++i) {
@@ -89,9 +89,9 @@ export function normals (positions: number[], normals: number[], length = 1) {
         verts[i6 + 2] = positions[i3 + 2];
 
         // line end
-        verts[i6 + 3] = positions[i3 + 0] + normals[i3 + 0] * length;
-        verts[i6 + 4] = positions[i3 + 1] + normals[i3 + 1] * length;
-        verts[i6 + 5] = positions[i3 + 2] + normals[i3 + 2] * length;
+        verts[i6 + 3] = positions[i3 + 0] + nms[i3 + 0] * length;
+        verts[i6 + 4] = positions[i3 + 1] + nms[i3 + 1] * length;
+        verts[i6 + 5] = positions[i3 + 2] + nms[i3 + 2] * length;
     }
 
     return verts;

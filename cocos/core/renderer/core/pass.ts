@@ -548,20 +548,25 @@ export class Pass {
 
         const { blocks, samplers } = this._shaderInfo;
         this._bindings.length = 0;
+        let lastBinding = -1;
         blocks:
         for (let i = 0; i < blocks.length; i++) {
             const block = blocks[i];
+            if (block.binding === lastBinding) { continue; }
             for (let j = 0; j < block.defines.length; j++) {
                 if (!defines[block.defines[j]]) { continue blocks; }
             }
+            lastBinding = block.binding;
             this._bindings.push(block);
         }
         samplers:
         for (let i = 0; i < samplers.length; i++) {
             const sampler = samplers[i];
+            if (sampler.binding === lastBinding) { continue; }
             for (let j = 0; j < sampler.defines.length; j++) {
                 if (!defines[sampler.defines[j]]) { continue samplers; }
             }
+            lastBinding = sampler.binding;
             this._bindings.push(sampler);
         }
         return shader;

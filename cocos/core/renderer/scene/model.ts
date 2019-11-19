@@ -164,7 +164,7 @@ export class Model {
     protected _uboUpdated = false;
     protected _castShadow = false;
     protected _isDynamicBatching = false;
-    private _transformUpdated = true;
+    protected _transformUpdated = true;
 
     /**
      * Setup a default empty model
@@ -213,7 +213,7 @@ export class Model {
             node.updateWorldTransform();
             this._transformUpdated = true;
             if (this._modelBounds && this._worldBounds) {
-                // @ts-ignore
+                // @ts-ignore TS2339
                 this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, this._worldBounds);
             }
         }

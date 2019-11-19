@@ -1253,7 +1253,7 @@ export abstract class RenderPipeline {
         }
 
         if (planarShadows.enabled) {
-            planarShadows.updateCommandBuffers();
+            planarShadows.updateCommandBuffers(camera.frustum);
         }
     }
 

@@ -11,17 +11,21 @@
  * @return {number} 32-bit positive integer hash
  */
 
-export function murmurhash2_32_gc (str: string, seed: number) {
-    let l = str.length;
+const getUint8ForString = String.prototype.charCodeAt;
+function getUint8ForArray (this: Uint8Array, idx: number) { return this[idx]; }
+
+export function murmurhash2_32_gc (input: string | Uint8Array, seed: number) {
+    let l = input.length;
     let h = seed ^ l;
     let i = 0;
+    const getUint8 = typeof input === 'string' ? getUint8ForString : getUint8ForArray;
 
     while (l >= 4) {
         let k =
-            ((str.charCodeAt(i) & 0xff)) |
-            ((str.charCodeAt(++i) & 0xff) << 8) |
-            ((str.charCodeAt(++i) & 0xff) << 16) |
-            ((str.charCodeAt(++i) & 0xff) << 24);
+            ((getUint8.call(input, i) & 0xff)) |
+            ((getUint8.call(input, ++i) & 0xff) << 8) |
+            ((getUint8.call(input, ++i) & 0xff) << 16) |
+            ((getUint8.call(input, ++i) & 0xff) << 24);
 
         k = (((k & 0xffff) * 0x5bd1e995) + ((((k >>> 16) * 0x5bd1e995) & 0xffff) << 16));
         k ^= k >>> 24;
@@ -34,9 +38,9 @@ export function murmurhash2_32_gc (str: string, seed: number) {
     }
 
     switch (l) {
-        case 3: h ^= (str.charCodeAt(i + 2) & 0xff) << 16;
-        case 2: h ^= (str.charCodeAt(i + 1) & 0xff) << 8;
-        case 1: h ^= (str.charCodeAt(i) & 0xff);
+        case 3: h ^= (getUint8.call(input, i + 2) & 0xff) << 16;
+        case 2: h ^= (getUint8.call(input, i + 1) & 0xff) << 8;
+        case 1: h ^= (getUint8.call(input, i) & 0xff);
                 h = (((h & 0xffff) * 0x5bd1e995) + ((((h >>> 16) * 0x5bd1e995) & 0xffff) << 16));
     }
 

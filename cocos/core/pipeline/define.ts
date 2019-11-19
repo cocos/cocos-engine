@@ -85,11 +85,10 @@ export enum UniformBinding {
     UBO_SHADOW = MAX_BINDING_SUPPORTED - 2,
 
     UBO_LOCAL = MAX_BINDING_SUPPORTED - 3,
-    UBO_LOCAL_BATCHED = MAX_BINDING_SUPPORTED - 4,
-    UBO_FORWARD_LIGHTS = MAX_BINDING_SUPPORTED - 5,
-    UBO_SKINNING_ANIMATION = MAX_BINDING_SUPPORTED - 6,
-    UBO_SKINNING_TEXTURE = MAX_BINDING_SUPPORTED - 7,
-    UBO_UI = MAX_BINDING_SUPPORTED - 8,
+    UBO_FORWARD_LIGHTS = MAX_BINDING_SUPPORTED - 4,
+    UBO_SKINNING_ANIMATION = MAX_BINDING_SUPPORTED - 5,
+    UBO_SKINNING_TEXTURE = MAX_BINDING_SUPPORTED - 6,
+    UBO_UI = MAX_BINDING_SUPPORTED - 7,
 
     // samplers
     SAMPLER_JOINTS = MAX_BINDING_SUPPORTED + 1,
@@ -97,7 +96,7 @@ export enum UniformBinding {
 
     // rooms left for custom bindings
     // effect importer prepares bindings according to this
-    CUSTUM_UBO_BINDING_END_POINT = MAX_BINDING_SUPPORTED - 8,
+    CUSTUM_UBO_BINDING_END_POINT = MAX_BINDING_SUPPORTED - 7,
     CUSTOM_SAMPLER_BINDING_START_POINT = MAX_BINDING_SUPPORTED + 6,
 }
 
@@ -210,7 +209,7 @@ export class UBOLocalBatched {
     public static SIZE: number = UBOLocalBatched.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
-        binding: UniformBinding.UBO_LOCAL_BATCHED, name: 'CCLocalBatched', members: [
+        binding: UniformBinding.UBO_LOCAL, name: 'CCLocalBatched', members: [
             { name: 'cc_matWorlds', type: GFXType.MAT4, count: UBOLocalBatched.BATCHING_COUNT },
         ],
     };

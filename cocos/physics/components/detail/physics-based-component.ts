@@ -194,6 +194,7 @@ export class PhysicsBasedComponent extends Component {
             return rigidbody;
         } else {
             if (begin.parent) {
+                // @ts-ignore
                 if (begin.parent === begin.scene) {
                     return null;
                 } else {

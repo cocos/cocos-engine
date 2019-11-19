@@ -4,7 +4,7 @@ import { SpriteFrame } from '../../assets/sprite-frame';
 import { Texture2D } from '../../assets/texture-2d';
 import { TextureCube } from '../../assets/texture-cube';
 import { GFXDevice } from '../../gfx/device';
-import { selectJointsMediumType } from '../../renderer/models/joints-texture-utils';
+import { selectJointsMediumType } from '../../renderer/models/skeletal-animation-utils';
 import effects from './effects';
 
 class BuiltinResMgr {

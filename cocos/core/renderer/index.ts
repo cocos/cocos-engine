@@ -17,7 +17,7 @@ export { Camera } from './scene/camera';
 export { Model } from './scene/model';
 
 export { SkinningModel } from './models/skinning-model';
-export * from './models/joints-texture-utils';
+export * from './models/skeletal-animation-utils';
 
 import './scene/deprecated';
 import './ui/render-data';
