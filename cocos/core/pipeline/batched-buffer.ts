@@ -9,7 +9,7 @@ import { GFXPipelineState } from '../gfx/pipeline-state';
 import { Mat4 } from '../math';
 import { Pass } from '../renderer';
 import { SubModel } from '../renderer/scene/submodel';
-import { IRenderObject, UBOLocalBatched, UniformBinding } from './define';
+import { IRenderObject, UBOLocalBatched } from './define';
 
 export interface IBatchedItem {
     vbs: GFXBuffer[];
@@ -99,7 +99,7 @@ export class BatchedBuffer {
                     // update world matrix
                     Mat4.toArray(batch.uboData.view, ro.model.transform.worldMatrix, UBOLocalBatched.MAT_WORLDS_OFFSET + batch.mergeCount * 16);
                     if (!batch.mergeCount && batch.pso !== pso) {
-                        bindingLayout.bindBuffer(UniformBinding.UBO_LOCAL_BATCHED, batch.ubo);
+                        bindingLayout.bindBuffer(UBOLocalBatched.BLOCK.binding, batch.ubo);
                         bindingLayout.update();
                         batch.pso = pso;
                     }
@@ -169,7 +169,7 @@ export class BatchedBuffer {
             size: UBOLocalBatched.SIZE,
         });
 
-        bindingLayout.bindBuffer(UniformBinding.UBO_LOCAL_BATCHED, ubo);
+        bindingLayout.bindBuffer(UBOLocalBatched.BLOCK.binding, ubo);
         bindingLayout.update();
 
         const uboData = new UBOLocalBatched();

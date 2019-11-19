@@ -1,5 +1,6 @@
 
 import { EffectAsset } from '../../assets/effect-asset';
+import { aabb, frustum, intersect } from '../../geom-utils';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../../gfx/command-buffer';
 import { GFXCommandBufferType, GFXStatus } from '../../gfx/define';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
@@ -17,6 +18,7 @@ import { SphereLight } from './sphere-light';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
+const _ab = new aabb();
 const _qt = new Quat();
 const _info: IGFXCommandBufferInfo = {
     allocator: null!,
@@ -154,11 +156,15 @@ export class PlanarShadows {
         this._globalBindings.buffer!.update(this.data);
     }
 
-    public updateCommandBuffers () {
+    public updateCommandBuffers (frstm: frustum) {
         this._cmdBuffs.clear();
         if (!this._scene.mainLight.enabled) { return; }
         for (const model of this._scene.models) {
             if (!model.enabled || !model.node || !model.castShadow) { continue; }
+            if (model.worldBounds) {
+                aabb.transform(_ab, model.worldBounds, this._matLight);
+                if (!intersect.aabb_frustum(_ab, frstm)) { continue; }
+            }
             let pso = this._psoRecord.get(model); let newOne = false;
             if (!pso) { pso = this._createPSO(model); this._psoRecord.set(model, pso); newOne = true; }
             if (!model.UBOUpdated) { model.updateUBOs(); } // for those outside the frustum
