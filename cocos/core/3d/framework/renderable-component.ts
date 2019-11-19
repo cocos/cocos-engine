@@ -14,7 +14,7 @@ const { ccclass, property } = _decorator;
 export class RenderableComponent extends Component {
     @property({
         type: [Material],
-        tooltip:'材质',
+        tooltip: '材质',
     })
     protected _materials: Array<Material | null> = [];
 
@@ -30,7 +30,7 @@ export class RenderableComponent extends Component {
     @property({
         type: Material,
         displayName: 'Materials',
-        tooltip:'源材质',
+        tooltip: '源材质',
     })
     get sharedMaterials () {
         // if we don't create an array copy, the editor will modify the original array directly.

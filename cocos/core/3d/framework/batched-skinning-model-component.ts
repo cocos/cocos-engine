@@ -99,17 +99,17 @@ export class SkinningModelUnit {
 export class BatchedSkinningModelComponent extends SkinningModelComponent {
 
     @property({
-        tooltip:'合图生成的最终图集的边长',
+        tooltip: '合图生成的最终图集的边长',
     })
     public atlasSize: number = 1024;
     @property({
         type: [CCString],
-        tooltip:'材质中真正参与合图的贴图属性，不参与的属性统一使用第一个 unit 的贴图'
+        tooltip: '材质中真正参与合图的贴图属性，不参与的属性统一使用第一个 unit 的贴图',
     })
     public batchableTextureNames: string[] = [];
     @property({
         type: [SkinningModelUnit],
-        tooltip:'合批前的子蒙皮模型数组，最主要的数据来源',
+        tooltip: '合批前的子蒙皮模型数组，最主要的数据来源',
     })
     public units: SkinningModelUnit[] = [];
 
@@ -149,6 +149,11 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
             this._mesh = null;
         }
         super.onDestroy();
+    }
+
+    public _onMaterialModified (idx: number, material: Material | null) {
+        this.cookMaterials();
+        super._onMaterialModified(idx, this.getMaterial(idx));
     }
 
     public cook () {
