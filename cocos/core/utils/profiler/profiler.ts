@@ -50,7 +50,7 @@ interface IProfilerState {
     bufferMemory: ICounterOption;
 }
 
-const characters = '0123456789. ';
+const _characters = '0123456789. ';
 
 const _string2offset = {
     '0': 0,
@@ -243,10 +243,10 @@ export class Profiler {
         const offsets = new Array();
         let offset = 0;
         offsets[0] = 0;
-        for (let j = 0; j < characters.length; ++j) {
-            this._ctx.fillText(characters[j], j * canvasNumWidth, this._totalLines * this._lineHeight);
+        for (let j = 0; j < _characters.length; ++j) {
+            this._ctx.fillText(_characters[j], j * canvasNumWidth, this._totalLines * this._lineHeight);
             offset += this._eachNumWidth;
-            offsets[j + 1] = offset; // cause offsets[0] = 0
+            offsets[j + 1] = offset;
         }
 
         const len = Math.ceil(offsets.length / 4);
@@ -325,15 +325,13 @@ export class Profiler {
 
         const modelCom = managerNode.addComponent('cc.ModelComponent') as ModelComponent;
         modelCom.mesh = createMesh({
-            positions : vertexPos,
+            positions: vertexPos,
             indices: vertexindices,
             colors: vertexUV, // pack all the necessary info in a_color: { x: u, y: v, z: id.x, w: id.y }
         });
 
         const _material = new Material();
-        _material.initialize({
-            effectName: 'util/profiler',
-        });
+        _material.initialize({ effectName: 'util/profiler' });
         _material.setProperty('offset', new Vec4(-0.9, -0.9, 0, 0));
         _material.setProperty('symbols', this._uvOffset);
         const pass = _material.passes[0];
