@@ -65,7 +65,7 @@ export class BuiltinSharedBody {
             if (this.index < 0) {
                 this.index = this.world.bodies.length;
                 this.world.addSharedBody(this);
-                this.syncSceneToPhysics();
+                this.syncSceneToCollision();
             }
         } else {
             if (this.index >= 0) {
@@ -128,7 +128,7 @@ export class BuiltinSharedBody {
         }
     }
 
-    syncSceneToPhysics () {
+    syncSceneToCollision () {
         this.node.getWorldMatrix(m4_0);
         this.node.getWorldPosition(v3_0);
         this.node.getWorldRotation(quat_0);

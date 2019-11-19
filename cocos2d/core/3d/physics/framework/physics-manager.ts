@@ -151,7 +151,7 @@ export class Physics3DManager {
     private _allowSleep = true;
 
     @property
-    private readonly _gravity = new Vec3(0, -1000, 0);
+    private readonly _gravity = new Vec3(0, -10, 0);
 
     @property
     private _maxSubStep = 1;

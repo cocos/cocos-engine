@@ -71,7 +71,7 @@ export class ColliderComponent extends CCComponent {
 
     protected get _assertOnload (): boolean {
         const r = this._isOnLoadCalled == 0;
-        if (r) { cc.error('Physics Error: Please make sure that the node has been added to the scene'); }
+        if (r) { cc.error('Collision Error: Please make sure that the node has been added to the scene'); }
         return !r;
     }
 

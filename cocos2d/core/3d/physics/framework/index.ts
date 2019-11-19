@@ -30,11 +30,13 @@ import { PhysicsColliderComponent } from './components/collider/collider-compone
 import { PhysicsSphereColliderComponent } from './components/collider/sphere-collider-component';
 import { RigidBodyComponent } from './components/rigid-body-component';
 import { ConstantForce } from './components/constant-force';
+import { PhysicsMaterial } from './assets/physics-material';
 
 export {
     Physics3DManager,
     PhysicsRayResult,
-
+    PhysicsMaterial,
+    
     PhysicsColliderComponent,
     PhysicsBoxColliderComponent,
     PhysicsSphereColliderComponent,

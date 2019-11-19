@@ -64,9 +64,9 @@ export class BuiltInWorld implements IColliderWorld {
         this._shapeArrOld = this.shapeArr.slice();
         this.shapeArr.length = 0;
 
-        // sync scene to physics
+        // sync scene to collision
         for (let i = 0; i < this.bodies.length; i++) {
-            this.bodies[i].syncSceneToPhysics();
+            this.bodies[i].syncSceneToCollision();
         }
 
         const collisionMatrix = cc.game.collisionMatrix;
