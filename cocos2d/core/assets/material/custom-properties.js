@@ -1,5 +1,6 @@
 import murmurhash2 from '../../../renderer/murmurhash2_gc';
 import utils from './utils';
+import Pass from '../../../renderer/core/pass';
 import Effect from '../../../renderer/core/effect';
 
 const gfx = cc.gfx;
@@ -20,43 +21,31 @@ export default class CustomProperties {
         this._onEffectChanged();
     }
 
-    _onEffectChanged () {
+    get name () {
+        return this._effect.name + ' (variant)';
     }
 
-    switchTechnique (name) {
-        let techniques = effect._techniques;
-        for (let i = 0; i < techniques.length; i++) {
-            if (techniques[i].name === name) {
-                this._technique = techniques[i];
-                return;
-            }
-        }
-
-        cc.warn(`Can not find technique with name [${name}]`);
+    _onEffectChanged () {
     }
 
     init (effect) {
         this._effect = effect;
-        
         this._dirty = true;
-
-        this._properties = Object.setPrototypeOf({}, effect._properties);
-        this._defines = Object.setPrototypeOf({}, effect._defines);
-
         this._passes = [];
         if (effect) {
-            this._technique = effect._techniques[0];
+            this._technique = effect._technique;
             let passes = this._technique.passes;
             for (let i = 0; i < passes.length; i++) {
                 this._passes[i] = Object.setPrototypeOf({}, passes[i]);
+                this._passes[i]._properties = Object.setPrototypeOf({}, passes[i]._properties);
+                this._passes[i]._defines = Object.setPrototypeOf({}, passes[i]._defines);
             }
         }
     }
 
-    _createProp (name) {
-        let prop = this._effect._properties[name];
+    _createPassProp (name, pass) {
+        let prop = pass._properties[name];
         if (!prop) {
-            cc.warn(`${this._effect._name} : Failed to set property ${name}, property not found.`);
             return;
         }
 
@@ -69,20 +58,43 @@ export default class CustomProperties {
         else {
             uniform.value = prop.value;
         }
-        this._properties[name] = uniform;
+        pass._properties[name] = uniform;
         
         return uniform;
     }
 
-    setProperty (name, value) {
-        let uniform =  this._properties.hasOwnProperty(name);
+    _setPassProperty (name, value, pass) {
+        let properties = pass._properties;
+        let uniform = properties.hasOwnProperty(name);
         if (!uniform) {
-            uniform = this._createProp(name);
+            uniform = this._createPassProp(name, pass);
         }
         else if (uniform.value === value) return;
         
         this._dirty = true;
-        Effect.prototype.setProperty.call(this, name, value);
+        return Pass.prototype.setProperty.call(pass, name, value);
+    }
+
+    setProperty (name, value, passIdx) {
+        let passes = this._passes;
+
+        let succuss = false;
+        if (passIdx === undefined) {
+            for (let i = 0; i < passes.length; i++) {
+                if (this._setPassProperty(name, value, passes[i])) {
+                    succuss = true;
+                }
+            }
+        }
+        else {
+            let pass = passes[passIdx];
+            if (pass) {
+                succuss = this._setPassProperty(name, value, pass);
+            }
+        }
+        if (!succuss) {
+            cc.warn(`${this._effect._name} : Failed to set property ${name}, property not found.`);
+        }
     }
 
     getProperty (name) {
@@ -91,28 +103,15 @@ export default class CustomProperties {
         return null;
     }
 
-    define (name, value) {
-        if (this._defines[name] === value) return;
-        this._dirty = true;
-        this._defines[name] = value;
+    define (name, value, passIdx) {
+        Effect.prototype.define.call(this, name, value, passIdx);
     }
 
     getDefine (name) {
         return this._defines[name];
     }
 
-    extractProperties (out = []) {
-        // if (this._effect) {
-        //     out.push(this._effect._properties);
-        // }
-        out.push(this._properties);
-        return out;
-    }
-
     extractDefines (out = []) {
-        // if (this._effect) {
-        //     out.push(this._effect._defines);
-        // }
         out.push(this._defines);
         return out;
     }
@@ -127,13 +126,12 @@ export default class CustomProperties {
         
         let hash = '';
         hash += utils.serializeDefines(this._defines);
-        hash += utils.serializeUniforms(this._properties);
+        hash += utils.serializePasses(this._passes);
 
         let effect = this._effect;
         if (this._effect) {
             hash += utils.serializeDefines(effect._defines);
-            hash += utils.serializeTechniques(effect._techniques);
-            hash += utils.serializeUniforms(effect._properties);
+            hash += utils.serializePasses(effect._technique.passes);
         }
 
         this._hash = murmurhash2(hash, 666);
@@ -143,9 +141,9 @@ export default class CustomProperties {
         return this._hash;
     }
 
-    setPassState (state, passIndex = -1) {
+    setPassState (state, passIndex) {
         let passes = this._passes;
-        if (passIndex === -1) {
+        if (passIndex === undefined) {
             for (let i = 0; i < passes.length; i++) {
                 let pass = passes[i];
                 for (let name in state) {
@@ -164,16 +162,17 @@ export default class CustomProperties {
         this._dirty = true;
     }
 
-    setCullMode (cullMode = gfx.CULL_BACK) {
-        this.setPassState({cullMode});
+    setCullMode (cullMode = gfx.CULL_BACK, passIdx) {
+        this.setPassState({cullMode}, passIdx);
     }
 
     setDepth (
         depthTest = false,
         depthWrite = false,
-        depthFunc = gfx.DS_FUNC_LESS
+        depthFunc = gfx.DS_FUNC_LESS, 
+        passIdx
     ) {
-        this.setPassState({depthTest, depthWrite, depthFunc});
+        this.setPassState({depthTest, depthWrite, depthFunc}, passIdx);
     }
 
     setBlend (
@@ -184,13 +183,14 @@ export default class CustomProperties {
         blendAlphaEq = gfx.BLEND_FUNC_ADD,
         blendSrcAlpha = gfx.BLEND_SRC_ALPHA,
         blendDstAlpha = gfx.BLEND_ONE_MINUS_SRC_ALPHA,
-        blendColor = 0xffffffff
+        blendColor = 0xffffffff, 
+        passIdx
     ) { 
-        this.setPassState({blend, blendEq, blendSrc, blendDst, blendAlphaEq, blendSrcAlpha, blendDstAlpha, blendColor});
+        this.setPassState({blend, blendEq, blendSrc, blendDst, blendAlphaEq, blendSrcAlpha, blendDstAlpha, blendColor}, passIdx);
     }
 
-    setStencilEnabled (stencilTest = gfx.STENCIL_INHERIT) {
-        this.setPassState({stencilTest});
+    setStencilEnabled (stencilTest = gfx.STENCIL_INHERIT, passIdx) {
+        this.setPassState({stencilTest}, passIdx);
     }
 
     setStencil (
@@ -201,17 +201,15 @@ export default class CustomProperties {
         stencilFailOp = gfx.STENCIL_OP_KEEP,
         stencilZFailOp = gfx.STENCIL_OP_KEEP,
         stencilZPassOp = gfx.STENCIL_OP_KEEP,
-        stencilWriteMask = 0xff
+        stencilWriteMask = 0xff,
+        passIdx
     ) {
         this.setPassState({
             stencilTest,
             stencilFuncFront: stencilFunc, stencilRefFront: stencilRef, stencilMaskFront: stencilMask, stencilFailOpFront: stencilFailOp, stencilZFailOpFront: stencilZFailOp, stencilZPassOpFront: stencilZPassOp, stencilWriteMaskFront: stencilWriteMask,
-            stencilFuncBack: stencilFunc, stencilRefBack: stencilRef, stencilMaskBack: stencilMask, stencilFailOpBack: stencilFailOp, stencilZFailOpBack: stencilZFailOp, stencilZPassOpBack: stencilZPassOp, stencilWriteMaskBack: stencilWriteMask
+            stencilFuncBack: stencilFunc, stencilRefBack: stencilRef, stencilMaskBack: stencilMask, stencilFailOpBack: stencilFailOp, stencilZFailOpBack: stencilZFailOp, stencilZPassOpBack: stencilZPassOp, stencilWriteMaskBack: stencilWriteMask, 
+            passIdx
         });
-    }
-
-    getTechnique () {
-        return this._technique;
     }
 }
 

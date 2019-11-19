@@ -252,7 +252,7 @@ export default class ForwardRenderer extends BaseRenderer {
   }
 
   _updateShaderDefines (item) {
-    item.defines.push(this._defines);
+    // item.defines.push(this._defines);
   }
 
   _sortItems (items) {
@@ -279,7 +279,7 @@ export default class ForwardRenderer extends BaseRenderer {
     // draw it
     for (let i = 0; i < items.length; ++i) {
       let item = items.data[i];
-      if (this._programLib._getValueFromDefineList('CC_SHADOW_CASTING', item.defines)) {
+      if (item.effect.getDefine(CC_SHADOW_CASTING)) {
         this._updateShaderDefines(item);
         this._draw(item);
       }

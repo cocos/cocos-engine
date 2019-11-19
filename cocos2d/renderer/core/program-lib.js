@@ -14,38 +14,29 @@ function _getValueFromDefineList (name, defineList) {
   }
 }
 
-function _generateDefines(tmpDefines, defineList) {
-  let defines = [];
+function _generateDefines(tmpDefines, defines) {
+  let results = [];
   for (let i = 0; i < tmpDefines.length; i++) {
     let name = tmpDefines[i].name;
-    let value = _getValueFromDefineList(name, defineList);
+    let value = defines[name];
     if (typeof result !== 'number') {
       value = value ? 1 : 0;
     }
-    defines.push(`#define ${name} ${value}`);
+    results.push(`#define ${name} ${value}`);
   }
-  return defines.join('\n') + '\n';
+  return results.join('\n') + '\n';
 }
 
-function _replaceMacroNums(string, defineList) {
-  let cache = {};
+function _replaceMacroNums(string, tmpDefines, defines) {
   let tmp = string;
 
-  for (let i = defineList.length - 1; i >= 0; i--) {
-    let defs = defineList[i];
-    for (let def in defs) {
-      let result = defs[def];
-      if (result === undefined) continue;
-      if (cache[def] !== undefined) continue;
-      if (Number.isInteger(result)) {
-        cache[def] = result;
-      }
+  for (let i = 0; i < tmpDefines.length; i++) {
+    let name = tmpDefines[i].name;
+    let value = defines[name];
+    if (Number.isInteger(value)) {
+      let reg = new RegExp(name, 'g');
+      tmp = tmp.replace(reg, cache[def]);
     }
-  }
-
-  for (let def in cache) {
-    let reg = new RegExp(def, 'g');
-    tmp = tmp.replace(reg, cache[def]);
   }
   return tmp;
 }
@@ -197,18 +188,13 @@ export default class ProgramLib {
     return this._templates[name] !== undefined;
   }
 
-
-  /**
-   * @param {string} name
-   * @param {Array} defineList
-   */
-  getKey(name, defineList) {
+  getKey(name, defines) {
     let tmpl = this._templates[name];
     let key = 0;
     for (let i = 0; i < tmpl.defines.length; ++i) {
       let tmplDefs = tmpl.defines[i];
       
-      let value = _getValueFromDefineList(tmplDefs.name, defineList);
+      let value = defines[tmplDefs.name];
       if (value === undefined) {
         continue;
       }
@@ -221,13 +207,8 @@ export default class ProgramLib {
     return tmpl.id + ':' + key;
   }
 
-  /**
-   * @param {string} name
-   * @param {[Object]} defineList
-   * @param {String} errPrefix
-   */
-  getProgram(name, defineList, errPrefix) {
-    let key = this.getKey(name, defineList);
+  getProgram(name, defines, errPrefix) {
+    let key = this.getKey(name, defines);
     let program = this._cache[key];
     if (program) {
       return program;
@@ -235,14 +216,14 @@ export default class ProgramLib {
 
     // get template
     let tmpl = this._templates[name];
-    let customDef = _generateDefines(tmpl.defines, defineList);
-    let vert = _replaceMacroNums(tmpl.vert, defineList);
+    let customDef = _generateDefines(tmpl.defines, defines);
+    let vert = _replaceMacroNums(tmpl.vert, tmpl.defines, defines);
     vert = customDef + _unrollLoops(vert);
     if (!this._highpSupported) {
       vert = _replaceHighp(vert);
     }
 
-    let frag = _replaceMacroNums(tmpl.frag, defineList);
+    let frag = _replaceMacroNums(tmpl.frag, tmpl.defines, defines);
     frag = customDef + _unrollLoops(frag);
     if (!this._highpSupported) {
       frag = _replaceHighp(frag);
@@ -256,7 +237,7 @@ export default class ProgramLib {
     if (errors) {
       let vertLines = vert.split('\n');
       let fragLines = frag.split('\n');
-      let defineLength = Object.keys(defineList).length;
+      let defineLength = tmpl.defines.length;
       errors.forEach(err => {
         let line = err.line - 1;
         let originLine = err.line - defineLength;

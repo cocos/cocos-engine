@@ -1,49 +1,70 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import config from '../config';
 import Pass from '../core/pass';
 import Technique from '../core/technique';
-import { getInspectorProps, enums2default } from '../types';
+import { getInspectorProps, enums2default, getInstanceType, getInstanceCtor } from '../types';
 import enums from '../enums';
-import ValueType from '../../core/value-types/value-type';
 
 class Effect {
+        
+    get technique () {
+        return this._technique;
+    }
+
+    get name () {
+        return this._name;
+    }
+
     /**
      * @param {Array} techniques
      */
-    constructor(name, techniques, properties = {}, defines = {}, asset) {
-        this.init(name, techniques, properties, defines, asset);
+    constructor (name, techniques, defines = {}, asset) {
+        this.init(name, techniques, defines, asset);
     }
 
-    init (name, techniques, properties, defines) {
+    init (name, techniques, defines) {
         this._name = name;
         this._techniques = techniques;
-        this._properties = properties;
         this._defines = defines;
+        this._technique = techniques[0];
+        this._properties = {};
     }
 
-    clear() {
-        this._techniques.length = 0;
-        this._properties = {};
+
+    switchTechnique (name) {
+        let techniques = this._techniques;
+        for (let i = 0; i < techniques.length; i++) {
+            if (techniques[i].name === name) {
+                this._technique = techniques[i];
+                return;
+            }
+        }
+
+        cc.warn(`Can not find technique with name [${name}]`);
+    }
+
+
+    clear () {
+        this._techniques = {};
         this._defines = {};
     }
 
     setCullMode (cullMode) {
-        let passes = this._techniques[0].passes;
+        let passes = this._technique.passes;
         for (let i = 0; i < passes.length; i++) {
             passes[i].setCullMode(cullMode);
         }
     }
 
     setDepth (depthTest, depthWrite, depthFunc) {
-        let passes = this._techniques[0].passes;
+        let passes = this._technique.passes;
         for (let i = 0; i < passes.length; i++) {
             passes[i].setDepth(depthTest, depthWrite, depthFunc);
         }
     }
 
-    setBlend (enabled, blendEq, blendSrc, blendDst, blendAlphaEq, blendSrcAlpha, blendDstAlpha, blendColor) { 
-        let passes = this._techniques[0].passes;
+    setBlend (enabled, blendEq, blendSrc, blendDst, blendAlphaEq, blendSrcAlpha, blendDstAlpha, blendColor) {
+        let passes = this._technique.passes;
         for (let j = 0; j < passes.length; j++) {
             let pass = passes[j];
             pass.setBlend(
@@ -57,14 +78,14 @@ class Effect {
     }
 
     setStencilEnabled (enabled) {
-        let passes = this._techniques[0].passes;
+        let passes = this._technique.passes;
         for (let i = 0; i < passes.length; i++) {
             passes[i].setStencilEnabled(enabled);
         }
     }
 
     setStencil (enabled, stencilFunc, stencilRef, stencilMask, stencilFailOp, stencilZFailOp, stencilZPassOp, stencilWriteMask) {
-        let passes = this._techniques[0].passes;
+        let passes = this._technique.passes;
         for (let i = 0; i < passes.length; ++i) {
             let pass = passes[i];
             pass.setStencilFront(enabled, stencilFunc, stencilRef, stencilMask, stencilFailOp, stencilZFailOp, stencilZPassOp, stencilWriteMask);
@@ -72,23 +93,7 @@ class Effect {
         }
     }
 
-    getTechnique(stage) {
-        // let stageID = config.stageID(stage);
-        // if (stageID === -1) {
-        //     return null;
-        // }
-
-        // for (let i = 0; i < this._techniques.length; ++i) {
-        //     let tech = this._techniques[i];
-        //     if (tech.stageIDs & stageID) {
-        //         return tech;
-        //     }
-        // }
-
-        return this._techniques[0];
-    }
-
-    getProperty(name) {
+    getProperty (name) {
         if (!this._properties[name]) {
             cc.warn(`${this._name} : Failed to get property ${name}, property not found.`);
             return null;
@@ -96,72 +101,61 @@ class Effect {
         return this._properties[name].value;
     }
 
-    setProperty(name, value) {
-        let prop = this._properties[name];
-        if (!prop) {
-            cc.warn(`${this._name} : Failed to set property ${name}, property not found.`);
-            return;
-        }
-
-        if (Array.isArray(value)) {
-            let array = prop.value;
-            if (array.length !== value.length) {
-                cc.warn(`${this._name} : Failed to set property ${name}, property length not correct.`);
-                return;
-            }
-            for (let i = 0; i < value.length; i++) {
-                array[i] = value[i];
+    setProperty (name, value, passIdx) {
+        let passes = this._technique.passes;
+        let success = false;
+        if (passIdx === undefined) {
+            for (let i = 0; i < passes.length; i++) {
+                if (passes[i].setProperty(name, value)) {
+                    success = true;
+                }
             }
         }
         else {
-            if (value && !ArrayBuffer.isView(value)) {
-                if (prop.type === enums.PARAM_TEXTURE_2D) {
-                    prop.value = value.getImpl();
-                }
-                else if (value instanceof ValueType) {
-                    value.constructor.toArray(prop.value, value);
-                }
-                else {
-                    if (typeof value === 'object') {
-                        cc.warn(`Set effect property ${this._name} warning : should transform object to ArrayBuffer`);
-                    }
-                    prop.value = value;
-                }
+            let pass = passes[passIdx];
+            if (pass) {
+                success = pass.setProperty(name, value);
             }
-            else {
-                prop.value = value;
-            }
+        }
+        if (!success) {
+            cc.warn(`${this.name} : Failed to set property ${name}, property not found.`);
         }
     }
 
-    updateHash(hash) {
+    updateHash (hash) {
     }
 
-    getDefine(name) {
+    getDefine (name) {
         let def = this._defines[name];
         if (def === undefined) {
-            cc.warn(`${this._name} : Failed to get define ${name}, define not found.`);
+            cc.warn(`${this.name} : Failed to get define ${name}, define not found.`);
         }
 
         return def;
     }
 
-    define(name, value) {
-        let def = this._defines[name];
-        if (def === undefined) {
-            cc.warn(`${this._name} : Failed to set define ${name}, define not found.`);
-            return;
+    define (name, value, passIdx) {
+        let passes = this._technique.passes;
+        let success = false;
+        if (passIdx === undefined) {
+            for (let i = 0; i < passes.length; i++) {
+                if (passes[i].define(name, value)) {
+                    success = true;
+                }
+            }
         }
-
-        this._defines[name] = value;
+        else {
+            let pass = passes[passIdx];
+            if (pass) {
+                success = pass.define(name, value);
+            }
+        }
+        if (!success) {
+            cc.warn(`${this.name} : Failed to define ${name}, define not found.`);
+        }
     }
 
-    extractProperties(out = {}) {
-        Object.assign(out, this._properties);
-        return out;
-    }
-
-    extractDefines(out = {}) {
+    extractDefines (out = {}) {
         Object.assign(out, this._defines);
         return out;
     }
@@ -169,40 +163,17 @@ class Effect {
     clone () {
         let defines = this.extractDefines({});
 
-        let newProperties = {};
-        let properties = this._properties;
-        for (let name in properties) {
-            let prop = properties[name];
-            let newProp = newProperties[name] = {};
-
-            let value = prop.value;
-            if (Array.isArray(value)) {
-                newProp.value = value.concat();
-            }
-            else if (ArrayBuffer.isView(value)) {
-                newProp.value = new value.__proto__.constructor(value);
-            }
-            else {
-                newProp.value = value;
-            }
-
-            for (let name in prop) {
-                if (name === 'value') continue;
-                newProp[name] = prop[name];
-            }
-        }
-
         let techniques = [];
         for (let i = 0; i < this._techniques.length; i++) {
             techniques.push(this._techniques[i].clone());
         }
 
-        return new Effect(this._name, techniques, newProperties, defines);
+        return new Effect(this._name, techniques, defines);
     }
 }
 
 
-let getInvolvedPrograms = function(json) {
+function getInvolvedPrograms (json) {
     let programs = [], lib = cc.renderer._forward._programLib;
     json.techniques.forEach(tech => {
         tech.passes.forEach(pass => {
@@ -210,50 +181,71 @@ let getInvolvedPrograms = function(json) {
         });
     });
     return programs;
-};
+}
+
+function getInvolvedProgram (programName) {
+    let lib = cc.renderer._forward._programLib;
+    return lib.getTemplate(programName);
+}
 
 // extract properties from each passes and check whether properties is defined but not used.
-function parseProperties(effectAsset, programs) {
-    let props = {};
+function parseProperties (effectAsset, passJson) {
+    let propertiesJson = passJson.properties || {};
+    let program = getInvolvedProgram(passJson.program);
 
-    let properties = {};
-    effectAsset.techniques.forEach(tech => {
-        tech.passes.forEach(pass => {
-            Object.assign(properties, pass.properties);
-        })
-    });
-
-    // TODO: Should parse properties for each passes separately, refer to Cocos Creator 3D.
-    for (let prop in properties) {
-        let propInfo = properties[prop], uniformInfo;
-        for (let i = 0; i < programs.length; i++) {
-            uniformInfo = programs[i].uniforms.find(u => u.name === prop);
-            if (uniformInfo) break;
-        }
+    // check whether properties are defined in the shaders 
+    for (let prop in propertiesJson) {
+        let uniformInfo = program.uniforms.find(u => u.name === prop);
         // the property is not defined in all the shaders used in techs
         if (!uniformInfo) {
             cc.warn(`${effectAsset.name} : illegal property: ${prop}, myabe defined a not used property`);
             continue;
         }
-        props[prop] = Object.assign({}, propInfo);
-        props[prop].value = propInfo.type === enums.PARAM_TEXTURE_2D ? null : new Float32Array(propInfo.value);
     }
-    return props;
+
+    // create properties
+    let properties = {};
+    program.uniforms.forEach(u => {
+        let name = u.name,
+            prop = properties[name] = Object.assign({}, u),
+            propInfo = propertiesJson[name];
+        if (propInfo) {
+            prop.value = propInfo.type === enums.PARAM_TEXTURE_2D ? null : new Float32Array(propInfo.value);;
+        }
+        else {
+            prop.value = enums2default[u.type];
+        }
+    });
+
+    return properties;
 };
 
-Effect.parseTechniques = function (effect) {
-    let techNum = effect.techniques.length;
+function passDefines (pass) {
+    let defines = {};
+    let program = getInvolvedProgram(pass.program);
+    program.defines.forEach(d => {
+        defines[d.name] = enums2default[d.type];
+    })
+    return defines;
+}
+
+Effect.parseTechniques = function (effectAsset) {
+    let techNum = effectAsset.techniques.length;
     let techniques = new Array(techNum);
     for (let j = 0; j < techNum; ++j) {
-        let tech = effect.techniques[j];
-        if (!tech.stages) {
-            tech.stages = ['opaque']
-        }
+        let tech = effectAsset.techniques[j];
         let passNum = tech.passes.length;
         let passes = new Array(passNum);
         for (let k = 0; k < passNum; ++k) {
             let pass = tech.passes[k];
-            passes[k] = new Pass(pass.program);
+
+            let passName = pass.name || k;
+            let detailName = `${effectAsset.name}-${tech.name}-${passName}`;
+            let stage = pass.stage || 'opaque';
+            let properties = parseProperties(effectAsset, pass);
+            let defines = passDefines(pass);
+
+            passes[k] = new Pass(passName, detailName, pass.program, stage, properties, defines);
 
             // rasterizer state
             if (pass.rasterizerState) {
@@ -271,16 +263,14 @@ Effect.parseTechniques = function (effect) {
             let depthStencilState = pass.depthStencilState;
             if (depthStencilState) {
                 passes[k].setDepth(depthStencilState.depthTest, depthStencilState.depthWrite, depthStencilState.depthFunc);
-            passes[k].setStencilFront(depthStencilState.stencilTest, depthStencilState.stencilFuncFront, depthStencilState.stencilRefFront, depthStencilState.stencilMaskFront,
-                depthStencilState.stencilFailOpFront, depthStencilState.stencilZFailOpFront, depthStencilState.stencilZPassOpFront, depthStencilState.stencilWriteMaskFront);
-            passes[k].setStencilBack(depthStencilState.stencilTest, depthStencilState.stencilFuncBack, depthStencilState.stencilRefBack, depthStencilState.stencilMaskBack,
-                depthStencilState.stencilFailOpBack, depthStencilState.stencilZFailOpBack, depthStencilState.stencilZPassOpBack, depthStencilState.stencilWriteMaskBack);
+                passes[k].setStencilFront(depthStencilState.stencilTest, depthStencilState.stencilFuncFront, depthStencilState.stencilRefFront, depthStencilState.stencilMaskFront,
+                    depthStencilState.stencilFailOpFront, depthStencilState.stencilZFailOpFront, depthStencilState.stencilZPassOpFront, depthStencilState.stencilWriteMaskFront);
+                passes[k].setStencilBack(depthStencilState.stencilTest, depthStencilState.stencilFuncBack, depthStencilState.stencilRefBack, depthStencilState.stencilMaskBack,
+                    depthStencilState.stencilFailOpBack, depthStencilState.stencilZFailOpBack, depthStencilState.stencilZPassOpBack, depthStencilState.stencilWriteMaskBack);
             }
-
-            let stage = pass.stage || 'opaque';
-            passes[k].setStage(stage);
         }
-        techniques[j] = new Technique(tech.stages, passes, tech.layer);
+        let techName = tech.name || 'default';
+        techniques[j] = new Technique(techName, passes);
     }
 
     return techniques;
@@ -288,52 +278,59 @@ Effect.parseTechniques = function (effect) {
 
 Effect.parseEffect = function (effect) {
     let techniques = Effect.parseTechniques(effect);
-    
-    let programs = getInvolvedPrograms(effect);
-    let props = parseProperties(effect, programs);
-    let uniforms = {}, defines = {};
-    programs.forEach(p => {
-        // uniforms
-        p.uniforms.forEach(u => {
-            let name = u.name, uniform = uniforms[name] = Object.assign({}, u);
-            if (props[name]) {
-                uniform.value = props[name].value;
-            }
-            else {
-                uniform.value = enums2default[u.type];
-            }
-        });
 
+    let defines = {};
+    let programs = getInvolvedPrograms(effect);
+    programs.forEach(p => {
         p.defines.forEach(d => {
             defines[d.name] = enums2default[d.type];
         })
     });
 
-    return new cc.Effect(effect.name, techniques, uniforms, defines, effect);
+    return new cc.Effect(effect.name, techniques, defines, effect);
 };
 
 if (CC_EDITOR) {
     // inspector only need properties defined in CCEffect
-    Effect.parseForInspector = function(json) {
-        let programs = getInvolvedPrograms(json);
-        let props = parseProperties(json, programs), defines = {};
+    Effect.parseForInspector = function (json) {
+        let techniques = Effect.parseTechniques(json);
+        techniques = techniques.map((tech, techIdx) => {
+            let passes = tech.passes.map((pass, passIdx) => {
+                let properties = {}
+                let props = pass._properties;
+                let jsonProps = {};
+                try {
+                    jsonProps = json.techniques[techIdx].passes[passIdx].properties;
+                }
+                catch (err) {}
+                for (let name in props) {
+                    // only export user defined properties
+                    if (jsonProps[name]) {
+                        properties[name] = getInspectorProps(props[name]);
+                    }
+                }
 
-        for (let pn in programs) {
-            programs[pn].uniforms.forEach(u => {
-                let prop = props[u.name];
-                if (!prop) return;
-                prop.defines = u.defines;
-            });
-            programs[pn].defines.forEach(define => {
-                defines[define.name] = getInspectorProps(define);
-            });
-        }
-        
-        for (let name in props) {
-            props[name] = getInspectorProps(props[name]);
-        }
+                // create defines for inspector
+                let program = getInvolvedProgram(pass._programName);
+                let defines = {};
+                program.defines.map(def => {
+                    defines[def.name] = getInspectorProps(def);
+                })
 
-        return { props, defines };
+                return {
+                    name: pass._name,
+                    props: properties,
+                    defines,
+                };
+            });
+
+            return {
+                name: tech.name,
+                passes: passes,
+            };
+        });
+
+        return techniques;
     };
 }
 

@@ -63,6 +63,8 @@ let Material = cc.Class({
             type: Object
         },
 
+        _techniqueName: '',
+
         effectName: CC_EDITOR ? {
             get () {
                 return this._effectAsset.name;
@@ -107,6 +109,12 @@ let Material = cc.Class({
                 return this._owner;
             }
         },
+
+        techniqueName: {
+            get () {
+                return this._techniqueName;
+            }
+        }
     },
 
     statics: {
@@ -138,7 +146,7 @@ let Material = cc.Class({
      * @param {string} name
      * @param {Object} val
      */
-    setProperty (name, val, force) {
+    setProperty (name, val, force, passIdx) {
         if (this._props[name] === val && !force) return;
         this._props[name] = val;
 
@@ -153,7 +161,7 @@ let Material = cc.Class({
                 }
 
                 function loaded () {
-                    this._effect.setProperty(name, val);
+                    this._effect.setProperty(name, val, passIdx);
                 }
 
                 if (!val.loaded) {
@@ -161,7 +169,7 @@ let Material = cc.Class({
                     textureUtil.postLoadTexture(val);
                 }
                 else {
-                    this._effect.setProperty(name, val);
+                    this._effect.setProperty(name, val, passIdx);
                 }
 
             }
@@ -202,6 +210,10 @@ let Material = cc.Class({
     onLoad () {
         this.effectAsset = this._effectAsset;
         if (!this._effect) return;
+
+        if (this._techniqueName) {
+            this._effect.switchTechnique(this._techniqueName);
+        }
 
         for (let def in this._defines) {
             this.define(def, this._defines[def], true);

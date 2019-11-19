@@ -1,10 +1,17 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 import gfx from '../gfx';
+import enums from '../enums';
+import ValueType from '../../core/value-types/value-type';
 
 export default class Pass {
-  constructor(name) {
-    this._programName = name;
+  constructor (name, detailName, programName, stage, properties, defines) {
+    this._name = name;
+    this._detailName = detailName;
+    this._programName = programName;
+    this._stage = stage;
+    this._properties = properties;
+    this._defines = defines;
 
     // cullmode
     this._cullMode = gfx.CULL_BACK;
@@ -24,8 +31,8 @@ export default class Pass {
     this._depthWrite = false;
     this._depthFunc = gfx.DS_FUNC_LESS,
 
-    // stencil
-    this._stencilTest = gfx.STENCIL_INHERIT;
+      // stencil
+      this._stencilTest = gfx.STENCIL_INHERIT;
     // front
     this._stencilFuncFront = gfx.DS_FUNC_ALWAYS;
     this._stencilRefFront = 0;
@@ -42,16 +49,13 @@ export default class Pass {
     this._stencilZFailOpBack = gfx.STENCIL_OP_KEEP;
     this._stencilZPassOpBack = gfx.STENCIL_OP_KEEP;
     this._stencilWriteMaskBack = 0xff;
-
-    this._stage = '';
-    this._properties = {};
   }
 
-  setCullMode(cullMode = gfx.CULL_BACK) {
+  setCullMode (cullMode = gfx.CULL_BACK) {
     this._cullMode = cullMode;
   }
 
-  setBlend(
+  setBlend (
     enabled = false,
     blendEq = gfx.BLEND_FUNC_ADD,
     blendSrc = gfx.BLEND_SRC_ALPHA,
@@ -71,7 +75,7 @@ export default class Pass {
     this._blendColor = blendColor;
   }
 
-  setDepth(
+  setDepth (
     depthTest = false,
     depthWrite = false,
     depthFunc = gfx.DS_FUNC_LESS
@@ -81,7 +85,7 @@ export default class Pass {
     this._depthFunc = depthFunc;
   }
 
-  setStencilFront(
+  setStencilFront (
     enabled = gfx.STENCIL_INHERIT,
     stencilFunc = gfx.DS_FUNC_ALWAYS,
     stencilRef = 0,
@@ -105,7 +109,7 @@ export default class Pass {
     this._stencilTest = enabled;
   }
 
-  setStencilBack(
+  setStencilBack (
     enabled = gfx.STENCIL_INHERIT,
     stencilFunc = gfx.DS_FUNC_ALWAYS,
     stencilRef = 0,
@@ -133,9 +137,103 @@ export default class Pass {
     this._properties = properties;
   }
 
+  getProperty (name) {
+    if (!this._properties[name]) {
+      cc.warn(`${this._name} : Failed to get property ${name}, property not found.`);
+      return null;
+    }
+    return this._properties[name].value;
+  }
+
+  setProperty (name, value) {
+    let prop = this._properties[name];
+    if (!prop) {
+      return false;
+    }
+
+    if (Array.isArray(value)) {
+      let array = prop.value;
+      if (array.length !== value.length) {
+        cc.warn(`${this._name} : Failed to set property ${name}, property length not correct.`);
+        return;
+      }
+      for (let i = 0; i < value.length; i++) {
+        array[i] = value[i];
+      }
+    }
+    else {
+      if (value && !ArrayBuffer.isView(value)) {
+        if (prop.type === enums.PARAM_TEXTURE_2D) {
+          prop.value = value.getImpl();
+        }
+        else if (value instanceof ValueType) {
+          value.constructor.toArray(prop.value, value);
+        }
+        else {
+          if (typeof value === 'object') {
+            cc.warn(`Set property ${this._name} warning : should transform object to ArrayBuffer`);
+          }
+          prop.value = value;
+        }
+      }
+      else {
+        prop.value = value;
+      }
+    }
+
+    return true;
+  }
+
+  getDefine (name) {
+    let def = this._defines[name];
+    if (def === undefined) {
+        cc.warn(`${this._name} : Failed to get define ${name}, define not found.`);
+    }
+
+    return def;
+  }
+
+  define (name, value) {
+      let def = this._defines[name];
+      if (def === undefined) {
+          return false;
+      }
+
+      this._defines[name] = value;
+
+      return true;
+  }
+
   clone () {
     let pass = new Pass(this._programName);
     Object.assign(pass, this);
+
+    let newProperties = {};
+    let properties = this._properties;
+    for (let name in properties) {
+        let prop = properties[name];
+        let newProp = newProperties[name] = {};
+
+        let value = prop.value;
+        if (Array.isArray(value)) {
+            newProp.value = value.concat();
+        }
+        else if (ArrayBuffer.isView(value)) {
+            newProp.value = new value.__proto__.constructor(value);
+        }
+        else {
+            newProp.value = value;
+        }
+
+        for (let name in prop) {
+            if (name === 'value') continue;
+            newProp[name] = prop[name];
+        }
+    }
+
+    pass._properties = newProperties;
+    pass._defines = Object.assign({}, this._defines);
+
     return pass;
   }
 }

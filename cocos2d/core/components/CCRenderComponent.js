@@ -180,6 +180,7 @@ let RenderComponent = cc.Class({
             material = Material.getInstantiatedMaterial(material, this);
             this._materials[index] = material;
         }
+        this._updateMaterial();
         return material;
     },
 

@@ -5,11 +5,10 @@ import config from '../config';
 let _genID = 0;
 
 export default class Technique {
-  constructor(name, passes, layer = 0) {
+  constructor(name, passes) {
     this._id = _genID++;
     this._name = name;
     this._passes = passes;
-    this._layer = layer;
   }
 
   get name () {
@@ -25,6 +24,6 @@ export default class Technique {
     for (let i = 0; i < this._passes.length; i++) {
       passes.push(this._passes[i].clone());
     }
-    return new Technique(this._name, passes, this._layer);
+    return new Technique(this._name, passes);
   }
 }

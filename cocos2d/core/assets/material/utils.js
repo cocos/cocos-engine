@@ -40,21 +40,15 @@ function serializePass (pass) {
             + pass._stencilFailOpBack + pass._stencilZFailOpBack + pass._stencilZPassOpBack
             + pass._stencilWriteMaskBack;
     }
+
+    str += serializeUniforms(pass._properties);
     return str;
 }
 
-function serializeTechniques (techniques) {
+function serializePasses (passes) {
     let hashData = '';
-    for (let i = 0; i < techniques.length; i++) {
-        let techData = techniques[i];
-        // technique.stageIDs
-        hashData += techData.stageIDs;
-        // technique._layer
-        // hashData += + techData._layer + "_";
-        // technique.passes
-        for (let j = 0; j < techData.passes.length; j++) {
-            hashData += serializePass(techData.passes[j]);
-        }
+    for (let i = 0; i < passes.length; i++) {
+        hashData += serializePass(passes[i]);
     }
     return hashData;
 }
@@ -82,6 +76,6 @@ function serializeUniforms (uniforms) {
 
 export default {
     serializeDefines,
-    serializeTechniques,
+    serializePasses,
     serializeUniforms
 };
