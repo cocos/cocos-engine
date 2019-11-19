@@ -38,7 +38,7 @@ export interface IEventListenerCreateInfo {
     [x: string]: any;
 }
 
-export interface ILinstenerMask {
+export interface IListenerMask {
     index: number;
     node: INode;
 }
@@ -148,7 +148,7 @@ export class EventListener {
     // hack: How to solve the problem of uncertain attribute
     // callback's this object
     public owner: Object | null = null;
-    public mask: ILinstenerMask | null = null;
+    public mask: IListenerMask | null = null;
     public _previousIn?: boolean = false;
 
     public _target: any = null;

@@ -59,7 +59,10 @@ export class BoxColliderComponent extends ColliderComponent {
      * @zh
      * 获取或设置盒的大小。
      */
-    @property({ type: Vec3 })
+    @property({
+        type: Vec3,
+        tooltip:'盒的大小，即长、宽、高'
+    })
     public get size () {
         return this._size;
     }

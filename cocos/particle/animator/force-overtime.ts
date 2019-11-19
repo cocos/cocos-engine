@@ -32,6 +32,7 @@ export default class ForceOvertimeModule {
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 2,
+        tooltip:'X 轴方向上的加速度分量',
     })
     public x = new CurveRange();
 
@@ -42,6 +43,7 @@ export default class ForceOvertimeModule {
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 3,
+        tooltip:'Y 轴方向上的加速度分量',
     })
     public y = new CurveRange();
 
@@ -52,6 +54,7 @@ export default class ForceOvertimeModule {
         type: CurveRange,
         range: [-1, 1],
         displayOrder: 4,
+        tooltip:'Z 轴方向上的加速度分量',
     })
     public z = new CurveRange();
 
@@ -61,6 +64,7 @@ export default class ForceOvertimeModule {
     @property({
         type: Space,
         displayOrder: 1,
+        tooltip:'加速度计算时采用的坐标',
     })
     public space = Space.Local;
 

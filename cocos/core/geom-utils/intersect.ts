@@ -1,6 +1,6 @@
 /**
  * 几何工具模块
- * @category gemotry-utils
+ * @category geometry
  */
 
 import { Mat3, Vec3 } from '../math';
@@ -36,24 +36,6 @@ const ray_plane = (function () {
         Vec3.multiplyScalar(pt, plane.n, plane.d);
         const t = Vec3.dot(Vec3.subtract(pt, pt, ray.o), plane.n) / denom;
         if (t < 0) { return 0; }
-        return t;
-    };
-})();
-
-/**
- * line-plane intersect<br/>
- * 线段与平面的相交性检测。
- * @param {line} line 线段
- * @param {plane} plane 平面
- * @return {number} 0 或 非 0
- */
-const line_plane = (function () {
-    const ab = new Vec3(0, 0, 0);
-
-    return function (line: line, plane: plane): number {
-        Vec3.subtract(ab, line.e, line.s);
-        const t = (plane.d - Vec3.dot(line.s, plane.n)) / Vec3.dot(ab, plane.n);
-        if (t < 0 || t > 1) { return 0; }
         return t;
     };
 })();
@@ -94,160 +76,6 @@ const ray_triangle = (function () {
 
         const t = Vec3.dot(ac, qvec) * inv_det;
         return t < 0 ? 0 : t;
-    };
-})();
-
-/**
- * line-triangle intersect<br/>
- * 线段与三角形的相交性检测。
- * @param {line} line 线段
- * @param {triangle} triangle 三角形
- * @param {Vec3} outPt 可选，相交点
- * @return {number} 0 或 非 0
- */
-const line_triangle = (function () {
-    const ab = new Vec3(0, 0, 0);
-    const ac = new Vec3(0, 0, 0);
-    const qp = new Vec3(0, 0, 0);
-    const ap = new Vec3(0, 0, 0);
-    const n = new Vec3(0, 0, 0);
-    const e = new Vec3(0, 0, 0);
-
-    return function (line: line, triangle: triangle, outPt: Vec3): number {
-        Vec3.subtract(ab, triangle.b, triangle.a);
-        Vec3.subtract(ac, triangle.c, triangle.a);
-        Vec3.subtract(qp, line.s, line.e);
-
-        Vec3.cross(n, ab, ac);
-        const det = Vec3.dot(qp, n);
-
-        if (det <= 0.0) {
-            return 0;
-        }
-
-        Vec3.subtract(ap, line.s, triangle.a);
-        const t = Vec3.dot(ap, n);
-        if (t < 0 || t > det) {
-            return 0;
-        }
-
-        Vec3.cross(e, qp, ap);
-        let v = Vec3.dot(ac, e);
-        if (v < 0 || v > det) {
-            return 0;
-        }
-
-        let w = -Vec3.dot(ab, e);
-        if (w < 0.0 || v + w > det) {
-            return 0;
-        }
-
-        if (outPt) {
-            const invDet = 1.0 / det;
-            v *= invDet;
-            w *= invDet;
-            const u = 1.0 - v - w;
-
-            // outPt = u*a + v*d + w*c;
-            Vec3.set(outPt,
-                triangle.a.x * u + triangle.b.x * v + triangle.c.x * w,
-                triangle.a.y * u + triangle.b.y * v + triangle.c.y * w,
-                triangle.a.z * u + triangle.b.z * v + triangle.c.z * w,
-            );
-        }
-
-        return 1;
-    };
-})();
-
-/**
- * line-quad intersect<br/>
- * 线段与四边形的相交性检测。
- * @param {Vec3} p 线段的一点
- * @param {Vec3} q 线段的另一点
- * @param {Vec3} a 四边形的 a 点
- * @param {Vec3} b 四边形的 b 点
- * @param {Vec3} c 四边形的 c 点
- * @param {Vec3} d 四边形的 d 点
- * @param {Vec3} outPt 可选，相交点
- * @return {number} 0 或 非 0
- */
-const line_quad = (function () {
-    const pq = new Vec3(0, 0, 0);
-    const pa = new Vec3(0, 0, 0);
-    const pb = new Vec3(0, 0, 0);
-    const pc = new Vec3(0, 0, 0);
-    const pd = new Vec3(0, 0, 0);
-    const m = new Vec3(0, 0, 0);
-    const tmp = new Vec3(0, 0, 0);
-
-    return function (p: Vec3, q: Vec3, a: Vec3, b: Vec3, c: Vec3, d: Vec3, outPt: Vec3): number {
-        Vec3.subtract(pq, q, p);
-        Vec3.subtract(pa, a, p);
-        Vec3.subtract(pb, b, p);
-        Vec3.subtract(pc, c, p);
-
-        // Determine which triangle to test against by testing against diagonal first
-        Vec3.cross(m, pc, pq);
-        let v = Vec3.dot(pa, m);
-
-        if (v >= 0) {
-            // Test intersection against triangle abc
-            let u = -Vec3.dot(pb, m);
-            if (u < 0) {
-                return 0;
-            }
-
-            let w = Vec3.dot(Vec3.cross(tmp, pq, pb), pa);
-            if (w < 0) {
-                return 0;
-            }
-
-            // outPt = u*a + v*b + w*c;
-            if (outPt) {
-                const denom = 1.0 / (u + v + w);
-                u *= denom;
-                v *= denom;
-                w *= denom;
-
-                Vec3.set(outPt,
-                    a.x * u + b.x * v + c.x * w,
-                    a.y * u + b.y * v + c.y * w,
-                    a.z * u + b.z * v + c.z * w,
-                );
-            }
-        } else {
-            // Test intersection against triangle dac
-            Vec3.subtract(pd, d, p);
-
-            let u = Vec3.dot(pd, m);
-            if (u < 0) {
-                return 0;
-            }
-
-            let w = Vec3.dot(Vec3.cross(tmp, pq, pa), pd);
-            if (w < 0) {
-                return 0;
-            }
-
-            // outPt = u*a + v*d + w*c;
-            if (outPt) {
-                v = -v;
-
-                const denom = 1.0 / (u + v + w);
-                u *= denom;
-                v *= denom;
-                w *= denom;
-
-                Vec3.set(outPt,
-                    a.x * u + d.x * v + c.x * w,
-                    a.y * u + d.y * v + c.y * w,
-                    a.z * u + d.z * v + c.z * w,
-                );
-            }
-        }
-
-        return 1;
     };
 })();
 
@@ -383,6 +211,148 @@ const ray_obb = (function () {
         return tmin;
     };
 })();
+
+/**
+ * line-plane intersect<br/>
+ * 线段与平面的相交性检测。
+ * @param {line} line 线段
+ * @param {plane} plane 平面
+ * @return {number} 0 或 非 0
+ */
+const line_plane = (function () {
+    const ab = new Vec3(0, 0, 0);
+
+    return function (line: line, plane: plane): number {
+        Vec3.subtract(ab, line.e, line.s);
+        const t = (plane.d - Vec3.dot(line.s, plane.n)) / Vec3.dot(ab, plane.n);
+        if (t < 0 || t > 1) { return 0; }
+        return t;
+    };
+})();
+
+/**
+ * line-triangle intersect<br/>
+ * 线段与三角形的相交性检测。
+ * @param {line} line 线段
+ * @param {triangle} triangle 三角形
+ * @param {Vec3} outPt 可选，相交点
+ * @return {number} 0 或 非 0
+ */
+const line_triangle = (function () {
+    const ab = new Vec3(0, 0, 0);
+    const ac = new Vec3(0, 0, 0);
+    const qp = new Vec3(0, 0, 0);
+    const ap = new Vec3(0, 0, 0);
+    const n = new Vec3(0, 0, 0);
+    const e = new Vec3(0, 0, 0);
+
+    return function (line: line, triangle: triangle, outPt?: Vec3): number {
+        Vec3.subtract(ab, triangle.b, triangle.a);
+        Vec3.subtract(ac, triangle.c, triangle.a);
+        Vec3.subtract(qp, line.s, line.e);
+
+        Vec3.cross(n, ab, ac);
+        const det = Vec3.dot(qp, n);
+
+        if (det <= 0.0) {
+            return 0;
+        }
+
+        Vec3.subtract(ap, line.s, triangle.a);
+        const t = Vec3.dot(ap, n);
+        if (t < 0 || t > det) {
+            return 0;
+        }
+
+        Vec3.cross(e, qp, ap);
+        let v = Vec3.dot(ac, e);
+        if (v < 0 || v > det) {
+            return 0;
+        }
+
+        let w = -Vec3.dot(ab, e);
+        if (w < 0.0 || v + w > det) {
+            return 0;
+        }
+
+        if (outPt) {
+            const invDet = 1.0 / det;
+            v *= invDet;
+            w *= invDet;
+            const u = 1.0 - v - w;
+
+            // outPt = u*a + v*d + w*c;
+            Vec3.set(outPt,
+                triangle.a.x * u + triangle.b.x * v + triangle.c.x * w,
+                triangle.a.y * u + triangle.b.y * v + triangle.c.y * w,
+                triangle.a.z * u + triangle.b.z * v + triangle.c.z * w,
+            );
+        }
+
+        return 1;
+    };
+})();
+
+const r_t = new ray();
+/**
+ * @zh
+ * 线段与轴对齐包围盒的相交性检测
+ * @param line 线段
+ * @param aabb 轴对齐包围盒
+ * @return {number} 0 或 非 0
+ */
+function line_aabb (line: line, aabb: aabb): number {
+    r_t.o.set(line.s);
+    Vec3.subtract(r_t.d, line.e, line.s);
+    r_t.d.normalize();
+    const min = ray_aabb(r_t, aabb);
+    const len = line.length();
+    if (min <= len) {
+        return min;
+    } else {
+        return 0;
+    }
+}
+
+/**
+ * @zh
+ * 线段与方向包围盒的相交性检测
+ * @param line 线段
+ * @param obb 方向包围盒
+ * @return {number} 0 或 非 0
+ */
+function line_obb (line: line, obb: obb): number {
+    r_t.o.set(line.s);
+    Vec3.subtract(r_t.d, line.e, line.s);
+    r_t.d.normalize();
+    const min = ray_obb(r_t, obb);
+    const len = line.length();
+    if (min <= len) {
+        return min;
+    } else {
+        return 0;
+    }
+}
+
+/**
+ * @zh
+ * 线段与球的相交性检测
+ * @param line 线段
+ * @param sphere 球
+ * @return {number} 0 或 非 0
+ */
+function line_sphere (line: line, sphere: sphere): number {
+    r_t.o.set(line.s);
+    Vec3.subtract(r_t.d, line.e, line.s);
+    r_t.d.normalize();
+    const min = ray_sphere(r_t, sphere);
+    const len = line.length();
+    if (min <= len) {
+        return min;
+    } else {
+        return 0;
+    }
+}
 
 /**
  * aabb-aabb intersect<br/>
@@ -885,9 +855,12 @@ const intersect = {
     ray_obb,
     ray_plane,
     ray_triangle,
+
+    line_sphere,
+    line_aabb,
+    line_obb,
     line_plane,
     line_triangle,
-    line_quad,
 
     sphere_sphere,
     sphere_aabb,
@@ -928,6 +901,10 @@ intersect[enums.SHAPE_RAY | enums.SHAPE_AABB] = ray_aabb;
 intersect[enums.SHAPE_RAY | enums.SHAPE_OBB] = ray_obb;
 intersect[enums.SHAPE_RAY | enums.SHAPE_PLANE] = ray_plane;
 intersect[enums.SHAPE_RAY | enums.SHAPE_TRIANGLE] = ray_triangle;
+
+intersect[enums.SHAPE_LINE | enums.SHAPE_SPHERE] = line_sphere;
+intersect[enums.SHAPE_LINE | enums.SHAPE_AABB] = line_aabb;
+intersect[enums.SHAPE_LINE | enums.SHAPE_OBB] = line_obb;
 intersect[enums.SHAPE_LINE | enums.SHAPE_PLANE] = line_plane;
 intersect[enums.SHAPE_LINE | enums.SHAPE_TRIANGLE] = line_triangle;
 

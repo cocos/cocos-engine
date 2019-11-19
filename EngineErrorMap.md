@@ -574,15 +574,11 @@ Please do not specifiy "default" attribute in decorator of "%s" property in "%s"
 Default value must be initialized at their declaration:
 ```
 // Before:
-@property({
-  type: cc.Integer
-  default: 0  // <--
-})
+@property({ default: 0 }) // <-- 
+@integer
 value;
 // After:
-@property({
-  type: cc.Integer
-})
+@integer
 value = 0;    // <--
 ```
 
@@ -731,6 +727,10 @@ The renderer doesn't support the renderMode %s
 ### 3821
 
 Cannot change hierarchy while activating or deactivating the parent.
+
+### 3822
+
+addComponent: Cannot add any component to the scene.
 
 ### 3900
 

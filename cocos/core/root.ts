@@ -8,6 +8,7 @@ import { GFXWindow, IGFXWindowInfo } from './gfx/window';
 import { ForwardPipeline } from './pipeline/forward/forward-pipeline';
 import { RenderPipeline } from './pipeline/render-pipeline';
 import { IRenderViewInfo, RenderView } from './pipeline/render-view';
+import { DataPoolManager } from './renderer/data-pool-manager';
 import { IRenderSceneInfo, RenderScene } from './renderer/scene/render-scene';
 import { UI } from './renderer/ui/ui';
 
@@ -165,6 +166,10 @@ export class Root {
         return this._fixedFPS;
     }
 
+    public get dataPoolManager () {
+        return this._dataPoolMgr;
+    }
+
     public _createSceneFun;
     public _createViewFun;
 
@@ -175,6 +180,7 @@ export class Root {
     private _tempWindow: GFXWindow | null = null;
     private _pipeline: RenderPipeline | null = null;
     private _ui: UI | null = null;
+    private _dataPoolMgr: DataPoolManager;
     private _scenes: RenderScene[] = [];
     private _views: RenderView[] = [];
     private _time: number = 0;
@@ -191,6 +197,7 @@ export class Root {
      */
     constructor (device: GFXDevice) {
         this._device = device;
+        this._dataPoolMgr = new DataPoolManager(device);
 
         RenderScene.registerCreateFunc(this);
         RenderView.registerCreateFunc(this);
@@ -249,6 +256,7 @@ export class Root {
 
         this._curWindow = null;
         this._mainWindow = null;
+        this.dataPoolManager.clear();
     }
 
     /**

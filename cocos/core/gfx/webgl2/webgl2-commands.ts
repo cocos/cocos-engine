@@ -54,10 +54,10 @@ import {
 } from './webgl2-gpu-objects';
 
 const WebGLWraps: GLenum[] = [
-    WebGLRenderingContext.REPEAT,
-    WebGLRenderingContext.MIRRORED_REPEAT,
-    WebGLRenderingContext.CLAMP_TO_EDGE,
-    WebGLRenderingContext.CLAMP_TO_EDGE,
+    0x2901, // WebGLRenderingContext.REPEAT
+    0x8370, // WebGLRenderingContext.MIRRORED_REPEAT
+    0x812F, // WebGLRenderingContext.CLAMP_TO_EDGE
+    0x812F, // WebGLRenderingContext.CLAMP_TO_EDGE
 ];
 
 const SAMPLES: number[] = [
@@ -1262,9 +1262,9 @@ export function WebGL2CmdFuncCreateSampler (device: WebGL2GFXDevice, gpuSampler:
         }
 
         if (gpuSampler.magFilter === GFXFilter.LINEAR || gpuSampler.magFilter === GFXFilter.ANISOTROPIC) {
-            gpuSampler.glMagFilter = WebGLRenderingContext.LINEAR;
+            gpuSampler.glMagFilter = gl.LINEAR;
         } else {
-            gpuSampler.glMagFilter = WebGLRenderingContext.NEAREST;
+            gpuSampler.glMagFilter = gl.NEAREST;
         }
 
         gpuSampler.glWrapS = WebGLWraps[gpuSampler.addressU];

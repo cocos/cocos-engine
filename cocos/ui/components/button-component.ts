@@ -128,6 +128,7 @@ export class ButtonComponent extends Component {
      */
     @property({
         displayOrder: 1,
+        tooltip:'按钮是否可交互，这一项未选中时，按钮处在禁用状态',
     })
     get interactable () {
         return this._interactable;
@@ -157,24 +158,12 @@ export class ButtonComponent extends Component {
 
     /**
      * @zh
-     * 如果这个标记为 true，当 button 的 interactable 属性为 false 的时候，会使用内置 shader 让 button 的 target 节点的 sprite 组件变灰。
-     */
-    // TODO:
-    // enableAutoGrayEffect: {
-    //             default: false,
-    //         tooltip: CC_DEV && 'i18n:COMPONENT.button.auto_gray_effect',
-    //             notify() {
-    //         this._updateDisabledState();
-    //     }
-    // },
-
-    /**
-     * @zh
      * 按钮状态改变时过渡方式。
      */
     @property({
         type: Transition,
         displayOrder: 2,
+        tooltip:'按钮状态变化时的过渡类型',
     })
     get transition () {
         return this._transition;
@@ -194,7 +183,9 @@ export class ButtonComponent extends Component {
      * @zh
      * 普通状态下按钮所显示的颜色。
      */
-    @property
+    @property({
+        tooltip:'普通状态的按钮背景颜色',
+    })
     // @constget
     get normalColor (): Readonly<Color> {
         return this._normalColor;
@@ -213,7 +204,9 @@ export class ButtonComponent extends Component {
      * @zh
      * 按下状态时按钮所显示的颜色。
      */
-    @property
+    @property({
+        tooltip:'按下状态的按钮背景颜色',
+    })
     // @constget
     get pressedColor (): Readonly<Color> {
         return this._pressColor;
@@ -231,7 +224,9 @@ export class ButtonComponent extends Component {
      * @zh
      * 悬停状态下按钮所显示的颜色。
      */
-    @property
+    @property({
+        tooltip:'悬停状态的按钮背景颜色',
+    })
     // @constget
     get hoverColor (): Readonly<Color> {
         return this._hoverColor;
@@ -248,7 +243,9 @@ export class ButtonComponent extends Component {
      * @zh
      * 禁用状态下按钮所显示的颜色。
      */
-    @property
+    @property({
+        tooltip:'禁用状态的按钮背景颜色',
+    })
     // @constget
     get disabledColor (): Readonly<Color> {
         return this._disabledColor;
@@ -270,6 +267,7 @@ export class ButtonComponent extends Component {
     @property({
         min: 0,
         max: 10,
+        tooltip:'按钮颜色变化或者缩放变化的过渡时间',
     })
     get duration () {
         return this._duration;
@@ -287,7 +285,9 @@ export class ButtonComponent extends Component {
      * @zh
      * 当用户点击按钮后，按钮会缩放到一个值，这个值等于 Button 原始 scale * zoomScale。
      */
-    @property
+    @property({
+        tooltip:'当用户点击按钮后，按钮会缩放到一个值，这个值等于 Button 原始 scale * zoomScale。',
+    })
     get zoomScale () {
         return this._zoomScale;
     }
@@ -307,6 +307,7 @@ export class ButtonComponent extends Component {
      */
     @property({
         type: SpriteFrame,
+        tooltip:'普通状态的按钮背景图资源',
     })
     get normalSprite () {
         return this._normalSprite;
@@ -332,6 +333,7 @@ export class ButtonComponent extends Component {
      */
     @property({
         type: SpriteFrame,
+        tooltip:'按下状态的按钮背景图资源',
     })
     get pressedSprite () {
         return this._pressedSprite;
@@ -352,6 +354,7 @@ export class ButtonComponent extends Component {
      */
     @property({
         type: SpriteFrame,
+        tooltip:'悬停状态的按钮背景图资源',
     })
     get hoverSprite () {
         return this._hoverSprite;
@@ -372,6 +375,7 @@ export class ButtonComponent extends Component {
      */
     @property({
         type: SpriteFrame,
+        tooltip:'禁用状态的按钮背景图资源',
     })
     get disabledSprite () {
         return this._disabledSprite;
@@ -397,6 +401,7 @@ export class ButtonComponent extends Component {
     @property({
         type: Node,
         displayOrder: 0,
+        tooltip:'指定 Button 背景节点，Button 状态改变时会修改此节点的 Color 或 Sprite 属性',
     })
     get target () {
         return this._target;
@@ -419,6 +424,7 @@ export class ButtonComponent extends Component {
     @property({
         type: [ComponentEventHandler],
         displayOrder: 3,
+        tooltip:'按钮点击事件的列表。先将数量改为1或更多，就可以为每个点击事件设置接受者和处理方法',
     })
     public clickEvents: ComponentEventHandler[] = [];
     @property
@@ -696,7 +702,6 @@ export class ButtonComponent extends Component {
     protected _updateState () {
         const state = this._getButtonState();
         this._applyTransition(state);
-        // this._updateDisabledState();
     }
 
     protected _getButtonState () {
@@ -781,19 +786,6 @@ export class ButtonComponent extends Component {
         }
     }
 
-    // _updateDisabledState() {
-    //     if (this._sprite) {
-    //         if (this.enableAutoGrayEffect) {
-    //             if (!(this._transition === Transition.SPRITE && this._disabledSprite)) {
-    //                 if (!this._interactable) {
-    //                     this._sprite.setState(cc.SpriteComponent.State.GRAY);
-    //                     return;
-    //                 }
-    //             }
-    //         }
-    //         this._sprite.setState(cc.SpriteComponent.State.NORMAL);
-    //     }
-    // }
 }
 
 cc.ButtonComponent = ButtonComponent;

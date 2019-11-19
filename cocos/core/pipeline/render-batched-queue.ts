@@ -29,7 +29,7 @@ export class RenderBatchedQueue {
      * 清空渲染队列。
      */
     public clear () {
-        for (const batchedBuff of this.queue.values()){
+        for (const batchedBuff of this.queue.values()) {
             batchedBuff.clear();
         }
         this.queue.clear();
@@ -40,15 +40,18 @@ export class RenderBatchedQueue {
      * 记录命令缓冲。
      */
     public recordCommandBuffer (cmdBuff: GFXCommandBuffer) {
-        for (const batchedBuffer of this.queue.values()){
-            if (batchedBuffer.pso) {
-                cmdBuff.bindPipelineState(batchedBuffer.pso);
-                cmdBuff.bindBindingLayout(batchedBuffer.pso.pipelineLayout.layouts[0]);
-            }
-
+        for (const batchedBuffer of this.queue.values()) {
+            let boundPSO = false;
             for (let b = 0; b < batchedBuffer.batches.length; ++b) {
                 const batch = batchedBuffer.batches[b];
-                batchedBuffer.ubo.update(batch.uboLocal.view);
+                if (!batch.mergeCount) { continue; }
+                for (let v = 0; v < batch.vbs.length; ++v) {
+                    batch.vbs[v].update(batch.vbDatas[v]);
+                }
+                batch.vbIdx.update(batch.vbIdxData.buffer);
+                batch.ubo.update(batch.uboData.view);
+                if (!boundPSO) { cmdBuff.bindPipelineState(batch.pso); boundPSO = true; }
+                cmdBuff.bindBindingLayout(batch.pso.pipelineLayout.layouts[0]);
                 cmdBuff.bindInputAssembler(batch.ia);
                 cmdBuff.draw(batch.ia);
             }

@@ -52,7 +52,7 @@ import * as js from '../utils/js';
 import './class';
 import { IExposedAttributes } from './utils/attribute-defines';
 import { doValidateMethodWithProps_DEV, getFullFormOfProperty } from './utils/preprocess-class';
-import { CCString, CCInteger, CCFloat, CCBoolean } from './utils/attribute';
+import { CCString, CCInteger, CCFloat, CCBoolean, PrimitiveType } from './utils/attribute';
 
 // caches for class construction
 const CACHE_KEY = '__ccclassCache__';
@@ -604,4 +604,38 @@ export function mixins (...constructors: Function[]) {
             getSubDict(cache, 'proto').mixins = mixins;
         }
     };
+}
+
+/**
+ * 将该属性标记为 cc 整数。
+ */
+export const integer = type(CCInteger);
+
+/**
+ * 将该属性标记为 cc 浮点数。
+ */
+export const float = type(CCFloat);
+
+/**
+ * 将该属性标记为 cc 布尔值。
+ */
+export const boolean = type(CCBoolean);
+
+/**
+ * 将该属性标记为 cc 字符串。
+ */
+export const string = type(CCString);
+
+/**
+ * 标记该属性的类型。
+ * @param type 指定类型。
+ */
+export function type (type: Function): PropertyDecorator;
+
+export function type<T> (type: PrimitiveType<T>): PropertyDecorator;
+
+export function type<T> (type: PrimitiveType<T> | Function): PropertyDecorator {
+    return property({
+        type,
+    });
 }

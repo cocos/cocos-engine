@@ -43,6 +43,7 @@ export interface IPropertyInfo {
     samplerHash?: number; // auto-generated from 'sampler'
     value?: number[] | string;
 }
+// Pass instance itself are compliant to IPassStates too
 export interface IPassStates {
     priority?: number;
     primitive?: GFXPrimitiveMode;
@@ -50,9 +51,9 @@ export interface IPassStates {
     rasterizerState?: GFXRasterizerState;
     depthStencilState?: GFXDepthStencilState;
     blendState?: GFXBlendState;
-    dynamics?: GFXDynamicState[];
+    dynamicStates?: GFXDynamicState[];
     customizations?: string[];
-    phase?: string;
+    phase?: string | number;
 }
 export interface IPassInfo extends IPassStates {
     program: string; // auto-generated from 'vert' and 'frag'
@@ -176,7 +177,7 @@ export class EffectAsset extends Asset {
      */
     public onLoaded () {
         this.shaders.forEach((s) => programLib.define(s));
-        cc.game.once(cc.Game.EVENT_ENGINE_INITED, this._precompile, this);
+        if (!CC_EDITOR) { cc.game.once(cc.Game.EVENT_ENGINE_INITED, this._precompile, this); }
         EffectAsset.register(this);
     }
 

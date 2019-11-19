@@ -1,6 +1,6 @@
 
 import { Color, Vec2 } from '../../../../core/math';
-import { IARenderData } from '../../../../core/renderer/ui/render-data';
+import { MeshRenderData } from '../../../../core/renderer/ui/render-data';
 import RecyclePool from '../../../../core/memop/recycle-pool';
 import { arc, ellipse, roundRect, tesselateBezier } from '../helper';
 import { LineCap, LineJoin, PointFlags} from '../types';
@@ -74,10 +74,10 @@ export class Impl {
     private _commandy = 0;
     private _points: Point[] = [];
 
-    private _renderDatasPool: RecyclePool<IARenderData> = new RecyclePool(() =>  {
-        return new IARenderData();
+    private _renderDatasPool: RecyclePool<MeshRenderData> = new RecyclePool(() =>  {
+        return new MeshRenderData();
     }, 16);
-    private _renderDatas: IARenderData[] = [];
+    private _renderDatas: MeshRenderData[] = [];
 
     private _curPath: Path | null = null;
 

@@ -66,6 +66,7 @@ export class ModelComponent extends RenderableComponent {
      */
     @property({
         type: Mesh,
+        tooltip: '模型网格',
     })
     get mesh () {
         return this._mesh;
@@ -84,6 +85,7 @@ export class ModelComponent extends RenderableComponent {
      */
     @property({
         type: ModelShadowCastingMode,
+        tooltip: '投射阴影方式',
     })
     get shadowCastingMode () {
         return this._shadowCastingMode;
@@ -115,37 +117,25 @@ export class ModelComponent extends RenderableComponent {
     /**
      * @zh 是否启用动态合批？
      */
-    @property
+    @property({
+        tooltip: '是否启用动态合批',
+    })
     set enableDynamicBatching (enable: boolean) {
+        if (this._enableDynamicBatching === enable) { return; }
         this._enableDynamicBatching = enable;
         if (this._mesh) {
-            if (enable) {
-                this._mesh.createFlatBuffers();
-            } else {
-                this._mesh.destroyFlatBuffers();
-            }
+            if (enable) { this._mesh.createFlatBuffers(); }
+            else { this._mesh.destroyFlatBuffers(); }
         }
         if (this._model) {
             this._model.isDynamicBatching = enable;
-            if (this._model.isDynamicBatching) {
-                for (let i = 0; i < this._model.subModels.length; ++i) {
-                    const subModel = this._model.subModels[i];
-                    for (let p = 0; p < subModel.passes.length; ++p) {
-                        const pass = subModel.passes[p];
-                        if (!pass.batchedBuffer) {
-                            pass.createBatchedBuffer();
-                        }
-                    }
-                }
-            } else {
-                for (let i = 0; i < this._model.subModels.length; ++i) {
-                    const subModel = this._model.subModels[i];
-                    for (let p = 0; p < subModel.passes.length; ++p) {
-                        const pass = subModel.passes[p];
-                        if (pass.batchedBuffer) {
-                            pass.clearBatchedBuffer();
-                        }
-                    }
+            this._model.onPipelineChange(); // update material
+            for (let i = 0; i < this._model.subModels.length; ++i) {
+                const subModel = this._model.subModels[i];
+                for (let p = 0; p < subModel.passes.length; ++p) {
+                    const pass = subModel.passes[p];
+                    if (enable) { pass.createBatchedBuffer(); }
+                    else { pass.clearBatchedBuffer(); }
                 }
             }
         }
@@ -196,14 +186,11 @@ export class ModelComponent extends RenderableComponent {
         if (this._model) {
             this._model.scene.destroyModel(this._model);
             this._model = null;
+            this._models.length = 0;
         }
     }
 
-    public _getModel (): Model | null {
-        return this._model;
-    }
-
-    public recreateModel () {
+    public _changeSceneInModel () {
         if (this.isValid) {
             if (this._model) {
                 this._model.destroy();
@@ -219,19 +206,14 @@ export class ModelComponent extends RenderableComponent {
             return;
         }
 
-        if (this._model && this._model.inited) {
-            this._model.destroy();
-        } else {
-            this._createModel();
-        }
-
-        this._model!.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
+        this._createModel();
 
         this._updateModelParams();
 
         if (this._model) {
+            this._model.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
             this._model.enabled = true;
-            this._model.isDynamicBatching = this._enableDynamicBatching;
+
             if (this._enableDynamicBatching) {
                 if (!this._mesh.hasFlatBuffers) {
                     this._mesh.createFlatBuffers();
@@ -246,15 +228,17 @@ export class ModelComponent extends RenderableComponent {
                     }
                 }
             }
-
         }
     }
 
     protected _createModel () {
         if (!this.node.scene) { return; }
         const scene = this._getRenderScene();
+        if (this._model) { scene.destroyModel(this._model); }
         this._model = scene.createModel(this._getModelConstructor(), this.node);
         this._model.visFlags = this.visibility;
+        this._models.length = 0;
+        this._models.push(this._model);
     }
 
     protected _getModelConstructor () {
@@ -266,6 +250,7 @@ export class ModelComponent extends RenderableComponent {
             return;
         }
         this.node.hasChangedFlags = this._model.transform.hasChangedFlags = TransformDirtyBit.POSITION;
+        this._model.isDynamicBatching = this._enableDynamicBatching; // should pass this in before create PSO
         const meshCount = this._mesh ? this._mesh.subMeshCount : 0;
         for (let i = 0; i < meshCount; ++i) {
             const material = this.getSharedMaterial(i);

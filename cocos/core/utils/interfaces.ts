@@ -23,13 +23,13 @@
  THE SOFTWARE.
 */
 
-import { SystemEventType } from '../platform/event-manager/event-enum';
-import { Mat4, Quat, Size, Vec2, Vec3 } from '../math';
-import { Scene } from '../scene-graph/scene';
-import { NodeEventProcessor } from '../scene-graph/node-event-processor';
 import { Component } from '../components/component';
 import { Event } from '../event';
-import { TransformDirtyBit, NodeSpace } from '../scene-graph/node-enum';
+import { Mat4, Quat, Size, Vec2, Vec3 } from '../math';
+import { SystemEventType } from '../platform/event-manager/event-enum';
+import { NodeSpace, TransformDirtyBit } from '../scene-graph/node-enum';
+import { NodeEventProcessor } from '../scene-graph/node-event-processor';
+import { Scene } from '../scene-graph/scene';
 
 export interface IBaseNode {
 
@@ -144,6 +144,12 @@ export interface IBaseNode {
     components: ReadonlyArray<Component>;
 
     /**
+     * @zh
+     * 节点事件相关的处理器
+     */
+    eventProcessor: Readonly<NodeEventProcessor>;
+
+    /**
      * @en Get parent of the node.
      * @zh 获取该节点的父节点。
      * @example
@@ -179,18 +185,6 @@ export interface IBaseNode {
      * @param child 孩子节点
      */
     addChild (child: this): void;
-
-    /**
-     * @zh 移除节点中指定的子节点
-     * @param child 孩子节点
-     */
-    removeChild (child: this, cleanup?: boolean): void;
-
-    /**
-    * @zh 插入子节点到指定位置
-    * @param siblingIndex 指定位置
-    */
-    insertChild (child: this, siblingIndex: number): void;
 
     /**
      * @en Returns a child from the container given its uuid.
@@ -288,7 +282,7 @@ export interface IBaseNode {
      * node.removeChild(newNode);
      * ```
      */
-    removeChild (child: this): void;
+    removeChild (child: this, cleanup?: boolean): void;
 
     /**
      * @en
@@ -340,7 +334,6 @@ export interface IBaseNode {
      */
     removeComponent<T extends Component> (classConstructor: Constructor<T>): void;
     removeComponent (classNameOrInstance: string | Component): void;
-    removeComponent (component: string | Component | any): void;
 
     _removeComponent (component: Component): void;
 
@@ -409,6 +402,18 @@ export interface IBaseNode {
 
     /**
      * @zh
+     * 节点事件API，注：未来可能会移除
+     */
+    on (type: string | SystemEventType, callback: Function, target?: Object, useCapture?: boolean): void;
+    off (type: string, callback?: Function, target?: Object, useCapture?: boolean): void;
+    once (type: string, callback: Function, target?: Object, useCapture?: boolean): void;
+    emit (type: string, ...args: any[]): void;
+    dispatchEvent (event: Event): void;
+    hasEventListener (type: string): boolean;
+    targetOff (target: string | Object): void;
+
+    /**
+     * @zh
      * 销毁实例，实际销毁操作会延迟到当前帧渲染前执行。
      * @returns true 代表销毁成功
      */
@@ -442,12 +447,6 @@ export interface INode extends IBaseNode {
      * 这个节点的空间变换信息在当前帧内是否有变过？
      */
     hasChangedFlags: Readonly<TransformDirtyBit>;
-
-    /**
-     * @zh
-     * 节点事件相关的处理器
-     */
-    eventProcessor: Readonly<NodeEventProcessor>;
 
     /**
      * @zh
@@ -520,6 +519,8 @@ export interface INode extends IBaseNode {
     _uiComp;
 
     uiTransfromComp;
+
+    _static: boolean;
 
     /**
      * @zh
@@ -727,14 +728,7 @@ export interface INode extends IBaseNode {
      * @zh
      * 节点事件API，注：未来可能会移除
      */
-    on (type: string | SystemEventType, callback: Function, target?: Object, useCapture?: boolean): void;
-    off (type: string, callback?: Function, target?: Object, useCapture?: boolean): void;
-    once (type: string, callback: Function, target?: Object, useCapture?: boolean): void;
-    emit (type: string, ...args: any[]): void;
-    dispatchEvent (event: Event): void;
-    hasEventListener (type: string): boolean;
-    targetOff (target: string | Object): void;
     pauseSystemEvents (recursive: boolean): void;
     resumeSystemEvents (recursive: boolean): void;
-    _updateSiblingIndex(): void;
+    _updateSiblingIndex (): void;
 }

@@ -31,7 +31,7 @@ import { Color, Vec3 } from '../../../../core/math';
 import { GFXPrimitiveMode } from '../../../../core/gfx';
 import { Model } from '../../../../core/renderer';
 import { RenderScene } from '../../../../core/renderer/scene/render-scene';
-import { IARenderData } from '../../../../core/renderer/ui/render-data';
+import { MeshRenderData } from '../../../../core/renderer/ui/render-data';
 import { UI } from '../../../../core/renderer/ui/ui';
 import { createMesh } from '../../../../core/3d/misc/utils';
 import { GraphicsComponent } from '../../../components';
@@ -63,7 +63,7 @@ const uvs: number[] = [];
 const colors: number[] = [];
 const indices: number[] = [];
 
-let _renderData: IARenderData | null = null;
+let _renderData: MeshRenderData | null = null;
 let _impl: Impl | null = null;
 const _curColor = new Color();
 
@@ -109,40 +109,6 @@ export const graphicsAssembler: IAssembler = {
     },
 
     renderIA (graphics: GraphicsComponent, renderer: UI) {
-        // const impl = graphics.impl;
-        // let renderDatas = impl && impl.getRenderDatas();
-        // if (!renderDatas) {
-        //     renderDatas = [];
-        // }
-
-        // let bufferBatch = renderer.currBufferBatch!;
-        // let vertexId = 0;
-        // let byteoffset = 0;
-        // let indicesOffset = 0;
-        // for (const renderData of renderDatas) {
-        //     if (!graphics.material || renderData.byteCount <= 0 || renderData.indiceCount <= 0) {
-        //         continue;
-        //     }
-
-        //     vertexId = bufferBatch.vertexOffset;
-        //     byteoffset = bufferBatch.byteOffset;
-        //     indicesOffset = bufferBatch.indiceOffset;
-        //     bufferBatch.request(renderData.vertexCount, renderData.indiceCount);
-        //     bufferBatch = renderer.currBufferBatch!;
-        //     const vData = bufferBatch.vData!;
-        //     const iData = bufferBatch.iData!;
-        //     // the data format is strictly in accordance with pos uv color
-        //     const vDataCopy = renderData.vData.slice(0, renderData.byteCount >> 2);
-        //     vData.set(vDataCopy, byteoffset >> 2);
-
-        //     let iDataCopy = renderData.iData.slice(0, renderData.indiceCount);
-        //     iDataCopy = iDataCopy.map((v) => {
-        //         return v + vertexId;
-        //     });
-        //     iData.set(iDataCopy, indicesOffset);
-
-        //     renderer.forceMergeBatches(graphics.material, null);
-        // }
     },
 
     getRenderData (graphics: GraphicsComponent, cverts: number) {
@@ -307,7 +273,7 @@ export const graphicsAssembler: IAssembler = {
             }
         }
 
-        const meshbuffer: IARenderData | null = _renderData = this.getRenderData!(graphics, cverts);
+        const meshbuffer: MeshRenderData | null = _renderData = this.getRenderData!(graphics, cverts);
         if (!meshbuffer) {
             return;
         }

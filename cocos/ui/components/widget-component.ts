@@ -192,6 +192,7 @@ export class WidgetComponent extends Component {
      */
     @property({
         type: Node,
+        tooltip:'对齐目标',
     })
     get target () {
         return this._target;
@@ -219,7 +220,9 @@ export class WidgetComponent extends Component {
      * @zh
      * 是否对齐上边。
      */
-    @property
+    @property({
+        tooltip:'是否对齐上边',
+    })
     get isAlignTop () {
         return (this._alignFlags & AlignFlags.TOP) > 0;
     }
@@ -232,7 +235,9 @@ export class WidgetComponent extends Component {
      * @zh
      * 是否对齐下边。
      */
-    @property
+    @property({
+        tooltip:'是否对齐下边',
+    })
     get isAlignBottom () {
         return (this._alignFlags & AlignFlags.BOT) > 0;
     }
@@ -245,7 +250,9 @@ export class WidgetComponent extends Component {
      * @zh
      * 是否对齐左边。
      */
-    @property
+    @property({
+        tooltip:'是否对齐左边',
+    })
     get isAlignLeft () {
         return (this._alignFlags & AlignFlags.LEFT) > 0;
     }
@@ -258,7 +265,9 @@ export class WidgetComponent extends Component {
      * @zh
      * 是否对齐右边。
      */
-    @property
+    @property({
+        tooltip:'是否对齐右边',
+    })
     get isAlignRight () {
         return (this._alignFlags & AlignFlags.RIGHT) > 0;
     }
@@ -271,7 +280,9 @@ export class WidgetComponent extends Component {
      * @zh
      * 是否垂直方向对齐中点，开启此项会将垂直方向其他对齐选项取消。
      */
-    @property
+    @property({
+        tooltip:'是否垂直方向对齐中点，开启此项会将垂直方向其他对齐选项取消',
+    })
     get isAlignVerticalCenter () {
         return (this._alignFlags & AlignFlags.MID) > 0;
     }
@@ -291,7 +302,9 @@ export class WidgetComponent extends Component {
      * @zh
      * 是否水平方向对齐中点，开启此选项会将水平方向其他对齐选项取消。
      */
-    @property
+    @property({
+        tooltip:'是否水平方向对齐中点，开启此选项会将水平方向其他对齐选项取消',
+    })
     get isAlignHorizontalCenter () {
         return (this._alignFlags & AlignFlags.CENTER) > 0;
     }
@@ -334,7 +347,6 @@ export class WidgetComponent extends Component {
      * @zh
      * 本节点顶边和父节点顶边的距离，可填写负值，只有在 isAlignTop 开启时才有作用。
      */
-    @property
     get top () {
         return this._top;
     }
@@ -344,10 +356,21 @@ export class WidgetComponent extends Component {
     }
 
     /**
+     * @EditorOnly Not for user
+     */
+    @property
+    get editorTop () {
+        return this._isAbsTop ? this._top : (this._top * 100);
+    }
+    set editorTop (value) {
+        this._top = this._isAbsTop ? value : (value / 100);
+        this._recursiveDirty();
+    }
+
+    /**
      * @zh
      * 本节点底边和父节点底边的距离，可填写负值，只有在 isAlignBottom 开启时才有作用。
      */
-    @property
     get bottom () {
         return this._bottom;
     }
@@ -357,10 +380,21 @@ export class WidgetComponent extends Component {
     }
 
     /**
+     * @EditorOnly Not for user
+     */
+    @property
+    get editorBottom () {
+        return this._isAbsBottom ? this._bottom : (this._bottom * 100);
+    }
+    set editorBottom (value) {
+        this._bottom = this._isAbsBottom ? value : (value / 100);
+        this._recursiveDirty();
+    }
+
+    /**
      * @zh
      * 本节点左边和父节点左边的距离，可填写负值，只有在 isAlignLeft 开启时才有作用。
      */
-    @property
     get left () {
         return this._left;
     }
@@ -370,10 +404,21 @@ export class WidgetComponent extends Component {
     }
 
     /**
+     * @EditorOnly Not for user
+     */
+    @property
+    get editorLeft () {
+        return this._isAbsLeft ? this._left : (this._left * 100);
+    }
+    set editorLeft (value) {
+        this._left = this._isAbsLeft ? value : (value / 100);
+        this._recursiveDirty();
+    }
+
+    /**
      * @zh
      * 本节点右边和父节点右边的距离，可填写负值，只有在 isAlignRight 开启时才有作用。
      */
-    @property
     get right () {
         return this._right;
     }
@@ -383,10 +428,21 @@ export class WidgetComponent extends Component {
     }
 
     /**
+     * @EditorOnly Not for user
+     */
+    @property
+    get editorRight () {
+        return this._isAbsRight ? this._right : (this._right * 100);
+    }
+    set editorRight (value) {
+        this._right = this._isAbsRight ? value : (value / 100);
+        this._recursiveDirty();
+    }
+
+    /**
      * @zh
      * 水平居中的偏移值，可填写负值，只有在 isAlignHorizontalCenter 开启时才有作用。
      */
-    @property
     get horizontalCenter () {
         return this._horizontalCenter;
     }
@@ -396,10 +452,21 @@ export class WidgetComponent extends Component {
     }
 
     /**
+     * @EditorOnly Not for user
+     */
+    @property
+    get editorHorizontalCenter () {
+        return this._isAbsHorizontalCenter ? this._horizontalCenter : (this._horizontalCenter * 100);
+    }
+    set editorHorizontalCenter (value) {
+        this._horizontalCenter = this._isAbsHorizontalCenter ? value : (value / 100);
+        this._recursiveDirty();
+    }
+
+    /**
      * @zh
      * 垂直居中的偏移值，可填写负值，只有在 isAlignVerticalCenter 开启时才有作用。
      */
-    @property
     get verticalCenter () {
         return this._verticalCenter;
     }
@@ -409,8 +476,20 @@ export class WidgetComponent extends Component {
     }
 
     /**
+     * @EditorOnly Not for user
+     */
+    @property
+    get editorVerticalCenter () {
+        return this._isAbsVerticalCenter ? this._verticalCenter : (this._verticalCenter * 100);
+    }
+    set editorVerticalCenter (value) {
+        this._verticalCenter = this._isAbsVerticalCenter ? value : (value / 100);
+        this._recursiveDirty();
+    }
+
+    /**
      * @zh
-     * 如果为 true，"top" 将会以像素作为边距，否则将会以相对父物体高度的百分比（0 到 1）作为边距。
+     * 如果为 true，"top" 将会以像素作为边距，否则将会以相对父物体高度的比例（0 到 1）作为边距。
      */
     @property
     get isAbsoluteTop () {
@@ -427,7 +506,7 @@ export class WidgetComponent extends Component {
 
     /**
      * @zh
-     * 如果为 true，"bottom" 将会以像素作为边距，否则将会以相对父物体高度的百分比（0 到 1）作为边距。
+     * 如果为 true，"bottom" 将会以像素作为边距，否则将会以相对父物体高度的比例（0 到 1）作为边距。
      */
     @property
     get isAbsoluteBottom () {
@@ -444,7 +523,7 @@ export class WidgetComponent extends Component {
 
     /**
      * @zh
-     * 如果为 true，"left" 将会以像素作为边距，否则将会以相对父物体宽度的百分比（0 到 1）作为边距。
+     * 如果为 true，"left" 将会以像素作为边距，否则将会以相对父物体宽度的比例（0 到 1）作为边距。
      */
     @property
     get isAbsoluteLeft () {
@@ -461,7 +540,7 @@ export class WidgetComponent extends Component {
 
     /**
      * @zh
-     * 如果为 true，"right" 将会以像素作为边距，否则将会以相对父物体宽度的百分比（0 到 1）作为边距。
+     * 如果为 true，"right" 将会以像素作为边距，否则将会以相对父物体宽度的比例（0 到 1）作为边距。
      */
     @property
     get isAbsoluteRight () {
@@ -487,6 +566,7 @@ export class WidgetComponent extends Component {
      */
     @property({
         type: AlignMode,
+        tooltip:'指定 widget 的对齐方式，用于决定运行时 widget 应何时更新',
     })
     get alignMode () {
         return this._alignMode;
@@ -499,7 +579,7 @@ export class WidgetComponent extends Component {
 
     /**
      * @zh
-     * 如果为 true，"horizontalCenter" 将会以像素作为偏移值，反之为百分比（0 到 1）。
+     * 如果为 true，"horizontalCenter" 将会以像素作为偏移值，反之为比例（0 到 1）。
      */
     @property
     get isAbsoluteHorizontalCenter () {
@@ -517,7 +597,7 @@ export class WidgetComponent extends Component {
 
     /**
      * @zh
-     * 如果为 true，"verticalCenter" 将会以像素作为偏移值，反之为百分比（0 到 1）。
+     * 如果为 true，"verticalCenter" 将会以像素作为偏移值，反之为比例（0 到 1）。
      */
     @property
     get isAbsoluteVerticalCenter () {
@@ -676,27 +756,28 @@ export class WidgetComponent extends Component {
         const targetSize = getReadonlyNodeSize(target);
         const deltaInPercent = new Vec3();
         if (targetSize.width !== 0 && targetSize.height !== 0) {
-            Vec3.set(deltaInPercent, delta.x / targetSize.width * 100, delta.y / targetSize.height * 100, deltaInPercent.z);
+            Vec3.set(deltaInPercent, delta.x / targetSize.width, delta.y / targetSize.height, deltaInPercent.z);
         }
 
         if (self.isAlignTop) {
-            self.top -= (self.isAbsoluteTop ? delta.y : deltaInPercent.y) * inverseScale.y;
+            self._top -= (self._isAbsTop ? delta.y : deltaInPercent.y) * inverseScale.y;
         }
         if (self.isAlignBottom) {
-            self.bottom += (self.isAbsoluteBottom ? delta.y : deltaInPercent.y) * inverseScale.y;
+            self._bottom += (self._isAbsBottom ? delta.y : deltaInPercent.y) * inverseScale.y;
         }
         if (self.isAlignLeft) {
-            self.left += (self.isAbsoluteLeft ? delta.x : deltaInPercent.x) * inverseScale.x;
+            self._left += (self._isAbsLeft ? delta.x : deltaInPercent.x) * inverseScale.x;
         }
         if (self.isAlignRight) {
-            self.right -= (self.isAbsoluteRight ? delta.x : deltaInPercent.x) * inverseScale.x;
+            self._right -= (self._isAbsRight ? delta.x : deltaInPercent.x) * inverseScale.x;
         }
         if (self.isAlignHorizontalCenter) {
-            self.horizontalCenter += (self.isAbsoluteHorizontalCenter ? delta.x : deltaInPercent.x) * inverseScale.x;
+            self._horizontalCenter += (self._isAbsHorizontalCenter ? delta.x : deltaInPercent.x) * inverseScale.x;
         }
         if (self.isAlignVerticalCenter) {
-            self.verticalCenter += (self.isAbsoluteVerticalCenter ? delta.y : deltaInPercent.y) * inverseScale.y;
+            self._verticalCenter += (self._isAbsVerticalCenter ? delta.y : deltaInPercent.y) * inverseScale.y;
         }
+        this._recursiveDirty();
     }
 
     public _adjustWidgetToAllowResizingInEditor () {
@@ -728,23 +809,24 @@ export class WidgetComponent extends Component {
         const targetSize = getReadonlyNodeSize(target);
         const deltaInPercent = new Vec3();
         if (targetSize.width !== 0 && targetSize.height !== 0) {
-            Vec3.set(deltaInPercent, delta.x / targetSize.width * 100, delta.y / targetSize.height * 100, deltaInPercent.z);
+            Vec3.set(deltaInPercent, delta.x / targetSize.width , delta.y / targetSize.height, deltaInPercent.z);
         }
 
         const anchor = self.node.getAnchorPoint();
 
         if (self.isAlignTop) {
-            self.top -= (self.isAbsoluteTop ? delta.y : deltaInPercent.y) * (1 - anchor.y) * inverseScale.y;
+            self._top -= (self._isAbsTop ? delta.y : deltaInPercent.y) * (1 - anchor.y) * inverseScale.y;
         }
         if (self.isAlignBottom) {
-            self.bottom -= (self.isAbsoluteBottom ? delta.y : deltaInPercent.y) * anchor.y * inverseScale.y;
+            self._bottom -= (self._isAbsBottom ? delta.y : deltaInPercent.y) * anchor.y * inverseScale.y;
         }
         if (self.isAlignLeft) {
-            self.left -= (self.isAbsoluteLeft ? delta.x : deltaInPercent.x) * anchor.x * inverseScale.x;
+            self._left -= (self._isAbsLeft ? delta.x : deltaInPercent.x) * anchor.x * inverseScale.x;
         }
         if (self.isAlignRight) {
-            self.right -= (self.isAbsoluteRight ? delta.x : deltaInPercent.x) * (1 - anchor.x) * inverseScale.x;
+            self._right -= (self._isAbsRight ? delta.x : deltaInPercent.x) * (1 - anchor.x) * inverseScale.x;
         }
+        this._recursiveDirty();
     }
 
     public _adjustWidgetToAnchorChanged () {
@@ -785,17 +867,17 @@ export class WidgetComponent extends Component {
 
         const size = this.node.parent!.getContentSize();
         if (this.isAlignLeft && flag === AlignFlags.LEFT) {
-            this._left = isAbs ? this._left / 100 * size.width : this._left * 100 / size.width;
+            this._left = isAbs ? this._left * size.width : this._left / size.width;
         } else if (this.isAlignRight && flag === AlignFlags.RIGHT) {
-            this._right = isAbs ? this._right / 100 * size.width : this._right * 100 / size.width;
+            this._right = isAbs ? this._right * size.width : this._right / size.width;
         } else if (this.isAlignHorizontalCenter && flag === AlignFlags.CENTER) {
-            this._horizontalCenter = isAbs ? this._horizontalCenter / 100 * size.width : this._horizontalCenter * 100 / size.width;
+            this._horizontalCenter = isAbs ? this._horizontalCenter * size.width : this._horizontalCenter / size.width;
         } else if (this.isAlignTop && flag === AlignFlags.TOP) {
-            this._top = isAbs ? this._top / 100 * size.height : this._top * 100 / size.height;
+            this._top = isAbs ? this._top * size.height : this._top / size.height;
         } else if (this.isAlignBottom && flag === AlignFlags.BOT) {
-            this._bottom = isAbs ? this._bottom / 100 * size.height : this._bottom * 100 / size.height;
+            this._bottom = isAbs ? this._bottom * size.height : this._bottom / size.height;
         } else if (this.isAbsoluteVerticalCenter && flag === AlignFlags.MID) {
-            this._verticalCenter = isAbs ? this._verticalCenter / 100 * size.height : this._verticalCenter * 100 / size.height;
+            this._verticalCenter = isAbs ? this._verticalCenter / size.height : this._verticalCenter / size.height;
         }
 
         this._recursiveDirty();

@@ -57,6 +57,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
      */
     @property({
         displayOrder: 0,
+        tooltip:'刚体的质量',
     })
     public get mass () {
         return this._mass;
@@ -75,6 +76,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
      */
     @property({
         displayOrder: 1,
+        tooltip:'线性阻尼',
     })
     public get linearDamping () {
         return this._linearDamping;
@@ -93,6 +95,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
      */
     @property({
         displayOrder: 2,
+        tooltip:'旋转阻尼',
     })
     public get angularDamping () {
         return this._angularDamping;
@@ -111,6 +114,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
      */
     @property({
         displayOrder: 3,
+        tooltip:'刚体是否由物理系统控制运动',
     })
     public get isKinematic () {
         return this._isKinematic;
@@ -129,6 +133,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
      */
     @property({
         displayOrder: 4,
+        tooltip:'刚体是否使用重力',
     })
     public get useGravity () {
         return this._useGravity;
@@ -147,6 +152,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
      */
     @property({
         displayOrder: 5,
+        tooltip:'刚体是否固定旋转',
     })
     public get fixedRotation () {
         return this._fixedRotation;
@@ -165,6 +171,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
      */
     @property({
         displayOrder: 6,
+        tooltip:'线性速度的因子，可以用来控制每个轴方向上的速度的缩放',
     })
     public get linearFactor () {
         if (CC_EDITOR) {
@@ -187,6 +194,7 @@ export class RigidBodyComponent extends PhysicsBasedComponent {
      */
     @property({
         displayOrder: 7,
+        tooltip:'旋转速度的因子，可以用来控制每个轴方向上的旋转速度的缩放',
     })
     public get angularFactor () {
         if (CC_EDITOR) {

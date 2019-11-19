@@ -7,7 +7,6 @@ import { Root } from '../../root';
 import { Layers } from '../../scene-graph/layers';
 import { Node } from '../../scene-graph/node';
 import { INode } from '../../utils/interfaces';
-import { JointsTexturePool } from '../models/joints-texture-utils';
 import { Ambient } from './ambient';
 import { Camera, ICameraInfo } from './camera';
 import { DirectionalLight } from './directional-light';
@@ -78,10 +77,6 @@ export class RenderScene {
         return this._models;
     }
 
-    get texturePool () {
-        return this._texturePool;
-    }
-
     /**
      * @zh
      * 获取 raycastAllCanvas 后的检测结果
@@ -111,7 +106,7 @@ export class RenderScene {
      * 获取 raycastSingleModel 后的检测结果
      */
     get rayResultSingleModel () {
-        return this.rayResultSingleModel;
+        return resultSingleModel;
     }
 
     public static registerCreateFunc (root: Root) {
@@ -130,7 +125,6 @@ export class RenderScene {
     private _spotLights: SpotLight[] = [];
     private _models: Model[] = [];
     private _modelId: number = 0;
-    private _texturePool: JointsTexturePool;
 
     constructor (root: Root) {
         this._root = root;
@@ -142,12 +136,10 @@ export class RenderScene {
         this._ambient = new Ambient(this);
         this._skybox = new Skybox(this);
         this._planarShadows = new PlanarShadows(this);
-        this._texturePool = new JointsTexturePool(root.device);
     }
 
     public initialize (info: IRenderSceneInfo): boolean {
         this._name = info.name;
-        this._texturePool.initialize();
         return true;
     }
 
@@ -158,7 +150,6 @@ export class RenderScene {
         this.destroyModels();
         this._skybox.destroy();
         this._planarShadows.destroy();
-        this._texturePool.destroy();
     }
 
     public createCamera (info: ICameraInfo): Camera {
@@ -272,7 +263,7 @@ export class RenderScene {
      * @param mask mask 用于标记所有要检测的层，默认为 Default | UI2D
      * @param distance 射线检测的最大距离, 默认为 Infinity
      * @returns boolean , 射线是否有击中
-     * @nete 通过 this.rayResultAll 可以获取到最近的结果
+     * @note 通过 this.rayResultAll 可以获取到最近的结果
      */
     public raycastAll (worldRay: ray, mask = Layers.Enum.DEFAULT | Layers.Enum.UI_2D, distance = Infinity): boolean {
         const r_3d = this.raycastAllModels(worldRay, mask, distance);
@@ -300,7 +291,7 @@ export class RenderScene {
      * @param mask 用于标记所有要检测的层，默认为 Default
      * @param distance 射线检测的最大距离, 默认为 Infinity
      * @returns boolean , 射线是否有击中
-     * @nete 通过 this.rayResultModels 可以获取到最近的结果
+     * @note 通过 this.rayResultModels 可以获取到最近的结果
      */
     public raycastAllModels (worldRay: ray, mask = Layers.Enum.DEFAULT, distance = Infinity): boolean {
         pool.reset();
@@ -391,10 +382,10 @@ export class RenderScene {
      * @zh
      * 传入一条射线检测场景中所有的 Canvas 以及 Canvas 下的 Node
      * @param worldRay 世界射线
-     * @param mask 用于标记所有要检测的层，默认为 UI2D
+     * @param mask 用于标记所有要检测的层，默认为 UI_2D
      * @param distance 射线检测的最大距离, 默认为 Infinity
      * @returns boolean , 射线是否有击中
-     * @nete 通过 this.rayResultCanvas 可以获取到最近的结果
+     * @note 通过 this.rayResultCanvas 可以获取到最近的结果
      */
     public raycastAllCanvas (worldRay: ray, mask = Layers.Enum.UI_2D, distance = Infinity): boolean {
         poolUI.reset();

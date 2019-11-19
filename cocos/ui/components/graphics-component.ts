@@ -73,6 +73,7 @@ export class GraphicsComponent extends UIRenderComponent {
      */
     @property({
         type: LineJoin,
+        tooltip:'两条线相交时，所创建的拐角类型',
     })
     get lineJoin () {
         return this._lineJoin;
@@ -93,6 +94,7 @@ export class GraphicsComponent extends UIRenderComponent {
      */
     @property({
         type: LineCap,
+        tooltip:'线条的结束端点样式',
     })
     get lineCap () {
         return this._lineCap;
@@ -111,7 +113,9 @@ export class GraphicsComponent extends UIRenderComponent {
      * @zh
      * 线段颜色。
      */
-    @property
+    @property({
+        tooltip:'笔触的颜色',
+    })
     // @constget
     get strokeColor (): Readonly<Color> {
         return this._strokeColor;
@@ -130,7 +134,9 @@ export class GraphicsComponent extends UIRenderComponent {
      * @zh
      * 填充颜色。
      */
-    @property
+    @property({
+        tooltip:'填充绘画的颜色',
+    })
     // @constget
     get fillColor (): Readonly<Color> {
         return this._fillColor;
@@ -149,7 +155,9 @@ export class GraphicsComponent extends UIRenderComponent {
      * @zh
      * 设置斜接面限制比例。
      */
-    @property
+    @property({
+        tooltip:'最大斜接长度',
+    })
     get miterLimit () {
         return this._miterLimit;
     }

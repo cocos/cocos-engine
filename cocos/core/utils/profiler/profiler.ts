@@ -27,12 +27,12 @@
 import { CameraComponent, ModelComponent } from '../../3d';
 import { createMesh } from '../../3d/misc/utils';
 import { Material } from '../../assets/material';
-import { director, Director } from '../../director';
 import { GFXBufferTextureCopy, GFXClearFlag, GFXFormat, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXTexture } from '../../gfx/texture';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { Vec4 } from '../../math';
+import { IBlock } from '../../renderer/core/pass';
 import { Layers } from '../../scene-graph';
 import { Node } from '../../scene-graph/node';
 import { ICounterOption } from './counter';
@@ -44,24 +44,54 @@ interface IProfilerState {
     draws: ICounterOption;
     tricount: ICounterOption;
     logic: ICounterOption;
-    render: ICounterOption;
-    // mode: ICounterOption;
     physics: ICounterOption;
+    render: ICounterOption;
     textureMemory: ICounterOption;
     bufferMemory: ICounterOption;
 }
 
+const _characters = '0123456789. ';
+
+const _string2offset = {
+    '0': 0,
+    '1': 1,
+    '2': 2,
+    '3': 3,
+    '4': 4,
+    '5': 5,
+    '6': 6,
+    '7': 7,
+    '8': 8,
+    '9': 9,
+    '.': 10,
+};
+
+const _profileInfo = {
+    frame: { desc: 'Frame time (ms)', min: 0, max: 50, average: 500 },
+    fps: { desc: 'Framerate (FPS)', below: 30, average: 500, isInteger: true },
+    draws: { desc: 'Draw call', isInteger: true },
+    tricount: { desc: 'Triangle', isInteger: true },
+    logic: { desc: 'Game Logic (ms)', min: 0, max: 50, average: 500, color: '#080' },
+    physics: { desc: 'Physics (ms)', min: 0, max: 50, average: 500 },
+    render: { desc: 'Renderer (ms)', min: 0, max: 50, average: 500, color: '#f90' },
+    textureMemory: { desc: 'GFX Texture Mem(M)' },
+    bufferMemory: { desc: 'GFX Buffer Mem(M)'},
+};
+
+const _constants = {
+    fontSize: 24,
+    quadHeight: 0.18,
+    segmentsPerLine: 8,
+    textureWidth: 256,
+    textureHeight: 256,
+};
+
 export class Profiler {
 
     public _stats: IProfilerState | null = null;
+    public id = '__Profiler__';
 
     private _showFPS = false;
-    private readonly _fontSize = 22;
-    private readonly _lineHeight = this._fontSize + 2;
-    private readonly _left = 10;
-    private readonly _right = 10;
-    private readonly _top = 10;
-    private readonly _bottom = 10;
 
     private _rootNode: Node | null = null;
     private _device: GFXDevice | null = null;
@@ -72,9 +102,20 @@ export class Profiler {
     private readonly _region: GFXBufferTextureCopy = new GFXBufferTextureCopy();
     private readonly _canvasArr: HTMLCanvasElement[] = [];
     private readonly _regionArr = [this._region];
+    private digitsData: IBlock = null!;
 
     private _canvasDone = false;
     private _statsDone = false;
+    private _inited = false;
+
+    private readonly _lineHeight = _constants.fontSize + 2;
+    private _wordHeight = 0;
+    private _eachNumWidth = 0;      // profiler each number width
+    private _totalLines = 0;        // total lines to display
+
+    private lastTime = 0;   // update use time
+
+    private _uvOffset: Vec4[] = [];
 
     constructor () {
         if (!CC_TEST) {
@@ -95,12 +136,12 @@ export class Profiler {
                 this._rootNode.active = false;
             }
 
-            director.off(Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
-            director.off(Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
-            director.off(Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
-            director.off(Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
-            director.off(Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
-            director.off(Director.EVENT_AFTER_DRAW, this.afterDraw, this);
+            cc.director.off(cc.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
+            cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
+            cc.director.off(cc.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
+            cc.director.off(cc.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
+            cc.director.off(cc.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
+            cc.director.off(cc.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
             this._showFPS = false;
         }
     }
@@ -110,17 +151,18 @@ export class Profiler {
             this.initDevice();
             this.generateCanvas();
             this.generateStats();
+            cc.game.on(cc.Game.EVENT_ENGINE_INITED, this.generateNode, this);
 
             if (this._rootNode) {
                 this._rootNode.active = true;
             }
 
-            director.on(Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
-            director.on(Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
-            director.on(Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
-            director.on(Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
-            director.on(Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
-            director.on(Director.EVENT_AFTER_DRAW, this.afterDraw, this);
+            cc.director.on(cc.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
+            cc.director.on(cc.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
+            cc.director.on(cc.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
+            cc.director.on(cc.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
+            cc.director.on(cc.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
+            cc.director.on(cc.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
 
             this._showFPS = true;
             this._canvasDone = true;
@@ -132,7 +174,7 @@ export class Profiler {
         if (this._device) {
             return;
         }
-        this._device = director.root!.device;
+        this._device = cc.director.root!.device;
     }
 
     public generateCanvas () {
@@ -141,8 +183,7 @@ export class Profiler {
             return;
         }
 
-        const textureWidth = 350;
-        const textureHeight = 200;
+        const { textureWidth, textureHeight } = _constants;
 
         if (!this._ctx || !this._canvas) {
             return;
@@ -153,7 +194,7 @@ export class Profiler {
         this._canvas.style.width = `${this._canvas.width}`;
         this._canvas.style.height = `${this._canvas.height}`;
 
-        this._ctx.font = `${this._fontSize}px Arial`;
+        this._ctx.font = `${_constants.fontSize}px Arial`;
         this._ctx.textBaseline = 'top';
         this._ctx.fillStyle = '#fff';
 
@@ -177,35 +218,46 @@ export class Profiler {
     }
 
     public generateStats () {
-        if (this._statsDone || !this._ctx) {
+        if (this._statsDone || !this._ctx || !this._canvas ) {
             return;
         }
 
         this._stats = null;
+        this._inited = false;
         const now = performance.now();
-
-        const opts = {
-            frame: { desc: 'Frame time (ms)', min: 0, max: 50, average: 500 },
-            fps: { desc: 'Framerate (FPS)', below: 30, average: 500 },
-            draws: { desc: 'Draw call' },
-            tricount: { desc: 'Triangle' },
-            logic: { desc: 'Game Logic (ms)', min: 0, max: 50, average: 500, color: '#080' },
-            physics: { desc: 'Physics (ms)', min: 0, max: 50, average: 500 },
-            render: { desc: 'Renderer (ms)', min: 0, max: 50, average: 500, color: '#f90' },
-            textureMemory: { desc: 'GFX Texture Mem(M)' },
-            bufferMemory: { desc: 'GFX Buffer Mem(M)'},
-        };
 
         this._ctx.textAlign = 'left';
         let i = 0;
-        for (const id of Object.keys(opts)) {
-            this._ctx.fillText(opts[id].desc, this._left, this._top + i * this._lineHeight);
-            opts[id].counter = new PerfCounter(id, opts[id], now);
+        for (const id in _profileInfo) {
+            const element = _profileInfo[id];
+            this._ctx.fillText(element.desc, 0, i * this._lineHeight);
+            element.counter = new PerfCounter(id, element, now);
             i++;
         }
-        this._ctx.textAlign = 'end';
+        this._totalLines = i;
+        this._wordHeight = this._totalLines * this._lineHeight / this._canvas.height;
 
-        this._stats = opts as IProfilerState;
+        this._eachNumWidth = this._ctx.measureText('0').width / this._canvas.width; // each number uv width
+        const canvasNumWidth = this._eachNumWidth * this._canvas.width; // each number width in canvas
+
+        const offsets = new Array();
+        let offset = 0;
+        offsets[0] = 0;
+        for (let j = 0; j < _characters.length; ++j) {
+            this._ctx.fillText(_characters[j], j * canvasNumWidth, this._totalLines * this._lineHeight);
+            offset += this._eachNumWidth;
+            offsets[j + 1] = offset;
+        }
+
+        const len = Math.ceil(offsets.length / 4);
+        for (let j = 0; j < len; j++) {
+            this._uvOffset.push(new Vec4(offsets[j * 4], offsets[j * 4 + 1], offsets[j * 4 + 2], offsets[j * 4 + 3]));
+        }
+
+        this._stats = _profileInfo as IProfilerState;
+        this._canvasArr[0] = this._canvas;
+        this.updateTexture();
+        this._inited = true;
     }
 
     public generateNode () {
@@ -231,34 +283,63 @@ export class Profiler {
         const managerNode = new Node('Profiler_Root');
         managerNode.parent = this._rootNode;
 
+        const height = _constants.quadHeight;
+        const rowHeight = height / this._totalLines;
+        const lWidth = height / this._wordHeight;
+        const scale = rowHeight / _constants.fontSize;
+        const columnWidth = this._eachNumWidth * this._canvas!.width * scale;
+        const vertexPos: number[] = [
+            0, height, 0, // top-left
+            lWidth, height, 0, // top-right
+            lWidth,   0, 0, // bottom-right
+            0,   0, 0, // bottom-left
+        ];
+        const vertexindices: number[] = [
+            0, 2, 1,
+            0, 3, 2,
+        ];
+        const vertexUV: number[] = [
+            0, 0, -1, 0,
+            1, 0, -1, 0,
+            1, this._wordHeight, -1, 0,
+            0, this._wordHeight, -1, 0,
+        ];
+        let offset = 0;
+        for (let i = 0; i < this._totalLines; i++) {
+            for (let j = 0; j < _constants.segmentsPerLine; j++) {
+                vertexPos.push(lWidth + j * columnWidth, height - i * rowHeight, 0 ); // tl
+                vertexPos.push(lWidth + (j + 1) * columnWidth, height - i * rowHeight, 0); // tr
+                vertexPos.push(lWidth + (j + 1) * columnWidth, height - (i + 1) * rowHeight, 0); // br
+                vertexPos.push(lWidth + j * columnWidth, height - (i + 1) * rowHeight, 0); // bl
+                offset = (i * _constants.segmentsPerLine + j + 1) * 4;
+                vertexindices.push(0 + offset, 2 + offset, 1 + offset, 0 + offset, 3 + offset, 2 + offset);
+                const idx = i * _constants.segmentsPerLine + j;
+                const z = Math.floor(idx / 4);
+                const w = idx - z * 4;
+                vertexUV.push(0, this._wordHeight, z, w ); // tl
+                vertexUV.push(this._eachNumWidth, this._wordHeight, z, w ); // tr
+                vertexUV.push(this._eachNumWidth, 1, z, w ); // br
+                vertexUV.push(0, 1, z, w ); // bl
+            }
+        }
+
         const modelCom = managerNode.addComponent('cc.ModelComponent') as ModelComponent;
         modelCom.mesh = createMesh({
-            positions: [
-                -0.35, -0.2, 0, // bottom-left
-                -0.35,  0.2, 0, // top-left
-                 0.35,  0.2, 0, // top-right
-                 0.35, -0.2, 0, // bottom-right
-            ],
-            indices: [
-                0, 2, 1,
-                0, 3, 2,
-            ],
-            uvs: [
-                0, 1,
-                0, 0,
-                1, 0,
-                1, 1,
-            ],
+            positions: vertexPos,
+            indices: vertexindices,
+            colors: vertexUV, // pack all the necessary info in a_color: { x: u, y: v, z: id.x, w: id.y }
         });
 
         const _material = new Material();
-        _material.initialize({
-            effectName: 'util/profiler',
-        });
+        _material.initialize({ effectName: 'util/profiler' });
         _material.setProperty('offset', new Vec4(-0.9, -0.9, 0, 0));
+        _material.setProperty('symbols', this._uvOffset);
         const pass = _material.passes[0];
         const handle = pass.getBinding('mainTexture');
         pass.bindTextureView(handle!, this._textureView!);
+
+        const binding = pass.getBinding('digits')!;
+        this.digitsData = pass.blocks[binding];
 
         modelCom.material = _material;
         modelCom.node.layer = Layers.Enum.PROFILER;
@@ -268,8 +349,6 @@ export class Profiler {
         if (!this._stats) {
             return;
         }
-
-        this.generateNode();
 
         const now = performance.now();
         this.getCounter('frame').end(now);
@@ -283,7 +362,7 @@ export class Profiler {
         }
 
         const now = performance.now();
-        if (director.isPaused()) {
+        if (cc.director.isPaused()) {
             this.getCounter('frame').start(now);
         } else {
             this.getCounter('logic').end(now);
@@ -318,34 +397,42 @@ export class Profiler {
     }
 
     public afterDraw () {
-        if (!this._stats || !this._ctx || !this._canvas) {
+        if (!this._stats || !this._inited) {
             return;
         }
         const now = performance.now();
 
         this.getCounter('fps').frame(now);
-        this.getCounter('draws').value = this._device!.numDrawCalls;
-        this.getCounter('bufferMemory').value = this._device!.memoryStatus.bufferSize / (1024 * 1024);
-        this.getCounter('textureMemory').value = this._device!.memoryStatus.textureSize / (1024 * 1024);
-        this.getCounter('tricount').value = this._device!.numTris;
         this.getCounter('render').end(now);
 
-        const x = this._left + this._ctx.measureText('GFX Texture Mem(M)').width;
-        this._ctx.clearRect( x, 0, this._canvas.width - x, this._canvas.height);
+        if (now - this.lastTime < 500) {
+            return;
+        }
+        this.lastTime = now;
+
+        const device = this._device!;
+        this.getCounter('draws').value = device.numDrawCalls;
+        this.getCounter('bufferMemory').value = device.memoryStatus.bufferSize / (1024 * 1024);
+        this.getCounter('textureMemory').value = device.memoryStatus.textureSize / (1024 * 1024);
+        this.getCounter('tricount').value = device.numTris;
 
         let i = 0;
-        for (const id of Object.keys(this._stats)) {
-            const stat = this._stats[id];
+        const view = this.digitsData.view;
+        for (const id in this._stats) {
+            const stat = this._stats[id] as ICounterOption;
             stat.counter.sample(now);
-            this._ctx.fillText(
-                stat.counter.human(!(stat.desc === 'Framerate (FPS)')),
-                this._canvas.width - this._right,
-                this._top + i * this._lineHeight);
+            const result = stat.counter.human().toString();
+            for (let j = _constants.segmentsPerLine - 1; j >= 0; j--) {
+                const index = i * _constants.segmentsPerLine + j;
+                const character = result[result.length - (_constants.segmentsPerLine - j)];
+                let offset = _string2offset[character];
+                if (offset === undefined) { offset = 11; }
+                view[index] = offset;
+            }
             i++;
         }
 
-        this._canvasArr[0] = this._canvas;
-        this.updateTexture();
+        this.digitsData.dirty = true;
     }
 
     public getCounter (s: string) {
@@ -354,7 +441,7 @@ export class Profiler {
     }
 
     public updateTexture () {
-        director.root!.device.copyTexImagesToTexture(this._canvasArr, this._texture!, this._regionArr);
+        cc.director.root!.device.copyTexImagesToTexture(this._canvasArr, this._texture!, this._regionArr);
     }
 }
 

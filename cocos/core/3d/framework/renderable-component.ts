@@ -12,11 +12,16 @@ const { ccclass, property } = _decorator;
 
 @ccclass('cc.RenderableComponent')
 export class RenderableComponent extends Component {
-    @property({ type: [Material] })
+    @property({
+        type: [Material],
+        tooltip: '材质',
+    })
     protected _materials: Array<Material | null> = [];
 
     @property
     protected _visFlags = Layers.Enum.NONE;
+
+    protected _models: Model[] = [];
 
     constructor () {
         super();
@@ -25,6 +30,7 @@ export class RenderableComponent extends Component {
     @property({
         type: Material,
         displayName: 'Materials',
+        tooltip: '源材质',
     })
     get sharedMaterials () {
         // if we don't create an array copy, the editor will modify the original array directly.
@@ -123,11 +129,11 @@ export class RenderableComponent extends Component {
         }
     }
 
-    public _getModel (): Model | null {
-        return null;
+    public _collectModels (): Model[] {
+        return this._models;
     }
 
-    public recreateModel () {
+    public _changeSceneInModel () {
 
     }
 

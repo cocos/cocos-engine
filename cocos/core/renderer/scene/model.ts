@@ -1,4 +1,5 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+import { IPassStates } from '../../assets/effect-asset';
 import { Material } from '../../assets/material';
 import { IRenderingSubmesh } from '../../assets/mesh';
 import { aabb } from '../../geom-utils';
@@ -12,7 +13,7 @@ import Pool from '../../memop/pool';
 import { IInternalBindingInst, UBOForwardLight, UBOLocal } from '../../pipeline/define';
 import { Layers } from '../../scene-graph/layers';
 import { INode } from '../../utils/interfaces';
-import { Pass } from '../core/pass';
+import { IDefineMap, Pass } from '../core/pass';
 import { customizationManager } from './customization-manager';
 import { RenderScene } from './render-scene';
 import { SubModel } from './submodel';
@@ -69,18 +70,10 @@ export class Model {
         return this._enabled;
     }
 
-    /**
-     * Get the hosting node of this camera
-     * @returns the hosting node
-     */
     get node () {
         return this._node;
     }
 
-    /**
-     * Set the hosting node of this model
-     * @param {Node} node the hosting node
-     */
     set node (node: INode) {
         this._node = node;
     }
@@ -154,23 +147,24 @@ export class Model {
     protected _node: INode;
     protected _transform: INode;
     protected _id: number;
-    protected _enabled: boolean = false;
+    protected _enabled = false;
     protected _visFlags = Layers.Enum.NONE;
-    protected _cameraID: number = -1;
-    protected _userKey: number = -1;
+    protected _cameraID = -1;
+    protected _userKey = -1;
     protected _worldBounds: aabb | null = null;
     protected _modelBounds: aabb | null = null;
     protected _subModels: SubModel[] = [];
-    protected _matPSORecord: Map<Material, GFXPipelineState[]>;
-    protected _matRefCount: Map<Material, number>;
-    protected _uboLocal: UBOLocal;
+    protected _implantPSOs: GFXPipelineState[] = [];
+    protected _matPSORecord = new Map<Material, GFXPipelineState[]>();
+    protected _matRefCount = new Map<Material, number>();
+    protected _uboLocal = new UBOLocal();
     protected _localUBO: GFXBuffer | null = null;
-    protected _localBindings: Map<string, IInternalBindingInst> = new Map<string, IInternalBindingInst>();
-    protected _inited: boolean = false;
-    protected _uboUpdated: boolean = false;
-    protected _castShadow: boolean = false;
-    protected _isDynamicBatching: boolean = false;
-    private _transformUpdated: boolean = true;
+    protected _localBindings = new Map<string, IInternalBindingInst>();
+    protected _inited = false;
+    protected _uboUpdated = false;
+    protected _castShadow = false;
+    protected _isDynamicBatching = false;
+    protected _transformUpdated = true;
 
     /**
      * Setup a default empty model
@@ -178,12 +172,8 @@ export class Model {
     constructor (scene: RenderScene, node: INode) {
         this._device = cc.director.root!.device;
         this._scene = scene;
+        this._node = this._transform = node;
         this._id = this._scene.generateModelId();
-        this._transform = this._node = node;
-
-        this._matPSORecord = new Map<Material, GFXPipelineState[]>();
-        this._matRefCount = new Map<Material, number>();
-        this._uboLocal = new UBOLocal();
     }
 
     public destroy () {
@@ -223,7 +213,7 @@ export class Model {
             node.updateWorldTransform();
             this._transformUpdated = true;
             if (this._modelBounds && this._worldBounds) {
-                // @ts-ignore
+                // @ts-ignore TS2339
                 this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, this._worldBounds);
             }
         }
@@ -329,6 +319,15 @@ export class Model {
         }
     }
 
+    public insertImplantPSO (pso: GFXPipelineState) {
+        this._implantPSOs.push(pso);
+    }
+
+    public removeImplantPSO (pso: GFXPipelineState) {
+        const idx = this._implantPSOs.indexOf(pso);
+        if (idx >= 0) { this._implantPSOs.splice(idx, 1); }
+    }
+
     protected createPipelineState (mat: Material): GFXPipelineState[] {
         const ret = new Array<GFXPipelineState>(mat.passes.length);
         for (let i = 0; i < ret.length; i++) {
@@ -347,8 +346,10 @@ export class Model {
         }
     }
 
-    protected _doCreatePSO (pass: Pass) {
-        const pso = pass.createPipelineState()!;
+    protected _doCreatePSO (pass: Pass, defineOverrides?: IDefineMap, stateOverrides?: IPassStates) {
+        defineOverrides = defineOverrides || {};
+        defineOverrides.CC_USE_BATCHING = this._isDynamicBatching;
+        const pso = pass.createPipelineState(defineOverrides, stateOverrides)!;
         pso.pipelineLayout.layouts[0].bindBuffer(UBOLocal.BLOCK.binding, this._localBindings.get(UBOLocal.BLOCK.name)!.buffer!);
         if (this._localBindings.has(UBOForwardLight.BLOCK.name)) {
             pso.pipelineLayout.layouts[0].bindBuffer(UBOForwardLight.BLOCK.binding, this._localBindings.get(UBOForwardLight.BLOCK.name)!.buffer!);

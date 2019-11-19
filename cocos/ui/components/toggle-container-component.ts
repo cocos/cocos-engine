@@ -46,6 +46,7 @@ import { ToggleComponent} from './toggle-component';
 export class ToggleContainerComponent extends Component {
     @property({
         type: [ComponentEventHandler],
+        tooltip:'选中事件。列表类型，默认为空，用户添加的每一个事件由节点引用，组件名称和一个响应函数组成。',
     })
     public checkEvents: ComponentEventHandler[] = [];
     @property
@@ -56,7 +57,9 @@ export class ToggleContainerComponent extends Component {
      * @zh
      * 如果这个设置为 true，那么 toggle 按钮在被点击的时候可以反复地被选中和未选中。
      */
-    @property
+    @property({
+        tooltip:'如果这个设置为 true， 那么 toggle 按钮在被点击的时候可以反复地被选中和未选中。',
+    })
     get allowSwitchOff () {
         return this._allowSwitchOff;
     }

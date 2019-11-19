@@ -90,8 +90,8 @@ function align (node: INode, widget: WidgetComponent) {
         }
 
         // adjust borders according to offsets
-        localLeft += widget.isAbsoluteLeft ? widget.left : widget.left / 100 * targetWidth;
-        localRight -= widget.isAbsoluteRight ? widget.right : widget.right / 100 * targetWidth;
+        localLeft += widget.isAbsoluteLeft ? widget.left : widget.left * targetWidth;
+        localRight -= widget.isAbsoluteRight ? widget.right : widget.right * targetWidth;
 
         if (hasTarget) {
             localLeft += inverseTranslate.x;
@@ -117,7 +117,7 @@ function align (node: INode, widget: WidgetComponent) {
             width = node.width * scaleX;
             if (widget.isAlignHorizontalCenter) {
                 let localHorizontalCenter = widget.isAbsoluteHorizontalCenter ?
-                    widget.horizontalCenter : widget.horizontalCenter / 100 * targetWidth;
+                widget.horizontalCenter : widget.horizontalCenter * targetWidth;
                 let targetCenter = (0.5 - targetAnchor.x) * targetSize.width;
                 if (hasTarget) {
                     localHorizontalCenter *= inverseScale.x;
@@ -149,8 +149,8 @@ function align (node: INode, widget: WidgetComponent) {
         }
 
         // adjust borders according to offsets
-        localBottom += widget.isAbsoluteBottom ? widget.bottom : widget.bottom / 100 * targetHeight;
-        localTop -= widget.isAbsoluteTop ? widget.top : widget.top / 100 * targetHeight;
+        localBottom += widget.isAbsoluteBottom ? widget.bottom : widget.bottom * targetHeight;
+        localTop -= widget.isAbsoluteTop ? widget.top : widget.top * targetHeight;
 
         if (hasTarget) {
             // transform
@@ -177,7 +177,7 @@ function align (node: INode, widget: WidgetComponent) {
             height = node.height * scaleY;
             if (widget.isAlignVerticalCenter) {
                 let localVerticalCenter = widget.isAbsoluteVerticalCenter ?
-                    widget.verticalCenter : widget.verticalCenter / 100 * targetHeight;
+                widget.verticalCenter : widget.verticalCenter * targetHeight;
                 let targetMiddle = (0.5 - targetAnchor.y) * targetSize.height;
                 if (hasTarget) {
                     localVerticalCenter *= inverseScale.y;
@@ -199,7 +199,8 @@ function align (node: INode, widget: WidgetComponent) {
     Vec3.set(widget._lastPos, x, y, _tempPos.z);
 }
 
-function visitNode (node: Node) {
+// TODO: type is hack, Change to the type actually used (Node or BaseNode) when BaseNode complete
+function visitNode (node: any) {
     const widget = node.getComponent(WidgetComponent);
     if (widget) {
         // @ts-ignore
@@ -211,7 +212,11 @@ function visitNode (node: Node) {
         if ((!CC_EDITOR || widgetManager.animationState!.animatedSinceLastFrame) && widget.alignMode !== AlignMode.ALWAYS) {
             widget.enabled = false;
         } else {
-            activeWidgets.push(widget);
+            if (cc.isValid(node, true)) {
+                activeWidgets.push(widget);
+            } else {
+                return;
+            }
         }
     }
     const children = node.children;

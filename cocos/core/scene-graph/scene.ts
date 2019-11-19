@@ -28,9 +28,10 @@
  */
 
 import { ccclass, property } from '../data/class-decorator';
+import { Mat4, Quat, Vec3 } from '../math';
+import { warnID } from '../platform/debug';
 import { RenderScene } from '../renderer/scene/render-scene';
 import { BaseNode } from './base-node';
-import { Node } from './node';
 import { SceneGlobals } from './scene-globals';
 
 /**
@@ -38,11 +39,11 @@ import { SceneGlobals } from './scene-globals';
  * cc.Scene is a subclass of cc.Node that is used only as an abstract concept.<br/>
  * cc.Scene and cc.Node are almost identical with the difference that users can not modify cc.Scene manually.
  * @zh
- * cc.Scene 是 cc.Node 的子类，仅作为一个抽象的概念。<br/>
- * cc.Scene 和 cc.Node 有点不同，用户不应直接修改 cc.Scene。
+ * cc.Scene 是 cc._BaseNode 的子类，仅作为一个抽象的概念。<br/>
+ * cc.Scene 和 cc._BaseNode 有点不同，用户不应直接修改 cc.Scene。
  */
 @ccclass('cc.Scene')
-export class Scene extends Node {
+export class Scene extends BaseNode {
 
     get renderScene () {
         return this._renderScene;
@@ -72,6 +73,13 @@ export class Scene extends Node {
     protected _inited: boolean;
     protected _prefabSyncedInLiveReload = false;
 
+    // support Node access parent data from Scene
+    protected _pos = Vec3.ZERO;
+    protected _rot = Quat.IDENTITY;
+    protected _scale = Vec3.ONE;
+    protected _mat = Mat4.IDENTITY;
+    protected _dirtyFlags = 0;
+
     constructor (name: string) {
         super(name);
         this._activeInHierarchy = false;
@@ -88,7 +96,48 @@ export class Scene extends Node {
         return success;
     }
 
+    public addComponent (typeOrClassName: string | Function) {
+        warnID(3822);
+        return null;
+    }
+
     public _onHierarchyChanged () { }
+
+    public _onBatchCreated () {
+        super._onBatchCreated();
+        const len = this._children.length;
+        for (let i = 0; i < len; ++i) {
+            this._children[i]._onBatchCreated();
+        }
+    }
+
+    public _onBatchRestored () {
+        this._onBatchCreated();
+    }
+
+    // transform helpers
+
+    public getPosition (out?: Vec3): Vec3 { return Vec3.copy(out || new Vec3(), Vec3.ZERO); }
+    public getRotation (out?: Quat): Quat { return Quat.copy(out || new Quat(), Quat.IDENTITY); }
+    public getScale (out?: Vec3): Vec3 { return Vec3.copy(out || new Vec3(), Vec3.ONE); }
+    public getWorldPosition (out?: Vec3) { return Vec3.copy(out || new Vec3(), Vec3.ZERO); }
+    public getWorldRotation (out?: Quat) { return Quat.copy(out || new Quat(), Quat.IDENTITY); }
+    public getWorldScale (out?: Vec3) { return Vec3.copy(out || new Vec3(), Vec3.ONE); }
+    public getWorldMatrix (out?: Mat4): Mat4 { return Mat4.copy(out || new Mat4(), Mat4.IDENTITY); }
+    public getWorldRS (out?: Mat4): Mat4 { return Mat4.copy(out || new Mat4(), Mat4.IDENTITY); }
+    public getWorldRT (out?: Mat4): Mat4 { return Mat4.copy(out || new Mat4(), Mat4.IDENTITY); }
+    public get position (): Readonly<Vec3> { return Vec3.ZERO; }
+    public get worldPosition (): Readonly<Vec3> { return Vec3.ZERO; }
+    public get rotation (): Readonly<Quat> { return Quat.IDENTITY; }
+    public get worldRotation (): Readonly<Quat> { return Quat.IDENTITY; }
+    public get scale (): Readonly<Vec3> { return Vec3.ONE; }
+    public get worldScale (): Readonly<Vec3> { return Vec3.ONE; }
+    public get eulerAngles (): Readonly<Vec3> { return Vec3.ZERO; }
+    public get worldMatrix (): Readonly<Mat4> { return Mat4.IDENTITY; }
+    public updateWorldTransform () {}
+
+    // life-cycle call backs
+
     protected _instantiate () { }
 
     protected _load () {
@@ -99,6 +148,8 @@ export class Scene extends Node {
             this._onBatchCreated();
             this._inited = true;
         }
+        // @ts-ignore
+        // static methode can't use this as parameter type
         this.walk(BaseNode._setScene);
     }
 

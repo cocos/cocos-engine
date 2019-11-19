@@ -42,13 +42,17 @@ type ConvertedData = Record<string, {
  */
 export class SkelAnimDataHub {
 
-    public static pool = new Map<AnimationClip, ConvertedData>();
-
     public static getOrExtract (clip: AnimationClip) {
         let data = SkelAnimDataHub.pool.get(clip);
         if (!data) { data = convertToSkeletalCurves(clip); SkelAnimDataHub.pool.set(clip, data); }
         return data;
     }
+
+    public static destroy (clip: AnimationClip) {
+        SkelAnimDataHub.pool.delete(clip);
+    }
+
+    protected static pool = new Map<AnimationClip, ConvertedData>();
 }
 
 function convertToSkeletalCurves (clip: AnimationClip) {
