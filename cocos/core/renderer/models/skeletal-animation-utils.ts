@@ -141,6 +141,8 @@ export class JointsTexturePool {
     private _device: GFXDevice;
     private _pool: TextureBufferPool;
     private _textureBuffers: Map<number, IJointsTextureHandle> = new Map(); // per skeleton per clip
+    private _identityBuffer: IJointsTextureHandle | null;
+    private _maxIdentityJoints = 64;
     private _formatSize = 0;
 
     constructor (device: GFXDevice, maxChunks = 8) {
@@ -154,11 +156,13 @@ export class JointsTexturePool {
             maxChunks: maxChunks * scale,
             roundUpFn: roundUpTextureSize,
         });
+        this._identityBuffer = this._allocIdentityBuffer();
     }
 
     public clear () {
         this._pool.destroy();
         this._textureBuffers.clear();
+        this._identityBuffer = null;
     }
 
     /**
@@ -166,19 +170,17 @@ export class JointsTexturePool {
      */
     public getDefaultJointsTexture (skeleton?: Skeleton) {
         const len = skeleton && skeleton.joints.length || 1;
-        let texture: IJointsTextureHandle | null = this._textureBuffers.get(len) || null;
-        if (texture) { texture.refCount++; return texture; }
-        const handle = this._pool.alloc(len * 12 * Float32Array.BYTES_PER_ELEMENT);
-        if (!handle) { return null; }
-        texture = { pixelOffset: handle.start / this._formatSize, refCount: 1,
-            skeletonHash: len, clipHash: 0, readyToBeDeleted: false, handle };
-        const textureBuffer = new Float32Array(len * 12);
-        for (let i = 0; i < len; i++) {
-            uploadJointData(textureBuffer, 12 * i, Mat4.IDENTITY, i === 0);
+        if (len > this._maxIdentityJoints) {
+            if (this._identityBuffer) {
+                this._identityBuffer.readyToBeDeleted = true;
+                this.releaseHandle(this._identityBuffer, false);
+            }
+            this._maxIdentityJoints *= 2;
+            this._identityBuffer = this._allocIdentityBuffer();
         }
-        this._pool.update(handle, textureBuffer.buffer);
-        this._textureBuffers.set(len, texture);
-        return texture;
+        if (!this._identityBuffer) { return null; }
+        this._identityBuffer.refCount++;
+        return this._identityBuffer;
     }
 
     /**
@@ -242,6 +244,18 @@ export class JointsTexturePool {
             }
             res = it.next();
         }
+    }
+
+    private _allocIdentityBuffer (len = this._maxIdentityJoints) {
+        const handle = this._pool.alloc(len * 12 * Float32Array.BYTES_PER_ELEMENT);
+        if (!handle) { return null; }
+        const textureBuffer = new Float32Array(len * 12);
+        for (let i = 0; i < len; i++) {
+            uploadJointData(textureBuffer, 12 * i, Mat4.IDENTITY, i === 0);
+        }
+        this._pool.update(handle, textureBuffer.buffer);
+        return { pixelOffset: handle.start / this._formatSize, refCount: 0,
+            skeletonHash: len, clipHash: 0, readyToBeDeleted: false, handle };
     }
 }
 
