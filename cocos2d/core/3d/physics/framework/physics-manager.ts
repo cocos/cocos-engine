@@ -211,15 +211,15 @@ export class Physics3DManager {
     }
 
     /**
-     * !#en Collision detect all the boxes, and record all the detected results, through `cc.director.getPhysics3DManager().raycastResults` access results
-     * !#zh 检测所有的碰撞盒，并记录所有被检测到的结果，通过 `cc.director.getPhysics3DManager().raycastResults` 访问结果
+     * !#en Detect all collision boxes and return all detected results, or null if none is detected. Note that the return value is taken from the object pool, so do not save the result reference or modify the result.
+     * !#zh 检测所有的碰撞盒，并返回所有被检测到的结果，若没有检测到，则返回空值。注意返回值是从对象池中取的，所以请不要保存结果引用或者修改结果。
      * @param worldRay A ray in world space
      * @param groupIndexOrName Collision group index or group name
      * @param maxDistance Maximum detection distance
      * @param queryTrigger Detect trigger or not
-     * @return boolean Indicates whether a collision box has been detected
+     * @return {PhysicsRayResult[] | null} Detected result
      */
-    raycast (worldRay: Ray, groupIndexOrName: number|string = 0, maxDistance = Infinity, queryTrigger = true): boolean {
+    raycast (worldRay: Ray, groupIndexOrName: number|string = 0, maxDistance = Infinity, queryTrigger = true): PhysicsRayResult[] | null {
         this.raycastResultPool.reset();
         this.raycastResults.length = 0;
         if (typeof groupIndexOrName == "string") {
@@ -231,19 +231,21 @@ export class Physics3DManager {
         }
         this.raycastOptions.maxDistance = maxDistance;
         this.raycastOptions.queryTrigger = queryTrigger;
-        return this.physicsWorld.raycast(worldRay, this.raycastOptions, this.raycastResultPool, this.raycastResults);
+        let result = this.physicsWorld.raycast(worldRay, this.raycastOptions, this.raycastResultPool, this.raycastResults);
+        if (result) return this.raycastResults;
+        return null;
     }
 
     /**
-     * !#en Collision detect all the boxes, and record and ray test results with the shortest distance by `cc.director.getPhysics3DManager().raycastClosestResult` access results
-     * 检测所有的碰撞盒，并记录与射线距离最短的检测结果，通过 `cc.director.getPhysics3DManager().raycastClosestResult` 访问结果
+     * !#en Detect all collision boxes and return the detection result with the shortest ray distance. If not, return null value. Note that the return value is taken from the object pool, so do not save the result reference or modify the result.
+     * !#zh 检测所有的碰撞盒，并返回射线距离最短的检测结果，若没有，则返回空值。注意返回值是从对象池中取的，所以请不要保存结果引用或者修改结果。
      * @param worldRay A ray in world space
      * @param groupIndexOrName Collision group index or group name
      * @param maxDistance Maximum detection distance
      * @param queryTrigger Detect trigger or not
-     * @return boolean Indicates whether a collision box has been detected
+     * @return {PhysicsRayResult|null} Detected result
      */
-    raycastClosest (worldRay: Ray, groupIndexOrName: number|string = 0, maxDistance = Infinity, queryTrigger = true): boolean {
+    raycastClosest (worldRay: Ray, groupIndexOrName: number|string = 0, maxDistance = Infinity, queryTrigger = true): PhysicsRayResult|null {
         if (typeof groupIndexOrName == "string") {
             let groupIndex = cc.game.groupList.indexOf(groupIndexOrName);
             if (groupIndex == -1) groupIndex = 0;
@@ -253,7 +255,9 @@ export class Physics3DManager {
         }
         this.raycastOptions.maxDistance = maxDistance;
         this.raycastOptions.queryTrigger = queryTrigger;
-        return this.physicsWorld.raycastClosest(worldRay, this.raycastOptions, this.raycastClosestResult);
+        let result = this.physicsWorld.raycastClosest(worldRay, this.raycastOptions, this.raycastClosestResult);
+        if (result) return this.raycastClosestResult;
+        return null;
     }
 
     private _updateMaterial () {
