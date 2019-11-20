@@ -1068,6 +1068,15 @@ export default class Vec4 extends ValueType {
         out.w = m[3] * _x + m[7] * _y + m[11] * _z + m[15] * _w;
         return out;
     }
+
+    /**
+     * Returns the maximum value in x, y, z, w.
+     * @method maxAxis
+     * @returns {number}
+     */
+    maxAxis (): number {
+        return Math.max(Math.max(Math.max(this.x, this.y), this.z), this.w);
+    }
 }
 
 CCClass.fastDefine('cc.Vec4', Vec4, { x: 0, y: 0, z: 0, w: 0 });

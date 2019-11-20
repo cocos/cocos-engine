@@ -26,7 +26,6 @@
 import { Sphere } from '../../../../geom-utils';
 import { BuiltinShape } from './builtin-shape';
 import { ISphereShape } from '../../spec/i-collider-shape';
-import { maxComponent } from '../../framework/util';
 import { SphereColliderComponent } from '../../exports/collider-framework';
 import { Vec3 } from '../../../../value-types';
 
@@ -37,7 +36,7 @@ export class BuiltinSphereShape extends BuiltinShape implements ISphereShape {
     set radius (radius: number) {
         this.localSphere.radius = radius;
         this.collider.node.getWorldScale(_worldScale);
-        const s = maxComponent(_worldScale);
+        const s = _worldScale.maxAxis();
         this.worldSphere.radius = this.localSphere.radius * s;
     }
 

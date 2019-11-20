@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { Vec3 } from '../../../value-types';
 import { IVec3Like, IQuatLike } from '../../../value-types/math';
 
 export function stringfyVec3 (value: IVec3Like): string {
@@ -44,8 +43,4 @@ export function setWrap<Wrapper> (object: any, wrapper: Wrapper) {
 
 export function getWrap<Wrapper> (object: any) {
     return (object as IWrapped<Wrapper>).__cc_wrapper__;
-}
-
-export function maxComponent (v: Vec3) {
-    return Math.max(v.x, Math.max(v.y, v.z));
 }

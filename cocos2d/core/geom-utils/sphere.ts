@@ -27,7 +27,6 @@ import { Mat4, Quat, Vec3 } from '../value-types';
 import enums from './enums';
 
 const _v3_tmp = new Vec3();
-function maxComponent (v: Vec3) { return Math.max(Math.max(v.x, v.y), v.z); }
 
 /**
  * !#zh
@@ -195,7 +194,7 @@ export default class sphere {
      */
     public transform (m: Mat4, pos: Vec3, rot: Quat, scale: Vec3, out: sphere) {
         Vec3.transformMat4(out.center, this.center, m);
-        out.radius = this.radius * maxComponent(scale);
+        out.radius = this.radius * scale.maxAxis();
     }
 
     /**
@@ -218,6 +217,6 @@ export default class sphere {
      * @param out Scale target
      */
     public setScale (scale: Vec3, out: sphere) {
-        out.radius = this.radius * maxComponent(scale);
+        out.radius = this.radius * scale.maxAxis();
     }
 }

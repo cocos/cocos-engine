@@ -1052,6 +1052,15 @@ export default class Vec2 extends ValueType {
         Vec2.transformMat4(out, this, m);
         return out;
     }
+
+    /**
+     * Returns the maximum value in x, y.
+     * @method maxAxis
+     * @returns {number}
+     */
+    maxAxis (): number {
+        return Math.max(this.x, this.y);
+    }
 }
 
 const v2_1 = new Vec2();

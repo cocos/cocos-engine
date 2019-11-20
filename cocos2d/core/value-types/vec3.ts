@@ -1262,6 +1262,15 @@ export default class Vec3 extends ValueType {
     }
 
     /**
+     * Returns the maximum value in x, y, and z
+     * @method maxAxis
+     * @returns {number}
+     */
+    maxAxis (): number {
+       return Math.max(Math.max(this.x, this.y), this.z);
+    }
+
+    /**
      * !#en Get angle in radian between this and vector.
      * !#zh 夹角的弧度。
      * @method angle

@@ -25,7 +25,6 @@
 
 import CANNON from '../../../../../../external/cannon/cannon';
 import { Vec3 } from '../../../../value-types';
-import { maxComponent } from '../../framework/util';
 import { commitShapeUpdates } from '../cannon-util';
 import { CannonShape } from './cannon-shape';
 import { ISphereShape } from '../../spec/i-physics-shape';
@@ -48,7 +47,7 @@ export class CannonSphereShape extends CannonShape implements ISphereShape {
 
     set radius (v: number) {
         this.collider.node.getWorldScale(v3_0);
-        const max = maxComponent(v3_0);
+        const max = v3_0.maxAxis();
         this.sphere.radius = v * Math.abs(max);
         this.sphere.updateBoundingSphereRadius();
         if (this._index != -1) {
