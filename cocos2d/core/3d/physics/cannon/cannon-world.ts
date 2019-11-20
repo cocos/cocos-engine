@@ -26,7 +26,6 @@
 import CANNON from '../../../../../external/cannon/cannon';
 import { Vec3 } from '../../../value-types';
 import { fillRaycastResult, toCannonRaycastOptions } from './cannon-util';
-import { CannonConstraint } from './constraint/cannon-constraint';
 import { CannonShape } from './shapes/cannon-shape';
 import { Ray } from '../../../geom-utils';
 import { RecyclePool } from '../../../../renderer/memop';
@@ -121,14 +120,6 @@ export class CannonWorld implements IPhysicsWorld {
             this.bodies.splice(i, 1);
             this._world.remove(sharedBody.body);
         }
-    }
-
-    addConstraint (constraint: CannonConstraint) {
-        this._world.addConstraint(constraint.impl);
-    }
-
-    removeConstraint (constraint: CannonConstraint) {
-        this._world.removeConstraint(constraint.impl);
     }
 }
 

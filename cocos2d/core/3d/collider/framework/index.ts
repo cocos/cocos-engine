@@ -43,6 +43,3 @@ cc.ColliderComponent = ColliderComponent;
 cc.BoxColliderComponent = BoxColliderComponent;
 cc.SphereColliderComponent = SphereColliderComponent;
 cc.ColliderRayResult = ColliderRayResult;
-
-export * from './collider-interface';
-

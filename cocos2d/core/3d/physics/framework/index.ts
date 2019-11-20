@@ -36,7 +36,7 @@ export {
     Physics3DManager,
     PhysicsRayResult,
     PhysicsMaterial,
-    
+
     PhysicsColliderComponent,
     PhysicsBoxColliderComponent,
     PhysicsSphereColliderComponent,
@@ -50,6 +50,3 @@ cc.PhysicsSphereColliderComponent = PhysicsSphereColliderComponent;
 cc.RigidBodyComponent = RigidBodyComponent;
 cc.PhysicsRayResult = PhysicsRayResult;
 cc.ConstantForce = ConstantForce;
-
-export * from './physics-interface';
-
