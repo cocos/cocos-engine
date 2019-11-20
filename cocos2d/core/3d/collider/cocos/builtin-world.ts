@@ -74,10 +74,13 @@ export class BuiltInWorld implements IColliderWorld {
         // collision detection
         for (let i = 0; i < this.bodies.length; i++) {
             const bodyA = this.bodies[i];
+            const nodeA = bodyA.node;
+            const nodeACollisionMatrix = collisionMatrix[nodeA.groupIndex];
+            if (!nodeACollisionMatrix) continue;
             for (let j = i + 1; j < this.bodies.length; j++) {
                 const bodyB = this.bodies[j];
-                const node1 = bodyA.node, node2 = bodyB.node;
-                if (node1 !== node2 && collisionMatrix[node1.groupIndex][node2.groupIndex]) {
+                const nodeB = bodyB.node;
+                if (nodeA !== nodeB && nodeACollisionMatrix[nodeB.groupIndex]) {
                     bodyA.intersects(bodyB);
                 }
             }
@@ -92,10 +95,13 @@ export class BuiltInWorld implements IColliderWorld {
         const max_d = options.maxDistance!;
         const groupIndex = options.groupIndex!;
         const collisionMatrix = cc.game.collisionMatrix;
+        const rayCollisionMatrix = collisionMatrix[groupIndex];
+        if (!rayCollisionMatrix) return false;
+
         for (let i = 0; i < this.bodies.length; i++) {
             const body = this.bodies[i] as BuiltinSharedBody;
             const bodyGroupIndex = body.node.groupIndex;
-            const canCollider = collisionMatrix[groupIndex][bodyGroupIndex];
+            const canCollider = rayCollisionMatrix[bodyGroupIndex];
             if (!canCollider) continue;
             for (let i = 0; i < body.shapes.length; i++) {
                 const shape = body.shapes[i];
@@ -119,10 +125,13 @@ export class BuiltInWorld implements IColliderWorld {
         const max_d = options.maxDistance!;
         const groupIndex = options.groupIndex!;
         const collisionMatrix = cc.game.collisionMatrix;
+        const rayCollisionMatrix = collisionMatrix[groupIndex];
+        if (!rayCollisionMatrix) return false;
+
         for (let i = 0; i < this.bodies.length; i++) {
             const body = this.bodies[i] as BuiltinSharedBody;
             const bodyGroupIndex = body.node.groupIndex;
-            const canCollider = collisionMatrix[groupIndex][bodyGroupIndex];
+            const canCollider = rayCollisionMatrix[bodyGroupIndex];
             if (!canCollider) continue;
             for (let i = 0; i < body.shapes.length; i++) {
                 const shape = body.shapes[i];

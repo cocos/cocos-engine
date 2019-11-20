@@ -34,6 +34,10 @@ export function groupIndexToBitMask (groupIndex: number, out: { collisionFilterG
     let categoryBits = 1 << groupIndex;
     let maskBits = 0;
     let bits = cc.game.collisionMatrix[groupIndex];
+    if (!bits) {
+        cc.error("cannon-utils: group is not exist", groupIndex);
+        return;
+    }
     for (let i = 0; i < bits.length; i++) {
         if (!bits[i]) continue;
         maskBits |= 1 << i;
