@@ -20,7 +20,7 @@
 #if CC_IS_VERT_SHADER
 
   void CCShadowInput (vec3 worldPos) {
-    #if CC_USE_SHADOW_MAP
+    #if CC_USE_SHADOW_MAP && CC_NUM_SHADOW_LIGHTS > 0
     for (int i = 0; i < CC_NUM_SHADOW_LIGHTS; i++) {
       v_posLightSpace[i] = cc_shadow_lightViewProjMatrix[i] * vec4(worldPos, 1.0);
       v_depth[i] = (v_posLightSpace[i].z + cc_shadow_info[i].x) / (cc_shadow_info[i].x + cc_shadow_info[i].y);
@@ -55,7 +55,7 @@
   float CCCalcShadow() {
     float shadow = 1.0;
     float frustumEdgeFalloff = 0.0;
-    #if CC_USE_SHADOW_MAP
+    #if CC_USE_SHADOW_MAP && CC_NUM_SHADOW_LIGHTS > 0
     for (int i = 0; i < CC_NUM_SHADOW_LIGHTS; i++) {
       shadow *= computeShadowESM(cc_shadow_map[i], v_posLightSpace[i], v_depth[i], cc_shadow_info[i].z, cc_shadow_info[i].w, frustumEdgeFalloff);
     }

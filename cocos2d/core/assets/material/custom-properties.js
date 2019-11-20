@@ -25,6 +25,10 @@ export default class CustomProperties {
         return this._effect.name + ' (variant)';
     }
 
+    get passes () {
+        return this._passes;
+    }
+
     _onEffectChanged () {
     }
 
@@ -97,18 +101,40 @@ export default class CustomProperties {
         }
     }
 
-    getProperty (name) {
-        let prop = this._properties[name];
-        if (prop) return prop.value;
-        return null;
+    getProperty (name, passIdx) {
+        let passes = this._passes;
+        if (passIdx === undefined) {
+            for (let i = 0, l = passes.length; i < l; i++) {
+                let prop = passes[i].getProperty(name);
+                if (prop !== undefined) {
+                    return prop;
+                }
+            }
+        }
+        else {
+            let pass = this._passes[passIdx];
+            return pass && pass.getProperty(name);
+        }
     }
 
-    define (name, value, passIdx) {
-        Effect.prototype.define.call(this, name, value, passIdx);
+    define (name, value, passIdx, force) {
+        Effect.prototype.define.call(this, name, value, passIdx, force);
     }
 
-    getDefine (name) {
-        return this._defines[name];
+    getDefine (name, passIdx) {
+        let passes = this._passes;
+        if (passIdx === undefined) {
+            for (let i = 0, l = passes.length; i < l; i++) {
+                let define = passes[i].getDefine(name);
+                if (define !== undefined) {
+                    return define;
+                }
+            }
+        }
+        else {
+            let pass = this._passes[passIdx];
+            return pass && pass.getDefine(name);
+        }
     }
 
     extractDefines (out = []) {

@@ -54,16 +54,20 @@ let Material = cc.Class({
             type: EffectAsset,
             default: null,
         },
+
+        // deprecated
         _defines: {
-            default: {},
+            default: undefined,
             type: Object
         },
+        // deprecated
         _props: {
-            default: {},
+            default: undefined,
             type: Object
         },
 
-        _techniqueName: '',
+        _techniqueIndex: 0,
+        _techniqueData: [],
 
         effectName: CC_EDITOR ? {
             get () {
@@ -108,12 +112,6 @@ let Material = cc.Class({
             get () {
                 return this._owner;
             }
-        },
-
-        techniqueName: {
-            get () {
-                return this._techniqueName;
-            }
         }
     },
 
@@ -146,41 +144,36 @@ let Material = cc.Class({
      * @param {string} name
      * @param {Object} val
      */
-    setProperty (name, val, force, passIdx) {
-        if (this._props[name] === val && !force) return;
-        this._props[name] = val;
+    setProperty (name, val, passIdx) {
+        if (!this._effect) return;
+        
+        if (val instanceof Texture) {
+            let format = val.getPixelFormat();
+            if (format === PixelFormat.RGBA_ETC1 ||
+                format === PixelFormat.RGB_A_PVRTC_4BPPV1 ||
+                format === PixelFormat.RGB_A_PVRTC_2BPPV1) {
+                this.define('CC_USE_ALPHA_ATLAS_' + name.toUpperCase(), true);
+            }
 
-        if (this._effect) {
-            if (val instanceof Texture) {
+            function loaded () {
+                this._effect.setProperty(name, val, passIdx);
+            }
 
-                let format = val.getPixelFormat();
-                if (format === PixelFormat.RGBA_ETC1 ||
-                    format === PixelFormat.RGB_A_PVRTC_4BPPV1 ||
-                    format === PixelFormat.RGB_A_PVRTC_2BPPV1) {
-                    this.define('CC_USE_ALPHA_ATLAS_' + name.toUpperCase(), true);
-                }
-
-                function loaded () {
-                    this._effect.setProperty(name, val, passIdx);
-                }
-
-                if (!val.loaded) {
-                    val.once('load', loaded, this);
-                    textureUtil.postLoadTexture(val);
-                }
-                else {
-                    this._effect.setProperty(name, val, passIdx);
-                }
-
+            if (!val.loaded) {
+                val.once('load', loaded, this);
+                textureUtil.postLoadTexture(val);
             }
             else {
-                this._effect.setProperty(name, val);
+                this._effect.setProperty(name, val, passIdx);
             }
+        }
+        else {
+            this._effect.setProperty(name, val);
         }
     },
 
     getProperty (name) {
-        return this._props[name];
+        return this._effect.getProperty(name);
     },
 
     /**
@@ -188,14 +181,12 @@ let Material = cc.Class({
      * @param {string} name
      * @param {Boolean|Number} val
      */
-    define (name, val, force) {
-        if (this._defines[name] === val && !force) return;
-        this._defines[name] = val;
-        this._effect && this._effect.define(name, val);
+    define (name, val, passIdx, force) {
+        this._effect.define(name, val, passIdx, force);
     },
 
-    getDefine (name) {
-        return this._defines[name];
+    getDefine (name, passIdx) {
+        return this._effect.getDefine(name, passIdx);
     },
 
     updateHash (hash) {
@@ -207,21 +198,66 @@ let Material = cc.Class({
         return this._manualHash || (this._effect && this._effect.getHash());
     },
 
+    _upgrade () {
+        if (!this._props && !this._defines) return;
+        let passDatas = this._techniqueData;
+        let passes = this._effect.passes;
+        for (let i = 0; i < passes.length; i++) {
+            if (this._props) {
+                for (let prop in this._props) {
+                    if (passes[i].getProperty(prop) !== undefined) {
+                        if (!passDatas[i]) {
+                            passDatas[i] = {};
+                        }
+                        if (!passDatas[i].props) {
+                            passDatas[i].props = {};
+                        }
+                        passDatas[i].props[prop] = this._props[prop];
+                    }
+                }
+            }
+
+            if (this._defines) {
+                for (let def in this._defines) {
+                    if (passes[i].getDefine(def) !== undefined) {
+                        if (!passDatas[i]) {
+                            passDatas[i] = {};
+                        }
+                        if (!passDatas[i].defines) {
+                            passDatas[i].defines = {};
+                        }
+                        passDatas[i].defines[def] = this._defines[def];
+                    }
+                }
+            }
+        }
+    },
+
     onLoad () {
         this.effectAsset = this._effectAsset;
         if (!this._effect) return;
 
-        if (this._techniqueName) {
-            this._effect.switchTechnique(this._techniqueName);
+        if (this._techniqueIndex) {
+            this._effect.switchTechnique(this._techniqueIndex);
         }
 
-        for (let def in this._defines) {
-            this.define(def, this._defines[def], true);
+        this._upgrade();
+
+        let passDatas = this._techniqueData;
+        for (let i = 0; i < passDatas.length; i++) {
+            let passData = passDatas[i];
+            if (!passData) continue;
+            
+            for (let def in passData.defines) {
+                this.define(def, passData.defines[def], i);
+            }
+            for (let prop in passData.props) {
+                this.setProperty(prop, passData.props[prop], i);
+            }
         }
-        for (let prop in this._props) {
-            this.setProperty(prop, this._props[prop], true);
-        }
+
     },
 });
+
 
 module.exports = cc.Material = Material;

@@ -279,7 +279,7 @@ export default class ForwardRenderer extends BaseRenderer {
     // draw it
     for (let i = 0; i < items.length; ++i) {
       let item = items.data[i];
-      if (item.effect.getDefine(CC_SHADOW_CASTING)) {
+      if (item.effect.getDefine('CC_CASTING_SHADOW')) {
         this._updateShaderDefines(item);
         this._draw(item);
       }

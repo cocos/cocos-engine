@@ -225,9 +225,8 @@ let MeshRenderer = cc.Class({
             this._setMesh(this._mesh);
         }
 
-        this._updateReceiveShadow();
-        this._updateCastShadow();
         this._updateRenderNode();
+        this._updateMaterial();
     },
 
     onDestroy () {
@@ -291,19 +290,23 @@ let MeshRenderer = cc.Class({
                 this.setMaterial(i, material);
             }
         }
+
+        this._updateReceiveShadow();
+        this._updateCastShadow();
+        this._updateMeshAttribute();
     },
 
     _updateReceiveShadow () {
         let materials = this._materials;
         for (let i = 0; i < materials.length; i++) {
-            materials[i].define('CC_USE_SHADOW_MAP', this._receiveShadows);
+            materials[i].define('CC_USE_SHADOW_MAP', this._receiveShadows, undefined, true);
         }
     },
 
     _updateCastShadow () {
         let materials = this._materials;
         for (let i = 0; i < materials.length; i++) {
-            materials[i].define('CC_SHADOW_CASTING', this._shadowCastingMode === ShadowCastingMode.ON);
+            materials[i].define('CC_CASTING_SHADOW', this._shadowCastingMode === ShadowCastingMode.ON, undefined, true);
         }
     },
 
@@ -316,10 +319,10 @@ let MeshRenderer = cc.Class({
             if (!subDatas[i]) break;
             let vfm = subDatas[i].vfm;
             let material = materials[i];
-            material.define('CC_USE_ATTRIBUTE_COLOR', !!vfm.element(gfx.ATTR_COLOR));
-            material.define('CC_USE_ATTRIBUTE_UV0', !!vfm.element(gfx.ATTR_UV0));
-            material.define('CC_USE_ATTRIBUTE_NORMAL', !!vfm.element(gfx.ATTR_NORMAL));
-            material.define('CC_USE_ATTRIBUTE_TANGENT', !!vfm.element(gfx.ATTR_TANGENT));
+            material.define('CC_USE_ATTRIBUTE_COLOR', !!vfm.element(gfx.ATTR_COLOR), undefined, true);
+            material.define('CC_USE_ATTRIBUTE_UV0', !!vfm.element(gfx.ATTR_UV0), undefined, true);
+            material.define('CC_USE_ATTRIBUTE_NORMAL', !!vfm.element(gfx.ATTR_NORMAL), undefined, true);
+            material.define('CC_USE_ATTRIBUTE_TANGENT', !!vfm.element(gfx.ATTR_TANGENT), undefined, true);
         }
 
         if (CC_DEBUG) {

@@ -35,7 +35,7 @@ function _replaceMacroNums(string, tmpDefines, defines) {
     let value = defines[name];
     if (Number.isInteger(value)) {
       let reg = new RegExp(name, 'g');
-      tmp = tmp.replace(reg, cache[def]);
+      tmp = tmp.replace(reg, value);
     }
   }
   return tmp;

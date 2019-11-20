@@ -2,7 +2,7 @@
 
 import Pass from '../core/pass';
 import Technique from '../core/technique';
-import { getInspectorProps, enums2default, getInstanceType, getInstanceCtor } from '../types';
+import { getInspectorProps, enums2default } from '../types';
 import enums from '../enums';
 
 class Effect {
@@ -13,6 +13,10 @@ class Effect {
 
     get name () {
         return this._name;
+    }
+
+    get passes () {
+        return this._technique.passes;
     }
 
     /**
@@ -30,17 +34,13 @@ class Effect {
         this._properties = {};
     }
 
-
-    switchTechnique (name) {
-        let techniques = this._techniques;
-        for (let i = 0; i < techniques.length; i++) {
-            if (techniques[i].name === name) {
-                this._technique = techniques[i];
-                return;
-            }
+    switchTechnique (index) {
+        if (index >= this._techniques.length) {
+            cc.warn(`Can not switch to technique with index [${index}]`);
+            return;
         }
 
-        cc.warn(`Can not find technique with name [${name}]`);
+        this._technique = techniques[index];
     }
 
 
@@ -50,21 +50,21 @@ class Effect {
     }
 
     setCullMode (cullMode) {
-        let passes = this._technique.passes;
+        let passes = this.passes;
         for (let i = 0; i < passes.length; i++) {
             passes[i].setCullMode(cullMode);
         }
     }
 
     setDepth (depthTest, depthWrite, depthFunc) {
-        let passes = this._technique.passes;
+        let passes = this.passes;
         for (let i = 0; i < passes.length; i++) {
             passes[i].setDepth(depthTest, depthWrite, depthFunc);
         }
     }
 
     setBlend (enabled, blendEq, blendSrc, blendDst, blendAlphaEq, blendSrcAlpha, blendDstAlpha, blendColor) {
-        let passes = this._technique.passes;
+        let passes = this.passes;
         for (let j = 0; j < passes.length; j++) {
             let pass = passes[j];
             pass.setBlend(
@@ -78,14 +78,14 @@ class Effect {
     }
 
     setStencilEnabled (enabled) {
-        let passes = this._technique.passes;
+        let passes = this.passes;
         for (let i = 0; i < passes.length; i++) {
             passes[i].setStencilEnabled(enabled);
         }
     }
 
     setStencil (enabled, stencilFunc, stencilRef, stencilMask, stencilFailOp, stencilZFailOp, stencilZPassOp, stencilWriteMask) {
-        let passes = this._technique.passes;
+        let passes = this.passes;
         for (let i = 0; i < passes.length; ++i) {
             let pass = passes[i];
             pass.setStencilFront(enabled, stencilFunc, stencilRef, stencilMask, stencilFailOp, stencilZFailOp, stencilZPassOp, stencilWriteMask);
@@ -102,7 +102,7 @@ class Effect {
     }
 
     setProperty (name, value, passIdx) {
-        let passes = this._technique.passes;
+        let passes = this.passes;
         let success = false;
         if (passIdx === undefined) {
             for (let i = 0; i < passes.length; i++) {
@@ -134,12 +134,12 @@ class Effect {
         return def;
     }
 
-    define (name, value, passIdx) {
-        let passes = this._technique.passes;
+    define (name, value, passIdx, force) {
+        let passes = this.passes;
         let success = false;
         if (passIdx === undefined) {
             for (let i = 0; i < passes.length; i++) {
-                if (passes[i].define(name, value)) {
+                if (passes[i].define(name, value, force)) {
                     success = true;
                 }
             }
@@ -147,7 +147,7 @@ class Effect {
         else {
             let pass = passes[passIdx];
             if (pass) {
-                success = pass.define(name, value);
+                success = pass.define(name, value, force);
             }
         }
         if (!success) {
@@ -234,13 +234,15 @@ Effect.parseTechniques = function (effectAsset) {
     let techniques = new Array(techNum);
     for (let j = 0; j < techNum; ++j) {
         let tech = effectAsset.techniques[j];
+        let techName = tech.name || j;
+
         let passNum = tech.passes.length;
         let passes = new Array(passNum);
         for (let k = 0; k < passNum; ++k) {
             let pass = tech.passes[k];
 
             let passName = pass.name || k;
-            let detailName = `${effectAsset.name}-${tech.name}-${passName}`;
+            let detailName = `${effectAsset.name}-${techName}-${passName}`;
             let stage = pass.stage || 'opaque';
             let properties = parseProperties(effectAsset, pass);
             let defines = passDefines(pass);
@@ -269,7 +271,6 @@ Effect.parseTechniques = function (effectAsset) {
                     depthStencilState.stencilFailOpBack, depthStencilState.stencilZFailOpBack, depthStencilState.stencilZPassOpBack, depthStencilState.stencilWriteMaskBack);
             }
         }
-        let techName = tech.name || 'default';
         techniques[j] = new Technique(techName, passes);
     }
 
@@ -292,45 +293,36 @@ Effect.parseEffect = function (effect) {
 
 if (CC_EDITOR) {
     // inspector only need properties defined in CCEffect
-    Effect.parseForInspector = function (json) {
-        let techniques = Effect.parseTechniques(json);
-        techniques = techniques.map((tech, techIdx) => {
+    Effect.parseForInspector = function (effectAsset) {
+        return effectAsset.techniques.map((tech, techIdx) => {
             let passes = tech.passes.map((pass, passIdx) => {
-                let properties = {}
-                let props = pass._properties;
-                let jsonProps = {};
-                try {
-                    jsonProps = json.techniques[techIdx].passes[passIdx].properties;
-                }
-                catch (err) {}
+                let program = getInvolvedProgram(pass.program);
+
+                let props = pass.properties;
                 for (let name in props) {
-                    // only export user defined properties
-                    if (jsonProps[name]) {
-                        properties[name] = getInspectorProps(props[name]);
-                    }
+                    props[name] = getInspectorProps(props[name]);
+                    
+                    let u = program.uniforms.find(u => u.name === name);
+                    props[name].defines = u.defines || [];
                 }
 
-                // create defines for inspector
-                let program = getInvolvedProgram(pass._programName);
                 let defines = {};
                 program.defines.map(def => {
                     defines[def.name] = getInspectorProps(def);
                 })
 
                 return {
-                    name: pass._name,
-                    props: properties,
-                    defines,
+                    name: pass.name || passIdx,
+                    props: props || {},
+                    defines: defines || {},
                 };
-            });
+            })
 
             return {
-                name: tech.name,
+                name: tech.name || techIdx,
                 passes: passes,
             };
-        });
-
-        return techniques;
+        })
     };
 }
 
