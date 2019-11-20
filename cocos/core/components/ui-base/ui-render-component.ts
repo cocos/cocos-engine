@@ -45,6 +45,7 @@ import { RenderableComponent } from '../../../core/3d/framework/renderable-compo
 import { IAssembler, IAssemblerManager } from '../../renderer/ui/base';
 import { UIComponent } from './ui-component';
 import { UITransformComponent } from './ui-transfrom-component';
+import { TransformBit } from '../../scene-graph/node-enum';
 
 // hack
 ccenum(GFXBlendFactor);
@@ -387,7 +388,7 @@ export class UIRenderComponent extends UIComponent {
     }
 
     // pos, rot, scale changed
-    protected _nodeStateChange (type: SystemEventType){
+    protected _nodeStateChange (type: TransformBit){
         if (this._renderData) {
             this.markForUpdateRenderData();
         }

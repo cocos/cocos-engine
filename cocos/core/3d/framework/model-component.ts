@@ -30,7 +30,7 @@
 import { Material, Mesh } from '../../assets';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
 import { Model } from '../../renderer/scene/model';
-import { TransformDirtyBit } from '../../scene-graph/node-enum';
+import { TransformBit } from '../../scene-graph/node-enum';
 import { Enum } from '../../value-types';
 import { builtinResMgr } from '../builtin';
 import { RenderableComponent } from './renderable-component';
@@ -249,7 +249,7 @@ export class ModelComponent extends RenderableComponent {
         if (!this._mesh || !this._model) {
             return;
         }
-        this.node.hasChangedFlags = this._model.transform.hasChangedFlags = TransformDirtyBit.POSITION;
+        this.node.hasChangedFlags = this._model.transform.hasChangedFlags = TransformBit.POSITION;
         this._model.isDynamicBatching = this._enableDynamicBatching; // should pass this in before create PSO
         const meshCount = this._mesh ? this._mesh.subMeshCount : 0;
         for (let i = 0; i < meshCount; ++i) {

@@ -36,4 +36,4 @@ export { find } from './find';
 export { PrivateNode } from './private-node';
 export { default as NodeActivator } from './node-activator';
 
-import './deprecated'; 
+import './deprecated';

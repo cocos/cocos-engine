@@ -787,10 +787,9 @@ export class ScrollViewComponent extends ViewGroupComponent {
             this._registerEvent();
             if (this.content) {
                 this.content.on(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);
-                this.content.on(Node.EventType.SCALE_PART, this._calculateBoundary, this);
+                this.content.on(Node.EventType.TRANSFORM_CHANGED, this._calculateBoundary, this);
                 if (this.view!) {
-                    this.view!.on(Node.EventType.POSITION_PART, this._calculateBoundary, this);
-                    this.view!.on(Node.EventType.SCALE_PART, this._calculateBoundary, this);
+                    this.view!.on(Node.EventType.TRANSFORM_CHANGED, this._calculateBoundary, this);
                     this.view!.on(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);
                 }
             }
@@ -809,10 +808,9 @@ export class ScrollViewComponent extends ViewGroupComponent {
             this._unregisterEvent();
             if (this.content) {
                 this.content.off(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);
-                this.content.off(Node.EventType.SCALE_PART, this._calculateBoundary, this);
+                this.content.off(Node.EventType.TRANSFORM_CHANGED, this._calculateBoundary, this);
                 if (this.view!) {
-                    this.view!.off(Node.EventType.POSITION_PART, this._calculateBoundary, this);
-                    this.view!.off(Node.EventType.SCALE_PART, this._calculateBoundary, this);
+                    this.view!.off(Node.EventType.TRANSFORM_CHANGED, this._calculateBoundary, this);
                     this.view!.off(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);
                 }
             }
