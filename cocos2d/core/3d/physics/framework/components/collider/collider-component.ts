@@ -232,7 +232,7 @@ export class PhysicsColliderComponent extends cc.Component {
 
     protected onLoad () {
         if (!CC_EDITOR) {
-            this.sharedMaterial = this._material == null ? Physics3DManager.instance.defaultMaterial : this._material;
+            this.sharedMaterial = this._material == null ? cc.director.getPhysics3DManager().defaultMaterial : this._material;
             this._shape.onLoad!();
         }
     }

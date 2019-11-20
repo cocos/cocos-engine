@@ -152,7 +152,7 @@ export class CannonRigidBody implements IRigidBody {
 
     __preload (com: RigidBodyComponent) {
         this._rigidBody = com;
-        this._sharedBody = (Physics3DManager.instance.physicsWorld as CannonWorld).getSharedBody(this._rigidBody.node);
+        this._sharedBody = (cc.director.getPhysics3DManager().physicsWorld as CannonWorld).getSharedBody(this._rigidBody.node);
         this._sharedBody.reference = true;
         this._sharedBody.wrappedBody = this;
     }

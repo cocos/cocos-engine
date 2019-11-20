@@ -138,8 +138,6 @@ export class Physics3DManager {
         return this._material;
     }
 
-    static readonly instance: Physics3DManager;
-
     readonly physicsWorld: IPhysicsWorld;
     readonly raycastClosestResult = new PhysicsRayResult();
     readonly raycastResults: PhysicsRayResult[] = [];
@@ -213,8 +211,8 @@ export class Physics3DManager {
     }
 
     /**
-     * !#en Collision detect all the boxes, and record all the detected results, through `cc.Physics3DManager.instance.raycastResults` access results
-     * !#zh 检测所有的碰撞盒，并记录所有被检测到的结果，通过 `cc.Physics3DManager.instance.raycastResults` 访问结果
+     * !#en Collision detect all the boxes, and record all the detected results, through `cc.director.getPhysics3DManager().raycastResults` access results
+     * !#zh 检测所有的碰撞盒，并记录所有被检测到的结果，通过 `cc.director.getPhysics3DManager().raycastResults` 访问结果
      * @param worldRay A ray in world space
      * @param groupIndexOrName Collision group index or group name
      * @param maxDistance Maximum detection distance
@@ -237,8 +235,8 @@ export class Physics3DManager {
     }
 
     /**
-     * !#en Collision detect all the boxes, and record and ray test results with the shortest distance by `cc.Physics3DManager.instance.raycastClosestResult` access results
-     * 检测所有的碰撞盒，并记录与射线距离最短的检测结果，通过 `cc.Physics3DManager.instance.raycastClosestResult` 访问结果
+     * !#en Collision detect all the boxes, and record and ray test results with the shortest distance by `cc.director.getPhysics3DManager().raycastClosestResult` access results
+     * 检测所有的碰撞盒，并记录与射线距离最短的检测结果，通过 `cc.director.getPhysics3DManager().raycastClosestResult` 访问结果
      * @param worldRay A ray in world space
      * @param groupIndexOrName Collision group index or group name
      * @param maxDistance Maximum detection distance

@@ -210,7 +210,6 @@ cc.Director.prototype = {
         // collision 3d manager
         if (cc.Collision3DManager) {
             this._collision3DManager = new cc.Collision3DManager();
-            cc.Collision3DManager.instance = this._collision3DManager;
             this._scheduler.scheduleUpdate(this._collision3DManager, Scheduler.PRIORITY_SYSTEM, false);
         } else {
             this._collision3DManager = null;
@@ -219,7 +218,6 @@ cc.Director.prototype = {
         // physics 3d manager
         if (cc.Physics3DManager) {
             this._physics3DManager = new cc.Physics3DManager();
-            cc.Physics3DManager.instance = this._physics3DManager;
             this._scheduler.scheduleUpdate(this._physics3DManager, Scheduler.PRIORITY_SYSTEM, false);
         } else {
             this._physics3DManager = null;
@@ -915,6 +913,26 @@ cc.Director.prototype = {
      */
     getPhysicsManager: function () {
         return this._physicsManager;
+    },
+
+    /**
+     * !#en Returns the cc.Collision3DManager associated with this director.
+     * !#zh 获取和 director 相关联的 cc.Collision3DManager （3D碰撞管理器）。
+     * @method getCollision3DManager
+     * @return {Collision3DManager}
+     */
+    getCollision3DManager: function () {
+        return this._collision3DManager;
+    },
+
+    /**
+     * !#en Returns the cc.Physics3DManager associated with this director.
+     * !#zh 返回与 director 相关联的 cc.Physics3DManager （物理管理器）。
+     * @method getPhysics3DManager
+     * @return {Physics3DManager}
+     */
+    getPhysics3DManager: function () {
+        return this._physics3DManager;
     },
 
     // Loop management

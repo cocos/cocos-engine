@@ -33,7 +33,6 @@ import { IVec3Like } from '../../../../value-types/math';
 import { CannonSharedBody } from '../cannon-shared-body';
 import { CannonWorld } from '../cannon-world';
 import { TriggerEventType } from '../../framework/physics-interface';
-import { Physics3DManager } from '../../framework/physics-manager';
 import { PhysicsColliderComponent } from '../../framework';
 
 const TriggerEventObject = {
@@ -106,7 +105,7 @@ export class CannonShape implements IBaseShape {
         this._collider = comp;
         setWrap(this._shape, this);
         this._shape.addEventListener('triggered', this.onTriggerListener);
-        this._sharedBody = (Physics3DManager.instance.physicsWorld as CannonWorld).getSharedBody(this._collider.node as Node);
+        this._sharedBody = (cc.director.getPhysics3DManager().physicsWorld as CannonWorld).getSharedBody(this._collider.node);
         this._sharedBody.reference = true;
     }
 
