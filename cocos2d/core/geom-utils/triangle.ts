@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 import Vec3 from '../value-types/vec3';
+import enums from './enums';
 
 /**
  * @class geomUtils.Triangle
@@ -147,9 +148,15 @@ export default class triangle {
      */
     c: Vec3;
 
+    /**
+     * @property geometry type
+     */
+    _type: number;
+
     constructor (ax: number, ay: number, az: number, bx: number, by: number, bz: number, cx: number, cy: number, cz: number) {
         this.a = new Vec3(ax, ay, az);
         this.b = new Vec3(bx, by, bz);
         this.c = new Vec3(cx, cy, cz);
+        this._type = enums.SHAPE_TRIANGLE;;
     }
 }

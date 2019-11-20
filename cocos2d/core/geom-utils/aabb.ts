@@ -25,6 +25,7 @@
 
 import Vec3 from '../value-types/vec3';
 import Mat3 from '../value-types/mat3';
+import enums from './enums';
 
 let _v3_tmp = new Vec3();
 let _v3_tmp2 = new Vec3();
@@ -130,8 +131,13 @@ export default class aabb {
      * @property {Vec3} halfExtents
      */
     halfExtents: Vec3;
+    /**
+     * @property {number} _type
+     */
+    _type: number;
 
     constructor (px: number, py: number, pz: number, w: number, h: number, l: number) {
+        this._type = enums.SHAPE_AABB;
         this.center = new Vec3(px, py, pz);
         this.halfExtents = new Vec3(w, h, l);
     }
