@@ -988,6 +988,7 @@
 		BA21055D21009A5500E19975 /* Manifest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA21054D21008AC300E19975 /* Manifest.cpp */; };
 		BA21055E21009A5700E19975 /* AssetsManagerEx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA21054721008AC300E19975 /* AssetsManagerEx.cpp */; };
 		BA21055F21009A5A00E19975 /* CCEventAssetsManagerEx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BA21054921008AC300E19975 /* CCEventAssetsManagerEx.cpp */; };
+		BA4E2C84237E770300287DD6 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA4E2C83237E770300287DD6 /* JavaScriptCore.framework */; };
 		BAC32B39236C28C600F3D55F /* tommytrieinp.h in Headers */ = {isa = PBXBuildFile; fileRef = BAC32B1A236C28C600F3D55F /* tommytrieinp.h */; };
 		BAC32B3A236C28C600F3D55F /* tommytrieinp.h in Headers */ = {isa = PBXBuildFile; fileRef = BAC32B1A236C28C600F3D55F /* tommytrieinp.h */; };
 		BAC32B3B236C28C600F3D55F /* tommylist.h in Headers */ = {isa = PBXBuildFile; fileRef = BAC32B1B236C28C600F3D55F /* tommylist.h */; };
@@ -1643,6 +1644,7 @@
 		BA21055121008AC300E19975 /* ExtensionMacros.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ExtensionMacros.h; sourceTree = "<group>"; };
 		BA21055621008B6600E19975 /* jsb_cocos2dx_extension_auto.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = jsb_cocos2dx_extension_auto.hpp; sourceTree = "<group>"; };
 		BA21055721008B6600E19975 /* jsb_cocos2dx_extension_auto.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_cocos2dx_extension_auto.cpp; sourceTree = "<group>"; };
+		BA4E2C83237E770300287DD6 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		BAC32B1A236C28C600F3D55F /* tommytrieinp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tommytrieinp.h; sourceTree = "<group>"; };
 		BAC32B1B236C28C600F3D55F /* tommylist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tommylist.h; sourceTree = "<group>"; };
 		BAC32B1C236C28C600F3D55F /* tommyarrayblkof.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tommyarrayblkof.c; sourceTree = "<group>"; };
@@ -1743,6 +1745,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BA4E2C84237E770300287DD6 /* JavaScriptCore.framework in Frameworks */,
 				BAC32B7A236C2B9D00F3D55F /* CoreFoundation.framework in Frameworks */,
 				A07A4CAF1783777C0073F6A7 /* Foundation.framework in Frameworks */,
 				BAC32B76236C28F200F3D55F /* UIKit.framework in Frameworks */,
@@ -1794,6 +1797,7 @@
 		1551A341158F2AB200E66CFE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				BA4E2C83237E770300287DD6 /* JavaScriptCore.framework */,
 				BAC32B79236C2B9D00F3D55F /* CoreFoundation.framework */,
 				BAC32B77236C291000F3D55F /* OpenGLES.framework */,
 				BAC32B75236C28F200F3D55F /* UIKit.framework */,
