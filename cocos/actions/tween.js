@@ -13,7 +13,7 @@ let TweenAction = cc.Class({
             let easingName = opts.easing;
             /** adapter */
             let initialChar = easingName.charAt(0);
-            if(/[A-Z]/.test(initialChar)){
+            if (/[A-Z]/.test(initialChar)) {
                 easingName = easingName.replace(initialChar, initialChar.toLowerCase());
                 easingName = easingName.replace(RegExp('-'), '');
             }
@@ -98,8 +98,10 @@ let TweenAction = cc.Class({
         for (let name in props) {
             let prop = props[name];
             let time = prop.easing ? prop.easing(t) : easingTime;
-            let current = prop.current = (prop.progress || progress)(prop.start, prop.end, prop.current, time);
-            target[name] = current;
+            // let current = prop.current = (prop.progress || progress)(prop.start, prop.end, prop.current, time);            
+            let interpolation = prop.progress ? prop.progress : progress;
+            progress2(prop, time, interpolation);
+            target[name] = prop.current;
         }
     },
 
@@ -113,6 +115,28 @@ let TweenAction = cc.Class({
         return current;
     }
 });
+
+function progress2 (prop, t, func) {
+    const start = prop.start;
+    const end = prop.end;
+    if (typeof start === 'number') {
+        prop.current = func(start, end, prop.current, t);
+    } else if (typeof start === 'object') {
+        for (var key in end) {
+            progress2_r(start[key], end[key], t, func, prop.current, key);
+        }
+    }
+}
+
+function progress2_r (start, end, t, func, target, key) {
+    if (typeof start === 'number') {
+        target[key] = func(start, end, target[key], t);
+    } else if (typeof start === 'object') {
+        for (var key in end) {
+            progress2_r(start[key], end[key], t, func, target, key);
+        }
+    }
+}
 
 let SetAction = cc.Class({
     name: 'cc.SetAction',
