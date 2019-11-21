@@ -598,6 +598,7 @@ sp.Skeleton = cc.Class({
      * !#en Whether in cached mode.
      * !#zh 当前是否处于缓存模式。
      * @method isAnimationCached
+     * @return {Boolean}
      */
     isAnimationCached () {
         if (CC_EDITOR) return false;
