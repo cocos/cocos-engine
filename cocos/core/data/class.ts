@@ -1,4 +1,4 @@
-﻿/*
+/*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
@@ -1117,6 +1117,10 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
 
     tmpAttrs.length = 0;
     const result: IParsedAttribute[] = tmpAttrs;
+
+    if ('type' in attributes && typeof attributes.type === 'undefined') {
+        warnID(3660, propertyName, className);
+    }
 
     const type = attributes.type;
     if (type) {

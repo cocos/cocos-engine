@@ -632,6 +632,27 @@ browser does not support getters
 
 Violation error: extending enumerations shall have non-overlaped member names or member values
 
+### 3660
+
+You are explicitly specifying `undefined` type to cc property "%s" of cc class "%s".
+Is this intended? If not, this may indicate a circular reference.
+For example:
+```
+// foo.ts
+import { _decorator } from 'cc';
+import { Bar } from './bar';  // Given that './bar' also reference 'foo.ts'.
+                              // When importing './bar', execution of './bar' is hung on to wait execution of 'foo.ts',
+                              // the `Bar` imported here is `undefined` until './bar' finish its execution.
+                              // It leads to that
+@_decorator.ccclass           //  ↓
+export class Foo {            //  ↓
+    @_decorator.type(Bar)     //  → is equivalent to `@_decorator.type(undefined)`
+    public bar: Bar;          // To eliminate this error, either:
+                              // - Refactor your module structure(recommended), or
+                              // - specify the type as cc class name: `@_decorator.type('Bar'/* or any name you specified for `Bar` */)`
+}
+```
+
 ### 3700
 
 internal error: _prefab is undefined

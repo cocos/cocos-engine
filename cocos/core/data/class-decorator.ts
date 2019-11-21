@@ -346,6 +346,12 @@ export function property (ctorProtoOrOptions?, propName?, desc?) {
             genProperty(ctorProto.constructor, properties, propName, options, desc, cache);
         }
     }
+    if (ctorProtoOrOptions === undefined) {
+        // @property(undefined)
+        return property({
+            type: undefined,
+        });
+    }
     if (typeof propName === 'undefined') {
         options = ctorProtoOrOptions;
         return normalized;
