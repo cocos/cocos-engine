@@ -76,7 +76,9 @@ let Toggle = cc.Class({
                     group.updateToggles(this);
                 }
 
-                this._emitToggleEvents();
+                if (cc.Toggle._triggerEventInScript_isChecked) {
+                    this._emitToggleEvents();
+                }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.toggle.isChecked',
         },
@@ -126,6 +128,11 @@ let Toggle = cc.Class({
 
     },
 
+    statics: {
+        _triggerEventInScript_check: false,
+        _triggerEventInScript_isChecked: false,
+    },
+
     onEnable: function () {
         this._super();
         if (!CC_EDITOR) {
@@ -153,6 +160,9 @@ let Toggle = cc.Class({
 
     toggle: function (event) {
         this.isChecked = !this.isChecked;
+        if (!cc.Toggle._triggerEventInScript_isChecked && (cc.Toggle._triggerEventInScript_check || event)) {
+            this._emitToggleEvents();
+        }
     },
 
     /**
@@ -162,6 +172,9 @@ let Toggle = cc.Class({
      */
     check: function () {
         this.isChecked = true;
+        if (!cc.Toggle._triggerEventInScript_isChecked && cc.Toggle._triggerEventInScript_check) {
+            this._emitToggleEvents();
+        }
     },
 
     /**
@@ -171,6 +184,9 @@ let Toggle = cc.Class({
      */
     uncheck: function () {
         this.isChecked = false;
+        if (!cc.Toggle._triggerEventInScript_isChecked && cc.Toggle._triggerEventInScript_check) {
+            this._emitToggleEvents();
+        }
     },
 
     _updateCheckMark: function () {
