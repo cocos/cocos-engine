@@ -8,7 +8,9 @@ export default class RenderData {
       return this.vertices.length;
   }
   set dataLength (v) {
-    for (let i = this.vertices.length; i < v; i++) {
+    let old = this.vertices.length;
+    this.vertices.length = v;
+    for (let i = old; i < v; i++) {
         this.vertices[i] = {
             x: 0.0,
             y: 0.0,
@@ -16,7 +18,5 @@ export default class RenderData {
             v: 0.0,
         };
     }
-    
-    this.vertices.length = v;
   }
 }
