@@ -137,10 +137,7 @@ export default class ParticleSystemRenderer {
     })
     private _mesh: Mesh | null = null;
 
-    @property({
-        type: cc.ParticleSystemComponent,
-        visible: false,
-    })
+    @property
     private _particleSystem: any = null;
 
     /**
