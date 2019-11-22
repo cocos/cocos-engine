@@ -267,10 +267,19 @@ cc.PlanarShadowInfo = PlanarShadowInfo;
 export class SceneGlobals {
     @property({ type: AmbientInfo })
     public ambient = new AmbientInfo();
-    @property({ type: SkyboxInfo })
-    public skybox = new SkyboxInfo();
+    @property
+    private _skybox = new SkyboxInfo();
     @property({ type: PlanarShadowInfo })
     public planarShadows = new PlanarShadowInfo();
+
+    @property({ type: SkyboxInfo })
+    get skybox() {
+        return this._skybox;
+    }
+
+    set skybox(value) {
+        this._skybox = value;
+    }
 
     set renderScene (rs: RenderScene) {
         this.ambient.renderScene = rs;
