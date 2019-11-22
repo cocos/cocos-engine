@@ -138,28 +138,26 @@ function genHandles (tmpl: IProgramInfo) {
     return handleMap;
 }
 
+function dependencyCheck (dependencies: string[], defines: IDefineMap) {
+    for (let i = 0; i < dependencies.length; i++) {
+        if (!defines[dependencies[i]]) { return false; }
+    }
+    return true;
+}
 function getShaderBindings (
         tmpl: IProgramInfo, defines: IDefineMap, outBlocks: IBlockInfoRT[], outSamplers: ISamplerInfoRT[], bindings: IGFXBinding[]) {
     const { blocks, samplers } = tmpl;
     let lastBinding = -1;
-    blocks:
     for (let i = 0; i < blocks.length; i++) {
         const block = blocks[i];
-        if (block.binding === lastBinding) { continue; }
-        for (let j = 0; j < block.defines.length; j++) {
-            if (!defines[block.defines[j]]) { continue blocks; }
-        }
+        if (block.binding === lastBinding || !dependencyCheck(block.defines, defines)) { continue; }
         lastBinding = block.binding;
         outBlocks.push(block);
         bindings.push(block);
     }
-    samplers:
     for (let i = 0; i < samplers.length; i++) {
         const sampler = samplers[i];
-        if (sampler.binding === lastBinding) { continue; }
-        for (let j = 0; j < sampler.defines.length; j++) {
-            if (!defines[sampler.defines[j]]) { continue samplers; }
-        }
+        if (sampler.binding === lastBinding || !dependencyCheck(sampler.defines, defines)) { continue; }
         lastBinding = sampler.binding;
         outSamplers.push(sampler);
         bindings.push(sampler);

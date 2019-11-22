@@ -7,7 +7,7 @@ import { GFXDevice } from '../../gfx/device';
 import { GFXTexture } from '../../gfx/texture';
 import { GFXTextureView } from '../../gfx/texture-view';
 
-function nearestPO2 (num: number): number {
+export function nearestPOT (num: number): number {
     --num;
     num |= num >> 16;
     num |= num >> 8;
@@ -145,7 +145,7 @@ export class TextureBufferPool {
 
         // create a new one
         const targetSize = Math.sqrt(size / this._formatSize);
-        const texWidth = this._roundUpFn && this._roundUpFn(targetSize, this._formatSize) || Math.max(1024, nearestPO2(targetSize));
+        const texWidth = this._roundUpFn && this._roundUpFn(targetSize, this._formatSize) || Math.max(1024, nearestPOT(targetSize));
         const texSize = texWidth * texWidth * this._formatSize;
 
         console.info('TextureBufferPool: Allocate chunk ' + this._chunkCount + ', size: ' + texSize);
