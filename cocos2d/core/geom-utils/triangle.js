@@ -13,9 +13,9 @@ const vec3 = cc.vmath.vec3;
  * @param {Number} cz 
  */
 function triangle(ax, ay, az, bx, by, bz, cx, cy, cz) {
-    this.a = vec3.create(ax, ay, az);
-    this.b = vec3.create(bx, by, bz);
-    this.c = vec3.create(cx, cy, cz);
+    this.a = cc.v3(ax, ay, az);
+    this.b = cc.v3(bx, by, bz);
+    this.c = cc.v3(cx, cy, cz);
 }
 
 /**
