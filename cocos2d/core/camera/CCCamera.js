@@ -780,8 +780,11 @@ let Camera = cc.Class({
             this._onAlignWithScreen();
         }
         else {
-            this._camera.setFov(this._fov * cc.macro.RAD);
-            this._camera.setOrthoHeight(this._orthoSize);
+            let fov = this._fov * cc.macro.RAD;
+            fov = Math.atan(Math.tan(fov / 2) / this.zoomRatio) * 2;
+            this._camera.setFov(fov);
+
+            this._camera.setOrthoHeight(this._orthoSize * this.zoomRatio);
         }
 
         this._camera.dirty = true;
