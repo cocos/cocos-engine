@@ -118,6 +118,21 @@ function loadDepends (pipeline, item, asset, depends, callback) {
                 item.content._uuid = item.uuid;
             }
         }
+
+        function loadCallback (item) {
+            var value = item.content;
+            if (this._stillUseUrl) {
+                value = (value && cc.RawAsset.wasRawAssetType(value.constructor)) ? value.nativeUrl : item.rawUrl;
+            }
+            if (this._ownerProp === '_nativeAsset') {
+                this._owner.url = item.url;
+            }
+            this._owner[this._ownerProp] = value;
+            if (item.uuid !== asset._uuid && dependKeys.indexOf(item.id) < 0) {
+                dependKeys.push(item.id);
+            }
+        }
+        
         for (var i = 0; i < depends.length; i++) {
             var dep = depends[i];
             var dependSrc = dep.uuid;
@@ -130,19 +145,6 @@ function loadDepends (pipeline, item, asset, depends, callback) {
             }
 
             var loadCallbackCtx = dep;
-            function loadCallback (item) {
-                var value = item.content;
-                if (this._stillUseUrl) {
-                    value = (value && cc.RawAsset.wasRawAssetType(value.constructor)) ? value.nativeUrl : item.rawUrl;
-                }
-                if (this._ownerProp === '_nativeAsset') {
-                    this._owner.url = item.url;
-                }
-                this._owner[this._ownerProp] = value;
-                if (item.uuid !== asset._uuid && dependKeys.indexOf(item.id) < 0) {
-                    dependKeys.push(item.id);
-                }
-            }
 
             if (item.complete || item.content) {
                 if (item.error) {
