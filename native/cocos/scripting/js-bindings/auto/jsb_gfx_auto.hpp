@@ -4,10 +4,10 @@
 
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 
-extern se::Object* __jsb_cc_GFXDevice_proto;
-extern se::Class* __jsb_cc_GFXDevice_class;
+extern se::Object* __jsb_cocos2d_GFXDevice_proto;
+extern se::Class* __jsb_cocos2d_GFXDevice_class;
 
-bool js_register_cc_GFXDevice(se::Object* obj);
+bool js_register_cocos2d_GFXDevice(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_height);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_CreateGFXTextureView);
@@ -37,10 +37,10 @@ SE_DECLARE_FUNC(js_gfx_GFXDevice_CreateGFXInputAssembler);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_CreateGFXFramebuffer);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_GFXDevice);
 
-extern se::Object* __jsb_cc_GFXContext_proto;
-extern se::Class* __jsb_cc_GFXContext_class;
+extern se::Object* __jsb_cocos2d_GFXContext_proto;
+extern se::Class* __jsb_cocos2d_GFXContext_class;
 
-bool js_register_cc_GFXContext(se::Object* obj);
+bool js_register_cocos2d_GFXContext(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_GFXContext_shared_ctx);
 SE_DECLARE_FUNC(js_gfx_GFXContext_color_fmt);
@@ -52,10 +52,10 @@ SE_DECLARE_FUNC(js_gfx_GFXContext_Present);
 SE_DECLARE_FUNC(js_gfx_GFXContext_depth_stencil_fmt);
 SE_DECLARE_FUNC(js_gfx_GFXContext_GFXContext);
 
-extern se::Object* __jsb_cc_GFXWindow_proto;
-extern se::Class* __jsb_cc_GFXWindow_class;
+extern se::Object* __jsb_cocos2d_GFXWindow_proto;
+extern se::Class* __jsb_cocos2d_GFXWindow_class;
 
-bool js_register_cc_GFXWindow(se::Object* obj);
+bool js_register_cocos2d_GFXWindow(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_GFXWindow_depth_stencil_tex_view);
 SE_DECLARE_FUNC(js_gfx_GFXWindow_render_pass);
@@ -79,10 +79,10 @@ SE_DECLARE_FUNC(js_gfx_GFXWindow_Resize);
 SE_DECLARE_FUNC(js_gfx_GFXWindow_left);
 SE_DECLARE_FUNC(js_gfx_GFXWindow_GFXWindow);
 
-extern se::Object* __jsb_cc_GFXBuffer_proto;
-extern se::Class* __jsb_cc_GFXBuffer_class;
+extern se::Object* __jsb_cocos2d_GFXBuffer_proto;
+extern se::Class* __jsb_cocos2d_GFXBuffer_class;
 
-bool js_register_cc_GFXBuffer(se::Object* obj);
+bool js_register_cocos2d_GFXBuffer(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_GFXBuffer_count);
 SE_DECLARE_FUNC(js_gfx_GFXBuffer_memUsage);
@@ -98,10 +98,10 @@ SE_DECLARE_FUNC(js_gfx_GFXBuffer_Resize);
 SE_DECLARE_FUNC(js_gfx_GFXBuffer_size);
 SE_DECLARE_FUNC(js_gfx_GFXBuffer_GFXBuffer);
 
-extern se::Object* __jsb_cc_GFXTexture_proto;
-extern se::Class* __jsb_cc_GFXTexture_class;
+extern se::Object* __jsb_cocos2d_GFXTexture_proto;
+extern se::Class* __jsb_cocos2d_GFXTexture_class;
 
-bool js_register_cc_GFXTexture(se::Object* obj);
+bool js_register_cocos2d_GFXTexture(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_GFXTexture_array_layer);
 SE_DECLARE_FUNC(js_gfx_GFXTexture_format);
@@ -120,10 +120,10 @@ SE_DECLARE_FUNC(js_gfx_GFXTexture_Resize);
 SE_DECLARE_FUNC(js_gfx_GFXTexture_size);
 SE_DECLARE_FUNC(js_gfx_GFXTexture_GFXTexture);
 
-extern se::Object* __jsb_cc_GFXTextureView_proto;
-extern se::Class* __jsb_cc_GFXTextureView_class;
+extern se::Object* __jsb_cocos2d_GFXTextureView_proto;
+extern se::Class* __jsb_cocos2d_GFXTextureView_class;
 
-bool js_register_cc_GFXTextureView(se::Object* obj);
+bool js_register_cocos2d_GFXTextureView(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_GFXTextureView_level_count);
 SE_DECLARE_FUNC(js_gfx_GFXTextureView_format);
@@ -137,10 +137,10 @@ SE_DECLARE_FUNC(js_gfx_GFXTextureView_base_layer);
 SE_DECLARE_FUNC(js_gfx_GFXTextureView_type);
 SE_DECLARE_FUNC(js_gfx_GFXTextureView_GFXTextureView);
 
-extern se::Object* __jsb_cc_GFXSampler_proto;
-extern se::Class* __jsb_cc_GFXSampler_class;
+extern se::Object* __jsb_cocos2d_GFXSampler_proto;
+extern se::Class* __jsb_cocos2d_GFXSampler_class;
 
-bool js_register_cc_GFXSampler(se::Object* obj);
+bool js_register_cocos2d_GFXSampler(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_GFXSampler_cmp_func);
 SE_DECLARE_FUNC(js_gfx_GFXSampler_min_filter);
@@ -160,10 +160,10 @@ SE_DECLARE_FUNC(js_gfx_GFXSampler_max_lod);
 SE_DECLARE_FUNC(js_gfx_GFXSampler_mip_filter);
 SE_DECLARE_FUNC(js_gfx_GFXSampler_GFXSampler);
 
-extern se::Object* __jsb_cc_GFXShader_proto;
-extern se::Class* __jsb_cc_GFXShader_class;
+extern se::Object* __jsb_cocos2d_GFXShader_proto;
+extern se::Class* __jsb_cocos2d_GFXShader_class;
 
-bool js_register_cc_GFXShader(se::Object* obj);
+bool js_register_cocos2d_GFXShader(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_GFXShader_hash);
 SE_DECLARE_FUNC(js_gfx_GFXShader_name);
@@ -175,10 +175,10 @@ SE_DECLARE_FUNC(js_gfx_GFXShader_Destroy);
 SE_DECLARE_FUNC(js_gfx_GFXShader_stages);
 SE_DECLARE_FUNC(js_gfx_GFXShader_GFXShader);
 
-extern se::Object* __jsb_cc_GFXInputAssembler_proto;
-extern se::Class* __jsb_cc_GFXInputAssembler_class;
+extern se::Object* __jsb_cocos2d_GFXInputAssembler_proto;
+extern se::Class* __jsb_cocos2d_GFXInputAssembler_class;
 
-bool js_register_cc_GFXInputAssembler(se::Object* obj);
+bool js_register_cocos2d_GFXInputAssembler(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_set_first_vertex);
 SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_set_vertex_offset);
@@ -203,10 +203,10 @@ SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_indirect_buffer);
 SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_index_buffer);
 SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_GFXInputAssembler);
 
-extern se::Object* __jsb_cc_GFXRenderPass_proto;
-extern se::Class* __jsb_cc_GFXRenderPass_class;
+extern se::Object* __jsb_cocos2d_GFXRenderPass_proto;
+extern se::Class* __jsb_cocos2d_GFXRenderPass_class;
 
-bool js_register_cc_GFXRenderPass(se::Object* obj);
+bool js_register_cocos2d_GFXRenderPass(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_GFXRenderPass_depth_stencil_attachment);
 SE_DECLARE_FUNC(js_gfx_GFXRenderPass_device);
@@ -216,10 +216,10 @@ SE_DECLARE_FUNC(js_gfx_GFXRenderPass_Initialize);
 SE_DECLARE_FUNC(js_gfx_GFXRenderPass_Destroy);
 SE_DECLARE_FUNC(js_gfx_GFXRenderPass_GFXRenderPass);
 
-extern se::Object* __jsb_cc_GFXFramebuffer_proto;
-extern se::Class* __jsb_cc_GFXFramebuffer_class;
+extern se::Object* __jsb_cocos2d_GFXFramebuffer_proto;
+extern se::Class* __jsb_cocos2d_GFXFramebuffer_class;
 
-bool js_register_cc_GFXFramebuffer(se::Object* obj);
+bool js_register_cocos2d_GFXFramebuffer(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_GFXFramebuffer_color_views);
 SE_DECLARE_FUNC(js_gfx_GFXFramebuffer_is_offscreen);
@@ -230,10 +230,10 @@ SE_DECLARE_FUNC(js_gfx_GFXFramebuffer_Destroy);
 SE_DECLARE_FUNC(js_gfx_GFXFramebuffer_render_pass);
 SE_DECLARE_FUNC(js_gfx_GFXFramebuffer_GFXFramebuffer);
 
-extern se::Object* __jsb_cc_GFXBindingLayout_proto;
-extern se::Class* __jsb_cc_GFXBindingLayout_class;
+extern se::Object* __jsb_cocos2d_GFXBindingLayout_proto;
+extern se::Class* __jsb_cocos2d_GFXBindingLayout_class;
 
-bool js_register_cc_GFXBindingLayout(se::Object* obj);
+bool js_register_cocos2d_GFXBindingLayout(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_GFXBindingLayout_BindTextureView);
 SE_DECLARE_FUNC(js_gfx_GFXBindingLayout_BindBuffer);
@@ -245,10 +245,10 @@ SE_DECLARE_FUNC(js_gfx_GFXBindingLayout_Initialize);
 SE_DECLARE_FUNC(js_gfx_GFXBindingLayout_Destroy);
 SE_DECLARE_FUNC(js_gfx_GFXBindingLayout_GFXBindingLayout);
 
-extern se::Object* __jsb_cc_GFXPipelineLayout_proto;
-extern se::Class* __jsb_cc_GFXPipelineLayout_class;
+extern se::Object* __jsb_cocos2d_GFXPipelineLayout_proto;
+extern se::Class* __jsb_cocos2d_GFXPipelineLayout_class;
 
-bool js_register_cc_GFXPipelineLayout(se::Object* obj);
+bool js_register_cocos2d_GFXPipelineLayout(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_GFXPipelineLayout_push_constant_ranges);
 SE_DECLARE_FUNC(js_gfx_GFXPipelineLayout_device);
@@ -257,10 +257,10 @@ SE_DECLARE_FUNC(js_gfx_GFXPipelineLayout_Initialize);
 SE_DECLARE_FUNC(js_gfx_GFXPipelineLayout_Destroy);
 SE_DECLARE_FUNC(js_gfx_GFXPipelineLayout_GFXPipelineLayout);
 
-extern se::Object* __jsb_cc_GFXPipelineState_proto;
-extern se::Class* __jsb_cc_GFXPipelineState_class;
+extern se::Object* __jsb_cocos2d_GFXPipelineState_proto;
+extern se::Class* __jsb_cocos2d_GFXPipelineState_class;
 
-bool js_register_cc_GFXPipelineState(se::Object* obj);
+bool js_register_cocos2d_GFXPipelineState(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_GFXPipelineState_primitive);
 SE_DECLARE_FUNC(js_gfx_GFXPipelineState_layout);
@@ -276,20 +276,20 @@ SE_DECLARE_FUNC(js_gfx_GFXPipelineState_Destroy);
 SE_DECLARE_FUNC(js_gfx_GFXPipelineState_render_pass);
 SE_DECLARE_FUNC(js_gfx_GFXPipelineState_GFXPipelineState);
 
-extern se::Object* __jsb_cc_GFXCommandAllocator_proto;
-extern se::Class* __jsb_cc_GFXCommandAllocator_class;
+extern se::Object* __jsb_cocos2d_GFXCommandAllocator_proto;
+extern se::Class* __jsb_cocos2d_GFXCommandAllocator_class;
 
-bool js_register_cc_GFXCommandAllocator(se::Object* obj);
+bool js_register_cocos2d_GFXCommandAllocator(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_GFXCommandAllocator_Initialize);
 SE_DECLARE_FUNC(js_gfx_GFXCommandAllocator_Destroy);
 SE_DECLARE_FUNC(js_gfx_GFXCommandAllocator_device);
 SE_DECLARE_FUNC(js_gfx_GFXCommandAllocator_GFXCommandAllocator);
 
-extern se::Object* __jsb_cc_GFXCommandBuffer_proto;
-extern se::Class* __jsb_cc_GFXCommandBuffer_class;
+extern se::Object* __jsb_cocos2d_GFXCommandBuffer_proto;
+extern se::Class* __jsb_cocos2d_GFXCommandBuffer_class;
 
-bool js_register_cc_GFXCommandBuffer(se::Object* obj);
+bool js_register_cocos2d_GFXCommandBuffer(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_End);
 SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_BindInputAssembler);
@@ -319,10 +319,10 @@ SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_SetScissor);
 SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_SetLineWidth);
 SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_GFXCommandBuffer);
 
-extern se::Object* __jsb_cc_GFXQueue_proto;
-extern se::Class* __jsb_cc_GFXQueue_class;
+extern se::Object* __jsb_cocos2d_GFXQueue_proto;
+extern se::Class* __jsb_cocos2d_GFXQueue_class;
 
-bool js_register_cc_GFXQueue(se::Object* obj);
+bool js_register_cocos2d_GFXQueue(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_GFXQueue_submit);
 SE_DECLARE_FUNC(js_gfx_GFXQueue_device);
