@@ -178,8 +178,8 @@ export class Physics3DManager {
         this.gravity = this._gravity;
         this.allowSleep = this._allowSleep;
         this._material = new PhysicsMaterial();
-        this._material.friction = 0.6;
-        this._material.restitution = -1;
+        this._material.friction = 0.1;
+        this._material.restitution = 0.1;
         this._material.on('physics_material_update', this._updateMaterial, this);
         this.physicsWorld.defaultMaterial = this._material;
     }
