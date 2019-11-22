@@ -61,7 +61,9 @@ export class ActionInterval extends FiniteTimeAction {
 
     constructor (d?: number) {
         super();
-        d !== undefined && ActionInterval.prototype.initWithDuration.call(this, d);
+        if (d !== undefined && !isNaN(d)) {
+            this.initWithDuration(d);
+        }
     }
 
     /*
