@@ -23,11 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { ILifecycle } from './i-lifecycle'
 import { IVec3Like } from "../../../value-types/math";
 import { PhysicsColliderComponent, RigidBodyComponent } from '../exports/physics-framework';
 
-export interface IBaseShape extends ILifecycle {
+export interface IBaseShape {
     readonly collider: PhysicsColliderComponent;
     readonly attachedRigidBody: RigidBodyComponent | null;
     material: any;

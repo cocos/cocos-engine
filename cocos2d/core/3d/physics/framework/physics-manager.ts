@@ -43,9 +43,9 @@ export class Physics3DManager {
 
     /**
      * !#en
-     * Gets or sets whether the physical system is enabled and can be used to suspend or continue running the physical system.
+     * Gets or sets whether to enable physical systems, which are not enabled by default.
      * !#zh
-     * 获取或设置是否启用物理系统，可以用于暂停或继续运行物理系统。
+     * 获取或设置是否启用物理系统，默认不启用。
      */
     get enable (): boolean {
         return this._enable;
@@ -143,7 +143,7 @@ export class Physics3DManager {
     readonly raycastResults: PhysicsRayResult[] = [];
 
     @property
-    private _enable = true;
+    private _enable = false;
 
     @property
     private _allowSleep = true;

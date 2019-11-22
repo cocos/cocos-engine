@@ -23,11 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { ILifecycle } from './i-lifecycle'
 import { IVec3Like } from "../../../value-types/math";
 import { RigidBodyComponent } from '../framework/components/rigid-body-component';
 
-export interface IRigidBody extends ILifecycle {
+export interface IRigidBody {
     rigidBody: RigidBodyComponent;
 
     mass: number;

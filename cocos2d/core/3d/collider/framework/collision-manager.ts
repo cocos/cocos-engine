@@ -39,8 +39,8 @@ export class Collision3DManager {
     protected _executeInEditMode = false;
 
     /**
-     * !#en Gets or sets whether the collision system is enabled and can be used to suspend or continue running the collision system.
-     * !#zh 获取或设置是否启用碰撞系统，可以用于暂停或继续运行碰撞系统。
+     * !#en Gets or sets whether collision system is enabled, which is not enabled by default.
+     * !#zh 获取或设置是否启用碰撞系统，默认不启用。
      */
     get enable (): boolean {
         return this._enable;
@@ -54,7 +54,7 @@ export class Collision3DManager {
     readonly raycastResults: ColliderRayResult[] = [];
 
     @property
-    private _enable = true;
+    private _enable = false;
 
     private readonly raycastOptions: IRaycastOptions = {
         'groupIndex': -1,

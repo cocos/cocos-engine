@@ -33,7 +33,7 @@ export interface IRaycastOptions {
     maxDistance: number;
 }
 
-export interface ICollisionDetect {
+export interface IColliderWorld {
 
     step (deltaTime: number, ...args: any): void;
 
@@ -48,9 +48,4 @@ export interface ICollisionDetect {
      * @return True if any body was hit.
      */
     raycast (worldRay: Ray, options: IRaycastOptions, pool: RecyclePool, resultes: ColliderRayResult[]): boolean
-}
-
-export interface IColliderWorld extends ICollisionDetect {
-    gravity: IVec3Like;
-    allowSleep: boolean;
 }
