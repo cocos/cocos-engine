@@ -1022,6 +1022,7 @@ let TiledLayer = cc.Class({
 
         let index = Math.floor(x) + Math.floor(y) * this._layerSize.width;
         this._tiledTiles[index] = tiledTile;
+        this._cullingDirty = true;
 
         if (tiledTile) {
             this._hasTiledNodeGrid = true;
