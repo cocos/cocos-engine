@@ -188,6 +188,8 @@ var NodeActivator = cc.Class({
             }
         }
 
+        node._childArrivalOrder = node._children.length;
+        
         // activate children recursively
         for (let i = 0, len = node._children.length; i < len; ++i) {
             let child = node._children[i];

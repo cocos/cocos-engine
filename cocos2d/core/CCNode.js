@@ -1276,6 +1276,7 @@ let NodeDefines = {
 
         this._eventMask = 0;
         this._cullingMask = 1;
+        this._childArrivalOrder = 1;
 
         // Proxy
         if (CC_JSB && CC_NATIVERENDERER) {
@@ -3283,8 +3284,8 @@ let NodeDefines = {
         return rect;
     },
 
-    _updateOrderOfArrival (index) {
-        var arrivalOrder = index || (this._parent ? this._parent.children.length + 1 : 1);
+    _updateOrderOfArrival () {
+        var arrivalOrder = this._parent ? ++this._parent._childArrivalOrder : 0;
         this._localZOrder = (this._localZOrder & 0xffff0000) | arrivalOrder;
         
         this.emit(EventType.SIBLING_ORDER_CHANGED);
@@ -3356,9 +3357,10 @@ let NodeDefines = {
 
             // delay update arrivalOrder before sort children
             var _children = this._children, child;
+            this._parent && (this._parent._childArrivalOrder = 1);
             for (let i = 0, len = _children.length; i < len; i++) {
                 child = _children[i];
-                child._updateOrderOfArrival(i + 1);
+                child._updateOrderOfArrival();
             }
 
             // Optimize reordering event code to fix problems with setting zindex
