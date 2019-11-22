@@ -1,8 +1,8 @@
 
-import { ccclass, property, type } from '../data/class-decorator';
-import { ccenum } from '../value-types/enum';
-import { GFXFormat, GFXLoadOp, GFXStoreOp, GFXTextureLayout, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType} from '../gfx/define';
 import { CCString } from '../data';
+import { ccclass, property } from '../data/class-decorator';
+import { GFXFormat, GFXLoadOp, GFXStoreOp, GFXTextureLayout, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType} from '../gfx/define';
+import { ccenum } from '../value-types/enum';
 
 ccenum(GFXTextureType);
 ccenum(GFXTextureViewType);
@@ -23,21 +23,13 @@ ccenum(RenderFlowType);
 export class RenderTextureDesc {
     @property
     public name: string = '';
-    @property({
-        type: GFXTextureType,
-    })
+    @property({ type: GFXTextureType })
     public type: GFXTextureType = GFXTextureType.TEX2D;
-    @property({
-        type: GFXTextureViewType,
-    })
+    @property({ type: GFXTextureViewType })
     public viewType: GFXTextureViewType = GFXTextureViewType.TV2D;
-    @property({
-        type: GFXTextureUsageBit,
-    })
+    @property({ type: GFXTextureUsageBit })
     public usage: GFXTextureUsageBit = GFXTextureUsageBit.COLOR_ATTACHMENT;
-    @property({
-        type: GFXFormat,
-    })
+    @property({ type: GFXFormat })
     public format: GFXFormat = GFXFormat.UNKNOWN;
     @property
     public width: number = -1;
@@ -51,7 +43,7 @@ export class FrameBufferDesc {
     public name: string = '';
     @property
     public renderPass: number = 0;
-    @type([CCString])
+    @property({ type: [CCString] })
     public colorViews: string[] = [];
     @property
     public depthStencilView: string = '';
@@ -59,61 +51,37 @@ export class FrameBufferDesc {
 
 @ccclass('ColorDesc')
 export class ColorDesc {
-    @property({
-        type: GFXFormat,
-    })
+    @property({ type: GFXFormat })
     public format: GFXFormat = GFXFormat.UNKNOWN;
-    @property({
-        type: GFXLoadOp,
-    })
+    @property({ type: GFXLoadOp })
     public loadOp: GFXLoadOp = GFXLoadOp.CLEAR;
-    @property({
-        type: GFXStoreOp,
-    })
+    @property({ type: GFXStoreOp })
     public storeOp: GFXStoreOp = GFXStoreOp.STORE;
     @property
     public sampleCount: number = 1;
-    @property({
-        type: GFXTextureLayout,
-    })
+    @property({ type: GFXTextureLayout })
     public beginLayout: GFXTextureLayout = GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL;
-    @property({
-        type: GFXTextureLayout,
-    })
+    @property({ type: GFXTextureLayout })
     public endLayout: GFXTextureLayout = GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL;
 }
 
 @ccclass('DepthStencilDesc')
 export class DepthStencilDesc {
-    @property({
-        type: GFXFormat,
-    })
+    @property({ type: GFXFormat })
     public format: GFXFormat = GFXFormat.UNKNOWN;
-    @property({
-        type: GFXLoadOp,
-    })
+    @property({ type: GFXLoadOp })
     public depthLoadOp: GFXLoadOp = GFXLoadOp.CLEAR;
-    @property({
-        type: GFXStoreOp,
-    })
+    @property({ type: GFXStoreOp })
     public depthStoreOp: GFXStoreOp = GFXStoreOp.STORE;
-    @property({
-        type: GFXLoadOp,
-    })
+    @property({ type: GFXLoadOp })
     public stencilLoadOp: GFXLoadOp = GFXLoadOp.CLEAR;
-    @property({
-        type: GFXStoreOp,
-    })
+    @property({ type: GFXStoreOp })
     public stencilStoreOp: GFXStoreOp = GFXStoreOp.STORE;
     @property
     public sampleCount: number = 1;
-    @property({
-        type: GFXTextureLayout,
-    })
+    @property({ type: GFXTextureLayout })
     public beginLayout: GFXTextureLayout = GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL;
-    @property({
-        type: GFXTextureLayout,
-    })
+    @property({ type: GFXTextureLayout })
     public endLayout: GFXTextureLayout = GFXTextureLayout.COLOR_ATTACHMENT_OPTIMAL;
 }
 
@@ -121,12 +89,8 @@ export class DepthStencilDesc {
 export class RenderPassDesc {
     @property
     public index: number = -1;
-    @property({
-        type: [ColorDesc],
-    })
+    @property({ type: [ColorDesc] })
     public colorAttachments = [];
-    @property({
-        type: DepthStencilDesc,
-    })
+    @property({ type: DepthStencilDesc })
     public depthStencilAttachment: DepthStencilDesc = new DepthStencilDesc();
 }

@@ -265,19 +265,19 @@ cc.PlanarShadowInfo = PlanarShadowInfo;
  */
 @ccclass('cc.SceneGlobals')
 export class SceneGlobals {
-    @property({ type: AmbientInfo })
+    @property
     public ambient = new AmbientInfo();
     @property
-    private _skybox = new SkyboxInfo();
-    @property({ type: PlanarShadowInfo })
     public planarShadows = new PlanarShadowInfo();
+    @property
+    private _skybox = new SkyboxInfo();
 
     @property({ type: SkyboxInfo })
-    get skybox() {
+    get skybox () {
         return this._skybox;
     }
 
-    set skybox(value) {
+    set skybox (value) {
         this._skybox = value;
     }
 

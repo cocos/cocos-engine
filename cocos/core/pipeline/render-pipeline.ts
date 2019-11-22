@@ -2,8 +2,8 @@
  * @category pipeline
  */
 
-import { intersect } from '../geom-utils';
 import { ccclass, property } from '../data/class-decorator';
+import { intersect } from '../geom-utils';
 import { GFXBuffer } from '../gfx/buffer';
 import {
     GFXBindingType,
@@ -25,12 +25,11 @@ import { programLib } from '../renderer/core/program-lib';
 import { SKYBOX_FLAG } from '../renderer/scene/camera';
 import { Root } from '../root';
 import { Layers } from '../scene-graph';
-import { IRenderObject, UBOGlobal, UBOShadow, UNIFORM_ENVIRONMENT, RenderPassStage } from './define';
+import { IRenderObject, RenderPassStage, UBOGlobal, UBOShadow, UNIFORM_ENVIRONMENT } from './define';
 import { IInternalBindingInst } from './define';
-import { FrameBufferDesc, RenderPassDesc, RenderTextureDesc, RenderFlowType } from './pipeline-serialization';
-import { IRenderFlowInfo, RenderFlow } from './render-flow';
+import { FrameBufferDesc, RenderFlowType, RenderPassDesc, RenderTextureDesc } from './pipeline-serialization';
+import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
-import { Asset } from '../assets';
 
 const v3_1 = new Vec3();
 
@@ -242,7 +241,7 @@ export abstract class RenderPipeline {
 
     @property({
         type: [RenderFlow],
-        visible: true
+        visible: true,
     })
     protected _flows: RenderFlow[] = [];
 
@@ -316,7 +315,7 @@ export abstract class RenderPipeline {
      * @param info 渲染管线描述信息。
      */
     public initialize (info: IRenderPipelineInfo) {
-        
+
         if (info.enablePostProcess !== undefined) {
             this._usePostProcess = info.enablePostProcess;
         } else {
@@ -330,19 +329,22 @@ export abstract class RenderPipeline {
         this._useSMAA = info.enableSMAA !== undefined ? info.enableSMAA : false;
         this._useMSAA = info.enableMSAA !== undefined ? info.enableMSAA : false;
 
-        if (info.renderTextures)
+        if (info.renderTextures) {
             this.renderTextures = info.renderTextures;
-        if (info.framebuffers)
+        }
+        if (info.framebuffers) {
             this.framebuffers = info.framebuffers;
-        if (info.renderPasses)
+        }
+        if (info.renderPasses) {
             this.renderPasses = info.renderPasses;
+        }
     }
 
     /**
      * 当RenderPipeline资源加载完成后，启用相应的flow
      * @param desc
      */
-    public activate(root: Root): boolean {
+    public activate (root: Root): boolean {
         this._root = root;
         this._device = root.device;
 
@@ -357,17 +359,6 @@ export abstract class RenderPipeline {
             }
         }
         return true;
-    }
-
-    /**
-     * 激活一个RenderFlow，将其添加到可执行的RenderFlow数组中
-     * @param flow 运行时会执行的RenderFlow
-     */
-    private activateFlow (flow: RenderFlow) {
-        this._activeFlows.push(flow);
-        this._activeFlows.sort((a: RenderFlow, b: RenderFlow) => {
-            return a.priority - b.priority;
-        });
     }
 
     /**
@@ -508,6 +499,153 @@ export abstract class RenderPipeline {
         }
     }
 
+    /**
+     * @zh
+     * 更新指定渲染视图的UBO。
+     * @param view 渲染视图。
+     */
+    public updateUBOs (view: RenderView) {
+
+        const camera = view.camera;
+        const scene = camera.scene!;
+        const device = this._root.device;
+
+        const mainLight = scene.mainLight;
+        const ambient = scene.ambient;
+        const fv = this._uboGlobal.view;
+
+        // update UBOGlobal
+        fv[UBOGlobal.TIME_OFFSET] = this._root.cumulativeTime;
+        fv[UBOGlobal.TIME_OFFSET + 1] = this._root.frameTime;
+        fv[UBOGlobal.TIME_OFFSET + 2] = cc.director.getTotalFrames();
+
+        fv[UBOGlobal.SCREEN_SIZE_OFFSET] = device.width;
+        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1] = device.height;
+        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 2] = 1.0 / fv[UBOGlobal.SCREEN_SIZE_OFFSET];
+        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 3] = 1.0 / fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1];
+
+        fv[UBOGlobal.SCREEN_SCALE_OFFSET] = camera.width / this._shadingWidth * this._shadingScale;
+        fv[UBOGlobal.SCREEN_SCALE_OFFSET + 1] = camera.height / this._shadingHeight * this._shadingScale;
+        fv[UBOGlobal.SCREEN_SCALE_OFFSET + 2] = 1.0 / fv[UBOGlobal.SCREEN_SCALE_OFFSET];
+        fv[UBOGlobal.SCREEN_SCALE_OFFSET + 3] = 1.0 / fv[UBOGlobal.SCREEN_SCALE_OFFSET + 1];
+
+        fv[UBOGlobal.NATIVE_SIZE_OFFSET] = this._shadingWidth;
+        fv[UBOGlobal.NATIVE_SIZE_OFFSET + 1] = this._shadingHeight;
+        fv[UBOGlobal.NATIVE_SIZE_OFFSET + 2] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET];
+        fv[UBOGlobal.NATIVE_SIZE_OFFSET + 3] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET + 1];
+
+        Mat4.toArray(fv, camera.matView, UBOGlobal.MAT_VIEW_OFFSET);
+
+        Mat4.toArray(fv, camera.node.worldMatrix, UBOGlobal.MAT_VIEW_INV_OFFSET);
+        Mat4.toArray(fv, camera.matProj, UBOGlobal.MAT_PROJ_OFFSET);
+        Mat4.toArray(fv, camera.matProjInv, UBOGlobal.MAT_PROJ_INV_OFFSET);
+        Mat4.toArray(fv, camera.matViewProj, UBOGlobal.MAT_VIEW_PROJ_OFFSET);
+        Mat4.toArray(fv, camera.matViewProjInv, UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET);
+        Vec3.toArray(fv, camera.position, UBOGlobal.CAMERA_POS_OFFSET);
+
+        const exposure = camera.exposure;
+        fv[UBOGlobal.EXPOSURE_OFFSET] = exposure;
+        fv[UBOGlobal.EXPOSURE_OFFSET + 1] = 1.0 / exposure;
+        fv[UBOGlobal.EXPOSURE_OFFSET + 2] = this._isHDR ? 1.0 : 0.0;
+        fv[UBOGlobal.EXPOSURE_OFFSET + 3] = this._fpScale / exposure;
+
+        if (mainLight) {
+            Vec3.toArray(fv, mainLight.direction, UBOGlobal.MAIN_LIT_DIR_OFFSET);
+            Vec3.toArray(fv, mainLight.color, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
+            if (mainLight.useColorTemperature) {
+                const colorTempRGB = mainLight.colorTemperatureRGB;
+                fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET] *= colorTempRGB.x;
+                fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 1] *= colorTempRGB.y;
+                fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 2] *= colorTempRGB.z;
+            }
+
+            if (this._isHDR) {
+                fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * this._fpScale;
+            } else {
+                fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * exposure;
+            }
+        } else {
+            Vec3.toArray(fv, Vec3.UNIT_Z, UBOGlobal.MAIN_LIT_DIR_OFFSET);
+            Vec4.toArray(fv, Vec4.ZERO, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
+        }
+
+        const skyColor = ambient.skyColor;
+        if (this._isHDR) {
+            skyColor[3] = ambient.skyIllum * this._fpScale;
+        } else {
+            skyColor[3] = ambient.skyIllum * exposure;
+        }
+        this._uboGlobal.view.set(skyColor, UBOGlobal.AMBIENT_SKY_OFFSET);
+
+        this._uboGlobal.view.set(ambient.groundAlbedo, UBOGlobal.AMBIENT_GROUND_OFFSET);
+
+        // update ubos
+        this._globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(this._uboGlobal.view.buffer);
+    }
+
+    /**
+     * @zh
+     * 场景裁剪。
+     * @param view 渲染视图。
+     */
+    public sceneCulling (view: RenderView) {
+
+        const camera = view.camera;
+        const scene = camera.scene!;
+
+        this._renderObjects.length = 0;
+
+        const mainLight = scene.mainLight;
+        const planarShadows = scene.planarShadows;
+        if (mainLight) {
+            mainLight.update();
+            if (planarShadows.enabled && mainLight.node!.hasChangedFlags) {
+                planarShadows.updateDirLight(mainLight);
+            }
+        }
+
+        if (scene.skybox.enabled && (camera.clearFlag & SKYBOX_FLAG)) {
+            this.addVisibleModel(scene.skybox, camera);
+        }
+
+        const models = scene.models;
+        for (let i = 0; i < models.length; i++) {
+            const model = models[i];
+
+            model._resetUBOUpdateFlag();
+
+            // filter model by view visibility
+            if (model.enabled) {
+                const vis = view.visibility & Layers.BitMask.UI_2D;
+                if (vis) {
+                    if ((model.node && (view.visibility === model.node.layer)) ||
+                        view.visibility === model.visFlags) {
+                        model.updateTransform();
+                        model.updateUBOs();
+                        this.addVisibleModel(model, camera);
+                    }
+                } else {
+                    if (model.node && ((view.visibility & model.node.layer) === model.node.layer) ||
+                        (view.visibility & model.visFlags)) {
+                        model.updateTransform();
+
+                        // frustum culling
+                        if (model.worldBounds && !intersect.aabb_frustum(model.worldBounds, camera.frustum)) {
+                            continue;
+                        }
+
+                        model.updateUBOs();
+                        this.addVisibleModel(model, camera);
+                    }
+                }
+            }
+        }
+
+        if (planarShadows.enabled) {
+            planarShadows.updateCommandBuffers(camera.frustum);
+        }
+    }
+
     protected _initRenderResource () {
 
         if (this._usePostProcess) {
@@ -616,7 +754,7 @@ export abstract class RenderPipeline {
                 console.error('RenderPass:' + fbd.renderPass + ' not found!');
                 return false;
             }
-            const tvs = new Array;
+            const tvs: GFXTextureView[] = [];
             for (let j = 0; j < fbd.colorViews.length; j++) {
                 const tv = this._textureViews.get(fbd.colorViews[j]);
                 if (tv == null) {
@@ -669,28 +807,28 @@ export abstract class RenderPipeline {
         this.destroyQuadInputAssembler();
         this.destroyUBOs();
 
-        let rtIter = this._renderTextures.values();
+        const rtIter = this._renderTextures.values();
         let rtRes = rtIter.next();
         while (!rtRes.done) {
             rtRes.value.destroy();
             rtRes = rtIter.next();
         }
 
-        let tvIter = this._textureViews.values();
+        const tvIter = this._textureViews.values();
         let tvRes = tvIter.next();
         while (!tvRes.done) {
             tvRes.value.destroy();
             tvRes = tvIter.next();
         }
 
-        let rpIter = this._renderPasses.values();
+        const rpIter = this._renderPasses.values();
         let rpRes = rpIter.next();
         while (!rpRes.done) {
             rpRes.value.destroy();
             rpRes = rpIter.next();
         }
 
-        let fbIter = this._frameBuffers.values();
+        const fbIter = this._frameBuffers.values();
         let fbRes = fbIter.next();
         while (!fbRes.done) {
             fbRes.value.destroy();
@@ -709,7 +847,7 @@ export abstract class RenderPipeline {
         this._shadingWidth = width;
         this._shadingHeight = height;
 
-        let rtIter = this.renderTextures.values();
+        const rtIter = this.renderTextures.values();
         let rtRes = rtIter.next();
         while (!rtRes.done) {
             this._renderTextures.get(rtRes.value.name)!.resize(width, height);
@@ -722,7 +860,7 @@ export abstract class RenderPipeline {
             rtRes = rtIter.next();
         }
 
-        let fbIter = this.framebuffers.values();
+        const fbIter = this.framebuffers.values();
         let fbRes = fbIter.next();
         while (!fbRes.done) {
             this._frameBuffers.get(fbRes.value.name)!.destroy();
@@ -890,153 +1028,6 @@ export abstract class RenderPipeline {
 
     /**
      * @zh
-     * 更新指定渲染视图的UBO。
-     * @param view 渲染视图。
-     */
-    public updateUBOs (view: RenderView) {
-
-        const camera = view.camera;
-        const scene = camera.scene!;
-        const device = this._root.device;
-
-        const mainLight = scene.mainLight;
-        const ambient = scene.ambient;
-        const fv = this._uboGlobal.view;
-
-        // update UBOGlobal
-        fv[UBOGlobal.TIME_OFFSET] = this._root.cumulativeTime;
-        fv[UBOGlobal.TIME_OFFSET + 1] = this._root.frameTime;
-        fv[UBOGlobal.TIME_OFFSET + 2] = cc.director.getTotalFrames();
-
-        fv[UBOGlobal.SCREEN_SIZE_OFFSET] = device.width;
-        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1] = device.height;
-        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 2] = 1.0 / fv[UBOGlobal.SCREEN_SIZE_OFFSET];
-        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 3] = 1.0 / fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1];
-
-        fv[UBOGlobal.SCREEN_SCALE_OFFSET] = camera.width / this._shadingWidth * this._shadingScale;
-        fv[UBOGlobal.SCREEN_SCALE_OFFSET + 1] = camera.height / this._shadingHeight * this._shadingScale;
-        fv[UBOGlobal.SCREEN_SCALE_OFFSET + 2] = 1.0 / fv[UBOGlobal.SCREEN_SCALE_OFFSET];
-        fv[UBOGlobal.SCREEN_SCALE_OFFSET + 3] = 1.0 / fv[UBOGlobal.SCREEN_SCALE_OFFSET + 1];
-
-        fv[UBOGlobal.NATIVE_SIZE_OFFSET] = this._shadingWidth;
-        fv[UBOGlobal.NATIVE_SIZE_OFFSET + 1] = this._shadingHeight;
-        fv[UBOGlobal.NATIVE_SIZE_OFFSET + 2] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET];
-        fv[UBOGlobal.NATIVE_SIZE_OFFSET + 3] = 1.0 / fv[UBOGlobal.NATIVE_SIZE_OFFSET + 1];
-
-        Mat4.toArray(fv, camera.matView, UBOGlobal.MAT_VIEW_OFFSET);
-
-        Mat4.toArray(fv, camera.node.worldMatrix, UBOGlobal.MAT_VIEW_INV_OFFSET);
-        Mat4.toArray(fv, camera.matProj, UBOGlobal.MAT_PROJ_OFFSET);
-        Mat4.toArray(fv, camera.matProjInv, UBOGlobal.MAT_PROJ_INV_OFFSET);
-        Mat4.toArray(fv, camera.matViewProj, UBOGlobal.MAT_VIEW_PROJ_OFFSET);
-        Mat4.toArray(fv, camera.matViewProjInv, UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET);
-        Vec3.toArray(fv, camera.position, UBOGlobal.CAMERA_POS_OFFSET);
-
-        const exposure = camera.exposure;
-        fv[UBOGlobal.EXPOSURE_OFFSET] = exposure;
-        fv[UBOGlobal.EXPOSURE_OFFSET + 1] = 1.0 / exposure;
-        fv[UBOGlobal.EXPOSURE_OFFSET + 2] = this._isHDR ? 1.0 : 0.0;
-        fv[UBOGlobal.EXPOSURE_OFFSET + 3] = this._fpScale / exposure;
-
-        if (mainLight) {
-            Vec3.toArray(fv, mainLight.direction, UBOGlobal.MAIN_LIT_DIR_OFFSET);
-            Vec3.toArray(fv, mainLight.color, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
-            if (mainLight.useColorTemperature) {
-                const colorTempRGB = mainLight.colorTemperatureRGB;
-                fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET] *= colorTempRGB.x;
-                fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 1] *= colorTempRGB.y;
-                fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 2] *= colorTempRGB.z;
-            }
-
-            if (this._isHDR) {
-                fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * this._fpScale;
-            } else {
-                fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * exposure;
-            }
-        } else {
-            Vec3.toArray(fv, Vec3.UNIT_Z, UBOGlobal.MAIN_LIT_DIR_OFFSET);
-            Vec4.toArray(fv, Vec4.ZERO, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
-        }
-
-        const skyColor = ambient.skyColor;
-        if (this._isHDR) {
-            skyColor[3] = ambient.skyIllum * this._fpScale;
-        } else {
-            skyColor[3] = ambient.skyIllum * exposure;
-        }
-        this._uboGlobal.view.set(skyColor, UBOGlobal.AMBIENT_SKY_OFFSET);
-
-        this._uboGlobal.view.set(ambient.groundAlbedo, UBOGlobal.AMBIENT_GROUND_OFFSET);
-
-        // update ubos
-        this._globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(this._uboGlobal.view.buffer);
-    }
-
-    /**
-     * @zh
-     * 场景裁剪。
-     * @param view 渲染视图。
-     */
-    public sceneCulling (view: RenderView) {
-
-        const camera = view.camera;
-        const scene = camera.scene!;
-
-        this._renderObjects.length = 0;
-
-        const mainLight = scene.mainLight;
-        const planarShadows = scene.planarShadows;
-        if (mainLight) {
-            mainLight.update();
-            if (planarShadows.enabled && mainLight.node!.hasChangedFlags) {
-                planarShadows.updateDirLight(mainLight);
-            }
-        }
-
-        if (scene.skybox.enabled && (camera.clearFlag & SKYBOX_FLAG)) {
-            this.addVisibleModel(scene.skybox, camera);
-        }
-
-        const models = scene.models;
-        for (let i = 0; i < models.length; i++) {
-            const model = models[i];
-
-            model._resetUBOUpdateFlag();
-
-            // filter model by view visibility
-            if (model.enabled) {
-                const vis = view.visibility & Layers.BitMask.UI_2D;
-                if (vis) {
-                    if ((model.node && (view.visibility === model.node.layer)) ||
-                        view.visibility === model.visFlags) {
-                        model.updateTransform();
-                        model.updateUBOs();
-                        this.addVisibleModel(model, camera);
-                    }
-                } else {
-                    if (model.node && ((view.visibility & model.node.layer) === model.node.layer) ||
-                        (view.visibility & model.visFlags)) {
-                        model.updateTransform();
-
-                        // frustum culling
-                        if (model.worldBounds && !intersect.aabb_frustum(model.worldBounds, camera.frustum)) {
-                            continue;
-                        }
-
-                        model.updateUBOs();
-                        this.addVisibleModel(model, camera);
-                    }
-                }
-            }
-        }
-
-        if (planarShadows.enabled) {
-            planarShadows.updateCommandBuffers(camera.frustum);
-        }
-    }
-
-    /**
-     * @zh
      * 添加可见对象。
      * @param model 模型。
      * @param camera 相机。
@@ -1050,6 +1041,17 @@ export abstract class RenderPipeline {
         this._renderObjects.push({
             model,
             depth,
+        });
+    }
+
+    /**
+     * 激活一个RenderFlow，将其添加到可执行的RenderFlow数组中
+     * @param flow 运行时会执行的RenderFlow
+     */
+    private activateFlow (flow: RenderFlow) {
+        this._activeFlows.push(flow);
+        this._activeFlows.sort((a: RenderFlow, b: RenderFlow) => {
+            return a.priority - b.priority;
         });
     }
 

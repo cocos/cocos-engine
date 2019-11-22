@@ -2,11 +2,10 @@
  * @category pipeline.forward
  */
 
-import { intersect, sphere } from '../../geom-utils';
 import { ccclass } from '../../data/class-decorator';
+import { intersect, sphere } from '../../geom-utils';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
-import { GFXRenderPass } from '../../gfx/render-pass';
 import { Vec3 } from '../../math';
 import { Light, Model } from '../../renderer';
 import { DirectionalLight } from '../../renderer/scene/directional-light';
@@ -15,13 +14,11 @@ import { SphereLight } from '../../renderer/scene/sphere-light';
 import { SpotLight } from '../../renderer/scene/spot-light';
 import { Root } from '../../root';
 import { cullDirectionalLight, cullSphereLight, cullSpotLight } from '../culling';
-import { PIPELINE_FLOW_FORWARD, PIPELINE_FLOW_TONEMAP, RenderPassStage, UBOForwardLight } from '../define';
-import { RenderPipeline, IRenderPipelineInfo, IRenderPipelineDesc } from '../render-pipeline';
+import { PIPELINE_FLOW_TONEMAP, UBOForwardLight } from '../define';
+import { IRenderPipelineInfo, RenderPipeline } from '../render-pipeline';
 import { RenderView } from '../render-view';
 import { UIFlow } from '../ui/ui-flow';
 import { ForwardFlow } from './forward-flow';
-import { ToneMapFlow } from '../ppfx/tonemap-flow';
-import { ForwardFlowPriority } from './enum';
 
 const _vec4Array = new Float32Array(4);
 const _sphere = sphere.create(0, 0, 0, 1);
@@ -35,6 +32,10 @@ const _tempVec3 = new Vec3();
  */
 @ccclass('ForwardPipeline')
 export class ForwardPipeline extends RenderPipeline {
+
+    public get lightsUBO (): GFXBuffer {
+        return this._lightsUBO!;
+    }
 
     public static initInfo: IRenderPipelineInfo = {
     };
@@ -69,29 +70,25 @@ export class ForwardPipeline extends RenderPipeline {
      */
     private _lightIndices: number[];
 
-    public get lightsUBO(): GFXBuffer {
-        return this._lightsUBO!;
-    }
-
     /**
      * 构造函数。
      * @param root Root类实例。
      */
-    constructor() {
+    constructor () {
         super();
         this._validLights = [];
         this._lightIndexOffset = [];
         this._lightIndices = [];
     }
 
-    public initialize(info: IRenderPipelineInfo) {
+    public initialize (info: IRenderPipelineInfo) {
         super.initialize(info);
         const forwardFlow = new ForwardFlow();
         forwardFlow.initialize(ForwardFlow.initInfo);
         this._flows.push(forwardFlow);
     }
 
-    public activate(root: Root): boolean {
+    public activate (root: Root): boolean {
         if (!super.activate(root)) {
             return false;
         }
@@ -116,32 +113,11 @@ export class ForwardPipeline extends RenderPipeline {
         return true;
     }
 
-    protected createUBOs(): boolean {
-        if (!this._globalBindings.get(UBOForwardLight.BLOCK.name)) {
-            const lightsUBO = this._root.device.createBuffer({
-                usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: UBOForwardLight.SIZE,
-            });
-
-            if (!lightsUBO) {
-                return false;
-            }
-
-            this._globalBindings.set(UBOForwardLight.BLOCK.name, {
-                type: GFXBindingType.UNIFORM_BUFFER,
-                blockInfo: UBOForwardLight.BLOCK,
-                buffer: lightsUBO,
-            });
-        }
-        return super.createUBOs();
-    }
-
     /**
      * @zh
      * 销毁函数。
      */
-    public destroy() {
+    public destroy () {
         const lightsUBO = this._globalBindings.get(UBOForwardLight.BLOCK.name);
         if (lightsUBO) {
             lightsUBO.buffer!.destroy();
@@ -155,7 +131,7 @@ export class ForwardPipeline extends RenderPipeline {
      * @zh
      * 重构函数。
      */
-    public rebuild() {
+    public rebuild () {
         super.rebuild();
         for (let i = 0; i < this._flows.length; i++) {
             this._flows[i].rebuild();
@@ -166,7 +142,7 @@ export class ForwardPipeline extends RenderPipeline {
      * @zh
      * 更新UBO。
      */
-    public updateUBOs(view: RenderView) {
+    public updateUBOs (view: RenderView) {
         super.updateUBOs(view);
 
         const exposure = view.camera.exposure;
@@ -259,7 +235,7 @@ export class ForwardPipeline extends RenderPipeline {
      * 场景裁剪。
      * @param view 渲染视图。
      */
-    public sceneCulling(view: RenderView) {
+    public sceneCulling (view: RenderView) {
         super.sceneCulling(view);
         this._validLights.length = 0;
         const sphereLights = view.camera.scene!.sphereLights;
@@ -289,6 +265,27 @@ export class ForwardPipeline extends RenderPipeline {
                 this.cullLightPerModel(this._renderObjects[i].model);
             }
         }
+    }
+
+    protected createUBOs (): boolean {
+        if (!this._globalBindings.get(UBOForwardLight.BLOCK.name)) {
+            const lightsUBO = this._root.device.createBuffer({
+                usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                size: UBOForwardLight.SIZE,
+            });
+
+            if (!lightsUBO) {
+                return false;
+            }
+
+            this._globalBindings.set(UBOForwardLight.BLOCK.name, {
+                type: GFXBindingType.UNIFORM_BUFFER,
+                blockInfo: UBOForwardLight.BLOCK,
+                buffer: lightsUBO,
+            });
+        }
+        return super.createUBOs();
     }
 
     /**
@@ -324,7 +321,7 @@ export class ForwardPipeline extends RenderPipeline {
         Array.prototype.push.apply(this._lightIndices, _tempLightIndex);
     }
 
-    private sortLight(a, b) {
+    private sortLight (a: number, b: number) {
         return _tempLightDist[a] - _tempLightDist[b];
     }
 }

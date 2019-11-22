@@ -5,7 +5,6 @@ import { Mat4, Vec3 } from '../../math';
 import { RecyclePool } from '../../memop';
 import { Root } from '../../root';
 import { Layers } from '../../scene-graph/layers';
-import { Node } from '../../scene-graph/node';
 import { INode } from '../../utils/interfaces';
 import { Ambient } from './ambient';
 import { Camera, ICameraInfo } from './camera';
@@ -397,7 +396,7 @@ export class RenderScene {
         const canvasComs = cc.director.getScene().getComponentsInChildren(cc.CanvasComponent);
         if (canvasComs != null && canvasComs.length > 0) {
             for (let i = 0; i < canvasComs.length; i++) {
-                const canvasNode = canvasComs[i].node as Node;
+                const canvasNode = canvasComs[i].node as INode;
                 if (canvasNode != null && canvasNode.active) {
                     this._raycastUI2DNodeRecursiveChildren(worldRay, canvasNode, mask, distance);
                 }

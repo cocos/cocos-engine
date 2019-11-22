@@ -5,7 +5,6 @@
 import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { CachedArray } from '../memop/cached-array';
 import { IRenderObject, IRenderPass, IRenderQueueDesc } from './define';
-import { getPhaseID } from './pass-phase';
 
 /**
  * @en
@@ -114,40 +113,6 @@ export class RenderQueue {
         });
         return true;
     }
-
-    // public add (model: Model, camera: Camera) {
-    //     let depth = 0;
-    //     if (model.node) {
-    //         model.node.getWorldPosition(_v3tmp);
-    //         vec3.subtract(_v3tmp, _v3tmp, camera.position);
-    //         depth = vec3.dot(_v3tmp, camera.forward);
-    //     }
-
-    //     for (let i = 0; i < model.subModelNum; ++i) {
-    //         const subModel = model.getSubModel(i);
-    //         const len = subModel.passes.length;
-    //         for (let p = 0; p < len; ++p) {
-
-    //             const pass = subModel.passes[p];
-    //             const pso = subModel.psos[p];
-    //             const isTransparent = pso.blendState.targets[0].blend;
-
-    //             if (!isTransparent) {
-    //                 const hash = (0 << 30) | (pass.priority << 16) | (subModel.priority << 8) | p;
-
-    //                 this.opaques.push({
-    //                     hash, depth, shaderId: pso.shader.id,
-    //                     subModel, cmdBuff: subModel.commandBuffers[p]});
-    //             } else {
-    //                 const hash = (1 << 30) | (pass.priority << 16) | (subModel.priority << 8) | p;
-
-    //                 this.transparents.push({
-    //                     hash, depth, shaderId: pso.shader.id,
-    //                     subModel, cmdBuff: subModel.commandBuffers[p]});
-    //             }
-    //         }
-    //     }
-    // }
 
     /**
      * @zh

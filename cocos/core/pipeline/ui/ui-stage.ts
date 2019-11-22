@@ -4,11 +4,9 @@
 
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXCommandBufferType, IGFXColor } from '../../gfx/define';
-import { getPhaseID } from '../pass-phase';
-import { RenderQueue, transparentCompareFn } from '../render-queue';
-import { IRenderStageInfo, RenderStage, RenderQueueSortMode } from '../render-stage';
-import { RenderView } from '../render-view';
 import { RenderFlow } from '../render-flow';
+import { IRenderStageInfo, RenderQueueSortMode, RenderStage } from '../render-stage';
+import { RenderView } from '../render-view';
 
 const bufs: GFXCommandBuffer[] = [];
 const colors: IGFXColor[] = [];
@@ -27,14 +25,14 @@ export class UIStage extends RenderStage {
             stages: ['default'],
             sortMode: RenderQueueSortMode.BACK_TO_FRONT,
         }],
-        framebuffer: 'window'
+        framebuffer: 'window',
     };
 
     constructor () {
         super();
     }
 
-    public activate(flow: RenderFlow) {
+    public activate (flow: RenderFlow) {
         super.activate(flow);
         this._cmdBuff = this._device!.createCommandBuffer({
             allocator: this._device!.commandAllocator,

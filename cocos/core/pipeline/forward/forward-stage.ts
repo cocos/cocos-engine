@@ -4,15 +4,14 @@
 
 import { ccclass } from '../../data/class-decorator';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXClearFlag, GFXCommandBufferType, GFXFilter, IGFXColor } from '../../gfx/define';
+import { GFXClearFlag, GFXFilter, IGFXColor } from '../../gfx/define';
 import { Layers } from '../../scene-graph';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
-import { RenderQueue } from '../render-queue';
-import { IRenderStageInfo, RenderStage, RenderQueueSortMode } from '../render-stage';
+import { RenderFlow } from '../render-flow';
+import { IRenderStageInfo, RenderQueueSortMode, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { ForwardStagePriority } from './enum';
-import { RenderFlow } from '../render-flow';
 
 const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
@@ -37,8 +36,8 @@ export class ForwardStage extends RenderStage {
                 isTransparent: true,
                 sortMode: RenderQueueSortMode.BACK_TO_FRONT,
                 stages: ['default', 'planarShadow'],
-            }
-        ]
+            },
+        ],
     };
 
     private _opaqueBatchedQueue: RenderBatchedQueue;
@@ -116,10 +115,10 @@ export class ForwardStage extends RenderStage {
                     }
                 }
             } else {
-                for (let i = 0; i < ro.model.subModelNum; i++) {
-                    for (let j = 0; j < ro.model.getSubModel(i).passes.length; j++) {
+                for (let l = 0; l < ro.model.subModelNum; l++) {
+                    for (let j = 0; j < ro.model.getSubModel(l).passes.length; j++) {
                         for (let k = 0; k < this._renderQueues.length; k++) {
-                            this._renderQueues[k].insertRenderPass(ro, i, j);
+                            this._renderQueues[k].insertRenderPass(ro, l, j);
                         }
                     }
                 }
