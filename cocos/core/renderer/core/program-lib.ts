@@ -291,9 +291,7 @@ class ProgramLib {
         if (!tmpl.globalsInited) { insertBuiltinBindings(tmpl, pipeline.globalBindings, 'globals'); tmpl.globalsInited = true; }
 
         const macroArray = prepareDefines(defines, tmpl.defines);
-        const customDef = macroArray.reduce((acc, cur) => {
-            return `${acc}#define ${cur.name} ${cur.value}\n`;
-        }, '');
+        const customDef = macroArray.reduce((acc, cur) => `${acc}#define ${cur.name} ${cur.value}\n`, '');
 
         let vert: string = '';
         let frag: string = '';
