@@ -181,17 +181,16 @@ let Mesh = cc.Class({
      * @param {gfx.VertexFormat} vertexFormat - vertex format
      * @param {Number} vertexCount - how much vertex should be create in this buffer.
      * @param {Boolean} [dynamic] - whether or not to use dynamic buffer.
+     * @param {Boolean} [index]
      */
-    init (vertexFormat, vertexCount, dynamic) {
-        this.clear();
-
+    init (vertexFormat, vertexCount, dynamic = false, index = 0) {
         let data = new Uint8Array(vertexFormat._bytes * vertexCount);
         let meshData = new MeshData();
         meshData.vData = data;
         meshData.vfm = vertexFormat;
         meshData.vDirty = true;
         meshData.canBatch = this._canVertexFormatBatch(vertexFormat);
-        
+
         if (!(CC_JSB && CC_NATIVERENDERER)) {
             let vb = new gfx.VertexBuffer(
                 renderer.device,
@@ -200,10 +199,22 @@ let Mesh = cc.Class({
                 data,
             );
 
-            meshData.vb = vb;   
+            meshData.vb = vb; 
+            this._subMeshes[index] = new InputAssembler(meshData.vb);
         }
 
-        this._subDatas.push(meshData);
+        let oldSubData = this._subDatas[index];
+        if (oldSubData) {
+            if (oldSubData.vb) {
+                oldSubData.vb.destroy();
+            }
+            if (oldSubData.ib) {
+                oldSubData.ib.destroy();
+            }
+        }
+
+        this._subDatas[index] = meshData;
+        
         this.loaded = true;
         this.emit('load');
         this.emit('init-format');
@@ -229,7 +240,13 @@ let Mesh = cc.Class({
 
         // whether the values is expanded
         let isFlatMode = typeof values[0] === 'number';
+
         let elNum = el.num;
+        let verticesCount = isFlatMode ? ((values.length / elNum) | 0) : values.length;
+        if (subData.vData.byteLength < verticesCount * el.stride) {
+            subData.vData = new Uint8Array(verticesCount * subData.vfm._bytes);
+        }
+
         let data;
         let bytes = 4;
         if (name === gfx.ATTR_COLOR) {
@@ -317,7 +334,7 @@ let Mesh = cc.Class({
                 );
 
                 subData.ib = buffer;
-                this._subMeshes[index] = new InputAssembler(subData.vb, buffer);
+                this._subMeshes[index]._indexBuffer = subData.ib;
             }
         }
         else {
