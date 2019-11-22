@@ -165,8 +165,8 @@ export abstract class RenderFlow {
      * @param height 屏幕高度。
      */
     public resize(width: number, height: number) {
-        for (const stage of this._stages) {
-            stage.resize(width, height);
+        for (let i = 0; i < this._stages.length; i++) {
+            this._stages[i].resize(width, height);
         }
     }
 
@@ -176,8 +176,8 @@ export abstract class RenderFlow {
      * @param view 渲染视图。
      */
     public render(view: RenderView) {
-        for (const stage of this._stages) {
-            stage.render(view);
+        for (let i = 0; i < this._stages.length; i++) {
+            this._stages[i].render(view);
         }
     }
 
@@ -186,8 +186,8 @@ export abstract class RenderFlow {
      * 销毁全部渲染阶段。
      */
     public destroyStages() {
-        for (const stage of this._stages) {
-            stage.destroy();
+        for (let i = 0; i < this._stages.length; i++) {
+            this._stages[i].destroy();
         }
         this._stages = [];
     }

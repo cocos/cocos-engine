@@ -237,8 +237,8 @@ export abstract class RenderStage {
 
         for (let i = 0; i < this.renderQueues.length; i++) {
             let phase = 0;
-            for (const p of this.renderQueues[i].stages) {
-                phase |= getPhaseID(p);
+            for (let j = 0; j < this.renderQueues[i].stages.length; j++) {
+                phase |= getPhaseID(this.renderQueues[i].stages[j]);
             }
             let sortFunc: (a: IRenderPass, b: IRenderPass) => number = opaqueCompareFn;
             switch (this.renderQueues[i].sortMode) {

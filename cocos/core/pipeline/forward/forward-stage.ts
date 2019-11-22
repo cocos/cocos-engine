@@ -118,8 +118,8 @@ export class ForwardStage extends RenderStage {
             } else {
                 for (let i = 0; i < ro.model.subModelNum; i++) {
                     for (let j = 0; j < ro.model.getSubModel(i).passes.length; j++) {
-                        for (const rq of this._renderQueues) {
-                            rq.insertRenderPass(ro, i, j);
+                        for (let k = 0; k < this._renderQueues.length; k++) {
+                            this._renderQueues[k].insertRenderPass(ro, i, j);
                         }
                     }
                 }

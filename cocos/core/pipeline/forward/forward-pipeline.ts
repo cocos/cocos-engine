@@ -69,7 +69,7 @@ export class ForwardPipeline extends RenderPipeline {
      */
     private _lightIndices: number[];
 
-    public get lightsUBO (): GFXBuffer {
+    public get lightsUBO(): GFXBuffer {
         return this._lightsUBO!;
     }
 
@@ -77,7 +77,7 @@ export class ForwardPipeline extends RenderPipeline {
      * 构造函数。
      * @param root Root类实例。
      */
-    constructor () {
+    constructor() {
         super();
         this._validLights = [];
         this._lightIndexOffset = [];
@@ -91,7 +91,7 @@ export class ForwardPipeline extends RenderPipeline {
         this._flows.push(forwardFlow);
     }
 
-    public activate (root: Root) {
+    public activate(root: Root) {
         super.activate(root);
         this.getFlow(PIPELINE_FLOW_FORWARD)!.activate(this);
 
@@ -115,7 +115,7 @@ export class ForwardPipeline extends RenderPipeline {
         return true;
     }
 
-    protected createUBOs (): boolean {
+    protected createUBOs(): boolean {
         if (!this._globalBindings.get(UBOForwardLight.BLOCK.name)) {
             const lightsUBO = this._root.device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
@@ -140,7 +140,7 @@ export class ForwardPipeline extends RenderPipeline {
      * @zh
      * 销毁函数。
      */
-    public destroy () {
+    public destroy() {
         const lightsUBO = this._globalBindings.get(UBOForwardLight.BLOCK.name);
         if (lightsUBO) {
             lightsUBO.buffer!.destroy();
@@ -154,10 +154,10 @@ export class ForwardPipeline extends RenderPipeline {
      * @zh
      * 重构函数。
      */
-    public rebuild () {
+    public rebuild() {
         super.rebuild();
-        for (const flow of this._flows) {
-            flow.rebuild();
+        for (let i = 0; i < this._flows.length; i++) {
+            this._flows[i].rebuild();
         }
     }
 
@@ -165,7 +165,7 @@ export class ForwardPipeline extends RenderPipeline {
      * @zh
      * 更新UBO。
      */
-    protected updateUBOs (view: RenderView) {
+    protected updateUBOs(view: RenderView) {
         super.updateUBOs(view);
 
         const exposure = view.camera.exposure;
@@ -258,10 +258,11 @@ export class ForwardPipeline extends RenderPipeline {
      * 场景裁剪。
      * @param view 渲染视图。
      */
-    protected sceneCulling (view: RenderView) {
+    protected sceneCulling(view: RenderView) {
         super.sceneCulling(view);
         this._validLights.splice(0);
-        for (const light of view.camera.scene.sphereLights) {
+        for (let i = 0; i < view.camera.scene.sphereLights.length; i++) {
+            const light = view.camera.scene.sphereLights[i];
             if (light.enabled) {
                 light.update();
                 sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
@@ -270,7 +271,8 @@ export class ForwardPipeline extends RenderPipeline {
                 }
             }
         }
-        for (const light of view.camera.scene.spotLights) {
+        for (let i = 0; i < view.camera.scene.spotLights.length; i++) {
+            const light = view.camera.scene.spotLights[i];
             if (light.enabled) {
                 light.update();
                 sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
@@ -295,7 +297,7 @@ export class ForwardPipeline extends RenderPipeline {
      * 对每个模型裁剪光源。
      * @param model 模型。
      */
-    private cullLightPerModel (model: Model) {
+    private cullLightPerModel(model: Model) {
         _tempLightIndex.splice(0);
         for (let i = 0; i < this._validLights.length; i++) {
             let isCulled = false;
@@ -323,7 +325,7 @@ export class ForwardPipeline extends RenderPipeline {
         this._lightIndices.push(..._tempLightIndex);
     }
 
-    private sortLight (a, b) {
+    private sortLight(a, b) {
         return _tempLightDist[a] - _tempLightDist[b];
     }
 }

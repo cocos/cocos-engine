@@ -383,8 +383,8 @@ export abstract class RenderPipeline {
 
         this.updateUBOs(view);
 
-        for (const flow of view.flows) {
-            flow.render(view);
+        for (let i = 0; i < view.flows.length; i++) {
+            view.flows[i].render(view);
         }
     }
 
@@ -413,8 +413,8 @@ export abstract class RenderPipeline {
             this.resizeFBOs(w, h);
         }
 
-        for (const flow of this._flows) {
-            flow.resize(width, height);
+        for (let i = 0; i < this._flows.length; i++) {
+            this._flows[i].resize(width, height);
         }
     }
 
@@ -476,8 +476,8 @@ export abstract class RenderPipeline {
      * 销毁全部渲染流程。
      */
     public destroyFlows () {
-        for (const flow of this._flows) {
-            flow.destroy();
+        for (let i = 0; i < this._flows.length; i++) {
+            this._flows[i].destroy();
         }
         this._flows = [];
     }
@@ -488,9 +488,9 @@ export abstract class RenderPipeline {
      * @param name 名称。
      */
     public getFlow (name: string): RenderFlow | null {
-        for (const flow of this._flows) {
-            if (flow.name === name) {
-                return flow;
+        for (let i = 0; i < this._flows.length; i++) {
+            if (this._flows[i].name === name) {
+                return this._flows[i];
             }
         }
 
@@ -504,8 +504,8 @@ export abstract class RenderPipeline {
     public updateMacros () {
         programLib.destroyShaderByDefines(this._macros);
         this._macros.CC_USE_HDR = (this._isHDR);
-        for (const scene of this._root.scenes) {
-            scene.onPipelineChange();
+        for (let i = 0; i < this._root.scenes.length; i++) {
+            this._root.scenes[i].onPipelineChange();
         }
     }
 
@@ -652,20 +652,32 @@ export abstract class RenderPipeline {
         this.destroyQuadInputAssembler();
         this.destroyUBOs();
 
-        for (const rt of this._renderTextures.values()) {
-            rt.destroy();
+        let rtIter = this._renderTextures.values();
+        let rtRes = rtIter.next();
+        while (!rtRes.done) {
+            rtRes.value.destroy();
+            rtRes = rtIter.next();
         }
 
-        for (const tv of this._textureViews.values()) {
-            tv.destroy();
+        let tvIter = this._textureViews.values();
+        let tvRes = tvIter.next();
+        while (!tvRes.done) {
+            tvRes.value.destroy();
+            tvRes = tvIter.next();
         }
 
-        for (const rp of this._renderPasses.values()) {
-            rp.destroy();
+        let rpIter = this._renderPasses.values();
+        let rpRes = rpIter.next();
+        while (!rpRes.done) {
+            rpRes.value.destroy();
+            rpRes = rpIter.next();
         }
 
-        for (const fb of this._frameBuffers.values()) {
-            fb.destroy();
+        let fbIter = this._frameBuffers.values();
+        let fbRes = fbIter.next();
+        while (!fbRes.done) {
+            fbRes.value.destroy();
+            fbRes = fbIter.next();
         }
     }
 
@@ -680,25 +692,31 @@ export abstract class RenderPipeline {
         this._shadingWidth = width;
         this._shadingHeight = height;
 
-        for (const rtd of this.renderTextures.values()) {
-            this._renderTextures.get(rtd.name)!.resize(width, height);
-            this._textureViews.get(rtd.name)!.destroy();
-            this._textureViews.get(rtd.name)!.initialize({
-                texture: this._renderTextures.get(rtd.name)!,
-                type: rtd.viewType,
-                format: this._getTextureFormat(rtd.format, rtd.usage),
+        let rtIter = this.renderTextures.values();
+        let rtRes = rtIter.next();
+        while (!rtRes.done) {
+            this._renderTextures.get(rtRes.value.name)!.resize(width, height);
+            this._textureViews.get(rtRes.value.name)!.destroy();
+            this._textureViews.get(rtRes.value.name)!.initialize({
+                texture: this._renderTextures.get(rtRes.value.name)!,
+                type: rtRes.value.viewType,
+                format: this._getTextureFormat(rtRes.value.format, rtRes.value.usage),
             });
+            rtRes = rtIter.next();
         }
 
-        for (const fbd of this.framebuffers.values()) {
-            this._frameBuffers.get(fbd.name)!.destroy();
-            this._frameBuffers.get(fbd.name)!.initialize({
-                renderPass: this._renderPasses.get(fbd.renderPass)!,
-                colorViews: fbd.colorViews.map((value) => {
+        let fbIter = this.framebuffers.values();
+        let fbRes = fbIter.next();
+        while (!fbRes.done) {
+            this._frameBuffers.get(fbRes.value.name)!.destroy();
+            this._frameBuffers.get(fbRes.value.name)!.initialize({
+                renderPass: this._renderPasses.get(fbRes.value.renderPass)!,
+                colorViews: fbRes.value.colorViews.map((value) => {
                     return this._textureViews.get(value)!;
                 }, this),
-                depthStencilView: this._textureViews.get(fbd.depthStencilView)!,
+                depthStencilView: this._textureViews.get(fbRes.value.depthStencilView)!,
             });
+            fbRes = fbIter.next();
         }
 
         console.info('Resizing shading fbos: ' + this._shadingWidth + 'x' + this._shadingHeight);
@@ -963,8 +981,8 @@ export abstract class RenderPipeline {
             this.addVisibleModel(scene.skybox, camera);
         }
 
-        for (const model of scene.models) {
-
+        for (let i = 0; i < scene.models.length; i++) {
+            const model = scene.models[i];
             model._resetUBOUpdateFlag();
 
             // filter model by view visibility
