@@ -5,10 +5,10 @@
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXCommandBufferType, IGFXColor } from '../../gfx/define';
 import { getPhaseID } from '../pass-phase';
-import { RenderFlow } from '../render-flow';
 import { RenderQueue, transparentCompareFn } from '../render-queue';
-import { IRenderStageInfo, RenderStage } from '../render-stage';
+import { IRenderStageInfo, RenderStage, RenderQueueSortMode } from '../render-stage';
 import { RenderView } from '../render-view';
+import { RenderFlow } from '../render-flow';
 
 const bufs: GFXCommandBuffer[] = [];
 const colors: IGFXColor[] = [];
@@ -19,35 +19,27 @@ const colors: IGFXColor[] = [];
  */
 export class UIStage extends RenderStage {
 
-    private _uiQueue: RenderQueue;
-
-    constructor (flow: RenderFlow) {
-        super(flow);
-        this._uiQueue = new RenderQueue({
+    public static initInfo: IRenderStageInfo = {
+        name: 'UIStage',
+        priority: 0,
+        renderQueues: [{
             isTransparent: true,
-            phases: getPhaseID('default'),
-            sortFunc: transparentCompareFn,
-        });
+            stages: ['default'],
+            sortMode: RenderQueueSortMode.BACK_TO_FRONT,
+        }],
+        framebuffer: 'window'
+    };
+
+    constructor () {
+        super();
     }
 
-    public initialize (info: IRenderStageInfo): boolean {
-
-        if (info.name !== undefined) {
-            this._name = info.name;
-        }
-
-        this._priority = info.priority;
-
-        if (info.framebuffer !== undefined) {
-            this._framebuffer = info.framebuffer;
-        }
-
-        this._cmdBuff = this._device.createCommandBuffer({
-            allocator: this._device.commandAllocator,
+    public activate(flow: RenderFlow) {
+        super.activate(flow);
+        this._cmdBuff = this._device!.createCommandBuffer({
+            allocator: this._device!.commandAllocator,
             type: GFXCommandBufferType.PRIMARY,
         });
-
-        return true;
     }
 
     public destroy () {
@@ -66,16 +58,16 @@ export class UIStage extends RenderStage {
 
     public render (view: RenderView) {
 
-        this._uiQueue.clear();
+        this._renderQueues[0].clear();
 
-        for (const ro of this._pipeline.renderObjects) {
+        for (const ro of this._pipeline!.renderObjects) {
             for (let i = 0; i < ro.model.subModelNum; i++) {
                 for (let j = 0; j < ro.model.getSubModel(i).passes.length; j++) {
-                    this._uiQueue.insertRenderPass(ro, i, j);
+                    this._renderQueues[0].insertRenderPass(ro, i, j);
                 }
             }
         }
-        this._uiQueue.sort();
+        this._renderQueues[0].sort();
 
         const framebuffer = view.window!.framebuffer;
 
@@ -84,23 +76,23 @@ export class UIStage extends RenderStage {
         const camera = view.camera!;
 
         const vp = camera.viewport;
-        this._renderArea.x = vp.x * camera.width;
-        this._renderArea.y = vp.y * camera.height;
-        this._renderArea.width = vp.width * camera.width;
-        this._renderArea.height = vp.height * camera.height;
+        this._renderArea!.x = vp.x * camera.width;
+        this._renderArea!.y = vp.y * camera.height;
+        this._renderArea!.width = vp.width * camera.width;
+        this._renderArea!.height = vp.height * camera.height;
 
         colors[0] = camera.clearColor;
 
         cmdBuff.begin();
-        cmdBuff.beginRenderPass(framebuffer, this._renderArea,
-            camera.clearFlag, colors, camera.clearDepth, camera.clearStencil);
+        cmdBuff.beginRenderPass(framebuffer, this._renderArea!,
+            camera.clearFlag, [camera.clearColor], camera.clearDepth, camera.clearStencil);
 
-        cmdBuff.execute(this._uiQueue.cmdBuffs.array, this._uiQueue.cmdBuffCount);
+        cmdBuff.execute(this._renderQueues[0].cmdBuffs.array, this._renderQueues[0].cmdBuffCount);
 
         cmdBuff.endRenderPass();
         cmdBuff.end();
 
         bufs[0] = cmdBuff;
-        this._device.queue.submit(bufs);
+        this._device!.queue.submit(bufs);
     }
 }

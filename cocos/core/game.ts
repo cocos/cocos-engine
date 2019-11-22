@@ -32,6 +32,7 @@ import { WebGLGFXDevice } from './gfx/webgl/webgl-device';
 import { WebGL2GFXDevice } from './gfx/webgl2/webgl2-device';
 import * as debug from './platform/debug';
 import { SplashScreen } from './splash-image';
+import { ForwardPipeline } from './pipeline';
 /**
  * @en
  * The current game configuration, including:<br/>
@@ -977,6 +978,15 @@ export class Game extends EventTarget {
         this.on(Game.EVENT_SHOW, () => {
             cc.game.resume();
         });
+    }
+
+    private setRenderPipeline (rppl) {
+        // cc.director.root.setRenderPipeline(rppl.renderPipeline);
+        if (!rppl) {
+            rppl = new ForwardPipeline();
+            rppl.initialize(ForwardPipeline.initInfo);
+        }
+        cc.director.root.setRenderPipeline(rppl);
     }
 }
 
