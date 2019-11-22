@@ -414,7 +414,6 @@ export class Tween {
         return this;
     }
 
-
     /**
      * !#en
      * Add an sequence action
@@ -500,28 +499,19 @@ export class Tween {
      * @param {Action | Tween} [action]
      * @return {Tween}
      */
-    repeat (repeatTimes: number, tween?: Tween): Tween {
-        let actions = this._actions;
-        let action = arguments[arguments.length - 1];
-        let length = arguments.length - 1;
+    repeat (repeatTimes: number, embedTween?: Tween): Tween {
+        const actions = this._actions;
+        let action = actions[actions.length - 1];
 
-        if (action instanceof Tween) {
-            action = action._union();
-        }
-        else if (!(action instanceof Action)) {
-            action = actions[actions.length - 1];
-            actions.length -= 1;
-            length += 1;
+        if (embedTween instanceof Tween) {
+            action = embedTween._union();
         }
 
-        let args = [action];
-        for (let i = 0; i < length; i++) {
-            args.push(arguments[i]);
-        }
+        // if (embedTween instanceof Action) {
+        //     action = embedTween;
+        // }
 
-        action = repeat(args, repeatTimes);
-        actions.push(action);
-
+        actions.push(repeat(action, repeatTimes));
         return this;
     }
 
@@ -535,29 +525,22 @@ export class Tween {
      * @param {Action | Tween} [action]
      * @return {Tween}
      */
-    repeatForever (): Tween {
-        let actions = this._actions;
-        let action = arguments[arguments.length - 1];
-        let length = arguments.length - 1;
+    repeatForever (embedTween?: Tween): Tween {
+        const actions = this._actions;
+        let action = actions[actions.length - 1];
 
-        if (action instanceof Tween) {
-            action = action._union();
-        }
-        else if (!(action instanceof Action)) {
-            action = actions[actions.length - 1];
-            actions.length -= 1;
-            length += 1;
+        if (embedTween instanceof Tween) {
+            action = embedTween._union();
         }
 
-        let args = [action];
-        for (let i = 0; i < length; i++) {
-            args.push(arguments[i]);
-        }
+        // if (embedTween instanceof Action) {
+        //     action = embedTween;
+        // }
 
-        action = repeatForever(args);
-        actions.push(action);
+        actions.push(repeatForever(action as ActionInterval));
         return this;
     }
+
     /**
      * !#en
      * Add an reverse time action.
@@ -568,27 +551,19 @@ export class Tween {
      * @param {Action | Tween} [action]
      * @return {Tween}
      */
-    reverseTime (): Tween {
-        let actions = this._actions;
-        let action = arguments[arguments.length - 1];
-        let length = arguments.length - 1;
+    reverseTime (embedTween?: Tween): Tween {
+        const actions = this._actions;
+        let action = actions[actions.length - 1];
 
-        if (action instanceof Tween) {
-            action = action._union();
-        }
-        else if (!(action instanceof Action)) {
-            action = actions[actions.length - 1];
-            actions.length -= 1;
-            length += 1;
+        if (embedTween instanceof Tween) {
+            action = embedTween._union();
         }
 
-        let args = [action];
-        for (let i = 0; i < length; i++) {
-            args.push(arguments[i]);
-        }
+        // if (embedTween instanceof Action) {
+        //     action = embedTween;
+        // }
 
-        action = reverseTime(args);
-        actions.push(action);
+        actions.push(reverseTime(action as ActionInterval));
         return this;
     }
 

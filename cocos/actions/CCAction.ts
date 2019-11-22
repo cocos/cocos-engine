@@ -25,7 +25,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { logID, errorID, CCObject, Node } from '../core';
+import { logID, errorID, Node } from '../core';
 
 /**
  * !#en Base classAction for action classes.
@@ -194,9 +194,6 @@ export class Action {
  * @extends Action
  */
 export class FiniteTimeAction extends Action {
-
-    get duration () { return this._duration; }
-    get timesForRepeat () { return this._timesForRepeat; }
 
     _duration: number = 0;
     _timesForRepeat: number = 1;

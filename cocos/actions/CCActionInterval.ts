@@ -638,7 +638,7 @@ export class RepeatForever extends ActionInterval {
 
     private _innerAction: ActionInterval | null = null;
 
-    constructor (action?: any) {
+    constructor (action?: ActionInterval) {
         super();
         action && this.initWithAction(action);
     }
@@ -647,7 +647,7 @@ export class RepeatForever extends ActionInterval {
      * @param {ActionInterval} action
      * @return {Boolean}
      */
-    initWithAction (action: any) {
+    initWithAction (action: ActionInterval) {
         if (!action) {
             errorID(1026);
             return false;
@@ -722,7 +722,7 @@ export class RepeatForever extends ActionInterval {
  * // example
  * var repeat = repeatForever(cc.rotateBy(1.0, 360));
  */
-export function repeatForever (action: any): ActionInterval {
+export function repeatForever (action?: ActionInterval): ActionInterval {
     return new RepeatForever(action);
 }
 
