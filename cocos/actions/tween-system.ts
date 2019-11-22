@@ -1,14 +1,5 @@
 import { System, Director, director } from "../core";
-
-export function tween (target: {}) {
-    return new cc.Tween(target);
-}
-cc.tween = tween;
-
-export function tweenUtil (target: {}) {
-    return tween(target);
-}
-cc.tweenUtil = tweenUtil;
+import { ActionManager } from "./CCActionManager";
 
 export class TweenSystem extends System {
     static readonly ID = 'tween';
@@ -19,7 +10,7 @@ export class TweenSystem extends System {
         return this.actionMgr;
     }
 
-    private actionMgr = new cc.ActionManager();
+    private actionMgr = new ActionManager();
 
     postUpdate (dt: number) {
         if (!CC_EDITOR || this._executeInEditMode) {

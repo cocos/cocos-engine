@@ -2,5 +2,4 @@
  * @hidden
  */
 
-export * from '../cocos/actions';
-export * from '../cocos/actions/tween-system';
+export * from '../cocos/actions/index';

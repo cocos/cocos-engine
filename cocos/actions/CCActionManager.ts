@@ -25,21 +25,24 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import * as js from './../core/utils/js';
+import * as js from '../core/utils/js';
+import { errorID } from '../core/platform/debug';
+import { Action } from './CCAction';
+import { Node } from '../core';
 
 /*
  * @class HashElement
  * @constructor
  * @private
  */
-var HashElement = function () {
-    this.actions = [];
-    this.target = null; //ccobject
-    this.actionIndex = 0;
-    this.currentAction = null; //CCAction
-    this.paused = false;
-    this.lock = false;
-};
+class HashElement {
+    actions = [];
+    target: object | null = null; //ccobject
+    actionIndex = 0;
+    currentAction = null; //CCAction
+    paused = false;
+    lock = false;
+}
 
 /**
  * !#en
@@ -60,25 +63,24 @@ var HashElement = function () {
  * @class ActionManager
  * @example {@link cocos2d/core/CCActionManager/ActionManager.js}
  */
-cc.ActionManager = function () {
-    this._hashTargets = js.createMap(true);
-    this._arrayTargets = [];
-    this._currentTarget = null;
-    // cc.director._scheduler && cc.director._scheduler.enableForTarget(this);
-};
-cc.ActionManager.prototype = {
-    constructor: cc.ActionManager,
-    _elementPool: [],
+export class ActionManager {
+    private _hashTargets = js.createMap(true);
+    private _arrayTargets: HashElement[] = [];
+    private _currentTarget!: HashElement;
+    private _elementPool: HashElement[] = [];
+    constructor () {
+        // cc.director._scheduler && cc.director._scheduler.enableForTarget(this);
+    }
 
-    _searchElementByTarget:function (arr, target) {
+    private _searchElementByTarget (arr: HashElement[], target: object) {
         for (var k = 0; k < arr.length; k++) {
             if (target === arr[k].target)
                 return arr[k];
         }
         return null;
-    },
+    }
 
-    _getElement: function (target, paused) {
+    private _getElement (target: object, paused: boolean) {
         var element = this._elementPool.pop();
         if (!element) {
             element = new HashElement();
@@ -86,9 +88,9 @@ cc.ActionManager.prototype = {
         element.target = target;
         element.paused = !!paused;
         return element;
-    },
+    }
 
-    _putElement: function (element) {
+    private _putElement (element: HashElement) {
         element.actions.length = 0;
         element.actionIndex = 0;
         element.currentAction = null;
@@ -96,7 +98,7 @@ cc.ActionManager.prototype = {
         element.target = null;
         element.lock = false;
         this._elementPool.push(element);
-    },
+    }
 
     /**
      * !#en
@@ -112,21 +114,21 @@ cc.ActionManager.prototype = {
      *
      * @method addAction
      * @param {Action} action
-     * @param {Node} target
+     * @param {object} target
      * @param {Boolean} paused
      */
-    addAction:function (action, target, paused) {
+    addAction (action: Action, target: Node, paused: boolean) {
         if (!action || !target) {
-            cc.errorID(1000);
+            errorID(1000);
             return;
         }
 
         //check if the action target already exists
-        var element = this._hashTargets[target._id];
+        var element = this._hashTargets[target.uuid];
         //if doesn't exists, create a hashelement and push in mpTargets
         if (!element) {
             element = this._getElement(target, paused);
-            this._hashTargets[target._id] = element;
+            this._hashTargets[target.uuid] = element;
             this._arrayTargets.push(element);
         }
         else if (!element.actions) {
@@ -135,14 +137,14 @@ cc.ActionManager.prototype = {
 
         element.actions.push(action);
         action.startWithTarget(target);
-    },
+    }
 
     /**
      * !#en Removes all actions from all the targets.
      * !#zh 移除所有对象的所有动作。
      * @method removeAllActions
      */
-    removeAllActions:function () {
+    removeAllActions () {
         var locTargets = this._arrayTargets;
         for (var i = 0; i < locTargets.length; i++) {
             var element = locTargets[i];
@@ -151,7 +153,7 @@ cc.ActionManager.prototype = {
         }
         this._arrayTargets.length = 0;
         this._hashTargets = js.createMap(true);
-    },
+    }
     /**
      * !#en
      * Removes all actions from a certain target. <br/>
@@ -163,28 +165,28 @@ cc.ActionManager.prototype = {
      * @param {Node} target
      * @param {Boolean} forceDelete
      */
-    removeAllActionsFromTarget:function (target, forceDelete) {
+    removeAllActionsFromTarget (target: Node, forceDelete: boolean) {
         // explicit null handling
         if (target == null)
             return;
-        var element = this._hashTargets[target._id];
+        var element = this._hashTargets[target.uuid];
         if (element) {
             element.actions.length = 0;
             this._deleteHashElement(element);
         }
-    },
+    }
     /**
      * !#en Removes an action given an action reference.
      * !#zh 移除指定的动作。
      * @method removeAction 
      * @param {Action} action
      */
-    removeAction:function (action) {
+    removeAction (action: Action) {
         // explicit null handling
         if (action == null)
             return;
-        var target = action.getOriginalTarget();
-        var element = this._hashTargets[target._id];
+        var target = action.getOriginalTarget()!;
+        var element = this._hashTargets[target.uuid];
 
         if (element) {
             for (var i = 0; i < element.actions.length; i++) {
@@ -199,7 +201,7 @@ cc.ActionManager.prototype = {
         } else {
             cc.logID(1001);
         }
-    },
+    }
 
     /**
      * !#en Removes an action given its tag and the target.
@@ -208,13 +210,13 @@ cc.ActionManager.prototype = {
      * @param {Number} tag
      * @param {Node} target
      */
-    removeActionByTag:function (tag, target) {
-        if(tag === cc.Action.TAG_INVALID)
+    removeActionByTag (tag: number, target: Node) {
+        if (tag === cc.Action.TAG_INVALID)
             cc.logID(1002);
 
         cc.assertID(target, 1003);
 
-        var element = this._hashTargets[target._id];
+        var element = this._hashTargets[target.uuid];
 
         if (element) {
             var limit = element.actions.length;
@@ -226,7 +228,7 @@ cc.ActionManager.prototype = {
                 }
             }
         }
-    },
+    }
 
     /**
      * !#en Gets an action given its tag an a target.
@@ -234,13 +236,13 @@ cc.ActionManager.prototype = {
      * @method getActionByTag
      * @param {Number} tag
      * @param {Node} target
-     * @return {Action|Null}  return the Action with the given tag on success
+     * @return {Action|null}  return the Action with the given tag on success
      */
-    getActionByTag:function (tag, target) {
-        if(tag === cc.Action.TAG_INVALID)
+    getActionByTag (tag: number, target: Node): Action | null {
+        if (tag === cc.Action.TAG_INVALID)
             cc.logID(1004);
 
-        var element = this._hashTargets[target._id];
+        var element = this._hashTargets[target.uuid];
         if (element) {
             if (element.actions != null) {
                 for (var i = 0; i < element.actions.length; ++i) {
@@ -252,7 +254,7 @@ cc.ActionManager.prototype = {
             cc.logID(1005, tag);
         }
         return null;
-    },
+    }
 
 
     /**
@@ -273,35 +275,35 @@ cc.ActionManager.prototype = {
      * @param {Node} target
      * @return {Number}
      */
-    getNumberOfRunningActionsInTarget:function (target) {
-        var element = this._hashTargets[target._id];
+    getNumberOfRunningActionsInTarget (target: Node): number {
+        var element = this._hashTargets[target.uuid];
         if (element)
             return (element.actions) ? element.actions.length : 0;
 
         return 0;
-    },
+    }
     /**
      * !#en Pauses the target: all running actions and newly added actions will be paused.
      * !#zh 暂停指定对象：所有正在运行的动作和新添加的动作都将会暂停。
      * @method pauseTarget
      * @param {Node} target
      */
-    pauseTarget:function (target) {
-        var element = this._hashTargets[target._id];
+    pauseTarget (target: Node) {
+        var element = this._hashTargets[target.uuid];
         if (element)
             element.paused = true;
-    },
+    }
     /**
      * !#en Resumes the target. All queued actions will be resumed.
      * !#zh 让指定目标恢复运行。在执行序列中所有被暂停的动作将重新恢复运行。
      * @method resumeTarget
      * @param {Node} target
      */
-    resumeTarget:function (target) {
-        var element = this._hashTargets[target._id];
+    resumeTarget (target: Node) {
+        var element = this._hashTargets[target.uuid];
         if (element)
             element.paused = false;
-    },
+    }
 
     /**
      * !#en Pauses all running actions, returning a list of targets whose actions were paused.
@@ -309,18 +311,18 @@ cc.ActionManager.prototype = {
      * @method pauseAllRunningActions
      * @return {Array}  a list of targets whose actions were paused.
      */
-    pauseAllRunningActions:function(){
-        var idsWithActions = [];
+    pauseAllRunningActions (): Array<any> {
+        var idsWithActions: object[] = [];
         var locTargets = this._arrayTargets;
-        for(var i = 0; i< locTargets.length; i++){
+        for (var i = 0; i < locTargets.length; i++) {
             var element = locTargets[i];
-            if(element && !element.paused){
+            if (element && !element.paused) {
                 element.paused = true;
-                idsWithActions.push(element.target);
+                idsWithActions.push(element.target!);
             }
         }
         return idsWithActions;
-    },
+    }
 
     /**
      * !#en Resume a set of targets (convenience function to reverse a pauseAllRunningActions or pauseTargets call).
@@ -328,15 +330,15 @@ cc.ActionManager.prototype = {
      * @method resumeTargets
      * @param {Array} targetsToResume
      */
-    resumeTargets:function(targetsToResume){
+    resumeTargets (targetsToResume: Array<any>) {
         if (!targetsToResume)
             return;
 
-        for (var i = 0; i< targetsToResume.length; i++) {
-            if(targetsToResume[i])
+        for (var i = 0; i < targetsToResume.length; i++) {
+            if (targetsToResume[i])
                 this.resumeTarget(targetsToResume[i]);
         }
-    },
+    }
 
     /**
      * !#en Pause a set of targets.
@@ -344,15 +346,15 @@ cc.ActionManager.prototype = {
      * @method pauseTargets
      * @param {Array} targetsToPause
      */
-    pauseTargets:function(targetsToPause){
+    pauseTargets (targetsToPause: Array<any>) {
         if (!targetsToPause)
             return;
 
-        for (var i = 0; i< targetsToPause.length; i++) {
+        for (var i = 0; i < targetsToPause.length; i++) {
             if (targetsToPause[i])
                 this.pauseTarget(targetsToPause[i]);
         }
-    },
+    }
 
     /**
      * !#en
@@ -363,12 +365,12 @@ cc.ActionManager.prototype = {
      * 因为它使用 this，因此它不能是静态的。
      * @method purgeSharedManager
      */
-    purgeSharedManager:function () {
+    purgeSharedManager () {
         cc.director.getScheduler().unscheduleUpdate(this);
-    },
+    }
 
     //protected
-    _removeActionAtIndex:function (index, element) {
+    private _removeActionAtIndex (index, element) {
         var action = element.actions[index];
 
         element.actions.splice(index, 1);
@@ -380,13 +382,13 @@ cc.ActionManager.prototype = {
         if (element.actions.length === 0) {
             this._deleteHashElement(element);
         }
-    },
+    }
 
-    _deleteHashElement:function (element) {
+    private _deleteHashElement (element) {
         var ret = false;
         if (element && !element.lock) {
-            if (this._hashTargets[element.target._id]) {
-                delete this._hashTargets[element.target._id];
+            if (this._hashTargets[element.target.uuid]) {
+                delete this._hashTargets[element.target.uuid];
                 var targets = this._arrayTargets;
                 for (var i = 0, l = targets.length; i < l; i++) {
                     if (targets[i] === element) {
@@ -399,7 +401,7 @@ cc.ActionManager.prototype = {
             }
         }
         return ret;
-    },
+    }
 
     /**
      * !#en The ActionManager update。
@@ -407,8 +409,9 @@ cc.ActionManager.prototype = {
      * @method update
      * @param {Number} dt delta time in seconds
      */
-    update:function (dt) {
-        var locTargets = this._arrayTargets , locCurrTarget;
+    update (dt: number) {
+        var locTargets = this._arrayTargets;
+        var locCurrTarget;
         for (var elt = 0; elt < locTargets.length; elt++) {
             this._currentTarget = locTargets[elt];
             locCurrTarget = this._currentTarget;
@@ -421,8 +424,8 @@ cc.ActionManager.prototype = {
                         continue;
 
                     //use for speed
-                    locCurrTarget.currentAction.step(dt * ( locCurrTarget.currentAction._speedMethod ? locCurrTarget.currentAction._speed : 1 ) );
-                    
+                    locCurrTarget.currentAction.step(dt * (locCurrTarget.currentAction._speedMethod ? locCurrTarget.currentAction._speed : 1));
+
                     if (locCurrTarget.currentAction && locCurrTarget.currentAction.isDone()) {
                         locCurrTarget.currentAction.stop();
                         var action = locCurrTarget.currentAction;
@@ -442,10 +445,3 @@ cc.ActionManager.prototype = {
         }
     }
 };
-
-if (CC_TEST) {
-    cc.ActionManager.prototype.isTargetPaused_TEST = function (target) {
-        var element = this._hashTargets[target._id];
-        return element.paused;
-    };
-}

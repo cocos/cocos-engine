@@ -23,10 +23,5 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./CCActionManager');
-require('./CCAction');
-require('./CCActionInterval');
-require('./CCActionInstant');
-require('./CCActionEase');
-require('./CCActionCatmullRom');
-require('./tween');
+export { TweenSystem } from './tween-system';
+export { tween, tweenUtil } from './tween';
