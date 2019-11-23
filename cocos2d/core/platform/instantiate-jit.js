@@ -72,7 +72,9 @@ function getTypedArrayName (constructor) {
     else if (constructor === Uint32Array) { return 'Uint32Array'; }
     else if (constructor === Int32Array) { return 'Int32Array'; }
     else if (constructor === Uint8Array) { return 'Uint8Array'; }
-    return '';
+    else {
+        throw new Error(`Unknown TypedArray could not be instantiated: ${constructor}`);
+    }
 }
 
 // HELPER CLASSES
