@@ -60,12 +60,12 @@ try {
     !Float32Array.name && (Float32Array.name = 'Float32Array');
     !Float64Array.name && (Float64Array.name = 'Float64Array');
 
-    !Int8Array.name && (Float64Array.name = 'Int8Array');
-    !Int16Array.name && (Float64Array.name = 'Int16Array');
+    !Int8Array.name && (Int8Array.name = 'Int8Array');
+    !Int16Array.name && (Int16Array.name = 'Int16Array');
     !Int32Array.name && (Int32Array.name = 'Int32Array');
 
     !Uint8Array.name && (Uint8Array.name = 'Uint8Array');
-    !Uint16Array.name && (Uint8Array.name = 'Uint16Array');
+    !Uint16Array.name && (Uint16Array.name = 'Uint16Array');
     !Uint32Array.name && (Uint32Array.name = 'Uint32Array');
 }
 catch (e) {}
