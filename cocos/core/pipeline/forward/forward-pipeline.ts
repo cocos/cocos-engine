@@ -286,7 +286,7 @@ export class ForwardPipeline extends RenderPipeline {
     protected sceneCulling (view: RenderView) {
         super.sceneCulling(view);
         this._validLights.splice(0);
-        for (const light of view.camera.scene.sphereLights) {
+        for (const light of view.camera.scene!.sphereLights) {
             if (light.enabled) {
                 light.update();
                 sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
@@ -295,7 +295,7 @@ export class ForwardPipeline extends RenderPipeline {
                 }
             }
         }
-        for (const light of view.camera.scene.spotLights) {
+        for (const light of view.camera.scene!.spotLights) {
             if (light.enabled) {
                 light.update();
                 sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);

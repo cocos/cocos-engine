@@ -92,21 +92,42 @@ export class Light {
         return this._name;
     }
 
+    get scene() {
+        return this._scene;
+    }
+
     protected _enabled = true;
     protected _color: Vec3 = new Vec3(1, 1, 1);
     protected _useColorTemp: boolean = false;
     protected _colorTemp: number = 6550.0;
     protected _colorTempRGB: Vec3 = new Vec3(1, 1, 1);
-    protected _scene: RenderScene;
-    protected _node: INode;
+    protected _scene: RenderScene | null = null;
+    protected _node: INode | null = null;
     protected _type: LightType;
-    protected _name: string;
+    protected _name: string | null = null;
 
-    constructor (scene: RenderScene, name: string, node: INode) {
-        this._scene = scene;
+    constructor () {
+        this._type = LightType.UNKNOWN;
+    }
+
+    public initialize(name: string, node: INode) {
         this._name = name;
         this._type = LightType.UNKNOWN;
         this._node = node;
+    }
+
+    public attachToScene(scene: RenderScene) {
+        this._scene = scene;
+    }
+
+    public detachFromScene() {
+        this._scene = null;
+    }
+
+    public destroy() {
+        this._name = null;
+        this._type = LightType.UNKNOWN;
+        this._node = null;
     }
 
     public update () {}

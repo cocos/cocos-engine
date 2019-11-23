@@ -212,7 +212,8 @@ export class CanvasComponent extends Component {
         const cameraNode = new Node('UICamera_' + this.node.name);
         cameraNode.setPosition(0, 0, 1000);
         if (!CC_EDITOR) {
-            this._camera = director.root!.ui.renderScene.createCamera({
+            this._camera = director.root!.createCamera();
+            this._camera.initialize({
                 name: 'ui_' + this.node.name,
                 node: cameraNode as INode,
                 projection: CameraComponent.ProjectionType.ORTHO,
@@ -246,17 +247,21 @@ export class CanvasComponent extends Component {
         director.root!.ui.addScreen(this);
     }
 
-    // public onEnable (){
+    public onEnable() {
+        if (this._camera) {
+            director.root!.ui.renderScene.addCamera(this._camera);
+        }
+    }
 
-    // }
-
-    // public onDisable () {
-
-    // }
+    public onDisable() {
+        if (this._camera) {
+            director.root!.ui.renderScene.removeCamera(this._camera);
+        }
+    }
 
     public onDestroy () {
         if (this._camera) {
-            director.root!.ui.renderScene.destroyCamera(this._camera);
+            director.root!.destroyCamera(this._camera);
         }
 
         if (CC_EDITOR) {

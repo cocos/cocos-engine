@@ -39,6 +39,7 @@ import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Layers, Scene } from '../../scene-graph';
 import { Enum } from '../../value-types';
 import { CameraDefaultMask } from '../../pipeline/define';
+import { director } from '../../director';
 
 /**
  * The projection type<br/>
@@ -376,21 +377,25 @@ export class CameraComponent extends Component {
 
     public onLoad () {
         cc.director.on(cc.Director.EVENT_AFTER_SCENE_LAUNCH, this.onSceneChanged, this);
+        this._createCamera();
     }
 
     public onEnable () {
-        if (this._camera) { this._camera.enabled = true; return; }
-        this._createCamera();
-        this._camera!.enabled = true;
+        if (this._camera) {
+            this._attachToScene();
+            return;
+        }
     }
 
-    public onDisable () {
-        if (this._camera) { this._camera.enabled = false; }
+    public onDisable() {
+        if (this._camera) {
+            this._detachFromScene();
+        }
     }
 
     public onDestroy () {
         if (this._camera) {
-            this._getRenderScene().destroyCamera(this._camera);
+            cc.director.root.destroyCamera(this._camera);
             this._camera = null;
         }
 
@@ -418,10 +423,8 @@ export class CameraComponent extends Component {
     }
 
     protected _createCamera () {
-        if (!this.node.scene) { return; }
-        const scene = this._getRenderScene();
-        if (this._camera && scene.cameras.find((c) => c === this._camera)) { return; }
-        this._camera = scene.createCamera({
+        this._camera = director.root!.createCamera();
+        this._camera.initialize({
             name: this.node.name,
             node: this.node,
             projection: this._projection,
@@ -449,11 +452,27 @@ export class CameraComponent extends Component {
         this._updateTargetTexture();
     }
 
+    protected _attachToScene() {
+        if (!this.node.scene || !this._camera) {
+            return;
+        }
+        if (this._camera && this._camera.scene) {
+            this._camera.scene.removeCamera(this._camera);
+        }
+        const scene = this._getRenderScene();
+        scene.addCamera(this._camera);
+    }
+
+    protected _detachFromScene() {
+        if (this._camera && this._camera.scene) {
+            this._camera.scene.removeCamera(this._camera);
+        }
+    }
+
     protected onSceneChanged (scene: Scene) {
         // to handle scene switch of editor camera
-        if (this._camera && this._camera.scene !== scene.renderScene) {
-            this._createCamera();
-            this._camera.enabled = true;
+        if (this._camera && this._camera.scene == null) {
+            this._attachToScene();
         }
     }
 

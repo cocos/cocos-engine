@@ -57,7 +57,7 @@ export const calcDirectionalLightCullFrustum = (() => {
     const minBoxCorner = new Vec3();
     const maxBoxCorner = new Vec3();
     return (out: frustum, sceneCamera: Camera, light: DirectionalLight, near: number, far: number, nearBias: number) => {
-        Mat4.fromRT(lightViewMat, light.node.getWorldRotation(lightRot), sceneCamera.node.getWorldPosition(lightPos));
+        Mat4.fromRT(lightViewMat, light.node!.getWorldRotation(lightRot), sceneCamera.node.getWorldPosition(lightPos));
         Mat4.invert(lightVeiwMatInv, lightViewMat);
         sceneCamera.getSplitFrustum(camFrustum, near, far);
         // transform camera frustum to light space
@@ -77,7 +77,7 @@ export const calcDirectionalLightCullFrustum = (() => {
         Vec3.set(lightViewCenter, (minBoxCorner.x + maxBoxCorner.x) / 2, (minBoxCorner.y + maxBoxCorner.y) / 2, maxBoxCorner.z);
         lightViewCenter.z += nearBias;
         Vec3.transformMat4(lightPos, lightViewCenter, lightViewMat);
-        Mat4.fromRT(lightViewMat, light.node.getWorldRotation(lightRot), lightPos);
+        Mat4.fromRT(lightViewMat, light.node!.getWorldRotation(lightRot), lightPos);
         // calc the light's frustum
         frustum.createOrtho(out, maxBoxCorner.x - minBoxCorner.x, maxBoxCorner.y - minBoxCorner.y, 0, minBoxCorner.z - nearBias - maxBoxCorner.z, lightViewMat);
     };

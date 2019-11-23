@@ -39,11 +39,10 @@ export class Model {
 
     set scene (scene: RenderScene) {
         this._scene = scene;
-        this._id = this._scene.generateModelId();
     }
 
     get scene () {
-        return this._scene;
+        return this._scene!;
     }
 
     get id () {
@@ -71,7 +70,7 @@ export class Model {
     }
 
     get node () {
-        return this._node;
+        return this._node!;
     }
 
     set node (node: INode) {
@@ -79,7 +78,7 @@ export class Model {
     }
 
     get transform () {
-        return this._transform;
+        return this._transform!;
     }
 
     set transform (transform: INode) {
@@ -143,11 +142,11 @@ export class Model {
 
     protected _type: string = 'default';
     protected _device: GFXDevice;
-    protected _scene: RenderScene;
-    protected _node: INode;
-    protected _transform: INode;
-    protected _id: number;
-    protected _enabled = false;
+    protected _scene: RenderScene | null = null;
+    protected _node: INode | null = null;
+    protected _transform: INode | null = null;
+    protected _id: number = -1;
+    protected _enabled: boolean = false;
     protected _visFlags = Layers.Enum.NONE;
     protected _cameraID = -1;
     protected _userKey = -1;
@@ -169,11 +168,12 @@ export class Model {
     /**
      * Setup a default empty model
      */
-    constructor (scene: RenderScene, node: INode) {
+    constructor () {
         this._device = cc.director.root!.device;
-        this._scene = scene;
-        this._node = this._transform = node;
-        this._id = this._scene.generateModelId();
+    }
+
+    public initialize(node: INode) {
+        this._transform = this._node = node;
     }
 
     public destroy () {
@@ -202,6 +202,16 @@ export class Model {
         this._inited = false;
     }
 
+    public attachToScene(scene: RenderScene) {
+        this._scene = scene;
+        this._id = this._scene.generateModelId();
+    }
+
+    public detachFromScene() {
+        this._scene = null;
+        this._id = -1;
+    }
+
     public getSubModel (idx: number) {
         return this._subModels[idx];
     }
@@ -210,7 +220,7 @@ export class Model {
         const node = this._transform;
         // @ts-ignore
         if (node.hasChangedFlags || node._dirtyFlags) {
-            node.updateWorldTransform();
+            node!.updateWorldTransform();
             this._transformUpdated = true;
             if (this._modelBounds && this._worldBounds) {
                 // @ts-ignore TS2339
@@ -256,7 +266,7 @@ export class Model {
         if (!minPos || !maxPos) { return; }
         this._modelBounds = aabb.fromPoints(aabb.create(), minPos, maxPos);
         this._worldBounds = aabb.clone(this._modelBounds);
-        this._transform.updateWorldTransform();
+        this._transform!.updateWorldTransform();
         // @ts-ignore
         this._modelBounds.transform(this._transform._mat, this._transform._pos, this._transform._rot, this._transform._scale, this._worldBounds);
     }

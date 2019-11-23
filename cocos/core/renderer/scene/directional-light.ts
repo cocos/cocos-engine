@@ -30,8 +30,8 @@ export class DirectionalLight extends Light {
         return this._illum;
     }
 
-    constructor (scene: RenderScene, name: string, node: INode) {
-        super(scene, name, node);
+    constructor () {
+        super();
         this._type = LightType.DIRECTIONAL;
     }
 

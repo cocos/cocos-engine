@@ -501,23 +501,17 @@ export class ParticleSystemComponent extends RenderableComponent {
         return this._models;
     }
 
-    public _changeSceneInModel () {
-        if (this.isValid) {
-            const r = this.renderer as any;
-            if (r && r._model) {
-                r._model.scene.destroyModel(r._model);
-                r._model = null;
-                r.onEnable();
-                r._updateModel();
-                r._updateMaterialParams();
-            }
-            const t = this.trailModule as any;
-            if (t && t._trailModel) {
-                t._trailModel.scene.destroyModel(t._trailModel);
-                t._trailModel = null;
-                t.enable = t._enable;
-                r._updateTrailMaterial();
-            }
+    protected _attachToScene() {
+        this.renderer._attachToScene();
+        if (this.trailModule.enable) {
+            this.trailModule._attachToScene();
+        }
+    }
+
+    protected _detachFromScene() {
+        this.renderer._detachFromScene();
+        if (this.trailModule.enable) {
+            this.trailModule._detachFromScene();
         }
     }
 

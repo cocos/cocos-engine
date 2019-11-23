@@ -38,8 +38,8 @@ export class UIBatchModel extends Model {
 
     private _subModel: UISubModel;
 
-    constructor (scene: RenderScene) {
-        super(scene, null!);
+    constructor () {
+        super();
         this._subModel = new UISubModel();
     }
 
@@ -50,7 +50,7 @@ export class UIBatchModel extends Model {
         return false;
     }
 
-    public initialize (ia: GFXInputAssembler, batch: UIDrawBatch) {
+    public directInitialize (ia: GFXInputAssembler, batch: UIDrawBatch) {
         this._subModel.directInitialize(ia, batch.material!, batch.pipelineState!);
         this._subModels[0] = this._subModel;
     }

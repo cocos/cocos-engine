@@ -133,8 +133,10 @@ export class RenderableComponent extends Component {
         return this._models;
     }
 
-    public _changeSceneInModel () {
+    protected _attachToScene() {
+    }
 
+    protected _detachFromScene() {
     }
 
     protected _onMaterialModified (index: number, material: Material | null) {

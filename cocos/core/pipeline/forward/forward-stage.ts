@@ -204,7 +204,7 @@ export class ForwardStage extends RenderStage {
             this._framebuffer = view.window!.framebuffer;
         }
 
-        const planarShadow = camera.scene.planarShadows;
+        const planarShadow = camera.scene!.planarShadows;
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(this._framebuffer!, this._renderArea,

@@ -102,7 +102,7 @@ export class PlanarShadows {
     }
 
     public updateSphereLight (light: SphereLight) {
-        light.node.getWorldPosition(_v3);
+        light.node!.getWorldPosition(_v3);
         const n = this._normal; const d = this._distance;
         const NdL = Vec3.dot(n, _v3);
         const lx = _v3.x; const ly = _v3.y; const lz = _v3.z;
@@ -129,7 +129,7 @@ export class PlanarShadows {
     }
 
     public updateDirLight (light: DirectionalLight = this._scene.mainLight) {
-        light.node.getWorldRotation(_qt);
+        light.node!.getWorldRotation(_qt);
         Vec3.transformQuat(_v3, _forward, _qt);
         const n = this._normal; const d = this._distance;
         const NdL = Vec3.dot(n, _v3); const scale = 1 / NdL;
