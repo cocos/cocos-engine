@@ -55,6 +55,26 @@ const DEFAULT_MODULE_CACHE = {
     'cc.PrefabInfo': false
 };
 
+try {
+    // compatible for IE
+    !Float64Array.name && (Float64Array.name = 'Float64Array');
+    !Float32Array.name && (Float32Array.name = 'Float32Array');
+    !Uint32Array.name && (Uint32Array.name = 'Uint32Array');
+    !Int32Array.name && (Int32Array.name = 'Int32Array');
+    !Uint8Array.name && (Uint8Array.name = 'Uint8Array');
+}
+catch (e) {}
+
+// compatible for iOS 9
+function getTypedArrayName (constructor) {
+    if (constructor === Float64Array) { return 'Float64Array'; }
+    else if (constructor === Float32Array) { return 'Float32Array'; }
+    else if (constructor === Uint32Array) { return 'Uint32Array'; }
+    else if (constructor === Int32Array) { return 'Int32Array'; }
+    else if (constructor === Uint8Array) { return 'Uint8Array'; }
+    return '';
+}
+
 // HELPER CLASSES
 
 // ('foo', 'bar')
@@ -362,33 +382,8 @@ proto.instantiateArray = function (value) {
     return codeArray;
 };
 
-// 这里为了适配 ios9 与 ie 环境下 TypedArray 的 Name 为空的情况
-let _typedArrayStr2Name;
-function getTypedArrayName (value) {
-    let type = value.constructor.name;
-    if (!type) {
-        try {
-            let constructorStr = value.constructor.toString();
-            type = _typedArrayStr2Name && _typedArrayStr2Name[constructorStr];
-            if (type) return type;
-            if (_typedArrayStr2Name) {
-                _typedArrayStr2Name = {};
-            }
-            // 通过正则提取构造函数中的 name
-            // 例如：function Float32Array() { [native code] } 提出出来的 name 为 Float32Array;
-            const rex = new RegExp(/function (\S*)\b/);
-            type = constructorStr.match(rex)[1];
-            _typedArrayStr2Name[constructorStr] = type;
-        }
-        catch (e) {
-            console.error(e);
-        }
-    }
-    return type;
-}
-
 proto.instantiateTypedArray = function (value) {
-    let type = getTypedArrayName(value);
+    let type = value.constructor.name || getTypedArrayName(value.constructor);
     if (value.length === 0) {
         return 'new ' + type;
     }
