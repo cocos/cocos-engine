@@ -489,6 +489,8 @@ function _searchMaskInParent (node) {
     var Mask = cc.Mask;
     if (Mask) {
         let index = 0;
+        // Because Mask may be nested, need to find all the Mask components in the parent node. 
+        // The click area must satisfy all Masks to trigger the click.
         let temp = {
             index: -1,
             node: null,
@@ -1406,7 +1408,7 @@ let NodeDefines = {
             cc._widgetManager._nodesOrderDirty = true;
         }
 
-        if (oldParent) {
+        if (oldParent && this._activeInHierarchy) {
             this._checkListenerMask();
         }
         
@@ -1608,8 +1610,6 @@ let NodeDefines = {
 
     // EVENT TARGET
     _checkListenerMask () {
-        if (!this._activeInHierarchy) return;
-
         if (this._touchListener) {
             var mask = this._touchListener.mask = _searchMaskInParent(this);
             if (this._mouseListener) {
