@@ -33,7 +33,6 @@ import { Enum } from '../../core/value-types';
 import { AudioPlayer, PlayingState } from './player';
 import { AudioPlayerDOM } from './player-dom';
 import { AudioPlayerWeb } from './player-web';
-import { AudioPlayerMini } from './player-mini';
 
 export const AudioType = Enum({
     WEB_AUDIO: 0,
