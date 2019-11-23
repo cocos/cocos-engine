@@ -28,7 +28,7 @@
  * @category ui
  */
 
-import { SpriteAtlas, SpriteFrame, AssetLibrary } from '../../core/assets';
+import { SpriteAtlas, SpriteFrame } from '../../core/assets';
 import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { Vec2 } from '../../core/math';
@@ -52,11 +52,10 @@ enum SpriteType {
      * 切片（九宫格）类型。
      */
     SLICED = 1,
-    // /**
-    //  * @zh  平铺类型
-    //  * @property {Number} TILED
-    //  */
-    // TILED =  2,
+    /**
+     * @zh  平铺类型
+     */
+    TILED =  2,
     /**
      * @zh
      * 填充类型。
@@ -87,11 +86,9 @@ enum FillType {
      * 垂直方向填充。
      */
     VERTICAL = 1,
-    // /**
-    //  * @en The radial fill.
-    //  * @zh  径向填充
-    //  * @property {Number} RADIAL
-    //  */
+    /**
+     * @zh  径向填充
+     */
     RADIAL = 2,
 }
 
@@ -120,21 +117,6 @@ enum SizeMode {
 }
 
 ccenum(SizeMode);
-
-// var State = cc.Enum({
-//     /**
-//      * @en The normal state
-//      * @zh  正常状态
-//      * @property {Number} NORMAL
-//      */
-//     NORMAL: 0,
-//     /**
-//      * @en The gray state, all color will be modified to grayscale value.
-//      * @zh  灰色状态，所有颜色会被转换成灰度值
-//      * @property {Number} GRAY
-//      */
-//     GRAY: 1
-// });
 
 /**
  * @zh

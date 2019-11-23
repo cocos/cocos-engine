@@ -23,23 +23,19 @@
  THE SOFTWARE.
 */
 
-import { Mat4, Vec3 } from '../../../core/math';
-import { RenderData } from '../../../core/renderer/ui/render-data';
+import { Mat4, Vec3, Color } from '../../../core/math';
+import { RenderData, IRenderData } from '../../../core/renderer/ui/render-data';
 import { UI } from '../../../core/renderer/ui/ui';
 import { SpriteComponent } from '../../components/sprite-component';
 import { UIRenderComponent } from '../../../core/components/ui-base/ui-render-component';
 import { IAssembler } from '../../../core/renderer/ui/base';
-
-const matrix = new Mat4();
 
 const vec3_temps: Vec3[] = [];
 for (let i = 0; i < 4; i++) {
     vec3_temps.push(new Vec3());
 }
 
-const _tempVertexOffset = 6;
-const _tempUvOffset = 3;
-const _tempColorOffset = 5;
+const _perVertextLength = 9;
 
 export const tilled: IAssembler = {
     useModel: false,
@@ -49,33 +45,17 @@ export const tilled: IAssembler = {
     },
 
     updateRenderData (sprite: SpriteComponent) {
-        const frame = sprite.spriteFrame;
-
-        // TODO: Material API design and export from editor could affect the material activation process
-        // need to update the logic here
-        // if (frame) {
-        //     if (!frame._original && dynamicAtlasManager) {
-        //         dynamicAtlasManager.insertSpriteFrame(frame);
-        //     }
-        //     if (sprite._material._texture !== frame._texture) {
-        //         sprite._activateMaterial();
-        //     }
-        // }
-
-        const renderData = sprite.renderData;
-        if (!frame || !renderData ||
-            !(renderData.uvDirty || renderData.vertDirty)) {
+        const renderData = sprite.renderData!;
+        const frame = sprite.spriteFrame!;
+        if (!frame || !renderData || !(renderData.uvDirty || renderData.vertDirty)){
             return;
         }
 
         const node = sprite.node;
-        // contentWidth = Math.abs(node.width),
-        // contentHeight = Math.abs(node.height),
         const contentWidth = Math.abs(node.width);
         const contentHeight = Math.abs(node.height);
         const appx = node.anchorX * contentWidth;
         const appy = node.anchorY * contentHeight;
-        // node._updateWorldMatrix();
 
         const rect = frame.getRect();
         const rectWidth = rect.width;
@@ -85,14 +65,14 @@ export const tilled: IAssembler = {
         const row = Math.ceil(vRepeat);
         const col = Math.ceil(hRepeat);
 
-        const data = renderData.datas;
+        const datas = renderData.datas;
         renderData.dataLength = Math.max(8, row + 1, col + 1);
 
         for (let i = 0; i <= col; ++i) {
-            data[i].x = Math.min(rectWidth * i, contentWidth) - appx;
+            datas[i].x = Math.min(rectWidth * i, contentWidth) - appx;
         }
         for (let i = 0; i <= row; ++i) {
-            data[i].y = Math.min(rectHeight * i, contentHeight) - appy;
+            datas[i].y = Math.min(rectHeight * i, contentHeight) - appy;
         }
 
         // update data property
@@ -103,28 +83,32 @@ export const tilled: IAssembler = {
     },
 
     fillBuffers (sprite: SpriteComponent, renderer: UI) {
-        const buffer = renderer.currBufferBatch!;
-
         const node = sprite.node;
-        const color = sprite.color;
-        const renderData = sprite.renderData;
-        const datas = renderData!.datas;
+        const renderData = sprite.renderData!;
 
         // buffer
-        let vertexOffset = buffer.byteOffset >> 2;
-        let indiceOffset = buffer.indiceOffset;
-        let vertexId = buffer.vertexOffset;
-
-        buffer.request(renderData!.vertexCount, renderData!.indiceCount);
-
+        let buffer = renderer.currBufferBatch!;
         // buffer data may be realloc, need get reference after request.
-        const vbuf = buffer.vData;
-        // uintbuf = buffer._uintVData,
-        const ibuf = buffer.iData;
+        let indiceOffset = buffer.indiceOffset;
+        let vertexOffset = buffer.byteOffset >> 2;
+        let vertexId = buffer.vertexOffset;
+        const vertexCount = renderData!.vertexCount;
+        const indiceCount = renderData.indiceCount;
+        const vbuf = buffer.vData!;
+        const ibuf = buffer.iData!;
 
-        const rotated = sprite.spriteFrame!.isRotated;
-        const uv = sprite.spriteFrame!.uv;
-        const rect = sprite.spriteFrame!.getRect();
+        const isRecreate = buffer.request(vertexCount, indiceCount);
+        if (!isRecreate) {
+            buffer = renderer.currBufferBatch!;
+            vertexOffset = 0;
+            indiceOffset = 0;
+            vertexId = 0;
+        }
+
+        const frame = sprite.spriteFrame!;
+        const rotated = frame.isRotated();
+        const uv = frame.uv;
+        const rect = frame.getRect();
         const contentWidth = Math.abs(node.width);
         const contentHeight = Math.abs(node.height);
         const hRepeat = contentWidth / rect.width;
@@ -132,14 +116,72 @@ export const tilled: IAssembler = {
         const row = Math.ceil(vRepeat);
         const col = Math.ceil(hRepeat);
 
-        // const matrix = node._worldMatrix;
+        const matrix = node.worldMatrix;
 
-        // this.updateVerts(vbuf, vertexOffset, matrix, row, col, datas);
-        // updataVerts
-        let x = 0;
-        let x1 = 0;
-        let y = 0;
-        let y1 = 0;
+        this.fillVertices(vbuf, vertexOffset, matrix, row, col, renderData.datas);
+
+        const offset = _perVertextLength;
+        const offset1 = offset; const offset2 = offset * 2; const offset3 = offset * 3; const offset4 = offset * 4;
+        let coefu = 0; let coefv = 0;
+        for (let yindex = 0, ylength = row; yindex < ylength; ++yindex) {
+            coefv = Math.min(1, vRepeat - yindex);
+            for (let xindex = 0, xlength = col; xindex < xlength; ++xindex) {
+                coefu = Math.min(1, hRepeat - xindex);
+
+                const vertexOffsetU = vertexOffset + 3;
+                const vertexOffsetV = vertexOffsetU + 1;
+                // UV
+                if (rotated) {
+                    // lb
+                    vbuf[vertexOffsetU] = uv[0];
+                    vbuf[vertexOffsetV] = uv[1];
+                    // rb
+                    vbuf[vertexOffsetU + offset1] = uv[0];
+                    vbuf[vertexOffsetV + offset1] = uv[1] + (uv[7] - uv[1]) * coefu;
+                    // lt
+                    vbuf[vertexOffsetU + offset2] = uv[0] + (uv[6] - uv[0]) * coefv;
+                    vbuf[vertexOffsetV + offset2] = uv[1];
+                    // rt
+                    vbuf[vertexOffsetU + offset3] = vbuf[vertexOffsetU + offset2];
+                    vbuf[vertexOffsetV + offset3] = vbuf[vertexOffsetV + offset1];
+                }
+                else {
+                    // lb
+                    vbuf[vertexOffsetU] = uv[0];
+                    vbuf[vertexOffsetV] = uv[1];
+                    // rb
+                    vbuf[vertexOffsetU + offset1] = uv[0] + (uv[6] - uv[0]) * coefu;
+                    vbuf[vertexOffsetV + offset1] = uv[1];
+                    // lt
+                    vbuf[vertexOffsetU + offset2] = uv[0];
+                    vbuf[vertexOffsetV + offset2] = uv[1] + (uv[7] - uv[1]) * coefv;
+                    // rt
+                    vbuf[vertexOffsetU + offset3] = vbuf[vertexOffsetU + offset1];
+                    vbuf[vertexOffsetV + offset3] = vbuf[vertexOffsetV + offset2];
+                }
+                // color
+                Color.toArray(vbuf!, sprite.color, vertexOffsetV + 1);
+                Color.toArray(vbuf!, sprite.color, vertexOffsetV + offset1 + 1);
+                Color.toArray(vbuf!, sprite.color, vertexOffsetV + offset2 + 1);
+                Color.toArray(vbuf!, sprite.color, vertexOffsetV + offset3 + 1);
+                vertexOffset += offset4;
+            }
+        }
+
+        // update indices
+        for (let i = 0; i < indiceCount; i += 6) {
+            ibuf[indiceOffset++] = vertexId;
+            ibuf[indiceOffset++] = vertexId + 1;
+            ibuf[indiceOffset++] = vertexId + 2;
+            ibuf[indiceOffset++] = vertexId + 1;
+            ibuf[indiceOffset++] = vertexId + 3;
+            ibuf[indiceOffset++] = vertexId + 2;
+            vertexId += 4;
+        }
+    },
+
+    fillVertices (vbuf: Float32Array, vertexOffset: number, matrix: Mat4, row: number, col: number, datas: IRenderData[]) {
+        let x = 0; let x1 = 0; let y = 0; let y1 = 0;
         for (let yindex = 0, ylength = row; yindex < ylength; ++yindex) {
             y = datas[yindex].y;
             y1 = datas[yindex + 1].y;
@@ -155,121 +197,14 @@ export const tilled: IAssembler = {
                 for (let i = 0; i < 4; i++) {
                     const vec3_temp = vec3_temps[i];
                     Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
-                    const move = i * 6;
-                    vbuf![vertexOffset + move] = vec3_temp.x;
-                    vbuf![vertexOffset + move + 1] = vec3_temp.y;
-                    vbuf![vertexOffset + move + 2] = vec3_temp.z;
+                    const offset = i * _perVertextLength;
+                    vbuf[vertexOffset + offset] = vec3_temp.x;
+                    vbuf[vertexOffset + offset + 1] = vec3_temp.y;
+                    vbuf[vertexOffset + offset + 2] = vec3_temp.z;
                 }
 
-                vertexOffset += 24;
+                vertexOffset += 36;
             }
         }
-
-        const offset = _tempVertexOffset;
-        const uvOffset = _tempUvOffset;
-        const colorOffset = _tempColorOffset;
-        const offset1 = offset;
-        const offset2 = offset * 2;
-        const offset3 = offset * 3;
-        const offset4 = offset * 4;
-        let coefu = 0;
-        let coefv = 0;
-        for (let yindex = 0, ylength = row; yindex < ylength; ++yindex) {
-            coefv = Math.min(1, vRepeat - yindex);
-            for (let xindex = 0, xlength = col; xindex < xlength; ++xindex) {
-                coefu = Math.min(1, hRepeat - xindex);
-
-                const vertexOffsetU = vertexOffset + uvOffset;
-                const vertexOffsetV = vertexOffsetU + 1;
-                // UV
-                if (rotated) {
-                    // lb
-                    vbuf![vertexOffsetU] = uv[0];
-                    vbuf![vertexOffsetV] = uv[1];
-                    // rb
-                    vbuf![vertexOffsetU + offset1] = uv[0];
-                    vbuf![vertexOffsetV + offset1] = uv[1] + (uv[7] - uv[1]) * coefu;
-                    // lt
-                    vbuf![vertexOffsetU + offset2] = uv[0] + (uv[6] - uv[0]) * coefv;
-                    vbuf![vertexOffsetV + offset2] = uv[1];
-                    // rt
-                    vbuf![vertexOffsetU + offset3] = vbuf![vertexOffsetU + offset2];
-                    vbuf![vertexOffsetV + offset3] = vbuf![vertexOffsetV + offset1];
-                } else {
-                    // lb
-                    vbuf![vertexOffsetU] = uv[0];
-                    vbuf![vertexOffsetV] = uv[1];
-                    // rb
-                    vbuf![vertexOffsetU + offset1] = uv[0] + (uv[6] - uv[0]) * coefu;
-                    vbuf![vertexOffsetV + offset1] = uv[1];
-                    // lt
-                    vbuf![vertexOffsetU + offset2] = uv[0];
-                    vbuf![vertexOffsetV + offset2] = uv[1] + (uv[7] - uv[1]) * coefv;
-                    // rt
-                    vbuf![vertexOffsetU + offset3] = vbuf![vertexOffsetU + offset1];
-                    vbuf![vertexOffsetV + offset3] = vbuf![vertexOffsetV + offset2];
-                }
-
-                vbuf![vertexOffset + colorOffset] = color.x;
-                vbuf![vertexOffset + colorOffset + offset1] = color.y;
-                vbuf![vertexOffset + colorOffset + offset2] = color.z;
-                vbuf![vertexOffset + colorOffset + offset3] = color.w;
-                // TODO: addColor
-                // color
-                // uintbuf[vertexOffset + colorOffset] = color;
-                // uintbuf[vertexOffset + colorOffset + offset1] = color;
-                // uintbuf[vertexOffset + colorOffset + offset2] = color;
-                // uintbuf[vertexOffset + colorOffset + offset3] = color;
-                vertexOffset += offset4;
-            }
-        }
-
-        // update indices
-        const length = renderData!.indiceCount;
-        for (let i = 0; i < length; i += 6) {
-            ibuf![indiceOffset++] = vertexId;
-            ibuf![indiceOffset++] = vertexId + 1;
-            ibuf![indiceOffset++] = vertexId + 2;
-            ibuf![indiceOffset++] = vertexId + 1;
-            ibuf![indiceOffset++] = vertexId + 3;
-            ibuf![indiceOffset++] = vertexId + 2;
-            vertexId += 4;
-        }
-    },
-
-    updateVerts (sprite: SpriteComponent) {
-        // const renderData = sprite.renderData;
-        // const datas = renderData!.datas;
-        // const vbuf;
-        // const vertexOffset;
-        // sprite.node.getWorldMatrix(matrix);
-        // const row;
-        // const col;
-        // const data;
-        //     let x, x1, y, y1;
-        //     for (let yindex = 0, ylength = row; yindex < ylength; ++yindex) {
-        //         y = data[yindex].y;
-        //         y1 = data[yindex + 1].y;
-        //         for (let xindex = 0, xlength = col; xindex < xlength; ++xindex) {
-        //             x = data[xindex].x;
-        //             x1 = data[xindex + 1].x;
-
-        //             vec3.set(vec3_temps[0], x, y, 0);
-        //             vec3.set(vec3_temps[1], x1, y, 0);
-        //             vec3.set(vec3_temps[2], x, y1, 0);
-        //             vec3.set(vec3_temps[3], x1, y1, 0);
-
-        //             for (let i = 0; i < 4; i++) {
-        //                 let vec3_temp = vec3_temps[i];
-        //                 vec3.transformMat4(vec3_temp, vec3_temp, matrix);
-        //                 let offset = i * 6;
-        //                 vbuf[vertexOffset + offset] = vec3_temp.x;
-        //                 vbuf[vertexOffset + offset + 1] = vec3_temp.y;
-        //                 vbuf[vertexOffset + offset + 2] = vec3_temp.z;
-        //             }
-
-        //             vertexOffset += 24;
-        //         }
-        //     }
     },
 };

@@ -30,8 +30,6 @@
 import { Pool, RecyclePool } from '../../memop';
 import { Material } from '../../assets';
 import { Color } from '../../math';
-import { GFXTextureView } from '../../gfx';
-import { MeshBuffer } from '../../../ui';
 
 export interface IRenderData {
     x: number;
