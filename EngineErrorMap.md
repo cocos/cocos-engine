@@ -2715,3 +2715,7 @@ LabelAtlas '%s' cannot be loaded, raw texture does not exist.
 ### 9101
 
 LabelAtlas '%s' cannot be loaded, fnt data does not exist.
+
+### 9102
+
+Program not support highp precision, will change to mediump.

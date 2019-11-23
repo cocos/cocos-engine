@@ -672,6 +672,8 @@ let TiledMap = cc.Class({
         let node = this.node;
         let layerInfos = mapInfo.getAllChildren();
         let textures = this._textures;
+        let maxWidth = 0;
+        let maxHeight = 0;
 
         if (layerInfos && layerInfos.length > 0) {
             for (let i = 0, len = layerInfos.length; i < len; i++) {
@@ -727,6 +729,9 @@ let TiledMap = cc.Class({
                     child.height = texture.height;
                     images.push(child);
                 }
+
+                maxWidth = Math.max(maxWidth, child.width);
+                maxHeight = Math.max(maxHeight, child.height);
             }
         }
 
@@ -738,8 +743,8 @@ let TiledMap = cc.Class({
             }
         }
 
-        this.node.width = this._mapSize.width * this._tileSize.width;
-        this.node.height = this._mapSize.height * this._tileSize.height;
+        this.node.width = maxWidth;
+        this.node.height = maxHeight;
         this._syncAnchorPoint();
     },
 
@@ -846,11 +851,16 @@ cc.TiledMap.fillTextureGrids = function (tileset, texGrids, texId) {
         count = rows * cols,
 
         gid = tileset.firstGid,
-        maxGid = tileset.firstGid + count,
         grid = null,
         override = texGrids[gid] ? true : false,
         texelCorrect = cc.macro.FIX_ARTIFACTS_BY_STRECHING_TEXEL_TMX ? 0.5 : 0;
 
+    // Tiledmap may not be partitioned into blocks, resulting in a count value of 0
+    if (count <= 0) {
+        count = 1;
+    }
+
+    let maxGid = tileset.firstGid + count;
     for (; gid < maxGid; ++gid) {
         // Avoid overlapping
         if (override && !texGrids[gid]) {

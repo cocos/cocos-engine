@@ -326,7 +326,7 @@ if (CC_EDITOR) {
         let programs = getInvolvedPrograms(json);
         let props = parseProperties(json, programs), defines = {};
 
-        for (let pn in programs) {
+        for (let pn = 0; pn < programs.length; pn ++) {
             programs[pn].uniforms.forEach(u => {
                 let prop = props[u.name];
                 if (!prop) return;

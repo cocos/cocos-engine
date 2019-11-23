@@ -520,6 +520,9 @@ export default class BmfontAssembler extends Assembler2D {
         let node = _comp.node;
 
         this.verticesCount = this.indicesCount = 0;
+        
+        // Need to reset dataLength in Canvas rendering mode.
+        this._renderData && (this._renderData.dataLength = 0);
 
         let contentSize = _contentSize,
             appx = node._anchorPoint.x * contentSize.width,

@@ -23,7 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const Float32_Bytes = 4;
+import { FLOAT_ARRAY_TYPE, FLOAT_BYTES } from '../../vmath/utils';
+
 const Uint32_Bytes = 4;
 const Uint8_Bytes = 1;
 
@@ -32,20 +33,17 @@ const Dirty_Type = Uint32Array;
 const Dirty_Members = 1;
 const Dirty_Stride = Dirty_Members * Uint32_Bytes;
 
-// Space : [TRS]                                    [Size:4 * 10 Float32]
-const TRS_Type = Float32Array;
+// Space : [TRS]                                    [Size:4 * 10 Float32|Float64]
 const TRS_Members = 10;
-const TRS_Stride = TRS_Members * Float32_Bytes;
+const TRS_Stride = TRS_Members * FLOAT_BYTES;
 
-// Space : [LocalMatrix]                            [Size:4 * 16 Float32]
-const LocalMatrix_Type = Float32Array;
+// Space : [LocalMatrix]                            [Size:4 * 16 Float32|Float64]
 const LocalMatrix_Members = 16;
-const LocalMatrix_Stride = LocalMatrix_Members * Float32_Bytes;
+const LocalMatrix_Stride = LocalMatrix_Members * FLOAT_BYTES;
 
-// Space : [WorldMatrix]                            [Size:4 * 16 Float32]
-const WorldMatrix_Type = Float32Array;
+// Space : [WorldMatrix]                            [Size:4 * 16 Float32|Float64]
 const WorldMatrix_Members = 16;
-const WorldMatrix_Stride = WorldMatrix_Members * Float32_Bytes;
+const WorldMatrix_Stride = WorldMatrix_Members * FLOAT_BYTES;
 
 // Space : [Parent Unit]                            [Size:4 Uint32]
 // Space : [Parent Index]                           [Size:4 Uint32]
@@ -78,18 +76,17 @@ const Node_Type = Uint32Array;
 const Node_Members = 2;
 
 // Space : [Skew]                                   [Size:4 * 2 Float32]
-const Skew_Type = Float32Array;
 const Skew_Members = 2;
-const Skew_Stride = Skew_Members * Float32_Bytes;
+const Skew_Stride = Skew_Members * FLOAT_BYTES;
 
 let UnitBase = require('./unit-base');
 let NodeUnit = function (unitID, memPool) {
     UnitBase.call(this, unitID, memPool);
 
     let contentNum = this._contentNum;
-    this.trsList = new TRS_Type(contentNum * TRS_Members);
-    this.localMatList = new LocalMatrix_Type(contentNum * LocalMatrix_Members);
-    this.worldMatList = new WorldMatrix_Type(contentNum * WorldMatrix_Members);
+    this.trsList = new FLOAT_ARRAY_TYPE(contentNum * TRS_Members);
+    this.localMatList = new FLOAT_ARRAY_TYPE(contentNum * LocalMatrix_Members);
+    this.worldMatList = new FLOAT_ARRAY_TYPE(contentNum * WorldMatrix_Members);
 
     if (CC_JSB && CC_NATIVERENDERER) {
         this.dirtyList = new Dirty_Type(contentNum * Dirty_Members);
@@ -99,7 +96,7 @@ let NodeUnit = function (unitID, memPool) {
         this.opacityList = new Opacity_Type(contentNum * Opacity_Members);
         this.is3DList = new Is3D_Type(contentNum * Is3D_Members);
         this.nodeList = new Node_Type(contentNum * Node_Members);
-        this.skewList = new Skew_Type(contentNum * Skew_Members);
+        this.skewList = new FLOAT_ARRAY_TYPE(contentNum * Skew_Members);
 
         this._memPool._nativeMemPool.updateNodeData(
             unitID,
@@ -120,9 +117,9 @@ let NodeUnit = function (unitID, memPool) {
     for (let i = 0; i < contentNum; i ++) {
         let space = this._spacesData[i];
 
-        space.trs = new TRS_Type(this.trsList.buffer, i * TRS_Stride, TRS_Members);
-        space.localMat = new LocalMatrix_Type(this.localMatList.buffer, i * LocalMatrix_Stride, LocalMatrix_Members);
-        space.worldMat = new WorldMatrix_Type(this.worldMatList.buffer, i * WorldMatrix_Stride, WorldMatrix_Members);
+        space.trs = new FLOAT_ARRAY_TYPE(this.trsList.buffer, i * TRS_Stride, TRS_Members);
+        space.localMat = new FLOAT_ARRAY_TYPE(this.localMatList.buffer, i * LocalMatrix_Stride, LocalMatrix_Members);
+        space.worldMat = new FLOAT_ARRAY_TYPE(this.worldMatList.buffer, i * WorldMatrix_Stride, WorldMatrix_Members);
 
         if (CC_JSB && CC_NATIVERENDERER) {
             space.dirty = new Dirty_Type(this.dirtyList.buffer, i * Dirty_Stride, Dirty_Members);
@@ -131,7 +128,7 @@ let NodeUnit = function (unitID, memPool) {
             space.cullingMask = new CullingMask_Type(this.cullingMaskList.buffer, i * CullingMask_Stride, CullingMask_Members);
             space.opacity = new Opacity_Type(this.opacityList.buffer, i * Opacity_Stride, Opacity_Members);
             space.is3D = new Is3D_Type(this.is3DList.buffer, i * Is3D_Stride, Is3D_Members);
-            space.skew = new Skew_Type(this.skewList.buffer, i * Skew_Stride, Skew_Members);
+            space.skew = new FLOAT_ARRAY_TYPE(this.skewList.buffer, i * Skew_Stride, Skew_Members);
         }
     }
 };

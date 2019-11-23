@@ -477,7 +477,7 @@ let Label = cc.Class({
                 if (this.cacheMode === oldValue) return;
                 
                 if (oldValue === CacheMode.BITMAP && !(this.font instanceof cc.BitmapFont)) {
-                    this._frame._resetDynamicAtlasFrame();
+                    this._frame && this._frame._resetDynamicAtlasFrame();
                 }
 
                 if (oldValue === CacheMode.CHAR) {
@@ -530,6 +530,11 @@ let Label = cc.Class({
         if (this._batchAsBitmap && this.cacheMode === CacheMode.NONE) {
             this.cacheMode = CacheMode.BITMAP;
             this._batchAsBitmap = false;
+        }
+
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+            // CacheMode is not supported in Canvas.
+            this.cacheMode = CacheMode.NONE;
         }
     },
 
@@ -626,7 +631,7 @@ let Label = cc.Class({
                 this._frame = new LabelFrame();
             }
  
-            if (this.cacheMode === CacheMode.CHAR && cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+            if (this.cacheMode === CacheMode.CHAR) {
                 this._letterTexture = this._assembler._getAssemblerData();
                 this._frame._refreshTexture(this._letterTexture);
             } else if (!this._ttfTexture) {
