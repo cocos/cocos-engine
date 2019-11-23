@@ -56,9 +56,9 @@ let VideoPlayerImpl = cc.Class({
         this._visible = false;
         this._playing = false;
         this._ignorePause = false;
+        this._forceUpdate = false;
 
         // update matrix cache
-        this._forceUpdate = true;
         this._m00 = 0;
         this._m01 = 0;
         this._m04 = 0;
@@ -77,6 +77,7 @@ let VideoPlayerImpl = cc.Class({
         let cbs = this.__eventListeners;
         cbs.loadedmetadata = function () {
             self._loadedmeta = true;
+            self._forceUpdate = true;
             if (self._waitingFullscreen) {
                 self._waitingFullscreen = false;
                 self._toggleFullscreen(true);
@@ -122,6 +123,7 @@ let VideoPlayerImpl = cc.Class({
                 video.readyState === READY_STATE.HAVE_METADATA) {
                 video.currentTime = 0;
                 self._loaded = true;
+                self._forceUpdate = true;
                 self._dispatchEvent(VideoPlayerImpl.EventType.READY_TO_PLAY);
                 self._updateVisibility();
             }
@@ -139,13 +141,11 @@ let VideoPlayerImpl = cc.Class({
 
         if (this._visible) {
             video.style.visibility = 'visible';
-            this._forceUpdate = true;
         }
         else {
             video.style.visibility = 'hidden';
             video.pause();
             this._playing = false;
-            this._forceUpdate = false;
         }
     },
 
@@ -453,7 +453,7 @@ let VideoPlayerImpl = cc.Class({
 
         let renderCamera = cc.Camera._findRendererCamera(node);
         if (renderCamera) {
-            renderCamera.worldMatrixToScreen(_mat4_temp, _mat4_temp, cc.visibleRect.width, cc.visibleRect.height);
+            renderCamera.worldMatrixToScreen(_mat4_temp, _mat4_temp, cc.game.canvas.width, cc.game.canvas.height);
         }
 
         let _mat4_tempm = _mat4_temp.m;
@@ -475,11 +475,9 @@ let VideoPlayerImpl = cc.Class({
         this._w = node._contentSize.width;
         this._h = node._contentSize.height;
 
-        let scaleX = cc.view._scaleX, scaleY = cc.view._scaleY;
         let dpr = cc.view._devicePixelRatio;
-
-        scaleX /= dpr;
-        scaleY /= dpr;
+        let scaleX = 1 / dpr;
+        let scaleY = 1 / dpr;
 
         let container = cc.game.container;
         let a = _mat4_tempm[0] * scaleX, b = _mat4_tempm[1], c = _mat4_tempm[4], d = _mat4_tempm[5] * scaleY;
@@ -503,9 +501,6 @@ let VideoPlayerImpl = cc.Class({
         let appx = (w * _mat4_tempm[0]) * node._anchorPoint.x;
         let appy = (h * _mat4_tempm[5]) * node._anchorPoint.y;
 
-        let viewport = cc.view._viewportRect;
-        offsetX += viewport.x / dpr;
-        offsetY += viewport.y / dpr;
 
         let tx = _mat4_tempm[12] * scaleX - appx + offsetX, ty = _mat4_tempm[13] * scaleY - appy + offsetY;
 
@@ -514,6 +509,7 @@ let VideoPlayerImpl = cc.Class({
         this._video.style['-webkit-transform'] = matrix;
         this._video.style['transform-origin'] = '0px 100% 0px';
         this._video.style['-webkit-transform-origin'] = '0px 100% 0px';
+        this._forceUpdate = false;
     }
 });
 

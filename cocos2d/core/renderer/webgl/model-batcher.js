@@ -117,6 +117,9 @@ ModelBatcher.prototype = {
     },
 
     _flushMaterial (material) {
+        if (!material) {
+            return;
+        }
         this.material = material;
         let effect = material.effect;
         if (!effect) return;

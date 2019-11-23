@@ -782,9 +782,9 @@ var BaseNode = cc.Class({
      * @param {Function|String} typeOrClassName
      * @return {Component}
      * @example
-     * // get sprite component.
+     * // get sprite component
      * var sprite = node.getComponent(cc.Sprite);
-     * // get custom test calss.
+     * // get custom test class
      * var test = node.getComponent("Test");
      * @typescript
      * getComponent<T extends Component>(type: {prototype: T}): T

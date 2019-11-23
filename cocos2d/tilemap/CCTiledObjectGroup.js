@@ -128,6 +128,7 @@ let TiledObjectGroup = cc.Class({
         this._mapInfo = mapInfo;
         this._properties = groupInfo.getProperties();
         this._offset = cc.v2(groupInfo.offset.x, -groupInfo.offset.y);
+        this._opacity = groupInfo._opacity;
 
         let mapSize = mapInfo._mapSize;
         let tileSize = mapInfo._tileSize;
@@ -150,7 +151,8 @@ let TiledObjectGroup = cc.Class({
         let leftTopY = height * (1 - this.node.anchorY);
 
         let objects = groupInfo._objects;
-        for (let i = 0, l = objects.length; i < l; i++) {
+        let aliveNodes = {};
+        for (let i = 0, childIdx = objects.length - 1, l = objects.length; i < l; i++, childIdx--) {
             let object = objects[i];
             let objType = object.type;
             object.offset = cc.v2(object.x, object.y);
@@ -173,6 +175,8 @@ let TiledObjectGroup = cc.Class({
 
             if (objType === TMXObjectType.TEXT) {
                 let textName = "text" + object.id;
+                aliveNodes[textName] = true;
+
                 let textNode = this.node.getChildByName(textName);
                 if (!textNode) {
                     textNode = new cc.Node();
@@ -181,11 +185,13 @@ let TiledObjectGroup = cc.Class({
                 textNode.anchorX = 0;
                 textNode.anchorY = 1;
                 textNode.angle = -object.rotation;
-                textNode.x = object.offset.x - leftTopX;
-                textNode.y = -object.offset.y + leftTopY;
+                textNode.x = object.x - leftTopX;
+                textNode.y = object.y - leftTopY;
                 textNode.name = textName;
                 textNode.parent = this.node;
                 textNode.color = object.color;
+                textNode.opacity = this._opacity;
+                textNode.setSiblingIndex(childIdx);
 
                 let label = textNode.getComponent(cc.Label);
                 if (!label) {
@@ -206,32 +212,63 @@ let TiledObjectGroup = cc.Class({
             if (objType === TMXObjectType.IMAGE) {
                 let grid = texGrids[(object.gid & FLIPPED_MASK) >>> 0];
                 if (!grid) continue;
+                let tileset = grid.tileset;
                 let imgName = "img" + object.id;
+                aliveNodes[imgName] = true;
                 let imgNode = this.node.getChildByName(imgName);
-                if (!imgNode) {
-                    imgNode = new cc.PrivateNode();
+
+                // Delete image nodes implemented as private nodes
+                // Use cc.Node to implement node-level requirements
+                if (imgNode instanceof cc.PrivateNode) {
+                    imgNode.removeFromParent();
+                    imgNode.destroy();
+                    imgNode = null;
                 }
-                imgNode.anchorX = 0;
-                imgNode.anchorY = 0;
+
+                if (!imgNode) {
+                    imgNode = new cc.Node();
+                }
+
+                if (Orientation.ISO == mapInfo.orientation) {
+                    imgNode.anchorX = 0.5;
+                    imgNode.anchorY = 0;
+                } else {
+                    imgNode.anchorX = 0;
+                    imgNode.anchorY = 0;
+                }
                 imgNode.angle = -object.rotation;
-                imgNode.x = object.offset.x - leftTopX;
-                imgNode.y = -object.offset.y + leftTopY;
+                imgNode.x = object.x - leftTopX + tileset.tileOffset.x;
+                imgNode.y = object.y - leftTopY + tileset.tileOffset.y;
                 imgNode.name = imgName;
                 imgNode.parent = this.node;
-                
+                imgNode.opacity = this._opacity;
+                imgNode.setSiblingIndex(childIdx);
+
                 let sp = imgNode.getComponent(cc.Sprite);
                 if (!sp) {
                     sp = imgNode.addComponent(cc.Sprite);
                 }
-                sp.spriteFrame = new cc.SpriteFrame();
-                let rect = cc.rect(grid);
-                sp.spriteFrame.setTexture(grid.tileset.sourceImage, rect);
+                let spf = new cc.SpriteFrame();
+                spf.setTexture(grid.tileset.sourceImage, cc.rect(grid));
+                sp.spriteFrame = spf;
 
                 imgNode.width = object.width;
                 imgNode.height = object.height;
             }
         }
         this._objects = objects;
+
+        // destroy useless node
+        let children = this.node.children;
+        let imgExp = /^img\d+$/;
+        let txtExp = /^text\d+$/;
+        for (let i = 0, n = children.length; i < n; i++) {
+            let c = children[i];
+            let cName = c._name;
+            let isUseless = imgExp.test(cName);
+            isUseless = isUseless || txtExp.test(cName);
+            if (isUseless && !aliveNodes[cName]) c.destroy();
+        }
     }
 });
 
