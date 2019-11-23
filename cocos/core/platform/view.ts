@@ -1333,7 +1333,7 @@ class ContentStrategy {
     let globalAdapter = _global.__globalAdapter;
     if (globalAdapter) {
         if (globalAdapter.adaptContainerStrategy) {
-            globalAdapter.adaptContainerStrategy(cc.ContainerStrategy.prototype);
+            globalAdapter.adaptContainerStrategy(ContainerStrategy.prototype);
         }
         if (globalAdapter.adaptView) {
             globalAdapter.adaptView(View.prototype);

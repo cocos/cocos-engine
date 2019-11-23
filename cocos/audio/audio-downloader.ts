@@ -27,7 +27,6 @@
  * @category loader
  */
 
-import { loader } from '../core/load-pipeline';
 import { getError, log } from '../core/platform/debug';
 import sys from '../core/platform/sys';
 import { AudioClip, AudioType } from './assets/clip';
@@ -77,7 +76,7 @@ function loadWebAudio (item, callback) {
         callback(new Error(getError(4926)));
     }
 
-    const request = loader.getXMLHttpRequest();
+    const request = cc.loader.getXMLHttpRequest();
     request.open('GET', item.url, true);
     request.responseType = 'arraybuffer';
 
