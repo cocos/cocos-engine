@@ -33,12 +33,12 @@ import { Enum } from '../../core/value-types';
 import { AudioPlayer, PlayingState } from './player';
 import { AudioPlayerDOM } from './player-dom';
 import { AudioPlayerWeb } from './player-web';
-import { AudioPlayerWX } from './player-wx';
+import { AudioPlayerMini } from './player-mini';
 
 export const AudioType = Enum({
     WEB_AUDIO: 0,
     DOM_AUDIO: 1,
-    WX_GAME_AUDIO: 2,
+    MINI_GAME_AUDIO: 2,
     UNKNOWN_AUDIO: 3,
 });
 
@@ -78,10 +78,7 @@ export class AudioClip extends Asset {
         this._audio = clip;
         if (clip) {
             let ctor: any;
-            if (CC_WECHATGAME) {
-                ctor = AudioPlayerWX;
-                this._loadMode = AudioType.WX_GAME_AUDIO;
-            } else if (typeof AudioBuffer !== 'undefined' && clip instanceof AudioBuffer) {
+            if (typeof AudioBuffer !== 'undefined' && clip instanceof AudioBuffer) {
                 ctor = AudioPlayerWeb;
                 this._loadMode = AudioType.WEB_AUDIO;
             } else {

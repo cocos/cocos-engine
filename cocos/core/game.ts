@@ -493,10 +493,6 @@ export class Game extends EventTarget {
 
         this.onStart = onStart;
 
-        if (!CC_EDITOR && CC_WECHATGAME/* && !CC_PREVIEW*/) {
-            SplashScreen.instance.main(this._gfxDevice as any);
-        }
-
         this.prepare(cc.game.onStart && cc.game.onStart.bind(cc.game));
     }
 
@@ -614,12 +610,7 @@ export class Game extends EventTarget {
             if (cb) { cb(); }
         };
 
-        if (!CC_EDITOR && CC_WECHATGAME) {
-            SplashScreen.instance.setOnFinish(start);
-            SplashScreen.instance.loadFinish = true;
-        } else {
-            start();
-        }
+        start();
     }
 
     // @Methods
@@ -952,15 +943,6 @@ export class Game extends EventTarget {
 
         if (navigator.userAgent.indexOf('MicroMessenger') > -1) {
             win.onfocus = onShown;
-        }
-
-        if (CC_WECHATGAME && cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-            if (wx.onShow) {
-                wx.onShow(onShown);
-            }
-            if (wx.onHide) {
-                wx.onHide(onHidden);
-            }
         }
 
         if ('onpageshow' in window && 'onpagehide' in window) {

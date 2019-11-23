@@ -61,7 +61,7 @@ function loadImage (item) {
     }
 
     let image = item.content;
-    if (!CC_WECHATGAME && !CC_QQPLAY && !(image instanceof Image)) {
+    if (cc.sys.platform !== cc.sys.FB_PLAYABLE_ADS && !(image instanceof Image)) {
         return new Error('Image Loader: Input item doesn\'t contain Image content');
     }
 
@@ -290,7 +290,7 @@ let ID = 'Loader';
  */
 export default class Loader implements IPipe {
     static ID = ID;
-    
+
     public id = ID;
     public async = true;
     public pipeline: Pipeline | null = null;

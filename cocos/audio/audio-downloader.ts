@@ -35,12 +35,6 @@ import { AudioClip, AudioType } from './assets/clip';
 const __audioSupport = sys.__audioSupport;
 const formatSupport = __audioSupport.format;
 
-function loadWXAudio (item, callback) {
-    const clip = wx.createInnerAudioContext();
-    clip.src = item.url;
-    clip.onCanplay(() => callback(null, clip));
-}
-
 function loadDomAudio (item, callback) {
     const dom = document.createElement('audio');
     dom.src = item.url;
@@ -105,15 +99,13 @@ function loadWebAudio (item, callback) {
     request.send();
 }
 
-function downloadAudio (item, callback) {
+export function downloadAudio (item, callback) {
     if (formatSupport.length === 0) {
         return new Error(getError(4927));
     }
 
     let audioLoader;
-    if (CC_WECHATGAME) {
-        audioLoader = loadWXAudio;
-    } else if (!__audioSupport.WEB_AUDIO) {
+    if (!__audioSupport.WEB_AUDIO) {
         audioLoader = loadDomAudio; // If WebAudio is not supported, load using DOM mode
     } else {
         const loadByDeserializedAudio = item._owner instanceof AudioClip;
@@ -125,11 +117,3 @@ function downloadAudio (item, callback) {
     }
     audioLoader(item, callback);
 }
-
-loader.downloader.addHandlers({
-    // Audio
-    mp3 : downloadAudio,
-    ogg : downloadAudio,
-    wav : downloadAudio,
-    m4a : downloadAudio,
-});

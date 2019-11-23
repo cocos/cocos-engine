@@ -34,6 +34,7 @@ import * as PackDownloader from './pack-downloader';
 import downloadBinary from './binary-downloader';
 import downloadText from './text-downloader';
 import {urlAppendTimestamp} from './utils';
+import { downloadAudio } from '../../audio/audio-downloader';
 
 function skip () {
     return null;
@@ -138,10 +139,16 @@ let defaultMap = {
     'gif' : downloadImage,
     'ico' : downloadImage,
     'tiff' : downloadImage,
-    'webp' : downloadWebp,
+    'webp' : downloadWebp, // 此方法去哪了？？
     'image' : downloadImage,
     'pvr': downloadBinary,
     'pkm': downloadBinary,
+
+    // Audio
+    'mp3' : downloadAudio, // 为何需要初始化为空？？
+    'ogg' : downloadAudio,
+    'wav' : downloadAudio,
+    'm4a' : downloadAudio,
 
     // Txt
     'txt' : downloadText,
