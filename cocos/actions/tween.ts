@@ -501,15 +501,13 @@ export class Tween {
      */
     repeat (repeatTimes: number, embedTween?: Tween): Tween {
         const actions = this._actions;
-        let action = actions[actions.length - 1];
+        let action: any;
 
         if (embedTween instanceof Tween) {
             action = embedTween._union();
+        } else {
+            action = actions.pop();
         }
-
-        // if (embedTween instanceof Action) {
-        //     action = embedTween;
-        // }
 
         actions.push(repeat(action, repeatTimes));
         return this;
@@ -527,15 +525,13 @@ export class Tween {
      */
     repeatForever (embedTween?: Tween): Tween {
         const actions = this._actions;
-        let action = actions[actions.length - 1];
+        let action: any;
 
         if (embedTween instanceof Tween) {
             action = embedTween._union();
+        } else {
+            action = actions.pop();
         }
-
-        // if (embedTween instanceof Action) {
-        //     action = embedTween;
-        // }
 
         actions.push(repeatForever(action as ActionInterval));
         return this;
@@ -553,15 +549,13 @@ export class Tween {
      */
     reverseTime (embedTween?: Tween): Tween {
         const actions = this._actions;
-        let action = actions[actions.length - 1];
+        let action: any;
 
         if (embedTween instanceof Tween) {
             action = embedTween._union();
+        } else {
+            action = actions.pop();
         }
-
-        // if (embedTween instanceof Action) {
-        //     action = embedTween;
-        // }
 
         actions.push(reverseTime(action as ActionInterval));
         return this;
