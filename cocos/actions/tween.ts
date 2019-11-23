@@ -3,33 +3,111 @@ import { warnID, warn, easing } from '../core';
 import { ActionInterval, sequence, repeat, repeatForever, reverseTime, delayTime, spawn } from './CCActionInterval';
 import { ActionInstant, removeSelf, show, hide, callFunc } from './CCActionInstant';
 import { Action } from './CCAction';
+import { ITweenOption } from './export-api';
+
+/** adapter */
+function TweenEasinAdapter (easingName: string) {
+    let initialChar = easingName.charAt(0);
+    if (/[A-Z]/.test(initialChar)) {
+        easingName = easingName.replace(initialChar, initialChar.toLowerCase());
+        const arr = easingName.split('-');
+        if (arr.length == 2) {
+            const str0 = arr[0];
+            if (str0 == 'linear') {
+                easingName = 'linear';
+            } else {
+                const str1 = arr[1];
+                switch (str0) {
+                    case 'quadratic':
+                        easingName = 'quad' + str1;
+                        break;
+                    case 'quartic':
+                        easingName = 'quart' + str1;
+                        break;
+                    case 'quintic':
+                        easingName = 'quint' + str1;
+                        break;
+                    case 'sinusoidal':
+                        easingName = 'sine' + str1;
+                        break;
+                    case 'exponential':
+                        easingName = 'expo' + str1;
+                        break;
+                    case 'circular':
+                        easingName = 'circ' + str1;
+                        break;
+                    default:
+                        easingName = str0 + str1;
+                        break;
+                }
+            }
+        }
+    }
+    return easingName;
+}
+
+/** checker */
+function TweenOptionChecker (opts: ITweenOption) {
+    const header = ' [Tween:] ';
+    const message = ' option is not support in v1.1 ';
+    if (opts['delay']) {
+        warn(header + 'delay' + message);
+    }
+    if (opts['repeat']) {
+        warn(header + 'repeat' + message);
+    }
+    if (opts['repeatDelay']) {
+        warn(header + 'repeatDelay' + message);
+    }
+    if (opts['interpolation']) {
+        warn(header + 'interpolation' + message);
+    }
+    if (opts['onStart']) {
+        warn(header + 'onStart' + message);
+    }
+    if (opts['onStop']) {
+        warn(header + 'onStop' + message);
+    }
+    if (opts['onUpdate']) {
+        warn(header + 'onUpdate' + message);
+    }
+    if (opts['onComplete']) {
+        warn(header + 'onComplete' + message);
+    }
+}
 
 class TweenAction extends ActionInterval {
     private _opts: any;
     private _props: any;
     private _originProps: any;
 
-    constructor (duration: number, props: any, opts: any) {
+    constructor (duration: number, props: any, opts?: ITweenOption) {
         super();
-        this._opts = opts = opts || Object.create(null);
-        this._props = Object.create(null);
+        if (opts == null) {
+            opts = Object.create(null);
+        } else {
+            /** checker */
+            TweenOptionChecker(opts);
 
-        // global easing or progress used for this action
-        opts.progress = opts.progress || this.progress;
-        if (opts.easing && typeof opts.easing === 'string') {
-            let easingName = opts.easing;
             /** adapter */
-            let initialChar = easingName.charAt(0);
-            if (/[A-Z]/.test(initialChar)) {
-                easingName = easingName.replace(initialChar, initialChar.toLowerCase());
-                easingName = easingName.replace(RegExp('-'), '');
+            if (opts.easing && typeof opts.easing === 'string') {
+                opts.easing = TweenEasinAdapter(opts.easing) as any;
             }
-            opts.easing = easing[easingName];
-            !opts.easing && warnID(1031, easingName);
+
+            // global easing or progress used for this action
+            if (!opts.progress) {
+                opts.progress = this.progress;
+            }
+            if (opts.easing && typeof opts.easing === 'string') {
+                let easingName = opts.easing as string;
+                opts.easing = easing[easingName];
+
+                if (!opts.easing) { warnID(1031, easingName); }
+            }
         }
+        this._opts = opts;
 
-        let relative = this._opts.relative;
-
+        this._props = Object.create(null);
         for (let name in props) {
             let value = props[name];
 
@@ -45,12 +123,6 @@ class TweenAction extends ActionInterval {
                 }
                 progress = value.progress;
                 value = value.value;
-            }
-
-            let isNumber = typeof value === 'number';
-            if (!isNumber && (!value.lerp || (relative && !value.add && !value.mul) || !value.clone)) {
-                warn(`Can not animate ${name} property, because it do not have [lerp, (add|mul), clone] function.`);
-                continue;
             }
 
             let prop = Object.create(null);
@@ -73,75 +145,71 @@ class TweenAction extends ActionInterval {
     startWithTarget (target: {}) {
         ActionInterval.prototype.startWithTarget.call(this, target);
 
-        let relative = !!this._opts.relative;
-        let props = this._props;
-        for (let name in props) {
-            let value = target[name];
-            let prop = props[name];
+        const relative = !!this._opts.relative;
+        const props = this._props;
+        for (var property in props) {
+            const _t: any = target[property];
+            if (_t === undefined) { continue; }
 
-            if (typeof value === 'number') {
-                prop.start = value;
-                prop.current = value;
-                prop.end = relative ? value + prop.value : prop.value;
-            }
-            else {
-                prop.start = value.clone();
-                prop.current = value.clone();
-                prop.end = relative ? (value.add || value.mul).call(value, prop.value) : prop.value;
+            const prop: any = props[property];
+            const value = prop.value;
+            if (typeof _t === "number") {
+                prop.start[property] = _t;
+                prop.current[property] = _t;
+                prop.end[property] = relative ? _t + value : value;
+            } else if (typeof _t === "object") {
+                if (prop.start == undefined) {
+                    prop.start = {}; prop.current = {}; prop.end = {};
+                }
+                for (var k in value) {
+                    prop.start[k] = _t[k];
+                    prop.current[k] = _t[k];
+                    prop.end[k] = relative ? _t[k] + value[k] : value[k];
+                }
             }
         }
     }
 
     update (t: number) {
-        let opts = this._opts;
+        const target = this.target;
+        if (!target) return;
+
+        const props = this._props;
+        const opts = this._opts;
+
         let easingTime = t;
         if (opts.easing) easingTime = opts.easing(t);
 
-        let target = this.target;
-        if (!target) return;
-
-        let props = this._props;
         let progress = this._opts.progress;
-        for (let name in props) {
+        for (const name in props) {
             let prop = props[name];
             let time = prop.easing ? prop.easing(t) : easingTime;
-            // let current = prop.current = (prop.progress || progress)(prop.start, prop.end, prop.current, time);            
             let interpolation = prop.progress ? prop.progress : progress;
-            progress2(prop, time, interpolation);
+
+            const start = prop.start;
+            const end = prop.end;
+            if (typeof start === 'number') {
+                prop.current = interpolation(start, end, prop.current, time);
+            } else if (typeof start === 'object') {
+
+                const value = prop.value;
+                for (const k in start) {
+                    // if (value[k].easing) {
+                    //     time = value[k].easing(t);
+                    // }
+                    // if (value[k].progress) {
+                    //     interpolation = value[k].easing(t);
+                    // }
+                    prop.current[k] = interpolation(start[k], end[k], prop.current[k], time);
+                }
+            }
+
             target[name] = prop.current;
         }
     }
 
     progress (start: any, end: any, current: any, t: number) {
-        if (typeof start === 'number') {
-            current = start + (end - start) * t;
-        }
-        else {
-            start.lerp(end, t, current);
-        }
-        return current;
-    }
-}
-
-function progress2 (prop: any, t: number, func: Function) {
-    const start = prop.start;
-    const end = prop.end;
-    if (typeof start === 'number') {
-        prop.current = func(start, end, prop.current, t);
-    } else if (typeof start === 'object') {
-        for (var key in end) {
-            progress2_r(start[key], end[key], t, func, prop.current, key);
-        }
-    }
-}
-
-function progress2_r (start: number | object, end: number | object, t: number, func: Function, target: object, key: string) {
-    if (typeof end === 'number') {
-        target[key] = func(start, end, target[key], t);
-    } else if (typeof end === 'object') {
-        for (var k in end) {
-            progress2_r(start[k], end[k], t, func, target, k);
-        }
+        return current = start + (end - start) * t;
     }
 }
 
@@ -195,29 +263,18 @@ const wrappedSequence = wrapAction(sequence);
 const wrappedParallel = wrapAction(spawn);
 
 /**
- * !#en
- * Tween provide a simple and flexible way to create action.
- * Tween's api is more flexible than cc.Action:
- *  - Support creating an action sequence in chained api,
- *  - Support animate any objects' any properties, not limited to node's properties.
- *    By contrast, cc.Action needs to create a new action class to support new node property.
- *  - Support working with cc.Action,
- *  - Support easing and progress function.
- * !#zh
- * Tween 提供了一个简单灵活的方法来创建 action。
- * 相对于 Cocos 传统的 cc.Action，cc.Tween 在创建动画上要灵活非常多：
- *  - 支持以链式结构的方式创建一个动画序列。
- *  - 支持对任意对象的任意属性进行缓动，不再局限于节点上的属性，而 cc.Action 添加一个属性的支持时还需要添加一个新的 action 类型。
- *  - 支持与 cc.Action 混用
- *  - 支持设置 {{#crossLink "Easing"}}{{/crossLink}} 或者 progress 函数
+ * @en
+ * Tween provide a simple and flexible way to action。
+ * @zh
+ * Tween 提供了一个简单灵活的方法来缓动目标。
  * @class Tween
  * @param {Object} [target]
  * @example
- * cc.tween(node)
- *   .to(1, {scale: 2, position: cc.v3(100, 100, 100)})
+ * tween(this.node)
+ *   .to(1, {scale: new Vec3(2, 2, 2), position: new Vec3(5, 5, 5)})
  *   .call(() => { console.log('This is a callback'); })
- *   .by(1, {scale: 3, position: cc.v3(200, 200, 200)}, {easing: 'sineOutIn'})
- *   .run(cc.find('Canvas/cocos'));
+ *   .by(1, {scale: new Vec3(-1, -1, -1), position: new Vec3(-5, -5, -5)}, {easing: 'sineOutIn'})
+ *   .start()
  */
 export class Tween {
 
@@ -230,15 +287,15 @@ export class Tween {
     }
 
     /**
-     * !#en
+     * @en
      * Insert an action or tween to this sequence
-     * !#zh
-     * 插入一个 action 或者 tween 到队列中
+     * @zh
+     * 插入一个 tween 到队列中
      * @method then 
-     * @param {Action|Tween} other
+     * @param {Tween} other
      * @return {Tween}
      */
-    then (other: Action | Tween): Tween {
+    then (other: Tween): Tween {
         if (other instanceof Action) {
             this._actions.push(other.clone());
         }
@@ -249,9 +306,9 @@ export class Tween {
     }
 
     /**
-     * !#en
+     * @en
      * Set tween target
-     * !#zh
+     * @zh
      * 设置 tween 的 target
      * @method target
      * @param {Object} target
@@ -263,9 +320,9 @@ export class Tween {
     }
 
     /**
-     * !#en
+     * @en
      * Start this tween
-     * !#zh
+     * @zh
      * 运行当前 tween
      * @method start
      * @return {Tween}
@@ -284,9 +341,9 @@ export class Tween {
     }
 
     /**
-     * !#en
+     * @en
      * Stop this tween
-     * !#zh
+     * @zh
      * 停止当前 tween
      * @method stop
      * @return {Tween}
@@ -299,9 +356,9 @@ export class Tween {
     }
 
     /**
-     * !#en
+     * @en
      * Clone a tween
-     * !#zh
+     * @zh
      * 克隆当前 tween
      * @method clone
      * @param {Object} [target]
@@ -309,13 +366,13 @@ export class Tween {
      */
     clone (target: object): Tween {
         let action = this._union();
-        return tween(target).then(action.clone());
+        return tween(target).then(action.clone() as any);
     }
 
     /**
-     * !#en
+     * @en
      * Integrate all previous actions to an action.
-     * !#zh
+     * @zh
      * 将之前所有的 action 整合为一个 action。
      * @method union
      * @return {Tween}
@@ -328,51 +385,51 @@ export class Tween {
     }
 
     /**
-     * !#en
+     * @en
      * Add an action which calculate with absolute value
-     * !#zh
+     * @zh
      * 添加一个对属性进行绝对值计算的 action
      * @method to
-     * @param {Number} duration 
-     * @param {Object} props - {scale: 2, position: cc.v3(100, 100, 100)}
-     * @param {Object} [opts] 
+     * @param {number} duration 缓动时间，单位为秒
+     * @param {Object} props 缓动的属性列表
+     * @param {Object} [opts] 可选的缓动功能
      * @param {Function} [opts.progress]
      * @param {Function|String} [opts.easing]
      * @return {Tween}
      */
-    to (duration: number, props: object, opts: any): Tween {
+    to (duration: number, props: object, opts?: ITweenOption): Tween {
         opts = opts || Object.create(null);
-        opts.relative = false;
+        (opts as any).relative = false;
         const action = new TweenAction(duration, props, opts);
         this._actions.push(action);
         return this;
     }
 
     /**
-     * !#en
+     * @en
      * Add an action which calculate with relative value
-     * !#zh
+     * @zh
      * 添加一个对属性进行相对值计算的 action
      * @method by
-     * @param {Number} duration 
-     * @param {Object} props - {scale: 2, position: cc.v3(100, 100, 100)}
-     * @param {Object} [opts] 
+     * @param {number} duration 缓动时间，单位为秒
+     * @param {Object} props 缓动的属性列表
+     * @param {Object} [opts] 可选的缓动功能
      * @param {Function} [opts.progress]
      * @param {Function|String} [opts.easing]
      * @return {Tween}
      */
-    by (duration: number, props: object, opts: any): Tween {
+    by (duration: number, props: object, opts?: ITweenOption): Tween {
         opts = opts || Object.create(null);
-        opts.relative = true;
+        (opts as any).relative = true;
         const action = new TweenAction(duration, props, opts);
         this._actions.push(action);
         return this;
     }
 
     /**
-     * !#en
+     * @en
      * Directly set target properties
-     * !#zh
+     * @zh
      * 直接设置 target 的属性
      * @method set
      * @param {Object} props
@@ -385,9 +442,9 @@ export class Tween {
     }
 
     /**
-     * !#en
+     * @en
      * Add an delay action
-     * !#zh
+     * @zh
      * 添加一个延时 action
      * @method delay
      * @param {number} duration 
@@ -400,9 +457,9 @@ export class Tween {
     }
 
     /**
-     * !#en
+     * @en
      * Add an callback action
-     * !#zh
+     * @zh
      * 添加一个回调 action
      * @method call
      * @param {Function} callback
@@ -415,13 +472,13 @@ export class Tween {
     }
 
     /**
-     * !#en
+     * @en
      * Add an sequence action
-     * !#zh
+     * @zh
      * 添加一个队列 action
      * @method sequence
-     * @param {Action|Tween} action
-     * @param {Action|Tween} ...actions
+     * @param {Tween} action
+     * @param {Tween} ...actions
      * @return {Tween}
      */
     sequence (...args: Tween[]): Tween {
@@ -431,13 +488,13 @@ export class Tween {
     }
 
     /**
-     * !#en
+     * @en
      * Add an parallel action
-     * !#zh
+     * @zh
      * 添加一个并行 action
      * @method parallel
-     * @param {Action|Tween} action
-     * @param {Action|Tween} ...actions
+     * @param {Tween} action
+     * @param {Tween} ...actions
      * @return {Tween}
      */
     parallel (...args: Tween[]): Tween {
@@ -446,60 +503,23 @@ export class Tween {
         return this;
     }
 
-    // /**
-    //  * !#en
-    //  * Add an hide action
-    //  * !#zh
-    //  * 添加一个隐藏 action
-    //  * @method hide
-    //  * @return {Tween}
-    //  */
-    // hide (): Tween {
-    //     let action = hide();
-    //     this._actions.push(action);
-    //     return this;
-    // }
-
-    // /**
-    //  * !#en
-    //  * Add an show action
-    //  * !#zh
-    //  * 添加一个显示 action
-    //  * @method show
-    //  * @return {Tween}
-    //  */
-    // show (): Tween {
-    //     let action = show();
-    //     this._actions.push(action);
-    //     return this;
-    // }
-
-    // /**
-    //  * !#en
-    //  * Add an removeSelf action
-    //  * !#zh
-    //  * 添加一个移除自己 action
-    //  * @method removeSelf
-    //  * @return {Tween}
-    //  */
-    // removeSelf () {        
-    //     let action = removeSelf();
-    //     this._actions.push(action);
-    //     return this;
-    // }
-
     /**
-     * !#en
+     * @en
      * Add an repeat action. 
      * This action will integrate before actions to a sequence action as their parameters.
-     * !#zh
+     * @zh
      * 添加一个重复 action，这个 action 会将前一个动作作为他的参数。
      * @method repeat
      * @param {number} repeatTimes
-     * @param {Action | Tween} [action]
+     * @param {Tween} [action]
      * @return {Tween}
      */
     repeat (repeatTimes: number, embedTween?: Tween): Tween {
+        /** adapter */
+        if (repeatTimes == Infinity) {
+            return this.repeatForever(embedTween);
+        }
+
         const actions = this._actions;
         let action: any;
 
@@ -514,13 +534,13 @@ export class Tween {
     }
 
     /**
-     * !#en
+     * @en
      * Add an repeat forever action
      * This action will integrate before actions to a sequence action as their parameters.
-     * !#zh
+     * @zh
      * 添加一个永久重复 action，这个 action 会将前一个动作作为他的参数。
      * @method repeatForever
-     * @param {Action | Tween} [action]
+     * @param {Tween} [action]
      * @return {Tween}
      */
     repeatForever (embedTween?: Tween): Tween {
@@ -538,13 +558,13 @@ export class Tween {
     }
 
     /**
-     * !#en
+     * @en
      * Add an reverse time action.
      * This action will integrate before actions to a sequence action as their parameters.
-     * !#zh
+     * @zh
      * 添加一个倒置时间 action，这个 action 会将前一个动作作为他的参数。
      * @method reverseTime
-     * @param {Action | Tween} [action]
+     * @param {Tween} [action]
      * @return {Tween}
      */
     reverseTime (embedTween?: Tween): Tween {
@@ -561,6 +581,48 @@ export class Tween {
         return this;
     }
 
+    // /**
+    //  * @en
+    //  * Add an hide action
+    //  * @zh
+    //  * 添加一个隐藏 action
+    //  * @method hide
+    //  * @return {Tween}
+    //  */
+    // hide (): Tween {
+    //     let action = hide();
+    //     this._actions.push(action);
+    //     return this;
+    // }
+
+    // /**
+    //  * @en
+    //  * Add an show action
+    //  * @zh
+    //  * 添加一个显示 action
+    //  * @method show
+    //  * @return {Tween}
+    //  */
+    // show (): Tween {
+    //     let action = show();
+    //     this._actions.push(action);
+    //     return this;
+    // }
+
+    // /**
+    //  * @en
+    //  * Add an removeSelf action
+    //  * @zh
+    //  * 添加一个移除自己 action
+    //  * @method removeSelf
+    //  * @return {Tween}
+    //  */
+    // removeSelf () {        
+    //     let action = removeSelf();
+    //     this._actions.push(action);
+    //     return this;
+    // }
+
     _union () {
         let actions = this._actions;
         let action: Action;
@@ -576,7 +638,6 @@ export class Tween {
 
 }
 cc.Tween = Tween;
-
 
 export function tween (target: {}) {
     return new Tween(target);
