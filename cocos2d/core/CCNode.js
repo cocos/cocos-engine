@@ -1409,6 +1409,7 @@ let NodeDefines = {
         }
 
         if (oldParent && this._activeInHierarchy) {
+            //TODO: It may be necessary to update the listener mask of all child nodes.
             this._checkListenerMask();
         }
         
@@ -2074,7 +2075,7 @@ let NodeDefines = {
                     if (i === mask.next.index) {
                         if (parent === mask.next.node) {
                             let comp = parent.getComponent(cc.Mask);
-                            if (comp && comp.enabledInHierarchy && comp._hitTest(cameraPt)) {
+                            if (comp && comp._enabled && comp._hitTest(cameraPt)) {
                                 mask = mask.next;
                             } else {
                                 hit = false;
