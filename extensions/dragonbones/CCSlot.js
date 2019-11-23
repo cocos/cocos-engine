@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { mat4 } from '../../cocos2d/core/vmath';
+import Mat4 from '../../cocos2d/core/value-types/mat4';
 
 const BinaryOffset = dragonBones.BinaryOffset;
 const BoneType  = dragonBones.BoneType;
@@ -35,8 +35,8 @@ dragonBones.CCSlot = cc.Class({
     ctor () {
         this._localVertices = [];
         this._indices = [];
-        this._matrix = mat4.create();
-        this._worldMatrix = mat4.create();
+        this._matrix = cc.mat4();
+        this._worldMatrix = cc.mat4();
         this._worldMatrixDirty = true;
         this._visible = false;
         this._color = cc.color();
@@ -46,8 +46,8 @@ dragonBones.CCSlot = cc.Class({
         this._super();
         this._localVertices.length = 0;
         this._indices.length = 0;
-        mat4.identity(this._matrix);
-        mat4.identity(this._worldMatrix);
+        Mat4.identity(this._matrix);
+        Mat4.identity(this._worldMatrix);
         this._worldMatrixDirty = true;
         this._color = cc.color();
         this._visible = false;
@@ -376,7 +376,7 @@ dragonBones.CCSlot = cc.Class({
         if (parent) {
             this._mulMat(this._worldMatrix ,parent._worldMatrix, this._matrix);
         } else {
-            mat4.copy(this._worldMatrix, this._matrix);
+            Mat4.copy(this._worldMatrix, this._matrix);
         }
         this._worldMatrixDirty = false;
     }

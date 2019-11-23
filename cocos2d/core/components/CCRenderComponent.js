@@ -64,7 +64,7 @@ let RenderComponent = cc.Class({
             },
             set (val) {
                 this._materials = val;
-                this._activateMaterial(true);
+                this._activateMaterial();
             },
             type: [Material],
             displayName: 'Materials',
@@ -79,14 +79,13 @@ let RenderComponent = cc.Class({
     },
 
     _resetAssembler () {
-        this.setVertsDirty(true);
         Assembler.init(this);
-
         this._updateColor();
     },
 
     __preload () {
         this._resetAssembler();
+        this._activateMaterial();
     },
 
     onEnable () {
@@ -94,17 +93,13 @@ let RenderComponent = cc.Class({
             this.node._renderComponent.enabled = false;
         }
         this.node._renderComponent = this;
-
-        this.node.on(cc.Node.EventType.SIZE_CHANGED, this._onNodeSizeDirty, this);
-        this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
-
-        this.node._renderFlag |= RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA | RenderFlow.FLAG_OPACITY_COLOR;
+        this.node._renderFlag |= RenderFlow.FLAG_OPACITY_COLOR;
+        
+        this.setVertsDirty();
     },
 
     onDisable () {
         this.node._renderComponent = null;
-        this.node.off(cc.Node.EventType.SIZE_CHANGED, this._onNodeSizeDirty, this);
-        this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this._onNodeSizeDirty, this);
         this.disableRender();
     },
 
@@ -120,37 +115,28 @@ let RenderComponent = cc.Class({
 
     setVertsDirty () {
         this._vertsDirty = true;
-        this.markForUpdateRenderData(true);
-    },
-
-    _onNodeSizeDirty () {
-        this.setVertsDirty();
+        this.markForRender(true);
     },
 
     _on3DNodeChanged () {
-        this.setVertsDirty();
+        this._resetAssembler();
     },
     
-    _canRender () {
-        // When the node is activated, it will execute onEnable and the renderflag will also be reset.
-        return this._enabled && this.node._activeInHierarchy;
+    _validateRender () {
     },
 
-    markForUpdateRenderData (enable) {
-        if (enable && this._canRender()) {
-            this.node._renderFlag |= RenderFlow.FLAG_UPDATE_RENDER_DATA;
-        }
-        else if (!enable) {
-            this.node._renderFlag &= ~RenderFlow.FLAG_UPDATE_RENDER_DATA;
-        }
+    markForValidate () {
+        cc.RenderFlow.registerValidate(this);
     },
 
     markForRender (enable) {
-        if (enable && this._canRender()) {
-            this.node._renderFlag |= RenderFlow.FLAG_RENDER;
+        let flag = RenderFlow.FLAG_RENDER | RenderFlow.FLAG_UPDATE_RENDER_DATA;
+        if (enable) {
+            this.node._renderFlag |= flag;
+            this.markForValidate();
         }
-        else if (!enable) {
-            this.node._renderFlag &= ~RenderFlow.FLAG_RENDER;
+        else {
+            this.node._renderFlag &= ~flag;
         }
     },
 
@@ -186,16 +172,42 @@ let RenderComponent = cc.Class({
      * !#zh 根据指定索引设置材质
      * @method setMaterial
      * @param {Number} index 
-     * @param {Material} material 
+     * @param {Material} material
+     * @return {Material}
      */
     setMaterial (index, material) {
-        this._materials[index] = material;
-        if (material) {
-            this.markForUpdateRenderData(true);
+        if (material !== this._materials[index]) {
+            material = Material.getInstantiatedMaterial(material, this);
+            this._materials[index] = material;
         }
+        return material;
     },
 
-    _activateMaterial (force) {
+    /**
+     * Init material.
+     */
+    _activateMaterial () {
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) return;
+
+        // make sure material is belong to self.
+        let material = this.sharedMaterials[0];
+        if (!material) {
+            material = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
+        }
+        else {
+            material = Material.getInstantiatedMaterial(material, this);
+        }
+        
+        this.setMaterial(0, material);
+
+        this._updateMaterial();
+    },
+
+    /**
+     * Update material properties.
+     */
+    _updateMaterial () {
+
     },
 
     _updateColor () {

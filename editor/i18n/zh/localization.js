@@ -262,6 +262,7 @@ module.exports = {
             "currentTime": "从哪个时间点开始播放视频",
             "keepAspectRatio": "是否保持视频原有的宽高比",
             "isFullscreen": "是否全屏播放视频",
+            "stayOnBottom": "永远在游戏视图最底层（这个属性只有在 Web 平台上有效果。注意：具体效果无法保证一致，跟各个浏览器是否支持与限制有关）"
         },
         "webview": {
             "url": "指定一个 URL 地址，这个地址以 http 或者 https 开头，请填写一个有效的 URL 地址。"

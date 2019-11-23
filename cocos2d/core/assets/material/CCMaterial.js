@@ -133,7 +133,8 @@ let Material = cc.Class({
      * @param {Material} mat
      */
     copy (mat) {
-        this.effectAsset = mat.effectAsset;
+        this._effect = mat.effect.clone();
+        this._effectAsset = mat._effectAsset;
 
         for (let name in mat._defines) {
             this.define(name, mat._defines[name]);
@@ -156,14 +157,16 @@ let Material = cc.Class({
 
         if (this._effect) {
             if (val instanceof Texture) {
+
+                let format = val.getPixelFormat();
+                if (format === PixelFormat.RGBA_ETC1 ||
+                    format === PixelFormat.RGB_A_PVRTC_4BPPV1 ||
+                    format === PixelFormat.RGB_A_PVRTC_2BPPV1) {
+                    this.define('CC_USE_ALPHA_ATLAS_' + name.toUpperCase(), true);
+                }
+
                 function loaded () {
                     this._effect.setProperty(name, val);
-                    let format = val.getPixelFormat();
-                    if (format === PixelFormat.RGBA_ETC1 ||
-                        format === PixelFormat.RGB_A_PVRTC_4BPPV1 ||
-                        format === PixelFormat.RGB_A_PVRTC_2BPPV1) {
-                        this.define('CC_USE_ALPHA_ATLAS_' + name.toUpperCase(), true);
-                    }
                 }
 
                 if (!val.loaded) {
@@ -171,8 +174,9 @@ let Material = cc.Class({
                     textureUtil.postLoadTexture(val);
                 }
                 else {
-                    loaded.call(this);
+                    this._effect.setProperty(name, val);
                 }
+
             }
             else {
                 this._effect.setProperty(name, val);

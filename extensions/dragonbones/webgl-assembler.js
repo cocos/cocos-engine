@@ -24,11 +24,11 @@
  ****************************************************************************/
 
 import Assembler from '../../cocos2d/core/renderer/assembler';
+import Mat4 from '../../cocos2d/core/value-types/mat4';
 
 const Armature = require('./ArmatureDisplay');
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
 const gfx = cc.gfx;
-const mat4 = cc.vmath.mat4;
 const NEED_COLOR = 0x01;
 const NEED_BATCH = 0x10;
 
@@ -142,7 +142,7 @@ export default class ArmatureAssembler extends Assembler {
             if (parentMat) {
                 slot._mulMat(slot._worldMatrix, parentMat, slot._matrix);
             } else {
-                mat4.copy(slot._worldMatrix, slot._matrix);
+                Mat4.copy(slot._worldMatrix, slot._matrix);
             }
 
             if (slot.childArmature) {

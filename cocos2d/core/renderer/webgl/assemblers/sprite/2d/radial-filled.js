@@ -179,7 +179,6 @@ export default class RadialFilledAssembler extends Assembler2D {
         super.updateRenderData(sprite);
 
         let frame = sprite.spriteFrame;
-        if (!frame) return;
         this.packToDynamicAtlas(sprite, frame);
 
         if (sprite._vertsDirty) {

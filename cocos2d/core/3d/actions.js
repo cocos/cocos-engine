@@ -1,5 +1,7 @@
 
-const quat = cc.vmath.quat;
+import Quat from '../value-types/quat';
+import Vec3 from '../value-types/vec3';
+
 let _quat_tmp = cc.quat();
 let _vec3_tmp = cc.v3();
 
@@ -50,7 +52,7 @@ cc.Rotate3DTo = cc.Class({
                     dstAngleY = dstAngleY || 0;
                     dstAngleZ = dstAngleZ || 0;
                 }
-                cc.vmath.quat.fromEuler(dstQuat, dstAngleX, dstAngleY, dstAngleZ);
+                Quat.fromEuler(dstQuat, dstAngleX, dstAngleY, dstAngleZ);
             }
             return true;
         }
@@ -76,7 +78,7 @@ cc.Rotate3DTo = cc.Class({
     update:function (dt) {
         dt = this._computeEaseTime(dt);
         if (this.target) {
-            quat.slerp(_quat_tmp, this._startQuat, this._dstQuat, dt);
+            Quat.slerp(_quat_tmp, this._startQuat, this._dstQuat, dt);
             this.target.setRotation(_quat_tmp);
         }
     }
@@ -144,7 +146,7 @@ cc.Rotate3DBy = cc.Class({
                 deltaAngleY = deltaAngleY || 0;
                 deltaAngleZ = deltaAngleZ || 0;
             }
-            cc.vmath.vec3.set(this._angle, deltaAngleX, deltaAngleY, deltaAngleZ);
+            Vec3.set(this._angle, deltaAngleX, deltaAngleY, deltaAngleZ);
             return true;
         }
         return false;
@@ -172,9 +174,9 @@ cc.Rotate3DBy = cc.Class({
                 let dstQuat = this._quat;
                 let delta = dt - this._lastDt;
                 let angleX = angle.x, angleY = angle.y, angleZ = angle.z;
-                if (angleX) quat.rotateX(dstQuat, dstQuat, angleX * RAD * delta);
-                if (angleY) quat.rotateY(dstQuat, dstQuat, angleY * RAD * delta);
-                if (angleZ) quat.rotateZ(dstQuat, dstQuat, angleZ * RAD * delta);
+                if (angleX) Quat.rotateX(dstQuat, dstQuat, angleX * RAD * delta);
+                if (angleY) Quat.rotateY(dstQuat, dstQuat, angleY * RAD * delta);
+                if (angleZ) Quat.rotateZ(dstQuat, dstQuat, angleZ * RAD * delta);
                 this.target.setRotation(dstQuat);
                 
                 this._lastDt = dt;

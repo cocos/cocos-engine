@@ -281,6 +281,7 @@ Simulator.prototype.updateParticleBuffer = function (particle, pos, buffer, offs
 };
 
 Simulator.prototype.step = function (dt) {
+    dt = dt > cc.director._maxParticleDeltaTime ? cc.director._maxParticleDeltaTime : dt;
     let psys = this.sys;
     let node = psys.node;
     let particles = this.particles;

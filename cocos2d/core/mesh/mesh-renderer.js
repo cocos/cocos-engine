@@ -25,30 +25,20 @@
 
 import Assembler from '../renderer/assembler';
 import gfx from '../../renderer/gfx';
-import vec3 from '../vmath/vec3';
+import Vec3 from '../value-types/vec3';
 
 const MeshRenderer = require('./CCMeshRenderer');
 
+let _tmp_vec3 = new Vec3();
 
 export default class MeshRendererAssembler extends Assembler {
     constructor (comp) {
         super(comp);
-        this._ias = [];
         this._renderNode = null;
     }
 
     setRenderNode (node) {
         this._renderNode = node;
-    }
-
-    updateRenderData (comp) {
-        let ias = this._ias;
-        ias.length = 0;
-        if (!comp.mesh) return;
-        let submeshes = comp.mesh._subMeshes;
-        for (let i = 0; i < submeshes.length; i++) {
-            ias.push(submeshes[i]);
-        }
     }
 
     fillBuffers (comp, renderer) {
@@ -60,17 +50,16 @@ export default class MeshRendererAssembler extends Assembler {
         let isCustomPropertiesSame = renderer.customProperties && 
             renderer.customProperties.getHash() === comp._customProperties.getHash();
 
-
         // update culling mask
         let isCullingMaskSame = renderer.cullingMask === comp.node._cullingMask;
 
         let enableAutoBatch = comp.enableAutoBatch;
 
         let materials = comp.sharedMaterials;
-        let ias = this._ias;
+        let submeshes = comp.mesh._subMeshes;
         let subDatas = comp.mesh.subDatas;
-        for (let i = 0; i < ias.length; i++) {
-            let ia = ias[i];
+        for (let i = 0; i < submeshes.length; i++) {
+            let ia = submeshes[i];
             let meshData = subDatas[i];
 
             let material = materials[i] || materials[0];
@@ -92,30 +81,39 @@ export default class MeshRendererAssembler extends Assembler {
                 !isCullingMaskSame ||
                 material.getHash() !== renderer.material.getHash()) {
                 renderer._flush();
-                renderer.material = material;
-                renderer.cullingMask = comp.node._cullingMask;
-                renderer.customProperties = comp._customProperties;
-                renderer.node = renderer._dummyNode;
             }
+
+            renderer.material = material;
+            renderer.cullingMask = comp.node._cullingMask;
+            renderer.customProperties = comp._customProperties;
+            renderer.node = renderer._dummyNode;
             
             this._fillBuffer(comp, meshData, renderer);
         }
 
-        if (cc.macro.SHOW_MESH_WIREFRAME) {
-            this._drawWireFrames(comp, renderer);
+        if (CC_DEBUG &&
+            (cc.macro.SHOW_MESH_WIREFRAME || cc.macro.SHOW_MESH_NORMAL) && 
+            comp.node.groupIndex !== cc.Node.BuiltinGroupIndex.DEBUG) {
+            renderer._flush();
+            renderer.node = this._renderNode;
+            comp._updateDebugDatas();
+        
+            if (cc.macro.SHOW_MESH_WIREFRAME) {
+                this._drawDebugDatas(comp, renderer, 'wireFrame');
+            }
+            if (cc.macro.SHOW_MESH_NORMAL) {
+                this._drawDebugDatas(comp, renderer, 'normal');
+            }
         }
     }
 
     _fillBuffer (comp, meshData, renderer) {
-        let matrix = comp.node._worldMatrix;
+        let wolrdMatrix = comp.node._worldMatrix;
         let vData = meshData.getVData(Float32Array);
 
         let vtxFormat = meshData.vfm;
-        let attrPos = vtxFormat._attr2el[gfx.ATTR_POSITION];
-        let attrOffset = attrPos.offset / 4;
-        let elementCount = vtxFormat._bytes / 4;
-
-        let vertexCount = vData.length / elementCount | 0;
+        let floatCount = vtxFormat._bytes / 4;
+        let vertexCount = vData.length / floatCount | 0;
         
         let indices = meshData.getIData(Uint16Array);
         let indicesCount = indices.length;
@@ -130,25 +128,36 @@ export default class MeshRendererAssembler extends Assembler {
             vbuf = buffer._vData,
             ibuf = buffer._iData;
 
-        let tmpV3 = cc.v3();
-        for (let i = 0; i < vertexCount; i++) {
-            let offset = i * elementCount;
-            for (let j = 0; j < attrOffset; j++) {
-                vbuf[vertexOffset++] = vData[offset + j];
+
+        let elements = vtxFormat._elements;
+        for (let i = 0, n = elements.length; i < n; i++) {
+            let element = elements[i];
+            let elementCount = element.num;
+            let attrOffset = element.offset / 4;
+         
+            if (element.name === gfx.ATTR_POSITION || element.name === gfx.ATTR_NORMAL) {
+                let transformMat4 = element.name === gfx.ATTR_NORMAL ? Vec3.transformMat4Normal : Vec3.transformMat4;
+                for (let j = 0; j < vertexCount; j++) {
+                    let offset = j * floatCount + attrOffset;
+
+                    _tmp_vec3.x = vData[offset];
+                    _tmp_vec3.y = vData[offset + 1];
+                    _tmp_vec3.z = vData[offset + 2];
+        
+                    transformMat4(_tmp_vec3, _tmp_vec3, wolrdMatrix);
+
+                    vbuf[vertexOffset + offset] = _tmp_vec3.x;
+                    vbuf[vertexOffset + offset + 1] = _tmp_vec3.y;
+                    vbuf[vertexOffset + offset + 2] = _tmp_vec3.z;
+                }
             }
-
-            tmpV3.x = vData[offset + attrOffset];
-            tmpV3.y = vData[offset + attrOffset + 1];
-            tmpV3.z = vData[offset + attrOffset + 2];
-
-            vec3.transformMat4(tmpV3, tmpV3, matrix);
-
-            vbuf[vertexOffset++] = tmpV3.x;
-            vbuf[vertexOffset++] = tmpV3.y;
-            vbuf[vertexOffset++] = tmpV3.z;
-
-            for (let j = attrOffset + 3; j < elementCount; j++) {
-                vbuf[vertexOffset++] = vData[offset + j];
+            else {
+                for (let j = 0; j < vertexCount; j++) {
+                    let offset = j * floatCount + attrOffset;
+                    for (let k = 0; k < elementCount; k++) {
+                        vbuf[vertexOffset + offset + k] = vData[offset + k];
+                    }
+                }
             }
         }
 
@@ -157,18 +166,15 @@ export default class MeshRendererAssembler extends Assembler {
         }
     }
 
-    _drawWireFrames (comp, renderer) {
-        renderer._flush();
-        
-        comp._updateWireFrameDatas();
-        renderer.node = this._renderNode;
-        
-        let wireFrameDatas = comp._wireFrameDatas;
-        for (let i = 0; i < wireFrameDatas.length; i++) {
-            let wireFrameData = wireFrameDatas[i];
-            let material = wireFrameData.material;
+    _drawDebugDatas (comp, renderer, name) {
+        let debugDatas = comp._debugDatas[name];
+        if (!debugDatas) return;
+        for (let i = 0; i < debugDatas.length; i++) {
+            let debugData = debugDatas[i];
+            if (!debugData) continue;
+            let material = debugData.material;
             renderer.material = material;
-            renderer._flushIA(wireFrameData.ia);
+            renderer._flushIA(debugData.ia);
         }
     }
 }

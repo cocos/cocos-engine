@@ -125,6 +125,9 @@ cc.Director = function () {
     this._deltaTime = 0.0;
     this._startTime = 0.0;
 
+    // ParticleSystem max step delta time
+    this._maxParticleDeltaTime = 0.0;
+
     // Scheduler for user registration update
     this._scheduler = null;
     // Scheduler for life-cycle methods in component
@@ -960,17 +963,26 @@ cc.Director.prototype = {
 
             // Update
             if (!this._paused) {
+                // before update
                 this.emit(cc.Director.EVENT_BEFORE_UPDATE);
+
                 // Call start for new added components
                 this._compScheduler.startPhase();
+
                 // Update for components
                 this._compScheduler.updatePhase(this._deltaTime);
                 // Engine update with scheduler
                 this._scheduler.update(this._deltaTime);
+
                 // Late update for components
                 this._compScheduler.lateUpdatePhase(this._deltaTime);
+
+                // After life-cycle executed
+                this._compScheduler.clearup();
+
                 // User can use this event to do things after update
                 this.emit(cc.Director.EVENT_AFTER_UPDATE);
+                
                 // Destroy entities that have been removed recently
                 Obj._deferredDestroy();
             }
