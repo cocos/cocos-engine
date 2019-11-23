@@ -262,6 +262,7 @@ export const quintOutIn = _makeOutIn(quintIn, quintOut);
 export const sineOutIn = _makeOutIn(sineIn, sineOut);
 export const expoOutIn = _makeOutIn(expoIn, expoOut);
 export const circOutIn = _makeOutIn(circIn, circOut);
+export const elasticOutIn = _makeOutIn(elasticIn, elasticOut);
 export const backOutIn = _makeOutIn(backIn, backOut);
 export const bounceOutIn = _makeOutIn(bounceIn, bounceOut);
 
