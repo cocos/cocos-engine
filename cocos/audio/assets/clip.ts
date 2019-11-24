@@ -73,17 +73,22 @@ export class AudioClip extends Asset {
         return super.destroy();
     }
 
+    private _getPlayer (clip: any) {
+        let ctor: any;
+        if (typeof AudioBuffer !== 'undefined' && clip instanceof AudioBuffer) {
+            ctor = AudioPlayerWeb;
+            this._loadMode = AudioType.WEB_AUDIO;
+        } else {
+            ctor = AudioPlayerDOM;
+            this._loadMode = AudioType.DOM_AUDIO;
+        }
+        return ctor;
+    }
+
     set _nativeAsset (clip: any) {
         this._audio = clip;
         if (clip) {
-            let ctor: any;
-            if (typeof AudioBuffer !== 'undefined' && clip instanceof AudioBuffer) {
-                ctor = AudioPlayerWeb;
-                this._loadMode = AudioType.WEB_AUDIO;
-            } else {
-                ctor = AudioPlayerDOM;
-                this._loadMode = AudioType.DOM_AUDIO;
-            }
+            const ctor = this._getPlayer(clip);
             this._player = new ctor({ clip, duration: this._duration, eventTarget: this });
             this.loaded = true;
             this.emit('load');
@@ -119,5 +124,3 @@ export class AudioClip extends Asset {
     public setLoop (val: boolean) { if (this._player) { this._player.setLoop(val); } }
     public getLoop () { if (this._player) { return this._player.getLoop(); } return false; }
 }
-
-cc.AudioClip = AudioClip;

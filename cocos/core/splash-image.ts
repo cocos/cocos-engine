@@ -589,3 +589,5 @@ export class SplashScreen {
 
     private constructor () { };
 }
+
+cc.SplashScreen = SplashScreen;
