@@ -542,34 +542,10 @@ export class Pass {
             if (saveOverrides) { Object.assign(this._defines, defineOverrides); }
             else { Object.assign(defineOverrides, this._defines); defines = defineOverrides; }
         }
-        const shader = programLib.getGFXShader(this._device, this._programName, defines, pipeline);
-        if (!shader) { console.warn(`create shader ${this._programName} failed`); return null; }
-        if (saveOverrides) { this._shader = shader; }
-
-        const { blocks, samplers } = this._shaderInfo;
-        this._bindings.length = 0;
-        let lastBinding = -1;
-        blocks:
-        for (let i = 0; i < blocks.length; i++) {
-            const block = blocks[i];
-            if (block.binding === lastBinding) { continue; }
-            for (let j = 0; j < block.defines.length; j++) {
-                if (!defines[block.defines[j]]) { continue blocks; }
-            }
-            lastBinding = block.binding;
-            this._bindings.push(block);
-        }
-        samplers:
-        for (let i = 0; i < samplers.length; i++) {
-            const sampler = samplers[i];
-            if (sampler.binding === lastBinding) { continue; }
-            for (let j = 0; j < sampler.defines.length; j++) {
-                if (!defines[sampler.defines[j]]) { continue samplers; }
-            }
-            lastBinding = sampler.binding;
-            this._bindings.push(sampler);
-        }
-        return shader;
+        const res = programLib.getGFXShader(this._device, this._programName, defines, pipeline);
+        if (!res.shader) { console.warn(`create shader ${this._programName} failed`); return null; }
+        if (saveOverrides) { this._shader = res.shader; this._bindings = res.bindings; }
+        return res;
     }
 
     /**
@@ -581,10 +557,12 @@ export class Pass {
             console.warn(`pass resources not complete, create PSO failed`);
             return null;
         }
-        let shader = this._shader!;
-        if (defineOverrides) { shader = this.tryCompile(defineOverrides, false)!; }
+        let shader = this._shader!; _blInfo.bindings = this._bindings;
+        if (defineOverrides) {
+            const res = this.tryCompile(defineOverrides, false);
+            if (res) { shader = res.shader; _blInfo.bindings = res.bindings; }
+        }
         // bind resources
-        _blInfo.bindings = this._bindings;
         const bindingLayout = this._device.createBindingLayout(_blInfo);
         for (const b in this._buffers) {
             bindingLayout.bindBuffer(parseInt(b), this._buffers[b]);

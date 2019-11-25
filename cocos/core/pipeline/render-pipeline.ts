@@ -848,9 +848,9 @@ export abstract class RenderPipeline {
             }
         }
 
-        this._shadingTexViews.splice(0);
-        this._shadingTextures.splice(0);
-        this._shadingFBOs.splice(0);
+        this._shadingTexViews.length = 0;
+        this._shadingTextures.length = 0;
+        this._shadingFBOs.length = 0;
 
         if (this._depthStencilTexView) {
             this._depthStencilTexView.destroy();
@@ -1181,13 +1181,13 @@ export abstract class RenderPipeline {
             Vec4.toArray(fv, _v4Zero, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
         }
 
-        _vec4Array.set(ambient.skyColor);
+        const skyColor = ambient.skyColor;
         if (this._isHDR) {
-            _vec4Array[3] = ambient.skyIllum * this._fpScale;
+            skyColor[3] = ambient.skyIllum * this._fpScale;
         } else {
-            _vec4Array[3] = ambient.skyIllum * exposure;
+            skyColor[3] = ambient.skyIllum * exposure;
         }
-        this._uboGlobal.view.set(_vec4Array, UBOGlobal.AMBIENT_SKY_OFFSET);
+        this._uboGlobal.view.set(skyColor, UBOGlobal.AMBIENT_SKY_OFFSET);
 
         this._uboGlobal.view.set(ambient.groundAlbedo, UBOGlobal.AMBIENT_GROUND_OFFSET);
 
@@ -1205,7 +1205,7 @@ export abstract class RenderPipeline {
         const camera = view.camera;
         const scene = camera.scene!;
 
-        this._renderObjects.splice(0);
+        this._renderObjects.length = 0;
 
         const mainLight = scene.mainLight;
         if (mainLight && mainLight.enabled) {
@@ -1221,7 +1221,9 @@ export abstract class RenderPipeline {
             this.addVisibleModel(scene.skybox, camera);
         }
 
-        for (const model of scene.models) {
+        const models = scene.models;
+        for (let i = 0; i < models.length; i++) {
+            const model = models[i];
 
             model._resetUBOUpdateFlag();
 

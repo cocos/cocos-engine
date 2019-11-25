@@ -66,10 +66,13 @@ export class AnimationBlendState {
     }
 
     public apply () {
-        for (const targetState of this._blendTargets) {
+        const targets = this._blendTargets;
+        for (let i = 0; i < targets.length; i++) {
+            const targetState = targets[i];
             const target = targetState.target;
             const propertyStates = targetState.properties;
-            for (const p of propertyStates) {
+            for (let j = 0; j < propertyStates.length; j++) {
+                const p = propertyStates[j];
                 if (p.weight !== 0) {
                     if (target instanceof Node) {
                         if (p.name === 'position') {
@@ -88,7 +91,9 @@ export class AnimationBlendState {
     }
 
     public clear () {
-        for (const targetState of this._blendTargets) {
+        const targets = this._blendTargets;
+        for (let i = 0; i < targets.length; i++) {
+            const targetState = targets[i];
             const propertyStates = targetState.properties;
             for (const p of propertyStates) {
                 p.weight = 0;

@@ -138,13 +138,44 @@ function genHandles (tmpl: IProgramInfo) {
     return handleMap;
 }
 
+function dependencyCheck (dependencies: string[], defines: IDefineMap) {
+    for (let i = 0; i < dependencies.length; i++) {
+        if (!defines[dependencies[i]]) { return false; }
+    }
+    return true;
+}
+function getShaderBindings (
+        tmpl: IProgramInfo, defines: IDefineMap, outBlocks: IBlockInfoRT[], outSamplers: ISamplerInfoRT[], bindings: IGFXBinding[]) {
+    const { blocks, samplers } = tmpl;
+    let lastBinding = -1;
+    for (let i = 0; i < blocks.length; i++) {
+        const block = blocks[i];
+        if (block.binding === lastBinding || !dependencyCheck(block.defines, defines)) { continue; }
+        lastBinding = block.binding;
+        outBlocks.push(block);
+        bindings.push(block);
+    }
+    for (let i = 0; i < samplers.length; i++) {
+        const sampler = samplers[i];
+        if (sampler.binding === lastBinding || !dependencyCheck(sampler.defines, defines)) { continue; }
+        lastBinding = sampler.binding;
+        outSamplers.push(sampler);
+        bindings.push(sampler);
+    }
+}
+
+interface IShaderResources {
+    shader: GFXShader;
+    bindings: IGFXBinding[];
+}
+
 /**
  * @zh
  * 维护 shader 资源实例的全局管理器。
  */
 class ProgramLib {
     protected _templates: Record<string, IProgramInfo>;
-    protected _cache: Record<string, GFXShader>;
+    protected _cache: Record<string, IShaderResources>;
 
     constructor () {
         this._templates = {};
@@ -232,10 +263,11 @@ class ProgramLib {
             if (typeof val === 'boolean') { val = val ? '1' : '0'; }
             return new RegExp(cur + val);
         });
-        const keys = Object.keys(this._cache).filter((k) => regexes.every((re) => re.test(this._cache[k].name)));
+        const keys = Object.keys(this._cache).filter((k) => regexes.every((re) => re.test(this._cache[k].shader.name)));
         for (const k of keys) {
-            console.log(`destroyed shader ${this._cache[k].name}`);
-            this._cache[k].destroy();
+            const prog = this._cache[k].shader;
+            console.log(`destroyed shader ${prog.name}`);
+            prog.destroy();
             delete this._cache[k];
         }
     }
@@ -251,19 +283,15 @@ class ProgramLib {
     public getGFXShader (device: GFXDevice, name: string, defines: IDefineMap, pipeline: RenderPipeline) {
         Object.assign(defines, pipeline.macros);
         const key = this.getKey(name, defines);
-        let program = this._cache[key];
-        if (program !== undefined) {
-            return program;
-        }
+        const res = this._cache[key];
+        if (res) { return res; }
 
         // get template
         const tmpl = this._templates[name];
         if (!tmpl.globalsInited) { insertBuiltinBindings(tmpl, pipeline.globalBindings, 'globals'); tmpl.globalsInited = true; }
 
         const macroArray = prepareDefines(defines, tmpl.defines);
-        const customDef = macroArray.reduce((acc, cur) => {
-            return `${acc}#define ${cur.name} ${cur.value}\n`;
-        }, '');
+        const customDef = macroArray.reduce((acc, cur) => `${acc}#define ${cur.name} ${cur.value}\n`, '');
 
         let vert: string = '';
         let frag: string = '';
@@ -275,17 +303,20 @@ class ProgramLib {
             frag = `#version 100\n${customDef}\n${tmpl.glsl1.frag}`;
         }
 
-        program = device.createShader({
+        const blocks: IBlockInfoRT[] = [];
+        const samplers: ISamplerInfoRT[] = [];
+        const bindings: IGFXBinding[] = [];
+        getShaderBindings(tmpl, defines, blocks, samplers, bindings);
+
+        const shader = device.createShader({
             name: getShaderInstanceName(name, macroArray),
-            blocks: tmpl.blocks,
-            samplers: tmpl.samplers,
+            blocks, samplers,
             stages: [
                 { type: GFXShaderType.VERTEX, source: vert },
                 { type: GFXShaderType.FRAGMENT, source: frag },
             ],
         });
-        this._cache[key] = program;
-        return program;
+        return this._cache[key] = { shader, bindings };
     }
 }
 

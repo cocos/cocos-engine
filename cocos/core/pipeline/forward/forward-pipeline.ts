@@ -285,8 +285,10 @@ export class ForwardPipeline extends RenderPipeline {
      */
     protected sceneCulling (view: RenderView) {
         super.sceneCulling(view);
-        this._validLights.splice(0);
-        for (const light of view.camera.scene!.sphereLights) {
+        this._validLights.length = 0;
+        const sphereLights = view.camera.scene!.sphereLights;
+        for (let i = 0; i < sphereLights.length; i++) {
+            const light = sphereLights[i];
             if (light.enabled) {
                 light.update();
                 sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
@@ -295,7 +297,9 @@ export class ForwardPipeline extends RenderPipeline {
                 }
             }
         }
-        for (const light of view.camera.scene!.spotLights) {
+        const spotLights = view.camera.scene!.spotLights;
+        for (let i = 0; i < spotLights.length; i++) {
+            const light = spotLights[i];
             if (light.enabled) {
                 light.update();
                 sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
@@ -305,8 +309,8 @@ export class ForwardPipeline extends RenderPipeline {
             }
         }
 
-        this._lightIndexOffset.splice(0);
-        this._lightIndices.splice(0);
+        this._lightIndexOffset.length = 0;
+        this._lightIndices.length = 0;
         for (let i = 0; i < this._renderObjects.length; i++) {
             this._lightIndexOffset[i] = this._lightIndices.length;
             if (this._renderObjects[i].model.localBindings.get(UBOForwardLight.BLOCK.name)) {

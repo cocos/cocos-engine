@@ -38,7 +38,7 @@ import { GFXDevice, GFXFeature } from '../../gfx/device';
 import { Mat4, Quat, Vec3 } from '../../math';
 import { UBOSkinningAnimation } from '../../pipeline/define';
 import { genSamplerHash } from '../core/sampler-lib';
-import { ITextureBufferHandle, TextureBufferPool } from '../core/texture-buffer-pool';
+import { ITextureBufferHandle, nearestPOT, TextureBufferPool } from '../core/texture-buffer-pool';
 
 // change here and cc-skinning.chunk to use other skinning algorithms
 const uploadJointData = uploadJointDataLBS;
@@ -175,7 +175,7 @@ export class JointsTexturePool {
                 this._identityBuffer.readyToBeDeleted = true;
                 this.releaseHandle(this._identityBuffer, false);
             }
-            this._maxIdentityJoints *= 2;
+            this._maxIdentityJoints = nearestPOT(len);
             this._identityBuffer = this._allocIdentityBuffer();
         }
         if (!this._identityBuffer) { return null; }

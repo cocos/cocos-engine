@@ -24,12 +24,6 @@ export class CachedArray<T> {
 
     /**
      * @zh
-     * 指向缓存数组的引用
-     */
-    private cache: Array<T|null>;
-
-    /**
-     * @zh
      * 比较函数
      */
     private _compareFn;
@@ -41,7 +35,6 @@ export class CachedArray<T> {
      */
     constructor (length: number, compareFn?: (a: T, b: T) => number) {
         this.array = new Array(length);
-        this.cache = this.array;
         this.length = 0;
 
         if (compareFn !== undefined) {
@@ -83,7 +76,6 @@ export class CachedArray<T> {
      * 清空数组所有元素
      */
     public clear () {
-        this.cache.fill(null);
         this.length = 0;
     }
 
