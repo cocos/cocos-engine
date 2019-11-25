@@ -32,7 +32,6 @@ import {
     executeInEditMode,
     executionOrder,
     property,
-    requireComponent,
 } from '../../../core/data/class-decorator';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { Color } from '../../../core/math';
@@ -80,9 +79,6 @@ export enum InstanceMaterialType {
  * 可通过 cc.UIRenderComponent 获得该组件。
  */
 @ccclass('cc.UIRenderComponent')
-@executionOrder(110)
-@requireComponent(UITransformComponent)
-@executeInEditMode
 export class UIRenderComponent extends UIComponent {
 
     /**

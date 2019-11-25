@@ -91,7 +91,7 @@ export class SubContextView extends Component {
 
     public onLoad () {
         // Setup subcontext canvas size
-        if (wx.getOpenDataContext) {
+        if (wx && wx.getOpenDataContext) {
             this._updateInterval = 1000 / this._fps;
             this._context = wx.getOpenDataContext();
             // reset sharedCanvas width and height

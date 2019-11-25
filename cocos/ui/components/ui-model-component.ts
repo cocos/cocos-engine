@@ -56,6 +56,10 @@ export class UIModelComponent extends UIComponent {
     private _modelComponent: RenderableComponent | null = null;
 
     public onLoad () {
+        if(!this.node.uiTransfromComp){
+            this.node.addComponent('cc.UITransformComponent');
+        }
+
         this._modelComponent = this.getComponent('cc.RenderableComponent') as RenderableComponent;
         if (!this._modelComponent) {
             console.warn(`node '${this.node && this.node.name}' doesn't have any renderable component`);

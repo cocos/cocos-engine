@@ -33,6 +33,7 @@ import { UIComponent } from '../../core/components/ui-base/ui-component';
 /**
  * @zh
  * UI 及 UI 模型渲染基类。
+ * @deprecated 会在 1.2 的版本移除
  */
 @ccclass('cc.UIReorderComponent')
 @menu('UI/Reorder')

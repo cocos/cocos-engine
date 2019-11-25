@@ -137,6 +137,10 @@ export class CanvasComponent extends Component {
         if (this._camera) {
             this._camera.priority = this._getViewPriority();
         }
+
+        if(director.root && director.root.ui){
+            director.root.ui.sortScreens();
+        }
     }
 
     /**

@@ -39,6 +39,8 @@ import { UI } from '../../core/renderer/ui/ui';
 import { Node } from '../../core/scene-graph';
 import { ccenum } from '../../core/value-types/enum';
 import { GraphicsComponent } from './graphics-component';
+import { UITransformComponent, CanvasComponent } from '../../core';
+import { INode } from '../../core/utils/interfaces';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 
 const _worldMatrix = new Mat4();
@@ -260,7 +262,7 @@ export class MaskComponent extends UIRenderComponent {
     // private _spriteFrame: SpriteFrame | null = null;
 
     @property
-    private _type = MaskType.RECT;
+    protected _type = MaskType.RECT;
 
     // @property
     // private _alphaThreshold = 0;
@@ -269,10 +271,10 @@ export class MaskComponent extends UIRenderComponent {
     // private _inverted = false;
 
     @property
-    private _segments = 64;
+    protected _segments = 64;
 
-    private _graphics: GraphicsComponent | null = null;
-    private _clearGraphics: GraphicsComponent | null = null;
+    protected _graphics: GraphicsComponent | null = null;
+    protected _clearGraphics: GraphicsComponent | null = null;
 
     constructor () {
         super();
@@ -299,7 +301,6 @@ export class MaskComponent extends UIRenderComponent {
 
     public onEnable () {
         super.onEnable();
-        this._flushVisibility();
         // if (this._type === MaskType.IMAGE_STENCIL) {
         //     if (!this._spriteFrame || !this._spriteFrame.textureLoaded()) {
         //         if (this._spriteFrame) {
@@ -437,15 +438,6 @@ export class MaskComponent extends UIRenderComponent {
         }
     }
 
-    protected _parentChanged (node: Node) {
-        if (super._parentChanged(node)) {
-            this._flushVisibility();
-            return true;
-        }
-
-        return false;
-    }
-
     private _onTextureLoaded () {
         // Mark render data dirty
         if (this._renderData) {
@@ -475,8 +467,8 @@ export class MaskComponent extends UIRenderComponent {
 
     private _createGraphics () {
         if (!this._clearGraphics) {
-            const clearGraphics = this._clearGraphics = new GraphicsComponent();
-            clearGraphics.node = new Node('clear-graphics');
+            const node = new Node('clear-graphics');
+            const clearGraphics = this._clearGraphics = node.addComponent(GraphicsComponent)!;
             clearGraphics.helpInstanceMaterial();
             clearGraphics._activateMaterial();
             clearGraphics.lineWidth = 0;
@@ -564,16 +556,6 @@ export class MaskComponent extends UIRenderComponent {
 
         if (this._clearGraphics) {
             this._clearGraphics.destroy();
-        }
-    }
-
-    private _flushVisibility () {
-        if (this._clearGraphics) {
-            this._clearGraphics._setScreen(this._screen!);
-        }
-
-        if (this._graphics) {
-            this._graphics._setScreen(this._screen!);
         }
     }
 
