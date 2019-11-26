@@ -1960,3 +1960,7 @@ Stencil manager is already empty, cannot pop any mask
 ### 9100
 
 texture size exceeds current device limits %d/%d
+
+### 9200
+
+Priority can't be set in Canvas node

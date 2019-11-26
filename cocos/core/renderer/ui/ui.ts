@@ -98,7 +98,7 @@ export class UI {
     private _emptyMaterial = new Material();
     private _currMaterial: Material = this._emptyMaterial;
     private _currTexView: GFXTextureView | null = null;
-    private _currCanvas = -1;
+    private _currCanvas: CanvasComponent | null = null;
     private _currMeshBuffer: MeshBuffer | null = null;
     private _currStaticRoot: UIStaticBatchComponent | null = null;
 
@@ -190,12 +190,17 @@ export class UI {
      */
     public addScreen (comp: CanvasComponent) {
         this._screens.push(comp);
-        if (comp.camera) {
-            comp.camera.view.visibility = Layers.BitMask.UI_2D | this._screens.length;
-            this._canvasMaterials.set(comp.camera.view.visibility, new Map<number, number>());
-        }
-
         this._screens.sort(this._screenSort);
+        const screens = this._screens;
+        for (let i = 0; i < screens.length; i++) {
+            const element = screens[i];
+            if(element.camera){
+                element.camera.view.visibility = Layers.BitMask.UI_2D | (i + 1);
+                if (!this._canvasMaterials.has(element.camera.view.visibility)){
+                    this._canvasMaterials.set(element.camera.view.visibility, new Map<number, number>());
+                }
+            }
+        }
     }
 
     /**
@@ -268,6 +273,10 @@ export class UI {
         this._reset();
     }
 
+    public sortScreens(){
+        this._screens.sort(this._screenSort);
+    }
+
     public render () {
 
         let batchPriority = 0;
@@ -332,13 +341,11 @@ export class UI {
         const renderComp = comp;
         const texView = frame;
         if (this._currMaterial.hash !== renderComp.material!.hash ||
-            this._currTexView !== texView ||
-            this._currCanvas !== renderComp.visibility
+            this._currTexView !== texView
         ) {
             this.autoMergeBatches();
             this._currMaterial = renderComp.material!;
             this._currTexView = texView;
-            this._currCanvas = renderComp.visibility;
         }
 
         if (assembler) {
@@ -369,7 +376,7 @@ export class UI {
             }
         }
 
-        const uiCanvas = this.getScreen(comp.visibility);
+        const uiCanvas = this.getScreen(comp.node.uiTransfromComp.visibility);
         const curDrawBatch = this._drawBatchPool.alloc();
         curDrawBatch.camera = uiCanvas && uiCanvas.camera;
         curDrawBatch.model = model;
@@ -385,7 +392,6 @@ export class UI {
         // reset current render state to null
         this._currMaterial = this._emptyMaterial;
         this._currTexView = null;
-        this._currCanvas = comp.visibility;
 
         this._batches.push(curDrawBatch);
     }
@@ -408,7 +414,7 @@ export class UI {
             return;
         }
 
-        const uiCanvas = this.getScreen(this._currCanvas);
+        const uiCanvas = this._currCanvas;
 
         StencilManager.sharedManager!.handleMaterial(mat);
 
@@ -491,11 +497,18 @@ export class UI {
                 continue;
             }
 
+            this._currCanvas = screen;
             this._recursiveScreenNode(screen.node);
         }
     }
 
     private _preprocess (c: INode) {
+        if(!c.uiTransfromComp){
+            return;
+        }
+
+        // parent changed can flush child visibility
+        c.uiTransfromComp._canvas = this._currCanvas;
         const render = c._uiComp;
         if (render && render.enabledInHierarchy) {
             render.updateAssembler(this);
@@ -528,7 +541,7 @@ export class UI {
 
         this._batches.clear();
         this._currMaterial = this._emptyMaterial;
-        this._currCanvas = -1;
+        this._currCanvas = null;
         this._currTexView = null;
         this._meshBufferUseCount = 0;
         this._requireBufferBatch();
@@ -555,7 +568,8 @@ export class UI {
         }
     }
 
-    private _screenSort (a: CanvasComponent, b: CanvasComponent){
-        return a.priority - b.priority;
+    private _screenSort(a: CanvasComponent, b: CanvasComponent) {
+        const delta = a.priority - b.priority;
+        return delta === 0 ? a.node.getSiblingIndex() - b.node.getSiblingIndex() : delta;
     }
 }

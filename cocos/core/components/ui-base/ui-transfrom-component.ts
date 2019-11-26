@@ -35,7 +35,7 @@ import { Mat4, Rect, Size, Vec2, Vec3 } from '../../../core/math';
 import { aabb } from '../../geom-utils';
 import { CanvasComponent } from './canvas-component';
 import { director } from '../../director';
-import { Layers } from '../../scene-graph/layers';
+import { INode } from '../../utils/interfaces';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
@@ -181,14 +181,73 @@ export class UITransformComponent extends Component {
         this.node.emit(SystemEventType.ANCHOR_CHANGED, this._anchorPoint);
     }
 
+    /**
+     * @zh
+     * 渲染先后顺序，按照广度渲染排列，按同级节点下进行一次排列。
+     */
+    @property({
+        tooltip: '渲染排序优先级'
+    })
+    get priority() {
+        return this._priority;
+    }
+
+    set priority(value) {
+        if (this._priority === value) {
+            return;
+        }
+
+        if (this._canvas && this._canvas.node === this.node) {
+            cc.warn(9200);
+            return;
+        }
+
+        this._priority = value;
+        this._sortSiblings();
+    }
+
+    @property
+    protected _priority = 0;
+
+    /**
+     * @zh
+     * 查找被渲染相机。
+     */
+    get visibility() {
+        if (!this._screen) {
+            return -1;
+        }
+
+        return this._screen.visibility;
+    }
+
+    get _screen() {
+        return this._canvas;
+    }
+
     public static EventType = SystemEventType;
     @property
-    private _contentSize = new Size(100, 100);
+    protected _contentSize = new Size(100, 100);
     @property
-    private _anchorPoint = new Vec2(0.5, 0.5);
+    protected _anchorPoint = new Vec2(0.5, 0.5);
+
+    public _canvas: CanvasComponent | null = null;
 
     public __preload () {
         this.node.uiTransfromComp = this;
+    }
+
+    public onEnable(){
+        this._updateVisibility();
+
+        this.node.on(SystemEventType.PARENT_CHANGED, this._parentChanged, this);
+
+        this._sortSiblings();
+    }
+
+    public onDisable(){
+        this.node.off(SystemEventType.PARENT_CHANGED, this._parentChanged, this);
+        this._canvas = null;
     }
 
     public onDestroy () {
@@ -292,22 +351,12 @@ export class UITransformComponent extends Component {
      * @param listener - 事件监听器。
      */
     public isHit (point: Vec2, listener?: EventListener) {
-        // console.log('click point  ' + point.toString());
         const w = this._contentSize.width;
         const h = this._contentSize.height;
         const cameraPt = _vec2a;
         const testPt = _vec2b;
 
-        // hack: discuss how to distribute 3D event
-        let visibility = -1;
-        const renderComp = this.node.getComponent(cc.UIRenderComponent) as any;
-        if (!renderComp) {
-            visibility = this._getVisibility();
-        } else {
-            visibility = renderComp.visibility;
-        }
-
-        const canvas = director.root!.ui.getScreen(visibility);
+        const canvas = this._canvas;
         if (!canvas) {
             return;
         }
@@ -360,7 +409,7 @@ export class UITransformComponent extends Component {
      * @returns - 返回与目标节点的相对位置。
      * @example
      * ```typescript
-     * var newVec3 = uiTransform.convertToNodeSpaceAR(cc.v3(100, 100, 0));
+     * const newVec3 = uiTransform.convertToNodeSpaceAR(cc.v3(100, 100, 0));
      * ```
      */
     public convertToNodeSpaceAR (worldPoint: Vec3, out?: Vec3) {
@@ -382,7 +431,7 @@ export class UITransformComponent extends Component {
      * @returns - 返回 UI 世界坐标系。
      * @example
      * ```typescript
-     * var newVec3 = uiTransform.convertToWorldSpaceAR(3(100, 100, 0));
+     * const newVec3 = uiTransform.convertToWorldSpaceAR(3(100, 100, 0));
      * ```
      */
     public convertToWorldSpaceAR (nodePoint: Vec3, out?: Vec3) {
@@ -401,7 +450,7 @@ export class UITransformComponent extends Component {
      * @return - 节点大小的包围盒
      * @example
      * ```typescript
-     * var boundingBox = uiTransform.getBoundingBox();
+     * const boundingBox = uiTransform.getBoundingBox();
      * ```
      */
     public getBoundingBox () {
@@ -425,7 +474,7 @@ export class UITransformComponent extends Component {
      * @returns - 返回世界坐标系下包围盒。
      * @example
      * ```typescript
-     * var newRect = uiTransform.getBoundingBoxToWorld();
+     * const newRect = uiTransform.getBoundingBoxToWorld();
      * ```
      */
     public getBoundingBoxToWorld () {
@@ -506,15 +555,14 @@ export class UITransformComponent extends Component {
         }
     }
 
-    private _getVisibility () {
-        let visibility = -1;
+    public _updateVisibility() {
         let parent = this.node;
         // 获取被渲染相机的 visibility
         while (parent) {
             if (parent) {
                 const canvasComp = parent.getComponent('cc.CanvasComponent') as CanvasComponent;
                 if (canvasComp) {
-                    visibility = canvasComp.visibility;
+                    this._canvas = canvasComp;
                     break;
                 }
             }
@@ -522,8 +570,33 @@ export class UITransformComponent extends Component {
             // @ts-ignore
             parent = parent.parent;
         }
+    }
 
-        return visibility;
+    protected _parentChanged(node: INode) {
+        if (this._canvas && this._canvas.node === this.node) {
+            return;
+        }
+
+        this._sortSiblings();
+    }
+
+    protected _sortSiblings() {
+        const siblings = this.node.parent && this.node.parent.children as Mutable<INode[]>;
+        if (siblings) {
+            siblings.sort((a: INode, b: INode) => {
+                const aComp = a.uiTransfromComp;
+                const bComp = b.uiTransfromComp;
+                const ca = aComp ? aComp.priority : 0;
+                const cb = bComp ? bComp.priority : 0;
+                const diff = ca - cb;
+                if (diff === 0) {
+                    return a.getSiblingIndex() - b.getSiblingIndex();
+                }
+                return diff;
+            });
+
+            this.node.parent!._updateSiblingIndex();
+        }
     }
 }
 
