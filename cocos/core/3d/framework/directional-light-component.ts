@@ -52,7 +52,7 @@ export class DirectionalLightComponent extends LightComponent {
      */
     @property({
         unit: 'lx',
-        tooltip:'光源强度'
+        tooltip: '光源强度',
     })
     get illuminance () {
         return this._illuminance;
@@ -62,7 +62,7 @@ export class DirectionalLightComponent extends LightComponent {
         if (this._light) { this._light.illuminance = this._illuminance; }
     }
 
-    constructor() {
+    constructor () {
         super();
         this._lightType = DirectionalLight;
     }
@@ -76,6 +76,7 @@ export class DirectionalLightComponent extends LightComponent {
         }
         this._light = scene.mainLight;
         this.illuminance = this._illuminance;
+        super._createLight();
     }
 
     protected _destroyLight (scene?: RenderScene) {

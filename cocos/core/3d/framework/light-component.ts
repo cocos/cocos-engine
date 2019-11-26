@@ -33,6 +33,7 @@ import { Color } from '../../math';
 import { Enum } from '../../value-types';
 
 import { Light, LightType } from '../../renderer/scene/light';
+import { Root } from '../../root';
 
 export const PhotometricTerm = Enum({
     LUMINOUS_POWER: 0,
@@ -52,7 +53,7 @@ export class LightComponent extends Component {
     protected _colorTemperature = 6550;
 
     protected _type = LightType.UNKNOWN;
-    protected _lightType : typeof Light;
+    protected _lightType: typeof Light;
     protected _light: Light | null = null;
 
     /**
@@ -62,7 +63,7 @@ export class LightComponent extends Component {
      * 光源颜色。
      */
     @property({
-        tooltip:'光源颜色',
+        tooltip: '光源颜色',
     })
     // @constget
     get color (): Readonly<Color> {
@@ -84,7 +85,7 @@ export class LightComponent extends Component {
      * 是否启用光源色温。
      */
     @property({
-        tooltip:'是否启用光源色温'
+        tooltip: '是否启用光源色温',
     })
     get useColorTemperature () {
         return this._useColorTemperature;
@@ -103,7 +104,7 @@ export class LightComponent extends Component {
     @property({
         slide: true,
         range: [1000, 15000, 1],
-        tooltip:'光源色温'
+        tooltip: '光源色温',
     })
     get colorTemperature () {
         return this._colorTemperature;
@@ -124,12 +125,12 @@ export class LightComponent extends Component {
         return this._type;
     }
 
-    constructor() {
+    constructor () {
         super();
         this._lightType = Light;
     }
 
-    public onLoad(){
+    public onLoad (){
         this._createLight();
     }
 
@@ -146,15 +147,13 @@ export class LightComponent extends Component {
     }
 
     protected _createLight () {
-        if (this._light) {
-            return;
+        if (!this._light) {
+            this._light = (cc.director.root as Root).createLight(this._lightType);
         }
-        this._light = cc.director.root.createLight(this._lightType);
         this.color = this._color;
         this.useColorTemperature = this._useColorTemperature;
         this.colorTemperature = this._colorTemperature;
-        this._light!.node = this.node;
-        this._light!.enabled = this.enabledInHierarchy;
+        this._light.node = this.node;
     }
 
     protected _destroyLight () {
@@ -164,7 +163,7 @@ export class LightComponent extends Component {
         }
     }
 
-    protected _attachToScene() {
+    protected _attachToScene () {
         this._detachFromScene();
         if (this._light && !this._light.scene && this.node.scene) {
             switch (this._type) {
@@ -181,7 +180,7 @@ export class LightComponent extends Component {
         }
     }
 
-    protected _detachFromScene() {
+    protected _detachFromScene () {
         if (this._light && this._light.scene) {
             switch (this._type) {
                 case LightType.DIRECTIONAL:
