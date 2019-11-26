@@ -357,7 +357,7 @@ module.exports = {
             'type': 'The mask type',
             'spriteFrame': 'The mask image',
             'inverted': 'The Reverse mask (Not supported Canvas Mode)',
-            'alphaThreshold': 'The alpha threshold，The content is drawn only where the stencil have pixel with alpha greater than the alphaThreshold (Not supported Canvas Mode)',
+            'alphaThreshold': 'The alpha threshold，The content is drawn only where the stencil have pixel with alpha greater than or equal to the alphaThreshold (Not supported Canvas Mode)',
             'segements': 'The segements for ellipse mask'
         },
         'physics': {

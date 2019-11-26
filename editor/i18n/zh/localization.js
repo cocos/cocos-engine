@@ -361,7 +361,7 @@ module.exports = {
             'type': '遮罩类型',
             'spriteFrame': '遮罩所需要的贴图',
             'inverted': '反向遮罩（不支持 Canvas 模式）',
-            'alphaThreshold': 'Alpha阈值，只有当模板的像素的 alpha 大于 alphaThreshold 时，才会绘制内容（不支持 Canvas 模式）',
+            'alphaThreshold': 'Alpha阈值，只有当模板的像素的 alpha 大于等于 alphaThreshold 时，才会绘制内容（不支持 Canvas 模式）',
             'segements': '椭圆遮罩的曲线细分数'
         },
         'physics': {

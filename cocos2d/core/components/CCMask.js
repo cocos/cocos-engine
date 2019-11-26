@@ -177,20 +177,19 @@ let Mask = cc.Class({
          * The alpha threshold.(Not supported Canvas Mode) <br/>
          * The content is drawn only where the stencil have pixel with alpha greater than the alphaThreshold. <br/>
          * Should be a float between 0 and 1. <br/>
-         * This default to 0 (so alpha test is disabled).
-         * When it's set to 1, the stencil will discard all pixels, nothing will be shown,
-         * In previous version, it act as if the alpha test is disabled, which is incorrect.
+         * This default to 0.1.
+         * When it's set to 1, the stencil will discard all pixels, nothing will be shown.
          * !#zh
          * Alpha 阈值（不支持 Canvas 模式）<br/>
-         * 只有当模板的像素的 alpha 大于 alphaThreshold 时，才会绘制内容。<br/>
-         * 该数值 0 ~ 1 之间的浮点数，默认值为 0（因此禁用 alpha 测试）
-         * 当被设置为 1 时，会丢弃所有蒙版像素，所以不会显示任何内容，在之前的版本中，设置为 1 等同于 0，这种效果其实是不正确的
+         * 只有当模板的像素的 alpha 大于等于 alphaThreshold 时，才会绘制内容。<br/>
+         * 该数值 0 ~ 1 之间的浮点数，默认值为 0.1
+         * 当被设置为 1 时，会丢弃所有蒙版像素，所以不会显示任何内容
          * @property alphaThreshold
          * @type {Number}
-         * @default 0
+         * @default 0.1
          */
         alphaThreshold: {
-            default: 0,
+            default: 0.1,
             type: cc.Float,
             range: [0, 1, 0.1],
             slide: true,
