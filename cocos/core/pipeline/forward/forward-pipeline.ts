@@ -205,7 +205,7 @@ export class ForwardPipeline extends RenderPipeline {
             let spotNum = 0;
             for (let l = this._lightIndexOffset[i]; l < nextLightIndex; l++) {
                 const light = this._validLights[this._lightIndices[l]];
-                if (light && light.enabled) {
+                if (light) {
                     switch (light.type) {
                         case LightType.SPHERE:
                             if (sphereNum >= UBOForwardLight.MAX_SPHERE_LIGHTS) {
@@ -289,23 +289,19 @@ export class ForwardPipeline extends RenderPipeline {
         const sphereLights = view.camera.scene!.sphereLights;
         for (let i = 0; i < sphereLights.length; i++) {
             const light = sphereLights[i];
-            if (light.enabled) {
-                light.update();
-                sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-                if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
-                    this._validLights.push(light);
-                }
+            light.update();
+            sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+            if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
+                this._validLights.push(light);
             }
         }
         const spotLights = view.camera.scene!.spotLights;
         for (let i = 0; i < spotLights.length; i++) {
             const light = spotLights[i];
-            if (light.enabled) {
-                light.update();
-                sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-                if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
-                    this._validLights.push(light);
-                }
+            light.update();
+            sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+            if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
+                this._validLights.push(light);
             }
         }
 

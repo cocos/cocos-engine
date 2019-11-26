@@ -146,7 +146,7 @@ export class Model {
     protected _node: INode | null = null;
     protected _transform: INode | null = null;
     protected _id: number = -1;
-    protected _enabled: boolean = false;
+    protected _enabled: boolean = true;
     protected _visFlags = Layers.Enum.NONE;
     protected _cameraID = -1;
     protected _userKey = -1;

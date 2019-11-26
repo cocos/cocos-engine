@@ -1,6 +1,7 @@
 import { Vec3 } from '../../math';
 import { INode } from '../../utils/interfaces';
 import { RenderScene } from './render-scene';
+import { TransformBit } from '../../scene-graph/node-enum';
 
 // Color temperature (in Kelvin) to RGB
 export function ColorTemperatureToRGB (rgb: Vec3, kelvin: number) {
@@ -40,13 +41,6 @@ export const nt2lm = (size: number) => 4 * Math.PI * Math.PI * size * size;
 
 export class Light {
 
-    set enabled (val) {
-        this._enabled = val;
-    }
-    get enabled () {
-        return this._enabled;
-    }
-
     set color (color: Vec3) {
         this._color.set(color);
     }
@@ -78,6 +72,9 @@ export class Light {
 
     set node (n) {
         this._node = n;
+        if (this._node) {
+            this._node.hasChangedFlags = TransformBit.ROTATION;
+        }
     }
 
     get node () {
@@ -96,7 +93,6 @@ export class Light {
         return this._scene;
     }
 
-    protected _enabled = true;
     protected _color: Vec3 = new Vec3(1, 1, 1);
     protected _useColorTemp: boolean = false;
     protected _colorTemp: number = 6550.0;

@@ -376,7 +376,7 @@ export class UI {
             }
         }
 
-        const uiCanvas = this.getScreen(comp.node.uiTransfromComp.visibility);
+        const uiCanvas = this._currCanvas;
         const curDrawBatch = this._drawBatchPool.alloc();
         curDrawBatch.camera = uiCanvas && uiCanvas.camera;
         curDrawBatch.model = model;

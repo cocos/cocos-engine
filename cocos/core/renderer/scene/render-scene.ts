@@ -132,7 +132,6 @@ export class RenderScene {
         this._mainLight = new DirectionalLight();
         this._mainLight.initialize('Main Light', this._defaultMainLightNode);
         this._mainLight.illuminance = Ambient.SUN_ILLUM;
-        this._mainLight.enabled = false; // disabled by default
         this._ambient = new Ambient(this);
         this._skybox = new Skybox(this);
         this._planarShadows = new PlanarShadows(this);

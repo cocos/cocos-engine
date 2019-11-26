@@ -1163,7 +1163,7 @@ export abstract class RenderPipeline {
 
         Vec3.toArray(fv, mainLight.direction, UBOGlobal.MAIN_LIT_DIR_OFFSET);
 
-        if (mainLight.enabled) {
+        if (mainLight.scene) {
             Vec3.toArray(fv, mainLight.color, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
             if (mainLight.useColorTemperature) {
                 const colorTempRGB = mainLight.colorTemperatureRGB;
@@ -1208,7 +1208,7 @@ export abstract class RenderPipeline {
         this._renderObjects.length = 0;
 
         const mainLight = scene.mainLight;
-        if (mainLight && mainLight.enabled) {
+        if (mainLight && mainLight.scene) {
             mainLight.update();
         }
 

@@ -80,7 +80,6 @@ export class DirectionalLightComponent extends LightComponent {
 
     protected _destroyLight (scene?: RenderScene) {
         if (!this.node.scene || !this._light) { return; }
-        this._light.enabled = false;
         scene = scene || this._getRenderScene();
         this._light.node = scene.defaultMainLightNode;
     }
