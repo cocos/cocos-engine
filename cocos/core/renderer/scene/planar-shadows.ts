@@ -29,7 +29,7 @@ export class PlanarShadows {
 
     set enabled (enable: boolean) {
         this._enabled = enable;
-        this.updateDirLight();
+        if (this._scene.mainLight) { this.updateDirLight(this._scene.mainLight); }
         this._cmdBuffs.clear();
     }
 
@@ -39,7 +39,7 @@ export class PlanarShadows {
 
     set normal (val: Vec3) {
         Vec3.copy(this._normal, val);
-        this.updateDirLight();
+        if (this._scene.mainLight) { this.updateDirLight(this._scene.mainLight); }
     }
     get normal () {
         return this._normal;
@@ -47,7 +47,7 @@ export class PlanarShadows {
 
     set distance (val: number) {
         this._distance = val;
-        this.updateDirLight();
+        if (this._scene.mainLight) { this.updateDirLight(this._scene.mainLight); }
     }
     get distance () {
         return this._distance;
@@ -128,7 +128,7 @@ export class PlanarShadows {
         this._globalBindings.buffer!.update(this.data);
     }
 
-    public updateDirLight (light: DirectionalLight = this._scene.mainLight) {
+    public updateDirLight (light: DirectionalLight) {
         light.node!.getWorldRotation(_qt);
         Vec3.transformQuat(_v3, _forward, _qt);
         const n = this._normal; const d = this._distance;
@@ -158,7 +158,7 @@ export class PlanarShadows {
 
     public updateCommandBuffers (frstm: frustum) {
         this._cmdBuffs.clear();
-        if (!this._scene.mainLight.enabled) { return; }
+        if (!this._scene.mainLight) { return; }
         for (const model of this._scene.models) {
             if (!model.enabled || !model.node || !model.castShadow) { continue; }
             if (model.worldBounds) {

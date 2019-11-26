@@ -1,7 +1,6 @@
 import { Quat, Vec3 } from '../../math';
-import { INode } from '../../utils/interfaces';
+import { Ambient } from './ambient';
 import { Light, LightType } from './light';
-import { RenderScene } from './render-scene';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
@@ -10,7 +9,7 @@ const _qt = new Quat();
 export class DirectionalLight extends Light {
 
     protected _dir: Vec3 = new Vec3(1.0, -1.0, -1.0);
-    protected _illum: number = 65000.0;
+    protected _illum: number = Ambient.SUN_ILLUM;
 
     set direction (dir: Vec3) {
         this._dir = dir;

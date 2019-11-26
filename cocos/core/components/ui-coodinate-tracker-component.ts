@@ -24,12 +24,13 @@
  THE SOFTWARE.
 */
 
-import { Component, EventHandler } from '../../core/components';
-import { ccclass, property, menu, executionOrder } from '../data/class-decorator';
+import { Component } from '../../core/components/component';
+import { EventHandler } from '../../core/components/component-event-handler';
+import { CameraComponent } from '../3d/framework/camera-component';
+import { ccclass, executionOrder, menu, property } from '../data/class-decorator';
+import { Vec3 } from '../math';
 import { Node } from '../scene-graph';
 import { convertUtils } from '../utils';
-import { CameraComponent } from '../3d';
-import { Vec3 } from '../math';
 
 /**
  * @zh 3D 节点映射 UI 节点组件
@@ -45,13 +46,13 @@ export class UICoordinateTrackerComponent extends Component {
      */
     @property({
         type: Node,
-        tooltip: '目标对象'
+        tooltip: '目标对象',
     })
-    get target() {
+    get target () {
         return this._target;
     }
 
-    set target(value) {
+    set target (value) {
         if (this._target === value) {
             return;
         }
@@ -66,13 +67,13 @@ export class UICoordinateTrackerComponent extends Component {
      */
     @property({
         type: CameraComponent,
-        tooltip: '照射相机'
+        tooltip: '照射相机',
     })
-    get camera() {
+    get camera () {
         return this._camera;
     }
 
-    set camera(value) {
+    set camera (value) {
         if (this._camera === value) {
             return;
         }
@@ -86,13 +87,13 @@ export class UICoordinateTrackerComponent extends Component {
      * 是否是缩放映射。
      */
     @property({
-        tooltip: '是否是缩放映射'
+        tooltip: '是否是缩放映射',
     })
-    get useScale() {
+    get useScale () {
         return this._useScale;
     }
 
-    set useScale(value) {
+    set useScale (value) {
         if (this._useScale === value) {
             return;
         }
@@ -105,13 +106,13 @@ export class UICoordinateTrackerComponent extends Component {
      * 距相机多少距离为正常显示计算大小。
      */
     @property({
-        tooltip: '距相机多少距离为正常显示计算大小'
+        tooltip: '距相机多少距离为正常显示计算大小',
     })
-    get distance() {
+    get distance () {
         return this._distance;
     }
 
-    set distance(value) {
+    set distance (value) {
         if (this._distance === value) {
             return;
         }
@@ -125,7 +126,7 @@ export class UICoordinateTrackerComponent extends Component {
      */
     @property({
         type: [EventHandler],
-        tooltip: '映射数据事件。回调的第一个参数是映射后的本地坐标，第二个是距相机距离比'
+        tooltip: '映射数据事件。回调的第一个参数是映射后的本地坐标，第二个是距相机距离比',
     })
     public syncEvents: EventHandler[] = [];
 
@@ -143,11 +144,11 @@ export class UICoordinateTrackerComponent extends Component {
     protected _canMove = true;
     protected _lastWpos = new Vec3();
 
-    public onEnable() {
+    public onEnable () {
         this._checkCanMove();
     }
 
-    public update() {
+    public update () {
         const wpos = this.node.worldPosition;
         // @ts-ignore
         if (!this._canMove || !this._camera!._camera || this._lastWpos.equals(wpos)) {
@@ -171,7 +172,7 @@ export class UICoordinateTrackerComponent extends Component {
         }
     }
 
-    protected _checkCanMove() {
+    protected _checkCanMove () {
         this._canMove = !!(this._camera && this._target);
     }
 }

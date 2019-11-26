@@ -24,9 +24,7 @@ import { IInternalBindingInst } from './define';
 import { IRenderFlowInfo, RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
 
-const _vec4Array = new Float32Array(4);
-const _v3tmp = new Vec3();
-const _v4Zero = new Vec4(0.0, 0.0, 0.0, 0.0);
+const v3_1 = new Vec3();
 
 /**
  * @zh
@@ -1161,9 +1159,8 @@ export abstract class RenderPipeline {
         fv[UBOGlobal.EXPOSURE_OFFSET + 2] = this._isHDR ? 1.0 : 0.0;
         fv[UBOGlobal.EXPOSURE_OFFSET + 3] = this._fpScale / exposure;
 
-        Vec3.toArray(fv, mainLight.direction, UBOGlobal.MAIN_LIT_DIR_OFFSET);
-
-        if (mainLight.scene) {
+        if (mainLight) {
+            Vec3.toArray(fv, mainLight.direction, UBOGlobal.MAIN_LIT_DIR_OFFSET);
             Vec3.toArray(fv, mainLight.color, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
             if (mainLight.useColorTemperature) {
                 const colorTempRGB = mainLight.colorTemperatureRGB;
@@ -1178,7 +1175,7 @@ export abstract class RenderPipeline {
                 fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * exposure;
             }
         } else {
-            Vec4.toArray(fv, _v4Zero, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
+            Vec4.toArray(fv, Vec4.ZERO, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
         }
 
         const skyColor = ambient.skyColor;
@@ -1208,13 +1205,12 @@ export abstract class RenderPipeline {
         this._renderObjects.length = 0;
 
         const mainLight = scene.mainLight;
-        if (mainLight && mainLight.scene) {
-            mainLight.update();
-        }
-
         const planarShadows = scene.planarShadows;
-        if (planarShadows.enabled && mainLight.node!.hasChangedFlags) {
-            planarShadows.updateDirLight(mainLight);
+        if (mainLight) {
+            mainLight.update();
+            if (planarShadows.enabled && mainLight.node!.hasChangedFlags) {
+                planarShadows.updateDirLight(mainLight);
+            }
         }
 
         if (scene.skybox.enabled && (camera.clearFlag & SKYBOX_FLAG)) {
@@ -1268,9 +1264,8 @@ export abstract class RenderPipeline {
     protected addVisibleModel (model: Model, camera: Camera) {
         let depth = 0;
         if (model.node) {
-            model.node.getWorldPosition(_v3tmp);
-            Vec3.subtract(_v3tmp, _v3tmp, camera.position);
-            depth = Vec3.dot(_v3tmp, camera.forward);
+            Vec3.subtract(v3_1, model.node.worldPosition, camera.position);
+            depth = Vec3.dot(v3_1, camera.forward);
         }
         this._renderObjects.push({
             model,

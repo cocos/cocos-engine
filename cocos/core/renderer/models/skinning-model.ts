@@ -74,7 +74,7 @@ export class SkinningModel extends Model {
         }
     }
 
-    public attachToScene(scene: RenderScene) {
+    public attachToScene (scene: RenderScene) {
         super.attachToScene(scene);
         const texture = scene.root.dataPoolManager.jointsTexturePool.getDefaultJointsTexture();
         this._jointsMedium.texture = texture;

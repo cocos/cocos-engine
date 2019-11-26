@@ -28,22 +28,22 @@
  * @category ui
  */
 
-import { Component } from '../component';
-import { ccclass, disallowMultiple, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../data/class-decorator';
-import { Vec3, Color } from '../../math';
-import { GFXClearFlag } from '../../gfx/define';
-import { Camera } from '../../renderer';
-import { UITransformComponent } from './ui-transfrom-component';
-import { Node } from '../../scene-graph/node';
-import { RenderTexture } from '../../assets/render-texture';
-import { GFXWindow } from '../../gfx/window';
-import { director, Director } from '../../director';
-import { view, ResolutionPolicy } from '../../platform/view';
-import visibleRect from '../../platform/visible-rect';
 import { CameraComponent } from '../../3d/framework/camera-component';
+import { RenderTexture } from '../../assets/render-texture';
+import { ccclass, disallowMultiple, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../data/class-decorator';
+import { director, Director } from '../../director';
+import { game } from '../../game';
+import { GFXClearFlag } from '../../gfx/define';
+import { GFXWindow } from '../../gfx/window';
+import { Color, Vec3 } from '../../math';
+import { ResolutionPolicy, view } from '../../platform/view';
+import visibleRect from '../../platform/visible-rect';
+import { Camera } from '../../renderer';
+import { Node } from '../../scene-graph/node';
 import { INode } from '../../utils/interfaces';
 import { Enum } from '../../value-types';
-import { game } from '../../game';
+import { Component } from '../component';
+import { UITransformComponent } from './ui-transfrom-component';
 
 const _worldPos = new Vec3();
 
@@ -74,7 +74,7 @@ const RenderMode = Enum({
 export class CanvasComponent extends Component {
     @property({
         type: CanvasClearFlag,
-        tooltip:'清理屏幕缓冲标记',
+        tooltip: '清理屏幕缓冲标记',
     })
     get clearFlag () {
         return this._clearFlag;
@@ -88,7 +88,7 @@ export class CanvasComponent extends Component {
     }
 
     @property({
-        tooltip:'清理颜色缓冲区后的颜色',
+        tooltip: '清理颜色缓冲区后的颜色',
     })
     get color () {
         return this._color;
@@ -106,7 +106,7 @@ export class CanvasComponent extends Component {
 
     @property({
         type: RenderMode,
-        tooltip:'Canvas 渲染模式，intersperse 下可以指定 Canvas 与场景中的相机的渲染顺序，overlay 下 Canvas 会在所有场景相机渲染完成后渲染。\n注意：启用 intersperse 模式，如果 3D 场景的相机内容显示上要在 Canvas 前面，相机的 clearFlags 也要为 none',
+        tooltip: 'Canvas 渲染模式，intersperse 下可以指定 Canvas 与场景中的相机的渲染顺序，overlay 下 Canvas 会在所有场景相机渲染完成后渲染。\n注意：启用 intersperse 模式，如果 3D 场景的相机内容显示上要在 Canvas 前面，相机的 clearFlags 也要为 none',
     })
     get renderMode () {
         return this._renderMode;
@@ -126,7 +126,7 @@ export class CanvasComponent extends Component {
      * @param value - 渲染优先级。
      */
     @property({
-        tooltip:'相机排序优先级。当 RenderMode 为 intersperse 时，指定与其它相机的渲染顺序，当 RenderMode 为 overlay 时，指定跟其余 Canvas 做排序使用',
+        tooltip: '相机排序优先级。当 RenderMode 为 intersperse 时，指定与其它相机的渲染顺序，当 RenderMode 为 overlay 时，指定跟其余 Canvas 做排序使用',
     })
     get priority () {
         return this._priority;
@@ -138,7 +138,7 @@ export class CanvasComponent extends Component {
             this._camera.priority = this._getViewPriority();
         }
 
-        if(director.root && director.root.ui){
+        if (director.root && director.root.ui){
             director.root.ui.sortScreens();
         }
     }
@@ -148,14 +148,14 @@ export class CanvasComponent extends Component {
      */
     @property({
         type: RenderTexture,
-        tooltip:'目标渲染纹理',
+        tooltip: '目标渲染纹理',
     })
     get targetTexture (){
         return this._targetTexture;
     }
 
     set targetTexture (value) {
-        if(this._targetTexture === value){
+        if (this._targetTexture === value){
             return;
         }
 
@@ -251,19 +251,20 @@ export class CanvasComponent extends Component {
         director.root!.ui.addScreen(this);
     }
 
-    public onEnable() {
+    public onEnable () {
         if (this._camera) {
             director.root!.ui.renderScene.addCamera(this._camera);
         }
     }
 
-    public onDisable() {
+    public onDisable () {
         if (this._camera) {
             director.root!.ui.renderScene.removeCamera(this._camera);
         }
     }
 
     public onDestroy () {
+        director.root!.ui.removeScreen(this);
         if (this._camera) {
             director.root!.destroyCamera(this._camera);
         }
@@ -277,7 +278,6 @@ export class CanvasComponent extends Component {
         }
 
         view.off('design-resolution-changed', this._thisOnResized);
-        director.root!.ui.removeScreen(this);
         // if (CanvasComponent.instance === this) {
         //     CanvasComponent.instance = null;
         // }
@@ -368,12 +368,12 @@ export class CanvasComponent extends Component {
     //     }
     // }
 
-    protected _chechTargetTextureEvent(old: RenderTexture | null) {
+    protected _chechTargetTextureEvent (old: RenderTexture | null) {
         const resizeFunc = (window: GFXWindow) => {
             if (this._camera) {
                 this._camera.setFixedSize(window.width, window.height);
             }
-        }
+        };
 
         if (old) {
             old.off('resize');
@@ -384,7 +384,7 @@ export class CanvasComponent extends Component {
         }
     }
 
-    protected _updateTargetTexture() {
+    protected _updateTargetTexture () {
         if (!this._camera) {
             return;
         }
