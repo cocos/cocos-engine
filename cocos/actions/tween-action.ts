@@ -1,5 +1,5 @@
 import { warnID, warn, easing } from '../core';
-import { ActionInterval} from './action-interval';
+import { ActionInterval } from './action-interval';
 import { ITweenOption } from './export-api';
 
 /** adapter */
@@ -151,13 +151,14 @@ export class TweenAction extends ActionInterval {
             const prop: any = props[property];
             const value = prop.value;
             if (typeof _t === "number") {
-                prop.start[property] = _t;
-                prop.current[property] = _t;
-                prop.end[property] = relative ? _t + value : value;
+                prop.start = _t;
+                prop.current = _t;
+                prop.end = relative ? _t + value : value;
             } else if (typeof _t === "object") {
-                if (prop.start == undefined) {
+                if (prop.start == null) {
                     prop.start = {}; prop.current = {}; prop.end = {};
                 }
+                
                 for (var k in value) {
                     prop.start[k] = _t[k];
                     prop.current[k] = _t[k];
