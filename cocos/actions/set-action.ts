@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { ActionInstant} from './action-instant';
 
 export class SetAction extends ActionInstant {

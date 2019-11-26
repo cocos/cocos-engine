@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { FiniteTimeAction, Action } from "./action";
 import { RenderableComponent } from "../core";
 

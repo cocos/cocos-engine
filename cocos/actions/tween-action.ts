@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { warnID, warn, easing } from '../core';
 import { ActionInterval } from './action-interval';
 import { ITweenOption } from './export-api';

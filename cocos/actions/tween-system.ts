@@ -1,3 +1,7 @@
+/**
+ * @category tween
+ */
+
 import { System, Director, director } from "../core";
 import { ActionManager } from "./action-manager";
 

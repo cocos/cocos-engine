@@ -1,3 +1,6 @@
+/**
+ * @category tween
+ */
 
 export type TweenEasing =
 'linear'    | 'smooth'     | 'fade'         |
