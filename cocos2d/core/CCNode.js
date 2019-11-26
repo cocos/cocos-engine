@@ -485,30 +485,26 @@ var _mouseWheelHandler = function (event) {
     }
 };
 
-function _searchMaskInParent (node) {
-    var Mask = cc.Mask;
-    if (Mask) {
+function _searchComponentsInParent (node, comp) {
+    if (comp) {
         let index = 0;
-        // Because Mask may be nested, need to find all the Mask components in the parent node. 
-        // The click area must satisfy all Masks to trigger the click.
-        let temp = {
-            index: -1,
-            node: null,
-            next: null
-        };
-        let list = temp;
+        let list = null;
         for (var curr = node; curr && cc.Node.isNode(curr); curr = curr._parent, ++index) {
-            if (curr.getComponent(Mask)) {
-                temp.next = {
+            if (curr.getComponent(comp)) {
+                let next = {
                     index: index,
                     node: curr,
-                    next: null
+                };
+                
+                if (list) {
+                    list.push(next);
+                } else {
+                    list = [next];
                 }
-                temp = temp.next;
             }
         }
 
-        return list.next ? list : null;
+        return list;
     }
     
     return null;
@@ -1612,13 +1608,15 @@ let NodeDefines = {
 
     // EVENT TARGET
     _checkListenerMask () {
+        // Because Mask may be nested, need to find all the Mask components in the parent node. 
+        // The click area must satisfy all Masks to trigger the click.
         if (this._touchListener) {
-            var mask = this._touchListener.mask = _searchMaskInParent(this);
+            var mask = this._touchListener.mask = _searchComponentsInParent(this, cc.Mask);
             if (this._mouseListener) {
                 this._mouseListener.mask = mask;
             }
         } else if (this._mouseListener) {
-            this._mouseListener.mask = _searchMaskInParent(this);
+            this._mouseListener.mask = _searchComponentsInParent(this, cc.Mask);
         }
     },
 
@@ -1631,7 +1629,7 @@ let NodeDefines = {
                     event: cc.EventListener.TOUCH_ONE_BY_ONE,
                     swallowTouches: true,
                     owner: this,
-                    mask: _searchMaskInParent(this),
+                    mask: _searchComponentsInParent(this, cc.Mask),
                     onTouchBegan: _touchStartHandler,
                     onTouchMoved: _touchMoveHandler,
                     onTouchEnded: _touchEndHandler,
@@ -1648,7 +1646,7 @@ let NodeDefines = {
                     event: cc.EventListener.MOUSE,
                     _previousIn: false,
                     owner: this,
-                    mask: _searchMaskInParent(this),
+                    mask: _searchComponentsInParent(this, cc.Mask),
                     onMouseDown: _mouseDownHandler,
                     onMouseMove: _mouseMoveHandler,
                     onMouseUp: _mouseUpHandler,
@@ -2071,24 +2069,28 @@ let NodeDefines = {
             if (listener && listener.mask) {
                 let mask = listener.mask;
                 let parent = this;
+                let length = mask ? mask.length : 0;
                 // find mask parent, should hit test it
-                for (let i = 0; parent && mask.next; ++i, parent = parent.parent) {
-                    if (i === mask.next.index) {
-                        if (parent === mask.next.node) {
+                for (let i = 0, j = 0; parent && j < length; ++i, parent = parent.parent) {
+                    let temp = mask[j];
+                    if (i === temp.index) {
+                        if (parent === temp.node) {
                             let comp = parent.getComponent(cc.Mask);
                             if (comp && comp._enabled && comp._hitTest(cameraPt)) {
-                                mask = mask.next;
+                                j++;
                             } else {
                                 hit = false;
                                 break
                             }
                         } else {
                             // mask parent no longer exists
-                            mask.next = null;
+                            mask.splice(j, length - j);
+                            break
                         }
-                    } else if (i > mask.next.index) {
+                    } else if (i > temp.index) {
                         // mask parent no longer exists
-                        mask.next = null;
+                        mask.splice(j, length - j);
+                        break
                     }
                 }
             }
