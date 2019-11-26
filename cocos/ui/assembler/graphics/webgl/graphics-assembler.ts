@@ -176,11 +176,10 @@ export const graphicsAssembler: IAssembler = {
     },
 
     end (graphics: GraphicsComponent){
-        const scene = director.root!.ui.renderScene as RenderScene;
-        if (graphics.model){
+        if (graphics.model) {
             graphics.model.destroy();
-            scene.destroyModel(graphics.model);
-            graphics.model = null;
+        } else {
+            graphics.model = new Model();
         }
 
         const impl = graphics.impl;
@@ -226,9 +225,8 @@ export const graphicsAssembler: IAssembler = {
             indices,
         }, undefined, { calculateBounds: false });
 
-        graphics.model = scene.createModel(Model, graphics.node);
-        graphics.model.initSubModel(0, mesh.getSubMesh(0), graphics.material!);
-        graphics.model.enabled = true;
+        graphics.model!.initialize(graphics.node);
+        graphics.model!.initSubModel(0, mesh.getSubMesh(0), graphics.material!);
         graphics.markForUpdateRenderData();
     },
 

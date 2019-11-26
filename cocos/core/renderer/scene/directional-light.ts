@@ -1,5 +1,4 @@
 import { Quat, Vec3 } from '../../math';
-import { TransformBit } from '../../scene-graph/node-enum';
 import { INode } from '../../utils/interfaces';
 import { Light, LightType } from './light';
 import { RenderScene } from './render-scene';
@@ -34,7 +33,6 @@ export class DirectionalLight extends Light {
     constructor () {
         super();
         this._type = LightType.DIRECTIONAL;
-        this._node.hasChangedFlags = TransformBit.ROTATION;
     }
 
     public update () {

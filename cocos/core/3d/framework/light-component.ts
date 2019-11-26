@@ -166,8 +166,11 @@ export class LightComponent extends Component {
 
     protected _attachToScene() {
         this._detachFromScene();
-        if (this._light && !this._light.scene && !this.node.scene) {
+        if (this._light && !this._light.scene && this.node.scene) {
             switch (this._type) {
+                case LightType.DIRECTIONAL:
+                    this._light.attachToScene(this._getRenderScene());
+                    break;
                 case LightType.SPHERE:
                     this._getRenderScene().addSphereLight(this._light as any);
                     break;
@@ -181,6 +184,9 @@ export class LightComponent extends Component {
     protected _detachFromScene() {
         if (this._light && this._light.scene) {
             switch (this._type) {
+                case LightType.DIRECTIONAL:
+                    this._light.detachFromScene();
+                    break;
                 case LightType.SPHERE:
                     this._light.scene.removeSphereLight(this._light as any);
                     break;
