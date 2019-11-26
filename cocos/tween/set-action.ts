@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { ActionInstant} from './action-instant';
+import { ActionInstant} from './actions/action-instant';
 
 export class SetAction extends ActionInstant {
 

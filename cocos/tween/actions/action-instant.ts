@@ -3,7 +3,7 @@
  */
 
 import { FiniteTimeAction, Action } from "./action";
-import { RenderableComponent } from "../core";
+import { RenderableComponent } from "../../core";
 
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada

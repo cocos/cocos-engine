@@ -29,10 +29,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import * as js from '../core/utils/js';
-import { errorID } from '../core/platform/debug';
+import * as js from '../../core/utils/js';
+import { errorID } from '../../core/platform/debug';
 import { Action } from './action';
-import { Node } from '../core';
+import { Node } from '../../core';
 
 let ID_COUNTER = 0;
 

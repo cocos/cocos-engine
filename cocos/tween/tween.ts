@@ -4,9 +4,9 @@
 
 import { TweenSystem } from './tween-system';
 import { warn } from '../core';
-import { ActionInterval, sequence, repeat, repeatForever, reverseTime, delayTime, spawn } from './action-interval';
-import { removeSelf, show, hide, callFunc } from './action-instant';
-import { Action } from './action';
+import { ActionInterval, sequence, repeat, repeatForever, reverseTime, delayTime, spawn } from './actions/action-interval';
+import { removeSelf, show, hide, callFunc } from './actions/action-instant';
+import { Action } from './actions/action';
 import { ITweenOption } from './export-api';
 import { TweenAction } from './tween-action';
 import { SetAction } from './set-action';

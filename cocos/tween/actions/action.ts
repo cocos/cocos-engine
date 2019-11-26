@@ -29,7 +29,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { logID, errorID, Node } from '../core';
+import { logID, errorID, Node } from '../../core';
 
 /**
  * !#en Base classAction for action classes.

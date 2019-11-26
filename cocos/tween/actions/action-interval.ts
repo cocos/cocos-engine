@@ -3,7 +3,7 @@
  */
 
 import { FiniteTimeAction, Action } from "./action";
-import { macro, logID, errorID } from "../core";
+import { macro, logID, errorID } from "../../core";
 import { ActionInstant } from "./action-instant";
 
 /****************************************************************************

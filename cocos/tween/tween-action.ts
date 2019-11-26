@@ -3,7 +3,7 @@
  */
 
 import { warnID, warn, easing } from '../core';
-import { ActionInterval } from './action-interval';
+import { ActionInterval } from './actions/action-interval';
 import { ITweenOption } from './export-api';
 
 /** adapter */
@@ -50,7 +50,7 @@ function TweenEasinAdapter (easingName: string) {
 /** checker */
 function TweenOptionChecker (opts: ITweenOption) {
     const header = ' [Tween:] ';
-    const message = ' option is not support in v1.1 ';
+    const message = ' option is not support in v' + cc.ENGINE_VERSION;
     if (opts['delay']) {
         warn(header + 'delay' + message);
     }
@@ -194,7 +194,7 @@ export class TweenAction extends ActionInterval {
                 prop.current = interpolation(start, end, prop.current, time);
             } else if (typeof start === 'object') {
 
-                const value = prop.value;
+                // const value = prop.value;
                 for (const k in start) {
                     // if (value[k].easing) {
                     //     time = value[k].easing(t);

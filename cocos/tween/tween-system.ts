@@ -3,7 +3,7 @@
  */
 
 import { System, Director, director } from "../core";
-import { ActionManager } from "./action-manager";
+import { ActionManager } from "./actions/action-manager";
 
 export class TweenSystem extends System {
     static readonly ID = 'tween';
