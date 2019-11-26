@@ -130,7 +130,7 @@ intersect.rayMesh = (function () {
             let subData = (mesh._subDatas[i] || mesh._subDatas[0]);
             let vbData = subData.vData;
             let dv = new DataView(vbData.buffer, vbData.byteOffset, vbData.byteLength);
-            let iData = subData.iData;
+            let iData = subData.getIData(Uint16Array);
 
             let format = subData.vfm;
             let fmt = format.element(gfx.ATTR_POSITION);

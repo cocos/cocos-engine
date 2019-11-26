@@ -599,9 +599,9 @@ let Camera = cc.Class({
 
     /**
      * !#en
-     * Get the screen to world matrix, only support 2D camera.
+     * Get the screen to world matrix, only support 2D camera which alignWithScreen is true.
      * !#zh
-     * 获取屏幕坐标系到世界坐标系的矩阵，只适用于 2D 摄像机。
+     * 获取屏幕坐标系到世界坐标系的矩阵，只适用于 alignWithScreen 为 true 的 2D 摄像机。
      * @method getScreenToWorldMatrix2D
      * @param {Mat4} out - the matrix to receive the result
      * @return {Mat4}
@@ -614,9 +614,9 @@ let Camera = cc.Class({
 
     /**
      * !#en
-     * Get the world to camera matrix, only support 2D camera.
+     * Get the world to camera matrix, only support 2D camera which alignWithScreen is true.
      * !#zh
-     * 获取世界坐标系到摄像机坐标系的矩阵，只适用于 2D 摄像机。
+     * 获取世界坐标系到摄像机坐标系的矩阵，只适用于 alignWithScreen 为 true 的 2D 摄像机。
      * @method getWorldToScreenMatrix2D
      * @param {Mat4} out - the matrix to receive the result
      * @return {Mat4}
@@ -780,8 +780,11 @@ let Camera = cc.Class({
             this._onAlignWithScreen();
         }
         else {
-            this._camera.setFov(this._fov * cc.macro.RAD);
-            this._camera.setOrthoHeight(this._orthoSize);
+            let fov = this._fov * cc.macro.RAD;
+            fov = Math.atan(Math.tan(fov / 2) / this.zoomRatio) * 2;
+            this._camera.setFov(fov);
+
+            this._camera.setOrthoHeight(this._orthoSize * this.zoomRatio);
         }
 
         this._camera.dirty = true;

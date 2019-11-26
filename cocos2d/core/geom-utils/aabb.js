@@ -24,8 +24,8 @@ let transform_extent_m4 = function (out, extent, m4) {
  * @param {Number} l 
  */
 function aabb(px, py, pz, w, h, l) {
-    this.center = vec3.create(px, py, pz);
-    this.halfExtents = vec3.create(w, h, l);
+    this.center = cc.v3(px, py, pz);
+    this.halfExtents = cc.v3(w, h, l);
 }
 
 let proto = aabb.prototype;
