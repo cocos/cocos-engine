@@ -1,4 +1,4 @@
-import { FiniteTimeAction, Action } from "./CCAction";
+import { FiniteTimeAction, Action } from "./action";
 import { RenderableComponent } from "../core";
 
 /****************************************************************************

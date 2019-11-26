@@ -1,5 +1,5 @@
 import { System, Director, director } from "../core";
-import { ActionManager } from "./CCActionManager";
+import { ActionManager } from "./action-manager";
 
 export class TweenSystem extends System {
     static readonly ID = 'tween';

@@ -27,7 +27,7 @@
 
 import * as js from '../core/utils/js';
 import { errorID } from '../core/platform/debug';
-import { Action } from './CCAction';
+import { Action } from './action';
 import { Node } from '../core';
 
 /*

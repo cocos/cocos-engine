@@ -1,6 +1,6 @@
-import { FiniteTimeAction, Action } from "./CCAction";
+import { FiniteTimeAction, Action } from "./action";
 import { macro, logID, errorID } from "../core";
-import { ActionInstant } from "./CCActionInstant";
+import { ActionInstant } from "./action-instant";
 
 /****************************************************************************
  Copyright (c) 2008-2010 Ricardo Quesada
