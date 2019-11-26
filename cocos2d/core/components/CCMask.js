@@ -190,7 +190,7 @@ let Mask = cc.Class({
          * @default 0
          */
         alphaThreshold: {
-            default: 0,
+            default: 0.1,
             type: cc.Float,
             range: [0, 1, 0.1],
             slide: true,
