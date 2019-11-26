@@ -5,7 +5,7 @@ import { getWrap } from '../framework/util';
 import { CannonWorld } from './cannon-world';
 import { CannonShape } from './shapes/cannon-shape';
 import { ColliderComponent } from '../../../exports/physics-framework';
-import { TransformDirtyBit } from '../../core/scene-graph/node-enum';
+import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Node } from '../../core';
 import { CollisionEventType } from '../framework/physics-interface';
 import { CannonRigidBody } from './cannon-rigid-body';
@@ -119,7 +119,7 @@ export class CannonSharedBody {
             Vec3.copy(this.body.position, this.node.worldPosition);
             Quat.copy(this.body.quaternion, this.node.worldRotation);
 
-            if (this.node.hasChangedFlags & TransformDirtyBit.SCALE) {
+            if (this.node.hasChangedFlags & TransformBit.SCALE) {
                 for (let i = 0; i < this.shapes.length; i++) {
                     this.shapes[i].setScale(this.node.worldScale);
                 }

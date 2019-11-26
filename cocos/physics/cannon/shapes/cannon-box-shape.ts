@@ -2,7 +2,7 @@ import CANNON from '@cocos/cannon';
 import { Vec3 } from '../../../core/math';
 import { commitShapeUpdates } from '../cannon-util';
 import { CannonShape } from './cannon-shape';
-import { IBoxShape } from '../../spec/i-physics-spahe';
+import { IBoxShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { BoxColliderComponent } from '../../../../exports/physics-framework';
 

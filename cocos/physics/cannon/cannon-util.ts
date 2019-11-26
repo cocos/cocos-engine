@@ -1,7 +1,7 @@
 import CANNON from '@cocos/cannon';
 import { getWrap } from '../framework/util';
 import { Vec3 } from '../../core';
-import { IBaseShape } from '../spec/i-physics-spahe';
+import { IBaseShape } from '../spec/i-physics-shape';
 import { PhysicsRayResult } from '../framework';
 import { IRaycastOptions } from '../spec/i-physics-world';
 

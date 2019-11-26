@@ -3,7 +3,7 @@ import { BuiltinSharedBody } from '../builtin-shared-body';
 import { IBuiltinShape } from '../builtin-interface';
 import { BuiltinObject } from '../object/builtin-object';
 import { ColliderComponent, RigidBodyComponent, PhysicMaterial, PhysicsSystem } from '../../../../exports/physics-framework';
-import { IBaseShape } from '../../spec/i-physics-spahe';
+import { IBaseShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { BuiltInWorld } from '../builtin-world';
 import { Node } from '../../../core';

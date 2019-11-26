@@ -12,7 +12,7 @@ import {
 import { Vec3 } from '../../../../core/math';
 import { createBoxShape } from '../../instance';
 import { ColliderComponent } from './collider-component';
-import { IBoxShape } from '../../../spec/i-physics-spahe';
+import { IBoxShape } from '../../../spec/i-physics-shape';
 
 /**
  * @zh

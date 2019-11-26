@@ -1,7 +1,7 @@
 import { Vec3 } from '../../../core/math';
 import { obb } from '../../../core/geom-utils';
 import { BuiltinShape } from './builtin-shape';
-import { IBoxShape } from '../../spec/i-physics-spahe';
+import { IBoxShape } from '../../spec/i-physics-shape';
 import { BoxColliderComponent } from '../../../../exports/physics-framework';
 
 export class BuiltinBoxShape extends BuiltinShape implements IBoxShape {

@@ -3,7 +3,7 @@ import { Vec3 } from '../../../core/math';
 import { getWrap, setWrap } from '../../framework/util';
 import { commitShapeUpdates } from '../cannon-util';
 import { PhysicMaterial } from '../../framework/assets/physic-material';
-import { IBaseShape } from '../../spec/i-physics-spahe';
+import { IBaseShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { CannonSharedBody } from '../cannon-shared-body';
 import { CannonWorld } from '../cannon-world';

@@ -13,7 +13,7 @@ import { RigidBodyComponent } from '../rigid-body-component';
 import { PhysicMaterial } from '../../assets/physic-material';
 import { PhysicsSystem } from '../../physics-system';
 import { Component, error } from '../../../../core';
-import { IBaseShape } from '../../../spec/i-physics-spahe';
+import { IBaseShape } from '../../../spec/i-physics-shape';
 
 /**
  * @zh

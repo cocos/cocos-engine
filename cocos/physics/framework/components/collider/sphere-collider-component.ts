@@ -11,7 +11,7 @@ import {
 } from '../../../../core/data/class-decorator';
 import { createSphereShape } from '../../instance';
 import { ColliderComponent } from './collider-component';
-import { ISphereShape } from '../../../spec/i-physics-spahe';
+import { ISphereShape } from '../../../spec/i-physics-shape';
 
 /**
  * @zh
