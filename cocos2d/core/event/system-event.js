@@ -102,9 +102,7 @@ var SystemEvent = cc.Class({
         if (isEnable && typeof DeviceMotionEvent.requestPermission === 'function') {
             DeviceMotionEvent.requestPermission().then(response => {
                 console.log(`Device Motion Event request permission: ${response}`);
-                if (response === 'granted') {
-                    inputManger.setAccelerometerEnabled(true);
-                }
+                inputManger.setAccelerometerEnabled(response === 'granted');
             });
         } else {
             inputManger.setAccelerometerEnabled(isEnable);
