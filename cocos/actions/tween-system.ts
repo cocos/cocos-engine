@@ -10,7 +10,7 @@ export class TweenSystem extends System {
         return this.actionMgr;
     }
 
-    private actionMgr = new ActionManager();
+    private readonly actionMgr = new ActionManager();
 
     postUpdate (dt: number) {
         if (!CC_EDITOR || this._executeInEditMode) {

@@ -30,6 +30,8 @@ import { errorID } from '../core/platform/debug';
 import { Action } from './action';
 import { Node } from '../core';
 
+let ID_COUNTER = 0;
+
 /*
  * @class HashElement
  * @constructor
@@ -68,9 +70,6 @@ export class ActionManager {
     private _arrayTargets: HashElement[] = [];
     private _currentTarget!: HashElement;
     private _elementPool: HashElement[] = [];
-    constructor () {
-        // cc.director._scheduler && cc.director._scheduler.enableForTarget(this);
-    }
 
     private _searchElementByTarget (arr: HashElement[], target: object) {
         for (var k = 0; k < arr.length; k++) {
@@ -121,6 +120,10 @@ export class ActionManager {
         if (!action || !target) {
             errorID(1000);
             return;
+        }
+
+        if (target.uuid == null) {
+            (target as any).uuid = '_TWEEN_UUID_' + ID_COUNTER++;
         }
 
         //check if the action target already exists
