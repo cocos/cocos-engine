@@ -508,8 +508,9 @@ function _searchMaskInParent (node) {
             }
         }
 
-        return list;
+        return list.next ? list : null;
     }
+    
     return null;
 }
 
