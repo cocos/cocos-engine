@@ -59,4 +59,4 @@ test('global variables are sealed', async () => {
         }
     }
 
-}, 5000);
+}, 30000);
