@@ -28,5 +28,5 @@
  ****************************************************************************/
 
 export { TweenSystem } from './tween-system';
-export { tween, tweenUtil } from './tween';
+export { tween, tweenUtil, Tween } from './tween';
 export * from './export-api';
