@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import '../assets/material/custom-properties';
 import gfx from '../../renderer/gfx';
 import InputAssembler from '../../renderer/core/input-assembler';
 import Aabb from '../geom-utils/aabb';

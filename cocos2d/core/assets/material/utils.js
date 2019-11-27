@@ -23,7 +23,7 @@ function serializeDefines (defines) {
     return str;
 }
 
-function serializePass (pass) {
+function serializePass (pass, excludeProperties) {
     let str = pass._programName + pass._cullMode;
     if (pass._blend) {
         str += pass._blendEq + pass._blendAlphaEq + pass._blendSrc + pass._blendDst
@@ -41,7 +41,11 @@ function serializePass (pass) {
             + pass._stencilWriteMaskBack;
     }
 
-    str += serializeUniforms(pass._properties);
+    if (!excludeProperties) {
+        str += serializeUniforms(pass._properties);
+    }
+    str += serializeDefines(pass._defines);
+
     return str;
 }
 

@@ -10,6 +10,7 @@ import Pool from '../../utils/pool';
  */
 class MaterialPool extends Pool {
     _pool = {};
+    enabled = false;
 
     get (exampleMat, renderComponent) {
         let pool = this._pool;

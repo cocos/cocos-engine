@@ -30,7 +30,7 @@ const EffectAsset = require('../CCEffectAsset');
 const textureUtil = require('../../utils/texture-util');
 
 import materialPool from './material-pool';
-import CustomProperties from './custom-properties';
+import EffectVariant from './effect-variant';
 
 /**
  * !#en Material Asset.
@@ -135,7 +135,7 @@ let Material = cc.Class({
     },
 
     setAsVariant (mat) {
-        this._effect = new CustomProperties(mat.effect);
+        this._effect = new EffectVariant(mat.effect);
         this._effectAsset = mat._effectAsset;
     },
 

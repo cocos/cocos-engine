@@ -1,5 +1,5 @@
 const Asset = require('./CCAsset');
-const Effect = require('../../renderer/core/effect');
+const Effect = require('./material/effect');
 
 let EffectAsset = cc.Class({
     name: 'cc.EffectAsset',
