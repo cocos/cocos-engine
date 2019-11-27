@@ -115,7 +115,7 @@ export class Tween {
      */
     clone (target: object): Tween {
         let action = this._union();
-        return tween(target).then(action.clone() as any);
+        return tweenUtil(target).then(action.clone() as any);
     }
 
     /**
