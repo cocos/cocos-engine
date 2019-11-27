@@ -37,6 +37,7 @@ const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
 const FLAG_TRANSFORM = RenderFlow.FLAG_TRANSFORM;
 const FLAG_POST_RENDER = RenderFlow.FLAG_POST_RENDER;
 const EmptyHandle = function () {}
+const ATTACHED_ROOT_NAME = 'ATTACHED_NODE:ROOT';
 
 let ArmatureCache = require('./ArmatureCache');
 
@@ -436,7 +437,7 @@ let ArmatureDisplay = cc.Class({
     generateAttachedNode () {
         this._attachedRootNode = null;
 
-        let rootNode = this.node.getChildByName('ATTACHED_NODE:ROOT');
+        let rootNode = this.node.getChildByName(ATTACHED_ROOT_NAME);
         if (rootNode) {
             rootNode.removeFromParent(true);
             rootNode.destroy();
@@ -448,12 +449,12 @@ let ArmatureDisplay = cc.Class({
             return;
         }
 
-        rootNode = this._attachedRootNode = new cc.Node('ATTACHED_NODE:ROOT');
+        rootNode = this._attachedRootNode = new cc.Node(ATTACHED_ROOT_NAME);
         rootNode._mulMat = EmptyHandle;
         this.node.addChild(rootNode);
 
         let isCached = this.isAnimationCached();
-        if (isCached) {
+        if (isCached && this._frameCache) {
             this._frameCache.enableCacheSlotInfos();
         }
 
@@ -485,8 +486,13 @@ let ArmatureDisplay = cc.Class({
         attachedTraverse(armature, rootNode);
     },
 
+    _hasAttachedNode () {
+        let attachedRootNode = this.node.getChildByName(ATTACHED_ROOT_NAME);
+        return !!attachedRootNode;
+    },
+
     _associateAttachedNode () {
-        let rootNode = this._attachedRootNode = this.node.getChildByName('ATTACHED_NODE:ROOT');
+        let rootNode = this._attachedRootNode = this.node.getChildByName(ATTACHED_ROOT_NAME);
         if (!rootNode) return;
 
         let nodeArray = this._attachedNodeArray;
@@ -499,6 +505,9 @@ let ArmatureDisplay = cc.Class({
 
         rootNode._mulMat = EmptyHandle;
         let isCached = this.isAnimationCached();
+        if (isCached && this._frameCache) {
+            this._frameCache.enableCacheSlotInfos();
+        }
         let nodeIdx = 0;
 
         let attachedTraverse = function (armature, parentNode) {
@@ -558,8 +567,8 @@ let ArmatureDisplay = cc.Class({
         for (let i = 0, n = nodeArray.length; i < n; i++) {
             let slotNode = nodeArray[i];
             if (!slotNode || !slotNode.isValid) continue;
-
             let slot = isCached ? slotInfos[i] : slotNode._armatureSlot;
+            if (!slot) continue;
             if (slotNode._slotOrder !== slot._zOrder) {
                 slotNode._slotOrder = slot._zOrder;
                 parent = slotNode.parent;
@@ -978,6 +987,9 @@ let ArmatureDisplay = cc.Class({
                 this._accTime = 0;
                 this._playCount = 0;
                 this._frameCache = cache;
+                if (this._hasAttachedNode()) {
+                    this._frameCache.enableCacheSlotInfos();
+                }
                 this._frameCache.updateToFrame(0);
                 this._playing = true;
                 this._curFrame = this._frameCache.frames[0];
