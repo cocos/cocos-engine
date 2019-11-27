@@ -22,3 +22,4 @@ export {
 };
 cc.primitives = primitives;
 export * from '../cocos/core/primitive/primitive';
+cc.BlahBlah = '';
