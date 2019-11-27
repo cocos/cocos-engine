@@ -205,8 +205,6 @@ export class ActionManager {
                     break;
                 }
             }
-        } else {
-            cc.logID(1001);
         }
     }
 
