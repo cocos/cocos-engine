@@ -357,11 +357,19 @@ export default class ArmatureAssembler extends Assembler {
             }
         }
         
+        renderer.worldMatDirty++;
+        // sync attached node matrix
+        comp._syncAttachedNode();
+
         // Clear temp var.
         _node = undefined;
         _buffer = undefined;
         _renderer = undefined;
         _comp = undefined;
+    }
+
+    postFillBuffers (comp, renderer) {
+        renderer.worldMatDirty--;
     }
 }
 

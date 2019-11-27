@@ -22,11 +22,16 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+import Mat4 from '../../cocos2d/core/value-types/mat4';
+import { Mat3 } from '../../cocos2d/core/value-types';
+
 const MaxCacheTime = 30;
 const FrameTime = 1 / 60; 
 
 let _vertices = [];
 let _indices = [];
+let _slotInfos = [];
+let _slotInfoOffset = 0;
 let _vertexOffset = 0;
 let _indexOffset = 0;
 let _vfOffset = 0;
@@ -44,6 +49,7 @@ let AnimationCache = cc.Class({
     ctor () {
         this._inited = false;
         this._invalid = true;
+        this._enableCacheSlotInfos = false;
         this.frames = [];
         this.totalTime = 0;
         this.isCompleted = false;
@@ -53,6 +59,7 @@ let AnimationCache = cc.Class({
         this._animationName = null;
         this._tempSegments = null;
         this._tempColors = null;
+        this._tempSlotInfos = null;
     },
 
     init (armatureInfo, animationName) {
@@ -146,8 +153,16 @@ let AnimationCache = cc.Class({
         this.updateToFrame();
     },
 
+    enableCacheSlotInfos () {
+        if (!this._enableCacheSlotInfos) {
+            this._enableCacheSlotInfos = true;
+            this.invalidAllFrame();
+        }
+    },
+
     _updateFrame (armature, index) {
         _vfOffset = 0;
+        _slotInfoOffset = 0;
         _indexOffset = 0;
         _vertexOffset = 0;
         _preTexUrl = null;
@@ -161,6 +176,7 @@ let AnimationCache = cc.Class({
         this.frames[index] = this.frames[index] || {
             segments : [],
             colors : [],
+            slotInfos : [],
             vertices : null,
             uintVert : null,
             indices : null,
@@ -169,6 +185,7 @@ let AnimationCache = cc.Class({
 
         let segments = this._tempSegments = frame.segments;
         let colors = this._tempColors = frame.colors;
+        let slotInfos = this._tempSlotInfos = frame.slotInfos;
         this._traverseArmature(armature, 1.0);
         // At last must handle pre color and segment.
         // Because vertex count will right at the end.
@@ -177,6 +194,8 @@ let AnimationCache = cc.Class({
             colors[_colorOffset - 1].vfOffset = _vfOffset;
         }
         colors.length = _colorOffset;
+        slotInfos.length = _slotInfoOffset;
+        
         // Handle pre segment
         let preSegOffset = _segOffset - 1;
         if (preSegOffset >= 0) {
@@ -228,20 +247,37 @@ let AnimationCache = cc.Class({
     _traverseArmature (armature, parentOpacity) {
         let colors = this._tempColors;
         let segments = this._tempSegments;
+        let slotInfos = this._tempSlotInfos;
         let gVertices = _vertices;
         let gIndices = _indices;
         let slotVertices, slotIndices;
         let slots = armature._slots, slot, slotMatrix, slotMatrixm, slotColor, colorVal;
         let texture;
         let preSegOffset, preSegInfo;
+        let slotInfo;
 
         for (let i = 0, l = slots.length; i < l; i++) {
             slot = slots[i];
+
+            if (this._enableCacheSlotInfos) {
+                slotInfo = slotInfos[_slotInfoOffset];
+                if (!slotInfo) {
+                    slotInfo = slotInfos[_slotInfoOffset] = {
+                        _worldMatrix: new Mat4(),
+                        _zOrder: slot._zOrder,
+                        _visible: slot._visible,
+                    };
+                }
+                _slotInfoOffset++;
+            } else {
+                slotInfo = null;
+            }
+
             if (!slot._visible || !slot._displayData) continue;
-
-            slot.updateWorldMatrix();
             slotColor = slot._color;
-
+            slot.updateWorldMatrix();
+            slotInfo && Mat4.copy(slotInfo._worldMatrix, slot._worldMatrix);
+            
             if (slot.childArmature) {
                 this._traverseArmature(slot.childArmature, parentOpacity * slotColor.a / 255);
                 continue;

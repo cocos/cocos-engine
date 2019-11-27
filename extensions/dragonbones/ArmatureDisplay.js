@@ -24,6 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Mat4 from '../../cocos2d/core/value-types/mat4';
+
 const RenderComponent = require('../../cocos2d/core/components/CCRenderComponent');
 const Material = require('../../cocos2d/core/assets/material/CCMaterial');
 
@@ -31,6 +33,10 @@ let EventTarget = require('../../cocos2d/core/event/event-target');
 
 const Node = require('../../cocos2d/core/CCNode');
 const Graphics = require('../../cocos2d/core/graphics/graphics');
+const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
+const FLAG_TRANSFORM = RenderFlow.FLAG_TRANSFORM;
+const FLAG_POST_RENDER = RenderFlow.FLAG_POST_RENDER;
+const EmptyHandle = function () {}
 
 let ArmatureCache = require('./ArmatureCache');
 
@@ -365,6 +371,19 @@ let ArmatureDisplay = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.enabled_batch'
         },
 
+        /**
+         * !#en generate attached node.
+         * !#zh 生成挂点。
+         * @property {Boolean} TestAttachedNode
+         * @default false
+         */
+        TestAttachedNode: {
+            default: false,
+            notify () {
+                this.generateAttachedNode();
+            },
+        },
+
         // DragonBones data store key.
         _armatureKey: "",
 
@@ -392,6 +411,8 @@ let ArmatureDisplay = cc.Class({
         this._eventTarget = new EventTarget();
         this._materialCache = {};
         this._inited = false;
+        this._attachedRootNode = null;
+        this._attachedNodeArray = [];
         this._factory = dragonBones.CCFactory.getInstance();
     },
 
@@ -404,6 +425,157 @@ let ArmatureDisplay = cc.Class({
             let pos = child._name && child._name.search('CHILD_ARMATURE-');
             if (pos === 0) {
                 child.destroy();
+            }
+        }
+    },
+
+    /**
+     * !#en Traverse all sot, and create corresponding node.
+     * !#zh 遍历所有插槽，并创建对应节点。
+     */
+    generateAttachedNode () {
+        this._attachedRootNode = null;
+
+        let rootNode = this.node.getChildByName('ATTACHED_NODE:ROOT');
+        if (rootNode) {
+            rootNode.removeFromParent(true);
+            rootNode.destroy();
+            rootNode = null;
+        }
+
+        let armature = this._armature;
+        if (!armature) {
+            return;
+        }
+
+        rootNode = this._attachedRootNode = new cc.Node('ATTACHED_NODE:ROOT');
+        rootNode._mulMat = EmptyHandle;
+        this.node.addChild(rootNode);
+
+        let isCached = this.isAnimationCached();
+        if (isCached) {
+            this._frameCache.enableCacheSlotInfos();
+        }
+
+        let nodeArray = this._attachedNodeArray;
+        nodeArray.length = 0;
+
+        let attachedTraverse = function (armature, parentNode) {
+            let slots = armature._slots, slot;
+            for (let i = 0, l = slots.length; i < l; i++) {
+                slot = slots[i];
+
+                let slotNodeName = 'ATTACHED_NODE:' + slot.name;
+                let slotNode = new cc.Node(slotNodeName);
+                slotNode._mulMat = EmptyHandle;
+                parentNode.addChild(slotNode);
+
+                if (!isCached) {
+                    slotNode._armatureSlot = slot;
+                    slotNode._slotOrder = slot._zOrder;
+                }
+                slotNode.setSiblingIndex(i);
+                nodeArray.push(slotNode);
+
+                if (slot.childArmature) {
+                    attachedTraverse(slot.childArmature, slotNode);
+                }
+            }
+        }
+        attachedTraverse(armature, rootNode);
+    },
+
+    _associateAttachedNode () {
+        let rootNode = this._attachedRootNode = this.node.getChildByName('ATTACHED_NODE:ROOT');
+        if (!rootNode) return;
+
+        let nodeArray = this._attachedNodeArray;
+        nodeArray.length = 0;
+
+        let armature = this._armature;
+        if (!armature) {
+            return;
+        }
+
+        rootNode._mulMat = EmptyHandle;
+        let isCached = this.isAnimationCached();
+        let nodeIdx = 0;
+
+        let attachedTraverse = function (armature, parentNode) {
+            let slots = armature._slots, slot;
+            for (let i = 0, l = slots.length; i < l; i++) {
+                slot = slots[i];
+
+                let slotNodeName = 'ATTACHED_NODE:' + slot.name;
+                let slotNode = parentNode && parentNode.getChildByName(slotNodeName);
+
+                if (slotNode) {
+                    if (!isCached) {
+                        slotNode._armatureSlot = slot;
+                        slotNode._slotOrder = slot._zOrder;
+                    }
+                    slotNode.setSiblingIndex(i);
+                    slotNode._mulMat = EmptyHandle;
+                }
+                nodeArray[nodeIdx] = slotNode;
+                nodeIdx++;
+
+                if (slot.childArmature) {
+                    attachedTraverse(slot.childArmature, slotNode);
+                }
+            }
+        }
+        attachedTraverse(armature, rootNode);
+    },
+
+    _syncAttachedNode () {
+        let rootNode = this._attachedRootNode;
+        if (!rootNode) {
+            return;
+        }
+        
+        let rootMatrix = this.node._worldMatrix;
+        Mat4.copy(rootNode._worldMatrix, rootMatrix);
+        rootNode._renderFlag &= ~FLAG_TRANSFORM;
+
+        let slotInfos = null;
+        let isCached = this.isAnimationCached();
+        if (isCached) {
+            slotInfos = this._curFrame && this._curFrame.slotInfos;
+            if (!slotInfos) return;
+        }
+
+        let batch = this.enableBatch;
+        let mulMat = this.node._mulMat;
+
+        let matrixHandle = batch && !isCached ? Mat4.copy : function (nodeMat, slotMat) {
+            mulMat(nodeMat, rootMatrix, slotMat);
+        };
+
+        let nodeArray = this._attachedNodeArray;
+        let orderNodeMap = null;
+        let parent = null;
+        for (let i = 0, n = nodeArray.length; i < n; i++) {
+            let slotNode = nodeArray[i];
+            if (!slotNode || !slotNode.isValid) continue;
+
+            let slot = isCached ? slotInfos[i] : slotNode._armatureSlot;
+            if (slotNode._slotOrder !== slot._zOrder) {
+                slotNode._slotOrder = slot._zOrder;
+                parent = slotNode.parent;
+                orderNodeMap = orderNodeMap || {};
+                orderNodeMap[parent._id] = parent._children;
+            }
+            slotNode.active = slot._visible;
+            matrixHandle(slotNode._worldMatrix, slot._worldMatrix);
+            slotNode._renderFlag &= ~FLAG_TRANSFORM;
+        }
+        if (orderNodeMap) {
+            for (let key in orderNodeMap) {
+                let children = orderNodeMap[key];
+                children.sort(function (a, b) {
+                    return a._slotOrder > b._slotOrder ? 1 : -1;
+                });
             }
         }
     },
@@ -527,6 +699,7 @@ let ArmatureDisplay = cc.Class({
 
     update (dt) {
         if (!this.isAnimationCached()) return;
+
         if (!this._frameCache) return;
 
         let frameCache = this._frameCache;
@@ -580,6 +753,7 @@ let ArmatureDisplay = cc.Class({
     onDestroy () {
         this._super();
         this._inited = false;
+        this._attachedRootNode = null;
 
         if (!CC_EDITOR) {
             if (this._cacheMode === AnimationCacheMode.PRIVATE_CACHE) {
@@ -654,6 +828,7 @@ let ArmatureDisplay = cc.Class({
         // only when component's onEnable function has been invoke, need to enable render
         if (this.node && this.node._renderComponent == this) {
             this.markForRender(true);
+            this.node._renderFlag |= FLAG_POST_RENDER;
         }
     },
 
@@ -716,6 +891,8 @@ let ArmatureDisplay = cc.Class({
         }
 
         this._updateBatch();
+        this._associateAttachedNode();
+
         if (this.animationName) {
             this.playAnimation(this.animationName, this.playTimes);
         }

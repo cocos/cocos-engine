@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { FLOAT_ARRAY_TYPE, FLOAT_BYTES } from '../../vmath/utils';
+import { FLOAT_ARRAY_TYPE, FLOAT_BYTES } from '../../value-types/utils'
 
 const Uint32_Bytes = 4;
 const Uint8_Bytes = 1;
