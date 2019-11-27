@@ -6,16 +6,16 @@ message(STATUS "Target: ${TARGET_NAME}...")
 # set include files
 
 set(INCLUDE_FILES 
-  ${COCOS_EXTERNAL_PATH}/nedmalloc
-  ${COCOS_EXTERNAL_PATH}/tommyds
-  ${COCOS_SRC_PATH}/Core
+  ${GFX_EXTERNAL_PATH}/nedmalloc
+  ${GFX_EXTERNAL_PATH}/tommyds
+  ${COCOS_SRC_PATH}/renderer/core
 )
 
 if(COCOS_PLATFORM_WIN32)
-  list(APPEND INCLUDE_FILES ${COCOS_EXTERNAL_PATH}/jemalloc/include-win)
-  list(APPEND INCLUDE_FILES ${COCOS_EXTERNAL_PATH}/jemalloc/include-win/msvc_compat)
+  list(APPEND INCLUDE_FILES ${GFX_EXTERNAL_PATH}/jemalloc/include-win)
+  list(APPEND INCLUDE_FILES ${GFX_EXTERNAL_PATH}/jemalloc/include-win/msvc_compat)
 else()
-  list(APPEND INCLUDE_FILES ${COCOS_EXTERNAL_PATH}/jemalloc/include-linux)
+  list(APPEND INCLUDE_FILES ${GFX_EXTERNAL_PATH}/jemalloc/include-linux)
 endif()
 
 include_directories( ${INCLUDE_FILES} )
@@ -113,6 +113,20 @@ if (COCOS_PLATFORM_WIN32)
 else()
 	target_link_libraries(${TARGET_NAME} ${COCOS_EXTERNAL_TARGETS})
 endif()
+
+if(MSVC)
+    set_property(TARGET ${TARGET_NAME} PROPERTY LINK_FLAGS "/SUBSYSTEM:WINDOWS")
+    target_compile_options(${TARGET_NAME}
+        PUBLIC /MP
+    )
+	target_link_directories(${TARGET_NAME} PUBLIC ${COCOS_EXTERNAL_PATH}/win32/libs)
+endif()
+
+target_include_directories(${TARGET_NAME} PUBLIC 
+	${COCOS_SRC_PATH}/renderer
+	${COCOS_SRC_PATH}
+	${COCOS_EXTERNAL_PATH}/win32/include
+)
 
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME CCCore)
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME_DEBUG CCCore_d)

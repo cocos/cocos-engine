@@ -1,15 +1,14 @@
 set(TARGET_NAME GFXMetal)
 
 message(STATUS "Target: ${TARGET_NAME}...")
-
 # ---------------------------------------------------------------------
 # set include files
 
 set(INCLUDE_FILES 
-  ${COCOS_EXTERNAL_PATH}/glsl_optimizer/src
-  ${COCOS_EXTERNAL_PATH}/glsl_optimizer/src/mesa
-  ${COCOS_SRC_PATH}/Core
-  ${COCOS_SRC_PATH}/${TARGET_NAME}
+  ${GFX_EXTERNAL_PATH}/glsl_optimizer/src
+  ${GFX_EXTERNAL_PATH}/glsl_optimizer/src/mesa
+  ${COCOS_SRC_PATH}/renderer/core
+  ${COCOS_SRC_PATH}/renderer/gfx-metal
 )
 
 include_directories( ${INCLUDE_FILES} )

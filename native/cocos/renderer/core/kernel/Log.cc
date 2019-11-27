@@ -28,7 +28,7 @@ LogLevel Log::log_level = LogLevel::DEBUG;
 FILE* Log::log_file_ = nullptr;
 const char* LOG_LEVEL_DESCS[] = { "FATAL", "ERROR", "WARN", "INFO", "DEBUG" };
 
-void Log::set_log_file(const String& filename) {
+void Log::set_log_file(const std::string& filename) {
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
   if (log_file_) {
     fclose(log_file_);

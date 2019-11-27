@@ -4,7 +4,7 @@
 
 // #define CC_GFX_DEBUG
 
-CC_NAMESPACE_BEGIN
+NS_CC_BEGIN
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
 
@@ -50,7 +50,7 @@ void APIENTRY GLES2EGLDebugProc(GLenum source, GLenum type, GLuint id, GLenum se
   if (severity == GL_DEBUG_SEVERITY_HIGH_KHR)
   {
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-    CC_ASSERTS(false, msg.c_str());
+    // CC_ASSERTS(false, msg.c_str());
 #else
     CC_LOG_ERROR(msg.c_str());
 #endif
@@ -443,4 +443,4 @@ bool GLES2Context::CheckExtension(const String& extension) const {
   return (std::find(extensions_.begin(), extensions_.end(), extension) != extensions_.end());
 }
 
-CC_NAMESPACE_END
+NS_CC_END
