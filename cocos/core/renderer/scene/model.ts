@@ -172,7 +172,7 @@ export class Model {
         this._device = cc.director.root!.device;
     }
 
-    public initialize(node: INode) {
+    public initialize (node: INode) {
         this._transform = this._node = node;
     }
 
@@ -202,12 +202,12 @@ export class Model {
         this._inited = false;
     }
 
-    public attachToScene(scene: RenderScene) {
+    public attachToScene (scene: RenderScene) {
         this._scene = scene;
         this._id = this._scene.generateModelId();
     }
 
-    public detachFromScene() {
+    public detachFromScene () {
         this._scene = null;
         this._id = -1;
     }

@@ -136,7 +136,7 @@ export class Camera {
 
     }
 
-    public initialize(info: ICameraInfo) {
+    public initialize (info: ICameraInfo) {
         this._name = info.name;
         this._node = info.node;
         this._proj = info.projection;
@@ -150,7 +150,7 @@ export class Camera {
         });
         this.changeTargetWindow(info.window);
 
-        console.log('Alloc Camera: ' + this._name + ' ' + this._width + ' x ' + this._height);
+        console.log('Created Camera: ' + this._name + ' ' + this._width + 'x' + this._height);
     }
 
     public destroy () {
@@ -159,12 +159,14 @@ export class Camera {
         this._name = null;
     }
 
-    public attachToScene(scene: RenderScene) {
+    public attachToScene (scene: RenderScene) {
         this._scene = scene;
+        if (this._view) { this._view.enable(true); }
     }
 
-    public detachFromScene() {
+    public detachFromScene () {
         this._scene = null;
+        if (this._view) { this._view.enable(false); }
     }
 
     public resize (width: number, height: number) {
@@ -423,21 +425,23 @@ export class Camera {
 
     set visibility (vis) {
         this._visibility = vis;
-        if (this._view)
+        if (this._view) {
             this._view.visibility = vis;
+        }
     }
     get visibility () {
         return this._visibility;
     }
 
-    get priority(): number {
+    get priority (): number {
         return this._view ? this._view.priority : -1;
     }
 
     set priority (val: number) {
         this._priority = val;
-        if (this._view)
+        if (this._view) {
             this._view.priority = this._priority;
+        }
     }
 
     set aperture (val: CameraAperture) {

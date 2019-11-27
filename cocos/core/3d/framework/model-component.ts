@@ -30,11 +30,11 @@
 import { Material, Mesh } from '../../assets';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
 import { Model } from '../../renderer/scene/model';
+import { Root } from '../../root';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { Enum } from '../../value-types';
 import { builtinResMgr } from '../builtin';
 import { RenderableComponent } from './renderable-component';
-import { Root } from '../../root';
 
 /**
  * Shadow projection mode<br/>
@@ -148,7 +148,7 @@ export class ModelComponent extends RenderableComponent {
 
     public static ShadowCastingMode = ModelShadowCastingMode;
 
-    protected _modelType : typeof Model;
+    protected _modelType: typeof Model;
 
     protected _model: Model | null = null;
 
@@ -164,7 +164,7 @@ export class ModelComponent extends RenderableComponent {
     @property
     private _receiveShadows = false;
 
-    constructor() {
+    constructor () {
         super();
         this._modelType = Model;
     }
@@ -201,9 +201,10 @@ export class ModelComponent extends RenderableComponent {
         }
 
         if (this._model) {
-            cc.director.root.destroyModel(this._model);
+            this._model.destroy();
+        } else {
+            this._createModel();
         }
-        this._createModel();
 
         this._updateModelParams();
 
@@ -236,7 +237,7 @@ export class ModelComponent extends RenderableComponent {
         this._models.push(this._model);
     }
 
-    protected _attachToScene() {
+    protected _attachToScene () {
         if (!this.node.scene && !this._model) {
             return;
         }
@@ -247,7 +248,7 @@ export class ModelComponent extends RenderableComponent {
         scene.addModel(this._model!);
     }
 
-    protected _detachFromScene() {
+    protected _detachFromScene () {
         if (this._model && this._model.scene) {
             this._model.scene.removeModel(this._model);
         }

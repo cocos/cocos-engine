@@ -129,7 +129,8 @@ export abstract class RenderFlow {
      * @param view 渲染视图。
      */
     public render (view: RenderView) {
-        for (const stage of this._stages) {
+        for (let i = 0; i < this._stages.length; i++) {
+            const stage = this._stages[i];
             stage.render(view);
         }
     }

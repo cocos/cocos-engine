@@ -57,11 +57,7 @@ export class RenderScene {
         return this._planarShadows;
     }
 
-    get defaultMainLightNode (): INode {
-        return this._defaultMainLightNode;
-    }
-
-    get mainLight (): DirectionalLight {
+    get mainLight (): DirectionalLight | null {
         return this._mainLight;
     }
 
@@ -119,19 +115,14 @@ export class RenderScene {
     private _ambient: Ambient;
     private _skybox: Skybox;
     private _planarShadows: PlanarShadows;
-    private _mainLight: DirectionalLight;
-    private _defaultMainLightNode: INode;
+    private _models: Model[] = [];
     private _sphereLights: SphereLight[] = [];
     private _spotLights: SpotLight[] = [];
-    private _models: Model[] = [];
+    private _mainLight: DirectionalLight | null = null;
     private _modelId: number = 0;
 
     constructor (root: Root) {
         this._root = root;
-        this._defaultMainLightNode = new Node('Main Light');
-        this._mainLight = new DirectionalLight();
-        this._mainLight.initialize('Main Light', this._defaultMainLightNode);
-        this._mainLight.illuminance = Ambient.SUN_ILLUM;
         this._ambient = new Ambient(this);
         this._skybox = new Skybox(this);
         this._planarShadows = new PlanarShadows(this);
@@ -173,30 +164,40 @@ export class RenderScene {
         this._cameras.splice(0);
     }
 
-    public addSphereLight (sl:SphereLight) {
-        sl.attachToScene(this);
-        this._sphereLights.push(sl);
+    public setMainLight (dl: DirectionalLight) {
+        dl.attachToScene(this);
+        this._mainLight = dl;
     }
 
-    public removeSphereLight (light: SphereLight) {
+    public unsetMainLight (dl: DirectionalLight) {
+        dl.detachFromScene();
+        this._mainLight = null;
+    }
+
+    public addSphereLight (pl: SphereLight) {
+        pl.attachToScene(this);
+        this._sphereLights.push(pl);
+    }
+
+    public removeSphereLight (pl: SphereLight) {
         for (let i = 0; i < this._sphereLights.length; ++i) {
-            if (this._sphereLights[i] === light) {
-                light.detachFromScene();
+            if (this._sphereLights[i] === pl) {
+                pl.detachFromScene();
                 this._sphereLights.splice(i, 1);
                 return;
             }
         }
     }
 
-    public addSpotLight (sl:SpotLight) {
+    public addSpotLight (sl: SpotLight) {
         sl.attachToScene(this);
         this._spotLights.push(sl);
     }
 
-    public removeSpotLight (light: SpotLight) {
+    public removeSpotLight (sl: SpotLight) {
         for (let i = 0; i < this._spotLights.length; ++i) {
-            if (this._spotLights[i] === light) {
-                light.detachFromScene();
+            if (this._spotLights[i] === sl) {
+                sl.detachFromScene();
                 this._spotLights.splice(i, 1);
                 return;
             }
@@ -217,7 +218,7 @@ export class RenderScene {
         this._spotLights = [];
     }
 
-    public addModel (m:Model) {
+    public addModel (m: Model) {
         m.attachToScene(this);
         this._models.push(m);
     }

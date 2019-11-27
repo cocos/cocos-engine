@@ -36,7 +36,6 @@ import { Node } from '../../scene-graph/node';
 import { INode } from '../../utils/interfaces';
 import { builtinResMgr } from '../builtin';
 import { ModelComponent } from './model-component';
-import { Model } from '../../renderer';
 
 /**
  * @en The Skinning Model Component
@@ -91,7 +90,7 @@ export class SkinningModelComponent extends ModelComponent {
         return (this._model as SkinningModel);
     }
 
-    constructor() {
+    constructor () {
         super();
         this._modelType = SkinningModel;
     }
