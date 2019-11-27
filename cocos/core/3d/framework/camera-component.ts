@@ -34,12 +34,12 @@ import { ray } from '../../geom-utils';
 import { GFXClearFlag } from '../../gfx/define';
 import { GFXWindow } from '../../gfx/window';
 import { Color, Rect, toRadian, Vec3 } from '../../math';
+import { CameraDefaultMask } from '../../pipeline/define';
 import { Camera } from '../../renderer';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
+import { Root } from '../../root';
 import { Layers, Scene } from '../../scene-graph';
 import { Enum } from '../../value-types';
-import { CameraDefaultMask } from '../../pipeline/define';
-import { director } from '../../director';
 
 /**
  * The projection type<br/>
@@ -118,7 +118,7 @@ export class CameraComponent extends Component {
      */
     @property({
         type: ProjectionType,
-        tooltip:'相机的投影类型',
+        tooltip: '相机的投影类型',
     })
     get projection () {
         return this._projection;
@@ -134,7 +134,7 @@ export class CameraComponent extends Component {
      * @zh 相机的优先级顺序，只能在编辑器中设置，动态设置无效。
      */
     @property({
-        tooltip:'相机的优先级顺序，只能在编辑器中设置，动态设置无效',
+        tooltip: '相机的优先级顺序，只能在编辑器中设置，动态设置无效',
     })
     get priority () {
         return this._priority;
@@ -152,7 +152,7 @@ export class CameraComponent extends Component {
      * @zh 相机的视角大小。
      */
     @property({
-        tooltip:'相机的视角大小',
+        tooltip: '相机的视角大小',
     })
     get fov () {
         return this._fov;
@@ -168,7 +168,7 @@ export class CameraComponent extends Component {
      * @zh 正交模式下的相机视角大小。
      */
     @property({
-        tooltip:'正交模式下的相机视角大小',
+        tooltip: '正交模式下的相机视角大小',
     })
     get orthoHeight () {
         return this._orthoHeight;
@@ -184,7 +184,7 @@ export class CameraComponent extends Component {
      * @zh 相机的近平面。
      */
     @property({
-        tooltip:'相机的近平面',
+        tooltip: '相机的近平面',
     })
     get near () {
         return this._near;
@@ -200,7 +200,7 @@ export class CameraComponent extends Component {
      * @zh 相机的远平面。
      */
     @property({
-        tooltip:'相机的远平面',
+        tooltip: '相机的远平面',
     })
     get far () {
         return this._far;
@@ -216,7 +216,7 @@ export class CameraComponent extends Component {
      * @zh 相机的颜色缓冲默认值。
      */
     @property({
-        tooltip:'相机的颜色缓冲默认值',
+        tooltip: '相机的颜色缓冲默认值',
     })
     // @constget
     get color (): Readonly<Color>  {
@@ -238,7 +238,7 @@ export class CameraComponent extends Component {
      * @zh 相机的深度缓冲默认值。
      */
     @property({
-        tooltip:'相机的深度缓冲默认值',
+        tooltip: '相机的深度缓冲默认值',
     })
     get depth () {
         return this._depth;
@@ -254,7 +254,7 @@ export class CameraComponent extends Component {
      * @zh 相机的模板缓冲默认值。
      */
     @property({
-        tooltip:'相机的模板缓冲默认值',
+        tooltip: '相机的模板缓冲默认值',
     })
     get stencil () {
         return this._stencil;
@@ -271,7 +271,7 @@ export class CameraComponent extends Component {
      */
     @property({
         type: CameraClearFlag,
-        tooltip:'相机的缓冲清除标志位',
+        tooltip: '相机的缓冲清除标志位',
     })
     get clearFlags () {
         return this._clearFlags;
@@ -287,7 +287,7 @@ export class CameraComponent extends Component {
      * @zh 相机相对屏幕的 viewport。
      */
     @property({
-        tooltip:'相机相对屏幕的 viewport',
+        tooltip: '相机相对屏幕的 viewport',
     })
     get rect () {
         return this._rect;
@@ -318,7 +318,7 @@ export class CameraComponent extends Component {
      */
     @property({
         type: Layers.BitMask,
-        tooltip:'设置摄像机可见掩码，与 Component 中的 visibility 同时使用，用于过滤摄像机不需要渲染的物体',
+        tooltip: '设置摄像机可见掩码，与 Component 中的 visibility 同时使用，用于过滤摄像机不需要渲染的物体',
     })
     get visibility () {
         return this._visibility;
@@ -336,7 +336,7 @@ export class CameraComponent extends Component {
      */
     @property({
         type: RenderTexture,
-        tooltip:'设置摄像机 RenderTexture',
+        tooltip: '设置摄像机 RenderTexture',
     })
     get targetTexture () {
         return this._targetTexture;
@@ -353,16 +353,16 @@ export class CameraComponent extends Component {
         this._updateTargetTexture();
 
         if (!value && this._camera){
-            this._camera.changeTargetWindow(CC_EDITOR? cc.director.root.tempWindow: null);
+            this._camera.changeTargetWindow(CC_EDITOR ? cc.director.root.tempWindow : null);
             this._camera.isWindowSize = true;
         }
     }
 
-    get inEditorMode() {
+    get inEditorMode () {
         return this._inEditorMode;
     }
 
-    set inEditorMode(value) {
+    set inEditorMode (value) {
         this._inEditorMode = value;
         if (this._camera) {
             this._camera.changeTargetWindow(value ? cc.director.root && cc.director.root.mainWindow : cc.director.root && cc.director.root.tempWindow);
@@ -387,7 +387,7 @@ export class CameraComponent extends Component {
         }
     }
 
-    public onDisable() {
+    public onDisable () {
         if (this._camera) {
             this._detachFromScene();
         }
@@ -423,7 +423,7 @@ export class CameraComponent extends Component {
     }
 
     protected _createCamera () {
-        this._camera = director.root!.createCamera();
+        this._camera = (cc.director.root as Root).createCamera();
         this._camera.initialize({
             name: this.node.name,
             node: this.node,
@@ -452,7 +452,7 @@ export class CameraComponent extends Component {
         this._updateTargetTexture();
     }
 
-    protected _attachToScene() {
+    protected _attachToScene () {
         if (!this.node.scene || !this._camera) {
             return;
         }
@@ -463,7 +463,7 @@ export class CameraComponent extends Component {
         scene.addCamera(this._camera);
     }
 
-    protected _detachFromScene() {
+    protected _detachFromScene () {
         if (this._camera && this._camera.scene) {
             this._camera.scene.removeCamera(this._camera);
         }

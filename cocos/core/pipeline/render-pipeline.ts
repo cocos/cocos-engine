@@ -373,7 +373,8 @@ export abstract class RenderPipeline {
 
         this.updateUBOs(view);
 
-        for (const flow of view.flows) {
+        for (let i = 0; i < view.flows.length; i++) {
+            const flow = view.flows[i];
             flow.render(view);
         }
     }

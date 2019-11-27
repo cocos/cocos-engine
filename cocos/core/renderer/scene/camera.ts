@@ -150,7 +150,7 @@ export class Camera {
         });
         this.changeTargetWindow(info.window);
 
-        console.log('Alloc Camera: ' + this._name + ' ' + this._width + ' x ' + this._height);
+        console.log('Created Camera: ' + this._name + ' ' + this._width + 'x' + this._height);
     }
 
     public destroy () {

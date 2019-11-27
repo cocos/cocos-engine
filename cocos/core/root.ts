@@ -350,11 +350,13 @@ export class Root {
             this._fpsTime = 0.0;
         }
 
-        this._views.sort((a: RenderView, b: RenderView) => {
+        const views = this._views;
+        views.sort((a: RenderView, b: RenderView) => {
             return a.priority - b.priority;
         });
 
-        for (const view of this._views) {
+        for (let i = 0; i < views.length; i++) {
+            const view = views[i];
             if (view.isEnable && (view.window &&
                 (view.window.isOffscreen ||
                 (!view.window.isOffscreen && (view.window === this._curWindow))))) {
