@@ -59,7 +59,7 @@ export class CachedArray<T> {
      * @param item 数组元素
      */
     public pop (): T | undefined {
-        return this.array[this.length--];
+        return this.array[--this.length];
     }
 
     /**
@@ -92,19 +92,29 @@ export class CachedArray<T> {
      * @zh
      * 连接一个指定数组中的所有元素到当前数组末尾
      */
-    public concat (array: CachedArray<T>) {
+    public concat (array: T[]) {
         for (let i = 0; i < array.length; ++i) {
-            this.array[this.length++] = array.array[i];
+            this.array[this.length++] = array[i];
         }
     }
 
     /**
-     * @zh
-     * 向数组中追加一组数据
+     * @zh 删除指定位置的元素并将最后一个元素移动至该位置。
+     * @param idx 数组索引。
      */
-    public append (array: T[]) {
-        for (const item of array) {
-            this.array[this.length++] = item;
+    public fastRemove (idx: number) {
+        if (idx >= this.length || idx < 0) {
+            return;
         }
+        const last = --this.length;
+        this.array[idx] = this.array[last];
+    }
+
+    /**
+     * @zh 返回某个数组元素对应的下标。
+     * @param val 数组元素。
+     */
+    public indexOf (val: T) {
+        return this.array.indexOf(val);
     }
 }
