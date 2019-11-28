@@ -161,12 +161,16 @@ export class Camera {
 
     public attachToScene (scene: RenderScene) {
         this._scene = scene;
-        if (this._view) { this._view.enable(true); }
+        if (this._view) {
+            this._view.enable(true);
+        }
     }
 
     public detachFromScene () {
         this._scene = null;
-        if (this._view) { this._view.enable(false); }
+        if (this._view) {
+            this._view.enable(false);
+        }
     }
 
     public resize (width: number, height: number) {
