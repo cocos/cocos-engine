@@ -55,11 +55,11 @@ let EditBoxImplBase = cc.Class({
     },
 
     setTabIndex (index) {
-        // Only support on Web platform
+
     },
 
     setSize (width, height) {
-        // Only support on Web platform
+
     },
 
     setFocus (value) {
