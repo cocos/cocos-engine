@@ -93,7 +93,7 @@ export default class MeshRendererAssembler extends Assembler {
 
         if (CC_DEBUG &&
             (cc.macro.SHOW_MESH_WIREFRAME || cc.macro.SHOW_MESH_NORMAL) && 
-            comp.node.groupIndex !== cc.Node.BuiltinGroupIndex.DEBUG) {
+            !(comp.node._cullingMask & (1<<cc.Node.BuiltinGroupIndex.DEBUG))) {
             renderer._flush();
             renderer.node = this._renderNode;
             comp._updateDebugDatas();
