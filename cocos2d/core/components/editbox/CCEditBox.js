@@ -753,9 +753,6 @@ let EditBox = cc.Class({
     },
 
     onDestroy () {
-        if (this.isFocused()) {
-            this.blur();
-        }
         if (this._impl) {
             this._impl.clear();
         }
