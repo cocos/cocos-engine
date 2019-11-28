@@ -28,7 +28,8 @@
 
 let EditBoxImplBase = cc.Class({
     ctor () {
-        this._delegate = null;        
+        this._delegate = null;
+        this._editing = false;
     },
 
     init (delegate) {
@@ -40,7 +41,9 @@ let EditBoxImplBase = cc.Class({
     },
 
     disable () {
-
+        if (this._editing) {
+            this.endEditing();
+        }
     },
 
     clear () {
@@ -52,7 +55,7 @@ let EditBoxImplBase = cc.Class({
     },
 
     setTabIndex (index) {
-        // Only support on Web platform  
+        // Only support on Web platform
     },
 
     setSize (width, height) {
@@ -60,11 +63,16 @@ let EditBoxImplBase = cc.Class({
     },
 
     setFocus (value) {
-        
+        if (value) {
+            this.beginEditing();
+        }
+        else {
+            this.endEditing();
+        }
     },
 
     isFocused () {
-
+        return this._editing;
     },
 
     beginEditing () {
