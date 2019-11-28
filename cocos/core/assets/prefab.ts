@@ -188,4 +188,4 @@ export default class Prefab extends Asset {
 }
 
 cc.Prefab = Prefab;
-obsolete(cc, 'cc._Prefab', 'Prefab');
+cc._Prefab = Prefab;

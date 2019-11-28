@@ -765,9 +765,9 @@ export class Director extends EventTarget {
             }
         }
         // cc.AssetLibrary.unloadAsset(uuid);     // force reload
-        console.time('LoadScene ' + uuid);
+        console.log('LoadScene ' + uuid);
         cc.AssetLibrary.loadAsset(uuid, (error, sceneAsset) => {
-            console.timeEnd('LoadScene ' + uuid);
+            console.log('LoadScene ' + uuid);
             const self = director;
             self._loadingScene = '';
             if (error) {

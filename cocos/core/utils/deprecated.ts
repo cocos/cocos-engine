@@ -4,6 +4,8 @@
 
 import { error, warn } from '../platform/debug';
 
+// TODO: will redefined in ALIPAY
+
 
 let defaultLogTimes = 10;
 

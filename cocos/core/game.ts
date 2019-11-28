@@ -774,10 +774,8 @@ export class Game extends EventTarget {
         let height: any;
         let localCanvas: HTMLCanvasElement;
         let localContainer: HTMLElement;
-        const isWeChatGame = cc.sys.platform === cc.sys.WECHAT_GAME;
-        const isQQPlay = cc.sys.platform === cc.sys.QQ_PLAY;
 
-        if (isWeChatGame || CC_JSB) {
+        if (CC_JSB) {
             this.container = localContainer = document.createElement<'div'>('div');
             this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
             if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
@@ -790,11 +788,6 @@ export class Game extends EventTarget {
                 localCanvas = window.canvas;
             }
             this.canvas = localCanvas;
-        }
-        else if (isQQPlay) {
-            this.container = cc.container = document.createElement<'div'>('div');
-            this.frame = document.documentElement;
-            this.canvas = localCanvas = window.canvas;
         }
         else {
             const element = !el ? null : ((el instanceof HTMLElement) ? el : (document.querySelector(el) || document.querySelector('#' + el)));
