@@ -306,7 +306,7 @@ export default class TTFAssembler extends Assembler2D {
                 } else {
                     _drawUnderlinePos.x = startPosition.x;
                 }
-                _drawUnderlinePos.y = drawTextPosY;
+                _drawUnderlinePos.y = drawTextPosY + _underlineThickness;
                 this._drawUnderline(_drawUnderlineWidth);
             }
         }
