@@ -36,8 +36,8 @@ export class LineModel extends Model {
     private _vertCount: number = 0;
     private _indexCount: number = 0;
 
-    constructor (scene: RenderScene, node: INode) {
-        super(scene, node);
+    constructor () {
+        super();
         this._capacity = 100;
         this._iaInfo = {
             drawInfos: [{

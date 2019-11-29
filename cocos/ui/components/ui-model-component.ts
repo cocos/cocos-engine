@@ -92,7 +92,7 @@ export class UIModelComponent extends UIComponent {
         }
 
         this._modelComponent._sceneGetter = null;
-        if (cc.isValid(this.node, true)) {
+        if (cc.isValid(this._modelComponent, true)) {
             this._modelComponent._attachToScene();
         }
         this._models = null;

@@ -23,11 +23,13 @@ const _uvs = [
 ];
 
 const CC_USE_WORLD_SPACE = 'CC_USE_WORLD_SPACE';
-const CC_USE_BILLBOARD = 'CC_USE_BILLBOARD';
-const CC_USE_STRETCHED_BILLBOARD = 'CC_USE_STRETCHED_BILLBOARD';
-const CC_USE_HORIZONTAL_BILLBOARD = 'CC_USE_HORIZONTAL_BILLBOARD';
-const CC_USE_VERTICAL_BILLBOARD = 'CC_USE_VERTICAL_BILLBOARD';
-const CC_USE_MESH = 'CC_USE_MESH';
+
+const CC_RENDER_MODE = 'CC_RENDER_MODE';
+const RENDER_MODE_BILLBOARD = 0;
+const RENDER_MODE_STRETCHED_BILLBOARD = 1;
+const RENDER_MODE_HORIZONTAL_BILLBOARD = 2;
+const RENDER_MODE_VERTICAL_BILLBOARD = 3;
+const RENDER_MODE_MESH = 4;
 
 const _vertex_attrs = [
     { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F },                     // position
@@ -466,37 +468,17 @@ export default class ParticleSystemRenderer {
         }
 
         if (this._renderMode === RenderMode.Billboard) {
-            this._defines[CC_USE_BILLBOARD] = true;
-            this._defines[CC_USE_STRETCHED_BILLBOARD] = false;
-            this._defines[CC_USE_HORIZONTAL_BILLBOARD] = false;
-            this._defines[CC_USE_VERTICAL_BILLBOARD] = false;
-            this._defines[CC_USE_MESH] = false;
+            this._defines[CC_RENDER_MODE] = RENDER_MODE_BILLBOARD;
         } else if (this._renderMode === RenderMode.StrecthedBillboard) {
-            this._defines[CC_USE_BILLBOARD] = false;
-            this._defines[CC_USE_STRETCHED_BILLBOARD] = true;
-            this._defines[CC_USE_HORIZONTAL_BILLBOARD] = false;
-            this._defines[CC_USE_VERTICAL_BILLBOARD] = false;
-            this._defines[CC_USE_MESH] = false;
+            this._defines[CC_RENDER_MODE] = RENDER_MODE_STRETCHED_BILLBOARD;
             this.frameTile_velLenScale.z = this._velocityScale;
             this.frameTile_velLenScale.w = this._lengthScale;
         } else if (this._renderMode === RenderMode.HorizontalBillboard) {
-            this._defines[CC_USE_BILLBOARD] = false;
-            this._defines[CC_USE_STRETCHED_BILLBOARD] = false;
-            this._defines[CC_USE_HORIZONTAL_BILLBOARD] = true;
-            this._defines[CC_USE_VERTICAL_BILLBOARD] = false;
-            this._defines[CC_USE_MESH] = false;
+            this._defines[CC_RENDER_MODE] = RENDER_MODE_HORIZONTAL_BILLBOARD;
         } else if (this._renderMode === RenderMode.VerticalBillboard) {
-            this._defines[CC_USE_BILLBOARD] = false;
-            this._defines[CC_USE_STRETCHED_BILLBOARD] = false;
-            this._defines[CC_USE_HORIZONTAL_BILLBOARD] = false;
-            this._defines[CC_USE_VERTICAL_BILLBOARD] = true;
-            this._defines[CC_USE_MESH] = false;
+            this._defines[CC_RENDER_MODE] = RENDER_MODE_VERTICAL_BILLBOARD;
         } else if (this._renderMode === RenderMode.Mesh) {
-            this._defines[CC_USE_BILLBOARD] = false;
-            this._defines[CC_USE_STRETCHED_BILLBOARD] = false;
-            this._defines[CC_USE_HORIZONTAL_BILLBOARD] = false;
-            this._defines[CC_USE_VERTICAL_BILLBOARD] = false;
-            this._defines[CC_USE_MESH] = true;
+            this._defines[CC_RENDER_MODE] = RENDER_MODE_MESH;
         } else {
             console.warn(`particle system renderMode ${this._renderMode} not support.`);
         }
