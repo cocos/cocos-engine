@@ -492,13 +492,26 @@ export class Game extends EventTarget {
         this._initConfig(config);
         this._initRenderer();
 
-        this.onStart = onStart;
+        // load renderpipeline
+        cc.loader.load({ uuid: config.renderpipeline }, (err, asset) => {
+            // failed load renderPipeline
+            if (err || !(asset instanceof cc.RenderPipeline)) {
+                console.error(`Failed load renderpipeline: ${config.renderpipeline}`);
+                console.error(err);
 
-        if (!CC_EDITOR && CC_WECHATGAME/* && !CC_PREVIEW*/) {
-            SplashScreen.instance.main(this._gfxDevice as any);
-        }
+                cc.game.setRenderPipeline(null);
+            } else {
+                cc.game.setRenderPipeline(asset);
+            }
 
-        this.prepare(cc.game.onStart && cc.game.onStart.bind(cc.game));
+            this.onStart = onStart;
+
+            if (!CC_EDITOR && CC_WECHATGAME/* && !CC_PREVIEW*/) {
+                SplashScreen.instance.main(this._gfxDevice as any);
+            }
+
+            this.prepare(cc.game.onStart && cc.game.onStart.bind(cc.game));
+        });
     }
 
     //  @ Persist root node section
