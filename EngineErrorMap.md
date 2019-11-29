@@ -574,7 +574,7 @@ Please do not specifiy "default" attribute in decorator of "%s" property in "%s"
 Default value must be initialized at their declaration:
 ```
 // Before:
-@property({ default: 0 }) // <-- 
+@property({ default: 0 }) // <--
 @integer
 value;
 // After:
@@ -1964,3 +1964,11 @@ texture size exceeds current device limits %d/%d
 ### 9200
 
 Priority can't be set in Canvas node
+
+### 9300
+
+The current buffer beyond the limit in ui static component, please reduce the amount
+
+### 9301
+
+The UI has not been initialized
