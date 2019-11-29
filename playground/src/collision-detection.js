@@ -38,13 +38,15 @@ const outOfBounds = (v, border = 20) => Math.abs(v.x) > border || Math.abs(v.y) 
 const v3_1 = new Vec3();
 
 class Element {
-  velocity = new Vec3();
-  color = new Color();
-  collided = false;
-  framesRemaining = 0;
-  pass = null;
-  hColor = 0;
-  node = null;
+  constructor () {
+    this.velocity = new Vec3();
+    this.color = new Color();
+    this.collided = false;
+    this.framesRemaining = 0;
+    this.pass = null;
+    this.hColor = 0;
+    this.node = null;
+  }
 }
 
 // encapsulate an interesting emitter, emitted particles will
@@ -203,5 +205,5 @@ cc.director.runSceneImmediate(scene); // have to run the scene before set collid
 const emitters = []; // a particle does not collide with those come from the same group
 emitters.push(new Emitter(1, ~1, new Vec3(-10, 0,  10),   0,  -90, new Color(204, 178, 128, 51)));
 emitters.push(new Emitter(2, ~2, new Vec3( 10, 0, -10),  90,  180, new Color( 51,  76, 128, 51)));
-emitters.push(new Emitter(3, ~3, new Vec3(-10, 0, -10),   0,   90, new Color(204,  76, 128, 51)));
-emitters.push(new Emitter(4, ~4, new Vec3( 10, 0,  10), -90, -180, new Color( 51, 178, 128, 51)));
+emitters.push(new Emitter(4, ~4, new Vec3(-10, 0, -10),   0,   90, new Color(204,  76, 128, 51)));
+emitters.push(new Emitter(8, ~8, new Vec3( 10, 0,  10), -90, -180, new Color( 51, 178, 128, 51)));

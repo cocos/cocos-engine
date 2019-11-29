@@ -4,7 +4,7 @@
   function loadPromise(url) {
     return new Promise((resolve, reject) => {
       const xhr = new window.XMLHttpRequest();
-      xhr.open('GET', url, true);
+      xhr.open('GET', url + '?_=' + new Date().getTime(), true); // force no cache
       xhr.onreadystatechange = onreadystatechange;
       xhr.send(null);
 
@@ -129,6 +129,8 @@
     // create canvas
     const bcr = view.getBoundingClientRect();
     const canvas = document.createElement('canvas');
+    canvas.classList.add('fit');
+    canvas.tabIndex = -1;
     canvas.id = 'canvas';
     canvas.width = bcr.width;
     canvas.height = bcr.height;
