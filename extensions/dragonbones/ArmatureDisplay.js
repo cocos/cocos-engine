@@ -381,7 +381,7 @@ let ArmatureDisplay = cc.Class({
         TestAttachedNode: {
             default: false,
             notify () {
-                this.generateAttachedNode();
+                this.generateAllAttachedNode();
             },
         },
 
@@ -430,11 +430,7 @@ let ArmatureDisplay = cc.Class({
         }
     },
 
-    /**
-     * !#en Traverse all sot, and create corresponding node.
-     * !#zh 遍历所有插槽，并创建对应节点。
-     */
-    generateAttachedNode () {
+    _prepareAttachedNode () {
         this._attachedRootNode = null;
 
         let rootNode = this.node.getChildByName(ATTACHED_ROOT_NAME);
@@ -449,7 +445,7 @@ let ArmatureDisplay = cc.Class({
             return;
         }
 
-        rootNode = this._attachedRootNode = new cc.Node(ATTACHED_ROOT_NAME);
+        rootNode = new cc.Node(ATTACHED_ROOT_NAME);
         rootNode._mulMat = EmptyHandle;
         this.node.addChild(rootNode);
 
@@ -458,32 +454,100 @@ let ArmatureDisplay = cc.Class({
             this._frameCache.enableCacheSlotInfos();
         }
 
-        let nodeArray = this._attachedNodeArray;
-        nodeArray.length = 0;
+        this._attachedRootNode = rootNode;
+        this._attachedNodeArray.length = 0;
+        return rootNode;
+    },
 
+    _buildSlotAttachedNode (slot, nodeIndex) {
+        let slotNodeName = 'ATTACHED_NODE:' + slot.name;
+        let slotNode = new cc.Node(slotNodeName);
+        slotNode._mulMat = EmptyHandle;
+        slotNode._armatureSlot = slot;
+        slotNode._slotOrder = slot._zOrder;
+        if (nodeIndex !== undefined) {
+            this._attachedNodeArray[nodeIndex] = slotNode;
+        } else {
+            this._attachedNodeArray.push(slotNode);
+        }
+        return slotNode;
+    },
+
+    /**
+     * !#en Traverse all slots to generate the minimum node tree containing the given slot names
+     * !#zh 遍历所有插槽，生成包含所有给定插槽名称的最小节点树
+     * @param {...String}  ...slotnames Variable length parameter consisting of slot name
+     * @return {cc.Node[]} An array of nodes corresponding to the slot name, if a slot cannot be found, the node at the corresponding location is empty
+     * @example let slotNodes = armatureDisplayComponent.generateAttachedNode(slotName1, slotName2, slotName3);
+     */
+    generateAttachedNode (/*Multiple Arguments*/) {
+        let targetNodes = [];
+        if (arguments.length === 0) return targetNodes;
+        let rootNode = this._prepareAttachedNode();
+        if (!rootNode) return targetNodes;
+
+        let nodeIndex = 0;
+        let attachedTraverse = function (armature) {
+            if (!armature) return null;
+            let slots = armature.getSlots(), slot;
+            let thisSlotNodes = [];
+            for (let i = 0, l = slots.length; i < l; i++) {
+                let thisSlotNode = null;
+                let curNodeIndex = nodeIndex++;
+                slot = slots[i];
+                
+                if (slot.childArmature) {
+                    let childSlotNodes = attachedTraverse(slot.childArmature);
+                    if (childSlotNodes.length > 0) {
+                        thisSlotNode = this._buildSlotAttachedNode(slot, curNodeIndex);
+                        thisSlotNodes.push(thisSlotNode);
+                        for (let ii = 0, nn = childSlotNodes.length; ii < nn; ii++) {
+                            thisSlotNode.addChild(childSlotNodes[ii]);
+                        }
+                    }
+                }
+
+                let targetNodeIndex = arguments.indexOf(slot.name);
+                if (targetNodeIndex !=- 1) {
+                    if (!thisSlotNode) {
+                        thisSlotNode = this._buildSlotAttachedNode(slot, curNodeIndex);
+                        thisSlotNodes.push(thisSlotNode);
+                    }
+                    targetNodes[targetNodeIndex] = thisSlotNode;
+                }
+            }
+            return thisSlotNodes;
+        }.bind(this);
+
+        let childSlotNodes = attachedTraverse(armature);
+        for (let ii = 0, nn = childSlotNodes.length; ii < nn; ii++) {
+            rootNode.addChild(childSlotNodes[ii]);
+        }
+        return targetNodes;
+    },
+
+    /**
+     * !#en Traverse all slots to generate a tree containing all slots nodes
+     * !#zh 遍历所有插槽，生成包含所有插槽的节点树
+     * @return {cc.Node} the root node of slot tree
+     */
+    generateAllAttachedNode () {
+        let rootNode = this._prepareAttachedNode();
+        if (!rootNode) return;
         let attachedTraverse = function (armature, parentNode) {
-            let slots = armature._slots, slot;
+            if (!armature) return;
+            let slots = armature.getSlots(), slot;
             for (let i = 0, l = slots.length; i < l; i++) {
                 slot = slots[i];
-
-                let slotNodeName = 'ATTACHED_NODE:' + slot.name;
-                let slotNode = new cc.Node(slotNodeName);
-                slotNode._mulMat = EmptyHandle;
+                let slotNode = this._buildSlotAttachedNode(slot);
                 parentNode.addChild(slotNode);
-
-                if (!isCached) {
-                    slotNode._armatureSlot = slot;
-                    slotNode._slotOrder = slot._zOrder;
-                }
-                slotNode.setSiblingIndex(i);
-                nodeArray.push(slotNode);
-
                 if (slot.childArmature) {
                     attachedTraverse(slot.childArmature, slotNode);
                 }
             }
-        }
-        attachedTraverse(armature, rootNode);
+        }.bind(this);
+        attachedTraverse(this._armature, rootNode);
+        return rootNode;
     },
 
     _hasAttachedNode () {
@@ -492,8 +556,9 @@ let ArmatureDisplay = cc.Class({
     },
 
     _associateAttachedNode () {
-        let rootNode = this._attachedRootNode = this.node.getChildByName(ATTACHED_ROOT_NAME);
-        if (!rootNode) return;
+        let rootNode = this.node.getChildByName(ATTACHED_ROOT_NAME);
+        if (!rootNode || !rootNode.isValid) return;
+        this._attachedRootNode = rootNode;
 
         let nodeArray = this._attachedNodeArray;
         nodeArray.length = 0;
@@ -508,26 +573,26 @@ let ArmatureDisplay = cc.Class({
         if (isCached && this._frameCache) {
             this._frameCache.enableCacheSlotInfos();
         }
-        let nodeIdx = 0;
 
         let attachedTraverse = function (armature, parentNode) {
-            let slots = armature._slots, slot;
+            if (!armature) return;
+
+            let slots = armature.getSlots(), slot;
             for (let i = 0, l = slots.length; i < l; i++) {
                 slot = slots[i];
 
                 let slotNodeName = 'ATTACHED_NODE:' + slot.name;
                 let slotNode = parentNode && parentNode.getChildByName(slotNodeName);
 
-                if (slotNode) {
-                    if (!isCached) {
-                        slotNode._armatureSlot = slot;
-                        slotNode._slotOrder = slot._zOrder;
-                    }
+                if (slotNode && slotNode.isValid) {
+                    slotNode._armatureSlot = slot;
+                    slotNode._slotOrder = slot._zOrder;
                     slotNode.setSiblingIndex(i);
                     slotNode._mulMat = EmptyHandle;
+                } else {
+                    slotNode = null;
                 }
-                nodeArray[nodeIdx] = slotNode;
-                nodeIdx++;
+                nodeArray.push(slotNode);
 
                 if (slot.childArmature) {
                     attachedTraverse(slot.childArmature, slotNode);
@@ -539,7 +604,10 @@ let ArmatureDisplay = cc.Class({
 
     _syncAttachedNode () {
         let rootNode = this._attachedRootNode;
-        if (!rootNode) {
+        let nodeArray = this._attachedNodeArray;
+        if (!rootNode || !rootNode.isValid) {
+            this._attachedRootNode = null;
+            nodeArray.length = 0;
             return;
         }
         
@@ -557,18 +625,29 @@ let ArmatureDisplay = cc.Class({
         let batch = this.enableBatch;
         let mulMat = this.node._mulMat;
 
+        // Realtime batch mode, only need to copy matrix.
         let matrixHandle = batch && !isCached ? Mat4.copy : function (nodeMat, slotMat) {
             mulMat(nodeMat, rootMatrix, slotMat);
         };
 
-        let nodeArray = this._attachedNodeArray;
         let orderNodeMap = null;
         let parent = null;
+        let lastValidIdx = -1;
         for (let i = 0, n = nodeArray.length; i < n; i++) {
             let slotNode = nodeArray[i];
-            if (!slotNode || !slotNode.isValid) continue;
+            // Node has been destroy
+            if (!slotNode || !slotNode.isValid) { 
+                nodeArray[i] = null;
+                continue;
+            }
             let slot = isCached ? slotInfos[i] : slotNode._armatureSlot;
-            if (!slot) continue;
+            // Slot has been destroy
+            if (!slot || slot._isInPool) {
+                slotNode.removeFromParent(true);
+                slotNode.destroy();
+                nodeArray[i] = null;
+                continue;
+            }
             if (slotNode._slotOrder !== slot._zOrder) {
                 slotNode._slotOrder = slot._zOrder;
                 parent = slotNode.parent;
@@ -578,7 +657,11 @@ let ArmatureDisplay = cc.Class({
             slotNode.active = slot._visible;
             matrixHandle(slotNode._worldMatrix, slot._worldMatrix);
             slotNode._renderFlag &= ~FLAG_TRANSFORM;
+            lastValidIdx = i;
         }
+        // optimize loop times
+        nodeArray.length = lastValidIdx + 1;
+
         if (orderNodeMap) {
             for (let key in orderNodeMap) {
                 let children = orderNodeMap[key];
