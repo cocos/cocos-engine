@@ -78,6 +78,9 @@ export class ModelComponent extends RenderableComponent {
         this._mesh = val;
         this._onMeshChanged(old);
         this._updateModels();
+        if (this.node.activeInHierarchy) {
+            this._attachToScene();
+        }
     }
 
     /**
