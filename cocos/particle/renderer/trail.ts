@@ -3,17 +3,17 @@
  * @category particle
  */
 
-import { Color, Vec3, Mat4, Quat, toRadian } from '../../core/math';
+import { Material } from '../../core/assets/material';
+import { IRenderingSubmesh } from '../../core/assets/mesh';
 import { ccclass, property } from '../../core/data/class-decorator';
+import { director } from '../../core/director';
 import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
 import { GFXDevice } from '../../core/gfx/device';
 import { IGFXAttribute } from '../../core/gfx/input-assembler';
-import { Model } from '../../core/renderer';
-import { Material } from '../../core/assets/material';
-import { IRenderingSubmesh } from '../../core/assets/mesh';
+import { Color, Mat4, Quat, toRadian, Vec3 } from '../../core/math';
 import { Pool } from '../../core/memop';
-import { director } from '../../core/director';
+import { Model } from '../../core/renderer';
 import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';
 import { Space, TextureMode, TrailMode } from '../enum';
@@ -31,15 +31,15 @@ const _temp_vec3 = new Vec3();
 const _temp_vec3_1 = new Vec3();
 const _temp_color = new Color();
 
-const barycentric = [1,0,0, 0,1,0, 0,0,1]; // <wireframe debug>
-let _bcIdx = 0;
+const barycentric = [1, 0, 0, 0, 1, 0, 0, 0, 1]; // <wireframe debug>
+const _bcIdx = 0;
 
 interface ITrailElement {
     position: Vec3;
     lifetime: number;
     width: number;
     velocity: Vec3;
-    direction: number; //if one element's direction differs from the previous one,it means the trail's direction reverse.
+    direction: number; // if one element's direction differs from the previous one,it means the trail's direction reverse.
     color: Color;
 }
 
@@ -178,7 +178,7 @@ export default class TrailModule {
     @property({
         type: TrailMode,
         displayOrder: 1,
-        tooltip:'Particle在每个粒子的运动轨迹上形成拖尾效果',
+        tooltip: 'Particle在每个粒子的运动轨迹上形成拖尾效果',
     })
     public mode = TrailMode.Particles;
 
@@ -188,7 +188,7 @@ export default class TrailModule {
     @property({
         type: CurveRange,
         displayOrder: 3,
-        tooltip:'拖尾的生命周期',
+        tooltip: '拖尾的生命周期',
     })
     public lifeTime = new CurveRange();
 
@@ -200,7 +200,7 @@ export default class TrailModule {
      */
     @property({
         displayOrder: 5,
-        tooltip:'粒子每生成一个拖尾节点所运行的最短距离',
+        tooltip: '粒子每生成一个拖尾节点所运行的最短距离',
     })
     public get minParticleDistance () {
         return this._minParticleDistance;
@@ -214,7 +214,7 @@ export default class TrailModule {
     @property({
         type: Space,
         displayOrder: 6,
-        tooltip:'拖尾所在的坐标系，World在世界坐标系中运行，Local在本地坐标系中运行',
+        tooltip: '拖尾所在的坐标系，World在世界坐标系中运行，Local在本地坐标系中运行',
     })
     public get space () {
         return this._space;
@@ -232,7 +232,7 @@ export default class TrailModule {
      */
     @property({
         displayOrder: 7,
-        tooltip:'拖尾是否跟随粒子一起消失',
+        tooltip: '拖尾是否跟随粒子一起消失',
     })
     public existWithParticles = true;
 
@@ -242,13 +242,13 @@ export default class TrailModule {
     @property({
         type: TextureMode,
         displayOrder: 8,
-        tooltip:'贴图在拖尾上的展开形式，Stretch贴图覆盖在整条拖尾上，Repeat贴图覆盖在一段拖尾上',
+        tooltip: '贴图在拖尾上的展开形式，Stretch贴图覆盖在整条拖尾上，Repeat贴图覆盖在一段拖尾上',
     })
     public textureMode = TextureMode.Stretch;
 
     @property({
         displayOrder: 9,
-        tooltip:'拖尾宽度继承自粒子大小'
+        tooltip: '拖尾宽度继承自粒子大小',
     })
     public widthFromParticle = true;
 
@@ -258,27 +258,27 @@ export default class TrailModule {
     @property({
         type: CurveRange,
         displayOrder: 10,
-        tooltip:'拖尾宽度，如果继承自粒子则是粒子大小的比例',
+        tooltip: '拖尾宽度，如果继承自粒子则是粒子大小的比例',
     })
     public widthRatio = new CurveRange();
 
     @property({
         displayOrder: 11,
-        tooltip:'拖尾颜色是否继承自粒子'
+        tooltip: '拖尾颜色是否继承自粒子',
     })
     public colorFromParticle = false;
 
     @property({
         type: GradientRange,
         displayOrder: 12,
-        tooltip:'拖尾颜色随拖尾自身长度的颜色渐变'
+        tooltip: '拖尾颜色随拖尾自身长度的颜色渐变',
     })
     public colorOverTrail = new GradientRange();
 
     @property({
         type: GradientRange,
         displayOrder: 13,
-        tooltip:'拖尾颜色随时间的颜色渐变'
+        tooltip: '拖尾颜色随时间的颜色渐变',
     })
     public colorOvertime = new GradientRange();
 
@@ -363,7 +363,7 @@ export default class TrailModule {
         this._detachFromScene();
     }
 
-    public _attachToScene() {
+    public _attachToScene () {
         if (this._trailModel) {
             if (this._trailModel.scene) {
                 this._detachFromScene();
@@ -372,7 +372,7 @@ export default class TrailModule {
         }
     }
 
-    public _detachFromScene() {
+    public _detachFromScene () {
         if (this._trailModel && this._trailModel.scene) {
             this._trailModel.scene.removeModel(this._trailModel);
         }
@@ -529,8 +529,8 @@ export default class TrailModule {
                 const lastThirdTrail = trailSeg.getElement(trailSeg.end - 2)!;
                 Vec3.subtract(_temp_vec3, lastThirdTrail.position, lastSecondTrail.position);
                 Vec3.subtract(_temp_vec3_1, _temp_trailEle.position, lastSecondTrail.position);
-                Vec3.normalize(_temp_vec3,_temp_vec3);
-                Vec3.normalize(_temp_vec3_1,_temp_vec3_1);
+                Vec3.normalize(_temp_vec3, _temp_vec3);
+                Vec3.normalize(_temp_vec3_1, _temp_vec3_1);
                 Vec3.subtract(lastSecondTrail.velocity, _temp_vec3_1, _temp_vec3);
                 Vec3.normalize(lastSecondTrail.velocity, lastSecondTrail.velocity);
                 this._checkDirectionReverse(lastSecondTrail, lastThirdTrail);

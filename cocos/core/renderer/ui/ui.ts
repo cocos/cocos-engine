@@ -397,7 +397,7 @@ export class UI {
     }
 
     public commitStaticBatch (comp: UIStaticBatchComponent) {
-        this._batches.append(comp.drawBatchList);
+        this._batches.concat(comp.drawBatchList);
         this.finishMergeBatches();
     }
 
