@@ -2,16 +2,14 @@
  * @hidden
  */
 
-import { ParticleSystemComponent } from './particle-system-component';
-import { CCObject } from '../core/data/object';
-import { Node } from '../core/scene-graph';
-import { Pool } from '../core/memop';
-import { Director, director } from '../core/director';
 import { instantiate } from '../core/data';
+import { CCObject } from '../core/data/object';
+import { Director, director } from '../core/director';
+import { Pool } from '../core/memop';
+import { Node } from '../core/scene-graph';
+import { ParticleSystemComponent } from './particle-system-component';
 
 export class ParticleUtils {
-    private static particleSystemPool: Map<string, Pool<CCObject>> = new Map<string, Pool<CCObject>>();
-    private static registeredSceneEvent: boolean = false;
 
     /**
      * instantiate
@@ -36,15 +34,6 @@ export class ParticleUtils {
         }
     }
 
-    private static onSceneUnload () {
-        this.particleSystemPool.forEach((value) => {
-            value.clear((prefab) => {
-                prefab.destroy();
-            });
-        });
-        this.particleSystemPool.clear();
-    }
-
     public static play (rootNode: Node) {
         for (const ps of rootNode.getComponentsInChildren(ParticleSystemComponent)) {
             (ps as ParticleSystemComponent).play();
@@ -55,5 +44,16 @@ export class ParticleUtils {
         for (const ps of rootNode.getComponentsInChildren(ParticleSystemComponent)) {
             (ps as ParticleSystemComponent).stop();
         }
+    }
+    private static particleSystemPool: Map<string, Pool<CCObject>> = new Map<string, Pool<CCObject>>();
+    private static registeredSceneEvent: boolean = false;
+
+    private static onSceneUnload () {
+        this.particleSystemPool.forEach((value) => {
+            value.clear((prefab) => {
+                prefab.destroy();
+            });
+        });
+        this.particleSystemPool.clear();
     }
 }

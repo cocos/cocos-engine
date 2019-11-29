@@ -1,14 +1,14 @@
+import { builtinResMgr } from '../../core/3d/builtin';
+import { Material, Mesh } from '../../core/assets';
 import { Component } from '../../core/components';
 import { ccclass, property } from '../../core/data/class-decorator';
-import { Mat4, Vec2, Vec3, Vec4 } from '../../core/math';
 import { GFXAttributeName, GFXFormat } from '../../core/gfx/define';
 import { IGFXAttribute } from '../../core/gfx/input-assembler';
+import { Mat4, Vec2, Vec3, Vec4 } from '../../core/math';
+import { RecyclePool } from '../../core/memop';
 import { IDefineMap } from '../../core/renderer/core/pass';
-import ParticleBatchModel from '../models/particle-batch-model';
-import { Mesh, Material } from '../../core/assets';
-import { builtinResMgr } from '../../core/3d/builtin';
-import RecyclePool from '../../core/memop/recycle-pool';
 import { RenderMode, Space } from '../enum';
+import ParticleBatchModel from '../models/particle-batch-model';
 import Particle from '../particle';
 
 const _tempAttribUV = new Vec3();
@@ -66,7 +66,7 @@ export default class ParticleSystemRenderer {
     @property({
         type: RenderMode,
         displayOrder: 0,
-        tooltip:'设定粒子生成模式',
+        tooltip: '设定粒子生成模式',
     })
     public get renderMode () {
         return this._renderMode;
@@ -87,7 +87,7 @@ export default class ParticleSystemRenderer {
      */
     @property({
         displayOrder: 1,
-        tooltip:'在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按速度大小进行拉伸',
+        tooltip: '在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按速度大小进行拉伸',
     })
     public get velocityScale () {
         return this._velocityScale;
@@ -104,7 +104,7 @@ export default class ParticleSystemRenderer {
      */
     @property({
         displayOrder: 2,
-        tooltip:'在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按粒子大小进行拉伸',
+        tooltip: '在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按粒子大小进行拉伸',
     })
     public get lengthScale () {
         return this._lengthScale;
@@ -146,7 +146,7 @@ export default class ParticleSystemRenderer {
     @property({
         type: Mesh,
         displayOrder: 7,
-        tooltip:'粒子发射的模型',
+        tooltip: '粒子发射的模型',
     })
     public get mesh () {
         return this._mesh;
@@ -165,7 +165,7 @@ export default class ParticleSystemRenderer {
     @property({
         type: Material,
         displayOrder: 8,
-        tooltip:'粒子使用的材质',
+        tooltip: '粒子使用的材质',
     })
     public get particleMaterial () {
         if (!this._particleSystem) {
@@ -184,7 +184,7 @@ export default class ParticleSystemRenderer {
     @property({
         type: Material,
         displayOrder: 9,
-        tooltip:'拖尾使用的材质',
+        tooltip: '拖尾使用的材质',
     })
     public get trailMaterial () {
         if (!this._particleSystem) {
@@ -258,7 +258,7 @@ export default class ParticleSystemRenderer {
         }
     }
 
-    public _attachToScene() {
+    public _attachToScene () {
         if (this._model) {
             if (this._model.scene) {
                 this._detachFromScene();
@@ -267,7 +267,7 @@ export default class ParticleSystemRenderer {
         }
     }
 
-    public _detachFromScene() {
+    public _detachFromScene () {
         if (this._model && this._model.scene) {
             this._model.scene.removeModel(this._model);
         }

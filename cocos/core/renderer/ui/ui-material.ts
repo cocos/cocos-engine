@@ -27,8 +27,8 @@
  */
 
 import { Material } from '../../assets/material';
-import Pool from '../../memop/pool';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
+import { Pool } from '../../memop';
 import { Pass } from '../../renderer/core/pass';
 
 export interface IUIMaterialInfo {

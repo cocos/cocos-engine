@@ -27,9 +27,9 @@
  * @hidden
  */
 
-import { Pool, RecyclePool } from '../../memop';
 import { Material } from '../../assets';
 import { Color } from '../../math';
+import { Pool, RecyclePool } from '../../memop';
 
 export interface IRenderData {
     x: number;
@@ -47,7 +47,6 @@ export class BaseRenderData {
 }
 
 export class RenderData extends BaseRenderData {
-    public vData: Float32Array | null = null;
 
     get dataLength () {
         return this._datas.length;
@@ -88,6 +87,7 @@ export class RenderData extends BaseRenderData {
         _pool.data[idx].clear();
         _pool.removeAt(idx);
     }
+    public vData: Float32Array | null = null;
 
     public uvDirty: boolean = true;
     public vertDirty: boolean = true;

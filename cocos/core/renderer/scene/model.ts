@@ -9,7 +9,7 @@ import { GFXDevice } from '../../gfx/device';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { GFXUniformBlock } from '../../gfx/shader';
 import { Mat4, Vec3 } from '../../math';
-import Pool from '../../memop/pool';
+import { Pool } from '../../memop';
 import { IInternalBindingInst, UBOForwardLight, UBOLocal } from '../../pipeline/define';
 import { Layers } from '../../scene-graph/layers';
 import { INode } from '../../utils/interfaces';
