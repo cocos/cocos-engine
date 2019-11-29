@@ -54,6 +54,7 @@ export interface IProgramInfo extends IShaderInfo {
     offsets: number[][];
     globalsInited: boolean;
     localsInited: boolean;
+    uber: boolean; // macro number exceeds default limits
 }
 export interface IMacroInfo {
     name: string;
@@ -207,6 +208,7 @@ class ProgramLib {
             def._offset = offset;
             offset += cnt;
         }
+        if (offset > 31) { tmpl.uber = true; }
         tmpl.blocks.forEach((b) => (b.size = getSize(b), b.bindingType = GFXBindingType.UNIFORM_BUFFER));
         tmpl.samplers.forEach((s) => (s.bindingType = GFXBindingType.SAMPLER));
         tmpl.handleMap = genHandles(tmpl);
@@ -238,17 +240,34 @@ class ProgramLib {
      */
     public getKey (name: string, defines: IDefineMap) {
         const tmpl = this._templates[name];
-        let key = 0;
-        for (const tmplDef of tmpl.defines) {
-            const value = defines[tmplDef.name];
-            if (value === undefined || !tmplDef._map) {
-                continue;
+        const tmplDefs = tmpl.defines;
+        if (tmpl.uber) {
+            let key = '';
+            for (let i = 0; i < tmplDefs.length; i++) {
+                const tmplDef = tmplDefs[i];
+                const value = defines[tmplDef.name];
+                if (value === undefined || !tmplDef._map) {
+                    continue;
+                }
+                const mapped = tmplDef._map(value);
+                const offset = tmplDef._offset;
+                key += offset + (mapped + '|');
             }
-            const mapped = tmplDef._map(value);
-            const offset = tmplDef._offset;
-            key |= mapped << offset;
+            return key + tmpl.hash;
+        } else {
+            let key = 0;
+            for (let i = 0; i < tmplDefs.length; i++) {
+                const tmplDef = tmplDefs[i];
+                const value = defines[tmplDef.name];
+                if (value === undefined || !tmplDef._map) {
+                    continue;
+                }
+                const mapped = tmplDef._map(value);
+                const offset = tmplDef._offset;
+                key |= mapped << offset;
+            }
+            return `${key.toString(16)}|${tmpl.hash}`;
         }
-        return `${key.toString(16)}|${tmpl.hash}`;
     }
 
     /**
