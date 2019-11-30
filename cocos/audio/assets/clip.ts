@@ -124,3 +124,5 @@ export class AudioClip extends Asset {
     public setLoop (val: boolean) { if (this._player) { this._player.setLoop(val); } }
     public getLoop () { if (this._player) { return this._player.getLoop(); } return false; }
 }
+
+cc.AudioClip = AudioClip;
