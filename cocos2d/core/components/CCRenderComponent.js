@@ -201,8 +201,6 @@ let RenderComponent = cc.Class({
         }
         
         this.setMaterial(0, material);
-
-        this._updateMaterial();
     },
 
     /**

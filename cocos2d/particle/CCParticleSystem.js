@@ -1228,8 +1228,6 @@ var ParticleSystem = cc.Class({
         }
 
         this.setMaterial(0, material);
-
-        this._updateMaterial();
     },
 
     _getTexture () {
