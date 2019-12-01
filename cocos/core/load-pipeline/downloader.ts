@@ -139,13 +139,13 @@ let defaultMap = {
     'gif' : downloadImage,
     'ico' : downloadImage,
     'tiff' : downloadImage,
-    'webp' : downloadWebp, // 此方法去哪了？？
+    'webp' : downloadWebp,
     'image' : downloadImage,
     'pvr': downloadBinary,
     'pkm': downloadBinary,
 
     // Audio
-    'mp3' : downloadAudio, // 为何需要初始化为空？？
+    'mp3' : downloadAudio,
     'ogg' : downloadAudio,
     'wav' : downloadAudio,
     'm4a' : downloadAudio,
