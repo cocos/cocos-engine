@@ -188,4 +188,8 @@ export default class Prefab extends Asset {
 }
 
 cc.Prefab = Prefab;
-cc._Prefab = Prefab;
+if (CC_WECHATGAME || CC_RUNTIME) {
+    cc._Prefab = Prefab;
+} else {
+    obsolete(cc, 'cc._Prefab', 'Prefab');
+}
