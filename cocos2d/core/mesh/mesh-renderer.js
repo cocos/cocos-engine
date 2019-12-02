@@ -32,8 +32,10 @@ const MeshRenderer = require('./CCMeshRenderer');
 let _tmp_vec3 = new Vec3();
 
 export default class MeshRendererAssembler extends Assembler {
-    constructor (comp) {
-        super(comp);
+    init (renderComp) {
+        super.init(renderComp);
+        
+        this._worldDatas = {};
         this._renderNode = null;
     }
 
@@ -49,6 +51,7 @@ export default class MeshRendererAssembler extends Assembler {
         // update custom properties
         let isCustomPropertiesSame = renderer.customProperties && 
             renderer.customProperties.getHash() === comp._customProperties.getHash();
+        
 
         // update culling mask
         let isCullingMaskSame = renderer.cullingMask === comp.node._cullingMask;
@@ -88,12 +91,12 @@ export default class MeshRendererAssembler extends Assembler {
             renderer.customProperties = comp._customProperties;
             renderer.node = renderer._dummyNode;
             
-            this._fillBuffer(comp, meshData, renderer);
+            this._fillBuffer(comp, meshData, renderer, i);
         }
 
         if (CC_DEBUG &&
             (cc.macro.SHOW_MESH_WIREFRAME || cc.macro.SHOW_MESH_NORMAL) && 
-            comp.node.groupIndex !== cc.Node.BuiltinGroupIndex.DEBUG) {
+            !(comp.node._cullingMask & (1<<cc.Node.BuiltinGroupIndex.DEBUG))) {
             renderer._flush();
             renderer.node = this._renderNode;
             comp._updateDebugDatas();
@@ -107,13 +110,11 @@ export default class MeshRendererAssembler extends Assembler {
         }
     }
 
-    _fillBuffer (comp, meshData, renderer) {
-        let wolrdMatrix = comp.node._worldMatrix;
+    _fillBuffer (comp, meshData, renderer, dataIndex) {
         let vData = meshData.getVData(Float32Array);
 
         let vtxFormat = meshData.vfm;
-        let floatCount = vtxFormat._bytes / 4;
-        let vertexCount = vData.length / floatCount | 0;
+        let vertexCount = (vData.byteLength / vtxFormat._bytes) | 0;
         
         let indices = meshData.getIData(Uint16Array);
         let indicesCount = indices.length;
@@ -128,11 +129,29 @@ export default class MeshRendererAssembler extends Assembler {
             vbuf = buffer._vData,
             ibuf = buffer._iData;
 
+        if (renderer.worldMatDirty || !this._worldDatas[dataIndex]) {
+            this._updateWorldVertices(dataIndex, vertexCount, vData, vtxFormat, comp.node._worldMatrix);
+        }
 
+        vbuf.set(this._worldDatas[dataIndex], vertexOffset);
+
+        for (let i = 0; i < indicesCount; i++) {
+            ibuf[indiceOffset + i] = vertexId + indices[i];
+        }
+    }
+
+    _updateWorldVertices (dataIndex, vertexCount, local, vtxFormat, wolrdMatrix) {
+        let world = this._worldDatas[dataIndex];
+        if (!world) {
+            world = this._worldDatas[dataIndex] = new Float32Array(local.length);
+            world.set(local);
+        }
+
+        let floatCount = vtxFormat._bytes / 4;
+        
         let elements = vtxFormat._elements;
         for (let i = 0, n = elements.length; i < n; i++) {
             let element = elements[i];
-            let elementCount = element.num;
             let attrOffset = element.offset / 4;
          
             if (element.name === gfx.ATTR_POSITION || element.name === gfx.ATTR_NORMAL) {
@@ -140,29 +159,17 @@ export default class MeshRendererAssembler extends Assembler {
                 for (let j = 0; j < vertexCount; j++) {
                     let offset = j * floatCount + attrOffset;
 
-                    _tmp_vec3.x = vData[offset];
-                    _tmp_vec3.y = vData[offset + 1];
-                    _tmp_vec3.z = vData[offset + 2];
+                    _tmp_vec3.x = local[offset];
+                    _tmp_vec3.y = local[offset + 1];
+                    _tmp_vec3.z = local[offset + 2];
         
                     transformMat4(_tmp_vec3, _tmp_vec3, wolrdMatrix);
 
-                    vbuf[vertexOffset + offset] = _tmp_vec3.x;
-                    vbuf[vertexOffset + offset + 1] = _tmp_vec3.y;
-                    vbuf[vertexOffset + offset + 2] = _tmp_vec3.z;
+                    world[offset] = _tmp_vec3.x;
+                    world[offset + 1] = _tmp_vec3.y;
+                    world[offset + 2] = _tmp_vec3.z;
                 }
             }
-            else {
-                for (let j = 0; j < vertexCount; j++) {
-                    let offset = j * floatCount + attrOffset;
-                    for (let k = 0; k < elementCount; k++) {
-                        vbuf[vertexOffset + offset + k] = vData[offset + k];
-                    }
-                }
-            }
-        }
-
-        for (let i = 0; i < indicesCount; i++) {
-            ibuf[indiceOffset + i] = vertexId + indices[i];
         }
     }
 

@@ -340,6 +340,7 @@ let VideoPlayer = cc.Class({
         let impl = this._impl;
         if (impl) {
             impl.createDomElementIfNeeded(this._mute || this._volume === 0);
+            impl.setStayOnBottom(this._stayOnBottom);
             this._updateVideoSource();
 
             if (!CC_EDITOR) {
