@@ -39,8 +39,6 @@ import { UI } from '../../core/renderer/ui/ui';
 import { Node } from '../../core/scene-graph';
 import { ccenum } from '../../core/value-types/enum';
 import { GraphicsComponent } from './graphics-component';
-import { UITransformComponent, CanvasComponent } from '../../core';
-import { INode } from '../../core/utils/interfaces';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 
 const _worldMatrix = new Mat4();
@@ -283,6 +281,13 @@ export class MaskComponent extends UIRenderComponent {
 
     public onLoad () {
         this._createGraphics();
+        if (this._clearGraphics) {
+            this._clearGraphics.onLoad();
+        }
+
+        if (this._graphics) {
+            this._graphics.onLoad();
+        }
     }
 
     /**
@@ -311,13 +316,10 @@ export class MaskComponent extends UIRenderComponent {
         //     }
         // }
         // else {
-        if (this._clearGraphics) {
-            this._clearGraphics.onEnable();
-        }
-        this._updateGraphics();
+        this._enableGraphics();
         // }
 
-        this._activateMaterial();
+        // this._activateMaterial();
 
         this.node.on(SystemEventType.TRANSFORM_CHANGED, this._nodeStateChange, this);
         view.on('design-resolution-changed', this._updateClearGraphics, this);
@@ -469,14 +471,12 @@ export class MaskComponent extends UIRenderComponent {
         if (!this._clearGraphics) {
             const node = new Node('clear-graphics');
             const clearGraphics = this._clearGraphics = node.addComponent(GraphicsComponent)!;
+            clearGraphics.delegateSrc = this.node;
             clearGraphics.helpInstanceMaterial();
-            clearGraphics._activateMaterial();
             clearGraphics.lineWidth = 0;
             const color = Color.WHITE.clone();
             color.a = 0;
             clearGraphics.fillColor = color;
-            clearGraphics.simulate = true;
-            this._updateClearGraphics();
         }
 
         if (!this._graphics) {
@@ -537,6 +537,18 @@ export class MaskComponent extends UIRenderComponent {
         }
 
         graphics.fill();
+    }
+
+    private _enableGraphics() {
+        if (this._clearGraphics) {
+            this._clearGraphics.onEnable();
+            this._updateClearGraphics();
+        }
+
+        if (this._graphics) {
+            this._graphics.onEnable();
+            this._updateGraphics();
+        }
     }
 
     private _disableGraphics () {

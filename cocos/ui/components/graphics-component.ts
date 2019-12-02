@@ -212,14 +212,14 @@ export class GraphicsComponent extends UIRenderComponent {
         this.impl = this._assembler && (this._assembler as IAssembler).createImpl!(this);
     }
 
-    public onLoad (){
-       this._sceneGetter = director.root!.ui.getRenderSceneGetter();
+    public onLoad() {
+        this._sceneGetter = director.root!.ui.getRenderSceneGetter();
         if (!this.model) {
-            this.model = new Model();
+            this.model = director.root!.createModel(Model);
         }
     }
 
-    public onEnable () {
+    public onEnable() {
         super.onEnable();
 
         this._attachToScene();
@@ -237,6 +237,7 @@ export class GraphicsComponent extends UIRenderComponent {
         this._sceneGetter = null;
         if (this.model) {
             this.model.destroy();
+            director.root!.destroyModel(this.model);
             this.model = null;
         }
 
@@ -246,23 +247,6 @@ export class GraphicsComponent extends UIRenderComponent {
 
         this.impl.clear();
         this.impl = null;
-    }
-
-    protected _attachToScene(){
-        const scene = director.root!.ui.renderScene;
-        if (!this.model) {
-            return;
-        }
-        if (this.model!.scene != null) {
-            this._detachFromScene();
-        }
-        scene.addModel(this.model!);
-    }
-
-    protected _detachFromScene() {
-        if (this.model && this.model.scene) {
-            this.model.scene.removeModel(this.model);
-        }
     }
 
     public _activateMaterial () {
@@ -451,7 +435,6 @@ export class GraphicsComponent extends UIRenderComponent {
 
         this.impl.clear(clean);
         if (this.model) {
-            this._detachFromScene();
             this.model.destroy();
         }
 
@@ -528,7 +511,24 @@ export class GraphicsComponent extends UIRenderComponent {
             return false;
         }
 
-        return this.model ? true : false;
+        return !!this.model && this.model.inited;
+    }
+
+    protected _attachToScene() {
+        const scene = director.root!.ui.renderScene;
+        if (!this.model) {
+            return;
+        }
+        if (this.model!.scene != null) {
+            this._detachFromScene();
+        }
+        scene.addModel(this.model!);
+    }
+
+    protected _detachFromScene() {
+        if (this.model && this.model.scene) {
+            this.model.scene.removeModel(this.model);
+        }
     }
 }
 
