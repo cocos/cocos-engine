@@ -25,17 +25,17 @@
  ****************************************************************************/
 
 let settingPlatform;
- if (!CC_EDITOR) {
-    settingPlatform = window._CCSettings ? _CCSettings.platform: undefined;
- }
+if (!CC_EDITOR) {
+    settingPlatform = window._CCSettings ? _CCSettings.platform : undefined;
+}
 const isVivoGame = (settingPlatform === 'qgame');
 const isOppoGame = (settingPlatform === 'quickgame');
 const isHuaweiGame = (settingPlatform === 'huawei');
 const isJKWGame = (settingPlatform === 'jkw-game');
 
 const _global = typeof window === 'undefined' ? global : window;
- 
-function initSys () {
+
+function initSys() {
     /**
      * System variables
      * @class sys
@@ -703,20 +703,20 @@ function initSys () {
         }
         sys.platform = platform;
         sys.isMobile = (platform === sys.ANDROID ||
-                        platform === sys.IPAD ||
-                        platform === sys.IPHONE ||
-                        platform === sys.WP8 ||
-                        platform === sys.TIZEN ||
-                        platform === sys.BLACKBERRY ||
-                        platform === sys.XIAOMI_GAME ||
-                        isVivoGame ||
-                        isOppoGame ||
-                        isHuaweiGame ||
-                        isJKWGame);
+            platform === sys.IPAD ||
+            platform === sys.IPHONE ||
+            platform === sys.WP8 ||
+            platform === sys.TIZEN ||
+            platform === sys.BLACKBERRY ||
+            platform === sys.XIAOMI_GAME ||
+            isVivoGame ||
+            isOppoGame ||
+            isHuaweiGame ||
+            isJKWGame);
 
         sys.os = __getOS();
         sys.language = __getCurrentLanguage();
-        var languageCode; 
+        var languageCode;
         if (CC_JSB) {
             languageCode = __getCurrentLanguageCode();
         }
@@ -743,7 +743,7 @@ function initSys () {
             "webp": true,
         };
 
-       if (sys.isMobile) {
+        if (sys.isMobile) {
             capabilities["accelerometer"] = true;
             capabilities["touches"] = true;
         } else {
@@ -824,7 +824,7 @@ function initSys () {
             osMainVersion = parseInt(osVersion) || 0;
         }
         // refer to https://github.com/cocos-creator/engine/pull/5542 , thanks for contribition from @krapnikkk
-        else if (/(iPhone|iPad|iPod|MacIntel)/.exec(nav.platform)) { 
+        else if (/(iPhone|iPad|iPod|MacIntel)/.exec(nav.platform)) {
             iOS = true;
             osVersion = '';
             osMainVersion = 0;
@@ -860,7 +860,7 @@ function initSys () {
          */
         sys.browserType = sys.BROWSER_TYPE_UNKNOWN;
         /* Determine the browser type */
-        (function(){
+        (function () {
             var typeReg1 = /mqqbrowser|micromessenger|qqbrowser|sogou|qzone|liebao|maxthon|ucbs|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
             var typeReg2 = /qq|ucbrowser|ubrowser|edge/i;
             var typeReg3 = /chrome|safari|firefox|trident|opera|opr\/|oupeng/i;
@@ -881,7 +881,7 @@ function initSys () {
                 'opr/': sys.BROWSER_TYPE_OPERA,
                 'ubrowser': sys.BROWSER_TYPE_UC
             };
-            
+
             sys.browserType = typeMap[browserType] || browserType;
         })();
 
@@ -891,11 +891,11 @@ function initSys () {
          */
         sys.browserVersion = "";
         /* Determine the browser version number */
-        (function(){
+        (function () {
             var versionReg1 = /(mqqbrowser|micromessenger|qqbrowser|sogou|qzone|liebao|maxthon|uc|ucbs|360 aphone|360|baiduboxapp|baidu|maxthon|mxbrowser|miui(?:.hybrid)?)(mobile)?(browser)?\/?([\d.]+)/i;
             var versionReg2 = /(qq|chrome|safari|firefox|trident|opera|opr\/|oupeng)(mobile)?(browser)?\/?([\d.]+)/i;
             var tmp = ua.match(versionReg1);
-            if(!tmp) tmp = ua.match(versionReg2);
+            if (!tmp) tmp = ua.match(versionReg2);
             sys.browserVersion = tmp ? tmp[4] : "";
         })();
 
@@ -950,21 +950,45 @@ function initSys () {
                 cc.warnID(5200);
             };
             sys.localStorage = {
-                getItem : warn,
-                setItem : warn,
-                removeItem : warn,
-                clear : warn
+                getItem: warn,
+                setItem: warn,
+                removeItem: warn,
+                clear: warn
             };
         }
 
         var _supportWebp = _tmpCanvas1.toDataURL('image/webp').startsWith('data:image/webp');
         var _supportCanvas = !!_tmpCanvas1.getContext("2d");
         var _supportWebGL = false;
+
+        /**
+         * Create a WEBGL container. If webgl can be obtained, the creation is successful.
+         */
+        var opts = {
+            alpha: false,
+            stencil: true,
+            depth: true,
+            antialias: false,
+            preserveDrawingBuffer: false
+        };
+
+        var _tmpCanvas2 = document.createElement("canvas");
+        var gl;
+        try {
+            gl = _tmpCanvas2.getContext("webgl", opts) || _tmpCanvas2.getContext("experimental-webgl", opts) || _tmpCanvas2.getContext("webkit-3d", opts) || _tmpCanvas2.getContext("moz-webgl", opts);
+        } catch (err) {
+            console.error(err);
+            return;
+        }
+
+        if (!gl) {
+            _supportWebGL = false;
+        } else {
+            _supportWebGL = true;
+        }
+
         if (CC_TEST) {
             _supportWebGL = false;
-        }
-        else if (win.WebGLRenderingContext) {
-            _supportWebGL = true;
         }
 
         /**
@@ -1001,7 +1025,7 @@ function initSys () {
          *
          * May be modifications for a few browser version
          */
-        (function(){
+        (function () {
 
             var DEBUG = false;
 
@@ -1031,8 +1055,8 @@ function initSys () {
                 }
             }
 
-            if(DEBUG){
-                setTimeout(function(){
+            if (DEBUG) {
+                setTimeout(function () {
                     cc.log('browse type: ' + sys.browserType);
                     cc.log('browse version: ' + version);
                     cc.log('MULTI_CHANNEL: ' + __audioSupport.MULTI_CHANNEL);
@@ -1045,20 +1069,20 @@ function initSys () {
         try {
             if (__audioSupport.WEB_AUDIO) {
                 __audioSupport.context = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)();
-                if(__audioSupport.DELAY_CREATE_CTX) {
-                    setTimeout(function(){ __audioSupport.context = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)(); }, 0);
+                if (__audioSupport.DELAY_CREATE_CTX) {
+                    setTimeout(function () { __audioSupport.context = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)(); }, 0);
                 }
             }
-        } catch(error) {
+        } catch (error) {
             __audioSupport.WEB_AUDIO = false;
             cc.logID(5201);
         }
 
         var formatSupport = [];
 
-        (function(){
+        (function () {
             var audio = document.createElement('audio');
-            if(audio.canPlayType) {
+            if (audio.canPlayType) {
                 var ogg = audio.canPlayType('audio/ogg; codecs="vorbis"');
                 if (ogg) formatSupport.push('.ogg');
                 var mp3 = audio.canPlayType('audio/mpeg');
@@ -1127,7 +1151,7 @@ function initSys () {
      * @method getNetworkType
      * @return {NetworkType}
      */
-    sys.getNetworkType = function() {
+    sys.getNetworkType = function () {
         // TODO: need to implement this for mobile phones.
         return sys.NetworkType.LAN;
     };
@@ -1141,7 +1165,7 @@ function initSys () {
      * @method getBatteryLevel
      * @return {Number} - 0.0 ~ 1.0
      */
-    sys.getBatteryLevel = function() {
+    sys.getBatteryLevel = function () {
         // TODO: need to implement this for mobile phones.
         return 1.0;
     };
