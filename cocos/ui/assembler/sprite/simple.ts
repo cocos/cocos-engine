@@ -137,7 +137,7 @@ export const simple: IAssembler = {
 
         vbuf.set(vData, vertexOffset);
 
-        // fill indice data
+        // fill index data
         ibuf[indiceOffset++] = vertexId;
         ibuf[indiceOffset++] = vertexId + 1;
         ibuf[indiceOffset++] = vertexId + 2;

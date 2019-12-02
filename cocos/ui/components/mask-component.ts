@@ -46,10 +46,10 @@ const _vec2_temp = new Vec2();
 const _mat4_temp = new Mat4();
 
 const _circlepoints: Vec3[] = [];
-function _calculateCircle (center: Vec3, radius: Vec3, segements: number) {
+function _calculateCircle (center: Vec3, radius: Vec3, segments: number) {
     _circlepoints.length = 0;
-    const anglePerStep = Math.PI * 2 / segements;
-    for (let step = 0; step < segements; ++step) {
+    const anglePerStep = Math.PI * 2 / segments;
+    for (let step = 0; step < segments; ++step) {
         _circlepoints.push(new Vec3(radius.x * Math.cos(anglePerStep * step) + center.x,
             radius.y * Math.sin(anglePerStep * step) + center.y, 0));
     }
@@ -81,8 +81,8 @@ export enum MaskType {
 
 ccenum(MaskType);
 
-const SEGEMENTS_MIN = 3;
-const SEGEMENTS_MAX = 10000;
+const SEGMENTS_MIN = 3;
+const SEGMENTS_MAX = 10000;
 
 /**
  * @zh
@@ -194,7 +194,7 @@ export class MaskComponent extends UIRenderComponent {
             return;
         }
 
-        this._segments = clamp(value, SEGEMENTS_MIN, SEGEMENTS_MAX);
+        this._segments = clamp(value, SEGMENTS_MIN, SEGMENTS_MAX);
         this._updateGraphics();
     }
 

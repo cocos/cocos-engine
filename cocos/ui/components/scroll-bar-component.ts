@@ -246,7 +246,7 @@ export class ScrollBarComponent extends Component {
         const position = this._calculatePosition(contentMeasure, scrollViewMeasure, handleNodeMeasure, contentPosition, outOfBoundaryValue, length);
 
         this._updateLength(length);
-        this._updateHanlderPosition(position);
+        this._updateHandlerPosition(position);
 
     }
 
@@ -345,7 +345,7 @@ export class ScrollBarComponent extends Component {
         }
     }
 
-    private _updateHanlderPosition (position: Vec3) {
+    private _updateHandlerPosition (position: Vec3) {
         if (this._handle) {
             const oldPosition = this._fixupHandlerPosition();
 
