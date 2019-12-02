@@ -34,6 +34,7 @@ import * as PackDownloader from './pack-downloader';
 import downloadBinary from './binary-downloader';
 import downloadText from './text-downloader';
 import {urlAppendTimestamp} from './utils';
+import { downloadAudio } from '../../audio/audio-downloader';
 
 function skip () {
     return null;
@@ -142,6 +143,12 @@ let defaultMap = {
     'image' : downloadImage,
     'pvr': downloadBinary,
     'pkm': downloadBinary,
+
+    // Audio
+    'mp3' : downloadAudio,
+    'ogg' : downloadAudio,
+    'wav' : downloadAudio,
+    'm4a' : downloadAudio,
 
     // Txt
     'txt' : downloadText,

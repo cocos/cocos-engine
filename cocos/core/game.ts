@@ -493,10 +493,6 @@ export class Game extends EventTarget {
 
         this.onStart = onStart;
 
-        if (!CC_EDITOR && CC_WECHATGAME/* && !CC_PREVIEW*/) {
-            SplashScreen.instance.main(this._gfxDevice as any);
-        }
-
         this.prepare(cc.game.onStart && cc.game.onStart.bind(cc.game));
     }
 
@@ -614,12 +610,7 @@ export class Game extends EventTarget {
             if (cb) { cb(); }
         };
 
-        if (!CC_EDITOR && CC_WECHATGAME) {
-            SplashScreen.instance.setOnFinish(start);
-            SplashScreen.instance.loadFinish = true;
-        } else {
-            start();
-        }
+        start();
     }
 
     // @Methods
@@ -783,10 +774,8 @@ export class Game extends EventTarget {
         let height: any;
         let localCanvas: HTMLCanvasElement;
         let localContainer: HTMLElement;
-        const isWeChatGame = cc.sys.platform === cc.sys.WECHAT_GAME;
-        const isQQPlay = cc.sys.platform === cc.sys.QQ_PLAY;
 
-        if (isWeChatGame || CC_JSB) {
+        if (CC_JSB) {
             this.container = localContainer = document.createElement<'div'>('div');
             this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
             if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
@@ -799,11 +788,6 @@ export class Game extends EventTarget {
                 localCanvas = window.canvas;
             }
             this.canvas = localCanvas;
-        }
-        else if (isQQPlay) {
-            this.container = cc.container = document.createElement<'div'>('div');
-            this.frame = document.documentElement;
-            this.canvas = localCanvas = window.canvas;
         }
         else {
             const element = !el ? null : ((el instanceof HTMLElement) ? el : (document.querySelector(el) || document.querySelector('#' + el)));
@@ -952,15 +936,6 @@ export class Game extends EventTarget {
 
         if (navigator.userAgent.indexOf('MicroMessenger') > -1) {
             win.onfocus = onShown;
-        }
-
-        if (CC_WECHATGAME && cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-            if (wx.onShow) {
-                wx.onShow(onShown);
-            }
-            if (wx.onHide) {
-                wx.onHide(onHidden);
-            }
         }
 
         if ('onpageshow' in window && 'onpagehide' in window) {

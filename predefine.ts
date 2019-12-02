@@ -221,10 +221,12 @@ export default cc;
 /**
  * deprecated
  */
-
-Object.defineProperty(_global, 'CC_PHYSICS_BUILT_IN', {
-    'get': () => {
-        console.warn('CC_PHYSICS_BUILT_IN is deprecated, please using CC_PHYSICS_BUILTIN instead.');
-        return _global.CC_PHYSICS_BUILTIN;
-    }
-})
+// TODO: ALIPAY and runtime will redefine
+if (!CC_RUNTIME) {
+    Object.defineProperty(_global, 'CC_PHYSICS_BUILT_IN', {
+        'get': () => {
+            console.warn('CC_PHYSICS_BUILT_IN is deprecated, please using CC_PHYSICS_BUILTIN instead.');
+            return _global.CC_PHYSICS_BUILTIN;
+        },
+    });
+}

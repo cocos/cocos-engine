@@ -1328,6 +1328,18 @@ class ContentStrategy {
         }
     }
 
+    // need to adapt prototype before instantiating
+    let _global = typeof window === 'undefined' ? global : window;
+    let globalAdapter = _global.__globalAdapter;
+    if (globalAdapter) {
+        if (globalAdapter.adaptContainerStrategy) {
+            globalAdapter.adaptContainerStrategy(ContainerStrategy.prototype);
+        }
+        if (globalAdapter.adaptView) {
+            globalAdapter.adaptView(View.prototype);
+        }
+    }
+
 // Alias: Strategy that makes the container's size equals to the frame's size
     ContainerStrategy.EQUAL_TO_FRAME = new EqualToFrame();
 // Alias: Strategy that scale proportionally the container's size to frame's size

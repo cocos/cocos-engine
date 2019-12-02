@@ -34,6 +34,8 @@
  */
 const sys: { [x: string]: any; } = {};
 
+const _global = typeof window === 'undefined' ? global : window;
+
 /**
  * English language code
  * @property {String} LANGUAGE_ENGLISH
@@ -539,7 +541,11 @@ sys.isLittleEndian = (() => {
     return new Int16Array(buffer)[0] === 256;
 })();
 
-if (CC_EDITOR && Editor.isMainProcess) {
+if (_global.__globalAdapter && _global.__globalAdapter.adaptSys) {
+    // init sys info in adapter
+    _global.__globalAdapter.adaptSys(sys);
+}
+else if (CC_EDITOR && Editor.isMainProcess) {
     sys.isMobile = false;
     sys.platform = sys.EDITOR_CORE;
     sys.language = sys.LANGUAGE_UNKNOWN;
@@ -604,109 +610,6 @@ else if (CC_JSB) {
         capabilities.touches = false;
     }
 
-    sys.__audioSupport = {
-        ONLY_ONE: false,
-        WEB_AUDIO: false,
-        DELAY_CREATE_CTX: false,
-        format: ['.mp3'],
-    };
-}
-else if (CC_WECHATGAME) {
-    const env = wx.getSystemInfoSync();
-    sys.isMobile = true;
-    sys.platform = sys.WECHAT_GAME;
-    sys.language = env.language.substr(0, 2);
-    let system = env.system.toLowerCase();
-    if (env.platform === 'android') {
-        sys.os = sys.OS_ANDROID;
-    }
-    else if (env.platform === 'ios') {
-        sys.os = sys.OS_IOS;
-    }
-    else if (env.platform === 'devtools') {
-        sys.isMobile = false;
-        if (system.indexOf('android') > -1) {
-            sys.os = sys.OS_ANDROID;
-        }
-        else if (system.indexOf('ios') > -1) {
-            sys.os = sys.OS_IOS;
-        }
-    }
-    // Adaptation to Android P
-    if (system === 'android p') {
-        system = 'android p 9.0';
-    }
-
-    const version = /[\d\.]+/.exec(system);
-    sys.osVersion = version ? version[0] : system;
-    sys.osMainVersion = parseInt(sys.osVersion);
-    // wechagame subdomain
-    if (!wx.getFileSystemManager) {
-        sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME_SUB;
-    }
-    else {
-        sys.browserType = sys.BROWSER_TYPE_WECHAT_GAME;
-    }
-    sys.browserVersion = env.version;
-
-    const w = env.windowWidth;
-    const h = env.windowHeight;
-    const ratio = env.pixelRatio || 1;
-    sys.windowPixelResolution = {
-        width: ratio * w,
-        height: ratio * h,
-    };
-
-    sys.localStorage = window.localStorage;
-
-    sys.capabilities = {
-        canvas: true,
-        opengl: (sys.browserType !== sys.BROWSER_TYPE_WECHAT_GAME_SUB),
-        webp: false,
-    };
-    sys.__audioSupport = {
-        ONLY_ONE: false,
-        WEB_AUDIO: false,
-        DELAY_CREATE_CTX: false,
-        format: ['.mp3'],
-    };
-}
-else if (CC_QQPLAY) {
-    // @ts-ignore
-    const env = window.BK.Director.queryDeviceInfo();
-    sys.isMobile = true;
-    sys.platform = sys.QQ_PLAY;
-    sys.language = sys.LANGUAGE_UNKNOWN;
-    if (env.platform === 'android') {
-        sys.os = sys.OS_ANDROID;
-    }
-    else if (env.platform === 'ios') {
-        sys.os = sys.OS_IOS;
-    }
-    else {
-        sys.os = sys.OS_UNKNOWN;
-    }
-    sys.osVersion = env.version;
-    sys.osMainVersion = parseInt(sys.osVersion.split('.')[0]);
-    sys.browserType = sys.BROWSER_TYPE_QQ_PLAY;
-    sys.browserVersion = 0;
-
-    const w = env.screenWidth;
-    const h = env.screenHeight;
-    const ratio = env.pixelRatio || 1;
-
-    sys.windowPixelResolution = {
-        width: ratio * w,
-        height: ratio * h,
-    };
-
-    sys.localStorage = window.localStorage;
-
-    sys.capabilities = {
-        canvas: false,
-        opengl: true,
-        webp: false,
-    };
     sys.__audioSupport = {
         ONLY_ONE: false,
         WEB_AUDIO: false,
