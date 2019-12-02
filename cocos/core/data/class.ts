@@ -1248,8 +1248,8 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
     parseSimpleAttribute('formerlySerializedAs', 'string');
 
     if (CC_EDITOR) {
-        if ('animatable' in attributes && !attributes.animatable) {
-            (attrsProto || getAttrsProto())[attrsProtoKey + 'animatable'] = false;
+        if ('animatable' in attributes) {
+            (attrsProto || getAttrsProto())[attrsProtoKey + 'animatable'] = attributes.animatable;
         }
     }
 
