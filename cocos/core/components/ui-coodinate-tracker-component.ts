@@ -24,13 +24,13 @@
  THE SOFTWARE.
 */
 
+import { Component } from './component';
+import { EventHandler } from './component-event-handler';
 import { ccclass, property, menu, executionOrder } from '../data/class-decorator';
 import { Node } from '../scene-graph';
 import { convertUtils } from '../utils';
 import { CameraComponent } from '../3d';
 import { Vec3 } from '../math';
-import { Component } from '../components/component';
-import { EventHandler } from './component-event-handler';
 
 /**
  * @zh 3D 节点映射 UI 节点组件

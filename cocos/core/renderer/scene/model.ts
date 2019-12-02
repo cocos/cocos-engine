@@ -200,6 +200,7 @@ export class Model {
         this._matPSORecord.clear();
         this._matRefCount.clear();
         this._inited = false;
+        this._transformUpdated = true;
     }
 
     public attachToScene (scene: RenderScene) {
