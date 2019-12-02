@@ -20,16 +20,6 @@ export class AmmoSphereShape extends AmmoShape implements ISphereShape {
         if (this._btCompound) {
             this._btCompound.updateChildTransform(this.index, this.transform, true);
         }
-        // if (this.attachRigidBody) {
-        //     const impl = this.attachRigidBody.rigidBody as AmmoRigidBody;
-        //     impl._btCompoundShape.updateChildTransform(this.index, this.transform, true);
-        // } else {
-        //     if (this.collider.isTrigger) {
-        //         AmmoWorld.instance.sharedTriggerCompoundShape.updateChildTransform(this.index, this.transform, true);
-        //     } else {
-        //         AmmoWorld.instance.sharedStaticCompoundShape.updateChildTransform(this.index, this.transform, true);
-        //     }
-        // }
     }
 
     public get btSphere (): Ammo.btSphereShape {

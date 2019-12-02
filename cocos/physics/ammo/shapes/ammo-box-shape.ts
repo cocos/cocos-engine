@@ -11,20 +11,6 @@ const v3_0 = new Vec3();
 export class AmmoBoxShape extends AmmoShape implements IBoxShape {
 
     set size (size: Vec3) {
-        // Vec3.multiplyScalar(tmpv3, this.boxCollider.size, 1);
-        // tmpv3.multiply(this.collider.node.worldScale)
-        // Cocos2AmmoVec3(this.scale, tmpv3);
-        // this._btShape.setLocalScaling(this.scale);
-        // if (this.attachRigidBody) {
-        //     const impl = this.attachRigidBody.rigidBody as AmmoRigidBody;
-        //     impl._btCompoundShape.updateChildTransform(this.index, this.transform, true);
-        // } else {
-        //     if (this.collider.isTrigger) {
-        //         AmmoWorld.instance.sharedTriggerCompoundShape.updateChildTransform(this.index, this.transform, true);
-        //     } else {
-        //         AmmoWorld.instance.sharedStaticCompoundShape.updateChildTransform(this.index, this.transform, true);
-        //     }
-        // }
         Vec3.copy(v3_0, size);
         Vec3.multiply(v3_0, v3_0, this._collider.node.worldScale);
         Cocos2AmmoVec3(this.scale, v3_0);
