@@ -1,0 +1,35 @@
+{
+    "version": "0.1",
+    "words": [
+        "Chukong",
+        "Yaji",
+
+        "ccclass",
+        "ccenum",
+
+        "forin",
+        "struct",
+        "realloc",
+        "polyfill",
+
+        "lerp",
+        "lerpable",
+        "slerp",
+
+        "renderable",
+        "grayscale",
+        "raycast",
+        "skybox",
+        "earcut",
+        
+        "Arial",
+
+        "OPENGL",
+        "IGFX",
+        "UNORM",
+        "SNORM",
+
+        "WECHAT",
+        "WECHATGAME"
+    ]
+}
