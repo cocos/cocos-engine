@@ -38,6 +38,7 @@ const FLAG_TRANSFORM = RenderFlow.FLAG_TRANSFORM;
 const FLAG_POST_RENDER = RenderFlow.FLAG_POST_RENDER;
 const EmptyHandle = function () {}
 const ATTACHED_ROOT_NAME = 'ATTACHED_NODE:ROOT';
+const ATTACHED_PRE_NAME = 'ATTACHED_NODE:';
 
 let ArmatureCache = require('./ArmatureCache');
 
@@ -103,7 +104,7 @@ let ArmatureDisplay = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/DragonBones',
-        //help: 'app://docs/html/components/dragonbones.html', // TODO help document of dragonBones
+        inspector: 'packages://inspector/inspectors/comps/dragonbones.js',
     },
     
     statics: {
@@ -194,6 +195,18 @@ let ArmatureDisplay = cc.Class({
                     this._factory._dragonBones.clock.add(this._armature);
                 }
                 
+            },
+            visible: false
+        },
+
+        /**
+         * !#en Gets attached root node.
+         * !#zh 获取挂接节点树的根节点
+         * @property {cc.node} attachedRootNode
+         */
+        attachedRootNode : {
+            get () {
+                return this._attachedRootNode;
             },
             visible: false
         },
@@ -372,19 +385,6 @@ let ArmatureDisplay = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.enabled_batch'
         },
 
-        /**
-         * !#en generate attached node.
-         * !#zh 生成挂点。
-         * @property {Boolean} TestAttachedNode
-         * @default false
-         */
-        TestAttachedNode: {
-            default: false,
-            notify () {
-                this.generateAllAttachedNode();
-            },
-        },
-
         // DragonBones data store key.
         _armatureKey: "",
 
@@ -431,21 +431,13 @@ let ArmatureDisplay = cc.Class({
     },
 
     _prepareAttachedNode () {
-        this._attachedRootNode = null;
-
-        let rootNode = this.node.getChildByName(ATTACHED_ROOT_NAME);
-        if (rootNode) {
-            rootNode.removeFromParent(true);
-            rootNode.destroy();
-            rootNode = null;
-        }
-
+        this.destroyAllAttachedNode();
         let armature = this._armature;
         if (!armature) {
             return;
         }
 
-        rootNode = new cc.Node(ATTACHED_ROOT_NAME);
+        let rootNode = new cc.Node(ATTACHED_ROOT_NAME);
         rootNode._mulMat = EmptyHandle;
         this.node.addChild(rootNode);
 
@@ -455,12 +447,11 @@ let ArmatureDisplay = cc.Class({
         }
 
         this._attachedRootNode = rootNode;
-        this._attachedNodeArray.length = 0;
         return rootNode;
     },
 
     _buildSlotAttachedNode (slot, nodeIndex) {
-        let slotNodeName = 'ATTACHED_NODE:' + slot.name;
+        let slotNodeName = ATTACHED_PRE_NAME + slot.name;
         let slotNode = new cc.Node(slotNodeName);
         slotNode._mulMat = EmptyHandle;
         slotNode._armatureSlot = slot;
@@ -474,17 +465,59 @@ let ArmatureDisplay = cc.Class({
     },
 
     /**
+     * !#en Gets attached node which you want.
+     * !#zh 获得对应的挂点
+     * @param {String} slotName
+     * @return {[cc.Node]}
+     */
+    getAttachedNode (slotName) {
+        let nodeArray = this._attachedNodeArray;
+        let res = [];
+        for (let i = 0, n = nodeArray.length; i < n; i++) {
+            let slotNode = nodeArray[i];
+            if (!slotNode || !slotNode.isValid) continue;
+            if (slotNode.name === ATTACHED_PRE_NAME + slotName) {
+                res.push(slotNode);
+            }
+        }
+        return res;
+    },
+
+    /**
+     * !#en Destroy attached node which you want.
+     * !#zh 销毁对应的挂点
+     * @param {...String}  ...slotnames Variable length parameter consisting of slot name
+     */
+    destroyAttachedNode (/* slotName1, slotName2, ... */) {
+        let args = [...arguments];
+        if (args.length === 0) return;
+
+        let nodeArray = this._attachedNodeArray;
+        for (let i = 0, n = nodeArray.length; i < n; i++) {
+            let slotNode = nodeArray[i];
+            if (!slotNode || !slotNode.isValid) continue;
+
+            let slotName = slotNode.name;
+            slotName = slotName.split(ATTACHED_PRE_NAME)[1];
+            if (args.indexOf(slotName) != -1) {
+                slotNode.removeFromParent(true);
+                slotNode.destroy();
+                nodeArray[i] = null;
+            }
+        }
+    },
+
+    /**
      * !#en Traverse all slots to generate the minimum node tree containing the given slot names
      * !#zh 遍历所有插槽，生成包含所有给定插槽名称的最小节点树
      * @param {...String}  ...slotnames Variable length parameter consisting of slot name
-     * @return {cc.Node[]} An array of nodes corresponding to the slot name, if a slot cannot be found, the node at the corresponding location is empty
      * @example let slotNodes = armatureDisplayComponent.generateAttachedNode(slotName1, slotName2, slotName3);
      */
-    generateAttachedNode (/*Multiple Arguments*/) {
-        let targetNodes = [];
-        if (arguments.length === 0) return targetNodes;
+    generateAttachedNode (/*slotName1, slotName2, ...*/) {
+        let args = [...arguments];
+        if (args.length === 0) return;
         let rootNode = this._prepareAttachedNode();
-        if (!rootNode) return targetNodes;
+        if (!rootNode) return;
 
         let nodeIndex = 0;
         let attachedTraverse = function (armature) {
@@ -507,29 +540,42 @@ let ArmatureDisplay = cc.Class({
                     }
                 }
 
-                let targetNodeIndex = arguments.indexOf(slot.name);
-                if (targetNodeIndex !=- 1) {
+                let targetNodeIndex = args.indexOf(slot.name);
+                if (targetNodeIndex != -1) {
                     if (!thisSlotNode) {
                         thisSlotNode = this._buildSlotAttachedNode(slot, curNodeIndex);
                         thisSlotNodes.push(thisSlotNode);
                     }
-                    targetNodes[targetNodeIndex] = thisSlotNode;
                 }
             }
             return thisSlotNodes;
         }.bind(this);
 
-        let childSlotNodes = attachedTraverse(armature);
+        let childSlotNodes = attachedTraverse(this._armature);
         for (let ii = 0, nn = childSlotNodes.length; ii < nn; ii++) {
             rootNode.addChild(childSlotNodes[ii]);
         }
-        return targetNodes;
+    },
+
+    /**
+     * !#en Destroy all attached node.
+     * !#zh 销毁所有挂点
+     */
+    destroyAllAttachedNode () {
+        this._attachedRootNode = null;
+        this._attachedNodeArray.length = 0;
+
+        let rootNode = this.node.getChildByName(ATTACHED_ROOT_NAME);
+        if (rootNode) {
+            rootNode.removeFromParent(true);
+            rootNode.destroy();
+            rootNode = null;
+        }
     },
 
     /**
      * !#en Traverse all slots to generate a tree containing all slots nodes
      * !#zh 遍历所有插槽，生成包含所有插槽的节点树
-     * @return {cc.Node} the root node of slot tree
      */
     generateAllAttachedNode () {
         let rootNode = this._prepareAttachedNode();
@@ -547,7 +593,7 @@ let ArmatureDisplay = cc.Class({
             }
         }.bind(this);
         attachedTraverse(this._armature, rootNode);
-        return rootNode;
+        return;
     },
 
     _hasAttachedNode () {
@@ -581,7 +627,7 @@ let ArmatureDisplay = cc.Class({
             for (let i = 0, l = slots.length; i < l; i++) {
                 slot = slots[i];
 
-                let slotNodeName = 'ATTACHED_NODE:' + slot.name;
+                let slotNodeName = ATTACHED_PRE_NAME + slot.name;
                 let slotNode = parentNode && parentNode.getChildByName(slotNodeName);
 
                 if (slotNode && slotNode.isValid) {
