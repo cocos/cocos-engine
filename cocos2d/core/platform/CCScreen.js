@@ -165,7 +165,7 @@ cc.screen = /** @lends cc.screen# */{
             document.addEventListener(eventName, onFullScreenError, { once: true });
         }
 
-        element[this._fn.requestFullscreen] && element[this._fn.requestFullscreen]();
+        element[this._fn.requestFullscreen]();
     },
     
     /**
@@ -194,9 +194,10 @@ cc.screen = /** @lends cc.screen# */{
      */
     autoFullScreen: function (element, onFullScreenChange) {
         element = element || document.body;
-
-        this._ensureFullScreen(element, onFullScreenChange);
-        this.requestFullScreen(element, onFullScreenChange);
+        if (element[this._fn.requestFullscreen] && element[this._fn.fullscreenerror]) {
+            this._ensureFullScreen(element, onFullScreenChange);
+            this.requestFullScreen(element, onFullScreenChange);
+        }
     },
 
     disableAutoFullScreen (element) {
@@ -212,7 +213,6 @@ cc.screen = /** @lends cc.screen# */{
     _ensureFullScreen (element, onFullScreenChange) {
         let self = this;
         let touchTarget = cc.game.canvas || element;
-        if (!element[this._fn.fullscreenerror]) return;
         let fullScreenErrorEventName = this._fn.fullscreenerror;
         let touchEventName = this._touchEvent;
         
