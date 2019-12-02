@@ -32,7 +32,7 @@ import { DataPoolManager } from '../renderer/data-pool-manager';
 import { getClassName } from '../utils/js';
 import { AnimationClip, IObjectCurveData, IRuntimeCurve } from './animation-clip';
 import { AnimCurve, RatioSampler } from './animation-curve';
-import { ComponentModifier, HierachyModifier, isCustomTargetModifier, isPropertyModifier } from './target-modifier';
+import { ComponentPath, HierarchyPath, isCustomPath, isPropertyPath } from './target-path';
 
 type CurveData = Vec3 | Quat | Mat4;
 type ConvertedProps = Record<string, IPropertyCurve>;
@@ -80,9 +80,9 @@ function convertToSkeletalCurves (clip: AnimationClip): IConvertedData {
     const data: Record<string, ConvertedProps> = {};
     clip.curves.forEach((curve) => {
         if (!curve.valueAdapter &&
-            isCustomTargetModifier(curve.modifiers[0], HierachyModifier) &&
-            isPropertyModifier(curve.modifiers[1])) {
-            const path = (curve.modifiers[0] as HierachyModifier).path;
+            isCustomPath(curve.modifiers[0], HierarchyPath) &&
+            isPropertyPath(curve.modifiers[1])) {
+            const path = (curve.modifiers[0] as HierarchyPath).path;
             let cs = data[path];
             if (!cs) { cs = data[path] = {}; }
             const property = curve.modifiers[1] as string;
@@ -118,8 +118,8 @@ function convertToSkeletalCurves (clip: AnimationClip): IConvertedData {
         curves: [{
             curve: new AnimCurve({ values, interpolate: false }, (frames - 1) / clip.sample),
             modifiers: [
-                new HierachyModifier(''),
-                new ComponentModifier(getClassName(cc.SkeletalAnimationComponent)),
+                new HierarchyPath(''),
+                new ComponentPath(getClassName(cc.SkeletalAnimationComponent)),
                 'frameID',
             ],
             sampler: new RatioSampler(ratios),

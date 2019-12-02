@@ -39,7 +39,7 @@ export class AnimationBlendState {
         return propertyState;
     }
 
-    public derefPropertyBlendTarget (target: CurveTarget, property: string) {
+    public deRefPropertyBlendTarget (target: CurveTarget, property: string) {
         const iTargetState = this._blendTargets.findIndex((x) => x.target === target);
         if (iTargetState < 0) {
             return;

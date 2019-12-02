@@ -11,9 +11,10 @@ import { errorID } from '../platform/debug';
 import { DataPoolManager } from '../renderer/data-pool-manager';
 import binarySearchEpsilon from '../utils/binary-search';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
-import { AnimCurve, CurveValueAdapter, IPropertyCurveData, RatioSampler } from './animation-curve';
+import { AnimCurve, IPropertyCurveData, RatioSampler } from './animation-curve';
+import { IValueProxyFactory } from './value-proxy';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
-import { ComponentModifier, HierachyModifier, TargetModifier } from './target-modifier';
+import { ComponentPath, TargetPath, HierarchyPath } from './target-path';
 import { WrapMode as AnimationWrapMode } from './types';
 
 export interface IObjectCurveData {
@@ -29,27 +30,17 @@ export interface INodeCurveData {
     comps?: IComponentsCurveData;
 }
 
-export interface IRuntimeCurve {
+export type IRuntimeCurve = Pick<AnimationClip.ICurve, 'modifiers' | 'valueAdapter' | 'commonTarget'> & {
     /**
      * 属性曲线。
      */
     curve: AnimCurve;
 
     /**
-     * 目标修改器。
-     */
-    modifiers: TargetModifier[];
-
-    /**
-     * 曲线值适配器。
-     */
-    valueAdapter?: CurveValueAdapter;
-
-    /**
      * 曲线采样器。
      */
     sampler: RatioSampler | null;
-}
+};
 
 export interface IAnimationEvent {
     functionName: string;
@@ -68,9 +59,16 @@ export declare namespace AnimationClip {
     export type PropertyCurveData = IPropertyCurveData;
 
     export interface ICurve {
-        modifiers: TargetModifier[];
-        valueAdapter?: CurveValueAdapter;
+        commonTarget?: number;
+        modifiers: TargetPath[];
+        valueAdapter?: IValueProxyFactory;
         data: PropertyCurveData;
+    }
+
+    export interface CommonTarget {
+        modifiers: TargetPath[];
+        valueAdapter?: IValueProxyFactory;
+        initialValue?: any;
     }
 
     export interface IEvent {
@@ -127,7 +125,7 @@ export class AnimationClip extends Asset {
         clip.keys = [keys];
         clip.curves = [{
             modifiers: [
-                new ComponentModifier('cc.SpriteComponent'),
+                new ComponentPath('cc.SpriteComponent'),
                 'spriteFrame',
             ],
             data: {
@@ -181,6 +179,8 @@ export class AnimationClip extends Asset {
 
     @property
     private _curves: AnimationClip.ICurve[] = [];
+
+    private _commonTargets: AnimationClip.CommonTarget[] = [];
 
     private _hash = 0;
     private frameRate = 0;
@@ -261,6 +261,14 @@ export class AnimationClip extends Asset {
         return this._data;
     }
 
+    get commonTargets () {
+        return this._commonTargets;
+    }
+
+    set commonTargets(value) {
+        this._commonTargets = value;
+    }
+
     public onLoaded () {
         this.frameRate = this.sample;
         this._migrateCurveDatas();
@@ -334,6 +342,7 @@ export class AnimationClip extends Asset {
                 modifiers: targetCurve.modifiers,
                 valueAdapter: targetCurve.valueAdapter,
                 sampler: this._ratioSamplers[targetCurve.data.keys],
+                commonTarget: targetCurve.commonTarget,
             };
         });
 
@@ -384,27 +393,27 @@ export class AnimationClip extends Asset {
             return;
         }
         for (const curveTargetPath of Object.keys(this.curveDatas)) {
-            const hierachyModifier = new HierachyModifier();
-            hierachyModifier.path = curveTargetPath;
+            const hierarchyPath = new HierarchyPath();
+            hierarchyPath.path = curveTargetPath;
             const nodeData = this.curveDatas[curveTargetPath];
             if (nodeData.props) {
                 for (const nodePropertyName of Object.keys(nodeData.props)) {
                     const propertyCurveData = nodeData.props[nodePropertyName];
                     this._curves.push({
-                        modifiers: [ hierachyModifier, nodePropertyName ],
+                        modifiers: [ hierarchyPath, nodePropertyName ],
                         data: propertyCurveData,
                     });
                 }
             }
             if (nodeData.comps) {
                 for (const componentName of Object.keys(nodeData.comps)) {
-                    const componentModifier = new ComponentModifier();
-                    componentModifier.component = componentName;
+                    const componentPath = new ComponentPath();
+                    componentPath.component = componentName;
                     const componentData = nodeData.comps[componentName];
                     for (const componentPropertyName of Object.keys(componentData)) {
                         const propertyCurveData = componentData[componentPropertyName];
                         this._curves.push({
-                            modifiers: [ hierachyModifier, componentModifier, componentPropertyName ],
+                            modifiers: [ hierarchyPath, componentPath, componentPropertyName ],
                             data: propertyCurveData,
                         });
                     }
