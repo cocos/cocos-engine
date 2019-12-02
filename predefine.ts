@@ -225,8 +225,8 @@ export default cc;
 if (!CC_RUNTIME) {
     Object.defineProperty(_global, 'CC_PHYSICS_BUILT_IN', {
         'get': () => {
-        console.warn('CC_PHYSICS_BUILT_IN is deprecated, please using CC_PHYSICS_BUILTIN instead.');
-        return _global.CC_PHYSICS_BUILTIN;
+            console.warn('CC_PHYSICS_BUILT_IN is deprecated, please using CC_PHYSICS_BUILTIN instead.');
+            return _global.CC_PHYSICS_BUILTIN;
         },
     });
 }
