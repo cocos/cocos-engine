@@ -792,6 +792,7 @@ let ScrollView = cc.Class({
         this._processDeltaMove(deltaMove);
 
         if(!this._stopMouseWheel) {
+            this._dispatchEvent('scroll-ended');
             this._handlePressLogic();
             this.schedule(this._checkMouseWheel, 1.0 / 60);
             this._stopMouseWheel = true;
