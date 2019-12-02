@@ -25,7 +25,7 @@ export class AmmoBoxShape extends AmmoShape implements IBoxShape {
     }
 
     get boxCollider () {
-        return this.collider as BoxColliderComponent;
+        return this._collider as BoxColliderComponent;
     }
 
     readonly halfExt: Ammo.btVector3;

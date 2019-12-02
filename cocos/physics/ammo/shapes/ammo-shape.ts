@@ -44,7 +44,7 @@ export class AmmoShape implements IBaseShape {
         this._isTrigger = v;
     }
 
-    get attachedRigidBody (): RigidBodyComponent | null {
+    get attachedRigidBody () {
         if (this._sharedBody.wrappedBody) { return this._sharedBody.wrappedBody.rigidBody; }
         return null;
     }
@@ -179,7 +179,7 @@ export class AmmoShape implements IBaseShape {
     }
 
     updateScale () {
-        // this.center = this._collider.center;
+        this.center = this._collider.center;
     }
 
     /**DEBUG */
