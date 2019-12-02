@@ -46,24 +46,8 @@ export default class Model {
    * Set the model effect
    * @param {?Effect} effect the effect to use
    */
-  setEffect(effect, customProperties) {
+  setEffect(effect) {
     this._effect = effect;
-
-    let defines = this._defines;
-    let uniforms = this._uniforms;
-    
-    defines.length = 0;
-    uniforms.length = 0;
-    
-    if (effect) {
-      defines.push(effect._defines);
-      uniforms.push(effect._properties);
-    }
-
-    if (customProperties) {
-      defines.push(customProperties._defines);
-      uniforms.push(customProperties._properties);
-    }
   }
 
   /**
@@ -83,8 +67,5 @@ export default class Model {
     out.node = this._node;
     out.ia = this._inputAssembler;
     out.effect = this._effect;
-    out.defines = this._defines;
-    out.dependencies = this._dependencies;
-    out.uniforms = this._uniforms;
   }
 }

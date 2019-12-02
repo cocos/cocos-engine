@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import '../assets/material/custom-properties';
 import gfx from '../../renderer/gfx';
 import InputAssembler from '../../renderer/core/input-assembler';
 import Aabb from '../geom-utils/aabb';
@@ -202,7 +201,6 @@ let MeshRenderer = cc.Class({
 
     ctor () {
         this._boundingBox = cc.geomUtils && new Aabb();
-        this._customProperties = new cc.CustomProperties();
 
         if (CC_DEBUG) {
             this._debugDatas = {
@@ -226,9 +224,8 @@ let MeshRenderer = cc.Class({
             this._setMesh(this._mesh);
         }
 
-        this._updateReceiveShadow();
-        this._updateCastShadow();
         this._updateRenderNode();
+        this._updateMaterial();
     },
 
     onDestroy () {
@@ -265,6 +262,10 @@ let MeshRenderer = cc.Class({
             let material = this._getDefaultMaterial();
             materials[0] = material;
         }
+
+        for (let i = 0; i < materials.length; i++) {
+            materials[i] = Material.getInstantiatedMaterial(materials[i], this);
+        }
     },
 
     _validateRender () {
@@ -288,25 +289,40 @@ let MeshRenderer = cc.Class({
                 this.setMaterial(i, material);
             }
         }
+
+        this._updateReceiveShadow();
+        this._updateCastShadow();
+        this._updateMeshAttribute();
     },
 
     _updateReceiveShadow () {
-        this._customProperties.define('CC_USE_SHADOW_MAP', this._receiveShadows);
+        let materials = this._materials;
+        for (let i = 0; i < materials.length; i++) {
+            materials[i].define('CC_USE_SHADOW_MAP', this._receiveShadows, undefined, true);
+        }
     },
 
     _updateCastShadow () {
-        this._customProperties.define('CC_SHADOW_CASTING', this._shadowCastingMode === ShadowCastingMode.ON);
+        let materials = this._materials;
+        for (let i = 0; i < materials.length; i++) {
+            materials[i].define('CC_CASTING_SHADOW', this._shadowCastingMode === ShadowCastingMode.ON, undefined, true);
+        }
     },
 
     _updateMeshAttribute () {
         let subDatas = this._mesh && this._mesh.subDatas;
-        if (!subDatas || !subDatas[0]) return;
+        if (!subDatas) return;
 
-        let vfm = subDatas[0].vfm;
-        this._customProperties.define('CC_USE_ATTRIBUTE_COLOR', !!vfm.element(gfx.ATTR_COLOR));
-        this._customProperties.define('CC_USE_ATTRIBUTE_UV0', !!vfm.element(gfx.ATTR_UV0));
-        this._customProperties.define('CC_USE_ATTRIBUTE_NORMAL', !!vfm.element(gfx.ATTR_NORMAL));
-        this._customProperties.define('CC_USE_ATTRIBUTE_TANGENT', !!vfm.element(gfx.ATTR_TANGENT));
+        let materials = this._materials;
+        for (let i = 0; i < materials.length; i++) {
+            if (!subDatas[i]) break;
+            let vfm = subDatas[i].vfm;
+            let material = materials[i];
+            material.define('CC_USE_ATTRIBUTE_COLOR', !!vfm.element(gfx.ATTR_COLOR), undefined, true);
+            material.define('CC_USE_ATTRIBUTE_UV0', !!vfm.element(gfx.ATTR_UV0), undefined, true);
+            material.define('CC_USE_ATTRIBUTE_NORMAL', !!vfm.element(gfx.ATTR_NORMAL), undefined, true);
+            material.define('CC_USE_ATTRIBUTE_TANGENT', !!vfm.element(gfx.ATTR_TANGENT), undefined, true);
+        }
 
         if (CC_DEBUG) {
             for (let name in this._debugDatas) {

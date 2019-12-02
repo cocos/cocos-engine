@@ -1,5 +1,5 @@
 const Asset = require('./CCAsset');
-const Effect = require('../../renderer/core/effect');
+const Effect = require('./material/effect');
 
 let EffectAsset = cc.Class({
     name: 'cc.EffectAsset',
@@ -31,11 +31,17 @@ let EffectAsset = cc.Class({
     _initEffect () {
         if (this._effect) return;
         this._effect = Effect.parseEffect(this);
+        Object.freeze(this._effect);
     },
 
     getInstantiatedEffect () {
         this._initEffect();
         return this._effect.clone();
+    },
+
+    getEffect () {
+        this._initEffect();
+        return this._effect;
     }
 });
 

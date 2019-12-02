@@ -107,7 +107,7 @@ let SkinnedMeshRenderer = cc.Class({
     },
 
     __preload () {
-        this._resetAssembler();
+        this._super();
         this._init();
     },
 
@@ -192,15 +192,17 @@ let SkinnedMeshRenderer = cc.Class({
         if (!this._skeleton) return;
 
         let jointCount = this._joints.length;
-        let customProperties = this._customProperties;
+        let materials = this._materials;
 
         let inited = false;
         if (jointCount <= cc.sys.getMaxJointMatrixSize()) {
             inited = true;
 
             this._jointsData = this._jointsFloat32Data = new Float32Array(jointCount * 16);
-            customProperties.setProperty('cc_jointMatrices', this._jointsFloat32Data, enums.PARAM_FLOAT4, true);
-            customProperties.define('CC_USE_JOINTS_TEXTRUE', false);
+            for (let i = 0; i < materials.length; i++) {
+                material[i].setProperty('jointMatrices', this._jointsFloat32Data);
+                material[i].define('CC_USE_JOINTS_TEXTRUE', false);
+            }
         }
 
         if (!inited) {
@@ -244,14 +246,18 @@ let SkinnedMeshRenderer = cc.Class({
                 images:[]
             };
             
-            customProperties.setProperty('cc_jointsTexture', texture.getImpl(), enums.PARAM_TEXTURE_2D);
-            customProperties.setProperty('cc_jointsTextureSize', new Float32Array([width, height]), enums.PARAM_FLOAT2);
-            
-            customProperties.define('CC_JOINTS_TEXTURE_FLOAT32', SUPPORT_FLOAT_TEXTURE);
-            customProperties.define('CC_USE_JOINTS_TEXTRUE', true);
+            for (let i = 0; i < materials.length; i++) {
+                materials[i].setProperty('jointsTexture', texture);
+                materials[i].setProperty('jointsTextureSize', new Float32Array([width, height]));
+                
+                materials[i].define('CC_JOINTS_TEXTURE_FLOAT32', SUPPORT_FLOAT_TEXTURE);
+                materials[i].define('CC_USE_JOINTS_TEXTRUE', true);
+            }
         }
 
-        customProperties.define('CC_USE_SKINNING', true);
+        for (let i = 0; i < materials.length; i++) {
+            materials[i].define('CC_USE_SKINNING', true);
+        }
     },
 
     _setJointsDataWithArray (iMatrix, matrixArray) {

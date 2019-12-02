@@ -63,7 +63,7 @@ export default class Base {
    * @param {gfx.Texture2D} opts.defaultTexture
    * @param {gfx.TextureCube} opts.defaultTextureCube
    */
-  constructor(device, opts) {
+  constructor (device, opts) {
     this._device = device;
     this._programLib = new ProgramLib(device);
     this._opts = opts;
@@ -108,7 +108,7 @@ export default class Base {
           ia: null,
           effect: null,
           defines: null,
-          technique: null,
+          passes: [],
           sortKey: -1,
           uniforms: null
         };
@@ -116,11 +116,11 @@ export default class Base {
     }, 16);
   }
 
-  _resetTextuerUnit() {
+  _resetTextuerUnit () {
     this._usedTextureUnits = 0;
   }
 
-  _allocTextureUnit() {
+  _allocTextureUnit () {
     const device = this._device;
 
     let unit = this._usedTextureUnits;
@@ -132,7 +132,7 @@ export default class Base {
     return unit;
   }
 
-  _registerStage(name, fn) {
+  _registerStage (name, fn) {
     this._stage2fn[name] = fn;
   }
 
@@ -141,16 +141,16 @@ export default class Base {
     this.reset();
   }
 
-  reset() {
+  reset () {
     this._viewPools.reset();
     this._stageItemsPools.reset();
   }
 
-  _requestView() {
+  _requestView () {
     return this._viewPools.add();
   }
 
-  _render(view, scene) {
+  _render (view, scene) {
     const device = this._device;
 
     // setup framebuffer
@@ -202,19 +202,28 @@ export default class Base {
 
       for (let j = 0; j < this._drawItemsPools.length; ++j) {
         let drawItem = this._drawItemsPools.data[j];
-        let tech = drawItem.effect.getTechnique(stage);
+        let passes = drawItem.effect._passes;
 
-        if (tech) {
-          let stageItem = stageItems.add();
-          stageItem.model = drawItem.model;
-          stageItem.node = drawItem.node;
-          stageItem.ia = drawItem.ia;
-          stageItem.effect = drawItem.effect;
-          stageItem.defines = drawItem.defines;
-          stageItem.technique = tech;
-          stageItem.sortKey = -1;
-          stageItem.uniforms = drawItem.uniforms;
+        let stageItem = stageItems.add();
+        stageItem.passes.length = 0;
+        for (let k = 0; k < passes.length; k++) {
+          if (stage === passes[k]._stage) {
+            stageItem.passes.push(passes[k]);
+          }
         }
+
+        if (stageItem.passes.length === 0) {
+          stageItems._count--;
+          continue;
+        }
+
+        stageItem.model = drawItem.model;
+        stageItem.node = drawItem.node;
+        stageItem.ia = drawItem.ia;
+        stageItem.effect = drawItem.effect;
+        stageItem.defines = drawItem.defines;
+        stageItem.sortKey = -1;
+        stageItem.uniforms = drawItem.uniforms;
       }
 
       let stageInfo = _stageInfos.add();
@@ -275,10 +284,10 @@ export default class Base {
     }
   }
 
-  _draw(item) {
+  _draw (item) {
     const device = this._device;
     const programLib = this._programLib;
-    const { node, ia, uniforms, technique, defines, effect } = item;
+    const { node, ia, passes, effect } = item;
 
     // reset the pool
     // NOTE: we can use drawCounter optimize this
@@ -306,17 +315,18 @@ export default class Base {
     device.setUniform('cc_matWorldIT', Mat4.toArray(_float16_pool.add(), _m4_tmp));
     // }
 
-    for (let i = 0; i < uniforms.length; i++) {
-      let typeUniforms = uniforms[i];
-      for (let key in typeUniforms) {
-        this._setProperty(typeUniforms[key]);
-      }
-    }
+    let defines = this._defines;
 
     // for each pass
-    for (let i = 0; i < technique._passes.length; ++i) {
-      let pass = technique._passes[i];
+    for (let i = 0; i < passes.length; ++i) {
+      let pass = passes[i];
       let count = ia.count;
+
+      let properties = pass._properties;
+      let defineProperties = Object.getPrototypeOf(properties);
+      for (let name in defineProperties) {
+        this._setProperty(properties[name]);
+      }
 
       // set vertex buffer
       if (ia._vertexBuffer) {
@@ -332,6 +342,8 @@ export default class Base {
       device.setPrimitiveType(ia._primitiveType);
 
       // set program
+      Object.setPrototypeOf(defines, pass._defines);
+
       let program = programLib.getProgram(pass._programName, defines, effect._name);
       device.setProgram(program);
 

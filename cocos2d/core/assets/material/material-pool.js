@@ -13,6 +13,7 @@ class MaterialPool extends Pool {
     enabled = false;
     
     _pool = {};
+    enabled = false;
 
     get (exampleMat, renderComponent) {
         let pool = this._pool;
@@ -30,7 +31,7 @@ class MaterialPool extends Pool {
     
         if (!instance) {
             instance = new cc.Material();
-            instance.copy(exampleMat);
+            instance.setAsVariant(exampleMat);
             instance._name = exampleMat._name + ' (Instance)';
             instance._uuid = exampleMat._uuid;
         }

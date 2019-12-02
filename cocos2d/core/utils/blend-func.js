@@ -87,8 +87,6 @@ let BlendFunc = cc.Class({
             gfx.BLEND_FUNC_ADD,
             this._srcBlendFactor, this._dstBlendFactor
         );
-
-        material.setDirty(true);
     },
 });
 

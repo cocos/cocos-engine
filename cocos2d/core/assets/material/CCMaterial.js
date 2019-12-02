@@ -29,9 +29,8 @@ const PixelFormat = Texture.PixelFormat;
 const EffectAsset = require('../CCEffectAsset');
 const textureUtil = require('../../utils/texture-util');
 
-import murmurhash2 from '../../../renderer/murmurhash2_gc';
-import utils from './utils';
 import materialPool from './material-pool';
+import EffectVariant from './effect-variant';
 
 /**
  * !#en Material Asset.
@@ -48,7 +47,6 @@ let Material = cc.Class({
         this._dirty = true;
         this._effect = null;
         this._owner = null;
-        this._hash = 0;
     },
 
     properties: {
@@ -56,14 +54,20 @@ let Material = cc.Class({
             type: EffectAsset,
             default: null,
         },
+
+        // deprecated
         _defines: {
-            default: {},
+            default: undefined,
             type: Object
         },
+        // deprecated
         _props: {
-            default: {},
+            default: undefined,
             type: Object
         },
+
+        _techniqueIndex: 0,
+        _techniqueData: [],
 
         effectName: CC_EDITOR ? {
             get () {
@@ -93,7 +97,8 @@ let Material = cc.Class({
                     cc.error('Can not set an empty effect asset.');
                     return;
                 }
-                this._effect = this._effectAsset.getInstantiatedEffect();;
+
+                this._effect = this._effectAsset.getInstantiatedEffect();
             }
         },
 
@@ -119,6 +124,7 @@ let Material = cc.Class({
             return Material.getInstantiatedMaterial(builtinMaterial, renderComponent);
         },
         getInstantiatedMaterial (mat, renderComponent) {
+            if (!mat) return mat;
             if (mat._owner === renderComponent) {
                 return mat;
             }
@@ -128,21 +134,9 @@ let Material = cc.Class({
         }
     },
 
-    /**
-     *
-     * @param {Material} mat
-     */
-    copy (mat) {
-        this._effect = mat.effect.clone();
+    setAsVariant (mat) {
+        this._effect = new EffectVariant(mat.effect);
         this._effectAsset = mat._effectAsset;
-
-        for (let name in mat._defines) {
-            this.define(name, mat._defines[name]);
-        }
-
-        for (let name in mat._props) {
-            this.setProperty(name, mat._props[name]);
-        }
     },
 
     /**
@@ -150,42 +144,36 @@ let Material = cc.Class({
      * @param {string} name
      * @param {Object} val
      */
-    setProperty (name, val, force) {
-        if (this._props[name] === val && !force) return;
-        this._props[name] = val;
-        this._dirty = true;
+    setProperty (name, val, passIdx) {
+        if (!this._effect) return;
+        
+        if (val instanceof Texture) {
+            let format = val.getPixelFormat();
+            if (format === PixelFormat.RGBA_ETC1 ||
+                format === PixelFormat.RGB_A_PVRTC_4BPPV1 ||
+                format === PixelFormat.RGB_A_PVRTC_2BPPV1) {
+                this.define('CC_USE_ALPHA_ATLAS_' + name.toUpperCase(), true);
+            }
 
-        if (this._effect) {
-            if (val instanceof Texture) {
+            function loaded () {
+                this._effect.setProperty(name, val, passIdx);
+            }
 
-                let format = val.getPixelFormat();
-                if (format === PixelFormat.RGBA_ETC1 ||
-                    format === PixelFormat.RGB_A_PVRTC_4BPPV1 ||
-                    format === PixelFormat.RGB_A_PVRTC_2BPPV1) {
-                    this.define('CC_USE_ALPHA_ATLAS_' + name.toUpperCase(), true);
-                }
-
-                function loaded () {
-                    this._effect.setProperty(name, val);
-                }
-
-                if (!val.loaded) {
-                    val.once('load', loaded, this);
-                    textureUtil.postLoadTexture(val);
-                }
-                else {
-                    this._effect.setProperty(name, val);
-                }
-
+            if (!val.loaded) {
+                val.once('load', loaded, this);
+                textureUtil.postLoadTexture(val);
             }
             else {
-                this._effect.setProperty(name, val);
+                this._effect.setProperty(name, val, passIdx);
             }
+        }
+        else {
+            this._effect.setProperty(name, val);
         }
     },
 
     getProperty (name) {
-        return this._props[name];
+        return this._effect.getProperty(name);
     },
 
     /**
@@ -193,70 +181,83 @@ let Material = cc.Class({
      * @param {string} name
      * @param {Boolean|Number} val
      */
-    define (name, val, force) {
-        if (this._defines[name] === val && !force) return;
-        this._defines[name] = val;
-        this._dirty = true;
-
-        if (this._effect) {
-            this._effect.define(name, val);
-        }
+    define (name, val, passIdx, force) {
+        this._effect.define(name, val, passIdx, force);
     },
 
-    getDefine (name) {
-        return this._defines[name];
-    },
-
-    setDirty (dirty) {
-        this._dirty = dirty;
+    getDefine (name, passIdx) {
+        return this._effect.getDefine(name, passIdx);
     },
 
     updateHash (hash) {
-        if (hash === undefined || hash === null) {
-            hash = this.computeHash();
-        } else {
-            this._manualHash = true;
-        }
-        this._dirty = false;
-        this._hash = hash;
-        if (this._effect) {
-            this._effect.updateHash(this._hash);
-        }
-    },
-
-    computeHash () {
-        let effect = this._effect;
-        let hashStr = '';
-        if (effect) {
-            hashStr += utils.serializeDefines(effect._defines);
-            hashStr += utils.serializeTechniques(effect._techniques);
-            hashStr += utils.serializeUniforms(effect._properties);
-        }
-        return murmurhash2(hashStr, 666);
+        this._manualHash = hash;
+        this._effect && this._effect.updateHash(hash);
     },
 
     getHash () {
-        if (!this._dirty) return this._hash;
-        
-        if (!this._manualHash) {
-            this.updateHash();
-        }
+        return this._manualHash || (this._effect && this._effect.getHash());
+    },
 
-        this._dirty = false;
-        return this._hash;
+    _upgrade () {
+        if (!this._props && !this._defines) return;
+        let passDatas = this._techniqueData;
+        let passes = this._effect.passes;
+        for (let i = 0; i < passes.length; i++) {
+            if (this._props) {
+                for (let prop in this._props) {
+                    if (passes[i].getProperty(prop) !== undefined) {
+                        if (!passDatas[i]) {
+                            passDatas[i] = {};
+                        }
+                        if (!passDatas[i].props) {
+                            passDatas[i].props = {};
+                        }
+                        passDatas[i].props[prop] = this._props[prop];
+                    }
+                }
+            }
+
+            if (this._defines) {
+                for (let def in this._defines) {
+                    if (passes[i].getDefine(def) !== undefined) {
+                        if (!passDatas[i]) {
+                            passDatas[i] = {};
+                        }
+                        if (!passDatas[i].defines) {
+                            passDatas[i].defines = {};
+                        }
+                        passDatas[i].defines[def] = this._defines[def];
+                    }
+                }
+            }
+        }
     },
 
     onLoad () {
         this.effectAsset = this._effectAsset;
         if (!this._effect) return;
 
-        for (let def in this._defines) {
-            this.define(def, this._defines[def], true);
+        if (this._techniqueIndex) {
+            this._effect.switchTechnique(this._techniqueIndex);
         }
-        for (let prop in this._props) {
-            this.setProperty(prop, this._props[prop], true);
+
+        this._upgrade();
+
+        let passDatas = this._techniqueData;
+        for (let i = 0; i < passDatas.length; i++) {
+            let passData = passDatas[i];
+            if (!passData) continue;
+            
+            for (let def in passData.defines) {
+                this.define(def, passData.defines[def], i);
+            }
+            for (let prop in passData.props) {
+                this.setProperty(prop, passData.props[prop], i);
+            }
         }
+
     },
 });
+
 
 module.exports = cc.Material = Material;

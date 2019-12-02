@@ -252,21 +252,18 @@ export default class ForwardRenderer extends BaseRenderer {
   }
 
   _updateShaderDefines (item) {
-    item.defines.push(this._defines);
+    // item.defines.push(this._defines);
   }
 
   _sortItems (items) {
     // sort items
     items.sort((a, b) => {
-      let techA = a.technique;
-      let techB = b.technique;
+      // if (a.layer !== b.layer) {
+      //   return a.layer - b.layer;
+      // }
 
-      if (techA._layer !== techB._layer) {
-        return techA._layer - techB._layer;
-      }
-
-      if (techA._passes.length !== techB._passes.length) {
-        return techA._passes.length - techB._passes.length;
+      if (a.passes.length !== b.passes.length) {
+        return a.passes.length - b.passes.length;
       }
 
       return a.sortKey - b.sortKey;
@@ -282,7 +279,7 @@ export default class ForwardRenderer extends BaseRenderer {
     // draw it
     for (let i = 0; i < items.length; ++i) {
       let item = items.data[i];
-      if (this._programLib._getValueFromDefineList('CC_SHADOW_CASTING', item.defines)) {
+      if (item.effect.getDefine('CC_CASTING_SHADOW')) {
         this._updateShaderDefines(item);
         this._draw(item);
       }
