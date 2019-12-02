@@ -98,12 +98,12 @@ export class AmmoRigidBody implements IRigidBody {
 
     set allowSleep (v: boolean) {
         if (v) {
-            this._btBody.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
-        } else {
             const state = this._btBody.getActivationState();
             if (state == AmmoCollisionObjectStates.DISABLE_DEACTIVATION) {
                 this._btBody.setActivationState(AmmoCollisionObjectStates.ACTIVE_TAG);
             }
+        } else {
+            this._btBody.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
         }
     }
 
@@ -153,7 +153,7 @@ export class AmmoRigidBody implements IRigidBody {
     onDestroy () {
         this._sharedBody.reference = false;
         (this._rigidBody as any) = null;
-        (this._sharedBody as any) = null;        
+        (this._sharedBody as any) = null;
     }
 
     /** INTERFACE */
