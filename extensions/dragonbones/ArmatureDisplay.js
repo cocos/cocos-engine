@@ -431,15 +431,17 @@ let ArmatureDisplay = cc.Class({
     },
 
     _prepareAttachedNode () {
-        this.destroyAllAttachedNode();
         let armature = this._armature;
         if (!armature) {
             return;
         }
 
-        let rootNode = new cc.Node(ATTACHED_ROOT_NAME);
-        rootNode._mulMat = EmptyHandle;
-        this.node.addChild(rootNode);
+        let rootNode = this.node.getChildByName(ATTACHED_ROOT_NAME);
+        if (!rootNode || !rootNode.isValid) {
+            rootNode = new cc.Node(ATTACHED_ROOT_NAME);
+            rootNode._mulMat = EmptyHandle;
+            this.node.addChild(rootNode);
+        }
 
         let isCached = this.isAnimationCached();
         if (isCached && this._frameCache) {
@@ -456,11 +458,7 @@ let ArmatureDisplay = cc.Class({
         slotNode._mulMat = EmptyHandle;
         slotNode._armatureSlot = slot;
         slotNode._slotOrder = slot._zOrder;
-        if (nodeIndex !== undefined) {
-            this._attachedNodeArray[nodeIndex] = slotNode;
-        } else {
-            this._attachedNodeArray.push(slotNode);
-        }
+        this._attachedNodeArray[nodeIndex] = slotNode;
         return slotNode;
     },
 
@@ -486,20 +484,16 @@ let ArmatureDisplay = cc.Class({
     /**
      * !#en Destroy attached node which you want.
      * !#zh 销毁对应的挂点
-     * @param {...String}  ...slotnames Variable length parameter consisting of slot name
+     * @param {String}  slotName
      */
-    destroyAttachedNode (/* slotName1, slotName2, ... */) {
-        let args = [...arguments];
-        if (args.length === 0) return;
-
+    destroyAttachedNode (slotName) {
         let nodeArray = this._attachedNodeArray;
         for (let i = 0, n = nodeArray.length; i < n; i++) {
             let slotNode = nodeArray[i];
             if (!slotNode || !slotNode.isValid) continue;
 
-            let slotName = slotNode.name;
-            slotName = slotName.split(ATTACHED_PRE_NAME)[1];
-            if (args.indexOf(slotName) != -1) {
+            let delName = slotNode.name.split(ATTACHED_PRE_NAME)[1];
+            if (delName === slotName) {
                 slotNode.removeFromParent(true);
                 slotNode.destroy();
                 nodeArray[i] = null;
@@ -510,17 +504,14 @@ let ArmatureDisplay = cc.Class({
     /**
      * !#en Traverse all slots to generate the minimum node tree containing the given slot names
      * !#zh 遍历所有插槽，生成包含所有给定插槽名称的最小节点树
-     * @param {...String}  ...slotnames Variable length parameter consisting of slot name
-     * @example let slotNodes = armatureDisplayComponent.generateAttachedNode(slotName1, slotName2, slotName3);
+     * @param {String} slotName
      */
-    generateAttachedNode (/*slotName1, slotName2, ...*/) {
-        let args = [...arguments];
-        if (args.length === 0) return;
+    generateAttachedNode (slotName) {
         let rootNode = this._prepareAttachedNode();
         if (!rootNode) return;
 
         let nodeIndex = 0;
-        let attachedTraverse = function (armature) {
+        let attachedTraverse = function (armature, parentNode) {
             if (!armature) return null;
             let slots = armature.getSlots(), slot;
             let thisSlotNodes = [];
@@ -529,19 +520,24 @@ let ArmatureDisplay = cc.Class({
                 let curNodeIndex = nodeIndex++;
                 slot = slots[i];
                 
+                if (parentNode) {
+                    thisSlotNode = parentNode.getChildByName(ATTACHED_PRE_NAME + slot.name);
+                }
+
                 if (slot.childArmature) {
-                    let childSlotNodes = attachedTraverse(slot.childArmature);
+                    let childSlotNodes = attachedTraverse(slot.childArmature, thisSlotNode);
                     if (childSlotNodes.length > 0) {
-                        thisSlotNode = this._buildSlotAttachedNode(slot, curNodeIndex);
-                        thisSlotNodes.push(thisSlotNode);
+                        if (!thisSlotNode) {
+                            thisSlotNode = this._buildSlotAttachedNode(slot, curNodeIndex);
+                            thisSlotNodes.push(thisSlotNode);
+                        }
                         for (let ii = 0, nn = childSlotNodes.length; ii < nn; ii++) {
-                            thisSlotNode.addChild(childSlotNodes[ii]);
+                            childSlotNodes[ii].parent = thisSlotNode;
                         }
                     }
                 }
 
-                let targetNodeIndex = args.indexOf(slot.name);
-                if (targetNodeIndex != -1) {
+                if (slotName === slot.name) {
                     if (!thisSlotNode) {
                         thisSlotNode = this._buildSlotAttachedNode(slot, curNodeIndex);
                         thisSlotNodes.push(thisSlotNode);
@@ -551,9 +547,9 @@ let ArmatureDisplay = cc.Class({
             return thisSlotNodes;
         }.bind(this);
 
-        let childSlotNodes = attachedTraverse(this._armature);
+        let childSlotNodes = attachedTraverse(this._armature, rootNode);
         for (let ii = 0, nn = childSlotNodes.length; ii < nn; ii++) {
-            rootNode.addChild(childSlotNodes[ii]);
+            childSlotNodes[ii].parent = rootNode;
         }
     },
 
@@ -580,13 +576,21 @@ let ArmatureDisplay = cc.Class({
     generateAllAttachedNode () {
         let rootNode = this._prepareAttachedNode();
         if (!rootNode) return;
+
+        let nodeIndex = 0;
         let attachedTraverse = function (armature, parentNode) {
             if (!armature) return;
             let slots = armature.getSlots(), slot;
             for (let i = 0, l = slots.length; i < l; i++) {
+                let curNodeIndex = nodeIndex++;
                 slot = slots[i];
-                let slotNode = this._buildSlotAttachedNode(slot);
-                parentNode.addChild(slotNode);
+
+                let slotNode = parentNode.getChildByName(ATTACHED_PRE_NAME + slot.name);
+                if (!slotNode) {
+                    slotNode = this._buildSlotAttachedNode(slot, curNodeIndex);
+                    parentNode.addChild(slotNode);
+                }
+                
                 if (slot.childArmature) {
                     attachedTraverse(slot.childArmature, slotNode);
                 }
