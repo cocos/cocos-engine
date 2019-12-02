@@ -208,7 +208,7 @@ export class WidgetComponent extends Component {
         this._target = value;
         this._registerTargetEvents();
         if (CC_EDITOR /*&& !cc.engine._isPlaying*/ && this.node.parent) {
-            // adjust the offsets to keep the size and position unchanged after target chagned
+            // adjust the offsets to keep the size and position unchanged after target changed
             cc._widgetManager.updateOffsetsToStayPut(this);
         }
 
@@ -950,7 +950,7 @@ export class WidgetComponent extends Component {
             }
 
             if (CC_EDITOR && this.node.parent) {
-                // adjust the offsets to keep the size and position unchanged after alignment chagned
+                // adjust the offsets to keep the size and position unchanged after alignment changed
                 cc._widgetManager.updateOffsetsToStayPut(this, flag);
             }
         } else {

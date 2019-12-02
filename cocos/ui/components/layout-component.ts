@@ -721,18 +721,18 @@ export class LayoutComponent extends Component {
 
             let signX = 1;
             let tempFinalPositionY;
-            const topMarign = (tempMaxHeight === 0) ? childBoundingBoxHeight : tempMaxHeight;
+            const topMargin = (tempMaxHeight === 0) ? childBoundingBoxHeight : tempMaxHeight;
 
             if (this._verticalDirection === VerticalDirection.TOP_TO_BOTTOM) {
                 containerResizeBoundary = containerResizeBoundary || this.node.getContentSize().height;
                 signX = -1;
-                tempFinalPositionY = finalPositionY + signX * (topMarign * maxHeightChildAnchorY + this._paddingBottom);
+                tempFinalPositionY = finalPositionY + signX * (topMargin * maxHeightChildAnchorY + this._paddingBottom);
                 if (tempFinalPositionY < containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionY;
                 }
             } else {
                 containerResizeBoundary = containerResizeBoundary || -this.node.getContentSize().height;
-                tempFinalPositionY = finalPositionY + signX * (topMarign * maxHeightChildAnchorY + this._paddingTop);
+                tempFinalPositionY = finalPositionY + signX * (topMargin * maxHeightChildAnchorY + this._paddingTop);
                 if (tempFinalPositionY > containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionY;
                 }
@@ -862,18 +862,18 @@ export class LayoutComponent extends Component {
             let signX = 1;
             let tempFinalPositionX;
             // when the item is the last column break item, the tempMaxWidth will be 0.
-            const rightMarign = (tempMaxWidth === 0) ? childBoundingBoxWidth : tempMaxWidth;
+            const rightMargin = (tempMaxWidth === 0) ? childBoundingBoxWidth : tempMaxWidth;
 
             if (this._horizontalDirection === HorizontalDirection.RIGHT_TO_LEFT) {
                 signX = -1;
                 containerResizeBoundary = containerResizeBoundary || this.node.getContentSize().width;
-                tempFinalPositionX = finalPositionX + signX * (rightMarign * maxWidthChildAnchorX + this._paddingLeft);
+                tempFinalPositionX = finalPositionX + signX * (rightMargin * maxWidthChildAnchorX + this._paddingLeft);
                 if (tempFinalPositionX < containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionX;
                 }
             } else {
                 containerResizeBoundary = containerResizeBoundary || -this.node.getContentSize().width;
-                tempFinalPositionX = finalPositionX + signX * (rightMarign * maxWidthChildAnchorX + this._paddingRight);
+                tempFinalPositionX = finalPositionX + signX * (rightMargin * maxWidthChildAnchorX + this._paddingRight);
                 if (tempFinalPositionX > containerResizeBoundary) {
                     containerResizeBoundary = tempFinalPositionX;
                 }

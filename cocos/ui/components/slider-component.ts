@@ -195,8 +195,8 @@ export class SliderComponent extends Component {
 
         this._dragging = true;
         this._touchHandle = true;
-        const touhPos = event.touch!.getUILocation();
-        Vec3.set(this._touchPos, touhPos.x, touhPos.y, 0);
+        const touchPos = event.touch!.getUILocation();
+        Vec3.set(this._touchPos, touchPos.x, touchPos.y, 0);
         this._handle.node.uiTransfromComp.convertToNodeSpaceAR(this._touchPos, this._offset);
 
         event.propagationStopped = true;

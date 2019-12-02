@@ -46,7 +46,7 @@ const _intersectPoint_2: Vec2[] = [new Vec2(), new Vec2(), new Vec2(), new Vec2(
 const _center = new Vec2();
 const _triangles: Vec2[] = [new Vec2(), new Vec2(), new Vec2(), new Vec2()];
 
-function _calcInsectedPoints (left, right, bottom, top, center, angle, intersectPoints) {
+function _calcIntersectedPoints (left, right, bottom, top, center, angle, intersectPoints) {
     // left bottom, right, top
     let sinAngle = Math.sin(angle);
     sinAngle = Math.abs(sinAngle) > EPSILON ? sinAngle : 0;
@@ -281,12 +281,12 @@ export const radialFilled: IAssembler = {
                 // build uvs
                 _calculateUVs(frame);
 
-                _calcInsectedPoints(
+                _calcIntersectedPoints(
                     _vertices[0], _vertices[2],
                     _vertices[1], _vertices[3],
                     _center, fillStart, _intersectPoint_1,
                 );
-                _calcInsectedPoints(
+                _calcIntersectedPoints(
                     _vertices[0], _vertices[2],
                     _vertices[1], _vertices[3],
                     _center, fillStart + fillRange, _intersectPoint_2,

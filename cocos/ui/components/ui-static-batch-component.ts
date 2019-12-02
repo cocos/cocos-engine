@@ -148,35 +148,35 @@ export class UIStaticBatchComponent extends UIRenderComponent {
         }
 
         this._meshBuffer!.reset();
-        for (let i = 0; i < this._uiDrawBathcList.length; i++) {
-            const element = this._uiDrawBathcList[i];
+        for (let i = 0; i < this._uiDrawBatchList.length; i++) {
+            const element = this._uiDrawBatchList[i];
             element.destroy(ui);
         }
 
-        this._uiDrawBathcList.length = 0;
+        this._uiDrawBatchList.length = 0;
     }
 
     get drawBatchList (){
-        return this._uiDrawBathcList;
+        return this._uiDrawBatchList;
     }
 
     protected _init = false;
     protected _meshBuffer: MeshBuffer | null = null;
     protected _collect = false;
     private _lastMeshBuffer: MeshBuffer | null = null;
-    private _uiDrawBathcList: UIDrawBatch[] = [];
+    private _uiDrawBatchList: UIDrawBatch[] = [];
 
     public onDestroy (){
         super.onDestroy();
         const ui = this._getUI();
         if (ui) {
-            for (let i = 0; i < this._uiDrawBathcList.length; i++) {
-                const element = this._uiDrawBathcList[i];
+            for (let i = 0; i < this._uiDrawBatchList.length; i++) {
+                const element = this._uiDrawBatchList[i];
                 element.destroy(ui);
             }
         }
 
-        this._uiDrawBathcList.length = 0;
+        this._uiDrawBatchList.length = 0;
         if(this._meshBuffer){
             this._meshBuffer.destroy();
             this._meshBuffer = null;
@@ -214,7 +214,7 @@ export class UIStaticBatchComponent extends UIRenderComponent {
     public requireDrawBatch (){
         const batch = new UIDrawBatch();
         batch.isStatic = true;
-        this._uiDrawBathcList.push(batch);
+        this._uiDrawBatchList.push(batch);
         return batch;
     }
 

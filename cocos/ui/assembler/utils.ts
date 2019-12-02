@@ -87,7 +87,7 @@ export function fillMeshVertices3D (node: INode, renderer: UI, renderData: Rende
         vertexOffset += 4;
     }
 
-    // fill indice data
+    // fill index data
     for (let i = 0, count = vertexCount / 4; i < count; i++) {
         const start = vertexId + i * 4;
         ibuf[indiceOffset++] = start;
