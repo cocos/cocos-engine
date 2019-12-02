@@ -358,6 +358,7 @@ export class Model {
 
     protected _doCreatePSO (pass: Pass, defineOverrides?: IDefineMap, stateOverrides?: IPassStates) {
         defineOverrides = defineOverrides || {};
+        if (pass.blendState.targets[0].blend) { this._isDynamicBatching = false; }
         defineOverrides.CC_USE_BATCHING = this._isDynamicBatching;
         const pso = pass.createPipelineState(defineOverrides, stateOverrides)!;
         pso.pipelineLayout.layouts[0].bindBuffer(UBOLocal.BLOCK.binding, this._localBindings.get(UBOLocal.BLOCK.name)!.buffer!);
