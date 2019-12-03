@@ -4,7 +4,6 @@ import yargs from 'yargs';
 import { build, enumeratePhysicsReps, enumerateBuildModeReps, enumeratePlatformReps, IBuildOptions, IFlags, parsePhysics, parseBuildMode, enumerateModuleOptionReps, parseModuleOption, parsePlatform } from './build-engine';
 
 yargs.help();
-// @ts-ignore
 yargs.option('buildmode', {
     type: 'string',
     alias: 'b',

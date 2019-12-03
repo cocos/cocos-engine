@@ -68,12 +68,12 @@ export interface IBuildOptions extends IBaseOptions {
     /**
      * 构建模式。
      */
-    mode?: BuildMode;
+    mode?: Mode;
 
     /**
      * 目标平台。
      */
-    platform?: BuildMode;
+    platform?: Platform;
 
     /**
      * 引擎标志。
@@ -278,7 +278,6 @@ async function _internalBuild (options: IAdvancedOptions) {
 export enum Platform {
     HTML5,
     WECHAT,
-    WECHATSUB,
     ALIPAY,
     BAIDU,
     XIAOMI,
@@ -289,14 +288,14 @@ export enum Platform {
 }
 
 export function enumeratePlatformReps () {
-    return Object.values(Platform).filter((value) => typeof value === 'string');
+    return Object.values(Platform).filter((value) => typeof value === 'string') as Array<keyof typeof Platform>;
 }
 
 export function parsePlatform (rep: string) {
     return Reflect.get(Platform, rep);
 }
 
-export enum BuildMode {
+export enum Mode {
     universal,
     editor,
     preview,
@@ -305,11 +304,11 @@ export enum BuildMode {
 }
 
 export function enumerateBuildModeReps () {
-    return Object.values(BuildMode).filter((value) => typeof value === 'string');
+    return Object.values(Mode).filter((value) => typeof value === 'string') as Array<keyof typeof Mode>;
 }
 
 export function parseBuildMode (rep: string) {
-    return Reflect.get(BuildMode, rep);
+    return Reflect.get(Mode, rep);
 }
 
 export enum Physics {
@@ -359,7 +358,6 @@ interface IGlobaldefines {
     // Platform macros
     CC_HTML5?: boolean;
     CC_WECHAT?: boolean;
-    CC_WECHATSUB?: boolean;
     CC_ALIPAY?: boolean;
     CC_BAIDU?: boolean;
     CC_XIAOMI?: boolean;
@@ -387,19 +385,19 @@ interface IGlobaldefines {
 }
 
 function getGlobalDefs (options: IBuildOptions): object {
-    const buildmode = options.mode || BuildMode.universal;
+    const buildmode = options.mode || Mode.universal;
     const platform = options.platform;
     const flags = options.flags;
 
     const BUILDMODE_MACROS = ['CC_EDITOR', 'CC_PREVIEW', 'CC_BUILD', 'CC_TEST'];
-    const PLATFORM_MACROS = ['CC_HTML5', 'CC_WECHAT', 'CC_WECHATSUB', 'CC_ALIPAY', 'CC_BAIDU', 'CC_XIAOMI', 'CC_OPPO', 'CC_VIVO', 'CC_HUAWEI', 'CC_NATIVE'];
+    const PLATFORM_MACROS = ['CC_HTML5', 'CC_WECHAT', 'CC_ALIPAY', 'CC_BAIDU', 'CC_XIAOMI', 'CC_OPPO', 'CC_VIVO', 'CC_HUAWEI', 'CC_NATIVE'];
     const FLAGS = ['debug'];
 
-    const buildmodeMacro = ('CC_' + BuildMode[buildmode]).toUpperCase();
-    if (BUILDMODE_MACROS.indexOf(buildmodeMacro) === -1 && buildmode !== BuildMode.universal) {
+    const buildmodeMacro = ('CC_' + Mode[buildmode]).toUpperCase();
+    if (BUILDMODE_MACROS.indexOf(buildmodeMacro) === -1 && buildmode !== Mode.universal) {
         throw new Error(`Unknown buildmode ${buildmode}.`);
     }
-    const platformMacro = ('CC_' + Platform[platform!]);
+    const platformMacro = ('CC_' + Platform[platform!]).toUpperCase();
     if ( PLATFORM_MACROS.indexOf(platformMacro) === -1) {
         throw new Error(`Unknown platform ${platform}.`);
     }
@@ -445,5 +443,27 @@ function getGlobalDefs (options: IBuildOptions): object {
         }
     }
 
+    return result;
+}
+
+interface IEngineMode {
+    RunTime?: boolean;
+    MiniGame?: boolean;
+}
+
+export function getEngineMode (options: IBuildOptions): object {
+    const platform = options.platform;
+    const PLATFORM_MACROS = ['CC_HTML5', 'CC_WECHAT', 'CC_BAIDU', 'CC_XIAOMI', 'CC_OPPO', 'CC_VIVO', 'CC_HUAWEI', 'CC_NATIVE'];
+    const platformMacro = Platform[platform!].toUpperCase();
+    if (PLATFORM_MACROS.indexOf(platformMacro) === -1) {
+        throw new Error(`Unknown platform ${platform}.`);
+    }
+    const result: IEngineMode = {};
+    if (platformMacro === 'CC_WECHAT' || platformMacro === 'CC_BAIDU' || platformMacro === 'CC_XIAOMI' || platformMacro === 'CC_ALIPAY') {
+        result.MiniGame = true;
+    }
+    if (platformMacro === 'CC_OPPO' || platformMacro === 'CC_VIVO' || platformMacro === 'CC_HUAWEI') {
+        result.RunTime = true;
+    }
     return result;
 }

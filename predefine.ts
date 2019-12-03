@@ -116,9 +116,6 @@
  * @property {Boolean} CC_ALIPAY - Running in the alipay's mini game.
  */
 /**
- * @property {Boolean} CC_QQPLAY - Running in the bricks.
- */
-/**
  * @property {Boolean} CC_MINIGAME - Running in mini game.
  */
 /**
@@ -173,7 +170,6 @@ if (CC_BUILD) {
     _global.CC_JSB = CC_JSB;
     _global.CC_WECHAT = CC_WECHAT;
     _global.CC_ALIPAY = CC_ALIPAY;
-    _global.CC_QQPLAY = CC_QQPLAY;
     _global.CC_MINIGAME = CC_MINIGAME;
     _global.CC_RUNTIME_BASED = CC_RUNTIME_BASED;
     _global.CC_SUPPORT_JIT = CC_SUPPORT_JIT;
@@ -190,15 +186,13 @@ else {
     defineMacro('CC_DEV', true);    // (CC_EDITOR && !CC_BUILD) || CC_PREVIEW || CC_TEST
     defineMacro('CC_DEBUG', true);  // CC_DEV || Debug Build
     defineMacro('CC_JSB', defined('jsb'));
-    defineMacro('CC_WECHATGAME_SUB', !!(defined('wx') && wx.getSharedCanvas));
     defineMacro('CC_WECHAT', !!(defined('wx') && (wx.getSystemInfoSync || wx.getSharedCanvas)));
-    defineMacro('CC_QQPLAY', defined('bk'));
     defineMacro('CC_MINIGAME', false);
     defineMacro('CC_RUNTIME_BASED', false);
     defineMacro('CC_ALIPAY', false);
     // @ts-ignore
     defineMacro('CC_RUNTIME', 'function' === typeof loadRuntime);
-    defineMacro('CC_SUPPORT_JIT', !(CC_MINIGAME || CC_QQPLAY || CC_RUNTIME_BASED));
+    defineMacro('CC_SUPPORT_JIT', !(CC_MINIGAME || CC_RUNTIME_BASED));
     defineMacro('CC_PHYSICS_BUILTIN', true);
     defineMacro('CC_PHYSICS_CANNON', false);
     defineMacro('CC_PHYSICS_AMMO', false);

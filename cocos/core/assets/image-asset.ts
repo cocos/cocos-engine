@@ -181,7 +181,7 @@ export class ImageAsset extends Asset {
             this._onDataComplete();
         } else {
             this._nativeData = data;
-            if (CC_MINIGAME || CC_QQPLAY || (data as any).complete || data instanceof HTMLCanvasElement) { // todo need adatper
+            if (CC_MINIGAME || (data as any).complete || data instanceof HTMLCanvasElement) { // todo need adatper
                 this._onDataComplete();
             } else {
                 this.loaded = false;

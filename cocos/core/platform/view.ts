@@ -72,16 +72,7 @@ if (cc.sys.os === cc.sys.OS_IOS) { // All browsers are WebView
 }
 
 if (CC_WECHAT) {
-    if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-        __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB;
-    }
-    else {
-        __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_WECHAT_GAME;
-    }
-}
-
-if (CC_QQPLAY) {
-    __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_QQ_PLAY;
+    __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_WECHAT_GAME;
 }
 
 switch (__BrowserGetter.adaptationType) {
@@ -729,7 +720,7 @@ export class View extends EventTarget {
      * @param {ResolutionPolicy|Number} resolutionPolicy The resolution policy desired
      */
     public setRealPixelResolution (width, height, resolutionPolicy) {
-        if (!CC_JSB && !CC_MINIGAME && !CC_QQPLAY) {
+        if (!CC_JSB && !CC_MINIGAME) {
             // Set viewport's width
             this._setViewportMeta({width}, true);
 
@@ -1044,7 +1035,7 @@ export class View extends EventTarget {
     }
 
     private _adjustViewportMeta () {
-        if (this._isAdjustViewport && !CC_JSB && !CC_MINIGAME && !CC_QQPLAY) {
+        if (this._isAdjustViewport && !CC_JSB && !CC_MINIGAME) {
             this._setViewportMeta(__BrowserGetter.meta, false);
             this._isAdjustViewport = false;
         }
