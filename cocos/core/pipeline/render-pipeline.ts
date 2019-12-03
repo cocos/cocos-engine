@@ -32,9 +32,7 @@ import { IRenderFlowInfo, RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
 import { Asset } from '../assets';
 
-const _vec4Array = new Float32Array(4);
-const _v3tmp = new Vec3();
-const _v4Zero = new Vec4(0.0, 0.0, 0.0, 0.0);
+const v3_1 = new Vec3();
 
 /**
  * @zh
@@ -879,7 +877,7 @@ export abstract class RenderPipeline {
     protected updateUBOs (view: RenderView) {
 
         const camera = view.camera;
-        const scene = camera.scene;
+        const scene = camera.scene!;
         const device = this._root.device;
 
         const mainLight = scene.mainLight;
@@ -921,9 +919,8 @@ export abstract class RenderPipeline {
         fv[UBOGlobal.EXPOSURE_OFFSET + 2] = this._isHDR ? 1.0 : 0.0;
         fv[UBOGlobal.EXPOSURE_OFFSET + 3] = this._fpScale / exposure;
 
-        Vec3.toArray(fv, mainLight.direction, UBOGlobal.MAIN_LIT_DIR_OFFSET);
-
-        if (mainLight.enabled) {
+        if (mainLight) {
+            Vec3.toArray(fv, mainLight.direction, UBOGlobal.MAIN_LIT_DIR_OFFSET);
             Vec3.toArray(fv, mainLight.color, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
             if (mainLight.useColorTemperature) {
                 const colorTempRGB = mainLight.colorTemperatureRGB;
@@ -938,16 +935,17 @@ export abstract class RenderPipeline {
                 fv[UBOGlobal.MAIN_LIT_COLOR_OFFSET + 3] = mainLight.illuminance * exposure;
             }
         } else {
-            Vec4.toArray(fv, _v4Zero, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
+            Vec3.toArray(fv, Vec3.UNIT_Z, UBOGlobal.MAIN_LIT_DIR_OFFSET);
+            Vec4.toArray(fv, Vec4.ZERO, UBOGlobal.MAIN_LIT_COLOR_OFFSET);
         }
 
-        _vec4Array.set(ambient.skyColor);
+        const skyColor = ambient.skyColor;
         if (this._isHDR) {
-            _vec4Array[3] = ambient.skyIllum * this._fpScale;
+            skyColor[3] = ambient.skyIllum * this._fpScale;
         } else {
-            _vec4Array[3] = ambient.skyIllum * exposure;
+            skyColor[3] = ambient.skyIllum * exposure;
         }
-        this._uboGlobal.view.set(_vec4Array, UBOGlobal.AMBIENT_SKY_OFFSET);
+        this._uboGlobal.view.set(skyColor, UBOGlobal.AMBIENT_SKY_OFFSET);
 
         this._uboGlobal.view.set(ambient.groundAlbedo, UBOGlobal.AMBIENT_GROUND_OFFSET);
 
@@ -963,26 +961,27 @@ export abstract class RenderPipeline {
     protected sceneCulling (view: RenderView) {
 
         const camera = view.camera;
-        const scene = camera.scene;
+        const scene = camera.scene!;
 
-        this._renderObjects.splice(0);
+        this._renderObjects.length = 0;
 
         const mainLight = scene.mainLight;
-        if (mainLight && mainLight.enabled) {
-            mainLight.update();
-        }
-
         const planarShadows = scene.planarShadows;
-        if (planarShadows.enabled && mainLight.node.hasChangedFlags) {
-            planarShadows.updateDirLight(mainLight);
+        if (mainLight) {
+            mainLight.update();
+            if (planarShadows.enabled && mainLight.node!.hasChangedFlags) {
+                planarShadows.updateDirLight(mainLight);
+            }
         }
 
         if (scene.skybox.enabled && (camera.clearFlag & SKYBOX_FLAG)) {
             this.addVisibleModel(scene.skybox, camera);
         }
 
-        for (let i = 0; i < scene.models.length; i++) {
-            const model = scene.models[i];
+        const models = scene.models;
+        for (let i = 0; i < models.length; i++) {
+            const model = models[i];
+
             model._resetUBOUpdateFlag();
 
             // filter model by view visibility
@@ -1026,9 +1025,8 @@ export abstract class RenderPipeline {
     protected addVisibleModel (model: Model, camera: Camera) {
         let depth = 0;
         if (model.node) {
-            model.node.getWorldPosition(_v3tmp);
-            Vec3.subtract(_v3tmp, _v3tmp, camera.position);
-            depth = Vec3.dot(_v3tmp, camera.forward);
+            Vec3.subtract(v3_1, model.node.worldPosition, camera.position);
+            depth = Vec3.dot(v3_1, camera.forward);
         }
         this._renderObjects.push({
             model,

@@ -57,11 +57,7 @@ export class RenderScene {
         return this._planarShadows;
     }
 
-    get defaultMainLightNode (): INode {
-        return this._defaultMainLightNode;
-    }
-
-    get mainLight (): DirectionalLight {
+    get mainLight (): DirectionalLight | null {
         return this._mainLight;
     }
 
@@ -119,20 +115,14 @@ export class RenderScene {
     private _ambient: Ambient;
     private _skybox: Skybox;
     private _planarShadows: PlanarShadows;
-    private _mainLight: DirectionalLight;
-    private _defaultMainLightNode: INode;
+    private _models: Model[] = [];
     private _sphereLights: SphereLight[] = [];
     private _spotLights: SpotLight[] = [];
-    private _models: Model[] = [];
+    private _mainLight: DirectionalLight | null = null;
     private _modelId: number = 0;
 
     constructor (root: Root) {
         this._root = root;
-        this._ambient = new Ambient(this);
-        this._defaultMainLightNode = new Node('Main Light');
-        this._mainLight = new DirectionalLight(this, 'Main Light', this._defaultMainLightNode);
-        this._mainLight.illuminance = Ambient.SUN_ILLUM;
-        this._mainLight.enabled = false; // disabled by default
         this._ambient = new Ambient(this);
         this._skybox = new Skybox(this);
         this._planarShadows = new PlanarShadows(this);
@@ -144,97 +134,112 @@ export class RenderScene {
     }
 
     public destroy () {
-        this.destroyCameras();
-        this.destroyPointLights();
-        this.destroySpotLights();
-        this.destroyModels();
+        this.removeCameras();
+        this.removeSphereLights();
+        this.removeSpotLights();
+        this.removeModels();
         this._skybox.destroy();
         this._planarShadows.destroy();
     }
 
-    public createCamera (info: ICameraInfo): Camera {
-        const camera = new Camera(this, info);
-        this._cameras.push(camera);
-        return camera;
+    public addCamera (cam: Camera) {
+        cam.attachToScene(this);
+        this._cameras.push(cam);
     }
 
-    public destroyCamera (camera: Camera) {
+    public removeCamera (camera: Camera) {
         for (let i = 0; i < this._cameras.length; ++i) {
             if (this._cameras[i] === camera) {
-                camera.destroy();
                 this._cameras.splice(i, 1);
+                camera.detachFromScene();
                 return;
             }
         }
     }
 
-    public destroyCameras () {
+    public removeCameras () {
         for (const camera of this._cameras) {
-            camera.destroy();
+            camera.detachFromScene();
         }
         this._cameras.splice(0);
     }
 
-    public createSphereLight (name: string, node: INode): SphereLight | null {
-        const light = new SphereLight(this, name, node);
-        this._sphereLights.push(light);
-        return light;
+    public setMainLight (dl: DirectionalLight) {
+        dl.attachToScene(this);
+        this._mainLight = dl;
     }
 
-    public destroySphereLight (light: SphereLight) {
+    public unsetMainLight (dl: DirectionalLight) {
+        dl.detachFromScene();
+        this._mainLight = null;
+    }
+
+    public addSphereLight (pl: SphereLight) {
+        pl.attachToScene(this);
+        this._sphereLights.push(pl);
+    }
+
+    public removeSphereLight (pl: SphereLight) {
         for (let i = 0; i < this._sphereLights.length; ++i) {
-            if (this._sphereLights[i] === light) {
+            if (this._sphereLights[i] === pl) {
+                pl.detachFromScene();
                 this._sphereLights.splice(i, 1);
                 return;
             }
         }
     }
 
-    public createSpotLight (name: string, node: INode): SpotLight | null {
-        const light = new SpotLight(this, name, node);
-        this._spotLights.push(light);
-        return light;
+    public addSpotLight (sl: SpotLight) {
+        sl.attachToScene(this);
+        this._spotLights.push(sl);
     }
 
-    public destroySpotLight (light: SpotLight) {
+    public removeSpotLight (sl: SpotLight) {
         for (let i = 0; i < this._spotLights.length; ++i) {
-            if (this._spotLights[i] === light) {
+            if (this._spotLights[i] === sl) {
+                sl.detachFromScene();
                 this._spotLights.splice(i, 1);
                 return;
             }
         }
     }
 
-    public destroyPointLights () {
-        this._sphereLights = [];
+    public removeSphereLights () {
+        for (let i = 0; i < this._sphereLights.length; ++i) {
+            this._sphereLights[i].detachFromScene();
+        }
+        this._sphereLights.length = 0;
     }
 
-    public destroySpotLights () {
+    public removeSpotLights () {
+        for (let i = 0; i < this._spotLights.length; ++i) {
+            this._spotLights[i].detachFromScene();
+        }
         this._spotLights = [];
     }
 
-    public createModel<T extends Model> (clazz: new (scene: RenderScene, node: INode) => T, node: INode): T {
-        const model = new clazz(this, node);
-        this._models.push(model);
-        return model;
+    public addModel (m: Model) {
+        m.attachToScene(this);
+        this._models.push(m);
     }
 
-    public destroyModel (model: Model) {
+    public removeModel (model: Model) {
         for (let i = 0; i < this._models.length; ++i) {
             if (this._models[i] === model) {
                 this._planarShadows.destroyShadowModel(model);
-                this._models.splice(i, 1)[0].destroy();
+                model.detachFromScene();
+                this._models.splice(i, 1);
                 return;
             }
         }
     }
 
-    public destroyModels () {
+    public removeModels () {
         for (const m of this._models) {
             this._planarShadows.destroyShadowModel(m);
-            m.destroy();
+            m.detachFromScene();
         }
-        this._models = [];
+        this._models.length = 0;
     }
 
     public onPipelineChange () {

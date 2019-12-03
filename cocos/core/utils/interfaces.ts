@@ -27,7 +27,7 @@ import { Component } from '../components/component';
 import { Event } from '../event';
 import { Mat4, Quat, Size, Vec2, Vec3 } from '../math';
 import { SystemEventType } from '../platform/event-manager/event-enum';
-import { NodeSpace, TransformDirtyBit } from '../scene-graph/node-enum';
+import { NodeSpace, TransformBit } from '../scene-graph/node-enum';
 import { NodeEventProcessor } from '../scene-graph/node-event-processor';
 import { Scene } from '../scene-graph/scene';
 
@@ -446,7 +446,7 @@ export interface INode extends IBaseNode {
      * @zh
      * 这个节点的空间变换信息在当前帧内是否有变过？
      */
-    hasChangedFlags: Readonly<TransformDirtyBit>;
+    hasChangedFlags: Readonly<TransformBit>;
 
     /**
      * @zh

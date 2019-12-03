@@ -424,7 +424,7 @@ export class WebGLCmdBeginRenderPass extends WebGLCmdObject {
 
     public clear () {
         this.gpuFramebuffer = null;
-        this.clearColors = [];
+        this.clearColors.length = 0;
     }
 }
 
@@ -529,7 +529,7 @@ export class WebGLCmdCopyBufferToTexture extends WebGLCmdObject {
         this.gpuBuffer = null;
         this.gpuTexture = null;
         this.dstLayout = null;
-        this.regions = [];
+        this.regions.length = 0;
     }
 }
 
@@ -1138,7 +1138,8 @@ export function WebGLCmdFuncDestroyFramebuffer (device: WebGLGFXDevice, gpuFrame
 export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: WebGLGPUShader) {
     const gl = device.gl;
 
-    for (const gpuStage of gpuShader.gpuStages) {
+    for (let k = 0; k < gpuShader.gpuStages.length; k++) {
+        const gpuStage = gpuShader.gpuStages[k];
 
         let glShaderType: GLenum = 0;
         let shaderTypeStr = '';
@@ -1187,7 +1188,8 @@ export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: Web
     gpuShader.glProgram = glProgram;
 
     // link program
-    for (const gpuStage of gpuShader.gpuStages) {
+    for (let k = 0; k < gpuShader.gpuStages.length; k++) {
+        const gpuStage = gpuShader.gpuStages[k];
         gl.attachShader(gpuShader.glProgram, gpuStage.glShader!);
     }
 
@@ -1198,7 +1200,8 @@ export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: Web
         console.error('Failed to link shader \'' + gpuShader.name + '\'.');
         console.error(gl.getProgramInfoLog(gpuShader.glProgram));
 
-        for (const gpuStage of gpuShader.gpuStages) {
+        for (let k = 0; k < gpuShader.gpuStages.length; k++) {
+            const gpuStage = gpuShader.gpuStages[k];
             if (gpuStage.glShader) {
                 gl.deleteShader(gpuStage.glShader);
                 gpuStage.glShader = null;
@@ -1288,7 +1291,8 @@ export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: Web
             /*
             glBlock.buffer = new ArrayBuffer(glBlock.size);
 
-            for (const glUniform of glBlock.glUniforms) {
+            for (let k = 0; k < glBlock.glUniforms.length; k++) {
+                const glUniform = glBlock.glUniforms[k];
                 switch (glUniform.glType) {
                     case gl.BOOL:
                     case gl.BOOL_VEC2:
@@ -1339,7 +1343,7 @@ export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: Web
         const uniformInfo = gl.getActiveUniform(gpuShader.glProgram, i);
         if (uniformInfo) {
             const glLoc = gl.getUniformLocation(gpuShader.glProgram, uniformInfo.name);
-            if (glLoc) {
+            if (glLoc !== null) {
                 let varName: string;
                 const nameOffset = uniformInfo.name.indexOf('[');
                 if (nameOffset !== -1) {
@@ -1355,9 +1359,11 @@ export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: Web
                     // let stride = WebGLGetTypeSize(info.type);
 
                     // build uniform block mapping
-                    for (const glBlock of gpuShader.glBlocks) {
+                    for (let j = 0; j < gpuShader.glBlocks.length; j++) {
+                        const glBlock = gpuShader.glBlocks[j];
 
-                        for (const glUniform of glBlock.glUniforms) {
+                        for (let k = 0; k < glBlock.glUniforms.length; k++) {
+                            const glUniform = glBlock.glUniforms[k];
                             if (glUniform.name === varName) {
                                 // let varSize = stride * info.size;
 
@@ -1370,7 +1376,8 @@ export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: Web
                     } // for
                 } else {
 
-                    for (const glSampler of gpuShader.glSamplers) {
+                    for (let j = 0; j < gpuShader.glSamplers.length; j++) {
+                        const glSampler = gpuShader.glSamplers[j];
                         if (glSampler.name === varName) {
                             // let varSize = stride * uniformInfo.size;
 
@@ -1397,7 +1404,8 @@ export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: Web
             device.stateCache.glProgram = gpuShader.glProgram;
         }
 
-        for (const glSampler of glActiveSamplers) {
+        for (let i = 0; i < glActiveSamplers.length; i++) {
+            const glSampler = glActiveSamplers[i];
             gl.uniform1iv(glSampler.glLoc, glSampler.units);
         }
     }
@@ -1405,7 +1413,8 @@ export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: Web
 
 export function WebGLCmdFuncDestroyShader (device: WebGLGFXDevice, gpuShader: WebGLGPUShader) {
 
-    for (const gpuStage of gpuShader.gpuStages) {
+    for (let i = 0; i < gpuShader.gpuStages.length; i++) {
+        const gpuStage = gpuShader.gpuStages[i];
         if (gpuStage.glShader) {
             device.gl.deleteShader(gpuStage.glShader);
             gpuStage.glShader = null;
@@ -1454,8 +1463,11 @@ export function WebGLCmdFuncCreateInputAssember (device: WebGLGFXDevice, gpuInpu
 }
 
 export function WebGLCmdFuncDestroyInputAssembler (device: WebGLGFXDevice, gpuInputAssembler: IWebGLGPUInputAssembler) {
-    for (const vao of gpuInputAssembler.glVAOs) {
-        device.OES_vertex_array_object!.deleteVertexArrayOES(vao[1]);
+    const it = gpuInputAssembler.glVAOs.values();
+    let res = it.next();
+    while (!res.done) {
+        device.OES_vertex_array_object!.deleteVertexArrayOES(res.value);
+        res = it.next();
     }
     gpuInputAssembler.glVAOs.clear();
 }
@@ -2558,7 +2570,8 @@ export function WebGLCmdFuncCopyTexImagesToTexture (
 
     switch (gpuTexture.glTarget) {
         case gl.TEXTURE_2D: {
-            for (const region of regions) {
+            for (let i = 0; i < regions.length; i++) {
+                const region = regions[i];
                 // console.debug('Copying image to texture 2D: ' + region.texExtent.width + ' x ' + region.texExtent.height);
                 for (m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
                     gl.texSubImage2D(gl.TEXTURE_2D, m,
@@ -2569,7 +2582,8 @@ export function WebGLCmdFuncCopyTexImagesToTexture (
             break;
         }
         case gl.TEXTURE_CUBE_MAP: {
-            for (const region of regions) {
+            for (let i = 0; i < regions.length; i++) {
+                const region = regions[i];
                 // console.debug('Copying image to texture cube: ' + region.texExtent.width + ' x ' + region.texExtent.height);
                 const fcount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
                 for (f = region.texSubres.baseArrayLayer; f < fcount; ++f) {
@@ -2617,7 +2631,8 @@ export function WebGLCmdFuncCopyBuffersToTexture (
     const isCompressed = fmtInfo.isCompressed;
     switch (gpuTexture.glTarget) {
         case gl.TEXTURE_2D: {
-            for (const region of regions) {
+            for (let i = 0; i < regions.length; i++) {
+                const region = regions[i];
                 w = region.texExtent.width;
                 h = region.texExtent.height;
                 // console.debug('Copying buffer to texture 2D: ' + w + ' x ' + h);
@@ -2647,7 +2662,8 @@ export function WebGLCmdFuncCopyBuffersToTexture (
             break;
         }
         case gl.TEXTURE_CUBE_MAP: {
-            for (const region of regions) {
+            for (let i = 0; i < regions.length; i++) {
+                const region = regions[i];
                 n = 0;
                 const fcount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
                 for (f = region.texSubres.baseArrayLayer; f < fcount; ++f) {

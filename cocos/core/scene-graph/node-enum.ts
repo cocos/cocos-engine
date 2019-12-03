@@ -27,17 +27,43 @@
  * @category scene-graph
  */
 
+import { ccenum } from '../value-types/enum';
+
 export enum NodeSpace {
     LOCAL,
     WORLD,
 }
 
-export enum TransformDirtyBit {
+export enum TransformBit {
+    /**
+     * @zh
+     * 无改变
+     */
     NONE = 0,
+    /**
+     * @zh
+     * 节点位置改变
+     */
     POSITION = (1 << 0),
+    /**
+     * @zh
+     * 节点旋转
+     */
     ROTATION = (1 << 1),
+    /**
+     * @zh
+     * 节点缩放
+     */
     SCALE = (1 << 2),
-    RS = TransformDirtyBit.ROTATION | TransformDirtyBit.SCALE,
-    TRS = TransformDirtyBit.POSITION | TransformDirtyBit.ROTATION | TransformDirtyBit.SCALE,
-    TRS_MASK = ~TransformDirtyBit.TRS,
+    /**
+     * @zh
+     * 节点旋转及缩放
+     */
+    RS = TransformBit.ROTATION | TransformBit.SCALE,
+    /**
+     * @zh
+     * 节点平移，旋转及缩放
+     */
+    TRS = TransformBit.POSITION | TransformBit.ROTATION | TransformBit.SCALE,
+    TRS_MASK = ~TransformBit.TRS,
 }

@@ -86,10 +86,10 @@ export const SKYBOX_FLAG = GFXClearFlag.STENCIL << 1;
 
 export class Camera {
 
-    private _scene: RenderScene;
-    private _name: string;
+    private _scene: RenderScene | null = null;
+    private _name: string | null = null;
     private _enabled: boolean = false;
-    private _proj: CameraProjection;
+    private _proj: CameraProjection = -1;
     private _isWindowSize: boolean = true;
     private _width: number;
     private _height: number;
@@ -114,7 +114,7 @@ export class Camera {
     private _forward: Vec3 = new Vec3();
     private _position: Vec3 = new Vec3();
     private _node: INode | null = null;
-    private _view: RenderView;
+    private _view: RenderView | null = null;
     private _visibility = CameraDefaultMask;
     private _priority: number = 0;
     private _aperture: CameraAperture = CameraAperture.F16_0;
@@ -126,13 +126,7 @@ export class Camera {
     private _ec: number = 0.0;
     private _exposure: number = 0.0;
 
-    constructor (scene: RenderScene, info: ICameraInfo) {
-        this._scene = scene;
-        this._name = info.name;
-        this._node = info.node;
-        this._proj = info.projection;
-        this._priority = info.priority || 0;
-
+    constructor () {
         this._apertureValue = FSTOPS[this._aperture];
         this._shutterValue = SHUTTERS[this._shutter];
         this._isoValue = ISOS[this._iso];
@@ -140,20 +134,43 @@ export class Camera {
 
         this._aspect = this._width = this._height = this._screenScale = 1;
 
-        this._view = this._scene.root.createView({
+    }
+
+    public initialize (info: ICameraInfo) {
+        this._name = info.name;
+        this._node = info.node;
+        this._proj = info.projection;
+        this._priority = info.priority || 0;
+
+        this._view = cc.director.root.createView({
             camera: this,
             name: this._name,
             priority: this._priority,
             flows: info.flows,
         });
-
         this.changeTargetWindow(info.window);
 
-        console.log('Create Camera: ' + this._name + ' ' + this._width + ' x ' + this._height);
+        console.log('Created Camera: ' + this._name + ' ' + this._width + 'x' + this._height);
     }
 
     public destroy () {
-        this._scene.root.destroyView(this._view);
+        cc.director.root.destroyView(this._view);
+        this._view = null;
+        this._name = null;
+    }
+
+    public attachToScene (scene: RenderScene) {
+        this._scene = scene;
+        if (this._view) {
+            this._view.enable(true);
+        }
+    }
+
+    public detachFromScene () {
+        this._scene = null;
+        if (this._view) {
+            this._view.enable(false);
+        }
     }
 
     public resize (width: number, height: number) {
@@ -241,7 +258,9 @@ export class Camera {
 
     set enabled (val) {
         this._enabled = val;
-        this._view.enable(val);
+        if (this._view) {
+            this._view.enable(val);
+        }
     }
 
     get enabled () {
@@ -249,7 +268,7 @@ export class Camera {
     }
 
     get view (): RenderView {
-        return this._view;
+        return this._view!;
     }
 
     set node (val: INode) {
@@ -410,19 +429,23 @@ export class Camera {
 
     set visibility (vis) {
         this._visibility = vis;
-        this._view.visibility = vis;
+        if (this._view) {
+            this._view.visibility = vis;
+        }
     }
     get visibility () {
         return this._visibility;
     }
 
     get priority (): number {
-        return this._view.priority;
+        return this._view ? this._view.priority : -1;
     }
 
     set priority (val: number) {
         this._priority = val;
-        this._view.priority = this._priority;
+        if (this._view) {
+            this._view.priority = this._priority;
+        }
     }
 
     set aperture (val: CameraAperture) {
@@ -486,9 +509,8 @@ export class Camera {
     }
 
     public changeTargetWindow (window: GFXWindow | null = null) {
-        const scene = this._scene;
-        const win = window || scene.root.mainWindow;
-        if (win) {
+        const win = window || cc.director.root.mainWindow;
+        if (win && this._view) {
             this._view.window = win;
             this.resize(win.width, win.height);
         }

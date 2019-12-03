@@ -180,7 +180,7 @@ export class ForwardPipeline extends RenderPipeline {
             let spotNum = 0;
             for (let l = this._lightIndexOffset[i]; l < nextLightIndex; l++) {
                 const light = this._validLights[this._lightIndices[l]];
-                if (light && light.enabled) {
+                if (light) {
                     switch (light.type) {
                         case LightType.SPHERE:
                             if (sphereNum >= UBOForwardLight.MAX_SPHERE_LIGHTS) {
@@ -260,30 +260,28 @@ export class ForwardPipeline extends RenderPipeline {
      */
     protected sceneCulling(view: RenderView) {
         super.sceneCulling(view);
-        this._validLights.splice(0);
-        for (let i = 0; i < view.camera.scene.sphereLights.length; i++) {
-            const light = view.camera.scene.sphereLights[i];
-            if (light.enabled) {
-                light.update();
-                sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-                if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
-                    this._validLights.push(light);
-                }
+        this._validLights.length = 0;
+        const sphereLights = view.camera.scene.sphereLights;
+        for (let i = 0; i < sphereLights.length; i++) {
+            const light = sphereLights[i];
+            light.update();
+            sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+            if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
+                this._validLights.push(light);
             }
         }
-        for (let i = 0; i < view.camera.scene.spotLights.length; i++) {
-            const light = view.camera.scene.spotLights[i];
-            if (light.enabled) {
-                light.update();
-                sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-                if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
-                    this._validLights.push(light);
-                }
+        const spotLights = view.camera.scene.spotLights;
+        for (let i = 0; i < spotLights.length; i++) {
+            const light = spotLights[i];
+            light.update();
+            sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+            if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
+                this._validLights.push(light);
             }
         }
 
-        this._lightIndexOffset.splice(0);
-        this._lightIndices.splice(0);
+        this._lightIndexOffset.length = 0;
+        this._lightIndices.length = 0;
         for (let i = 0; i < this._renderObjects.length; i++) {
             this._lightIndexOffset[i] = this._lightIndices.length;
             if (this._renderObjects[i].model.localBindings.get(UBOForwardLight.BLOCK.name)) {

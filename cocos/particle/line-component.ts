@@ -199,19 +199,24 @@ export class LineComponent extends Component {
         super();
     }
 
+    public onLoad () {
+        this._model = cc.director.root.createModel(LineModel);
+        this._model.initialize(this.node);
+        this._model.setCapacity(100);
+        if (this._material == null) {
+            this._material = new Material();
+            this._material.copy(builtinResMgr.get<Material>('default-trail-material'));
+            define[CC_USE_WORLD_SPACE] = this.worldSpace;
+            this._material.recompileShaders(define);
+        }
+        this._model.setSubModelMaterial(0, this._material!);
+    }
+
     public onEnable () {
         if (!this._model) {
-            this._model = this._getRenderScene().createModel(LineModel, this.node);
-            this._model.setCapacity(100);
-            if (this._material == null) {
-                this._material = new Material();
-                this._material.copy(builtinResMgr.get<Material>('default-trail-material'));
-                define[CC_USE_WORLD_SPACE] = this.worldSpace;
-                this._material.recompileShaders(define);
-            }
-            this._model.setSubModelMaterial(0, this._material!);
+            return;
         }
-        this._model!.enabled = true;
+        this.attachToScene();
         this.texture = this.texture;
         this.tile = this._tile;
         this.offset = this._offset;
@@ -220,7 +225,22 @@ export class LineComponent extends Component {
 
     public onDisable () {
         if (this._model) {
-            this._model.enabled = false;
+            this.detachFromScene();
+        }
+    }
+
+    private attachToScene () {
+        if (this._model && this.node && this.node.scene) {
+            if (this._model.scene) {
+                this.detachFromScene();
+            }
+            this._getRenderScene().addModel(this._model);
+        }
+    }
+
+    private detachFromScene () {
+        if (this._model && this._model.scene) {
+            this._model.scene.removeModel(this._model);
         }
     }
 }

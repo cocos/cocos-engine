@@ -575,7 +575,7 @@ export class WebGL2CmdBeginRenderPass extends WebGL2CmdObject {
 
     public clear () {
         this.gpuFramebuffer = null;
-        this.clearColors = [];
+        this.clearColors.length = 0;
     }
 }
 
@@ -679,7 +679,7 @@ export class WebGL2CmdCopyBufferToTexture extends WebGL2CmdObject {
         this.gpuBuffer = null;
         this.gpuTexture = null;
         this.dstLayout = null;
-        this.regions = [];
+        this.regions.length = 0;
     }
 }
 
@@ -928,18 +928,11 @@ export function WebGL2CmdFuncUpdateBuffer (device: WebGL2GFXDevice, gpuBuffer: W
                     cache.glUniformBuffer = gpuBuffer.glBuffer;
                 }
 
-                let buf: Float32Array;
-                if (buffer instanceof Float32Array) {
-                    buf = buffer;
-                } else {
-                    buf = new Float32Array(buff, 0, size / 4);
-                }
-
-                if (size === buf.byteLength) {
-                    gl.bufferSubData(gpuBuffer.glTarget, offset, buf);
+                if (size === buff.byteLength) {
+                    gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
                     // if (gl.getBufferParameter(gl.UNIFORM_BUFFER, gl.BUFFER_SIZE) !== buff.length * 4) { debugger; }
                 } else {
-                    gl.bufferSubData(gpuBuffer.glTarget, offset, new Float32Array(buf.buffer, 0, size / 4));
+                    gl.bufferSubData(gpuBuffer.glTarget, offset, new Float32Array(buff, 0, size / 4));
                 }
                 break;
             }
@@ -1387,7 +1380,8 @@ export function WebGL2CmdFuncDestroyFramebuffer (device: WebGL2GFXDevice, gpuFra
 export function WebGL2CmdFuncCreateShader (device: WebGL2GFXDevice, gpuShader: WebGL2GPUShader) {
     const gl = device.gl;
 
-    for (const gpuStage of gpuShader.gpuStages) {
+    for (let k = 0; k < gpuShader.gpuStages.length; k++) {
+        const gpuStage = gpuShader.gpuStages[k];
 
         let glShaderType: GLenum = 0;
         let shaderTypeStr = '';
@@ -1436,7 +1430,8 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2GFXDevice, gpuShader: W
     gpuShader.glProgram = glProgram;
 
     // link program
-    for (const gpuStage of gpuShader.gpuStages) {
+    for (let k = 0; k < gpuShader.gpuStages.length; k++) {
+        const gpuStage = gpuShader.gpuStages[k];
         gl.attachShader(gpuShader.glProgram, gpuStage.glShader!);
     }
 
@@ -1447,7 +1442,8 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2GFXDevice, gpuShader: W
         console.error('Failed to link shader \'' + gpuShader.name + '\'.');
         console.error(gl.getProgramInfoLog(gpuShader.glProgram));
 
-        for (const gpuStage of gpuShader.gpuStages) {
+        for (let k = 0; k < gpuShader.gpuStages.length; k++) {
+            const gpuStage = gpuShader.gpuStages[k];
             if (gpuStage.glShader) {
                 gl.deleteShader(gpuStage.glShader);
                 gpuStage.glShader = null;
@@ -1518,7 +1514,8 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2GFXDevice, gpuShader: W
 
             // blockIdx = gl.getUniformBlockIndex(gpuShader.glProgram, blockName);
             blockBinding = -1;
-            for (const block of gpuShader.blocks) {
+            for (let k = 0; k < gpuShader.blocks.length; k++) {
+                const block = gpuShader.blocks[k];
                 if (block.name === blockName) {
                     blockBinding = block.binding;
                     break;
@@ -1612,7 +1609,7 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2GFXDevice, gpuShader: W
         const uniformInfo = gl.getActiveUniform(gpuShader.glProgram, i);
         if (uniformInfo) {
             const glLoc = gl.getUniformLocation(gpuShader.glProgram, uniformInfo.name);
-            if (glLoc) {
+            if (glLoc !== null) {
                 let varName: string;
                 const nameOffset = uniformInfo.name.indexOf('[');
                 if (nameOffset !== -1) {
@@ -1625,7 +1622,8 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2GFXDevice, gpuShader: W
                     (uniformInfo.type === gl.SAMPLER_CUBE);
 
                 if (isSampler) {
-                    for (const glSampler of gpuShader.glSamplers) {
+                    for (let k = 0; k < gpuShader.glSamplers.length; k++) {
+                        const glSampler = gpuShader.glSamplers[k];
                         if (glSampler.name === varName) {
                             // let varSize = stride * uniformInfo.size;
 
@@ -1652,7 +1650,8 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2GFXDevice, gpuShader: W
             device.stateCache.glProgram = gpuShader.glProgram;
         }
 
-        for (const glSampler of glActiveSamplers) {
+        for (let k = 0; k < glActiveSamplers.length; k++) {
+            const glSampler = glActiveSamplers[k];
             gl.uniform1iv(glSampler.glLoc, glSampler.units);
         }
     }
@@ -1660,7 +1659,8 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2GFXDevice, gpuShader: W
 
 export function WebGL2CmdFuncDestroyShader (device: WebGL2GFXDevice, gpuShader: WebGL2GPUShader) {
 
-    for (const gpuStage of gpuShader.gpuStages) {
+    for (let k = 0; k < gpuShader.gpuStages.length; k++) {
+        const gpuStage = gpuShader.gpuStages[k];
         if (gpuStage.glShader) {
             device.gl.deleteShader(gpuStage.glShader);
             gpuStage.glShader = null;
@@ -1710,8 +1710,11 @@ export function WebGL2CmdFuncCreateInputAssember (device: WebGL2GFXDevice, gpuIn
 }
 
 export function WebGL2CmdFuncDestroyInputAssembler (device: WebGL2GFXDevice, gpuInputAssembler: IWebGL2GPUInputAssembler) {
-    for (const vao of gpuInputAssembler.glVAOs) {
-        device.gl.deleteVertexArray(vao[1]);
+    const it = gpuInputAssembler.glVAOs.values();
+    let res = it.next();
+    while (!res.done) {
+        device.gl.deleteVertexArray(res.value);
+        res = it.next();
     }
     gpuInputAssembler.glVAOs.clear();
 }
@@ -1906,7 +1909,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                 break;
             }
             case WebGL2Cmd.END_RENDER_PASS: {
-                // WebGL 1.0 doesn't support store operation of attachments.
+                // WebGL 2.0 doesn't support store operation of attachments.
                 // GFXStoreOp.Store is the default GL behaviour.
                 break;
             }
@@ -2160,13 +2163,16 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                 } // bind pso
 
                 if (cmd2.gpuBindingLayout && gpuShader) {
-                    for (const gpuBinding of cmd2.gpuBindingLayout.gpuBindings) {
+                    const gpuBindings = cmd2.gpuBindingLayout.gpuBindings;
+                    for (let j = 0; j < gpuBindings.length; j++) {
+                        const gpuBinding = gpuBindings[j];
 
                         switch (gpuBinding.type) {
                             case GFXBindingType.UNIFORM_BUFFER: {
 
                                 if (gpuBinding.gpuBuffer) {
-                                    for (const glBlock of gpuShader.glBlocks) {
+                                    for (let k = 0; k < gpuShader.glBlocks.length; k++) {
+                                        const glBlock = gpuShader.glBlocks[k];
                                         if (glBlock.binding === gpuBinding.binding) {
                                             if (cache.glBindUBOs[glBlock.binding] !== gpuBinding.gpuBuffer.glBuffer) {
                                                 gl.bindBufferBase(gl.UNIFORM_BUFFER, glBlock.binding, gpuBinding.gpuBuffer.glBuffer);
@@ -2187,7 +2193,8 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
 
                                     let glSampler: WebGL2GPUUniformSampler | null = null;
 
-                                    for (const sampler of gpuShader.glSamplers) {
+                                    for (let k = 0; k < gpuShader.glSamplers.length; k++) {
+                                        const sampler = gpuShader.glSamplers[k];
                                         if (sampler.binding === gpuBinding.binding) {
                                             glSampler = sampler;
                                             break;
@@ -2195,7 +2202,8 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                     }
 
                                     if (glSampler) {
-                                        for (const texUnit of glSampler.units) {
+                                        for (let k = 0; k < glSampler.units.length; k++) {
+                                            const texUnit = glSampler.units[k];
 
                                             const glTexUnit = cache.glTexUnits[texUnit];
 
@@ -2250,10 +2258,12 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
                             let glAttrib: WebGL2Attrib | null;
-                            for (const glInput of gpuShader.glInputs) {
+                            for (let j = 0; j < gpuShader.glInputs.length; j++) {
+                                const glInput = gpuShader.glInputs[j];
                                 glAttrib = null;
 
-                                for (const attrib of gpuInputAssembler.glAttribs) {
+                                for (let k = 0; k < gpuInputAssembler.glAttribs.length; k++) {
+                                    const attrib = gpuInputAssembler.glAttribs[k];
                                     if (attrib.name === glInput.name) {
                                         glAttrib = attrib;
                                         break;
@@ -2297,10 +2307,12 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                             cache.glCurrentAttribLocs[a] = false;
                         }
 
-                        for (const glInput of gpuShader.glInputs) {
+                        for (let j = 0; j < gpuShader.glInputs.length; j++) {
+                            const glInput = gpuShader.glInputs[j];
                             let glAttrib: WebGL2Attrib | null = null;
 
-                            for (const attrib of gpuInputAssembler.glAttribs) {
+                            for (let k = 0; k < gpuInputAssembler.glAttribs.length; k++) {
+                                const attrib = gpuInputAssembler.glAttribs[k];
                                 if (attrib.name === glInput.name) {
                                     glAttrib = attrib;
                                     break;
@@ -2346,7 +2358,8 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                 }
 
                 if (gpuPipelineState) {
-                    for (const dynamicState of gpuPipelineState.dynamicStates) {
+                    for (let k = 0; k < gpuPipelineState.dynamicStates.length; k++) {
+                        const dynamicState = gpuPipelineState.dynamicStates[k];
                         switch (dynamicState) {
                             case GFXDynamicState.VIEWPORT: {
                                 if (cmd2.viewport) {
@@ -2517,7 +2530,9 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                         }
                     } else {
                         if (gpuInputAssembler.gpuIndirectBuffer) {
-                            for (const drawInfo of gpuInputAssembler.gpuIndirectBuffer.indirects) {
+                            const indirects = gpuInputAssembler.gpuIndirectBuffer.indirects;
+                            for (let k = 0; k < indirects.length; k++) {
+                                const drawInfo = indirects[k];
                                 const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
                                 if (gpuBuffer && drawInfo.indexCount > -1) {
                                     const offset = drawInfo.firstIndex * gpuBuffer.stride;
@@ -2574,7 +2589,8 @@ export function WebGL2CmdFuncCopyTexImagesToTexture (
     let f = 0;
     switch (gpuTexture.glTarget) {
         case gl.TEXTURE_2D: {
-            for (const region of regions) {
+            for (let k = 0; k < regions.length; k++) {
+                const region = regions[k];
                 for (m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
                     gl.texSubImage2D(gl.TEXTURE_2D, m,
                         region.texOffset.x, region.texOffset.y,
@@ -2584,7 +2600,8 @@ export function WebGL2CmdFuncCopyTexImagesToTexture (
             break;
         }
         case gl.TEXTURE_CUBE_MAP: {
-            for (const region of regions) {
+            for (let k = 0; k < regions.length; k++) {
+                const region = regions[k];
                 const fcount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
                 for (f = region.texSubres.baseArrayLayer; f < fcount; ++f) {
                     const mcount = region.texSubres.baseMipLevel + region.texSubres.levelCount;
@@ -2629,7 +2646,8 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
     const isCompressed = fmtInfo.isCompressed;
     switch (gpuTexture.glTarget) {
         case gl.TEXTURE_2D: {
-            for (const region of regions) {
+            for (let k = 0; k < regions.length; k++) {
+                const region = regions[k];
                 w = region.texExtent.width;
                 h = region.texExtent.height;
                 for (m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
@@ -2655,7 +2673,8 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
             break;
         }
         case gl.TEXTURE_CUBE_MAP: {
-            for (const region of regions) {
+            for (let k = 0; k < regions.length; k++) {
+                const region = regions[k];
                 n = 0;
                 const fcount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
                 for (f = region.texSubres.baseArrayLayer; f < fcount; ++f) {

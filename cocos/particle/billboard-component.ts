@@ -117,10 +117,12 @@ export class BillboardComponent extends Component {
         super();
     }
 
+    public onLoad () {
+        this.createModel();
+    }
+
     public onEnable () {
-        if (!this._model) {
-            this.createModel();
-        }
+        this.attachToScene();
         this._model!.enabled = true;
         this.width = this._width;
         this.height = this._height;
@@ -129,8 +131,21 @@ export class BillboardComponent extends Component {
     }
 
     public onDisable () {
-        if (this._model) {
-            this._model.enabled = false;
+        this.detachFromScene();
+    }
+
+    private attachToScene () {
+        if (this._model && this.node && this.node.scene) {
+            if (this._model.scene) {
+                this.detachFromScene();
+            }
+            this._getRenderScene().addModel(this._model);
+        }
+    }
+
+    private detachFromScene () {
+        if (this._model && this._model.scene) {
+            this._model.scene.removeModel(this._model);
         }
     }
 
@@ -157,7 +172,8 @@ export class BillboardComponent extends Component {
             ],
             indices: [0, 1, 2, 1, 2, 3],
         }, undefined, { calculateBounds: false });
-        this._model = this._getRenderScene().createModel(Model, this.node);
+        this._model = cc.director.root.createModel(Model, this.node);
+        this._model.initialize(this.node);
         if (this._material == null) {
             this._material = new Material();
             this._material.copy(builtinResMgr.get<Material>('default-billboard-material'));

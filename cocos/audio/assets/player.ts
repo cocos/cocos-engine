@@ -84,3 +84,5 @@ export abstract class AudioPlayer {
         cc.game.off(cc.Game.EVENT_SHOW, this._onShow);
     }
 }
+
+cc.AudioPlayer = AudioPlayer;

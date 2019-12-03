@@ -90,6 +90,11 @@ export class SkinningModelComponent extends ModelComponent {
         return (this._model as SkinningModel);
     }
 
+    constructor () {
+        super();
+        this._modelType = SkinningModel;
+    }
+
     public uploadAnimation (clip: AnimationClip | null) {
         this._clip = clip;
         if (this._model) { (this._model as SkinningModel).uploadAnimation(clip); }
@@ -99,10 +104,6 @@ export class SkinningModelComponent extends ModelComponent {
         // should bind skeleton before super create pso
         this._update();
         super._updateModelParams();
-    }
-
-    protected _getModelConstructor () {
-        return SkinningModel;
     }
 
     protected _getBuiltinMaterial () {

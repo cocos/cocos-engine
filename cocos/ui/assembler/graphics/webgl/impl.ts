@@ -1,7 +1,7 @@
 
 import { Color, Vec2 } from '../../../../core/math';
+import { RecyclePool } from '../../../../core/memop';
 import { MeshRenderData } from '../../../../core/renderer/ui/render-data';
-import RecyclePool from '../../../../core/memop/recycle-pool';
 import { arc, ellipse, roundRect, tesselateBezier } from '../helper';
 import { LineCap, LineJoin, PointFlags} from '../types';
 

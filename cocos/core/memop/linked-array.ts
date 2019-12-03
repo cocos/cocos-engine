@@ -3,7 +3,7 @@
  * @category memop
  */
 
-import Pool from './pool';
+import { Pool } from './pool';
 
 // NOTE: you must have `_prev` and `_next` field in the object returns by `fn`
 

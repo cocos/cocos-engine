@@ -370,21 +370,14 @@ export const widgetManager = cc._widgetManager = {
     },
     add (widget: WidgetComponent) {
         this._nodesOrderDirty = true;
-        // if (CC_EDITOR && !cc.engine.isPlaying) {
-        const renderComp: UIRenderComponent = widget.node.getComponent(UIRenderComponent);
-        if (renderComp) {
-            const canvasComp = director.root!.ui.getScreen(renderComp.visibility);
-            if (canvasComp && canvasList.indexOf(canvasComp) === -1) {
-                canvasList.push(canvasComp);
-                canvasComp.node.on('design-resolution-changed', this.onResized, this);
-            }
+        const canvasComp = director.root!.ui.getScreen(widget.node.uiTransfromComp.visibility);
+        if (canvasComp && canvasList.indexOf(canvasComp) === -1) {
+            canvasList.push(canvasComp);
+            canvasComp.node.on('design-resolution-changed', this.onResized, this);
         }
-        // }
     },
     remove (widget: WidgetComponent) {
         this._activeWidgetsIterator.remove(widget);
-        // if (CC_EDITOR && !cc.engine.isPlaying) {
-        // }
     },
     onResized () {
         const scene = director.getScene();
@@ -395,11 +388,7 @@ export const widgetManager = cc._widgetManager = {
     refreshWidgetOnResized (node: Node) {
         if (Node.isNode(node)){
             const widget = node.getComponent(WidgetComponent);
-            // const widget: WidgetComponent | null = null;
             if (widget && widget.alignFlags === AlignMode.ALWAYS) {
-                // if (widget!.alignMode === AlignMode.ON_WINDOW_RESIZE) {
-                //     widget!.enabled = true;
-                // }
                 return;
             }
         }

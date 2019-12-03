@@ -27,12 +27,14 @@
  * @category core
  */
 
-import * as math from './math';
 import * as geometry from './geom-utils';
+import * as math from './math';
+import * as memop from './memop';
 cc.math = math;
 cc.geometry = geometry;
+cc.memop = memop;
 
-export { math, geometry };
+export { math, memop, geometry };
 
 export * from './math';
 export * from './memop';
@@ -58,5 +60,5 @@ import './primitive';
 
 export * from './utils/profiler/profiler';
 
-import './splash-image';
 import './deprecated';
+import './splash-image';

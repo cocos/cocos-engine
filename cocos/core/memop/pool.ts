@@ -4,11 +4,10 @@
  * @category memop
  */
 
-
 /**
  * @zh 对象池。
  */
-export default class Pool<T> {
+export class Pool<T> {
 
     private _fn: () => T;
     private _idx: number;

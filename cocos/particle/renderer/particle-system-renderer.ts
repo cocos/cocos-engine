@@ -1,14 +1,14 @@
+import { builtinResMgr } from '../../core/3d/builtin';
+import { Material, Mesh } from '../../core/assets';
 import { Component } from '../../core/components';
 import { ccclass, property } from '../../core/data/class-decorator';
-import { Mat4, Vec2, Vec3, Vec4 } from '../../core/math';
 import { GFXAttributeName, GFXFormat } from '../../core/gfx/define';
 import { IGFXAttribute } from '../../core/gfx/input-assembler';
+import { Mat4, Vec2, Vec3, Vec4 } from '../../core/math';
+import { RecyclePool } from '../../core/memop';
 import { IDefineMap } from '../../core/renderer/core/pass';
-import ParticleBatchModel from '../models/particle-batch-model';
-import { Mesh, Material } from '../../core/assets';
-import { builtinResMgr } from '../../core/3d/builtin';
-import RecyclePool from '../../core/memop/recycle-pool';
 import { RenderMode, Space } from '../enum';
+import ParticleBatchModel from '../models/particle-batch-model';
 import Particle from '../particle';
 
 const _tempAttribUV = new Vec3();
@@ -23,11 +23,13 @@ const _uvs = [
 ];
 
 const CC_USE_WORLD_SPACE = 'CC_USE_WORLD_SPACE';
-const CC_USE_BILLBOARD = 'CC_USE_BILLBOARD';
-const CC_USE_STRETCHED_BILLBOARD = 'CC_USE_STRETCHED_BILLBOARD';
-const CC_USE_HORIZONTAL_BILLBOARD = 'CC_USE_HORIZONTAL_BILLBOARD';
-const CC_USE_VERTICAL_BILLBOARD = 'CC_USE_VERTICAL_BILLBOARD';
-const CC_USE_MESH = 'CC_USE_MESH';
+
+const CC_RENDER_MODE = 'CC_RENDER_MODE';
+const RENDER_MODE_BILLBOARD = 0;
+const RENDER_MODE_STRETCHED_BILLBOARD = 1;
+const RENDER_MODE_HORIZONTAL_BILLBOARD = 2;
+const RENDER_MODE_VERTICAL_BILLBOARD = 3;
+const RENDER_MODE_MESH = 4;
 
 const _vertex_attrs = [
     { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F },                     // position
@@ -66,7 +68,7 @@ export default class ParticleSystemRenderer {
     @property({
         type: RenderMode,
         displayOrder: 0,
-        tooltip:'设定粒子生成模式',
+        tooltip: '设定粒子生成模式',
     })
     public get renderMode () {
         return this._renderMode;
@@ -87,7 +89,7 @@ export default class ParticleSystemRenderer {
      */
     @property({
         displayOrder: 1,
-        tooltip:'在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按速度大小进行拉伸',
+        tooltip: '在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按速度大小进行拉伸',
     })
     public get velocityScale () {
         return this._velocityScale;
@@ -104,7 +106,7 @@ export default class ParticleSystemRenderer {
      */
     @property({
         displayOrder: 2,
-        tooltip:'在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按粒子大小进行拉伸',
+        tooltip: '在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按粒子大小进行拉伸',
     })
     public get lengthScale () {
         return this._lengthScale;
@@ -137,10 +139,7 @@ export default class ParticleSystemRenderer {
     })
     private _mesh: Mesh | null = null;
 
-    @property({
-        type: cc.ParticleSystemComponent,
-        visible: false,
-    })
+    @property
     private _particleSystem: any = null;
 
     /**
@@ -149,7 +148,7 @@ export default class ParticleSystemRenderer {
     @property({
         type: Mesh,
         displayOrder: 7,
-        tooltip:'粒子发射的模型',
+        tooltip: '粒子发射的模型',
     })
     public get mesh () {
         return this._mesh;
@@ -168,7 +167,7 @@ export default class ParticleSystemRenderer {
     @property({
         type: Material,
         displayOrder: 8,
-        tooltip:'粒子使用的材质',
+        tooltip: '粒子使用的材质',
     })
     public get particleMaterial () {
         if (!this._particleSystem) {
@@ -187,7 +186,7 @@ export default class ParticleSystemRenderer {
     @property({
         type: Material,
         displayOrder: 9,
-        tooltip:'拖尾使用的材质',
+        tooltip: '拖尾使用的材质',
     })
     public get trailMaterial () {
         if (!this._particleSystem) {
@@ -236,7 +235,6 @@ export default class ParticleSystemRenderer {
             return new Particle(this);
         }, 16);
         this._setVertexAttrib();
-        this.onEnable();
         this._updateModel();
         this._updateMaterialParams();
         this._updateTrailMaterial();
@@ -246,27 +244,34 @@ export default class ParticleSystemRenderer {
         if (!this._particleSystem) {
             return;
         }
-        if (this._model == null) {
-            this._model = this._particleSystem._getRenderScene().createModel(ParticleBatchModel, this._particleSystem.node) as ParticleBatchModel;
-            this._model.visFlags = this._particleSystem.visibility;
-        }
-        if (!this._model.inited) {
-            this._model.setCapacity(this._particleSystem.capacity);
-            this._model.node = this._particleSystem.node;
-        }
-        this._model.enabled = this._particleSystem.enabledInHierarchy;
+        this._attachToScene();
+        this._model!.initialize(this._particleSystem.node);
+        this._model!.enabled = this._particleSystem.enabledInHierarchy;
     }
 
     public onDisable () {
-        if (this._model) {
-            this._model.enabled = this._particleSystem.enabledInHierarchy;
-        }
+        this._detachFromScene();
     }
 
     public onDestroy () {
         if (this._model) {
-            this._model.scene.destroyModel(this._model);
+            cc.director.root.destroyModel(this._model);
             this._model = null;
+        }
+    }
+
+    public _attachToScene () {
+        if (this._model) {
+            if (this._model.scene) {
+                this._detachFromScene();
+            }
+            this._particleSystem._getRenderScene().addModel(this._model);
+        }
+    }
+
+    public _detachFromScene () {
+        if (this._model && this._model.scene) {
+            this._model.scene.removeModel(this._model);
         }
     }
 
@@ -463,37 +468,17 @@ export default class ParticleSystemRenderer {
         }
 
         if (this._renderMode === RenderMode.Billboard) {
-            this._defines[CC_USE_BILLBOARD] = true;
-            this._defines[CC_USE_STRETCHED_BILLBOARD] = false;
-            this._defines[CC_USE_HORIZONTAL_BILLBOARD] = false;
-            this._defines[CC_USE_VERTICAL_BILLBOARD] = false;
-            this._defines[CC_USE_MESH] = false;
+            this._defines[CC_RENDER_MODE] = RENDER_MODE_BILLBOARD;
         } else if (this._renderMode === RenderMode.StrecthedBillboard) {
-            this._defines[CC_USE_BILLBOARD] = false;
-            this._defines[CC_USE_STRETCHED_BILLBOARD] = true;
-            this._defines[CC_USE_HORIZONTAL_BILLBOARD] = false;
-            this._defines[CC_USE_VERTICAL_BILLBOARD] = false;
-            this._defines[CC_USE_MESH] = false;
+            this._defines[CC_RENDER_MODE] = RENDER_MODE_STRETCHED_BILLBOARD;
             this.frameTile_velLenScale.z = this._velocityScale;
             this.frameTile_velLenScale.w = this._lengthScale;
         } else if (this._renderMode === RenderMode.HorizontalBillboard) {
-            this._defines[CC_USE_BILLBOARD] = false;
-            this._defines[CC_USE_STRETCHED_BILLBOARD] = false;
-            this._defines[CC_USE_HORIZONTAL_BILLBOARD] = true;
-            this._defines[CC_USE_VERTICAL_BILLBOARD] = false;
-            this._defines[CC_USE_MESH] = false;
+            this._defines[CC_RENDER_MODE] = RENDER_MODE_HORIZONTAL_BILLBOARD;
         } else if (this._renderMode === RenderMode.VerticalBillboard) {
-            this._defines[CC_USE_BILLBOARD] = false;
-            this._defines[CC_USE_STRETCHED_BILLBOARD] = false;
-            this._defines[CC_USE_HORIZONTAL_BILLBOARD] = false;
-            this._defines[CC_USE_VERTICAL_BILLBOARD] = true;
-            this._defines[CC_USE_MESH] = false;
+            this._defines[CC_RENDER_MODE] = RENDER_MODE_VERTICAL_BILLBOARD;
         } else if (this._renderMode === RenderMode.Mesh) {
-            this._defines[CC_USE_BILLBOARD] = false;
-            this._defines[CC_USE_STRETCHED_BILLBOARD] = false;
-            this._defines[CC_USE_HORIZONTAL_BILLBOARD] = false;
-            this._defines[CC_USE_VERTICAL_BILLBOARD] = false;
-            this._defines[CC_USE_MESH] = true;
+            this._defines[CC_RENDER_MODE] = RENDER_MODE_MESH;
         } else {
             console.warn(`particle system renderMode ${this._renderMode} not support.`);
         }
@@ -531,9 +516,11 @@ export default class ParticleSystemRenderer {
 
     private _updateModel () {
         if (!this._model) {
-            return;
+            this._model = cc.director.root.createModel(ParticleBatchModel);
+            this._model!.setCapacity(this._particleSystem.capacity);
+            this._model!.visFlags = this._particleSystem.visibility;
         }
-        this._model.setVertexAttributes(this._renderMode === RenderMode.Mesh ? this._mesh : null, this._vertAttrs);
+        this._model!.setVertexAttributes(this._renderMode === RenderMode.Mesh ? this._mesh : null, this._vertAttrs);
         // if (Object.getPrototypeOf(this).constructor.name === 'ParticleSystemGpuRenderer') {
         //     return;
         // }

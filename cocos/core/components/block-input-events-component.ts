@@ -49,7 +49,7 @@ const BlockEvents = [SystemEventType.TOUCH_START, SystemEventType.TOUCH_END, Sys
   SystemEventType.MOUSE_ENTER, SystemEventType.MOUSE_LEAVE, SystemEventType.MOUSE_WHEEL];
 
 function stopPropagation(event: Event) {
-  event.propagationStopped = true;;
+  event.propagationStopped = true;
 }
 
 @ccclass('cc.BlockInputEventsComponent')

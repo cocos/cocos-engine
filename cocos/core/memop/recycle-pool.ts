@@ -3,12 +3,10 @@
  * @category memop
  */
 
-import sort from './timsort';
-
 /**
  * @zh 循环对象池。
  */
-export default class RecyclePool<T = any> {
+export class RecyclePool<T = any> {
     private _fn: () => T;
     private _count = 0;
     private _data: T[];
@@ -85,13 +83,5 @@ export default class RecyclePool<T = any> {
         this._data[idx] = this._data[last];
         this._data[last] = tmp;
         this._count -= 1;
-    }
-
-    /**
-     * @zh 对对象池中的元素进行排序。
-     * @param compare 比较函数。
-     */
-    public sort (compare: (a: T, b: T) => number) {
-        return sort(this._data, 0, this._count, compare);
     }
 }
