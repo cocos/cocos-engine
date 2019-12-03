@@ -1333,7 +1333,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
 
         // detach self and children from editor
         const parent = this._parent;
-        const destroyByParent: boolean = (parent !== null) && ((parent._objFlags & Destroying) !== 0);
+        const destroyByParent: boolean = (!!parent) && ((parent._objFlags & Destroying) !== 0);
         if (!destroyByParent && (CC_EDITOR || CC_TEST)) {
             this._registerIfAttached!(false);
         }

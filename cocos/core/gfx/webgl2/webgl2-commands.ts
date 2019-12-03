@@ -1609,7 +1609,7 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2GFXDevice, gpuShader: W
         const uniformInfo = gl.getActiveUniform(gpuShader.glProgram, i);
         if (uniformInfo) {
             const glLoc = gl.getUniformLocation(gpuShader.glProgram, uniformInfo.name);
-            if (glLoc) {
+            if (glLoc !== null) {
                 let varName: string;
                 const nameOffset = uniformInfo.name.indexOf('[');
                 if (nameOffset !== -1) {
