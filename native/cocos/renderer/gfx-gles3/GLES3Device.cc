@@ -15,6 +15,8 @@
 #include "GLES3RenderPass.h"
 #include "GLES3Framebuffer.h"
 #include "GLES3BindingLayout.h"
+#include "GLES3PipelineLayout.h"
+#include "GLES3PipelineState.h"
 
 NS_CC_BEGIN
 
@@ -257,6 +259,31 @@ GFXBindingLayout* GLES3Device::CreateGFXBindingLayout(const GFXBindingLayoutInfo
   } else {
     return nullptr;
   }
+}
+
+
+GFXPipelineState* GLES3Device::CreateGFXPipelineState(const GFXPipelineStateInfo& info)
+{
+    GFXPipelineState* pipelineState = CC_NEW(GLES3PipelineState(this));
+    if (pipelineState->Initialize(info))
+    {
+        return pipelineState;
+    }
+
+    CC_SAFE_DESTROY(pipelineState);
+    return nullptr;
+}
+
+GFXPipelineLayout* GLES3Device::CreateGFXPipelieLayout(const GFXPipelineLayoutInfo& info)
+{
+    GFXPipelineLayout* layout = CC_NEW(GLES3PipelineLayout(this));
+    if (layout->Initialize(info))
+    {
+        return layout;
+    }
+
+    CC_SAFE_DESTROY(layout);
+    return nullptr;
 }
 
 NS_CC_END

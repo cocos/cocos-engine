@@ -203,13 +203,21 @@ void GLES2CommandBuffer::Draw(GFXInputAssembler* ia) {
     ++num_draw_calls_;
     if(cur_gpu_pso_) {
       switch (cur_gpu_pso_->gl_primitive) {
-        case GL_TRIANGLES: {
-          num_tris_ += ia->index_count() / 3 * std::max(ia->instance_count(), 1U);
+        case GL_TRIANGLES: 
+        {
+            if (ia->index_buffer() == nullptr)
+            {
+                num_tris_ += ia->vertex_count() / 3 * std::max(ia->instance_count(), 1U);
+            }
+            else
+            {
+                num_tris_ += ia->index_count() / 3 * std::max(ia->instance_count(), 1U);
+            }
           break;
         }
         case GL_TRIANGLE_STRIP:
         case GL_TRIANGLE_FAN: {
-          num_tris_ += (ia->index_count() - 2) * std::max(ia->instance_count(), 1U);
+          num_tris_ += (ia->vertex_count() - 2) * std::max(ia->instance_count(), 1U);
           break;
         }
         default:

@@ -33,7 +33,7 @@ class CC_CORE_API GFXBuffer : public Object {
   uint count_;
   uint size_;
   GFXBufferFlags flags_;
-  uint8_t* buffer_;
+  uint8_t* buffer_ = nullptr;
 };
 
 NS_CC_END

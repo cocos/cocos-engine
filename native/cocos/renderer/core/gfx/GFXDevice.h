@@ -28,6 +28,8 @@ class CC_CORE_API GFXDevice : public Object {
   virtual GFXRenderPass* CreateGFXRenderPass(const GFXRenderPassInfo& info) = 0;
   virtual GFXFramebuffer* CreateGFXFramebuffer(const GFXFramebufferInfo& info) = 0;
   virtual GFXBindingLayout* CreateGFXBindingLayout(const GFXBindingLayoutInfo& info) = 0;
+  virtual GFXPipelineState* CreateGFXPipelineState(const GFXPipelineStateInfo& info) = 0;
+  virtual GFXPipelineLayout* CreateGFXPipelieLayout(const GFXPipelineLayoutInfo& info) = 0;
   
   CC_INLINE GFXAPI api() const { return api_; }
   CC_INLINE GFXMemoryStatus& mem_status() { return mem_status_; }

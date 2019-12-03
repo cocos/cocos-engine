@@ -30,6 +30,8 @@ public:
   GFXRenderPass* CreateGFXRenderPass(const GFXRenderPassInfo& info);
   GFXFramebuffer* CreateGFXFramebuffer(const GFXFramebufferInfo& info);
   GFXBindingLayout* CreateGFXBindingLayout(const GFXBindingLayoutInfo& info);
+  virtual GFXPipelineState* CreateGFXPipelineState(const GFXPipelineStateInfo& info) override;
+  virtual GFXPipelineLayout* CreateGFXPipelieLayout(const GFXPipelineLayoutInfo& info) override;
   
   CC_INLINE bool use_vao() const { return use_vao_; }
   CC_INLINE bool use_draw_instanced() const { return use_draw_instanced_; }

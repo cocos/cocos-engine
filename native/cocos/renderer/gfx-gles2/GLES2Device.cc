@@ -15,6 +15,8 @@
 #include "GLES2RenderPass.h"
 #include "GLES2Framebuffer.h"
 #include "GLES2BindingLayout.h"
+#include "GLES2PipelineLayout.h"
+#include "GLES2PipelineState.h"
 
 NS_CC_BEGIN
 
@@ -267,4 +269,29 @@ GFXBindingLayout* GLES2Device::CreateGFXBindingLayout(const GFXBindingLayoutInfo
   }
 }
 
+
+
+GFXPipelineState* GLES2Device::CreateGFXPipelineState(const GFXPipelineStateInfo& info)
+{
+    GFXPipelineState* pipelineState = CC_NEW(GLES2PipelineState(this));
+    if (pipelineState->Initialize(info))
+    {
+        return pipelineState;
+    }
+
+    CC_SAFE_DESTROY(pipelineState);
+    return nullptr;
+}
+
+GFXPipelineLayout* GLES2Device::CreateGFXPipelieLayout(const GFXPipelineLayoutInfo& info)
+{
+    GFXPipelineLayout* layout = CC_NEW(GLES2PipelineLayout(this));
+    if (layout->Initialize(info))
+    {
+        return layout;
+    }
+
+    CC_SAFE_DESTROY(layout);
+    return nullptr;
+}
 NS_CC_END
