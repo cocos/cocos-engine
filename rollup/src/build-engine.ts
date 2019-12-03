@@ -445,25 +445,3 @@ function getGlobalDefs (options: IBuildOptions): object {
 
     return result;
 }
-
-interface IEngineMode {
-    RunTime?: boolean;
-    MiniGame?: boolean;
-}
-
-export function getEngineMode (options: IBuildOptions): object {
-    const platform = options.platform;
-    const PLATFORM_MACROS = ['CC_HTML5', 'CC_WECHAT', 'CC_BAIDU', 'CC_XIAOMI', 'CC_OPPO', 'CC_VIVO', 'CC_HUAWEI', 'CC_NATIVE'];
-    const platformMacro = Platform[platform!].toUpperCase();
-    if (PLATFORM_MACROS.indexOf(platformMacro) === -1) {
-        throw new Error(`Unknown platform ${platform}.`);
-    }
-    const result: IEngineMode = {};
-    if (platformMacro === 'CC_WECHAT' || platformMacro === 'CC_BAIDU' || platformMacro === 'CC_XIAOMI' || platformMacro === 'CC_ALIPAY') {
-        result.MiniGame = true;
-    }
-    if (platformMacro === 'CC_OPPO' || platformMacro === 'CC_VIVO' || platformMacro === 'CC_HUAWEI') {
-        result.RunTime = true;
-    }
-    return result;
-}
