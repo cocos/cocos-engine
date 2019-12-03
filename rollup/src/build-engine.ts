@@ -424,6 +424,8 @@ function getGlobalDefs (options: IBuildOptions): object {
         result[macro as keyof IGlobaldefines] = !!(flags && flags[flag as keyof IFlags]);
     }
 
+    result.CC_RUNTIME_BASED = false;
+    result.CC_MINIGAME = false;
     result.CC_DEV = result.CC_EDITOR || result.CC_PREVIEW || result.CC_TEST;
     result.CC_DEBUG = result.CC_DEBUG || result.CC_DEV;
     result.CC_RUNTIME_BASED = result.CC_OPPO || result.CC_VIVO || result.CC_HUAWEI;
