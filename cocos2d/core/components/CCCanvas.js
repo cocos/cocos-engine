@@ -142,6 +142,7 @@ var Canvas = cc.Class({
                 var designSize = cc.engine.getDesignResolutionSize();
                 this.node.setPosition(designSize.width * 0.5, designSize.height * 0.5);
                 this.node.setContentSize(designSize);
+                cc.view.emit('design-resolution-changed');
             }).bind(this);
         }
     },
