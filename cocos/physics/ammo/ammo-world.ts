@@ -190,7 +190,12 @@ export class AmmoWorld implements IPhysicsWorld {
         const i = this.bodies.indexOf(sharedBody);
         if (i < 0) {
             this.bodies.push(sharedBody);
-            this._world.addRigidBody(sharedBody.body, sharedBody.collisionFilterGroup, sharedBody.collisionFilterMask);
+            if (sharedBody.body.isStaticObject()) {
+                this._world.addCollisionObject(sharedBody.body, sharedBody.collisionFilterGroup, sharedBody.collisionFilterMask);
+            }
+            else {
+                this._world.addRigidBody(sharedBody.body, sharedBody.collisionFilterGroup, sharedBody.collisionFilterMask);
+            }
         }
     }
 
@@ -198,7 +203,11 @@ export class AmmoWorld implements IPhysicsWorld {
         const i = this.bodies.indexOf(sharedBody);
         if (i >= 0) {
             this.bodies.splice(i, 1);
-            this._world.removeRigidBody(sharedBody.body);
+            if (sharedBody.body.isStaticObject()) {
+                this._world.removeCollisionObject(sharedBody.body);
+            } else {
+                this._world.removeRigidBody(sharedBody.body);
+            }
         }
     }
 
@@ -288,8 +297,8 @@ export class AmmoWorld implements IPhysicsWorld {
                     this.oldContactsDic.set(shape0.id, shape1.id, data);
                 }
 
-                shape0.sharedBody.syncSceneToPhysics();
-                shape1.sharedBody.syncSceneToPhysics();
+                // shape0.sharedBody.syncSceneToPhysics();
+                // shape1.sharedBody.syncSceneToPhysics();
             }
         }
 
@@ -363,8 +372,8 @@ export class AmmoWorld implements IPhysicsWorld {
                         }
                     }
 
-                    shape0.sharedBody.syncSceneToPhysics();
-                    shape1.sharedBody.syncSceneToPhysics();
+                    // shape0.sharedBody.syncSceneToPhysics();
+                    // shape1.sharedBody.syncSceneToPhysics();
                 }
             }
         }

@@ -153,7 +153,7 @@ export class AmmoSharedBody {
         st.setRotation(bodyQuat);
         const motionState = new Ammo.btDefaultMotionState(st);
         const localInertia = new Ammo.btVector3(1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
-        const bodyShape = new Ammo.btCompoundShape(true);
+        const bodyShape = new Ammo.btCompoundShape();
         const rbInfo = new Ammo.btRigidBodyConstructionInfo(0, motionState, bodyShape, localInertia);
         const body = new Ammo.btRigidBody(rbInfo);
         this.bodyStruct = {
@@ -172,7 +172,7 @@ export class AmmoSharedBody {
 
         /** ghost struct */
         const ghost = new Ammo.btCollisionObject();
-        const ghostShape = new Ammo.btCompoundShape(true);
+        const ghostShape = new Ammo.btCompoundShape();
         ghost.setCollisionShape(ghostShape);
         ghost.setCollisionFlags(AmmoCollisionFlags.CF_NO_CONTACT_RESPONSE);
         this.ghostStruct = {
@@ -242,19 +242,26 @@ export class AmmoSharedBody {
      * TODO: use motionstate
      */
     syncPhysicsToScene () {
-        if (!this.body.isStaticObject()) {
-            // let transform = new Ammo.btTransform();
-            // this.body.getMotionState().getWorldTransform(transform);
-            const wt0 = this.body.getWorldTransform();
-            this.node.worldPosition = Ammo2CocosVec3(v3_0, wt0.getOrigin());
-            wt0.getBasis().getRotation(this.bodyStruct.worldQuat);
-            this.node.worldRotation = Ammo2CocosQuat(quat_0, this.bodyStruct.worldQuat);
-
-            const wt1 = this.ghost.getWorldTransform();
-            Cocos2AmmoVec3(wt1.getOrigin(), this.node.worldPosition)
-            Cocos2AmmoQuat(this.ghostStruct.worldQuat, this.node.worldRotation);
-            wt1.setRotation(this.ghostStruct.worldQuat);
+        if (this.body.isStaticObject() || !this.body.isActive()) {
+            // // debug, 静态 body 在动态 body 之前加入到世界，将会导致球抖动。
+            // if (this.ghostIndex != 666) {
+            //     this.updateByReAdd();
+            //     this.ghostIndex = 666;
+            // }
+            return;
         }
+
+        // let transform = new Ammo.btTransform();
+        // this.body.getMotionState().getWorldTransform(transform);
+        const wt0 = this.body.getWorldTransform();
+        this.node.worldPosition = Ammo2CocosVec3(v3_0, wt0.getOrigin());
+        wt0.getBasis().getRotation(this.bodyStruct.worldQuat);
+        this.node.worldRotation = Ammo2CocosQuat(quat_0, this.bodyStruct.worldQuat);
+
+        const wt1 = this.ghost.getWorldTransform();
+        Cocos2AmmoVec3(wt1.getOrigin(), this.node.worldPosition)
+        Cocos2AmmoQuat(this.ghostStruct.worldQuat, this.node.worldRotation);
+        wt1.setRotation(this.ghostStruct.worldQuat);
     }
 
     syncSceneToGhost () {
