@@ -136,14 +136,10 @@ var Canvas = cc.Class({
         }
     },
 
-    ctor: function () {
-        if (CC_EDITOR) {
-            this._fitDesignResolution = (function () {
-                var designSize = cc.engine.getDesignResolutionSize();
-                this.node.setPosition(designSize.width * 0.5, designSize.height * 0.5);
-                this.node.setContentSize(designSize);
-            }).bind(this);
-        }
+    _fitDesignResolution: CC_EDITOR && function () {
+        var designSize = cc.engine.getDesignResolutionSize();
+        this.node.setPosition(designSize.width * 0.5, designSize.height * 0.5);
+        this.node.setContentSize(designSize);
     },
 
     __preload: function () {
@@ -160,7 +156,7 @@ var Canvas = cc.Class({
 
         if (CC_EDITOR) {
             cc.director.on(cc.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution, this);
-            cc.engine.on('design-resolution-changed', this._fitDesignResolution);
+            cc.engine.on('design-resolution-changed', this._fitDesignResolution, this);
         }
 
         this.applySettings();
@@ -187,7 +183,7 @@ var Canvas = cc.Class({
     onDestroy: function () {
         if (CC_EDITOR) {
             cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution, this);
-            cc.engine.off('design-resolution-changed', this._fitDesignResolution);
+            cc.engine.off('design-resolution-changed', this._fitDesignResolution, this);
         }
 
         if (Canvas.instance === this) {
