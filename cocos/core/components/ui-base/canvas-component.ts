@@ -43,7 +43,7 @@ import { Node } from '../../scene-graph/node';
 import { INode } from '../../utils/interfaces';
 import { Enum } from '../../value-types';
 import { Component } from '../component';
-import { UITransformComponent } from './ui-transfrom-component';
+import { UITransformComponent } from './ui-transform-component';
 
 const _worldPos = new Vec3();
 
