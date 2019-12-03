@@ -362,7 +362,7 @@ var BaseNode = cc.Class({
             return;
         }
         if (CC_EDITOR && cc.engine && !cc.engine.isPlaying) {
-            if (_Scene.DetectConflict.beforeAddChild(this)) {
+            if (_Scene.DetectConflict.beforeAddChild(this, value)) {
                 return;
             }
         }
