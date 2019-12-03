@@ -66,6 +66,11 @@ interface IAdvancedOptions extends IBaseOptions {
 
 export interface IBuildOptions extends IBaseOptions {
     /**
+     * 构建模式。
+     */
+    mode?: Mode;
+
+    /**
      * 目标平台。
      */
     platform?: Platform;
@@ -271,6 +276,26 @@ async function _internalBuild (options: IAdvancedOptions) {
 }
 
 export enum Platform {
+    HTML5,
+    WECHAT,
+    ALIPAY,
+    BAIDU,
+    XIAOMI,
+    OPPO,
+    VIVO,
+    HUAWEI,
+    NATIVE,
+}
+
+export function enumeratePlatformReps () {
+    return Object.values(Platform).filter((value) => typeof value === 'string') as Array<keyof typeof Platform>;
+}
+
+export function parsePlatform (rep: string) {
+    return Reflect.get(Platform, rep);
+}
+
+export enum Mode {
     universal,
     editor,
     preview,
@@ -278,12 +303,12 @@ export enum Platform {
     test,
 }
 
-export function enumeratePlatformReps () {
-    return Object.values(Platform).filter((value) => typeof value === 'string');
+export function enumerateBuildModeReps () {
+    return Object.values(Mode).filter((value) => typeof value === 'string') as Array<keyof typeof Mode>;
 }
 
-export function parsePlatform (rep: string) {
-    return Reflect.get(Platform, rep);
+export function parseBuildMode (rep: string) {
+    return Reflect.get(Mode, rep);
 }
 
 export enum Physics {
@@ -324,20 +349,30 @@ export interface IFlags {
 }
 
 interface IGlobaldefines {
-    // Platform macros
+    // BuildMode macros
     CC_EDITOR?: boolean;
     CC_PREVIEW?: boolean;
     CC_BUILD?: boolean;
     CC_TEST?: boolean;
 
-    // Flag macros
+    // Platform macros
+    CC_HTML5?: boolean;
+    CC_WECHAT?: boolean;
+    CC_ALIPAY?: boolean;
+    CC_BAIDU?: boolean;
+    CC_XIAOMI?: boolean;
+    CC_OPPO?: boolean;
+    CC_VIVO?: boolean;
+    CC_HUAWEI?: boolean;
+    CC_NATIVE?: boolean;
+
+    // engine use platform macros
+    CC_RUNTIME_BASED?: boolean;
+    CC_MINIGAMES?: boolean;
     CC_JSB?: boolean;
-    CC_RUNTIME?: boolean;
-    CC_WECHATGAME?: boolean;
-    CC_WECHATGAMESUB?: boolean;
-    CC_QQPLAY?: boolean;
+
+    // Flag macros
     CC_DEBUG?: boolean;
-    CC_NATIVERENDERER?: boolean;
 
     // Debug macros
     CC_DEV?: boolean;
@@ -350,18 +385,27 @@ interface IGlobaldefines {
 }
 
 function getGlobalDefs (options: IBuildOptions): object {
+    const buildmode = options.mode || Mode.universal;
+    const platform = options.platform;
     const flags = options.flags;
-    const platform = options.platform || Platform.universal;
 
-    const PLATFORM_MACROS = ['CC_EDITOR', 'CC_PREVIEW', 'CC_BUILD', 'CC_TEST'];
+    const BUILDMODE_MACROS = ['CC_EDITOR', 'CC_PREVIEW', 'CC_BUILD', 'CC_TEST'];
+    const PLATFORM_MACROS = ['CC_HTML5', 'CC_WECHAT', 'CC_ALIPAY', 'CC_BAIDU', 'CC_XIAOMI', 'CC_OPPO', 'CC_VIVO', 'CC_HUAWEI', 'CC_NATIVE'];
+    const FLAGS = ['debug'];
 
-    const FLAGS = ['jsb', 'runtime', 'wechatgame', 'wechatgameSub', 'qqplay', 'debug', 'nativeRenderer'];
-
-    const platformMacro = ('CC_' + Platform[platform]).toUpperCase();
-    if (PLATFORM_MACROS.indexOf(platformMacro) === -1 && platform !== Platform.universal) {
+    const buildmodeMacro = ('CC_' + Mode[buildmode]).toUpperCase();
+    if (BUILDMODE_MACROS.indexOf(buildmodeMacro) === -1 && buildmode !== Mode.universal) {
+        throw new Error(`Unknown buildmode ${buildmode}.`);
+    }
+    const platformMacro = ('CC_' + Platform[platform!]).toUpperCase();
+    if ( PLATFORM_MACROS.indexOf(platformMacro) === -1) {
         throw new Error(`Unknown platform ${platform}.`);
     }
     const result: IGlobaldefines = {};
+    for (const macro of BUILDMODE_MACROS) {
+        result[macro as keyof IGlobaldefines] = (macro === buildmodeMacro);
+    }
+
     for (const macro of PLATFORM_MACROS) {
         result[macro as keyof IGlobaldefines] = (macro === platformMacro);
     }
@@ -382,7 +426,10 @@ function getGlobalDefs (options: IBuildOptions): object {
 
     result.CC_DEV = result.CC_EDITOR || result.CC_PREVIEW || result.CC_TEST;
     result.CC_DEBUG = result.CC_DEBUG || result.CC_DEV;
-    result.CC_SUPPORT_JIT = !(result.CC_WECHATGAME || result.CC_QQPLAY || result.CC_RUNTIME);
+    result.CC_RUNTIME_BASED = result.CC_OPPO || result.CC_VIVO || result.CC_HUAWEI;
+    result.CC_MINIGAMES = result.CC_WECHAT || result.CC_ALIPAY || result.CC_XIAOMI || result.CC_BAIDU;
+    result.CC_JSB = result.CC_NATIVE || result.CC_RUNTIME_BASED;
+    result.CC_SUPPORT_JIT = !(result.CC_MINIGAMES || result.CC_RUNTIME_BASED);
     result.CC_PHYSICS_BUILTIN = false;
     result.CC_PHYSICS_CANNON = false;
     result.CC_PHYSICS_AMMO = false;

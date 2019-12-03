@@ -364,19 +364,12 @@ sys.BROWSER_TYPE_WECHAT = 'wechat';
  */
 sys.BROWSER_TYPE_WECHAT_GAME = 'wechatgame';
 /**
- * BROWSER_TYPE_WECHAT_GAME_SUB
- * @property {String} BROWSER_TYPE_WECHAT_GAME_SUB
+ * BROWSER_TYPE_ALIPAY_GAME
+ * @property {String} BROWSER_TYPE_ALIPAY_GAME
  * @readOnly
- * @default "wechatgamesub"
+ * @default "alipaygame"
  */
-sys.BROWSER_TYPE_WECHAT_GAME_SUB = 'wechatgamesub';
-/**
- * BROWSER_TYPE_QQ_PLAY
- * @property {String} BROWSER_TYPE_QQ_PLAY
- * @readOnly
- * @default "qqplay"
- */
-sys.BROWSER_TYPE_QQ_PLAY = 'qqplay';
+sys.BROWSER_TYPE_ALIPAY_GAME = 'alipaygame';
 /**
  *
  * @property {String} BROWSER_TYPE_ANDROID
@@ -528,7 +521,7 @@ sys.isNative = CC_JSB;
  * Is web browser ?
  * @property {Boolean} isBrowser
  */
-sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY && !CC_JSB;
+sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_MINIGAME && !CC_JSB;
 
 /**
  * Endianess of current platform
@@ -716,12 +709,12 @@ else {
         if (!browserTypes) { browserTypes = typeReg3.exec(ua); }
 
         let browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
-        if (CC_WECHATGAME) {
+        if (CC_WECHAT) {
             browserType = sys.BROWSER_TYPE_WECHAT_GAME;
         }
-        else if (CC_QQPLAY) {
-            browserType = sys.BROWSER_TYPE_QQ_PLAY;
- }
+        else if(CC_ALIPAY) {
+            browserType = sys.BROWSER_TYPE_ALIPAY_GAME;
+        }
         else if (browserType === 'micromessenger') {
             browserType = sys.BROWSER_TYPE_WECHAT;
  }

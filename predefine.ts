@@ -110,13 +110,16 @@
  * @property {Boolean} CC_TEST - Running in the engine's unit test.
  */
 /**
- * @property {Boolean} CC_WECHATGAME - Running in the Wechat's mini game.
+ * @property {Boolean} CC_WECHAT - Running in the Wechat's mini game.
  */
 /**
- * @property {Boolean} CC_QQPLAY - Running in the bricks.
+ * @property {Boolean} CC_ALIPAY - Running in the alipay's mini game.
  */
 /**
- * @property {Boolean} CC_RUNTIME - Running in runtime environments.
+ * @property {Boolean} CC_MINIGAME - Running in mini game.
+ */
+/**
+ * @property {Boolean} CC_RUNTIME_BASED - Running in runtime environments.
  */
 
 // PREDEFINE
@@ -165,9 +168,10 @@ if (CC_BUILD) {
     _global.CC_DEV = CC_DEV;
     _global.CC_DEBUG = CC_DEBUG;
     _global.CC_JSB = CC_JSB;
-    _global.CC_WECHATGAME = CC_WECHATGAME;
-    _global.CC_QQPLAY = CC_QQPLAY;
-    _global.CC_RUNTIME = CC_RUNTIME;
+    _global.CC_WECHAT = CC_WECHAT;
+    _global.CC_ALIPAY = CC_ALIPAY;
+    _global.CC_MINIGAME = CC_MINIGAME;
+    _global.CC_RUNTIME_BASED = CC_RUNTIME_BASED;
     _global.CC_SUPPORT_JIT = CC_SUPPORT_JIT;
     _global.CC_PHYSICS_BUILTIN = CC_PHYSICS_BUILTIN;
     _global.CC_PHYSICS_CANNON = CC_PHYSICS_CANNON;
@@ -182,12 +186,13 @@ else {
     defineMacro('CC_DEV', true);    // (CC_EDITOR && !CC_BUILD) || CC_PREVIEW || CC_TEST
     defineMacro('CC_DEBUG', true);  // CC_DEV || Debug Build
     defineMacro('CC_JSB', defined('jsb'));
-    defineMacro('CC_WECHATGAME_SUB', !!(defined('wx') && wx.getSharedCanvas));
-    defineMacro('CC_WECHATGAME', !!(defined('wx') && (wx.getSystemInfoSync || wx.getSharedCanvas)));
-    defineMacro('CC_QQPLAY', defined('bk'));
+    defineMacro('CC_WECHAT', !!(defined('wx') && (wx.getSystemInfoSync || wx.getSharedCanvas)));
+    defineMacro('CC_MINIGAME', false);
+    defineMacro('CC_RUNTIME_BASED', false);
+    defineMacro('CC_ALIPAY', false);
     // @ts-ignore
     defineMacro('CC_RUNTIME', 'function' === typeof loadRuntime);
-    defineMacro('CC_SUPPORT_JIT', !(CC_WECHATGAME || CC_QQPLAY || CC_RUNTIME));
+    defineMacro('CC_SUPPORT_JIT', !(CC_MINIGAME || CC_RUNTIME_BASED));
     defineMacro('CC_PHYSICS_BUILTIN', true);
     defineMacro('CC_PHYSICS_CANNON', false);
     defineMacro('CC_PHYSICS_AMMO', false);
@@ -222,7 +227,7 @@ export default cc;
  * deprecated
  */
 // TODO: ALIPAY and runtime will redefine
-if (!CC_RUNTIME) {
+if (!(CC_RUNTIME_BASED || CC_ALIPAY)) {
     Object.defineProperty(_global, 'CC_PHYSICS_BUILT_IN', {
         'get': () => {
             console.warn('CC_PHYSICS_BUILT_IN is deprecated, please using CC_PHYSICS_BUILTIN instead.');

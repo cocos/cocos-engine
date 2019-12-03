@@ -31,10 +31,10 @@ declare const CC_PREVIEW: boolean;
 declare const CC_DEV: boolean;
 declare const CC_DEBUG: boolean;
 declare const CC_JSB: boolean;
-declare const CC_WECHATGAME_SUB: boolean;
-declare const CC_WECHATGAME: boolean;
-declare const CC_QQPLAY: boolean;
-declare const CC_RUNTIME: boolean;
+declare const CC_WECHAT: boolean;
+declare const CC_ALIPAY: boolean;
+declare const CC_MINIGAME: boolean;
+declare const CC_RUNTIME_BASED: boolean;
 declare const CC_SUPPORT_JIT: boolean;
 
 declare const jsb: any;
@@ -45,7 +45,7 @@ declare const CC_PHYSICS_BUILTIN: boolean;
 interface Window {
 
     [x: string]: any;
-    
+
     WebGL2RenderingContext: any;
 
     sharedCanvas: any;
