@@ -36,7 +36,7 @@ export class Skybox extends Model {
     set envmap (val: TextureCube | null) {
         const newEnvmap = val || this._default;
         this._envmap = newEnvmap;
-        this._scene.ambient.groundAlbedo[3] = this._envmap.mipmapLevel;
+        this._scene!.ambient.groundAlbedo[3] = this._envmap.mipmapLevel;
         this._updateGlobalBinding();
     }
     get envmap () {
@@ -51,7 +51,7 @@ export class Skybox extends Model {
     protected _globalBinding: IInternalBindingInst;
 
     constructor (scene: RenderScene) {
-        super(scene, null!);
+        super();
         this._scene = scene;
         this._globalBinding = this._scene.root.pipeline.globalBindings.get(UNIFORM_ENVIRONMENT.name)!;
         if (!skybox_material) {
@@ -64,10 +64,10 @@ export class Skybox extends Model {
 
     protected _updatePipeline () {
         const value = this._useIBL ? this._isRGBE ? 2 : 1 : 0;
-        const pipeline = this._scene.root.pipeline;
+        const pipeline = this._scene!.root.pipeline;
         if (pipeline.macros.CC_USE_IBL === value) { return; }
         pipeline.macros.CC_USE_IBL = value;
-        this._scene.onPipelineChange();
+        this._scene!.onPipelineChange();
     }
 
     protected _updateGlobalBinding () {

@@ -28,7 +28,7 @@
  */
 
 import { TextureCube } from '../assets/texture-cube';
-import { ccclass, property, float } from '../data/class-decorator';
+import { ccclass, float, property } from '../data/class-decorator';
 import { CCBoolean, CCFloat } from '../data/utils/attribute';
 import { Color, Quat, Vec3 } from '../math';
 import { Ambient } from '../renderer/scene/ambient';

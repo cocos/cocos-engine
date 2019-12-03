@@ -9,7 +9,7 @@
   ],
   "module": "index.js",
   "scripts": {
-    "server": "http-server . -p 8002 -o http://127.0.0.1:8002/playground",
+    "server": "http-server . -p 8002 -o http://127.0.0.1:8002/playground/index.html",
     "build": "npm run build:min && npm run build-declaration",
     "build:dev": "node ./rollup/out/build-engine-cli.js --sourcemap --platform=universal --physics=cannon --destination=./bin/cocos-3d.dev.js",
     "build:min": "node ./rollup/out/build-engine-cli.js --compress --sourcemap --platform=universal --physics=cannon --destination=./bin/cocos3d-js.min.js",
@@ -83,6 +83,8 @@
     "rollup-plugin-terser": "^5.1.1",
     "rollup-plugin-uglify": "^6.0.2",
     "rollup-watch": "^4.3.1",
+    "spectorjs": "^0.9.10",
+    "stats.js": "^0.17.0",
     "tfig": "^1.1.0",
     "ts-jest": "^24.0.2",
     "tween.js": "github:cocos-creator/tween.js#cocos-master",

@@ -30,7 +30,6 @@
 import { Color, Vec3 } from '../../../../core/math';
 import { GFXPrimitiveMode } from '../../../../core/gfx';
 import { Model } from '../../../../core/renderer';
-import { RenderScene } from '../../../../core/renderer/scene/render-scene';
 import { MeshRenderData } from '../../../../core/renderer/ui/render-data';
 import { UI } from '../../../../core/renderer/ui/ui';
 import { createMesh } from '../../../../core/3d/misc/utils';
@@ -40,7 +39,8 @@ import { IAssembler } from '../../../../core/renderer/ui/base';
 import { LineCap, LineJoin, PointFlags } from '../types';
 import { earcut as Earcut } from './earcut';
 import { Impl, Point } from './impl';
-import { director } from '../../../../core/director';
+import { director } from '../../../../core';
+import { RenderScene } from '../../../../core/renderer/scene/render-scene';
 
 const MAX_VERTEX = 65535;
 const MAX_INDICE = MAX_VERTEX * 2;
@@ -175,14 +175,10 @@ export const graphicsAssembler: IAssembler = {
         this.end(graphics);
     },
 
-    end (graphics: GraphicsComponent){
-        const scene = director.root!.ui.renderScene as RenderScene;
-        if (graphics.model){
+    end(graphics: GraphicsComponent) {
+        if (graphics.model) {
             graphics.model.destroy();
-            scene.destroyModel(graphics.model);
-            graphics.model = null;
         }
-
         const impl = graphics.impl;
         const primitiveMode = GFXPrimitiveMode.TRIANGLE_LIST;
         const renderDatas = impl && impl.getRenderDatas();
@@ -226,9 +222,8 @@ export const graphicsAssembler: IAssembler = {
             indices,
         }, undefined, { calculateBounds: false });
 
-        graphics.model = scene.createModel(Model, graphics.node);
-        graphics.model.initSubModel(0, mesh.getSubMesh(0), graphics.material!);
-        graphics.model.enabled = true;
+        graphics.model!.initialize(graphics.node);
+        graphics.model!.initSubModel(0, mesh.getSubMesh(0), graphics.material!);
         graphics.markForUpdateRenderData();
     },
 

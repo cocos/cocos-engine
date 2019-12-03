@@ -9,6 +9,9 @@ module.exports = {
   globals: {
     CC_DEV: true,
     CC_TEST: true,
-    CC_PHYSICS_BUILTIN: true
+    CC_PHYSICS_BUILTIN: true,
+    'ts-jest': {
+        diagnostics: false
+    }
   }
 };

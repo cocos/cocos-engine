@@ -52,7 +52,7 @@ export class DirectionalLightComponent extends LightComponent {
      */
     @property({
         unit: 'lx',
-        tooltip:'光源强度'
+        tooltip: '光源强度',
     })
     get illuminance () {
         return this._illuminance;
@@ -62,23 +62,14 @@ export class DirectionalLightComponent extends LightComponent {
         if (this._light) { this._light.illuminance = this._illuminance; }
     }
 
-    protected _createLight (scene?: RenderScene) {
-        if (!this.node.scene) { return; }
-        scene = scene || this._getRenderScene();
-        if (scene.mainLight.node.activeInHierarchy) {
-            console.warn('there can be only one directional(main) light.');
-            return;
-        }
-        this._light = scene.mainLight;
-        this.illuminance = this._illuminance;
-        super._createLight(scene);
+    constructor () {
+        super();
+        this._lightType = DirectionalLight;
     }
 
-    protected _destroyLight (scene?: RenderScene) {
-        if (!this.node.scene || !this._light) { return; }
-        this._light.enabled = false;
-        scene = scene || this._getRenderScene();
-        this._light.node = scene.defaultMainLightNode;
-        super._destroyLight(scene);
+    protected _createLight () {
+        super._createLight();
+        if (!this._light) { return; }
+        this.illuminance = this._illuminance;
     }
 }

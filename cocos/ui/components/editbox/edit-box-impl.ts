@@ -421,13 +421,13 @@ export class EditBoxImpl {
     public _updateMatrix () {
         if (!this._edTxt) { return; }
 
-        const node = this._node;
+        const node = this._node!;
         let scaleX = view.getScaleX();
         let scaleY = view.getScaleY();
         const viewport = view.getViewportRect();
         const dpr = view.getDevicePixelRatio();
 
-        node!.getWorldMatrix(_matrix);
+        node.getWorldMatrix(_matrix);
         const transform = node!.uiTransfromComp;
         if (transform) {
             Vec3.set(_vec3, -transform.anchorX * transform.width, -transform.anchorY * transform.height, _vec3.z);
@@ -435,20 +435,11 @@ export class EditBoxImpl {
 
         Mat4.transform(_matrix, _matrix, _vec3);
 
-        // let camera;
-        // can't find camera in editor
-        // if (CC_EDITOR) {
-        //     camera = cc.Camera.main;
-        // }
-        // else {
-        //     camera = cc.Camera.findCamera(node);
-        // }
-        const renderComp:UIRenderComponent = node!.getComponent(UIRenderComponent);
-        if (!renderComp) {
+        if (!node.uiTransfromComp) {
             return false;
         }
-        // let canvas = cc.CanvasComponent.findView(renderComp);
-        const canvas = director.root!.ui.getScreen(renderComp.visibility);
+
+        const canvas = director.root!.ui.getScreen(node.uiTransfromComp.visibility);
         if (!canvas) {
             return;
         }

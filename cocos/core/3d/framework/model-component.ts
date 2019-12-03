@@ -30,7 +30,8 @@
 import { Material, Mesh } from '../../assets';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
 import { Model } from '../../renderer/scene/model';
-import { TransformDirtyBit } from '../../scene-graph/node-enum';
+import { Root } from '../../root';
+import { TransformBit } from '../../scene-graph/node-enum';
 import { Enum } from '../../value-types';
 import { builtinResMgr } from '../builtin';
 import { RenderableComponent } from './renderable-component';
@@ -77,6 +78,9 @@ export class ModelComponent extends RenderableComponent {
         this._mesh = val;
         this._onMeshChanged(old);
         this._updateModels();
+        if (this.node.activeInHierarchy) {
+            this._attachToScene();
+        }
     }
 
     /**
@@ -147,6 +151,8 @@ export class ModelComponent extends RenderableComponent {
 
     public static ShadowCastingMode = ModelShadowCastingMode;
 
+    protected _modelType: typeof Model;
+
     protected _model: Model | null = null;
 
     @property
@@ -161,6 +167,11 @@ export class ModelComponent extends RenderableComponent {
     @property
     private _receiveShadows = false;
 
+    constructor () {
+        super();
+        this._modelType = Model;
+    }
+
     public onLoad () {
         this._updateModels();
         this._updateCastShadow();
@@ -169,35 +180,21 @@ export class ModelComponent extends RenderableComponent {
 
     public onEnable () {
         if (this._model) {
-            if (!this._model.inited) {
-                this._updateModels();
-            }
-            this._model.enabled = true;
+            this._attachToScene();
         }
     }
 
     public onDisable () {
         if (this._model) {
-            this._model.enabled = false;
+            this._detachFromScene();
         }
     }
 
     public onDestroy () {
         if (this._model) {
-            this._model.scene.destroyModel(this._model);
+            cc.director.root.destroyModel(this._model);
             this._model = null;
             this._models.length = 0;
-        }
-    }
-
-    public _changeSceneInModel () {
-        if (this.isValid) {
-            if (this._model) {
-                this._model.destroy();
-                this._model.scene.destroyModel(this._model);
-                this._model = null;
-            }
-            this._updateModels();
         }
     }
 
@@ -206,7 +203,11 @@ export class ModelComponent extends RenderableComponent {
             return;
         }
 
-        this._createModel();
+        if (this._model) {
+            this._model.destroy();
+        } else {
+            this._createModel();
+        }
 
         this._updateModelParams();
 
@@ -232,24 +233,35 @@ export class ModelComponent extends RenderableComponent {
     }
 
     protected _createModel () {
-        if (!this.node.scene) { return; }
-        const scene = this._getRenderScene();
-        if (this._model) { scene.destroyModel(this._model); }
-        this._model = scene.createModel(this._getModelConstructor(), this.node);
+        this._model = (cc.director.root as Root).createModel(this._modelType);
         this._model.visFlags = this.visibility;
+        this._model.initialize(this.node);
         this._models.length = 0;
         this._models.push(this._model);
     }
 
-    protected _getModelConstructor () {
-        return Model;
+    protected _attachToScene () {
+        if (!this.node.scene && !this._model) {
+            return;
+        }
+        const scene = this._getRenderScene();
+        if (this._model!.scene != null) {
+            this._detachFromScene();
+        }
+        scene.addModel(this._model!);
+    }
+
+    protected _detachFromScene () {
+        if (this._model && this._model.scene) {
+            this._model.scene.removeModel(this._model);
+        }
     }
 
     protected _updateModelParams () {
         if (!this._mesh || !this._model) {
             return;
         }
-        this.node.hasChangedFlags = this._model.transform.hasChangedFlags = TransformDirtyBit.POSITION;
+        this.node.hasChangedFlags = this._model.transform.hasChangedFlags = TransformBit.POSITION;
         this._model.isDynamicBatching = this._enableDynamicBatching; // should pass this in before create PSO
         const meshCount = this._mesh ? this._mesh.subMeshCount : 0;
         for (let i = 0; i < meshCount; ++i) {

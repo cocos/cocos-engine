@@ -34,6 +34,7 @@ import { barFilled } from './bar-filled';
 import { radialFilled } from './radial-filled';
 import { simple } from './simple';
 import { sliced } from './sliced';
+import { tilled } from './tiled';
 
 const SpriteType = SpriteComponent.Type;
 const FillType = SpriteComponent.FillType;
@@ -49,9 +50,9 @@ const spriteAssembler: IAssemblerManager = {
             case SpriteType.SLICED:
                 util = sliced;
                 break;
-            // case SpriteType.TILED:
-            //     util = tilled;
-            //     break;
+            case SpriteType.TILED:
+                util = tilled;
+                break;
             case SpriteType.FILLED:
                 if (comp.fillType === FillType.RADIAL) {
                     util = radialFilled;

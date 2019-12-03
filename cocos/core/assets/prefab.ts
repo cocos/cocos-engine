@@ -188,4 +188,8 @@ export default class Prefab extends Asset {
 }
 
 cc.Prefab = Prefab;
-obsolete(cc, 'cc._Prefab', 'Prefab');
+if (CC_ALIPAY || CC_RUNTIME_BASED) {
+    cc._Prefab = Prefab;
+} else {
+    obsolete(cc, 'cc._Prefab', 'Prefab');
+}

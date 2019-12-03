@@ -120,36 +120,20 @@ export enum SystemEventType {
 
     /**
      * @en
-     * The event type for position, rotation, scale changed.
+     * The event type for position, rotation, scale changed.Use the type parameter as [[Node.TransformBit]] to check which part is changed
      *
      * @zh
-     * 节点改变位置、旋转或缩放事件.
+     * 节点改变位置、旋转或缩放事件。如果具体需要判断是哪一个事件，可通过判断回调的第一个参数类型是 [[Node.TransformBit]] 中的哪一个来获取
+     * @example
+     * ```
+     * this.node.on(Node.EventType.TRANSFORM_CHANGED, (type)=>{
+     *  if (type & Node.TransformBit.POSITION) {
+     *       //...
+     *   }
+     * }, this);
+     * ```
      */
     TRANSFORM_CHANGED = 'transform-changed',
-
-    /**
-     * @en
-     * The event type for position changed.
-     *
-     * @zh
-     * 节点位置改变事件
-     */
-    POSITION_PART = 'position-part',
-
-    /**
-     * @en
-     * The event type for rotation changed.
-     *
-     * @zh
-     * 节点旋转事件
-     */
-    ROTATION_PART = 'rotation-part',
-
-    /**
-     * @en The event type for scale changed.
-     * @zh 节点缩放事件
-     */
-    SCALE_PART = 'scale-part',
 
     /**
      * @en The event type for press the devicemotion event, you can use its value directly: 'devicemotion'.

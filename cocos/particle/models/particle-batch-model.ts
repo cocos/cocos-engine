@@ -31,12 +31,10 @@ import { Material } from '../../core/assets/material';
 import { IRenderingSubmesh, Mesh } from '../../core/assets/mesh';
 import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormatInfos,
-    GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
+    GFXMemoryUsageBit, GFXPrimitiveMode, GFXStatus } from '../../core/gfx/define';
 import { IGFXAttribute } from '../../core/gfx/input-assembler';
 import { Color } from '../../core/math/color';
 import { Model } from '../../core/renderer/scene/model';
-import { RenderScene } from '../../core/renderer/scene/render-scene';
-import { Node } from '../../core/scene-graph';
 
 export default class ParticleBatchModel extends Model {
 
@@ -54,8 +52,8 @@ export default class ParticleBatchModel extends Model {
     private _vertCount: number = 0;
     private _indexCount: number = 0;
 
-    constructor (scene: RenderScene, node: Node) {
-        super(scene, node);
+    constructor () {
+        super();
 
         this._type = 'particle-batch';
         this._capacity = 0;
@@ -184,6 +182,14 @@ export default class ParticleBatchModel extends Model {
 
         this._iaInfo.drawInfos[0].vertexCount = this._capacity * this._vertCount;
         this._iaInfo.drawInfos[0].indexCount = this._capacity * this._indexCount;
+        if (this._iaInfoBuffer.status === GFXStatus.UNREADY) {
+            this._iaInfoBuffer.initialize({
+                usage: GFXBufferUsageBit.INDIRECT,
+                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                size: GFX_DRAW_INFO_SIZE,
+                stride: 1,
+            });
+        }
         this._iaInfoBuffer.update(this._iaInfo);
 
         this._subMeshData = {

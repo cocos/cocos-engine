@@ -465,7 +465,7 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
                 this.cmdPackage.copyBufferToTextureCmds.push(cmd);
             }
 
-            this.cmdPackage.cmds.concat(webGLCmdBuff.cmdPackage.cmds);
+            this.cmdPackage.cmds.concat(webGLCmdBuff.cmdPackage.cmds.array);
 
             this._numDrawCalls += webGLCmdBuff._numDrawCalls;
             this._numTris += webGLCmdBuff._numTris;

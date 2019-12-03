@@ -110,16 +110,22 @@ export class EditorCameraComponent extends CameraComponent {
 
     public onEnable () {
         super.onEnable();
+        if (this._uiEditorCamera) {
+            cc.director.root!.ui.renderScene.addCamera(this._uiEditorCamera);
+        }
     }
 
-    public onDisable () {
+    public onDisable() {
         super.onDisable();
+        if (this._uiEditorCamera) {
+            cc.director.root!.ui.renderScene.removeCamera(this._uiEditorCamera);
+        }
     }
 
     public onDestroy () {
         super.onDestroy();
         if (this._uiEditorCamera) {
-            cc.director.root!.ui.renderScene.destroyCamera(this._uiEditorCamera);
+            cc.director.root!.destroyCamera(this._uiEditorCamera);
             this._uiEditorCamera = null;
         }
     }
@@ -130,10 +136,11 @@ export class EditorCameraComponent extends CameraComponent {
 
         if (this._camera !== priorCamera && this._camera) {
             if (this._uiEditorCamera) {
-                cc.director.root!.ui.renderScene.destroyCamera(this._uiEditorCamera);
+                cc.director.root!.destroyCamera(this._uiEditorCamera);
                 this._uiEditorCamera = null;
             }
-            this._uiEditorCamera = cc.director.root!.ui.renderScene.createCamera({
+            this._uiEditorCamera = cc.director.root!.createCamera();
+            this._uiEditorCamera!.initialize({
                 name: 'Editor UICamera',
                 node: this._camera.node,
                 projection: this._projection,

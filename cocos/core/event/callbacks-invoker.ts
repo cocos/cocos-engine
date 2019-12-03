@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import Pool from '../memop/pool';
+import { Pool } from '../memop';
 import { array, createMap } from '../utils/js';
 const fastRemoveAt = array.fastRemoveAt;
 

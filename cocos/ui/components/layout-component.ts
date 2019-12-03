@@ -36,6 +36,7 @@ import { UITransformComponent } from '../../core/components/ui-base/ui-transform
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { INode } from '../../core/utils/interfaces';
 import { director, Director } from '../../core/director';
+import { TransformBit } from '../../core/scene-graph/node-enum';
 const NodeEvent = SystemEventType;
 /**
  * @zh
@@ -186,6 +187,8 @@ export class LayoutComponent extends Component {
             //     return;
             // }
         }
+
+        this._isAlign = true;
         this._doLayoutDirty();
     }
     /**
@@ -218,7 +221,9 @@ export class LayoutComponent extends Component {
      * @zh
      * 每个格子的大小，只有布局类型为 GRID 的时候才有效。
      */
-    @property
+    @property({
+        tooltip: '每个格子的大小，只有布局类型为 GRID 的时候才有效',
+    })
     // @constget
     get cellSize (): Readonly<Size> {
         return this._cellSize;
@@ -239,6 +244,7 @@ export class LayoutComponent extends Component {
      */
     @property({
         type: AxisDirection,
+        tooltip: '起始轴方向类型，可进行水平和垂直布局排列，只有布局类型为 GRID 的时候才有效',
     })
     get startAxis () {
         return this._startAxis;
@@ -263,7 +269,9 @@ export class LayoutComponent extends Component {
      * @zh
      * 容器内左边距，只会在一个布局方向上生效。
      */
-    @property
+    @property({
+        tooltip: '容器内左边距，只会在一个布局方向上生效',
+    })
     get paddingLeft () {
         return this._paddingLeft;
     }
@@ -280,7 +288,9 @@ export class LayoutComponent extends Component {
      * @zh
      * 容器内右边距，只会在一个布局方向上生效。
      */
-    @property
+    @property({
+        tooltip: '容器内右边距，只会在一个布局方向上生效',
+    })
     get paddingRight () {
         return this._paddingRight;
     }
@@ -297,7 +307,9 @@ export class LayoutComponent extends Component {
      * @zh
      * 容器内上边距，只会在一个布局方向上生效。
      */
-    @property
+    @property({
+        tooltip: '容器内上边距，只会在一个布局方向上生效',
+    })
     get paddingTop () {
         return this._paddingTop;
     }
@@ -314,7 +326,9 @@ export class LayoutComponent extends Component {
      * @zh
      * 容器内下边距，只会在一个布局方向上生效。
      */
-    @property
+    @property({
+        tooltip: '容器内下边距，只会在一个布局方向上生效',
+    })
     get paddingBottom () {
         return this._paddingBottom;
     }
@@ -331,7 +345,9 @@ export class LayoutComponent extends Component {
      * @zh
      * 子节点之间的水平间距。
      */
-    @property
+    @property({
+        tooltip: '子节点之间的水平间距',
+    })
     get spacingX () {
         return this._spacingX;
     }
@@ -349,7 +365,9 @@ export class LayoutComponent extends Component {
      * @zh
      * 子节点之间的垂直间距。
      */
-    @property
+    @property({
+        tooltip: '子节点之间的垂直间距',
+    })
     get spacingY () {
         return this._spacingY;
     }
@@ -369,6 +387,7 @@ export class LayoutComponent extends Component {
      */
     @property({
         type: VerticalDirection,
+        tooltip: '垂直排列子节点的方向',
     })
     get verticalDirection () {
         return this._verticalDirection;
@@ -389,6 +408,7 @@ export class LayoutComponent extends Component {
      */
     @property({
         type: HorizontalDirection,
+        tooltip: '水平排列子节点的方向',
     })
     get horizontalDirection () {
         return this._horizontalDirection;
@@ -407,7 +427,9 @@ export class LayoutComponent extends Component {
      * @zh
      * 容器内边距，该属性会在四个布局方向上生效。
      */
-    @property
+    @property({
+        tooltip: '容器内边距，该属性会在四个布局方向上生效',
+    })
     get padding () {
         return this._paddingLeft;
     }
@@ -423,7 +445,9 @@ export class LayoutComponent extends Component {
      * @zh
      * 子节点缩放比例是否影响布局。
      */
-    @property
+    @property({
+        tooltip: '子节点缩放比例是否影响布局',
+    })
     get affectedByScale () {
         return this._affectedByScale;
     }
@@ -439,37 +463,39 @@ export class LayoutComponent extends Component {
     public static ResizeMode = ResizeMode;
     public static AxisDirection = AxisDirection;
 
-    private _layoutDirty = true;
     @property
-    private _resizeMode = ResizeMode.NONE;
+    protected _resizeMode = ResizeMode.NONE;
     // TODO: refactoring this name after data upgrade machanism is out.
     @property
-    private _N$layoutType = Type.NONE;
+    protected _N$layoutType = Type.NONE;
     @property
-    private _N$padding = 0;
+    protected _N$padding = 0;
     @property
-    private _cellSize = new Size(40, 40);
+    protected _cellSize = new Size(40, 40);
     @property
-    private _startAxis = AxisDirection.HORIZONTAL;
+    protected _startAxis = AxisDirection.HORIZONTAL;
     @property
-    private _paddingLeft = 0;
+    protected _paddingLeft = 0;
     @property
-    private _paddingRight = 0;
+    protected _paddingRight = 0;
     @property
-    private _paddingTop = 0;
+    protected _paddingTop = 0;
     @property
-    private _paddingBottom = 0;
+    protected _paddingBottom = 0;
     @property
-    private _spacingX = 0;
+    protected _spacingX = 0;
     @property
-    private _spacingY = 0;
+    protected _spacingY = 0;
+    @property
+    protected _verticalDirection = VerticalDirection.TOP_TO_BOTTOM;
+    @property
+    protected _horizontalDirection = HorizontalDirection.LEFT_TO_RIGHT;
+    @property
+    protected _affectedByScale = false;
+
     private _layoutSize = new Size(300, 200);
-    @property
-    private _verticalDirection = VerticalDirection.TOP_TO_BOTTOM;
-    @property
-    private _horizontalDirection = HorizontalDirection.LEFT_TO_RIGHT;
-    @property
-    private _affectedByScale = false;
+    private _layoutDirty = true;
+    private _isAlign = false;
 
     /**
      * @zh
@@ -540,7 +566,7 @@ export class LayoutComponent extends Component {
     private _addChildrenEventListeners () {
         const children = this.node.children;
         for (const child of children) {
-            child.on(NodeEvent.SCALE_PART, this._doScaleDirty, this);
+            child.on(NodeEvent.TRANSFORM_CHANGED, this._doScaleDirty, this);
             child.on(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
             child.on(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
             child.on(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
@@ -551,7 +577,7 @@ export class LayoutComponent extends Component {
     private _removeChildrenEventListeners () {
         const children = this.node.children;
         for (const child of children) {
-            child.off(NodeEvent.SCALE_PART, this._doScaleDirty, this);
+            child.off(NodeEvent.TRANSFORM_CHANGED, this._doScaleDirty, this);
             child.off(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
             child.off(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
             child.off(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
@@ -560,7 +586,7 @@ export class LayoutComponent extends Component {
     }
 
     private _childAdded (child: INode) {
-        child.on(NodeEvent.SCALE_PART, this._doScaleDirty, this);
+        child.on(NodeEvent.TRANSFORM_CHANGED, this._doScaleDirty, this);
         child.on(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
         child.on(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
         child.on(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
@@ -570,7 +596,7 @@ export class LayoutComponent extends Component {
     }
 
     private _childRemoved (child: INode) {
-        child.off(NodeEvent.SCALE_PART, this._doScaleDirty, this);
+        child.off(NodeEvent.TRANSFORM_CHANGED, this._doScaleDirty, this);
         child.off(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
         child.off(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
         child.off(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
@@ -584,7 +610,7 @@ export class LayoutComponent extends Component {
         this._doLayoutDirty();
     }
 
-    private _doLayoutHorizontally (baseWidth, rowBreak, fnPositionY, applyChildren) {
+    private _doLayoutHorizontally (baseWidth: number, rowBreak: boolean, fnPositionY: Function, applyChildren: boolean) {
         const layoutAnchor = this.node.getAnchorPoint();
         const children = this.node.children;
 
@@ -721,7 +747,7 @@ export class LayoutComponent extends Component {
     private _doLayoutVertically (
         baseHeight: number,
         columnBreak: boolean,
-        fnPositionX: (node: INode, columnMaxWidth: number, col: number) => number,
+        fnPositionX: Function,
         applyChildren: boolean,
     ) {
         const layoutAnchor = this.node.getAnchorPoint();
@@ -1053,24 +1079,24 @@ export class LayoutComponent extends Component {
         if (this._N$layoutType === Type.HORIZONTAL) {
             const newWidth = this._getHorizontalBaseWidth(this.node.children);
 
-            const fnPositionY = (child) => {
-                child.getPosition(_tempPos);
-                return _tempPos.y;
+            const fnPositionY = (child: INode) => {
+                const pos = this._isAlign ? this.node.position : child.position;
+                return pos.y;
             };
 
             this._doLayoutHorizontally(newWidth, false, fnPositionY, true);
-
+            this._isAlign = false;
             this.node.width = newWidth;
         } else if (this._N$layoutType === Type.VERTICAL) {
             const newHeight = this._getVerticalBaseHeight(this.node.children);
 
-            const fnPositionX = (child) => {
-                child.getPosition(_tempPos);
-                return _tempPos.x;
+            const fnPositionX = (child: INode) => {
+                const pos = this._isAlign ? this.node.position : child.position;
+                return pos.x;
             };
 
             this._doLayoutVertically(newHeight, false, fnPositionX, true);
-
+            this._isAlign = false;
             this.node.height = newHeight;
         } else if (this._N$layoutType === Type.NONE) {
             if (this._resizeMode === ResizeMode.CONTAINER) {
@@ -1085,8 +1111,8 @@ export class LayoutComponent extends Component {
         return this._affectedByScale ? Math.abs(value) : 1;
     }
 
-    private _transformDirty(type: SystemEventType){
-        if(type !== SystemEventType.POSITION_PART){
+    private _transformDirty (type: TransformBit) {
+        if (!(type & TransformBit.POSITION)){
             return;
         }
 
@@ -1097,8 +1123,10 @@ export class LayoutComponent extends Component {
         this._layoutDirty = true;
     }
 
-    private _doScaleDirty () {
-        this._layoutDirty = this._layoutDirty || this._affectedByScale;
+    private _doScaleDirty (type: TransformBit) {
+        if (type & TransformBit.SCALE){
+            this._layoutDirty = this._layoutDirty || this._affectedByScale;
+        }
     }
 
 }

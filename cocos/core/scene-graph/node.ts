@@ -35,7 +35,7 @@ import { eventManager } from '../platform/event-manager/event-manager';
 import { INode } from '../utils/interfaces';
 import { BaseNode, TRANFORM_ON } from './base-node';
 import { Layers } from './layers';
-import { NodeSpace, TransformDirtyBit } from './node-enum';
+import { NodeSpace, TransformBit } from './node-enum';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -70,9 +70,15 @@ export class Node extends BaseNode implements INode {
     public static NodeSpace = NodeSpace;
     /**
      * @zh
-     * 节点变换脏更新的具体部分
+     * 节点变换更新的具体部分
+     * @deprecated 请使用 [Node.TransformBit]
      */
-    public static TransformDirtyBit = TransformDirtyBit;
+    public static TransformDirtyBit = TransformBit;
+    /**
+     * @zh
+     * 节点变换更新的具体部分,可用于判断 TRANSFORM_CHANGED 事件的具体类型
+     */
+    public static TransformBit = TransformBit;
 
     // UI 部分的脏数据
     public _uiTransfromComp: UITransformComponent | null = null;
@@ -99,7 +105,7 @@ export class Node extends BaseNode implements INode {
     @property
     protected _euler = new Vec3();
 
-    protected _dirtyFlags = TransformDirtyBit.NONE; // does the world transform need to update?
+    protected _dirtyFlags = TransformBit.NONE; // does the world transform need to update?
     protected _eulerDirty = false;
 
     /**
@@ -208,12 +214,10 @@ export class Node extends BaseNode implements INode {
      */
     public set matrix (val: Readonly<Mat4>) {
         Mat4.toRTS(val, this._lrot, this._lpos, this._lscale);
-        this.invalidateChildren(TransformDirtyBit.TRS);
+        this.invalidateChildren(TransformBit.TRS);
         this._eulerDirty = true;
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART);
-            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.ROTATION_PART);
-            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.SCALE_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.TRS);
         }
     }
 
@@ -339,13 +343,13 @@ export class Node extends BaseNode implements INode {
             this._eulerDirty = true;
         }
 
-        this.invalidateChildren(TransformDirtyBit.TRS);
+        this.invalidateChildren(TransformBit.TRS);
     }
 
     public _onBatchCreated () {
         super._onBatchCreated();
-        bookOfChange.set(this._id, TransformDirtyBit.TRS);
-        this._dirtyFlags = TransformDirtyBit.TRS;
+        bookOfChange.set(this._id, TransformBit.TRS);
+        this._dirtyFlags = TransformBit.TRS;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
             this._children[i]._onBatchCreated();
@@ -393,9 +397,9 @@ export class Node extends BaseNode implements INode {
             }
         }
 
-        this.invalidateChildren(TransformDirtyBit.POSITION);
+        this.invalidateChildren(TransformBit.POSITION);
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
         }
     }
 
@@ -420,9 +424,9 @@ export class Node extends BaseNode implements INode {
         }
         this._eulerDirty = true;
 
-        this.invalidateChildren(TransformDirtyBit.ROTATION);
+        this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.ROTATION_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -451,11 +455,11 @@ export class Node extends BaseNode implements INode {
      * @zh
      * 递归标记节点世界变换为 dirty
      */
-    public invalidateChildren (dirtyBit: TransformDirtyBit) {
+    public invalidateChildren (dirtyBit: TransformBit) {
         if ((this._dirtyFlags & this.hasChangedFlags & dirtyBit) === dirtyBit) { return; }
         this._dirtyFlags |= dirtyBit;
         bookOfChange.set(this._id, this.hasChangedFlags | dirtyBit);
-        dirtyBit |= TransformDirtyBit.POSITION;
+        dirtyBit |= TransformBit.POSITION;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
             this._children[i].invalidateChildren(dirtyBit);
@@ -482,16 +486,16 @@ export class Node extends BaseNode implements INode {
             child = array_a[--i];
             dirtyBits |= child._dirtyFlags;
             if (cur) {
-                if (dirtyBits & TransformDirtyBit.POSITION) {
+                if (dirtyBits & TransformBit.POSITION) {
                     Vec3.transformMat4(child._pos, child._lpos, cur._mat);
                     child._mat.m12 = child._pos.x;
                     child._mat.m13 = child._pos.y;
                     child._mat.m14 = child._pos.z;
                 }
-                if (dirtyBits & TransformDirtyBit.RS) {
+                if (dirtyBits & TransformBit.RS) {
                     Mat4.fromRTS(child._mat, child._lrot, child._lpos, child._lscale);
                     Mat4.multiply(child._mat, cur._mat, child._mat);
-                    if (dirtyBits & TransformDirtyBit.ROTATION) {
+                    if (dirtyBits & TransformBit.ROTATION) {
                         Quat.multiply(child._rot, cur._rot, child._lrot);
                     }
                     Mat3.fromQuat(m3_1, Quat.conjugate(qt_1, child._rot));
@@ -501,14 +505,14 @@ export class Node extends BaseNode implements INode {
                     child._scale.z = m3_1.m08;
                 }
             } else {
-                if (dirtyBits & TransformDirtyBit.POSITION) {
+                if (dirtyBits & TransformBit.POSITION) {
                     Vec3.copy(child._pos, child._lpos);
                     child._mat.m12 = child._pos.x;
                     child._mat.m13 = child._pos.y;
                     child._mat.m14 = child._pos.z;
                 }
-                if (dirtyBits & TransformDirtyBit.RS) {
-                    if (dirtyBits & TransformDirtyBit.ROTATION) {
+                if (dirtyBits & TransformBit.RS) {
+                    if (dirtyBits & TransformBit.ROTATION) {
                         Quat.copy(child._rot, child._lrot);
                     } else {
                         Vec3.copy(child._scale, child._lscale);
@@ -516,7 +520,7 @@ export class Node extends BaseNode implements INode {
                     Mat4.fromRTS(child._mat, child._rot, child._pos, child._scale);
                 }
             }
-            child._dirtyFlags = TransformDirtyBit.NONE;
+            child._dirtyFlags = TransformBit.NONE;
             cur = child;
         }
     }
@@ -549,9 +553,9 @@ export class Node extends BaseNode implements INode {
             Vec3.set(this._lpos, val as number, y, z);
         }
 
-        this.invalidateChildren(TransformDirtyBit.POSITION);
+        this.invalidateChildren(TransformBit.POSITION);
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
         }
     }
 
@@ -593,9 +597,9 @@ export class Node extends BaseNode implements INode {
         }
         this._eulerDirty = true;
 
-        this.invalidateChildren(TransformDirtyBit.ROTATION);
+        this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.ROTATION_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -611,9 +615,9 @@ export class Node extends BaseNode implements INode {
         Quat.fromEuler(this._lrot, x, y, z);
         this._eulerDirty = false;
 
-        this.invalidateChildren(TransformDirtyBit.ROTATION);
+        this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.ROTATION_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -653,9 +657,9 @@ export class Node extends BaseNode implements INode {
             Vec3.set(this._lscale, val as number, y, z);
         }
 
-        this.invalidateChildren(TransformDirtyBit.SCALE);
+        this.invalidateChildren(TransformBit.SCALE);
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.SCALE_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.SCALE);
         }
     }
 
@@ -723,9 +727,9 @@ export class Node extends BaseNode implements INode {
             Vec3.copy(local, this._pos);
         }
 
-        this.invalidateChildren(TransformDirtyBit.POSITION);
+        this.invalidateChildren(TransformBit.POSITION);
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.POSITION_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
         }
     }
 
@@ -774,9 +778,9 @@ export class Node extends BaseNode implements INode {
         }
         this._eulerDirty = true;
 
-        this.invalidateChildren(TransformDirtyBit.ROTATION);
+        this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.ROTATION_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -797,9 +801,9 @@ export class Node extends BaseNode implements INode {
         }
         this._eulerDirty = true;
 
-        this.invalidateChildren(TransformDirtyBit.ROTATION);
+        this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.ROTATION_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -855,9 +859,9 @@ export class Node extends BaseNode implements INode {
             Vec3.copy(this._lscale, this._scale);
         }
 
-        this.invalidateChildren(TransformDirtyBit.SCALE);
+        this.invalidateChildren(TransformBit.SCALE);
         if (this._eventMask & TRANFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, SystemEventType.SCALE_PART);
+            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.SCALE);
         }
     }
 

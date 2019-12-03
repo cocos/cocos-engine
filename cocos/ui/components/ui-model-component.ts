@@ -56,6 +56,10 @@ export class UIModelComponent extends UIComponent {
     private _modelComponent: RenderableComponent | null = null;
 
     public onLoad () {
+        if(!this.node.uiTransfromComp){
+            this.node.addComponent('cc.UITransformComponent');
+        }
+
         this._modelComponent = this.getComponent('cc.RenderableComponent') as RenderableComponent;
         if (!this._modelComponent) {
             console.warn(`node '${this.node && this.node.name}' doesn't have any renderable component`);
@@ -63,19 +67,33 @@ export class UIModelComponent extends UIComponent {
         }
 
         this._modelComponent._sceneGetter = director.root!.ui.getRenderSceneGetter();
-        this._modelComponent._changeSceneInModel();
         this._models = this._modelComponent._collectModels();
     }
 
+    public onEnable() {
+        super.onEnable();
+        if (this._modelComponent) {
+            this._modelComponent._attachToScene();
+        }
+    }
+
+    public onDisable() {
+        super.onDisable();
+        if (this._modelComponent) {
+            this._modelComponent._detachFromScene();
+        }
+    }
+
     public onDestroy () {
+        super.onDestroy();
         this._modelComponent = this.getComponent('cc.RenderableComponent') as RenderableComponent;
         if (!this._modelComponent) {
             return;
         }
 
         this._modelComponent._sceneGetter = null;
-        if (cc.isValid(this.node, true)) {
-            this._modelComponent._changeSceneInModel();
+        if (cc.isValid(this._modelComponent, true)) {
+            this._modelComponent._attachToScene();
         }
         this._models = null;
     }

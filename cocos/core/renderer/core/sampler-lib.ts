@@ -43,8 +43,7 @@ export enum SamplerInfoIndex {
     minLOD,
     maxLOD,
     mipLODBias,
-    borderColor,
-    total = borderColor + 4,
+    total,
 }
 
 const defaultInfo = [
@@ -57,9 +56,10 @@ const defaultInfo = [
   8,
   GFXComparisonFunc.NEVER,
   0, 0, 0,
-  0, 0, 0, 0,
 ];
 const defaultHash = genSamplerHash(defaultInfo);
+
+const borderColor = { r: 0, g: 0, b: 0, a: 0 };
 
 const gfxInfo: IGFXSamplerInfo = {};
 
@@ -115,7 +115,7 @@ class SamplerLib {
         gfxInfo.minLOD        = ((hash >> 20) & 15);
         gfxInfo.maxLOD        = ((hash >> 24) & 15);
         gfxInfo.mipLODBias    = ((hash >> 28) & 15);
-        gfxInfo.borderColor   = { r: 0, g: 0, b: 0, a: 0 };
+        gfxInfo.borderColor   = borderColor;
 
         const sampler = this._cache[hash] = device.createSampler(gfxInfo);
         return sampler;

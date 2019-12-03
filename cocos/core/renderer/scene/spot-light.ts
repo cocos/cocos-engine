@@ -72,8 +72,8 @@ export class SpotLight extends Light {
         return this._frustum;
     }
 
-    constructor (scene: RenderScene, name: string, node: INode) {
-        super(scene, name, node);
+    constructor () {
+        super();
         this._type = LightType.SPOT;
         this._aabb = aabb.create();
         this._frustum = frustum.create();

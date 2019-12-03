@@ -32,7 +32,7 @@ import { UI } from '../../core/renderer/ui/ui';
 import { MeshBuffer } from '../../core/renderer/ui/mesh-buffer';
 import { ccclass, menu, executionOrder, property } from '../../core/data/class-decorator';
 import { UIDrawBatch } from '../../core/renderer/ui/ui-draw-batch';
-import { director, Color, GFXBlendFactor, Material } from '../../core';
+import { director, Color, GFXBlendFactor, Material, warnID } from '../../core';
 import { vfmt } from '../../core/renderer/ui/ui-vertex-format';
 
 
@@ -147,6 +147,7 @@ export class UIStaticBatchComponent extends UIRenderComponent {
             this._meshBuffer = buffer;
         }
 
+        this._meshBuffer!.reset();
         for (let i = 0; i < this._uiDrawBathcList.length; i++) {
             const element = this._uiDrawBathcList[i];
             element.destroy(ui);
@@ -222,11 +223,11 @@ export class UIStaticBatchComponent extends UIRenderComponent {
             return director.root.ui;
         }
 
-        cc.warn('The UI has not been initialized');
+        warnID(9301);
         return null;
     }
 
     protected _arrivalMaxBuffer (){
-        cc.warn('The current buffer beyond the limit, please reduce the amount');
+        warnID(9300);
     }
 }

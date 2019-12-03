@@ -62,6 +62,7 @@ export class SplashScreen {
 
     private _splashFinish: boolean = false;
     private _loadFinish: boolean = false;
+    private _directCall: boolean = false;
 
     /** text */
     private textImg!: TexImageSource;
@@ -106,7 +107,7 @@ export class SplashScreen {
             if (this.callBack) { this.callBack(); }
             this.callBack = null;
             (this.setting as any) = null;
-            delete SplashScreen._ins;
+            this._directCall = true;
             return;
         } else {
             cc.game.once(cc.Game.EVENT_GAME_INITED, () => {
@@ -181,6 +182,12 @@ export class SplashScreen {
     }
 
     public setOnFinish (cb: Function) {
+        if (this._directCall) {
+            if (cb) {
+                delete SplashScreen._ins;
+                return cb();
+            }
+        }
         this.callBack = cb;
     }
 
@@ -589,3 +596,5 @@ export class SplashScreen {
 
     private constructor () { };
 }
+
+cc.SplashScreen = SplashScreen;

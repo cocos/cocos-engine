@@ -29,10 +29,7 @@
 
 import {
     ccclass,
-    executeInEditMode,
-    executionOrder,
     property,
-    requireComponent,
 } from '../../../core/data/class-decorator';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { Color } from '../../../core/math';
@@ -44,7 +41,8 @@ import { Material } from '../../assets';
 import { RenderableComponent } from '../../../core/3d/framework/renderable-component';
 import { IAssembler, IAssemblerManager } from '../../renderer/ui/base';
 import { UIComponent } from './ui-component';
-import { UITransformComponent } from './ui-transform-component';
+import { TransformBit } from '../../scene-graph/node-enum';
+import { INode } from '../../utils/interfaces';
 
 // hack
 ccenum(GFXBlendFactor);
@@ -79,9 +77,6 @@ export enum InstanceMaterialType {
  * 可通过 cc.UIRenderComponent 获得该组件。
  */
 @ccclass('cc.UIRenderComponent')
-@executionOrder(110)
-@requireComponent(UITransformComponent)
-@executeInEditMode
 export class UIRenderComponent extends UIComponent {
 
     /**
@@ -206,8 +201,8 @@ export class UIRenderComponent extends UIComponent {
     }
 
     // Render data can be submitted even if it is not on the node tree
-    set simulate (value) {
-        this._simulate = value;
+    set delegateSrc (value: INode) {
+        this._delegateSrc = value;
     }
 
     public static BlendState = GFXBlendFactor;
@@ -228,8 +223,8 @@ export class UIRenderComponent extends UIComponent {
     protected _renderData: RenderData | null = null;
     protected _renderDataFlag = true;
     protected _renderFlag = true;
-    // 特殊渲染标记，在可渲染情况下，因为自身某个原因不给予渲染
-    // protected _renderPermit = true;
+    // 特殊渲染节点，给一些不在节点树上的组件做依赖渲染（例如 mask 组件内置两个 graphics 来渲染）
+    protected _delegateSrc: INode | null = null;
     protected _material: Material | null = null;
     protected _instanceMaterialType = InstanceMaterialType.ADDCOLORANDTEXTURE;
     protected _blendTemplate = {
@@ -244,7 +239,6 @@ export class UIRenderComponent extends UIComponent {
         depthStencilState: {},
         rasterizerState: {},
     };
-    protected _simulate = false;
 
     public __preload (){
         super.__preload();
@@ -354,7 +348,7 @@ export class UIRenderComponent extends UIComponent {
     }
 
     protected _canRender () {
-        return this.material !== null && this.enabled && (this._simulate? true: this.enabledInHierarchy);
+        return this.material !== null && this.enabled && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy);
     }
 
     protected _postCanRender(){}
@@ -387,7 +381,7 @@ export class UIRenderComponent extends UIComponent {
     }
 
     // pos, rot, scale changed
-    protected _nodeStateChange (type: SystemEventType){
+    protected _nodeStateChange (type: TransformBit){
         if (this._renderData) {
             this.markForUpdateRenderData();
         }

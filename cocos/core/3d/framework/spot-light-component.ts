@@ -30,7 +30,6 @@
 import { ccclass, executeInEditMode, menu, property } from '../../data/class-decorator';
 import { toRadian } from '../../math';
 import { LightType, nt2lm } from '../../renderer/scene/light';
-import { RenderScene } from '../../renderer/scene/render-scene';
 import { SpotLight } from '../../renderer/scene/spot-light';
 import { LightComponent, PhotometricTerm } from './light-component';
 
@@ -58,7 +57,7 @@ export class SpotLightComponent extends LightComponent {
      */
     @property({
         unit: 'lm',
-        tooltip:'光通量',
+        tooltip: '光通量',
     })
     get luminousPower () {
         return this._luminance * nt2lm(this._size);
@@ -73,7 +72,7 @@ export class SpotLightComponent extends LightComponent {
      */
     @property({
         unit: 'cd/m²',
-        tooltip:'亮度',
+        tooltip: '亮度',
     })
     get luminance () {
         return this._luminance;
@@ -88,7 +87,7 @@ export class SpotLightComponent extends LightComponent {
      */
     @property({
         type: PhotometricTerm,
-        tooltip:'指定光通量或亮度',
+        tooltip: '指定光通量或亮度',
     })
     get term () {
         return this._term;
@@ -104,7 +103,7 @@ export class SpotLightComponent extends LightComponent {
      * 针对聚光灯和点光源设置光源大小。
      */
     @property({
-        tooltip:'针对聚光灯和点光源设置光源大小',
+        tooltip: '针对聚光灯和点光源设置光源大小',
     })
     get size () {
         return this._size;
@@ -121,7 +120,7 @@ export class SpotLightComponent extends LightComponent {
      * 针对聚光灯和点光源设置光源范围。
      */
     @property({
-        tooltip:'针对聚光灯和点光源设置光源范围',
+        tooltip: '针对聚光灯和点光源设置光源范围',
     })
     get range () {
         return this._range;
@@ -140,7 +139,7 @@ export class SpotLightComponent extends LightComponent {
     @property({
         slide: true,
         range: [2, 180, 1],
-        tooltip:'聚光灯锥角',
+        tooltip: '聚光灯锥角',
     })
     get spotAngle () {
         return this._spotAngle;
@@ -151,26 +150,17 @@ export class SpotLightComponent extends LightComponent {
         if (this._light) { this._light.spotAngle = toRadian(val); }
     }
 
-    protected _createLight (scene?: RenderScene) {
-        if (!this.node.scene) { return; }
-        if (!scene) { scene = this._getRenderScene(); }
-        if (this._light && scene.spotLights.find((c) => c === this._light)) { return; }
-        this._light = scene.createSpotLight(this.name, this.node);
-        if (!this._light) {
-            console.warn('we don\'t support this many lights in forward pipeline.');
-            return;
-        }
-        this._light.luminance = this._luminance;
+    constructor () {
+        super();
+        this._lightType = SpotLight;
+    }
+
+    protected _createLight () {
+        super._createLight();
+        if (!this._light) { return; }
+        this.luminance = this._luminance;
         this.size = this._size;
         this.range = this._range;
         this.spotAngle = this._spotAngle;
-        super._createLight(scene);
-    }
-
-    protected _destroyLight (scene?: RenderScene) {
-        if (!this.node.scene || !this._light) { return; }
-        if (!scene) { scene = this._getRenderScene(); }
-        scene.destroySpotLight(this._light);
-        super._destroyLight(scene);
     }
 }

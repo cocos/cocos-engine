@@ -27,82 +27,34 @@
  * @category ui
  */
 
-import { ccclass, disallowMultiple, executeInEditMode, executionOrder, property } from '../../../core/data/class-decorator';
-import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
+import { ccclass, disallowMultiple, executeInEditMode, executionOrder, property, requireComponent } from '../../../core/data/class-decorator';
 import { INode } from '../../../core/utils/interfaces';
 import { UI } from '../../renderer/ui/ui';
 import { Component } from '../component';
-import { CanvasComponent } from './canvas-component';
+import { UITransformComponent } from './ui-transform-component';
 
 /**
  * @zh
  * UI 及 UI 模型渲染基类。
  */
 @ccclass('cc.UIComponent')
+@requireComponent(UITransformComponent)
 @executionOrder(110)
 @disallowMultiple
 @executeInEditMode
 export class UIComponent extends Component {
 
-    /**
-     * @zh
-     * 渲染先后顺序，按照广度渲染排列，按同级节点下进行一次排列。
-     */
-    @property({
-        tooltip:'渲染排序优先级'
-    })
-    get priority () {
-        return this._priority;
-    }
-
-    set priority (value) {
-        if (this._priority === value) {
-            return;
-        }
-
-        this._priority = value;
-        this._sortSiblings();
-    }
-
-    /**
-     * @zh
-     * 查找被渲染相机。
-     */
-    get visibility () {
-        if (!this._screen){
-            return -1;
-        }
-
-        return this._screen.visibility;
-    }
-
-    get _screen (){
-        return this._followScreen;
-    }
-
-    @property
-    protected _priority = 0;
-
-    protected _followScreen: CanvasComponent | null = null;
-
-    private _lastParent: INode | null = null;
+    protected _lastParent: INode | null = null;
 
     public __preload () {
         this.node._uiComp = this;
     }
 
     public onEnable () {
-        this._lastParent = this.node.parent;
-        this._updateVisibility();
-
-        if (this._lastParent) {
-            this.node.on(SystemEventType.CHILD_REMOVED, this._parentChanged, this);
-        }
-        this._sortSiblings();
     }
 
     public onDisable () {
-        this._cancelEventFromParent();
+
     }
 
     public onDestroy () {
@@ -115,66 +67,5 @@ export class UIComponent extends Component {
     }
 
     public postUpdateAssembler (render: UI) {
-    }
-
-    public _setScreen (value: CanvasComponent){
-        this._followScreen = value;
-    }
-
-    protected _parentChanged (node: INode) {
-        if (node === this.node) {
-            this._updateVisibility();
-            this._cancelEventFromParent();
-            this._lastParent = this.node.parent;
-            this._sortSiblings();
-            return true;
-        }
-
-        return false;
-    }
-
-    private _sortSiblings () {
-        const siblings = this.node.parent && this.node.parent.children as Mutable<INode[]>;
-        if (siblings) {
-            siblings.sort((a: INode, b: INode) => {
-                const aComp = a._uiComp;
-                const bComp = b._uiComp;
-                const ca = aComp ? aComp.priority : 0;
-                const cb = bComp ? bComp.priority : 0;
-                const diff = ca - cb;
-                if(diff === 0){
-                    return a.getSiblingIndex() - b.getSiblingIndex();
-                }
-                return diff;
-            });
-
-            this.node.parent!._updateSiblingIndex();
-        }
-    }
-
-    private _updateVisibility () {
-        let parent = this.node;
-        // 获取被渲染相机的 visibility
-        while (parent) {
-            if (parent) {
-                const canvasComp = parent.getComponent(CanvasComponent);
-                if (canvasComp) {
-                    this._followScreen = canvasComp;
-                    break;
-                }
-            }
-
-            // @ts-ignore
-            parent = parent.parent;
-        }
-    }
-
-    private _cancelEventFromParent () {
-        if (this._lastParent) {
-            this._lastParent.off(SystemEventType.CHILD_REMOVED, this._parentChanged, this);
-            this._lastParent = null;
-        }
-
-        this._followScreen = null;
     }
 }

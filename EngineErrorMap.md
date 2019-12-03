@@ -574,7 +574,7 @@ Please do not specifiy "default" attribute in decorator of "%s" property in "%s"
 Default value must be initialized at their declaration:
 ```
 // Before:
-@property({ default: 0 }) // <-- 
+@property({ default: 0 }) // <--
 @integer
 value;
 // After:
@@ -631,6 +631,27 @@ browser does not support getters
 ### 3659
 
 Violation error: extending enumerations shall have non-overlaped member names or member values
+
+### 3660
+
+You are explicitly specifying `undefined` type to cc property "%s" of cc class "%s".
+Is this intended? If not, this may indicate a circular reference.
+For example:
+```
+// foo.ts
+import { _decorator } from 'cc';
+import { Bar } from './bar';  // Given that './bar' also reference 'foo.ts'.
+                              // When importing './bar', execution of './bar' is hung on to wait execution of 'foo.ts',
+                              // the `Bar` imported here is `undefined` until './bar' finish its execution.
+                              // It leads to that
+@_decorator.ccclass           //  ↓
+export class Foo {            //  ↓
+    @_decorator.type(Bar)     //  → is equivalent to `@_decorator.type(undefined)`
+    public bar: Bar;          // To eliminate this error, either:
+                              // - Refactor your module structure(recommended), or
+                              // - specify the type as cc class name: `@_decorator.type('Bar'/* or any name you specified for `Bar` */)`
+}
+```
 
 ### 3700
 
@@ -1939,3 +1960,15 @@ Stencil manager is already empty, cannot pop any mask
 ### 9100
 
 texture size exceeds current device limits %d/%d
+
+### 9200
+
+Priority can't be set in Canvas node
+
+### 9300
+
+The current buffer beyond the limit in ui static component, please reduce the amount
+
+### 9301
+
+The UI has not been initialized

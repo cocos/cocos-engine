@@ -4,7 +4,7 @@
 
 import { ccclass } from '../data/class-decorator';
 import { GFXBufferTextureCopy, GFXTextureFlagBit, GFXTextureUsageBit } from '../gfx/define';
-import { GFXDevice } from '../gfx/device';
+import { GFXAPI, GFXDevice } from '../gfx/device';
 import { GFXTexture, IGFXTextureInfo } from '../gfx/texture';
 import { GFXTextureView, IGFXTextureViewInfo } from '../gfx/texture-view';
 import { error } from '../platform/debug';
@@ -46,6 +46,11 @@ function getMipLevel (width: number, height: number) {
 }
 
 function isPOT (n: number) { return n && (n & (n - 1)) === 0; }
+function canGenerateMipmap (device: GFXDevice, w: number, h: number) {
+    const needCheckPOT = device.gfxAPI === GFXAPI.WEBGL;
+    if (needCheckPOT) { return isPOT(w) && isPOT(h); }
+    return true;
+}
 
 /**
  * 简单贴图基类。
@@ -213,7 +218,7 @@ export class SimpleTexture extends TextureBase {
 
     protected _createTexture (device: GFXDevice) {
         let flags = GFXTextureFlagBit.NONE;
-        if (this._mipFilter !== Filter.NONE && isPOT(this._width) && isPOT(this._height)) {
+        if (this._mipFilter !== Filter.NONE && canGenerateMipmap(device, this._width, this._height)) {
             this._mipmapLevel = getMipLevel(this._width, this._height);
             flags = GFXTextureFlagBit.GEN_MIPMAP;
         }
