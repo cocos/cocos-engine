@@ -792,7 +792,6 @@ let ScrollView = cc.Class({
         this._processDeltaMove(deltaMove);
 
         if(!this._stopMouseWheel) {
-            this._dispatchEvent('scroll-ended');
             this._handlePressLogic();
             this.schedule(this._checkMouseWheel, 1.0 / 60);
             this._stopMouseWheel = true;
@@ -808,6 +807,7 @@ let ScrollView = cc.Class({
         if (!currentOutOfBoundary.fuzzyEquals(cc.v2(0, 0), EPSILON)) {
             this._processInertiaScroll();
             this.unschedule(this._checkMouseWheel);
+            this._dispatchEvent('scroll-ended');
             this._stopMouseWheel = false;
             return;
         }
@@ -818,6 +818,7 @@ let ScrollView = cc.Class({
         if (this._mouseWheelEventElapsedTime > maxElapsedTime) {
             this._onScrollBarTouchEnded();
             this.unschedule(this._checkMouseWheel);
+            this._dispatchEvent('scroll-ended');
             this._stopMouseWheel = false;
         }
     },
