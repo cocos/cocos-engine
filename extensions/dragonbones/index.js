@@ -160,6 +160,7 @@ if (_global.dragonBones !== undefined) {
         // require the component for dragonbones
         require('./DragonBonesAsset');
         require('./DragonBonesAtlasAsset');
+        require('./AttachUtil');
         require('./ArmatureDisplay');
 
         require('./webgl-assembler');

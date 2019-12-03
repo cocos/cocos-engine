@@ -24,8 +24,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import Mat4 from '../../cocos2d/core/value-types/mat4';
-
 const RenderComponent = require('../../cocos2d/core/components/CCRenderComponent');
 const Material = require('../../cocos2d/core/assets/material/CCMaterial');
 
@@ -34,13 +32,10 @@ let EventTarget = require('../../cocos2d/core/event/event-target');
 const Node = require('../../cocos2d/core/CCNode');
 const Graphics = require('../../cocos2d/core/graphics/graphics');
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
-const FLAG_TRANSFORM = RenderFlow.FLAG_TRANSFORM;
 const FLAG_POST_RENDER = RenderFlow.FLAG_POST_RENDER;
-const EmptyHandle = function () {}
-const ATTACHED_ROOT_NAME = 'ATTACHED_NODE:ROOT';
-const ATTACHED_PRE_NAME = 'ATTACHED_NODE:';
 
 let ArmatureCache = require('./ArmatureCache');
+let AttachUtil = require('./AttachUtil');
 
 /**
  * @module dragonBones
@@ -195,18 +190,6 @@ let ArmatureDisplay = cc.Class({
                     this._factory._dragonBones.clock.add(this._armature);
                 }
                 
-            },
-            visible: false
-        },
-
-        /**
-         * !#en Gets attached root node.
-         * !#zh 获取挂接节点树的根节点
-         * @property {cc.node} attachedRootNode
-         */
-        attachedRootNode : {
-            get () {
-                return this._attachedRootNode;
             },
             visible: false
         },
@@ -412,8 +395,7 @@ let ArmatureDisplay = cc.Class({
         this._eventTarget = new EventTarget();
         this._materialCache = {};
         this._inited = false;
-        this._attachedRootNode = null;
-        this._attachedNodeArray = [];
+        this.attachUtil = new AttachUtil();
         this._factory = dragonBones.CCFactory.getInstance();
     },
 
@@ -426,298 +408,6 @@ let ArmatureDisplay = cc.Class({
             let pos = child._name && child._name.search('CHILD_ARMATURE-');
             if (pos === 0) {
                 child.destroy();
-            }
-        }
-    },
-
-    _prepareAttachedNode () {
-        let armature = this._armature;
-        if (!armature) {
-            return;
-        }
-
-        let rootNode = this.node.getChildByName(ATTACHED_ROOT_NAME);
-        if (!rootNode || !rootNode.isValid) {
-            rootNode = new cc.Node(ATTACHED_ROOT_NAME);
-            rootNode._mulMat = EmptyHandle;
-            this.node.addChild(rootNode);
-        }
-
-        let isCached = this.isAnimationCached();
-        if (isCached && this._frameCache) {
-            this._frameCache.enableCacheSlotInfos();
-        }
-
-        this._attachedRootNode = rootNode;
-        return rootNode;
-    },
-
-    _buildSlotAttachedNode (slot, nodeIndex) {
-        let slotNodeName = ATTACHED_PRE_NAME + slot.name;
-        let slotNode = new cc.Node(slotNodeName);
-        slotNode._mulMat = EmptyHandle;
-        slotNode._armatureSlot = slot;
-        slotNode._slotOrder = slot._zOrder;
-        this._attachedNodeArray[nodeIndex] = slotNode;
-        return slotNode;
-    },
-
-    /**
-     * !#en Gets attached node which you want.
-     * !#zh 获得对应的挂点
-     * @param {String} slotName
-     * @return {[cc.Node]}
-     */
-    getAttachedNode (slotName) {
-        let nodeArray = this._attachedNodeArray;
-        let res = [];
-        for (let i = 0, n = nodeArray.length; i < n; i++) {
-            let slotNode = nodeArray[i];
-            if (!slotNode || !slotNode.isValid) continue;
-            if (slotNode.name === ATTACHED_PRE_NAME + slotName) {
-                res.push(slotNode);
-            }
-        }
-        return res;
-    },
-
-    /**
-     * !#en Destroy attached node which you want.
-     * !#zh 销毁对应的挂点
-     * @param {String}  slotName
-     */
-    destroyAttachedNode (slotName) {
-        let nodeArray = this._attachedNodeArray;
-        for (let i = 0, n = nodeArray.length; i < n; i++) {
-            let slotNode = nodeArray[i];
-            if (!slotNode || !slotNode.isValid) continue;
-
-            let delName = slotNode.name.split(ATTACHED_PRE_NAME)[1];
-            if (delName === slotName) {
-                slotNode.removeFromParent(true);
-                slotNode.destroy();
-                nodeArray[i] = null;
-            }
-        }
-    },
-
-    /**
-     * !#en Traverse all slots to generate the minimum node tree containing the given slot names
-     * !#zh 遍历所有插槽，生成包含所有给定插槽名称的最小节点树
-     * @param {String} slotName
-     */
-    generateAttachedNode (slotName) {
-        let rootNode = this._prepareAttachedNode();
-        if (!rootNode) return;
-
-        let nodeIndex = 0;
-        let attachedTraverse = function (armature, parentNode) {
-            if (!armature) return null;
-            let slots = armature.getSlots(), slot;
-            let thisSlotNodes = [];
-            for (let i = 0, l = slots.length; i < l; i++) {
-                let thisSlotNode = null;
-                let curNodeIndex = nodeIndex++;
-                slot = slots[i];
-                
-                if (parentNode) {
-                    thisSlotNode = parentNode.getChildByName(ATTACHED_PRE_NAME + slot.name);
-                }
-
-                if (slot.childArmature) {
-                    let childSlotNodes = attachedTraverse(slot.childArmature, thisSlotNode);
-                    if (childSlotNodes.length > 0) {
-                        if (!thisSlotNode) {
-                            thisSlotNode = this._buildSlotAttachedNode(slot, curNodeIndex);
-                            thisSlotNodes.push(thisSlotNode);
-                        }
-                        for (let ii = 0, nn = childSlotNodes.length; ii < nn; ii++) {
-                            childSlotNodes[ii].parent = thisSlotNode;
-                        }
-                    }
-                }
-
-                if (slotName === slot.name) {
-                    if (!thisSlotNode) {
-                        thisSlotNode = this._buildSlotAttachedNode(slot, curNodeIndex);
-                        thisSlotNodes.push(thisSlotNode);
-                    }
-                }
-            }
-            return thisSlotNodes;
-        }.bind(this);
-
-        let childSlotNodes = attachedTraverse(this._armature, rootNode);
-        for (let ii = 0, nn = childSlotNodes.length; ii < nn; ii++) {
-            childSlotNodes[ii].parent = rootNode;
-        }
-    },
-
-    /**
-     * !#en Destroy all attached node.
-     * !#zh 销毁所有挂点
-     */
-    destroyAllAttachedNode () {
-        this._attachedRootNode = null;
-        this._attachedNodeArray.length = 0;
-
-        let rootNode = this.node.getChildByName(ATTACHED_ROOT_NAME);
-        if (rootNode) {
-            rootNode.removeFromParent(true);
-            rootNode.destroy();
-            rootNode = null;
-        }
-    },
-
-    /**
-     * !#en Traverse all slots to generate a tree containing all slots nodes
-     * !#zh 遍历所有插槽，生成包含所有插槽的节点树
-     */
-    generateAllAttachedNode () {
-        let rootNode = this._prepareAttachedNode();
-        if (!rootNode) return;
-
-        let nodeIndex = 0;
-        let attachedTraverse = function (armature, parentNode) {
-            if (!armature) return;
-            let slots = armature.getSlots(), slot;
-            for (let i = 0, l = slots.length; i < l; i++) {
-                let curNodeIndex = nodeIndex++;
-                slot = slots[i];
-
-                let slotNode = parentNode.getChildByName(ATTACHED_PRE_NAME + slot.name);
-                if (!slotNode) {
-                    slotNode = this._buildSlotAttachedNode(slot, curNodeIndex);
-                    parentNode.addChild(slotNode);
-                }
-                
-                if (slot.childArmature) {
-                    attachedTraverse(slot.childArmature, slotNode);
-                }
-            }
-        }.bind(this);
-        attachedTraverse(this._armature, rootNode);
-        return;
-    },
-
-    _hasAttachedNode () {
-        let attachedRootNode = this.node.getChildByName(ATTACHED_ROOT_NAME);
-        return !!attachedRootNode;
-    },
-
-    _associateAttachedNode () {
-        let rootNode = this.node.getChildByName(ATTACHED_ROOT_NAME);
-        if (!rootNode || !rootNode.isValid) return;
-        this._attachedRootNode = rootNode;
-
-        let nodeArray = this._attachedNodeArray;
-        nodeArray.length = 0;
-
-        let armature = this._armature;
-        if (!armature) {
-            return;
-        }
-
-        rootNode._mulMat = EmptyHandle;
-        let isCached = this.isAnimationCached();
-        if (isCached && this._frameCache) {
-            this._frameCache.enableCacheSlotInfos();
-        }
-
-        let attachedTraverse = function (armature, parentNode) {
-            if (!armature) return;
-
-            let slots = armature.getSlots(), slot;
-            for (let i = 0, l = slots.length; i < l; i++) {
-                slot = slots[i];
-
-                let slotNodeName = ATTACHED_PRE_NAME + slot.name;
-                let slotNode = parentNode && parentNode.getChildByName(slotNodeName);
-
-                if (slotNode && slotNode.isValid) {
-                    slotNode._armatureSlot = slot;
-                    slotNode._slotOrder = slot._zOrder;
-                    slotNode.setSiblingIndex(i);
-                    slotNode._mulMat = EmptyHandle;
-                } else {
-                    slotNode = null;
-                }
-                nodeArray.push(slotNode);
-
-                if (slot.childArmature) {
-                    attachedTraverse(slot.childArmature, slotNode);
-                }
-            }
-        }
-        attachedTraverse(armature, rootNode);
-    },
-
-    _syncAttachedNode () {
-        let rootNode = this._attachedRootNode;
-        let nodeArray = this._attachedNodeArray;
-        if (!rootNode || !rootNode.isValid) {
-            this._attachedRootNode = null;
-            nodeArray.length = 0;
-            return;
-        }
-        
-        let rootMatrix = this.node._worldMatrix;
-        Mat4.copy(rootNode._worldMatrix, rootMatrix);
-        rootNode._renderFlag &= ~FLAG_TRANSFORM;
-
-        let slotInfos = null;
-        let isCached = this.isAnimationCached();
-        if (isCached) {
-            slotInfos = this._curFrame && this._curFrame.slotInfos;
-            if (!slotInfos) return;
-        }
-
-        let batch = this.enableBatch;
-        let mulMat = this.node._mulMat;
-
-        // Realtime batch mode, only need to copy matrix.
-        let matrixHandle = batch && !isCached ? Mat4.copy : function (nodeMat, slotMat) {
-            mulMat(nodeMat, rootMatrix, slotMat);
-        };
-
-        let orderNodeMap = null;
-        let parent = null;
-        let lastValidIdx = -1;
-        for (let i = 0, n = nodeArray.length; i < n; i++) {
-            let slotNode = nodeArray[i];
-            // Node has been destroy
-            if (!slotNode || !slotNode.isValid) { 
-                nodeArray[i] = null;
-                continue;
-            }
-            let slot = isCached ? slotInfos[i] : slotNode._armatureSlot;
-            // Slot has been destroy
-            if (!slot || slot._isInPool) {
-                slotNode.removeFromParent(true);
-                slotNode.destroy();
-                nodeArray[i] = null;
-                continue;
-            }
-            if (slotNode._slotOrder !== slot._zOrder) {
-                slotNode._slotOrder = slot._zOrder;
-                parent = slotNode.parent;
-                orderNodeMap = orderNodeMap || {};
-                orderNodeMap[parent._id] = parent._children;
-            }
-            slotNode.active = slot._visible;
-            matrixHandle(slotNode._worldMatrix, slot._worldMatrix);
-            slotNode._renderFlag &= ~FLAG_TRANSFORM;
-            lastValidIdx = i;
-        }
-        // optimize loop times
-        nodeArray.length = lastValidIdx + 1;
-
-        if (orderNodeMap) {
-            for (let key in orderNodeMap) {
-                let children = orderNodeMap[key];
-                children.sort(function (a, b) {
-                    return a._slotOrder > b._slotOrder ? 1 : -1;
-                });
             }
         }
     },
@@ -795,7 +485,6 @@ let ArmatureDisplay = cc.Class({
      * armatureDisplay.setAnimationCacheMode(dragonBones.ArmatureDisplay.AnimationCacheMode.SHARED_CACHE);
      */
     setAnimationCacheMode (cacheMode) {
-        if (CC_JSB) return;
         if (this._preCacheMode !== cacheMode) {
             this._cacheMode = cacheMode;
             this._buildArmature();
@@ -841,7 +530,6 @@ let ArmatureDisplay = cc.Class({
 
     update (dt) {
         if (!this.isAnimationCached()) return;
-
         if (!this._frameCache) return;
 
         let frameCache = this._frameCache;
@@ -895,7 +583,8 @@ let ArmatureDisplay = cc.Class({
     onDestroy () {
         this._super();
         this._inited = false;
-        this._attachedRootNode = null;
+        this.attachUtil.destroy();
+        this.attachUtil = null;
 
         if (!CC_EDITOR) {
             if (this._cacheMode === AnimationCacheMode.PRIVATE_CACHE) {
@@ -1033,7 +722,8 @@ let ArmatureDisplay = cc.Class({
         }
 
         this._updateBatch();
-        this._associateAttachedNode();
+        this.attachUtil.init(this);
+        this.attachUtil._associateAttachedNode();
 
         if (this.animationName) {
             this.playAnimation(this.animationName, this.playTimes);
@@ -1120,8 +810,8 @@ let ArmatureDisplay = cc.Class({
                 this._accTime = 0;
                 this._playCount = 0;
                 this._frameCache = cache;
-                if (this._hasAttachedNode()) {
-                    this._frameCache.enableCacheSlotInfos();
+                if (this.attachUtil._hasAttachedNode()) {
+                    this._frameCache.enableCacheAttachedInfo();
                 }
                 this._frameCache.updateToFrame(0);
                 this._playing = true;
