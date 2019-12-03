@@ -1,10 +1,17 @@
 import * as fs from 'fs-extra';
 import * as ps from 'path';
 import yargs from 'yargs';
-import { build, enumeratePhysicsReps, enumeratePlatformReps, IBuildOptions, IFlags, parsePhysics, parsePlatform, enumerateModuleOptionReps, parseModuleOption } from './build-engine';
+import { build, enumeratePhysicsReps, enumerateBuildModeReps, enumeratePlatformReps, IBuildOptions, IFlags, parsePhysics, parseBuildMode, enumerateModuleOptionReps, parseModuleOption, parsePlatform } from './build-engine';
 
 yargs.help();
 // @ts-ignore
+yargs.option('buildmode', {
+    type: 'string',
+    alias: 'b',
+    description: 'Target buildmode.',
+    demandOption: true,
+    choices: enumerateBuildModeReps(),
+});
 yargs.option('platform', {
     type: 'string',
     alias: 'p',
@@ -64,6 +71,9 @@ const options: IBuildOptions = {
 };
 if (yargs.argv['module']) {
     options.moduleFormat = parseModuleOption(yargs.argv['module'] as unknown as string);
+}
+if (yargs.argv.buildmode) {
+    options.mode = parseBuildMode(yargs.argv.buildmode as unknown as string);
 }
 if (yargs.argv.platform) {
     options.platform = parsePlatform(yargs.argv.platform as unknown as string);

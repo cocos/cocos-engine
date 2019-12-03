@@ -79,7 +79,7 @@ replacePropertyLog = function (n: string, dp: string, n2: string, newp: string, 
 };
 
 replaceProperty = (owner: object, ownerName: string, properties: IReplacement[]) => {
-    if (CC_WECHATGAME) { return; }
+    if (CC_ALIPAY) { return; }
     if (owner == null) return;
 
     properties.forEach(function (item: IReplacement) {
@@ -166,7 +166,7 @@ removePropertyLog = function (n: string, dp: string, f: Function, id: number) {
 };
 
 removeProperty = (owner: object, ownerName: string, properties: IRemoveItem[]) => {
-    if (CC_WECHATGAME) { return; }
+    if (CC_ALIPAY) { return; }
     if (owner == null) return;
 
     properties.forEach(function (item: IRemoveItem) {
@@ -194,7 +194,7 @@ markAsWarningLog = function (n: string, dp: string, f: Function, id: number) {
 };
 
 markAsWarning = (owner: object, ownerName: string, properties: IMarkItem[]) => {
-    if (CC_WECHATGAME) { return; }
+    if (CC_ALIPAY) { return; }
     if (owner == null) return;
 
     let _defaultGetSet = function (o: {}, p: string, d: PropertyDescriptor, n: string, dp: string, f: Function, id: number) {

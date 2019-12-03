@@ -528,7 +528,7 @@ sys.isNative = CC_JSB;
  * Is web browser ?
  * @property {Boolean} isBrowser
  */
-sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHATGAME && !CC_QQPLAY && !CC_JSB;
+sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_WECHAT && !CC_QQPLAY && !CC_JSB;
 
 /**
  * Endianess of current platform
@@ -716,7 +716,7 @@ else {
         if (!browserTypes) { browserTypes = typeReg3.exec(ua); }
 
         let browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
-        if (CC_WECHATGAME) {
+        if (CC_WECHAT) {
             browserType = sys.BROWSER_TYPE_WECHAT_GAME;
         }
         else if (CC_QQPLAY) {
