@@ -29,7 +29,17 @@ const FLAG_TRANSFORM = RenderFlow.FLAG_TRANSFORM;
 const EmptyHandle = function () {}
 const ATTACHED_ROOT_NAME = 'ATTACHED_NODE_TREE';
 const ATTACHED_PRE_NAME = 'ATTACHED_NODE:';
-let tempMat4 = new Mat4();
+const limitNode = function (node) {
+    // attached node's world matrix update per frame
+    Object.defineProperty(node, '_worldMatDirty', {
+        get () { return true; },
+        set (value) {/* do nothing */}
+    });
+    // shield world matrix calculate interface
+    node._calculWorldMatrix = EmptyHandle;
+    node._mulMat = EmptyHandle;
+};
+let _tempMat4 = new Mat4();
 
 let AttachUtil = cc.Class({
     name: 'dragonBones.AttachUtil',
@@ -66,7 +76,7 @@ let AttachUtil = cc.Class({
         let rootNode = this._armatureNode.getChildByName(ATTACHED_ROOT_NAME);
         if (!rootNode || !rootNode.isValid) {
             rootNode = new cc.Node(ATTACHED_ROOT_NAME);
-            rootNode._mulMat = EmptyHandle;
+            limitNode(rootNode);
             this._armatureNode.addChild(rootNode);
         }
 
@@ -191,7 +201,7 @@ let AttachUtil = cc.Class({
             if (boneNode) return boneNode;
 
             boneNode = this._buildBoneAttachedNode(bone, bone._nodeIndex);
-            boneNode._mulMat = EmptyHandle;
+            limitNode(boneNode);
             boneNode._bone = bone;
             boneNode._nodeIndex = bone._nodeIndex;
 
@@ -275,11 +285,12 @@ let AttachUtil = cc.Class({
                         boneNode = this._buildBoneAttachedNode(bone, curNodeIndex);
                         parentNode.addChild(boneNode);
                     }
-                    boneNode._mulMat = EmptyHandle;
+                    limitNode(boneNode);
                     boneNode._bone = bone;
                     boneNode._nodeIndex = curNodeIndex;
                     boneNode._rootNode = subArmatureParentNode;
                     bone._attachedNode = boneNode;
+
                 }
             }
 
@@ -316,7 +327,7 @@ let AttachUtil = cc.Class({
             return;
         }
 
-        rootNode._mulMat = EmptyHandle;
+        limitNode(rootNode);
 
         if (!CC_NATIVERENDERER) {
             let isCached = this._armatureDisplay.isAnimationCached();
@@ -352,7 +363,7 @@ let AttachUtil = cc.Class({
                 if (parentNode) {
                     let boneNode = parentNode.getChildByName(ATTACHED_PRE_NAME + bone.name);
                     if (boneNode && boneNode.isValid) {
-                        boneNode._mulMat = EmptyHandle;
+                        limitNode(boneNode);
                         boneNode._bone = bone;
                         boneNode._nodeIndex = curNodeIndex;
                         boneNode._rootNode = subArmatureParentNode;
@@ -397,14 +408,14 @@ let AttachUtil = cc.Class({
 
         let mulMat = this._armatureNode._mulMat;
         let matrixHandle = function (nodeMat, parentMat, boneMat) {
-            let tm = tempMat4.m;
+            let tm = _tempMat4.m;
             tm[0] = boneMat.a;
             tm[1] = boneMat.b;
             tm[4] = -boneMat.c;
             tm[5] = -boneMat.d;
             tm[12] = boneMat.tx;
             tm[13] = boneMat.ty;
-            mulMat(nodeMat, parentMat, tempMat4);
+            mulMat(nodeMat, parentMat, _tempMat4);
         };
 
         let lastValidIdx = -1;
