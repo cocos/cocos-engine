@@ -52,6 +52,11 @@ export enum GFXFeature {
     FORMAT_ASTC,
     MSAA,
     COUNT,
+
+    /**
+     * Allow vertex index to be unsigned 32 bits integer type.
+     */
+    ELEMENT_INDEX_UINT,
 }
 
 /**

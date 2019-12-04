@@ -376,6 +376,10 @@ export class WebGLGFXDevice extends GFXDevice {
             if (sys.platform !== sys.WECHAT_GAME || sys.os !== sys.OS_IOS) { this._useVAO = true; }
         }
 
+        if (this._OES_element_index_uint) {
+            this._features[GFXFeature.ELEMENT_INDEX_UINT] = true;
+        }
+
         console.info('RENDERER: ' + this._renderer);
         console.info('VENDOR: ' + this._vendor);
         console.info('VERSION: ' + this._version);
