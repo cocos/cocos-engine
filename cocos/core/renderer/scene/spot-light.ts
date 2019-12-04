@@ -22,6 +22,7 @@ export class SpotLight extends Light {
     protected _aabb: aabb;
     protected _frustum: frustum;
     protected _angle: number = 0;
+    protected _needUpdate = false;
 
     get position () {
         return this._pos;
@@ -37,6 +38,7 @@ export class SpotLight extends Light {
 
     set range (range: number) {
         this._range = range;
+        this._needUpdate = true;
     }
 
     get range (): number {
@@ -62,6 +64,7 @@ export class SpotLight extends Light {
     set spotAngle (val: number) {
         this._angle = val * 0.5;
         this._spotAngle = Math.cos(val * 0.5);
+        this._needUpdate = true;
     }
 
     get aabb () {
@@ -81,9 +84,9 @@ export class SpotLight extends Light {
     }
 
     public update () {
-        if (this._node) {
+        if (this._node && (this._node.hasChangedFlags || this._needUpdate)) {
             this._node.getWorldPosition(this._pos);
-            this._dir = Vec3.transformQuat(_v3, _forward, this._node.getWorldRotation(_qt));
+            Vec3.transformQuat(this._dir, _forward, this._node.getWorldRotation(_qt));
             Vec3.normalize(this._dir, this._dir);
             aabb.set(this._aabb, this._pos.x, this._pos.y, this._pos.z, this._range, this._range, this._range);
 
@@ -95,9 +98,10 @@ export class SpotLight extends Light {
 
             // view-projection
             Mat4.multiply(_matViewProj, _matProj, _matView);
-            Mat4.invert(_matViewProjInv, _matViewProj);
+            // Mat4.invert(_matViewProjInv, _matViewProj);
 
             this._frustum.update(_matViewProj, _matViewProjInv);
+            this._needUpdate = false;
         }
     }
 }

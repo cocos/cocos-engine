@@ -1,10 +1,10 @@
 import { aabb } from '../../geom-utils';
 import { Vec3 } from '../../math';
-import { INode } from '../../utils/interfaces';
 import { Light, LightType, nt2lm } from './light';
-import { RenderScene } from './render-scene';
 
 export class SphereLight extends Light {
+
+    protected _needUpdate = false;
 
     get position () {
         return this._pos;
@@ -20,6 +20,7 @@ export class SphereLight extends Light {
 
     set range (range: number) {
         this._range = range;
+        this._needUpdate = true;
     }
 
     get range (): number {
@@ -52,9 +53,10 @@ export class SphereLight extends Light {
     }
 
     public update () {
-        if (this._node) {
+        if (this._node && (this._node.hasChangedFlags || this._needUpdate)) {
             this._node.getWorldPosition(this._pos);
             aabb.set(this._aabb, this._pos.x, this._pos.y, this._pos.z, this._range, this._range, this._range);
+            this._needUpdate = false;
         }
     }
 }
