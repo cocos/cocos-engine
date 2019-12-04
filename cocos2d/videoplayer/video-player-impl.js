@@ -509,7 +509,13 @@ let VideoPlayerImpl = cc.Class({
         this._video.style['-webkit-transform'] = matrix;
         this._video.style['transform-origin'] = '0px 100% 0px';
         this._video.style['-webkit-transform-origin'] = '0px 100% 0px';
-        this._forceUpdate = false;
+
+        // TODO: move into web adapter
+        // video style would change when enter fullscreen on IE
+        // there is no way to add fullscreenchange event listeners on IE so that we can restore the cached video style
+        if (sys.browserType !== sys.BROWSER_TYPE_IE) {
+            this._forceUpdate = false;
+        }
     }
 });
 
