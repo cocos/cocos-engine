@@ -29,8 +29,11 @@ const RenderComponent = require('../../cocos2d/core/components/CCRenderComponent
 const spine = require('./lib/spine');
 const Material = require('../../cocos2d/core/assets/material/CCMaterial');
 const Graphics = require('../../cocos2d/core/graphics/graphics');
+const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
+const FLAG_POST_RENDER = RenderFlow.FLAG_POST_RENDER;
 
 let SkeletonCache = require('./skeleton-cache');
+let AttachUtil = require('./AttachUtil');
 
 /**
  * @module sp
@@ -92,7 +95,7 @@ sp.Skeleton = cc.Class({
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Spine Skeleton',
         help: 'app://docs/html/components/spine.html',
-        //playOnFocus: true
+        inspector: 'packages://inspector/inspectors/comps/spine.js',
     },
 
     statics: {
@@ -432,12 +435,24 @@ sp.Skeleton = cc.Class({
         this._endSlotIndex = -1;
         this._startEntry = {animation : {name : ""}, trackIndex : 0};
         this._endEntry = {animation : {name : ""}, trackIndex : 0};
+        this.attachUtil = new AttachUtil();
     },
 
-    // override
+    onDestroy () {
+        this._super();
+        this.attachUtil.destroy();
+    },
+
+    // override base class setMaterial to clear material cache
     setMaterial (index, material) {
         this._super(index, material);
         this._materialCache = {};
+    },
+
+    // override base class disableRender to clear post render flag
+    disableRender () {
+        this._super();
+        this.node._renderFlag &= ~FLAG_POST_RENDER;
     },
 
     _updateUseTint () {
@@ -729,6 +744,7 @@ sp.Skeleton = cc.Class({
         // only when component's onEnable function has been invoke, need to enable render
         if (this.node && this.node._renderComponent == this) {
             this.markForRender(true);
+            this.node._renderFlag |= FLAG_POST_RENDER;
         }
     },
 
@@ -1006,6 +1022,9 @@ sp.Skeleton = cc.Class({
                 this._accTime = 0;
                 this._playCount = 0;
                 this._frameCache = cache;
+                if (this.attachUtil._hasAttachedNode()) {
+                    this._frameCache.enableCacheAttachedInfo();
+                }
                 this._frameCache.updateToFrame(0);
                 this._curFrame = this._frameCache.frames[0];
             }
@@ -1315,6 +1334,8 @@ sp.Skeleton = cc.Class({
             cc.warn(e);
         }
         
+        this.attachUtil.init(this);
+        this.attachUtil._associateAttachedNode();
         this._preCacheMode = this._cacheMode;
         this.animation = this.defaultAnimation;
     },

@@ -317,9 +317,12 @@ let AttachUtil = cc.Class({
         }
 
         rootNode._mulMat = EmptyHandle;
-        let isCached = this._armatureDisplay.isAnimationCached();
-        if (isCached && this._armatureDisplay._frameCache) {
-            this._armatureDisplay._frameCache.enableCacheAttachedInfo();
+
+        if (!CC_NATIVERENDERER) {
+            let isCached = this._armatureDisplay.isAnimationCached();
+            if (isCached && this._armatureDisplay._frameCache) {
+                this._armatureDisplay._frameCache.enableCacheAttachedInfo();
+            }
         }
 
         let nodeIndex = 0;

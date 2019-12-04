@@ -357,8 +357,8 @@ export default class ArmatureAssembler extends Assembler {
             }
         }
         
-        renderer.worldMatDirty++;
         // sync attached node matrix
+        renderer.worldMatDirty++;
         comp.attachUtil._syncAttachedNode();
 
         // Clear temp var.

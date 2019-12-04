@@ -426,10 +426,16 @@ let ArmatureDisplay = cc.Class({
         }
     },
 
-    // override
+    // override base class setMaterial to clear material cache
     setMaterial (index, material) {
         this._super(index, material);
         this._materialCache = {};
+    },
+
+    // override base class disableRender to clear post render flag
+    disableRender () {
+        this._super();
+        this.node._renderFlag &= ~FLAG_POST_RENDER;
     },
 
     __preload () {
@@ -584,7 +590,6 @@ let ArmatureDisplay = cc.Class({
         this._super();
         this._inited = false;
         this.attachUtil.destroy();
-        this.attachUtil = null;
 
         if (!CC_EDITOR) {
             if (this._cacheMode === AnimationCacheMode.PRIVATE_CACHE) {
@@ -715,6 +720,8 @@ let ArmatureDisplay = cc.Class({
             this._displayProxy.setEventTarget(this._eventTarget);
             this._armature = this._displayProxy._armature;
             this._armature.animation.timeScale = this.timeScale;
+            // If change mode or armature, armature must insert into clock.
+            this._factory._dragonBones.clock.add(this._armature);
         }
 
         if (this._cacheMode !== AnimationCacheMode.REALTIME && this.debugBones) {

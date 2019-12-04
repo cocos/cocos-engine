@@ -59,7 +59,7 @@ let AttachUtil = cc.Class({
     },
 
     _prepareAttachNode () {
-        let armature = this._armature;
+        let armature = this._skeleton;
         if (!armature) {
             return;
         }
@@ -81,7 +81,7 @@ let AttachUtil = cc.Class({
     },
 
     _buildBoneAttachedNode (bone, nodeIndex) {
-        let boneNodeName = ATTACHED_PRE_NAME + bone.name;
+        let boneNodeName = ATTACHED_PRE_NAME + bone.data.name;
         let boneNode = new cc.Node(boneNodeName);
         this._attachedNodeArray[nodeIndex] = boneNode;
         return boneNode;
@@ -161,55 +161,29 @@ let AttachUtil = cc.Class({
         let rootNode = this._prepareAttachNode();
         if (!rootNode) return;
 
-        let nodeIndex = 0;
         let res = [];
-        let attachedTraverse = function (armature) {
-            if (!armature) return;
-
-            let bones = armature.getBones(), bone;
-            for(let i = 0, l = bones.length; i < l; i++) {
-                bone = bones[i];
-                bone._nodeIndex = nodeIndex++;
-                if (boneName === bone.name) {
-                    res.push(bone);
-                }
+        let bones = this._skeleton.bones;
+        for (let i = 0, n = bones.length; i < n; i++) {
+            let bone = bones[i];
+            let boneData = bone.data;
+            if (boneData.name == boneName) {
+                res.push(bone);
             }
-
-            let slots = armature.getSlots(), slot;
-            for (let i = 0, l = slots.length; i < l; i++) {
-                slot = slots[i];
-                if (slot.childArmature) {
-                    attachedTraverse(slot.childArmature);
-                }
-            }
-        }.bind(this);
-        attachedTraverse(this._armature);
+        }
 
         let nodeArray = this._attachedNodeArray;
         let buildBoneTree = function (bone) {
             if (!bone) return;
-            let boneNode = nodeArray[bone._nodeIndex];
+            let boneData = bone.data;
+            let boneNode = nodeArray[boneData.index];
             if (boneNode) return boneNode;
 
-            boneNode = this._buildBoneAttachedNode(bone, bone._nodeIndex);
+            boneNode = this._buildBoneAttachedNode(bone, boneData.index);
             boneNode._mulMat = EmptyHandle;
-            boneNode._bone = bone;
-            boneNode._nodeIndex = bone._nodeIndex;
+            boneNode._nodeIndex = boneData.index;
 
-            let subArmatureParentBone = null;
-            if (bone.armature.parent) {
-                let parentSlot = bone.armature.parent;
-                subArmatureParentBone = parentSlot.parent;
-            }
-
-            let parentBoneNode = buildBoneTree(bone.parent || subArmatureParentBone) || rootNode;
+            let parentBoneNode = buildBoneTree(bone.parent) || rootNode;
             boneNode.parent = parentBoneNode;
-
-            if (bone.parent) {
-                boneNode._rootNode = parentBoneNode._rootNode;
-            } else {
-                boneNode._rootNode = parentBoneNode;
-            }
 
             return boneNode;
         }.bind(this);
@@ -246,53 +220,29 @@ let AttachUtil = cc.Class({
         let rootNode = this._prepareAttachNode();
         if (!rootNode) return;
 
-        let nodeIndex = 0;
-        let attachedTraverse = function (armature) {
-            if (!armature) return;
-
-            let subArmatureParentNode = rootNode;
-            if (armature.parent) {
-                let parentSlot = armature.parent;
-                let parentBone = parentSlot.parent;
-                subArmatureParentNode = parentBone._attachedNode;
+        let bones = this._skeleton.bones;
+        let nodeArray = this._attachedNodeArray;
+        for (let i = 0, n = bones.length; i < n; i++) {
+            let bone = bones[i];
+            let boneData = bone.data;
+            let parentNode = null;
+            if (bone.parent) {
+                let parentIndex = bone.parent.data.index;
+                parentNode = nodeArray[parentIndex];
+            } else {
+                parentNode = rootNode;
             }
 
-            let bones = armature.getBones(), bone;
-            for(let i = 0, l = bones.length; i < l; i++) {
-                let curNodeIndex = nodeIndex++;
-                bone = bones[i];
-                bone._attachedNode = null;
-
-                let parentNode = null;
-                if (bone.parent) {
-                    parentNode = bone.parent._attachedNode;
-                } else {
-                    parentNode = subArmatureParentNode;
+            if (parentNode) {
+                let boneNode = parentNode.getChildByName(ATTACHED_PRE_NAME + boneData.name);
+                if (!boneNode || !boneNode.isValid) {
+                    boneNode = this._buildBoneAttachedNode(bone, boneData.index);
+                    parentNode.addChild(boneNode);
                 }
-
-                if (parentNode) {
-                    let boneNode = parentNode.getChildByName(ATTACHED_PRE_NAME + bone.name);
-                    if (!boneNode || !boneNode.isValid) {
-                        boneNode = this._buildBoneAttachedNode(bone, curNodeIndex);
-                        parentNode.addChild(boneNode);
-                    }
-                    boneNode._mulMat = EmptyHandle;
-                    boneNode._bone = bone;
-                    boneNode._nodeIndex = curNodeIndex;
-                    boneNode._rootNode = subArmatureParentNode;
-                    bone._attachedNode = boneNode;
-                }
+                boneNode._mulMat = EmptyHandle;
+                boneNode._nodeIndex = boneData.index;
             }
-
-            let slots = armature.getSlots(), slot;
-            for (let i = 0, l = slots.length; i < l; i++) {
-                slot = slots[i];
-                if (slot.childArmature) {
-                    attachedTraverse(slot.childArmature);
-                }
-            }
-        }.bind(this);
-        attachedTraverse(this._armature);
+        }
     },
 
     _hasAttachedNode () {
@@ -312,63 +262,36 @@ let AttachUtil = cc.Class({
         let nodeArray = this._attachedNodeArray;
         nodeArray.length = 0;
 
-        let armature = this._armature;
-        if (!armature) {
-            return;
-        }
-
         rootNode._mulMat = EmptyHandle;
-        let isCached = this._skeletonComp.isAnimationCached();
-        if (isCached && this._skeletonComp._frameCache) {
-            this._skeletonComp._frameCache.enableCacheAttachedInfo();
+
+        if (!CC_NATIVERENDERER) {
+            let isCached = this._skeletonComp.isAnimationCached();
+            if (isCached && this._skeletonComp._frameCache) {
+                this._skeletonComp._frameCache.enableCacheAttachedInfo();
+            }
         }
 
-        let nodeIndex = 0;
-        let attachedTraverse = function (armature) {
-            if (!armature) return;
-
-            let subArmatureParentNode = rootNode;
-            if (armature.parent) {
-                let parentSlot = armature.parent;
-                let parentBone = parentSlot.parent;
-                subArmatureParentNode = parentBone._attachedNode;
+        let bones = this._skeleton.bones;
+        for (let i = 0, n = bones.length; i < n; i++) {
+            let bone = bones[i];
+            let boneData = bone.data;
+            let parentNode = null;
+            if (bone.parent) {
+                let parentIndex = bone.parent.data.index;
+                parentNode = nodeArray[parentIndex];
+            } else {
+                parentNode = rootNode;
             }
 
-            let bones = armature.getBones(), bone;
-            for(let i = 0, l = bones.length; i < l; i++) {
-                let curNodeIndex = nodeIndex++;
-                bone = bones[i];
-                bone._attachedNode = null;
-
-                let parentNode = null;
-                if (bone.parent) {
-                    parentNode = bone.parent._attachedNode;
-                } else {
-                    parentNode = subArmatureParentNode;
-                }
-
-                if (parentNode) {
-                    let boneNode = parentNode.getChildByName(ATTACHED_PRE_NAME + bone.name);
-                    if (boneNode && boneNode.isValid) {
-                        boneNode._mulMat = EmptyHandle;
-                        boneNode._bone = bone;
-                        boneNode._nodeIndex = curNodeIndex;
-                        boneNode._rootNode = subArmatureParentNode;
-                        bone._attachedNode = boneNode;
-                        nodeArray[curNodeIndex] = boneNode;
-                    }
-                }
-            }
-
-            let slots = armature.getSlots(), slot;
-            for (let i = 0, l = slots.length; i < l; i++) {
-                slot = slots[i];
-                if (slot.childArmature) {
-                    attachedTraverse(slot.childArmature);
+            if (parentNode) {
+                let boneNode = parentNode.getChildByName(ATTACHED_PRE_NAME + boneData.name);
+                if (boneNode && boneNode.isValid) {
+                    boneNode._mulMat = EmptyHandle;
+                    boneNode._nodeIndex = boneData.index;
+                    nodeArray[boneData.index] = boneNode;
                 }
             }
         }
-        attachedTraverse(armature);
     },
 
     _syncAttachedNode () {
@@ -390,18 +313,21 @@ let AttachUtil = cc.Class({
         let isCached = this._skeletonComp.isAnimationCached();
         if (isCached) {
             boneInfos = this._skeletonComp._curFrame && this._skeletonComp._curFrame.boneInfos;
-            if (!boneInfos) return;
+        } else {
+            boneInfos = this._skeleton.bones;
         }
 
+        if (!boneInfos) return;
+
         let mulMat = this._skeletonNode._mulMat;
-        let matrixHandle = function (nodeMat, parentMat, boneMat) {
+        let matrixHandle = function (nodeMat, parentMat, bone) {
             let tm = tempMat4.m;
-            tm[0] = boneMat.a;
-            tm[1] = boneMat.b;
-            tm[4] = -boneMat.c;
-            tm[5] = -boneMat.d;
-            tm[12] = boneMat.tx;
-            tm[13] = boneMat.ty;
+            tm[0] = bone.a;
+            tm[1] = bone.c;
+            tm[4] = bone.b;
+            tm[5] = bone.d;
+            tm[12] = bone.worldX;
+            tm[13] = bone.worldY;
             mulMat(nodeMat, parentMat, tempMat4);
         };
 
@@ -413,15 +339,15 @@ let AttachUtil = cc.Class({
                 nodeArray[i] = null;
                 continue;
             }
-            let bone = isCached ? boneInfos[i] : boneNode._bone;
+            let bone = boneInfos[i];
             // Bone has been destroy
-            if (!bone || bone._isInPool) {
+            if (!bone) {
                 boneNode.removeFromParent(true);
                 boneNode.destroy();
                 nodeArray[i] = null;
                 continue;
             }
-            matrixHandle(boneNode._worldMatrix, boneNode._rootNode._worldMatrix, bone.globalTransformMatrix);
+            matrixHandle(boneNode._worldMatrix, rootNode._worldMatrix, bone);
             boneNode._renderFlag &= ~FLAG_TRANSFORM;
             lastValidIdx = i;
         }

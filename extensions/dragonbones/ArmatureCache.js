@@ -270,10 +270,10 @@ let AnimationCache = cc.Class({
 
         for (let i = 0, l = slots.length; i < l; i++) {
             slot = slots[i];
-
             if (!slot._visible || !slot._displayData) continue;
-            slotColor = slot._color;
+
             slot.updateWorldMatrix();
+            slotColor = slot._color;
             
             if (slot.childArmature) {
                 this._traverseArmature(slot.childArmature, parentOpacity * slotColor.a / 255);

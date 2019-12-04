@@ -666,12 +666,20 @@ export default class SpineAssembler extends Assembler {
             if (_vertexEffect) _vertexEffect.end();
         }
 
+        // sync attached node matrix
+        renderer.worldMatDirty++;
+        comp.attachUtil._syncAttachedNode();
+
         // Clear temp var.
         _node = undefined;
         _buffer = undefined;
         _renderer = undefined;
         _comp = undefined;
         _vertexEffect = null;
+    }
+
+    postFillBuffers (comp, renderer) {
+        renderer.worldMatDirty--;
     }
 }
 
