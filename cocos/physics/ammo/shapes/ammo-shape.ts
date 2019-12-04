@@ -5,7 +5,7 @@ import { AmmoWorld } from '../ammo-world';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { Cocos2AmmoVec3 } from '../ammo-util';
 import { Node } from '../../../core';
-import { IBaseShape } from '../../spec/i-physics-spahe';
+import { IBaseShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { AmmoSharedBody } from '../ammo-shared-body';
 

@@ -4,7 +4,7 @@ import { AmmoShape } from "./ammo-shape";
 import { SphereColliderComponent } from '../../../../exports/physics-framework';
 import { Cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
-import { ISphereShape } from '../../spec/i-physics-spahe';
+import { ISphereShape } from '../../spec/i-physics-shape';
 
 const v3_0 = new Vec3();
 
