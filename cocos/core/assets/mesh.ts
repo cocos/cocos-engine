@@ -46,7 +46,7 @@ import { DataPoolManager } from '../renderer/data-pool-manager';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { Asset } from './asset';
 import { postLoadMesh } from './utils/mesh-utils';
-import { warnID } from '../platform';
+import { warnID } from '../platform/debug';
 
 function getIndexStrideCtor (stride: number) {
     switch (stride) {
