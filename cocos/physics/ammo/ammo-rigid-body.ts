@@ -137,11 +137,11 @@ export class AmmoRigidBody implements IRigidBody {
         this.allowSleep = this._rigidBody.allowSleep;
         this.linearDamping = this._rigidBody.linearDamping;
         this.angularDamping = this._rigidBody.angularDamping;
-        this.useGravity = this._rigidBody.useGravity;
         this.isKinematic = this._rigidBody.isKinematic;
         this.fixedRotation = this._rigidBody.fixedRotation;
         this.linearFactor = this._rigidBody.linearFactor;
         this.angularFactor = this._rigidBody.angularFactor;
+        this.useGravity = this._rigidBody.useGravity;
         this._sharedBody.bodyEnabled = true;
     }
 
