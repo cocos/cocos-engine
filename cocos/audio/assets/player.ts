@@ -85,4 +85,4 @@ export abstract class AudioPlayer {
     }
 }
 
-cc.AudioPlayer = AudioPlayer;
+cc.internal.AudioPlayer = AudioPlayer;
