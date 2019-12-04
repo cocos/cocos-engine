@@ -3,7 +3,7 @@
  */
 
 import { frustum, intersect } from '../geom-utils';
-import { Mat4, Vec3, Quat } from '../math';
+import { Mat4, Quat, Vec3 } from '../math';
 import { Camera, Light, Model } from '../renderer';
 import { DirectionalLight } from '../renderer/scene/directional-light';
 import { SphereLight } from '../renderer/scene/sphere-light';
@@ -24,7 +24,7 @@ export function cullSphereLight (light: SphereLight, model: Model) {
 
 export function cullSpotLight (light: SpotLight, model: Model) {
     return cullLight(light, model) || !!(model.worldBounds &&
-                (!intersect.aabb_aabb(model.worldBounds, light.aabb) || !intersect.aabb_frustum(model.worldBounds, light.frustum)));
+        (!intersect.aabb_aabb(model.worldBounds, light.aabb) || !intersect.aabb_frustum(model.worldBounds, light.frustum)));
 }
 
 export const cullSceneWithDirectionalLight = (() => {
