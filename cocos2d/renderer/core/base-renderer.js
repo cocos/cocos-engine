@@ -322,10 +322,10 @@ export default class Base {
       let pass = passes[i];
       let count = ia.count;
 
-      let properties = pass._properties;
-      let defineProperties = Object.getPrototypeOf(properties);
-      for (let name in defineProperties) {
-        this._setProperty(properties[name]);
+      let variants = pass._properties;
+      let properties = Object.getPrototypeOf(variants);
+      for (let name in properties) {
+        this._setProperty(variants[name]);
       }
 
       // set vertex buffer

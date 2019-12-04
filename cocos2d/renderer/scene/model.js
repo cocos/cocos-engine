@@ -18,12 +18,6 @@ export default class Model {
     this._userKey = -1;
     this._castShadow = false;
     this._boundingShape = null;
-
-    // Originally model do Object.create(null) and 
-    // copy values from effect and customProperties every time when call setEffect,
-    // this will cause gc performance, so change to Array type to store values.
-    this._defines = [];
-    this._uniforms = [];
   }
 
   /**
