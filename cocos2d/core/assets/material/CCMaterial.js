@@ -26,10 +26,8 @@
 const Asset = require('../CCAsset');
 const Texture = require('../CCTexture2D');
 const PixelFormat = Texture.PixelFormat;
-const EffectAsset = require('../CCEffectAsset');
+const EffectAsset = require('./CCEffectAsset');
 const textureUtil = require('../../utils/texture-util');
-
-import materialPool from './material-pool';
 
 let _effects = {};
 let _instanceId = 0;
@@ -52,11 +50,6 @@ let Material = cc.Class({
     },
 
     properties: {
-        _effectAsset: {
-            type: EffectAsset,
-            default: null,
-        },
-
         // deprecated
         _defines: {
             default: undefined,
@@ -66,6 +59,11 @@ let Material = cc.Class({
         _props: {
             default: undefined,
             type: Object
+        },
+
+        _effectAsset: {
+            type: EffectAsset,
+            default: null,
         },
 
         _techniqueIndex: 0,
@@ -128,18 +126,16 @@ let Material = cc.Class({
         getBuiltinMaterial (name) {
             return cc.AssetLibrary.getBuiltin('material', 'builtin-' + name);
         },
-        getInstantiatedBuiltinMaterial (name, renderComponent) {
-            let builtinMaterial = this.getBuiltinMaterial(name);
-            return Material.getInstantiatedMaterial(builtinMaterial, renderComponent);
+        createWithBuiltin (effectName, techniqueIndex = 0) {
+            let effectAsset = cc.AssetLibrary.getBuiltin('effect', 'builtin-' + effectName);
+            return Material.create(effectAsset, techniqueIndex);
         },
-        getInstantiatedMaterial (mat, renderComponent) {
-            if (!mat) return mat;
-            if (mat._owner === renderComponent) {
-                return mat;
-            }
-            else {
-                return materialPool.get(mat, renderComponent);
-            }
+        create (effectAsset, techniqueIndex = 0) {
+            if (!effectAsset) return null;
+            let material = new Material();
+            material._effect = effectAsset.getInstantiatedEffect();
+            material.techniqueIndex = techniqueIndex;
+            return material;
         }
     },
 
@@ -150,6 +146,10 @@ let Material = cc.Class({
      */
     setProperty (name, val, passIdx) {
         if (!this._effect) return;
+
+        if (typeof passIdx === 'string') {
+            passIdx = parseInt(passIdx);
+        }
         
         if (val instanceof Texture) {
             let format = val.getPixelFormat();
@@ -183,6 +183,9 @@ let Material = cc.Class({
      * @param {Boolean|Number} val
      */
     define (name, val, passIdx, force) {
+        if (typeof passIdx === 'string') {
+            passIdx = parseInt(passIdx);
+        }
         this._effect.define(name, val, passIdx, force);
     },
 

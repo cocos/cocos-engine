@@ -18,6 +18,21 @@ class MaterialPool extends Pool {
     get (exampleMat, renderComponent) {
         let pool = this._pool;
 
+        if (exampleMat instanceof cc.MaterialVariant) {
+            if (exampleMat._owner) {
+                if (exampleMat._owner === renderComponent) {
+                    return exampleMat;
+                }
+                else {
+                    exampleMat = exampleMat.material;
+                }
+            }
+            else {
+                exampleMat._owner = renderComponent;
+                return exampleMat;
+            }
+        }
+
         let instance;
         if (this.enabled) {
             let uuid = exampleMat.effectAsset._uuid;

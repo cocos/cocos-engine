@@ -1,4 +1,5 @@
 
+import MaterialVariant from '../assets/material/material-variant';
 const Material = require('../assets/material/CCMaterial');
 
 /**
@@ -63,14 +64,14 @@ let GraySpriteState = cc.Class({
             if (!material) {
                 material = Material.getBuiltinMaterial('2d-gray-sprite');
             }
-            material = this._grayMaterial = Material.getInstantiatedMaterial(material, renderComp);
+            material = this._grayMaterial = MaterialVariant.create(material, renderComp);
         }
         else {
             material = this._normalMaterial;
             if (!material) {
                 material = Material.getBuiltinMaterial('2d-sprite', renderComp);
             }
-            material = this._normalMaterial = Material.getInstantiatedMaterial(material, renderComp);
+            material = this._normalMaterial = MaterialVariant.create(material, renderComp);
         }
     
         renderComp.setMaterial(0, material);

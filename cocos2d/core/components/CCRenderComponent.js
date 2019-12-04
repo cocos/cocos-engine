@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 import Assembler from '../renderer/assembler';
+import MaterialVariant from '../assets/material/material-variant';
 
 const Component = require('./CCComponent');
 const RenderFlow = require('../renderer/render-flow');
@@ -158,7 +159,7 @@ let RenderComponent = cc.Class({
         let material = this._materials[index];
         if (!material) return null;
         
-        let instantiated = Material.getInstantiatedMaterial(material, this);
+        let instantiated = MaterialVariant.create(material, this);
         if (instantiated !== material) {
             this.setMaterial(index, instantiated);
         }
@@ -176,7 +177,7 @@ let RenderComponent = cc.Class({
      */
     setMaterial (index, material) {
         if (material !== this._materials[index]) {
-            material = Material.getInstantiatedMaterial(material, this);
+            material = MaterialVariant.create(material, this);
             this._materials[index] = material;
         }
         this._updateMaterial();
@@ -201,7 +202,7 @@ let RenderComponent = cc.Class({
         }
 
         for (let i = 0; i < materials.length; i++) {
-            materials[i] = Material.getInstantiatedMaterial(materials[i], this);
+            materials[i] = MaterialVariant.create(materials[i], this);
         }
 
         this._updateMaterial();

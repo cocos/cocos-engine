@@ -1,5 +1,5 @@
-const Asset = require('./CCAsset');
-const Effect = require('./material/effect');
+import Asset from '../CCAsset';
+import { parseEffect } from './effect-parser';
 
 let EffectAsset = cc.Class({
     name: 'cc.EffectAsset',
@@ -30,7 +30,7 @@ let EffectAsset = cc.Class({
 
     _initEffect () {
         if (this._effect) return;
-        this._effect = Effect.parseEffect(this);
+        this._effect = parseEffect(this);
         Object.freeze(this._effect);
     },
 

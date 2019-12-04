@@ -714,10 +714,9 @@ sp.Skeleton = cc.Class({
             
             let material = this.sharedMaterials[0];
             if (!material) {
-                material = Material.getInstantiatedBuiltinMaterial('2d-spine', this);
-            } else {
-                material = Material.getInstantiatedMaterial(material, this);
+                material = Material.getBuiltinMaterial('2d-spine');
             }
+            material = MaterialVariant.create(material, this);
 
             material.define('CC_USE_MODEL', true);
             this._prepareToRender(material);

@@ -29,6 +29,7 @@ import Aabb from '../geom-utils/aabb';
 import { postLoadMesh } from '../utils/mesh-util';
 import Vec3 from '../value-types/vec3';
 import Mat4 from '../value-types/mat4';
+import MaterialVariant from '../assets/material/material-variant';
 
 const RenderComponent = require('../components/CCRenderComponent');
 const Mesh = require('./CCMesh');
@@ -273,7 +274,7 @@ let MeshRenderer = cc.Class({
             for (let i = 0; i < textures.length; i++) {
                 let material = this.sharedMaterials[i];
                 if (material) continue;
-                material = cc.Material.getInstantiatedMaterial(this._getDefaultMaterial(), this);
+                material = MaterialVariant.create(this._getDefaultMaterial(), this);
                 material.setProperty('diffuseTexture', textures[i]);
                 this.setMaterial(i, material);
             }
@@ -419,8 +420,7 @@ if (CC_DEBUG) {
                 ibData.length
             );
 
-            let m = new Material();
-            m.copy(Material.getBuiltinMaterial('unlit'));
+            let m = MaterialVariant.createWithBuiltin('unlit');
             m.setProperty('diffuseColor', RED_COLOR);
 
             return {
@@ -431,8 +431,7 @@ if (CC_DEBUG) {
 
         wireFrame (comp, ia, subData) {
             let oldIbData = subData.getIData(Uint16Array);
-            let m = new Material();
-            m.copy(Material.getBuiltinMaterial('unlit'));
+            let m = MaterialVariant.createWithBuiltin('unlit');
             m.setProperty('diffuseColor', BLACK_COLOR);
 
             let indices = [];
