@@ -215,6 +215,7 @@ let MeshRenderer = cc.Class({
         if (this._mesh && !this._mesh.loaded) {
             this.disableRender();
             this._mesh.once('load', () => {
+                if (this.isValid) return;
                 this._setMesh(this._mesh);
                 this.markForRender(true);
             });
@@ -254,18 +255,6 @@ let MeshRenderer = cc.Class({
 
     _getDefaultMaterial () {
         return Material.getBuiltinMaterial('unlit');
-    },
-
-    _activateMaterial () {
-        let materials = this.sharedMaterials;
-        if (!materials[0]) {
-            let material = this._getDefaultMaterial();
-            materials[0] = material;
-        }
-
-        for (let i = 0; i < materials.length; i++) {
-            materials[i] = Material.getInstantiatedMaterial(materials[i], this);
-        }
     },
 
     _validateRender () {

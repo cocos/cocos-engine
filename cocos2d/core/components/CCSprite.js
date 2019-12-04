@@ -434,6 +434,8 @@ var Sprite = cc.Class({
         // make sure material is belong to self.
         let material = this.sharedMaterials[0];
         material && material.setProperty('texture', texture);
+
+        BlendFunc.prototype._updateMaterial.call(this);
     },
 
     _applyAtlas: CC_EDITOR && function (spriteFrame) {

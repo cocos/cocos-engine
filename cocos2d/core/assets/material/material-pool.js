@@ -30,8 +30,7 @@ class MaterialPool extends Pool {
         }
     
         if (!instance) {
-            instance = new cc.Material();
-            instance.setAsVariant(exampleMat);
+            instance = new cc.MaterialVariant(exampleMat);
             instance._name = exampleMat._name + ' (Instance)';
             instance._uuid = exampleMat._uuid;
         }

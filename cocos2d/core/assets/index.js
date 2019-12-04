@@ -42,4 +42,4 @@ require('./CCTextAsset');
 require('./CCJsonAsset');
 require('./CCBufferAsset');
 require('./CCEffectAsset');
-require('./material/CCMaterial');
+require('./material');

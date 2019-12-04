@@ -74,7 +74,6 @@ let RenderComponent = cc.Class({
     
     ctor () {
         this._vertsDirty = true;
-        this._material = null;
         this._assembler = null;
     },
 
@@ -164,7 +163,7 @@ let RenderComponent = cc.Class({
             this.setMaterial(index, instantiated);
         }
 
-        return this._materials[index];
+        return instantiated;
     },
     
     /**
@@ -185,22 +184,27 @@ let RenderComponent = cc.Class({
         return material;
     },
 
+    _getDefaultMaterial () {
+        return Material.getBuiltinMaterial('2d-sprite');
+    },
+
     /**
      * Init material.
      */
     _activateMaterial () {
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) return;
 
-        // make sure material is belong to self.
-        let material = this.sharedMaterials[0];
-        if (!material) {
-            material = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
+        let materials = this.sharedMaterials;
+        if (!materials[0]) {
+            let material = this._getDefaultMaterial();
+            materials[0] = material;
         }
-        else {
-            material = Material.getInstantiatedMaterial(material, this);
+
+        for (let i = 0; i < materials.length; i++) {
+            materials[i] = Material.getInstantiatedMaterial(materials[i], this);
         }
-        
-        this.setMaterial(0, material);
+
+        this._updateMaterial();
     },
 
     /**

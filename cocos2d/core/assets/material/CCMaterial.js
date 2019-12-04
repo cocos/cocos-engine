@@ -30,7 +30,9 @@ const EffectAsset = require('../CCEffectAsset');
 const textureUtil = require('../../utils/texture-util');
 
 import materialPool from './material-pool';
-import EffectVariant from './effect-variant';
+
+let _effects = {};
+let _instanceId = 0;
 
 /**
  * !#en Material Asset.
@@ -46,7 +48,7 @@ let Material = cc.Class({
         this._manualHash = false;
         this._dirty = true;
         this._effect = null;
-        this._owner = null;
+        this._uuid = _instanceId++;
     },
 
     properties: {
@@ -67,7 +69,7 @@ let Material = cc.Class({
         },
 
         _techniqueIndex: 0,
-        _techniqueData: [],
+        _techniqueData: Object,
 
         effectName: CC_EDITOR ? {
             get () {
@@ -98,7 +100,10 @@ let Material = cc.Class({
                     return;
                 }
 
-                this._effect = this._effectAsset.getInstantiatedEffect();
+                if (!_effects[this._uuid] || _effects[this._uuid]._asset != this._effectAsset) {
+                    _effects[this._uuid] = this._effectAsset.getInstantiatedEffect();
+                }
+                this._effect = _effects[this._uuid];
             }
         },
 
@@ -108,9 +113,13 @@ let Material = cc.Class({
             }
         },
 
-        owner: {
+        techniqueIndex: {
             get () {
-                return this._owner;
+                return this._techniqueIndex;
+            },
+            set (v) {
+                this._techniqueIndex = v;
+                this._effect.switchTechnique(v);
             }
         }
     },
@@ -132,11 +141,6 @@ let Material = cc.Class({
                 return materialPool.get(mat, renderComponent);
             }
         }
-    },
-
-    setAsVariant (mat) {
-        this._effect = new EffectVariant(mat.effect);
-        this._effectAsset = mat._effectAsset;
     },
 
     /**
@@ -162,14 +166,11 @@ let Material = cc.Class({
             if (!val.loaded) {
                 val.once('load', loaded, this);
                 textureUtil.postLoadTexture(val);
-            }
-            else {
-                this._effect.setProperty(name, val, passIdx);
+                return;
             }
         }
-        else {
-            this._effect.setProperty(name, val);
-        }
+        
+        this._effect.setProperty(name, val, passIdx);
     },
 
     getProperty (name) {
@@ -187,6 +188,39 @@ let Material = cc.Class({
 
     getDefine (name, passIdx) {
         return this._effect.getDefine(name, passIdx);
+    },
+
+    clone () {
+        let material = new cc.Material();
+        material._uuid = this._uuid;
+        material._effect = this._effect.clone();
+        material._effectAsset = this._effectAsset;
+        material._techniqueIndex = this._techniqueIndex;
+        
+        let datas = this._techniqueData;
+        let newDatas = {};
+        for (let index in datas) {
+            let data = datas[index];
+            if (!data) continue;
+            let newData = {};
+            if (data.props) {
+                newData.props = {};
+                for (let name in data.props) {
+                    let value = data.props[name];
+                    if (value.clone) {
+                        value = value.clone();
+                    }
+                    newData.props[name] = value;
+                }
+            }
+            if (data.defines) {
+                newData.defines = Object.assign({}, data.defines);
+            }
+            newDatas[index] = newData;
+        }
+        material._techniqueData = newDatas;
+
+        return material;
     },
 
     updateHash (hash) {
@@ -231,6 +265,9 @@ let Material = cc.Class({
                 }
             }
         }
+
+        this._props = undefined;
+        this._defines = undefined;
     },
 
     onLoad () {
@@ -241,23 +278,26 @@ let Material = cc.Class({
             this._effect.switchTechnique(this._techniqueIndex);
         }
 
+        this._techniqueData = this._techniqueData || {};
+
         this._upgrade();
 
         let passDatas = this._techniqueData;
-        for (let i = 0; i < passDatas.length; i++) {
-            let passData = passDatas[i];
+        for (let index in passDatas) {
+            index = parseInt(index);
+            let passData = passDatas[index];
             if (!passData) continue;
             
             for (let def in passData.defines) {
-                this.define(def, passData.defines[def], i);
+                this.define(def, passData.defines[def], index);
             }
             for (let prop in passData.props) {
-                this.setProperty(prop, passData.props[prop], i);
+                this.setProperty(prop, passData.props[prop], index);
             }
         }
 
     },
 });
 
-
-module.exports = cc.Material = Material;
+export default Material;
+cc.Material = Material;

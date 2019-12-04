@@ -71,6 +71,10 @@ let BlendFunc = cc.Class({
         }
     },
 
+    _updateMaterial () {
+        this._updateBlendFunc();
+    },
+
     _updateBlendFunc () {
         let materials = this._materials;
         for (let i = 0; i < materials.length; i++) {

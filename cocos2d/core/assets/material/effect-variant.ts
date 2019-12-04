@@ -63,7 +63,7 @@ export default class EffectVariant extends EffectBase {
         hash += utils.serializePasses(this._passes);
 
         let effect = this._effect;
-        if (this._effect) {
+        if (effect) {
             hash += utils.serializePasses(effect._technique.passes);
         }
 

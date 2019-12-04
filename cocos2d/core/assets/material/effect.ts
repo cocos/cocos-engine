@@ -9,7 +9,12 @@ import EffectBase from './effect-base';
 export default class Effect extends EffectBase {
 
     _techniques: Technique[] = [];
+    _asset = null;
     
+    get technique () {
+        return this._technique;
+    }
+
     get passes () {
         return this._technique.passes;
     }
@@ -17,15 +22,16 @@ export default class Effect extends EffectBase {
     /**
      * @param {Array} techniques
      */
-    constructor (name, techniques, asset = null) {
+    constructor (name, techniques, asset) {
         super();
-        this.init(name, techniques, asset);
+        this.init(name, techniques, asset, true);
     }
 
-    init (name, techniques, asset?) {
+    init (name, techniques, asset) {
         this._name = name;
         this._techniques = techniques;
         this._technique = techniques[0];
+        this._asset = asset;
     }
 
     switchTechnique (index) {
@@ -48,7 +54,7 @@ export default class Effect extends EffectBase {
             techniques.push(this._techniques[i].clone());
         }
 
-        return new Effect(this._name, techniques);
+        return new Effect(this._name, techniques, this._asset);
     }
 }
 
@@ -80,7 +86,7 @@ function parseProperties (effectAsset, passJson) {
             prop = properties[name] = Object.assign({}, u),
             propInfo = propertiesJson[name];
         if (propInfo) {
-            prop.value = propInfo.type === enums.PARAM_TEXTURE_2D ? null : new Float32Array(propInfo.value);;
+            prop.value = propInfo.type === enums.PARAM_TEXTURE_2D ? null : new Float32Array(propInfo.value);
         }
         else {
             prop.value = enums2default[u.type];
@@ -159,23 +165,24 @@ if (CC_EDITOR) {
             let passes = tech.passes.map((pass, passIdx) => {
                 let program = getInvolvedProgram(pass.program);
 
+                let newProps = {};
                 let props = pass.properties;
                 for (let name in props) {
-                    props[name] = getInspectorProps(props[name]);
+                    newProps[name] = getInspectorProps(props[name]);
                     
                     let u = program.uniforms.find(u => u.name === name);
-                    props[name].defines = u.defines || [];
+                    newProps[name].defines = u.defines || [];
                 }
 
-                let defines = {};
+                let newDefines = {};
                 program.defines.map(def => {
-                    defines[def.name] = getInspectorProps(def);
+                    newDefines[def.name] = getInspectorProps(def);
                 })
 
                 return {
                     name: pass.name || passIdx,
-                    props: props || {},
-                    defines: defines || {},
+                    props: newProps,
+                    defines: newDefines,
                 };
             })
 
