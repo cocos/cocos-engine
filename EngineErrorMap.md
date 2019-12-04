@@ -1972,3 +1972,7 @@ The current buffer beyond the limit in ui static component, please reduce the am
 ### 9301
 
 The UI has not been initialized
+
+### 10001
+
+The sub-mesh contains %d vertices, which beyonds the capability (%d vertices most) of renderer of your platform. 

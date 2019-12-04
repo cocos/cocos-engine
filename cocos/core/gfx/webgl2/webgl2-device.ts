@@ -249,6 +249,7 @@ export class WebGL2GFXDevice extends GFXDevice {
         this._features[GFXFeature.FORMAT_D24S8] = true;
         this._features[GFXFeature.FORMAT_ETC2] = true;
         this._features[GFXFeature.MSAA] = true;
+        this._features[GFXFeature.ELEMENT_INDEX_UINT] = true;
 
         if (this._EXT_color_buffer_float) {
             this._features[GFXFeature.COLOR_FLOAT] = true;

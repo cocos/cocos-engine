@@ -40,12 +40,13 @@ import {
     GFXMemoryUsageBit,
     GFXPrimitiveMode,
 } from '../gfx/define';
-import { GFXDevice } from '../gfx/device';
+import { GFXDevice, GFXFeature } from '../gfx/device';
 import { IGFXAttribute } from '../gfx/input-assembler';
 import { DataPoolManager } from '../renderer/data-pool-manager';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { Asset } from './asset';
 import { postLoadMesh } from './utils/mesh-utils';
+import { warnID } from '../platform/debug';
 
 function getIndexStrideCtor (stride: number) {
     switch (stride) {
@@ -397,15 +398,29 @@ export class Mesh extends Asset {
             if (prim.indexView) {
                 const idxView = prim.indexView;
 
+                let dstStride = idxView.stride;
+                if (dstStride === 4 && !gfxDevice.hasFeature(GFXFeature.ELEMENT_INDEX_UINT)) {
+                    const vertexCount = this._struct.vertexBundles[prim.vertexBundelIndices[0]].view.count;
+                    if (vertexCount >= 2 ** 16) {
+                        warnID(10001, vertexCount, 2 ** 16);
+                        continue; // Ignore this primitive
+                    } else {
+                        dstStride = 2; // Reduce to short.
+                    }
+                }
+
                 indexBuffer = gfxDevice.createBuffer({
                     usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
                     memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                     size: idxView.length,
-                    stride: idxView.stride,
+                    stride: dstStride,
                 });
                 indexBuffers.push(indexBuffer);
 
                 ib = new (getIndexStrideCtor(idxView.stride))(buffer, idxView.offset, idxView.count);
+                if (idxView.stride !== dstStride) {
+                    ib = getIndexStrideCtor(dstStride).from(ib);
+                }
                 if (this.loaded) {
                     indexBuffer.update(ib);
                 }
