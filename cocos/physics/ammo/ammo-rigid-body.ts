@@ -26,11 +26,11 @@ export class AmmoRigidBody implements IRigidBody {
     }
 
     set linearDamping (value: number) {
-        this._btBody.setDamping(value, this._rigidBody.angularDamping);
+        this._btBody.setDamping(this._rigidBody.linearDamping, this._rigidBody.angularDamping);
     }
 
     set angularDamping (value: number) {
-        this._btBody.setDamping(value, this._rigidBody.angularDamping);
+        this._btBody.setDamping(this._rigidBody.linearDamping, this._rigidBody.angularDamping);
     }
 
     set isKinematic (value: boolean) {
