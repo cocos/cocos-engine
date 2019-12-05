@@ -74,6 +74,7 @@ let GraySpriteState = cc.Class({
         }
     
         renderComp.setMaterial(0, material);
+        renderComp._updateMaterial();
     }
 })
 
