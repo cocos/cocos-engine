@@ -24,6 +24,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+
+/* spell-checker:words COORD, Quesada, INITED, Renerer */
+
 /**
  * @category core
  */
@@ -40,6 +43,8 @@ import ComponentScheduler from './scene-graph/component-scheduler';
 import NodeActivator from './scene-graph/node-activator';
 import { Scheduler } from './scheduler';
 import { js } from './utils';
+import { Color, Vec2, v2, size } from './math';
+import { SceneAsset } from './assets';
 
 // const ComponentScheduler = require('./component-scheduler');
 // const NodeActivator = require('./node-activator');
@@ -256,7 +261,7 @@ export class Director extends EventTarget {
 
     public _compScheduler: ComponentScheduler;
     public _nodeActivator: NodeActivator;
-    private invalid: boolean;
+    private _invalid: boolean;
     private _paused: boolean;
     private _purgeDirectorInNextLoop: boolean;
     private _root: Root | null;
@@ -271,7 +276,7 @@ export class Director extends EventTarget {
     constructor () {
         super();
 
-        this.invalid = false;
+        this._invalid = false;
         // paused?
         this._paused = false;
         // purge?
@@ -298,43 +303,26 @@ export class Director extends EventTarget {
 
         this._systems = [];
 
-        const self = this;
         cc.game.on(Game.EVENT_SHOW, () => {
-            self._lastUpdate = performance.now();
+            this._lastUpdate = performance.now();
         });
 
-        cc.game.once(Game.EVENT_RENDERER_INITED, this.initOnRenererInited, this);
-        cc.game.once(Game.EVENT_ENGINE_INITED, this.initOnEngineInited, this);
+        cc.game.once(Game.EVENT_RENDERER_INITED, this._initOnRendererInitialized, this);
+        cc.game.once(Game.EVENT_ENGINE_INITED, this._initOnEngineInitialized, this);
     }
 
+    /**
+     * @deprecated This field is exposed for history reason: bad access modifier.
+     */
     public initOnRenererInited () {
-        this._root = new Root(cc.game._gfxDevice);
-        const rootInfo = {};
-        if (!this._root.initialize(rootInfo)) {
-            return false;
-        }
-
-        return true;
+        return this._initOnRendererInitialized();
     }
 
+    /**
+     * @deprecated This field is exposed for history reason: bad access modifier.
+     */
     public initOnEngineInited () {
-        this._totalFrames = 0;
-        this._lastUpdate = performance.now();
-        this._paused = false;
-        this._purgeDirectorInNextLoop = false;
-
-        cc.loader.init(this);
-
-        // Event manager
-        if (eventManager) {
-            eventManager.setEnabled(true);
-        }
-
-        // Scheduler
-        // TODO: have a solid organization of priority and expose to user
-        this.registerSystem(Scheduler.ID, this._scheduler, 200);
-
-        this.emit(Director.EVENT_INIT);
+        return this._initOnEngineInitialized();
     }
 
     /**
@@ -357,11 +345,9 @@ export class Director extends EventTarget {
      * Useful to convert (multi) touches coordinates to the current layout (portrait or landscape)<br/>
      * Implementation can be found in directorWebGL.
      * @zh 将触摸点的屏幕坐标转换为 WebGL View 下的坐标。
-     * @param {Vec2} uiPoint
-     * @return {Vec2}
      * @deprecated since v2.0
      */
-    public convertToGL (uiPoint) {
+    public convertToGL (uiPoint: Vec2) {
         const container = cc.game.container;
         const view = cc.view;
         const box = container.getBoundingClientRect();
@@ -369,7 +355,7 @@ export class Director extends EventTarget {
         const top = box.top + window.pageYOffset - container.clientTop;
         const x = view._devicePixelRatio * (uiPoint.x - left);
         const y = view._devicePixelRatio * (top + box.height - uiPoint.y);
-        return view._isRotated ? cc.v2(view._viewportRect.width - y, x) : cc.v2(x, y);
+        return view._isRotated ? v2(view._viewportRect.width - y, x) : v2(x, y);
     }
 
     /**
@@ -378,17 +364,15 @@ export class Director extends EventTarget {
      * Useful to convert node points to window points for calls such as glScissor<br/>
      * Implementation can be found in directorWebGL.
      * @zh 将触摸点的 WebGL View 坐标转换为屏幕坐标。
-     * @param {Vec2} glPoint
-     * @return {Vec2}
      * @deprecated since v2.0
      */
-    public convertToUI (glPoint) {
+    public convertToUI (glPoint: Vec2) {
         const container = cc.game.container;
         const view = cc.view;
         const box = container.getBoundingClientRect();
         const left = box.left + window.pageXOffset - container.clientLeft;
         const top = box.top + window.pageYOffset - container.clientTop;
-        const uiPoint = cc.v2(0, 0);
+        const uiPoint = v2(0, 0);
         if (view._isRotated) {
             uiPoint.x = left + glPoint.y / view._devicePixelRatio;
             uiPoint.y = top + box.height - (view._viewportRect.width - glPoint.x) / view._devicePixelRatio;
@@ -412,11 +396,10 @@ export class Director extends EventTarget {
      * Returns the size of the WebGL view in points.<br/>
      * It takes into account any possible rotation (device orientation) of the window.
      * @zh 获取视图的大小，以点为单位。
-     * @return {Size}
      * @deprecated since v2.0
      */
     public getWinSize () {
-        return cc.size(cc.winSize);
+        return size(cc.winSize);
     }
 
     /**
@@ -428,17 +411,16 @@ export class Director extends EventTarget {
      * @zh
      * 获取视图大小，以像素为单位（这里的像素指的是资源分辨率。
      * 如果要获取屏幕物理分辨率，需要用 cc.view.getFrameSize()）
-     * @return {Size}
      * @deprecated since v2.0
      */
     public getWinSizeInPixels () {
-        return cc.size(cc.winSize);
+        return size(cc.winSize);
     }
 
     /**
      * @en Pause the director's ticker, only involve the game logic execution.<br>
      * It won't pause the rendering process nor the event manager.<br>
-     * If you want to pause the entier game including rendering, audio and event,<br>
+     * If you want to pause the entire game including rendering, audio and event,<br>
      * please use cc.game.pause
      * @zh 暂停正在运行的场景，该暂停只会停止游戏逻辑执行，但是不会停止渲染和 UI 响应。<br>
      * 如果想要更彻底得暂停游戏，包含渲染，音频和事件，请使用 cc.game.pause 。
@@ -517,12 +499,12 @@ export class Director extends EventTarget {
      * @en
      * Run a scene. Replaces the running scene with a new one or enter the first scene.<br>
      * The new scene will be launched immediately.
-     * @zh 立刻切换指定场景。
-     * @param {Scene} scene - The need run scene.
-     * @param {Function} [onBeforeLoadScene] - The function invoked at the scene before loading.
-     * @param {Function} [onLaunched] - The function invoked at the scene after launch.
+     * @zh 运行指定场景。将正在运行的场景替换为（或重入为）新场景。新场景将立即启动。
+     * @param scene - The need run scene.
+     * @param onBeforeLoadScene - The function invoked at the scene before loading.
+     * @param onLaunched - The function invoked at the scene after launch.
      */
-    public runSceneImmediate (scene, onBeforeLoadScene, onLaunched) {
+    public runSceneImmediate (scene: Scene, onBeforeLoadScene?: Director.OnBeforeLoadScene, onLaunched?: Director.OnSceneLaunched) {
         cc.assertID(scene instanceof cc.Scene, 1216);
 
         const uuid = cc.loader._getReferenceKey(scene.uuid);
@@ -532,6 +514,7 @@ export class Director extends EventTarget {
         if (CC_BUILD && CC_DEBUG) {
             console.time('InitScene');
         }
+        // @ts-ignore
         scene._load();  // ensure scene initialized
         if (CC_BUILD && CC_DEBUG) {
             console.timeEnd('InitScene');
@@ -599,6 +582,7 @@ export class Director extends EventTarget {
         if (CC_BUILD && CC_DEBUG) {
             console.time('Activate');
         }
+        // @ts-ignore
         scene._activate();
         if (CC_BUILD && CC_DEBUG) {
             console.timeEnd('Activate');
@@ -620,16 +604,17 @@ export class Director extends EventTarget {
      * Run a scene. Replaces the running scene with a new one or enter the first scene.<br>
      * The new scene will be launched at the end of the current frame.<br>
      * @zh 运行指定场景。
-     * @param {Scene} scene - The need run scene.
-     * @param {Function} [onBeforeLoadScene] - The function invoked at the scene before loading.
-     * @param {Function} [onLaunched] - The function invoked at the scene after launch.
+     * @param scene - The need run scene.
+     * @param onBeforeLoadScene - The function invoked at the scene before loading.
+     * @param onLaunched - The function invoked at the scene after launch.
      * @private
      */
-    public runScene (scene, onBeforeLoadScene, onLaunched) {
+    public runScene (scene: Scene, onBeforeLoadScene?: Director.OnBeforeLoadScene, onLaunched?: Director.OnSceneLaunched) {
         cc.assertID(scene, 1205);
         cc.assertID(scene instanceof cc.Scene, 1216);
 
         // ensure scene initialized
+        // @ts-ignore
         scene._load();
 
         // Delay run / replace scene to the end of the frame
@@ -640,7 +625,7 @@ export class Director extends EventTarget {
 
     //  @Scene loading section
 
-    public _getSceneUuid (key) {
+    public _getSceneUuid (key: string | number) {
         const scenes = cc.game._sceneInfos;
         if (typeof key === 'string') {
             if (!key.endsWith('.scene')) {
@@ -676,11 +661,11 @@ export class Director extends EventTarget {
      * @en Loads the scene by its name.
      * @zh 通过场景名称进行加载场景。
      *
-     * @param {String} sceneName - The name of the scene to load.
-     * @param {Function} [onLaunched] - callback, will be called after scene launched.
-     * @return {Boolean} if error, return false
+     * @param sceneName - The name of the scene to load.
+     * @param onLaunched - callback, will be called after scene launched.
+     * @return if error, return false
      */
-    public loadScene (sceneName, onLaunched, _onUnloaded) {
+    public loadScene (sceneName: string, onLaunched?: Director.OnSceneLaunched, onUnloaded?: Director.OnUnload) {
         if (this._loadingScene) {
             cc.errorID(1208, sceneName, this._loadingScene);
             return false;
@@ -690,7 +675,7 @@ export class Director extends EventTarget {
             const uuid = info.uuid;
             this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             this._loadingScene = sceneName;
-            this._loadSceneByUuid(uuid, onLaunched, _onUnloaded);
+            this._loadSceneByUuid(uuid, onLaunched, onUnloaded);
             return true;
         }
         else {
@@ -701,26 +686,47 @@ export class Director extends EventTarget {
 
     /**
      * @en
-     * Preloads the scene to reduces loading time. You can call this method at any time you want.<br>
+     * Pre-loads the scene to reduces loading time. You can call this method at any time you want.<br>
      * After calling this method, you still need to launch the scene by `cc.director.loadScene`.<br>
      * It will be totally fine to call `cc.director.loadScene` at any time even if the preloading is not<br>
      * yet finished, the scene will be launched after loaded automatically.
      * @zh 预加载场景，你可以在任何时候调用这个方法。
      * 调用完后，你仍然需要通过 `cc.director.loadScene` 来启动场景，因为这个方法不会执行场景加载操作。<br>
      * 就算预加载还没完成，你也可以直接调用 `cc.director.loadScene`，加载完成后场景就会启动。
-     * <br>
-     * @param {String} sceneName - The name of the scene to preload.
-     * @param {Function} [onProgress] - callback, will be called when the load progression change.
-     * @param {Number} onProgress.completedCount - The number of the items that are already completed
-     * @param {Number} onProgress.totalCount - The total number of the items
-     * @param {Object} onProgress.item - The latest item which flow out the pipeline
-     * @param {Function} [onLoaded] - callback, will be called after scene loaded.
-     * @param {Error} onLoaded.error - null or the error object.
+     * @param sceneName 场景名称。
+     * @param onLoaded 加载回调。
      */
-    public preloadScene (sceneName, onProgress, onLoaded) {
-        if (onLoaded === undefined) {
-            onLoaded = onProgress;
-            onProgress = null;
+    public preloadScene (sceneName: string, onLoaded?: Director.OnSceneLoaded): void;
+
+    /**
+     * @en
+     * Pre-loads the scene to reduces loading time. You can call this method at any time you want.<br>
+     * After calling this method, you still need to launch the scene by `cc.director.loadScene`.<br>
+     * It will be totally fine to call `cc.director.loadScene` at any time even if the preloading is not<br>
+     * yet finished, the scene will be launched after loaded automatically.
+     * @zh 预加载场景，你可以在任何时候调用这个方法。
+     * 调用完后，你仍然需要通过 `cc.director.loadScene` 来启动场景，因为这个方法不会执行场景加载操作。<br>
+     * 就算预加载还没完成，你也可以直接调用 `cc.director.loadScene`，加载完成后场景就会启动。
+     * @param sceneName 场景名称。
+     * @param onProgress 加载进度回调。
+     * @param onLoaded 加载回调。
+     */
+    // eslint-disable-next-line @typescript-eslint/unified-signatures
+    public preloadScene (sceneName: string, onProgress: Director.OnLoadSceneProgress, onLoaded: Director.OnSceneLoaded): void;
+
+    public preloadScene (
+        sceneName: string,
+        arg1?: Director.OnLoadSceneProgress | Director.OnSceneLoaded,
+        arg2?: Director.OnSceneLoaded) {
+        let onProgress: Director.OnLoadSceneProgress | undefined;
+        let onLoaded: Director.OnSceneLoaded | undefined;
+
+        if (arg2 === undefined) {
+            onLoaded = arg1 as Director.OnSceneLoaded;
+            onProgress = void 0;
+        } else {
+            onLoaded = arg2;
+            onProgress = arg1 as Director.OnLoadSceneProgress;
         }
 
         const info = this._getSceneUuid(sceneName);
@@ -728,7 +734,7 @@ export class Director extends EventTarget {
             this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             cc.loader.load({ uuid: info.uuid, type: 'uuid' },
                 onProgress,
-                (error, asset) => {
+                (error: null | Error, asset: SceneAsset) => {
                     if (error) {
                         cc.errorID(1210, sceneName, error.message);
                     }
@@ -739,31 +745,46 @@ export class Director extends EventTarget {
         }
         else {
             const error = 'Can not preload the scene "' + sceneName + '" because it is not in the build settings.';
-            onLoaded(new Error(error));
+            if (onLoaded) {
+                onLoaded(new Error(error));
+            }
             cc.error('preloadScene: ' + error);
         }
     }
 
     /**
      * @en Loads the scene by its uuid.
-     * @zh 通过uuid加载场景
-     * @param {String} uuid - the uuid of the scene asset to load
-     * @param {Function} [onLaunched]
-     * @param {Function} [onUnloaded]
-     * @param {Boolean} [dontRunScene] - Just download and initialize the scene but will not launch it,
-     *                                   only take effect in the Editor.
+     * @zh 通过 uuid 加载场景。
+     * @param uuid 场景资源的 uuid。
+     * @param doNotRun 仅加载和初始化场景，但并不运行。此参数仅在编辑器环境中生效。
      */
-    public _loadSceneByUuid (uuid: String, onLaunched: Function | null = null, onUnloaded: Function | null = null, dontRunScene?: Boolean) {
-        if (CC_EDITOR) {
-            if (typeof onLaunched === 'boolean') {
-                dontRunScene = onLaunched;
-                onLaunched = null;
-            }
-            if (typeof onUnloaded === 'boolean') {
-                dontRunScene = onUnloaded;
-                onUnloaded = null;
-            }
+    public _loadSceneByUuid(uuid: string, doNotRun?: boolean): void;
+
+    public _loadSceneByUuid(uuid: string, onLaunched?: Director.OnSceneLaunched, doNotRun?: boolean): void;
+
+    public _loadSceneByUuid(uuid: string, onLaunched?: Director.OnSceneLaunched, onUnloaded?: Director.OnUnload, doNotRun?: boolean): void;
+
+    public _loadSceneByUuid (
+        uuid: string,
+        arg1?: Director.OnSceneLaunched | boolean,
+        arg2?: Director.OnUnload | boolean,
+        arg3?: boolean) {
+        let onLaunched: Director.OnSceneLaunched | undefined;
+        let onUnloaded: Director.OnUnload | undefined;
+        let doNotRun: boolean | undefined;
+
+        if (CC_EDITOR && typeof arg1 === 'boolean') {
+            doNotRun = arg1;
+            onUnloaded = arg2 as (Director.OnUnload | undefined);
+        } else if (CC_EDITOR && typeof arg2 === 'boolean') {
+            doNotRun = arg2;
+            onLaunched = arg1 as (Director.OnSceneLaunched | undefined);
+        } else {
+            onLaunched = arg1 as (Director.OnSceneLaunched | undefined);
+            onUnloaded = arg2 as (Director.OnUnload | undefined);
+            doNotRun = arg3;
         }
+
         // cc.AssetLibrary.unloadAsset(uuid);     // force reload
         console.time('LoadScene ' + uuid);
         cc.AssetLibrary.loadAsset(uuid, (error, sceneAsset) => {
@@ -780,7 +801,7 @@ export class Director extends EventTarget {
                     scene._id = sceneAsset._uuid;
                     scene._name = sceneAsset._name;
                     if (CC_EDITOR) {
-                        if (!dontRunScene) {
+                        if (!doNotRun) {
                             self.runSceneImmediate(scene, onUnloaded, onLaunched);
                         }
                         else {
@@ -829,10 +850,9 @@ export class Director extends EventTarget {
      * Enables or disables WebGL depth test.<br>
      * Implementation can be found in directorCanvas.js/directorWebGL.js
      * @zh 启用/禁用深度测试（在 Canvas 渲染模式下不会生效）。
-     * @param {Boolean} on
      * @deprecated since v2.0
      */
-    public setDepthTest (value) {
+    public setDepthTest (value: boolean) {
         if (!cc.Camera.main) {
             return;
         }
@@ -846,10 +866,9 @@ export class Director extends EventTarget {
      * @zh
      * 设置场景的默认擦除颜色。<br>
      * 支持全透明，但不支持透明度为中间值。要支持全透明需手工开启 cc.macro.ENABLE_TRANSPARENT_CANVAS。
-     * @param {Color} clearColor
      * @deprecated since v2.0
      */
-    public setClearColor (clearColor) {
+    public setClearColor (clearColor: Color) {
         if (!cc.Camera.main) {
             return;
         }
@@ -863,8 +882,7 @@ export class Director extends EventTarget {
     /**
      * @en Returns current logic Scene.
      * @zh 获取当前逻辑场景。
-     * @return {Scene}
-     * @deprecated since v2.0
+     * @deprecated Since v2.0.
      */
     public getRunningScene () {
         return this._scene;
@@ -873,11 +891,11 @@ export class Director extends EventTarget {
     /**
      * @en Returns current logic Scene.
      * @zh 获取当前逻辑场景。
-     * @return {Scene}
      * @example
      * ```
-     *  // This will help you to get the Canvas node in scene
-     *  cc.director.getScene().getChildByName('Canvas');
+     * import { director } from 'cc';
+     * // This will help you to get the Canvas node in scene
+     * director.getScene().getChildByName('Canvas');
      * ```
      */
     public getScene (): Scene | null {
@@ -887,8 +905,7 @@ export class Director extends EventTarget {
     /**
      * @en Returns the FPS value. Please use [[Game.setFrameRate]] to control animation interval.
      * @zh 获取单位帧执行时间。请使用 [[Game.setFrameRate]] 来控制游戏帧率。
-     * @deprecated since v2.0
-     * @return {Number}
+     * @deprecated since v2.0.
      */
     public getAnimationInterval () {
         return 1000 / cc.game.getFrameRate();
@@ -900,9 +917,9 @@ export class Director extends EventTarget {
      * @zh 设置动画间隔，这不控制主循环。<br>
      * 要控制游戏的帧速率，请使用 cc.game.setFrameRate
      * @deprecated since v2.0
-     * @param {Number} value - The animation interval desired.
+     * @param value - The animation interval desired.
      */
-    public setAnimationInterval (value) {
+    public setAnimationInterval (value: number) {
         cc.game.setFrameRate(Math.round(1000 / value));
     }
 
@@ -979,7 +996,7 @@ export class Director extends EventTarget {
      * @en get a system.
      * @zh 获取一个 system。
      */
-    public getSystem (name) {
+    public getSystem (name: string) {
         return this._systems.find((sys) => {
             return sys.id === name;
         });
@@ -1000,7 +1017,7 @@ export class Director extends EventTarget {
      * @zh 开始动画
      */
     public startAnimation () {
-        this.invalid = false;
+        this._invalid = false;
         this._lastUpdate = performance.now();
     }
 
@@ -1009,7 +1026,7 @@ export class Director extends EventTarget {
      * @zh 停止动画
      */
     public stopAnimation () {
-        this.invalid = true;
+        this._invalid = true;
     }
 
     /**
@@ -1021,7 +1038,7 @@ export class Director extends EventTarget {
             this._purgeDirectorInNextLoop = false;
             this.purgeDirector();
         }
-        else if (!this.invalid) {
+        else if (!this._invalid) {
             // calculate "global" dt
             this.calculateDeltaTime();
             const dt = this._deltaTime;
@@ -1061,6 +1078,53 @@ export class Director extends EventTarget {
             this._totalFrames++;
         }
     }
+
+    private _initOnRendererInitialized () {
+        this._root = new Root(cc.game._gfxDevice);
+        const rootInfo = {};
+        if (!this._root.initialize(rootInfo)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private _initOnEngineInitialized () {
+        this._totalFrames = 0;
+        this._lastUpdate = performance.now();
+        this._paused = false;
+        this._purgeDirectorInNextLoop = false;
+
+        cc.loader.init(this);
+
+        // Event manager
+        if (eventManager) {
+            eventManager.setEnabled(true);
+        }
+
+        // Scheduler
+        // TODO: have a solid organization of priority and expose to user
+        this.registerSystem(Scheduler.ID, this._scheduler, 200);
+
+        this.emit(Director.EVENT_INIT);
+    }
+}
+
+export declare namespace Director {
+    export type OnBeforeLoadScene = () => void;
+
+    export type OnUnload = () => void;
+
+    export type OnSceneLoaded = (error: null | Error, sceneAsset?: SceneAsset) => void;
+
+    export type OnSceneLaunched = (error: null | Error, scene?: Scene) => void;
+
+    /**
+     * @param completedCount - The number of the items that are already completed.
+     * @param totalCount - The total number of the items.
+     * @param item - The latest item which flow out the pipeline.
+     */
+    export type OnLoadSceneProgress = (completedCount: number, totalCount: number, item: any) => void;
 }
 
 cc.Director = Director;
