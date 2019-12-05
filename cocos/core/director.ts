@@ -312,20 +312,6 @@ export class Director extends EventTarget {
     }
 
     /**
-     * @deprecated This field is exposed for history reason: bad access modifier.
-     */
-    public initOnRenererInited () {
-        return this._initOnRendererInitialized();
-    }
-
-    /**
-     * @deprecated This field is exposed for history reason: bad access modifier.
-     */
-    public initOnEngineInited () {
-        return this._initOnEngineInitialized();
-    }
-
-    /**
      * calculates delta time since last time it was called
      */
     public calculateDeltaTime () {
