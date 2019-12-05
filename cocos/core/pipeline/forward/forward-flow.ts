@@ -7,6 +7,7 @@ import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardStage } from './forward-stage';
 import { PIPELINE_FLOW_FORWARD } from '../define';
 import { ForwardFlowPriority } from "./enum";
+import { RenderView } from '../render-view';
 
 /**
  * @zh
@@ -33,6 +34,17 @@ export class ForwardFlow extends RenderFlow {
         const forwardStage = new ForwardStage();
         forwardStage.initialize(ForwardStage.initInfo);
         this._stages.push(forwardStage);
+    }
+
+    public render (view: RenderView) {
+
+        view.camera.update();
+
+        this.pipeline.sceneCulling(view);
+
+        this.pipeline.updateUBOs(view);
+
+        super.render(view);
     }
 
     /**

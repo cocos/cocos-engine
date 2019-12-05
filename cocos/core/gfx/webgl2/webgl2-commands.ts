@@ -1959,9 +1959,10 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                             device.stateCache.rs.cullMode = rs.cullMode;
                         }
 
-                        if (device.stateCache.rs.isFrontFaceCCW !== rs.isFrontFaceCCW) {
-                            gl.frontFace(rs.isFrontFaceCCW ? gl.CCW : gl.CW);
-                            device.stateCache.rs.isFrontFaceCCW = rs.isFrontFaceCCW;
+                        const isFrontFaceCCW = device.reverseCW ? !rs.isFrontFaceCCW : rs.isFrontFaceCCW;
+                        if (device.stateCache.rs.isFrontFaceCCW !== isFrontFaceCCW) {
+                            gl.frontFace(isFrontFaceCCW ? gl.CCW : gl.CW);
+                            device.stateCache.rs.isFrontFaceCCW = isFrontFaceCCW;
                         }
 
                         if ((device.stateCache.rs.depthBias !== rs.depthBias) ||

@@ -51,6 +51,16 @@ export default class TextureAnimationModule {
     @property
     private _enable = false;
 
+    @property({
+        formerlySerializedAs: 'numTilesX',
+    })
+    private _numTilesX = 0;
+
+    @property({
+        formerlySerializedAs: 'numTilesY',
+    })
+    private _numTilesY = 0;
+
     /**
      * @zh 是否启用。
      */
@@ -99,7 +109,18 @@ export default class TextureAnimationModule {
         displayOrder: 2,
         tooltip:'X 方向动画帧数',
     })
-    public numTilesX = 0;
+    get numTilesX () {
+        return this._numTilesX;
+    }
+
+    set numTilesX (val) {
+        if (this._numTilesX !== val) {
+            this._numTilesX = val;
+            if (this.ps) {
+                (this.ps.renderer as any)._updateMaterialParams();
+            }
+        }
+    }
 
     /**
      * @zh Y 方向动画帧数。
@@ -108,7 +129,18 @@ export default class TextureAnimationModule {
         displayOrder: 3,
         tooltip:'Y 方向动画帧数',
     })
-    public numTilesY = 0;
+    get numTilesY () {
+        return this._numTilesY;
+    }
+
+    set numTilesY (val) {
+        if (this._numTilesY !== val) {
+            this._numTilesY = val;
+            if (this.ps) {
+                (this.ps.renderer as any)._updateMaterialParams();
+            }
+        }
+    }
 
     /**
      * @zh 动画播放方式 [[Animation]]。

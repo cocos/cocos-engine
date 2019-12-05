@@ -201,15 +201,15 @@ export class LineComponent extends Component {
 
     public onLoad () {
         this._model = cc.director.root.createModel(LineModel);
-        this._model.initialize(this.node);
-        this._model.setCapacity(100);
+        this._model!.initialize(this.node);
+        this._model!.setCapacity(100);
         if (this._material == null) {
             this._material = new Material();
             this._material.copy(builtinResMgr.get<Material>('default-trail-material'));
             define[CC_USE_WORLD_SPACE] = this.worldSpace;
             this._material.recompileShaders(define);
         }
-        this._model.setSubModelMaterial(0, this._material!);
+        this._model!.setSubModelMaterial(0, this._material!);
     }
 
     public onEnable () {

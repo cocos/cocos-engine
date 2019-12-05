@@ -291,14 +291,17 @@ export class Root {
         }
     }
 
-    public setRenderPipeline (rppl: RenderPipeline) {
+    public setRenderPipeline(rppl: RenderPipeline): boolean {
         this._pipeline = rppl;
-        this._pipeline.activate(this);
+        if (!this._pipeline.activate(this)) {
+            return false;
+        }
         this._ui = new UI(this);
         if (!this._ui.initialize()) {
             this.destroy();
             return false;
         }
+        return true;
     }
 
     /**

@@ -8,6 +8,7 @@ import './render-view';
 export { RenderPipeline } from './render-pipeline';
 export { RenderFlow } from './render-flow';
 export { RenderStage } from './render-stage';
+export { RenderView } from './render-view';
 
 export { ForwardPipeline } from './forward/forward-pipeline';
 export { ForwardFlow } from './forward/forward-flow';

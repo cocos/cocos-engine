@@ -112,6 +112,7 @@ export class EditorCameraComponent extends CameraComponent {
         super.onEnable();
         if (this._uiEditorCamera) {
             cc.director.root!.ui.renderScene.addCamera(this._uiEditorCamera);
+            this._uiEditorCamera.enabled = true;
         }
     }
 
@@ -148,6 +149,7 @@ export class EditorCameraComponent extends CameraComponent {
                 priority: this._priority + 1,
                 flows: ['UIFlow'],
             });
+            this._uiEditorCamera!.enabled = true;
 
             this._uiEditorCamera!.visibility = CameraEditorMask;
             this._uiEditorCamera!.viewport = this._camera.viewport;

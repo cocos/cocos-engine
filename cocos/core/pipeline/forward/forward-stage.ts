@@ -54,7 +54,7 @@ export class ForwardStage extends RenderStage {
 
     public activate (flow: RenderFlow) {
         super.activate(flow);
-        this._createCmdBuffer();
+        this.createCmdBuffer();
     }
 
     /**
@@ -92,7 +92,7 @@ export class ForwardStage extends RenderStage {
     public render (view: RenderView) {
 
         this._opaqueBatchedQueue.clear();
-        this._renderQueues.forEach(this.clearRenderQueue);
+        this._renderQueues.forEach(this.renderQueueClearFunc);
 
         const renderObjects = this._pipeline.renderObjects;
         for (let i = 0; i < renderObjects.length; ++i) {
@@ -125,7 +125,7 @@ export class ForwardStage extends RenderStage {
                 }
             }
         }
-        this._renderQueues.forEach(this.sortRenderQueue);
+        this._renderQueues.forEach(this.renderQueueSortFunc);
 
         const camera = view.camera;
 
@@ -190,20 +190,5 @@ export class ForwardStage extends RenderStage {
                 this._renderArea!,
                 GFXFilter.POINT);
         }
-    }
-
-    private _createCmdBuffer () {
-        this._cmdBuff = this._device!.createCommandBuffer({
-            allocator: this._device!.commandAllocator,
-            type: GFXCommandBufferType.PRIMARY,
-        });
-    }
-
-    private clearRenderQueue (rq: RenderQueue) {
-        rq.clear();
-    }
-
-    private sortRenderQueue (rq: RenderQueue) {
-        rq.sort();
     }
 }

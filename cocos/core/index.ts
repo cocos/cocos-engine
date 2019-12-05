@@ -48,7 +48,7 @@ export * from './director';
 
 export * from './gfx';
 import './pipeline';
-export { RenderPassStage } from './pipeline';
+export { RenderPassStage, RenderPipeline, RenderFlow, RenderStage, RenderView } from './pipeline';
 export * from './assets';
 export * from './load-pipeline';
 export * from './scene-graph';
