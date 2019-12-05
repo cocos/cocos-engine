@@ -395,12 +395,6 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
     constructor (name?: string) {
         super(name);
         this._name = name !== undefined ? name : 'New Node';
-
-        // @ts-ignore
-        if (CC_EDITOR) {
-            // @ts-ignore
-            EditorExtends.Node.add(this._id, this);
-        }
     }
 
     /**
@@ -1044,8 +1038,11 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         const component = new constructor();
         component.node = this;
         this._components.push(component);
-        if ((CC_EDITOR || CC_TEST) && cc.engine && (this._id in cc.engine.attachedObjsForEditor)) {
-            cc.engine.attachedObjsForEditor[component._id] = component;
+        if (CC_EDITOR && EditorExtends.Node && EditorExtends.Component) {
+            let node = EditorExtends.Node.getNode(this._id);
+            if (node) {
+                EditorExtends.Component.add(component._id, component);
+            }
         }
         if (this._activeInHierarchy) {
             cc.director._nodeActivator.activateComp(component);
@@ -1197,8 +1194,8 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
             const i = this._components.indexOf(component);
             if (i !== -1) {
                 this._components.splice(i, 1);
-                if ((CC_EDITOR || CC_TEST) && cc.engine) {
-                    delete cc.engine.attachedObjsForEditor[component._id];
+                if (CC_EDITOR && EditorExtends.Component) {
+                    EditorExtends.Component.remove(component._id);
                 }
             }
             // @ts-ignore
@@ -1283,7 +1280,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
             }
         }
 
-        if (CC_EDITOR || CC_TEST) {
+        if (CC_EDITOR) {
             const scene = cc.director.getScene() as this | null;
             const inCurrentSceneBefore = oldParent && oldParent.isChildOf(scene);
             const inCurrentSceneNow = newParent && newParent.isChildOf(scene);
@@ -1334,7 +1331,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         // detach self and children from editor
         const parent = this._parent;
         const destroyByParent: boolean = (!!parent) && ((parent._objFlags & Destroying) !== 0);
-        if (!destroyByParent && (CC_EDITOR || CC_TEST)) {
+        if (!destroyByParent && CC_EDITOR) {
             this._registerIfAttached!(false);
         }
 
@@ -1403,11 +1400,34 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         }
     }
 
-    // ABSTRACT INTERFACES
+    protected _registerIfAttached = !CC_EDITOR ? undefined : function (this: BaseNode, register) {
+        if (EditorExtends.Node && EditorExtends.Component) {
+            if (register) {         
+                EditorExtends.Node.add(this._id, this);
+
+                for (let i = 0; i < this._components.length; i++) {
+                    let comp = this._components[i];
+                    EditorExtends.Component.add(comp._id, comp);
+                }
+            }
+            else {
+                EditorExtends.Node.remove(this._id);
+
+                for (let i = 0; i < this._components.length; i++) {
+                    let comp = this._components[i];
+                    EditorExtends.Component.remove(comp._id);
+                }
+            }
+        }
+
+        var children = this._children;
+        for (let i = 0, len = children.length; i < len; ++i) {
+            var child = children[i];
+            child._registerIfAttached!(register);
+        }
+    };
 
     protected _onSiblingIndexChanged? (siblingIndex: number): void;
-
-    protected _registerIfAttached? (attached: boolean): void;
 
     protected _checkMultipleComp? (constructor: Function): boolean;
 }

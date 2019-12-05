@@ -5,9 +5,10 @@
 
 import { UBOGlobal } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
-import { RenderPipeline } from '../render-pipeline';
 import { RenderView } from '../render-view';
 import { UIStage } from './ui-stage';
+import { RenderQueueSortMode } from '../render-stage';
+import { ForwardFlowPriority } from '../forward/enum';
 
 /**
  * @zh
@@ -15,28 +16,22 @@ import { UIStage } from './ui-stage';
  */
 export class UIFlow extends RenderFlow {
 
-    constructor (pipeline: RenderPipeline) {
-        super(pipeline);
+    public static initInfo: IRenderFlowInfo = {
+        name: 'UIFlow',
+        priority: ForwardFlowPriority.UI,
+    };
+
+    constructor () {
+        super();
     }
 
     public initialize (info: IRenderFlowInfo): boolean {
 
-        if (info.name !== undefined) {
-            this._name = info.name;
-        }
+        super.initialize(info);
 
-        this._priority = info.priority;
-
-        const mainWindow = this._pipeline.root.mainWindow;
-        if (!mainWindow || !mainWindow.framebuffer) {
-            return false;
-        }
-
-        this.createStage(UIStage, {
-            name: 'UIStage',
-            priority: 0,
-            framebuffer:  mainWindow.framebuffer,
-        });
+        let uiStage = new UIStage();
+        uiStage.initialize(UIStage.initInfo);
+        this._stages.push(uiStage);
 
         return true;
     }

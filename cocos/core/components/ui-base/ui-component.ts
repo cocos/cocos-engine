@@ -31,7 +31,7 @@ import { ccclass, disallowMultiple, executeInEditMode, executionOrder, property,
 import { INode } from '../../../core/utils/interfaces';
 import { UI } from '../../renderer/ui/ui';
 import { Component } from '../component';
-import { UITransformComponent } from './ui-transfrom-component';
+import { UITransformComponent } from './ui-transform-component';
 
 /**
  * @zh

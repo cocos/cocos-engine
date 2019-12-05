@@ -30,6 +30,6 @@
 export * from './canvas-component';
 export * from './ui-component';
 export * from './ui-render-component';
-export * from './ui-transfrom-component';
+export * from './ui-transform-component';
 
 import './deprecated';

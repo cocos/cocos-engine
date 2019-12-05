@@ -32,7 +32,7 @@ import { Component } from '../../core/components/component';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { Rect, Size, Vec2, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
-import { UITransformComponent } from '../../core/components/ui-base/ui-transfrom-component';
+import { UITransformComponent } from '../../core/components/ui-base/ui-transform-component';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { INode } from '../../core/utils/interfaces';
 import { director, Director } from '../../core/director';
