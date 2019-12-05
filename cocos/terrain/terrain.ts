@@ -106,7 +106,11 @@ export class TerrainRenderable extends RenderableComponent {
     public destroy () {
         this._invalidMaterial();
         if (this._model != null) {
-            this._getRenderScene().destroyModel(this._model);
+            if (this._model.scene != null) {
+                this._model.scene.removeModel(this._model);
+            }
+
+            cc.director.root.destroyModel(this._model);
             this._model = null;
         }
 
