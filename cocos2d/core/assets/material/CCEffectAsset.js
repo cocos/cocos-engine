@@ -1,6 +1,12 @@
 import Asset from '../CCAsset';
 import { parseEffect } from './effect-parser';
 
+/**
+ * !#en Effect Asset.
+ * !#zh Effect 资源类型。
+ * @class EffectAsset
+ * @extends Asset
+ */
 let EffectAsset = cc.Class({
     name: 'cc.EffectAsset',
     extends: Asset,

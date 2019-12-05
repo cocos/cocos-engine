@@ -195,7 +195,7 @@ let RenderComponent = cc.Class({
     _activateMaterial () {
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) return;
 
-        let materials = this.sharedMaterials;
+        let materials = this._materials;
         if (!materials[0]) {
             let material = this._getDefaultMaterial();
             materials[0] = material;
@@ -222,7 +222,7 @@ let RenderComponent = cc.Class({
     },
 
     _checkBacth (renderer, cullingMask) {
-        let material = this.sharedMaterials[0];
+        let material = this._materials[0];
         if ((material && material.getHash() !== renderer.material.getHash()) || 
             renderer.cullingMask !== cullingMask) {
             renderer._flush();

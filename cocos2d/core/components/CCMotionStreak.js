@@ -218,7 +218,7 @@ var MotionStreak = cc.Class({
     },
 
     _updateMaterial () {
-        let material = this.sharedMaterials[0];
+        let material = this._materials[0];
         material && material.setProperty('texture', this._texture);
 
         BlendFunc.prototype._updateMaterial.call(this);

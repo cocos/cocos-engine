@@ -186,7 +186,7 @@ let Graphics = cc.Class({
     },
 
     _updateMaterial () {
-        let material = this.sharedMaterials[0];
+        let material = this._materials[0];
         material && material.define('CC_USE_MODEL', true);
     },
 

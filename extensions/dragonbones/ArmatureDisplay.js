@@ -27,7 +27,6 @@
 import MaterialVariant from '../../cocos2d/core/assets/material/material-variant';
 
 const RenderComponent = require('../../cocos2d/core/components/CCRenderComponent');
-const Material = require('../../cocos2d/core/assets/material/CCMaterial');
 
 let EventTarget = require('../../cocos2d/core/event/event-target');
 
@@ -636,11 +635,13 @@ let ArmatureDisplay = cc.Class({
         }
 
         // Get material
-        let material = this.sharedMaterials[0];
+        let material = this._materials[0];
         if (!material) {
-            material = Material.getBuiltinMaterial('2d-sprite');
+            material = MaterialVariant.createWithBuiltin('2d-sprite');
         }
-        material = MaterialVariant.create(material, this);
+        else {
+            material = MaterialVariant.create(material, this);
+        }
 
         material.define('CC_USE_MODEL', true);
         material.define('USE_TEXTURE', true);

@@ -53,7 +53,7 @@ export default class MeshRendererAssembler extends Assembler {
 
         let enableAutoBatch = comp.enableAutoBatch;
 
-        let materials = comp.sharedMaterials;
+        let materials = comp._materials;
         let submeshes = comp.mesh._subMeshes;
         let subDatas = comp.mesh.subDatas;
         for (let i = 0; i < submeshes.length; i++) {

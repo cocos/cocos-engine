@@ -316,7 +316,7 @@ let Mask = cc.Class({
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) return;
         
         // Init material
-        let material = this.sharedMaterials[0];
+        let material = this._materials[0];
         if (!material) {
             material = MaterialVariant.createWithBuiltin('2d-sprite', this);
         }
@@ -342,7 +342,7 @@ let Mask = cc.Class({
     
         if (!this._exitMaterial) {
             this._exitMaterial = MaterialVariant.createWithBuiltin('2d-sprite', this);
-            this._exitMaterial.effect.setStencilEnabled(gfx.STENCIL_DISABLE);
+            this._exitMaterial.setStencilEnabled(gfx.STENCIL_DISABLE);
         }
 
         if (!this._clearMaterial) {
@@ -352,13 +352,13 @@ let Mask = cc.Class({
         this.setMaterial(0, material);
 
         this._createGraphics();
-        this._graphics.sharedMaterials[0] = material
+        this._graphics._materials[0] = material
 
         this._updateMaterial();
     },
 
     _updateMaterial () {
-        let material = this.sharedMaterials[0];
+        let material = this._materials[0];
         if (!material) return;
 
         if (this._type === MaskType.IMAGE_STENCIL && this.spriteFrame) {

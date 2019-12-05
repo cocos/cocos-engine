@@ -106,12 +106,12 @@ export default class Pass {
         this._stencilWriteMaskFront = stencilWriteMask;
     }
 
-    setStencilEnabled (enabled = gfx.STENCIL_INHERIT) {
-        this._stencilTest = enabled;
+    setStencilEnabled (stencilTest = gfx.STENCIL_INHERIT) {
+        this._stencilTest = stencilTest;
     }
 
     setStencilBack (
-        enabled = gfx.STENCIL_INHERIT,
+        stencilTest = gfx.STENCIL_INHERIT,
         stencilFunc = gfx.DS_FUNC_ALWAYS,
         stencilRef = 0,
         stencilMask = 0xff,
@@ -120,7 +120,7 @@ export default class Pass {
         stencilZPassOp = gfx.STENCIL_OP_KEEP,
         stencilWriteMask = 0xff
     ) {
-        this._stencilTest = enabled;
+        this._stencilTest = stencilTest;
         this._stencilFuncBack = stencilFunc;
         this._stencilRefBack = stencilRef;
         this._stencilMaskBack = stencilMask;

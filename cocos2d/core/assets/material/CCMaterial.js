@@ -28,6 +28,7 @@ const Texture = require('../CCTexture2D');
 const PixelFormat = Texture.PixelFormat;
 const EffectAsset = require('./CCEffectAsset');
 const textureUtil = require('../../utils/texture-util');
+const gfx = cc.gfx;
 
 let _effects = {};
 let _instanceId = 0;
@@ -123,13 +124,37 @@ let Material = cc.Class({
     },
 
     statics: {
+        /**
+         * @static
+         * @method getBuiltinMaterial
+         * @param {string} name 
+         * @return {Material}
+         */
         getBuiltinMaterial (name) {
             return cc.AssetLibrary.getBuiltin('material', 'builtin-' + name);
         },
+        /**
+         * !#en Creates a Material with builtin Effect.
+         * !#zh 使用内建 Effect 创建一个材质。
+         * @static
+         * @method createWithBuiltin
+         * @param {string} effectName 
+         * @param {number} techniqueIndex 
+         * @return {Material}
+         */
         createWithBuiltin (effectName, techniqueIndex = 0) {
             let effectAsset = cc.AssetLibrary.getBuiltin('effect', 'builtin-' + effectName);
             return Material.create(effectAsset, techniqueIndex);
         },
+        /**
+         * !#en Creates a Material.
+         * !#zh 创建一个材质。
+         * @static
+         * @method create
+         * @param {EffectAsset} effectAsset 
+         * @param {number} [techniqueIndex] 
+         * @return {Material}
+         */
         create (effectAsset, techniqueIndex = 0) {
             if (!effectAsset) return null;
             let material = new Material();
@@ -140,17 +165,17 @@ let Material = cc.Class({
     },
 
     /**
-     *
+     * !#en Sets the Material property
+     * !#zh 是指材质的属性
+     * @method setProperty
      * @param {string} name
      * @param {Object} val
      */
     setProperty (name, val, passIdx) {
-        if (!this._effect) return;
-
         if (typeof passIdx === 'string') {
             passIdx = parseInt(passIdx);
         }
-        
+
         if (val instanceof Texture) {
             let format = val.getPixelFormat();
             if (format === PixelFormat.RGBA_ETC1 ||
@@ -169,18 +194,32 @@ let Material = cc.Class({
                 return;
             }
         }
-        
+
         this._effect.setProperty(name, val, passIdx);
     },
 
-    getProperty (name) {
-        return this._effect.getProperty(name);
+    /**
+     * !#en Gets the Material property.
+     * !#zh 获取材质的属性。
+     * @method getProperty
+     * @param {string} name 
+     * @param {number} passIdx 
+     */
+    getProperty (name, passIdx) {
+        if (typeof passIdx === 'string') {
+            passIdx = parseInt(passIdx);
+        }
+        return this._effect.getProperty(name, passIdx);
     },
 
     /**
-     *
+     * !#en Sets the Material define.
+     * !#zh 设置材质的宏定义。
+     * @method define
      * @param {string} name
-     * @param {Boolean|Number} val
+     * @param {boolean|number} val
+     * @param {number} passIdx
+     * @param {boolean} force
      */
     define (name, val, passIdx, force) {
         if (typeof passIdx === 'string') {
@@ -189,41 +228,114 @@ let Material = cc.Class({
         this._effect.define(name, val, passIdx, force);
     },
 
+    /**
+     * !#en Gets the Material define.
+     * !#zh 获取材质的宏定义。
+     * @method getDefine
+     * @param {string} name 
+     * @param {number} passIdx 
+     */
     getDefine (name, passIdx) {
+        if (typeof passIdx === 'string') {
+            passIdx = parseInt(passIdx);
+        }
         return this._effect.getDefine(name, passIdx);
     },
 
-    clone () {
-        let material = new cc.Material();
-        material._uuid = this._uuid;
-        material._effect = this._effect.clone();
-        material._effectAsset = this._effectAsset;
-        material._techniqueIndex = this._techniqueIndex;
-        
-        let datas = this._techniqueData;
-        let newDatas = {};
-        for (let index in datas) {
-            let data = datas[index];
-            if (!data) continue;
-            let newData = {};
-            if (data.props) {
-                newData.props = {};
-                for (let name in data.props) {
-                    let value = data.props[name];
-                    if (value.clone) {
-                        value = value.clone();
-                    }
-                    newData.props[name] = value;
-                }
-            }
-            if (data.defines) {
-                newData.defines = Object.assign({}, data.defines);
-            }
-            newDatas[index] = newData;
-        }
-        material._techniqueData = newDatas;
+    /**
+     * !#en Sets the Material cull mode.
+     * !#zh 设置材质的裁减模式。
+     * @method setCullMode
+     * @param {number} cullMode 
+     * @param {number} passIdx 
+     */
+    setCullMode (cullMode = gfx.CULL_BACK, passIdx) {
+        this._effect.setCullMode(cullMode, passIdx);
+    },
 
-        return material;
+    /**
+     * !#en Sets the Material depth states.
+     * !#zh 设置材质的深度渲染状态。
+     * @method setDepth
+     * @param {boolean} depthTest 
+     * @param {boolean} depthWrite 
+     * @param {number} depthFunc 
+     * @param {number} passIdx 
+     */
+    setDepth (
+        depthTest = false,
+        depthWrite = false,
+        depthFunc = gfx.DS_FUNC_LESS,
+        passIdx
+    ) {
+        this._effect.setDepth(depthTest, depthWrite, depthFunc, passIdx);
+    },
+
+    /**
+     * !#en Sets the Material blend states.
+     * !#zh 设置材质的混合渲染状态。
+     * @method setBlend
+     * @param {number} enabled 
+     * @param {number} blendEq 
+     * @param {number} blendSrc 
+     * @param {number} blendDst 
+     * @param {number} blendAlphaEq 
+     * @param {number} blendSrcAlpha 
+     * @param {number} blendDstAlpha 
+     * @param {number} blendColor 
+     * @param {number} passIdx 
+     */
+    setBlend (
+        enabled = false,
+        blendEq = gfx.BLEND_FUNC_ADD,
+        blendSrc = gfx.BLEND_SRC_ALPHA,
+        blendDst = gfx.BLEND_ONE_MINUS_SRC_ALPHA,
+        blendAlphaEq = gfx.BLEND_FUNC_ADD,
+        blendSrcAlpha = gfx.BLEND_SRC_ALPHA,
+        blendDstAlpha = gfx.BLEND_ONE_MINUS_SRC_ALPHA,
+        blendColor = 0xffffffff,
+        passIdx
+    ) {
+        this._effect.setBlend(enabled, blendEq, blendSrc, blendDst, blendAlphaEq, blendSrcAlpha, blendDstAlpha, blendColor, passIdx);
+    },
+
+    /**
+     * !#en Sets whether enable the stencil test.
+     * !#zh 设置是否开启模板测试。
+     * @method setStencilEnabled
+     * @param {number} stencilTest 
+     * @param {number} passIdx 
+     */
+    setStencilEnabled (stencilTest = gfx.STENCIL_INHERIT, passIdx) {
+        this._effect.setStencilEnabled(stencilTest, passIdx);
+    },
+
+    /**
+     * !#en Sets the Material stencil render states.
+     * !#zh 设置材质的模板测试渲染参数。
+     * @method setStencil
+     * @param {number} stencilTest 
+     * @param {number} stencilFunc 
+     * @param {number} stencilRef 
+     * @param {number} stencilMask 
+     * @param {number} stencilFailOp 
+     * @param {number} stencilZFailOp 
+     * @param {number} stencilZPassOp 
+     * @param {number} stencilWriteMask 
+     * @param {number} passIdx 
+     */
+    setStencil (
+        stencilTest = gfx.STENCIL_INHERIT,
+        stencilFunc = gfx.DS_FUNC_ALWAYS,
+        stencilRef = 0,
+        stencilMask = 0xff,
+        stencilFailOp = gfx.STENCIL_OP_KEEP,
+        stencilZFailOp = gfx.STENCIL_OP_KEEP,
+        stencilZPassOp = gfx.STENCIL_OP_KEEP,
+        stencilWriteMask = 0xff,
+        passIdx
+    ) {
+        this._effect.setStencil(stencilTest, stencilFunc, stencilRef, stencilMask, stencilFailOp, stencilZFailOp, stencilZPassOp, stencilWriteMask, passIdx);
     },
 
     updateHash (hash) {
@@ -290,7 +402,7 @@ let Material = cc.Class({
             index = parseInt(index);
             let passData = passDatas[index];
             if (!passData) continue;
-            
+
             for (let def in passData.defines) {
                 this.define(def, passData.defines[def], index);
             }

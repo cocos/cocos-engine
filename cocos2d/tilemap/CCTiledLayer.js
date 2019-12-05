@@ -1288,7 +1288,7 @@ let TiledLayer = cc.Class({
             let tilesetIdx = tilesetIndexArr[i];
             let texture = textures[tilesetIdx];
 
-            let material = this.sharedMaterials[i];
+            let material = this._materials[i];
             if (!material) {
                 material = Material.getBuiltinMaterial('2d-sprite');
             }
@@ -1297,7 +1297,7 @@ let TiledLayer = cc.Class({
             material.define('CC_USE_MODEL', true);
             material.setProperty('texture', texture);
 
-            this.sharedMaterials[i] = material;
+            this._materials[i] = material;
             
             texIdMatIdx[tilesetIdx] = i;
         }

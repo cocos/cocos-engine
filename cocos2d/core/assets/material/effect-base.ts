@@ -4,7 +4,7 @@ const gfx = cc.gfx;
 
 export default class EffectBase {
     _dirty = true;
-    
+
     _name = '';
     get name () {
         return this._name;
@@ -70,6 +70,8 @@ export default class EffectBase {
 
     getProperty (name, passIdx) {
         let passes = this.passes;
+        if (passIdx >= passes.length) return;
+
         let start = 0, end = passes.length;
         if (passIdx !== undefined) {
             start = passIdx, end = passIdx + 1;
@@ -101,6 +103,7 @@ export default class EffectBase {
 
     getDefine (name, passIdx) {
         let passes = this.passes;
+        if (passIdx >= passes.length) return;
         let start = 0, end = passes.length;
         if (passIdx !== undefined) {
             start = passIdx, end = passIdx + 1;
@@ -125,12 +128,7 @@ export default class EffectBase {
         this._dirty = true;
     }
 
-    setDepth (
-        depthTest = false,
-        depthWrite = false,
-        depthFunc = gfx.DS_FUNC_LESS,
-        passIdx
-    ) {
+    setDepth (depthTest, depthWrite, depthFunc, passIdx) {
         let passes = this.passes;
         let start = 0, end = passes.length;
         if (passIdx !== undefined) {
@@ -142,17 +140,7 @@ export default class EffectBase {
         this._dirty = true;
     }
 
-    setBlend (
-        enabled = false,
-        blendEq = gfx.BLEND_FUNC_ADD,
-        blendSrc = gfx.BLEND_SRC_ALPHA,
-        blendDst = gfx.BLEND_ONE_MINUS_SRC_ALPHA,
-        blendAlphaEq = gfx.BLEND_FUNC_ADD,
-        blendSrcAlpha = gfx.BLEND_SRC_ALPHA,
-        blendDstAlpha = gfx.BLEND_ONE_MINUS_SRC_ALPHA,
-        blendColor = 0xffffffff,
-        passIdx
-    ) {
+    setBlend (enabled, blendEq, blendSrc, blendDst, blendAlphaEq, blendSrcAlpha, blendDstAlpha, blendColor, passIdx) {
         let passes = this.passes;
         let start = 0, end = passes.length;
         if (passIdx !== undefined) {
@@ -170,29 +158,19 @@ export default class EffectBase {
         this._dirty = true;
     }
 
-    setStencilEnabled (enabled = gfx.STENCIL_INHERIT, passIdx) {
+    setStencilEnabled (stencilTest = gfx.STENCIL_INHERIT, passIdx) {
         let passes = this.passes;
         let start = 0, end = passes.length;
         if (passIdx !== undefined) {
             start = passIdx, end = passIdx + 1;
         }
         for (let i = start; i < end; i++) {
-            passes[i].setStencilEnabled(enabled);
+            passes[i].setStencilEnabled(stencilTest);
         }
         this._dirty = true;
     }
 
-    setStencil (
-        enabled = gfx.STENCIL_INHERIT,
-        stencilFunc = gfx.DS_FUNC_ALWAYS,
-        stencilRef = 0,
-        stencilMask = 0xff,
-        stencilFailOp = gfx.STENCIL_OP_KEEP,
-        stencilZFailOp = gfx.STENCIL_OP_KEEP,
-        stencilZPassOp = gfx.STENCIL_OP_KEEP,
-        stencilWriteMask = 0xff,
-        passIdx
-    ) {
+    setStencil (enabled, stencilFunc, stencilRef, stencilMask, stencilFailOp, stencilZFailOp, stencilZPassOp, stencilWriteMask, passIdx) {
         let passes = this.passes;
         let start = 0, end = passes.length;
         if (passIdx !== undefined) {

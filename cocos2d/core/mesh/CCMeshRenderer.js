@@ -216,7 +216,7 @@ let MeshRenderer = cc.Class({
         if (this._mesh && !this._mesh.loaded) {
             this.disableRender();
             this._mesh.once('load', () => {
-                if (this.isValid) return;
+                if (!this.isValid) return;
                 this._setMesh(this._mesh);
                 this.markForRender(true);
             });
@@ -272,7 +272,7 @@ let MeshRenderer = cc.Class({
         let textures = this.textures;
         if (textures && textures.length > 0) {
             for (let i = 0; i < textures.length; i++) {
-                let material = this.sharedMaterials[i];
+                let material = this._materials[i];
                 if (material) continue;
                 material = MaterialVariant.create(this._getDefaultMaterial(), this);
                 material.setProperty('diffuseTexture', textures[i]);

@@ -60,7 +60,7 @@ class ParticleAssembler extends Assembler {
         if (!this._ia) return;
         
         renderer.node = comp.node;
-        renderer.material = comp.sharedMaterials[0];
+        renderer.material = comp._materials[0];
         renderer._flushIA(this._ia);
     }
 }

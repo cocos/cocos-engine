@@ -63,12 +63,12 @@ let BlendFunc = cc.Class({
     },
 
     setMaterial (index, material) {
-        if (this._materials[index] === material) return;
-        
         RenderComponent.prototype.setMaterial.call(this, index, material);
-        if (material) {
-            this._updateMaterialBlendFunc(material);
+        
+        if (this._srcBlendFactor === BlendFactor.SRC_ALPHA && this._dstBlendFactor === BlendFactor.ONE_MINUS_SRC_ALPHA) {
+            return;
         }
+        this._updateMaterialBlendFunc(material);
     },
 
     _updateMaterial () {
@@ -76,6 +76,9 @@ let BlendFunc = cc.Class({
     },
 
     _updateBlendFunc () {
+        if (this._srcBlendFactor === BlendFactor.SRC_ALPHA && this._dstBlendFactor === BlendFactor.ONE_MINUS_SRC_ALPHA) {
+            return;
+        }
         let materials = this._materials;
         for (let i = 0; i < materials.length; i++) {
             let material = materials[i];
@@ -84,7 +87,7 @@ let BlendFunc = cc.Class({
     },
 
     _updateMaterialBlendFunc (material) {
-        material.effect.setBlend(
+        material.setBlend(
             true,
             gfx.BLEND_FUNC_ADD,
             this._srcBlendFactor, this._dstBlendFactor,
