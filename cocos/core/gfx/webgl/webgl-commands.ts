@@ -1716,9 +1716,10 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                             cache.rs.cullMode = rs.cullMode;
                         }
 
-                        if (cache.rs.isFrontFaceCCW !== rs.isFrontFaceCCW) {
-                            gl.frontFace(rs.isFrontFaceCCW ? gl.CCW : gl.CW);
-                            cache.rs.isFrontFaceCCW = rs.isFrontFaceCCW;
+                        const isFrontFaceCCW = device.reverseCW ? !rs.isFrontFaceCCW : rs.isFrontFaceCCW;
+                        if (cache.rs.isFrontFaceCCW !== isFrontFaceCCW) {
+                            gl.frontFace(isFrontFaceCCW ? gl.CCW : gl.CW);
+                            cache.rs.isFrontFaceCCW = isFrontFaceCCW;
                         }
 
                         if ((cache.rs.depthBias !== rs.depthBias) ||

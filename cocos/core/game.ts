@@ -977,7 +977,9 @@ export class Game extends EventTarget {
             rppl = new ForwardPipeline();
             rppl.initialize(ForwardPipeline.initInfo);
         }
-        cc.director.root.setRenderPipeline(rppl);
+        if (!cc.director.root.setRenderPipeline(rppl)) {
+            this.setRenderPipeline(null);
+        }
     }
 }
 

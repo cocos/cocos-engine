@@ -73,14 +73,14 @@ export class UIModelComponent extends UIComponent {
     public onEnable() {
         super.onEnable();
         if (this._modelComponent) {
-            this._modelComponent._attachToScene();
+            (this._modelComponent as any)._attachToScene();
         }
     }
 
     public onDisable() {
         super.onDisable();
         if (this._modelComponent) {
-            this._modelComponent._detachFromScene();
+            (this._modelComponent as any)._detachFromScene();
         }
     }
 
@@ -93,7 +93,7 @@ export class UIModelComponent extends UIComponent {
 
         this._modelComponent._sceneGetter = null;
         if (cc.isValid(this._modelComponent, true)) {
-            this._modelComponent._attachToScene();
+            (this._modelComponent as any)._attachToScene();
         }
         this._models = null;
     }

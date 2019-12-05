@@ -315,6 +315,14 @@ export abstract class GFXDevice {
         return this._memoryStatus;
     }
 
+    get reverseCW(): boolean {
+        return this._reverseCW;
+    }
+
+    set reverseCW(val: boolean) {
+        this._reverseCW = val;
+    }
+
     protected _canvas: HTMLCanvasElement | null = null;
     protected _canvas2D: HTMLCanvasElement | null = null;
     protected _gfxAPI: GFXAPI = GFXAPI.UNKNOWN;
@@ -344,6 +352,7 @@ export abstract class GFXDevice {
     protected _stencilBits: number = 0;
     protected _colorFmt: GFXFormat = GFXFormat.UNKNOWN;
     protected _depthStencilFmt: GFXFormat = GFXFormat.UNKNOWN;
+    protected _reverseCW: boolean = false;
     protected _shaderIdGen: number = 0;
     protected _macros: Map<string, string> = new Map();
     protected _numDrawCalls: number = 0;

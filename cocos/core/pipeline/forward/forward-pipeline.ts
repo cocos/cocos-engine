@@ -91,9 +91,10 @@ export class ForwardPipeline extends RenderPipeline {
         this._flows.push(forwardFlow);
     }
 
-    public activate(root: Root) {
-        super.activate(root);
-        this.getFlow(PIPELINE_FLOW_FORWARD)!.activate(this);
+    public activate(root: Root): boolean {
+        if (!super.activate(root)) {
+            return false;
+        }
 
         if (this._usePostProcess) {
             if (this._useSMAA) {
@@ -165,7 +166,7 @@ export class ForwardPipeline extends RenderPipeline {
      * @zh
      * 更新UBO。
      */
-    protected updateUBOs(view: RenderView) {
+    public updateUBOs(view: RenderView) {
         super.updateUBOs(view);
 
         const exposure = view.camera.exposure;
@@ -258,10 +259,10 @@ export class ForwardPipeline extends RenderPipeline {
      * 场景裁剪。
      * @param view 渲染视图。
      */
-    protected sceneCulling(view: RenderView) {
+    public sceneCulling(view: RenderView) {
         super.sceneCulling(view);
         this._validLights.length = 0;
-        const sphereLights = view.camera.scene.sphereLights;
+        const sphereLights = view.camera.scene!.sphereLights;
         for (let i = 0; i < sphereLights.length; i++) {
             const light = sphereLights[i];
             light.update();
@@ -270,7 +271,7 @@ export class ForwardPipeline extends RenderPipeline {
                 this._validLights.push(light);
             }
         }
-        const spotLights = view.camera.scene.spotLights;
+        const spotLights = view.camera.scene!.spotLights;
         for (let i = 0; i < spotLights.length; i++) {
             const light = spotLights[i];
             light.update();

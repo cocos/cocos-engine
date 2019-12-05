@@ -27,7 +27,7 @@ import { Root } from '../root';
 import { Layers } from '../scene-graph';
 import { IRenderObject, UBOGlobal, UBOShadow, UNIFORM_ENVIRONMENT, RenderPassStage } from './define';
 import { IInternalBindingInst } from './define';
-import { FrameBufferDesc, RenderPassDesc, RenderTextureDesc } from './pipeline-serialization';
+import { FrameBufferDesc, RenderPassDesc, RenderTextureDesc, RenderFlowType } from './pipeline-serialization';
 import { IRenderFlowInfo, RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
 import { Asset } from '../assets';
@@ -342,13 +342,21 @@ export abstract class RenderPipeline {
      * 当RenderPipeline资源加载完成后，启用相应的flow
      * @param desc
      */
-    public activate (root: Root) {
+    public activate(root: Root): boolean {
         this._root = root;
         this._device = root.device;
-        
+
         if (!this._initRenderResource()) {
             console.error('RenderPipeline:' + this.name + ' startup failed!');
+            return false;
         }
+
+        for (let i = 0; i < this._flows.length; i++) {
+            if (this._flows[i].type === RenderFlowType.SCENE) {
+                this._flows[i].activate(this);
+            }
+        }
+        return true;
     }
 
     /**
@@ -374,13 +382,6 @@ export abstract class RenderPipeline {
      * @param view 渲染视图。
      */
     public render (view: RenderView) {
-
-        view.camera.update();
-
-        this.sceneCulling(view);
-
-        this.updateUBOs(view);
-
         for (let i = 0; i < view.flows.length; i++) {
             view.flows[i].render(view);
         }
@@ -566,8 +567,8 @@ export abstract class RenderPipeline {
 
         // this._shadingScale = this._device.devicePixelRatio;
         this._shadingScale = 1.0;
-        this._shadingWidth = Math.floor(this._device.nativeWidth);
-        this._shadingHeight = Math.floor(this._device.nativeHeight);
+        this._shadingWidth = Math.floor(this._device.width);
+        this._shadingHeight = Math.floor(this._device.height);
 
         console.info('USE_POST_PROCESS: ' + this._usePostProcess);
         if (this._usePostProcess) {
@@ -589,8 +590,13 @@ export abstract class RenderPipeline {
                 width: rtd.width === -1 ? this._shadingWidth : rtd.width,
                 height: rtd.height === -1 ? this._shadingHeight : rtd.height,
             }));
+            const rt = this._renderTextures.get(rtd.name);
+            if (rt == null) {
+                console.error('RenderTexture:' + rtd.name + ' not found!');
+                return false;
+            }
             this._textureViews.set(rtd.name, this._device.createTextureView({
-                texture: this._renderTextures.get(rtd.name)!,
+                texture: rt,
                 type: rtd.viewType,
                 format: this._getTextureFormat(rtd.format, rtd.usage),
             }));
@@ -605,12 +611,25 @@ export abstract class RenderPipeline {
 
         for (let i = 0; i < this.framebuffers.length; i++) {
             const fbd = this.framebuffers[i];
+            const rp = this._renderPasses.get(fbd.renderPass);
+            if (rp == null) {
+                console.error('RenderPass:' + fbd.renderPass + ' not found!');
+                return false;
+            }
+            const tvs = new Array;
+            for (let j = 0; j < fbd.colorViews.length; j++) {
+                const tv = this._textureViews.get(fbd.colorViews[j]);
+                if (tv == null) {
+                    console.error('TextureView:' + fbd.colorViews[j] + ' not found!');
+                    return false;
+                }
+                tvs.push(tv);
+            }
+            const dsv = this._textureViews.get(fbd.depthStencilView) as GFXTextureView | null;
             this._frameBuffers.set(fbd.name, this._device.createFramebuffer({
-                renderPass: this._renderPasses.get(fbd.renderPass)!,
-                colorViews: fbd.colorViews.map((value) => {
-                    return this._textureViews.get(value)!;
-                }, this),
-                depthStencilView: this._textureViews.get(fbd.depthStencilView)!,
+                renderPass: rp,
+                colorViews: tvs,
+                depthStencilView: dsv,
             }));
         }
 
@@ -874,7 +893,7 @@ export abstract class RenderPipeline {
      * 更新指定渲染视图的UBO。
      * @param view 渲染视图。
      */
-    protected updateUBOs (view: RenderView) {
+    public updateUBOs (view: RenderView) {
 
         const camera = view.camera;
         const scene = camera.scene!;
@@ -958,7 +977,7 @@ export abstract class RenderPipeline {
      * 场景裁剪。
      * @param view 渲染视图。
      */
-    protected sceneCulling (view: RenderView) {
+    public sceneCulling (view: RenderView) {
 
         const camera = view.camera;
         const scene = camera.scene!;

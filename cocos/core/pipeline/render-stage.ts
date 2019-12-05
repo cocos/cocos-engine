@@ -5,7 +5,7 @@
 import { ccclass, property } from '../data/class-decorator';
 import { ccenum } from '../value-types/enum';
 import { GFXCommandBuffer } from '../gfx/command-buffer';
-import { IGFXColor, IGFXRect } from '../gfx/define';
+import { IGFXColor, IGFXRect, GFXClearFlag, GFXCommandBufferType } from '../gfx/define';
 import { GFXDevice } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXPipelineState } from '../gfx/pipeline-state';
@@ -16,6 +16,9 @@ import { RenderFlow } from './render-flow';
 import { RenderPipeline } from './render-pipeline';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from './render-queue';
 import { RenderView } from './render-view';
+
+const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
+const bufs: GFXCommandBuffer[] = [];
 
 export enum RenderQueueSortMode {
     FRONT_TO_BACK,
@@ -333,6 +336,72 @@ export abstract class RenderStage {
     public setRenderArea (width: number, height: number) {
         this._renderArea!.width = width;
         this._renderArea!.height = height;
+    }
+
+    public sortRenderQueue() {
+        this._renderQueues.forEach(this.renderQueueClearFunc);
+        const renderObjects = this._pipeline.renderObjects;
+        for (let i = 0; i < renderObjects.length; ++i) {
+            const ro = renderObjects[i];
+            for (let i = 0; i < ro.model.subModelNum; i++) {
+                for (let j = 0; j < ro.model.getSubModel(i).passes.length; j++) {
+                    for (let k = 0; k < this._renderQueues.length; k++) {
+                        this._renderQueues[k].insertRenderPass(ro, i, j);
+                    }
+                }
+            }
+        }
+        this._renderQueues.forEach(this.renderQueueSortFunc);
+    }
+
+    public executeCommandBuffer(view: RenderView) {
+        const camera = view.camera;
+
+        const cmdBuff = this._cmdBuff!;
+
+        const vp = camera.viewport;
+        this._renderArea!.x = vp.x * camera.width;
+        this._renderArea!.y = vp.y * camera.height;
+        this._renderArea!.width = vp.width * camera.width * this.pipeline!.shadingScale;
+        this._renderArea!.height = vp.height * camera.height * this.pipeline!.shadingScale;
+
+        if (camera.clearFlag & GFXClearFlag.COLOR) {
+            colors[0].a = camera.clearColor.a;
+            colors[0].r = camera.clearColor.r;
+            colors[0].g = camera.clearColor.g;
+            colors[0].b = camera.clearColor.b;
+        }
+        if (!this._framebuffer) {
+            this._framebuffer = view.window!.framebuffer;
+        }
+
+        cmdBuff.begin();
+        cmdBuff.beginRenderPass(this._framebuffer!, this._renderArea!,
+            camera.clearFlag, colors, camera.clearDepth, camera.clearStencil);
+
+        for (let i = 0; i < this._renderQueues.length; i++) {
+            cmdBuff.execute(this._renderQueues[i].cmdBuffs.array, this._renderQueues[i].cmdBuffCount);
+        }
+
+        cmdBuff.endRenderPass();
+        cmdBuff.end();
+        bufs[0] = cmdBuff;
+        this._device!.queue.submit(bufs);
+    }
+
+    public createCmdBuffer () {
+        this._cmdBuff = this._device!.createCommandBuffer({
+            allocator: this._device!.commandAllocator,
+            type: GFXCommandBufferType.PRIMARY,
+        });
+    }
+
+    protected renderQueueClearFunc (rq: RenderQueue) {
+        rq.clear();
+    }
+
+    protected renderQueueSortFunc (rq: RenderQueue) {
+        rq.sort();
     }
 }
 

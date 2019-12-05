@@ -10,6 +10,14 @@ ccenum(GFXStoreOp);
 ccenum(GFXLoadOp);
 ccenum(GFXTextureLayout);
 
+export enum RenderFlowType {
+    SCENE,
+    POSTPROCESS,
+    UI,
+}
+
+ccenum(RenderFlowType);
+
 @ccclass('RenderTextureDesc')
 export class RenderTextureDesc {
     @property

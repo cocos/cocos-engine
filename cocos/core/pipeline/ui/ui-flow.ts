@@ -9,6 +9,7 @@ import { RenderView } from '../render-view';
 import { UIStage } from './ui-stage';
 import { RenderQueueSortMode } from '../render-stage';
 import { ForwardFlowPriority } from '../forward/enum';
+import { RenderFlowType } from '../pipeline-serialization';
 
 /**
  * @zh
@@ -19,6 +20,7 @@ export class UIFlow extends RenderFlow {
     public static initInfo: IRenderFlowInfo = {
         name: 'UIFlow',
         priority: ForwardFlowPriority.UI,
+        type: RenderFlowType.UI,
     };
 
     constructor () {
@@ -44,6 +46,13 @@ export class UIFlow extends RenderFlow {
     }
 
     public render (view: RenderView) {
+
+        view.camera.update();
+
+        this.pipeline.sceneCulling(view);
+
+        this.pipeline.updateUBOs(view);
+
         const isHDR = this.pipeline.defaultGlobalUBOData[UBOGlobal.EXPOSURE_OFFSET + 2];
         this.pipeline.defaultGlobalUBOData[UBOGlobal.EXPOSURE_OFFSET + 2] = 0;
         const globalUBOBuffer = this.pipeline.globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!;

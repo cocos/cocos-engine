@@ -8,6 +8,7 @@ import { GFXDevice } from '../gfx/device';
 import { RenderPipeline } from './render-pipeline';
 import { RenderStage } from './render-stage';
 import { RenderView } from './render-view';
+import { RenderFlowType } from './pipeline-serialization';
 
 /**
  * @zh
@@ -17,6 +18,7 @@ export interface IRenderFlowInfo {
     name?: string;
     priority: number;
     material?: Material;
+    type?: RenderFlowType;
 }
 
 /**
@@ -48,6 +50,10 @@ export abstract class RenderFlow {
 
     public get material(): Material | null {
         return this._material;
+    }
+
+    public get type (): RenderFlowType {
+        return this._type;
     }
 
     /**
@@ -93,13 +99,20 @@ export abstract class RenderFlow {
     })
     protected _material: Material | null = null;
 
+    @property({
+        type: RenderFlowType,
+        displayOrder: 3,
+        visible: true,
+    })
+    protected _type: RenderFlowType = RenderFlowType.SCENE;
+
     /**
      * @zh
      * 渲染阶段数组。
      */
     @property({
         type: [RenderStage],
-        displayOrder: 3,
+        displayOrder: 4,
         visible: true
     })
     protected _stages: RenderStage[] = [];
@@ -123,8 +136,13 @@ export abstract class RenderFlow {
 
         this._priority = info.priority;
 
-        if (info.material)
+        if (info.material) {
             this._material = info.material;
+        }
+
+        if (info.type) {
+            this._type = info.type;
+        }
     }
 
     /**
