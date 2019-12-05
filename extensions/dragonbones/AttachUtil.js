@@ -111,7 +111,7 @@ let AttachUtil = cc.Class({
      * @param {String} boneName
      * @return {[cc.Node]}
      */
-    getAttachedNode (boneName) {
+    getAttachedNodes (boneName) {
         let nodeArray = this._attachedNodeArray;
         let res = [];
         if (!this._inited) return res;
@@ -130,7 +130,7 @@ let AttachUtil = cc.Class({
      * !#zh 销毁对应的挂点
      * @param {String} boneName
      */
-    destroyAttachedNode (boneName) {
+    destroyAttachedNodes (boneName) {
         if (!this._inited) return;
 
         let nodeArray = this._attachedNodeArray;
@@ -163,12 +163,14 @@ let AttachUtil = cc.Class({
      * !#en Traverse all bones to generate the minimum node tree containing the given bone names
      * !#zh 遍历所有插槽，生成包含所有给定插槽名称的最小节点树
      * @param {String} boneName
+     * @return {[cc.Node]} attached node array 
      */
-    generateAttachedNode (boneName) {
-        if (!this._inited) return;
+    generateAttachedNodes (boneName) {
+        let targetNodes = [];
+        if (!this._inited) return targetNodes;
 
         let rootNode = this._prepareAttachNode();
-        if (!rootNode) return;
+        if (!rootNode) return targetNodes;
 
         let nodeIndex = 0;
         let res = [];
@@ -224,15 +226,20 @@ let AttachUtil = cc.Class({
         }.bind(this);
 
         for (let i = 0, n = res.length; i < n; i++) {
-            buildBoneTree(res[i]);
+            let targetNode = buildBoneTree(res[i]);
+            if (targetNode) {
+                targetNodes.push(targetNode);
+            }
         }
+
+        return targetNodes;
     },
 
     /**
      * !#en Destroy all attached node.
      * !#zh 销毁所有挂点
      */
-    destroyAllAttachedNode () {
+    destroyAllAttachedNodes () {
         this._attachedRootNode = null;
         this._attachedNodeArray.length = 0;
         if (!this._inited) return;
@@ -248,8 +255,9 @@ let AttachUtil = cc.Class({
     /**
      * !#en Traverse all bones to generate a tree containing all bones nodes
      * !#zh 遍历所有插槽，生成包含所有插槽的节点树
+     * @return {cc.Node} root node
      */
-    generateAllAttachedNode () {
+    generateAllAttachedNodes () {
         if (!this._inited) return;
 
         let rootNode = this._prepareAttachNode();
@@ -303,6 +311,7 @@ let AttachUtil = cc.Class({
             }
         }.bind(this);
         attachedTraverse(this._armature);
+        return rootNode;
     },
 
     _hasAttachedNode () {
