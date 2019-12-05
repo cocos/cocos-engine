@@ -32,7 +32,6 @@ import * as math from './math';
 import * as memop from './memop';
 cc.math = math;
 cc.geometry = geometry;
-cc.memop = memop;
 
 export { math, memop, geometry };
 

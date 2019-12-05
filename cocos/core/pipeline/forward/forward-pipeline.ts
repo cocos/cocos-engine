@@ -295,8 +295,8 @@ export class ForwardPipeline extends RenderPipeline {
      * 对每个模型裁剪光源。
      * @param model 模型。
      */
-    private cullLightPerModel(model: Model) {
-        _tempLightIndex.splice(0);
+    private cullLightPerModel (model: Model) {
+        _tempLightIndex.length = 0;
         for (let i = 0; i < this._validLights.length; i++) {
             let isCulled = false;
             switch (this._validLights[i].type) {
@@ -320,7 +320,7 @@ export class ForwardPipeline extends RenderPipeline {
             }
         }
         _tempLightIndex.sort(this.sortLight);
-        this._lightIndices.push(..._tempLightIndex);
+        Array.prototype.push.apply(this._lightIndices, _tempLightIndex);
     }
 
     private sortLight(a, b) {

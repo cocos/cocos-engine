@@ -373,7 +373,11 @@ export class WebGLGFXDevice extends GFXDevice {
         this._features[GFXFeature.MSAA] = false;
 
         if (this._OES_vertex_array_object) {
-            if (sys.platform !== sys.WECHAT_GAME || sys.os !== sys.OS_IOS) { this._useVAO = true; }
+            if ( !CC_RUNTIME_BASED && (sys.platform !== sys.WECHAT_GAME || sys.os !== sys.OS_IOS)) { this._useVAO = true; }
+        }
+
+        if (this._OES_element_index_uint) {
+            this._features[GFXFeature.ELEMENT_INDEX_UINT] = true;
         }
 
         console.info('RENDERER: ' + this._renderer);
