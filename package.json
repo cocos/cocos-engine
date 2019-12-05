@@ -18,7 +18,7 @@
     "postinstall": "npm run build-rollup",
     "build-api-json": "gulp build-api-json -i index.ts -o ./3d-api-docs/tempJson",
     "build-api": "npm run build-api-json && gulp build-3d-api -i index.ts -o ./3d-api-docs -j ./3d-api-docs/tempJson",
-    "test": "jest",
+    "test": "tsc --noEmit && jest",
     "testWithCoverage": "jest --coverage"
   },
   "repository": {
