@@ -441,6 +441,14 @@ if (CC_DEBUG) {
         setInsetBottom: 'cc.SpriteFrame insetBottom',
     });
 
+    // cc.Material
+    cc.Material.getInstantiatedBuiltinMaterial = cc.MaterialVariant.createWithBuiltin;
+    cc.Material.getInstantiatedMaterial = cc.MaterialVariant.create;
+    markFunctionWarning(cc.Material, {
+        getInstantiatedBuiltinMaterial: 'cc.MaterialVariant.createWithBuiltin',
+        getInstantiatedMaterial: 'cc.MaterialVariant.create'
+    })
+
     // cc.Camera
     markFunctionWarning(cc.Camera.prototype, {
         getNodeToCameraTransform: 'getWorldToScreenMatrix2D',
