@@ -977,7 +977,7 @@ void GLES2CmdFuncCreateShader(GLES2Device* device, GLES2GPUShader* gpu_shader) {
         for (size_t u = 0; u < gpu_block.uniforms.size(); ++u) {
           if (gpu_block.uniforms[u].name == u_name) {
             GLES2GPUUniform gpu_uniform = gpu_block.uniforms[u];
-            gpu_uniform.gl_loc = glGetAttribLocation(gpu_shader->gl_program, gl_name);
+            gpu_uniform.gl_loc = glGetUniformLocation(gpu_shader->gl_program, gl_name);
             gpu_uniform.buff = (uint8_t*)CC_MALLOC(gpu_uniform.size);
 
             gpu_block.active_uniforms.emplace_back(gpu_uniform);
