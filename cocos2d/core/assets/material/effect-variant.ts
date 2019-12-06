@@ -17,7 +17,7 @@ export default class EffectVariant extends EffectBase {
     }
 
     get name () {
-        return this._effect.name + ' (variant)';
+        return this._effect && (this._effect.name + ' (variant)');
     }
 
     get passes () {

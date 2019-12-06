@@ -313,7 +313,7 @@ let Mask = cc.Class({
     },
 
     _activateMaterial () {
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) return;
+        this._createGraphics();
         
         // Init material
         let material = this._materials[0];
@@ -351,7 +351,6 @@ let Mask = cc.Class({
 
         this.setMaterial(0, material);
 
-        this._createGraphics();
         this._graphics._materials[0] = material
 
         this._updateMaterial();

@@ -54,10 +54,6 @@ let GraySpriteState = cc.Class({
     },
   
     _switchGrayMaterial (useGrayMaterial, renderComp) {
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-            return;
-        }
-    
         let material;
         if (useGrayMaterial) {
             material = this._grayMaterial;

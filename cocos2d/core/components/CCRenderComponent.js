@@ -193,8 +193,6 @@ let RenderComponent = cc.Class({
      * Init material.
      */
     _activateMaterial () {
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) return;
-
         let materials = this._materials;
         if (!materials[0]) {
             let material = this._getDefaultMaterial();

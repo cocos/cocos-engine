@@ -47,7 +47,7 @@ let Material = cc.Class({
         this._manualHash = false;
         this._dirty = true;
         this._effect = null;
-        this._uuid = _instanceId++;
+        this._uuid = (_instanceId++).toString();
     },
 
     properties: {
@@ -131,6 +131,9 @@ let Material = cc.Class({
          * @return {Material}
          */
         getBuiltinMaterial (name) {
+            if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+                return new cc.Material();
+            }
             return cc.AssetLibrary.getBuiltin('material', 'builtin-' + name);
         },
         /**
@@ -172,6 +175,8 @@ let Material = cc.Class({
      * @param {Object} val
      */
     setProperty (name, val, passIdx) {
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) return;
+
         if (typeof passIdx === 'string') {
             passIdx = parseInt(passIdx);
         }
@@ -222,6 +227,8 @@ let Material = cc.Class({
      * @param {boolean} force
      */
     define (name, val, passIdx, force) {
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) return;
+        
         if (typeof passIdx === 'string') {
             passIdx = parseInt(passIdx);
         }
