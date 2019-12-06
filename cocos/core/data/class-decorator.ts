@@ -53,6 +53,7 @@ import './class';
 import { IExposedAttributes } from './utils/attribute-defines';
 import { doValidateMethodWithProps_DEV, getFullFormOfProperty } from './utils/preprocess-class';
 import { CCString, CCInteger, CCFloat, CCBoolean, PrimitiveType } from './utils/attribute';
+import { error, errorID, warnID } from '../platform/debug';
 
 // caches for class construction
 const CACHE_KEY = '__ccclassCache__';
@@ -92,7 +93,7 @@ function _checkNormalArgument (validator_DEV, decorate, decoratorName) {
 
 const checkCompArgument = _checkNormalArgument.bind(null, CC_DEV && function (arg, decoratorName) {
     if (!cc.Class._isCCClass(arg)) {
-        cc.error('The parameter for %s is missing.', decoratorName);
+        error('The parameter for %s is missing.', decoratorName);
         return false;
     }
 });
@@ -100,11 +101,11 @@ const checkCompArgument = _checkNormalArgument.bind(null, CC_DEV && function (ar
 function _argumentChecker (type) {
     return _checkNormalArgument.bind(null, CC_DEV && function (arg, decoratorName) {
         if (arg instanceof cc.Component || arg === undefined) {
-            cc.error('The parameter for %s is missing.', decoratorName);
+            error('The parameter for %s is missing.', decoratorName);
             return false;
         }
         else if (typeof arg !== type) {
-            cc.error('The parameter for %s must be type %s.', decoratorName, type);
+            error('The parameter for %s must be type %s.', decoratorName, type);
             return false;
         }
     });
@@ -115,7 +116,7 @@ const checkNumberArgument = _argumentChecker('number');
 
 function getClassCache (ctor, decoratorName?) {
     if (CC_DEV && cc.Class._isCCClass(ctor)) {
-        cc.error('`@%s` should be used after @ccclass for class "%s"', decoratorName, js.getClassName(ctor));
+        error('`@%s` should be used after @ccclass for class "%s"', decoratorName, js.getClassName(ctor));
         return null;
     }
     return getSubDict(ctor, CACHE_KEY);
@@ -148,7 +149,7 @@ function extractActualDefaultValues (ctor) {
     }
     catch (e) {
         if (CC_DEV) {
-            cc.warnID(3652, js.getClassName(ctor), e);
+            warnID(3652, js.getClassName(ctor), e);
         }
         return {};
     }
@@ -172,7 +173,7 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
             const errorProps = getSubDict(cache, 'errorProps');
             if (!errorProps[propName]) {
                 errorProps[propName] = true;
-                cc.warnID(3655, propName, js.getClassName(ctor), propName, propName);
+                warnID(3655, propName, js.getClassName(ctor), propName, propName);
             }
         }
         if (desc.get) {
@@ -189,7 +190,7 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
             //     set (...) { ... },
             // })
             // value;
-            cc.errorID(3655, propName, js.getClassName(ctor), propName, propName);
+            errorID(3655, propName, js.getClassName(ctor), propName, propName);
             return;
         }
         // member variables
@@ -225,11 +226,11 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
 
         if (CC_DEV) {
             if (options && options.hasOwnProperty('default')) {
-                cc.warnID(3653, propName, js.getClassName(ctor));
+                warnID(3653, propName, js.getClassName(ctor));
                 // prop.default = options.default;
             }
             else if (!isDefaultValueSpecified) {
-                cc.warnID(3654, js.getClassName(ctor), propName);
+                warnID(3654, js.getClassName(ctor), propName);
                 // prop.default = fullOptions.hasOwnProperty('default') ? fullOptions.default : undefined;
             }
         }

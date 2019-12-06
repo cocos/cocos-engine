@@ -32,6 +32,7 @@ import * as js from '../utils/js';
 import * as misc from '../utils/misc';
 import CCClass from './class';
 import * as Attr from './utils/attribute';
+import { warnID } from '../platform/debug';
 
 // HELPERS
 
@@ -427,7 +428,7 @@ function unlinkUnusedPrefab (self, serialized, obj) {
         }
         else {
             const debugEnvOnlyInfo = 'Failed to skip prefab asset while deserializing PrefabInfo';
-            cc.warn(debugEnvOnlyInfo);
+            warnID(debugEnvOnlyInfo);
         }
     }
 }
@@ -440,7 +441,7 @@ function _deserializeFireClass (self, obj, serialized, klass, target) {
     else {
         deserialize = compileDeserialize(self, klass);
         // if (CC_TEST && !isPhantomJS) {
-        //     cc.log(deserialize);
+        //     log(deserialize);
         // }
         js.value(klass, '__deserialize__', deserialize, true);
     }
@@ -599,7 +600,7 @@ class _Deserializer {
                 if ((CC_EDITOR || CC_TEST) && target) {
                     // use target
                     if ( !(target instanceof klass) ) {
-                        cc.warnID(5300, js.getClassName(target), klass);
+                        warnID(5300, js.getClassName(target), klass);
                     }
                     obj = target;
                 }
@@ -889,10 +890,10 @@ function deserialize (data, details, options) {
 deserialize.reportMissingClass = (id) => {
     if (CC_EDITOR && Editor.Utils.UuidUtils.isUuid(id)) {
         id = Editor.Utils.UuidUtils.decompressUuid(id);
-        cc.warnID(5301, id);
+        warnID(5301, id);
     }
     else {
-        cc.warnID(5302, id);
+        warnID(5302, id);
     }
 };
 cc.deserialize = deserialize;

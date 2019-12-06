@@ -32,6 +32,7 @@ import { isDomNode } from '../utils/misc';
 import { ValueType } from '../value-types';
 import { CCObject } from './object';
 import { js } from '../utils';
+import { errorID, warn } from '../platform/debug';
 
 // @ts-ignore
 const Destroyed = CCObject.Flags.Destroyed;
@@ -65,24 +66,24 @@ function instantiate (original, internal_force?) {
     if (!internal_force) {
         if (typeof original !== 'object' || Array.isArray(original)) {
             if (CC_DEV) {
-                cc.errorID(6900);
+                errorID(6900);
             }
             return null;
         }
         if (!original) {
             if (CC_DEV) {
-                cc.errorID(6901);
+                errorID(6901);
             }
             return null;
         }
         if (!cc.isValid(original)) {
             if (CC_DEV) {
-                cc.errorID(6902);
+                errorID(6902);
             }
             return null;
         }
         if (CC_DEV && original instanceof cc.Component) {
-            cc.warn('Should not instantiate a single cc.Component directly, you must instantiate the entire node.');
+            warn('Should not instantiate a single cc.Component directly, you must instantiate the entire node.');
         }
     }
 
@@ -104,7 +105,7 @@ function instantiate (original, internal_force?) {
         else if (original instanceof cc.Asset) {
             // 不允许用通用方案实例化资源
             if (CC_DEV) {
-                cc.errorID(6903);
+                errorID(6903);
             }
             return null;
         }
@@ -132,13 +133,13 @@ function instantiate (original, internal_force?) {
 function doInstantiate (obj, parent?) {
     if (Array.isArray(obj)) {
         if (CC_DEV) {
-            cc.errorID(6904);
+            errorID(6904);
         }
         return null;
     }
     if (isDomNode && isDomNode(obj)) {
         if (CC_DEV) {
-            cc.errorID(6905);
+            errorID(6905);
         }
         return null;
     }
