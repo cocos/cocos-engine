@@ -154,7 +154,7 @@ export class RenderView {
      * @zh
      * 是否启用。
      */
-    private _isEnable: boolean = true;
+    private _isEnable: boolean = false;
 
     /**
      * @zh
