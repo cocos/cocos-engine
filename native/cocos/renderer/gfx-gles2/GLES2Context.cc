@@ -399,7 +399,7 @@ bool GLES2Context::MakeCurrent() {
       glEnable(GL_CULL_FACE);
       glCullFace(GL_BACK);
 
-      glFrontFace(GL_CW);
+      glFrontFace(GL_CCW);
 
       //glDisable(GL_MULTISAMPLE);
 

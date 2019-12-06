@@ -1349,7 +1349,7 @@ void GLES2CmdFuncExecuteCmds(GLES2Device* device, GLES2CmdPackage* cmd_package) 
           
           if (gpu_pso->gpu_shader) {
             if (cache->gl_program != gpu_pso->gpu_shader->gl_program) {
-              glUseProgram(cache->gl_program);
+              glUseProgram(gpu_pso->gpu_shader->gl_program);
               cache->gl_program = gpu_pso->gpu_shader->gl_program;
               is_shader_changed = true;
             }
@@ -1806,8 +1806,8 @@ void GLES2CmdFuncExecuteCmds(GLES2Device* device, GLES2CmdPackage* cmd_package) 
                       GLint gl_loc = gpu_input.gl_loc + c;
                       uint attrib_offset = gpu_attrib.offset + gpu_attrib.size * c;
                       glEnableVertexAttribArray(gl_loc);
-
                       cache->gl_enabled_attrib_locs[gl_loc] = true;
+                      cache->gl_current_attrib_locs[gl_loc] = true;
                       glVertexAttribPointer(gl_loc, gpu_attrib.count, gpu_attrib.gl_type, gpu_attrib.is_normalized, gpu_attrib.stride, BUFFER_OFFSET(attrib_offset));
 
                       if (device->use_instanced_arrays()) {
