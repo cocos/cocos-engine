@@ -30,9 +30,6 @@ const EffectAsset = require('./CCEffectAsset');
 const textureUtil = require('../../utils/texture-util');
 const gfx = cc.gfx;
 
-let _effects = {};
-let _instanceId = 0;
-
 /**
  * !#en Material Asset.
  * !#zh 材质资源类。
@@ -47,7 +44,6 @@ let Material = cc.Class({
         this._manualHash = false;
         this._dirty = true;
         this._effect = null;
-        this._uuid = (_instanceId++).toString();
     },
 
     properties: {
@@ -99,10 +95,7 @@ let Material = cc.Class({
                     return;
                 }
 
-                if (!_effects[this._uuid] || _effects[this._uuid]._asset != this._effectAsset) {
-                    _effects[this._uuid] = this._effectAsset.getInstantiatedEffect();
-                }
-                this._effect = _effects[this._uuid];
+                this._effect = this._effectAsset.getInstantiatedEffect();
             }
         },
 
@@ -161,7 +154,7 @@ let Material = cc.Class({
         create (effectAsset, techniqueIndex = 0) {
             if (!effectAsset) return null;
             let material = new Material();
-            material._effect = effectAsset.getInstantiatedEffect();
+            material.effectAsset = effectAsset;
             material.techniqueIndex = techniqueIndex;
             return material;
         }
@@ -228,7 +221,7 @@ let Material = cc.Class({
      */
     define (name, val, passIdx, force) {
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) return;
-        
+
         if (typeof passIdx === 'string') {
             passIdx = parseInt(passIdx);
         }
