@@ -505,10 +505,6 @@ export class Game extends EventTarget {
 
             this.onStart = onStart;
 
-            if (!CC_EDITOR && CC_WECHATGAME/* && !CC_PREVIEW*/) {
-                SplashScreen.instance.main(this._gfxDevice as any);
-            }
-
             this.prepare(cc.game.onStart && cc.game.onStart.bind(cc.game));
         });
     }
