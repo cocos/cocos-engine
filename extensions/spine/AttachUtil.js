@@ -52,6 +52,7 @@ let AttachUtil = cc.Class({
 
         this._attachedRootNode = null;
         this._attachedNodeArray = [];
+        this._boneIndexToNode = {};
     },
 
     init (skeletonComp) {
@@ -61,7 +62,7 @@ let AttachUtil = cc.Class({
         this._skeletonComp = skeletonComp;
     },
 
-    destroy () {
+    reset () {
         this._inited = false;
         this._skeleton = null;
         this._skeletonNode = null;
@@ -90,11 +91,19 @@ let AttachUtil = cc.Class({
         return rootNode;
     },
 
-    _buildBoneAttachedNode (bone, nodeIndex) {
+    _buildBoneAttachedNode (bone, boneIndex) {
         let boneNodeName = ATTACHED_PRE_NAME + bone.data.name;
         let boneNode = new cc.Node(boneNodeName);
-        this._attachedNodeArray[nodeIndex] = boneNode;
+        this._buildBoneRelation(boneNode, bone, boneIndex);
         return boneNode;
+    },
+
+    _buildBoneRelation (boneNode, bone, boneIndex) {
+        limitNode(boneNode);
+        boneNode._bone = bone;
+        boneNode._boneIndex = boneIndex;
+        this._attachedNodeArray.push(boneNode);
+        this._boneIndexToNode[boneIndex] = boneNode;
     },
 
     /**
@@ -126,6 +135,32 @@ let AttachUtil = cc.Class({
         return res;
     },
 
+    _rebuildNodeArray () {
+        let findMap = this._boneIndexToNode = {};
+        let oldNodeArray = this._attachedNodeArray;
+        let nodeArray = this._attachedNodeArray = [];
+        for (let i = 0, n = oldNodeArray.length; i < n; i++) {
+            let boneNode = oldNodeArray[i];
+            if (!boneNode || !boneNode.isValid || boneNode._toRemove) continue;
+            nodeArray.push(boneNode);
+            findMap[boneNode._boneIndex] = boneNode;
+        }
+    },
+
+    _sortNodeArray () {
+        let nodeArray = this._attachedNodeArray;
+        nodeArray.sort(function (a, b) {
+            return a._boneIndex < b._boneIndex? -1 : 1;
+        });
+    },
+
+    _getNodeByBoneIndex (boneIndex) {
+        let findMap = this._boneIndexToNode;
+        let boneNode = findMap[boneIndex];
+        if (!boneNode || !boneNode.isValid) return null;
+        return boneNode;
+    },
+
     /**
      * !#en Destroy attached node which you want.
      * !#zh 销毁对应的挂点
@@ -135,16 +170,13 @@ let AttachUtil = cc.Class({
         if (!this._inited) return;
 
         let nodeArray = this._attachedNodeArray;
-        let clearTree = function (rootNode) {
+        let markTree = function (rootNode) {
             let children = rootNode.children;
             for (let i = 0, n = children.length; i < n; i++) {
                 let c = children[i];
-                if (c) clearTree(c);
+                if (c) markTree(c);
             }
-            let nodeIndex = rootNode._nodeIndex;
-            if (nodeIndex != undefined) {
-                nodeArray[nodeIndex] = null;
-            }
+            rootNode._toRemove = true;
         }
 
         for (let i = 0, n = nodeArray.length; i < n; i++) {
@@ -153,16 +185,19 @@ let AttachUtil = cc.Class({
 
             let delName = boneNode.name.split(ATTACHED_PRE_NAME)[1];
             if (delName === boneName) {
-                clearTree(boneNode);
+                markTree(boneNode);
                 boneNode.removeFromParent(true);
                 boneNode.destroy();
+                nodeArray[i] = null;
             }
         }
+
+        this._rebuildNodeArray();
     },
 
     /**
-     * !#en Traverse all bones to generate the minimum node tree containing the given bone names
-     * !#zh 遍历所有插槽，生成包含所有给定插槽名称的最小节点树
+     * !#en Traverse all bones to generate the minimum node tree containing the given bone names, NOTE that make sure the skeleton has initialized before calling this interface.
+     * !#zh 遍历所有插槽，生成包含所有给定插槽名称的最小节点树，注意，调用该接口前请确保骨骼动画已经初始化好。
      * @param {String} boneName
      * @return {[cc.Node]} attached node array
      */
@@ -183,16 +218,13 @@ let AttachUtil = cc.Class({
             }
         }
 
-        let nodeArray = this._attachedNodeArray;
         let buildBoneTree = function (bone) {
             if (!bone) return;
             let boneData = bone.data;
-            let boneNode = nodeArray[boneData.index];
+            let boneNode = this._getNodeByBoneIndex(boneData.index);
             if (boneNode) return boneNode;
 
             boneNode = this._buildBoneAttachedNode(bone, boneData.index);
-            limitNode(boneNode);
-            boneNode._nodeIndex = boneData.index;
 
             let parentBoneNode = buildBoneTree(bone.parent) || rootNode;
             boneNode.parent = parentBoneNode;
@@ -204,6 +236,8 @@ let AttachUtil = cc.Class({
             let targetNode = buildBoneTree(res[i]);
             targetNodes.push(targetNode);
         }
+
+        this._sortNodeArray();
         return targetNodes;
     },
 
@@ -214,6 +248,7 @@ let AttachUtil = cc.Class({
     destroyAllAttachedNodes () {
         this._attachedRootNode = null;
         this._attachedNodeArray.length = 0;
+        this._boneIndexToNode = {};
         if (!this._inited) return;
 
         let rootNode = this._skeletonNode.getChildByName(ATTACHED_ROOT_NAME);
@@ -225,13 +260,17 @@ let AttachUtil = cc.Class({
     },
 
     /**
-     * !#en Traverse all bones to generate a tree containing all bones nodes
-     * !#zh 遍历所有插槽，生成包含所有插槽的节点树
+     * !#en Traverse all bones to generate a tree containing all bones nodes, NOTE that make sure the skeleton has initialized before calling this interface.
+     * !#zh 遍历所有插槽，生成包含所有插槽的节点树，注意，调用该接口前请确保骨骼动画已经初始化好。
      * @return {cc.Node} root node
      */
     generateAllAttachedNodes () {
         if (!this._inited) return;
 
+        // clear all records
+        this._boneIndexToNode = {};
+        this._attachedNodeArray.length = 0;
+        
         let rootNode = this._prepareAttachNode();
         if (!rootNode) return;
 
@@ -253,9 +292,9 @@ let AttachUtil = cc.Class({
                 if (!boneNode || !boneNode.isValid) {
                     boneNode = this._buildBoneAttachedNode(bone, boneData.index);
                     parentNode.addChild(boneNode);
+                } else {
+                    this._buildBoneRelation(boneNode, bone, boneData.index);
                 }
-                limitNode(boneNode);
-                boneNode._nodeIndex = boneData.index;
             }
         }
         return rootNode;
@@ -275,6 +314,8 @@ let AttachUtil = cc.Class({
         if (!rootNode || !rootNode.isValid) return;
         this._attachedRootNode = rootNode;
 
+        // clear all records
+        this._boneIndexToNode = {};
         let nodeArray = this._attachedNodeArray;
         nodeArray.length = 0;
         limitNode(rootNode);
@@ -301,9 +342,7 @@ let AttachUtil = cc.Class({
             if (parentNode) {
                 let boneNode = parentNode.getChildByName(ATTACHED_PRE_NAME + boneData.name);
                 if (boneNode && boneNode.isValid) {
-                    limitNode(boneNode);
-                    boneNode._nodeIndex = boneData.index;
-                    nodeArray[boneData.index] = boneNode;
+                    this._buildBoneRelation(boneNode, bone, boneData.index);
                 }
             }
         }
@@ -346,28 +385,30 @@ let AttachUtil = cc.Class({
             mulMat(nodeMat, parentMat, _tempMat4);
         };
 
-        let lastValidIdx = -1;
+        let nodeArrayDirty = false;
         for (let i = 0, n = nodeArray.length; i < n; i++) {
             let boneNode = nodeArray[i];
             // Node has been destroy
             if (!boneNode || !boneNode.isValid) { 
                 nodeArray[i] = null;
+                nodeArrayDirty = true;
                 continue;
             }
-            let bone = boneInfos[i];
+            let bone = boneInfos[boneNode._boneIndex];
             // Bone has been destroy
             if (!bone) {
                 boneNode.removeFromParent(true);
                 boneNode.destroy();
                 nodeArray[i] = null;
+                nodeArrayDirty = true;
                 continue;
             }
             matrixHandle(boneNode._worldMatrix, rootNode._worldMatrix, bone);
             boneNode._renderFlag &= ~FLAG_TRANSFORM;
-            lastValidIdx = i;
         }
-        // optimize loop times
-        nodeArray.length = lastValidIdx + 1;
+        if (nodeArrayDirty) {
+            this._rebuildNodeArray();
+        }
     },
 });
 

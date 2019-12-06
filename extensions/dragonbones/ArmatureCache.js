@@ -250,18 +250,17 @@ let AnimationCache = cc.Class({
         let slots = armature._slots, slot, slotMatrix, slotMatrixm, slotColor, colorVal;
         let texture;
         let preSegOffset, preSegInfo;
-        let bones = armature._bones, boneInfo, bone;
+        let bones = armature._bones;
 
         if (this._enableCacheAttachedInfo) {
-            for (let i = 0, l = bones.length; i < l; i++) {
-                bone = bones[i];
-                boneInfo = boneInfos[_boneInfoOffset];
+            for (let i = 0, l = bones.length; i < l; i++, _boneInfoOffset++) {
+                let bone = bones[i];
+                let boneInfo = boneInfos[_boneInfoOffset];
                 if (!boneInfo) {
                     boneInfo = boneInfos[_boneInfoOffset] = {
                         globalTransformMatrix: new dragonBones.Matrix(),
                     };
                 }
-                _boneInfoOffset++;
                 let boneMat = bone.globalTransformMatrix;
                 let cacheBoneMat = boneInfo.globalTransformMatrix;
                 cacheBoneMat.copyFrom(boneMat);

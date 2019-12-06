@@ -428,7 +428,6 @@ sp.Skeleton = cc.Class({
         this._skeleton = null;
         this._rootBone = null;
         this._listener = null;
-        this._boundingBox = cc.rect();
         this._materialCache = {};
         this._debugRenderer = null;
         this._startSlotIndex = -1;
@@ -440,7 +439,7 @@ sp.Skeleton = cc.Class({
 
     onDestroy () {
         this._super();
-        this.attachUtil.destroy();
+        this.attachUtil.reset();
     },
 
     // override base class setMaterial to clear material cache
@@ -751,11 +750,6 @@ sp.Skeleton = cc.Class({
     onEnable () {
         this._super();
         this._activateMaterial();
-    },
-
-    onRestore () {
-        // Destroyed and restored in Editor
-        this._boundingBox = cc.rect();
     },
 
     /**
@@ -1319,9 +1313,16 @@ sp.Skeleton = cc.Class({
     },
 
     _updateSkeletonData () {
-        if (!this.skeletonData) return;
+        if (!this.skeletonData) {
+            this.disableRender();
+            return;
+        }
+
         let data = this.skeletonData.getRuntimeData();
-        if (!data) return;
+        if (!data) {
+            this.disableRender();
+            return;
+        }
         
         try {
             this.setSkeletonData(data);

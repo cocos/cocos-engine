@@ -622,10 +622,9 @@ export default class Vec2 extends ValueType {
         if (x && typeof x === 'object') {
             this.y = x.y || 0;
             this.x = x.x || 0;
-        }
-        else {
-            this.x = x as number;
-            this.y = y;
+        } else {
+            this.x = x as number || 0;
+            this.y = y || 0;
         }
     }
 

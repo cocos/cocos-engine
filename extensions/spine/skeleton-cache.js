@@ -366,15 +366,14 @@ let AnimationCache = cc.Class({
         let blendMode;
         let slot;
 
-        let bones = skeleton.bones, boneInfo, bone;
+        let bones = skeleton.bones;
         if (this._enableCacheAttachedInfo) {
-            for (let i = 0, l = bones.length; i < l; i++) {
-                bone = bones[i];
-                boneInfo = boneInfos[_boneInfoOffset];
+            for (let i = 0, l = bones.length; i < l; i++, _boneInfoOffset++) {
+                let bone = bones[i];
+                let boneInfo = boneInfos[_boneInfoOffset];
                 if (!boneInfo) {
                     boneInfo = boneInfos[_boneInfoOffset] = {};
                 }
-                _boneInfoOffset++;
                 boneInfo.a = bone.a;
                 boneInfo.b = bone.b;
                 boneInfo.c = bone.c;
