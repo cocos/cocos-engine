@@ -170,6 +170,7 @@ export class UIRenderComponent extends UIComponent {
         type: Material,
         displayOrder: 3,
         tooltip:'源材质',
+        visible: false,
     })
     get sharedMaterial () {
         return this._sharedMaterial;
