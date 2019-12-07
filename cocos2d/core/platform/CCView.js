@@ -470,7 +470,7 @@ cc.js.mixin(View.prototype, {
     enableAutoFullScreen: function(enabled) {
         if (enabled && 
             enabled !== this._autoFullScreen && 
-            cc.sys.isMobile) {
+            cc.sys.isMobile && cc.game.frame[cc.scene._fn.requestFullscreen] && cc.game.frame[cc.scene._fn.fullscreenerror]) {
             // Automatically full screen when user touches on mobile version
             this._autoFullScreen = true;
             cc.screen.autoFullScreen(cc.game.frame);
