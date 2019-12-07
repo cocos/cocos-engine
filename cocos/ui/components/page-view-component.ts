@@ -210,8 +210,8 @@ export class PageViewComponent extends ScrollViewComponent {
     }
 
     this._indicator = value;
-    if (this.indicator) {
-      this.indicator.setPageView(this);
+    if (this._indicator) {
+      this._indicator.setPageView(this);
     }
   }
 
