@@ -1,4 +1,4 @@
-import { EPSILON } from '../value-types/utils';
+import { EPSILON, FLOAT_ARRAY_TYPE } from '../value-types/utils';
 import Vec3 from './vec3';
 import Vec2 from './vec2';
 import Mat4 from './mat4';
@@ -798,9 +798,9 @@ export default class Mat3 {
     /**
      * !#en Matrix Data
      * !#zh 矩阵数据
-     * @property {Float32Array} m
+     * @property {Float64Array | Float32Array} m
      */
-    m: Float32Array;
+    m: FloatArray;
 
 
     /**
@@ -815,20 +815,20 @@ export default class Mat3 {
         )
      */
     constructor (
-        m00: number | Float32Array = 1, m01 = 0, m02 = 0,
+        m00: number | FloatArray = 1, m01 = 0, m02 = 0,
         m03 = 0, m04 = 1, m05 = 0,
         m06 = 0, m07 = 0, m08 = 1
     ) {
-        if (m00 instanceof Float32Array) {
+        if (m00 instanceof FLOAT_ARRAY_TYPE) {
             // deep copy
             if (m01) {
-                this.m = new Float32Array(9);
+                this.m = new FLOAT_ARRAY_TYPE(9);
                 this.m.set(m00);
             } else {
                 this.m = m00;
             }
         } else {
-            this.m = new Float32Array(9);
+            this.m = new FLOAT_ARRAY_TYPE(9);
             let m = this.m;
             /**
              * The element at column 0 row 0.

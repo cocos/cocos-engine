@@ -258,12 +258,16 @@ let VideoPlayer = cc.Class({
         },
         isFullscreen: {
             get () {
-                this._isFullscreen = this._impl && this._impl.isFullScreenEnabled();
+                if (!CC_EDITOR) {
+                    this._isFullscreen = this._impl && this._impl.isFullScreenEnabled();
+                }
                 return this._isFullscreen;
             },
             set (enable) {
                 this._isFullscreen = enable;
-                this._impl && this._impl.setFullScreenEnabled(enable);
+                if (!CC_EDITOR) {
+                    this._impl && this._impl.setFullScreenEnabled(enable);
+                }
             },
             animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.videoplayer.isFullscreen'
@@ -336,15 +340,15 @@ let VideoPlayer = cc.Class({
         let impl = this._impl;
         if (impl) {
             impl.createDomElementIfNeeded(this._mute || this._volume === 0);
+            impl.setStayOnBottom(this._stayOnBottom);
             this._updateVideoSource();
 
-            impl.seekTo(this.currentTime);
-            impl.setKeepAspectRatioEnabled(this.keepAspectRatio);
-            impl.setFullScreenEnabled(this.isFullscreen);
-            impl.setStayOnBottom(this._stayOnBottom);
-            this.pause();
-
             if (!CC_EDITOR) {
+                impl.seekTo(this.currentTime);
+                impl.setKeepAspectRatioEnabled(this.keepAspectRatio);
+                impl.setFullScreenEnabled(this._isFullscreen);
+                this.pause();
+
                 impl.setEventListener(EventType.PLAYING, this.onPlaying.bind(this));
                 impl.setEventListener(EventType.PAUSED, this.onPasued.bind(this));
                 impl.setEventListener(EventType.STOPPED, this.onStopped.bind(this));

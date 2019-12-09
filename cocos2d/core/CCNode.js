@@ -1622,7 +1622,8 @@ let NodeDefines = {
 
     _onHierarchyChanged (oldParent) {
         this._updateOrderOfArrival();
-        this.groupIndex = _getActualGroupIndex(this);
+        // Fixed a bug where children and parent node groups were forced to synchronize, instead of only synchronizing `_cullingMask` value
+        _updateCullingMask(this);
         if (this._parent) {
             this._parent._delaySort();
         }
@@ -1666,9 +1667,9 @@ let NodeDefines = {
         if (!this._spaceInfo) {
             if (CC_EDITOR || CC_TEST) {
                 this._spaceInfo = {
-                    trs: new Float32Array(10),
-                    localMat: new Float32Array(16),
-                    worldMat: new Float32Array(16),
+                    trs: new Float64Array(10),
+                    localMat: new Float64Array(16),
+                    worldMat: new Float64Array(16),
                 }
             } else {
                 this._spaceInfo = nodeMemPool.pop();            
@@ -1792,8 +1793,11 @@ let NodeDefines = {
 
         this._updateOrderOfArrival();
 
-        // synchronize groupIndex
-        this.groupIndex = _getActualGroupIndex(this);
+        // Fixed a bug where children and parent node groups were forced to synchronize, instead of only synchronizing `_cullingMask` value
+        this._cullingMask = 1 << _getActualGroupIndex(this);
+        if (CC_JSB && CC_NATIVERENDERER) {
+            this._proxy && this._proxy.updateCullingMask();
+        };
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
@@ -1821,7 +1825,11 @@ let NodeDefines = {
     _onBatchRestored () {
         this._upgrade_1x_to_2x();
 
-        this.groupIndex = _getActualGroupIndex(this);
+        // Fixed a bug where children and parent node groups were forced to synchronize, instead of only synchronizing `_cullingMask` value
+        this._cullingMask = 1 << _getActualGroupIndex(this);
+        if (CC_JSB && CC_NATIVERENDERER) {
+            this._proxy && this._proxy.updateCullingMask();
+        };
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default

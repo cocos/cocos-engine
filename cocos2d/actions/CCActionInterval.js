@@ -913,7 +913,7 @@ cc.RotateTo = cc.Class({
 
         let startAngle = target.angle % 360;
 
-        let angle = cc.macro.ROTATE_ACTION_CCW ? (this._dstAngle - startAngle) : (this._dstAngle + startAngle);
+        let angle = cc.macro.ROTATE_ACTION_CCW ? (this._dstAngle - startAngle) : (startAngle - this._dstAngle);
         if (angle > 180) angle -= 360;
         if (angle < -180) angle += 360;
 
@@ -1007,7 +1007,8 @@ cc.RotateBy = cc.Class({
     },
 
     reverse:function () {
-        var action = new cc.RotateBy(this._duration, -this._deltaAngle);
+        var action = new cc.RotateBy();
+        action.initWithDuration(this._duration, -this._deltaAngle);
         this._cloneDecoration(action);
         this._reverseEaseList(action);
         return action;

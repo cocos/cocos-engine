@@ -27,7 +27,7 @@ import ValueType from './value-type';
 import CCClass from '../platform/CCClass';
 import Vec3 from './vec3';
 import Quat from './quat';
-import { EPSILON } from './utils';
+import { EPSILON, FLOAT_ARRAY_TYPE } from './utils';
 import Mat3 from './mat3';
 import { IMat4Like, IVec3Like } from './math';
 
@@ -1613,9 +1613,9 @@ export default class Mat4 extends ValueType {
     /**
      * !#en Matrix Data
      * !#zh 矩阵数据
-     * @property {Float32Array} m
+     * @property {Float64Array | Float32Array} m
      */
-    m: Float32Array;
+    m: FloatArray;
 
 
     /**
@@ -1639,7 +1639,7 @@ export default class Mat4 extends ValueType {
         m20: number = 0, m21: number = 0, m22: number = 1, m23: number = 0,
         m30: number = 0, m31: number = 0, m32: number = 0, m33: number = 1) {
         super();
-        this.m = new Float32Array(16);
+        this.m = new FLOAT_ARRAY_TYPE(16);
         let tm = this.m;
         tm[0] = m00;
         tm[1] = m01;

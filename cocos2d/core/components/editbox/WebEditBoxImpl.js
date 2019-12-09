@@ -63,14 +63,15 @@ let _currentEditBoxImpl = null;
 let _fullscreen = false;
 let _autoResize = false;
 
+const BaseClass = EditBox._ImplClass;
  // This is an adapter for EditBoxImpl on web platform.
  // For more adapters on other platforms, please inherit from EditBoxImplBase and implement the interface.
 function WebEditBoxImpl () {
+    BaseClass.call(this);
     this._domId = `EditBoxId_${++_domCount}`;
     this._placeholderStyleSheet = null;
     this._elem = null;
     this._isTextArea = false;
-    this._editing = false;
 
     // matrix
     this._worldMat = new Mat4();
@@ -106,7 +107,7 @@ function WebEditBoxImpl () {
     this._placeholderLineHeight = null;
 }
 
-js.extend(WebEditBoxImpl, EditBox._ImplClass);
+js.extend(WebEditBoxImpl, BaseClass);
 EditBox._ImplClass = WebEditBoxImpl;
 
 Object.assign(WebEditBoxImpl.prototype, {
@@ -133,17 +134,6 @@ Object.assign(WebEditBoxImpl.prototype, {
 
         _fullscreen = cc.view.isAutoFullScreenEnabled();
         _autoResize = cc.view._resizeWithBrowserSize;
-    },
-
-    enable () {
-        // Do nothing
-    },
-
-    disable () {
-        // Need to hide dom when disable editBox on editing
-        if (this._editing) {
-            this._elem.blur();
-        }
     },
 
     clear () {
@@ -173,32 +163,21 @@ Object.assign(WebEditBoxImpl.prototype, {
         elem.style.height = height + 'px';
     },
 
-    setFocus (value) {
-        if (value) {
-            this.beginEditing();
-        }
-        else {
-            this._elem.blur();
-        }
-    },
-
-    isFocused () {
-        return this._editing;
-    },
-
     beginEditing () {
         if (_currentEditBoxImpl && _currentEditBoxImpl !== this) {
             _currentEditBoxImpl.setFocus(false);
         }
         this._editing = true;
         _currentEditBoxImpl = this;
+        this._delegate.editBoxEditingDidBegan();
         this._showDom();
         this._elem.focus();  // set focus
-        this._delegate.editBoxEditingDidBegan();  
     },
 
     endEditing () {
-        // Do nothing, handle endEditing on blur callback
+        if (this._elem) {
+            this._elem.blur();
+        }
     },
 
     // ==========================================================================

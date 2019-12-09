@@ -752,8 +752,8 @@ export default class Vec2 extends ValueType {
      */
     add (vector: Vec2, out?: Vec2): Vec2 {
         out = out || new Vec2();
-        out.x += vector.x;
-        out.y += vector.y;
+        out.x = this.x + vector.x;
+        out.y = this.y + vector.y;
         return out;
     }
 

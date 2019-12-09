@@ -13,6 +13,13 @@ const _r2d = 180.0 / Math.PI;
 export const EPSILON = 0.000001;
 
 /**
+ * Use single-precision floating point on native platforms to be compatible with native math libraries.
+ * Double precision floating point is used on Web platforms and editors to reduce the overhead of type conversion.
+ */
+export const FLOAT_ARRAY_TYPE = (CC_JSB && CC_NATIVERENDERER) ? Float32Array : Float64Array;
+export const FLOAT_BYTES = (CC_JSB && CC_NATIVERENDERER) ? 4 : 8;
+
+/**
  * Tests whether or not the arguments have approximately the same value, within an absolute
  * or relative tolerance of glMatrix.EPSILON (an absolute tolerance is used for values less
  * than or equal to 1.0, and a relative tolerance is used for larger values)
