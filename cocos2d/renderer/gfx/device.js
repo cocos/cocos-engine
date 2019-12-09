@@ -1374,6 +1374,9 @@ export default class Device {
           count
         );
       }
+
+      // update stats
+      this._stats.drawcalls++;
     }
 
     // TODO: autogen mipmap for color buffer
@@ -1381,9 +1384,6 @@ export default class Device {
     //   gl.bindTexture(this._framebuffer.colors[i]._target, colors[i]._glID);
     //   gl.generateMipmap(this._framebuffer.colors[i]._target);
     // }
-
-    // update stats
-    this._stats.drawcalls++;
 
     // reset states
     cur.set(next);
