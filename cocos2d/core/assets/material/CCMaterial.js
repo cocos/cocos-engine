@@ -117,24 +117,44 @@ let Material = cc.Class({
     },
 
     statics: {
-        /**
-         * @static
-         * @method getBuiltinMaterial
-         * @param {string} name 
-         * @return {Material}
-         */
         getBuiltinMaterial (name) {
             if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
                 return new cc.Material();
             }
             return cc.AssetLibrary.getBuiltin('material', 'builtin-' + name);
         },
+
+        /**
+         * @static
+         * @enum BUILTIN_EFFECT_NAME
+         */
+        BUILTIN_EFFECT_NAME: cc.Enum({
+            /**
+             * @property SPRITE
+             * @readonly
+             * @type {String}
+             */
+            SPRITE: '2d-sprite',
+            /**
+             * @property GRAY_SPRITE
+             * @readonly
+             * @type {String}
+             */
+            GRAY_SPRITE: '2d-gray-sprite',
+            /**
+             * @property UNLIT
+             * @readonly
+             * @type {String}
+             */
+            UNLIT: 'unlit',
+        }),
+
         /**
          * !#en Creates a Material with builtin Effect.
          * !#zh 使用内建 Effect 创建一个材质。
          * @static
          * @method createWithBuiltin
-         * @param {string} effectName 
+         * @param {BUILTIN_EFFECT_NAME} effectName 
          * @param {number} techniqueIndex 
          * @return {Material}
          */

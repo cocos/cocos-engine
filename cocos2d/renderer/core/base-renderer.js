@@ -202,21 +202,11 @@ export default class Base {
 
       for (let j = 0; j < this._drawItemsPools.length; ++j) {
         let drawItem = this._drawItemsPools.data[j];
-        let passes = drawItem.effect._passes;
+        let passes = drawItem.effect.stagePasses[stage];
+        if (!passes || passes.length === 0) continue;
 
         let stageItem = stageItems.add();
-        stageItem.passes.length = 0;
-        for (let k = 0; k < passes.length; k++) {
-          if (stage === passes[k]._stage) {
-            stageItem.passes.push(passes[k]);
-          }
-        }
-
-        if (stageItem.passes.length === 0) {
-          stageItems._count--;
-          continue;
-        }
-
+        stageItem.passes = passes;
         stageItem.model = drawItem.model;
         stageItem.node = drawItem.node;
         stageItem.ia = drawItem.ia;

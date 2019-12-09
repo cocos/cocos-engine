@@ -13,7 +13,6 @@ class MaterialPool extends Pool {
     enabled = false;
     
     _pool = {};
-    enabled = false;
 
     get (exampleMat, renderComponent) {
         let pool = this._pool;

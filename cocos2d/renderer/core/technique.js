@@ -1,12 +1,7 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import config from '../config';
-
-let _genID = 0;
-
 export default class Technique {
   constructor(name, passes) {
-    this._id = _genID++;
     this._name = name;
     this._passes = passes;
   }

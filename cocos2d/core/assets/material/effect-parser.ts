@@ -68,27 +68,27 @@ function parseTechniques (effectAsset) {
             let properties = parseProperties(effectAsset, pass);
             let defines = passDefines(pass);
 
-            passes[k] = new Pass(passName, detailName, pass.program, stage, properties, defines);
+            let newPass = passes[k] = new Pass(passName, detailName, pass.program, stage, properties, defines);
 
             // rasterizer state
             if (pass.rasterizerState) {
-                passes[k].setCullMode(pass.rasterizerState.cullMode);
+                newPass.setCullMode(pass.rasterizerState.cullMode);
             }
 
             // blend state
             let blendState = pass.blendState && pass.blendState.targets[0];
             if (blendState) {
-                passes[k].setBlend(blendState.blend, blendState.blendEq, blendState.blendSrc,
+                newPass.setBlend(blendState.blend, blendState.blendEq, blendState.blendSrc,
                     blendState.blendDst, blendState.blendAlphaEq, blendState.blendSrcAlpha, blendState.blendDstAlpha, blendState.blendColor);
             }
 
             // depth stencil state
             let depthStencilState = pass.depthStencilState;
             if (depthStencilState) {
-                passes[k].setDepth(depthStencilState.depthTest, depthStencilState.depthWrite, depthStencilState.depthFunc);
-                passes[k].setStencilFront(depthStencilState.stencilTest, depthStencilState.stencilFuncFront, depthStencilState.stencilRefFront, depthStencilState.stencilMaskFront,
+                newPass.setDepth(depthStencilState.depthTest, depthStencilState.depthWrite, depthStencilState.depthFunc);
+                newPass.setStencilFront(depthStencilState.stencilTest, depthStencilState.stencilFuncFront, depthStencilState.stencilRefFront, depthStencilState.stencilMaskFront,
                     depthStencilState.stencilFailOpFront, depthStencilState.stencilZFailOpFront, depthStencilState.stencilZPassOpFront, depthStencilState.stencilWriteMaskFront);
-                passes[k].setStencilBack(depthStencilState.stencilTest, depthStencilState.stencilFuncBack, depthStencilState.stencilRefBack, depthStencilState.stencilMaskBack,
+                newPass.setStencilBack(depthStencilState.stencilTest, depthStencilState.stencilFuncBack, depthStencilState.stencilRefBack, depthStencilState.stencilMaskBack,
                     depthStencilState.stencilFailOpBack, depthStencilState.stencilZFailOpBack, depthStencilState.stencilZPassOpBack, depthStencilState.stencilWriteMaskBack);
             }
         }
