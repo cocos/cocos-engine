@@ -23,15 +23,17 @@
  THE SOFTWARE.
  ****************************************************************************/
 const { bundles } = require('./shared');
-
+/**
+ * @module cc.AssetManager
+ */
 /**
  * !#en
- * Provide some helpful function, it is a singleton.
+ * Provide some helpful function, it is a singleton. All member can be accessed with `cc.assetManager.utils`
  * 
  * !#zh
- * 提供一些辅助方法，helper 是一个单例
+ * 提供一些辅助方法，helper 是一个单例, 所有成员能通过 `cc.assetManager.utils` 访问
  * 
- * @static
+ * @class Helper
  */
 var helper = {
     /**
@@ -99,16 +101,16 @@ var helper = {
      * var url = getUrlWithUuid('fcmR3XADNLgJ1ByKhqcC5Z', {isNative: false});
      * 
      * @typescript
-     * getUrlWithUuid(uuid: string, options?: any): string
+     * getUrlWithUuid(uuid: string, options?: Record<string, any>): string
      */
     getUrlWithUuid: function (uuid, options) {
         options = options || Object.create(null);
         var bundle = bundles.find(function (bundle) {
-            return bundle._config.getAssetInfo(uuid);
+            return bundle.config.getAssetInfo(uuid);
         });
 
         if (bundle) {
-            options.bundle = bundle._config.name;
+            options.bundle = bundle.config.name;
         }
 
         return cc.assetManager.transform(uuid, options);
@@ -145,7 +147,7 @@ var helper = {
      * 检查资源类型是否是场景
      * 
      * @method isScene
-     * @param {Object} asset - asset
+     * @param {*} asset - asset
      * @returns {boolean} - whether or not type is cc.SceneAsset
      * 
      * @typescript

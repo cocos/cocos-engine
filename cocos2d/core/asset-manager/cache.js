@@ -22,6 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+/**
+ * @module cc.AssetManager
+ */
 
 const js = require('../platform/js');
 /**
@@ -46,6 +49,19 @@ function Cache (map) {
 
 Cache.prototype = {
     
+    /**
+     * !#en
+     * Create a cache
+     * 
+     * !#zh
+     * 创建一个 cache
+     * 
+     * @method constructor
+     * @param {Object} [map] - An object used to initialize   
+     * 
+     * @typescript
+     * constructor(map?: Record<string, any>)
+     */
     constructor: Cache,
 
     /**
@@ -57,8 +73,8 @@ Cache.prototype = {
      * 
      * @method add
      * @param {String} key - The key
-     * @param {Object} val - The value
-     * @returns {Object} The value
+     * @param {*} val - The value
+     * @returns {*} The value
      * 
      * @example
      * var cache = new Cache();
@@ -81,7 +97,7 @@ Cache.prototype = {
      * 
      * @method get
      * @param {string} key - The key
-     * @returns {Object} The corresponding content
+     * @returns {*} The corresponding content
      * 
      * @example
      * var cache = new Cache();
@@ -126,7 +142,7 @@ Cache.prototype = {
      * 
      * @method remove
      * @param {string} key - The key
-     * @returns {Object} The removed content
+     * @returns {*} The removed content
      * 
      * @example
      * var cache = new Cache();
@@ -176,7 +192,7 @@ Cache.prototype = {
      * 
      * @method forEach
      * @param {Function} func - Function to be invoked
-     * @param {Object} func.val - The value 
+     * @param {*} func.val - The value 
      * @param {String} func.key - The corresponding key
      * 
      * @example
@@ -225,7 +241,7 @@ Cache.prototype = {
      * 缓存数量
      * 
      * @property count
-     * @returns {Number} The count of cached content
+     * @type {Number}
      */
     get count () {
         return this._count;

@@ -42,8 +42,8 @@ function fetch (task, done) {
         
         if (!item.isNative && assets.has(item.uuid)) {
             var asset = assets.get(item.uuid);
-            asset._addRef();
-            handle(item, task, asset, null, asset.__nativeDepend__, depends, total, done);
+            asset.addRef();
+            handle(item, task, asset, null, asset.__asyncLoadAssets__, depends, total, done);
             return cb();
         }
 
@@ -106,7 +106,7 @@ function handle (item, task, content, file, loadDepends, depends, last, done) {
 
     if (loadDepends) {
         exclude[item.uuid] = true;
-        var err = getDepends(item.uuid, file, exclude, depends, true, item.config);
+        var err = getDepends(item.uuid, file, exclude, depends, true, false, item.config);
         if (err) {
             if (!cc.assetManager.force) {
                 return done(err);

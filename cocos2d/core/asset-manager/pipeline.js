@@ -22,39 +22,21 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+/**
+ * @module cc.AssetManager
+ */
+
 const Task = require('./task');
 
 var _pipelineId = 0;
 /**
  * !#en
- * Create a new pipeline, pipeline can execute the task for some effect.
+ * Pipeline can execute the task for some effect.
  * 
  * !#zh
- * 创建一个管线，管线能执行任务达到某个效果
+ * 管线能执行任务达到某个效果
  * 
  * @class Pipeline
- * @param {string} name - The name of pipeline
- * @param {Function[]} funcs - The array of pipe, every pipe must be function which take two parameters, the first is a `Task` flowed in pipeline, the second is complete callback
- * 
- * @example
- * var pipeline = new Pipeline('download', [
- * (task, done) => {
- *      var url = task.input;
- *      cc.assetManager.downloader.downloadFile(url, null, null, (err, result) => {
- *          task.output = result;
- *          done(err);
- *      });
- * },
- * (task, done) => {
- *      var text = task.input;
- *      var json = JSON.stringify(text);
- *      task.output = json;
- *      done();
- * }
- * ]);
- * 
- * @typescript
- * Pipeline(name: string, funcs: Array<(task: cc.AssetManager.Task, done: (err: Error) => void) => void)>): typeof Pipeline
  */
 function Pipeline (name, funcs) {
     if (!Array.isArray(funcs)) {
@@ -62,8 +44,40 @@ function Pipeline (name, funcs) {
         return;
     } 
     
+    /**
+     * !#en
+     * The id of pipeline
+     * 
+     * !#zh
+     * 管线的 id
+     * 
+     * @property id
+     * @type {Number}
+     */
     this.id = _pipelineId++;
+
+    /**
+     * !#en
+     * The name of pipeline
+     * 
+     * !#zh
+     * 管线的名字
+     * 
+     * @property name
+     * @type {String}
+     */
     this.name = name;
+
+    /**
+     * !#en
+     * All pipes of pipeline
+     * 
+     * !#zh
+     * 所有的管道
+     * 
+     * @property pipes
+     * @type {Function[]}
+     */
     this.pipes = [];
 
     for (var i = 0, l = funcs.length; i < l; i++) {
@@ -76,6 +90,38 @@ function Pipeline (name, funcs) {
 
 Pipeline.prototype = {
 
+
+    /**
+     * !#en
+     * Create a new pipeline
+     * 
+     * !#zh
+     * 创建一个管线
+     * 
+     * @method constructor
+     * @param {string} name - The name of pipeline
+     * @param {Function[]} funcs - The array of pipe, every pipe must be function which take two parameters, the first is a `Task` flowed in pipeline, the second is complete callback
+     * 
+     * @example
+     * var pipeline = new Pipeline('download', [
+     * (task, done) => {
+     *      var url = task.input;
+     *      cc.assetManager.downloader.downloadFile(url, null, null, (err, result) => {
+     *          task.output = result;
+     *          done(err);
+     *      });
+     * },
+     * (task, done) => {
+     *      var text = task.input;
+     *      var json = JSON.stringify(text);
+     *      task.output = json;
+     *      done();
+     * }
+     * ]);
+     * 
+     * @typescript
+     * constructor(name: string, funcs: Array<(task: Task, done?: (err: Error) => void) => void>)
+     */
     constructor: Pipeline,
 
     /**
@@ -100,7 +146,7 @@ Pipeline.prototype = {
      * }, 0);
      * 
      * @typescript
-     * insert(func: (task: cc.AssetManager.Task, callback?: (err: Error) => void), index: number): cc.AssetManager.Pipeline
+     * insert(func: (task: Task, callback?: (err: Error) => void) => void, index: number): Pipeline
      */
     insert (func, index) {
 
@@ -135,7 +181,7 @@ Pipeline.prototype = {
      * });
      * 
      * @typescript
-     * append(func: (task: cc.AssetManager.Task, callback?: (err: Error) => void)): cc.AssetManager.Pipeline
+     * append(func: (task: Task, callback?: (err: Error) => void) => void): Pipeline
      */
     append (func) {
         if (typeof func !== 'function') {
@@ -165,7 +211,7 @@ Pipeline.prototype = {
      * pipeline.remove(0);
      * 
      * @typescript
-     * remove(index: number): cc.AssetManager.Pipeline
+     * remove(index: number): Pipeline
      */
     remove (index) {
         if (typeof index !== 'number') {
@@ -197,7 +243,7 @@ Pipeline.prototype = {
      * console.log(pipeline.sync(task));
      * 
      * @typescript
-     * sync(task: cc.AssetManager.Task): any 
+     * sync(task: Task): any 
      */
     sync (task) {
         var pipes = this.pipes;
@@ -244,7 +290,7 @@ Pipeline.prototype = {
      * pipeline.async(task);
      *  
      * @typescript
-     * async(task: cc.AssetManager.Task): void
+     * async(task: Task): void
      */
     async (task) {
         var pipes = this.pipes;
@@ -281,4 +327,5 @@ Pipeline.prototype = {
         });
     }
 };
+
 module.exports = Pipeline;

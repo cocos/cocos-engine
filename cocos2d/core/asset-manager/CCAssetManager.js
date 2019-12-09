@@ -41,21 +41,20 @@ const packManager = require('./pack-manager');
 const Bundle = require('./bundle');
 const builtins = require('./builtins')
 const { parse, combine } = require('./urlTransformer');
-const { parseParameters } = require('./utilities');
+const { parseParameters, urlAppendTimestamp } = require('./utilities');
 const { assets, files, parsed, pipeline, transformPipeline, fetchPipeline, initializePipeline, LoadStrategy, RequestType, bundles } = require('./shared');
-
+/**
+ * @module cc
+ */
 /**
  * !#en
- * This module controls asset's behaviors and information, include loading, releasing etc. 
+ * This module controls asset's behaviors and information, include loading, releasing etc. it is a singleton
  * All member can be accessed with `cc.assetManager`.
  * 
  * !#zh
- * 此模块管理资源的行为和信息，包括加载，释放等，所有成员能够通过 `cc.assetManager` 调用
+ * 此模块管理资源的行为和信息，包括加载，释放等，这是一个单例，所有成员能够通过 `cc.assetManager` 调用
  * 
- * @static
  * @class AssetManager
- * @submodule AssetManager
- * @module AssetManager
  */
 function AssetManager () {
 
@@ -67,23 +66,78 @@ function AssetManager () {
 
     this._loadPipe = load;
 
-    // normal loading pipeline
-    this._pipeline = pipeline.append(preprocess).append(load);
+    /**
+     * !#en 
+     * Normal loading pipeline
+     * 
+     * !#zh
+     * 正常加载管线
+     * 
+     * @property pipeline
+     * @type {Pipeline}
+     */
+    this.pipeline = pipeline.append(preprocess).append(load);
     
-    // dont init
-    this._fetchPipeline = fetchPipeline.append(preprocess).append(fetch);
+    /**
+     * !#en 
+     * Fetching pipeline
+     * 
+     * !#zh
+     * 下载管线
+     * 
+     * @property fetchPipeline
+     * @type {Pipeline}
+     */
+    this.fetchPipeline = fetchPipeline.append(preprocess).append(fetch);
 
-    // use to init
-    this._initializePipeline = initializePipeline.append(initializing);
+    /**
+     * !#en 
+     * Initialize pipeline
+     * 
+     * !#zh
+     * 初始化管线
+     * 
+     * @property initializePipeline
+     * @type {Pipeline}
+     */
+    this.initializePipeline = initializePipeline.append(initializing);
 
-    // use to tranform url
-    this._transformPipeline = transformPipeline.append(parse).append(combine);
+    /**
+     * !#en 
+     * Url transformer
+     * 
+     * !#zh
+     * Url 转换器
+     * 
+     * @property transformPipeline
+     * @type {Pipeline}
+     */
+    this.transformPipeline = transformPipeline.append(parse).append(combine);
 
 
-    this._bundles = bundles;
+    /**
+     * !#en 
+     * The collection of bundle which is already loaded, you can remove cache with {{#crossLink "Bundle/destroy:method"}}{{/crossLink}}
+     * 
+     * !#zh
+     * 已加载 bundle 的集合， 你能通过 {{#crossLink "Bundle/destroy:method"}}{{/crossLink}} 来移除缓存
+     * 
+     * @property bundles
+     * @type {Cache}
+     */
+    this.bundles = bundles;
 
-    // make an interface to access cache, but set it to private, so you must be responsible for what you have done
-    this._assets = assets;
+    /**
+     * !#en 
+     * The collection of asset which is already loaded, you can remove cache with {{#crossLink "AssetManager/release:method"}}{{/crossLink}}
+     * 
+     * !#zh
+     * 已加载资源的集合， 你能通过 {{#crossLink "AssetManager/release:method"}}{{/crossLink}} 来移除缓存
+     * 
+     * @property assets
+     * @type {Cache}
+     */
+    this.assets = assets;
     
     this._files = files;
     
@@ -93,24 +147,127 @@ function AssetManager () {
 
     this.generalNativeBase = '';
 
+    this.bundleVers = null;
+
+    /**
+     * !#en 
+     * Manage relationship between asset and its dependencies
+     * 
+     * !#zh
+     * 管理资源依赖关系
+     * 
+     * @property dependUtil
+     * @type {DependUtil}
+     */
     this.dependUtil = dependUtil;
 
+    /**
+     * !#en 
+     * Manage the releasing of all asset
+     * 
+     * !#zh
+     * 管理所有资源的释放
+     * 
+     * @property finalizer
+     * @type {Finalizer}
+     */
     this.finalizer = finalizer;
 
+    /**
+     * !#en 
+     * Whether or not cache the loaded asset
+     * 
+     * !#zh
+     * 是否缓存已加载的资源
+     * 
+     * @property cacheAsset
+     * @type {boolean}
+     */
     this.cacheAsset = true;
 
+    /**
+     * !#en 
+     * Whether or not load asset forcely, if it is true, asset will be loaded regardless of error
+     * 
+     * !#zh
+     * 是否强制加载资源, 如果为 true ，加载资源将会忽略报错
+     * 
+     * @property force
+     * @type {boolean}
+     */
     this.force = false;
 
+    /**
+     * !#en 
+     * Some useful function
+     * 
+     * !#zh
+     * 一些有用的方法
+     * 
+     * @property utils
+     * @type {Helper}
+     */
     this.utils = helper;
 
+    /**
+     * !#en 
+     * Manage all downloading task
+     * 
+     * !#zh
+     * 管理所有下载任务
+     * 
+     * @property downloader
+     * @type {Downloader}
+     */
     this.downloader = downloader; 
 
+    /**
+     * !#en 
+     * Manage all parsing task
+     * 
+     * !#zh
+     * 管理所有解析任务
+     * 
+     * @property parser
+     * @type {Parser}
+     */
     this.parser = parser;
 
+    /**
+     * !#en 
+     * Manage internal asset
+     * 
+     * !#zh
+     * 管理内置资源
+     * 
+     * @property builtins
+     * @type {Builtins}
+     */
     this.builtins = builtins;
 
+    /**
+     * !#en 
+     * Manage all packed asset
+     * 
+     * !#zh
+     * 管理所有合并后的资源
+     * 
+     * @property packManager
+     * @type {PackManager}
+     */
     this.packManager = packManager;
 
+    /**
+     * !#en 
+     * Whether or not append time stamp to all url 
+     * 
+     * !#zh
+     * 是否对所有 url 添加时间戳
+     * 
+     * @property appendTimeStamp
+     * @type {boolean}
+     * @default false
+     */
     this.appendTimeStamp = false;
 }
 
@@ -136,19 +293,24 @@ AssetManager.prototype = {
      * 
      * @method init
      * @param {Object} options 
+     * 
+     * @typescript
+     * init(options: Record<string, any>): void
      */
     init (options) {
-        this._assets.clear();
+        options = options || Object.create(null);
         this._files.clear();
         this._parsed.clear();
-        this._bundles.clear();
+        this.assets.clear();
+        this.bundles.clear();
         this.packManager.init();
         this.downloader.init();
         this.parser.init();
         this.finalizer.init();
         this.dependUtil.init();
-        this.generalImportBase = options && options.importBase;
-        this.generalNativeBase = options && options.nativeBase;
+        this.bundleVers = options.bundleVers || Object.create(null);
+        this.generalImportBase = options.importBase;
+        this.generalNativeBase = options.nativeBase;
     },
 
     /**
@@ -159,7 +321,8 @@ AssetManager.prototype = {
      * Every custom parameter in `requests` will be tranfered to handler of `downloader` and `parser` as `options`. 
      * You can register you own handler downloader or parser to collect these custom parameters for some effect. notice: when requests is a preloaded task, options will be ignored.
      * 
-     * Reserverd Keyword: [`uuid`, `url`, `path`, `dir`, `scene`, `requestType`, `type`, `isNative`, `priority`, `loadStrategy`, `loadMode`, `name`, `ext`, `bundle`, `exclude`],
+     * Reserved Keyword: [`uuid`, `url`, `path`, `dir`, `scene`, `requestType`, `type`, `isNative`, `priority`, `loadStrategy`, `loadMode`, `name`, `ext`, `bundle`, `exclude`, `onProgress`,
+     * `maxRetryCount`, `ver`, `isCrossOrigin`, `responseType`, `withCredentials`, `mimeType`, `timeout`, `header`, `reload` , `asyncLoadAssets`, `cacheAsset`, `saveFile`],
      * Please DO NOT use these words as custom options!
      * 
      * !#zh
@@ -168,7 +331,8 @@ AssetManager.prototype = {
      * 依赖资源，则 `options` 中的参数会继续向依赖项中分发。request中的自定义参数都会以 `options` 形式传入加载流程中的 `downloader`, `parser` 的方法中, 你可以
      * 扩展 `downloader`, `parser` 收集参数完成想实现的效果。 注意：options在request是Task时是无效的。
      * 
-     * 保留关键字: [`uuid`, `url`, `path`, `dir`, `scene`, `requestType`, `type`, `isNative`, `priority`, `loadStrategy`, `loadMode`, `name`, `ext`, `bundle`, `exclude`],
+     * 保留关键字: [`uuid`, `url`, `path`, `dir`, `scene`, `requestType`, `type`, `isNative`, `priority`, `loadStrategy`, `loadMode`, `name`, `ext`, `bundle`, `exclude`, `onProgress`,
+     * `maxRetryCount`, `ver`, `isCrossOrigin`, `responseType`, `withCredentials`, `mimeType`, `timeout`, `header`, `reload` , `asyncLoadAssets`, `cacheAsset`, `saveFile`],
      * 请不要使用这些字段为自定义参数!
      * 
      * @method load
@@ -203,7 +367,7 @@ AssetManager.prototype = {
      * cc.assetManager.load({ url: 'http://example.com/my.asset', skin: 'xxx', model: 'xxx', userName: 'xxx', password: 'xxx' });
      * 
      * @typescript
-     * load(requests: string | string[] | Object | Object[] | cc.AssetManager.Task, options?: any, onProgress?: ((finished: number, total: number, item: cc.AssetManager.RequestItem) => void)|null, onComplete?: ((err: Error, data: any) => void)|null): cc.AssetManager.Task
+     * load(requests: string | string[] | Record<string, any> | Record<string, any>[] | cc.AssetManager.Task, options?: Record<string, any>, onProgress?: (finished: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (err: Error, data: any) => void): cc.AssetManager.Task
      */
     load (requests, options, onProgress, onComplete) {
         var { options, onProgress, onComplete } = parseParameters(options, onProgress, onComplete);
@@ -247,7 +411,7 @@ AssetManager.prototype = {
      * var task = cc.assetManager.preload('0cbZa5Y71CTZAccaIFluuZ', (err) => cc.assetManager.load(task));
      * 
      * @typescript
-     * preload(requests: string | string[] | Object | Object[], options?: any, onProgress?: ((finished: number, total: number, item: cc.AssetManager.RequestItem) => void)|null, onComplete?: ((err: Error, items: cc.AssetManager.RequestItem[]) => void)|null): cc.AssetManager.Task
+     * preload(requests: string | string[] | Record<string, any> | Record<string, any>[], options?: Record<string, any>, onProgress?: (finished: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (err: Error, items: cc.AssetManager.RequestItem[]) => void): cc.AssetManager.Task
      */
     preload (requests, options, onProgress, onComplete) {
         var { options, onProgress, onComplete } = parseParameters(options, onProgress, onComplete);
@@ -277,7 +441,7 @@ AssetManager.prototype = {
      * cc.assetManager.loadNativeFile(texture, (err, image) => console.log(err));
      * 
      * @typescript
-     * loadNativeFile(asset: cc.Asset, onComplete?: ((err: Error, file: any) => void)|null): cc.AssetManager.Task
+     * loadNativeFile(asset: cc.Asset, onComplete?: (err: Error, file: any) => void): cc.AssetManager.Task
      */
     loadNativeFile (asset, onComplete) {
         if (!(asset instanceof cc.Asset)) throw new Error('input is not asset');
@@ -289,12 +453,12 @@ AssetManager.prototype = {
             }
             else {
                 bundle = bundles.find(function (bundle) {
-                    return bundle._config.getAssetInfo(asset._uuid);
+                    return bundle.config.getAssetInfo(asset._uuid);
                 });
             }
             
             if (bundle) {
-                depend.bundle = bundle._config.name;
+                depend.bundle = bundle.config.name;
             }
 
             return this.load(depend, onComplete);
@@ -311,16 +475,17 @@ AssetManager.prototype = {
      * @method loadRemoteTexture
      * @param {string} url - The url of image
      * @param {Object} [options] - Some optional parameters
+     * @param {boolean} [options.isCrossOrigin] - Indicate whether or not image is CORS
      * @param {Function} [onComplete] - Callback invoked when finish loading
      * @param {Error} onComplete.err - The error occured in loading process.
-     * @param {cc.Texture2D} onComplete.texture - The loaded texture
+     * @param {Texture2D} onComplete.texture - The loaded texture
      * @returns {Task} loading task
      * 
      * @example
      * cc.assetManager.loadRemoteTexture('http://www.cloud.com/test.jpg', (err, texture) => console.log(err));
      * 
      * @typescript
-     * loadRemoteTexture(url: string, options?: any, onComplete?: ((err: Error, texture: cc.Texture2D) => void)|null): cc.AssetManager.Task
+     * loadRemoteTexture(url: string, options?: Record<string, any>, onComplete?: (err: Error, texture: cc.Texture2D) => void): cc.AssetManager.Task
      */
     loadRemoteTexture (url, options, onComplete) {
         var { options, onComplete } = parseParameters(options, undefined, onComplete);
@@ -355,14 +520,14 @@ AssetManager.prototype = {
      * @param {cc.AudioClip.LoadMode} [options.loadMode] - Indicate which mode audio you want to load
      * @param {Function} [onComplete] - Callback invoked when finish loading
      * @param {Error} onComplete.err - The error occured in loading process.
-     * @param {cc.AudioClip} onComplete.audioClip - The loaded audio clip
+     * @param {AudioClip} onComplete.audioClip - The loaded audio clip
      * @returns {Task} loading task
      * 
      * @example
      * cc.assetManager.loadRemoteTexture('http://www.cloud.com/test.jpg', (err, texture) => console.log(err));
      * 
      * @typescript
-     * loadRemoteAudio(url: string, options?: any, onComplete?: ((err: Error, audioClip: cc.AudioClip) => void)|null): cc.AssetManager.Task
+     * loadRemoteAudio(url: string, options?: Record<string, any>, onComplete?: (err: Error, audioClip: cc.AudioClip) => void): cc.AssetManager.Task
      */
     loadRemoteAudio (url, options, onComplete) {
         var { options, onComplete } = parseParameters(options, undefined, onComplete);
@@ -402,10 +567,10 @@ AssetManager.prototype = {
      * loadScript('http://localhost:8080/index.js', null, (err) => console.log(err));
      * 
      * @typescript
-     * loadScript(url: string, options?: {isAsync?: boolean}|null, onComplete?: ((err: Error) => void)|null): void;
+     * loadScript(url: string, options?: Record<string, any>, onComplete?: (err: Error) => void): void;
      */
     loadScript (url, options, onComplete) {
-        downloader.downloadScript(url, options, onComplete);
+        downloader.downloadScript(urlAppendTimestamp(url), options, onComplete);
     },
 
     /**
@@ -413,11 +578,12 @@ AssetManager.prototype = {
      * load bundle
      * 
      * !#zh
-     * 下载资源包
+     * 加载资源包
      * 
      * @method loadBundle
      * @param {string} root - The root path of bundle
      * @param {Object} [options] - Some optional paramter, same like downloader.downloadFile
+     * @param {string} [options.ver] - The version of this bundle, you can check config.json in this bundle
      * @param {Function} [onComplete] - Callback when bundle loaded or failed
      * @param {Error} onComplete.err - The occurred error, null indicetes success
      * @param {Bundle} onComplete.bundle - The loaded bundle
@@ -426,32 +592,40 @@ AssetManager.prototype = {
      * loadBundle('http://localhost:8080/test', null, (err, bundle) => console.log(err));
      * 
      * @typescript
-     * loadBundle(root: string, options?: any, onComplete?: ((err: Error, bundle: cc.AssetManager.Bundle) => void)|null): void
+     * loadBundle(root: string, options?: Record<string, any>, onComplete?: (err: Error, bundle: cc.AssetManager.Bundle) => void): void
      *
      */
     loadBundle (root, options, onComplete) {
         if (!root) return;
         var { options, onComplete } = parseParameters(options, undefined, onComplete);
-
-        var self = this;
-        options.responseType = 'json';
-        var config = options.ver ? `${root}/config.${options.ver}.json` : `${root}/config.json`;
-        downloader.downloadFile(config, options, null, function (err, response) {
+        options.priority = options.priority || 2;
+        if (root.endsWith('/')) root = root.substr(0, root.length - 1);
+        var ver = options.ver || this.bundleVers[cc.path.basename(root)];
+        var config = ver ?  `${root}/config.${ver}.json`: `${root}/config.json`;
+        var bundle = null;
+        var count = 0;
+        downloader.download(root, config, '.json', options, function (err, response) {
             if (err) {
                 cc.error(err);
                 onComplete && onComplete(err);
                 return;
             }
-            var bundle = new Bundle();
+            bundle = new Bundle();
             response.base = root + '/';
             bundle.init(response);
-            if (!response.scripts) return onComplete && onComplete(null, bundle);
-            
-            self.loadScript(root + '/index.js', options, function (err) {
-                if (err) cc.error(err);
+            count++;
+            if (count === 2) {
                 onComplete && onComplete(null, bundle);
-            });
+            }
+        });
 
+        var js = ver ?  `${root}/index.${ver}.js`: `${root}/index.js`;
+        this.loadScript(js, options, function (err) {
+            if (err) cc.warn(err);
+            count++;
+            if (count === 2) {
+                onComplete && onComplete(null, bundle);
+            }
         });
         
     },
@@ -485,7 +659,7 @@ AssetManager.prototype = {
      * cc.assetManager.loadRes('imgs/cocos', cc.SpriteFrame, null, (err, spriteFrame) => console.log(err));
      * 
      * @typescript
-     * loadRes(paths: string|string[]|cc.AssetManager.Task, type?: typeof cc.Asset, onProgress?: ((finish: number, total: number, item: cc.AssetManager.RequestItem) => void)|null, onComplete?: ((error: Error, resources: cc.Asset|cc.Asset[]) => void)|null): cc.AssetManager.Task
+     * loadRes(paths: string|string[]|cc.AssetManager.Task, type?: typeof cc.Asset, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, resources: cc.Asset|cc.Asset[]) => void): cc.AssetManager.Task
      */
     loadRes (paths, type, onProgress, onComplete) {
         return bundles.get('resources').loadAsset(paths, type, onProgress, onComplete);
@@ -519,7 +693,7 @@ AssetManager.prototype = {
      * cc.assetManager.preloadRes('imgs/cocos', cc.SpriteFrame, null, (err) => console.log(err));
      * 
      * @typescript
-     * preloadRes(paths: string|string[], type?: typeof cc.Asset, onProgress?: ((finish: number, total: number, item: cc.AssetManager.RequestItem) => void)|null, onComplete?: ((error: Error, items: cc.AssetManager.RequestItem[]) => void)|null): cc.AssetManager.Task
+     * preloadRes(paths: string|string[], type?: typeof cc.Asset, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, items: cc.AssetManager.RequestItem[]) => void): cc.AssetManager.Task
      */
     preloadRes (path, type, onProgress, onComplete) {
         return bundles.get('resources').preloadAsset(path, type, onProgress, onComplete);
@@ -568,7 +742,7 @@ AssetManager.prototype = {
      * });
      *
      * @typescript
-     * loadResDir(dir: string|cc.AssetManager.Task, type?: typeof cc.Asset, onProgress?: ((finish: number, total: number, item: cc.AssetManager.RequestItem) => void)|null, onComplete?: ((error: Error, assets: cc.Asset|cc.Asset[]) => void)|null): cc.AssetManager.Task
+     * loadResDir(dir: string|cc.AssetManager.Task, type?: typeof cc.Asset, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, assets: cc.Asset|cc.Asset[]) => void): cc.AssetManager.Task
      */
     loadResDir (dir, type, onProgress, onComplete) {
         return bundles.get('resources').loadDir(dir, type, onProgress, onComplete);
@@ -611,7 +785,7 @@ AssetManager.prototype = {
      * });
      *
      * @typescript
-     * preloadResDir(dir: string, type?: typeof cc.Asset, onProgress?: ((finish: number, total: number, item: cc.AssetManager.RequestItem) => void)|null, onComplete?: ((error: Error, items: cc.AssetManager.RequestItem[]) => void)|null): cc.AssetManager.Task
+     * preloadResDir(dir: string, type?: typeof cc.Asset, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, items: cc.AssetManager.RequestItem[]) => void): cc.AssetManager.Task
      */
     preloadResDir (dir, type, onProgress, onComplete) {
         return bundles.get('resources').preloadDir(dir, type, onProgress, onComplete);
@@ -625,37 +799,36 @@ AssetManager.prototype = {
      * 通过场景名称进行加载场景。
      *
      * @method loadScene
-     * @param {String} sceneName - The name of the scene to load.
+     * @param {String|Task} sceneName - The name of the scene to load.
      * @param {Object} [options] - Some optional parameters
-     * @param {Function} [options.onBeforeLoadScene] - Callback before run this scene
-     * @param {Function} [options.onAfterLoadScene] - Callback after run this scene
      * @param {Function} [onProgress] - Callback invoked when progression change.
      * @param {Number} onProgress.finish - The number of the items that are already completed.
      * @param {Number} onProgress.total - The total number of the items.
      * @param {Object} onProgress.item - The latest request item
      * @param {Function} [onComplete] - callback, will be called after scene launched.
      * @param {Error} onComplete.err - The occurred error, null indicetes success
+     * @param {Scene} onComplete.scene - The scene
      * @return {Task} loading task
      * 
      * @example
-     * cc.assetManager.loadScene('first', (err) => console.log(err));
+     * cc.assetManager.loadScene('first', (err, scene) => cc.director.runScene(scene));
      * 
      * @typescript
-     * loadScene(sceneName: string, options?: any, onProgress?: ((finish: number, total: number, item: cc.AssetManager.RequestItem) => void)|null, onComplete?: ((error: Error) => void)|null): cc.AssetManager.Task
+     * loadScene(sceneName: string|cc.AssetManager.Task, options?: Record<string, any>, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, scene: cc.Scene) => void): cc.AssetManager.Task
      */
     loadScene (sceneName, options, onProgress, onComplete) {
-        return bundles.get('scenes').loadScene(sceneName, options, onProgress, onComplete);
+        return bundles.get('main').loadScene(sceneName, options, onProgress, onComplete);
     },
 
     /**
      * !#en
      * Preloads the scene to reduces loading time. You can call this method at any time you want.
      * After calling this method, you still need to finish loading by `cc.assetManager.loadScene` or `cc.director.loadScene`.
-     * You must wait for preloading callback before calling `cc.assetManager.loadScene`
+     * You don't have to wait for preloading callback before calling `cc.assetManager.loadScene`
      * 
      * !#zh 
      * 预加载场景，你可以在任何时候调用这个方法。
-     * 调用完后，你仍然需要通过 `cc.assetManager.loadScene` 或 `cc.director.loadScene` 来完成加载，你必须等待预加载完成后再调用 `cc.assetManager.loadScene`
+     * 调用完后，你仍然需要通过 `cc.assetManager.loadScene` 或 `cc.director.loadScene` 来完成加载，你不必等待预加载完成再调用 `cc.assetManager.loadScene`
      *
      * @method preloadScene
      * @param {String} sceneName - The name of the scene to preload.
@@ -672,29 +845,29 @@ AssetManager.prototype = {
      * cc.assetManager.preloadScene('first', (err) => cc.assetManager.loadScene('first'));
      * 
      * @typescript
-     * preloadScene(sceneName: string, options?: any, onProgress?: ((finish: number, total: number, item: cc.AssetManager.RequestItem) => void)|null, onComplete?: ((error: Error) => void)|null): cc.AssetManager.Task
+     * preloadScene(sceneName: string, options?: Record<string, any>, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error) => void): cc.AssetManager.Task
      */
     preloadScene (sceneName, options, onProgress, onComplete) {
-        return bundles.get('scenes').preloadScene(sceneName, options, onProgress, onComplete);
+        return bundles.get('main').preloadScene(sceneName, options, onProgress, onComplete);
     },
 
     /**
      * !#en
      * Get resource data by path and type. <br>
-     * After you load resources with {{#crossLink "assetManager/loadRes:method"}}{{/crossLink}} or {{#crossLink "assetManager/loadResDir:method"}}{{/crossLink}},
+     * After you load resources with {{#crossLink "AssetManager/loadRes:method"}}{{/crossLink}} or {{#crossLink "AssetManager/loadResDir:method"}}{{/crossLink}},
      * you can acquire them by passing the path to this API.
      * 
      * !#zh
-     * 通过路径与类型获取资源。在你使用 {{#crossLink "assetManager/loadRes:method"}}{{/crossLink}} 或者 {{#crossLink "assetManager/loadResDir:method"}}{{/crossLink}} 之后，
+     * 通过路径与类型获取资源。在你使用 {{#crossLink "AssetManager/loadRes:method"}}{{/crossLink}} 或者 {{#crossLink "AssetManager/loadResDir:method"}}{{/crossLink}} 之后，
      * 你能通过传路径通过这个 API 获取到这些资源。
      * 
      * @method getRes
      * @param {String} path - The path of resource
      * @param {Function} [type] - Only asset of type will be returned if this argument is supplied.
-     * @returns {*}
+     * @returns {Asset}
      * 
      * @typescript
-     * getRes(path: string, type?: typeof cc.Asset): any
+     * getRes(path: string, type?: typeof cc.Asset): cc.Asset
      */
     getRes (path, type) {
         return bundles.get('resources').getAsset(path, type);
@@ -716,7 +889,7 @@ AssetManager.prototype = {
      * 当 `force` 为 `true` 或者 `undefined` 时，引擎会尝试计算资源被引用的数量，如果数量为零，则资源会被释放。你也能将 `force` 置为true来强制释放这个资源
      *
      * @method release
-     * @param {Asset|RawAsset} asset - The asset to be released
+     * @param {Asset} asset - The asset to be released
      * @param {boolean} [force] - Indicates whether or not release this asset forcely
      * 
      * @example
@@ -732,11 +905,11 @@ AssetManager.prototype = {
 
     /**
      * !#en 
-     * Release the asset loaded by {{#crossLink "assetManager/loadRes:method"}}{{/crossLink}} or {{#crossLink "assetManager/loadResDir:method"}}{{/crossLink}}. 
-     * Refer to {{#crossLink "assetManager/release:method"}}{{/crossLink}} for detailed informations.
+     * Release the asset loaded by {{#crossLink "AssetManager/loadRes:method"}}{{/crossLink}} or {{#crossLink "AssetManager/loadResDir:method"}}{{/crossLink}}. 
+     * Refer to {{#crossLink "AssetManager/release:method"}}{{/crossLink}} for detailed informations.
      * 
      * !#zh 
-     * 释放通过 {{#crossLink "assetManager/loadRes:method"}}{{/crossLink}} 加载的资源。详细信息请参考 {{#crossLink "assetManager/release:method"}}{{/crossLink}}
+     * 释放通过 {{#crossLink "AssetManager/loadRes:method"}}{{/crossLink}} 加载的资源。详细信息请参考 {{#crossLink "AssetManager/release:method"}}{{/crossLink}}
      *
      * @method releaseRes
      * @param {String} path - The path of resource
@@ -757,10 +930,10 @@ AssetManager.prototype = {
 
     /**
      * !#en 
-     * Release all assets. Refer to {{#crossLink "assetManager/release:method"}}{{/crossLink}} for detailed informations.
+     * Release all assets. Refer to {{#crossLink "AssetManager/release:method"}}{{/crossLink}} for detailed informations.
      * 
      * !#zh 
-     * 释放所有资源。详细信息请参考 {{#crossLink "assetManager/release:method"}}{{/crossLink}}
+     * 释放所有资源。详细信息请参考 {{#crossLink "AssetManager/release:method"}}{{/crossLink}}
      *
      * @method releaseAll
      * @param {boolean} [force] - Indicates whether or not release this asset forcely
@@ -793,7 +966,7 @@ AssetManager.prototype = {
      * var urls = cc.assetManager.transform({ uuid: '0cbZa5Y71CTZAccaIFluuZ'});
      * 
      * @typescript
-     * transform(input: string | string[] | Object | Object[], options?: any): string|string[]
+     * transform(input: string | string[] | Record<string, any> | Record<string, any>[], options?: Record<string, any>): string|string[]
      */
     transform (input, options) {
         var subTask = Task.create({input, options});
@@ -819,6 +992,24 @@ AssetManager.prototype = {
 };
 
 cc.AssetManager = AssetManager;
+/**
+ * @module cc
+ */
+/**
+ * @property assetManager
+ * @type {AssetManager}
+ */
 cc.assetManager = new AssetManager();
 
 module.exports = cc.assetManager;
+
+/**
+ * !#en
+ * This module controls asset's behaviors and information, include loading, releasing etc. 
+ * All member can be accessed with `cc.assetManager`. All class or enum can be accessed with `cc.AssetManager`
+ * 
+ * !#zh
+ * 此模块管理资源的行为和信息，包括加载，释放等，所有成员能够通过 `cc.assetManager` 调用. 所有类型或枚举能通过 `cc.AssetManager` 访问
+ * 
+ * @module cc.AssetManager
+ */

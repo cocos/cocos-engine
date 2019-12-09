@@ -38,7 +38,7 @@ function initializing (task, done) {
         }
         else if (!isNative && assets.has(uuid)) {
             var asset = assetsMap[id] = item.content = assets.get(uuid);
-            asset._addRef();
+            asset.addRef();
             cb();
         } 
         else {
@@ -66,12 +66,12 @@ function initializing (task, done) {
         // stage 2, set properties
         for (var i = 0, l = input.length; i < l; i++) {
             var item = input[i];
-            var { id, isNative, uuid, options } = item;
-            var { cacheAsset } = options;
+            var { id, isNative, uuid } = item;
             parsed.remove(id);
             files.remove(id);
             if (!isNative) {
                 if (!item.content) {
+                    var { cacheAsset } = item.options;
                     var asset = assetsMap[id];
                     asset._uuid = uuid;
                     var deferredInit = asset.__depends__.length > 0;
@@ -86,7 +86,18 @@ function initializing (task, done) {
                     }
                     cache(uuid, asset, cacheAsset !== undefined ? cacheAsset : cc.assetManager.cacheAsset); 
                     item.content = asset;
-                    asset._addRef();
+                    asset.addRef();
+                    asset.__asyncLoadAssets__ = false;
+                }
+                else {
+                    var asset = item.content;
+                    asset.__asyncLoadAssets__ = false;
+                    if (asset.__nativeDepend__ && !asset._nativeAsset) {
+                        var missingAsset = setProperties(uuid, asset, assetsMap);
+                        if (!missingAsset) {
+                            asset.onLoad && inits.push(asset);
+                        }
+                    }
                 }
             }
         }

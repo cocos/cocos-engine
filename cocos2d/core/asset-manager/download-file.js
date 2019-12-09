@@ -22,14 +22,14 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-const { parseParameters, urlAppendTimestamp } = require('./utilities');
+const { parseParameters } = require('./utilities');
 
 function downloadFile (url, options, onProgress, onComplete) {
     var { options, onProgress, onComplete } = parseParameters(options, onProgress, onComplete);
 
     var xhr = new XMLHttpRequest(), errInfo = 'download failed: ' + url + ', status: ';
 
-    xhr.open('GET', urlAppendTimestamp(url), true);
+    xhr.open('GET', url, true);
 
     if (options.responseType !== undefined) xhr.responseType = options.responseType;
     if (options.withCredentials !== undefined) xhr.withCredentials = options.withCredentials;

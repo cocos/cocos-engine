@@ -29,7 +29,7 @@ export function postLoadMesh (mesh, callback) {
         return;
     }
     // load image
-    cc.loader.load(mesh.nativeUrl, function (err, buffer) {
+    cc.assetManager.loadNativeFile(mesh, function (err, buffer) {
         if (buffer) {
             mesh._nativeAsset = buffer;
         }

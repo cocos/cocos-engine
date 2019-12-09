@@ -679,6 +679,9 @@ var Texture2D = cc.Class({
      * @return {Boolean} inherit from the CCObject
      */
     destroy () {
+        if (cc.sys.capabilities.createImageBitmap && this._image instanceof ImageBitmap) {
+            this._image.close();
+        }
         this._image = null;
         this._texture && this._texture.destroy();
         this._super();
@@ -749,8 +752,13 @@ var Texture2D = cc.Class({
         this.loaded = true;
         this.emit("load");
 
-        if (cc.macro.CLEANUP_IMAGE_CACHE && this._image instanceof HTMLImageElement) {
-            this._clearImage();
+        if (cc.macro.CLEANUP_IMAGE_CACHE) {
+            if (this._image instanceof HTMLImageElement) {
+                this._clearImage();
+            }
+            else if (this._image instanceof ImageBitmap) {
+                this._image.close();
+            }
         }
     },
 

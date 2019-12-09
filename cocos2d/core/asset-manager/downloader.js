@@ -22,10 +22,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
+/**
+ * @module cc.AssetManager
+ */
 const js = require('../platform/js');
 const debug = require('../CCDebug');
-const retry = require('./utilities').retry;
 const { loadFont } = require('./font-loader');
 const callInNextTick = require('../platform/utils').callInNextTick;
 const downloadDomImage = require('./download-dom-image');
@@ -35,6 +36,7 @@ const downloadScript = require('./download-script.js');
 const Cache = require('./cache');
 const { files, LoadStrategy } = require('./shared');
 const { __audioSupport, capabilities } = require('../platform/CCSys');
+const { urlAppendTimestamp, retry } = require('./utilities');
 
 
 var formatSupport = __audioSupport.format || [];
@@ -54,8 +56,6 @@ var downloadAudio = function (url, options, onComplete) {
 };
 
 var downloadAudio = formatSupport.length === 0 ? unsupported : (__audioSupport.WEB_AUDIO ? downloadAudio : downloadDomAudio);
-
-var downloadWebp = capabilities && capabilities.webp ? downloadDomImage : unsupported;
 
 var downloadImage = function (url, options, onComplete) {
     // if createImageBitmap is valid, we can transform blob to ImageBitmap. Otherwise, just use HTMLImageElement to load
@@ -148,7 +148,7 @@ var handleQueue = function (maxConcurrent, maxRequestsPerFrame) {
 
 /**
  * !#en
- * Control all download process, it is a singleton. it can download several types of files:
+ * Control all download process, it is a singleton. All member can be accessed with `cc.assetManager.downloader` , it can download several types of files:
  * 1. Text
  * 2. Image
  * 3. Audio
@@ -156,14 +156,14 @@ var handleQueue = function (maxConcurrent, maxRequestsPerFrame) {
  * 5. Scripts
  * 
  * !#zh
- * 管理所有下载过程，downloader 是个单例，它能下载以下几种类型的文件：
+ * 管理所有下载过程，downloader 是个单例，所有成员能通过 `cc.assetManager.downloader` 访问，它能下载以下几种类型的文件：
  * 1. 文本
  * 2. 图片
  * 3. 音频
  * 4. 资源
  * 5. 脚本
  * 
- * @static
+ * @class Downloader
  */
 var downloader = {
     /**
@@ -175,7 +175,8 @@ var downloader = {
      * 每一种加载策略都有对应的限制，如果使用这种加载策略，网络请求将会受到对应的限制。每个限制存在两个条件，第一个条件是 maxConcurrent ，它表明最多多少个请求能同时进行工作；
      * 第二个条件是 maxRequestsPerFrame ，它表明每帧最多发起多少个新请求
      * 
-     * @property {Array} limitations
+     * @property limitations
+     * @type {Array}
      * 
      * @example
      * cc.assetManager.downloader.limitations[LoadStrategy.NORMAL].maxConcurrent = 10;
@@ -189,8 +190,8 @@ var downloader = {
      * !#zh
      * 失败重试次数
      * 
-     * @property {Number} maxRetryCount
-     * @default 3
+     * @property maxRetryCount
+     * @type {Number}
      */
     maxRetryCount: 3,
 
@@ -201,8 +202,8 @@ var downloader = {
      * !#zh
      * 下载并发数是否受限
      * 
-     * @property {boolean} limited
-     * @default true
+     * @property limited
+     * @type {boolean}
      */
     limited: true,
 
@@ -213,8 +214,8 @@ var downloader = {
      * !#zh
      * 重试的间隔时间
      * 
-     * @property {Number} retryInterval
-     * @default 2000
+     * @property retryInterval
+     * @type {Number}
      */
     retryInterval: 2000,
 
@@ -238,7 +239,7 @@ var downloader = {
      * downloadDomImage('http://example.com/test.jpg', null, (err, img) => console.log(err));
      * 
      * @typescript
-     * downloadDomImage(url: string, options?: {isCrossOrigin: boolean} | null, onComplete?: ((err: Error, img: HTMLImageElement) => void)) | null: HTMLImageElement
+     * downloadDomImage(url: string, options?: Record<string, any> , onComplete?: (err: Error, img: HTMLImageElement) => void): HTMLImageElement
      */
     downloadDomImage: downloadDomImage,
 
@@ -261,7 +262,7 @@ var downloader = {
      * downloadDomAudio('http://example.com/test.mp3', null, (err, audio) => console.log(err));
      * 
      * @typescript
-     * downloadDomAudio(url: string, options?: any, onComplete?: ((err: Error, audio: HTMLAudioElement) => void)|null): HTMLAudioElement
+     * downloadDomAudio(url: string, options?: Record<string, any>, onComplete?: (err: Error, audio: HTMLAudioElement) => void): HTMLAudioElement
      */
     downloadDomAudio: downloadDomAudio,
     
@@ -292,7 +293,7 @@ var downloader = {
      * downloadFile('http://example.com/test.bin', {responseType: 'arraybuffer'}, null, (err, arrayBuffer) => console.log(err));
      * 
      * @typescript
-     * downloadFile(url: string, options?: {responseType?: string, withCredentials?: boolean, mimeType?: string, timeout?: Number, header?: any}|null, onProgress?: ((loaded: Number, total: Number) => void)|null, onComplete?: ((err: Error, response: any) => void)|null): XMLHttpRequest
+     * downloadFile(url: string, options?: Record<string, any>, onProgress?: (loaded: Number, total: Number) => void, onComplete?: (err: Error, response: any) => void): XMLHttpRequest
      */
     downloadFile: downloadFile,
 
@@ -314,7 +315,7 @@ var downloader = {
      * downloadScript('http://localhost:8080/index.js', null, (err) => console.log(err));
      * 
      * @typescript
-     * downloadScript(url: string, options?: {isAsync?: boolean}|null, onComplete?: ((err: Error) => void)|null): void;
+     * downloadScript(url: string, options?: Record<string, any>, onComplete?: (err: Error) => void): void;
      */
     downloadScript: downloadScript,
 
@@ -363,8 +364,8 @@ var downloader = {
      * downloader.register({'.tga': (url, options, onComplete) => onComplete(null, null), '.ext': (url, options, onComplete) => onComplete(null, null)});
      * 
      * @typescript
-     * register(type: string, handler: (url: string, options: any, onComplete: (err: Error, content: any) => void) => void): void
-     * register(map: any): void
+     * register(type: string, handler: (url: string, options: Record<string, any>, onComplete: (err: Error, content: any) => void) => void): void
+     * register(map: Record<string, (url: string, options: Record<string, any>, onComplete: (err: Error, content: any) => void) => void>): void
      */
     register (type, handler) {
         if (typeof type === 'object') {
@@ -387,7 +388,9 @@ var downloader = {
      * @param {string} type - The type indicates that which handler should be used to download, such as '.jpg'
      * @param {Object} options - some optional paramters will be transferred to the corresponding handler.
      * @param {Function} [options.onProgress] - progressive callback will be transferred to handler.
+     * @param {Number} [options.maxRetryCount] - How many times should retry when download failed
      * @param {LoadStrategy} [options.loadStrategy] - Indicates which strategy should be used.
+     * @param {Number} [options.priority] - The priority of this url, default is 0, the greater number is higher priority.
      * @param {Function} onComplete - callback when finishing downloading
      * @param {Error} onComplete.err - The occurred error, null indicetes success
      * @param {*} onComplete.contetnt - The downloaded file
@@ -396,7 +399,7 @@ var downloader = {
      * download('http://example.com/test.tga', '.tga', {onProgress: (loaded, total) => console.lgo(loaded/total)}, onComplete: (err) => console.log(err));
      * 
      * @typescript
-     * download(id: string, url: string, type: string, options: {onProgress?: (loaded: Number, total: Number) => void, loadStrategy?: cc.AssetManager.LoadStrategy}, onComplete: (err: Error, content: any) => void): void
+     * download(id: string, url: string, type: string, options: Record<string, any>, onComplete: (err: Error, content: any) => void): void
      */
     download (id, url, type, options, onComplete) {
         var func = downloaders[type] || downloaders['default'];
@@ -430,13 +433,13 @@ var downloader = {
                     _downloading.add(id, [onComplete]);
                 }
                 
-                if (!self.limited) return func(url, options, callback);
+                if (!self.limited) return func(urlAppendTimestamp(url), options, callback);
 
                 // refresh
                 updateTime();
 
                 function invoke () {
-                    func(url, options, function () {
+                    func(urlAppendTimestamp(url), options, function () {
                         // when finish downloading, update _totalNum
                         _totalNum--;
                         if (!_checkNextPeriod && _queue.length > 0) {
@@ -485,11 +488,11 @@ var downloaders = {
     '.jpg' : downloadImage,
     '.bmp' : downloadImage,
     '.jpeg' : downloadImage,
-    '.gif' : downloadDomImage,
-    '.ico' : downloadDomImage,
-    '.tiff' : downloadDomImage,
-    '.webp' : downloadWebp,
-    '.image' : downloadDomImage,
+    '.gif' : downloadImage,
+    '.ico' : downloadImage,
+    '.tiff' : downloadImage,
+    '.webp' : downloadImage,
+    '.image' : downloadImage,
     '.pvr': downloadArrayBuffer,
     '.pkm': downloadArrayBuffer,
 
@@ -521,6 +524,7 @@ var downloaders = {
     '.binary' : downloadArrayBuffer,
     '.bin': downloadArrayBuffer,
     '.dbbin': downloadArrayBuffer,
+    '.skel': downloadArrayBuffer,
 
     '.js': downloadScript,
 

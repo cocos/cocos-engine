@@ -22,7 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
+/**
+ * @module cc.AssetManager
+ */
 const dependUtil = require('./depend-util');
 const Cache = require('./cache');
 require('../assets/CCAsset');
@@ -80,31 +82,15 @@ var _lockedAsset = Object.create(null);
 var _persistNodeDeps = new Cache();
 var _toDelete = new Cache();
 var eventListener = false;
-Object.assign(cc.Asset.prototype, {
-    get _ref () {
-        return this.__ref__ || 0;
-    },
-
-    set _ref (val) {
-        this.__ref__ = val;
-    },
-
-    _addRef () {
-        this._ref++;
-    },
-    _removeRef () {
-        this._ref--;
-    }
-});
 
 /**
  * !#en
- * Control resource release, it's a singleton
+ * Control resource release, it's a singleton, all member can be accessed with cc.assetManager.finalizer
  * 
  * !#zh
- * 控制资源释放，这是一个单例
+ * 控制资源释放，这是一个单例，所有成员能通过 `cc.assetManager.finalizer` 访问
  * 
- * @static
+ * @class Finalizer
  */
 var finalizer = {
     /**
@@ -130,7 +116,7 @@ var finalizer = {
         for (let i = 0, l = deps.length; i < l; i++) {
             var dependAsset = assets.get(deps[i]);
             if (dependAsset) {
-                dependAsset._addRef();
+                dependAsset.addRef();
             }
         }
         _persistNodeDeps.add(node.uuid, deps);
@@ -142,7 +128,7 @@ var finalizer = {
             for (let i = 0, l = deps.length; i < l; i++) {
                 var dependAsset = assets.get(deps[i]);
                 if (dependAsset) {
-                    dependAsset._removeRef();
+                    dependAsset.removeRef();
                 }
             }
             _persistNodeDeps.remove(node.uuid);
@@ -160,7 +146,7 @@ var finalizer = {
             for (let i = 0, l = deps.length; i < l; i++) {
                 var dependAsset = assets.get(deps[i]);
                 if (dependAsset) {
-                    dependAsset._addRef();
+                    dependAsset.addRef();
                 }
             }
             if (sceneDeps) {
@@ -173,7 +159,7 @@ var finalizer = {
             var childs = dependUtil.getDeps(oldScene._id);
             for (let i = 0, l = childs.length; i < l; i++) {
                 let asset = assets.get(childs[i]);
-                asset && asset._removeRef();
+                asset && asset.removeRef();
                 if (CC_TEST || oldScene.autoReleaseAssets) this.release(asset);
             }
             var dependencies = dependUtil._depends.get(oldScene._id);
@@ -181,7 +167,7 @@ var finalizer = {
                 var persistDeps = dependencies.persistDeps;
                 for (let i = 0, l = persistDeps.length; i < l; i++) {
                     let asset = assets.get(persistDeps[i]);
-                    asset && asset._removeRef();
+                    asset && asset.removeRef();
                     if (CC_TEST || oldScene.autoReleaseAssets) this.release(asset);
                 }
             }
@@ -191,7 +177,7 @@ var finalizer = {
 
     /**
      * !#en
-     * Lock this asset, this asset can not be released unless unlock it
+     * Lock this asset, it can not be released unless unlock it
      * 
      * !#zh
      * 锁上此资源，除非解锁，否则此资源不能被释放
@@ -210,7 +196,7 @@ var finalizer = {
 
     /**
      * !#en
-     * Unlock this asset, this asset can be released normally
+     * Unlock this asset, so it can be released normally
      * 
      * !#zh
      * 解锁此资源，此资源能被正常释放
@@ -300,7 +286,7 @@ var finalizer = {
         for (let i = 0, l = depends.length; i < l; i++) {
             var dependAsset = assets.get(depends[i]);
             if (dependAsset) {
-                dependAsset._removeRef();
+                dependAsset.removeRef();
                 finalizer._free(dependAsset, force);
             }
         }
@@ -310,13 +296,13 @@ var finalizer = {
 
     /**
      * !#en
-     * Refer to {{#crossLink "assetManager/release:method"}}{{/crossLink}} for detailed informations
+     * Refer to {{#crossLink "AssetManager/release:method"}}{{/crossLink}} for detailed informations
      * 
      * !#zh
-     * 详细信息请参考 {{#crossLink "assetManager/release:method"}}{{/crossLink}}
+     * 详细信息请参考 {{#crossLink "AssetManager/release:method"}}{{/crossLink}}
      * 
      * @method release
-     * @param {Asset|RawAsset} asset - The asset to be released
+     * @param {Asset} asset - The asset to be released
      * @param {boolean} [force] - Indicates whether or not release this asset forcely
      *
      * @typescript

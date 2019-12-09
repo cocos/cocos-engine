@@ -62,6 +62,7 @@ cc.Asset = cc.Class({
          */
         this.loaded = true;
         this._nativeUrl = '';
+        this._ref = 0;
     },
 
     properties: {
@@ -90,7 +91,7 @@ cc.Asset = cc.Class({
                         }
                         else {
                             // imported in an independent dir
-                            this._nativeUrl = cc.assetManager.utils.getUrlWithUuid(this._uuid, {name, ext: cc.path.extname(name), isNative: true});
+                            this._nativeUrl = cc.assetManager.utils.getUrlWithUuid(this._uuid, {_native: name, ext: cc.path.extname(name), isNative: true});
                         }
                     }
                 }
@@ -124,11 +125,6 @@ cc.Asset = cc.Class({
             }
         },
 
-        /**
-         * get native dependency likes image or audio, can use 'cc.assetManager.load' to load directly
-         * @property {Object} _nativeDep
-         * @private
-         */
         _nativeDep: {
             get () {
                 if (this._native) {
@@ -172,24 +168,12 @@ cc.Asset = cc.Class({
          */
         preventPreloadNativeObject: false,
 
-        /**
-         * get dependencies from serialized data
-         * @param {Object} json 
-         * @static
-         * @private
-         */
         _parseDepsFromJson (json) {
             var depends = [];
             parseDependRecursively(json, depends);
             return depends;
         },
 
-        /**
-         * get native dependency from serialized data
-         * @param {Object} json 
-         * @static
-         * @private
-         */
         _parseNativeDepFromJson (json) {
             if (json._native) return {isNative: true, ext: json._native};
             return null;
@@ -253,6 +237,38 @@ cc.Asset = cc.Class({
         else {
             this._native = '/' + filename;  // simply use '/' to tag location where is not in the library
         }
+    },
+
+    /**
+     * !#zh
+     * 增加资源的引用
+     * 
+     * !#en
+     * Add references of asset
+     * 
+     * @method addRef
+     * 
+     * @typescript
+     * addRef(): void
+     */
+    addRef () {
+        this._ref++;
+    },
+
+    /**
+     * !#zh
+     * 减少资源的引用
+     * 
+     * !#en
+     * Reduce references of asset
+     * 
+     * @method removeRef
+     * 
+     * @typescript
+     * removeRef(): void
+     */
+    removeRef () {
+        this._ref--;
     }
 });
 

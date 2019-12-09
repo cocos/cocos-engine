@@ -34,16 +34,120 @@ var fetchPipeline = new Pipeline('fetch', []);
 var initializePipeline = new Pipeline('initialize', []);
 var transformPipeline = new Pipeline('transform url', []);
 
+/**
+ * @module cc.AssetManager
+ */
+/**
+ * !#en
+ * Strategies of loading
+ * 
+ * !#zh
+ * 加载策略
+ * 
+ * @enum LoadStrategy
+ */
 var LoadStrategy = {
+    /**
+     * !#en
+     * Normal loading strategy
+     * 
+     * !#zh
+     * 正常加载策略
+     * 
+     * @property NORMAL
+     * @readonly
+     * @type {Number}
+     */
     NORMAL: 0,
+
+    /**
+     * !#en
+     * Preloading strategy
+     * 
+     * !#zh
+     * 预加载策略
+     * 
+     * @property PRELOAD
+     * @readonly
+     * @type {Number}
+     */
     PRELOAD: 1
 };
 
+/**
+ * !#en
+ * Types of request 
+ * 
+ * !#zh
+ * 请求的类型
+ * 
+ * @enum RequestType
+ */
 var RequestType = {
+    
+    /**
+     * !#en
+     * Request asset with uuid
+     * 
+     * !#zh
+     * 使用 uuid 请求资源
+     * 
+     * @property UUID
+     * @readonly
+     * @type {String}
+     */
     UUID: 'uuid',
+
+    /**
+     * !#en
+     * Request asset with relative path in project
+     * 
+     * !#zh
+     * 使用在工程中的相对路径请求资源
+     * 
+     * @property PATH
+     * @readonly
+     * @type {String}
+     */
     PATH: 'path',
+
+    /**
+     * !#en
+     * Request asset with relative directory in project
+     * 
+     * !#zh
+     * 使用在工程中的相对目录请求资源
+     * 
+     * @property DIR
+     * @readonly
+     * @type {String}
+     */
     DIR: 'dir',
+
+    /**
+     * !#en
+     * Request asset with url
+     * 
+     * !#zh
+     * 使用真实 url 请求资源
+     * 
+     * @property URL
+     * @readonly
+     * @type {String}
+     */
     URL: 'url',
+
+    /**
+     * !#en
+     * Request asset with scene's name
+     * 
+     * !#zh
+     * 使用场景名称请求资源
+     * 
+     * @property SCENE
+     * @readonly
+     * @type {String}
+     */
     SCENE: 'scene'
 };
 

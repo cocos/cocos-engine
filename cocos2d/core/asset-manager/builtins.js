@@ -26,13 +26,16 @@ const Cache = require('./cache');
 const finalizer = require('./finalizer');
 
 /**
+ * @module cc.AssetManager
+ */
+/**
  * !#en
- * This module contains the builtin asset 
+ * This module contains the builtin asset, it's a singleton, all member can be accessed with `cc.assetManager.builtins` 
  * 
  * !#zh
- * 此模块包含内建资源，所有成员能通过 `cc.assetManaer.builtins` 访问
+ * 此模块包含内建资源，这是一个单例，所有成员能通过 `cc.assetManager.builtins` 访问
  * 
- * @static
+ * @class Builtins
  */
 var builtins = {
     
@@ -41,7 +44,7 @@ var builtins = {
     _loadBuiltins (name, cb) {
         let dirname = name  + 's';
         let builtin = this._assets.get(name);
-        return cc.assetManager._bundles.get('internal').loadDir(dirname, null, null, (err, assets) => {
+        return cc.assetManager.bundles.get('internal').loadDir(dirname, null, null, (err, assets) => {
             if (err) {
                 cc.error(err);
             }
@@ -72,7 +75,7 @@ var builtins = {
      */
     init (cb) {
         this.clear();
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS || !cc.assetManager._bundles.has('internal')) {
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS || !cc.assetManager.bundles.has('internal')) {
             return cb && cb();
         }
 
@@ -91,13 +94,13 @@ var builtins = {
      * @method getBuiltin
      * @param {string} type - The type of asset, such as `effect`
      * @param {string} name - The name of asset, such as `phong`
-     * @return {*} Builtin-assets
+     * @return {Asset|Cache} Builtin-assets
      * 
      * @example
      * cc.assetManaer.builtins.getBuiltin('effect', 'phone');
      * 
      * @typescript
-     * getBuiltin(type: string, name: string): any
+     * getBuiltin(type: string, name: string): cc.Asset | Cache
      */
     getBuiltin (type, name) {
         if (arguments.length === 0) return this._assets;
@@ -112,7 +115,7 @@ var builtins = {
      * !#zh
      * 清空所有内置资源
      * 
-     * @method getBuiltin
+     * @method clear
      * 
      * @typescript
      * clear(): void

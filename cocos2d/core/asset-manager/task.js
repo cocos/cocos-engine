@@ -23,30 +23,157 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+/**
+ * @module cc.AssetManager
+ */
+
 var _taskId = 0;
 var MAX_DEAD_NUM = 50;
 var _deadPool = [];
 
 /**
  * !#en
- * Create a new task, pipeline can execute the task for some effect
+ * Task is used to run in the pipeline for some effect
  * 
  * !#zh
- * 创建一个任务，管线能执行任务达到某种效果
+ * 任务用于在管线中运行以达成某种效果
  * 
  * @class Task
- * 
- * @typescript
- * Task(options: any): typeof cc.AssetManager.Task
  */
-function Task () {
+function Task (options) {
+    /**
+     * !#en
+     * The id of task
+     * 
+     * !#zh
+     * 任务id
+     * 
+     * @property id
+     * @type {Number}
+     */
     this.id = _taskId++;
+
     this._isFinish = true;
-    this.set.apply(this, arguments);
+
+    /**
+     * !#en
+     * The callback when task is completed
+     * 
+     * !#zh
+     * 完成回调
+     * 
+     * @property onComplete
+     * @type {Function}
+     */
+    this.onComplete = null;
+
+    /**
+     * !#en
+     * The callback of progression
+     * 
+     * !#zh
+     * 进度回调
+     * 
+     * @property onProgress
+     * @type {Function}
+     */
+    this.onProgress = null;
+
+    /**
+     * !#en
+     * The callback when something goes wrong
+     * 
+     * !#zh
+     * 错误回调
+     * 
+     * @property onError
+     * @type {Function}
+     */
+    this.onError = null;
+
+    /**
+     * !#en
+     * The source of task
+     * 
+     * !#zh
+     * 任务的源
+     * 
+     * @property source
+     * @type {*}
+     */
+    this.source = null;
+
+    /**
+     * !#en
+     * The output of task
+     * 
+     * !#zh
+     * 任务的输出
+     * 
+     * @property output
+     * @type {*}
+     */
+    this.output = null
+
+    /**
+     * !#en
+     * The input of task
+     * 
+     * !#zh
+     * 任务的输入
+     * 
+     * @property input
+     * @type {*}
+     */
+    this.input = null;
+
+    /**
+     * !#en
+     * The progression of task
+     * 
+     * !#zh
+     * 任务的进度
+     * 
+     * @property progress
+     * @type {*}
+     */
+    this.progress = null;
+
+    /**
+     * !#en
+     * Custom options
+     * 
+     * !#zh
+     * 自定义参数
+     * 
+     * @property options
+     * @type {Object}
+     */
+    this.options = null;
+    this.set(options);
 };
 
 Task.prototype = {
     
+    /**
+     * !#en
+     * Create a new Task
+     * 
+     * !#zh
+     * 创建一个任务
+     * 
+     * @method constructor
+     * @param {Object} [options] - Some optional paramters
+     * @param {Function} [options.onComplete] - Callback when the task is completed, if the pipeline is synchronous, onComplete is unnecessary.
+     * @param {Function} [options.onProgress] - Continuously callback when the task is runing, if the pipeline is synchronous, onProgress is unnecessary.
+     * @param {Function} [options.onError] - Callback when something goes wrong, if the pipeline is synchronous, onError is unnecessary.
+     * @param {*} options.input - Something will be handled with pipeline
+     * @param {*} [options.progress] - Progress information, you may need to assign it manually when multiple pipeline share one progress
+     * @param {Object} [options.options] - Custom parameters
+     * 
+     * @typescript
+     * constructor(options?: {onComplete?: (err: Error, result: any) => void, onError?: () => void, onProgress?: Function, input: any, progress?: any, options?: Record<string, any>})
+     */
     constructor: Task,
 
     /**
@@ -57,9 +184,10 @@ Task.prototype = {
      * 设置任务的参数
      * 
      * @method set
-     * @param {Object} options - Some optional paramters
+     * @param {Object} [options] - Some optional paramters
      * @param {Function} [options.onComplete] - Callback when the task complete, if the pipeline is synchronous, onComplete is unnecessary.
      * @param {Function} [options.onProgress] - Continuously callback when the task is runing, if the pipeline is synchronous, onProgress is unnecessary.
+     * @param {Function} [options.onError] - Callback when something goes wrong, if the pipeline is synchronous, onError is unnecessary.
      * @param {*} options.input - Something will be handled with pipeline
      * @param {*} [options.progress] - Progress information, you may need to assign it manually when multiple pipeline share one progress
      * @param {Object} [options.options] - Custom parameters
@@ -69,7 +197,7 @@ Task.prototype = {
      * task.set({input: ['test'], onComplete: (err, result) => console.log(err), onProgress: (finish, total) => console.log(finish / total)});
      * 
      * @typescript
-     * set(options: {onComplete?: (err: Error, result: any) => void, onError?: () => void, onProgress?: Function, input: any, progress?: any, options?: any}): void
+     * set(options?: {onComplete?: (err: Error, result: any) => void, onError?: () => void, onProgress?: Function, input: any, progress?: any, options?: Record<string, any>}): void
      */
     set (options) {
         options = options || Object.create(null);
@@ -155,6 +283,7 @@ Task.prototype = {
      * 此任务是否已经完成
      * 
      * @property isFinish
+     * @type {Boolean}
      */
     get isFinish () {
         return this._isFinish;
@@ -168,17 +297,19 @@ Task.prototype = {
  * !#zh
  * 从对象池中创建 task
  * 
- * @function create
- * @param {Object} options - Some optional paramters
+ * @static
+ * @method create
+ * @param {Object} [options] - Some optional paramters
  * @param {Function} [options.onComplete] - Callback when the task complete, if the pipeline is synchronous, onComplete is unnecessary.
  * @param {Function} [options.onProgress] - Continuously callback when the task is runing, if the pipeline is synchronous, onProgress is unnecessary.
+ * @param {Function} [options.onError] - Callback when something goes wrong, if the pipeline is synchronous, onError is unnecessary.
  * @param {*} options.input - Something will be handled with pipeline
  * @param {*} [options.progress] - Progress information, you may need to assign it manually when multiple pipeline share one progress
  * @param {Object} [options.options] - Custom parameters
  * @returns {Task} task
  * 
  * @typescript 
- * create(options: {onComplete?: ((err: Error, result: any) => void)|null, onError?: () => void, onProgress?: Function|null, input: any, progress?: any, options?: any}): cc.AssetManager.Task
+ * create(options?: {onComplete?: (err: Error, result: any) => void, onError?: () => void, onProgress?: Function, input: any, progress?: any, options?: Record<string, any>}): Task
  */
 Task.create = function (options) {
     var out = null;

@@ -22,10 +22,14 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+
+/**
+ * @module cc.AssetManager
+ */
+
 const plistParser = require('../platform/CCSAXParser').plistParser;
 const js = require('../platform/js');
 const deserialize = require('./deserialize');
-const downloader = require('./downloader');
 const Cache = require('./cache');
 const { isScene } = require('./helper');
 const { parsed, files } = require('./shared');
@@ -35,12 +39,12 @@ var _parsing = new Cache();
 
 /**
  * !#en
- * Parse the downloaded file, it's a singleton
+ * Parse the downloaded file, it's a singleton, all member can be accessed with `cc.assetManager.parser`
  * 
  * !#zh
- * 解析已下载的文件，parser 是一个单例
+ * 解析已下载的文件，parser 是一个单例, 所有成员能通过 `cc.assetManaager.parser` 访问
  * 
- * @static
+ * @class Parser
  */
 var parser = {
     /**
@@ -63,18 +67,14 @@ var parser = {
      * });
      * 
      * @typescript
-     * parseImage(file: Blob, options: any, onComplete?: ((err: Error, img: ImageBitmap|HTMLImageElement) => void)|null): void
+     * parseImage(file: Blob, options: Record<string, any>, onComplete?: (err: Error, img: ImageBitmap|HTMLImageElement) => void): void
      */
     parseImage (file, options, onComplete) {
         if (capabilities.createImageBitmap && file instanceof Blob) {
             createImageBitmap(file).then(function (result) {
                 onComplete && onComplete(null, result);
             }, function (err) {
-                var url = URL.createObjectURL(file);
-                downloader.downloadDomImage(url, null, function (err, img) {
-                    URL.revokeObjectURL(url);
-                    onComplete && onComplete(err, img);
-                });
+                onComplete && onComplete(err, null);
             });
         }
         else {
@@ -90,7 +90,7 @@ var parser = {
      * 解析音频文件
      * 
      * @method parseAudio
-     * @param {ArrayBuffer} file - The downloaded file
+     * @param {ArrayBuffer|HTMLAudioElement} file - The downloaded file
      * @param {Object} options - Some optional paramters
      * @param {Function} onComplete - Callback when finish parsing.
      * @param {Error} onComplete.err - The occurred error, null indicetes success
@@ -102,7 +102,7 @@ var parser = {
      * });
      * 
      * @typescript
-     * parseAudio(file: ArrayBuffer, options: any, onComplete?: ((err: Error, audio: AudioBuffer|HTMLAudioElement) => void)|null): void
+     * parseAudio(file: ArrayBuffer|HTMLAudioElement, options: Record<string, any>, onComplete?: (err: Error, audio: AudioBuffer|HTMLAudioElement) => void): void
      */
     parseAudio (file, options, onComplete) {
         if (file instanceof ArrayBuffer) { 
@@ -119,7 +119,7 @@ var parser = {
 
     /**
      * !#en
-     * Parse pvr file that is a compressed texture format 
+     * Parse pvr file 
      * 
      * !#zh
      * 解析压缩纹理格式 pvr 文件
@@ -137,7 +137,7 @@ var parser = {
      * });
      * 
      * @typescript
-     * parsePVRTex(file: ArrayBuffer|ArrayBufferView, options: any, onComplete: ((err: Error, pvrAsset: any) => void)|null): void
+     * parsePVRTex(file: ArrayBuffer|ArrayBufferView, options: Record<string, any>, onComplete: (err: Error, pvrAsset: {_data: Uint8Array, _compressed: boolean, width: number, height: number}) => void): void
      */
     parsePVRTex : (function () {
         //===============//
@@ -188,7 +188,7 @@ var parser = {
 
     /**
      * !#en
-     * Parse pkm file that is a compressed texture format 
+     * Parse pkm file
      * 
      * !#zh
      * 解析压缩纹理格式 pkm 文件
@@ -206,7 +206,7 @@ var parser = {
      * });
      * 
      * @typescript
-     * parsePKMTex(file: ArrayBuffer|ArrayBufferView, options: any, onComplete: ((err: Error, etcAsset: any) => void)|null): void
+     * parsePKMTex(file: ArrayBuffer|ArrayBufferView, options: Record<string, any>, onComplete: (err: Error, etcAsset: {_data: Uint8Array, _compressed: boolean, width: number, height: number}) => void): void
      */
     parsePKMTex: (function () {
         //===============//
@@ -274,7 +274,7 @@ var parser = {
      * });
      * 
      * @typescript
-     * parsePlist(file: string, options: any, onComplete?: ((err: Error, data: any) => void)|null): void
+     * parsePlist(file: string, options: Record<string, any>, onComplete?: (err: Error, data: any) => void): void
      */
     parsePlist (file, options, onComplete) {
         var err = null;
@@ -303,7 +303,7 @@ var parser = {
      * });
      * 
      * @typescript
-     * parseImport (file: any, options: any, onComplete?: ((err: Error, asset: any) => void)|null): void
+     * parseImport (file: any, options: Record<string, any>, onComplete?: (err: Error, asset: cc.Asset) => void): void
      */
     parseImport (file, options, onComplete) {
         var result = deserialize(file, options);
@@ -336,7 +336,7 @@ var parser = {
      * Register custom handler if you want to change default behavior or extend parser to parse other format file
      * 
      * !#zh
-     * 当你想修改默认行为或者拓展parser来解析其他格式文件时可以注册自定义的handler
+     * 当你想修改默认行为或者拓展 parser 来解析其他格式文件时可以注册自定义的handler
      * 
      * @method register
      * @param {string|Object} type - Extension likes '.jpg' or map likes {'.jpg': jpgHandler, '.png': pngHandler}
@@ -350,8 +350,8 @@ var parser = {
      * parser.register({'.tga': (file, options, onComplete) => onComplete(null, null), '.ext': (file, options, onComplete) => onComplete(null, null)});
      * 
      * @typescript
-     * register(type: string, handler: (file: any, options: any, onComplete: (err: Error, data: any) => void) => void): void
-     * register(map: any): void
+     * register(type: string, handler: (file: any, options: Record<string, any>, onComplete: (err: Error, data: any) => void) => void): void
+     * register(map: Record<string, (file: any, options: Record<string, any>, onComplete: (err: Error, data: any) => void) => void>): void
      */
     register (type, handler) {
         if (typeof type === 'object') {
@@ -384,7 +384,7 @@ var parser = {
      * });
      * 
      * @typescript
-     * parse(id: string, file: any, type: string, options: any, onComplete: (err: Error, content: any) => void): void
+     * parse(id: string, file: any, type: string, options: Record<string, any>, onComplete: (err: Error, content: any) => void): void
      */
     parse (id, file, type, options, onComplete) {
         if (parsed.has(id)) {
@@ -417,7 +417,13 @@ var parser = {
 var parsers = {
     '.png' : parser.parseImage,
     '.jpg' : parser.parseImage,
+    '.bmp' : parser.parseImage,
     '.jpeg' : parser.parseImage,
+    '.gif' : parser.parseImage,
+    '.ico' : parser.parseImage,
+    '.tiff' : parser.parseImage,
+    '.webp' : parser.parseImage,
+    '.image' : parser.parseImage,
     '.pvr' : parser.parsePVRTex,
     '.pkm' : parser.parsePKMTex,
     // Audio

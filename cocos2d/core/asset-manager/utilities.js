@@ -102,7 +102,7 @@ var utils = {
         for (var i = 0, l = task.input.length; i < l; i++) {
             var item = task.input[i];
             if (clearRef) {
-                !item.isNative && item.content && item.content._removeRef();
+                !item.isNative && item.content && item.content.removeRef();
             }
             item.recycle();
         }
@@ -110,11 +110,12 @@ var utils = {
     },
 
     urlAppendTimestamp (url) {
+        
         if (cc.assetManager.appendTimeStamp && typeof url === 'string') {
             if (/\?/.test(url))
-                url += '&_t=' + (new Date() - 0);
+                return url + '&_t=' + (new Date() - 0);
             else
-                url += '?_t=' + (new Date() - 0);
+                return url + '?_t=' + (new Date() - 0);
         }
         return url;
     },
@@ -138,6 +139,8 @@ var utils = {
         var err = null;
         try {
             var info = dependUtil.parse(uuid, data);
+            var includeNative = true;
+            if (data instanceof cc.Asset && (!data.__nativeDepend__ || data._nativeAsset)) includeNative = false; 
             if (!preload) {
                 asyncLoadAssets = !CC_EDITOR && (data.asyncLoadAssets || (asyncLoadAssets && !info.preventDeferredLoadDependents));
                 for (var i = 0, l = info.deps.length; i < l; i++) {
@@ -148,7 +151,7 @@ var utils = {
                     }
                 }
 
-                if (!asyncLoadAssets && !info.preventPreloadNativeObject && info.nativeDep) {
+                if (includeNative && !asyncLoadAssets && !info.preventPreloadNativeObject && info.nativeDep) {
                     config && (info.nativeDep.bundle = config.name);
                     depends.push(info.nativeDep);
                 }
@@ -161,7 +164,7 @@ var utils = {
                         depends.push({uuid: dep, bundle: config && config.name});
                     }
                 }
-                if (info.nativeDep) {
+                if (includeNative && info.nativeDep) {
                     config && (info.nativeDep.bundle = config.name);
                     depends.push(info.nativeDep);
                 }
@@ -206,7 +209,7 @@ var utils = {
                 }
                 else {
                     depend.owner[depend.prop] = dependAsset;
-                    dependAsset._addRef();
+                    dependAsset.addRef();
                 }
             }
 
@@ -215,13 +218,15 @@ var utils = {
         }
         
         if (asset.__nativeDepend__) {
-            if (assetsMap[uuid + '@native']) {
-                asset._nativeAsset = assetsMap[uuid + '@native'];
-            }
-            else {
-                missingAsset = true;
-                if (CC_EDITOR) {
-                    console.error(`the native asset of ${uuid} is missing!`);
+            if (!asset._nativeAsset) {
+                if (assetsMap[uuid + '@native']) {
+                    asset._nativeAsset = assetsMap[uuid + '@native'];
+                }
+                else {
+                    missingAsset = true;
+                    if (CC_EDITOR) {
+                        console.error(`the native asset of ${uuid} is missing!`);
+                    }
                 }
             }
             delete asset['__nativeDepend__'];
