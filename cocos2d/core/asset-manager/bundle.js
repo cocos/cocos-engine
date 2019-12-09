@@ -50,10 +50,10 @@ function Bundle () {
      * !#zh
      * bundle 所有信息
      * 
-     * @property _config
+     * @property config
      * @type {Config}
      */
-    this._config = new Config();
+    this.config = new Config();
     this._preloadedScene = new Cache();
 }
 
@@ -87,8 +87,8 @@ Bundle.prototype = {
      * init(options: Record<string, any>): void
      */
     init (options) {
-        this._config.init(options);
         this._preloadedScene.clear();
+        this.config.init(options);
         bundles.add(options.name, this);
     },
     
@@ -131,7 +131,7 @@ Bundle.prototype = {
         }
         
         options = options || Object.create(null);
-        options.bundle = this._config.name;
+        options.bundle = this.config.name;
         var task = new Task({input: requests, onProgress, onComplete, options});
         pipeline.async(task);
         return task;
@@ -166,7 +166,7 @@ Bundle.prototype = {
         var { options, onProgress, onComplete } = parseParameters(options, onProgress, onComplete);
 
         options.loadStrategy = LoadStrategy.PRELOAD;
-        options.bundle = this._config.name;
+        options.bundle = this.config.name;
         options.priority = -1;
         var task = new Task({input: requests, onProgress, onComplete, options});
         fetchPipeline.async(task);
@@ -419,7 +419,7 @@ Bundle.prototype = {
      * getAsset(path: string, type?: typeof cc.Asset): cc.Asset
      */
     getAsset (path, type) {
-        var info = this._config.getInfoWithPath(path, type);
+        var info = this.config.getInfoWithPath(path, type);
         return assets.get(info && info.uuid);
     },
 
@@ -465,7 +465,7 @@ Bundle.prototype = {
     releaseAll (force) {
         var self = this;
         assets.forEach(function (asset) {
-            if (self._config.getAssetInfo(asset.uuid)) {
+            if (self.config.getAssetInfo(asset.uuid)) {
                 finalizer.release(asset, force);
             }
         });
@@ -484,9 +484,9 @@ Bundle.prototype = {
      * destroy(): void
      */
     destroy () {
-        this._config.destroy();
         this._preloadedScene.destroy();
-        bundles.remove(this._config.name);
+        this.config.destroy();
+        bundles.remove(this.config.name);
     }
 
 };

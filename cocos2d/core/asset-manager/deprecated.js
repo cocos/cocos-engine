@@ -41,10 +41,10 @@ var loader = {
     _autoReleaseSetting: Object.create(null),
     
     /**
-     * @deprecated `cc.loader._cache` is deprecated now, please use `cc.assetManager._assets` instead
+     * @deprecated `cc.loader._cache` is deprecated now, please use `cc.assetManager.assets` instead
      */
     get _cache () {
-        return cc.assetManager._assets._map;
+        return cc.assetManager.assets._map;
     },
 
     /**
@@ -125,7 +125,7 @@ var loader = {
                             native[i] = asset;
                             asset._uuid = url;
                         }
-                        cc.assetManager._assets.add(url, asset);
+                        cc.assetManager.assets.add(url, asset);
                     }
                 }
                 if (native.length > 1) {
@@ -175,7 +175,7 @@ var loader = {
      */
     
     getItem (key) {
-        return cc.assetManager._assets.has(key) ? { content: cc.assetManager._assets.get(key)} : null; 
+        return cc.assetManager.assets.has(key) ? { content: cc.assetManager.assets.get(key)} : null; 
     },
 
     /**
@@ -270,7 +270,7 @@ var loader = {
         cc.assetManager.loadResDir(url, type, onProgress, function (err, assets) {
             var urls = [];
             if (!err) {
-                var infos = cc.assetManager._bundles.get('resources')._config.getDirWithPath(url, type);
+                var infos = cc.assetManager.bundles.get('resources').config.getDirWithPath(url, type);
                 urls = infos.map(function (info) {
                     return info.path;
                 });
@@ -289,14 +289,14 @@ var loader = {
      * @deprecated `cc.loader.getRes` is deprecated now, please use `cc.assetManager.getRes` instead
      */
     getRes (url, type) {
-        return cc.assetManager._assets.has(url) ? cc.assetManager._assets.get(url) : cc.assetManager.getRes(url, type);
+        return cc.assetManager.assets.has(url) ? cc.assetManager.assets.get(url) : cc.assetManager.getRes(url, type);
     },
 
     /**
-     * @deprecated `cc.loader.getResCount` is deprecated now , please use `cc.assetManager._assets.count` instead
+     * @deprecated `cc.loader.getResCount` is deprecated now , please use `cc.assetManager.assets.count` instead
      */
     getResCount () {
-        return cc.assetManager._assets.count;
+        return cc.assetManager.assets.count;
     },
 
     /**
@@ -313,34 +313,34 @@ var loader = {
     },
 
     /**
-     * `cc.loader.assetLoader` is not supported anymore, assetLoader and md5Pipe were merged into {{#crossLink "AssetManager/_transformPipeline:property"}}{{/crossLink}}
+     * `cc.loader.assetLoader` is not supported anymore, assetLoader and md5Pipe were merged into {{#crossLink "AssetManager/transformPipeline:property"}}{{/crossLink}}
      * 
      * @property assetLoader
-     * @deprecated `cc.loader.assetLoader` is not supported anymore, assetLoader and md5Pipe were merged into `cc.assetManager._transformPipeline`
+     * @deprecated `cc.loader.assetLoader` is not supported anymore, assetLoader and md5Pipe were merged into `cc.assetManager.transformPipeline`
      * @type {Object}
      */
     get assetLoader () {
-        cc.error('cc.loader.assetLoader is not supported anymore, assetLoader and md5Pipe were merged into cc.assetManager._transformPipeline');
+        cc.error('cc.loader.assetLoader is not supported anymore, assetLoader and md5Pipe were merged into cc.assetManager.transformPipeline');
     },
 
     /**
-     * `cc.loader.md5Pipe` is deprecated now, assetLoader and md5Pipe were merged into {{#crossLink "AssetManager/_transformPipeline:property"}}{{/crossLink}}
+     * `cc.loader.md5Pipe` is deprecated now, assetLoader and md5Pipe were merged into {{#crossLink "AssetManager/transformPipeline:property"}}{{/crossLink}}
      * 
      * @property md5Pipe
-     * @deprecated `cc.loader.md5Pipe` is deprecated now, assetLoader and md5Pipe were merged into `cc.assetManager._transformPipeline`
+     * @deprecated `cc.loader.md5Pipe` is deprecated now, assetLoader and md5Pipe were merged into `cc.assetManager.transformPipeline`
      * @type {Object}
      */
     get md5Pipe () {
         return {
             transformURL (url) {
                 url = url.replace(/.*[/\\][0-9a-fA-F]{2}[/\\]([0-9a-fA-F-]{8,})/, function (match, uuid) {
-                    var bundle = cc.assetManager._bundles.find(function (bundle) {
-                        return bundle._config.getAssetInfo(uuid);
+                    var bundle = cc.assetManager.bundles.find(function (bundle) {
+                        return bundle.config.getAssetInfo(uuid);
                     });
                     let hashValue = '';
                     if (bundle) {
-                        var info = bundle._config.getAssetInfo(uuid);
-                        if (url.startsWith(bundle._config.base + bundle._config.nativeBase)) {
+                        var info = bundle.config.getAssetInfo(uuid);
+                        if (url.startsWith(bundle.config.base + bundle.config.nativeBase)) {
                             hashValue = info.nativeVer;
                         }
                         else {
@@ -427,12 +427,12 @@ var loader = {
         if (Array.isArray(asset)) {
             for (let i = 0; i < asset.length; i++) {
                 var key = asset[i];
-                if (typeof key === 'string') key = cc.assetManager._assets.get(key);
+                if (typeof key === 'string') key = cc.assetManager.assets.get(key);
                 cc.assetManager.release(key, true);
             }
         }
         else if (asset) {
-            if (typeof asset === 'string') asset = cc.assetManager._assets.get(asset);
+            if (typeof asset === 'string') asset = cc.assetManager.assets.get(asset);
             cc.assetManager.release(asset, true);
         }
     },
@@ -478,19 +478,19 @@ var loader = {
      */
     releaseAll () {
         cc.assetManager.releaseAll(true);
-        cc.assetManager._assets.clear();
+        cc.assetManager.assets.clear();
     },
 
     /**
-     * `cc.loader.removeItem` is deprecated now, please use `cc.assetManager._assets.remove` instead
+     * `cc.loader.removeItem` is deprecated now, please use `cc.assetManager.assets.remove` instead
      * 
-     * @deprecated `cc.loader.removeItem` is deprecated now, please use `cc.assetManager._assets.remove` instead
+     * @deprecated `cc.loader.removeItem` is deprecated now, please use `cc.assetManager.assets.remove` instead
      * @method removeItem
      * @param {Object} id The id of the item
      * @return {Boolean} succeed or not
      */
     removeItem (key) {
-        cc.assetManager._assets.remove(key);
+        cc.assetManager.assets.remove(key);
     },
     
     /**
@@ -724,7 +724,7 @@ Object.assign(cc.director, {
      * @deprecated `cc.director._getSceneUuid` is deprecated now, please use `config.getSceneInfo` instead
      */
     _getSceneUuid (sceneName) {
-        cc.assetManager._bundles.get('main')._config.getSceneInfo(sceneName);
+        cc.assetManager.bundles.get('main').config.getSceneInfo(sceneName);
     }
 }); 
 
@@ -735,7 +735,7 @@ Object.defineProperties(cc.game, {
     _sceneInfos: {
         get () {
             var scenes = [];
-            cc.assetManager._bundles.get('main')._config.scenes.forEach(function (val) {
+            cc.assetManager.bundles.get('main').config.scenes.forEach(function (val) {
                 scenes.push(val);
             });
             return scenes;
@@ -758,7 +758,7 @@ finalizer._autoRelease = function () {
     for (let i = 0; i < keys.length; i++) {
         let key = keys[i];
         if (releaseSettings[key] === true) {
-            var asset = cc.assetManager._assets.get(key);
+            var asset = cc.assetManager.assets.get(key);
             asset && finalizer.release(asset);
         }
     }

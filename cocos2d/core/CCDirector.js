@@ -521,8 +521,8 @@ cc.Director.prototype = {
             cc.warnID(1208, sceneName, this._loadingScene);
             return false;
         }
-        var bundle = cc.assetManager._bundles.find(function (bundle) {
-            return bundle._config.getSceneInfo(sceneName);
+        var bundle = cc.assetManager.bundles.find(function (bundle) {
+            return bundle.config.getSceneInfo(sceneName);
         });
         if (bundle) {
             this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);

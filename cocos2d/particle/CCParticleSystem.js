@@ -1037,7 +1037,7 @@ var ParticleSystem = cc.Class({
                     this._initTextureWithDictionary(dict);
                 }
                 else {
-                    cc.assetManager._assets.add(imgPath, texture);
+                    cc.assetManager.assets.add(imgPath, texture);
                     this.spriteFrame = new cc.SpriteFrame(texture);
                 }
             }, this);
@@ -1045,7 +1045,7 @@ var ParticleSystem = cc.Class({
             let textureData = dict["textureImageData"];
 
             if (textureData && textureData.length > 0) {
-                let tex = cc.assetManager._assets.get(imgPath);
+                let tex = cc.assetManager.assets.get(imgPath);
                 
                 if (!tex) {
                     let buffer = codec.unzipBase64AsArray(textureData, 1);

@@ -73,10 +73,10 @@ function AssetManager () {
      * !#zh
      * 正常加载管线
      * 
-     * @property _pipeline
+     * @property pipeline
      * @type {Pipeline}
      */
-    this._pipeline = pipeline.append(preprocess).append(load);
+    this.pipeline = pipeline.append(preprocess).append(load);
     
     /**
      * !#en 
@@ -85,10 +85,10 @@ function AssetManager () {
      * !#zh
      * 下载管线
      * 
-     * @property _fetchPipeline
+     * @property fetchPipeline
      * @type {Pipeline}
      */
-    this._fetchPipeline = fetchPipeline.append(preprocess).append(fetch);
+    this.fetchPipeline = fetchPipeline.append(preprocess).append(fetch);
 
     /**
      * !#en 
@@ -97,10 +97,10 @@ function AssetManager () {
      * !#zh
      * 初始化管线
      * 
-     * @property _initializePipeline
+     * @property initializePipeline
      * @type {Pipeline}
      */
-    this._initializePipeline = initializePipeline.append(initializing);
+    this.initializePipeline = initializePipeline.append(initializing);
 
     /**
      * !#en 
@@ -109,10 +109,10 @@ function AssetManager () {
      * !#zh
      * Url 转换器
      * 
-     * @property _transformPipeline
+     * @property transformPipeline
      * @type {Pipeline}
      */
-    this._transformPipeline = transformPipeline.append(parse).append(combine);
+    this.transformPipeline = transformPipeline.append(parse).append(combine);
 
 
     /**
@@ -122,10 +122,10 @@ function AssetManager () {
      * !#zh
      * 已加载 bundle 的集合， 你能通过 {{#crossLink "Bundle/destroy:method"}}{{/crossLink}} 来移除缓存
      * 
-     * @property _bundles
+     * @property bundles
      * @type {Cache}
      */
-    this._bundles = bundles;
+    this.bundles = bundles;
 
     /**
      * !#en 
@@ -134,10 +134,10 @@ function AssetManager () {
      * !#zh
      * 已加载资源的集合， 你能通过 {{#crossLink "AssetManager/release:method"}}{{/crossLink}} 来移除缓存
      * 
-     * @property _assets
+     * @property assets
      * @type {Cache}
      */
-    this._assets = assets;
+    this.assets = assets;
     
     this._files = files;
     
@@ -299,10 +299,10 @@ AssetManager.prototype = {
      */
     init (options) {
         options = options || Object.create(null);
-        this._assets.clear();
         this._files.clear();
         this._parsed.clear();
-        this._bundles.clear();
+        this.assets.clear();
+        this.bundles.clear();
         this.packManager.init();
         this.downloader.init();
         this.parser.init();
@@ -453,12 +453,12 @@ AssetManager.prototype = {
             }
             else {
                 bundle = bundles.find(function (bundle) {
-                    return bundle._config.getAssetInfo(asset._uuid);
+                    return bundle.config.getAssetInfo(asset._uuid);
                 });
             }
             
             if (bundle) {
-                depend.bundle = bundle._config.name;
+                depend.bundle = bundle.config.name;
             }
 
             return this.load(depend, onComplete);

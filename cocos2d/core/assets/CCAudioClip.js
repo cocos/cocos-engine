@@ -88,7 +88,7 @@ var AudioClip = cc.Class({
     statics: {
         LoadMode: LoadMode,
         _loadByUrl: function (url, callback) {
-            var audioClip = cc.assetManager._assets.get(url);
+            var audioClip = cc.assetManager.assets.get(url);
             if (!audioClip) {
                 cc.assetManager.loadRemoteAudio(url, function (error, data) {
                     if (error) {

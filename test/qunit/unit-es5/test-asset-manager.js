@@ -63,9 +63,9 @@
             ok(assets[0] instanceof Image, 'image url\'s result should be Image');
             strictEqual(assets[1].width, 89, 'should give correct js object as result of JSON');
             strictEqual(assets[2]._native, 'YouKnowEverything', 'should give correct js object as result of JSON');
-            ok(!cc.assetManager._assets.has(image1), 'should not cache');
-            ok(!cc.assetManager._assets.has(json1), 'should not cache');
-            ok(!cc.assetManager._assets.has(json2), 'should not cache');
+            ok(!cc.assetManager.assets.has(image1), 'should not cache');
+            ok(!cc.assetManager.assets.has(json1), 'should not cache');
+            ok(!cc.assetManager.assets.has(json2), 'should not cache');
             start();
         });
     });
@@ -83,7 +83,7 @@
         }, function (error, image) {
             ok(!error, 'should not return error');
             ok(image instanceof Image, 'the single result should be Image');
-            ok(!cc.assetManager._assets.has(image1), 'should not cache');
+            ok(!cc.assetManager.assets.has(image1), 'should not cache');
             start();
         });
     });

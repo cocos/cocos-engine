@@ -426,7 +426,7 @@ cc.js.mixin(View.prototype, {
         }
         this._antiAliasEnabled = enabled;
         if(cc.game.renderType === cc.game.RENDER_TYPE_WEBGL) {
-            var cache = cc.assetManager._assets;
+            var cache = cc.assetManager.assets;
             cache.forEach(function (asset) {
                 if (asset instanceof cc.Texture2Dx) {
                     var Filter = cc.Texture2D.Filter;

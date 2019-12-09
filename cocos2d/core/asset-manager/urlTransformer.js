@@ -50,11 +50,11 @@ function parse (task) {
                     case RequestType.UUID: 
                         var uuid = out.uuid = decodeUuid(item.uuid);
                         if (bundles.has(item.bundle)) {
-                            var config = bundles.get(item.bundle)._config;
+                            var config = bundles.get(item.bundle).config;
                             var info = config.getAssetInfo(uuid);
                             if (info && info.redirect) {
                                 if (!bundles.has(info.redirect)) throw new Error(`Please load bundle ${info.redirect} first`);
-                                config = bundles.get(info.redirect)._config;
+                                config = bundles.get(info.redirect).config;
                                 info = config.getAssetInfo(uuid);
                             }
                             out.config = config;
@@ -69,7 +69,7 @@ function parse (task) {
                     case RequestType.DIR: 
                         if (bundles.has(item.bundle)) {
                             var infos = [];
-                            bundles.get(item.bundle)._config.getDirWithPath(item.dir, item.type, infos);
+                            bundles.get(item.bundle).config.getDirWithPath(item.dir, item.type, infos);
                             for (let i = 0, l = infos.length; i < l; i++) {
                                 var info = infos[i];
                                 input.push({uuid: info.uuid, isNative: false, ext: '.json', bundle: item.bundle});
@@ -80,12 +80,12 @@ function parse (task) {
                         break;
                     case RequestType.PATH: 
                         if (bundles.has(item.bundle)) {
-                            var config = bundles.get(item.bundle)._config;
+                            var config = bundles.get(item.bundle).config;
                             var info = config.getInfoWithPath(item.path, item.type);
                             
                             if (info && info.redirect) {
                                 if (!bundles.has(info.redirect)) throw new Error(`you need to load bundle ${info.redirect} first`);
-                                config = bundles.get(info.redirect)._config;
+                                config = bundles.get(info.redirect).config;
                                 info = config.getAssetInfo(info.uuid);
                             }
                             out.config = config; 

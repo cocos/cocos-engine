@@ -106,11 +106,11 @@ var helper = {
     getUrlWithUuid: function (uuid, options) {
         options = options || Object.create(null);
         var bundle = bundles.find(function (bundle) {
-            return bundle._config.getAssetInfo(uuid);
+            return bundle.config.getAssetInfo(uuid);
         });
 
         if (bundle) {
-            options.bundle = bundle._config.name;
+            options.bundle = bundle.config.name;
         }
 
         return cc.assetManager.transform(uuid, options);
