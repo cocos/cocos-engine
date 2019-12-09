@@ -790,7 +790,7 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
                 errorID(9100, maxSize, device.maxTextureSize);
             }
 
-            if (!device.WEBGL_depth_texture && (gpuTexture.glFormat === gl.DEPTH_COMPONENT || gpuTexture.glFormat === gl.DEPTH_STENCIL)) {
+            if (!device.WEBGL_depth_texture && GFXFormatInfos[gpuTexture.format].hasDepth) {
                 const glRenderbuffer = gl.createRenderbuffer();
                 if (glRenderbuffer && gpuTexture.size > 0) {
                     gpuTexture.glRenderbuffer = glRenderbuffer;
