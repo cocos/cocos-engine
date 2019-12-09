@@ -41,6 +41,7 @@ import { samplerLib } from '../core/sampler-lib';
 import { Model } from '../scene/model';
 import { RenderScene } from '../scene/render-scene';
 import { IAnimInfo, IJointsTextureHandle, jointsTextureSamplerHash, selectJointsMediumType } from './skeletal-animation-utils';
+import { DataPoolManager } from '../data-pool-manager';
 
 interface IJointsInfo {
     buffer: GFXBuffer | null;
@@ -85,7 +86,7 @@ export class SkinningModel extends Model {
         this._mesh = mesh;
         if (!skeleton || !skinningRoot || !mesh) { return; }
         this._transform = skinningRoot;
-        this._jointsMedium.animInfo = cc.director.root.dataPoolManager.jointsAnimationInfo.get(skinningRoot.uuid);
+        this._jointsMedium.animInfo = (cc.director.root.dataPoolManager as DataPoolManager).jointsAnimationInfo.get(skinningRoot.uuid);
         if (!this._jointsMedium.buffer) {
             this._jointsMedium.buffer = this._device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
@@ -124,7 +125,7 @@ export class SkinningModel extends Model {
     public uploadAnimation (anim: AnimationClip | null) {
         if (!this._skeleton || !this._mesh) { return; }
         this.uploadedAnim = anim;
-        const resMgr = cc.director.root.dataPoolManager;
+        const resMgr = cc.director.root.dataPoolManager as DataPoolManager;
         const texture = anim ? resMgr.jointsTexturePool.getJointsTextureWithAnimation(this._skeleton, anim) :
             resMgr.jointsTexturePool.getDefaultJointsTexture(this._skeleton);
         resMgr.jointsAnimationInfo.switchClip(this._jointsMedium.animInfo!, anim);
@@ -136,7 +137,7 @@ export class SkinningModel extends Model {
     protected _applyJointsTexture (texture: IJointsTextureHandle | null) {
         if (!texture) { return; }
         const oldTex = this._jointsMedium.texture;
-        if (oldTex && oldTex !== texture) { cc.director.root.dataPoolManager.jointsTexturePool.releaseHandle(oldTex); }
+        if (oldTex && oldTex !== texture) { (cc.director.root.dataPoolManager as DataPoolManager).jointsTexturePool.releaseHandle(oldTex); }
         this._jointsMedium.texture = texture;
         const { buffer, jointsTextureInfo } = this._jointsMedium;
         jointsTextureInfo[0] = texture.handle.texture.width;

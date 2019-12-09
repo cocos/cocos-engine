@@ -179,6 +179,9 @@ export class ModelComponent extends RenderableComponent {
     }
 
     public onEnable () {
+        if (!this._model) {
+            this._updateModels();
+        }
         if (this._model) {
             this._attachToScene();
         }
