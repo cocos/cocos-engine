@@ -120,24 +120,24 @@ export class UIStaticBatchComponent extends UIRenderComponent {
     }
 
     /**
-     * @zh 开始采集数据。调用时存储 ia 数据。
+     * @zh 开始采集数据标识。调用时存储 ia 数据。
      * 注意：尽量不要频繁调用此接口，因为会清空原先存储的 ia 数据重新采集，会有一定内存损耗。
      */
     @property({
-        tooltip: CC_DEV ? '点击采集数据': ''
+        tooltip: '开始采集数据标识',
     })
-    get collect () {
-        return this._collect;
+    get collectMark () {
+        return this._collectMark;
     }
 
-    set collect (value) {
+    set collectMark (value) {
         const ui = this._getUI();
-        if (this._collect === value || !ui){
+        if (this._collectMark === value || !ui){
             return;
         }
 
         this.node._static = false;
-        this._collect = true;
+        this._collectMark = true;
         this._init = false;
 
         if (!this._meshBuffer) {
@@ -147,36 +147,22 @@ export class UIStaticBatchComponent extends UIRenderComponent {
             this._meshBuffer = buffer;
         }
 
-        this._meshBuffer!.reset();
-        for (let i = 0; i < this._uiDrawBathcList.length; i++) {
-            const element = this._uiDrawBathcList[i];
-            element.destroy(ui);
-        }
-
-        this._uiDrawBathcList.length = 0;
+        this.clearData();
     }
 
     get drawBatchList (){
-        return this._uiDrawBathcList;
+        return this._uiDrawBatchList;
     }
 
     protected _init = false;
     protected _meshBuffer: MeshBuffer | null = null;
-    protected _collect = false;
+    protected _collectMark = false;
     private _lastMeshBuffer: MeshBuffer | null = null;
-    private _uiDrawBathcList: UIDrawBatch[] = [];
+    private _uiDrawBatchList: UIDrawBatch[] = [];
 
     public onDestroy (){
         super.onDestroy();
-        const ui = this._getUI();
-        if (ui) {
-            for (let i = 0; i < this._uiDrawBathcList.length; i++) {
-                const element = this._uiDrawBathcList[i];
-                element.destroy(ui);
-            }
-        }
-
-        this._uiDrawBathcList.length = 0;
+        this.clearData();
         if(this._meshBuffer){
             this._meshBuffer.destroy();
             this._meshBuffer = null;
@@ -185,7 +171,7 @@ export class UIStaticBatchComponent extends UIRenderComponent {
 
 
     public updateAssembler (render: UI) {
-        if (this._collect) {
+        if (this._collectMark) {
             render.finishMergeBatches();
             this._lastMeshBuffer = render.currBufferBatch;;
             render.currBufferBatch = this._meshBuffer;
@@ -199,11 +185,11 @@ export class UIStaticBatchComponent extends UIRenderComponent {
     }
 
     public postUpdateAssembler (render: UI) {
-        if (this._collect) {
+        if (this._collectMark) {
             render.finishMergeBatches();
             render.currBufferBatch = this._lastMeshBuffer;
             render.currStaticRoot = null;
-            this._collect = false;
+            this._collectMark = false;
             this._init = true;
             this.node._static = true;
 
@@ -214,8 +200,25 @@ export class UIStaticBatchComponent extends UIRenderComponent {
     public requireDrawBatch (){
         const batch = new UIDrawBatch();
         batch.isStatic = true;
-        this._uiDrawBathcList.push(batch);
+        this._uiDrawBatchList.push(batch);
         return batch;
+    }
+
+    public clearData(){
+        if(this._meshBuffer){
+            this._meshBuffer!.reset();
+        }
+
+        const ui = this._getUI();
+        if(ui){
+            for (let i = 0; i < this._uiDrawBatchList.length; i++) {
+                const element = this._uiDrawBatchList[i];
+                element.destroy(ui);
+            }
+        }
+
+        this._uiDrawBatchList.length = 0;
+        this._init = false;
     }
 
     protected _getUI (){
