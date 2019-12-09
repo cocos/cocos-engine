@@ -82,6 +82,18 @@ export class PhysicsSystem extends System {
 
     /**
      * @zh
+     * 获取或设置是否使用固定的时间步长进行模拟，默认为 true。
+     */
+    get useFixedTime () {
+        return this._useFixedTime;
+    }
+
+    set useFixedTime (value: boolean) {
+        this._useFixedTime = value;
+    }
+
+    /**
+     * @zh
      * 获取或设置物理世界的重力数值，默认为 (0, -10, 0)
      */
     public get gravity (): Vec3 {
@@ -135,6 +147,7 @@ export class PhysicsSystem extends System {
 
     private _enable = true;
     private _deltaTime = 1.0 / 60.0;
+    private _useFixedTime = true;
     private _maxSubStep = 2;
     // private _frameRate = 60;
     // private _singleStep = false;
@@ -185,7 +198,11 @@ export class PhysicsSystem extends System {
 
         director.emit(Director.EVENT_BEFORE_PHYSICS);
 
-        this._world.step(this._deltaTime, deltaTime, this._maxSubStep);
+        if (this._useFixedTime) {
+            this._world.step(this._deltaTime);
+        } else {
+            this._world.step(this._deltaTime, deltaTime, this._maxSubStep);
+        }
         // if (this._singleStep) {
         //     this._enable = false;
         // }
