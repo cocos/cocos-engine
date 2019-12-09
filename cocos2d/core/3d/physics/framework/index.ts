@@ -25,10 +25,10 @@
 
 import { Physics3DManager } from './physics-manager';
 import { PhysicsRayResult } from './physics-ray-result';
-import { PhysicsBoxColliderComponent } from './components/collider/box-collider-component';
-import { PhysicsColliderComponent } from './components/collider/collider-component';
-import { PhysicsSphereColliderComponent } from './components/collider/sphere-collider-component';
-import { RigidBodyComponent } from './components/rigid-body-component';
+import { PhysicsBoxCollider3D } from './components/collider/box-collider-component';
+import { PhysicsCollider3D } from './components/collider/collider-component';
+import { PhysicsSphereCollider3D } from './components/collider/sphere-collider-component';
+import { RigidBody3D } from './components/rigid-body-component';
 import { ConstantForce } from './components/constant-force';
 import { PhysicsMaterial } from './assets/physics-material';
 
@@ -37,16 +37,16 @@ export {
     PhysicsRayResult,
     PhysicsMaterial,
 
-    PhysicsColliderComponent,
-    PhysicsBoxColliderComponent,
-    PhysicsSphereColliderComponent,
-    RigidBodyComponent,
+    PhysicsCollider3D,
+    PhysicsBoxCollider3D,
+    PhysicsSphereCollider3D,
+    RigidBody3D,
 };
 
 cc.Physics3DManager = Physics3DManager;
-cc.PhysicsColliderComponent = PhysicsColliderComponent;
-cc.PhysicsBoxColliderComponent = PhysicsBoxColliderComponent;
-cc.PhysicsSphereColliderComponent = PhysicsSphereColliderComponent;
-cc.RigidBodyComponent = RigidBodyComponent;
+cc.PhysicsCollider3D = PhysicsCollider3D;
+cc.PhysicsBoxCollider3D = PhysicsBoxCollider3D;
+cc.PhysicsSphereCollider3D = PhysicsSphereCollider3D;
+cc.RigidBody3D = RigidBody3D;
 cc.PhysicsRayResult = PhysicsRayResult;
 cc.ConstantForce = ConstantForce;

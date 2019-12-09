@@ -29,14 +29,14 @@ import { commitShapeUpdates } from '../cannon-util';
 import { CannonShape } from './cannon-shape';
 import { IBoxShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../../value-types/math';
-import { PhysicsBoxColliderComponent } from '../../exports/physics-framework';
+import { PhysicsBoxCollider3D } from '../../exports/physics-framework';
 
 const v3_0 = new Vec3();
 
 export class CannonBoxShape extends CannonShape implements IBoxShape {
 
     public get boxCollider () {
-        return this.collider as PhysicsBoxColliderComponent;
+        return this.collider as PhysicsBoxCollider3D;
     }
 
     public get box () {

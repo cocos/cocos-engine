@@ -26,7 +26,7 @@
 import { Mat4, Quat, Vec3 } from '../../../../value-types';
 import { BuiltinSharedBody } from '../builtin-shared-body';
 import { IBuiltinShape } from '../builtin-interface';
-import { ColliderComponent } from '../../exports/collider-framework';
+import { Collider3D } from '../../exports/collider-framework';
 import { IBaseShape } from '../../spec/i-collider-shape';
 import { IVec3Like } from '../../../../value-types/math';
 import { BuiltInWorld } from '../builtin-world';
@@ -57,11 +57,11 @@ export class BuiltinShape implements IBaseShape {
     readonly id: number = BuiltinShape.idCounter++;;
 
     protected _sharedBody!: BuiltinSharedBody;
-    protected _collider!: ColliderComponent;
+    protected _collider!: Collider3D;
     protected _localShape!: IBuiltinShape;
     protected _worldShape!: IBuiltinShape;
 
-    __preload (comp: ColliderComponent) {
+    __preload (comp: Collider3D) {
         this._collider = comp;
         this._sharedBody = (cc.director.getCollision3DManager().colliderWorld as BuiltInWorld).getSharedBody(this._collider.node);
         this._sharedBody.reference = true;

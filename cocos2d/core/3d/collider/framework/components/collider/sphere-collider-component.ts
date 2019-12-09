@@ -31,18 +31,18 @@ import {
     property,
 } from '../../../../../platform/CCClassDecorator';
 import { createSphereShape } from '../../instance';
-import { ColliderComponent } from './collider-component';
+import { Collider3D } from './collider-component';
 import { ISphereShape } from '../../../spec/i-collider-shape';
 
 /**
  * !#en Sphere collider
  * !#zh 球碰撞器
  */
-@ccclass('cc.SphereColliderComponent')
+@ccclass('cc.SphereCollider3D')
 @executionOrder(98)
 @menu('i18n:MAIN_MENU.component.collider/Sphere Collider 3D')
 @executeInEditMode
-export class SphereColliderComponent extends ColliderComponent {
+export class SphereCollider3D extends Collider3D {
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
@@ -81,4 +81,4 @@ export class SphereColliderComponent extends ColliderComponent {
     }
 }
 
-cc.SphereColliderComponent = SphereColliderComponent;
+cc.SphereCollider3D = SphereCollider3D;

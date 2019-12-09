@@ -33,13 +33,13 @@ import { RecyclePool } from '../../../../renderer/memop';
 import { IColliderWorld, IRaycastOptions } from '../spec/i-collider-world';
 import { IVec3Like } from '../../../value-types/math';
 import { CollisionEventType } from '../framework/collider-interface';
-import { ColliderComponent } from '../exports/collider-framework';
+import { Collider3D } from '../exports/collider-framework';
 
 const hitPoint = new Vec3();
 const ColliderEventObject = {
     type: 'onCollisionEnter' as unknown as CollisionEventType,
-    selfCollider: null as unknown as ColliderComponent,
-    otherCollider: null as unknown as ColliderComponent,
+    selfCollider: null as unknown as Collider3D,
+    otherCollider: null as unknown as Collider3D,
 };
 
 /**

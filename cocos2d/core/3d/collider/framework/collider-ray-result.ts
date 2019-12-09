@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 import { Vec3 } from '../../../value-types';
-import { ColliderComponent } from '../exports/collider-framework';
+import { Collider3D } from '../exports/collider-framework';
 
 /**
  * !#en Used to store collision ray detection results
@@ -52,19 +52,19 @@ export class ColliderRayResult {
      * !#en Hit the collision box
      * !#zh 击中的碰撞盒
      */
-    get collider (): ColliderComponent {
+    get collider (): Collider3D {
         return this._collidier!;
     }
 
     private _hitPoint: Vec3 = new Vec3();
     private _distance: number = 0;
-    private _collidier: ColliderComponent | null = null;
+    private _collidier: Collider3D | null = null;
 
     /**
      * !#en Set up ray. This method is used internally by the engine. Do not call it from an external script.
      * !#zh 设置射线，此方法由引擎内部使用，请勿在外部脚本调用。
      */
-    public _assign (hitPoint: Vec3, distance: number, collider: ColliderComponent) {
+    public _assign (hitPoint: Vec3, distance: number, collider: Collider3D) {
         Vec3.copy(this._hitPoint, hitPoint);
         this._distance = distance;
         this._collidier = collider;

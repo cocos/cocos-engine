@@ -26,7 +26,7 @@
 import { Sphere } from '../../../../geom-utils';
 import { BuiltinShape } from './builtin-shape';
 import { ISphereShape } from '../../spec/i-collider-shape';
-import { SphereColliderComponent } from '../../exports/collider-framework';
+import { SphereCollider3D } from '../../exports/collider-framework';
 import { Vec3 } from '../../../../value-types';
 
 let _worldScale = new Vec3();
@@ -49,7 +49,7 @@ export class BuiltinSphereShape extends BuiltinShape implements ISphereShape {
     }
 
     get sphereCollider () {
-        return this.collider as SphereColliderComponent;
+        return this.collider as SphereCollider3D;
     }
 
     constructor (radius: number) {

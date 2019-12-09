@@ -24,10 +24,10 @@
  ****************************************************************************/
 
 import { IVec3Like } from "../../../value-types/math";
-import { RigidBodyComponent } from '../framework/components/rigid-body-component';
+import { RigidBody3D } from '../framework/components/rigid-body-component';
 
 export interface IRigidBody {
-    rigidBody: RigidBodyComponent;
+    rigidBody: RigidBody3D;
 
     mass: number;
     linearDamping: number;

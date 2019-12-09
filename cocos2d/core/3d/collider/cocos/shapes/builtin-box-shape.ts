@@ -27,7 +27,7 @@ import { Vec3 } from '../../../../value-types';
 import { Obb } from '../../../../geom-utils';
 import { BuiltinShape } from './builtin-shape';
 import { IBoxShape } from '../../spec/i-collider-shape';
-import { BoxColliderComponent } from '../../exports/collider-framework';
+import { BoxCollider3D } from '../../exports/collider-framework';
 
 let _worldScale = new Vec3();
 
@@ -42,7 +42,7 @@ export class BuiltinBoxShape extends BuiltinShape implements IBoxShape {
     }
 
     public get boxCollider () {
-        return this.collider as BoxColliderComponent;
+        return this.collider as BoxCollider3D;
     }
 
     constructor (size: Vec3) {

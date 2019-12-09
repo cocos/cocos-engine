@@ -26,9 +26,8 @@
 import { ccclass, property } from '../../../../../platform/CCClassDecorator';
 import { Vec3 } from '../../../../../value-types';
 import { CollisionCallback, CollisionEventType, TriggerCallback, TriggerEventType } from '../../physics-interface';
-import { RigidBodyComponent } from '../rigid-body-component';
+import { RigidBody3D } from '../rigid-body-component';
 import { PhysicsMaterial } from '../../assets/physics-material';
-import { Physics3DManager } from '../../physics-manager';
 import { IBaseShape } from '../../../spec/i-physics-shape';
 
 /**
@@ -37,8 +36,8 @@ import { IBaseShape } from '../../../spec/i-physics-shape';
  * !#zh
  * 碰撞器的基类
  */
-@ccclass('cc.PhysicsColliderComponent')
-export class PhysicsColliderComponent extends cc.Component {
+@ccclass('cc.PhysicsCollider3D')
+export class PhysicsCollider3D extends cc.Component {
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
@@ -134,7 +133,7 @@ export class PhysicsColliderComponent extends cc.Component {
      * !#zh
      * 获取碰撞器所绑定的刚体组件，可能为 null
      */
-    public get attachedRigidbody (): RigidBodyComponent | null {
+    public get attachedRigidbody (): RigidBody3D | null {
         return this.shape.attachedRigidBody;
     }
 
@@ -263,4 +262,4 @@ export class PhysicsColliderComponent extends cc.Component {
 
 }
 
-cc.js.mixin(PhysicsColliderComponent.prototype, cc.EventTarget.prototype);
+cc.js.mixin(PhysicsCollider3D.prototype, cc.EventTarget.prototype);

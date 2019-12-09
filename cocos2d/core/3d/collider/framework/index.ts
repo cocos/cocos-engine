@@ -25,21 +25,21 @@
 
 import { Collision3DManager } from './collision-manager';
 import { ColliderRayResult } from './collider-ray-result';
-import { BoxColliderComponent } from './components/collider/box-collider-component';
-import { ColliderComponent } from './components/collider/collider-component';
-import { SphereColliderComponent } from './components/collider/sphere-collider-component';
+import { BoxCollider3D } from './components/collider/box-collider-component';
+import { Collider3D } from './components/collider/collider-component';
+import { SphereCollider3D } from './components/collider/sphere-collider-component';
 
 export {
     Collision3DManager,
     ColliderRayResult,
 
-    ColliderComponent,
-    BoxColliderComponent,
-    SphereColliderComponent,
+    Collider3D,
+    BoxCollider3D,
+    SphereCollider3D,
 };
 
 cc.Collision3DManager = Collision3DManager;
-cc.ColliderComponent = ColliderComponent;
-cc.BoxColliderComponent = BoxColliderComponent;
-cc.SphereColliderComponent = SphereColliderComponent;
+cc.Collider3D = Collider3D;
+cc.BoxCollider3D = BoxCollider3D;
+cc.SphereCollider3D = SphereCollider3D;
 cc.ColliderRayResult = ColliderRayResult;

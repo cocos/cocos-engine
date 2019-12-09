@@ -24,10 +24,10 @@
  ****************************************************************************/
 
 import { IVec3Like } from '../../../value-types/math';
-import { ColliderComponent } from '../exports/collider-framework';
+import { Collider3D } from '../exports/collider-framework';
 
 export interface IBaseShape {
-    readonly collider: ColliderComponent;
+    readonly collider: Collider3D;
     center: IVec3Like;
 }
 

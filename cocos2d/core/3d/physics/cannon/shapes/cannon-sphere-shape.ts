@@ -28,13 +28,13 @@ import { Vec3 } from '../../../../value-types';
 import { commitShapeUpdates } from '../cannon-util';
 import { CannonShape } from './cannon-shape';
 import { ISphereShape } from '../../spec/i-physics-shape';
-import { PhysicsSphereColliderComponent } from '../../exports/physics-framework';
+import { PhysicsSphereCollider3D } from '../../exports/physics-framework';
 
 const v3_0 = new Vec3();
 export class CannonSphereShape extends CannonShape implements ISphereShape {
 
     get sphereCollider () {
-        return this.collider as PhysicsSphereColliderComponent;
+        return this.collider as PhysicsSphereCollider3D;
     }
 
     get sphere () {

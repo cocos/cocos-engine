@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 import { Vec3 } from '../../../value-types';
-import { PhysicsColliderComponent } from '../exports/physics-framework';
+import { PhysicsCollider3D } from '../exports/physics-framework';
 
 /**
  * !#en
@@ -60,13 +60,13 @@ export class PhysicsRayResult {
      * !#zh
      * 击中的碰撞盒
      */
-    get collider (): PhysicsColliderComponent {
+    get collider (): PhysicsCollider3D {
         return this._collidier!;
     }
 
     private _hitPoint: Vec3 = new Vec3();
     private _distance: number = 0;
-    private _collidier: PhysicsColliderComponent | null = null;
+    private _collidier: PhysicsCollider3D | null = null;
 
     /**
      * !#en
@@ -74,7 +74,7 @@ export class PhysicsRayResult {
      * !#zh
      * 设置射线，此方法由引擎内部使用，请勿在外部脚本调用
      */
-    public _assign (hitPoint: Vec3, distance: number, collider: PhysicsColliderComponent) {
+    public _assign (hitPoint: Vec3, distance: number, collider: PhysicsCollider3D) {
         Vec3.copy(this._hitPoint, hitPoint);
         this._distance = distance;
         this._collidier = collider;

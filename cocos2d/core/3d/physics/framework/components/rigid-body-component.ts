@@ -41,12 +41,12 @@ import { createRigidBody } from '../instance';
  * !#zh
  * 刚体组件。
  */
-@ccclass('cc.RigidBodyComponent')
+@ccclass('cc.RigidBody3D')
 @executionOrder(99)
 @menu('i18n:MAIN_MENU.component.physics/Rigid Body 3D')
 @executeInEditMode
 @disallowMultiple
-export class RigidBodyComponent extends cc.Component {
+export class RigidBody3D extends cc.Component {
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 

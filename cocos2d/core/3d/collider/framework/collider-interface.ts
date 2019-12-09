@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { ColliderComponent } from './components/collider/collider-component';
+import { Collider3D } from './components/collider/collider-component';
 
 /**
  * !#en Collider event.
@@ -40,13 +40,13 @@ export interface IColliderEvent {
      * !#en Colliders its own collider in the event.
      * !#zh 碰撞事件中的自己的碰撞器。
      */
-    readonly selfCollider: ColliderComponent;
+    readonly selfCollider: Collider3D;
 
     /**
      * !#en Colliders another collider in the event
      * !#zh 碰撞事件中的另一个碰撞器
      */
-    readonly otherCollider: ColliderComponent;
+    readonly otherCollider: Collider3D;
 }
 
 /**

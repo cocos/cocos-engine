@@ -32,24 +32,24 @@ import {
     requireComponent,
     disallowMultiple,
 } from '../../../../platform/CCClassDecorator';
-import { RigidBodyComponent } from './rigid-body-component';
+import { RigidBody3D } from './rigid-body-component';
 import { Vec3 } from '../../../../value-types';
 
 /**
  * !#en
- * Each frame applies a constant force to a rigid body, depending on the RigidBodyComponent
+ * Each frame applies a constant force to a rigid body, depending on the RigidBody3D
  * !#zh
- * 在每帧对一个刚体施加持续的力，依赖 RigidBodyComponent 组件
+ * 在每帧对一个刚体施加持续的力，依赖 RigidBody3D 组件
  */
 @ccclass('cc.ConstantForce')
 @executionOrder(98)
-@requireComponent(RigidBodyComponent)
+@requireComponent(RigidBody3D)
 @menu('i18n:MAIN_MENU.component.physics/Constant Force 3D')
 @disallowMultiple
 @executeInEditMode
 export class ConstantForce extends cc.Component {
 
-    private _rigidbody: RigidBodyComponent | null = null;
+    private _rigidbody: RigidBody3D | null = null;
 
     @property
     private readonly _force: Vec3 = new Vec3();
@@ -138,7 +138,7 @@ export class ConstantForce extends cc.Component {
     }
 
     public onLoad () {
-        this._rigidbody = this.node.getComponent(RigidBodyComponent);
+        this._rigidbody = this.node.getComponent(RigidBody3D);
         this._maskUpdate(this._force, 1);
         this._maskUpdate(this._localForce, 2);
         this._maskUpdate(this._torque, 4);

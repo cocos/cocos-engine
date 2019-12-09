@@ -33,8 +33,8 @@ import { IBaseShape } from '../../../spec/i-collider-shape';
  * !#en The base class of the collider
  * !#zh 碰撞器的基类
  */
-@ccclass('cc.ColliderComponent')
-export class ColliderComponent extends CCComponent {
+@ccclass('cc.Collider3D')
+export class Collider3D extends CCComponent {
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
@@ -168,4 +168,4 @@ export class ColliderComponent extends CCComponent {
     }
 }
 
-cc.js.mixin(ColliderComponent.prototype, cc.EventTarget.prototype);
+cc.js.mixin(Collider3D.prototype, cc.EventTarget.prototype);

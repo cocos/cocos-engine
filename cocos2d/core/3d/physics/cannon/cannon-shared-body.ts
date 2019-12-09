@@ -29,7 +29,7 @@ import { ERigidBodyType } from '../framework/physics-enum';
 import { getWrap } from '../framework/util';
 import { CannonWorld } from './cannon-world';
 import { CannonShape } from './shapes/cannon-shape';
-import { PhysicsColliderComponent } from '../exports/physics-framework';
+import { PhysicsCollider3D } from '../exports/physics-framework';
 import { CollisionEventType } from '../framework/physics-interface';
 import { CannonRigidBody } from './cannon-rigid-body';
 import { groupIndexToBitMask } from './cannon-util'
@@ -39,8 +39,8 @@ const quat_0 = new Quat();
 const contactsPool = [] as any;
 const CollisionEventObject = {
     type: 'onCollisionEnter' as CollisionEventType,
-    selfCollider: null as PhysicsColliderComponent | null,
-    otherCollider: null as PhysicsColliderComponent | null,
+    selfCollider: null as PhysicsCollider3D | null,
+    otherCollider: null as PhysicsCollider3D | null,
     contacts: [] as any,
 };
 

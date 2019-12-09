@@ -32,18 +32,18 @@ import {
 } from '../../../../../platform/CCClassDecorator';
 import { Vec3 } from '../../../../../value-types';
 import { createBoxShape } from '../../instance';
-import { ColliderComponent } from './collider-component';
+import { Collider3D } from './collider-component';
 import { IBoxShape } from '../../../spec/i-collider-shape';
 
 /**
- * !#en Box Collider
+ * !#en Box Collider 3D
  * !#zh 盒子碰撞器
  */
-@ccclass('cc.BoxColliderComponent')
+@ccclass('cc.BoxCollider3D')
 @executionOrder(98)
 @menu('i18n:MAIN_MENU.component.collider/Box Collider 3D')
 @executeInEditMode
-export class BoxColliderComponent extends ColliderComponent {
+export class BoxCollider3D extends Collider3D {
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
@@ -84,4 +84,4 @@ export class BoxColliderComponent extends ColliderComponent {
 
 }
 
-cc.BoxColliderComponent = BoxColliderComponent;
+cc.BoxCollider3D = BoxCollider3D;
