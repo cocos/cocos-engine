@@ -50,6 +50,17 @@ interface EditorExtendsAsset {
 }
 
 declare namespace EditorExtends {
+    type OnClassRegistered = (
+        classConstructor: Function,
+        metadata?: Readonly<any>,
+    ) => void;
+
+    /**
+     * Called when a cc-class is registered.
+     * @param classConstructor
+     */
+    const onClassRegistered: OnClassRegistered | undefined;
+
     const Script: EditorExtendsScript;
     const Node: EditorExtendsNode;
     const Component: EditorExtendsComponent;
