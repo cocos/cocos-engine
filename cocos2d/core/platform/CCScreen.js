@@ -101,7 +101,7 @@ cc.screen = /** @lends cc.screen# */{
             }
         }
 
-        this._supportsFullScreen = (this._fn.requestFullscreen !== undefined);
+        this._supportsFullScreen = (this._fn.requestFullscreen !== undefined && document[this._fn.requestFullscreen]);
 
         // Bug fix only for v2.1, don't merge into v2.0
         // In v2.0, screen touchend events conflict with editBox touchend events if it's not stayOnTop.
