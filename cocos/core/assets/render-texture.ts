@@ -6,9 +6,9 @@ import { ccclass, property } from '../data/class-decorator';
 import { GFXFormat } from '../gfx';
 import { GFXDevice } from '../gfx/device';
 import { GFXWindow } from '../gfx/window';
+import { ccenum } from '../value-types/enum';
 import { DepthStencilFormat, PixelFormat } from './asset-enum';
 import { TextureBase } from './texture-base';
-import { ccenum } from '../value-types/enum';
 
 export interface IRenderTextureCreateInfo {
     name?: string;
@@ -74,11 +74,11 @@ export class RenderTexture extends TextureBase {
         if (info) {
             this._width = info.width;
             this._height = info.height;
-            if(info.colorFormat){
+            if (info.colorFormat){
                 this._format = info.colorFormat;
             }
 
-            if(info.depthStencilFormat){
+            if (info.depthStencilFormat){
                 this._depthStencilFormat = info.depthStencilFormat;
             }
 
@@ -136,7 +136,6 @@ export class RenderTexture extends TextureBase {
         this._createWindow(device);
     }
 
-
     protected _createWindow (device: GFXDevice) {
         const config = {
             title: this.name,
@@ -147,7 +146,7 @@ export class RenderTexture extends TextureBase {
             depthStencilFmt: this._depthStencilFormat as unknown as GFXFormat,
         };
 
-        if(this._window){
+        if (this._window){
             this._window.initialize(config);
             return this._window;
         }

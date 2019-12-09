@@ -112,6 +112,10 @@ export class CameraComponent extends Component {
     protected _camera: Camera | null = null;
     protected _inEditorMode = false;
 
+    get camera () {
+        return this._camera!;
+    }
+
     /**
      * @en The projection type of the camera
      * @zh 相机的投影类型。
