@@ -21,6 +21,7 @@ import { IDefineMap } from '../core/renderer/core/pass';
 import { HeightField } from './height-field';
 import { TerrainAsset } from './terrain-asset';
 import { director } from '../core/director';
+import { Root } from '../core/root';
 import { validateMethodWithProps } from '../core/data/utils/preprocess-class';
 
 export const TERRAIN_MAX_LEVELS = 4;
@@ -106,7 +107,7 @@ export class TerrainRenderable extends RenderableComponent {
     public destroy () {
         this._invalidMaterial();
         if (this._model != null) {
-            this._getRenderScene().destroyModel(this._model);
+            cc.director.root.destroyModel(this._model);
             this._model = null;
         }
 
@@ -264,8 +265,8 @@ export class TerrainBlock {
             primitiveMode: GFXPrimitiveMode.TRIANGLE_LIST,
         };
 
-        // @ts-ignore
-        this._renderable._model = this._renderable._getRenderScene().createModel(Model, this._node);
+        this._renderable._model = (cc.director.root as Root).createModel(Model);
+        this._renderable._model.initialize(this._node);
 
         // reset weightmap
         this._updateWeightMap();
