@@ -66,6 +66,7 @@ export class AudioPlayerWeb extends AudioPlayer {
         };
 
         this._do_play = () => {
+            this._state = PlayingState.PLAYING;
             this._sourceNode = this._context.createBufferSource();
             this._sourceNode.buffer = this._audio;
             this._sourceNode.loop = this._loop;
@@ -75,7 +76,6 @@ export class AudioPlayerWeb extends AudioPlayer {
             cc.director.once(cc.Director.EVENT_AFTER_UPDATE, () => {
                 this._sourceNode.start(0, this._offset);
                 this._eventTarget.emit('started');
-                this._state = PlayingState.PLAYING;
             });
             /* still not supported by all platforms *
             this._sourceNode.onended = this._on_ended;
