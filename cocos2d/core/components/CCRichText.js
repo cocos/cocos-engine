@@ -34,6 +34,7 @@ const HorizontalAlign = macro.TextAlignment;
 const VerticalAlign = macro.VerticalTextAlignment;
 const RichTextChildName = "RICHTEXT_CHILD";
 const RichTextChildImageName = "RICHTEXT_Image_CHILD";
+const CacheMode = cc.Label.CacheMode;
 
 // Returns a function, that, as long as it continues to be invoked, will not
 // be triggered. The function will be called after it stops being called for
@@ -104,6 +105,7 @@ pool.get = function (string, richtext) {
     labelComponent.overflow = 0;
     labelComponent.enableWrapText = true;
     labelComponent.lineHeight = 40;
+    labelComponent.cacheMode = richtext.cacheMode;
     labelComponent._enableBold(false);
     labelComponent._enableItalics(false);
     labelComponent._enableUnderline(false);
@@ -269,6 +271,23 @@ let RichText = cc.Class({
             },
             animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.richtext.system_font',
+        },
+
+        /**
+         * !#en The cache mode of label. This mode only supports system fonts.
+         * !#zh 文本缓存模式, 该模式只支持系统字体。
+         * @property {Label.CacheMode} cacheMode
+         */
+        cacheMode: {
+            default: CacheMode.NONE,
+            type: CacheMode,
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.cacheMode',
+            notify (oldValue) {
+                if (this.cacheMode === oldValue) return;
+
+                this._updateRichTextStatus();
+            },
+            animatable: false
         },
 
         /**
