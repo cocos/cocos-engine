@@ -99,7 +99,7 @@ var SystemEvent = cc.Class({
         }
 
         // for iOS 13+
-        if (isEnable && typeof DeviceMotionEvent.requestPermission === 'function') {
+        if (isEnable && window.DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === 'function') {
             DeviceMotionEvent.requestPermission().then(response => {
                 console.log(`Device Motion Event request permission: ${response}`);
                 inputManger.setAccelerometerEnabled(response === 'granted');

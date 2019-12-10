@@ -107,6 +107,8 @@ export default class BmfontAssembler extends Assembler2D {
         _spriteFrame = fontAsset.spriteFrame;
         _fntConfig = fontAsset._fntConfig;
         shareLabelInfo.fontAtlas = fontAsset._fontDefDictionary;
+
+        this.packToDynamicAtlas(comp, _spriteFrame);
     }
 
     _updateLabelInfo() {
@@ -515,7 +517,7 @@ export default class BmfontAssembler extends Assembler2D {
     }
 
     _updateQuads () {
-        let texture = shareLabelInfo.fontAtlas.getTexture();
+        let texture = _spriteFrame ? _spriteFrame._texture : shareLabelInfo.fontAtlas.getTexture();
 
         let node = _comp.node;
 

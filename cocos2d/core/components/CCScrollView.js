@@ -807,6 +807,7 @@ let ScrollView = cc.Class({
         if (!currentOutOfBoundary.fuzzyEquals(cc.v2(0, 0), EPSILON)) {
             this._processInertiaScroll();
             this.unschedule(this._checkMouseWheel);
+            this._dispatchEvent('scroll-ended');
             this._stopMouseWheel = false;
             return;
         }
@@ -817,6 +818,7 @@ let ScrollView = cc.Class({
         if (this._mouseWheelEventElapsedTime > maxElapsedTime) {
             this._onScrollBarTouchEnded();
             this.unschedule(this._checkMouseWheel);
+            this._dispatchEvent('scroll-ended');
             this._stopMouseWheel = false;
         }
     },
