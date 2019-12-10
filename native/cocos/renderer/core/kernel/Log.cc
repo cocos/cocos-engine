@@ -131,7 +131,7 @@ void Log::LogMessage(LogType type, LogLevel level, const char* formats, ...) {
     case LogLevel::DEBUG: priority = ANDROID_LOG_DEBUG; break;
     case LogLevel::INFO: priority = ANDROID_LOG_INFO; break;
     case LogLevel::WARN: priority = ANDROID_LOG_WARN; break;
-    case LogLevel::ERROR: priority = ANDROID_LOG_ERROR; break;
+    case LogLevel::ERR: priority = ANDROID_LOG_ERROR; break;
     case LogLevel::FATAL: priority = ANDROID_LOG_FATAL; break;
     default: priority = ANDROID_LOG_INFO;
   }

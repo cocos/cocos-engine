@@ -2,6 +2,10 @@
 #include "GLES2Context.h"
 #include "gles2w.h"
 
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+#include "android/native_window.h"
+#endif
+
 // #define CC_GFX_DEBUG
 
 NS_CC_BEGIN
