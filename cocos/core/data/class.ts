@@ -398,7 +398,7 @@ function define (className, baseClass, mixins, options) {
     }
 
     if (CC_EDITOR) {
-        EditorExtends?.onClassRegistered?.(options.ctor, frame);
+        EditorExtends.emit('class-registered', options.ctor, frame);
     }
 
     if (frame) {
