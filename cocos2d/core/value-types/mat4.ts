@@ -1639,13 +1639,7 @@ export default class Mat4 extends ValueType {
         m30: number = 0, m31: number = 0, m32: number = 0, m33: number = 1) {
         super();
         if (m00 instanceof FLOAT_ARRAY_TYPE) {
-            // deep copy
-            if (m01) {
-                this.m = new FLOAT_ARRAY_TYPE(16);
-                this.m.set(m00);
-            } else {
-                this.m = m00;
-            }
+            this.m = m00;
         } else {
             this.m = new FLOAT_ARRAY_TYPE(16);
             let tm = this.m;

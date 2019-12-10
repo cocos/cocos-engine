@@ -437,11 +437,6 @@ sp.Skeleton = cc.Class({
         this.attachUtil = new AttachUtil();
     },
 
-    onDestroy () {
-        this._super();
-        this.attachUtil.reset();
-    },
-
     // override base class setMaterial to clear material cache
     setMaterial (index, material) {
         this._super(index, material);

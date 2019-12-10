@@ -589,7 +589,6 @@ let ArmatureDisplay = cc.Class({
     onDestroy () {
         this._super();
         this._inited = false;
-        this.attachUtil.reset();
 
         if (!CC_EDITOR) {
             if (this._cacheMode === AnimationCacheMode.PRIVATE_CACHE) {
