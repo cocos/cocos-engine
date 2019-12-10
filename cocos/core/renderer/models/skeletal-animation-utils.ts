@@ -108,7 +108,7 @@ function uploadJointDataDQS (out: Float32Array, base: number, mat: Mat4, firstBo
 }
 
 function roundUpTextureSize (targetLength: number, formatSize: number) {
-    const minSize = 204;
+    const minSize = 480; // have to be multiples of 12
     const formatScale = 4 / Math.sqrt(formatSize);
     return Math.ceil(Math.max(minSize * formatScale, targetLength) / 12) * 12;
 }
