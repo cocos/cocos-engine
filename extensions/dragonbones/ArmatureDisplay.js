@@ -99,7 +99,7 @@ let ArmatureDisplay = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/DragonBones',
-        inspector: 'packages://inspector/inspectors/comps/dragonbones.js',
+        inspector: 'packages://inspector/inspectors/comps/skeleton2d.js',
     },
     
     statics: {

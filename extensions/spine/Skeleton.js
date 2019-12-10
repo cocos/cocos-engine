@@ -95,7 +95,7 @@ sp.Skeleton = cc.Class({
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/Spine Skeleton',
         help: 'app://docs/html/components/spine.html',
-        inspector: 'packages://inspector/inspectors/comps/spine.js',
+        inspector: 'packages://inspector/inspectors/comps/skeleton2d.js',
     },
 
     statics: {
