@@ -60,6 +60,7 @@ function debounce(func, wait, immediate) {
  */
 let pool = new js.Pool(function (node) {
     if (CC_EDITOR) {
+        cc.isValid(node) && node.destroy();
         return false;
     }
     if (CC_DEV) {
@@ -69,8 +70,10 @@ let pool = new js.Pool(function (node) {
         return false;
     }
     else if (node.getComponent(cc.LabelOutline)) {
+        node.destroy();
         return false;
     }
+
     return true;
 }, 20);
 
