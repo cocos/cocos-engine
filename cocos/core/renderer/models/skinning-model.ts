@@ -84,7 +84,7 @@ export class SkinningModel extends Model {
         if (!skeleton || !skinningRoot || !mesh) { return; }
         this._transform = skinningRoot;
         this._jointsMedium.animInfo = this._dataPoolManager.jointsAnimationInfo.get(skinningRoot.uuid);
-        if (!this._jointsMedium.buffer) {
+        if (!this._jointsMedium.buffer) { // create buffer here so re-init after destroy could work
             this._jointsMedium.buffer = this._device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
