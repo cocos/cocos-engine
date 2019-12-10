@@ -614,7 +614,7 @@ let Label = cc.Class({
         this._frame._texture = this.font.spriteFrame._texture;
         this.markForRender(true);
         this._updateMaterial();
-        this._assembler && this._assembler.updateRenderData(this);
+        this._runUpdateRenderData();
     },
 
     _applyFontTexture () {
@@ -646,7 +646,7 @@ let Label = cc.Class({
             }
             
             this._updateMaterial();
-            this._assembler && this._assembler.updateRenderData(this);
+            this._runUpdateRenderData();
         }
         this.markForValidate();
     },
@@ -666,6 +666,11 @@ let Label = cc.Class({
         this.setVertsDirty();
         this._resetAssembler();
         this._applyFontTexture();
+    },
+
+    _runUpdateRenderData () {
+        if (this.node && this.node._activeInHierarchy && this._assembler)
+            this._assembler.updateRenderData(this);
     },
 
     _enableBold (enabled) {
