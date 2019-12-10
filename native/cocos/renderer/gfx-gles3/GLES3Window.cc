@@ -38,9 +38,9 @@ bool GLES3Window::Initialize(const GFXWindowInfo &info) {
 
   GFXDepthStencilAttachment& depth_stencil_attachment = render_pass_info.depth_stencil_attachment;
   render_pass_info.depth_stencil_attachment.format = depth_stencil_fmt_;
-  depth_stencil_attachment.depth_load_op = GFXLoadOp::LOAD;
+  depth_stencil_attachment.depth_load_op = GFXLoadOp::CLEAR;
   depth_stencil_attachment.depth_store_op = GFXStoreOp::STORE;
-  depth_stencil_attachment.stencil_load_op = GFXLoadOp::LOAD;
+  depth_stencil_attachment.stencil_load_op = GFXLoadOp::CLEAR;
   depth_stencil_attachment.stencil_store_op = GFXStoreOp::STORE;
   depth_stencil_attachment.sample_count = 1;
   depth_stencil_attachment.begin_layout = GFXTextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL;

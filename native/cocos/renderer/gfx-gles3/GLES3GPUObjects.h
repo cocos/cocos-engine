@@ -158,8 +158,8 @@ class GLES3GPUInputAssembler : public Object {
  public:
   GFXAttributeList attribs;
   GLES3GPUBufferList gpu_vertex_buffers;
-  GLES3GPUBuffer* gpu_index_buffer;
-  GLES3GPUBuffer* gpu_indirect_buffer;
+  GLES3GPUBuffer* gpu_index_buffer = nullptr;
+  GLES3GPUBuffer* gpu_indirect_buffer = nullptr;
   GLES3GPUAttributeList gpu_attribs;
   GLenum gl_index_type;
   map<GLuint, GLuint>::type gl_vaos;
