@@ -90,7 +90,7 @@
     "typedoc-plugin-external-module-name": "github:cocos-creator/typedoc-plugin-external-module-name#master",
     "typedoc-plugin-internal-external": "github:cocos-creator/typedoc-plugin-internal-external#master",
     "typedoc-plugin-localization": "github:cocos-creator/typedoc-plugin-localization#master",
-    "typescript": "^3.5.3",
+    "typescript": "^3.7.2",
     "vconsole": "^3.3.0",
     "vinyl": "1.1.0",
     "vinyl-buffer": "1.0.0",
