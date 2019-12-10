@@ -90,17 +90,6 @@ pool.get = function (string, richtext) {
     }
 
     labelComponent.string = "";
-    labelComponent.cacheMode = richtext.cacheMode;
-
-    let isAsset = richtext.font instanceof cc.Font;
-    if (isAsset && !richtext._isSystemFontUsed) {
-        labelComponent.font = richtext.font;
-    } else {
-        labelComponent.fontFamily = richtext.fontFamily;
-    }
-
-    labelComponent.useSystemFont = richtext._isSystemFontUsed;
-    labelComponent.lineHeight = richtext.lineHeight;
     labelComponent.horizontalAlign = HorizontalAlign.LEFT;
     labelComponent.verticalAlign = VerticalAlign.CENTER;
 
@@ -893,8 +882,18 @@ let RichText = cc.Class({
             labelNode.color = this.node.color;
         }
 
-        labelComponent._enableBold(textStyle && textStyle.bold);
+        labelComponent.cacheMode = this.cacheMode;
 
+        let isAsset = this.font instanceof cc.Font;
+        if (isAsset && !this._isSystemFontUsed) {
+            labelComponent.font = this.font;
+        } else {
+            labelComponent.fontFamily = this.fontFamily;
+        }
+    
+        labelComponent.useSystemFont = this._isSystemFontUsed;
+        labelComponent.lineHeight = this.lineHeight;
+        labelComponent._enableBold(textStyle && textStyle.bold);
         labelComponent._enableItalics(textStyle && textStyle.italic);
         //TODO: temporary implementation, the italic effect should be implemented in the internal of label-assembler.
         if (textStyle && textStyle.italic) {
