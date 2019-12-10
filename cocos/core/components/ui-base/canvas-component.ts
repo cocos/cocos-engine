@@ -35,7 +35,7 @@ import { director, Director } from '../../director';
 import { game } from '../../game';
 import { GFXClearFlag } from '../../gfx/define';
 import { GFXWindow } from '../../gfx/window';
-import { Color, Vec3 } from '../../math';
+import { Color, Vec3, Rect } from '../../math';
 import { ResolutionPolicy, view } from '../../platform/view';
 import visibleRect from '../../platform/visible-rect';
 import { Camera } from '../../renderer';
@@ -228,6 +228,7 @@ export class CanvasComponent extends Component {
             this._camera.fov = 45;
             this._camera.clearFlag = this.clearFlag;
             this._camera.farClip = 2000;
+            this._camera.viewport = new Rect(0, 0, 1, 1);
             this.color = this._color;
 
             const device = director.root!.device;
