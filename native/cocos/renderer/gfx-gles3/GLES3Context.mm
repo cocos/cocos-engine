@@ -57,34 +57,78 @@ bool GLES3Context::Initialize(const GFXContextInfo &info)
     if (!MakeCurrent())
         return false;
 
-    //FIXME: should create custom frame buffer and color buffer. Depth/Stencil attachment are needed, add them in future.
-    // Should let default window know it, then when Window::resize() should recreate them.
-    GLuint colorBuffer;
-    glGenRenderbuffers(1, &colorBuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, colorBuffer);
+    return createCustomFrameBuffer();
+}
 
+bool GLES3Context::createCustomFrameBuffer()
+{
+    glGenFramebuffers(1, &_defaultFBO);
+    if (0 == _defaultFBO)
+    {
+        CC_LOG_ERROR("Can not create default frame buffer");
+        glDeleteFramebuffers(1,&_defaultFBO);
+        return false;
+    }
+    
+    glGenRenderbuffers(1, &_defaultColorBuffer);
+    if (0 == _defaultColorBuffer)
+    {
+        CC_LOG_ERROR("Can not create default color buffer");
+        return false;
+    }
+    glBindRenderbuffer(GL_RENDERBUFFER, _defaultColorBuffer);
     CAEAGLLayer* eaglLayer = (CAEAGLLayer*)( ((UIView*)(window_handle_)).layer);
     if (! [(EAGLContext*)eagl_context_ renderbufferStorage:GL_RENDERBUFFER
                                               fromDrawable:eaglLayer])
     {
         CC_LOG_ERROR("Attaches EAGLDrawable as storage for the OpenGL ES renderbuffer object failed.");
         glBindRenderbuffer(GL_RENDERBUFFER, 0);
-        glDeleteRenderbuffers(1, &colorBuffer);
+        glDeleteRenderbuffers(1, &_defaultColorBuffer);
         return false;
     }
-
-    GLuint defaulFBO;
-    glGenFramebuffers(1, &defaulFBO);
-    glBindFramebuffer(GL_FRAMEBUFFER, defaulFBO);
-    glBindRenderbuffer(GL_RENDERBUFFER, colorBuffer);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorBuffer);
-
+    glBindFramebuffer(GL_FRAMEBUFFER, _defaultFBO);
+    glBindRenderbuffer(GL_RENDERBUFFER, _defaultColorBuffer);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, _defaultColorBuffer);
+    
+    //FIXME: if use depth/stencil buffer, then wrong effect.
+    //    glGenRenderbuffers(1, &_defaultDepthStencilBuffer);
+    //    if (_defaultDepthStencilBuffer != 0)
+    //    {
+    //        // Application can run without depth/stencil buffer, so don't return false here.
+    //        glBindRenderbuffer(GL_RENDERBUFFER, _defaultDepthStencilBuffer);
+    //        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _defaultDepthStencilBuffer);
+    //        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _defaultDepthStencilBuffer);
+    //    }
+    //    else
+    //        CC_LOG_ERROR("Can not create default depth/stencil buffer");
+    
     return true;
+}
+
+void GLES3Context::destroyCustomFrameBuffer()
+{
+    if (_defaultColorBuffer)
+    {
+        glDeleteRenderbuffers(1, &_defaultColorBuffer);
+        _defaultColorBuffer = 0;
+    }
+    if (_defaultDepthStencilBuffer)
+    {
+        glDeleteRenderbuffers(1, &_defaultDepthStencilBuffer);
+        _defaultDepthStencilBuffer = 0;
+    }
+    
+    if (_defaultFBO)
+    {
+        glDeleteFramebuffers(1, &_defaultFBO);
+        _defaultFBO = 0;
+    }
 }
 
 void GLES3Context::Destroy()
 {
-  
+    destroyCustomFrameBuffer();
+    
     if (eagl_context_)
     {
         [(EAGLContext*)eagl_context_ release];

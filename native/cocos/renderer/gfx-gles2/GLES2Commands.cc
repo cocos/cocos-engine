@@ -684,14 +684,14 @@ void GLES2CmdFuncResizeTexture(GLES2Device* device, GLES2GPUTexture* gpu_texture
           for (uint i = 0; i < gpu_texture->mip_level; ++i) {
             glTexImage2D(GL_TEXTURE_2D, i, gpu_texture->gl_internal_fmt, w, h, 0, gpu_texture->gl_format, gpu_texture->gl_type, nullptr);
             w = std::max(1U, w >> 1);
-            h = std::max(1U, w >> 1);
+            h = std::max(1U, h >> 1);
           }
         } else {
           for (uint i = 0; i < gpu_texture->mip_level; ++i) {
             uint img_size = GFXFormatSize(gpu_texture->format, w, h, 1);
             glCompressedTexImage2D(GL_TEXTURE_2D, i, gpu_texture->gl_internal_fmt, w, h, 0, img_size, nullptr);
             w = std::max(1U, w >> 1);
-            h = std::max(1U, w >> 1);
+            h = std::max(1U, h >> 1);
           }
         }
       }
@@ -713,7 +713,7 @@ void GLES2CmdFuncResizeTexture(GLES2Device* device, GLES2GPUTexture* gpu_texture
             for (uint i = 0; i < gpu_texture->mip_level; ++i) {
               glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpu_texture->gl_internal_fmt, w, h, 0, gpu_texture->gl_format, gpu_texture->gl_type, nullptr);
               w = std::max(1U, w >> 1);
-              h = std::max(1U, w >> 1);
+              h = std::max(1U, h >> 1);
             }
           }
         } else {
@@ -724,7 +724,7 @@ void GLES2CmdFuncResizeTexture(GLES2Device* device, GLES2GPUTexture* gpu_texture
               uint img_size = GFXFormatSize(gpu_texture->format, w, h, 1);
               glCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpu_texture->gl_internal_fmt, w, h, 0, img_size, nullptr);
               w = std::max(1U, w >> 1);
-              h = std::max(1U, w >> 1);
+              h = std::max(1U, h >> 1);
             }
           }
         }

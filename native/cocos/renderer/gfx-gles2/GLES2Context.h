@@ -59,12 +59,21 @@ class CC_GLES2_API GLES2Context : public GFXContext {
  
  private:
   bool MakeCurrentImpl();
+    
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+    bool createCustomFrameBuffer();
+    void destroyCustomFrameBuffer();
+#endif
   
  private:
   bool is_primary_ctx_;
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
   intptr_t eagl_context_;
   intptr_t eagl_shared_ctx_;
+    // iOS needs to created frame buffer and attach color/depth/stencil buffer.
+    uint _defaultFBO = 0;
+    uint _defaultColorBuffer = 0;
+    uint _defaultDepthStencilBuffer = 0;
 #else
   NativeDisplayType native_display_;
   EGLDisplay egl_display_;
