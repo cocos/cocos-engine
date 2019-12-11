@@ -7,7 +7,6 @@ import { GFXWindow } from '../gfx/window';
 import { Camera } from '../renderer/scene/camera';
 import { RenderFlow } from './render-flow';
 import { CameraDefaultMask } from './define';
-import { indexOf } from '../utils/array';
 
 /**
  * @zh
@@ -73,6 +72,9 @@ export class RenderView {
 
     public set priority (val: number) {
         this._priority = val;
+        if (cc.director.root) {
+            cc.director.root.sortViews();
+        }
     }
 
     /**
