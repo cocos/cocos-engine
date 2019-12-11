@@ -399,20 +399,22 @@ export class Mesh extends Asset {
                 const idxView = prim.indexView;
 
                 let dstStride = idxView.stride;
+                let dstSize = idxView.length;
                 if (dstStride === 4 && !gfxDevice.hasFeature(GFXFeature.ELEMENT_INDEX_UINT)) {
                     const vertexCount = this._struct.vertexBundles[prim.vertexBundelIndices[0]].view.count;
-                    if (vertexCount >= 2 ** 16) {
-                        warnID(10001, vertexCount, 2 ** 16);
+                    if (vertexCount >= 65536) {
+                        warnID(10001, vertexCount, 65536);
                         continue; // Ignore this primitive
                     } else {
-                        dstStride = 2; // Reduce to short.
+                        dstStride >>= 1; // Reduce to short.
+                        dstSize >>= 1;
                     }
                 }
 
                 indexBuffer = gfxDevice.createBuffer({
                     usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
                     memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                    size: idxView.length,
+                    size: dstSize,
                     stride: dstStride,
                 });
                 indexBuffers.push(indexBuffer);
