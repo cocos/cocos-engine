@@ -3,7 +3,7 @@
  */
 
 import { ccclass, property } from '../data/class-decorator';
-import { GFXFormat } from '../gfx';
+import { GFXFormat, GFXTextureView } from '../gfx';
 import { GFXDevice } from '../gfx/device';
 import { GFXWindow } from '../gfx/window';
 import { DepthStencilFormat, PixelFormat } from './asset-enum';
@@ -62,11 +62,13 @@ export class RenderTexture extends TextureBase {
         return this._window;
     }
 
-    public getGFXTextureView () {
+    public getGFXTextureView (
+    ): GFXTextureView | null /* TODO: Explicit since ISSUE https://github.com/microsoft/TypeScript/issues/31280 , changes required once the issue is fixed. */ {
         return this._window ? this._window.colorTexView : null;
     }
 
-    public getGFXStencilTexture (){
+    public getGFXStencilTexture (
+    ): GFXTextureView | null /* TODO: Explicit since ISSUE https://github.com/microsoft/TypeScript/issues/31280 , changes required once the issue is fixed. */ {
         return this._window ? this._window.depthStencilTexView : null;
     }
 
