@@ -121,12 +121,12 @@ export class CanvasComponent extends Component {
 
     /**
      * @zh
-     * 渲染优先级。
+     * 相机排序优先级。当 RenderMode 为 intersperse 时，指定与其它相机的渲染顺序，当 RenderMode 为 overlay 时，指定跟其余 Canvas 做排序使用。需要对多 Canvas 设定 priority 以免出现不同平台下的闪屏问题。
      *
      * @param value - 渲染优先级。
      */
     @property({
-        tooltip: '相机排序优先级。当 RenderMode 为 intersperse 时，指定与其它相机的渲染顺序，当 RenderMode 为 overlay 时，指定跟其余 Canvas 做排序使用',
+        tooltip: '相机排序优先级。当 RenderMode 为 intersperse 时，指定与其它相机的渲染顺序，当 RenderMode 为 overlay 时，指定跟其余 Canvas 做排序使用。需要对多 Canvas 设定 priority 以免出现不同平台下的闪屏问题。',
     })
     get priority () {
         return this._priority;

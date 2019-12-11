@@ -351,10 +351,6 @@ export class Root {
         }
 
         const views = this._views;
-        views.sort((a: RenderView, b: RenderView) => {
-            return a.priority - b.priority;
-        });
-
         for (let i = 0; i < views.length; i++) {
             const view = views[i];
             if (view.isEnable && (view.window &&
@@ -458,7 +454,7 @@ export class Root {
         view.initialize(info);
         // view.camera.resize(cc.game.canvas.width, cc.game.canvas.height);
         this._views.push(view);
-
+        this.sortViews();
         return view;
     }
 
@@ -545,5 +541,11 @@ export class Root {
                 }
             }
         }
+    }
+
+    public sortViews () {
+        this._views.sort((a: RenderView, b: RenderView) => {
+            return a.priority - b.priority;
+        });
     }
 }
