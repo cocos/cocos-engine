@@ -355,12 +355,6 @@ function define (className, baseClass, mixins, options) {
     const Component = cc.Component;
     const frame = RF.peek();
 
-    // @ts-ignore
-    if (CC_EDITOR && frame) {
-        // @ts-ignore
-        EditorExtends.Script.add(frame.uuid, options.ctor);
-    }
-
     if (frame && js.isChildClassOf(baseClass, Component)) {
         // project component
         if (js.isChildClassOf(frame.cls, Component)) {
@@ -401,6 +395,10 @@ function define (className, baseClass, mixins, options) {
                 window.EditorExtends && window.EditorExtends.Component.addMenu(cls, `hidden:${renderName}/${className}`, -1);
             }
         }
+    }
+
+    if (CC_EDITOR) {
+        EditorExtends.emit('class-registered', options.ctor, frame);
     }
 
     if (frame) {
