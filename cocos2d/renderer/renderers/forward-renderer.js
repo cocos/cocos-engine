@@ -251,10 +251,6 @@ export default class ForwardRenderer extends BaseRenderer {
     // this._device.setUniform(`cc_frustumEdgeFalloff_${index}`, light.frustumEdgeFalloff);
   }
 
-  _updateShaderDefines (item) {
-    // item.defines.push(this._defines);
-  }
-
   _sortItems (items) {
     // sort items
     items.sort((a, b) => {
@@ -280,7 +276,6 @@ export default class ForwardRenderer extends BaseRenderer {
     for (let i = 0; i < items.length; ++i) {
       let item = items.data[i];
       if (item.effect.getDefine('CC_CASTING_SHADOW')) {
-        this._updateShaderDefines(item);
         this._draw(item);
       }
     }
@@ -291,23 +286,25 @@ export default class ForwardRenderer extends BaseRenderer {
     if (shadowLights.length === 0 && this._numLights === 0) {
       for (let i = 0; i < items.length; ++i) {
         let item = items.data[i];
-        this._updateShaderDefines(item);
         this._draw(item);
       }
     }
     else {
+      let shadowMaps = this._shadowMaps, shadowMapslots = this._shadowMapSlots;
+      shadowMaps.length = shadowLights.length;
+      for (let index = 0; index < shadowLights.length; ++index) {
+        let light = shadowLights[index];
+        shadowMaps[index] = light.shadowMap;
+        shadowMapslots[index] = this._allocTextureUnit();
+      }
+      let usedTextureUnits = this._usedTextureUnits;
+
       for (let i = 0; i < items.length; ++i) {
         let item = items.data[i];
-  
-        this._shadowMaps.length = shadowLights.length;
-        for (let index = 0; index < shadowLights.length; ++index) {
-          let light = shadowLights[index];
-          this._shadowMaps[index] = light.shadowMap;
-          this._shadowMapSlots[index] = this._allocTextureUnit();
-        }
-        this._device.setTextureArray('cc_shadow_map', this._shadowMaps, this._shadowMapSlots);
-  
-        this._updateShaderDefines(item);
+
+        this._usedTextureUnits = usedTextureUnits;
+        this._device.setTextureArray('cc_shadow_map', shadowMaps, shadowMapslots);
+
         this._draw(item);
       }
     }
