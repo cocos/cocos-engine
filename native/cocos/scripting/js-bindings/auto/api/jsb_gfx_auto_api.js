@@ -85,15 +85,13 @@ gfxwindowinfo
 },
 
 /**
- * @method CreateGFXShader
- * @param {cc.GFXShaderInfo} arg0
- * @return {cc.GFXShader}
+ * @method width
+ * @return {unsigned int}
  */
-CreateGFXShader : function (
-gfxshaderinfo 
+width : function (
 )
 {
-    return cc.GFXShader;
+    return 0;
 },
 
 /**
@@ -109,13 +107,15 @@ gfxtextureinfo
 },
 
 /**
- * @method width
- * @return {unsigned int}
+ * @method CreateGFXShader
+ * @param {cc.GFXShaderInfo} arg0
+ * @return {cc.GFXShader}
  */
-width : function (
+CreateGFXShader : function (
+gfxshaderinfo 
 )
 {
-    return 0;
+    return cc.GFXShader;
 },
 
 /**
@@ -233,6 +233,18 @@ gfxrenderpassinfo
 },
 
 /**
+ * @method CreateGFXPipelineState
+ * @param {cc.GFXPipelineStateInfo} arg0
+ * @return {cc.GFXPipelineState}
+ */
+CreateGFXPipelineState : function (
+gfxpipelinestateinfo 
+)
+{
+    return cc.GFXPipelineState;
+},
+
+/**
  * @method queue
  * @return {cc.GFXQueue}
  */
@@ -282,6 +294,18 @@ gfxinputassemblerinfo
 )
 {
     return cc.GFXInputAssembler;
+},
+
+/**
+ * @method CreateGFXPipelieLayout
+ * @param {cc.GFXPipelineLayoutInfo} arg0
+ * @return {cc.GFXPipelineLayout}
+ */
+CreateGFXPipelieLayout : function (
+gfxpipelinelayoutinfo 
+)
+{
+    return cc.GFXPipelineLayout;
 },
 
 /**

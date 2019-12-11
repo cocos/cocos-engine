@@ -146,27 +146,23 @@ static bool js_gfx_GFXDevice_CreateGFXWindow(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_GFXDevice_CreateGFXWindow)
 
-static bool js_gfx_GFXDevice_CreateGFXShader(se::State& s)
+static bool js_gfx_GFXDevice_width(se::State& s)
 {
     cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_CreateGFXShader : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_width : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        cocos2d::GFXShaderInfo arg0;
-        #pragma warning NO CONVERSION TO NATIVE FOR GFXShaderInfo
-        ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXShader : Error processing arguments");
-        cocos2d::GFXShader* result = cobj->CreateGFXShader(arg0);
-        ok &= native_ptr_to_seval<cocos2d::GFXShader>((cocos2d::GFXShader*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXShader : Error processing arguments");
+    if (argc == 0) {
+        unsigned int result = cobj->width();
+        ok &= uint32_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_width : Error processing arguments");
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXDevice_CreateGFXShader)
+SE_BIND_FUNC(js_gfx_GFXDevice_width)
 
 static bool js_gfx_GFXDevice_CreateGFXTexture(se::State& s)
 {
@@ -190,23 +186,27 @@ static bool js_gfx_GFXDevice_CreateGFXTexture(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_GFXDevice_CreateGFXTexture)
 
-static bool js_gfx_GFXDevice_width(se::State& s)
+static bool js_gfx_GFXDevice_CreateGFXShader(se::State& s)
 {
     cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_width : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_CreateGFXShader : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->width();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_width : Error processing arguments");
+    if (argc == 1) {
+        cocos2d::GFXShaderInfo arg0;
+        #pragma warning NO CONVERSION TO NATIVE FOR GFXShaderInfo
+        ok = false;
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXShader : Error processing arguments");
+        cocos2d::GFXShader* result = cobj->CreateGFXShader(arg0);
+        ok &= native_ptr_to_seval<cocos2d::GFXShader>((cocos2d::GFXShader*)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXShader : Error processing arguments");
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXDevice_width)
+SE_BIND_FUNC(js_gfx_GFXDevice_CreateGFXShader)
 
 static bool js_gfx_GFXDevice_window(se::State& s)
 {
@@ -426,6 +426,28 @@ static bool js_gfx_GFXDevice_CreateGFXRenderPass(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_GFXDevice_CreateGFXRenderPass)
 
+static bool js_gfx_GFXDevice_CreateGFXPipelineState(se::State& s)
+{
+    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_CreateGFXPipelineState : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        cocos2d::GFXPipelineStateInfo arg0;
+        #pragma warning NO CONVERSION TO NATIVE FOR GFXPipelineStateInfo
+        ok = false;
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXPipelineState : Error processing arguments");
+        cocos2d::GFXPipelineState* result = cobj->CreateGFXPipelineState(arg0);
+        ok &= native_ptr_to_seval<cocos2d::GFXPipelineState>((cocos2d::GFXPipelineState*)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXPipelineState : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GFXDevice_CreateGFXPipelineState)
+
 static bool js_gfx_GFXDevice_queue(se::State& s)
 {
     cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
@@ -521,6 +543,28 @@ static bool js_gfx_GFXDevice_CreateGFXInputAssembler(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_GFXDevice_CreateGFXInputAssembler)
 
+static bool js_gfx_GFXDevice_CreateGFXPipelieLayout(se::State& s)
+{
+    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_CreateGFXPipelieLayout : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        cocos2d::GFXPipelineLayoutInfo arg0;
+        #pragma warning NO CONVERSION TO NATIVE FOR GFXPipelineLayoutInfo
+        ok = false;
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXPipelieLayout : Error processing arguments");
+        cocos2d::GFXPipelineLayout* result = cobj->CreateGFXPipelieLayout(arg0);
+        ok &= native_ptr_to_seval<cocos2d::GFXPipelineLayout>((cocos2d::GFXPipelineLayout*)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXPipelieLayout : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GFXDevice_CreateGFXPipelieLayout)
+
 static bool js_gfx_GFXDevice_CreateGFXFramebuffer(se::State& s)
 {
     cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
@@ -582,9 +626,9 @@ bool js_register_gfx_GFXDevice(se::Object* obj)
     cls->defineFunction("CreateGFXBuffer", _SE(js_gfx_GFXDevice_CreateGFXBuffer));
     cls->defineFunction("Destroy", _SE(js_gfx_GFXDevice_Destroy));
     cls->defineFunction("CreateGFXWindow", _SE(js_gfx_GFXDevice_CreateGFXWindow));
-    cls->defineFunction("CreateGFXShader", _SE(js_gfx_GFXDevice_CreateGFXShader));
-    cls->defineFunction("CreateGFXTexture", _SE(js_gfx_GFXDevice_CreateGFXTexture));
     cls->defineFunction("width", _SE(js_gfx_GFXDevice_width));
+    cls->defineFunction("CreateGFXTexture", _SE(js_gfx_GFXDevice_CreateGFXTexture));
+    cls->defineFunction("CreateGFXShader", _SE(js_gfx_GFXDevice_CreateGFXShader));
     cls->defineFunction("window", _SE(js_gfx_GFXDevice_window));
     cls->defineFunction("CreateGFXCommandBuffer", _SE(js_gfx_GFXDevice_CreateGFXCommandBuffer));
     cls->defineFunction("Initialize", _SE(js_gfx_GFXDevice_Initialize));
@@ -595,11 +639,13 @@ bool js_register_gfx_GFXDevice(se::Object* obj)
     cls->defineFunction("HasFeature", _SE(js_gfx_GFXDevice_HasFeature));
     cls->defineFunction("CreateGFXQueue", _SE(js_gfx_GFXDevice_CreateGFXQueue));
     cls->defineFunction("CreateGFXRenderPass", _SE(js_gfx_GFXDevice_CreateGFXRenderPass));
+    cls->defineFunction("CreateGFXPipelineState", _SE(js_gfx_GFXDevice_CreateGFXPipelineState));
     cls->defineFunction("queue", _SE(js_gfx_GFXDevice_queue));
     cls->defineFunction("CreateGFXBindingLayout", _SE(js_gfx_GFXDevice_CreateGFXBindingLayout));
     cls->defineFunction("Present", _SE(js_gfx_GFXDevice_Present));
     cls->defineFunction("context", _SE(js_gfx_GFXDevice_context));
     cls->defineFunction("CreateGFXInputAssembler", _SE(js_gfx_GFXDevice_CreateGFXInputAssembler));
+    cls->defineFunction("CreateGFXPipelieLayout", _SE(js_gfx_GFXDevice_CreateGFXPipelieLayout));
     cls->defineFunction("CreateGFXFramebuffer", _SE(js_gfx_GFXDevice_CreateGFXFramebuffer));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXDevice_finalize));
     cls->install();
