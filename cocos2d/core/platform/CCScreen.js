@@ -93,7 +93,7 @@ cc.screen = /** @lends cc.screen# */{
         var i, l, val, map = this._fnMap, valL;
         for (i = 0, l = map.length; i < l; i++) {
             val = map[i];
-            if (val && (typeof document[val[1]] !== 'undefined')) {
+            if (val && (typeof document[val[1]] !== 'undefined') && (typeof document[val[0]] !== 'undefined')) {
                 for (i = 0, valL = val.length; i < valL; i++) {
                     this._fn[map[0][i]] = val[i];
                 }
@@ -101,7 +101,7 @@ cc.screen = /** @lends cc.screen# */{
             }
         }
 
-        this._supportsFullScreen = (this._fn.requestFullscreen !== undefined && document[this._fn.requestFullscreen]);
+        this._supportsFullScreen = (this._fn.requestFullscreen !== undefined);
 
         // Bug fix only for v2.1, don't merge into v2.0
         // In v2.0, screen touchend events conflict with editBox touchend events if it's not stayOnTop.
