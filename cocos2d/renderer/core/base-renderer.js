@@ -225,7 +225,6 @@ export default class Base {
     for (let i = 0; i < _stageInfos.length; ++i) {
       let info = _stageInfos.data[i];
       let fn = this._stage2fn[info.stage];
-
       fn(view, info.items);
     }
   }
@@ -312,12 +311,6 @@ export default class Base {
       let pass = passes[i];
       let count = ia.count;
 
-      let variants = pass._properties;
-      let properties = Object.getPrototypeOf(variants);
-      for (let name in properties) {
-        this._setProperty(variants[name]);
-      }
-
       // set vertex buffer
       if (ia._vertexBuffer) {
         device.setVertexBuffer(0, ia._vertexBuffer);
@@ -336,6 +329,15 @@ export default class Base {
 
       let program = programLib.getProgram(pass._programName, defines, effect._name);
       device.setProgram(program);
+
+      let uniforms = program._uniforms;
+      let variants = pass._properties;
+      for (let j = 0; j < uniforms.length; j++) {
+        let prop = variants[uniforms[j].name];
+        if (prop !== undefined)
+        this._setProperty(prop);
+      }
+
 
       // cull mode
       device.setCullMode(pass._cullMode);

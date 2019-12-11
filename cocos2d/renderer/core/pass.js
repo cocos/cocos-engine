@@ -5,7 +5,7 @@ import enums from '../enums';
 import ValueType from '../../core/value-types/value-type';
 
 export default class Pass {
-    constructor (name, detailName, programName, stage, properties, defines) {
+    constructor (name, detailName, programName, stage, properties = {}, defines = {}) {
         this._name = name;
         this._detailName = detailName;
         this._programName = programName;
@@ -154,7 +154,7 @@ export default class Pass {
         if (Array.isArray(value)) {
             let array = prop.value;
             if (array.length !== value.length) {
-                cc.warn(`${this._name} : Failed to set property ${name}, property length not correct.`);
+                cc.warnID(9105, this._name, name);
                 return;
             }
             for (let i = 0; i < value.length; i++) {
@@ -171,7 +171,7 @@ export default class Pass {
                 }
                 else {
                     if (typeof value === 'object') {
-                        cc.warn(`Set property ${this._name} warning : should transform object to ArrayBuffer`);
+                        cc.warnID(9106, this._name, name);
                     }
                     prop.value = value;
                 }

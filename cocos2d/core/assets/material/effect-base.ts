@@ -64,7 +64,7 @@ export default class EffectBase {
             }
         }
         if (!success) {
-            cc.warn(`${this.name} : Failed to set property ${name}, property not found.`);
+            cc.warnID(9103, this.name, name);
         }
     }
 
@@ -97,7 +97,7 @@ export default class EffectBase {
             }
         }
         if (!success) {
-            cc.warn(`${this.name} : Failed to define ${name}, define not found.`);
+            cc.warnID(9104, this.name, name);
         }
     }
 

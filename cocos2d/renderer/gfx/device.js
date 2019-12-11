@@ -792,7 +792,7 @@ export default class Device {
     this._framebuffer = fb;
     const gl = this._gl;
 
-    if (fb === null) {
+    if (!fb) {
       gl.bindFramebuffer(gl.FRAMEBUFFER, null);
       return;
     }
