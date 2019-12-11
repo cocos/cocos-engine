@@ -19,7 +19,7 @@ function parseProperties (effectAsset, passJson) {
         let uniformInfo = program.uniforms.find(u => u.name === prop);
         // the property is not defined in all the shaders used in techs
         if (!uniformInfo) {
-            cc.warn(`${effectAsset.name} : illegal property: ${prop}, myabe defined a not used property`);
+            cc.warnID(9107, effectAsset.name, prop);
             continue;
         }
     }

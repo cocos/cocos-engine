@@ -18,7 +18,7 @@ let { ccclass, } = cc._decorator;
  * @class MaterialVariant
  * @extends Material
  */
-@ccclass
+@ccclass('cc.MaterialVariant')
 export default class MaterialVariant extends Material {
     _owner: cc.RenderComponent = null;
     _material: Material = null;
