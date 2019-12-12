@@ -588,9 +588,9 @@ export enum GFXCommandBufferType {
  * 初始载入帧缓冲时的内存操作。
  */
 export enum GFXLoadOp {
-    LOAD,		// Load the contents from the fbo from previous
-    CLEAR,		// Clear the fbo
-    DISCARD,	// Ignore writing to the fbo and keep old data
+    LOAD,    // Load the previous data
+    CLEAR,   // Clear the fbo
+    DISCARD, // Ignore the previous data
 }
 
 /**
@@ -598,8 +598,8 @@ export enum GFXLoadOp {
  * 存储到帧缓冲时的内存操作。
  */
 export enum GFXStoreOp {
-    STORE,		// Write the source to the destination
-    DISCARD,	// Don't write the source to the destination
+    STORE,   // Write the source to the destination
+    DISCARD, // Don't write the source to the destination
 }
 
 /**
