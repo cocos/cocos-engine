@@ -108,7 +108,7 @@ function uploadJointDataDQS (out: Float32Array, base: number, mat: Mat4, firstBo
 }
 
 function roundUpTextureSize (targetLength: number, formatSize: number) {
-    const minSize = 204;
+    const minSize = 480; // have to be multiples of 12
     const formatScale = 4 / Math.sqrt(formatSize);
     return Math.ceil(Math.max(minSize * formatScale, targetLength) / 12) * 12;
 }
@@ -296,8 +296,8 @@ export class JointsAnimationInfo {
         this._pool.delete(nodeID);
     }
 
-    public get (nodeID: string) {
-        return this._pool.get(nodeID) || this.create(-1 as any);
+    public get (nodeID = '-1') {
+        return this._pool.get(nodeID) || this.create('-1');
     }
 
     public switchClip (info: IAnimInfo, clip: AnimationClip | null) {

@@ -148,7 +148,6 @@ function GFXFormatToWebGLType (format: GFXFormat, gl: WebGLRenderingContext): GL
     }
 }
 
-// tslint:disable: max-line-length
 function GFXFormatToWebGLInternalFormat (format: GFXFormat, gl: WebGLRenderingContext): GLenum {
     switch (format) {
         case GFXFormat.A8: return gl.ALPHA;
@@ -192,7 +191,6 @@ function GFXFormatToWebGLInternalFormat (format: GFXFormat, gl: WebGLRenderingCo
         }
     }
 }
-// tslint:enable: max-line-length
 
 function GFXFormatToWebGLFormat (format: GFXFormat, gl: WebGLRenderingContext): GLenum {
     switch (format) {
@@ -792,7 +790,19 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
                 errorID(9100, maxSize, device.maxTextureSize);
             }
 
-            if (gpuTexture.samples === GFXSampleCount.X1) {
+            if (!device.WEBGL_depth_texture && GFXFormatInfos[gpuTexture.format].hasDepth) {
+                const glRenderbuffer = gl.createRenderbuffer();
+                if (glRenderbuffer && gpuTexture.size > 0) {
+                    gpuTexture.glRenderbuffer = glRenderbuffer;
+
+                    if (device.stateCache.glRenderbuffer !== gpuTexture.glRenderbuffer) {
+                        gl.bindRenderbuffer(gl.RENDERBUFFER, gpuTexture.glRenderbuffer);
+                        device.stateCache.glRenderbuffer = gpuTexture.glRenderbuffer;
+                    }
+
+                    gl.renderbufferStorage(gl.RENDERBUFFER, gpuTexture.glInternelFmt, w, h);
+                }
+            } else if (gpuTexture.samples === GFXSampleCount.X1) {
                 const glTexture = gl.createTexture();
                 if (glTexture && gpuTexture.size > 0) {
                     gpuTexture.glTexture = glTexture;

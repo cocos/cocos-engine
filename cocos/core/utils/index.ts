@@ -35,41 +35,6 @@ import * as misc from './misc';
  * 用于处理文件与目录的路径的模块
  */
 import * as path from './path';
-import { replaceProperty } from './deprecated';
-import * as math from '../math';
-
-// replaceProperty(misc,'misc',[
-//     {
-//         name: 'clampf',
-//         newName: 'clamp',
-//         target: math,
-//         targetName: 'math'
-//     },
-//     {
-//         name: 'clamp01',
-//         newName: 'clamp01',
-//         target: math,
-//         targetName: 'math'
-//     },
-//     {
-//         name: 'lerp',
-//         newName: 'lerp',
-//         target: math,
-//         targetName: 'math'
-//     },
-//     {
-//         name: 'degreesToRadians',
-//         newName: 'toRadian',
-//         target: math,
-//         targetName: 'math'
-//     },
-//     {
-//         name: 'radiansToDegrees',
-//         newName: 'toDegree',
-//         target: math,
-//         targetName: 'math'
-//     },
-// ]);
 
 export * from './deprecated';
 export * from './text-utils';

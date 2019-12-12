@@ -73,6 +73,9 @@ export class RenderView {
 
     public set priority (val: number) {
         this._priority = val;
+        if (cc.director.root) {
+            cc.director.root.sortViews();
+        }
     }
 
     /**

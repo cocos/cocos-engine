@@ -35,7 +35,7 @@ import { director, Director } from '../../director';
 import { game } from '../../game';
 import { GFXClearFlag } from '../../gfx/define';
 import { GFXWindow } from '../../gfx/window';
-import { Color, Vec3 } from '../../math';
+import { Color, Vec3, Rect } from '../../math';
 import { ResolutionPolicy, view } from '../../platform/view';
 import visibleRect from '../../platform/visible-rect';
 import { Camera } from '../../renderer';
@@ -121,12 +121,12 @@ export class CanvasComponent extends Component {
 
     /**
      * @zh
-     * 渲染优先级。
+     * 相机排序优先级。当 RenderMode 为 intersperse 时，指定与其它相机的渲染顺序，当 RenderMode 为 overlay 时，指定跟其余 Canvas 做排序使用。需要对多 Canvas 设定 priority 以免出现不同平台下的闪屏问题。
      *
      * @param value - 渲染优先级。
      */
     @property({
-        tooltip: '相机排序优先级。当 RenderMode 为 intersperse 时，指定与其它相机的渲染顺序，当 RenderMode 为 overlay 时，指定跟其余 Canvas 做排序使用',
+        tooltip: '相机排序优先级。当 RenderMode 为 intersperse 时，指定与其它相机的渲染顺序，当 RenderMode 为 overlay 时，指定跟其余 Canvas 做排序使用。需要对多 Canvas 设定 priority 以免出现不同平台下的闪屏问题。',
     })
     get priority () {
         return this._priority;
@@ -228,6 +228,7 @@ export class CanvasComponent extends Component {
             this._camera.fov = 45;
             this._camera.clearFlag = this.clearFlag;
             this._camera.farClip = 2000;
+            this._camera.viewport = new Rect(0, 0, 1, 1);
             this.color = this._color;
 
             const device = director.root!.device;

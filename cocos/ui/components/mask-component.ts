@@ -190,6 +190,10 @@ export class MaskComponent extends UIRenderComponent {
     }
 
     set segments (value) {
+        if(this._segments === value){
+            return;
+        }
+
         this._segments = clamp(value, SEGEMENTS_MIN, SEGEMENTS_MAX);
         this._updateGraphics();
     }

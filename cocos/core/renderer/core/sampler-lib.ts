@@ -123,3 +123,4 @@ class SamplerLib {
 }
 
 export const samplerLib = new SamplerLib();
+cc.samplerLib = samplerLib;

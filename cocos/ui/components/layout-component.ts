@@ -1080,7 +1080,7 @@ export class LayoutComponent extends Component {
             const newWidth = this._getHorizontalBaseWidth(this.node.children);
 
             const fnPositionY = (child: INode) => {
-                const pos = this._isAlign ? this.node.position : child.position;
+                const pos = this._isAlign ? Vec3.ZERO : child.position;
                 return pos.y;
             };
 
@@ -1091,7 +1091,7 @@ export class LayoutComponent extends Component {
             const newHeight = this._getVerticalBaseHeight(this.node.children);
 
             const fnPositionX = (child: INode) => {
-                const pos = this._isAlign ? this.node.position : child.position;
+                const pos = this._isAlign ? Vec3.ZERO : child.position;
                 return pos.x;
             };
 
