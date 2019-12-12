@@ -92,14 +92,7 @@ export class FontAtlas {
     }
 
     public getLetterDefinitionForChar (char: string) {
-        const hasKey = this._letterDefinitions.hasOwnProperty(char.charCodeAt(0));
-        let letterDefinition;
-        if (hasKey) {
-            letterDefinition = this._letterDefinitions[char.charCodeAt(0)];
-        } else {
-            letterDefinition = null;
-        }
-        return letterDefinition;
+        return this._letterDefinitions[char.charCodeAt(0)];
     }
 }
 
@@ -117,7 +110,7 @@ const _tmpRect = new Rect();
 
 let _comp: LabelComponent | null = null;
 
-const _horizontalKernings: number[] = [];
+const _horizontalKerning: number[] = [];
 const _lettersInfo: LetterInfo[] = [];
 const _linesWidth: number[] = [];
 const _linesOffsetX: number[] = [];
@@ -260,16 +253,16 @@ export const bmfontUtils = {
         const stringLen = string.length;
 
         const kerningDict = _fntConfig!.kerningDict;
-        const horizontalKernings = _horizontalKernings;
+        const horizontalKerning = _horizontalKerning;
 
         let prev = -1;
         for (let i = 0; i < stringLen; ++i) {
             const key = string.charCodeAt(i);
             const kerningAmount = kerningDict[(prev << 16) | (key & 0xffff)] || 0;
             if (i < stringLen - 1) {
-                horizontalKernings[i] = kerningAmount;
+                horizontalKerning[i] = kerningAmount;
             } else {
-                horizontalKernings[i] = 0;
+                horizontalKerning[i] = 0;
             }
             prev = key;
         }
@@ -349,8 +342,8 @@ export const bmfontUtils = {
                 letterPosition.y = nextTokenY - letterDef.offsetY * _bmfontScale;
                 this._recordLetterInfo(letterDefinitions, letterPosition, character, letterIndex, lineIndex);
 
-                if (letterIndex + 1 < _horizontalKernings.length && letterIndex < textLen - 1) {
-                    nextLetterX += _horizontalKernings[letterIndex + 1];
+                if (letterIndex + 1 < _horizontalKerning.length && letterIndex < textLen - 1) {
+                    nextLetterX += _horizontalKerning[letterIndex + 1];
                 }
 
                 nextLetterX += letterDef.xAdvance * _bmfontScale + _spacingX;
@@ -431,8 +424,8 @@ export const bmfontUtils = {
         if (!letterDef) {
             return len;
         }
-        let nextLetterX = letterDef._xAdvance * _bmfontScale + _spacingX;
-        let letterX;
+        let nextLetterX = letterDef.xAdvance * _bmfontScale + _spacingX;
+        let letterX = 0;
         for (let index = startIndex + 1; index < textLen; ++index) {
             character = text.charAt(index);
 
@@ -440,14 +433,14 @@ export const bmfontUtils = {
             if (!letterDef) {
                 break;
             }
-            letterX = nextLetterX + letterDef._offsetX * _bmfontScale;
+            letterX = nextLetterX + letterDef.offsetX * _bmfontScale;
 
-            if (letterX + letterDef._width * _bmfontScale > _maxLineWidth
+            if (letterX + letterDef.width * _bmfontScale > _maxLineWidth
                 && !isUnicodeSpace(character)
                 && _maxLineWidth > 0) {
                 return len;
             }
-            nextLetterX += letterDef._xAdvance * _bmfontScale + _spacingX;
+            nextLetterX += letterDef.xAdvance * _bmfontScale + _spacingX;
             if (character === '\n'
                 || isUnicodeSpace(character)
                 || isUnicodeCJK(character)) {
@@ -587,12 +580,14 @@ export const bmfontUtils = {
             return;
         }
 
-        const letterDefinitions = _fontAtlas.letterDefinitions;
         let letterClamp = false;
         for (let ctr = 0, l = _string.length; ctr < l; ++ctr) {
             const letterInfo = _lettersInfo[ctr];
             if (letterInfo.valid) {
-                const letterDef = letterDefinitions[letterInfo.char];
+                const letterDef = _fontAtlas.getLetterDefinitionForChar(letterInfo.char);
+                if (!letterDef) {
+                    continue;
+                }
 
                 const px = letterInfo.positionX + letterDef.width / 2 * _bmfontScale;
                 const lineIndex = letterInfo.lineIndex;
@@ -642,8 +637,8 @@ export const bmfontUtils = {
 
         const anchorPoint = node.getAnchorPoint();
         const contentSize = _contentSize;
-        const appx = anchorPoint.x * contentSize.width;
-        const appy = anchorPoint.y * contentSize.height;
+        const appX = anchorPoint.x * contentSize.width;
+        const appY = anchorPoint.y * contentSize.height;
 
         let ret = true;
         for (let ctr = 0, l = _string.length; ctr < l; ++ctr) {
@@ -715,7 +710,7 @@ export const bmfontUtils = {
                 }
 
                 const letterPositionX = letterInfo.positionX + _linesOffsetX[letterInfo.lineIndex];
-                this.appendQuad(_comp, texture, _tmpRect, isRotated, letterPositionX - appx, py - appy, _bmfontScale);
+                this.appendQuad(_comp, texture, _tmpRect, isRotated, letterPositionX - appX, py - appY, _bmfontScale);
             }
         }
 
