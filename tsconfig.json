@@ -23,7 +23,7 @@
         "./node_modules/@types/jest/index"
       ]
     },
-    "files": [
-        "./index.ts"
+    "include": [
+        "exports/**/*.ts"
     ]
   }
