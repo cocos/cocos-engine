@@ -23,13 +23,4 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { instantiate } from '../framework/collider-selector';
-import { BuiltInWorld } from './builtin-world';
-import { BuiltinBoxShape } from './shapes/builtin-box-shape';
-import { BuiltinSphereShape } from './shapes/builtin-sphere-shape';
-
-instantiate(
-    BuiltinBoxShape,
-    BuiltinSphereShape,
-    BuiltInWorld,
-);
+import '../cocos/instantiate';

@@ -24,10 +24,10 @@
  ****************************************************************************/
 
 import { IVec3Like } from "../../../value-types/math";
-import { PhysicsCollider3D, RigidBody3D } from '../exports/physics-framework';
+import { Collider3D, RigidBody3D } from '../exports/physics-framework';
 
 export interface IBaseShape {
-    readonly collider: PhysicsCollider3D;
+    readonly collider: Collider3D;
     readonly attachedRigidBody: RigidBody3D | null;
     material: any;
     isTrigger: boolean;

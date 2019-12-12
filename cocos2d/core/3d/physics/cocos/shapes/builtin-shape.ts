@@ -26,12 +26,16 @@
 import { Mat4, Quat, Vec3 } from '../../../../value-types';
 import { BuiltinSharedBody } from '../builtin-shared-body';
 import { IBuiltinShape } from '../builtin-interface';
-import { Collider3D } from '../../exports/collider-framework';
-import { IBaseShape } from '../../spec/i-collider-shape';
+import { Collider3D, PhysicsMaterial, RigidBody3D } from '../../exports/physics-framework';
+import { IBaseShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../../value-types/math';
 import { BuiltInWorld } from '../builtin-world';
 
 export class BuiltinShape implements IBaseShape {
+    set material (v: PhysicsMaterial) { }
+    set isTrigger (v: boolean) { }
+    get attachedRigidBody (): RigidBody3D | null { return null; }
+
     set center (v: IVec3Like) {
         Vec3.copy(this._localShape.center, v);
     }
@@ -63,7 +67,7 @@ export class BuiltinShape implements IBaseShape {
 
     __preload (comp: Collider3D) {
         this._collider = comp;
-        this._sharedBody = (cc.director.getCollision3DManager().colliderWorld as BuiltInWorld).getSharedBody(this._collider.node);
+        this._sharedBody = (cc.director.getPhysics3DManager().physicsWorld as BuiltInWorld).getSharedBody(this._collider.node);
         this._sharedBody.reference = true;
     }
 

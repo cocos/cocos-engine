@@ -24,20 +24,21 @@
  ****************************************************************************/
 
 import { Vec3 } from '../../../value-types';
-import { ColliderRayResult } from '../framework/collider-ray-result';
+import { PhysicsRayResult } from '../framework/physics-ray-result';
 import { BuiltinSharedBody } from './builtin-shared-body';
 import { BuiltinShape } from './shapes/builtin-shape';
 import { ArrayCollisionMatrix } from './utils/array-collision-matrix';
 import { Ray, intersect } from '../../../geom-utils';
 import { RecyclePool } from '../../../../renderer/memop';
-import { IColliderWorld, IRaycastOptions } from '../spec/i-collider-world';
+import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { IVec3Like } from '../../../value-types/math';
-import { CollisionEventType } from '../framework/collider-interface';
-import { Collider3D } from '../exports/collider-framework';
+import { PhysicsMaterial } from './../framework/assets/physics-material';
+import { TriggerEventType } from '../framework/physics-interface';
+import { Collider3D } from '../exports/physics-framework';
 
 const hitPoint = new Vec3();
-const ColliderEventObject = {
-    type: 'onCollisionEnter' as unknown as CollisionEventType,
+const TriggerEventObject = {
+    type: 'onCollisionEnter' as unknown as TriggerEventType,
     selfCollider: null as unknown as Collider3D,
     otherCollider: null as unknown as Collider3D,
 };
@@ -47,9 +48,10 @@ const ColliderEventObject = {
  * efficient discrete collision detector,
  * not a full physical simulator
  */
-export class BuiltInWorld implements IColliderWorld {
+export class BuiltInWorld implements IPhysicsWorld {
     set gravity (v: IVec3Like) { }
     set allowSleep (v: boolean) { }
+    set defaultMaterial (v: PhysicsMaterial) { }
 
     readonly shapeArr: BuiltinShape[] = [];
     readonly bodies: BuiltinSharedBody[] = [];
@@ -90,7 +92,7 @@ export class BuiltInWorld implements IColliderWorld {
         this.emitColliderEvent();
     }
 
-    raycastClosest (worldRay: Ray, options: IRaycastOptions, out: ColliderRayResult): boolean {
+    raycastClosest (worldRay: Ray, options: IRaycastOptions, out: PhysicsRayResult): boolean {
         let tmp_d = Infinity;
         const max_d = options.maxDistance!;
         const groupIndex = options.groupIndex!;
@@ -121,7 +123,7 @@ export class BuiltInWorld implements IColliderWorld {
         return !(tmp_d == Infinity);
     }
 
-    raycast (worldRay: Ray, options: IRaycastOptions, pool: RecyclePool, results: ColliderRayResult[]): boolean {
+    raycast (worldRay: Ray, options: IRaycastOptions, pool: RecyclePool, results: PhysicsRayResult[]): boolean {
         const max_d = options.maxDistance!;
         const groupIndex = options.groupIndex!;
         const collisionMatrix = cc.game.collisionMatrix;
@@ -174,28 +176,28 @@ export class BuiltInWorld implements IColliderWorld {
             shapeA = this.shapeArr[i];
             shapeB = this.shapeArr[i + 1];
 
-            ColliderEventObject.selfCollider = shapeA.collider;
-            ColliderEventObject.otherCollider = shapeB.collider;
+            TriggerEventObject.selfCollider = shapeA.collider;
+            TriggerEventObject.otherCollider = shapeB.collider;
 
             this._collisionMatrix.set(shapeA.id, shapeB.id, true);
 
             if (this._collisionMatrixPrev.get(shapeA.id, shapeB.id)) {
                 // emit stay
-                ColliderEventObject.type = 'onCollisionStay';
+                TriggerEventObject.type = 'onTriggerStay';
             } else {
                 // first collider, emit enter
-                ColliderEventObject.type = 'onCollisionEnter';
+                TriggerEventObject.type = 'onTriggerEnter';
             }
 
             if (shapeA.collider) {
-                shapeA.collider.emit(ColliderEventObject.type, ColliderEventObject);
+                shapeA.collider.emit(TriggerEventObject.type, TriggerEventObject);
             }
 
-            ColliderEventObject.selfCollider = shapeB.collider;
-            ColliderEventObject.otherCollider = shapeA.collider;
+            TriggerEventObject.selfCollider = shapeB.collider;
+            TriggerEventObject.otherCollider = shapeA.collider;
 
             if (shapeB.collider) {
-                shapeB.collider.emit(ColliderEventObject.type, ColliderEventObject);
+                shapeB.collider.emit(TriggerEventObject.type, TriggerEventObject);
             }
         }
 
@@ -206,19 +208,19 @@ export class BuiltInWorld implements IColliderWorld {
             if (this._collisionMatrixPrev.get(shapeA.id, shapeB.id)) {
                 if (!this._collisionMatrix.get(shapeA.id, shapeB.id)) {
                     // emit exit
-                    ColliderEventObject.type = 'onCollisionExit';
-                    ColliderEventObject.selfCollider = shapeA.collider;
-                    ColliderEventObject.otherCollider = shapeB.collider;
+                    TriggerEventObject.type = 'onTriggerExit';
+                    TriggerEventObject.selfCollider = shapeA.collider;
+                    TriggerEventObject.otherCollider = shapeB.collider;
 
                     if (shapeA.collider) {
-                        shapeA.collider.emit(ColliderEventObject.type, ColliderEventObject);
+                        shapeA.collider.emit(TriggerEventObject.type, TriggerEventObject);
                     }
 
-                    ColliderEventObject.selfCollider = shapeB.collider;
-                    ColliderEventObject.otherCollider = shapeA.collider;
+                    TriggerEventObject.selfCollider = shapeB.collider;
+                    TriggerEventObject.otherCollider = shapeA.collider;
 
                     if (shapeB.collider) {
-                        shapeB.collider.emit(ColliderEventObject.type, ColliderEventObject);
+                        shapeB.collider.emit(TriggerEventObject.type, TriggerEventObject);
                     }
 
                     this._collisionMatrix.set(shapeA.id, shapeB.id, false);

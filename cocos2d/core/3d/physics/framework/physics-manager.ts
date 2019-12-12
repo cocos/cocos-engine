@@ -65,7 +65,7 @@ export class Physics3DManager {
     }
     set allowSleep (v: boolean) {
         this._allowSleep = v;
-        if (!CC_EDITOR) {
+        if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
             this.physicsWorld.allowSleep = this._allowSleep;
         }
     }
@@ -123,7 +123,7 @@ export class Physics3DManager {
     }
     set gravity (gravity: Vec3) {
         this._gravity.set(gravity);
-        if (!CC_EDITOR) {
+        if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
             this.physicsWorld.gravity = gravity;
         }
     }
@@ -175,13 +175,15 @@ export class Physics3DManager {
     private constructor () {
         cc.director._scheduler && cc.director._scheduler.enableForTarget(this);
         this.physicsWorld = createPhysicsWorld();
-        this.gravity = this._gravity;
-        this.allowSleep = this._allowSleep;
-        this._material = new PhysicsMaterial();
-        this._material.friction = 0.1;
-        this._material.restitution = 0.1;
-        this._material.on('physics_material_update', this._updateMaterial, this);
-        this.physicsWorld.defaultMaterial = this._material;
+        if (!CC_PHYSICS_BUILTIN) {
+            this.gravity = this._gravity;
+            this.allowSleep = this._allowSleep;
+            this._material = new PhysicsMaterial();
+            this._material.friction = 0.1;
+            this._material.restitution = 0.1;
+            this._material.on('physics_material_update', this._updateMaterial, this);
+            this.physicsWorld.defaultMaterial = this._material;
+        }
     }
 
     /**
@@ -261,6 +263,8 @@ export class Physics3DManager {
     }
 
     private _updateMaterial () {
-        this.physicsWorld.defaultMaterial = this._material;
+        if (!CC_PHYSICS_BUILTIN) {
+            this.physicsWorld.defaultMaterial = this._material;
+        }
     }
 }

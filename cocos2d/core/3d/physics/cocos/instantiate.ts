@@ -23,62 +23,16 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import {
-    ccclass,
-    executeInEditMode,
-    executionOrder,
-    menu,
-    property,
-} from '../../../../../platform/CCClassDecorator';
-import { createSphereShape } from '../../instance';
-import { Collider3D } from './collider-component';
-import { ISphereShape } from '../../../spec/i-collider-shape';
+import { instantiate } from '../framework/physics-selector';
+import { BuiltInWorld } from './builtin-world';
+import { BuiltinBoxShape } from './shapes/builtin-box-shape';
+import { BuiltinSphereShape } from './shapes/builtin-sphere-shape';
 
-/**
- * !#en Sphere collider
- * !#zh 球碰撞器
- */
-@ccclass('cc.SphereCollider3D')
-@executionOrder(98)
-@menu('i18n:MAIN_MENU.component.collider/Sphere Collider 3D')
-@executeInEditMode
-export class SphereCollider3D extends Collider3D {
-
-    /// PUBLIC PROPERTY GETTER\SETTER ///
-
-    /**
-     * !#en Get or set the radius of the sphere.
-     * !#zh 获取或设置球的半径。
-     */
-    @property({
-        tooltip: 'i18n:COMPONENT.collider3D.size'
-    })
-    public get radius () {
-        return this._radius;
-    }
-
-    public set radius (value) {
-        this._radius = value;
-        if (!CC_EDITOR) {
-            this.sphereShape.radius = this._radius;
-        }
-    }
-
-    public get sphereShape (): ISphereShape {
-        return this._shape as ISphereShape;
-    }
-
-    /// PRIVATE PROPERTY ///
-
-    @property
-    private _radius: number = 0.5;
-
-    constructor () {
-        super();
-        if (!CC_EDITOR) {
-            this._shape = createSphereShape(this._radius);
-        }
-    }
+if (CC_PHYSICS_BUILTIN) {
+    instantiate(
+        BuiltinBoxShape,
+        BuiltinSphereShape,
+        null,
+        BuiltInWorld,
+    );
 }
-
-cc.SphereCollider3D = SphereCollider3D;

@@ -33,12 +33,12 @@ import { IVec3Like } from '../../../../value-types/math';
 import { CannonSharedBody } from '../cannon-shared-body';
 import { CannonWorld } from '../cannon-world';
 import { TriggerEventType } from '../../framework/physics-interface';
-import { PhysicsCollider3D } from '../../framework';
+import { Collider3D } from '../../framework';
 
 const TriggerEventObject = {
     type: 'onTriggerEnter' as TriggerEventType,
-    selfCollider: null as PhysicsCollider3D | null,
-    otherCollider: null as PhysicsCollider3D | null,
+    selfCollider: null as Collider3D | null,
+    otherCollider: null as Collider3D | null,
 };
 
 const v3_0 = new Vec3();
@@ -89,7 +89,7 @@ export class CannonShape implements IBaseShape {
         }
     }
 
-    _collider!: PhysicsCollider3D;
+    _collider!: Collider3D;
 
     protected _shape!: CANNON.Shape;
     protected _offset = new CANNON.Vec3();
@@ -101,7 +101,7 @@ export class CannonShape implements IBaseShape {
 
     /** LIFECYCLE */
 
-    __preload (comp: PhysicsCollider3D) {
+    __preload (comp: Collider3D) {
         this._collider = comp;
         setWrap(this._shape, this);
         this._shape.addEventListener('triggered', this.onTriggerListener);

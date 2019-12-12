@@ -36,8 +36,8 @@ import { IBaseShape } from '../../../spec/i-physics-shape';
  * !#zh
  * 碰撞器的基类
  */
-@ccclass('cc.PhysicsCollider3D')
-export class PhysicsCollider3D extends cc.Component {
+@ccclass('cc.Collider3D')
+export class Collider3D extends cc.Component {
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
@@ -55,17 +55,19 @@ export class PhysicsCollider3D extends cc.Component {
     }
 
     public get material () {
-        if (this._isSharedMaterial && this._material != null) {
-            this._material.off('physics_material_update', this._updateMaterial, this);
-            this._material = this._material.clone();
-            this._material.on('physics_material_update', this._updateMaterial, this);
-            this._isSharedMaterial = false;
+        if (!CC_PHYSICS_BUILTIN) {
+            if (this._isSharedMaterial && this._material != null) {
+                this._material.off('physics_material_update', this._updateMaterial, this);
+                this._material = this._material.clone();
+                this._material.on('physics_material_update', this._updateMaterial, this);
+                this._isSharedMaterial = false;
+            }
         }
         return this._material;
     }
 
     public set material (value) {
-        if (CC_EDITOR) { 
+        if (CC_EDITOR || CC_PHYSICS_BUILTIN) { 
             this._material = value; 
             return;
         }
@@ -231,7 +233,9 @@ export class PhysicsCollider3D extends cc.Component {
 
     protected onLoad () {
         if (!CC_EDITOR) {
-            this.sharedMaterial = this._material == null ? cc.director.getPhysics3DManager().defaultMaterial : this._material;
+            if (!CC_PHYSICS_BUILTIN) {
+                this.sharedMaterial = this._material == null ? cc.director.getPhysics3DManager().defaultMaterial : this._material;
+            }
             this._shape.onLoad!();
         }
     }
@@ -262,4 +266,4 @@ export class PhysicsCollider3D extends cc.Component {
 
 }
 
-cc.js.mixin(PhysicsCollider3D.prototype, cc.EventTarget.prototype);
+cc.js.mixin(Collider3D.prototype, cc.EventTarget.prototype);

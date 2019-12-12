@@ -32,7 +32,7 @@ import {
 } from '../../../../../platform/CCClassDecorator';
 import { Vec3 } from '../../../../../value-types';
 import { createBoxShape } from '../../instance';
-import { PhysicsCollider3D } from './collider-component';
+import { Collider3D } from './collider-component';
 import { IBoxShape } from '../../../spec/i-physics-shape';
 
 /**
@@ -41,11 +41,11 @@ import { IBoxShape } from '../../../spec/i-physics-shape';
  * !#zh
  * 物理盒子碰撞器
  */
-@ccclass('cc.PhysicsBoxCollider3D')
+@ccclass('cc.BoxCollider3D')
 @executionOrder(98)
 @menu('i18n:MAIN_MENU.component.physics/Collider/Box 3D')
 @executeInEditMode
-export class PhysicsBoxCollider3D extends PhysicsCollider3D {
+export class BoxCollider3D extends Collider3D {
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 

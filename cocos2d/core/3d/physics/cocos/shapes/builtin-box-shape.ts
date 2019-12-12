@@ -23,19 +23,45 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { IVec3Like } from '../../../value-types/math';
-import { Collider3D } from '../exports/collider-framework';
+import { Vec3 } from '../../../../value-types';
+import { Obb } from '../../../../geom-utils';
+import { BuiltinShape } from './builtin-shape';
+import { IBoxShape } from '../../spec/i-physics-shape';
+import { BoxCollider3D } from '../../exports/physics-framework';
 
-export interface IBaseShape {
-    readonly collider: Collider3D;
-    center: IVec3Like;
+let _worldScale = new Vec3();
+
+export class BuiltinBoxShape extends BuiltinShape implements IBoxShape {
+
+    get localObb () {
+        return this._localShape as Obb;
+    }
+
+    get worldObb () {
+        return this._worldShape as Obb;
+    }
+
+    public get boxCollider () {
+        return this.collider as BoxCollider3D;
+    }
+
+    constructor (size: Vec3) {
+        super();
+        this._localShape = new Obb();
+        this._worldShape = new Obb();
+        Vec3.multiplyScalar(this.localObb.halfExtents, size, 0.5);
+        Vec3.copy(this.worldObb.halfExtents, this.localObb.halfExtents);
+    }
+
+    set size (size: Vec3) {
+        Vec3.multiplyScalar(this.localObb.halfExtents, size, 0.5);
+        this.collider.node.getWorldScale(_worldScale);
+        Vec3.multiply(this.worldObb.halfExtents, this.localObb.halfExtents, _worldScale);
+    }
+
+    onLoad () {
+        super.onLoad();
+        this.size = this.boxCollider.size;
+    }
+
 }
-
-export interface IBoxShape extends IBaseShape {
-    size: IVec3Like;
-}
-
-export interface ISphereShape extends IBaseShape {
-    radius: number;
-}
-

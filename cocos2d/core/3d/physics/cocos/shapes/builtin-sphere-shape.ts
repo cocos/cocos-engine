@@ -23,5 +23,44 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import '../cocos/instantiate';
-export * from '../framework/collider-interface';
+import { Sphere } from '../../../../geom-utils';
+import { BuiltinShape } from './builtin-shape';
+import { ISphereShape } from '../../spec/i-physics-shape';
+import { SphereCollider3D } from '../../exports/physics-framework';
+import { Vec3 } from '../../../../value-types';
+
+let _worldScale = new Vec3();
+
+export class BuiltinSphereShape extends BuiltinShape implements ISphereShape {
+
+    set radius (radius: number) {
+        this.localSphere.radius = radius;
+        this.collider.node.getWorldScale(_worldScale);
+        const s = _worldScale.maxAxis();
+        this.worldSphere.radius = this.localSphere.radius * s;
+    }
+
+    get localSphere () {
+        return this._localShape as Sphere;
+    }
+
+    get worldSphere () {
+        return this._worldShape as Sphere;
+    }
+
+    get sphereCollider () {
+        return this.collider as SphereCollider3D;
+    }
+
+    constructor (radius: number) {
+        super();
+        this._localShape = new Sphere(0, 0, 0, radius);
+        this._worldShape = new Sphere(0, 0, 0, radius);
+    }
+
+    onLoad () {
+        super.onLoad();
+        this.radius = this.sphereCollider.radius;
+    }
+
+}

@@ -31,7 +31,7 @@ import {
     property,
 } from '../../../../../platform/CCClassDecorator';
 import { createSphereShape } from '../../instance';
-import { PhysicsCollider3D } from './collider-component';
+import { Collider3D } from './collider-component';
 import { ISphereShape } from '../../../spec/i-physics-shape';
 
 /**
@@ -40,11 +40,11 @@ import { ISphereShape } from '../../../spec/i-physics-shape';
  * !#zh
  * 物理球碰撞器
  */
-@ccclass('cc.PhysicsSphereCollider3D')
+@ccclass('cc.SphereCollider3D')
 @executionOrder(98)
 @menu('i18n:MAIN_MENU.component.physics/Collider/Sphere 3D')
 @executeInEditMode
-export class PhysicsSphereCollider3D extends PhysicsCollider3D {
+export class SphereCollider3D extends Collider3D {
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 

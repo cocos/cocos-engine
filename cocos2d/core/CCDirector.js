@@ -207,14 +207,6 @@ cc.Director.prototype = {
             this._physicsManager = null;
         }
 
-        // collision 3d manager
-        if (cc.Collision3DManager) {
-            this._collision3DManager = new cc.Collision3DManager();
-            this._scheduler.scheduleUpdate(this._collision3DManager, Scheduler.PRIORITY_SYSTEM, false);
-        } else {
-            this._collision3DManager = null;
-        }
-
         // physics 3d manager
         if (cc.Physics3DManager) {
             this._physics3DManager = new cc.Physics3DManager();
@@ -913,16 +905,6 @@ cc.Director.prototype = {
      */
     getPhysicsManager: function () {
         return this._physicsManager;
-    },
-
-    /**
-     * !#en Returns the cc.Collision3DManager associated with this director.
-     * !#zh 获取和 director 相关联的 cc.Collision3DManager （3D碰撞管理器）。
-     * @method getCollision3DManager
-     * @return {Collision3DManager}
-     */
-    getCollision3DManager: function () {
-        return this._collision3DManager;
     },
 
     /**

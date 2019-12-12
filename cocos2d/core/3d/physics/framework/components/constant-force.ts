@@ -138,29 +138,33 @@ export class ConstantForce extends cc.Component {
     }
 
     public onLoad () {
-        this._rigidbody = this.node.getComponent(RigidBody3D);
-        this._maskUpdate(this._force, 1);
-        this._maskUpdate(this._localForce, 2);
-        this._maskUpdate(this._torque, 4);
-        this._maskUpdate(this._localTorque, 8);
+        if (!CC_PHYSICS_BUILTIN) {
+            this._rigidbody = this.node.getComponent(RigidBody3D);
+            this._maskUpdate(this._force, 1);
+            this._maskUpdate(this._localForce, 2);
+            this._maskUpdate(this._torque, 4);
+            this._maskUpdate(this._localTorque, 8);
+        }
     }
 
     public lateUpdate (dt: number) {
-        if (this._rigidbody != null && this._mask != 0) {
-            if (this._mask & 1) {
-                this._rigidbody.applyForce(this._force);
-            }
+        if (!CC_PHYSICS_BUILTIN) {
+            if (this._rigidbody != null && this._mask != 0) {
+                if (this._mask & 1) {
+                    this._rigidbody.applyForce(this._force);
+                }
 
-            if (this._mask & 2) {
-                this._rigidbody.applyLocalForce(this.localForce);
-            }
+                if (this._mask & 2) {
+                    this._rigidbody.applyLocalForce(this.localForce);
+                }
 
-            if (this._mask & 4) {
-                this._rigidbody.applyTorque(this._torque);
-            }
+                if (this._mask & 4) {
+                    this._rigidbody.applyTorque(this._torque);
+                }
 
-            if (this._mask & 8) {
-                this._rigidbody.applyLocalTorque(this._localTorque);
+                if (this._mask & 8) {
+                    this._rigidbody.applyLocalTorque(this._localTorque);
+                }
             }
         }
     }
