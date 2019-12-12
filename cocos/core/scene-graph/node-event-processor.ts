@@ -82,7 +82,7 @@ function _touchStartHandler (this: EventListener, touch: Touch, event: EventTouc
 
 function _touchMoveHandler (this: EventListener, touch: Touch, event: EventTouch) {
     const node = this.owner as INode;
-    if (!node || !node.uiTransfromComp) {
+    if (!node || !node.uiTransformComp) {
         return false;
     }
 
@@ -94,13 +94,13 @@ function _touchMoveHandler (this: EventListener, touch: Touch, event: EventTouch
 
 function _touchEndHandler (this: EventListener, touch: Touch, event: EventTouch) {
     const node = this.owner as INode;
-    if (!node || !node.uiTransfromComp) {
+    if (!node || !node.uiTransformComp) {
         return;
     }
 
     touch.getUILocation(pos);
 
-    if (node.uiTransfromComp.isHit(pos, this)) {
+    if (node.uiTransformComp.isHit(pos, this)) {
         event.type = SystemEventType.TOUCH_END.toString();
     } else {
         event.type = SystemEventType.TOUCH_CANCEL.toString();
@@ -112,7 +112,7 @@ function _touchEndHandler (this: EventListener, touch: Touch, event: EventTouch)
 
 function _touchCancelHandler (this: EventListener, touch: Touch, event: EventTouch) {
     const node = this.owner as INode;
-    if (!node || !node.uiTransfromComp) {
+    if (!node || !node.uiTransformComp) {
         return;
     }
 
@@ -124,13 +124,13 @@ function _touchCancelHandler (this: EventListener, touch: Touch, event: EventTou
 
 function _mouseDownHandler (this: EventListener, event: EventMouse) {
     const node = this.owner as INode;
-    if (!node || !node.uiTransfromComp) {
+    if (!node || !node.uiTransformComp) {
         return;
     }
 
     pos = event.getUILocation();
 
-    if (node.uiTransfromComp.isHit(pos, this)) {
+    if (node.uiTransformComp.isHit(pos, this)) {
         event.type = SystemEventType.MOUSE_DOWN.toString();
         event.bubbles = true;
         node.dispatchEvent(event);
@@ -139,13 +139,13 @@ function _mouseDownHandler (this: EventListener, event: EventMouse) {
 
 function _mouseMoveHandler (this: EventListener, event: EventMouse) {
     const node = this.owner as INode;
-    if (!node || !node.uiTransfromComp) {
+    if (!node || !node.uiTransformComp) {
         return;
     }
 
     pos = event.getUILocation();
 
-    const hit = node.uiTransfromComp.isHit(pos, this);
+    const hit = node.uiTransformComp.isHit(pos, this);
     if (hit) {
         if (!this._previousIn) {
             // Fix issue when hover node switched, previous hovered node won't get MOUSE_LEAVE notification
@@ -181,13 +181,13 @@ function _mouseMoveHandler (this: EventListener, event: EventMouse) {
 
 function _mouseUpHandler (this: EventListener, event: EventMouse) {
     const node = this.owner as INode;
-    if (!node || !node.uiTransfromComp) {
+    if (!node || !node.uiTransformComp) {
         return;
     }
 
     pos = event.getUILocation();
 
-    if (node.uiTransfromComp.isHit(pos, this)) {
+    if (node.uiTransformComp.isHit(pos, this)) {
         event.type = SystemEventType.MOUSE_UP.toString();
         event.bubbles = true;
         node.dispatchEvent(event);
@@ -198,13 +198,13 @@ function _mouseUpHandler (this: EventListener, event: EventMouse) {
 
 function _mouseWheelHandler (this: EventListener, event: EventMouse) {
     const node = this.owner as INode;
-    if (!node || !node.uiTransfromComp) {
+    if (!node || !node.uiTransformComp) {
         return;
     }
 
     pos = event.getUILocation();
 
-    if (node.uiTransfromComp!.isHit(pos, this)) {
+    if (node.uiTransformComp!.isHit(pos, this)) {
         event.type = SystemEventType.MOUSE_WHEEL.toString();
         event.bubbles = true;
         node.dispatchEvent(event);

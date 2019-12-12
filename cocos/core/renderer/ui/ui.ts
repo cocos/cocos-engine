@@ -503,12 +503,12 @@ export class UI {
     }
 
     private _preprocess (c: INode) {
-        if(!c.uiTransfromComp){
+        if(!c.uiTransformComp){
             return;
         }
 
         // parent changed can flush child visibility
-        c.uiTransfromComp._canvas = this._currCanvas;
+        c.uiTransformComp._canvas = this._currCanvas;
         const render = c._uiComp;
         if (render && render.enabledInHierarchy) {
             render.updateAssembler(this);

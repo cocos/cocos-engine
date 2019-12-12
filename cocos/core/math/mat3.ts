@@ -231,8 +231,16 @@ export class Mat3 extends ValueType {
 
     /**
      * @zh 在给定矩阵变换基础上加入变换
+     * @deprecated 将在 1.2 移除，请转用 `Mat3.transform` 方法。
      */
-    public static transfrom <Out extends IMat3Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
+    public static transfrom<Out extends IMat3Like, VecLike extends IVec3Like>(out: Out, a: Out, v: VecLike) {
+        Mat3.transform(out, a, v);
+    }
+
+    /**
+     * @zh 在给定矩阵变换基础上加入变换
+     */
+    public static transform <Out extends IMat3Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
         _a00 = a.m00; _a01 = a.m01; _a02 = a.m02;
         _a10 = a.m03; _a11 = a.m04; _a12 = a.m05;
         _a20 = a.m06; _a21 = a.m07; _a22 = a.m08;

@@ -81,7 +81,7 @@ export class Node extends BaseNode implements INode {
     public static TransformBit = TransformBit;
 
     // UI 部分的脏数据
-    public _uiTransfromComp: UITransformComponent | null = null;
+    public _uiTransformComp: UITransformComponent | null = null;
     public _uiComp: UIComponent | null = null;
     public _static = false;
 
@@ -273,43 +273,43 @@ export class Node extends BaseNode implements INode {
     // ===============================
 
     // NOTE: don't set it manually
-    get uiTransfromComp () {
-        if (!this._uiTransfromComp) {
-            this._uiTransfromComp = this.getComponent('cc.UITransformComponent') as UITransformComponent;
+    get uiTransformComp () {
+        if (!this._uiTransformComp) {
+            this._uiTransformComp = this.getComponent('cc.UITransformComponent') as UITransformComponent;
         }
 
-        return this._uiTransfromComp;
+        return this._uiTransformComp;
     }
-    set uiTransfromComp (value: UITransformComponent | null) {
-        this._uiTransfromComp = value;
+    set uiTransformComp (value: UITransformComponent | null) {
+        this._uiTransformComp = value;
     }
 
     get width () {
-        return this.uiTransfromComp!.width;
+        return this.uiTransformComp!.width;
     }
     set width (value: number) {
-        this.uiTransfromComp!.width = value;
+        this.uiTransformComp!.width = value;
     }
 
     get height () {
-        return this.uiTransfromComp!.height;
+        return this.uiTransformComp!.height;
     }
     set height (value: number) {
-        this.uiTransfromComp!.height = value;
+        this.uiTransformComp!.height = value;
     }
 
     get anchorX () {
-        return this.uiTransfromComp!.anchorX;
+        return this.uiTransformComp!.anchorX;
     }
     set anchorX (value) {
-        this.uiTransfromComp!.anchorX = value;
+        this.uiTransformComp!.anchorX = value;
     }
 
     get anchorY () {
-        return this.uiTransfromComp!.anchorY;
+        return this.uiTransformComp!.anchorY;
     }
     set anchorY (value: number) {
-        this.uiTransfromComp!.anchorY = value;
+        this.uiTransformComp!.anchorY = value;
     }
 
     // ===============================
@@ -922,12 +922,12 @@ export class Node extends BaseNode implements INode {
         if (!out) {
             out = new Vec2();
         }
-        out.set(this.uiTransfromComp!.anchorPoint);
+        out.set(this.uiTransformComp!.anchorPoint);
         return out;
     }
 
     public setAnchorPoint (point: Vec2 | number, y?: number) {
-        this.uiTransfromComp!.setAnchorPoint(point, y);
+        this.uiTransformComp!.setAnchorPoint(point, y);
     }
 
     public getContentSize (out?: Size): Size {
@@ -935,12 +935,12 @@ export class Node extends BaseNode implements INode {
             out = new Size();
         }
 
-        out.set(this.uiTransfromComp!.contentSize);
+        out.set(this.uiTransformComp!.contentSize);
         return out;
     }
 
     public setContentSize (size: Size | number, height?: number) {
-        this.uiTransfromComp!.setContentSize(size, height);
+        this.uiTransformComp!.setContentSize(size, height);
     }
 
     public pauseSystemEvents (recursive: boolean): void {
