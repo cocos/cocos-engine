@@ -29,6 +29,7 @@
 
 import * as js from '../utils/js';
 import CCClass from './class';
+import { errorID, warnID } from '../platform/debug';
 
 // definitions for CCObject.Flags
 
@@ -238,7 +239,8 @@ class CCObject {
      * @default true
      * @readOnly
      * @example
-     * ```typescript
+     * ```ts
+     * import * as cc from 'cc';
      * var node = new cc.Node();
      * cc.log(node.isValid);    // true
      * node.destroy();
@@ -269,7 +271,7 @@ class CCObject {
      */
     public destroy (): boolean {
         if (this._objFlags & Destroyed) {
-            cc.warnID(5000);
+            warnID(5000);
             return false;
         }
         if (this._objFlags & ToDestroy) {
@@ -319,7 +321,7 @@ class CCObject {
 
     public _destroyImmediate () {
         if (this._objFlags & Destroyed) {
-            cc.errorID(5000);
+            errorID(5000);
             return;
         }
         // engine internal callback
@@ -356,11 +358,11 @@ if (CC_EDITOR || CC_TEST) {
     // @ts-ignore
     prototype.realDestroyInEditor = function () {
         if ( !(this._objFlags & Destroyed) ) {
-            cc.warnID(5001);
+            warnID(5001);
             return;
         }
         if (this._objFlags & RealDestroyed) {
-            cc.warnID(5000);
+            warnID(5000);
             return;
         }
         this._destruct();

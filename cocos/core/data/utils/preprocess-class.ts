@@ -110,7 +110,7 @@ function checkUrl (val, className, propName, url) {
             return errorID(5504, className, propName);
         }
         if (url === cc.RawAsset) {
-            cc.warn('Please change the definition of property \'%s\' in class \'%s\'. Starting from v1.10,\n' +
+            warn('Please change the definition of property \'%s\' in class \'%s\'. Starting from v1.10,\n' +
                     'the use of declaring a property in CCClass as a URL has been deprecated.\n' +
                     'For example, if property is cc.RawAsset, the previous definition is:\n' +
                     '    %s: cc.RawAsset,\n' +

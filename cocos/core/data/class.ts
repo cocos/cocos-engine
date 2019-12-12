@@ -45,6 +45,7 @@ import * as attributeUtils from './utils/attribute';
 import { IAcceptableAttributes } from './utils/attribute-defines';
 import { preprocessAttrs, validateMethodWithProps } from './utils/preprocess-class';
 import * as RF from './utils/requiring-frame';
+import { error } from '../platform/debug';
 
 const DELIMETER = attributeUtils.DELIMETER;
 
@@ -105,7 +106,7 @@ const deferredInitializer: any = {
 function appendProp (cls, name) {
     if (CC_DEV) {
         // if (!IDENTIFIER_RE.test(name)) {
-        //    cc.error('The property name "' + name + '" is not compliant with JavaScript naming standards');
+        //    error('The property name "' + name + '" is not compliant with JavaScript naming standards');
         //    return;
         // }
         if (name.indexOf('.') !== -1) {
@@ -999,7 +1000,7 @@ function CCClass (options) {
         }))
     ) {
         if (CC_DEV && options.__ES6__) {
-            cc.error('not yet implement deferred properties for ES6 Classes');
+            error('not yet implement deferred properties for ES6 Classes');
         }
         else {
             deferredInitializer.push({ cls, props: properties, mixins });
@@ -1209,7 +1210,7 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
             if (typeof val === expectType) {
                 (attrsProto || getAttrsProto())[attrsProtoKey + attributeName] = val;
             } else if (CC_DEV) {
-                cc.error(ERR_Type, attributeName, className, propertyName, expectType);
+                error(ERR_Type, attributeName, className, propertyName, expectType);
             }
         }
     };
@@ -1288,7 +1289,7 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
             }
         }
         else if (CC_DEV) {
-            cc.error(ERR_Type, 'range', className, propertyName, 'array');
+            error(ERR_Type, 'range', className, propertyName, 'array');
         }
     }
     parseSimpleAttribute('min', 'number');
