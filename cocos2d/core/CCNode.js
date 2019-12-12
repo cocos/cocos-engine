@@ -485,19 +485,28 @@ var _mouseWheelHandler = function (event) {
     }
 };
 
-function _searchMaskInParent (node) {
-    var Mask = cc.Mask;
-    if (Mask) {
-        var index = 0;
+function _searchComponentsInParent (node, comp) {
+    if (comp) {
+        let index = 0;
+        let list = null;
         for (var curr = node; curr && cc.Node.isNode(curr); curr = curr._parent, ++index) {
-            if (curr.getComponent(Mask)) {
-                return {
+            if (curr.getComponent(comp)) {
+                let next = {
                     index: index,
-                    node: curr
+                    node: curr,
                 };
+                
+                if (list) {
+                    list.push(next);
+                } else {
+                    list = [next];
+                }
             }
         }
+
+        return list;
     }
+    
     return null;
 }
 
@@ -1603,17 +1612,9 @@ let NodeDefines = {
             // ActionManager & EventManager
             actionManager && actionManager.resumeTarget(this);
             eventManager.resumeTarget(this);
-            if (this._touchListener) {
-                var mask = this._touchListener.mask = _searchMaskInParent(this);
-                if (this._mouseListener) {
-                    this._mouseListener.mask = mask;
-                }
-            }
-            else if (this._mouseListener) {
-                this._mouseListener.mask = _searchMaskInParent(this);
-            }
-        }
-        else {
+            // Search Mask in parent
+            this._checkListenerMask();
+        } else {
             // deactivate
             actionManager && actionManager.pauseTarget(this);
             eventManager.pauseTarget(this);
@@ -1633,6 +1634,11 @@ let NodeDefines = {
             cc._widgetManager._nodesOrderDirty = true;
         }
 
+        if (oldParent && this._activeInHierarchy) {
+            //TODO: It may be necessary to update the listener mask of all child nodes.
+            this._checkListenerMask();
+        }
+        
         // Node proxy
         if (CC_JSB && CC_NATIVERENDERER) {
             this._proxy.updateParent();
@@ -1856,6 +1862,18 @@ let NodeDefines = {
     },
 
     // EVENT TARGET
+    _checkListenerMask () {
+        // Because Mask may be nested, need to find all the Mask components in the parent node. 
+        // The click area must satisfy all Masks to trigger the click.
+        if (this._touchListener) {
+            var mask = this._touchListener.mask = _searchComponentsInParent(this, cc.Mask);
+            if (this._mouseListener) {
+                this._mouseListener.mask = mask;
+            }
+        } else if (this._mouseListener) {
+            this._mouseListener.mask = _searchComponentsInParent(this, cc.Mask);
+        }
+    },
 
     _checknSetupSysEvent (type) {
         let newAdded = false;
@@ -1866,7 +1884,7 @@ let NodeDefines = {
                     event: cc.EventListener.TOUCH_ONE_BY_ONE,
                     swallowTouches: true,
                     owner: this,
-                    mask: _searchMaskInParent(this),
+                    mask: _searchComponentsInParent(this, cc.Mask),
                     onTouchBegan: _touchStartHandler,
                     onTouchMoved: _touchMoveHandler,
                     onTouchEnded: _touchEndHandler,
@@ -1883,7 +1901,7 @@ let NodeDefines = {
                     event: cc.EventListener.MOUSE,
                     _previousIn: false,
                     owner: this,
-                    mask: _searchMaskInParent(this),
+                    mask: _searchComponentsInParent(this, cc.Mask),
                     onMouseDown: _mouseDownHandler,
                     onMouseMove: _mouseMoveHandler,
                     onMouseUp: _mouseUpHandler,
@@ -2300,30 +2318,40 @@ let NodeDefines = {
         testPt.x += this._anchorPoint.x * w;
         testPt.y += this._anchorPoint.y * h;
 
+        let hit = false;
         if (testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h) {
+            hit = true;
             if (listener && listener.mask) {
-                var mask = listener.mask;
-                var parent = this;
-                for (var i = 0; parent && i < mask.index; ++i, parent = parent.parent) {
-                }
+                let mask = listener.mask;
+                let parent = this;
+                let length = mask ? mask.length : 0;
                 // find mask parent, should hit test it
-                if (parent === mask.node) {
-                    var comp = parent.getComponent(cc.Mask);
-                    return (comp && comp.enabledInHierarchy) ? comp._hitTest(cameraPt) : true;
-                }
-                // mask parent no longer exists
-                else {
-                    listener.mask = null;
-                    return true;
+                for (let i = 0, j = 0; parent && j < length; ++i, parent = parent.parent) {
+                    let temp = mask[j];
+                    if (i === temp.index) {
+                        if (parent === temp.node) {
+                            let comp = parent.getComponent(cc.Mask);
+                            if (comp && comp._enabled && comp._hitTest(cameraPt)) {
+                                j++;
+                            } else {
+                                hit = false;
+                                break
+                            }
+                        } else {
+                            // mask parent no longer exists
+                            mask.length = j;
+                            break
+                        }
+                    } else if (i > temp.index) {
+                        // mask parent no longer exists
+                        mask.length = j;
+                        break
+                    }
                 }
             }
-            else {
-                return true;
-            }
-        }
-        else {
-            return false;
-        }
+        } 
+
+        return hit;
     },
 
     /**
