@@ -148,7 +148,6 @@ export class Scene extends BaseNode {
             this._onBatchCreated();
             this._inited = true;
         }
-        // @ts-ignore
         // static methode can't use this as parameter type
         this.walk(BaseNode._setScene);
     }
