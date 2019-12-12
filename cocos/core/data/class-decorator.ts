@@ -638,9 +638,13 @@ export const string = type(CCString);
  */
 export function type (type: Function): PropertyDecorator;
 
+export function type (type: [Function]): PropertyDecorator;
+
 export function type<T> (type: PrimitiveType<T>): PropertyDecorator;
 
-export function type<T> (type: PrimitiveType<T> | Function): PropertyDecorator {
+export function type<T> (type: [PrimitiveType<T>]): PropertyDecorator;
+
+export function type<T> (type: PrimitiveType<T> | Function | [PrimitiveType<T>] | [Function]): PropertyDecorator {
     return property({
         type,
     });
