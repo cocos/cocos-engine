@@ -1206,7 +1206,7 @@ var ParticleSystem = cc.Class({
     },
 
     _applySpriteFrame () {
-        this._updateMaterial();
+        this._renderSpriteFrame = this._renderSpriteFrame || this._spriteFrame;
         if (this._renderSpriteFrame) {
             if (this._renderSpriteFrame.textureLoaded()) {
                 this._onTextureLoaded();
@@ -1215,19 +1215,6 @@ var ParticleSystem = cc.Class({
                 this._renderSpriteFrame.onTextureLoaded(this._onTextureLoaded, this);
             }
         }
-    },
-
-    _activateMaterial () {
-        let material = this.sharedMaterials[0];
-        if (!material) {
-            material = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
-        }
-        else {
-            material = Material.getInstantiatedMaterial(material, this);
-        }
-
-        this.setMaterial(0, material);
-
         this._updateMaterial();
     },
 
@@ -1236,11 +1223,13 @@ var ParticleSystem = cc.Class({
     },
 
     _updateMaterial () {
-        let material = this.sharedMaterials[0];
+        let material = this._materials[0];
         if (!material) return;
         
         material.define('CC_USE_MODEL', this._positionType !== PositionType.FREE);
         material.setProperty('texture', this._getTexture());
+
+        BlendFunc.prototype._updateMaterial.call(this);
     },
     
     _finishedSimulation: function () {

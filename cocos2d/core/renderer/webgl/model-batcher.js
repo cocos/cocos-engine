@@ -73,8 +73,6 @@ var ModelBatcher = function (device, renderScene) {
     this.parentOpacity = 1;
     this.parentOpacityDirty = 0;
     this.worldMatDirty = 0;
-
-    this.customProperties = null;
 };
 
 ModelBatcher.prototype = {
@@ -112,8 +110,6 @@ ModelBatcher.prototype = {
         this.parentOpacity = 1;
         this.parentOpacityDirty = 0;
         this.worldMatDirty = 0;
-
-        this.customProperties = null;
     },
 
     _flushMaterial (material) {
@@ -160,7 +156,7 @@ ModelBatcher.prototype = {
         model.sortKey = this._sortKey++;
         model._cullingMask = this.cullingMask;
         model.setNode(this.node);
-        model.setEffect(effect, this.customProperties);
+        model.setEffect(effect);
         model.setInputAssembler(ia);
         
         this._renderScene.addModel(model);
@@ -182,7 +178,7 @@ ModelBatcher.prototype = {
         model.sortKey = this._sortKey++;
         model._cullingMask = this.cullingMask;
         model.setNode(this.node);
-        model.setEffect(effect, this.customProperties);
+        model.setEffect(effect);
         model.setInputAssembler(ia);
         
         this._renderScene.addModel(model);

@@ -792,7 +792,7 @@ export default class Device {
     this._framebuffer = fb;
     const gl = this._gl;
 
-    if (fb === null) {
+    if (!fb) {
       gl.bindFramebuffer(gl.FRAMEBUFFER, null);
       return;
     }
@@ -1185,6 +1185,10 @@ export default class Device {
     for (let i = 0; i < len; ++i) {
       let slot = slots[i];
       this._next.textureUnits[slot] = textures[i];
+
+      if (this._next.maxTextureSlot < slot) {
+        this._next.maxTextureSlot = slot;
+      }
     }
     this.setUniform(name, slots);
   }

@@ -102,6 +102,8 @@ export function getInspectorProps (prop) {
 
     let className = getClassName(inspector.type);
     inspector.typeName = className2InspectorName[className] || className;
+    
+    inspector.valueCtor = enums2ctor[inspector.type];
 
     if (inspector.typeName == 'cc.Texture2D') {
         inspector.typeName = 'cc.Asset';

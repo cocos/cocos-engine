@@ -24,10 +24,11 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import MaterialVariant from '../../cocos2d/core/assets/material/material-variant';
+
 const TrackEntryListeners = require('./track-entry-listeners');
 const RenderComponent = require('../../cocos2d/core/components/CCRenderComponent');
 const spine = require('./lib/spine');
-const Material = require('../../cocos2d/core/assets/material/CCMaterial');
 const Graphics = require('../../cocos2d/core/graphics/graphics');
 
 let SkeletonCache = require('./skeleton-cache');
@@ -712,11 +713,12 @@ sp.Skeleton = cc.Class({
                 return;
             }
             
-            let material = this.sharedMaterials[0];
+            let material = this._materials[0];
             if (!material) {
-                material = Material.getInstantiatedBuiltinMaterial('2d-spine', this);
-            } else {
-                material = Material.getInstantiatedMaterial(material, this);
+                material = MaterialVariant.createWithBuiltin('2d-spine');
+            }
+            else {
+                material = MaterialVariant.create(material, this);
             }
 
             material.define('CC_USE_MODEL', true);

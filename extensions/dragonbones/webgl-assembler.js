@@ -73,7 +73,7 @@ function _getSlotMaterial (tex, blendMode) {
     // Add useModel flag due to if pre same db useModel but next db no useModel,
     // then next db will multiply model matrix more than once.
     let key = tex.getId() + src + dst + useModel;
-    let baseMaterial = _comp.sharedMaterials[0];
+    let baseMaterial = _comp._materials[0];
     if (!baseMaterial) {
         return null;
     }

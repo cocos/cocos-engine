@@ -26,12 +26,9 @@
 const Asset = require('../CCAsset');
 const Texture = require('../CCTexture2D');
 const PixelFormat = Texture.PixelFormat;
-const EffectAsset = require('../CCEffectAsset');
+const EffectAsset = require('./CCEffectAsset');
 const textureUtil = require('../../utils/texture-util');
-
-import murmurhash2 from '../../../renderer/murmurhash2_gc';
-import utils from './utils';
-import materialPool from './material-pool';
+const gfx = cc.gfx;
 
 /**
  * !#en Material Asset.
@@ -47,23 +44,27 @@ let Material = cc.Class({
         this._manualHash = false;
         this._dirty = true;
         this._effect = null;
-        this._owner = null;
-        this._hash = 0;
     },
 
     properties: {
+        // deprecated
+        _defines: {
+            default: undefined,
+            type: Object
+        },
+        // deprecated
+        _props: {
+            default: undefined,
+            type: Object
+        },
+
         _effectAsset: {
             type: EffectAsset,
             default: null,
         },
-        _defines: {
-            default: {},
-            type: Object
-        },
-        _props: {
-            default: {},
-            type: Object
-        },
+
+        _techniqueIndex: 0,
+        _techniqueData: Object,
 
         effectName: CC_EDITOR ? {
             get () {
@@ -93,7 +94,8 @@ let Material = cc.Class({
                     cc.error('Can not set an empty effect asset.');
                     return;
                 }
-                this._effect = this._effectAsset.getInstantiatedEffect();;
+
+                this._effect = this._effectAsset.getInstantiatedEffect();
             }
         },
 
@@ -103,160 +105,294 @@ let Material = cc.Class({
             }
         },
 
-        owner: {
+        techniqueIndex: {
             get () {
-                return this._owner;
+                return this._techniqueIndex;
+            },
+            set (v) {
+                this._techniqueIndex = v;
+                this._effect.switchTechnique(v);
             }
         }
     },
 
     statics: {
         getBuiltinMaterial (name) {
+            if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+                return new cc.Material();
+            }
             return cc.AssetLibrary.getBuiltin('material', 'builtin-' + name);
         },
-        getInstantiatedBuiltinMaterial (name, renderComponent) {
-            let builtinMaterial = this.getBuiltinMaterial(name);
-            return Material.getInstantiatedMaterial(builtinMaterial, renderComponent);
+
+        /**
+         * @static
+         * @enum BUILTIN_EFFECT_NAME
+         */
+        BUILTIN_EFFECT_NAME: cc.Enum({
+            /**
+             * @property SPRITE
+             * @readonly
+             * @type {String}
+             */
+            SPRITE: '2d-sprite',
+            /**
+             * @property GRAY_SPRITE
+             * @readonly
+             * @type {String}
+             */
+            GRAY_SPRITE: '2d-gray-sprite',
+            /**
+             * @property UNLIT
+             * @readonly
+             * @type {String}
+             */
+            UNLIT: 'unlit',
+        }),
+
+        /**
+         * !#en Creates a Material with builtin Effect.
+         * !#zh 使用内建 Effect 创建一个材质。
+         * @static
+         * @method createWithBuiltin
+         * @param {BUILTIN_EFFECT_NAME} effectName 
+         * @param {number} techniqueIndex 
+         * @return {Material}
+         */
+        createWithBuiltin (effectName, techniqueIndex = 0) {
+            let effectAsset = cc.AssetLibrary.getBuiltin('effect', 'builtin-' + effectName);
+            return Material.create(effectAsset, techniqueIndex);
         },
-        getInstantiatedMaterial (mat, renderComponent) {
-            if (mat._owner === renderComponent) {
-                return mat;
-            }
-            else {
-                return materialPool.get(mat, renderComponent);
-            }
+        /**
+         * !#en Creates a Material.
+         * !#zh 创建一个材质。
+         * @static
+         * @method create
+         * @param {EffectAsset} effectAsset 
+         * @param {number} [techniqueIndex] 
+         * @return {Material}
+         */
+        create (effectAsset, techniqueIndex = 0) {
+            if (!effectAsset) return null;
+            let material = new Material();
+            material.effectAsset = effectAsset;
+            material.techniqueIndex = techniqueIndex;
+            return material;
         }
     },
 
     /**
-     *
-     * @param {Material} mat
-     */
-    copy (mat) {
-        this._effect = mat.effect.clone();
-        this._effectAsset = mat._effectAsset;
-
-        for (let name in mat._defines) {
-            this.define(name, mat._defines[name]);
-        }
-
-        for (let name in mat._props) {
-            this.setProperty(name, mat._props[name]);
-        }
-    },
-
-    /**
-     *
+     * !#en Sets the Material property
+     * !#zh 是指材质的属性
+     * @method setProperty
      * @param {string} name
      * @param {Object} val
      */
-    setProperty (name, val, force) {
-        if (this._props[name] === val && !force) return;
-        this._props[name] = val;
-        this._dirty = true;
+    setProperty (name, val, passIdx) {
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) return;
 
-        if (this._effect) {
-            if (val instanceof Texture) {
+        if (typeof passIdx === 'string') {
+            passIdx = parseInt(passIdx);
+        }
 
-                let format = val.getPixelFormat();
-                if (format === PixelFormat.RGBA_ETC1 ||
-                    format === PixelFormat.RGB_A_PVRTC_4BPPV1 ||
-                    format === PixelFormat.RGB_A_PVRTC_2BPPV1) {
-                    this.define('CC_USE_ALPHA_ATLAS_' + name.toUpperCase(), true);
-                }
-
-                function loaded () {
-                    this._effect.setProperty(name, val);
-                }
-
-                if (!val.loaded) {
-                    val.once('load', loaded, this);
-                    textureUtil.postLoadTexture(val);
-                }
-                else {
-                    this._effect.setProperty(name, val);
-                }
-
+        if (val instanceof Texture) {
+            let format = val.getPixelFormat();
+            if (format === PixelFormat.RGBA_ETC1 ||
+                format === PixelFormat.RGB_A_PVRTC_4BPPV1 ||
+                format === PixelFormat.RGB_A_PVRTC_2BPPV1) {
+                this.define('CC_USE_ALPHA_ATLAS_' + name.toUpperCase(), true);
             }
-            else {
-                this._effect.setProperty(name, val);
+
+            function loaded () {
+                this._effect.setProperty(name, val, passIdx);
+            }
+
+            if (!val.loaded) {
+                val.once('load', loaded, this);
+                textureUtil.postLoadTexture(val);
+                return;
             }
         }
-    },
 
-    getProperty (name) {
-        return this._props[name];
+        this._effect.setProperty(name, val, passIdx);
     },
 
     /**
-     *
-     * @param {string} name
-     * @param {Boolean|Number} val
+     * !#en Gets the Material property.
+     * !#zh 获取材质的属性。
+     * @method getProperty
+     * @param {string} name 
+     * @param {number} passIdx 
      */
-    define (name, val, force) {
-        if (this._defines[name] === val && !force) return;
-        this._defines[name] = val;
-        this._dirty = true;
-
-        if (this._effect) {
-            this._effect.define(name, val);
+    getProperty (name, passIdx) {
+        if (typeof passIdx === 'string') {
+            passIdx = parseInt(passIdx);
         }
+        return this._effect.getProperty(name, passIdx);
     },
 
-    getDefine (name) {
-        return this._defines[name];
+    /**
+     * !#en Sets the Material define.
+     * !#zh 设置材质的宏定义。
+     * @method define
+     * @param {string} name
+     * @param {boolean|number} val
+     * @param {number} passIdx
+     * @param {boolean} force
+     */
+    define (name, val, passIdx, force) {
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) return;
+
+        if (typeof passIdx === 'string') {
+            passIdx = parseInt(passIdx);
+        }
+        this._effect.define(name, val, passIdx, force);
     },
 
-    setDirty (dirty) {
-        this._dirty = dirty;
+    /**
+     * !#en Gets the Material define.
+     * !#zh 获取材质的宏定义。
+     * @method getDefine
+     * @param {string} name 
+     * @param {number} passIdx 
+     */
+    getDefine (name, passIdx) {
+        if (typeof passIdx === 'string') {
+            passIdx = parseInt(passIdx);
+        }
+        return this._effect.getDefine(name, passIdx);
+    },
+
+    /**
+     * !#en Sets the Material cull mode.
+     * !#zh 设置材质的裁减模式。
+     * @method setCullMode
+     * @param {number} cullMode 
+     * @param {number} passIdx 
+     */
+    setCullMode (cullMode = gfx.CULL_BACK, passIdx) {
+        this._effect.setCullMode(cullMode, passIdx);
+    },
+
+    /**
+     * !#en Sets the Material depth states.
+     * !#zh 设置材质的深度渲染状态。
+     * @method setDepth
+     * @param {boolean} depthTest 
+     * @param {boolean} depthWrite 
+     * @param {number} depthFunc 
+     * @param {number} passIdx 
+     */
+    setDepth (
+        depthTest = false,
+        depthWrite = false,
+        depthFunc = gfx.DS_FUNC_LESS,
+        passIdx
+    ) {
+        this._effect.setDepth(depthTest, depthWrite, depthFunc, passIdx);
+    },
+
+    /**
+     * !#en Sets the Material blend states.
+     * !#zh 设置材质的混合渲染状态。
+     * @method setBlend
+     * @param {number} enabled 
+     * @param {number} blendEq 
+     * @param {number} blendSrc 
+     * @param {number} blendDst 
+     * @param {number} blendAlphaEq 
+     * @param {number} blendSrcAlpha 
+     * @param {number} blendDstAlpha 
+     * @param {number} blendColor 
+     * @param {number} passIdx 
+     */
+    setBlend (
+        enabled = false,
+        blendEq = gfx.BLEND_FUNC_ADD,
+        blendSrc = gfx.BLEND_SRC_ALPHA,
+        blendDst = gfx.BLEND_ONE_MINUS_SRC_ALPHA,
+        blendAlphaEq = gfx.BLEND_FUNC_ADD,
+        blendSrcAlpha = gfx.BLEND_SRC_ALPHA,
+        blendDstAlpha = gfx.BLEND_ONE_MINUS_SRC_ALPHA,
+        blendColor = 0xffffffff,
+        passIdx
+    ) {
+        this._effect.setBlend(enabled, blendEq, blendSrc, blendDst, blendAlphaEq, blendSrcAlpha, blendDstAlpha, blendColor, passIdx);
+    },
+
+    /**
+     * !#en Sets whether enable the stencil test.
+     * !#zh 设置是否开启模板测试。
+     * @method setStencilEnabled
+     * @param {number} stencilTest 
+     * @param {number} passIdx 
+     */
+    setStencilEnabled (stencilTest = gfx.STENCIL_INHERIT, passIdx) {
+        this._effect.setStencilEnabled(stencilTest, passIdx);
+    },
+
+    /**
+     * !#en Sets the Material stencil render states.
+     * !#zh 设置材质的模板测试渲染参数。
+     * @method setStencil
+     * @param {number} stencilTest 
+     * @param {number} stencilFunc 
+     * @param {number} stencilRef 
+     * @param {number} stencilMask 
+     * @param {number} stencilFailOp 
+     * @param {number} stencilZFailOp 
+     * @param {number} stencilZPassOp 
+     * @param {number} stencilWriteMask 
+     * @param {number} passIdx 
+     */
+    setStencil (
+        stencilTest = gfx.STENCIL_INHERIT,
+        stencilFunc = gfx.DS_FUNC_ALWAYS,
+        stencilRef = 0,
+        stencilMask = 0xff,
+        stencilFailOp = gfx.STENCIL_OP_KEEP,
+        stencilZFailOp = gfx.STENCIL_OP_KEEP,
+        stencilZPassOp = gfx.STENCIL_OP_KEEP,
+        stencilWriteMask = 0xff,
+        passIdx
+    ) {
+        this._effect.setStencil(stencilTest, stencilFunc, stencilRef, stencilMask, stencilFailOp, stencilZFailOp, stencilZPassOp, stencilWriteMask, passIdx);
     },
 
     updateHash (hash) {
-        if (hash === undefined || hash === null) {
-            hash = this.computeHash();
-        } else {
-            this._manualHash = true;
-        }
-        this._dirty = false;
-        this._hash = hash;
-        if (this._effect) {
-            this._effect.updateHash(this._hash);
-        }
-    },
-
-    computeHash () {
-        let effect = this._effect;
-        let hashStr = '';
-        if (effect) {
-            hashStr += utils.serializeDefines(effect._defines);
-            hashStr += utils.serializeTechniques(effect._techniques);
-            hashStr += utils.serializeUniforms(effect._properties);
-        }
-        return murmurhash2(hashStr, 666);
+        this._manualHash = hash;
+        this._effect && this._effect.updateHash(hash);
     },
 
     getHash () {
-        if (!this._dirty) return this._hash;
-        
-        if (!this._manualHash) {
-            this.updateHash();
-        }
-
-        this._dirty = false;
-        return this._hash;
+        return this._manualHash || (this._effect && this._effect.getHash());
     },
 
     onLoad () {
         this.effectAsset = this._effectAsset;
         if (!this._effect) return;
 
-        for (let def in this._defines) {
-            this.define(def, this._defines[def], true);
+        if (this._techniqueIndex) {
+            this._effect.switchTechnique(this._techniqueIndex);
         }
-        for (let prop in this._props) {
-            this.setProperty(prop, this._props[prop], true);
+
+        this._techniqueData = this._techniqueData || {};
+
+        let passDatas = this._techniqueData;
+        for (let index in passDatas) {
+            index = parseInt(index);
+            let passData = passDatas[index];
+            if (!passData) continue;
+
+            for (let def in passData.defines) {
+                this.define(def, passData.defines[def], index);
+            }
+            for (let prop in passData.props) {
+                this.setProperty(prop, passData.props[prop], index);
+            }
         }
+
     },
 });
 
-module.exports = cc.Material = Material;
+export default Material;
+cc.Material = Material;

@@ -28,6 +28,7 @@ const Material = require('../core/assets/material/CCMaterial');
 const RenderFlow = require('../core/renderer/render-flow');
 
 import { Mat4, Vec2 } from '../core/value-types';
+import MaterialVariant from '../core/assets/material/material-variant';
 let _mat4_temp = cc.mat4();
 let _vec2_temp = cc.v2();
 let _vec2_temp2 = cc.v2();
@@ -1287,22 +1288,21 @@ let TiledLayer = cc.Class({
             let tilesetIdx = tilesetIndexArr[i];
             let texture = textures[tilesetIdx];
 
-            let material = this.sharedMaterials[i];
+            let material = this._materials[i];
             if (!material) {
-                material = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
+                material = Material.getBuiltinMaterial('2d-sprite');
             }
-            else {
-                material = Material.getInstantiatedMaterial(material, this);
-            }
+            material = MaterialVariant.create(material, this);
 
             material.define('CC_USE_MODEL', true);
             material.setProperty('texture', texture);
-            this.setMaterial(i, material);
+
+            this._materials[i] = material;
+            
             texIdMatIdx[tilesetIdx] = i;
         }
 
-        this.markForRender(true);
-    },
+    }
 });
 
 cc.TiledLayer = module.exports = TiledLayer;

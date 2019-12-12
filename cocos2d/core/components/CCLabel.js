@@ -578,7 +578,7 @@ let Label = cc.Class({
             return;
         }
 
-        if (this.sharedMaterials[0]) {
+        if (this._materials[0]) {
             let font = this.font;
             if (font instanceof cc.BitmapFont) {
                 let spriteFrame = font.spriteFrame;
@@ -658,7 +658,7 @@ let Label = cc.Class({
 
     _updateMaterialWebgl () {
         if (!this._frame) return;
-        let material = this.sharedMaterials[0];
+        let material = this._materials[0];
         material && material.setProperty('texture', this._frame._texture);
     },
 
