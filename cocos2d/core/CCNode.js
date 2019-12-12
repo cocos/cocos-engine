@@ -2084,12 +2084,12 @@ let NodeDefines = {
                             }
                         } else {
                             // mask parent no longer exists
-                            mask.splice(j, length - j);
+                            mask.length = j;
                             break
                         }
                     } else if (i > temp.index) {
                         // mask parent no longer exists
-                        mask.splice(j, length - j);
+                        mask.length = j;
                         break
                     }
                 }
