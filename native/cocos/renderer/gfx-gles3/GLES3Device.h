@@ -10,7 +10,7 @@ public:
   GLES3Device();
   ~GLES3Device();
   
-  GLES3StateCache* state_cache;
+  GLES3StateCache* state_cache = nullptr;
   
 public:
   bool Initialize(const GFXDeviceInfo& info);
@@ -46,7 +46,7 @@ public:
   
  private:
   StringArray extensions_;
-  bool use_vao_;
+  bool use_vao_ = true;
 };
 
 NS_CC_END

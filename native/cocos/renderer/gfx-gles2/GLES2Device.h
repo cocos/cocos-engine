@@ -10,7 +10,7 @@ public:
   GLES2Device();
   ~GLES2Device();
   
-  GLES2StateCache* state_cache;
+  GLES2StateCache* state_cache = nullptr;
   
 public:
   bool Initialize(const GFXDeviceInfo& info);
@@ -49,10 +49,10 @@ public:
   
  private:
   StringArray extensions_;
-  bool use_vao_;
-  bool use_draw_instanced_;
-  bool use_instanced_arrays_;
-  bool use_discard_framebuffer_;
+  bool use_vao_                     = false;
+  bool use_draw_instanced_          = false;
+  bool use_instanced_arrays_        = false;
+  bool use_discard_framebuffer_     = false;
 };
 
 NS_CC_END
