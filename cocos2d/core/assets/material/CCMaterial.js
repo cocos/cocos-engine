@@ -367,44 +367,6 @@ let Material = cc.Class({
         return this._manualHash || (this._effect && this._effect.getHash());
     },
 
-    _upgrade () {
-        if (!this._props && !this._defines) return;
-        let passDatas = this._techniqueData;
-        let passes = this._effect.passes;
-        for (let i = 0; i < passes.length; i++) {
-            if (this._props) {
-                for (let prop in this._props) {
-                    if (passes[i].getProperty(prop) !== undefined) {
-                        if (!passDatas[i]) {
-                            passDatas[i] = {};
-                        }
-                        if (!passDatas[i].props) {
-                            passDatas[i].props = {};
-                        }
-                        passDatas[i].props[prop] = this._props[prop];
-                    }
-                }
-            }
-
-            if (this._defines) {
-                for (let def in this._defines) {
-                    if (passes[i].getDefine(def) !== undefined) {
-                        if (!passDatas[i]) {
-                            passDatas[i] = {};
-                        }
-                        if (!passDatas[i].defines) {
-                            passDatas[i].defines = {};
-                        }
-                        passDatas[i].defines[def] = this._defines[def];
-                    }
-                }
-            }
-        }
-
-        this._props = undefined;
-        this._defines = undefined;
-    },
-
     onLoad () {
         this.effectAsset = this._effectAsset;
         if (!this._effect) return;
@@ -414,8 +376,6 @@ let Material = cc.Class({
         }
 
         this._techniqueData = this._techniqueData || {};
-
-        this._upgrade();
 
         let passDatas = this._techniqueData;
         for (let index in passDatas) {
