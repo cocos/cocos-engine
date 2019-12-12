@@ -2,41 +2,39 @@
  * @category pipeline.ppfx
  */
 
+import { ccclass } from '../../data/class-decorator';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
-import { RenderPipeline } from '../render-pipeline';
 import { ToneMapStage } from './tonemap-stage';
+import { PIPELINE_FLOW_TONEMAP } from '../define';
+import { ForwardFlowPriority } from '../forward/enum';
 
 /**
  * @zh
  * 色调映射渲染流程。
  */
+@ccclass('ToneMapFlow')
 export class ToneMapFlow extends RenderFlow {
 
-    constructor (pipeline: RenderPipeline) {
-        super(pipeline);
+    public static initInfo: IRenderFlowInfo = {
+        name: PIPELINE_FLOW_TONEMAP,
+        priority: ForwardFlowPriority.FORWARD + 1,
+    };
+
+    constructor () {
+        super();
     }
 
     public initialize (info: IRenderFlowInfo): boolean {
-
-        if (info.name !== undefined) {
-            this._name = info.name;
-        }
-
-        this._priority = info.priority;
+        super.initialize(info);
 
         const material = this._material;
-        material.initialize({
-            effectName: 'pipeline/tonemap',
-            defines: { CC_USE_SMAA: this._pipeline.useSMAA },
+        material!.recompileShaders({
+            CC_USE_SMAA: this._pipeline!.useSMAA
         });
 
-        const framebuffer = this._pipeline.root.mainWindow!.framebuffer!;
-
-        this.createStage(ToneMapStage, {
-            name: 'ToneMapStage',
-            priority: 0,
-            framebuffer,
-        });
+        const toneStage = new ToneMapStage();
+        toneStage.initialize(ToneMapStage.initInfo);
+        this._stages.push(toneStage);
 
         return true;
     }
@@ -50,10 +48,8 @@ export class ToneMapFlow extends RenderFlow {
 
     public rebuild () {
         if (this._material) {
-            this._material.destroy();
-            this._material.initialize({
-                effectName: 'pipeline/tonemap',
-                defines: { CC_USE_SMAA: this._pipeline.useSMAA },
+            this._material.recompileShaders({
+                CC_USE_SMAA: this._pipeline!.useSMAA
             });
         }
 

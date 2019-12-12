@@ -21,13 +21,13 @@ interface EditorAssetInfo {
 
 interface EditorExtendsScript {
     add(uuid: string, ctor: any): any;
-    delete(uuid: string, ctor: any): any;
+    remove(uuid: string, ctor: any): any;
     getCtors(uuid: string): { [uuid: string]: any }
 }
 
 interface EditorExtendsNode {
     add(uuid: string, node: any): any;
-    delete(uuid: string): any;
+    remove(uuid: string): any;
     clear(): any;
     getNode(uuid: string): any;
     getNodes(): {[uuid: string]: any};
@@ -35,10 +35,10 @@ interface EditorExtendsNode {
 
 interface EditorExtendsComponent {
     addMenu(component: Function, path: string, priority?: number);
-    deleteMenu(component: Function);
+    removeMenu(component: Function);
     getMenus(): { [uuid: string]: Object };
     add(uuid: string, component: any): any;
-    delete(uuid: string): any;
+    remove(uuid: string): any;
     clear(): any;
     getComponent(uuid: string): any;
     getComponents(): {[uuid: string]: any};
@@ -54,4 +54,22 @@ declare namespace EditorExtends {
     const Node: EditorExtendsNode;
     const Component: EditorExtendsComponent;
     const Asset: EditorExtendsAsset;
+
+    interface EventMap {
+        /**
+         * Called when a cc-class is registered.
+         * @param classConstructor Registering class.
+         */
+        'class-registered'(classConstructor: Function, metadata?: Readonly<any>):  void;
+    }
+
+    type EventArgs<EventName extends keyof EventMap> = Parameters<EventMap[EventName]>;
+
+    type Listener<EventName extends keyof EventMap> = (...args: EventArgs<EventName>) => void;
+
+    function emit<EventName extends keyof EventMap>(name: EventName, ...args: EventArgs<EventName>): void;
+
+    function on<EventName extends keyof EventMap>(name: EventName, listener: Listener<EventName>): void;
+
+    function removeListener<EventName extends keyof EventMap>(name: EventName, listener: Listener<EventName>): void;
 }

@@ -65,13 +65,6 @@ function downloadScript (item, callback, isAsync?) {
     d.body.appendChild(s);
 }
 
-function downloadWebp (item, callback, isCrossOrigin, img) {
-    if (!cc.sys.capabilities.webp) {
-        return new Error(debug.getError(4929, item.url));
-    }
-    return downloadImage(item, callback, isCrossOrigin, img);
-}
-
 function downloadImage (item, callback, isCrossOrigin, img) {
     if (isCrossOrigin === undefined) {
         isCrossOrigin = true;
@@ -139,7 +132,7 @@ let defaultMap = {
     'gif' : downloadImage,
     'ico' : downloadImage,
     'tiff' : downloadImage,
-    'webp' : downloadWebp,
+    'webp' : downloadImage,
     'image' : downloadImage,
     'pvr': downloadBinary,
     'pkm': downloadBinary,

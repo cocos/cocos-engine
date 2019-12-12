@@ -151,13 +151,13 @@ export class MeshBuffer {
             return;
         }
 
-        const vertexsData = new Float32Array(this.vData!.buffer, 0, this.byteOffset >> 2);
+        const verticesData = new Float32Array(this.vData!.buffer, 0, this.byteOffset >> 2);
         const indicesData = new Uint16Array(this.iData!.buffer, 0, this.indiceOffset);
 
         if (this.byteOffset > this.vb!.size) {
             this.vb!.resize(this.byteOffset);
         }
-        this.vb!.update(vertexsData);
+        this.vb!.update(verticesData);
 
         if (this.indiceOffset * 2 > this.ib!.size) {
             this.ib!.resize(this.indiceOffset * 2);

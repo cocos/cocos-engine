@@ -355,12 +355,6 @@ function define (className, baseClass, mixins, options) {
     const Component = cc.Component;
     const frame = RF.peek();
 
-    // @ts-ignore
-    if (CC_EDITOR && frame) {
-        // @ts-ignore
-        EditorExtends.Script.add(frame.uuid, options.ctor);
-    }
-
     if (frame && js.isChildClassOf(baseClass, Component)) {
         // project component
         if (js.isChildClassOf(frame.cls, Component)) {
@@ -375,7 +369,40 @@ function define (className, baseClass, mixins, options) {
 
     const cls = doDefine(className, baseClass, mixins, options);
 
+    // for RenderPipeline, RenderFlow, RenderStage
+    const isRenderPipeline = js.isChildClassOf(baseClass, cc.RenderPipeline);
+    const isRenderFlow = js.isChildClassOf(baseClass, cc.RenderFlow);
+    const isRenderStage = js.isChildClassOf(baseClass, cc.RenderStage);
+
+    const isRender = isRenderPipeline || isRenderFlow || isRenderStage || false;
+
+    if (isRender) {
+        let renderName = '';
+        if (isRenderPipeline) {
+            renderName = 'render_pipeline';
+        } else if (isRenderFlow) {
+            renderName = 'render_flow';
+        } else if (isRenderStage) {
+            renderName = 'render_stage';
+        }
+
+        if (renderName) {
+            js._setClassId(className, cls);
+            if (CC_EDITOR) {
+                // 增加了 hidden: 开头标识，使它最终不会显示在 Editor inspector 的添加组件列表里
+                // @ts-ignore
+                // tslint:disable-next-line:no-unused-expression
+                window.EditorExtends && window.EditorExtends.Component.addMenu(cls, `hidden:${renderName}/${className}`, -1);
+            }
+        }
+    }
+
+    if (CC_EDITOR) {
+        EditorExtends.emit('class-registered', options.ctor, frame);
+    }
+
     if (frame) {
+        // 基础的 ts, js 脚本组件
         if (js.isChildClassOf(baseClass, Component)) {
             const uuid = frame.uuid;
             if (uuid) {
@@ -1223,8 +1250,8 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
     parseSimpleAttribute('formerlySerializedAs', 'string');
 
     if (CC_EDITOR) {
-        if ('animatable' in attributes && !attributes.animatable) {
-            (attrsProto || getAttrsProto())[attrsProtoKey + 'animatable'] = false;
+        if ('animatable' in attributes) {
+            (attrsProto || getAttrsProto())[attrsProtoKey + 'animatable'] = attributes.animatable;
         }
     }
 

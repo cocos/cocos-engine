@@ -29,7 +29,7 @@
  */
 
 import { Component} from '../../core/components';
-import { UITransformComponent } from '../../core/components/ui-base/ui-transfrom-component';
+import { UITransformComponent } from '../../core/components/ui-base/ui-transform-component';
 import { ccclass, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../core/data/class-decorator';
 import { Size, Vec3 } from '../../core/math';
 import { errorID } from '../../core/platform/debug';

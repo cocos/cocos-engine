@@ -2,15 +2,30 @@
  * @category pipeline
  */
 
+import { ccclass, property } from '../data/class-decorator';
+import { ccenum } from '../value-types/enum';
 import { GFXCommandBuffer } from '../gfx/command-buffer';
-import { IGFXColor, IGFXRect } from '../gfx/define';
+import { IGFXColor, IGFXRect, GFXClearFlag, GFXCommandBufferType } from '../gfx/define';
 import { GFXDevice } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXPipelineState } from '../gfx/pipeline-state';
 import { Pass } from '../renderer';
+import { IRenderPass } from './define';
+import { getPhaseID } from './pass-phase';
 import { RenderFlow } from './render-flow';
 import { RenderPipeline } from './render-pipeline';
+import { opaqueCompareFn, RenderQueue, transparentCompareFn } from './render-queue';
 import { RenderView } from './render-view';
+
+const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
+const bufs: GFXCommandBuffer[] = [];
+
+export enum RenderQueueSortMode {
+    FRONT_TO_BACK,
+    BACK_TO_FRONT,
+}
+
+ccenum(RenderQueueSortMode);
 
 /**
  * @zh
@@ -19,20 +34,36 @@ import { RenderView } from './render-view';
 export interface IRenderStageInfo {
     name?: string;
     priority: number;
-    framebuffer?: GFXFramebuffer;
+    renderQueues?: RenderQueueDesc[];
+    framebuffer?: string;
+}
+
+@ccclass('RenderQueueDesc')
+class RenderQueueDesc {
+    @property
+    public isTransparent: boolean = false;
+    @property({
+        type: RenderQueueSortMode,
+    })
+    public sortMode: RenderQueueSortMode = RenderQueueSortMode.FRONT_TO_BACK;
+    @property({
+        type: [String],
+    })
+    public stages: string[] = [];
 }
 
 /**
  * @zh
  * 渲染阶段。
  */
+@ccclass('RenderStage')
 export abstract class RenderStage {
 
     /**
      * @zh
      * 渲染流程。
      */
-    public get flow (): RenderFlow {
+    public get flow(): RenderFlow {
         return this._flow;
     }
 
@@ -40,7 +71,7 @@ export abstract class RenderStage {
      * @zh
      * 渲染管线。
      */
-    public get pipeline (): RenderPipeline {
+    public get pipeline(): RenderPipeline {
         return this._pipeline;
     }
 
@@ -62,33 +93,56 @@ export abstract class RenderStage {
 
     /**
      * @zh
-     * 渲染流程。
-     */
-    protected _flow: RenderFlow;
-
-    /**
-     * @zh
-     * 渲染管线。
-     */
-    protected _pipeline: RenderPipeline;
-
-    /**
-     * @zh
-     * GFX设备。
-     */
-    protected _device: GFXDevice;
-
-    /**
-     * @zh
      * 名称。
      */
+    @property({
+        displayOrder: 0,
+        visible: true
+    })
     protected _name: string = '';
 
     /**
      * @zh
      * 优先级。
      */
+    @property({
+        displayOrder: 1,
+        visible: true
+    })
     protected _priority: number = 0;
+
+    @property({
+        displayOrder: 2,
+        visible: true
+    })
+    protected frameBuffer: string = '';
+
+    @property({
+        type: [RenderQueueDesc],
+        displayOrder: 3,
+        visible: true
+    })
+    protected renderQueues: RenderQueueDesc[] = [];
+
+    protected _renderQueues: RenderQueue[] = [];
+
+    /**
+     * @zh
+     * 渲染流程。
+     */
+    protected _flow: RenderFlow = null!;
+
+    /**
+     * @zh
+     * 渲染管线。
+     */
+    protected _pipeline: RenderPipeline = null!;
+
+    /**
+     * @zh
+     * GFX设备。
+     */
+    protected _device: GFXDevice | null = null;
 
     /**
      * @zh
@@ -106,7 +160,7 @@ export abstract class RenderStage {
      * @zh
      * 清空颜色数组。
      */
-    protected _clearColors: IGFXColor[];
+    protected _clearColors: IGFXColor[] | null = null;
 
     /**
      * @zh
@@ -124,7 +178,7 @@ export abstract class RenderStage {
      * @zh
      * 渲染区域。
      */
-    protected _renderArea: IGFXRect;
+    protected _renderArea: IGFXRect | null = null;
 
     /**
      * @zh
@@ -142,7 +196,35 @@ export abstract class RenderStage {
      * 构造函数。
      * @param flow 渲染流程。
      */
-    constructor (flow: RenderFlow) {
+    constructor () {
+    }
+
+    /**
+     * @zh
+     * 初始化函数，用于不从资源加载RenderPipeline时使用。
+     * @param info 渲染阶段描述信息。
+     */
+    public initialize (info: IRenderStageInfo): boolean {
+        if (info.name !== undefined) {
+            this._name = info.name;
+        }
+
+        this._priority = info.priority;
+
+        if(info.framebuffer)
+            this.frameBuffer = info.framebuffer;
+
+        if (info.renderQueues) {
+            this.renderQueues = info.renderQueues;
+        }
+
+        return true;
+    }
+
+    /**
+     * 把序列化数据转换成运行时数据
+     */
+    public activate (flow: RenderFlow) {
         this._flow = flow;
         this._pipeline = flow.pipeline;
         this._device = flow.device;
@@ -152,16 +234,37 @@ export abstract class RenderStage {
         }
 
         this._device = this._flow.pipeline.root.device;
+        
         this._clearColors = [{ r: 0.3, g: 0.6, b: 0.9, a: 1.0 }];
         this._renderArea = { x: 0, y: 0, width: 0, height: 0 };
-    }
 
-    /**
-     * @zh
-     * 初始化函数。
-     * @param info 渲染阶段描述信息。
-     */
-    public abstract initialize (info: IRenderStageInfo): boolean;
+        for (let i = 0; i < this.renderQueues.length; i++) {
+            let phase = 0;
+            for (let j = 0; j < this.renderQueues[i].stages.length; j++) {
+                phase |= getPhaseID(this.renderQueues[i].stages[j]);
+            }
+            let sortFunc: (a: IRenderPass, b: IRenderPass) => number = opaqueCompareFn;
+            switch (this.renderQueues[i].sortMode) {
+                case RenderQueueSortMode.BACK_TO_FRONT:
+                    sortFunc = transparentCompareFn;
+                    break;
+                case RenderQueueSortMode.FRONT_TO_BACK:
+                    sortFunc = opaqueCompareFn;
+                    break;
+            }
+            this._renderQueues[i] = new RenderQueue({
+                isTransparent: this.renderQueues[i].isTransparent,
+                phases: phase,
+                sortFunc,
+            });
+        }
+
+        if (this.frameBuffer === 'window') {
+            this._framebuffer = this._flow.pipeline.root.mainWindow!.framebuffer!;
+        } else {
+            this._framebuffer = this._flow.pipeline.getFrameBuffer(this.frameBuffer)!;
+        }
+    }
 
     /**
      * @zh
@@ -195,10 +298,10 @@ export abstract class RenderStage {
      * 设置清空颜色。
      */
     public setClearColor (color: IGFXColor) {
-        if (this._clearColors.length > 0) {
-            this._clearColors[0] = color;
+        if (this._clearColors!.length > 0) {
+            this._clearColors![0] = color;
         } else {
-            this._clearColors.push(color);
+            this._clearColors!.push(color);
         }
     }
 
@@ -231,7 +334,75 @@ export abstract class RenderStage {
      * 设置渲染区域。
      */
     public setRenderArea (width: number, height: number) {
-        this._renderArea.width = width;
-        this._renderArea.height = height;
+        this._renderArea!.width = width;
+        this._renderArea!.height = height;
+    }
+
+    public sortRenderQueue() {
+        this._renderQueues.forEach(this.renderQueueClearFunc);
+        const renderObjects = this._pipeline.renderObjects;
+        for (let i = 0; i < renderObjects.length; ++i) {
+            const ro = renderObjects[i];
+            for (let i = 0; i < ro.model.subModelNum; i++) {
+                for (let j = 0; j < ro.model.getSubModel(i).passes.length; j++) {
+                    for (let k = 0; k < this._renderQueues.length; k++) {
+                        this._renderQueues[k].insertRenderPass(ro, i, j);
+                    }
+                }
+            }
+        }
+        this._renderQueues.forEach(this.renderQueueSortFunc);
+    }
+
+    public executeCommandBuffer(view: RenderView) {
+        const camera = view.camera;
+
+        const cmdBuff = this._cmdBuff!;
+
+        const vp = camera.viewport;
+        this._renderArea!.x = vp.x * camera.width;
+        this._renderArea!.y = vp.y * camera.height;
+        this._renderArea!.width = vp.width * camera.width * this.pipeline!.shadingScale;
+        this._renderArea!.height = vp.height * camera.height * this.pipeline!.shadingScale;
+
+        if (camera.clearFlag & GFXClearFlag.COLOR) {
+            colors[0].a = camera.clearColor.a;
+            colors[0].r = camera.clearColor.r;
+            colors[0].g = camera.clearColor.g;
+            colors[0].b = camera.clearColor.b;
+        }
+        if (!this._framebuffer) {
+            this._framebuffer = view.window!.framebuffer;
+        }
+
+        cmdBuff.begin();
+        cmdBuff.beginRenderPass(this._framebuffer!, this._renderArea!,
+            camera.clearFlag, colors, camera.clearDepth, camera.clearStencil);
+
+        for (let i = 0; i < this._renderQueues.length; i++) {
+            cmdBuff.execute(this._renderQueues[i].cmdBuffs.array, this._renderQueues[i].cmdBuffCount);
+        }
+
+        cmdBuff.endRenderPass();
+        cmdBuff.end();
+        bufs[0] = cmdBuff;
+        this._device!.queue.submit(bufs);
+    }
+
+    public createCmdBuffer () {
+        this._cmdBuff = this._device!.createCommandBuffer({
+            allocator: this._device!.commandAllocator,
+            type: GFXCommandBufferType.PRIMARY,
+        });
+    }
+
+    protected renderQueueClearFunc (rq: RenderQueue) {
+        rq.clear();
+    }
+
+    protected renderQueueSortFunc (rq: RenderQueue) {
+        rq.sort();
     }
 }
+
+cc.RenderStage = RenderStage;

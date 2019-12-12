@@ -16,6 +16,9 @@ import { uglify } from 'rollup-plugin-uglify';
 // @ts-ignore
 import { excludes } from '../plugin/rollup-plugin-excludes';
 import { terser } from 'rollup-plugin-terser';
+// @ts-ignore
+import babelPresetEnv from '@babel/preset-env';
+import babelPresetCc from '@cocos/babel-preset-cc';
 
 interface IBaseOptions {
     moduleEntries: string[];
@@ -183,19 +186,13 @@ async function _internalBuild (options: IAdvancedOptions) {
                 'node_modules/tween.js/**',
             ],
             plugins: [
-                ['@babel/plugin-proposal-decorators', {
-                    legacy: true,
-                }],
-                ['@babel/plugin-proposal-class-properties', {
-                    loose: true,
-                }],
                 ['@babel/plugin-transform-for-of', {
                     loose: true,
                 }],
             ],
             presets: [
-                '@babel/preset-env',
-                '@babel/preset-typescript',
+                babelPresetEnv,
+                babelPresetCc,
             ],
         }),
 

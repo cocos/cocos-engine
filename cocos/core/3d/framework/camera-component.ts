@@ -111,6 +111,7 @@ export class CameraComponent extends Component {
 
     protected _camera: Camera | null = null;
     protected _inEditorMode = false;
+    protected _flows: string[] | undefined = undefined;
 
     get camera () {
         return this._camera!;
@@ -377,6 +378,7 @@ export class CameraComponent extends Component {
         if (this._camera) {
             this._camera.flows = val;
         }
+        this._flows = val;
     }
 
     public onLoad () {
@@ -434,6 +436,7 @@ export class CameraComponent extends Component {
             projection: this._projection,
             window: this._inEditorMode ? cc.director.root && cc.director.root.mainWindow : cc.director.root && cc.director.root.tempWindow,
             priority: this._priority,
+            flows: this._flows,
         });
 
         if (this._camera) {

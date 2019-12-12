@@ -32,6 +32,7 @@ import { WebGLGFXDevice } from './gfx/webgl/webgl-device';
 import { WebGL2GFXDevice } from './gfx/webgl2/webgl2-device';
 import * as debug from './platform/debug';
 import { SplashScreen } from './splash-image';
+import { ForwardPipeline } from './pipeline';
 /**
  * @en
  * The current game configuration, including:<br/>
@@ -491,9 +492,21 @@ export class Game extends EventTarget {
         this._initConfig(config);
         this._initRenderer();
 
-        this.onStart = onStart;
+        // load renderpipeline
+        cc.loader.load({ uuid: config.renderpipeline }, (err, asset) => {
+            // failed load renderPipeline
+            if (err || !(asset instanceof cc.RenderPipeline)) {
+                console.error(`Failed load renderpipeline: ${config.renderpipeline}`);
+                console.error(err);
+                cc.game.setRenderPipeline(null);
+            } else {
+                cc.game.setRenderPipeline(asset);
+            }
 
-        this.prepare(cc.game.onStart && cc.game.onStart.bind(cc.game));
+            this.onStart = onStart;
+
+            this.prepare(cc.game.onStart && cc.game.onStart.bind(cc.game));
+        });
     }
 
     //  @ Persist root node section
@@ -952,6 +965,17 @@ export class Game extends EventTarget {
         this.on(Game.EVENT_SHOW, () => {
             cc.game.resume();
         });
+    }
+
+    private setRenderPipeline (rppl) {
+        // cc.director.root.setRenderPipeline(rppl.renderPipeline);
+        if (!rppl) {
+            rppl = new ForwardPipeline();
+            rppl.initialize(ForwardPipeline.initInfo);
+        }
+        if (!cc.director.root.setRenderPipeline(rppl)) {
+            this.setRenderPipeline(null);
+        }
     }
 }
 

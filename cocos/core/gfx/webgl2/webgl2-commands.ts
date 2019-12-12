@@ -1784,7 +1784,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
 
                         if (colorAttachment.format !== GFXFormat.UNKNOWN) {
                             switch (colorAttachment.loadOp) {
-                                case GFXLoadOp.LOAD: break; // GL default behaviour
+                                case GFXLoadOp.LOAD: break; // GL default behavior
                                 case GFXLoadOp.CLEAR: {
                                     if (cmd0.clearFlag & GFXClearFlag.COLOR) {
                                         if (cache.bs.targets[0].blendColorMask !== GFXColorMask.ALL) {
@@ -1819,7 +1819,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
 
                         if (curGPURenderPass.depthStencilAttachment.format !== GFXFormat.UNKNOWN) {
                             switch (curGPURenderPass.depthStencilAttachment.depthLoadOp) {
-                                case GFXLoadOp.LOAD: break; // GL default behaviour
+                                case GFXLoadOp.LOAD: break; // GL default behavior
                                 case GFXLoadOp.CLEAR: {
                                     if (cmd0.clearFlag & GFXClearFlag.DEPTH) {
                                         if (!cache.dss.depthWrite) {
@@ -1842,7 +1842,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
 
                             if (GFXFormatInfos[curGPURenderPass.depthStencilAttachment.format].hasStencil) {
                                 switch (curGPURenderPass.depthStencilAttachment.stencilLoadOp) {
-                                    case GFXLoadOp.LOAD: break; // GL default behaviour
+                                    case GFXLoadOp.LOAD: break; // GL default behavior
                                     case GFXLoadOp.CLEAR: {
                                         if (cmd0.clearFlag & GFXClearFlag.STENCIL) {
                                             if (!cache.dss.stencilWriteMaskFront) {
@@ -1910,7 +1910,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
             }
             case WebGL2Cmd.END_RENDER_PASS: {
                 // WebGL 2.0 doesn't support store operation of attachments.
-                // GFXStoreOp.Store is the default GL behaviour.
+                // GFXStoreOp.Store is the default GL behavior.
                 break;
             }
             case WebGL2Cmd.BIND_STATES: {
@@ -1959,9 +1959,10 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                             device.stateCache.rs.cullMode = rs.cullMode;
                         }
 
-                        if (device.stateCache.rs.isFrontFaceCCW !== rs.isFrontFaceCCW) {
-                            gl.frontFace(rs.isFrontFaceCCW ? gl.CCW : gl.CW);
-                            device.stateCache.rs.isFrontFaceCCW = rs.isFrontFaceCCW;
+                        const isFrontFaceCCW = device.reverseCW ? !rs.isFrontFaceCCW : rs.isFrontFaceCCW;
+                        if (device.stateCache.rs.isFrontFaceCCW !== isFrontFaceCCW) {
+                            gl.frontFace(isFrontFaceCCW ? gl.CCW : gl.CW);
+                            device.stateCache.rs.isFrontFaceCCW = isFrontFaceCCW;
                         }
 
                         if ((device.stateCache.rs.depthBias !== rs.depthBias) ||

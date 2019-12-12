@@ -3,6 +3,7 @@
  */
 
 import { intersect, sphere } from '../../geom-utils';
+import { ccclass } from '../../data/class-decorator';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXRenderPass } from '../../gfx/render-pass';
@@ -15,20 +16,12 @@ import { SpotLight } from '../../renderer/scene/spot-light';
 import { Root } from '../../root';
 import { cullDirectionalLight, cullSphereLight, cullSpotLight } from '../culling';
 import { PIPELINE_FLOW_FORWARD, PIPELINE_FLOW_TONEMAP, RenderPassStage, UBOForwardLight } from '../define';
-import { ToneMapFlow } from '../ppfx/tonemap-flow';
-import { IRenderPipelineInfo, RenderPipeline } from '../render-pipeline';
+import { RenderPipeline, IRenderPipelineInfo, IRenderPipelineDesc } from '../render-pipeline';
 import { RenderView } from '../render-view';
 import { UIFlow } from '../ui/ui-flow';
 import { ForwardFlow } from './forward-flow';
-
-/**
- * @zh
- * 前向渲染流程优先级。
- */
-export enum ForwardFlowPriority {
-    FORWARD = 0,
-    UI = 10,
-}
+import { ToneMapFlow } from '../ppfx/tonemap-flow';
+import { ForwardFlowPriority } from './enum';
 
 const _vec4Array = new Float32Array(4);
 const _sphere = sphere.create(0, 0, 0, 1);
@@ -40,7 +33,11 @@ const _tempVec3 = new Vec3();
  * @zh
  * 前向渲染管线。
  */
+@ccclass('ForwardPipeline')
 export class ForwardPipeline extends RenderPipeline {
+
+    public static initInfo: IRenderPipelineInfo = {
+    };
 
     /**
      * @zh
@@ -72,7 +69,7 @@ export class ForwardPipeline extends RenderPipeline {
      */
     private _lightIndices: number[];
 
-    public get lightsUBO (): GFXBuffer {
+    public get lightsUBO(): GFXBuffer {
         return this._lightsUBO!;
     }
 
@@ -80,26 +77,46 @@ export class ForwardPipeline extends RenderPipeline {
      * 构造函数。
      * @param root Root类实例。
      */
-    constructor (root: Root) {
-        super(root);
+    constructor() {
+        super();
         this._validLights = [];
         this._lightIndexOffset = [];
         this._lightIndices = [];
     }
 
-    /**
-     * @zh
-     * 初始化函数。
-     * @param info 渲染管线描述信息。
-     */
-    public initialize (info: IRenderPipelineInfo): boolean {
+    public initialize(info: IRenderPipelineInfo) {
+        super.initialize(info);
+        const forwardFlow = new ForwardFlow();
+        forwardFlow.initialize(ForwardFlow.initInfo);
+        this._flows.push(forwardFlow);
+    }
 
-        if (!this._initialize(info)) {
+    public activate(root: Root): boolean {
+        if (!super.activate(root)) {
             return false;
         }
 
-        this._name = 'ForwardPipeline';
+        if (this._usePostProcess) {
+            if (this._useSMAA) {
+                /*
+                this.createFlow(SMAAEdgeFlow, {
+                    name: PIPELINE_FLOW_SMAA,
+                    priority: 0,
+                });
+                */
+            }
+            this.getFlow(PIPELINE_FLOW_TONEMAP)!.activate(this);
+        }
 
+        const uiFlow = new UIFlow();
+        uiFlow.initialize(UIFlow.initInfo);
+        this._flows.push(uiFlow);
+        uiFlow.activate(this);
+
+        return true;
+    }
+
+    protected createUBOs(): boolean {
         if (!this._globalBindings.get(UBOForwardLight.BLOCK.name)) {
             const lightsUBO = this._root.device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
@@ -117,55 +134,14 @@ export class ForwardPipeline extends RenderPipeline {
                 buffer: lightsUBO,
             });
         }
-
-        const mainWindow = this._root.mainWindow;
-        let windowPass: GFXRenderPass | null = null;
-
-        if (mainWindow) {
-            windowPass = mainWindow.renderPass;
-        }
-
-        if (!windowPass) {
-            console.error('RenderPass of main window is null.');
-            return false;
-        }
-
-        this.addRenderPass(RenderPassStage.DEFAULT, windowPass);
-
-        // create flows
-        this.createFlow(ForwardFlow, {
-            name: PIPELINE_FLOW_FORWARD,
-            priority: ForwardFlowPriority.FORWARD,
-        });
-
-        if (this._usePostProcess) {
-            if (this._useSMAA) {
-                /*
-                this.createFlow(SMAAEdgeFlow, {
-                    name: PIPELINE_FLOW_SMAA,
-                    priority: 0,
-                });
-                */
-            }
-            this.createFlow(ToneMapFlow, {
-                name: PIPELINE_FLOW_TONEMAP,
-                priority: 0,
-            });
-        }
-
-        this.createFlow(UIFlow, {
-            name: 'UIFlow',
-            priority: ForwardFlowPriority.UI,
-        });
-
-        return true;
+        return super.createUBOs();
     }
 
     /**
      * @zh
      * 销毁函数。
      */
-    public destroy () {
+    public destroy() {
         const lightsUBO = this._globalBindings.get(UBOForwardLight.BLOCK.name);
         if (lightsUBO) {
             lightsUBO.buffer!.destroy();
@@ -179,10 +155,10 @@ export class ForwardPipeline extends RenderPipeline {
      * @zh
      * 重构函数。
      */
-    public rebuild () {
+    public rebuild() {
         super.rebuild();
-        for (const flow of this._flows) {
-            flow.rebuild();
+        for (let i = 0; i < this._flows.length; i++) {
+            this._flows[i].rebuild();
         }
     }
 
@@ -190,7 +166,7 @@ export class ForwardPipeline extends RenderPipeline {
      * @zh
      * 更新UBO。
      */
-    protected updateUBOs (view: RenderView) {
+    public updateUBOs(view: RenderView) {
         super.updateUBOs(view);
 
         const exposure = view.camera.exposure;
@@ -283,7 +259,7 @@ export class ForwardPipeline extends RenderPipeline {
      * 场景裁剪。
      * @param view 渲染视图。
      */
-    protected sceneCulling (view: RenderView) {
+    public sceneCulling(view: RenderView) {
         super.sceneCulling(view);
         this._validLights.length = 0;
         const sphereLights = view.camera.scene!.sphereLights;
@@ -348,7 +324,7 @@ export class ForwardPipeline extends RenderPipeline {
         Array.prototype.push.apply(this._lightIndices, _tempLightIndex);
     }
 
-    private sortLight (a, b) {
+    private sortLight(a, b) {
         return _tempLightDist[a] - _tempLightDist[b];
     }
 }

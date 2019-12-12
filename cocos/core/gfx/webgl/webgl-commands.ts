@@ -1205,7 +1205,7 @@ export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: Web
 
     gl.linkProgram(gpuShader.glProgram);
     if (gl.getProgramParameter(gpuShader.glProgram, gl.LINK_STATUS)) {
-        console.info('Shader \'' + gpuShader.name + '\' compilation successed.');
+        console.info('Shader \'' + gpuShader.name + '\' compilation succeeded.');
     } else {
         console.error('Failed to link shader \'' + gpuShader.name + '\'.');
         console.error(gl.getProgramInfoLog(gpuShader.glProgram));
@@ -1555,7 +1555,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
 
                         if (colorAttachment.format !== GFXFormat.UNKNOWN) {
                             switch (colorAttachment.loadOp) {
-                                case GFXLoadOp.LOAD: break; // GL default behaviour
+                                case GFXLoadOp.LOAD: break; // GL default behavior
                                 case GFXLoadOp.CLEAR: {
                                     if (cmd0.clearFlag & GFXClearFlag.COLOR) {
                                         if (cache.bs.targets[0].blendColorMask !== GFXColorMask.ALL) {
@@ -1582,7 +1582,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
 
                         if (curGPURenderPass.depthStencilAttachment.format !== GFXFormat.UNKNOWN) {
                             switch (curGPURenderPass.depthStencilAttachment.depthLoadOp) {
-                                case GFXLoadOp.LOAD: break; // GL default behaviour
+                                case GFXLoadOp.LOAD: break; // GL default behavior
                                 case GFXLoadOp.CLEAR: {
                                     if (cmd0.clearFlag & GFXClearFlag.DEPTH) {
                                         if (!cache.dss.depthWrite) {
@@ -1605,7 +1605,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
 
                             if (GFXFormatInfos[curGPURenderPass.depthStencilAttachment.format].hasStencil) {
                                 switch (curGPURenderPass.depthStencilAttachment.stencilLoadOp) {
-                                    case GFXLoadOp.LOAD: break; // GL default behaviour
+                                    case GFXLoadOp.LOAD: break; // GL default behavior
                                     case GFXLoadOp.CLEAR: {
                                         if (cmd0.clearFlag & GFXClearFlag.STENCIL) {
                                             if (!cache.dss.stencilWriteMaskFront) {
@@ -1676,7 +1676,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
             /*
             case WebGLCmd.END_RENDER_PASS: {
                 // WebGL 1.0 doesn't support store operation of attachments.
-                // GFXStoreOp.Store is the default GL behaviour.
+                // GFXStoreOp.Store is the default GL behavior.
                 break;
             }
             */
@@ -1726,9 +1726,10 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                             cache.rs.cullMode = rs.cullMode;
                         }
 
-                        if (cache.rs.isFrontFaceCCW !== rs.isFrontFaceCCW) {
-                            gl.frontFace(rs.isFrontFaceCCW ? gl.CCW : gl.CW);
-                            cache.rs.isFrontFaceCCW = rs.isFrontFaceCCW;
+                        const isFrontFaceCCW = device.reverseCW ? !rs.isFrontFaceCCW : rs.isFrontFaceCCW;
+                        if (cache.rs.isFrontFaceCCW !== isFrontFaceCCW) {
+                            gl.frontFace(isFrontFaceCCW ? gl.CCW : gl.CW);
+                            cache.rs.isFrontFaceCCW = isFrontFaceCCW;
                         }
 
                         if ((cache.rs.depthBias !== rs.depthBias) ||

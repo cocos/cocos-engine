@@ -1320,8 +1320,9 @@ class ContentStrategy {
     }
 
     // need to adapt prototype before instantiating
-    let _global = typeof window === 'undefined' ? global : window;
-    let globalAdapter = _global.__globalAdapter;
+    // @ts-ignore
+    const _global = typeof window === 'undefined' ? global : window;
+    const globalAdapter = _global.__globalAdapter;
     if (globalAdapter) {
         if (globalAdapter.adaptContainerStrategy) {
             globalAdapter.adaptContainerStrategy(ContainerStrategy.prototype);

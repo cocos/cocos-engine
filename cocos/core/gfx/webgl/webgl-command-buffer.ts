@@ -238,20 +238,20 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
         }
     }
 
-    public setDepthBias (depthBiasConstantFacotr: number, depthBiasClamp: number, depthBiasSlopeFactor: number) {
+    public setDepthBias (depthBiasConstantFactor: number, depthBiasClamp: number, depthBiasSlopeFactor: number) {
         if (!this._curDepthBias) {
             this._curDepthBias = {
-                constantFactor: depthBiasConstantFacotr,
+                constantFactor: depthBiasConstantFactor,
                 clamp: depthBiasClamp,
                 slopeFactor: depthBiasSlopeFactor,
             };
             this._isStateInvalied = true;
         } else {
-            if (this._curDepthBias.constantFactor !== depthBiasConstantFacotr ||
+            if (this._curDepthBias.constantFactor !== depthBiasConstantFactor ||
                 this._curDepthBias.clamp !== depthBiasClamp ||
                 this._curDepthBias.slopeFactor !== depthBiasSlopeFactor) {
 
-                this._curDepthBias.constantFactor = depthBiasConstantFacotr;
+                this._curDepthBias.constantFactor = depthBiasConstantFactor;
                 this._curDepthBias.clamp = depthBiasClamp;
                 this._curDepthBias.slopeFactor = depthBiasSlopeFactor;
                 this._isStateInvalied = true;

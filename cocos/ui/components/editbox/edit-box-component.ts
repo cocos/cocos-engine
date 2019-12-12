@@ -38,7 +38,7 @@ import { Color, Size } from '../../../core/math';
 import { LabelComponent, VerticalTextAlignment } from '../label-component';
 import { SpriteComponent } from '../sprite-component';
 import { UIRenderComponent } from '../../../core/components/ui-base/ui-render-component';
-import { UITransformComponent } from '../../../core/components/ui-base/ui-transfrom-component';
+import { UITransformComponent } from '../../../core/components/ui-base/ui-transform-component';
 import { EditBoxImpl } from './edit-box-impl';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { INode } from '../../../core/utils/interfaces';

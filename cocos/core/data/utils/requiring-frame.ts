@@ -29,7 +29,7 @@
  */
 let requiringFrames: any = [];  // the requiring frame infos
 
-export function push (module, uuid: string, script) {
+export function push (module, uuid: string, script, importMeta?) {
     if (script === undefined) {
         script = uuid;
         uuid = '';
@@ -40,6 +40,7 @@ export function push (module, uuid: string, script) {
         module,
         exports: module.exports,    // original exports
         beh: null,
+        importMeta,
     });
 }
 
