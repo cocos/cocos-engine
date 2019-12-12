@@ -466,6 +466,21 @@ export class SpriteComponent extends UIRenderComponent {
         }
     }
 
+    /**
+     * @zh
+     * 精灵图集内的精灵替换
+     *
+     * @returns
+     */
+    public changeSpriteFrameFromAtlas (name: string) {
+        if (!this._atlas) {
+            console.warn('SpriteAtlas is null.');
+            return;
+        }
+        const sprite = this._atlas.getSpriteFrame(name);
+        this.spriteFrame = sprite;
+    }
+
     protected _render(render: UI) {
         render.commitComp(this, this._spriteFrame!.getGFXTextureView(), this._assembler!);
     }
@@ -672,21 +687,6 @@ export class SpriteComponent extends UIRenderComponent {
             this._renderData.uvDirty = true;
             this._renderDataFlag = true;
         }
-    }
-
-    /**
-     * @zh
-     * 精灵图集内的精灵替换
-     *
-     * @returns
-     */
-    public changeSpriteFrameFromAtlas (name: string) {
-        if(!this._atlas) {
-            console.warn('SpriteAtlas is null.');
-            return;
-        }
-        const sprite = this._atlas.getSpriteFrame(name);
-        this.spriteFrame = sprite;
     }
 }
 

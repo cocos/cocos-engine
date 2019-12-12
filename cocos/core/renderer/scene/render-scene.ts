@@ -411,7 +411,7 @@ export class RenderScene {
         if (CC_PREVIEW) {
             if (ui2dNode == null) { console.error('make sure UINode is not null'); }
         }
-        const uiTransfrom = ui2dNode.uiTransfromComp;
+        const uiTransfrom = ui2dNode.uiTransformComp;
         if (uiTransfrom == null || ui2dNode.layer & Layers.Enum.IGNORE_RAYCAST || !(ui2dNode.layer & mask)) { return; }
         uiTransfrom.getComputeAABB(aabbUI);
         const d = intersect.ray_aabb(worldRay, aabbUI);

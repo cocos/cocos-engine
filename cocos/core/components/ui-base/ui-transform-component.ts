@@ -34,7 +34,6 @@ import { EventListener, IListenerMask } from '../../platform/event-manager/event
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../math';
 import { aabb } from '../../geom-utils';
 import { CanvasComponent } from './canvas-component';
-import { director } from '../../director';
 import { INode } from '../../utils/interfaces';
 
 const _vec2a = new Vec2();
@@ -234,7 +233,7 @@ export class UITransformComponent extends Component {
     public _canvas: CanvasComponent | null = null;
 
     public __preload () {
-        this.node.uiTransfromComp = this;
+        this.node.uiTransformComp = this;
     }
 
     public onEnable(){
@@ -251,7 +250,7 @@ export class UITransformComponent extends Component {
     }
 
     public onDestroy () {
-        this.node.uiTransfromComp = null;
+        this.node.uiTransformComp = null;
     }
 
     /**
@@ -584,8 +583,8 @@ export class UITransformComponent extends Component {
         const siblings = this.node.parent && this.node.parent.children as Mutable<INode[]>;
         if (siblings) {
             siblings.sort((a: INode, b: INode) => {
-                const aComp = a.uiTransfromComp;
-                const bComp = b.uiTransfromComp;
+                const aComp = a.uiTransformComp;
+                const bComp = b.uiTransformComp;
                 const ca = aComp ? aComp.priority : 0;
                 const cb = bComp ? bComp.priority : 0;
                 const diff = ca - cb;
