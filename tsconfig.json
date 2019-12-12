@@ -11,6 +11,7 @@
       "downlevelIteration": true,
       "esModuleInterop": true,
       "experimentalDecorators": true,
+      "isolatedModules": true,
       "types": [
         "./@types/globals",
         "./@types/editor-extends",
