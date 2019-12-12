@@ -1,35 +1,36 @@
 {
     "version": "0.1",
     "words": [
-        "Chukong",
-        "Yaji",
-
+        "Arial",
         "ccclass",
         "ccenum",
-
+        "Chukong",
+        "clampf",
+        "deinterleave",
+        "deserialize",
+        "earcut",
         "forin",
-        "struct",
-        "realloc",
-        "polyfill",
-
+        "glsl",
+        "grayscale",
+        "IGFX",
         "lerp",
         "lerpable",
-        "slerp",
-
-        "renderable",
-        "grayscale",
-        "raycast",
-        "skybox",
-        "earcut",
-        
-        "Arial",
-
+        "mipmaps",
+        "octree",
         "OPENGL",
-        "IGFX",
-        "UNORM",
+        "polyfill",
+        "quadtree",
+        "raycast",
+        "realloc",
+        "renderable",
+        "serializable",
+        "skybox",
+        "slerp",
         "SNORM",
-
+        "struct",
+        "UNORM",
         "WECHAT",
-        "WECHATGAME"
+        "WECHATGAME",
+        "Yaji"
     ]
 }
