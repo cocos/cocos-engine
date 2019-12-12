@@ -165,7 +165,7 @@ function getShaderBindings (
     }
 }
 
-interface IShaderResources {
+export interface IShaderResources {
     shader: GFXShader;
     bindings: IGFXBinding[];
 }
