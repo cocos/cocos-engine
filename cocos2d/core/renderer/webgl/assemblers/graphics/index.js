@@ -132,7 +132,7 @@ export default class GraphicsAssembler extends Assembler {
         renderer._flush();
 
         renderer.node = graphics.node;
-        renderer.material = graphics.sharedMaterials[0];
+        renderer.material = graphics._materials[0];
 
         let buffers = this.getBuffers();
         for (let index = 0, length = buffers.length; index < length; index++) {

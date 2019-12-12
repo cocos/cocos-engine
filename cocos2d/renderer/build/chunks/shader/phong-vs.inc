@@ -31,7 +31,7 @@ void main () {
   v_color = In.color;
   v_uv0 = In.uv * mainTiling + mainOffset;
 
-  CLAC_SHADOW(v_worldPos);
+  CCShadowInput(v_worldPos);
   
   gl_Position = cc_matViewProj * cc_matWorld * position;
 }

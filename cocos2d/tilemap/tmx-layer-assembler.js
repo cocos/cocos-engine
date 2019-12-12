@@ -297,7 +297,7 @@ export default class TmxAssembler extends Assembler {
         let texGrids = _comp._texGrids;
         let tiles = _comp._tiles;
         let texIdToMatIdx = _comp._texIdToMatIndex;
-        let mats = _comp.sharedMaterials;
+        let mats = _comp._materials;
     
         let vertices = _comp._vertices;
         let rowData, col, cols, row, rows, colData, tileSize, grid = null, gid = 0;

@@ -372,7 +372,17 @@ cc.macro = {
      * @property {Boolean} ROTATE_ACTION_CCW
      * @default false
      */
-    ROTATE_ACTION_CCW: false
+    ROTATE_ACTION_CCW: false,
+
+    /**
+     * !#en
+     * Whether to enable multi-touch.
+     * !#zh
+     * 是否开启多点触摸
+     * @property {Boolean} ENABLE_MULTI_TOUCH
+     * @default true
+     */
+    ENABLE_MULTI_TOUCH: true
 };
 
 

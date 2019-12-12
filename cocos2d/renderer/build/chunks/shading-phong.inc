@@ -82,7 +82,7 @@ vec4 composePhongShading (Lighting lighting, PhongMaterial mtl) {
   #endif
   
   #if CC_USE_SHADOW_MAP
-    o.rgb *= computeShadow();
+    o.rgb *= CCCalcShadow();
   #endif
 
   o.a = mtl.opacity;

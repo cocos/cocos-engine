@@ -441,6 +441,23 @@ if (CC_DEBUG) {
         setInsetBottom: 'cc.SpriteFrame insetBottom',
     });
 
+    // cc.Material
+    cc.Material.getInstantiatedBuiltinMaterial = cc.MaterialVariant.createWithBuiltin;
+    cc.Material.getInstantiatedMaterial = cc.MaterialVariant.create;
+    markFunctionWarning(cc.Material, {
+        getInstantiatedBuiltinMaterial: 'cc.MaterialVariant.createWithBuiltin',
+        getInstantiatedMaterial: 'cc.MaterialVariant.create'
+    })
+
+    // cc.RenderComponent
+    cc.js.getset(cc.RenderComponent.prototype, 'sharedMaterials', function () {
+        cc.warnID(1400, 'sharedMaterials', 'getMaterials');
+        return this.materials;
+    }, function (v) {
+        cc.warnID(1400, 'sharedMaterials', 'setMaterial');
+        this.materials = v;
+    })
+
     // cc.Camera
     markFunctionWarning(cc.Camera.prototype, {
         getNodeToCameraTransform: 'getWorldToScreenMatrix2D',

@@ -27,13 +27,13 @@
 import gfx from '../../renderer/gfx';
 
 const misc = require('../utils/misc');
-const Material = require('../assets/material/CCMaterial');
 const RenderComponent = require('./CCRenderComponent');
 const RenderFlow = require('../renderer/render-flow');
 const Graphics = require('../graphics/graphics');
 
 import Mat4 from '../value-types/mat4';
 import Vec2 from '../value-types/vec2';
+import MaterialVariant from '../assets/material/material-variant';
 
 let _vec2_temp = new Vec2();
 let _mat4_temp = new Mat4();
@@ -313,15 +313,15 @@ let Mask = cc.Class({
     },
 
     _activateMaterial () {
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) return;
+        this._createGraphics();
         
         // Init material
-        let material = this.sharedMaterials[0];
+        let material = this._materials[0];
         if (!material) {
-            material = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
+            material = MaterialVariant.createWithBuiltin('2d-sprite', this);
         }
         else {
-            material = Material.getInstantiatedMaterial(material, this);
+            material = MaterialVariant.create(material, this);
         }
 
         material.define('USE_ALPHA_TEST', true);
@@ -337,28 +337,27 @@ let Mask = cc.Class({
         }
 
         if (!this._enableMaterial) {
-            this._enableMaterial = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
+            this._enableMaterial = MaterialVariant.createWithBuiltin('2d-sprite', this);
         }
     
         if (!this._exitMaterial) {
-            this._exitMaterial = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
-            this._exitMaterial.effect.setStencilEnabled(gfx.STENCIL_DISABLE);
+            this._exitMaterial = MaterialVariant.createWithBuiltin('2d-sprite', this);
+            this._exitMaterial.setStencilEnabled(gfx.STENCIL_DISABLE);
         }
 
         if (!this._clearMaterial) {
-            this._clearMaterial = Material.getInstantiatedBuiltinMaterial('clear-stencil', this);
+            this._clearMaterial = MaterialVariant.createWithBuiltin('clear-stencil', this);
         }
 
         this.setMaterial(0, material);
 
-        this._createGraphics();
-        this._graphics.sharedMaterials[0] = material
+        this._graphics._materials[0] = material
 
         this._updateMaterial();
     },
 
     _updateMaterial () {
-        let material = this.sharedMaterials[0];
+        let material = this._materials[0];
         if (!material) return;
 
         if (this._type === MaskType.IMAGE_STENCIL && this.spriteFrame) {
