@@ -1,7 +1,8 @@
 
-import { ccclass, property } from '../data/class-decorator';
+import { ccclass, property, type } from '../data/class-decorator';
 import { ccenum } from '../value-types/enum';
 import { GFXFormat, GFXLoadOp, GFXStoreOp, GFXTextureLayout, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType} from '../gfx/define';
+import { CCString } from '../data';
 
 ccenum(GFXTextureType);
 ccenum(GFXTextureViewType);
@@ -50,10 +51,8 @@ export class FrameBufferDesc {
     public name: string = '';
     @property
     public renderPass: number = 0;
-    @property({
-        type: [String],
-    })
-    public colorViews = [];
+    @type([CCString])
+    public colorViews: string[] = [];
     @property
     public depthStencilView: string = '';
 }

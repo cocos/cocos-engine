@@ -2,7 +2,7 @@
  * @category pipeline
  */
 
-import { ccclass, property } from '../data/class-decorator';
+import { ccclass, property, type } from '../data/class-decorator';
 import { ccenum } from '../value-types/enum';
 import { GFXCommandBuffer } from '../gfx/command-buffer';
 import { IGFXColor, IGFXRect, GFXClearFlag, GFXCommandBufferType } from '../gfx/define';
@@ -16,6 +16,7 @@ import { RenderFlow } from './render-flow';
 import { RenderPipeline } from './render-pipeline';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from './render-queue';
 import { RenderView } from './render-view';
+import { CCString } from '../data';
 
 const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
@@ -46,9 +47,7 @@ class RenderQueueDesc {
         type: RenderQueueSortMode,
     })
     public sortMode: RenderQueueSortMode = RenderQueueSortMode.FRONT_TO_BACK;
-    @property({
-        type: [String],
-    })
+    @type([CCString])
     public stages: string[] = [];
 }
 
