@@ -59,7 +59,7 @@ let RenderComponent = cc.Class({
          * !#zh 渲染组件使用的材质。
          * @property {[Material]} sharedMaterials
          */
-        sharedMaterials: {
+        materials: {
             get () {
                 return this._materials;
             },
@@ -149,7 +149,7 @@ let RenderComponent = cc.Class({
      * !#zh 根据指定索引获取材质
      * @method getMaterial
      * @param {Number} index 
-     * @return {Material}
+     * @return {MaterialVariant}
      */
     getMaterial (index) {
         if (index < 0 || index >= this._materials.length) {
@@ -165,6 +165,20 @@ let RenderComponent = cc.Class({
         }
 
         return instantiated;
+    },
+
+    /**
+     * !#en Gets all the materials.
+     * !#zh 获取所有材质。
+     * @method getMaterials
+     * @return {[MaterialVariant]}
+     */
+    getMaterials () {
+        let materials = this._materials;
+        for (let i = 0; i < materials.length; i++) {
+            materials[i] = MaterialVariant.create(materials[i], this);
+        }
+        return materials;
     },
     
     /**

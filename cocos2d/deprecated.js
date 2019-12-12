@@ -449,6 +449,15 @@ if (CC_DEBUG) {
         getInstantiatedMaterial: 'cc.MaterialVariant.create'
     })
 
+    // cc.RenderComponent
+    cc.js.getset(cc.RenderComponent.prototype, 'sharedMaterials', function () {
+        cc.warnID(1400, 'sharedMaterials', 'getMaterials');
+        return this.materials;
+    }, function (v) {
+        cc.warnID(1400, 'sharedMaterials', 'setMaterial');
+        this.materials = v;
+    })
+
     // cc.Camera
     markFunctionWarning(cc.Camera.prototype, {
         getNodeToCameraTransform: 'getWorldToScreenMatrix2D',
