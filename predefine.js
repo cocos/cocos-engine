@@ -171,8 +171,8 @@ else {
     defineMacro('CC_JSB', defined('jsb'));
     defineMacro('CC_NATIVERENDERER', defined('jsb'));
     defineMacro('CC_SUPPORT_JIT', true);
-    defineMacro('CC_PHYSICS_BUILTIN', true);
-    defineMacro('CC_PHYSICS_CANNON', false);
+    defineMacro('CC_PHYSICS_BUILTIN', false);
+    defineMacro('CC_PHYSICS_CANNON', true);
 }
 // defined in the runtime
 defineMacro('CC_TEST', defined('tap') || defined('QUnit'));
