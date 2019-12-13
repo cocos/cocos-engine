@@ -13,7 +13,7 @@ import {
 } from '../../../core/data/class-decorator';
 import { Vec3 } from '../../../core/math';
 import { Component, error } from '../../../core';
-import { IRigidBody } from '../../spec/i-rigid-body';
+import { IRigidBody } from '../../spec/irigid-body';
 import { createRigidBody } from '../instance';
 
 

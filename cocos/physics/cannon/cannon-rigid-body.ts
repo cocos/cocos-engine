@@ -1,6 +1,6 @@
 import CANNON from '@cocos/cannon';
 import { Vec3 } from '../../core/math';
-import { IRigidBody } from '../spec/i-rigid-body';
+import { IRigidBody } from '../spec/irigid-body';
 import { CannonSharedBody } from './cannon-shared-body';
 import { Node } from '../../core';
 import { CannonWorld } from './cannon-world';
