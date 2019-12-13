@@ -1,7 +1,9 @@
 #ifndef __gles3w_h_
 #define __gles3w_h_
 
-#if defined(__APPLE__) || defined(__APPLE_CC__)
+#include "CoreDef.h"
+
+#if (CC_PLATFORM == CC_PLATFORM_IOS)
 #   include <OpenGLES/ES3/gl.h>
     // Prevent Apple's non-standard extension header from being included
 #   define __gl_es30ext_h_

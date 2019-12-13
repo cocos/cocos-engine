@@ -104,12 +104,17 @@
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
 #	define CC_ENDIAN CC_ENDIAN_LITTLE
 #else
-#	include <endian.h>
+#   if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#	   include <machine/endian.h>
+#   else
+#      include <endian.h>
+#   endif // (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#
 #	if __BYTE_ORDER == __LITTLE_ENDIAN
 #		define CC_ENDIAN	CC_ENDIAN_LITTLE
 #	else
 #		define CC_ENDIAN	CC_ENDIAN_BIG
-#	endif
+#	endif //__BYTE_ORDER == __LITTLE_ENDIAN
 #endif
 
 // CPU architecture type recognition

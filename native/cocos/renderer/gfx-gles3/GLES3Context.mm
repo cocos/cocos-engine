@@ -1,12 +1,13 @@
 #include "GLES3Std.h"
 #include "GLES3Context.h"
 #include "gles3w.h"
-#import <QuartzCore/CAEAGLLayer.h>
-#import <UIKit/UIScreen.h>
 
 NS_CC_BEGIN
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+
+#import <QuartzCore/CAEAGLLayer.h>
+#import <UIKit/UIScreen.h>
 
 bool GLES3Context::Initialize(const GFXContextInfo &info)
 {

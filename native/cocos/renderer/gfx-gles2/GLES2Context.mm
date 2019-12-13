@@ -1,13 +1,14 @@
 #include "GLES2Std.h"
 #include "GLES2Context.h"
 #include "gles2w.h"
-#import <QuartzCore/CAEAGLLayer.h>
-#import <UIKit/UIScreen.h>
-#import <QuartzCore/QuartzCore.h>
 
 NS_CC_BEGIN
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+
+#import <QuartzCore/CAEAGLLayer.h>
+#import <UIKit/UIScreen.h>
+#import <QuartzCore/QuartzCore.h>
 
 bool GLES2Context::Initialize(const GFXContextInfo &info) {
   
