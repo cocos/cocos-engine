@@ -27,8 +27,8 @@
 
 import '../data/class';
 import { EventTarget } from '../event/event-target';
-import { Rect, Size } from '../math';
 import '../game';
+import { Rect, Size } from '../math';
 
 class BrowserGetter {
 
@@ -80,10 +80,10 @@ switch (__BrowserGetter.adaptationType) {
         __BrowserGetter.meta['minimal-ui'] = 'true';
     case cc.sys.BROWSER_TYPE_SOUGOU:
     case cc.sys.BROWSER_TYPE_UC:
-        __BrowserGetter.availWidth = function(frame){
+        __BrowserGetter.availWidth = (frame) => {
             return frame.clientWidth;
         };
-        __BrowserGetter.availHeight = function(frame){
+        __BrowserGetter.availHeight = (frame) => {
             return frame.clientHeight;
         };
         break;
@@ -124,6 +124,11 @@ let _scissorRect: Rect | null = null;
  */
 export class View extends EventTarget {
 
+    public static instance: View;
+    public _resizeWithBrowserSize: boolean;
+    public _designResolutionSize: Size;
+    public _originalDesignResolutionSize: Size;
+
     private _frameSize: Size;
     private _scaleX: number;
     private _scaleY: number;
@@ -145,11 +150,6 @@ export class View extends EventTarget {
     private _rpNoBorder: ResolutionPolicy;
     private _rpFixedHeight: ResolutionPolicy;
     private _rpFixedWidth: ResolutionPolicy;
-    public _resizeWithBrowserSize: boolean;
-    public _designResolutionSize: Size;
-    public _originalDesignResolutionSize: Size;
-
-    public static instance: View;
 
     constructor () {
         super();
@@ -895,48 +895,54 @@ export class View extends EventTarget {
         return result;
     }
 
+    // _convertMouseToLocationInView (in_out_point, relatedPos) {
+    //     var viewport = this._viewportRect, _t = this;
+    //     in_out_point.x = ((_t._devicePixelRatio * (in_out_point.x - relatedPos.left)) - viewport.x) / _t._scaleX;
+    //     in_out_point.y = (_t._devicePixelRatio * (relatedPos.top + relatedPos.height - in_out_point.y) - viewport.y) / _t._scaleY;
+    // }
+
+    public _convertPointWithScale (point) {
+        const viewport = this._viewportRect;
+        point.x = (point.x - viewport.x) / this._scaleX;
+        point.y = (point.y - viewport.y) / this._scaleY;
+    }
+
     // Resize helper functions
     private _resizeEvent () {
-        // tslint:disable: no-shadowed-variable
-        let view;
-        if (this.setDesignResolutionSize) {
-            view = this;
-        } else {
-            view = cc.view;
-        }
+        const _view = cc.view;
 
         // Check frame size changed or not
-        const prevFrameW = view._frameSize.width;
-        const prevFrameH = view._frameSize.height;
-        const prevRotated = view._isRotated;
+        const prevFrameW = _view._frameSize.width;
+        const prevFrameH = _view._frameSize.height;
+        const prevRotated = _view._isRotated;
         if (cc.sys.isMobile) {
             const containerStyle = cc.game.container.style;
             const margin = containerStyle.margin;
             containerStyle.margin = '0';
             containerStyle.display = 'none';
-            view._initFrameSize();
+            _view._initFrameSize();
             containerStyle.margin = margin;
             containerStyle.display = 'block';
         }
         else {
-            view._initFrameSize();
+            _view._initFrameSize();
         }
-        if (!view._orientationChanging && view._isRotated === prevRotated && view._frameSize.width === prevFrameW && view._frameSize.height === prevFrameH) {
+        if (!_view._orientationChanging && _view._isRotated === prevRotated && _view._frameSize.width === prevFrameW && _view._frameSize.height === prevFrameH) {
             return;
         }
 
         // Frame size changed, do resize works
-        const width = view._originalDesignResolutionSize.width;
-        const height = view._originalDesignResolutionSize.height;
+        const width = _view._originalDesignResolutionSize.width;
+        const height = _view._originalDesignResolutionSize.height;
 
-        view._resizing = true;
+        _view._resizing = true;
         if (width > 0) {
-            view.setDesignResolutionSize(width, height, view._resolutionPolicy);
+            _view.setDesignResolutionSize(width, height, _view._resolutionPolicy);
         }
-        view._resizing = false;
+        _view._resizing = false;
 
-        if (view._resizeCallback) {
-            view._resizeCallback.call();
+        if (_view._resizeCallback) {
+            _view._resizeCallback.call();
         }
     }
 
@@ -1046,18 +1052,6 @@ export class View extends EventTarget {
         in_out_point.y = this._devicePixelRatio * (relatedPos.top + relatedPos.height - in_out_point.y);
     }
 
-    // _convertMouseToLocationInView (in_out_point, relatedPos) {
-    //     var viewport = this._viewportRect, _t = this;
-    //     in_out_point.x = ((_t._devicePixelRatio * (in_out_point.x - relatedPos.left)) - viewport.x) / _t._scaleX;
-    //     in_out_point.y = (_t._devicePixelRatio * (relatedPos.top + relatedPos.height - in_out_point.y) - viewport.y) / _t._scaleY;
-    // }
-
-    public _convertPointWithScale (point) {
-        const viewport = this._viewportRect;
-        point.x = (point.x - viewport.x) / this._scaleX;
-        point.y = (point.y - viewport.y) / this._scaleY;
-    }
-
     private _convertTouchWidthScale (selTouch){
         const viewport = this._viewportRect;
         const scaleX = this._scaleX;
@@ -1113,7 +1107,7 @@ class ContainerStrategy {
      * @method preApply
      * @param {View} view - The target view
      */
-    public preApply (view) {
+    public preApply (_view) {
     }
 
     /**
@@ -1124,7 +1118,7 @@ class ContainerStrategy {
      * @param {View} view
      * @param {Size} designedResolution
      */
-    public apply (view, designedResolution) {
+    public apply (_view, designedResolution) {
     }
 
     /**
@@ -1134,27 +1128,27 @@ class ContainerStrategy {
      * @method postApply
      * @param {View} view  The target view
      */
-    public postApply (view) {
+    public postApply (_view) {
 
     }
 
-    protected _setupContainer (view, w, h) {
+    protected _setupContainer (_view, w, h) {
         const locCanvas = cc.game.canvas;
         const locContainer = cc.game.container;
 
         if (cc.sys.platform !== cc.sys.WECHAT_GAME) {
             if (cc.sys.os === cc.sys.OS_ANDROID) {
-                document.body.style.width = (view._isRotated ? h : w) + 'px';
-                document.body.style.height = (view._isRotated ? w : h) + 'px';
+                document.body.style.width = (_view._isRotated ? h : w) + 'px';
+                document.body.style.height = (_view._isRotated ? w : h) + 'px';
             }
             // Setup style
             locContainer.style.width = locCanvas.style.width = w + 'px';
             locContainer.style.height = locCanvas.style.height = h + 'px';
         }
         // Setup pixel ratio for retina display
-        let devicePixelRatio = view._devicePixelRatio = 1;
-        if (view.isRetinaEnabled()) {
-            devicePixelRatio = view._devicePixelRatio = Math.min(2, window.devicePixelRatio || 1);
+        let devicePixelRatio = _view._devicePixelRatio = 1;
+        if (_view.isRetinaEnabled()) {
+            devicePixelRatio = _view._devicePixelRatio = Math.min(2, window.devicePixelRatio || 1);
         }
         // Setup canvas
         locCanvas.width = w * devicePixelRatio;
@@ -1207,7 +1201,7 @@ class ContentStrategy {
      * @method preApply
      * @param {View} view - The target view
      */
-    public preApply (view) {
+    public preApply (_view) {
     }
 
     /**
@@ -1220,7 +1214,7 @@ class ContentStrategy {
      * @param {Size} designedResolution
      * @return {Object} scaleAndViewportRect
      */
-    public apply (view, designedResolution) {
+    public apply (_view, designedResolution) {
         return {scale: [1, 1]};
     }
 
@@ -1231,7 +1225,7 @@ class ContentStrategy {
      * @method postApply
      * @param {View} view - The target view
      */
-    public postApply (view) {
+    public postApply (_view) {
     }
 
     public _buildResult (containerW, containerH, contentW, contentH, scaleX, scaleY) {
@@ -1262,12 +1256,12 @@ class ContentStrategy {
      */
     class EqualToFrame extends ContainerStrategy {
         public name = 'EqualToFrame';
-        public apply (view) {
-            const frameH = view._frameSize.height;
+        public apply (_view) {
+            const frameH = _view._frameSize.height;
             const containerStyle = cc.game.container.style;
-            this._setupContainer(view, view._frameSize.width, view._frameSize.height);
+            this._setupContainer(_view, _view._frameSize.width, _view._frameSize.height);
             // Setup container's margin and padding
-            if (view._isRotated) {
+            if (_view._isRotated) {
                 containerStyle.margin = '0 0 0 ' + frameH + 'px';
             }
             else {
@@ -1283,9 +1277,9 @@ class ContentStrategy {
      */
     class ProportionalToFrame extends ContainerStrategy {
         public name = 'ProportionalToFrame';
-        public apply (view, designedResolution) {
-            const frameW = view._frameSize.width;
-            const frameH = view._frameSize.height;
+        public apply (_view, designedResolution) {
+            const frameW = _view._frameSize.width;
+            const frameH = _view._frameSize.height;
             const containerStyle = cc.game.container.style;
             const designW = designedResolution.width;
             const designH = designedResolution.height;
@@ -1302,10 +1296,10 @@ class ContentStrategy {
             containerW = frameW - 2 * offx;
             containerH = frameH - 2 * offy;
 
-            this._setupContainer(view, containerW, containerH);
+            this._setupContainer(_view, containerW, containerH);
             if (!CC_EDITOR) {
                 // Setup container's margin and padding
-                if (view._isRotated) {
+                if (_view._isRotated) {
                     containerStyle.margin = '0 0 0 ' + frameH + 'px';
                 }
                 else {
@@ -1340,7 +1334,7 @@ class ContentStrategy {
 // Content scale strategys
     class ExactFit extends ContentStrategy {
         public name = 'ExactFit';
-        public apply (view, designedResolution) {
+        public apply (_view, designedResolution) {
             const containerW = cc.game.canvas.width;
             const containerH = cc.game.canvas.height;
             const scaleX = containerW / designedResolution.width;
@@ -1352,7 +1346,7 @@ class ContentStrategy {
 
     class ShowAll extends ContentStrategy {
         public name = 'ShowAll';
-        public apply (view, designedResolution) {
+        public apply (_view, designedResolution) {
             const containerW = cc.game.canvas.width;
             const containerH = cc.game.canvas.height;
             const designW = designedResolution.width;
@@ -1372,7 +1366,7 @@ class ContentStrategy {
 
     class NoBorder extends ContentStrategy {
         public name = 'NoBorder';
-        public apply (view, designedResolution) {
+        public apply (_view, designedResolution) {
             const containerW = cc.game.canvas.width;
             const containerH = cc.game.canvas.height;
             const designW = designedResolution.width;
@@ -1392,7 +1386,7 @@ class ContentStrategy {
 
     class FixedHeight extends ContentStrategy {
         public name = 'FixedHeight';
-        public apply (view, designedResolution) {
+        public apply (_view, designedResolution) {
             const containerW = cc.game.canvas.width;
             const containerH = cc.game.canvas.height;
             const designH = designedResolution.height;
@@ -1406,7 +1400,7 @@ class ContentStrategy {
 
     class FixedWidth extends ContentStrategy {
         public name = 'FixedWidth';
-        public apply (view, designedResolution) {
+        public apply (_view, designedResolution) {
             const containerW = cc.game.canvas.width;
             const containerH = cc.game.canvas.height;
             const designW = designedResolution.width;
@@ -1477,11 +1471,11 @@ export class ResolutionPolicy {
      * @en Manipulation before applying the resolution policy
      * @zh 策略应用前的操作
      * @method preApply
-     * @param {View} view The target view
+     * @param {View} _view The target view
      */
-    public preApply (view) {
-        this._containerStrategy!.preApply(view);
-        this._contentStrategy!.preApply(view);
+    public preApply (_view) {
+        this._containerStrategy!.preApply(_view);
+        this._contentStrategy!.preApply(_view);
     }
 
     /**
@@ -1490,24 +1484,24 @@ export class ResolutionPolicy {
      * The target view can then apply these value to itself, it's preferred not to modify directly its private variables
      * @zh 调用策略方法
      * @method apply
-     * @param {View} view - The target view
+     * @param {View} _view - The target view
      * @param {Size} designedResolution - The user defined design resolution
      * @return {Object} An object contains the scale X/Y values and the viewport rect
      */
-    public apply (view, designedResolution) {
-        this._containerStrategy!.apply(view, designedResolution);
-        return this._contentStrategy!.apply(view, designedResolution);
+    public apply (_view, designedResolution) {
+        this._containerStrategy!.apply(_view, designedResolution);
+        return this._contentStrategy!.apply(_view, designedResolution);
     }
 
     /**
      * @en Manipulation after appyling the strategy
      * @zh 策略应用之后的操作
      * @method postApply
-     * @param {View} view - The target view
+     * @param {View} _view - The target view
      */
-    public postApply (view) {
-        this._containerStrategy!.postApply(view);
-        this._contentStrategy!.postApply(view);
+    public postApply (_view) {
+        this._containerStrategy!.postApply(_view);
+        this._contentStrategy!.postApply(_view);
     }
 
     /**
@@ -1605,16 +1599,11 @@ cc.ResolutionPolicy = ResolutionPolicy;
 /**
  * @en cc.view is the shared view object.
  * @zh cc.view 是全局的视图对象。
- * @property view
- * @static
- * @type {View}
  */
 export const view = View.instance = cc.view = new View();
 
 /**
  * @en cc.winSize is the alias object for the size of the current game window.
  * @zh cc.winSize 为当前的游戏窗口的大小。
- * @property winSize
- * @type Size
  */
 cc.winSize = cc.v2();
