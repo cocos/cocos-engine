@@ -467,32 +467,26 @@ let TiledLayer = cc.Class({
         let tileset = this._texGrids[gid].tileset;
         let offset = tileset.tileOffset;
 
-        let centerWidth = this.node.width / 2;
-        let centerHeight = this.node.height / 2;
         let odd_even = (this._staggerIndex === cc.TiledMap.StaggerIndex.STAGGERINDEX_ODD) ? 1 : -1;
         let x = 0, y = 0;
         let diffX = 0;
-        let diffX1 = 0;
         let diffY = 0;
-        let diffY1 = 0;
         switch (this._staggerAxis) {
             case cc.TiledMap.StaggerAxis.STAGGERAXIS_Y:
                 diffX = 0;
-                diffX1 = (this._staggerIndex === cc.TiledMap.StaggerIndex.STAGGERINDEX_ODD) ? 0 : tileWidth / 2;
                 if (row % 2 === 1) {
                     diffX = tileWidth / 2 * odd_even;
                 }
-                x = col * tileWidth + diffX + diffX1 + offset.x - centerWidth;
-                y = (rows - row - 1) * (tileHeight - (tileHeight - this._hexSideLength) / 2) - offset.y - centerHeight;
+                x = col * tileWidth + diffX + offset.x;
+                y = (rows - row - 1) * (tileHeight - (tileHeight - this._hexSideLength) / 2) - offset.y;
                 break;
             case cc.TiledMap.StaggerAxis.STAGGERAXIS_X:
                 diffY = 0;
-                diffY1 = (this._staggerIndex === cc.TiledMap.StaggerIndex.STAGGERINDEX_ODD) ? tileHeight / 2 : 0;
                 if (col % 2 === 1) {
                     diffY = tileHeight / 2 * -odd_even;
                 }
-                x = col * (tileWidth - (tileWidth - this._hexSideLength) / 2) + offset.x - centerWidth;
-                y = (rows - row - 1) * tileHeight + diffY + diffY1 - offset.y - centerHeight;
+                x = col * (tileWidth - (tileWidth - this._hexSideLength) / 2) + offset.x;
+                y = (rows - row - 1) * tileHeight + diffY - offset.y;
                 break;
         }
         return cc.v2(x, y);
@@ -1301,7 +1295,7 @@ let TiledLayer = cc.Class({
             
             texIdMatIdx[tilesetIdx] = i;
         }
-
+        this.markForRender(true);
     }
 });
 
