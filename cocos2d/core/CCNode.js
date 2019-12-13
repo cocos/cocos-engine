@@ -3284,7 +3284,7 @@ let NodeDefines = {
         _vec3_temp.y = -this._anchorPoint.y * contentSize.height;
 
         Mat4.copy(_mat4_temp, this._matrix);
-        Mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
+        Mat4.transform(_mat4_temp, _mat4_temp, _vec3_temp);
         return AffineTrans.fromMat4(out, _mat4_temp);
     },
 
@@ -3335,7 +3335,7 @@ let NodeDefines = {
         _vec3_temp.y = -this._anchorPoint.y * contentSize.height;
 
         Mat4.copy(_mat4_temp, this._worldMatrix);
-        Mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
+        Mat4.transform(_mat4_temp, _mat4_temp, _vec3_temp);
 
         return AffineTrans.fromMat4(out, _mat4_temp);
     },

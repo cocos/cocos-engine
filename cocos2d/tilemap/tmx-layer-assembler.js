@@ -437,7 +437,7 @@ export default class TmxAssembler extends Assembler {
         tiledNode._updateLocalMatrix();
         Mat4.copy(_mat4_temp, tiledNode._matrix);
         Vec3.set(_vec3_temp, -(left + _moveX), -(bottom + _moveY), 0);
-        Mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
+        Mat4.transform(_mat4_temp, _mat4_temp, _vec3_temp);
         let m = _mat4_temp.m;
         let a = m[0];
         let b = m[1];
