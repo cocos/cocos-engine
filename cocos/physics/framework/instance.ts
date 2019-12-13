@@ -4,7 +4,7 @@
 
 import { Vec3 } from '../../core/math';
 import { BoxShape, PhysicsWorld, RigidBody, SphereShape } from './Physics-selector';
-import { IRigidBody } from '../spec/i-rigid-body';
+import { IRigidBody } from '../spec/irigid-body';
 import { IBoxShape, ISphereShape } from '../spec/i-physics-shape';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 
