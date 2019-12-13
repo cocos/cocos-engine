@@ -3,6 +3,7 @@
  */
 
 import { GFXCommandBuffer } from '../gfx/command-buffer';
+import { RecyclePool } from '../memop';
 import { CachedArray } from '../memop/cached-array';
 import { IRenderObject, IRenderPass, IRenderQueueDesc } from './define';
 
@@ -66,11 +67,8 @@ export class RenderQueue {
      */
     public cmdBuffCount: number = 0;
 
-    /**
-     * @zh
-     * 渲染队列描述。
-     */
     private _passDesc: IRenderQueueDesc;
+    private _passPool: RecyclePool<IRenderPass>;
 
     /**
      * 构造函数。
@@ -78,6 +76,13 @@ export class RenderQueue {
      */
     constructor (desc: IRenderQueueDesc) {
         this._passDesc = desc;
+        this._passPool = new RecyclePool(() => ({
+            hash: 0,
+            depth: 0,
+            shaderId: 0,
+            subModel: null!,
+            cmdBuff: null!,
+        }), 64);
         this.cmdBuffs = new CachedArray(64);
         this.queue = new CachedArray(64, this._passDesc.sortFunc);
     }
@@ -88,6 +93,7 @@ export class RenderQueue {
      */
     public clear () {
         this.queue.clear();
+        this._passPool.reset();
         this.cmdBuffCount = 0;
     }
 
@@ -104,13 +110,13 @@ export class RenderQueue {
             return false;
         }
         const hash = (0 << 30) | pass.priority << 16 | subModel.priority << 8 | passIdx;
-        this.queue.push({
-            hash,
-            depth: renderObj.depth,
-            shaderId: pso.shader.id,
-            subModel,
-            cmdBuff: subModel.commandBuffers[passIdx],
-        });
+        const rp = this._passPool.add();
+        rp.hash = hash;
+        rp.depth = renderObj.depth;
+        rp.shaderId = pso.shader.id;
+        rp.subModel = subModel;
+        rp.cmdBuff = subModel.commandBuffers[passIdx];
+        this.queue.push(rp);
         return true;
     }
 
