@@ -1468,13 +1468,7 @@ let NodeDefines = {
                     this._localZOrder = (this._localZOrder & 0x0000ffff) | (value << 16);
                     this.emit(EventType.SIBLING_ORDER_CHANGED);
 
-                    if (this._parent) {
-                        this._onSiblingIndexChanged();
-                    }
-                }
-
-                if (CC_JSB && CC_NATIVERENDERER) {
-                    this._proxy.updateZOrder();
+                    this._onSiblingIndexChanged();
                 }
             }
         },
@@ -1546,14 +1540,9 @@ let NodeDefines = {
 
     _onSiblingIndexChanged () {
         // update rendering scene graph, sort them by arrivalOrder
-        var parent = this._parent;
-        var siblings = parent._children;
-        var i = 0, len = siblings.length, sibling;
-        for (; i < len; i++) {
-            sibling = siblings[i];
-            sibling._updateOrderOfArrival();
+        if (this._parent) {
+            this._parent._delaySort();
         }
-        parent._delaySort();
     },
 
     _onPreDestroy () {
@@ -3511,16 +3500,7 @@ let NodeDefines = {
     _updateOrderOfArrival () {
         var arrivalOrder = this._parent ? ++this._parent._childArrivalOrder : 0;
         this._localZOrder = (this._localZOrder & 0xffff0000) | arrivalOrder;
-        // redistribute
-        if (arrivalOrder === 0x0000ffff) {
-            var siblings = this._parent._children;
-
-            siblings.forEach(function (node, index) {
-                node._localZOrder = (node._localZOrder & 0xffff0000) | (index + 1);
-            });
-
-            this._parent._childArrivalOrder = siblings.length;
-        }
+        
         this.emit(EventType.SIBLING_ORDER_CHANGED);
     },
 
@@ -3585,16 +3565,25 @@ let NodeDefines = {
      */
     sortAllChildren () {
         if (this._reorderChildDirty) {
+            
+            this._reorderChildDirty = false;
+
+            // delay update arrivalOrder before sort children
+            var _children = this._children, child;
+            this._parent && (this._parent._childArrivalOrder = 1);
+            for (let i = 0, len = _children.length; i < len; i++) {
+                child = _children[i];
+                child._updateOrderOfArrival();
+            }
+
             // Optimize reordering event code to fix problems with setting zindex
             // https://github.com/cocos-creator/2d-tasks/issues/1186
             eventManager._setDirtyForNode(this);
 
-            this._reorderChildDirty = false;
-            var _children = this._children;
             if (_children.length > 1) {
                 // insertion sort
-                var len = _children.length, i, j, child;
-                for (i = 1; i < len; i++) {
+                var j, child;
+                for (let i = 1, len = _children.length; i < len; i++) {
                     child = _children[i];
                     j = i - 1;
 
