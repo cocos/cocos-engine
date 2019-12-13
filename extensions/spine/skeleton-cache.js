@@ -30,6 +30,7 @@ const FrameTime = 1 / 60;
 
 let _vertices = [];
 let _indices = [];
+let _boneInfoOffset = 0;
 let _vertexOffset = 0;
 let _indexOffset = 0;
 let _vfOffset = 0;
@@ -57,6 +58,7 @@ let AnimationCache = cc.Class({
     ctor () {
         this._inited = false;
         this._invalid = true;
+        this._enableCacheAttachedInfo = false;
         this.frames = [];
         this.totalTime = 0;
         this._frameIdx = -1;
@@ -66,6 +68,7 @@ let AnimationCache = cc.Class({
         this._animationName = null;
         this._tempSegments = null;
         this._tempColors = null;
+        this._tempBoneInfos = null;
     },
 
     init (skeletonInfo, animationName) {
@@ -184,8 +187,16 @@ let AnimationCache = cc.Class({
         this.updateToFrame();
     },
 
+    enableCacheAttachedInfo () {
+        if (!this._enableCacheAttachedInfo) {
+            this._enableCacheAttachedInfo = true;
+            this.invalidAllFrame();
+        }
+    },
+
     _updateFrame (skeleton, clipper, index) {
         _vfOffset = 0;
+        _boneInfoOffset = 0;
         _indexOffset = 0;
         _vertexOffset = 0;
         _preTexUrl = null;
@@ -200,6 +211,7 @@ let AnimationCache = cc.Class({
         this.frames[index] = this.frames[index] || {
             segments : [],
             colors : [],
+            boneInfos : [],
             vertices : null,
             uintVert : null,
             indices : null,
@@ -208,11 +220,13 @@ let AnimationCache = cc.Class({
 
         let segments = this._tempSegments = frame.segments;
         let colors = this._tempColors = frame.colors;
+        let boneInfos = this._tempBoneInfos = frame.boneInfos;
         this._traverseSkeleton(skeleton, clipper);
         if (_colorOffset > 0) {
             colors[_colorOffset - 1].vfOffset = _vfOffset;
         }
         colors.length = _colorOffset;
+        boneInfos.length = _boneInfoOffset;
         // Handle pre segment.
         let preSegOffset = _segOffset - 1;
         if (preSegOffset >= 0) {
@@ -343,6 +357,7 @@ let AnimationCache = cc.Class({
 
     _traverseSkeleton (skeleton, clipper) {
         let segments = this._tempSegments;
+        let boneInfos = this._tempBoneInfos;
         let skeletonColor = skeleton.color;
         let attachment, attachmentColor, slotColor, uvs, triangles;
         let isRegion, isMesh, isClip;
@@ -350,6 +365,23 @@ let AnimationCache = cc.Class({
         let preSegOffset, preSegInfo;
         let blendMode;
         let slot;
+
+        let bones = skeleton.bones;
+        if (this._enableCacheAttachedInfo) {
+            for (let i = 0, l = bones.length; i < l; i++, _boneInfoOffset++) {
+                let bone = bones[i];
+                let boneInfo = boneInfos[_boneInfoOffset];
+                if (!boneInfo) {
+                    boneInfo = boneInfos[_boneInfoOffset] = {};
+                }
+                boneInfo.a = bone.a;
+                boneInfo.b = bone.b;
+                boneInfo.c = bone.c;
+                boneInfo.d = bone.d;
+                boneInfo.worldX = bone.worldX;
+                boneInfo.worldY = bone.worldY;
+            }
+        }
 
         for (let slotIdx = 0, slotCount = skeleton.drawOrder.length; slotIdx < slotCount; slotIdx++) {
             slot = skeleton.drawOrder[slotIdx];
