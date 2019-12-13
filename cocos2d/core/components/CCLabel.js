@@ -491,18 +491,65 @@ let Label = cc.Class({
             animatable: false
         },
 
-        _isBold: {
-            default: false,
-            serializable: false,
+        _isBold: false,
+        /**
+         * !#en Whether enable bold.
+         * !#zh 是否启用黑体。
+         * @property {Boolean} enableBold
+         */
+        enableBold: {
+            get () {
+                return this._isBold;
+            },
+            set (value) {
+                if (this._isBold === value) return;
+
+                this._isBold = value;
+                this.setVertsDirty();
+            },
+            animatable: false,
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.bold'
         },
-        _isItalic: {
-            default: false,
-            serializable: false,
+
+        _isItalic: false,
+        /**
+         * !#en Whether enable italic.
+         * !#zh 是否启用黑体。
+         * @property {Boolean} enableItalic
+         */
+        enableItalic: {
+            get () {
+                return this._isItalic;
+            },
+            set (value) {
+                if (this._isItalic === value) return;
+
+                this._isItalic = value;
+                this.setVertsDirty();
+            },
+            animatable: false,
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.italic'
         },
-        _isUnderline: {
-            default: false,
-            serializable: false,
-        },
+
+        _isUnderline: false,
+        /**
+         * !#en Whether enable underline.
+         * !#zh 是否启用下划线。
+         * @property {Boolean} enableUnderline
+         */
+        enableUnderline: {
+            get () {
+                return this._isUnderline;
+            },
+            set (value) {
+                if (this._isUnderline === value) return;
+
+                this._isUnderline = value;
+                this.setVertsDirty();
+            },
+            animatable: false,
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.underline'
+        }
     },
 
     statics: {
