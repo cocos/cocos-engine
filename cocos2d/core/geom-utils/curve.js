@@ -66,6 +66,7 @@ const defaultKFEnd = new Keyframe(1, 1, 0, 0);
 export class AnimationCurve {
     _keyFrames = new Array();
     @property({
+        default: [],
         type: [Keyframe],
     })
     get keyFrames()
@@ -78,8 +79,18 @@ export class AnimationCurve {
         this._keyFrames = val;
     }
     
+    @property({
+        type: cc.Enum(WrapMode),
+        visible: false,
+    })
     preWrapMode = WrapMode.Loop;
+
+    @property({
+        type: cc.Enum(WrapMode),
+        visible: false,
+    })
     postWrapMode = WrapMode.Loop;
+
     cachedKey = null;
 
     constructor (keyFrames = null) {

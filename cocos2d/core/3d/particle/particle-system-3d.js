@@ -196,20 +196,21 @@ export default class ParticleSystem3D extends RenderComponent {
     })
     bursts = new Array();
 
-    // @property({
-    //     type: [Material],
-    //     displayName: 'Materials',
-    //     visible: false,
-    //     override: true,
-    // })
-    // get sharedMaterials () {
-    //     // if we don't create an array copy, the editor will modify the original array directly.
-    //     return super.sharedMaterials;
-    // }
+    @property({
+        type: [Material],
+        displayName: 'Materials',
+        visible: false,
+        override: true,
+    })
+    get sharedMaterials () {
+        // if we don't create an array copy, the editor will modify the original array directly.
+        return this._materials;
+    }
 
-    // set sharedMaterials (val) {
-    //     super.sharedMaterials = val;
-    // }
+    set sharedMaterials (val) {
+        this._materials = val;
+        this._activateMaterial();
+    }
 
     // shpae module
     /**
