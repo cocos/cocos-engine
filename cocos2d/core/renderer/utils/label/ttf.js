@@ -160,7 +160,7 @@ export default class TTFAssembler extends Assembler2D {
         _string = comp.string.toString();
         _fontSize = comp._fontSize;
         _drawFontSize = _fontSize;
-        _underlineThickness = _drawFontSize / 8;
+        _underlineThickness = comp.underlineHeight || _drawFontSize / 8;
         _overflow = comp.overflow;
         _canvasSize.width = comp.node.width;
         _canvasSize.height = comp.node.height;
@@ -308,7 +308,7 @@ export default class TTFAssembler extends Assembler2D {
                 } else {
                     _drawUnderlinePos.x = startPosition.x;
                 }
-                _drawUnderlinePos.y = drawTextPosY + _underlineThickness;
+                _drawUnderlinePos.y = drawTextPosY + _drawFontSize / 8;
                 this._drawUnderline(_drawUnderlineWidth);
             }
         }

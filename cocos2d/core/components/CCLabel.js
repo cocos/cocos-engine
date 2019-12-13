@@ -549,7 +549,26 @@ let Label = cc.Class({
             },
             animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.label.underline'
-        }
+        },
+
+        _underlineHeight: 0,
+        /**
+         * !#en The height of underline.
+         * !#zh 下划线高度。
+         * @property {Number} underlineHeight
+         */
+        underlineHeight: {
+            get () {
+                return this._underlineHeight;
+            },
+            set (value) {
+                if (this._underlineHeight === value) return;
+                
+                this._underlineHeight = value;
+                this.setVertsDirty();
+            },
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.underline_height',
+        },
     },
 
     statics: {
