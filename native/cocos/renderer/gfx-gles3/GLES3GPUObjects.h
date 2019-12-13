@@ -88,15 +88,15 @@ struct GLES3GPUInput {
 typedef vector<GLES3GPUInput>::type GLES3GPUInputList;
 
 struct GLES3GPUUniform {
-  uint binding;
+  uint binding = GFX_INVALID_BINDING;
   String name;
-  GFXType type;
-  uint stride;
-  uint count;
-  uint size;
-  uint offset;
+    GFXType type = GFXType::UNKNOWN;
+  uint stride = 0;
+  uint count = 0;
+  uint size = 0;
+  uint offset = 0;
   GLenum gl_type;
-  GLint gl_loc;
+  GLint gl_loc = -1;
 };
 typedef vector<GLES3GPUUniform>::type GLES3GPUUniformList;
 

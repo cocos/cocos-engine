@@ -536,11 +536,27 @@ void GLES3CmdFuncCreateBuffer(GLES3Device* device, GLES3GPUBuffer* gpu_buffer) {
   }
 }
 
-void GLES3CmdFuncDestroyBuffer(GLES3Device* device, GLES3GPUBuffer* gpu_buffer) {
-  if (gpu_buffer->gl_buffer) {
-    glDeleteBuffers(1, &gpu_buffer->gl_buffer);
-    gpu_buffer->gl_buffer = 0;
-  }
+void GLES3CmdFuncDestroyBuffer(GLES3Device* device, GLES3GPUBuffer* gpu_buffer)
+{
+    if (gpu_buffer->gl_buffer)
+    {
+        auto* ubo = device->state_cache->gl_bind_ubos;
+        for(auto i =0; i < GFX_MAX_BUFFER_BINDINGS; i++)
+        {
+            if(ubo[i] == gpu_buffer->gl_buffer && gpu_buffer->gl_target == GL_UNIFORM_BUFFER)
+            {
+                ubo[i] = 0;
+                device->state_cache->gl_uniform_buffer = 0;
+                break;
+            }
+        }
+        if(gpu_buffer->gl_target == GL_ARRAY_BUFFER)
+            device->state_cache->gl_array_buffer = 0;
+        
+        glDeleteBuffers(1, &gpu_buffer->gl_buffer);
+        gpu_buffer->gl_buffer = 0;
+        
+    }
 }
 
 void GLES3CmdFuncResizeBuffer(GLES3Device* device, GLES3GPUBuffer* gpu_buffer) {

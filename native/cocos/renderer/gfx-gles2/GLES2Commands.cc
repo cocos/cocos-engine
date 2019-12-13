@@ -476,13 +476,17 @@ void GLES2CmdFuncCreateBuffer(GLES2Device* device, GLES2GPUBuffer* gpu_buffer) {
   }
 }
 
-void GLES2CmdFuncDestroyBuffer(GLES2Device* device, GLES2GPUBuffer* gpu_buffer) {
-  if (gpu_buffer->gl_buffer) {
-    glDeleteBuffers(1, &gpu_buffer->gl_buffer);
-    gpu_buffer->gl_buffer = 0;
-  }
+void GLES2CmdFuncDestroyBuffer(GLES2Device* device, GLES2GPUBuffer* gpu_buffer)
+{
+    if (gpu_buffer->gl_buffer)
+    {
+        glDeleteBuffers(1, &gpu_buffer->gl_buffer);
+        gpu_buffer->gl_buffer = 0;
+        if(gpu_buffer->gl_target == GL_ARRAY_BUFFER)
+            device->state_cache->gl_array_buffer = 0;
+    }
 
-  CC_SAFE_FREE(gpu_buffer->buffer);
+    CC_SAFE_FREE(gpu_buffer->buffer);
 }
 
 void GLES2CmdFuncResizeBuffer(GLES2Device* device, GLES2GPUBuffer* gpu_buffer) {
@@ -976,7 +980,7 @@ void GLES2CmdFuncCreateShader(GLES2Device* device, GLES2GPUShader* gpu_shader) {
         GLES2GPUUniformBlock& gpu_block = gpu_shader->gpu_blocks[b];
         for (size_t u = 0; u < gpu_block.uniforms.size(); ++u) {
           if (gpu_block.uniforms[u].name == u_name) {
-            GLES2GPUUniform gpu_uniform = gpu_block.uniforms[u];
+            GLES2GPUUniform& gpu_uniform = gpu_block.uniforms[u];
             gpu_uniform.gl_loc = glGetUniformLocation(gpu_shader->gl_program, gl_name);
             gpu_uniform.buff = (uint8_t*)CC_MALLOC(gpu_uniform.size);
 
