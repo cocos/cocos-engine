@@ -1295,7 +1295,7 @@ let TiledLayer = cc.Class({
             
             texIdMatIdx[tilesetIdx] = i;
         }
-
+        this.markForRender(true);
     }
 });
 
