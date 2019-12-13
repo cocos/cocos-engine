@@ -491,7 +491,7 @@ export default class Camera {
     let halfWidth = width / 2;
     let halfHeight = height / 2;
     Mat4.identity(_tmp_mat4);
-    Mat4.translate(_tmp_mat4, _tmp_mat4, Vec3.set(_tmp_v3, halfWidth, halfHeight, 0));
+    Mat4.transform(_tmp_mat4, _tmp_mat4, Vec3.set(_tmp_v3, halfWidth, halfHeight, 0));
     Mat4.scale(_tmp_mat4, _tmp_mat4, Vec3.set(_tmp_v3, halfWidth, halfHeight, 1));
 
     Mat4.mul(out, _tmp_mat4, out);
