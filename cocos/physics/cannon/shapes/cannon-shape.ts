@@ -1,35 +1,39 @@
 import CANNON from '@cocos/cannon';
-import { Quat, Vec3 } from '../../../core/math';
-import { ITriggerCallback, ITriggerEventType, ShapeBase } from '../../api';
-import { getWrap, stringfyVec3 } from '../../util';
+import { Vec3 } from '../../../core/math';
+import { getWrap, setWrap } from '../../framework/util';
 import { commitShapeUpdates } from '../cannon-util';
-import { PhysicMaterial } from '../../assets/physic-material';
+import { PhysicMaterial } from '../../framework/assets/physic-material';
+import { IBaseShape } from '../../spec/i-physics-shape';
+import { IVec3Like } from '../../../core/math/type-define';
+import { CannonSharedBody } from '../cannon-shared-body';
+import { CannonWorld } from '../cannon-world';
+import { Node } from '../../../core';
+import { TriggerEventType } from '../../framework/physics-interface';
+import { PhysicsSystem } from '../../framework/physics-system';
+import { ColliderComponent } from '../../framework';
 
-export class CannonShape implements ShapeBase {
+const TriggerEventObject = {
+    type: 'onTriggerEnter' as TriggerEventType,
+    selfCollider: null as ColliderComponent | null,
+    otherCollider: null as ColliderComponent | null,
+};
 
-    public static readonly idToMaterial = {};
+export class CannonShape implements IBaseShape {
 
-    public get impl () {
-        return this._shape!;
+    static readonly idToMaterial = {};
+
+    get shape () { return this._shape!; }
+
+    get collider () { return this._collider; }
+
+    get attachedRigidBody () {
+        if (this._sharedBody.wrappedBody) { return this._sharedBody.wrappedBody.rigidBody; }
+        return null;
     }
 
-    protected _scale: Vec3 = new Vec3(1, 1, 1);
+    get sharedBody (): CannonSharedBody { return this._sharedBody; }
 
-    protected _shape: CANNON.Shape | null = null;
-
-    protected _body: CANNON.Body | null = null;
-
-    private _index: number = -1;
-
-    private _center: Vec3 = new Vec3(0, 0, 0);
-
-    private _userData: any;
-
-    private _onTriggerListener: (event: CANNON.ITriggeredEvent) => any;
-
-    private _triggeredCB: ITriggerCallback[] = [];
-
-    public set material (mat: PhysicMaterial) {
+    set material (mat: PhysicMaterial) {
         if (mat == null) {
             (this._shape!.material as unknown) = null;
         } else {
@@ -43,96 +47,139 @@ export class CannonShape implements ShapeBase {
         }
     }
 
-    public constructor () {
-        this._onTriggerListener = this.onTrigger.bind(this);
-    }
-
-    public addTriggerCallback (callback: ITriggerCallback): void {
-        this._triggeredCB.push(callback);
-    }
-
-    public removeTriggerCallback (callback: ITriggerCallback): void {
-        const i = this._triggeredCB.indexOf(callback);
-        if (i >= 0) {
-            this._triggeredCB.splice(i, 1);
+    set isTrigger (v: boolean) {
+        this._shape.collisionResponse = !v;
+        if (this._index >= 0) {
+            this._body.updateHasTrigger();
         }
     }
 
-    public getUserData (): any {
-        return this._userData;
-    }
-
-    public setUserData (data: any): void {
-        this._userData = data;
-    }
-
-    public setBody (body: CANNON.Body | null, index: number) {
-        if (body == null) {
-            this._shape!.removeEventListener('triggered', this._onTriggerListener);
-        } else {
-            this._shape!.addEventListener('triggered', this._onTriggerListener);
+    set center (v: IVec3Like) {
+        const lpos = this._offset as IVec3Like;
+        Vec3.copy(lpos, v);
+        Vec3.multiply(lpos, lpos, this._collider.node.worldScale);
+        if (this._index >= 0) {
+            commitShapeUpdates(this._body);
         }
-        this._body = body;
+    }
+
+    _collider!: ColliderComponent;
+
+    protected _shape!: CANNON.Shape;
+    protected _offset = new CANNON.Vec3();
+    protected _orient = new CANNON.Quaternion();
+    protected _index: number = -1;
+    protected _sharedBody!: CannonSharedBody;
+    protected get _body (): CANNON.Body { return this._sharedBody.body; }
+    protected onTriggerListener = this.onTrigger.bind(this);
+
+    /** LIFECYCLE */
+
+    __preload (comp: ColliderComponent) {
+        this._collider = comp;
+        setWrap(this._shape, this);
+        this._shape.addEventListener('triggered', this.onTriggerListener);
+        this._sharedBody = (PhysicsSystem.instance.physicsWorld as CannonWorld).getSharedBody(this._collider.node as Node);
+        this._sharedBody.reference = true;
+    }
+
+    onLoad () {
+        this.center = this._collider.center;
+        this.isTrigger = this._collider.isTrigger;
+    }
+
+    onEnable () {
+        this._sharedBody.addShape(this);
+        this._sharedBody.enabled = true;
+    }
+
+    onDisable () {
+        this._sharedBody.removeShape(this);
+        this._sharedBody.enabled = false;
+    }
+
+    onDestroy () {
+        this._sharedBody.reference = false;
+        (this._sharedBody as any) = null;
+        setWrap(this._shape, null);
+        (this._offset as any) = null;
+        (this._orient as any) = null;
+        (this._shape as any) = null;
+        (this._collider as any) = null;
+        (this.onTriggerListener as any) = null;
+    }
+
+    /** INTERFACE */
+
+    /** group */
+    getGroup (): number {
+        return this._body.collisionFilterGroup;
+    }
+
+    setGroup (v: number): void {
+        this._body.collisionFilterGroup = v;
+    }
+
+    addGroup (v: number): void {
+        this._body.collisionFilterGroup |= v;
+    }
+
+    removeGroup (v: number): void {
+        this._body.collisionFilterGroup &= ~v;
+    }
+
+    /** mask */
+    getMask (): number {
+        return this._body.collisionFilterMask;
+    }
+
+    setMask (v: number): void {
+        this._body.collisionFilterMask = v;
+    }
+
+    addMask (v: number): void {
+        this._body.collisionFilterMask |= v;
+    }
+
+    removeMask (v: number): void {
+        this._body.collisionFilterMask &= ~v;
+    }
+
+    /**
+     * change scale will recalculate center & size \
+     * size handle by child class
+     * @param scale 
+     */
+    setScale (scale: IVec3Like) {
+        this.center = this._collider.center;
+    }
+
+    setIndex (index: number) {
         this._index = index;
     }
 
-    public setCenter (center: Vec3): void {
-        Vec3.copy(this._center, center);
-        this._recalcCenter();
+    setOffsetAndOrient (offset: CANNON.Vec3, Orient: CANNON.Quaternion) {
+        this._offset = offset;
+        this._orient = Orient;
     }
 
-    public setScale (scale: Vec3): void {
-        Vec3.copy(this._scale, scale);
-        this._recalcCenter();
-    }
-
-    public setRotation (rotation: Quat): void {
-
-    }
-
-    public getCollisionResponse (): boolean {
-        return this.impl.collisionResponse;
-    }
-
-    public setCollisionResponse (v: boolean): void {
-        this.impl.collisionResponse = v;
-    }
-
-    public _devStrinfy () {
-        if (!this._body) {
-            return `<NotAttached>`;
-        }
-        return `centerOffset: ${stringfyVec3(this._body.shapeOffsets[this._index])}`;
-    }
-
-    public onTrigger (event: CANNON.ITriggeredEvent) {
+    private onTrigger (event: CANNON.ITriggeredEvent) {
         TriggerEventObject.type = event.event;
-        TriggerEventObject.selfCollider = getWrap<ShapeBase>(event.selfShape).getUserData();
-        TriggerEventObject.otherCollider = getWrap<ShapeBase>(event.otherShape).getUserData();
-        // TriggerEventObject.selfRigidBody = getWrap<RigidBodyBase>(event.selfBody).getUserData();
-        // TriggerEventObject.otherRigidBody = getWrap<RigidBodyBase>(event.otherBody).getUserData();
-        for (const callback of this._triggeredCB) {
-            callback(TriggerEventObject);
-        }
-    }
+        const self = getWrap<CannonShape>(event.selfShape);
+        const other = getWrap<CannonShape>(event.otherShape);
 
-    private _recalcCenter () {
-        if (!this._body) {
-            return;
-        }
-        const shapeOffset = this._body.shapeOffsets[this._index];
-        Vec3.copy(shapeOffset, this._center);
-        Vec3.multiply(shapeOffset, shapeOffset, this._scale);
-        // console.log(`[[CANNON]] Set shape offset to (${shapeOffset.x}, ${shapeOffset.y}, ${shapeOffset.z}).`);
+        if (self) {
+            TriggerEventObject.selfCollider = self.collider;
+            TriggerEventObject.otherCollider = other ? other.collider : null;
+            this._collider.emit(TriggerEventObject.type, TriggerEventObject);
 
-        commitShapeUpdates(this._body);
+            // if (self.collider.node.hasChangedFlags) {
+            //     self.sharedBody.syncSceneToPhysics();
+            // }
+
+            // if (other.collider.node.hasChangedFlags) {
+            //     other.sharedBody.syncSceneToPhysics();
+            // }
+        }
     }
 }
-
-const TriggerEventObject = {
-    type: '' as unknown as ITriggerEventType,
-    selfCollider: null,
-    otherCollider: null,
-    // selfRigidBody: null,
-    // otherRigidBody: null,
-};

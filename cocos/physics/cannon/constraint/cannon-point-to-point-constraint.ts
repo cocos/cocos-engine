@@ -1,15 +1,14 @@
 import CANNON from '@cocos/cannon';
 import { Vec3 } from '../../../core/math';
-import { IPointToPointConstraintOptions, PointToPointConstraintBase } from '../../api';
-import { CannonRigidBody } from '../cannon-body';
 import { CannonConstraint } from './cannon-constraint';
+import { CannonSharedBody } from '../cannon-shared-body';
 
-export class CannonPointToPointConstraint extends CannonConstraint implements PointToPointConstraintBase {
-    constructor (first: CannonRigidBody, firstPivot: Vec3, second: CannonRigidBody, secondPivot: Vec3, options?: IPointToPointConstraintOptions) {
+export class CannonPointToPointConstraint extends CannonConstraint {
+    constructor (first: CannonSharedBody, firstPivot: Vec3, second: CannonSharedBody, secondPivot: Vec3, options?: any) {
         super(new CANNON.PointToPointConstraint(
-            first.impl,
+            first.body,
             Vec3.copy(new CANNON.Vec3(), firstPivot),
-            second.impl,
+            second.body,
             Vec3.copy(new CANNON.Vec3(), secondPivot),
             options === undefined ? undefined : options.maxForce));
     }

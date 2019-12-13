@@ -1,97 +1,76 @@
 import { Mat4, Quat, Vec3 } from '../../../core/math';
-import { ITriggerCallback, ITriggerEvent, ShapeBase } from '../../api';
-import { BuiltInBody } from '../builtin-body';
+import { BuiltinSharedBody } from '../builtin-shared-body';
 import { IBuiltinShape } from '../builtin-interface';
 import { BuiltinObject } from '../object/builtin-object';
-import { ColliderComponent } from '../../../../exports/physics-framework';
+import { ColliderComponent, RigidBodyComponent, PhysicMaterial, PhysicsSystem } from '../../../../exports/physics-framework';
+import { IBaseShape } from '../../spec/i-physics-shape';
+import { IVec3Like } from '../../../core/math/type-define';
+import { BuiltInWorld } from '../builtin-world';
+import { Node } from '../../../core';
 
-export class BuiltinShape extends BuiltinObject implements ShapeBase {
+export class BuiltinShape extends BuiltinObject implements IBaseShape {
+    set material (v: PhysicMaterial) { }
+    set isTrigger (v: boolean) { }
+    get attachedRigidBody (): RigidBodyComponent | null { return null; }
 
-    public get localShape () {
+    set center (v: IVec3Like) {
+        Vec3.copy(this._localShape.center, v);
+    }
+
+    get localShape () {
         return this._worldShape;
     }
 
-    public get worldShape () {
+    get worldShape () {
         return this._worldShape;
     }
 
-    /** id unique */
-    public get id () { return this._id; }
+    get sharedBody () {
+        return this._sharedBody;
+    }
+
+    get collider () {
+        return this._collider;
+    }
 
     /** id generator */
     private static idCounter: number = 0;
+    readonly id: number = BuiltinShape.idCounter++;;
 
-    public body!: BuiltInBody | null;
-
+    protected _sharedBody!: BuiltinSharedBody;
+    protected _collider!: ColliderComponent;
     protected _localShape!: IBuiltinShape;
-
     protected _worldShape!: IBuiltinShape;
 
-    private readonly _id: number;
-
-    private userData!: ColliderComponent | null;
-
-    private _triggeredCB: ITriggerCallback[] = [];
-
-    constructor () {
-        super();
-        this._id = BuiltinShape.idCounter++;
+    __preload (comp: ColliderComponent) {
+        this._collider = comp;
+        this._sharedBody = (PhysicsSystem.instance.physicsWorld as BuiltInWorld).getSharedBody(this._collider.node as Node);
+        this._sharedBody.reference = true;
     }
 
-    public addTriggerCallback (callback: ITriggerCallback): void {
-        this._triggeredCB.push(callback);
+    onLoad () {
+        this.center = this._collider.center;
     }
 
-    public removeTriggerCallback (callback: ITriggerCallback): void {
-        const i = this._triggeredCB.indexOf(callback);
-        if (i >= 0) {
-            this._triggeredCB.splice(i, 1);
-        }
+    onEnable () {
+        this._sharedBody.addShape(this);
+        this._sharedBody.enabled = true;
     }
 
-    public onTrigger (event: ITriggerEvent) {
-        for (const callback of this._triggeredCB) {
-            callback(event);
-        }
+    onDisable () {
+        this._sharedBody.removeShape(this);
+        this._sharedBody.enabled = false;
     }
 
-    public setCenter (center: Vec3): void {
-        Vec3.copy(this._localShape.center, center);
+    onDestroy () {
+        this._sharedBody.reference = false;
+        (this._collider as any) = null;
+        (this._localShape as any) = null;
+        (this._worldShape as any) = null;
     }
 
-    public getUserData (): ColliderComponent {
-        return this.userData!;
-    }
-
-    public setUserData (data: any): void {
-        this.userData = data;
-    }
-
-    public getCollisionResponse (): boolean {
-        return false;
-    }
-
-    public setCollisionResponse (value: boolean): void {
-
-    }
-
-    public setPosition (position: Vec3) {
-
-    }
-
-    public setRotation (rotation: Quat): void {
-        throw new Error('Method not implemented.');
-    }
-
-    public transform (m: Mat4, pos: Vec3, rot: Quat, scale: Vec3) {
+    transform (m: Mat4, pos: Vec3, rot: Quat, scale: Vec3) {
         this._localShape.transform(m, pos, rot, scale, this._worldShape);
     }
 
-    public translateAndRotate (m: Mat4, rot: Quat) {
-        this._localShape.translateAndRotate(m, rot, this._worldShape);
-    }
-
-    public setScale (scale: Vec3): void {
-        this._localShape.setScale(scale, this._worldShape);
-    }
 }

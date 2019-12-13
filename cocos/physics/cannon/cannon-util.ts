@@ -1,8 +1,9 @@
 import CANNON from '@cocos/cannon';
-import { IRaycastOptions, ShapeBase } from '../api';
-import { PhysicsRayResult } from '../physics-ray-result';
-import { getWrap } from '../util';
+import { getWrap } from '../framework/util';
 import { Vec3 } from '../../core';
+import { IBaseShape } from '../spec/i-physics-shape';
+import { PhysicsRayResult } from '../framework';
+import { IRaycastOptions } from '../spec/i-physics-world';
 
 export function toCannonRaycastOptions (out: CANNON.IRaycastOptions, options: IRaycastOptions) {
     out.checkCollisionResponse = !options.queryTrigger;
@@ -15,7 +16,7 @@ export function fillRaycastResult (result: PhysicsRayResult, cannonResult: CANNO
     result._assign(
         Vec3.copy(new Vec3(), cannonResult.hitPointWorld),
         cannonResult.distance,
-        getWrap<ShapeBase>(cannonResult.shape)
+        getWrap<IBaseShape>(cannonResult.shape).collider
     );
 }
 

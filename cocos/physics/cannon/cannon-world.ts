@@ -1,36 +1,20 @@
 import CANNON from '@cocos/cannon';
 import { Vec3 } from '../../core/math';
-import { PhysicsRayResult } from '../physics-ray-result';
-import { setWrap } from '../util';
-import { AfterStepCallback, BeforeStepCallback, IRaycastOptions, PhysicsWorldBase } from './../api';
 import { fillRaycastResult, toCannonRaycastOptions } from './cannon-util';
 import { CannonConstraint } from './constraint/cannon-constraint';
 import { CannonShape } from './shapes/cannon-shape';
-import { PhysicMaterial } from '../assets/physic-material';
 import { ray } from '../../core/geom-utils';
-import { RecyclePool } from '../../core';
+import { RecyclePool, Node } from '../../core';
+import { CannonSharedBody } from './cannon-shared-body';
+import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
+import { PhysicMaterial, PhysicsRayResult } from '../framework';
+export class CannonWorld implements IPhysicsWorld {
 
-export class CannonWorld implements PhysicsWorldBase {
-
-    get impl () {
+    get world () {
         return this._world;
     }
-    private _world: CANNON.World;
-    private _customBeforeStepListener: BeforeStepCallback[] = [];
-    private _customAfterStepListener: AfterStepCallback[] = [];
-    private _raycastResult = new CANNON.RaycastResult();
 
-    constructor () {
-        this._world = new CANNON.World();
-        setWrap<PhysicsWorldBase>(this._world, this);
-        this._world.broadphase = new CANNON.NaiveBroadphase();
-    }
-
-    // public get defaultMaterial () {
-    //     return this.defaultMaterial;
-    // }
-
-    public set defaultMaterial (mat: PhysicMaterial) {
+    set defaultMaterial (mat: PhysicMaterial) {
         this._world.defaultMaterial.friction = mat.friction;
         this._world.defaultMaterial.restitution = mat.restitution;
         if (CannonShape.idToMaterial[mat._uuid] != null) {
@@ -38,64 +22,46 @@ export class CannonWorld implements PhysicsWorldBase {
         }
     }
 
-    public getAllowSleep (): boolean {
-        return this._world.allowSleep;
-    }
-    public setAllowSleep (v: boolean): void {
+    set allowSleep (v: boolean) {
         this._world.allowSleep = v;
     }
 
-    public setGravity (gravity: Vec3): void {
+    set gravity (gravity: Vec3) {
         Vec3.copy(this._world.gravity, gravity);
-    }
-
-    public getGravity (out: Vec3): void {
-        Vec3.copy(out, this._world.gravity);
-    }
-
-    public destroy () {
     }
 
     // get defaultContactMaterial () {
     //     return this._defaultContactMaterial;
     // }
 
-    public step (deltaTime: number, time?: number, maxSubStep?: number) {
-        this._callCustomBeforeSteps();
-        this._world.step(deltaTime, time, maxSubStep);
-        this._callCustomAfterSteps();
+    readonly bodies: CannonSharedBody[] = [];
+
+    private _world: CANNON.World;
+    private _raycastResult = new CANNON.RaycastResult();
+
+    constructor () {
+        this._world = new CANNON.World();
+        this._world.broadphase = new CANNON.NaiveBroadphase();
+    }
+
+    step (deltaTime: number, timeSinceLastCalled?: number, maxSubStep?: number) {
+        // sync scene to physics
+        for (let i = 0; i < this.bodies.length; i++) {
+            this.bodies[i].syncSceneToPhysics();
+        }
+
+        this._world.step(deltaTime, timeSinceLastCalled, maxSubStep);
+
+        // sync physics to scene
+        for (let i = 0; i < this.bodies.length; i++) {
+            this.bodies[i].syncPhysicsToScene();
+        }
+
         this._world.emitTriggeredEvents();
         this._world.emitCollisionEvents();
-
-        // hack, node transform may be dirty
-        this._callCustomBeforeSteps();
     }
 
-    public addBeforeStep (cb: BeforeStepCallback) {
-        this._customBeforeStepListener.push(cb);
-    }
-
-    public removeBeforeStep (cb: BeforeStepCallback) {
-        const i = this._customBeforeStepListener.indexOf(cb);
-        if (i < 0) {
-            return;
-        }
-        this._customBeforeStepListener.splice(i, 1);
-    }
-
-    public addAfterStep (cb: AfterStepCallback) {
-        this._customAfterStepListener.push(cb);
-    }
-
-    public removeAfterStep (cb: AfterStepCallback) {
-        const i = this._customAfterStepListener.indexOf(cb);
-        if (i < 0) {
-            return;
-        }
-        this._customAfterStepListener.splice(i, 1);
-    }
-
-    public raycastClosest (worldRay: ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
+    raycastClosest (worldRay: ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
         setupFromAndTo(worldRay, options.maxDistance);
         toCannonRaycastOptions(raycastOpt, options);
         const hit = this._world.raycastClosest(from, to, raycastOpt, this._raycastResult);
@@ -105,7 +71,7 @@ export class CannonWorld implements PhysicsWorldBase {
         return hit;
     }
 
-    public raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         setupFromAndTo(worldRay, options.maxDistance);
         toCannonRaycastOptions(raycastOpt, options);
         const hit = this._world.raycastAll(from, to, raycastOpt, (result: CANNON.RaycastResult): any => {
@@ -116,24 +82,36 @@ export class CannonWorld implements PhysicsWorldBase {
         return hit
     }
 
-    // public addContactMaterial (contactMaterial: ContactMaterial) {
+    getSharedBody (node: Node): CannonSharedBody {
+        return CannonSharedBody.getSharedBody(node, this);
+    }
+
+    addSharedBody (sharedBody: CannonSharedBody) {
+        const i = this.bodies.indexOf(sharedBody);
+        if (i < 0) {
+            this.bodies.push(sharedBody);
+            this._world.addBody(sharedBody.body);
+        }
+    }
+
+    removeSharedBody (sharedBody: CannonSharedBody) {
+        const i = this.bodies.indexOf(sharedBody);
+        if (i >= 0) {
+            this.bodies.splice(i, 1);
+            this._world.remove(sharedBody.body);
+        }
+    }
+
+    //  addContactMaterial (contactMaterial: ContactMaterial) {
     //     this._cannonWorld.addContactMaterial(contactMaterial._getImpl());
     // }
 
-    public addConstraint (constraint: CannonConstraint) {
+    addConstraint (constraint: CannonConstraint) {
         this._world.addConstraint(constraint.impl);
     }
 
-    public removeConstraint (constraint: CannonConstraint) {
+    removeConstraint (constraint: CannonConstraint) {
         this._world.removeConstraint(constraint.impl);
-    }
-
-    private _callCustomBeforeSteps () {
-        this._customBeforeStepListener.forEach((fx) => fx());
-    }
-
-    private _callCustomAfterSteps () {
-        this._customAfterStepListener.forEach((fx) => fx());
     }
 }
 

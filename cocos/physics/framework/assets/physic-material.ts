@@ -5,9 +5,9 @@
  * @category physics
  */
 
-import { Asset } from '../../core/assets/asset';
-import { ccclass, property } from '../../core/data/class-decorator';
-import { math } from '../../core';
+import { Asset } from '../../../core/assets/asset';
+import { ccclass, property } from '../../../core/data/class-decorator';
+import { math } from '../../../core';
 
 @ccclass('cc.PhysicMaterial')
 export class PhysicMaterial extends Asset {

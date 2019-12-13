@@ -3,4 +3,6 @@
  */
 
 import '../cocos/physics/cannon/instantiate';
-export * from '../cocos/physics/export-api';
+
+import CANNON from '@cocos/cannon';
+if (window) window.CANNON = CANNON;

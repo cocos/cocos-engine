@@ -2,26 +2,25 @@
  * @category physics
  */
 
-import { ccclass, property } from '../../../core/data/class-decorator';
-import { EventTarget } from '../../../core/event';
-import { CallbacksInvoker, ICallbackTable } from '../../../core/event/callbacks-invoker';
-import { applyMixins, IEventTarget } from '../../../core/event/event-target-factory';
-import { createMap } from '../../../core/utils/js';
-import { Vec3 } from '../../../core/math';
-import { ICollisionCallback, ICollisionEvent, ITriggerCallback, ITriggerEvent, ShapeBase } from '../../api';
-import { CollisionCallback, CollisionEventType, TriggerCallback, TriggerEventType } from '../../export-api';
-import { ERigidBodyType } from '../../physic-enum';
-import { PhysicsBasedComponent } from '../detail/physics-based-component';
+import { ccclass, property } from '../../../../core/data/class-decorator';
+import { EventTarget } from '../../../../core/event';
+import { CallbacksInvoker, ICallbackTable } from '../../../../core/event/callbacks-invoker';
+import { applyMixins, IEventTarget } from '../../../../core/event/event-target-factory';
+import { createMap } from '../../../../core/utils/js';
+import { Vec3 } from '../../../../core/math';
+import { CollisionCallback, CollisionEventType, TriggerCallback, TriggerEventType } from '../../physics-interface';
 import { RigidBodyComponent } from '../rigid-body-component';
 import { PhysicMaterial } from '../../assets/physic-material';
-import { PhysicsSystem } from '../physics-system';
+import { PhysicsSystem } from '../../physics-system';
+import { Component, error } from '../../../../core';
+import { IBaseShape } from '../../../spec/i-physics-shape';
 
 /**
  * @zh
  * 碰撞器的基类
  */
 @ccclass('cc.ColliderComponent')
-export class ColliderComponent extends PhysicsBasedComponent implements IEventTarget {
+export class ColliderComponent extends Component implements IEventTarget {
 
     /**
      * @zh
@@ -101,15 +100,8 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
 
     public set isTrigger (value) {
         this._isTrigger = value;
-
         if (!CC_EDITOR) {
-            if (!CC_PHYSICS_BUILTIN) {
-                if (this.sharedBody) {
-                    const type = this._isTrigger ? ERigidBodyType.DYNAMIC : ERigidBodyType.STATIC;
-                    this.sharedBody.body.setType(type);
-                    this._shapeBase.setCollisionResponse!(!this._isTrigger);
-                }
-            }
+            this._shape.isTrigger = this._isTrigger;
         }
     }
 
@@ -130,16 +122,8 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
 
     public set center (value: Vec3) {
         Vec3.copy(this._center, value);
-
         if (!CC_EDITOR) {
-            const rigidBody = this.sharedBody.rigidBody as RigidBodyComponent | null;
-            if (rigidBody != null) {
-                Vec3.subtract(offset, this.node.worldPosition, rigidBody.node.worldPosition);
-                Vec3.add(offset, offset, this._center);
-                this._shapeBase.setCenter(offset);
-            } else {
-                this._shapeBase.setCenter(this._center);
-            }
+            this._shape.center = this._center;
         }
     }
 
@@ -150,40 +134,37 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
      * 获取碰撞器所绑定的刚体组件，可能为 null
      */
     public get attachedRigidbody (): RigidBodyComponent | null {
-        return this.sharedBody.rigidBody as RigidBodyComponent | null;
+        return this.shape.attachedRigidBody;
     }
 
-    protected _shapeBase!: ShapeBase;
-
-    private _isSharedMaterial: boolean = true;
-
-    private _trrigerCallback!: ITriggerCallback;
-
-    private _collisionCallBack!: ICollisionCallback;
+    public get shape () {
+        return this._shape;
+    }
 
     /// PRIVATE PROPERTY ///
 
+    protected _shape!: IBaseShape;
+
+    protected _isSharedMaterial: boolean = true;
+
     @property({ type: PhysicMaterial })
-    private _material: PhysicMaterial | null = null;
+    protected _material: PhysicMaterial | null = null;
 
     @property
-    private _isTrigger: boolean = false;
+    protected _isTrigger: boolean = false;
 
     @property
-    private readonly _center: Vec3 = new cc.Vec3(0, 0, 0);
+    protected readonly _center: Vec3 = new Vec3();
 
-    constructor () {
-        super();
-
-        if (!CC_EDITOR) {
-            this._trrigerCallback = this._onTrigger.bind(this);
-            if (!CC_PHYSICS_BUILTIN) {
-                this._collisionCallBack = this._onCollision.bind(this);
-            }
-        }
+    protected get _assertOnload (): boolean {
+        const r = this._isOnLoadCalled == 0;
+        if (r) { error('Physics Error: Please make sure that the node has been added to the scene'); }
+        return !r;
     }
 
-    /// PRIVATE METHOD ///
+    protected constructor () { super() }
+
+    /// EVENT INTERFACE ///
 
     /**
      * @zh
@@ -237,87 +218,122 @@ export class ColliderComponent extends PhysicsBasedComponent implements IEventTa
     public emit (key: TriggerEventType | CollisionEventType, ...args: any[]): void {
     }
 
+    /// GROUP MASK ///
+
+    /**
+     * @zh
+     * 设置分组值。
+     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public setGroup (v: number): void {
+        this._shape!.setGroup(v);
+    }
+
+    /**
+     * @zh
+     * 获取分组值。
+     * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public getGroup (): number {
+        return this._shape.getGroup();
+    }
+
+    /**
+     * @zh
+     * 添加分组值，可填要加入的 group。
+     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public addGroup (v: number) {
+        this._shape.addGroup(v);
+    }
+
+    /**
+     * @zh
+     * 减去分组值，可填要移除的 group。
+     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public removeGroup (v: number) {
+        this._shape.removeGroup(v);
+    }
+
+    /**
+     * @zh
+     * 获取掩码值。
+     * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public getMask (): number {
+        return this._shape.getMask();
+    }
+
+    /**
+     * @zh
+     * 设置掩码值。
+     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public setMask (v: number) {
+        this._shape.setMask(v);
+    }
+
+    /**
+     * @zh
+     * 添加掩码值，可填入需要检查的 group。
+     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public addMask (v: number) {
+        this._shape.addMask(v);
+    }
+
+    /**
+     * @zh
+     * 减去掩码值，可填入不需要检查的 group。
+     * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
+     */
+    public removeMask (v: number) {
+        this._shape.removeMask(v);
+    }
+
     /// COMPONENT LIFECYCLE ///
 
+    protected __preload () {
+        if (!CC_EDITOR) {
+            this._shape.__preload!(this);
+        }
+    }
+
     protected onLoad () {
-        if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
-            // init collider
-            this.isTrigger = this._isTrigger;
-            this.sharedMaterial = this._material == null ? PhysicsSystem.instance.defaultMaterial : this._material;
+        if (!CC_EDITOR) {
+            if (!CC_PHYSICS_BUILTIN) {
+                this.sharedMaterial = this._material == null ? PhysicsSystem.instance.defaultMaterial : this._material;
+            }
+            this._shape.onLoad!();
         }
 
-        this.center = this._center;
     }
 
     protected onEnable () {
-
         if (!CC_EDITOR) {
-            super.onEnable();
-
-            const rigidBody = this.sharedBody.rigidBody as RigidBodyComponent | null;
-            if (rigidBody != null) {
-                Vec3.subtract(offset, this.node.worldPosition, rigidBody.node.worldPosition);
-                Vec3.add(offset, offset, this._center);
-                this.sharedBody.body.addShape(this._shapeBase!, offset);
-            } else {
-                this.sharedBody.body.addShape(this._shapeBase!, this._center);
-            }
-            this.center = this._center;
-
-            this._shapeBase.addTriggerCallback(this._trrigerCallback);
-            if (!CC_PHYSICS_BUILTIN) {
-                this.sharedBody.body.addCollisionCallback(this._collisionCallBack);
-            }
-            // sync after add shape
-            this.sharedBody.syncPhysWithScene();
+            this._shape.onEnable!();
         }
     }
 
     protected onDisable () {
         if (!CC_EDITOR) {
-            this._shapeBase.removeTriggerCallback(this._trrigerCallback);
-            if (!CC_PHYSICS_BUILTIN) {
-                this.sharedBody.body.removeCollisionCllback(this._collisionCallBack);
-            }
-            this.sharedBody.body.removeShape(this._shapeBase!);
-
-            // TODO : Change to determine the reference count
-            if (this.sharedBody.isShapeOnly) {
-                super.onDisable();
-            }
+            this._shape.onDisable!();
         }
     }
 
     protected onDestroy () {
         if (!CC_EDITOR) {
-            this.sharedBody.body.removeShape(this._shapeBase!);
-            if (!CC_PHYSICS_BUILTIN) {
-                if (this._material != null) {
-                    if (this._material._uuid != PhysicsSystem.instance.defaultMaterial!._uuid) {                        
-                        this._material.destroy();
-                        this._material = null;
-                    }
-                }
-            }
+            this._shape.onDestroy!();
         }
-        super.onDestroy();
     }
 
     private _updateMaterial () {
-        if (!CC_PHYSICS_BUILTIN) {
-            this._shapeBase.material = this._material;
+        if (!CC_EDITOR) {
+            this._shape.material = this._material;
         }
     }
 
-    private _onTrigger (event: ITriggerEvent) {
-        this.emit(event.type, event);
-    }
-
-    private _onCollision (event: ICollisionEvent) {
-        this.emit(event.type, event);
-    }
 }
 
 applyMixins(ColliderComponent, [CallbacksInvoker, EventTarget]);
-
-const offset = new Vec3();
