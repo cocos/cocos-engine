@@ -682,6 +682,10 @@ export default class ParticleSystem3D extends RenderComponent {
         }
     }
 
+    _activateMaterial () {
+        
+    }
+
     _resetPosition () {
         this.node.getWorldPosition(this._oldWPos);
         Vec3.copy(this._curWPos, this._oldWPos);
