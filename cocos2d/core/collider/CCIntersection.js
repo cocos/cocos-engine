@@ -355,4 +355,35 @@ function pointLineDistance(point, start, end, isSegment) {
 Intersection.pointLineDistance = pointLineDistance;
 
 
+/**
+ * !#en Test line and line and return point of intersection
+ * !#zh 测试线段与线段是否相交,并返回交点
+ * @method lineLine
+ * @param {Vec2} a1 - The start point of the first line
+ * @param {Vec2} a2 - The end point of the first line
+ * @param {Vec2} b1 - The start point of the second line
+ * @param {Vec2} b2 - The end point of the second line
+ * @return {Vec2} point of intersetion. If no intersetion return null.
+ */
+function intersectsSegment(a1, a2, b1, b2) {
+    var area_a1a2b1 = (a1.x - b1.x) * (a2.y - b1.y) - (a1.y - b1.y) * (a2.x - b1.x);
+    var area_a1a2b2 = (a1.x - b2.x) * (a2.y - b2.y) - (a1.y - b2.y) * (a2.x - b2.x);
+    if (area_a1a2b1 * area_a1a2b2 >= 0) {
+        return null;
+    }
+
+    var area_b1b2a1 = (b1.x - a1.x) * (b2.y - a1.y) - (b1.y - a1.y) * (b2.x - a1.x);
+    var area_b1b2a2 = area_b1b2a1 + area_a1a2b1 - area_a1a2b2;
+    if (area_b1b2a1 * area_b1b2a2 >= 0) {
+        return null;
+    }
+
+    return { 
+        x: a1.x + (area_b1b2a1 / (area_a1a2b2 - area_a1a2b1)) * (a2.x - a1.x), 
+        y: a1.y + (area_b1b2a1 / (area_a1a2b2 - area_a1a2b1)) * (a2.y - a1.y)
+    };
+}
+
+Intersection.intersectsSegment = intersectsSegment;
+
 cc.Intersection = module.exports = Intersection;

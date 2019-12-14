@@ -419,7 +419,7 @@ let CollisionManager = cc.Class({
         for (let i = 0, l = colliders.length; i < l; i++) {
             let collider = colliders[i];
 
-            debugDrawer.strokeColor = cc.Color.WHITE;
+            debugDrawer.strokeColor = collider.color != null ? collider.color : cc.Color.WHITE;
             if (collider instanceof cc.BoxCollider || collider instanceof cc.PolygonCollider) {
                 let ps = collider.world.points;
                 if (ps.length > 0) {

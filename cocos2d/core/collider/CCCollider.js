@@ -41,6 +41,30 @@ var Collider = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.collider.editing'
         },
 
+        color: {
+            type:cc.Color,
+            default:cc.Color.WHITE,
+            serializable: true
+        },
+        /**
+         * world.aabb:cc.Rect
+         * world.preAabb:cc.Rect
+         * world.matrix:cc.mat4;
+         * 
+         * //CircleCollider
+         * world.radius:number;
+         * world.position:cc.Vec2;
+         * 
+         * //PolygonCollider && BoxCollider
+         * world.points:cc.Vec2[]
+         * 
+         */
+        world: {
+            type:Object,
+            default: null,
+            serializable: false,
+            visible: false
+        },
         /**
          * !#en Tag. If a node has several collider components, you can judge which type of collider is collided according to the tag.
          * !#zh 标签。当一个节点上有多个碰撞组件时，在发生碰撞后，可以使用此标签来判断是节点上的哪个碰撞组件被碰撞了。
@@ -62,6 +86,43 @@ var Collider = cc.Class({
 
     onEnable: function () {
         cc.director.getCollisionManager().addCollider(this);
+    },
+
+    /**
+     * - Check whether a specific point is inside a custom bounding box in the Collider.
+     * The coordinate system of the point is the inner coordinate system of the world.
+     * @param x - The horizontal coordinate of the point.
+     * @param y - The vertical coordinate of the point.
+     * @version DragonBones 5.0
+     * @language en_US
+     */
+    /**
+     * - 检查特定点是否在碰撞体的自定义边界框内。
+     * 点的坐标系为世界坐标系。
+     * @param px - 点的水平坐标。
+     * @param py - 点的垂直坐标。
+     * @language zh_CN
+     */
+    containsPoint(px, py) {
+        if(!this.world){
+            return false;
+        }
+
+        var point = cc.v2(px, py);
+        if(this instanceof cc.BoxCollider){
+            console.log("cc.BoxCollider containsPoint");
+            return cc.Intersection.pointInPolygon(point, this.world.points);
+        }
+        else if(this instanceof cc.CircleCollider){
+            console.log("cc.CircleCollider containsPoint");
+            let magSqr = point.subSelf(this.world.position).magSqr();
+            return (magSqr <= (this.world.radius * this.world.radius));
+        }
+        else if(this instanceof cc.PolygonCollider){
+            console.log("cc.PolygonCollider containsPoint");
+            return cc.Intersection.pointInPolygon(point, this.world.points);
+        }
+        return false;
     }
 });
 
