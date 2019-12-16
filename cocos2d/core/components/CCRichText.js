@@ -68,10 +68,11 @@ let pool = new js.Pool(function (node) {
     }
     if (!cc.isValid(node)) {
         return false;
-    }
-    else if (node.getComponent(cc.LabelOutline)) {
-        node.destroy();
-        return false;
+    } else {
+        let outline = node.getComponent(cc.LabelOutline);
+        if (outline) {
+            outline.width = 0;
+        }
     }
 
     return true;
