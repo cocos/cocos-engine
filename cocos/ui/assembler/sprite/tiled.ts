@@ -23,6 +23,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @hidden
+ */
+
 import { Mat4, Vec3, Color } from '../../../core/math';
 import { RenderData, IRenderData } from '../../../core/renderer/ui/render-data';
 import { UI } from '../../../core/renderer/ui/ui';

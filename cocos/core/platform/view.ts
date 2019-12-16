@@ -25,6 +25,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category core
+ */
+
 import '../data/class';
 import { EventTarget } from '../event/event-target';
 import { Rect, Size } from '../math';

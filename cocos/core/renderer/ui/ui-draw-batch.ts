@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { UI } from "./ui";
 import { Camera } from "../scene/camera";
 import { MeshBuffer } from "../../../ui";

@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category component
+ */
+
 import { Component } from './component';
 import { EventHandler } from './component-event-handler';
 import { ccclass, property, menu, executionOrder } from '../data/class-decorator';

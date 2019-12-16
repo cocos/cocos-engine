@@ -23,6 +23,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @hidden
+ */
+
 import { ccclass } from '../../../core/data/class-decorator';
 import sys from '../../../core/platform/sys';
 import { misc } from '../../../core/utils';

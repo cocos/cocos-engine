@@ -25,6 +25,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category core
+ */
+
 import { Vec2 } from '../math';
 
 /**

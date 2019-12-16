@@ -12,7 +12,7 @@ program
 
 const mode = 'modules';
 const docsName = 'Creator-3d-API';
-const exclude = '"**/cocos/**/+(webgl|webgl2|utils|builtin|renderer|scene|models|misc|ammo|shapes|constraint|cannon|graphics|webview|platform|profiler)/*.ts"';
+const exclude = '"**/cocos/**/+(webgl|webgl2|utils|builtin|renderer|scene|models|misc|ammo|shapes|constraint|cannon|graphics|profiler)/*.ts"';
 const readme = 'none';
 //const exclude = '"**/cocos/**/index.ts"';
 
