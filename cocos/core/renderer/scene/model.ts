@@ -32,6 +32,8 @@ function getUniformBlockSize (block: GFXUniformBlock): number {
     return size;
 }
 
+let MODEL_ID = 0;
+
 /**
  * A representation of a model
  */
@@ -145,7 +147,7 @@ export class Model {
     protected _scene: RenderScene | null = null;
     protected _node: INode | null = null;
     protected _transform: INode | null = null;
-    protected _id: number = -1;
+    protected _id: number = MODEL_ID++;
     protected _enabled: boolean = true;
     protected _visFlags = Layers.Enum.NONE;
     protected _cameraID = -1;
@@ -205,12 +207,10 @@ export class Model {
 
     public attachToScene (scene: RenderScene) {
         this._scene = scene;
-        this._id = this._scene.generateModelId();
     }
 
     public detachFromScene () {
         this._scene = null;
-        this._id = -1;
     }
 
     public getSubModel (idx: number) {
