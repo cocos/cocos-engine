@@ -278,7 +278,7 @@ export default class TTFAssembler extends Assembler2D {
         if (_shadowComp) {
             this._setupShadow();
         }
-        if (_outlineComp) {
+        if (_outlineComp && _outlineComp.width > 0) {
             this._setupOutline();
         }
 
@@ -289,7 +289,7 @@ export default class TTFAssembler extends Assembler2D {
             if (_shadowComp) {
                 // multiple lines need to be drawn outline and fill text
                 if (isMultiple) {
-                    if (_outlineComp) {
+                    if (_outlineComp && _outlineComp.width > 0) {
                         _context.strokeText(_splitedStrings[i], drawTextPosX, drawTextPosY);
                     }
                     _context.fillText(_splitedStrings[i], drawTextPosX, drawTextPosY);
@@ -319,7 +319,7 @@ export default class TTFAssembler extends Assembler2D {
         for (let i = 0; i < _splitedStrings.length; ++i) {
             drawTextPosX = startPosition.x;
             drawTextPosY = startPosition.y + i * lineHeight;
-            if (_outlineComp) {
+            if (_outlineComp && _outlineComp.width > 0) {
                 _context.strokeText(_splitedStrings[i], drawTextPosX, drawTextPosY);
             }
             _context.fillText(_splitedStrings[i], drawTextPosX, drawTextPosY);
