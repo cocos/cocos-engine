@@ -106,6 +106,7 @@ export class AmmoSharedBody {
                     (this.bodyStruct.wrappedShapes.length == 0 && this.wrappedBody != null && !this.wrappedBody.rigidBody.enabledInHierarchy)
 
                 if (isRemoveBody) {
+                    this.body.clearState(); // clear velocity etc.
                     this.bodyIndex = -1;
                     this.wrappedWorld.removeSharedBody(this);
                 }
@@ -186,8 +187,8 @@ export class AmmoSharedBody {
         this.ghost.setUserIndex(this.ghostStruct.id);
 
         /** DEBUG */
-        // this.body.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
-        // this.ghost.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
+        this.body.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
+        this.ghost.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
     }
 
     addShape (v: AmmoShape, isTrigger: boolean) {

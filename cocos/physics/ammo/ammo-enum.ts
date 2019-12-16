@@ -28,6 +28,7 @@ export enum AmmoCollisionObjectStates {
     ACTIVE_TAG = 1,
     ISLAND_SLEEPING = 2,
     WANTS_DEACTIVATION = 3,
+    // 静止休眠
     DISABLE_DEACTIVATION = 4,
     DISABLE_SIMULATION = 5,
 }
