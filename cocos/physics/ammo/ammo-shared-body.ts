@@ -1,6 +1,6 @@
 import Ammo from '@cocos/ammo';
 import { Quat, Vec3 } from '../../core/math';
-import { TransformDirtyBit } from '../../core/scene-graph/node-enum';
+import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Node } from '../../core';
 import { AmmoWorld } from './ammo-world';
 import { AmmoRigidBody } from './ammo-rigid-body';
@@ -230,7 +230,7 @@ export class AmmoSharedBody {
             wt.setRotation(this.bodyStruct.worldQuat);
             this.body.activate();
 
-            if (this.node.hasChangedFlags & TransformDirtyBit.SCALE) {
+            if (this.node.hasChangedFlags & TransformBit.SCALE) {
                 for (let i = 0; i < this.bodyStruct.wrappedShapes.length; i++) {
                     this.bodyStruct.wrappedShapes[i].updateScale();
                 }
@@ -272,7 +272,7 @@ export class AmmoSharedBody {
             wt1.setRotation(this.ghostStruct.worldQuat);
             this.ghost.activate();
 
-            if (this.node.hasChangedFlags & TransformDirtyBit.SCALE) {
+            if (this.node.hasChangedFlags & TransformBit.SCALE) {
                 for (let i = 0; i < this.ghostStruct.wrappedShapes.length; i++) {
                     this.ghostStruct.wrappedShapes[i].updateScale();
                 }
