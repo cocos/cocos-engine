@@ -1112,9 +1112,8 @@ export class ScrollViewComponent extends ViewGroupComponent {
         const adjustedMove = this._flattenVectorByDirection(deltaMove);
         _tempPos.set(this.getContentPosition());
         _tempPos.add(adjustedMove);
-
+        _tempPos.set(Math.floor(_tempPos.x), Math.floor(_tempPos.y), _tempPos.z);
         this.setContentPosition(_tempPos);
-
         const outOfBoundary = this._getHowMuchOutOfBoundary();
         this._updateScrollBar(outOfBoundary);
 
