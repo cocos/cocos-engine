@@ -27,22 +27,21 @@
  * @category ui
  */
 
-import {
-    ccclass,
-    property,
-} from '../../../core/data/class-decorator';
-import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
+import { RenderableComponent } from '../../../core/3d/framework/renderable-component';
+import { ccclass, property } from '../../../core/data/class-decorator';
 import { Color } from '../../../core/math';
+import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { ccenum } from '../../../core/value-types/enum';
+import { Material } from '../../assets';
 import { GFXBlendFactor } from '../../gfx/define';
+import { MaterialInstance } from '../../renderer';
+import { IAssembler, IAssemblerManager } from '../../renderer/ui/base';
 import { RenderData } from '../../renderer/ui/render-data';
 import { UI } from '../../renderer/ui/ui';
-import { Material } from '../../assets';
-import { RenderableComponent } from '../../../core/3d/framework/renderable-component';
-import { IAssembler, IAssemblerManager } from '../../renderer/ui/base';
-import { UIComponent } from './ui-component';
-import { TransformBit } from '../../scene-graph/node-enum';
 import { Node } from '../../scene-graph';
+import { TransformBit } from '../../scene-graph/node-enum';
+import { IMaterial } from '../../utils/material-interface';
+import { UIComponent } from './ui-component';
 
 // hack
 ccenum(GFXBlendFactor);
@@ -226,7 +225,7 @@ export class UIRenderComponent extends UIComponent {
     protected _renderFlag = true;
     // 特殊渲染节点，给一些不在节点树上的组件做依赖渲染（例如 mask 组件内置两个 graphics 来渲染）
     protected _delegateSrc: Node | null = null;
-    protected _material: Material | null = null;
+    protected _material: IMaterial | null = null;
     protected _instanceMaterialType = InstanceMaterialType.ADDCOLORANDTEXTURE;
     protected _blendTemplate = {
         blendState: {
@@ -360,7 +359,7 @@ export class UIRenderComponent extends UIComponent {
         }
     }
 
-    protected _updateMaterial (material: Material | null) {
+    protected _updateMaterial (material: IMaterial | null) {
         this._material = material;
 
         this._updateBlendFunc();
@@ -396,19 +395,19 @@ export class UIRenderComponent extends UIComponent {
     }
 
     protected _instanceMaterial () {
-        let mat: Material | null = null;
+        let mat: IMaterial | null = null;
         if (this._sharedMaterial) {
-            mat = Material.getInstantiatedMaterial(this._sharedMaterial, new RenderableComponent(), CC_EDITOR ? true : false);
+            mat = new MaterialInstance(this._sharedMaterial, new RenderableComponent());
         } else {
             switch (this._instanceMaterialType){
                 case InstanceMaterialType.ADDCOLOR:
-                    mat = Material.getInstantiatedMaterial(cc.builtinResMgr.get('ui-base-material'), new RenderableComponent(), CC_EDITOR ? true : false);
+                    mat = new MaterialInstance(cc.builtinResMgr.get('ui-base-material'), new RenderableComponent());
                     break;
                 case InstanceMaterialType.ADDCOLORANDTEXTURE:
-                    mat = Material.getInstantiatedMaterial(cc.builtinResMgr.get('ui-sprite-material'), new RenderableComponent(), CC_EDITOR ? true : false);
+                    mat = new MaterialInstance(cc.builtinResMgr.get('ui-sprite-material'), new RenderableComponent());
                     break;
                 case InstanceMaterialType.GRAYSCALE:
-                    mat = Material.getInstantiatedMaterial(cc.builtinResMgr.get('ui-sprite-gray-material'), new RenderableComponent(), CC_EDITOR ? true : false);
+                    mat = new MaterialInstance(cc.builtinResMgr.get('ui-sprite-gray-material'), new RenderableComponent());
                     break;
             }
         }

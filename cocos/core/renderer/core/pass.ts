@@ -32,12 +32,10 @@ import { EffectAsset, IPassInfo, IPassStates, IPropertyInfo } from '../../assets
 import { TextureBase } from '../../assets/texture-base';
 import { GFXBindingLayout, IGFXBinding, IGFXBindingLayoutInfo } from '../../gfx/binding-layout';
 import { GFXBuffer, IGFXBufferInfo } from '../../gfx/buffer';
-import { GFXBindingType, GFXBufferUsageBit, GFXDynamicState,
-    GFXGetTypeSize, GFXMemoryUsageBit, GFXPrimitiveMode, GFXType } from '../../gfx/define';
+import { GFXBindingType, GFXBufferUsageBit, GFXDynamicState, GFXGetTypeSize, GFXMemoryUsageBit, GFXPrimitiveMode, GFXType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXPipelineLayout, IGFXPipelineLayoutInfo } from '../../gfx/pipeline-layout';
-import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState,
-    GFXInputState, GFXPipelineState, GFXRasterizerState, IGFXPipelineStateInfo } from '../../gfx/pipeline-state';
+import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState, GFXInputState, GFXPipelineState, GFXRasterizerState, IGFXPipelineStateInfo } from '../../gfx/pipeline-state';
 import { GFXRenderPass } from '../../gfx/render-pass';
 import { GFXSampler } from '../../gfx/sampler';
 import { GFXShader } from '../../gfx/shader';
@@ -46,9 +44,8 @@ import { BatchedBuffer } from '../../pipeline/batched-buffer';
 import { isBuiltinBinding, RenderPassStage, RenderPriority } from '../../pipeline/define';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
-import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
-import { customizeType, getBindingFromHandle, getBindingTypeFromHandle,
-    getOffsetFromHandle, getTypeFromHandle, type2default, type2reader, type2writer } from './pass-utils';
+import { generatePassPSOHash, IBlock, IPass, IPassDynamics, IPSOHashInfo } from '../../utils/pass-interface';
+import { customizeType, getBindingFromHandle, getBindingTypeFromHandle, getOffsetFromHandle, getTypeFromHandle, type2default, type2reader, type2writer } from './pass-utils';
 import { IProgramInfo, IShaderResources, programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
 
@@ -61,40 +58,16 @@ export interface IPassInfoFull extends IPassInfo {
 }
 export type PassOverrides = RecursivePartial<IPassStates>;
 
-export interface IBlock {
-    buffer: ArrayBuffer;
-    view: Float32Array;
-    dirty: boolean;
-}
-
 interface IPassResources {
     bindingLayout: GFXBindingLayout;
     pipelineLayout: GFXPipelineLayout;
     pipelineState: GFXPipelineState;
 }
 
-interface IPassDynamics {
-    [type: number]: {
-        dirty: boolean,
-        value: number[],
-    };
-}
-
 interface IEffectInfo {
     techIdx: number;
     defines: IDefineMap[];
     states: PassOverrides[];
-}
-
-interface IPSOHashInfo {
-    program: string;
-    defines: IDefineMap;
-    stage: RenderPassStage;
-    primitive: GFXPrimitiveMode;
-    rasterizerState: GFXRasterizerState;
-    depthStencilState: GFXDepthStencilState;
-    blendState: GFXBlendState;
-    dynamicStates: GFXDynamicState[];
 }
 
 const _bfInfo: IGFXBufferInfo = {
@@ -132,7 +105,7 @@ const _psoInfo: IGFXPipelineStateInfo & IPSOHashInfo = {
  * @zh
  * 渲染 pass，储存实际描述绘制过程的各项资源。
  */
-export class Pass {
+export class Pass implements IPass {
     /**
      * @zh
      * 根据 handle 获取 unform 的绑定类型（UBO 或贴图等）。
@@ -181,27 +154,13 @@ export class Pass {
             const bsInfo = Object.assign({}, info.blendState);
             if (bsInfo.targets) {
                 bsInfo.targets.forEach((t, i) => Object.assign(
-                bs.targets[i] || (bs.targets[i] = new GFXBlendTarget()), t));
+                    bs.targets[i] || (bs.targets[i] = new GFXBlendTarget()), t));
             }
             delete bsInfo.targets;
             Object.assign(bs, bsInfo);
         }
         Object.assign(target._rs, info.rasterizerState);
         Object.assign(target._dss, info.depthStencilState);
-    }
-
-    /**
-     * @zh
-     * 根据指定 PSO 信息计算 hash
-     * @param psoInfo 用于计算 PSO hash 的最小必要信息
-     */
-    public static getPSOHash (psoInfo: IPSOHashInfo) {
-        const shaderKey = programLib.getKey(psoInfo.program, psoInfo.defines);
-        let res = `${shaderKey},${psoInfo.stage},${psoInfo.primitive}`;
-        res += serializeBlendState(psoInfo.blendState);
-        res += serializeDepthStencilState(psoInfo.depthStencilState);
-        res += serializeRasterizerState(psoInfo.rasterizerState);
-        return murmurhash2_32_gc(res, 666);
     }
 
     protected static getOffsetFromHandle = getOffsetFromHandle;
@@ -229,12 +188,21 @@ export class Pass {
     protected _shaderInfo: IProgramInfo = null!;
     protected _defines: IDefineMap = {};
     protected _properties: Record<string, IPropertyInfo> = {};
+    protected _hash: number = -1;
     // external references
     protected _device: GFXDevice;
     protected _renderPass: GFXRenderPass | null = null;
     protected _shader: GFXShader | null = null;
     // for dynamic batching
     protected _batchedBuffer: BatchedBuffer | null = null;
+
+    get parent (): IPass | null {
+        return null;
+    }
+
+    get psoHash (): number {
+        return this._hash;
+    }
 
     public constructor (device: GFXDevice) {
         this._device = device;
@@ -280,6 +248,8 @@ export class Pass {
         this.resetUBOs();
         this.resetTextures();
         this.tryCompile();
+
+        this._hash = generatePassPSOHash(this);
     }
 
     /**
@@ -358,7 +328,7 @@ export class Pass {
         const stride = GFXGetTypeSize(type) >> 2;
         const block = this._blocks[binding];
         let ofs = Pass.getOffsetFromHandle(handle);
-        for (let i = 0; i < value.length; i++, ofs += stride) {
+        for (let i = 0; i < value.length; i++ , ofs += stride) {
             if (value[i] === null) { continue; }
             type2writer[type](block.view, value[i], ofs);
         }
@@ -432,11 +402,7 @@ export class Pass {
      * @param value 管线状态重载值。
      */
     public overridePipelineStates (original: IPassInfo, overrides: PassOverrides) {
-        this._bs = new GFXBlendState();
-        this._dss = new GFXDepthStencilState();
-        this._rs = new GFXRasterizerState();
-        Pass.fillinPipelineInfo(this, original);
-        Pass.fillinPipelineInfo(this, overrides);
+        console.error('Pass:' + this._programName + ' cann\'t be overwritten.Please use pass instance to do so.');
     }
 
     /**
@@ -540,14 +506,10 @@ export class Pass {
         if (!pipeline) { return null; }
         this._renderPass = pipeline.getRenderPass(this._stage);
         if (!this._renderPass) { console.warn(`illegal pass stage.`); return null; }
-        let defines = this._defines;
-        if (defineOverrides) {
-            if (saveOverrides) { Object.assign(this._defines, defineOverrides); }
-            else { Object.assign(defineOverrides, this._defines); defines = defineOverrides; }
-        }
-        const res = programLib.getGFXShader(this._device, this._programName, defines, pipeline);
+        const res = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
         if (!res.shader) { console.warn(`create shader ${this._programName} failed`); return null; }
         if (saveOverrides) { this._shader = res.shader; this._bindings = res.bindings; }
+        this._hash = generatePassPSOHash(this);
         return res;
     }
 
@@ -555,16 +517,12 @@ export class Pass {
      * @zh
      * 根据当前 pass 持有的信息创建 [[GFXPipelineState]]。
      */
-    public createPipelineState (defineOverrides?: IDefineMap, stateOverrides?: IPassStates): GFXPipelineState | null {
+    public createPipelineState (): GFXPipelineState | null {
         if ((!this._renderPass || !this._shader || !this._bindings.length) && !this.tryCompile()) {
             console.warn(`pass resources not complete, create PSO failed`);
             return null;
         }
-        let shader = this._shader!; _blInfo.bindings = this._bindings;
-        if (defineOverrides) {
-            const res = this.tryCompile(defineOverrides, false);
-            if (res) { shader = res.shader; _blInfo.bindings = res.bindings; }
-        }
+        _blInfo.bindings = this._bindings;
         // bind resources
         const bindingLayout = this._device.createBindingLayout(_blInfo);
         for (const b in this._buffers) {
@@ -593,21 +551,29 @@ export class Pass {
         _plInfo.layouts = [bindingLayout];
         const pipelineLayout = this._device.createPipelineLayout(_plInfo);
         // create pipeline state
-        _psoInfo.primitive = stateOverrides && stateOverrides.primitive || this._primitive;
-        _psoInfo.shader = shader;
-        _psoInfo.rasterizerState = stateOverrides && stateOverrides.rasterizerState || this._rs;
-        _psoInfo.depthStencilState = stateOverrides && stateOverrides.depthStencilState || this._dss;
-        _psoInfo.blendState = stateOverrides && stateOverrides.blendState || this._bs;
-        _psoInfo.dynamicStates = stateOverrides && stateOverrides.dynamicStates || this._dynamicStates;
+        _psoInfo.primitive = this._primitive;
+        _psoInfo.shader = this._shader!;
+        _psoInfo.rasterizerState = this._rs;
+        _psoInfo.depthStencilState = this._dss;
+        _psoInfo.blendState = this._bs;
+        _psoInfo.dynamicStates = this._dynamicStates;
         _psoInfo.layout = pipelineLayout;
         _psoInfo.renderPass = this._renderPass!;
         _psoInfo.program = this._programName;
-        _psoInfo.defines = defineOverrides || this._defines;
+        _psoInfo.defines = this._defines;
         _psoInfo.stage = this._stage;
-        _psoInfo.hash = Pass.getPSOHash(_psoInfo);
+        _psoInfo.hash = this._hash;
         const pipelineState = this._device.createPipelineState(_psoInfo);
         this._resources.push({ bindingLayout, pipelineLayout, pipelineState });
         return pipelineState;
+    }
+
+    public beginChangeStatesSilently (): void {
+
+    }
+
+    public endChangeStatesSilently (): void {
+
     }
 
     /**
@@ -667,27 +633,4 @@ export class Pass {
     get dynamics () { return this._dynamics; }
     get batchedBuffer () { return this._batchedBuffer; }
     get blocks () { return this._blocks; }
-}
-
-function serializeBlendState (bs: GFXBlendState) {
-    let res = `,bs,${bs.isA2C},${bs.blendColor}`;
-    for (const t of bs.targets) {
-        res += `,bt,${t.blend},${t.blendEq},${t.blendAlphaEq},${t.blendColorMask}`;
-        res += `,${t.blendSrc},${t.blendDst},${t.blendSrcAlpha},${t.blendDstAlpha}`;
-    }
-    return res;
-}
-
-function serializeRasterizerState (rs: GFXRasterizerState) {
-    const res = `,rs,${rs.cullMode},${rs.depthBias},${rs.isFrontFaceCCW}`;
-    return res;
-}
-
-function serializeDepthStencilState (dss: GFXDepthStencilState) {
-    let res = `,dss,${dss.depthTest},${dss.depthWrite},${dss.depthFunc}`;
-    res += `,${dss.stencilTestFront},${dss.stencilFuncFront},${dss.stencilRefFront},${dss.stencilReadMaskFront}`;
-    res += `,${dss.stencilFailOpFront},${dss.stencilZFailOpFront},${dss.stencilPassOpFront},${dss.stencilWriteMaskFront}`;
-    res += `,${dss.stencilTestBack},${dss.stencilFuncBack},${dss.stencilRefBack},${dss.stencilReadMaskBack}`;
-    res += `,${dss.stencilFailOpBack},${dss.stencilZFailOpBack},${dss.stencilPassOpBack},${dss.stencilWriteMaskBack}`;
-    return res;
 }

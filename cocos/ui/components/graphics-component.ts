@@ -28,18 +28,17 @@
  * @category ui
  */
 
-import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
-import { Color } from '../../core/math';
-import { Model } from '../../core/renderer';
-import { UI } from '../../core/renderer/ui/ui';
-import { Material } from '../../core/assets/material';
+import { builtinResMgr } from '../../core/3d/builtin';
 import { RenderableComponent } from '../../core/3d/framework/renderable-component';
+import { InstanceMaterialType, UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
+import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { director } from '../../core/director';
+import { Color } from '../../core/math';
+import { MaterialInstance, Model } from '../../core/renderer';
 import { IAssembler } from '../../core/renderer/ui/base';
+import { UI } from '../../core/renderer/ui/ui';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
-import { InstanceMaterialType, UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
-import { director } from '../../core/director';
-import { builtinResMgr } from '../../core/3d/builtin';
 
 /**
  * @zh
@@ -474,13 +473,12 @@ export class GraphicsComponent extends UIRenderComponent {
      * 辅助材质实例化。可用于只取数据而无实体情况下渲染使用。特殊情况可参考：[[instanceMaterial]]
      */
     public helpInstanceMaterial () {
-        let mat: Material | null = null;
+        let mat: MaterialInstance | null = null;
         if (this._sharedMaterial) {
-            mat = Material.getInstantiatedMaterial(this._sharedMaterial, new RenderableComponent(), CC_EDITOR ? true : false);
+            mat = new MaterialInstance(this._sharedMaterial, new RenderableComponent());
         } else {
-            mat = Material.getInstantiatedMaterial(builtinResMgr.get('ui-base-material'), new RenderableComponent(), CC_EDITOR ? true : false);
+            mat = new MaterialInstance(builtinResMgr.get('ui-base-material'), new RenderableComponent());
             mat.recompileShaders({ USE_LOCAL: true });
-            mat.onLoaded();
         }
 
         this._updateMaterial(mat);

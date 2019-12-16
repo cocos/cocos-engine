@@ -32,9 +32,9 @@ import { GFXDevice } from '../../gfx/device';
 import { GFXTexture } from '../../gfx/texture';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { Vec4 } from '../../math';
-import { IBlock } from '../../renderer/core/pass';
 import { Layers } from '../../scene-graph';
 import { Node } from '../../scene-graph/node';
+import { IBlock } from '../pass-interface';
 import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
 
@@ -339,10 +339,11 @@ export class Profiler {
         const handle = pass.getBinding('mainTexture');
         pass.bindTextureView(handle!, this._textureView!);
 
-        const binding = pass.getBinding('digits')!;
-        this.digitsData = pass.blocks[binding];
-
         modelCom.material = _material;
+        const passInstance = modelCom.material.passes[0];
+        const binding = passInstance.getBinding('digits')!;
+        this.digitsData = passInstance.blocks[binding];
+
         modelCom.node.layer = Layers.Enum.PROFILER;
     }
 

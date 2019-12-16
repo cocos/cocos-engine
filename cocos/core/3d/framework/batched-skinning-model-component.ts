@@ -81,7 +81,7 @@ export class SkinningModelUnit {
         if (!comp) { return; }
         this.mesh = comp.mesh;
         this.skeleton = comp.skeleton;
-        this.material = comp.getSharedMaterial(0);
+        this.material = comp.getMaterial(0);
     }
     get copyFrom () {
         return null;
@@ -164,7 +164,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
 
     public cookMaterials () {
         if (!this._batchMaterial) {
-            this._batchMaterial = this.getSharedMaterial(0);
+            this._batchMaterial = this.getMaterial(0);
         }
         const mat = this.getMaterial(0);
         if (!mat || !this._batchMaterial || !this._batchMaterial.effectAsset) {

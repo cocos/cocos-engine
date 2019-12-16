@@ -1,4 +1,3 @@
-import { Material } from '../../assets/material';
 import { IRenderingSubmesh } from '../../assets/mesh';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXCommandBufferType, GFXStatus } from '../../gfx/define';
@@ -6,12 +5,13 @@ import { GFXDevice } from '../../gfx/device';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../../gfx/input-assembler';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { RenderPriority } from '../../pipeline/define';
-import { Pass } from '../core/pass';
+import { IMaterial } from '../../utils/material-interface';
+import { IPass } from '../../utils/pass-interface';
 
 export class SubModel {
     protected _subMeshObject: IRenderingSubmesh | null;
     protected _inputAssembler: GFXInputAssembler | null;
-    private _material: Material | null;
+    private _material: IMaterial | null;
     private _cmdBuffers: GFXCommandBuffer[];
     private _psos: GFXPipelineState[] | null;
     private _priority: RenderPriority;
@@ -25,7 +25,7 @@ export class SubModel {
         this._priority = RenderPriority.DEFAULT;
     }
 
-    public initialize (subMesh: IRenderingSubmesh, mat: Material, psos: GFXPipelineState[]) {
+    public initialize (subMesh: IRenderingSubmesh, mat: IMaterial, psos: GFXPipelineState[]) {
         this._psos = psos;
         this.subMeshData = subMesh;
 
@@ -87,7 +87,7 @@ export class SubModel {
         this._psos = val;
     }
 
-    set material (material: Material | null) {
+    set material (material: IMaterial | null) {
         this._material = material;
         if (material == null) {
             return;
@@ -95,7 +95,7 @@ export class SubModel {
         this.updateCommandBuffer();
     }
 
-    get material (): Material | null {
+    get material (): IMaterial | null {
         return this._material;
     }
 
@@ -147,7 +147,7 @@ export class SubModel {
         cmdBuff.end();
     }
 
-    get passes (): Pass[] {
+    get passes (): IPass[] {
         return this._material!.passes;
     }
 

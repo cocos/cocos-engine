@@ -6,7 +6,9 @@ import { GFXAttributeName, GFXFormat } from '../../core/gfx/define';
 import { IGFXAttribute } from '../../core/gfx/input-assembler';
 import { Mat4, Vec2, Vec3, Vec4 } from '../../core/math';
 import { RecyclePool } from '../../core/memop';
+import { MaterialInstance } from '../../core/renderer';
 import { IDefineMap } from '../../core/renderer/core/pass';
+import { IMaterial } from '../../core/utils/material-interface';
 import { RenderMode, Space } from '../enum';
 import ParticleBatchModel from '../models/particle-batch-model';
 import Particle from '../particle';
@@ -177,7 +179,7 @@ export default class ParticleSystemRenderer {
     }
 
     public set particleMaterial (val) {
-        this._particleSystem.setMaterial(val, 0);
+        this._particleSystem.setMaterial(0, val);
     }
 
     /**
@@ -196,7 +198,7 @@ export default class ParticleSystemRenderer {
     }
 
     public set trailMaterial (val) {
-        this._particleSystem.setMaterial(val, 1);
+        this._particleSystem.setMaterial(1, val);
     }
 
     private _defines: IDefineMap;
@@ -207,8 +209,8 @@ export default class ParticleSystemRenderer {
     private attrs: any[];
     private _vertAttrs: IGFXAttribute[] = [];
     private _particles: RecyclePool | null = null;
-    private _defaultMat: Material | null = null;
-    private _defaultTrailMat: Material | null = null;
+    private _defaultMat: IMaterial | null = null;
+    private _defaultTrailMat: IMaterial | null = null;
 
     constructor () {
         this._model = null;
@@ -301,7 +303,7 @@ export default class ParticleSystemRenderer {
                 this._particleSystem.node.getWorldScale(this._node_scale);
                 break;
         }
-        const mat: Material | null = this._particleSystem.sharedMaterial ? this.particleMaterial : this._defaultMat;
+        const mat: Material | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;
         mat!.setProperty('scale', this._node_scale);
         if (this._particleSystem.velocityOvertimeModule.enable) {
             this._particleSystem.velocityOvertimeModule.update(this._particleSystem._simulationSpace, _tempWorldTrans);
@@ -455,12 +457,12 @@ export default class ParticleSystemRenderer {
             return;
         }
         if (this._particleSystem.sharedMaterial != null && this._particleSystem.sharedMaterial._effectAsset._name.indexOf('particle') === -1) {
-            this._particleSystem.setMaterial(null, 0, false);
+            this._particleSystem.setMaterial(0, null);
         }
         if (this._particleSystem.sharedMaterial == null && this._defaultMat == null) {
-            this._defaultMat = Material.getInstantiatedMaterial(builtinResMgr.get<Material>('default-particle-material'), this._particleSystem, true);
+            this._defaultMat = new MaterialInstance(builtinResMgr.get<Material>('default-particle-material'), this._particleSystem);
         }
-        const mat: Material | null = this._particleSystem.sharedMaterial ? this.particleMaterial : this._defaultMat;
+        const mat: IMaterial | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;
         if (this._particleSystem._simulationSpace === Space.World) {
             this._defines[CC_USE_WORLD_SPACE] = true;
         } else {
@@ -491,7 +493,7 @@ export default class ParticleSystemRenderer {
         }
         mat!.recompileShaders(this._defines);
         if (this._model) {
-            this._model.setSubModelMaterial(0, this._particleSystem.sharedMaterial || this._defaultMat);
+            this._model.setSubModelMaterial(0, mat);
         }
     }
 
@@ -502,9 +504,9 @@ export default class ParticleSystemRenderer {
             } else {
                 this._trailDefines[CC_USE_WORLD_SPACE] = false;
             }
-            let mat = this.trailMaterial;
+            let mat = this._particleSystem.getMaterialInstance(1);
             if (mat === null && this._defaultTrailMat === null) {
-                this._defaultTrailMat = Material.getInstantiatedMaterial(builtinResMgr.get<Material>('default-trail-material'), this._particleSystem, true);
+                this._defaultTrailMat = new MaterialInstance(builtinResMgr.get<Material>('default-trail-material'), this._particleSystem);
             }
             if (mat === null) {
                 mat = this._defaultTrailMat;

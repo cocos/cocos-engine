@@ -198,7 +198,7 @@ export class PlanarShadows {
         }
     }
 
-    public onPipelineChange () {
+    public onGlobalPipelineStateChanged () {
         const cbs = this._cbRecord.values();
         let cbRes = cbs.next();
         while (!cbRes.done) {
@@ -216,7 +216,7 @@ export class PlanarShadows {
     }
 
     public destroy () {
-        this.onPipelineChange();
+        this.onGlobalPipelineStateChanged();
         this._passNormal.destroy();
         this._passSkinning.destroy();
     }
@@ -224,7 +224,7 @@ export class PlanarShadows {
     protected _createPSO (model: Model) {
         const pass = model instanceof SkinningModel ? this._passSkinning : this._passNormal;
         // @ts-ignore TS2445
-        const pso = model._doCreatePSO(pass);
+        const pso = model.createPipelineState(pass);
         model.insertImplantPSO(pso); // add back to model to sync binding layouts
         pso.pipelineLayout.layouts[0].update();
         return pso;

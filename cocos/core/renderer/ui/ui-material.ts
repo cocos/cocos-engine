@@ -30,14 +30,15 @@ import { Material } from '../../assets/material';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { Pool } from '../../memop';
 import { Pass } from '../../renderer/core/pass';
+import { IMaterial } from '../../utils/material-interface';
 
 export interface IUIMaterialInfo {
-    material: Material;
+    material: IMaterial;
 }
 
 export class UIMaterial {
 
-    public get material (): Material {
+    public get material (): IMaterial {
         return this._material!;
     }
 
@@ -62,7 +63,7 @@ export class UIMaterial {
 
         this._material = new Material();
 
-        this._material.copy(info.material);
+        this._material.copy(info.material instanceof Material ? info.material : info.material.parent as Material);
 
         this._pass = this._material.passes[0];
         this._pass.update();

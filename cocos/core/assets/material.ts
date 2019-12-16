@@ -29,17 +29,12 @@
  */
 
 import { ccclass, property } from '../../core/data/class-decorator';
-import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { builtinResMgr } from '../3d/builtin/init';
 import { RenderableComponent } from '../3d/framework/renderable-component';
-import { GFXBindingType } from '../gfx/define';
-import { GFXTextureView } from '../gfx/texture-view';
 import { IDefineMap, Pass, PassOverrides } from '../renderer/core/pass';
-import { samplerLib } from '../renderer/core/sampler-lib';
+import { _uploadProperty, generateMaterailHash, IMaterial } from '../utils/material-interface';
 import { Asset } from './asset';
 import { EffectAsset } from './effect-asset';
-import { SpriteFrame } from './sprite-frame';
-import { TextureBase } from './texture-base';
 
 /**
  * @zh
@@ -79,40 +74,7 @@ interface IMaterialInfo {
  * 材质资源类，负责指定每个模型的材质信息。
  */
 @ccclass('cc.Material')
-export class Material extends Asset {
-    /**
-     * @zh
-     * 获取材质资源的实例，应当不会需要手动调用这个函数。
-     */
-    public static getInstantiatedMaterial (mat: Material, rndCom: RenderableComponent, inEditor: boolean) {
-        if (mat._owner === rndCom) {
-            return mat;
-        } else {
-            const instance = new Material();
-            instance.copy(mat);
-            instance._native = mat._native + ' (Instance)';
-            instance._owner = rndCom;
-            if (inEditor) {
-                instance._uuid = mat._uuid;
-            }
-            return instance;
-        }
-    }
-
-    @property(EffectAsset)
-    protected _effectAsset: EffectAsset | null = null;
-    @property
-    protected _techIdx = 0;
-    @property
-    protected _defines: IDefineMap[] = [];
-    @property
-    protected _states: PassOverrides[] = [];
-    @property
-    protected _props: Array<Record<string, any>> = [];
-
-    protected _passes: Pass[] = [];
-    protected _owner: RenderableComponent | null = null;
-    protected _hash = 0;
+export class Material extends Asset implements IMaterial {
 
     /**
      * @zh
@@ -153,6 +115,28 @@ export class Material extends Asset {
     get hash () {
         return this._hash;
     }
+
+    get parent (): IMaterial | null {
+        return null;
+    }
+
+    get owner (): RenderableComponent | null {
+        return null;
+    }
+
+    @property(EffectAsset)
+    protected _effectAsset: EffectAsset | null = null;
+    @property
+    protected _techIdx = 0;
+    @property
+    protected _defines: IDefineMap[] = [];
+    @property
+    protected _states: PassOverrides[] = [];
+    @property
+    protected _props: Array<Record<string, any>> = [];
+
+    protected _passes: Pass[] = [];
+    protected _hash = 0;
 
     constructor () {
         super();
@@ -229,7 +213,6 @@ export class Material extends Asset {
         } else {
             this._passes[passIdx].tryCompile(overrides);
         }
-        this._onPassesChange();
     }
 
     /**
@@ -251,7 +234,6 @@ export class Material extends Asset {
             this._states[passIdx] = overrides;
             this._passes[passIdx].overridePipelineStates(passInfos[passIdx], overrides);
         }
-        this._onPassesChange();
     }
 
     /**
@@ -283,7 +265,7 @@ export class Material extends Asset {
             const len = passes.length;
             for (let i = 0; i < len; i++) {
                 const pass = passes[i];
-                if (this._uploadProperty(pass, name, val)) {
+                if (_uploadProperty(pass, name, val)) {
                     this._props[i][name] = val;
                     success = true;
                 }
@@ -291,7 +273,7 @@ export class Material extends Asset {
         } else {
             if (passIdx >= this._passes.length) { console.warn(`illegal pass index: ${passIdx}.`); return; }
             const pass = this._passes[passIdx];
-            if (this._uploadProperty(pass, name, val)) {
+            if (_uploadProperty(pass, name, val)) {
                 this._props[passIdx][name] = val;
                 success = true;
             }
@@ -351,6 +333,10 @@ export class Material extends Asset {
         this._update();
     }
 
+    public _onPassStateChanged () {
+        this._hash = generateMaterailHash(this);
+    }
+
     protected _prepareInfo (patch: object | object[], cur: object[]) {
         if (!Array.isArray(patch)) { // fill all the passes if not specified
             const len = this._effectAsset ? this._effectAsset.techniques[this._techIdx].passes.length : 1;
@@ -381,7 +367,7 @@ export class Material extends Asset {
                     let props = this._props[pass.idxInTech];
                     if (!props) { props = this._props[i] = {}; }
                     for (const p in props) {
-                        this._uploadProperty(pass, p, props[p]);
+                        _uploadProperty(pass, p, props[p]);
                     }
                 });
             } else {
@@ -391,50 +377,7 @@ export class Material extends Asset {
             const missing = builtinResMgr.get<Material>('missing-effect-material');
             if (missing) { this._passes = missing._passes.slice(); }
         }
-        this._onPassesChange();
-    }
-
-    protected _uploadProperty (pass: Pass, name: string, val: any) {
-        const handle = pass.getHandle(name);
-        if (handle === undefined) { return false; }
-        const bindingType = Pass.getBindingTypeFromHandle(handle);
-        if (bindingType === GFXBindingType.UNIFORM_BUFFER) {
-            if (Array.isArray(val)) {
-                pass.setUniformArray(handle, val);
-            } else {
-                pass.setUniform(handle, val);
-            }
-        } else if (bindingType === GFXBindingType.SAMPLER) {
-            const binding = Pass.getBindingFromHandle(handle);
-            if (val instanceof GFXTextureView) {
-                pass.bindTextureView(binding, val);
-            } else if (val instanceof TextureBase || val instanceof SpriteFrame) {
-                const textureView: GFXTextureView | null = val.getGFXTextureView();
-                if (!textureView || !textureView.texture.width || !textureView.texture.height) {
-                    // console.warn(`material '${this._uuid}' received incomplete texture asset '${val._uuid}'`);
-                    return false;
-                }
-                pass.bindTextureView(binding, textureView);
-                if (val instanceof TextureBase) {
-                    pass.bindSampler(binding, samplerLib.getSampler(cc.game._gfxDevice, val.getSamplerHash()));
-                }
-            }
-        }
-        return true;
-    }
-
-    protected _onPassesChange () {
-        let str = '';
-        for (const pass of this._passes) {
-            str += Pass.getPSOHash(pass);
-        }
-        this._hash = murmurhash2_32_gc(str, 666);
-        if (this._owner) {
-            const comp = this._owner;
-            const index = comp.sharedMaterials.findIndex((m) => m === this);
-            // @ts-ignore
-            if (index >= 0) { comp._onRebuildPSO(index, this); }
-        }
+        this._hash = generateMaterailHash(this);
     }
 }
 

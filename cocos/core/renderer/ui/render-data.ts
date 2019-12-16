@@ -30,6 +30,7 @@
 import { Material } from '../../assets';
 import { Color } from '../../math';
 import { Pool, RecyclePool } from '../../memop';
+import { IMaterial } from '../../utils/material-interface';
 
 export interface IRenderData {
     x: number;
@@ -41,7 +42,7 @@ export interface IRenderData {
 }
 
 export class BaseRenderData {
-    public material: Material | null = null;
+    public material: IMaterial | null = null;
     public vertexCount: number = 0;
     public indiceCount: number = 0;
 }

@@ -42,6 +42,7 @@ import { Model } from '../../renderer/scene/model';
 import { RenderScene } from '../../renderer/scene/render-scene';
 import { Root } from '../../root';
 import { Layers, Node } from '../../scene-graph';
+import { IMaterial } from '../../utils/material-interface';
 import { MeshBuffer } from './mesh-buffer';
 import { StencilManager } from './stencil-manager';
 import { UIBatchModel } from './ui-batch-model';
@@ -95,7 +96,7 @@ export class UI {
     private _modelInUse: CachedArray<UIBatchModel>;
     // batcher
     private _emptyMaterial = new Material();
-    private _currMaterial: Material = this._emptyMaterial;
+    private _currMaterial: IMaterial = this._emptyMaterial;
     private _currTexView: GFXTextureView | null = null;
     private _currCanvas: CanvasComponent | null = null;
     private _currMeshBuffer: MeshBuffer | null = null;
@@ -163,7 +164,7 @@ export class UI {
         return Object.getOwnPropertyDescriptor(Object.getPrototypeOf(this), 'renderScene')!.get!.bind(this);
     }
 
-    public _getUIMaterial (mat: Material): UIMaterial {
+    public _getUIMaterial (mat: IMaterial): UIMaterial {
         if (this._uiMaterials.has(mat.hash)) {
             return this._uiMaterials.get(mat.hash)!;
         } else {
@@ -363,7 +364,7 @@ export class UI {
      * @param model - 提交渲染的 model 数据。
      * @param mat - 提交渲染的材质。
      */
-    public commitModel (comp: UIComponent, model: Model | null, mat: Material | null) {
+    public commitModel (comp: UIComponent, model: Model | null, mat: IMaterial | null) {
         // if the last comp is spriteComp, previous comps should be batched.
         if (this._currMaterial !== this._emptyMaterial) {
             this.autoMergeBatches();

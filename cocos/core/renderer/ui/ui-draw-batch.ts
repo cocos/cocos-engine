@@ -2,20 +2,20 @@
  * @hidden
  */
 
-import { UI } from "./ui";
-import { Camera } from "../scene/camera";
-import { MeshBuffer } from "../../../ui";
-import { Model } from "../scene/model";
-import { Material } from "../../assets";
-import { GFXTextureView, GFXPipelineState } from "../../gfx";
-import { GFXBindingLayout } from "../../gfx/binding-layout";
+import { MeshBuffer } from '../../../ui';
+import { GFXPipelineState, GFXTextureView } from '../../gfx';
+import { GFXBindingLayout } from '../../gfx/binding-layout';
 import { Node } from '../../scene-graph';
+import { IMaterial } from '../../utils/material-interface';
+import { Camera } from '../scene/camera';
+import { Model } from '../scene/model';
+import { UI } from './ui';
 
 export class UIDrawBatch {
     public camera: Camera | null = null;
     public bufferBatch: MeshBuffer | null = null;
     public model: Model | null = null;
-    public material: Material | null = null;
+    public material: IMaterial | null = null;
     public texView: GFXTextureView | null = null;
     public firstIdx: number = 0;
     public idxCount: number = 0;

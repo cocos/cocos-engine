@@ -10,6 +10,8 @@ export * from './core/pass';
 export * from './core/program-lib';
 export * from './core/sampler-lib';
 export * from './core/texture-buffer-pool';
+export { MaterialInstance } from './core/material-instance';
+export { PassInstance } from './core/pass-instance';
 
 export * from './models/skeletal-animation-utils';
 export * from './models/skinning-model';

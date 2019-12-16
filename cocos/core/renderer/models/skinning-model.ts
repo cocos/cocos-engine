@@ -35,12 +35,12 @@ import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { Vec3 } from '../../math';
 import { UBOSkinningAnimation, UBOSkinningTexture, UniformJointsTexture } from '../../pipeline/define';
-import { Pass } from '../core/pass';
+import { Node } from '../../scene-graph';
+import { IPass } from '../../utils/pass-interface';
 import { samplerLib } from '../core/sampler-lib';
 import { DataPoolManager } from '../data-pool-manager';
 import { Model } from '../scene/model';
 import { IAnimInfo, IJointsTextureHandle, jointsTextureSamplerHash, selectJointsMediumType } from './skeletal-animation-utils';
-import { Node } from '../../scene-graph';
 
 interface IJointsInfo {
     buffer: GFXBuffer | null;
@@ -158,8 +158,12 @@ export class SkinningModel extends Model {
         }
     }
 
-    protected _doCreatePSO (pass: Pass) {
-        const pso = super._doCreatePSO(pass, { CC_USE_SKINNING: selectJointsMediumType(this._device) });
+    protected createPipelineState (pass: IPass) {
+        pass.beginChangeStatesSilently();
+        // warning:this behavior is now forbidden.
+        pass.tryCompile({ CC_USE_SKINNING: selectJointsMediumType(this._device) });
+        pass.endChangeStatesSilently();
+        const pso = super.createPipelineState(pass);
         const { buffer, texture, animInfo } = this._jointsMedium;
         const bindingLayout = pso.pipelineLayout.layouts[0];
         bindingLayout.bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);

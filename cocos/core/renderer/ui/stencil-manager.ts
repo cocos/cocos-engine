@@ -26,9 +26,11 @@
  * @hidden
  */
 
-import { GFXComparisonFunc, GFXStencilOp } from '../../gfx/define';
-import { Pass } from '../core/pass';
 import { Material } from '../../assets/material';
+import { GFXComparisonFunc, GFXStencilOp } from '../../gfx/define';
+import { IMaterial } from '../../utils/material-interface';
+import { IPass } from '../../utils/pass-interface';
+import { Pass } from '../core/pass';
 
 // import { GFXStencilOp } from '../../gfx/define';
 
@@ -118,7 +120,7 @@ export class StencilManager {
         }
     }
 
-    public handleMaterial (mat: Material){
+    public handleMaterial (mat: IMaterial){
         const pattern = this._stencilPattern;
         if (this.stage === Stage.DISABLED) {
             pattern.stencilTest = false;
@@ -204,7 +206,7 @@ export class StencilManager {
         this.stage = Stage.DISABLED;
     }
 
-    private _changed (pass: Pass) {
+    private _changed (pass: IPass) {
         const stencilState = pass.depthStencilState;
         const pattern = this._stencilPattern;
         if (pattern.stencilTest !== stencilState.stencilTestFront ||

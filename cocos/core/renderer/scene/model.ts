@@ -1,6 +1,5 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 import { IPassStates } from '../../assets/effect-asset';
-import { Material } from '../../assets/material';
 import { IRenderingSubmesh } from '../../assets/mesh';
 import { aabb } from '../../geom-utils';
 import { GFXBuffer } from '../../gfx/buffer';
@@ -11,12 +10,14 @@ import { GFXUniformBlock } from '../../gfx/shader';
 import { Mat4, Vec3 } from '../../math';
 import { Pool } from '../../memop';
 import { IInternalBindingInst, UBOForwardLight, UBOLocal } from '../../pipeline/define';
+import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
-import { IDefineMap, Pass } from '../core/pass';
+import { IMaterial } from '../../utils/material-interface';
+import { IPass } from '../../utils/pass-interface';
+import { IDefineMap } from '../core/pass';
 import { customizationManager } from './customization-manager';
 import { RenderScene } from './render-scene';
 import { SubModel } from './submodel';
-import { Node } from '../../scene-graph';
 
 const m4_1 = new Mat4();
 
@@ -156,8 +157,8 @@ export class Model {
     protected _modelBounds: aabb | null = null;
     protected _subModels: SubModel[] = [];
     protected _implantPSOs: GFXPipelineState[] = [];
-    protected _matPSORecord = new Map<Material, GFXPipelineState[]>();
-    protected _matRefCount = new Map<Material, number>();
+    protected _matPSORecord = new Map<IMaterial, GFXPipelineState[]>();
+    protected _matRefCount = new Map<IMaterial, number>();
     protected _uboLocal = new UBOLocal();
     protected _localUBO: GFXBuffer | null = null;
     protected _localBindings = new Map<string, IInternalBindingInst>();
@@ -272,7 +273,7 @@ export class Model {
         this._modelBounds.transform(this._transform._mat, this._transform._pos, this._transform._rot, this._transform._scale, this._worldBounds);
     }
 
-    public initSubModel (idx: number, subMeshData: IRenderingSubmesh, mat: Material) {
+    public initSubModel (idx: number, subMeshData: IRenderingSubmesh, mat: IMaterial) {
         this.initLocalBindings(mat);
         if (this._subModels[idx] == null) {
             this._subModels[idx] = _subMeshPool.alloc();
@@ -293,15 +294,15 @@ export class Model {
         this._subModels[idx].subMeshData = subMeshData;
     }
 
-    public setSubModelMaterial (idx: number, mat: Material | null) {
+    public setSubModelMaterial (idx: number, mat: IMaterial | null) {
         if (this._subModels[idx] == null) {
             return;
         }
         this.initLocalBindings(mat);
         if (this._subModels[idx].material === mat) {
             if (mat) {
-                this.destroyPipelineState(mat, this._matPSORecord.get(mat)!);
-                this._matPSORecord.set(mat, this.createPipelineState(mat));
+                this.destroyPipelineStates(mat, this._matPSORecord.get(mat)!);
+                this._matPSORecord.set(mat, this.createPipelineStates(mat));
             }
         } else {
             if (this._subModels[idx].material) {
@@ -315,15 +316,17 @@ export class Model {
         this._subModels[idx].material = mat;
     }
 
-    public onPipelineChange () {
+    public onGlobalPipelineStateChanged () {
         for (const m of this._subModels) {
             const mat = m.material!;
             const psos = this._matPSORecord.get(mat)!;
             for (let i = 0; i < mat.passes.length; i++) {
                 const pass = mat.passes[i];
+                pass.beginChangeStatesSilently();
                 pass.tryCompile(); // force update shaders
+                pass.endChangeStatesSilently();
                 pass.destroyPipelineState(psos[i]);
-                psos[i] = this._doCreatePSO(pass);
+                psos[i] = this.createPipelineState(pass);
                 psos[i].pipelineLayout.layouts[0].update();
             }
             m.updateCommandBuffer();
@@ -339,17 +342,17 @@ export class Model {
         if (idx >= 0) { this._implantPSOs.splice(idx, 1); }
     }
 
-    protected createPipelineState (mat: Material): GFXPipelineState[] {
+    protected createPipelineStates (mat: IMaterial): GFXPipelineState[] {
         const ret = new Array<GFXPipelineState>(mat.passes.length);
         for (let i = 0; i < ret.length; i++) {
             const pass = mat.passes[i];
             for (const cus of pass.customizations) { customizationManager.attach(cus, this); }
-            ret[i] = this._doCreatePSO(pass);
+            ret[i] = this.createPipelineState(pass);
         }
         return ret;
     }
 
-    protected destroyPipelineState (mat: Material, pso: GFXPipelineState[]) {
+    protected destroyPipelineStates (mat: IMaterial, pso: GFXPipelineState[]) {
         for (let i = 0; i < mat.passes.length; i++) {
             const pass = mat.passes[i];
             pass.destroyPipelineState(pso[i]);
@@ -357,11 +360,16 @@ export class Model {
         }
     }
 
-    protected _doCreatePSO (pass: Pass, defineOverrides?: IDefineMap, stateOverrides?: IPassStates) {
+    protected createPipelineState (pass: IPass, defineOverrides?: IDefineMap, stateOverrides?: IPassStates) {
         defineOverrides = defineOverrides || {};
-        if (pass.blendState.targets[0].blend) { this._isDynamicBatching = false; }
-        defineOverrides.CC_USE_BATCHING = this._isDynamicBatching;
-        const pso = pass.createPipelineState(defineOverrides, stateOverrides)!;
+        if (pass.blendState.targets[0].blend) {
+            this._isDynamicBatching = false;
+        }
+        pass.beginChangeStatesSilently();
+        // warning:this behavior is now forbidden.
+        pass.tryCompile({ CC_USE_BATCHING: this._isDynamicBatching });
+        pass.endChangeStatesSilently();
+        const pso = pass.createPipelineState()!;
         pso.pipelineLayout.layouts[0].bindBuffer(UBOLocal.BLOCK.binding, this._localBindings.get(UBOLocal.BLOCK.name)!.buffer!);
         if (this._localBindings.has(UBOForwardLight.BLOCK.name)) {
             pso.pipelineLayout.layouts[0].bindBuffer(UBOForwardLight.BLOCK.binding, this._localBindings.get(UBOForwardLight.BLOCK.name)!.buffer!);
@@ -369,7 +377,7 @@ export class Model {
         return pso;
     }
 
-    protected onSetLocalBindings (mat: Material) {
+    protected onSetLocalBindings (mat: IMaterial) {
         if (!this._localBindings.has(UBOLocal.BLOCK.name)) {
             this._localBindings.set(UBOLocal.BLOCK.name, {
                 type: GFXBindingType.UNIFORM_BUFFER,
@@ -393,7 +401,7 @@ export class Model {
         }
     }
 
-    protected initLocalBindings (mat: Material | null) {
+    protected initLocalBindings (mat: IMaterial | null) {
         if (mat) {
             this.onSetLocalBindings(mat);
             const lbIter = this._localBindings.values();
@@ -412,7 +420,7 @@ export class Model {
         }
     }
 
-    private _updatePass (psos: GFXPipelineState[], mat: Material) {
+    private _updatePass (psos: GFXPipelineState[], mat: IMaterial) {
         for (let i = 0; i < mat.passes.length; i++) {
             mat.passes[i].update();
         }
@@ -421,19 +429,19 @@ export class Model {
         }
     }
 
-    private allocatePSO (mat: Material) {
+    private allocatePSO (mat: IMaterial) {
         if (this._matRefCount.get(mat) == null) {
             this._matRefCount.set(mat, 1);
-            this._matPSORecord.set(mat, this.createPipelineState(mat));
+            this._matPSORecord.set(mat, this.createPipelineStates(mat));
         } else {
             this._matRefCount.set(mat, this._matRefCount.get(mat)! + 1);
         }
     }
 
-    private releasePSO (mat: Material) {
+    private releasePSO (mat: IMaterial) {
         this._matRefCount.set(mat, this._matRefCount.get(mat)! - 1);
         if (this._matRefCount.get(mat) === 0) {
-            this.destroyPipelineState(mat, this._matPSORecord.get(mat)!);
+            this.destroyPipelineStates(mat, this._matPSORecord.get(mat)!);
             this._matPSORecord.delete(mat);
             this._matRefCount.delete(mat);
         }
