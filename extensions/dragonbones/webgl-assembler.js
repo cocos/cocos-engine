@@ -73,7 +73,7 @@ function _getSlotMaterial (tex, blendMode) {
     // Add useModel flag due to if pre same db useModel but next db no useModel,
     // then next db will multiply model matrix more than once.
     let key = tex.getId() + src + dst + useModel;
-    let baseMaterial = _comp.sharedMaterials[0];
+    let baseMaterial = _comp._materials[0];
     if (!baseMaterial) {
         return null;
     }
@@ -81,19 +81,18 @@ function _getSlotMaterial (tex, blendMode) {
 
     let material = materialCache[key];
     if (!material) {
-        let baseKey = baseMaterial._hash;
+        let baseKey = baseMaterial.getHash();
         if (!materialCache[baseKey]) {
             material = baseMaterial;
         } else {
-            material = new cc.Material();
-            material.copy(baseMaterial);
+            material = cc.MaterialVariant.create(baseMaterial);
         }
 
         material.define('CC_USE_MODEL', useModel);
         material.setProperty('texture', tex);
 
         // update blend function
-        material.effect.setBlend(
+        material.setBlend(
             true,
             gfx.BLEND_FUNC_ADD,
             src, dst,
@@ -155,7 +154,7 @@ export default class ArmatureAssembler extends Assembler {
                 continue;
             }
 
-            if (_mustFlush || material._hash !== _renderer.material._hash) {
+            if (_mustFlush || material.getHash() !== _renderer.material.getHash()) {
                 _mustFlush = false;
                 _renderer._flush();
                 _renderer.node = _node;
@@ -240,7 +239,7 @@ export default class ArmatureAssembler extends Assembler {
         for (let i = 0, n = segments.length; i < n; i++) {
             let segInfo = segments[i];
             material = _getSlotMaterial(segInfo.tex, segInfo.blendMode);
-            if (_mustFlush || material._hash !== _renderer.material._hash) {
+            if (_mustFlush || material.getHash() !== _renderer.material.getHash()) {
                 _mustFlush = false;
                 _renderer._flush();
                 _renderer.node = _node;
@@ -357,11 +356,19 @@ export default class ArmatureAssembler extends Assembler {
             }
         }
         
+        // sync attached node matrix
+        renderer.worldMatDirty++;
+        comp.attachUtil._syncAttachedNode();
+
         // Clear temp var.
         _node = undefined;
         _buffer = undefined;
         _renderer = undefined;
         _comp = undefined;
+    }
+
+    postFillBuffers (comp, renderer) {
+        renderer.worldMatDirty--;
     }
 }
 

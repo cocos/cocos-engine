@@ -328,7 +328,7 @@ Object.assign(WebEditBoxImpl.prototype, {
         _vec3.x = -node._anchorPoint.x * this._w;
         _vec3.y = -node._anchorPoint.y * this._h;
     
-        Mat4.translate(worldMat, worldMat, _vec3);
+        Mat4.transform(worldMat, worldMat, _vec3);
 
         // can't find camera in editor
         let cameraMat;

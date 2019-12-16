@@ -24,15 +24,19 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import MaterialVariant from '../../cocos2d/core/assets/material/material-variant';
+
 const RenderComponent = require('../../cocos2d/core/components/CCRenderComponent');
-const Material = require('../../cocos2d/core/assets/material/CCMaterial');
 
 let EventTarget = require('../../cocos2d/core/event/event-target');
 
 const Node = require('../../cocos2d/core/CCNode');
 const Graphics = require('../../cocos2d/core/graphics/graphics');
+const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
+const FLAG_POST_RENDER = RenderFlow.FLAG_POST_RENDER;
 
 let ArmatureCache = require('./ArmatureCache');
+let AttachUtil = require('./AttachUtil');
 
 /**
  * @module dragonBones
@@ -96,7 +100,7 @@ let ArmatureDisplay = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/DragonBones',
-        //help: 'app://docs/html/components/dragonbones.html', // TODO help document of dragonBones
+        inspector: 'packages://inspector/inspectors/comps/skeleton2d.js',
     },
     
     statics: {
@@ -392,6 +396,7 @@ let ArmatureDisplay = cc.Class({
         this._eventTarget = new EventTarget();
         this._materialCache = {};
         this._inited = false;
+        this.attachUtil = new AttachUtil();
         this._factory = dragonBones.CCFactory.getInstance();
     },
 
@@ -422,10 +427,16 @@ let ArmatureDisplay = cc.Class({
         }
     },
 
-    // override
+    // override base class setMaterial to clear material cache
     setMaterial (index, material) {
         this._super(index, material);
         this._materialCache = {};
+    },
+
+    // override base class disableRender to clear post render flag
+    disableRender () {
+        this._super();
+        this.node._renderFlag &= ~FLAG_POST_RENDER;
     },
 
     __preload () {
@@ -481,7 +492,6 @@ let ArmatureDisplay = cc.Class({
      * armatureDisplay.setAnimationCacheMode(dragonBones.ArmatureDisplay.AnimationCacheMode.SHARED_CACHE);
      */
     setAnimationCacheMode (cacheMode) {
-        if (CC_JSB) return;
         if (this._preCacheMode !== cacheMode) {
             this._cacheMode = cacheMode;
             this._buildArmature();
@@ -634,12 +644,12 @@ let ArmatureDisplay = cc.Class({
         }
 
         // Get material
-        let material = this.sharedMaterials[0];
+        let material = this._materials[0];
         if (!material) {
-            material = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
+            material = MaterialVariant.createWithBuiltin('2d-sprite');
         }
         else {
-            material = Material.getInstantiatedMaterial(material, this);
+            material = MaterialVariant.create(material, this);
         }
 
         material.define('CC_USE_MODEL', true);
@@ -654,6 +664,7 @@ let ArmatureDisplay = cc.Class({
         // only when component's onEnable function has been invoke, need to enable render
         if (this.node && this.node._renderComponent == this) {
             this.markForRender(true);
+            this.node._renderFlag |= FLAG_POST_RENDER;
         }
     },
 
@@ -709,6 +720,8 @@ let ArmatureDisplay = cc.Class({
             this._displayProxy.setEventTarget(this._eventTarget);
             this._armature = this._displayProxy._armature;
             this._armature.animation.timeScale = this.timeScale;
+            // If change mode or armature, armature must insert into clock.
+            this._factory._dragonBones.clock.add(this._armature);
         }
 
         if (this._cacheMode !== AnimationCacheMode.REALTIME && this.debugBones) {
@@ -716,6 +729,9 @@ let ArmatureDisplay = cc.Class({
         }
 
         this._updateBatch();
+        this.attachUtil.init(this);
+        this.attachUtil._associateAttachedNode();
+
         if (this.animationName) {
             this.playAnimation(this.animationName, this.playTimes);
         }
@@ -801,6 +817,9 @@ let ArmatureDisplay = cc.Class({
                 this._accTime = 0;
                 this._playCount = 0;
                 this._frameCache = cache;
+                if (this.attachUtil._hasAttachedNode()) {
+                    this._frameCache.enableCacheAttachedInfo();
+                }
                 this._frameCache.updateToFrame(0);
                 this._playing = true;
                 this._curFrame = this._frameCache.frames[0];

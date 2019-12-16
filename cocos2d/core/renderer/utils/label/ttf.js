@@ -219,6 +219,8 @@ export default class TTFAssembler extends Assembler2D {
             // free space in vertical direction
             let blank = drawStartY + _canvasPadding.height + _fontSize - _canvasSize.height;
             if (_vAlign === macro.VerticalTextAlignment.BOTTOM) {
+                // Unlike BMFont, needs to reserve space below.
+                blank += textUtils.BASELINE_RATIO / 2 * _fontSize;
                 // BOTTOM
                 firstLinelabelY -= blank;
             } else {
@@ -306,7 +308,7 @@ export default class TTFAssembler extends Assembler2D {
                 } else {
                     _drawUnderlinePos.x = startPosition.x;
                 }
-                _drawUnderlinePos.y = drawTextPosY;
+                _drawUnderlinePos.y = drawTextPosY + _underlineThickness;
                 this._drawUnderline(_drawUnderlineWidth);
             }
         }
