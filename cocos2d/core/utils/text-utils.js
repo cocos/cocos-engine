@@ -30,6 +30,47 @@ if (CC_RUNTIME) {
     _BASELINE_RATIO = -0.05;
 }
 
+function LRUCache (size) {
+    this.maxSize = size;
+    this.count = 0;
+    this.data = {};
+    this.records = [];
+}
+
+LRUCache.prototype.clear = function () {
+    this.count = 0;
+    this.data = {};
+    this.records = [];
+}
+
+LRUCache.prototype.put = function (key) {
+    let length = this.records.length;
+    if (length >= this.maxSize) {
+        let del = this.records[length - 1];
+        this.records.length--;
+        delete this.data[del];
+    }
+
+    this.data[key] = {};
+    this.records.splice(0, 0, key);
+}
+
+LRUCache.prototype.get = function (key) {
+    if (this.data[key] && this.records[0] !== key) {
+        let index = this.records.indexOf(key);
+        this.records.splice(index, 1);
+        this.records.splice(0, 0, key);
+    }
+
+    return this.data[key];
+}
+
+LRUCache.prototype.addSubData = function (key, subkey, value) {
+    this.data[key][subkey] = value;
+}
+
+let measureCache = new LRUCache(10);
+
 var textUtils = {
 
     BASELINE_RATIO: _BASELINE_RATIO,
@@ -59,8 +100,21 @@ var textUtils = {
     },
 
     safeMeasureText: function (ctx, string) {
-        var metric = ctx.measureText(string);
-        return metric && metric.width || 0;
+        let font = ctx.font;
+        let cache = measureCache.get(font);
+        if (cache) {
+            if (cache[string]) {
+                return cache[string];
+            } 
+        } else {
+            measureCache.put(font);
+        }
+
+        let metric = ctx.measureText(string);
+        let width = metric && metric.width || 0;
+        measureCache.addSubData(font, string, width);
+
+        return width;
     },
 
     fragmentText: function (stringToken, allWidth, maxWidth, measureText) {
