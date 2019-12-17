@@ -461,9 +461,19 @@ let TiledLayer = cc.Class({
     },
 
     _positionForOrthoAt (x, y) {
+        let offsetX = 0, offsetY = 0;
+        let index = Math.floor(x) + Math.floor(y) * this._layerSize.width;
+        let gid = this._tiles[index];
+        if (gid) {
+            let tileset = this._texGrids[gid].tileset;
+            let offset = tileset.tileOffset;
+            offsetX = offset.x;
+            offsetY = offset.y;
+        }
+
         return cc.v2(
-            x * this._mapTileSize.width,
-            (this._layerSize.height - y - 1) * this._mapTileSize.height
+            x * this._mapTileSize.width + offsetX,
+            (this._layerSize.height - y - 1) * this._mapTileSize.height - offsetY
         );
     },
 
