@@ -167,7 +167,7 @@ Simulator.prototype.emitParticle = function (pos) {
     particle.startPos.y = pos.y;
 
     // aspect ratio
-    particle.aspectRatio = psys.aspectRatio || 1;
+    particle.aspectRatio = psys._aspectRatio || 1;
 
     // direction
     let worldRotation = getWorldRotation(psys.node);
@@ -244,7 +244,8 @@ Simulator.prototype.updateParticleBuffer = function (particle, pos, buffer, offs
     let uintbuf = buffer._uintVData;
 
     let x = pos.x, y = pos.y;
-    let width = height = particle.size;
+    let width = particle.size;
+    let height = width;
     let aspectRatio = particle.aspectRatio;
     aspectRatio > 1 ? (height = width / aspectRatio) : (width = height * aspectRatio);
     let halfWidth = width / 2;
