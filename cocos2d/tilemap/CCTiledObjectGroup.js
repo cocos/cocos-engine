@@ -166,15 +166,15 @@ let TiledObjectGroup = cc.Class({
                 for (let pi = 0; pi < points.length; pi++) {
                     points[pi].y *= -1;
                 }
-            }
+            }         
 
             if (Orientation.ISO !== mapInfo.orientation) {
                 object.y = height - object.y;
             } else {
                 let posIdxX = object.x / tileSize.width * 2;
                 let posIdxY = object.y / tileSize.height;
-                object.x = tileSize.width / 2 * (mapSize.width + posIdxX - posIdxY);
-                object.y = tileSize.height / 2 * (mapSize.height * 2 - posIdxX - posIdxY);
+                object.x = tileSize.width * 0.5 * (mapSize.height + posIdxX - posIdxY);
+                object.y = tileSize.height * 0.5 * (mapSize.width + mapSize.height - posIdxX - posIdxY);
             }
 
             if (objType === TMXObjectType.TEXT) {
@@ -220,6 +220,10 @@ let TiledObjectGroup = cc.Class({
                 let imgName = "img" + object.id;
                 aliveNodes[imgName] = true;
                 let imgNode = this.node.getChildByName(imgName);
+                let imgWidth = object.width || grid.width;
+                let imgHeight = object.height || grid.height;
+                let tileOffsetX = tileset.tileOffset.x;
+                let tileOffsetY = tileset.tileOffset.y;
 
                 // Delete image nodes implemented as private nodes
                 // Use cc.Node to implement node-level requirements
@@ -234,15 +238,15 @@ let TiledObjectGroup = cc.Class({
                 }
 
                 if (Orientation.ISO == mapInfo.orientation) {
-                    imgNode.anchorX = 0.5;
-                    imgNode.anchorY = 0;
+                    imgNode.anchorX = 0.5 + tileOffsetX / imgWidth;
+                    imgNode.anchorY = tileOffsetY / imgHeight;
                 } else {
-                    imgNode.anchorX = 0;
-                    imgNode.anchorY = 0;
+                    imgNode.anchorX = tileOffsetX / imgWidth;
+                    imgNode.anchorY = tileOffsetY / imgHeight;
                 }
                 imgNode.angle = -object.rotation;
-                imgNode.x = object.x - leftTopX + tileset.tileOffset.x;
-                imgNode.y = object.y - leftTopY + tileset.tileOffset.y;
+                imgNode.x = object.x - leftTopX;
+                imgNode.y = object.y - leftTopY;
                 imgNode.name = imgName;
                 imgNode.parent = this.node;
                 imgNode.opacity = this._opacity;
@@ -252,12 +256,16 @@ let TiledObjectGroup = cc.Class({
                 if (!sp) {
                     sp = imgNode.addComponent(cc.Sprite);
                 }
-                let spf = new cc.SpriteFrame();
+                let spf = sp.spriteFrame;
+                if (!spf) {
+                    spf = new cc.SpriteFrame();
+                }
                 spf.setTexture(grid.tileset.sourceImage, cc.rect(grid));
                 sp.spriteFrame = spf;
 
-                imgNode.width = object.width;
-                imgNode.height = object.height;
+                // object group may has no width or height info
+                imgNode.width = imgWidth;
+                imgNode.height = imgHeight;
             }
         }
         this._objects = objects;

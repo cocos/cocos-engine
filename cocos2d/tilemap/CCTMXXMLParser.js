@@ -1037,7 +1037,7 @@ cc.TMXMapInfo.prototype = {
                 let objectProp = {};
 
                 // Set the id of the object
-                objectProp['id'] = selObj.getAttribute('id') || 0;
+                objectProp['id'] = selObj.getAttribute('id') || j;
 
                 // Set the name of the object to the value for "name"
                 objectProp["name"] = selObj.getAttribute('name') || "";
