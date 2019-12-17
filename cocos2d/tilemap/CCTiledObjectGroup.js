@@ -141,6 +141,10 @@ let TiledObjectGroup = cc.Class({
                 width = tileSize.width * (mapSize.width + 0.5);
                 height = (tileSize.height + mapInfo.getHexSideLength()) * Math.floor(mapSize.height / 2) + tileSize.height * (mapSize.height % 2);
             }
+        } else if (mapInfo.orientation === Orientation.ISO) {
+            let wh = mapSize.width + mapSize.height;
+            width = tileSize.width * 0.5 * wh;
+            height = tileSize.height * 0.5 * wh;
         } else {
             width = mapSize.width * tileSize.width; 
             height = mapSize.height * tileSize.height;

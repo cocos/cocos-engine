@@ -1224,33 +1224,37 @@ let TiledLayer = cc.Class({
         this._layerOrientation = mapInfo.orientation;
         this._mapTileSize = mapInfo.getTileSize();
 
+        let maptw = this._mapTileSize.width;
+        let mapth = this._mapTileSize.height;
+        let layerW = this._layerSize.width;
+        let layerH = this._layerSize.height;
+
         if (this._layerOrientation === cc.TiledMap.Orientation.HEX) {
             // handle hex map
             const TiledMap = cc.TiledMap;
             const StaggerAxis = TiledMap.StaggerAxis;
-            const StaggerIndex = TiledMap.StaggerIndex;
-
-            let maptw = this._mapTileSize.width;
-            let mapth = this._mapTileSize.height;
+            const StaggerIndex = TiledMap.StaggerIndex;            
             let width = 0, height = 0;
 
             this._odd_even = (this._staggerIndex === StaggerIndex.STAGGERINDEX_ODD) ? 1 : -1;
-
+            height = tileSize.height * (mapSize.height + 0.5);
             if (this._staggerAxis === StaggerAxis.STAGGERAXIS_X) {
                 this._diffX1 = (maptw - this._hexSideLength) / 2;
                 this._diffY1 = 0;
-                height = mapth * (this._layerSize.height + 0.5);
-                width = (maptw + this._hexSideLength) * Math.floor(this._layerSize.width / 2) + maptw * (this._layerSize.width % 2);
+                height = mapth * (layerH + 0.5);
+                width = (maptw + this._hexSideLength) * Math.floor(layerW / 2) + maptw * (layerW % 2);
             } else {
                 this._diffX1 = 0;
                 this._diffY1 = (mapth - this._hexSideLength) / 2;
-                width = maptw * (this._layerSize.width + 0.5);
-                height = (mapth + this._hexSideLength) * Math.floor(this._layerSize.height / 2) + mapth * (this._layerSize.height % 2);
+                width = maptw * (layerW + 0.5);
+                height = (mapth + this._hexSideLength) * Math.floor(layerH / 2) + mapth * (layerH % 2);
             }
             this.node.setContentSize(width, height);
+        } else if (this._layerOrientation === cc.TiledMap.Orientation.ISO) {
+            let wh = layerW + layerH;
+            this.node.setContentSize(maptw * 0.5 * wh, mapth * 0.5 * wh);
         } else {
-            this.node.setContentSize(this._layerSize.width * this._mapTileSize.width,
-                this._layerSize.height * this._mapTileSize.height);
+            this.node.setContentSize(layerW * maptw, layerH * mapth);
         }
 
         // offset (after layer orientation is set);
