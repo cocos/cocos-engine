@@ -272,13 +272,11 @@ let TiledObjectGroup = cc.Class({
 
         // destroy useless node
         let children = this.node.children;
-        let imgExp = /^img\d+$/;
-        let txtExp = /^text\d+$/;
+        let uselessExp = /^(?:img|text)\d+$/;
         for (let i = 0, n = children.length; i < n; i++) {
             let c = children[i];
             let cName = c._name;
-            let isUseless = imgExp.test(cName);
-            isUseless = isUseless || txtExp.test(cName);
+            let isUseless = uselessExp.test(cName);
             if (isUseless && !aliveNodes[cName]) c.destroy();
         }
     }
