@@ -28,15 +28,28 @@
  */
 
 import { Mat4, Quat, Vec3 } from '../math';
+import { DataPoolManager } from '../renderer/data-pool-manager';
 import { getClassName } from '../utils/js';
-import { AnimationClip, IObjectCurveData } from './animation-clip';
-import { IPropertyCurveData } from './animation-curve';
+import { AnimationClip, IObjectCurveData, IRuntimeCurve } from './animation-clip';
+import { AnimCurve, RatioSampler } from './animation-curve';
 import { ComponentModifier, HierachyModifier, isCustomTargetModifier, isPropertyModifier } from './target-modifier';
 
-type CurveData = Vec3 | Quat;
-type ConvertedData = Record<string, {
-    props: Record<string, IPropertyCurveData>;
-}>;
+type CurveData = Vec3 | Quat | Mat4;
+type ConvertedProps = Record<string, IPropertyCurve>;
+
+interface IPropertyCurve {
+    keys: number;
+    values: CurveData[];
+}
+interface ISkeletalCurveInfo {
+    curves: IRuntimeCurve[];
+    frames: number;
+    sample: number;
+}
+interface IConvertedData {
+    info: ISkeletalCurveInfo;
+    data: Record<string, ConvertedProps>;
+}
 
 /**
  * 骨骼动画数据转换中心。
@@ -45,7 +58,12 @@ export class SkelAnimDataHub {
 
     public static getOrExtract (clip: AnimationClip) {
         let data = SkelAnimDataHub.pool.get(clip);
-        if (!data) { data = convertToSkeletalCurves(clip); SkelAnimDataHub.pool.set(clip, data); }
+        if (!data || data.info.sample !== clip.sample) {
+            // release outdated render data
+            if (data) { (cc.director.root.dataPoolManager as DataPoolManager).releaseAnimationClip(clip); }
+            data = convertToSkeletalCurves(clip);
+            SkelAnimDataHub.pool.set(clip, data);
+        }
         return data;
     }
 
@@ -53,75 +71,77 @@ export class SkelAnimDataHub {
         SkelAnimDataHub.pool.delete(clip);
     }
 
-    protected static pool = new Map<AnimationClip, ConvertedData>();
+    protected static pool = new Map<AnimationClip, IConvertedData>();
 }
 
-function convertToSkeletalCurves (clip: AnimationClip) {
+function convertToSkeletalCurves (clip: AnimationClip): IConvertedData {
     // tslint:disable-next-line: no-unused-expression
     clip.hash; // calculate hash before conversion
-    const originalKeys = clip.keys;
-    const convertedData: ConvertedData = {};
+    const data: Record<string, ConvertedProps> = {};
     clip.curves.forEach((curve) => {
         if (!curve.valueAdapter &&
             isCustomTargetModifier(curve.modifiers[0], HierachyModifier) &&
             isPropertyModifier(curve.modifiers[1])) {
             const path = (curve.modifiers[0] as HierachyModifier).path;
-            let cs = convertedData[path];
-            if (!cs) { cs = convertedData[path] = { props: {} }; }
+            let cs = data[path];
+            if (!cs) { cs = data[path] = {}; }
             const property = curve.modifiers[1] as string;
-            cs.props[property] = curve.data;
+            cs[property] = { values: curve.data.values, keys: curve.data.keys }; // don't use curve.data directly
         }
     });
+    const frames = Math.ceil(clip.sample * clip.duration) + 1;
     // lazy eval the conversion due to memory-heavy ops
     // many animation paths may not be actually in-use
-    for (const path of Object.keys(convertedData)) {
-        const props = convertedData[path] && convertedData[path].props;
+    for (const path of Object.keys(data)) {
+        const props = data[path];
         if (!props) { continue; }
         Object.defineProperty(props, 'worldMatrix', {
             get: () => {
                 if (!props._worldMatrix) {
                     const { position, rotation, scale } = props;
                     // fixed step pre-sample
-                    convertToUniformSample(clip, originalKeys, position);
-                    convertToUniformSample(clip, originalKeys, rotation);
-                    convertToUniformSample(clip, originalKeys, scale);
+                    convertToUniformSample(clip, position, frames);
+                    convertToUniformSample(clip, rotation, frames);
+                    convertToUniformSample(clip, scale, frames);
                     // transform to world space
-                    convertToWorldSpace(convertedData, path, props);
+                    convertToWorldSpace(data, path, props);
                 }
                 return props._worldMatrix;
             },
         });
     }
-    const values: number[] = new Array(Math.ceil(clip.sample * clip.duration / clip.speed) + 1);
-    for (let i = 0; i < values.length; i++) { values[i] = i; }
-    clip.curves = [{ // leave only frameID animation
-        modifiers: [
-            new HierachyModifier(''),
-            new ComponentModifier(getClassName(cc.SkeletalAnimationComponent)),
-            'frameID',
-        ],
-        data: { keys: 0, values, interpolate: false },
-    }];
-    clip.keys = [values.map((_, i) => i * clip.speed / clip.sample)];
-    clip.duration = clip.keys[0][values.length - 1];
-    return convertedData;
+    const values: number[] = new Array(frames); const ratios: number[] = new Array(frames);
+    for (let i = 0; i < frames; i++) { values[i] = i; ratios[i] = i / (frames - 1); }
+    const info: ISkeletalCurveInfo = {
+        frames,
+        sample: clip.sample,
+        curves: [{
+            curve: new AnimCurve({ values, interpolate: false }, (frames - 1) / clip.sample),
+            modifiers: [
+                new HierachyModifier(''),
+                new ComponentModifier(getClassName(cc.SkeletalAnimationComponent)),
+                'frameID',
+            ],
+            sampler: new RatioSampler(ratios),
+        }],
+    };
+    return { info, data };
 }
 
-function convertToUniformSample (clip: AnimationClip, originalKeys: number[][], curve: IPropertyCurveData) {
-    const keys = originalKeys[curve.keys]; curve.keys = 0;
-    const len = clip.keys[0].length;
-    const values: any[] = [];
+function convertToUniformSample (clip: AnimationClip, curve: IPropertyCurve, frames: number) {
+    const keys = clip.keys[curve.keys]; curve.keys = 0;
+    const values: CurveData[] = [];
     if (!keys || keys.length === 1) {
-        for (let i = 0; i < len; i++) {
+        for (let i = 0; i < frames; i++) {
             values[i] = curve.values[0].clone(); // never forget to clone
         }
     } else {
-        for (let i = 0, idx = 0; i < len; i++) {
-           let time = i * clip.speed / clip.sample;
+        for (let i = 0, idx = 0; i < frames; i++) {
+           let time = i / clip.sample;
            while (keys[idx] <= time) { idx++; }
            if (idx > keys.length - 1) { idx = keys.length - 1; time = keys[idx]; }
            else if (idx === 0) { idx = 1; }
-           const from = curve.values[idx - 1].clone() as CurveData;
+           const from = curve.values[idx - 1].clone() as any;
            from.lerp(curve.values[idx], (time - keys[idx - 1]) / (keys[idx] - keys[idx - 1]));
            values[i] = from;
        }
@@ -129,7 +149,7 @@ function convertToUniformSample (clip: AnimationClip, originalKeys: number[][], 
     curve.values = values;
 }
 
-function convertToWorldSpace (convertedData: ConvertedData, path: string, props: IObjectCurveData) {
+function convertToWorldSpace (convertedProps: Record<string, ConvertedProps>, path: string, props: IObjectCurveData) {
     const oPos = props.position.values;
     const oRot = props.rotation.values;
     const oScale = props.scale.values;
@@ -138,9 +158,9 @@ function convertToWorldSpace (convertedData: ConvertedData, path: string, props:
     let pMatrix: Mat4[] | null = null;
     if (idx > 0) {
         const name = path.substring(0, idx);
-        const data = convertedData[name];
-        if (!data || !data.props) { console.warn('no data for parent bone?'); return; }
-        pMatrix = data.props.worldMatrix.values;
+        const data = convertedProps[name];
+        if (!data) { console.warn('no data for parent bone?'); return; }
+        pMatrix = data.worldMatrix.values as Mat4[];
     }
     // all props should have the same length now
     for (let i = 0; i < oPos.length; i++) {

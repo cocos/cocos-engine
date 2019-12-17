@@ -50,8 +50,9 @@ function isFrameIDCurve (modifiers: TargetModifier[]) {
 export class SkeletalAnimationState extends AnimationState {
 
     public initialize (root: INode) {
-        SkelAnimDataHub.getOrExtract(this.clip);
-        super.initialize(root);
+        const info = SkelAnimDataHub.getOrExtract(this.clip).info;
+        super.initialize(root, info.curves);
+        this.duration = (info.frames - 1) / info.sample; // last key
     }
 
     public onPlay () {
@@ -91,12 +92,12 @@ export class SkeletalAnimationState extends AnimationState {
         const targetNode = root.getChildByPath(socket.path);
         if (!targetNode || !socket.target) { return null; }
         const targetPath = socket.path;
-        const sourceData = SkelAnimDataHub.getOrExtract(this.clip);
+        const sourceData = SkelAnimDataHub.getOrExtract(this.clip).data;
         // find lowest joint animation
         let animPath = targetPath;
         let source = sourceData[animPath];
         let animNode = targetNode;
-        while (!source || !source.props) {
+        while (!source) {
             const idx = animPath.lastIndexOf('/');
             animPath = animPath.substring(0, idx);
             source = sourceData[animPath];
@@ -105,7 +106,7 @@ export class SkeletalAnimationState extends AnimationState {
         }
         // create animation data
         const data: IObjectCurveData = {
-            matrix: { keys: 0, interpolate: false, values: source.props.worldMatrix.values.map((v) => v.clone()) },
+            matrix: { keys: 0, interpolate: false, values: source.worldMatrix.values.map((v) => v.clone()) },
         };
         const matrix = data.matrix.values;
         // apply downstream default pose

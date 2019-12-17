@@ -124,7 +124,7 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     }
 
     public querySockets () {
-        const animPaths = this._defaultClip && Object.keys(SkelAnimDataHub.getOrExtract(this._defaultClip)).sort().reduce((acc, cur) =>
+        const animPaths = this._defaultClip && Object.keys(SkelAnimDataHub.getOrExtract(this._defaultClip).data).sort().reduce((acc, cur) =>
             cur.startsWith(acc[acc.length - 1]) ? acc : (acc.push(cur), acc), [] as string[]) || [];
         if (!animPaths.length) { return ['default animation clip missing/invalid']; }
         const out: string[] = [];
