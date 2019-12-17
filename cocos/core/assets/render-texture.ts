@@ -23,10 +23,11 @@ ccenum(DepthStencilFormat);
 @ccclass('cc.RenderTexture')
 export class RenderTexture extends TextureBase {
     public static DepthStencilFormat = DepthStencilFormat;
-    private _window: GFXWindow | null = null;
 
     @property
-    private _depthStencilFormat: DepthStencilFormat = DepthStencilFormat.NONE;
+    protected _depthStencilFormat: DepthStencilFormat = DepthStencilFormat.NONE;
+
+    private _window: GFXWindow | null = null;
 
     @property
     get width () {
@@ -56,6 +57,15 @@ export class RenderTexture extends TextureBase {
     set depthStencilFormat (value) {
         this._depthStencilFormat = value;
         this.reset();
+    }
+
+    @property
+    get colorFormat () {
+        return this._getGFXFormat();
+    }
+
+    set colorFormat (value) {
+        this._setGFXFormat(value);
     }
 
     public getGFXWindow () {
