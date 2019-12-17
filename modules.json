@@ -349,5 +349,13 @@
       "./polyfill/typescript.js"
     ],
     "hide": true
+  },
+  {
+    "name": "3D Particle",
+    "since": "2.3.0",
+    "entries": [
+      "./cocos2d/core/3d/particle/particle-system-3d.js"
+    ],
+    "dependencies": ["3D"]
   }
 ]
