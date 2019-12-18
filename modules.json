@@ -351,11 +351,19 @@
     "hide": true
   },
   {
-    "name": "Physics 3D",
+    "name": "3D Physics/cannon.js",
+    "since": "2.3",
+    "entries": [
+      "./cocos2d/core/3d/physics/exports/physics-cannon.ts",
+      "./cocos2d/core/3d/physics/exports/physics-framework.ts"
+    ],
+    "dependencies": ["3D"]
+  },
+  {
+    "name": "3D Physics/builtin",
     "since": "2.3",
     "entries": [
       "./cocos2d/core/3d/physics/exports/physics-builtin.ts",
-      "./cocos2d/core/3d/physics/exports/physics-cannon.ts",
       "./cocos2d/core/3d/physics/exports/physics-framework.ts"
     ],
     "dependencies": ["3D"]
