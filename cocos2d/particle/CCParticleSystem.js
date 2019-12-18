@@ -747,6 +747,7 @@ var ParticleSystem = cc.Class({
     initProperties () {
         this._previewTimer = null;
         this._focused = false;
+        this._aspectRatio = 1;
 
         this._simulator = new ParticleSimulator(this);
 
@@ -1203,6 +1204,12 @@ var ParticleSystem = cc.Class({
 
     _onTextureLoaded () {
         this._simulator.updateUVs(true);
+        this._syncAspect();
+    },
+
+    _syncAspect () {
+        let frameRect = this._renderSpriteFrame._rect;
+        this._aspectRatio = frameRect.width / frameRect.height;
     },
 
     _applySpriteFrame () {
