@@ -388,6 +388,33 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
 
     protected _siblingIndex: number = 0;
 
+    protected _registerIfAttached = !CC_EDITOR ? undefined : function (this: BaseNode, register) {
+        if (EditorExtends.Node && EditorExtends.Component) {
+            if (register) {
+                EditorExtends.Node.add(this._id, this);
+
+                for (let i = 0; i < this._components.length; i++) {
+                    const comp = this._components[i];
+                    EditorExtends.Component.add(comp._id, comp);
+                }
+            }
+            else {
+                EditorExtends.Node.remove(this._id);
+
+                for (let i = 0; i < this._components.length; i++) {
+                    const comp = this._components[i];
+                    EditorExtends.Component.remove(comp._id);
+                }
+            }
+        }
+
+        const children = this._children;
+        for (let i = 0, len = children.length; i < len; ++i) {
+            const child = children[i];
+            child._registerIfAttached!(register);
+        }
+    };
+
     /**
      * @method constructor
      * @param {String} [name]
@@ -1039,7 +1066,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
         component.node = this;
         this._components.push(component);
         if (CC_EDITOR && EditorExtends.Node && EditorExtends.Component) {
-            let node = EditorExtends.Node.getNode(this._id);
+            const node = EditorExtends.Node.getNode(this._id);
             if (node) {
                 EditorExtends.Component.add(component._id, component);
             }
@@ -1399,33 +1426,6 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
             }
         }
     }
-
-    protected _registerIfAttached = !CC_EDITOR ? undefined : function (this: BaseNode, register) {
-        if (EditorExtends.Node && EditorExtends.Component) {
-            if (register) {         
-                EditorExtends.Node.add(this._id, this);
-
-                for (let i = 0; i < this._components.length; i++) {
-                    let comp = this._components[i];
-                    EditorExtends.Component.add(comp._id, comp);
-                }
-            }
-            else {
-                EditorExtends.Node.remove(this._id);
-
-                for (let i = 0; i < this._components.length; i++) {
-                    let comp = this._components[i];
-                    EditorExtends.Component.remove(comp._id);
-                }
-            }
-        }
-
-        var children = this._children;
-        for (let i = 0, len = children.length; i < len; ++i) {
-            var child = children[i];
-            child._registerIfAttached!(register);
-        }
-    };
 
     protected _onSiblingIndexChanged? (siblingIndex: number): void;
 

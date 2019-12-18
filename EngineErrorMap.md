@@ -1057,6 +1057,10 @@ Download Font [ %s ] failed, using Arial or system default font instead
 
 Please assure that the full path of sub asset is correct!
 
+### 4935
+
+Failed to skip prefab asset while deserializing PrefabInfo
+
 ### 5000
 
 object already destroyed
@@ -1975,4 +1979,4 @@ The UI has not been initialized
 
 ### 10001
 
-The sub-mesh contains %d vertices, which beyonds the capability (%d vertices most) of renderer of your platform. 
+The sub-mesh contains %d vertices, which beyonds the capability (%d vertices most) of renderer of your platform.

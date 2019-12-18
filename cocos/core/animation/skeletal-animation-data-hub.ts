@@ -27,12 +27,13 @@
  * @category animation
  */
 
-import { Mat4 } from '../math';
+import { Mat4, Quat, Vec3 } from '../math';
 import { getClassName } from '../utils/js';
 import { AnimationClip, IObjectCurveData } from './animation-clip';
 import { IPropertyCurveData } from './animation-curve';
 import { ComponentModifier, HierachyModifier, isCustomTargetModifier, isPropertyModifier } from './target-modifier';
 
+type CurveData = Vec3 | Quat;
 type ConvertedData = Record<string, {
     props: Record<string, IPropertyCurveData>;
 }>;
@@ -120,7 +121,7 @@ function convertToUniformSample (clip: AnimationClip, originalKeys: number[][], 
            while (keys[idx] <= time) { idx++; }
            if (idx > keys.length - 1) { idx = keys.length - 1; time = keys[idx]; }
            else if (idx === 0) { idx = 1; }
-           const from = curve.values[idx - 1].clone();
+           const from = curve.values[idx - 1].clone() as CurveData;
            from.lerp(curve.values[idx], (time - keys[idx - 1]) / (keys[idx] - keys[idx - 1]));
            values[i] = from;
        }

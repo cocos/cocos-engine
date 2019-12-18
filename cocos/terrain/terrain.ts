@@ -187,7 +187,7 @@ export class TerrainRenderable extends RenderableComponent {
 export class TerrainBlockInfo {
     @property
     public layers: number[] = [-1, -1, -1, -1];
-    public lightMap: Texture2D|null = null; 
+    public lightMap: Texture2D|null = null;
     public lightMapUOff: number = 0;
     public lightMapVOff: number = 0;
     public lightMapUScale: number = 0;
@@ -581,7 +581,7 @@ export class Terrain extends Component {
         visible: false,
     })
     protected __asset: TerrainAsset|null = null;
-    
+
     @property({
         type: TerrainLayer,
         visible: true,
@@ -615,7 +615,6 @@ export class Terrain extends Component {
     @property({
         type: TerrainAsset,
         visible: true,
-        serializable: false,
     })
     public set _asset(value: TerrainAsset|null) {
         if (this.__asset != value) {
@@ -808,7 +807,7 @@ export class Terrain extends Component {
         if (asset == null) {
             asset = new TerrainAsset;
         }
-        
+
         asset.tileSize = this.tileSize;
         asset.blockCount = this.blockCount;
         asset.lightMapSize = this.lightMapSize;

@@ -3,11 +3,11 @@
  */
 
 import { ccclass } from '../../data/class-decorator';
-import { IRenderFlowInfo, RenderFlow } from '../render-flow';
-import { ForwardStage } from './forward-stage';
 import { PIPELINE_FLOW_FORWARD } from '../define';
-import { ForwardFlowPriority } from "./enum";
+import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderView } from '../render-view';
+import { ForwardFlowPriority } from './enum';
+import { ForwardStage } from './forward-stage';
 
 /**
  * @zh
@@ -29,7 +29,7 @@ export class ForwardFlow extends RenderFlow {
         super();
     }
 
-    public initialize(info: IRenderFlowInfo) {
+    public initialize (info: IRenderFlowInfo) {
         super.initialize(info);
         const forwardStage = new ForwardStage();
         forwardStage.initialize(ForwardStage.initInfo);

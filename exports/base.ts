@@ -2,7 +2,10 @@
  * @hidden
  */
 
+// has to import predefines first
 import '../predefine';
+
+// tslint:disable-next-line: ordered-imports
 import '../cocos/core/legacy';
 
 // LOAD ENGINE CORE

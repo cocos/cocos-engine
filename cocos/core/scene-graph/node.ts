@@ -80,6 +80,15 @@ export class Node extends BaseNode implements INode {
      */
     public static TransformBit = TransformBit;
 
+    /**
+     * @zh
+     * 指定对象是否是普通的场景节点？
+     * @param obj 待测试的节点
+     */
+    public static isNode (obj: object | null): obj is Node {
+        return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
+    }
+
     // UI 部分的脏数据
     public _uiTransformComp: UITransformComponent | null = null;
     public _uiComp: UIComponent | null = null;
@@ -107,15 +116,6 @@ export class Node extends BaseNode implements INode {
 
     protected _dirtyFlags = TransformBit.NONE; // does the world transform need to update?
     protected _eulerDirty = false;
-
-    /**
-     * @zh
-     * 指定对象是否是普通的场景节点？
-     * @param obj 待测试的节点
-     */
-    public static isNode (obj: object | null): obj is Node {
-        return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
-    }
 
     /**
      * @zh

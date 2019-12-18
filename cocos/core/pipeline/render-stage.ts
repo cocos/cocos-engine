@@ -2,23 +2,23 @@
  * @category pipeline
  */
 
-import { ccclass, property, type } from '../data/class-decorator';
-import { ccenum } from '../value-types/enum';
+import { CCString } from '../data';
+import { ccclass, property } from '../data/class-decorator';
 import { GFXCommandBuffer } from '../gfx/command-buffer';
-import { IGFXColor, IGFXRect, GFXClearFlag, GFXCommandBufferType } from '../gfx/define';
+import { GFXClearFlag, GFXCommandBufferType, IGFXColor, IGFXRect } from '../gfx/define';
 import { GFXDevice } from '../gfx/device';
 import { GFXFramebuffer } from '../gfx/framebuffer';
 import { GFXPipelineState } from '../gfx/pipeline-state';
 import { Pass } from '../renderer';
+import { ccenum } from '../value-types/enum';
 import { IRenderPass } from './define';
 import { getPhaseID } from './pass-phase';
 import { RenderFlow } from './render-flow';
 import { RenderPipeline } from './render-pipeline';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from './render-queue';
 import { RenderView } from './render-view';
-import { CCString } from '../data';
 
-const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
+const _colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
 
 export enum RenderQueueSortMode {
@@ -41,13 +41,14 @@ export interface IRenderStageInfo {
 
 @ccclass('RenderQueueDesc')
 class RenderQueueDesc {
+
     @property
     public isTransparent: boolean = false;
-    @property({
-        type: RenderQueueSortMode,
-    })
+
+    @property({ type: RenderQueueSortMode })
     public sortMode: RenderQueueSortMode = RenderQueueSortMode.FRONT_TO_BACK;
-    @type([CCString])
+
+    @property({ type: [CCString] })
     public stages: string[] = [];
 }
 
@@ -62,7 +63,7 @@ export abstract class RenderStage {
      * @zh
      * 渲染流程。
      */
-    public get flow(): RenderFlow {
+    public get flow (): RenderFlow {
         return this._flow;
     }
 
@@ -70,7 +71,7 @@ export abstract class RenderStage {
      * @zh
      * 渲染管线。
      */
-    public get pipeline(): RenderPipeline {
+    public get pipeline (): RenderPipeline {
         return this._pipeline;
     }
 
@@ -96,7 +97,7 @@ export abstract class RenderStage {
      */
     @property({
         displayOrder: 0,
-        visible: true
+        visible: true,
     })
     protected _name: string = '';
 
@@ -106,20 +107,20 @@ export abstract class RenderStage {
      */
     @property({
         displayOrder: 1,
-        visible: true
+        visible: true,
     })
     protected _priority: number = 0;
 
     @property({
         displayOrder: 2,
-        visible: true
+        visible: true,
     })
     protected frameBuffer: string = '';
 
     @property({
         type: [RenderQueueDesc],
         displayOrder: 3,
-        visible: true
+        visible: true,
     })
     protected renderQueues: RenderQueueDesc[] = [];
 
@@ -210,8 +211,9 @@ export abstract class RenderStage {
 
         this._priority = info.priority;
 
-        if(info.framebuffer)
+        if (info.framebuffer) {
             this.frameBuffer = info.framebuffer;
+        }
 
         if (info.renderQueues) {
             this.renderQueues = info.renderQueues;
@@ -233,7 +235,7 @@ export abstract class RenderStage {
         }
 
         this._device = this._flow.pipeline.root.device;
-        
+
         this._clearColors = [{ r: 0.3, g: 0.6, b: 0.9, a: 1.0 }];
         this._renderArea = { x: 0, y: 0, width: 0, height: 0 };
 
@@ -337,15 +339,15 @@ export abstract class RenderStage {
         this._renderArea!.height = height;
     }
 
-    public sortRenderQueue() {
+    public sortRenderQueue () {
         this._renderQueues.forEach(this.renderQueueClearFunc);
         const renderObjects = this._pipeline.renderObjects;
         for (let i = 0; i < renderObjects.length; ++i) {
             const ro = renderObjects[i];
-            for (let i = 0; i < ro.model.subModelNum; i++) {
-                for (let j = 0; j < ro.model.getSubModel(i).passes.length; j++) {
+            for (let l = 0; l < ro.model.subModelNum; l++) {
+                for (let j = 0; j < ro.model.getSubModel(l).passes.length; j++) {
                     for (let k = 0; k < this._renderQueues.length; k++) {
-                        this._renderQueues[k].insertRenderPass(ro, i, j);
+                        this._renderQueues[k].insertRenderPass(ro, l, j);
                     }
                 }
             }
@@ -353,7 +355,7 @@ export abstract class RenderStage {
         this._renderQueues.forEach(this.renderQueueSortFunc);
     }
 
-    public executeCommandBuffer(view: RenderView) {
+    public executeCommandBuffer (view: RenderView) {
         const camera = view.camera;
 
         const cmdBuff = this._cmdBuff!;
@@ -365,10 +367,10 @@ export abstract class RenderStage {
         this._renderArea!.height = vp.height * camera.height * this.pipeline!.shadingScale;
 
         if (camera.clearFlag & GFXClearFlag.COLOR) {
-            colors[0].a = camera.clearColor.a;
-            colors[0].r = camera.clearColor.r;
-            colors[0].g = camera.clearColor.g;
-            colors[0].b = camera.clearColor.b;
+            _colors[0].a = camera.clearColor.a;
+            _colors[0].r = camera.clearColor.r;
+            _colors[0].g = camera.clearColor.g;
+            _colors[0].b = camera.clearColor.b;
         }
         if (!this._framebuffer) {
             this._framebuffer = view.window!.framebuffer;
@@ -376,7 +378,7 @@ export abstract class RenderStage {
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(this._framebuffer!, this._renderArea!,
-            camera.clearFlag, colors, camera.clearDepth, camera.clearStencil);
+            camera.clearFlag, _colors, camera.clearDepth, camera.clearStencil);
 
         for (let i = 0; i < this._renderQueues.length; i++) {
             cmdBuff.execute(this._renderQueues[i].cmdBuffs.array, this._renderQueues[i].cmdBuffCount);

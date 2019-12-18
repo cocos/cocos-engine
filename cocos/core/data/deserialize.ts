@@ -28,11 +28,11 @@
  * @category core/data
  */
 
+import { warnID } from '../platform/debug';
 import * as js from '../utils/js';
 import * as misc from '../utils/misc';
 import CCClass from './class';
 import * as Attr from './utils/attribute';
-import { warnID } from '../platform/debug';
 
 // HELPERS
 
@@ -425,10 +425,8 @@ function unlinkUnusedPrefab (self, serialized, obj) {
             self.result.uuidList.pop();
             self.result.uuidObjList.pop();
             self.result.uuidPropList.pop();
-        }
-        else {
-            const debugEnvOnlyInfo = 'Failed to skip prefab asset while deserializing PrefabInfo';
-            warnID(debugEnvOnlyInfo);
+        } else {
+            warnID(4935);
         }
     }
 }

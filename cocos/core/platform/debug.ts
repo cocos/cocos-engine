@@ -25,7 +25,7 @@
 
  // @ts-ignore
 import debugInfos from '../../../DebugInfos';
-const ERROR_MAP_URL = 'https://github.com/cocos-creator/engine/blob/3d-v1.0.0/EngineErrorMap.md';
+const ERROR_MAP_URL = 'https://github.com/cocos-creator/engine/blob/3d/EngineErrorMap.md';
 
 // The html element displays log in web page (DebugMode.INFO_FOR_WEB_PAGE)
 let logList: HTMLTextAreaElement | null = null;

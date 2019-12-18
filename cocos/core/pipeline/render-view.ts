@@ -2,12 +2,12 @@
  * @category pipeline
  */
 
-import { Root } from '../root';
 import { GFXWindow } from '../gfx/window';
 import { Camera } from '../renderer/scene/camera';
-import { RenderFlow } from './render-flow';
+import { Root } from '../root';
 import { CameraDefaultMask } from './define';
 import { RenderFlowType } from './pipeline-serialization';
+import { RenderFlow } from './render-flow';
 
 /**
  * @zh

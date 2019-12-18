@@ -2510,27 +2510,46 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
             }
             case WebGLCmd.DRAW: {
                 const cmd3: WebGLCmdDraw = cmdPackage.drawCmds.array[cmdId];
+                const ia = device.ANGLE_instanced_arrays;
                 if (gpuInputAssembler && gpuShader) {
-                    if (!gpuInputAssembler.gpuIndirectBuffer) {
-                        const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
-                        if (gpuBuffer && cmd3.drawInfo.indexCount > -1) {
-                            const offset = cmd3.drawInfo.firstIndex * gpuBuffer.stride;
-                            gl.drawElements(glPrimitive, cmd3.drawInfo.indexCount, gpuInputAssembler.glIndexType, offset);
-                        } else {
-                            gl.drawArrays(glPrimitive, cmd3.drawInfo.firstVertex, cmd3.drawInfo.vertexCount);
-                        }
-                    } else {
-                        if (gpuInputAssembler.gpuIndirectBuffer) {
-                            const diLen = gpuInputAssembler.gpuIndirectBuffer.indirects.length;
-                            for (let j = 0; j < diLen; j++) {
-                                const drawInfo = gpuInputAssembler.gpuIndirectBuffer.indirects[j];
-                                const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
+                    if (gpuInputAssembler.gpuIndirectBuffer) {
+                        const diLen = gpuInputAssembler.gpuIndirectBuffer.indirects.length;
+                        for (let j = 0; j < diLen; j++) {
+                            const drawInfo = gpuInputAssembler.gpuIndirectBuffer.indirects[j];
+                            const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
+                            if (drawInfo.instanceCount && ia) {
+                                if (gpuBuffer && drawInfo.indexCount > -1) {
+                                    const offset = drawInfo.firstIndex * gpuBuffer.stride;
+                                    ia.drawElementsInstancedANGLE(glPrimitive, drawInfo.indexCount,
+                                        gpuInputAssembler.glIndexType, offset, drawInfo.instanceCount);
+                                } else {
+                                    ia.drawArraysInstancedANGLE(glPrimitive, drawInfo.firstVertex, drawInfo.vertexCount, drawInfo.instanceCount);
+                                }
+                            } else {
                                 if (gpuBuffer && drawInfo.indexCount > -1) {
                                     const offset = drawInfo.firstIndex * gpuBuffer.stride;
                                     gl.drawElements(glPrimitive, drawInfo.indexCount, gpuInputAssembler.glIndexType, offset);
                                 } else {
                                     gl.drawArrays(glPrimitive, drawInfo.firstVertex, drawInfo.vertexCount);
                                 }
+                            }
+                        }
+                    } else {
+                        const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
+                        if (cmd3.drawInfo.instanceCount && ia) {
+                            if (gpuBuffer && cmd3.drawInfo.indexCount > -1) {
+                                const offset = cmd3.drawInfo.firstIndex * gpuBuffer.stride;
+                                ia.drawElementsInstancedANGLE(glPrimitive, cmd3.drawInfo.indexCount,
+                                    gpuInputAssembler.glIndexType, offset, cmd3.drawInfo.instanceCount);
+                            } else {
+                                ia.drawArraysInstancedANGLE(glPrimitive, cmd3.drawInfo.firstVertex, cmd3.drawInfo.vertexCount, cmd3.drawInfo.instanceCount);
+                            }
+                        } else {
+                            if (gpuBuffer && cmd3.drawInfo.indexCount > -1) {
+                                const offset = cmd3.drawInfo.firstIndex * gpuBuffer.stride;
+                                gl.drawElements(glPrimitive, cmd3.drawInfo.indexCount, gpuInputAssembler.glIndexType, offset);
+                            } else {
+                                gl.drawArrays(glPrimitive, cmd3.drawInfo.firstVertex, cmd3.drawInfo.vertexCount);
                             }
                         }
                     }

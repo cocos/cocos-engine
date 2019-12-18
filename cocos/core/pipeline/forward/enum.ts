@@ -7,7 +7,6 @@ export enum ForwardStagePriority {
     FORWARD = 0,
 }
 
-
 /**
  * @zh
  * 前向渲染流程优先级。

@@ -4,12 +4,11 @@
  */
 
 import { UBOGlobal } from '../define';
+import { ForwardFlowPriority } from '../forward/enum';
+import { RenderFlowType } from '../pipeline-serialization';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderView } from '../render-view';
 import { UIStage } from './ui-stage';
-import { RenderQueueSortMode } from '../render-stage';
-import { ForwardFlowPriority } from '../forward/enum';
-import { RenderFlowType } from '../pipeline-serialization';
 
 /**
  * @zh
@@ -31,7 +30,7 @@ export class UIFlow extends RenderFlow {
 
         super.initialize(info);
 
-        let uiStage = new UIStage();
+        const uiStage = new UIStage();
         uiStage.initialize(UIStage.initInfo);
         this._stages.push(uiStage);
 
