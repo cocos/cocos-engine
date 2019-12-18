@@ -913,7 +913,14 @@ export class View extends EventTarget {
 
     // Resize helper functions
     private _resizeEvent () {
-        const _view = cc.view;
+        // tslint:disable: no-shadowed-variable
+        let _view;
+        // @ts-ignore
+        if (this.setDesignResolutionSize) {
+            _view = this;
+        } else {
+            _view = cc.view;
+        }
 
         // Check frame size changed or not
         const prevFrameW = _view._frameSize.width;

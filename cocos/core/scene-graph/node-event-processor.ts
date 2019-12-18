@@ -60,20 +60,17 @@ const _mouseEvents = [
 
 // TODO: rearrange event
 function _touchStartHandler (this: EventListener, touch: Touch, event: EventTouch) {
-    const node = this.owner as BaseNode;
-    // @ts-ignore
-    if (!node || !node.uiTransfromComp) {
+    const node = this.owner as Node | null;
+    if (!node || !node.uiTransformComp) {
         return false;
     }
 
     touch.getUILocation(pos);
 
-    // @ts-ignore
-    if (node.uiTransfromComp.isHit(pos, this)) {
+    if (node.uiTransformComp.isHit(pos, this)) {
         event.type = SystemEventType.TOUCH_START.toString();
         event.touch = touch;
         event.bubbles = true;
-        // @ts-ignore
         node.dispatchEvent(event);
         return true;
     }
@@ -349,13 +346,13 @@ export class NodeEventProcessor {
 
     public reattach (): void {
         if (this.touchListener) {
-            const mask = this.touchListener.mask = _searchMaskInParent(this._node);
+            const mask = this.touchListener.mask = _searchMaskInParent(this._node as Node);
             if (this.mouseListener) {
                 this.mouseListener.mask = mask;
             }
         }
         else if (this.mouseListener) {
-            this.mouseListener.mask = _searchMaskInParent(this._node);
+            this.mouseListener.mask = _searchMaskInParent(this._node as Node);
         }
     }
 
@@ -687,8 +684,7 @@ export class NodeEventProcessor {
         if (newAdded && !this._node.activeInHierarchy) {
             cc.director.getScheduler().schedule(() => {
                 if (!this._node.activeInHierarchy) {
-                    // @ts-ignore;
-                    eventManager.pauseTarget(this._node);
+                    eventManager.pauseTarget(this._node as Node);
                 }
             }, this._node, 0, 0, 0, false);
         }

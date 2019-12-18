@@ -941,7 +941,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
     protected _calculateBoundary () {
         if (this.content) {
             // refresh content size
-            const layout: LayoutComponent = this.content.getComponent(LayoutComponent);
+            const layout = this.content.getComponent(LayoutComponent);
             if (layout && layout.enabledInHierarchy) {
                 layout.updateLayout();
             }

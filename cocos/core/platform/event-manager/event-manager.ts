@@ -775,7 +775,7 @@ class EventManager {
             return 1;
         }
 
-        let p1 = node1; let p2 = node2; let trans1 = (node1 as Node).uiTransformComp; let trans2 = (node2 as Node).uiTransformComp; let ex = false;
+        let p1 = node1; let p2 = node2; let trans1 = (node1 as Node).uiTransformComp!; let trans2 = (node2 as Node).uiTransformComp!; let ex = false;
         if (trans1.visibility !== trans2.visibility) {
             return trans2.visibility - trans1.visibility;
         }

@@ -28,7 +28,7 @@
  */
 
 import { Component } from '../components/component';
-import { property, ccclass, menu, executionOrder } from '../data/class-decorator';
+import { property, ccclass, menu, executionOrder, requireComponent } from '../data/class-decorator';
 import { view } from './view';
 import { SpriteComponent } from '../../ui/components/sprite-component';
 import { Node } from '../scene-graph';
@@ -60,6 +60,7 @@ import { Rect } from '../math';
  */
 @ccclass('cc.SubContextView')
 @executionOrder(110)
+@requireComponent(UITransformComponent)
 @menu('Components/SubContextView')
 export class SubContextView extends Component {
     @property({
@@ -136,8 +137,8 @@ export class SubContextView extends Component {
     }
 
     public update (dt: number) {
-        let calledUpdateMannually = (dt === undefined);
-        if (calledUpdateMannually) {
+        let calledUpdateManually = (dt === undefined);
+        if (calledUpdateManually) {
             this._context && this._context.postMessage({
                 fromEngine: true,
                 event: 'step',
@@ -162,9 +163,10 @@ export class SubContextView extends Component {
         if (this._context) {
             this.updateSubContextViewport();
             let sharedCanvas = this._context.canvas;
+            const transformComp = this.node.getComponent(UITransformComponent)!;
             if (sharedCanvas) {
-                sharedCanvas.width = this.node.getComponent(UITransformComponent).width;
-                sharedCanvas.height = this.node.getComponent(UITransformComponent).height;
+                sharedCanvas.width = transformComp.width;
+                sharedCanvas.height = transformComp.height;
             }
         }
     }
@@ -175,7 +177,7 @@ export class SubContextView extends Component {
      */
     public updateSubContextViewport () {
         if (this._context) {
-            let box = this.node.getComponent(UITransformComponent).getBoundingBoxToWorld() as Rect;
+            let box = this.node.getComponent(UITransformComponent)!.getBoundingBoxToWorld() as Rect;
             let sx = view.getScaleX();
             let sy = view.getScaleY();
             const rect = view.getViewportRect();
