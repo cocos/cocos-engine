@@ -850,6 +850,10 @@ function deserialize (data, details, options) {
     const customEnv = options.customEnv;
     const ignoreEditorOnly = options.ignoreEditorOnly;
 
+    if (CC_EDITOR && Buffer.isBuffer(data)) {
+        data = data.toString();
+    }
+
     if (typeof data === 'string') {
         data = JSON.parse(data);
     }
