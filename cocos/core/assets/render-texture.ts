@@ -48,7 +48,9 @@ export class RenderTexture extends TextureBase {
         this.reset();
     }
 
-    @property
+    @property({
+        type: DepthStencilFormat
+    })
     get depthStencilFormat () {
         return this._depthStencilFormat;
     }
