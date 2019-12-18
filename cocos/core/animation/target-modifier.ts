@@ -3,7 +3,6 @@
  */
 
 import { ccclass, property } from '../data/class-decorator';
-import { INode } from '../utils/interfaces';
 import { CurveValueAdapter, ICurveValueProxy } from './animation-curve';
 import { Node } from '../scene-graph/node';
 
@@ -41,7 +40,7 @@ export class HierachyModifier implements ICustomTargetModifier {
         this.path = path || '';
     }
 
-    get(target: INode) {
+    get(target: Node) {
         if (!(target instanceof Node)) {
             throw new Error(`Target of hierachy modifier shall be Node.`);
         }
@@ -63,7 +62,7 @@ export class ComponentModifier implements ICustomTargetModifier {
         this.component = component || '';
     }
 
-    get (target: INode) {
+    get (target: Node) {
         if (!(target instanceof Node)) {
             throw new Error(`Target of hierachy modifier shall be Node.`);
         }

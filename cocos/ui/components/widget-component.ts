@@ -38,14 +38,13 @@ import { View } from '../../core/platform/view';
 import visibleRect from '../../core/platform/visible-rect';
 import { Scene } from '../../core/scene-graph';
 import { Node } from '../../core/scene-graph/node';
-import { INode } from '../../core/utils/interfaces';
 import { ccenum } from '../../core/value-types/enum';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 
 const _zeroVec3 = new Vec3();
 
 // returns a readonly size of the node
-export function getReadonlyNodeSize (parent: INode) {
+export function getReadonlyNodeSize (parent: Node) {
     if (parent instanceof Scene) {
         // @ts-ignore
         if (CC_EDITOR) {
@@ -63,7 +62,7 @@ export function getReadonlyNodeSize (parent: INode) {
     }
 }
 
-export function computeInverseTransForTarget (widgetNode: INode, target: INode, out_inverseTranslate: Vec3, out_inverseScale: Vec3) {
+export function computeInverseTransForTarget (widgetNode: Node, target: Node, out_inverseTranslate: Vec3, out_inverseScale: Vec3) {
     let scale = widgetNode.parent ? widgetNode.parent.getScale() : _zeroVec3;
     let scaleX = scale.x;
     let scaleY = scale.y;
@@ -199,7 +198,7 @@ export class WidgetComponent extends Component {
         return this._target;
     }
 
-    set target (value: INode | null) {
+    set target (value) {
         if (this._target === value){
             return;
         }
@@ -640,7 +639,7 @@ export class WidgetComponent extends Component {
     @property
     private _alignFlags = 0;
     @property
-    private _target: INode | null = null;
+    private _target: Node | null = null;
     @property
     private _left = 0;
     @property
@@ -747,7 +746,7 @@ export class WidgetComponent extends Component {
         const inverseScale = new Vec3(1, 1, 1);
 
         if (self.target) {
-            target = self.target as INode;
+            target = self.target;
             computeInverseTransForTarget(self.node, target, new Vec3(), inverseScale);
         }
         if (!target) {
@@ -800,7 +799,7 @@ export class WidgetComponent extends Component {
         let target = self.node.parent;
         const inverseScale = new Vec3(1, 1, 1);
         if (self.target) {
-            target = self.target as INode;
+            target = self.target;
             computeInverseTransForTarget(self.node, target, new Vec3(), inverseScale);
         }
         if (!target) {

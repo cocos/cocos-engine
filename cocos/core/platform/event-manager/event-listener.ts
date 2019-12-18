@@ -29,8 +29,8 @@
  * @category event
  */
 
-import { INode } from '../../utils/interfaces';
 import { EventKeyboard, EventAcceleration, EventMouse } from './events';
+import { Node } from '../../scene-graph';
 
 export interface IEventListenerCreateInfo {
     event?: number;
@@ -40,7 +40,7 @@ export interface IEventListenerCreateInfo {
 
 export interface IListenerMask {
     index: number;
-    node: INode;
+    node: Node;
 }
 
 /**

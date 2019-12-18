@@ -28,10 +28,10 @@
  */
 
 import { ccclass, disallowMultiple, executeInEditMode, executionOrder, property, requireComponent } from '../../../core/data/class-decorator';
-import { INode } from '../../../core/utils/interfaces';
 import { UI } from '../../renderer/ui/ui';
 import { Component } from '../component';
 import { UITransformComponent } from './ui-transform-component';
+import { Node } from '../../scene-graph';
 
 /**
  * @zh
@@ -44,7 +44,7 @@ import { UITransformComponent } from './ui-transform-component';
 @executeInEditMode
 export class UIComponent extends Component {
 
-    protected _lastParent: INode | null = null;
+    protected _lastParent: Node | null = null;
 
     public __preload () {
         this.node._uiComp = this;

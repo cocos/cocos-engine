@@ -41,7 +41,6 @@ import { SpriteComponent } from './sprite-component';
 import { UIComponent } from '../../core/components/ui-base/ui-component';
 import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
 import { UITransformComponent } from '../../core/components/ui-base/ui-transform-component';
-import { INode } from '../../core/utils/interfaces';
 import { assert, warnID } from '../../core/platform/debug';
 import { loader } from '../../core/load-pipeline';
 
@@ -522,7 +521,7 @@ export class RichTextComponent extends UIComponent {
     }
 
     private _resetState () {
-        const children = this.node.children as Mutable<INode[]>;
+        const children = this.node.children as Mutable<Node[]>;
 
         for (let i = children.length - 1; i >= 0; i--) {
             const child = children[i];

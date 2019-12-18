@@ -35,12 +35,12 @@ import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { Vec3 } from '../../math';
 import { UBOSkinningAnimation, UBOSkinningTexture, UniformJointsTexture } from '../../pipeline/define';
-import { INode } from '../../utils/interfaces';
 import { Pass } from '../core/pass';
 import { samplerLib } from '../core/sampler-lib';
 import { DataPoolManager } from '../data-pool-manager';
 import { Model } from '../scene/model';
 import { IAnimInfo, IJointsTextureHandle, jointsTextureSamplerHash, selectJointsMediumType } from './skeletal-animation-utils';
+import { Node } from '../../scene-graph';
 
 interface IJointsInfo {
     buffer: GFXBuffer | null;
@@ -78,7 +78,7 @@ export class SkinningModel extends Model {
         }
     }
 
-    public bindSkeleton (skeleton: Skeleton | null, skinningRoot: INode | null, mesh: Mesh | null) {
+    public bindSkeleton (skeleton: Skeleton | null, skinningRoot: Node | null, mesh: Mesh | null) {
         this._skeleton = skeleton;
         this._mesh = mesh;
         if (!skeleton || !skinningRoot || !mesh) { return; }

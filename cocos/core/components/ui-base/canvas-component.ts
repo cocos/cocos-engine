@@ -40,7 +40,6 @@ import { ResolutionPolicy, view } from '../../platform/view';
 import visibleRect from '../../platform/visible-rect';
 import { Camera } from '../../renderer';
 import { Node } from '../../scene-graph/node';
-import { INode } from '../../utils/interfaces';
 import { Enum } from '../../value-types';
 import { Component } from '../component';
 import { UITransformComponent } from './ui-transform-component';
@@ -219,7 +218,7 @@ export class CanvasComponent extends Component {
             this._camera = director.root!.createCamera();
             this._camera.initialize({
                 name: 'ui_' + this.node.name,
-                node: cameraNode as INode,
+                node: cameraNode,
                 projection: CameraComponent.ProjectionType.ORTHO,
                 priority: this._getViewPriority(),
                 flows: ['UIFlow'],

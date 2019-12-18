@@ -29,7 +29,6 @@
 
 import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
 import { Mat4 } from '../math';
-import { INode } from '../utils/interfaces';
 import { AnimationClip, IObjectCurveData } from './animation-clip';
 import { AnimCurve } from './animation-curve';
 import { AnimationState, ICurveInstance } from './animation-state';
@@ -37,6 +36,7 @@ import { Socket } from './skeletal-animation-component';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { ComponentModifier, HierachyModifier, TargetModifier } from './target-modifier';
 import { getPathFromRoot, getWorldTransformUntilRoot } from './transform-utils';
+import { Node } from '../scene-graph';
 
 const m4_1 = new Mat4();
 
@@ -56,7 +56,7 @@ export class SkeletalAnimationState extends AnimationState {
         this._preSample = preSample;
     }
 
-    public initialize (root: INode) {
+    public initialize (root: Node) {
         if (this._preSample) {
             const info = SkelAnimDataHub.getOrExtract(this.clip).info;
             super.initialize(root, info.curves);

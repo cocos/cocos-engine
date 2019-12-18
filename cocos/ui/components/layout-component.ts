@@ -34,9 +34,9 @@ import { Rect, Size, Vec2, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { UITransformComponent } from '../../core/components/ui-base/ui-transform-component';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
-import { INode } from '../../core/utils/interfaces';
 import { director, Director } from '../../core/director';
 import { TransformBit } from '../../core/scene-graph/node-enum';
+import { Node } from '../../core';
 const NodeEvent = SystemEventType;
 /**
  * @zh
@@ -585,7 +585,7 @@ export class LayoutComponent extends Component {
         }
     }
 
-    private _childAdded (child: INode) {
+    private _childAdded (child: Node) {
         child.on(NodeEvent.TRANSFORM_CHANGED, this._doScaleDirty, this);
         child.on(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
         child.on(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
@@ -595,7 +595,7 @@ export class LayoutComponent extends Component {
         this._doLayoutDirty();
     }
 
-    private _childRemoved (child: INode) {
+    private _childRemoved (child: Node) {
         child.off(NodeEvent.TRANSFORM_CHANGED, this._doScaleDirty, this);
         child.off(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
         child.off(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
@@ -954,7 +954,7 @@ export class LayoutComponent extends Component {
 
         const self = this;
 
-        const fnPositionY = (child: INode, topOffset: number, row: number) => {
+        const fnPositionY = (child: Node, topOffset: number, row: number) => {
             return bottomBoundaryOfLayout +
                 sign * (topOffset + child.anchorY * child.height * self._getUsedScaleValue(child.getScale().y) + paddingY + row * this._spacingY);
         };
@@ -996,7 +996,7 @@ export class LayoutComponent extends Component {
         }
 
         const self = this;
-        const fnPositionX = (child: INode, leftOffset: number, column: number) => {
+        const fnPositionX = (child: Node, leftOffset: number, column: number) => {
             return leftBoundaryOfLayout +
                 sign * (leftOffset + child.anchorX * child.width * self._getUsedScaleValue(child.getScale().x) + paddingX + column * this._spacingX);
         };
@@ -1037,7 +1037,7 @@ export class LayoutComponent extends Component {
 
     }
 
-    private _getHorizontalBaseWidth (children: Readonly<INode[]>) {
+    private _getHorizontalBaseWidth (children: Readonly<Node[]>) {
         let newWidth = 0;
         let activeChildCount = 0;
         if (this._resizeMode === ResizeMode.CONTAINER) {
@@ -1055,7 +1055,7 @@ export class LayoutComponent extends Component {
         return newWidth;
     }
 
-    private _getVerticalBaseHeight (children: Readonly<INode[]>) {
+    private _getVerticalBaseHeight (children: Readonly<Node[]>) {
         let newHeight = 0;
         let activeChildCount = 0;
         if (this._resizeMode === ResizeMode.CONTAINER) {
@@ -1079,7 +1079,7 @@ export class LayoutComponent extends Component {
         if (this._N$layoutType === Type.HORIZONTAL) {
             const newWidth = this._getHorizontalBaseWidth(this.node.children);
 
-            const fnPositionY = (child: INode) => {
+            const fnPositionY = (child: Node) => {
                 const pos = this._isAlign ? Vec3.ZERO : child.position;
                 return pos.y;
             };
@@ -1090,7 +1090,7 @@ export class LayoutComponent extends Component {
         } else if (this._N$layoutType === Type.VERTICAL) {
             const newHeight = this._getVerticalBaseHeight(this.node.children);
 
-            const fnPositionX = (child: INode) => {
+            const fnPositionX = (child: Node) => {
                 const pos = this._isAlign ? Vec3.ZERO : child.position;
                 return pos.x;
             };

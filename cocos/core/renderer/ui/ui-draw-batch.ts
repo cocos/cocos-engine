@@ -8,8 +8,8 @@ import { MeshBuffer } from "../../../ui";
 import { Model } from "../scene/model";
 import { Material } from "../../assets";
 import { GFXTextureView, GFXPipelineState } from "../../gfx";
-import { INode } from "../../utils/interfaces";
 import { GFXBindingLayout } from "../../gfx/binding-layout";
+import { Node } from '../../scene-graph';
 
 export class UIDrawBatch {
     public camera: Camera | null = null;
@@ -21,7 +21,7 @@ export class UIDrawBatch {
     public idxCount: number = 0;
     public pipelineState: GFXPipelineState | null = null;
     public bindingLayout: GFXBindingLayout | null = null;
-    public useLocalData: INode | null = null;
+    public useLocalData: Node | null = null;
     public isStatic = false;
 
     public destroy (ui: UI) {

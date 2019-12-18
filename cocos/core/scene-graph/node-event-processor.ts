@@ -35,10 +35,11 @@ import { EventListener } from '../platform/event-manager/event-listener';
 import { eventManager } from '../platform/event-manager/event-manager';
 import { EventMouse, EventTouch } from '../platform/event-manager/events';
 import { Touch } from '../platform/event-manager/touch';
-import { IBaseNode, INode } from '../utils/interfaces';
+import { BaseNode } from './base-node';
+import { Node } from './node';
 
-const _cachedArray = new Array<IBaseNode>(16);
-let _currentHovered: IBaseNode | null = null;
+const _cachedArray = new Array<BaseNode>(16);
+let _currentHovered: BaseNode | null = null;
 let pos = new Vec2();
 
 const _touchEvents = [
@@ -59,7 +60,7 @@ const _mouseEvents = [
 
 // TODO: rearrange event
 function _touchStartHandler (this: EventListener, touch: Touch, event: EventTouch) {
-    const node = this.owner as IBaseNode;
+    const node = this.owner as BaseNode;
     // @ts-ignore
     if (!node || !node.uiTransfromComp) {
         return false;
@@ -81,7 +82,7 @@ function _touchStartHandler (this: EventListener, touch: Touch, event: EventTouc
 }
 
 function _touchMoveHandler (this: EventListener, touch: Touch, event: EventTouch) {
-    const node = this.owner as INode;
+    const node = this.owner as Node;
     if (!node || !node.uiTransformComp) {
         return false;
     }
@@ -93,7 +94,7 @@ function _touchMoveHandler (this: EventListener, touch: Touch, event: EventTouch
 }
 
 function _touchEndHandler (this: EventListener, touch: Touch, event: EventTouch) {
-    const node = this.owner as INode;
+    const node = this.owner as Node;
     if (!node || !node.uiTransformComp) {
         return;
     }
@@ -111,7 +112,7 @@ function _touchEndHandler (this: EventListener, touch: Touch, event: EventTouch)
 }
 
 function _touchCancelHandler (this: EventListener, touch: Touch, event: EventTouch) {
-    const node = this.owner as INode;
+    const node = this.owner as Node;
     if (!node || !node.uiTransformComp) {
         return;
     }
@@ -123,7 +124,7 @@ function _touchCancelHandler (this: EventListener, touch: Touch, event: EventTou
 }
 
 function _mouseDownHandler (this: EventListener, event: EventMouse) {
-    const node = this.owner as INode;
+    const node = this.owner as Node;
     if (!node || !node.uiTransformComp) {
         return;
     }
@@ -138,7 +139,7 @@ function _mouseDownHandler (this: EventListener, event: EventMouse) {
 }
 
 function _mouseMoveHandler (this: EventListener, event: EventMouse) {
-    const node = this.owner as INode;
+    const node = this.owner as Node;
     if (!node || !node.uiTransformComp) {
         return;
     }
@@ -180,7 +181,7 @@ function _mouseMoveHandler (this: EventListener, event: EventMouse) {
 }
 
 function _mouseUpHandler (this: EventListener, event: EventMouse) {
-    const node = this.owner as INode;
+    const node = this.owner as Node;
     if (!node || !node.uiTransformComp) {
         return;
     }
@@ -197,7 +198,7 @@ function _mouseUpHandler (this: EventListener, event: EventMouse) {
 }
 
 function _mouseWheelHandler (this: EventListener, event: EventMouse) {
-    const node = this.owner as INode;
+    const node = this.owner as Node;
     if (!node || !node.uiTransformComp) {
         return;
     }
@@ -213,8 +214,8 @@ function _mouseWheelHandler (this: EventListener, event: EventMouse) {
     }
 }
 
-function _doDispatchEvent (owner: IBaseNode, event: Event) {
-    let target: IBaseNode;
+function _doDispatchEvent (owner: BaseNode, event: Event) {
+    let target: BaseNode;
     let i = 0;
     event.target = owner;
 
@@ -271,7 +272,7 @@ function _doDispatchEvent (owner: IBaseNode, event: Event) {
     _cachedArray.length = 0;
 }
 
-function _searchMaskInParent (node: INode | null) {
+function _searchMaskInParent (node: Node | null) {
     const Mask = cc.MaskComponent;
     if (Mask) {
         let index = 0;
@@ -287,7 +288,7 @@ function _searchMaskInParent (node: INode | null) {
     return null;
 }
 
-function _checkListeners (node: IBaseNode, events: string[]) {
+function _checkListeners (node: BaseNode, events: string[]) {
     if (!node._persistNode) {
         let i = 0;
         if (node.eventProcessor.bubblingTargets) {
@@ -314,7 +315,7 @@ function _checkListeners (node: IBaseNode, events: string[]) {
  * 节点事件类。
  */
 export class NodeEventProcessor {
-    public get node (): IBaseNode {
+    public get node () {
         return this._node;
     }
 
@@ -340,21 +341,21 @@ export class NodeEventProcessor {
      */
     public mouseListener: EventListener | null = null;
 
-    private _node: IBaseNode;
+    private _node: BaseNode;
 
-    constructor (node: IBaseNode) {
+    constructor (node: BaseNode) {
         this._node = node;
     }
 
     public reattach (): void {
         if (this.touchListener) {
-            const mask = this.touchListener.mask = _searchMaskInParent(this._node as INode);
+            const mask = this.touchListener.mask = _searchMaskInParent(this._node);
             if (this.mouseListener) {
                 this.mouseListener.mask = mask;
             }
         }
         else if (this.mouseListener) {
-            this.mouseListener.mask = _searchMaskInParent(this._node as INode);
+            this.mouseListener.mask = _searchMaskInParent(this._node);
         }
     }
 
@@ -615,7 +616,7 @@ export class NodeEventProcessor {
      * @param type - 一个监听事件类型的字符串。
      * @param array - 接收目标的数组。
      */
-    public getCapturingTargets (type: string, targets: IBaseNode[]) {
+    public getCapturingTargets (type: string, targets: BaseNode[]) {
         let parent = this._node.parent;
         while (parent) {
             if (parent.eventProcessor.capturingTargets && parent.eventProcessor.capturingTargets.hasEventListener(type)) {
@@ -634,7 +635,7 @@ export class NodeEventProcessor {
      * @param type - 一个监听事件类型的字符串。
      * @param array - 接收目标的数组。
      */
-    public getBubblingTargets (type: string, targets: IBaseNode[]) {
+    public getBubblingTargets (type: string, targets: BaseNode[]) {
         let parent = this._node.parent;
         while (parent) {
             if (parent.eventProcessor.bubblingTargets && parent.eventProcessor.bubblingTargets.hasEventListener(type)) {
@@ -656,7 +657,7 @@ export class NodeEventProcessor {
                     event: cc.EventListener.TOUCH_ONE_BY_ONE,
                     swallowTouches: true,
                     owner: this._node,
-                    mask: _searchMaskInParent(this._node as INode),
+                    mask: _searchMaskInParent(this._node as Node),
                     onTouchBegan: _touchStartHandler,
                     onTouchMoved: _touchMoveHandler,
                     onTouchEnded: _touchEndHandler,
@@ -672,7 +673,7 @@ export class NodeEventProcessor {
                     event: cc.EventListener.MOUSE,
                     _previousIn: false,
                     owner: this._node,
-                    mask: _searchMaskInParent(this._node as INode),
+                    mask: _searchMaskInParent(this._node as Node),
                     onMouseDown: _mouseDownHandler,
                     onMouseMove: _mouseMoveHandler,
                     onMouseUp: _mouseUpHandler,

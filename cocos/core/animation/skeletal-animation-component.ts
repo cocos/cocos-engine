@@ -31,7 +31,6 @@ import { ccclass, executeInEditMode, executionOrder, menu, property } from '../d
 import { Mat4 } from '../math';
 import { IAnimInfo, JointsAnimationInfo } from '../renderer/models/skeletal-animation-utils';
 import { Node } from '../scene-graph/node';
-import { INode } from '../utils/interfaces';
 import { AnimationClip } from './animation-clip';
 import { AnimationComponent } from './animation-component';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
@@ -43,8 +42,8 @@ export class Socket {
     @property
     public path: string = '';
     @property(Node)
-    public target: INode | null = null;
-    constructor (path = '', target: INode | null = null) {
+    public target: Node | null = null;
+    constructor (path = '', target: Node | null = null) {
         this.path = path;
         this.target = target;
     }
@@ -53,7 +52,7 @@ export class Socket {
 const m4_1 = new Mat4();
 const m4_2 = new Mat4();
 
-function collectRecursively (node: INode, prefix = '', out: string[] = []) {
+function collectRecursively (node: Node, prefix = '', out: string[] = []) {
     for (let i = 0; i < node.children.length; i++) {
         const child = node.children[i];
         if (!child) { continue; }
@@ -167,12 +166,12 @@ export class SkeletalAnimationComponent extends AnimationComponent {
         }
     }
 
-    public createSocket (path: string): INode | null {
+    public createSocket (path: string) {
         const socket = this._sockets.find((s) => s.path === path);
         if (socket) { return socket.target; }
         const joint = this.node.getChildByPath(path);
         if (!joint) { console.warn('illegal socket path'); return null; }
-        const target = new Node() as INode;
+        const target = new Node();
         target.parent = this.node;
         this._sockets.push(new Socket(path, target));
         this.rebuildSocketAnimations();

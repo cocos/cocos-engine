@@ -29,7 +29,6 @@
 
 import { EventArgumentsOf, EventCallbackOf } from '../event/defines';
 import { Node } from '../scene-graph/node';
-import { INode } from '../utils/interfaces';
 import { AnimationBlendState, PropertyBlendState } from './animation-blend-state';
 import { AnimationClip, IRuntimeCurve } from './animation-clip';
 import { AnimCurve, ICurveValueProxy, RatioSampler } from './animation-curve';
@@ -346,8 +345,8 @@ export class AnimationState extends Playable {
     protected _lastWrapInfo: WrappedInfo | null = null;
     protected _lastWrapInfoEvent: WrappedInfo | null = null;
     protected _process = this.process;
-    protected _target: INode | null = null;
-    protected _targetNode: INode | null = null;
+    protected _target: Node | null = null;
+    protected _targetNode: Node | null = null;
     protected _clip: AnimationClip;
     protected _name: string;
     protected _lastIterations?: number;
@@ -365,7 +364,7 @@ export class AnimationState extends Playable {
         return this._curveLoaded;
     }
 
-    public initialize (root: INode, propertyCurves?: readonly IRuntimeCurve[]) {
+    public initialize (root: Node, propertyCurves?: readonly IRuntimeCurve[]) {
         if (this._curveLoaded) { return; }
         this._curveLoaded = true;
         this._samplerSharedGroups.length = 0;

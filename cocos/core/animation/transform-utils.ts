@@ -28,12 +28,12 @@
  */
 
 import { Mat4 } from '../math';
-import { INode } from '../utils/interfaces';
+import { Node } from '../scene-graph';
 
 const m4_1 = new Mat4();
 
-export function getPathFromRoot (target: INode | null, root: INode) {
-    let node: INode | null = target;
+export function getPathFromRoot (target: Node | null, root: Node) {
+    let node: Node | null = target;
     let path = '';
     while (node !== null && node !== root) {
         path = `${node.name}/${path}`;
@@ -42,7 +42,7 @@ export function getPathFromRoot (target: INode | null, root: INode) {
     return path.slice(0, -1);
 }
 
-export function getWorldTransformUntilRoot (target: INode, root: INode, outMatrix: Mat4) {
+export function getWorldTransformUntilRoot (target: Node, root: Node, outMatrix: Mat4) {
     Mat4.identity(outMatrix);
     while (target !== root) {
         Mat4.fromRTS(m4_1, target.rotation, target.position, target.scale);

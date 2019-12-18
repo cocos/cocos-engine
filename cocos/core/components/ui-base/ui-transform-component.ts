@@ -34,7 +34,7 @@ import { EventListener, IListenerMask } from '../../platform/event-manager/event
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../math';
 import { aabb } from '../../geom-utils';
 import { CanvasComponent } from './canvas-component';
-import { INode } from '../../utils/interfaces';
+import { Node } from '../../scene-graph';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
@@ -571,7 +571,7 @@ export class UITransformComponent extends Component {
         }
     }
 
-    protected _parentChanged(node: INode) {
+    protected _parentChanged(node: Node) {
         if (this._canvas && this._canvas.node === this.node) {
             return;
         }
@@ -580,9 +580,9 @@ export class UITransformComponent extends Component {
     }
 
     protected _sortSiblings() {
-        const siblings = this.node.parent && this.node.parent.children as Mutable<INode[]>;
+        const siblings = this.node.parent && this.node.parent.children as Mutable<Node[]>;
         if (siblings) {
-            siblings.sort((a: INode, b: INode) => {
+            siblings.sort((a, b) => {
                 const aComp = a.uiTransformComp;
                 const bComp = b.uiTransformComp;
                 const ca = aComp ? aComp.priority : 0;

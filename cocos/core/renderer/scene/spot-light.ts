@@ -1,6 +1,5 @@
 import { aabb, frustum } from '../../geom-utils';
 import { Mat4, Quat, Vec3 } from '../../math';
-import { INode } from '../../utils/interfaces';
 import { Light, LightType, nt2lm } from './light';
 import { RenderScene } from './render-scene';
 

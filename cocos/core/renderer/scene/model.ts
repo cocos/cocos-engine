@@ -12,11 +12,11 @@ import { Mat4, Vec3 } from '../../math';
 import { Pool } from '../../memop';
 import { IInternalBindingInst, UBOForwardLight, UBOLocal } from '../../pipeline/define';
 import { Layers } from '../../scene-graph/layers';
-import { INode } from '../../utils/interfaces';
 import { IDefineMap, Pass } from '../core/pass';
 import { customizationManager } from './customization-manager';
 import { RenderScene } from './render-scene';
 import { SubModel } from './submodel';
+import { Node } from '../../scene-graph';
 
 const m4_1 = new Mat4();
 
@@ -75,7 +75,7 @@ export class Model {
         return this._node!;
     }
 
-    set node (node: INode) {
+    set node (node) {
         this._node = node;
     }
 
@@ -83,7 +83,7 @@ export class Model {
         return this._transform!;
     }
 
-    set transform (transform: INode) {
+    set transform (transform) {
         this._transform = transform;
     }
 
@@ -145,8 +145,8 @@ export class Model {
     protected _type: string = 'default';
     protected _device: GFXDevice;
     protected _scene: RenderScene | null = null;
-    protected _node: INode | null = null;
-    protected _transform: INode | null = null;
+    protected _node: Node | null = null;
+    protected _transform: Node | null = null;
     protected _id: number = MODEL_ID++;
     protected _enabled: boolean = true;
     protected _visFlags = Layers.Enum.NONE;
@@ -174,7 +174,7 @@ export class Model {
         this._device = cc.director.root!.device;
     }
 
-    public initialize (node: INode) {
+    public initialize (node: Node) {
         this._transform = this._node = node;
     }
 

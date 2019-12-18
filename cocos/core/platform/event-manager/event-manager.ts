@@ -31,9 +31,9 @@
 // tslint:disable:max-line-length
 
 import { Event } from '../../event';
-import { INode } from '../../utils/interfaces';
 import { EventTouch } from './events';
 import { EventListener, TouchOneByOne } from './event-listener';
+import { Node } from '../../scene-graph';
 const ListenerID = EventListener.ListenerID;
 
 function checkUINode (node) {
@@ -135,7 +135,7 @@ class EventManager {
     private _nodeListenersMap: INodeListener = {};
     private _toAddedListeners: EventListener[] = [];
     private _toRemovedListeners: EventListener[] = [];
-    private _dirtyListeners: INode[] = [];
+    private _dirtyListeners: Node[] = [];
     private _inDispatch = 0;
     private _isEnabled = false;
     private _internalCustomListenerIDs: string[] = [];
@@ -146,7 +146,7 @@ class EventManager {
      * @param node - 暂停目标节点
      * @param recursive - 是否往子节点递归暂停。默认为 false。
      */
-    public pauseTarget (node: INode, recursive = false) {
+    public pauseTarget (node: Node, recursive = false) {
         if (!(node instanceof cc._BaseNode)) {
             cc.warnID(3506);
             return;
@@ -179,7 +179,7 @@ class EventManager {
      * @param node - 监听器节点。
      * @param recursive - 是否往子节点递归。默认为 false。
      */
-    public resumeTarget (node: INode, recursive = false) {
+    public resumeTarget (node: Node, recursive = false) {
         if (!(node instanceof cc._BaseNode)) {
             cc.warnID(3506);
             return;
@@ -610,7 +610,7 @@ class EventManager {
         this.dispatchEvent(ev);
     }
 
-    private _setDirtyForNode (node: INode) {
+    private _setDirtyForNode (node: Node) {
         // Mark the node dirty only when there is an event listener associated with it.
         // @ts-ignore
         const selListeners = this._nodeListenersMap[node._id];
@@ -768,14 +768,14 @@ class EventManager {
         const node1 = l1._getSceneGraphPriority();
         const node2 = l2._getSceneGraphPriority();
         // Event manager should only care about ui node in the current scene hierarchy
-        if (!l2 || !node2 || !node2._activeInHierarchy || !(node2 as INode).uiTransformComp) {
+        if (!l2 || !node2 || !node2._activeInHierarchy || !(node2 as Node).uiTransformComp) {
             return -1;
         }
-        else if (!l1 || !node1 || !node1._activeInHierarchy || !(node1 as INode).uiTransformComp) {
+        else if (!l1 || !node1 || !node1._activeInHierarchy || !(node1 as Node).uiTransformComp) {
             return 1;
         }
 
-        let p1 = node1; let p2 = node2; let trans1 = (node1 as INode).uiTransformComp; let trans2 = (node2 as INode).uiTransformComp; let ex = false;
+        let p1 = node1; let p2 = node2; let trans1 = (node1 as Node).uiTransformComp; let trans2 = (node2 as Node).uiTransformComp; let ex = false;
         if (trans1.visibility !== trans2.visibility) {
             return trans2.visibility - trans1.visibility;
         }
@@ -1062,7 +1062,7 @@ class EventManager {
         return false;
     }
 
-    private _associateNodeAndEventListener (node: INode, listener: EventListener) {
+    private _associateNodeAndEventListener (node: Node, listener: EventListener) {
         let listeners = this._nodeListenersMap[node.uuid];
         if (!listeners) {
             listeners = [];
@@ -1071,7 +1071,7 @@ class EventManager {
         listeners.push(listener);
     }
 
-    private _dissociateNodeAndEventListener (node: INode, listener: EventListener) {
+    private _dissociateNodeAndEventListener (node: Node, listener: EventListener) {
         const listeners = this._nodeListenersMap[node.uuid];
         if (listeners) {
             cc.js.array.remove(listeners, listener);
