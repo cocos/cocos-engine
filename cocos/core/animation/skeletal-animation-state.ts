@@ -30,7 +30,7 @@
 import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
 import { Mat4 } from '../math';
 import { INode } from '../utils/interfaces';
-import { IObjectCurveData } from './animation-clip';
+import { AnimationClip, IObjectCurveData } from './animation-clip';
 import { AnimCurve } from './animation-curve';
 import { AnimationState, ICurveInstance } from './animation-state';
 import { Socket } from './skeletal-animation-component';
@@ -49,9 +49,21 @@ function isFrameIDCurve (modifiers: TargetModifier[]) {
 
 export class SkeletalAnimationState extends AnimationState {
 
+    protected _preSample = true;
+
+    constructor (clip: AnimationClip, name = '', preSample = true) {
+        super(clip, name);
+        this._preSample = preSample;
+    }
+
     public initialize (root: INode) {
-        SkelAnimDataHub.getOrExtract(this.clip);
-        super.initialize(root);
+        if (this._preSample) {
+            const info = SkelAnimDataHub.getOrExtract(this.clip).info;
+            super.initialize(root, info.curves);
+            this.duration = (info.frames - 1) / info.sample; // last key
+        } else {
+            super.initialize(root);
+        }
     }
 
     public onPlay () {
@@ -91,12 +103,12 @@ export class SkeletalAnimationState extends AnimationState {
         const targetNode = root.getChildByPath(socket.path);
         if (!targetNode || !socket.target) { return null; }
         const targetPath = socket.path;
-        const sourceData = SkelAnimDataHub.getOrExtract(this.clip);
+        const sourceData = SkelAnimDataHub.getOrExtract(this.clip).data;
         // find lowest joint animation
         let animPath = targetPath;
         let source = sourceData[animPath];
         let animNode = targetNode;
-        while (!source || !source.props) {
+        while (!source) {
             const idx = animPath.lastIndexOf('/');
             animPath = animPath.substring(0, idx);
             source = sourceData[animPath];
@@ -105,7 +117,7 @@ export class SkeletalAnimationState extends AnimationState {
         }
         // create animation data
         const data: IObjectCurveData = {
-            matrix: { keys: 0, interpolate: false, values: source.props.worldMatrix.values.map((v) => v.clone()) },
+            matrix: { keys: 0, interpolate: false, values: source.worldMatrix.values.map((v) => v.clone()) },
         };
         const matrix = data.matrix.values;
         // apply downstream default pose

@@ -190,19 +190,19 @@ export class JointsTexturePool {
         const hash = skeleton.hash ^ clip.hash;
         let texture: IJointsTextureHandle | null = this._textureBuffers.get(hash) || null;
         if (texture) { texture.refCount++; return texture; }
-        const frames = clip.keys[0].length;
+        const clipData = SkelAnimDataHub.getOrExtract(clip);
+        const frames = clipData.info.frames;
         const bufSize = skeleton.joints.length * 12 * frames;
         const handle = this._pool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT);
         if (!handle) { return null; }
         texture = { pixelOffset: handle.start / this._formatSize, refCount: 1,
             skeletonHash: skeleton.hash, clipHash: clip.hash, readyToBeDeleted: false, handle };
         const textureBuffer = new Float32Array(bufSize);
-        const data = SkelAnimDataHub.getOrExtract(clip);
         for (let i = 0; i < skeleton.joints.length; i++) {
-            const nodeData = data[skeleton.joints[i]];
-            if (!nodeData || !nodeData.props) { continue; }
+            const nodeData = clipData.data[skeleton.joints[i]];
+            if (!nodeData) { continue; }
             const bindpose = skeleton.bindposes[i];
-            const matrix = nodeData.props.worldMatrix.values;
+            const matrix = nodeData.worldMatrix.values as Mat4[];
             for (let frame = 0; frame < frames; frame++) {
                 const m = matrix[frame];
                 Mat4.multiply(m4_1, m, bindpose);
@@ -229,6 +229,8 @@ export class JointsTexturePool {
             if (res.value.skeletonHash === skeleton.hash) {
                 res.value.readyToBeDeleted = true;
                 this.releaseHandle(res.value, false);
+                // delete handle refs immediately so new allocations with the same asset could work
+                this._textureBuffers.delete(res.value.skeletonHash ^ res.value.clipHash);
             }
             res = it.next();
         }
@@ -241,6 +243,8 @@ export class JointsTexturePool {
             if (res.value.clipHash === clip.hash) {
                 res.value.readyToBeDeleted = true;
                 this.releaseHandle(res.value, false);
+                // delete handle refs immediately so new allocations with the same asset could work
+                this._textureBuffers.delete(res.value.skeletonHash ^ res.value.clipHash);
             }
             res = it.next();
         }
@@ -301,7 +305,7 @@ export class JointsAnimationInfo {
     }
 
     public switchClip (info: IAnimInfo, clip: AnimationClip | null) {
-        info.data[0] = clip ? clip.keys[0].length : 1;
+        info.data[0] = clip ? SkelAnimDataHub.getOrExtract(clip).info.frames : 1;
         info.data[1] = 0;
         info.buffer.update(info.data);
         info.dirty = false;
@@ -332,18 +336,18 @@ export class AnimatedBoundsInfo {
             perJointBounds = this.getBoneSpacePerJointBounds(mesh, skeleton);
             this._setPerJointBounds(mesh, skeleton, perJointBounds);
         }
-        const frames = clip.keys[0].length;
+        const clipData = SkelAnimDataHub.getOrExtract(clip);
+        const frames = clipData.info.frames;
         for (let fid = 0; fid < frames; fid++) {
             list.push(new aabb(Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity));
         }
-        const data = SkelAnimDataHub.getOrExtract(clip);
         const joints = skeleton.joints;
         // per frame bounding box
         for (let i = 0; i < joints.length; i++) {
-            const nodeData = data[joints[i]];
+            const nodeData = clipData.data[joints[i]];
             const bound = perJointBounds[i];
-            if (!bound || !nodeData || !nodeData.props) { continue; }
-            const matrix = nodeData.props.worldMatrix.values;
+            if (!bound || !nodeData) { continue; }
+            const matrix = nodeData.worldMatrix.values as Mat4[];
             for (let fid = 0; fid < frames; fid++) {
                 const m = matrix[fid];
                 const info = list[fid];
