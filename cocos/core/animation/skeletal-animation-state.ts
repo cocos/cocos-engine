@@ -30,7 +30,7 @@
 import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
 import { Mat4 } from '../math';
 import { INode } from '../utils/interfaces';
-import { IObjectCurveData } from './animation-clip';
+import { AnimationClip, IObjectCurveData } from './animation-clip';
 import { AnimCurve } from './animation-curve';
 import { AnimationState, ICurveInstance } from './animation-state';
 import { Socket } from './skeletal-animation-component';
@@ -49,10 +49,21 @@ function isFrameIDCurve (modifiers: TargetModifier[]) {
 
 export class SkeletalAnimationState extends AnimationState {
 
+    protected _preSample = true;
+
+    constructor (clip: AnimationClip, name = '', preSample = true) {
+        super(clip, name);
+        this._preSample = preSample;
+    }
+
     public initialize (root: INode) {
-        const info = SkelAnimDataHub.getOrExtract(this.clip).info;
-        super.initialize(root, info.curves);
-        this.duration = (info.frames - 1) / info.sample; // last key
+        if (this._preSample) {
+            const info = SkelAnimDataHub.getOrExtract(this.clip).info;
+            super.initialize(root, info.curves);
+            this.duration = (info.frames - 1) / info.sample; // last key
+        } else {
+            super.initialize(root);
+        }
     }
 
     public onPlay () {

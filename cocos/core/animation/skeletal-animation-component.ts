@@ -77,6 +77,9 @@ export class SkeletalAnimationComponent extends AnimationComponent {
 
     @property({ type: [Socket] })
     public _sockets: Socket[] = [];
+
+    protected _enablePreSample = true;
+
     protected _animMgr: JointsAnimationInfo = null!;
 
     @property({
@@ -89,6 +92,14 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     set sockets (val) {
         this._sockets = val;
         this.rebuildSocketAnimations();
+    }
+
+    set enablePreSample (val) {
+        this._enablePreSample = val;
+        this.clips = this._clips; // release old states
+    }
+    get enablePreSample () {
+        return this._enablePreSample;
     }
 
     protected _animInfo: IAnimInfo | null = null;
@@ -169,7 +180,7 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     }
 
     protected _createState (clip: AnimationClip, name?: string) {
-        return new SkeletalAnimationState(clip, name);
+        return new SkeletalAnimationState(clip, name, this._enablePreSample);
     }
 
     protected _doCreateState (clip: AnimationClip, name: string) {

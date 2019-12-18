@@ -355,7 +355,7 @@ export class AnimationState extends Playable {
     protected _curveLoaded = false;
     protected _ignoreIndex = InvalidIndex;
 
-    constructor (clip: AnimationClip, name?: string) {
+    constructor (clip: AnimationClip, name = '') {
         super();
         this._clip = clip;
         this._name = name || (clip && clip.name);
