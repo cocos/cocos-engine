@@ -38,15 +38,15 @@ const quat_0 = new Quat();
  */
 export class BuiltinSharedBody {
 
-    private static readonly sharedBodesMap = new Map<string, BuiltinSharedBody>();
+    private static readonly sharedBodiesMap = new Map<string, BuiltinSharedBody>();
 
     static getSharedBody (node: any, wrappedWorld: BuiltInWorld) {
         const key = node._id;
-        if (BuiltinSharedBody.sharedBodesMap.has(key)) {
-            return BuiltinSharedBody.sharedBodesMap.get(key)!;
+        if (BuiltinSharedBody.sharedBodiesMap.has(key)) {
+            return BuiltinSharedBody.sharedBodiesMap.get(key)!;
         } else {
             const newSB = new BuiltinSharedBody(node, wrappedWorld);
-            BuiltinSharedBody.sharedBodesMap.set(node._id, newSB);
+            BuiltinSharedBody.sharedBodiesMap.set(node._id, newSB);
             return newSB;
         }
     }
@@ -139,7 +139,7 @@ export class BuiltinSharedBody {
     }
 
     private destory () {
-        BuiltinSharedBody.sharedBodesMap.delete(this.node._id);
+        BuiltinSharedBody.sharedBodiesMap.delete(this.node._id);
         (this.node as any) = null;
         (this.world as any) = null;
         (this.shapes as any) = null;

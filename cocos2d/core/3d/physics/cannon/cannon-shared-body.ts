@@ -50,15 +50,15 @@ const CollisionEventObject = {
  */
 export class CannonSharedBody {
 
-    private static readonly sharedBodesMap = new Map<string, CannonSharedBody>();
+    private static readonly sharedBodiesMap = new Map<string, CannonSharedBody>();
 
     static getSharedBody (node: any, wrappedWorld: CannonWorld) {
         const key = node._id;
-        if (CannonSharedBody.sharedBodesMap.has(key)) {
-            return CannonSharedBody.sharedBodesMap.get(key)!;
+        if (CannonSharedBody.sharedBodiesMap.has(key)) {
+            return CannonSharedBody.sharedBodiesMap.get(key)!;
         } else {
             const newSB = new CannonSharedBody(node, wrappedWorld);
-            CannonSharedBody.sharedBodesMap.set(node._id, newSB);
+            CannonSharedBody.sharedBodiesMap.set(node._id, newSB);
             return newSB;
         }
     }
@@ -169,7 +169,7 @@ export class CannonSharedBody {
 
     private destroy () {
         this.node.off(cc.Node.EventType.GROUP_CHANGED, this._updateGroup, this);
-        CannonSharedBody.sharedBodesMap.delete(this.node._id);
+        CannonSharedBody.sharedBodiesMap.delete(this.node._id);
         (this.node as any) = null;
         (this.wrappedWorld as any) = null;
         (this.body as any) = null;
