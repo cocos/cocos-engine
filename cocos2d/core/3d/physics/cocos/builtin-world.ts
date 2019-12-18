@@ -36,6 +36,7 @@ import { PhysicsMaterial } from './../framework/assets/physics-material';
 import { TriggerEventType } from '../framework/physics-interface';
 import { Collider3D } from '../exports/physics-framework';
 
+const jsArray = cc.js.array;
 const hitPoint = new Vec3();
 const TriggerEventObject = {
     type: 'onCollisionEnter' as unknown as TriggerEventType,
@@ -165,7 +166,7 @@ export class BuiltInWorld implements IPhysicsWorld {
     removeSharedBody (body: BuiltinSharedBody) {
         const index = this.bodies.indexOf(body);
         if (index >= 0) {
-            this.bodies.splice(index, 1);
+            jsArray.fastRemoveAt(this.bodies, index);
         }
     }
 

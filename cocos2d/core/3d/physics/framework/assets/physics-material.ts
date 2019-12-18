@@ -26,6 +26,7 @@
 import { ccclass, property } from '../../../../platform/CCClassDecorator';
 import { equals } from '../../../../value-types';
 
+const jsArray = cc.js.array;
 @ccclass('cc.PhysicsMaterial')
 export class PhysicsMaterial extends cc.Asset {
 
@@ -93,7 +94,7 @@ export class PhysicsMaterial extends cc.Asset {
         if (super.destroy()) {
             let idx = PhysicsMaterial.allMaterials.indexOf(this);
             if (idx >= 0) {
-                PhysicsMaterial.allMaterials.splice(idx, 1);
+                jsArray.fastRemoveAt(PhysicsMaterial.allMaterials, idx);
             }
             return true;
         } else {

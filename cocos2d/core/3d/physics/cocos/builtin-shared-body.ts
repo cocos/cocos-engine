@@ -32,6 +32,7 @@ const m4_0 = new Mat4();
 const v3_0 = new Vec3();
 const v3_1 = new Vec3();
 const quat_0 = new Quat();
+const jsArray = cc.js.array;
 
 /**
  * Built-in static collider, no physical forces involved
@@ -124,7 +125,7 @@ export class BuiltinSharedBody {
     removeShape (shape: BuiltinShape): void {
         const i = this.shapes.indexOf(shape);
         if (i >= 0) {
-            this.shapes.splice(i, 1);
+            jsArray.fastRemoveAt(this.shapes, i);
         }
     }
 

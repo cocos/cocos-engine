@@ -32,6 +32,8 @@ import { RecyclePool } from '../../../../renderer/memop';
 import { CannonSharedBody } from './cannon-shared-body';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { PhysicsMaterial, PhysicsRayResult } from '../framework';
+
+const jsArray = cc.js.array;
 export class CannonWorld implements IPhysicsWorld {
 
     get world () {
@@ -117,7 +119,7 @@ export class CannonWorld implements IPhysicsWorld {
     removeSharedBody (sharedBody: CannonSharedBody) {
         const i = this.bodies.indexOf(sharedBody);
         if (i >= 0) {
-            this.bodies.splice(i, 1);
+            jsArray.fastRemoveAt(this.bodies, i);
             this._world.remove(sharedBody.body);
         }
     }

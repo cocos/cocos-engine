@@ -34,6 +34,7 @@ import { CollisionEventType } from '../framework/physics-interface';
 import { CannonRigidBody } from './cannon-rigid-body';
 import { groupIndexToBitMask } from './cannon-util'
 
+const jsArray = cc.js.array;
 const v3_0 = new Vec3();
 const quat_0 = new Quat();
 const contactsPool = [] as any;
@@ -135,9 +136,8 @@ export class CannonSharedBody {
     removeShape (v: CannonShape) {
         const index = this.shapes.indexOf(v);
         if (index >= 0) {
-            this.shapes.splice(index, 1);
+            jsArray.fastRemoveAt(this.shapes, index);
             this.body.removeShape(v.shape);
-
             v.setIndex(-1);
         }
     }
