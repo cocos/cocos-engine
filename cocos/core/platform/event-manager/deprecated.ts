@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { replaceProperty } from '../../utils';
 import { SystemEventType } from './event-enum';
 

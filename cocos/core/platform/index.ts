@@ -23,6 +23,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+/**
+ * @hidden
+ */
 
 export * from './sys';
 export * from './macro';

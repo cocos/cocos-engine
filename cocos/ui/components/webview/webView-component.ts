@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category ui
+ */
+
 import { EventHandler } from '../../../core/components/component-event-handler';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { UIComponent } from '../../../core/components/ui-base/ui-component';

@@ -24,6 +24,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @hidden
+ */
+
 import { Rect } from '../math';
 
 /**

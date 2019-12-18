@@ -23,6 +23,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category component
+ */
+
 import { Component } from '../components/component';
 import { property, ccclass, menu, executionOrder } from '../data/class-decorator';
 import { view } from './view';
