@@ -169,9 +169,9 @@ export default class TTFAssembler extends Assembler2D {
         _hAlign = comp.horizontalAlign;
         _vAlign = comp.verticalAlign;
         _color = comp.node.color;
-        _enableBold = comp._isBold;
-        _enableItalic = comp._isItalic;
-        _enableUnderline = comp._isUnderline;
+        _enableBold = comp.enableBold;
+        _enableItalic = comp.enableItalic;
+        _enableUnderline = comp.enableUnderline;
 
         if (_overflow === Overflow.NONE) {
             _isWrapText = false;

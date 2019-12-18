@@ -152,6 +152,10 @@ const CacheMode = cc.Enum({
     CHAR: 2,
 });
 
+const BOLD_FLAG = 1 << 0;
+const ITALIC_FLAG = 1 << 1;
+const UNDERLINE_FLAG = 1 << 2;
+
 /**
  * !#en The Label Component.
  * !#zh 文字标签组件
@@ -491,7 +495,8 @@ let Label = cc.Class({
             animatable: false
         },
 
-        _isBold: false,
+        _styleFlag: 0,
+
         /**
          * !#en Whether enable bold.
          * !#zh 是否启用黑体。
@@ -499,19 +504,21 @@ let Label = cc.Class({
          */
         enableBold: {
             get () {
-                return this._isBold;
+                return !!(this._styleFlag & BOLD_FLAG);
             },
             set (value) {
-                if (this._isBold === value) return;
+                if (value) {
+                    this._styleFlag |= BOLD_FLAG;
+                } else {
+                    this._styleFlag &= ~BOLD_FLAG;
+                }
 
-                this._isBold = value;
                 this.setVertsDirty();
             },
             animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.label.bold'
         },
 
-        _isItalic: false,
         /**
          * !#en Whether enable italic.
          * !#zh 是否启用黑体。
@@ -519,19 +526,21 @@ let Label = cc.Class({
          */
         enableItalic: {
             get () {
-                return this._isItalic;
+                return !!(this._styleFlag & ITALIC_FLAG);
             },
             set (value) {
-                if (this._isItalic === value) return;
-
-                this._isItalic = value;
+                if (value) {
+                    this._styleFlag |= ITALIC_FLAG;
+                } else {
+                    this._styleFlag &= ~ITALIC_FLAG;
+                }
+                
                 this.setVertsDirty();
             },
             animatable: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.label.italic'
         },
 
-        _isUnderline: false,
         /**
          * !#en Whether enable underline.
          * !#zh 是否启用下划线。
@@ -539,12 +548,15 @@ let Label = cc.Class({
          */
         enableUnderline: {
             get () {
-                return this._isUnderline;
+                return !!(this._styleFlag & UNDERLINE_FLAG);
             },
             set (value) {
-                if (this._isUnderline === value) return;
+                if (value) {
+                    this._styleFlag |= UNDERLINE_FLAG;
+                } else {
+                    this._styleFlag &= ~UNDERLINE_FLAG;
+                }
 
-                this._isUnderline = value;
                 this.setVertsDirty();
             },
             animatable: false,
@@ -735,15 +747,15 @@ let Label = cc.Class({
     },
 
     _enableBold (enabled) {
-        this._isBold = !!enabled;
+        this.enableBold = enabled;
     },
 
     _enableItalics (enabled) {
-        this._isItalic = !!enabled;
+        this.enableItalic = enabled;
     },
 
     _enableUnderline (enabled) {
-        this._isUnderline = !!enabled;
+        this.enableUnderline = enabled;
     },
  });
 
