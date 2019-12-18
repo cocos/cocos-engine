@@ -297,8 +297,18 @@ cc.js.mixin(View.prototype, {
 
     _initFrameSize: function () {
         var locFrameSize = this._frameSize;
-        var w = __BrowserGetter.availWidth(cc.game.frame);
-        var h = __BrowserGetter.availHeight(cc.game.frame);
+
+        var w, h;
+        // fix
+        if (cc.sys.browserType === cc.sys.BROWSER_TYPE_SAFARI) {
+            w = window.innerWidth;
+            h = window.innerHeight;
+        }
+        else {
+            w = __BrowserGetter.availWidth(cc.game.frame);
+            h = __BrowserGetter.availHeight(cc.game.frame);
+        }
+
         var isLandscape = w >= h;
 
         if (CC_EDITOR || !cc.sys.isMobile ||
