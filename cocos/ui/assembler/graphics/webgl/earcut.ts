@@ -26,14 +26,14 @@
 'use strict';
 
 class Aim {
-    // vertice index in coordinates array
+    // vertex index in coordinates array
     public i: number;
 
     // vertex coordinates
     public x: number;
     public y: number;
 
-    // previous and next vertice nodes in a polygon ring
+    // previous and next vertex nodes in a polygon ring
     public prev: Aim | null = null;
     public next: Aim | null = null;
 
@@ -137,7 +137,7 @@ function earcutLinked (ear: Aim | null, triangles: number[], dim: number, minX: 
 
             removeNode(ear!);
 
-            // skipping the next vertice leads to less sliver triangles
+            // skipping the next vertices leads to less sliver triangles
             ear = next.next;
             stop = next.next;
 

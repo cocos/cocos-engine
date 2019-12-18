@@ -605,9 +605,9 @@ export class ScrollViewComponent extends ViewGroupComponent {
      */
     public getScrollOffset () {
         const topDelta = this._getContentTopBoundary() - this._topBoundary;
-        const leftDeta = this._getContentLeftBoundary() - this._leftBoundary;
+        const leftDelta = this._getContentLeftBoundary() - this._leftBoundary;
 
-        return new Vec3(leftDeta, topDelta, 0);
+        return new Vec3(leftDelta, topDelta, 0);
     }
 
     /**
@@ -929,7 +929,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
         if (!this.enabledInHierarchy || !this._content) { return; }
         if (this._hasNestedViewGroup(event, captureListeners)) { return; }
 
-        // Filte touch cancel event send from self
+        // Filter touch cancel event send from self
         if (event && !event.simulate) {
             const touch = event.touch!;
             if (this._content) {
@@ -969,8 +969,8 @@ export class ScrollViewComponent extends ViewGroupComponent {
 
         if (captureListeners) {
             // captureListeners are arranged from child to parent
-            for (const listerner of captureListeners) {
-                const item = listerner;
+            for (const listener of captureListeners) {
+                const item = listener;
 
                 if (this.node === item) {
                     if (event.target && (event.target as INode).getComponent(ViewGroupComponent)) {
@@ -1017,7 +1017,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
     }
 
     protected _startAttenuatingAutoScroll (deltaMove: Vec3, initialVelocity: Vec3) {
-        let time = this._calculateAutoScrollTimeByInitalSpeed(initialVelocity.length());
+        let time = this._calculateAutoScrollTimeByInitialSpeed(initialVelocity.length());
 
         const targetDelta = new Vec3(deltaMove);
         targetDelta.normalize();
@@ -1058,8 +1058,8 @@ export class ScrollViewComponent extends ViewGroupComponent {
         this._startAutoScroll(targetDelta, time, true);
     }
 
-    protected _calculateAutoScrollTimeByInitalSpeed (initalSpeed: number) {
-        return Math.sqrt(Math.sqrt(initalSpeed / 5));
+    protected _calculateAutoScrollTimeByInitialSpeed (initialSpeed: number) {
+        return Math.sqrt(Math.sqrt(initialSpeed / 5));
     }
 
     protected _startAutoScroll (deltaMove: Vec3, timeInSecond: number, attenuated: boolean = false) {
@@ -1535,22 +1535,22 @@ export class ScrollViewComponent extends ViewGroupComponent {
 
         const scrollSize = this.node.getContentSize();
         const contentSize = this._content!.getContentSize();
-        let bottomDeta = this._getContentBottomBoundary() - this._bottomBoundary;
-        bottomDeta = -bottomDeta;
+        let bottomDelta = this._getContentBottomBoundary() - this._bottomBoundary;
+        bottomDelta = -bottomDelta;
 
-        let leftDeta = this._getContentLeftBoundary() - this._leftBoundary;
-        leftDeta = -leftDeta;
+        let leftDelta = this._getContentLeftBoundary() - this._leftBoundary;
+        leftDelta = -leftDelta;
 
         const moveDelta = new Vec3();
         let totalScrollDelta = 0;
         if (applyToHorizontal) {
             totalScrollDelta = contentSize.width - scrollSize.width;
-            moveDelta.x = leftDeta - totalScrollDelta * anchor.x;
+            moveDelta.x = leftDelta - totalScrollDelta * anchor.x;
         }
 
         if (applyToVertical) {
             totalScrollDelta = contentSize.height - scrollSize.height;
-            moveDelta.y = bottomDeta - totalScrollDelta * anchor.y;
+            moveDelta.y = bottomDelta - totalScrollDelta * anchor.y;
         }
 
         return moveDelta;
@@ -1559,18 +1559,18 @@ export class ScrollViewComponent extends ViewGroupComponent {
     protected _moveContentToTopLeft (scrollViewSize: Size) {
         const contentSize = this._content!.getContentSize();
 
-        let bottomDeta = this._getContentBottomBoundary() - this._bottomBoundary;
-        bottomDeta = -bottomDeta;
+        let bottomDelta = this._getContentBottomBoundary() - this._bottomBoundary;
+        bottomDelta = -bottomDelta;
         const moveDelta = new Vec3();
         let totalScrollDelta = 0;
 
-        let leftDeta = this._getContentLeftBoundary() - this._leftBoundary;
-        leftDeta = -leftDeta;
+        let leftDelta = this._getContentLeftBoundary() - this._leftBoundary;
+        leftDelta = -leftDelta;
 
         // 是否限制在上视区上边
         if (contentSize.height < scrollViewSize.height) {
             totalScrollDelta = contentSize.height - scrollViewSize.height;
-            moveDelta.y = bottomDeta - totalScrollDelta;
+            moveDelta.y = bottomDelta - totalScrollDelta;
 
             if (this.verticalScrollBar) {
                 this.verticalScrollBar.hide();
@@ -1584,7 +1584,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
         // 是否限制在上视区左边
         if (contentSize.width < scrollViewSize.width) {
             totalScrollDelta = contentSize.width - scrollViewSize.width;
-            moveDelta.x = leftDeta;
+            moveDelta.x = leftDelta;
 
             if (this._horizontalScrollBar) {
                 this._horizontalScrollBar.hide();
