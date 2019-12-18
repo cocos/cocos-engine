@@ -28,12 +28,10 @@
  * @category ui
  */
 
-import { SpriteFrame } from '../../core/assets';
 import { InstanceMaterialType, UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
 import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
 import { view } from '../../core/platform';
-import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import visibleRect from '../../core/platform/visible-rect';
 import { UI } from '../../core/renderer/ui/ui';
 import { Node } from '../../core/scene-graph';
@@ -76,7 +74,7 @@ export enum MaskType {
      * @zh
      * 使用图像模版作为遮罩。
      */
-    // IMAGE_STENCIL = 2,
+    GRAPHICS_STENCIL = 2,
 }
 
 ccenum(MaskType);
@@ -100,7 +98,7 @@ export class MaskComponent extends UIRenderComponent {
     @property({
         type: MaskType,
         displayOrder: 4,
-        tooltip:'遮罩类型',
+        tooltip: '遮罩类型',
     })
     get type () {
         return this._type;
@@ -112,36 +110,13 @@ export class MaskComponent extends UIRenderComponent {
         }
 
         this._type = value;
-        // if (this._type !== MaskType.IMAGE_STENCIL) {
-        //     this.spriteFrame = null;
-        //     this.alphaThreshold = 0;
         this._updateGraphics();
-        // }
         if (this._renderData) {
             this.destroyRenderData();
             this._renderData = null;
         }
-        this._activateMaterial();
     }
 
-    /**
-     * @zh 遮罩所需要的贴图。
-     */
-    // @property({
-    //     type: SpriteFrame,
-    // })
-    // get spriteFrame () {
-    //     return this._spriteFrame;
-    // }
-
-    // set spriteFrame (value: SpriteFrame | null) {
-    //     if (this._spriteFrame === value) {
-    //         return;
-    //     }
-
-    //     this._spriteFrame = value;
-    //     this._applySpriteFrame(value);
-    // }
 
     /**
      * @zh
@@ -260,9 +235,6 @@ export class MaskComponent extends UIRenderComponent {
 
     public static Type = MaskType;
 
-    // @property
-    // private _spriteFrame: SpriteFrame | null = null;
-
     @property
     protected _type = MaskType.RECT;
 
@@ -300,39 +272,19 @@ export class MaskComponent extends UIRenderComponent {
      */
     public onRestore () {
         this._createGraphics();
-        // if (this._type !== MaskType.IMAGE_STENCIL) {
         this._updateGraphics();
-        // }
-        // else {
-        //     this._applySpriteFrame(null);
-        // }
     }
 
     public onEnable () {
         super.onEnable();
-        // if (this._type === MaskType.IMAGE_STENCIL) {
-        //     if (!this._spriteFrame || !this._spriteFrame.textureLoaded()) {
-        //         if (this._spriteFrame) {
-        //             this.markForUpdateRenderData(false);
-        //             this._spriteFrame.once('load', this._onTextureLoaded, this);
-        //             this._spriteFrame.ensureLoadImage();
-        //         }
-        //     }
-        // }
-        // else {
         this._enableGraphics();
-        // }
 
-        // this._activateMaterial();
-
-        this.node.on(SystemEventType.TRANSFORM_CHANGED, this._nodeStateChange, this);
         view.on('design-resolution-changed', this._updateClearGraphics, this);
     }
 
     public onDisable () {
         super.onDisable();
         this._disableGraphics();
-        this.node.off(SystemEventType.TRANSFORM_CHANGED, this._nodeStateChange);
         view.off('design-resolution-changed', this._updateClearGraphics);
     }
 
@@ -378,16 +330,6 @@ export class MaskComponent extends UIRenderComponent {
         return result;
     }
 
-    public _resizeNodeToTargetNode () {
-        // if (!CC_EDITOR){
-        //     return;
-        // }
-        // if (this.spriteFrame) {
-        //     const rect = this.spriteFrame.getRect();
-        //     this.node.setContentSize(rect.width, rect.height);
-        // }
-    }
-
     protected _render (render: UI) {
         render.commitComp(this, null, this._assembler!);
     }
@@ -401,10 +343,6 @@ export class MaskComponent extends UIRenderComponent {
     }
 
     protected _nodeStateChange (type: TransformBit) {
-        if (type & TransformBit.POSITION) {
-            return;
-        }
-
         super._nodeStateChange(type);
 
         this._updateGraphics();
@@ -442,33 +380,6 @@ export class MaskComponent extends UIRenderComponent {
                 this.markForUpdateRenderData();
             }
         }
-    }
-
-    private _onTextureLoaded () {
-        // Mark render data dirty
-        if (this._renderData) {
-            this._renderData.uvDirty = true;
-            this._renderData.vertDirty = true;
-        }
-        // Reactivate material
-        if (this.enabledInHierarchy) {
-            this._activateMaterial();
-        }
-    }
-
-    private _applySpriteFrame (oldFrame: SpriteFrame | null) {
-        // if (oldFrame && oldFrame.off) {
-        //     oldFrame.off('load', this._onTextureLoaded, this);
-        // }
-        // const spriteFrame = this._spriteFrame;
-        // if (spriteFrame) {
-        //     if (spriteFrame.textureLoaded()) {
-        //         this._onTextureLoaded();
-        //     } else {
-        //         spriteFrame.once('load', this._onTextureLoaded, this);
-        //         spriteFrame.ensureLoadImage();
-        //     }
-        // }
     }
 
     private _createGraphics () {
@@ -573,19 +484,6 @@ export class MaskComponent extends UIRenderComponent {
         if (this._clearGraphics) {
             this._clearGraphics.destroy();
         }
-    }
-
-    private _activateMaterial () {
-        // if (this._type === MaskType.IMAGE_STENCIL && (!this.spriteFrame || !this.spriteFrame.textureLoaded())) {
-        //     this._renderPermit = false;
-        //     return;
-        // }
-
-        // if (this._sharedMaterial){
-        //     return;
-        // }
-
-        // this._instanceMaterial();
     }
 }
 
