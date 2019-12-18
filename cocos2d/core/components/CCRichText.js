@@ -867,6 +867,7 @@ let RichText = cc.Class({
         }
     },
 
+    // When string is null, it means that the text does not need to be updated. 
     _applyTextAttribute (labelNode, string, force) {
         let labelComponent = labelNode.getComponent(cc.Label);
         if (!labelComponent) {
