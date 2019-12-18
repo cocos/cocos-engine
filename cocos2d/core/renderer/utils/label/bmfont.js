@@ -307,11 +307,15 @@ export default class BmfontAssembler extends Assembler2D {
 
         _tailoredTopY = _contentSize.height;
         _tailoredBottomY = 0;
-        if (highestY > 0) {
-            _tailoredTopY = _contentSize.height + highestY;
-        }
-        if (lowestY < -_textDesiredHeight) {
-            _tailoredBottomY = _textDesiredHeight + lowestY;
+
+        if (_overflow !== Overflow.CLAMP) {
+            if (highestY > 0) {
+                _tailoredTopY = _contentSize.height + highestY;
+            }
+    
+            if (lowestY < -_textDesiredHeight) {
+                _tailoredBottomY = _textDesiredHeight + lowestY;
+            }
         }
 
         return true;
@@ -552,7 +556,7 @@ export default class BmfontAssembler extends Assembler2D {
                 }
 
                 if ((py - letterDef.h * _bmfontScale < _tailoredBottomY) && _overflow === Overflow.CLAMP) {
-                    _tmpRect.height = (py < _tailoredBottomY) ? 0 : (py - _tailoredBottomY);
+                    _tmpRect.height = (py < _tailoredBottomY) ? 0 : (py - _tailoredBottomY) / _bmfontScale;
                 }
             }
 

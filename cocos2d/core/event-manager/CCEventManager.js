@@ -120,6 +120,7 @@ var eventManager = {
     _dirtyListeners: {},
     _inDispatch: 0,
     _isEnabled: false,
+    _currentTouch: null,
 
     _internalCustomListenerIDs:[],
 
@@ -488,14 +489,25 @@ var eventManager = {
         var isClaimed = false, removedIdx;
         var getCode = event.getEventCode(), EventTouch = cc.Event.EventTouch;
         if (getCode === EventTouch.BEGAN) {
+            if (!cc.macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch) {
+                return false;
+            }
+
             if (listener.onTouchBegan) {
                 isClaimed = listener.onTouchBegan(selTouch, event);
-                if (isClaimed && listener._registered)
+                if (isClaimed && listener._registered) {
                     listener._claimedTouches.push(selTouch);
+                    eventManager._currentTouch = selTouch;
+                }
             }
         } else if (listener._claimedTouches.length > 0
             && ((removedIdx = listener._claimedTouches.indexOf(selTouch)) !== -1)) {
             isClaimed = true;
+            
+            if (!cc.macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch && eventManager._currentTouch !== selTouch) {
+                return false;
+            }
+
             if (getCode === EventTouch.MOVED && listener.onTouchMoved) {
                 listener.onTouchMoved(selTouch, event);
             } else if (getCode === EventTouch.ENDED) {
@@ -503,11 +515,13 @@ var eventManager = {
                     listener.onTouchEnded(selTouch, event);
                 if (listener._registered)
                     listener._claimedTouches.splice(removedIdx, 1);
+                eventManager._currentTouch = null;
             } else if (getCode === EventTouch.CANCELLED) {
                 if (listener.onTouchCancelled)
                     listener.onTouchCancelled(selTouch, event);
                 if (listener._registered)
                     listener._claimedTouches.splice(removedIdx, 1);
+                eventManager._currentTouch = null;
             }
         }
 

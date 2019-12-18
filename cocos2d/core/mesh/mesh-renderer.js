@@ -48,17 +48,12 @@ export default class MeshRendererAssembler extends Assembler {
 
         comp.mesh._uploadData();
 
-        // update custom properties
-        let isCustomPropertiesSame = renderer.customProperties && 
-            renderer.customProperties.getHash() === comp._customProperties.getHash();
-        
-
         // update culling mask
         let isCullingMaskSame = renderer.cullingMask === comp.node._cullingMask;
 
         let enableAutoBatch = comp.enableAutoBatch;
 
-        let materials = comp.sharedMaterials;
+        let materials = comp._materials;
         let submeshes = comp.mesh._subMeshes;
         let subDatas = comp.mesh.subDatas;
         for (let i = 0; i < submeshes.length; i++) {
@@ -72,7 +67,6 @@ export default class MeshRendererAssembler extends Assembler {
 
                 renderer.material = material;
                 renderer.cullingMask = comp.node._cullingMask;
-                renderer.customProperties = comp._customProperties;
                 renderer.node = this._renderNode;
 
                 renderer._flushIA(ia);
@@ -80,15 +74,13 @@ export default class MeshRendererAssembler extends Assembler {
                 continue;
             }
 
-            if (!isCustomPropertiesSame ||
-                !isCullingMaskSame ||
+            if (!isCullingMaskSame ||
                 material.getHash() !== renderer.material.getHash()) {
                 renderer._flush();
             }
 
             renderer.material = material;
             renderer.cullingMask = comp.node._cullingMask;
-            renderer.customProperties = comp._customProperties;
             renderer.node = renderer._dummyNode;
             
             this._fillBuffer(comp, meshData, renderer, i);

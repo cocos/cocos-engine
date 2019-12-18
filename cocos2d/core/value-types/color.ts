@@ -172,6 +172,17 @@ export default class Color extends ValueType {
     }
 
     /**
+     * Clone a new color.
+     * @method clone
+     * @typescript
+     * static clone (a: Color): Color
+     * @static
+     */
+    static clone (a: Color): Color {
+        return new Color(a.r, a.g, a.b, a.a);
+    }
+
+    /**
      * Set the components of a color to the given values.
      * @method set
      * @typescript

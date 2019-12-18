@@ -84,6 +84,8 @@ let LabelOutline = cc.Class({
                 return this._width;
             },
             set: function (value) {
+                if (this._width === value) return;
+
                 this._width = value;
                 this._updateRenderData();
             },
