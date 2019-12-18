@@ -46,6 +46,7 @@ let Particle = function () {
     this.deltaRotation = 0;
     this.timeToLive = 0;
     this.drawPos = cc.v2(0, 0);
+    this.aspectRatio = 1;
     // Mode A
     this.dir = cc.v2(0, 0);
     this.radialAccel = 0;
@@ -69,6 +70,7 @@ let pool = new js.Pool(function (par) {
     par.deltaRotation = 0;
     par.timeToLive = 0;
     par.drawPos.set(ZERO_VEC2);
+    par.aspectRatio = 1;
     // Mode A
     par.dir.set(ZERO_VEC2);
     par.radialAccel = 0;
@@ -164,6 +166,9 @@ Simulator.prototype.emitParticle = function (pos) {
     particle.startPos.x = pos.x;
     particle.startPos.y = pos.y;
 
+    // aspect ratio
+    particle.aspectRatio = psys._aspectRatio || 1;
+
     // direction
     let worldRotation = getWorldRotation(psys.node);
     let relAngle = psys.positionType === cc.ParticleSystem.PositionType.FREE ? psys.angle + worldRotation : psys.angle;
@@ -239,11 +244,16 @@ Simulator.prototype.updateParticleBuffer = function (particle, pos, buffer, offs
     let uintbuf = buffer._uintVData;
 
     let x = pos.x, y = pos.y;
-    let size_2 = particle.size / 2;
+    let width = particle.size;
+    let height = width;
+    let aspectRatio = particle.aspectRatio;
+    aspectRatio > 1 ? (height = width / aspectRatio) : (width = height * aspectRatio);
+    let halfWidth = width / 2;
+    let halfHeight = height / 2;
     // pos
     if (particle.rotation) {
-        let x1 = -size_2, y1 = -size_2;
-        let x2 = size_2, y2 = size_2;
+        let x1 = -halfWidth, y1 = -halfHeight;
+        let x2 = halfWidth, y2 = halfHeight;
         let rad = -misc.degreesToRadians(particle.rotation);
         let cr = Math.cos(rad), sr = Math.sin(rad);
         // bl
@@ -261,17 +271,17 @@ Simulator.prototype.updateParticleBuffer = function (particle, pos, buffer, offs
     }
     else {
         // bl
-        vbuf[offset] = x - size_2;
-        vbuf[offset+1] = y - size_2;
+        vbuf[offset] = x - halfWidth;
+        vbuf[offset+1] = y - halfHeight;
         // br
-        vbuf[offset+5] = x + size_2;
-        vbuf[offset+6] = y - size_2;
+        vbuf[offset+5] = x + halfWidth;
+        vbuf[offset+6] = y - halfHeight;
         // tl
-        vbuf[offset+10] = x - size_2;
-        vbuf[offset+11] = y + size_2;
+        vbuf[offset+10] = x - halfWidth;
+        vbuf[offset+11] = y + halfHeight;
         // tr
-        vbuf[offset+15] = x + size_2;
-        vbuf[offset+16] = y + size_2;
+        vbuf[offset+15] = x + halfWidth;
+        vbuf[offset+16] = y + halfHeight;
     }
     // color
     uintbuf[offset+4] = particle.color._val;
