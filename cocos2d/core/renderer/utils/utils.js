@@ -24,7 +24,7 @@ module.exports = {
     deleteFromDynamicAtlas (comp, frame) {
         if (frame && !CC_TEST) {
             if (frame._original && dynamicAtlasManager) {
-                dynamicAtlasManager.deleteAtlasTexture(frame);
+                dynamicAtlasManager.deleteAtlasSpriteFrame(frame);
                 frame._resetDynamicAtlasFrame();
             }
         }

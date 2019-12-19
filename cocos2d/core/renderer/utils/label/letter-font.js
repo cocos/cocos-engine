@@ -105,7 +105,7 @@ LetterTexture.prototype = {
         //use round for line join to avoid sharp intersect point
         context.lineJoin = 'round';
         context.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, 1)`;
-        if (labelInfo.isOutlined) {
+        if (labelInfo.isOutlined && labelInfo.margin > 0) {
             let strokeColor = labelInfo.out || WHITE;
             context.strokeStyle = `rgba(${strokeColor.r}, ${strokeColor.g}, ${strokeColor.b}, ${strokeColor.a / 255})`;
             context.lineWidth = labelInfo.margin * 2;
@@ -248,7 +248,7 @@ function computeHash (labelInfo) {
     let hashData = '';
     let color = labelInfo.color.toHEX("#rrggbb");
     let out = '';
-    if (labelInfo.isOutlined) {
+    if (labelInfo.isOutlined && labelInfo.margin > 0) {
         out = out + labelInfo.margin + labelInfo.out.toHEX("#rrggbb");
     };
     

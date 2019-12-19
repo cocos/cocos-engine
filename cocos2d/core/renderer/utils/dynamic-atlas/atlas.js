@@ -18,6 +18,8 @@ function Atlas (width, height) {
 
     this._innerTextureInfos = {};
     this._innerSpriteFrames = [];
+
+    this._count = 0;
 }
 
 Atlas.DEFAULT_HASH = (new RenderTexture())._getHash();
@@ -66,6 +68,8 @@ cc.js.mixin(Atlas.prototype, {
                 texture: texture
             };
 
+            this._count++;
+
             sx += this._x;
             sy += this._y;
 
@@ -92,11 +96,16 @@ cc.js.mixin(Atlas.prototype, {
     },
 
     deleteInnerTexture (texture) {
-        if (texture) {
+        if (texture && this._innerTextureInfos[texture._id]) {
             delete this._innerTextureInfos[texture._id];
+            this._count--;
         }
     },
 
+    isEmpty () {
+        return this._count <= 0;
+    },
+    
     reset () {
         this._x = space;
         this._y = space;
