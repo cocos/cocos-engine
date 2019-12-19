@@ -1202,9 +1202,20 @@ var ParticleSystem = cc.Class({
         return true;
     },
 
+    _validateRender () {
+        let texture = this._getTexture();
+        if (!texture || !texture.loaded) {
+            this.disableRender();
+            return;
+        }
+        this._super();
+    },
+
     _onTextureLoaded () {
         this._simulator.updateUVs(true);
         this._syncAspect();
+        this._updateMaterial();
+        this.markForRender(true);
     },
 
     _syncAspect () {
@@ -1222,7 +1233,6 @@ var ParticleSystem = cc.Class({
                 this._renderSpriteFrame.onTextureLoaded(this._onTextureLoaded, this);
             }
         }
-        this._updateMaterial();
     },
 
     _getTexture () {
