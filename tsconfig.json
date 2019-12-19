@@ -18,7 +18,6 @@
         "./@types/wx",
         "./@types/webGL.extras", 
         "./@types/webGL2.extras",
-        "./node_modules/tween.js/TWEEN",
         "./node_modules/@cocos/cannon/CANNON",
         "./node_modules/@types/jest/index"
       ]

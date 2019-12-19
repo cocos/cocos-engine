@@ -2,4 +2,4 @@
  * @hidden
  */
 
-export * from '../cocos/tween';
+export * from '../cocos/tween/index';
