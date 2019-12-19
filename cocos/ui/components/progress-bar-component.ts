@@ -207,17 +207,17 @@ export class ProgressBarComponent extends Component {
 
     public static Mode = Mode;
     @property
-    private _barSprite: SpriteComponent | null = null;
+    protected _barSprite: SpriteComponent | null = null;
     @property
-    private _mode = Mode.HORIZONTAL;
+    protected _mode = Mode.HORIZONTAL;
     @property
-    private _totalLength = 1;
+    protected _totalLength = 1;
     @property
-    private _progress = 0.1;
+    protected _progress = 0.1;
     @property
-    private _reverse = false;
+    protected _reverse = false;
 
-    private _initBarSprite () {
+    protected _initBarSprite () {
         if (this._barSprite) {
             const entity = this._barSprite.node;
             if (!entity) { return; }
@@ -250,7 +250,7 @@ export class ProgressBarComponent extends Component {
         }
     }
 
-    private _updateBarStatus () {
+    protected _updateBarStatus () {
         if (this._barSprite) {
             const entity = this._barSprite.node;
 

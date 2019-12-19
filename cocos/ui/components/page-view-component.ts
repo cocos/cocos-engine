@@ -37,6 +37,8 @@ import { PageViewIndicatorComponent } from './page-view-indicator-component';
 import { ScrollViewComponent } from './scroll-view-component';
 import { ScrollBarComponent } from './scroll-bar-component';
 import { warnID } from '../../core/platform/debug';
+import { extendsEnum } from '../../core/data/utils/extends-enum';
+import { EventType as ScrollEventType } from './scroll-view-component';
 import { Node } from '../../core';
 
 const _temp_vec2 = new Vec2();
@@ -83,19 +85,10 @@ ccenum(Direction);
 /**
  * @en Enum for ScrollView event type.
  * @zh 滚动视图事件类型
- * @enum PageView.EventType
  */
-enum PageViewEventType {
-    /**
-     * @en The page turning event
-     * @zh 翻页事件
-     * @property {Number} PAGE_TURNING
-     */
-    PAGE_TURNING = 0,
-
+enum EventType {
+    PAGE_TURING = 'page-turning',
 }
-
-ccenum(PageViewEventType);
 
 /**
  * @en The PageView control
@@ -221,7 +214,7 @@ export class PageViewComponent extends ScrollViewComponent {
 
     public static SizeMode = SizeMode;
     public static Direction = Direction;
-    public static EventType = PageViewEventType;
+    public static EventType = extendsEnum(EventType, ScrollEventType);
 
     /**
      * @en
@@ -311,14 +304,14 @@ export class PageViewComponent extends ScrollViewComponent {
     @property
     protected _indicator: PageViewIndicatorComponent | null = null;
 
-    private _curPageIdx = 0;
-    private _lastPageIdx = 0;
-    private _pages: Node[] = [];
-    private _initContentPos = new Vec3();
-    private _scrollCenterOffsetX: number[] = []; // 每一个页面居中时需要的偏移量（X）
-    private _scrollCenterOffsetY: number[] = []; // 每一个页面居中时需要的偏移量（Y）
-    private _touchBeganPosition = new Vec3();
-    private _touchEndPosition = new Vec3();
+    protected _curPageIdx = 0;
+    protected _lastPageIdx = 0;
+    protected _pages: Node[] = [];
+    protected _initContentPos = new Vec3();
+    protected _scrollCenterOffsetX: number[] = []; // 每一个页面居中时需要的偏移量（X）
+    protected _scrollCenterOffsetY: number[] = []; // 每一个页面居中时需要的偏移量（Y）
+    protected _touchBeganPosition = new Vec3();
+    protected _touchEndPosition = new Vec3();
 
     public __preload() {
         this.node.on(SystemEventType.SIZE_CHANGED, this._updateAllPagesSize, this);
@@ -327,14 +320,14 @@ export class PageViewComponent extends ScrollViewComponent {
     public onEnable() {
         super.onEnable();
         if (!CC_EDITOR) {
-            this.node.on('scroll-ended-with-threshold', this._dispatchPageTurningEvent, this);
+            this.node.on(PageViewComponent.EventType.SCROLL_ENG_WITH_THRESHOLD, this._dispatchPageTurningEvent, this);
         }
     }
 
     public onDisable() {
         super.onDisable();
         if (!CC_EDITOR) {
-            this.node.off('scroll-ended-with-threshold', this._dispatchPageTurningEvent, this);
+            this.node.off(PageViewComponent.EventType.SCROLL_ENG_WITH_THRESHOLD, this._dispatchPageTurningEvent, this);
         }
     }
 
@@ -532,7 +525,7 @@ export class PageViewComponent extends ScrollViewComponent {
         if (this._scrolling) {
             this._scrolling = false;
             if (!this._autoScrolling) {
-                this._dispatchEvent('scroll-ended');
+                this._dispatchEvent(PageViewComponent.EventType.SCROLL_ENDED);
             }
         }
     }
@@ -561,12 +554,12 @@ export class PageViewComponent extends ScrollViewComponent {
 
     protected _onMouseWheel() { }
 
-    private _syncScrollDirection() {
+    protected _syncScrollDirection() {
         this.horizontal = this.direction === Direction.Horizontal;
         this.vertical = this.direction === Direction.Vertical;
     }
 
-    private _syncSizeMode() {
+    protected _syncSizeMode() {
         const view = this.view;
         if (!this.content || !view) { return; }
         const layout = this.content.getComponent(LayoutComponent);
@@ -588,7 +581,7 @@ export class PageViewComponent extends ScrollViewComponent {
     }
 
     // 初始化页面
-    private _initPages() {
+    protected _initPages() {
         if (!this.content) { return; }
         this._initContentPos = this.content.position;
         const children = this.content.children;
@@ -602,15 +595,15 @@ export class PageViewComponent extends ScrollViewComponent {
         this._updatePageView();
     }
 
-    private _dispatchPageTurningEvent() {
+    protected _dispatchPageTurningEvent() {
         if (this._lastPageIdx === this._curPageIdx) { return; }
         this._lastPageIdx = this._curPageIdx;
-        ComponentEventHandler.emitEvents(this.pageEvents, this, PageViewEventType.PAGE_TURNING);
-        this.node.emit('page-turning', this);
+        ComponentEventHandler.emitEvents(this.pageEvents, this);
+        this.node.emit(EventType.PAGE_TURING, this);
     }
 
     // 快速滑动
-    private _isQuicklyScrollable(touchMoveVelocity: Vec3) {
+    protected _isQuicklyScrollable(touchMoveVelocity: Vec3) {
         if (this.direction === Direction.Horizontal) {
             if (Math.abs(touchMoveVelocity.x) > this.autoPageTurningThreshold) {
                 return true;
@@ -625,7 +618,7 @@ export class PageViewComponent extends ScrollViewComponent {
     }
 
     // 通过 idx 获取偏移值数值
-    private _moveOffsetValue(idx: number) {
+    protected _moveOffsetValue(idx: number) {
         const offset = new Vec3();
         if (this._sizeMode === SizeMode.Free) {
             if (this.direction === Direction.Horizontal) {
@@ -650,7 +643,7 @@ export class PageViewComponent extends ScrollViewComponent {
         return offset;
     }
 
-    private _getDragDirection(moveOffset: Vec3) {
+    protected _getDragDirection(moveOffset: Vec3) {
         if (this._direction === Direction.Horizontal) {
             if (moveOffset.x === 0) {
                 return 0;
@@ -669,7 +662,7 @@ export class PageViewComponent extends ScrollViewComponent {
     }
 
     // 是否超过自动滚动临界值
-    private _isScrollable(offset: Vec3, index: number, nextIndex: number) {
+    protected _isScrollable(offset: Vec3, index: number, nextIndex: number) {
         if (this._sizeMode === SizeMode.Free) {
             let curPageCenter = 0;
             let nextPageCenter = 0;
@@ -698,7 +691,7 @@ export class PageViewComponent extends ScrollViewComponent {
         }
     }
 
-    private _autoScrollToPage() {
+    protected _autoScrollToPage() {
         const bounceBackStarted = this._startBounceBackIfNeeded();
         // Note:
         const moveOffset = new Vec3();

@@ -118,6 +118,10 @@ enum SizeMode {
 
 ccenum(SizeMode);
 
+enum EventType {
+    SPRITE_FRAME_CHANGED = 'spriteframe-changed',
+}
+
 /**
  * @zh
  * 渲染精灵组件。
@@ -175,7 +179,7 @@ export class SpriteComponent extends UIRenderComponent {
         this._applySpriteFrame(lastSprite);
         if (CC_EDITOR) {
             // @ts-ignore
-            this.node.emit('spriteframe-changed', this);
+            this.node.emit(EventType.SPRITE_FRAME_CHANGED, this);
         }
     }
 
@@ -386,27 +390,29 @@ export class SpriteComponent extends UIRenderComponent {
     public static FillType = FillType;
     public static Type = SpriteType;
     public static SizeMode = SizeMode;
+    public static EventType = EventType;
+
     @property
-    private _spriteFrame: SpriteFrame | null = null;
+    protected _spriteFrame: SpriteFrame | null = null;
     @property
-    private _type = SpriteType.SIMPLE;
+    protected _type = SpriteType.SIMPLE;
     @property
-    private _fillType = FillType.HORIZONTAL;
+    protected _fillType = FillType.HORIZONTAL;
     @property
-    private _sizeMode = SizeMode.TRIMMED;
+    protected _sizeMode = SizeMode.TRIMMED;
     @property
-    private _fillCenter: Vec2 = new Vec2(0, 0);
+    protected _fillCenter: Vec2 = new Vec2(0, 0);
     @property
-    private _fillStart = 0;
+    protected _fillStart = 0;
     @property
-    private _fillRange = 0;
+    protected _fillRange = 0;
     @property
-    private _isTrimmedMode = true;
+    protected _isTrimmedMode = true;
     @property
-    private _useGrayscale = false;
+    protected _useGrayscale = false;
     // _state = 0;
     @property
-    private _atlas: SpriteAtlas | null = null;
+    protected _atlas: SpriteAtlas | null = null;
     // static State = State;
 
     public __preload () {
