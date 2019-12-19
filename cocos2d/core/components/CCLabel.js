@@ -495,7 +495,7 @@ let Label = cc.Class({
             animatable: false
         },
 
-        _styleFlag: 0,
+        _styleFlags: 0,
 
         /**
          * !#en Whether enable bold.
@@ -504,13 +504,13 @@ let Label = cc.Class({
          */
         enableBold: {
             get () {
-                return !!(this._styleFlag & BOLD_FLAG);
+                return !!(this._styleFlags & BOLD_FLAG);
             },
             set (value) {
                 if (value) {
-                    this._styleFlag |= BOLD_FLAG;
+                    this._styleFlags |= BOLD_FLAG;
                 } else {
-                    this._styleFlag &= ~BOLD_FLAG;
+                    this._styleFlags &= ~BOLD_FLAG;
                 }
 
                 this.setVertsDirty();
@@ -526,13 +526,13 @@ let Label = cc.Class({
          */
         enableItalic: {
             get () {
-                return !!(this._styleFlag & ITALIC_FLAG);
+                return !!(this._styleFlags & ITALIC_FLAG);
             },
             set (value) {
                 if (value) {
-                    this._styleFlag |= ITALIC_FLAG;
+                    this._styleFlags |= ITALIC_FLAG;
                 } else {
-                    this._styleFlag &= ~ITALIC_FLAG;
+                    this._styleFlags &= ~ITALIC_FLAG;
                 }
                 
                 this.setVertsDirty();
@@ -548,13 +548,13 @@ let Label = cc.Class({
          */
         enableUnderline: {
             get () {
-                return !!(this._styleFlag & UNDERLINE_FLAG);
+                return !!(this._styleFlags & UNDERLINE_FLAG);
             },
             set (value) {
                 if (value) {
-                    this._styleFlag |= UNDERLINE_FLAG;
+                    this._styleFlags |= UNDERLINE_FLAG;
                 } else {
-                    this._styleFlag &= ~UNDERLINE_FLAG;
+                    this._styleFlags &= ~UNDERLINE_FLAG;
                 }
 
                 this.setVertsDirty();
