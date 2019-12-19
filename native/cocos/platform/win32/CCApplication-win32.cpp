@@ -30,7 +30,6 @@ THE SOFTWARE.
 #include <MMSystem.h>
 #include "platform/CCFileUtils.h"
 #include "platform/desktop/CCGLView-desktop.h"
-#include "renderer/gfx/DeviceGraphics.h"
 #include "scripting/js-bindings/jswrapper/SeApi.h"
 #include "scripting/js-bindings/event/EventDispatcher.h"
 #include "base/CCScheduler.h"

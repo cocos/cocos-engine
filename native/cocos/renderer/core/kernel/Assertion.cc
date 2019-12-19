@@ -1,13 +1,9 @@
 #include "CoreStd.h"
 #include "Assertion.h"
+#include "../platform/CCStdC.h"
 
 // Platform head file including
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-#	ifndef WIN32_LEAN_AND_MEAN
-#		define WIN32_LEAN_AND_MEAN
-#	endif
-#	define _CRT_SECURE_NO_WARNINGS
-#	include <Windows.h>
 #	undef _T
 #	include <tchar.h>
 #define snprintf _snprintf_s
@@ -27,9 +23,9 @@ enum ErrRet {
 
 LRESULT __stdcall CBTHookProc(long nCode, WPARAM wParam, LPARAM lParam) {
 	if (nCode == HCBT_ACTIVATE) {
-		SetDlgItemText((HWND)wParam, IDRETRY, "&Debug");
-		SetDlgItemText((HWND)wParam, IDIGNORE, "&Ignore");
-		SetDlgItemText((HWND)wParam, IDABORT, "&Exit");
+		SetDlgItemTextA((HWND)wParam, IDRETRY, "&Debug");
+		SetDlgItemTextA((HWND)wParam, IDIGNORE, "&Ignore");
+		SetDlgItemTextA((HWND)wParam, IDABORT, "&Exit");
 	}
 	return 0;
 }
@@ -39,17 +35,17 @@ ErrRet _DisplayError(const char* title, const char* content, const char* desc, c
 	char moduleName[MODULE_NAME_SIZE];
 	
 	// attempt to get the module name
-	if (!GetModuleFileName(NULL, moduleName, MODULE_NAME_SIZE))
+	if (!GetModuleFileNameA(NULL, moduleName, MODULE_NAME_SIZE))
 	{
 		char *msg = "<unknown application>";
-		_tcscpy_s(moduleName, _tcsclen(msg), msg);
+		strcpy_s(moduleName, strlen(msg), msg);
 	}
 	
 	// build a collosal string containing the entire asster message
 	const int MAX_BUFFER_SIZE = 4096;
 	char buffer[MAX_BUFFER_SIZE];
 	
-	_sntprintf_s(buffer,
+	snprintf(buffer,
 							MAX_BUFFER_SIZE,
 							"%s\n\nProgram : %s\nFile : %s\nLine : %d\nError: %s\nComment: %s\n",
 							title,
@@ -62,7 +58,7 @@ ErrRet _DisplayError(const char* title, const char* content, const char* desc, c
 	
 	// place a copy of the message into the clipboard
 	if (OpenClipboard(NULL)) {
-		size_t bufferLength = _tcsclen(buffer);
+		size_t bufferLength = strlen(buffer);
 		HGLOBAL hMem = GlobalAlloc(GHND|GMEM_DDESHARE, bufferLength+1);
 		
 		if (hMem) {
@@ -84,9 +80,9 @@ ErrRet _DisplayError(const char* title, const char* content, const char* desc, c
 
 	HHOOK hHook = SetWindowsHookEx(WH_CBT, (HOOKPROC)CBTHookProc, GetModuleHandle(NULL), GetCurrentThreadId());
 	// put up a message box with the error
-	int iRet = MessageBox ( hWndParent,
+	int iRet = MessageBoxA ( hWndParent,
 						   buffer,
-						   _T("ERROR NOTIFICATION..."),
+						   "ERROR NOTIFICATION...",
 						   MB_TASKMODAL|MB_SETFOREGROUND|MB_ABORTRETRYIGNORE|MB_ICONERROR);
 	UnhookWindowsHookEx(hHook);
 
