@@ -268,7 +268,7 @@ export default class ParticleSystem3DAssembler extends Assembler {
             }
         }
 
-        this._model.updateIA(0, this._particles.length * 6, true);
+        this._model.updateIA(0, this._particles.length * this._model._indexCount, true);
     }
 
     updateShaderUniform () {

@@ -55,6 +55,16 @@ const _compType2fn = {
     5126: 'getFloat32',
 };
 
+const _compType2write = {
+    5120: 'setInt8',
+    5121: 'setUint8',
+    5122: 'setInt16',
+    5123: 'setUint16',
+    5124: 'setInt32',
+    5125: 'setUint32',
+    5126: 'setFloat32',
+};
+
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView#Endianness
 const littleEndian = (function () {
     let buffer = new ArrayBuffer(2);
@@ -462,6 +472,80 @@ let Mesh = cc.Class({
         }
 
         return data;
+    },
+
+    /**
+     * 读取子网格的指定属性到目标缓冲区中。
+     * @param primitiveIndex 子网格索引。
+     * @param attributeName 属性名称。
+     * @param buffer 目标缓冲区。
+     * @param stride 相邻属性在目标缓冲区的字节间隔。
+     * @param offset 首个属性在目标缓冲区中的偏移。
+     * @returns 不存在指定的子网格、子网格不存在指定的属性或属性无法读取时返回 `false`，否则返回 `true`。
+     */
+    copyAttribute (primitiveIndex, attributeName, buffer, stride, offset) {
+        let written = false;
+        let subData = this._subDatas[primitiveIndex];
+
+        if (!subData) return written;
+
+        let format = subData.vfm;
+        let fmt = format.element(attributeName);
+
+        if (!fmt) return written;
+
+        let writter = _compType2write[fmt.type];
+
+        if (!writter) return written;
+
+        let data = this._getAttrMeshData(primitiveIndex, attributeName);
+        let vertexCount = subData.vData.byteLength / format._bytes;
+        let eleByte = fmt.bytes / fmt.num;
+
+        if (data.length > 0) {
+            const outputView = new DataView(buffer, offset);
+        
+            let outputStride = stride;
+            let num = fmt.num;
+
+            for (let i = 0; i < vertexCount; ++i) {
+                let index = i * num;
+                for (let j = 0; j < num; ++j) {
+                    const inputOffset = index + j;
+                    const outputOffset = outputStride * i + eleByte * j;
+
+                    outputView[writter](outputOffset, data[inputOffset], littleEndian);
+                }
+            }
+
+            written = true;
+        }
+
+        return written;
+    },
+
+    /**
+     * 读取子网格的索引数据到目标数组中。
+     * @param primitiveIndex 子网格索引。
+     * @param outputArray 目标数组。
+     * @returns 不存在指定的子网格或子网格不存在索引数据时返回 `false`，否则返回 `true`。
+     */
+    copyIndices (primitiveIndex, outputArray) {
+        let subData = this._subDatas[primitiveIndex];
+
+        if (!subData) return false;
+
+        const iData = subData.iData;
+        const indexCount = iData.length / 2;
+        
+        const dv = new DataView(iData.buffer, iData.byteOffset, iData.byteLength);
+        const fn = _compType2fn[gfx.INDEX_FMT_UINT8];
+
+        for (let i = 0; i < indexCount; ++i) {
+            outputArray[i] = dv[fn](i * 2);
+        }
+
+        return true;
     }
 });
 

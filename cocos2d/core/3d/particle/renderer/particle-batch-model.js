@@ -50,20 +50,57 @@ export default class ParticleBatchModel{
     }
 
     _createParticleData () {
-        this.destroyIAData()
+        this.destroyIAData();
         this._vertCount = 4;
         this._indexCount = 6;
 
+        let vbData = null;
+        let ibData = null;
+        let vertSize = this._vertFormat._bytes
+
         if (this._mesh) {
-            // this._ia = this._mesh._subMeshes[0];
-            // this._vData = this._mesh._subDatas[0].vData.getVData(Float32Array);
+            let subData = this._mesh._subDatas[0];
+
+            this._vertCount = subData.vData.byteLength / subData.vfm._bytes;
+            this._indexCount = subData.iData.byteLength / 2;
+
+            vbData = new Float32Array(vertSize * this._capacity * this._vertCount / 4);
+            ibData = new Uint16Array(this._capacity * this._indexCount);
+
+            let posEle = this._vertFormat.element(gfx.ATTR_TEX_COORD3);
+            let normalEle = this._vertFormat.element(gfx.ATTR_NORMAL);
+            let uvEle = this._vertFormat.element(gfx.ATTR_TEX_COORD);
+            let colorEle = this._vertFormat.element(gfx.ATTR_COLOR1);
+
+            this._mesh.copyAttribute(0, gfx.ATTR_POSITION, vbData.buffer, vertSize, posEle.offset);
+            this._mesh.copyAttribute(0, gfx.ATTR_NORMAL, vbData.buffer, vertSize, normalEle.offset);
+            this._mesh.copyAttribute(0, gfx.ATTR_UV0, vbData.buffer, vertSize, uvEle.offset);
+
+            if (!this._mesh.copyAttribute(0, gfx.ATTR_COLOR, vbData.buffer, vertSize, colorEle.offset)) {  // copy mesh color to ATTR_COLOR1
+                const vb = new Uint32Array(vbData.buffer);
+                for (var i = 0; i < this._vertCount; ++i) {
+                    vb[i * this._vertAttrsFloatCount + colorEle.offset / 4] = cc.Color.WHITE._val;
+                }
+            }
+
+            const vbFloatArray = new Float32Array(vbData.buffer);
+            for (var i = 1; i < this._capacity; i++) {
+                vbFloatArray.copyWithin(i * vertSize * this._vertCount / 4, 0, vertSize * this._vertCount / 4);
+            }
+            
+            this._mesh.copyIndices(0, ibData);
+            // indices
+            for (var i = 1; i < this._capacity; i++) {
+                for (var j = 0; j < this._indexCount; j++) {
+                    ibData[i * this._indexCount + j] = ibData[j] + i * this._vertCount;
+                }
+            }
         } else {
-            let vertSize = this._vertFormat._bytes
-            let vbData = new Float32Array(vertSize * this._capacity * this._vertCount / 4);
-            let ibData = new Uint16Array(this._capacity * this._indexCount);
+            vbData = new Float32Array(vertSize * this._capacity * this._vertCount / 4);
+            ibData = new Uint16Array(this._capacity * this._indexCount);
 
             let dst = 0;
-            for (let i = 0; i < this._capacity; ++i) {
+            for (var i = 0; i < this._capacity; ++i) {
                 const baseIdx = 4 * i;
                 ibData[dst++] = baseIdx;
                 ibData[dst++] = baseIdx + 1;
@@ -72,38 +109,36 @@ export default class ParticleBatchModel{
                 ibData[dst++] = baseIdx + 2;
                 ibData[dst++] = baseIdx + 1;
             }
+        }
 
-            let meshData = new MeshData();
-            meshData.vData = vbData;
-            meshData.iData = ibData;
-            meshData.vfm = this._vertFormat;
+        let meshData = new MeshData();
+        meshData.vData = vbData;
+        meshData.iData = ibData;
+        meshData.vfm = this._vertFormat;
+        meshData.vDirty = true;
+        meshData.iDirty = true;
+        meshData.enable = true;
+        this._subDatas[0] = meshData;
+
+        if (CC_JSB && CC_NATIVERENDERER) {
             meshData.vDirty = true;
-            meshData.iDirty = true;
-            meshData.enable = true;
-            this._subDatas[0] = meshData;
- 
-            if (CC_JSB && CC_NATIVERENDERER) {
-                meshData.vDirty = true;
-            } else {
-                let vb = new gfx.VertexBuffer(
-                    renderer.device,
-                    this._vertFormat,
-                    gfx.USAGE_DYNAMIC,
-                    vbData
-                );
-    
-                let ib = new gfx.IndexBuffer(
-                    renderer.device,
-                    gfx.INDEX_FMT_UINT16,
-                    gfx.USAGE_STATIC,
-                    ibData,
-                    ibData.length
-                );
-                
-                meshData.vb = vb;
-                meshData.ib = ib;
-                this._subMeshes[0] = new InputAssembler(vb, ib);
-            }
+        } else {
+            let vb = new gfx.VertexBuffer(
+                renderer.device,
+                this._vertFormat,
+                gfx.USAGE_DYNAMIC,
+                vbData
+            );
+
+            let ib = new gfx.IndexBuffer(
+                renderer.device,
+                gfx.INDEX_FMT_UINT16,
+                gfx.USAGE_STATIC,
+                ibData,
+                ibData.length
+            );
+            
+            this._subMeshes[0] = new InputAssembler(vb, ib);
         }
     }
 
@@ -142,8 +177,6 @@ export default class ParticleBatchModel{
                 num * 6
             );
             
-            meshData.vb = vb;
-            meshData.ib = ib;
             this._subMeshes[1] = new InputAssembler(vb, ib);
         }
     }
@@ -198,17 +231,18 @@ export default class ParticleBatchModel{
 
     _uploadData () {
         let subDatas = this._subDatas;
+        let subMeshes = this._subMeshes;
         for (let i = 0, len = subDatas.length; i < len; i++) {
             let subData = subDatas[i];
-
+            let subMesh = subMeshes[i];
             if (subData.vDirty) {
-                let buffer = subData.vb, data = subData.vData;
+                let buffer = subMesh._vertexBuffer, data = subData.vData;
                 buffer.update(0, data);
                 subData.vDirty = false;
             }
 
             if (subData.iDirty) {
-                let buffer = subData.ib, data = subData.iData;
+                let buffer = subMesh._indexBuffer, data = subData.iData;
                 buffer.update(0, data);
                 subData.iDirty = false;
             }
@@ -233,30 +267,30 @@ export default class ParticleBatchModel{
     }
 
     destroy () {
-        this._subMeshes.length = 0;
+        this._subDatas.length = 0;
 
-        let subDatas = this._subDatas;
-        for (let i = 0, len = subDatas.length; i < len; i++) {
-            let vb = subDatas[i].vb;
+        let subMeshes = this._subMeshes;
+        for (let i = 0, len = subMeshes.length; i < len; i++) {
+            let vb = subMeshes[i]._vertexBuffer;
             if (vb) {
                 vb.destroy();
             }
             
-            let ib = subDatas[i].ib;
+            let ib = subMeshes[i]._indexBuffer;
             if (ib) {
                 ib.destroy();
             }
         }
-        subDatas.length = 0;
+        subMeshes.length = 0;
     }
 
     destroyIAData () {
-        if (this._subDatas[0]) {
-            this._subDatas[0].vb.destroy();
-            this._subDatas[0].ib.destroy();
-            this._subDatas[0] = null;
+        if (this._subMeshes[0]) {
+            this._subMeshes[0]._vertexBuffer.destroy();
+            this._subMeshes[0]._indexBuffer.destroy();
+            this._subMeshes[0] = null;
         }
 
-        this._subMeshes[0] = null;
+        this._subDatas[0] = null;
     }
 }

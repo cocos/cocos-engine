@@ -287,7 +287,7 @@ export default class ParticleSystem3D extends RenderComponent {
     })
     trailModule = new TrailModule();
 
-
+    @property
     _renderMode = RenderMode.Billboard;
     /**
      * @zh 设定粒子生成模式
@@ -337,6 +337,7 @@ export default class ParticleSystem3D extends RenderComponent {
         this._assembler._updateMaterialParams();
     }
 
+    @property
     _mesh = null;
 
     /**

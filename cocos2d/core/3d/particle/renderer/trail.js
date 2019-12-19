@@ -163,6 +163,7 @@ export default class TrailModule {
     })
     lifeTime = new CurveRange();
 
+    @property
     _minParticleDistance = 0.1;
 
     /**
@@ -178,6 +179,7 @@ export default class TrailModule {
         this._minSquaredDistance = val * val;
     }
 
+    @property
     _space = Space.World;
     /**
      * @zh 轨迹设定时的坐标系。
