@@ -67,6 +67,7 @@ switch (__BrowserGetter.adaptationType) {
         break;
     case cc.sys.BROWSER_TYPE_SOUGOU:
     case cc.sys.BROWSER_TYPE_UC:
+        __BrowserGetter.meta["minimal-ui"] = "true";
         __BrowserGetter.availWidth = function(frame){
             return frame.clientWidth;
         };
