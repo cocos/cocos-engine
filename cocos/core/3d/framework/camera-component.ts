@@ -27,7 +27,7 @@
  * @category component/camera
  */
 
-import { RenderTexture } from '../../assets';
+import { RenderTexture } from '../../assets/render-texture';
 import { Component } from '../../components/component';
 import { ccclass, executeInEditMode, menu, property } from '../../data/class-decorator';
 import { ray } from '../../geom-utils';
@@ -38,8 +38,11 @@ import { CameraDefaultMask } from '../../pipeline/define';
 import { Camera } from '../../renderer';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Root } from '../../root';
-import { Layers, Scene } from '../../scene-graph';
+import { Layers, Scene, Node } from '../../scene-graph';
 import { Enum } from '../../value-types';
+import { UITransformComponent } from '../../components';
+
+const _temp_vec3_1 = new Vec3();
 
 /**
  * The projection type<br/>
@@ -425,6 +428,25 @@ export class CameraComponent extends Component {
     public screenToWorld (screenPos: Vec3, out?: Vec3) {
         if (!out) { out = this.node.getWorldPosition(); }
         if (this._camera) { this._camera.screenToWorld(out, screenPos); }
+        return out;
+    }
+
+    public convertToUINode(wpos: Vec3, uiNode: Node, out?: Vec3){
+        if (!out) {
+            out = new Vec3();
+        }
+
+        this.worldToScreen(wpos, _temp_vec3_1);
+        _temp_vec3_1.x = _temp_vec3_1.x / cc.view.getScaleX();
+        _temp_vec3_1.y = _temp_vec3_1.y / cc.view.getScaleY();
+        const cmp = uiNode.getComponent('cc.UITransformComponent') as UITransformComponent;
+
+        if (!cmp) {
+            return out;
+        }
+
+        cmp.convertToNodeSpaceAR(_temp_vec3_1, out);
+
         return out;
     }
 
