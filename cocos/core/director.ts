@@ -31,11 +31,13 @@
  * @category core
  */
 
+import { SceneAsset } from './assets';
 import System from './components/system';
 import { CCObject } from './data/object';
 import { EventTarget } from './event/event-target';
 import { Game } from './game';
 import { autoRelease } from './load-pipeline/auto-release-utils';
+import { Color, size, v2, Vec2 } from './math';
 import eventManager from './platform/event-manager/event-manager';
 import { Root } from './root';
 import { Node, Scene } from './scene-graph';
@@ -43,8 +45,6 @@ import ComponentScheduler from './scene-graph/component-scheduler';
 import NodeActivator from './scene-graph/node-activator';
 import { Scheduler } from './scheduler';
 import { js } from './utils';
-import { Color, Vec2, v2, size } from './math';
-import { SceneAsset } from './assets';
 
 // const ComponentScheduler = require('./component-scheduler');
 // const NodeActivator = require('./node-activator');
@@ -744,11 +744,11 @@ export class Director extends EventTarget {
      * @param uuid 场景资源的 uuid。
      * @param doNotRun 仅加载和初始化场景，但并不运行。此参数仅在编辑器环境中生效。
      */
-    public _loadSceneByUuid(uuid: string, doNotRun?: boolean): void;
+    public _loadSceneByUuid (uuid: string, doNotRun?: boolean): void;
 
-    public _loadSceneByUuid(uuid: string, onLaunched?: Director.OnSceneLaunched, doNotRun?: boolean): void;
+    public _loadSceneByUuid (uuid: string, onLaunched?: Director.OnSceneLaunched, doNotRun?: boolean): void;
 
-    public _loadSceneByUuid(uuid: string, onLaunched?: Director.OnSceneLaunched, onUnloaded?: Director.OnUnload, doNotRun?: boolean): void;
+    public _loadSceneByUuid (uuid: string, onLaunched?: Director.OnSceneLaunched, onUnloaded?: Director.OnUnload, doNotRun?: boolean): void;
 
     public _loadSceneByUuid (
         uuid: string,

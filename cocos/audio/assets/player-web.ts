@@ -44,9 +44,11 @@ export class AudioPlayerWeb extends AudioPlayer {
     private _context: AudioContext;
     private _sourceNode: AudioBufferSourceNode;
     private _gainNode: GainNode;
-    private _on_ended: () => void;
-    private _do_play: () => void;
-    private _on_gesture: () => void;
+    private _startInvoked = false;
+
+    private _onEndedCB: () => void;
+    private _onGestureCB: () => void;
+    private _onGestureProceedCB: () => void;
 
     constructor (info: IAudioInfo) {
         super(info);
@@ -57,62 +59,26 @@ export class AudioPlayerWeb extends AudioPlayer {
         this._gainNode = this._context.createGain();
         this._gainNode.connect(this._context.destination);
 
-        this._on_ended = () => {
-            this._offset = 0;
-            this._startTime = this._context.currentTime;
-            if (this._sourceNode.loop) { return; }
-            this._eventTarget.emit('ended');
-            this._state = PlayingState.STOPPED;
-        };
+        this._onEndedCB = this._onEnded.bind(this);
+        this._onGestureCB = this._onGesture.bind(this);
+        this._onGestureProceedCB = this._onGestureProceed.bind(this);
 
-        this._do_play = () => {
-            this._state = PlayingState.PLAYING;
-            this._sourceNode = this._context.createBufferSource();
-            this._sourceNode.buffer = this._audio;
-            this._sourceNode.loop = this._loop;
-            this._sourceNode.connect(this._gainNode);
-            this._startTime = this._context.currentTime;
-            // delay eval here to yield uniform behavior with other platforms
-            cc.director.once(cc.Director.EVENT_AFTER_UPDATE, () => {
-                this._sourceNode.start(0, this._offset);
-                this._eventTarget.emit('started');
-            });
-            /* still not supported by all platforms *
-            this._sourceNode.onended = this._on_ended;
-            /* doing it manually for now */
-            clearInterval(this._currentTimer);
-            this._currentTimer = window.setInterval(() => {
-                this._on_ended();
-                clearInterval(this._currentTimer);
-                if (this._sourceNode.loop) {
-                    this._currentTimer = window.setInterval(this._on_ended, this._audio.duration * 1000);
-                }
-            }, (this._audio.duration - this._offset) * 1000);
-        };
-
-        this._on_gesture = () => {
-            this._context.resume().then(() => {
-                if (this._interrupted) { this._do_play(); this._interrupted = false; }
-                cc.game.canvas.removeEventListener('touchend', this._on_gesture);
-                cc.game.canvas.removeEventListener('mouseup', this._on_gesture);
-            });
-        };
         // Chrome41/Firefox40 below don't have resume
         if (this._context.state !== 'running' && this._context.resume) {
-            cc.game.canvas.addEventListener('touchend', this._on_gesture);
-            cc.game.canvas.addEventListener('mouseup', this._on_gesture);
+            cc.game.canvas.addEventListener('touchend', this._onGestureCB);
+            cc.game.canvas.addEventListener('mouseup', this._onGestureCB);
         }
     }
 
     public play () {
         if (!this._audio || this._state === PlayingState.PLAYING) { return; }
         if (this._blocking || this._context.state !== 'running') { this._interrupted = true; return; }
-        this._do_play();
+        this._doPlay();
     }
 
     public pause () {
         if (this._state !== PlayingState.PLAYING) { return; }
-        this._sourceNode.stop();
+        this._doStop();
         this._offset += this._context.currentTime - this._startTime;
         this._state = PlayingState.STOPPED;
         clearInterval(this._currentTimer);
@@ -121,7 +87,7 @@ export class AudioPlayerWeb extends AudioPlayer {
     public stop () {
         this._offset = 0;
         if (this._state !== PlayingState.PLAYING) { return; }
-        this._sourceNode.stop();
+        this._doStop();
         this._state = PlayingState.STOPPED;
         clearInterval(this._currentTimer);
     }
@@ -143,7 +109,7 @@ export class AudioPlayerWeb extends AudioPlayer {
         // the serialized duration is not accurate, use the actual duration first
         this._offset = clamp(val, 0, this._audio && this._audio.duration || this._duration);
         if (this._state !== PlayingState.PLAYING) { return; }
-        this._sourceNode.stop(); this._do_play();
+        this._doStop(); this._doPlay();
     }
 
     public getCurrentTime () {
@@ -174,4 +140,61 @@ export class AudioPlayerWeb extends AudioPlayer {
     }
 
     public destroy () { super.destroy(); }
+
+    private _doPlay () {
+        this._state = PlayingState.PLAYING;
+        this._sourceNode = this._context.createBufferSource();
+        this._sourceNode.buffer = this._audio;
+        this._sourceNode.loop = this._loop;
+        this._sourceNode.connect(this._gainNode);
+        this._startTime = this._context.currentTime;
+        this._startInvoked = false;
+        // delay eval here to yield uniform behavior with other platforms
+        cc.director.once(cc.Director.EVENT_AFTER_UPDATE, this._playAndEmit, this);
+        /* still not supported by all platforms *
+        this._sourceNode.onended = this._onEnded;
+        /* doing it manually for now */
+        clearInterval(this._currentTimer);
+        this._currentTimer = window.setInterval(() => {
+            this._onEnded();
+            clearInterval(this._currentTimer);
+            if (this._sourceNode.loop) {
+                this._currentTimer = window.setInterval(this._onEndedCB, this._audio.duration * 1000);
+            }
+        }, (this._audio.duration - this._offset) * 1000);
+    }
+
+    private _doStop () {
+        // stop can only be called after play
+        if (this._startInvoked) { this._sourceNode.stop(); }
+        else { cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this._playAndEmit, this); }
+    }
+
+    private _playAndEmit () {
+        this._sourceNode.start(0, this._offset);
+        this._eventTarget.emit('started');
+        this._startInvoked = true;
+    }
+
+    private _onEnded () {
+        this._offset = 0;
+        this._startTime = this._context.currentTime;
+        if (this._sourceNode.loop) { return; }
+        this._eventTarget.emit('ended');
+        this._state = PlayingState.STOPPED;
+    }
+
+    private _onGestureProceed () {
+        if (this._interrupted) { this._doPlay(); this._interrupted = false; }
+        cc.game.canvas.removeEventListener('touchend', this._onGestureCB);
+        cc.game.canvas.removeEventListener('mouseup', this._onGestureCB);
+    }
+
+    private _onGesture () {
+        if (this._context.state !== 'running') {
+            this._context.resume().then(this._onGestureProceedCB);
+        } else {
+            this._onGestureProceed();
+        }
+    }
 }

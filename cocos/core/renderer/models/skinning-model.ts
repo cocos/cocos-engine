@@ -100,7 +100,7 @@ export class SkinningModel extends Model {
         const { animInfo, boundsInfo } = this._jointsMedium;
         const skelBound = boundsInfo![animInfo!.data[1]];
         const node = this._transform;
-        if (this._worldBounds) {
+        if (this._worldBounds && skelBound) {
             // @ts-ignore TS2339
             skelBound.transform(node._mat, node._pos, node._rot, node._scale, this._worldBounds);
         }
