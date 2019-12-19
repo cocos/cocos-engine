@@ -139,6 +139,7 @@ class EventManager {
     private _inDispatch = 0;
     private _isEnabled = false;
     private _internalCustomListenerIDs: string[] = [];
+    private _currentTouch = null;
 
     /**
      * @en Pauses all listeners which are associated the specified target.
@@ -938,7 +939,6 @@ class EventManager {
             return false;
         }
 
-
         const event = argsObj.event;
         const selTouch = event.touch;
         event.currentTarget = listener._getSceneGraphPriority();
@@ -948,16 +948,23 @@ class EventManager {
         const getCode = event.getEventCode();
         // const EventTouch = cc.Event.EventTouch;
         if (getCode === EventTouch.BEGAN) {
+            if (!cc.macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch) {
+                return false;
+            }
             if (listener.onTouchBegan) {
                 isClaimed = listener.onTouchBegan(selTouch, event);
                 if (isClaimed && listener._isRegistered()) {
                     listener._claimedTouches.push(selTouch);
+                    eventManager._currentTouch = selTouch;
                 }
             }
         } else if (listener._claimedTouches.length > 0) {
             removedIdx = listener._claimedTouches.indexOf(selTouch);
             if (removedIdx !== -1) {
                 isClaimed = true;
+                if (!cc.macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch && eventManager._currentTouch !== selTouch) {
+                    return false;
+                }
                 if (getCode === EventTouch.MOVED && listener.onTouchMoved) {
                     listener.onTouchMoved(selTouch, event);
                 } else if (getCode === EventTouch.ENDED) {
@@ -967,6 +974,7 @@ class EventManager {
                     if (listener._isRegistered()) {
                         listener._claimedTouches.splice(removedIdx, 1);
                     }
+                    eventManager._currentTouch = null;
                 } else if (getCode === EventTouch.CANCELLED) {
                     if (listener.onTouchCancelled) {
                         listener.onTouchCancelled(selTouch, event);
@@ -974,6 +982,7 @@ class EventManager {
                     if (listener._isRegistered()) {
                         listener._claimedTouches.splice(removedIdx, 1);
                     }
+                    eventManager._currentTouch = null;
                 }
             }
         }
