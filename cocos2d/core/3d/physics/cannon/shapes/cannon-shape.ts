@@ -24,12 +24,11 @@
  ****************************************************************************/
 
 import CANNON from '../../../../../../external/cannon/cannon';
-import { Vec3 } from '../../../../value-types';
 import { getWrap, setWrap } from '../../framework/util';
 import { commitShapeUpdates } from '../cannon-util';
 import { PhysicsMaterial } from '../../framework/assets/physics-material';
 import { IBaseShape } from '../../spec/i-physics-shape';
-import { IVec3Like } from '../../../../value-types/math';
+import { IVec3Like } from '../../spec/i-common';
 import { CannonSharedBody } from '../cannon-shared-body';
 import { CannonWorld } from '../cannon-world';
 import { TriggerEventType } from '../../framework/physics-interface';
@@ -41,6 +40,7 @@ const TriggerEventObject = {
     otherCollider: null as Collider3D | null,
 };
 
+const Vec3 = cc.Vec3;
 const v3_0 = new Vec3();
 
 export class CannonShape implements IBaseShape {

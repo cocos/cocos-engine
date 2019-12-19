@@ -23,29 +23,29 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { Vec3 } from '../../../../value-types';
-import { Obb } from '../../../../geom-utils';
 import { BuiltinShape } from './builtin-shape';
 import { IBoxShape } from '../../spec/i-physics-shape';
 import { BoxCollider3D } from '../../exports/physics-framework';
 
+const Obb = cc.geomUtils.Obb;
+const Vec3 = cc.Vec3;
 let _worldScale = new Vec3();
 
 export class BuiltinBoxShape extends BuiltinShape implements IBoxShape {
 
     get localObb () {
-        return this._localShape as Obb;
+        return this._localShape as cc.geomUtils.Obb;
     }
 
     get worldObb () {
-        return this._worldShape as Obb;
+        return this._worldShape as cc.geomUtils.Obb;
     }
 
     public get boxCollider () {
         return this.collider as BoxCollider3D;
     }
 
-    constructor (size: Vec3) {
+    constructor (size: cc.Vec3) {
         super();
         this._localShape = new Obb();
         this._worldShape = new Obb();
@@ -53,7 +53,7 @@ export class BuiltinBoxShape extends BuiltinShape implements IBoxShape {
         Vec3.copy(this.worldObb.halfExtents, this.localObb.halfExtents);
     }
 
-    set size (size: Vec3) {
+    set size (size: cc.Vec3) {
         Vec3.multiplyScalar(this.localObb.halfExtents, size, 0.5);
         this.collider.node.getWorldScale(_worldScale);
         Vec3.multiply(this.worldObb.halfExtents, this.localObb.halfExtents, _worldScale);

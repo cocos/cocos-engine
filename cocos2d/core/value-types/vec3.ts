@@ -1267,7 +1267,7 @@ export default class Vec3 extends ValueType {
      * @returns {number}
      */
     maxAxis (): number {
-       return Math.max(Math.max(this.x, this.y), this.z);
+       return Math.max(this.x, this.y, this.z);
     }
 
     /**

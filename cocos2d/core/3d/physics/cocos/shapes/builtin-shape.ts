@@ -23,13 +23,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { Mat4, Quat, Vec3 } from '../../../../value-types';
 import { BuiltinSharedBody } from '../builtin-shared-body';
 import { IBuiltinShape } from '../builtin-interface';
 import { Collider3D, PhysicsMaterial, RigidBody3D } from '../../exports/physics-framework';
 import { IBaseShape } from '../../spec/i-physics-shape';
-import { IVec3Like } from '../../../../value-types/math';
+import { IVec3Like } from '../../spec/i-common';
 import { BuiltInWorld } from '../builtin-world';
+
+const Vec3 = cc.Vec3;
 
 export class BuiltinShape implements IBaseShape {
     set material (v: PhysicsMaterial) { }
@@ -92,7 +93,7 @@ export class BuiltinShape implements IBaseShape {
         (this._worldShape as any) = null;
     }
 
-    transform (m: Mat4, pos: Vec3, rot: Quat, scale: Vec3) {
+    transform (m: cc.Mat4, pos: cc.Vec3, rot: cc.Quat, scale: cc.Vec3) {
         this._localShape.transform(m, pos, rot, scale, this._worldShape);
     }
 

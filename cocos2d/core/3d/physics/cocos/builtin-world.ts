@@ -23,20 +23,19 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { Vec3 } from '../../../value-types';
 import { PhysicsRayResult } from '../framework/physics-ray-result';
 import { BuiltinSharedBody } from './builtin-shared-body';
 import { BuiltinShape } from './shapes/builtin-shape';
 import { ArrayCollisionMatrix } from './utils/array-collision-matrix';
-import { Ray, intersect } from '../../../geom-utils';
-import { RecyclePool } from '../../../../renderer/memop';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
-import { IVec3Like } from '../../../value-types/math';
+import { IVec3Like } from '../spec/i-common';
 import { PhysicsMaterial } from './../framework/assets/physics-material';
 import { TriggerEventType } from '../framework/physics-interface';
 import { Collider3D } from '../exports/physics-framework';
 
-const jsArray = cc.js.array;
+const fastRemoveAt = cc.js.array.fastRemoveAt;
+const intersect = cc.geomUtils.intersect;
+const Vec3 = cc.Vec3;
 const hitPoint = new Vec3();
 const TriggerEventObject = {
     type: 'onCollisionEnter' as unknown as TriggerEventType,
@@ -93,7 +92,7 @@ export class BuiltInWorld implements IPhysicsWorld {
         this.emitColliderEvent();
     }
 
-    raycastClosest (worldRay: Ray, options: IRaycastOptions, out: PhysicsRayResult): boolean {
+    raycastClosest (worldRay: cc.geomUtils.Ray, options: IRaycastOptions, out: PhysicsRayResult): boolean {
         let tmp_d = Infinity;
         const max_d = options.maxDistance!;
         const groupIndex = options.groupIndex!;
@@ -124,7 +123,7 @@ export class BuiltInWorld implements IPhysicsWorld {
         return !(tmp_d == Infinity);
     }
 
-    raycast (worldRay: Ray, options: IRaycastOptions, pool: RecyclePool, results: PhysicsRayResult[]): boolean {
+    raycast (worldRay: cc.geomUtils.Ray, options: IRaycastOptions, pool: cc.RecyclePool, results: PhysicsRayResult[]): boolean {
         const max_d = options.maxDistance!;
         const groupIndex = options.groupIndex!;
         const collisionMatrix = cc.game.collisionMatrix;
@@ -152,7 +151,7 @@ export class BuiltInWorld implements IPhysicsWorld {
         return results.length > 0;
     }
 
-    getSharedBody (node: any): BuiltinSharedBody {
+    getSharedBody (node: cc.Node): BuiltinSharedBody {
         return BuiltinSharedBody.getSharedBody(node, this);
     }
 
@@ -166,7 +165,7 @@ export class BuiltInWorld implements IPhysicsWorld {
     removeSharedBody (body: BuiltinSharedBody) {
         const index = this.bodies.indexOf(body);
         if (index >= 0) {
-            jsArray.fastRemoveAt(this.bodies, index);
+            fastRemoveAt(this.bodies, index);
         }
     }
 

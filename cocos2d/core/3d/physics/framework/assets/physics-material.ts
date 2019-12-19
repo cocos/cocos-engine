@@ -23,10 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { ccclass, property } from '../../../../platform/CCClassDecorator';
-import { equals } from '../../../../value-types';
+const {ccclass, property} = cc._decorator;
+const fastRemoveAt = cc.js.array.fastRemoveAt;
+const equals = cc.math.equals;
 
-const jsArray = cc.js.array;
 @ccclass('cc.PhysicsMaterial')
 export class PhysicsMaterial extends cc.Asset {
 
@@ -94,7 +94,7 @@ export class PhysicsMaterial extends cc.Asset {
         if (super.destroy()) {
             let idx = PhysicsMaterial.allMaterials.indexOf(this);
             if (idx >= 0) {
-                jsArray.fastRemoveAt(PhysicsMaterial.allMaterials, idx);
+                fastRemoveAt(PhysicsMaterial.allMaterials, idx);
             }
             return true;
         } else {

@@ -55,3 +55,5 @@ export default class RecyclePool {
     return sort(this._data, 0, this._count, cmp);
   }
 }
+
+cc.RecyclePool = RecyclePool;

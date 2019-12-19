@@ -22,17 +22,15 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
-import { Mat4, Quat, Vec3 } from '../../../value-types';
-import { intersect } from '../../../geom-utils';
 import { BuiltInWorld } from './builtin-world';
 import { BuiltinShape } from './shapes/builtin-shape';
 
-const m4_0 = new Mat4();
-const v3_0 = new Vec3();
-const v3_1 = new Vec3();
-const quat_0 = new Quat();
-const jsArray = cc.js.array;
+const m4_0 = new cc.Mat4();
+const v3_0 = new cc.Vec3();
+const v3_1 = new cc.Vec3();
+const quat_0 = new cc.Quat();
+const intersect = cc.geomUtils.intersect;
+const fastRemoveAt = cc.js.array.fastRemoveAt;
 
 /**
  * Built-in static collider, no physical forces involved
@@ -41,7 +39,7 @@ export class BuiltinSharedBody {
 
     private static readonly sharedBodiesMap = new Map<string, BuiltinSharedBody>();
 
-    static getSharedBody (node: any, wrappedWorld: BuiltInWorld) {
+    static getSharedBody (node: cc.Node, wrappedWorld: BuiltInWorld) {
         const key = node._id;
         if (BuiltinSharedBody.sharedBodiesMap.has(key)) {
             return BuiltinSharedBody.sharedBodiesMap.get(key)!;
@@ -90,11 +88,11 @@ export class BuiltinSharedBody {
     private index: number = -1;
     private ref: number = 0;
 
-    readonly node: any;
+    readonly node: cc.Node;
     readonly world: BuiltInWorld;
     readonly shapes: BuiltinShape[] = [];
 
-    private constructor (node: any, world: BuiltInWorld) {
+    private constructor (node: cc.Node, world: BuiltInWorld) {
         this._id = BuiltinSharedBody.idCounter++;
         this.node = node;
         this.world = world;
@@ -125,7 +123,7 @@ export class BuiltinSharedBody {
     removeShape (shape: BuiltinShape): void {
         const i = this.shapes.indexOf(shape);
         if (i >= 0) {
-            jsArray.fastRemoveAt(this.shapes, i);
+            fastRemoveAt(this.shapes, i);
         }
     }
 

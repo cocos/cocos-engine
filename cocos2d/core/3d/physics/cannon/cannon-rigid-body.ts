@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 import CANNON from '../../../../../external/cannon/cannon';
-import { Vec3 } from '../../../value-types';
 import { IRigidBody } from '../spec/I-rigid-body';
 import { CannonSharedBody } from './cannon-shared-body';
 import { CannonWorld } from './cannon-world';
@@ -32,6 +31,7 @@ import { RigidBody3D } from '../framework';
 
 const v3_cannon0 = new CANNON.Vec3();
 const v3_cannon1 = new CANNON.Vec3();
+const Vec3 = cc.Vec3;
 
 /**
  * wraped shared body
@@ -110,7 +110,7 @@ export class CannonRigidBody implements IRigidBody {
         body.useGravity = value;
     }
 
-    set linearFactor (value: Vec3) {
+    set linearFactor (value: cc.Vec3) {
         let body = this._sharedBody.body;
         if (body.isSleeping()) {
             body.wakeUp();
@@ -118,7 +118,7 @@ export class CannonRigidBody implements IRigidBody {
         Vec3.copy(body.linearFactor, value);
     }
 
-    set angularFactor (value: Vec3) {
+    set angularFactor (value: cc.Vec3) {
         let body = this._sharedBody.body;
         if (body.isSleeping()) {
             body.wakeUp();
@@ -189,12 +189,12 @@ export class CannonRigidBody implements IRigidBody {
         return this._sharedBody.body.sleep();
     }
 
-    getLinearVelocity (out: Vec3): Vec3 {
+    getLinearVelocity (out: cc.Vec3): cc.Vec3 {
         Vec3.copy(out, this._sharedBody.body.velocity);
         return out;
     }
 
-    setLinearVelocity (value: Vec3): void {
+    setLinearVelocity (value: cc.Vec3): void {
         let body = this._sharedBody.body;
         if (body.isSleeping()) {
             body.wakeUp();
@@ -203,12 +203,12 @@ export class CannonRigidBody implements IRigidBody {
         Vec3.copy(body.velocity, value);
     }
 
-    getAngularVelocity (out: Vec3): Vec3 {
+    getAngularVelocity (out: cc.Vec3): cc.Vec3 {
         Vec3.copy(out, this._sharedBody.body.angularVelocity);
         return out;
     }
 
-    setAngularVelocity (value: Vec3): void {
+    setAngularVelocity (value: cc.Vec3): void {
         let body = this._sharedBody.body;
         if (body.isSleeping()) {
             body.wakeUp();
@@ -216,7 +216,7 @@ export class CannonRigidBody implements IRigidBody {
         Vec3.copy(body.angularVelocity, value);
     }
 
-    applyForce (force: Vec3, worldPoint?: Vec3) {
+    applyForce (force: cc.Vec3, worldPoint?: cc.Vec3) {
         if (worldPoint == null) {
             worldPoint = Vec3.ZERO;
         }
@@ -227,7 +227,7 @@ export class CannonRigidBody implements IRigidBody {
         body.applyForce(Vec3.copy(v3_cannon0, force), Vec3.copy(v3_cannon1, worldPoint));
     }
 
-    applyImpulse (impulse: Vec3, worldPoint?: Vec3) {
+    applyImpulse (impulse: cc.Vec3, worldPoint?: cc.Vec3) {
         if (worldPoint == null) {
             worldPoint = Vec3.ZERO;
         }
@@ -238,7 +238,7 @@ export class CannonRigidBody implements IRigidBody {
         body.applyImpulse(Vec3.copy(v3_cannon0, impulse), Vec3.copy(v3_cannon1, worldPoint));
     }
 
-    applyLocalForce (force: Vec3, localPoint?: Vec3): void {
+    applyLocalForce (force: cc.Vec3, localPoint?: cc.Vec3): void {
         if (localPoint == null) {
             localPoint = Vec3.ZERO;
         }
@@ -249,7 +249,7 @@ export class CannonRigidBody implements IRigidBody {
         body.applyLocalForce(Vec3.copy(v3_cannon0, force), Vec3.copy(v3_cannon1, localPoint));
     }
 
-    applyLocalImpulse (impulse: Vec3, localPoint?: Vec3): void {
+    applyLocalImpulse (impulse: cc.Vec3, localPoint?: cc.Vec3): void {
         if (localPoint == null) {
             localPoint = Vec3.ZERO;
         }
@@ -260,7 +260,7 @@ export class CannonRigidBody implements IRigidBody {
         body.applyLocalImpulse(Vec3.copy(v3_cannon0, impulse), Vec3.copy(v3_cannon1, localPoint));
     }
 
-    applyTorque (torque: Vec3): void {
+    applyTorque (torque: cc.Vec3): void {
         let body = this._sharedBody.body;
         if (body.isSleeping()) {
             body.wakeUp();
@@ -270,7 +270,7 @@ export class CannonRigidBody implements IRigidBody {
         body.torque.z += torque.z;
     }
 
-    applyLocalTorque (torque: Vec3): void {
+    applyLocalTorque (torque: cc.Vec3): void {
         let body = this._sharedBody.body;
         if (body.isSleeping()) {
             body.wakeUp();

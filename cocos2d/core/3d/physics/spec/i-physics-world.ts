@@ -25,8 +25,6 @@
 
 import { IVec3Like } from "../../../value-types/math";
 import { PhysicsRayResult } from '../framework/physics-ray-result';
-import { Ray } from '../../../geom-utils';
-import { RecyclePool } from '../../../../renderer/memop';
 
 export interface IRaycastOptions {
     groupIndex: number;
@@ -42,13 +40,13 @@ export interface ICollisionDetect {
      * Ray cast, and return information of the closest hit.
      * @return True if any body was hit.
      */
-    raycastClosest (worldRay: Ray, options: IRaycastOptions, out: PhysicsRayResult): boolean;
+    raycastClosest (worldRay: cc.geomUtils.Ray, options: IRaycastOptions, out: PhysicsRayResult): boolean;
 
     /**
      * Ray cast against all bodies. The provided callback will be executed for each hit with a RaycastResult as single argument.
      * @return True if any body was hit.
      */
-    raycast (worldRay: Ray, options: IRaycastOptions, pool: RecyclePool, resultes: PhysicsRayResult[]): boolean
+    raycast (worldRay: cc.geomUtils.Ray, options: IRaycastOptions, pool: cc.RecyclePool, resultes: PhysicsRayResult[]): boolean
 }
 
 export interface IPhysicsWorld extends ICollisionDetect {

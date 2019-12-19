@@ -23,17 +23,18 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import {
+import { IRigidBody } from '../../spec/I-rigid-body';
+import { createRigidBody } from '../instance';
+
+const {
     ccclass,
     disallowMultiple,
     executeInEditMode,
     executionOrder,
     menu,
     property,
-} from '../../../../platform/CCClassDecorator';
-import { Vec3 } from '../../../../value-types';
-import { IRigidBody } from '../../spec/I-rigid-body';
-import { createRigidBody } from '../instance';
+} = cc._decorator;
+const Vec3 = cc.Vec3;
 
 /**
  * !#en
@@ -200,7 +201,7 @@ export class RigidBody3D extends cc.Component {
         return this._linearFactor;
     }
 
-    public set linearFactor (value: Vec3) {
+    public set linearFactor (value: cc.Vec3) {
         Vec3.copy(this._linearFactor, value);
         if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
             this._body.linearFactor = this._linearFactor;
@@ -220,7 +221,7 @@ export class RigidBody3D extends cc.Component {
         return this._angularFactor;
     }
 
-    public set angularFactor (value: Vec3) {
+    public set angularFactor (value: cc.Vec3) {
         Vec3.copy(this._angularFactor, value);
         if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
             this._body.angularFactor = this._angularFactor;
@@ -296,10 +297,10 @@ export class RigidBody3D extends cc.Component {
     private _useGravity: boolean = true;
 
     @property
-    private _linearFactor: Vec3 = new Vec3(1, 1, 1);
+    private _linearFactor: cc.Vec3 = new Vec3(1, 1, 1);
 
     @property
-    private _angularFactor: Vec3 = new Vec3(1, 1, 1);
+    private _angularFactor: cc.Vec3 = new Vec3(1, 1, 1);
 
     protected get _assertOnload (): boolean {
         const r = this._isOnLoadCalled == 0;
@@ -350,7 +351,7 @@ export class RigidBody3D extends cc.Component {
      * @param force
      * @param relativePoint The point of action, relative to the center of the rigid body
      */
-    public applyForce (force: Vec3, relativePoint?: Vec3) {
+    public applyForce (force: cc.Vec3, relativePoint?: cc.Vec3) {
         if (this._assertOnload && !CC_EDITOR && !CC_PHYSICS_BUILTIN) {
             this._body.applyForce(force, relativePoint);
         }
@@ -364,7 +365,7 @@ export class RigidBody3D extends cc.Component {
      * @param force 
      * @param localPoint Point of application
      */
-    public applyLocalForce (force: Vec3, localPoint?: Vec3) {
+    public applyLocalForce (force: cc.Vec3, localPoint?: cc.Vec3) {
         if (this._assertOnload && !CC_EDITOR && !CC_PHYSICS_BUILTIN) {
             this._body.applyLocalForce(force, localPoint);
         }
@@ -378,7 +379,7 @@ export class RigidBody3D extends cc.Component {
      * @param impulse
      * @param relativePoint The point of action, relative to the center of the rigid body
      */
-    public applyImpulse (impulse: Vec3, relativePoint?: Vec3) {
+    public applyImpulse (impulse: cc.Vec3, relativePoint?: cc.Vec3) {
         if (this._assertOnload && !CC_EDITOR && !CC_PHYSICS_BUILTIN) {
             this._body.applyImpulse(impulse, relativePoint);
         }
@@ -392,19 +393,19 @@ export class RigidBody3D extends cc.Component {
      * @param impulse
      * @param localPoint Point of application
      */
-    public applyLocalImpulse (impulse: Vec3, localPoint?: Vec3) {
+    public applyLocalImpulse (impulse: cc.Vec3, localPoint?: cc.Vec3) {
         if (this._assertOnload && !CC_EDITOR && !CC_PHYSICS_BUILTIN) {
             this._body.applyLocalImpulse(impulse, localPoint);
         }
     }
 
-    public applyTorque (torque: Vec3) {
+    public applyTorque (torque: cc.Vec3) {
         if (this._assertOnload && !CC_EDITOR && !CC_PHYSICS_BUILTIN) {
             this._body.applyTorque(torque);
         }
     }
 
-    public applyLocalTorque (torque: Vec3) {
+    public applyLocalTorque (torque: cc.Vec3) {
         if (this._assertOnload && !CC_EDITOR && !CC_PHYSICS_BUILTIN) {
             this._body.applyLocalTorque(torque);
         }
@@ -441,7 +442,7 @@ export class RigidBody3D extends cc.Component {
      * 获取线性速度。
      * @param out Vec3
      */
-    public getLinearVelocity (out: Vec3) {
+    public getLinearVelocity (out: cc.Vec3) {
         if (this._assertOnload && !CC_EDITOR && !CC_PHYSICS_BUILTIN) {
             this._body.getLinearVelocity(out);
         }
@@ -454,7 +455,7 @@ export class RigidBody3D extends cc.Component {
      * 设置线性速度。
      * @param value Vec3
      */
-    public setLinearVelocity (value: Vec3): void {
+    public setLinearVelocity (value: cc.Vec3): void {
         if (this._assertOnload && !CC_EDITOR && !CC_PHYSICS_BUILTIN) {
             this._body.setLinearVelocity(value);
         }
@@ -467,7 +468,7 @@ export class RigidBody3D extends cc.Component {
      * 获取旋转速度。
      * @param out Vec3
      */
-    public getAngularVelocity (out: Vec3) {
+    public getAngularVelocity (out: cc.Vec3) {
         if (this._assertOnload && !CC_EDITOR && !CC_PHYSICS_BUILTIN) {
             this._body.getAngularVelocity(out);
         }
@@ -480,7 +481,7 @@ export class RigidBody3D extends cc.Component {
      * 设置旋转速度。
      * @param value Vec3
      */
-    public setAngularVelocity (value: Vec3): void {
+    public setAngularVelocity (value: cc.Vec3): void {
         if (this._assertOnload && !CC_EDITOR && !CC_PHYSICS_BUILTIN) {
             this._body.setAngularVelocity(value);
         }

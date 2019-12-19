@@ -23,13 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { Mat4, Quat, Vec3 } from '../../../value-types';
-import { IVec3Like, IQuatLike } from '../../../value-types/math';
+import {IVec3Like, IQuatLike} from "../spec/i-common"
 
 /**
  * declare interface
  */
 export interface IBuiltinShape {
-    center: Vec3;
-    transform (m: Mat4, pos: IVec3Like, rot: IQuatLike, scale: IVec3Like, out: IBuiltinShape): any;
+    center: cc.Vec3;
+    transform (m: cc.Mat4, pos: IVec3Like, rot: IQuatLike, scale: IVec3Like, out: IBuiltinShape): any;
 }

@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { Vec3 } from '../../../value-types';
 import { Collider3D } from './components/collider/collider-component';
 
 /**
@@ -87,7 +86,7 @@ export interface IContactEquation {
      * !#zh
      * 碰撞信息中的碰撞点A。
      */
-    readonly contactA: Vec3;
+    readonly contactA: cc.Vec3;
 
     /**
      * !#en
@@ -95,7 +94,7 @@ export interface IContactEquation {
      * !#zh
      * 碰撞信息中的碰撞点B。
      */
-    readonly contactB: Vec3;
+    readonly contactB: cc.Vec3;
 
     /**
      * !#en
@@ -103,7 +102,7 @@ export interface IContactEquation {
      * !#zh
      * 碰撞信息中的法线。
      */
-    readonly normal: Vec3;
+    readonly normal: cc.Vec3;
 }
 
 /**

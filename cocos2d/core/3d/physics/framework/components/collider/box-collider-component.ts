@@ -23,17 +23,19 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import {
+import { createBoxShape } from '../../instance';
+import { Collider3D } from './collider-component';
+import { IBoxShape } from '../../../spec/i-physics-shape';
+
+const {
     ccclass,
     executeInEditMode,
     executionOrder,
     menu,
     property,
-} from '../../../../../platform/CCClassDecorator';
-import { Vec3 } from '../../../../../value-types';
-import { createBoxShape } from '../../instance';
-import { Collider3D } from './collider-component';
-import { IBoxShape } from '../../../spec/i-physics-shape';
+} = cc._decorator;
+
+const Vec3 = cc.Vec3;
 
 /**
  * !#en
@@ -56,7 +58,7 @@ export class BoxCollider3D extends Collider3D {
      * 获取或设置盒的大小。
      */
     @property({
-        type: Vec3
+        type: cc.Vec3
     })
     public get size () {
         return this._size;
@@ -76,7 +78,7 @@ export class BoxCollider3D extends Collider3D {
     /// PRIVATE PROPERTY ///
 
     @property
-    private _size: Vec3 = new Vec3(1, 1, 1);
+    private _size: cc.Vec3 = new Vec3(1, 1, 1);
 
     constructor () {
         super();

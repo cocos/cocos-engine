@@ -24,7 +24,6 @@
  ****************************************************************************/
 
 import CANNON from '../../../../../external/cannon/cannon';
-import { Quat, Vec3 } from '../../../value-types';
 import { ERigidBodyType } from '../framework/physics-enum';
 import { getWrap } from '../framework/util';
 import { CannonWorld } from './cannon-world';
@@ -34,7 +33,9 @@ import { CollisionEventType } from '../framework/physics-interface';
 import { CannonRigidBody } from './cannon-rigid-body';
 import { groupIndexToBitMask } from './cannon-util'
 
-const jsArray = cc.js.array;
+const Quat = cc.Quat;
+const Vec3 = cc.Vec3;
+const fastRemoveAt = cc.js.array.fastRemoveAt;
 const v3_0 = new Vec3();
 const quat_0 = new Quat();
 const contactsPool = [] as any;
@@ -53,7 +54,7 @@ export class CannonSharedBody {
 
     private static readonly sharedBodiesMap = new Map<string, CannonSharedBody>();
 
-    static getSharedBody (node: any, wrappedWorld: CannonWorld) {
+    static getSharedBody (node: cc.Node, wrappedWorld: CannonWorld) {
         const key = node._id;
         if (CannonSharedBody.sharedBodiesMap.has(key)) {
             return CannonSharedBody.sharedBodiesMap.get(key)!;
@@ -64,7 +65,7 @@ export class CannonSharedBody {
         }
     }
 
-    readonly node: any;
+    readonly node: cc.Node;
     readonly wrappedWorld: CannonWorld;
     readonly body: CANNON.Body = new CANNON.Body();
     readonly shapes: CannonShape[] = [];
@@ -106,7 +107,7 @@ export class CannonSharedBody {
         if (this.ref == 0) { this.destroy(); }
     }
 
-    private constructor (node: any, wrappedWorld: CannonWorld) {
+    private constructor (node: cc.Node, wrappedWorld: CannonWorld) {
         this.wrappedWorld = wrappedWorld;
         this.node = node;
         this.body.material = this.wrappedWorld.world.defaultMaterial;
@@ -136,7 +137,7 @@ export class CannonSharedBody {
     removeShape (v: CannonShape) {
         const index = this.shapes.indexOf(v);
         if (index >= 0) {
-            jsArray.fastRemoveAt(this.shapes, index);
+            fastRemoveAt(this.shapes, index);
             this.body.removeShape(v.shape);
             v.setIndex(-1);
         }

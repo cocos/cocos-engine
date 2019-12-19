@@ -23,8 +23,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { Vec3 } from '../../../value-types';
 import { Collider3D } from '../exports/physics-framework';
+const Vec3 = cc.Vec3;
 
 /**
  * !#en
@@ -40,7 +40,7 @@ export class PhysicsRayResult {
      * !#zh
      * 击中点
      */
-    get hitPoint (): Vec3 {
+    get hitPoint (): cc.Vec3 {
         return this._hitPoint;
     }
 
@@ -64,7 +64,7 @@ export class PhysicsRayResult {
         return this._collidier!;
     }
 
-    private _hitPoint: Vec3 = new Vec3();
+    private _hitPoint: cc.Vec3 = new Vec3();
     private _distance: number = 0;
     private _collidier: Collider3D | null = null;
 
@@ -74,7 +74,7 @@ export class PhysicsRayResult {
      * !#zh
      * 设置射线，此方法由引擎内部使用，请勿在外部脚本调用
      */
-    public _assign (hitPoint: Vec3, distance: number, collider: Collider3D) {
+    public _assign (hitPoint: cc.Vec3, distance: number, collider: Collider3D) {
         Vec3.copy(this._hitPoint, hitPoint);
         this._distance = distance;
         this._collidier = collider;

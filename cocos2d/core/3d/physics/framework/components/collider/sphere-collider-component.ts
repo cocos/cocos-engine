@@ -23,16 +23,17 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import {
+import { createSphereShape } from '../../instance';
+import { Collider3D } from './collider-component';
+import { ISphereShape } from '../../../spec/i-physics-shape';
+
+const {
     ccclass,
     executeInEditMode,
     executionOrder,
     menu,
     property,
-} from '../../../../../platform/CCClassDecorator';
-import { createSphereShape } from '../../instance';
-import { Collider3D } from './collider-component';
-import { ISphereShape } from '../../../spec/i-physics-shape';
+} = cc._decorator;
 
 /**
  * !#en

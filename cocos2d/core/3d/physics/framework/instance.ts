@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { Vec3 } from '../../../value-types';
 import { BoxShape, PhysicsWorld, RigidBody, SphereShape } from './physics-selector';
 import { IRigidBody } from '../spec/I-rigid-body';
 import { IBoxShape, ISphereShape } from '../spec/i-physics-shape';
@@ -37,7 +36,7 @@ export function createRigidBody (): IRigidBody {
     return new RigidBody!() as IRigidBody;
 }
 
-export function createBoxShape (size: Vec3): IBoxShape {
+export function createBoxShape (size: cc.Vec3): IBoxShape {
     return new BoxShape(size) as IBoxShape;
 }
 

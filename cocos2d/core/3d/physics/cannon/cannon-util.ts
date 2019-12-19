@@ -25,10 +25,11 @@
 
 import CANNON from '../../../../../external/cannon/cannon';
 import { getWrap } from '../framework/util';
-import { Vec3 } from '../../../value-types';
 import { IBaseShape } from '../spec/i-physics-shape';
 import { PhysicsRayResult } from '../framework';
 import { IRaycastOptions } from '../spec/i-physics-world';
+
+const Vec3 = cc.Vec3;
 
 export function groupIndexToBitMask (groupIndex: number, out: { collisionFilterGroup: number; collisionFilterMask: number; }) {
     let categoryBits = 1 << groupIndex;

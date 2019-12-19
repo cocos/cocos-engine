@@ -23,7 +23,9 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import {
+import { RigidBody3D } from './rigid-body-component';
+
+const {
     ccclass,
     executeInEditMode,
     executionOrder,
@@ -31,9 +33,8 @@ import {
     property,
     requireComponent,
     disallowMultiple,
-} from '../../../../platform/CCClassDecorator';
-import { RigidBody3D } from './rigid-body-component';
-import { Vec3 } from '../../../../value-types';
+} = cc._decorator;
+const Vec3 = cc.Vec3;
 
 /**
  * !#en
@@ -52,16 +53,16 @@ export class ConstantForce extends cc.Component {
     private _rigidbody: RigidBody3D | null = null;
 
     @property
-    private readonly _force: Vec3 = new Vec3();
+    private readonly _force: cc.Vec3 = new Vec3();
 
     @property
-    private readonly _localForce: Vec3 = new Vec3();
+    private readonly _localForce: cc.Vec3 = new Vec3();
 
     @property
-    private readonly _torque: Vec3 = new Vec3();
+    private readonly _torque: cc.Vec3 = new Vec3();
 
     @property
-    private readonly _localTorque: Vec3 = new Vec3();
+    private readonly _localTorque: cc.Vec3 = new Vec3();
 
     private _mask: number = 0;
 
@@ -78,7 +79,7 @@ export class ConstantForce extends cc.Component {
         return this._force;
     }
 
-    public set force (value: Vec3) {
+    public set force (value: cc.Vec3) {
         Vec3.copy(this._force, value);
         this._maskUpdate(this._force, 1);
     }
@@ -96,7 +97,7 @@ export class ConstantForce extends cc.Component {
         return this._localForce;
     }
 
-    public set localForce (value: Vec3) {
+    public set localForce (value: cc.Vec3) {
         Vec3.copy(this._localForce, value);
         this._maskUpdate(this.localForce, 2);
     }
@@ -114,7 +115,7 @@ export class ConstantForce extends cc.Component {
         return this._torque;
     }
 
-    public set torque (value: Vec3) {
+    public set torque (value: cc.Vec3) {
         Vec3.copy(this._torque, value);
         this._maskUpdate(this._torque, 4);
     }
@@ -132,7 +133,7 @@ export class ConstantForce extends cc.Component {
         return this._localTorque;
     }
 
-    public set localTorque (value: Vec3) {
+    public set localTorque (value: cc.Vec3) {
         Vec3.copy(this._localTorque, value);
         this._maskUpdate(this._localTorque, 8);
     }
@@ -169,7 +170,7 @@ export class ConstantForce extends cc.Component {
         }
     }
 
-    private _maskUpdate (t: Vec3, m: number) {
+    private _maskUpdate (t: cc.Vec3, m: number) {
         if (Vec3.strictEquals(t, Vec3.ZERO)) {
             this._mask &= ~m;
         } else {

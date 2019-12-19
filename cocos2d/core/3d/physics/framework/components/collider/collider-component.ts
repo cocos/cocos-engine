@@ -23,12 +23,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { ccclass, property } from '../../../../../platform/CCClassDecorator';
-import { Vec3 } from '../../../../../value-types';
 import { CollisionCallback, CollisionEventType, TriggerCallback, TriggerEventType } from '../../physics-interface';
 import { RigidBody3D } from '../rigid-body-component';
 import { PhysicsMaterial } from '../../assets/physics-material';
 import { IBaseShape } from '../../../spec/i-physics-shape';
+
+const {ccclass, property} = cc._decorator;
+const Vec3 = cc.Vec3;
 
 /**
  * !#en
@@ -115,14 +116,14 @@ export class Collider3D extends cc.Component {
      * 获取或设置碰撞器的中心点。
      */
     @property({
-        type: Vec3,
+        type: cc.Vec3,
         displayOrder: 1
     })
     public get center () {
         return this._center;
     }
 
-    public set center (value: Vec3) {
+    public set center (value: cc.Vec3) {
         Vec3.copy(this._center, value);
         if (!CC_EDITOR) {
             this._shape.center = this._center;
@@ -156,7 +157,7 @@ export class Collider3D extends cc.Component {
     protected _isTrigger: boolean = false;
 
     @property
-    protected readonly _center: Vec3 = new Vec3();
+    protected readonly _center: cc.Vec3 = new Vec3();
 
     protected get _assertOnload (): boolean {
         const r = this._isOnLoadCalled == 0;

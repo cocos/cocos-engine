@@ -24,13 +24,13 @@
  ****************************************************************************/
 
 import CANNON from '../../../../../../external/cannon/cannon';
-import { Vec3 } from '../../../../value-types';
 import { commitShapeUpdates } from '../cannon-util';
 import { CannonShape } from './cannon-shape';
 import { IBoxShape } from '../../spec/i-physics-shape';
-import { IVec3Like } from '../../../../value-types/math';
+import { IVec3Like } from '../../spec/i-common';
 import { BoxCollider3D } from '../../exports/physics-framework';
 
+const Vec3 = cc.Vec3;
 const v3_0 = new Vec3();
 
 export class CannonBoxShape extends CannonShape implements IBoxShape {
@@ -44,7 +44,7 @@ export class CannonBoxShape extends CannonShape implements IBoxShape {
     }
 
     readonly halfExtent: CANNON.Vec3 = new CANNON.Vec3();
-    constructor (size: Vec3) {
+    constructor (size: cc.Vec3) {
         super();
         Vec3.multiplyScalar(this.halfExtent, size, 0.5);
         this._shape = new CANNON.Box(this.halfExtent.clone());
@@ -65,7 +65,7 @@ export class CannonBoxShape extends CannonShape implements IBoxShape {
         this.size = this.boxCollider.size;
     }
 
-    setScale (scale: Vec3): void {
+    setScale (scale: cc.Vec3): void {
         super.setScale(scale);
         this.size = this.boxCollider.size;
     }

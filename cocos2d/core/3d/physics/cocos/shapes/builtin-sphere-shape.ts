@@ -23,13 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { Sphere } from '../../../../geom-utils';
 import { BuiltinShape } from './builtin-shape';
 import { ISphereShape } from '../../spec/i-physics-shape';
 import { SphereCollider3D } from '../../exports/physics-framework';
-import { Vec3 } from '../../../../value-types';
 
-let _worldScale = new Vec3();
+const Sphere = cc.geomUtils.Sphere;
+let _worldScale = new cc.Vec3();
 
 export class BuiltinSphereShape extends BuiltinShape implements ISphereShape {
 
@@ -41,11 +40,11 @@ export class BuiltinSphereShape extends BuiltinShape implements ISphereShape {
     }
 
     get localSphere () {
-        return this._localShape as Sphere;
+        return this._localShape as cc.geomUtils.Sphere;
     }
 
     get worldSphere () {
-        return this._worldShape as Sphere;
+        return this._worldShape as cc.geomUtils.Sphere;
     }
 
     get sphereCollider () {

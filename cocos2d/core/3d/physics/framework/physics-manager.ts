@@ -23,14 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { Vec3 } from '../../../value-types';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { createPhysicsWorld } from './instance';
 import { PhysicsMaterial } from './assets/physics-material';
-import { RecyclePool } from '../../../../renderer/memop';
-import { Ray } from '../../../geom-utils';
 import { PhysicsRayResult } from './physics-ray-result';
-import { property, ccclass } from '../../../platform/CCClassDecorator';
+
+const { property, ccclass } = cc._decorator;
 
 /**
  * !#en
@@ -118,10 +116,10 @@ export class Physics3DManager {
      * !#zh
      * 获取或设置物理世界的重力数值，默认为 (0, -10, 0)
      */
-    get gravity (): Vec3 {
+    get gravity (): cc.Vec3 {
         return this._gravity;
     }
-    set gravity (gravity: Vec3) {
+    set gravity (gravity: cc.Vec3) {
         this._gravity.set(gravity);
         if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
             this.physicsWorld.gravity = gravity;
@@ -149,7 +147,7 @@ export class Physics3DManager {
     private _allowSleep = true;
 
     @property
-    private readonly _gravity = new Vec3(0, -10, 0);
+    private readonly _gravity = new cc.Vec3(0, -10, 0);
 
     @property
     private _maxSubStep = 1;
@@ -168,7 +166,7 @@ export class Physics3DManager {
         'maxDistance': Infinity
     }
 
-    private readonly raycastResultPool = new RecyclePool(() => {
+    private readonly raycastResultPool = new cc.RecyclePool(() => {
         return new PhysicsRayResult();
     }, 1);
 
@@ -221,7 +219,7 @@ export class Physics3DManager {
      * @param queryTrigger Detect trigger or not
      * @return {PhysicsRayResult[] | null} Detected result
      */
-    raycast (worldRay: Ray, groupIndexOrName: number|string = 0, maxDistance = Infinity, queryTrigger = true): PhysicsRayResult[] | null {
+    raycast (worldRay: cc.geomUtils.Ray, groupIndexOrName: number|string = 0, maxDistance = Infinity, queryTrigger = true): PhysicsRayResult[] | null {
         this.raycastResultPool.reset();
         this.raycastResults.length = 0;
         if (typeof groupIndexOrName == "string") {
@@ -247,7 +245,7 @@ export class Physics3DManager {
      * @param queryTrigger Detect trigger or not
      * @return {PhysicsRayResult|null} Detected result
      */
-    raycastClosest (worldRay: Ray, groupIndexOrName: number|string = 0, maxDistance = Infinity, queryTrigger = true): PhysicsRayResult|null {
+    raycastClosest (worldRay: cc.geomUtils.Ray, groupIndexOrName: number|string = 0, maxDistance = Infinity, queryTrigger = true): PhysicsRayResult|null {
         if (typeof groupIndexOrName == "string") {
             let groupIndex = cc.game.groupList.indexOf(groupIndexOrName);
             if (groupIndex == -1) groupIndex = 0;

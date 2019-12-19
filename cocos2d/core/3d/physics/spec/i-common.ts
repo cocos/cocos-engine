@@ -23,53 +23,15 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import CANNON from '../../../../../../external/cannon/cannon';
-import { commitShapeUpdates } from '../cannon-util';
-import { CannonShape } from './cannon-shape';
-import { ISphereShape } from '../../spec/i-physics-shape';
-import { SphereCollider3D } from '../../exports/physics-framework';
+export interface IVec3Like {
+    x: number;
+    y: number;
+    z: number;
+}
 
-const v3_0 = new cc.Vec3();
-export class CannonSphereShape extends CannonShape implements ISphereShape {
-
-    get sphereCollider () {
-        return this.collider as SphereCollider3D;
-    }
-
-    get sphere () {
-        return this._shape as CANNON.Sphere;
-    }
-
-    get radius () {
-        return this._radius;
-    }
-
-    set radius (v: number) {
-        this.collider.node.getWorldScale(v3_0);
-        const max = v3_0.maxAxis();
-        this.sphere.radius = v * Math.abs(max);
-        this.sphere.updateBoundingSphereRadius();
-        if (this._index != -1) {
-            commitShapeUpdates(this._body);
-        }
-    }
-
-    private _radius: number;
-
-    constructor (radius: number) {
-        super();
-        this._radius = radius;
-        this._shape = new CANNON.Sphere(this._radius);
-    }
-
-    onLoad () {
-        super.onLoad();
-        this.radius = this.sphereCollider.radius;
-    }
-
-    setScale (scale: cc.Vec3): void {
-        super.setScale(scale);
-        this.radius = this.sphereCollider.radius;
-    }
-
+export interface IQuatLike {
+    x: number;
+    y: number;
+    z: number;
+    w: number;
 }
