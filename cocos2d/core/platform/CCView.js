@@ -58,8 +58,16 @@ if (cc.sys.os === cc.sys.OS_IOS) // All browsers are WebView
 switch (__BrowserGetter.adaptationType) {
     case cc.sys.BROWSER_TYPE_SAFARI:
         __BrowserGetter.meta["minimal-ui"] = "true";
+        __BrowserGetter.availWidth = function(frame){
+            return window.innerWidth;
+        };
+        __BrowserGetter.availHeight = function(frame){
+            return window.innerHeight;
+        };
+        break;
     case cc.sys.BROWSER_TYPE_SOUGOU:
     case cc.sys.BROWSER_TYPE_UC:
+        __BrowserGetter.meta["minimal-ui"] = "true";
         __BrowserGetter.availWidth = function(frame){
             return frame.clientWidth;
         };
