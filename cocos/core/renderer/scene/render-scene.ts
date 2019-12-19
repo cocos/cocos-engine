@@ -5,7 +5,6 @@ import { Mat4, Vec3 } from '../../math';
 import { RecyclePool } from '../../memop';
 import { Root } from '../../root';
 import { Layers } from '../../scene-graph/layers';
-import { INode } from '../../utils/interfaces';
 import { Ambient } from './ambient';
 import { Camera, ICameraInfo } from './camera';
 import { DirectionalLight } from './directional-light';
@@ -14,6 +13,7 @@ import { PlanarShadows } from './planar-shadows';
 import { Skybox } from './skybox';
 import { SphereLight } from './sphere-light';
 import { SpotLight } from './spot-light';
+import { Node } from '../../scene-graph';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -22,11 +22,11 @@ export interface IRenderSceneInfo {
 export interface ISceneNodeInfo {
     name: string;
     isStatic?: boolean;
-    // parent: INode;
+    // parent: Node;
 }
 
 export interface IRaycastResult {
-    node: INode;
+    node: Node;
     distance: number;
 }
 
@@ -396,7 +396,7 @@ export class RenderScene {
         const canvasComs = cc.director.getScene().getComponentsInChildren(cc.CanvasComponent);
         if (canvasComs != null && canvasComs.length > 0) {
             for (let i = 0; i < canvasComs.length; i++) {
-                const canvasNode = canvasComs[i].node as INode;
+                const canvasNode = canvasComs[i].node;
                 if (canvasNode != null && canvasNode.active) {
                     this._raycastUI2DNodeRecursiveChildren(worldRay, canvasNode, mask, distance);
                 }
@@ -406,7 +406,7 @@ export class RenderScene {
         return resultCanvas.length > 0;
     }
 
-    private _raycastUI2DNode (worldRay: ray, ui2dNode: INode, mask = Layers.Enum.UI_2D, distance = Infinity) {
+    private _raycastUI2DNode (worldRay: ray, ui2dNode: Node, mask = Layers.Enum.UI_2D, distance = Infinity) {
         if (CC_PREVIEW) {
             if (ui2dNode == null) { console.error('make sure UINode is not null'); }
         }
@@ -425,7 +425,7 @@ export class RenderScene {
         }
     }
 
-    private _raycastUI2DNodeRecursiveChildren (worldRay: ray, parent: INode, mask = Layers.Enum.UI_2D, distance = Infinity) {
+    private _raycastUI2DNodeRecursiveChildren (worldRay: ray, parent: Node, mask = Layers.Enum.UI_2D, distance = Infinity) {
         const result = this._raycastUI2DNode(worldRay, parent, mask, distance);
         if (result != null) {
             resultCanvas[poolUI.length - 1] = result;

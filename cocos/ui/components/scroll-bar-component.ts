@@ -30,12 +30,12 @@
 
 import { Component } from '../../core/components';
 import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
-import { INode } from '../../core/utils/interfaces';
 import { Color, Size, Vec2, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { clamp01 } from '../../core/math/utils';
 import { ScrollViewComponent } from './scroll-view-component';
 import { SpriteComponent } from './sprite-component';
+import { Node } from '../../core';
 
 const GETTINGSHORTERFACTOR = 20;
 const ZERO = new Vec3();
@@ -310,7 +310,7 @@ export class ScrollBarComponent extends Component {
         this._processAutoHide(dt);
     }
 
-    private _convertToScrollViewSpace (content: INode) {
+    private _convertToScrollViewSpace (content: Node) {
         if (!this._scrollView) {
             return ZERO;
         }

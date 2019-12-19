@@ -33,7 +33,6 @@ import { Skeleton } from '../../assets/skeleton';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
 import { SkinningModel } from '../../renderer/models/skinning-model';
 import { Node } from '../../scene-graph/node';
-import { INode } from '../../utils/interfaces';
 import { builtinResMgr } from '../builtin';
 import { ModelComponent } from './model-component';
 
@@ -51,7 +50,7 @@ export class SkinningModelComponent extends ModelComponent {
     protected _skeleton: Skeleton | null = null;
 
     @property(Node)
-    protected _skinningRoot: INode | null = null;
+    protected _skinningRoot: Node | null = null;
 
     protected _clip: AnimationClip | null = null;
 
@@ -77,7 +76,7 @@ export class SkinningModelComponent extends ModelComponent {
     @property({
         type: Node,
     })
-    get skinningRoot (): INode | null {
+    get skinningRoot () {
         return this._skinningRoot;
     }
 

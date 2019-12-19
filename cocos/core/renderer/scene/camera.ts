@@ -4,8 +4,8 @@ import { GFXWindow } from '../../gfx/window';
 import { lerp, Mat4, Rect, toRadian, Vec3 } from '../../math';
 import { CameraDefaultMask } from '../../pipeline/define';
 import { RenderView } from '../../pipeline/render-view';
-import { INode } from '../../utils/interfaces';
 import { RenderScene } from './render-scene';
+import { Node } from '../../scene-graph';
 
 export enum CameraProjection {
     ORTHO,
@@ -68,7 +68,7 @@ const ISOS: number[] = [100.0, 200.0, 400.0, 800.0];
 
 export interface ICameraInfo {
     name: string;
-    node: INode;
+    node: Node;
     projection: number;
     targetDisplay?: number;
     window?: GFXWindow | null;
@@ -113,7 +113,7 @@ export class Camera {
     private _frustum: frustum = new frustum();
     private _forward: Vec3 = new Vec3();
     private _position: Vec3 = new Vec3();
-    private _node: INode | null = null;
+    private _node: Node | null = null;
     private _view: RenderView | null = null;
     private _visibility = CameraDefaultMask;
     private _priority: number = 0;
@@ -271,11 +271,11 @@ export class Camera {
         return this._view!;
     }
 
-    set node (val: INode) {
+    set node (val) {
         this._node = val;
     }
 
-    get node (): INode {
+    get node () {
         return this._node!;
     }
 

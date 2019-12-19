@@ -41,7 +41,6 @@ import { UIRenderComponent } from '../../../core/components/ui-base/ui-render-co
 import { UITransformComponent } from '../../../core/components/ui-base/ui-transform-component';
 import { EditBoxImpl } from './edit-box-impl';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
-import { INode } from '../../../core/utils/interfaces';
 import { Node } from '../../../core/scene-graph/node';
 
 const LEFT_PADDING = 2;
@@ -631,9 +630,9 @@ export class EditBoxComponent extends Component {
         this._background!.spriteFrame = this._backgroundImage;
         // let background = this._background;
         // if (!background) {
-        //     let node = this.node.getChildByName('BACKGROUND_SPRITE') as INode;
+        //     let node = this.node.getChildByName('BACKGROUND_SPRITE') as Node;
         //     if (!node) {
-        //         node = new cc.Node('BACKGROUND_SPRITE') as INode;
+        //         node = new cc.Node('BACKGROUND_SPRITE') as Node;
         //     }
 
         //     background = node.getComponent(cc.SpriteComponent);
@@ -652,7 +651,7 @@ export class EditBoxComponent extends Component {
         if (!this._textLabel) {
             let node = this.node.getChildByName('TEXT_LABEL');
             if (!node) {
-                node = new Node('TEXT_LABEL') as INode;
+                node = new Node('TEXT_LABEL');
             }
             let textLabel = node!.getComponent(LabelComponent);
             node!.parent = this.node;
@@ -673,7 +672,7 @@ export class EditBoxComponent extends Component {
         if (!this._placeholderLabel) {
             let node = this.node.getChildByName('PLACEHOLDER_LABEL');
             if (!node) {
-                node = new Node('PLACEHOLDER_LABEL') as INode;
+                node = new Node('PLACEHOLDER_LABEL');
             }
             let placeholderLabel = node!.getComponent(LabelComponent);
             if (!placeholderLabel) {

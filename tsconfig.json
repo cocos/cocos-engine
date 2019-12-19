@@ -24,6 +24,7 @@
       ]
     },
     "include": [
-        "exports/**/*.ts"
+        "exports/**/*.ts",
+        "index.ts"
     ]
   }

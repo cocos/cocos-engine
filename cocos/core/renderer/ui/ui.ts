@@ -41,8 +41,7 @@ import { Camera } from '../../renderer/scene/camera';
 import { Model } from '../../renderer/scene/model';
 import { RenderScene } from '../../renderer/scene/render-scene';
 import { Root } from '../../root';
-import { Layers } from '../../scene-graph';
-import { INode } from '../../utils/interfaces';
+import { Layers, Node } from '../../scene-graph';
 import { MeshBuffer } from './mesh-buffer';
 import { StencilManager } from './stencil-manager';
 import { UIBatchModel } from './ui-batch-model';
@@ -473,7 +472,7 @@ export class UI {
         this._uiMaterials.clear();
     }
 
-    private _walk (node: INode, level = 0) {
+    private _walk (node: Node, level = 0) {
         const len = node.children.length;
 
         this._preprocess(node);
@@ -502,7 +501,7 @@ export class UI {
         }
     }
 
-    private _preprocess (c: INode) {
+    private _preprocess (c: Node) {
         if(!c.uiTransformComp){
             return;
         }
@@ -515,14 +514,14 @@ export class UI {
         }
     }
 
-    private _postprocess (c: INode) {
+    private _postprocess (c: Node) {
         const render = c._uiComp;
         if (render && render.enabledInHierarchy) {
             render.postUpdateAssembler(this);
         }
     }
 
-    private _recursiveScreenNode (screen: INode) {
+    private _recursiveScreenNode (screen: Node) {
         this._walk(screen);
 
         this.autoMergeBatches();

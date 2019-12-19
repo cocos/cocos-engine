@@ -35,7 +35,6 @@ import { errorID, warnID } from '../platform/debug';
 import { SystemEventType } from '../platform/event-manager/event-enum';
 import { ISchedulable } from '../scheduler';
 import IdGenerator from '../utils/id-generator';
-import { IBaseNode } from '../utils/interfaces';
 import * as js from '../utils/js';
 import { baseNodePolyfill } from './base-node-dev';
 import { NodeEventProcessor } from './node-event-processor';
@@ -92,7 +91,7 @@ function getConstructor (typeOrClassName: string | Function): Function | null {
  * @protected
  */
 @ccclass('cc._BaseNode')
-export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
+export class BaseNode extends CCObject implements ISchedulable {
     /**
      * @en Gets all components attached to this node.
      * @zh 获取附加到此节点的所有组件。
@@ -377,7 +376,7 @@ export class BaseNode extends CCObject implements IBaseNode, ISchedulable {
 
     protected _name: string;
 
-    protected _eventProcessor: NodeEventProcessor = new NodeEventProcessor(this as IBaseNode);
+    protected _eventProcessor: NodeEventProcessor = new NodeEventProcessor(this);
     protected _eventMask = 0;
     /**
      * Register all related EventTargets,

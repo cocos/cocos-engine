@@ -33,7 +33,6 @@ import { SpriteFrame } from '../../core/assets';
 import { Component, EventHandler as ComponentEventHandler } from '../../core/components';
 import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { EventMouse, EventTouch, SystemEventType } from '../../core/platform';
-import { INode } from '../../core/utils/interfaces';
 import { Color, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { lerp } from '../../core/math/utils';
@@ -407,7 +406,7 @@ export class ButtonComponent extends Component {
         return this._target;
     }
 
-    set target (value: INode | null) {
+    set target (value) {
         if (this._target === value) {
             return;
         }
@@ -452,7 +451,7 @@ export class ButtonComponent extends Component {
     @property
     private _zoomScale = 1.2;
     @property
-    private _target: INode | null = null;
+    private _target: Node | null = null;
     private _pressed = false;
     private _hovered = false;
     private _fromColor: Color = new Color();
@@ -589,7 +588,7 @@ export class ButtonComponent extends Component {
         this.node.on(SystemEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
     }
 
-    protected _getTargetSprite (target: INode | null) {
+    protected _getTargetSprite (target: Node | null) {
         let sprite: SpriteComponent | null = null;
         if (target) {
             sprite = target.getComponent(SpriteComponent);

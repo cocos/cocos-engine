@@ -5,12 +5,12 @@
 import { Color, Mat4, Vec3 } from '../../core/math';
 import { RenderData } from '../../core/renderer/ui/render-data';
 import { UI } from '../../core/renderer/ui/ui';
-import { INode } from '../../core/utils/interfaces';
+import { Node } from '../../core';
 
 const vec3_temp = new Vec3();
 const _worldMatrix = new Mat4();
 
-export function fillVertices3D (node: INode, renderer: UI, renderData: RenderData, color: Color) {
+export function fillVertices3D (node: Node, renderer: UI, renderData: RenderData, color: Color) {
     const datas = renderData.datas;
     let buffer = renderer.currBufferBatch!;
     let vertexOffset = buffer.byteOffset >> 2;
@@ -51,7 +51,7 @@ export function fillVertices3D (node: INode, renderer: UI, renderData: RenderDat
     }
 }
 
-export function fillMeshVertices3D (node: INode, renderer: UI, renderData: RenderData, color: Color) {
+export function fillMeshVertices3D (node: Node, renderer: UI, renderData: RenderData, color: Color) {
     const datas = renderData.datas;
     let buffer = renderer.currBufferBatch!;
     let vertexOffset = buffer.byteOffset >> 2;
@@ -99,7 +99,7 @@ export function fillMeshVertices3D (node: INode, renderer: UI, renderData: Rende
     }
 }
 
-export function fillVerticesWithoutCalc3D (node: INode, renderer: UI, renderData: RenderData, color: Color) {
+export function fillVerticesWithoutCalc3D (node: Node, renderer: UI, renderData: RenderData, color: Color) {
     const datas = renderData.datas;
     let buffer = renderer.currBufferBatch!;
     let vertexOffset = buffer.byteOffset >> 2;

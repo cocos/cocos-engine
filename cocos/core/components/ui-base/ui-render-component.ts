@@ -42,7 +42,7 @@ import { RenderableComponent } from '../../../core/3d/framework/renderable-compo
 import { IAssembler, IAssemblerManager } from '../../renderer/ui/base';
 import { UIComponent } from './ui-component';
 import { TransformBit } from '../../scene-graph/node-enum';
-import { INode } from '../../utils/interfaces';
+import { Node } from '../../scene-graph';
 
 // hack
 ccenum(GFXBlendFactor);
@@ -202,7 +202,7 @@ export class UIRenderComponent extends UIComponent {
     }
 
     // Render data can be submitted even if it is not on the node tree
-    set delegateSrc (value: INode) {
+    set delegateSrc (value: Node) {
         this._delegateSrc = value;
     }
 
@@ -225,7 +225,7 @@ export class UIRenderComponent extends UIComponent {
     protected _renderDataFlag = true;
     protected _renderFlag = true;
     // 特殊渲染节点，给一些不在节点树上的组件做依赖渲染（例如 mask 组件内置两个 graphics 来渲染）
-    protected _delegateSrc: INode | null = null;
+    protected _delegateSrc: Node | null = null;
     protected _material: Material | null = null;
     protected _instanceMaterialType = InstanceMaterialType.ADDCOLORANDTEXTURE;
     protected _blendTemplate = {

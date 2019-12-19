@@ -32,7 +32,6 @@ import { ccclass, property } from '../data/class-decorator';
 import { Mat3, Mat4, Quat, Size, Vec2, Vec3 } from '../math';
 import { SystemEventType } from '../platform/event-manager/event-enum';
 import { eventManager } from '../platform/event-manager/event-manager';
-import { INode } from '../utils/interfaces';
 import { BaseNode, TRANFORM_ON } from './base-node';
 import { Layers } from './layers';
 import { NodeSpace, TransformBit } from './node-enum';
@@ -55,7 +54,7 @@ const bookOfChange = new Map<string, number>();
  * * 维护空间变换（坐标、旋转、缩放）信息
  */
 @ccclass('cc.Node')
-export class Node extends BaseNode implements INode {
+export class Node extends BaseNode {
     public static bookOfChange = bookOfChange;
 
     /**

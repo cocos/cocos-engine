@@ -1,7 +1,7 @@
 import { Vec3 } from '../../math';
 import { TransformBit } from '../../scene-graph/node-enum';
-import { INode } from '../../utils/interfaces';
 import { RenderScene } from './render-scene';
+import { Node } from '../../scene-graph';
 
 // Color temperature (in Kelvin) to RGB
 export function ColorTemperatureToRGB (rgb: Vec3, kelvin: number) {
@@ -98,7 +98,7 @@ export class Light {
     protected _colorTemp: number = 6550.0;
     protected _colorTempRGB: Vec3 = new Vec3(1, 1, 1);
     protected _scene: RenderScene | null = null;
-    protected _node: INode | null = null;
+    protected _node: Node | null = null;
     protected _type: LightType;
     protected _name: string | null = null;
 
@@ -106,7 +106,7 @@ export class Light {
         this._type = LightType.UNKNOWN;
     }
 
-    public initialize (name: string, node: INode) {
+    public initialize (name: string, node: Node) {
         this._name = name;
         this._type = LightType.UNKNOWN;
         this._node = node;

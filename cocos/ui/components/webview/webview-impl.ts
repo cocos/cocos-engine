@@ -30,11 +30,11 @@
 import { ccclass } from '../../../core/data/class-decorator';
 import sys from '../../../core/platform/sys';
 import { misc } from '../../../core/utils';
-import { INode } from '../../../core/utils/interfaces';
 import { Mat4 } from '../../../core/math';
 import { UIRenderComponent } from '../../../core/components/ui-base/ui-render-component';
 import { logID, log } from '../../../core/platform/debug';
 import { view } from '../../../core/platform/view';
+import { Node } from '../../../core';
 
 const _mat4_temp = new Mat4();
 
@@ -308,7 +308,7 @@ export class WebViewImpl {
         }
     }
 
-    public updateMatrix (node: INode) {
+    public updateMatrix (node: Node) {
         if (!this._div || !this._visible) {
             return;
         }

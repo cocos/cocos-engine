@@ -37,7 +37,6 @@ import { View } from '../../core/platform/view';
 import visibleRect from '../../core/platform/visible-rect';
 import { Scene } from '../../core/scene-graph';
 import { Node } from '../../core/scene-graph/node';
-import { INode } from '../../core/utils/interfaces';
 import { array } from '../../core/utils/js';
 import { AlignFlags, AlignMode, computeInverseTransForTarget, getReadonlyNodeSize, WidgetComponent } from './widget-component';
 import { UITransformComponent } from '../../core/components';
@@ -49,7 +48,7 @@ const tInverseTranslate = new Vec3();
 const tInverseScale = new Vec3(1, 1, 1);
 
 // align to borders by adjusting node's position and size (ignore rotation)
-function align (node: INode, widget: WidgetComponent) {
+function align (node: Node, widget: WidgetComponent) {
     const hasTarget = widget.target;
     let target: any;
     const inverseTranslate = tInverseTranslate;
@@ -58,7 +57,7 @@ function align (node: INode, widget: WidgetComponent) {
         target = hasTarget;
         // inverseTranslate = tInverseTranslate;
         // inverseScale = tInverseScale;
-        computeInverseTransForTarget(node as INode, target, inverseTranslate, inverseScale);
+        computeInverseTransForTarget(node, target, inverseTranslate, inverseScale);
     } else {
         target = node.parent;
     }
@@ -370,7 +369,7 @@ export const widgetManager = cc._widgetManager = {
     },
     add (widget: WidgetComponent) {
         this._nodesOrderDirty = true;
-        const canvasComp = director.root!.ui.getScreen(widget.node.uiTransformComp.visibility);
+        const canvasComp = director.root!.ui.getScreen(widget.node.uiTransformComp!.visibility);
         if (canvasComp && canvasList.indexOf(canvasComp) === -1) {
             canvasList.push(canvasComp);
             canvasComp.node.on('design-resolution-changed', this.onResized, this);
@@ -408,7 +407,7 @@ export const widgetManager = cc._widgetManager = {
             const zero = new Vec3();
             const one = new Vec3(1, 1, 1);
             if (widget.target) {
-                widgetParent = widget.target as INode;
+                widgetParent = widget.target;
                 computeInverseTransForTarget(widgetNode, widgetParent, zero, one);
             }
 

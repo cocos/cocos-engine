@@ -8,7 +8,6 @@ import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemo
 import { Vec3 } from '../../core/math';
 import { Model } from '../../core/renderer/scene/model';
 import { RenderScene } from '../../core/renderer/scene/render-scene';
-import { INode } from '../../core/utils/interfaces';
 import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';
 

@@ -32,7 +32,6 @@
 
 import { ccclass } from '../../../core/data/class-decorator';
 import { macro } from '../../../core/platform/macro';
-import { INode } from '../../../core/utils/interfaces';
 import { contains } from '../../../core/utils/misc';
 import { Color, Mat4, Size, Vec3 } from '../../../core/math';
 import { UIRenderComponent } from '../../../core/components/ui-base/ui-render-component';
@@ -44,6 +43,7 @@ import { view, screen } from '../../../core/platform';
 import { director } from '../../../core/director';
 import visibleRect from '../../../core/platform/visible-rect';
 import { game } from '../../../core/game';
+import { Node } from '../../../core';
 
 // https://segmentfault.com/q/1010000002914610
 const SCROLLY = 40;
@@ -97,7 +97,7 @@ export class EditBoxImpl {
     public _placeholderText = '';
     public _alwaysOnTop = false;
     public _size: Size = new Size();
-    public _node: INode | null = null;
+    public _node: Node | null = null;
     public _editing = false;
     public __eventListeners: any = {};
     public __fullscreen = false;
@@ -289,7 +289,7 @@ export class EditBoxImpl {
         this._updateSize(width, height);
     }
 
-    public setNode (node: INode) {
+    public setNode (node: Node) {
         this._node = node;
     }
 

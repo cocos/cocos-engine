@@ -37,7 +37,6 @@ import { ccenum } from '../../core/value-types/enum';
 import { LayoutComponent } from './layout-component';
 import { ScrollBarComponent } from './scroll-bar-component';
 import { ViewGroupComponent } from './view-group-component';
-import { INode } from '../../core/utils/interfaces';
 import { Node } from '../../core/scene-graph/node';
 import { director, Director } from '../../core/director';
 
@@ -172,7 +171,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
     get content () {
         return this._content;
     }
-    set content (value: INode | null) {
+    set content (value) {
         if (this._content === value){
             return;
         }
@@ -320,7 +319,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
     protected _autoScrolling = false;
     protected _scrolling = false;
     @property
-    protected _content: INode | null = null;
+    protected _content: Node | null = null;
     @property
     protected _horizontalScrollBar: ScrollBarComponent | null = null;
     @property
@@ -836,7 +835,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
         this.node.off(Node.EventType.MOUSE_WHEEL, this._onMouseWheel, this, true);
     }
 
-    protected _onMouseWheel (event: EventMouse, captureListeners?: INode[]) {
+    protected _onMouseWheel (event: EventMouse, captureListeners?: Node[]) {
         if (!this.enabledInHierarchy) {
             return;
         }
@@ -866,7 +865,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
         this._stopPropagationIfTargetIsMe(event);
     }
 
-    protected _onTouchBegan (event: EventTouch, captureListeners?: INode[]) {
+    protected _onTouchBegan (event: EventTouch, captureListeners?: Node[]) {
         if (!this.enabledInHierarchy || !this._content) { return; }
         if (this._hasNestedViewGroup(event, captureListeners)) { return; }
 
@@ -878,7 +877,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
         this._stopPropagationIfTargetIsMe(event);
     }
 
-    protected _onTouchMoved (event: EventTouch, captureListeners?: INode[]) {
+    protected _onTouchMoved (event: EventTouch, captureListeners?: Node[]) {
         if (!this.enabledInHierarchy || !this._content) { return; }
         if (this._hasNestedViewGroup(event, captureListeners)) { return; }
 
@@ -901,14 +900,14 @@ export class ScrollViewComponent extends ViewGroupComponent {
                 cancelEvent.type = Node.EventType.TOUCH_CANCEL;
                 cancelEvent.touch = event.touch;
                 cancelEvent.simulate = true;
-                (event.target as INode)!.dispatchEvent(cancelEvent);
+                (event.target as Node).dispatchEvent(cancelEvent);
                 this._touchMoved = true;
             }
         }
         this._stopPropagationIfTargetIsMe(event);
     }
 
-    protected _onTouchEnded (event: EventTouch, captureListeners?: INode[]) {
+    protected _onTouchEnded (event: EventTouch, captureListeners?: Node[]) {
         if (!this.enabledInHierarchy || !this._content || !event) { return; }
         if (this._hasNestedViewGroup(event, captureListeners)) { return; }
 
@@ -925,7 +924,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
         }
     }
 
-    protected _onTouchCancelled (event: EventTouch, captureListeners?: INode[]) {
+    protected _onTouchCancelled (event: EventTouch, captureListeners?: Node[]) {
         if (!this.enabledInHierarchy || !this._content) { return; }
         if (this._hasNestedViewGroup(event, captureListeners)) { return; }
 
@@ -942,7 +941,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
     protected _calculateBoundary () {
         if (this.content) {
             // refresh content size
-            const layout: LayoutComponent = this.content.getComponent(LayoutComponent);
+            const layout = this.content.getComponent(LayoutComponent);
             if (layout && layout.enabledInHierarchy) {
                 layout.updateLayout();
             }
@@ -962,7 +961,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
 
     }
 
-    protected _hasNestedViewGroup (event: Event, captureListeners?: INode[]) {
+    protected _hasNestedViewGroup (event: Event, captureListeners?: Node[]) {
         if (!event || event.eventPhase !== Event.CAPTURING_PHASE) {
             return;
         }
@@ -973,7 +972,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
                 const item = listener;
 
                 if (this.node === item) {
-                    if (event.target && (event.target as INode).getComponent(ViewGroupComponent)) {
+                    if (event.target && (event.target as Node).getComponent(ViewGroupComponent)) {
                         return true;
                     }
                     return false;

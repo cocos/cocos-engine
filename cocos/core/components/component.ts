@@ -38,7 +38,7 @@ import { getClassName, value } from '../utils/js';
 import { RenderScene } from '../renderer/scene/render-scene';
 import { Rect } from '../math';
 import * as RF from '../data/utils/requiring-frame';
-import { INode } from '../utils/interfaces';
+import { Node } from '../scene-graph';
 
 const idGenerator = new IDGenerator('Comp');
 // @ts-ignore
@@ -46,7 +46,7 @@ const IsOnEnableCalled = CCObject.Flags.IsOnEnableCalled;
 // @ts-ignore
 const IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
 
-const NullNode = null as unknown as INode;
+const NullNode = null as unknown as Node;
 
 /**
  * @en
@@ -188,7 +188,7 @@ class Component extends CCObject {
     @property({
         visible: false,
     })
-    public node: INode = NullNode;
+    public node: Node = NullNode;
 
     /**
      * @property _enabled

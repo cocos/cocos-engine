@@ -36,8 +36,8 @@ import { LayoutComponent } from './layout-component';
 import { PageViewIndicatorComponent } from './page-view-indicator-component';
 import { ScrollViewComponent } from './scroll-view-component';
 import { ScrollBarComponent } from './scroll-bar-component';
-import { INode } from '../../core/utils/interfaces';
 import { warnID } from '../../core/platform/debug';
+import { Node } from '../../core';
 
 const _temp_vec2 = new Vec2();
 
@@ -313,7 +313,7 @@ export class PageViewComponent extends ScrollViewComponent {
 
     private _curPageIdx = 0;
     private _lastPageIdx = 0;
-    private _pages: INode[] = [];
+    private _pages: Node[] = [];
     private _initContentPos = new Vec3();
     private _scrollCenterOffsetX: number[] = []; // 每一个页面居中时需要的偏移量（X）
     private _scrollCenterOffsetY: number[] = []; // 每一个页面居中时需要的偏移量（Y）
@@ -381,7 +381,7 @@ export class PageViewComponent extends ScrollViewComponent {
      * @zh 在当前页面视图的尾部插入一个新视图。
      * @param page 新视图。
      */
-    public addPage(page: INode) {
+    public addPage(page: Node) {
         if (!page || this._pages.indexOf(page) !== -1 || !this.content) {
             return;
         }
@@ -396,7 +396,7 @@ export class PageViewComponent extends ScrollViewComponent {
      * @param page 新视图。
      * @param index 指定位置。
      */
-    public insertPage(page: INode, index: number) {
+    public insertPage(page: Node, index: number) {
         if (index < 0 || !page || this._pages.indexOf(page) !== -1 || !this.content) {
             return;
         }
@@ -416,7 +416,7 @@ export class PageViewComponent extends ScrollViewComponent {
      * @zh 移除指定页面。
      * @param page 指定页面。
      */
-    public removePage(page: INode) {
+    public removePage(page: Node) {
         if (!page || !this.content) { return; }
         const index = this._pages.indexOf(page);
         if (index === -1) {
