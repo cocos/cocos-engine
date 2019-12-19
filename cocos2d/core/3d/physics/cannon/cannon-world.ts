@@ -31,8 +31,8 @@ import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { PhysicsMaterial, PhysicsRayResult } from '../framework';
 
 const Vec3 = cc.Vec3;
-
 const fastRemoveAt = cc.js.array.fastRemoveAt;
+
 export class CannonWorld implements IPhysicsWorld {
 
     get world () {

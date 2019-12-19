@@ -30,7 +30,7 @@ const v3_0 = new cc.Vec3();
 const v3_1 = new cc.Vec3();
 const quat_0 = new cc.Quat();
 const intersect = cc.geomUtils.intersect;
-const fastRemoveAt = cc.js.array.fastRemoveAt;
+const fastRemove = cc.js.array.fastRemove;
 
 /**
  * Built-in static collider, no physical forces involved
@@ -64,7 +64,7 @@ export class BuiltinSharedBody {
             if (this.index < 0) {
                 this.index = this.world.bodies.length;
                 this.world.addSharedBody(this);
-                this.syncSceneToCollision();
+                this.syncSceneToPhysics();
             }
         } else {
             if (this.index >= 0) {
@@ -121,13 +121,10 @@ export class BuiltinSharedBody {
     }
 
     removeShape (shape: BuiltinShape): void {
-        const i = this.shapes.indexOf(shape);
-        if (i >= 0) {
-            fastRemoveAt(this.shapes, i);
-        }
+        fastRemove(this.shapes, shape);
     }
 
-    syncSceneToCollision () {
+    syncSceneToPhysics () {
         this.node.getWorldMatrix(m4_0);
         this.node.getWorldPosition(v3_0);
         this.node.getWorldRotation(quat_0);

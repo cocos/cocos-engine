@@ -33,7 +33,7 @@ import { PhysicsMaterial } from './../framework/assets/physics-material';
 import { TriggerEventType } from '../framework/physics-interface';
 import { Collider3D } from '../exports/physics-framework';
 
-const fastRemoveAt = cc.js.array.fastRemoveAt;
+const fastRemove = cc.js.array.fastRemove;
 const intersect = cc.geomUtils.intersect;
 const Vec3 = cc.Vec3;
 const hitPoint = new Vec3();
@@ -68,7 +68,7 @@ export class BuiltInWorld implements IPhysicsWorld {
 
         // sync scene to collision
         for (let i = 0; i < this.bodies.length; i++) {
-            this.bodies[i].syncSceneToCollision();
+            this.bodies[i].syncSceneToPhysics();
         }
 
         const collisionMatrix = cc.game.collisionMatrix;
@@ -163,10 +163,7 @@ export class BuiltInWorld implements IPhysicsWorld {
     }
 
     removeSharedBody (body: BuiltinSharedBody) {
-        const index = this.bodies.indexOf(body);
-        if (index >= 0) {
-            fastRemoveAt(this.bodies, index);
-        }
+        fastRemove(this.bodies, body);
     }
 
     private emitColliderEvent () {

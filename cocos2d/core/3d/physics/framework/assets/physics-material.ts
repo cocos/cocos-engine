@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 const {ccclass, property} = cc._decorator;
-const fastRemoveAt = cc.js.array.fastRemoveAt;
+const fastRemove = cc.js.array.fastRemove;
 const equals = cc.math.equals;
 
 @ccclass('cc.PhysicsMaterial')
@@ -92,10 +92,7 @@ export class PhysicsMaterial extends cc.Asset {
 
     public destroy (): boolean {
         if (super.destroy()) {
-            let idx = PhysicsMaterial.allMaterials.indexOf(this);
-            if (idx >= 0) {
-                fastRemoveAt(PhysicsMaterial.allMaterials, idx);
-            }
+            fastRemove(PhysicsMaterial.allMaterials, this);
             return true;
         } else {
             return false;
