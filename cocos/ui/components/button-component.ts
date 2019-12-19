@@ -78,6 +78,10 @@ enum State {
     DISABLED = 'disabled',
 }
 
+export enum EventType {
+    CLICK = 'click',
+}
+
 /**
  * @zh
  * 按钮组件。可以被按下,或者点击。<br/>
@@ -416,6 +420,7 @@ export class ButtonComponent extends Component {
     }
 
     public static Transition = Transition;
+    public static EventType = EventType;
     /**
      * @zh
      * 按钮的点击事件列表。
@@ -427,31 +432,31 @@ export class ButtonComponent extends Component {
     })
     public clickEvents: ComponentEventHandler[] = [];
     @property
-    private _interactable = true;
+    protected _interactable = true;
     @property
-    private _transition = Transition.NONE;
+    protected _transition = Transition.NONE;
     @property
-    private _normalColor: Color = new Color(214, 214, 214, 255);
+    protected _normalColor: Color = new Color(214, 214, 214, 255);
     @property
-    private _hoverColor: Color = new Color(211, 211, 211, 255);
+    protected _hoverColor: Color = new Color(211, 211, 211, 255);
     @property
-    private _pressColor: Color = Color.WHITE.clone();
+    protected _pressColor: Color = Color.WHITE.clone();
     @property
-    private _disabledColor: Color = new Color(124, 124, 124, 255);
+    protected _disabledColor: Color = new Color(124, 124, 124, 255);
     @property
-    private _normalSprite: SpriteFrame | null = null;
+    protected _normalSprite: SpriteFrame | null = null;
     @property
-    private _hoverSprite: SpriteFrame | null = null;
+    protected _hoverSprite: SpriteFrame | null = null;
     @property
-    private _pressedSprite: SpriteFrame | null = null;
+    protected _pressedSprite: SpriteFrame | null = null;
     @property
-    private _disabledSprite: SpriteFrame | null = null;
+    protected _disabledSprite: SpriteFrame | null = null;
     @property
-    private _duration = 0.1;
+    protected _duration = 0.1;
     @property
-    private _zoomScale = 1.2;
+    protected _zoomScale = 1.2;
     @property
-    private _target: Node | null = null;
+    protected _target: Node | null = null;
     private _pressed = false;
     private _hovered = false;
     private _fromColor: Color = new Color();
@@ -484,7 +489,7 @@ export class ButtonComponent extends Component {
         if (!CC_EDITOR) {
             this._registerEvent();
         } else {
-            this.node.on('spriteframe-changed', (comp: SpriteComponent) => {
+            this.node.on(SpriteComponent.EventType.SPRITE_FRAME_CHANGED, (comp: SpriteComponent) => {
                 if (this._transition === Transition.SPRITE) {
                     this._normalSprite = comp.spriteFrame;
                 } else {
@@ -510,7 +515,7 @@ export class ButtonComponent extends Component {
             this.node.off(SystemEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
             this.node.off(SystemEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
         } else {
-            this.node.off('spriteframe-changed');
+            this.node.off(SpriteComponent.EventType.SPRITE_FRAME_CHANGED);
         }
     }
 
@@ -663,7 +668,7 @@ export class ButtonComponent extends Component {
 
         if (this._pressed) {
             ComponentEventHandler.emitEvents(this.clickEvents, event);
-            this.node.emit('click', this);
+            this.node.emit(EventType.CLICK, this);
         }
         this._pressed = false;
         this._updateState();

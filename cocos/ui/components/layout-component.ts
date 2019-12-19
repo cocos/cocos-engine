@@ -493,9 +493,9 @@ export class LayoutComponent extends Component {
     @property
     protected _affectedByScale = false;
 
-    private _layoutSize = new Size(300, 200);
-    private _layoutDirty = true;
-    private _isAlign = false;
+    protected _layoutSize = new Size(300, 200);
+    protected _layoutDirty = true;
+    protected _isAlign = false;
 
     /**
      * @zh
@@ -535,7 +535,7 @@ export class LayoutComponent extends Component {
         this._removeEventListeners();
     }
 
-    private _migratePaddingData () {
+    protected _migratePaddingData () {
         this._paddingLeft = this._N$padding;
         this._paddingRight = this._N$padding;
         this._paddingTop = this._N$padding;
@@ -543,7 +543,7 @@ export class LayoutComponent extends Component {
         this._N$padding = 0;
     }
 
-    private _addEventListeners () {
+    protected _addEventListeners () {
         director.on(Director.EVENT_AFTER_UPDATE, this.updateLayout, this);
         this.node.on(NodeEvent.SIZE_CHANGED, this._resized, this);
         this.node.on(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
@@ -553,7 +553,7 @@ export class LayoutComponent extends Component {
         this._addChildrenEventListeners();
     }
 
-    private _removeEventListeners () {
+    protected _removeEventListeners () {
         director.off(Director.EVENT_AFTER_UPDATE, this.updateLayout, this);
         this.node.off(NodeEvent.SIZE_CHANGED, this._resized, this);
         this.node.off(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
@@ -563,7 +563,7 @@ export class LayoutComponent extends Component {
         this._removeChildrenEventListeners();
     }
 
-    private _addChildrenEventListeners () {
+    protected _addChildrenEventListeners () {
         const children = this.node.children;
         for (const child of children) {
             child.on(NodeEvent.TRANSFORM_CHANGED, this._doScaleDirty, this);
@@ -574,7 +574,7 @@ export class LayoutComponent extends Component {
         }
     }
 
-    private _removeChildrenEventListeners () {
+    protected _removeChildrenEventListeners () {
         const children = this.node.children;
         for (const child of children) {
             child.off(NodeEvent.TRANSFORM_CHANGED, this._doScaleDirty, this);
@@ -585,7 +585,7 @@ export class LayoutComponent extends Component {
         }
     }
 
-    private _childAdded (child: Node) {
+    protected _childAdded (child: Node) {
         child.on(NodeEvent.TRANSFORM_CHANGED, this._doScaleDirty, this);
         child.on(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
         child.on(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
@@ -595,7 +595,7 @@ export class LayoutComponent extends Component {
         this._doLayoutDirty();
     }
 
-    private _childRemoved (child: Node) {
+    protected _childRemoved (child: Node) {
         child.off(NodeEvent.TRANSFORM_CHANGED, this._doScaleDirty, this);
         child.off(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
         child.off(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
@@ -605,12 +605,12 @@ export class LayoutComponent extends Component {
         this._doLayoutDirty();
     }
 
-    private _resized () {
+    protected _resized () {
         this._layoutSize = this.node.getContentSize();
         this._doLayoutDirty();
     }
 
-    private _doLayoutHorizontally (baseWidth: number, rowBreak: boolean, fnPositionY: Function, applyChildren: boolean) {
+    protected _doLayoutHorizontally (baseWidth: number, rowBreak: boolean, fnPositionY: Function, applyChildren: boolean) {
         const layoutAnchor = this.node.getAnchorPoint();
         const children = this.node.children;
 
@@ -744,7 +744,7 @@ export class LayoutComponent extends Component {
         return containerResizeBoundary;
     }
 
-    private _doLayoutVertically (
+    protected _doLayoutVertically (
         baseHeight: number,
         columnBreak: boolean,
         fnPositionX: Function,
@@ -886,7 +886,7 @@ export class LayoutComponent extends Component {
         return containerResizeBoundary;
     }
 
-    private _doLayoutBasic () {
+    protected _doLayoutBasic () {
         const children = this.node.children;
 
         let allChildrenBoundingBox: Rect | null = null;
@@ -940,7 +940,7 @@ export class LayoutComponent extends Component {
         }
     }
 
-    private _doLayoutGridAxisHorizontal (layoutAnchor, layoutSize) {
+    protected _doLayoutGridAxisHorizontal (layoutAnchor, layoutSize) {
         const baseWidth = layoutSize.width;
 
         let sign = 1;
@@ -983,7 +983,7 @@ export class LayoutComponent extends Component {
         }
     }
 
-    private _doLayoutGridAxisVertical (layoutAnchor: Vec2, layoutSize: Size) {
+    protected _doLayoutGridAxisVertical (layoutAnchor: Vec2, layoutSize: Size) {
         const baseHeight = layoutSize.height;
 
         let sign = 1;
@@ -1024,7 +1024,7 @@ export class LayoutComponent extends Component {
         }
     }
 
-    private _doLayoutGrid () {
+    protected _doLayoutGrid () {
         const layoutAnchor = this.node.getAnchorPoint();
         const layoutSize = this.node.getContentSize();
 
@@ -1037,7 +1037,7 @@ export class LayoutComponent extends Component {
 
     }
 
-    private _getHorizontalBaseWidth (children: Readonly<Node[]>) {
+    protected _getHorizontalBaseWidth (children: Readonly<Node[]>) {
         let newWidth = 0;
         let activeChildCount = 0;
         if (this._resizeMode === ResizeMode.CONTAINER) {
@@ -1055,7 +1055,7 @@ export class LayoutComponent extends Component {
         return newWidth;
     }
 
-    private _getVerticalBaseHeight (children: Readonly<Node[]>) {
+    protected _getVerticalBaseHeight (children: Readonly<Node[]>) {
         let newHeight = 0;
         let activeChildCount = 0;
         if (this._resizeMode === ResizeMode.CONTAINER) {
@@ -1074,7 +1074,7 @@ export class LayoutComponent extends Component {
         return newHeight;
     }
 
-    private _doLayout () {
+    protected _doLayout () {
 
         if (this._N$layoutType === Type.HORIZONTAL) {
             const newWidth = this._getHorizontalBaseWidth(this.node.children);
@@ -1107,11 +1107,11 @@ export class LayoutComponent extends Component {
         }
     }
 
-    private _getUsedScaleValue (value) {
+    protected _getUsedScaleValue (value) {
         return this._affectedByScale ? Math.abs(value) : 1;
     }
 
-    private _transformDirty (type: TransformBit) {
+    protected _transformDirty (type: TransformBit) {
         if (!(type & TransformBit.POSITION)){
             return;
         }
@@ -1119,11 +1119,11 @@ export class LayoutComponent extends Component {
         this._doLayoutDirty();
     }
 
-    private _doLayoutDirty () {
+    protected _doLayoutDirty () {
         this._layoutDirty = true;
     }
 
-    private _doScaleDirty (type: TransformBit) {
+    protected _doScaleDirty (type: TransformBit) {
         if (type & TransformBit.SCALE){
             this._layoutDirty = this._layoutDirty || this._affectedByScale;
         }

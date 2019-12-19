@@ -59,95 +59,161 @@ const getTimeInMilliseconds = () => {
     return currentTime.getMilliseconds();
 };
 
-/**
- * @zh
- * 滚动视图事件类型。
- */
-enum ScrollViewEventType {
+// /**
+//  * @zh
+//  * 滚动视图事件类型。
+//  */
+// enum ScrollViewEventType {
+//     /**
+//      * @zh
+//      * 滚动视图滚动到顶部边界事件。
+//      */
+//     SCROLL_TO_TOP = 0,
+//     /**
+//      * @zh
+//      * 滚动视图滚动到底部边界事件。
+//      */
+//     SCROLL_TO_BOTTOM = 1,
+//     /**
+//      * @zh
+//      * 滚动视图滚动到左边界事件。
+//      */
+//     SCROLL_TO_LEFT = 2,
+//     /**
+//      * @zh
+//      * 滚动视图滚动到右边界事件。
+//      */
+//     SCROLL_TO_RIGHT = 3,
+//     /**
+//      * @zh
+//      * 滚动视图正在滚动时发出的事件。
+//      */
+//     SCROLLING = 4,
+//     /**
+//      * @zh
+//      * 滚动视图滚动到顶部边界并且开始回弹时发出的事件。
+//      */
+//     BOUNCE_TOP = 5,
+//     /**
+//      * @zh
+//      * 滚动视图滚动到底部边界并且开始回弹时发出的事件。
+//      */
+//     BOUNCE_BOTTOM = 6,
+//     /**
+//      * @zh
+//      * 滚动视图滚动到左边界并且开始回弹时发出的事件。
+//      */
+//     BOUNCE_LEFT = 7,
+//     /**
+//      * @zh
+//      * 滚动视图滚动到右边界并且开始回弹时发出的事件。
+//      */
+//     BOUNCE_RIGHT = 8,
+//     /**
+//      * @zh
+//      * 滚动视图滚动结束的时候发出的事件。
+//      */
+//     SCROLL_ENDED = 9,
+//     /**
+//      * @zh
+//      * 当用户松手的时候会发出一个事件。
+//      */
+//     TOUCH_UP = 10,
+//     /**
+//      * @zh
+//      * 滚动视图自动滚动快要结束的时候发出的事件。
+//      */
+//     AUTOSCROLL_ENDED_WITH_THRESHOLD = 11,
+//     /**
+//      * @zh
+//      * 滚动视图滚动开始时发出的事件。
+//      */
+//     SCROLL_BEGAN = 12,
+// }
+
+const eventMap = {
+    'scroll-to-top': 0,
+    'scroll-to-bottom': 1,
+    'scroll-to-left': 2,
+    'scroll-to-right': 3,
+    'scrolling': 4,
+    'bounce-bottom': 6,
+    'bounce-left': 7,
+    'bounce-right': 8,
+    'bounce-top': 5,
+    'scroll-ended': 9,
+    'touch-up': 10,
+    'scroll-ended-with-threshold': 11,
+    'scroll-began': 12,
+};
+
+export enum EventType {
     /**
      * @zh
      * 滚动视图滚动到顶部边界事件。
      */
-    SCROLL_TO_TOP = 0,
+    SCROLL_TO_TOP = 'scroll-to-top',
     /**
      * @zh
      * 滚动视图滚动到底部边界事件。
      */
-    SCROLL_TO_BOTTOM = 1,
+    SCROLL_TO_BOTTOM = 'scroll-to-bottom',
     /**
      * @zh
      * 滚动视图滚动到左边界事件。
      */
-    SCROLL_TO_LEFT = 2,
+    SCROLL_TO_LEFT = 'scroll-to-left',
     /**
      * @zh
      * 滚动视图滚动到右边界事件。
      */
-    SCROLL_TO_RIGHT = 3,
-    /**
-     * @zh
-     * 滚动视图正在滚动时发出的事件。
-     */
-    SCROLLING = 4,
-    /**
-     * @zh
-     * 滚动视图滚动到顶部边界并且开始回弹时发出的事件。
-     */
-    BOUNCE_TOP = 5,
-    /**
-     * @zh
-     * 滚动视图滚动到底部边界并且开始回弹时发出的事件。
-     */
-    BOUNCE_BOTTOM = 6,
-    /**
-     * @zh
-     * 滚动视图滚动到左边界并且开始回弹时发出的事件。
-     */
-    BOUNCE_LEFT = 7,
-    /**
-     * @zh
-     * 滚动视图滚动到右边界并且开始回弹时发出的事件。
-     */
-    BOUNCE_RIGHT = 8,
-    /**
-     * @zh
-     * 滚动视图滚动结束的时候发出的事件。
-     */
-    SCROLL_ENDED = 9,
-    /**
-     * @zh
-     * 当用户松手的时候会发出一个事件。
-     */
-    TOUCH_UP = 10,
-    /**
-     * @zh
-     * 滚动视图自动滚动快要结束的时候发出的事件。
-     */
-    AUTOSCROLL_ENDED_WITH_THRESHOLD = 11,
+    SCROLL_TO_RIGHT = 'scroll-to-right',
     /**
      * @zh
      * 滚动视图滚动开始时发出的事件。
      */
-    SCROLL_BEGAN = 12,
+    SCROLL_BEGAN = 'scroll-began',
+    /**
+     * @zh
+     * 滚动视图滚动结束的时候发出的事件。
+     */
+    SCROLL_ENDED = 'scroll-ended',
+    /**
+     * @zh
+     * 滚动视图滚动到顶部边界并且开始回弹时发出的事件。
+     */
+    BOUNCE_TOP = 'bounce-top',
+    /**
+     * @zh
+     * 滚动视图滚动到底部边界并且开始回弹时发出的事件。
+     */
+    BOUNCE_BOTTOM = 'bounce-bottom',
+    /**
+     * @zh
+     * 滚动视图滚动到左边界并且开始回弹时发出的事件。
+     */
+    BOUNCE_LEFT = 'bounce-left',
+    /**
+     * @zh
+     * 滚动视图滚动到右边界并且开始回弹时发出的事件。
+     */
+    BOUNCE_RIGHT = 'bounce-right',
+    /**
+     * @zh
+     * 滚动视图正在滚动时发出的事件。
+     */
+    SCROLLING = 'scrolling',
+    /**
+     * @zh
+     * 滚动视图自动滚动快要结束的时候发出的事件。
+     */
+    SCROLL_ENG_WITH_THRESHOLD = 'scroll-ended-with-threshold',
+    /**
+     * @zh
+     * 当用户松手的时候会发出一个事件。
+     */
+    TOUCH_UP = 'touch-up',
 }
-
-ccenum(ScrollViewEventType);
-
-const eventMap = {
-    'scroll-to-top': ScrollViewEventType.SCROLL_TO_TOP,
-    'scroll-to-bottom': ScrollViewEventType.SCROLL_TO_BOTTOM,
-    'scroll-to-left': ScrollViewEventType.SCROLL_TO_LEFT,
-    'scroll-to-right': ScrollViewEventType.SCROLL_TO_RIGHT,
-    'scrolling': ScrollViewEventType.SCROLLING,
-    'bounce-bottom': ScrollViewEventType.BOUNCE_BOTTOM,
-    'bounce-left': ScrollViewEventType.BOUNCE_LEFT,
-    'bounce-right': ScrollViewEventType.BOUNCE_RIGHT,
-    'bounce-top': ScrollViewEventType.BOUNCE_TOP,
-    'scroll-ended': ScrollViewEventType.SCROLL_ENDED,
-    'touch-up': ScrollViewEventType.TOUCH_UP,
-    'scroll-ended-with-threshold': ScrollViewEventType.AUTOSCROLL_ENDED_WITH_THRESHOLD,
-    'scroll-began': ScrollViewEventType.SCROLL_BEGAN,
-};
 
 /**
  * @zh
@@ -166,7 +232,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      */
     @property({
         type: Node,
-        tooltip:'可滚动展示内容的节点',
+        tooltip: '可滚动展示内容的节点',
     })
     get content () {
         return this._content;
@@ -186,7 +252,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      */
     @property({
         type: ScrollBarComponent,
-        tooltip:'水平滚动的 ScrollBar',
+        tooltip: '水平滚动的 ScrollBar',
     })
     get horizontalScrollBar () {
         return this._horizontalScrollBar;
@@ -212,7 +278,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      */
     @property({
         type: ScrollBarComponent,
-        tooltip:'垂直滚动的 ScrollBar',
+        tooltip: '垂直滚动的 ScrollBar',
     })
     get verticalScrollBar () {
         return this._verticalScrollBar;
@@ -239,13 +305,13 @@ export class ScrollViewComponent extends ViewGroupComponent {
         return this._content.parent;
     }
 
-    public static EventType = ScrollViewEventType;
+    public static EventType = EventType;
     /**
      * @zh
      * 是否开启水平滚动。
      */
     @property({
-        tooltip:'是否开启水平滚动',
+        tooltip: '是否开启水平滚动',
     })
     public horizontal = true;
 
@@ -254,7 +320,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * 是否开启垂直滚动。
      */
     @property({
-        tooltip:'是否开启垂直滚动',
+        tooltip: '是否开启垂直滚动',
     })
     public vertical = true;
 
@@ -263,7 +329,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * 是否开启滚动惯性。
      */
     @property({
-        tooltip:'是否开启滚动惯性',
+        tooltip: '是否开启滚动惯性',
     })
     public inertia = true;
 
@@ -273,7 +339,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      */
     @property({
         range: [0, 1, 0.1],
-        tooltip:'开启惯性后，在用户停止触摸后滚动多快停止，0 表示永不停止，1 表示立刻停止',
+        tooltip: '开启惯性后，在用户停止触摸后滚动多快停止，0 表示永不停止，1 表示立刻停止',
     })
     public brake = 0.5;
 
@@ -282,7 +348,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * 是否允许滚动内容超过边界，并在停止触摸后回弹。
      */
     @property({
-        tooltip:'是否允许滚动内容超过边界，并在停止触摸后回弹',
+        tooltip: '是否允许滚动内容超过边界，并在停止触摸后回弹',
     })
     public elastic = true;
 
@@ -292,7 +358,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      */
     @property({
         range: [0, 10],
-        tooltip:'回弹持续的时间，0 表示将立即反弹',
+        tooltip: '回弹持续的时间，0 表示将立即反弹',
     })
     public bounceDuration = 1;
 
@@ -302,7 +368,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      */
     @property({
         type: [ComponentEventHandler],
-        tooltip:'滚动视图的事件回调函数',
+        tooltip: '滚动视图的事件回调函数',
     })
     public scrollEvents: ComponentEventHandler[] = [];
 
@@ -312,7 +378,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * 注意，子节点上的 touchstart 事件仍然会触发，触点移动距离非常短的情况下 touchmove 和 touchend 也不会受影响。
      */
     @property({
-        tooltip:'滚动行为是否会取消子节点上注册的触摸事件',
+        tooltip: '滚动行为是否会取消子节点上注册的触摸事件',
     })
     public cancelInnerEvents = true;
 
@@ -325,34 +391,34 @@ export class ScrollViewComponent extends ViewGroupComponent {
     @property
     protected _verticalScrollBar: ScrollBarComponent | null = null;
 
-    private _topBoundary = 0;
-    private _bottomBoundary = 0;
-    private _leftBoundary = 0;
-    private _rightBoundary = 0;
+    protected _topBoundary = 0;
+    protected _bottomBoundary = 0;
+    protected _leftBoundary = 0;
+    protected _rightBoundary = 0;
 
-    private _touchMoveDisplacements: Vec3[] = [];
-    private _touchMoveTimeDeltas: number[] = [];
-    private _touchMovePreviousTimestamp = 0;
-    private _touchMoved = false;
-    private _autoScrollAttenuate = false;
-    private _autoScrollStartPosition = new Vec3();
-    private _autoScrollTargetDelta = new Vec3();
-    private _autoScrollTotalTime = 0;
-    private _autoScrollAccumulatedTime = 0;
-    private _autoScrollCurrentlyOutOfBoundary = false;
-    private _autoScrollBraking = false;
-    private _autoScrollBrakingStartPosition = new Vec3();
+    protected _touchMoveDisplacements: Vec3[] = [];
+    protected _touchMoveTimeDeltas: number[] = [];
+    protected _touchMovePreviousTimestamp = 0;
+    protected _touchMoved = false;
+    protected _autoScrollAttenuate = false;
+    protected _autoScrollStartPosition = new Vec3();
+    protected _autoScrollTargetDelta = new Vec3();
+    protected _autoScrollTotalTime = 0;
+    protected _autoScrollAccumulatedTime = 0;
+    protected _autoScrollCurrentlyOutOfBoundary = false;
+    protected _autoScrollBraking = false;
+    protected _autoScrollBrakingStartPosition = new Vec3();
 
-    private _outOfBoundaryAmount = new Vec3();
-    private _outOfBoundaryAmountDirty = true;
-    private _stopMouseWheel = false;
-    private _mouseWheelEventElapsedTime = 0.0;
-    private _isScrollEndedWithThresholdEventFired = false;
+    protected _outOfBoundaryAmount = new Vec3();
+    protected _outOfBoundaryAmountDirty = true;
+    protected _stopMouseWheel = false;
+    protected _mouseWheelEventElapsedTime = 0.0;
+    protected _isScrollEndedWithThresholdEventFired = false;
     // use bit wise operations to indicate the direction
-    private _scrollEventEmitMask = 0;
-    private _isBouncing = false;
-    private _contentPos = new Vec3();
-    private _deltaPos = new Vec3();
+    protected _scrollEventEmitMask = 0;
+    protected _isBouncing = false;
+    protected _contentPos = new Vec3();
+    protected _deltaPos = new Vec3();
 
     /**
      * @zh
@@ -711,7 +777,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
 
     /**
      * @zh
-     * 停止自动滚动, 调用此 API 可以让 Scrollview 立即停止滚动。
+     * 停止自动滚动, 调用此 API 可以让 ScrollView 立即停止滚动。
      */
     public stopAutoScroll () {
         this._autoScrolling = false;
@@ -744,7 +810,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
             return ZERO;
         }
 
-        this._content.getPosition(this._contentPos);
+        this._contentPos.set(this._content.position);
         return this._contentPos;
     }
 
@@ -774,7 +840,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
 
     public start () {
         this._calculateBoundary();
-        // Because widget component will adjust content position and scrollview position is correct after visit
+        // Because widget component will adjust content position and scrollView position is correct after visit
         // So this event could make sure the content is on the correct position after loading.
         if (this._content) {
             director.once(Director.EVENT_BEFORE_DRAW, this._adjustContentOutOfBoundary, this);
@@ -793,7 +859,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
                 }
             }
         }
-        this._showScrollbar();
+        this._showScrollBar();
     }
 
     public update (dt: number) {
@@ -814,7 +880,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
                 }
             }
         }
-        this._hideScrollbar();
+        this._hideScrollBar();
         this.stopAutoScroll();
     }
 
@@ -845,7 +911,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
         }
 
         let deltaMove = new Vec3();
-        let wheelPrecision = -0.1;
+        const wheelPrecision = -0.1;
         if (this.vertical) {
             deltaMove = new Vec3(0, event.getScrollY() * wheelPrecision, 0);
         }
@@ -911,7 +977,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
         if (!this.enabledInHierarchy || !this._content || !event) { return; }
         if (this._hasNestedViewGroup(event, captureListeners)) { return; }
 
-        this._dispatchEvent('touch-up');
+        this._dispatchEvent(EventType.TOUCH_UP);
 
         const touch = event.touch!;
         if (this._content) {
@@ -995,7 +1061,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
         if (this._scrolling) {
             this._scrolling = false;
             if (!this._autoScrolling) {
-                this._dispatchEvent('scroll-ended');
+                this._dispatchEvent(EventType.SCROLL_ENDED);
             }
         }
     }
@@ -1021,10 +1087,10 @@ export class ScrollViewComponent extends ViewGroupComponent {
         const targetDelta = new Vec3(deltaMove);
         targetDelta.normalize();
         const contentSize = this._content!.getContentSize();
-        const scrollviewSize = this.node.getContentSize();
+        const scrollViewSize = this.node.getContentSize();
 
-        const totalMoveWidth = (contentSize.width - scrollviewSize.width);
-        const totalMoveHeight = (contentSize.height - scrollviewSize.height);
+        const totalMoveWidth = (contentSize.width - scrollViewSize.width);
+        const totalMoveHeight = (contentSize.height - scrollViewSize.height);
 
         const attenuatedFactorX = this._calculateAttenuatedFactor(totalMoveWidth);
         const attenuatedFactorY = this._calculateAttenuatedFactor(totalMoveHeight);
@@ -1039,7 +1105,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
 
         if (this.brake > 0 && factor > 7) {
             factor = Math.sqrt(factor);
-            let a = new Vec3(deltaMove);
+            const a = new Vec3(deltaMove);
             a.multiplyScalar(factor);
             targetDelta.set(a);
             targetDelta.add(deltaMove);
@@ -1123,22 +1189,20 @@ export class ScrollViewComponent extends ViewGroupComponent {
 
     protected _getContentLeftBoundary () {
         const contentPos = this.getContentPosition();
-        return contentPos.x - this._content!.getAnchorPoint().x * this._content!.getContentSize().width;
+        return contentPos.x - this._content!.anchorX * this._content!.width;
     }
 
     protected _getContentRightBoundary () {
-        const contentSize = this._content!.getContentSize();
-        return this._getContentLeftBoundary() + contentSize.width;
+        return this._getContentLeftBoundary() + this._content!.width;
     }
 
     protected _getContentTopBoundary () {
-        const contentSize = this._content!.getContentSize();
-        return this._getContentBottomBoundary() + contentSize.height;
+        return this._getContentBottomBoundary() + this._content!.height;
     }
 
     protected _getContentBottomBoundary () {
         const contentPos = this.getContentPosition();
-        return contentPos.y - this._content!.getAnchorPoint().y * this._content!.getContentSize().height;
+        return contentPos.y - this._content!.anchorY * this._content!.height;
     }
 
     protected _getHowMuchOutOfBoundary (addition?: Vec3) {
@@ -1200,13 +1264,13 @@ export class ScrollViewComponent extends ViewGroupComponent {
     }
 
     protected _dispatchEvent (event: string) {
-        if (event === 'scroll-ended') {
+        if (event === EventType.SCROLL_ENDED) {
             this._scrollEventEmitMask = 0;
 
-        } else if (event === 'scroll-to-top'
-            || event === 'scroll-to-bottom'
-            || event === 'scroll-to-left'
-            || event === 'scroll-to-right') {
+        } else if (event === EventType.SCROLL_TO_TOP
+            || event === EventType.SCROLL_TO_BOTTOM
+            || event === EventType.SCROLL_TO_LEFT
+            || event === EventType.SCROLL_TO_RIGHT) {
 
             const flag = (1 << eventMap[event]);
             if (this._scrollEventEmitMask & flag) {
@@ -1238,7 +1302,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
         }
     }
 
-    protected _hideScrollbar () {
+    protected _hideScrollBar () {
         if (this._horizontalScrollBar) {
             this._horizontalScrollBar.hide();
         }
@@ -1248,7 +1312,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
         }
     }
 
-    protected _showScrollbar () {
+    protected _showScrollBar () {
         if (this._horizontalScrollBar) {
             this._horizontalScrollBar.show();
         }
@@ -1258,7 +1322,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
         }
     }
 
-    // This is for Scrollview as children of a Button
+    // This is for ScrollView as children of a Button
     protected _stopPropagationIfTargetIsMe (event: Event) {
         if (event.eventPhase === Event.AT_TARGET && event.target === this.node) {
             event.propagationStopped = true;
@@ -1292,7 +1356,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
             realMove.add(outOfBoundary);
         }
 
-        let scrollEventType = '';
+        let scrollEventType;
         const pos = new Vec3();
         this._content!.getPosition(pos);
 
@@ -1300,26 +1364,26 @@ export class ScrollViewComponent extends ViewGroupComponent {
             const icBottomPos = pos.y - this._content!.anchorY * this._content!.height;
 
             if (icBottomPos + realMove.y > this._bottomBoundary) {
-                scrollEventType = 'scroll-to-bottom';
+                scrollEventType = EventType.SCROLL_TO_BOTTOM;
             }
         }
         else if (realMove.y < 0) { // down
             const icTopPos = pos.y - this._content!.anchorY * this._content!.height + this._content!.height;
 
             if (icTopPos + realMove.y <= this._topBoundary) {
-                scrollEventType = 'scroll-to-top';
+                scrollEventType = EventType.SCROLL_TO_TOP;
             }
         }
         else if (realMove.x < 0) { // left
             const icRightPos = pos.x - this._content!.anchorX * this._content!.width + this._content!.width;
             if (icRightPos + realMove.x <= this._rightBoundary) {
-                scrollEventType = 'scroll-to-right';
+                scrollEventType = EventType.SCROLL_TO_RIGHT;
             }
         }
         else if (realMove.x > 0) { // right
             const icLeftPos = pos.x - this._content!.anchorX * this._content!.width;
             if (icLeftPos + realMove.x >= this._leftBoundary) {
-                scrollEventType = 'scroll-to-left';
+                scrollEventType = EventType.SCROLL_TO_LEFT;
             }
         }
 
@@ -1328,12 +1392,12 @@ export class ScrollViewComponent extends ViewGroupComponent {
         if (realMove.x !== 0 || realMove.y !== 0) {
             if (!this._scrolling) {
                 this._scrolling = true;
-                this._dispatchEvent('scroll-began');
+                this._dispatchEvent(EventType.SCROLL_BEGAN);
             }
-            this._dispatchEvent('scrolling');
+            this._dispatchEvent(EventType.SCROLLING);
         }
 
-        if (scrollEventType.length > 0) {
+        if (scrollEventType && scrollEventType.length > 0) {
             this._dispatchEvent(scrollEventType);
         }
 
@@ -1341,7 +1405,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
 
     protected _handlePressLogic () {
         if (this._autoScrolling) {
-            this._dispatchEvent('scroll-ended');
+            this._dispatchEvent(EventType.SCROLL_ENDED);
         }
 
         this._autoScrolling = false;
@@ -1399,10 +1463,10 @@ export class ScrollViewComponent extends ViewGroupComponent {
         this._startAutoScroll(bounceBackAmount, bounceBackTime, true);
 
         if (!this._isBouncing) {
-            if (bounceBackAmount.y > 0) { this._dispatchEvent('bounce-top'); }
-            if (bounceBackAmount.y < 0) { this._dispatchEvent('bounce-bottom'); }
-            if (bounceBackAmount.x > 0) { this._dispatchEvent('bounce-right'); }
-            if (bounceBackAmount.x < 0) { this._dispatchEvent('bounce-left'); }
+            if (bounceBackAmount.y > 0) { this._dispatchEvent(EventType.BOUNCE_TOP); }
+            if (bounceBackAmount.y < 0) { this._dispatchEvent(EventType.BOUNCE_BOTTOM); }
+            if (bounceBackAmount.x > 0) { this._dispatchEvent(EventType.BOUNCE_RIGHT); }
+            if (bounceBackAmount.x < 0) { this._dispatchEvent(EventType.BOUNCE_LEFT); }
             this._isBouncing = true;
         }
 
@@ -1464,7 +1528,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
 
         const fireEvent = Math.abs(percentage - 1) <= this.getScrollEndedEventTiming();
         if (fireEvent && !this._isScrollEndedWithThresholdEventFired) {
-            this._dispatchEvent('scroll-ended-with-threshold');
+            this._dispatchEvent(EventType.SCROLL_ENG_WITH_THRESHOLD);
             this._isScrollEndedWithThresholdEventFired = true;
         }
 
@@ -1493,12 +1557,12 @@ export class ScrollViewComponent extends ViewGroupComponent {
         const deltaMove = new Vec3(newPosition);
         deltaMove.subtract(this.getContentPosition());
         this._moveContent(this._clampDelta(deltaMove), reachedEnd);
-        this._dispatchEvent('scrolling');
+        this._dispatchEvent(EventType.SCROLLING);
 
         if (!this._autoScrolling) {
             this._isBouncing = false;
             this._scrolling = false;
-            this._dispatchEvent('scroll-ended');
+            this._dispatchEvent(EventType.SCROLL_ENDED);
         }
     }
 

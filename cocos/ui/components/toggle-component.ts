@@ -29,10 +29,16 @@
  */
 
 import { EventHandler as ComponentEventHandler } from '../../core/components';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { ButtonComponent } from './button-component';
 import { SpriteComponent } from './sprite-component';
 import { ToggleContainerComponent } from './toggle-container-component';
+import { extendsEnum } from '../../core/data/utils/extends-enum';
+import { EventType as ButtonEventType } from './button-component';
+
+enum EventType {
+    TOGGLE = 'toggle',
+}
 
 /**
  * @zh
@@ -124,6 +130,9 @@ export class ToggleComponent extends ButtonComponent {
         // }
         return null;
     }
+
+    public static EventType = extendsEnum(EventType, ButtonEventType);
+
     /**
      * @zh
      * Toggle 按钮的点击事件列表。
@@ -229,15 +238,15 @@ export class ToggleComponent extends ButtonComponent {
     }
 
     private _registerToggleEvent () {
-        this.node.on('click', this.toggle, this);
+        this.node.on(ToggleComponent.EventType.CLICK, this.toggle, this);
     }
 
     private _unregisterToggleEvent () {
-        this.node.off('click', this.toggle, this);
+        this.node.off(ToggleComponent.EventType.CLICK, this.toggle, this);
     }
 
     private _emitToggleEvents () {
-        this.node.emit('toggle', this);
+        this.node.emit(ToggleComponent.EventType.TOGGLE, this);
         if (this.checkEvents) {
             ComponentEventHandler.emitEvents(this.checkEvents, this);
         }
@@ -245,18 +254,6 @@ export class ToggleComponent extends ButtonComponent {
 }
 
 cc.ToggleComponent = ToggleComponent;
-
-// var js = require('../platform/js');
-
-// js.get(Toggle.prototype, '_toggleContainer',
-//     function () {
-//         var parent = this.node.parent;
-//         if (cc.Node.isNode(parent)) {
-//             return parent.getComponent(cc.ToggleContainer);
-//         }
-//         return null;
-//     }
-// );
 
 /**
  * @zh

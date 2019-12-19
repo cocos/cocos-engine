@@ -159,19 +159,19 @@ export class ScrollBarComponent extends Component {
 
     public static Direction = Direction;
     @property
-    private _scrollView: ScrollViewComponent | null = null;
+    protected _scrollView: ScrollViewComponent | null = null;
     @property
-    private _handle: SpriteComponent | null = null;
+    protected _handle: SpriteComponent | null = null;
     @property
-    private _direction = Direction.HORIZONTAL;
+    protected _direction = Direction.HORIZONTAL;
     @property
-    private _enableAutoHide = false;
+    protected _enableAutoHide = false;
     @property
-    private _autoHideTime = 1.0;
+    protected _autoHideTime = 1.0;
 
-    private _touching = false;
-    private _opacity = 255;
-    private _autoHideRemainingTime = 0;
+    protected _touching = false;
+    protected _opacity = 255;
+    protected _autoHideRemainingTime = 0;
 
     /**
      * @zh
@@ -310,7 +310,7 @@ export class ScrollBarComponent extends Component {
         this._processAutoHide(dt);
     }
 
-    private _convertToScrollViewSpace (content: Node) {
+    protected _convertToScrollViewSpace (content: Node) {
         if (!this._scrollView) {
             return ZERO;
         }
@@ -327,7 +327,7 @@ export class ScrollBarComponent extends Component {
         return scrollViewSpacePos;
     }
 
-    private _setOpacity (opacity: number) {
+    protected _setOpacity (opacity: number) {
         if (this._handle) {
             let renderComp = this.node.getComponent(SpriteComponent);
             if (renderComp) {
@@ -345,7 +345,7 @@ export class ScrollBarComponent extends Component {
         }
     }
 
-    private _updateHandlerPosition (position: Vec3) {
+    protected _updateHandlerPosition (position: Vec3) {
         if (this._handle) {
             const oldPosition = this._fixupHandlerPosition();
 
@@ -353,7 +353,7 @@ export class ScrollBarComponent extends Component {
         }
     }
 
-    private _fixupHandlerPosition () {
+    protected _fixupHandlerPosition () {
         const barSize = this.node.getContentSize();
         const barAnchor = this.node.getAnchorPoint();
         const handleSize = this.handle!.node.getContentSize();
@@ -376,7 +376,7 @@ export class ScrollBarComponent extends Component {
         return fixupPosition;
     }
 
-    private _conditionalDisableScrollBar (contentSize: Size, scrollViewSize: Size) {
+    protected _conditionalDisableScrollBar (contentSize: Size, scrollViewSize: Size) {
         if (contentSize.width <= scrollViewSize.width && this._direction === Direction.HORIZONTAL) {
             return true;
         }
@@ -387,7 +387,7 @@ export class ScrollBarComponent extends Component {
         return false;
     }
 
-    private _calculateLength (contentMeasure: number, scrollViewMeasure: number, handleNodeMeasure: number, outOfBoundary: number) {
+    protected _calculateLength (contentMeasure: number, scrollViewMeasure: number, handleNodeMeasure: number, outOfBoundary: number) {
         let denominatorValue = contentMeasure;
         if (outOfBoundary) {
             denominatorValue += (outOfBoundary > 0 ? outOfBoundary : -outOfBoundary) * GETTINGSHORTERFACTOR;
@@ -397,7 +397,7 @@ export class ScrollBarComponent extends Component {
         return handleNodeMeasure * lengthRation;
     }
 
-    private _calculatePosition (
+    protected _calculatePosition (
         contentMeasure: number,
         scrollViewMeasure: number,
         handleNodeMeasure: number,
@@ -424,7 +424,7 @@ export class ScrollBarComponent extends Component {
         }
     }
 
-    private _updateLength (length: number) {
+    protected _updateLength (length: number) {
         if (this._handle) {
             const handleNode = this._handle.node;
             const handleNodeSize = handleNode.getContentSize();
@@ -441,7 +441,7 @@ export class ScrollBarComponent extends Component {
         }
     }
 
-    private _processAutoHide (deltaTime: number) {
+    protected _processAutoHide (deltaTime: number) {
         if (!this._enableAutoHide || this._autoHideRemainingTime <= 0) {
             return;
         } else if (this._touching) {

@@ -53,9 +53,9 @@ import { LabelComponent } from './label-component';
 @menu('UI/Render/LabelOutline')
 export class LabelOutlineComponent extends Component {
     @property
-    private _color = new Color(255, 255, 255, 255);
+    protected _color = new Color(255, 255, 255, 255);
     @property
-    private _width = 1;
+    protected _width = 1;
 
     /**
      * @zh
@@ -108,7 +108,7 @@ export class LabelOutlineComponent extends Component {
         this._updateRenderData();
     }
 
-    private _updateRenderData () {
+    protected _updateRenderData () {
         const label = this.node.getComponent(LabelComponent);
         if (label) {
             label.updateRenderData(true);

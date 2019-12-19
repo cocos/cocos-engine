@@ -580,48 +580,48 @@ export class LabelComponent extends UIRenderComponent {
     public static CanvasPool = new CanvasPool();
 
     @property
-    private _useOriginalSize = true;
+    protected _useOriginalSize = true;
     @property
-    private _string = 'label';
+    protected _string = 'label';
     @property
-    private _horizontalAlign = HorizontalTextAlignment.CENTER;
+    protected _horizontalAlign = HorizontalTextAlignment.CENTER;
     @property
-    private _verticalAlign = VerticalTextAlignment.CENTER;
+    protected _verticalAlign = VerticalTextAlignment.CENTER;
     @property
-    private _actualFontSize = 0;
+    protected _actualFontSize = 0;
     @property
-    private _fontSize = 40;
+    protected _fontSize = 40;
     @property
-    private _fontFamily = 'Arial';
+    protected _fontFamily = 'Arial';
     @property
-    private _lineHeight = 40;
+    protected _lineHeight = 40;
     @property
-    private _overflow: Overflow = Overflow.NONE;
+    protected _overflow: Overflow = Overflow.NONE;
     @property
-    private _enableWrapText = true;
+    protected _enableWrapText = true;
     @property
-    private _font: Font | null = null;
+    protected _font: Font | null = null;
     @property
-    private _isSystemFontUsed = true;
-    private _spacingX = 0;
+    protected _isSystemFontUsed = true;
+    protected _spacingX = 0;
     @property
-    private _isItalic = false;
+    protected _isItalic = false;
     @property
-    private _isBold = false;
+    protected _isBold = false;
     @property
-    private _isUnderline = false;
+    protected _isUnderline = false;
     @property
-    private _cacheMode = CacheMode.NONE;
+    protected _cacheMode = CacheMode.NONE;
 
     // don't need serialize
     // 这个保存了旧项目的 file 数据
-    private _N$file: Font | null = null;
-    private _texture: SpriteFrame | LetterRenderTexture | null = null;
-    private _ttfSpriteFrame: SpriteFrame | null = null;
-    private _userDefinedFont: Font | null = null;
-    private _assemblerData: ISharedLabelData | null = null;
-    private _fontAtlas: FontAtlas | null = null;
-    private _letterTexture: LetterRenderTexture | null = null;
+    protected _N$file: Font | null = null;
+    protected _texture: SpriteFrame | LetterRenderTexture | null = null;
+    protected _ttfSpriteFrame: SpriteFrame | null = null;
+    protected _userDefinedFont: Font | null = null;
+    protected _assemblerData: ISharedLabelData | null = null;
+    protected _fontAtlas: FontAtlas | null = null;
+    protected _letterTexture: LetterRenderTexture | null = null;
 
     constructor () {
         super();
@@ -731,7 +731,7 @@ export class LabelComponent extends UIRenderComponent {
         }
     }
 
-    private _flushMaterial () {
+    protected _flushMaterial () {
         const material = this._material;
         // Setup blend function for premultiplied ttf label texture
         // if (this._texture === this._ttfSpriteFrame) {
@@ -747,7 +747,7 @@ export class LabelComponent extends UIRenderComponent {
         this._updateMaterial(material);
     }
 
-    private _applyFontTexture (force: boolean) {
+    protected _applyFontTexture (force: boolean) {
         const font = this._font;
         if (font instanceof BitmapFont) {
             const spriteFrame = font.spriteFrame;

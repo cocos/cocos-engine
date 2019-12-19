@@ -346,33 +346,33 @@ export class RichTextComponent extends UIComponent {
     public static VerticalAlign = VerticalTextAlignment;
 
     @property
-    private _lineHeight = 40;
+    protected _lineHeight = 40;
     @property
-    private _string = '<color=#00ff00>Rich</c><color=#0fffff>Text</color>';
-    // private _updateRichTextStatus =
+    protected _string = '<color=#00ff00>Rich</c><color=#0fffff>Text</color>';
+    // protected _updateRichTextStatus =
     @property
-    private _horizontalAlign = HorizontalTextAlignment.LEFT;
+    protected _horizontalAlign = HorizontalTextAlignment.LEFT;
     @property
-    private _fontSize = 40;
+    protected _fontSize = 40;
     @property
-    private _maxWidth = 0;
+    protected _maxWidth = 0;
     @property
-    private _font: TTFFont | null = null;
+    protected _font: TTFFont | null = null;
     @property
-    private _imageAtlas: SpriteAtlas | null = null;
+    protected _imageAtlas: SpriteAtlas | null = null;
     @property
-    private _handleTouchEvent = true;
+    protected _handleTouchEvent = true;
 
-    private _textArray: IHtmlTextParserResultObj[] = [];
-    private _labelSegments: ILabelSegment[] = [];
-    private _labelSegmentsCache: ILabelSegment[] = [];
-    private _linesWidth: number[] = [];
-    private _lineCount = 1;
-    private _labelWidth = 0;
-    private _labelHeight = 0;
-    private _layoutDirty = true;
-    private _lineOffsetX = 0;
-    private _updateRichTextStatus: () => void;
+    protected _textArray: IHtmlTextParserResultObj[] = [];
+    protected _labelSegments: ILabelSegment[] = [];
+    protected _labelSegmentsCache: ILabelSegment[] = [];
+    protected _linesWidth: number[] = [];
+    protected _lineCount = 1;
+    protected _labelWidth = 0;
+    protected _labelHeight = 0;
+    protected _layoutDirty = true;
+    protected _lineOffsetX = 0;
+    protected _updateRichTextStatus: () => void;
 
     constructor () {
         super();
@@ -428,26 +428,26 @@ export class RichTextComponent extends UIComponent {
         }
     }
 
-    private _addEventListeners () {
+    protected _addEventListeners () {
         this.node.on(Node.EventType.TOUCH_END, this._onTouchEnded, this);
     }
 
-    private _removeEventListeners () {
+    protected _removeEventListeners () {
         this.node.off(Node.EventType.TOUCH_END, this._onTouchEnded, this);
     }
 
-    private _updateLabelSegmentTextAttributes () {
+    protected _updateLabelSegmentTextAttributes () {
         this._labelSegments.forEach((item) => {
             this._applyTextAttribute(item);
         });
     }
 
-    private _createFontLabel (str: string) {
+    protected _createFontLabel (str: string) {
         // @ts-ignore
         return pool.get!(str, this);
     }
 
-    private _onTTFLoaded () {
+    protected _onTTFLoaded () {
         if (this._font instanceof TTFFont) {
             if (this._font._nativeAsset) {
                 this._layoutDirty = true;
@@ -467,7 +467,7 @@ export class RichTextComponent extends UIComponent {
         }
     }
 
-    private _measureText (styleIndex: number, string?: string) {
+    protected _measureText (styleIndex: number, string?: string) {
         const self = this;
         const func = (s: string) => {
             let label: ILabelSegment;
@@ -492,7 +492,7 @@ export class RichTextComponent extends UIComponent {
         }
     }
 
-    private _onTouchEnded (event: EventTouch) {
+    protected _onTouchEnded (event: EventTouch) {
         const components = this.node.getComponents(UIComponent);
 
         const self = this;
@@ -510,7 +510,7 @@ export class RichTextComponent extends UIComponent {
         }
     }
 
-    private _containsTouchLocation (label: ILabelSegment, point: Vec2) {
+    protected _containsTouchLocation (label: ILabelSegment, point: Vec2) {
         const comp = label.node.getComponent(UITransformComponent);
         if (!comp) {
             return false;
@@ -520,7 +520,7 @@ export class RichTextComponent extends UIComponent {
         return myRect.contains(point);
     }
 
-    private _resetState () {
+    protected _resetState () {
         const children = this.node.children as Mutable<Node[]>;
 
         for (let i = children.length - 1; i >= 0; i--) {
@@ -556,7 +556,7 @@ export class RichTextComponent extends UIComponent {
         this._layoutDirty = true;
     }
 
-    private _activateChildren (active) {
+    protected _activateChildren (active) {
         for (let i = this.node.children.length - 1; i >= 0; i--) {
             const child = this.node.children[i];
             if (child.name === RichTextChildName || child.name === RichTextChildImageName) {
@@ -565,7 +565,7 @@ export class RichTextComponent extends UIComponent {
         }
     }
 
-    private _addLabelSegment (stringToken: string, styleIndex: number) {
+    protected _addLabelSegment (stringToken: string, styleIndex: number) {
         let labelSegment: ILabelSegment;
         if (this._labelSegmentsCache.length === 0) {
             labelSegment = this._createFontLabel(stringToken);
@@ -588,7 +588,7 @@ export class RichTextComponent extends UIComponent {
         return labelSegment;
     }
 
-    private _updateRichTextWithMaxWidth (labelString: string, labelWidth: number, styleIndex: number) {
+    protected _updateRichTextWithMaxWidth (labelString: string, labelWidth: number, styleIndex: number) {
         let fragmentWidth = labelWidth;
         let labelSegment: ILabelSegment;
 
@@ -640,17 +640,17 @@ export class RichTextComponent extends UIComponent {
         }
     }
 
-    private _isLastComponentCR (stringToken) {
+    protected _isLastComponentCR (stringToken) {
         return stringToken.length - 1 === stringToken.lastIndexOf('\n');
     }
 
-    private _updateLineInfo () {
+    protected _updateLineInfo () {
         this._linesWidth.push(this._lineOffsetX);
         this._lineOffsetX = 0;
         this._lineCount++;
     }
 
-    private _needsUpdateTextLayout (newTextArray: IHtmlTextParserResultObj[]) {
+    protected _needsUpdateTextLayout (newTextArray: IHtmlTextParserResultObj[]) {
         if (this._layoutDirty || !this._textArray || !newTextArray) {
             return true;
         }
@@ -700,7 +700,7 @@ export class RichTextComponent extends UIComponent {
         return false;
     }
 
-    private _addRichTextImageElement (richTextElement: IHtmlTextParserResultObj) {
+    protected _addRichTextImageElement (richTextElement: IHtmlTextParserResultObj) {
         if (!richTextElement.style) {
             return;
         }
@@ -775,7 +775,7 @@ export class RichTextComponent extends UIComponent {
         }
     }
 
-    private _updateRichText () {
+    protected _updateRichText () {
         if (!this.enabled) {
             return;
         }
@@ -866,7 +866,7 @@ export class RichTextComponent extends UIComponent {
         this._layoutDirty = false;
     }
 
-    private _getFirstWordLen (text: string, startIndex: number, textLen: number) {
+    protected _getFirstWordLen (text: string, startIndex: number, textLen: number) {
         let character = text.charAt(startIndex);
         if (isUnicodeCJK(character) || isUnicodeSpace(character)) {
             return 1;
@@ -885,7 +885,7 @@ export class RichTextComponent extends UIComponent {
         return len;
     }
 
-    private _updateRichTextPosition () {
+    protected _updateRichTextPosition () {
         let nextTokenX = 0;
         let nextLineIndex = 1;
         const totalLineCount = this._lineCount;
@@ -926,7 +926,7 @@ export class RichTextComponent extends UIComponent {
         }
     }
 
-    private _convertLiteralColorValue (color: string) {
+    protected _convertLiteralColorValue (color: string) {
         const colorValue = color.toUpperCase();
         if (Color[colorValue]) {
             return Color[colorValue];
@@ -937,7 +937,7 @@ export class RichTextComponent extends UIComponent {
         }
     }
 
-    private _applyTextAttribute (labelSeg: ILabelSegment) {
+    protected _applyTextAttribute (labelSeg: ILabelSegment) {
         const labelComponent = labelSeg.node.getComponent(LabelComponent);
         if (!labelComponent) {
             return;

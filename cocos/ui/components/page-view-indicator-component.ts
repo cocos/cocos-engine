@@ -142,14 +142,14 @@ export class PageViewIndicatorComponent extends Component {
   })
   public spacing = 0;
   @property
-  public _spriteFrame: SpriteFrame | null = null;
+  protected _spriteFrame: SpriteFrame | null = null;
   @property
-  public _direction: Direction = Direction.HORIZONTAL;
+  protected _direction: Direction = Direction.HORIZONTAL;
   @property
-  public _cellSize = new Size(20, 20);
-  private _layout: LayoutComponent | null = null;
-  private _pageView: PageViewComponent | null = null;
-  private _indicators: Node[] = [];
+  protected _cellSize = new Size(20, 20);
+  protected _layout: LayoutComponent | null = null;
+  protected _pageView: PageViewComponent | null = null;
+  protected _indicators: Node[] = [];
 
   public onLoad () {
     this._updateLayout();

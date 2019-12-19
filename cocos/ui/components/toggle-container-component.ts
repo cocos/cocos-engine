@@ -50,7 +50,7 @@ export class ToggleContainerComponent extends Component {
     })
     public checkEvents: ComponentEventHandler[] = [];
     @property
-    private _allowSwitchOff: boolean = false;
+    protected _allowSwitchOff: boolean = false;
     private _toggleItems: ToggleComponent[] = [];
 
     /**
