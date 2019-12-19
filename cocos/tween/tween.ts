@@ -420,7 +420,7 @@ cc.Tween = Tween;
  * @en
  * tween is a utility function that helps instantiate Tween instances.
  * @zh
- * tween 是一个工具函数，帮助实例化 Tween 实例，它和 tweenUtil 完全一样。
+ * tween 是一个工具函数，帮助实例化 Tween 实例。
  * @param target 缓动的目标
  * @returns Tween 实例
  * @example
@@ -439,17 +439,11 @@ cc.tween = tween;
  * @en
  * tweenUtil is a utility function that helps instantiate Tween instances.
  * @zh
- * tweenUtil 是一个工具函数，帮助实例化 Tween 实例，它和 tween 完全一样。
- * @param target 缓动的目标
- * @returns Tween 实例
- * @example
- * tweenUtil(this.node)
- *   .to(1, {scale: new Vec3(2, 2, 2), position: new Vec3(5, 5, 5)})
- *   .call(() => { console.log('This is a callback'); })
- *   .by(1, {scale: new Vec3(-1, -1, -1)}, {easing: 'sineOutIn'})
- *   .start()
+ * tweenUtil 是一个工具函数，帮助实例化 Tween 实例。
+ * @deprecated please use `tween` instead.
  */
 export function tweenUtil (target?: object) {
+    warn("tweenUtil' is deprecated, please use 'tween' instead ");
     return new Tween(target);
 }
 cc.tweenUtil = tweenUtil;
