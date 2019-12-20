@@ -746,16 +746,34 @@ let Label = cc.Class({
         this._applyFontTexture();
     },
 
+    /**
+     * @deprecated `label._enableBold` is deprecated, use `label.enableBold = true` instead please.
+     */
     _enableBold (enabled) {
-        this.enableBold = enabled;
+        if (CC_DEBUG) {
+            cc.warn('`label._enableBold` is deprecated, use `label.enableBold = true` instead please');
+        }
+        this.enableBold = !!enabled;
     },
 
+    /**
+     * @deprecated `label._enableItalics` is deprecated, use `label.enableItalics = true` instead please.
+     */
     _enableItalics (enabled) {
-        this.enableItalic = enabled;
+        if (CC_DEBUG) {
+            cc.warn('`label._enableItalics` is deprecated, use `label.enableItalics = true` instead please');
+        }
+        this.enableItalic = !!enabled;
     },
 
+    /**
+     * @deprecated `label._enableUnderline` is deprecated, use `label.enableUnderline = true` instead please.
+     */
     _enableUnderline (enabled) {
-        this.enableUnderline = enabled;
+        if (CC_DEBUG) {
+            cc.warn('`label._enableUnderline` is deprecated, use `label.enableUnderline = true` instead please');
+        }
+        this.enableUnderline = !!enabled;
     },
  });
 
