@@ -30,46 +30,89 @@ if (CC_RUNTIME) {
     _BASELINE_RATIO = -0.05;
 }
 
-function LRUCache (size) {
-    this.maxSize = size;
+function LRUCache(size) {
     this.count = 0;
-    this.data = {};
-    this.records = [];
+    this.limit = size;
+    this.datas = {};
+    this.head = null;
+    this.tail = null;
+}
+
+LRUCache.prototype.moveToHead = function (node) {
+    node.next = this.head;
+    node.prev = null;
+    if (this.head !== null) 
+        this.head.prev = node;
+    this.head = node;
+    if (this.tail === null) 
+        this.tail = node;
+    this.count++;
+    this.datas[node.key] = node;
+}
+
+LRUCache.prototype.put = function (key, value) {
+    const node = {
+        key: key,
+        value: value,
+        prev: null,
+        next: null
+    };
+
+    if (this.count >= this.limit) {
+        delete this.datas[this.tail.key];
+        this.count--;
+        this.tail = this.tail.prev;
+        this.tail.next = null;
+    }
+    this.moveToHead(node);
+}
+
+LRUCache.prototype.remove = function (node) {
+    if (node.prev !== null) {
+        node.prev.next = node.next;
+    } else {
+        this.head = node.next;
+    }
+    if (node.next !== null) {
+        node.next.prev = node.prev;
+    } else {
+        this.tail = node.prev;
+    }
+    delete this.datas[node.key];
+    this.count--;
+}
+
+LRUCache.prototype.get = function (key) {
+    const oldNode = this.datas[key];
+    if (oldNode) {
+        this.remove(oldNode);
+        this.moveToHead(oldNode);
+        return oldNode.value;
+    }
+    return null;
+}
+
+LRUCache.prototype.peek = function (key) {
+    return this.datas[key] ? this.datas[key].value : null;
 }
 
 LRUCache.prototype.clear = function () {
     this.count = 0;
-    this.data = {};
-    this.records = [];
+    this.datas = {};
+    this.head = null;
+    this.tail = null;
 }
 
-LRUCache.prototype.put = function (key) {
-    let length = this.records.length;
-    if (length >= this.maxSize) {
-        let del = this.records[length - 1];
-        this.records.length--;
-        delete this.data[del];
-    }
-
-    this.data[key] = {};
-    this.records.splice(0, 0, key);
+LRUCache.prototype.has = function (key) {
+    return !!this.datas[key];
 }
 
-LRUCache.prototype.get = function (key) {
-    if (this.data[key] && this.records[0] !== key) {
-        let index = this.records.indexOf(key);
-        this.records.splice(index, 1);
-        this.records.splice(0, 0, key);
-    }
-
-    return this.data[key];
+LRUCache.prototype.delete = function (key) {
+    const node = this.datas[key];
+    this.remove(node);
 }
 
-LRUCache.prototype.addSubData = function (key, subkey, value) {
-    this.data[key][subkey] = value;
-}
-
-let measureCache = new LRUCache(10);
+let measureCache = new LRUCache(100);
 
 var textUtils = {
 
@@ -101,18 +144,15 @@ var textUtils = {
 
     safeMeasureText: function (ctx, string) {
         let font = ctx.font;
-        let cache = measureCache.get(font);
-        if (cache) {
-            if (cache[string]) {
-                return cache[string];
-            } 
-        } else {
-            measureCache.put(font);
+        let key = font + "\uD83C\uDFAE" + string;
+        let cache = measureCache.get(key);
+        if (cache !== null) {
+            return cache;
         }
 
         let metric = ctx.measureText(string);
         let width = metric && metric.width || 0;
-        measureCache.addSubData(font, string, width);
+        measureCache.put(key, width);
 
         return width;
     },
