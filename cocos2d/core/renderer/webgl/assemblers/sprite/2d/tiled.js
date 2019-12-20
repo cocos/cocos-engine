@@ -95,15 +95,15 @@ export default class TiledAssembler extends Assembler2D {
         let renderData = this._renderData;
         let flexBuffer = renderData._flexBuffer;
         if (flexBuffer.reserve(this.verticesCount, this.indicesCount)) {
-          this._updateIndices();
-          this.updateColor(sprite);
+            this._updateIndices();
+            this.updateColor(sprite);
         }
         flexBuffer.used(this.verticesCount, this.indicesCount);
 
         if (sprite._vertsDirty) {
-          this.updateUVs(sprite);
-          this.updateVerts(sprite);
-          sprite._vertsDirty = false;
+            this.updateUVs(sprite);
+            this.updateVerts(sprite);
+            sprite._vertsDirty = false;
         }
     }
 
