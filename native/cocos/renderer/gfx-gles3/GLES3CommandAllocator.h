@@ -1,7 +1,8 @@
 #ifndef CC_GFXGLES3_GLES3_COMMAND_ALLOCATOR_H_
 #define CC_GFXGLES3_GLES3_COMMAND_ALLOCATOR_H_
 
-#include "GLES3CommandPool.h"
+#include "gfx/GFXCommandPool.h"
+#include "GLES3Commands.h"
 
 NS_CC_BEGIN
 
@@ -10,11 +11,11 @@ public:
   GLES3CommandAllocator(GFXDevice* device);
   ~GLES3CommandAllocator();
   
-  GLES3CommandPool<GLES3CmdBeginRenderPass> begin_render_pass_cmd_pool;
-  GLES3CommandPool<GLES3CmdBindStates> bind_states_cmd_pool;
-  GLES3CommandPool<GLES3CmdDraw> draw_cmd_pool;
-  GLES3CommandPool<GLES3CmdUpdateBuffer> update_buffer_cmd_pool;
-  GLES3CommandPool<GLES3CmdCopyBufferToTexture> copy_buffer_to_texture_cmd_pool;
+  GFXCommandPool<GLES3CmdBeginRenderPass> begin_render_pass_cmd_pool;
+  GFXCommandPool<GLES3CmdBindStates> bind_states_cmd_pool;
+  GFXCommandPool<GLES3CmdDraw> draw_cmd_pool;
+  GFXCommandPool<GLES3CmdUpdateBuffer> update_buffer_cmd_pool;
+  GFXCommandPool<GLES3CmdCopyBufferToTexture> copy_buffer_to_texture_cmd_pool;
   
 public:
   bool Initialize(const GFXCommandAllocatorInfo& info);

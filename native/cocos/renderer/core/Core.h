@@ -23,5 +23,7 @@
 #include "gfx/GFXCommandAllocator.h"
 #include "gfx/GFXCommandBuffer.h"
 #include "gfx/GFXQueue.h"
+#include "gfx/GFXCommand.h"
+#include "gfx/GFXCommandPool.h"
 
 #endif // CC_CORE_CORE_H_

@@ -81,12 +81,12 @@ void GLES3CommandBuffer::BeginRenderPass(GFXFramebuffer* fbo, const GFXRect& ren
   cmd->clear_stencil = stencil;
 
   cmd_package_->begin_render_pass_cmds.Push(cmd);
-  cmd_package_->cmd_types.Push(GLES3CmdType::BEGIN_RENDER_PASS);
+  cmd_package_->cmd_types.Push(GFXCmdType::BEGIN_RENDER_PASS);
 }
 
 void GLES3CommandBuffer::EndRenderPass() {
   is_in_render_pass_ = false;
-  cmd_package_->cmd_types.Push(GLES3CmdType::END_RENDER_PASS);
+  cmd_package_->cmd_types.Push(GFXCmdType::END_RENDER_PASS);
 }
 
 void GLES3CommandBuffer::BindPipelineState(GFXPipelineState* pso) {
@@ -198,7 +198,7 @@ void GLES3CommandBuffer::Draw(GFXInputAssembler* ia) {
     GLES3CmdDraw* cmd = gles3_allocator_->draw_cmd_pool.Alloc();
     ((GLES3InputAssembler*)ia)->ExtractCmdDraw(cmd);
     cmd_package_->draw_cmds.Push(cmd);
-    cmd_package_->cmd_types.Push(GLES3CmdType::DRAW);
+    cmd_package_->cmd_types.Push(GFXCmdType::DRAW);
     
     ++num_draw_calls_;
     if(cur_gpu_pso_) {
@@ -233,7 +233,7 @@ void GLES3CommandBuffer::UpdateBuffer(GFXBuffer* buff, void* data, uint size, ui
       cmd->offset = offset;
       
       cmd_package_->update_buffer_cmds.Push(cmd);
-      cmd_package_->cmd_types.Push(GLES3CmdType::UPDATE_BUFFER);
+      cmd_package_->cmd_types.Push(GFXCmdType::UPDATE_BUFFER);
     }
   } else {
     CC_LOG_ERROR("Command 'UpdateBuffer' must be recorded inside a render pass.");
@@ -256,7 +256,7 @@ void GLES3CommandBuffer::CopyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GF
       }
       
       cmd_package_->copy_buffer_to_texture_cmds.Push(cmd);
-      cmd_package_->cmd_types.Push(GLES3CmdType::COPY_BUFFER_TO_TEXTURE);
+      cmd_package_->cmd_types.Push(GFXCmdType::COPY_BUFFER_TO_TEXTURE);
     }
   } else {
     CC_LOG_ERROR("Command 'CopyBufferToTexture' must be recorded inside a render pass.");
@@ -317,7 +317,7 @@ void GLES3CommandBuffer::BindStates() {
   cmd->stencil_compare_mask = cur_stencil_compare_mask_;
   
   cmd_package_->bind_states_cmds.Push(cmd);
-  cmd_package_->cmd_types.Push(GLES3CmdType::BIND_STATES);
+  cmd_package_->cmd_types.Push(GFXCmdType::BIND_STATES);
   is_state_invalid_ = false;
 }
 

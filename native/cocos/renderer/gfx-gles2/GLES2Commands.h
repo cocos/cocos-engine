@@ -45,28 +45,7 @@ struct GLES2BufferTextureCopy {
   GLES2TextureSubres tex_subres;
 };
 
-enum class GLES2CmdType : uint8_t {
-  BEGIN_RENDER_PASS,
-  END_RENDER_PASS,
-  BIND_STATES,
-  DRAW,
-  UPDATE_BUFFER,
-  COPY_BUFFER_TO_TEXTURE,
-  COUNT,
-};
-
-class GLES2Cmd : public Object {
- public:
-  GLES2CmdType type;
-  uint ref_count = 0;
-  
-  GLES2Cmd(GLES2CmdType _type) : type(_type) {}
-  virtual ~GLES2Cmd() {}
-
-  virtual void Clear() = 0;
-};
-
-class GLES2CmdBeginRenderPass : public GLES2Cmd {
+class GLES2CmdBeginRenderPass : public GFXCmd {
  public:
   GLES2GPUFramebuffer* gpu_fbo = nullptr;
   GFXRect render_area;
@@ -76,7 +55,7 @@ class GLES2CmdBeginRenderPass : public GLES2Cmd {
   float clear_depth = 1.0f;
   int clear_stencil = 0;
   
-  GLES2CmdBeginRenderPass() : GLES2Cmd(GLES2CmdType::BEGIN_RENDER_PASS) {}
+  GLES2CmdBeginRenderPass() : GFXCmd(GFXCmdType::BEGIN_RENDER_PASS) {}
   
   void Clear() {
     gpu_fbo = nullptr;
@@ -96,7 +75,7 @@ enum class GLES2State : uint8_t {
   COUNT,
 };
 
-class GLES2CmdBindStates : public GLES2Cmd {
+class GLES2CmdBindStates : public GFXCmd {
  public:
   GLES2GPUPipelineState* gpu_pso = nullptr;
   GLES2GPUBindingLayout* gpu_binding_layout = nullptr;
@@ -111,7 +90,7 @@ class GLES2CmdBindStates : public GLES2Cmd {
   GLES2StencilWriteMask stencil_write_mask;
   GLES2StencilCompareMask stencil_compare_mask;
   
-  GLES2CmdBindStates() : GLES2Cmd(GLES2CmdType::BIND_STATES) {}
+  GLES2CmdBindStates() : GFXCmd(GFXCmdType::BIND_STATES) {}
   
   void Clear() {
     gpu_pso = nullptr;
@@ -121,22 +100,22 @@ class GLES2CmdBindStates : public GLES2Cmd {
   }
 };
 
-class GLES2CmdDraw : public GLES2Cmd {
+class GLES2CmdDraw : public GFXCmd {
  public:
   GFXDrawInfo draw_info;
   
-  GLES2CmdDraw() : GLES2Cmd(GLES2CmdType::DRAW) {}
+  GLES2CmdDraw() : GFXCmd(GFXCmdType::DRAW) {}
   void Clear() {}
 };
 
-class GLES2CmdUpdateBuffer : public GLES2Cmd {
+class GLES2CmdUpdateBuffer : public GFXCmd {
  public:
   GLES2GPUBuffer* gpu_buffer = nullptr;
   uint8_t* buffer = nullptr;
   uint size = 0;
   uint offset = 0;
   
-  GLES2CmdUpdateBuffer() : GLES2Cmd(GLES2CmdType::UPDATE_BUFFER) {}
+  GLES2CmdUpdateBuffer() : GFXCmd(GFXCmdType::UPDATE_BUFFER) {}
   
   void Clear() {
     gpu_buffer = nullptr;
@@ -144,14 +123,14 @@ class GLES2CmdUpdateBuffer : public GLES2Cmd {
   }
 };
 
-class GLES2CmdCopyBufferToTexture : public GLES2Cmd {
+class GLES2CmdCopyBufferToTexture : public GFXCmd {
  public:
   GLES2GPUBuffer* gpu_buffer = nullptr;
   GLES2GPUTexture* gpu_texture = nullptr;
   GFXTextureLayout dst_layout;
   GFXBufferTextureCopyList regions;
   
-  GLES2CmdCopyBufferToTexture() : GLES2Cmd(GLES2CmdType::COPY_BUFFER_TO_TEXTURE) {}
+  GLES2CmdCopyBufferToTexture() : GFXCmd(GFXCmdType::COPY_BUFFER_TO_TEXTURE) {}
   
   void Clear() {
     gpu_buffer = nullptr;
@@ -162,7 +141,7 @@ class GLES2CmdCopyBufferToTexture : public GLES2Cmd {
 
 class GLES2CmdPackage : public Object {
  public:
-  CachedArray<GLES2CmdType> cmd_types;
+  CachedArray<GFXCmdType> cmd_types;
   CachedArray<GLES2CmdBeginRenderPass*> begin_render_pass_cmds;
   CachedArray<GLES2CmdBindStates*> bind_states_cmds;
   CachedArray<GLES2CmdDraw*> draw_cmds;

@@ -1126,7 +1126,7 @@ void GLES2CmdFuncDestroyFramebuffer(GLES2Device* device, GLES2GPUFramebuffer* gp
 }
 
 void GLES2CmdFuncExecuteCmds(GLES2Device* device, GLES2CmdPackage* cmd_package) {
-  static uint cmd_indices[(int)GLES2CmdType::COUNT] = {0};
+  static uint cmd_indices[(int)GFXCmdType::COUNT] = {0};
   static GLenum gl_attachments[GFX_MAX_ATTACHMENTS] = {0};
   
   memset(cmd_indices, 0, sizeof(cmd_indices));
@@ -1143,11 +1143,11 @@ void GLES2CmdFuncExecuteCmds(GLES2Device* device, GLES2CmdPackage* cmd_package) 
   GLenum gl_min_filter;
   
   for (uint i = 0; i < cmd_package->cmd_types.Size(); ++i) {
-    GLES2CmdType cmd_type = cmd_package->cmd_types[i];
+    GFXCmdType cmd_type = cmd_package->cmd_types[i];
     uint cmd_idx = cmd_indices[(int)cmd_type];
     
     switch (cmd_type) {
-      case GLES2CmdType::BEGIN_RENDER_PASS: {
+      case GFXCmdType::BEGIN_RENDER_PASS: {
         GLES2CmdBeginRenderPass* cmd = cmd_package->begin_render_pass_cmds[cmd_idx];
         cmd_begin_render_pass = cmd;
         if (cmd->gpu_fbo) {
@@ -1291,7 +1291,7 @@ void GLES2CmdFuncExecuteCmds(GLES2Device* device, GLES2CmdPackage* cmd_package) 
         }
         break;
       }
-      case GLES2CmdType::END_RENDER_PASS: {
+      case GFXCmdType::END_RENDER_PASS: {
         GLES2CmdBeginRenderPass* cmd = cmd_begin_render_pass;
         uint num_attachments = 0;
         for (uint j = 0; j < cmd->num_clear_colors; ++j) {
@@ -1344,7 +1344,7 @@ void GLES2CmdFuncExecuteCmds(GLES2Device* device, GLES2CmdPackage* cmd_package) 
         }
         break;
       }
-      case GLES2CmdType::BIND_STATES: {
+      case GFXCmdType::BIND_STATES: {
         GLES2CmdBindStates* cmd = cmd_package->bind_states_cmds[cmd_idx];
         is_shader_changed = false;
         if (cmd->gpu_pso) {
@@ -1842,7 +1842,7 @@ void GLES2CmdFuncExecuteCmds(GLES2Device* device, GLES2CmdPackage* cmd_package) 
         
         break;
       }
-      case GLES2CmdType::DRAW: {
+      case GFXCmdType::DRAW: {
         GLES2CmdDraw* cmd = cmd_package->draw_cmds[cmd_idx];
         if (gpu_ia && gpu_pso) {
           if (!gpu_ia->gpu_indirect_buffer) {
@@ -1893,12 +1893,12 @@ void GLES2CmdFuncExecuteCmds(GLES2Device* device, GLES2CmdPackage* cmd_package) 
         }
         break;
       }
-      case GLES2CmdType::UPDATE_BUFFER: {
+      case GFXCmdType::UPDATE_BUFFER: {
         GLES2CmdUpdateBuffer* cmd = cmd_package->update_buffer_cmds[cmd_idx];
         GLES2CmdFuncUpdateBuffer(device, cmd->gpu_buffer, cmd->buffer, cmd->offset, cmd->size);
         break;
       }
-      case GLES2CmdType::COPY_BUFFER_TO_TEXTURE: {
+      case GFXCmdType::COPY_BUFFER_TO_TEXTURE: {
         GLES2CmdCopyBufferToTexture* cmd = cmd_package->copy_buffer_to_texture_cmds[cmd_idx];
         GLES2CmdFuncCopyBuffersToTexture(device, &(cmd->gpu_buffer->buffer), 1, cmd->gpu_texture, cmd->regions);
         break;

@@ -1243,7 +1243,7 @@ void GLES3CmdFuncDestroyFramebuffer(GLES3Device* device, GLES3GPUFramebuffer* gp
 }
 
 void GLES3CmdFuncExecuteCmds(GLES3Device* device, GLES3CmdPackage* cmd_package) {
-  static uint cmd_indices[(int)GLES3CmdType::COUNT] = {0};
+  static uint cmd_indices[(int)GFXCmdType::COUNT] = {0};
   static GLenum gl_attachments[GFX_MAX_ATTACHMENTS] = {0};
   
   memset(cmd_indices, 0, sizeof(cmd_indices));
@@ -1257,11 +1257,11 @@ void GLES3CmdFuncExecuteCmds(GLES3Device* device, GLES3CmdPackage* cmd_package) 
   GLES3CmdBeginRenderPass* cmd_begin_render_pass = nullptr;
   
   for (uint i = 0; i < cmd_package->cmd_types.Size(); ++i) {
-    GLES3CmdType cmd_type = cmd_package->cmd_types[i];
+    GFXCmdType cmd_type = cmd_package->cmd_types[i];
     uint cmd_idx = cmd_indices[(int)cmd_type];
     
     switch (cmd_type) {
-      case GLES3CmdType::BEGIN_RENDER_PASS: {
+      case GFXCmdType::BEGIN_RENDER_PASS: {
         GLES3CmdBeginRenderPass* cmd = cmd_package->begin_render_pass_cmds[cmd_idx];
         cmd_begin_render_pass = cmd;
         if (cmd->gpu_fbo) {
@@ -1412,7 +1412,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device* device, GLES3CmdPackage* cmd_package) 
         }
         break;
       }
-      case GLES3CmdType::END_RENDER_PASS: {
+      case GFXCmdType::END_RENDER_PASS: {
         GLES3CmdBeginRenderPass* cmd = cmd_begin_render_pass;
         uint num_attachments = 0;
         for (uint j = 0; j < cmd->num_clear_colors; ++j) {
@@ -1465,7 +1465,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device* device, GLES3CmdPackage* cmd_package) 
         }
         break;
       }
-      case GLES3CmdType::BIND_STATES: {
+      case GFXCmdType::BIND_STATES: {
         GLES3CmdBindStates* cmd = cmd_package->bind_states_cmds[cmd_idx];
         is_shader_changed = false;
         if (cmd->gpu_pso) {
@@ -1809,7 +1809,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device* device, GLES3CmdPackage* cmd_package) 
         
         break;
       }
-      case GLES3CmdType::DRAW: {
+      case GFXCmdType::DRAW: {
         GLES3CmdDraw* cmd = cmd_package->draw_cmds[cmd_idx];
         if (gpu_ia && gpu_pso) {
           if (!gpu_ia->gpu_indirect_buffer) {
@@ -1851,12 +1851,12 @@ void GLES3CmdFuncExecuteCmds(GLES3Device* device, GLES3CmdPackage* cmd_package) 
         }
         break;
       }
-      case GLES3CmdType::UPDATE_BUFFER: {
+      case GFXCmdType::UPDATE_BUFFER: {
         GLES3CmdUpdateBuffer* cmd = cmd_package->update_buffer_cmds[cmd_idx];
         GLES3CmdFuncUpdateBuffer(device, cmd->gpu_buffer, cmd->buffer, cmd->offset, cmd->size);
         break;
       }
-      case GLES3CmdType::COPY_BUFFER_TO_TEXTURE: {
+      case GFXCmdType::COPY_BUFFER_TO_TEXTURE: {
         GLES3CmdCopyBufferToTexture* cmd = cmd_package->copy_buffer_to_texture_cmds[cmd_idx];
         GLES3CmdFuncCopyBuffersToTexture(device, &(cmd->gpu_buffer->buffer), 1, cmd->gpu_texture, cmd->regions);
         break;

@@ -1,14 +1,13 @@
-#ifndef CC_GFXGLES2_GLES2_COMMAND_POOL_H_
-#define CC_GFXGLES2_GLES2_COMMAND_POOL_H_
+#pragma once
 
-#include "GLES2Commands.h"
+#include "GFXCommand.h"
 
 NS_CC_BEGIN
 
-template <typename T, typename = std::enable_if<std::is_base_of<GLES2Cmd, T>::value>>
-class GLES2CommandPool {
+template <typename T, typename = std::enable_if<std::is_base_of<GFXCmd, T>::value>>
+class GFXCommandPool {
  public:
-  GLES2CommandPool(): free_cmds_(1) {
+  GFXCommandPool(): free_cmds_(1) {
     frees_ = new T*[1];
     count_ = 1;
     free_idx_ = 0;
@@ -17,7 +16,7 @@ class GLES2CommandPool {
     }
   }
   
-  ~GLES2CommandPool() {
+  ~GFXCommandPool() {
     for (uint i = 0; i < count_; ++i) {
       CC_DELETE(frees_[i]);
     }
@@ -85,5 +84,3 @@ class GLES2CommandPool {
 };
 
 NS_CC_END
-
-#endif
