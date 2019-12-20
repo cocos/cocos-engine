@@ -374,6 +374,7 @@ export class WebGLGFXDevice extends GFXDevice {
 
         if (this._OES_vertex_array_object) {
             if (CC_RUNTIME_BASED) {
+                // @ts-ignore
                 if (loadRuntime() && typeof loadRuntime().getFeature === 'function' && loadRuntime().getFeature("webgl.extensions.oes_vertex_array_object.revision") > 0 ) {
                     this._useVAO = true;
                 }
