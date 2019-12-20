@@ -165,7 +165,7 @@ export class ImageAsset extends Asset {
         }
 
         if (nativeAsset !== undefined) {
-            this._nativeAsset = nativeAsset;
+            this.reset(nativeAsset);
         }
     }
 
@@ -177,7 +177,7 @@ export class ImageAsset extends Asset {
         if (!(data instanceof HTMLElement)) {
             // this._nativeData = Object.create(data);
             this._nativeData = data;
-            this._nativeData.format = this._format;
+            this._format = data.format;
             this._onDataComplete();
         } else {
             this._nativeData = data;
