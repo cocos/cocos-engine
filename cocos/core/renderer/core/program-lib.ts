@@ -310,16 +310,12 @@ class ProgramLib {
         if (!tmpl.globalsInited) { insertBuiltinBindings(tmpl, pipeline.globalBindings, 'globals'); tmpl.globalsInited = true; }
 
         const macroArray = prepareDefines(defines, tmpl.defines);
-        const customDef = macroArray.reduce((acc, cur) => `${acc}#define ${cur.name} ${cur.value}\n`, '');
+        const prefix = macroArray.reduce((acc, cur) => `${acc}#define ${cur.name} ${cur.value}\n`, '') + '\n';
 
-        let vert: string = '';
-        let frag: string = '';
-        if (device.gfxAPI === GFXAPI.WEBGL2) {
-            vert = `#version 300 es\n${customDef}\n${tmpl.glsl3.vert}`;
-            frag = `#version 300 es\n${customDef}\n${tmpl.glsl3.frag}`;
-        } else {
-            vert = `#version 100\n${customDef}\n${tmpl.glsl1.vert}`;
-            frag = `#version 100\n${customDef}\n${tmpl.glsl1.frag}`;
+        let src = tmpl.glsl3;
+        switch (device.gfxAPI) {
+            case GFXAPI.WEBGL2: src = tmpl.glsl3; break;
+            default:            src = tmpl.glsl1; break;
         }
 
         const blocks: IBlockInfoRT[] = [];
@@ -331,8 +327,8 @@ class ProgramLib {
             name: getShaderInstanceName(name, macroArray),
             blocks, samplers,
             stages: [
-                { type: GFXShaderType.VERTEX, source: vert },
-                { type: GFXShaderType.FRAGMENT, source: frag },
+                { type: GFXShaderType.VERTEX, source: prefix + src.vert },
+                { type: GFXShaderType.FRAGMENT, source: prefix + src.frag },
             ],
         });
         return this._cache[key] = { shader, bindings };
