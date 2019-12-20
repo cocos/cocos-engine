@@ -105,66 +105,38 @@ LOCAL_STATIC_LIBRARIES += uv_static
 LOCAL_STATIC_LIBRARIES += v8_inspector
 LOCAL_STATIC_LIBRARIES += cocos_extension_static
 
-# opengl bindings depend on GFXUtils "_JSB_GL_CHECK"
-LOCAL_SRC_FILES += \
-renderer/gfx/GFXUtils.cpp
-
 ifeq ($(USE_GFX_RENDERER),1)
 LOCAL_SRC_FILES += \
-renderer/Types.cpp \
-renderer/gfx/DeviceGraphics.cpp \
-renderer/gfx/FrameBuffer.cpp \
-renderer/gfx/GFX.cpp \
-renderer/gfx/GraphicsHandle.cpp \
-renderer/gfx/IndexBuffer.cpp \
-renderer/gfx/Program.cpp \
-renderer/gfx/RenderBuffer.cpp \
-renderer/gfx/RenderTarget.cpp \
-renderer/gfx/State.cpp \
-renderer/gfx/Texture.cpp \
-renderer/gfx/Texture2D.cpp \
-renderer/gfx/VertexBuffer.cpp \
-renderer/gfx/VertexFormat.cpp \
-renderer/renderer/BaseRenderer.cpp \
-renderer/renderer/Camera.cpp \
-renderer/renderer/Config.cpp \
-renderer/renderer/Effect.cpp \
-renderer/renderer/InputAssembler.cpp \
-renderer/renderer/Light.cpp \
-renderer/renderer/Model.cpp \
-renderer/renderer/Pass.cpp \
-renderer/renderer/ProgramLib.cpp \
-renderer/renderer/Scene.cpp \
-renderer/renderer/Technique.cpp \
-renderer/renderer/View.cpp \
-renderer/renderer/ForwardRenderer.cpp \
-renderer/scene/assembler/Assembler.cpp \
-renderer/scene/assembler/AssemblerBase.cpp \
-renderer/scene/assembler/CustomAssembler.cpp \
-renderer/scene/assembler/MaskAssembler.cpp \
-renderer/scene/assembler/RenderData.cpp \
-renderer/scene/assembler/RenderDataList.cpp \
-renderer/scene/assembler/TiledMapAssembler.cpp \
-renderer/scene/assembler/AssemblerSprite.cpp \
-renderer/scene/assembler/SimpleSprite2D.cpp \
-renderer/scene/assembler/SlicedSprite2D.cpp \
-renderer/scene/assembler/SimpleSprite3D.cpp \
-renderer/scene/assembler/SlicedSprite3D.cpp \
-renderer/scene/assembler/MeshAssembler.cpp \
-renderer/scene/MeshBuffer.cpp \
-renderer/scene/ModelBatcher.cpp \
-renderer/scene/NodeProxy.cpp \
-renderer/scene/RenderFlow.cpp \
-renderer/scene/StencilManager.cpp \
-renderer/scene/MemPool.cpp \
-renderer/scene/NodeMemPool.cpp \
-renderer/scene/ParallelTask.cpp \
-renderer/memop/RecyclePool.hpp \
-renderer/renderer/CustomProperties.cpp \
-scripting/js-bindings/auto/jsb_gfx_auto.cpp \
-scripting/js-bindings/auto/jsb_renderer_auto.cpp \
-scripting/js-bindings/manual/jsb_renderer_manual.cpp \
-scripting/js-bindings/manual/jsb_gfx_manual.cpp
+renderer/core/CoreStd.cc \
+renderer/core/gfx/GFXBindingLayout.cc \
+renderer/core/gfx/GFXDevice.cc \
+renderer/core/gfx/GFXRenderPass.cc \
+renderer/core/gfx/GFXBuffer.cc \
+renderer/core/gfx/GFXFramebuffer.cc \
+renderer/core/gfx/GFXSampler.cc \
+renderer/core/gfx/GFXCommandAllocator.cc \
+renderer/core/gfx/GFXInputAssembler.cc \
+renderer/core/gfx/GFXShader.cc \
+renderer/core/gfx/GFXCommandBuffer.cc \
+renderer/core/gfx/GFXPipelineLayout.cc \
+renderer/core/gfx/GFXTexture.cc \
+renderer/core/gfx/GFXContext.cc \
+renderer/core/gfx/GFXPipelineState.cc \
+renderer/core/gfx/GFXTextureView.cc \
+renderer/core/gfx/GFXDef.cc \
+renderer/core/gfx/GFXQueue.cc \
+renderer/core/gfx/GFXWindow.cc \
+renderer/core/kernel/Assertion.cc \
+renderer/core/kernel/Log.cc \
+renderer/core/kernel/UTFString.cc \
+renderer/core/memory/AllocatedObj.cc \
+renderer/core/memory/JeAlloc.cc \
+renderer/core/memory/Memory.cc \
+renderer/core/memory/MemTracker.cc \
+renderer/core/memory/NedPooling.cc \
+renderer/core/math/CCMath.cc \
+renderer/core/util/StringUtil.cc \
+renderer/core/util/GFXUtils.cpp
 endif # USE_GFX_RENDERER
 
 ifeq ($(USE_VIDEO),1)
@@ -197,21 +169,16 @@ LOCAL_STATIC_LIBRARIES += cocos_ssl_static
 LOCAL_STATIC_LIBRARIES += cocos_crypto_static
 endif # USE_SOCKET
 
-ifneq ($(USE_MIDDLEWARE),0)
-LOCAL_STATIC_LIBRARIES += editor_support_static
-endif # USE_MIDDLEWARE
-
 LOCAL_C_INCLUDES := $(LOCAL_PATH) \
                     $(LOCAL_PATH)/.. \
                     $(LOCAL_PATH)/platform \
-                    $(LOCAL_PATH)/editor-support \
                     $(LOCAL_PATH)/../external/android/$(TARGET_ARCH_ABI)/include \
                     $(LOCAL_PATH)/../external/sources \
                     $(LOCAL_PATH)/renderer \
                     $(LOCAL_PATH)/scripting/js-bindings/manual \
                     $(LOCAL_PATH)/scripting/js-bindings/manual/platform/android \
                     $(LOCAL_PATH)/scripting/js-bindings/auto \
-                    $(LOCAL_PATH)/renderer/gfx
+                    $(LOCAL_PATH)/renderer/core
 
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH) \
                     $(LOCAL_PATH)/.. \
@@ -234,7 +201,7 @@ LOCAL_STATIC_LIBRARIES += cocos_zlib_static
 LOCAL_STATIC_LIBRARIES += v8_static
 
 LOCAL_WHOLE_STATIC_LIBRARIES := cocos2dxandroid_static
-LOCAL_WHOLE_STATIC_LIBRARIES += cpufeatures 
+LOCAL_WHOLE_STATIC_LIBRARIES += cpufeatures
 
 # define the macro to compile through support/zip_support/ioapi.c
 LOCAL_CFLAGS := -DUSE_FILE32API -fexceptions
@@ -254,7 +221,6 @@ include $(BUILD_STATIC_LIBRARY)
 #==============================================================
 #$(call import-module,.)
 $(call import-module,android)
-$(call import-module,editor-support)
 $(call import-module,platform/android)
 $(call import-module,audio/android)
 $(call import-module,extensions)
