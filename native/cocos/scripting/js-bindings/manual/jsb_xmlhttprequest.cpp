@@ -1091,6 +1091,10 @@ static bool XMLHttpRequest_setResponseType(se::State& s)
         {
             xhr->setResponseType(XMLHttpRequest::ResponseType::DOCUMENT);
         }
+        else if (type == "blob")
+        {
+            xhr->setResponseType(XMLHttpRequest::ResponseType::BLOB);
+        }
         else
         {
             SE_PRECONDITION2(false, false, "The response type isn't supported!");
