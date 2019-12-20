@@ -1,28 +1,33 @@
 /**
  * @category terrain
  */
-
+import { builtinResMgr } from '../core/3d/builtin';
+import { Component } from '../core/components';
+import { director } from '../core/director';
+// tslint:disable-next-line: ordered-imports
 import { Material } from '../core/assets/material';
 import { IRenderingSubmesh } from '../core/assets/mesh';
-import { builtinResMgr } from '../core/3d/builtin';
+// tslint:disable-next-line: ordered-imports
 import { RenderableComponent } from '../core/3d/framework/renderable-component';
-import { Texture2D, EffectAsset } from '../core/assets';
+import { Root } from '../core/root';
+// tslint:disable-next-line: ordered-imports
 import { Filter, PixelFormat, WrapMode } from '../core/assets/asset-enum';
-import { Component } from '../core/components';
-import { ccclass, executeInEditMode, menu, property } from '../core/data/class-decorator';
+// tslint:disable-next-line: ordered-imports
+import { ccclass, executeInEditMode, menu, property, disallowMultiple } from '../core/data/class-decorator';
 import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '../core/math';
+// tslint:disable-next-line: ordered-imports
 import { GFXBuffer } from '../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXPrimitiveMode } from '../core/gfx/define';
 import { GFXDevice } from '../core/gfx/device';
 import { IGFXAttribute } from '../core/gfx/input-assembler';
 import { Model } from '../core/renderer/scene/model';
 import { PrivateNode } from '../core/scene-graph/private-node';
+// tslint:disable-next-line: ordered-imports
 import { IDefineMap } from '../core/renderer/core/pass';
 import { HeightField } from './height-field';
-import { TerrainAsset } from './terrain-asset';
-import { director } from '../core/director';
-import { Root } from '../core/root';
-import { validateMethodWithProps } from '../core/data/utils/preprocess-class';
+// tslint:disable-next-line: ordered-imports
+import { Texture2D } from '../core/assets';
+import { TerrainAsset, TerrainLayerInfo } from './terrain-asset';
 
 export const TERRAIN_MAX_LEVELS = 4;
 export const TERRAIN_MAX_BLEND_LAYERS = 4;
@@ -30,12 +35,12 @@ export const TERRAIN_MAX_LAYER_COUNT = 256;
 export const TERRAIN_BLOCK_TILE_COMPLEXITY = 32;
 export const TERRAIN_BLOCK_VERTEX_COMPLEXITY = 33;
 export const TERRAIN_BLOCK_VERTEX_SIZE = 8; // position + normal + uv
+export const TERRAIN_HEIGHT_BASE = 32768;
+export const TERRAIN_HEIGHT_FACTORY = 1.0 / 512.0;
 export const TERRAIN_NORTH_INDEX = 0;
 export const TERRAIN_SOUTH_INDEX = 1;
 export const TERRAIN_WEST_INDEX = 2;
 export const TERRAIN_EAST_INDEX = 3;
-export const TERRAIN_HEIGHT_BASE = 32768;
-export const TERRAIN_HEIGHT_FACTORY = 1.0 / 512.0;
 
 /**
  * 地形信息。
@@ -43,7 +48,7 @@ export const TERRAIN_HEIGHT_FACTORY = 1.0 / 512.0;
 @ccclass('cc.TerrainInfo')
 export class TerrainInfo {
     @property({
-        tooltip:'地形Tile的大小',
+        tooltip: '地形Tile的大小',
     })
     public tileSize: number = 1;
     @property
@@ -54,7 +59,7 @@ export class TerrainInfo {
     public lightMapSize: number = 128;
 
     public get size () {
-        let sz = new Size(0, 0);
+        const sz = new Size(0, 0);
         sz.width = this.blockCount[0] * TERRAIN_BLOCK_TILE_COMPLEXITY * this.tileSize;
         sz.height = this.blockCount[1] * TERRAIN_BLOCK_TILE_COMPLEXITY * this.tileSize;
 
@@ -62,7 +67,7 @@ export class TerrainInfo {
     }
 
     public get tileCount () {
-        let _tileCount = [0, 0];
+        const _tileCount = [0, 0];
         _tileCount[0] = this.blockCount[0] * TERRAIN_BLOCK_TILE_COMPLEXITY;
         _tileCount[1] = this.blockCount[1] * TERRAIN_BLOCK_TILE_COMPLEXITY;
 
@@ -70,7 +75,7 @@ export class TerrainInfo {
     }
 
     public get vertexCount () {
-        let _vertexCount = this.tileCount;
+        const _vertexCount = this.tileCount;
         _vertexCount[0] += 1;
         _vertexCount[1] += 1;
 
@@ -81,11 +86,11 @@ export class TerrainInfo {
 @ccclass('cc.TerrainLayer')
 export class TerrainLayer {
     @property({
-        tooltip:'当前Layer的纹理',
+        tooltip: '当前Layer的纹理',
     })
     public detailMap: Texture2D|null = null;
     @property({
-        tooltip:'纹理的平铺大小，值越小会在同样大小的区域内进行更多次的平铺',
+        tooltip: '纹理的平铺大小，值越小会在同样大小的区域内进行更多次的平铺',
     })
     public tileSize: number = 1;
 }
@@ -267,6 +272,7 @@ export class TerrainBlock {
 
         this._renderable._model = (cc.director.root as Root).createModel(Model);
         this._renderable._model.initialize(this._node);
+        this._renderable._getRenderScene().addModel(this._renderable._model);
 
         // reset weightmap
         this._updateWeightMap();
@@ -562,7 +568,7 @@ export class TerrainBlock {
         this._weightMap.uploadData(weightData.buffer);
     }
 
-    public _updateLightmap(tex: Texture2D|null, uoff: number, voff: number, uscale: number, vscale: number) {
+    public _updateLightmap (tex: Texture2D|null, uoff: number, voff: number, uscale: number, vscale: number) {
         this._info.lightMap = tex;
         this._info.lightMapUOff = uoff;
         this._info.lightMapVOff = voff;
@@ -573,8 +579,9 @@ export class TerrainBlock {
 }
 
 @ccclass('cc.Terrain')
-@menu('Components/Terrain')
+// @menu('Components/Terrain')
 @executeInEditMode
+@disallowMultiple
 export class Terrain extends Component {
     @property({
         type: TerrainAsset,
@@ -597,8 +604,8 @@ export class Terrain extends Component {
     protected _blockCount: number[] = [1, 1];
     protected _weightMapSize: number = 128;
     protected _lightMapSize: number = 128;
-    protected _heights: Uint16Array = new Uint16Array;
-    protected _weights: Uint8Array = new Uint8Array;
+    protected _heights: Uint16Array = new Uint16Array();
+    protected _weights: Uint8Array = new Uint8Array();
     protected _normals: number[] = [];
     protected _blocks: TerrainBlock[] = [];
     protected _sharedIndexBuffer: GFXBuffer|null = null;
@@ -615,9 +622,10 @@ export class Terrain extends Component {
     @property({
         type: TerrainAsset,
         visible: true,
+        serializable: false,
     })
-    public set _asset(value: TerrainAsset|null) {
-        if (this.__asset != value) {
+    public set _asset (value: TerrainAsset|null) {
+        if (this.__asset !== value) {
             this.__asset = value;
             if (this.__asset != null && this.valid) {
                 // rebuild
@@ -631,12 +639,12 @@ export class Terrain extends Component {
         }
     }
 
-    public get _asset() {
+    public get _asset () {
         return  this.__asset;
     }
 
     public get size () {
-        let sz = new Size(0, 0);
+        const sz = new Size(0, 0);
         sz.width = this.blockCount[0] * TERRAIN_BLOCK_TILE_COMPLEXITY * this.tileSize;
         sz.height = this.blockCount[1] * TERRAIN_BLOCK_TILE_COMPLEXITY * this.tileSize;
         return sz;
@@ -647,15 +655,11 @@ export class Terrain extends Component {
     }
 
     public get tileCount () {
-         let _tileCount = [0, 0];
-        _tileCount[0] = this.blockCount[0] * TERRAIN_BLOCK_TILE_COMPLEXITY;
-        _tileCount[1] = this.blockCount[1] * TERRAIN_BLOCK_TILE_COMPLEXITY;
-
-        return _tileCount;
+        return [this.blockCount[0] * TERRAIN_BLOCK_TILE_COMPLEXITY, this.blockCount[1] * TERRAIN_BLOCK_TILE_COMPLEXITY];
     }
 
     public get vertexCount () {
-        let _vertexCount = this.tileCount;
+        const _vertexCount = this.tileCount;
         _vertexCount[0] += 1;
         _vertexCount[1] += 1;
 
@@ -691,7 +695,7 @@ export class Terrain extends Component {
         visible: true,
     })
     public get info () {
-        let ti = new TerrainInfo;
+        const ti = new TerrainInfo();
         ti.tileSize = this.tileSize;
         ti.blockCount[0] = this.blockCount[0];
         ti.blockCount[1] = this.blockCount[1];
@@ -802,10 +806,10 @@ export class Terrain extends Component {
         }
     }
 
-    public exportAsset() {
+    public exportAsset () {
         let asset = this._asset;
         if (asset == null) {
-            asset = new TerrainAsset;
+            asset = new TerrainAsset();
         }
 
         asset.tileSize = this.tileSize;
@@ -814,12 +818,24 @@ export class Terrain extends Component {
         asset.weightMapSize = this.weightMapSize;
         asset.heights = this.heights;
         asset.weights = this.weights;
+
         asset.layerBuffer = new Array<number>(this._blocks.length * 4);
         for (let i = 0; i < this._blocks.length; ++i) {
-            asset.layerBuffer[i * 4 + 0] + this._blocks[i].layers[0];
-            asset.layerBuffer[i * 4 + 1] + this._blocks[i].layers[1];
-            asset.layerBuffer[i * 4 + 2] + this._blocks[i].layers[2];
-            asset.layerBuffer[i * 4 + 3] + this._blocks[i].layers[3];
+            asset.layerBuffer[i * 4 + 0] = this._blocks[i].layers[0];
+            asset.layerBuffer[i * 4 + 1] = this._blocks[i].layers[1];
+            asset.layerBuffer[i * 4 + 2] = this._blocks[i].layers[2];
+            asset.layerBuffer[i * 4 + 3] = this._blocks[i].layers[3];
+        }
+
+        for (let i = 0; i < this._layers.length; ++i) {
+            const tlayer = this._layers[i];
+            if (tlayer != null && tlayer.detailMap != null) {
+                const ilayer = new TerrainLayerInfo();
+                ilayer.slot = i;
+                ilayer.tileSize = tlayer.tileSize;
+                ilayer.detailMap = tlayer.detailMap._uuid;
+                asset.layerInfos.push(ilayer);
+            }
         }
 
         return asset;
@@ -883,7 +899,7 @@ export class Terrain extends Component {
         }
     }
 
-    public onRestore() {
+    public onRestore () {
         this.onDisable();
         this.onLoad();
         this._buildImp();
@@ -915,7 +931,12 @@ export class Terrain extends Component {
     }
 
     public getLayer (id: number) {
+        if (id === -1) {
+            return null;
+        }
+
         return this._layers[id];
+
     }
 
     public getPosition (i: number, j: number) {
@@ -1138,16 +1159,19 @@ export class Terrain extends Component {
         return this._sharedIndexBuffer;
     }
 
-    public rayCheck (start: Vec3, dir: Vec3, step: number) {
+    public rayCheck (start: Vec3, dir: Vec3, step: number, worldspace: boolean = true) {
         const MAX_COUNT = 2000;
 
-        let i = 0;
         const trace = start;
-        let position: Vec3|null = null;
+        if (worldspace) {
+            Vec3.subtract(trace, start, this.node.getWorldPosition());
+        }
 
         const dstep = new Vec3();
         dstep.set(dir);
         dstep.multiplyScalar(step);
+
+        let position: Vec3|null = null;
 
         if (dir.equals(new Vec3(0, 1, 0))) {
             const y = this.getHeightAt(trace.x, trace.z);
@@ -1162,6 +1186,8 @@ export class Terrain extends Component {
             }
         }
         else {
+            let i = 0;
+
             // 优先大步进查找
             while (i++ < MAX_COUNT) {
                 const y = this.getHeightAt(trace.x, trace.z);
@@ -1247,6 +1273,26 @@ export class Terrain extends Component {
             this._lightMapSize = this.__asset.lightMapSize;
             this._heights = this.__asset.heights;
             this._weights = this.__asset.weights;
+
+            // build layers
+            let initial = true;
+            for (let i = 0; i < this._layers.length; ++i) {
+                if (this._layers[i] != null) {
+                    initial = false;
+                }
+            }
+
+            if (initial && this._asset != null) {
+                for (const i of this._asset.layerInfos) {
+                    const layer = new TerrainLayer();
+                    layer.tileSize = i.tileSize;
+                    cc.loader.loadRes(i.detailMap, Texture2D, (err, asset) => {
+                        layer.detailMap = asset;
+                    });
+
+                    this._layers[i.slot] = layer;
+                }
+            }
         }
 
         if (this._blockCount[0] === 0 || this._blockCount[1] === 0) {
@@ -1271,7 +1317,7 @@ export class Terrain extends Component {
             this._buildNormals();
         }
 
-        // initialize weights
+        // build weights
         const weightMapComplexityU = this._weightMapSize * this._blockCount[0];
         const weightMapComplexityV = this._weightMapSize * this._blockCount[1];
         if (this._weights.length !== weightMapComplexityU * weightMapComplexityV * 4) {
@@ -1289,12 +1335,24 @@ export class Terrain extends Component {
             this._blockInfos = [];
             for (let j = 0; j < this._blockCount[1]; ++j) {
                 for (let i = 0; i < this._blockCount[0]; ++i) {
-                    let info = new TerrainBlockInfo();
+                    const info = new TerrainBlockInfo();
                     if (this._asset != null) {
                         info.layers[0] = this._asset.getLayer(i, j, 0);
+
                         info.layers[1] = this._asset.getLayer(i, j, 1);
+                        if (info.layers[1] === info.layers[0]) {
+                            info.layers[1] = -1;
+                        }
+
                         info.layers[2] = this._asset.getLayer(i, j, 2);
+                        if (info.layers[2] === info.layers[0]) {
+                            info.layers[2] = -1;
+                        }
+
                         info.layers[3] = this._asset.getLayer(i, j, 3);
+                        if (info.layers[3] === info.layers[0]) {
+                            info.layers[3] = -1;
+                        }
                     }
 
                     this._blockInfos.push(info);
@@ -1381,10 +1439,10 @@ export class Terrain extends Component {
 
         // sample weight
         const sampleOldWeight = (_x: number, _y: number, _xoff: number, _yoff: number, _weights: Uint8Array) => {
-            let ix0 = Math.floor(_x);
-            let iz0 = Math.floor(_y);
-            let ix1 = ix0 + 1;
-            let iz1 = iz0 + 1;
+            const ix0 = Math.floor(_x);
+            const iz0 = Math.floor(_y);
+            const ix1 = ix0 + 1;
+            const iz1 = iz0 + 1;
             const dx = _x - ix0;
             const dz = _y - iz0;
 
@@ -1424,8 +1482,9 @@ export class Terrain extends Component {
 
                 for (let v = 0; v < this._weightMapSize; ++v) {
                     for (let u = 0; u < this._weightMapSize; ++u) {
+                        // tslint:disable-next-line: no-shadowed-variable
                         let w: Vec4;
-                        if (info.weightMapSize == oldWeightMapSize) {
+                        if (info.weightMapSize === oldWeightMapSize) {
                             w = getOldWeight(u + uoff, v + voff, this._weights);
                         }
                         else {
