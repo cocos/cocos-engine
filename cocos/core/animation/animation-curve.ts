@@ -33,6 +33,8 @@ export type EasingMethod = EasingMethodName | BezierControlPoints;
 
 type LerpFunction<T = any> = (from: T, to: T, t: number, dt: number) => T;
 
+type CompressedEasingMethods = Record<number, Easing>;
+
 /**
  * 曲线数据。
  */
@@ -56,7 +58,7 @@ export interface IPropertyCurveData {
     /**
      * 描述了每一帧时间到下一帧时间之间的渐变方式。
      */
-    easingMethods?: EasingMethod[];
+    easingMethods?: EasingMethod[] | CompressedEasingMethods;
 
     /**
      * 是否进行插值。
@@ -144,8 +146,13 @@ export class AnimCurve {
         };
         if (propertyCurveData.easingMethod !== undefined) {
             this.type = getCurveType(propertyCurveData.easingMethod);
-        } else if (propertyCurveData.easingMethods !== undefined) {
+        } else if (Array.isArray(propertyCurveData.easingMethods)) {
             this.types = propertyCurveData.easingMethods.map(getCurveType);
+        } else if (propertyCurveData.easingMethods !== undefined) {
+            this.types = new Array(this._values.length).fill(null);
+            for (const index of Object.keys(propertyCurveData.easingMethods)) {
+                this.types[index] = getCurveType(propertyCurveData.easingMethods[index]);
+            }
         } else {
             this.type = null;
         }
