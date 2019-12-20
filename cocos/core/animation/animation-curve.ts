@@ -33,7 +33,7 @@ export type EasingMethod = EasingMethodName | BezierControlPoints;
 
 type LerpFunction<T = any> = (from: T, to: T, t: number, dt: number) => T;
 
-type CompressedEasingMethods = Record<number, Easing>;
+type CompressedEasingMethods = Record<number, EasingMethod>;
 
 /**
  * 曲线数据。
