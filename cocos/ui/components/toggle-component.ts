@@ -28,8 +28,8 @@
  * @category ui
  */
 
-import { EventHandler as ComponentEventHandler } from '../../core/components';
-import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { EventHandler as ComponentEventHandler, UITransformComponent } from '../../core/components';
+import { ccclass, requireComponent, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { ButtonComponent } from './button-component';
 import { SpriteComponent } from './sprite-component';
 import { ToggleContainerComponent } from './toggle-container-component';
@@ -48,6 +48,7 @@ enum EventType {
 @ccclass('cc.ToggleComponent')
 @executionOrder(110)
 @menu('UI/Toggle')
+@requireComponent(UITransformComponent)
 export class ToggleComponent extends ButtonComponent {
 
     /**

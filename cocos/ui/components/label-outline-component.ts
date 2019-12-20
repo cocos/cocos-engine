@@ -50,7 +50,7 @@ import { LabelComponent } from './label-component';
  */
 @ccclass('cc.LabelOutlineComponent')
 @executionOrder(110)
-@menu('UI/Render/LabelOutline')
+@menu('UI/LabelOutline')
 export class LabelOutlineComponent extends Component {
     @property
     protected _color = new Color(255, 255, 255, 255);

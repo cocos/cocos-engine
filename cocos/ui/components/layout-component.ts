@@ -29,7 +29,7 @@
  */
 
 import { Component } from '../../core/components/component';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { ccclass, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../core/data/class-decorator';
 import { Rect, Size, Vec2, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { UITransformComponent } from '../../core/components/ui-base/ui-transform-component';
@@ -163,6 +163,7 @@ const _tempScale = new Vec3();
 @ccclass('cc.LayoutComponent')
 @executionOrder(110)
 @menu('UI/Layout')
+@requireComponent(UITransformComponent)
 @executeInEditMode
 export class LayoutComponent extends Component {
 

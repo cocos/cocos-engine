@@ -43,7 +43,7 @@ import { vfmt } from '../../core/renderer/ui/ui-vertex-format';
  * 注意：子节点下不要放置 Mask，Graphics，以及 UI 模型或者粒子之类对象，否则会在启用完静态合批后跳过渲染。
  */
 @ccclass('cc.UIStaticBatchComponent')
-@menu('UI/UIStaticBatchComponent')
+@menu('UI/Render/UIStaticBatch')
 @executionOrder(110)
 export class UIStaticBatchComponent extends UIRenderComponent {
     @property({
