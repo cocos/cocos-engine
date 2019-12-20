@@ -209,22 +209,22 @@ export default class TiledAssembler extends Assembler2D {
 
                 // UV
                 if (rotated) {
-                  // lb
-                  verts[uvOffset] = uv[0];
-                  verts[uvOffset + 1] = uv[1];
-                  uvOffset += floatsPerVert;
-                  // rb
-                  verts[uvOffset] = uv[0];
-                  verts[uvOffset + 1] = uv[1] + (uv[7] - uv[1]) * coefu;
-                  uvOffset += floatsPerVert;
-                  // lt
-                  verts[uvOffset] = uv[0] + (uv[6] - uv[0]) * coefv;
-                  verts[uvOffset + 1] = uv[1];
-                  uvOffset += floatsPerVert;
-                  // rt
-                  verts[uvOffset] = verts[uvOffset - floatsPerVert];
-                  verts[uvOffset + 1] = verts[uvOffset + 1 - floatsPerVert * 2];
-                  uvOffset += floatsPerVert;
+                    // lb
+                    verts[uvOffset] = uv[0];
+                    verts[uvOffset + 1] = uv[1];
+                    uvOffset += floatsPerVert;
+                    // rb
+                    verts[uvOffset] = uv[0];
+                    verts[uvOffset + 1] = uv[1] + (uv[7] - uv[1]) * coefu;
+                    uvOffset += floatsPerVert;
+                    // lt
+                    verts[uvOffset] = uv[0] + (uv[6] - uv[0]) * coefv;
+                    verts[uvOffset + 1] = uv[1];
+                    uvOffset += floatsPerVert;
+                    // rt
+                    verts[uvOffset] = verts[uvOffset - floatsPerVert];
+                    verts[uvOffset + 1] = verts[uvOffset + 1 - floatsPerVert * 2];
+                    uvOffset += floatsPerVert;
                 }
                 else {
                     // lb
