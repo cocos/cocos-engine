@@ -653,6 +653,10 @@ export class Foo {            //  ↓
 }
 ```
 
+### 3661
+
+Register a cc-class through `cc.Class({ /* ... */ })` is deprecated (when registering cc-class "%s"). Use ES6 class syntax and decorators for that purpose instead.
+
 ### 3700
 
 internal error: _prefab is undefined

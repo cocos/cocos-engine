@@ -368,6 +368,11 @@ function define (className, baseClass, mixins, options) {
         className = className || frame.script;
     }
 
+    if (CC_DEV) {
+        if (!options.__ES6__) {
+            warnID(3661, className);
+        }
+    }
     const cls = doDefine(className, baseClass, mixins, options);
 
     // for RenderPipeline, RenderFlow, RenderStage
@@ -399,7 +404,11 @@ function define (className, baseClass, mixins, options) {
     }
 
     if (CC_EDITOR) {
-        EditorExtends.emit('class-registered', options.ctor, frame);
+        // Note: `options.ctor` should be same as `cls` except if
+        // cc-class is defined by `cc.Class({/* ... */})`.
+        // In such case, `options.ctor` may be `undefined`.
+        // So we can not use `options.ctor`. Instead we should use `cls` which is the "real" registered cc-class.
+        EditorExtends.emit('class-registered', cls, frame);
     }
 
     if (frame) {
