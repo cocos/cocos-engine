@@ -373,7 +373,12 @@ export class WebGLGFXDevice extends GFXDevice {
         this._features[GFXFeature.MSAA] = false;
 
         if (this._OES_vertex_array_object) {
-            if ( !CC_RUNTIME_BASED && (sys.platform !== sys.WECHAT_GAME || sys.os !== sys.OS_IOS)) { this._useVAO = true; }
+            if (CC_RUNTIME_BASED) {
+                // @ts-ignore
+                if (typeof loadRuntime === 'function' && typeof loadRuntime().getFeature === 'function' && loadRuntime().getFeature("webgl.extensions.oes_vertex_array_object.revision") > 0 ) {
+                    this._useVAO = true;
+                }
+            } else if ((sys.platform !== sys.WECHAT_GAME || sys.os !== sys.OS_IOS)) { this._useVAO = true; }
         }
 
         if (this._OES_element_index_uint) {
