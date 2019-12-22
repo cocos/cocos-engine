@@ -441,6 +441,11 @@ sp.Skeleton = cc.Class({
     // override base class setMaterial to clear material cache
     setMaterial (index, material) {
         this._super(index, material);
+        let useTint = this.useTint || (this.isAnimationCached() && !CC_NATIVERENDERER);
+        // base function will rebuild material, so must get it from container
+        material = this._materials[0];
+        material.define('USE_TINT', useTint);
+        material.define('CC_USE_MODEL', !this.enableBatch);
         this._materialCache = {};
     },
 
@@ -450,33 +455,40 @@ sp.Skeleton = cc.Class({
         this.node._renderFlag &= ~FLAG_POST_RENDER;
     },
 
+    // override base class disableRender to add post render flag
+    markForRender (enable) {
+        this._super(enable);
+        if (enable) {
+            this.node._renderFlag |= FLAG_POST_RENDER;
+        }
+    },
+
+    // if change use tint mode, just clear material cache
     _updateUseTint () {
         let baseMaterial = this.getMaterial(0);
         let useTint = this.useTint || (this.isAnimationCached() && !CC_NATIVERENDERER);
         if (baseMaterial) {
             baseMaterial.define('USE_TINT', useTint);
         }
-        var cache = this._materialCache;
-        for (var mKey in cache) {
-            var material = cache[mKey];
-            if (material) {
-                material.define('USE_TINT', useTint);
-            }
-        }
+        this._materialCache = {};
     },
 
+    // if change use batch mode, just clear material cache
     _updateBatch () {
         let baseMaterial = this.getMaterial(0);
         if (baseMaterial) {
             baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
         }
-        let cache = this._materialCache;
-        for (let mKey in cache) {
-            let material = cache[mKey];
-            if (material) {
-                material.define('CC_USE_MODEL', !this.enableBatch);
-            }
+        this._materialCache = {};
+    },
+
+    _validateRender () {
+        let skeletonData = this.skeletonData;
+        if (!skeletonData || !skeletonData.isTexturesLoaded()) {
+            this.disableRender();
+            return;
         }
+        this._super();
     },
 
     /**
@@ -730,18 +742,10 @@ sp.Skeleton = cc.Class({
                 material = MaterialVariant.create(material, this);
             }
 
-            material.define('CC_USE_MODEL', true);
-            this._prepareToRender(material);
+            // assign to container directly avoid 'setMaterial' interface build material twice
+            this._materials[0] = material;
+            this.setMaterial(0, material);
         }, this);
-    },
-
-    _prepareToRender (material) {
-        this.setMaterial(0, material);
-        // only when component's onEnable function has been invoke, need to enable render
-        if (this.node && this.node._renderComponent == this) {
-            this.markForRender(true);
-            this.node._renderFlag |= FLAG_POST_RENDER;
-        }
     },
 
     onEnable () {

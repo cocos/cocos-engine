@@ -413,23 +413,22 @@ let ArmatureDisplay = cc.Class({
         }
     },
 
+    // if change use batch mode, just clear material cache
     _updateBatch () {
         let baseMaterial = this.getMaterial(0);
         if (baseMaterial) {
             baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
         }
-        let cache = this._materialCache;
-        for (let mKey in cache) {
-            let material = cache[mKey];
-            if (material) {
-                material.define('CC_USE_MODEL', !this.enableBatch);
-            }
-        }
+        this._materialCache = {};
     },
 
     // override base class setMaterial to clear material cache
     setMaterial (index, material) {
         this._super(index, material);
+        // base function will rebuild material, so must get it from container
+        material = this._materials[0];
+        material.define('CC_USE_MODEL', !this.enableBatch);
+        material.define('USE_TEXTURE', true);
         this._materialCache = {};
     },
 
@@ -437,6 +436,23 @@ let ArmatureDisplay = cc.Class({
     disableRender () {
         this._super();
         this.node._renderFlag &= ~FLAG_POST_RENDER;
+    },
+
+    // override base class disableRender to add post render flag
+    markForRender (enable) {
+        this._super(enable);
+        if (enable) {
+            this.node._renderFlag |= FLAG_POST_RENDER;
+        }
+    },
+
+    _validateRender () {
+        let texture = this.dragonAtlasAsset && this.dragonAtlasAsset.texture;
+        if (!texture || !texture.loaded) {
+            this.disableRender();
+            return;
+        }
+        this._super();
     },
 
     __preload () {
@@ -651,21 +667,10 @@ let ArmatureDisplay = cc.Class({
         else {
             material = MaterialVariant.create(material, this);
         }
-
-        material.define('CC_USE_MODEL', true);
-        material.define('USE_TEXTURE', true);
-        material.setProperty('texture', texture);
         
+        // assign to container directly avoid 'setMaterial' interface build material twice
+        this._materials[0] = material;
         this.setMaterial(0, material);
-        this._prepareToRender();
-    },
-
-    _prepareToRender () {
-        // only when component's onEnable function has been invoke, need to enable render
-        if (this.node && this.node._renderComponent == this) {
-            this.markForRender(true);
-            this.node._renderFlag |= FLAG_POST_RENDER;
-        }
     },
 
     _buildArmature () {
