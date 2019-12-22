@@ -438,14 +438,17 @@ sp.Skeleton = cc.Class({
         this.attachUtil = new AttachUtil();
     },
 
-    // override base class setMaterial to clear material cache
-    setMaterial (index, material) {
-        this._super(index, material);
+    // override base class _getDefaultMaterial to modify default material
+    _getDefaultMaterial () {
+        return cc.Material.getBuiltinMaterial('2d-spine');
+    },
+
+    // override base class _updateMaterial to clear material cache
+    _updateMaterial () {
         let useTint = this.useTint || (this.isAnimationCached() && !CC_NATIVERENDERER);
-        // base function will rebuild material, so must get it from container
-        material = this._materials[0];
-        material.define('USE_TINT', useTint);
-        material.define('CC_USE_MODEL', !this.enableBatch);
+        let baseMaterial = this.getMaterial(0);
+        baseMaterial.define('USE_TINT', useTint);
+        baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
         this._materialCache = {};
     },
 
@@ -467,18 +470,14 @@ sp.Skeleton = cc.Class({
     _updateUseTint () {
         let baseMaterial = this.getMaterial(0);
         let useTint = this.useTint || (this.isAnimationCached() && !CC_NATIVERENDERER);
-        if (baseMaterial) {
-            baseMaterial.define('USE_TINT', useTint);
-        }
+        baseMaterial.define('USE_TINT', useTint);
         this._materialCache = {};
     },
 
     // if change use batch mode, just clear material cache
     _updateBatch () {
         let baseMaterial = this.getMaterial(0);
-        if (baseMaterial) {
-            baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
-        }
+        baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
         this._materialCache = {};
     },
 
@@ -528,7 +527,7 @@ sp.Skeleton = cc.Class({
             this._rootBone = this._skeleton.getRootBone();
         }
 
-        this._activateMaterial();
+        this.markForRender(true);
     },
 
     /**
@@ -573,6 +572,7 @@ sp.Skeleton = cc.Class({
 
     // IMPLEMENT
     __preload () {
+        this._super();
         if (CC_EDITOR) {
             var Flags = cc.Object.Flags;
             this._objFlags |= (Flags.IsAnchorLocked | Flags.IsSizeLocked);
@@ -588,7 +588,6 @@ sp.Skeleton = cc.Class({
             }
         }
 
-        this._resetAssembler();
         this._updateSkeletonData();
         this._updateDebugDraw();
         this._updateUseTint();
@@ -720,37 +719,6 @@ sp.Skeleton = cc.Class({
                 state.apply(skeleton);
             }
         }
-    },
-
-    _activateMaterial () {
-        if (!this.skeletonData) {
-            this.disableRender();
-            return;
-        }
-        
-        this.skeletonData.ensureTexturesLoaded(function (result) {
-            if (!result) {
-                this.disableRender();
-                return;
-            }
-            
-            let material = this._materials[0];
-            if (!material) {
-                material = MaterialVariant.createWithBuiltin('2d-spine');
-            }
-            else {
-                material = MaterialVariant.create(material, this);
-            }
-
-            // assign to container directly avoid 'setMaterial' interface build material twice
-            this._materials[0] = material;
-            this.setMaterial(0, material);
-        }, this);
-    },
-
-    onEnable () {
-        this._super();
-        this._activateMaterial();
     },
 
     /**

@@ -106,13 +106,13 @@ function _getSlotMaterial (tex, blendMode) {
     if (!baseMaterial) return null;
 
     // Different material may use same texture, so material name must add into key
-    let key = baseMaterial.name + tex.getId() + src + dst + _useTint + useModel;
+    let key = tex.getId() + src + dst + _useTint + useModel;
     let materialCache = _comp._materialCache;
     let material = materialCache[key];
     if (!material) {
-        let baseKey = baseMaterial.getHash();
-        if (!materialCache[baseKey]) {
+        if (!materialCache.baseMaterial) {
             material = baseMaterial;
+            materialCache.baseMaterial = baseMaterial;
         } else {
             material = cc.MaterialVariant.create(baseMaterial);
         }
@@ -130,12 +130,7 @@ function _getSlotMaterial (tex, blendMode) {
             gfx.BLEND_FUNC_ADD,
             src, dst
         );
-        material.updateHash(key);
         materialCache[key] = material;
-    }
-    else if (material.getProperty('texture') !== tex) {
-        material.setProperty('texture', tex);
-        material.updateHash(key);
     }
     return material;
 }

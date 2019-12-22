@@ -152,7 +152,6 @@ let ArmatureDisplay = cc.Class({
                 // parse the atlas asset data
                 this._parseDragonAtlasAsset();
                 this._refresh();
-                this._activateMaterial();
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.dragon_bones_atlas_asset'
         },
@@ -422,13 +421,11 @@ let ArmatureDisplay = cc.Class({
         this._materialCache = {};
     },
 
-    // override base class setMaterial to clear material cache
-    setMaterial (index, material) {
-        this._super(index, material);
-        // base function will rebuild material, so must get it from container
-        material = this._materials[0];
-        material.define('CC_USE_MODEL', !this.enableBatch);
-        material.define('USE_TEXTURE', true);
+    // override base class _updateMaterial to clear material cache
+    _updateMaterial () {
+        let baseMaterial = this.getMaterial(0);
+        baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
+        baseMaterial.define('USE_TEXTURE', true);
         this._materialCache = {};
     },
 
@@ -456,7 +453,6 @@ let ArmatureDisplay = cc.Class({
     },
 
     __preload () {
-        this._resetAssembler();
         this._init();
     },
 
@@ -464,10 +460,10 @@ let ArmatureDisplay = cc.Class({
         if (this._inited) return;
         this._inited = true;
         
+        this._resetAssembler();
+        this._activateMaterial();
         this._parseDragonAtlasAsset();
         this._refresh();
-
-        this._activateMaterial();
 
         let children = this.node.children;
         for (let i = 0, n = children.length; i < n; i++) {
@@ -530,7 +526,6 @@ let ArmatureDisplay = cc.Class({
         if (this._armature && !this.isAnimationCached()) {
             this._factory._dragonBones.clock.add(this._armature);
         }
-        this._activateMaterial();
     },
 
     onDisable () {
@@ -646,33 +641,6 @@ let ArmatureDisplay = cc.Class({
         }
     },
 
-    _activateMaterial () {
-        let texture = this.dragonAtlasAsset && this.dragonAtlasAsset.texture;
-        if (!texture) {
-            this.disableRender();
-            return;
-        }
-
-        if (!texture.loaded) {
-            this.disableRender();
-            texture.once('load', this._activateMaterial, this);
-            return;
-        }
-
-        // Get material
-        let material = this._materials[0];
-        if (!material) {
-            material = MaterialVariant.createWithBuiltin('2d-sprite');
-        }
-        else {
-            material = MaterialVariant.create(material, this);
-        }
-        
-        // assign to container directly avoid 'setMaterial' interface build material twice
-        this._materials[0] = material;
-        this.setMaterial(0, material);
-    },
-
     _buildArmature () {
         if (!this.dragonAsset || !this.dragonAtlasAsset || !this.armatureName) return;
 
@@ -740,6 +708,8 @@ let ArmatureDisplay = cc.Class({
         if (this.animationName) {
             this.playAnimation(this.animationName, this.playTimes);
         }
+
+        this.markForRender(true);
     },
 
     _parseDragonAtlasAsset () {

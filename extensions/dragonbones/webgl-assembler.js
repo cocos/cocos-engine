@@ -79,12 +79,12 @@ function _getSlotMaterial (tex, blendMode) {
     // Add useModel flag due to if pre same db useModel but next db no useModel,
     // then next db will multiply model matrix more than once.
     // Different material may use same texture, so material name must add into key
-    let key = baseMaterial.name + tex.getId() + src + dst + useModel;
+    let key = tex.getId() + src + dst + useModel;
     let material = materialCache[key];
     if (!material) {
-        let baseKey = baseMaterial.getHash();
-        if (!materialCache[baseKey]) {
+        if (!materialCache.baseMaterial) {
             material = baseMaterial;
+            materialCache.baseMaterial = baseMaterial;
         } else {
             material = cc.MaterialVariant.create(baseMaterial);
         }
@@ -101,11 +101,6 @@ function _getSlotMaterial (tex, blendMode) {
             src, dst
         );
         materialCache[key] = material;
-        material.updateHash(key);
-    }
-    else if (material.texture !== tex) {
-        material.setProperty('texture', tex);
-        material.updateHash(key);
     }
     return material;
 }
