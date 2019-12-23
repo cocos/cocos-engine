@@ -5,8 +5,6 @@ let _atlasIndex = -1;
 
 let _maxAtlasCount = 5;
 let _textureSize = 2048;
-// Smaller frame is more likely to be affected by linear filter
-let _minFrameSize = 8;
 let _maxFrameSize = 512;
 let _textureBleeding = true;
 
@@ -116,13 +114,8 @@ let dynamicAtlasManager = {
      * !#zh 可以添加进图集的图片的最小尺寸。
      * @property minFrameSize
      * @type {Number}
+     * @deprecated
      */
-    get minFrameSize () {
-        return _minFrameSize;
-    },
-    set minFrameSize (value) {
-        _minFrameSize = value;
-    },
     
     /**
      * !#en Append a sprite frame into the dynamic atlas.
