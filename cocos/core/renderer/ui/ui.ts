@@ -101,7 +101,6 @@ export class UI {
     private _currMeshBuffer: MeshBuffer | null = null;
     private _currStaticRoot: UIStaticBatchComponent | null = null;
     private _parentOpacity = 1;
-    private _lastByteOffset = 0;
 
     constructor (private _root: Root) {
         this.device = _root.device;
@@ -327,10 +326,6 @@ export class UI {
                 }
             }
         }
-    }
-
-    public setLastByteOffset(value: number) {
-        this._lastByteOffset = value;
     }
 
     /**
