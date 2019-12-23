@@ -7,8 +7,7 @@ import { Color } from "../../value-types";
 import Model from "../../../renderer/scene/model";
 import Component from "../../components/CCComponent";
 import { toRadian, toDegree } from "../../../core/value-types";
-
-const Material = require('../../assets/material/CCMaterial');
+import MaterialVariant from '../../assets/material/effect-variant';
 
 @ccclass('cc.BillboardComponent')
 @menu('Components/BillboardComponent')
@@ -139,7 +138,7 @@ export class BillboardComponent extends Component {
         }, undefined, { calculateBounds: false });
         this._model = this._getRenderScene().createModel(Model, this.node);
         if (this._material == null) {
-            this._material = Material.getInstantiatedBuiltinMaterial('default-billboard-material');
+            this._material = MaterialVariant.createWithBuiltin('default-billboard-material');
         }
         this._model.initSubModel(0, this._mesh.getSubMesh(0), this._material);
     }

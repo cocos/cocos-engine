@@ -2,7 +2,7 @@ import { Mat4, Vec2, Vec3, Vec4 } from '../../../value-types';
 import { GFXFormat } from '../../../../renderer/gfx/define';
 import gfx from '../../../../renderer/gfx';
 import ParticleBatchModel from './particle-batch-model';
-import Material from '../../../assets/material/CCMaterial';
+import MaterialVariant from '../../../assets/material/effect-variant';
 import RecyclePool from '../../../../renderer/memop/recycle-pool';
 import { RenderMode, Space } from '../enum';
 import Particle from '../particle';
@@ -328,7 +328,7 @@ export default class ParticleSystem3DAssembler extends Assembler {
         }
         let material = this._particleSystem.sharedMaterials[0];
         if (material == null && this._defaultMat == null) {
-            this._defaultMat = Material.getInstantiatedBuiltinMaterial('3d-particle', this);
+            this._defaultMat = MaterialVariant.createWithBuiltin('3d-particle', this);
         }
         const mat = material ? this._particleSystem.particleMaterial : this._defaultMat;
         if (this._particleSystem._simulationSpace === Space.World) {
@@ -387,7 +387,7 @@ export default class ParticleSystem3DAssembler extends Assembler {
         if (this._particleSystem.trailModule.enable) {
             let mat = this._particleSystem.trailMaterial;
             if (mat === null && this._defaultTrailMat === null) {
-                this._defaultTrailMat = Material.getInstantiatedBuiltinMaterial('3d-trail', this);
+                this._defaultTrailMat = MaterialVariant.createWithBuiltin('3d-trail', this);
             }
             if (mat === null) {
                 mat = this._defaultTrailMat;
