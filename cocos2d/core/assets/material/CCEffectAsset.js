@@ -1,6 +1,12 @@
-const Asset = require('./CCAsset');
-const Effect = require('../../renderer/core/effect');
+import Asset from '../CCAsset';
+import { parseEffect } from './effect-parser';
 
+/**
+ * !#en Effect Asset.
+ * !#zh Effect 资源类型。
+ * @class EffectAsset
+ * @extends Asset
+ */
 let EffectAsset = cc.Class({
     name: 'cc.EffectAsset',
     extends: Asset,
@@ -30,12 +36,18 @@ let EffectAsset = cc.Class({
 
     _initEffect () {
         if (this._effect) return;
-        this._effect = Effect.parseEffect(this);
+        this._effect = parseEffect(this);
+        Object.freeze(this._effect);
     },
 
     getInstantiatedEffect () {
         this._initEffect();
         return this._effect.clone();
+    },
+
+    getEffect () {
+        this._initEffect();
+        return this._effect;
     }
 });
 

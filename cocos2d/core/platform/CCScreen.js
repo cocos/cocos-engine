@@ -93,7 +93,7 @@ cc.screen = /** @lends cc.screen# */{
         var i, l, val, map = this._fnMap, valL;
         for (i = 0, l = map.length; i < l; i++) {
             val = map[i];
-            if (val && (typeof document[val[1]] !== 'undefined')) {
+            if (val && (typeof document[val[0]] !== 'undefined') && (typeof document[val[1]] !== 'undefined')) {
                 for (i = 0, valL = val.length; i < valL; i++) {
                     this._fn[map[0][i]] = val[i];
                 }

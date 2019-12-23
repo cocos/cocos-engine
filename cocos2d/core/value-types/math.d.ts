@@ -1,4 +1,5 @@
 
+type FloatArray = Float64Array | Float32Array;
 interface IColorLike {
     r: number;
     g: number;
@@ -9,11 +10,11 @@ interface IColorLike {
 }
 
 interface IMat3Like {
-    m: Float32Array
+    m: FloatArray
 }
 
 interface IMat4Like {
-    m: Float32Array
+    m: FloatArray
 }
 
 interface IQuatLike {

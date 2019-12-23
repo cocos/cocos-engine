@@ -28,6 +28,7 @@ const Material = require('../core/assets/material/CCMaterial');
 const RenderFlow = require('../core/renderer/render-flow');
 
 import { Mat4, Vec2 } from '../core/value-types';
+import MaterialVariant from '../core/assets/material/material-variant';
 let _mat4_temp = cc.mat4();
 let _vec2_temp = cc.v2();
 let _vec2_temp2 = cc.v2();
@@ -466,32 +467,26 @@ let TiledLayer = cc.Class({
         let tileset = this._texGrids[gid].tileset;
         let offset = tileset.tileOffset;
 
-        let centerWidth = this.node.width / 2;
-        let centerHeight = this.node.height / 2;
         let odd_even = (this._staggerIndex === cc.TiledMap.StaggerIndex.STAGGERINDEX_ODD) ? 1 : -1;
         let x = 0, y = 0;
         let diffX = 0;
-        let diffX1 = 0;
         let diffY = 0;
-        let diffY1 = 0;
         switch (this._staggerAxis) {
             case cc.TiledMap.StaggerAxis.STAGGERAXIS_Y:
                 diffX = 0;
-                diffX1 = (this._staggerIndex === cc.TiledMap.StaggerIndex.STAGGERINDEX_ODD) ? 0 : tileWidth / 2;
                 if (row % 2 === 1) {
                     diffX = tileWidth / 2 * odd_even;
                 }
-                x = col * tileWidth + diffX + diffX1 + offset.x - centerWidth;
-                y = (rows - row - 1) * (tileHeight - (tileHeight - this._hexSideLength) / 2) - offset.y - centerHeight;
+                x = col * tileWidth + diffX + offset.x;
+                y = (rows - row - 1) * (tileHeight - (tileHeight - this._hexSideLength) / 2) - offset.y;
                 break;
             case cc.TiledMap.StaggerAxis.STAGGERAXIS_X:
                 diffY = 0;
-                diffY1 = (this._staggerIndex === cc.TiledMap.StaggerIndex.STAGGERINDEX_ODD) ? tileHeight / 2 : 0;
                 if (col % 2 === 1) {
                     diffY = tileHeight / 2 * -odd_even;
                 }
-                x = col * (tileWidth - (tileWidth - this._hexSideLength) / 2) + offset.x - centerWidth;
-                y = (rows - row - 1) * tileHeight + diffY + diffY1 - offset.y - centerHeight;
+                x = col * (tileWidth - (tileWidth - this._hexSideLength) / 2) + offset.x;
+                y = (rows - row - 1) * tileHeight + diffY - offset.y;
                 break;
         }
         return cc.v2(x, y);
@@ -559,6 +554,7 @@ let TiledLayer = cc.Class({
         let idx = 0 | (pos.x + pos.y * this._layerSize.width);
         if (idx < this._tiles.length) {
             this._tiles[idx] = gid;
+            this._cullingDirty = true;
         }
     },
 
@@ -1021,6 +1017,7 @@ let TiledLayer = cc.Class({
 
         let index = Math.floor(x) + Math.floor(y) * this._layerSize.width;
         this._tiledTiles[index] = tiledTile;
+        this._cullingDirty = true;
 
         if (tiledTile) {
             this._hasTiledNodeGrid = true;
@@ -1285,22 +1282,21 @@ let TiledLayer = cc.Class({
             let tilesetIdx = tilesetIndexArr[i];
             let texture = textures[tilesetIdx];
 
-            let material = this.sharedMaterials[i];
+            let material = this._materials[i];
             if (!material) {
-                material = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
+                material = Material.getBuiltinMaterial('2d-sprite');
             }
-            else {
-                material = Material.getInstantiatedMaterial(material, this);
-            }
+            material = MaterialVariant.create(material, this);
 
             material.define('CC_USE_MODEL', true);
             material.setProperty('texture', texture);
-            this.setMaterial(i, material);
+
+            this._materials[i] = material;
+            
             texIdMatIdx[tilesetIdx] = i;
         }
-
         this.markForRender(true);
-    },
+    }
 });
 
 cc.TiledLayer = module.exports = TiledLayer;

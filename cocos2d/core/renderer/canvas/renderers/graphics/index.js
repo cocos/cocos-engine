@@ -29,6 +29,8 @@ import Graphics from '../../../../graphics/graphics';
 export default class CanvasGraphicsAssembler {
     init () {}
 
+    updateRenderData () {}
+
     draw (ctx, comp) {
         let node = comp.node;
         // Transform

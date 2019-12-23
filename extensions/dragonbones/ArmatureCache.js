@@ -27,6 +27,7 @@ const FrameTime = 1 / 60;
 
 let _vertices = [];
 let _indices = [];
+let _boneInfoOffset = 0;
 let _vertexOffset = 0;
 let _indexOffset = 0;
 let _vfOffset = 0;
@@ -44,6 +45,7 @@ let AnimationCache = cc.Class({
     ctor () {
         this._inited = false;
         this._invalid = true;
+        this._enableCacheAttachedInfo = false;
         this.frames = [];
         this.totalTime = 0;
         this.isCompleted = false;
@@ -53,6 +55,7 @@ let AnimationCache = cc.Class({
         this._animationName = null;
         this._tempSegments = null;
         this._tempColors = null;
+        this._tempBoneInfos = null;
     },
 
     init (armatureInfo, animationName) {
@@ -146,8 +149,16 @@ let AnimationCache = cc.Class({
         this.updateToFrame();
     },
 
+    enableCacheAttachedInfo () {
+        if (!this._enableCacheAttachedInfo) {
+            this._enableCacheAttachedInfo = true;
+            this.invalidAllFrame();
+        }
+    },
+
     _updateFrame (armature, index) {
         _vfOffset = 0;
+        _boneInfoOffset = 0;
         _indexOffset = 0;
         _vertexOffset = 0;
         _preTexUrl = null;
@@ -161,6 +172,7 @@ let AnimationCache = cc.Class({
         this.frames[index] = this.frames[index] || {
             segments : [],
             colors : [],
+            boneInfos : [],
             vertices : null,
             uintVert : null,
             indices : null,
@@ -169,6 +181,7 @@ let AnimationCache = cc.Class({
 
         let segments = this._tempSegments = frame.segments;
         let colors = this._tempColors = frame.colors;
+        let boneInfos = this._tempBoneInfos = frame.boneInfos;
         this._traverseArmature(armature, 1.0);
         // At last must handle pre color and segment.
         // Because vertex count will right at the end.
@@ -177,6 +190,8 @@ let AnimationCache = cc.Class({
             colors[_colorOffset - 1].vfOffset = _vfOffset;
         }
         colors.length = _colorOffset;
+        boneInfos.length = _boneInfoOffset;
+        
         // Handle pre segment
         let preSegOffset = _segOffset - 1;
         if (preSegOffset >= 0) {
@@ -228,12 +243,29 @@ let AnimationCache = cc.Class({
     _traverseArmature (armature, parentOpacity) {
         let colors = this._tempColors;
         let segments = this._tempSegments;
+        let boneInfos = this._tempBoneInfos;
         let gVertices = _vertices;
         let gIndices = _indices;
         let slotVertices, slotIndices;
         let slots = armature._slots, slot, slotMatrix, slotMatrixm, slotColor, colorVal;
         let texture;
         let preSegOffset, preSegInfo;
+        let bones = armature._bones;
+
+        if (this._enableCacheAttachedInfo) {
+            for (let i = 0, l = bones.length; i < l; i++, _boneInfoOffset++) {
+                let bone = bones[i];
+                let boneInfo = boneInfos[_boneInfoOffset];
+                if (!boneInfo) {
+                    boneInfo = boneInfos[_boneInfoOffset] = {
+                        globalTransformMatrix: new dragonBones.Matrix(),
+                    };
+                }
+                let boneMat = bone.globalTransformMatrix;
+                let cacheBoneMat = boneInfo.globalTransformMatrix;
+                cacheBoneMat.copyFrom(boneMat);
+            }
+        }
 
         for (let i = 0, l = slots.length; i < l; i++) {
             slot = slots[i];
@@ -241,7 +273,7 @@ let AnimationCache = cc.Class({
 
             slot.updateWorldMatrix();
             slotColor = slot._color;
-
+            
             if (slot.childArmature) {
                 this._traverseArmature(slot.childArmature, parentOpacity * slotColor.a / 255);
                 continue;

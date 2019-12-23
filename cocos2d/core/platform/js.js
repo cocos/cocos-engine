@@ -225,6 +225,7 @@ var js = {
      * Checks whether obj is an empty object
      * @method isEmptyObject
      * @param {any} obj 
+     * @returns {Boolean}
      */
     isEmptyObject: function (obj) {
         for (var key in obj) {

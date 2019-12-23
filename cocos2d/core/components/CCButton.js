@@ -424,7 +424,7 @@ let Button = cc.Class({
 
     __preload () {
         this._applyTarget();
-        this._updateState();
+        this._resetState();
     },
 
     _resetState () {

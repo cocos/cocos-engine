@@ -673,7 +673,12 @@ var game = {
         if (typeof config.registerSystemEvent !== 'boolean') {
             config.registerSystemEvent = true;
         }
-        config.showFPS = !!config.showFPS;
+        if (renderMode === 1) {
+            config.showFPS = false;    
+        }
+        else {
+            config.showFPS = !!config.showFPS;
+        }
 
         // Scene parser
         this._sceneInfos = config.scenes || [];

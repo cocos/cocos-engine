@@ -27,7 +27,7 @@ import ValueType from './value-type';
 import CCClass from '../platform/CCClass';
 import Vec3 from './vec3';
 import Quat from './quat';
-import { EPSILON } from './utils';
+import { EPSILON, FLOAT_ARRAY_TYPE } from './utils';
 import Mat3 from './mat3';
 
 let _a00: number = 0; let _a01: number = 0; let _a02: number = 0; let _a03: number = 0;
@@ -1612,9 +1612,9 @@ export default class Mat4 extends ValueType {
     /**
      * !#en Matrix Data
      * !#zh 矩阵数据
-     * @property {Float32Array} m
+     * @property {Float64Array | Float32Array} m
      */
-    m: Float32Array;
+    m: FloatArray;
 
 
     /**
@@ -1633,29 +1633,33 @@ export default class Mat4 extends ValueType {
         )
      */
     constructor (
-        m00: number = 1, m01: number = 0, m02: number = 0, m03: number = 0,
+        m00: number | FloatArray = 1, m01: number = 0, m02: number = 0, m03: number = 0,
         m10: number = 0, m11: number = 1, m12: number = 0, m13: number = 0,
         m20: number = 0, m21: number = 0, m22: number = 1, m23: number = 0,
         m30: number = 0, m31: number = 0, m32: number = 0, m33: number = 1) {
         super();
-        this.m = new Float32Array(16);
-        let tm = this.m;
-        tm[0] = m00;
-        tm[1] = m01;
-        tm[2] = m02;
-        tm[3] = m03;
-        tm[4] = m10;
-        tm[5] = m11;
-        tm[6] = m12;
-        tm[7] = m13;
-        tm[8] = m20;
-        tm[9] = m21;
-        tm[10] = m22;
-        tm[11] = m23;
-        tm[12] = m30;
-        tm[13] = m31;
-        tm[14] = m32;
-        tm[15] = m33;
+        if (m00 instanceof FLOAT_ARRAY_TYPE) {
+            this.m = m00;
+        } else {
+            this.m = new FLOAT_ARRAY_TYPE(16);
+            let tm = this.m;
+            tm[0] = m00;
+            tm[1] = m01;
+            tm[2] = m02;
+            tm[3] = m03;
+            tm[4] = m10;
+            tm[5] = m11;
+            tm[6] = m12;
+            tm[7] = m13;
+            tm[8] = m20;
+            tm[9] = m21;
+            tm[10] = m22;
+            tm[11] = m23;
+            tm[12] = m30;
+            tm[13] = m31;
+            tm[14] = m32;
+            tm[15] = m33;
+        }
     }
 
     /**

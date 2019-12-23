@@ -485,19 +485,28 @@ var _mouseWheelHandler = function (event) {
     }
 };
 
-function _searchMaskInParent (node) {
-    var Mask = cc.Mask;
-    if (Mask) {
-        var index = 0;
+function _searchComponentsInParent (node, comp) {
+    if (comp) {
+        let index = 0;
+        let list = null;
         for (var curr = node; curr && cc.Node.isNode(curr); curr = curr._parent, ++index) {
-            if (curr.getComponent(Mask)) {
-                return {
+            if (curr.getComponent(comp)) {
+                let next = {
                     index: index,
-                    node: curr
+                    node: curr,
                 };
+                
+                if (list) {
+                    list.push(next);
+                } else {
+                    list = [next];
+                }
             }
         }
+
+        return list;
     }
+    
     return null;
 }
 
@@ -1459,13 +1468,7 @@ let NodeDefines = {
                     this._localZOrder = (this._localZOrder & 0x0000ffff) | (value << 16);
                     this.emit(EventType.SIBLING_ORDER_CHANGED);
 
-                    if (this._parent) {
-                        this._onSiblingIndexChanged();
-                    }
-                }
-
-                if (CC_JSB && CC_NATIVERENDERER) {
-                    this._proxy.updateZOrder();
+                    this._onSiblingIndexChanged();
                 }
             }
         },
@@ -1537,14 +1540,9 @@ let NodeDefines = {
 
     _onSiblingIndexChanged () {
         // update rendering scene graph, sort them by arrivalOrder
-        var parent = this._parent;
-        var siblings = parent._children;
-        var i = 0, len = siblings.length, sibling;
-        for (; i < len; i++) {
-            sibling = siblings[i];
-            sibling._updateOrderOfArrival();
+        if (this._parent) {
+            this._parent._delaySort();
         }
-        parent._delaySort();
     },
 
     _onPreDestroy () {
@@ -1603,17 +1601,9 @@ let NodeDefines = {
             // ActionManager & EventManager
             actionManager && actionManager.resumeTarget(this);
             eventManager.resumeTarget(this);
-            if (this._touchListener) {
-                var mask = this._touchListener.mask = _searchMaskInParent(this);
-                if (this._mouseListener) {
-                    this._mouseListener.mask = mask;
-                }
-            }
-            else if (this._mouseListener) {
-                this._mouseListener.mask = _searchMaskInParent(this);
-            }
-        }
-        else {
+            // Search Mask in parent
+            this._checkListenerMask();
+        } else {
             // deactivate
             actionManager && actionManager.pauseTarget(this);
             eventManager.pauseTarget(this);
@@ -1622,7 +1612,8 @@ let NodeDefines = {
 
     _onHierarchyChanged (oldParent) {
         this._updateOrderOfArrival();
-        this.groupIndex = _getActualGroupIndex(this);
+        // Fixed a bug where children and parent node groups were forced to synchronize, instead of only synchronizing `_cullingMask` value
+        _updateCullingMask(this);
         if (this._parent) {
             this._parent._delaySort();
         }
@@ -1632,6 +1623,11 @@ let NodeDefines = {
             cc._widgetManager._nodesOrderDirty = true;
         }
 
+        if (oldParent && this._activeInHierarchy) {
+            //TODO: It may be necessary to update the listener mask of all child nodes.
+            this._checkListenerMask();
+        }
+        
         // Node proxy
         if (CC_JSB && CC_NATIVERENDERER) {
             this._proxy.updateParent();
@@ -1666,9 +1662,9 @@ let NodeDefines = {
         if (!this._spaceInfo) {
             if (CC_EDITOR || CC_TEST) {
                 this._spaceInfo = {
-                    trs: new Float32Array(10),
-                    localMat: new Float32Array(16),
-                    worldMat: new Float32Array(16),
+                    trs: new Float64Array(10),
+                    localMat: new Float64Array(16),
+                    worldMat: new Float64Array(16),
                 }
             } else {
                 this._spaceInfo = nodeMemPool.pop();            
@@ -1792,8 +1788,11 @@ let NodeDefines = {
 
         this._updateOrderOfArrival();
 
-        // synchronize groupIndex
-        this.groupIndex = _getActualGroupIndex(this);
+        // Fixed a bug where children and parent node groups were forced to synchronize, instead of only synchronizing `_cullingMask` value
+        this._cullingMask = 1 << _getActualGroupIndex(this);
+        if (CC_JSB && CC_NATIVERENDERER) {
+            this._proxy && this._proxy.updateCullingMask();
+        };
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
@@ -1821,7 +1820,11 @@ let NodeDefines = {
     _onBatchRestored () {
         this._upgrade_1x_to_2x();
 
-        this.groupIndex = _getActualGroupIndex(this);
+        // Fixed a bug where children and parent node groups were forced to synchronize, instead of only synchronizing `_cullingMask` value
+        this._cullingMask = 1 << _getActualGroupIndex(this);
+        if (CC_JSB && CC_NATIVERENDERER) {
+            this._proxy && this._proxy.updateCullingMask();
+        };
 
         if (!this._activeInHierarchy) {
             // deactivate ActionManager and EventManager by default
@@ -1848,6 +1851,18 @@ let NodeDefines = {
     },
 
     // EVENT TARGET
+    _checkListenerMask () {
+        // Because Mask may be nested, need to find all the Mask components in the parent node. 
+        // The click area must satisfy all Masks to trigger the click.
+        if (this._touchListener) {
+            var mask = this._touchListener.mask = _searchComponentsInParent(this, cc.Mask);
+            if (this._mouseListener) {
+                this._mouseListener.mask = mask;
+            }
+        } else if (this._mouseListener) {
+            this._mouseListener.mask = _searchComponentsInParent(this, cc.Mask);
+        }
+    },
 
     _checknSetupSysEvent (type) {
         let newAdded = false;
@@ -1858,7 +1873,7 @@ let NodeDefines = {
                     event: cc.EventListener.TOUCH_ONE_BY_ONE,
                     swallowTouches: true,
                     owner: this,
-                    mask: _searchMaskInParent(this),
+                    mask: _searchComponentsInParent(this, cc.Mask),
                     onTouchBegan: _touchStartHandler,
                     onTouchMoved: _touchMoveHandler,
                     onTouchEnded: _touchEndHandler,
@@ -1875,7 +1890,7 @@ let NodeDefines = {
                     event: cc.EventListener.MOUSE,
                     _previousIn: false,
                     owner: this,
-                    mask: _searchMaskInParent(this),
+                    mask: _searchComponentsInParent(this, cc.Mask),
                     onMouseDown: _mouseDownHandler,
                     onMouseMove: _mouseMoveHandler,
                     onMouseUp: _mouseUpHandler,
@@ -2292,30 +2307,40 @@ let NodeDefines = {
         testPt.x += this._anchorPoint.x * w;
         testPt.y += this._anchorPoint.y * h;
 
+        let hit = false;
         if (testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h) {
+            hit = true;
             if (listener && listener.mask) {
-                var mask = listener.mask;
-                var parent = this;
-                for (var i = 0; parent && i < mask.index; ++i, parent = parent.parent) {
-                }
+                let mask = listener.mask;
+                let parent = this;
+                let length = mask ? mask.length : 0;
                 // find mask parent, should hit test it
-                if (parent === mask.node) {
-                    var comp = parent.getComponent(cc.Mask);
-                    return (comp && comp.enabledInHierarchy) ? comp._hitTest(cameraPt) : true;
-                }
-                // mask parent no longer exists
-                else {
-                    listener.mask = null;
-                    return true;
+                for (let i = 0, j = 0; parent && j < length; ++i, parent = parent.parent) {
+                    let temp = mask[j];
+                    if (i === temp.index) {
+                        if (parent === temp.node) {
+                            let comp = parent.getComponent(cc.Mask);
+                            if (comp && comp._enabled && comp._hitTest(cameraPt)) {
+                                j++;
+                            } else {
+                                hit = false;
+                                break
+                            }
+                        } else {
+                            // mask parent no longer exists
+                            mask.length = j;
+                            break
+                        }
+                    } else if (i > temp.index) {
+                        // mask parent no longer exists
+                        mask.length = j;
+                        break
+                    }
                 }
             }
-            else {
-                return true;
-            }
-        }
-        else {
-            return false;
-        }
+        } 
+
+        return hit;
     },
 
     /**
@@ -3248,7 +3273,7 @@ let NodeDefines = {
         _vec3_temp.y = -this._anchorPoint.y * contentSize.height;
 
         Mat4.copy(_mat4_temp, this._matrix);
-        Mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
+        Mat4.transform(_mat4_temp, _mat4_temp, _vec3_temp);
         return AffineTrans.fromMat4(out, _mat4_temp);
     },
 
@@ -3299,7 +3324,7 @@ let NodeDefines = {
         _vec3_temp.y = -this._anchorPoint.y * contentSize.height;
 
         Mat4.copy(_mat4_temp, this._worldMatrix);
-        Mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
+        Mat4.transform(_mat4_temp, _mat4_temp, _vec3_temp);
 
         return AffineTrans.fromMat4(out, _mat4_temp);
     },
@@ -3475,16 +3500,7 @@ let NodeDefines = {
     _updateOrderOfArrival () {
         var arrivalOrder = this._parent ? ++this._parent._childArrivalOrder : 0;
         this._localZOrder = (this._localZOrder & 0xffff0000) | arrivalOrder;
-        // redistribute
-        if (arrivalOrder === 0x0000ffff) {
-            var siblings = this._parent._children;
-
-            siblings.forEach(function (node, index) {
-                node._localZOrder = (node._localZOrder & 0xffff0000) | (index + 1);
-            });
-
-            this._parent._childArrivalOrder = siblings.length;
-        }
+        
         this.emit(EventType.SIBLING_ORDER_CHANGED);
     },
 
@@ -3549,16 +3565,25 @@ let NodeDefines = {
      */
     sortAllChildren () {
         if (this._reorderChildDirty) {
+            
+            this._reorderChildDirty = false;
+
+            // delay update arrivalOrder before sort children
+            var _children = this._children, child;
+            this._parent && (this._parent._childArrivalOrder = 1);
+            for (let i = 0, len = _children.length; i < len; i++) {
+                child = _children[i];
+                child._updateOrderOfArrival();
+            }
+
             // Optimize reordering event code to fix problems with setting zindex
             // https://github.com/cocos-creator/2d-tasks/issues/1186
             eventManager._setDirtyForNode(this);
 
-            this._reorderChildDirty = false;
-            var _children = this._children;
             if (_children.length > 1) {
                 // insertion sort
-                var len = _children.length, i, j, child;
-                for (i = 1; i < len; i++) {
+                var j, child;
+                for (let i = 1, len = _children.length; i < len; i++) {
                     child = _children[i];
                     j = i - 1;
 

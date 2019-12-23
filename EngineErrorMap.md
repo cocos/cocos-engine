@@ -2715,3 +2715,27 @@ LabelAtlas '%s' cannot be loaded, raw texture does not exist.
 ### 9101
 
 LabelAtlas '%s' cannot be loaded, fnt data does not exist.
+
+### 9102
+
+Program not support highp precision, will change to mediump.
+
+### 9103
+
+%s : Failed to set property [%s], property not found.
+
+### 9104
+
+%s : Failed to define [%s], define not found.
+
+### 9105
+
+%s : Failed to set property [%s], property length not correct.
+
+### 9106
+
+%s : Set property [%s] warning : should transform object to ArrayBuffer.
+
+### 9107
+
+%s : illegal property: [%s], myabe defined an unused property;

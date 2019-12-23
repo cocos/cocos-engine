@@ -180,8 +180,8 @@ var properties = {
     /**
      * !#en The plist file.
      * !#zh plist 格式的粒子配置文件。
-     * @property {string} file
-     * @default ""
+     * @property {ParticleAsset} file
+     * @default null
      */
     _file: {
         default: null,
@@ -747,6 +747,7 @@ var ParticleSystem = cc.Class({
     initProperties () {
         this._previewTimer = null;
         this._focused = false;
+        this._aspectRatio = 1;
 
         this._simulator = new ParticleSimulator(this);
 
@@ -1201,12 +1202,29 @@ var ParticleSystem = cc.Class({
         return true;
     },
 
+    _validateRender () {
+        let texture = this._getTexture();
+        if (!texture || !texture.loaded) {
+            this.disableRender();
+            return;
+        }
+        this._super();
+    },
+
     _onTextureLoaded () {
         this._simulator.updateUVs(true);
+        this._syncAspect();
+        this._updateMaterial();
+        this.markForRender(true);
+    },
+
+    _syncAspect () {
+        let frameRect = this._renderSpriteFrame._rect;
+        this._aspectRatio = frameRect.width / frameRect.height;
     },
 
     _applySpriteFrame () {
-        this._updateMaterial();
+        this._renderSpriteFrame = this._renderSpriteFrame || this._spriteFrame;
         if (this._renderSpriteFrame) {
             if (this._renderSpriteFrame.textureLoaded()) {
                 this._onTextureLoaded();
@@ -1217,30 +1235,18 @@ var ParticleSystem = cc.Class({
         }
     },
 
-    _activateMaterial () {
-        let material = this.sharedMaterials[0];
-        if (!material) {
-            material = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
-        }
-        else {
-            material = Material.getInstantiatedMaterial(material, this);
-        }
-
-        this.setMaterial(0, material);
-
-        this._updateMaterial();
-    },
-
     _getTexture () {
         return (this._renderSpriteFrame && this._renderSpriteFrame.getTexture()) || this._texture;
     },
 
     _updateMaterial () {
-        let material = this.sharedMaterials[0];
+        let material = this._materials[0];
         if (!material) return;
         
         material.define('CC_USE_MODEL', this._positionType !== PositionType.FREE);
         material.setProperty('texture', this._getTexture());
+
+        BlendFunc.prototype._updateMaterial.call(this);
     },
     
     _finishedSimulation: function () {

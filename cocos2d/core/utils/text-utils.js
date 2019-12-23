@@ -27,7 +27,7 @@
 // Draw text the textBaseline ratio (Can adjust the appropriate baseline ratio based on the platform)
 let _BASELINE_RATIO = 0.26;
 if (CC_RUNTIME) {
-    _BASELINE_RATIO = 0;
+    _BASELINE_RATIO = -0.05;
 }
 
 var textUtils = {

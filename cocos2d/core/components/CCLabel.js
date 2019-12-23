@@ -477,7 +477,7 @@ let Label = cc.Class({
                 if (this.cacheMode === oldValue) return;
                 
                 if (oldValue === CacheMode.BITMAP && !(this.font instanceof cc.BitmapFont)) {
-                    this._frame._resetDynamicAtlasFrame();
+                    this._frame && this._frame._resetDynamicAtlasFrame();
                 }
 
                 if (oldValue === CacheMode.CHAR) {
@@ -531,6 +531,11 @@ let Label = cc.Class({
             this.cacheMode = CacheMode.BITMAP;
             this._batchAsBitmap = false;
         }
+
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+            // CacheMode is not supported in Canvas.
+            this.cacheMode = CacheMode.NONE;
+        }
     },
 
     onEnable () {
@@ -573,7 +578,7 @@ let Label = cc.Class({
             return;
         }
 
-        if (this.sharedMaterials[0]) {
+        if (this._materials[0]) {
             let font = this.font;
             if (font instanceof cc.BitmapFont) {
                 let spriteFrame = font.spriteFrame;
@@ -609,7 +614,7 @@ let Label = cc.Class({
         this._frame._texture = this.font.spriteFrame._texture;
         this.markForRender(true);
         this._updateMaterial();
-        this._assembler && this._assembler.updateRenderData(this);
+        this._runUpdateRenderData();
     },
 
     _applyFontTexture () {
@@ -626,7 +631,7 @@ let Label = cc.Class({
                 this._frame = new LabelFrame();
             }
  
-            if (this.cacheMode === CacheMode.CHAR && cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+            if (this.cacheMode === CacheMode.CHAR) {
                 this._letterTexture = this._assembler._getAssemblerData();
                 this._frame._refreshTexture(this._letterTexture);
             } else if (!this._ttfTexture) {
@@ -641,7 +646,7 @@ let Label = cc.Class({
             }
             
             this._updateMaterial();
-            this._assembler && this._assembler.updateRenderData(this);
+            this._runUpdateRenderData();
         }
         this.markForValidate();
     },
@@ -653,7 +658,7 @@ let Label = cc.Class({
 
     _updateMaterialWebgl () {
         if (!this._frame) return;
-        let material = this.sharedMaterials[0];
+        let material = this._materials[0];
         material && material.setProperty('texture', this._frame._texture);
     },
 
@@ -661,6 +666,11 @@ let Label = cc.Class({
         this.setVertsDirty();
         this._resetAssembler();
         this._applyFontTexture();
+    },
+
+    _runUpdateRenderData () {
+        if (this.node && this.node._activeInHierarchy && this._assembler)
+            this._assembler.updateRenderData(this);
     },
 
     _enableBold (enabled) {

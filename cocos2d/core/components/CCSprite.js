@@ -432,8 +432,10 @@ var Sprite = cc.Class({
         let texture = this._spriteFrame && this._spriteFrame.getTexture();
         
         // make sure material is belong to self.
-        let material = this.sharedMaterials[0];
+        let material = this._materials[0];
         material && material.setProperty('texture', texture);
+
+        BlendFunc.prototype._updateMaterial.call(this);
     },
 
     _applyAtlas: CC_EDITOR && function (spriteFrame) {
@@ -450,7 +452,7 @@ var Sprite = cc.Class({
 
     _validateRender () {
         let spriteFrame = this._spriteFrame;
-        if (this.sharedMaterials[0] &&
+        if (this._materials[0] &&
             spriteFrame && 
             spriteFrame.textureLoaded()) {
             return;
