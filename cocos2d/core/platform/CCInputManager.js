@@ -341,9 +341,10 @@ let inputManager = {
      * @return {Vec2}
      */
     getPointByEvent (event, pos) {
-        // qqbrowser and uc browser can't calculate pageY correctly, need to refresh canvas bounding rect
+        // qq , uc and safari browser can't calculate pageY correctly, need to refresh canvas bounding rect
         if (cc.sys.browserType === cc.sys.BROWSER_TYPE_QQ 
-            || cc.sys.browserType === cc.sys.BROWSER_TYPE_UC) {
+            || cc.sys.browserType === cc.sys.BROWSER_TYPE_UC
+            || cc.sys.browserType === cc.sys.BROWSER_TYPE_SAFARI) {
             this._updateCanvasBoundingRect();
         }
         

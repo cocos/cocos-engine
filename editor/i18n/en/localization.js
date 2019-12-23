@@ -436,5 +436,8 @@ module.exports = {
         'skeleton_animation': {
             'search_animation_clips': 'Search Animation Clips',
         },
+        'attach_util': {
+            "generate_attached_node": "Generate Attached Node"
+        }
     }
 };

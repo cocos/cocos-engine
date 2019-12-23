@@ -73,12 +73,12 @@ module.exports = function createBundler(entryFiles, options) {
 
     var presets = [
         [
-            '@babel/preset-env',
+            require('@babel/preset-env'),
             {
                 "loose": true,
             }
         ],
-        '@babel/preset-typescript',
+        require('@babel/preset-typescript'),
     ];
 
     var plugins = [
@@ -86,15 +86,15 @@ module.exports = function createBundler(entryFiles, options) {
     //     [ 'babel-plugin-parser-opts', { allowReturnOutsideFunction: true } ]
         // make sure that transform-decorators-legacy comes before transform-class-properties.
         [
-            '@babel/plugin-proposal-decorators',
+            require('@babel/plugin-proposal-decorators'),
             { legacy: true },
         ],
         [
-            '@babel/plugin-proposal-class-properties',
+            require('@babel/plugin-proposal-class-properties'),
             { loose: true },
         ],
         [
-            'babel-plugin-add-module-exports',
+            require('babel-plugin-add-module-exports'),
         ],
     ];
 

@@ -819,13 +819,7 @@ export default class Mat3 {
         m06 = 0, m07 = 0, m08 = 1
     ) {
         if (m00 instanceof FLOAT_ARRAY_TYPE) {
-            // deep copy
-            if (m01) {
-                this.m = new FLOAT_ARRAY_TYPE(9);
-                this.m.set(m00);
-            } else {
-                this.m = m00;
-            }
+            this.m = m00;
         } else {
             this.m = new FLOAT_ARRAY_TYPE(9);
             let m = this.m;

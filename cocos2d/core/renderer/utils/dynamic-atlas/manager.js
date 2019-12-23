@@ -163,13 +163,23 @@ let dynamicAtlasManager = {
         _atlasIndex = -1;
     },
 
-    deleteAtlasTexture (spriteFrame) {
+    deleteAtlasSpriteFrame (spriteFrame) {
         if (!spriteFrame._original) return;
 
         let texture = spriteFrame._original._texture;
+        this.deleteAtlasTexture(texture);
+    },
+
+    deleteAtlasTexture (texture) {
         if (texture) {
-            for (let i = 0, l = _atlases.length; i < l; i++) {
+            for (let i = _atlases.length - 1; i >= 0; i--) {
                 _atlases[i].deleteInnerTexture(texture);
+                
+                if (_atlases[i].isEmpty()) {
+                    _atlases[i].destroy();
+                    _atlases.splice(i, 1);
+                    _atlasIndex--;
+                }
             }
         }
     },
