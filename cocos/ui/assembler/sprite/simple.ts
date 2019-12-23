@@ -106,6 +106,7 @@ export const simple: IAssembler = {
             vertexId = 0;
         }
 
+        renderer.setLastByteOffset(vertexOffset);
         // buffer data may be reallocated, need get reference after request.
         const vbuf = buffer.vData!;
         const ibuf = buffer.iData!;

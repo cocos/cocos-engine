@@ -318,12 +318,12 @@ export class ScrollBarComponent extends Component {
         let ap = content.getAnchorPoint();
         let contentSize = content.getContentSize();
         const scrollViewSpacePos = new Vec3(- ap.x * contentSize.width, - ap.y * contentSize.height, 0);
-        content.uiTransformComp!.convertToWorldSpaceAR(scrollViewSpacePos, scrollViewSpacePos);
+        content._uiProps.uiTransformComp!.convertToWorldSpaceAR(scrollViewSpacePos, scrollViewSpacePos);
         ap = this._scrollView.node.getAnchorPoint();
         contentSize = this._scrollView.node.getContentSize();
         scrollViewSpacePos.x += ap.x * contentSize.width;
         scrollViewSpacePos.y += ap.y * contentSize.height;
-        this._scrollView.node.uiTransformComp!.convertToNodeSpaceAR(scrollViewSpacePos, scrollViewSpacePos);
+        this._scrollView.node._uiProps.uiTransformComp!.convertToNodeSpaceAR(scrollViewSpacePos, scrollViewSpacePos);
         return scrollViewSpacePos;
     }
 
@@ -361,9 +361,9 @@ export class ScrollBarComponent extends Component {
         const handleParent = this.handle!.node.parent!;
 
         Vec3.set(_tempPos_1, -barSize.width * barAnchor.x, -barSize.height * barAnchor.y, 0);
-        const leftBottomWorldPosition = this.node!.uiTransformComp!.convertToWorldSpaceAR(_tempPos_1, _tempPos_2);
+        const leftBottomWorldPosition = this.node!._uiProps.uiTransformComp!.convertToWorldSpaceAR(_tempPos_1, _tempPos_2);
         let fixupPosition = new Vec3();
-        handleParent.uiTransformComp!.convertToNodeSpaceAR(leftBottomWorldPosition, fixupPosition);
+        handleParent._uiProps.uiTransformComp!.convertToNodeSpaceAR(leftBottomWorldPosition, fixupPosition);
 
         if (this.direction === Direction.HORIZONTAL) {
             fixupPosition = new Vec3(fixupPosition.x, fixupPosition.y + (barSize.height - handleSize.height) / 2, 0);

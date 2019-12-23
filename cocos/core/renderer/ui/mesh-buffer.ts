@@ -33,6 +33,7 @@ import { GFXInputAssembler, IGFXAttribute } from '../../gfx/input-assembler';
 import { UI } from './ui';
 
 export class MeshBuffer {
+    public static OPACITY_OFFSET = 8;
     public batcher: UI;
 
     public vData: Float32Array | null = null;
