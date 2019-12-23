@@ -54,7 +54,7 @@ const Deactivating = CCObject.Flags.Deactivating;
 const Activating = CCObject.Flags.Activating;
 const ChangingState = Activating | Deactivating;
 
-export const TRANFORM_ON = 1 << 0;
+export const TRANSFORM_ON = 1 << 0;
 
 // const CHILD_ADDED = 'child-added';
 // const CHILD_REMOVED = 'child-removed';
@@ -1133,7 +1133,7 @@ export class BaseNode extends CCObject implements ISchedulable {
     public on (type: string | SystemEventType, callback: Function, target?: Object, useCapture?: any) {
         switch (type) {
             case SystemEventType.TRANSFORM_CHANGED:
-                this._eventMask |= TRANFORM_ON;
+                this._eventMask |= TRANSFORM_ON;
                 break;
         }
         this._eventProcessor.on(type, callback, target, useCapture);
@@ -1147,7 +1147,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         if (!hasListeners) {
             switch (type) {
                 case SystemEventType.TRANSFORM_CHANGED:
-                    this._eventMask &= ~TRANFORM_ON;
+                    this._eventMask &= ~TRANSFORM_ON;
                     break;
             }
         }
@@ -1172,8 +1172,8 @@ export class BaseNode extends CCObject implements ISchedulable {
     public targetOff (target: string | Object) {
         this._eventProcessor.targetOff(target);
         // Check for event mask reset
-        if ((this._eventMask & TRANFORM_ON) && !this._eventProcessor.hasEventListener(SystemEventType.TRANSFORM_CHANGED)) {
-            this._eventMask &= ~TRANFORM_ON;
+        if ((this._eventMask & TRANSFORM_ON) && !this._eventProcessor.hasEventListener(SystemEventType.TRANSFORM_CHANGED)) {
+            this._eventMask &= ~TRANSFORM_ON;
         }
     }
 

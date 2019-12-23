@@ -61,13 +61,13 @@ const _mouseEvents = [
 // TODO: rearrange event
 function _touchStartHandler (this: EventListener, touch: Touch, event: EventTouch) {
     const node = this.owner as Node | null;
-    if (!node || !node.uiTransformComp) {
+    if (!node || !node._uiProps.uiTransformComp) {
         return false;
     }
 
     touch.getUILocation(pos);
 
-    if (node.uiTransformComp.isHit(pos, this)) {
+    if (node._uiProps.uiTransformComp.isHit(pos, this)) {
         event.type = SystemEventType.TOUCH_START.toString();
         event.touch = touch;
         event.bubbles = true;
@@ -80,7 +80,7 @@ function _touchStartHandler (this: EventListener, touch: Touch, event: EventTouc
 
 function _touchMoveHandler (this: EventListener, touch: Touch, event: EventTouch) {
     const node = this.owner as Node;
-    if (!node || !node.uiTransformComp) {
+    if (!node || !node._uiProps.uiTransformComp) {
         return false;
     }
 
@@ -92,13 +92,13 @@ function _touchMoveHandler (this: EventListener, touch: Touch, event: EventTouch
 
 function _touchEndHandler (this: EventListener, touch: Touch, event: EventTouch) {
     const node = this.owner as Node;
-    if (!node || !node.uiTransformComp) {
+    if (!node || !node._uiProps.uiTransformComp) {
         return;
     }
 
     touch.getUILocation(pos);
 
-    if (node.uiTransformComp.isHit(pos, this)) {
+    if (node._uiProps.uiTransformComp.isHit(pos, this)) {
         event.type = SystemEventType.TOUCH_END.toString();
     } else {
         event.type = SystemEventType.TOUCH_CANCEL.toString();
@@ -110,7 +110,7 @@ function _touchEndHandler (this: EventListener, touch: Touch, event: EventTouch)
 
 function _touchCancelHandler (this: EventListener, touch: Touch, event: EventTouch) {
     const node = this.owner as Node;
-    if (!node || !node.uiTransformComp) {
+    if (!node || !node._uiProps.uiTransformComp) {
         return;
     }
 
@@ -122,13 +122,13 @@ function _touchCancelHandler (this: EventListener, touch: Touch, event: EventTou
 
 function _mouseDownHandler (this: EventListener, event: EventMouse) {
     const node = this.owner as Node;
-    if (!node || !node.uiTransformComp) {
+    if (!node || !node._uiProps.uiTransformComp) {
         return;
     }
 
     pos = event.getUILocation();
 
-    if (node.uiTransformComp.isHit(pos, this)) {
+    if (node._uiProps.uiTransformComp.isHit(pos, this)) {
         event.type = SystemEventType.MOUSE_DOWN.toString();
         event.bubbles = true;
         node.dispatchEvent(event);
@@ -137,13 +137,13 @@ function _mouseDownHandler (this: EventListener, event: EventMouse) {
 
 function _mouseMoveHandler (this: EventListener, event: EventMouse) {
     const node = this.owner as Node;
-    if (!node || !node.uiTransformComp) {
+    if (!node || !node._uiProps.uiTransformComp) {
         return;
     }
 
     pos = event.getUILocation();
 
-    const hit = node.uiTransformComp.isHit(pos, this);
+    const hit = node._uiProps.uiTransformComp.isHit(pos, this);
     if (hit) {
         if (!this._previousIn) {
             // Fix issue when hover node switched, previous hovered node won't get MOUSE_LEAVE notification
@@ -179,13 +179,13 @@ function _mouseMoveHandler (this: EventListener, event: EventMouse) {
 
 function _mouseUpHandler (this: EventListener, event: EventMouse) {
     const node = this.owner as Node;
-    if (!node || !node.uiTransformComp) {
+    if (!node || !node._uiProps.uiTransformComp) {
         return;
     }
 
     pos = event.getUILocation();
 
-    if (node.uiTransformComp.isHit(pos, this)) {
+    if (node._uiProps.uiTransformComp.isHit(pos, this)) {
         event.type = SystemEventType.MOUSE_UP.toString();
         event.bubbles = true;
         node.dispatchEvent(event);
@@ -196,13 +196,13 @@ function _mouseUpHandler (this: EventListener, event: EventMouse) {
 
 function _mouseWheelHandler (this: EventListener, event: EventMouse) {
     const node = this.owner as Node;
-    if (!node || !node.uiTransformComp) {
+    if (!node || !node._uiProps.uiTransformComp) {
         return;
     }
 
     pos = event.getUILocation();
 
-    if (node.uiTransformComp!.isHit(pos, this)) {
+    if (node._uiProps.uiTransformComp!.isHit(pos, this)) {
         event.type = SystemEventType.MOUSE_WHEEL.toString();
         event.bubbles = true;
         node.dispatchEvent(event);

@@ -47,7 +47,7 @@ export class UIComponent extends Component {
     protected _lastParent: Node | null = null;
 
     public __preload () {
-        this.node._uiComp = this;
+        this.node._uiProps.uiComp = this;
     }
 
     public onEnable () {
@@ -58,8 +58,8 @@ export class UIComponent extends Component {
     }
 
     public onDestroy () {
-        if (this.node._uiComp === this) {
-            this.node._uiComp = null;
+        if (this.node._uiProps.uiComp === this) {
+            this.node._uiProps.uiComp = null;
         }
     }
 
