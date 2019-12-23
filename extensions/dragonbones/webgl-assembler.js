@@ -77,9 +77,7 @@ function _getSlotMaterial (tex, blendMode) {
     }
     let materialCache = _comp._materialCache;
 
-    // Add useModel flag due to if pre same db useModel but next db no useModel,
-    // then next db will multiply model matrix more than once.
-    // Different material may use same texture, so material name must add into key
+    // The key use to find corresponding material
     let key = tex.getId() + src + dst + useModel;
     let material = materialCache[key];
     if (!material) {

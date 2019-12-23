@@ -105,7 +105,7 @@ function _getSlotMaterial (tex, blendMode) {
     let baseMaterial = _comp._materials[0];
     if (!baseMaterial) return null;
 
-    // Different material may use same texture, so material name must add into key
+    // The key use to find corresponding material
     let key = tex.getId() + src + dst + _useTint + useModel;
     let materialCache = _comp._materialCache;
     let material = materialCache[key];
