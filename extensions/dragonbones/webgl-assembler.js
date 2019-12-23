@@ -34,6 +34,7 @@ const NEED_BATCH = 0x10;
 
 let _boneColor = cc.color(255, 0, 0, 255);
 let _slotColor = cc.color(0, 0, 255, 255);
+let _originColor = cc.color(0, 255, 0, 255);
 
 let _nodeR, _nodeG, _nodeB, _nodeA,
     _premultipliedAlpha, _multiply,
@@ -341,13 +342,20 @@ export default class ArmatureAssembler extends Assembler {
                     let bone =  bones[i];
                     let boneLength = Math.max(bone.boneData.length, 5);
                     let startX = bone.globalTransformMatrix.tx;
-                    let startY = -bone.globalTransformMatrix.ty;
+                    let startY = bone.globalTransformMatrix.ty;
                     let endX = startX + bone.globalTransformMatrix.a * boneLength;
-                    let endY = startY - bone.globalTransformMatrix.b * boneLength;
+                    let endY = startY + bone.globalTransformMatrix.b * boneLength;
 
                     graphics.moveTo(startX, startY);
                     graphics.lineTo(endX, endY);
                     graphics.stroke();
+
+                    // Bone origins.
+                    graphics.circle(startX, startY, Math.PI * 2);
+                    graphics.fill();
+                    if (i === 0) {
+                        graphics.fillColor = _originColor;
+                    }
                 }
             }
         }
