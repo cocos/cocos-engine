@@ -162,7 +162,7 @@ export default class ParticleSystem3DAssembler extends Assembler {
                 break;
         }
 
-        let material = this._particleSystem.sharedMaterials[0];
+        let material = this._particleSystem.materials[0];
         let mat = material ? this._particleSystem.particleMaterial : this._defaultMat;
         Vec4.toArray(_tempScale, this._node_scale);
         mat.setProperty('scale', _tempScale);
@@ -326,7 +326,7 @@ export default class ParticleSystem3DAssembler extends Assembler {
         if (!this._particleSystem) {
             return;
         }
-        let material = this._particleSystem.sharedMaterials[0];
+        let material = this._particleSystem.materials[0];
         if (material == null && this._defaultMat == null) {
             this._defaultMat = MaterialVariant.createWithBuiltin('3d-particle', this);
         }
@@ -435,7 +435,7 @@ export default class ParticleSystem3DAssembler extends Assembler {
 
         let submeshes = this._model._subMeshes;
         let subDatas = this._model._subDatas;
-        let materials = comp.sharedMaterials;
+        let materials = comp.materials;
         renderer._flush()
         for (let i = 0, len = submeshes.length; i < len; i++) {
             let ia = submeshes[i];

@@ -202,12 +202,12 @@ export default class ParticleSystem3D extends RenderComponent {
         visible: false,
         override: true,
     })
-    get sharedMaterials () {
+    get materials () {
         // if we don't create an array copy, the editor will modify the original array directly.
         return this._materials;
     }
 
-    set sharedMaterials (val) {
+    set materials (val) {
         this._materials = val;
         this._activateMaterial();
     }
