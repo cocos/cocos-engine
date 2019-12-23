@@ -150,7 +150,7 @@ export class TerrainRenderable extends RenderableComponent {
                 this._model.initSubModel(0, this._meshData, this._currentMaterial);
             }
 
-            this.setMaterial(0, this._currentMaterial);
+            this.setMaterial(this._currentMaterial, 0);
             this._currentMaterialLayers = nlayers;
             this._model.enabled = true;
         }

@@ -45,12 +45,12 @@ export class RenderableComponent extends Component {
     set sharedMaterials (val) {
         for (let i = 0; i < val.length; i++) {
             if (val[i] !== this._materials[i]) {
-                this.setMaterial(i, val[i]);
+                this.setMaterial(val[i], i);
             }
         }
         if (val.length < this._materials.length) {
             for (let i = val.length; i < this._materials.length; i++) {
-                this.setMaterial(i, null);
+                this.setMaterial(null, i);
             }
             this._materials.splice(val.length);
         }
@@ -76,7 +76,7 @@ export class RenderableComponent extends Component {
      * @param index 材质序号
      * @param material 材质对象
      */
-    public setMaterial (index: number, material: Material | null) {
+    public setMaterial (material: Material | null, index: number) {
         this._materials[index] = material;
         if (this._materialInstances[index]) {
             if (this._materialInstances[index]!.parent !== material) {
@@ -158,7 +158,7 @@ export class RenderableComponent extends Component {
             }
         } else {
             if (matInst !== this._materials[index]) {
-                this.setMaterial(index, matInst as Material);
+                this.setMaterial(matInst as Material, index);
             }
         }
     }

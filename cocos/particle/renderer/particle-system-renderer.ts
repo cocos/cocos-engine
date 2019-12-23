@@ -179,7 +179,7 @@ export default class ParticleSystemRenderer {
     }
 
     public set particleMaterial (val) {
-        this._particleSystem.setMaterial(0, val);
+        this._particleSystem.setMaterial(val, 0);
     }
 
     /**
@@ -198,7 +198,7 @@ export default class ParticleSystemRenderer {
     }
 
     public set trailMaterial (val) {
-        this._particleSystem.setMaterial(1, val);
+        this._particleSystem.setMaterial(val, 1);
     }
 
     private _defines: IDefineMap;
@@ -457,7 +457,7 @@ export default class ParticleSystemRenderer {
             return;
         }
         if (this._particleSystem.sharedMaterial != null && this._particleSystem.sharedMaterial._effectAsset._name.indexOf('particle') === -1) {
-            this._particleSystem.setMaterial(0, null);
+            this._particleSystem.setMaterial(null, 0);
         }
         if (this._particleSystem.sharedMaterial == null && this._defaultMat == null) {
             this._defaultMat = new MaterialInstance(builtinResMgr.get<Material>('default-particle-material'), this._particleSystem);
