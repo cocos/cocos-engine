@@ -443,7 +443,7 @@ sp.Skeleton = cc.Class({
         return cc.Material.getBuiltinMaterial('2d-spine');
     },
 
-    // override base class _updateMaterial to clear material cache
+    // override base class _updateMaterial to set define value and clear material cache
     _updateMaterial () {
         let useTint = this.useTint || (this.isAnimationCached() && !CC_NATIVERENDERER);
         let baseMaterial = this.getMaterial(0);

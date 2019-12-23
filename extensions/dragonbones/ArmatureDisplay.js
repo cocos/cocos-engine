@@ -421,7 +421,7 @@ let ArmatureDisplay = cc.Class({
         this._materialCache = {};
     },
 
-    // override base class _updateMaterial to clear material cache
+    // override base class _updateMaterial to set define value and clear material cache
     _updateMaterial () {
         let baseMaterial = this.getMaterial(0);
         baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
