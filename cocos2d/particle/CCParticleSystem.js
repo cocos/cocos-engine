@@ -1139,7 +1139,7 @@ var ParticleSystem = cc.Class({
 
         // position
         // Make empty positionType value and old version compatible
-        this.positionType = parseFloat(dict['positionType'] || PositionType.RELATIVE);
+        this.positionType = parseFloat(dict['positionType'] !== undefined ? dict['positionType'] : PositionType.RELATIVE);
         // for 
         this.sourcePos.x = 0;
         this.sourcePos.y = 0;
