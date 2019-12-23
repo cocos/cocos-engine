@@ -111,7 +111,7 @@ export class SimpleTexture extends TextureBase {
      * @param level Mipmap 层级。
      * @param arrayIndex 数组索引。
      */
-    public uploadData (source: HTMLCanvasElement | HTMLImageElement | ArrayBuffer, level: number = 0, arrayIndex: number = 0) {
+    public uploadData (source: HTMLCanvasElement | HTMLImageElement | ArrayBufferView, level: number = 0, arrayIndex: number = 0) {
         if (!this._gfxTexture || this._gfxTexture.mipLevel <= level) {
             return;
         }
@@ -136,7 +136,7 @@ export class SimpleTexture extends TextureBase {
             }
         }
 
-        if (source instanceof ArrayBuffer) {
+        if (ArrayBuffer.isView(source)) {
             gfxDevice.copyBuffersToTexture([source], this._gfxTexture, _regions);
         } else {
             gfxDevice.copyTexImagesToTexture([source], this._gfxTexture, _regions);
@@ -149,13 +149,7 @@ export class SimpleTexture extends TextureBase {
             if (!data) {
                 return;
             }
-            let source: HTMLCanvasElement | HTMLImageElement | ArrayBuffer;
-            if (ArrayBuffer.isView(data)) {
-                source = (data as ArrayBufferView).buffer;
-            } else {
-                source = (data as HTMLCanvasElement | HTMLImageElement);
-            }
-            this.uploadData(source, level, arrayIndex);
+            this.uploadData(data, level, arrayIndex);
             this._checkTextureLoaded();
         };
         if (image.loaded) {

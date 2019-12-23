@@ -320,11 +320,11 @@ export abstract class GFXDevice {
         return this._memoryStatus;
     }
 
-    get reverseCW(): boolean {
+    get reverseCW (): boolean {
         return this._reverseCW;
     }
 
-    set reverseCW(val: boolean) {
+    set reverseCW (val: boolean) {
         this._reverseCW = val;
     }
 
@@ -506,7 +506,7 @@ export abstract class GFXDevice {
      * @param texture GFX纹理。
      * @param regions GFX缓冲纹理拷贝区域信息。
      */
-    public abstract copyBuffersToTexture (buffers: ArrayBuffer[], texture: GFXTexture, regions: GFXBufferTextureCopy[]);
+    public abstract copyBuffersToTexture (buffers: ArrayBufferView[], texture: GFXTexture, regions: GFXBufferTextureCopy[]);
 
     /**
      * @zh

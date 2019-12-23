@@ -559,7 +559,7 @@ export class TerrainBlock {
                 weightIndex += 1;
             }
         }
-        this._weightMap.uploadData(weightData.buffer);
+        this._weightMap.uploadData(weightData);
     }
 
     public _updateLightmap(tex: Texture2D|null, uoff: number, voff: number, uscale: number, vscale: number) {

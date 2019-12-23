@@ -85,7 +85,7 @@ export class WebGL2GFXBuffer extends GFXBuffer {
             this._bufferView = new Uint8Array(this._size);
             this._bufferView.set(oldView);
             if (this._gpuBuffer) {
-                this._gpuBuffer.buffer = this._bufferView.buffer;
+                this._gpuBuffer.buffer = this._bufferView;
             }
         }
 

@@ -620,7 +620,7 @@ export class WebGLGFXDevice extends GFXDevice {
         queue.clear();
     }
 
-    public copyBuffersToTexture (buffers: ArrayBuffer[], texture: GFXTexture, regions: GFXBufferTextureCopy[]) {
+    public copyBuffersToTexture (buffers: ArrayBufferView[], texture: GFXTexture, regions: GFXBufferTextureCopy[]) {
         WebGLCmdFuncCopyBuffersToTexture(
             this,
             buffers,

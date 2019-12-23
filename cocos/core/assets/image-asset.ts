@@ -73,8 +73,8 @@ export class ImageAsset extends Asset {
      * 此图像资源的图像数据。
      */
     get data () {
-        let data:any = (this._nativeData as IMemoryImageSource)._data;
-        return (ArrayBuffer.isView(data) || data instanceof ArrayBuffer) ? data : this._nativeData;
+        const data = (this._nativeData as IMemoryImageSource)._data;
+        return ArrayBuffer.isView(data) ? data : this._nativeData as (HTMLCanvasElement | HTMLImageElement);
     }
 
     /**
@@ -119,7 +119,7 @@ export class ImageAsset extends Asset {
 
     get _texture () {
         if (!this._tex) {
-            let tex = new cc.Texture2D();
+            const tex = new cc.Texture2D();
             tex.name = this._url;
             tex.image = this;
             this._tex = tex;

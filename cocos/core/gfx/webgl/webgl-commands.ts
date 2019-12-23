@@ -630,7 +630,7 @@ export function WebGLCmdFuncCreateBuffer (device: WebGLGFXDevice, gpuBuffer: Web
         gpuBuffer.glTarget = gl.NONE;
 
         if (gpuBuffer.buffer) {
-            gpuBuffer.vf32 = new Float32Array(gpuBuffer.buffer as ArrayBuffer);
+            gpuBuffer.vf32 = new Float32Array(gpuBuffer.buffer.buffer);
         }
     } else if (gpuBuffer.usage & GFXBufferUsageBit.INDIRECT) {
         gpuBuffer.glTarget = gl.NONE;
@@ -698,7 +698,7 @@ export function WebGLCmdFuncResizeBuffer (device: WebGLGFXDevice, gpuBuffer: Web
     } else if (gpuBuffer.usage & GFXBufferUsageBit.UNIFORM) {
         // console.error("WebGL 1.0 doesn't support uniform buffer.");
         if (gpuBuffer.buffer) {
-            gpuBuffer.vf32 = new Float32Array(gpuBuffer.buffer as ArrayBuffer);
+            gpuBuffer.vf32 = new Float32Array(gpuBuffer.buffer.buffer);
         }
     } else if ((gpuBuffer.usage & GFXBufferUsageBit.INDIRECT) ||
             (gpuBuffer.usage & GFXBufferUsageBit.TRANSFER_DST) ||
@@ -2640,7 +2640,7 @@ export function WebGLCmdFuncCopyTexImagesToTexture (
 
 export function WebGLCmdFuncCopyBuffersToTexture (
     device: WebGLGFXDevice,
-    buffers: ArrayBuffer[],
+    buffers: ArrayBufferView[],
     gpuTexture: WebGLGPUTexture,
     regions: GFXBufferTextureCopy[]) {
 
@@ -2668,7 +2668,7 @@ export function WebGLCmdFuncCopyBuffersToTexture (
                 // console.debug('Copying buffer to texture 2D: ' + w + ' x ' + h);
 
                 for (m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
-                    const pixels = (fmtInfo.type === GFXFormatType.FLOAT && !isCompressed ? new Float32Array(buffers[n++]) : new Uint8Array(buffers[n++]));
+                    const pixels = buffers[n++];
                     if (!isCompressed) {
                         gl.texSubImage2D(gl.TEXTURE_2D, m,
                             region.texOffset.x, region.texOffset.y, w, h,
@@ -2703,7 +2703,7 @@ export function WebGLCmdFuncCopyBuffersToTexture (
 
                     const mcount = region.texSubres.baseMipLevel + region.texSubres.levelCount;
                     for (m = region.texSubres.baseMipLevel; m < mcount; ++m) {
-                        const pixels = (fmtInfo.type === GFXFormatType.FLOAT && !isCompressed ? new Float32Array(buffers[n++]) : new Uint8Array(buffers[n++]));
+                        const pixels = buffers[n++];
                         if (!isCompressed) {
                             gl.texSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, m,
                                 region.texOffset.x, region.texOffset.y, w, h,

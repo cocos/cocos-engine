@@ -2645,7 +2645,7 @@ export function WebGL2CmdFuncCopyTexImagesToTexture (
 
 export function WebGL2CmdFuncCopyBuffersToTexture (
     device: WebGL2GFXDevice,
-    buffers: ArrayBuffer[],
+    buffers: ArrayBufferView[],
     gpuTexture: WebGL2GPUTexture,
     regions: GFXBufferTextureCopy[]) {
 
@@ -2670,7 +2670,7 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
                 w = region.texExtent.width;
                 h = region.texExtent.height;
                 for (m = region.texSubres.baseMipLevel; m < region.texSubres.levelCount; ++m) {
-                    const pixels = (fmtInfo.type === GFXFormatType.FLOAT && !isCompressed ? new Float32Array(buffers[n++]) : new Uint8Array(buffers[n++]));
+                    const pixels = buffers[n++];
                     if (!isCompressed) {
                         gl.texSubImage2D(gl.TEXTURE_2D, m,
                             region.texOffset.x, region.texOffset.y, w, h,
@@ -2702,7 +2702,7 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
 
                     const mcount = region.texSubres.baseMipLevel + region.texSubres.levelCount;
                     for (m = region.texSubres.baseMipLevel; m < mcount; ++m) {
-                        const pixels = (fmtInfo.type === GFXFormatType.FLOAT && !isCompressed ? new Float32Array(buffers[n++]) : new Uint8Array(buffers[n++]));
+                        const pixels = buffers[n++];
 
                         if (!isCompressed) {
                             gl.texSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, m,

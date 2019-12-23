@@ -49,7 +49,7 @@ import { Root } from '../../root';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
 import { customizeType, getBindingFromHandle, getBindingTypeFromHandle,
     getOffsetFromHandle, getTypeFromHandle, type2default, type2reader, type2writer } from './pass-utils';
-import { IProgramInfo, programLib, IShaderResources } from './program-lib';
+import { IProgramInfo, IShaderResources, programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
 
 export interface IDefineMap { [name: string]: number | boolean | string; }

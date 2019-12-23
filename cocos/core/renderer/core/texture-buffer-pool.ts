@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { GFXBufferTextureCopy, GFXFormat, GFXFormatInfos, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../../gfx/define';
+import { GFXBufferTextureCopy, GFXFormat, GFXFormatInfos, GFXFormatType, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXTexture } from '../../gfx/texture';
 import { GFXTextureView } from '../../gfx/texture-view';
@@ -44,15 +44,17 @@ export interface ITextureBufferPoolInfo {
 export class TextureBufferPool {
 
     private _device: GFXDevice;
-    private _format: GFXFormat = GFXFormat.UNKNOWN;
-    private _formatSize: number = 0;
+    private _format = GFXFormat.UNKNOWN;
+    private _formatSize = 0;
     private _chunks: ITextureBuffer[] = [];
     private _chunkCount = 0;
     private _handles: ITextureBufferHandle[] = [];
-    private _region0: GFXBufferTextureCopy = new GFXBufferTextureCopy();
-    private _region1: GFXBufferTextureCopy = new GFXBufferTextureCopy();
-    private _region2: GFXBufferTextureCopy = new GFXBufferTextureCopy();
+    private _region0 = new GFXBufferTextureCopy();
+    private _region1 = new GFXBufferTextureCopy();
+    private _region2 = new GFXBufferTextureCopy();
     private _roundUpFn: ((targetSize: number, formatSize: number) => number) | null = null;
+    private _bufferViewCtor: Uint8ArrayConstructor | Float32ArrayConstructor = Uint8Array;
+    private _channels = 4;
     private _inOrderFree = false;
 
     public constructor (device: GFXDevice) {
@@ -60,9 +62,11 @@ export class TextureBufferPool {
     }
 
     public initialize (info: ITextureBufferPoolInfo): boolean {
-
+        const formatInfo = GFXFormatInfos[info.format];
         this._format = info.format;
-        this._formatSize = GFXFormatInfos[this._format].size;
+        this._formatSize = formatInfo.size;
+        this._channels = formatInfo.count;
+        this._bufferViewCtor = formatInfo.type === GFXFormatType.FLOAT ? Float32Array : Uint8Array;
         this._chunks = new Array(info.maxChunks);
         this._roundUpFn = info.roundUpFn || null;
         this._inOrderFree = info.inOrderFree || false;
@@ -197,7 +201,7 @@ export class TextureBufferPool {
 
     public update (handle: ITextureBufferHandle, buffer: ArrayBuffer) {
 
-        const buffers: ArrayBuffer[] = [];
+        const buffers: ArrayBufferView[] = [];
         const regions: GFXBufferTextureCopy[] = [];
         const start = handle.start / this._formatSize;
 
@@ -213,7 +217,7 @@ export class TextureBufferPool {
             this._region0.texExtent.width = copySize;
             this._region0.texExtent.height = 1;
 
-            buffers.push(buffer.slice(begin * this._formatSize, (begin + copySize) * this._formatSize));
+            buffers.push(new this._bufferViewCtor(buffer, begin * this._formatSize, copySize * this._channels));
             regions.push(this._region0);
 
             offsetX = 0;
@@ -236,7 +240,7 @@ export class TextureBufferPool {
                 this._region1.texExtent.height = 1;
             }
 
-            buffers.push(buffer.slice(begin * this._formatSize, (begin + copySize) * this._formatSize));
+            buffers.push(new this._bufferViewCtor(buffer, begin * this._formatSize, copySize * this._channels));
             regions.push(this._region1);
 
             offsetX = 0;
@@ -251,7 +255,7 @@ export class TextureBufferPool {
             this._region2.texExtent.width = remainSize;
             this._region2.texExtent.height = 1;
 
-            buffers.push(buffer.slice(begin * this._formatSize, (begin + remainSize) * this._formatSize));
+            buffers.push(new this._bufferViewCtor(buffer, begin * this._formatSize, remainSize * this._channels));
             regions.push(this._region2);
         }
 

@@ -39,7 +39,7 @@ export class WebGLGPUBuffer {
 
     public glTarget: GLenum = 0;
     public glBuffer: WebGLBuffer | null = null;
-    public buffer: ArrayBuffer | null = null;
+    public buffer: ArrayBufferView | null = null;
     public vf32: Float32Array | null = null;
     public indirects: IGFXDrawInfo[] = [];
 }
