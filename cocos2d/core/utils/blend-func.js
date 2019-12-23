@@ -4,6 +4,9 @@ const BlendFactor = require('../platform/CCMacro').BlendFactor;
 const gfx = require('../../renderer/gfx');
 
 /**
+ * @module cc
+ */
+/**
  * !#en
  * Helper class for setting material blend function.
  * !#zh
