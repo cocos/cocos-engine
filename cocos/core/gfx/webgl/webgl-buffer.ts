@@ -17,7 +17,7 @@ export class WebGLGFXBuffer extends GFXBuffer {
     }
 
     private _gpuBuffer: WebGLGPUBuffer | null = null;
-    private _uniformBuffer: ArrayBuffer | null = null;
+    private _uniformBuffer: Uint8Array | null = null;
     private _indirectBuffer: IGFXIndirectBuffer | null = null;
 
     constructor (device: GFXDevice) {
@@ -37,7 +37,7 @@ export class WebGLGFXBuffer extends GFXBuffer {
             this._indirectBuffer = { drawInfos: [] };
         } else {
             if ((this._usage & GFXBufferUsageBit.UNIFORM) && this._size > 0) {
-                this._uniformBuffer = new ArrayBuffer(this._size);
+                this._uniformBuffer = new Uint8Array(this._size);
             }
         }
 
@@ -88,7 +88,7 @@ export class WebGLGFXBuffer extends GFXBuffer {
         this._count = this._size / this._stride;
 
         if (this._uniformBuffer) {
-            this._uniformBuffer = new ArrayBuffer(this._size);
+            this._uniformBuffer = new Uint8Array(this._size);
         }
 
         if (this._bufferView && oldSize !== size) {
@@ -96,7 +96,7 @@ export class WebGLGFXBuffer extends GFXBuffer {
             this._bufferView = new Uint8Array(this._size);
             this._bufferView.set(oldView);
             if (this._gpuBuffer) {
-                this._gpuBuffer.buffer = this._bufferView.buffer;
+                this._gpuBuffer.buffer = this._bufferView;
             }
         }
 

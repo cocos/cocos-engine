@@ -391,7 +391,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
     protected cookTextures (target: Texture2D, prop: string, passIdx: number) {
         const texImages: TexImageSource[] = [];
         const texImageRegions: GFXBufferTextureCopy[] = [];
-        const texBuffers: ArrayBuffer[] = [];
+        const texBuffers: ArrayBufferView[] = [];
         const texBufferRegions: GFXBufferTextureCopy[] = [];
         for (const unit of this.units) {
             if (!unit.material) { continue; }
@@ -407,7 +407,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
                     texImages.push(data);
                     texImageRegions.push(region);
                 } else {
-                    texBuffers.push((data as ArrayBufferView).buffer);
+                    texBuffers.push(data);
                     texBufferRegions.push(region);
                 }
             }
