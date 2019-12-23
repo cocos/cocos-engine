@@ -200,6 +200,9 @@ export default class TiledAssembler extends Assembler2D {
 
         let hadTopOrBottomBorder = (sprite.spriteFrame.insetTop > 0 || sprite.spriteFrame.insetBottom > 0);
         let hadLeftOrRightBorder = (sprite.spriteFrame.insetLeft > 0 || sprite.spriteFrame.insetRight > 0);
+        if (hadTopOrBottomBorder || hadLeftOrRightBorder) {
+            cc.warnID(9108);
+        }
         let rotated = sprite.spriteFrame._rotated;
         let floatsPerVert = this.floatsPerVert, uvOffset = this.uvOffset;
         for (let yindex = 0, ylength = row; yindex < ylength; ++yindex) {
