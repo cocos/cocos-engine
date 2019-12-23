@@ -23,8 +23,6 @@ export class TweenSystem extends System {
     }
 }
 
-cc.TweenSystem = TweenSystem;
-
 director.on(Director.EVENT_INIT, function () {
     let sys = new TweenSystem();
     (TweenSystem.instance as any) = sys;
