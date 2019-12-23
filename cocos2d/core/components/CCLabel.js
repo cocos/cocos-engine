@@ -566,6 +566,7 @@ let Label = cc.Class({
     },
 
     _nodeSizeChanged () {
+        if (CC_EDITOR) return;
         // Because the content size is automatically updated when overflow is NONE.
         // And this will conflict with the alignment of the CCWidget.
         if (this.overflow !== Overflow.NONE) {
