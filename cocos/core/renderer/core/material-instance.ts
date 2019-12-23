@@ -3,8 +3,9 @@ import { EffectAsset, Material } from '../../assets';
 import { _uploadProperty, IMaterial } from '../../utils/material-interface';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
 import { IPass } from '../../utils/pass-interface';
-import { IDefineMap, PassOverrides } from './pass';
+import { PassOverrides } from './pass';
 import { PassInstance } from './pass-instance';
+import { IDefineMap } from './pass-utils';
 
 export class MaterialInstance implements IMaterial {
 

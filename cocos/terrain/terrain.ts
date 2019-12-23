@@ -16,7 +16,7 @@ import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXP
 import { GFXDevice } from '../core/gfx/device';
 import { IGFXAttribute } from '../core/gfx/input-assembler';
 import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '../core/math';
-import { IDefineMap } from '../core/renderer/core/pass';
+import { IDefineMap } from '../core/renderer/core/pass-utils';
 import { Model } from '../core/renderer/scene/model';
 import { Root } from '../core/root';
 import { PrivateNode } from '../core/scene-graph/private-node';

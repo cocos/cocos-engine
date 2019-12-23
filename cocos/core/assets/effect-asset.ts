@@ -33,7 +33,7 @@ import { GFXDynamicState, GFXPrimitiveMode } from '../gfx/define';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../gfx/pipeline-state';
 import { GFXUniformBlock, GFXUniformSampler } from '../gfx/shader';
 import { RenderPassStage } from '../pipeline/define';
-import { IDefineMap } from '../renderer/core/pass';
+import { IDefineMap } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
 import { Asset } from './asset';
 

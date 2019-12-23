@@ -5,7 +5,8 @@ import { IGFXBinding } from '../gfx/binding-layout';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../gfx/pipeline-state';
 import { BatchedBuffer } from '../pipeline/batched-buffer';
 import { RenderPassStage, RenderPriority } from '../pipeline/define';
-import { IDefineMap, PassOverrides } from '../renderer/core/pass';
+import { PassOverrides } from '../renderer/core/pass';
+import { IDefineMap } from '../renderer/core/pass-utils';
 import { murmurhash2_32_gc } from './murmurhash2_gc';
 
 export interface IBlock {
@@ -211,7 +212,7 @@ export interface IPass {
      * 尝试编译 shader 并获取相关资源引用。
      * @param defineOverrides shader 预处理宏定义重载
      */
-    tryCompile (defineOverrides?: IDefineMap, saveOverrides?: boolean): any;
+    tryCompile (defineOverrides?: IDefineMap): any;
 
     /**
      * @zh

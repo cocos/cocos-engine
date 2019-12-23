@@ -20,7 +20,7 @@ import { GFXTexture } from '../gfx/texture';
 import { GFXTextureView } from '../gfx/texture-view';
 import { Mat4, Vec3, Vec4 } from '../math';
 import { Camera, Model } from '../renderer';
-import { IDefineMap } from '../renderer/core/pass';
+import { IDefineMap } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
 import { SKYBOX_FLAG } from '../renderer/scene/camera';
 import { Root } from '../root';

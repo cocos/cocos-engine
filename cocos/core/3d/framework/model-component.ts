@@ -268,7 +268,9 @@ export class ModelComponent extends RenderableComponent {
         this._model.isDynamicBatching = this._enableDynamicBatching; // should pass this in before create PSO
         const meshCount = this._mesh ? this._mesh.subMeshCount : 0;
         for (let i = 0; i < meshCount; ++i) {
-            const material = this.getRenderMaterial(i);
+            // warning:这里先改成model总是使用材质实例，等model中的createPipelineState修改完后再替换成getRenderMaterial
+            const material = this.getMaterialInstance(i);
+            // const material = this.getRenderMaterial(i);
             const renderingMesh = this._mesh.renderingMesh;
             if (renderingMesh) {
                 const subMeshData = renderingMesh.getSubmesh(i);

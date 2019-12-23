@@ -31,7 +31,8 @@
 import { ccclass, property } from '../../core/data/class-decorator';
 import { builtinResMgr } from '../3d/builtin/init';
 import { RenderableComponent } from '../3d/framework/renderable-component';
-import { IDefineMap, Pass, PassOverrides } from '../renderer/core/pass';
+import { Pass, PassOverrides } from '../renderer/core/pass';
+import { IDefineMap } from '../renderer/core/pass-utils';
 import { _uploadProperty, generateMaterailHash, IMaterial } from '../utils/material-interface';
 import { Asset } from './asset';
 import { EffectAsset } from './effect-asset';
@@ -222,18 +223,7 @@ export class Material extends Asset implements IMaterial {
      * @param passIdx 要重载的 pass 索引，默认重载所有 pass。
      */
     public overridePipelineStates (overrides: PassOverrides, passIdx?: number) {
-        if (!this._passes || !this._effectAsset) { return; }
-        const passInfos = this._effectAsset.techniques[this._techIdx].passes;
-        if (passIdx === undefined) {
-            for (let i = 0; i < this._passes.length; i++) {
-                const pass = this._passes[i];
-                this._states[i] = overrides;
-                pass.overridePipelineStates(passInfos[pass.idxInTech], overrides);
-            }
-        } else {
-            this._states[passIdx] = overrides;
-            this._passes[passIdx].overridePipelineStates(passInfos[passIdx], overrides);
-        }
+        console.error('Material:' + this.effectName + ' cann\'t be overwritten.Please use pass instance to do so.');
     }
 
     /**

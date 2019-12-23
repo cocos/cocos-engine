@@ -45,11 +45,11 @@ import { isBuiltinBinding, RenderPassStage, RenderPriority } from '../../pipelin
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
 import { generatePassPSOHash, IBlock, IPass, IPassDynamics, IPSOHashInfo } from '../../utils/pass-interface';
-import { customizeType, getBindingFromHandle, getBindingTypeFromHandle, getOffsetFromHandle, getTypeFromHandle, type2default, type2reader, type2writer } from './pass-utils';
+// tslint:disable-next-line: max-line-length
+import { assignDefines, customizeType, getBindingFromHandle, getBindingTypeFromHandle, getOffsetFromHandle, getTypeFromHandle, IDefineMap, type2default, type2reader, type2writer } from './pass-utils';
 import { IProgramInfo, IShaderResources, programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
 
-export interface IDefineMap { [name: string]: number | boolean | string; }
 export interface IPassInfoFull extends IPassInfo {
     // generated part
     idxInTech: number;
@@ -500,15 +500,18 @@ export class Pass implements IPass {
      */
     public tryCompile (
         defineOverrides?: IDefineMap,
-        saveOverrides = true,
     ): IShaderResources | null /* TODO: Explicit since TS4053 bug , changes required once the issue is fixed. */ {
+        if (defineOverrides && !assignDefines(this._defines, defineOverrides)) {
+            return null;
+        }
         const pipeline = (cc.director.root as Root).pipeline;
         if (!pipeline) { return null; }
         this._renderPass = pipeline.getRenderPass(this._stage);
         if (!this._renderPass) { console.warn(`illegal pass stage.`); return null; }
         const res = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
         if (!res.shader) { console.warn(`create shader ${this._programName} failed`); return null; }
-        if (saveOverrides) { this._shader = res.shader; this._bindings = res.bindings; }
+        this._shader = res.shader;
+        this._bindings = res.bindings;
         this._hash = generatePassPSOHash(this);
         return res;
     }

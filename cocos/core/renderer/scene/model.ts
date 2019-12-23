@@ -14,10 +14,10 @@ import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
 import { IMaterial } from '../../utils/material-interface';
 import { IPass } from '../../utils/pass-interface';
-import { IDefineMap } from '../core/pass';
 import { customizationManager } from './customization-manager';
 import { RenderScene } from './render-scene';
 import { SubModel } from './submodel';
+import { IDefineMap } from '../core/pass-utils';
 
 const m4_1 = new Mat4();
 
@@ -360,7 +360,7 @@ export class Model {
         }
     }
 
-    protected createPipelineState (pass: IPass, defineOverrides?: IDefineMap, stateOverrides?: IPassStates) {
+    protected createPipelineState (pass: IPass, defineOverrides?: IDefineMap) {
         defineOverrides = defineOverrides || {};
         if (pass.blendState.targets[0].blend) {
             this._isDynamicBatching = false;

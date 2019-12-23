@@ -11,8 +11,8 @@ import { isBuiltinBinding, RenderPassStage, RenderPriority } from '../../pipelin
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { IMaterial } from '../../utils/material-interface';
 import { generatePassPSOHash, IBlock, IPass, IPassDynamics, IPSOHashInfo } from '../../utils/pass-interface';
-import { IDefineMap, Pass } from './pass';
-import { getBindingFromHandle, getOffsetFromHandle, getTypeFromHandle, type2default, type2reader, type2writer } from './pass-utils';
+import { Pass } from './pass';
+import { assignDefines, getBindingFromHandle, getOffsetFromHandle, getTypeFromHandle, IDefineMap, type2default, type2reader, type2writer } from './pass-utils';
 import { IProgramInfo, programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
 
@@ -360,7 +360,10 @@ export class PassInstance implements IPass {
         }
     }
 
-    public tryCompile (defineOverrides?: IDefineMap, saveOverrides?: boolean): any {
+    public tryCompile (defineOverrides?: IDefineMap): any {
+        if (defineOverrides && !assignDefines(this._defines, defineOverrides)) {
+            return null;
+        }
         const pipeline = cc.director.root.pipeline;
         if (!pipeline) {
             return null;
@@ -369,25 +372,13 @@ export class PassInstance implements IPass {
         if (!this._renderPass) {
             console.warn(`illegal pass stage.`); return null;
         }
-        let defines = this._defines;
-        if (defineOverrides) {
-            if (saveOverrides) {
-                Object.assign(this._defines, defineOverrides);
-            }
-            else {
-                Object.assign(defineOverrides, this._defines);
-                defines = defineOverrides;
-            }
-        }
-        const res = programLib.getGFXShader(this.device, this.program, defines, pipeline);
+        const res = programLib.getGFXShader(this.device, this.program, this._defines, pipeline);
         if (!res.shader) {
             console.warn(`create shader ${this.program} failed`);
             return null;
         }
-        if (saveOverrides) {
-            this._shader = res.shader;
-            this._bindings = res.bindings;
-        }
+        this._shader = res.shader;
+        this._bindings = res.bindings;
         this._hash = generatePassPSOHash(this);
         this._onPipelineStateChanged();
         return res;
