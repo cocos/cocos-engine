@@ -183,7 +183,6 @@ async function _internalBuild (options: IAdvancedOptions) {
             highlightCode: true,
             ignore: [
                 'node_modules/@cocos/cannon/**',
-                'node_modules/tween.js/**',
             ],
             plugins: [
                 ['@babel/plugin-transform-for-of', {
@@ -199,7 +198,6 @@ async function _internalBuild (options: IAdvancedOptions) {
         commonjs({
             namedExports: {
                 '@cocos/cannon': ['CANNON'],
-                'tween.js': ['TWEEN'],
             },
         }),
     ];

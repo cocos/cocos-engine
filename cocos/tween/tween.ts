@@ -2,302 +2,448 @@
  * @category tween
  */
 
+import { TweenSystem } from './tween-system';
+import { warn } from '../core';
+import { ActionInterval, sequence, repeat, repeatForever, reverseTime, delayTime, spawn } from './actions/action-interval';
+import { removeSelf, show, hide, callFunc } from './actions/action-instant';
+import { Action } from './actions/action';
+import { ITweenOption } from './export-api';
 import { TweenAction } from './tween-action';
-import { TweenCommand } from './tween-command';
-import { TweenUnion } from './tween-union';
-import { ITweenOption, ITweenProp } from './export-api';
-import System from '../core/components/system';
-import { director, Director } from '../core/director';
+import { SetAction } from './set-action';
 
 /**
  * @en
- * for compatible cocos creator
+ * Tween provide a simple and flexible way to action, It's transplanted from cocos creator。
  * @zh
- * 为兼容 cocos creator 的 Tween 而封装的 tween.js
- * @see
- * https://github.com/cocos-creator/tween.js
+ * Tween 提供了一个简单灵活的方法来缓动目标，从 creator 移植而来。
+ * @class Tween
+ * @param {Object} [target]
+ * @example
+ * tweenUtil(this.node)
+ *   .to(1, {scale: new Vec3(2, 2, 2), position: new Vec3(5, 5, 5)})
+ *   .call(() => { console.log('This is a callback'); })
+ *   .by(1, {scale: new Vec3(-1, -1, -1), position: new Vec3(-5, -5, -5)}, {easing: 'sineOutIn'})
+ *   .start()
  */
 export class Tween {
 
-    private static _recursiveForBy (props: object) {
-        let theProp: number | object;
-        // tslint:disable-next-line: forin
-        for (const property in props) {
-            theProp = props[property];
-            if (typeof theProp === 'number') {
-                const symbol = theProp > 0 ? '+' : '-';
-                props[property] = symbol + theProp;
-            } else if (typeof theProp === 'object') {
-                Tween._recursiveForBy(theProp);
-            }
-        }
-    }
+    private _actions: Action[] = [];
+    private _finalAction: Action | null = null;
+    private _target: object | null = null;
 
-    private _command: TweenCommand = new TweenCommand();
-
-    private _default: TweenUnion;
-
-    private _uionDirty: boolean = false;
-
-    constructor (target: Object) {
-        this._default = new TweenUnion(target);
+    constructor (target?: object | null) {
+        this._target = target === undefined ? null : target;
     }
 
     /**
+     * @en
+     * Insert an action or tween to this sequence
      * @zh
-     * 增加一个相对缓动
-     * @param duration 缓动时间
-     * @param props 缓动的属性，相对值
-     * @param opts 缓动的可选项
+     * 插入一个 tween 到队列中
+     * @method then 
+     * @param {Tween} other
+     * @return {Tween}
      */
-    public to (duration: number, props: ITweenProp, opts?: ITweenOption) {
-        if (this._uionDirty) {
-            this._default = new TweenUnion(this._default.target);
-            this._uionDirty = false;
+    then (other: Tween): Tween {
+        if (other instanceof Action) {
+            this._actions.push(other.clone());
         }
-
-        const action = new TweenAction(this._default.target, duration * 1000, props, opts);
-        if (this._default.length > 0) {
-            this._default.actions[this._default.length - 1].tween.chain(action.tween);
-        }
-        this._default.actions.push(action);
-        return this;
-    }
-
-    /**
-     * @zh
-     * 增加一个绝对缓动
-     * @param duration 缓动时间
-     * @param props 缓动的属性，绝对值
-     * @param opts 缓动的可选项
-     */
-    public by (duration: number, props: ITweenProp, opts?: ITweenOption) {
-        if (this._uionDirty) {
-            this._default = new TweenUnion(this._default.target);
-            this._uionDirty = false;
-        }
-
-        Tween._recursiveForBy(props);
-
-        const action = new TweenAction(this._default.target, duration * 1000, props, opts);
-        if (this._default.length > 0) {
-            this._default.actions[this._default.length - 1].tween.chain(action.tween);
-        }
-        this._default.actions.push(action);
-        return this;
-    }
-
-    /**
-     * @zh
-     * 将以上的缓动联合成一个 union
-     */
-    public union () {
-        if (!this._command.isExistUnion(this._default)) {
-            this._command.union(this._default);
-            this._uionDirty = true;
+        else {
+            this._actions.push(other._union());
         }
         return this;
     }
 
     /**
+     * @en
+     * Set tween target
      * @zh
-     * 开始执行缓动。
-     * 
-     * 注：调用此方法后，请勿再增加缓动行为。
+     * 设置 tween 的 target
+     * @method target
+     * @param {Object} target
+     * @return {Tween}
      */
-    public start () {
-        if (this._default.length > 0) {
-            if (!this._command.isExistUnion(this._default)) {
-                this._command.union(this._default);
-            }
+    target (target: object | null): Tween {
+        this._target = target;
+        return this;
+    }
+
+    /**
+     * @en
+     * Start this tween
+     * @zh
+     * 运行当前 tween
+     * @method start
+     * @return {Tween}
+     */
+    start (): Tween {
+        if (!this._target) {
+            warn('Please set target to tween first');
+            return this;
         }
-        this._command.start();
+        if (this._finalAction) {
+            TweenSystem.instance.ActionManager.removeAction(this._finalAction);
+        }
+        this._finalAction = this._union();
+        TweenSystem.instance.ActionManager.addAction(this._finalAction, this._target as any, false);
         return this;
     }
 
     /**
+     * @en
+     * Stop this tween
      * @zh
-     * 停止缓动。
-     * 
-     * 注：此方法尚不稳定。
+     * 停止当前 tween
+     * @method stop
+     * @return {Tween}
      */
-    public stop () {
-        this._command.stop();
+    stop (): Tween {
+        if (this._finalAction) {
+            TweenSystem.instance.ActionManager.removeAction(this._finalAction);
+        }
         return this;
     }
 
     /**
+     * @en
+     * Clone a tween
      * @zh
-     * 重复几次。
-     *
-     * 注：目前多次调用为重写次数，不是累加次数。
-     *
-     * 注：repeat(1) 代表重复一次，即执行两次。
-     *
-     * 注：暂不支持传入 Tween。
-     *
-     * @param times 次数
+     * 克隆当前 tween
+     * @method clone
+     * @param {Object} [target]
+     * @return {Tween}
      */
-    public repeat (times: number) {
-        if (this._uionDirty) {
-            this._default.repeatTimes = times;
+    clone (target: object): Tween {
+        let action = this._union();
+        return tweenUtil(target).then(action.clone() as any);
+    }
+
+    /**
+     * @en
+     * Integrate all previous actions to an action.
+     * @zh
+     * 将之前所有的 action 整合为一个 action。
+     * @method union
+     * @return {Tween}
+     */
+    union (): Tween {
+        let action = this._union();
+        this._actions.length = 0;
+        this._actions.push(action);
+        return this;
+    }
+
+    /**
+     * @en
+     * Add an action which calculate with absolute value
+     * @zh
+     * 添加一个对属性进行绝对值计算的 action
+     * @method to
+     * @param {number} duration 缓动时间，单位为秒
+     * @param {Object} props 缓动的属性列表
+     * @param {Object} [opts] 可选的缓动功能
+     * @param {Function} [opts.progress]
+     * @param {Function|String} [opts.easing]
+     * @return {Tween}
+     */
+    to (duration: number, props: object, opts?: ITweenOption): Tween {
+        opts = opts || Object.create(null);
+        (opts as any).relative = false;
+        const action = new TweenAction(duration, props, opts);
+        this._actions.push(action);
+        return this;
+    }
+
+    /**
+     * @en
+     * Add an action which calculate with relative value
+     * @zh
+     * 添加一个对属性进行相对值计算的 action
+     * @method by
+     * @param {number} duration 缓动时间，单位为秒
+     * @param {Object} props 缓动的属性列表
+     * @param {Object} [opts] 可选的缓动功能
+     * @param {Function} [opts.progress]
+     * @param {Function|String} [opts.easing]
+     * @return {Tween}
+     */
+    by (duration: number, props: object, opts?: ITweenOption): Tween {
+        opts = opts || Object.create(null);
+        (opts as any).relative = true;
+        const action = new TweenAction(duration, props, opts);
+        this._actions.push(action);
+        return this;
+    }
+
+    /**
+     * @en
+     * Directly set target properties
+     * @zh
+     * 直接设置 target 的属性
+     * @method set
+     * @param {Object} props
+     * @return {Tween}
+     */
+    set (props: object): Tween {
+        const action = new SetAction(props);
+        this._actions.push(action);
+        return this;
+    }
+
+    /**
+     * @en
+     * Add an delay action
+     * @zh
+     * 添加一个延时 action
+     * @method delay
+     * @param {number} duration 
+     * @return {Tween}
+     */
+    delay (duration: number): Tween {
+        const action = delayTime(duration);
+        this._actions.push(action);
+        return this;
+    }
+
+    /**
+     * @en
+     * Add an callback action
+     * @zh
+     * 添加一个回调 action
+     * @method call
+     * @param {Function} callback
+     * @return {Tween}
+     */
+    call (callback: Function): Tween {
+        const action = callFunc(callback);
+        this._actions.push(action);
+        return this;
+    }
+
+    /**
+     * @en
+     * Add an sequence action
+     * @zh
+     * 添加一个队列 action
+     * @method sequence
+     * @param {Tween} action
+     * @param {Tween} ...actions
+     * @return {Tween}
+     */
+    sequence (...args: Tween[]): Tween {
+        const action = Tween._wrappedSequence(...args);
+        this._actions.push(action);
+        return this;
+    }
+
+    /**
+     * @en
+     * Add an parallel action
+     * @zh
+     * 添加一个并行 action
+     * @method parallel
+     * @param {Tween} action
+     * @param {Tween} ...actions
+     * @return {Tween}
+     */
+    parallel (...args: Tween[]): Tween {
+        const action = Tween._wrappedParallel(...args);
+        this._actions.push(action);
+        return this;
+    }
+
+    /**
+     * @en
+     * Add an repeat action. 
+     * This action will integrate before actions to a sequence action as their parameters.
+     * @zh
+     * 添加一个重复 action，这个 action 会将前一个动作作为他的参数。
+     * @method repeat
+     * @param {number} repeatTimes 重复次数
+     * @param {Tween} embedTween 可选，嵌入 Tween
+     * @return {Tween}
+     */
+    repeat (repeatTimes: number, embedTween?: Tween): Tween {
+        /** adapter */
+        if (repeatTimes == Infinity) {
+            return this.repeatForever(embedTween);
+        }
+
+        const actions = this._actions;
+        let action: any;
+
+        if (embedTween instanceof Tween) {
+            action = embedTween._union();
         } else {
-            if (this._default.length > 0) {
-                this._default.lastAction.tween.repeat(times);
-            }
+            action = actions.pop();
         }
+
+        actions.push(repeat(action, repeatTimes));
         return this;
     }
 
     /**
+     * @en
+     * Add an repeat forever action
+     * This action will integrate before actions to a sequence action as their parameters.
      * @zh
-     * 一直重复。
-     *
-     * 注：此方法可能会被废弃。
+     * 添加一个永久重复 action，这个 action 会将前一个动作作为他的参数。
+     * @method repeatForever
+     * @param {Tween} embedTween 可选，嵌入 Tween
+     * @return {Tween}
      */
-    public repeatForever () {
-        if (this._uionDirty) {
-            this._default.repeatTimes = -1;
+    repeatForever (embedTween?: Tween): Tween {
+        const actions = this._actions;
+        let action: any;
+
+        if (embedTween instanceof Tween) {
+            action = embedTween._union();
         } else {
-            if (this._default.length > 0) {
-                this._default.lastAction.tween.repeat(Infinity);
-            }
+            action = actions.pop();
         }
+
+        actions.push(repeatForever(action as ActionInterval));
         return this;
     }
 
     /**
+     * @en
+     * Add an reverse time action.
+     * This action will integrate before actions to a sequence action as their parameters.
      * @zh
-     * 延迟多少时间这个缓动，单位是秒。
-     * @param timeInSecond 时间
+     * 添加一个倒置时间 action，这个 action 会将前一个动作作为他的参数。
+     * @method reverseTime
+     * @param {Tween} embedTween 可选，嵌入 Tween
+     * @return {Tween}
      */
-    public delay (timeInSecond: number) {
-        if (this._uionDirty) {
-            this._default.delay = timeInSecond * 1000;
+    reverseTime (embedTween?: Tween): Tween {
+        const actions = this._actions;
+        let action: any;
+
+        if (embedTween instanceof Tween) {
+            action = embedTween._union();
         } else {
-            if (this._default.length > 0) {
-                this._default.lastAction.tween.delay(timeInSecond * 1000);
-            }
+            action = actions.pop();
         }
+
+        actions.push(reverseTime(action as ActionInterval));
         return this;
     }
 
     /**
+     * @en
+     * Add an hide action, only for node target.
      * @zh
-     * 注册缓动执行完成后的回调。
-     *
-     * 注：一个 to 或 一个 union 仅支持注册一个。
-     * @param callback 回调
+     * 添加一个隐藏 action，只适用于 target 是节点类型的。
+     * @method hide
+     * @return {Tween}
      */
-    public call (callback: (object?: any) => void) {
-        if (this._uionDirty) {
-            this._default.onCompeleteCallback = callback;
-        } else {
-            if (this._default.length > 0) {
-                this._default.lastAction.tween.onComplete(callback);
+    hide (): Tween {
+        let action = hide();
+        this._actions.push(action);
+        return this;
+    }
+
+    /**
+     * @en
+     * Add an show action, only for node target.
+     * @zh
+     * 添加一个显示 action，只适用于 target 是节点类型的。
+     * @method show
+     * @return {Tween}
+     */
+    show (): Tween {
+        let action = show();
+        this._actions.push(action);
+        return this;
+    }
+
+    /**
+     * @en
+     * Add an removeSelf action, only for node target.
+     * @zh
+     * 添加一个移除自己 action，只适用于 target 是节点类型的。
+     * @method removeSelf
+     * @return {Tween}
+     */
+    removeSelf (): Tween {
+        let action = removeSelf(false);
+        this._actions.push(action);
+        return this;
+    }
+
+    private _union () {
+        let actions = this._actions;
+        let action: Action;
+        if (actions.length === 1) {
+            action = actions[0];
+        }
+        else {
+            action = sequence(actions);
+        }
+
+        return action;
+    }
+
+    private static readonly _tmp_args: Tween[] | Action[] = [];
+
+    private static _wrappedSequence (...args: Action[] | Tween[]) {
+        const tmp_args = Tween._tmp_args;
+        tmp_args.length = 0;
+        for (let l = args.length, i = 0; i < l; i++) {
+            let arg = tmp_args[i] = args[i];
+            if (arg instanceof Tween) {
+                tmp_args[i] = arg._union();
             }
         }
-        return this;
+
+        return sequence.apply(sequence, tmp_args as any);
     }
 
-    /*
+    private static _wrappedParallel (...args: Action[] | Tween[]) {
+        const tmp_args = Tween._tmp_args;
+        tmp_args.length = 0;
+        for (let l = args.length, i = 0; i < l; i++) {
+            let arg = tmp_args[i] = args[i];
+            if (arg instanceof Tween) {
+                tmp_args[i] = arg._union();
+            }
+        }
 
-    // todo
-    public clone (target: Object) {
-
+        return spawn.apply(spawn, tmp_args as any);
     }
-
-    //  TODO
-    public removeSelf () {
-
-        return this;
-    }
-
-    //  TODO
-    public reverseTime () {
-
-        return this;
-    }
-
-    //  TODO
-    public sequnence () {
-
-        return this;
-    }
-
-    //  TODO
-    public target (target: Object) {
-
-        return this;
-    }
-
-    public then (other: CCTweenAction) {
-
-        return this;
-    }
-
-    */
 }
-
 cc.Tween = Tween;
 
+
 /**
+ * @en
+ * tween is a utility function that helps instantiate Tween instances.
  * @zh
- * 增加一个 tween 缓动，与 creator 2D 中的 cc.tween 功能类似
- * @param target 缓动目标
- *
- * 注：请勿对 node 矩阵相关数据直接进行缓动，例如传入 this.node.position
+ * tween 是一个工具函数，帮助实例化 Tween 实例。
+ * @param target 缓动的目标
+ * @returns Tween 实例
  * @example
- * 
- * ```typescript
- * 
- * let position = new math.Vec3();
- * 
- * tweenUtil(position)
- * 
- *    .to(2, new math.Vec3(0, 2, 0), { easing: 'Cubic-InOut' })
- * 
- *    .start();
- * 
- * ```
+ * tween(this.node)
+ *   .to(1, {scale: new Vec3(2, 2, 2), position: new Vec3(5, 5, 5)})
+ *   .call(() => { console.log('This is a callback'); })
+ *   .by(1, {scale: new Vec3(-1, -1, -1)}, {easing: 'sineOutIn'})
+ *   .start()
  */
-export function tweenUtil (target: Object): Tween {
+export function tween (target?: object) {
     return new Tween(target);
 }
-
-cc.tweenUtil = tweenUtil;
+cc.tween = tween;
 
 /**
- * creator tween 行为
- * cc.T()
- * .to
- * .to                  // 不会变成 union 
- * .repeat(1, cc.T())   // 传入后会进行 union 操作
- * .repeat(1);          // 操作的是传入的一个大 union
- *
- * cc.T()
- * .to
- * .to
- * .repeat(1, cc.T())
- * .to
- * .uion
- * .repeat(1);
- *
+ * @en
+ * tweenUtil is a utility function that helps instantiate Tween instances.
+ * @zh
+ * tweenUtil 是一个工具函数，帮助实例化 Tween 实例。
+ * @deprecated please use `tween` instead.
  */
-
-export class TweenSystem extends System {
-    public static ID = 'tween';
-    public postUpdate (dt: number) {
-        if (!CC_EDITOR || this._executeInEditMode) {
-            if (window.TWEEN) {
-                // Tween update
-                window.TWEEN.update(performance.now());
-            }
-        }
-    }
+export function tweenUtil (target?: object) {
+    warn("tweenUtil' is deprecated, please use 'tween' instead ");
+    return new Tween(target);
 }
-
-director.on(Director.EVENT_INIT, function () {
-    let sys = new TweenSystem();
-    director.registerSystem(TweenSystem.ID, sys, 100);
-});
+cc.tweenUtil = tweenUtil;
