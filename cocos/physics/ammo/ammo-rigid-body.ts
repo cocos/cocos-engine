@@ -4,7 +4,7 @@ import { AmmoWorld } from "./ammo-world";
 import { Cocos2AmmoVec3, Ammo2CocosVec3 } from "./ammo-util";
 import { RigidBodyComponent, PhysicsSystem } from '../../../exports/physics-framework';
 import { AmmoCollisionFlags, AmmoRigidBodyFlags, AmmoCollisionObjectStates } from './ammo-enum';
-import { IRigidBody } from '../spec/I-rigid-body';
+import { IRigidBody } from '../spec/i-rigid-body';
 import { ERigidBodyType } from '../framework/physics-enum';
 import { AmmoSharedBody } from './ammo-shared-body';
 
