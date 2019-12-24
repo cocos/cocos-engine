@@ -5,12 +5,16 @@
 // @ts-check
 import { Material } from '../../assets/material';
 import { Component } from '../../components/component';
-import { _decorator } from '../../data/index';
-import { MaterialInstance } from '../../renderer/core/material-instance';
+import { ccclass, property } from '../../data/class-decorator';
+import { IMaterialInstanceInfo, MaterialInstance } from '../../renderer/core/material-instance';
 import { Model } from '../../renderer/scene/model';
 import { Layers } from '../../scene-graph/layers';
-import { IMaterial } from '../../utils/material-interface';
-const { ccclass, property } = _decorator;
+
+const _matInsInfo: IMaterialInstanceInfo = {
+    parent: null!,
+    owner: null!,
+    subModelIdx: 0,
+};
 
 @ccclass('cc.RenderableComponent')
 export class RenderableComponent extends Component {
@@ -20,15 +24,17 @@ export class RenderableComponent extends Component {
     })
     protected _materials: Array<Material | null> = [];
 
-    protected _materialInstances: Array<MaterialInstance | null> = [];
-
     @property
     protected _visFlags = Layers.Enum.NONE;
 
-    protected _models: Model[] = [];
+    @property({ visible: false })
+    get visibility () {
+        return this._visFlags;
+    }
 
-    constructor () {
-        super();
+    set visibility (val) {
+        this._visFlags = val;
+        this._onVisiblityChange(val);
     }
 
     @property({
@@ -56,42 +62,9 @@ export class RenderableComponent extends Component {
         }
     }
 
-    get sharedMaterial () {
-        return this.getMaterial(0);
-    }
-
-    /**
-     * 获取指定的sharedMaterial
-     * @param idx 材质序号
-     */
-    public getMaterial (idx: number): Material | null {
-        if (idx < 0 || idx >= this._materials.length) {
-            return null;
-        }
-        return this._materials[idx];
-    }
-
-    /**
-     * 设置指定的sharedMaterial，如果对应位置有材质实例则会创建一个对应的材质实例
-     * @param index 材质序号
-     * @param material 材质对象
-     */
-    public setMaterial (material: Material | null, index: number) {
-        this._materials[index] = material;
-        if (this._materialInstances[index]) {
-            if (this._materialInstances[index]!.parent !== material) {
-                this.getMaterialInstance(index);
-                this._onMaterialModified(index, material);
-            }
-        } else {
-            this._onMaterialModified(index, material);
-        }
-    }
-
     /**
      * @en The material of the model
      * @zh 模型材质。
-     * @type {Material[]}
      */
     @property({
         type: Material,
@@ -117,6 +90,41 @@ export class RenderableComponent extends Component {
         }
     }
 
+    protected _materialInstances: Array<MaterialInstance | null> = [];
+    protected _models: Model[] = [];
+
+    get sharedMaterial () {
+        return this.getMaterial(0);
+    }
+
+    /**
+     * 获取指定的sharedMaterial
+     * @param idx 材质序号
+     */
+    public getMaterial (idx: number): Material | null {
+        if (idx < 0 || idx >= this._materials.length) {
+            return null;
+        }
+        return this._materials[idx];
+    }
+
+    /**
+     * 设置指定的 sharedMaterial，如果对应位置有材质实例则会创建一个对应的材质实例
+     * @param index 材质序号
+     * @param material 材质对象
+     */
+    public setMaterial (material: Material | null, index: number) {
+        this._materials[index] = material;
+        if (this._materialInstances[index]) {
+            if (this._materialInstances[index]!.parent !== material) {
+                this.getMaterialInstance(index);
+                this._onMaterialModified(index, material);
+            }
+        } else {
+            this._onMaterialModified(index, material);
+        }
+    }
+
     get material () {
         return this.getMaterialInstance(0);
     }
@@ -131,15 +139,18 @@ export class RenderableComponent extends Component {
     /**
      * @en Returns the material instance corresponding to the sequence number
      * @zh 获取相对应序号的材质实例。
-     * @param {Number} idx - Look for the material list number
+     * @param idx Look for the material list number
      */
-    public getMaterialInstance (idx: number): IMaterial | null {
+    public getMaterialInstance (idx: number): MaterialInstance | null {
         const mat = this._materials[idx];
         if (!mat) {
             return null;
         }
         if (this._materialInstances[idx] == null) {
-            const instantiated = new MaterialInstance(this._materials[idx]!, this);
+            _matInsInfo.parent = this._materials[idx]!;
+            _matInsInfo.owner = this;
+            _matInsInfo.subModelIdx = idx;
+            const instantiated = new MaterialInstance(_matInsInfo);
             this.setMaterialInstance(idx, instantiated);
         }
         return this._materialInstances[idx];
@@ -150,7 +161,7 @@ export class RenderableComponent extends Component {
      * @param index 材质序号
      * @param matInst 材质实例
      */
-    public setMaterialInstance (index: number, matInst: IMaterial | null) {
+    public setMaterialInstance (index: number, matInst: MaterialInstance | null) {
         if (matInst && matInst.parent) {
             if (matInst !== this._materialInstances[index]) {
                 this._materialInstances[index] = matInst as MaterialInstance;
@@ -167,18 +178,8 @@ export class RenderableComponent extends Component {
      * 获取指定位置可供渲染的材质，如果有材质实例则使用材质实例，如果没有则使用材质资源
      * @param index 材质序号
      */
-    public getRenderMaterial (index: number): IMaterial | null {
+    public getRenderMaterial (index: number): Material | null {
         return this._materialInstances[index] || this._materials[index];
-    }
-
-    @property({ visible: false })
-    get visibility () {
-        return this._visFlags;
-    }
-
-    set visibility (val) {
-        this._visFlags = val;
-        this._onVisiblityChange(val);
     }
 
     public _collectModels (): Model[] {
@@ -191,18 +192,15 @@ export class RenderableComponent extends Component {
     protected _detachFromScene () {
     }
 
-    protected _onMaterialModified (index: number, material: IMaterial | null) {
-
+    protected _onMaterialModified (index: number, material: Material | null) {
     }
 
     protected _onRebuildPSO (index: number, material: Material | null) {
     }
 
     protected _clearMaterials () {
-
     }
 
     protected _onVisiblityChange (val) {
-
     }
 }

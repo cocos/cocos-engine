@@ -29,13 +29,17 @@
  */
 
 import { ccclass, property } from '../../core/data/class-decorator';
+import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { builtinResMgr } from '../3d/builtin/init';
-import { RenderableComponent } from '../3d/framework/renderable-component';
-import { Pass, PassOverrides } from '../renderer/core/pass';
-import { IDefineMap } from '../renderer/core/pass-utils';
-import { _uploadProperty, generateMaterailHash, IMaterial } from '../utils/material-interface';
+import { GFXBindingType } from '../gfx/define';
+import { GFXTextureView } from '../gfx/texture-view';
+import { IDefineMap } from '../renderer';
+import { IPassInfoFull, Pass, PassOverrides } from '../renderer/core/pass';
+import { samplerLib } from '../renderer/core/sampler-lib';
 import { Asset } from './asset';
 import { EffectAsset } from './effect-asset';
+import { SpriteFrame } from './sprite-frame';
+import { TextureBase } from './texture-base';
 
 /**
  * @zh
@@ -75,7 +79,29 @@ interface IMaterialInfo {
  * 材质资源类，负责指定每个模型的材质信息。
  */
 @ccclass('cc.Material')
-export class Material extends Asset implements IMaterial {
+export class Material extends Asset {
+
+    public static getHash (material: Material) {
+        let str = '';
+        for (const pass of material.passes) {
+            str += pass.hash;
+        }
+        return murmurhash2_32_gc(str, 666);
+    }
+
+    @property(EffectAsset)
+    protected _effectAsset: EffectAsset | null = null;
+    @property
+    protected _techIdx = 0;
+    @property
+    protected _defines: IDefineMap[] = [];
+    @property
+    protected _states: PassOverrides[] = [];
+    @property
+    protected _props: Array<Record<string, any>> = [];
+
+    protected _passes: Pass[] = [];
+    protected _hash = 0;
 
     /**
      * @zh
@@ -117,28 +143,6 @@ export class Material extends Asset implements IMaterial {
         return this._hash;
     }
 
-    get parent (): IMaterial | null {
-        return null;
-    }
-
-    get owner (): RenderableComponent | null {
-        return null;
-    }
-
-    @property(EffectAsset)
-    protected _effectAsset: EffectAsset | null = null;
-    @property
-    protected _techIdx = 0;
-    @property
-    protected _defines: IDefineMap[] = [];
-    @property
-    protected _states: PassOverrides[] = [];
-    @property
-    protected _props: Array<Record<string, any>> = [];
-
-    protected _passes: Pass[] = [];
-    protected _hash = 0;
-
     constructor () {
         super();
         this.loaded = false;
@@ -149,7 +153,7 @@ export class Material extends Asset implements IMaterial {
      * 根据所给信息初始化这个材质，初始化正常结束后材质即可立即用于渲染。
      * @param info 初始化材质需要的基本信息。
      */
-    public reset (info: IMaterialInfo) {
+    public initialize (info: IMaterialInfo) {
         if (!this._defines) { this._defines = []; }
         if (!this._states) { this._states = []; }
         if (!this._props) { this._props = []; }
@@ -160,8 +164,8 @@ export class Material extends Asset implements IMaterial {
         if (info.states) { this._prepareInfo(info.states, this._states); }
         this._update();
     }
-    public initialize (info: IMaterialInfo) {
-        this.reset(info);
+    public reset (info: IMaterialInfo) { // consistency with other assets
+        this.initialize(info);
     }
 
     /**
@@ -170,18 +174,38 @@ export class Material extends Asset implements IMaterial {
      * 如需重新初始化材质，不必先调用 destroy。
      */
     public destroy () {
-        if (this._passes && this._passes.length) {
-            for (const pass of this._passes) {
-                pass.destroy();
-            }
-        }
-        this._passes = [];
-        this._effectAsset = null;
-
-        this._props = [];
-        this._defines = [];
-        this._states = [];
+        this._doDestroy();
         return super.destroy();
+    }
+
+    /**
+     * @zh
+     * 使用指定预处理宏重新编译当前 pass（数组）中的 shader。
+     * @param overrides 新增的预处理宏列表，会覆盖进当前列表。
+     * @param passIdx 要编译的 pass 索引，默认编译所有 pass。
+     */
+    public recompileShaders (overrides: IDefineMap, passIdx?: number) {
+        console.warn('shaders in material asset cannot be modified at runtime, please instantiate the material first');
+    }
+
+    /**
+     * @zh
+     * 使用指定管线状态重载当前的 pass（数组）。
+     * @param overrides 新增的管线状态列表，会覆盖进当前列表。
+     * @param passIdx 要重载的 pass 索引，默认重载所有 pass。
+     */
+    public overridePipelineStates (overrides: PassOverrides, passIdx?: number) {
+        console.warn('pipeline states in material asset cannot be modified at runtime, please instantiate the material first');
+    }
+
+    /**
+     * @zh
+     * 通过 Loader 加载完成时的回调，将自动初始化材质资源。
+     */
+    public onLoaded () {
+        this._update();
+        this.loaded = true;
+        this.emit('load');
     }
 
     /**
@@ -197,43 +221,6 @@ export class Material extends Asset implements IMaterial {
             pass.resetUBOs();
             pass.resetTextures();
         }
-    }
-
-    /**
-     * @zh
-     * 使用指定预处理宏重新编译当前 pass（数组）中的 shader。
-     * @param overrides 新增的预处理宏列表，会覆盖进当前列表。
-     * @param passIdx 要编译的 pass 索引，默认编译所有 pass。
-     */
-    public recompileShaders (overrides: IDefineMap, passIdx?: number) {
-        if (!this._passes || !this._effectAsset) { return; }
-        if (passIdx === undefined) {
-            for (const pass of this._passes) {
-                pass.tryCompile(overrides);
-            }
-        } else {
-            this._passes[passIdx].tryCompile(overrides);
-        }
-    }
-
-    /**
-     * @zh
-     * 使用指定管线状态重载当前的 pass（数组）。
-     * @param overrides 新增的管线状态列表，会覆盖进当前列表。
-     * @param passIdx 要重载的 pass 索引，默认重载所有 pass。
-     */
-    public overridePipelineStates (overrides: PassOverrides, passIdx?: number) {
-        console.error('Material:' + this.effectName + ' cann\'t be overwritten.Please use pass instance to do so.');
-    }
-
-    /**
-     * @zh
-     * 通过 Loader 加载完成时的回调，将自动初始化材质资源。
-     */
-    public onLoaded () {
-        this._update();
-        this.loaded = true;
-        this.emit('load');
     }
 
     /**
@@ -255,7 +242,7 @@ export class Material extends Asset implements IMaterial {
             const len = passes.length;
             for (let i = 0; i < len; i++) {
                 const pass = passes[i];
-                if (_uploadProperty(pass, name, val)) {
+                if (this._uploadProperty(pass, name, val)) {
                     this._props[i][name] = val;
                     success = true;
                 }
@@ -263,7 +250,7 @@ export class Material extends Asset implements IMaterial {
         } else {
             if (passIdx >= this._passes.length) { console.warn(`illegal pass index: ${passIdx}.`); return; }
             const pass = this._passes[passIdx];
-            if (_uploadProperty(pass, name, val)) {
+            if (this._uploadProperty(pass, name, val)) {
                 this._props[passIdx][name] = val;
                 success = true;
             }
@@ -323,10 +310,6 @@ export class Material extends Asset implements IMaterial {
         this._update();
     }
 
-    public _onPassStateChanged () {
-        this._hash = generateMaterailHash(this);
-    }
-
     protected _prepareInfo (patch: object | object[], cur: object[]) {
         if (!Array.isArray(patch)) { // fill all the passes if not specified
             const len = this._effectAsset ? this._effectAsset.techniques[this._techIdx].passes.length : 1;
@@ -337,6 +320,24 @@ export class Material extends Asset implements IMaterial {
         }
     }
 
+    protected _createPasses () {
+        const tech = this._effectAsset!.techniques[this._techIdx || 0];
+        if (!tech) { return []; }
+        const passNum = tech.passes.length;
+        const passes: Pass[] = [];
+        for (let k = 0; k < passNum; ++k) {
+            const passInfo = tech.passes[k] as IPassInfoFull;
+            const defs = passInfo.defines = this._defines.length > k ? this._defines[k] : {};
+            if (passInfo.switch && !defs[passInfo.switch]) { continue; }
+            passInfo.stateOverrides = this._states.length > k ? this._states[k] : {};
+            passInfo.idxInTech = k;
+            const pass = new Pass(cc.director.root.device);
+            pass.initialize(passInfo);
+            passes.push(pass);
+        }
+        return passes;
+    }
+
     protected _update (keepProps: boolean = true) {
         if (this._effectAsset) {
             if (this._passes && this._passes.length) {
@@ -344,11 +345,7 @@ export class Material extends Asset implements IMaterial {
                     pass.destroy();
                 }
             }
-            this._passes = Pass.createPasses(this._effectAsset, {
-                techIdx: this._techIdx,
-                defines: this._defines,
-                states: this._states,
-            });
+            this._passes = this._createPasses();
             // handle property values
             const totalPasses = this._effectAsset.techniques[this._techIdx].passes.length;
             this._props.length = totalPasses;
@@ -357,7 +354,7 @@ export class Material extends Asset implements IMaterial {
                     let props = this._props[pass.idxInTech];
                     if (!props) { props = this._props[i] = {}; }
                     for (const p in props) {
-                        _uploadProperty(pass, p, props[p]);
+                        this._uploadProperty(pass, p, props[p]);
                     }
                 });
             } else {
@@ -367,7 +364,49 @@ export class Material extends Asset implements IMaterial {
             const missing = builtinResMgr.get<Material>('missing-effect-material');
             if (missing) { this._passes = missing._passes.slice(); }
         }
-        this._hash = generateMaterailHash(this);
+        this._hash = Material.getHash(this);
+    }
+
+    protected _uploadProperty (pass: Pass, name: string, val: any) {
+        const handle = pass.getHandle(name);
+        if (handle === undefined) { return false; }
+        const bindingType = Pass.getBindingTypeFromHandle(handle);
+        if (bindingType === GFXBindingType.UNIFORM_BUFFER) {
+            if (Array.isArray(val)) {
+                pass.setUniformArray(handle, val);
+            } else {
+                pass.setUniform(handle, val);
+            }
+        } else if (bindingType === GFXBindingType.SAMPLER) {
+            const binding = Pass.getBindingFromHandle(handle);
+            if (val instanceof GFXTextureView) {
+                pass.bindTextureView(binding, val);
+            } else if (val instanceof TextureBase || val instanceof SpriteFrame) {
+                const textureView: GFXTextureView | null = val.getGFXTextureView();
+                if (!textureView || !textureView.texture.width || !textureView.texture.height) {
+                    // console.warn(`material '${this._uuid}' received incomplete texture asset '${val._uuid}'`);
+                    return false;
+                }
+                pass.bindTextureView(binding, textureView);
+                if (val instanceof TextureBase) {
+                    pass.bindSampler(binding, samplerLib.getSampler(cc.director.root.device, val.getSamplerHash()));
+                }
+            }
+        }
+        return true;
+    }
+
+    protected _doDestroy () {
+        if (this._passes && this._passes.length) {
+            for (const pass of this._passes) {
+                pass.destroy();
+            }
+        }
+        this._effectAsset = null;
+        this._passes.length = 0;
+        this._props.length = 0;
+        this._defines.length = 0;
+        this._states.length = 0;
     }
 }
 

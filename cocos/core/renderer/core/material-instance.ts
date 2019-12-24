@@ -1,80 +1,73 @@
-import { RenderableComponent } from '../../3d';
-import { EffectAsset, Material } from '../../assets';
-import { _uploadProperty, IMaterial } from '../../utils/material-interface';
-import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
-import { IPass } from '../../utils/pass-interface';
-import { PassOverrides } from './pass';
+/*
+ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+  not use Cocos Creator software for developing other software or tools that's
+  used for developing games. You are not granted to publish, distribute,
+  sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
+/**
+ * @category material
+ */
+
+import { RenderableComponent } from '../../3d/framework/renderable-component';
+import { Material } from '../../assets/material';
 import { PassInstance } from './pass-instance';
 import { IDefineMap } from './pass-utils';
 
-export class MaterialInstance implements IMaterial {
+export interface IMaterialInstanceInfo {
+    parent: Material;
+    owner: RenderableComponent;
+    subModelIdx: number;
+}
 
-    get effectAsset (): EffectAsset | null {
-        return this._parent.effectAsset;
-    }
+/**
+ * @zh
+ * 材质实例，当有材质修改需求时，根据材质资源创建的，可任意定制的实例。
+ */
+export class MaterialInstance extends Material {
 
-    get effectName (): string {
-        return this._parent.effectName;
-    }
-
-    get technique (): number {
-        return this._parent.technique;
-    }
-
-    get passes (): IPass[] {
-        return this._passes;
-    }
-
-    get hash (): number {
-        return this._hash;
-    }
-
-    get parent (): IMaterial {
+    get parent () {
         return this._parent;
     }
 
-    get owner (): RenderableComponent {
+    get owner () {
         return this._owner;
     }
 
-    private _parent: IMaterial;
+    protected _passes: PassInstance[] = [];
+
+    private _parent: Material;
     private _owner: RenderableComponent;
-    // data overwritten in material instance
-    private _passes: IPass[] = [];
-    private _hash: number = -1;
-    private _props: Array<Record<string, any>> = [];
-    private _states: PassOverrides[] = [];
+    private _subModelIdx = 0;
 
-    constructor (parent: Material, owner: RenderableComponent) {
-        this._parent = parent;
-        this._owner = owner;
-        // @ts-ignore
-        const parentProps = parent._props;
-        for (let i = 0; i < parentProps.length; i++) {
-            const passProp = {};
-            Object.assign(passProp, parentProps[i]);
-            this._props[i] = passProp;
-        }
-
-        for (let i = 0; i < parent.passes.length; i++) {
-            this._passes[i] = new PassInstance(parent.passes[i], this, i);
-        }
-    }
-
-    public resetUniforms (clearPasses?: boolean): void {
-        this._props.length = this._passes.length;
-        for (let i = 0; i < this._props.length; i++) { this._props[i] = {}; }
-        if (!clearPasses) { return; }
-        for (const pass of this._passes) {
-            pass.resetUBOs();
-            pass.resetTextures();
-        }
+    constructor (info: IMaterialInstanceInfo) {
+        super();
+        this._parent = info.parent;
+        this._owner = info.owner;
+        this._subModelIdx = info.subModelIdx;
+        this.copy(this._parent);
     }
 
     public recompileShaders (overrides: IDefineMap, passIdx?: number): void {
-        if (!this._passes || !this.effectAsset) {
-            return;
-        }
+        if (!this._passes || !this.effectAsset) { return; }
         if (passIdx === undefined) {
             for (const pass of this._passes) {
                 pass.tryCompile(overrides);
@@ -99,65 +92,26 @@ export class MaterialInstance implements IMaterial {
         }
     }
 
-    public setProperty (name: string, val: any, passIdx?: number): void {
-        let success = false;
-        if (passIdx === undefined) { // try set property for all applicable passes
-            const passes = this._passes;
-            const len = passes.length;
-            for (let i = 0; i < len; i++) {
-                const pass = passes[i];
-                if (_uploadProperty(pass, name, val)) {
-                    this._props[i][name] = val;
-                    success = true;
-                }
-            }
-        } else {
-            if (passIdx >= this._passes.length) { console.warn(`illegal pass index: ${passIdx}.`); return; }
-            const pass = this._passes[passIdx];
-            if (_uploadProperty(pass, name, val)) {
-                this._props[passIdx][name] = val;
-                success = true;
-            }
-        }
-        if (!success) {
-            console.warn(`illegal property name: ${name}.`);
-            return;
+    public destroy () {
+        this._doDestroy();
+        return true;
+    }
+
+    public onPassStateChange (dontNotify: boolean) {
+        this._hash = Material.getHash(this);
+        if (!dontNotify) {
+            // @ts-ignore
+            this.owner._onRebuildPSO(this._subModelIdx, this);
         }
     }
 
-    public getProperty (name: string, passIdx?: number) {
-        if (passIdx === undefined) { // try get property in all possible passes
-            const propsArray = this._props;
-            const len = propsArray.length;
-            for (let i = 0; i < len; i++) {
-                const props = propsArray[i];
-                for (const p in props) {
-                    if (p === name) { return props[p]; }
-                }
-            }
-        } else {
-            if (passIdx >= this._props.length) { console.warn(`illegal pass index: ${passIdx}.`); return null; }
-            const props = this._props[passIdx];
-            for (const p in props) {
-                if (p === name) { return props[p]; }
-            }
+    protected _createPasses () {
+        const passes: PassInstance[] = [];
+        const parentPasses = this._parent.passes;
+        if (!parentPasses) { return passes; }
+        for (let k = 0; k < parentPasses.length; ++k) {
+            passes.push(new PassInstance(parentPasses[k], this));
         }
-        return null;
-    }
-
-    public destroy (): void {
-        for (let i = 0; i < this._passes.length; i++) {
-            this._passes[i].destroy();
-        }
-        this._passes.length = 0;
-        this._props.length = 0;
-    }
-
-    public _onPassStateChanged (idx: number) {
-        let str = '';
-        for (const pass of this._passes) {
-            str += pass.psoHash;
-        }
-        this._hash = murmurhash2_32_gc(str, 666);
+        return passes;
     }
 }
