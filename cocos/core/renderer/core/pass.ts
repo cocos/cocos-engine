@@ -556,8 +556,12 @@ export class Pass {
      * 创建合批缓冲。
      */
     public createBatchedBuffer () {
-        if (!this._batchedBuffer && !this._bs.targets[0].blend) {
-            this._batchedBuffer = new BatchedBuffer(this);
+        if (!this._batchedBuffer) {
+            if (this._bs.targets[0].blend) {
+                console.error('Transparent pass(' + this.program + ') can\'t use dynamic batching!');
+            } else {
+                this._batchedBuffer = new BatchedBuffer(this);
+            }
         }
     }
 
