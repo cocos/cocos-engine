@@ -245,6 +245,20 @@ gfxpipelinestateinfo
 },
 
 /**
+ * @method CopyBuffersToTexture
+ * @param {cc.GFXBuffer} arg0
+ * @param {cc.GFXTexture} arg1
+ * @param {Array} arg2
+ */
+CopyBuffersToTexture : function (
+gfxbuffer, 
+gfxtexture, 
+array 
+)
+{
+},
+
+/**
  * @method queue
  * @return {cc.GFXQueue}
  */

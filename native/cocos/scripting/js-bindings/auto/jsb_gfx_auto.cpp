@@ -448,6 +448,29 @@ static bool js_gfx_GFXDevice_CreateGFXPipelineState(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_GFXDevice_CreateGFXPipelineState)
 
+static bool js_gfx_GFXDevice_CopyBuffersToTexture(se::State& s)
+{
+    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_CopyBuffersToTexture : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 3) {
+        cocos2d::GFXBuffer* arg0 = nullptr;
+        cocos2d::GFXTexture* arg1 = nullptr;
+        std::vector<cocos2d::GFXBufferTextureCopy> arg2;
+        ok &= seval_to_native_ptr(args[0], &arg0);
+        ok &= seval_to_native_ptr(args[1], &arg1);
+        ok &= seval_to_std_vector_Texture(args[2], &arg2);
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CopyBuffersToTexture : Error processing arguments");
+        cobj->CopyBuffersToTexture(arg0, arg1, arg2);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GFXDevice_CopyBuffersToTexture)
+
 static bool js_gfx_GFXDevice_queue(se::State& s)
 {
     cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
@@ -640,6 +663,7 @@ bool js_register_gfx_GFXDevice(se::Object* obj)
     cls->defineFunction("CreateGFXQueue", _SE(js_gfx_GFXDevice_CreateGFXQueue));
     cls->defineFunction("CreateGFXRenderPass", _SE(js_gfx_GFXDevice_CreateGFXRenderPass));
     cls->defineFunction("CreateGFXPipelineState", _SE(js_gfx_GFXDevice_CreateGFXPipelineState));
+    cls->defineFunction("CopyBuffersToTexture", _SE(js_gfx_GFXDevice_CopyBuffersToTexture));
     cls->defineFunction("queue", _SE(js_gfx_GFXDevice_queue));
     cls->defineFunction("CreateGFXBindingLayout", _SE(js_gfx_GFXDevice_CreateGFXBindingLayout));
     cls->defineFunction("Present", _SE(js_gfx_GFXDevice_Present));

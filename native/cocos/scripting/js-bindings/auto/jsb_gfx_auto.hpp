@@ -30,6 +30,7 @@ SE_DECLARE_FUNC(js_gfx_GFXDevice_HasFeature);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_CreateGFXQueue);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_CreateGFXRenderPass);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_CreateGFXPipelineState);
+SE_DECLARE_FUNC(js_gfx_GFXDevice_CopyBuffersToTexture);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_queue);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_CreateGFXBindingLayout);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_Present);
