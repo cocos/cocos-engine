@@ -61,6 +61,31 @@ const ModelShadowCastingMode = Enum({
 @executeInEditMode
 export class ModelComponent extends RenderableComponent {
 
+    public static ShadowCastingMode = ModelShadowCastingMode;
+
+    @property
+    protected _mesh: Mesh | null = null;
+
+    @property
+    protected _shadowCastingMode = ModelShadowCastingMode.OFF;
+
+    /**
+     * @en The shadow casting mode
+     * @zh 投射阴影方式。
+     */
+    @property({
+        type: ModelShadowCastingMode,
+        tooltip: '投射阴影方式',
+    })
+    get shadowCastingMode () {
+        return this._shadowCastingMode;
+    }
+
+    set shadowCastingMode (val) {
+        this._shadowCastingMode = val;
+        this._updateCastShadow();
+    }
+
     /**
      * @en The mesh of the model
      * @zh 模型网格。
@@ -83,89 +108,12 @@ export class ModelComponent extends RenderableComponent {
         }
     }
 
-    /**
-     * @en The shadow casting mode
-     * @zh 投射阴影方式。
-     */
-    @property({
-        type: ModelShadowCastingMode,
-        tooltip: '投射阴影方式',
-    })
-    get shadowCastingMode () {
-        return this._shadowCastingMode;
-    }
-
-    set shadowCastingMode (val) {
-        this._shadowCastingMode = val;
-        this._updateCastShadow();
-    }
-
-    /**
-     * @en Does this model receive shadows?
-     * @zh 是否接受阴影？
-     */
-    // @property
-    get receiveShadows () {
-        return this._receiveShadows;
-    }
-
-    set receiveShadows (val) {
-        this._receiveShadows = val;
-        this._updateReceiveShadow();
-    }
-
     get model () {
         return this._model;
     }
 
-    /**
-     * @zh 是否启用动态合批？
-     */
-    @property({
-        tooltip: '是否启用动态合批',
-    })
-    set enableDynamicBatching (enable: boolean) {
-        if (this._enableDynamicBatching === enable) { return; }
-        this._enableDynamicBatching = enable;
-        if (this._mesh) {
-            if (enable) { this._mesh.createFlatBuffers(); }
-            else { this._mesh.destroyFlatBuffers(); }
-        }
-        if (this._model) {
-            this._model.isDynamicBatching = enable;
-            this._model.onGlobalPipelineStateChanged(); // update material
-            for (let i = 0; i < this._model.subModels.length; ++i) {
-                const subModel = this._model.subModels[i];
-                for (let p = 0; p < subModel.passes.length; ++p) {
-                    const pass = subModel.passes[p];
-                    if (enable) { pass.createBatchedBuffer(); }
-                    else { pass.clearBatchedBuffer(); }
-                }
-            }
-        }
-    }
-
-    get enableDynamicBatching (): boolean {
-        return this._enableDynamicBatching;
-    }
-
-    public static ShadowCastingMode = ModelShadowCastingMode;
-
     protected _modelType: typeof Model;
-
     protected _model: Model | null = null;
-
-    @property
-    protected _enableDynamicBatching = false;
-
-    @property
-    protected _mesh: Mesh | null = null;
-
-    @property
-    private _shadowCastingMode = ModelShadowCastingMode.OFF;
-
-    @property
-    private _receiveShadows = false;
 
     constructor () {
         super();
@@ -175,7 +123,6 @@ export class ModelComponent extends RenderableComponent {
     public onLoad () {
         this._updateModels();
         this._updateCastShadow();
-        this._updateReceiveShadow();
     }
 
     public onEnable () {
@@ -217,21 +164,6 @@ export class ModelComponent extends RenderableComponent {
         if (this._model) {
             this._model.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
             this._model.enabled = true;
-
-            if (this._enableDynamicBatching) {
-                if (!this._mesh.hasFlatBuffers) {
-                    this._mesh.createFlatBuffers();
-                }
-                for (let i = 0; i < this._model.subModels.length; ++i) {
-                    const subModel = this._model.subModels[i];
-                    for (let p = 0; p < subModel.passes.length; ++p) {
-                        const pass = subModel.passes[p];
-                        if (!pass.batchedBuffer) {
-                            pass.createBatchedBuffer();
-                        }
-                    }
-                }
-            }
         }
     }
 
@@ -261,11 +193,10 @@ export class ModelComponent extends RenderableComponent {
     }
 
     protected _updateModelParams () {
-        if (!this._mesh || !this._model) {
-            return;
-        }
+        if (!this._mesh || !this._model) { return; }
         this.node.hasChangedFlags = this._model.transform.hasChangedFlags = TransformBit.POSITION;
-        this._model.isDynamicBatching = this._enableDynamicBatching; // should pass this in before create PSO
+        const batching = this._model.isDynamicBatching = this._isBatchingEnabled();
+        if (batching) { this._mesh.createFlatBuffers(); }
         const meshCount = this._mesh ? this._mesh.subMeshCount : 0;
         for (let i = 0; i < meshCount; ++i) {
             const material = this.getRenderMaterial(i);
@@ -280,36 +211,22 @@ export class ModelComponent extends RenderableComponent {
     }
 
     protected _onMaterialModified (idx: number, material: Material | null) {
-        if (this._model == null || !this._model.inited) {
-            return;
-        }
+        if (!this._model || !this._model.inited) { return; }
         this._onRebuildPSO(idx, material || this._getBuiltinMaterial());
-
-        if (this._enableDynamicBatching) {
-            if (material) {
-                for (let p = 0; p < material.passes.length; ++p) {
-                    const pass = material.passes[p];
-                    if (!pass.batchedBuffer) {
-                        pass.createBatchedBuffer();
-                    }
-                }
-            }
-        }
     }
 
     protected _onRebuildPSO (idx: number, material: Material) {
-        if (this._model && this._model.inited) {
-            this._model.setSubModelMaterial(idx, material);
-        }
+        if (!this._model || !this._model.inited) { return; }
+        const batching = this._model.isDynamicBatching = this._isBatchingEnabled();
+        if (batching && this._mesh) { this._mesh.createFlatBuffers(); }
+        this._model.setSubModelMaterial(idx, material);
     }
 
     protected _onMeshChanged (old: Mesh | null) {
     }
 
     protected _clearMaterials () {
-        if (this._model == null) {
-            return;
-        }
+        if (!this._model) { return; }
         for (let i = 0; i < this._model.subModelNum; ++i) {
             this._onMaterialModified(i, null);
         }
@@ -320,10 +237,9 @@ export class ModelComponent extends RenderableComponent {
         return builtinResMgr.get<Material>('missing-material');
     }
 
-    protected _onVisiblityChange (val) {
-        if (this._model) {
-            this._model.visFlags = val;
-        }
+    protected _onVisiblityChange (val: number) {
+        if (!this._model) { return; }
+        this._model.visFlags = val;
     }
 
     private _updateCastShadow () {
@@ -337,15 +253,15 @@ export class ModelComponent extends RenderableComponent {
         }
     }
 
-    private _updateReceiveShadow () {
-        if (!this.enabledInHierarchy || !this._model) {
-            return;
+    private _isBatchingEnabled () {
+        if (!this._model || !this._mesh) { return false; }
+        for (let i = 0; i < this._model.subModels.length; ++i) {
+            const subModel = this._model.subModels[i];
+            for (let p = 0; p < subModel.passes.length; ++p) {
+                const pass = subModel.passes[p];
+                if (pass.batchedBuffer) { return true; }
+            }
         }
-        // for (let i = 0; i < this._model.subModelNum; ++i) {
-        //     const subModel = this._model.getSubModel(i);
-        //     if (subModel._defines['CC_USE_SHADOW_MAP'] != undefined) {
-        //         this.getMaterial(i).define('CC_USE_SHADOW_MAP', this._receiveShadows);
-        //     }
-        // }
+        return false;
     }
 }

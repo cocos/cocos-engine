@@ -358,7 +358,6 @@ export class Model {
     }
 
     protected createPipelineState (pass: Pass) {
-        if (pass.blendState.targets[0].blend) { this._isDynamicBatching = false; }
         const pso = pass.createPipelineState()!;
         pso.pipelineLayout.layouts[0].bindBuffer(UBOLocal.BLOCK.binding, this._localBindings.get(UBOLocal.BLOCK.name)!.buffer!);
         if (this._localBindings.has(UBOForwardLight.BLOCK.name)) {

@@ -508,6 +508,7 @@ export class Pass {
      * @param defineOverrides shader 预处理宏定义重载
      */
     public tryCompile () {
+        if (this._defines.USE_BATCHING) { this.createBatchedBuffer(); }
         const pipeline = (cc.director.root as Root).pipeline;
         if (!pipeline) { return null; }
         this._renderPass = pipeline.getRenderPass(this._stage);
@@ -591,18 +592,8 @@ export class Pass {
      * 创建合批缓冲。
      */
     public createBatchedBuffer () {
-        if (!this._batchedBuffer) {
+        if (!this._batchedBuffer && !this._bs.targets[0].blend) {
             this._batchedBuffer = new BatchedBuffer(this);
-        }
-    }
-
-    /**
-     * @zh
-     * 清空合批缓冲。
-     */
-    public clearBatchedBuffer () {
-        if (this._batchedBuffer) {
-            this._batchedBuffer.clearUBO();
         }
     }
 

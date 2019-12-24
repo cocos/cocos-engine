@@ -93,10 +93,6 @@ export class PassInstance extends Pass {
         console.warn('pass instance have no batched buffer.');
     }
 
-    public clearBatchedBuffer () {
-        console.warn('pass instance have no batched buffer.');
-    }
-
     public beginChangeStatesSilently () {
         this._dontNotify = true;
     }
