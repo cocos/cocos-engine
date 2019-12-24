@@ -183,6 +183,7 @@ GFXCommandAllocator* GLES2Device::CreateGFXCommandAllocator(const GFXCommandAllo
         return gfx_cmd_allocator;
 
     CC_SAFE_DESTROY(gfx_cmd_allocator);
+
     return nullptr;
 }
 
@@ -305,4 +306,10 @@ GFXPipelineLayout* GLES2Device::CreateGFXPipelieLayout(const GFXPipelineLayoutIn
     CC_SAFE_DESTROY(layout);
     return nullptr;
 }
+
+void GLES2Device::CopyBuffersToTexture(GFXBuffer *src, GFXTexture *dst, const GFXBufferTextureCopyList &regions)
+{
+    GLES2CmdFuncCopyBuffersToTexture(this, &((GLES2Buffer*)src)->gpu_buffer()->buffer, 1, ((GLES2Texture*)dst)->gpu_texture(), regions);
+}
+
 NS_CC_END

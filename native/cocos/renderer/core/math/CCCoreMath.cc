@@ -1,5 +1,5 @@
 #include "CoreStd.h"
-#include "CCMath.h"
+#include "CCCoreMath.h"
 
 CC_MATH_NAMESPACE_BEGIN
 

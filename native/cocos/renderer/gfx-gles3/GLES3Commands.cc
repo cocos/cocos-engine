@@ -529,6 +529,7 @@ void GLES3CmdFuncCreateBuffer(GLES3Device* device, GLES3GPUBuffer* gpu_buffer) {
     gpu_buffer->gl_target = GL_NONE;
   } else if ((gpu_buffer->usage & GFXBufferUsageBit::TRANSFER_DST) ||
              (gpu_buffer->usage & GFXBufferUsageBit::TRANSFER_SRC)) {
+      gpu_buffer->buffer = (uint8_t*)CC_MALLOC(gpu_buffer->size);
     gpu_buffer->gl_target = GL_NONE;
   } else {
       CCASSERT(false, "Unsupported GFXBufferType, create buffer failed.");
@@ -557,6 +558,8 @@ void GLES3CmdFuncDestroyBuffer(GLES3Device* device, GLES3GPUBuffer* gpu_buffer)
         gpu_buffer->gl_buffer = 0;
         
     }
+    
+    CC_SAFE_FREE(gpu_buffer->buffer);
 }
 
 void GLES3CmdFuncResizeBuffer(GLES3Device* device, GLES3GPUBuffer* gpu_buffer) {
@@ -614,6 +617,11 @@ void GLES3CmdFuncResizeBuffer(GLES3Device* device, GLES3GPUBuffer* gpu_buffer) {
     gpu_buffer->gl_target = GL_NONE;
   } else if ((gpu_buffer->usage & GFXBufferUsageBit::TRANSFER_DST) ||
              (gpu_buffer->usage & GFXBufferUsageBit::TRANSFER_SRC)) {
+      if(gpu_buffer->buffer)
+      {
+          CC_FREE(gpu_buffer->buffer);
+      }
+      gpu_buffer->buffer = (uint8_t*)CC_MALLOC(gpu_buffer->size);
     gpu_buffer->gl_target = GL_NONE;
   } else {
       CCASSERT(false, "Unsupported GFXBufferType, resize buffer failed.");
@@ -624,7 +632,13 @@ void GLES3CmdFuncResizeBuffer(GLES3Device* device, GLES3GPUBuffer* gpu_buffer) {
 void GLES3CmdFuncUpdateBuffer(GLES3Device* device, GLES3GPUBuffer* gpu_buffer, void* buffer, uint offset, uint size) {
   if (gpu_buffer->usage & GFXBufferUsageBit::INDIRECT) {
     memcpy((uint8_t*)gpu_buffer->indirect_buff.draws.data() + offset, buffer, size);
-  } else {
+  }
+  else if (gpu_buffer->usage & GFXBufferUsageBit::TRANSFER_SRC ||
+           gpu_buffer->usage & GFXBufferUsageBit::TRANSFER_DST)
+  {
+      memcpy((uint8_t*)gpu_buffer->buffer + offset, buffer, size);
+  }
+  else {
     switch (gpu_buffer->gl_target) {
       case GL_ARRAY_BUFFER: {
         if (device->state_cache->gl_vao) {
@@ -676,10 +690,10 @@ void GLES3CmdFuncCreateTexture(GLES3Device* device, GLES3GPUTexture* gpu_texture
       gpu_texture->gl_target = GL_TEXTURE_2D;
       glGenTextures(1, &gpu_texture->gl_texture);
       if (gpu_texture->size > 0) {
-        GLuint gl_texture = device->state_cache->gl_textures[device->state_cache->tex_uint];
+        GLuint& gl_texture = device->state_cache->gl_textures[device->state_cache->tex_uint];
         if (gpu_texture->gl_texture != gl_texture) {
-          glBindTexture(GL_TEXTURE_2D, gl_texture);
-          gpu_texture->gl_texture = gl_texture;
+          glBindTexture(GL_TEXTURE_2D, gpu_texture->gl_texture);
+          gl_texture = gpu_texture->gl_texture;
         }
         uint w = gpu_texture->width;
         uint h = gpu_texture->height;
@@ -705,10 +719,10 @@ void GLES3CmdFuncCreateTexture(GLES3Device* device, GLES3GPUTexture* gpu_texture
       gpu_texture->gl_target = GL_TEXTURE_CUBE_MAP;
       glGenTextures(1, &gpu_texture->gl_texture);
       if (gpu_texture->size > 0) {
-        GLuint gl_texture = device->state_cache->gl_textures[device->state_cache->tex_uint];
+        GLuint& gl_texture = device->state_cache->gl_textures[device->state_cache->tex_uint];
         if (gpu_texture->gl_texture != gl_texture) {
-          glBindTexture(GL_TEXTURE_CUBE_MAP, gl_texture);
-          gpu_texture->gl_texture = gl_texture;
+          glBindTexture(GL_TEXTURE_CUBE_MAP, gpu_texture->gl_texture);
+          gl_texture = gpu_texture->gl_texture;
         }
         if (!GFX_FORMAT_INFOS[(int)gpu_texture->format].is_compressed) {
           for (uint f = 0; f < 6; ++f) {
@@ -745,6 +759,7 @@ void GLES3CmdFuncDestroyTexture(GLES3Device* device, GLES3GPUTexture* gpu_textur
   if (gpu_texture->gl_texture) {
     glDeleteTextures(1, &gpu_texture->gl_texture);
     gpu_texture->gl_texture = 0;
+      device->state_cache->gl_textures[device->state_cache->tex_uint] = 0;
   }
 }
 
@@ -864,6 +879,7 @@ void GLES3CmdFuncDestroySampler(GLES3Device* device, GLES3GPUSampler* gpu_sample
   if (gpu_sampler->gl_sampler) {
     glDeleteSamplers(1, &gpu_sampler->gl_sampler);
     gpu_sampler->gl_sampler = 0;
+      device->state_cache->gl_samplers[device->state_cache->tex_uint] = 0;
   }
 }
 
@@ -907,9 +923,9 @@ void GLES3CmdFuncCreateShader(GLES3Device* device, GLES3GPUShader* gpu_shader) {
       glGetShaderInfoLog(gpu_stage.gl_shader, log_size, nullptr, logs);
       
       CC_LOG_ERROR("%s in %s compilation failed.", shader_type_str.c_str(), gpu_shader->name.c_str());
-      CC_LOG_ERROR("Shader source:", gpu_stage.source.c_str());
+      CC_LOG_ERROR("Shader source: %s", gpu_stage.source.c_str());
       CC_LOG_ERROR(logs);
-      
+        CC_FREE(logs);
       glDeleteShader(gpu_stage.gl_shader);
       gpu_stage.gl_shader = 0;
       return;
@@ -937,7 +953,7 @@ void GLES3CmdFuncCreateShader(GLES3Device* device, GLES3GPUShader* gpu_shader) {
       
       CC_LOG_ERROR("Failed to link shader '%s'.", gpu_shader->name.c_str());
       CC_LOG_ERROR(logs);
-      
+      CC_FREE(logs);
       for (size_t i = 0; i < gpu_shader->gpu_stages.size(); ++i) {
         GLES3GPUShaderStage& gpu_stage = gpu_shader->gpu_stages[i];
         glDeleteShader(gpu_stage.gl_shader);
@@ -1100,7 +1116,7 @@ void GLES3CmdFuncCreateShader(GLES3Device* device, GLES3GPUShader* gpu_shader) {
             gpu_sampler.units[u] = unit_idx + u;
           }
           
-          gpu_sampler.gl_loc = glGetAttribLocation(gpu_shader->gl_program, gl_name);
+          gpu_sampler.gl_loc = glGetUniformLocation(gpu_shader->gl_program, gl_name);
           unit_idx += gl_size;
           
           active_gpu_samplers.push_back(gpu_sampler);
@@ -1180,6 +1196,7 @@ void GLES3CmdFuncDestroyInputAssembler(GLES3Device* device, GLES3GPUInputAssembl
     glDeleteVertexArrays(1, &it->second);
   }
   gpu_ia->gl_vaos.clear();
+    device->state_cache->gl_vao = 0;
 }
 
 void GLES3CmdFuncCreateFramebuffer(GLES3Device* device, GLES3GPUFramebuffer* gpu_fbo) {
@@ -1239,6 +1256,7 @@ void GLES3CmdFuncDestroyFramebuffer(GLES3Device* device, GLES3GPUFramebuffer* gp
   if (gpu_fbo->gl_fbo) {
     glDeleteFramebuffers(1, &gpu_fbo->gl_fbo);
     gpu_fbo->gl_fbo = 0;
+      device->state_cache->gl_fbo = 0;
   }
 }
 
