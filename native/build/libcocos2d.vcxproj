@@ -88,7 +88,7 @@
     <ClCompile Include="..\cocos\renderer\core\kernel\Assertion.cc" />
     <ClCompile Include="..\cocos\renderer\core\kernel\Log.cc" />
     <ClCompile Include="..\cocos\renderer\core\kernel\UTFString.cc" />
-    <ClCompile Include="..\cocos\renderer\core\math\CCMath.cc" />
+    <ClCompile Include="..\cocos\renderer\core\math\CCCoreMath.cc" />
     <ClCompile Include="..\cocos\renderer\core\memory\AllocatedObj.cc" />
     <ClCompile Include="..\cocos\renderer\core\memory\JeAlloc.cc" />
     <ClCompile Include="..\cocos\renderer\core\memory\Memory.cc" />
@@ -251,7 +251,7 @@
     <ClInclude Include="..\cocos\renderer\core\kernel\Log.h" />
     <ClInclude Include="..\cocos\renderer\core\kernel\Object.h" />
     <ClInclude Include="..\cocos\renderer\core\kernel\UTFString.h" />
-    <ClInclude Include="..\cocos\renderer\core\math\CCMath.h" />
+    <ClInclude Include="..\cocos\renderer\core\math\CCCoreMath.h" />
     <ClInclude Include="..\cocos\renderer\core\memory\AllocatedObj.h" />
     <ClInclude Include="..\cocos\renderer\core\memory\JeAlloc.h" />
     <ClInclude Include="..\cocos\renderer\core\memory\MemDef.h" />
@@ -398,12 +398,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LibraryPath>$(EngineRoot)external\win32\libs;$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A\lib;$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName)</TargetName>
-    <IncludePath>$(ProjectDir)..\cocos\renderer\core;$(ProjectDir)..\external\sources\tommyds;$(ProjectDir)..\external\sources\khronos;$(ProjectDir)..\external\sources\jemalloc\include-win;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\cocos\renderer\core;$(ProjectDir)..\external\sources\tommyds;$(ProjectDir)..\external\sources\khronos;$(ProjectDir)..\external\sources\jemalloc\include-win;$(ProjectDir)..\external\sources\jemalloc\include-win\msvc_compat;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LibraryPath>$(EngineRoot)external\win32\libs;$(MSBuildProgramFiles32)\Microsoft SDKs\Windows\v7.1A\lib;$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName)</TargetName>
-    <IncludePath>$(ProjectDir)..\cocos\renderer\core;$(ProjectDir)..\external\sources\tommyds;$(ProjectDir)..\external\sources\khronos;$(ProjectDir)..\external\sources\jemalloc\include-win;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\cocos\renderer\core;$(ProjectDir)..\external\sources\tommyds;$(ProjectDir)..\external\sources\khronos;$(ProjectDir)..\external\sources\jemalloc\include-win;$(ProjectDir)..\external\sources\jemalloc\include-win\msvc_compat;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <PreBuildEvent>

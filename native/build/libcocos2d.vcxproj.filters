@@ -401,11 +401,11 @@
     <ClCompile Include="..\cocos\renderer\core\memory\NedPooling.cc">
       <Filter>renderer\core\memory</Filter>
     </ClCompile>
-    <ClCompile Include="..\cocos\renderer\core\math\CCMath.cc">
-      <Filter>renderer\core\math</Filter>
-    </ClCompile>
     <ClCompile Include="..\cocos\renderer\core\CoreStd.cc">
       <Filter>renderer\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\core\math\CCCoreMath.cc">
+      <Filter>renderer\core\math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -929,9 +929,6 @@
     <ClInclude Include="..\cocos\renderer\core\memory\StlAlloc.h">
       <Filter>renderer\core\memory</Filter>
     </ClInclude>
-    <ClInclude Include="..\cocos\renderer\core\math\CCMath.h">
-      <Filter>renderer\core\math</Filter>
-    </ClInclude>
     <ClInclude Include="..\cocos\renderer\core\Core.h">
       <Filter>renderer\core</Filter>
     </ClInclude>
@@ -943,6 +940,9 @@
     </ClInclude>
     <ClInclude Include="..\cocos\renderer\core\TypeDef.h">
       <Filter>renderer\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\core\math\CCCoreMath.h">
+      <Filter>renderer\core\math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
