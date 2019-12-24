@@ -217,16 +217,12 @@ cc.Director.prototype = {
      */
     calculateDeltaTime: function (now) {
         if (!now) now = performance.now();
-        this._deltaTime = (now - this._lastUpdate) / 1000;
-        if (CC_DEBUG && (this._deltaTime > 1))
-            this._deltaTime = 1 / 60.0;
 
         // avoid delta time from being negative
         // negative deltaTime would be caused by the precision of now's value, for details please see: https://developer.mozilla.org/zh-CN/docs/Web/API/window/requestAnimationFrame
-        if (this._deltaTime < 0) {
-            this.calculateDeltaTime();
-            return;
-        }
+        this._deltaTime = now > this._lastUpdate ? (now - this._lastUpdate) / 1000 : 0;
+        if (CC_DEBUG && (this._deltaTime > 1))
+            this._deltaTime = 1 / 60.0;
 
         this._lastUpdate = now;
     },
