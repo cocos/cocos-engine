@@ -152,6 +152,10 @@ const CacheMode = cc.Enum({
     CHAR: 2,
 });
 
+const BOLD_FLAG = 1 << 0;
+const ITALIC_FLAG = 1 << 1;
+const UNDERLINE_FLAG = 1 << 2;
+
 /**
  * !#en The Label Component.
  * !#zh 文字标签组件
@@ -491,17 +495,91 @@ let Label = cc.Class({
             animatable: false
         },
 
-        _isBold: {
-            default: false,
-            serializable: false,
+        _styleFlags: 0,
+
+        /**
+         * !#en Whether enable bold.
+         * !#zh 是否启用黑体。
+         * @property {Boolean} enableBold
+         */
+        enableBold: {
+            get () {
+                return !!(this._styleFlags & BOLD_FLAG);
+            },
+            set (value) {
+                if (value) {
+                    this._styleFlags |= BOLD_FLAG;
+                } else {
+                    this._styleFlags &= ~BOLD_FLAG;
+                }
+
+                this.setVertsDirty();
+            },
+            animatable: false,
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.bold'
         },
-        _isItalic: {
-            default: false,
-            serializable: false,
+
+        /**
+         * !#en Whether enable italic.
+         * !#zh 是否启用黑体。
+         * @property {Boolean} enableItalic
+         */
+        enableItalic: {
+            get () {
+                return !!(this._styleFlags & ITALIC_FLAG);
+            },
+            set (value) {
+                if (value) {
+                    this._styleFlags |= ITALIC_FLAG;
+                } else {
+                    this._styleFlags &= ~ITALIC_FLAG;
+                }
+                
+                this.setVertsDirty();
+            },
+            animatable: false,
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.italic'
         },
-        _isUnderline: {
-            default: false,
-            serializable: false,
+
+        /**
+         * !#en Whether enable underline.
+         * !#zh 是否启用下划线。
+         * @property {Boolean} enableUnderline
+         */
+        enableUnderline: {
+            get () {
+                return !!(this._styleFlags & UNDERLINE_FLAG);
+            },
+            set (value) {
+                if (value) {
+                    this._styleFlags |= UNDERLINE_FLAG;
+                } else {
+                    this._styleFlags &= ~UNDERLINE_FLAG;
+                }
+
+                this.setVertsDirty();
+            },
+            animatable: false,
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.underline'
+        },
+
+        _underlineHeight: 0,
+        /**
+         * !#en The height of underline.
+         * !#zh 下划线高度。
+         * @property {Number} underlineHeight
+         */
+        underlineHeight: {
+            get () {
+                return this._underlineHeight;
+            },
+            set (value) {
+                if (this._underlineHeight === value) return;
+                
+                this._underlineHeight = value;
+                this.setVertsDirty();
+            },
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.underline_height',
         },
     },
 
@@ -623,7 +701,7 @@ let Label = cc.Class({
         this._frame._texture = this.font.spriteFrame._texture;
         this.markForRender(true);
         this._updateMaterial();
-        this._runUpdateRenderData();
+        this._assembler && this._assembler.updateRenderData(this);
     },
 
     _applyFontTexture () {
@@ -655,7 +733,7 @@ let Label = cc.Class({
             }
             
             this._updateMaterial();
-            this._runUpdateRenderData();
+            this._assembler && this._assembler.updateRenderData(this);
         }
         this.markForValidate();
     },
@@ -677,21 +755,34 @@ let Label = cc.Class({
         this._applyFontTexture();
     },
 
-    _runUpdateRenderData () {
-        if (this.node && this.node._activeInHierarchy && this._assembler)
-            this._assembler.updateRenderData(this);
-    },
-
+    /**
+     * @deprecated `label._enableBold` is deprecated, use `label.enableBold = true` instead please.
+     */
     _enableBold (enabled) {
-        this._isBold = !!enabled;
+        if (CC_DEBUG) {
+            cc.warn('`label._enableBold` is deprecated, use `label.enableBold = true` instead please');
+        }
+        this.enableBold = !!enabled;
     },
 
+    /**
+     * @deprecated `label._enableItalics` is deprecated, use `label.enableItalics = true` instead please.
+     */
     _enableItalics (enabled) {
-        this._isItalic = !!enabled;
+        if (CC_DEBUG) {
+            cc.warn('`label._enableItalics` is deprecated, use `label.enableItalics = true` instead please');
+        }
+        this.enableItalic = !!enabled;
     },
 
+    /**
+     * @deprecated `label._enableUnderline` is deprecated, use `label.enableUnderline = true` instead please.
+     */
     _enableUnderline (enabled) {
-        this._isUnderline = !!enabled;
+        if (CC_DEBUG) {
+            cc.warn('`label._enableUnderline` is deprecated, use `label.enableUnderline = true` instead please');
+        }
+        this.enableUnderline = !!enabled;
     },
  });
 
