@@ -44,11 +44,11 @@ export interface IMaterialInstanceInfo {
  */
 export class MaterialInstance extends Material {
 
-    get parent (): Material | null {
+    get parent () {
         return this._parent;
     }
 
-    get owner (): RenderableComponent | null {
+    get owner () {
         return this._owner;
     }
 

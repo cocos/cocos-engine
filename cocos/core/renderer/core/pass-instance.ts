@@ -31,7 +31,7 @@ import { IPassInfo } from '../../assets/effect-asset';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
 import { isBuiltinBinding } from '../../pipeline/define';
 import { MaterialInstance } from './material-instance';
-import { IBlock, Pass, PassOverrides } from './pass';
+import { Pass, PassOverrides } from './pass';
 import { assignDefines, IDefineMap } from './pass-utils';
 
 export class PassInstance extends Pass {
@@ -46,35 +46,28 @@ export class PassInstance extends Pass {
         super(parent.device);
         this._parent = parent;
         this._owner = owner;
-        this.resetPassInfo(this._parent);
+        this._doInit(this._parent);
+        this._defines = Object.assign({}, parent.defines); // defines may change now
         for (const u of this._shaderInfo.blocks) {
-            if (isBuiltinBinding(u.binding)) {
-                continue;
-            }
-            const block: IBlock = this._blocks[u.binding];
-            const parentBlock: IBlock = this._parent.blocks[u.binding];
+            if (isBuiltinBinding(u.binding)) { continue; }
+            const block = this._blocks[u.binding];
+            const parentBlock = this._parent.blocks[u.binding];
             block.view.set(parentBlock.view);
             block.dirty = true;
         }
-
         for (const u of this._shaderInfo.samplers) {
-            if (isBuiltinBinding(u.binding)) {
-                continue;
-            }
-            // @ts-ignore 2466
-            this._textureViews[u.binding] = this._parent._textureViews[u.binding];
-            // @ts-ignore 2466
-            this._samplers[u.binding] = this._parent._samplers[u.binding];
+            if (isBuiltinBinding(u.binding)) { continue; }
+            this._textureViews[u.binding] = (this._parent as PassInstance)._textureViews[u.binding]; // TS2446
+            this._samplers[u.binding] = (this._parent as PassInstance)._samplers[u.binding]; // TS2446
         }
-        this.tryCompile();
     }
 
     public overridePipelineStates (original: IPassInfo, overrides: PassOverrides): void {
         this._bs = new GFXBlendState();
         this._dss = new GFXDepthStencilState();
         this._rs = new GFXRasterizerState();
-        Pass.fillinPipelineInfo(this as unknown as Pass, original);
-        Pass.fillinPipelineInfo(this as unknown as Pass, overrides);
+        Pass.fillinPipelineInfo(this, original);
+        Pass.fillinPipelineInfo(this, overrides);
         this._onStateChange();
     }
 

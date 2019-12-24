@@ -220,10 +220,9 @@ export class Pass {
      * 根据指定参数初始化当前 pass，shader 会在这一阶段就尝试编译。
      */
     public initialize (info: IPassInfoFull) {
-        this.resetPassInfo(info);
+        this._doInit(info);
         this.resetUBOs();
         this.resetTextures();
-        this.tryCompile();
     }
 
     /**
@@ -422,41 +421,6 @@ export class Pass {
         }
     }
 
-    public resetPassInfo (info: IPassInfoFull) {
-        this._idxInTech = info.idxInTech;
-        this._programName = info.program;
-        this._defines = info.defines;
-        this._shaderInfo = programLib.getTemplate(info.program);
-        this._properties = info.properties || this._properties;
-        // pipeline state
-        const device = this._device;
-        Pass.fillinPipelineInfo(this, info);
-        if (info.stateOverrides) { Pass.fillinPipelineInfo(this, info.stateOverrides); }
-        this._hash = Pass.getPSOHash(this);
-
-        const blocks = this._shaderInfo.blocks;
-        for (let i = 0; i < blocks.length; i++) {
-            const { size, binding } = blocks[i];
-            if (isBuiltinBinding(binding)) { continue; }
-            // create gfx buffer resource
-            _bfInfo.size = Math.ceil(size / 16) * 16; // https://bugs.chromium.org/p/chromium/issues/detail?id=988988
-            this._buffers[binding] = device.createBuffer(_bfInfo);
-            // non-builtin UBO data pools, note that the effect compiler
-            // guarantees these bindings to be consecutive, starting from 0
-            const buffer = new ArrayBuffer(size);
-            this._blocks[binding] = { buffer, dirty: false, view: new Float32Array(buffer) };
-        }
-        // store handles
-        const directHandleMap = this._handleMap = this._shaderInfo.handleMap;
-        const indirectHandleMap: Record<string, number> = {};
-        for (const name in this._properties) {
-            const prop = this._properties[name];
-            if (!prop.handleInfo) { continue; }
-            indirectHandleMap[name] = this.getHandle.apply(this, prop.handleInfo)!;
-        }
-        Object.assign(directHandleMap, indirectHandleMap);
-    }
-
     /**
      * @zh
      * 重置所有 UBO 为初始默认值。
@@ -600,6 +564,42 @@ export class Pass {
     // internal use
     public beginChangeStatesSilently () {}
     public endChangeStatesSilently () {}
+
+    protected _doInit (info: IPassInfoFull) {
+        this._idxInTech = info.idxInTech;
+        this._programName = info.program;
+        this._defines = info.defines;
+        this._shaderInfo = programLib.getTemplate(info.program);
+        this._properties = info.properties || this._properties;
+        // pipeline state
+        const device = this._device;
+        Pass.fillinPipelineInfo(this, info);
+        if (info.stateOverrides) { Pass.fillinPipelineInfo(this, info.stateOverrides); }
+        this._hash = Pass.getPSOHash(this);
+
+        const blocks = this._shaderInfo.blocks;
+        for (let i = 0; i < blocks.length; i++) {
+            const { size, binding } = blocks[i];
+            if (isBuiltinBinding(binding)) { continue; }
+            // create gfx buffer resource
+            _bfInfo.size = Math.ceil(size / 16) * 16; // https://bugs.chromium.org/p/chromium/issues/detail?id=988988
+            this._buffers[binding] = device.createBuffer(_bfInfo);
+            // non-builtin UBO data pools, note that the effect compiler
+            // guarantees these bindings to be consecutive, starting from 0
+            const buffer = new ArrayBuffer(size);
+            this._blocks[binding] = { buffer, dirty: false, view: new Float32Array(buffer) };
+        }
+        // store handles
+        const directHandleMap = this._handleMap = this._shaderInfo.handleMap;
+        const indirectHandleMap: Record<string, number> = {};
+        for (const name in this._properties) {
+            const prop = this._properties[name];
+            if (!prop.handleInfo) { continue; }
+            indirectHandleMap[name] = this.getHandle.apply(this, prop.handleInfo)!;
+        }
+        Object.assign(directHandleMap, indirectHandleMap);
+        this.tryCompile();
+    }
 
     // states
     get priority () { return this._priority; }

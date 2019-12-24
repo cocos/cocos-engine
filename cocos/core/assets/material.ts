@@ -194,7 +194,7 @@ export class Material extends Asset {
      * @param passIdx 要编译的 pass 索引，默认编译所有 pass。
      */
     public recompileShaders (overrides: IDefineMap, passIdx?: number) {
-        console.warn('Material:' + this.name + ' \'s shader cannot be modified at runtime, please use material instance.');
+        console.warn('Shaders in material asset \'' + this.name + '\' cannot be modified at runtime, please instantiate the material first.');
     }
 
     /**
@@ -204,7 +204,7 @@ export class Material extends Asset {
      * @param passIdx 要重载的 pass 索引，默认重载所有 pass。
      */
     public overridePipelineStates (overrides: PassOverrides, passIdx?: number) {
-        console.warn('Material:' + this.name + ' \'s pipeline states cannot be modified at runtime, please use material instance.');
+        console.warn('Pipeline states in material asset \'' + this.name + '\' cannot be modified at runtime, please instantiate the material first.');
     }
 
     /**
