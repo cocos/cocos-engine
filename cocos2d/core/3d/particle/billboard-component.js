@@ -7,7 +7,7 @@ import { Color } from "../../value-types";
 import Model from "../../../renderer/scene/model";
 import Component from "../../components/CCComponent";
 import { toRadian, toDegree } from "../../../core/value-types";
-import MaterialVariant from '../../assets/material/effect-variant';
+import MaterialVariant from '../../assets/material/material-variant';
 
 @ccclass('cc.BillboardComponent')
 @menu('Components/BillboardComponent')

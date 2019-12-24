@@ -2,7 +2,7 @@ import { Mat4, Vec2, Vec3, Vec4 } from '../../../value-types';
 import { GFXFormat } from '../../../../renderer/gfx/define';
 import gfx from '../../../../renderer/gfx';
 import ParticleBatchModel from './particle-batch-model';
-import MaterialVariant from '../../../assets/material/effect-variant';
+import MaterialVariant from '../../../assets/material/material-variant';
 import RecyclePool from '../../../../renderer/memop/recycle-pool';
 import { RenderMode, Space } from '../enum';
 import Particle from '../particle';
@@ -389,8 +389,10 @@ export default class ParticleSystem3DAssembler extends Assembler {
             if (mat === null && this._defaultTrailMat === null) {
                 this._defaultTrailMat = MaterialVariant.createWithBuiltin('3d-trail', this);
             }
+
             if (mat === null) {
                 mat = this._defaultTrailMat;
+                this._particleSystem.trailMaterial = mat;
             }
 
             if (this._particleSystem._simulationSpace === Space.World || this._particleSystem.trailModule.space === Space.World) {

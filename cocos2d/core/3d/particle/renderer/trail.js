@@ -2,12 +2,11 @@ import { ccclass, property } from '../../../platform/CCClassDecorator';
 import { Vec3, toRadian, Color} from '../../../value-types';
 import { GFXFormat, GFXFormatInfos, GFXPrimitiveMode } from '../../../../renderer/gfx/define';
 import gfx from '../../../../renderer/gfx';
-import Model from '../../../../renderer/scene/model';
 import Pool from '../../../../renderer/memop/pool';
 import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';
 import { Space, TextureMode, TrailMode } from '../enum';
-import InputAssembler from '../../../../renderer/core/input-assembler'
+import MapUtils from '../../../utils/es5-map';
 
 const renderer = require('../../../renderer');
 
@@ -264,7 +263,7 @@ export default class TrailModule {
 
         this._vertSize = this._gfxVFmt._bytes;
 
-        this._particleTrail = new Map(); // Map<Particle, TrailSegment>();
+        this._particleTrail = new MapUtils(); // Map<Particle, TrailSegment>();
     }
 
     onInit (ps) {
@@ -328,7 +327,7 @@ export default class TrailModule {
             if (mat) {
                 this._material = mat;
             } else {
-                this._material = this._particleSystem._defaultTrailMat;
+                this._material = this._particleSystem._assembler._defaultTrailMat;
             }
         }
     }
@@ -425,8 +424,8 @@ export default class TrailModule {
     updateTrailBuffer () {
         this.vbOffset = 0;
         this.ibOffset = 0;
-
-        for (const p of this._particleTrail.keys()) {
+        
+        for (const p of Array.from(this._particleTrail.keys())) {
             const trailSeg = this._particleTrail.get(p);
             if (trailSeg.start === -1) {
                 continue;
