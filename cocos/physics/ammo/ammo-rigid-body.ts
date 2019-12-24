@@ -203,10 +203,10 @@ export class AmmoRigidBody implements IRigidBody {
     /** dynamic */
 
     applyLocalForce (force: Vec3, rel_pos?: Vec3): void {
-        rel_pos = rel_pos ? Vec3.transformQuat(rel_pos, rel_pos, this._rigidBody.node.worldRotation) : Vec3.ZERO;
+        const rp = rel_pos ? Vec3.transformQuat(v3_0, rel_pos, this._sharedBody.node.worldRotation) : Vec3.ZERO;
         this._btBody.applyForce(
             Cocos2AmmoVec3(this._btVec3_0, force),
-            Cocos2AmmoVec3(this._btVec3_1, rel_pos)
+            Cocos2AmmoVec3(this._btVec3_1, rp)
         )
     }
 
@@ -219,18 +219,18 @@ export class AmmoRigidBody implements IRigidBody {
     }
 
     applyLocalImpulse (impulse: Vec3, rel_pos?: Vec3): void {
-        rel_pos = rel_pos ? Vec3.transformQuat(rel_pos, rel_pos, this._rigidBody.node.worldRotation) : Vec3.ZERO;
+        const rp = rel_pos ? Vec3.transformQuat(v3_0, rel_pos, this._sharedBody.node.worldRotation) : Vec3.ZERO;
         this._btBody.applyImpulse(
             Cocos2AmmoVec3(this._btVec3_0, impulse),
-            Cocos2AmmoVec3(this._btVec3_1, rel_pos)
+            Cocos2AmmoVec3(this._btVec3_1, rp)
         )
     }
 
     applyForce (force: Vec3, rel_pos?: Vec3): void {
-        rel_pos = rel_pos ? rel_pos : Vec3.ZERO;
+        const rp = rel_pos ? rel_pos : Vec3.ZERO;
         this._btBody.applyForce(
             Cocos2AmmoVec3(this._btVec3_0, force),
-            Cocos2AmmoVec3(this._btVec3_1, rel_pos)
+            Cocos2AmmoVec3(this._btVec3_1, rp)
         )
     }
 
@@ -239,10 +239,10 @@ export class AmmoRigidBody implements IRigidBody {
     }
 
     applyImpulse (impulse: Vec3, rel_pos?: Vec3): void {
-        rel_pos = rel_pos ? rel_pos : Vec3.ZERO;
+        const rp = rel_pos ? rel_pos : Vec3.ZERO;
         this._btBody.applyImpulse(
             Cocos2AmmoVec3(this._btVec3_0, impulse),
-            Cocos2AmmoVec3(this._btVec3_1, rel_pos)
+            Cocos2AmmoVec3(this._btVec3_1, rp)
         )
     }
 

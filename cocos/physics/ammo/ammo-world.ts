@@ -16,9 +16,6 @@ import { AmmoCollisionFilterGroups } from './ammo-enum';
 
 const contactsPool = [] as any;
 const v3_0 = new Vec3();
-// const bt_closetHit_cb = new Ammo.ClosestRayResultCallback(new Ammo.btVector3(), new Ammo.btVector3());
-// const bt_allHits_cb = new Ammo.AllHitsRayResultCallback(new Ammo.btVector3(), new Ammo.btVector3());
-
 export class AmmoWorld implements IPhysicsWorld {
 
     set allowSleep (v: boolean) { };
@@ -235,8 +232,8 @@ export class AmmoWorld implements IPhysicsWorld {
                 contactsPool.push(CollisionEventObject.contacts.pop());
             }
 
-            let key = this.contactsDic.getKeyByIndex(dicL);
-            let data = this.contactsDic.getDataByKey(key) as any;
+            const key = this.contactsDic.getKeyByIndex(dicL);
+            const data = this.contactsDic.getDataByKey(key) as any;
             const shape0: AmmoShape = data.shape0;
             const shape1: AmmoShape = data.shape1;
             this.oldContactsDic.set(shape0.id, shape1.id, data);
