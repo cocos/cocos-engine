@@ -29,9 +29,10 @@
 
 import { IPassInfo } from '../../assets/effect-asset';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../../gfx/pipeline-state';
+import { isBuiltinBinding } from '../../pipeline/define';
 import { MaterialInstance } from './material-instance';
-import { Pass, PassOverrides } from './pass';
-import { IDefineMap } from './pass-utils';
+import { IBlock, Pass, PassOverrides } from './pass';
+import { assignDefines, IDefineMap } from './pass-utils';
 
 export class PassInstance extends Pass {
 
@@ -45,7 +46,27 @@ export class PassInstance extends Pass {
         super(parent.device);
         this._parent = parent;
         this._owner = owner;
-        this.initialize(this._parent);
+        this.resetPassInfo(this._parent);
+        for (const u of this._shaderInfo.blocks) {
+            if (isBuiltinBinding(u.binding)) {
+                continue;
+            }
+            const block: IBlock = this._blocks[u.binding];
+            const parentBlock: IBlock = this._parent.blocks[u.binding];
+            block.view.set(parentBlock.view);
+            block.dirty = true;
+        }
+
+        for (const u of this._shaderInfo.samplers) {
+            if (isBuiltinBinding(u.binding)) {
+                continue;
+            }
+            // @ts-ignore 2466
+            this._textureViews[u.binding] = this._parent._textureViews[u.binding];
+            // @ts-ignore 2466
+            this._samplers[u.binding] = this._parent._samplers[u.binding];
+        }
+        this.tryCompile();
     }
 
     public overridePipelineStates (original: IPassInfo, overrides: PassOverrides): void {
@@ -59,7 +80,9 @@ export class PassInstance extends Pass {
 
     public tryCompile (defineOverrides?: IDefineMap) {
         if (defineOverrides) {
-            this._defines = Object.assign({}, this._defines, defineOverrides);
+            if (!assignDefines(this._defines, defineOverrides)) {
+                return false;
+            }
         }
         const res = super.tryCompile();
         this._onStateChange();

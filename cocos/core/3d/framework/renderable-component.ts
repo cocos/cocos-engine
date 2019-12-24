@@ -114,14 +114,18 @@ export class RenderableComponent extends Component {
      * @param material 材质对象
      */
     public setMaterial (material: Material | null, index: number) {
+        if (material && material instanceof MaterialInstance) {
+            console.error('Can\'t set a material instance to a sharedMaterial slot');
+        }
         this._materials[index] = material;
         if (this._materialInstances[index]) {
-            if (this._materialInstances[index]!.parent !== material) {
-                this.getMaterialInstance(index);
-                this._onMaterialModified(index, material);
+            if (this._materialInstances[index]!.parent !== this._materials[index]) {
+                this._materialInstances[index]!.destroy();
+                this._materialInstances[index] = null;
+                this._onMaterialModified(index, this._materials[index]);
             }
         } else {
-            this._onMaterialModified(index, material);
+            this._onMaterialModified(index, this._materials[index]);
         }
     }
 
