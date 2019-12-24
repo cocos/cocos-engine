@@ -255,10 +255,11 @@ export class ModelComponent extends RenderableComponent {
 
     private _isBatchingEnabled () {
         if (!this._model || !this._mesh) { return false; }
-        for (let i = 0; i < this._model.subModels.length; ++i) {
-            const subModel = this._model.subModels[i];
-            for (let p = 0; p < subModel.passes.length; ++p) {
-                const pass = subModel.passes[p];
+        for (let i = 0; i < this._materials.length; ++i) {
+            const mat = this._materials[i];
+            if (!mat) { continue; }
+            for (let p = 0; p < mat.passes.length; ++p) {
+                const pass = mat.passes[p];
                 if (pass.batchedBuffer) { return true; }
             }
         }

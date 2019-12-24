@@ -34,8 +34,8 @@ import { IDefineMap } from './pass-utils';
 
 export interface IMaterialInstanceInfo {
     parent: Material;
-    owner: RenderableComponent;
-    subModelIdx: number;
+    owner?: RenderableComponent;
+    subModelIdx?: number;
 }
 
 /**
@@ -55,14 +55,14 @@ export class MaterialInstance extends Material {
     protected _passes: PassInstance[] = [];
 
     private _parent: Material;
-    private _owner: RenderableComponent;
+    private _owner: RenderableComponent | null;
     private _subModelIdx = 0;
 
     constructor (info: IMaterialInstanceInfo) {
         super();
         this._parent = info.parent;
-        this._owner = info.owner;
-        this._subModelIdx = info.subModelIdx;
+        this._owner = info.owner || null;
+        this._subModelIdx = info.subModelIdx || 0;
         this.copy(this._parent);
     }
 
@@ -99,9 +99,9 @@ export class MaterialInstance extends Material {
 
     public onPassStateChange (dontNotify: boolean) {
         this._hash = Material.getHash(this);
-        if (!dontNotify) {
+        if (!dontNotify && this._owner) {
             // @ts-ignore
-            this.owner._onRebuildPSO(this._subModelIdx, this);
+            this._owner._onRebuildPSO(this._subModelIdx, this);
         }
     }
 

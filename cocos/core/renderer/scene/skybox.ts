@@ -5,6 +5,7 @@ import { Mesh } from '../../assets/mesh';
 import { TextureCube } from '../../assets/texture-cube';
 import { IInternalBindingInst, UNIFORM_ENVIRONMENT } from '../../pipeline/define';
 import { box } from '../../primitive';
+import { MaterialInstance } from '../core/material-instance';
 import { samplerLib } from '../core/sampler-lib';
 import { Model } from './model';
 import { RenderScene } from './render-scene';
@@ -55,8 +56,9 @@ export class Skybox extends Model {
         this._scene = scene;
         this._globalBinding = this._scene.root.pipeline.globalBindings.get(UNIFORM_ENVIRONMENT.name)!;
         if (!skybox_material) {
-            skybox_material = new Material();
-            skybox_material.initialize({ effectName: 'pipeline/skybox', defines: { USE_RGBE_CUBEMAP: this._isRGBE } });
+            const mat = new Material();
+            mat.initialize({ effectName: 'pipeline/skybox', defines: { USE_RGBE_CUBEMAP: this._isRGBE } });
+            skybox_material = new MaterialInstance({ parent: mat });
         }
         if (!skybox_mesh) { skybox_mesh = createMesh(box({ width: 2, height: 2, length: 2 })); }
         this.initSubModel(0, skybox_mesh.renderingMesh.getSubmesh(0), skybox_material);

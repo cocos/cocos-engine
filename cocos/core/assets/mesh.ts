@@ -974,7 +974,7 @@ export class Mesh extends Asset {
      * 生成平铺的缓冲（用于动态合批）。
      */
     public createFlatBuffers (): boolean {
-        if (this._renderingMesh && !this._hasFlatBuffers) {
+        if (!this._hasFlatBuffers) {
             const gfxDevice: GFXDevice = cc.director.root!.device;
 
             let idxCount = 0;
@@ -982,7 +982,7 @@ export class Mesh extends Asset {
             let ibView: Uint8Array | Uint16Array | Uint32Array;
             for (let i = 0; i < this._struct.primitives.length; ++i) {
                 const prim = this._struct.primitives[i];
-                const subMesh = this._renderingMesh.subMeshes[i];
+                const subMesh = this.renderingMesh.subMeshes[i];
                 if (prim.indexView) {
                     idxCount = prim.indexView.count;
                 }
