@@ -30,7 +30,7 @@ import { UIStaticBatchComponent } from '../../../ui';
 import { Material } from '../../assets/material';
 import { CanvasComponent, UIComponent, UIRenderComponent } from '../../components/ui-base';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXCommandBufferType  } from '../../gfx/define';
+import { GFXCommandBufferType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { IGFXAttribute } from '../../gfx/input-assembler';
 import { GFXTextureView } from '../../gfx/texture-view';
@@ -42,7 +42,6 @@ import { Model } from '../../renderer/scene/model';
 import { RenderScene } from '../../renderer/scene/render-scene';
 import { Root } from '../../root';
 import { Layers, Node } from '../../scene-graph';
-import { IMaterial } from '../../utils/material-interface';
 import { MeshBuffer } from './mesh-buffer';
 import { StencilManager } from './stencil-manager';
 import { UIBatchModel } from './ui-batch-model';
@@ -65,7 +64,7 @@ export class UI {
     }
 
     set currBufferBatch (value) {
-        if (!value){
+        if (!value) {
             return;
         }
 
@@ -96,7 +95,7 @@ export class UI {
     private _modelInUse: CachedArray<UIBatchModel>;
     // batcher
     private _emptyMaterial = new Material();
-    private _currMaterial: IMaterial = this._emptyMaterial;
+    private _currMaterial: Material = this._emptyMaterial;
     private _currTexView: GFXTextureView | null = null;
     private _currCanvas: CanvasComponent | null = null;
     private _currMeshBuffer: MeshBuffer | null = null;
@@ -164,7 +163,7 @@ export class UI {
         return Object.getOwnPropertyDescriptor(Object.getPrototypeOf(this), 'renderScene')!.get!.bind(this);
     }
 
-    public _getUIMaterial (mat: IMaterial): UIMaterial {
+    public _getUIMaterial (mat: Material): UIMaterial {
         if (this._uiMaterials.has(mat.hash)) {
             return this._uiMaterials.get(mat.hash)!;
         } else {
@@ -175,7 +174,7 @@ export class UI {
         }
     }
 
-    public _removeUIMaterial (hash: number){
+    public _removeUIMaterial (hash: number) {
         if (this._uiMaterials.has(hash)) {
             if (this._uiMaterials.get(hash)!.decrease() === 0) {
                 this._uiMaterials.delete(hash);
@@ -195,9 +194,9 @@ export class UI {
         const screens = this._screens;
         for (let i = 0; i < screens.length; i++) {
             const element = screens[i];
-            if(element.camera){
+            if (element.camera) {
                 element.camera.view.visibility = Layers.BitMask.UI_2D | (i + 1);
-                if (!this._canvasMaterials.has(element.camera.view.visibility)){
+                if (!this._canvasMaterials.has(element.camera.view.visibility)) {
                     this._canvasMaterials.set(element.camera.view.visibility, new Map<number, number>());
                 }
             }
@@ -274,7 +273,7 @@ export class UI {
         this._reset();
     }
 
-    public sortScreens(){
+    public sortScreens () {
         this._screens.sort(this._screenSort);
     }
 
@@ -364,15 +363,15 @@ export class UI {
      * @param model - 提交渲染的 model 数据。
      * @param mat - 提交渲染的材质。
      */
-    public commitModel (comp: UIComponent, model: Model | null, mat: IMaterial | null) {
+    public commitModel (comp: UIComponent, model: Model | null, mat: Material | null) {
         // if the last comp is spriteComp, previous comps should be batched.
         if (this._currMaterial !== this._emptyMaterial) {
             this.autoMergeBatches();
         }
 
-        if (mat){
+        if (mat) {
             const rebuild = StencilManager.sharedManager!.handleMaterial(mat);
-            if (rebuild && model){
+            if (rebuild && model) {
                 for (let i = 0; i < model.subModelNum; i++) {
                     model.setSubModelMaterial(i, mat);
                 }
@@ -408,12 +407,12 @@ export class UI {
      * @zh
      * UI 渲染数据合批
      */
-    public autoMergeBatches (){
+    public autoMergeBatches () {
         const mat = this._currMaterial;
         const buffer = this._currMeshBuffer!;
         const indicsStart = buffer.indiceStart;
         const vCount = buffer.indiceOffset - indicsStart;
-        if (!vCount || !mat){
+        if (!vCount || !mat) {
             return;
         }
 
@@ -452,7 +451,7 @@ export class UI {
         this.autoMergeBatches();
     }
 
-    public finishMergeBatches (){
+    public finishMergeBatches () {
         this.autoMergeBatches();
         this._currMaterial = this._emptyMaterial;
         this._currTexView = null;
@@ -503,7 +502,7 @@ export class UI {
     }
 
     private _preprocess (c: Node) {
-        if(!c._uiProps.uiTransformComp){
+        if (!c._uiProps.uiTransformComp) {
             return;
         }
 
@@ -556,7 +555,7 @@ export class UI {
         return batch;
     }
 
-    private _requireBufferBatch (){
+    private _requireBufferBatch () {
         if (this._meshBufferUseCount >= this._meshBuffers.length) {
             this._currMeshBuffer = this._createMeshBuffer();
         } else {
@@ -564,7 +563,7 @@ export class UI {
         }
 
         this._meshBufferUseCount++;
-        if (arguments.length === 2){
+        if (arguments.length === 2) {
             this._currMeshBuffer.request(arguments[0], arguments[1]);
         }
     }

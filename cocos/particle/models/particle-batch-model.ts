@@ -27,6 +27,7 @@
  * @hidden
  */
 
+import { Material } from '../../core/assets/material';
 import { IRenderingSubmesh, Mesh } from '../../core/assets/mesh';
 import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormatInfos,
@@ -34,7 +35,6 @@ import { GFXAttributeName, GFXBufferUsageBit, GFXFormatInfos,
 import { IGFXAttribute } from '../../core/gfx/input-assembler';
 import { Color } from '../../core/math/color';
 import { Model } from '../../core/renderer/scene/model';
-import { IMaterial } from '../../core/utils/material-interface';
 
 export default class ParticleBatchModel extends Model {
 
@@ -204,7 +204,7 @@ export default class ParticleBatchModel extends Model {
         return vBuffer;
     }
 
-    public setSubModelMaterial (idx: number, mat: IMaterial | null) {
+    public setSubModelMaterial (idx: number, mat: Material | null) {
         this.initLocalBindings(mat);
         super.setSubModelMaterial(idx, mat);
     }

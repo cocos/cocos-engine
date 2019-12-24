@@ -34,6 +34,7 @@ import { GFXAPI, GFXDevice } from '../../gfx/device';
 import { GFXShader, GFXUniformBlock } from '../../gfx/shader';
 import { IInternalBindingDesc, localBindingsDesc } from '../../pipeline/define';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
+import { selectJointsMediumType } from '../models/skeletal-animation-utils';
 import { genHandle, IDefineMap } from './pass-utils';
 
 interface IDefineRecord extends IDefineInfo {
@@ -300,6 +301,7 @@ class ProgramLib {
      */
     public getGFXShader (device: GFXDevice, name: string, defines: IDefineMap, pipeline: RenderPipeline) {
         Object.assign(defines, pipeline.macros);
+        if (defines.USE_SKINNING) { defines.USE_SKINNING = selectJointsMediumType(device); }
         const key = this.getKey(name, defines);
         const res = this._cache[key];
         if (res) { return res; }

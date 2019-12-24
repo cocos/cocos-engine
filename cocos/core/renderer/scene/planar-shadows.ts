@@ -1,5 +1,5 @@
 
-import { EffectAsset } from '../../assets/effect-asset';
+import { Material } from '../../assets/material';
 import { aabb, frustum, intersect } from '../../geom-utils';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../../gfx/command-buffer';
 import { GFXCommandBufferType, GFXStatus } from '../../gfx/define';
@@ -8,8 +8,6 @@ import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { Color, Mat4, Quat, Vec3 } from '../../math';
 import { CachedArray } from '../../memop/cached-array';
 import { IInternalBindingInst, UBOShadow } from '../../pipeline/define';
-import { Pass } from '../core/pass';
-import { selectJointsMediumType } from '../models/skeletal-animation-utils';
 import { SkinningModel } from '../models/skinning-model';
 import { DirectionalLight } from './directional-light';
 import { Model } from './model';
@@ -88,17 +86,17 @@ export class PlanarShadows {
     protected _cmdBuffCount = 0;
     protected _psoRecord = new Map<Model, GFXPipelineState>();
     protected _cbRecord = new Map<GFXInputAssembler, GFXCommandBuffer>();
-    protected _passNormal: Pass;
-    protected _passSkinning: Pass;
+    protected _matNormal: Material;
+    protected _matSkinning: Material;
 
     constructor (scene: RenderScene) {
         this._scene = scene;
         this._globalBindings = scene.root.pipeline.globalBindings.get(UBOShadow.BLOCK.name)!;
         this._cmdBuffs = new CachedArray<GFXCommandBuffer>(64);
-        const effectAsset = EffectAsset.get('pipeline/planar-shadow')!;
-        const defines = { CC_USE_SKINNING: selectJointsMediumType(scene.root.device) };
-        this._passNormal = Pass.createPasses(effectAsset, { techIdx: 0, defines: [], states: [] })[0];
-        this._passSkinning = Pass.createPasses(effectAsset, { techIdx: 0, defines: [ defines ], states: [] })[0];
+        this._matNormal = new Material();
+        this._matNormal.initialize({ effectName: 'pipeline/planar-shadow' });
+        this._matSkinning = new Material();
+        this._matSkinning.initialize({ effectName: 'pipeline/planar-shadow', defines: { USE_SKINNING: true } });
     }
 
     public updateSphereLight (light: SphereLight) {
@@ -217,22 +215,22 @@ export class PlanarShadows {
 
     public destroy () {
         this.onGlobalPipelineStateChanged();
-        this._passNormal.destroy();
-        this._passSkinning.destroy();
+        this._matNormal.destroy();
+        this._matSkinning.destroy();
     }
 
     protected _createPSO (model: Model) {
-        const pass = model instanceof SkinningModel ? this._passSkinning : this._passNormal;
+        const mat = model instanceof SkinningModel ? this._matSkinning : this._matNormal;
         // @ts-ignore TS2445
-        const pso = model.createPipelineState(pass);
+        const pso = model.createPipelineState(mat.passes[0]);
         model.insertImplantPSO(pso); // add back to model to sync binding layouts
         pso.pipelineLayout.layouts[0].update();
         return pso;
     }
 
     protected _destroyPSO (model: Model, pso: GFXPipelineState) {
-        const pass = model instanceof SkinningModel ? this._passSkinning : this._passNormal;
-        model.removeImplantPSO(pso); pass.destroyPipelineState(pso);
+        const mat = model instanceof SkinningModel ? this._matSkinning : this._matNormal;
+        model.removeImplantPSO(pso); mat.passes[0].destroyPipelineState(pso);
     }
 
     protected _createOrReuseCommandBuffer (cb?: GFXCommandBuffer) {

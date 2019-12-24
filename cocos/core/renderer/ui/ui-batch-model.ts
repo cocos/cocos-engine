@@ -26,9 +26,9 @@
  * @hidden
  */
 
+import { Material } from '../../assets/material';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
-import { IMaterial } from '../../utils/material-interface';
 import { Model } from '../scene/model';
 import { SubModel } from '../scene/submodel';
 import { UIDrawBatch } from './ui-draw-batch';
@@ -65,7 +65,7 @@ class UISubModel extends SubModel {
         this.psos = [];
     }
 
-    public directInitialize (ia: GFXInputAssembler, mat: IMaterial, pso: GFXPipelineState) {
+    public directInitialize (ia: GFXInputAssembler, mat: Material, pso: GFXPipelineState) {
         this._inputAssembler = ia;
         this.psos![0] = pso;
         this.material = mat;

@@ -32,9 +32,9 @@ import { GFXDevice } from '../../gfx/device';
 import { GFXTexture } from '../../gfx/texture';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { Vec4 } from '../../math';
+import { IBlock } from '../../renderer/core/pass';
 import { Layers } from '../../scene-graph';
 import { Node } from '../../scene-graph/node';
-import { IBlock } from '../pass-interface';
 import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
 

@@ -6,9 +6,8 @@ import { GFXAttributeName, GFXFormat } from '../../core/gfx/define';
 import { IGFXAttribute } from '../../core/gfx/input-assembler';
 import { Mat4, Vec2, Vec3, Vec4 } from '../../core/math';
 import { RecyclePool } from '../../core/memop';
-import { MaterialInstance } from '../../core/renderer/core/material-instance';
+import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { IDefineMap } from '../../core/renderer/core/pass-utils';
-import { IMaterial } from '../../core/utils/material-interface';
 import { RenderMode, Space } from '../enum';
 import ParticleBatchModel from '../models/particle-batch-model';
 import Particle from '../particle';
@@ -60,6 +59,12 @@ const _vertex_attrs_mesh = [
     { name: GFXAttributeName.ATTR_NORMAL, format: GFXFormat.RGB32F },                       // mesh normal
     { name: GFXAttributeName.ATTR_COLOR1, format: GFXFormat.RGBA8, isNormalized: true },    // mesh color
 ];
+
+const _matInsInfo: IMaterialInstanceInfo = {
+    parent: null!,
+    owner: null!,
+    subModelIdx: 0,
+};
 
 @ccclass('cc.ParticleSystemRenderer')
 export default class ParticleSystemRenderer {
@@ -209,8 +214,8 @@ export default class ParticleSystemRenderer {
     private attrs: any[];
     private _vertAttrs: IGFXAttribute[] = [];
     private _particles: RecyclePool | null = null;
-    private _defaultMat: IMaterial | null = null;
-    private _defaultTrailMat: IMaterial | null = null;
+    private _defaultMat: Material | null = null;
+    private _defaultTrailMat: Material | null = null;
 
     constructor () {
         this._model = null;
@@ -460,9 +465,12 @@ export default class ParticleSystemRenderer {
             this._particleSystem.setMaterial(null, 0);
         }
         if (this._particleSystem.sharedMaterial == null && this._defaultMat == null) {
-            this._defaultMat = new MaterialInstance(builtinResMgr.get<Material>('default-particle-material'), this._particleSystem);
+            _matInsInfo.parent = builtinResMgr.get<Material>('default-particle-material');
+            _matInsInfo.owner = this._particleSystem;
+            _matInsInfo.subModelIdx = 0;
+            this._defaultMat = new MaterialInstance(_matInsInfo);
         }
-        const mat: IMaterial | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;
+        const mat: Material | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;
         if (this._particleSystem._simulationSpace === Space.World) {
             this._defines[CC_USE_WORLD_SPACE] = true;
         } else {
@@ -506,7 +514,10 @@ export default class ParticleSystemRenderer {
             }
             let mat = this._particleSystem.getMaterialInstance(1);
             if (mat === null && this._defaultTrailMat === null) {
-                this._defaultTrailMat = new MaterialInstance(builtinResMgr.get<Material>('default-trail-material'), this._particleSystem);
+                _matInsInfo.parent = builtinResMgr.get<Material>('default-trail-material');
+                _matInsInfo.owner = this._particleSystem;
+                _matInsInfo.subModelIdx = 1;
+                this._defaultTrailMat = new MaterialInstance(_matInsInfo);
             }
             if (mat === null) {
                 mat = this._defaultTrailMat;

@@ -141,7 +141,7 @@ export class RenderableComponent extends Component {
      * @zh 获取相对应序号的材质实例。
      * @param idx Look for the material list number
      */
-    public getMaterialInstance (idx: number): MaterialInstance | null {
+    public getMaterialInstance (idx: number): Material | null {
         const mat = this._materials[idx];
         if (!mat) {
             return null;
@@ -161,7 +161,7 @@ export class RenderableComponent extends Component {
      * @param index 材质序号
      * @param matInst 材质实例
      */
-    public setMaterialInstance (index: number, matInst: MaterialInstance | null) {
+    public setMaterialInstance (index: number, matInst: Material | null) {
         if (matInst && matInst.parent) {
             if (matInst !== this._materialInstances[index]) {
                 this._materialInstances[index] = matInst as MaterialInstance;

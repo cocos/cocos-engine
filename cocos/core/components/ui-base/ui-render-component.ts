@@ -32,15 +32,16 @@ import { ccclass, property } from '../../../core/data/class-decorator';
 import { Color } from '../../../core/math';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
 import { ccenum } from '../../../core/value-types/enum';
+import { builtinResMgr } from '../../3d/builtin/init';
 import { Material } from '../../assets';
 import { GFXBlendFactor } from '../../gfx/define';
 import { MaterialInstance } from '../../renderer';
+import { IMaterialInstanceInfo } from '../../renderer/core/material-instance';
 import { IAssembler, IAssemblerManager } from '../../renderer/ui/base';
 import { RenderData } from '../../renderer/ui/render-data';
 import { UI } from '../../renderer/ui/ui';
 import { Node } from '../../scene-graph';
 import { TransformBit } from '../../scene-graph/node-enum';
-import { IMaterial } from '../../utils/material-interface';
 import { UIComponent } from './ui-component';
 
 // hack
@@ -70,6 +71,12 @@ export enum InstanceMaterialType {
     GRAYSCALE = 2,
 }
 
+const _matInsInfo: IMaterialInstanceInfo = {
+    parent: null!,
+    owner: null!,
+    subModelIdx: 0,
+};
+
 /**
  * @zh
  * 所有支持渲染的 UI 组件的基类。
@@ -91,7 +98,7 @@ export class UIRenderComponent extends UIComponent {
     @property({
         type: GFXBlendFactor,
         displayOrder: 0,
-        tooltip:'原图混合模式',
+        tooltip: '原图混合模式',
     })
     get srcBlendFactor () {
         return this._srcBlendFactor;
@@ -119,7 +126,7 @@ export class UIRenderComponent extends UIComponent {
     @property({
         type: GFXBlendFactor,
         displayOrder: 1,
-        tooltip:'目标混合模式',
+        tooltip: '目标混合模式',
     })
     get dstBlendFactor () {
         return this._dstBlendFactor;
@@ -142,7 +149,7 @@ export class UIRenderComponent extends UIComponent {
      */
     @property({
         displayOrder: 2,
-        tooltip:'渲染颜色',
+        tooltip: '渲染颜色',
     })
     // @constget
     get color (): Readonly<Color> {
@@ -168,7 +175,7 @@ export class UIRenderComponent extends UIComponent {
     @property({
         type: Material,
         displayOrder: 3,
-        tooltip:'源材质',
+        tooltip: '源材质',
         visible: false,
     })
     get sharedMaterial () {
@@ -225,7 +232,7 @@ export class UIRenderComponent extends UIComponent {
     protected _renderFlag = true;
     // 特殊渲染节点，给一些不在节点树上的组件做依赖渲染（例如 mask 组件内置两个 graphics 来渲染）
     protected _delegateSrc: Node | null = null;
-    protected _material: IMaterial | null = null;
+    protected _material: Material | null = null;
     protected _instanceMaterialType = InstanceMaterialType.ADDCOLORANDTEXTURE;
     protected _blendTemplate = {
         blendState: {
@@ -320,7 +327,7 @@ export class UIRenderComponent extends UIComponent {
 
     public updateAssembler (render: UI) {
         super.updateAssembler(render);
-        if(this._renderFlag){
+        if (this._renderFlag){
             this._checkAndUpdateRenderData();
             this._render(render);
         }
@@ -351,7 +358,7 @@ export class UIRenderComponent extends UIComponent {
         return this.material !== null && this.enabled && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy);
     }
 
-    protected _postCanRender(){}
+    protected _postCanRender (){}
 
     protected _updateColor () {
         if (this._assembler && this._assembler.updateColor) {
@@ -359,7 +366,7 @@ export class UIRenderComponent extends UIComponent {
         }
     }
 
-    protected _updateMaterial (material: IMaterial | null) {
+    protected _updateMaterial (material: Material | null) {
         this._material = material;
 
         this._updateBlendFunc();
@@ -395,19 +402,24 @@ export class UIRenderComponent extends UIComponent {
     }
 
     protected _instanceMaterial () {
-        let mat: IMaterial | null = null;
+        let mat: Material | null = null;
+        _matInsInfo.owner = new RenderableComponent();
         if (this._sharedMaterial) {
-            mat = new MaterialInstance(this._sharedMaterial, new RenderableComponent());
+            _matInsInfo.parent = this._sharedMaterial;
+            mat = new MaterialInstance(_matInsInfo);
         } else {
-            switch (this._instanceMaterialType){
+            switch (this._instanceMaterialType) {
                 case InstanceMaterialType.ADDCOLOR:
-                    mat = new MaterialInstance(cc.builtinResMgr.get('ui-base-material'), new RenderableComponent());
+                    _matInsInfo.parent = builtinResMgr.get('ui-base-material');
+                    mat = new MaterialInstance(_matInsInfo);
                     break;
                 case InstanceMaterialType.ADDCOLORANDTEXTURE:
-                    mat = new MaterialInstance(cc.builtinResMgr.get('ui-sprite-material'), new RenderableComponent());
+                    _matInsInfo.parent = builtinResMgr.get('ui-sprite-material');
+                    mat = new MaterialInstance(_matInsInfo);
                     break;
                 case InstanceMaterialType.GRAYSCALE:
-                    mat = new MaterialInstance(cc.builtinResMgr.get('ui-sprite-gray-material'), new RenderableComponent());
+                    _matInsInfo.parent = builtinResMgr.get('ui-sprite-gray-material');
+                    mat = new MaterialInstance(_matInsInfo);
                     break;
             }
         }
