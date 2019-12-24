@@ -10,7 +10,6 @@
 #  undef delete
 #endif
 
-#include "base/ccMacros.h"
 #include "core/CoreDef.h"
 
 NS_CC_BEGIN

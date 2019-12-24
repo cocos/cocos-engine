@@ -1,14 +1,14 @@
-#ifndef __gles2w_h_
-#define __gles2w_h_
+﻿#pragma once
 
-#include "CoreDef.h"
-
-#if (CC_PLATFORM == CC_PLATFORM_IOS)
-#   include <OpenGLES/ES2/gl.h>
-    // Prevent Apple's non-standard extension header from being included
-#   define __gl_es20ext_h_
+#if defined(__APPLE__) || defined(__APPLE_CC__)
+    #include <TargetConditionals.h>
+    #if TARGET_OS_IPHONE
+        #   include <OpenGLES/ES2/gl.h>
+            // Prevent Apple's non-standard extension header from being included
+        #   define __gl_es20ext_h_
+    #endif
 #else
-#   include <GLES2/gl2.h>
+    #   include <GLES2/gl2.h>
 #endif
 
 #include <KHR/khrplatform.h>
@@ -968,6 +968,4 @@ extern PFNGLENDTILINGQCOMPROC gles2wEndTilingQCOM;
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

@@ -1,14 +1,14 @@
-#ifndef __gles3w_h_
-#define __gles3w_h_
+#pragma once
 
-#include "CoreDef.h"
-
-#if (CC_PLATFORM == CC_PLATFORM_IOS)
-#   include <OpenGLES/ES3/gl.h>
-    // Prevent Apple's non-standard extension header from being included
-#   define __gl_es30ext_h_
+#if defined(__APPLE__) || defined(__APPLE_CC__)
+    #include <TargetConditionals.h>
+    #if TARGET_OS_IPHONE
+        #   include <OpenGLES/ES3/gl.h>
+            // Prevent Apple's non-standard extension header from being included
+        #   define __gl_es30ext_h_
+    #endif
 #else
-#   include <GLES3/gl3.h>
+    #   include <GLES3/gl3.h>
 #endif
 
 #include <KHR/khrplatform.h>
@@ -930,6 +930,4 @@ extern PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEIMGPROC gles3wFramebufferTexture2DMul
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif
