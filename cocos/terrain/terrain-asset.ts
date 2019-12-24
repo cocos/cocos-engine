@@ -1,13 +1,13 @@
 /**
  * @category terrain
  */
-import { Asset } from "../core/assets";
-import { ccclass } from "../core/data/class-decorator";
+import { Asset } from '../core/assets';
+import { ccclass } from '../core/data/class-decorator';
 
 export const TERRAIN_DATA_VERSION = 0x01010001;
 export const TERRAIN_DATA_VERSION2 = 0x01010002;
+export const TERRAIN_DATA_VERSION3 = 0x01010003;
 export const TERRAIN_DATA_VERSION_DEFAULT = 0x01010111;
-
 
 export class TerrainBuffer {
     public Length: number = 0;
@@ -25,7 +25,7 @@ export class TerrainBuffer {
             capacity += capacity;
         }
 
-        let temp = new Uint8Array(capacity);
+        const temp = new Uint8Array(capacity);
         for (let i = 0; i < this.Length; ++i) {
             temp[i] = this.Buffer[i];
         }
@@ -98,19 +98,19 @@ export class TerrainBuffer {
     }
 
     public ReadInt8 () {
-        let value = this._dview.getInt8(this._seekPos);
+        const value = this._dview.getInt8(this._seekPos);
         this._seekPos += 1;
         return value;
     }
 
     public ReadInt16 () {
-        let value = this._dview.getInt16(this._seekPos, true);
+        const value = this._dview.getInt16(this._seekPos, true);
         this._seekPos += 2;
         return value;
     }
 
     public ReadInt () {
-        let value = this._dview.getInt32(this._seekPos, true);
+        const value = this._dview.getInt32(this._seekPos, true);
         this._seekPos += 4;
         return value;
     }
@@ -124,7 +124,7 @@ export class TerrainBuffer {
     }
 
     public ReadFloat () {
-        let value = this._dview.getFloat32(this._seekPos, true);
+        const value = this._dview.getFloat32(this._seekPos, true);
         this._seekPos += 4;
         return value;
     }
@@ -138,9 +138,9 @@ export class TerrainBuffer {
     }
 
     public ReadString () {
-        let length = this.ReadInt();
+        const length = this.ReadInt();
 
-        let value = "";
+        let value = '';
         for (let i = 0; i < length; ++i) {
             value += String.fromCharCode(this.ReadInt8());
         }
@@ -149,18 +149,24 @@ export class TerrainBuffer {
     }
 }
 
+export class TerrainLayerInfo{
+    public slot: number = 0;
+    public tileSize: number = 1;
+    public detailMap: string = '';
+}
+
 @ccclass('cc.TerrainAsset')
-export class TerrainAsset extends Asset
-{
+export class TerrainAsset extends Asset{
     protected _data: Uint8Array|null = null;
     protected _tileSize: number = 1;
     protected _blockCount: number[] = [1, 1];
     protected _weightMapSize: number = 128;
     protected _lightMapSize: number = 128;
-    protected _heights: Uint16Array = new Uint16Array;
-    protected _weights: Uint8Array = new Uint8Array;
+    protected _heights: Uint16Array = new Uint16Array();
+    protected _weights: Uint8Array = new Uint8Array();
     protected _layerBuffer: number[] = [-1, -1, -1, -1];
-    
+    protected _layerInfos: TerrainLayerInfo[] = [];
+
     constructor () {
         super();
         this.loaded = false;
@@ -234,40 +240,49 @@ export class TerrainAsset extends Asset
         return this._weights;
     }
 
-    set layerBuffer(value: number[]) {
+    set layerBuffer (value: number[]) {
         this._layerBuffer = value;
     }
 
-    get layerBuffer() {
+    get layerBuffer () {
         return this._layerBuffer;
     }
 
+    set layerInfos (value: TerrainLayerInfo[]) {
+        this._layerInfos = value;
+    }
+
+    get layerInfos () {
+        return this._layerInfos;
+    }
+
     public getLayer (xblock: number, yblock: number, layerId: number) {
-        let blockId = yblock * this.blockCount[0] + xblock;
-        let index = blockId * 4 + layerId;
+        const blockId = yblock * this.blockCount[0] + xblock;
+        const index = blockId * 4 + layerId;
 
         if (xblock < this.blockCount[0] && yblock < this.blockCount[1] && index < this._layerBuffer.length) {
             return this._layerBuffer[index];
         }
-        
+
         return -1;
     }
 
-    public _setNativeData(_nativeData: Uint8Array) {
+    public _setNativeData (_nativeData: Uint8Array) {
         this._data = _nativeData;
     }
 
     public _loadNativeData (_nativeData: Uint8Array) {
-        let stream = new TerrainBuffer();
+        const stream = new TerrainBuffer();
         stream.Assign(_nativeData);
 
         // version
-        let version = stream.ReadInt();
-        if (version == TERRAIN_DATA_VERSION_DEFAULT) {
+        const version = stream.ReadInt();
+        if (version === TERRAIN_DATA_VERSION_DEFAULT) {
             return true;
         }
-        if (version != TERRAIN_DATA_VERSION &&
-            version != TERRAIN_DATA_VERSION2) {
+        if (version !== TERRAIN_DATA_VERSION &&
+            version !== TERRAIN_DATA_VERSION2 &&
+            version !== TERRAIN_DATA_VERSION3) {
             return false;
         }
 
@@ -276,38 +291,51 @@ export class TerrainAsset extends Asset
         stream.ReadIntArray(this._blockCount);
         this.weightMapSize = stream.ReadInt16();
         this.lightMapSize = stream.ReadInt16();
-        
+
         // heights
-        let heightBufferSize = stream.ReadInt();
+        const heightBufferSize = stream.ReadInt();
         this.heights = new Uint16Array(heightBufferSize);
         for (let i = 0; i < this.heights.length; ++i) {
             this.heights[i] = stream.ReadInt16();
         }
 
         // weights
-        let WeightBufferSize = stream.ReadInt();
+        const WeightBufferSize = stream.ReadInt();
         this.weights = new Uint8Array(WeightBufferSize);
         for (let i = 0; i < this.weights.length; ++i) {
             this.weights[i] = stream.ReadInt8();
         }
 
         // layer buffer
-        if (version != TERRAIN_DATA_VERSION2) {
-            let layerBufferSize = stream.ReadInt();
+        if (version >= TERRAIN_DATA_VERSION2) {
+            const layerBufferSize = stream.ReadInt();
             this.layerBuffer = new Array<number>(layerBufferSize);
-            for (let i = 0; i < this.weights.length; ++i) {
+            for (let i = 0; i < this.layerBuffer.length; ++i) {
                 this.layerBuffer[i] = stream.ReadInt16();
             }
         }
-        
+
+        // layer infos
+        if (version >= TERRAIN_DATA_VERSION3) {
+            const layerInfoSize = stream.ReadInt();
+            this.layerInfos = new Array<TerrainLayerInfo>(layerInfoSize);
+            for (let i = 0; i < this.layerInfos.length; ++i) {
+                this.layerInfos[i] = new TerrainLayerInfo();
+                this.layerInfos[i].slot = stream.ReadInt();
+                this.layerInfos[i].tileSize = stream.ReadFloat();
+                this.layerInfos[i].detailMap = stream.ReadString();
+
+            }
+        }
+
         return true;
     }
 
-    public _exportNativeData() : Uint8Array {
-        let stream = new TerrainBuffer();
+    public _exportNativeData (): Uint8Array {
+        const stream = new TerrainBuffer();
 
         // version
-        stream.WriteInt32(TERRAIN_DATA_VERSION2);
+        stream.WriteInt32(TERRAIN_DATA_VERSION3);
 
         // geometry info
         stream.WriteFloat(this.tileSize);
@@ -333,11 +361,19 @@ export class TerrainAsset extends Asset
             stream.WriteInt16(this.layerBuffer[i]);
         }
 
+        // layer infos
+        stream.WriteInt32(this.layerInfos.length);
+        for (let i = 0; i < this.layerInfos.length; ++i) {
+            stream.WriteInt32(this.layerInfos[i].slot);
+            stream.WriteFloat(this.layerInfos[i].tileSize);
+            stream.WriteString(this.layerInfos[i].detailMap);
+        }
+
         return stream.Buffer;
     }
 
-    public _exportDefaultNativeData() : Uint8Array {
-        let stream = new TerrainBuffer();
+    public _exportDefaultNativeData (): Uint8Array {
+        const stream = new TerrainBuffer();
 
         stream.WriteInt32(TERRAIN_DATA_VERSION_DEFAULT);
 
