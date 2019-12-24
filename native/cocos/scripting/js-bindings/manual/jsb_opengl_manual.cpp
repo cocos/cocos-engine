@@ -2143,7 +2143,7 @@ static bool JSB_glTexImage2D(se::State& s) {
 #if OPENGL_PARAMETER_CHECK
     SE_PRECONDITION4(format == GL_ALPHA || format == GL_RGB || format == GL_RGBA || format == GL_LUMINANCE || format == GL_LUMINANCE_ALPHA,
                      false, GL_INVALID_ENUM);
-    SE_PRECONDITION4(type == GL_UNSIGNED_BYTE || type == GL_UNSIGNED_SHORT_5_6_5 || type == GL_UNSIGNED_SHORT_4_4_4_4 || type == GL_UNSIGNED_SHORT_5_5_5_1,
+    SE_PRECONDITION4(type == GL_UNSIGNED_BYTE || type == GL_UNSIGNED_SHORT_5_6_5 || type == GL_UNSIGNED_SHORT_4_4_4_4 || type == GL_UNSIGNED_SHORT_5_5_5_1 || (type == GL_FLOAT && Configuration::getInstance()->supportsFloatTexture()),
                      false, GL_INVALID_ENUM);
     SE_PRECONDITION4(internalformat == format, false, GL_INVALID_OPERATION);
     if (!args[8].isNullOrUndefined())
@@ -2250,7 +2250,7 @@ static bool JSB_glTexSubImage2D(se::State& s) {
 #if OPENGL_PARAMETER_CHECK
     SE_PRECONDITION4(format == GL_ALPHA || format == GL_RGB || format == GL_RGBA || format == GL_LUMINANCE || format == GL_LUMINANCE_ALPHA,
                      false, GL_INVALID_ENUM);
-    SE_PRECONDITION4(type == GL_UNSIGNED_BYTE || type == GL_UNSIGNED_SHORT_5_6_5 || type == GL_UNSIGNED_SHORT_4_4_4_4 || type == GL_UNSIGNED_SHORT_5_5_5_1,
+    SE_PRECONDITION4(type == GL_UNSIGNED_BYTE || type == GL_UNSIGNED_SHORT_5_6_5 || type == GL_UNSIGNED_SHORT_4_4_4_4 || type == GL_UNSIGNED_SHORT_5_5_5_1 || (type == GL_FLOAT && Configuration::getInstance()->supportsFloatTexture()),
                      false, GL_INVALID_ENUM);
     if (!args[8].isNullOrUndefined())
     {
