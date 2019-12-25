@@ -566,7 +566,8 @@ var PageView = cc.Class({
         var moveOffset = this._touchBeganPosition.sub(this._touchEndPosition);
         if (bounceBackStarted) {
             var dragDirection = this._getDragDirection(moveOffset);
-            if (dragDirection === 0) {
+            // setting is not allowed until the auto scrolling ends
+            if (dragDirection === 0 || this._autoScrolling) {
                 return;
             }
             if (dragDirection > 0) {
