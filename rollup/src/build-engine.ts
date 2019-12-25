@@ -1,4 +1,5 @@
 import { existsSync } from 'fs';
+import fs from 'fs-extra';
 import { dirname, join, normalize, relative } from 'path';
 import { rollup, ModuleFormat } from 'rollup';
 // @ts-ignore
@@ -19,6 +20,7 @@ import { terser } from 'rollup-plugin-terser';
 // @ts-ignore
 import babelPresetEnv from '@babel/preset-env';
 import babelPresetCc from '@cocos/babel-preset-cc';
+import { writeFile, ensureDir } from 'fs-extra';
 
 interface IBaseOptions {
     moduleEntries: string[];
@@ -61,6 +63,8 @@ interface IBaseOptions {
      * @default `${outputPath.map}`
      */
     sourcemapFile?: string;
+
+    watchFiles?: boolean;
 }
 
 interface IAdvancedOptions extends IBaseOptions {
@@ -245,6 +249,20 @@ async function _internalBuild (options: IAdvancedOptions) {
         input: moduleEntries,
         plugins: rollupPlugins,
     });
+
+    let watchFiles: Record<string, number> | undefined;
+    if (options.watchFiles) {
+        watchFiles = {};
+        for (const watchFile of rollupBuild.watchFiles) {
+            try {
+                const stat = await fs.stat(watchFile);
+                watchFiles[watchFile] = stat.mtimeMs;
+            } catch {
+                // the `watchFiles` may contain non-fs modules.
+            }
+        }
+    }
+
     const generated = await rollupBuild.generate({
         format,
         sourcemap: options.sourcemap,
@@ -258,14 +276,17 @@ async function _internalBuild (options: IAdvancedOptions) {
         return {
             code: `${chunk0.code}\n//# sourceMappingURL=${sourceMappingUrl}`,
             map: chunk0.map.toString(),
+            watchFiles,
         };
     } else if (options.sourcemap === 'inline' && chunk0.map) {
         return {
             code: `${chunk0.code}\n//# sourceMappingURL=${chunk0.map.toUrl()}`,
+            watchFiles,
         };
     } else {
         return {
             code: chunk0.code,
+            watchFiles,
         };
     }
 }
