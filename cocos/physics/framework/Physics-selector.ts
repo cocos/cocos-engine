@@ -31,11 +31,13 @@ export function instantiate (
     sphereShape: typeof SphereShape,
     body: typeof RigidBody,
     world: typeof PhysicsWorld,
-    capsuleShape: typeof CapsuleShape
+    capsuleShape?: typeof CapsuleShape
 ) {
     BoxShape = boxShape;
     SphereShape = sphereShape;
     RigidBody = body;
     PhysicsWorld = world;
-    CapsuleShape = capsuleShape;
+    if (capsuleShape) {
+        CapsuleShape = capsuleShape;
+    }
 }
