@@ -182,6 +182,7 @@ async function _internalBuild (options: IAdvancedOptions) {
             extensions: ['.js', '.ts'],
             highlightCode: true,
             ignore: [
+                'node_modules/@cocos/ammo/**',
                 'node_modules/@cocos/cannon/**',
             ],
             plugins: [
@@ -197,15 +198,21 @@ async function _internalBuild (options: IAdvancedOptions) {
 
         commonjs({
             namedExports: {
+                '@cocos/ammo': ['Ammo'],
                 '@cocos/cannon': ['CANNON'],
             },
         }),
     ];
 
+    /** adapt: reduce_funcs not suitable for ammo.js */
+    const defines = options.globalDefines as IGlobaldefines;
+    const isReduceFuncs = !defines.CC_PHYSICS_AMMO;
+
     if (format === 'esm') {
         rollupPlugins.push(terser({
             compress: {
                 global_defs: options.globalDefines,
+                reduce_funcs: isReduceFuncs
             },
             mangle: doUglify,
             keep_fnames: !doUglify,
@@ -218,6 +225,7 @@ async function _internalBuild (options: IAdvancedOptions) {
         rollupPlugins.push(uglify({
             compress: {
                 global_defs: options.globalDefines,
+                reduce_funcs: isReduceFuncs
             },
             mangle: doUglify,
             keep_fnames: !doUglify,

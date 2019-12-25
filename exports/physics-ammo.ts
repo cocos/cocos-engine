@@ -2,4 +2,7 @@
  * @hidden
  */
 
-// import '../physics/ammo/instantiate';
+import Ammo from '@cocos/ammo';
+window.Ammo = Ammo;
+
+import '../cocos/physics/ammo/instantiate';

@@ -55,6 +55,13 @@
                         "physics-builtin",
                         "physics-framework"
                     ]
+                },
+                {
+                    "text": "ammo.js(beta)",
+                    "entry": [
+                        "physics-ammo",
+                        "physics-framework"
+                    ]
                 }
             ]
         },

@@ -101,7 +101,6 @@ export class PhysicsSystem extends System {
     get gravity (): Vec3 {
         return this._gravity;
     }
-
     set gravity (gravity: Vec3) {
         this._gravity.set(gravity);
         if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
@@ -178,8 +177,8 @@ export class PhysicsSystem extends System {
             this.gravity = this._gravity;
             this.allowSleep = this._allowSleep;
             this._material = new PhysicMaterial();
-            this._material.friction = 0.6;
-            this._material.restitution = -1;
+            this._material.friction = 0.5;
+            this._material.restitution = 0.0;
             this._material.on('physics_material_update', this._updateMaterial, this);
             this.physicsWorld.defaultMaterial = this._material;
         }

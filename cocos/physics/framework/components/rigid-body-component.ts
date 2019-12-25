@@ -524,4 +524,5 @@ export class RigidBodyComponent extends Component {
             this._body.removeMask(v);
         }
     }
+
 }

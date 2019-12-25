@@ -162,7 +162,7 @@ export class ColliderComponent extends Component implements IEventTarget {
         return !r;
     }
 
-    protected constructor () { super() }
+    constructor () { super() }
 
     /// EVENT INTERFACE ///
 
