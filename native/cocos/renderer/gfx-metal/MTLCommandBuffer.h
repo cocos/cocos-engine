@@ -33,9 +33,17 @@ public:
     virtual void CopyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GFXTextureLayout layout, GFXBufferTextureCopy* regions, uint count) override;
     virtual void Execute(GFXCommandBuffer** cmd_buffs, uint count) override;
     
+    CC_INLINE const CCMTLCommandPackage* getCommandPackage() const { return _commandPackage; }
+    
+private:
+    void bindStates();
+    
 private:
     CCMTLCommandPackage* _commandPackage = nullptr;
+    // Just for convenient.
     CCMTLCommandAllocator* _MTLCommandAllocator = nullptr;
+    bool _isStateInvalid = false;
+    bool _isInRenderPass = false;
 };
 
 NS_CC_END

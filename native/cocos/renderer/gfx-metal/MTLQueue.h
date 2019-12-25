@@ -1,6 +1,10 @@
 #pragma once
 
+#import <Metal/MTLCommandQueue.h>
+
 NS_CC_BEGIN
+
+class CCMTLCommandPackage;
 
 class CCMTLQueue : public GFXQueue
 {
@@ -13,7 +17,10 @@ public:
     virtual void submit(GFXCommandBuffer** cmd_buffs, uint count) override;
     
 private:
-    void* _metalQueue = nullptr;
+    CC_INLINE void executeCommands(const CCMTLCommandPackage*);
+    
+private:
+    id<MTLCommandQueue> _metalQueue = nil;
 };
 
 NS_CC_END

@@ -30,7 +30,9 @@ else()
 	add_library(${TARGET_NAME} SHARED ${HEADER_FILES} ${ALL_FILES})
 endif()
 
-target_link_libraries(${TARGET_NAME} Core)
+find_library(METAL_LIBRARY Metal)
+find_library(METALKIT_LIBRARY MetalKit)
+target_link_libraries(${TARGET_NAME} Core ${METAL_LIBRARY} ${METALKIT_LIBRARY})
 
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME CCGFXMetal)
 set_target_properties(${TARGET_NAME} PROPERTIES OUTPUT_NAME_DEBUG CCGFXMetal_d)
