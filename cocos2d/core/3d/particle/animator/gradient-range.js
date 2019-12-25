@@ -25,8 +25,12 @@ export default class GradientRange {
 
     static Mode = Mode;
 
+    @property
+    _mode = Mode.Color;
     /**
-     * @zh 渐变色类型 [[Mode]]。
+     * !#en Gradient type.
+     * !#zh 渐变色类型。
+     * @property {Mode} mode
      */
     @property({
         type: Mode,
@@ -49,26 +53,36 @@ export default class GradientRange {
         this._mode = m;
     }
 
-    /**
-     * @zh 当mode为Color时的颜色。
+    @property
+    _color = cc.Color.WHITE.clone();
+    /** 
+     * !#en The color when mode is Color.
+     * !#zh 当 mode 为 Color 时的颜色。
+     * @property {Color} color
      */
     @property
     color = cc.Color.WHITE.clone();
 
     /**
-     * @zh 当mode为TwoColors时的颜色下限。
+     * !#en Lower color limit when mode is TwoColors.
+     * !#zh 当 mode 为 TwoColors 时的颜色下限。
+     * @property {Color} colorMin
      */
     @property
     colorMin = cc.Color.WHITE.clone();
 
     /**
-     * @zh 当mode为TwoColors时的颜色上限。
+     * !#en Upper color limit when mode is TwoColors.
+     * !#zh 当 mode 为 TwoColors 时的颜色上限。
+     * @property {Color} colorMax
      */
     @property
     colorMax = cc.Color.WHITE.clone();
 
     /**
-     * @zh 当mode为Gradient时的颜色渐变。
+     * !#en Color gradient when mode is Gradient
+     * !#zh 当 mode 为 Gradient 时的颜色渐变。
+     * @property {Gradient} gradient
      */
     @property({
         type: Gradient,
@@ -76,7 +90,9 @@ export default class GradientRange {
     gradient = new Gradient();
 
     /**
-     * @zh 当mode为TwoGradients时的颜色渐变下限。
+     * !#en Lower color gradient limit when mode is TwoGradients.
+     * !#zh 当 mode 为 TwoGradients 时的颜色渐变下限。
+     * @property {Gradient} gradientMin
      */
     @property({
         type: Gradient,
@@ -84,16 +100,14 @@ export default class GradientRange {
     gradientMin = new Gradient();
 
     /**
-     * @zh 当mode为TwoGradients时的颜色渐变上限。
+     * !#en Upper color gradient limit when mode is TwoGradients.
+     * !#zh 当 mode 为 TwoGradients 时的颜色渐变上限。
+     * @property {Gradient} gradientMax
      */
     @property({
         type: Gradient,
     })
     gradientMax = new Gradient();
-
-    _mode = Mode.Color;
-
-    _color = cc.Color.WHITE.clone();
 
     evaluate (time, rndRatio) {
         switch (this.mode) {

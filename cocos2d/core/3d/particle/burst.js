@@ -5,10 +5,13 @@ import CurveRange from './animator/curve-range';
 @ccclass('cc.Burst')
 export default class Burst {
 
+    @property
     _time = 0;
 
     /**
-     * @zh 粒子系统开始运行到触发此次 Brust 的时间
+     * !#en Time between the start of the particle system and the trigger of this Brust
+     * !#zh 粒子系统开始运行到触发此次 Brust 的时间
+     * @property {Number} time
      */
     @property
     get time () {
@@ -21,21 +24,28 @@ export default class Burst {
     }
 
     /**
-     * @zh 发射粒子的最小数量
+     * !#en Minimum number of emitted particles
+     * !#zh 发射粒子的最小数量
+     * @property {Number} minCount
      */
     @property
     minCount = 30;
 
     /**
-     * @zh 发射粒子的最大数量
+     * !#en Maximum number of emitted particles
+     * !#zh 发射粒子的最大数量
+     * @property {Number} maxCount
      */
     @property
     maxCount = 30;
 
+    @property
     _repeatCount = 1;
 
     /**
-     * @zh Burst 的触发次数
+     * !#en The number of times Burst was triggered.
+     * !#zh Burst 的触发次数
+     * @property {Number} repeatCount
      */
     @property
     get repeatCount () {
@@ -48,13 +58,17 @@ export default class Burst {
     }
 
     /**
-     * @zh 每次触发的间隔时间
+     * !#en Interval of each trigger
+     * !#zh 每次触发的间隔时间
+     * @property {Number} repeatInterval
      */
     @property
     repeatInterval = 1;
 
     /**
-     * @zh 发射的粒子的数量
+     * !#en Number of particles emitted
+     * !#zh 发射的粒子的数量
+     * @property {CurveRange} count
      */
     @property({
         type: CurveRange,

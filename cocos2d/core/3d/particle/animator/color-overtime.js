@@ -2,22 +2,23 @@ import { ccclass, property } from '../../../platform/CCClassDecorator'
 import { pseudoRandom, Color } from '../../../value-types';
 import GradientRange from './gradient-range';
 
-// tslint:disable: max-line-length
-
 const COLOR_OVERTIME_RAND_OFFSET = 91041;
 
 @ccclass('cc.ColorOvertimeModule')
 export default class ColorOvertimeModule {
 
     /**
-     * @zh 是否启用。
+     * !#en The enable of ColorOvertimeModule.
+     * !#zh 是否启用
+     * @property {Boolean} enable
      */
     @property
     enable = false;
 
     /**
-     * @zh 颜色随时间变化的参数，各个 key 之间线性差值变化。
-     * @type {GradientRange}
+     * !#en The parameter of color change over time, the linear difference between each key changes.
+     * !#zh 颜色随时间变化的参数，各个 key 之间线性差值变化。
+     * @type {GradientRange} color
      */
     @property({
         type: GradientRange,

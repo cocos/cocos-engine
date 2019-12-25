@@ -9,7 +9,9 @@ const ROTATION_OVERTIME_RAND_OFFSET = 125292;
 export default class RotationOvertimeModule {
 
     /**
-     * @zh 是否启用。
+     * !#en The enable of RotationOvertimeModule.
+     * !#zh 是否启用
+     * @property {Boolean} enable
      */
     @property
     enable = false;
@@ -18,7 +20,9 @@ export default class RotationOvertimeModule {
     _separateAxes = false;
 
     /**
-     * @zh 是否三个轴分开设定旋转（暂不支持）。
+     * !#en Whether to set the rotation of three axes separately (not currently supported)
+     * !#zh 是否三个轴分开设定旋转（暂不支持）。
+     * @property {Boolean} separateAxes
      */
     @property
     get separateAxes () {
@@ -35,7 +39,9 @@ export default class RotationOvertimeModule {
     }
 
     /**
-     * @zh 绕 X 轴设定旋转。
+     * !#en Set rotation around X axis.
+     * !#zh 绕 X 轴设定旋转。
+     * @property {CurveRange} x
      */
     @property({
         type: CurveRange,
@@ -45,7 +51,9 @@ export default class RotationOvertimeModule {
     x = new CurveRange();
 
     /**
-     * @zh 绕 Y 轴设定旋转。
+     * !#en Set rotation around Y axis.
+     * !#zh 绕 Y 轴设定旋转。
+     * @property {CurveRange} y
      */
     @property({
         type: CurveRange,
@@ -55,7 +63,9 @@ export default class RotationOvertimeModule {
     y = new CurveRange();
 
     /**
-     * @zh 绕 X 轴设定旋转。
+     * !#en Set rotation around Z axis.
+     * !#zh 绕 Z 轴设定旋转。
+     * @property {CurveRange} z
      */
     @property({
         type: CurveRange,

@@ -15,7 +15,9 @@ export default class CurveRange {
     static Mode = Mode;
 
     /**
-     * @zh 曲线类型[[Mode]]。
+     * !#en Curve type.
+     * !#zh 曲线类型。
+     * @property {Mode} mode
      */
     @property({
         type: Mode,
@@ -23,7 +25,9 @@ export default class CurveRange {
     mode = Mode.Constant;
 
     /**
-     * @zh 当mode为Curve时，使用的曲线。
+     * !#en The curve to use when mode is Curve.
+     * !#zh 当 mode 为 Curve 时，使用的曲线。
+     * @property {AnimationCurve} curve
      */
     @property({
         type: AnimationCurve,
@@ -31,7 +35,9 @@ export default class CurveRange {
     curve = new AnimationCurve();
 
     /**
-     * @zh 当mode为TwoCurves时，使用的曲线下限。
+     * !#en The lower limit of the curve to use when mode is TwoCurves
+     * !#zh 当 mode 为 TwoCurves 时，使用的曲线下限。
+     * @property {AnimationCurve} curveMin
      */
     @property({
         type: AnimationCurve,
@@ -39,7 +45,9 @@ export default class CurveRange {
     curveMin = new AnimationCurve();
 
     /**
-     * @zh 当mode为TwoCurves时，使用的曲线上限。
+     * !#en The upper limit of the curve to use when mode is TwoCurves
+     * !#zh 当 mode 为 TwoCurves 时，使用的曲线上限。
+     * @property {AnimationCurve} curveMax
      */
     @property({
         type: AnimationCurve,
@@ -47,25 +55,34 @@ export default class CurveRange {
     curveMax = new AnimationCurve();
 
     /**
-     * @zh 当mode为Constant时，曲线的值。
+     * !#en When mode is Constant, the value of the curve.
+     * !#zh 当 mode 为 Constant 时，曲线的值。
+     * @property {Number} constant
      */
     @property
     constant = 0;
 
     /**
-     * @zh 当mode为TwoConstants时，曲线的上限。
+     * !#en The lower limit of the curve to use when mode is TwoConstants
+     * !#zh 当 mode 为 TwoConstants 时，曲线的下限。
+     * @property {Number} constantMin
      */
     @property
     constantMin = 0;
 
+
     /**
-     * @zh 当mode为TwoConstants时，曲线的下限。
+     * !#en The upper limit of the curve to use when mode is TwoConstants
+     * !#zh 当 mode 为 TwoConstants 时，曲线的上限。
+     * @property {Number} constantMax
      */
     @property
     constantMax = 0;
 
     /**
-     * @zh 应用于曲线插值的系数。
+     * !#en Coefficients applied to curve interpolation.
+     * !#zh 应用于曲线插值的系数。
+     * @property {Number} multiplier
      */
     @property
     multiplier = 1;

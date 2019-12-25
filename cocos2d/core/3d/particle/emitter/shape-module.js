@@ -13,13 +13,17 @@ const _unitBoxExtent = new Vec3(0.5, 0.5, 0.5);
 export default class ShapeModule {
 
     /**
-     * 是否启用
+     * !#en The enable of shapeModule.
+     * !#zh 是否启用
+     * @property {Boolean} enable
      */
     @property
     enable = false;
 
     /**
-     * @zh 粒子发射器类型 [[ShapeType]]。
+     * !#en Particle emitter type.
+     * !#zh 粒子发射器类型。
+     * @property {ShapeType} shapeType
      */
     @property({
         type: ShapeType,
@@ -27,7 +31,9 @@ export default class ShapeModule {
     shapeType = ShapeType.Cone;
 
     /**
-     * @zh 粒子从发射器哪个部位发射 [[EmitLocation]]。
+     * !#en The emission site of the particle.
+     * !#zh 粒子从发射器哪个部位发射。
+     * @property {EmitLocation} emitFrom
      */
     @property({
         type: EmitLocation,
@@ -35,26 +41,36 @@ export default class ShapeModule {
     emitFrom = EmitLocation.Volume;
 
     /**
-     * @zh 粒子发射器半径。
+     * !#en Particle emitter radius.
+     * !#zh 粒子发射器半径。
+     * @property {Number} radius
      */
     @property
     radius = 1;
 
     /**
-     * @zh 粒子发射器发射位置（对 Box 类型的发射器无效）：<bg>
+     * !#en Particle emitter emission position (not valid for Box type emitters)：<bg>
+     * - 0 means emitted from the surface;
+     * - 1 means launch from the center;
+     * - 0 ~ 1 indicates emission from the center to the surface.
+     * !#zh 粒子发射器发射位置（对 Box 类型的发射器无效）：<bg>
      * - 0 表示从表面发射；
      * - 1 表示从中心发射；
      * - 0 ~ 1 之间表示在中心到表面之间发射。
+     * @property {Number} radiusThickness
      */
     @property
     radiusThickness = 1;
 
-
+    @property
     _angle = toRadian(25);
 
     /**
-     * @zh 圆锥的轴与母线的夹角<bg>。
+     * !#en The angle between the axis of the cone and the generatrix<bg>
+     * Determines the opening and closing of the cone launcher
+     * !#zh 圆锥的轴与母线的夹角<bg>。
      * 决定圆锥发射器的开合程度。
+     * @property {Number} angle
      */
     @property
     get angle () {
@@ -65,10 +81,13 @@ export default class ShapeModule {
         this._angle = toRadian(val);
     }
 
+    @property
     _arc = toRadian(360);
 
     /**
-     * @zh 粒子发射器在一个扇形范围内发射。
+     * !#en Particle emitters emit in a fan-shaped range.
+     * !#zh 粒子发射器在一个扇形范围内发射。
+     * @property {Number} arc
      */
     @property
     get arc () {
@@ -80,7 +99,9 @@ export default class ShapeModule {
     }
 
     /**
-     * @zh 粒子在扇形范围内的发射方式 [[ArcMode]]。
+     * !#en How particles are emitted in the sector range.
+     * !#zh 粒子在扇形范围内的发射方式。
+     * @property {ArcMode} arcMode
      */
     @property({
         type: ArcMode,
@@ -88,13 +109,17 @@ export default class ShapeModule {
     arcMode = ArcMode.Random;
 
     /**
-     * @zh 控制可能产生粒子的弧周围的离散间隔。
+     * !#en Controls the discrete intervals around the arcs where particles might be generated.
+     * !#zh 控制可能产生粒子的弧周围的离散间隔。
+     * @property {Number} arcSpread
      */
     @property
     arcSpread = 0;
 
     /**
-     * @zh 粒子沿圆周发射的速度。
+     * !#en The speed at which particles are emitted around the circumference.
+     * !#zh 粒子沿圆周发射的速度。
+     * @property {CurveRange} arcSpeed
      */
     @property({
         type: CurveRange,
@@ -102,22 +127,30 @@ export default class ShapeModule {
     arcSpeed = new CurveRange();
 
     /**
-     * @zh 圆锥顶部截面距离底部的轴长<bg>。
+     * !#en Axis length from top of cone to bottom of cone <bg>.
+     * Determines the height of the cone emitter.
+     * !#zh 圆锥顶部截面距离底部的轴长<bg>。
      * 决定圆锥发射器的高度。
+     * @property {Number} length
      */
     @property
     length = 5;
 
     /**
-     * @zh 粒子发射器发射位置（针对 Box 类型的粒子发射器）。
+     * !#en Particle emitter emission location (for box-type particle emitters).
+     * !#zh 粒子发射器发射位置（针对 Box 类型的粒子发射器。
+     * @property {Vec3} boxThickness
      */
     @property
     boxThickness = new Vec3(0, 0, 0);
 
+    @property
     _position = new Vec3(0, 0, 0);
 
     /**
-     * @zh 粒子发射器位置。
+     * !#en Particle Emitter Position
+     * !#zh 粒子发射器位置。
+     * @property {Vec3} position
      */
     @property
     get position () {
@@ -128,10 +161,13 @@ export default class ShapeModule {
         this.constructMat();
     }
 
+    @property
     _rotation = new Vec3(0, 0, 0);
 
     /**
-     * @zh 粒子发射器旋转角度。
+     * !#en Particle emitter rotation angle.
+     * !#zh 粒子发射器旋转角度。
+     * @property {Vec3} rotation
      */
     @property
     get rotation () {
@@ -142,10 +178,13 @@ export default class ShapeModule {
         this.constructMat();
     }
 
+    @property
     _scale = new Vec3(1, 1, 1);
 
     /**
-     * @zh 粒子发射器缩放比例。
+     * !#en Particle emitter scaling
+     * !#zh 粒子发射器缩放比例。
+     * @property {Vec3} scale
      */
     @property
     get scale () {
@@ -157,25 +196,32 @@ export default class ShapeModule {
     }
 
     /**
-     * @zh 根据粒子的初始方向决定粒子的移动方向。
+     * !#en The direction of particle movement is determined based on the initial direction of the particles.
+     * !#zh 根据粒子的初始方向决定粒子的移动方向。
+     * @property {Boolean} alignToDirection
      */
     @property
     alignToDirection = false;
 
     /**
-     * @zh 粒子生成方向随机设定。
+     * !#en Set particle generation direction randomly.
+     * !#zh 粒子生成方向随机设定。
+     * @property {Number} randomDirectionAmount
      */
     @property
     randomDirectionAmount = 0;
 
     /**
-     * @zh 表示当前发射方向与当前位置到结点中心连线方向的插值。
+     * !#en Interpolation between the current emission direction and the direction from the current position to the center of the node.
+     * !#zh 表示当前发射方向与当前位置到结点中心连线方向的插值。
+     * @property {Number} sphericalDirectionAmount
      */
     @property
     sphericalDirectionAmount = 0;
 
     /**
-     * @zh 粒子生成位置随机设定（设定此值为非 0 会使粒子生成位置超出生成器大小范围）。
+     * !#en Set the particle generation position randomly (setting this value to a value other than 0 will cause the particle generation position to exceed the generator size range)
+     * !#zh 粒子生成位置随机设定（设定此值为非 0 会使粒子生成位置超出生成器大小范围）。
      */
     @property
     randomPositionAmount = 0;

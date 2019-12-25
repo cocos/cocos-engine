@@ -9,19 +9,25 @@ const SIZE_OVERTIME_RAND_OFFSET = 39825;
 export default class SizeOvertimeModule {
 
     /**
-     * @zh 是否启用。
+     * !#en The enable of SizeOvertimeModule.
+     * !#zh 是否启用
+     * @property {Boolean} enable
      */
     @property
     enable = false;
 
     /**
-     * @zh 决定是否在每个轴上独立控制粒子大小。
+     * !#en Decide whether to control particle size independently on each axis.
+     * !#zh 决定是否在每个轴上独立控制粒子大小。
+     * @property {Boolean} separateAxes
      */
     @property
     separateAxes = false;
 
     /**
-     * @zh 定义一条曲线来决定粒子在其生命周期中的大小变化。
+     * !#en Define a curve to determine the size change of particles during their life cycle.
+     * !#zh 定义一条曲线来决定粒子在其生命周期中的大小变化。
+     * @property {CurveRange} size
      */
     @property({
         type: CurveRange,
@@ -29,7 +35,9 @@ export default class SizeOvertimeModule {
     size = new CurveRange();
 
     /**
-     * @zh 定义一条曲线来决定粒子在其生命周期中 X 轴方向上的大小变化。
+     * !#en Defines a curve to determine the size change of particles in the X-axis direction during their life cycle.
+     * !#zh 定义一条曲线来决定粒子在其生命周期中 X 轴方向上的大小变化。
+     * @property {CurveRange} x
      */
     @property({
         type: CurveRange,
@@ -37,7 +45,9 @@ export default class SizeOvertimeModule {
     x = new CurveRange();
 
     /**
-     * @zh 定义一条曲线来决定粒子在其生命周期中 Y 轴方向上的大小变化。
+     * !#en Defines a curve to determine the size change of particles in the Y-axis direction during their life cycle.
+     * !#zh 定义一条曲线来决定粒子在其生命周期中 Y 轴方向上的大小变化。
+     * @property {CurveRange} y
      */
     @property({
         type: CurveRange,
@@ -45,7 +55,9 @@ export default class SizeOvertimeModule {
     y = new CurveRange();
 
     /**
-     * @zh 定义一条曲线来决定粒子在其生命周期中 Z 轴方向上的大小变化。
+     * !#en Defines a curve to determine the size change of particles in the Z-axis direction during their life cycle.
+     * !#zh 定义一条曲线来决定粒子在其生命周期中 Z 轴方向上的大小变化。
+     * @property {CurveRange} z
      */
     @property({
         type: CurveRange,

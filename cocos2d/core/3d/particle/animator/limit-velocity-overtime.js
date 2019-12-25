@@ -21,13 +21,17 @@ function dampenBeyondLimit (vel, limit, dampen) {
 export default class LimitVelocityOvertimeModule {
 
     /**
-     * @zh 是否启用。
+     * !#en The enable of LimitVelocityOvertimeModule.
+     * !#zh 是否启用
+     * @property {Boolean} enable
      */
     @property
     enable = false;
 
     /**
-     * @zh 计算速度下限时采用的坐标系 [[Space]]。
+     * !#en The coordinate system used when calculating the lower speed limit.
+     * !#zh 计算速度下限时采用的坐标系。
+     * @property {Space} space
      */
     @property({
         type: Space,
@@ -35,13 +39,17 @@ export default class LimitVelocityOvertimeModule {
     space = Space.Local;
 
     /**
-     * @zh 是否三个轴分开限制。
+     * !#en Whether to limit the three axes separately.
+     * !#zh 是否三个轴分开限制。
+     * @property {Boolean} separateAxes
      */
     @property
     separateAxes = false;
 
     /**
-     * @zh 速度下限。
+     * !#en Lower speed limit
+     * !#zh 速度下限。
+     * @property {CurveRange} limit
      */
     @property({
         type: CurveRange,
@@ -50,7 +58,9 @@ export default class LimitVelocityOvertimeModule {
     limit = new CurveRange();
 
     /**
-     * @zh X 轴方向上的速度下限。
+     * !#en Lower speed limit in X direction.
+     * !#zh X 轴方向上的速度下限。
+     * @property {CurveRange} limitX
      */
     @property({
         type: CurveRange,
@@ -59,7 +69,9 @@ export default class LimitVelocityOvertimeModule {
     limitX = new CurveRange();
 
     /**
-     * @zh Y 轴方向上的速度下限。
+     * !#en Lower speed limit in Y direction.
+     * !#zh Y 轴方向上的速度下限。
+     * @property {CurveRange} limitY
      */
     @property({
         type: CurveRange,
@@ -68,7 +80,9 @@ export default class LimitVelocityOvertimeModule {
     limitY = new CurveRange();
 
     /**
-     * @zh Z 轴方向上的速度下限。
+     * !#en Lower speed limit in Z direction.
+     * !#zh Z 轴方向上的速度下限。
+     * @property {CurveRange} limitZ
      */
     @property({
         type: CurveRange,
@@ -77,7 +91,9 @@ export default class LimitVelocityOvertimeModule {
     limitZ = new CurveRange();
 
     /**
-     * @zh 当前速度与速度下限的插值。
+     * !#en Interpolation of current speed and lower speed limit.
+     * !#zh 当前速度与速度下限的插值。
+     * @property {Number} dampen
      */
     @property
     dampen = 3;
@@ -103,7 +119,7 @@ export default class LimitVelocityOvertimeModule {
         }
         else {
             Vec3.normalize(dampedVel, p.ultimateVelocity);
-            Vec3.scale(dampedVel, dampedVel, dampenBeyondLimit(p.ultimateVelocity.length(), this.limit.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET)), this.dampen));
+            Vec3.scale(dampedVel, dampedVel, dampenBeyondLimit(p.ultimateVelocity.len(), this.limit.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET)), this.dampen));
         }
         Vec3.copy(p.ultimateVelocity, dampedVel);
     }

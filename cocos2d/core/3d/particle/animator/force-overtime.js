@@ -13,13 +13,17 @@ const _temp_v3 = cc.v3();
 export default class ForceOvertimeModule {
 
     /**
-     * @zh 是否启用。
+     * !#en The enable of ColorOvertimeModule.
+     * !#zh 是否启用
+     * @property {Boolean} enable
      */
     @property
     enable = false;
 
     /**
-     * @zh 加速度计算时采用的坐标系 [[Space]]。
+     * !#en Coordinate system used in acceleration calculation.
+     * !#zh 加速度计算时采用的坐标系。
+     * @property {Space} space
      */
     @property({
         type: Space,
@@ -27,7 +31,9 @@ export default class ForceOvertimeModule {
     space = Space.Local;
 
     /**
-     * @zh X 轴方向上的加速度分量。
+     * !#en X-axis acceleration component.
+     * !#zh X 轴方向上的加速度分量。
+     * @property {CurveRange} x
      */
     @property({
         type: CurveRange,
@@ -36,7 +42,9 @@ export default class ForceOvertimeModule {
     x = new CurveRange();
 
     /**
-     * @zh Y 轴方向上的加速度分量。
+     * !#en Y-axis acceleration component.
+     * !#zh Y 轴方向上的加速度分量。
+     * @property {CurveRange} y
      */
     @property({
         type: CurveRange,
@@ -45,7 +53,9 @@ export default class ForceOvertimeModule {
     y = new CurveRange();
 
     /**
-     * @zh Z 轴方向上的加速度分量。
+     * !#en Z-axis acceleration component.
+     * !#zh Z 轴方向上的加速度分量。
+     * @property {CurveRange} z
      */
     @property({
         type: CurveRange,

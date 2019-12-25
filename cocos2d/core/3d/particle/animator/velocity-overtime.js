@@ -13,13 +13,17 @@ const _temp_v3 = cc.v3();
 export default class VelocityOvertimeModule {
 
     /**
-     * @zh 是否启用。
+     * !#en The enable of VelocityOvertimeModule.
+     * !#zh 是否启用
+     * @property {Boolean} enable
      */
     @property
     enable = false;
 
     /**
-     * @zh 速度计算时采用的坐标系[[Space]]。
+     * !#en Coordinate system used in speed calculation.
+     * !#zh 速度计算时采用的坐标系。
+     * @property {Space} space
      */
     @property({
         type: Space,
@@ -27,7 +31,9 @@ export default class VelocityOvertimeModule {
     space = Space.Local;
 
     /**
-     * @zh X 轴方向上的速度分量。
+     * !#en Velocity component in X axis direction
+     * !#zh X 轴方向上的速度分量。
+     * @property {CurveRange} x
      */
     @property({
         type: CurveRange,
@@ -36,7 +42,9 @@ export default class VelocityOvertimeModule {
     x = new CurveRange();
 
     /**
-     * @zh Y 轴方向上的速度分量。
+     * !#en Velocity component in Y axis direction
+     * !#zh Y 轴方向上的速度分量。
+     * @property {CurveRange} y
      */
     @property({
         type: CurveRange,
@@ -45,7 +53,9 @@ export default class VelocityOvertimeModule {
     y = new CurveRange();
 
     /**
-     * @zh Z 轴方向上的速度分量。
+     * !#en Velocity component in Z axis direction
+     * !#zh Z 轴方向上的速度分量。
+     * @property {CurveRange} z
      */
     @property({
         type: CurveRange,
@@ -54,7 +64,9 @@ export default class VelocityOvertimeModule {
     z = new CurveRange();
 
     /**
-     * @zh 速度修正系数（只支持 CPU 粒子）。
+     * !#en Speed correction factor (only supports CPU particles).
+     * !#zh 速度修正系数（只支持 CPU 粒子）。
+     * @property {CurveRange} speedModifier
      */
     @property({
         type: CurveRange,

@@ -125,7 +125,9 @@ export default class TrailModule {
     _enable = false;
 
     /**
-     * @zh 是否启用。
+     * !#en The enable of trailModule.
+     * !#zh 是否启用
+     * @property {Boolean} enable
      */
     @property
     get enable () {
@@ -147,7 +149,9 @@ export default class TrailModule {
     }
 
     /**
-     * @zh 设定粒子生成轨迹的方式。
+     * !#en Sets how particles generate trajectories.
+     * !#zh 设定粒子生成轨迹的方式。
+     * @property {TrailMode} mode
      */
     @property({
         type: TrailMode,
@@ -155,7 +159,9 @@ export default class TrailModule {
     mode = TrailMode.Particles;
 
     /**
-     * @zh 轨迹存在的生命周期。
+     * !#en Life cycle of trajectory.
+     * !#zh 轨迹存在的生命周期。
+     * @property {CurveRange} lifeTime
      */
     @property({
         type: CurveRange,
@@ -166,7 +172,9 @@ export default class TrailModule {
     _minParticleDistance = 0.1;
 
     /**
-     * @zh 每个轨迹粒子之间的最小间距。
+     * !#en Minimum spacing between each track particle
+     * !#zh 每个轨迹粒子之间的最小间距。
+     * @property {Number} minParticleDistance
      */
     @property
     get minParticleDistance () {
@@ -180,8 +188,11 @@ export default class TrailModule {
 
     @property
     _space = Space.World;
+
     /**
-     * @zh 轨迹设定时的坐标系。
+     * !#en The coordinate system of trajectories.
+     * !#zh 轨迹设定时的坐标系。
+     * @property {Space} space
      */
     @property({
         type: Space,
@@ -198,38 +209,65 @@ export default class TrailModule {
     }
 
     /**
-     * @zh 粒子本身是否存在。
+     * !#en Whether the particle itself exists.
+     * !#zh 粒子本身是否存在。
+     * @property {Boolean} existWithParticles
      */
     @property
     existWithParticles = true;
 
     /**
-     * @zh 设定纹理填充方式。
+     * !#en Set the texture fill method
+     * !#zh 设定纹理填充方式。
+     * @property {TextureMode} textureMode
      */
     @property({
         type: TextureMode,
     })
     textureMode = TextureMode.Stretch;
 
+    /**
+     * !#en Whether to use particle width
+     * !#zh 是否使用粒子的宽度。
+     * @property {Boolean} widthFromParticle
+     */
     @property
     widthFromParticle = true;
 
+
     /**
-     * @zh 控制轨迹长度的曲线。
+     * !#en Curves that control track length
+     * !#zh 控制轨迹长度的曲线。
+     * @property {CurveRange} widthRatio
      */
     @property({
         type: CurveRange,
     })
     widthRatio = new CurveRange();
 
+    /**
+     * !#en Whether to use particle color
+     * !#zh 是否使用粒子的颜色。
+     * @property {Boolean} colorFromParticle
+     */
     @property
     colorFromParticle = false;
 
+    /**
+     * !#en The color of trajectories.
+     * !#zh 轨迹的颜色。
+     * @property {GradientRange} colorOverTrail
+     */
     @property({
         type: GradientRange,
     })
     colorOverTrail = new GradientRange();
 
+    /**
+     * !#en Trajectories color over time.
+     * !#zh 轨迹随时间变化的颜色。
+     * @property {GradientRange} colorOvertime
+     */
     @property({
         type: GradientRange,
     })

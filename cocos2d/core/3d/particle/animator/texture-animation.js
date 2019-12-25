@@ -45,7 +45,9 @@ export default class TextureAnimationModule {
     _enable = false;
 
     /**
-     * @zh 是否启用。
+     * !#en The enable of TextureAnimationModule.
+     * !#zh 是否启用
+     * @property {Boolean} enable
      */
     @property
     get enable () {
@@ -57,10 +59,13 @@ export default class TextureAnimationModule {
         this.ps._assembler._updateMaterialParams();
     }
 
+    @property
     _mode = Mode.Grid;
 
     /**
-     * @zh 设定粒子贴图动画的类型（暂只支持 Grid 模式）[[Mode]]。
+     * !#en Set the type of particle map animation (only supports Grid mode for the time being)
+     * !#zh 设定粒子贴图动画的类型（暂只支持 Grid 模式。
+     * @property {Mode} mode
      */
     @property({
         type: Mode,
@@ -77,19 +82,25 @@ export default class TextureAnimationModule {
     }
 
     /**
-     * @zh X 方向动画帧数。
+     * !#en Animation frames in X direction.
+     * !#zh X 方向动画帧数。
+     * @property {Number} numTilesX
      */
     @property
     numTilesX = 0;
 
     /**
-     * @zh Y 方向动画帧数。
+     * !#en Animation frames in Y direction.
+     * !#zh Y 方向动画帧数。
+     * @property {Number} numTilesY
      */
     @property
     numTilesY = 0;
 
     /**
-     * @zh 动画播放方式 [[Animation]]。
+     * !#en The way of the animation plays.
+     * !#zh 动画播放方式。
+     * @property {Animation} animation
      */
     @property({
         type: Animation,
@@ -97,21 +108,29 @@ export default class TextureAnimationModule {
     animation = Animation.WholeSheet;
 
     /**
-     * @zh 随机从动画贴图中选择一行以生成动画。<br>
+     * !#en Randomly select a line from the animated map to generate the animation. <br>
+     * This option only takes effect when the animation playback mode is SingleRow.
+     * !#zh 随机从动画贴图中选择一行以生成动画。<br>
      * 此选项仅在动画播放方式为 SingleRow 时生效。
+     * @property {Boolean} randomRow
      */
     @property
     randomRow = false;
 
     /**
-     * @zh 从动画贴图中选择特定行以生成动画。<br>
+     * !#en Select specific lines from the animation map to generate the animation. <br>
+     * This option is only available when the animation playback mode is SingleRow and randomRow is disabled.
+     * !#zh 从动画贴图中选择特定行以生成动画。<br>
      * 此选项仅在动画播放方式为 SingleRow 时且禁用 randomRow 时可用。
+     * @property {Number} rowIndex
      */
     @property
     rowIndex = 0;
 
     /**
-     * @zh 一个周期内动画播放的帧与时间变化曲线。
+     * !#en Frame and time curve of animation playback in one cycle.
+     * !#zh 一个周期内动画播放的帧与时间变化曲线。
+     * @property {CurveRange} frameOverTime
      */
     @property({
         type: CurveRange,
@@ -119,7 +138,9 @@ export default class TextureAnimationModule {
     frameOverTime = new CurveRange();
 
     /**
-     * @zh 从第几帧开始播放，时间为整个粒子系统的生命周期。
+     * !#en Play from which frames, the time is the life cycle of the entire particle system.
+     * !#zh 从第几帧开始播放，时间为整个粒子系统的生命周期。
+     * @property {CurveRange} startFrame
      */
     @property({
         type: CurveRange,
@@ -127,11 +148,13 @@ export default class TextureAnimationModule {
     startFrame = new CurveRange();
 
     /**
-     * @zh 一个生命周期内播放循环的次数。
+     * !#en Number of playback loops in a life cycle.
+     * !#zh 一个生命周期内播放循环的次数。
+     * @property {Number} cycleCount
      */
     @property
     cycleCount = 0;
-
+    
     _flipU = 0;
 
     @property
