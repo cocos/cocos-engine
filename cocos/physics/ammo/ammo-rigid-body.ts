@@ -1,7 +1,7 @@
 import Ammo from '@cocos/ammo';
 import { Vec3, Node } from "../../core";
 import { AmmoWorld } from "./ammo-world";
-import { Cocos2AmmoVec3, Ammo2CocosVec3 } from "./ammo-util";
+import { cocos2AmmoVec3, ammo2CocosVec3 } from "./ammo-util";
 import { RigidBodyComponent, PhysicsSystem } from '../../../exports/physics-framework';
 import { AmmoCollisionFlags, AmmoRigidBodyFlags, AmmoCollisionObjectStates } from './ammo-enum';
 import { IRigidBody } from '../spec/i-rigid-body';
@@ -47,7 +47,7 @@ export class AmmoRigidBody implements IRigidBody {
         if (value) {
             m_rigidBodyFlag &= (~AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY);
         } else {
-            this._btBody.setGravity(Cocos2AmmoVec3(new Ammo.btVector3(), Vec3.ZERO));
+            this._btBody.setGravity(cocos2AmmoVec3(new Ammo.btVector3(), Vec3.ZERO));
             m_rigidBodyFlag |= AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY;
         }
         this._btBody.setFlags(m_rigidBodyFlag);
@@ -58,18 +58,18 @@ export class AmmoRigidBody implements IRigidBody {
         if (value) {
             /** TODO : should i reset angular velocity & torque ? */
 
-            this._btBody.setAngularFactor(Cocos2AmmoVec3(new Ammo.btVector3(), Vec3.ZERO));
+            this._btBody.setAngularFactor(cocos2AmmoVec3(new Ammo.btVector3(), Vec3.ZERO));
         } else {
-            this._btBody.setAngularFactor(Cocos2AmmoVec3(new Ammo.btVector3(), this._rigidBody.angularFactor));
+            this._btBody.setAngularFactor(cocos2AmmoVec3(new Ammo.btVector3(), this._rigidBody.angularFactor));
         }
     }
 
     set linearFactor (value: Vec3) {
-        this._btBody.setLinearFactor(Cocos2AmmoVec3(new Ammo.btVector3(), value));
+        this._btBody.setLinearFactor(cocos2AmmoVec3(new Ammo.btVector3(), value));
     }
 
     set angularFactor (value: Vec3) {
-        this._btBody.setAngularFactor(Cocos2AmmoVec3(new Ammo.btVector3(), value));
+        this._btBody.setAngularFactor(cocos2AmmoVec3(new Ammo.btVector3(), value));
     }
 
     /** state */
@@ -185,19 +185,19 @@ export class AmmoRigidBody implements IRigidBody {
     /** kinematic */
 
     getLinearVelocity (out: Vec3): Vec3 {
-        return Ammo2CocosVec3(out, this._btBody.getLinearVelocity());
+        return ammo2CocosVec3(out, this._btBody.getLinearVelocity());
     }
 
     setLinearVelocity (value: Vec3): void {
-        Cocos2AmmoVec3(this._btBody.getLinearVelocity(), value);
+        cocos2AmmoVec3(this._btBody.getLinearVelocity(), value);
     }
 
     getAngularVelocity (out: Vec3): Vec3 {
-        return Ammo2CocosVec3(out, this._btBody.getAngularVelocity());
+        return ammo2CocosVec3(out, this._btBody.getAngularVelocity());
     }
 
     setAngularVelocity (value: Vec3): void {
-        Cocos2AmmoVec3(this._btBody.getAngularVelocity(), value);
+        cocos2AmmoVec3(this._btBody.getAngularVelocity(), value);
     }
 
     /** dynamic */
@@ -205,44 +205,44 @@ export class AmmoRigidBody implements IRigidBody {
     applyLocalForce (force: Vec3, rel_pos?: Vec3): void {
         const rp = rel_pos ? Vec3.transformQuat(v3_0, rel_pos, this._sharedBody.node.worldRotation) : Vec3.ZERO;
         this._btBody.applyForce(
-            Cocos2AmmoVec3(this._btVec3_0, force),
-            Cocos2AmmoVec3(this._btVec3_1, rp)
+            cocos2AmmoVec3(this._btVec3_0, force),
+            cocos2AmmoVec3(this._btVec3_1, rp)
         )
     }
 
     applyLocalTorque (torque: Vec3): void {
-        // this._btBody.applyLocalTorque(Cocos2AmmoVec3(_btVec3_0, torque));
-        // this._btBody.applyLocalTorque(Cocos2AmmoVec3(new Ammo.btVector3(), torque));
+        // this._btBody.applyLocalTorque(cocos2AmmoVec3(_btVec3_0, torque));
+        // this._btBody.applyLocalTorque(cocos2AmmoVec3(new Ammo.btVector3(), torque));
 
         Vec3.transformQuat(v3_0, torque, this._sharedBody.node.worldRotation);
-        this._btBody.applyTorque(Cocos2AmmoVec3(this._btVec3_0, v3_0));
+        this._btBody.applyTorque(cocos2AmmoVec3(this._btVec3_0, v3_0));
     }
 
     applyLocalImpulse (impulse: Vec3, rel_pos?: Vec3): void {
         const rp = rel_pos ? Vec3.transformQuat(v3_0, rel_pos, this._sharedBody.node.worldRotation) : Vec3.ZERO;
         this._btBody.applyImpulse(
-            Cocos2AmmoVec3(this._btVec3_0, impulse),
-            Cocos2AmmoVec3(this._btVec3_1, rp)
+            cocos2AmmoVec3(this._btVec3_0, impulse),
+            cocos2AmmoVec3(this._btVec3_1, rp)
         )
     }
 
     applyForce (force: Vec3, rel_pos?: Vec3): void {
         const rp = rel_pos ? rel_pos : Vec3.ZERO;
         this._btBody.applyForce(
-            Cocos2AmmoVec3(this._btVec3_0, force),
-            Cocos2AmmoVec3(this._btVec3_1, rp)
+            cocos2AmmoVec3(this._btVec3_0, force),
+            cocos2AmmoVec3(this._btVec3_1, rp)
         )
     }
 
     applyTorque (torque: Vec3): void {
-        this._btBody.applyTorque(Cocos2AmmoVec3(this._btVec3_0, torque));
+        this._btBody.applyTorque(cocos2AmmoVec3(this._btVec3_0, torque));
     }
 
     applyImpulse (impulse: Vec3, rel_pos?: Vec3): void {
         const rp = rel_pos ? rel_pos : Vec3.ZERO;
         this._btBody.applyImpulse(
-            Cocos2AmmoVec3(this._btVec3_0, impulse),
-            Cocos2AmmoVec3(this._btVec3_1, rp)
+            cocos2AmmoVec3(this._btVec3_0, impulse),
+            cocos2AmmoVec3(this._btVec3_1, rp)
         )
     }
 

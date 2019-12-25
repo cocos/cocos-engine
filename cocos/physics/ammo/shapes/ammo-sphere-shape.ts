@@ -2,7 +2,7 @@ import Ammo from '@cocos/ammo';
 import { Vec3 } from "../../../core";
 import { AmmoShape } from "./ammo-shape";
 import { SphereColliderComponent } from '../../../../exports/physics-framework';
-import { Cocos2AmmoVec3 } from '../ammo-util';
+import { cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { ISphereShape } from '../../spec/i-physics-shape';
 
@@ -15,7 +15,7 @@ export class AmmoSphereShape extends AmmoShape implements ISphereShape {
         const max_sp = Math.abs(Math.max(Math.max(ws.x, ws.y), ws.z));
         v3_0.set(radius, radius, radius);
         v3_0.multiplyScalar(max_sp * 2);
-        Cocos2AmmoVec3(this.scale, v3_0);
+        cocos2AmmoVec3(this.scale, v3_0);
         this._btShape.setLocalScaling(this.scale);
         if (this._btCompound) {
             this._btCompound.updateChildTransform(this.index, this.transform, true);

@@ -5,7 +5,7 @@ import { Node } from '../../core';
 import { AmmoWorld } from './ammo-world';
 import { AmmoRigidBody } from './ammo-rigid-body';
 import { AmmoShape } from './shapes/ammo-shape';
-import { Cocos2AmmoVec3, Cocos2AmmoQuat, Ammo2CocosVec3, Ammo2CocosQuat } from './ammo-util';
+import { cocos2AmmoVec3, cocos2AmmoQuat, ammo2CocosVec3, ammo2CocosQuat } from './ammo-util';
 import { AmmoCollisionFlags, AmmoCollisionObjectStates } from './ammo-enum';
 import { AmmoInstance } from './ammo-instance';
 import { IAmmoBodyStruct, IAmmoGhostStruct } from './ammo-interface';
@@ -148,9 +148,9 @@ export class AmmoSharedBody {
         /** body struct */
         const st = new Ammo.btTransform();
         st.setIdentity();
-        Cocos2AmmoVec3(st.getOrigin(), this.node.worldPosition)
+        cocos2AmmoVec3(st.getOrigin(), this.node.worldPosition)
         const bodyQuat = new Ammo.btQuaternion();
-        Cocos2AmmoQuat(bodyQuat, this.node.worldRotation);
+        cocos2AmmoQuat(bodyQuat, this.node.worldRotation);
         st.setRotation(bodyQuat);
         const motionState = new Ammo.btDefaultMotionState(st);
         const localInertia = new Ammo.btVector3(1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
@@ -226,8 +226,8 @@ export class AmmoSharedBody {
     syncSceneToPhysics () {
         if (this.node.hasChangedFlags) {
             const wt = this.body.getWorldTransform();
-            Cocos2AmmoVec3(wt.getOrigin(), this.node.worldPosition)
-            Cocos2AmmoQuat(this.bodyStruct.worldQuat, this.node.worldRotation);
+            cocos2AmmoVec3(wt.getOrigin(), this.node.worldPosition)
+            cocos2AmmoQuat(this.bodyStruct.worldQuat, this.node.worldRotation);
             wt.setRotation(this.bodyStruct.worldQuat);
             this.body.activate();
 
@@ -255,21 +255,21 @@ export class AmmoSharedBody {
         // let transform = new Ammo.btTransform();
         // this.body.getMotionState().getWorldTransform(transform);
         const wt0 = this.body.getWorldTransform();
-        this.node.worldPosition = Ammo2CocosVec3(v3_0, wt0.getOrigin());
+        this.node.worldPosition = ammo2CocosVec3(v3_0, wt0.getOrigin());
         wt0.getBasis().getRotation(this.bodyStruct.worldQuat);
-        this.node.worldRotation = Ammo2CocosQuat(quat_0, this.bodyStruct.worldQuat);
+        this.node.worldRotation = ammo2CocosQuat(quat_0, this.bodyStruct.worldQuat);
 
         const wt1 = this.ghost.getWorldTransform();
-        Cocos2AmmoVec3(wt1.getOrigin(), this.node.worldPosition)
-        Cocos2AmmoQuat(this.ghostStruct.worldQuat, this.node.worldRotation);
+        cocos2AmmoVec3(wt1.getOrigin(), this.node.worldPosition)
+        cocos2AmmoQuat(this.ghostStruct.worldQuat, this.node.worldRotation);
         wt1.setRotation(this.ghostStruct.worldQuat);
     }
 
     syncSceneToGhost () {
         if (this.node.hasChangedFlags) {
             const wt1 = this.ghost.getWorldTransform();
-            Cocos2AmmoVec3(wt1.getOrigin(), this.node.worldPosition)
-            Cocos2AmmoQuat(this.ghostStruct.worldQuat, this.node.worldRotation);
+            cocos2AmmoVec3(wt1.getOrigin(), this.node.worldPosition)
+            cocos2AmmoQuat(this.ghostStruct.worldQuat, this.node.worldRotation);
             wt1.setRotation(this.ghostStruct.worldQuat);
             this.ghost.activate();
 
@@ -283,8 +283,8 @@ export class AmmoSharedBody {
 
     syncInitialBody () {
         const wt = this.body.getWorldTransform();
-        Cocos2AmmoVec3(wt.getOrigin(), this.node.worldPosition)
-        Cocos2AmmoQuat(this.bodyStruct.worldQuat, this.node.worldRotation);
+        cocos2AmmoVec3(wt.getOrigin(), this.node.worldPosition)
+        cocos2AmmoQuat(this.bodyStruct.worldQuat, this.node.worldRotation);
         wt.setRotation(this.bodyStruct.worldQuat);
         for (let i = 0; i < this.bodyStruct.wrappedShapes.length; i++) {
             this.bodyStruct.wrappedShapes[i].updateScale();
@@ -294,8 +294,8 @@ export class AmmoSharedBody {
 
     syncInitialGhost () {
         const wt1 = this.ghost.getWorldTransform();
-        Cocos2AmmoVec3(wt1.getOrigin(), this.node.worldPosition)
-        Cocos2AmmoQuat(this.ghostStruct.worldQuat, this.node.worldRotation);
+        cocos2AmmoVec3(wt1.getOrigin(), this.node.worldPosition)
+        cocos2AmmoQuat(this.ghostStruct.worldQuat, this.node.worldRotation);
         wt1.setRotation(this.ghostStruct.worldQuat);
         for (let i = 0; i < this.ghostStruct.wrappedShapes.length; i++) {
             this.ghostStruct.wrappedShapes[i].updateScale();

@@ -6,7 +6,7 @@ import { AmmoShape } from './shapes/ammo-shape';
 import { ArrayCollisionMatrix } from '../utils/array-collision-matrix';
 import { TupleDictionary } from '../utils/tuple-dictionary';
 import { TriggerEventObject, CollisionEventObject } from './ammo-const';
-import { Ammo2CocosVec3, Cocos2AmmoVec3, Cocos2AmmoQuat } from './ammo-util';
+import { ammo2CocosVec3, cocos2AmmoVec3, cocos2AmmoQuat } from './ammo-util';
 import { ray } from '../../core/geom-utils';
 import { IRaycastOptions, IPhysicsWorld } from '../spec/i-physics-world';
 import { PhysicsRayResult, PhysicMaterial } from '../framework';
@@ -22,7 +22,7 @@ export class AmmoWorld implements IPhysicsWorld {
     set defaultMaterial (v: PhysicMaterial) { };
 
     set gravity (gravity: Vec3) {
-        Cocos2AmmoVec3(this._btGravity, gravity);
+        cocos2AmmoVec3(this._btGravity, gravity);
         this._world.setGravity(this._btGravity);
     }
 
@@ -111,9 +111,9 @@ export class AmmoWorld implements IPhysicsWorld {
     }
 
     raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
-        let from = Cocos2AmmoVec3(this.allHitsCB.m_rayFromWorld, worldRay.o);
+        let from = cocos2AmmoVec3(this.allHitsCB.m_rayFromWorld, worldRay.o);
         worldRay.computeHit(v3_0, options.maxDistance);
-        let to = Cocos2AmmoVec3(this.allHitsCB.m_rayToWorld, v3_0);
+        let to = cocos2AmmoVec3(this.allHitsCB.m_rayToWorld, v3_0);
 
         this.allHitsCB.m_collisionFilterGroup = -1;
         this.allHitsCB.m_collisionFilterMask = -1;
@@ -153,9 +153,9 @@ export class AmmoWorld implements IPhysicsWorld {
      * @return True if any body was hit.
      */
     raycastClosest (worldRay: ray, options: any, result: PhysicsRayResult): boolean {
-        let from = Cocos2AmmoVec3(this.closeHitCB.m_rayFromWorld, worldRay.o);
+        let from = cocos2AmmoVec3(this.closeHitCB.m_rayFromWorld, worldRay.o);
         worldRay.computeHit(v3_0, options.maxDistance);
-        let to = Cocos2AmmoVec3(this.closeHitCB.m_rayToWorld, v3_0);
+        let to = cocos2AmmoVec3(this.closeHitCB.m_rayToWorld, v3_0);
 
         this.closeHitCB.m_collisionFilterGroup = -1;
         this.closeHitCB.m_collisionFilterMask = -1;
@@ -170,7 +170,7 @@ export class AmmoWorld implements IPhysicsWorld {
             const shapeIndex = this.closeHitCB.m_shapePart;
             // if (shared.wrappedShapes.length > shapeIndex) {
             const shape = shared.wrappedShapes[shapeIndex];
-            Ammo2CocosVec3(v3_0, this.closeHitCB.m_hitPointWorld);
+            ammo2CocosVec3(v3_0, this.closeHitCB.m_hitPointWorld);
             const distance = Vec3.distance(worldRay.o, v3_0);
             result._assign(v3_0, distance, shape.collider);
             return true;
@@ -267,15 +267,15 @@ export class AmmoWorld implements IPhysicsWorld {
                         const cq = data.contacts[i] as Ammo.btManifoldPoint;
                         if (contactsPool.length > 0) {
                             const c = contactsPool.pop();
-                            Ammo2CocosVec3(c.contactA, cq.m_positionWorldOnA);
-                            Ammo2CocosVec3(c.contactB, cq.m_positionWorldOnB);
-                            Ammo2CocosVec3(c.normal, cq.m_normalWorldOnB);
+                            ammo2CocosVec3(c.contactA, cq.m_positionWorldOnA);
+                            ammo2CocosVec3(c.contactB, cq.m_positionWorldOnB);
+                            ammo2CocosVec3(c.normal, cq.m_normalWorldOnB);
                             CollisionEventObject.contacts.push(c);
                         } else {
                             const c = {
-                                contactA: Ammo2CocosVec3(new Vec3(), cq.m_positionWorldOnA),
-                                contactB: Ammo2CocosVec3(new Vec3(), cq.m_positionWorldOnB),
-                                normal: Ammo2CocosVec3(new Vec3(), cq.m_normalWorldOnB),
+                                contactA: ammo2CocosVec3(new Vec3(), cq.m_positionWorldOnA),
+                                contactB: ammo2CocosVec3(new Vec3(), cq.m_positionWorldOnB),
+                                normal: ammo2CocosVec3(new Vec3(), cq.m_normalWorldOnB),
                             };
                             CollisionEventObject.contacts.push(c);
                         }
@@ -341,15 +341,15 @@ export class AmmoWorld implements IPhysicsWorld {
                                 const cq = data.contacts[i] as Ammo.btManifoldPoint;
                                 if (contactsPool.length > 0) {
                                     const c = contactsPool.pop();
-                                    Ammo2CocosVec3(c.contactA, cq.m_positionWorldOnA);
-                                    Ammo2CocosVec3(c.contactB, cq.m_positionWorldOnB);
-                                    Ammo2CocosVec3(c.normal, cq.m_normalWorldOnB);
+                                    ammo2CocosVec3(c.contactA, cq.m_positionWorldOnA);
+                                    ammo2CocosVec3(c.contactB, cq.m_positionWorldOnB);
+                                    ammo2CocosVec3(c.normal, cq.m_normalWorldOnB);
                                     CollisionEventObject.contacts.push(c);
                                 } else {
                                     const c = {
-                                        contactA: Ammo2CocosVec3(new Vec3(), cq.m_positionWorldOnA),
-                                        contactB: Ammo2CocosVec3(new Vec3(), cq.m_positionWorldOnB),
-                                        normal: Ammo2CocosVec3(new Vec3(), cq.m_normalWorldOnB),
+                                        contactA: ammo2CocosVec3(new Vec3(), cq.m_positionWorldOnA),
+                                        contactB: ammo2CocosVec3(new Vec3(), cq.m_positionWorldOnB),
+                                        normal: ammo2CocosVec3(new Vec3(), cq.m_normalWorldOnB),
                                     };
                                     CollisionEventObject.contacts.push(c);
                                 }

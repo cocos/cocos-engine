@@ -3,7 +3,7 @@ import { Vec3, Quat } from "../../../core/math";
 import { ColliderComponent, RigidBodyComponent, PhysicMaterial, PhysicsSystem } from "../../../../exports/physics-framework";
 import { AmmoWorld } from '../ammo-world';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
-import { Cocos2AmmoVec3 } from '../ammo-util';
+import { cocos2AmmoVec3 } from '../ammo-util';
 import { Node } from '../../../core';
 import { IBaseShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
@@ -27,7 +27,7 @@ export class AmmoShape implements IBaseShape {
     set center (v: IVec3Like) {
         Vec3.copy(v3_0, v);
         v3_0.multiply(this._collider.node.worldScale);
-        Cocos2AmmoVec3(this.transform.getOrigin(), v3_0);
+        cocos2AmmoVec3(this.transform.getOrigin(), v3_0);
         if (this._btCompound) {
             this._btCompound.updateChildTransform(this._index, this.transform);
         }
@@ -183,8 +183,11 @@ export class AmmoShape implements IBaseShape {
     }
 
     /**DEBUG */
-    _trans = new Ammo.btTransform();
-    UP (n: Node) {
+    private static _debugTransform: Ammo.btTransform | null;
+    debugTransform (n: Node) {
+        if (AmmoShape._debugTransform == null) {
+            AmmoShape._debugTransform = new Ammo.btTransform();
+        }
         let wt: Ammo.btTransform;
         if (this._isTrigger) {
             wt = this._sharedBody.ghost.getWorldTransform();
@@ -192,11 +195,11 @@ export class AmmoShape implements IBaseShape {
             wt = this._sharedBody.body.getWorldTransform();
         }
         const lt = this.transform;
-        this._trans.setIdentity();
-        this._trans.op_mul(wt).op_mul(lt);
-        let origin = this._trans.getOrigin();
+        AmmoShape._debugTransform.setIdentity();
+        AmmoShape._debugTransform.op_mul(wt).op_mul(lt);
+        let origin = AmmoShape._debugTransform.getOrigin();
         n.worldPosition = new Vec3(origin.x(), origin.y(), origin.z());
-        let rotation = this._trans.getRotation();
+        let rotation = AmmoShape._debugTransform.getRotation();
         n.worldRotation = new Quat(rotation.x(), rotation.y(), rotation.z(), rotation.w());
         let scale = this.shape.getLocalScaling();
         n.scale = new Vec3(scale.x(), scale.y(), scale.z());

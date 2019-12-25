@@ -2,7 +2,7 @@ import Ammo from '@cocos/ammo';
 import { AmmoShape } from "./ammo-shape";
 import { Vec3 } from "../../../core";
 import { BoxColliderComponent } from '../../../../exports/physics-framework';
-import { Cocos2AmmoVec3 } from '../ammo-util';
+import { cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { IBoxShape } from '../../spec/i-physics-shape';
 
@@ -13,7 +13,7 @@ export class AmmoBoxShape extends AmmoShape implements IBoxShape {
     set size (size: Vec3) {
         Vec3.copy(v3_0, size);
         Vec3.multiply(v3_0, v3_0, this._collider.node.worldScale);
-        Cocos2AmmoVec3(this.scale, v3_0);
+        cocos2AmmoVec3(this.scale, v3_0);
         this._btShape.setLocalScaling(this.scale);
         if (this._btCompound) {
             this._btCompound.updateChildTransform(this.index, this.transform, true);
