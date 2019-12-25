@@ -31,6 +31,17 @@ export function createCapsuleShape (radius = 0.5, height = 2, dir = ECapsuleDire
         return new CapsuleShape(radius, height, dir) as ICapsuleShape;
     } else {
         warn('[v1.0.3][Physics]: Currently only builtin support capsule collider');
-        return { radius: radius, height: height, direction: dir } as any;
+        /** apater */
+        return {
+            radius: radius, height: height, direction: dir,
+            material: null,
+            isTrigger: false,
+            center: new Vec3(),
+            __preload: () => { },
+            onLoad: () => { },
+            onEnable: () => { },
+            onDisable: () => { },
+            onDestroy: () => { }
+        } as any
     }
 }
