@@ -41,7 +41,6 @@ export class RenderableComponent extends Component {
         type: Material,
         displayName: 'Materials',
         tooltip: '源材质',
-        animatable: false,
     })
     get sharedMaterials () {
         // if we don't create an array copy, the editor will modify the original array directly.
@@ -66,11 +65,6 @@ export class RenderableComponent extends Component {
      * @en The material of the model
      * @zh 模型材质。
      */
-    // @property({
-    //     type: Material,
-    //     visible: false,
-    //     animatable: true,
-    // })
     get materials () {
         for (let i = 0; i < this._materials.length; i++) {
             this._materialInstances[i] = this.getMaterialInstance(i) as MaterialInstance;
