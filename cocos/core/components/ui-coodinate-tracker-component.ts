@@ -39,6 +39,7 @@ import { Vec3 } from '../math';
 /**
  * @zh 3D 节点映射 UI 节点组件
  * 主要提供映射后的转换世界坐标以及模拟透视相机远近比。
+ * @deprecated 即将在 1.1 移除，由于事件开销等原因，内部讨论不适合在引擎层面提供，建议搭配 CameraComponent 的 `convertToUINode` 来自行实现。
  */
 @ccclass('cc.UICoordinateTrackerComponent')
 @menu('Components/UICoordinateTracker')
