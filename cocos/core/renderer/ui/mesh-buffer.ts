@@ -33,6 +33,7 @@ import { GFXInputAssembler, IGFXAttribute } from '../../gfx/input-assembler';
 import { UI } from './ui';
 
 export class MeshBuffer {
+    public static OPACITY_OFFSET = 8;
     public batcher: UI;
 
     public vData: Float32Array | null = null;
@@ -41,12 +42,13 @@ export class MeshBuffer {
     public ib: GFXBuffer | null = null;
     public ia: GFXInputAssembler | null = null;
 
-    public byteStart: number = 0;
-    public byteOffset: number = 0;
-    public indiceStart: number = 0;
-    public indiceOffset: number = 0;
-    public vertexStart: number = 0;
-    public vertexOffset: number = 0;
+    public byteStart = 0;
+    public byteOffset = 0;
+    public indiceStart = 0;
+    public indiceOffset = 0;
+    public vertexStart = 0;
+    public vertexOffset = 0;
+    public lastByteOffset = 1;
 
     public dirty = false;
 
@@ -92,6 +94,7 @@ export class MeshBuffer {
     }
 
     public request (vertexCount = 4, indiceCount = 6) {
+        this.lastByteOffset = this.byteOffset;
         const byteOffset = this.byteOffset + vertexCount * this._vertexFormatBytes;
         const indiceOffset = this.indiceOffset + indiceCount;
 
@@ -133,6 +136,7 @@ export class MeshBuffer {
         this.indiceOffset = 0;
         this.vertexStart = 0;
         this.vertexOffset = 0;
+        this.lastByteOffset = 0;
 
         this.dirty = false;
     }

@@ -99,6 +99,6 @@
   },
   "dependencies": {
     "@cocos/ammo": "^1.0.0",
-    "@cocos/cannon": "^1.0.4"
+    "@cocos/cannon": "^1.0.5"
   }
 }

@@ -100,6 +100,7 @@ export class UI {
     private _currCanvas: CanvasComponent | null = null;
     private _currMeshBuffer: MeshBuffer | null = null;
     private _currStaticRoot: UIStaticBatchComponent | null = null;
+    private _parentOpacity = 1;
 
     constructor (private _root: Root) {
         this.device = _root.device;
@@ -339,6 +340,7 @@ export class UI {
     public commitComp (comp: UIRenderComponent, frame: GFXTextureView | null = null, assembler: any) {
         const renderComp = comp;
         const texView = frame;
+
         if (this._currMaterial.hash !== renderComp.material!.hash ||
             this._currTexView !== texView
         ) {
@@ -349,6 +351,7 @@ export class UI {
 
         if (assembler) {
             assembler.fillBuffers(renderComp, this);
+            this._applyOpacity(renderComp);
         }
     }
 
@@ -454,13 +457,6 @@ export class UI {
         this._currTexView = null;
     }
 
-    private _deleteUIMaterial (mat: Material) {
-        if (this._uiMaterials.has(mat.hash)) {
-            this._uiMaterials.get(mat.hash)!.destroy();
-            this._uiMaterials.delete(mat.hash);
-        }
-    }
-
     private _destroyUIMaterials () {
         const matIter = this._uiMaterials.values();
         let result = matIter.next();
@@ -475,6 +471,8 @@ export class UI {
     private _walk (node: Node, level = 0) {
         const len = node.children.length;
 
+        const parentOpacity = this._parentOpacity;
+        this._parentOpacity *= node._uiProps.opacity;
         this._preprocess(node);
         if (len > 0 && !node._static) {
             const children = node.children;
@@ -485,6 +483,8 @@ export class UI {
         }
 
         this._postprocess(node);
+        this._parentOpacity = parentOpacity;
+
         level += 1;
     }
 
@@ -502,20 +502,20 @@ export class UI {
     }
 
     private _preprocess (c: Node) {
-        if(!c.uiTransformComp){
+        if(!c._uiProps.uiTransformComp){
             return;
         }
 
         // parent changed can flush child visibility
-        c.uiTransformComp._canvas = this._currCanvas;
-        const render = c._uiComp;
+        c._uiProps.uiTransformComp._canvas = this._currCanvas;
+        const render = c._uiProps.uiComp;
         if (render && render.enabledInHierarchy) {
             render.updateAssembler(this);
         }
     }
 
     private _postprocess (c: Node) {
-        const render = c._uiComp;
+        const render = c._uiProps.uiComp;
         if (render && render.enabledInHierarchy) {
             render.postUpdateAssembler(this);
         }
@@ -538,6 +538,7 @@ export class UI {
             this._drawBatchPool.free(batch);
         }
 
+        this._parentOpacity = 1;
         this._batches.clear();
         this._currMaterial = this._emptyMaterial;
         this._currCanvas = null;
@@ -567,8 +568,21 @@ export class UI {
         }
     }
 
-    private _screenSort(a: CanvasComponent, b: CanvasComponent) {
+    private _screenSort (a: CanvasComponent, b: CanvasComponent) {
         const delta = a.priority - b.priority;
         return delta === 0 ? a.node.getSiblingIndex() - b.node.getSiblingIndex() : delta;
+    }
+
+    private _applyOpacity (comp: UIRenderComponent) {
+        const color = comp.color.a / 255;
+        const opacity = (this._parentOpacity = this._parentOpacity * color);
+        const byteOffset = this._currMeshBuffer!.byteOffset >> 2;
+        const vbuf = this._currMeshBuffer!.vData!;
+        const lastByteOffset = this._currMeshBuffer!.lastByteOffset >> 2;
+        for (let i = lastByteOffset; i < byteOffset; i += 9) {
+            vbuf[i + MeshBuffer.OPACITY_OFFSET] = opacity;
+        }
+
+        this._currMeshBuffer!.lastByteOffset = this._currMeshBuffer!.byteOffset;
     }
 }

@@ -428,18 +428,18 @@ export class EditBoxImpl {
         const dpr = view.getDevicePixelRatio();
 
         node.getWorldMatrix(_matrix);
-        const transform = node!.uiTransformComp;
+        const transform = node!._uiProps.uiTransformComp;
         if (transform) {
             Vec3.set(_vec3, -transform.anchorX * transform.width, -transform.anchorY * transform.height, _vec3.z);
         }
 
         Mat4.transform(_matrix, _matrix, _vec3);
 
-        if (!node.uiTransformComp) {
+        if (!node._uiProps.uiTransformComp) {
             return false;
         }
 
-        const canvas = director.root!.ui.getScreen(node.uiTransformComp.visibility);
+        const canvas = director.root!.ui.getScreen(node._uiProps.uiTransformComp.visibility);
         if (!canvas) {
             return;
         }

@@ -39,6 +39,7 @@ export const AudioType = Enum({
     DOM_AUDIO: 1,
     MINI_GAME_AUDIO: 2,
     UNKNOWN_AUDIO: 3,
+    JSB_AUDIO: 4,
 });
 
 /**

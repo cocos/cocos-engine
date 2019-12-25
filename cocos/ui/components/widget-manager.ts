@@ -369,7 +369,7 @@ export const widgetManager = cc._widgetManager = {
     },
     add (widget: WidgetComponent) {
         this._nodesOrderDirty = true;
-        const canvasComp = director.root!.ui.getScreen(widget.node.uiTransformComp!.visibility);
+        const canvasComp = director.root!.ui.getScreen(widget.node._uiProps.uiTransformComp!.visibility);
         if (canvasComp && canvasList.indexOf(canvasComp) === -1) {
             canvasList.push(canvasComp);
             canvasComp.node.on('design-resolution-changed', this.onResized, this);

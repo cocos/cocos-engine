@@ -150,6 +150,8 @@ export class ForwardStage extends RenderStage {
             }
         }
 
+        colors[0].a = camera.clearColor.a;
+
         if (this._pipeline.usePostProcess) {
             if (!this._pipeline.useMSAA) {
                 this._framebuffer = this._pipeline.getFrameBuffer(this._pipeline!.currShading)!;

@@ -233,7 +233,7 @@ export class UITransformComponent extends Component {
     public _canvas: CanvasComponent | null = null;
 
     public __preload () {
-        this.node.uiTransformComp = this;
+        this.node._uiProps.uiTransformComp = this;
     }
 
     public onEnable(){
@@ -250,7 +250,7 @@ export class UITransformComponent extends Component {
     }
 
     public onDestroy () {
-        this.node.uiTransformComp = null;
+        this.node._uiProps.uiTransformComp = null;
     }
 
     /**
@@ -583,8 +583,8 @@ export class UITransformComponent extends Component {
         const siblings = this.node.parent && this.node.parent.children as Mutable<Node[]>;
         if (siblings) {
             siblings.sort((a, b) => {
-                const aComp = a.uiTransformComp;
-                const bComp = b.uiTransformComp;
+                const aComp = a._uiProps.uiTransformComp;
+                const bComp = b._uiProps.uiTransformComp;
                 const ca = aComp ? aComp.priority : 0;
                 const cb = bComp ? bComp.priority : 0;
                 const diff = ca - cb;

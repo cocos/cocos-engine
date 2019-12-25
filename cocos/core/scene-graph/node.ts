@@ -32,9 +32,10 @@ import { ccclass, property } from '../data/class-decorator';
 import { Mat3, Mat4, Quat, Size, Vec2, Vec3 } from '../math';
 import { SystemEventType } from '../platform/event-manager/event-enum';
 import { eventManager } from '../platform/event-manager/event-manager';
-import { BaseNode, TRANFORM_ON } from './base-node';
+import { BaseNode, TRANSFORM_ON } from './base-node';
 import { Layers } from './layers';
 import { NodeSpace, TransformBit } from './node-enum';
+import { NodeUIProperties } from './node-ui-properties';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -89,8 +90,7 @@ export class Node extends BaseNode {
     }
 
     // UI 部分的脏数据
-    public _uiTransformComp: UITransformComponent | null = null;
-    public _uiComp: UIComponent | null = null;
+    public _uiProps = new NodeUIProperties(this);
     public _static = false;
 
     // world transform, don't access this directly
@@ -215,7 +215,7 @@ export class Node extends BaseNode {
         Mat4.toRTS(val, this._lrot, this._lpos, this._lscale);
         this.invalidateChildren(TransformBit.TRS);
         this._eulerDirty = true;
-        if (this._eventMask & TRANFORM_ON) {
+        if (this._eventMask & TRANSFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.TRS);
         }
     }
@@ -271,44 +271,32 @@ export class Node extends BaseNode {
     // for backward-compatibility
     // ===============================
 
-    // NOTE: don't set it manually
-    get uiTransformComp () {
-        if (!this._uiTransformComp) {
-            this._uiTransformComp = this.getComponent('cc.UITransformComponent') as UITransformComponent;
-        }
-
-        return this._uiTransformComp;
-    }
-    set uiTransformComp (value: UITransformComponent | null) {
-        this._uiTransformComp = value;
-    }
-
     get width () {
-        return this.uiTransformComp!.width;
+        return this._uiProps.uiTransformComp!.width;
     }
     set width (value: number) {
-        this.uiTransformComp!.width = value;
+        this._uiProps.uiTransformComp!.width = value;
     }
 
     get height () {
-        return this.uiTransformComp!.height;
+        return this._uiProps.uiTransformComp!.height;
     }
     set height (value: number) {
-        this.uiTransformComp!.height = value;
+        this._uiProps.uiTransformComp!.height = value;
     }
 
     get anchorX () {
-        return this.uiTransformComp!.anchorX;
+        return this._uiProps.uiTransformComp!.anchorX;
     }
     set anchorX (value) {
-        this.uiTransformComp!.anchorX = value;
+        this._uiProps.uiTransformComp!.anchorX = value;
     }
 
     get anchorY () {
-        return this.uiTransformComp!.anchorY;
+        return this._uiProps.uiTransformComp!.anchorY;
     }
     set anchorY (value: number) {
-        this.uiTransformComp!.anchorY = value;
+        this._uiProps.uiTransformComp!.anchorY = value;
     }
 
     // ===============================
@@ -397,7 +385,7 @@ export class Node extends BaseNode {
         }
 
         this.invalidateChildren(TransformBit.POSITION);
-        if (this._eventMask & TRANFORM_ON) {
+        if (this._eventMask & TRANSFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
         }
     }
@@ -424,7 +412,7 @@ export class Node extends BaseNode {
         this._eulerDirty = true;
 
         this.invalidateChildren(TransformBit.ROTATION);
-        if (this._eventMask & TRANFORM_ON) {
+        if (this._eventMask & TRANSFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
@@ -553,7 +541,7 @@ export class Node extends BaseNode {
         }
 
         this.invalidateChildren(TransformBit.POSITION);
-        if (this._eventMask & TRANFORM_ON) {
+        if (this._eventMask & TRANSFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
         }
     }
@@ -597,7 +585,7 @@ export class Node extends BaseNode {
         this._eulerDirty = true;
 
         this.invalidateChildren(TransformBit.ROTATION);
-        if (this._eventMask & TRANFORM_ON) {
+        if (this._eventMask & TRANSFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
@@ -615,7 +603,7 @@ export class Node extends BaseNode {
         this._eulerDirty = false;
 
         this.invalidateChildren(TransformBit.ROTATION);
-        if (this._eventMask & TRANFORM_ON) {
+        if (this._eventMask & TRANSFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
@@ -657,7 +645,7 @@ export class Node extends BaseNode {
         }
 
         this.invalidateChildren(TransformBit.SCALE);
-        if (this._eventMask & TRANFORM_ON) {
+        if (this._eventMask & TRANSFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.SCALE);
         }
     }
@@ -727,7 +715,7 @@ export class Node extends BaseNode {
         }
 
         this.invalidateChildren(TransformBit.POSITION);
-        if (this._eventMask & TRANFORM_ON) {
+        if (this._eventMask & TRANSFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
         }
     }
@@ -778,7 +766,7 @@ export class Node extends BaseNode {
         this._eulerDirty = true;
 
         this.invalidateChildren(TransformBit.ROTATION);
-        if (this._eventMask & TRANFORM_ON) {
+        if (this._eventMask & TRANSFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
@@ -801,7 +789,7 @@ export class Node extends BaseNode {
         this._eulerDirty = true;
 
         this.invalidateChildren(TransformBit.ROTATION);
-        if (this._eventMask & TRANFORM_ON) {
+        if (this._eventMask & TRANSFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
@@ -859,7 +847,7 @@ export class Node extends BaseNode {
         }
 
         this.invalidateChildren(TransformBit.SCALE);
-        if (this._eventMask & TRANFORM_ON) {
+        if (this._eventMask & TRANSFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.SCALE);
         }
     }
@@ -921,12 +909,12 @@ export class Node extends BaseNode {
         if (!out) {
             out = new Vec2();
         }
-        out.set(this.uiTransformComp!.anchorPoint);
+        out.set(this._uiProps.uiTransformComp!.anchorPoint);
         return out;
     }
 
     public setAnchorPoint (point: Vec2 | number, y?: number) {
-        this.uiTransformComp!.setAnchorPoint(point, y);
+        this._uiProps.uiTransformComp!.setAnchorPoint(point, y);
     }
 
     public getContentSize (out?: Size): Size {
@@ -934,12 +922,12 @@ export class Node extends BaseNode {
             out = new Size();
         }
 
-        out.set(this.uiTransformComp!.contentSize);
+        out.set(this._uiProps.uiTransformComp!.contentSize);
         return out;
     }
 
     public setContentSize (size: Size | number, height?: number) {
-        this.uiTransformComp!.setContentSize(size, height);
+        this._uiProps.uiTransformComp!.setContentSize(size, height);
     }
 
     public pauseSystemEvents (recursive: boolean): void {
