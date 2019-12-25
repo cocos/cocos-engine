@@ -152,7 +152,6 @@ cc.js.extend(View, EventTarget);
 cc.js.mixin(View.prototype, {
     init () {
         this._initFrameSize();
-        this.enableAntiAlias(true);
 
         var w = cc.game.canvas.width, h = cc.game.canvas.height;
         this._designResolutionSize.width = w;
