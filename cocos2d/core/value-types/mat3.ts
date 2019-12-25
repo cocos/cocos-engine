@@ -288,9 +288,15 @@ export default class Mat3 {
     }
 
     /**
-     * @zh 取四阶矩阵的前三阶，与三阶矩阵相乘
+     * !#en Take the first third order of the fourth order matrix and multiply by the third order matrix
+     * !#zh 取四阶矩阵的前三阶，与三阶矩阵相乘
+     * @param {Mat3} out - Matrix to store result.
+     * @param {Mat3} a - The first operand.
+     * @param {Mat3} b - The second operand.
+     * @returns {Mat3} out.
+     * @static
      */
-    public static multiplyMat4 <Out extends IMat3Like> (out: Out, a: Out, b: IMat4Like) {
+    static multiplyMat4 <Out extends IMat3Like> (out: Out, a: Out, b: IMat4Like) {
         let am = a.m, bm = b.m, outm = out.m;
         let a00 = am[0], a01 = am[1], a02 = am[2],
             a10 = am[3], a11 = am[4], a12 = am[5],
