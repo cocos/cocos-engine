@@ -375,6 +375,27 @@ sys.BROWSER_TYPE_WECHAT_GAME = 'wechatgame';
  */
 sys.BROWSER_TYPE_ALIPAY_GAME = 'alipaygame';
 /**
+ * BROWSER_TYPE_XIAOMI_GAME
+ * @property {String} BROWSER_TYPE_XIAOMI_GAME
+ * @readOnly
+ * @default "xiaomiquickgame"
+ */
+sys.BROWSER_TYPE_XIAOMI_GAME = 'xiaomiquickgame';
+/**
+ * BROWSER_TYPE_BAIDU_GAME
+ * @property {String} BROWSER_TYPE_BAIDU_GAME
+ * @readOnly
+ * @default "baidugame"
+ */
+sys.BROWSER_TYPE_BAIDU_GAME = 'baidugame';
+/**
+ * BROWSER_TYPE_COCOSPLAY
+ * @property {String} BROWSER_TYPE_COCOSPLAY
+ * @readOnly
+ * @default "cocosplay"
+ */
+sys.BROWSER_TYPE_COCOSPLAY = 'cocosplay';
+/**
  *
  * @property {String} BROWSER_TYPE_ANDROID
  * @readOnly
@@ -718,6 +739,15 @@ else {
         }
         else if(CC_ALIPAY) {
             browserType = sys.BROWSER_TYPE_ALIPAY_GAME;
+        }
+        else if(CC_XIAOMI) {
+            browserType = sys.BROWSER_TYPE_XIAOMI_GAME;
+        }
+        else if(CC_BAIDU) {
+            browserType = sys.BROWSER_TYPE_BAIDU_GAME;
+        }
+        else if(CC_COCOSPLAY) {
+            browserType = sys.BROWSER_TYPE_COCOSPLAY;
         }
         else if (browserType === 'micromessenger') {
             browserType = sys.BROWSER_TYPE_WECHAT;

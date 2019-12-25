@@ -280,6 +280,7 @@ export enum Platform {
     VIVO,
     HUAWEI,
     NATIVE,
+    COCOSPLAY,
 }
 
 export function enumeratePlatformReps () {
@@ -360,6 +361,7 @@ interface IGlobaldefines {
     CC_VIVO?: boolean;
     CC_HUAWEI?: boolean;
     CC_NATIVE?: boolean;
+    CC_COCOSPLAY?: boolean;
 
     // engine use platform macros
     CC_RUNTIME_BASED?: boolean;
@@ -385,7 +387,7 @@ function getGlobalDefs (options: IBuildOptions): object {
     const flags = options.flags;
 
     const BUILDMODE_MACROS = ['CC_EDITOR', 'CC_PREVIEW', 'CC_BUILD', 'CC_TEST'];
-    const PLATFORM_MACROS = ['CC_HTML5', 'CC_WECHAT', 'CC_ALIPAY', 'CC_BAIDU', 'CC_XIAOMI', 'CC_OPPO', 'CC_VIVO', 'CC_HUAWEI', 'CC_NATIVE'];
+    const PLATFORM_MACROS = ['CC_HTML5', 'CC_WECHAT', 'CC_ALIPAY', 'CC_BAIDU', 'CC_XIAOMI', 'CC_OPPO', 'CC_VIVO', 'CC_HUAWEI', 'CC_NATIVE', 'CC_COCOSPLAY'];
     const FLAGS = ['debug'];
 
     const buildmodeMacro = ('CC_' + Mode[buildmode]).toUpperCase();
@@ -423,7 +425,7 @@ function getGlobalDefs (options: IBuildOptions): object {
     result.CC_MINIGAME = false;
     result.CC_DEV = result.CC_EDITOR || result.CC_PREVIEW || result.CC_TEST;
     result.CC_DEBUG = result.CC_DEBUG || result.CC_DEV;
-    result.CC_RUNTIME_BASED = result.CC_OPPO || result.CC_VIVO || result.CC_HUAWEI;
+    result.CC_RUNTIME_BASED = result.CC_OPPO || result.CC_VIVO || result.CC_HUAWEI || result.CC_COCOSPLAY;
     result.CC_MINIGAME = result.CC_WECHAT || result.CC_ALIPAY || result.CC_XIAOMI || result.CC_BAIDU;
     result.CC_JSB = result.CC_NATIVE || result.CC_RUNTIME_BASED;
     result.CC_SUPPORT_JIT = !(result.CC_MINIGAME || result.CC_RUNTIME_BASED);
