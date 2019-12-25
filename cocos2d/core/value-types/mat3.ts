@@ -288,6 +288,31 @@ export default class Mat3 {
     }
 
     /**
+     * @zh 取四阶矩阵的前三阶，与三阶矩阵相乘
+     */
+    public static multiplyMat4 <Out extends IMat3Like> (out: Out, a: Out, b: IMat4Like) {
+        let am = a.m, bm = b.m, outm = out.m;
+        let a00 = am[0], a01 = am[1], a02 = am[2],
+            a10 = am[3], a11 = am[4], a12 = am[5],
+            a20 = am[6], a21 = am[7], a22 = am[8];
+
+        const b00 = bm[0], b01 = bm[1], b02 = bm[2];
+        const b10 = bm[4], b11 = bm[5], b12 = bm[6];
+        const b20 = bm[8], b21 = bm[9], b22 = bm[10];
+
+        outm[0] = b00 * a00 + b01 * a10 + b02 * a20;
+        outm[1] = b00 * a01 + b01 * a11 + b02 * a21;
+        outm[2] = b00 * a02 + b01 * a12 + b02 * a22;
+        outm[3] = b10 * a00 + b11 * a10 + b12 * a20;
+        outm[4] = b10 * a01 + b11 * a11 + b12 * a21;
+        outm[5] = b10 * a02 + b11 * a12 + b12 * a22;
+        outm[6] = b20 * a00 + b21 * a10 + b22 * a20;
+        outm[7] = b20 * a01 + b21 * a11 + b22 * a21;
+        outm[8] = b20 * a02 + b21 * a12 + b22 * a22;
+        return out;
+    }
+
+    /**
      * Multiply a matrix with a translation matrix given by a translation offset.
      *
      * @param {Mat3} out - Matrix to store result.

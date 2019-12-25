@@ -32,6 +32,7 @@ import { IVec3Like } from '../spec/i-common';
 import { PhysicsMaterial } from './../framework/assets/physics-material';
 import { TriggerEventType } from '../framework/physics-interface';
 import { Collider3D } from '../exports/physics-framework';
+import { clearNodeTransformRecord, clearNodeTransformDirtyFlag } from '../framework/util';
 
 const fastRemove = cc.js.array.fastRemove;
 const intersect = cc.geomUtils.intersect;
@@ -61,15 +62,18 @@ export class BuiltInWorld implements IPhysicsWorld {
     private _collisionMatrixPrev: ArrayCollisionMatrix = new ArrayCollisionMatrix();
 
     step (): void {
-
         // store and reset collsion array
         this._shapeArrOld = this.shapeArr.slice();
         this.shapeArr.length = 0;
+
+        clearNodeTransformRecord();
 
         // sync scene to collision
         for (let i = 0; i < this.bodies.length; i++) {
             this.bodies[i].syncSceneToPhysics();
         }
+
+        clearNodeTransformDirtyFlag();
 
         const collisionMatrix = cc.game.collisionMatrix;
         

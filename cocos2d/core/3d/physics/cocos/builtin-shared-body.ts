@@ -24,11 +24,8 @@
  ****************************************************************************/
 import { BuiltInWorld } from './builtin-world';
 import { BuiltinShape } from './shapes/builtin-shape';
+import { updateWorldTransform } from "../framework/util"
 
-const m4_0 = new cc.Mat4();
-const v3_0 = new cc.Vec3();
-const v3_1 = new cc.Vec3();
-const quat_0 = new cc.Quat();
 const intersect = cc.geomUtils.intersect;
 const fastRemove = cc.js.array.fastRemove;
 
@@ -64,7 +61,7 @@ export class BuiltinSharedBody {
             if (this.index < 0) {
                 this.index = this.world.bodies.length;
                 this.world.addSharedBody(this);
-                this.syncSceneToPhysics();
+                this.syncSceneToPhysics(true);
             }
         } else {
             if (this.index >= 0) {
@@ -124,13 +121,13 @@ export class BuiltinSharedBody {
         fastRemove(this.shapes, shape);
     }
 
-    syncSceneToPhysics () {
-        this.node.getWorldMatrix(m4_0);
-        this.node.getWorldPosition(v3_0);
-        this.node.getWorldRotation(quat_0);
-        this.node.getWorldScale(v3_1);
+    syncSceneToPhysics (force: boolean = false) {
+        let node = this.node;
+        let needUpdateTransform = updateWorldTransform(node, force);
+        if (!force && !needUpdateTransform) return;        
+
         for (let i = 0; i < this.shapes.length; i++) {
-            this.shapes[i].transform(m4_0, v3_0, quat_0, v3_1);
+            this.shapes[i].transform(node._worldMatrix, node.__wpos, node.__wrot, node.__wscale);
         }
     }
 

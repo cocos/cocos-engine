@@ -114,3 +114,5 @@ export default class Trs {
         return out;
     }
 }
+
+cc.Trs = Trs;

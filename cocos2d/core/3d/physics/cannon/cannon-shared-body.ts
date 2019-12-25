@@ -32,7 +32,10 @@ import { Collider3D } from '../exports/physics-framework';
 import { CollisionEventType } from '../framework/physics-interface';
 import { CannonRigidBody } from './cannon-rigid-body';
 import { groupIndexToBitMask } from './cannon-util'
+import { updateWorldTransform, updateWorldRT } from "../framework/util"
 
+const LocalDirtyFlag = cc.Node._LocalDirtyFlag;
+const PHYSICS_SCALE = LocalDirtyFlag.PHYSICS_SCALE;
 const Quat = cc.Quat;
 const Vec3 = cc.Vec3;
 const fastRemoveAt = cc.js.array.fastRemoveAt;
@@ -85,7 +88,7 @@ export class CannonSharedBody {
             if (this.index < 0) {
                 this.index = this.wrappedWorld.bodies.length;
                 this.wrappedWorld.addSharedBody(this);
-                this.syncSceneToPhysics();
+                this.syncSceneToPhysics(true);
             }
         } else {
             if (this.index >= 0) {
@@ -143,15 +146,19 @@ export class CannonSharedBody {
         }
     }
 
-    syncSceneToPhysics () {
-        this.node.getWorldPosition(v3_0);
-        this.node.getWorldRotation(quat_0);
-        Vec3.copy(this.body.position, v3_0);
-        Quat.copy(this.body.quaternion, quat_0);
+    syncSceneToPhysics (force: boolean = false) {
+        let node = this.node;
+        let needUpdateTransform = updateWorldTransform(node, force);
+        if (!force && !needUpdateTransform) return;
 
-        this.node.getWorldScale(v3_0);
-        for (let i = 0; i < this.shapes.length; i++) {
-            this.shapes[i].setScale(v3_0);
+        Vec3.copy(this.body.position, node.__wpos);
+        Quat.copy(this.body.quaternion, node.__wrot);
+
+        if (node._localMatDirty & PHYSICS_SCALE) {
+            let wscale = node.__wscale;
+            for (let i = 0; i < this.shapes.length; i++) {
+                this.shapes[i].setScale(wscale);
+            }
         }
         
         if (this.body.isSleeping()) {
@@ -163,8 +170,7 @@ export class CannonSharedBody {
         if (this.body.type != ERigidBodyType.STATIC) {
             Vec3.copy(v3_0, this.body.position);
             Quat.copy(quat_0, this.body.quaternion);
-            this.node.setWorldPosition(v3_0);
-            this.node.setWorldRotation(quat_0);
+            updateWorldRT(this.node, v3_0, quat_0);
         }
     }
 

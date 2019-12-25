@@ -14492,6 +14492,8 @@ World.prototype.emitTriggeredEvents = function () {
         var id2 = additions[i + 1];
         var shapeA = this.getShapeById(id1);
         var shapeB = this.getShapeById(id2);
+        if (!shapeA || !shapeB) continue;
+        
         if (this.triggerMatrix.get(shapeA, shapeB)) {
             triggeredEvent.event = 'onTriggerStay';
         } else {

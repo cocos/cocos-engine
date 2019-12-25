@@ -29,6 +29,7 @@ import { CannonShape } from './shapes/cannon-shape';
 import { CannonSharedBody } from './cannon-shared-body';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { PhysicsMaterial, PhysicsRayResult } from '../framework';
+import { clearNodeTransformRecord, clearNodeTransformDirtyFlag } from '../framework/util'
 
 const Vec3 = cc.Vec3;
 const fastRemoveAt = cc.js.array.fastRemoveAt;
@@ -66,10 +67,15 @@ export class CannonWorld implements IPhysicsWorld {
     }
 
     step (deltaTime: number, timeSinceLastCalled?: number, maxSubStep?: number) {
+
+        clearNodeTransformRecord();
+
         // sync scene to physics
         for (let i = 0; i < this.bodies.length; i++) {
             this.bodies[i].syncSceneToPhysics();
         }
+
+        clearNodeTransformDirtyFlag();
 
         this._world.step(deltaTime, timeSinceLastCalled, maxSubStep);
 
