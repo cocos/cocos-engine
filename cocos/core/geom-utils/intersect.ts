@@ -3,7 +3,7 @@
  * @category geometry
  */
 
-import { Mat3, Vec3, EPSILON } from '../math';
+import { Mat3, Vec3, EPSILON, Vec2 } from '../math';
 import aabb from './aabb';
 import * as distance from './distance';
 import enums from './enums';
@@ -1015,72 +1015,88 @@ const sphere_capsule = (function () {
     }
 })();
 
-// https://github.com/sketchpunk/FunWithWebGL2/blob/master/lesson_049/test.html
+// http://www.geomalgorithms.com/a07-_distance.html
 const capsule_capsule = (function () {
-    const v3_dirSAB = new Vec3();
-    const v3_dirA = new Vec3();
-    const v3_dirB = new Vec3();
-    const v3_closestA = new Vec3();
-    const v3_closestB = new Vec3();
-    const v3_closestA_alt = new Vec3();
-    const v3_closestB_alt = new Vec3();
+    const v3_0 = new Vec3();
+    const v3_1 = new Vec3();
+    const v3_2 = new Vec3();
+    const v3_3 = new Vec3();
+    const v3_4 = new Vec3();
+    const v3_5 = new Vec3();
     return function capsule_capsule (capsuleA: capsule, capsuleB: capsule) {
-        const startA = capsuleA.ellipseCenter0;
-        const startB = capsuleB.ellipseCenter0;
-        const endA = capsuleA.ellipseCenter1;
-        const endB = capsuleB.ellipseCenter1;
+        let u = Vec3.subtract(v3_0, capsuleA.ellipseCenter1, capsuleA.ellipseCenter0);
+        let v = Vec3.subtract(v3_1, capsuleB.ellipseCenter1, capsuleB.ellipseCenter0);
+        let w = Vec3.subtract(v3_2, capsuleA.ellipseCenter0, capsuleB.ellipseCenter0);
+        let a = Vec3.dot(u, u);         // always >= 0
+        let b = Vec3.dot(u, v);
+        let c = Vec3.dot(v, v);         // always >= 0
+        let d = Vec3.dot(u, w);
+        let e = Vec3.dot(v, w);
+        let D = a * c - b * b;        // always >= 0
+        let sc: number;
+        let sN: number;
+        let sD = D;       // sc = sN / sD, default sD = D >= 0
+        let tc: number;
+        let tN: number;
+        let tD = D;       // tc = tN / tD, default tD = D >= 0
 
-        Vec3.subtract(v3_dirSAB, startA, startB);
-        Vec3.subtract(v3_dirA, startA, endA);
-        Vec3.subtract(v3_dirB, startA, endB);
-
-        const dirBDotDirAToB = Vec3.dot(v3_dirB, v3_dirSAB);
-        const dirADotDirAToB = Vec3.dot(v3_dirA, v3_dirSAB);
-
-        const sqrLenDirB = v3_dirB.lengthSqr();
-        const sqrLenDirA = v3_dirA.lengthSqr();
-
-        const dirADotDirB = Vec3.dot(v3_dirA, v3_dirB);
-
-        const denominator = sqrLenDirA * sqrLenDirB - dirADotDirB * dirADotDirB;
-
-        const distA = denominator < EPSILON ? 0 : (dirADotDirB * dirBDotDirAToB - sqrLenDirB * dirADotDirAToB) / denominator;
-        const distB = (dirBDotDirAToB + dirADotDirB * distA) / sqrLenDirB;
-
-        const isDistAInBounds = distA >= 0 && distA <= 1;
-        const isDistBInBounds = distB >= 0 && distB <= 1;
-        if (isDistAInBounds) {
-            if (isDistBInBounds) {
-                // The distances along both line segments are within bounds.
-                Vec3.scaleAndAdd(v3_closestA, startA, v3_dirA, distA);
-                Vec3.scaleAndAdd(v3_closestB, startB, v3_dirB, distB);
-            } else {
-                // Only the distance along the first line segment is within bounds.
-                distB < 0 ? Vec3.copy(v3_closestB, startB) : Vec3.copy(v3_closestB, endB);
-                distance.pt_point_line(v3_closestA, v3_closestB, startA, endA);
+        // compute the line parameters of the two closest points
+        if (D < EPSILON) { // the lines are almost parallel
+            sN = 0.0;         // force using point P0 on segment S1
+            sD = 1.0;         // to prevent possible division by 0.0 later
+            tN = e;
+            tD = c;
+        }
+        else {                 // get the closest points on the infinite lines
+            sN = (b * e - c * d);
+            tN = (a * e - b * d);
+            if (sN < 0.0) {        // sc < 0 => the s=0 edge is visible
+                sN = 0.0;
+                tN = e;
+                tD = c;
             }
-        } else {
-            if (isDistBInBounds) {
-                // Only the distance along the second line segment is within bounds.
-                distA < 0 ? Vec3.copy(v3_closestA, startA) : Vec3.copy(v3_closestA, endA);
-                distance.pt_point_line(v3_closestB, v3_closestA, startB, endB);
-            } else {
-                // Neither of the distances along either line segment are within bounds.
-                distA < 0 ? Vec3.copy(v3_closestA, startA) : Vec3.copy(v3_closestA, endA);
-                distB < 0 ? Vec3.copy(v3_closestB, startB) : Vec3.copy(v3_closestB, endB);
-
-                distance.pt_point_line(v3_closestA_alt, v3_closestB, startA, endA);
-                distance.pt_point_line(v3_closestB_alt, v3_closestA, startB, endB);
-                if (Vec3.squaredDistance(v3_closestA_alt, v3_closestB) <
-                    Vec3.squaredDistance(v3_closestB_alt, v3_closestA)) {
-                    Vec3.copy(v3_closestA, v3_closestA_alt);
-                } else {
-                    Vec3.copy(v3_closestB, v3_closestB_alt);
-                }
+            else if (sN > sD) {  // sc > 1  => the s=1 edge is visible
+                sN = sD;
+                tN = e + b;
+                tD = c;
             }
         }
-        const r = capsuleA.radius + capsuleB.radius;
-        return Vec3.squaredDistance(v3_closestA, v3_closestB) < r * r;
+
+        if (tN < 0.0) {            // tc < 0 => the t=0 edge is visible
+            tN = 0.0;
+            // recompute sc for this edge
+            if (-d < 0.0)
+                sN = 0.0;
+            else if (-d > a)
+                sN = sD;
+            else {
+                sN = -d;
+                sD = a;
+            }
+        }
+        else if (tN > tD) {      // tc > 1  => the t=1 edge is visible
+            tN = tD;
+            // recompute sc for this edge
+            if ((-d + b) < 0.0)
+                sN = 0;
+            else if ((-d + b) > a)
+                sN = sD;
+            else {
+                sN = (-d + b);
+                sD = a;
+            }
+        }
+        // finally do the division to get sc and tc
+        sc = (Math.abs(sN) < EPSILON ? 0.0 : sN / sD);
+        tc = (Math.abs(tN) < EPSILON ? 0.0 : tN / tD);
+
+        // get the difference of the two closest points
+        var dP = v3_3;
+        dP.set(w);
+        dP.add(Vec3.multiplyScalar(v3_4, u, sc));
+        dP.subtract(Vec3.multiplyScalar(v3_5, v, tc));
+        const radius = capsuleA.radius + capsuleB.radius;
+        return dP.lengthSqr() < radius * radius;
     }
 })();
 
