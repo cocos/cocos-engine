@@ -790,7 +790,6 @@ var Texture2D = cc.Class({
         let w = this.width, h = this.height;
         if (!this._image ||
             w > dynamicAtlas.maxFrameSize || h > dynamicAtlas.maxFrameSize || 
-            w <= dynamicAtlas.minFrameSize || h <= dynamicAtlas.minFrameSize || 
             this._getHash() !== dynamicAtlas.Atlas.DEFAULT_HASH) {
             this._packable = false;
             return;

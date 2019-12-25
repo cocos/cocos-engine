@@ -509,6 +509,11 @@ if (CC_DEBUG) {
         },
     });
 
+    // cc.dynamicAtlasManager
+    markAsRemovedInObject(cc.dynamicAtlasManager, [
+        'minFrameSize'
+    ], 'cc.dynamicAtlasManager')
+
     // Value types
     provideClearError(cc, {
         // AffineTransform
