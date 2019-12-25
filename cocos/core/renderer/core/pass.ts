@@ -28,7 +28,7 @@
  */
 
 import { builtinResMgr } from '../../3d/builtin/init';
-import { EffectAsset, IPassInfo, IPassStates, IPropertyInfo } from '../../assets/effect-asset';
+import { IPassInfo, IPassStates, IPropertyInfo } from '../../assets/effect-asset';
 import { TextureBase } from '../../assets/texture-base';
 import { GFXBindingLayout, IGFXBinding, IGFXBindingLayoutInfo } from '../../gfx/binding-layout';
 import { GFXBuffer, IGFXBufferInfo } from '../../gfx/buffer';
@@ -48,16 +48,15 @@ import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
 import { customizeType, getBindingFromHandle, getBindingTypeFromHandle,
-    getOffsetFromHandle, getTypeFromHandle, type2default, type2reader, type2writer } from './pass-utils';
-import { IProgramInfo, IShaderResources, programLib } from './program-lib';
+    getOffsetFromHandle, getTypeFromHandle, IDefineMap, type2default, type2reader, type2writer } from './pass-utils';
+import { IProgramInfo, programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
 
-export interface IDefineMap { [name: string]: number | boolean | string; }
 export interface IPassInfoFull extends IPassInfo {
     // generated part
     idxInTech: number;
-    curDefs: IDefineMap;
-    states: PassOverrides;
+    defines: IDefineMap;
+    stateOverrides?: PassOverrides;
 }
 export type PassOverrides = RecursivePartial<IPassStates>;
 
@@ -78,12 +77,6 @@ interface IPassDynamics {
         dirty: boolean,
         value: number[],
     };
-}
-
-interface IEffectInfo {
-    techIdx: number;
-    defines: IDefineMap[];
-    states: PassOverrides[];
 }
 
 interface IPSOHashInfo {
@@ -149,25 +142,6 @@ export class Pass {
      */
     public static getBindingFromHandle = getBindingFromHandle;
 
-    public static createPasses (effect: EffectAsset, info: IEffectInfo) {
-        const { techIdx, defines, states } = info;
-        const tech = effect.techniques[techIdx || 0];
-        if (!tech) { return []; }
-        const passNum = tech.passes.length;
-        const passes: Pass[] = [];
-        for (let k = 0; k < passNum; ++k) {
-            const passInfo = tech.passes[k] as IPassInfoFull;
-            const defs = passInfo.curDefs = defines.length > k ? defines[k] : {};
-            if (passInfo.switch && !defs[passInfo.switch]) { continue; }
-            passInfo.states = states.length > k ? states[k] : {};
-            passInfo.idxInTech = k;
-            const pass = new Pass(cc.game._gfxDevice);
-            pass.initialize(passInfo);
-            passes.push(pass);
-        }
-        return passes;
-    }
-
     public static fillinPipelineInfo (target: Pass, info: PassOverrides) {
         if (info.priority !== undefined) { target._priority = info.priority; }
         if (info.primitive !== undefined) { target._primitive = info.primitive; }
@@ -229,6 +203,7 @@ export class Pass {
     protected _shaderInfo: IProgramInfo = null!;
     protected _defines: IDefineMap = {};
     protected _properties: Record<string, IPropertyInfo> = {};
+    protected _hash = 0;
     // external references
     protected _device: GFXDevice;
     protected _renderPass: GFXRenderPass | null = null;
@@ -245,41 +220,9 @@ export class Pass {
      * 根据指定参数初始化当前 pass，shader 会在这一阶段就尝试编译。
      */
     public initialize (info: IPassInfoFull) {
-        this._idxInTech = info.idxInTech;
-        this._programName = info.program;
-        this._defines = info.curDefs;
-        this._shaderInfo = programLib.getTemplate(info.program);
-        this._properties = info.properties || this._properties;
-        // pipeline state
-        const device = this._device;
-        Pass.fillinPipelineInfo(this, info);
-        Pass.fillinPipelineInfo(this, info.states);
-
-        const blocks = this._shaderInfo.blocks;
-        for (let i = 0; i < blocks.length; i++) {
-            const { size, binding } = blocks[i];
-            if (isBuiltinBinding(binding)) { continue; }
-            // create gfx buffer resource
-            _bfInfo.size = Math.ceil(size / 16) * 16; // https://bugs.chromium.org/p/chromium/issues/detail?id=988988
-            this._buffers[binding] = device.createBuffer(_bfInfo);
-            // non-builtin UBO data pools, note that the effect compiler
-            // guarantees these bindings to be consecutive, starting from 0
-            const buffer = new ArrayBuffer(size);
-            this._blocks[binding] = { buffer, dirty: false, view: new Float32Array(buffer) };
-        }
-        // store handles
-        const directHandleMap = this._handleMap = this._shaderInfo.handleMap;
-        const indirectHandleMap: Record<string, number> = {};
-        for (const name in this._properties) {
-            const prop = this._properties[name];
-            if (!prop.handleInfo) { continue; }
-            indirectHandleMap[name] = this.getHandle.apply(this, prop.handleInfo)!;
-        }
-        Object.assign(directHandleMap, indirectHandleMap);
-
+        this._doInit(info);
         this.resetUBOs();
         this.resetTextures();
-        this.tryCompile();
     }
 
     /**
@@ -432,11 +375,7 @@ export class Pass {
      * @param value 管线状态重载值。
      */
     public overridePipelineStates (original: IPassInfo, overrides: PassOverrides) {
-        this._bs = new GFXBlendState();
-        this._dss = new GFXDepthStencilState();
-        this._rs = new GFXRasterizerState();
-        Pass.fillinPipelineInfo(this, original);
-        Pass.fillinPipelineInfo(this, overrides);
+        console.warn('base pass cannot override states, please use pass instance instead.');
     }
 
     /**
@@ -532,39 +471,28 @@ export class Pass {
      * 尝试编译 shader 并获取相关资源引用。
      * @param defineOverrides shader 预处理宏定义重载
      */
-    public tryCompile (
-        defineOverrides?: IDefineMap,
-        saveOverrides = true,
-    ): IShaderResources | null /* TODO: Explicit since TS4053 bug , changes required once the issue is fixed. */ {
+    public tryCompile () {
+        if (this._defines.USE_BATCHING) { this.createBatchedBuffer(); }
         const pipeline = (cc.director.root as Root).pipeline;
         if (!pipeline) { return null; }
         this._renderPass = pipeline.getRenderPass(this._stage);
-        if (!this._renderPass) { console.warn(`illegal pass stage.`); return null; }
-        let defines = this._defines;
-        if (defineOverrides) {
-            if (saveOverrides) { Object.assign(this._defines, defineOverrides); }
-            else { Object.assign(defineOverrides, this._defines); defines = defineOverrides; }
-        }
-        const res = programLib.getGFXShader(this._device, this._programName, defines, pipeline);
-        if (!res.shader) { console.warn(`create shader ${this._programName} failed`); return null; }
-        if (saveOverrides) { this._shader = res.shader; this._bindings = res.bindings; }
-        return res;
+        if (!this._renderPass) { console.warn(`illegal pass stage.`); return false; }
+        const res = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
+        if (!res.shader) { console.warn(`create shader ${this._programName} failed`); return false; }
+        this._shader = res.shader; this._bindings = res.bindings;
+        return true;
     }
 
     /**
      * @zh
      * 根据当前 pass 持有的信息创建 [[GFXPipelineState]]。
      */
-    public createPipelineState (defineOverrides?: IDefineMap, stateOverrides?: IPassStates): GFXPipelineState | null {
+    public createPipelineState (): GFXPipelineState | null {
         if ((!this._renderPass || !this._shader || !this._bindings.length) && !this.tryCompile()) {
             console.warn(`pass resources not complete, create PSO failed`);
             return null;
         }
-        let shader = this._shader!; _blInfo.bindings = this._bindings;
-        if (defineOverrides) {
-            const res = this.tryCompile(defineOverrides, false);
-            if (res) { shader = res.shader; _blInfo.bindings = res.bindings; }
-        }
+        const shader = this._shader!; _blInfo.bindings = this._bindings;
         // bind resources
         const bindingLayout = this._device.createBindingLayout(_blInfo);
         for (const b in this._buffers) {
@@ -593,18 +521,18 @@ export class Pass {
         _plInfo.layouts = [bindingLayout];
         const pipelineLayout = this._device.createPipelineLayout(_plInfo);
         // create pipeline state
-        _psoInfo.primitive = stateOverrides && stateOverrides.primitive || this._primitive;
+        _psoInfo.primitive = this._primitive;
         _psoInfo.shader = shader;
-        _psoInfo.rasterizerState = stateOverrides && stateOverrides.rasterizerState || this._rs;
-        _psoInfo.depthStencilState = stateOverrides && stateOverrides.depthStencilState || this._dss;
-        _psoInfo.blendState = stateOverrides && stateOverrides.blendState || this._bs;
-        _psoInfo.dynamicStates = stateOverrides && stateOverrides.dynamicStates || this._dynamicStates;
+        _psoInfo.rasterizerState = this._rs;
+        _psoInfo.depthStencilState = this._dss;
+        _psoInfo.blendState = this._bs;
+        _psoInfo.dynamicStates = this._dynamicStates;
         _psoInfo.layout = pipelineLayout;
         _psoInfo.renderPass = this._renderPass!;
         _psoInfo.program = this._programName;
-        _psoInfo.defines = defineOverrides || this._defines;
+        _psoInfo.defines = this._defines;
         _psoInfo.stage = this._stage;
-        _psoInfo.hash = Pass.getPSOHash(_psoInfo);
+        _psoInfo.hash = this._hash;
         const pipelineState = this._device.createPipelineState(_psoInfo);
         this._resources.push({ bindingLayout, pipelineLayout, pipelineState });
         return pipelineState;
@@ -629,18 +557,52 @@ export class Pass {
      */
     public createBatchedBuffer () {
         if (!this._batchedBuffer) {
-            this._batchedBuffer = new BatchedBuffer(this);
+            if (this._bs.targets[0].blend) {
+                console.error('Transparent pass(' + this.program + ') can\'t use dynamic batching!');
+            } else {
+                this._batchedBuffer = new BatchedBuffer(this);
+            }
         }
     }
 
-    /**
-     * @zh
-     * 清空合批缓冲。
-     */
-    public clearBatchedBuffer () {
-        if (this._batchedBuffer) {
-            this._batchedBuffer.clearUBO();
+    // internal use
+    public beginChangeStatesSilently () {}
+    public endChangeStatesSilently () {}
+
+    protected _doInit (info: IPassInfoFull) {
+        this._idxInTech = info.idxInTech;
+        this._programName = info.program;
+        this._defines = info.defines;
+        this._shaderInfo = programLib.getTemplate(info.program);
+        this._properties = info.properties || this._properties;
+        // pipeline state
+        const device = this._device;
+        Pass.fillinPipelineInfo(this, info);
+        if (info.stateOverrides) { Pass.fillinPipelineInfo(this, info.stateOverrides); }
+        this._hash = Pass.getPSOHash(this);
+
+        const blocks = this._shaderInfo.blocks;
+        for (let i = 0; i < blocks.length; i++) {
+            const { size, binding } = blocks[i];
+            if (isBuiltinBinding(binding)) { continue; }
+            // create gfx buffer resource
+            _bfInfo.size = Math.ceil(size / 16) * 16; // https://bugs.chromium.org/p/chromium/issues/detail?id=988988
+            this._buffers[binding] = device.createBuffer(_bfInfo);
+            // non-builtin UBO data pools, note that the effect compiler
+            // guarantees these bindings to be consecutive, starting from 0
+            const buffer = new ArrayBuffer(size);
+            this._blocks[binding] = { buffer, dirty: false, view: new Float32Array(buffer) };
         }
+        // store handles
+        const directHandleMap = this._handleMap = this._shaderInfo.handleMap;
+        const indirectHandleMap: Record<string, number> = {};
+        for (const name in this._properties) {
+            const prop = this._properties[name];
+            if (!prop.handleInfo) { continue; }
+            indirectHandleMap[name] = this.getHandle.apply(this, prop.handleInfo)!;
+        }
+        Object.assign(directHandleMap, indirectHandleMap);
+        this.tryCompile();
     }
 
     // states
@@ -654,19 +616,20 @@ export class Pass {
     get customizations () { return this._customizations; }
     get phase () { return this._phase; }
     // infos
+    get device () { return this._device; }
     get shaderInfo () { return this._shaderInfo; }
     get program () { return this._programName; }
     get properties () { return this._properties; }
     get defines () { return this._defines; }
     get idxInTech () { return this._idxInTech; }
     // resources
-    get device () { return this._device; }
     get bindings () { return this._bindings; }
     get shader () { return this._shader!; }
     get renderPass () { return this._renderPass!; }
     get dynamics () { return this._dynamics; }
     get batchedBuffer () { return this._batchedBuffer; }
     get blocks () { return this._blocks; }
+    get hash () { return this._hash; }
 }
 
 function serializeBlendState (bs: GFXBlendState) {

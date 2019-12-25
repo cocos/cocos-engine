@@ -2,14 +2,14 @@
  * @hidden
  */
 
-import { UI } from "./ui";
-import { Camera } from "../scene/camera";
-import { MeshBuffer } from "../../../ui";
-import { Model } from "../scene/model";
-import { Material } from "../../assets";
-import { GFXTextureView, GFXPipelineState } from "../../gfx";
-import { GFXBindingLayout } from "../../gfx/binding-layout";
+import { MeshBuffer } from '../../../ui';
+import { Material } from '../../assets/material';
+import { GFXPipelineState, GFXTextureView } from '../../gfx';
+import { GFXBindingLayout } from '../../gfx/binding-layout';
 import { Node } from '../../scene-graph';
+import { Camera } from '../scene/camera';
+import { Model } from '../scene/model';
+import { UI } from './ui';
 
 export class UIDrawBatch {
     public camera: Camera | null = null;

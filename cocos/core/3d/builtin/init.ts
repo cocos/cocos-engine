@@ -147,7 +147,7 @@ class BuiltinResMgr {
         const type = selectJointsMediumType(device);
         missingSkinningMtl.initialize({
             effectName: 'builtin-unlit',
-            defines: { USE_COLOR: true, CC_USE_SKINNING: type },
+            defines: { USE_COLOR: true, USE_SKINNING: type },
         });
         missingSkinningMtl.setProperty('color', cc.color('#ff00ff'));
         resources[missingSkinningMtl._uuid] = missingSkinningMtl;

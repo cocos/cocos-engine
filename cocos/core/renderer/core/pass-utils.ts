@@ -85,3 +85,17 @@ export const type2default = {
     [GFXType.SAMPLER2D]: 'default-texture',
     [GFXType.SAMPLER_CUBE]: 'default-cube-texture',
 };
+
+export interface IDefineMap { [name: string]: number | boolean | string; }
+
+export function assignDefines (target: IDefineMap, source: IDefineMap): boolean {
+    const entries = Object.entries(source);
+    let isDifferent: boolean = false;
+    for (let i = 0; i < entries.length; i++) {
+        if (target[entries[i][0]] !== entries[i][1]) {
+            target[entries[i][0]] = entries[i][1];
+            isDifferent = true;
+        }
+    }
+    return isDifferent;
+}

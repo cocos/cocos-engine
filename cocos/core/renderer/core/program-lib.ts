@@ -34,8 +34,8 @@ import { GFXAPI, GFXDevice } from '../../gfx/device';
 import { GFXShader, GFXUniformBlock } from '../../gfx/shader';
 import { IInternalBindingDesc, localBindingsDesc } from '../../pipeline/define';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
-import { IDefineMap } from './pass';
-import { genHandle } from './pass-utils';
+import { selectJointsMediumType } from '../models/skeletal-animation-utils';
+import { genHandle, IDefineMap } from './pass-utils';
 
 interface IDefineRecord extends IDefineInfo {
     _map: (value: any) => number;
@@ -68,7 +68,7 @@ function getBitCount (cnt: number) {
 
 function mapDefine (info: IDefineInfo, def: number | string | boolean) {
     switch (info.type) {
-        case 'boolean': return def as boolean ? '1' : '0';
+        case 'boolean': return (typeof def === 'number' ? def : (def ? 1 : 0)) + '';
         case 'string': return def !== undefined ? def as string : info.options![0];
         case 'number': return (def !== undefined ? def as number : info.range![0]) + '';
     }
@@ -301,6 +301,7 @@ class ProgramLib {
      */
     public getGFXShader (device: GFXDevice, name: string, defines: IDefineMap, pipeline: RenderPipeline) {
         Object.assign(defines, pipeline.macros);
+        if (defines.USE_SKINNING) { defines.USE_SKINNING = selectJointsMediumType(device); }
         const key = this.getKey(name, defines);
         const res = this._cache[key];
         if (res) { return res; }
