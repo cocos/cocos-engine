@@ -53,7 +53,7 @@ export default class Pool {
             fn(this._frees[i]);
         }
     }
-    this._frees.splice(0);
+    this._frees.length = 0;
     this._idx = -1;
   }
 }

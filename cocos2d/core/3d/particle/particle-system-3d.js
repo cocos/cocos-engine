@@ -60,6 +60,8 @@ export default class ParticleSystem3D extends RenderComponent {
     @property
     duration = 5.0;
 
+    @property
+    _capacity = 100;
     /**
      * !#en The maximum number of particles that a particle system can generate.
      * !#zh 粒子系统能生成的最大粒子数量
@@ -93,6 +95,8 @@ export default class ParticleSystem3D extends RenderComponent {
     @property
     playOnAwake = true;
 
+    @property
+    _prewarm = false;
     /**
      * !#en When selected, the particle system will start playing after one round has been played (only effective when loop is enabled).
      * !#zh 选中之后，粒子系统会以已播放完一轮之后的状态开始播放（仅当循环播放启用时有效）
@@ -110,6 +114,8 @@ export default class ParticleSystem3D extends RenderComponent {
         this._prewarm = val;
     }
 
+    @property
+    _simulationSpace = Space.Local;
     /**
      * !#en The coordinate system in which the particle system is located.<br>
      * World coordinates (does not change when the position of other objects changes)<br>
@@ -494,9 +500,6 @@ export default class ParticleSystem3D extends RenderComponent {
     _customData1;
     _customData2;
     _subEmitters; // array of { emitter: ParticleSystem3D, type: 'birth', 'collision' or 'death'}
-    _prewarm = false;
-    _capacity = 100;
-    _simulationSpace = Space.Local;
 
     constructor () {
         super();

@@ -33,5 +33,6 @@ export { default as Obb } from './obb';
 export { default as Frustum } from './frustum';
 export { default as Line } from './line';
 export { default as Plane } from './plane';
+export { default as Curve } from './curve'
 
 cc.geomUtils = module.exports;

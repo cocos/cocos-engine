@@ -5,7 +5,7 @@ import Pool from '../../../../renderer/memop/pool';
 import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';
 import { Space, TextureMode, TrailMode } from '../enum';
-import MapUtils from '../../../utils/es5-map';
+import { MapUtils } from '../utils';
 
 const renderer = require('../../../renderer');
 
