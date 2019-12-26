@@ -102,16 +102,17 @@ function _getSlotMaterial (tex, blendMode) {
     }
 
     let useModel = !_comp.enableBatch;
-    let key = tex.getId() + src + dst + _useTint + useModel;
     let baseMaterial = _comp._materials[0];
     if (!baseMaterial) return null;
 
+    // The key use to find corresponding material
+    let key = tex.getId() + src + dst + _useTint + useModel;
     let materialCache = _comp._materialCache;
     let material = materialCache[key];
     if (!material) {
-        let baseKey = baseMaterial.getHash();
-        if (!materialCache[baseKey]) {
+        if (!materialCache.baseMaterial) {
             material = baseMaterial;
+            materialCache.baseMaterial = baseMaterial;
         } else {
             material = cc.MaterialVariant.create(baseMaterial);
         }
@@ -129,12 +130,7 @@ function _getSlotMaterial (tex, blendMode) {
             gfx.BLEND_FUNC_ADD,
             src, dst
         );
-        material.updateHash(key);
         materialCache[key] = material;
-    }
-    else if (material.getProperty('texture') !== tex) {
-        material.setProperty('texture', tex);
-        material.updateHash(key);
     }
     return material;
 }
