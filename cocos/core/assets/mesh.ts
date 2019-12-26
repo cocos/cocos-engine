@@ -28,7 +28,7 @@
  */
 
 import { ccclass, property } from '../../core/data/class-decorator';
-import { Vec3 } from '../../core/math';
+import { Vec3, Mat4, Quat } from '../../core/math';
 import { BufferBlob } from '../3d/misc/buffer-blob';
 import { GFXBuffer } from '../gfx/buffer';
 import {
@@ -47,6 +47,7 @@ import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { Asset } from './asset';
 import { postLoadMesh } from './utils/mesh-utils';
 import { warnID } from '../platform/debug';
+import { aabb } from '../geom-utils';
 
 function getIndexStrideCtor (stride: number) {
     switch (stride) {
@@ -533,19 +534,76 @@ export class Mesh extends Asset {
     /**
      * 合并指定的网格到此网格中。
      * @param mesh 合并的网格。
+     * @param worldMatrix 合并的网格的世界变换矩阵
      * @param [validate=false] 是否进行验证。
      * @returns 是否验证成功。若验证选项为 `true` 且验证未通过则返回 `false`，否则返回 `true`。
      */
-    public merge (mesh: Mesh, validate?: boolean): boolean {
+    public merge (mesh: Mesh, worldMatrix?: Mat4, validate?: boolean): boolean {
         if (validate !== undefined && validate) {
             if (!this.loaded || !mesh.loaded || !this.validateMergingMesh(mesh)) {
                 return false;
             }
         }
 
+        const vec3_temp = new Vec3();
+        const rotate = worldMatrix && new Quat();
+        const boundingBox = worldMatrix && new aabb();
+        if (rotate) {
+            worldMatrix!.getRotation(rotate);
+        }
         if (!this._initialized && mesh._data) {
-            const struct = JSON.parse(JSON.stringify(mesh._struct));
+            const struct = JSON.parse(JSON.stringify(mesh._struct)) as Mesh.Struct;
             const data = mesh._data.slice();
+            if (worldMatrix) {
+                if (struct.maxPosition && struct.minPosition) {
+                    Vec3.add(boundingBox!.center, struct.maxPosition, struct.minPosition);
+                    Vec3.multiplyScalar(boundingBox!.center, boundingBox!.center, 0.5);
+                    Vec3.subtract(boundingBox!.halfExtents, struct.maxPosition, struct.minPosition);
+                    Vec3.multiplyScalar(boundingBox!.halfExtents, boundingBox!.halfExtents, 0.5);
+                    aabb.transform(boundingBox!, boundingBox!, worldMatrix);
+                    Vec3.add(struct.maxPosition, boundingBox!.center, boundingBox!.halfExtents);
+                    Vec3.subtract(struct.minPosition, boundingBox!.center, boundingBox!.halfExtents);
+                }
+                for (let i = 0; i < struct.vertexBundles.length; i++) {
+                    const vtxBdl = struct.vertexBundles[i];
+                    for (let j = 0; j < vtxBdl.attributes.length; j++) {
+                        if (vtxBdl.attributes[j].name === GFXAttributeName.ATTR_POSITION || vtxBdl.attributes[j].name === GFXAttributeName.ATTR_NORMAL) {
+                            const format = vtxBdl.attributes[j].format;
+
+                            const inputView = new DataView(
+                                data.buffer,
+                                vtxBdl.view.offset + getOffset(vtxBdl.attributes, j));
+
+                            const reader = getReader(inputView, format);
+                            const writer = getWriter(inputView, format);
+                            if (!reader || !writer) {
+                                continue;
+                            }
+                            const vertexCount = vtxBdl.view.count;
+
+                            const vertexStride = vtxBdl.view.stride;
+                            const attrComponentByteLength = getComponentByteLength(format);
+                            for (let vtxIdx = 0; vtxIdx < vertexCount; vtxIdx++) {
+                                const xOffset = vtxIdx * vertexStride;
+                                const yOffset = xOffset + attrComponentByteLength;
+                                const zOffset = yOffset + attrComponentByteLength;
+                                vec3_temp.set(reader(xOffset), reader(yOffset), reader(zOffset));
+                                switch (vtxBdl.attributes[j].name) {
+                                    case GFXAttributeName.ATTR_POSITION:
+                                        vec3_temp.transformMat4(worldMatrix);
+                                        break;
+                                    case GFXAttributeName.ATTR_NORMAL:
+                                        Vec3.transformQuat(vec3_temp, vec3_temp, rotate!);
+                                        break;
+                                }
+                                writer(xOffset, vec3_temp.x);
+                                writer(yOffset, vec3_temp.y);
+                                writer(zOffset, vec3_temp.z);
+                            }
+                        }
+                    }
+                }
+            }
             this.reset({struct, data});
             this.initialize();
             return true;
@@ -607,6 +665,21 @@ export class Mesh extends Asset {
                     for (let v = 0; v < dstBundle.view.count; ++v) {
                         dstAttrView = dstVBView.subarray(dstVBOffset, dstVBOffset + attrSize);
                         vbView.set(dstAttrView, srcVBOffset);
+                        if ((attr.name === GFXAttributeName.ATTR_POSITION || attr.name === GFXAttributeName.ATTR_NORMAL) && worldMatrix) {
+                            const f32_temp = new Float32Array(vbView.buffer, srcVBOffset, 3);
+                            vec3_temp.set(f32_temp[0], f32_temp[1], f32_temp[2]);
+                            switch (attr.name) {
+                                case GFXAttributeName.ATTR_POSITION:
+                                    vec3_temp.transformMat4(worldMatrix);
+                                    break;
+                                case GFXAttributeName.ATTR_NORMAL:
+                                    Vec3.transformQuat(vec3_temp, vec3_temp, rotate!);
+                                    break;
+                            }
+                            f32_temp[0] = vec3_temp.x;
+                            f32_temp[1] = vec3_temp.y;
+                            f32_temp[2] = vec3_temp.z;
+                        }
                         srcVBOffset += bundle.view.stride;
                         dstVBOffset += dstBundle.view.stride;
                     }
@@ -746,11 +819,21 @@ export class Mesh extends Asset {
             maxPosition: this._struct.maxPosition,
         };
 
-        if (meshStruct.minPosition && mesh._struct.minPosition) {
-            Vec3.min(meshStruct.minPosition, meshStruct.minPosition, mesh._struct.minPosition);
-        }
-        if (meshStruct.maxPosition && mesh._struct.maxPosition) {
-            Vec3.max(meshStruct.maxPosition, meshStruct.maxPosition, mesh._struct.maxPosition);
+        if (meshStruct.minPosition && mesh._struct.minPosition && meshStruct.maxPosition && mesh._struct.maxPosition) {
+            if (worldMatrix) {
+                Vec3.add(boundingBox!.center, mesh._struct.maxPosition, mesh._struct.minPosition);
+                Vec3.multiplyScalar(boundingBox!.center, boundingBox!.center, 0.5);
+                Vec3.subtract(boundingBox!.halfExtents, mesh._struct.maxPosition, mesh._struct.minPosition);
+                Vec3.multiplyScalar(boundingBox!.halfExtents, boundingBox!.halfExtents, 0.5);
+                aabb.transform(boundingBox!, boundingBox!, worldMatrix);
+                Vec3.add(vec3_temp, boundingBox!.center, boundingBox!.halfExtents);
+                Vec3.max(meshStruct.maxPosition, meshStruct.maxPosition, vec3_temp);
+                Vec3.subtract(vec3_temp, boundingBox!.center, boundingBox!.halfExtents);
+                Vec3.min(meshStruct.minPosition, meshStruct.minPosition, vec3_temp);
+            } else {
+                Vec3.min(meshStruct.minPosition, meshStruct.minPosition, mesh._struct.minPosition);
+                Vec3.max(meshStruct.maxPosition, meshStruct.maxPosition, mesh._struct.maxPosition);
+            }
         }
 
         // Create mesh.
