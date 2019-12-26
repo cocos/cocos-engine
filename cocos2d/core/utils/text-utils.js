@@ -34,7 +34,7 @@ if (CC_RUNTIME) {
 
 const MAX_CACHE_SIZE = 100;
 
-let pool = new js.Pool(MAX_CACHE_SIZE);
+let pool = new js.Pool(2);
 pool.get = function () {
     var node = this._get() || {
         key: null,
