@@ -24,11 +24,27 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import js from '../platform/js'
+
 // Draw text the textBaseline ratio (Can adjust the appropriate baseline ratio based on the platform)
 let _BASELINE_RATIO = 0.26;
 if (CC_RUNTIME) {
     _BASELINE_RATIO = -0.05;
 }
+
+const MAX_CACHE_SIZE = 100;
+
+let pool = new js.Pool(MAX_CACHE_SIZE);
+pool.get = function () {
+    var node = this._get() || {
+        key: null,
+        value: null,
+        prev: null,
+        next: null
+    };
+
+    return node;
+};
 
 function LRUCache(size) {
     this.count = 0;
@@ -51,18 +67,19 @@ LRUCache.prototype.moveToHead = function (node) {
 }
 
 LRUCache.prototype.put = function (key, value) {
-    const node = {
-        key: key,
-        value: value,
-        prev: null,
-        next: null
-    };
-
+    const node = pool.get();
+    node.key = key;
+    node.value = value;
+    
     if (this.count >= this.limit) {
-        delete this.datas[this.tail.key];
+        let discard = this.tail;
+        delete this.datas[discard.key];
         this.count--;
-        this.tail = this.tail.prev;
+        this.tail = discard.prev;
         this.tail.next = null;
+        discard.prev = null;
+        discard.next = null;
+        pool.put(discard);
     }
     this.moveToHead(node);
 }
@@ -83,17 +100,13 @@ LRUCache.prototype.remove = function (node) {
 }
 
 LRUCache.prototype.get = function (key) {
-    const oldNode = this.datas[key];
-    if (oldNode) {
-        this.remove(oldNode);
-        this.moveToHead(oldNode);
-        return oldNode.value;
+    const node = this.datas[key];
+    if (node) {
+        this.remove(node);
+        this.moveToHead(node);
+        return node.value;
     }
     return null;
-}
-
-LRUCache.prototype.peek = function (key) {
-    return this.datas[key] ? this.datas[key].value : null;
 }
 
 LRUCache.prototype.clear = function () {
@@ -112,7 +125,7 @@ LRUCache.prototype.delete = function (key) {
     this.remove(node);
 }
 
-let measureCache = new LRUCache(100);
+let measureCache = new LRUCache(MAX_CACHE_SIZE);
 
 var textUtils = {
 
