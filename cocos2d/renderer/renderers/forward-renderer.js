@@ -19,6 +19,7 @@ let _camFwd = new Vec3(0, 0, 0);
 let _v3_tmp1 = new Vec3(0, 0, 0);
 
 const CC_MAX_LIGHTS = 4;
+const CC_MAX_SHADOW_LIGHTS = 2;
 
 let _float16_pool = new RecyclePool(() => {
   return new Float32Array(16);
@@ -35,9 +36,6 @@ export default class ForwardRenderer extends BaseRenderer {
     this._spotLights = [];
     this._shadowLights = [];
     this._ambientLights = [];
-
-    this._shadowMaps = [];
-    this._shadowMapSlots = new Int32Array(4);
 
     this._numLights = 0;
 
@@ -109,7 +107,9 @@ export default class ForwardRenderer extends BaseRenderer {
       let light = lights.data[i];
       light.update(this._device);
       if (light.shadowType !== enums.SHADOW_NONE) {
-        this._shadowLights.push(light);
+        if (this._shadowLights.length < CC_MAX_SHADOW_LIGHTS) {
+          this._shadowLights.push(light);
+        }
         let view = this._requestView();
         light.extractView(view, ['shadowcast']);
       }
@@ -235,7 +235,7 @@ export default class ForwardRenderer extends BaseRenderer {
       let light = this._shadowLights[i];
       let view = _a16_shadow_lightViewProjs[i];
       if (!view) {
-        view = _a16_shadow_lightViewProjs[i] = new Float32Array(_a64_shadow_lightViewProj.buffer, i * 16, 16);
+        view = _a16_shadow_lightViewProjs[i] = new Float32Array(_a64_shadow_lightViewProj.buffer, i * 64, 16);
       }
       Mat4.toArray(view, light.viewProjMatrix);
       
@@ -290,20 +290,12 @@ export default class ForwardRenderer extends BaseRenderer {
       }
     }
     else {
-      let shadowMaps = this._shadowMaps, shadowMapslots = this._shadowMapSlots;
-      shadowMaps.length = shadowLights.length;
-      for (let index = 0; index < shadowLights.length; ++index) {
-        let light = shadowLights[index];
-        shadowMaps[index] = light.shadowMap;
-        shadowMapslots[index] = this._allocTextureUnit();
-      }
-      let usedTextureUnits = this._usedTextureUnits;
-
       for (let i = 0; i < items.length; ++i) {
         let item = items.data[i];
 
-        this._usedTextureUnits = usedTextureUnits;
-        this._device.setTextureArray('cc_shadow_map', shadowMaps, shadowMapslots);
+        for (let shadowIdx = 0; shadowIdx < shadowLights.length; ++shadowIdx) {
+          this._device.setTexture('cc_shadow_map_'+shadowIdx, shadowLights[shadowIdx].shadowMap, this._allocTextureUnit());  
+        }
 
         this._draw(item);
       }
