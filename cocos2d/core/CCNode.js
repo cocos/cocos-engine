@@ -2399,12 +2399,12 @@ let NodeDefines = {
                     if (i === temp.index) {
                         if (parent === temp.node) {
                             let comp = parent.getComponent(cc.Mask);
-                            if (comp && comp._enabled && comp._hitTest(cameraPt)) {
-                                j++;
-                            } else {
+                            if (comp && comp._enabled && !comp._hitTest(cameraPt)) {
                                 hit = false;
                                 break
-                            }
+                            } 
+
+                            j++;
                         } else {
                             // mask parent no longer exists
                             mask.length = j;
