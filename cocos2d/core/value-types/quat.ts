@@ -28,6 +28,7 @@ import CCClass from '../platform/CCClass';
 import Vec3 from './vec3';
 import Mat3 from './mat3';
 import { EPSILON, toDegree } from './utils';
+import { IQuatLike, IVec3Like } from './math';
 
 let _x: number = 0.0;
 let _y: number = 0.0;

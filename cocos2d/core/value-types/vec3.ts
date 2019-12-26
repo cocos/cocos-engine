@@ -29,6 +29,7 @@ import CCClass from '../platform/CCClass';
 import misc from '../utils/misc';
 import Vec2 from './vec2';
 import Mat4 from './mat4';
+import { IVec3Like, IMat4Like, IQuatLike, IMat3Like } from './math';
 import { EPSILON, random } from './utils';
 
 let _x: number = 0.0;
@@ -1258,6 +1259,15 @@ export default class Vec3 extends ValueType {
         out = out || new Vec3();
         Vec3.transformMat4(out, this, m);
         return out;
+    }
+
+    /**
+     * Returns the maximum value in x, y, and z
+     * @method maxAxis
+     * @returns {number}
+     */
+    maxAxis (): number {
+       return Math.max(this.x, this.y, this.z);
     }
 
     /**
