@@ -790,7 +790,6 @@ var Texture2D = cc.Class({
         let w = this.width, h = this.height;
         if (!this._image ||
             w > dynamicAtlas.maxFrameSize || h > dynamicAtlas.maxFrameSize || 
-            w <= dynamicAtlas.minFrameSize || h <= dynamicAtlas.minFrameSize || 
             this._getHash() !== dynamicAtlas.Atlas.DEFAULT_HASH) {
             this._packable = false;
             return;
@@ -969,7 +968,7 @@ var Texture2D = cc.Class({
     },
 
     _isCompressed () {
-        return this._texture && this._texture._compressed;
+        return this._format < PixelFormat.A8 || this._format > PixelFormat.RGBA32F;
     },
     
     _clearImage () {

@@ -207,6 +207,14 @@ cc.Director.prototype = {
             this._physicsManager = null;
         }
 
+        // physics 3d manager
+        if (cc.Physics3DManager) {
+            this._physics3DManager = new cc.Physics3DManager();
+            this._scheduler.scheduleUpdate(this._physics3DManager, Scheduler.PRIORITY_SYSTEM, false);
+        } else {
+            this._physics3DManager = null;
+        }
+
         // WidgetManager
         if (cc._widgetManager) {
             cc._widgetManager.init(this);
@@ -220,16 +228,12 @@ cc.Director.prototype = {
      */
     calculateDeltaTime: function (now) {
         if (!now) now = performance.now();
-        this._deltaTime = (now - this._lastUpdate) / 1000;
-        if (CC_DEBUG && (this._deltaTime > 1))
-            this._deltaTime = 1 / 60.0;
 
         // avoid delta time from being negative
         // negative deltaTime would be caused by the precision of now's value, for details please see: https://developer.mozilla.org/zh-CN/docs/Web/API/window/requestAnimationFrame
-        if (this._deltaTime < 0) {
-            this.calculateDeltaTime();
-            return;
-        }
+        this._deltaTime = now > this._lastUpdate ? (now - this._lastUpdate) / 1000 : 0;
+        if (CC_DEBUG && (this._deltaTime > 1))
+            this._deltaTime = 1 / 60.0;
 
         this._lastUpdate = now;
     },
@@ -899,6 +903,16 @@ cc.Director.prototype = {
         return this._physicsManager;
     },
 
+    /**
+     * !#en Returns the cc.Physics3DManager associated with this director.
+     * !#zh 返回与 director 相关联的 cc.Physics3DManager （物理管理器）。
+     * @method getPhysics3DManager
+     * @return {Physics3DManager}
+     */
+    getPhysics3DManager: function () {
+        return this._physics3DManager;
+    },
+
     // Loop management
     /*
      * Starts Animation
@@ -1183,6 +1197,22 @@ cc.Director.PROJECTION_CUSTOM = 3;
  * @deprecated since v2.0
  */
 cc.Director.PROJECTION_DEFAULT = cc.Director.PROJECTION_2D;
+
+/**
+ * The event which will be triggered before the physics process.<br/>
+ * 物理过程之前所触发的事件。
+ * @event Director.EVENT_BEFORE_PHYSICS
+ * @readonly
+ */
+cc.Director.EVENT_BEFORE_PHYSICS = 'director_before_physics';
+
+/**
+ * The event which will be triggered after the physics process.<br/>
+ * 物理过程之后所触发的事件。
+ * @event Director.EVENT_AFTER_PHYSICS
+ * @readonly
+ */
+cc.Director.EVENT_AFTER_PHYSICS = 'director_after_physics';
 
 /**
  * @module cc

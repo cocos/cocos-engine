@@ -54,6 +54,14 @@ cc.js.mixin(Atlas.prototype, {
 
             // texture bleeding
             if (cc.dynamicAtlasManager.textureBleeding) {
+                // Smaller frame is more likely to be affected by linear filter
+                if (width <= 8 || height <= 8) {
+                    this._texture.drawTextureAt(texture, this._x-1, this._y-1);
+                    this._texture.drawTextureAt(texture, this._x-1, this._y+1);
+                    this._texture.drawTextureAt(texture, this._x+1, this._y-1);
+                    this._texture.drawTextureAt(texture, this._x+1, this._y+1);
+                }
+
                 this._texture.drawTextureAt(texture, this._x-1, this._y);
                 this._texture.drawTextureAt(texture, this._x+1, this._y);
                 this._texture.drawTextureAt(texture, this._x, this._y-1);

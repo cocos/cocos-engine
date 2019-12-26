@@ -2739,3 +2739,7 @@ Program not support highp precision, will change to mediump.
 ### 9107
 
 %s : illegal property: [%s], myabe defined an unused property;
+
+### 9200
+
+cc.view.enableAntiAlias is deprecated now, please use cc.Texture2D.setFilters instead

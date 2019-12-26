@@ -32,6 +32,7 @@ let _r: number = 0;
 let _g: number = 0;
 let _b: number = 0;
 let _a: number = 0;
+import { IColorLike } from './math';
 
 /**
  * !#en

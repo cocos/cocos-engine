@@ -162,6 +162,8 @@ if (CC_BUILD) {
     _global.CC_JSB = CC_JSB;
     _global.CC_NATIVERENDERER = CC_NATIVERENDERER;
     _global.CC_SUPPORT_JIT = CC_SUPPORT_JIT;
+    _global.CC_PHYSICS_BUILTIN = CC_PHYSICS_BUILTIN;
+    _global.CC_PHYSICS_CANNON = CC_PHYSICS_CANNON;
 }
 else {
     defineMacro('CC_DEV', true);    // (CC_EDITOR && !CC_BUILD) || CC_PREVIEW || CC_TEST
@@ -169,6 +171,8 @@ else {
     defineMacro('CC_JSB', defined('jsb'));
     defineMacro('CC_NATIVERENDERER', defined('jsb'));
     defineMacro('CC_SUPPORT_JIT', true);
+    defineMacro('CC_PHYSICS_BUILTIN', false);
+    defineMacro('CC_PHYSICS_CANNON', true);
 }
 // defined in the runtime
 defineMacro('CC_TEST', defined('tap') || defined('QUnit'));

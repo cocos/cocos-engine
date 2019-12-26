@@ -51,7 +51,7 @@ var easing = {
      * !#zh 平方曲线缓入函数。运动由慢到快。
      * @method quadIn
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value
+     * @return {Number} The correct value
      */
     quadIn: function (k) { return k * k; },
     /**
@@ -59,7 +59,7 @@ var easing = {
      * !#zh 平方曲线缓出函数。运动由快到慢。
      * @method quadOut
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value
+     * @return {Number} The correct value
      */
     quadOut: function (k) { return k * ( 2 - k ); },
     /**
@@ -67,7 +67,7 @@ var easing = {
      * !#zh 平方曲线缓入缓出函数。运动由慢到快再到慢。
      * @method quadInOut
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value
+     * @return {Number} The correct value
      */
     quadInOut: function (k) {
         if (( k *= 2 ) < 1) {
@@ -86,7 +86,7 @@ var easing = {
      * !#zh 立方曲线缓入函数。运动由慢到快。
      * @method cubicIn
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value.
+     * @return {Number} The correct value.
      */
     cubicIn: function (k) { return k * k * k; },
     /**
@@ -94,7 +94,7 @@ var easing = {
      * !#zh 立方曲线缓出函数。运动由快到慢。
      * @method cubicOut
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value.
+     * @return {Number} The correct value.
      */
     cubicOut: function (k) { return --k * k * k + 1; },
     /**
@@ -102,7 +102,7 @@ var easing = {
      * !#zh 立方曲线缓入缓出函数。运动由慢到快再到慢。
      * @method cubicInOut
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value.
+     * @return {Number} The correct value.
      */
     cubicInOut: function (k) {
         if (( k *= 2 ) < 1) {
@@ -121,7 +121,7 @@ var easing = {
      * !#zh 四次方曲线缓入函数。运动由慢到快。
      * @method quartIn
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value.
+     * @return {Number} The correct value.
      */
     quartIn: function (k) { return k * k * k * k; },
     /**
@@ -129,7 +129,7 @@ var easing = {
      * !#zh 四次方曲线缓出函数。运动由快到慢。
      * @method quartOut
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value.
+     * @return {Number} The correct value.
      */
     quartOut: function (k) { return 1 - ( --k * k * k * k ); },
     /**
@@ -137,9 +137,9 @@ var easing = {
      * !#zh 四次方曲线缓入缓出函数。运动由慢到快再到慢。
      * @method quartInOut
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value.
+     * @return {Number} The correct value.
      */
-    quartInOut: function (k) {
+    quartInOut:  function (k) {
         if (( k *= 2 ) < 1) {
             return 0.5 * k * k * k * k;
         }
@@ -156,7 +156,7 @@ var easing = {
      * !#zh 五次方曲线缓入函数。运动由慢到快。
      * @method quintIn
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value.
+     * @return {Number} The correct value.
      */
     quintIn: function (k) { return k * k * k * k * k; },
     /**
@@ -164,7 +164,7 @@ var easing = {
      * !#zh 五次方曲线缓出函数。运动由快到慢。
      * @method quintOut
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value.
+     * @return {Number} The correct value.
      */
     quintOut: function (k) { return --k * k * k * k * k + 1; },
     /**
@@ -172,7 +172,7 @@ var easing = {
      * !#zh 五次方曲线缓入缓出函数。运动由慢到快再到慢。
      * @method quintInOut
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value.
+     * @return {Number} The correct value.
      */
     quintInOut: function (k) {
         if (( k *= 2 ) < 1) {
@@ -191,7 +191,7 @@ var easing = {
      * !#zh 正弦曲线缓入函数。运动由慢到快。
      * @method sineIn
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value.
+     * @return {Number} The correct value.
      */
     sineIn: function (k) { return 1 - Math.cos(k * Math.PI / 2); },
     /**
@@ -199,7 +199,7 @@ var easing = {
      * !#zh 正弦曲线缓出函数。运动由快到慢。
      * @method sineOut
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value.
+     * @return {Number} The correct value.
      */
     sineOut: function (k) { return Math.sin(k * Math.PI / 2); },
     /**
@@ -207,7 +207,7 @@ var easing = {
      * !#zh 正弦曲线缓入缓出函数。运动由慢到快再到慢。
      * @method sineInOut
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value.
+     * @return {Number} The correct value.
      */
     sineInOut: function (k) { return 0.5 * ( 1 - Math.cos(Math.PI * k) ); },
 
@@ -221,15 +221,15 @@ var easing = {
      * !#zh 指数曲线缓入函数。运动由慢到快。
      * @method expoIn
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value.
+     * @return {Number} The correct value.
      */
     expoIn: function (k) { return k === 0 ? 0 : Math.pow(1024, k - 1); },
     /**
      * !#en Easing in and out with exponential formula. From fast to slow.
      * !#zh 指数曲线缓出函数。运动由快到慢。
-     * @method expoOu
+     * @method expoOut
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value.
+     * @return {Number} The correct value.
      */
     expoOut: function (k) { return k === 1 ? 1 : 1 - Math.pow(2, -10 * k); },
     /**
@@ -237,7 +237,7 @@ var easing = {
      * !#zh 指数曲线缓入和缓出函数。运动由慢到很快再到慢。
      * @method expoInOut
      * @param {Number} t The current time as a percentage of the total time, then back to slow.
-     * @return The correct value.
+     * @return {Number} The correct value.
      */
     expoInOut: function (k) {
         if (k === 0) {
@@ -262,7 +262,7 @@ var easing = {
      * !#zh 循环公式缓入函数。运动由慢到快。
      * @method circIn
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value.
+     * @return {Number} The correct value.
      */
     circIn: function (k) { return 1 - Math.sqrt(1 - k * k); },
     /**
@@ -270,7 +270,7 @@ var easing = {
      * !#zh 循环公式缓出函数。运动由快到慢。
      * @method circOut
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value.
+     * @return {Number} The correct value.
      */
     circOut: function (k) { return Math.sqrt(1 - ( --k * k )); },
     /**
@@ -278,7 +278,7 @@ var easing = {
      * !#zh 指数曲线缓入缓出函数。运动由慢到很快再到慢。
      * @method circInOut
      * @param {Number} t The current time as a percentage of the total time, then back to slow.
-     * @return The correct value.
+     * @return {Number} The correct value.
      */
     circInOut: function (k) {
         if (( k *= 2 ) < 1) {
@@ -298,7 +298,7 @@ var easing = {
      * !#zh 弹簧回震效果的缓入函数。
      * @method elasticIn
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value.
+     * @return {Number} The correct value.
      */
     elasticIn: function (k) {
         var s, a = 0.1, p = 0.4;
@@ -322,7 +322,7 @@ var easing = {
      * !#zh 弹簧回震效果的缓出函数。
      * @method elasticOut
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value.
+     * @return {Number} The correct value.
      */
     elasticOut: function (k) {
         var s, a = 0.1, p = 0.4;
@@ -346,7 +346,7 @@ var easing = {
      * !#zh 弹簧回震效果的缓入缓出函数。
      * @method elasticInOut
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value.
+     * @return {Number} The correct value.
      */
     elasticInOut: function (k) {
         var s, a = 0.1, p = 0.4;
@@ -380,7 +380,7 @@ var easing = {
      * !#zh 回退效果的缓入函数。
      * @method backIn
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value.
+     * @return {Number} The correct value.
      */
     backIn: function (k) {
         var s = 1.70158;
@@ -391,7 +391,7 @@ var easing = {
      * !#zh 回退效果的缓出函数。
      * @method backOut
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value.
+     * @return {Number} The correct value.
      */
     backOut: function (k) {
         var s = 1.70158;
@@ -402,7 +402,7 @@ var easing = {
      * !#zh 回退效果的缓入缓出函数。
      * @method backInOut
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value.
+     * @return {Number} The correct value.
      */
     backInOut: function (k) {
         var s = 1.70158 * 1.525;
@@ -422,7 +422,7 @@ var easing = {
      * !#zh 弹跳效果的缓入函数。
      * @method bounceIn
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value.
+     * @return {Number} The correct value.
      */
     bounceIn: function (k) {
         return 1 - easing.bounceOut(1 - k);
@@ -432,7 +432,7 @@ var easing = {
      * !#zh 弹跳效果的缓出函数。
      * @method bounceOut
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value.
+     * @return {Number} The correct value.
      */
     bounceOut: function (k) {
         if (k < ( 1 / 2.75 )) {
@@ -453,7 +453,7 @@ var easing = {
      * !#zh 弹跳效果的缓入缓出函数。
      * @method bounceInOut
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value.
+     * @return {Number} The correct value.
      */
     bounceInOut: function (k) {
         if (k < 0.5) {
@@ -467,7 +467,7 @@ var easing = {
      * !#zh 平滑效果函数。
      * @method smooth
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value.
+     * @return {Number} The correct value.
      */
     // t<=0: 0 | 0<t<1: 3*t^2 - 2*t^3 | t>=1: 1
     smooth: function (t) {
@@ -485,7 +485,7 @@ var easing = {
      * !#zh 渐褪效果函数。
      * @method fade
      * @param {Number} t The current time as a percentage of the total time.
-     * @return The correct value.
+     * @return {Number} The correct value.
      */
     // t<=0: 0 | 0<t<1: 6*t^5 - 15*t^4 + 10*t^3 | t>=1: 1
     fade: function (t) {
