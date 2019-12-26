@@ -27,7 +27,7 @@
  * @hidden
  */
 
-import { Material } from '../../assets';
+import { Material } from '../../assets/material';
 import { Color } from '../../math';
 import { Pool, RecyclePool } from '../../memop';
 

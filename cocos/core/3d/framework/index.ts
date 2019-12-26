@@ -68,3 +68,6 @@ cc.LightComponent = LightComponent;
 cc.DirectionalLightComponent = DirectionalLightComponent;
 cc.SphereLightComponent = SphereLightComponent;
 cc.SpotLightComponent = SpotLightComponent;
+
+/** deprecated */
+import './deprecated';

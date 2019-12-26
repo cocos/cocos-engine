@@ -11,17 +11,22 @@ import { GFXBindingType } from '../../gfx/define';
 import { Pass } from '../../renderer/core/pass';
 import { type2default } from '../../renderer/core/pass-utils';
 import { samplerLib } from '../../renderer/core/sampler-lib';
-import { CurveValueAdapter } from '../animation-curve';
+import { IValueProxyFactory, IValueProxy } from '../value-proxy';
 
-@ccclass('cc.UniformCurveValueAdapter')
-export class UniformCurveValueAdapter extends CurveValueAdapter {
+@ccclass('cc.animation.UniformProxyFactory')
+export class UniformProxyFactory implements IValueProxyFactory {
     @property
     public passIndex: number = 0;
 
     @property
     public uniformName: string = '';
 
-    public forTarget (target: Material) {
+    constructor (uniformName?: string, passIndex?: number) {
+        this.passIndex = passIndex || 0;
+        this.uniformName = uniformName || '';
+    }
+
+    public forTarget (target: Material): IValueProxy {
         const pass = target.passes[this.passIndex];
         const handle = pass.getHandle(this.uniformName);
         if (handle === undefined) {
@@ -63,7 +68,7 @@ export class UniformCurveValueAdapter extends CurveValueAdapter {
                 },
             };
         } else {
-            throw new Error(`Animations are not avaiable for uniforms with binding type ${bindingType}.`);
+            throw new Error(`Animations are not available for uniforms with binding type ${bindingType}.`);
         }
     }
 }
@@ -78,5 +83,3 @@ function isUniformArray (pass: Pass, name: string) {
     }
     return false;
 }
-
-cc.UniformCurveValueAdapter = UniformCurveValueAdapter;

@@ -33,6 +33,8 @@ export type EasingMethod = EasingMethodName | BezierControlPoints;
 
 type LerpFunction<T = any> = (from: T, to: T, t: number, dt: number) => T;
 
+type CompressedEasingMethods = Record<number, EasingMethod>;
+
 /**
  * 曲线数据。
  */
@@ -56,31 +58,13 @@ export interface IPropertyCurveData {
     /**
      * 描述了每一帧时间到下一帧时间之间的渐变方式。
      */
-    easingMethods?: EasingMethod[];
+    easingMethods?: EasingMethod[] | CompressedEasingMethods;
 
     /**
      * 是否进行插值。
      * @default true
      */
     interpolate?: boolean;
-}
-
-export interface INestedPropertyCurveData {
-    /**
-     * 曲线值适配器。
-     * 若存在曲线值适配器，将从曲线值适配器中获取曲线值代理以获取和设置曲线值；
-     * 否则，直接使用赋值操作符写入曲线值。
-     * @example
-     * ```
-     * [
-     *   'sharedMaterials',
-     *   0,
-     *   new UniformCurveValueAdapter('albedo', 0, 0),
-     * ]
-     * ```
-     */
-    properties: Array<number | string | CurveValueAdapter>;
-    data: IPropertyCurveData;
 }
 
 export class RatioSampler {
@@ -138,8 +122,6 @@ export class AnimCurve {
      */
     private _lerp: undefined | ((from: any, to: any, t: number, dt: number) => any) = undefined;
 
-    private _stepfiedValues?: any[];
-
     private _duration: number;
 
     constructor (propertyCurveData: Omit<IPropertyCurveData, 'keys'>, duration: number) {
@@ -164,8 +146,13 @@ export class AnimCurve {
         };
         if (propertyCurveData.easingMethod !== undefined) {
             this.type = getCurveType(propertyCurveData.easingMethod);
-        } else if (propertyCurveData.easingMethods !== undefined) {
+        } else if (Array.isArray(propertyCurveData.easingMethods)) {
             this.types = propertyCurveData.easingMethods.map(getCurveType);
+        } else if (propertyCurveData.easingMethods !== undefined) {
+            this.types = new Array(this._values.length).fill(null);
+            for (const index of Object.keys(propertyCurveData.easingMethods)) {
+                this.types[index] = getCurveType(propertyCurveData.easingMethods[index]);
+            }
         } else {
             this.type = null;
         }
@@ -195,14 +182,6 @@ export class AnimCurve {
     }
 
     public valueBetween (ratio: number, from: number, fromRatio: number, to: number, toRatio: number) {
-        // if (!this._stepfiedValues) {
-        //     return this._sampleFromOriginal(ratio);
-        // } else {
-        //     const ratioStep = 1 / this._stepfiedValues.length;
-        //     const i = Math.floor(ratio / ratioStep);
-        //     return this._stepfiedValues[i];
-        // }
-
         if (this._lerp) {
             const type = this.types ? this.types[from] : this.type;
             const dRatio = (toRatio - fromRatio);
@@ -218,20 +197,6 @@ export class AnimCurve {
             return this.valueAt(from);
         }
     }
-
-    // public stepfy (stepCount: number) {
-    //     this._stepfiedValues = undefined;
-    //     if (stepCount === 0) {
-    //         return;
-    //     }
-    //     this._stepfiedValues = new Array(stepCount);
-    //     const ratioStep = 1 / stepCount;
-    //     let curRatio = 0;
-    //     for (let i = 0; i < stepCount; ++i, curRatio += ratioStep) {
-    //         const value = this._sampleFromOriginal(curRatio);
-    //         this._stepfiedValues[i] = value instanceof ValueType ? value.clone() : value;
-    //     }
-    // }
 
     public empty () {
         return this._values.length === 0;
@@ -253,37 +218,6 @@ export class EventInfo {
         });
     }
 }
-
-/**
- * 曲线值代理用来设置曲线值到目标，是广义的赋值。
- * 每个曲线值代理都关联着一个目标对象。
- */
-export interface ICurveValueProxy {
-    /**
-     * 设置曲线值到目标对象上。
-     */
-    set: (value: any) => void;
-}
-
-/**
- * 曲线值适配器是曲线值代理的工厂。
- */
-@ccclass('cc.CurveValueAdapter')
-export class CurveValueAdapter {
-    /**
-     * 返回指定目标的曲线值代理。
-     * @param target
-     */
-    public forTarget (target: any): ICurveValueProxy {
-        return {
-            set: (value: any) => {
-                // Empty implementation
-            },
-        };
-    }
-}
-
-cc.CurveValueAdapter = CurveValueAdapter;
 
 /**
  * 采样动画曲线。

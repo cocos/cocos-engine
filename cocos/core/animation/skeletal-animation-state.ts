@@ -34,16 +34,16 @@ import { AnimCurve } from './animation-curve';
 import { AnimationState, ICurveInstance } from './animation-state';
 import { Socket } from './skeletal-animation-component';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
-import { ComponentModifier, HierachyModifier, TargetModifier } from './target-modifier';
+import { ComponentPath, TargetPath, HierarchyPath } from './target-path';
 import { getPathFromRoot, getWorldTransformUntilRoot } from './transform-utils';
 import { Node } from '../scene-graph';
 
 const m4_1 = new Mat4();
 
-function isFrameIDCurve (modifiers: TargetModifier[]) {
+function isFrameIDCurve (modifiers: TargetPath[]) {
     return modifiers.length === 3 &&
-        modifiers[0] instanceof HierachyModifier &&
-        modifiers[1] instanceof ComponentModifier &&
+        modifiers[0] instanceof HierarchyPath &&
+        modifiers[1] instanceof ComponentPath &&
         modifiers[2] === 'frameID';
 }
 
@@ -131,18 +131,18 @@ export class SkeletalAnimationState extends AnimationState {
             const curves = this.clip.curves;
             const dstcurve = curves.find((curve) => {
                 const modifier = curve.modifiers[0];
-                return modifier instanceof HierachyModifier && modifier.path === path && curve.modifiers[1] === 'matrix';
+                return modifier instanceof HierarchyPath && modifier.path === path && curve.modifiers[1] === 'matrix';
             });
             if (dstcurve) { dstcurve.data = data.matrix; }
-            else { curves.push({ modifiers: [ new HierachyModifier(path), 'matrix' ], data: data.matrix }); }
+            else { curves.push({ modifiers: [ new HierarchyPath(path), 'matrix' ], data: data.matrix }); }
             this.clip.curves = curves;
         }
         // wrap up
         const duration = this.clip.duration;
-        const hierachyModifier = new HierachyModifier();
+        const hierarchyPath = new HierarchyPath();
         return new ICurveInstance({
             curve: new AnimCurve(data.matrix, duration),
-            modifiers: [ hierachyModifier, 'matrix' ],
+            modifiers: [ hierarchyPath, 'matrix' ],
         }, socket.target);
     }
 }

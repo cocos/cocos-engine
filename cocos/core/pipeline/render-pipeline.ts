@@ -20,7 +20,7 @@ import { GFXTexture } from '../gfx/texture';
 import { GFXTextureView } from '../gfx/texture-view';
 import { Mat4, Vec3, Vec4 } from '../math';
 import { Camera, Model } from '../renderer';
-import { IDefineMap } from '../renderer/core/pass';
+import { IDefineMap } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
 import { SKYBOX_FLAG } from '../renderer/scene/camera';
 import { Root } from '../root';
@@ -495,7 +495,7 @@ export abstract class RenderPipeline {
         programLib.destroyShaderByDefines(this._macros);
         this._macros.CC_USE_HDR = (this._isHDR);
         for (let i = 0; i < this._root.scenes.length; i++) {
-            this._root.scenes[i].onPipelineChange();
+            this._root.scenes[i].onGlobalPipelineStateChanged();
         }
     }
 

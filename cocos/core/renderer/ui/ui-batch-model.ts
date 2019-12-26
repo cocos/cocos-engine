@@ -30,7 +30,6 @@ import { Material } from '../../assets/material';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { Model } from '../scene/model';
-import { RenderScene } from '../scene/render-scene';
 import { SubModel } from '../scene/submodel';
 import { UIDrawBatch } from './ui-draw-batch';
 

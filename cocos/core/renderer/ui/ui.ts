@@ -30,7 +30,7 @@ import { UIStaticBatchComponent } from '../../../ui';
 import { Material } from '../../assets/material';
 import { CanvasComponent, UIComponent, UIRenderComponent } from '../../components/ui-base';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXCommandBufferType  } from '../../gfx/define';
+import { GFXCommandBufferType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { IGFXAttribute } from '../../gfx/input-assembler';
 import { GFXTextureView } from '../../gfx/texture-view';
@@ -64,7 +64,7 @@ export class UI {
     }
 
     set currBufferBatch (value) {
-        if (!value){
+        if (!value) {
             return;
         }
 
@@ -174,7 +174,7 @@ export class UI {
         }
     }
 
-    public _removeUIMaterial (hash: number){
+    public _removeUIMaterial (hash: number) {
         if (this._uiMaterials.has(hash)) {
             if (this._uiMaterials.get(hash)!.decrease() === 0) {
                 this._uiMaterials.delete(hash);
@@ -194,9 +194,9 @@ export class UI {
         const screens = this._screens;
         for (let i = 0; i < screens.length; i++) {
             const element = screens[i];
-            if(element.camera){
+            if (element.camera) {
                 element.camera.view.visibility = Layers.BitMask.UI_2D | (i + 1);
-                if (!this._canvasMaterials.has(element.camera.view.visibility)){
+                if (!this._canvasMaterials.has(element.camera.view.visibility)) {
                     this._canvasMaterials.set(element.camera.view.visibility, new Map<number, number>());
                 }
             }
@@ -273,7 +273,7 @@ export class UI {
         this._reset();
     }
 
-    public sortScreens(){
+    public sortScreens () {
         this._screens.sort(this._screenSort);
     }
 
@@ -369,9 +369,9 @@ export class UI {
             this.autoMergeBatches();
         }
 
-        if (mat){
+        if (mat) {
             const rebuild = StencilManager.sharedManager!.handleMaterial(mat);
-            if (rebuild && model){
+            if (rebuild && model) {
                 for (let i = 0; i < model.subModelNum; i++) {
                     model.setSubModelMaterial(i, mat);
                 }
@@ -407,12 +407,12 @@ export class UI {
      * @zh
      * UI 渲染数据合批
      */
-    public autoMergeBatches (){
+    public autoMergeBatches () {
         const mat = this._currMaterial;
         const buffer = this._currMeshBuffer!;
         const indicsStart = buffer.indiceStart;
         const vCount = buffer.indiceOffset - indicsStart;
-        if (!vCount || !mat){
+        if (!vCount || !mat) {
             return;
         }
 
@@ -420,7 +420,7 @@ export class UI {
 
         StencilManager.sharedManager!.handleMaterial(mat);
 
-        const curDrawBatch = this._currStaticRoot ? this._currStaticRoot.requireDrawBatch() : this._drawBatchPool.alloc();
+        const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
         curDrawBatch.camera = uiCanvas && uiCanvas.camera;
         curDrawBatch.bufferBatch = buffer;
         curDrawBatch.material = mat;
@@ -451,7 +451,7 @@ export class UI {
         this.autoMergeBatches();
     }
 
-    public finishMergeBatches (){
+    public finishMergeBatches () {
         this.autoMergeBatches();
         this._currMaterial = this._emptyMaterial;
         this._currTexView = null;
@@ -502,7 +502,7 @@ export class UI {
     }
 
     private _preprocess (c: Node) {
-        if(!c._uiProps.uiTransformComp){
+        if (!c._uiProps.uiTransformComp) {
             return;
         }
 
@@ -555,7 +555,7 @@ export class UI {
         return batch;
     }
 
-    private _requireBufferBatch (){
+    private _requireBufferBatch () {
         if (this._meshBufferUseCount >= this._meshBuffers.length) {
             this._currMeshBuffer = this._createMeshBuffer();
         } else {
@@ -563,7 +563,7 @@ export class UI {
         }
 
         this._meshBufferUseCount++;
-        if (arguments.length === 2){
+        if (arguments.length === 2) {
             this._currMeshBuffer.request(arguments[0], arguments[1]);
         }
     }

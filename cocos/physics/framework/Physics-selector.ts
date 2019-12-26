@@ -13,10 +13,16 @@ import { BuiltInWorld } from '../cocos/builtin-world';
 import { BuiltinBoxShape } from '../cocos/shapes/builtin-box-shape';
 import { BuiltinSphereShape } from '../cocos/shapes/builtin-sphere-shape';
 
-export let BoxShape: typeof CannonBoxShape | typeof BuiltinBoxShape;
-export let SphereShape: typeof CannonSphereShape | typeof BuiltinSphereShape;
-export let RigidBody: typeof CannonRigidBody | null;
-export let PhysicsWorld: typeof CannonWorld | typeof BuiltInWorld;
+// Ammo
+import { AmmoRigidBody } from '../ammo/ammo-rigid-body';
+import { AmmoWorld } from '../ammo/ammo-world';
+import { AmmoBoxShape } from '../ammo/shapes/ammo-box-shape';
+import { AmmoSphereShape } from '../ammo/shapes/ammo-sphere-shape';
+
+export let BoxShape: typeof CannonBoxShape | typeof BuiltinBoxShape | typeof AmmoBoxShape;
+export let SphereShape: typeof CannonSphereShape | typeof BuiltinSphereShape | typeof AmmoSphereShape;
+export let RigidBody: typeof CannonRigidBody | null | typeof AmmoRigidBody;
+export let PhysicsWorld: typeof CannonWorld | typeof BuiltInWorld | typeof AmmoWorld;
 
 export function instantiate (
     boxShape: typeof BoxShape,

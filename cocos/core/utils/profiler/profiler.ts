@@ -339,10 +339,11 @@ export class Profiler {
         const handle = pass.getBinding('mainTexture');
         pass.bindTextureView(handle!, this._textureView!);
 
-        const binding = pass.getBinding('digits')!;
-        this.digitsData = pass.blocks[binding];
-
         modelCom.material = _material;
+        const passInstance = modelCom.material.passes[0];
+        const binding = passInstance.getBinding('digits')!;
+        this.digitsData = passInstance.blocks[binding];
+
         modelCom.node.layer = Layers.Enum.PROFILER;
     }
 

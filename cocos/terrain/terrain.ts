@@ -1,32 +1,26 @@
 /**
  * @category terrain
  */
+
 import { builtinResMgr } from '../core/3d/builtin';
-import { Component } from '../core/components';
-import { director } from '../core/director';
-// tslint:disable-next-line: ordered-imports
+import { RenderableComponent } from '../core/3d/framework/renderable-component';
+import { Texture2D } from '../core/assets';
+import { Filter, PixelFormat, WrapMode } from '../core/assets/asset-enum';
 import { Material } from '../core/assets/material';
 import { IRenderingSubmesh } from '../core/assets/mesh';
-// tslint:disable-next-line: ordered-imports
-import { RenderableComponent } from '../core/3d/framework/renderable-component';
-import { Root } from '../core/root';
-// tslint:disable-next-line: ordered-imports
-import { Filter, PixelFormat, WrapMode } from '../core/assets/asset-enum';
-// tslint:disable-next-line: ordered-imports
-import { ccclass, executeInEditMode, menu, property, disallowMultiple } from '../core/data/class-decorator';
-import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '../core/math';
-// tslint:disable-next-line: ordered-imports
+import { Component } from '../core/components';
+import { ccclass, disallowMultiple, executeInEditMode, menu, property } from '../core/data/class-decorator';
+import { director } from '../core/director';
 import { GFXBuffer } from '../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXPrimitiveMode } from '../core/gfx/define';
 import { GFXDevice } from '../core/gfx/device';
 import { IGFXAttribute } from '../core/gfx/input-assembler';
+import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '../core/math';
+import { IDefineMap } from '../core/renderer/core/pass-utils';
 import { Model } from '../core/renderer/scene/model';
+import { Root } from '../core/root';
 import { PrivateNode } from '../core/scene-graph/private-node';
-// tslint:disable-next-line: ordered-imports
-import { IDefineMap } from '../core/renderer/core/pass';
 import { HeightField } from './height-field';
-// tslint:disable-next-line: ordered-imports
-import { Texture2D } from '../core/assets';
 import { TerrainAsset, TerrainLayerInfo } from './terrain-asset';
 
 export const TERRAIN_MAX_LEVELS = 4;

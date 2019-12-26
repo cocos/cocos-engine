@@ -28,18 +28,23 @@
  * @category ui
  */
 
-import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
-import { Color } from '../../core/math';
-import { Model } from '../../core/renderer';
-import { UI } from '../../core/renderer/ui/ui';
-import { Material } from '../../core/assets/material';
+import { builtinResMgr } from '../../core/3d/builtin';
 import { RenderableComponent } from '../../core/3d/framework/renderable-component';
+import { InstanceMaterialType, UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
+import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { director } from '../../core/director';
+import { Color } from '../../core/math';
+import { IMaterialInstanceInfo, MaterialInstance, Model } from '../../core/renderer';
 import { IAssembler } from '../../core/renderer/ui/base';
+import { UI } from '../../core/renderer/ui/ui';
 import { LineCap, LineJoin } from '../assembler/graphics/types';
 import { Impl } from '../assembler/graphics/webgl/impl';
-import { InstanceMaterialType, UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
-import { director } from '../../core/director';
-import { builtinResMgr } from '../../core/3d/builtin';
+
+const _matInsInfo: IMaterialInstanceInfo = {
+    parent: null!,
+    owner: null!,
+    subModelIdx: 0,
+};
 
 /**
  * @zh
@@ -73,7 +78,7 @@ export class GraphicsComponent extends UIRenderComponent {
      */
     @property({
         type: LineJoin,
-        tooltip:'两条线相交时，所创建的拐角类型',
+        tooltip: '两条线相交时，所创建的拐角类型',
     })
     get lineJoin () {
         return this._lineJoin;
@@ -94,7 +99,7 @@ export class GraphicsComponent extends UIRenderComponent {
      */
     @property({
         type: LineCap,
-        tooltip:'线条的结束端点样式',
+        tooltip: '线条的结束端点样式',
     })
     get lineCap () {
         return this._lineCap;
@@ -114,7 +119,7 @@ export class GraphicsComponent extends UIRenderComponent {
      * 线段颜色。
      */
     @property({
-        tooltip:'笔触的颜色',
+        tooltip: '笔触的颜色',
     })
     // @constget
     get strokeColor (): Readonly<Color> {
@@ -135,7 +140,7 @@ export class GraphicsComponent extends UIRenderComponent {
      * 填充颜色。
      */
     @property({
-        tooltip:'填充绘画的颜色',
+        tooltip: '填充绘画的颜色',
     })
     // @constget
     get fillColor (): Readonly<Color> {
@@ -156,7 +161,7 @@ export class GraphicsComponent extends UIRenderComponent {
      * 设置斜接面限制比例。
      */
     @property({
-        tooltip:'最大斜接长度',
+        tooltip: '最大斜接长度',
     })
     get miterLimit () {
         return this._miterLimit;
@@ -212,14 +217,14 @@ export class GraphicsComponent extends UIRenderComponent {
         this.impl = this._assembler && (this._assembler as IAssembler).createImpl!(this);
     }
 
-    public onLoad() {
+    public onLoad () {
         this._sceneGetter = director.root!.ui.getRenderSceneGetter();
         if (!this.model) {
             this.model = director.root!.createModel(Model);
         }
     }
 
-    public onEnable() {
+    public onEnable () {
         super.onEnable();
 
         this._attachToScene();
@@ -474,13 +479,15 @@ export class GraphicsComponent extends UIRenderComponent {
      * 辅助材质实例化。可用于只取数据而无实体情况下渲染使用。特殊情况可参考：[[instanceMaterial]]
      */
     public helpInstanceMaterial () {
-        let mat: Material | null = null;
+        let mat: MaterialInstance | null = null;
+        _matInsInfo.owner = new RenderableComponent();
         if (this._sharedMaterial) {
-            mat = Material.getInstantiatedMaterial(this._sharedMaterial, new RenderableComponent(), CC_EDITOR ? true : false);
+            _matInsInfo.parent = this._sharedMaterial;
+            mat = new MaterialInstance(_matInsInfo);
         } else {
-            mat = Material.getInstantiatedMaterial(builtinResMgr.get('ui-base-material'), new RenderableComponent(), CC_EDITOR ? true : false);
+            _matInsInfo.parent = builtinResMgr.get('ui-base-material');
+            mat = new MaterialInstance(_matInsInfo);
             mat.recompileShaders({ USE_LOCAL: true });
-            mat.onLoaded();
         }
 
         this._updateMaterial(mat);
@@ -490,7 +497,7 @@ export class GraphicsComponent extends UIRenderComponent {
         }
     }
 
-    protected _render(render: UI) {
+    protected _render (render: UI) {
         render.commitModel(this, this.model, this._material);
     }
 
@@ -514,7 +521,7 @@ export class GraphicsComponent extends UIRenderComponent {
         return !!this.model && this.model.inited;
     }
 
-    protected _attachToScene() {
+    protected _attachToScene () {
         const scene = director.root!.ui.renderScene;
         if (!this.model) {
             return;
@@ -525,7 +532,7 @@ export class GraphicsComponent extends UIRenderComponent {
         scene.addModel(this.model!);
     }
 
-    protected _detachFromScene() {
+    protected _detachFromScene () {
         if (this.model && this.model.scene) {
             this.model.scene.removeModel(this.model);
         }

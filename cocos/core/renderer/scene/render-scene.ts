@@ -241,12 +241,12 @@ export class RenderScene {
         this._models.length = 0;
     }
 
-    public onPipelineChange () {
+    public onGlobalPipelineStateChanged () {
         for (const m of this._models) {
-            m.onPipelineChange();
+            m.onGlobalPipelineStateChanged();
         }
-        this._skybox.onPipelineChange();
-        this._planarShadows.onPipelineChange();
+        this._skybox.onGlobalPipelineStateChanged();
+        this._planarShadows.onGlobalPipelineStateChanged();
     }
 
     public generateModelId (): number {

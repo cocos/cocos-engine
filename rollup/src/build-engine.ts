@@ -1,4 +1,5 @@
 import { existsSync } from 'fs';
+import fs from 'fs-extra';
 import { dirname, join, normalize, relative } from 'path';
 import { rollup, ModuleFormat } from 'rollup';
 // @ts-ignore
@@ -19,6 +20,7 @@ import { terser } from 'rollup-plugin-terser';
 // @ts-ignore
 import babelPresetEnv from '@babel/preset-env';
 import babelPresetCc from '@cocos/babel-preset-cc';
+import { writeFile, ensureDir } from 'fs-extra';
 
 interface IBaseOptions {
     moduleEntries: string[];
@@ -61,6 +63,8 @@ interface IBaseOptions {
      * @default `${outputPath.map}`
      */
     sourcemapFile?: string;
+
+    watchFiles?: boolean;
 }
 
 interface IAdvancedOptions extends IBaseOptions {
@@ -182,6 +186,7 @@ async function _internalBuild (options: IAdvancedOptions) {
             extensions: ['.js', '.ts'],
             highlightCode: true,
             ignore: [
+                'node_modules/@cocos/ammo/**',
                 'node_modules/@cocos/cannon/**',
             ],
             plugins: [
@@ -197,15 +202,21 @@ async function _internalBuild (options: IAdvancedOptions) {
 
         commonjs({
             namedExports: {
+                '@cocos/ammo': ['Ammo'],
                 '@cocos/cannon': ['CANNON'],
             },
         }),
     ];
 
+    /** adapt: reduce_funcs not suitable for ammo.js */
+    const defines = options.globalDefines as IGlobaldefines;
+    const isReduceFuncs = !defines.CC_PHYSICS_AMMO;
+
     if (format === 'esm') {
         rollupPlugins.push(terser({
             compress: {
                 global_defs: options.globalDefines,
+                reduce_funcs: isReduceFuncs
             },
             mangle: doUglify,
             keep_fnames: !doUglify,
@@ -218,6 +229,7 @@ async function _internalBuild (options: IAdvancedOptions) {
         rollupPlugins.push(uglify({
             compress: {
                 global_defs: options.globalDefines,
+                reduce_funcs: isReduceFuncs
             },
             mangle: doUglify,
             keep_fnames: !doUglify,
@@ -245,6 +257,20 @@ async function _internalBuild (options: IAdvancedOptions) {
         input: moduleEntries,
         plugins: rollupPlugins,
     });
+
+    let watchFiles: Record<string, number> | undefined;
+    if (options.watchFiles) {
+        watchFiles = {};
+        for (const watchFile of rollupBuild.watchFiles) {
+            try {
+                const stat = await fs.stat(watchFile);
+                watchFiles[watchFile] = stat.mtimeMs;
+            } catch {
+                // the `watchFiles` may contain non-fs modules.
+            }
+        }
+    }
+
     const generated = await rollupBuild.generate({
         format,
         sourcemap: options.sourcemap,
@@ -258,14 +284,17 @@ async function _internalBuild (options: IAdvancedOptions) {
         return {
             code: `${chunk0.code}\n//# sourceMappingURL=${sourceMappingUrl}`,
             map: chunk0.map.toString(),
+            watchFiles,
         };
     } else if (options.sourcemap === 'inline' && chunk0.map) {
         return {
             code: `${chunk0.code}\n//# sourceMappingURL=${chunk0.map.toUrl()}`,
+            watchFiles,
         };
     } else {
         return {
             code: chunk0.code,
+            watchFiles,
         };
     }
 }
@@ -280,6 +309,7 @@ export enum Platform {
     VIVO,
     HUAWEI,
     NATIVE,
+    COCOSPLAY,
 }
 
 export function enumeratePlatformReps () {
@@ -360,6 +390,7 @@ interface IGlobaldefines {
     CC_VIVO?: boolean;
     CC_HUAWEI?: boolean;
     CC_NATIVE?: boolean;
+    CC_COCOSPLAY?: boolean;
 
     // engine use platform macros
     CC_RUNTIME_BASED?: boolean;
@@ -385,7 +416,7 @@ function getGlobalDefs (options: IBuildOptions): object {
     const flags = options.flags;
 
     const BUILDMODE_MACROS = ['CC_EDITOR', 'CC_PREVIEW', 'CC_BUILD', 'CC_TEST'];
-    const PLATFORM_MACROS = ['CC_HTML5', 'CC_WECHAT', 'CC_ALIPAY', 'CC_BAIDU', 'CC_XIAOMI', 'CC_OPPO', 'CC_VIVO', 'CC_HUAWEI', 'CC_NATIVE'];
+    const PLATFORM_MACROS = ['CC_HTML5', 'CC_WECHAT', 'CC_ALIPAY', 'CC_BAIDU', 'CC_XIAOMI', 'CC_OPPO', 'CC_VIVO', 'CC_HUAWEI', 'CC_NATIVE', 'CC_COCOSPLAY'];
     const FLAGS = ['debug'];
 
     const buildmodeMacro = ('CC_' + Mode[buildmode]).toUpperCase();
@@ -423,7 +454,7 @@ function getGlobalDefs (options: IBuildOptions): object {
     result.CC_MINIGAME = false;
     result.CC_DEV = result.CC_EDITOR || result.CC_PREVIEW || result.CC_TEST;
     result.CC_DEBUG = result.CC_DEBUG || result.CC_DEV;
-    result.CC_RUNTIME_BASED = result.CC_OPPO || result.CC_VIVO || result.CC_HUAWEI;
+    result.CC_RUNTIME_BASED = result.CC_OPPO || result.CC_VIVO || result.CC_HUAWEI || result.CC_COCOSPLAY;
     result.CC_MINIGAME = result.CC_WECHAT || result.CC_ALIPAY || result.CC_XIAOMI || result.CC_BAIDU;
     result.CC_JSB = result.CC_NATIVE || result.CC_RUNTIME_BASED;
     result.CC_SUPPORT_JIT = !(result.CC_MINIGAME || result.CC_RUNTIME_BASED);

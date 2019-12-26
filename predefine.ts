@@ -116,6 +116,15 @@
  * @property {Boolean} CC_ALIPAY - Running in the alipay's mini game.
  */
 /**
+ * @property {Boolean} CC_XIAOMI - Running in the xiaomi's quick game.
+ */
+/**
+ * @property {Boolean} CC_BAIDU - Running in the baidu's mini game.
+ */
+/**
+ * @property {Boolean} CC_COCOSPLAY - Running in the cocosplay.
+ */
+/**
  * @property {Boolean} CC_MINIGAME - Running in mini game.
  */
 /**
@@ -170,6 +179,9 @@ if (CC_BUILD) {
     _global.CC_JSB = CC_JSB;
     _global.CC_WECHAT = CC_WECHAT;
     _global.CC_ALIPAY = CC_ALIPAY;
+    _global.CC_XIAOMI = CC_XIAOMI;
+    _global.CC_BAIDU = CC_BAIDU;
+    _global.CC_COCOSPLAY = CC_COCOSPLAY;
     _global.CC_MINIGAME = CC_MINIGAME;
     _global.CC_RUNTIME_BASED = CC_RUNTIME_BASED;
     _global.CC_SUPPORT_JIT = CC_SUPPORT_JIT;
@@ -190,6 +202,10 @@ else {
     defineMacro('CC_MINIGAME', false);
     defineMacro('CC_RUNTIME_BASED', false);
     defineMacro('CC_ALIPAY', false);
+    defineMacro('CC_XIAOMI', false);
+    defineMacro('CC_BAIDU', false);
+    defineMacro('CC_COCOSPLAY', false);
+
     // @ts-ignore
     defineMacro('CC_RUNTIME', 'function' === typeof loadRuntime);
     defineMacro('CC_SUPPORT_JIT', !(CC_MINIGAME || CC_RUNTIME_BASED));

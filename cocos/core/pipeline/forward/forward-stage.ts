@@ -97,28 +97,27 @@ export class ForwardStage extends RenderStage {
         for (let i = 0; i < renderObjects.length; ++i) {
             const ro = renderObjects[i];
             if (ro.model.isDynamicBatching) {
-                for (let m = 0; m < ro.model.subModels.length; ++m) {
+                for (let m = 0; m < ro.model.subModelNum; ++m) {
                     const subModel = ro.model.subModels[m];
                     const passes = subModel.passes;
                     for (let p = 0; p < passes.length; ++p) {
-                        const pass = subModel.passes[p];
+                        const pass = passes[p];
+                        const pso = subModel.psos![p];
                         if (pass.batchedBuffer) {
-                            const pso = subModel.psos![p];
-                            const isTransparent = pso.blendState.targets[0].blend;
-                            if (!isTransparent) {
-                                pass.batchedBuffer.merge(subModel, ro, pso);
-                                this._opaqueBatchedQueue.queue.add(pass.batchedBuffer);
-                            } else {
-                                this._renderQueues[1].insertRenderPass(ro, m, p);
+                            pass.batchedBuffer.merge(subModel, ro, pso);
+                            this._opaqueBatchedQueue.queue.add(pass.batchedBuffer);
+                        } else {
+                            for (let k = 0; k < this._renderQueues.length; k++) {
+                                this._renderQueues[k].insertRenderPass(ro, m, p);
                             }
                         }
                     }
                 }
             } else {
-                for (let l = 0; l < ro.model.subModelNum; l++) {
-                    for (let j = 0; j < ro.model.getSubModel(l).passes.length; j++) {
+                for (let m = 0; m < ro.model.subModelNum; m++) {
+                    for (let p = 0; p < ro.model.getSubModel(m).passes.length; p++) {
                         for (let k = 0; k < this._renderQueues.length; k++) {
-                            this._renderQueues[k].insertRenderPass(ro, l, j);
+                            this._renderQueues[k].insertRenderPass(ro, m, p);
                         }
                     }
                 }
