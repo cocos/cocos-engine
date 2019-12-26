@@ -63,7 +63,7 @@ export class UIMaterial {
 
         this._material = new Material();
 
-        this._material.copy(info.material instanceof MaterialInstance ? info.material.parent! : info.material);
+        this._material.copy(info.material);
 
         this._pass = this._material.passes[0];
         this._pass.update();

@@ -86,8 +86,6 @@ export const maskAssembler: IAssembler = {
 
     fillBuffers (mask: MaskComponent, renderer: UI) {
         _stencilManager.pushMask(mask);
-        // // commit last data
-        // renderer.autoMergeBatches();
 
         _stencilManager.clear();
         mask.clearGraphics!.updateAssembler(renderer);

@@ -46,27 +46,6 @@ export enum Stage {
     EXIT_LEVEL = 4,
 }
 
-interface IStencilState {
-    stencilTest?: boolean;
-    func?: GFXComparisonFunc;
-    stencilMask?: number;
-    writeMask?: number;
-    failOp?: GFXStencilOp;
-    zFailOp?: GFXStencilOp;
-    passOp?: GFXStencilOp;
-    ref?: number;
-}
-
-interface IStencilStateUpdate {
-    func: GFXComparisonFunc;
-    writeMask: number;
-    ref: number;
-}
-
-function updateDynamicStencilStates (material: Material, state: IStencilStateUpdate){
-
-}
-
 export class StencilManager {
     public static sharedManager: StencilManager | null = null;
     public stage = Stage.DISABLED;
@@ -134,12 +113,14 @@ export class StencilManager {
                 pattern.stencilMask = pattern.ref = this.getStencilRef();
                 pattern.writeMask = this.getWriteMask();
             } else if (this.stage === Stage.CLEAR) {
+                const mask = this._maskStack[this._maskStack.length - 1];
                 pattern.func = GFXComparisonFunc.NEVER;
-                pattern.failOp = GFXStencilOp.ZERO;
+                pattern.failOp = mask.inverted ? GFXStencilOp.REPLACE : GFXStencilOp.ZERO;
                 pattern.writeMask = pattern.stencilMask = pattern.ref = this.getWriteMask();
             } else if (this.stage === Stage.ENTER_LEVEL) {
+                const mask = this._maskStack[this._maskStack.length - 1];
                 pattern.func = GFXComparisonFunc.NEVER;
-                pattern.failOp = GFXStencilOp.REPLACE;
+                pattern.failOp = mask.inverted ? GFXStencilOp.ZERO : GFXStencilOp.REPLACE;
                 pattern.writeMask = pattern.stencilMask = pattern.ref = this.getWriteMask();
             }
         }
@@ -186,14 +167,6 @@ export class StencilManager {
         let result = 0;
         for (let i = 0; i < this._maskStack.length; ++i) {
             result += (0x00000001 << i);
-        }
-        return result;
-    }
-
-    public getInvertedRef () {
-        let result = 0;
-        for (let i = 0; i < this._maskStack.length - 1; ++i) {
-            result += (0x01 << i);
         }
         return result;
     }
