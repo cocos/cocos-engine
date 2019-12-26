@@ -2,7 +2,7 @@
  
 #define CC_MAX_SHADOW_LIGHTS 2
 
-#if CC_USE_SHADOW_MAP 
+#if CC_USE_SHADOW_MAP && CC_NUM_SHADOW_LIGHTS > 0
 
   #pragma builtin(global)
   uniform CC_SHADOW {
