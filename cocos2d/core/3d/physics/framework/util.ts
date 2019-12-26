@@ -84,12 +84,12 @@ export function clearNodeTransformRecord () {
     _nodeArray.length = 0;
 }
 
-/**
+/*
  * The method of node backtrace is used to optimize the calculation of global transformation. 
  * Node backtrace is continuous until the parent node is empty or the parent node has performed the calculation of global transformation.
  * The result of backtrace will store the node relational chain in the array. 
- * The process of traversing several groups is equivalent to the process of global transformation from the parent node to 
- * the physical node. The calculated results are saved in the node, and the physical global transformation flag is finally erased.
+ * The process of traversing several groups is equivalent to the process of global transformation from the parent node to the physical node.
+ * The calculated results are saved in the node, and the physical global transformation flag is finally erased.
  */
 export function updateWorldTransform (node: cc.Node, traverseAllNode: boolean = false) {
     let cur = node;
