@@ -33,12 +33,12 @@ import { ccclass, executionOrder, menu, property } from '../../core/data/class-d
 import { Event } from '../../core/event';
 import { EventMouse, EventTouch, Touch } from '../../core/platform';
 import { Size, Vec2, Vec3 } from '../../core/math';
-import { ccenum } from '../../core/value-types/enum';
 import { LayoutComponent } from './layout-component';
 import { ScrollBarComponent } from './scroll-bar-component';
 import { ViewGroupComponent } from './view-group-component';
 import { Node } from '../../core/scene-graph/node';
 import { director, Director } from '../../core/director';
+import { TransformBit } from '../../core/scene-graph/node-enum';
 
 const NUMBER_OF_GATHERED_TOUCHES_FOR_MOVE_SPEED = 5;
 const OUT_OF_BOUNDARY_BREAKING_FACTOR = 0.05;
@@ -852,9 +852,9 @@ export class ScrollViewComponent extends ViewGroupComponent {
             this._registerEvent();
             if (this.content) {
                 this.content.on(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);
-                this.content.on(Node.EventType.TRANSFORM_CHANGED, this._calculateBoundary, this);
+                this.content.on(Node.EventType.TRANSFORM_CHANGED, this._scaleChanged, this);
                 if (this.view!) {
-                    this.view!.on(Node.EventType.TRANSFORM_CHANGED, this._calculateBoundary, this);
+                    this.view!.on(Node.EventType.TRANSFORM_CHANGED, this._scaleChanged, this);
                     this.view!.on(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);
                 }
             }
@@ -910,13 +910,13 @@ export class ScrollViewComponent extends ViewGroupComponent {
             return;
         }
 
-        let deltaMove = new Vec3();
+        const deltaMove = new Vec3();
         const wheelPrecision = -0.1;
+        const scrollY = event.getScrollY();
         if (this.vertical) {
-            deltaMove = new Vec3(0, event.getScrollY() * wheelPrecision, 0);
-        }
-        else if (this.horizontal) {
-            deltaMove = new Vec3(event.getScrollY() * wheelPrecision, 0, 0);
+            deltaMove.set(0, scrollY * wheelPrecision, 0);
+        } else if (this.horizontal) {
+            deltaMove.set(scrollY * wheelPrecision, 0, 0);
         }
 
         this._mouseWheelEventElapsedTime = 0;
@@ -1344,7 +1344,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
         deltaMove = this._clampDelta(deltaMove);
 
         const realMove = deltaMove;
-        let outOfBoundary;
+        let outOfBoundary: Vec3;
         if (this.elastic) {
             outOfBoundary = this._getHowMuchOutOfBoundary();
             realMove.x *= (outOfBoundary.x === 0 ? 1 : 0.5);
@@ -1357,8 +1357,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
         }
 
         let scrollEventType;
-        const pos = new Vec3();
-        this._content!.getPosition(pos);
+        const pos = this._content!.position;
 
         if (realMove.y > 0) { // up
             const icBottomPos = pos.y - this._content!.anchorY * this._content!.height;
@@ -1366,21 +1365,18 @@ export class ScrollViewComponent extends ViewGroupComponent {
             if (icBottomPos + realMove.y > this._bottomBoundary) {
                 scrollEventType = EventType.SCROLL_TO_BOTTOM;
             }
-        }
-        else if (realMove.y < 0) { // down
+        } else if (realMove.y < 0) { // down
             const icTopPos = pos.y - this._content!.anchorY * this._content!.height + this._content!.height;
 
             if (icTopPos + realMove.y <= this._topBoundary) {
                 scrollEventType = EventType.SCROLL_TO_TOP;
             }
-        }
-        else if (realMove.x < 0) { // left
+        } else if (realMove.x < 0) { // left
             const icRightPos = pos.x - this._content!.anchorX * this._content!.width + this._content!.width;
             if (icRightPos + realMove.x <= this._rightBoundary) {
                 scrollEventType = EventType.SCROLL_TO_RIGHT;
             }
-        }
-        else if (realMove.x > 0) { // right
+        } else if (realMove.x > 0) { // right
             const icLeftPos = pos.x - this._content!.anchorX * this._content!.width;
             if (icLeftPos + realMove.x >= this._leftBoundary) {
                 scrollEventType = EventType.SCROLL_TO_LEFT;
@@ -1660,6 +1656,12 @@ export class ScrollViewComponent extends ViewGroupComponent {
 
         this._moveContent(moveDelta);
         this._adjustContentOutOfBoundary();
+    }
+
+    protected _scaleChanged (value: TransformBit){
+        if (value === TransformBit.SCALE) {
+            this._calculateBoundary();
+        }
     }
 }
 
