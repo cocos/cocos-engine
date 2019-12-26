@@ -246,7 +246,7 @@ exports.buildJsbPreview = function (sourceFile, outputFile, excludes, callback) 
         .pipe(Source(outFile))
         .pipe(Buffer())
         .pipe(FixJavaScriptCore())
-        .pipe(Utils.uglify('preview', { jsb: true, nativeRenderer: true }))
+        .pipe(Utils.uglify('preview', { jsb: true, nativeRenderer: true, physics_cannon: true}))
         .pipe(Optimizejs({
             sourceMap: false
         }))
