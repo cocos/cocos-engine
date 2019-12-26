@@ -31,7 +31,6 @@ cc.PhysicsSystem = PhysicsSystem;
 cc.ColliderComponent = ColliderComponent;
 cc.BoxColliderComponent = BoxColliderComponent;
 cc.SphereColliderComponent = SphereColliderComponent;
-cc.CapsuleColliderComponent = CapsuleColliderComponent;
 
 cc.RigidBodyComponent = RigidBodyComponent;
 
