@@ -25,8 +25,9 @@ import { programLib } from '../renderer/core/program-lib';
 import { SKYBOX_FLAG } from '../renderer/scene/camera';
 import { Root } from '../root';
 import { Layers } from '../scene-graph';
-import { IRenderObject, RenderPassStage, UBOGlobal, UBOShadow, UNIFORM_ENVIRONMENT } from './define';
+import { js } from '../utils/js';
 import { IInternalBindingInst } from './define';
+import { IRenderObject, RenderPassStage, UBOGlobal, UBOShadow, UNIFORM_ENVIRONMENT } from './define';
 import { FrameBufferDesc, RenderFlowType, RenderPassDesc, RenderTextureDesc } from './pipeline-serialization';
 import { RenderFlow } from './render-flow';
 import { RenderView } from './render-view';
@@ -80,7 +81,7 @@ export abstract class RenderPipeline {
      * 名称。
      */
     public get name (): string {
-        return this.constructor.name;
+        return  js.getClassName(this.constructor);
     }
 
     /**
