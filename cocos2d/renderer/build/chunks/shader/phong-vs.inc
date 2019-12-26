@@ -12,10 +12,16 @@ precision highp float;
 uniform MAIN_TILING {
   vec2 mainTiling;
   vec2 mainOffset;
-}
+};
 
-out mediump vec2 v_uv0;
-out lowp vec4 v_color;
+#if CC_USE_TEXTURE
+  out mediump vec2 v_uv0;
+#endif
+
+#if CC_USE_ATTRIBUTE_COLOR
+  out lowp vec4 v_color;
+#endif
+
 out vec3 v_worldNormal;
 out vec3 v_worldPos;
 
@@ -28,8 +34,14 @@ void main () {
 
   v_worldPos = (cc_matWorld * position).xyz;
   v_worldNormal = (cc_matWorldIT * normal).xyz;
-  v_color = In.color;
-  v_uv0 = In.uv * mainTiling + mainOffset;
+  
+  #if CC_USE_TEXTURE
+    v_uv0 = In.uv * mainTiling + mainOffset;
+  #endif
+
+  #if CC_USE_ATTRIBUTE_COLOR
+    v_color = In.color;
+  #endif
 
   CCShadowInput(v_worldPos);
   

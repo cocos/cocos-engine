@@ -8,7 +8,7 @@
   #if CC_USE_JOINTS_TEXTRUE
     uniform SKINNING {
       vec2 jointsTextureSize;
-    }
+    };
     #pragma builtin(local)
     uniform sampler2D jointsTexture;
 
@@ -84,7 +84,7 @@
     #pragma builtin(local)
     uniform JOINT_MATRIX {
       mat4 jointMatrices[CC_JOINT_MATRICES_SIZE];
-    }
+    };
 
     mat4 getBoneMatrix(const in float i) {
       return jointMatrices[int(i)];

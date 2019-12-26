@@ -2,9 +2,17 @@
 
 precision highp float;
 
-#include <encodings>
 #include <alpha-test>
-#include <diffuse>
+#include <texture>
+#include <output>
+
+uniform UNLIT {
+  lowp vec4 diffuseColor;
+};
+
+#if USE_DIFFUSE_TEXTURE
+  uniform sampler2D diffuseTexture;
+#endif
 
 #define CC_USE_TEXTURE CC_USE_ATTRIBUTE_UV0 && USE_DIFFUSE_TEXTURE
 
@@ -17,12 +25,10 @@ precision highp float;
 #endif
 
 void main () {
-  vec4 color = vec4(1, 1, 1, 1);
+  vec4 color = diffuseColor;
 
   #if CC_USE_TEXTURE
-    CALC_DIFFUSE(color, v_uv0);
-  #else 
-    CALC_DIFFUSE(color);
+    CCTexture2D(diffuseTexture, v_uv0, color);
   #endif
 
   #if CC_USE_ATTRIBUTE_COLOR
@@ -31,5 +37,5 @@ void main () {
 
   ALPHA_TEST(color);
 
-  gl_FragColor = LINEAR_TO_OUTPUT_TEXEL( color );
+  gl_FragColor = CCFragOutput(color);
 }

@@ -3,21 +3,44 @@
 precision highp float;
 
 #include <cc-global>
-#include <encodings>
-
-#include <common>
-#include <normal>
-#include <diffuse>
-#include <specular>
-#include <emissive>
+#include <texture>
+#include <output>
 #include <alpha-test>
+
+uniform UNLIT {
+  lowp vec4 diffuseColor;
+  lowp vec4 specularColor;
+  lowp vec4 emissiveColor;
+};
+
+#if USE_DIFFUSE_TEXTURE
+  uniform sampler2D diffuseTexture;
+#endif
+
+#if USE_SPECULAR_TEXTURE
+  uniform sampler2D specularTexture;
+#endif
+
+#if USE_EMISSIVE_TEXTURE
+  uniform sampler2D emissiveTexture;
+#endif
+
+#if USE_NORMAL_TEXTURE
+  uniform sampler2D normalTexture;
+#endif
 
 #define CC_USE_TEXTURE CC_USE_ATTRIBUTE_UV0 && (USE_DIFFUSE_TEXTURE || USE_EMISSIVE_TEXTURE || USE_SPECULAR_TEXTURE || USE_NORMAL_TEXTURE)
 
 in vec3 v_worldNormal;
 in vec3 v_worldPos;
-in mediump vec2 v_uv0;
-in lowp vec4 v_color;
+
+#if CC_USE_TEXTURE
+  in mediump vec2 v_uv0;
+#endif
+
+#if CC_USE_ATTRIBUTE_COLOR
+  in lowp vec4 v_color;
+#endif
 
 #include <shading-phong>
 
@@ -28,10 +51,9 @@ void main () {
     diffuse *= v_color;
   #endif
 
+  diffuse *= diffuseColor;
   #if USE_DIFFUSE_TEXTURE
-    CALC_DIFFUSE(diffuse, v_uv0);
-  #else
-    CALC_DIFFUSE(diffuse);
+    CCTexture2D(diffuseTexture, v_uv0, diffuse);
   #endif
 
   ALPHA_TEST(diffuse);
@@ -40,16 +62,14 @@ void main () {
   material.diffuse = diffuse.rgb;
   material.opacity = diffuse.a;
 
+  material.emissive = emissiveColor.rgb;
   #if USE_EMISSIVE_TEXTURE
-    CALC_EMISSIVE(material.emissive, v_uv0);
-  #else
-    CALC_EMISSIVE(material.emissive);
+    CCTexture2DRGB(emissiveTexture, v_uv0, material.emissive);
   #endif
 
+  material.specular = specularColor.rgb;
   #if USE_SPECULAR_TEXTURE
-    CALC_SPECULAR(material.specular, v_uv0);
-  #else
-    CALC_SPECULAR(material.specular);
+    CCTexture2DRGB(specularTexture, v_uv0, material.specular);
   #endif
 
   vec3 viewDirection = normalize(cc_cameraPos.xyz - v_worldPos);
@@ -57,10 +77,10 @@ void main () {
 
   vec3 normal = normalize(v_worldNormal);
   #if USE_NORMAL_TEXTURE
-    CALC_NORMAL(normal, v_worldPos, v_uv0);
+    CCTexture2DRGB(normalTexture, v_uv0, normal);
   #endif
 
   CALC_PHONG_LIGHTING(phongColor, material, normal, v_worldPos, viewDirection);
 
-  gl_FragColor = LINEAR_TO_OUTPUT_TEXEL( phongColor );
+  gl_FragColor = CCFragOutput(phongColor);
 }

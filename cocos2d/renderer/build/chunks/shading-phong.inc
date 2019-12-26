@@ -4,7 +4,7 @@
 
 uniform PHONG {
   float glossiness;
-}
+};
 
 struct PhongMaterial {
   vec3 diffuse;
