@@ -149,8 +149,12 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  *
  * // Second way to use a SpriteFrame
  * const self = this;
- * const url = "assets/PurpleMonster/icon";
+ * const url = "test_assets/PurpleMonster";
  * cc.loader.loadRes(url, (err, imageAsset) => {
+ *  if(err){
+ *    return;
+ *  }
+ *
  *  const node = new Node("New Sprite");
  *  const sprite = node.addComponent(SpriteComponent);
  *  const spriteFrame = new SpriteFrame();
