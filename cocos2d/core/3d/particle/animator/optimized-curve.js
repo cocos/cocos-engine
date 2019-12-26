@@ -1,5 +1,5 @@
 import { repeat } from '../../../value-types';
-import { evalOptCurve, OptimizedKey } from '../../../geom-utils/curve';
+import { evalOptCurve, OptimizedKey } from '../curve';
 import { Mode } from './curve-range';
 
 const CURVE_MODE_CONSTANT = 0;

@@ -1,6 +1,6 @@
-import Enum  from '../platform/CCEnum';
-import { clamp, inverseLerp, pingPong, repeat } from '../value-types';
-import { ccclass , property} from '../platform/CCClassDecorator';
+import Enum  from '../../platform/CCEnum';
+import { clamp, inverseLerp, pingPong, repeat } from '../../value-types';
+import { ccclass , property} from '../../platform/CCClassDecorator';
 
 const LOOK_FORWARD = 3;
 
