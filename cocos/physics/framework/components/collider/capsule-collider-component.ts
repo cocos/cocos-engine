@@ -23,7 +23,7 @@ Enum(ECapsuleDirection);
 
 /**
  * @zh
- * 盒子碰撞器
+ * 胶囊体碰撞器
  */
 @ccclass('cc.CapsuleColliderComponent')
 @executionOrder(98)
