@@ -28,18 +28,36 @@ import { IRigidBody } from '../spec/I-rigid-body';
 import { IBoxShape, ISphereShape } from '../spec/i-physics-shape';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 
+/**
+ * @method createPhysicsWorld
+ * @return {IPhysicsWorld}
+ */
 export function createPhysicsWorld (): IPhysicsWorld {
     return new PhysicsWorld() as IPhysicsWorld;
 }
 
+/**
+ * @method createRigidBody
+ * @return {IRigidBody}
+ */
 export function createRigidBody (): IRigidBody {
     return new RigidBody!() as IRigidBody;
 }
 
+/**
+ * @method createBoxShape
+ * @param {Vec3} size
+ * @return {IBoxShape}
+ */
 export function createBoxShape (size: cc.Vec3): IBoxShape {
     return new BoxShape(size) as IBoxShape;
 }
 
+/**
+ * @method createSphereShape
+ * @param {number} radius
+ * @return {ISphereShape}
+ */
 export function createSphereShape (radius: number): ISphereShape {
     return new SphereShape(radius) as ISphereShape;
 }

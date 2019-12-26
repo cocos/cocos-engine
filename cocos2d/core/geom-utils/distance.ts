@@ -41,8 +41,9 @@ const e = new Array(3);
  * the distance between a point and a plane
  * !#zh
  * 计算点和平面之间的距离。
+ * @method point_plane
  * @param {Vec3} point
- * @param {plane} plane
+ * @param {Plane} plane
  * @return Distance
  */
 export function point_plane (point: Vec3, plane_: plane) {
@@ -54,6 +55,7 @@ export function point_plane (point: Vec3, plane_: plane) {
  * the closest point on plane to a given point
  * !#zh
  * 计算平面上最接近给定点的点。
+ * @method pt_point_plane
  * @param out Closest point
  * @param point Given point
  * @param plane
@@ -69,9 +71,10 @@ export function pt_point_plane (out: Vec3, point: Vec3, plane_: plane) {
  * the closest point on aabb to a given point
  * !#zh
  * 计算 aabb 上最接近给定点的点。
+ * @method pt_point_aabb
  * @param {Vec3} out Closest point.
  * @param {Vec3} point Given point.
- * @param {aabb} aabb Align the axis around the box.
+ * @param {Aabb} aabb Align the axis around the box.
  * @return {Vec3} Closest point.
  */
 export function pt_point_aabb (out: Vec3, point: Vec3, aabb_: aabb): Vec3 {
@@ -94,9 +97,10 @@ export function pt_point_aabb (out: Vec3, point: Vec3, aabb_: aabb): Vec3 {
  * the closest point on obb to a given point
  * !#zh
  * 计算 obb 上最接近给定点的点。
+ * @method pt_point_obb
  * @param {Vec3} out Closest point
  * @param {Vec3} point Given point
- * @param {obb} obb Direction box
+ * @param {Obb} obb Direction box
  * @return {Vec3} closest point
  */
 export function pt_point_obb (out: Vec3, point: Vec3, obb_: obb): Vec3 {

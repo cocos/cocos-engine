@@ -28,10 +28,12 @@ import enums from './enums';
 import { IVec3Like } from '../value-types/math';
 
 /**
+ * !#en
+ * ray
  * !#zh
- * 基础几何 射线。
+ * 射线。
+ * @class geomUtils.Ray
  */
-// tslint:disable-next-line:class-name
 export default class ray {
 
     /**
@@ -39,13 +41,14 @@ export default class ray {
      * create a new ray
      * !#zh
      * 创建一条射线。
+     * @method create
      * @param {number} ox The x part of the starting point.
      * @param {number} oy The y part of the starting point.
      * @param {number} oz The z part of the starting point.
      * @param {number} dx X in the direction.
      * @param {number} dy Y in the direction.
      * @param {number} dz Z in the direction.
-     * @return {ray}
+     * @return {Ray}
      */
     public static create (ox: number = 0, oy: number = 0, oz: number = 0, dx: number = 0, dy: number = 0, dz: number = 1): ray {
         return new ray(ox, oy, oz, dx, dy, dz);
@@ -56,8 +59,9 @@ export default class ray {
      * Creates a new ray initialized with values from an existing ray
      * !#zh
      * 从一条射线克隆出一条新的射线。
-     * @param {ray} a Clone target
-     * @return {ray} Clone result
+     * @method clone
+     * @param {Ray} a Clone target
+     * @return {Ray} Clone result
      */
     public static clone (a: ray): ray {
         return new ray(
@@ -71,9 +75,10 @@ export default class ray {
      * Copy the values from one ray to another
      * !#zh
      * 将从一个 ray 的值复制到另一个 ray。
-     * @param {ray} out Accept the ray of the operation.
-     * @param {ray} a Copied ray.
-     * @return {ray} out Accept the ray of the operation.
+     * @method copy
+     * @param {Ray} out Accept the ray of the operation.
+     * @param {Ray} a Copied ray.
+     * @return {Ray} out Accept the ray of the operation.
      */
     public static copy (out: ray, a: ray): ray {
         Vec3.copy(out.o, a.o);
@@ -87,10 +92,11 @@ export default class ray {
      * create a ray from two points
      * !#zh
      * 用两个点创建一条射线。
-     * @param {ray} out Receive the operating ray.
+     * @method fromPoints
+     * @param {Ray} out Receive the operating ray.
      * @param {Vec3} origin Origin of ray
      * @param {Vec3} target A point on a ray.
-     * @return {ray} out Receive the operating ray.
+     * @return {Ray} out Receive the operating ray.
      */
     public static fromPoints (out: ray, origin: Vec3, target: Vec3): ray {
         Vec3.copy(out.o, origin);
@@ -103,14 +109,15 @@ export default class ray {
      * Set the components of a ray to the given values
      * !#zh
      * 将给定射线的属性设置为给定的值。
-     * @param {ray} out Receive the operating ray.
+     * @method set
+     * @param {Ray} out Receive the operating ray.
      * @param {number} ox The x part of the starting point.
      * @param {number} oy The y part of the starting point.
      * @param {number} oz The z part of the starting point.
      * @param {number} dx X in the direction.
      * @param {number} dy Y in the direction.
      * @param {number} dz Z in the direction.
-     * @return {ray} out Receive the operating ray.
+     * @return {Ray} out Receive the operating ray.
      */
     public static set (out: ray, ox: number, oy: number, oz: number, dx: number, dy: number, dz: number): ray {
         out.o.x = ox;
@@ -128,6 +135,7 @@ export default class ray {
      * Start point.
      * !#zh
      * 起点。
+     * @property {Vec3} o
      */
     public o: Vec3;
 
@@ -136,6 +144,7 @@ export default class ray {
      * Direction
      * !#zh
      * 方向。
+     * @property {Vec3} d
      */
     public d: Vec3;
 
@@ -144,6 +153,7 @@ export default class ray {
     /**
      * !#en Construct a ray.
      * !#zh 构造一条射线。
+     * @constructor
      * @param {number} ox The x part of the starting point.
      * @param {number} oy The y part of the starting point.
      * @param {number} oz The z part of the starting point.
@@ -158,6 +168,12 @@ export default class ray {
         this.d = new Vec3(dx, dy, dz);
     }
 
+    /**
+     * !#en Compute hit.
+     * @method computeHit
+     * @param {IVec3Like} out
+     * @param {number} distance
+     */
     public computeHit (out: IVec3Like, distance: number) {
         Vec3.normalize(out, this.d)
         Vec3.scaleAndAdd(out, this.o, out, distance);

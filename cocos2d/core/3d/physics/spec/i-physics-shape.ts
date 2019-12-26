@@ -26,19 +26,52 @@
 import { IVec3Like } from "../../../value-types/math";
 import { Collider3D, RigidBody3D } from '../exports/physics-framework';
 
+/**
+ * !#en Base shape interface.
+ * @class IBaseShape
+ */
 export interface IBaseShape {
+    /**
+     * @property {Collider3D} collider
+     */
     readonly collider: Collider3D;
+    /**
+     * @property {RigidBody3D | null} attachedRigidBody
+     */
     readonly attachedRigidBody: RigidBody3D | null;
+    /**
+     * @property {any} material
+     */
     material: any;
+    /**
+     * @property {boolean} isTrigger
+     */
     isTrigger: boolean;
+    /**
+     * @property {IVec3Like} center
+     */
     center: IVec3Like;
 }
 
+/**
+ * !#en box shape interface
+ * @class IBoxShape
+ */
 export interface IBoxShape extends IBaseShape {
+    /**
+     * @property {IVec3Like} size
+     */
     size: IVec3Like;
 }
 
+/**
+ * !#en Sphere shape interface
+ * @class ISphereShape
+ */
 export interface ISphereShape extends IBaseShape {
+    /**
+     * @property {number} radius
+     */
     radius: number;
 }
 

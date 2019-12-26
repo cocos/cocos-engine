@@ -40,6 +40,8 @@ const {
  * Physics sphere collider
  * !#zh
  * 物理球碰撞器
+ * @class SphereCollider3D
+ * @extends Collider3D
  */
 @ccclass('cc.SphereCollider3D')
 @executionOrder(98)
@@ -54,6 +56,7 @@ export class SphereCollider3D extends Collider3D {
      * Get or set the radius of the sphere.
      * !#zh
      * 获取或设置球的半径。
+     * @property {number} radius
      */
     @property
     public get radius () {
@@ -67,6 +70,9 @@ export class SphereCollider3D extends Collider3D {
         }
     }
 
+    /**
+     * @property {ISphereShape} sphereShape
+     */
     public get sphereShape (): ISphereShape {
         return this._shape as ISphereShape;
     }

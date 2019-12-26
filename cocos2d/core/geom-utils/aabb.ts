@@ -41,13 +41,8 @@ let transform_extent_m4 = function (out, extent, m4) {
 };
 
 /**
+ * Aabb
  * @class geomUtils.Aabb
- * @param {Number} px 
- * @param {Number} py 
- * @param {Number} pz 
- * @param {Number} w 
- * @param {Number} h 
- * @param {Number} l 
  */
 export default class aabb {
 

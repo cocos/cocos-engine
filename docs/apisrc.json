@@ -41,6 +41,8 @@
     "./cocos2d/core/event-manager/CCTouch.js",
 
     "./cocos2d/core/graphics/**/*",
+    
+    "./cocos2d/core/geom-utils/**/*",
 
     "./cocos2d/core/load-pipeline/**/*",
     "!./cocos2d/core/load-pipeline/asset-table.js",

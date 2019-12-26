@@ -30,6 +30,7 @@ import { Collider3D } from './components/collider/collider-component';
  * Trigger event
  * !#zh
  * 触发事件。
+ * @class ITriggerEvent
  */
 export interface ITriggerEvent {
     /**
@@ -37,6 +38,8 @@ export interface ITriggerEvent {
      * The type of event fired
      * !#zh
      * 触发的事件类型
+     * @property {String} type
+     * @readonly
      */
     readonly type: TriggerEventType;
 
@@ -45,6 +48,8 @@ export interface ITriggerEvent {
      * Triggers its own collider in the event
      * !#zh
      * 触发事件中的自己的碰撞器
+     * @property {Collider3D} selfCollider
+     * @readonly
      */
     readonly selfCollider: Collider3D;
 
@@ -53,6 +58,8 @@ export interface ITriggerEvent {
      * Triggers another collider in the event
      * !#zh
      * 触发事件中的另一个碰撞器
+     * @property {Collider3D} otherCollider
+     * @readonly
      */
     readonly otherCollider: Collider3D;
 }
@@ -78,6 +85,7 @@ export type TriggerCallback = (event: ITriggerEvent) => void;
  * Collision information for collision events.
  * !#zh
  * 碰撞事件的碰撞信息。
+ * @class IContactEquation
  */
 export interface IContactEquation {
     /**
@@ -85,6 +93,8 @@ export interface IContactEquation {
      * The collision point A in the collision information.
      * !#zh
      * 碰撞信息中的碰撞点A。
+     * @property {Vec3} contactA
+     * @readonly
      */
     readonly contactA: cc.Vec3;
 
@@ -93,6 +103,8 @@ export interface IContactEquation {
      * Collision point B in collision information.
      * !#zh
      * 碰撞信息中的碰撞点B。
+     * @property {Vec3} contactB
+     * @readonly
      */
     readonly contactB: cc.Vec3;
 
@@ -101,6 +113,8 @@ export interface IContactEquation {
      * Normals in collision information.
      * !#zh
      * 碰撞信息中的法线。
+     * @property {Vec3} normal
+     * @readonly
      */
     readonly normal: cc.Vec3;
 }
@@ -110,6 +124,7 @@ export interface IContactEquation {
  * Collision events.
  * !#zh
  * 碰撞事件。
+ * @class ICollisionEvent
  */
 export interface ICollisionEvent {
     /**
@@ -117,6 +132,8 @@ export interface ICollisionEvent {
      * Event type of collision.
      * !#zh
      * 碰撞的事件类型。
+     * @property {String} type
+     * @readonly
      */
     readonly type: CollisionEventType;
 
@@ -125,6 +142,8 @@ export interface ICollisionEvent {
      * Collider of its own in collision.
      * !#zh
      * 碰撞中的自己的碰撞器。
+     * @property {Collider3D} selfCollider
+     * @readonly
      */
     readonly selfCollider: Collider3D;
 
@@ -133,6 +152,8 @@ export interface ICollisionEvent {
      * Another collider in the collision.
      * !#zh
      * 碰撞中的另一个碰撞器。
+     * @property {Collider3D} otherCollider
+     * @readonly
      */
     readonly otherCollider: Collider3D;
 
@@ -141,6 +162,8 @@ export interface ICollisionEvent {
      * Information about all the points of impact in the collision.
      * !#zh
      * 碰撞中的所有碰撞点的信息。
+     * @property {IContactEquation[]} contacts
+     * @readonly
      */
     readonly contacts: IContactEquation[];
 }

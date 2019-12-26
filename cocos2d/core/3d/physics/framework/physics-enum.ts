@@ -23,8 +23,23 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+ /**
+ * !#en The rigid body type
+ * !#zh 刚体类型
+ * @static
+ * @enum ERigidBodyType
+ */
 export enum ERigidBodyType {
+    /**
+     * @property {Number} DYNAMIC
+     */
     DYNAMIC = 1,
+    /**
+     * @property {Number} STATIC
+     */
     STATIC = 2,
+    /**
+     * @property {Number} KINEMATIC
+     */
     KINEMATIC = 4,
 }

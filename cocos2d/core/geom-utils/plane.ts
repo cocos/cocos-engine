@@ -32,10 +32,12 @@ const temp_mat = cc.mat4();
 const temp_vec4 = cc.v4();
 
 /**
+ * !#en
+ * plane。
  * !#zh
- * 基础几何 plane。
+ * 平面。
+ * @class geomUtils.Plane
  */
-// tslint:disable-next-line:class-name
 export default class plane {
 
     /**
@@ -43,6 +45,7 @@ export default class plane {
      * create a new plane
      * !#zh
      * 创建一个新的 plane。
+     * @method create
      * @param nx The x part of the normal component.
      * @param ny The y part of the normal component.
      * @param nz The z part of the normal component.
@@ -58,6 +61,7 @@ export default class plane {
      * clone a new plane
      * !#zh
      * 克隆一个新的 plane。
+     * @method clone
      * @param p The source of cloning.
      * @return The cloned object.
      */
@@ -70,6 +74,7 @@ export default class plane {
      * copy the values from one plane to another
      * !#zh
      * 复制一个平面的值到另一个。
+     * @method copy
      * @param out The object that accepts the action.
      * @param p The source of the copy.
      * @return The object that accepts the action.
@@ -86,6 +91,7 @@ export default class plane {
      * create a plane from three points
      * !#zh
      * 用三个点创建一个平面。
+     * @method fromPoints
      * @param out The object that accepts the action.
      * @param a Point a。
      * @param b Point b。
@@ -107,6 +113,7 @@ export default class plane {
      * Set the components of a plane to the given values
      * !#zh
      * 将给定平面的属性设置为给定值。
+     * @method set
      * @param out The object that accepts the action.
      * @param nx The x part of the normal component.
      * @param ny The y part of the normal component.
@@ -128,6 +135,7 @@ export default class plane {
      * create plane from normal and point
      * !#zh
      * 用一条法线和一个点创建平面。
+     * @method fromNormalAndPoint
      * @param out The object that accepts the action.
      * @param normal The normal of a plane.
      * @param point A point on the plane.
@@ -145,6 +153,7 @@ export default class plane {
      * normalize a plane
      * !#zh
      * 归一化一个平面。
+     * @method normalize
      * @param out The object that accepts the action.
      * @param a Source data for operations.
      * @return out The object that accepts the action.
@@ -163,6 +172,7 @@ export default class plane {
      * A normal vector.
      * !#zh
      * 法线向量。
+     * @property {Vec3} n
      */
     public n: Vec3;
 
@@ -171,6 +181,7 @@ export default class plane {
      * The distance from the origin to the plane.
      * !#zh
      * 原点到平面的距离。
+     * @property {number} d
      */
     public d: number;
 
@@ -179,6 +190,7 @@ export default class plane {
     /**
      * !#en Construct a plane.
      * !#zh 构造一个平面。
+     * @constructor
      * @param nx The x part of the normal component.
      * @param ny The y part of the normal component.
      * @param nz The z part of the normal component.
@@ -195,7 +207,8 @@ export default class plane {
      * Transform a plane.
      * !#zh
      * 变换一个平面。
-     * @param mat
+     * @method transform
+     * @param {Mat4} mat
      */
     public transform (mat: Mat4): void {
         Mat4.invert(temp_mat, mat);

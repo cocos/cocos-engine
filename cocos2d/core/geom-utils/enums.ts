@@ -23,15 +23,67 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+/**
+ * !#en Shape type.
+ * @enum geomUtils.enums
+ */
 export default {
+    /**
+     * !#en Ray.
+     * !#zh 射线。
+     * @property {Number} SHAPE_RAY
+     * @default 1 << 0
+     */
     SHAPE_RAY: (1 << 0),
+    /**
+     * !#en Line.
+     * !#zh 直线。
+     * @property {Number} SHAPE_LINE
+     * @default 2
+    */
     SHAPE_LINE: (1 << 1),
+    /**
+     * !#en Sphere.
+     * !#zh 球。
+     * @property {Number} SHAPE_SPHERE
+     * @default 4
+    */
     SHAPE_SPHERE: (1 << 2),
+    /**
+     * !#en Aabb.
+     * !#zh 包围盒。
+     * @property {Number} SHAPE_AABB
+    */
     SHAPE_AABB: (1 << 3),
+    /**
+     * !#en Obb.
+     * !#zh 有向包围盒。
+     * @property {Number} SHAPE_OBB
+    */
     SHAPE_OBB: (1 << 4),
+    /**
+     * !#en Plane.
+     * !#zh 平面。
+     * @property {Number} SHAPE_PLANE
+    */
     SHAPE_PLANE: (1 << 5),
+    /**
+     * !#en Triangle.
+     * !#zh 三角形。
+     * @property {Number} SHAPE_TRIANGLE
+    */
     SHAPE_TRIANGLE: (1 << 6),
+    /**
+     * !#en Frustum.
+     * !#zh 平截头体。
+     * @property {Number} SHAPE_FRUSTUM
+    */
     SHAPE_FRUSTUM: (1 << 7),
+    /**
+     * !#en frustum accurate.
+     * !#zh 平截头体。
+     * @property {Number} SHAPE_FRUSTUM_ACCURATE
+    */
     SHAPE_FRUSTUM_ACCURATE: (1 << 8),
-  };
+};
   

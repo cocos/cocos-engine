@@ -27,16 +27,8 @@ import Vec3 from '../value-types/vec3';
 import enums from './enums';
 
 /**
+ * Triangle
  * @class geomUtils.Triangle
- * @param {Number} ax 
- * @param {Number} ay 
- * @param {Number} az 
- * @param {Number} bx 
- * @param {Number} by 
- * @param {Number} bz 
- * @param {Number} cx 
- * @param {Number} cy 
- * @param {Number} cz 
  */
 export default class triangle {
 
@@ -117,7 +109,7 @@ export default class triangle {
      * @param {number} cx X component of c
      * @param {number} cy Y component of c
      * @param {number} cz Z component of c
-     * @return {plane}
+     * @return {Plane}
      */
     public static set (out, ax, ay, az, bx, by, bz, cx, cy, cz) {
         out.a.x = ax;
@@ -136,15 +128,15 @@ export default class triangle {
     }
 
     /**
-     * @property a
+     * @property {Vec3} a
      */
     a: Vec3;
     /**
-     * @property b
+     * @property {Vec3} b
      */
     b: Vec3;
     /**
-     * @property c
+     * @property {Vec3} c
      */
     c: Vec3;
 
@@ -153,6 +145,19 @@ export default class triangle {
      */
     _type: number;
 
+    /**
+     * create a new triangle
+     * @constructor
+     * @param {number} ax
+     * @param {number} ay
+     * @param {number} az
+     * @param {number} bx
+     * @param {number} by
+     * @param {number} bz
+     * @param {number} cx
+     * @param {number} cy
+     * @param {number} cz
+     */
     constructor (ax: number, ay: number, az: number, bx: number, by: number, bz: number, cx: number, cy: number, cz: number) {
         this.a = new Vec3(ax, ay, az);
         this.b = new Vec3(bx, by, bz);

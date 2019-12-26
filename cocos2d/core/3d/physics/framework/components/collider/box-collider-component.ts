@@ -42,6 +42,8 @@ const Vec3 = cc.Vec3;
  * Physics box collider
  * !#zh
  * 物理盒子碰撞器
+ * @class BoxCollider3D
+ * @extends Collider3D
  */
 @ccclass('cc.BoxCollider3D')
 @executionOrder(98)
@@ -56,6 +58,7 @@ export class BoxCollider3D extends Collider3D {
      * Get or set the size of the box, in local space.
      * !#zh
      * 获取或设置盒的大小。
+     * @property {Vec3} size
      */
     @property({
         type: cc.Vec3
@@ -71,6 +74,10 @@ export class BoxCollider3D extends Collider3D {
         }
     }
 
+    /**
+     * @property {IBoxShape} boxShape
+     * @readonly
+     */
     public get boxShape (): IBoxShape {
         return this._shape as IBoxShape;
     }

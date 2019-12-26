@@ -26,17 +26,20 @@ import { Vec3 } from '../value-types';
 import enums from './enums';
 
 /**
+ * !#en 
+ * line
  * !#zh
- * 基础几何 line。
+ * 直线
+ * @class geomUtils.Line
  */
-// tslint:disable-next-line:class-name
-export default class line {
+export default class Line {
 
     /**
      * !#en
      * create a new line
      * !#zh
      * 创建一个新的 line。
+     * @method create
      * @param sx The x part of the starting point.
      * @param sy The y part of the starting point.
      * @param sz The z part of the starting point.
@@ -54,6 +57,7 @@ export default class line {
      * Creates a new line initialized with values from an existing line
      * !#zh
      * 克隆一个新的 line。
+     * @method clone
      * @param a The source of cloning.
      * @return The cloned object.
      */
@@ -69,6 +73,7 @@ export default class line {
      * Copy the values from one line to another
      * !#zh
      * 复制一个线的值到另一个。
+     * @method copy
      * @param out The object that accepts the action.
      * @param a The source of the copy.
      * @return The object that accepts the action.
@@ -85,6 +90,7 @@ export default class line {
      * create a line from two points
      * !#zh
      * 用两个点创建一个线。
+     * @method fromPoints
      * @param out The object that accepts the action.
      * @param start The starting point.
      * @param end At the end.
@@ -101,6 +107,7 @@ export default class line {
      * Set the components of a Vec3 to the given values
      * !#zh
      * 将给定线的属性设置为给定值。
+     * @method set
      * @param out The object that accepts the action.
      * @param sx The x part of the starting point.
      * @param sy The y part of the starting point.
@@ -126,6 +133,7 @@ export default class line {
      * Calculate the length of the line.
      * !#zh
      * 计算线的长度。
+     * @method len
      * @param a The line to calculate.
      * @return Length.
      */
@@ -138,6 +146,7 @@ export default class line {
      * Start points.
      * !#zh
      * 起点。
+     * @property {Vec3} s
      */
     public s: Vec3;
 
@@ -146,6 +155,7 @@ export default class line {
      * End points.
      * !#zh
      * 终点。
+     * @property {Vec3} e
      */
     public e: Vec3;
 
@@ -154,6 +164,7 @@ export default class line {
     /**
      * !#en Construct a line.
      * !#zh 构造一条线。
+     * @constructor
      * @param sx The x part of the starting point.
      * @param sy The y part of the starting point.
      * @param sz The z part of the starting point.
@@ -172,6 +183,7 @@ export default class line {
      * Calculate the length of the line.
      * !#zh
      * 计算线的长度。
+     * @method length
      * @param a The line to calculate.
      * @return Length.
      */

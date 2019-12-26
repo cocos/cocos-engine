@@ -1,5 +1,9 @@
 import sort from './timsort';
 
+/**
+ * Recycle Pool
+ * @class RecyclePool
+ */
 export default class RecyclePool {
   constructor(fn, size) {
     this._fn = fn;

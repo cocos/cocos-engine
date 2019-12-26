@@ -37,11 +37,16 @@ _v[5] = new Vec3(-1, 1, -1);
 _v[6] = new Vec3(-1, -1, -1);
 _v[7] = new Vec3(1, -1, -1);
 
-// tslint:disable-next-line: class-name
+/**
+ * !#en frustum
+ * !#zh 平截头体
+ * @class geomUtils.Frustum
+ */
 export class frustum {
 
     /**
      * Set whether to use accurate intersection testing function on this frustum
+     * @property {boolean} accurate
      */
     set accurate (b: boolean) {
         this._type = b ? enums.SHAPE_FRUSTUM_ACCURATE : enums.SHAPE_FRUSTUM;
@@ -80,8 +85,9 @@ export class frustum {
 
     /**
      * create a new frustum
-     *
-     * @return {frustum}
+     * @method create
+     * @static
+     * @return {Frustum}
      */
     public static create () {
         return new frustum();
@@ -89,6 +95,10 @@ export class frustum {
 
     /**
      * Clone a frustum
+     * @method clone
+     * @param {Frustum} f
+     * @static
+     * @return {Frustum}
      */
     public static clone (f: frustum): frustum {
         return frustum.copy(new frustum(), f);
@@ -96,6 +106,10 @@ export class frustum {
 
     /**
      * Copy the values from one frustum to another
+     * @method copy
+     * @param {Frustum} out
+     * @param {Frustum} f
+     * @return {Frustum}
      */
     public static copy (out: frustum, f: frustum): frustum {
         out._type = f._type;
@@ -108,7 +122,13 @@ export class frustum {
         return out;
     }
 
+    /**
+     * @property {Plane[]} planes
+     */
     public planes: plane[];
+    /**
+     * @property {Vec3[]} planes
+     */
     public vertices: Vec3[];
     private _type: number;
 
@@ -125,9 +145,9 @@ export class frustum {
     }
 
     /**
-     * Update the frustum information according to the given transform matrix.
+     * !#en Update the frustum information according to the given transform matrix.
      * Note that the resulting planes are not normalized under normal mode.
-     *
+     * @method update
      * @param {Mat4} m the view-projection matrix
      * @param {Mat4} inv the inverse view-projection matrix
      */
@@ -172,6 +192,11 @@ export class frustum {
         }
     }
 
+    /**
+     * !#en transform by matrix
+     * @method transform
+     * @param {Mat4} mat
+     */
     public transform (mat: Mat4) {
         if (this._type !== enums.SHAPE_FRUSTUM_ACCURATE) {
             return;

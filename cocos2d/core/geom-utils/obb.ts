@@ -40,15 +40,18 @@ const transform_extent_m3 = (out: Vec3, extent: Vec3, m3: Mat3) => {
 };
 
 /**
+ * !#en obb
  * !#zh
  * 基础几何  方向包围盒。
+ * @class geomUtils.Obb
  */
-// tslint:disable-next-line:class-name
 export default class obb {
 
     /**
      * !#zh
      * 获取形状的类型。
+     * @property {number} type
+     * @readonly
      */
     get type () {
         return this._type;
@@ -59,6 +62,7 @@ export default class obb {
      * create a new obb
      * !#zh
      * 创建一个新的 obb 实例。
+     * @method create
      * @param cx X coordinates of the shape relative to the origin.
      * @param cy Y coordinates of the shape relative to the origin.
      * @param cz Z coordinates of the shape relative to the origin.
@@ -90,6 +94,7 @@ export default class obb {
      * clone a new obb
      * !#zh
      * 克隆一个 obb。
+     * @method clone
      * @param a The target of cloning.
      * @returns New object cloned.
      */
@@ -107,9 +112,10 @@ export default class obb {
      * copy the values from one obb to another
      * !#zh
      * 将从一个 obb 的值复制到另一个 obb。
-     * @param {obb} out Obb that accepts the operation.
-     * @param {obb} a Obb being copied.
-     * @return {obb} out Obb that accepts the operation.
+     * @method copy
+     * @param {Obb} out Obb that accepts the operation.
+     * @param {Obb} a Obb being copied.
+     * @return {Obb} out Obb that accepts the operation.
      */
     public static copy (out: obb, a: obb): obb {
         Vec3.copy(out.center, a.center);
@@ -124,10 +130,11 @@ export default class obb {
      * create a new obb from two corner points
      * !#zh
      * 用两个点创建一个新的 obb。
+     * @method fromPoints
      * @param out Obb that accepts the operation.
      * @param minPos The smallest point of obb.
      * @param maxPos Obb's maximum point.
-     * @returns {obb} out Obb that accepts the operation.
+     * @returns {Obb} out Obb that accepts the operation.
      */
     public static fromPoints (out: obb, minPos: Vec3, maxPos: Vec3): obb {
         Vec3.multiplyScalar(out.center, Vec3.add(_v3_tmp, minPos, maxPos), 0.5);
@@ -141,6 +148,7 @@ export default class obb {
      * Set the components of a obb to the given values
      * !#zh
      * 将给定 obb 的属性设置为给定的值。
+     * @method set
      * @param cx X coordinates of the shape relative to the origin.
      * @param cy Y coordinates of the shape relative to the origin.
      * @param cz Z coordinates of the shape relative to the origin.
@@ -156,7 +164,7 @@ export default class obb {
      * @param oz_1 Direction matrix parameter.
      * @param oz_2 Direction matrix parameter.
      * @param oz_3 Direction matrix parameter.
-     * @return {obb} out
+     * @return {Obb} out
      */
     public static set (
         out: obb,
@@ -176,6 +184,7 @@ export default class obb {
      * The center of the local coordinate.
      * !#zh
      * 本地坐标的中心点。
+     * @property {Vec3} center
      */
     public center: Vec3;
 
@@ -184,6 +193,7 @@ export default class obb {
      * Half the length, width, and height.
      * !#zh
      * 长宽高的一半。
+     * @property {Vec3} halfExtents
      */
     public halfExtents: Vec3;
 
@@ -192,6 +202,7 @@ export default class obb {
      * Direction matrix.
      * !#zh
      * 方向矩阵。
+     * @property {mat3} orientation
      */
     public orientation: Mat3;
 
@@ -213,6 +224,7 @@ export default class obb {
      * Get the bounding points of this shape
      * !#zh
      * 获取 obb 的最小点和最大点。
+     * @method getBoundary
      * @param {Vec3} minPos
      * @param {Vec3} maxPos
      */
@@ -226,6 +238,7 @@ export default class obb {
      * !#en Transform this shape
      * !#zh
      * 将 out 根据这个 obb 的数据进行变换。
+     * @method transform
      * @param m The transformation matrix.
      * @param pos The position part of the transformation.
      * @param rot The rotating part of the transformation.
@@ -244,6 +257,7 @@ export default class obb {
      * Transform out based on this obb data.
      * !#zh
      * 将 out 根据这个 obb 的数据进行变换。
+     * @method translateAndRotate
      * @param m The transformation matrix.
      * @param rot The rotating part of the transformation.
      * @param out Target of transformation.
@@ -259,6 +273,7 @@ export default class obb {
      * Scale out based on this obb data.
      * !#zh
      * 将 out 根据这个 obb 的数据进行缩放。
+     * @method setScale
      * @param scale Scale value.
      * @param out Scaled target.
      */

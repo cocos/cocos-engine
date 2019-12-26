@@ -26,34 +26,130 @@
 import { IVec3Like } from "../../../value-types/math";
 import { RigidBody3D } from '../framework/components/rigid-body-component';
 
+/**
+ * Rigid body interface
+ * @class IRigidBody
+ */
 export interface IRigidBody {
+    /**
+     * @property {RigidBody3D} rigidBody
+     */
     rigidBody: RigidBody3D;
 
+    /**
+     * @property {number} mass
+     */
     mass: number;
+    /**
+     * @property {number} linearDamping
+     */
     linearDamping: number;
+    /**
+     * @property {number} angularDamping
+     */
     angularDamping: number;
+    /**
+     * @property {boolean} isKinematic
+     */
     isKinematic: boolean;
+    /**
+     * @property {boolean} useGravity
+     */
     useGravity: boolean;
+    /**
+     * @property {boolean} fixedRotation
+     */
     fixedRotation: boolean;
+    /**
+     * @property {IVec3Like} linearFactor
+     */
     linearFactor: IVec3Like;
+    /**
+     * @property {IVec3Like} angularFactor
+     */
     angularFactor: IVec3Like;
+    /**
+     * @property {boolean} allowSleep
+     */
     allowSleep: boolean;
+    /**
+     * @property {boolean} isAwake
+     * @readonly
+     */
     readonly isAwake: boolean;
+    /**
+     * @property {boolean} isSleepy
+     * @readonly
+     */
     readonly isSleepy: boolean;
+    /**
+     * @property {boolean} isSleeping
+     * @readonly
+     */
     readonly isSleeping: boolean;
 
+    /**
+     * @method wakeUp
+     */
     wakeUp (): void;
+    /**
+     * @method sleep
+     */
     sleep (): void;
 
+    /**
+     * @method getLinearVelocity
+     * @param {IVec3Like} out
+     */
     getLinearVelocity (out: IVec3Like): void;
+    /**
+     * @method setLinearVelocity
+     * @param {IVec3Like} out
+     */
     setLinearVelocity (value: IVec3Like): void;
+    /**
+     * @method getAngularVelocity
+     * @param {IVec3Like} out
+     */
     getAngularVelocity (out: IVec3Like): void;
+    /**
+     * @method setAngularVelocity
+     * @param {IVec3Like} out
+     */
     setAngularVelocity (value: IVec3Like): void;
 
+    /**
+     * @method applyForce
+     * @param {IVec3Like} force
+     * @param {IVec3Like} relativePoint
+     */
     applyForce (force: IVec3Like, relativePoint?: IVec3Like): void;
+    /**
+     * @method applyLocalForce
+     * @param {IVec3Like} force
+     * @param {IVec3Like} relativePoint
+     */
     applyLocalForce (force: IVec3Like, relativePoint?: IVec3Like): void;
+    /**
+     * @method applyImpulse
+     * @param {IVec3Like} force
+     * @param {IVec3Like} relativePoint
+     */
     applyImpulse (force: IVec3Like, relativePoint?: IVec3Like): void;
+    /**
+     * @method applyLocalImpulse
+     * @param {IVec3Like} force
+     * @param {IVec3Like} relativePoint
+     */
     applyLocalImpulse (force: IVec3Like, relativePoint?: IVec3Like): void;
+    /**
+     * @method applyTorque
+     * @param {IVec3Like} torque
+     */
     applyTorque (torque: IVec3Like): void;
+    /**
+     * @method applyLocalTorque
+     * @param {IVec3Like} torque
+     */
     applyLocalTorque (torque: IVec3Like): void;
 }

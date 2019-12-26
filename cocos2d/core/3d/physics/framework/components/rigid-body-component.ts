@@ -38,9 +38,11 @@ const Vec3 = cc.Vec3;
 
 /**
  * !#en
- * Rigid body assembly.
+ * Rigid body.
  * !#zh
  * 刚体组件。
+ * @class RigidBody3D
+ * @extends Component
  */
 @ccclass('cc.RigidBody3D')
 @executionOrder(99)
@@ -56,6 +58,7 @@ export class RigidBody3D extends cc.Component {
      * Gets or sets whether sleep is allowed
      * !#zh
      * 获取或设置是否允许休眠
+     * @property {boolean} allowSleep
      */
     public get allowSleep (): boolean {
         return this._allowSleep;
@@ -73,6 +76,7 @@ export class RigidBody3D extends cc.Component {
      * Gets or sets the mass of the rigid body.
      * !#zh
      * 获取或设置刚体的质量。
+     * @property {number} mass
      */
     @property({
         displayOrder: 0
@@ -93,6 +97,7 @@ export class RigidBody3D extends cc.Component {
      * Gets or sets linear damping.
      * !#zh
      * 获取或设置线性阻尼。
+     * @property {number} linearDamping
      */
     @property({
         displayOrder: 1
@@ -113,6 +118,7 @@ export class RigidBody3D extends cc.Component {
      * Gets or sets rotational damping.
      * !#zh
      * 获取或设置旋转阻尼。
+     * @property {number} angularDamping
      */
     @property({
         displayOrder: 2
@@ -133,6 +139,7 @@ export class RigidBody3D extends cc.Component {
      * Gets or sets whether the rigid body is controlled by a physical system.
      * !#zh
      * 获取或设置刚体是否由物理系统控制运动。
+     * @property {boolean} isKinematic
      */
     @property({
         displayOrder: 3
@@ -153,6 +160,7 @@ export class RigidBody3D extends cc.Component {
      * Gets or sets whether the rigid body uses gravity.
      * !#zh
      * 获取或设置刚体是否使用重力。
+     * @property {boolean} useGravity
      */
     @property({
         displayOrder: 4
@@ -173,6 +181,7 @@ export class RigidBody3D extends cc.Component {
      * Gets or sets whether the rigid body is fixed for rotation.
      * !#zh
      * 获取或设置刚体是否固定旋转。
+     * @property {boolean} fixedRotation
      */
     @property({
         displayOrder: 5
@@ -193,11 +202,12 @@ export class RigidBody3D extends cc.Component {
      * Gets or sets a factor of linear velocity that can be used to control the scaling of velocity in each axis direction.
      * !#zh
      * 获取或设置线性速度的因子，可以用来控制每个轴方向上的速度的缩放。
+     * @property {Vec3} linearFactor
      */
     @property({
         displayOrder: 6
     })
-    public get linearFactor () {
+    public get linearFactor (): cc.Vec3 {
         return this._linearFactor;
     }
 
@@ -213,6 +223,7 @@ export class RigidBody3D extends cc.Component {
      * Gets or sets the rotation speed factor that can be used to control the rotation speed scaling in each axis direction.
      * !#zh
      * 获取或设置旋转速度的因子，可以用来控制每个轴方向上的旋转速度的缩放。
+     * @property {Vec3} angularFactor
      */
     @property({
         displayOrder: 7
@@ -233,6 +244,8 @@ export class RigidBody3D extends cc.Component {
      * Gets whether the state is awakened.
      * !#zh
      * 获取是否是唤醒的状态。
+     * @property {boolean} isAwake
+     * @readonly
      */
     public get isAwake (): boolean {
         if (this._assertOnload && !CC_EDITOR && !CC_PHYSICS_BUILTIN) {
@@ -246,6 +259,8 @@ export class RigidBody3D extends cc.Component {
      * Gets whether or not a dormant state can be entered.
      * !#zh
      * 获取是否是可进入休眠的状态。
+     * @property {boolean} isSleepy
+     * @readonly
      */
     public get isSleepy (): boolean {
         if (this._assertOnload && !CC_EDITOR && !CC_PHYSICS_BUILTIN) {
@@ -259,6 +274,8 @@ export class RigidBody3D extends cc.Component {
      * Gets whether the state is dormant.
      * !#zh
      * 获取是否是正在休眠的状态。
+     * @property {boolean} isSleeping
+     * @readonly
      */
     public get isSleeping (): boolean {
         if (this._assertOnload && !CC_EDITOR && !CC_PHYSICS_BUILTIN) {
@@ -267,6 +284,14 @@ export class RigidBody3D extends cc.Component {
         return false;
     }
 
+    /**
+     * !#en
+     * Gets physics engine rigid body object.
+     * !#zh
+     * 获得物理引擎内部刚体对象
+     * @property {IRigidBody} rigidBody
+     * @readonly
+     */
     public get rigidBody () {
         return this._body;
     }
@@ -348,8 +373,9 @@ export class RigidBody3D extends cc.Component {
      * A force is applied to a rigid body at a point in world space.
      * !#zh
      * 在世界空间中的某点上对刚体施加一个作用力。
-     * @param force
-     * @param relativePoint The point of action, relative to the center of the rigid body
+     * @method applyForce
+     * @param {Vec3} force
+     * @param {Vec3} relativePoint The point of action, relative to the center of the rigid body
      */
     public applyForce (force: cc.Vec3, relativePoint?: cc.Vec3) {
         if (this._assertOnload && !CC_EDITOR && !CC_PHYSICS_BUILTIN) {
@@ -362,8 +388,9 @@ export class RigidBody3D extends cc.Component {
      * Apply a force on the rigid body at a point in local space.
      * !#zh
      * 在本地空间中的某点上对刚体施加一个作用力。
-     * @param force 
-     * @param localPoint Point of application
+     * @method applyLocalForce
+     * @param {Vec3} force 
+     * @param {Vec3} localPoint Point of application
      */
     public applyLocalForce (force: cc.Vec3, localPoint?: cc.Vec3) {
         if (this._assertOnload && !CC_EDITOR && !CC_PHYSICS_BUILTIN) {
@@ -376,8 +403,9 @@ export class RigidBody3D extends cc.Component {
      * Apply an impulse to a rigid body at a point in world space.
      * !#zh
      * 在世界空间的某点上对刚体施加一个冲量。
-     * @param impulse
-     * @param relativePoint The point of action, relative to the center of the rigid body
+     * @method applyImpulse
+     * @param {Vec3} impulse
+     * @param {Vec3} relativePoint The point of action, relative to the center of the rigid body
      */
     public applyImpulse (impulse: cc.Vec3, relativePoint?: cc.Vec3) {
         if (this._assertOnload && !CC_EDITOR && !CC_PHYSICS_BUILTIN) {
@@ -390,8 +418,9 @@ export class RigidBody3D extends cc.Component {
      * Apply an impulse to the rigid body at a point in local space.
      * !#zh
      * 在本地空间的某点上对刚体施加一个冲量。
-     * @param impulse
-     * @param localPoint Point of application
+     * @method applyLocalImpulse
+     * @param {Vec3} impulse
+     * @param {Vec3} localPoint Point of application
      */
     public applyLocalImpulse (impulse: cc.Vec3, localPoint?: cc.Vec3) {
         if (this._assertOnload && !CC_EDITOR && !CC_PHYSICS_BUILTIN) {
@@ -399,12 +428,28 @@ export class RigidBody3D extends cc.Component {
         }
     }
 
+    /**
+     * !#en
+     * Apply a torque to the rigid body.
+     * !#zh
+     * 对刚体施加扭转力。
+     * @method applyTorque
+     * @param {Vec3} torque
+     */
     public applyTorque (torque: cc.Vec3) {
         if (this._assertOnload && !CC_EDITOR && !CC_PHYSICS_BUILTIN) {
             this._body.applyTorque(torque);
         }
     }
 
+    /**
+     * !#en
+     * Apply a local torque to the rigid body.
+     * !#zh
+     * 对刚体施加本地扭转力。
+     * @method applyLocalTorque
+     * @param {Vec3} torque
+     */
     public applyLocalTorque (torque: cc.Vec3) {
         if (this._assertOnload && !CC_EDITOR && !CC_PHYSICS_BUILTIN) {
             this._body.applyLocalTorque(torque);
@@ -416,6 +461,7 @@ export class RigidBody3D extends cc.Component {
      * Awaken the rigid body.
      * !#zh
      * 唤醒刚体。
+     * @method wakeUp
      */
     public wakeUp () {
         if (this._assertOnload && !CC_EDITOR && !CC_PHYSICS_BUILTIN) {
@@ -428,6 +474,7 @@ export class RigidBody3D extends cc.Component {
      * Dormant rigid body.
      * !#zh
      * 休眠刚体。
+     * @method sleep
      */
     public sleep () {
         if (this._assertOnload && !CC_EDITOR && !CC_PHYSICS_BUILTIN) {
@@ -440,7 +487,8 @@ export class RigidBody3D extends cc.Component {
      * Get linear velocity.
      * !#zh
      * 获取线性速度。
-     * @param out Vec3
+     * @method getLinearVelocity
+     * @param {Vec3} out
      */
     public getLinearVelocity (out: cc.Vec3) {
         if (this._assertOnload && !CC_EDITOR && !CC_PHYSICS_BUILTIN) {
@@ -453,7 +501,8 @@ export class RigidBody3D extends cc.Component {
      * Set linear speed.
      * !#zh
      * 设置线性速度。
-     * @param value Vec3
+     * @method setLinearVelocity
+     * @param {Vec3} value 
      */
     public setLinearVelocity (value: cc.Vec3): void {
         if (this._assertOnload && !CC_EDITOR && !CC_PHYSICS_BUILTIN) {
@@ -466,7 +515,8 @@ export class RigidBody3D extends cc.Component {
      * Gets the rotation speed.
      * !#zh
      * 获取旋转速度。
-     * @param out Vec3
+     * @method getAngularVelocity
+     * @param {Vec3} out 
      */
     public getAngularVelocity (out: cc.Vec3) {
         if (this._assertOnload && !CC_EDITOR && !CC_PHYSICS_BUILTIN) {
@@ -479,7 +529,8 @@ export class RigidBody3D extends cc.Component {
      * Set rotation speed.
      * !#zh
      * 设置旋转速度。
-     * @param value Vec3
+     * @method setAngularVelocity
+     * @param {Vec3} value 
      */
     public setAngularVelocity (value: cc.Vec3): void {
         if (this._assertOnload && !CC_EDITOR && !CC_PHYSICS_BUILTIN) {

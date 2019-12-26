@@ -41,6 +41,8 @@ const Vec3 = cc.Vec3;
  * Each frame applies a constant force to a rigid body, depending on the RigidBody3D
  * !#zh
  * 在每帧对一个刚体施加持续的力，依赖 RigidBody3D 组件
+ * @class ConstantForce
+ * @extends Component
  */
 @ccclass('cc.ConstantForce')
 @executionOrder(98)
@@ -71,6 +73,7 @@ export class ConstantForce extends cc.Component {
      * To get and set the force that the world is facing, use this.force = otherVec3
      * !#zh
      * 获取和设置世界朝向的力, 设置时请用 this.force = otherVec3 的方式
+     * @property {Vec3} force
      */
     @property({
         displayOrder: 0
@@ -89,6 +92,7 @@ export class ConstantForce extends cc.Component {
      * Get and set the force of the local orientation, using this.localforce = otherVec3
      * !#zh
      * 获取和设置本地朝向的力, 设置时请用 this.localForce = otherVec3 的方式
+     * @property {Vec3} localForce
      */
     @property({
         displayOrder: 1
@@ -107,6 +111,7 @@ export class ConstantForce extends cc.Component {
      * 获取和设置世界朝向的扭转力
      * @note
      * 设置时请用 this.torque = otherVec3 的方式
+     * @property {Vec3} torque
      */
     @property({
         displayOrder: 2
@@ -125,6 +130,7 @@ export class ConstantForce extends cc.Component {
      * Get and set the torque of the local orientation using this.localtorque = otherVec3
      * !#zh
      * 获取和设置本地朝向的扭转力, 设置时请用 this.localTorque = otherVec3 的方式
+     * @property {Vec3} localTorque
      */
     @property({
         displayOrder: 3

@@ -30,5 +30,8 @@ export { default as Ray } from './ray';
 export { default as intersect } from './intersect';
 export { default as Sphere } from './sphere';
 export { default as Obb } from './obb';
+export { default as Frustum } from './frustum';
+export { default as Line } from './line';
+export { default as Plane } from './plane';
 
 cc.geomUtils = module.exports;

@@ -27,6 +27,11 @@ const {ccclass, property} = cc._decorator;
 const fastRemove = cc.js.array.fastRemove;
 const equals = cc.math.equals;
 
+/**
+ * Physics material.
+ * @class PhysicsMaterial
+ * @extends Asset
+ */
 @ccclass('cc.PhysicsMaterial')
 export class PhysicsMaterial extends cc.Asset {
 
@@ -44,6 +49,7 @@ export class PhysicsMaterial extends cc.Asset {
      * Friction for this material.
      * If non-negative, it will be used instead of the friction given by ContactMaterials.
      * If there's no matching ContactMaterial, the value from .defaultContactMaterial in the World will be used.
+     * @property {number} friction
      */
     @property
     get friction () {
@@ -61,6 +67,7 @@ export class PhysicsMaterial extends cc.Asset {
      * Restitution for this material.
      * If non-negative, it will be used instead of the restitution given by ContactMaterials.
      * If there's no matching ContactMaterial, the value from .defaultContactMaterial in the World will be used
+     * @property {number} restitution
      */
     @property
     get restitution () {

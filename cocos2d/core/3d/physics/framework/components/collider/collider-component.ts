@@ -36,12 +36,15 @@ const Vec3 = cc.Vec3;
  * The base class of the collider
  * !#zh
  * 碰撞器的基类
+ * @class Collider3D
+ * @extends Component
  */
 @ccclass('cc.Collider3D')
 export class Collider3D extends cc.Component {
 
-    /// PUBLIC PROPERTY GETTER\SETTER ///
-
+    /**
+     * @property {PhysicsMaterial} sharedMaterial
+     */
     @property({
         type: PhysicsMaterial,
         displayName: 'Material',
@@ -175,10 +178,11 @@ export class Collider3D extends cc.Component {
     /**
      * !#en Register callbacks related to triggering events.
      * !#zh 注册触发事件或碰撞事件相关的回调。
-     * @param type The type of collider event can be 'onTriggerEnter'，'onTriggerStay'，'onTriggerExit' or 'onCollisionEnter', 'onCollisionStay', 'onCollisionExit';
-     * @param callback Registered callback function
-     * @param target Optional argument that executes the target of the callback function
-     * @param useCapture Optional. When set to true, the listener will fire during the capture phase or during the bubbling phase. The default is false.
+     * @method on
+     * @param {String} type The type of collider event can be 'onTriggerEnter'，'onTriggerStay'，'onTriggerExit' or 'onCollisionEnter', 'onCollisionStay', 'onCollisionExit';
+     * @param {Function} callback Registered callback function
+     * @param {Object} target Optional argument that executes the target of the callback function
+     * @param {boolean} useCapture Optional. When set to true, the listener will fire during the capture phase or during the bubbling phase. The default is false.
      */
     public on (type: TriggerEventType | CollisionEventType, callback: TriggerCallback | CollisionCallback, target?: Object, useCapture?: any): any {
     }
@@ -186,10 +190,11 @@ export class Collider3D extends cc.Component {
     /**
      * !#en Cancels the callback associated with a registered triggering event.
      * !#zh 取消已经注册的触发事件或碰撞事件相关的回调。
-     * @param type The type of collider event can be 'onTriggerEnter', 'onTriggerStay', 'onTriggerExit' or 'onCollisionEnter', 'onCollisionStay', 'onCollisionExit';
-     * @param callback Registered callback function.
-     * @param target Optional argument that executes the target of the callback function.
-     * @param useCapture Optional. When set to true, the listener will fire during the capture phase or during the bubbling phase. The default is false.
+     * @method off
+     * @param {String} type The type of collider event can be 'onTriggerEnter', 'onTriggerStay', 'onTriggerExit' or 'onCollisionEnter', 'onCollisionStay', 'onCollisionExit';
+     * @param {Function} callback Registered callback function.
+     * @param {Object} target Optional argument that executes the target of the callback function.
+     * @param {boolean} useCapture Optional. When set to true, the listener will fire during the capture phase or during the bubbling phase. The default is false.
      */
     public off (type: TriggerEventType | CollisionEventType, callback: TriggerCallback | CollisionCallback, target?: Object, useCapture?: any) {
     }
@@ -197,30 +202,57 @@ export class Collider3D extends cc.Component {
     /**
      * !#en Registers callbacks related to triggering events, but only executes once.
      * !#zh 注册触发事件或碰撞事件相关的回调，但只会执行一次。
-     ** @param type The type of collider event can be 'onCollisionEnter', 'onCollisionStay', 'onCollisionExit';
-     * @param callback Registered callback function.
-     * @param target Optional argument that executes the target of the callback function.
-     * @param useCapture Optional. When set to true, the listener will fire during the capture phase or during the bubbling phase. The default is false.
+     * @method once
+     * @param {String} type The type of collider event can be 'onCollisionEnter', 'onCollisionStay', 'onCollisionExit';
+     * @param {Function} callback Registered callback function.
+     * @param {Object} target Optional argument that executes the target of the callback function.
+     * @param {Boolean} useCapture Optional. When set to true, the listener will fire during the capture phase or during the bubbling phase. The default is false.
      */
     public once (type: TriggerEventType | CollisionEventType, callback: TriggerCallback | CollisionCallback, target?: Object, useCapture?: any): any {
     }
 
     /**
      * IEventTarget implementations, they will be overwrote with the same implementation in EventTarget by applyMixins
+     * @method targetOff
+     * @param {String|Object} keyOrTarget
      */
     public targetOff (keyOrTarget?: TriggerEventType | CollisionEventType | Object): void {
     }
 
+    /**
+     * @method dispatchEvent
+     * @param {Event} event 
+     */
     public dispatchEvent (event: Event): void {
     }
 
+    /**
+     * @method hasEventListener
+     * @param {String} key
+     * @param {Function} callback
+     * @param {Object} target
+     * @return {Boolean}
+     */
     public hasEventListener (key: TriggerEventType | CollisionEventType, callback?: TriggerCallback | CollisionCallback, target?: Object): boolean {
         return false;
     }
 
+    /**
+     * @method removeAll
+     * @param {String|Object} keyOrTarget
+     */
     public removeAll (keyOrTarget?: TriggerEventType | CollisionEventType | Object): void {
     }
 
+    /**
+     * @method emit
+     * @param {String} key - event type
+     * @param {*} [arg1] - First argument
+     * @param {*} [arg2] - Second argument
+     * @param {*} [arg3] - Third argument
+     * @param {*} [arg4] - Fourth argument
+     * @param {*} [arg5] - Fifth argument
+     */
     public emit (key: TriggerEventType | CollisionEventType, ...args: any[]): void {
     }
 

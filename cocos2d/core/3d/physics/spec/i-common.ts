@@ -23,15 +23,44 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+/**
+ * Class has x y z properties
+ * @class IVec3Like
+ */
 export interface IVec3Like {
+    /**
+     * @property {number} x
+     */
     x: number;
+    /**
+     * @property {number} y
+     */
     y: number;
+    /**
+     * @property {number} z
+     */
     z: number;
 }
 
+/**
+ * Class has x y z w properties
+ * @class IQuatLike
+ */
 export interface IQuatLike {
+    /**
+     * @property {number} x
+     */
     x: number;
+    /**
+     * @property {number} y
+     */
     y: number;
+    /**
+     * @property {number} z
+     */
     z: number;
+    /**
+     * @property {number} w
+     */
     w: number;
 }

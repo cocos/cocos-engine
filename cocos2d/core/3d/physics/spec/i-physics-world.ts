@@ -26,29 +26,59 @@
 import { IVec3Like } from "../../../value-types/math";
 import { PhysicsRayResult } from '../framework/physics-ray-result';
 
+/**
+ * Ray cast options
+ * @class IRaycastOptions
+ */
 export interface IRaycastOptions {
+    /**
+     * @property {number} groupIndex
+     */
     groupIndex: number;
+    /**
+     * @property {boolean} queryTrigger
+     */
     queryTrigger: boolean;
+    /**
+     * @property {number} maxDistance
+     */
     maxDistance: number;
 }
 
+/**
+ * Collision detect
+ * @class ICollisionDetect
+ */
 export interface ICollisionDetect {
 
     step (deltaTime: number, ...args: any): void;
 
     /**
      * Ray cast, and return information of the closest hit.
-     * @return True if any body was hit.
+     * @method raycastClosest
+     * @param {Ray} worldRay
+     * @param {IRaycastOptions} options
+     * @param {PhysicsRayResult} out
+     * @return {boolean} True if any body was hit.
      */
     raycastClosest (worldRay: cc.geomUtils.Ray, options: IRaycastOptions, out: PhysicsRayResult): boolean;
 
     /**
      * Ray cast against all bodies. The provided callback will be executed for each hit with a RaycastResult as single argument.
-     * @return True if any body was hit.
+     * @method raycast
+     * @param {Ray} worldRay
+     * @param {IRaycastOptions} options
+     * @param {RecyclePool} pool
+     * @param {PhysicsRayResult[]} resultes
+     * @return {boolean} True if any body was hit.
      */
     raycast (worldRay: cc.geomUtils.Ray, options: IRaycastOptions, pool: cc.RecyclePool, resultes: PhysicsRayResult[]): boolean
 }
 
+/**
+ * Physics world interface
+ * @class IPhysicsWorld
+ */
 export interface IPhysicsWorld extends ICollisionDetect {
     gravity: IVec3Like;
     allowSleep: boolean;

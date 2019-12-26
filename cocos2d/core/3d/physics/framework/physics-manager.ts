@@ -35,6 +35,7 @@ const { property, ccclass } = cc._decorator;
  * Physical systems manager.
  * !#zh
  * 物理系统管理器。
+ * @class Physics3DManager
  */
 @ccclass("cc.Physics3DManager")
 export class Physics3DManager {
@@ -44,6 +45,7 @@ export class Physics3DManager {
      * Gets or sets whether to enable physical systems, which are not enabled by default.
      * !#zh
      * 获取或设置是否启用物理系统，默认不启用。
+     * @property {boolean} enable
      */
     get enable (): boolean {
         return this._enable;
@@ -57,6 +59,7 @@ export class Physics3DManager {
      * Gets or sets whether the physical system allows automatic sleep, which defaults to true.
      * !#zh
      * 获取或设置物理系统是否允许自动休眠，默认为 true
+     * @property {boolean} allowSleep
      */
     get allowSleep (): boolean {
         return this._allowSleep;
@@ -73,11 +76,11 @@ export class Physics3DManager {
      * Gets or sets the maximum number of child steps per frame simulated.
      * !#zh
      * 获取或设置每帧模拟的最大子步数。
+     * @property {number} maxSubStep
      */
-    get maxSubStep () {
+    get maxSubStep (): number {
         return this._maxSubStep;
     }
-
     set maxSubStep (value: number) {
         this._maxSubStep = value;
     }
@@ -87,11 +90,11 @@ export class Physics3DManager {
      * Gets or sets the fixed time consumed by each simulation step.
      * !#zh
      * 获取或设置每步模拟消耗的固定时间。
+     * @property {number} deltaTime
      */
-    get deltaTime () {
+    get deltaTime (): number {
         return this._deltaTime;
     }
-
     set deltaTime (value: number) {
         this._deltaTime = value;
     }
@@ -101,11 +104,11 @@ export class Physics3DManager {
      * Gets or sets whether to use a fixed time step.
      * !#zh
      * 获取或设置是否使用固定的时间步长。
+     * @property {boolean} useFixedTime
      */
-    get useFixedTime () {
+    get useFixedTime (): boolean {
         return this._useFixedTime;
     }
-
     set useFixedTime (value: boolean) {
         this._useFixedTime = value;
     }
@@ -115,6 +118,7 @@ export class Physics3DManager {
      * Gets or sets the gravity value of the physical world, by default (0, -10, 0)
      * !#zh
      * 获取或设置物理世界的重力数值，默认为 (0, -10, 0)
+     * @property {Vec3} gravity
      */
     get gravity (): cc.Vec3 {
         return this._gravity;
@@ -131,6 +135,8 @@ export class Physics3DManager {
      * Gets the global default physical material. Note that builtin is null
      * !#zh
      * 获取全局的默认物理材质，注意：builtin 时为 null
+     * @property {PhysicsMaterial | null} defaultMaterial
+     * @readonly
      */
     get defaultMaterial (): PhysicsMaterial | null {
         return this._material;
@@ -189,7 +195,8 @@ export class Physics3DManager {
      * A physical system simulation is performed once and will now be performed automatically once per frame.
      * !#zh
      * 执行一次物理系统的模拟，目前将在每帧自动执行一次。
-     * @param deltaTime The time difference from the last execution is currently elapsed per frame
+     * @method update
+     * @param {number} deltaTime The time difference from the last execution is currently elapsed per frame
      */
     update (deltaTime: number) {
         if (CC_EDITOR) {
@@ -213,10 +220,11 @@ export class Physics3DManager {
     /**
      * !#en Detect all collision boxes and return all detected results, or null if none is detected. Note that the return value is taken from the object pool, so do not save the result reference or modify the result.
      * !#zh 检测所有的碰撞盒，并返回所有被检测到的结果，若没有检测到，则返回空值。注意返回值是从对象池中取的，所以请不要保存结果引用或者修改结果。
-     * @param worldRay A ray in world space
-     * @param groupIndexOrName Collision group index or group name
-     * @param maxDistance Maximum detection distance
-     * @param queryTrigger Detect trigger or not
+     * @method raycast
+     * @param {Ray} worldRay A ray in world space
+     * @param {number|string} groupIndexOrName Collision group index or group name
+     * @param {number} maxDistance Maximum detection distance
+     * @param {boolean} queryTrigger Detect trigger or not
      * @return {PhysicsRayResult[] | null} Detected result
      */
     raycast (worldRay: cc.geomUtils.Ray, groupIndexOrName: number|string = 0, maxDistance = Infinity, queryTrigger = true): PhysicsRayResult[] | null {
@@ -239,10 +247,11 @@ export class Physics3DManager {
     /**
      * !#en Detect all collision boxes and return the detection result with the shortest ray distance. If not, return null value. Note that the return value is taken from the object pool, so do not save the result reference or modify the result.
      * !#zh 检测所有的碰撞盒，并返回射线距离最短的检测结果，若没有，则返回空值。注意返回值是从对象池中取的，所以请不要保存结果引用或者修改结果。
-     * @param worldRay A ray in world space
-     * @param groupIndexOrName Collision group index or group name
-     * @param maxDistance Maximum detection distance
-     * @param queryTrigger Detect trigger or not
+     * @method raycastClosest
+     * @param {Ray} worldRay A ray in world space
+     * @param {number|string} groupIndexOrName Collision group index or group name
+     * @param {number} maxDistance Maximum detection distance
+     * @param {boolean} queryTrigger Detect trigger or not
      * @return {PhysicsRayResult|null} Detected result
      */
     raycastClosest (worldRay: cc.geomUtils.Ray, groupIndexOrName: number|string = 0, maxDistance = Infinity, queryTrigger = true): PhysicsRayResult|null {
