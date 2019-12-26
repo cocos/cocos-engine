@@ -447,8 +447,10 @@ sp.Skeleton = cc.Class({
     _updateMaterial () {
         let useTint = this.useTint || (this.isAnimationCached() && !CC_NATIVERENDERER);
         let baseMaterial = this.getMaterial(0);
-        baseMaterial.define('USE_TINT', useTint);
-        baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
+        if (baseMaterial) {
+            baseMaterial.define('USE_TINT', useTint);
+            baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
+        }
         this._materialCache = {};
     },
 
@@ -463,21 +465,27 @@ sp.Skeleton = cc.Class({
         this._super(enable);
         if (enable) {
             this.node._renderFlag |= FLAG_POST_RENDER;
+        } else {
+            this.node._renderFlag &= ~FLAG_POST_RENDER;
         }
     },
 
     // if change use tint mode, just clear material cache
     _updateUseTint () {
         let baseMaterial = this.getMaterial(0);
-        let useTint = this.useTint || (this.isAnimationCached() && !CC_NATIVERENDERER);
-        baseMaterial.define('USE_TINT', useTint);
+        if (baseMaterial) {
+            let useTint = this.useTint || (this.isAnimationCached() && !CC_NATIVERENDERER);
+            baseMaterial.define('USE_TINT', useTint);
+        }
         this._materialCache = {};
     },
 
     // if change use batch mode, just clear material cache
     _updateBatch () {
         let baseMaterial = this.getMaterial(0);
-        baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
+        if (baseMaterial) {
+            baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
+        }
         this._materialCache = {};
     },
 

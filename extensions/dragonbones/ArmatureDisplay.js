@@ -24,13 +24,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import MaterialVariant from '../../cocos2d/core/assets/material/material-variant';
-
 const RenderComponent = require('../../cocos2d/core/components/CCRenderComponent');
-
 let EventTarget = require('../../cocos2d/core/event/event-target');
-
-const Node = require('../../cocos2d/core/CCNode');
 const Graphics = require('../../cocos2d/core/graphics/graphics');
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
 const FLAG_POST_RENDER = RenderFlow.FLAG_POST_RENDER;
@@ -424,8 +419,10 @@ let ArmatureDisplay = cc.Class({
     // override base class _updateMaterial to set define value and clear material cache
     _updateMaterial () {
         let baseMaterial = this.getMaterial(0);
-        baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
-        baseMaterial.define('USE_TEXTURE', true);
+        if (baseMaterial) {
+            baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
+            baseMaterial.define('USE_TEXTURE', true);
+        }
         this._materialCache = {};
     },
 
@@ -440,6 +437,8 @@ let ArmatureDisplay = cc.Class({
         this._super(enable);
         if (enable) {
             this.node._renderFlag |= FLAG_POST_RENDER;
+        } else {
+            this.node._renderFlag &= ~FLAG_POST_RENDER;
         }
     },
 
