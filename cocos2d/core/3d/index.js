@@ -19,5 +19,5 @@ if (!CC_EDITOR || !Editor.isMainProcess) {
     require('./skeleton/CCSkinnedMeshRenderer');
     require('./skeleton/skinned-mesh-renderer');
     require('./CCLightComponent');
-    require('./particle/renderer/particle-system-3d-assembler');
+    require('./particle/renderer/particle-system-3d-renderer');
 }
