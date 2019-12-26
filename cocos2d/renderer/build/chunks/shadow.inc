@@ -12,8 +12,11 @@
 
   #pragma builtin(global)
   uniform sampler2D cc_shadow_map_0;
-  #pragma builtin(global)
-  uniform sampler2D cc_shadow_map_1;
+  
+  #if CC_NUM_SHADOW_LIGHTS > 1
+    #pragma builtin(global)
+    uniform sampler2D cc_shadow_map_1;
+  #endif
 
   varying vec4 v_posLightSpace[CC_MAX_SHADOW_LIGHTS];
   varying float v_depth[CC_MAX_SHADOW_LIGHTS];
