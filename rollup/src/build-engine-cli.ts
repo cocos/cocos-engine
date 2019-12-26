@@ -45,6 +45,10 @@ yargs.option('compress', {
     type: 'boolean',
     description: 'Whether to compress compiled engine.',
 });
+yargs.option('watch-files', {
+    type: 'string',
+    description: '(INTERNAL/EXPERIMENTAL) Write built file list as a record with file path as key and mtime as value, into specified file, in JSON format.',
+});
 
 const flags: IFlags = {};
 const argvFlags = yargs.argv.flags as (string[] | undefined);
@@ -60,6 +64,8 @@ if (moduleEntries.length === 0) {
     moduleEntries.push(...getDefaultModuleEntries());
 }
 
+const watchFiles = yargs.argv['watch-files'] as string | undefined;
+
 const options: IBuildOptions = {
     moduleEntries,
     compress: yargs.argv.compress as (boolean | undefined),
@@ -67,6 +73,7 @@ const options: IBuildOptions = {
     excludes: yargs.argv.excludes as string[],
     sourcemap: sourceMap,
     flags,
+    watchFiles: !!watchFiles,
 };
 if (yargs.argv['module']) {
     options.moduleFormat = parseModuleOption(yargs.argv['module'] as unknown as string);
@@ -78,19 +85,19 @@ if (yargs.argv.platform) {
     options.platform = parsePlatform(yargs.argv.platform as unknown as string);
 }
 
-build(options).then(
-    (result) => {
-        console.log(`Build successful.`);
-        fs.ensureDirSync(ps.dirname(options.outputPath));
-        fs.writeFileSync(options.outputPath, result.code);
-        if (result.map) {
-            fs.writeFileSync(`${options.outputPath}.map`, result.map);
-        }
-    },
-    (reason: any) => {
-        console.error(`Build failed, reason:\n ${reason.stack}`);
-    },
-);
+(async () => {
+    const result = await build(options);
+    console.log(`Build successful.`);
+    await fs.ensureDir(ps.dirname(options.outputPath));
+    await fs.writeFile(options.outputPath, result.code);
+    if (result.map) {
+        await fs.writeFile(`${options.outputPath}.map`, result.map);
+    }
+    if (watchFiles) {
+        await fs.ensureDir(ps.dirname(watchFiles));
+        await fs.writeFile(watchFiles, JSON.stringify(result.watchFiles, undefined, 2));
+    }
+})();
 
 function getDefaultModuleEntries () {
     type ModuleDivision = any; // import('../../scripts/module-division/tools/division-config').ModuleDivision;
