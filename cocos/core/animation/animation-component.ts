@@ -329,7 +329,7 @@ export class AnimationComponent extends Component implements IEventTarget {
     /**
      * @en
      * Remove clip from the animation list. This will remove the clip and any animation states based on it.<br>
-     * If there are animation states depand on the clip are playing or clip is defaultClip, it will not delete the clip.<br>
+     * If there are animation states depend on the clip are playing or clip is defaultClip, it will not delete the clip.<br>
      * But if force is true, then will always remove the clip and any animation states based on it. If clip is defaultClip, defaultClip will be reset to null
      * @zh
      * 从动画列表中移除指定的动画剪辑，<br/>

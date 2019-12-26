@@ -1,7 +1,8 @@
 
 import { AnimCurve, RatioSampler, sampleAnimationCurve } from '../../cocos/core/animation/animation-curve';
-import { BoundTarget, ComponentModifier, TargetModifier, HierachyModifier } from '../../cocos/core/animation/target-modifier';
+import { ComponentPath, TargetPath, HierarchyPath } from '../../cocos/core/animation/target-path';
 import { Node } from '../../cocos/core/scene-graph';
+import { BoundTarget } from '../../cocos/core/animation/bound-target';
 
 test('sample from animation curve', () => {
     const curve = new AnimCurve({
@@ -17,17 +18,17 @@ test('sample from animation curve', () => {
     expect(sampleAnimationCurve(curve, sampler, 1.0)).toBe(3);
 });
 
-test('Erroneous target modifiers', () => {
-    const fx = (target: any, modifier: TargetModifier | TargetModifier[]) => {
+test('Erroneous target path', () => {
+    const fx = (target: any, modifier: TargetPath | TargetPath[]) => {
         return () => {
             new BoundTarget(target, Array.isArray(modifier) ? modifier : [ modifier ]);
         };
     };
 
-    expect(fx(new Node("TestNode"), new ComponentModifier('cc.ModelComponent'))).toThrow(
+    expect(fx(new Node("TestNode"), new ComponentPath('cc.ModelComponent'))).toThrow(
         `Node "TestNode" has no component "cc.ModelComponent"`);
 
-    expect(fx(new Node("TestNode"), new HierachyModifier('/absent'))).toThrow(
+    expect(fx(new Node("TestNode"), new HierarchyPath('/absent'))).toThrow(
         `Node "TestNode" has no path "/absent"`);
 
     expect(fx(Object.create(null), ['property', 0])).toThrow(
