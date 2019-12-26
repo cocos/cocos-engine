@@ -1,5 +1,5 @@
 import { Mat4, Quat, random, randomRange, randomRangeInt, Vec2, Vec3 } from '../../value-types';
-import { sign } from '../../value-types/bits';
+import { sign } from '../../value-types/utils';
 import { Space } from './enum';
 
 export const particleEmitZAxis = new Vec3(0, 0, -1);

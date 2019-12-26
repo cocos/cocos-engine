@@ -12,6 +12,11 @@ const _r2d = 180.0 / Math.PI;
  */
 export const EPSILON = 0.000001;
 
+// Number of bits in an integer
+export const INT_BITS = 32;
+export const INT_MAX = 0x7fffffff;
+export const INT_MIN = -1 << (INT_BITS - 1);
+
 /**
  * Use single-precision floating point on native platforms to be compatible with native math libraries.
  * Double precision floating point is used on Web platforms and editors to reduce the overhead of type conversion.
@@ -221,4 +226,14 @@ export function pingPong(t, length) {
  */
 export function inverseLerp(from, to, value) {
   return (value - from) / (to - from);
+}
+
+/**
+ * Returns -1, 0, +1 depending on sign of x.
+ * 
+ * @method sign
+ * @param {number} v
+ */
+export function sign (v) {
+  return (v > 0) - (v < 0);
 }
