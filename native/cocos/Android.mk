@@ -134,7 +134,7 @@ renderer/core/memory/JeAlloc.cc \
 renderer/core/memory/Memory.cc \
 renderer/core/memory/MemTracker.cc \
 renderer/core/memory/NedPooling.cc \
-renderer/core/math/CCMath.cc \
+renderer/core/math/CCCoreMath.cc \
 renderer/core/util/StringUtil.cc \
 renderer/core/util/GFXUtils.cpp
 endif # USE_GFX_RENDERER
