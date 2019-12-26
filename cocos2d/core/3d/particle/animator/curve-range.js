@@ -1,7 +1,7 @@
 import { ccclass, property } from '../../../platform/CCClassDecorator';
 import Enum  from '../../../platform/CCEnum';
 import { lerp } from '../../../value-types';
-import { AnimationCurve } from '../../../geom-utils/curve';
+import { AnimationCurve } from '../curve';
 
 export const Mode = Enum({
     Constant: 0,
