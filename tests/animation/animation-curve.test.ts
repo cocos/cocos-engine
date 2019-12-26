@@ -1,7 +1,8 @@
 
 import { AnimCurve, RatioSampler, sampleAnimationCurve } from '../../cocos/core/animation/animation-curve';
-import { BoundTarget, ComponentPath, TargetPath, HierarchyPath } from '../../cocos/core/animation/target-path';
+import { ComponentPath, TargetPath, HierarchyPath } from '../../cocos/core/animation/target-path';
 import { Node } from '../../cocos/core/scene-graph';
+import { BoundTarget } from '../../cocos/core/animation/bound-target';
 
 test('sample from animation curve', () => {
     const curve = new AnimCurve({

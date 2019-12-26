@@ -93,7 +93,7 @@ cc.isElementModifier = isElementModifier;
  * Alias of `isCustomPath()`.
  * @deprecated Since v1.1.
  */
-export function isCustomModifier<T extends CustomTargetPath> (path: TargetPath, constructor: Constructor<T>): path is T {
+export function isCustomTargetModifier<T extends CustomTargetPath> (path: TargetPath, constructor: Constructor<T>): path is T {
     return path instanceof constructor;
 }
-cc.isCustomModifier = isCustomModifier;
+cc.isCustomTargetModifier = isCustomTargetModifier;
