@@ -424,7 +424,7 @@ export class AnimationClip extends Asset {
     }
 
     private _decodeCVTAs () {
-        const binaryBuffer: ArrayBuffer = this._nativeAsset;
+        const binaryBuffer: ArrayBuffer = ArrayBuffer.isView(this._nativeAsset) ? this._nativeAsset.buffer : this._nativeAsset;
         if (!binaryBuffer) {
             return;
         }
