@@ -420,7 +420,7 @@ export class UI {
 
         StencilManager.sharedManager!.handleMaterial(mat);
 
-        const curDrawBatch = this._currStaticRoot ? this._currStaticRoot.requireDrawBatch() : this._drawBatchPool.alloc();
+        const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
         curDrawBatch.camera = uiCanvas && uiCanvas.camera;
         curDrawBatch.bufferBatch = buffer;
         curDrawBatch.material = mat;
