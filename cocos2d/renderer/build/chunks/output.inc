@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2019 Xiamen Yaji Software Co., Ltd.
 #include <cc-global>
-#include <gamma>
+#include <encodings>
 
 vec4 CCFragOutput(vec4 color) {
   #if CC_USE_HDR

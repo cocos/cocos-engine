@@ -1,5 +1,4 @@
 import { Mat4, Vec2, Vec3, Vec4 } from '../../../value-types';
-import { GFXFormat } from '../../../../renderer/gfx/define';
 import gfx from '../../../../renderer/gfx';
 import ParticleBatchModel from './particle-batch-model';
 import MaterialVariant from '../../../assets/material/material-variant';

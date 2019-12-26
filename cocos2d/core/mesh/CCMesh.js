@@ -492,13 +492,15 @@ let Mesh = cc.Class({
     },
 
     /**
-     * 读取子网格的指定属性到目标缓冲区中。
-     * @param primitiveIndex 子网格索引。
-     * @param attributeName 属性名称。
-     * @param buffer 目标缓冲区。
-     * @param stride 相邻属性在目标缓冲区的字节间隔。
-     * @param offset 首个属性在目标缓冲区中的偏移。
-     * @returns 不存在指定的子网格、子网格不存在指定的属性或属性无法读取时返回 `false`，否则返回 `true`。
+     * !#en Read the specified attributes of the subgrid into the target buffer.
+     * !#zh 读取子网格的指定属性到目标缓冲区中。
+     * @param {Number} primitiveIndex The subgrid index.
+     * @param {String} attributeName attribute name.
+     * @param {ArrayBuffer} buffer The target buffer.
+     * @param {Number} stride The byte interval between adjacent attributes in the target buffer.
+     * @param {Number} offset The offset of the first attribute in the target buffer.
+     * @returns {Boolean} If the specified sub-grid does not exist, the sub-grid does not exist, or the specified attribute cannot be read, return `false`, otherwise return` true`.
+     * @method copyAttribute
      */
     copyAttribute (primitiveIndex, attributeName, buffer, stride, offset) {
         let written = false;
@@ -542,10 +544,12 @@ let Mesh = cc.Class({
     },
 
     /**
-     * 读取子网格的索引数据到目标数组中。
-     * @param primitiveIndex 子网格索引。
-     * @param outputArray 目标数组。
-     * @returns 不存在指定的子网格或子网格不存在索引数据时返回 `false`，否则返回 `true`。
+     * !#en Read the index data of the subgrid into the target array.
+     * !#zh 读取子网格的索引数据到目标数组中。
+     * @param {Number} primitiveIndex The subgrid index.
+     * @param {TypedArray} outputArray The target array.
+     * @returns {Boolean} returns `false` if the specified sub-grid does not exist or the sub-grid does not have index data, otherwise returns` true`.
+     * @method copyIndices
      */
     copyIndices (primitiveIndex, outputArray) {
         let subData = this._subDatas[primitiveIndex];

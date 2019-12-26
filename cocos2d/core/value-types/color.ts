@@ -826,8 +826,11 @@ export default class Color extends ValueType {
     }
 
     /**
-     * @zh 将当前颜色乘以与指定颜色
-     * @param other 指定的颜色。
+     * !#en Multiplies the current color by the specified color
+     * !#zh 将当前颜色乘以与指定颜色
+     * @method multiply
+     * @return {Color}
+     * @param {Color} other
      */
     multiply (other: Color) {
         _r = ((this._val & 0x000000ff) * other.r) >> 8;

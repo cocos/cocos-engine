@@ -1,6 +1,5 @@
 import { ccclass, property } from '../../../platform/CCClassDecorator';
 import { Vec3, toRadian, Color} from '../../../value-types';
-import { GFXFormat, GFXFormatInfos, GFXPrimitiveMode } from '../../../../renderer/gfx/define';
 import gfx from '../../../../renderer/gfx';
 import Pool from '../../../../renderer/memop/pool';
 import CurveRange from '../animator/curve-range';
