@@ -26,6 +26,8 @@ uniform UNLIT {
 #endif
 
 #if USE_NORMAL_TEXTURE
+  in vec3 v_tangent;
+  in vec3 v_bitangent;
   uniform sampler2D normalTexture;
 #endif
 
@@ -75,9 +77,13 @@ void main () {
   vec3 viewDirection = normalize(cc_cameraPos.xyz - v_worldPos);
   vec4 phongColor;
 
-  vec3 normal = normalize(v_worldNormal);
+  vec3 normal = v_worldNormal;
   #if USE_NORMAL_TEXTURE
-    CCTexture2DRGB(normalTexture, v_uv0, normal);
+    vec3 nmmp = texture2D(normalTexture, v_uv0).xyz - vec3(0.5);
+    normal =
+      nmmp.x * normalize(v_tangent) +
+      nmmp.y * normalize(v_bitangent) +
+      nmmp.z * normalize(normal);
   #endif
 
   CALC_PHONG_LIGHTING(phongColor, material, normal, v_worldPos, viewDirection);

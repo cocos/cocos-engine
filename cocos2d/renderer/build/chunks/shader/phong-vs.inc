@@ -22,6 +22,11 @@ uniform MAIN_TILING {
   out lowp vec4 v_color;
 #endif
 
+#if USE_NORMAL_TEXTURE
+  out vec3 v_tangent;
+  out vec3 v_bitangent;
+#endif
+
 out vec3 v_worldNormal;
 out vec3 v_worldPos;
 
@@ -30,10 +35,9 @@ void main () {
   CCVertInput(In);
 
   vec4 position = In.position;
-  vec4 normal = vec4(In.normal, 0);
 
   v_worldPos = (cc_matWorld * position).xyz;
-  v_worldNormal = (cc_matWorldIT * normal).xyz;
+  v_worldNormal = normalize((cc_matWorldIT * vec4(In.normal, 0)).xyz);
   
   #if CC_USE_TEXTURE
     v_uv0 = In.uv * mainTiling + mainOffset;
@@ -41,6 +45,11 @@ void main () {
 
   #if CC_USE_ATTRIBUTE_COLOR
     v_color = In.color;
+  #endif
+
+  #if USE_NORMAL_TEXTURE
+    v_tangent = normalize((cc_matWorldIT * vec4(In.tangent.xyz, 0.0)).xyz);
+    v_bitangent = cross(v_worldNormal, v_tangent) * In.tangent.w; // note the cross order
   #endif
 
   CCShadowInput(v_worldPos);
