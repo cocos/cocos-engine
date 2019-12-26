@@ -38,21 +38,23 @@ import { Node } from '../../core/scene-graph';
 import { ccenum } from '../../core/value-types/enum';
 import { GraphicsComponent } from './graphics-component';
 import { TransformBit } from '../../core/scene-graph/node-enum';
+import { Material } from '@cocos/cannon';
+import { Game } from '../../core';
 
 const _worldMatrix = new Mat4();
 const _vec2_temp = new Vec2();
 const _mat4_temp = new Mat4();
 
-const _circlepoints: Vec3[] = [];
+const _circlePoints: Vec3[] = [];
 function _calculateCircle (center: Vec3, radius: Vec3, segments: number) {
-    _circlepoints.length = 0;
+    _circlePoints.length = 0;
     const anglePerStep = Math.PI * 2 / segments;
     for (let step = 0; step < segments; ++step) {
-        _circlepoints.push(new Vec3(radius.x * Math.cos(anglePerStep * step) + center.x,
+        _circlePoints.push(new Vec3(radius.x * Math.cos(anglePerStep * step) + center.x,
             radius.y * Math.sin(anglePerStep * step) + center.y, 0));
     }
 
-    return _circlepoints;
+    return _circlePoints;
 }
 /**
  * @zh 遮罩组件类型。
@@ -117,42 +119,25 @@ export class MaskComponent extends UIRenderComponent {
         }
     }
 
-
-    /**
-     * @zh
-     * Alpha 阈值（不支持 Canvas 模式）<br/>
-     * 只有当模板的像素的 alpha 大于 alphaThreshold 时，才会绘制内容。<br/>
-     * 该数值 0 ~ 1 之间的浮点数，默认值为 0（因此禁用 alpha 测试）<br/>
-     * 当被设置为 1 时，会丢弃所有蒙版像素，所以不会显示任何内容，在之前的版本中，设置为 1 等同于 0，这种效果其实是不正确的。<br/>
-     */
-    // @property({
-    //     slide: true,
-    //     range: [0, 1, 0.1],
-    // })
-    // get alphaThreshold () {
-    //     return this._alphaThreshold;
-    // }
-
-    // set alphaThreshold (value) {
-    //     this._alphaThreshold = value;
-    // }
-
     /**
      * @zh
      * 反向遮罩（不支持 Canvas 模式）。
      */
-    // @property()
-    // get inverted () {
-    //     return this._inverted;
-    // }
+    @property({
+        tooltip: '反向遮罩',
+    })
+    get inverted () {
+        return this._inverted;
+    }
 
-    // set inverted (value) {
-    //     this._inverted = value;
-    //     if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-    //         cc.warnID(4202);
-    //         return;
-    //     }
-    // }
+    set inverted (value) {
+        if (cc.game.renderType === Game.RENDER_TYPE_CANVAS) {
+            cc.warnID(4202);
+            return;
+        }
+
+        this._inverted = value;
+    }
 
     /**
      * TODO: remove segments, not supported by graphics
@@ -165,7 +150,7 @@ export class MaskComponent extends UIRenderComponent {
     }
 
     set segments (value) {
-        if(this._segments === value){
+        if (this._segments === value) {
             return;
         }
 
@@ -238,11 +223,8 @@ export class MaskComponent extends UIRenderComponent {
     @property
     protected _type = MaskType.RECT;
 
-    // @property
-    // private _alphaThreshold = 0;
-
-    // @property
-    // private _inverted = false;
+    @property
+    protected _inverted = false;
 
     @property
     protected _segments = 64;
@@ -316,17 +298,14 @@ export class MaskComponent extends UIRenderComponent {
         let result = false;
         if (this.type === MaskType.RECT /*|| this.type === MaskType.IMAGE_STENCIL*/) {
             result = testPt.x >= 0 && testPt.y >= 0 && testPt.x <= w && testPt.y <= h;
-        }
-        else if (this.type === MaskType.ELLIPSE) {
+        } else if (this.type === MaskType.ELLIPSE) {
             const rx = w / 2;
             const ry = h / 2;
             const px = testPt.x - 0.5 * w;
             const py = testPt.y - 0.5 * h;
             result = px * px / (rx * rx) + py * py / (ry * ry) < 1;
         }
-        // if (this.inverted) {
-        //     result = !result;
-        // }
+
         return result;
     }
 
@@ -382,7 +361,7 @@ export class MaskComponent extends UIRenderComponent {
         }
     }
 
-    private _createGraphics () {
+    protected _createGraphics () {
         if (!this._clearGraphics) {
             const node = new Node('clear-graphics');
             const clearGraphics = this._clearGraphics = node.addComponent(GraphicsComponent)!;
@@ -406,7 +385,7 @@ export class MaskComponent extends UIRenderComponent {
         }
     }
 
-    private _updateClearGraphics () {
+    protected _updateClearGraphics () {
         if (!this._clearGraphics) {
             return;
         }
@@ -418,7 +397,7 @@ export class MaskComponent extends UIRenderComponent {
         this._clearGraphics.fill();
     }
 
-    private _updateGraphics () {
+    protected _updateGraphics () {
         if (!this._graphics) {
             return;
         }
@@ -454,7 +433,7 @@ export class MaskComponent extends UIRenderComponent {
         graphics.fill();
     }
 
-    private _enableGraphics() {
+    protected _enableGraphics () {
         if (this._clearGraphics) {
             this._clearGraphics.onEnable();
             this._updateClearGraphics();
@@ -466,7 +445,7 @@ export class MaskComponent extends UIRenderComponent {
         }
     }
 
-    private _disableGraphics () {
+    protected _disableGraphics () {
         if (this._graphics) {
             this._graphics.onDisable();
         }
@@ -476,7 +455,7 @@ export class MaskComponent extends UIRenderComponent {
         }
     }
 
-    private _removeGraphics () {
+    protected _removeGraphics () {
         if (this._graphics) {
             this._graphics.destroy();
         }
