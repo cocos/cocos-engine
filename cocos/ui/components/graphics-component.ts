@@ -180,6 +180,16 @@ export class GraphicsComponent extends UIRenderComponent {
         return this._color;
     }
 
+    set color (value) {
+        if (this._color === value) {
+            return;
+        }
+
+        this._color.set(value);
+        this._updateColor();
+        this.markForUpdateRenderData();
+    }
+
     public static LineJoin = LineJoin;
     public static LineCap = LineCap;
     public impl: Impl | null = null;
