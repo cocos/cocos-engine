@@ -306,6 +306,10 @@ export class MaskComponent extends UIRenderComponent {
             result = px * px / (rx * rx) + py * py / (ry * ry) < 1;
         }
 
+        if (this._inverted) {
+            result = !result;
+        }
+
         return result;
     }
 
