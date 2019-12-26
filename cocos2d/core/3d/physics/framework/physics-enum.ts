@@ -26,7 +26,6 @@
  /**
  * !#en The rigid body type
  * !#zh 刚体类型
- * @static
  * @enum ERigidBodyType
  */
 export enum ERigidBodyType {
