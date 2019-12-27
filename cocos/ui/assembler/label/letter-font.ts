@@ -117,7 +117,7 @@ class LetterTexture {
 
     private _updateProperties () {
         this.spriteframe = new SpriteFrame();
-        this.data = LabelComponent.CanvasPool.get();
+        this.data = LabelComponent._canvasPool.get();
         this.canvas = this.data.canvas;
         this.context = this.data.context;
         if (this.context){

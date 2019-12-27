@@ -69,31 +69,16 @@ let _isBold = false;
 let _isItalic = false;
 let _isUnderline = false;
 
-const _canvasPool = new CanvasPool();
-
-// let _sharedLabelData;
-
 export const ttfUtils =  {
     getAssemblerData () {
-        // if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
-        //     _sharedLabelData = _canvasPool.get();
-        // }
-        // else {
-        // if (!_sharedLabelData) {
-        const labelCanvas = document.createElement('canvas');
-        const sharedLabelData = {
-            canvas: labelCanvas,
-            context: labelCanvas.getContext('2d'),
-        } as ISharedLabelData;
-        // }
-        // }
+        const sharedLabelData = LabelComponent._canvasPool.get();
         sharedLabelData.canvas.width = sharedLabelData.canvas.height = 1;
         return sharedLabelData;
     },
 
     resetAssemblerData (assemblerData: ISharedLabelData) {
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS && assemblerData) {
-            _canvasPool.put(assemblerData);
+        if (assemblerData) {
+            LabelComponent._canvasPool.put(assemblerData);
         }
     },
 
