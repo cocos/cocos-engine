@@ -109,7 +109,7 @@ var View = function () {
     _t._autoFullScreen = false;
     // The device's pixel ratio (for retina displays)
     _t._devicePixelRatio = 1;
-    _t._maxPixelRatio = 2;
+    _t._maxPixelRatio = 4;
     // Retina disabled by default
     _t._retinaEnabled = false;
     // Custom callback for resize event
@@ -925,8 +925,12 @@ cc.js.mixin(View.prototype, {
         let result = out || cc.v2();
         let posLeft = relatedPos.adjustedLeft ? relatedPos.adjustedLeft : relatedPos.left;
         let posTop = relatedPos.adjustedTop ? relatedPos.adjustedTop : relatedPos.top;
-        let x = this._devicePixelRatio * (tx - posLeft);
-        let y = this._devicePixelRatio * (posTop + relatedPos.height - ty);
+        // tx, ty , posLeft, posTop use length units in UI system
+        // relatedPos.{width, height} use pixel units
+        // x, y should also use pixel units 
+        let dpr = this._devicePixelRatio;
+        let x = dpr * (tx - posLeft);
+        let y = dpr * (posTop - ty) + relatedPos.height;
         if (this._isRotated) {
             result.x = cc.game.canvas.width - y;
             result.y = x;
