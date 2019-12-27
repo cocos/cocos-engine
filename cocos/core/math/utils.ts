@@ -1,3 +1,5 @@
+import { IVec3Like } from "./type-define";
+
 /**
  * @category core/math
  */
@@ -202,4 +204,25 @@ export function pingPong (t: number, length: number) {
  */
 export function inverseLerp (from: number, to: number, value: number) {
     return (value - from) / (to - from);
+}
+
+/**
+ * @zh 对所有分量的绝对值进行比较大小，返回绝对值最大的分量。
+ * @param v 类 Vec3 结构
+ * @returns 绝对值最大的分量
+ */
+export function absMaxComponent (v: IVec3Like) {
+    if (Math.abs(v.x) > Math.abs(v.y)) {
+        if (Math.abs(v.x) > Math.abs(v.z)) {
+            return v.x;
+        } else {
+            return v.z;
+        }
+    } else {
+        if (Math.abs(v.y) > Math.abs(v.z)) {
+            return v.y;
+        } else {
+            return v.z;
+        }
+    }
 }

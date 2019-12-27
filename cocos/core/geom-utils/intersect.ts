@@ -3,7 +3,7 @@
  * @category geometry
  */
 
-import { Mat3, Vec3 } from '../math';
+import { Mat3, Vec3, EPSILON, Vec2 } from '../math';
 import aabb from './aabb';
 import * as distance from './distance';
 import enums from './enums';
@@ -14,6 +14,7 @@ import plane from './plane';
 import ray from './ray';
 import sphere from './sphere';
 import triangle from './triangle';
+import { capsule } from './capsule';
 
 // tslint:disable:only-arrow-functions
 // tslint:disable:one-variable-per-declaration
@@ -210,6 +211,84 @@ const ray_obb = (function () {
 
         return tmin;
     };
+})();
+
+const ray_capsule = (function () {
+    const v3_0 = new Vec3();
+    const v3_1 = new Vec3();
+    const v3_2 = new Vec3();
+    const v3_3 = new Vec3();
+    const v3_4 = new Vec3();
+    const v3_5 = new Vec3();
+    const v3_6 = new Vec3();
+    const sphere_0 = new sphere();
+    return function (ray: ray, capsule: capsule) {
+        const radiusSqr = capsule.radius * capsule.radius;
+        var vRayNorm = Vec3.normalize(v3_0, ray.d);
+        var A = capsule.ellipseCenter0;
+        var B = capsule.ellipseCenter1;
+        var BA = Vec3.subtract(v3_1, B, A);
+        if (BA.equals(Vec3.ZERO)) {
+            sphere_0.radius = capsule.radius;
+            sphere_0.center.set(capsule.ellipseCenter0);
+            return intersect.ray_sphere(ray, sphere_0);
+        }
+
+        var O = ray.o;
+        var OA = Vec3.subtract(v3_2, O, A);
+        var VxBA = Vec3.cross(v3_3, vRayNorm, BA);
+        var a = VxBA.lengthSqr();
+        if (a == 0) {
+            sphere_0.radius = capsule.radius;
+            var BO = Vec3.subtract(v3_4, B, O);
+            if (OA.lengthSqr() < BO.lengthSqr()) {
+                sphere_0.center.set(capsule.ellipseCenter0);
+            } else {
+                sphere_0.center.set(capsule.ellipseCenter1);
+            }
+            return intersect.ray_sphere(ray, sphere_0);
+        }
+
+        var OAxBA = Vec3.cross(v3_4, OA, BA);
+        var ab2 = BA.lengthSqr();
+        var b = 2 * Vec3.dot(VxBA, OAxBA);
+        var c = OAxBA.lengthSqr() - (radiusSqr * ab2);
+        var d = b * b - 4 * a * c;
+
+        if (d < 0) return 0;
+
+        var t = (-b - Math.sqrt(d)) / (2 * a);
+        if (t < 0) {
+            sphere_0.radius = capsule.radius;
+            var BO = Vec3.subtract(v3_5, B, O);
+            if (OA.lengthSqr() < BO.lengthSqr()) {
+                sphere_0.center.set(capsule.ellipseCenter0);
+            } else {
+                sphere_0.center.set(capsule.ellipseCenter1);
+            }
+            return intersect.ray_sphere(ray, sphere_0);
+        } else {
+            //Limit intersection between the bounds of the cylinder's end caps.
+            var iPos = Vec3.scaleAndAdd(v3_5, ray.o, vRayNorm, t);
+            var iPosLen = Vec3.subtract(v3_6, iPos, A);
+            var tLimit = Vec3.dot(iPosLen, BA) / ab2;
+
+            if (tLimit >= 0 && tLimit <= 1) {
+                return t;
+            } else if (tLimit < 0) {
+                sphere_0.radius = capsule.radius;
+                sphere_0.center.set(capsule.ellipseCenter0);
+                return intersect.ray_sphere(ray, sphere_0);
+            } else if (tLimit > 1) {
+                sphere_0.radius = capsule.radius;
+                sphere_0.center.set(capsule.ellipseCenter1);
+                return intersect.ray_sphere(ray, sphere_0);
+            } else {
+                return 0;
+            }
+        }
+
+    }
 })();
 
 /**
@@ -741,6 +820,68 @@ const obb_obb = (function () {
     };
 })();
 
+
+// https://github.com/diku-dk/bvh-tvcg18/blob/1fd3348c17bc8cf3da0b4ae60fdb8f2aa90a6ff0/FOUNDATION/GEOMETRY/GEOMETRY/include/overlap/geometry_overlap_obb_capsule.h
+/**
+ * 方向包围盒和胶囊体的重叠检测
+ * @param obb 方向包围盒
+ * @param capsule 胶囊体
+ */
+const obb_capsule = (function () {
+    const sphere_0 = new sphere();
+    const v3_0 = new Vec3();
+    const v3_1 = new Vec3();
+    const v3_2 = new Vec3();
+    const v3_verts8 = new Array<Vec3>(8);
+    for (let i = 0; i < 8; i++) { v3_verts8[i] = new Vec3(); }
+    const v3_axis7 = new Array<Vec3>(7);
+    for (let i = 0; i < 7; i++) { v3_axis7[i] = new Vec3(); }
+    return function (obb: obb, capsule: capsule) {
+        const h = Vec3.squaredDistance(capsule.ellipseCenter0, capsule.ellipseCenter1);
+        if (h == 0) {
+            sphere_0.radius = capsule.radius;
+            sphere_0.center.set(capsule.ellipseCenter0);
+            return intersect.sphere_obb(sphere_0, obb);
+        } else {
+            v3_0.x = obb.orientation.m00;
+            v3_0.y = obb.orientation.m01;
+            v3_0.z = obb.orientation.m02;
+            v3_1.x = obb.orientation.m03;
+            v3_1.y = obb.orientation.m04;
+            v3_1.z = obb.orientation.m05;
+            v3_2.x = obb.orientation.m06;
+            v3_2.y = obb.orientation.m07;
+            v3_2.z = obb.orientation.m08;
+            getOBBVertices(obb.center, obb.halfExtents, v3_0, v3_1, v3_2, v3_verts8);
+
+            const axes = v3_axis7;
+            const a0 = Vec3.copy(axes[0], v3_0);
+            const a1 = Vec3.copy(axes[1], v3_1);
+            const a2 = Vec3.copy(axes[2], v3_2);
+            const B = Vec3.subtract(axes[3], capsule.ellipseCenter0, capsule.ellipseCenter1);
+            Vec3.cross(axes[4], a0, B);
+            Vec3.cross(axes[5], a1, B);
+            Vec3.cross(axes[6], a2, B);
+            for (let i = 0; i < 7; ++i) {
+                const a = getInterval(v3_verts8, axes[i]);
+                const d0 = Vec3.dot(axes[i], capsule.ellipseCenter0);
+                const d1 = Vec3.dot(axes[i], capsule.ellipseCenter1);
+                const d0_min = d0 - capsule.radius;
+                const d0_max = d0 + capsule.radius;
+                const d1_min = d1 - capsule.radius;
+                const d1_max = d1 + capsule.radius;
+                const d_max = Math.max(d0_min, d1_min, d0_max, d1_max);
+                const d_min = Math.min(d0_min, d1_min, d0_max, d1_max);
+
+                if (d_min > a[1] || a[0] > d_max) {
+                    return 0; // Seperating axis found
+                }
+            }
+            return 1;
+        }
+    }
+})();
+
 /**
  * sphere-plane intersect, not necessarily faster than obb-plane<br/>
  * due to the length calculation of the plane normal to factor out<br/>
@@ -849,12 +990,123 @@ const sphere_obb = (function () {
     };
 })();
 
+const sphere_capsule = (function () {
+    const v3_0 = new Vec3();
+    const v3_1 = new Vec3();
+    return function (sphere: sphere, capsule: capsule) {
+        const r = sphere.radius + capsule.radius;
+        const squaredR = r * r;
+        const h = Vec3.squaredDistance(capsule.ellipseCenter0, capsule.ellipseCenter1);
+        if (h == 0) {
+            return Vec3.squaredDistance(sphere.center, capsule.center) < squaredR;
+        } else {
+            Vec3.subtract(v3_0, sphere.center, capsule.ellipseCenter0);
+            Vec3.subtract(v3_1, capsule.ellipseCenter1, capsule.ellipseCenter0);
+            const t = Vec3.dot(v3_0, v3_1) / h;
+            if (t < 0) {
+                return Vec3.squaredDistance(sphere.center, capsule.ellipseCenter0) < squaredR;
+            } else if (t > 1) {
+                return Vec3.squaredDistance(sphere.center, capsule.ellipseCenter1) < squaredR;
+            } else {
+                Vec3.scaleAndAdd(v3_0, capsule.ellipseCenter0, v3_1, t);
+                return Vec3.squaredDistance(sphere.center, v3_0) < squaredR;
+            }
+        }
+    }
+})();
+
+// http://www.geomalgorithms.com/a07-_distance.html
+const capsule_capsule = (function () {
+    const v3_0 = new Vec3();
+    const v3_1 = new Vec3();
+    const v3_2 = new Vec3();
+    const v3_3 = new Vec3();
+    const v3_4 = new Vec3();
+    const v3_5 = new Vec3();
+    return function capsule_capsule (capsuleA: capsule, capsuleB: capsule) {
+        let u = Vec3.subtract(v3_0, capsuleA.ellipseCenter1, capsuleA.ellipseCenter0);
+        let v = Vec3.subtract(v3_1, capsuleB.ellipseCenter1, capsuleB.ellipseCenter0);
+        let w = Vec3.subtract(v3_2, capsuleA.ellipseCenter0, capsuleB.ellipseCenter0);
+        let a = Vec3.dot(u, u);         // always >= 0
+        let b = Vec3.dot(u, v);
+        let c = Vec3.dot(v, v);         // always >= 0
+        let d = Vec3.dot(u, w);
+        let e = Vec3.dot(v, w);
+        let D = a * c - b * b;        // always >= 0
+        let sc: number;
+        let sN: number;
+        let sD = D;       // sc = sN / sD, default sD = D >= 0
+        let tc: number;
+        let tN: number;
+        let tD = D;       // tc = tN / tD, default tD = D >= 0
+
+        // compute the line parameters of the two closest points
+        if (D < EPSILON) { // the lines are almost parallel
+            sN = 0.0;         // force using point P0 on segment S1
+            sD = 1.0;         // to prevent possible division by 0.0 later
+            tN = e;
+            tD = c;
+        }
+        else {                 // get the closest points on the infinite lines
+            sN = (b * e - c * d);
+            tN = (a * e - b * d);
+            if (sN < 0.0) {        // sc < 0 => the s=0 edge is visible
+                sN = 0.0;
+                tN = e;
+                tD = c;
+            }
+            else if (sN > sD) {  // sc > 1  => the s=1 edge is visible
+                sN = sD;
+                tN = e + b;
+                tD = c;
+            }
+        }
+
+        if (tN < 0.0) {            // tc < 0 => the t=0 edge is visible
+            tN = 0.0;
+            // recompute sc for this edge
+            if (-d < 0.0)
+                sN = 0.0;
+            else if (-d > a)
+                sN = sD;
+            else {
+                sN = -d;
+                sD = a;
+            }
+        }
+        else if (tN > tD) {      // tc > 1  => the t=1 edge is visible
+            tN = tD;
+            // recompute sc for this edge
+            if ((-d + b) < 0.0)
+                sN = 0;
+            else if ((-d + b) > a)
+                sN = sD;
+            else {
+                sN = (-d + b);
+                sD = a;
+            }
+        }
+        // finally do the division to get sc and tc
+        sc = (Math.abs(sN) < EPSILON ? 0.0 : sN / sD);
+        tc = (Math.abs(tN) < EPSILON ? 0.0 : tN / tD);
+
+        // get the difference of the two closest points
+        var dP = v3_3;
+        dP.set(w);
+        dP.add(Vec3.multiplyScalar(v3_4, u, sc));
+        dP.subtract(Vec3.multiplyScalar(v3_5, v, tc));
+        const radius = capsuleA.radius + capsuleB.radius;
+        return dP.lengthSqr() < radius * radius;
+    }
+})();
+
 const intersect = {
     ray_sphere,
     ray_aabb,
     ray_obb,
     ray_plane,
     ray_triangle,
+    ray_capsule,
 
     line_sphere,
     line_aabb,
@@ -868,6 +1120,7 @@ const intersect = {
     sphere_plane,
     sphere_frustum,
     sphere_frustum_accurate,
+    sphere_capsule,
 
     aabb_aabb,
     aabb_obb,
@@ -880,6 +1133,9 @@ const intersect = {
     obb_frustum,
     obb_frustum_accurate,
     obb_point,
+    obb_capsule,
+
+    capsule_capsule,
 
     /**
      * @zh
@@ -901,6 +1157,7 @@ intersect[enums.SHAPE_RAY | enums.SHAPE_AABB] = ray_aabb;
 intersect[enums.SHAPE_RAY | enums.SHAPE_OBB] = ray_obb;
 intersect[enums.SHAPE_RAY | enums.SHAPE_PLANE] = ray_plane;
 intersect[enums.SHAPE_RAY | enums.SHAPE_TRIANGLE] = ray_triangle;
+intersect[enums.SHAPE_RAY | enums.SHAPE_CAPSULE] = ray_capsule;
 
 intersect[enums.SHAPE_LINE | enums.SHAPE_SPHERE] = line_sphere;
 intersect[enums.SHAPE_LINE | enums.SHAPE_AABB] = line_aabb;
@@ -914,6 +1171,7 @@ intersect[enums.SHAPE_SPHERE | enums.SHAPE_OBB] = sphere_obb;
 intersect[enums.SHAPE_SPHERE | enums.SHAPE_PLANE] = sphere_plane;
 intersect[enums.SHAPE_SPHERE | enums.SHAPE_FRUSTUM] = sphere_frustum;
 intersect[enums.SHAPE_SPHERE | enums.SHAPE_FRUSTUM_ACCURATE] = sphere_frustum_accurate;
+intersect[enums.SHAPE_SPHERE | enums.SHAPE_CAPSULE] = sphere_capsule;
 
 intersect[enums.SHAPE_AABB] = aabb_aabb;
 intersect[enums.SHAPE_AABB | enums.SHAPE_OBB] = aabb_obb;
@@ -925,5 +1183,8 @@ intersect[enums.SHAPE_OBB] = obb_obb;
 intersect[enums.SHAPE_OBB | enums.SHAPE_PLANE] = obb_plane;
 intersect[enums.SHAPE_OBB | enums.SHAPE_FRUSTUM] = obb_frustum;
 intersect[enums.SHAPE_OBB | enums.SHAPE_FRUSTUM_ACCURATE] = obb_frustum_accurate;
+intersect[enums.SHAPE_OBB | enums.SHAPE_CAPSULE] = obb_capsule;
+
+intersect[enums.SHAPE_CAPSULE] = capsule_capsule;
 
 export default intersect;

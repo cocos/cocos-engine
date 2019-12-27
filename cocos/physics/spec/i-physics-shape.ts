@@ -19,3 +19,8 @@ export interface ISphereShape extends IBaseShape {
     radius: number;
 }
 
+export interface ICapsuleShape extends IBaseShape {
+    radius: number;
+    height: number;
+    direction: number;
+}
