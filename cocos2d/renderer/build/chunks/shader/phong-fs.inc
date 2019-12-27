@@ -66,12 +66,12 @@ void main () {
 
   material.emissive = emissiveColor.rgb;
   #if USE_EMISSIVE_TEXTURE
-    CCTexture2DRGB(emissiveTexture, v_uv0, material.emissive);
+    material.emissive *= texture2D(emissiveTexture, v_uv0);
   #endif
 
   material.specular = specularColor.rgb;
   #if USE_SPECULAR_TEXTURE
-    CCTexture2DRGB(specularTexture, v_uv0, material.specular);
+    material.specular *= texture2D(specularTexture, v_uv0);
   #endif
 
   vec3 viewDirection = normalize(cc_cameraPos.xyz - v_worldPos);
