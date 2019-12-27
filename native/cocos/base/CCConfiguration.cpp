@@ -173,11 +173,20 @@ void Configuration::gatherGPUInfo()
     _valueDict["gl.supports_OES_packed_depth_stencil"] = Value(_supportsOESPackedDepthStencil);
 
     if (_isOpenglES3) {
+#if CC_TARGET_PLATFORM == CC_PLATFORM_IOS
+        _supportsFloatTexture = false; // throws invalid operation when calling glTexSubImage2D
+#else
         _supportsFloatTexture = true;
+#endif
         _supportsShareableVAO = true;
     }
     else {
-        _supportsFloatTexture = checkForGLExtension("texture_float");
+        // implementation on these platforms will clamp the data to [0, 1], not suitable for our usage
+#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+		_supportsFloatTexture = false;
+#else
+		_supportsFloatTexture = checkForGLExtension("texture_float");
+#endif
         _valueDict["gl.supports_float_texture"] = Value(_supportsFloatTexture);
 
         _supportsShareableVAO = checkForGLExtension("vertex_array_object");

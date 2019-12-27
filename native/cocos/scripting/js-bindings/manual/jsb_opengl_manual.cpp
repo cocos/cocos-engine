@@ -40,7 +40,7 @@ using namespace cocos2d;
 #if 0
 #define LOG_GL_COMMAND(...) SE_LOGD(__VA_ARGS__)
 #else
-#define LOG_GL_COMMAND(...) 
+#define LOG_GL_COMMAND(...)
 #endif
 
 #ifndef OPENGL_PARAMETER_CHECK
@@ -2170,7 +2170,7 @@ static bool JSB_glTexImage2D(se::State& s) {
         ccPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
     else
         setUnpackAlignmentByWidthAndFormat(width, format);
-    
+
     JSB_GL_CHECK(glTexImage2D((GLenum)target , (GLint)level , (GLint)internalformat , (GLsizei)width , (GLsizei)height , (GLint)border , (GLenum)format , (GLenum)type , (GLvoid*)pixels));
 
     return true;
@@ -3218,17 +3218,13 @@ static bool JSB_glShaderSource(se::State& s) {
     GLuint shaderId = arg0 != nullptr ? arg0->_id : 0;
 
 #if CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
-    size_t firstLinePos = shaderSource.find("\n");
-    if (firstLinePos != std::string::npos)
-    {
-        std::string firstLine = shaderSource.substr(0, firstLinePos);
-        if (firstLine.find("#version") == std::string::npos)
-        {
-            shaderSource = "#version 120\n" + shaderSource;
-        }
-    }
+#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+    shaderSource = "#version 120\n" + shaderSource;
+#else
+    shaderSource = "#version 130\n" + shaderSource;
+#endif
     shaderSource = std::regex_replace(shaderSource, std::regex("precision\\s+(lowp|mediump|highp).*?;"), "");
-    shaderSource = std::regex_replace(shaderSource, std::regex("\\s(lowp|mediump|highp)\\s"), " ");
+    shaderSource = std::regex_replace(shaderSource, std::regex("(lowp|mediump|highp)\\s"), "");
 #endif
 
     const GLchar* sources[] = { shaderSource.c_str() };
@@ -3546,7 +3542,7 @@ static bool JSB_glGetSupportedExtensions(se::State& s) {
     GLubyte* copy = new (std::nothrow) GLubyte[len+1];
     copy[len] = '\0';
     strncpy((char*)copy, (const char*)extensions, len );
-    
+
     size_t start_extension = 0;
     uint32_t element = 0;
     for( size_t i=0; i<len+1; i++) {
@@ -5049,6 +5045,5 @@ bool JSB_register_opengl(se::Object* obj)
     });
 
     return true;
-    
-}
 
+}
