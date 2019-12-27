@@ -2739,7 +2739,3 @@ Program not support highp precision, will change to mediump.
 ### 9107
 
 %s : illegal property: [%s], myabe defined an unused property;
-
-### 9108
-
-Since version 2.3.0 ,tiled type sprite will be influences by spriteFrame sliced border.
