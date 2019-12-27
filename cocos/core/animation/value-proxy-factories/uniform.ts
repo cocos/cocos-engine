@@ -6,7 +6,7 @@ import { builtinResMgr } from '../../3d/builtin/init';
 import { Material } from '../../assets/material';
 import { SpriteFrame } from '../../assets/sprite-frame';
 import { TextureBase } from '../../assets/texture-base';
-import { ccclass, property } from '../../data/class-decorator';
+import { ccclass, property, float } from '../../data/class-decorator';
 import { GFXBindingType, GFXType } from '../../gfx/define';
 import { Pass } from '../../renderer/core/pass';
 import { type2default } from '../../renderer/core/pass-utils';
@@ -24,7 +24,7 @@ export class UniformProxyFactory implements IValueProxyFactory {
     /**
      * Use when your target is a single channel of the uniform instead of who uniform.
      */
-    @property
+    @float
     public channelIndex: number | undefined = undefined;
 
     constructor (uniformName?: string, passIndex?: number) {
