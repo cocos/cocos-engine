@@ -152,7 +152,7 @@ export class TextureBufferPool {
         const texWidth = this._roundUpFn && this._roundUpFn(targetSize, this._formatSize) || Math.max(1024, nearestPOT(targetSize));
         const texSize = texWidth * texWidth * this._formatSize;
 
-        console.info('TextureBufferPool: Allocate chunk ' + this._chunkCount + ', size: ' + texSize);
+        console.info('TextureBufferPool: Allocate chunk ' + this._chunkCount + ', size: ' + texSize + ', format: ' + this._format);
 
         const texture: GFXTexture = this._device.createTexture({
             type: GFXTextureType.TEX2D,
