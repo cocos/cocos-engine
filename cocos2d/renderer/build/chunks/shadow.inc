@@ -66,4 +66,3 @@ float CCCalcShadow() {
   #endif
   return shadow;
 }
-}
