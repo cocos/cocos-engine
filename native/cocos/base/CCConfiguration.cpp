@@ -118,15 +118,15 @@ void Configuration::gatherGPUInfo()
 
     const char* version = (const char*)glGetString(GL_VERSION);
     _valueDict["gl.version"] = Value(version);
-    
+
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
     if (std::regex_match(version, std::regex("OpenGL ES 3.*"))) {
         _isOpenglES3 = true;
     }
 #endif
-    
+
     _glExtensions = (char *)glGetString(GL_EXTENSIONS);
-    
+
     _supportsETC2 = checkForETC2();
     _valueDict["gl.supports_ETC2"] = Value(_supportsETC2);
 
@@ -171,15 +171,15 @@ void Configuration::gatherGPUInfo()
 
     _supportsOESPackedDepthStencil = checkForGLExtension("GL_OES_packed_depth_stencil");
     _valueDict["gl.supports_OES_packed_depth_stencil"] = Value(_supportsOESPackedDepthStencil);
-    
+
     if (_isOpenglES3) {
         _supportsFloatTexture = true;
         _supportsShareableVAO = true;
     }
     else {
-        _supportsFloatTexture = checkForGLExtension("GL_ARB_texture_float");
+        _supportsFloatTexture = checkForGLExtension("texture_float");
         _valueDict["gl.supports_float_texture"] = Value(_supportsFloatTexture);
-        
+
         _supportsShareableVAO = checkForGLExtension("vertex_array_object");
         _valueDict["gl.supports_vertex_array_object"] = Value(_supportsShareableVAO);
     }
@@ -253,7 +253,7 @@ bool Configuration::checkForETC2() const
     glGetIntegerv(GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numFormats);
     GLint* formats = new GLint[numFormats];
     glGetIntegerv(GL_COMPRESSED_TEXTURE_FORMATS, formats);
-    
+
     int supportNum = 0;
     for (GLint i = 0; i < numFormats; ++i)
     {
@@ -261,7 +261,7 @@ bool Configuration::checkForETC2() const
         supportNum++;
     }
     delete [] formats;
-    
+
     return supportNum >= 2;
 }
 
