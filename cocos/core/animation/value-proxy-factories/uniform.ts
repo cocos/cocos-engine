@@ -7,7 +7,7 @@ import { Material } from '../../assets/material';
 import { SpriteFrame } from '../../assets/sprite-frame';
 import { TextureBase } from '../../assets/texture-base';
 import { ccclass, property } from '../../data/class-decorator';
-import { GFXBindingType } from '../../gfx/define';
+import { GFXBindingType, GFXType } from '../../gfx/define';
 import { Pass } from '../../renderer/core/pass';
 import { type2default } from '../../renderer/core/pass-utils';
 import { samplerLib } from '../../renderer/core/sampler-lib';
@@ -20,6 +20,12 @@ export class UniformProxyFactory implements IValueProxyFactory {
 
     @property
     public uniformName: string = '';
+
+    /**
+     * Use when your target is a single channel of the uniform instead of who uniform.
+     */
+    @property
+    public channelIndex: number | undefined = undefined;
 
     constructor (uniformName?: string, passIndex?: number) {
         this.passIndex = passIndex || 0;
@@ -34,16 +40,20 @@ export class UniformProxyFactory implements IValueProxyFactory {
         }
         const bindingType = Pass.getBindingTypeFromHandle(handle);
         if (bindingType === GFXBindingType.UNIFORM_BUFFER) {
+            const realHandle = this.channelIndex === undefined ? handle : pass.getHandle(this.uniformName, this.channelIndex, GFXType.FLOAT);
+            if (realHandle === undefined) {
+                throw new Error(`Uniform "${this.uniformName} (in material ${target.name}) has no channel ${this.channelIndex}"`);
+            }
             if (isUniformArray(pass, this.uniformName)) {
                 return {
                     set: (value: any) => {
-                        pass.setUniformArray(handle, value);
+                        pass.setUniformArray(realHandle, value);
                     },
                 };
             } else {
                 return {
                     set: (value: any) => {
-                        pass.setUniform(handle, value);
+                        pass.setUniform(realHandle, value);
                     },
                 };
             }
