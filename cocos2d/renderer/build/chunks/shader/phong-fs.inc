@@ -67,12 +67,12 @@ void surf (out PhongSurface s) {
 
   s.emissive = emissiveColor.rgb;
   #if USE_EMISSIVE_TEXTURE
-    s.emissive *= texture2D(emissiveTexture, v_uv0);
+    CCTexture2DRGB(emissiveTexture, v_uv0, s.emissive);
   #endif
 
   s.specular = specularColor.rgb;
   #if USE_SPECULAR_TEXTURE
-    s.specular *= texture2D(specularTexture, v_uv0);
+    CCTexture2DRGB(specularTexture, v_uv0, s.specular);
   #endif
 
   s.normal = v_worldNormal;
