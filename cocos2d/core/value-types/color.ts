@@ -28,10 +28,6 @@ import ValueType from './value-type';
 import CCClass from '../platform/CCClass';
 import misc from '../utils/misc';
 
-let _r: number = 0;
-let _g: number = 0;
-let _b: number = 0;
-let _a: number = 0;
 import { IColorLike } from './math';
 
 /**
@@ -834,11 +830,11 @@ export default class Color extends ValueType {
      * @param {Color} other
      */
     multiply (other: Color) {
-        _r = ((this._val & 0x000000ff) * other.r) >> 8;
-        _g = ((this._val & 0x0000ff00) * other.g) >> 8;
-        _b = ((this._val & 0x00ff0000) * other.b) >> 8;
-        _a = ((this._val & 0xff000000) >>> 8) * other.a;
-        this._val = (_a & 0xff000000) | (_b & 0x00ff0000) | (_g & 0x0000ff00) | (_r & 0x000000ff);
+        let r = ((this._val & 0x000000ff) * other.r) >> 8;
+        let g = ((this._val & 0x0000ff00) * other.g) >> 8;
+        let b = ((this._val & 0x00ff0000) * other.b) >> 8;
+        let a = ((this._val & 0xff000000) >>> 8) * other.a;
+        this._val = (a & 0xff000000) | (b & 0x00ff0000) | (g & 0x0000ff00) | (r & 0x000000ff);
         return this;
     }
 }

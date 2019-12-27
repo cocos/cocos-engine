@@ -47,6 +47,12 @@ const RenderComponent = require('../../components/CCRenderComponent');
 
 const _world_mat = new Mat4();
 
+/**
+ * !#en The ParticleSystem3D Component.
+ * !#zh 3D 粒子组件
+ * @class ParticleSystem3D
+ * @extends RenderComponent
+ */
 @ccclass('cc.ParticleSystem3D')
 @menu('i18n:MAIN_MENU.component.renderers/ParticleSystem3D')
 @executionOrder(99)
