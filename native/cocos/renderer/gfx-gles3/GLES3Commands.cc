@@ -553,6 +553,8 @@ void GLES3CmdFuncDestroyBuffer(GLES3Device* device, GLES3GPUBuffer* gpu_buffer)
         }
         if(gpu_buffer->gl_target == GL_ARRAY_BUFFER)
             device->state_cache->gl_array_buffer = 0;
+        else if (gpu_buffer->gl_target == GL_ELEMENT_ARRAY_BUFFER)
+            device->state_cache->gl_element_array_buffer = 0;
         
         glDeleteBuffers(1, &gpu_buffer->gl_buffer);
         gpu_buffer->gl_buffer = 0;

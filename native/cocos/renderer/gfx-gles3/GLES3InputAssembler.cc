@@ -33,6 +33,8 @@ bool GLES3InputAssembler::Initialize(const GFXInputAssemblerInfo &info) {
     GLES3Buffer* vb = (GLES3Buffer*)vertex_buffers_[i];
     gpu_input_assembler_->gpu_vertex_buffers[i] = vb->gpu_buffer();
   }
+    if(info.index_buffer)
+        gpu_input_assembler_->gpu_index_buffer = static_cast<GLES3Buffer*>(info.index_buffer)->gpu_buffer();
   
   GLES3CmdFuncCreateInputAssembler((GLES3Device*)device_, gpu_input_assembler_);
   
