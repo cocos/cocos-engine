@@ -7,10 +7,11 @@ precision highp float;
 #include <output>
 #include <alpha-test>
 
-uniform UNLIT {
+uniform PhongFrag {
   lowp vec4 diffuseColor;
   lowp vec4 specularColor;
   lowp vec4 emissiveColor;
+  float glossiness;
 };
 
 #if USE_DIFFUSE_TEXTURE
@@ -35,6 +36,7 @@ uniform UNLIT {
 
 in vec3 v_worldNormal;
 in vec3 v_worldPos;
+in vec3 v_viewDirection;
 
 #if CC_USE_TEXTURE
   in mediump vec2 v_uv0;
@@ -46,7 +48,7 @@ in vec3 v_worldPos;
 
 #include <shading-phong>
 
-void main () {
+void surf (out PhongSurface s) {
   vec4 diffuse = vec4(1, 1, 1, 1);
   
   #if CC_USE_ATTRIBUTE_COLOR
@@ -60,33 +62,36 @@ void main () {
 
   ALPHA_TEST(diffuse);
 
-  PhongMaterial material;
-  material.diffuse = diffuse.rgb;
-  material.opacity = diffuse.a;
+  s.diffuse = diffuse.rgb;
+  s.opacity = diffuse.a;
 
-  material.emissive = emissiveColor.rgb;
+  s.emissive = emissiveColor.rgb;
   #if USE_EMISSIVE_TEXTURE
-    material.emissive *= texture2D(emissiveTexture, v_uv0);
+    s.emissive *= texture2D(emissiveTexture, v_uv0);
   #endif
 
-  material.specular = specularColor.rgb;
+  s.specular = specularColor.rgb;
   #if USE_SPECULAR_TEXTURE
-    material.specular *= texture2D(specularTexture, v_uv0);
+    s.specular *= texture2D(specularTexture, v_uv0);
   #endif
 
-  vec3 viewDirection = normalize(cc_cameraPos.xyz - v_worldPos);
-  vec4 phongColor;
-
-  vec3 normal = v_worldNormal;
+  s.normal = v_worldNormal;
   #if USE_NORMAL_TEXTURE
     vec3 nmmp = texture2D(normalTexture, v_uv0).xyz - vec3(0.5);
-    normal =
+    s.normal =
       nmmp.x * normalize(v_tangent) +
       nmmp.y * normalize(v_bitangent) +
-      nmmp.z * normalize(normal);
+      nmmp.z * normalize(s.normal);
   #endif
 
-  CALC_PHONG_LIGHTING(phongColor, material, normal, v_worldPos, viewDirection);
+  s.position = v_worldPos;
+  s.viewDirection = v_viewDirection;
+  s.glossiness = glossiness;
+}
 
-  gl_FragColor = CCFragOutput(phongColor);
+void main () {
+  PhongSurface s;
+  surf(s);
+  vec4 color = CCPhongShading(s);
+  gl_FragColor = CCFragOutput(color);
 }

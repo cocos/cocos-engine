@@ -29,6 +29,7 @@ uniform MAIN_TILING {
 
 out vec3 v_worldNormal;
 out vec3 v_worldPos;
+out vec3 v_viewDirection;
 
 void main () {
   StandardVertInput In;
@@ -36,8 +37,9 @@ void main () {
 
   vec4 position = In.position;
 
-  v_worldPos = (cc_matWorld * position).xyz;
   v_worldNormal = normalize((cc_matWorldIT * vec4(In.normal, 0)).xyz);
+  v_worldPos = (cc_matWorld * position).xyz;
+  v_viewDirection = normalize(cc_cameraPos.xyz - v_worldPos);
   
   #if CC_USE_TEXTURE
     v_uv0 = In.uv * mainTiling + mainOffset;
