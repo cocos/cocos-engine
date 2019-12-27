@@ -38,6 +38,16 @@ const EventStream = require('event-stream');
 const Chalk = require('chalk');
 const HandleErrors = require('../util/handleErrors');
 const Optimizejs = require('gulp-optimize-js');
+const Globby = require('globby');
+
+let physicsSkipFiles = Globby.sync(
+    Path.resolve(__dirname, '../../cocos2d/core/3d/physics/**/*')
+);
+physicsSkipFiles = physicsSkipFiles.concat(
+    Globby.sync(
+        Path.resolve(__dirname, '../../external/cannon/**/*')
+    )
+);
 
 var jsbSkipModules = [
     // modules need to skip in jsb
@@ -101,6 +111,7 @@ exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlag
     var outFile = Path.basename(outputFile);
     var bundler = createBundler(sourceFile, opts);
 
+    excludes = excludes.concat(physicsSkipFiles);
     excludes && excludes.forEach(function (file) {
         bundler.exclude(file);
     });
@@ -143,6 +154,7 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, opt_macroF
     var outFile = Path.basename(outputFile);
     var bundler = createBundler(sourceFile, opts);
 
+    excludes =  excludes.concat(physicsSkipFiles);
     excludes && excludes.forEach(function (file) {
         bundler.exclude(file);
     });
@@ -204,6 +216,7 @@ exports.buildPreview = function (sourceFile, outputFile, callback, devMode) {
         cacheDir: cacheDir,
         sourcemaps: !devMode
     });
+    // NOTE: no need to exclude physics module for cocos2d-js-preview.js
     var bundler = bundler
         .bundle()
         .on('error', HandleErrors.handler)
@@ -237,6 +250,7 @@ exports.buildJsbPreview = function (sourceFile, outputFile, excludes, callback) 
     excludes = excludes.concat(jsbSkipModules);
 
     var bundler = createBundler(sourceFile);
+    // NOTE: no need to exclude physics module for cocos2d-jsb-preview.js
     excludes.forEach(function (module) {
         bundler.exclude(require.resolve(module));
     });
@@ -278,6 +292,7 @@ exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, c
     var outDir = Path.dirname(outputFile);
 
     var bundler = createBundler(sourceFile, opts);
+    excludes = excludes.concat(physicsSkipFiles);
     if (nativeRenderer) {
         excludes = excludes.concat(jsbSkipModules);
     }
@@ -325,6 +340,7 @@ exports.buildJsbMin = function (sourceFile, outputFile, excludes, opt_macroFlags
     if (nativeRenderer) {
         excludes = excludes.concat(jsbSkipModules);
     }
+    excludes = excludes.concat(physicsSkipFiles);
     excludes.forEach(function (module) {
         bundler.exclude(require.resolve(module));
     });
@@ -369,6 +385,7 @@ exports.buildRuntime = function (sourceFile, outputFile, excludes, opt_macroFlag
     var outDir = Path.dirname(outputFile);
 
     var bundler = createBundler(sourceFile, opts);
+    excludes = excludes.concat(physicsSkipFiles);
     excludes.forEach(function (module) {
         bundler.exclude(require.resolve(module));
     });
@@ -411,6 +428,7 @@ exports.buildRuntimeMin = function (sourceFile, outputFile, excludes, opt_macroF
     var outDir = Path.dirname(outputFile);
 
     var bundler = createBundler(sourceFile, opts);
+    excludes = excludes.concat(physicsSkipFiles);
     excludes.forEach(function (module) {
         bundler.exclude(require.resolve(module));
     });
