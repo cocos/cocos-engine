@@ -5,7 +5,6 @@ import Pool from '../../../../renderer/memop/pool';
 import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';
 import { Space, TextureMode, TrailMode } from '../enum';
-import { MapUtils } from '../utils';
 
 const renderer = require('../../../renderer');
 
@@ -300,7 +299,7 @@ export default class TrailModule {
 
         this._vertSize = this._gfxVFmt._bytes;
 
-        this._particleTrail = new MapUtils(); // Map<Particle, TrailSegment>();
+        this._particleTrail = new Map(); // Map<Particle, TrailSegment>();
     }
 
     onInit (ps) {
