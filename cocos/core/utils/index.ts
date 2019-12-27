@@ -40,6 +40,7 @@ export * from './deprecated';
 export * from './text-utils';
 export * from './html-text-parser';
 export * from './prefab-helper';
+export * from './batch-utils';
 export {
     js,
     misc,
