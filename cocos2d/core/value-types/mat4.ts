@@ -29,6 +29,7 @@ import Vec3 from './vec3';
 import Quat from './quat';
 import { EPSILON, FLOAT_ARRAY_TYPE } from './utils';
 import Mat3 from './mat3';
+import { IMat4Like, IVec3Like } from './math';
 
 let _a00: number = 0; let _a01: number = 0; let _a02: number = 0; let _a03: number = 0;
 let _a10: number = 0; let _a11: number = 0; let _a12: number = 0; let _a13: number = 0;

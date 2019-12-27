@@ -193,6 +193,18 @@ let SkeletonData = cc.Class({
         }
     },
 
+    isTexturesLoaded () {
+        let textures = this.textures; 
+        let texsLen = textures.length;
+        for (let i = 0; i < texsLen; i++) {
+            let tex = textures[i];
+            if (!tex.loaded) {
+                return false;
+            }
+        }
+        return true;
+    },
+
     /**
      * !#en Get the included SkeletonData used in spine runtime.<br>
      * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.SkeletonData object.

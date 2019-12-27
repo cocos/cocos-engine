@@ -157,6 +157,86 @@ var LocalDirtyFlag = cc.Enum({
      */
     RS: 1 << 1 | 1 << 2,
     /**
+     * !#en Flag for rotation, scale, position, skew dirty
+     * !#zh 旋转，缩放，位置，或斜角 dirty 的标记位
+     * @property {Number} TRS
+     * @static
+     */
+    TRSS: 1 << 0 | 1 << 1 | 1 << 2 | 1 << 3,
+
+    /**
+     * !#en Flag for physics position dirty
+     * !#zh 物理位置 dirty 的标记位
+     * @property {Number} PHYSICS_POSITION
+     * @static
+     */
+    PHYSICS_POSITION: 1 << 4,
+
+    /**
+     * !#en Flag for physics scale dirty
+     * !#zh 物理缩放 dirty 的标记位
+     * @property {Number} PHYSICS_SCALE
+     * @static
+     */
+    PHYSICS_SCALE: 1 << 5,
+
+    /**
+     * !#en Flag for physics rotation dirty
+     * !#zh 物理旋转 dirty 的标记位
+     * @property {Number} PHYSICS_ROTATION
+     * @static
+     */
+    PHYSICS_ROTATION: 1 << 6,
+
+    /**
+     * !#en Flag for physics trs dirty
+     * !#zh 物理位置旋转缩放 dirty 的标记位
+     * @property {Number} PHYSICS_TRS
+     * @static
+     */
+    PHYSICS_TRS: 1 << 4 | 1 << 5 | 1 << 6,
+
+    /**
+     * !#en Flag for physics rs dirty
+     * !#zh 物理旋转缩放 dirty 的标记位
+     * @property {Number} PHYSICS_RS
+     * @static
+     */
+    PHYSICS_RS: 1 << 5 | 1 << 6,
+
+    /**
+     * !#en Flag for node and physics position dirty
+     * !#zh 所有位置 dirty 的标记位
+     * @property {Number} ALL_POSITION
+     * @static
+     */
+    ALL_POSITION: 1 << 0 | 1 << 4,
+
+    /**
+     * !#en Flag for node and physics scale dirty
+     * !#zh 所有缩放 dirty 的标记位
+     * @property {Number} ALL_SCALE
+     * @static
+     */
+    ALL_SCALE: 1 << 1 | 1 << 5,
+
+    /**
+     * !#en Flag for node and physics rotation dirty
+     * !#zh 所有旋转 dirty 的标记位
+     * @property {Number} ALL_ROTATION
+     * @static
+     */
+    ALL_ROTATION: 1 << 2 | 1 << 6,
+
+    /**
+     * !#en Flag for node and physics trs dirty
+     * !#zh 所有trs dirty 的标记位
+     * @property {Number} ALL_TRS
+     * @static
+     */
+    ALL_TRS: 1 << 0 | 1 << 1 | 1 << 2 | 1 << 4 | 1 << 5 | 1 << 6,
+
+    /**
      * !#en Flag for all dirty properties
      * !#zh 覆盖所有 dirty 状态的标记位
      * @property {Number} ALL
@@ -611,7 +691,7 @@ function _updateCullingMask (node) {
 
 // 2D/3D matrix functions
 function updateLocalMatrix3D () {
-    if (this._localMatDirty) {
+    if (this._localMatDirty & LocalDirtyFlag.TRSS) {
         // Update transform
         let t = this._matrix;
         let tm = t.m;
@@ -631,7 +711,7 @@ function updateLocalMatrix3D () {
             tm[4] = c + a * skx;
             tm[5] = d + b * skx;
         }
-        this._localMatDirty = 0;
+        this._localMatDirty &= ~LocalDirtyFlag.TRSS;
         // Register dirty status of world matrix so that it can be recalculated
         this._worldMatDirty = true;
     }
@@ -639,7 +719,7 @@ function updateLocalMatrix3D () {
 
 function updateLocalMatrix2D () {
     let dirtyFlag = this._localMatDirty;
-    if (!dirtyFlag) return;
+    if (!(dirtyFlag & LocalDirtyFlag.TRSS)) return;
 
     // Update transform
     let t = this._matrix;
@@ -693,14 +773,14 @@ function updateLocalMatrix2D () {
     tm[12] = trs[0];
     tm[13] = trs[1];
     
-    this._localMatDirty = 0;
+    this._localMatDirty &= ~LocalDirtyFlag.TRSS;
     // Register dirty status of world matrix so that it can be recalculated
     this._worldMatDirty = true;
 }
 
 function calculWorldMatrix3D () {
     // Avoid as much function call as possible
-    if (this._localMatDirty) {
+    if (this._localMatDirty & LocalDirtyFlag.TRSS) {
         this._updateLocalMatrix();
     }
 
@@ -716,7 +796,7 @@ function calculWorldMatrix3D () {
 
 function calculWorldMatrix2D () {
     // Avoid as much function call as possible
-    if (this._localMatDirty) {
+    if (this._localMatDirty & LocalDirtyFlag.TRSS) {
         this._updateLocalMatrix();
     }
     
@@ -873,7 +953,7 @@ let NodeDefines = {
                         }
 
                         trs[0] = value;
-                        this.setLocalDirty(LocalDirtyFlag.POSITION);
+                        this.setLocalDirty(LocalDirtyFlag.ALL_POSITION);
                         
                         // fast check event
                         if (this._eventMask & POSITION_ON) {
@@ -916,7 +996,7 @@ let NodeDefines = {
                         }
 
                         trs[1] = value;
-                        this.setLocalDirty(LocalDirtyFlag.POSITION);
+                        this.setLocalDirty(LocalDirtyFlag.ALL_POSITION);
 
                         // fast check event
                         if (this._eventMask & POSITION_ON) {
@@ -951,7 +1031,7 @@ let NodeDefines = {
                 if (value !== trs[2]) {
                     if (!CC_EDITOR || isFinite(value)) {
                         trs[2] = value;
-                        this.setLocalDirty(LocalDirtyFlag.POSITION);
+                        this.setLocalDirty(LocalDirtyFlag.ALL_POSITION);
                         !CC_NATIVERENDERER && (this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM);
                         // fast check event
                         if (this._eventMask & POSITION_ON) {
@@ -1005,7 +1085,7 @@ let NodeDefines = {
             set (value) {
                 Vec3.set(this._eulerAngles, 0, 0, value);   
                 Trs.fromAngleZ(this._trs, value);
-                this.setLocalDirty(LocalDirtyFlag.ROTATION);
+                this.setLocalDirty(LocalDirtyFlag.ALL_ROTATION);
 
                 if (this._eventMask & ROTATION_ON) {
                     this.emit(EventType.ROTATION_CHANGED);
@@ -1055,7 +1135,7 @@ let NodeDefines = {
                     else {
                         Trs.fromEulerNumber(this._trs, value, this._eulerAngles.y, 0);
                     }
-                    this.setLocalDirty(LocalDirtyFlag.ROTATION);
+                    this.setLocalDirty(LocalDirtyFlag.ALL_ROTATION);
 
                     if (this._eventMask & ROTATION_ON) {
                         this.emit(EventType.ROTATION_CHANGED);
@@ -1095,7 +1175,7 @@ let NodeDefines = {
                     else {
                         Trs.fromEulerNumber(this._trs, this._eulerAngles.x, value, 0);
                     }
-                    this.setLocalDirty(LocalDirtyFlag.ROTATION);
+                    this.setLocalDirty(LocalDirtyFlag.ALL_ROTATION);
 
                     if (this._eventMask & ROTATION_ON) {
                         this.emit(EventType.ROTATION_CHANGED);
@@ -1118,7 +1198,7 @@ let NodeDefines = {
                 }
             
                 Trs.fromEuler(this._trs, v);
-                this.setLocalDirty(LocalDirtyFlag.ROTATION);
+                this.setLocalDirty(LocalDirtyFlag.ALL_ROTATION);
                 !CC_NATIVERENDERER && (this._renderFlag |= RenderFlow.FLAG_TRANSFORM);
             }
         },
@@ -1167,7 +1247,7 @@ let NodeDefines = {
             set (value) {
                 if (this._trs[7] !== value) {
                     this._trs[7] = value;
-                    this.setLocalDirty(LocalDirtyFlag.SCALE);
+                    this.setLocalDirty(LocalDirtyFlag.ALL_SCALE);
 
                     if (this._eventMask & SCALE_ON) {
                         this.emit(EventType.SCALE_CHANGED);
@@ -1192,7 +1272,7 @@ let NodeDefines = {
             set (value) {
                 if (this._trs[8] !== value) {
                     this._trs[8] = value;
-                    this.setLocalDirty(LocalDirtyFlag.SCALE);
+                    this.setLocalDirty(LocalDirtyFlag.ALL_SCALE);
 
                     if (this._eventMask & SCALE_ON) {
                         this.emit(EventType.SCALE_CHANGED);
@@ -1214,7 +1294,7 @@ let NodeDefines = {
             set (value) {
                 if (this._trs[9] !== value) {
                     this._trs[9] = value;
-                    this.setLocalDirty(LocalDirtyFlag.SCALE);
+                    this.setLocalDirty(LocalDirtyFlag.ALL_SCALE);
                     !CC_NATIVERENDERER && (this._renderFlag |= RenderFlow.FLAG_TRANSFORM);
             
                     if (this._eventMask & SCALE_ON) {
@@ -2319,12 +2399,12 @@ let NodeDefines = {
                     if (i === temp.index) {
                         if (parent === temp.node) {
                             let comp = parent.getComponent(cc.Mask);
-                            if (comp && comp._enabled && comp._hitTest(cameraPt)) {
-                                j++;
-                            } else {
+                            if (comp && comp._enabled && !comp._hitTest(cameraPt)) {
                                 hit = false;
                                 break
-                            }
+                            } 
+
+                            j++;
                         } else {
                             // mask parent no longer exists
                             mask.length = j;
@@ -2584,7 +2664,7 @@ let NodeDefines = {
         trs[0] = x;
         trs[1] = y;
         trs[2] = z;
-        this.setLocalDirty(LocalDirtyFlag.POSITION);
+        this.setLocalDirty(LocalDirtyFlag.ALL_POSITION);
         !CC_NATIVERENDERER && (this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM);
     
         // fast check event
@@ -2653,7 +2733,7 @@ let NodeDefines = {
             trs[7] = x;
             trs[8] = y;
             trs[9] = z;
-            this.setLocalDirty(LocalDirtyFlag.SCALE);
+            this.setLocalDirty(LocalDirtyFlag.ALL_SCALE);
             !CC_NATIVERENDERER && (this._renderFlag |= RenderFlow.FLAG_TRANSFORM);
     
             if (this._eventMask & SCALE_ON) {
@@ -2715,7 +2795,7 @@ let NodeDefines = {
                 trs[4] = y;
                 trs[5] = z;
                 trs[6] = w;
-                this.setLocalDirty(LocalDirtyFlag.ROTATION);
+                this.setLocalDirty(LocalDirtyFlag.ALL_ROTATION);
 
                 if (this._eventMask & ROTATION_ON) {
                     this.emit(EventType.ROTATION_CHANGED);
@@ -2845,7 +2925,7 @@ let NodeDefines = {
             locAnchorPoint.x = point;
             locAnchorPoint.y = y;
         }
-        this.setLocalDirty(LocalDirtyFlag.POSITION);
+        this.setLocalDirty(LocalDirtyFlag.ALL_POSITION);
         if (this._eventMask & ANCHOR_ON) {
             this.emit(EventType.ANCHOR_CHANGED);
         }
@@ -2928,7 +3008,7 @@ let NodeDefines = {
             Vec3.copy(_swpVec3, pos);
         }
         Trs.fromPosition(ltrs, _swpVec3);
-        this.setLocalDirty(LocalDirtyFlag.POSITION);
+        this.setLocalDirty(LocalDirtyFlag.ALL_POSITION);
 
         // fast check event
         if (this._eventMask & POSITION_ON) {
@@ -2980,7 +3060,7 @@ let NodeDefines = {
         if (CC_EDITOR) {
             this._toEuler();
         }
-        this.setLocalDirty(LocalDirtyFlag.ROTATION);
+        this.setLocalDirty(LocalDirtyFlag.ALL_ROTATION);
     },
 
     /*
@@ -3017,7 +3097,7 @@ let NodeDefines = {
             Vec3.copy(_swsVec3, scale);
         }
         Trs.fromScale(this._trs, _swsVec3);
-        this.setLocalDirty(LocalDirtyFlag.SCALE);
+        this.setLocalDirty(LocalDirtyFlag.ALL_SCALE);
     },
 
     getWorldRT (out) {
@@ -3067,7 +3147,7 @@ let NodeDefines = {
 
     _calculWorldMatrix () {
         // Avoid as much function call as possible
-        if (this._localMatDirty) {
+        if (this._localMatDirty & LocalDirtyFlag.TRSS) {
             this._updateLocalMatrix();
         }
         
@@ -3102,7 +3182,7 @@ let NodeDefines = {
         this._localMatDirty |= flag;
         this._worldMatDirty = true;
 
-        if (flag === LocalDirtyFlag.POSITION) {
+        if (flag === LocalDirtyFlag.ALL_POSITION || flag === LocalDirtyFlag.POSITION) {
             this._renderFlag |= RenderFlow.FLAG_WORLD_TRANSFORM;
         }
         else {

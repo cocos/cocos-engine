@@ -1,16 +1,34 @@
+/****************************************************************************
+ Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ ****************************************************************************/
+
 import Vec3 from '../value-types/vec3';
+import enums from './enums';
 
 /**
+ * Triangle
  * @class geomUtils.Triangle
- * @param {Number} ax 
- * @param {Number} ay 
- * @param {Number} az 
- * @param {Number} bx 
- * @param {Number} by 
- * @param {Number} bz 
- * @param {Number} cx 
- * @param {Number} cy 
- * @param {Number} cz 
  */
 export default class triangle {
 
@@ -91,7 +109,7 @@ export default class triangle {
      * @param {number} cx X component of c
      * @param {number} cy Y component of c
      * @param {number} cz Z component of c
-     * @return {plane}
+     * @return {Plane}
      */
     public static set (out, ax, ay, az, bx, by, bz, cx, cy, cz) {
         out.a.x = ax;
@@ -110,21 +128,40 @@ export default class triangle {
     }
 
     /**
-     * @property a
+     * @property {Vec3} a
      */
     a: Vec3;
     /**
-     * @property b
+     * @property {Vec3} b
      */
     b: Vec3;
     /**
-     * @property c
+     * @property {Vec3} c
      */
     c: Vec3;
 
+    /**
+     * @property geometry type
+     */
+    _type: number;
+
+    /**
+     * create a new triangle
+     * @constructor
+     * @param {number} ax
+     * @param {number} ay
+     * @param {number} az
+     * @param {number} bx
+     * @param {number} by
+     * @param {number} bz
+     * @param {number} cx
+     * @param {number} cy
+     * @param {number} cz
+     */
     constructor (ax: number, ay: number, az: number, bx: number, by: number, bz: number, cx: number, cy: number, cz: number) {
         this.a = new Vec3(ax, ay, az);
         this.b = new Vec3(bx, by, bz);
         this.c = new Vec3(cx, cy, cz);
+        this._type = enums.SHAPE_TRIANGLE;;
     }
 }

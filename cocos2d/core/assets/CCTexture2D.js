@@ -968,7 +968,7 @@ var Texture2D = cc.Class({
     },
 
     _isCompressed () {
-        return this._texture && this._texture._compressed;
+        return this._format < PixelFormat.A8 || this._format > PixelFormat.RGBA32F;
     },
     
     _clearImage () {

@@ -34,6 +34,7 @@ const NEED_BATCH = 0x10;
 
 let _boneColor = cc.color(255, 0, 0, 255);
 let _slotColor = cc.color(0, 0, 255, 255);
+let _originColor = cc.color(0, 255, 0, 255);
 
 let _nodeR, _nodeG, _nodeB, _nodeA,
     _premultipliedAlpha, _multiply,
@@ -70,20 +71,19 @@ function _getSlotMaterial (tex, blendMode) {
     }
 
     let useModel = !_comp.enableBatch;
-    // Add useModel flag due to if pre same db useModel but next db no useModel,
-    // then next db will multiply model matrix more than once.
-    let key = tex.getId() + src + dst + useModel;
     let baseMaterial = _comp._materials[0];
     if (!baseMaterial) {
         return null;
     }
     let materialCache = _comp._materialCache;
 
+    // The key use to find corresponding material
+    let key = tex.getId() + src + dst + useModel;
     let material = materialCache[key];
     if (!material) {
-        let baseKey = baseMaterial.getHash();
-        if (!materialCache[baseKey]) {
+        if (!materialCache.baseMaterial) {
             material = baseMaterial;
+            materialCache.baseMaterial = baseMaterial;
         } else {
             material = cc.MaterialVariant.create(baseMaterial);
         }
@@ -100,11 +100,6 @@ function _getSlotMaterial (tex, blendMode) {
             src, dst
         );
         materialCache[key] = material;
-        material.updateHash(key);
-    }
-    else if (material.texture !== tex) {
-        material.setProperty('texture', tex);
-        material.updateHash(key);
     }
     return material;
 }
@@ -345,13 +340,20 @@ export default class ArmatureAssembler extends Assembler {
                     let bone =  bones[i];
                     let boneLength = Math.max(bone.boneData.length, 5);
                     let startX = bone.globalTransformMatrix.tx;
-                    let startY = -bone.globalTransformMatrix.ty;
+                    let startY = bone.globalTransformMatrix.ty;
                     let endX = startX + bone.globalTransformMatrix.a * boneLength;
-                    let endY = startY - bone.globalTransformMatrix.b * boneLength;
+                    let endY = startY + bone.globalTransformMatrix.b * boneLength;
 
                     graphics.moveTo(startX, startY);
                     graphics.lineTo(endX, endY);
                     graphics.stroke();
+
+                    // Bone origins.
+                    graphics.circle(startX, startY, Math.PI * 2);
+                    graphics.fill();
+                    if (i === 0) {
+                        graphics.fillColor = _originColor;
+                    }
                 }
             }
         }

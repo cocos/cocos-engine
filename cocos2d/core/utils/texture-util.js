@@ -91,8 +91,9 @@ let textureUtil = {
         // load image
         cc.loader.load({
             url: texture.url,
-            // For image, we should skip loader otherwise it will load a new texture
-            skips: ['Loader'],
+            // For uncompressed image, we should skip loader otherwise it will load a new texture.
+            // compressed texture need loader to parse data
+            skips: texture._isCompressed() ? undefined : ['Loader'],
         }, function (err, image) {
             if (image) {
                 if (CC_DEBUG && image instanceof cc.Texture2D) {

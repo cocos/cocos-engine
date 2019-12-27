@@ -24,11 +24,108 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import js from '../platform/js'
+
 // Draw text the textBaseline ratio (Can adjust the appropriate baseline ratio based on the platform)
 let _BASELINE_RATIO = 0.26;
 if (CC_RUNTIME) {
     _BASELINE_RATIO = -0.05;
 }
+
+const MAX_CACHE_SIZE = 100;
+
+let pool = new js.Pool(2);
+pool.get = function () {
+    var node = this._get() || {
+        key: null,
+        value: null,
+        prev: null,
+        next: null
+    };
+
+    return node;
+};
+
+function LRUCache(size) {
+    this.count = 0;
+    this.limit = size;
+    this.datas = {};
+    this.head = null;
+    this.tail = null;
+}
+
+LRUCache.prototype.moveToHead = function (node) {
+    node.next = this.head;
+    node.prev = null;
+    if (this.head !== null) 
+        this.head.prev = node;
+    this.head = node;
+    if (this.tail === null) 
+        this.tail = node;
+    this.count++;
+    this.datas[node.key] = node;
+}
+
+LRUCache.prototype.put = function (key, value) {
+    const node = pool.get();
+    node.key = key;
+    node.value = value;
+    
+    if (this.count >= this.limit) {
+        let discard = this.tail;
+        delete this.datas[discard.key];
+        this.count--;
+        this.tail = discard.prev;
+        this.tail.next = null;
+        discard.prev = null;
+        discard.next = null;
+        pool.put(discard);
+    }
+    this.moveToHead(node);
+}
+
+LRUCache.prototype.remove = function (node) {
+    if (node.prev !== null) {
+        node.prev.next = node.next;
+    } else {
+        this.head = node.next;
+    }
+    if (node.next !== null) {
+        node.next.prev = node.prev;
+    } else {
+        this.tail = node.prev;
+    }
+    delete this.datas[node.key];
+    this.count--;
+}
+
+LRUCache.prototype.get = function (key) {
+    const node = this.datas[key];
+    if (node) {
+        this.remove(node);
+        this.moveToHead(node);
+        return node.value;
+    }
+    return null;
+}
+
+LRUCache.prototype.clear = function () {
+    this.count = 0;
+    this.datas = {};
+    this.head = null;
+    this.tail = null;
+}
+
+LRUCache.prototype.has = function (key) {
+    return !!this.datas[key];
+}
+
+LRUCache.prototype.delete = function (key) {
+    const node = this.datas[key];
+    this.remove(node);
+}
+
+let measureCache = new LRUCache(MAX_CACHE_SIZE);
 
 var textUtils = {
 
@@ -59,8 +156,18 @@ var textUtils = {
     },
 
     safeMeasureText: function (ctx, string) {
-        var metric = ctx.measureText(string);
-        return metric && metric.width || 0;
+        let font = ctx.font;
+        let key = font + "\uD83C\uDFAE" + string;
+        let cache = measureCache.get(key);
+        if (cache !== null) {
+            return cache;
+        }
+
+        let metric = ctx.measureText(string);
+        let width = metric && metric.width || 0;
+        measureCache.put(key, width);
+
+        return width;
     },
 
     fragmentText: function (stringToken, allWidth, maxWidth, measureText) {
