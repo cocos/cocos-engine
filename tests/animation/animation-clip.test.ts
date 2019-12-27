@@ -1,25 +1,19 @@
-import { AnimationClip, js, AnimationState, Node, Component } from '../../cocos/core';
+import { AnimationClip, js, AnimationState, Node, Component, Vec3 } from '../../cocos/core';
 import { ComponentPath } from '../../cocos/core/animation/animation';
 import { ccclass } from '../../cocos/core/data/class-decorator';
 
 test('Common target', () => {
-    interface X {
-        x: number;
-        y: number;
-        z: number;
-    }
-
     @ccclass('TestComponent')
     class TestComponent extends Component {
-        set value (value: X) {
-            this.c = Object.assign({}, value);
+        get value () {
+            return this.c;
         }
 
-        public c: X = {
-            x: 0,
-            y: 0,
-            z: 0,
-        };
+        set value (value: Vec3) {
+            Vec3.copy(this.c, value);
+        }
+
+        public c: Vec3 = new Vec3(0, -1, 0);
     }
 
     const node = new Node();
@@ -36,11 +30,6 @@ test('Common target', () => {
             new ComponentPath(js.getClassName(TestComponent)),
             'value',
         ],
-        initialValue: {
-            x: -1,
-            y: -1,
-            z: -1,
-        },
     }];
     animationClip.curves = [
         {
@@ -61,10 +50,10 @@ test('Common target', () => {
         },
     ];
     
-    const expects: Record<number, X> = {
-        0: { x: 0, y: -1, z: 0 },
-        1: { x: 0.5, y: -1, z: 0.5 },
-        2: { x: 1, y: -1, z: 1 },
+    const expects: Record<number, Vec3> = {
+        0: new Vec3(0, -1, 0),
+        1: new Vec3(0.5, -1, 0.5),
+        2: new Vec3(1, -1, 1),
     };
 
     const animationState = new AnimationState(animationClip);

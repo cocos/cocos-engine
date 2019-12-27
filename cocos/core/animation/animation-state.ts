@@ -34,7 +34,7 @@ import { AnimationClip, IRuntimeCurve } from './animation-clip';
 import { AnimCurve, RatioSampler } from './animation-curve';
 import { additive3D, additiveQuat, BlendFunction } from './blending';
 import { Playable } from './playable';
-import { BoundTarget } from './bound-target';
+import { BoundTarget, BufferedTarget } from './bound-target';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
 import { warn } from '../platform';
 
@@ -359,9 +359,8 @@ export class AnimationState extends Playable {
     protected _name: string;
     protected _lastIterations?: number;
     protected _samplerSharedGroups: ISamplerSharedGroup[] = [];
-    protected _rtCommonTargets: Array<null | {
-        boundTarget: BoundTarget;
-        value: any;
+    protected _commonTargetStatuses: Array<{
+        target: BufferedTarget;
         changed: boolean;
     }> = [];
     protected _curveLoaded = false;
@@ -395,18 +394,9 @@ export class AnimationState extends Playable {
             this.repeatCount = 1;
         }
 
-        this._rtCommonTargets = clip.commonTargets.map((commonTarget, index) => {
-            const boundTarget = new BoundTarget(root, commonTarget.modifiers, commonTarget.valueAdapter);
-            let value: any;
-            try {
-                value = commonTarget.initialValue == null ? boundTarget.getValue() : commonTarget.initialValue;
-            } catch (error) {
-                warn(`Unable to get initial value for common target: ${error}`);
-                return null;
-            }
+        this._commonTargetStatuses = clip.commonTargets.map((commonTarget, index) => {
             return {
-                value,
-                boundTarget,
+                target: new BufferedTarget(root, commonTarget.modifiers, commonTarget.valueAdapter),
                 changed: false,
             };
         });
@@ -422,24 +412,14 @@ export class AnimationState extends Playable {
                 this._samplerSharedGroups.push(samplerSharedGroup);
             }
 
-            let rtCommonTarget: any | undefined;
-            let commonTargetIndex: number | undefined;
-            if (typeof propertyCurve.commonTarget === 'number') {
-                const commonTargetX = this._rtCommonTargets[propertyCurve.commonTarget];
-                if (commonTargetX === null) {
-                    continue;
-                } else {
-                    rtCommonTarget = commonTargetX.value;
-                    commonTargetIndex = propertyCurve.commonTarget;
-                }
-            }
-
             try {
                 const curveInstance = new ICurveInstance(
                     propertyCurve,
-                    rtCommonTarget ? rtCommonTarget : root,
+                    (typeof propertyCurve.commonTarget === 'number') ?
+                        this._commonTargetStatuses[propertyCurve.commonTarget].target.peek() :
+                        root,
                 );
-                curveInstance.commonTargetIndex = commonTargetIndex;
+                curveInstance.commonTargetIndex = propertyCurve.commonTarget;
                 samplerSharedGroup.curves.push(curveInstance);
             } catch (err) {
                 // warn(`Failed to bind "${root.name}" to curve in clip ${clip.name}: ${err}`);
@@ -748,6 +728,13 @@ export class AnimationState extends Playable {
     }
 
     private _sampleCurves (ratio: number) {
+        // Before we sample, we pull values of common targets.
+        for (let iCommonTarget = 0; iCommonTarget < this._commonTargetStatuses.length; ++iCommonTarget) {
+            const commonTarget = this._commonTargetStatuses[iCommonTarget];
+            commonTarget.target.pull();
+            commonTarget.changed = false;
+        }
+        
         for (let iSamplerSharedGroup = 0, szSamplerSharedGroup = this._samplerSharedGroups.length;
             iSamplerSharedGroup < szSamplerSharedGroup; ++iSamplerSharedGroup) {
             const samplerSharedGroup = this._samplerSharedGroups[iSamplerSharedGroup];
@@ -780,18 +767,17 @@ export class AnimationState extends Playable {
                 const curveInstance = samplerSharedGroup.curves[iCurveInstance];
                 curveInstance.applySample(ratio, index, lerpRequired, samplerResultCache, this.weight);
                 if (curveInstance.commonTargetIndex !== undefined) {
-                    this._rtCommonTargets[curveInstance.commonTargetIndex]!.changed = true;
+                    this._commonTargetStatuses[curveInstance.commonTargetIndex]!.changed = true;
                 }
             }
         }
 
-        for (let iCommonTarget = 0; iCommonTarget < this._rtCommonTargets.length; ++iCommonTarget) {
-            const commonTarget = this._rtCommonTargets[iCommonTarget];
-            if (!commonTarget || !commonTarget.changed) {
-                continue;
+        // After sample, we push values of common targets.
+        for (let iCommonTarget = 0; iCommonTarget < this._commonTargetStatuses.length; ++iCommonTarget) {
+            const commonTargetStatus = this._commonTargetStatuses[iCommonTarget];
+            if (commonTargetStatus.changed) {
+                commonTargetStatus.target.push();
             }
-            commonTarget.changed = false;
-            commonTarget.boundTarget.setValue(commonTarget.value);
         }
     }
 

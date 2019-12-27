@@ -68,7 +68,6 @@ export declare namespace AnimationClip {
     export interface CommonTarget {
         modifiers: TargetPath[];
         valueAdapter?: IValueProxyFactory;
-        initialValue?: any;
     }
 
     export interface IEvent {
@@ -180,6 +179,7 @@ export class AnimationClip extends Asset {
     @property
     private _curves: AnimationClip.ICurve[] = [];
 
+    @property
     private _commonTargets: AnimationClip.CommonTarget[] = [];
 
     private _hash = 0;
