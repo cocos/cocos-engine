@@ -700,8 +700,6 @@ export abstract class RenderPipeline {
             this._depthStencilFmt = GFXFormat.D16;
         }
 
-        this.updateMacros();
-
         // colorFmt = GFXFormat.RGBA16F;
 
         // this._shadingScale = this._device.devicePixelRatio;
@@ -793,6 +791,9 @@ export abstract class RenderPipeline {
         }
 
         this.addRenderPass(RenderPassStage.DEFAULT, windowPass);
+
+        // update global defines when all states initialized.
+        this.updateMacros();
 
         return true;
     }
