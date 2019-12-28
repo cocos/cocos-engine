@@ -3220,8 +3220,6 @@ static bool JSB_glShaderSource(se::State& s) {
 #if CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
 #if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
     shaderSource = "#version 120\n" + shaderSource;
-#else
-    shaderSource = "#version 130\n" + shaderSource;
 #endif
     shaderSource = std::regex_replace(shaderSource, std::regex("precision\\s+(lowp|mediump|highp).*?;"), "");
     shaderSource = std::regex_replace(shaderSource, std::regex("(lowp|mediump|highp)\\s"), "");
