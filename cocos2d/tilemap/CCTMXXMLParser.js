@@ -331,7 +331,7 @@ function getPropertyList (node, map) {
  * @param {Object} tsxMap
  * @param {Object} textures
  */
-cc.TMXMapInfo = function (tmxFile, tsxMap, textures, imageLayerTextures) {
+cc.TMXMapInfo = function (tmxFile, tsxMap, textures, textureSizes, imageLayerTextures) {
     this.properties = [];
     this.orientation = null;
     this.parentElement = null;
@@ -364,7 +364,7 @@ cc.TMXMapInfo = function (tmxFile, tsxMap, textures, imageLayerTextures) {
 
     this._imageLayerTextures = null;
 
-    this.initWithXML(tmxFile, tsxMap, textures, imageLayerTextures);
+    this.initWithXML(tmxFile, tsxMap, textures, textureSizes, imageLayerTextures);
 };
 cc.TMXMapInfo.prototype = {
     constructor: cc.TMXMapInfo,
@@ -650,7 +650,7 @@ cc.TMXMapInfo.prototype = {
      * @param {Object} textures
      * @return {Boolean}
      */
-    initWithXML (tmxString, tsxMap, textures, imageLayerTextures) {
+    initWithXML (tmxString, tsxMap, textures, textureSizes, imageLayerTextures) {
         this._tilesets.length = 0;
         this._layers.length = 0;
         this._imageLayers.length = 0;
@@ -658,6 +658,7 @@ cc.TMXMapInfo.prototype = {
         this._tsxMap = tsxMap;
         this._textures = textures;
         this._imageLayerTextures = imageLayerTextures;
+        this._textureSizes = textureSizes;
 
         this._objectGroups.length = 0;
         this._allChildren.length = 0;
@@ -817,6 +818,7 @@ cc.TMXMapInfo.prototype = {
                         tileset._tileSize = tilesetSize;
                         tileset.tileOffset = tileOffset;
                         tileset.sourceImage = this._textures[firstImageName];
+                        tileset.imageSize = this._textureSizes[firstImageName] || tileset.imageSize;
                         if (!tileset.sourceImage) {
                             cc.errorID(7221, firstImageName);
                         }

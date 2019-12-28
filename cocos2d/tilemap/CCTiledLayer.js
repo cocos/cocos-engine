@@ -1277,8 +1277,9 @@ let TiledLayer = cc.Class({
 
         let texIdMatIdx = this._texIdToMatIndex = {};
         let textures = this._textures;
+        let matLen = tilesetIndexArr.length;
 
-        for (let i = 0; i < tilesetIndexArr.length; i++) {
+        for (let i = 0; i < matLen; i++) {
             let tilesetIdx = tilesetIndexArr[i];
             let texture = textures[tilesetIdx];
 
@@ -1295,6 +1296,7 @@ let TiledLayer = cc.Class({
             
             texIdMatIdx[tilesetIdx] = i;
         }
+        this._materials.length = matLen;
         this.markForRender(true);
     }
 });
