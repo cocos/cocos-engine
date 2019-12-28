@@ -154,6 +154,11 @@ export interface IGameConfig {
      * For internal use.
      */
     jsList?: string[];
+
+    /**
+     * Render pipeline resources
+     */
+    renderPipeline: string;
 }
 
 /**
@@ -600,10 +605,10 @@ export class Game extends EventTarget {
 
         // load renderpipeline
         let config = this.config;
-        cc.loader.load({ uuid: config.renderpipeline }, (err, asset) => {
+        cc.loader.load({ uuid: config.renderPipeline }, (err, asset) => {
             // failed load renderPipeline
             if (err || !(asset instanceof cc.RenderPipeline)) {
-                console.error(`Failed load renderpipeline: ${config.renderpipeline}, engine failed to initialize, all process stoped`);
+                console.error(`Failed load renderpipeline: ${config.renderPipeline}, engine failed to initialize, all process stoped`);
                 console.error(err);
                 this.setRenderPipeline(null);
             } else {
