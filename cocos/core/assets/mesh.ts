@@ -48,6 +48,7 @@ import { Asset } from './asset';
 import { postLoadMesh } from './utils/mesh-utils';
 import { warnID } from '../platform/debug';
 import { aabb } from '../geom-utils';
+import sys from '../platform/sys';
 
 function getIndexStrideCtor (stride: number) {
     switch (stride) {
@@ -1227,7 +1228,7 @@ function getStorageConstructor (format: GFXFormat): StorageConstructor | null {
     return null;
 }
 
-const isLittleEndian = cc.sys.isLittleEndian;
+const isLittleEndian = sys.isLittleEndian;
 
 function getComponentByteLength (format: GFXFormat) {
     const info = GFXFormatInfos[format];
