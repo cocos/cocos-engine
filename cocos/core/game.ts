@@ -158,7 +158,7 @@ export interface IGameConfig {
     /**
      * Render pipeline resources
      */
-    renderPipeline: string;
+    renderPipeline?: string;
 }
 
 /**
