@@ -92,6 +92,12 @@ public:
      */
     bool supportsNPOT() const;
 
+    /** Whether or not the GPU supports depth texture.
+     *
+     * @return Is true if supports depth texture.
+     */
+    bool supportsDepthTexture() const;
+
     /** Whether or not PVR Texture Compressed is supported.
      *
      * @return Is true if supports PVR Texture Compressed.
@@ -260,6 +266,7 @@ protected:
     bool            _supportsS3TC;
     bool            _supportsATITC;
     bool            _supportsNPOT;
+    bool            _supportsDepthTexture;
     bool            _supportsBGRA8888;
     bool            _supportsDiscardFramebuffer;
     bool            _supportsShareableVAO;

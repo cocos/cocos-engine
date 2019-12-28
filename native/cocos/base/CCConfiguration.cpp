@@ -155,6 +155,9 @@ void Configuration::gatherGPUInfo()
 
     _supportsNPOT = true;
     _valueDict["gl.supports_NPOT"] = Value(_supportsNPOT);
+    
+    _supportsDepthTexture = checkForGLExtension("depth_texture");
+    _valueDict["gl.supports_DepthTexture"] = Value(_supportsDepthTexture);
 
     _supportsBGRA8888 = checkForGLExtension("GL_IMG_texture_format_BGRA888");
     _valueDict["gl.supports_BGRA8888"] = Value(_supportsBGRA8888);
@@ -239,6 +242,11 @@ int Configuration::getMaxTextureUnits() const
 bool Configuration::supportsNPOT() const
 {
     return _supportsNPOT;
+}
+
+bool Configuration::supportsDepthTexture() const
+{
+    return _supportsDepthTexture;
 }
 
 bool Configuration::supportsPVRTC() const

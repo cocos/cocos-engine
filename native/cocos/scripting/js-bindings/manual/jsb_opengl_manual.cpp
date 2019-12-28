@@ -2141,9 +2141,10 @@ static bool JSB_glTexImage2D(se::State& s) {
     ok &= seval_to_uint32(args[9], &alignment);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 #if OPENGL_PARAMETER_CHECK
-    SE_PRECONDITION4(format == GL_ALPHA || format == GL_RGB || format == GL_RGBA || format == GL_LUMINANCE || format == GL_LUMINANCE_ALPHA,
+    Configuration *config = Configuration::getInstance();
+    SE_PRECONDITION4(format == GL_ALPHA || format == GL_RGB || format == GL_RGBA || format == GL_LUMINANCE || format == GL_LUMINANCE_ALPHA || (format == GL_DEPTH_COMPONENT && config->supportsDepthTexture()),
                      false, GL_INVALID_ENUM);
-    SE_PRECONDITION4(type == GL_UNSIGNED_BYTE || type == GL_UNSIGNED_SHORT_5_6_5 || type == GL_UNSIGNED_SHORT_4_4_4_4 || type == GL_UNSIGNED_SHORT_5_5_5_1 || (type == GL_FLOAT && Configuration::getInstance()->supportsFloatTexture()),
+    SE_PRECONDITION4(type == GL_UNSIGNED_BYTE || type == GL_UNSIGNED_SHORT_5_6_5 || type == GL_UNSIGNED_SHORT_4_4_4_4 || type == GL_UNSIGNED_SHORT_5_5_5_1 || (type == GL_FLOAT && config->supportsFloatTexture()),
                      false, GL_INVALID_ENUM);
     SE_PRECONDITION4(internalformat == format, false, GL_INVALID_OPERATION);
     if (!args[8].isNullOrUndefined())
@@ -2248,9 +2249,10 @@ static bool JSB_glTexSubImage2D(se::State& s) {
     ok &= seval_to_uint32(args[9], &alignment);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 #if OPENGL_PARAMETER_CHECK
-    SE_PRECONDITION4(format == GL_ALPHA || format == GL_RGB || format == GL_RGBA || format == GL_LUMINANCE || format == GL_LUMINANCE_ALPHA,
+    Configuration *config = Configuration::getInstance();
+    SE_PRECONDITION4(format == GL_ALPHA || format == GL_RGB || format == GL_RGBA || format == GL_LUMINANCE || format == GL_LUMINANCE_ALPHA || (format == GL_DEPTH_COMPONENT && config->supportsDepthTexture()),
                      false, GL_INVALID_ENUM);
-    SE_PRECONDITION4(type == GL_UNSIGNED_BYTE || type == GL_UNSIGNED_SHORT_5_6_5 || type == GL_UNSIGNED_SHORT_4_4_4_4 || type == GL_UNSIGNED_SHORT_5_5_5_1 || (type == GL_FLOAT && Configuration::getInstance()->supportsFloatTexture()),
+    SE_PRECONDITION4(type == GL_UNSIGNED_BYTE || type == GL_UNSIGNED_SHORT_5_6_5 || type == GL_UNSIGNED_SHORT_4_4_4_4 || type == GL_UNSIGNED_SHORT_5_5_5_1 || (type == GL_FLOAT && config->supportsFloatTexture()),
                      false, GL_INVALID_ENUM);
     if (!args[8].isNullOrUndefined())
     {
@@ -3532,6 +3534,7 @@ static bool JSB_glGetSupportedExtensions(se::State& s) {
     SE_PRECONDITION2(argc == 0, false, "Invalid number of arguments" );
 
     const GLubyte *extensions = glGetString(GL_EXTENSIONS);
+    Configuration *config = Configuration::getInstance();
 
     se::HandleObject jsobj(se::Object::createArrayObject(1));
 
@@ -3550,6 +3553,8 @@ static bool JSB_glGetSupportedExtensions(se::State& s) {
             const char* extensionName = (const char*)&copy[start_extension];
             if (0 == strcmp(extensionName, "GL_EXT_texture_compression_s3tc"))
                 extensionName = "WEBGL_compressed_texture_s3tc";
+            else if (nullptr != strstr(extensionName, "texture_compression_s3tc_srgb"))
+                extensionName = "WEBGL_compressed_texture_s3tc_srgb";
             else if (0 == strcmp(extensionName, "GL_OES_compressed_ETC1_RGB8_texture"))
                 extensionName = "WEBGL_compressed_texture_etc1";
             else if (0 == strcmp(extensionName, "GL_IMG_texture_compression_pvrtc"))
@@ -3562,13 +3567,15 @@ static bool JSB_glGetSupportedExtensions(se::State& s) {
             ++i;
         }
     }
-
-    if (Configuration::getInstance()->supportsFloatTexture()) {
-        jsobj->setArrayElement(element++, se::Value("OES_texture_float"));
-    }
-
-    if (Configuration::getInstance()->supportsETC2()) {
+    if (config->supportsETC2()) {
         jsobj->setArrayElement(element++, se::Value("WEBGL_compressed_texture_etc"));
+    }
+    
+    if (config->supportsDepthTexture()) {
+        jsobj->setArrayElement(element++, se::Value("WEBGL_depth_texture"));
+    }
+    if (config->supportsFloatTexture()) {
+        jsobj->setArrayElement(element++, se::Value("OES_texture_float"));
     }
 
     s.rval().setObject(jsobj.get());
