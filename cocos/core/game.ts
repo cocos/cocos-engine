@@ -222,6 +222,14 @@ export class Game extends EventTarget {
     public static readonly EVENT_RENDERER_INITED: string = 'renderer_inited';
 
     /**
+     * @en Event triggered after renderer inited, at this point you will be able to use all gfx renderer feature.<br>
+     * @zh 在渲染器初始化之后触发的事件，此事件在 EVENT_ENGINE_INITED 之前触发，此时开始可使用 gfx 渲染框架。
+     * @property EVENT_RENDERER_INITED
+     * @readonly
+     */
+    public static readonly EVENT_RENDERPIPELINE_READY: string = 'render-pipeline-ready';
+
+    /**
      * @en Web Canvas 2d API as renderer backend.
      * @zh 使用 Web Canvas 2d API 作为渲染器后端。
      * @property RENDER_TYPE_CANVAS
@@ -490,23 +498,9 @@ export class Game extends EventTarget {
      */
     public run (config: any, onStart: Function | null) {
         this._initConfig(config);
-        this._initRenderer();
 
-        // load renderpipeline
-        cc.loader.load({ uuid: config.renderpipeline }, (err, asset) => {
-            // failed load renderPipeline
-            if (err || !(asset instanceof cc.RenderPipeline)) {
-                console.error(`Failed load renderpipeline: ${config.renderpipeline}`);
-                console.error(err);
-                cc.game.setRenderPipeline(null);
-            } else {
-                cc.game.setRenderPipeline(asset);
-            }
-
-            this.onStart = onStart;
-
-            this.prepare(cc.game.onStart && cc.game.onStart.bind(cc.game));
-        });
+        this.onStart = onStart;
+        this.prepare(cc.game.onStart && cc.game.onStart.bind(cc.game));
     }
 
     //  @ Persist root node section
@@ -580,41 +574,8 @@ export class Game extends EventTarget {
             return;
         }
 
-        // Load game scripts
-        const jsList = this.config.jsList;
-        if (jsList && jsList.length > 0) {
-            const self = this;
-            cc.loader.load(jsList, (err: any) => {
-                if (err) { throw new Error(JSON.stringify(err)); }
-                self._prepareFinished(cb);
-            });
-        }
-        else {
-            this._prepareFinished(cb);
-        }
-    }
-
-    //  @Game loading
-
-    private _initEngine () {
-
-        if (!CC_EDITOR) {
-            this._initEvents();
-        }
-
-        this.emit(Game.EVENT_ENGINE_INITED);
-    }
-
-    private _prepareFinished (cb: Function | null) {
-        this._prepared = true;
-
-        // Init engine
-        this._initEngine();
-
-        // Log engine version
-        console.log('Cocos Creator 3D v' + cc.ENGINE_VERSION);
-
         const start = () => {
+            this._prepared = true;
             this._setAnimFrame();
             this._runMainLoop();
 
@@ -623,7 +584,49 @@ export class Game extends EventTarget {
             if (cb) { cb(); }
         };
 
-        start();
+
+        // Init engine
+        this._initEngine(start);
+    }
+
+    //  @Game loading
+
+    private _initEngine (cb: Function | null) {
+        this._initRenderer();
+
+        if (!CC_EDITOR) {
+            this._initEvents();
+        }
+
+        // load renderpipeline
+        let config = this.config;
+        cc.loader.load({ uuid: config.renderpipeline }, (err, asset) => {
+            // failed load renderPipeline
+            if (err || !(asset instanceof cc.RenderPipeline)) {
+                console.error(`Failed load renderpipeline: ${config.renderpipeline}, engine failed to initialize, all process stoped`);
+                console.error(err);
+                this.setRenderPipeline(null);
+            } else {
+                this.setRenderPipeline(asset);
+            }
+
+            this._rendererInitialized = true;
+            this.emit(Game.EVENT_RENDERER_INITED);
+
+            if (cc.internal.SplashScreen) {
+                // Start splash screen
+                cc.internal.SplashScreen.instance.main(this._gfxDevice);
+                cc.internal.SplashScreen.instance.setOnFinish(cb);
+                cc.internal.SplashScreen.instance.loadFinish = true;
+            }
+            else {
+                cb && cb();
+            }
+        });
+
+        // Log engine version
+        console.log('Cocos Creator 3D v' + cc.ENGINE_VERSION);
+        this.emit(Game.EVENT_ENGINE_INITED);
     }
 
     // @Methods
@@ -884,10 +887,6 @@ export class Game extends EventTarget {
         this.canvas!.oncontextmenu = () => {
             if (!cc._isContextMenuEnable) { return false; }
         };
-
-        this._rendererInitialized = true;
-
-        this.emit(Game.EVENT_RENDERER_INITED);
     }
 
     private _initEvents () {
