@@ -30,33 +30,34 @@
  * @hidden
  */
 
-import { ccclass } from '../../../core/data/class-decorator';
+import { BitmapFont } from '../../../core';
+import { director } from '../../../core/director';
+import { game } from '../../../core/game';
+import { Color, Mat4, Size, Vec3 } from '../../../core/math';
+import { screen, view } from '../../../core/platform';
 import { macro } from '../../../core/platform/macro';
 import { contains } from '../../../core/utils/misc';
-import { Color, Mat4, Size, Vec3 } from '../../../core/math';
-import { UIRenderComponent } from '../../../core/components/ui-base/ui-render-component';
+import { LabelComponent } from '../label-component';
 import { EditBoxComponent} from './edit-box-component';
+import { tabIndexUtil } from './tabIndexUtil';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
-import { warnID } from '../../../core/platform/debug';
 import sys from '../../../core/platform/sys';
-import { view, screen } from '../../../core/platform';
-import { director } from '../../../core/director';
 import visibleRect from '../../../core/platform/visible-rect';
-import { game } from '../../../core/game';
 import { Node } from '../../../core';
+import { EditBoxImplBase } from './edit-box-impl-base';
 
 // https://segmentfault.com/q/1010000002914610
 const SCROLLY = 40;
 const LEFT_PADDING = 2;
 const DELAY_TIME = 400;
-const FOCUS_DELAY_UC = 400;
-const FOCUS_DELAY_FIREFOX = 0;
 
 const _matrix = new Mat4();
 const _matrix_temp = new Mat4();
 const _vec3 = new Vec3();
 
 let _currentEditBoxImpl: EditBoxImpl | null = null;
+
+let _domCount = 0;
 
 // polyfill
 const polyfill = {
@@ -69,31 +70,12 @@ if (sys.OS_ANDROID === sys.os &&
     polyfill.zoomInvalid = true;
 }
 
-function getKeyboardReturnType (type) {
-    switch (type) {
-        case KeyboardReturnType.DEFAULT:
-        case KeyboardReturnType.DONE:
-            return 'done';
-        case KeyboardReturnType.SEND:
-            return 'send';
-        case KeyboardReturnType.SEARCH:
-            return 'search';
-        case KeyboardReturnType.GO:
-            return 'go';
-        case KeyboardReturnType.NEXT:
-            return 'next';
-    }
-    return 'done';
-}
-
-@ccclass
-export class EditBoxImpl {
+export class EditBoxImpl extends EditBoxImplBase {
     public _delegate: EditBoxComponent | null = null;
-    public _inputMode = -1;
-    public _inputFlag = -1;
+    public _inputMode = InputMode.ANY;
+    public _inputFlag = InputFlag.DEFAULT;
     public _returnType = KeyboardReturnType.DEFAULT;
     public _maxLength = 50;
-    public _text = '';
     public _placeholderText = '';
     public _alwaysOnTop = false;
     public _size: Size = new Size();
@@ -109,319 +91,230 @@ export class EditBoxImpl {
     public _edFontSize = 14;
     private _isTextArea = false;
 
-    get text () {
-        return this._text;
-    }
+    private _textLabelFont = null;
+    private _textLabelFontSize = null;
+    private _textLabelFontColor = null;
+    private _textLabelAlign = null;
+    private _placeholderLabelFont = null;
+    private _placeholderLabelFontSize = null;
+    private _placeholderLabelFontColor = null;
+    private _placeholderLabelAlign = null;
+    private _placeholderLineHeight = null;
+    private _placeholderStyleSheet: any = null;
+    private _domId = `EditBoxId_${++_domCount}`;
 
-    set text (value: string) {
-        this._text = value;
-    }
+    public init (delegate: EditBoxComponent) {
+        if (!delegate){
+            return;
+        }
 
-    get textColor () {
-        return this._textColor;
-    }
+        this._delegate = delegate;
+        if (delegate.inputMode === InputMode.ANY){
+            this._createTextArea();
+        } else {
+            this._createInput();
+        }
 
-    get fontSize () {
-        return this._edFontSize;
-    }
+        tabIndexUtil.add(this);
+        this.setTabIndex(delegate.tabIndex);
+        this._initStyleSheet();
+        this._registerEventListeners();
+        this._addDomToGameContainer();
 
-    set returnType (value: KeyboardReturnType) {
-        this._returnType = value;
-    }
-
-    get alwayOnTop () {
-        return this._alwaysOnTop;
-    }
-
-    get editing (){
-        return this._editing;
-    }
-
-    set editing (value: boolean) {
-        this._editing = value;
-    }
-
-    get delegate () {
-        return this._delegate;
-    }
-
-    get eventListeners () {
-        return this.__eventListeners;
+        this.__fullscreen = view.isAutoFullScreenEnabled();
+        this.__autoResize = view._resizeWithBrowserSize;
     }
 
     public onEnable () {
-        if (!this._edTxt) {
-            return;
-        }
-        if (this._alwaysOnTop) {
-            this._edTxt.style.display = '';
-        } else {
-            this._edTxt.style.display = 'none';
-        }
+        // Do nothing
     }
 
     public onDisable () {
-        if (!this._edTxt) {
-            return;
+        if (this._editing && this._edTxt) {
+            this._edTxt.blur();
         }
-        this._edTxt.style.display = 'none';
-    }
-
-    public setTabIndex (index: number) {
-        if (this._edTxt) {
-            this._edTxt.tabIndex = index;
-        }
-    }
-
-    public setFocus () {
-        this._beginEditing();
-    }
-
-    public isFocused () {
-        if (this._edTxt) {
-            return document.activeElement === this._edTxt;
-        }
-        warnID(4700);
-        return false;
-    }
-
-    public stayOnTop (flag) {
-        if (this._alwaysOnTop === flag || !this._edTxt) { return; }
-
-        this._alwaysOnTop = flag;
-
-        if (flag) {
-            this._edTxt.style.display = '';
-        } else {
-            this._edTxt.style.display = 'none';
-        }
-    }
-
-    public setMaxLength (maxLength: number) {
-        if (!isNaN(maxLength)) {
-            if (maxLength < 0) {
-                // we can't set Number.MAX_VALUE to input's maxLength property
-                // so we use a magic number here, it should works at most use cases.
-                maxLength = 65535;
-            }
-            this._maxLength = maxLength;
-            if (this._edTxt) {
-                this._edTxt.maxLength = maxLength;
-            }
-        }
-    }
-
-    public setString (text: string) {
-        this._text = text;
-        if (this._edTxt) {
-            this._edTxt.value = text;
-        }
-    }
-
-    public getString () {
-        return this._text;
-    }
-
-    public setPlaceholderText (text: string) {
-        this._placeholderText = text;
-    }
-
-    public getPlaceholderText () {
-        return this._placeholderText;
-    }
-
-    public setDelegate (delegate: EditBoxComponent | null) {
-        this._delegate = delegate;
-    }
-
-    public setInputMode (inputMode: InputMode) {
-        if (this._inputMode === inputMode) { return; }
-
-        this._inputMode = inputMode;
-        this.createInput();
-
-        this._updateDomInputType();
-        this._updateSize(this._size.width, this._size.height);
-    }
-
-    public setInputFlag (inputFlag: InputFlag) {
-        if (this._inputFlag === inputFlag) { return; }
-
-        this._inputFlag = inputFlag;
-        this._updateDomInputType();
-
-        let textTransform = 'none';
-
-        if (inputFlag === InputFlag.INITIAL_CAPS_ALL_CHARACTERS) {
-            textTransform = 'uppercase';
-        } else if (inputFlag === InputFlag.INITIAL_CAPS_WORD) {
-            textTransform = 'capitalize';
-        }
-
-        if (this._edTxt) {
-            this._edTxt.style.textTransform = textTransform;
-            this._edTxt.value = this._text;
-        }
-    }
-
-    public setReturnType (returnType: KeyboardReturnType) {
-        this._returnType = returnType;
-        this._updateDomInputType();
-    }
-
-    public setFontSize (fontSize: number) {
-        this._edFontSize = fontSize || this._edFontSize;
-        if (this._edTxt) {
-            this._edTxt.style.fontSize = this._edFontSize + 'px';
-        }
-    }
-
-    public setFontColor (color: Color) {
-        this._textColor = color;
-        if (this._edTxt) {
-            this._edTxt.style.color = color.toCSS('rgba');
-        }
-    }
-
-    public setSize (width: number, height: number) {
-        this._size.width = width;
-        this._size.height = height;
-        this._updateSize(width, height);
-    }
-
-    public setNode (node: Node) {
-        this._node = node;
-    }
-
-    public update () {
-        // TODO: find better way to update matrix
-        // if (this._editing) {
-        this._updateMatrix();
-        // }
     }
 
     public clear () {
-        this._node = null;
-        this.setDelegate(null);
-        this.removeDom();
-    }
+        this._removeEventListeners();
+        this._removeDomFromGameContainer();
 
-    public _onTouchBegan (touch) {
+        tabIndexUtil.remove(this);
 
-    }
-
-    public _onTouchEnded () {
-        this._beginEditing();
-    }
-
-    public _beginEditing () {
-        if (sys.isMobile && !this._editing) {
-            // Pre adaptation
-            this._beginEditingOnMobile();
+        // clear while editing
+        if (_currentEditBoxImpl === this) {
+            _currentEditBoxImpl = null;
         }
 
-        const self = this;
-        function startFocus () {
-            self._edTxt && self._edTxt.focus();
+        this._delegate = null;
+    }
+
+    public update () {
+        this._updateMatrix();
+    }
+
+    public setTabIndex (index: number) {
+        this._edTxt!.tabIndex = index;
+        tabIndexUtil.resort();
+    }
+
+    public setSize (width: number, height: number) {
+        const elem = this._edTxt;
+        if (elem){
+            elem.style.width = width + 'px';
+            elem.style.height = height + 'px';
         }
 
-        if (this._edTxt) {
-            this._edTxt.style.display = '';
+    }
 
-            if (sys.browserType === sys.BROWSER_TYPE_UC) {
-                setTimeout(startFocus, FOCUS_DELAY_UC);
-            } else if (sys.browserType === sys.BROWSER_TYPE_FIREFOX) {
-                setTimeout(startFocus, FOCUS_DELAY_FIREFOX);
-            } else {
-                startFocus();
-            }
+    public setFocus (value: boolean) {
+        if (value){
+            this.beginEditing();
+        }
+        else {
+            this._edTxt!.blur();
+        }
+    }
+
+    public isFocused () {
+        return this._editing;
+    }
+
+    public beginEditing () {
+        if (_currentEditBoxImpl && _currentEditBoxImpl !== this) {
+            _currentEditBoxImpl.setFocus(false);
         }
 
         this._editing = true;
+        _currentEditBoxImpl = this;
+        this._showDom();
+        if (this._edTxt && this._delegate){
+            this._edTxt.focus();
+            this._delegate._editBoxEditingDidBegan();
+        }
     }
 
-    public _endEditing () {
+    public endEditing () {
+        // Do nothing, handle endEditing on blur callback
+    }
+
+    private _createInput () {
+        this._isTextArea = false;
+        this._edTxt = document.createElement('input');
+    }
+
+    private _createTextArea () {
+        this._isTextArea = true;
+        this._edTxt = document.createElement('textarea');
+    }
+
+    private _addDomToGameContainer () {
+        if (game.container && this._edTxt) {
+            game.container.appendChild(this._edTxt);
+            document.head.appendChild(this._placeholderStyleSheet);
+        }
+    }
+
+    private _removeDomFromGameContainer () {
+        const hasElem = contains(game.container, this._edTxt);
+        if (hasElem && this._edTxt) {
+            game.container!.removeChild(this._edTxt);
+        }
+        const hasStyleSheet = contains(document.head, this._placeholderStyleSheet);
+        if (hasStyleSheet) {
+            document.head.removeChild(this._placeholderStyleSheet);
+        }
+
+        delete this._edTxt;
+        delete this._placeholderStyleSheet;
+    }
+
+    private _showDom () {
+        this._updateMaxLength();
+        this._updateInputType();
+        this._updateStyleSheet();
+        if (this._edTxt && this._delegate){
+            this._edTxt.style.display = '';
+            this._delegate._hideLabels();
+        }
+        if (sys.isMobile) {
+            this._showDomOnMobile();
+        }
+    }
+
+    private _hideDom () {
+        const elem = this._edTxt;
+        if (elem && this._delegate) {
+            elem.style.display = 'none';
+            this._delegate._showLabels();
+        }
+        if (sys.isMobile) {
+            this._hideDomOnMobile();
+        }
+    }
+
+    private _showDomOnMobile () {
+        if (sys.os !== sys.OS_ANDROID) {
+            return;
+        }
+
+        if (this.__fullscreen) {
+            view.enableAutoFullScreen(false);
+            screen.exitFullScreen();
+        }
+        if (this.__autoResize) {
+            view.resizeWithBrowserSize(false);
+        }
+
+        this._adjustWindowScroll();
+    }
+
+    private _hideDomOnMobile () {
+        if (sys.os === sys.OS_ANDROID) {
+            setTimeout(() => {
+                if (!_currentEditBoxImpl) {
+                    if (this.__fullscreen) {
+                        view.enableAutoFullScreen(true);
+                    }
+                    if (this.__autoResize) {
+                        view.resizeWithBrowserSize(true);
+                    }
+                }
+            }, DELAY_TIME);
+        }
+
+        this._scrollBackWindow();
+    }
+
+    private _adjustWindowScroll () {
         const self = this;
-        const hideDomInputAndShowLabel = () => {
-            if (!self._alwaysOnTop && self._edTxt) {
-                self._edTxt.style.display = 'none';
+        setTimeout(() => {
+            if (window.scrollY < SCROLLY) {
+                self._edTxt!.scrollIntoView({block: 'start', inline: 'nearest', behavior: 'smooth'});
             }
-            if (self._delegate && self._delegate.editBoxEditingDidEnded) {
-                self._delegate.editBoxEditingDidEnded();
-            }
-        };
-        if (this._editing) {
-            if (sys.isMobile) {
-                // Delay end editing adaptation to ensure virtual keyboard is disapeared
-                setTimeout(() => {
-                    self._endEditingOnMobile();
-                    hideDomInputAndShowLabel();
-                }, DELAY_TIME);
-            } else {
-                hideDomInputAndShowLabel();
-            }
-        }
-        this._editing = false;
+        }, DELAY_TIME);
     }
 
-    public _updateDomInputType () {
-        const inputMode = this._inputMode;
-        let edTxt = this._edTxt;
-        if (!edTxt) { return; }
+    private _scrollBackWindow () {
+        setTimeout(() => {
+            if (sys.browserType === sys.BROWSER_TYPE_WECHAT && sys.os === sys.OS_IOS) {
+                if (window.top) {
+                    window.top.scrollTo(0, 0);
+                }
 
-        if (this._isTextArea) {
-            edTxt = edTxt as HTMLTextAreaElement;
-            let textTransform = 'none';
-            if (this._inputFlag === InputFlag.INITIAL_CAPS_ALL_CHARACTERS) {
-                textTransform = 'uppercase';
-            } else if (this._inputFlag === InputFlag.INITIAL_CAPS_WORD) {
-                textTransform = 'capitalize';
+                return;
             }
 
-            edTxt.style.textTransform = textTransform;
+            window.scrollTo(0, 0);
+        }, DELAY_TIME);
+    }
+
+    private _updateMatrix () {
+        if (!this._edTxt) {
             return;
         }
 
-        edTxt = edTxt as HTMLInputElement;
-
-        if (this._inputFlag === InputFlag.PASSWORD) {
-            edTxt.type = 'password';
-            return;
-        }
-
-        let type = edTxt.type;
-        if (inputMode === InputMode.EMAIL_ADDR) {
-            type = 'email';
-        } else if (inputMode === InputMode.NUMERIC || inputMode === InputMode.DECIMAL) {
-            type = 'number';
-        } else if (inputMode === InputMode.PHONE_NUMBER) {
-            type = 'number';
-            edTxt.pattern = '[0-9]*';
-        } else if (inputMode === InputMode.URL) {
-            type = 'url';
-        } else {
-            type = 'text';
-
-            if (this._returnType === KeyboardReturnType.SEARCH) {
-                type = 'search';
-            }
-        }
-
-        edTxt.type = type;
-    }
-
-    public _updateSize (newWidth, newHeight) {
-        const edTxt = this._edTxt;
-        if (!edTxt) { return; }
-
-        edTxt.style.width = newWidth + 'px';
-        edTxt.style.height = newHeight + 'px';
-    }
-
-    public _updateMatrix () {
-        if (!this._edTxt) { return; }
-
-        const node = this._node!;
+        const node = this._delegate!.node;
         let scaleX = view.getScaleX();
         let scaleY = view.getScaleY();
         const viewport = view.getViewportRect();
@@ -453,7 +346,6 @@ export class EditBoxImpl {
         _matrix_temp.m13 = center.y - (_matrix_temp.m01 * m12 + _matrix_temp.m05 * m13);
 
         Mat4.multiply(_matrix_temp, _matrix_temp, _matrix);
-
         scaleX /= dpr;
         scaleY /= dpr;
 
@@ -471,7 +363,7 @@ export class EditBoxImpl {
         const ty = _matrix_temp.m13 * scaleY + offsetY;
 
         if (polyfill.zoomInvalid) {
-            this._updateSize(this._size.width * a, this._size.height * d);
+            this.setSize(this._size.width * a, this._size.height * d);
             a = 1;
             d = 1;
         }
@@ -483,252 +375,335 @@ export class EditBoxImpl {
         this._edTxt.style['-webkit-transform-origin'] = '0px 100% 0px';
     }
 
-    public _adjustEditBoxPosition () {
-        this._node!.getWorldMatrix(_matrix);
-        const y = _matrix.m13;
-        const windowHeight = visibleRect.height;
-        const windowWidth = visibleRect.width;
-        let factor = 0.5;
-        if (windowWidth > windowHeight) {
-            factor = 0.7;
-        }
-        setTimeout(() => {
-            if (window.scrollY < SCROLLY && y < windowHeight * factor) {
-                let scrollOffset = windowHeight * factor - y - window.scrollY;
-                if (scrollOffset < 35) { scrollOffset = 35; }
-                if (scrollOffset > 320) { scrollOffset = 320; }
-                window.scrollTo(0, scrollOffset);
-            }
-        }, DELAY_TIME);
-    }
+    private _updateInputType () {
+        const delegate = this._delegate;
+        const inputMode = delegate!.inputMode;
+        const inputFlag = delegate!.inputFlag;
+        const returnType = delegate!.returnType;
+        let elem = this._edTxt;
 
-    public createInput () {
-        this._isTextArea = false;
-        if (this._inputMode === InputMode.ANY) {
-            this._isTextArea = true;
-            this._createDomTextArea();
-        } else {
-            this._createDomInput();
-        }
-    }
-
-    // Called before editbox focus to register cc.view status
-    public _beginEditingOnMobile () {
-        const self = this;
-        this.__orientationChanged = () => {
-            self._adjustEditBoxPosition();
-        };
-        window.addEventListener('orientationchange', this.__orientationChanged);
-
-        if (view.isAutoFullScreenEnabled()) {
-            this.__fullscreen = true;
-            view.enableAutoFullScreen(false);
-            screen.exitFullScreen();
-        } else {
-            this.__fullscreen = false;
-        }
-        this.__autoResize = view._resizeWithBrowserSize;
-        view.resizeWithBrowserSize(false);
-        _currentEditBoxImpl = this;
-    }
-
-    // Called after keyboard disappeared to readapte the game view
-    public _endEditingOnMobile () {
-        if (this.__rotateScreen) {
-            if (game.container) {
-                game.container.style['-webkit-transform'] = 'rotate(90deg)';
-                game.container.style.transform = 'rotate(90deg)';
-            }
-
-            const width = view._originalDesignResolutionSize.width;
-            const height = view._originalDesignResolutionSize.height;
-            if (width > 0) {
-                view.setDesignResolutionSize(width, height, view.getResolutionPolicy());
-            }
-            this.__rotateScreen = false;
-        }
-
-        if (this.__orientationChanged) {
-            window.removeEventListener('orientationchange', this.__orientationChanged);
-        }
-
-        if (this.__fullscreen) {
-            view.enableAutoFullScreen(true);
-        }
-
-        // In case focus on editBox A from editBox B
-        // A disable resizeWithBrowserSize
-        // whilte B enable resizeWithBrowserSize
-        // Only _currentEditBoxImpl can enable resizeWithBrowserSize
-        if (this.__autoResize && _currentEditBoxImpl === this) {
-            view.resizeWithBrowserSize(true);
-        }
-    }
-
-    public _createDomInput () {
-        this.removeDom();
-
-        const tmpEdTxt = this._edTxt = document.createElement('input');
-        tmpEdTxt.type = 'text';
-        tmpEdTxt.style.fontSize = this._edFontSize + 'px';
-        tmpEdTxt.style.color = '#000000';
-        tmpEdTxt.style.border = '0px';
-        tmpEdTxt.style.background = 'transparent';
-        tmpEdTxt.style.width = '100%';
-        tmpEdTxt.style.height = '100%';
-        // tmpEdTxt.style.active = 0;
-        tmpEdTxt.style.outline = 'medium';
-        tmpEdTxt.style.padding = '0';
-        tmpEdTxt.style.textTransform = 'uppercase';
-        tmpEdTxt.style.display = 'none';
-        tmpEdTxt.style.position = 'absolute';
-        tmpEdTxt.style.bottom = '0px';
-        tmpEdTxt.style.left = LEFT_PADDING + 'px';
-        tmpEdTxt.style['-moz-appearance'] = 'textfield';
-        tmpEdTxt.className = 'cocosEditBox';
-        tmpEdTxt.style.fontFamily = 'Arial';
-
-        registerInputEventListener(tmpEdTxt, this);
-
-        return tmpEdTxt;
-    }
-
-    public _createDomTextArea () {
-        this.removeDom();
-
-        const tmpEdTxt = this._edTxt = document.createElement('textarea');
-        // tmpEdTxt.type = 'text';
-        tmpEdTxt.style.fontSize = this._edFontSize + 'px';
-        tmpEdTxt.style.color = '#000000';
-        tmpEdTxt.style.border = '0';
-        tmpEdTxt.style.background = 'transparent';
-        tmpEdTxt.style.width = '100%';
-        tmpEdTxt.style.height = '100%';
-        // tmpEdTxt.style.active = 0;
-        tmpEdTxt.style.outline = 'medium';
-        tmpEdTxt.style.padding = '0';
-        tmpEdTxt.style.resize = 'none';
-        tmpEdTxt.style.textTransform = 'uppercase';
-        tmpEdTxt.style.overflowY = 'scroll';
-        tmpEdTxt.style.display = 'none';
-        tmpEdTxt.style.position = 'absolute';
-        tmpEdTxt.style.bottom = '0px';
-        tmpEdTxt.style.left = LEFT_PADDING + 'px';
-        tmpEdTxt.className = 'cocosEditBox';
-        tmpEdTxt.style.fontFamily = 'Arial';
-
-        registerInputEventListener(tmpEdTxt, this, true);
-
-        return tmpEdTxt;
-    }
-
-    public _addDomToGameContainer () {
-        if (game.container && this._edTxt) {
-            game.container.appendChild(this._edTxt);
-        }
-    }
-
-    public removeDom () {
-        const edTxt = this._edTxt;
-        if (edTxt) {
-            // Remove listeners
-            const cbs = this.__eventListeners;
-            edTxt.removeEventListener('compositionstart', cbs.compositionstart);
-            edTxt.removeEventListener('compositionend', cbs.compositionend);
-            edTxt.removeEventListener('input', cbs.input);
-            edTxt.removeEventListener('focus', cbs.focus);
-            edTxt.removeEventListener('keypress', cbs.keypress);
-            edTxt.removeEventListener('blur', cbs.blur);
-            cbs.compositionstart = null;
-            cbs.compositionend = null;
-            cbs.input = null;
-            cbs.focus = null;
-            cbs.keypress = null;
-            cbs.blur = null;
-
-            const hasChild = contains(game.container, edTxt);
-            if (hasChild && game.container) {
-                game.container.removeChild(edTxt);
-            }
-        }
-        this._edTxt = null;
-    }
-}
-
-function _inputValueHandle (input: any, editBoxImpl: EditBoxImpl) {
-    if (input.value.length > editBoxImpl._maxLength) {
-        input.value = input.value.slice(0, editBoxImpl._maxLength);
-    }
-    if (editBoxImpl._delegate && editBoxImpl._delegate.editBoxTextChanged) {
-        if (editBoxImpl._text !== input.value) {
-            editBoxImpl._text = input.value;
-            editBoxImpl._delegate.editBoxTextChanged(editBoxImpl._text);
-        }
-    }
-}
-
-function registerInputEventListener (tmpEdTxt: HTMLInputElement | HTMLTextAreaElement, editBoxImpl: EditBoxImpl, isTextarea = false) {
-    let inputLock = false;
-    const cbs = editBoxImpl.eventListeners;
-    cbs.compositionstart = () => {
-        inputLock = true;
-    };
-    tmpEdTxt.addEventListener('compositionstart', cbs.compositionstart);
-
-    cbs.compositionend = function () {
-        inputLock = false;
-        _inputValueHandle(this, editBoxImpl);
-    };
-    tmpEdTxt.addEventListener('compositionend', cbs.compositionend);
-
-    cbs.input = function () {
-        if (inputLock) {
+        if (this._inputMode === inputMode &&
+            this._inputFlag === inputFlag &&
+            this._returnType === returnType) {
             return;
         }
-        _inputValueHandle(this, editBoxImpl);
-    };
-    tmpEdTxt.addEventListener('input', cbs.input);
 
-    cbs.focus = function () {
-        this.style.fontSize = editBoxImpl.fontSize + 'px';
-        this.style.color = editBoxImpl.textColor.toCSS('rgba');
-        // When stayOnTop, input will swallow touch event
-        if (editBoxImpl.alwayOnTop) {
-            editBoxImpl.editing = true;
-        }
+        // update cache
+        this._inputMode = inputMode;
+        this._inputFlag = inputFlag;
+        this._returnType = returnType;
 
-        if (sys.isMobile) {
-            editBoxImpl._beginEditingOnMobile();
-        }
-
-        if (editBoxImpl.delegate && editBoxImpl.delegate.editBoxEditingDidBegan) {
-            editBoxImpl.delegate.editBoxEditingDidBegan();
-        }
-
-    };
-    tmpEdTxt.addEventListener('focus', cbs.focus);
-
-    cbs.keypress = function (e) {
-        if (e.keyCode === macro.KEY.enter) {
-            e.propagationStopped = true;
-
-            if (editBoxImpl.delegate && editBoxImpl.delegate.editBoxEditingReturn) {
-                editBoxImpl.delegate.editBoxEditingReturn();
+        // FIX ME: TextArea actually dose not support password type.
+        if (this._isTextArea) {
+            // input flag
+            let textTransform = 'none';
+            if (inputFlag === InputFlag.INITIAL_CAPS_ALL_CHARACTERS) {
+                textTransform = 'uppercase';
             }
-            if (!isTextarea) {
-                editBoxImpl.text = this.value;
-                editBoxImpl._endEditing();
-                game.canvas && game.canvas.focus();
+            else if (inputFlag === InputFlag.INITIAL_CAPS_WORD) {
+                textTransform = 'capitalize';
+            }
+            elem!.style.textTransform = textTransform;
+            return;
+        }
+
+        elem = elem as HTMLInputElement;
+        // begin to updateInputType
+        if (inputFlag === InputFlag.PASSWORD) {
+            elem.type = 'password';
+            return;
+        }
+
+        // input mode
+        let type = elem.type;
+        if (inputMode === InputMode.EMAIL_ADDR) {
+            type = 'email';
+        } else if (inputMode === InputMode.NUMERIC || inputMode === InputMode.DECIMAL) {
+            type = 'number';
+        } else if (inputMode === InputMode.PHONE_NUMBER) {
+            type = 'number';
+            elem.pattern = '[0-9]*';
+        } else if (inputMode === InputMode.URL) {
+            type = 'url';
+        } else {
+            type = 'text';
+
+            if (returnType === KeyboardReturnType.SEARCH) {
+                type = 'search';
             }
         }
-    };
-    tmpEdTxt.addEventListener('keypress', cbs.keypress);
+        elem!.type = type;
 
-    cbs.blur = function () {
-        editBoxImpl.text = this.value;
-        editBoxImpl._endEditing();
-    };
-    tmpEdTxt.addEventListener('blur', cbs.blur);
+        // input flag
+        let textTransform = 'none';
+        if (inputFlag === InputFlag.INITIAL_CAPS_ALL_CHARACTERS) {
+            textTransform = 'uppercase';
+        } else if (inputFlag === InputFlag.INITIAL_CAPS_WORD) {
+            textTransform = 'capitalize';
+        }
+        elem.style.textTransform = textTransform;
+    }
 
-    editBoxImpl._addDomToGameContainer();
+    private _updateMaxLength () {
+        let maxLength = this._delegate!.maxLength;
+        if (maxLength < 0) {
+            maxLength = 65535;
+        }
+        this._edTxt!.maxLength = maxLength;
+    }
+
+    private _initStyleSheet () {
+        if (!this._edTxt) {
+            return;
+        }
+        let elem = this._edTxt;
+        elem.style.fontSize = this._edFontSize + 'px';
+        elem.style.color = '#000000';
+        elem.style.border = '0px';
+        elem.style.background = 'transparent';
+        elem.style.width = '100%';
+        elem.style.height = '100%';
+        elem.style.outline = 'medium';
+        elem.style.padding = '0';
+        elem.style.textTransform = 'uppercase';
+        elem.style.display = 'none';
+        elem.style.position = 'absolute';
+        elem.style.bottom = '0px';
+        elem.style.left = LEFT_PADDING + 'px';
+        elem.className = 'cocosEditBox';
+        elem.style.fontFamily = 'Arial';
+        elem.id = this._domId;
+
+        if (!this._isTextArea) {
+            elem = elem as HTMLInputElement;
+            elem.type = 'text';
+            elem.style['-moz-appearance'] = 'textfield';
+        }
+        else {
+            elem.style.resize = 'none';
+            elem.style.overflowY = 'scroll';
+
+        }
+
+        this._placeholderStyleSheet = document.createElement('style');
+    }
+
+    private _updateStyleSheet () {
+        const delegate = this._delegate;
+        const elem = this._edTxt;
+        if (elem && delegate){
+            elem.value = delegate.string;
+            elem.placeholder = delegate.placeholder;
+
+            this._updateTextLabel(delegate.textLabel);
+            this._updatePlaceholderLabel(delegate.placeholderLabel);
+        }
+    }
+
+    private _updateTextLabel (textLabel) {
+        if (!textLabel) {
+            return;
+        }
+
+        let font = textLabel.font;
+        if (font && !(font instanceof BitmapFont)) {
+            font = font._fontFamily;
+        }
+        else {
+            font = textLabel.fontFamily;
+        }
+
+        if (this._textLabelFont === font
+            && this._textLabelFontSize === textLabel.fontSize
+            && this._textLabelFontColor === textLabel.fontColor
+            && this._textLabelAlign === textLabel.horizontalAlign) {
+                return;
+        }
+
+        this._textLabelFont = font;
+        this._textLabelFontSize = textLabel.fontSize;
+        this._textLabelFontColor = textLabel.fontColor;
+        this._textLabelAlign = textLabel.horizontalAlign;
+
+        if (!this._edTxt) {
+            return;
+        }
+
+        const elem = this._edTxt;
+        elem.style.fontSize = `${textLabel.fontSize}px`;
+        elem.style.color = textLabel.color.toCSS('rgba');
+        elem.style.fontFamily = font;
+
+        switch (textLabel.horizontalAlign) {
+            case LabelComponent.HorizontalAlign.LEFT:
+                elem.style.textAlign = 'left';
+                break;
+            case LabelComponent.HorizontalAlign.CENTER:
+                elem.style.textAlign = 'center';
+                break;
+            case LabelComponent.HorizontalAlign.RIGHT:
+                elem.style.textAlign = 'right';
+                break;
+        }
+    }
+
+    private _updatePlaceholderLabel (placeholderLabel) {
+        if (!placeholderLabel) {
+            return;
+        }
+
+        let font = placeholderLabel.font;
+        if (font && !(font instanceof BitmapFont)) {
+            font = placeholderLabel.font._fontFamily;
+        }
+        else {
+            font = placeholderLabel.fontFamily;
+        }
+
+        if (this._placeholderLabelFont === font
+            && this._placeholderLabelFontSize === placeholderLabel.fontSize
+            && this._placeholderLabelFontColor === placeholderLabel.fontColor
+            && this._placeholderLabelAlign === placeholderLabel.horizontalAlign
+            && this._placeholderLineHeight === placeholderLabel.fontSize) {
+                return;
+        }
+
+        this._placeholderLabelFont = font;
+        this._placeholderLabelFontSize = placeholderLabel.fontSize;
+        this._placeholderLabelFontColor = placeholderLabel.fontColor;
+        this._placeholderLabelAlign = placeholderLabel.horizontalAlign;
+        this._placeholderLineHeight = placeholderLabel.fontSize;
+
+        const styleEl = this._placeholderStyleSheet;
+        const fontSize = placeholderLabel.fontSize;
+        const fontColor = placeholderLabel.color.toCSS('rgba');
+        const lineHeight = placeholderLabel.fontSize;
+
+        let horizontalAlign = '';
+        switch (placeholderLabel.horizontalAlign) {
+            case LabelComponent.HorizontalAlign.LEFT:
+                horizontalAlign = 'left';
+                break;
+            case LabelComponent.HorizontalAlign.CENTER:
+                horizontalAlign = 'center';
+                break;
+            case LabelComponent.HorizontalAlign.RIGHT:
+                horizontalAlign = 'right';
+                break;
+        }
+
+        styleEl!.innerHTML = `
+            #${this._domId}::-webkit-input-placeholder {
+                text-transform: initial;
+                font-family: ${font};
+                font-size: ${fontSize}px;
+                color: ${fontColor};
+                line-height: ${lineHeight}px;
+                text-align: ${horizontalAlign};
+            }
+            #${this._domId}::-moz-placeholder {
+                text-transform: initial;
+                font-family: ${font};
+                font-size: ${fontSize}px;
+                color: ${fontColor};
+                line-height: ${lineHeight}px;
+                text-align: ${horizontalAlign};
+            }
+            #${this._domId}:-ms-input-placeholder {
+                text-transform: initial;
+                font-family: ${font};
+                font-size: ${fontSize}px;
+                color: ${fontColor};
+                line-height: ${lineHeight}px;
+                text-align: ${horizontalAlign};
+            }
+        `;
+    }
+
+    private _registerEventListeners () {
+        if (!this._edTxt){
+            return;
+        }
+
+        const impl = this;
+        const elem = this._edTxt;
+        let inputLock = false;
+        const cbs = this.__eventListeners;
+
+        cbs.compositionStart = () => {
+            inputLock = true;
+        };
+
+        cbs.compositionEnd = () => {
+            inputLock = false;
+            impl._delegate!._editBoxTextChanged(elem!.value);
+        };
+
+        cbs.onInput = () => {
+            if (inputLock) {
+                return;
+            }
+            impl._delegate!._editBoxTextChanged(elem!.value);
+        };
+
+        cbs.onClick = () => {
+            if (impl._editing) {
+                if (sys.isMobile) {
+                    impl._adjustWindowScroll();
+                }
+            }
+        };
+
+        cbs.onKeydown = (e) => {
+            if (e.keyCode === macro.KEY.enter) {
+                e.propagationStopped = true;
+                impl._delegate!._editBoxEditingReturn();
+
+                if (!impl._isTextArea) {
+                    elem.blur();
+                }
+            } else if (e.keyCode === macro.KEY.tab) {
+                e.propagationStopped = true;
+                e.preventDefault();
+
+                tabIndexUtil.next(impl);
+            }
+        };
+
+        cbs.onBlur = () => {
+            impl._editing = false;
+            _currentEditBoxImpl = null;
+            impl._hideDom();
+            impl._delegate!._editBoxEditingDidEnded();
+        };
+
+        elem.addEventListener('compositionstart', cbs.compositionStart);
+        elem.addEventListener('compositionend', cbs.compositionEnd);
+        elem.addEventListener('input', cbs.onInput);
+        elem.addEventListener('keydown', cbs.onKeydown);
+        elem.addEventListener('blur', cbs.onBlur);
+        elem.addEventListener('touchstart', cbs.onClick);
+    }
+    private _removeEventListeners () {
+        if (!this._edTxt){
+            return;
+        }
+
+        const elem = this._edTxt;
+        const cbs = this.__eventListeners;
+
+        elem.removeEventListener('compositionstart', cbs.compositionStart);
+        elem.removeEventListener('compositionend', cbs.compositionEnd);
+        elem.removeEventListener('input', cbs.onInput);
+        elem.removeEventListener('keydown', cbs.onKeydown);
+        elem.removeEventListener('blur', cbs.onBlur);
+        elem.removeEventListener('touchstart', cbs.onClick);
+
+        cbs.compositionStart = null;
+        cbs.compositionEnd = null;
+        cbs.onInput = null;
+        cbs.onKeydown = null;
+        cbs.onBlur = null;
+        cbs.onClick = null;
+    }
 }

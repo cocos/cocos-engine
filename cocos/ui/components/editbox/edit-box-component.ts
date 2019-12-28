@@ -28,33 +28,33 @@
  * @category ui
  */
 
+import { math } from '../../../core';
 import { SpriteFrame } from '../../../core/assets/sprite-frame';
 import { Component } from '../../../core/components/component';
 import { EventHandler as ComponentEventHandler } from '../../../core/components/component-event-handler';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../../core/data/class-decorator';
+import { Color, Size, Vec3 } from '../../../core/math';
 import { EventTouch } from '../../../core/platform';
 import { SystemEventType } from '../../../core/platform/event-manager/event-enum';
-import { Color, Size } from '../../../core/math';
+import { Node } from '../../../core/scene-graph/node';
 import { LabelComponent, VerticalTextAlignment } from '../label-component';
 import { SpriteComponent } from '../sprite-component';
-import { UIRenderComponent } from '../../../core/components/ui-base/ui-render-component';
-import { UITransformComponent } from '../../../core/components/ui-base/ui-transform-component';
 import { EditBoxImpl } from './edit-box-impl';
+import { EditBoxImplBase } from './edit-box-impl-base';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
-import { Node } from '../../../core/scene-graph/node';
+import sys from '../../../core/platform/sys';
 
 const LEFT_PADDING = 2;
 
-function capitalize (string) {
-    return string.replace(/(?:^|\s)\S/g, (a) => {
+function capitalize (str: string) {
+    return str.replace(/(?:^|\s)\S/g, (a) => {
         return a.toUpperCase();
     });
 }
 
-function capitalizeFirstLetter (string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
+function capitalizeFirstLetter (str: string) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
 }
-
 /**
  * @en
  * cc.EditBoxComponent is a component for inputing text, you can use it to gather small amounts of text from users.
@@ -76,7 +76,7 @@ export class EditBoxComponent extends Component {
      * 输入框的初始输入内容，如果为空则会显示占位符的文本。
      */
     @property({
-        tooltip:'输入框的初始输入内容，如果为空则会显示占位符的文本',
+        tooltip: '输入框的初始输入内容，如果为空则会显示占位符的文本',
     })
     get string () {
         return this._string;
@@ -88,11 +88,53 @@ export class EditBoxComponent extends Component {
         }
 
         this._string = value;
-        if (this._impl) {
-            this._updateString(value);
-        }
+        this._updateString(value);
     }
 
+    /**
+     * @en The Label component attached to the node for EditBox's input text label
+     *
+     * @zh 输入框输入文本节点上挂载的 Label 组件对象
+     */
+    @property({
+        tooltip: '输入框输入文本节点上挂载的 Label 组件对象',
+        type: LabelComponent,
+    })
+    get textLabel () {
+        return this._textLabel;
+    }
+
+    set textLabel (oldValue) {
+        if (this._textLabel !== oldValue) {
+            this._textLabel = oldValue;
+            if (this._textLabel){
+                this._updateTextLabel();
+                this._updateLabels();
+            }
+        }
+    }
+    /**
+     * @en The Label component attached to the node for EditBox's placeholder text label.
+     *
+     * @zh 输入框占位符节点上挂载的 Label 组件对象。
+     */
+    @property({
+        tooltip: '输入框占位符节点上挂载的 Label 组件对象',
+        type: LabelComponent,
+    })
+    get placeholderLabel () {
+        return this._placeholderLabel;
+    }
+
+    set placeholderLabel (oldValue) {
+        if (this._placeholderLabel !== oldValue) {
+            this._placeholderLabel = oldValue;
+            if (this._placeholderLabel){
+                this._updatePlaceholderLabel();
+                this._updateLabels();
+            }
+        }
+    }
     /**
      * @en
      * The background image of EditBox.
@@ -102,7 +144,7 @@ export class EditBoxComponent extends Component {
      */
     @property({
         type: SpriteFrame,
-        tooltip:'输入框的背景图片',
+        tooltip: '输入框的背景图片',
     })
     get backgroundImage () {
         return this._backgroundImage;
@@ -128,7 +170,7 @@ export class EditBoxComponent extends Component {
      */
     @property({
         type: KeyboardReturnType,
-        tooltip:'指定移动设备上面回车按钮的样式',
+        tooltip: '指定移动设备上面回车按钮的样式',
     })
     get returnType () {
         return this._returnType;
@@ -136,9 +178,6 @@ export class EditBoxComponent extends Component {
 
     set returnType (value: KeyboardReturnType) {
         this._returnType = value;
-        if (this._impl) {
-            this._impl.returnType = this._returnType;
-        }
     }
 
     /**
@@ -150,18 +189,15 @@ export class EditBoxComponent extends Component {
      */
     @property({
         type: InputFlag,
-        tooltip:'指定输入标志位，可以指定输入方式为密码或者单词首字母大写'
+        tooltip: '指定输入标志位，可以指定输入方式为密码或者单词首字母大写',
     })
     get inputFlag () {
         return this._inputFlag;
     }
 
-    set inputFlag (value: InputFlag) {
+    set inputFlag (value) {
         this._inputFlag = value;
-        if (this._impl) {
-            this._impl.setInputFlag(this._inputFlag);
-            this._updateString(this._string);
-        }
+        this._updateString(this._string);
     }
     /**
      * @en
@@ -173,17 +209,19 @@ export class EditBoxComponent extends Component {
      */
     @property({
         type: InputMode,
-        tooltip:'指定输入模式: ANY 表示多行输入，其它都是单行输入，移动平台上还可以指定键盘样式'
+        tooltip: '指定输入模式: ANY 表示多行输入，其它都是单行输入，移动平台上还可以指定键盘样式',
     })
     get inputMode () {
         return this._inputMode;
     }
 
-    set inputMode (value: InputMode) {
-        this._inputMode = value;
-        if (this._impl) {
-            this._impl.setInputMode(this._inputMode);
-        }
+    set inputMode (oldValue) {
+       if (this._inputMode !== oldValue) {
+            this._inputMode = oldValue;
+            this._updateTextLabel();
+            this._updatePlaceholderLabel();
+       }
+
     }
 
     /**
@@ -191,26 +229,21 @@ export class EditBoxComponent extends Component {
      * Font size of the input text.
      *
      * @zh
-     * 输入框文本的字体大小。
+     * 输入框文本的字体大小。该属性会在将来的版本中移除，请使用 editBox.textLabel.fontSize。
      */
     @property({
-        tooltip:'输入框文本的字体大小',
+        tooltip: '输入框文本的字体大小',
     })
     get fontSize () {
-        return this._fontSize;
+            if (!this._textLabel){
+                return 20;
+            }
+            return this._textLabel!.fontSize;
     }
 
     set fontSize (value) {
-        if (this._fontSize === value) {
-            return;
-        }
-
-        this._fontSize = value;
         if (this._textLabel) {
-            this._textLabel.fontSize = this._fontSize;
-        }
-        if (this._impl) {
-            this._impl.setFontSize(this._fontSize);
+            this._textLabel.fontSize = value;
         }
     }
 
@@ -222,20 +255,17 @@ export class EditBoxComponent extends Component {
      * 输入框文本的行高。
      */
     @property({
-        tooltip:'输入框文本的行高'
+        tooltip: '输入框文本的行高',
     })
     get lineHeight () {
-        return this._lineHeight;
-    }
-
-    set lineHeight (value) {
-        if (this._lineHeight === value) {
-            return;
+        if (!this._textLabel){
+            return 40;
         }
-
-        this._lineHeight = value;
+        return this._textLabel!.lineHeight;
+    }
+    set lineHeight (value: number) {
         if (this._textLabel) {
-            this._textLabel.lineHeight = this._lineHeight;
+            this._textLabel.lineHeight = value;
         }
     }
 
@@ -244,31 +274,22 @@ export class EditBoxComponent extends Component {
      * Font color of the input text.
      *
      * @zh
-     * 输入框文本的颜色。
+     * 输入框文本的颜色。该属性会在将来的版本中移除，请使用 editBox.textLabel.color
      */
     @property({
         type: Color,
-        tooltip:'输入框文本的颜色',
+        tooltip: '输入框文本的颜色',
     })
     get fontColor () {
-        return this._fontColor;
+        if (!this._textLabel){
+            return math.Color.WHITE.clone();
+        }
+        return this._textLabel!.color;
     }
 
     set fontColor (value) {
-        if (this._fontColor === value) {
-            return;
-        }
-
-        this._fontColor.set(value);
         if (this._textLabel) {
-            // this._textLabel.node.opacity = this._fontColor.a;
-            const renderComp = this._textLabel.node.getComponent(UIRenderComponent);
-            if (renderComp) {
-                renderComp.color = this._fontColor;
-            }
-        }
-        if (this._impl) {
-            this._impl.setFontColor(this._fontColor);
+                this._textLabel.color = value;
         }
     }
 
@@ -280,23 +301,18 @@ export class EditBoxComponent extends Component {
      * 输入框占位符的文本内容。
      */
     @property({
-        tooltip:'输入框占位符的文本内容',
+        tooltip: '输入框占位符的文本内容',
     })
     get placeholder () {
-        return this._placeholder;
+        if (!this._placeholderLabel) {
+            return '';
+        }
+        return this._placeholderLabel.string;
     }
 
     set placeholder (value) {
-        if (this._placeholder === value) {
-            return;
-        }
-
-        this._placeholder = value;
         if (this._placeholderLabel) {
-            this._placeholderLabel.string = this._placeholder;
-        }
-        if (this._impl) {
-            this._impl.setPlaceholderText(this._placeholder);
+            this._placeholderLabel.string = value;
         }
     }
 
@@ -305,23 +321,20 @@ export class EditBoxComponent extends Component {
      * The font size of placeholder.
      *
      * @zh
-     * 输入框占位符的字体大小。
+     * 输入框占位符的字体大小。该属性会在将来的版本中移除，请使用 editBox.placeholderLabel.fontSize
      */
     @property({
-        tooltip:'输入框占位符的字体大小'
+        tooltip: '输入框占位符的字体大小',
     })
     get placeholderFontSize () {
-        return this._placeholderFontSize;
-    }
-
-    set placeholderFontSize (value) {
-        if (this._placeholderFontSize === value) {
-            return;
+        if (!this._placeholderLabel){
+            return 20;
         }
-
-        this._placeholderFontSize = value;
+        return this._placeholderLabel!.fontSize;
+    }
+    set placeholderFontSize (value) {
         if (this._placeholderLabel) {
-            this._placeholderLabel.fontSize = this._placeholderFontSize;
+            this._placeholderLabel.fontSize = value;
         }
     }
 
@@ -330,28 +343,23 @@ export class EditBoxComponent extends Component {
      * The font color of placeholder.
      *
      * @zh
-     * 输入框占位符的字体颜色。
+     * 输入框占位符的字体颜色。该属性会在将来的版本中移除，请使用 editBox.placeholderLabel.color
      */
     @property({
-        tooltip:'输入框占位符的字体颜色',
+        tooltip: '输入框占位符的字体颜色',
     })
     get placeholderFontColor () {
-        return this._placeholderFontColor;
+        if (!this._placeholderLabel) {
+            return math.Color.GRAY.clone();
+        }
+        return this._placeholderLabel!.color;
     }
 
     set placeholderFontColor (value) {
-        if (this._placeholderFontColor === value) {
-            return;
+        if (this._placeholderLabel) {
+            this._placeholderLabel.color = value;
         }
 
-        this._placeholderFontColor = value;
-        if (this._placeholderLabel) {
-            const comp = this._placeholderLabel.node.getComponent(UIRenderComponent);
-            if (comp) {
-                comp.color = this._placeholderFontColor;
-            }
-            // this._placeholderLabel.node.opacity = this._placeholderFontColor.a;
-        }
     }
 
     /**
@@ -364,20 +372,13 @@ export class EditBoxComponent extends Component {
      * - 如果值为 0，则不允许用户进行任何输入。
      */
     @property({
-        tooltip:'输入框最大允许输入的字符个数',
+        tooltip: '输入框最大允许输入的字符个数',
     })
     get maxLength () {
         return this._maxLength;
     }
-    set maxLength (value) {
-        if (this._maxLength === value) {
-            return;
-        }
-
+    set maxLength (value: number) {
         this._maxLength = value;
-        if (this._impl) {
-            this._impl.setMaxLength(this._maxLength);
-        }
     }
 
     /**
@@ -387,19 +388,18 @@ export class EditBoxComponent extends Component {
      * @zh
      * 输入框总是可见，并且永远在游戏视图的上面（这个属性只有在 Web 上面修改有意义）
      * Note: only available on Web at the moment.
+     *
+     * @deprecated
      */
     @property({
-        tooltip:'输入框总是可见，并且永远在游戏视图的上面（这个属性只有在 Web 上面修改有意义）'
+        tooltip: '输入框总是可见，并且永远在游戏视图的上面（这个属性只有在 Web 上面修改有意义）',
     })
     get stayOnTop () {
-        return this._stayOnTop;
+        return;
     }
 
     set stayOnTop (value) {
-        this._stayOnTop = value;
-        if (this._impl) {
-            this._updateStayOnTop();
-        }
+        console.warn('stayOnTop is removed.');
     }
 
     /**
@@ -410,20 +410,22 @@ export class EditBoxComponent extends Component {
      * 修改 DOM 输入元素的 tabIndex（这个属性只有在 Web 上面修改有意义）。
      */
     @property({
-        tooltip:'修改 DOM 输入元素的 tabIndex（这个属性只有在 Web 上面修改有意义）',
+        tooltip: '修改 DOM 输入元素的 tabIndex（这个属性只有在 Web 上面修改有意义）',
     })
     get tabIndex () {
         return this._tabIndex;
     }
 
     set tabIndex (value) {
-        this._tabIndex = value;
-        if (this._impl) {
-            this._impl.setTabIndex(value);
+        if (this._tabIndex !== value) {
+            this._tabIndex = value;
+            if (this._impl) {
+                this._impl.setTabIndex(value);
+            }
         }
     }
 
-    public static _EditBoxImpl = EditBoxImpl;
+    public static _EditBoxImpl = EditBoxImplBase;
     public static KeyboardReturnType = KeyboardReturnType;
     public static InputFlag = InputFlag;
     public static InputMode = InputMode;
@@ -436,7 +438,7 @@ export class EditBoxComponent extends Component {
      */
     @property({
         type: [ComponentEventHandler],
-        tooltip:'该事件在用户点击输入框获取焦点的时候被触发',
+        tooltip: '该事件在用户点击输入框获取焦点的时候被触发',
     })
     public editingDidBegan: ComponentEventHandler[] = [];
 
@@ -449,7 +451,7 @@ export class EditBoxComponent extends Component {
      */
     @property({
         type: [ComponentEventHandler],
-        tooltip:'编辑文本输入框时触发的事件回调'
+        tooltip: '编辑文本输入框时触发的事件回调',
     })
     public textChanged: ComponentEventHandler[] = [];
 
@@ -462,7 +464,7 @@ export class EditBoxComponent extends Component {
      */
     @property({
         type: [ComponentEventHandler],
-        tooltip:'在单行模式下面，一般是在用户按下回车或者点击屏幕输入框以外的地方调用该函数。 如果是多行输入，一般是在用户点击屏幕输入框以外的地方调用该函数',
+        tooltip: '在单行模式下面，一般是在用户按下回车或者点击屏幕输入框以外的地方调用该函数。 如果是多行输入，一般是在用户点击屏幕输入框以外的地方调用该函数',
     })
     public editingDidEnded: ComponentEventHandler[] = [];
 
@@ -475,52 +477,59 @@ export class EditBoxComponent extends Component {
      */
     @property({
         type: [ComponentEventHandler],
-        tooltip:'该事件在用户按下回车键的时候被触发, 如果是单行输入框，按回车键还会使输入框失去焦点',
+        tooltip: '该事件在用户按下回车键的时候被触发, 如果是单行输入框，按回车键还会使输入框失去焦点',
     })
     public editingReturn: ComponentEventHandler[] = [];
 
-    public _impl: EditBoxImpl | null = null;
-    public _textLabel: LabelComponent | null = null;
-    public _placeholderLabel: LabelComponent | null = null;
+    public _impl: EditBoxImplBase | null = null;
     public _background: SpriteComponent | null = null;
+
     @property
-    private _returnType = KeyboardReturnType.DEFAULT;
+    protected _textLabel: LabelComponent | null = null;
     @property
-    private _useOriginalSize = true;
+    protected _placeholderLabel: LabelComponent | null = null;
     @property
-    private _string = '';
+    protected  _returnType = KeyboardReturnType.DEFAULT;
     @property
-    private _tabIndex = 0;
+    protected  _useOriginalSize = true;
     @property
-    private _backgroundImage: SpriteFrame | null = null;
+    protected  _string = '';
     @property
-    private _inputFlag = InputFlag.DEFAULT;
+    protected  _tabIndex = 0;
     @property
-    private _inputMode = InputMode.ANY;
+    protected  _backgroundImage: SpriteFrame | null = null;
     @property
-    private _fontSize = 20;
+    protected  _inputFlag = InputFlag.DEFAULT;
     @property
-    private _lineHeight = 40;
+    protected  _inputMode = InputMode.ANY;
     @property
-    private _maxLength = 20;
-    @property
-    private _fontColor: Color = Color.WHITE.clone();
-    @property
-    private _placeholder = 'Enter text here...';
-    @property
-    private _placeholderFontSize = 20;
-    @property
-    private _placeholderFontColor: Color = Color.GRAY.clone();
-    @property
-    private _stayOnTop = false;
+    protected  _maxLength = 20;
+
+    private _isLabelVisible = false;
+
+    public __preload () {
+        this._init();
+    }
 
     public onEnable () {
+        if (!CC_EDITOR) {
+            this._registerEvent();
+        }
         if (this._impl) {
             this._impl.onEnable();
         }
     }
 
+    public update () {
+        if (this._impl) {
+            this._impl.update();
+        }
+    }
+
     public onDisable () {
+        if (!CC_EDITOR) {
+            this._unregisterEvent();
+        }
         if (this._impl) {
             this._impl.onDisable();
         }
@@ -532,92 +541,114 @@ export class EditBoxComponent extends Component {
         }
     }
 
-    public _init () {
+    /**
+     * @en Let the EditBox get focus
+     * @zh 让当前 EditBox 获得焦点。
+     */
+    public setFocus () {
+        if (this._impl) {
+            this._impl.setFocus(true);
+        }
+    }
+
+    /**
+     * @en Let the EditBox get focus
+     * @zh 让当前 EditBox 获得焦点
+     */
+    public focus () {
+        if (this._impl) {
+            this._impl.setFocus(true);
+        }
+    }
+
+    /**
+     * @en Let the EditBox lose focus
+     * @zh 让当前 EditBox 失去焦点
+     */
+    public blur () {
+        if (this._impl) {
+            this._impl.setFocus(false);
+        }
+    }
+
+    /**
+     * @en Determine whether EditBox is getting focus or not.
+     * @zh 判断 EditBox 是否获得了焦点。
+     * Note: only available on Web at the moment.
+     */
+    public isFocused () {
+        if (this._impl) {
+            return this._impl.isFocused();
+        }
+        return false;
+    }
+
+    public _editBoxEditingDidBegan () {
+        ComponentEventHandler.emitEvents(this.editingDidBegan, this);
+        this.node.emit('editing-did-began', this);
+    }
+
+    public _editBoxEditingDidEnded () {
+        ComponentEventHandler.emitEvents(this.editingDidEnded, this);
+        this.node.emit('editing-did-ended', this);
+    }
+
+    public _editBoxTextChanged (text: string) {
+        text = this._updateLabelStringStyle(text, true);
+        this.string = text;
+        ComponentEventHandler.emitEvents(this.textChanged, text, this);
+        this.node.emit('text-changed', this);
+    }
+
+    public _editBoxEditingReturn () {
+        ComponentEventHandler.emitEvents(this.editingReturn, this);
+        this.node.emit('editing-return', this);
+    }
+
+    public _showLabels () {
+        this._isLabelVisible = true;
+        this._updateLabels();
+    }
+
+    public _hideLabels () {
+        this._isLabelVisible = false;
+        if (this._textLabel) {
+            this._textLabel.node.active = false;
+        }
+        if (this._placeholderLabel) {
+            this._placeholderLabel.node.active = false;
+        }
+    }
+
+    protected _onTouchBegan (event: EventTouch) {
+        event.propagationStopped = true;
+    }
+
+    protected _onTouchCancel (event: EventTouch) {
+        event.propagationStopped = true;
+    }
+
+    protected _onTouchEnded (event: EventTouch) {
+        if (this._impl) {
+            this._impl.beginEditing();
+        }
+        event.propagationStopped = true;
+    }
+
+    protected _init () {
         this._createBackgroundSprite();
-        this._createLabels();
+        this._updatePlaceholderLabel();
+        this._updateTextLabel();
+        this._isLabelVisible = true;
         this.node.on(SystemEventType.SIZE_CHANGED, this._resizeChildNodes, this);
 
-        const impl = this._impl = new EditBoxImpl();
-
-        impl.setDelegate(this);
-        impl.setNode(this.node);
-        impl.setInputMode(this._inputMode);
-        impl.setMaxLength(this._maxLength);
-        impl.setInputFlag(this._inputFlag);
-        impl.setReturnType(this._returnType);
-        impl.setTabIndex(this._tabIndex);
-        impl.setFontColor(this._fontColor);
-        impl.setFontSize(this._fontSize);
-        impl.setPlaceholderText(this._placeholder);
-
-        this._updateStayOnTop();
+        const impl = this._impl = new EditBoxComponent._EditBoxImpl();
+        impl.init(this);
         this._updateString(this._string);
         this._syncSize();
     }
 
-    public __preload () {
-        if (!CC_EDITOR) {
-            this._registerEvent();
-        }
-        this._init();
-    }
-
-    public _registerEvent () {
-        this.node.on(SystemEventType.TOUCH_START, this._onTouchBegan, this);
-        this.node.on(SystemEventType.TOUCH_END, this._onTouchEnded, this);
-    }
-
-    public _updateStayOnTop () {
-        if (this.stayOnTop) {
-            this._hideLabels();
-        } else {
-            this._showLabels();
-        }
-
-        if (this._impl) {
-            this._impl.stayOnTop(this.stayOnTop);
-        }
-    }
-
-    public _syncSize () {
-        const size = this.node.getContentSize();
-
-        if (this._background) {
-            this._background.node.setAnchorPoint(this.node.getAnchorPoint());
-            this._background.node.setContentSize(size);
-        }
-
-        this._updateLabelPosition(size);
-        if (this._impl) {
-            this._impl.setSize(size.width, size.height);
-        }
-    }
-
-    public _updateLabelPosition (size: Size) {
-        const node = this.node;
-        const offx = -node.anchorX * node.width;
-        const offy = -node.anchorY * node.height;
-
-        const placeholderLabel = this._placeholderLabel;
-        const textLabel = this._textLabel;
-        if (textLabel) {
-            textLabel.node.setContentSize(size.width - LEFT_PADDING, size.height);
-            textLabel.node.setPosition(offx + LEFT_PADDING, offy + size.height, textLabel.node.getPosition().z);
-            textLabel.verticalAlign = this._inputMode === InputMode.ANY ? VerticalTextAlignment.TOP : VerticalTextAlignment.CENTER;
-            textLabel.enableWrapText = this._inputMode === InputMode.ANY ? true : false;
-        }
-
-        if (placeholderLabel) {
-            placeholderLabel.node.setContentSize(size.width - LEFT_PADDING, size.height);
-            placeholderLabel.lineHeight = size.height;
-            placeholderLabel.node.setPosition(offx + LEFT_PADDING, offy + size.height, placeholderLabel.node.getPosition().z);
-            placeholderLabel.verticalAlign = this._inputMode === InputMode.ANY ?
-                VerticalTextAlignment.TOP : VerticalTextAlignment.CENTER;
-            placeholderLabel.enableWrapText = this._inputMode === InputMode.ANY ? true : false;
-        }
-    }
-
-    public _createBackgroundSprite () {
+    protected _createBackgroundSprite () {
         if (!this._background) {
             this._background = this.node.getComponent(SpriteComponent);
             if (!this._background) {
@@ -628,109 +659,99 @@ export class EditBoxComponent extends Component {
 
         this._background!.type = SpriteComponent.Type.SLICED;
         this._background!.spriteFrame = this._backgroundImage;
-        // let background = this._background;
-        // if (!background) {
-        //     let node = this.node.getChildByName('BACKGROUND_SPRITE') as Node;
-        //     if (!node) {
-        //         node = new cc.Node('BACKGROUND_SPRITE') as Node;
-        //     }
-
-        //     background = node.getComponent(cc.SpriteComponent);
-        //     if (!background) {
-        //         background = node.addComponent(cc.SpriteComponent);
-        //     }
-        //     background.type = cc.SpriteComponent.Type.SLICED;
-
-        //     node.parent = this.node;
-        //     this._background = background;
-        // }
-        // background.spriteFrame = this._backgroundImage;
     }
 
-    public _createLabels () {
-        if (!this._textLabel) {
+    protected _updateTextLabel () {
+        let textLabel = this._textLabel;
+
+        // If textLabel doesn't exist, create one.
+        if (!textLabel) {
             let node = this.node.getChildByName('TEXT_LABEL');
             if (!node) {
                 node = new Node('TEXT_LABEL');
             }
-            let textLabel = node!.getComponent(LabelComponent);
-            node!.parent = this.node;
-
+            textLabel = node!.getComponent(LabelComponent);
             if (!textLabel) {
                 textLabel = node!.addComponent(LabelComponent);
             }
-
-            const transformComp = node!.getComponent(UITransformComponent);
-            transformComp!.setAnchorPoint(0, 1);
-            textLabel!.color = this._fontColor;
-            textLabel!.overflow = LabelComponent.Overflow.CLAMP;
-            textLabel!.fontSize = this._fontSize;
-            textLabel!.lineHeight = this.lineHeight;
+            node!.parent = this.node;
             this._textLabel = textLabel;
         }
 
-        if (!this._placeholderLabel) {
+        // update
+        const transformComp = this._textLabel!.node._uiProps.uiTransformComp;
+        transformComp!.setAnchorPoint(0, 1);
+        textLabel!.overflow = LabelComponent.Overflow.CLAMP;
+        if (this._inputMode === InputMode.ANY) {
+            textLabel!.verticalAlign = VerticalTextAlignment.TOP;
+            textLabel!.enableWrapText = true;
+        }
+        else {
+            textLabel!.verticalAlign = VerticalTextAlignment.CENTER;
+            textLabel!.enableWrapText = false;
+        }
+        textLabel!.string = this._updateLabelStringStyle(this._string);
+    }
+
+    protected _updatePlaceholderLabel () {
+        let placeholderLabel = this._placeholderLabel;
+
+        // If placeholderLabel doesn't exist, create one.
+        if (!placeholderLabel) {
             let node = this.node.getChildByName('PLACEHOLDER_LABEL');
             if (!node) {
                 node = new Node('PLACEHOLDER_LABEL');
             }
-            let placeholderLabel = node!.getComponent(LabelComponent);
+            placeholderLabel = node!.getComponent(LabelComponent);
             if (!placeholderLabel) {
                 placeholderLabel = node!.addComponent(LabelComponent);
             }
-            const transform = node!.getComponent(UITransformComponent);
-
             node!.parent = this.node;
-            placeholderLabel!.color = this._placeholderFontColor;
-            transform!.setAnchorPoint(0, 1);
-
-            placeholderLabel!.overflow = LabelComponent.Overflow.CLAMP;
-            placeholderLabel!.fontSize = this._placeholderFontSize;
-            placeholderLabel!.string = this._placeholder;
             this._placeholderLabel = placeholderLabel;
         }
+
+        // update
+        const transform = this._placeholderLabel!.node._uiProps.uiTransformComp;
+        transform!.setAnchorPoint(0, 1);
+        placeholderLabel!.overflow = LabelComponent.Overflow.CLAMP;
+        if (this._inputMode === InputMode.ANY) {
+            placeholderLabel!.verticalAlign = VerticalTextAlignment.TOP;
+            placeholderLabel!.enableWrapText = true;
+        }
+        else {
+            placeholderLabel!.verticalAlign = VerticalTextAlignment.CENTER;
+            placeholderLabel!.enableWrapText = false;
+        }
+        placeholderLabel!.string = this.placeholder;
     }
 
-    public _resizeChildNodes () {
-        const textLabelNode = this._textLabel && this._textLabel.node;
-        if (textLabelNode) {
-            textLabelNode.setPosition(-this.node.width / 2, this.node.height / 2, textLabelNode.getPosition().z);
-            textLabelNode.width = this.node.width;
-            textLabelNode.height = this.node.height;
+    protected _syncSize () {
+        const size = this.node.getContentSize();
+
+        if (this._background) {
+            this._background.node._uiProps.uiTransformComp!.anchorPoint = this.node._uiProps.uiTransformComp!.anchorPoint;
+            this._background.node.setContentSize(size);
         }
-        const placeholderLabelNode = this._placeholderLabel && this._placeholderLabel.node;
-        if (placeholderLabelNode) {
-            placeholderLabelNode.setPosition(-this.node.width / 2, this.node.height / 2, placeholderLabelNode.getPosition().z);
-            placeholderLabelNode.width = this.node.width;
-            placeholderLabelNode.height = this.node.height;
-        }
-        const backgroundNode = this._background && this._background.node;
-        if (backgroundNode) {
-            backgroundNode.width = this.node.width;
-            backgroundNode.height = this.node.height;
+
+        this._updateLabelPosition(size);
+        if (this._impl) {
+            this._impl.setSize(size.width, size.height);
         }
     }
 
-    public _showLabels () {
-        if (this._textLabel) {
-            const displayText = this._textLabel.string;
-            this._textLabel.node.active = displayText !== '';
+    protected _updateLabels () {
+        if (this._isLabelVisible) {
+            const content = this._string;
+            if (this._textLabel) {
+                this._textLabel.node.active = (content !== '');
+            }
             if (this._placeholderLabel) {
-                this._placeholderLabel.node.active = displayText === '';
+                this._placeholderLabel.node.active = (content === '');
             }
         }
     }
 
-    public _hideLabels () {
-        if (this._textLabel) {
-            this._textLabel.node.active = false;
-        }
-        if (this._placeholderLabel) {
-            this._placeholderLabel.node.active = false;
-        }
-    }
-
-    public _updateString (text: string) {
+    protected _updateString (text: string) {
         const textLabel = this._textLabel;
         // Not inited yet
         if (!textLabel) {
@@ -743,15 +764,11 @@ export class EditBoxComponent extends Component {
         }
 
         textLabel.string = displayText;
-        if (this._impl) {
-            this._impl.setString(text);
-            if (!this._impl.editing && !this.stayOnTop) {
-                this._showLabels();
-            }
-        }
+
+        this._updateLabels();
     }
 
-    public _updateLabelStringStyle (text: string, ignorePassword: boolean = false) {
+    protected _updateLabelStringStyle (text: string, ignorePassword: boolean = false) {
         const inputFlag = this._inputFlag;
         if (!ignorePassword && inputFlag === InputFlag.PASSWORD) {
             let passwordString = '';
@@ -771,81 +788,63 @@ export class EditBoxComponent extends Component {
         return text;
     }
 
-    public editBoxEditingDidBegan () {
-        this._hideLabels();
-        ComponentEventHandler.emitEvents(this.editingDidBegan, this);
-        this.node.emit('editing-did-began', this);
+    protected _registerEvent () {
+        this.node.on(SystemEventType.TOUCH_START, this._onTouchBegan, this);
+        this.node.on(SystemEventType.TOUCH_END, this._onTouchEnded, this);
     }
 
-    public editBoxEditingDidEnded () {
-        if (!this.stayOnTop) {
-            this._showLabels();
+    protected _unregisterEvent () {
+        this.node.off(SystemEventType.TOUCH_START, this._onTouchBegan, this);
+        this.node.off(SystemEventType.TOUCH_END, this._onTouchEnded, this);
+    }
+
+    protected _updateLabelPosition (size: Size) {
+        const node = this.node;
+        const offX = -node.anchorX * node.width;
+        const offY = -node.anchorY * node.height;
+
+        const placeholderLabel = this._placeholderLabel;
+        const textLabel = this._textLabel;
+        if (textLabel) {
+            textLabel.node.setContentSize(size.width - LEFT_PADDING, size.height);
+            textLabel.node.position = new Vec3 (offX + LEFT_PADDING, offY + size.height, textLabel.node.position.z);
+            textLabel.verticalAlign = this._inputMode === InputMode.ANY ? VerticalTextAlignment.TOP : VerticalTextAlignment.CENTER;
+            textLabel.enableWrapText = this._inputMode === InputMode.ANY ? true : false;
         }
-        ComponentEventHandler.emitEvents(this.editingDidEnded, this);
-        this.node.emit('editing-did-ended', this);
-    }
 
-    public editBoxTextChanged (text) {
-        text = this._updateLabelStringStyle(text, true);
-        this.string = text;
-        ComponentEventHandler.emitEvents(this.textChanged, text, this);
-        this.node.emit('text-changed', this);
-    }
-
-    public editBoxEditingReturn () {
-        ComponentEventHandler.emitEvents(this.editingReturn, this);
-        this.node.emit('editing-return', this);
-    }
-
-    public _onTouchBegan (event: EventTouch) {
-        if (this._impl) {
-            this._impl._onTouchBegan(event.touch);
-        }
-        event.propagationStopped = true;
-    }
-
-    // public _onTouchCancel (event) {
-    //     // if (this._impl) {
-    //     //     this._impl._onTouchCancel();
-    //     // }
-    //     event.propagationStopped = true;
-    // }
-
-    public _onTouchEnded (event: EventTouch) {
-        if (this._impl) {
-            this._impl._onTouchEnded();
-        }
-        event.propagationStopped = true;
-    }
-
-    /**
-     * @en Let the EditBox get focus
-     * @zh 让当前 EditBox 获得焦点。
-     */
-    public setFocus () {
-        if (this._impl) {
-            this._impl.setFocus();
+        if (placeholderLabel) {
+            placeholderLabel.node.setContentSize(size.width - LEFT_PADDING, size.height);
+            placeholderLabel.lineHeight = size.height;
+            placeholderLabel.node.position = new Vec3 (offX + LEFT_PADDING, offY + size.height, placeholderLabel.node.position.z);
+            placeholderLabel.verticalAlign = this._inputMode === InputMode.ANY ?
+                VerticalTextAlignment.TOP : VerticalTextAlignment.CENTER;
+            placeholderLabel.enableWrapText = this._inputMode === InputMode.ANY ? true : false;
         }
     }
 
-    /**
-     * @en Determine whether EditBox is getting focus or not.
-     * @zh 判断 EditBox 是否获得了焦点。
-     * Note: only available on Web at the moment.
-     */
-    public isFocused () {
-        let isFocused = false;
-        if (this._impl) {
-            isFocused = this._impl.isFocused();
+    protected _resizeChildNodes () {
+        const textLabelNode = this._textLabel && this._textLabel.node;
+        if (textLabelNode) {
+            textLabelNode.position = new Vec3(-this.node.width / 2, this.node.height / 2, textLabelNode.position.z);
+            textLabelNode.width = this.node.width;
+            textLabelNode.height = this.node.height;
         }
-        return isFocused;
+        const placeholderLabelNode = this._placeholderLabel && this._placeholderLabel.node;
+        if (placeholderLabelNode) {
+            placeholderLabelNode.position = new Vec3(-this.node.width / 2, this.node.height / 2, placeholderLabelNode.position.z);
+            placeholderLabelNode.width = this.node.width;
+            placeholderLabelNode.height = this.node.height;
+        }
+        const backgroundNode = this._background && this._background.node;
+        if (backgroundNode) {
+            backgroundNode.width = this.node.width;
+            backgroundNode.height = this.node.height;
+        }
     }
+}
 
-    public update () {
-        if (this._impl) {
-            this._impl.update();
-        }
-    }
+if (sys.isBrowser){
+    EditBoxComponent._EditBoxImpl = EditBoxImpl;
 }
 
 cc.EditBoxComponent = EditBoxComponent;
