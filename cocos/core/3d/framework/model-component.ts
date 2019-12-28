@@ -27,7 +27,8 @@
  * @category model
  */
 
-import { Material, Mesh } from '../../assets';
+import { Material } from '../../assets/material';
+import { Mesh } from '../../assets/mesh';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
 import { Model } from '../../renderer/scene/model';
 import { Root } from '../../root';
