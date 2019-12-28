@@ -227,14 +227,6 @@ export class Game extends EventTarget {
     public static readonly EVENT_RENDERER_INITED: string = 'renderer_inited';
 
     /**
-     * @en Event triggered after renderer inited, at this point you will be able to use all gfx renderer feature.<br>
-     * @zh 在渲染器初始化之后触发的事件，此事件在 EVENT_ENGINE_INITED 之前触发，此时开始可使用 gfx 渲染框架。
-     * @property EVENT_RENDERER_INITED
-     * @readonly
-     */
-    public static readonly EVENT_RENDERPIPELINE_READY: string = 'render-pipeline-ready';
-
-    /**
      * @en Web Canvas 2d API as renderer backend.
      * @zh 使用 Web Canvas 2d API 作为渲染器后端。
      * @property RENDER_TYPE_CANVAS
