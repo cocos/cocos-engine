@@ -108,10 +108,10 @@ export class Profiler {
     private _statsDone = false;
     private _inited = false;
 
-    private readonly _lineHeight = _constants.fontSize + 2;
+    private readonly _lineHeight = _constants.textureHeight / (Object.keys(_profileInfo).length + 1);
     private _wordHeight = 0;
-    private _eachNumWidth = 0;      // profiler each number width
-    private _totalLines = 0;        // total lines to display
+    private _eachNumWidth = 0;
+    private _totalLines = 0; // total lines to display
 
     private lastTime = 0;   // update use time
 
@@ -218,7 +218,7 @@ export class Profiler {
     }
 
     public generateStats () {
-        if (this._statsDone || !this._ctx || !this._canvas ) {
+        if (this._statsDone || !this._ctx || !this._canvas) {
             return;
         }
 
@@ -237,17 +237,17 @@ export class Profiler {
         this._totalLines = i;
         this._wordHeight = this._totalLines * this._lineHeight / this._canvas.height;
 
-        this._eachNumWidth = this._ctx.measureText('0').width / this._canvas.width; // each number uv width
-        const canvasNumWidth = this._eachNumWidth * this._canvas.width; // each number width in canvas
-
         const offsets = new Array();
-        let offset = 0;
         offsets[0] = 0;
         for (let j = 0; j < _characters.length; ++j) {
-            this._ctx.fillText(_characters[j], j * canvasNumWidth, this._totalLines * this._lineHeight);
-            offset += this._eachNumWidth;
-            offsets[j + 1] = offset;
+            const offset = this._ctx.measureText(_characters[j]).width;
+            this._eachNumWidth = Math.max(this._eachNumWidth, offset);
+            offsets[j + 1] = offsets[j] + offset / this._canvas.width;
         }
+        for (let j = 0; j < _characters.length; ++j) {
+            this._ctx.fillText(_characters[j], j * this._eachNumWidth, this._totalLines * this._lineHeight);
+        }
+        this._eachNumWidth /= this._canvas.width;
 
         const len = Math.ceil(offsets.length / 4);
         for (let j = 0; j < len; j++) {
@@ -333,17 +333,13 @@ export class Profiler {
 
         const _material = new Material();
         _material.initialize({ effectName: 'util/profiler' });
-        _material.setProperty('offset', new Vec4(-0.9, -0.9, 0, 0));
-        _material.setProperty('symbols', this._uvOffset);
+        _material.setProperty('offset', new Vec4(-0.9, -0.9, this._eachNumWidth, 0));
         const pass = _material.passes[0];
         const handle = pass.getBinding('mainTexture');
+        const binding = pass.getBinding('digits')!;
         pass.bindTextureView(handle!, this._textureView!);
-
+        this.digitsData = pass.blocks[binding];
         modelCom.material = _material;
-        const passInstance = modelCom.material.passes[0];
-        const binding = passInstance.getBinding('digits')!;
-        this.digitsData = passInstance.blocks[binding];
-
         modelCom.node.layer = Layers.Enum.PROFILER;
     }
 
