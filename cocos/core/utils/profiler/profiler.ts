@@ -223,7 +223,6 @@ export class Profiler {
         }
 
         this._stats = null;
-        this._inited = false;
         const now = performance.now();
 
         this._ctx.textAlign = 'left';
@@ -257,7 +256,6 @@ export class Profiler {
         this._stats = _profileInfo as IProfilerState;
         this._canvasArr[0] = this._canvas;
         this.updateTexture();
-        this._inited = true;
     }
 
     public generateNode () {
@@ -341,6 +339,7 @@ export class Profiler {
         this.digitsData = pass.blocks[binding];
         modelCom.material = _material;
         modelCom.node.layer = Layers.Enum.PROFILER;
+        this._inited = true;
     }
 
     public beforeUpdate () {
