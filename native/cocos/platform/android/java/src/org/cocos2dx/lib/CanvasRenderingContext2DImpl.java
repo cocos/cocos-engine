@@ -399,14 +399,6 @@ public class CanvasRenderingContext2DImpl {
         return ret;
     }
 
-    private Size measureTextReturnSize(String text) {
-        createTextPaintIfNeeded();
-        Paint.FontMetrics fm = mTextPaint.getFontMetrics();
-        // Use descent & ascent for clipping the transparent region.
-        // So don't use bottom & top which will make text be cut.
-        return new Size(measureText(text), fm.descent - fm.ascent);
-    }
-
     private void updateFont(String fontName, float fontSize, boolean bold, boolean italic, boolean oblique, boolean smallCaps) {
         // Log.d(TAG, "updateFont: " + fontName + ", " + fontSize);
         mFontName = fontName;
@@ -468,32 +460,38 @@ public class CanvasRenderingContext2DImpl {
         // The parameter 'point' is located at left-bottom position.
         // Need to adjust 'point' according 'text align' & 'text base line'.
         Point ret = new Point(point);
-        Size textSize = measureTextReturnSize(text);
-        // Log.d(TAG,"textSize: " + textSize.width + ", " + textSize.height);
+        createTextPaintIfNeeded();
+        Paint.FontMetrics fm = mTextPaint.getFontMetrics();
+        float width = measureText(text);
 
         if (mTextAlign == TEXT_ALIGN_CENTER)
         {
-            ret.x -= textSize.width / 2;
+            ret.x -= width / 2;
         }
         else if (mTextAlign == TEXT_ALIGN_RIGHT)
         {
-            ret.x -= textSize.width;
+            ret.x -= width;
         }
 
+        // Canvas.drawText accepts the y parameter as the baseline position, not the most bottom
         if (mTextBaseline == TEXT_BASELINE_TOP)
         {
-            ret.y += textSize.height;
+            ret.y += -fm.ascent;
         }
         else if (mTextBaseline == TEXT_BASELINE_MIDDLE)
         {
-            ret.y += textSize.height / 2;
+            ret.y += (fm.descent - fm.ascent) / 2 - fm.descent;
+        }
+        else if (mTextBaseline == TEXT_BASELINE_BOTTOM)
+        {
+            ret.y += -fm.descent;
         }
 
         return ret;
     }
 
     private byte[] getDataRef() {
-//        Log.d(TAG, "this: " + this + ", getDataRef ...");
+        // Log.d(TAG, "this: " + this + ", getDataRef ...");
         if (mBitmap != null) {
             final int len = mBitmap.getWidth() * mBitmap.getHeight() * 4;
             final byte[] pixels = new byte[len];

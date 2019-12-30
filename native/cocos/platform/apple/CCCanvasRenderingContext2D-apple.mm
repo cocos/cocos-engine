@@ -43,14 +43,14 @@ enum class CanvasTextBaseline {
     CGFloat _width;
     CGFloat _height;
     CGContextRef _context;
-    
+
 #if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
     NSGraphicsContext* _currentGraphicsContext;
     NSGraphicsContext* _oldGraphicsContext;
 #else
     CGContextRef _oldContext;
 #endif
-    
+
     CGColorSpaceRef _colorSpace;
     cocos2d::Data _imageData;
     NSBezierPath* _path;
@@ -291,25 +291,37 @@ enum class CanvasTextBaseline {
         point.x -= textSize.width;
     }
 
+#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+    // The origin on macOS is bottom-left by default,
+    // so we need to convert y from top-left origin to bottom-left origin.
+    point.y = _height - point.y;
     if (_textBaseLine == CanvasTextBaseline::TOP)
     {
-        point.y += _fontSize;
+        point.y += -textSize.height;
     }
     else if (_textBaseLine == CanvasTextBaseline::MIDDLE)
     {
-        point.y += _fontSize / 2.0f;
+        point.y += -textSize.height / 2.0f;
     }
-
-    // Since the web platform cannot get the baseline of the font, an additive offset is performed for all platforms.
-    // That's why we should add baseline back again on other platforms
-#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
-    point.y -= _font.descender;
-
-    // The origin on macOS is bottom-left by default, so we need to convert y from top-left origin to bottom-left origin.
-    point.y = _height - point.y;
+    else if (_textBaseLine == CanvasTextBaseline::BOTTOM)
+    {
+        // drawAtPoint default
+    }
 #else
-    point.y -= _font.ascender;
+    if (_textBaseLine == CanvasTextBaseline::TOP)
+    {
+        // drawAtPoint default
+    }
+    else if (_textBaseLine == CanvasTextBaseline::MIDDLE)
+    {
+        point.y += -textSize.height / 2.0f;
+    }
+    else if (_textBaseLine == CanvasTextBaseline::BOTTOM)
+    {
+        point.y += -textSize.height;
+    }
 #endif
+
     return point;
 }
 
@@ -336,13 +348,10 @@ enum class CanvasTextBaseline {
     CGContextBeginTransparencyLayerWithRect(_context, CGRectMake(0, 0, _width, _height), nullptr);
     CGContextSetTextDrawingMode(_context, kCGTextFill);
 
-    
-
     NSAttributedString *stringWithAttributes =[[[NSAttributedString alloc] initWithString:text
-                                                                               attributes:_tokenAttributesDict] autorelease];
+                                                attributes:_tokenAttributesDict] autorelease];
 
     [stringWithAttributes drawAtPoint:drawPoint];
-
 
     CGContextEndTransparencyLayer(_context);
 

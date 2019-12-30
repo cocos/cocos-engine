@@ -519,7 +519,7 @@ private:
                     // so the red value is equal to alpha value. And we should keep this value
                     // as it includes anti-atlas information.
                     uint8_t alpha = GetRValue(clr);
-                   
+
                     val = (alpha << 24) | textColor;
 
                     ++pPixel;
@@ -544,17 +544,16 @@ private:
 
         if (_textBaseLine == CanvasTextBaseline::TOP)
         {
-            point.y += _fontSize;
+            // windows DrawText default
         }
         else if (_textBaseLine == CanvasTextBaseline::MIDDLE)
         {
-            point.y += _fontSize / 2.0f;
+            point.y += -textSize.height / 2.0f;
         }
-
-        // Since the web platform cannot get the baseline of the font, an additive offset is performed for all platforms.
-        // That's why we should add baseline back again on other platforms
-        GetTextMetrics(_DC, &_tm);
-        point.y -= _tm.tmAscent;
+        else if (_textBaseLine == CanvasTextBaseline::BOTTOM)
+        {
+            point.y += -textSize.height;
+        }
 
         return point;
     }
