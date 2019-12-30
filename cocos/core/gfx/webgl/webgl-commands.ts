@@ -799,6 +799,10 @@ export function WebGLCmdFuncCreateTexture (device: WebGLGFXDevice, gpuTexture: W
                         gl.bindRenderbuffer(gl.RENDERBUFFER, gpuTexture.glRenderbuffer);
                         device.stateCache.glRenderbuffer = gpuTexture.glRenderbuffer;
                     }
+                    // Special treatment, refer to https://developer.mozilla.org/zh-CN/docs/Web/API/WebGLRenderingContext/renderbufferStorage
+                    if (gpuTexture.glInternelFmt === gl.DEPTH_COMPONENT) {
+                        gpuTexture.glInternelFmt = gl.DEPTH_COMPONENT16;
+                    }
 
                     gl.renderbufferStorage(gl.RENDERBUFFER, gpuTexture.glInternelFmt, w, h);
                 }

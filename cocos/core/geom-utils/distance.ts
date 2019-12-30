@@ -117,3 +117,29 @@ export function pt_point_obb (out: Vec3, point: Vec3, obb_: obb): Vec3 {
     }
     return out;
 }
+
+export function pt_point_line (out: Vec3, point: Vec3, start: Vec3, end: Vec3) {
+    Vec3.subtract(X, start, end);
+    const dir = X;
+    const dirSquaredLength = Vec3.lengthSqr(dir);
+
+    if (dirSquaredLength == 0) {
+        // The point is at the segment start.
+        Vec3.copy(out, start);
+    } else {
+        // Calculate the projection of the point onto the line extending through the segment.
+        Vec3.subtract(X, point, start);
+        const t = Vec3.dot(X, dir) / dirSquaredLength;
+
+        if (t < 0) {
+            // The point projects beyond the segment start.
+            Vec3.copy(out, start);
+        } else if (t > 1) {
+            // The point projects beyond the segment end.
+            Vec3.copy(out, end);
+        } else {
+            // The point projects between the start and end of the segment.
+            Vec3.scaleAndAdd(out, start, dir, t);
+        }
+    }
+}

@@ -1066,22 +1066,10 @@ export class Director extends EventTarget {
     }
 
     private _initOnRendererInitialized () {
-        this._root = new Root(cc.game._gfxDevice);
-        const rootInfo = {};
-        if (!this._root.initialize(rootInfo)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    private _initOnEngineInitialized () {
         this._totalFrames = 0;
         this._lastUpdate = performance.now();
         this._paused = false;
         this._purgeDirectorInNextLoop = false;
-
-        cc.loader.init(this);
 
         // Event manager
         if (eventManager) {
@@ -1093,6 +1081,17 @@ export class Director extends EventTarget {
         this.registerSystem(Scheduler.ID, this._scheduler, 200);
 
         this.emit(Director.EVENT_INIT);
+    }
+
+    private _initOnEngineInitialized () {
+        cc.loader.init(this);
+        this._root = new Root(cc.game._gfxDevice);
+        const rootInfo = {};
+        if (!this._root.initialize(rootInfo)) {
+            return false;
+        }
+
+        return true;
     }
 }
 

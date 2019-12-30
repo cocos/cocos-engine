@@ -69,18 +69,24 @@ export class RenderableComponent extends Component {
         for (let i = 0; i < this._materials.length; i++) {
             this._materialInstances[i] = this.getMaterialInstance(i) as MaterialInstance;
         }
-        return this._materials;
+        return this._materialInstances;
     }
 
     set materials (val) {
         const dLen = val.length - this._materials.length;
         if (dLen > 0) {
-            this._materials = this._materials.concat(new Array(dLen).fill(null));
+            this._materials.length = val.length;
+            this._materialInstances.length = val.length;
         } else if (dLen < 0) {
-            for (let i = -dLen; i < this._materials.length; ++i) {
+            for (let i = this._materials.length - dLen; i < this._materials.length; ++i) {
                 this.setMaterialInstance(i, null);
             }
-            this._materials = this._materials.splice(-dLen);
+        }
+        for (let i = 0; i < this._materialInstances.length; i++) {
+            // tslint:disable-next-line: triple-equals
+            if (this._materialInstances[i] != val[i]) {
+                this.setMaterialInstance(i, val[i]);
+            }
         }
     }
 

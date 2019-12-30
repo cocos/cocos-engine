@@ -577,7 +577,7 @@ export class LabelComponent extends UIRenderComponent {
     public static VerticalAlign = VerticalTextAlignment;
     public static Overflow = Overflow;
     public static CacheMode = CacheMode;
-    public static CanvasPool = new CanvasPool();
+    public static _canvasPool = new CanvasPool();
 
     @property
     protected _useOriginalSize = true;

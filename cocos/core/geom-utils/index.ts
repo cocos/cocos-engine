@@ -13,6 +13,7 @@ export { default as triangle } from './triangle';
 export { default as sphere } from './sphere';
 export { default as aabb } from './aabb';
 export { default as obb } from './obb';
+export { capsule } from './capsule';
 export { frustum } from './frustum';
 export { Keyframe, AnimationCurve } from './curve';
 

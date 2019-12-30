@@ -16,4 +16,5 @@ export default {
   SHAPE_TRIANGLE: (1 << 6),
   SHAPE_FRUSTUM: (1 << 7),
   SHAPE_FRUSTUM_ACCURATE: (1 << 8),
+  SHAPE_CAPSULE: (1 << 9),
 };
