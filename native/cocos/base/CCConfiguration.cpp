@@ -155,7 +155,7 @@ void Configuration::gatherGPUInfo()
 
     _supportsNPOT = true;
     _valueDict["gl.supports_NPOT"] = Value(_supportsNPOT);
-    
+
     _supportsDepthTexture = checkForGLExtension("depth_texture");
     _valueDict["gl.supports_DepthTexture"] = Value(_supportsDepthTexture);
 
@@ -180,7 +180,7 @@ void Configuration::gatherGPUInfo()
         _supportsShareableVAO = true;
     }
     else {
-		_supportsFloatTexture = checkForGLExtension("texture_float");
+        _supportsFloatTexture = checkForGLExtension("texture_float");
         _valueDict["gl.supports_float_texture"] = Value(_supportsFloatTexture);
 
         _supportsShareableVAO = checkForGLExtension("vertex_array_object");

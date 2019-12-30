@@ -544,7 +544,9 @@ private:
 
         if (_textBaseLine == CanvasTextBaseline::TOP)
         {
-            // windows DrawText default
+            // DrawText default
+            GetTextMetrics(_DC, &_tm);
+            point.y += -_tm.tmInternalLeading;
         }
         else if (_textBaseLine == CanvasTextBaseline::MIDDLE)
         {
