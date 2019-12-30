@@ -212,25 +212,22 @@ export class UITransformComponent extends Component {
      * @zh
      * 查找被渲染相机。
      */
-    get visibility() {
-        if (!this._screen) {
+    get visibility () {
+        if (!this._canvas) {
             return -1;
         }
 
-        return this._screen.visibility;
-    }
-
-    get _screen() {
-        return this._canvas;
+        return this._canvas.visibility;
     }
 
     public static EventType = SystemEventType;
+
+    public _canvas: CanvasComponent | null = null;
+
     @property
     protected _contentSize = new Size(100, 100);
     @property
     protected _anchorPoint = new Vec2(0.5, 0.5);
-
-    public _canvas: CanvasComponent | null = null;
 
     public __preload () {
         this.node._uiProps.uiTransformComp = this;
