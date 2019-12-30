@@ -26,7 +26,7 @@ export default class ColorOvertimeModule {
     color = new GradientRange();
 
     animate (particle) {
-        if (this._enable) {
+        if (this.enable) {
             particle.color.set(particle.startColor);
             particle.color.multiply(this.color.evaluate(1.0 - particle.remainingLifetime / particle.startLifetime, pseudoRandom(particle.randomSeed + COLOR_OVERTIME_RAND_OFFSET)));
         }

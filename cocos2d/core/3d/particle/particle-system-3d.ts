@@ -27,7 +27,7 @@ import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3 } from '../../valu
 import { INT_MAX } from '../../value-types/utils';
 import Material from '../../assets/material/CCMaterial';
 import ColorOverLifetimeModule from './animator/color-overtime';
-import CurveRange from './animator/curve-range';
+import CurveRange, { Mode }from './animator/curve-range';
 import ForceOvertimeModule from './animator/force-overtime';
 import GradientRange from './animator/gradient-range';
 import LimitVelocityOvertimeModule from './animator/limit-velocity-overtime';
