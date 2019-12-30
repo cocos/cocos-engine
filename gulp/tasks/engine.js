@@ -40,14 +40,10 @@ const HandleErrors = require('../util/handleErrors');
 const Optimizejs = require('gulp-optimize-js');
 const Globby = require('globby');
 
-let physicsSkipFiles = Globby.sync(
-    Path.resolve(__dirname, '../../cocos2d/core/3d/physics/**/*')
-);
-physicsSkipFiles = physicsSkipFiles.concat(
-    Globby.sync(
-        Path.resolve(__dirname, '../../external/cannon/**/*')
-    )
-);
+let physicsSkipFiles = Globby.sync([
+    Path.resolve(__dirname, '../../cocos2d/core/3d/physics/**/*'),
+    Path.resolve(__dirname, '../../external/cannon/**/*'),
+]);
 
 var jsbSkipModules = [
     // modules need to skip in jsb
