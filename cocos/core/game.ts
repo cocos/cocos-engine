@@ -581,7 +581,6 @@ export class Game extends EventTarget {
             if (cb) { cb(); }
         };
 
-
         // Init engine
         this._initEngine(start);
     }
@@ -594,6 +593,10 @@ export class Game extends EventTarget {
         if (!CC_EDITOR) {
             this._initEvents();
         }
+
+        // Log engine version
+        console.log('Cocos Creator 3D v' + cc.ENGINE_VERSION);
+        this.emit(Game.EVENT_ENGINE_INITED);
 
         // load renderpipeline
         let config = this.config;
@@ -620,10 +623,6 @@ export class Game extends EventTarget {
                 cb && cb();
             }
         });
-
-        // Log engine version
-        console.log('Cocos Creator 3D v' + cc.ENGINE_VERSION);
-        this.emit(Game.EVENT_ENGINE_INITED);
     }
 
     // @Methods
