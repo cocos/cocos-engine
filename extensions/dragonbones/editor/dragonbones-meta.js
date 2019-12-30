@@ -32,10 +32,9 @@ const CustomAssetMeta = Editor.metas['custom-asset'];
 class DragonBonesMeta extends CustomAssetMeta {
     constructor (assetdb) {
         super(assetdb);
-        this.dragonBonesJson = '';
     }
 
-    static version () { return '1.0.0'; }
+    static version () { return '1.0.1'; }
     static defaultType () {
         return 'dragonbones';
     }
@@ -59,11 +58,9 @@ class DragonBonesMeta extends CustomAssetMeta {
                 return cb(err);
             }
 
-            this.dragonBonesJson = data;
-
             var asset = new dragonBones.DragonBonesAsset();
             asset.name = Path.basenameNoExt(fspath);
-            asset.dragonBonesJson = this.dragonBonesJson;
+            asset.dragonBonesJson = data;
             this._assetdb.saveAssetToLibrary(this.uuid, asset);
             cb();
         });
