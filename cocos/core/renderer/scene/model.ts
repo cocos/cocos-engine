@@ -202,6 +202,7 @@ export class Model {
         this._matRefCount.clear();
         this._inited = false;
         this._transformUpdated = true;
+        this._isDynamicBatching = false;
     }
 
     public attachToScene (scene: RenderScene) {
