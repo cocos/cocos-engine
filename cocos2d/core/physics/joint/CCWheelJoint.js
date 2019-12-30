@@ -149,7 +149,7 @@ var WheelJoint = cc.Class({
             set: function (value) {
                 this._frequency = value;
                 if (this._joint) {
-                    this._joint.SetFrequency(value);
+                    this._joint.SetSpringFrequencyHz(value);
                 }
             }
         },
