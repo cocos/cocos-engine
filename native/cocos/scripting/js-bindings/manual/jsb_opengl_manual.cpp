@@ -2117,6 +2117,28 @@ static void setUnpackAlignmentByWidthAndFormat(uint32_t width, GLenum format)
     ccPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
 }
 
+static GLenum convertFloatTextureInternalFormat(GLenum format, GLenum type)
+{
+    if (format == GL_RGBA)
+    {
+        if (type == GL_FLOAT)
+            return GL_RGBA32F_EXT;
+        else if (type == GL_HALF_FLOAT_OES)
+            return GL_RGBA16F_EXT;
+    }
+    else if (format == GL_RGB)
+    {
+        if (type == GL_FLOAT)
+            return GL_RGB32F_EXT;
+        else if (type == GL_HALF_FLOAT_OES)
+            return GL_RGB16F_EXT;
+    }
+    
+    //FIXME: support other types, such as GL_ALPHA32F_EXT, GL_LUMINANCE32F_EXT?
+    
+    return format;
+}
+
 // Arguments: GLenum, GLint, GLint, GLsizei, GLsizei, GLint, GLenum, GLenum, ArrayBufferView
 // Ret value: void
 static bool JSB_glTexImage2D(se::State& s) {
@@ -2172,6 +2194,7 @@ static bool JSB_glTexImage2D(se::State& s) {
     else
         setUnpackAlignmentByWidthAndFormat(width, format);
 
+    internalformat = convertFloatTextureInternalFormat(format, type);
     JSB_GL_CHECK(glTexImage2D((GLenum)target , (GLint)level , (GLint)internalformat , (GLsizei)width , (GLsizei)height , (GLint)border , (GLenum)format , (GLenum)type , (GLvoid*)pixels));
 
     return true;

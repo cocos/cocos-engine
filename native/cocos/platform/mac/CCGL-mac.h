@@ -44,6 +44,12 @@ THE SOFTWARE.
 #define glDepthRangef                   glDepthRange
 #define glReleaseShaderCompiler(xxx)
 
+#define GL_RGBA32F_EXT      0x8814
+#define GL_RGB32F_EXT       0x8815
+#define GL_RGBA16F_EXT      0x881A
+#define GL_RGB16F_EXT       0x881B
+#define GL_HALF_FLOAT_OES   0x8D61
+
 
 #endif // __PLATFORM_MAC_CCGL_H__
 
