@@ -282,7 +282,7 @@ let AttachUtil = cc.Class({
             let parentNode = null;
             if (bone.parent) {
                 let parentIndex = bone.parent.data.index;
-                parentNode = nodeArray[parentIndex];
+                parentNode = this._boneIndexToNode[parentIndex];
             } else {
                 parentNode = rootNode;
             }
@@ -334,7 +334,7 @@ let AttachUtil = cc.Class({
             let parentNode = null;
             if (bone.parent) {
                 let parentIndex = bone.parent.data.index;
-                parentNode = nodeArray[parentIndex];
+                parentNode = this._boneIndexToNode[parentIndex];
             } else {
                 parentNode = rootNode;
             }
