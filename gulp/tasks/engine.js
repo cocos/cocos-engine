@@ -111,7 +111,9 @@ exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlag
     var outFile = Path.basename(outputFile);
     var bundler = createBundler(sourceFile, opts);
 
-    excludes = excludes.concat(physicsSkipFiles);
+    physicsSkipFiles.forEach(file => {
+        bundler.exclude(file);
+    });
     excludes && excludes.forEach(function (file) {
         bundler.exclude(file);
     });
@@ -154,7 +156,9 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, opt_macroF
     var outFile = Path.basename(outputFile);
     var bundler = createBundler(sourceFile, opts);
 
-    excludes =  excludes.concat(physicsSkipFiles);
+    physicsSkipFiles.forEach(file => {
+        bundler.exclude(file);
+    });
     excludes && excludes.forEach(function (file) {
         bundler.exclude(file);
     });
@@ -292,7 +296,9 @@ exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, c
     var outDir = Path.dirname(outputFile);
 
     var bundler = createBundler(sourceFile, opts);
-    excludes = excludes.concat(physicsSkipFiles);
+    physicsSkipFiles.forEach(file => {
+        bundler.exclude(file);
+    });
     if (nativeRenderer) {
         excludes = excludes.concat(jsbSkipModules);
     }
@@ -337,10 +343,12 @@ exports.buildJsbMin = function (sourceFile, outputFile, excludes, opt_macroFlags
     var outDir = Path.dirname(outputFile);
 
     var bundler = createBundler(sourceFile, opts);
+    physicsSkipFiles.forEach(file => {
+        bundler.exclude(file);
+    });
     if (nativeRenderer) {
         excludes = excludes.concat(jsbSkipModules);
     }
-    excludes = excludes.concat(physicsSkipFiles);
     excludes.forEach(function (module) {
         bundler.exclude(require.resolve(module));
     });
@@ -385,7 +393,9 @@ exports.buildRuntime = function (sourceFile, outputFile, excludes, opt_macroFlag
     var outDir = Path.dirname(outputFile);
 
     var bundler = createBundler(sourceFile, opts);
-    excludes = excludes.concat(physicsSkipFiles);
+    physicsSkipFiles.forEach(file => {
+        bundler.exclude(file);
+    });
     excludes.forEach(function (module) {
         bundler.exclude(require.resolve(module));
     });
@@ -428,7 +438,9 @@ exports.buildRuntimeMin = function (sourceFile, outputFile, excludes, opt_macroF
     var outDir = Path.dirname(outputFile);
 
     var bundler = createBundler(sourceFile, opts);
-    excludes = excludes.concat(physicsSkipFiles);
+    physicsSkipFiles.forEach(file => {
+        bundler.exclude(file);
+    });
     excludes.forEach(function (module) {
         bundler.exclude(require.resolve(module));
     });
