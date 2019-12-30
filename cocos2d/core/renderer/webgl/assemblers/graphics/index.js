@@ -465,7 +465,7 @@ export default class GraphicsAssembler extends Assembler {
             let p0 = pts[pts.length - 1];
             let p1 = pts[0];
     
-            if (pts.length > 2 && p0.equals(p1)) {
+            if (p0.equals(p1)) {
                 path.closed = true;
                 pts.pop();
                 p0 = pts[pts.length - 1];
