@@ -193,8 +193,14 @@ export class SpriteFrame extends Asset {
     }
 
     set insetTop (value) {
+        if (this._capInsets[INSET_TOP] === value){
+            return;
+        }
+
         this._capInsets[INSET_TOP] = value;
-        this._calculateSlicedUV();
+        if (this._texture) {
+            this._calculateSlicedUV();
+        }
     }
 
     /**
@@ -209,8 +215,14 @@ export class SpriteFrame extends Asset {
     }
 
     set insetBottom (value) {
+        if (this._capInsets[INSET_BOTTOM] === value){
+            return;
+        }
+
         this._capInsets[INSET_BOTTOM] = value;
-        this._calculateSlicedUV();
+        if (this._texture) {
+            this._calculateSlicedUV();
+        }
     }
 
     /**
@@ -225,8 +237,14 @@ export class SpriteFrame extends Asset {
     }
 
     set insetLeft (value) {
+        if (this._capInsets[INSET_LEFT] === value){
+            return;
+        }
+
         this._capInsets[INSET_LEFT] = value;
-        this._calculateSlicedUV();
+        if (this._texture) {
+            this._calculateSlicedUV();
+        }
     }
 
     /**
@@ -241,8 +259,14 @@ export class SpriteFrame extends Asset {
     }
 
     set insetRight (value) {
+        if (this._capInsets[INSET_RIGHT] === value){
+            return;
+        }
+
         this._capInsets[INSET_RIGHT] = value;
-        this._calculateSlicedUV();
+        if (this._texture) {
+            this._calculateSlicedUV();
+        }
     }
 
     /**
@@ -259,8 +283,14 @@ export class SpriteFrame extends Asset {
     }
 
     set rect (value) {
+        if (this._rect.equals(value)) {
+            return;
+        }
+
         this._rect.set(value);
-        this._calculateUV();
+        if (this._texture) {
+            this._calculateUV();
+        }
     }
 
     /**
@@ -275,20 +305,51 @@ export class SpriteFrame extends Asset {
     }
 
     set originalSize (value) {
-        this._originalSize.set(value);
-        this._calculateUV();
-    }
-
-    set _imageSource (value: ImageAsset) {
-        this._image = value;
-        // const tex = this._texture as Texture2D;
-        // @ts-ignore
-        if (window.Editor && Editor.isBuilder){
+        if (this._originalSize.equals(value)) {
             return;
         }
-        this._texture = value._texture;
-        this._texture.on('load', this._textureLoaded, this);
-        this._calculateUV();
+
+        this._originalSize.set(value);
+        if (this._texture) {
+            this._calculateUV();
+        }
+    }
+
+    /**
+     * @en
+     * Returns the offset of the frame in the texture.
+     *
+     * @zh
+     * 获取偏移量。
+     */
+    get offset () {
+        return this._offset;
+    }
+
+    set offset (value) {
+        this._offset.set(value);
+    }
+
+    /**
+     * @en
+     * Returns whether the sprite frame is rotated in the texture.
+     *
+     * @zh
+     * 获取 SpriteFrame 是否旋转。
+     */
+    get rotated () {
+        return this._rotated;
+    }
+
+    set rotated (rotated) {
+        if (this._rotated === rotated) {
+            return;
+        }
+
+        this._rotated = rotated;
+        if (this._texture) {
+            this._calculateUV();
+        }
     }
 
     get texture () {
@@ -327,6 +388,18 @@ export class SpriteFrame extends Asset {
 
     get height () {
         return this._texture.height;
+    }
+
+    set _imageSource (value: ImageAsset) {
+        this._image = value;
+        // const tex = this._texture as Texture2D;
+        // @ts-ignore
+        if (window.Editor && Editor.isBuilder) {
+            return;
+        }
+        this._texture = value._texture;
+        this._texture.on('load', this._textureLoaded, this);
+        this._calculateUV();
     }
 
     public vertices: IVertices | null = null;
@@ -390,6 +463,7 @@ export class SpriteFrame extends Asset {
      *
      * @zh
      * 获取 SpriteFrame 是否旋转。
+     * @deprecated 即将在 1.2 废除，请使用 `isRotated = rect.rotated`。
      */
     public isRotated () {
         return this._rotated;
@@ -402,9 +476,10 @@ export class SpriteFrame extends Asset {
      * @zh
      * 设置 SpriteFrame 是否旋转。
      * @param value
+     * @deprecated 即将在 1.2 废除，请使用 `rect.rotated = true`。
      */
     public setRotated (rotated: boolean) {
-        this._rotated = rotated;
+       this.rotated = rotated;
     }
 
     /**
@@ -415,6 +490,7 @@ export class SpriteFrame extends Asset {
      * @zh
      * 获取 SpriteFrame 的纹理矩形区域。
      * 如果是一个 atlas 的贴图，则为当前贴图的实际剔除透明像素区域。
+     * @deprecated 即将在 1.2 废除，请使用 `rect.set(spritFrame.rect)`。
      */
     public getRect (out?: Rect) {
         if (out) {
@@ -431,9 +507,10 @@ export class SpriteFrame extends Asset {
      *
      * @zh
      * 设置 SpriteFrame 的纹理矩形区域。
+     * @deprecated 即将在 1.2 废除，请使用 `spritFrame.rect = rect`。
      */
     public setRect (rect: Rect) {
-        this._rect.set(rect);
+       this.rect = rect;
     }
 
     /**
@@ -442,6 +519,7 @@ export class SpriteFrame extends Asset {
      *
      * @zh
      * 获取修剪前的原始大小。
+     * @deprecated 即将在 1.2 废除，请使用 `size.set(spritFrame.originalSize)`。
      */
     public getOriginalSize (out?: Size) {
         if (out) {
@@ -460,9 +538,10 @@ export class SpriteFrame extends Asset {
      * 设置修剪前的原始大小。
      *
      * @param size - 设置精灵原始大小。
+     * @deprecated 即将在 1.2 废除，请使用 `spritFrame.originalSize = size`。
      */
     public setOriginalSize (size: Size) {
-        this._originalSize.set(size);
+        this.originalSize = size;
     }
 
     /**
@@ -473,6 +552,7 @@ export class SpriteFrame extends Asset {
      * 获取偏移量。
      *
      * @param out - 可复用的偏移量。
+     * @deprecated 即将在 1.2 废除，请使用 `offset.set(spritFrame.offset)`。
      */
     public getOffset (out?: Vec2) {
         if (out) {
@@ -491,21 +571,15 @@ export class SpriteFrame extends Asset {
      * 设置偏移量。
      *
      * @param offsets - 偏移量。
+     * @deprecated 即将在 1.2 废除，请使用 `spritFrame.offset = offset`。
      */
-    public setOffset (offsets: Vec2) {
-        this._offset.set(offsets);
+    public setOffset (offset: Vec2) {
+        this.offset = offset;
     }
 
     public getGFXTextureView (){
         return this._texture.getGFXTextureView();
     }
-
-    // _loadTexture() {
-    //     if (this._textureFilename) {
-    //         let texture = textureUtil.loadImage(this._textureFilename);
-    //         this._refreshTexture(texture);
-    //     }
-    // }
 
     /**
      * 重置 SpriteFrame 数据。
@@ -813,17 +887,17 @@ export class SpriteFrame extends Asset {
         const data = serializeData as ISpriteFramesSerializeData;
         const rect = data.rect;
         if (rect) {
-            this.setRect(new Rect(rect.x, rect.y, rect.width, rect.height));
+            this._rect = new Rect(rect.x, rect.y, rect.width, rect.height);
         }
 
         const offset = data.offset;
         if (data.offset) {
-            this.setOffset(new Vec2(offset.x, offset.y));
+            this._offset = new Vec2(offset.x, offset.y);
         }
 
         const originalSize = data.originalSize;
         if (data.originalSize) {
-            this.setOriginalSize(new Size(originalSize.width, originalSize.height));
+            this._originalSize = new Size(originalSize.width, originalSize.height);
         }
         this._rotated = !!data.rotated;
         this._name = data.name;
