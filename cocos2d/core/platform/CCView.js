@@ -109,7 +109,11 @@ var View = function () {
     _t._autoFullScreen = false;
     // The device's pixel ratio (for retina displays)
     _t._devicePixelRatio = 1;
-    _t._maxPixelRatio = 4;
+    if(CC_JSB) {
+        _t._maxPixelRatio = 4;
+    } else {
+        _t._maxPixelRatio = 2;
+    }
     // Retina disabled by default
     _t._retinaEnabled = false;
     // Custom callback for resize event
