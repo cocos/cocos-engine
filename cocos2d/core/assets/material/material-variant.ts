@@ -25,7 +25,7 @@ export default class MaterialVariant extends Material {
 
     /**
      * @method createWithBuiltin
-     * @param {string} materialName 
+     * @param {Material.BUILTIN_NAME} materialName 
      * @param {RenderComponent} owner 
      * @typescript
      * static createWithBuiltin (materialName, owner: cc.RenderComponent): MaterialVariant | null
