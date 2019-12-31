@@ -126,7 +126,7 @@ let AttachUtil = cc.Class({
      * !#zh 获得对应的挂点
      * @method getAttachedNodes
      * @param {String} boneName
-     * @return {[cc.Node]}
+     * @return {Node[]}
      */
     getAttachedNodes (boneName) {
         let nodeArray = this._attachedNodeArray;
@@ -208,7 +208,7 @@ let AttachUtil = cc.Class({
      * !#zh 遍历所有插槽，生成包含所有给定插槽名称的最小节点树，注意，调用该接口前请确保骨骼动画已经初始化好。
      * @method generateAttachedNodes
      * @param {String} boneName
-     * @return {[cc.Node]} attached node array
+     * @return {Node[]} attached node array
      */
     generateAttachedNodes (boneName) {
         let targetNodes = [];
