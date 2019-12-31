@@ -898,14 +898,14 @@ let RichText = cc.Class({
     
         labelComponent.useSystemFont = this._isSystemFontUsed;
         labelComponent.lineHeight = this.lineHeight;
-        labelComponent._enableBold(textStyle && textStyle.bold);
-        labelComponent._enableItalics(textStyle && textStyle.italic);
+        labelComponent.enableBold = textStyle && textStyle.bold;
+        labelComponent.enableItalics = textStyle && textStyle.italic;
         //TODO: temporary implementation, the italic effect should be implemented in the internal of label-assembler.
         if (textStyle && textStyle.italic) {
             labelNode.skewX = 12;
         }
 
-        labelComponent._enableUnderline(textStyle && textStyle.underline);
+        labelComponent.enableUnderline = textStyle && textStyle.underline;
 
         if (textStyle && textStyle.outline) {
             let labelOutlineComponent = labelNode.getComponent(cc.LabelOutline);

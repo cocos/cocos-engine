@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { CollisionCallback, CollisionEventType, TriggerCallback, TriggerEventType } from '../../physics-interface';
+import { CollisionCallback, CollisionEventType, TriggerCallback, TriggerEventType, ICollisionEvent } from '../../physics-interface';
 import { RigidBody3D } from '../rigid-body-component';
 import { PhysicsMaterial } from '../../assets/physics-material';
 import { IBaseShape } from '../../../spec/i-physics-shape';
@@ -38,6 +38,7 @@ const Vec3 = cc.Vec3;
  * 碰撞器的基类
  * @class Collider3D
  * @extends Component
+ * @uses EventTarget
  */
 @ccclass('cc.Collider3D')
 export class Collider3D extends cc.Component {
@@ -176,83 +177,75 @@ export class Collider3D extends cc.Component {
     /// EVENT INTERFACE ///
 
     /**
-     * !#en Register callbacks related to triggering events.
-     * !#zh 注册触发事件或碰撞事件相关的回调。
+     * !#en
+     * Register an callback of a specific event type on the EventTarget.
+     * This type of event should be triggered via `emit`.
+     * !#zh
+     * 注册事件目标的特定事件类型回调。这种类型的事件应该被 `emit` 触发。
+     *
      * @method on
-     * @param {String} type The type of collider event can be 'onTriggerEnter'，'onTriggerStay'，'onTriggerExit' or 'onCollisionEnter', 'onCollisionStay', 'onCollisionExit';
-     * @param {Function} callback Registered callback function
-     * @param {Object} target Optional argument that executes the target of the callback function
-     * @param {boolean} useCapture Optional. When set to true, the listener will fire during the capture phase or during the bubbling phase. The default is false.
+     * @param {String} type - The type of collider event can be 'onTriggerEnter', 'onTriggerStay', 'onTriggerExit' or 'onCollisionEnter', 'onCollisionStay', 'onCollisionExit'.
+     * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+     *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+     * @param {ITriggerEvent|ICollisionEvent} callback.event callback function argument
+     * @param {Object} [target] - The target (this object) to invoke the callback, can be null
+     * @return {Function} - Just returns the incoming callback so you can save the anonymous function easier.
+     * @typescript
+     * on<T extends Function>(type: string, callback: T, target?: any, useCapture?: boolean): T
+     * @example
+     * eventTarget.on('fire', function (event) {
+     *     // event is ITriggerEvent or ICollisionEvent
+     * }, node);
      */
     public on (type: TriggerEventType | CollisionEventType, callback: TriggerCallback | CollisionCallback, target?: Object, useCapture?: any): any {
     }
 
     /**
-     * !#en Cancels the callback associated with a registered triggering event.
-     * !#zh 取消已经注册的触发事件或碰撞事件相关的回调。
+     * !#en
+     * Removes the listeners previously registered with the same type, callback, target and or useCapture,
+     * if only type is passed as parameter, all listeners registered with that type will be removed.
+     * !#zh
+     * 删除之前用同类型，回调，目标或 useCapture 注册的事件监听器，如果只传递 type，将会删除 type 类型的所有事件监听器。
+     *
      * @method off
-     * @param {String} type The type of collider event can be 'onTriggerEnter', 'onTriggerStay', 'onTriggerExit' or 'onCollisionEnter', 'onCollisionStay', 'onCollisionExit';
-     * @param {Function} callback Registered callback function.
-     * @param {Object} target Optional argument that executes the target of the callback function.
-     * @param {boolean} useCapture Optional. When set to true, the listener will fire during the capture phase or during the bubbling phase. The default is false.
+     * @param {String} type - The type of collider event can be 'onTriggerEnter', 'onTriggerStay', 'onTriggerExit' or 'onCollisionEnter', 'onCollisionStay', 'onCollisionExit'.
+     * @param {Function} [callback] - The callback to remove.
+     * @param {Object} [target] - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
+     * @example
+     * // register fire eventListener
+     * var callback = eventTarget.on('fire', function () {
+     *     cc.log("fire in the hole");
+     * }, target);
+     * // remove fire event listener
+     * eventTarget.off('fire', callback, target);
+     * // remove all fire event listeners
+     * eventTarget.off('fire');
      */
-    public off (type: TriggerEventType | CollisionEventType, callback: TriggerCallback | CollisionCallback, target?: Object, useCapture?: any) {
+    public off (type: TriggerEventType | CollisionEventType, callback: TriggerCallback | CollisionCallback, target?: any) {
     }
 
     /**
-     * !#en Registers callbacks related to triggering events, but only executes once.
-     * !#zh 注册触发事件或碰撞事件相关的回调，但只会执行一次。
+     * !#en
+     * Register an callback of a specific event type on the EventTarget,
+     * the callback will remove itself after the first time it is triggered.
+     * !#zh
+     * 注册事件目标的特定事件类型回调，回调会在第一时间被触发后删除自身。
+     *
      * @method once
-     * @param {String} type The type of collider event can be 'onCollisionEnter', 'onCollisionStay', 'onCollisionExit';
-     * @param {Function} callback Registered callback function.
-     * @param {Object} target Optional argument that executes the target of the callback function.
-     * @param {Boolean} useCapture Optional. When set to true, the listener will fire during the capture phase or during the bubbling phase. The default is false.
+     * @param {String} type - The type of collider event can be 'onTriggerEnter', 'onTriggerStay', 'onTriggerExit' or 'onCollisionEnter', 'onCollisionStay', 'onCollisionExit'.
+     * @param {Function} callback - The callback that will be invoked when the event is dispatched.
+     *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+     * @param {ITriggerEvent|ICollisionEvent} callback.event callback function argument.
+     * @param {Object} [target] - The target (this object) to invoke the callback, can be null
+     * @example
+     * eventTarget.once('fire', function (event) {
+     *     // event is ITriggerEvent or ICollisionEvent
+     * }, node);
      */
-    public once (type: TriggerEventType | CollisionEventType, callback: TriggerCallback | CollisionCallback, target?: Object, useCapture?: any): any {
+    public once (type: TriggerEventType | CollisionEventType, callback: TriggerCallback | CollisionCallback, target?: Object) {
     }
 
-    /**
-     * IEventTarget implementations, they will be overwrote with the same implementation in EventTarget by applyMixins
-     * @method targetOff
-     * @param {String|Object} keyOrTarget
-     */
-    public targetOff (keyOrTarget?: TriggerEventType | CollisionEventType | Object): void {
-    }
-
-    /**
-     * @method dispatchEvent
-     * @param {Event} event 
-     */
-    public dispatchEvent (event: Event): void {
-    }
-
-    /**
-     * @method hasEventListener
-     * @param {String} key
-     * @param {Function} callback
-     * @param {Object} target
-     * @return {Boolean}
-     */
-    public hasEventListener (key: TriggerEventType | CollisionEventType, callback?: TriggerCallback | CollisionCallback, target?: Object): boolean {
-        return false;
-    }
-
-    /**
-     * @method removeAll
-     * @param {String|Object} keyOrTarget
-     */
-    public removeAll (keyOrTarget?: TriggerEventType | CollisionEventType | Object): void {
-    }
-
-    /**
-     * @method emit
-     * @param {String} key - event type
-     * @param {*} [arg1] - First argument
-     * @param {*} [arg2] - Second argument
-     * @param {*} [arg3] - Third argument
-     * @param {*} [arg4] - Fourth argument
-     * @param {*} [arg5] - Fifth argument
-     */
+    /* declare for typescript tip */
     public emit (key: TriggerEventType | CollisionEventType, ...args: any[]): void {
     }
 

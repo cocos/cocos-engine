@@ -126,9 +126,9 @@ let Material = cc.Class({
 
         /**
          * @static
-         * @enum BUILTIN_EFFECT_NAME
+         * @enum Material.BUILTIN_NAME
          */
-        BUILTIN_EFFECT_NAME: cc.Enum({
+        BUILTIN_NAME: cc.Enum({
             /**
              * @property SPRITE
              * @readonly
@@ -154,7 +154,7 @@ let Material = cc.Class({
          * !#zh 使用内建 Effect 创建一个材质。
          * @static
          * @method createWithBuiltin
-         * @param {BUILTIN_EFFECT_NAME} effectName 
+         * @param {string} effectName 
          * @param {number} techniqueIndex 
          * @return {Material}
          */

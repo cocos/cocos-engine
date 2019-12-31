@@ -444,16 +444,36 @@ let TiledLayer = cc.Class({
     },
 
     _positionForIsoAt (x, y) {
+        let offsetX = 0, offsetY = 0;
+        let index = Math.floor(x) + Math.floor(y) * this._layerSize.width;
+        let gid = this._tiles[index];
+        if (gid) {
+            let tileset = this._texGrids[gid].tileset;
+            let offset = tileset.tileOffset;
+            offsetX = offset.x;
+            offsetY = offset.y;
+        }
+
         return cc.v2(
-            this._mapTileSize.width / 2 * ( this._layerSize.width + x - y - 1),
-            this._mapTileSize.height / 2 * (( this._layerSize.height * 2 - x - y) - 2)
+            this._mapTileSize.width * 0.5 * (this._layerSize.height + x - y - 1) + offsetX,
+            this._mapTileSize.height * 0.5 * (this._layerSize.width - x + this._layerSize.height - y - 2) - offsetY
         );
     },
 
     _positionForOrthoAt (x, y) {
+        let offsetX = 0, offsetY = 0;
+        let index = Math.floor(x) + Math.floor(y) * this._layerSize.width;
+        let gid = this._tiles[index];
+        if (gid) {
+            let tileset = this._texGrids[gid].tileset;
+            let offset = tileset.tileOffset;
+            offsetX = offset.x;
+            offsetY = offset.y;
+        }
+
         return cc.v2(
-            x * this._mapTileSize.width,
-            (this._layerSize.height - y - 1) * this._mapTileSize.height
+            x * this._mapTileSize.width + offsetX,
+            (this._layerSize.height - y - 1) * this._mapTileSize.height - offsetY
         );
     },
 
@@ -1224,33 +1244,36 @@ let TiledLayer = cc.Class({
         this._layerOrientation = mapInfo.orientation;
         this._mapTileSize = mapInfo.getTileSize();
 
+        let maptw = this._mapTileSize.width;
+        let mapth = this._mapTileSize.height;
+        let layerW = this._layerSize.width;
+        let layerH = this._layerSize.height;
+
         if (this._layerOrientation === cc.TiledMap.Orientation.HEX) {
             // handle hex map
             const TiledMap = cc.TiledMap;
             const StaggerAxis = TiledMap.StaggerAxis;
-            const StaggerIndex = TiledMap.StaggerIndex;
-
-            let maptw = this._mapTileSize.width;
-            let mapth = this._mapTileSize.height;
+            const StaggerIndex = TiledMap.StaggerIndex;            
             let width = 0, height = 0;
 
             this._odd_even = (this._staggerIndex === StaggerIndex.STAGGERINDEX_ODD) ? 1 : -1;
-
             if (this._staggerAxis === StaggerAxis.STAGGERAXIS_X) {
                 this._diffX1 = (maptw - this._hexSideLength) / 2;
                 this._diffY1 = 0;
-                height = mapth * (this._layerSize.height + 0.5);
-                width = (maptw + this._hexSideLength) * Math.floor(this._layerSize.width / 2) + maptw * (this._layerSize.width % 2);
+                height = mapth * (layerH + 0.5);
+                width = (maptw + this._hexSideLength) * Math.floor(layerW / 2) + maptw * (layerW % 2);
             } else {
                 this._diffX1 = 0;
                 this._diffY1 = (mapth - this._hexSideLength) / 2;
-                width = maptw * (this._layerSize.width + 0.5);
-                height = (mapth + this._hexSideLength) * Math.floor(this._layerSize.height / 2) + mapth * (this._layerSize.height % 2);
+                width = maptw * (layerW + 0.5);
+                height = (mapth + this._hexSideLength) * Math.floor(layerH / 2) + mapth * (layerH % 2);
             }
             this.node.setContentSize(width, height);
+        } else if (this._layerOrientation === cc.TiledMap.Orientation.ISO) {
+            let wh = layerW + layerH;
+            this.node.setContentSize(maptw * 0.5 * wh, mapth * 0.5 * wh);
         } else {
-            this.node.setContentSize(this._layerSize.width * this._mapTileSize.width,
-                this._layerSize.height * this._mapTileSize.height);
+            this.node.setContentSize(layerW * maptw, layerH * mapth);
         }
 
         // offset (after layer orientation is set);
@@ -1277,8 +1300,9 @@ let TiledLayer = cc.Class({
 
         let texIdMatIdx = this._texIdToMatIndex = {};
         let textures = this._textures;
+        let matLen = tilesetIndexArr.length;
 
-        for (let i = 0; i < tilesetIndexArr.length; i++) {
+        for (let i = 0; i < matLen; i++) {
             let tilesetIdx = tilesetIndexArr[i];
             let texture = textures[tilesetIdx];
 
@@ -1295,6 +1319,7 @@ let TiledLayer = cc.Class({
             
             texIdMatIdx[tilesetIdx] = i;
         }
+        this._materials.length = matLen;
         this.markForRender(true);
     }
 });
