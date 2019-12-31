@@ -20,6 +20,9 @@ export default class ShapeModule {
     @property
     enable = false;
 
+    @property
+    _shapeType = ShapeType.Cone;
+
     /**
      * !#en Particle emitter type.
      * !#zh 粒子发射器类型。
@@ -28,7 +31,31 @@ export default class ShapeModule {
     @property({
         type: ShapeType,
     })
-    shapeType = ShapeType.Cone;
+    public get shapeType () {
+        return this._shapeType;
+    }
+
+    public set shapeType (val) {
+        this._shapeType = val;
+        switch (this._shapeType) {
+            case ShapeType.Box:
+                if (this.emitFrom === EmitLocation.Base) {
+                    this.emitFrom = EmitLocation.Volume;
+                }
+                break;
+            case ShapeType.Cone:
+                if (this.emitFrom === EmitLocation.Edge) {
+                    this.emitFrom = EmitLocation.Base;
+                }
+                break;
+            case ShapeType.Sphere:
+            case ShapeType.Hemisphere:
+                if (this.emitFrom === EmitLocation.Base || this.emitFrom === EmitLocation.Edge) {
+                    this.emitFrom = EmitLocation.Volume;
+                }
+                break;
+        }
+    }
 
     /**
      * !#en The emission site of the particle.
