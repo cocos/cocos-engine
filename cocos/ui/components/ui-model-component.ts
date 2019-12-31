@@ -130,7 +130,7 @@ export class UIModelComponent extends UIComponent {
         }
         const matNum = this._modelComponent.sharedMaterials.length;
         for (let i = 0; i < matNum; i++) {
-            const material = this._modelComponent.getMaterial(i)! as Material;
+            const material = this._modelComponent.getMaterialInstance(i);
             if (material == null) {
                 continue;
             }
@@ -138,22 +138,17 @@ export class UIModelComponent extends UIComponent {
             const ea = material.effectAsset!;
             const techIdx = material.technique;
             const passNum = passes.length;
-            let needReconstruct = false;
             for (let j = 0; j < passNum; j++) {
                 if (!passes[j].blendState.targets[0].blend) {
-                    needReconstruct = true;
                     const bs = passes[j].blendState.targets[0];
                     bs.blend = true;
                     passes[j].overridePipelineStates(ea.techniques[techIdx].passes[j], { blendState: passes[j].blendState });
                 }
             }
-            if (needReconstruct) {
-                // @ts-ignore
-                material._onPassesChange();
-            }
         }
+
         for (let i = 0; i < matNum; i++) {
-            const material = this._modelComponent.getMaterial(i);
+            const material = this._modelComponent.getMaterialInstance(i);
             if (material == null) {
                 continue;
             }
