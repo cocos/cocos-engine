@@ -218,8 +218,8 @@ let VideoPlayerImpl = cc.Class({
             return;
         }
 
-        this._url = path;
         this.removeDom();
+        this._url = path;
         this.createDomElementIfNeeded(muted);
         this._bindEvent();
 

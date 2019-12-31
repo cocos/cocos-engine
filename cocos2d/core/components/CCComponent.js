@@ -502,7 +502,7 @@ var Component = cc.Class({
 
         // Remove all listeners
         var eventTargets = this.__eventTargets;
-        for (var i = 0, l = eventTargets.length; i < l; ++i) {
+        for (var i = eventTargets.length - 1; i >= 0; --i) {
             var target = eventTargets[i];
             target && target.targetOff(this);
         }

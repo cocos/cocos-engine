@@ -30,12 +30,24 @@ function parseProperties (effectAsset, passJson) {
         let name = u.name,
             prop = properties[name] = Object.assign({}, u),
             propInfo = propertiesJson[name];
+
+        let value = enums2default[u.type];
         if (propInfo) {
-            prop.value = propInfo.type === enums.PARAM_TEXTURE_2D ? null : new Float32Array(propInfo.value);
+            if (propInfo.type === enums.PARAM_TEXTURE_2D) {
+                value = null;
+            }
+            else if (propInfo.type === enums.PARAM_INT || propInfo.type === enums.PARAM_FLOAT) {
+                value = Array.isArray(propInfo.value) ? propInfo.value[0] : propInfo.value;
+            }
+            else {
+                value = new Float32Array(propInfo.value);
+            }
         }
         else {
-            prop.value = enums2default[u.type];
+            value = enums2default[u.type];
         }
+
+        prop.value = value;
     });
 
     return properties;

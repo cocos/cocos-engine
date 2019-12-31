@@ -4,7 +4,7 @@
   
   uniform ALPHA_TEST {
     float alphaThreshold;
-  }
+  };
 #endif
 
 void ALPHA_TEST (in vec4 color) {

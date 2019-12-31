@@ -39,6 +39,14 @@ const Chalk = require('chalk');
 const HandleErrors = require('../util/handleErrors');
 const Optimizejs = require('gulp-optimize-js');
 
+let physicsSkipModules = [
+    '../../cocos2d/core/3d/physics/exports/physics-builtin.ts',
+    '../../cocos2d/core/3d/physics/exports/physics-cannon.ts',
+    '../../cocos2d/core/3d/physics/exports/physics-framework.ts',
+    '../../cocos2d/core/3d/physics/framework/assets/physics-material.ts',
+    '../../external/cannon/cannon.js',
+];
+
 var jsbSkipModules = [
     // modules need to skip in jsb
     '../../extensions/spine/skeleton-cache.js',
@@ -101,6 +109,9 @@ exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlag
     var outFile = Path.basename(outputFile);
     var bundler = createBundler(sourceFile, opts);
 
+    physicsSkipModules.forEach(function (file) {
+        bundler.exclude(require.resolve(file));
+    });
     excludes && excludes.forEach(function (file) {
         bundler.exclude(file);
     });
@@ -143,6 +154,9 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, opt_macroF
     var outFile = Path.basename(outputFile);
     var bundler = createBundler(sourceFile, opts);
 
+    physicsSkipModules.forEach(function (file) {
+        bundler.exclude(require.resolve(file));
+    });
     excludes && excludes.forEach(function (file) {
         bundler.exclude(file);
     });
@@ -204,6 +218,7 @@ exports.buildPreview = function (sourceFile, outputFile, callback, devMode) {
         cacheDir: cacheDir,
         sourcemaps: !devMode
     });
+    // NOTE: no need to exclude physics module for cocos2d-js-preview.js
     var bundler = bundler
         .bundle()
         .on('error', HandleErrors.handler)
@@ -237,6 +252,7 @@ exports.buildJsbPreview = function (sourceFile, outputFile, excludes, callback) 
     excludes = excludes.concat(jsbSkipModules);
 
     var bundler = createBundler(sourceFile);
+    // NOTE: no need to exclude physics module for cocos2d-jsb-preview.js
     excludes.forEach(function (module) {
         bundler.exclude(require.resolve(module));
     });
@@ -278,6 +294,9 @@ exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, c
     var outDir = Path.dirname(outputFile);
 
     var bundler = createBundler(sourceFile, opts);
+    physicsSkipModules.forEach(function (file) {
+        bundler.exclude(require.resolve(file));
+    });
     if (nativeRenderer) {
         excludes = excludes.concat(jsbSkipModules);
     }
@@ -322,6 +341,9 @@ exports.buildJsbMin = function (sourceFile, outputFile, excludes, opt_macroFlags
     var outDir = Path.dirname(outputFile);
 
     var bundler = createBundler(sourceFile, opts);
+    physicsSkipModules.forEach(function (file) {
+        bundler.exclude(require.resolve(file));
+    });
     if (nativeRenderer) {
         excludes = excludes.concat(jsbSkipModules);
     }
@@ -369,6 +391,9 @@ exports.buildRuntime = function (sourceFile, outputFile, excludes, opt_macroFlag
     var outDir = Path.dirname(outputFile);
 
     var bundler = createBundler(sourceFile, opts);
+    physicsSkipModules.forEach(function (file) {
+        bundler.exclude(require.resolve(file));
+    });
     excludes.forEach(function (module) {
         bundler.exclude(require.resolve(module));
     });
@@ -411,6 +436,9 @@ exports.buildRuntimeMin = function (sourceFile, outputFile, excludes, opt_macroF
     var outDir = Path.dirname(outputFile);
 
     var bundler = createBundler(sourceFile, opts);
+    physicsSkipModules.forEach(function (file) {
+        bundler.exclude(require.resolve(file));
+    });
     excludes.forEach(function (module) {
         bundler.exclude(require.resolve(module));
     });
