@@ -119,10 +119,12 @@ export default class TiledAssembler extends Assembler2D {
 
         let leftWidth = frame.insetLeft, rightWidth = frame.insetRight, centerWidth = rect.width - leftWidth - rightWidth,
             topHeight = frame.insetTop, bottomHeight = frame.insetBottom, centerHeight = rect.height - topHeight - bottomHeight;
-        for (let i = 0; i <= col; ++i) {
-            if (contentWidth <= rectWidth) {
+        if (contentWidth <= rectWidth) {
+            for (let i = 0; i <= col; ++i) {
                 x[i] = Math.min(rectWidth * i , contentWidth) - appx;
-            } else {
+            }
+        } else {
+            for (let i = 0; i <= col; ++i) {
                 if (i === 0) {
                     x[i] =  - appx;
                 } else if (i > 0 && i < col){
@@ -132,10 +134,12 @@ export default class TiledAssembler extends Assembler2D {
                 }
             }
         }
-        for (let i = 0; i <= row; ++i) {
-            if (contentHeight <= rectHeight) {
+        if (contentHeight <= rectHeight) {
+            for (let i = 0; i <= row; ++i) {
                 y[i] = Math.min(rectHeight * i, contentHeight) - appy;
-            } else {
+            }
+        } else {
+            for (let i = 0; i <= row; ++i) {
                 if (i === 0) {
                     y[i] = - appy;
                 } else if (i > 0 && i < row) {
