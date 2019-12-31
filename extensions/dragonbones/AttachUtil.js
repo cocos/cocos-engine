@@ -42,7 +42,7 @@ const limitNode = function (node) {
 let _tempMat4 = new Mat4();
 
 /**
- * @module sp
+ * @module dragonBones
  */
 
 /**
