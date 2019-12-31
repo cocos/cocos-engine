@@ -42,6 +42,10 @@ const limitNode = function (node) {
 let _tempMat4 = new Mat4();
 
 /**
+ * @module sp
+ */
+
+/**
  * !#en Attach node tool
  * !#zh 挂点工具类
  * @class sp.AttachUtil
