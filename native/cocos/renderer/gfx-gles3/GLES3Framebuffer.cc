@@ -3,6 +3,7 @@
 #include "GLES3RenderPass.h"
 #include "GLES3Commands.h"
 #include "GLES3TextureView.h"
+#include "GLES3Context.h"
 
 NS_CC_BEGIN
 
@@ -39,15 +40,22 @@ bool GLES3Framebuffer::Initialize(const GFXFramebufferInfo &info) {
     
     GLES3CmdFuncCreateFramebuffer((GLES3Device*)device_, gpu_fbo_);
   }
-  
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+  else
+  {
+      gpu_fbo_->gl_fbo = static_cast<GLES3Context*>(device_->context())->getDefaultFramebuffer();
+  }
+#endif
+
   return true;
 }
 
 void GLES3Framebuffer::Destroy() {
   if (gpu_fbo_) {
-    CC_DELETE(gpu_fbo_);
-    GLES3CmdFuncDestroyFramebuffer((GLES3Device*)device_, gpu_fbo_);
-    gpu_fbo_ = nullptr;
+      if(is_offscreen())
+          GLES3CmdFuncDestroyFramebuffer((GLES3Device*)device_, gpu_fbo_);
+      CC_DELETE(gpu_fbo_);
+      gpu_fbo_ = nullptr;
   }
 }
 

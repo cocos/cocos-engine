@@ -1157,7 +1157,7 @@ void GLES2CmdFuncExecuteCmds(GLES2Device* device, GLES2CmdPackage* cmd_package) 
   
   for (uint i = 0; i < cmd_package->cmd_types.Size(); ++i) {
     GFXCmdType cmd_type = cmd_package->cmd_types[i];
-    uint cmd_idx = cmd_indices[(int)cmd_type];
+    uint& cmd_idx = cmd_indices[(int)cmd_type];
     
     switch (cmd_type) {
       case GFXCmdType::BEGIN_RENDER_PASS: {
@@ -1230,9 +1230,8 @@ void GLES2CmdFuncExecuteCmds(GLES2Device* device, GLES2CmdPackage* cmd_package) 
               switch (gpu_render_pass->depth_stencil_attachment.depth_load_op) {
                 case GFXLoadOp::LOAD: break; // GL default behaviour
                 case GFXLoadOp::CLEAR: {
-                  if (cache->dss.depth_write) {
                     glDepthMask(true);
-                  }
+                    cache->dss.depth_write = true;
                   glClearDepthf(cmd->clear_depth);
                   gl_clears |= GL_DEPTH_BUFFER_BIT;
                   break;
@@ -1919,6 +1918,7 @@ void GLES2CmdFuncExecuteCmds(GLES2Device* device, GLES2CmdPackage* cmd_package) 
       default:
         break;
     }
+      cmd_idx++;
   }
 }
 

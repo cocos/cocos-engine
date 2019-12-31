@@ -46,6 +46,7 @@ class CC_GLES2_API GLES2Context : public GFXContext {
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
   CC_INLINE intptr_t eagl_context() const { return eagl_context_; }
   CC_INLINE intptr_t eagl_shared_ctx() const { return eagl_shared_ctx_; }
+    CC_INLINE uint getDefaultFramebuffer() const { return _defaultFBO; }
 #else
   CC_INLINE NativeDisplayType native_display() const { return native_display_; }
   CC_INLINE EGLDisplay egl_display() const { return egl_display_; }

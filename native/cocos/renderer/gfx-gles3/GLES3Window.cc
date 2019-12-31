@@ -84,6 +84,7 @@ bool GLES3Window::Initialize(const GFXWindowInfo &info) {
       depth_stencil_texture_ = device_->CreateGFXTexture(depth_stecnil_tex_info);
 
       GFXTextureViewInfo depth_stecnil_tex_view_info;
+      depth_stecnil_tex_view_info.texture = depth_stencil_texture_;
       depth_stecnil_tex_view_info.type = GFXTextureViewType::TV2D;
       depth_stecnil_tex_view_info.format = color_fmt_;
       depth_stecnil_tex_view_info.base_level = 0;
@@ -96,7 +97,8 @@ bool GLES3Window::Initialize(const GFXWindowInfo &info) {
 
   GFXFramebufferInfo fbo_info;
   fbo_info.render_pass = render_pass_;
-  fbo_info.color_views.push_back(color_tex_view_);
+    if(color_tex_view_)
+        fbo_info.color_views.push_back(color_tex_view_);
   fbo_info.depth_stencil_view = depth_stencil_tex_view_;
   fbo_info.is_offscreen = is_offscreen_;
   framebuffer_ = device_->CreateGFXFramebuffer(fbo_info);
