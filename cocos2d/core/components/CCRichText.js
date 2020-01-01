@@ -648,7 +648,18 @@ let RichText = cc.Class({
         if (spriteFrame) {
             let spriteNode = new cc.PrivateNode(RichTextChildImageName);
             let spriteComponent = spriteNode.addComponent(cc.Sprite);
-            spriteNode.setAnchorPoint(0, 0);
+            switch( richTextElement.style.imageAlign )
+            {
+                case 'top':
+                    spriteNode.setAnchorPoint(0, 1);
+                    break;
+                case 'center':
+                    spriteNode.setAnchorPoint(0, 0.5);
+                    break;
+                default:
+                    spriteNode.setAnchorPoint(0, 0);
+                    break;
+            }
             spriteComponent.type = cc.Sprite.Type.SLICED;
             spriteComponent.sizeMode = cc.Sprite.SizeMode.CUSTOM;
             this.node.addChild(spriteNode);
@@ -661,8 +672,7 @@ let RichText = cc.Class({
             let expectWidth = richTextElement.style.imageWidth;
             let expectHeight = richTextElement.style.imageHeight;
 
-            //follow the original rule, expectHeight must less then lineHeight
-            if (expectHeight > 0 && expectHeight < this.lineHeight) {
+            if (expectHeight > 0) {
                 scaleFactor = expectHeight / spriteHeight;
                 spriteWidth = spriteWidth * scaleFactor;
                 spriteHeight = spriteHeight * scaleFactor;
@@ -853,6 +863,30 @@ let RichText = cc.Class({
             if (lineCount === nextLineIndex) {
                 nextTokenX += labelSize.width;
             }
+
+            // adjust img position by anchorY (setting from <img align>)
+            let sprite = label.getComponent( cc.Sprite );
+            if( sprite ) {
+
+                let LineHeight = this.lineHeight;
+                let LineHeightReal = this.lineHeight * 1.26; //我也不懂为什么为什么node高是实际的x1.26, 这值是看编辑器变化算出来的
+                switch( label.anchorY )
+                {
+                    case 1:
+                        label.y += ( LineHeight );
+                        break;
+                    case 0.5:
+                        label.y += ( LineHeightReal / 2 );
+                        break;
+                    default:
+                        label.y += ( ( LineHeightReal - LineHeight ) / 2 );
+                        break;
+                }
+            }
+
+            //adjust y for label with outline
+            let outline = label.getComponent( cc.LabelOutline )
+            if( outline ) label.y = label.y - outline.width;
         }
     },
 
