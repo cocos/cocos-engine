@@ -12,9 +12,7 @@ const Mode = Enum({
 @ccclass('cc.ColorKey')
 export class ColorKey {
 
-    @property({
-        type: cc.Color,
-    })
+    @property
     color = cc.Color.WHITE.clone();
 
     @property
