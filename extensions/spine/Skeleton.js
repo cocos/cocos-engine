@@ -24,8 +24,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import MaterialVariant from '../../cocos2d/core/assets/material/material-variant';
-
 const TrackEntryListeners = require('./track-entry-listeners');
 const RenderComponent = require('../../cocos2d/core/components/CCRenderComponent');
 const spine = require('./lib/spine');

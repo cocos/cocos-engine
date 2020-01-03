@@ -480,6 +480,7 @@ let ArmatureDisplay = cc.Class({
      * !#zh 
      * 缓存龙骨数据的key值，换装的时会使用到该值，作为dragonbonesName使用
      * @method getArmatureKey
+     * @return {String}
      * @example
      * let factory = dragonBones.CCFactory.getInstance();
      * let needChangeSlot = needChangeArmature.armature().getSlot("changeSlotName");
@@ -513,6 +514,7 @@ let ArmatureDisplay = cc.Class({
      * !#en Whether in cached mode.
      * !#zh 当前是否处于缓存模式。
      * @method isAnimationCached
+     * @return {Boolean}
      */
     isAnimationCached () {
         if (CC_EDITOR) return false;

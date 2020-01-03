@@ -448,7 +448,6 @@ export default class BmfontAssembler extends Assembler2D {
             mid = (left + right + 1) >> 1;
 
             let newFontSize = mid;
-            flag = false;
             if (newFontSize <= 0) {
                 break;
             }

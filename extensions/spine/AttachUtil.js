@@ -41,6 +41,15 @@ const limitNode = function (node) {
 };
 let _tempMat4 = new Mat4();
 
+/**
+ * @module sp
+ */
+
+/**
+ * !#en Attach node tool
+ * !#zh 挂点工具类
+ * @class sp.AttachUtil
+ */
 let AttachUtil = cc.Class({
     name: 'sp.AttachUtil',
 
@@ -109,7 +118,8 @@ let AttachUtil = cc.Class({
     /**
      * !#en Gets attached root node.
      * !#zh 获取挂接节点树的根节点
-     * @property {cc.Node} attachedRootNode
+     * @method getAttachedRootNode
+     * @return {cc.Node}
      */
     getAttachedRootNode () {
         return this._attachedRootNode;
@@ -118,8 +128,9 @@ let AttachUtil = cc.Class({
     /**
      * !#en Gets attached node which you want.
      * !#zh 获得对应的挂点
+     * @method getAttachedNodes
      * @param {String} boneName
-     * @return {[cc.Node]}
+     * @return {Node[]}
      */
     getAttachedNodes (boneName) {
         let nodeArray = this._attachedNodeArray;
@@ -164,6 +175,7 @@ let AttachUtil = cc.Class({
     /**
      * !#en Destroy attached node which you want.
      * !#zh 销毁对应的挂点
+     * @method destroyAttachedNodes
      * @param {String} boneName
      */
     destroyAttachedNodes (boneName) {
@@ -198,8 +210,9 @@ let AttachUtil = cc.Class({
     /**
      * !#en Traverse all bones to generate the minimum node tree containing the given bone names, NOTE that make sure the skeleton has initialized before calling this interface.
      * !#zh 遍历所有插槽，生成包含所有给定插槽名称的最小节点树，注意，调用该接口前请确保骨骼动画已经初始化好。
+     * @method generateAttachedNodes
      * @param {String} boneName
-     * @return {[cc.Node]} attached node array
+     * @return {Node[]} attached node array
      */
     generateAttachedNodes (boneName) {
         let targetNodes = [];
@@ -244,6 +257,7 @@ let AttachUtil = cc.Class({
     /**
      * !#en Destroy all attached node.
      * !#zh 销毁所有挂点
+     * @method destroyAllAttachedNodes
      */
     destroyAllAttachedNodes () {
         this._attachedRootNode = null;
@@ -262,6 +276,7 @@ let AttachUtil = cc.Class({
     /**
      * !#en Traverse all bones to generate a tree containing all bones nodes, NOTE that make sure the skeleton has initialized before calling this interface.
      * !#zh 遍历所有插槽，生成包含所有插槽的节点树，注意，调用该接口前请确保骨骼动画已经初始化好。
+     * @method generateAllAttachedNodes
      * @return {cc.Node} root node
      */
     generateAllAttachedNodes () {
@@ -275,7 +290,6 @@ let AttachUtil = cc.Class({
         if (!rootNode) return;
 
         let bones = this._skeleton.bones;
-        let nodeArray = this._attachedNodeArray;
         for (let i = 0, n = bones.length; i < n; i++) {
             let bone = bones[i];
             let boneData = bone.data;
