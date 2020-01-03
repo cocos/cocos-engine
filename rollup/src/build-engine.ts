@@ -1,7 +1,6 @@
 import { existsSync } from 'fs';
 import fs from 'fs-extra';
 import { dirname, join, normalize, relative } from 'path';
-import { rollup, ModuleFormat } from 'rollup';
 // @ts-ignore
 import babel from 'rollup-plugin-babel';
 // @ts-ignore
@@ -21,6 +20,9 @@ import { terser } from 'rollup-plugin-terser';
 import babelPresetEnv from '@babel/preset-env';
 import babelPresetCc from '@cocos/babel-preset-cc';
 import { writeFile, ensureDir } from 'fs-extra';
+import * as rollup from 'rollup';
+// @ts-ignore
+import rpProgress from 'rollup-plugin-progress';
 
 interface IBaseOptions {
     moduleEntries: string[];
@@ -65,6 +67,8 @@ interface IBaseOptions {
     sourcemapFile?: string;
 
     watchFiles?: boolean;
+
+    progress?: boolean;
 }
 
 interface IAdvancedOptions extends IBaseOptions {
@@ -154,7 +158,7 @@ async function _internalBuild (options: IAdvancedOptions) {
     console.log(`Build-engine options: ${JSON.stringify(options, undefined, 2)}`);
     const doUglify = !!options.compress;
 
-    let format: ModuleFormat = 'iife';
+    let format: rollup.ModuleFormat = 'iife';
     switch (options.moduleFormat) {
         case ModuleOption.cjs:
             format = 'cjs';
@@ -167,7 +171,7 @@ async function _internalBuild (options: IAdvancedOptions) {
             break;
     }
 
-    const rollupPlugins = [
+    const rollupPlugins: rollup.Plugin[] = [
         multiEntry(),
 
         excludes({
@@ -208,6 +212,10 @@ async function _internalBuild (options: IAdvancedOptions) {
         }),
     ];
 
+    if (options.progress) {
+        rollupPlugins.unshift(rpProgress());
+    }
+
     /** adapt: reduce_funcs not suitable for ammo.js */
     const defines = options.globalDefines as IGlobaldefines;
     const isReduceFuncs = !defines.CC_PHYSICS_AMMO;
@@ -224,6 +232,7 @@ async function _internalBuild (options: IAdvancedOptions) {
                 beautify: !doUglify,
             },
             sourcemap: !!options.sourcemap,
+            toplevel: true, // https://github.com/rollup/rollup/issues/3315
         }));
     } else {
         rollupPlugins.push(uglify({
@@ -237,6 +246,7 @@ async function _internalBuild (options: IAdvancedOptions) {
                 beautify: !doUglify,
             },
             sourcemap: !!options.sourcemap,
+            toplevel: true,
         }));
     }
 
@@ -253,7 +263,7 @@ async function _internalBuild (options: IAdvancedOptions) {
         }
     });
 
-    const rollupBuild = await rollup({
+    const rollupBuild = await rollup.rollup({
         input: moduleEntries,
         plugins: rollupPlugins,
     });

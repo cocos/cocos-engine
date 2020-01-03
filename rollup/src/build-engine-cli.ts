@@ -45,6 +45,11 @@ yargs.option('compress', {
     type: 'boolean',
     description: 'Whether to compress compiled engine.',
 });
+yargs.option('progress', {
+    type: 'boolean',
+    default: false,
+    description: 'Whether to show build progress.',
+});
 yargs.option('watch-files', {
     type: 'string',
     description: '(INTERNAL/EXPERIMENTAL) Write built file list as a record with file path as key and mtime as value, into specified file, in JSON format.',
@@ -74,6 +79,7 @@ const options: IBuildOptions = {
     sourcemap: sourceMap,
     flags,
     watchFiles: !!watchFiles,
+    progress: yargs.argv.progress as (boolean | undefined),
 };
 if (yargs.argv['module']) {
     options.moduleFormat = parseModuleOption(yargs.argv['module'] as unknown as string);
