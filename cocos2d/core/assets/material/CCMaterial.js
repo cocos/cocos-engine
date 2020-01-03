@@ -196,9 +196,12 @@ let Material = cc.Class({
 
         if (val instanceof Texture) {
             let format = val.getPixelFormat();
-            let value = (format === PixelFormat.RGBA_ETC1 || format === PixelFormat.RGB_A_PVRTC_4BPPV1 || format === PixelFormat.RGB_A_PVRTC_2BPPV1)
-            this.define('CC_USE_ALPHA_ATLAS_' + name.toUpperCase(), value);
-
+            let value = (format === PixelFormat.RGBA_ETC1 || format === PixelFormat.RGB_A_PVRTC_4BPPV1 || format === PixelFormat.RGB_A_PVRTC_2BPPV1);
+            let key = 'CC_USE_ALPHA_ATLAS_' + name.toUpperCase();
+            let def = this.getDefine(key, passIdx);
+            if (value || def) {
+                this.define(key, value);
+            }
             function loaded () {
                 this._effect.setProperty(name, val, passIdx);
             }
