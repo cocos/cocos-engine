@@ -94,6 +94,10 @@ var jsbAliasify = {
     verbose: false
 };
 
+function excludedWebView (excludes) {
+    return excludes.some(item => !!item.match(/.*CCWebView(\.js)?/));
+}
+
 exports.buildDebugInfos = require('./buildDebugInfos');
 
 exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlags, callback, createMap) {
@@ -287,6 +291,11 @@ exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, c
     if (opt_macroFlags && nativeRenderer) {
         opts.aliasifyConfig = jsbAliasify;
     }
+    if (excludedWebView(excludes)) {
+        opts.aliasifyConfig = opts.aliasifyConfig || jsbAliasify;
+        // this will replace require call with an empty object
+        opts.aliasifyConfig.replacements['.*CCWebView(\.js)?'] = false;
+    }
 
     var FixJavaScriptCore = require('../util/fix-jsb-javascriptcore');
 
@@ -334,7 +343,12 @@ exports.buildJsbMin = function (sourceFile, outputFile, excludes, opt_macroFlags
     if (opt_macroFlags && nativeRenderer) {
         opts.aliasifyConfig = jsbAliasify;
     }
-    
+    if (excludedWebView(excludes)) {
+        opts.aliasifyConfig = opts.aliasifyConfig || jsbAliasify;
+        // this will replace require call with an empty object
+        opts.aliasifyConfig.replacements['.*CCWebView(\.js)?'] = false;
+    }
+
     var FixJavaScriptCore = require('../util/fix-jsb-javascriptcore');
 
     var outFile = Path.basename(outputFile);
