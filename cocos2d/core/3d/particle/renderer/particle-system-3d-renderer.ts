@@ -16,10 +16,6 @@ const _tempAttribUV0 = new Vec2();
 const _tempAttribColor = new Vec4();
 const _tempWorldTrans = new Mat4();
 
-let _tempScale = new Float32Array(4);
-let _tempLenScale = new Float32Array(4);
-
-
 const _uvs = [
     0, 0, // bottom-left
     1, 0, // bottom-right
@@ -163,8 +159,7 @@ export default class ParticleSystem3DAssembler extends Assembler {
 
         let material = this._particleSystem.materials[0];
         let mat = material ? this._particleSystem.particleMaterial : this._defaultMat;
-        Vec4.toArray(_tempScale, this._node_scale);
-        mat.setProperty('scale', _tempScale);
+        mat.setProperty('scale', this._node_scale);
 
         if (this._particleSystem.velocityOvertimeModule.enable) {
             this._particleSystem.velocityOvertimeModule.update(this._particleSystem._simulationSpace, _tempWorldTrans);
@@ -325,11 +320,13 @@ export default class ParticleSystem3DAssembler extends Assembler {
         if (!this._particleSystem) {
             return;
         }
-        let material = this._particleSystem.materials[0];
-        if (material == null && this._defaultMat == null) {
-            this._defaultMat = MaterialVariant.createWithBuiltin('3d-particle', this);
+        let mat = this._particleSystem.materials[0];
+        if (mat == null && this._defaultMat == null) {
+            mat = this._defaultMat = MaterialVariant.createWithBuiltin('3d-particle', this);
+        } else {
+            mat = MaterialVariant.create(mat, this._particleSystem);
         }
-        const mat = material ? this._particleSystem.particleMaterial : this._defaultMat;
+
         if (this._particleSystem._simulationSpace === Space.World) {
             mat.define(CC_USE_WORLD_SPACE, true);
         } else {
@@ -376,7 +373,6 @@ export default class ParticleSystem3DAssembler extends Assembler {
             Vec2.set(this.frameTile_velLenScale, this._particleSystem.textureAnimationModule.numTilesX, this._particleSystem.textureAnimationModule.numTilesY);
         }
 
-        Vec4.toArray(_tempLenScale, this.frameTile_velLenScale);
         mat.setProperty('frameTile_velLenScale', this.frameTile_velLenScale);
 
         this._particleSystem.setMaterial(0, mat);
