@@ -441,13 +441,13 @@ export class AnimatedBoundsInfo {
 
     private _setPerJointBounds (mesh: Mesh, skeleton: Skeleton, bounds: Array<aabb | null>) {
         let m = this._perJointBoundsPool.get(mesh.hash);
-        if (!m) { m = new Map<number, Array<aabb | null>>(); }
+        if (!m) { m = new Map<number, Array<aabb | null>>(); this._perJointBoundsPool.set(mesh.hash, m); }
         m.set(skeleton.hash, bounds);
     }
 
     private _setFullClipBounds (skeleton: Skeleton, clip: AnimationClip, bounds: aabb[]) {
         let m = this._fullClipBoundsPool.get(skeleton.hash);
-        if (!m) { m = new Map<number, aabb[]>(); }
+        if (!m) { m = new Map<number, aabb[]>(); this._fullClipBoundsPool.set(skeleton.hash, m); }
         m.set(clip.hash, bounds);
     }
 }
