@@ -21,7 +21,6 @@ export class WebGLGFXTextureView extends GFXTextureView {
         this._texture = info.texture;
         this._type = info.type;
         this._format = info.format;
-        this._format = info.format;
 
         if (info.baseLevel !== undefined) {
             this._baseLevel = info.baseLevel;
