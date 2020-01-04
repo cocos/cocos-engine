@@ -87,7 +87,7 @@ ccenum(Direction);
  * @zh 滚动视图事件类型
  */
 enum EventType {
-    PAGE_TURING = 'page-turning',
+    PAGE_TURNING = 'page-turning',
 }
 
 /**
@@ -599,7 +599,7 @@ export class PageViewComponent extends ScrollViewComponent {
         if (this._lastPageIdx === this._curPageIdx) { return; }
         this._lastPageIdx = this._curPageIdx;
         ComponentEventHandler.emitEvents(this.pageEvents, this);
-        this.node.emit(EventType.PAGE_TURING, this);
+        this.node.emit(EventType.PAGE_TURNING, this);
     }
 
     // 快速滑动
