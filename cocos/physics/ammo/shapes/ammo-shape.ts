@@ -97,11 +97,6 @@ export class AmmoShape implements IBaseShape {
     onEnable () {
         this._isEnabled = true;
         this._sharedBody.addShape(this, this._isTrigger);
-        if (this._isTrigger) {
-            this._sharedBody.ghostEnabled = true;
-        } else {
-            this._sharedBody.bodyEnabled = true;
-        }
 
         this.material = this.collider.sharedMaterial!;
     }
@@ -109,11 +104,6 @@ export class AmmoShape implements IBaseShape {
     onDisable () {
         this._isEnabled = false;
         this._sharedBody.removeShape(this, this._isTrigger);
-        if (this._isTrigger) {
-            this._sharedBody.ghostEnabled = false;
-        } else {
-            this._sharedBody.bodyEnabled = false;
-        }
     }
 
     onDestroy () {
