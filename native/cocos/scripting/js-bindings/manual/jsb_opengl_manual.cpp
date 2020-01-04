@@ -2133,9 +2133,9 @@ static GLenum convertFloatTextureInternalFormat(GLenum format, GLenum type)
         else if (type == GL_HALF_FLOAT_OES)
             return GL_RGB16F_EXT;
     }
-    
+
     //FIXME: support other types, such as GL_ALPHA32F_EXT, GL_LUMINANCE32F_EXT?
-    
+
     return format;
 }
 
@@ -2164,10 +2164,17 @@ static bool JSB_glTexImage2D(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 #if OPENGL_PARAMETER_CHECK
     Configuration *config = Configuration::getInstance();
-    SE_PRECONDITION4(format == GL_ALPHA || format == GL_RGB || format == GL_RGBA || format == GL_LUMINANCE || format == GL_LUMINANCE_ALPHA || (format == GL_DEPTH_COMPONENT && config->supportsDepthTexture()),
-                     false, GL_INVALID_ENUM);
-    SE_PRECONDITION4(type == GL_UNSIGNED_BYTE || type == GL_UNSIGNED_SHORT_5_6_5 || type == GL_UNSIGNED_SHORT_4_4_4_4 || type == GL_UNSIGNED_SHORT_5_5_5_1 || (type == GL_FLOAT && config->supportsFloatTexture()),
-                     false, GL_INVALID_ENUM);
+    bool formatLegal = format == GL_ALPHA || format == GL_RGB || format == GL_RGBA || format == GL_LUMINANCE || format == GL_LUMINANCE_ALPHA;
+    bool typeLegal = type == GL_UNSIGNED_BYTE || type == GL_UNSIGNED_SHORT_5_6_5 || type == GL_UNSIGNED_SHORT_4_4_4_4 || type == GL_UNSIGNED_SHORT_5_5_5_1;
+    if (config->supportsDepthTexture()) {
+        if (format == GL_DEPTH_COMPONENT || format == GL_DEPTH_STENCIL) formatLegal = true;
+        if (type == GL_UNSIGNED_SHORT || type == GL_UNSIGNED_INT || type == GL_UNSIGNED_INT_24_8) typeLegal = true;
+    }
+    if (config->supportsFloatTexture()) {
+        if (type == GL_FLOAT) typeLegal = true;
+    }
+    SE_PRECONDITION4(formatLegal, false, GL_INVALID_ENUM);
+    SE_PRECONDITION4(typeLegal, false, GL_INVALID_ENUM);
     SE_PRECONDITION4(internalformat == format, false, GL_INVALID_OPERATION);
     if (!args[8].isNullOrUndefined())
     {
@@ -2273,7 +2280,7 @@ static bool JSB_glTexSubImage2D(se::State& s) {
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 #if OPENGL_PARAMETER_CHECK
     Configuration *config = Configuration::getInstance();
-    SE_PRECONDITION4(format == GL_ALPHA || format == GL_RGB || format == GL_RGBA || format == GL_LUMINANCE || format == GL_LUMINANCE_ALPHA || (format == GL_DEPTH_COMPONENT && config->supportsDepthTexture()),
+    SE_PRECONDITION4(format == GL_ALPHA || format == GL_RGB || format == GL_RGBA || format == GL_LUMINANCE || format == GL_LUMINANCE_ALPHA,
                      false, GL_INVALID_ENUM);
     SE_PRECONDITION4(type == GL_UNSIGNED_BYTE || type == GL_UNSIGNED_SHORT_5_6_5 || type == GL_UNSIGNED_SHORT_4_4_4_4 || type == GL_UNSIGNED_SHORT_5_5_5_1 || (type == GL_FLOAT && config->supportsFloatTexture()),
                      false, GL_INVALID_ENUM);
@@ -3593,7 +3600,7 @@ static bool JSB_glGetSupportedExtensions(se::State& s) {
     if (config->supportsETC2()) {
         jsobj->setArrayElement(element++, se::Value("WEBGL_compressed_texture_etc"));
     }
-    
+
     if (config->supportsDepthTexture()) {
         jsobj->setArrayElement(element++, se::Value("WEBGL_depth_texture"));
     }
@@ -4174,6 +4181,7 @@ static bool JSB_glGetParameter(se::State& s)
         case GL_STENCIL_BACK_FUNC:
         case GL_STENCIL_BACK_FAIL:
         case GL_STENCIL_BITS:
+        case GL_DEPTH_BITS:
         case GL_GENERATE_MIPMAP_HINT:
         case GL_FRONT_FACE:
         case GL_DEPTH_FUNC:

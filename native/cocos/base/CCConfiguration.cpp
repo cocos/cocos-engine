@@ -182,6 +182,7 @@ void Configuration::gatherGPUInfo()
     else {
         _supportsFloatTexture = checkForGLExtension("texture_float");
         _valueDict["gl.supports_float_texture"] = Value(_supportsFloatTexture);
+        // todo: half float
 
         _supportsShareableVAO = checkForGLExtension("vertex_array_object");
         _valueDict["gl.supports_vertex_array_object"] = Value(_supportsShareableVAO);
