@@ -34,11 +34,12 @@ THE SOFTWARE.
 
 #define CC_GL_DEPTH24_STENCIL8      GL_DEPTH24_STENCIL8
 
-#define GL_RGBA32F_EXT      0x8814
-#define GL_RGB32F_EXT       0x8815
-#define GL_RGBA16F_EXT      0x881A
-#define GL_RGB16F_EXT       0x881B
-#define GL_HALF_FLOAT_OES   0x8D61
+#define GL_RGBA32F_EXT              0x8814
+#define GL_RGB32F_EXT               0x8815
+#define GL_RGBA16F_EXT              0x881A
+#define GL_RGB16F_EXT               0x881B
+#define GL_HALF_FLOAT_OES           0x8D61
+#define GL_UNSIGNED_INT_24_8_OES    0x84FA
 
 #endif // CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
 
