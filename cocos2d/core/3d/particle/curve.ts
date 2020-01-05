@@ -27,10 +27,10 @@ export class Keyframe {
     outTangent = 0;
 
     constructor (time, value, inTangent, outTangent) {
-        this.time = time;
-        this.value = value;
-        this.inTangent = inTangent;
-        this.outTangent = outTangent;
+        this.time = time || 0;
+        this.value = value || 0;
+        this.inTangent = inTangent || 0;
+        this.outTangent = outTangent || 0;
     }
 }
 
