@@ -1846,11 +1846,11 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                     case GFXLoadOp.CLEAR: {
                                         if (cmd0.clearFlag & GFXClearFlag.STENCIL) {
                                             if (!cache.dss.stencilWriteMaskFront) {
-                                                gl.stencilMaskSeparate(gl.FRONT, 0xFFFFFFFF);
+                                                gl.stencilMaskSeparate(gl.FRONT, -1);
                                             }
 
                                             if (!cache.dss.stencilWriteMaskBack) {
-                                                gl.stencilMaskSeparate(gl.BACK, 0xFFFFFFFF);
+                                                gl.stencilMaskSeparate(gl.BACK, -1);
                                             }
 
                                             gl.clearStencil(cmd0.clearStencil);
