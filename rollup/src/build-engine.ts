@@ -220,35 +220,23 @@ async function _internalBuild (options: IAdvancedOptions) {
     const defines = options.globalDefines as IGlobaldefines;
     const isReduceFuncs = !defines.CC_PHYSICS_AMMO;
 
-    if (format === 'esm') {
-        rollupPlugins.push(terser({
-            compress: {
-                global_defs: options.globalDefines,
-                reduce_funcs: isReduceFuncs
-            },
-            mangle: doUglify,
-            keep_fnames: !doUglify,
-            output: {
-                beautify: !doUglify,
-            },
-            sourcemap: !!options.sourcemap,
-            toplevel: true, // https://github.com/rollup/rollup/issues/3315
-        }));
-    } else {
-        rollupPlugins.push(uglify({
-            compress: {
-                global_defs: options.globalDefines,
-                reduce_funcs: isReduceFuncs
-            },
-            mangle: doUglify,
-            keep_fnames: !doUglify,
-            output: {
-                beautify: !doUglify,
-            },
-            sourcemap: !!options.sourcemap,
-            toplevel: true,
-        }));
-    }
+    rollupPlugins.push(terser({
+        compress: {
+            global_defs: options.globalDefines,
+            reduce_funcs: isReduceFuncs
+        },
+        mangle: doUglify,
+        keep_fnames: !doUglify,
+        output: {
+            beautify: !doUglify,
+        },
+        sourcemap: !!options.sourcemap,
+
+        // https://github.com/rollup/rollup/issues/3315
+        // We only do this for CommonJS.
+        // Especially, we cannot do this for IIFE.
+        toplevel: format === 'cjs',
+    }));
 
     const outputPath = options.outputPath;
     const sourcemapFile = options.sourcemapFile || `${options.outputPath}.map`;
