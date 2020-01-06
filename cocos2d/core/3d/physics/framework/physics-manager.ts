@@ -45,13 +45,13 @@ export class Physics3DManager {
      * Gets or sets whether to enable physical systems, which are not enabled by default.
      * !#zh
      * 获取或设置是否启用物理系统，默认不启用。
-     * @property {boolean} enable
+     * @property {boolean} enabled
      */
-    get enable (): boolean {
-        return this._enable;
+    get enabled (): boolean {
+        return this._enabled;
     }
-    set enable (value: boolean) {
-        this._enable = value;
+    set enabled (value: boolean) {
+        this._enabled = value;
     }
 
     /**
@@ -147,7 +147,7 @@ export class Physics3DManager {
     readonly raycastResults: PhysicsRayResult[] = [];
 
     @property
-    private _enable = false;
+    private _enabled = false;
 
     @property
     private _allowSleep = true;
@@ -202,7 +202,7 @@ export class Physics3DManager {
         if (CC_EDITOR) {
             return;
         }
-        if (!this._enable) {
+        if (!this._enabled) {
             return;
         }
 
