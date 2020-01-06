@@ -42,4 +42,18 @@ export default class Pool {
     ++this._idx;
     this._frees[this._idx] = obj;
   }
+
+  /**
+   * 清除对象池。
+   * @param fn 清除回调，对每个释放的对象调用一次。
+   */
+  clear (fn) {
+    for (let i = 0; i <= this._idx; i++) {
+        if (fn) {
+            fn(this._frees[i]);
+        }
+    }
+    this._frees.length = 0;
+    this._idx = -1;
+  }
 }
