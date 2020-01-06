@@ -94,8 +94,9 @@ var jsbAliasify = {
     verbose: false
 };
 
+const WEBVIEW_REGEXP = /[Ww]eb[Vv]iew/;
 function excludedWebView (excludes) {
-    return excludes.some(item => !!item.match(/.*CCWebView(\.js)?/));
+    return excludes.some(item => /.*CCWebView(\.js)?/.test(item));
 }
 
 exports.buildDebugInfos = require('./buildDebugInfos');
@@ -287,11 +288,12 @@ exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, c
     let flags = Object.assign({ jsb: true, debug: true }, opt_macroFlags);
     let macro = Utils.getMacros('build', flags);
     let nativeRenderer = macro["CC_NATIVERENDERER"];
+    let needHandleWebview = excludedWebView(excludes);
 
     if (opt_macroFlags && nativeRenderer) {
         opts.aliasifyConfig = jsbAliasify;
     }
-    if (excludedWebView(excludes)) {
+    if (needHandleWebview) {
         opts.aliasifyConfig = opts.aliasifyConfig || jsbAliasify;
         // this will replace require call with an empty object
         opts.aliasifyConfig.replacements['.*CCWebView(\.js)?'] = false;
@@ -322,6 +324,14 @@ exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, c
         .pipe(Optimizejs({
             sourceMap: false
         }))
+        .on('data', function (file) {
+            if (needHandleWebview) {
+                let contents = file.contents.toString();
+                if (WEBVIEW_REGEXP.test(contents)) {
+                    throw new Error('WebView field still exists in engine');
+                }
+            }
+        })
         .pipe(Gulp.dest(outDir))
         .on('end', callback);
 };
@@ -339,11 +349,12 @@ exports.buildJsbMin = function (sourceFile, outputFile, excludes, opt_macroFlags
     let flags = Object.assign({ jsb: true }, opt_macroFlags);
     let macro = Utils.getMacros('build', flags);
     let nativeRenderer = macro["CC_NATIVERENDERER"];
+    let needHandleWebview = excludedWebView(excludes);
 
     if (opt_macroFlags && nativeRenderer) {
         opts.aliasifyConfig = jsbAliasify;
     }
-    if (excludedWebView(excludes)) {
+    if (needHandleWebview) {
         opts.aliasifyConfig = opts.aliasifyConfig || jsbAliasify;
         // this will replace require call with an empty object
         opts.aliasifyConfig.replacements['.*CCWebView(\.js)?'] = false;
@@ -377,6 +388,14 @@ exports.buildJsbMin = function (sourceFile, outputFile, excludes, opt_macroFlags
         .pipe(Optimizejs({
             sourceMap: false
         }))
+        .on('data', function (file) {
+            if (needHandleWebview) {
+                let contents = file.contents.toString();
+                if (WEBVIEW_REGEXP.test(contents)) {
+                    throw new Error('WebView field still exists in engine');
+                }
+            }
+        })
         .pipe(Gulp.dest(outDir))
         .on('end', callback);
 };
