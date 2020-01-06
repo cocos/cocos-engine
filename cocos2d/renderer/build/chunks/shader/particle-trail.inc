@@ -1,5 +1,5 @@
 
-precision mediump float;
+precision highp float;
 #include <particle-common>
 in vec3 a_position; // center position
 in vec4 a_texCoord;  // x:index y:size zw:texcoord
@@ -12,7 +12,7 @@ in vec4 a_color;
 #endif
 
 vec4 vs_main() {
-    highp vec4 pos = vec4(a_position, 1);
+    vec4 pos = vec4(a_position, 1);
     vec4 velocity = vec4(a_texCoord1.xyz, 0);
 
 #if !CC_USE_WORLD_SPACE

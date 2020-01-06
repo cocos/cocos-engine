@@ -1,5 +1,5 @@
 
-precision mediump float;
+precision highp float;
 #include <particle-common>
 #define MAX_KEY_NUM 8
 #define CURVE_MODE_CONSTANT 0
