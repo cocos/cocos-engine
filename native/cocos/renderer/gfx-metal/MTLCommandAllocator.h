@@ -21,6 +21,8 @@ public:
 private:
     friend class CCMTLCommandBuffer;
     GFXCommandPool<CCMTLCmdBeginRenderPass> _beginRenderPassCmdPool;
+    GFXCommandPool<CCMTLCmdBindStates> _bindStatesCmdPool;
+    GFXCommandPool<CCMTLCmdDraw> _drawCmdPool;
     //TODO: add other pools.
 };
 

@@ -23,6 +23,12 @@ void CCMTLCommandAllocator::clearCommands(CCMTLCommandPackage* commandPackage)
     if (commandPackage->beginRenderPassCmds.Size() )
         _beginRenderPassCmdPool.FreeCmds(commandPackage->beginRenderPassCmds);
     
+    if (commandPackage->bindStatesCmds.Size() )
+        _bindStatesCmdPool.FreeCmds(commandPackage->bindStatesCmds);
+    
+    if (commandPackage->drawCmds.Size() )
+        _drawCmdPool.FreeCmds(commandPackage->drawCmds);
+    
     //TODO: free other commands.
     
     commandPackage->commandTypes.Clear();

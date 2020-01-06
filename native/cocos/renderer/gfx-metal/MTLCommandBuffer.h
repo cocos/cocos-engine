@@ -4,6 +4,11 @@ NS_CC_BEGIN
 
 class CCMTLCommandPackage;
 class CCMTLCommandAllocator;
+struct CCMTLDepthBias;
+struct CCMTLGPUPipelineState;
+class CCMTLInputAssembler;
+class CCMTLPipelineState;
+class CCMTLBindingLayout;
 
 class CCMTLCommandBuffer : public GFXCommandBuffer
 {
@@ -40,10 +45,20 @@ private:
     
 private:
     CCMTLCommandPackage* _commandPackage = nullptr;
-    // Just for convenient.
     CCMTLCommandAllocator* _MTLCommandAllocator = nullptr;
-    bool _isStateInvalid = false;
     bool _isInRenderPass = false;
+    bool _isStateInValid = false;
+    
+    CCMTLGPUPipelineState* _currentGPUPipelineState = nullptr;
+    CCMTLPipelineState* _currentPipelineState = nullptr;
+    CCMTLInputAssembler* _currentInputAssembler = nullptr;
+    CCMTLBindingLayout* _currentBindingLayout = nullptr;
+    bool _isViewportDirty = false;
+    GFXViewport _currentViewport;
+    bool _isScissorDirty = false;
+    GFXRect _currentScissor;
+    // Just don't want to include "Commands.h", because "Commands.h" includes Objective-C codes.
+    CCMTLDepthBias* _currentDepthBias = nullptr;
 };
 
 NS_CC_END

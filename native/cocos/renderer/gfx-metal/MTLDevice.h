@@ -32,10 +32,12 @@ public:
     virtual void CopyBuffersToTexture(GFXBuffer* src, GFXTexture* dst, const GFXBufferTextureCopyList& regions) override;
     
     CC_INLINE void* getMTKView() const { return _mtkView; }
+    CC_INLINE void* getMTLDevice() const { return _mtlDevice; }
     CC_INLINE CCMTLStateCache* getStateCache() const { return _stateCache; }
     
 private:
     void* _mtkView= nullptr;
+    void* _mtlDevice = nullptr;
     CCMTLStateCache* _stateCache = nullptr;
 };
 

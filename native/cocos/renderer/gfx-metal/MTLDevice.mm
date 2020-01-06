@@ -8,6 +8,11 @@
 #include "MTLRenderPass.h"
 #include "MTLFrameBuffer.h"
 #include "MTLStateCache.h"
+#include "MTLInputAssembler.h"
+#include "MTLBindingLayout.h"
+#include "MTLPipelineLayout.h"
+#include "MTLPipelineState.h"
+#include "MTLShader.h"
 
 #import <MetalKit/MTKView.h>
 
@@ -35,6 +40,7 @@ bool CCMTLDevice::Initialize(const GFXDeviceInfo& info)
     _stateCache = CC_NEW(CCMTLStateCache);
     
     _mtkView = (MTKView*)window_handle_;
+    _mtlDevice = ((MTKView*)_mtkView).device;
     
     GFXWindowInfo window_info;
     window_info.is_offscreen = false;
@@ -132,12 +138,22 @@ GFXSampler* CCMTLDevice::CreateGFXSampler(const GFXSamplerInfo& info)
 
 GFXShader* CCMTLDevice::CreateGFXShader(const GFXShaderInfo& info)
 {
+    auto shader = CC_NEW(CCMTLShader(this) );
+    if (shader && shader->Initialize(info) )
+        return shader;
     
+    CC_SAFE_DESTROY(shader);
+    return shader;
 }
 
 GFXInputAssembler* CCMTLDevice::CreateGFXInputAssembler(const GFXInputAssemblerInfo& info)
 {
+    auto ia = CC_NEW(CCMTLInputAssembler(this) );
+    if (ia && ia->Initialize(info) )
+        return ia;
     
+    CC_SAFE_DESTROY(ia);
+    return nullptr;
 }
 
 GFXRenderPass* CCMTLDevice::CreateGFXRenderPass(const GFXRenderPassInfo& info)
@@ -162,17 +178,32 @@ GFXFramebuffer* CCMTLDevice::CreateGFXFramebuffer(const GFXFramebufferInfo& info
 
 GFXBindingLayout* CCMTLDevice::CreateGFXBindingLayout(const GFXBindingLayoutInfo& info)
 {
+    auto bl = CC_NEW(CCMTLBindingLayout(this) );
+    if (bl && bl->Initialize(info) )
+        return bl;
     
+    CC_SAFE_DESTROY(bl);
+    return nullptr;
 }
 
 GFXPipelineState* CCMTLDevice::CreateGFXPipelineState(const GFXPipelineStateInfo& info)
 {
+    auto ps = CC_NEW(CCMTLPipelineState(this) );
+    if (ps && ps->Initialize(info) )
+        return ps;
     
+    CC_SAFE_DESTROY(ps);
+    return nullptr;
 }
 
 GFXPipelineLayout* CCMTLDevice::CreateGFXPipelieLayout(const GFXPipelineLayoutInfo& info)
 {
+    auto pl = CC_NEW(CCMTLPipelineLayout(this) );
+    if (pl && pl->Initialize(info) )
+        return pl;
     
+    CC_SAFE_DESTROY(pl);
+    return nullptr;
 }
 
 void CCMTLDevice::CopyBuffersToTexture(GFXBuffer* src, GFXTexture* dst, const GFXBufferTextureCopyList& regions)

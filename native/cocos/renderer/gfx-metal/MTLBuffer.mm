@@ -1,5 +1,6 @@
-#import "MTLStd.h"
-#import "MTLBuffer.h"
+#include "MTLStd.h"
+#include "MTLBuffer.h"
+#include "MTLDevice.h"
 
 #import <Metal/Metal.h>
 
@@ -31,8 +32,8 @@ bool CCMTLBuffer::Initialize(const GFXBufferInfo& info)
         case GFXBufferUsage::VERTEX:
         case GFXBufferUsage::INDEX:
         case GFXBufferUsage::UNIFORM:
-            _metalBuffer = [id<MTLDevice>(device_) newBufferWithLength:size_ options:toMTLResourseOption(info.mem_usage)];
-            if (_metalBuffer == nil)
+            _mtlBuffer = [id<MTLDevice>(((CCMTLDevice*)device_)->getMTLDevice() ) newBufferWithLength:size_ options:toMTLResourseOption(info.mem_usage)];
+            if (_mtlBuffer == nil)
             {
                 CCASSERT(false, "Failed to create MTLBuffer.");
                 return false;
@@ -77,10 +78,10 @@ bool CCMTLBuffer::Initialize(const GFXBufferInfo& info)
 
 void CCMTLBuffer::Destroy()
 {
-    if (_metalBuffer)
+    if (_mtlBuffer)
     {
-        [id<MTLBuffer>(_metalBuffer) release];
-        _metalBuffer = nullptr;
+        [_mtlBuffer release];
+        _mtlBuffer = nil;
     }
     
     if (_systemMemory)
@@ -105,20 +106,25 @@ void CCMTLBuffer::Resize(uint size)
 
 void CCMTLBuffer::Update(void* buffer, uint offset, uint size)
 {
-    if (_metalBuffer)
+    if (_mtlBuffer)
     {
-        uint8_t* dst = (uint8_t*)(id<MTLBuffer>(_metalBuffer).contents) + offset;
+        uint8_t* dst = (uint8_t*)(_mtlBuffer.contents) + offset;
         memcpy(dst, buffer, size);
+        count_ += size;
     }
     else if (_systemMemory)
     {
         memcpy(_systemMemory + offset, buffer, size);
+        count_ += size;
     }
     else
         CCASSERT(false, "CCMTLBuffer: failed to buffer. Unsupported GFXBuffer type.");
     
     if (buffer_ && !_shareMemory)
+    {
         memcpy(buffer_ + offset, buffer, size);
+        count_ += size;
+    }
 }
 
 NS_CC_END

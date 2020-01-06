@@ -532,6 +532,24 @@ struct GFXRect {
   int y;
   uint width;
   uint height;
+    
+    bool operator ==(const GFXRect& rs)
+    {
+        if (x == rs.x &&
+            y == rs.y &&
+            width == rs.width &&
+            height == rs.height)
+        {
+            return true;
+        }
+        else
+            return false;
+    }
+    
+    bool operator !=(const GFXRect& rs)
+    {
+        return !(*this == rs);
+    }
 };
 
 struct GFXExtent {
@@ -572,6 +590,26 @@ struct GFXViewport {
   uint height = 0;
   float minDepth = 0.0f;
   float maxDepth = 0.0f;
+    
+    bool operator ==(const GFXViewport& rs)
+    {
+        if (left == rs.left &&
+            top == rs.top &&
+            width == rs.width &&
+            height == rs.height &&
+            math::IsEqualF(minDepth, rs.minDepth) &&
+            math::IsEqualF(maxDepth, maxDepth))
+        {
+            return true;
+        }
+        else
+            return false;
+    }
+    
+    bool operator !=(const GFXViewport& rs)
+    {
+        return !(*this == rs);
+    }
 };
 
 #pragma pack(push, 1)
