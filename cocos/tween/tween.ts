@@ -19,7 +19,7 @@ import { SetAction } from './set-action';
  * @class Tween
  * @param {Object} [target]
  * @example
- * tweenUtil(this.node)
+ * tween(this.node)
  *   .to(1, {scale: new Vec3(2, 2, 2), position: new Vec3(5, 5, 5)})
  *   .call(() => { console.log('This is a callback'); })
  *   .by(1, {scale: new Vec3(-1, -1, -1), position: new Vec3(-5, -5, -5)}, {easing: 'sineOutIn'})
