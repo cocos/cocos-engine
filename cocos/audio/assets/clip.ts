@@ -37,9 +37,8 @@ import { AudioPlayerWeb } from './player-web';
 export const AudioType = Enum({
     WEB_AUDIO: 0,
     DOM_AUDIO: 1,
-    MINI_GAME_AUDIO: 2,
+    JSB_AUDIO: 2,
     UNKNOWN_AUDIO: 3,
-    JSB_AUDIO: 4,
 });
 
 /**
