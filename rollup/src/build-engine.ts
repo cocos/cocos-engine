@@ -352,6 +352,7 @@ export enum ModuleOption {
     esm,
     cjs,
     system,
+    iife,
 }
 
 export function enumerateModuleOptionReps () {
