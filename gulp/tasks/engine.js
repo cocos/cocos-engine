@@ -96,7 +96,7 @@ var jsbAliasify = {
 
 const WEBVIEW_REGEXP = /[Ww]eb[Vv]iew/;
 function excludedWebView (excludes) {
-    return excludes.some(item => /.*CCWebView(\.js)?/.test(item));
+    return excludes ? excludes.some(item => /.*CCWebView(\.js)?/.test(item)) : false;
 }
 
 exports.buildDebugInfos = require('./buildDebugInfos');
