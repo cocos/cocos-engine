@@ -355,7 +355,7 @@ export enum ModuleOption {
 }
 
 export function enumerateModuleOptionReps () {
-    return Object.values(ModuleOption).filter((value) => typeof value === 'string');
+    return Object.values(ModuleOption).filter((value) => typeof value === 'string') as Array<keyof typeof ModuleOption>;
 }
 
 export function parseModuleOption (rep: string) {

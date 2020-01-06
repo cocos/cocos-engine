@@ -23,6 +23,10 @@ yargs.option('flags', {
     alias: 'f',
     description: 'Engine flags.',
 });
+yargs.option('module', {
+    choices: enumerateModuleOptionReps(),
+    description: 'Output module format. If not specified, IIFE will be used.',
+});
 yargs.option('destination', {
     type: 'string',
     alias: 'd',
@@ -81,7 +85,7 @@ const options: IBuildOptions = {
     watchFiles: !!watchFiles,
     progress: yargs.argv.progress as (boolean | undefined),
 };
-if (yargs.argv['module']) {
+if (yargs.argv.module) {
     options.moduleFormat = parseModuleOption(yargs.argv['module'] as unknown as string);
 }
 if (yargs.argv.buildmode) {
