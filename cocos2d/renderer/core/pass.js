@@ -145,11 +145,13 @@ export default class Pass {
         return this._properties[name].value;
     }
 
-    setProperty (name, value) {
+    setProperty (name, value, directly) {
         let prop = this._properties[name];
         if (!prop) {
             return false;
         }
+
+        prop.directly = directly;
 
         if (Array.isArray(value)) {
             let array = prop.value;
