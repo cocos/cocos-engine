@@ -204,7 +204,7 @@ export default class BmfontAssembler extends Assembler2D {
                 letterRight = 0;
                 lineIndex++;
                 nextTokenX = 0;
-                nextTokenY -= _lineHeight * _bmfontScale + _lineSpacing;
+                nextTokenY -= _lineHeight * this._getFontScale() + _lineSpacing;
                 this._recordPlaceholderInfo(index, character);
                 index++;
                 continue;
@@ -242,7 +242,7 @@ export default class BmfontAssembler extends Assembler2D {
                     letterRight = 0;
                     lineIndex++;
                     nextTokenX = 0;
-                    nextTokenY -= (_lineHeight * _bmfontScale + _lineSpacing);
+                    nextTokenY -= (_lineHeight * this._getFontScale() + _lineSpacing);
                     newLine = true;
                     break;
                 } else {
@@ -291,7 +291,7 @@ export default class BmfontAssembler extends Assembler2D {
         _linesWidth.push(letterRight);
 
         _numberOfLines = lineIndex + 1;
-        _textDesiredHeight = _numberOfLines * _lineHeight * _bmfontScale;
+        _textDesiredHeight = _numberOfLines * _lineHeight * this._getFontScale();
         if (_numberOfLines > 1) {
             _textDesiredHeight += (_numberOfLines - 1) * _lineSpacing;
         }
@@ -323,6 +323,10 @@ export default class BmfontAssembler extends Assembler2D {
 
     _getFirstCharLen () {
         return 1;
+    }
+
+    _getFontScale () {
+        return _overflow === Overflow.SHRINK ? _bmfontScale : 1;
     }
 
     _getFirstWordLen (text, startIndex, textLen) {
@@ -641,7 +645,7 @@ export default class BmfontAssembler extends Assembler2D {
         // TOP
         _letterOffsetY = _contentSize.height;
         if (_vAlign !== macro.VerticalTextAlignment.TOP) {
-            let blank = _contentSize.height - _textDesiredHeight + (_lineHeight - _originFontSize) * _bmfontScale;
+            let blank = _contentSize.height - _textDesiredHeight + _lineHeight * this._getFontScale() - _originFontSize * _bmfontScale;
             if (_vAlign === macro.VerticalTextAlignment.BOTTOM) {
                 // BOTTOM
                 _letterOffsetY -= blank;
