@@ -43,7 +43,7 @@ class Scheduler;
 class CC_DLL Application
 {
 public:
-    
+
     /** Since WINDOWS and ANDROID are defined as macros, we could not just use these keywords in enumeration(Platform).
      *  Therefore, 'OS_' prefix is added to avoid conflicts with the definitions of system macros.
      */
@@ -56,7 +56,7 @@ public:
         IPHONE,      /**< iPhone */
         IPAD,        /**< iPad */
     };
-    
+
     enum class LanguageType
     {
         ENGLISH = 0,
@@ -79,14 +79,14 @@ public:
         ROMANIAN,
         BULGARIAN
     };
-    
+
     enum class PixelFormat
     {
         RGB8,
         RGB565,
         RGBA8
     };
-    
+
     enum class DepthFormat
     {
         NONE,                   // no depth and no stencil
@@ -97,23 +97,23 @@ public:
         DEPTH32F_STENCIL8,
         STENCIL_INDEX8
     };
-    
+
     // This class is useful for internal usage.
     static Application* getInstance() { return _instance; }
-    
+
     Application(const std::string& name, int width, int height);
     virtual ~Application();
-    
+
     virtual bool applicationDidFinishLaunching();
     virtual void applicationDidEnterBackground();
     virtual void applicationWillEnterForeground();
-    
+
     inline void* getView() const { return _view; }
     inline std::shared_ptr<Scheduler> getScheduler() const { return _scheduler; }
     inline RenderTexture* getRenderTexture() const { return _renderTexture; }
-    
+
     void runOnMainThread();
-    
+
     void start();
     void restart();
     void end();
@@ -123,15 +123,15 @@ public:
      * @param fps The preferred frame rate for main loop callback.
      */
     void setPreferredFramesPerSecond(int fps);
-    
+
     void setMultitouch(bool value);
-    
+
     /**
      @brief Get current language config.
      @return Current language config.
      */
     LanguageType getCurrentLanguage() const;
-    
+
     /**
      @brief Get current language iso 639-1 code.
      @return Current language iso 639-1 code.
@@ -149,29 +149,34 @@ public:
      */
     void setDisplayStats(bool isShow);
 
+    /**
+     @brief enable/disable(lock) the cursor, default is enabled
+     */
+    void setCursorEnabled(bool value);
+
     void setDevicePixelRatio(uint8_t ratio)
     {
         if (ratio <= 1)
             return;
-        
+
         _devicePixelRatio = ratio;
         _isDownsampleEnabled = true;
         _renderTexture->init(ratio);
     }
     inline uint8_t getDevicePixelRatio() const { return _devicePixelRatio; }
     inline bool isDownsampleEnabled() const { return _isDownsampleEnabled; }
-    
+
     /** The value is (framebuffer size) / (window size), but on iOS, it is special, its value is 1.
      */
     float getScreenScale() const;
-    
+
     GLint getMainFBO() const;
-    
+
     /**
      @brief Get target platform.
      */
     Platform getPlatform() const;
-    
+
     /**
      @brief Open url in default browser.
      @param String with url to open.
@@ -182,16 +187,16 @@ public:
     void copyTextToClipboard(const std::string &text);
 
     std::string getSystemVersion();
-    
+
 protected:
     virtual void onCreateView(PixelFormat& pixelformat, DepthFormat& depthFormat, int& multisamplingCount);
-    
+
 private:
     void createView(const std::string& name, int width, int height);
-    
+
     static Application* _instance;
     static std::shared_ptr<Scheduler> _scheduler;
-    
+
     void* _view = nullptr;
     void* _delegate = nullptr;
     RenderTexture* _renderTexture = nullptr;

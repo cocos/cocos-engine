@@ -107,9 +107,9 @@ Application::Application(const std::string& name, int width, int height)
     _scheduler = std::make_shared<Scheduler>();
 
     createView(name, width, height);
-    
+
     _renderTexture = new RenderTexture(width, height);
-    
+
     EventDispatcher::init();
     se::ScriptEngine::getInstance();
 }
@@ -151,7 +151,7 @@ void Application::start()
         wTimerRes = std::min(std::max(tc.wPeriodMin, TARGET_RESOLUTION), tc.wPeriodMax);
         timeBeginPeriod(wTimerRes);
     }
-    
+
     float dt = 0.f;
     const DWORD _16ms = 16;
 
@@ -168,7 +168,7 @@ void Application::start()
     QueryPerformanceFrequency(&nFreq);
     se::ScriptEngine* se = se::ScriptEngine::getInstance();
     while (!CAST_VIEW(_view)->windowShouldClose())
-    {       
+    {
         desiredInterval = (LONGLONG)(1.0 / _fps * nFreq.QuadPart);
         if (!_isStarted)
         {
@@ -221,7 +221,7 @@ void Application::start()
                 waitMS = (desiredInterval - actualInterval) * 1000LL / nFreq.QuadPart - 1L;
                 if (waitMS > 1L)
                     Sleep(waitMS);
-            } 
+            }
         }
         else
         {
@@ -334,7 +334,8 @@ std::string Application::getCurrentLanguageCode() const
     return code;
 }
 
-bool Application::isDisplayStats() {
+bool Application::isDisplayStats()
+{
     se::AutoHandleScope hs;
     se::Value ret;
     char commandBuf[100] = "cc.debug.isDisplayStats();";
@@ -342,11 +343,17 @@ bool Application::isDisplayStats() {
     return ret.toBoolean();
 }
 
-void Application::setDisplayStats(bool isShow) {
+void Application::setDisplayStats(bool isShow)
+{
     se::AutoHandleScope hs;
     char commandBuf[100] = {0};
     sprintf(commandBuf, "cc.debug.setDisplayStats(%s);", isShow ? "true" : "false");
     se::ScriptEngine::getInstance()->evalString(commandBuf);
+}
+
+void Application::setCursorEnabled(bool value)
+{
+    glfwSetInputMode(CAST_VIEW(_view)->getGLFWWindow(), GLFW_CURSOR, value ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
 }
 
 float Application::getScreenScale() const
@@ -396,7 +403,7 @@ void Application::setMultitouch(bool)
 }
 
 void Application::onCreateView(PixelFormat& pixelformat, DepthFormat& depthFormat, int& multisamplingCount)
-{  
+{
     pixelformat = PixelFormat::RGBA8;
     depthFormat = DepthFormat::DEPTH24_STENCIL8;
 
@@ -408,13 +415,13 @@ void Application::createView(const std::string& name, int width, int height)
     int multisamplingCount = 0;
     PixelFormat pixelformat;
     DepthFormat depthFormat;
-    
+
     onCreateView(pixelformat,
                  depthFormat,
                  multisamplingCount);
 
     _view = new GLView(this, name, 0, 0, width, height, pixelformat, depthFormat, multisamplingCount);
-    
+
     g_width = width;
     g_height = height;
 }

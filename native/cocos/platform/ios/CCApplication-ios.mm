@@ -44,10 +44,10 @@ namespace
         float scale = [[UIScreen mainScreen] scale];
         float width = bounds.size.width * scale;
         float height = bounds.size.height * scale;
-        
+
         return cocos2d::Vec2(width, height);
     }
-    
+
     bool setCanvasCallback(se::Object* global)
     {
         cocos2d::Vec2 resolution = getResolution();
@@ -89,10 +89,10 @@ namespace
     {
         _fps = 60;
         _systemVersion = [[UIDevice currentDevice].systemVersion floatValue];
-    
+
         _application = application;
         _scheduler = _application->getScheduler();
-        
+
         _isAppActive = [UIApplication sharedApplication].applicationState == UIApplicationStateActive;
         NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
         [nc addObserver:self selector:@selector(appDidBecomeActive) name:UIApplicationDidBecomeActiveNotification object:nil];
@@ -105,7 +105,7 @@ namespace
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [_displayLink release];
-    
+
     [super dealloc];
 }
 
@@ -121,7 +121,7 @@ namespace
 
 -(void) firstStart:(id) view
 {
-    if ([view isReady]) 
+    if ([view isReady])
     {
         auto scheduler = _application->getScheduler();
         scheduler->removeAllFunctionsToBePerformedInCocosThread();
@@ -147,7 +147,7 @@ namespace
 -(void) startMainLoop
 {
     [self stopMainLoop];
-    
+
     _displayLink = [NSClassFromString(@"CADisplayLink") displayLinkWithTarget:self selector:@selector(doCaller:)];
     if (_systemVersion >= 10.0f)
         [_displayLink setPreferredFramesPerSecond: _fps];
@@ -178,20 +178,20 @@ namespace
     static float dt = 0.f;
 
     prevTime = std::chrono::steady_clock::now();
-    
+
     bool downsampleEnabled = _application->isDownsampleEnabled();
     if (downsampleEnabled)
         _application->getRenderTexture()->prepare();
-    
+
     _scheduler->update(dt);
     cocos2d::EventDispatcher::dispatchTickEvent(dt);
-    
+
     if (downsampleEnabled)
         _application->getRenderTexture()->draw();
-    
+
     [(CCEAGLView*)(_application->getView()) swapBuffers];
     cocos2d::PoolManager::getInstance()->getCurrentPool()->clear();
-    
+
     now = std::chrono::steady_clock::now();
     dt = std::chrono::duration_cast<std::chrono::microseconds>(now - prevTime).count() / 1000000.f;
 }
@@ -210,13 +210,13 @@ Application::Application(const std::string& name, int width, int height)
 
     createView(name, width, height);
     Configuration::getInstance();
-    
+
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &_mainFBO);
     _renderTexture = new RenderTexture(width, height);
-    
+
     se::ScriptEngine::getInstance();
     EventDispatcher::init();
-    
+
     _delegate = [[MainLoop alloc] initWithApplication:this];
 }
 
@@ -229,12 +229,12 @@ Application::~Application()
 
     EventDispatcher::destroy();
     se::ScriptEngine::destroyInstance();
-    
+
     // stop main loop
     [(MainLoop*)_delegate stopMainLoop];
     [(MainLoop*)_delegate release];
     _delegate = nullptr;
-    
+
     [(CCEAGLView*)_view release];
     _view = nullptr;
 
@@ -247,7 +247,7 @@ Application::~Application()
 void Application::start()
 {
     if (_delegate)
-        [(MainLoop*)_delegate performSelector:@selector(firstStart:) withObject:(CCEAGLView*)_view afterDelay:0];    
+        [(MainLoop*)_delegate performSelector:@selector(firstStart:) withObject:(CCEAGLView*)_view afterDelay:0];
 }
 
 void Application::restart()
@@ -278,7 +278,8 @@ std::string Application::getCurrentLanguageCode() const
     return [currentLanguage UTF8String];
 }
 
-bool Application::isDisplayStats() {
+bool Application::isDisplayStats()
+{
     se::AutoHandleScope hs;
     se::Value ret;
     char commandBuf[100] = "cc.debug.isDisplayStats();";
@@ -286,11 +287,16 @@ bool Application::isDisplayStats() {
     return ret.toBoolean();
 }
 
-void Application::setDisplayStats(bool isShow) {
+void Application::setDisplayStats(bool isShow)
+{
     se::AutoHandleScope hs;
     char commandBuf[100] = {0};
     sprintf(commandBuf, "cc.debug.setDisplayStats(%s);", isShow ? "true" : "false");
     se::ScriptEngine::getInstance()->evalString(commandBuf);
+}
+
+void Application::setCursorEnabled(bool value)
+{
 }
 
 Application::LanguageType Application::getCurrentLanguage() const
@@ -400,7 +406,7 @@ namespace
         GL_DEPTH24_STENCIL8_OES,  // DEPTH32F_STENCIL8: unsupport, convert to GL_DEPTH24_STENCIL8_OES
         GL_DEPTH_STENCIL_OES      // STENCIL_INDEX8
     };
-    
+
     GLenum depthFormat2GLDepthFormat(cocos2d::Application::DepthFormat depthFormat)
     {
         return depthFormatMap[(int)depthFormat];
@@ -412,17 +418,17 @@ void Application::createView(const std::string& /*name*/, int width, int height)
     PixelFormat pixelFormat = PixelFormat::RGB565;
     DepthFormat depthFormat = DepthFormat::DEPTH24_STENCIL8;
     int multisamplingCount = 0;
-    
+
     onCreateView(pixelFormat,
                  depthFormat,
                  multisamplingCount);
-    
+
     CGRect bounds;
     bounds.origin.x = 0;
     bounds.origin.y = 0;
     bounds.size.width = width;
     bounds.size.height = height;
-    
+
     //IDEA: iOS only support these pixel format?
     // - RGB565
     // - RGBA8
@@ -432,7 +438,7 @@ void Application::createView(const std::string& /*name*/, int width, int height)
         NSLog(@"Unsupported pixel format is set, iOS only support RGB565 or RGBA8. Change to use RGB565");
     else if (PixelFormat::RGBA8 == pixelFormat)
         pixelString = kEAGLColorFormatRGBA8;
-    
+
     // create view
     CCEAGLView *eaglView = [CCEAGLView viewWithFrame: bounds
                                          pixelFormat: pixelString
@@ -441,9 +447,9 @@ void Application::createView(const std::string& /*name*/, int width, int height)
                                           sharegroup: nil
                                        multiSampling: multisamplingCount != 0
                                      numberOfSamples: multisamplingCount];
-    
+
     [eaglView setMultipleTouchEnabled:_multiTouch];
-    
+
     [eaglView retain];
     _view = eaglView;
 }

@@ -171,12 +171,13 @@ void EventDispatcher::dispatchMouseEvent(const struct MouseEvent& mouseEvent)
     }
 
     const auto& xVal = se::Value(mouseEvent.x);
+    const auto& yVal = se::Value(mouseEvent.y);
     const MouseEvent::Type type = mouseEvent.type;
 
     if (type == MouseEvent::Type::WHEEL)
     {
         _jsMouseEventObj->setProperty("wheelDeltaX", xVal);
-        _jsMouseEventObj->setProperty("wheelDeltaY", se::Value(mouseEvent.y * 120.0f)); // scale up to match the web interface
+        _jsMouseEventObj->setProperty("wheelDeltaY", yVal);
     }
     else
     {
@@ -185,7 +186,7 @@ void EventDispatcher::dispatchMouseEvent(const struct MouseEvent& mouseEvent)
             _jsMouseEventObj->setProperty("button", se::Value(mouseEvent.button));
         }
         _jsMouseEventObj->setProperty("x", xVal);
-        _jsMouseEventObj->setProperty("y", se::Value(mouseEvent.y));
+        _jsMouseEventObj->setProperty("y", yVal);
     }
 
     const char* eventName = nullptr;

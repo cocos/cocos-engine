@@ -668,6 +668,20 @@ static bool JSB_isObjectValid(se::State& s)
 }
 SE_BIND_FUNC(JSB_isObjectValid)
 
+static bool JSB_setCursorEnabled(se::State& s)
+{
+    const auto& args = s.args();
+    int argc = (int)args.size();
+    SE_PRECONDITION2(argc == 1, false, "Invalid number of arguments");
+    bool ok = true, value = true;
+    ok &= seval_to_boolean(args[0], &value);
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+
+    Application::getInstance()->setCursorEnabled(value);
+    return true;
+}
+SE_BIND_FUNC(JSB_setCursorEnabled)
+
 static bool getOrCreatePlainObject_r(const char* name, se::Object* parent, se::Object** outObj)
 {
     assert(parent != nullptr);
@@ -850,12 +864,12 @@ bool jsb_global_load_image(const std::string& path, const se::Value& callbackVal
                 se::AutoHandleScope hs;
                 se::ValueArray seArgs;
                 se::Value dataVal;
-                
+
                 if (loadSucceed)
                 {
                     se::HandleObject retObj(se::Object::createPlainObject());
                     Data data;
-                    data.copy(imgInfo->data, imgInfo->length);    
+                    data.copy(imgInfo->data, imgInfo->length);
                     Data_to_seval(data, &dataVal);
                     retObj->setProperty("data", dataVal);
                     retObj->setProperty("width", se::Value(imgInfo->width));
@@ -1211,6 +1225,7 @@ bool jsb_register_global_variables(se::Object* global)
     __jsbObj->defineFunction("setPreferredFramesPerSecond", _SE(JSB_setPreferredFramesPerSecond));
     __jsbObj->defineFunction("showInputBox", _SE(JSB_showInputBox));
     __jsbObj->defineFunction("hideInputBox", _SE(JSB_hideInputBox));
+    __jsbObj->defineFunction("setCursorEnabled", _SE(JSB_setCursorEnabled));
 
     global->defineFunction("__getPlatform", _SE(JSBCore_platform));
     global->defineFunction("__getOS", _SE(JSBCore_os));

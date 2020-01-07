@@ -131,7 +131,8 @@ std::string Application::getCurrentLanguageCode() const
     return getCurrentLanguageCodeJNI();
 }
 
-bool Application::isDisplayStats() {
+bool Application::isDisplayStats()
+{
     se::AutoHandleScope hs;
     se::Value ret;
     char commandBuf[100] = "cc.debug.isDisplayStats();";
@@ -139,11 +140,16 @@ bool Application::isDisplayStats() {
     return ret.toBoolean();
 }
 
-void Application::setDisplayStats(bool isShow) {
+void Application::setDisplayStats(bool isShow)
+{
     se::AutoHandleScope hs;
     char commandBuf[100] = {0};
     sprintf(commandBuf, "cc.debug.setDisplayStats(%s);", isShow ? "true" : "false");
     se::ScriptEngine::getInstance()->evalString(commandBuf);
+}
+
+void Application::setCursorEnabled(bool value)
+{
 }
 
 Application::LanguageType Application::getCurrentLanguage() const

@@ -66,17 +66,17 @@ std::shared_ptr<Scheduler> Application::_scheduler = nullptr;
 Application::Application(const std::string& name, int width, int height)
 {
     Application::_instance = this;
-    
+
     g_width = width;
     g_height = height;
-    
+
     createView(name, width, height);
 
     Configuration::getInstance();
 
     _renderTexture = new RenderTexture(width, height);
     _scheduler = std::make_shared<Scheduler>();
-    
+
     EventDispatcher::init();
     se::ScriptEngine::getInstance();
 }
@@ -90,10 +90,10 @@ Application::~Application()
 
     EventDispatcher::destroy();
     se::ScriptEngine::destroyInstance();
-    
+
     delete CAST_VIEW(_view);
     _view = nullptr;
-        
+
     delete _renderTexture;
     _renderTexture = nullptr;
 
@@ -203,7 +203,8 @@ std::string Application::getCurrentLanguageCode() const
     return [currentLanguage UTF8String];
 }
 
-bool Application::isDisplayStats() {
+bool Application::isDisplayStats()
+{
     se::AutoHandleScope hs;
     se::Value ret;
     char commandBuf[100] = "cc.debug.isDisplayStats();";
@@ -211,11 +212,17 @@ bool Application::isDisplayStats() {
     return ret.toBoolean();
 }
 
-void Application::setDisplayStats(bool isShow) {
+void Application::setDisplayStats(bool isShow)
+{
     se::AutoHandleScope hs;
     char commandBuf[100] = {0};
     sprintf(commandBuf, "cc.debug.setDisplayStats(%s);", isShow ? "true" : "false");
     se::ScriptEngine::getInstance()->evalString(commandBuf);
+}
+
+void Application::setCursorEnabled(bool value)
+{
+    glfwSetInputMode(CAST_VIEW(_view)->getGLFWWindow(), GLFW_CURSOR, value ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
 }
 
 Application::LanguageType Application::getCurrentLanguage() const
@@ -224,11 +231,11 @@ Application::LanguageType Application::getCurrentLanguage() const
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSArray *languages = [defaults objectForKey:@"AppleLanguages"];
     NSString *currentLanguage = [languages objectAtIndex:0];
-    
+
     // get the current language code.(such as English is "en", Chinese is "zh" and so on)
     NSDictionary* temp = [NSLocale componentsFromLocaleIdentifier:currentLanguage];
     NSString * languageCode = [temp objectForKey:NSLocaleLanguageCode];
-    
+
     if ([languageCode isEqualToString:@"zh"]) return LanguageType::CHINESE;
     if ([languageCode isEqualToString:@"en"]) return LanguageType::ENGLISH;
     if ([languageCode isEqualToString:@"fr"]) return LanguageType::FRENCH;
@@ -306,7 +313,7 @@ void Application::createView(const std::string& name, int width, int height)
     int multisamplingCount = 0;
     PixelFormat pixelformat;
     DepthFormat depthFormat;
-    
+
     onCreateView(pixelformat,
                  depthFormat,
                  multisamplingCount);
