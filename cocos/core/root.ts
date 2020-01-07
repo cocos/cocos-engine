@@ -291,7 +291,7 @@ export class Root {
         }
     }
 
-    public setRenderPipeline(rppl: RenderPipeline): boolean {
+    public setRenderPipeline (rppl: RenderPipeline): boolean {
         this._pipeline = rppl;
         if (!this._pipeline.activate(this)) {
             return false;

@@ -30,9 +30,9 @@
 import { EventTarget } from './event/event-target';
 import { WebGLGFXDevice } from './gfx/webgl/webgl-device';
 import { WebGL2GFXDevice } from './gfx/webgl2/webgl2-device';
-import * as debug from './platform/debug';
-import { SplashScreen } from './splash-image';
 import { ForwardPipeline } from './pipeline';
+import * as debug from './platform/debug';
+
 /**
  * @en
  * The current game configuration, including:<br/>
@@ -370,8 +370,16 @@ export class Game extends EventTarget {
         // Pause main loop
         if (this._intervalId) {
             window.cancelAnimationFrame(this._intervalId);
+            this._intervalId = 0;
         }
-        this._intervalId = 0;
+        // Because JSB platforms never actually stops the swap chain,
+        // we draw one more frame here to (try to) make sure swap chain consistency
+        if (CC_JSB || CC_RUNTIME_BASED) {
+            window.requestAnimationFrame(() => {
+                const root = cc.director.root;
+                root.frameMove(0); root.device.present();
+            });
+        }
     }
 
     /**
@@ -599,7 +607,7 @@ export class Game extends EventTarget {
         this.emit(Game.EVENT_ENGINE_INITED);
 
         // load renderpipeline
-        let config = this.config;
+        const config = this.config;
         cc.loader.load({ uuid: config.renderPipeline }, (err, asset) => {
             // failed load renderPipeline
             if (err || !(asset instanceof cc.RenderPipeline)) {
@@ -619,9 +627,7 @@ export class Game extends EventTarget {
                 cc.internal.SplashScreen.instance.setOnFinish(cb);
                 cc.internal.SplashScreen.instance.loadFinish = true;
             }
-            else {
-                cb && cb();
-            }
+            else if (cb) { cb(); }
         });
     }
 
@@ -665,8 +671,7 @@ export class Game extends EventTarget {
     private _stTime (callback) {
         const currTime = new Date().getTime();
         const timeToCall = Math.max(0, cc.game._frameTime - (currTime - cc.game._lastTime));
-        const id = window.setTimeout(() => { callback(); },
-            timeToCall);
+        const id = window.setTimeout(callback, timeToCall);
         cc.game._lastTime = currTime + timeToCall;
         return id;
     }
@@ -675,9 +680,8 @@ export class Game extends EventTarget {
     }
     // Run game.
     private _runMainLoop () {
-        const self = this;
         let callback: FrameRequestCallback;
-        const config = self.config;
+        const config = this.config;
         const director = cc.director;
         let skip: boolean = true;
         const frameRate = config.frameRate;
@@ -685,24 +689,22 @@ export class Game extends EventTarget {
         debug.setDisplayStats(!!config.showFPS);
 
         callback = (time: number) => {
-            if (!self._paused) {
-                self._intervalId = window.requestAnimationFrame(callback);
-                if (!CC_JSB && frameRate === 30) {
-                    skip = !skip;
-                    if (skip) {
-                        return;
-                    }
+            if (this._paused) { return; }
+            this._intervalId = window.requestAnimationFrame(callback);
+            if (!CC_JSB && frameRate === 30) {
+                skip = !skip;
+                if (skip) {
+                    return;
                 }
-                director.mainLoop(time);
             }
+            director.mainLoop(time);
         };
 
-        self._intervalId = window.requestAnimationFrame(callback);
-        self._paused = false;
+        this._intervalId = window.requestAnimationFrame(callback);
+        this._paused = false;
     }
 
-    //  @Game loading section
-    // tslint:disable-next-line: max-line-length
+    // @Game loading section
     private _initConfig (config: IGameConfig) {
         // Configs adjustment
         if (typeof config.debugMode !== 'number') {
