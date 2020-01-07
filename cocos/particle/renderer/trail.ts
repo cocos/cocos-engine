@@ -32,7 +32,8 @@ const _temp_vec3_1 = new Vec3();
 const _temp_color = new Color();
 
 const barycentric = [1, 0, 0, 0, 1, 0, 0, 0, 1]; // <wireframe debug>
-const _bcIdx = 0;
+// tslint:disable-next-line: prefer-const
+let _bcIdx = 0;
 
 interface ITrailElement {
     position: Vec3;
@@ -404,7 +405,7 @@ export default class TrailModule {
 
     public _updateMaterial () {
         if (this._particleSystem && this._trailModel) {
-            const mat = this._particleSystem.renderer.trailMaterial;
+            const mat = this._particleSystem.getMaterialInstance(1);
             if (mat) {
                 this._trailModel.setSubModelMaterial(0, mat);
             } else {
