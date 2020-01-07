@@ -2,7 +2,7 @@
  * @category gfx
  */
 
-import { writeBuffer } from '../3d/misc/utils';
+import { writeBuffer } from '../3d/misc/buffer';
 import { GFXBuffer, GFXBufferSource, IGFXDrawInfo } from './buffer';
 import { GFXFormat, GFXFormatInfos, GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
