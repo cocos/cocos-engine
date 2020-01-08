@@ -100,8 +100,6 @@ scripting/js-bindings/jswrapper/v8/debugger/inspector_socket_server.cc \
 scripting/js-bindings/jswrapper/v8/debugger/node.cc \
 scripting/js-bindings/jswrapper/v8/debugger/node_debug_options.cc \
 scripting/js-bindings/jswrapper/v8/debugger/http_parser.c
-# uv_static only used in v8 debugger
-LOCAL_STATIC_LIBRARIES += uv_static
 LOCAL_STATIC_LIBRARIES += v8_inspector
 LOCAL_STATIC_LIBRARIES += cocos_extension_static
 
@@ -168,6 +166,9 @@ LOCAL_STATIC_LIBRARIES += libwebsockets_static
 LOCAL_STATIC_LIBRARIES += cocos_ssl_static
 LOCAL_STATIC_LIBRARIES += cocos_crypto_static
 endif # USE_SOCKET
+
+# libuv is used by v8 debugger & libwebsockets
+LOCAL_STATIC_LIBRARIES += uv_static
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH) \
                     $(LOCAL_PATH)/.. \
