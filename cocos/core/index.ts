@@ -60,4 +60,5 @@ import './primitive';
 export * from './utils/profiler/profiler';
 
 import './deprecated';
-import './splash-image';
+// import './splash-image';
+import './splash-screen-webgl';

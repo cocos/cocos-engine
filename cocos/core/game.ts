@@ -621,13 +621,12 @@ export class Game extends EventTarget {
             this._rendererInitialized = true;
             this.emit(Game.EVENT_RENDERER_INITED);
 
-            if (cc.internal.SplashScreen) {
-                // Start splash screen
-                cc.internal.SplashScreen.instance.main(this._gfxDevice);
-                cc.internal.SplashScreen.instance.setOnFinish(cb);
-                cc.internal.SplashScreen.instance.loadFinish = true;
+            if (!CC_EDITOR && !CC_PREVIEW && cc.internal.SplashScreenWebgl) {
+                cc.internal.SplashScreenWebgl.instance.setOnFinish(cb);
+                cc.internal.SplashScreenWebgl.instance.loadFinish = true;
+            } else {
+                cb && cb();
             }
-            else if (cb) { cb(); }
         });
     }
 
@@ -783,62 +782,70 @@ export class Game extends EventTarget {
             }
         }
 
-        const el = this.config.id;
-        let width: any;
-        let height: any;
+        // TODO: adapter for editor & preview
         let localCanvas: HTMLCanvasElement;
-        let localContainer: HTMLElement;
+        if (CC_EDITOR || CC_PREVIEW) {
+            const el = this.config.id;
+            let width: any;
+            let height: any;
+            let localContainer: HTMLElement;
 
-        if (CC_JSB) {
-            this.container = localContainer = document.createElement<'div'>('div');
-            this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
-            if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-                localCanvas = window.sharedCanvas || wx.getSharedCanvas();
-            }
-            else if (CC_JSB) {
-                localCanvas = window.__canvas;
+            if (CC_JSB) {
+                this.container = localContainer = document.createElement<'div'>('div');
+                this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
+                if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+                    localCanvas = window.sharedCanvas || wx.getSharedCanvas();
+                }
+                else if (CC_JSB) {
+                    localCanvas = window.__canvas;
+                }
+                else {
+                    localCanvas = window.canvas;
+                }
+                this.canvas = localCanvas;
             }
             else {
-                localCanvas = window.canvas;
-            }
-            this.canvas = localCanvas;
-        }
-        else {
-            const element = !el ? null : ((el instanceof HTMLElement) ? el : (document.querySelector(el) || document.querySelector('#' + el)));
-            if (!element) {
-                throw new Error(debug.getError(200));
-            }
-
-            if (element.tagName === 'CANVAS') {
-                width = (element as HTMLCanvasElement).width;
-                height = (element as HTMLCanvasElement).height;
-
-                // it is already a canvas, we wrap it around with a div
-                this.canvas = localCanvas = (element as HTMLCanvasElement);
-                this.container = localContainer = document.createElement<'div'>('div');
-                if (localCanvas && localCanvas.parentNode) {
-                    localCanvas.parentNode.insertBefore(localContainer, localCanvas);
+                const element = !el ? null : ((el instanceof HTMLElement) ? el : (document.querySelector(el) || document.querySelector('#' + el)));
+                if (!element) {
+                    throw new Error(debug.getError(200));
                 }
-            } else {
-                // we must make a new canvas and place into this element
-                if (element.tagName !== 'DIV') {
-                    debug.warnID(3819);
+
+                if (element.tagName === 'CANVAS') {
+                    width = (element as HTMLCanvasElement).width;
+                    height = (element as HTMLCanvasElement).height;
+
+                    // it is already a canvas, we wrap it around with a div
+                    this.canvas = localCanvas = (element as HTMLCanvasElement);
+                    this.container = localContainer = document.createElement<'div'>('div');
+                    if (localCanvas && localCanvas.parentNode) {
+                        localCanvas.parentNode.insertBefore(localContainer, localCanvas);
+                    }
+                } else {
+                    // we must make a new canvas and place into this element
+                    if (element.tagName !== 'DIV') {
+                        debug.warnID(3819);
+                    }
+                    width = element.clientWidth;
+                    height = element.clientHeight;
+
+                    this.canvas = localCanvas = document.createElement('canvas');
+                    this.container = localContainer = document.createElement<'div'>('div');
+                    element.appendChild(localContainer);
                 }
-                width = element.clientWidth;
-                height = element.clientHeight;
+                localContainer.setAttribute('id', 'Cocos3dGameContainer');
+                localContainer.appendChild(localCanvas!);
+                this.frame = (localContainer.parentNode === document.body) ? document.documentElement : localContainer.parentNode;
 
-                this.canvas = localCanvas = document.createElement('canvas');
-                this.container = localContainer = document.createElement<'div'>('div');
-                element.appendChild(localContainer);
+                addClass(localCanvas!, 'gameCanvas');
+                localCanvas.setAttribute('width', width || '480');
+                localCanvas.setAttribute('height', height || '320');
+                localCanvas.setAttribute('tabindex', '99');
             }
-            localContainer.setAttribute('id', 'Cocos3dGameContainer');
-            localContainer.appendChild(localCanvas!);
-            this.frame = (localContainer.parentNode === document.body) ? document.documentElement : localContainer.parentNode;
-
-            addClass(localCanvas!, 'gameCanvas');
-            localCanvas.setAttribute('width', width || '480');
-            localCanvas.setAttribute('height', height || '320');
-            localCanvas.setAttribute('tabindex', '99');
+        } else {
+            this.canvas = (this.config as any).adapter.canvas;
+            this.frame = (this.config as any).adapter.frame;
+            this.container = (this.config as any).adapter.container;
+            localCanvas = this.canvas as HTMLCanvasElement;
         }
 
         this._determineRenderType();
