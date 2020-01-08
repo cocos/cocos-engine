@@ -596,7 +596,7 @@ export class Game extends EventTarget {
     //  @Game loading
 
     private _initEngine (cb: Function | null) {
-        this._initRenderer2();
+        this._initRenderer();
 
         if (!CC_EDITOR) {
             this._initEvents();
@@ -767,7 +767,7 @@ export class Game extends EventTarget {
         }
     }
 
-    private _initRenderer2 () {
+    private _initRenderer () {
         // Avoid setup to be called twice.
         if (this._rendererInitialized) { return; }
 
