@@ -1,3 +1,4 @@
+import { macro } from '../../platform';
 import sys from '../../platform/sys';
 import { GFXBindingLayout, IGFXBindingLayoutInfo } from '../binding-layout';
 import { GFXBuffer, IGFXBufferInfo } from '../buffer';
@@ -201,7 +202,7 @@ export class WebGLGFXDevice extends GFXDevice {
 
         try {
             const webGLCtxAttribs: WebGLContextAttributes = {
-                alpha: false,
+                alpha: macro.ENABLE_TRANSPARENT_CANVAS,
                 antialias: this._isAntialias,
                 depth: true,
                 stencil: true,
