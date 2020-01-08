@@ -522,7 +522,7 @@ export default class TrailModule {
                 this._fillVertexBuffer(_temp_trailEle, this.colorOverTrail.evaluate(0, 1), indexOffset, 0, trailNum, PRE_TRIANGLE_INDEX);
             }
         }
-        this.updateIA(this.ibOffset);
+        this._updateIA(this.ibOffset);
     }
 
     _fillVertexBuffer (trailSeg, colorModifer, indexOffset, xTexCoord, trailEleIdx, indexSet) {
@@ -562,11 +562,9 @@ export default class TrailModule {
         }
     }
 
-    updateIA (count) {
-        let model = this._particleSystem._assembler._model;
-        
-        if (model) {
-            model.updateIA(1, count, true, true);
+    _updateIA (count) {
+        if (this._particleSystem && this._particleSystem._assembler) {
+            this._particleSystem._assembler.updateIA(1, count, true, true);
         }
     }
 
