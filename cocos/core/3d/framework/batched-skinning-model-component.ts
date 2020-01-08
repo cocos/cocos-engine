@@ -38,7 +38,7 @@ import { GFXFormat, GFXType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { IGFXAttribute } from '../../gfx/input-assembler';
 import { Mat4, Vec2 } from '../../math';
-import { mapBuffer } from '../misc/utils';
+import { mapBuffer } from '../misc/buffer';
 import { SkinningModelComponent } from './skinning-model-component';
 
 const repeat = (n: number) => n - Math.floor(n);
