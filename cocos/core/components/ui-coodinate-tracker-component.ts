@@ -147,6 +147,7 @@ export class UICoordinateTrackerComponent extends Component {
     protected _viewPos = new Vec3();
     protected _canMove = true;
     protected _lastWpos = new Vec3();
+    protected _lastCameraPos = new Vec3();
 
     public onEnable () {
         this._checkCanMove();
@@ -154,17 +155,18 @@ export class UICoordinateTrackerComponent extends Component {
 
     public update () {
         const wpos = this.node.worldPosition;
+        const camera = this._camera;
         // @ts-ignore
-        if (!this._canMove || !this._camera!._camera || this._lastWpos.equals(wpos)) {
+        if (!this._canMove || !camera._camera || (this._lastWpos.equals(wpos) && this._lastCameraPos.equals(camera!.node.worldPosition))) {
             return;
         }
 
         this._lastWpos.set(wpos);
-        const camera = this._camera!;
+        this._lastCameraPos.set(camera!.node.worldPosition);
         // [HACK]
         // @ts-ignore
         camera._camera.update();
-        convertUtils.WorldNode3DToLocalNodeUI(camera, wpos, this._target!, this._transformPos);
+        convertUtils.WorldNode3DToLocalNodeUI(camera!, wpos, this._target!, this._transformPos);
         if (this._useScale) {
             // @ts-ignore
             Vec3.transformMat4(this._viewPos, this.node.worldPosition, camera._camera!.matView);
