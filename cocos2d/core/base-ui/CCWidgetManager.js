@@ -466,6 +466,7 @@ var widgetManager = cc._widgetManager = module.exports = {
         else {
             if (cc.sys.isMobile) {
                 window.addEventListener('resize', this.onResized.bind(this));
+                window.addEventListener('orientationchange', this.onResized.bind(this));
             }
             else {
                 cc.view.on('canvas-resize', this.onResized, this);
