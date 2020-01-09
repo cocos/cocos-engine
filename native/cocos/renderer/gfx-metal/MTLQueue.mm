@@ -46,9 +46,7 @@ void CCMTLQueue::submit(GFXCommandBuffer** cmd_buffs, uint count)
     NSAutoreleasePool* autoReleasePool = [[NSAutoreleasePool alloc] init];
     
     for (uint i = 0; i < count; ++i)
-    {
         executeCommands(static_cast<CCMTLCommandBuffer*>(cmd_buffs[i])->getCommandPackage() );
-    }
     
     [autoReleasePool release];
 }
@@ -71,6 +69,7 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage)
     CCMTLCmdBeginRenderPass* cmdBeginRenderPass = nullptr;
     CCMTLGPUPipelineState* gpuPipelineState = nullptr;
     CCMTLInputAssembler* inputAssembler = nullptr;
+    CCMTLGPUInputAssembler* gpuInputAssembler = nullptr;
     MTLPrimitiveType primitiveType;
     
     for (uint i = 0; i < commandSize; ++i) {
@@ -124,6 +123,18 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage)
                     for (const auto& block : *(gpuPipelineState->fragmentUniformBlocks) )
                         [encoder setFragmentBuffer:block.buffer offset:0 atIndex:block.mtlBinding];
                     
+                    for (const auto& texture : *(gpuPipelineState->vertexTextureList) )
+                        [encoder setVertexTexture:texture.texture atIndex:texture.mtlBinding];
+                    
+                    for (const auto& texture : *(gpuPipelineState->fragmentTextureList) )
+                         [encoder setFragmentTexture:texture.texture atIndex:texture.mtlBinding];
+                    
+                    for (const auto& sampler : *(gpuPipelineState->vertexSampleStateList) )
+                        [encoder setVertexSamplerState:sampler.samplerState atIndex:sampler.mtlBinding];
+                    
+                    for (const auto& sampler : *(gpuPipelineState->fragmentSampleStateList) )
+                        [encoder setFragmentSamplerState:sampler.samplerState atIndex:sampler.mtlBinding];
+                    
                     primitiveType = gpuPipelineState->primitiveType;
                 }
                 
@@ -131,13 +142,11 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage)
                 if (cmd->scissorDirty) [encoder setScissorRect:cmd->scissorRect];
                 
                 // bind vertex buffer
-                //TODO: collect gpub buffers information in CCMTLInputAssembler.
-                // And how to support multiple verte buffers?
                 inputAssembler = cmd->inputAssembler;
                 if (inputAssembler)
                 {
-                    CCMTLBuffer* buffer = static_cast<CCMTLBuffer*>(inputAssembler->vertex_buffers()[0]);
-                    [encoder setVertexBuffer:buffer->getMTLBuffer()
+                    gpuInputAssembler = inputAssembler->getGPUInputAssembler();
+                    [encoder setVertexBuffer:gpuInputAssembler->mtlVertexBufers[0]
                                       offset:0
                                      atIndex:30];
                 }
@@ -149,9 +158,9 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage)
                 CCMTLCmdDraw* cmd = commandPackage->drawCmds[cmdIdx++];
                 if (inputAssembler && gpuPipelineState)
                 {
-                    if (!inputAssembler->indirect_buffer() )
+                    if (!gpuInputAssembler->mtlIndirectBuffer)
                     {
-                        if (inputAssembler->index_buffer() && cmd->drawInfo.index_count >= 0)
+                        if (gpuInputAssembler->mtlIndirectBuffer && cmd->drawInfo.index_count >= 0)
                         {
                             uint8_t* offset = 0;
                             offset += cmd->drawInfo.first_index * inputAssembler->index_buffer()->stride();
@@ -161,7 +170,7 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage)
                                 [encoder drawIndexedPrimitives:primitiveType
                                                     indexCount:cmd->drawInfo.index_count
                                                      indexType:MTLIndexTypeUInt32
-                                                   indexBuffer:nil
+                                                   indexBuffer:gpuInputAssembler->mtlIndexBuffer
                                              indexBufferOffset:0];
                             }
                             else

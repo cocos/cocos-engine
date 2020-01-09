@@ -27,7 +27,19 @@ CCMTLBuffer::~CCMTLBuffer()
 
 bool CCMTLBuffer::Initialize(const GFXBufferInfo& info)
 {
+    usage_ = info.usage;
+    mem_usage_ = info.mem_usage;
     size_ = info.size;
+    stride_ = std::max(info.stride, 1U);
+    count_ = size_ / stride_;
+    flags_ = info.flags;
+    
+    if ((flags_ & GFXBufferFlagBit::BAKUP_BUFFER) && size_ > 0)
+    {
+        buffer_ = (uint8_t*)CC_MALLOC(size_);
+        device_->mem_status().buffer_size += size_;
+    }
+    
     switch (info.usage) {
         case GFXBufferUsage::VERTEX:
         case GFXBufferUsage::INDEX:
@@ -41,19 +53,19 @@ bool CCMTLBuffer::Initialize(const GFXBufferInfo& info)
             break;
         case GFXBufferUsage::TRANSFER_DST:
         case GFXBufferUsage::TRANSFER_SRC:
-        case GFXBufferUsage::STORAGE:
-        case GFXBufferUsage::INDIRECT:
-            //FIXME: allocate system memory for these types?
-            _systemMemory = (uint8_t*)CC_MALLOC(size_);
-            if (!_systemMemory)
+            _transferBuffer = (uint8_t*)CC_MALLOC(size_);
+            if (!_transferBuffer)
             {
-                CCASSERT(false, "CCMTLBuffer: failed to create memory.")
+                CCASSERT(false, "CCMTLBuffer: failed to create memory for transfer buffer.")
                 return false;
             }
             device_->mem_status().buffer_size += size_;
-            _shareMemory = true;
             break;
             
+        case GFXBufferUsage::STORAGE:
+        case GFXBufferUsage::INDIRECT:
+            //TODO
+            break;
         default:
             CCASSERT(false, "CCMTLBuffer: unsurpported GFXBuffer type.");
             return false;
@@ -61,16 +73,11 @@ bool CCMTLBuffer::Initialize(const GFXBufferInfo& info)
     
     if (info.flags == GFXBufferFlagBit::BAKUP_BUFFER)
     {
-        if (_shareMemory)
-            buffer_ = _systemMemory;
+        buffer_ = (uint8_t*)CC_MALLOC(size_);
+        if (!buffer_)
+            CCLOG("CCMTLBuffer: failed to create backup memory.");
         else
-        {
-            buffer_ = (uint8_t*)CC_MALLOC(size_);
-            if (!buffer_)
-                CCLOG("CCMTLBuffer: failed to create backup memory.");
-            else
-                device_->mem_status().buffer_size += size_;
-        }
+            device_->mem_status().buffer_size += size_;
     }
     
     return true;
@@ -84,18 +91,18 @@ void CCMTLBuffer::Destroy()
         _mtlBuffer = nil;
     }
     
-    if (_systemMemory)
+    if (_transferBuffer)
     {
-        CC_FREE(_systemMemory);
-        _systemMemory = nullptr;
+        CC_FREE(_transferBuffer);
+        _transferBuffer = nullptr;
         device_->mem_status().buffer_size -= size_;
     }
     
-    if (buffer_ && !_shareMemory)
+    if (buffer_)
     {
         CC_FREE(buffer_);
-        buffer_ = nullptr;
         device_->mem_status().buffer_size -= size_;
+        buffer_ = nullptr;
     }
 }
 
@@ -110,21 +117,11 @@ void CCMTLBuffer::Update(void* buffer, uint offset, uint size)
     {
         uint8_t* dst = (uint8_t*)(_mtlBuffer.contents) + offset;
         memcpy(dst, buffer, size);
-        count_ += size;
     }
-    else if (_systemMemory)
-    {
-        memcpy(_systemMemory + offset, buffer, size);
-        count_ += size;
-    }
-    else
-        CCASSERT(false, "CCMTLBuffer: failed to buffer. Unsupported GFXBuffer type.");
-    
-    if (buffer_ && !_shareMemory)
-    {
+    if (_transferBuffer)
+        memcpy(_transferBuffer + offset, buffer, size);
+    if (buffer_)
         memcpy(buffer_ + offset, buffer, size);
-        count_ += size;
-    }
 }
 
 NS_CC_END

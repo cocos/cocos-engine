@@ -18,7 +18,7 @@ bool GLES3TextureView::Initialize(const GFXTextureViewInfo &info) {
   texture_ = info.texture;
   type_ = info.type;
   format_ = info.format;
-  base_layer_ = info.base_layer;
+  base_level_ = info.base_level;
   level_count_ = info.level_count;
   base_layer_ = info.base_layer;
   layer_count_ = info.layer_count;

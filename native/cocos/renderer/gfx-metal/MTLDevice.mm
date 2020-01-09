@@ -13,20 +13,16 @@
 #include "MTLPipelineLayout.h"
 #include "MTLPipelineState.h"
 #include "MTLShader.h"
+#include "MTLTexture.h"
+#include "MTLTextureView.h"
+#include "MTLSampler.h"
 
 #import <MetalKit/MTKView.h>
 
 NS_CC_BEGIN
 
-CCMTLDevice::CCMTLDevice()
-{
-    
-}
-
-CCMTLDevice::~CCMTLDevice()
-{
-    
-}
+CCMTLDevice::CCMTLDevice() {}
+CCMTLDevice::~CCMTLDevice() {}
 
 bool CCMTLDevice::Initialize(const GFXDeviceInfo& info)
 {
@@ -123,17 +119,32 @@ GFXBuffer* CCMTLDevice::CreateGFXBuffer(const GFXBufferInfo& info)
 
 GFXTexture* CCMTLDevice::CreateGFXTexture(const GFXTextureInfo& info)
 {
+    auto texture = CC_NEW(CCMTLTexture(this) );
+    if (texture && texture->Initialize(info) )
+        return texture;
     
+    CC_SAFE_DESTROY(texture);
+    return nullptr;
 }
 
 GFXTextureView* CCMTLDevice::CreateGFXTextureView(const GFXTextureViewInfo& info)
 {
+    auto textureView = CC_NEW(CCMTLTextureView(this) );
+    if (textureView && textureView->Initialize(info) )
+        return textureView;
     
+    CC_SAFE_DESTROY(textureView);
+    return nullptr;
 }
 
 GFXSampler* CCMTLDevice::CreateGFXSampler(const GFXSamplerInfo& info)
 {
+    auto sampler = CC_NEW(CCMTLSampler(this) );
+    if (sampler && sampler->Initialize(info) )
+        return sampler;
     
+    CC_SAFE_DESTROY(sampler);
+    return sampler;
 }
 
 GFXShader* CCMTLDevice::CreateGFXShader(const GFXShaderInfo& info)
@@ -208,7 +219,7 @@ GFXPipelineLayout* CCMTLDevice::CreateGFXPipelieLayout(const GFXPipelineLayoutIn
 
 void CCMTLDevice::CopyBuffersToTexture(GFXBuffer* src, GFXTexture* dst, const GFXBufferTextureCopyList& regions)
 {
-    
+    static_cast<CCMTLTexture*>(dst)->update(static_cast<CCMTLBuffer*>(src)->getTransferBuffer(), regions[0]);
 }
 
 NS_CC_END

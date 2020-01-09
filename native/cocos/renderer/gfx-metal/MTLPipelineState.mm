@@ -4,6 +4,9 @@
 #include "MTLUtils.h"
 #include "MTLDevice.h"
 #include "MTLBuffer.h"
+#include "MTLTexture.h"
+#include "MTLTextureView.h"
+#include "MTLSampler.h"
 #include "MTLGPUObjects.h"
 
 #import <Metal/MTLVertexDescriptor.h>
@@ -82,7 +85,7 @@ bool CCMTLPipelineState::createGPUPipelineState()
     
     // Application can run with wrong depth/stencil state.
     createMTLDepthStencilState();
-    
+
     _GPUPipelieState->mtlDepthStencilState = _mtlDepthStencilState;
     _GPUPipelieState->mtlRenderPipelineState = _mtlRenderPipelineState;
     _GPUPipelieState->cullMode = mu::toMTLCullMode(rs_.cull_mode);
@@ -94,6 +97,10 @@ bool CCMTLPipelineState::createGPUPipelineState()
     _GPUPipelieState->primitiveType = mu::toMTLPrimitiveType(primitive_);
     _GPUPipelieState->vertexUniformBlocks = &_vertexUniformBlocks;
     _GPUPipelieState->fragmentUniformBlocks = &_fragmentUniformBlocks;
+    _GPUPipelieState->vertexTextureList = &_vertexTextures;
+    _GPUPipelieState->fragmentTextureList = &_fragmentTextures;
+    _GPUPipelieState->vertexSampleStateList = &_vertexSamplerStates;
+    _GPUPipelieState->fragmentSampleStateList = &_fragmentSamplerStates;
     
     return true;
 }
@@ -199,9 +206,6 @@ void CCMTLPipelineState::setFormats(MTLRenderPipelineDescriptor* descriptor)
         ++i;
     }
     
-    //TODO: it is hack here.
-    descriptor.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
-    
     mtlPixelFormat = mu::toMTLPixelFormat(render_pass_->depth_stencil_attachment().format);
     if (mtlPixelFormat != MTLPixelFormatInvalid)
         descriptor.depthAttachmentPixelFormat = mtlPixelFormat;
@@ -254,65 +258,158 @@ bool CCMTLPipelineState::createMTLRenderPipeline(MTLRenderPipelineDescriptor* de
         return false;;
     }
     
-    bindBuffer(reflection);
+    bindLayout(reflection);
     
     return true;
 }
 
-void CCMTLPipelineState::bindBuffer(MTLRenderPipelineReflection* reflection)
+void CCMTLPipelineState::bindLayout(MTLRenderPipelineReflection* reflection)
 {
     // Use uniform names to match a uniform block.
     for (MTLArgument* mtlArgument in reflection.vertexArguments)
     {
-        if (!mtlArgument.isActive ||
-            mtlArgument.type != MTLArgumentTypeBuffer)
-        {
+        if (!mtlArgument.isActive)
             continue;
-        }
         
-        auto bindingInfo = getBufferbinding(mtlArgument);
-        if (std::get<0>(bindingInfo) != UINT_MAX)
+        if (mtlArgument.type == MTLArgumentTypeBuffer)
+            bindBuffer(mtlArgument, true);
+        if (mtlArgument.type == MTLArgumentTypeTexture ||
+            mtlArgument.type == MTLArgumentTypeSampler)
         {
-            _vertexUniformBlocks.push_back({std::get<0>(bindingInfo),
-                                            std::get<1>(bindingInfo),
-                                            nullptr});
+            bindTextureAndSampler(mtlArgument, true);
         }
     }
     
     for (MTLArgument* mtlArgument in reflection.fragmentArguments)
     {
-        if (!mtlArgument.isActive ||
-            mtlArgument.type != MTLArgumentTypeBuffer)
-        {
+        if (!mtlArgument.isActive)
             continue;
-        }
         
-        auto bindingInfo = getBufferbinding(mtlArgument);
-        if (std::get<0>(bindingInfo) != UINT_MAX)
+        if (mtlArgument.type == MTLArgumentTypeBuffer)
+            bindBuffer(mtlArgument, false);
+        
+        if (mtlArgument.type == MTLArgumentTypeTexture ||
+            mtlArgument.type == MTLArgumentTypeSampler)
         {
-                _fragmentUniformBlocks.push_back({std::get<0>(bindingInfo),
-                                                   std::get<1>(bindingInfo),
-                                                   nullptr});
+            bindTextureAndSampler(mtlArgument, false);
         }
     }
 }
 
-std::tuple<uint, uint> CCMTLPipelineState::getBufferbinding(MTLArgument* argument) const
+void CCMTLPipelineState::bindBuffer(MTLArgument* mtlArgument, bool isVertex)
+{
+    auto bindingInfo = getBufferBinding(mtlArgument);
+    if (std::get<0>(bindingInfo) != UINT_MAX)
+    {
+        if (isVertex)
+        {
+            _vertexUniformBlocks.push_back({std::get<0>(bindingInfo),
+                                            std::get<1>(bindingInfo),
+                                            nullptr});
+        }
+        else
+        {
+            _fragmentUniformBlocks.push_back({std::get<0>(bindingInfo),
+                                              std::get<1>(bindingInfo),
+                                              nullptr});
+        }
+    }
+}
+
+std::tuple<uint,uint> CCMTLPipelineState::getBufferBinding(MTLArgument* argument) const
 {
     for (MTLStructMember* member in argument.bufferStructType.members)
     {
-        const char* argumentName = [member.name UTF8String];
+        const char* memberName = [member.name UTF8String];
         for (const auto& block : shader_->blocks() )
         {
             for (const auto& uniform : block.uniforms)
             {
-                if (std::strcmp(argumentName, uniform.name.c_str()) == 0)
+                if (std::strcmp(memberName, uniform.name.c_str()) == 0)
                     return std::make_tuple( (int)argument.index, block.binding);
             }
         }
     }
                     
     return std::make_tuple(UINT_MAX, UINT_MAX);
+}
+
+void CCMTLPipelineState::bindTextureAndSampler(MTLArgument* argument, bool isVertex)
+{
+    if (!layout_)
+        return;
+    
+    const char* argumentName = [argument.name UTF8String];
+    for (auto bindingLayout : layout_->layouts() )
+    {
+        for (const auto& bindingUnit : bindingLayout->binding_units() )
+        {
+            if (bindingUnit.sampler)
+            {
+                if (bindingUnit.name.compare(argumentName) == 0)
+                    bindTexture(argument, bindingUnit.binding, isVertex);
+                if (CCMTLPipelineState::matchSamplerName(argumentName, bindingUnit.name) )
+                    bindSamplerState(argument, bindingUnit.binding, isVertex);
+            }
+        }
+    }
+}
+                    
+bool CCMTLPipelineState::matchSamplerName(const char* argumentName, const std::string& samplerName)
+{
+    std::string newName(samplerName);
+    newName.append("Smplr");
+    return (newName.compare(argumentName) == 0);
+}
+
+void CCMTLPipelineState::bindTexture(MTLArgument* argument, uint originBinding, bool isVertex)
+{
+    for (auto bindingLayout : layout_->layouts() )
+    {
+        for (const auto& bindingUnit : bindingLayout->binding_units() )
+        {
+            if (bindingUnit.tex_view && bindingUnit.binding == originBinding)
+            {
+                if (isVertex)
+                {
+                    _vertexTextures.push_back({(uint)argument.index,
+                                               originBinding,
+                                               static_cast<CCMTLTextureView*>(bindingUnit.tex_view)->getMTLTexture()});
+                }
+                else
+                {
+                    _fragmentTextures.push_back({(uint)argument.index,
+                                                 originBinding,
+                                                 static_cast<CCMTLTextureView*>(bindingUnit.tex_view)->getMTLTexture()});
+                }
+            }
+        }
+    }
+}
+
+void CCMTLPipelineState::bindSamplerState(MTLArgument* argument, uint originBinding, bool isVertex)
+{
+    for (auto bindingLayout : layout_->layouts() )
+    {
+        for (const auto& bindingUnit : bindingLayout->binding_units() )
+        {
+            if (bindingUnit.sampler && bindingUnit.binding == originBinding)
+            {
+                if (isVertex)
+                {
+                    _vertexSamplerStates.push_back({(uint)argument.index,
+                                                    originBinding,
+                                                    static_cast<CCMTLSampler*>(bindingUnit.sampler)->getMTLSamplerState()});
+                }
+                else
+                {
+                    _fragmentSamplerStates.push_back({(uint)argument.index,
+                                                      originBinding,
+                                                      static_cast<CCMTLSampler*>(bindingUnit.sampler)->getMTLSamplerState()});
+                }
+            }
+        }
+    }
 }
 
 NS_CC_END

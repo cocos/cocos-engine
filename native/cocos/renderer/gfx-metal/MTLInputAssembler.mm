@@ -1,6 +1,8 @@
 #include "MTLStd.h"
 #include "MTLInputAssembler.h"
 #include "MTLCommands.h"
+#include "MTLGPUObjects.h"
+#include "MTLBuffer.h"
 
 NS_CC_BEGIN
 
@@ -19,12 +21,24 @@ bool CCMTLInputAssembler::Initialize(const GFXInputAssemblerInfo& info)
     else if (vertex_buffers_.size())
         vertex_count_ = vertex_buffers_[0]->count();
     
+    _GPUInputAssembler = CC_NEW(CCMTLGPUInputAssembler);
+    if (!_GPUInputAssembler)
+        return false;
+    
+    if (info.index_buffer)
+        _GPUInputAssembler->mtlIndexBuffer = static_cast<CCMTLBuffer*>(info.index_buffer)->getMTLBuffer();
+    if (info.indirect_buffer)
+        _GPUInputAssembler->mtlIndirectBuffer = static_cast<CCMTLBuffer*>(info.indirect_buffer)->getMTLBuffer();
+    
+    for (const auto& vertexBuffer : info.vertex_buffers)
+        _GPUInputAssembler->mtlVertexBufers.push_back(static_cast<CCMTLBuffer*>(vertexBuffer)->getMTLBuffer() );
+    
     return true;
 }
 
 void CCMTLInputAssembler::Destroy()
 {
-    
+    CC_SAFE_DELETE(_GPUInputAssembler);
 }
 
 void CCMTLInputAssembler::extractDrawInfo(CCMTLCmdDraw* cmd) const

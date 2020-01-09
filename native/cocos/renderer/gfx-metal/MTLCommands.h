@@ -59,6 +59,12 @@ public:
     virtual void Clear() override {}
 };
 
+class CCMTLCmdCopyBufferToTexture : public GFXCmd
+{
+public:
+    
+};
+
 class CCMTLCommandPackage : public Object
 {
 public:

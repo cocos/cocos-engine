@@ -24,6 +24,7 @@ public:
     CC_INLINE CCMTLGPUPipelineState* getGPUPipelineState() const { return _GPUPipelieState; }
     
 private:
+    static bool matchSamplerName(const char* argumentName, const std::string& samplerName);
     void createMTLDepthStencilState();
     bool createGPUPipelineState();
     bool createMTLRenderPipelineState();
@@ -32,14 +33,22 @@ private:
     void setFormats(MTLRenderPipelineDescriptor*);
     void setBlendStates(MTLRenderPipelineDescriptor*);
     bool createMTLRenderPipeline(MTLRenderPipelineDescriptor*);
-    void bindBuffer(MTLRenderPipelineReflection*);
-    std::tuple<uint,uint> getBufferbinding(MTLArgument*) const;
+    void bindLayout(MTLRenderPipelineReflection*);
+    void bindBuffer(MTLArgument*, bool);
+    std::tuple<uint,uint> getBufferBinding(MTLArgument*) const;
+    void bindTextureAndSampler(MTLArgument*, bool isVertex);
+    void bindTexture(MTLArgument*, uint, bool isVertex);
+    void bindSamplerState(MTLArgument*, uint, bool isVertex);
     
 private:
     id<MTLRenderPipelineState> _mtlRenderPipelineState = nil;
     id<MTLDepthStencilState> _mtlDepthStencilState = nil;
     CCMTLGPUUniformBlockList _vertexUniformBlocks;
     CCMTLGPUUniformBlockList _fragmentUniformBlocks;
+    CCMTLGPUTextureList _vertexTextures;
+    CCMTLGPUTextureList _fragmentTextures;
+    CCMTLGPUSamplerStateList _vertexSamplerStates;
+    CCMTLGPUSamplerStateList _fragmentSamplerStates;
     CCMTLGPUPipelineState* _GPUPipelieState = nullptr;
 };
 

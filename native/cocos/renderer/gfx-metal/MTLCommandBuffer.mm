@@ -84,6 +84,15 @@ void CCMTLCommandBuffer::EndRenderPass()
 {
     _isInRenderPass = false;
     _commandPackage->commandTypes.Push(GFXCmdType::END_RENDER_PASS);
+    
+    // In metal, every render pass will create a new encoder, so should bind state again.
+    _isStateInValid = true;
+    _currentGPUPipelineState = nullptr;
+    _currentPipelineState = nullptr;
+    _currentInputAssembler = nullptr;
+    _currentBindingLayout = nullptr;
+    _isViewportDirty = false;
+    _isScissorDirty = false;
 }
 
 void CCMTLCommandBuffer::BindPipelineState(GFXPipelineState* pso)
@@ -177,9 +186,11 @@ void CCMTLCommandBuffer::Draw(GFXInputAssembler* ia)
         type_ ==  GFXCommandBufferType::SECONDARY)
     {
         CCMTLCmdDraw* cmd = _MTLCommandAllocator->_drawCmdPool.Alloc();
-        if (!cmd) return;
+        if (!cmd)
+            return;
         
-        if (_isStateInValid) bindStates();
+        if (_isStateInValid)
+            bindStates();
         
         static_cast<CCMTLInputAssembler*>(ia)->extractDrawInfo(cmd);
         _commandPackage->drawCmds.Push(cmd);
@@ -211,7 +222,11 @@ void CCMTLCommandBuffer::UpdateBuffer(GFXBuffer* buff, void* data, uint size, ui
 
 void CCMTLCommandBuffer::CopyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GFXTextureLayout layout, GFXBufferTextureCopy* regions, uint count)
 {
-    
+    if ( (type_ == GFXCommandBufferType::PRIMARY && _isInRenderPass) ||
+         (type_ == GFXCommandBufferType::SECONDARY) )
+    {
+        
+    }
 }
 
 void CCMTLCommandBuffer::Execute(GFXCommandBuffer** cmd_buffs, uint count)

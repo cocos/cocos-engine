@@ -113,11 +113,11 @@ std::string Configuration::getInfo() const
 
 void Configuration::gatherGPUInfo()
 {
-    _valueDict["gl.vendor"] = Value((const char*)glGetString(GL_VENDOR));
-    _valueDict["gl.renderer"] = Value((const char*)glGetString(GL_RENDERER));
-
-    const char* version = (const char*)glGetString(GL_VERSION);
-    _valueDict["gl.version"] = Value(version);
+//    _valueDict["gl.vendor"] = Value((const char*)glGetString(GL_VENDOR));
+//    _valueDict["gl.renderer"] = Value((const char*)glGetString(GL_RENDERER));
+//
+//    const char* version = (const char*)glGetString(GL_VERSION);
+//    _valueDict["gl.version"] = Value(version);
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
     if (std::regex_match(version, std::regex("OpenGL ES 3.*"))) {
@@ -125,15 +125,15 @@ void Configuration::gatherGPUInfo()
     }
 #endif
 
-    _glExtensions = (char *)glGetString(GL_EXTENSIONS);
+//    _glExtensions = (char *)glGetString(GL_EXTENSIONS);
 
     _supportsETC2 = checkForETC2();
     _valueDict["gl.supports_ETC2"] = Value(_supportsETC2);
 
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &_maxTextureSize);
+//    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &_maxTextureSize);
     _valueDict["gl.max_texture_size"] = Value((int)_maxTextureSize);
 
-    glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &_maxTextureUnits);
+//    glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &_maxTextureUnits);
     _valueDict["gl.max_texture_units"] = Value((int)_maxTextureUnits);
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
@@ -258,20 +258,20 @@ bool Configuration::supportsETC() const
 
 bool Configuration::checkForETC2() const
 {
-    GLint numFormats = 0;
-    glGetIntegerv(GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numFormats);
-    GLint* formats = new GLint[numFormats];
-    glGetIntegerv(GL_COMPRESSED_TEXTURE_FORMATS, formats);
+//    GLint numFormats = 0;
+//    glGetIntegerv(GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numFormats);
+//    GLint* formats = new GLint[numFormats];
+//    glGetIntegerv(GL_COMPRESSED_TEXTURE_FORMATS, formats);
 
-    int supportNum = 0;
-    for (GLint i = 0; i < numFormats; ++i)
-    {
-        if (formats[i] == GL_COMPRESSED_RGB8_ETC2 || formats[i] == GL_COMPRESSED_RGBA8_ETC2_EAC)
-        supportNum++;
-    }
-    delete [] formats;
+//    int supportNum = 0;
+//    for (GLint i = 0; i < numFormats; ++i)
+//    {
+//        if (formats[i] == GL_COMPRESSED_RGB8_ETC2 || formats[i] == GL_COMPRESSED_RGBA8_ETC2_EAC)
+//        supportNum++;
+//    }
+//    delete [] formats;
 
-    return supportNum >= 2;
+//    return supportNum >= 2;
 }
 
 bool Configuration::supportsETC2() const

@@ -23,7 +23,7 @@ bool CCMTLWindow::Initialize(const GFXWindowInfo& info)
     GFXRenderPassInfo render_pass_info;
     
     GFXColorAttachment color_attachment;
-    color_attachment.format = color_fmt_;
+    color_attachment.format = GFXFormat::BGRA8UN;
     color_attachment.load_op = GFXLoadOp::CLEAR;
     color_attachment.store_op = GFXStoreOp::STORE;
     color_attachment.sample_count = 1;

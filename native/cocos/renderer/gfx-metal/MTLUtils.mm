@@ -66,6 +66,14 @@ namespace mu
         }
     }
     
+    GFXFormat convertGFXPixelFormat(GFXFormat format)
+    {
+        switch (format) {
+            case GFXFormat::RGB8: return GFXFormat::RGBA8;
+            default: return format;
+        }
+    }
+    
     MTLPixelFormat toMTLPixelFormat(GFXFormat format)
     {
         switch (format) {
@@ -78,7 +86,7 @@ namespace mu
             case GFXFormat::R32UI: return MTLPixelFormatR32Uint;
             case GFXFormat::R32I: return MTLPixelFormatR32Sint;
                 
-            case GFXFormat::RG8: return MTLPixelFormatRG8Uint;
+            case GFXFormat::RG8: return MTLPixelFormatRG8Unorm;
             case GFXFormat::RG8SN: return MTLPixelFormatRG8Snorm;
             case GFXFormat::RG8UI: return MTLPixelFormatRG8Uint;
             case GFXFormat::RG8I: return MTLPixelFormatRG8Sint;
@@ -86,8 +94,6 @@ namespace mu
             case GFXFormat::RG16UI: return MTLPixelFormatRG16Uint;
             case GFXFormat::RG16I: return MTLPixelFormatRG16Sint;
                 
-            // RGB should convert to RGBA
-//            case GFXFormat::RGB8: return MTLPixelFormatRGBA8Uint;
 //            case GFXFormat::RGB8SN: return MTLPixelFormatRGBA8Snorm;
 //            case GFXFormat::RGB8UI: return MTLPixelFormatRGBA8Uint;
 //            case GFXFormat::RGB8I: return MTLPixelFormatRGBA8Sint;
@@ -98,7 +104,7 @@ namespace mu
 //            case GFXFormat::RGB32UI: return MTLPixelFormatRGBA32Uint;
 //            case GFXFormat::RGB32I: return MTLPixelFormatRGBA32Sint;
                 
-            case GFXFormat::RGBA8: return MTLPixelFormatRGBA8Uint;
+            case GFXFormat::RGBA8: return MTLPixelFormatRGBA8Unorm;
             case GFXFormat::RGBA8SN: return MTLPixelFormatRGBA8Snorm;
             case GFXFormat::RGBA8UI: return MTLPixelFormatRGBA8Uint;
             case GFXFormat::RGBA8I: return MTLPixelFormatRGBA8Sint;
@@ -108,6 +114,7 @@ namespace mu
             case GFXFormat::RGBA32F: return MTLPixelFormatRGBA32Float;
             case GFXFormat::RGBA32UI: return MTLPixelFormatRGBA32Uint;
             case GFXFormat::RGBA32I: return MTLPixelFormatRGBA32Sint;
+            case GFXFormat::BGRA8UN: return MTLPixelFormatBGRA8Unorm;
                 
             // Should convert.
 //            case GFXFormat::R5G6B5: return MTLPixelFormatB5G6R5Unorm;
@@ -289,6 +296,120 @@ namespace mu
                 CC_ASSERT(false);
                 return MTLPrimitiveTypeTriangle;
             }
+        }
+    }
+    
+    MTLTextureUsage toMTLTextureUsage(GFXTextureUsage usage)
+    {
+        switch (usage) {
+            case GFXTextureUsage::NONE: return MTLTextureUsageUnknown;
+            case GFXTextureUsage::TRANSFER_SRC: return MTLTextureUsageShaderRead;
+            case GFXTextureUsage::TRANSFER_DST: return MTLTextureUsageShaderWrite;
+            case GFXTextureUsage::SAMPLED: return MTLTextureUsageShaderRead | MTLTextureUsagePixelFormatView;
+            case GFXTextureUsage::STORAGE: return MTLTextureUsageShaderWrite;
+            case GFXTextureUsage::COLOR_ATTACHMENT: return MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
+            case GFXTextureUsage::DEPTH_STENCIL_ATTACHMENT: return MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
+            case GFXTextureUsage::TRANSIENT_ATTACHMENT: return MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
+            case GFXTextureUsage::INPUT_ATTACHMENT: return MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
+        }
+    }
+    
+    MTLTextureType toMTLTextureType(GFXTextureType type, uint arrayLength, bool isCube)
+    {
+        bool isArray = arrayLength > 1;
+        switch (type) {
+            case GFXTextureType::TEX1D: return isArray ?
+                                               MTLTextureType1DArray :
+                                               MTLTextureType1D;
+            case GFXTextureType::TEX2D:
+            {
+                if (isArray)
+                {
+                    if (isCube)
+                        return MTLTextureTypeCube;
+                    else
+                        return MTLTextureType2DArray;
+                }
+                else
+                    return MTLTextureType2D;
+            }
+            case GFXTextureType::TEX3D:
+            {
+                if (isArray)
+                    CC_LOG_ERROR("GFXTextureType::TEX3D can not be array. Transfer to GFXTextureType::TEX3D.");
+                
+                return MTLTextureType3D;
+            }
+        }
+    }
+    
+    MTLTextureType toMTLTextureType(GFXTextureViewType type)
+    {
+        switch (type) {
+            case GFXTextureViewType::TV1D:          return MTLTextureType1D;
+            case GFXTextureViewType::TV1D_ARRAY:    return MTLTextureType1DArray;
+            case GFXTextureViewType::TV2D:          return MTLTextureType2D;
+            case GFXTextureViewType::TV2D_ARRAY:    return MTLTextureType2DArray;
+            case GFXTextureViewType::CUBE:          return MTLTextureTypeCube;
+            case GFXTextureViewType::TV3D:          return MTLTextureType3D;
+        }
+    }
+    
+    NSUInteger toMTLSampleCount(GFXSampleCount count)
+    {
+        switch (count) {
+            case GFXSampleCount::X1: return 1;
+            case GFXSampleCount::X2: return 2;
+            case GFXSampleCount::X4: return 4;
+            case GFXSampleCount::X8: return 8;
+            case GFXSampleCount::X16: return 16;
+            case GFXSampleCount::X32: return 32;
+            case GFXSampleCount::X64: return 64;
+        }
+    }
+    
+    MTLSamplerAddressMode toMTLSamplerAddressMode(GFXAddress mode)
+    {
+        switch (mode) {
+            case GFXAddress::WRAP: return MTLSamplerAddressModeRepeat;
+            case GFXAddress::MIRROR: return MTLSamplerAddressModeMirrorRepeat;
+            case GFXAddress::CLAMP: return MTLSamplerAddressModeClampToEdge;
+            case GFXAddress::BORDER: return MTLSamplerAddressModeClampToBorderColor;
+        }
+    }
+    
+    MTLSamplerBorderColor toMTLSamplerBorderColor(const GFXColor& color)
+    {
+        float diff = color.r - 0.5f;
+        if (math::IsEqualF(color.a, 0.f) )
+            return MTLSamplerBorderColorTransparentBlack;
+        else if (math::IsEqualF(diff, 0.f) )
+            return MTLSamplerBorderColorOpaqueBlack;
+        else
+            return MTLSamplerBorderColorOpaqueWhite;
+    }
+    
+    MTLSamplerMinMagFilter toMTLSamplerMinMagFilter(GFXFilter filter)
+    {
+        switch (filter) {
+            case GFXFilter::LINEAR:
+            case GFXFilter::ANISOTROPIC:
+                return MTLSamplerMinMagFilterLinear;
+            default:
+                return MTLSamplerMinMagFilterNearest;
+        }
+    }
+    
+    MTLSamplerMipFilter toMTLSamplerMipFilter(GFXFilter filter)
+    {
+        switch (filter) {
+            case GFXFilter::NONE:
+                return MTLSamplerMipFilterNotMipmapped;
+            case GFXFilter::LINEAR:
+            case GFXFilter::ANISOTROPIC:
+                return MTLSamplerMipFilterLinear;
+            case GFXFilter::POINT:
+                return MTLSamplerMipFilterNearest;
         }
     }
 }
