@@ -1359,6 +1359,18 @@ void GLES2CmdFuncExecuteCmds(GLES2Device* device, GLES2CmdPackage* cmd_package) 
       case GFXCmdType::BIND_STATES: {
         GLES2CmdBindStates* cmd = cmd_package->bind_states_cmds[cmd_idx];
         is_shader_changed = false;
+          
+          if (cache->viewport.left != cmd->viewport.left ||
+              cache->viewport.top != cmd->viewport.top ||
+              cache->viewport.width != cmd->viewport.width ||
+              cache->viewport.height != cmd->viewport.height) {
+              glViewport(cmd->viewport.left, cmd->viewport.top, cmd->viewport.width, cmd->viewport.height);
+              cache->viewport.left = cmd->viewport.left;
+              cache->viewport.top = cmd->viewport.top;
+              cache->viewport.width = cmd->viewport.width;
+              cache->viewport.height = cmd->viewport.height;
+          }
+          
         if (cmd->gpu_pso) {
           gpu_pso = cmd->gpu_pso;
           gl_primitive = gpu_pso->gl_primitive;
@@ -1433,8 +1445,6 @@ void GLES2CmdFuncExecuteCmds(GLES2Device* device, GLES2CmdPackage* cmd_package) 
         }
         
         // bind depth-stencil state - front
-        if (cache->dss.stencil_test_front != gpu_pso->dss.stencil_test_front ||
-            cache->dss.stencil_test_back != gpu_pso->dss.stencil_test_back) {
           if (gpu_pso->dss.stencil_test_front || gpu_pso->dss.stencil_test_back) {
             if (!cache->is_stencil_test_enabled) {
               glEnable(GL_STENCIL_TEST);
@@ -1446,7 +1456,6 @@ void GLES2CmdFuncExecuteCmds(GLES2Device* device, GLES2CmdPackage* cmd_package) 
               cache->is_stencil_test_enabled = false;
             }
           }
-        }
         if (cache->dss.stencil_func_front != gpu_pso->dss.stencil_func_front ||
             cache->dss.stencil_ref_front != gpu_pso->dss.stencil_ref_front ||
             cache->dss.stencil_read_mask_front != gpu_pso->dss.stencil_read_mask_front) {
@@ -1473,7 +1482,7 @@ void GLES2CmdFuncExecuteCmds(GLES2Device* device, GLES2CmdPackage* cmd_package) 
             cache->dss.stencil_ref_back != gpu_pso->dss.stencil_ref_back ||
             cache->dss.stencil_read_mask_back != gpu_pso->dss.stencil_read_mask_back) {
           glStencilFuncSeparate(GL_BACK,
-                                GLES2_CMP_FUNCS[(int)gpu_pso->dss.stencil_func_front],
+                                GLES2_CMP_FUNCS[(int)gpu_pso->dss.stencil_func_back],
                                 gpu_pso->dss.stencil_ref_back,
                                 gpu_pso->dss.stencil_read_mask_back);
         }

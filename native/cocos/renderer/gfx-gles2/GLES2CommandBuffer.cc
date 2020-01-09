@@ -79,7 +79,10 @@ void GLES2CommandBuffer::BeginRenderPass(GFXFramebuffer* fbo, const GFXRect& ren
   }
   cmd->clear_depth = depth;
   cmd->clear_stencil = stencil;
-
+    cur_viewport_.left = render_area.x;
+    cur_viewport_.top = render_area.y;
+    cur_viewport_.width = render_area.width;
+    cur_viewport_.height = render_area.height;
   cmd_package_->begin_render_pass_cmds.Push(cmd);
   cmd_package_->cmd_types.Push(GFXCmdType::BEGIN_RENDER_PASS);
 }

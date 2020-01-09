@@ -25,7 +25,7 @@ class GLES2StateCache : public Object {
   GFXRasterizerState rs;
   GFXDepthStencilState dss;
   GFXBlendState bs;
-  bool is_cull_face_enabled = false;
+  bool is_cull_face_enabled = true;
   bool is_stencil_test_enabled = false;
 
   GLES2StateCache() {}
