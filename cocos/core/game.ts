@@ -854,7 +854,7 @@ export class Game extends EventTarget {
         if (this.renderType === Game.RENDER_TYPE_WEBGL) {
             let useWebGL2 = (!!window.WebGL2RenderingContext);
 
-            const userAgent = navigator.userAgent.toLowerCase();
+            const userAgent = window.navigator.userAgent.toLowerCase();
             if (userAgent.indexOf('safari') !== -1) {
                 if (userAgent.indexOf('chrome') === -1) {
                     useWebGL2 = false;
