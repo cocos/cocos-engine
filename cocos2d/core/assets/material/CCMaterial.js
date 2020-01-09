@@ -186,8 +186,10 @@ let Material = cc.Class({
      * @method setProperty
      * @param {string} name
      * @param {Object} val
+     * @param {number} [passIdx]
+     * @param {boolean} [directly]
      */
-    setProperty (name, val, passIdx) {
+    setProperty (name, val, passIdx, directly) {
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) return;
 
         if (typeof passIdx === 'string') {
@@ -213,7 +215,7 @@ let Material = cc.Class({
             }
         }
 
-        this._effect.setProperty(name, val, passIdx);
+        this._effect.setProperty(name, val, passIdx, directly);
     },
 
     /**

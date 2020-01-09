@@ -39,7 +39,7 @@ export default class EffectBase {
         return uniform;
     }
 
-    _setPassProperty (name, value, pass) {
+    _setPassProperty (name, value, pass, directly) {
         let properties = pass._properties;
         let uniform = properties.hasOwnProperty(name);
         if (!uniform) {
@@ -48,10 +48,10 @@ export default class EffectBase {
         else if (uniform.value === value) return;
 
         this._dirty = true;
-        return Pass.prototype.setProperty.call(pass, name, value);
+        return Pass.prototype.setProperty.call(pass, name, value, directly);
     }
 
-    setProperty (name, value, passIdx) {
+    setProperty (name, value, passIdx, directly) {
         let success = false;
         let passes = this.passes;
         let start = 0, end = passes.length;
@@ -59,7 +59,7 @@ export default class EffectBase {
             start = passIdx, end = passIdx + 1;
         }
         for (let i = start; i < end; i++) {
-            if (this._setPassProperty(name, value, passes[i])) {
+            if (this._setPassProperty(name, value, passes[i], directly)) {
                 success = true;
             }
         }
