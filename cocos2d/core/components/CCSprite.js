@@ -232,6 +232,7 @@ var Sprite = cc.Class({
             set (value) {
                 if (this._type !== value) {
                     this._type = value;
+                    this.setVertsDirty();
                     this._resetAssembler();
                 }
             },
