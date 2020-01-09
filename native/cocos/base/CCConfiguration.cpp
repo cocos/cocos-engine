@@ -120,6 +120,8 @@ void Configuration::gatherGPUInfo()
 //    _valueDict["gl.version"] = Value(version);
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+    const char* version = (const char*)glGetString(GL_VERSION);
+    _valueDict["gl.version"] = Value(version);
     if (std::regex_match(version, std::regex("OpenGL ES 3.*"))) {
         _isOpenglES3 = true;
     }
