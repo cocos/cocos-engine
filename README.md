@@ -1,5 +1,7 @@
 <p align="center">
-    <img src="https://user-images.githubusercontent.com/1503156/50446380-ad88c980-094f-11e9-8eff-0094bde708d0.png">
+    <a href="https://www.cocos.com/">
+        <img src="https://user-images.githubusercontent.com/1503156/50446380-ad88c980-094f-11e9-8eff-0094bde708d0.png">
+    </a>
 </p>
 <p align="center">
     <a href="https://github.com/cocos-creator/engine/stargazers">
