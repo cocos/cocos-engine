@@ -33,17 +33,16 @@ import { AnimationBlendState, PropertyBlendState } from './animation-blend-state
 import { AnimationClip, IRuntimeCurve } from './animation-clip';
 import { AnimCurve, RatioSampler } from './animation-curve';
 import { additive3D, additiveQuat, BlendFunction } from './blending';
-import { Playable } from './playable';
 import { BoundTarget, BufferedTarget } from './bound-target';
+import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
-import { warn } from '../platform';
 
 enum PropertySpecialization {
     NodePosition,
     NodeScale,
     NodeRotation,
     None,
-};
+}
 
 export class ICurveInstance {
     public commonTargetIndex?: number;
@@ -114,7 +113,7 @@ export class ICurveInstance {
             return;
         }
         let value: any;
-        if (!lerpRequired) {
+        if (!this._curve.hasLerp() || !lerpRequired) {
             value = this._curve.valueAt(index);
         } else {
             value = this._curve.valueBetween(
@@ -646,18 +645,9 @@ export class AnimationState extends Playable {
     }
 
     public simpleProcess () {
-        let time = this.time;
         const duration = this.duration;
-
-        if (time > duration) {
-            time = time % duration;
-            if (time === 0) { time = duration; }
-        }
-        else if (time < 0) {
-            time = time % duration;
-            if (time !== 0) { time += duration; }
-        }
-
+        let time = this.time % duration;
+        if (time < 0) { time += duration; }
         const ratio = time / duration;
         this._sampleCurves(ratio);
 
@@ -727,14 +717,14 @@ export class AnimationState extends Playable {
         this.emit('pause', this);
     }
 
-    private _sampleCurves (ratio: number) {
+    protected _sampleCurves (ratio: number) {
         // Before we sample, we pull values of common targets.
         for (let iCommonTarget = 0; iCommonTarget < this._commonTargetStatuses.length; ++iCommonTarget) {
             const commonTarget = this._commonTargetStatuses[iCommonTarget];
             commonTarget.target.pull();
             commonTarget.changed = false;
         }
-        
+
         for (let iSamplerSharedGroup = 0, szSamplerSharedGroup = this._samplerSharedGroups.length;
             iSamplerSharedGroup < szSamplerSharedGroup; ++iSamplerSharedGroup) {
             const samplerSharedGroup = this._samplerSharedGroups[iSamplerSharedGroup];

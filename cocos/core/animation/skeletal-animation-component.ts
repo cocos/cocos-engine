@@ -79,8 +79,6 @@ export class SkeletalAnimationComponent extends AnimationComponent {
 
     protected _enablePreSample = true;
 
-    protected _animMgr: JointsAnimationInfo = null!;
-
     @property({
         type: [Socket],
         tooltip: 'Joint Sockets',
@@ -101,31 +99,9 @@ export class SkeletalAnimationComponent extends AnimationComponent {
         return this._enablePreSample;
     }
 
-    protected _animInfo: IAnimInfo | null = null;
-
-    set frameID (fid: number) {
-        const info = this._animInfo;
-        if (!info) { return; }
-        info.data[1] = fid;
-        info.dirty = true;
-    }
-    get frameID () {
-        const info = this._animInfo;
-        return info && info.data[1] || 0;
-    }
-
-    public onLoad () {
-        super.onLoad();
-        this._animMgr = cc.director.root.dataPoolManager.jointsAnimationInfo;
-        this._animInfo = this._animMgr.create(this.node.uuid);
-    }
-
     public onDestroy () {
-        if (this._animInfo) {
-            this._animMgr.destroy(this.node.uuid);
-            this._animInfo = null;
-        }
         super.onDestroy();
+        cc.director.root.dataPoolManager.jointsAnimationInfo.destroy(this.node.uuid);
     }
 
     public start () {

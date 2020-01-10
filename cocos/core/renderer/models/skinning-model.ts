@@ -52,7 +52,7 @@ interface IJointsInfo {
 
 export class SkinningModel extends Model {
 
-    public uploadedAnim: AnimationClip | null = null;
+    public uploadedAnim: AnimationClip | null | undefined = undefined; // uninitialized
 
     private _jointsMedium: IJointsInfo;
     private _skeleton: Skeleton | null = null;
@@ -120,7 +120,7 @@ export class SkinningModel extends Model {
     }
 
     public uploadAnimation (anim: AnimationClip | null) {
-        if (!this._skeleton || !this._mesh) { return; }
+        if (!this._skeleton || !this._mesh || this.uploadedAnim === anim) { return; }
         this.uploadedAnim = anim;
         const resMgr = this._dataPoolManager;
         const texture = anim ? resMgr.jointsTexturePool.getJointsTextureWithAnimation(this._skeleton, anim) :

@@ -27,12 +27,10 @@
  * @category animation
  */
 
-import { Mat4, Quat, Vec3 } from '../math';
+import { clamp01, Mat4, Quat, Vec3 } from '../math';
 import { DataPoolManager } from '../renderer/data-pool-manager';
-import { getClassName } from '../utils/js';
-import { AnimationClip, IObjectCurveData, IRuntimeCurve } from './animation-clip';
-import { AnimCurve, RatioSampler } from './animation-curve';
-import { ComponentPath, HierarchyPath, isCustomPath, isPropertyPath } from './target-path';
+import { AnimationClip, IObjectCurveData } from './animation-clip';
+import { HierarchyPath, isCustomPath, isPropertyPath } from './target-path';
 
 type CurveData = Vec3 | Quat | Mat4;
 type ConvertedProps = Record<string, IPropertyCurve>;
@@ -42,7 +40,6 @@ interface IPropertyCurve {
     values: CurveData[];
 }
 interface ISkeletalCurveInfo {
-    curves: IRuntimeCurve[];
     frames: number;
     sample: number;
 }
@@ -110,26 +107,15 @@ function convertToSkeletalCurves (clip: AnimationClip): IConvertedData {
             },
         });
     }
-    const values: number[] = new Array(frames); const ratios: number[] = new Array(frames);
-    for (let i = 0; i < frames; i++) { values[i] = i; ratios[i] = i / (frames - 1); }
     const info: ISkeletalCurveInfo = {
         frames,
         sample: clip.sample,
-        curves: [{
-            curve: new AnimCurve({ values, interpolate: false }, (frames - 1) / clip.sample),
-            modifiers: [
-                new HierarchyPath(''),
-                new ComponentPath(getClassName(cc.SkeletalAnimationComponent)),
-                'frameID',
-            ],
-            sampler: new RatioSampler(ratios),
-        }],
     };
     return { info, data };
 }
 
 function convertToUniformSample (clip: AnimationClip, curve: IPropertyCurve, frames: number) {
-    const keys = clip.keys[curve.keys]; curve.keys = 0;
+    const keys = clip.keys[curve.keys];
     const values: CurveData[] = [];
     if (!keys || keys.length === 1) {
         for (let i = 0; i < frames; i++) {
@@ -142,7 +128,7 @@ function convertToUniformSample (clip: AnimationClip, curve: IPropertyCurve, fra
            if (idx > keys.length - 1) { idx = keys.length - 1; time = keys[idx]; }
            else if (idx === 0) { idx = 1; }
            const from = curve.values[idx - 1].clone() as any;
-           from.lerp(curve.values[idx], (time - keys[idx - 1]) / (keys[idx] - keys[idx - 1]));
+           from.lerp(curve.values[idx], clamp01((time - keys[idx - 1]) / (keys[idx] - keys[idx - 1])));
            values[i] = from;
        }
     }
