@@ -159,7 +159,7 @@ var eventManager = {
                 listeners[i]._setPaused(true);
         }
         if (recursive === true) {
-            var locChildren = node.children;
+            var locChildren = node._children;
             for (i = 0, len = locChildren ? locChildren.length : 0; i < len; i++)
                 this.pauseTarget(locChildren[i], true);
         }
@@ -183,8 +183,8 @@ var eventManager = {
                 listeners[i]._setPaused(false);
         }
         this._setDirtyForNode(node);
-        if (recursive === true && node.children) {
-            var locChildren = node.children;
+        if (recursive === true) {
+            var locChildren = node._children;
             for (i = 0, len = locChildren ? locChildren.length : 0; i < len; i++)
                 this.resumeTarget(locChildren[i], true);
         }
