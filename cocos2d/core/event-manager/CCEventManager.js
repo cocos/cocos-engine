@@ -136,8 +136,9 @@ var eventManager = {
             }
         }
         if (node.childrenCount > 0) {
-            for(let i = 0, len = node.childrenCount; i < len; i++)
-                this._setDirtyForNode(node.children[i]);
+            let children = node._children;
+            for(let i = 0, len = children.length; i < len; i++)
+                this._setDirtyForNode(children[i]);
         }
     },
 

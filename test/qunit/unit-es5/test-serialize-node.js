@@ -94,7 +94,7 @@ if (TestEditorExtends) {
         if (node1.childrenCount > 0) {
             var children = node1._children;
             for (var j = 0; j < children.length; ++j) {
-                compare2Nodes(children[j], node2._children)[j], 'The children content should be equal between two nodes.');
+                compare2Nodes(children[j], node2._children[j], 'The children content should be equal between two nodes.');
             }
         }
     }
