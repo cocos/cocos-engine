@@ -128,17 +128,16 @@ var eventManager = {
         // Mark the node dirty only when there is an event listener associated with it.
         let selListeners = this._nodeListenersMap[node._id];
         if (selListeners !== undefined) {
-            for (var j = 0, len = selListeners.length; j < len; j++) {
+            for (let j = 0, len = selListeners.length; j < len; j++) {
                 let selListener = selListeners[j];
                 let listenerID = selListener._getListenerID();
                 if (this._dirtyListeners[listenerID] == null)
                     this._dirtyListeners[listenerID] = true;
             }
         }
-        if (node.getChildren) {
-            var _children = node.getChildren();
-            for(var i = 0, len = _children ? _children.length : 0; i < len; i++)
-                this._setDirtyForNode(_children[i]);
+        if (node.childrenCount > 0) {
+            for(let i = 0, len = node.childrenCount; i < len; i++)
+                this._setDirtyForNode(node.children[i]);
         }
     },
 
@@ -160,7 +159,7 @@ var eventManager = {
                 listeners[i]._setPaused(true);
         }
         if (recursive === true) {
-            var locChildren = node.getChildren();
+            var locChildren = node.children;
             for (i = 0, len = locChildren ? locChildren.length : 0; i < len; i++)
                 this.pauseTarget(locChildren[i], true);
         }
@@ -185,7 +184,7 @@ var eventManager = {
         }
         this._setDirtyForNode(node);
         if (recursive === true && node.getChildren) {
-            var locChildren = node.getChildren();
+            var locChildren = node.children;
             for (i = 0, len = locChildren ? locChildren.length : 0; i < len; i++)
                 this.resumeTarget(locChildren[i], true);
         }
@@ -906,7 +905,7 @@ var eventManager = {
             }
 
             if (recursive === true) {
-                var locChildren = listenerType.getChildren(), len;
+                var locChildren = listenerType.children, len;
                 for (i = 0, len = locChildren.length; i< len; i++)
                     _t.removeListeners(locChildren[i], true);
             }

@@ -90,11 +90,10 @@ if (TestEditorExtends) {
             equal(node1.key, node2.key, '"' + key + '" should be equal between two nodes.');
         }
 
-        equal(node1.getChildrenCount(), node2.getChildrenCount(), 'The children count should be equal between two nodes.');
-        if (node1.getChildrenCount() > 0) {
-            var children = node1.getChildren();
+        equal(node1.childrenCount, node2.childrenCount, 'The children count should be equal between two nodes.');
+        if (node1.childrenCount > 0) {
             for (var j = 0; j < children.length; ++j) {
-                compare2Nodes(children[j], node2.getChildren()[j], 'The children content should be equal between two nodes.');
+                compare2Nodes(node1.children[j], node2.children)[j], 'The children content should be equal between two nodes.');
             }
         }
     }
