@@ -717,7 +717,7 @@ function initSys () {
         sys.os = __getOS();
         sys.language = __getCurrentLanguage();
         var languageCode; 
-        if (CC_JSB || CC_RUNTIME) {
+        if (CC_JSB) {
             languageCode = __getCurrentLanguageCode();
         }
         sys.languageCode = languageCode ? languageCode.toLowerCase() : undefined;
