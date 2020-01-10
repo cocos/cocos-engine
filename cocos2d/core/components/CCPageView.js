@@ -563,23 +563,22 @@ var PageView = cc.Class({
 
     _autoScrollToPage: function () {
         var bounceBackStarted = this._startBounceBackIfNeeded();
-        var moveOffset = this._touchBeganPosition.sub(this._touchEndPosition);
         if (bounceBackStarted) {
-            var dragDirection = this._getDragDirection(moveOffset);
-            if (dragDirection === 0) {
-                return;
+            let bounceBackAmount = this._getHowMuchOutOfBoundary();
+            bounceBackAmount = this._clampDelta(bounceBackAmount);
+            if (bounceBackAmount.x > 0 || bounceBackAmount.y < 0) {
+                this._curPageIdx = this._pages.length - 1
             }
-            if (dragDirection > 0) {
-                this._curPageIdx = this._pages.length - 1;
+            if (bounceBackAmount.x < 0 || bounceBackAmount.y > 0) {
+                this._curPageIdx = 0
             }
-            else {
-                this._curPageIdx = 0;
-            }
+
             if (this.indicator) {
                 this.indicator._changedState();
             }
         }
         else {
+            var moveOffset = this._touchBeganPosition.sub(this._touchEndPosition);
             var index = this._curPageIdx, nextIndex = index + this._getDragDirection(moveOffset);
             var timeInSecond = this.pageTurningSpeed * Math.abs(index - nextIndex);
             if (nextIndex < this._pages.length) {

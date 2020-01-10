@@ -432,14 +432,14 @@ var game = {
      * @typescript
      * on<T extends Function>(type: string, callback: T, target?: any, useCapture?: boolean): T
      */
-    on (type, callback, target) {
+    on (type, callback, target, once) {
         // Make sure EVENT_ENGINE_INITED and EVENT_GAME_INITED callbacks to be invoked
         if ((this._prepared && type === this.EVENT_ENGINE_INITED) ||
             (!this._paused && type === this.EVENT_GAME_INITED)) {
             callback.call(target);
         }
         else {
-            this.eventTargetOn(type, callback, target);
+            this.eventTargetOn(type, callback, target, once);
         }
     },
     /**

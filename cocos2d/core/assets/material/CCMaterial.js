@@ -186,8 +186,10 @@ let Material = cc.Class({
      * @method setProperty
      * @param {string} name
      * @param {Object} val
+     * @param {number} [passIdx]
+     * @param {boolean} [directly]
      */
-    setProperty (name, val, passIdx) {
+    setProperty (name, val, passIdx, directly) {
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) return;
 
         if (typeof passIdx === 'string') {
@@ -196,12 +198,12 @@ let Material = cc.Class({
 
         if (val instanceof Texture) {
             let format = val.getPixelFormat();
-            if (format === PixelFormat.RGBA_ETC1 ||
-                format === PixelFormat.RGB_A_PVRTC_4BPPV1 ||
-                format === PixelFormat.RGB_A_PVRTC_2BPPV1) {
-                this.define('CC_USE_ALPHA_ATLAS_' + name.toUpperCase(), true);
+            let value = (format === PixelFormat.RGBA_ETC1 || format === PixelFormat.RGB_A_PVRTC_4BPPV1 || format === PixelFormat.RGB_A_PVRTC_2BPPV1);
+            let key = 'CC_USE_ALPHA_ATLAS_' + name.toUpperCase();
+            let def = this.getDefine(key, passIdx);
+            if (value || def) {
+                this.define(key, value);
             }
-
             function loaded () {
                 this._effect.setProperty(name, val, passIdx);
             }
@@ -213,7 +215,7 @@ let Material = cc.Class({
             }
         }
 
-        this._effect.setProperty(name, val, passIdx);
+        this._effect.setProperty(name, val, passIdx, directly);
     },
 
     /**

@@ -138,6 +138,8 @@ export function MeshData () {
     this.ib = null;
     this.vDirty = false;
     this.iDirty = false;
+
+    this.enable = true;
 }
 
 MeshData.prototype.getVData = function (format) {

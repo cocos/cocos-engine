@@ -27,6 +27,7 @@
 import ValueType from './value-type';
 import CCClass from '../platform/CCClass';
 import misc from '../utils/misc';
+
 import { IColorLike } from './math';
 
 /**
@@ -819,6 +820,22 @@ export default class Color extends ValueType {
 
     _fastSetA (alpha) {
         this._val = ((this._val & 0x00ffffff) | (alpha << 24)) >>> 0;
+    }
+
+    /**
+     * !#en Multiplies the current color by the specified color
+     * !#zh 将当前颜色乘以与指定颜色
+     * @method multiply
+     * @return {Color}
+     * @param {Color} other
+     */
+    multiply (other: Color) {
+        let r = ((this._val & 0x000000ff) * other.r) >> 8;
+        let g = ((this._val & 0x0000ff00) * other.g) >> 8;
+        let b = ((this._val & 0x00ff0000) * other.b) >> 8;
+        let a = ((this._val & 0xff000000) >>> 8) * other.a;
+        this._val = (a & 0xff000000) | (b & 0x00ff0000) | (g & 0x0000ff00) | (r & 0x000000ff);
+        return this;
     }
 }
 

@@ -232,6 +232,7 @@ var Sprite = cc.Class({
             set (value) {
                 if (this._type !== value) {
                     this._type = value;
+                    this.setVertsDirty();
                     this._resetAssembler();
                 }
             },
@@ -257,6 +258,7 @@ var Sprite = cc.Class({
             set (value) {
                 if (value !== this._fillType) {
                     this._fillType = value;
+                    this.setVertsDirty();
                     this._resetAssembler();
                 }
             },
