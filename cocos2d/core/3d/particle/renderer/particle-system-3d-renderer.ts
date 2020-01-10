@@ -333,6 +333,8 @@ export default class ParticleSystem3DAssembler extends Assembler {
             mat = MaterialVariant.create(mat, this._particleSystem);
         }
 
+        mat = this._particleSystem.setMaterial(0, mat);
+
         if (this._particleSystem._simulationSpace === Space.World) {
             mat.define(CC_USE_WORLD_SPACE, true);
         } else {
@@ -380,8 +382,6 @@ export default class ParticleSystem3DAssembler extends Assembler {
         }
 
         mat.setProperty('frameTile_velLenScale', this.frameTile_velLenScale);
-
-        this._particleSystem.setMaterial(0, mat);
     }
 
     _updateTrailMaterial () {
