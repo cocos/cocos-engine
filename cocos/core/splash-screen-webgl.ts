@@ -1,6 +1,7 @@
 import { IGFXColor } from "./gfx";
 import { clamp01 } from "./math";
 import { easing } from "./animation";
+import { macro } from "./platform";
 
 type SplashEffectType = 'none' | 'Fade-InOut';
 
@@ -152,15 +153,26 @@ export class SplashScreenWebgl {
                     useWebGL2 = false;
                 }
             }
+            const webGLCtxAttribs: WebGLContextAttributes = {
+                alpha: macro.ENABLE_TRANSPARENT_CANVAS,
+                antialias: true,
+                depth: true,
+                stencil: true,
+                premultipliedAlpha: true,
+                preserveDrawingBuffer: false,
+                powerPreference: 'default',
+                failIfMajorPerformanceCaveat: false,
+            };
+
             let gl: WebGLRenderingContext | null = null;
             let gl2: WebGL2RenderingContext | null = null;
             if (useWebGL2 && cc.WebGL2GFXDevice) {
-                gl2 = canvas.getContext('webgl2') as WebGL2RenderingContext;
+                gl2 = canvas.getContext('webgl2', webGLCtxAttribs) as WebGL2RenderingContext;
                 if (gl2 == null) {
-                    gl = canvas.getContext('webgl') as WebGLRenderingContext;
+                    gl = canvas.getContext('webgl', webGLCtxAttribs) as WebGLRenderingContext;
                 }
             } else {
-                gl = canvas.getContext('webgl') as WebGLRenderingContext;
+                gl = canvas.getContext('webgl', webGLCtxAttribs) as WebGLRenderingContext;
             }
 
             if (gl == null && gl2 == null) {
