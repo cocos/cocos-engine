@@ -275,9 +275,16 @@ AABB.prototype.overlaps = function(aabb){
     // |--------|
     // l1       u1
 
-    var overlapsX = ((l2.x <= u1.x && u1.x <= u2.x) || (l1.x <= u2.x && u2.x <= u1.x));
-    var overlapsY = ((l2.y <= u1.y && u1.y <= u2.y) || (l1.y <= u2.y && u2.y <= u1.y));
-    var overlapsZ = ((l2.z <= u1.z && u1.z <= u2.z) || (l1.z <= u2.z && u2.z <= u1.z));
+    // no consider contain case
+    // let overlapsX = ((l2.x <= u1.x && u1.x <= u2.x) || (l1.x <= u2.x && u2.x <= u1.x));
+    // let overlapsY = ((l2.y <= u1.y && u1.y <= u2.y) || (l1.y <= u2.y && u2.y <= u1.y));
+    // let overlapsZ = ((l2.z <= u1.z && u1.z <= u2.z) || (l1.z <= u2.z && u2.z <= u1.z));
+
+    // overlaps must consider contain case
+    // or ray cast may miss
+    let overlapsX = l2.x <= u1.x && l1.x <= u2.x;
+    let overlapsY = l2.y <= u1.y && l1.y <= u2.y;
+    let overlapsZ = l2.z <= u1.z && l1.z <= u2.z;
 
     return overlapsX && overlapsY && overlapsZ;
 };
@@ -14466,7 +14473,7 @@ World.prototype.emitTriggeredEvents = function () {
     this.shapeOverlapKeeperExit.getDiff(additions, removals);
 
     for (var i = 0, l = removals.length; i < l; i += 2) {
-        triggeredEvent.event = 'onTriggerExit';
+        triggeredEvent.event = 'trigger-exit';
         var shapeA = this.getShapeById(removals[i]);
         var shapeB = this.getShapeById(removals[i + 1]);
         // if(!shapeA.body.isSleeping || !shapeB.body.isSleeping){
@@ -14495,10 +14502,10 @@ World.prototype.emitTriggeredEvents = function () {
         if (!shapeA || !shapeB) continue;
         
         if (this.triggerMatrix.get(shapeA, shapeB)) {
-            triggeredEvent.event = 'onTriggerStay';
+            triggeredEvent.event = 'trigger-stay';
         } else {
             this.triggerMatrix.set(shapeA, shapeB, true);
-            triggeredEvent.event = 'onTriggerEnter';
+            triggeredEvent.event = 'trigger-enter';
         }
         triggeredEvent.selfShape = shapeA;
         triggeredEvent.otherShape = shapeB;
@@ -14583,12 +14590,12 @@ World.prototype.emitCollisionEvents = function () {
         // Now we know that i and j are in contact. Set collision matrix state		
         if (this.collisionMatrix.get(bi, bj)) {
             // collision stay
-            World_step_collideEvent.event = 'onCollisionStay';
+            World_step_collideEvent.event = 'collision-stay';
 
         } else {
             this.collisionMatrix.set(bi, bj, true);
             // collision enter
-            World_step_collideEvent.event = 'onCollisionEnter';
+            World_step_collideEvent.event = 'collision-enter';
         }
 
         if (DEBUG){
@@ -14641,7 +14648,7 @@ World.prototype.emitCollisionEvents = function () {
                     }
             
                     // collision exit
-                    World_step_collideEvent.event = 'onCollisionExit';
+                    World_step_collideEvent.event = 'collision-exit';
                     World_step_collideEvent.body = sj.body;
                     World_step_collideEvent.selfShape = si;
                     World_step_collideEvent.otherShape = sj;

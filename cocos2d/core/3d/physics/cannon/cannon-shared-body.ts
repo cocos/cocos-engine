@@ -43,7 +43,7 @@ const v3_0 = new Vec3();
 const quat_0 = new Quat();
 const contactsPool = [] as any;
 const CollisionEventObject = {
-    type: 'onCollisionEnter' as CollisionEventType,
+    type: 'collision-enter' as CollisionEventType,
     selfCollider: null as Collider3D | null,
     otherCollider: null as Collider3D | null,
     contacts: [] as any,
@@ -149,7 +149,9 @@ export class CannonSharedBody {
     syncSceneToPhysics (force: boolean = false) {
         let node = this.node;
         let needUpdateTransform = updateWorldTransform(node, force);
-        if (!force && !needUpdateTransform) return;
+        if (!force && !needUpdateTransform) {
+            return;
+        }
 
         Vec3.copy(this.body.position, node.__wpos);
         Quat.copy(this.body.quaternion, node.__wrot);
@@ -164,6 +166,9 @@ export class CannonSharedBody {
         if (this.body.isSleeping()) {
             this.body.wakeUp();
         }
+
+        // body world aabb need to be recalculated
+        this.body.aabbNeedsUpdate = true;
     }
 
     syncPhysicsToScene () {

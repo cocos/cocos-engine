@@ -35,7 +35,7 @@ import { TriggerEventType } from '../../framework/physics-interface';
 import { Collider3D } from '../../framework';
 
 const TriggerEventObject = {
-    type: 'onTriggerEnter' as TriggerEventType,
+    type: 'trigger-enter' as TriggerEventType,
     selfCollider: null as Collider3D | null,
     otherCollider: null as Collider3D | null,
 };

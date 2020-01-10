@@ -2,7 +2,14 @@
   {
     "name": "Core",
     "locked": true,
-    "entries": []
+    "entries": [],
+    "internal/resources": [
+      "builtin-2d-gray-sprite",
+      "builtin-2d-sprite",
+      "builtin-clear-stencil",
+      "builtin-unlit",
+      "builtin-2d-base"
+    ]
   },
   {
     "name": "Canvas",
@@ -244,6 +251,9 @@
     "entries": [
       "./extensions/spine/index.js"
     ],
+    "internal/resources": [
+      "builtin-2d-spine"
+    ],
     "dependencies": ["WebGL Renderer"]
   },
   {
@@ -374,6 +384,10 @@
     "entries": [
       "./cocos2d/core/3d/particle/particle-system-3d.ts",
       "./cocos2d/core/3d/particle/renderer/particle-system-3d-renderer.ts"
+    ],
+    "internal/resources": [
+      "builtin-3d-particle",
+      "builtin-3d-particle-trail"
     ],
     "dependencies": ["3D"]
   }
