@@ -25,40 +25,40 @@
 
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.CANNON=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 module.exports={
-    "name": "@cocos/cannon",
-    "version": "1.0.3",
-    "description": "A lightweight 3D physics engine written in JavaScript.",
-    "homepage": "https://github.com/cocos-creator/cannon.js",
-    "author": "Stefan Hedman <schteppe@gmail.com> (http://steffe.se), JayceLai",
-    "keywords": [
+  "name": "@cocos/cannon",
+  "version": "1.0.3",
+  "description": "A lightweight 3D physics engine written in JavaScript.",
+  "homepage": "https://github.com/cocos-creator/cannon.js",
+  "author": "Stefan Hedman <schteppe@gmail.com> (http://steffe.se), JayceLai",
+  "keywords": [
     "cannon",
     "cocos",
     "creator",
     "physics",
     "engine",
     "3d"
-    ],
-    "scripts": {
+  ],
+  "scripts": {
     "build":"grunt && npm run preprocess && grunt addLicense && grunt addDate",
     "preprocess":"node node_modules/uglify-js/bin/uglifyjs build/cannon.js -o build/cannon.min.js -d doProfiling=false,DEBUG=false -c -m"
-    },
-    "main": "./build/cannon.min.js",
-    "engines": {
+  },
+  "main": "./build/cannon.min.js",
+  "engines": {
     "node": "*"
-    },
-    "repository": {
+  },
+  "repository": {
     "type": "git",
     "url": "https://github.com/cocos-creator/cannon.js.git"
-    },
-    "bugs": {
+  },
+  "bugs": {
     "url": "https://github.com/cocos-creator/cannon.js/issues"
-    },
-    "licenses": [
+  },
+  "licenses": [
     {
-        "type": "MIT"
+      "type": "MIT"
     }
-    ],
-    "devDependencies": {
+  ],
+  "devDependencies": {
     "jshint": "latest",
     "uglify-js": "latest",
     "nodeunit": "^0.9.0",
@@ -70,8 +70,8 @@ module.exports={
     "grunt-browserify": "^2.1.4",
     "grunt-contrib-yuidoc": "^0.5.2",
     "browserify": "*"
-    },
-    "dependencies": {}
+  },
+  "dependencies": {}
 }
 
 },{}],2:[function(_dereq_,module,exports){
@@ -602,7 +602,7 @@ Broadphase.prototype.needBroadphaseCollision = function(bodyA,bodyB){
 
     // Check types
     if(((bodyA.type & Body.STATIC)!==0 || bodyA.sleepState === Body.SLEEPING) &&
-        ((bodyB.type & Body.STATIC)!==0 || bodyB.sleepState === Body.SLEEPING)) {
+       ((bodyB.type & Body.STATIC)!==0 || bodyB.sleepState === Body.SLEEPING)) {
         // Both bodies are static or sleeping. Skip.
         return false;
     }
@@ -617,7 +617,7 @@ Broadphase.prototype.needBroadphaseCollision = function(bodyA,bodyB){
  * @param {Body} bodyB
  * @param {array} pairs1
  * @param {array} pairs2
-     */
+  */
 Broadphase.prototype.intersectionTest = function(bodyA, bodyB, pairs1, pairs2){
     if(this.useBoundingBoxes){
         this.doBoundingBoxBroadphase(bodyA,bodyB,pairs1,pairs2);
@@ -772,18 +772,18 @@ function GridBroadphase(aabbMin,aabbMax,nx,ny,nz){
     this.nz = nz || 10;
     this.aabbMin = aabbMin || new Vec3(100,100,100);
     this.aabbMax = aabbMax || new Vec3(-100,-100,-100);
-    var nbins = this.nx * this.ny * this.nz;
-    if (nbins <= 0) {
-        throw "GridBroadphase: Each dimension's n must be >0";
-    }
+	var nbins = this.nx * this.ny * this.nz;
+	if (nbins <= 0) {
+		throw "GridBroadphase: Each dimension's n must be >0";
+	}
     this.bins = [];
-    this.binLengths = []; //Rather than continually resizing arrays (thrashing the memory), just record length and allow them to grow
-    this.bins.length = nbins;
-    this.binLengths.length = nbins;
-    for (var i=0;i<nbins;i++) {
-        this.bins[i]=[];
-        this.binLengths[i]=0;
-    }
+	this.binLengths = []; //Rather than continually resizing arrays (thrashing the memory), just record length and allow them to grow
+	this.bins.length = nbins;
+	this.binLengths.length = nbins;
+	for (var i=0;i<nbins;i++) {
+		this.bins[i]=[];
+		this.binLengths[i]=0;
+	}
 }
 GridBroadphase.prototype = new Broadphase();
 GridBroadphase.prototype.constructor = GridBroadphase;
@@ -807,9 +807,9 @@ GridBroadphase.prototype.collisionPairs = function(world,pairs1,pairs2){
         ny = this.ny,
         nz = this.nz;
 
-    var xstep = ny*nz;
-    var ystep = nz;
-    var zstep = 1;
+	var xstep = ny*nz;
+	var ystep = nz;
+	var zstep = 1;
 
     var xmax = max.x,
         ymax = max.y,
@@ -826,7 +826,7 @@ GridBroadphase.prototype.collisionPairs = function(world,pairs1,pairs2){
         binsizeY = (ymax - ymin) / ny,
         binsizeZ = (zmax - zmin) / nz;
 
-    var binRadius = Math.sqrt(binsizeX*binsizeX + binsizeY*binsizeY + binsizeZ*binsizeZ) * 0.5;
+	var binRadius = Math.sqrt(binsizeX*binsizeX + binsizeY*binsizeY + binsizeZ*binsizeZ) * 0.5;
 
     var types = Shape.types;
     var SPHERE =            types.SPHERE,
@@ -836,7 +836,7 @@ GridBroadphase.prototype.collisionPairs = function(world,pairs1,pairs2){
         CONVEXPOLYHEDRON =  types.CONVEXPOLYHEDRON;
 
     var bins=this.bins,
-        binLengths=this.binLengths,
+		binLengths=this.binLengths,
         Nbins=this.bins.length;
 
     // Reset bins
@@ -845,40 +845,40 @@ GridBroadphase.prototype.collisionPairs = function(world,pairs1,pairs2){
     }
 
     var ceil = Math.ceil;
-    var min = Math.min;
-    var max = Math.max;
+	var min = Math.min;
+	var max = Math.max;
 
-    function addBoxToBins(x0,y0,z0,x1,y1,z1,bi) {
-        var xoff0 = ((x0 - xmin) * xmult)|0,
-            yoff0 = ((y0 - ymin) * ymult)|0,
-            zoff0 = ((z0 - zmin) * zmult)|0,
-            xoff1 = ceil((x1 - xmin) * xmult),
-            yoff1 = ceil((y1 - ymin) * ymult),
-            zoff1 = ceil((z1 - zmin) * zmult);
+	function addBoxToBins(x0,y0,z0,x1,y1,z1,bi) {
+		var xoff0 = ((x0 - xmin) * xmult)|0,
+			yoff0 = ((y0 - ymin) * ymult)|0,
+			zoff0 = ((z0 - zmin) * zmult)|0,
+			xoff1 = ceil((x1 - xmin) * xmult),
+			yoff1 = ceil((y1 - ymin) * ymult),
+			zoff1 = ceil((z1 - zmin) * zmult);
 
-        if (xoff0 < 0) { xoff0 = 0; } else if (xoff0 >= nx) { xoff0 = nx - 1; }
-        if (yoff0 < 0) { yoff0 = 0; } else if (yoff0 >= ny) { yoff0 = ny - 1; }
-        if (zoff0 < 0) { zoff0 = 0; } else if (zoff0 >= nz) { zoff0 = nz - 1; }
-        if (xoff1 < 0) { xoff1 = 0; } else if (xoff1 >= nx) { xoff1 = nx - 1; }
-        if (yoff1 < 0) { yoff1 = 0; } else if (yoff1 >= ny) { yoff1 = ny - 1; }
-        if (zoff1 < 0) { zoff1 = 0; } else if (zoff1 >= nz) { zoff1 = nz - 1; }
+		if (xoff0 < 0) { xoff0 = 0; } else if (xoff0 >= nx) { xoff0 = nx - 1; }
+		if (yoff0 < 0) { yoff0 = 0; } else if (yoff0 >= ny) { yoff0 = ny - 1; }
+		if (zoff0 < 0) { zoff0 = 0; } else if (zoff0 >= nz) { zoff0 = nz - 1; }
+		if (xoff1 < 0) { xoff1 = 0; } else if (xoff1 >= nx) { xoff1 = nx - 1; }
+		if (yoff1 < 0) { yoff1 = 0; } else if (yoff1 >= ny) { yoff1 = ny - 1; }
+		if (zoff1 < 0) { zoff1 = 0; } else if (zoff1 >= nz) { zoff1 = nz - 1; }
 
-        xoff0 *= xstep;
-        yoff0 *= ystep;
-        zoff0 *= zstep;
-        xoff1 *= xstep;
-        yoff1 *= ystep;
-        zoff1 *= zstep;
+		xoff0 *= xstep;
+		yoff0 *= ystep;
+		zoff0 *= zstep;
+		xoff1 *= xstep;
+		yoff1 *= ystep;
+		zoff1 *= zstep;
 
-        for (var xoff = xoff0; xoff <= xoff1; xoff += xstep) {
-            for (var yoff = yoff0; yoff <= yoff1; yoff += ystep) {
-                for (var zoff = zoff0; zoff <= zoff1; zoff += zstep) {
-                    var idx = xoff+yoff+zoff;
-                    bins[idx][binLengths[idx]++] = bi;
-                }
-            }
-        }
-    }
+		for (var xoff = xoff0; xoff <= xoff1; xoff += xstep) {
+			for (var yoff = yoff0; yoff <= yoff1; yoff += ystep) {
+				for (var zoff = zoff0; zoff <= zoff1; zoff += zstep) {
+					var idx = xoff+yoff+zoff;
+					bins[idx][binLengths[idx]++] = bi;
+				}
+			}
+		}
+	}
 
     // Put all bodies into the bins
     for(var i=0; i!==N; i++){
@@ -894,7 +894,7 @@ GridBroadphase.prototype.collisionPairs = function(world,pairs1,pairs2){
                 z = bi.position.z;
             var r = si.radius;
 
-            addBoxToBins(x-r, y-r, z-r, x+r, y+r, z+r, bi);
+			addBoxToBins(x-r, y-r, z-r, x+r, y+r, z+r, bi);
             break;
 
         case PLANE:
@@ -903,62 +903,62 @@ GridBroadphase.prototype.collisionPairs = function(world,pairs1,pairs2){
             }
             var planeNormal = si.worldNormal;
 
-            //Relative position from origin of plane object to the first bin
-            //Incremented as we iterate through the bins
-            var xreset = xmin + binsizeX*0.5 - bi.position.x,
-                yreset = ymin + binsizeY*0.5 - bi.position.y,
-                zreset = zmin + binsizeZ*0.5 - bi.position.z;
+			//Relative position from origin of plane object to the first bin
+			//Incremented as we iterate through the bins
+			var xreset = xmin + binsizeX*0.5 - bi.position.x,
+				yreset = ymin + binsizeY*0.5 - bi.position.y,
+				zreset = zmin + binsizeZ*0.5 - bi.position.z;
 
             var d = GridBroadphase_collisionPairs_d;
-            d.set(xreset, yreset, zreset);
+			d.set(xreset, yreset, zreset);
 
-            for (var xi = 0, xoff = 0; xi !== nx; xi++, xoff += xstep, d.y = yreset, d.x += binsizeX) {
-                for (var yi = 0, yoff = 0; yi !== ny; yi++, yoff += ystep, d.z = zreset, d.y += binsizeY) {
-                    for (var zi = 0, zoff = 0; zi !== nz; zi++, zoff += zstep, d.z += binsizeZ) {
-                        if (d.dot(planeNormal) < binRadius) {
-                            var idx = xoff + yoff + zoff;
-                            bins[idx][binLengths[idx]++] = bi;
-                        }
-                    }
-                }
-            }
+			for (var xi = 0, xoff = 0; xi !== nx; xi++, xoff += xstep, d.y = yreset, d.x += binsizeX) {
+				for (var yi = 0, yoff = 0; yi !== ny; yi++, yoff += ystep, d.z = zreset, d.y += binsizeY) {
+					for (var zi = 0, zoff = 0; zi !== nz; zi++, zoff += zstep, d.z += binsizeZ) {
+						if (d.dot(planeNormal) < binRadius) {
+							var idx = xoff + yoff + zoff;
+							bins[idx][binLengths[idx]++] = bi;
+						}
+					}
+				}
+			}
             break;
 
         default:
-            if (bi.aabbNeedsUpdate) {
-                bi.computeAABB();
-            }
+			if (bi.aabbNeedsUpdate) {
+				bi.computeAABB();
+			}
 
-            addBoxToBins(
-                bi.aabb.lowerBound.x,
-                bi.aabb.lowerBound.y,
-                bi.aabb.lowerBound.z,
-                bi.aabb.upperBound.x,
-                bi.aabb.upperBound.y,
-                bi.aabb.upperBound.z,
-                bi);
+			addBoxToBins(
+				bi.aabb.lowerBound.x,
+				bi.aabb.lowerBound.y,
+				bi.aabb.lowerBound.z,
+				bi.aabb.upperBound.x,
+				bi.aabb.upperBound.y,
+				bi.aabb.upperBound.z,
+				bi);
             break;
         }
     }
 
     // Check each bin
     for(var i=0; i!==Nbins; i++){
-        var binLength = binLengths[i];
-        //Skip bins with no potential collisions
-        if (binLength > 1) {
-            var bin = bins[i];
+		var binLength = binLengths[i];
+		//Skip bins with no potential collisions
+		if (binLength > 1) {
+			var bin = bins[i];
 
-            // Do N^2 broadphase inside
-            for(var xi=0; xi!==binLength; xi++){
-                var bi = bin[xi];
-                for(var yi=0; yi!==xi; yi++){
-                    var bj = bin[yi];
-                    if(this.needBroadphaseCollision(bi,bj)){
-                        this.intersectionTest(bi,bj,pairs1,pairs2);
-                    }
-                }
-            }
-        }
+			// Do N^2 broadphase inside
+			for(var xi=0; xi!==binLength; xi++){
+				var bi = bin[xi];
+				for(var yi=0; yi!==xi; yi++){
+					var bj = bin[yi];
+					if(this.needBroadphaseCollision(bi,bj)){
+						this.intersectionTest(bi,bj,pairs1,pairs2);
+					}
+				}
+			}
+		}
     }
 
 //	for (var zi = 0, zoff=0; zi < nz; zi++, zoff+= zstep) {
@@ -1066,7 +1066,7 @@ function ObjectCollisionMatrix() {
      * @property matrix
      * @type {Object}
      */
-    this.matrix = {};
+	this.matrix = {};
 }
 
 /**
@@ -1076,14 +1076,14 @@ function ObjectCollisionMatrix() {
  * @return {Number}
  */
 ObjectCollisionMatrix.prototype.get = function(i, j) {
-    i = i.id;
-    j = j.id;
+	i = i.id;
+	j = j.id;
     if (j > i) {
         var temp = j;
         j = i;
         i = temp;
     }
-    return i+'-'+j in this.matrix;
+	return i+'-'+j in this.matrix;
 };
 
 /**
@@ -1093,19 +1093,19 @@ ObjectCollisionMatrix.prototype.get = function(i, j) {
  * @param {Number} value
  */
 ObjectCollisionMatrix.prototype.set = function(i, j, value) {
-    i = i.id;
-    j = j.id;
+	i = i.id;
+	j = j.id;
     if (j > i) {
         var temp = j;
         j = i;
         i = temp;
-    }
-    if (value) {
-        this.matrix[i+'-'+j] = true;
-    }
-    else {
-        delete this.matrix[i+'-'+j];
-    }
+	}
+	if (value) {
+		this.matrix[i+'-'+j] = true;
+	}
+	else {
+		delete this.matrix[i+'-'+j];
+	}
 };
 
 /**
@@ -1113,7 +1113,7 @@ ObjectCollisionMatrix.prototype.set = function(i, j, value) {
  * @method reset
  */
 ObjectCollisionMatrix.prototype.reset = function() {
-    this.matrix = {};
+	this.matrix = {};
 };
 
 /**
@@ -1371,8 +1371,8 @@ var v1 = new Vec3(),
     v2 = new Vec3();
 
 /*
-    * As per "Barycentric Technique" as named here http://www.blackpawn.com/texts/pointinpoly/default.html But without the division
-    */
+ * As per "Barycentric Technique" as named here http://www.blackpawn.com/texts/pointinpoly/default.html But without the division
+ */
 Ray.pointInTriangle = pointInTriangle;
 function pointInTriangle(p, a, b, c) {
     c.vsub(a,v0);
@@ -2073,64 +2073,64 @@ module.exports = RaycastResult;
  */
 function RaycastResult(){
 
-    /**
-     * @property {Vec3} rayFromWorld
-     */
-    this.rayFromWorld = new Vec3();
+	/**
+	 * @property {Vec3} rayFromWorld
+	 */
+	this.rayFromWorld = new Vec3();
 
-    /**
-     * @property {Vec3} rayToWorld
-     */
-    this.rayToWorld = new Vec3();
+	/**
+	 * @property {Vec3} rayToWorld
+	 */
+	this.rayToWorld = new Vec3();
 
-    /**
-     * @property {Vec3} hitNormalWorld
-     */
-    this.hitNormalWorld = new Vec3();
+	/**
+	 * @property {Vec3} hitNormalWorld
+	 */
+	this.hitNormalWorld = new Vec3();
 
-    /**
-     * @property {Vec3} hitPointWorld
-     */
-    this.hitPointWorld = new Vec3();
+	/**
+	 * @property {Vec3} hitPointWorld
+	 */
+	this.hitPointWorld = new Vec3();
 
-    /**
-     * @property {boolean} hasHit
-     */
-    this.hasHit = false;
+	/**
+	 * @property {boolean} hasHit
+	 */
+	this.hasHit = false;
 
-    /**
-     * The hit shape, or null.
-     * @property {Shape} shape
-     */
-    this.shape = null;
+	/**
+	 * The hit shape, or null.
+	 * @property {Shape} shape
+	 */
+	this.shape = null;
 
-    /**
-     * The hit body, or null.
-     * @property {Body} body
-     */
-    this.body = null;
+	/**
+	 * The hit body, or null.
+	 * @property {Body} body
+	 */
+	this.body = null;
 
-    /**
-     * The index of the hit triangle, if the hit shape was a trimesh.
-     * @property {number} hitFaceIndex
-     * @default -1
-     */
-    this.hitFaceIndex = -1;
+	/**
+	 * The index of the hit triangle, if the hit shape was a trimesh.
+	 * @property {number} hitFaceIndex
+	 * @default -1
+	 */
+	this.hitFaceIndex = -1;
 
-    /**
-     * Distance to the hit. Will be set to -1 if there was no hit.
-     * @property {number} distance
-     * @default -1
-     */
-    this.distance = -1;
+	/**
+	 * Distance to the hit. Will be set to -1 if there was no hit.
+	 * @property {number} distance
+	 * @default -1
+	 */
+	this.distance = -1;
 
-    /**
-     * If the ray should stop traversing the bodies.
-     * @private
-     * @property {Boolean} _shouldStop
-     * @default false
-     */
-    this._shouldStop = false;
+	/**
+	 * If the ray should stop traversing the bodies.
+	 * @private
+	 * @property {Boolean} _shouldStop
+	 * @default false
+	 */
+	this._shouldStop = false;
 }
 
 /**
@@ -2138,23 +2138,23 @@ function RaycastResult(){
  * @method reset
  */
 RaycastResult.prototype.reset = function () {
-    this.rayFromWorld.setZero();
-    this.rayToWorld.setZero();
-    this.hitNormalWorld.setZero();
-    this.hitPointWorld.setZero();
-    this.hasHit = false;
-    this.shape = null;
-    this.body = null;
-    this.hitFaceIndex = -1;
-    this.distance = -1;
-    this._shouldStop = false;
+	this.rayFromWorld.setZero();
+	this.rayToWorld.setZero();
+	this.hitNormalWorld.setZero();
+	this.hitPointWorld.setZero();
+	this.hasHit = false;
+	this.shape = null;
+	this.body = null;
+	this.hitFaceIndex = -1;
+	this.distance = -1;
+	this._shouldStop = false;
 };
 
 /**
  * @method abort
  */
 RaycastResult.prototype.abort = function(){
-    this._shouldStop = true;
+	this._shouldStop = true;
 };
 
 /**
@@ -2168,21 +2168,21 @@ RaycastResult.prototype.abort = function(){
  * @param {number} distance
  */
 RaycastResult.prototype.set = function(
-    rayFromWorld,
-    rayToWorld,
-    hitNormalWorld,
-    hitPointWorld,
-    shape,
-    body,
-    distance
+	rayFromWorld,
+	rayToWorld,
+	hitNormalWorld,
+	hitPointWorld,
+	shape,
+	body,
+	distance
 ){
-    this.rayFromWorld.copy(rayFromWorld);
-    this.rayToWorld.copy(rayToWorld);
-    this.hitNormalWorld.copy(hitNormalWorld);
-    this.hitPointWorld.copy(hitPointWorld);
-    this.shape = shape;
-    this.body = body;
-    this.distance = distance;
+	this.rayFromWorld.copy(rayFromWorld);
+	this.rayToWorld.copy(rayToWorld);
+	this.hitNormalWorld.copy(hitNormalWorld);
+	this.hitPointWorld.copy(hitPointWorld);
+	this.shape = shape;
+	this.body = body;
+	this.distance = distance;
 };
 },{"../math/Vec3":31}],12:[function(_dereq_,module,exports){
 var Shape = _dereq_('../shapes/Shape');
@@ -4870,18 +4870,18 @@ module.exports = Transform;
 function Transform(options) {
     options = options || {};
 
-    /**
-     * @property {Vec3} position
-     */
-    this.position = new Vec3();
+	/**
+	 * @property {Vec3} position
+	 */
+	this.position = new Vec3();
     if(options.position){
         this.position.copy(options.position);
     }
 
-    /**
-     * @property {Quaternion} quaternion
-     */
-    this.quaternion = new Quaternion();
+	/**
+	 * @property {Quaternion} quaternion
+	 */
+	this.quaternion = new Quaternion();
     if(options.quaternion){
         this.quaternion.copy(options.quaternion);
     }
@@ -5078,8 +5078,8 @@ Vec3.prototype.vadd = function(v,target){
         target.z = v.z + this.z;
     } else {
         return new Vec3(this.x + v.x,
-                                this.y + v.y,
-                                this.z + v.z);
+                               this.y + v.y,
+                               this.z + v.z);
     }
 };
 
@@ -5097,8 +5097,8 @@ Vec3.prototype.vsub = function(v,target){
         target.z = this.z - v.z;
     } else {
         return new Vec3(this.x-v.x,
-                                this.y-v.y,
-                                this.z-v.z);
+                               this.y-v.y,
+                               this.z-v.z);
     }
 };
 
@@ -5111,7 +5111,7 @@ Vec3.prototype.vsub = function(v,target){
 Vec3.prototype.crossmat = function(){
     return new Mat3([     0,  -this.z,   this.y,
                             this.z,        0,  -this.x,
-                            -this.y,   this.x,        0]);
+                           -this.y,   this.x,        0]);
 };
 
 /**
@@ -5204,8 +5204,8 @@ Vec3.prototype.distanceTo = function(p){
     var x=this.x, y=this.y, z=this.z;
     var px=p.x, py=p.y, pz=p.z;
     return Math.sqrt((px-x)*(px-x)+
-                        (py-y)*(py-y)+
-                        (pz-z)*(pz-z));
+                     (py-y)*(py-y)+
+                     (pz-z)*(pz-z));
 };
 
 /**
@@ -7400,13 +7400,13 @@ var Material = _dereq_('../material/Material');
  */
 function SPHSystem(){
     this.particles = [];
-    
+	
     /**
      * Density of the system (kg/m3).
      * @property {number} density
      */
     this.density = 1;
-    
+	
     /**
      * Distance below which two particles are considered to be neighbors.
      * It should be adjusted so there are about 15-20 neighbor particles within this radius.
@@ -7414,7 +7414,7 @@ function SPHSystem(){
      */
     this.smoothingRadius = 1;
     this.speedOfSound = 1;
-    
+	
     /**
      * Viscosity of the system.
      * @property {number} viscosity
@@ -8221,20 +8221,20 @@ Box.prototype.forEachWorldCorner = function(pos,quat,callback){
 
     var e = this.halfExtents;
     var corners = [[  e.x,  e.y,  e.z],
-                    [ -e.x,  e.y,  e.z],
-                    [ -e.x, -e.y,  e.z],
-                    [ -e.x, -e.y, -e.z],
-                    [  e.x, -e.y, -e.z],
-                    [  e.x,  e.y, -e.z],
-                    [ -e.x,  e.y, -e.z],
-                    [  e.x, -e.y,  e.z]];
+                   [ -e.x,  e.y,  e.z],
+                   [ -e.x, -e.y,  e.z],
+                   [ -e.x, -e.y, -e.z],
+                   [  e.x, -e.y, -e.z],
+                   [  e.x,  e.y, -e.z],
+                   [ -e.x,  e.y, -e.z],
+                   [  e.x, -e.y,  e.z]];
     for(var i=0; i<corners.length; i++){
         worldCornerTempPos.set(corners[i][0],corners[i][1],corners[i][2]);
         quat.vmult(worldCornerTempPos,worldCornerTempPos);
         pos.vadd(worldCornerTempPos,worldCornerTempPos);
         callback(worldCornerTempPos.x,
-                    worldCornerTempPos.y,
-                    worldCornerTempPos.z);
+                 worldCornerTempPos.y,
+                 worldCornerTempPos.z);
     }
 };
 
@@ -8544,12 +8544,12 @@ ConvexPolyhedron.prototype.clipAgainstHull = function(posA,quatA,hullB,posB,quat
 
     if (closestFaceB>=0){
         this.clipFaceAgainstHull(separatingNormal,
-                                    posA,
-                                    quatA,
-                                    worldVertsB1,
-                                    minDist,
-                                    maxDist,
-                                    result);
+                                 posA,
+                                 quatA,
+                                 worldVertsB1,
+                                 minDist,
+                                 maxDist,
+                                 result);
     }
 };
 
@@ -8892,10 +8892,10 @@ ConvexPolyhedron.prototype.clipFaceAgainstHull = function(separatingNormal, posA
             var point = pVtxIn[i];
             if(depth<=0){
                 /*console.log("Got contact point ",point.toString(),
-                    ", depth=",depth,
-                    "contact normal=",separatingNormal.toString(),
-                    "plane",planeNormalWS.toString(),
-                    "planeConstant",planeEqWS);*/
+                  ", depth=",depth,
+                  "contact normal=",separatingNormal.toString(),
+                  "plane",planeNormalWS.toString(),
+                  "planeConstant",planeEqWS);*/
                 var p = {
                     point:point,
                     normal:planeNormalWS,
@@ -8941,8 +8941,8 @@ ConvexPolyhedron.prototype.clipFaceAgainstPlane = function(inVertices,outVertice
                 // Start < 0, end >= 0, so output intersection
                 var newv = new Vec3();
                 firstVertex.lerp(lastVertex,
-                                    n_dot_first / (n_dot_first - n_dot_last),
-                                    newv);
+                                 n_dot_first / (n_dot_first - n_dot_last),
+                                 newv);
                 outVertices.push(newv);
             }
         } else {
@@ -8950,8 +8950,8 @@ ConvexPolyhedron.prototype.clipFaceAgainstPlane = function(inVertices,outVertice
                 // Start >= 0, end < 0 so output intersection and end
                 var newv = new Vec3();
                 firstVertex.lerp(lastVertex,
-                                    n_dot_first / (n_dot_first - n_dot_last),
-                                    newv);
+                                 n_dot_first / (n_dot_first - n_dot_last),
+                                 newv);
                 outVertices.push(newv);
                 outVertices.push(lastVertex);
             }
@@ -9283,14 +9283,14 @@ function Cylinder( radiusTop, radiusBottom, height , numSegments ) {
 
     // First bottom point
     verts.push(new Vec3(radiusBottom*cos(0),
-                                radiusBottom*sin(0),
-                                -height*0.5));
+                               radiusBottom*sin(0),
+                               -height*0.5));
     bottomface.push(0);
 
     // First top point
     verts.push(new Vec3(radiusTop*cos(0),
-                                radiusTop*sin(0),
-                                height*0.5));
+                               radiusTop*sin(0),
+                               height*0.5));
     topface.push(1);
 
     for(var i=0; i<N; i++){
@@ -9299,13 +9299,13 @@ function Cylinder( radiusTop, radiusBottom, height , numSegments ) {
         if(i<N-1){
             // Bottom
             verts.push(new Vec3(radiusBottom*cos(theta),
-                                        radiusBottom*sin(theta),
-                                        -height*0.5));
+                                       radiusBottom*sin(theta),
+                                       -height*0.5));
             bottomface.push(2*i+2);
             // Top
             verts.push(new Vec3(radiusTop*cos(theta),
-                                        radiusTop*sin(theta),
-                                        height*0.5));
+                                       radiusTop*sin(theta),
+                                       height*0.5));
             topface.push(2*i+3);
 
             // Face
@@ -13813,8 +13813,8 @@ function World (options) {
 
     /**
      * @property {ObjectCollisionMatrix} collisionMatrix
-     * @type {ObjectCollisionMatrix}
-     */
+	 * @type {ObjectCollisionMatrix}
+	 */
     this.collisionMatrix = new ObjectCollisionMatrix();
 
     this.triggerMatrix = new ObjectCollisionMatrix();
