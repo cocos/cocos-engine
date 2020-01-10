@@ -134,7 +134,6 @@ export class UI {
     }
 
     public destroy () {
-        this._destroyUIMaterials();
 
         for (const batch of this._batches.array) {
             batch.destroy(this);
@@ -145,13 +144,7 @@ export class UI {
         }
         this._meshBuffers.splice(0);
 
-        const matIter = this._uiMaterials.values();
-        let result = matIter.next();
-        while (!result.done) {
-            const uiMat = result.value;
-            uiMat.destroy();
-            result = matIter.next();
-        }
+        this._destroyUIMaterials();
 
         if (this._cmdBuff) {
             this._cmdBuff.destroy();
@@ -237,11 +230,16 @@ export class UI {
 
         this._screens.splice(idx, 1);
         if (comp.camera) {
-            const matHashInter = this._canvasMaterials.get(comp.camera.view.visibility)!.keys();
+            const matRecord = this._canvasMaterials.get(comp.camera.view.visibility);
+            const matHashInter = matRecord!.keys();
             let matHash = matHashInter.next();
             while (!matHash.done) {
                 this._removeUIMaterial(matHash.value);
                 matHash = matHashInter.next();
+            }
+
+            if (this._screens.length === 0) { 
+                matRecord!.clear();
             }
         }
 
@@ -251,7 +249,11 @@ export class UI {
             if (camera) {
                 const matRecord = this._canvasMaterials.get(camera.view.visibility)!;
                 camera.view.visibility = Layers.BitMask.UI_2D | (i + 1);
-                this._canvasMaterials.set(camera.view.visibility, matRecord);
+                const newMatRecord = this._canvasMaterials.get(camera.view.visibility)!;
+                newMatRecord.clear();
+                matRecord.forEach((value: number, key: number) => {
+                    newMatRecord.set(key, value);
+                });
             }
         }
     }
