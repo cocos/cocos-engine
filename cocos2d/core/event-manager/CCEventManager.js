@@ -183,7 +183,7 @@ var eventManager = {
                 listeners[i]._setPaused(false);
         }
         this._setDirtyForNode(node);
-        if (recursive === true && node.getChildren) {
+        if (recursive === true && node.children) {
             var locChildren = node.children;
             for (i = 0, len = locChildren ? locChildren.length : 0; i < len; i++)
                 this.resumeTarget(locChildren[i], true);
