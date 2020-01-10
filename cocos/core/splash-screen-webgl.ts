@@ -1,6 +1,7 @@
 import { IGFXColor } from "./gfx";
 import { clamp01 } from "./math";
 import { easing } from "./animation";
+import { macro } from "./platform";
 
 type SplashEffectType = 'none' | 'Fade-InOut';
 
@@ -144,8 +145,36 @@ export class SplashScreenWebgl {
             this._directCall = true;
             return;
         } else {
-            const gl = canvas.getContext('webgl');
-            const gl2 = canvas.getContext('webgl2');
+
+            let useWebGL2 = (!!window.WebGL2RenderingContext);
+            const userAgent = window.navigator.userAgent.toLowerCase();
+            if (userAgent.indexOf('safari') !== -1) {
+                if (userAgent.indexOf('chrome') === -1) {
+                    useWebGL2 = false;
+                }
+            }
+            const webGLCtxAttribs: WebGLContextAttributes = {
+                alpha: macro.ENABLE_TRANSPARENT_CANVAS,
+                antialias: true,
+                depth: true,
+                stencil: true,
+                premultipliedAlpha: true,
+                preserveDrawingBuffer: false,
+                powerPreference: 'default',
+                failIfMajorPerformanceCaveat: false,
+            };
+
+            let gl: WebGLRenderingContext | null = null;
+            let gl2: WebGL2RenderingContext | null = null;
+            if (useWebGL2 && cc.WebGL2GFXDevice) {
+                gl2 = canvas.getContext('webgl2', webGLCtxAttribs) as WebGL2RenderingContext;
+                if (gl2 == null) {
+                    gl = canvas.getContext('webgl', webGLCtxAttribs) as WebGLRenderingContext;
+                }
+            } else {
+                gl = canvas.getContext('webgl', webGLCtxAttribs) as WebGLRenderingContext;
+            }
+
             if (gl == null && gl2 == null) {
                 return console.error("this device does not support webgl");
             } else {
@@ -305,7 +334,7 @@ export class SplashScreenWebgl {
         const elapsedTime = time - this.startTime;
         const precent = clamp01(elapsedTime / this.setting.totalTime);
         const alpha = easing.cubicOut(precent);
-        
+
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         gl.clearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
         gl.depthMask(true);
