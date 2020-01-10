@@ -98,6 +98,7 @@ export class Collider3D extends cc.Component {
      * get or set the collider is trigger, this will be always trigger if using builtin.
      * !#zh
      * 获取或设置碰撞器是否为触发器
+     * @property {Boolean} isTrigger
      */
     @property({
         displayOrder: 0
@@ -118,6 +119,7 @@ export class Collider3D extends cc.Component {
      * get or set the center of the collider, in local space.
      * !#zh
      * 获取或设置碰撞器的中心点。
+     * @property {Vec3} center
      */
     @property({
         type: cc.Vec3,
@@ -139,11 +141,21 @@ export class Collider3D extends cc.Component {
      * get the collider attached rigidbody, this may be null
      * !#zh
      * 获取碰撞器所绑定的刚体组件，可能为 null
+     * @property {RigidBody3D|null} attachedRigidbody
+     * @readonly
      */
     public get attachedRigidbody (): RigidBody3D | null {
         return this.shape.attachedRigidBody;
     }
 
+    /**
+     * !#en
+     * get collider shape
+     * !#zh
+     * 获取碰撞器形状
+     * @property {IBaseShape} shape
+     * @readonly
+     */
     public get shape () {
         return this._shape;
     }
@@ -184,7 +196,7 @@ export class Collider3D extends cc.Component {
      * 注册事件目标的特定事件类型回调。这种类型的事件应该被 `emit` 触发。
      *
      * @method on
-     * @param {String} type - The type of collider event can be 'onTriggerEnter', 'onTriggerStay', 'onTriggerExit' or 'onCollisionEnter', 'onCollisionStay', 'onCollisionExit'.
+     * @param {String} type - The type of collider event can be 'trigger-enter', 'trigger-stay', 'trigger-exit' or 'collision-enter', 'collision-stay', 'collision-exit'.
      * @param {Function} callback - The callback that will be invoked when the event is dispatched.
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
      * @param {ITriggerEvent|ICollisionEvent} callback.event callback function argument
@@ -208,7 +220,7 @@ export class Collider3D extends cc.Component {
      * 删除之前用同类型，回调，目标或 useCapture 注册的事件监听器，如果只传递 type，将会删除 type 类型的所有事件监听器。
      *
      * @method off
-     * @param {String} type - The type of collider event can be 'onTriggerEnter', 'onTriggerStay', 'onTriggerExit' or 'onCollisionEnter', 'onCollisionStay', 'onCollisionExit'.
+     * @param {String} type - The type of collider event can be 'trigger-enter', 'trigger-stay', 'trigger-exit' or 'collision-enter', 'collision-stay', 'collision-exit'.
      * @param {Function} [callback] - The callback to remove.
      * @param {Object} [target] - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
      * @example
@@ -232,7 +244,7 @@ export class Collider3D extends cc.Component {
      * 注册事件目标的特定事件类型回调，回调会在第一时间被触发后删除自身。
      *
      * @method once
-     * @param {String} type - The type of collider event can be 'onTriggerEnter', 'onTriggerStay', 'onTriggerExit' or 'onCollisionEnter', 'onCollisionStay', 'onCollisionExit'.
+     * @param {String} type - The type of collider event can be 'trigger-enter', 'trigger-stay', 'trigger-exit' or 'collision-enter', 'collision-stay', 'collision-exit'.
      * @param {Function} callback - The callback that will be invoked when the event is dispatched.
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
      * @param {ITriggerEvent|ICollisionEvent} callback.event callback function argument.

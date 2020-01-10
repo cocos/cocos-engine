@@ -39,7 +39,7 @@ const intersect = cc.geomUtils.intersect;
 const Vec3 = cc.Vec3;
 const hitPoint = new Vec3();
 const TriggerEventObject = {
-    type: 'onCollisionEnter' as unknown as TriggerEventType,
+    type: 'collision-enter' as unknown as TriggerEventType,
     selfCollider: null as unknown as Collider3D,
     otherCollider: null as unknown as Collider3D,
 };
@@ -184,10 +184,10 @@ export class BuiltInWorld implements IPhysicsWorld {
 
             if (this._collisionMatrixPrev.get(shapeA.id, shapeB.id)) {
                 // emit stay
-                TriggerEventObject.type = 'onTriggerStay';
+                TriggerEventObject.type = 'trigger-stay';
             } else {
                 // first collider, emit enter
-                TriggerEventObject.type = 'onTriggerEnter';
+                TriggerEventObject.type = 'trigger-enter';
             }
 
             if (shapeA.collider) {
@@ -209,7 +209,7 @@ export class BuiltInWorld implements IPhysicsWorld {
             if (this._collisionMatrixPrev.get(shapeA.id, shapeB.id)) {
                 if (!this._collisionMatrix.get(shapeA.id, shapeB.id)) {
                     // emit exit
-                    TriggerEventObject.type = 'onTriggerExit';
+                    TriggerEventObject.type = 'trigger-exit';
                     TriggerEventObject.selfCollider = shapeA.collider;
                     TriggerEventObject.otherCollider = shapeB.collider;
 
