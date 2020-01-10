@@ -125,6 +125,8 @@ let Material = cc.Class({
         },
 
         /**
+         * !#en Material builtin name
+         * !#zh 内置材质名字
          * @static
          * @enum Material.BUILTIN_NAME
          */
