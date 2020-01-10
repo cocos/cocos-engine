@@ -2,33 +2,51 @@
 #if (USE_GFX_RENDERER > 0) && (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
 #include "scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "scripting/js-bindings/manual/jsb_global.h"
-#include "renderer/core/Core.h"
+#include "renderer/gfx-gles2/GFXGLES2.h"
 
-se::Object* __jsb_cocos2d_GFXDevice_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXDevice_class = nullptr;
+se::Object* __jsb_cocos2d_GLES2Device_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2Device_class = nullptr;
 
-static bool js_gfx_GFXDevice_height(se::State& s)
+static bool js_gfx_GLES2Device_use_discard_framebuffer(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_height : Invalid Native Object");
+    cocos2d::GLES2Device* cobj = (cocos2d::GLES2Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Device_use_discard_framebuffer : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        unsigned int result = cobj->height();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_height : Error processing arguments");
+        bool result = cobj->use_discard_framebuffer();
+        ok &= boolean_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_use_discard_framebuffer : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXDevice_height)
+SE_BIND_FUNC(js_gfx_GLES2Device_use_discard_framebuffer)
 
-static bool js_gfx_GFXDevice_CreateGFXTextureView(se::State& s)
+static bool js_gfx_GLES2Device_use_instanced_arrays(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_CreateGFXTextureView : Invalid Native Object");
+    cocos2d::GLES2Device* cobj = (cocos2d::GLES2Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Device_use_instanced_arrays : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->use_instanced_arrays();
+        ok &= boolean_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_use_instanced_arrays : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GLES2Device_use_instanced_arrays)
+
+static bool js_gfx_GLES2Device_CreateGFXTextureView(se::State& s)
+{
+    cocos2d::GLES2Device* cobj = (cocos2d::GLES2Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Device_CreateGFXTextureView : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -36,21 +54,21 @@ static bool js_gfx_GFXDevice_CreateGFXTextureView(se::State& s)
         cocos2d::GFXTextureViewInfo arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXTextureViewInfo
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXTextureView : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_CreateGFXTextureView : Error processing arguments");
         cocos2d::GFXTextureView* result = cobj->CreateGFXTextureView(arg0);
         ok &= native_ptr_to_seval<cocos2d::GFXTextureView>((cocos2d::GFXTextureView*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXTextureView : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_CreateGFXTextureView : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXDevice_CreateGFXTextureView)
+SE_BIND_FUNC(js_gfx_GLES2Device_CreateGFXTextureView)
 
-static bool js_gfx_GFXDevice_CreateGFXCommandAllocator(se::State& s)
+static bool js_gfx_GLES2Device_CreateGFXCommandAllocator(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_CreateGFXCommandAllocator : Invalid Native Object");
+    cocos2d::GLES2Device* cobj = (cocos2d::GLES2Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Device_CreateGFXCommandAllocator : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -58,39 +76,21 @@ static bool js_gfx_GFXDevice_CreateGFXCommandAllocator(se::State& s)
         cocos2d::GFXCommandAllocatorInfo arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXCommandAllocatorInfo
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXCommandAllocator : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_CreateGFXCommandAllocator : Error processing arguments");
         cocos2d::GFXCommandAllocator* result = cobj->CreateGFXCommandAllocator(arg0);
         ok &= native_ptr_to_seval<cocos2d::GFXCommandAllocator>((cocos2d::GFXCommandAllocator*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXCommandAllocator : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_CreateGFXCommandAllocator : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXDevice_CreateGFXCommandAllocator)
+SE_BIND_FUNC(js_gfx_GLES2Device_CreateGFXCommandAllocator)
 
-static bool js_gfx_GFXDevice_api(se::State& s)
+static bool js_gfx_GLES2Device_CreateGFXBuffer(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_api : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->api();
-        ok &= int32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_api : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXDevice_api)
-
-static bool js_gfx_GFXDevice_CreateGFXBuffer(se::State& s)
-{
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_CreateGFXBuffer : Invalid Native Object");
+    cocos2d::GLES2Device* cobj = (cocos2d::GLES2Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Device_CreateGFXBuffer : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -98,21 +98,21 @@ static bool js_gfx_GFXDevice_CreateGFXBuffer(se::State& s)
         cocos2d::GFXBufferInfo arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXBufferInfo
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXBuffer : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_CreateGFXBuffer : Error processing arguments");
         cocos2d::GFXBuffer* result = cobj->CreateGFXBuffer(arg0);
         ok &= native_ptr_to_seval<cocos2d::GFXBuffer>((cocos2d::GFXBuffer*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXBuffer : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_CreateGFXBuffer : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXDevice_CreateGFXBuffer)
+SE_BIND_FUNC(js_gfx_GLES2Device_CreateGFXBuffer)
 
-static bool js_gfx_GFXDevice_Destroy(se::State& s)
+static bool js_gfx_GLES2Device_Destroy(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_Destroy : Invalid Native Object");
+    cocos2d::GLES2Device* cobj = (cocos2d::GLES2Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Device_Destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -122,12 +122,12 @@ static bool js_gfx_GFXDevice_Destroy(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXDevice_Destroy)
+SE_BIND_FUNC(js_gfx_GLES2Device_Destroy)
 
-static bool js_gfx_GFXDevice_CreateGFXWindow(se::State& s)
+static bool js_gfx_GLES2Device_CreateGFXWindow(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_CreateGFXWindow : Invalid Native Object");
+    cocos2d::GLES2Device* cobj = (cocos2d::GLES2Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Device_CreateGFXWindow : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -135,39 +135,57 @@ static bool js_gfx_GFXDevice_CreateGFXWindow(se::State& s)
         cocos2d::GFXWindowInfo arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXWindowInfo
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXWindow : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_CreateGFXWindow : Error processing arguments");
         cocos2d::GFXWindow* result = cobj->CreateGFXWindow(arg0);
         ok &= native_ptr_to_seval<cocos2d::GFXWindow>((cocos2d::GFXWindow*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXWindow : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_CreateGFXWindow : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXDevice_CreateGFXWindow)
+SE_BIND_FUNC(js_gfx_GLES2Device_CreateGFXWindow)
 
-static bool js_gfx_GFXDevice_width(se::State& s)
+static bool js_gfx_GLES2Device_use_vao(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_width : Invalid Native Object");
+    cocos2d::GLES2Device* cobj = (cocos2d::GLES2Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Device_use_vao : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        unsigned int result = cobj->width();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_width : Error processing arguments");
+        bool result = cobj->use_vao();
+        ok &= boolean_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_use_vao : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXDevice_width)
+SE_BIND_FUNC(js_gfx_GLES2Device_use_vao)
 
-static bool js_gfx_GFXDevice_CreateGFXTexture(se::State& s)
+static bool js_gfx_GLES2Device_use_draw_instanced(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_CreateGFXTexture : Invalid Native Object");
+    cocos2d::GLES2Device* cobj = (cocos2d::GLES2Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Device_use_draw_instanced : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->use_draw_instanced();
+        ok &= boolean_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_use_draw_instanced : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GLES2Device_use_draw_instanced)
+
+static bool js_gfx_GLES2Device_CreateGFXTexture(se::State& s)
+{
+    cocos2d::GLES2Device* cobj = (cocos2d::GLES2Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Device_CreateGFXTexture : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -175,21 +193,21 @@ static bool js_gfx_GFXDevice_CreateGFXTexture(se::State& s)
         cocos2d::GFXTextureInfo arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXTextureInfo
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXTexture : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_CreateGFXTexture : Error processing arguments");
         cocos2d::GFXTexture* result = cobj->CreateGFXTexture(arg0);
         ok &= native_ptr_to_seval<cocos2d::GFXTexture>((cocos2d::GFXTexture*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXTexture : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_CreateGFXTexture : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXDevice_CreateGFXTexture)
+SE_BIND_FUNC(js_gfx_GLES2Device_CreateGFXTexture)
 
-static bool js_gfx_GFXDevice_CreateGFXShader(se::State& s)
+static bool js_gfx_GLES2Device_CreateGFXShader(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_CreateGFXShader : Invalid Native Object");
+    cocos2d::GLES2Device* cobj = (cocos2d::GLES2Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Device_CreateGFXShader : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -197,39 +215,21 @@ static bool js_gfx_GFXDevice_CreateGFXShader(se::State& s)
         cocos2d::GFXShaderInfo arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXShaderInfo
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXShader : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_CreateGFXShader : Error processing arguments");
         cocos2d::GFXShader* result = cobj->CreateGFXShader(arg0);
         ok &= native_ptr_to_seval<cocos2d::GFXShader>((cocos2d::GFXShader*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXShader : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_CreateGFXShader : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXDevice_CreateGFXShader)
+SE_BIND_FUNC(js_gfx_GLES2Device_CreateGFXShader)
 
-static bool js_gfx_GFXDevice_window(se::State& s)
+static bool js_gfx_GLES2Device_CreateGFXCommandBuffer(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_window : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXWindow* result = cobj->window();
-        ok &= native_ptr_to_seval<cocos2d::GFXWindow>((cocos2d::GFXWindow*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_window : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXDevice_window)
-
-static bool js_gfx_GFXDevice_CreateGFXCommandBuffer(se::State& s)
-{
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_CreateGFXCommandBuffer : Invalid Native Object");
+    cocos2d::GLES2Device* cobj = (cocos2d::GLES2Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Device_CreateGFXCommandBuffer : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -237,21 +237,42 @@ static bool js_gfx_GFXDevice_CreateGFXCommandBuffer(se::State& s)
         cocos2d::GFXCommandBufferInfo arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXCommandBufferInfo
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXCommandBuffer : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_CreateGFXCommandBuffer : Error processing arguments");
         cocos2d::GFXCommandBuffer* result = cobj->CreateGFXCommandBuffer(arg0);
         ok &= native_ptr_to_seval<cocos2d::GFXCommandBuffer>((cocos2d::GFXCommandBuffer*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXCommandBuffer : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_CreateGFXCommandBuffer : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXDevice_CreateGFXCommandBuffer)
+SE_BIND_FUNC(js_gfx_GLES2Device_CreateGFXCommandBuffer)
 
-static bool js_gfx_GFXDevice_Initialize(se::State& s)
+static bool js_gfx_GLES2Device_CheckExtension(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_Initialize : Invalid Native Object");
+    cocos2d::GLES2Device* cobj = (cocos2d::GLES2Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Device_CheckExtension : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        cocos2d::String arg0;
+        arg0 = args[0].toStringForce().c_str();
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_CheckExtension : Error processing arguments");
+        bool result = cobj->CheckExtension(arg0);
+        ok &= boolean_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_CheckExtension : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GLES2Device_CheckExtension)
+
+static bool js_gfx_GLES2Device_Initialize(se::State& s)
+{
+    cocos2d::GLES2Device* cobj = (cocos2d::GLES2Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Device_Initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -259,21 +280,21 @@ static bool js_gfx_GFXDevice_Initialize(se::State& s)
         cocos2d::GFXDeviceInfo arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXDeviceInfo
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_Initialize : Error processing arguments");
         bool result = cobj->Initialize(arg0);
         ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_Initialize : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXDevice_Initialize)
+SE_BIND_FUNC(js_gfx_GLES2Device_Initialize)
 
-static bool js_gfx_GFXDevice_Resize(se::State& s)
+static bool js_gfx_GLES2Device_Resize(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_Resize : Invalid Native Object");
+    cocos2d::GLES2Device* cobj = (cocos2d::GLES2Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Device_Resize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -282,37 +303,19 @@ static bool js_gfx_GFXDevice_Resize(se::State& s)
         unsigned int arg1 = 0;
         ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
         ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_Resize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_Resize : Error processing arguments");
         cobj->Resize(arg0, arg1);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXDevice_Resize)
+SE_BIND_FUNC(js_gfx_GLES2Device_Resize)
 
-static bool js_gfx_GFXDevice_cmd_allocator(se::State& s)
+static bool js_gfx_GLES2Device_CreateGFXSampler(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_cmd_allocator : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXCommandAllocator* result = cobj->cmd_allocator();
-        ok &= native_ptr_to_seval<cocos2d::GFXCommandAllocator>((cocos2d::GFXCommandAllocator*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_cmd_allocator : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXDevice_cmd_allocator)
-
-static bool js_gfx_GFXDevice_CreateGFXSampler(se::State& s)
-{
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_CreateGFXSampler : Invalid Native Object");
+    cocos2d::GLES2Device* cobj = (cocos2d::GLES2Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Device_CreateGFXSampler : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -320,72 +323,21 @@ static bool js_gfx_GFXDevice_CreateGFXSampler(se::State& s)
         cocos2d::GFXSamplerInfo arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXSamplerInfo
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXSampler : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_CreateGFXSampler : Error processing arguments");
         cocos2d::GFXSampler* result = cobj->CreateGFXSampler(arg0);
         ok &= native_ptr_to_seval<cocos2d::GFXSampler>((cocos2d::GFXSampler*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXSampler : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_CreateGFXSampler : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXDevice_CreateGFXSampler)
+SE_BIND_FUNC(js_gfx_GLES2Device_CreateGFXSampler)
 
-static bool js_gfx_GFXDevice_mem_status(se::State& s)
+static bool js_gfx_GLES2Device_CreateGFXQueue(se::State& s)
 {
-    CC_UNUSED bool ok = true;
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2( cobj, false, "js_gfx_GFXDevice_mem_status : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    do {
-        if (argc == 0) {
-            const cocos2d::GFXMemoryStatus& result = cobj->mem_status();
-            #pragma warning NO CONVERSION FROM NATIVE FOR GFXMemoryStatus;
-            SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_mem_status : Error processing arguments");
-            return true;
-        }
-    } while(false);
-
-    do {
-        if (argc == 0) {
-            cocos2d::GFXMemoryStatus& result = cobj->mem_status();
-            #pragma warning NO CONVERSION FROM NATIVE FOR GFXMemoryStatus;
-            SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_mem_status : Error processing arguments");
-            return true;
-        }
-    } while(false);
-
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXDevice_mem_status)
-
-static bool js_gfx_GFXDevice_HasFeature(se::State& s)
-{
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_HasFeature : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        cocos2d::GFXFeature arg0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXFeature)tmp; } while(false);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_HasFeature : Error processing arguments");
-        bool result = cobj->HasFeature(arg0);
-        ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_HasFeature : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXDevice_HasFeature)
-
-static bool js_gfx_GFXDevice_CreateGFXQueue(se::State& s)
-{
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_CreateGFXQueue : Invalid Native Object");
+    cocos2d::GLES2Device* cobj = (cocos2d::GLES2Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Device_CreateGFXQueue : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -393,21 +345,21 @@ static bool js_gfx_GFXDevice_CreateGFXQueue(se::State& s)
         cocos2d::GFXQueueInfo arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXQueueInfo
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXQueue : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_CreateGFXQueue : Error processing arguments");
         cocos2d::GFXQueue* result = cobj->CreateGFXQueue(arg0);
         ok &= native_ptr_to_seval<cocos2d::GFXQueue>((cocos2d::GFXQueue*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXQueue : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_CreateGFXQueue : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXDevice_CreateGFXQueue)
+SE_BIND_FUNC(js_gfx_GLES2Device_CreateGFXQueue)
 
-static bool js_gfx_GFXDevice_CreateGFXRenderPass(se::State& s)
+static bool js_gfx_GLES2Device_CreateGFXRenderPass(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_CreateGFXRenderPass : Invalid Native Object");
+    cocos2d::GLES2Device* cobj = (cocos2d::GLES2Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Device_CreateGFXRenderPass : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -415,84 +367,21 @@ static bool js_gfx_GFXDevice_CreateGFXRenderPass(se::State& s)
         cocos2d::GFXRenderPassInfo arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXRenderPassInfo
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXRenderPass : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_CreateGFXRenderPass : Error processing arguments");
         cocos2d::GFXRenderPass* result = cobj->CreateGFXRenderPass(arg0);
         ok &= native_ptr_to_seval<cocos2d::GFXRenderPass>((cocos2d::GFXRenderPass*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXRenderPass : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_CreateGFXRenderPass : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXDevice_CreateGFXRenderPass)
+SE_BIND_FUNC(js_gfx_GLES2Device_CreateGFXRenderPass)
 
-static bool js_gfx_GFXDevice_CreateGFXPipelineState(se::State& s)
+static bool js_gfx_GLES2Device_CreateGFXBindingLayout(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_CreateGFXPipelineState : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        cocos2d::GFXPipelineStateInfo arg0;
-        #pragma warning NO CONVERSION TO NATIVE FOR GFXPipelineStateInfo
-        ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXPipelineState : Error processing arguments");
-        cocos2d::GFXPipelineState* result = cobj->CreateGFXPipelineState(arg0);
-        ok &= native_ptr_to_seval<cocos2d::GFXPipelineState>((cocos2d::GFXPipelineState*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXPipelineState : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXDevice_CreateGFXPipelineState)
-
-static bool js_gfx_GFXDevice_CopyBuffersToTexture(se::State& s)
-{
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_CopyBuffersToTexture : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 3) {
-        cocos2d::GFXBuffer* arg0 = nullptr;
-        cocos2d::GFXTexture* arg1 = nullptr;
-        std::vector<cocos2d::GFXBufferTextureCopy> arg2;
-        ok &= seval_to_native_ptr(args[0], &arg0);
-        ok &= seval_to_native_ptr(args[1], &arg1);
-        ok &= seval_to_std_vector_Texture(args[2], &arg2);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CopyBuffersToTexture : Error processing arguments");
-        cobj->CopyBuffersToTexture(arg0, arg1, arg2);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXDevice_CopyBuffersToTexture)
-
-static bool js_gfx_GFXDevice_queue(se::State& s)
-{
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_queue : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXQueue* result = cobj->queue();
-        ok &= native_ptr_to_seval<cocos2d::GFXQueue>((cocos2d::GFXQueue*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_queue : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXDevice_queue)
-
-static bool js_gfx_GFXDevice_CreateGFXBindingLayout(se::State& s)
-{
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_CreateGFXBindingLayout : Invalid Native Object");
+    cocos2d::GLES2Device* cobj = (cocos2d::GLES2Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Device_CreateGFXBindingLayout : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -500,21 +389,21 @@ static bool js_gfx_GFXDevice_CreateGFXBindingLayout(se::State& s)
         cocos2d::GFXBindingLayoutInfo arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXBindingLayoutInfo
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXBindingLayout : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_CreateGFXBindingLayout : Error processing arguments");
         cocos2d::GFXBindingLayout* result = cobj->CreateGFXBindingLayout(arg0);
         ok &= native_ptr_to_seval<cocos2d::GFXBindingLayout>((cocos2d::GFXBindingLayout*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXBindingLayout : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_CreateGFXBindingLayout : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXDevice_CreateGFXBindingLayout)
+SE_BIND_FUNC(js_gfx_GLES2Device_CreateGFXBindingLayout)
 
-static bool js_gfx_GFXDevice_Present(se::State& s)
+static bool js_gfx_GLES2Device_Present(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_Present : Invalid Native Object");
+    cocos2d::GLES2Device* cobj = (cocos2d::GLES2Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Device_Present : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -524,30 +413,12 @@ static bool js_gfx_GFXDevice_Present(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXDevice_Present)
+SE_BIND_FUNC(js_gfx_GLES2Device_Present)
 
-static bool js_gfx_GFXDevice_context(se::State& s)
+static bool js_gfx_GLES2Device_CreateGFXInputAssembler(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_context : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXContext* result = cobj->context();
-        ok &= native_ptr_to_seval<cocos2d::GFXContext>((cocos2d::GFXContext*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_context : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXDevice_context)
-
-static bool js_gfx_GFXDevice_CreateGFXInputAssembler(se::State& s)
-{
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_CreateGFXInputAssembler : Invalid Native Object");
+    cocos2d::GLES2Device* cobj = (cocos2d::GLES2Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Device_CreateGFXInputAssembler : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -555,43 +426,21 @@ static bool js_gfx_GFXDevice_CreateGFXInputAssembler(se::State& s)
         cocos2d::GFXInputAssemblerInfo arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXInputAssemblerInfo
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXInputAssembler : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_CreateGFXInputAssembler : Error processing arguments");
         cocos2d::GFXInputAssembler* result = cobj->CreateGFXInputAssembler(arg0);
         ok &= native_ptr_to_seval<cocos2d::GFXInputAssembler>((cocos2d::GFXInputAssembler*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXInputAssembler : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_CreateGFXInputAssembler : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXDevice_CreateGFXInputAssembler)
+SE_BIND_FUNC(js_gfx_GLES2Device_CreateGFXInputAssembler)
 
-static bool js_gfx_GFXDevice_CreateGFXPipelieLayout(se::State& s)
+static bool js_gfx_GLES2Device_CreateGFXFramebuffer(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_CreateGFXPipelieLayout : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        cocos2d::GFXPipelineLayoutInfo arg0;
-        #pragma warning NO CONVERSION TO NATIVE FOR GFXPipelineLayoutInfo
-        ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXPipelieLayout : Error processing arguments");
-        cocos2d::GFXPipelineLayout* result = cobj->CreateGFXPipelieLayout(arg0);
-        ok &= native_ptr_to_seval<cocos2d::GFXPipelineLayout>((cocos2d::GFXPipelineLayout*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXPipelieLayout : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXDevice_CreateGFXPipelieLayout)
-
-static bool js_gfx_GFXDevice_CreateGFXFramebuffer(se::State& s)
-{
-    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_CreateGFXFramebuffer : Invalid Native Object");
+    cocos2d::GLES2Device* cobj = (cocos2d::GLES2Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Device_CreateGFXFramebuffer : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -599,168 +448,255 @@ static bool js_gfx_GFXDevice_CreateGFXFramebuffer(se::State& s)
         cocos2d::GFXFramebufferInfo arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXFramebufferInfo
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXFramebuffer : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_CreateGFXFramebuffer : Error processing arguments");
         cocos2d::GFXFramebuffer* result = cobj->CreateGFXFramebuffer(arg0);
         ok &= native_ptr_to_seval<cocos2d::GFXFramebuffer>((cocos2d::GFXFramebuffer*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_CreateGFXFramebuffer : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Device_CreateGFXFramebuffer : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXDevice_CreateGFXFramebuffer)
+SE_BIND_FUNC(js_gfx_GLES2Device_CreateGFXFramebuffer)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXDevice_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GLES2Device_finalize)
 
-static bool js_gfx_GFXDevice_constructor(se::State& s)
+static bool js_gfx_GLES2Device_constructor(se::State& s)
 {
-    cocos2d::GFXDevice* cobj = new (std::nothrow) cocos2d::GFXDevice();
+    cocos2d::GLES2Device* cobj = new (std::nothrow) cocos2d::GLES2Device();
     s.thisObject()->setPrivateData(cobj);
     se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
-SE_BIND_CTOR(js_gfx_GFXDevice_constructor, __jsb_cocos2d_GFXDevice_class, js_cocos2d_GFXDevice_finalize)
+SE_BIND_CTOR(js_gfx_GLES2Device_constructor, __jsb_cocos2d_GLES2Device_class, js_cocos2d_GLES2Device_finalize)
 
 
 
+extern se::Object* __jsb_cocos2d_GFXDevice_proto;
 
-static bool js_cocos2d_GFXDevice_finalize(se::State& s)
+static bool js_cocos2d_GLES2Device_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXDevice)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2Device)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+        cocos2d::GLES2Device* cobj = (cocos2d::GLES2Device*)s.nativeThisObject();
         delete cobj;
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXDevice_finalize)
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2Device_finalize)
 
-bool js_register_gfx_GFXDevice(se::Object* obj)
+bool js_register_gfx_GLES2Device(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXDevice", obj, nullptr, _SE(js_gfx_GFXDevice_constructor));
+    auto cls = se::Class::create("GLES2Device", obj, __jsb_cocos2d_GFXDevice_proto, _SE(js_gfx_GLES2Device_constructor));
 
-    cls->defineFunction("height", _SE(js_gfx_GFXDevice_height));
-    cls->defineFunction("CreateGFXTextureView", _SE(js_gfx_GFXDevice_CreateGFXTextureView));
-    cls->defineFunction("CreateGFXCommandAllocator", _SE(js_gfx_GFXDevice_CreateGFXCommandAllocator));
-    cls->defineFunction("api", _SE(js_gfx_GFXDevice_api));
-    cls->defineFunction("CreateGFXBuffer", _SE(js_gfx_GFXDevice_CreateGFXBuffer));
-    cls->defineFunction("Destroy", _SE(js_gfx_GFXDevice_Destroy));
-    cls->defineFunction("CreateGFXWindow", _SE(js_gfx_GFXDevice_CreateGFXWindow));
-    cls->defineFunction("width", _SE(js_gfx_GFXDevice_width));
-    cls->defineFunction("CreateGFXTexture", _SE(js_gfx_GFXDevice_CreateGFXTexture));
-    cls->defineFunction("CreateGFXShader", _SE(js_gfx_GFXDevice_CreateGFXShader));
-    cls->defineFunction("window", _SE(js_gfx_GFXDevice_window));
-    cls->defineFunction("CreateGFXCommandBuffer", _SE(js_gfx_GFXDevice_CreateGFXCommandBuffer));
-    cls->defineFunction("Initialize", _SE(js_gfx_GFXDevice_Initialize));
-    cls->defineFunction("Resize", _SE(js_gfx_GFXDevice_Resize));
-    cls->defineFunction("cmd_allocator", _SE(js_gfx_GFXDevice_cmd_allocator));
-    cls->defineFunction("CreateGFXSampler", _SE(js_gfx_GFXDevice_CreateGFXSampler));
-    cls->defineFunction("mem_status", _SE(js_gfx_GFXDevice_mem_status));
-    cls->defineFunction("HasFeature", _SE(js_gfx_GFXDevice_HasFeature));
-    cls->defineFunction("CreateGFXQueue", _SE(js_gfx_GFXDevice_CreateGFXQueue));
-    cls->defineFunction("CreateGFXRenderPass", _SE(js_gfx_GFXDevice_CreateGFXRenderPass));
-    cls->defineFunction("CreateGFXPipelineState", _SE(js_gfx_GFXDevice_CreateGFXPipelineState));
-    cls->defineFunction("CopyBuffersToTexture", _SE(js_gfx_GFXDevice_CopyBuffersToTexture));
-    cls->defineFunction("queue", _SE(js_gfx_GFXDevice_queue));
-    cls->defineFunction("CreateGFXBindingLayout", _SE(js_gfx_GFXDevice_CreateGFXBindingLayout));
-    cls->defineFunction("Present", _SE(js_gfx_GFXDevice_Present));
-    cls->defineFunction("context", _SE(js_gfx_GFXDevice_context));
-    cls->defineFunction("CreateGFXInputAssembler", _SE(js_gfx_GFXDevice_CreateGFXInputAssembler));
-    cls->defineFunction("CreateGFXPipelieLayout", _SE(js_gfx_GFXDevice_CreateGFXPipelieLayout));
-    cls->defineFunction("CreateGFXFramebuffer", _SE(js_gfx_GFXDevice_CreateGFXFramebuffer));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXDevice_finalize));
+    cls->defineFunction("use_discard_framebuffer", _SE(js_gfx_GLES2Device_use_discard_framebuffer));
+    cls->defineFunction("use_instanced_arrays", _SE(js_gfx_GLES2Device_use_instanced_arrays));
+    cls->defineFunction("CreateGFXTextureView", _SE(js_gfx_GLES2Device_CreateGFXTextureView));
+    cls->defineFunction("CreateGFXCommandAllocator", _SE(js_gfx_GLES2Device_CreateGFXCommandAllocator));
+    cls->defineFunction("CreateGFXBuffer", _SE(js_gfx_GLES2Device_CreateGFXBuffer));
+    cls->defineFunction("Destroy", _SE(js_gfx_GLES2Device_Destroy));
+    cls->defineFunction("CreateGFXWindow", _SE(js_gfx_GLES2Device_CreateGFXWindow));
+    cls->defineFunction("use_vao", _SE(js_gfx_GLES2Device_use_vao));
+    cls->defineFunction("use_draw_instanced", _SE(js_gfx_GLES2Device_use_draw_instanced));
+    cls->defineFunction("CreateGFXTexture", _SE(js_gfx_GLES2Device_CreateGFXTexture));
+    cls->defineFunction("CreateGFXShader", _SE(js_gfx_GLES2Device_CreateGFXShader));
+    cls->defineFunction("CreateGFXCommandBuffer", _SE(js_gfx_GLES2Device_CreateGFXCommandBuffer));
+    cls->defineFunction("CheckExtension", _SE(js_gfx_GLES2Device_CheckExtension));
+    cls->defineFunction("Initialize", _SE(js_gfx_GLES2Device_Initialize));
+    cls->defineFunction("Resize", _SE(js_gfx_GLES2Device_Resize));
+    cls->defineFunction("CreateGFXSampler", _SE(js_gfx_GLES2Device_CreateGFXSampler));
+    cls->defineFunction("CreateGFXQueue", _SE(js_gfx_GLES2Device_CreateGFXQueue));
+    cls->defineFunction("CreateGFXRenderPass", _SE(js_gfx_GLES2Device_CreateGFXRenderPass));
+    cls->defineFunction("CreateGFXBindingLayout", _SE(js_gfx_GLES2Device_CreateGFXBindingLayout));
+    cls->defineFunction("Present", _SE(js_gfx_GLES2Device_Present));
+    cls->defineFunction("CreateGFXInputAssembler", _SE(js_gfx_GLES2Device_CreateGFXInputAssembler));
+    cls->defineFunction("CreateGFXFramebuffer", _SE(js_gfx_GLES2Device_CreateGFXFramebuffer));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2Device_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXDevice>(cls);
+    JSBClassType::registerClass<cocos2d::GLES2Device>(cls);
 
-    __jsb_cocos2d_GFXDevice_proto = cls->getProto();
-    __jsb_cocos2d_GFXDevice_class = cls;
+    __jsb_cocos2d_GLES2Device_proto = cls->getProto();
+    __jsb_cocos2d_GLES2Device_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXContext_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXContext_class = nullptr;
+se::Object* __jsb_cocos2d_GLES2Context_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2Context_class = nullptr;
 
-static bool js_gfx_GFXContext_shared_ctx(se::State& s)
+static bool js_gfx_GLES2Context_egl_config(se::State& s)
 {
-    cocos2d::GFXContext* cobj = (cocos2d::GFXContext*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXContext_shared_ctx : Invalid Native Object");
+    cocos2d::GLES2Context* cobj = (cocos2d::GLES2Context*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Context_egl_config : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::GFXContext* result = cobj->shared_ctx();
-        ok &= native_ptr_to_seval<cocos2d::GFXContext>((cocos2d::GFXContext*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXContext_shared_ctx : Error processing arguments");
+        void* result = cobj->egl_config();
+        #pragma warning NO CONVERSION FROM NATIVE FOR void*;
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Context_egl_config : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXContext_shared_ctx)
+SE_BIND_FUNC(js_gfx_GLES2Context_egl_config)
 
-static bool js_gfx_GFXContext_color_fmt(se::State& s)
+static bool js_gfx_GLES2Context_minor_ver(se::State& s)
 {
-    cocos2d::GFXContext* cobj = (cocos2d::GFXContext*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXContext_color_fmt : Invalid Native Object");
+    cocos2d::GLES2Context* cobj = (cocos2d::GLES2Context*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Context_minor_ver : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cobj->color_fmt();
+        int result = cobj->minor_ver();
         ok &= int32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXContext_color_fmt : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Context_minor_ver : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXContext_color_fmt)
+SE_BIND_FUNC(js_gfx_GLES2Context_minor_ver)
 
-static bool js_gfx_GFXContext_vsync_mode(se::State& s)
+static bool js_gfx_GLES2Context_CheckExtension(se::State& s)
 {
-    cocos2d::GFXContext* cobj = (cocos2d::GFXContext*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXContext_vsync_mode : Invalid Native Object");
+    cocos2d::GLES2Context* cobj = (cocos2d::GLES2Context*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Context_CheckExtension : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        cocos2d::String arg0;
+        arg0 = args[0].toStringForce().c_str();
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Context_CheckExtension : Error processing arguments");
+        bool result = cobj->CheckExtension(arg0);
+        ok &= boolean_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Context_CheckExtension : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GLES2Context_CheckExtension)
+
+static bool js_gfx_GLES2Context_egl_context(se::State& s)
+{
+    cocos2d::GLES2Context* cobj = (cocos2d::GLES2Context*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Context_egl_context : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cobj->vsync_mode();
+        void* result = cobj->egl_context();
+        #pragma warning NO CONVERSION FROM NATIVE FOR void*;
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Context_egl_context : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GLES2Context_egl_context)
+
+static bool js_gfx_GLES2Context_major_ver(se::State& s)
+{
+    cocos2d::GLES2Context* cobj = (cocos2d::GLES2Context*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Context_major_ver : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->major_ver();
         ok &= int32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXContext_vsync_mode : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Context_major_ver : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXContext_vsync_mode)
+SE_BIND_FUNC(js_gfx_GLES2Context_major_ver)
 
-static bool js_gfx_GFXContext_device(se::State& s)
+static bool js_gfx_GLES2Context_egl_display(se::State& s)
 {
-    cocos2d::GFXContext* cobj = (cocos2d::GFXContext*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXContext_device : Invalid Native Object");
+    cocos2d::GLES2Context* cobj = (cocos2d::GLES2Context*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Context_egl_display : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::GFXDevice* result = cobj->device();
-        ok &= native_ptr_to_seval<cocos2d::GFXDevice>((cocos2d::GFXDevice*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXContext_device : Error processing arguments");
+        void* result = cobj->egl_display();
+        #pragma warning NO CONVERSION FROM NATIVE FOR void*;
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Context_egl_display : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXContext_device)
+SE_BIND_FUNC(js_gfx_GLES2Context_egl_display)
 
-static bool js_gfx_GFXContext_Initialize(se::State& s)
+static bool js_gfx_GLES2Context_native_display(se::State& s)
 {
-    cocos2d::GFXContext* cobj = (cocos2d::GFXContext*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXContext_Initialize : Invalid Native Object");
+    cocos2d::GLES2Context* cobj = (cocos2d::GLES2Context*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Context_native_display : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        void* result = cobj->native_display();
+        #pragma warning NO CONVERSION FROM NATIVE FOR void*;
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Context_native_display : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GLES2Context_native_display)
+
+static bool js_gfx_GLES2Context_MakeCurrent(se::State& s)
+{
+    cocos2d::GLES2Context* cobj = (cocos2d::GLES2Context*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Context_MakeCurrent : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->MakeCurrent();
+        ok &= boolean_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Context_MakeCurrent : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GLES2Context_MakeCurrent)
+
+static bool js_gfx_GLES2Context_egl_shared_ctx(se::State& s)
+{
+    cocos2d::GLES2Context* cobj = (cocos2d::GLES2Context*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Context_egl_shared_ctx : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        void* result = cobj->egl_shared_ctx();
+        #pragma warning NO CONVERSION FROM NATIVE FOR void*;
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Context_egl_shared_ctx : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GLES2Context_egl_shared_ctx)
+
+static bool js_gfx_GLES2Context_Initialize(se::State& s)
+{
+    cocos2d::GLES2Context* cobj = (cocos2d::GLES2Context*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Context_Initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -768,21 +704,21 @@ static bool js_gfx_GFXContext_Initialize(se::State& s)
         cocos2d::GFXContextInfo arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXContextInfo
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXContext_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Context_Initialize : Error processing arguments");
         bool result = cobj->Initialize(arg0);
         ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXContext_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Context_Initialize : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXContext_Initialize)
+SE_BIND_FUNC(js_gfx_GLES2Context_Initialize)
 
-static bool js_gfx_GFXContext_Destroy(se::State& s)
+static bool js_gfx_GLES2Context_Destroy(se::State& s)
 {
-    cocos2d::GFXContext* cobj = (cocos2d::GFXContext*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXContext_Destroy : Invalid Native Object");
+    cocos2d::GLES2Context* cobj = (cocos2d::GLES2Context*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Context_Destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -792,12 +728,30 @@ static bool js_gfx_GFXContext_Destroy(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXContext_Destroy)
+SE_BIND_FUNC(js_gfx_GLES2Context_Destroy)
 
-static bool js_gfx_GFXContext_Present(se::State& s)
+static bool js_gfx_GLES2Context_egl_surface(se::State& s)
 {
-    cocos2d::GFXContext* cobj = (cocos2d::GFXContext*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXContext_Present : Invalid Native Object");
+    cocos2d::GLES2Context* cobj = (cocos2d::GLES2Context*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Context_egl_surface : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        void* result = cobj->egl_surface();
+        #pragma warning NO CONVERSION FROM NATIVE FOR void*;
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Context_egl_surface : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GLES2Context_egl_surface)
+
+static bool js_gfx_GLES2Context_Present(se::State& s)
+{
+    cocos2d::GLES2Context* cobj = (cocos2d::GLES2Context*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Context_Present : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -807,305 +761,77 @@ static bool js_gfx_GFXContext_Present(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXContext_Present)
+SE_BIND_FUNC(js_gfx_GLES2Context_Present)
 
-static bool js_gfx_GFXContext_depth_stencil_fmt(se::State& s)
-{
-    cocos2d::GFXContext* cobj = (cocos2d::GFXContext*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXContext_depth_stencil_fmt : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->depth_stencil_fmt();
-        ok &= int32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXContext_depth_stencil_fmt : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXContext_depth_stencil_fmt)
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GLES2Context_finalize)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXContext_finalize)
-
-static bool js_gfx_GFXContext_constructor(se::State& s)
+static bool js_gfx_GLES2Context_constructor(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     cocos2d::GFXDevice* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXContext_constructor : Error processing arguments");
-    cocos2d::GFXContext* cobj = new (std::nothrow) cocos2d::GFXContext(arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_GLES2Context_constructor : Error processing arguments");
+    cocos2d::GLES2Context* cobj = new (std::nothrow) cocos2d::GLES2Context(arg0);
     s.thisObject()->setPrivateData(cobj);
     se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
-SE_BIND_CTOR(js_gfx_GFXContext_constructor, __jsb_cocos2d_GFXContext_class, js_cocos2d_GFXContext_finalize)
+SE_BIND_CTOR(js_gfx_GLES2Context_constructor, __jsb_cocos2d_GLES2Context_class, js_cocos2d_GLES2Context_finalize)
 
 
 
+extern se::Object* __jsb_cocos2d_GFXContext_proto;
 
-static bool js_cocos2d_GFXContext_finalize(se::State& s)
+static bool js_cocos2d_GLES2Context_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXContext)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2Context)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXContext* cobj = (cocos2d::GFXContext*)s.nativeThisObject();
+        cocos2d::GLES2Context* cobj = (cocos2d::GLES2Context*)s.nativeThisObject();
         delete cobj;
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXContext_finalize)
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2Context_finalize)
 
-bool js_register_gfx_GFXContext(se::Object* obj)
+bool js_register_gfx_GLES2Context(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXContext", obj, nullptr, _SE(js_gfx_GFXContext_constructor));
+    auto cls = se::Class::create("GLES2Context", obj, __jsb_cocos2d_GFXContext_proto, _SE(js_gfx_GLES2Context_constructor));
 
-    cls->defineFunction("shared_ctx", _SE(js_gfx_GFXContext_shared_ctx));
-    cls->defineFunction("color_fmt", _SE(js_gfx_GFXContext_color_fmt));
-    cls->defineFunction("vsync_mode", _SE(js_gfx_GFXContext_vsync_mode));
-    cls->defineFunction("device", _SE(js_gfx_GFXContext_device));
-    cls->defineFunction("Initialize", _SE(js_gfx_GFXContext_Initialize));
-    cls->defineFunction("Destroy", _SE(js_gfx_GFXContext_Destroy));
-    cls->defineFunction("Present", _SE(js_gfx_GFXContext_Present));
-    cls->defineFunction("depth_stencil_fmt", _SE(js_gfx_GFXContext_depth_stencil_fmt));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXContext_finalize));
+    cls->defineFunction("egl_config", _SE(js_gfx_GLES2Context_egl_config));
+    cls->defineFunction("minor_ver", _SE(js_gfx_GLES2Context_minor_ver));
+    cls->defineFunction("CheckExtension", _SE(js_gfx_GLES2Context_CheckExtension));
+    cls->defineFunction("egl_context", _SE(js_gfx_GLES2Context_egl_context));
+    cls->defineFunction("major_ver", _SE(js_gfx_GLES2Context_major_ver));
+    cls->defineFunction("egl_display", _SE(js_gfx_GLES2Context_egl_display));
+    cls->defineFunction("native_display", _SE(js_gfx_GLES2Context_native_display));
+    cls->defineFunction("MakeCurrent", _SE(js_gfx_GLES2Context_MakeCurrent));
+    cls->defineFunction("egl_shared_ctx", _SE(js_gfx_GLES2Context_egl_shared_ctx));
+    cls->defineFunction("Initialize", _SE(js_gfx_GLES2Context_Initialize));
+    cls->defineFunction("Destroy", _SE(js_gfx_GLES2Context_Destroy));
+    cls->defineFunction("egl_surface", _SE(js_gfx_GLES2Context_egl_surface));
+    cls->defineFunction("Present", _SE(js_gfx_GLES2Context_Present));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2Context_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXContext>(cls);
+    JSBClassType::registerClass<cocos2d::GLES2Context>(cls);
 
-    __jsb_cocos2d_GFXContext_proto = cls->getProto();
-    __jsb_cocos2d_GFXContext_class = cls;
+    __jsb_cocos2d_GLES2Context_proto = cls->getProto();
+    __jsb_cocos2d_GLES2Context_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXWindow_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXWindow_class = nullptr;
+se::Object* __jsb_cocos2d_GLES2Window_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2Window_class = nullptr;
 
-static bool js_gfx_GFXWindow_depth_stencil_tex_view(se::State& s)
+static bool js_gfx_GLES2Window_Initialize(se::State& s)
 {
-    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_depth_stencil_tex_view : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXTextureView* result = cobj->depth_stencil_tex_view();
-        ok &= native_ptr_to_seval<cocos2d::GFXTextureView>((cocos2d::GFXTextureView*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_depth_stencil_tex_view : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXWindow_depth_stencil_tex_view)
-
-static bool js_gfx_GFXWindow_render_pass(se::State& s)
-{
-    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_render_pass : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXRenderPass* result = cobj->render_pass();
-        ok &= native_ptr_to_seval<cocos2d::GFXRenderPass>((cocos2d::GFXRenderPass*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_render_pass : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXWindow_render_pass)
-
-static bool js_gfx_GFXWindow_native_width(se::State& s)
-{
-    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_native_width : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->native_width();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_native_width : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXWindow_native_width)
-
-static bool js_gfx_GFXWindow_native_height(se::State& s)
-{
-    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_native_height : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->native_height();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_native_height : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXWindow_native_height)
-
-static bool js_gfx_GFXWindow_title(se::State& s)
-{
-    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_title : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const cocos2d::String& result = cobj->title();
-        s.rval().setString(result.buffer());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_title : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXWindow_title)
-
-static bool js_gfx_GFXWindow_color_fmt(se::State& s)
-{
-    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_color_fmt : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->color_fmt();
-        ok &= int32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_color_fmt : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXWindow_color_fmt)
-
-static bool js_gfx_GFXWindow_top(se::State& s)
-{
-    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_top : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = cobj->top();
-        ok &= int32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_top : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXWindow_top)
-
-static bool js_gfx_GFXWindow_depth_stencil_texture(se::State& s)
-{
-    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_depth_stencil_texture : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXTexture* result = cobj->depth_stencil_texture();
-        ok &= native_ptr_to_seval<cocos2d::GFXTexture>((cocos2d::GFXTexture*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_depth_stencil_texture : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXWindow_depth_stencil_texture)
-
-static bool js_gfx_GFXWindow_color_texture(se::State& s)
-{
-    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_color_texture : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXTexture* result = cobj->color_texture();
-        ok &= native_ptr_to_seval<cocos2d::GFXTexture>((cocos2d::GFXTexture*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_color_texture : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXWindow_color_texture)
-
-static bool js_gfx_GFXWindow_is_offscreen(se::State& s)
-{
-    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_is_offscreen : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        bool result = cobj->is_offscreen();
-        ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_is_offscreen : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXWindow_is_offscreen)
-
-static bool js_gfx_GFXWindow_height(se::State& s)
-{
-    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_height : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->height();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_height : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXWindow_height)
-
-static bool js_gfx_GFXWindow_device(se::State& s)
-{
-    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_device : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXDevice* result = cobj->device();
-        ok &= native_ptr_to_seval<cocos2d::GFXDevice>((cocos2d::GFXDevice*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_device : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXWindow_device)
-
-static bool js_gfx_GFXWindow_Initialize(se::State& s)
-{
-    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_Initialize : Invalid Native Object");
+    cocos2d::GLES2Window* cobj = (cocos2d::GLES2Window*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Window_Initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1113,21 +839,21 @@ static bool js_gfx_GFXWindow_Initialize(se::State& s)
         cocos2d::GFXWindowInfo arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXWindowInfo
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Window_Initialize : Error processing arguments");
         bool result = cobj->Initialize(arg0);
         ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Window_Initialize : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXWindow_Initialize)
+SE_BIND_FUNC(js_gfx_GLES2Window_Initialize)
 
-static bool js_gfx_GFXWindow_Destroy(se::State& s)
+static bool js_gfx_GLES2Window_Destroy(se::State& s)
 {
-    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_Destroy : Invalid Native Object");
+    cocos2d::GLES2Window* cobj = (cocos2d::GLES2Window*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Window_Destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -1137,84 +863,12 @@ static bool js_gfx_GFXWindow_Destroy(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXWindow_Destroy)
+SE_BIND_FUNC(js_gfx_GLES2Window_Destroy)
 
-static bool js_gfx_GFXWindow_framebuffer(se::State& s)
+static bool js_gfx_GLES2Window_Resize(se::State& s)
 {
-    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_framebuffer : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXFramebuffer* result = cobj->framebuffer();
-        ok &= native_ptr_to_seval<cocos2d::GFXFramebuffer>((cocos2d::GFXFramebuffer*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_framebuffer : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXWindow_framebuffer)
-
-static bool js_gfx_GFXWindow_depth_stencil_fmt(se::State& s)
-{
-    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_depth_stencil_fmt : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->depth_stencil_fmt();
-        ok &= int32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_depth_stencil_fmt : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXWindow_depth_stencil_fmt)
-
-static bool js_gfx_GFXWindow_color_tex_view(se::State& s)
-{
-    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_color_tex_view : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXTextureView* result = cobj->color_tex_view();
-        ok &= native_ptr_to_seval<cocos2d::GFXTextureView>((cocos2d::GFXTextureView*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_color_tex_view : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXWindow_color_tex_view)
-
-static bool js_gfx_GFXWindow_width(se::State& s)
-{
-    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_width : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->width();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_width : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXWindow_width)
-
-static bool js_gfx_GFXWindow_Resize(se::State& s)
-{
-    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_Resize : Invalid Native Object");
+    cocos2d::GLES2Window* cobj = (cocos2d::GLES2Window*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Window_Resize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1223,201 +877,77 @@ static bool js_gfx_GFXWindow_Resize(se::State& s)
         unsigned int arg1 = 0;
         ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
         ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_Resize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Window_Resize : Error processing arguments");
         cobj->Resize(arg0, arg1);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXWindow_Resize)
+SE_BIND_FUNC(js_gfx_GLES2Window_Resize)
 
-static bool js_gfx_GFXWindow_left(se::State& s)
-{
-    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_left : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = cobj->left();
-        ok &= int32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_left : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXWindow_left)
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GLES2Window_finalize)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXWindow_finalize)
-
-static bool js_gfx_GFXWindow_constructor(se::State& s)
+static bool js_gfx_GLES2Window_constructor(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     cocos2d::GFXDevice* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_constructor : Error processing arguments");
-    cocos2d::GFXWindow* cobj = new (std::nothrow) cocos2d::GFXWindow(arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_GLES2Window_constructor : Error processing arguments");
+    cocos2d::GLES2Window* cobj = new (std::nothrow) cocos2d::GLES2Window(arg0);
     s.thisObject()->setPrivateData(cobj);
     se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
-SE_BIND_CTOR(js_gfx_GFXWindow_constructor, __jsb_cocos2d_GFXWindow_class, js_cocos2d_GFXWindow_finalize)
+SE_BIND_CTOR(js_gfx_GLES2Window_constructor, __jsb_cocos2d_GLES2Window_class, js_cocos2d_GLES2Window_finalize)
 
 
 
+extern se::Object* __jsb_cocos2d_GFXWindow_proto;
 
-static bool js_cocos2d_GFXWindow_finalize(se::State& s)
+static bool js_cocos2d_GLES2Window_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXWindow)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2Window)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
+        cocos2d::GLES2Window* cobj = (cocos2d::GLES2Window*)s.nativeThisObject();
         delete cobj;
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXWindow_finalize)
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2Window_finalize)
 
-bool js_register_gfx_GFXWindow(se::Object* obj)
+bool js_register_gfx_GLES2Window(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXWindow", obj, nullptr, _SE(js_gfx_GFXWindow_constructor));
+    auto cls = se::Class::create("GLES2Window", obj, __jsb_cocos2d_GFXWindow_proto, _SE(js_gfx_GLES2Window_constructor));
 
-    cls->defineFunction("depth_stencil_tex_view", _SE(js_gfx_GFXWindow_depth_stencil_tex_view));
-    cls->defineFunction("render_pass", _SE(js_gfx_GFXWindow_render_pass));
-    cls->defineFunction("native_width", _SE(js_gfx_GFXWindow_native_width));
-    cls->defineFunction("native_height", _SE(js_gfx_GFXWindow_native_height));
-    cls->defineFunction("title", _SE(js_gfx_GFXWindow_title));
-    cls->defineFunction("color_fmt", _SE(js_gfx_GFXWindow_color_fmt));
-    cls->defineFunction("top", _SE(js_gfx_GFXWindow_top));
-    cls->defineFunction("depth_stencil_texture", _SE(js_gfx_GFXWindow_depth_stencil_texture));
-    cls->defineFunction("color_texture", _SE(js_gfx_GFXWindow_color_texture));
-    cls->defineFunction("is_offscreen", _SE(js_gfx_GFXWindow_is_offscreen));
-    cls->defineFunction("height", _SE(js_gfx_GFXWindow_height));
-    cls->defineFunction("device", _SE(js_gfx_GFXWindow_device));
-    cls->defineFunction("Initialize", _SE(js_gfx_GFXWindow_Initialize));
-    cls->defineFunction("Destroy", _SE(js_gfx_GFXWindow_Destroy));
-    cls->defineFunction("framebuffer", _SE(js_gfx_GFXWindow_framebuffer));
-    cls->defineFunction("depth_stencil_fmt", _SE(js_gfx_GFXWindow_depth_stencil_fmt));
-    cls->defineFunction("color_tex_view", _SE(js_gfx_GFXWindow_color_tex_view));
-    cls->defineFunction("width", _SE(js_gfx_GFXWindow_width));
-    cls->defineFunction("Resize", _SE(js_gfx_GFXWindow_Resize));
-    cls->defineFunction("left", _SE(js_gfx_GFXWindow_left));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXWindow_finalize));
+    cls->defineFunction("Initialize", _SE(js_gfx_GLES2Window_Initialize));
+    cls->defineFunction("Destroy", _SE(js_gfx_GLES2Window_Destroy));
+    cls->defineFunction("Resize", _SE(js_gfx_GLES2Window_Resize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2Window_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXWindow>(cls);
+    JSBClassType::registerClass<cocos2d::GLES2Window>(cls);
 
-    __jsb_cocos2d_GFXWindow_proto = cls->getProto();
-    __jsb_cocos2d_GFXWindow_class = cls;
+    __jsb_cocos2d_GLES2Window_proto = cls->getProto();
+    __jsb_cocos2d_GLES2Window_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXBuffer_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXBuffer_class = nullptr;
+se::Object* __jsb_cocos2d_GLES2Buffer_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2Buffer_class = nullptr;
 
-static bool js_gfx_GFXBuffer_count(se::State& s)
+static bool js_gfx_GLES2Buffer_Update(se::State& s)
 {
-    cocos2d::GFXBuffer* cobj = (cocos2d::GFXBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBuffer_count : Invalid Native Object");
+    cocos2d::GLES2Buffer* cobj = (cocos2d::GLES2Buffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Buffer_Update : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->count();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXBuffer_count : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXBuffer_count)
-
-static bool js_gfx_GFXBuffer_memUsage(se::State& s)
-{
-    cocos2d::GFXBuffer* cobj = (cocos2d::GFXBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBuffer_memUsage : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->memUsage();
-        ok &= int32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXBuffer_memUsage : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXBuffer_memUsage)
-
-static bool js_gfx_GFXBuffer_usage(se::State& s)
-{
-    cocos2d::GFXBuffer* cobj = (cocos2d::GFXBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBuffer_usage : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->usage();
-        ok &= int32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXBuffer_usage : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXBuffer_usage)
-
-static bool js_gfx_GFXBuffer_buffer(se::State& s)
-{
-    cocos2d::GFXBuffer* cobj = (cocos2d::GFXBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBuffer_buffer : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned char* result = cobj->buffer();
-        #pragma warning NO CONVERSION FROM NATIVE FOR unsigned char*;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXBuffer_buffer : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXBuffer_buffer)
-
-static bool js_gfx_GFXBuffer_Update(se::State& s)
-{
-    cocos2d::GFXBuffer* cobj = (cocos2d::GFXBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBuffer_Update : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        void* arg0 = nullptr;
-        #pragma warning NO CONVERSION TO NATIVE FOR void*
-        ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXBuffer_Update : Error processing arguments");
-        cobj->Update(arg0);
-        return true;
-    }
-    if (argc == 2) {
-        void* arg0 = nullptr;
-        unsigned int arg1 = 0;
-        #pragma warning NO CONVERSION TO NATIVE FOR void*
-        ok = false;
-        ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXBuffer_Update : Error processing arguments");
-        cobj->Update(arg0, arg1);
-        return true;
-    }
     if (argc == 3) {
         void* arg0 = nullptr;
         unsigned int arg1 = 0;
@@ -1426,55 +956,37 @@ static bool js_gfx_GFXBuffer_Update(se::State& s)
         ok = false;
         ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
         ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXBuffer_Update : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Buffer_Update : Error processing arguments");
         cobj->Update(arg0, arg1, arg2);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXBuffer_Update)
+SE_BIND_FUNC(js_gfx_GLES2Buffer_Update)
 
-static bool js_gfx_GFXBuffer_device(se::State& s)
+static bool js_gfx_GLES2Buffer_gpu_buffer(se::State& s)
 {
-    cocos2d::GFXBuffer* cobj = (cocos2d::GFXBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBuffer_device : Invalid Native Object");
+    cocos2d::GLES2Buffer* cobj = (cocos2d::GLES2Buffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Buffer_gpu_buffer : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::GFXDevice* result = cobj->device();
-        ok &= native_ptr_to_seval<cocos2d::GFXDevice>((cocos2d::GFXDevice*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXBuffer_device : Error processing arguments");
+        cocos2d::GLES2GPUBuffer* result = cobj->gpu_buffer();
+        ok &= native_ptr_to_seval<cocos2d::GLES2GPUBuffer>((cocos2d::GLES2GPUBuffer*)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Buffer_gpu_buffer : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXBuffer_device)
+SE_BIND_FUNC(js_gfx_GLES2Buffer_gpu_buffer)
 
-static bool js_gfx_GFXBuffer_flags(se::State& s)
+static bool js_gfx_GLES2Buffer_Initialize(se::State& s)
 {
-    cocos2d::GFXBuffer* cobj = (cocos2d::GFXBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBuffer_flags : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->flags();
-        ok &= int32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXBuffer_flags : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXBuffer_flags)
-
-static bool js_gfx_GFXBuffer_Initialize(se::State& s)
-{
-    cocos2d::GFXBuffer* cobj = (cocos2d::GFXBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBuffer_Initialize : Invalid Native Object");
+    cocos2d::GLES2Buffer* cobj = (cocos2d::GLES2Buffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Buffer_Initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1482,21 +994,21 @@ static bool js_gfx_GFXBuffer_Initialize(se::State& s)
         cocos2d::GFXBufferInfo arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXBufferInfo
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXBuffer_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Buffer_Initialize : Error processing arguments");
         bool result = cobj->Initialize(arg0);
         ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXBuffer_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Buffer_Initialize : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXBuffer_Initialize)
+SE_BIND_FUNC(js_gfx_GLES2Buffer_Initialize)
 
-static bool js_gfx_GFXBuffer_Destroy(se::State& s)
+static bool js_gfx_GLES2Buffer_Destroy(se::State& s)
 {
-    cocos2d::GFXBuffer* cobj = (cocos2d::GFXBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBuffer_Destroy : Invalid Native Object");
+    cocos2d::GLES2Buffer* cobj = (cocos2d::GLES2Buffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Buffer_Destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -1506,292 +1018,88 @@ static bool js_gfx_GFXBuffer_Destroy(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXBuffer_Destroy)
+SE_BIND_FUNC(js_gfx_GLES2Buffer_Destroy)
 
-static bool js_gfx_GFXBuffer_stride(se::State& s)
+static bool js_gfx_GLES2Buffer_Resize(se::State& s)
 {
-    cocos2d::GFXBuffer* cobj = (cocos2d::GFXBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBuffer_stride : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->stride();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXBuffer_stride : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXBuffer_stride)
-
-static bool js_gfx_GFXBuffer_Resize(se::State& s)
-{
-    cocos2d::GFXBuffer* cobj = (cocos2d::GFXBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBuffer_Resize : Invalid Native Object");
+    cocos2d::GLES2Buffer* cobj = (cocos2d::GLES2Buffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Buffer_Resize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         unsigned int arg0 = 0;
         ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXBuffer_Resize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Buffer_Resize : Error processing arguments");
         cobj->Resize(arg0);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXBuffer_Resize)
+SE_BIND_FUNC(js_gfx_GLES2Buffer_Resize)
 
-static bool js_gfx_GFXBuffer_size(se::State& s)
-{
-    cocos2d::GFXBuffer* cobj = (cocos2d::GFXBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBuffer_size : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->size();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXBuffer_size : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXBuffer_size)
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GLES2Buffer_finalize)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXBuffer_finalize)
-
-static bool js_gfx_GFXBuffer_constructor(se::State& s)
+static bool js_gfx_GLES2Buffer_constructor(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     cocos2d::GFXDevice* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXBuffer_constructor : Error processing arguments");
-    cocos2d::GFXBuffer* cobj = new (std::nothrow) cocos2d::GFXBuffer(arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_GLES2Buffer_constructor : Error processing arguments");
+    cocos2d::GLES2Buffer* cobj = new (std::nothrow) cocos2d::GLES2Buffer(arg0);
     s.thisObject()->setPrivateData(cobj);
     se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
-SE_BIND_CTOR(js_gfx_GFXBuffer_constructor, __jsb_cocos2d_GFXBuffer_class, js_cocos2d_GFXBuffer_finalize)
+SE_BIND_CTOR(js_gfx_GLES2Buffer_constructor, __jsb_cocos2d_GLES2Buffer_class, js_cocos2d_GLES2Buffer_finalize)
 
 
 
+extern se::Object* __jsb_cocos2d_GFXBuffer_proto;
 
-static bool js_cocos2d_GFXBuffer_finalize(se::State& s)
+static bool js_cocos2d_GLES2Buffer_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXBuffer)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2Buffer)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXBuffer* cobj = (cocos2d::GFXBuffer*)s.nativeThisObject();
+        cocos2d::GLES2Buffer* cobj = (cocos2d::GLES2Buffer*)s.nativeThisObject();
         delete cobj;
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXBuffer_finalize)
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2Buffer_finalize)
 
-bool js_register_gfx_GFXBuffer(se::Object* obj)
+bool js_register_gfx_GLES2Buffer(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXBuffer", obj, nullptr, _SE(js_gfx_GFXBuffer_constructor));
+    auto cls = se::Class::create("GLES2Buffer", obj, __jsb_cocos2d_GFXBuffer_proto, _SE(js_gfx_GLES2Buffer_constructor));
 
-    cls->defineFunction("count", _SE(js_gfx_GFXBuffer_count));
-    cls->defineFunction("memUsage", _SE(js_gfx_GFXBuffer_memUsage));
-    cls->defineFunction("usage", _SE(js_gfx_GFXBuffer_usage));
-    cls->defineFunction("buffer", _SE(js_gfx_GFXBuffer_buffer));
-    cls->defineFunction("Update", _SE(js_gfx_GFXBuffer_Update));
-    cls->defineFunction("device", _SE(js_gfx_GFXBuffer_device));
-    cls->defineFunction("flags", _SE(js_gfx_GFXBuffer_flags));
-    cls->defineFunction("Initialize", _SE(js_gfx_GFXBuffer_Initialize));
-    cls->defineFunction("Destroy", _SE(js_gfx_GFXBuffer_Destroy));
-    cls->defineFunction("stride", _SE(js_gfx_GFXBuffer_stride));
-    cls->defineFunction("Resize", _SE(js_gfx_GFXBuffer_Resize));
-    cls->defineFunction("size", _SE(js_gfx_GFXBuffer_size));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXBuffer_finalize));
+    cls->defineFunction("Update", _SE(js_gfx_GLES2Buffer_Update));
+    cls->defineFunction("gpu_buffer", _SE(js_gfx_GLES2Buffer_gpu_buffer));
+    cls->defineFunction("Initialize", _SE(js_gfx_GLES2Buffer_Initialize));
+    cls->defineFunction("Destroy", _SE(js_gfx_GLES2Buffer_Destroy));
+    cls->defineFunction("Resize", _SE(js_gfx_GLES2Buffer_Resize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2Buffer_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXBuffer>(cls);
+    JSBClassType::registerClass<cocos2d::GLES2Buffer>(cls);
 
-    __jsb_cocos2d_GFXBuffer_proto = cls->getProto();
-    __jsb_cocos2d_GFXBuffer_class = cls;
+    __jsb_cocos2d_GLES2Buffer_proto = cls->getProto();
+    __jsb_cocos2d_GLES2Buffer_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXTexture_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXTexture_class = nullptr;
+se::Object* __jsb_cocos2d_GLES2Texture_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2Texture_class = nullptr;
 
-static bool js_gfx_GFXTexture_array_layer(se::State& s)
+static bool js_gfx_GLES2Texture_Initialize(se::State& s)
 {
-    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXTexture_array_layer : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->array_layer();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXTexture_array_layer : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXTexture_array_layer)
-
-static bool js_gfx_GFXTexture_format(se::State& s)
-{
-    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXTexture_format : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->format();
-        ok &= int32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXTexture_format : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXTexture_format)
-
-static bool js_gfx_GFXTexture_buffer(se::State& s)
-{
-    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXTexture_buffer : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned char* result = cobj->buffer();
-        #pragma warning NO CONVERSION FROM NATIVE FOR unsigned char*;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXTexture_buffer : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXTexture_buffer)
-
-static bool js_gfx_GFXTexture_height(se::State& s)
-{
-    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXTexture_height : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->height();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXTexture_height : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXTexture_height)
-
-static bool js_gfx_GFXTexture_usage(se::State& s)
-{
-    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXTexture_usage : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->usage();
-        ok &= int32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXTexture_usage : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXTexture_usage)
-
-static bool js_gfx_GFXTexture_depth(se::State& s)
-{
-    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXTexture_depth : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->depth();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXTexture_depth : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXTexture_depth)
-
-static bool js_gfx_GFXTexture_flags(se::State& s)
-{
-    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXTexture_flags : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->flags();
-        ok &= int32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXTexture_flags : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXTexture_flags)
-
-static bool js_gfx_GFXTexture_mip_level(se::State& s)
-{
-    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXTexture_mip_level : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->mip_level();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXTexture_mip_level : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXTexture_mip_level)
-
-static bool js_gfx_GFXTexture_samples(se::State& s)
-{
-    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXTexture_samples : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->samples();
-        ok &= int32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXTexture_samples : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXTexture_samples)
-
-static bool js_gfx_GFXTexture_Initialize(se::State& s)
-{
-    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXTexture_Initialize : Invalid Native Object");
+    cocos2d::GLES2Texture* cobj = (cocos2d::GLES2Texture*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Texture_Initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1799,21 +1107,21 @@ static bool js_gfx_GFXTexture_Initialize(se::State& s)
         cocos2d::GFXTextureInfo arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXTextureInfo
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXTexture_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Texture_Initialize : Error processing arguments");
         bool result = cobj->Initialize(arg0);
         ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXTexture_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Texture_Initialize : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXTexture_Initialize)
+SE_BIND_FUNC(js_gfx_GLES2Texture_Initialize)
 
-static bool js_gfx_GFXTexture_Destroy(se::State& s)
+static bool js_gfx_GLES2Texture_Destroy(se::State& s)
 {
-    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXTexture_Destroy : Invalid Native Object");
+    cocos2d::GLES2Texture* cobj = (cocos2d::GLES2Texture*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Texture_Destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -1823,48 +1131,30 @@ static bool js_gfx_GFXTexture_Destroy(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXTexture_Destroy)
+SE_BIND_FUNC(js_gfx_GLES2Texture_Destroy)
 
-static bool js_gfx_GFXTexture_type(se::State& s)
+static bool js_gfx_GLES2Texture_gpu_texture(se::State& s)
 {
-    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXTexture_type : Invalid Native Object");
+    cocos2d::GLES2Texture* cobj = (cocos2d::GLES2Texture*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Texture_gpu_texture : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cobj->type();
-        ok &= int32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXTexture_type : Error processing arguments");
+        cocos2d::GLES2GPUTexture* result = cobj->gpu_texture();
+        ok &= native_ptr_to_seval<cocos2d::GLES2GPUTexture>((cocos2d::GLES2GPUTexture*)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Texture_gpu_texture : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXTexture_type)
+SE_BIND_FUNC(js_gfx_GLES2Texture_gpu_texture)
 
-static bool js_gfx_GFXTexture_width(se::State& s)
+static bool js_gfx_GLES2Texture_Resize(se::State& s)
 {
-    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXTexture_width : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->width();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXTexture_width : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXTexture_width)
-
-static bool js_gfx_GFXTexture_Resize(se::State& s)
-{
-    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXTexture_Resize : Invalid Native Object");
+    cocos2d::GLES2Texture* cobj = (cocos2d::GLES2Texture*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Texture_Resize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1873,211 +1163,75 @@ static bool js_gfx_GFXTexture_Resize(se::State& s)
         unsigned int arg1 = 0;
         ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
         ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXTexture_Resize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Texture_Resize : Error processing arguments");
         cobj->Resize(arg0, arg1);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXTexture_Resize)
+SE_BIND_FUNC(js_gfx_GLES2Texture_Resize)
 
-static bool js_gfx_GFXTexture_size(se::State& s)
-{
-    cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXTexture_size : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->size();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXTexture_size : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXTexture_size)
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GLES2Texture_finalize)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXTexture_finalize)
-
-static bool js_gfx_GFXTexture_constructor(se::State& s)
+static bool js_gfx_GLES2Texture_constructor(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     cocos2d::GFXDevice* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXTexture_constructor : Error processing arguments");
-    cocos2d::GFXTexture* cobj = new (std::nothrow) cocos2d::GFXTexture(arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_GLES2Texture_constructor : Error processing arguments");
+    cocos2d::GLES2Texture* cobj = new (std::nothrow) cocos2d::GLES2Texture(arg0);
     s.thisObject()->setPrivateData(cobj);
     se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
-SE_BIND_CTOR(js_gfx_GFXTexture_constructor, __jsb_cocos2d_GFXTexture_class, js_cocos2d_GFXTexture_finalize)
+SE_BIND_CTOR(js_gfx_GLES2Texture_constructor, __jsb_cocos2d_GLES2Texture_class, js_cocos2d_GLES2Texture_finalize)
 
 
 
+extern se::Object* __jsb_cocos2d_GFXTexture_proto;
 
-static bool js_cocos2d_GFXTexture_finalize(se::State& s)
+static bool js_cocos2d_GLES2Texture_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXTexture)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2Texture)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
+        cocos2d::GLES2Texture* cobj = (cocos2d::GLES2Texture*)s.nativeThisObject();
         delete cobj;
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXTexture_finalize)
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2Texture_finalize)
 
-bool js_register_gfx_GFXTexture(se::Object* obj)
+bool js_register_gfx_GLES2Texture(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXTexture", obj, nullptr, _SE(js_gfx_GFXTexture_constructor));
+    auto cls = se::Class::create("GLES2Texture", obj, __jsb_cocos2d_GFXTexture_proto, _SE(js_gfx_GLES2Texture_constructor));
 
-    cls->defineFunction("array_layer", _SE(js_gfx_GFXTexture_array_layer));
-    cls->defineFunction("format", _SE(js_gfx_GFXTexture_format));
-    cls->defineFunction("buffer", _SE(js_gfx_GFXTexture_buffer));
-    cls->defineFunction("height", _SE(js_gfx_GFXTexture_height));
-    cls->defineFunction("usage", _SE(js_gfx_GFXTexture_usage));
-    cls->defineFunction("depth", _SE(js_gfx_GFXTexture_depth));
-    cls->defineFunction("flags", _SE(js_gfx_GFXTexture_flags));
-    cls->defineFunction("mip_level", _SE(js_gfx_GFXTexture_mip_level));
-    cls->defineFunction("samples", _SE(js_gfx_GFXTexture_samples));
-    cls->defineFunction("Initialize", _SE(js_gfx_GFXTexture_Initialize));
-    cls->defineFunction("Destroy", _SE(js_gfx_GFXTexture_Destroy));
-    cls->defineFunction("type", _SE(js_gfx_GFXTexture_type));
-    cls->defineFunction("width", _SE(js_gfx_GFXTexture_width));
-    cls->defineFunction("Resize", _SE(js_gfx_GFXTexture_Resize));
-    cls->defineFunction("size", _SE(js_gfx_GFXTexture_size));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXTexture_finalize));
+    cls->defineFunction("Initialize", _SE(js_gfx_GLES2Texture_Initialize));
+    cls->defineFunction("Destroy", _SE(js_gfx_GLES2Texture_Destroy));
+    cls->defineFunction("gpu_texture", _SE(js_gfx_GLES2Texture_gpu_texture));
+    cls->defineFunction("Resize", _SE(js_gfx_GLES2Texture_Resize));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2Texture_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXTexture>(cls);
+    JSBClassType::registerClass<cocos2d::GLES2Texture>(cls);
 
-    __jsb_cocos2d_GFXTexture_proto = cls->getProto();
-    __jsb_cocos2d_GFXTexture_class = cls;
+    __jsb_cocos2d_GLES2Texture_proto = cls->getProto();
+    __jsb_cocos2d_GLES2Texture_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXTextureView_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXTextureView_class = nullptr;
+se::Object* __jsb_cocos2d_GLES2TextureView_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2TextureView_class = nullptr;
 
-static bool js_gfx_GFXTextureView_level_count(se::State& s)
+static bool js_gfx_GLES2TextureView_Initialize(se::State& s)
 {
-    cocos2d::GFXTextureView* cobj = (cocos2d::GFXTextureView*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureView_level_count : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->level_count();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXTextureView_level_count : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXTextureView_level_count)
-
-static bool js_gfx_GFXTextureView_format(se::State& s)
-{
-    cocos2d::GFXTextureView* cobj = (cocos2d::GFXTextureView*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureView_format : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->format();
-        ok &= int32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXTextureView_format : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXTextureView_format)
-
-static bool js_gfx_GFXTextureView_texture(se::State& s)
-{
-    cocos2d::GFXTextureView* cobj = (cocos2d::GFXTextureView*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureView_texture : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXTexture* result = cobj->texture();
-        ok &= native_ptr_to_seval<cocos2d::GFXTexture>((cocos2d::GFXTexture*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXTextureView_texture : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXTextureView_texture)
-
-static bool js_gfx_GFXTextureView_device(se::State& s)
-{
-    cocos2d::GFXTextureView* cobj = (cocos2d::GFXTextureView*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureView_device : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXDevice* result = cobj->device();
-        ok &= native_ptr_to_seval<cocos2d::GFXDevice>((cocos2d::GFXDevice*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXTextureView_device : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXTextureView_device)
-
-static bool js_gfx_GFXTextureView_layer_count(se::State& s)
-{
-    cocos2d::GFXTextureView* cobj = (cocos2d::GFXTextureView*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureView_layer_count : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->layer_count();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXTextureView_layer_count : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXTextureView_layer_count)
-
-static bool js_gfx_GFXTextureView_base_level(se::State& s)
-{
-    cocos2d::GFXTextureView* cobj = (cocos2d::GFXTextureView*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureView_base_level : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->base_level();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXTextureView_base_level : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXTextureView_base_level)
-
-static bool js_gfx_GFXTextureView_Initialize(se::State& s)
-{
-    cocos2d::GFXTextureView* cobj = (cocos2d::GFXTextureView*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureView_Initialize : Invalid Native Object");
+    cocos2d::GLES2TextureView* cobj = (cocos2d::GLES2TextureView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2TextureView_Initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -2085,21 +1239,21 @@ static bool js_gfx_GFXTextureView_Initialize(se::State& s)
         cocos2d::GFXTextureViewInfo arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXTextureViewInfo
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXTextureView_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2TextureView_Initialize : Error processing arguments");
         bool result = cobj->Initialize(arg0);
         ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXTextureView_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2TextureView_Initialize : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXTextureView_Initialize)
+SE_BIND_FUNC(js_gfx_GLES2TextureView_Initialize)
 
-static bool js_gfx_GFXTextureView_Destroy(se::State& s)
+static bool js_gfx_GLES2TextureView_Destroy(se::State& s)
 {
-    cocos2d::GFXTextureView* cobj = (cocos2d::GFXTextureView*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureView_Destroy : Invalid Native Object");
+    cocos2d::GLES2TextureView* cobj = (cocos2d::GLES2TextureView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2TextureView_Destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -2109,289 +1263,85 @@ static bool js_gfx_GFXTextureView_Destroy(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXTextureView_Destroy)
+SE_BIND_FUNC(js_gfx_GLES2TextureView_Destroy)
 
-static bool js_gfx_GFXTextureView_base_layer(se::State& s)
+static bool js_gfx_GLES2TextureView_gpu_tex_view(se::State& s)
 {
-    cocos2d::GFXTextureView* cobj = (cocos2d::GFXTextureView*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureView_base_layer : Invalid Native Object");
+    cocos2d::GLES2TextureView* cobj = (cocos2d::GLES2TextureView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2TextureView_gpu_tex_view : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        unsigned int result = cobj->base_layer();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXTextureView_base_layer : Error processing arguments");
+        cocos2d::GLES2GPUTextureView* result = cobj->gpu_tex_view();
+        ok &= native_ptr_to_seval<cocos2d::GLES2GPUTextureView>((cocos2d::GLES2GPUTextureView*)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2TextureView_gpu_tex_view : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXTextureView_base_layer)
+SE_BIND_FUNC(js_gfx_GLES2TextureView_gpu_tex_view)
 
-static bool js_gfx_GFXTextureView_type(se::State& s)
-{
-    cocos2d::GFXTextureView* cobj = (cocos2d::GFXTextureView*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXTextureView_type : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->type();
-        ok &= int32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXTextureView_type : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXTextureView_type)
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GLES2TextureView_finalize)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXTextureView_finalize)
-
-static bool js_gfx_GFXTextureView_constructor(se::State& s)
+static bool js_gfx_GLES2TextureView_constructor(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     cocos2d::GFXDevice* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXTextureView_constructor : Error processing arguments");
-    cocos2d::GFXTextureView* cobj = new (std::nothrow) cocos2d::GFXTextureView(arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_GLES2TextureView_constructor : Error processing arguments");
+    cocos2d::GLES2TextureView* cobj = new (std::nothrow) cocos2d::GLES2TextureView(arg0);
     s.thisObject()->setPrivateData(cobj);
     se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
-SE_BIND_CTOR(js_gfx_GFXTextureView_constructor, __jsb_cocos2d_GFXTextureView_class, js_cocos2d_GFXTextureView_finalize)
+SE_BIND_CTOR(js_gfx_GLES2TextureView_constructor, __jsb_cocos2d_GLES2TextureView_class, js_cocos2d_GLES2TextureView_finalize)
 
 
 
+extern se::Object* __jsb_cocos2d_GFXTextureView_proto;
 
-static bool js_cocos2d_GFXTextureView_finalize(se::State& s)
+static bool js_cocos2d_GLES2TextureView_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXTextureView)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2TextureView)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXTextureView* cobj = (cocos2d::GFXTextureView*)s.nativeThisObject();
+        cocos2d::GLES2TextureView* cobj = (cocos2d::GLES2TextureView*)s.nativeThisObject();
         delete cobj;
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXTextureView_finalize)
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2TextureView_finalize)
 
-bool js_register_gfx_GFXTextureView(se::Object* obj)
+bool js_register_gfx_GLES2TextureView(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXTextureView", obj, nullptr, _SE(js_gfx_GFXTextureView_constructor));
+    auto cls = se::Class::create("GLES2TextureView", obj, __jsb_cocos2d_GFXTextureView_proto, _SE(js_gfx_GLES2TextureView_constructor));
 
-    cls->defineFunction("level_count", _SE(js_gfx_GFXTextureView_level_count));
-    cls->defineFunction("format", _SE(js_gfx_GFXTextureView_format));
-    cls->defineFunction("texture", _SE(js_gfx_GFXTextureView_texture));
-    cls->defineFunction("device", _SE(js_gfx_GFXTextureView_device));
-    cls->defineFunction("layer_count", _SE(js_gfx_GFXTextureView_layer_count));
-    cls->defineFunction("base_level", _SE(js_gfx_GFXTextureView_base_level));
-    cls->defineFunction("Initialize", _SE(js_gfx_GFXTextureView_Initialize));
-    cls->defineFunction("Destroy", _SE(js_gfx_GFXTextureView_Destroy));
-    cls->defineFunction("base_layer", _SE(js_gfx_GFXTextureView_base_layer));
-    cls->defineFunction("type", _SE(js_gfx_GFXTextureView_type));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXTextureView_finalize));
+    cls->defineFunction("Initialize", _SE(js_gfx_GLES2TextureView_Initialize));
+    cls->defineFunction("Destroy", _SE(js_gfx_GLES2TextureView_Destroy));
+    cls->defineFunction("gpu_tex_view", _SE(js_gfx_GLES2TextureView_gpu_tex_view));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2TextureView_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXTextureView>(cls);
+    JSBClassType::registerClass<cocos2d::GLES2TextureView>(cls);
 
-    __jsb_cocos2d_GFXTextureView_proto = cls->getProto();
-    __jsb_cocos2d_GFXTextureView_class = cls;
+    __jsb_cocos2d_GLES2TextureView_proto = cls->getProto();
+    __jsb_cocos2d_GLES2TextureView_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXSampler_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXSampler_class = nullptr;
+se::Object* __jsb_cocos2d_GLES2Sampler_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2Sampler_class = nullptr;
 
-static bool js_gfx_GFXSampler_cmp_func(se::State& s)
+static bool js_gfx_GLES2Sampler_Initialize(se::State& s)
 {
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_cmp_func : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->cmp_func();
-        ok &= int32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXSampler_cmp_func : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXSampler_cmp_func)
-
-static bool js_gfx_GFXSampler_min_filter(se::State& s)
-{
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_min_filter : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->min_filter();
-        ok &= int32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXSampler_min_filter : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXSampler_min_filter)
-
-static bool js_gfx_GFXSampler_name(se::State& s)
-{
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_name : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const cocos2d::String& result = cobj->name();
-        s.rval().setString(result.buffer());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXSampler_name : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXSampler_name)
-
-static bool js_gfx_GFXSampler_address_u(se::State& s)
-{
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_address_u : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->address_u();
-        ok &= int32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXSampler_address_u : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXSampler_address_u)
-
-static bool js_gfx_GFXSampler_border_color(se::State& s)
-{
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_border_color : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const cocos2d::GFXColor& result = cobj->border_color();
-        #pragma warning NO CONVERSION FROM NATIVE FOR GFXColor;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXSampler_border_color : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXSampler_border_color)
-
-static bool js_gfx_GFXSampler_max_anisotropy(se::State& s)
-{
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_max_anisotropy : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->max_anisotropy();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXSampler_max_anisotropy : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXSampler_max_anisotropy)
-
-static bool js_gfx_GFXSampler_device(se::State& s)
-{
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_device : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXDevice* result = cobj->device();
-        ok &= native_ptr_to_seval<cocos2d::GFXDevice>((cocos2d::GFXDevice*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXSampler_device : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXSampler_device)
-
-static bool js_gfx_GFXSampler_address_v(se::State& s)
-{
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_address_v : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->address_v();
-        ok &= int32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXSampler_address_v : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXSampler_address_v)
-
-static bool js_gfx_GFXSampler_address_w(se::State& s)
-{
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_address_w : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->address_w();
-        ok &= int32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXSampler_address_w : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXSampler_address_w)
-
-static bool js_gfx_GFXSampler_min_lod(se::State& s)
-{
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_min_lod : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->min_lod();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXSampler_min_lod : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXSampler_min_lod)
-
-static bool js_gfx_GFXSampler_Initialize(se::State& s)
-{
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_Initialize : Invalid Native Object");
+    cocos2d::GLES2Sampler* cobj = (cocos2d::GLES2Sampler*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Sampler_Initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -2399,21 +1349,21 @@ static bool js_gfx_GFXSampler_Initialize(se::State& s)
         cocos2d::GFXSamplerInfo arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXSamplerInfo
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXSampler_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Sampler_Initialize : Error processing arguments");
         bool result = cobj->Initialize(arg0);
         ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXSampler_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Sampler_Initialize : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXSampler_Initialize)
+SE_BIND_FUNC(js_gfx_GLES2Sampler_Initialize)
 
-static bool js_gfx_GFXSampler_Destroy(se::State& s)
+static bool js_gfx_GLES2Sampler_Destroy(se::State& s)
 {
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_Destroy : Invalid Native Object");
+    cocos2d::GLES2Sampler* cobj = (cocos2d::GLES2Sampler*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Sampler_Destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -2423,241 +1373,85 @@ static bool js_gfx_GFXSampler_Destroy(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXSampler_Destroy)
+SE_BIND_FUNC(js_gfx_GLES2Sampler_Destroy)
 
-static bool js_gfx_GFXSampler_mag_filter(se::State& s)
+static bool js_gfx_GLES2Sampler_gpu_sampler(se::State& s)
 {
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_mag_filter : Invalid Native Object");
+    cocos2d::GLES2Sampler* cobj = (cocos2d::GLES2Sampler*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Sampler_gpu_sampler : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cobj->mag_filter();
-        ok &= int32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXSampler_mag_filter : Error processing arguments");
+        cocos2d::GLES2GPUSampler* result = cobj->gpu_sampler();
+        ok &= native_ptr_to_seval<cocos2d::GLES2GPUSampler>((cocos2d::GLES2GPUSampler*)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Sampler_gpu_sampler : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXSampler_mag_filter)
+SE_BIND_FUNC(js_gfx_GLES2Sampler_gpu_sampler)
 
-static bool js_gfx_GFXSampler_mip_lod_bias(se::State& s)
-{
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_mip_lod_bias : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        float result = cobj->mip_lod_bias();
-        ok &= float_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXSampler_mip_lod_bias : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXSampler_mip_lod_bias)
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GLES2Sampler_finalize)
 
-static bool js_gfx_GFXSampler_max_lod(se::State& s)
-{
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_max_lod : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->max_lod();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXSampler_max_lod : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXSampler_max_lod)
-
-static bool js_gfx_GFXSampler_mip_filter(se::State& s)
-{
-    cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSampler_mip_filter : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->mip_filter();
-        ok &= int32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXSampler_mip_filter : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXSampler_mip_filter)
-
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXSampler_finalize)
-
-static bool js_gfx_GFXSampler_constructor(se::State& s)
+static bool js_gfx_GLES2Sampler_constructor(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     cocos2d::GFXDevice* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXSampler_constructor : Error processing arguments");
-    cocos2d::GFXSampler* cobj = new (std::nothrow) cocos2d::GFXSampler(arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_GLES2Sampler_constructor : Error processing arguments");
+    cocos2d::GLES2Sampler* cobj = new (std::nothrow) cocos2d::GLES2Sampler(arg0);
     s.thisObject()->setPrivateData(cobj);
     se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
-SE_BIND_CTOR(js_gfx_GFXSampler_constructor, __jsb_cocos2d_GFXSampler_class, js_cocos2d_GFXSampler_finalize)
+SE_BIND_CTOR(js_gfx_GLES2Sampler_constructor, __jsb_cocos2d_GLES2Sampler_class, js_cocos2d_GLES2Sampler_finalize)
 
 
 
+extern se::Object* __jsb_cocos2d_GFXSampler_proto;
 
-static bool js_cocos2d_GFXSampler_finalize(se::State& s)
+static bool js_cocos2d_GLES2Sampler_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXSampler)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2Sampler)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
+        cocos2d::GLES2Sampler* cobj = (cocos2d::GLES2Sampler*)s.nativeThisObject();
         delete cobj;
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXSampler_finalize)
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2Sampler_finalize)
 
-bool js_register_gfx_GFXSampler(se::Object* obj)
+bool js_register_gfx_GLES2Sampler(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXSampler", obj, nullptr, _SE(js_gfx_GFXSampler_constructor));
+    auto cls = se::Class::create("GLES2Sampler", obj, __jsb_cocos2d_GFXSampler_proto, _SE(js_gfx_GLES2Sampler_constructor));
 
-    cls->defineFunction("cmp_func", _SE(js_gfx_GFXSampler_cmp_func));
-    cls->defineFunction("min_filter", _SE(js_gfx_GFXSampler_min_filter));
-    cls->defineFunction("name", _SE(js_gfx_GFXSampler_name));
-    cls->defineFunction("address_u", _SE(js_gfx_GFXSampler_address_u));
-    cls->defineFunction("border_color", _SE(js_gfx_GFXSampler_border_color));
-    cls->defineFunction("max_anisotropy", _SE(js_gfx_GFXSampler_max_anisotropy));
-    cls->defineFunction("device", _SE(js_gfx_GFXSampler_device));
-    cls->defineFunction("address_v", _SE(js_gfx_GFXSampler_address_v));
-    cls->defineFunction("address_w", _SE(js_gfx_GFXSampler_address_w));
-    cls->defineFunction("min_lod", _SE(js_gfx_GFXSampler_min_lod));
-    cls->defineFunction("Initialize", _SE(js_gfx_GFXSampler_Initialize));
-    cls->defineFunction("Destroy", _SE(js_gfx_GFXSampler_Destroy));
-    cls->defineFunction("mag_filter", _SE(js_gfx_GFXSampler_mag_filter));
-    cls->defineFunction("mip_lod_bias", _SE(js_gfx_GFXSampler_mip_lod_bias));
-    cls->defineFunction("max_lod", _SE(js_gfx_GFXSampler_max_lod));
-    cls->defineFunction("mip_filter", _SE(js_gfx_GFXSampler_mip_filter));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXSampler_finalize));
+    cls->defineFunction("Initialize", _SE(js_gfx_GLES2Sampler_Initialize));
+    cls->defineFunction("Destroy", _SE(js_gfx_GLES2Sampler_Destroy));
+    cls->defineFunction("gpu_sampler", _SE(js_gfx_GLES2Sampler_gpu_sampler));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2Sampler_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXSampler>(cls);
+    JSBClassType::registerClass<cocos2d::GLES2Sampler>(cls);
 
-    __jsb_cocos2d_GFXSampler_proto = cls->getProto();
-    __jsb_cocos2d_GFXSampler_class = cls;
+    __jsb_cocos2d_GLES2Sampler_proto = cls->getProto();
+    __jsb_cocos2d_GLES2Sampler_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXShader_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXShader_class = nullptr;
+se::Object* __jsb_cocos2d_GLES2Shader_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2Shader_class = nullptr;
 
-static bool js_gfx_GFXShader_hash(se::State& s)
+static bool js_gfx_GLES2Shader_Initialize(se::State& s)
 {
-    cocos2d::GFXShader* cobj = (cocos2d::GFXShader*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXShader_hash : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->hash();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXShader_hash : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXShader_hash)
-
-static bool js_gfx_GFXShader_name(se::State& s)
-{
-    cocos2d::GFXShader* cobj = (cocos2d::GFXShader*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXShader_name : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const cocos2d::String& result = cobj->name();
-        s.rval().setString(result.buffer());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXShader_name : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXShader_name)
-
-static bool js_gfx_GFXShader_samplers(se::State& s)
-{
-    cocos2d::GFXShader* cobj = (cocos2d::GFXShader*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXShader_samplers : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const std::vector<cocos2d::GFXUniformSampler>& result = cobj->samplers();
-        ok &= native_ptr_to_seval<cocos2d::GFXUniformSamplerList&>((cocos2d::GFXUniformSamplerList&)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXShader_samplers : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXShader_samplers)
-
-static bool js_gfx_GFXShader_blocks(se::State& s)
-{
-    cocos2d::GFXShader* cobj = (cocos2d::GFXShader*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXShader_blocks : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const std::vector<cocos2d::GFXUniformBlock>& result = cobj->blocks();
-        ok &= native_ptr_to_seval<cocos2d::GFXUniformBlockList&>((cocos2d::GFXUniformBlockList&)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXShader_blocks : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXShader_blocks)
-
-static bool js_gfx_GFXShader_device(se::State& s)
-{
-    cocos2d::GFXShader* cobj = (cocos2d::GFXShader*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXShader_device : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXDevice* result = cobj->device();
-        ok &= native_ptr_to_seval<cocos2d::GFXDevice>((cocos2d::GFXDevice*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXShader_device : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXShader_device)
-
-static bool js_gfx_GFXShader_Initialize(se::State& s)
-{
-    cocos2d::GFXShader* cobj = (cocos2d::GFXShader*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXShader_Initialize : Invalid Native Object");
+    cocos2d::GLES2Shader* cobj = (cocos2d::GLES2Shader*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Shader_Initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -2665,21 +1459,21 @@ static bool js_gfx_GFXShader_Initialize(se::State& s)
         cocos2d::GFXShaderInfo arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXShaderInfo
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXShader_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Shader_Initialize : Error processing arguments");
         bool result = cobj->Initialize(arg0);
         ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXShader_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Shader_Initialize : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXShader_Initialize)
+SE_BIND_FUNC(js_gfx_GLES2Shader_Initialize)
 
-static bool js_gfx_GFXShader_Destroy(se::State& s)
+static bool js_gfx_GLES2Shader_Destroy(se::State& s)
 {
-    cocos2d::GFXShader* cobj = (cocos2d::GFXShader*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXShader_Destroy : Invalid Native Object");
+    cocos2d::GLES2Shader* cobj = (cocos2d::GLES2Shader*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Shader_Destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -2689,270 +1483,85 @@ static bool js_gfx_GFXShader_Destroy(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXShader_Destroy)
+SE_BIND_FUNC(js_gfx_GLES2Shader_Destroy)
 
-static bool js_gfx_GFXShader_stages(se::State& s)
+static bool js_gfx_GLES2Shader_gpu_shader(se::State& s)
 {
-    cocos2d::GFXShader* cobj = (cocos2d::GFXShader*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXShader_stages : Invalid Native Object");
+    cocos2d::GLES2Shader* cobj = (cocos2d::GLES2Shader*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Shader_gpu_shader : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const std::vector<cocos2d::GFXShaderStage>& result = cobj->stages();
-        ok &= native_ptr_to_seval<cocos2d::GFXShaderStageList&>((cocos2d::GFXShaderStageList&)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXShader_stages : Error processing arguments");
+        cocos2d::GLES2GPUShader* result = cobj->gpu_shader();
+        ok &= native_ptr_to_seval<cocos2d::GLES2GPUShader>((cocos2d::GLES2GPUShader*)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Shader_gpu_shader : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXShader_stages)
+SE_BIND_FUNC(js_gfx_GLES2Shader_gpu_shader)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXShader_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GLES2Shader_finalize)
 
-static bool js_gfx_GFXShader_constructor(se::State& s)
+static bool js_gfx_GLES2Shader_constructor(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     cocos2d::GFXDevice* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXShader_constructor : Error processing arguments");
-    cocos2d::GFXShader* cobj = new (std::nothrow) cocos2d::GFXShader(arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_GLES2Shader_constructor : Error processing arguments");
+    cocos2d::GLES2Shader* cobj = new (std::nothrow) cocos2d::GLES2Shader(arg0);
     s.thisObject()->setPrivateData(cobj);
     se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
-SE_BIND_CTOR(js_gfx_GFXShader_constructor, __jsb_cocos2d_GFXShader_class, js_cocos2d_GFXShader_finalize)
+SE_BIND_CTOR(js_gfx_GLES2Shader_constructor, __jsb_cocos2d_GLES2Shader_class, js_cocos2d_GLES2Shader_finalize)
 
 
 
+extern se::Object* __jsb_cocos2d_GFXShader_proto;
 
-static bool js_cocos2d_GFXShader_finalize(se::State& s)
+static bool js_cocos2d_GLES2Shader_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXShader)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2Shader)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXShader* cobj = (cocos2d::GFXShader*)s.nativeThisObject();
+        cocos2d::GLES2Shader* cobj = (cocos2d::GLES2Shader*)s.nativeThisObject();
         delete cobj;
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXShader_finalize)
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2Shader_finalize)
 
-bool js_register_gfx_GFXShader(se::Object* obj)
+bool js_register_gfx_GLES2Shader(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXShader", obj, nullptr, _SE(js_gfx_GFXShader_constructor));
+    auto cls = se::Class::create("GLES2Shader", obj, __jsb_cocos2d_GFXShader_proto, _SE(js_gfx_GLES2Shader_constructor));
 
-    cls->defineFunction("hash", _SE(js_gfx_GFXShader_hash));
-    cls->defineFunction("name", _SE(js_gfx_GFXShader_name));
-    cls->defineFunction("samplers", _SE(js_gfx_GFXShader_samplers));
-    cls->defineFunction("blocks", _SE(js_gfx_GFXShader_blocks));
-    cls->defineFunction("device", _SE(js_gfx_GFXShader_device));
-    cls->defineFunction("Initialize", _SE(js_gfx_GFXShader_Initialize));
-    cls->defineFunction("Destroy", _SE(js_gfx_GFXShader_Destroy));
-    cls->defineFunction("stages", _SE(js_gfx_GFXShader_stages));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXShader_finalize));
+    cls->defineFunction("Initialize", _SE(js_gfx_GLES2Shader_Initialize));
+    cls->defineFunction("Destroy", _SE(js_gfx_GLES2Shader_Destroy));
+    cls->defineFunction("gpu_shader", _SE(js_gfx_GLES2Shader_gpu_shader));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2Shader_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXShader>(cls);
+    JSBClassType::registerClass<cocos2d::GLES2Shader>(cls);
 
-    __jsb_cocos2d_GFXShader_proto = cls->getProto();
-    __jsb_cocos2d_GFXShader_class = cls;
+    __jsb_cocos2d_GLES2Shader_proto = cls->getProto();
+    __jsb_cocos2d_GLES2Shader_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXInputAssembler_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXInputAssembler_class = nullptr;
+se::Object* __jsb_cocos2d_GLES2InputAssembler_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2InputAssembler_class = nullptr;
 
-static bool js_gfx_GFXInputAssembler_set_first_vertex(se::State& s)
+static bool js_gfx_GLES2InputAssembler_Initialize(se::State& s)
 {
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_set_first_vertex : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        unsigned int arg0 = 0;
-        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_set_first_vertex : Error processing arguments");
-        cobj->set_first_vertex(arg0);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXInputAssembler_set_first_vertex)
-
-static bool js_gfx_GFXInputAssembler_set_vertex_offset(se::State& s)
-{
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_set_vertex_offset : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        unsigned int arg0 = 0;
-        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_set_vertex_offset : Error processing arguments");
-        cobj->set_vertex_offset(arg0);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXInputAssembler_set_vertex_offset)
-
-static bool js_gfx_GFXInputAssembler_vertex_count(se::State& s)
-{
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_vertex_count : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->vertex_count();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_vertex_count : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXInputAssembler_vertex_count)
-
-static bool js_gfx_GFXInputAssembler_first_instance(se::State& s)
-{
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_first_instance : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->first_instance();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_first_instance : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXInputAssembler_first_instance)
-
-static bool js_gfx_GFXInputAssembler_set_index_count(se::State& s)
-{
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_set_index_count : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        unsigned int arg0 = 0;
-        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_set_index_count : Error processing arguments");
-        cobj->set_index_count(arg0);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXInputAssembler_set_index_count)
-
-static bool js_gfx_GFXInputAssembler_Destroy(se::State& s)
-{
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_Destroy : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->Destroy();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXInputAssembler_Destroy)
-
-static bool js_gfx_GFXInputAssembler_first_index(se::State& s)
-{
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_first_index : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->first_index();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_first_index : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXInputAssembler_first_index)
-
-static bool js_gfx_GFXInputAssembler_first_vertex(se::State& s)
-{
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_first_vertex : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->first_vertex();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_first_vertex : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXInputAssembler_first_vertex)
-
-static bool js_gfx_GFXInputAssembler_vertex_buffers(se::State& s)
-{
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_vertex_buffers : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const std::vector<cocos2d::GFXBuffer *>& result = cobj->vertex_buffers();
-        ok &= native_ptr_to_seval<cocos2d::GFXBufferList&>((cocos2d::GFXBufferList&)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_vertex_buffers : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXInputAssembler_vertex_buffers)
-
-static bool js_gfx_GFXInputAssembler_set_vertex_count(se::State& s)
-{
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_set_vertex_count : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        unsigned int arg0 = 0;
-        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_set_vertex_count : Error processing arguments");
-        cobj->set_vertex_count(arg0);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXInputAssembler_set_vertex_count)
-
-static bool js_gfx_GFXInputAssembler_Initialize(se::State& s)
-{
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_Initialize : Invalid Native Object");
+    cocos2d::GLES2InputAssembler* cobj = (cocos2d::GLES2InputAssembler*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2InputAssembler_Initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -2960,348 +1569,129 @@ static bool js_gfx_GFXInputAssembler_Initialize(se::State& s)
         cocos2d::GFXInputAssemblerInfo arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXInputAssemblerInfo
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2InputAssembler_Initialize : Error processing arguments");
         bool result = cobj->Initialize(arg0);
         ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2InputAssembler_Initialize : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXInputAssembler_Initialize)
+SE_BIND_FUNC(js_gfx_GLES2InputAssembler_Initialize)
 
-static bool js_gfx_GFXInputAssembler_set_first_instance(se::State& s)
+static bool js_gfx_GLES2InputAssembler_Destroy(se::State& s)
 {
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_set_first_instance : Invalid Native Object");
+    cocos2d::GLES2InputAssembler* cobj = (cocos2d::GLES2InputAssembler*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2InputAssembler_Destroy : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->Destroy();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GLES2InputAssembler_Destroy)
+
+static bool js_gfx_GLES2InputAssembler_gpu_input_assembler(se::State& s)
+{
+    cocos2d::GLES2InputAssembler* cobj = (cocos2d::GLES2InputAssembler*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2InputAssembler_gpu_input_assembler : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cocos2d::GLES2GPUInputAssembler* result = cobj->gpu_input_assembler();
+        ok &= native_ptr_to_seval<cocos2d::GLES2GPUInputAssembler>((cocos2d::GLES2GPUInputAssembler*)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2InputAssembler_gpu_input_assembler : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GLES2InputAssembler_gpu_input_assembler)
+
+static bool js_gfx_GLES2InputAssembler_ExtractCmdDraw(se::State& s)
+{
+    cocos2d::GLES2InputAssembler* cobj = (cocos2d::GLES2InputAssembler*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2InputAssembler_ExtractCmdDraw : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        unsigned int arg0 = 0;
-        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_set_first_instance : Error processing arguments");
-        cobj->set_first_instance(arg0);
+        cocos2d::GLES2CmdDraw* arg0 = nullptr;
+        ok &= seval_to_native_ptr(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2InputAssembler_ExtractCmdDraw : Error processing arguments");
+        cobj->ExtractCmdDraw(arg0);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXInputAssembler_set_first_instance)
+SE_BIND_FUNC(js_gfx_GLES2InputAssembler_ExtractCmdDraw)
 
-static bool js_gfx_GFXInputAssembler_set_instance_count(se::State& s)
-{
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_set_instance_count : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        unsigned int arg0 = 0;
-        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_set_instance_count : Error processing arguments");
-        cobj->set_instance_count(arg0);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXInputAssembler_set_instance_count)
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GLES2InputAssembler_finalize)
 
-static bool js_gfx_GFXInputAssembler_vertex_offset(se::State& s)
-{
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_vertex_offset : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->vertex_offset();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_vertex_offset : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXInputAssembler_vertex_offset)
-
-static bool js_gfx_GFXInputAssembler_instance_count(se::State& s)
-{
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_instance_count : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->instance_count();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_instance_count : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXInputAssembler_instance_count)
-
-static bool js_gfx_GFXInputAssembler_attributes(se::State& s)
-{
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_attributes : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const std::vector<cocos2d::GFXAttribute>& result = cobj->attributes();
-        ok &= native_ptr_to_seval<cocos2d::GFXAttributeList&>((cocos2d::GFXAttributeList&)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_attributes : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXInputAssembler_attributes)
-
-static bool js_gfx_GFXInputAssembler_device(se::State& s)
-{
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_device : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXDevice* result = cobj->device();
-        ok &= native_ptr_to_seval<cocos2d::GFXDevice>((cocos2d::GFXDevice*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_device : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXInputAssembler_device)
-
-static bool js_gfx_GFXInputAssembler_set_first_index(se::State& s)
-{
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_set_first_index : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        unsigned int arg0 = 0;
-        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_set_first_index : Error processing arguments");
-        cobj->set_first_index(arg0);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXInputAssembler_set_first_index)
-
-static bool js_gfx_GFXInputAssembler_index_count(se::State& s)
-{
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_index_count : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->index_count();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_index_count : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXInputAssembler_index_count)
-
-static bool js_gfx_GFXInputAssembler_indirect_buffer(se::State& s)
-{
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_indirect_buffer : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXBuffer* result = cobj->indirect_buffer();
-        ok &= native_ptr_to_seval<cocos2d::GFXBuffer>((cocos2d::GFXBuffer*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_indirect_buffer : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXInputAssembler_indirect_buffer)
-
-static bool js_gfx_GFXInputAssembler_index_buffer(se::State& s)
-{
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_index_buffer : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXBuffer* result = cobj->index_buffer();
-        ok &= native_ptr_to_seval<cocos2d::GFXBuffer>((cocos2d::GFXBuffer*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_index_buffer : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXInputAssembler_index_buffer)
-
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXInputAssembler_finalize)
-
-static bool js_gfx_GFXInputAssembler_constructor(se::State& s)
+static bool js_gfx_GLES2InputAssembler_constructor(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     cocos2d::GFXDevice* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_constructor : Error processing arguments");
-    cocos2d::GFXInputAssembler* cobj = new (std::nothrow) cocos2d::GFXInputAssembler(arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_GLES2InputAssembler_constructor : Error processing arguments");
+    cocos2d::GLES2InputAssembler* cobj = new (std::nothrow) cocos2d::GLES2InputAssembler(arg0);
     s.thisObject()->setPrivateData(cobj);
     se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
-SE_BIND_CTOR(js_gfx_GFXInputAssembler_constructor, __jsb_cocos2d_GFXInputAssembler_class, js_cocos2d_GFXInputAssembler_finalize)
+SE_BIND_CTOR(js_gfx_GLES2InputAssembler_constructor, __jsb_cocos2d_GLES2InputAssembler_class, js_cocos2d_GLES2InputAssembler_finalize)
 
 
 
+extern se::Object* __jsb_cocos2d_GFXInputAssembler_proto;
 
-static bool js_cocos2d_GFXInputAssembler_finalize(se::State& s)
+static bool js_cocos2d_GLES2InputAssembler_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXInputAssembler)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2InputAssembler)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
+        cocos2d::GLES2InputAssembler* cobj = (cocos2d::GLES2InputAssembler*)s.nativeThisObject();
         delete cobj;
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXInputAssembler_finalize)
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2InputAssembler_finalize)
 
-bool js_register_gfx_GFXInputAssembler(se::Object* obj)
+bool js_register_gfx_GLES2InputAssembler(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXInputAssembler", obj, nullptr, _SE(js_gfx_GFXInputAssembler_constructor));
+    auto cls = se::Class::create("GLES2InputAssembler", obj, __jsb_cocos2d_GFXInputAssembler_proto, _SE(js_gfx_GLES2InputAssembler_constructor));
 
-    cls->defineFunction("set_first_vertex", _SE(js_gfx_GFXInputAssembler_set_first_vertex));
-    cls->defineFunction("set_vertex_offset", _SE(js_gfx_GFXInputAssembler_set_vertex_offset));
-    cls->defineFunction("vertex_count", _SE(js_gfx_GFXInputAssembler_vertex_count));
-    cls->defineFunction("first_instance", _SE(js_gfx_GFXInputAssembler_first_instance));
-    cls->defineFunction("set_index_count", _SE(js_gfx_GFXInputAssembler_set_index_count));
-    cls->defineFunction("Destroy", _SE(js_gfx_GFXInputAssembler_Destroy));
-    cls->defineFunction("first_index", _SE(js_gfx_GFXInputAssembler_first_index));
-    cls->defineFunction("first_vertex", _SE(js_gfx_GFXInputAssembler_first_vertex));
-    cls->defineFunction("vertex_buffers", _SE(js_gfx_GFXInputAssembler_vertex_buffers));
-    cls->defineFunction("set_vertex_count", _SE(js_gfx_GFXInputAssembler_set_vertex_count));
-    cls->defineFunction("Initialize", _SE(js_gfx_GFXInputAssembler_Initialize));
-    cls->defineFunction("set_first_instance", _SE(js_gfx_GFXInputAssembler_set_first_instance));
-    cls->defineFunction("set_instance_count", _SE(js_gfx_GFXInputAssembler_set_instance_count));
-    cls->defineFunction("vertex_offset", _SE(js_gfx_GFXInputAssembler_vertex_offset));
-    cls->defineFunction("instance_count", _SE(js_gfx_GFXInputAssembler_instance_count));
-    cls->defineFunction("attributes", _SE(js_gfx_GFXInputAssembler_attributes));
-    cls->defineFunction("device", _SE(js_gfx_GFXInputAssembler_device));
-    cls->defineFunction("set_first_index", _SE(js_gfx_GFXInputAssembler_set_first_index));
-    cls->defineFunction("index_count", _SE(js_gfx_GFXInputAssembler_index_count));
-    cls->defineFunction("indirect_buffer", _SE(js_gfx_GFXInputAssembler_indirect_buffer));
-    cls->defineFunction("index_buffer", _SE(js_gfx_GFXInputAssembler_index_buffer));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXInputAssembler_finalize));
+    cls->defineFunction("Initialize", _SE(js_gfx_GLES2InputAssembler_Initialize));
+    cls->defineFunction("Destroy", _SE(js_gfx_GLES2InputAssembler_Destroy));
+    cls->defineFunction("gpu_input_assembler", _SE(js_gfx_GLES2InputAssembler_gpu_input_assembler));
+    cls->defineFunction("ExtractCmdDraw", _SE(js_gfx_GLES2InputAssembler_ExtractCmdDraw));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2InputAssembler_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXInputAssembler>(cls);
+    JSBClassType::registerClass<cocos2d::GLES2InputAssembler>(cls);
 
-    __jsb_cocos2d_GFXInputAssembler_proto = cls->getProto();
-    __jsb_cocos2d_GFXInputAssembler_class = cls;
+    __jsb_cocos2d_GLES2InputAssembler_proto = cls->getProto();
+    __jsb_cocos2d_GLES2InputAssembler_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXRenderPass_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXRenderPass_class = nullptr;
+se::Object* __jsb_cocos2d_GLES2RenderPass_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2RenderPass_class = nullptr;
 
-static bool js_gfx_GFXRenderPass_depth_stencil_attachment(se::State& s)
+static bool js_gfx_GLES2RenderPass_Initialize(se::State& s)
 {
-    cocos2d::GFXRenderPass* cobj = (cocos2d::GFXRenderPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXRenderPass_depth_stencil_attachment : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const cocos2d::GFXDepthStencilAttachment& result = cobj->depth_stencil_attachment();
-        #pragma warning NO CONVERSION FROM NATIVE FOR GFXDepthStencilAttachment;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXRenderPass_depth_stencil_attachment : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXRenderPass_depth_stencil_attachment)
-
-static bool js_gfx_GFXRenderPass_device(se::State& s)
-{
-    cocos2d::GFXRenderPass* cobj = (cocos2d::GFXRenderPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXRenderPass_device : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXDevice* result = cobj->device();
-        ok &= native_ptr_to_seval<cocos2d::GFXDevice>((cocos2d::GFXDevice*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXRenderPass_device : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXRenderPass_device)
-
-static bool js_gfx_GFXRenderPass_sub_passes(se::State& s)
-{
-    cocos2d::GFXRenderPass* cobj = (cocos2d::GFXRenderPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXRenderPass_sub_passes : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const std::vector<cocos2d::GFXSubPass>& result = cobj->sub_passes();
-        ok &= native_ptr_to_seval<cocos2d::GFXSubPassList&>((cocos2d::GFXSubPassList&)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXRenderPass_sub_passes : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXRenderPass_sub_passes)
-
-static bool js_gfx_GFXRenderPass_color_attachments(se::State& s)
-{
-    cocos2d::GFXRenderPass* cobj = (cocos2d::GFXRenderPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXRenderPass_color_attachments : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const std::vector<cocos2d::GFXColorAttachment>& result = cobj->color_attachments();
-        ok &= native_ptr_to_seval<cocos2d::GFXColorAttachmentList&>((cocos2d::GFXColorAttachmentList&)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXRenderPass_color_attachments : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXRenderPass_color_attachments)
-
-static bool js_gfx_GFXRenderPass_Initialize(se::State& s)
-{
-    cocos2d::GFXRenderPass* cobj = (cocos2d::GFXRenderPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXRenderPass_Initialize : Invalid Native Object");
+    cocos2d::GLES2RenderPass* cobj = (cocos2d::GLES2RenderPass*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2RenderPass_Initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -3309,21 +1699,21 @@ static bool js_gfx_GFXRenderPass_Initialize(se::State& s)
         cocos2d::GFXRenderPassInfo arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXRenderPassInfo
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXRenderPass_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2RenderPass_Initialize : Error processing arguments");
         bool result = cobj->Initialize(arg0);
         ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXRenderPass_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2RenderPass_Initialize : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXRenderPass_Initialize)
+SE_BIND_FUNC(js_gfx_GLES2RenderPass_Initialize)
 
-static bool js_gfx_GFXRenderPass_Destroy(se::State& s)
+static bool js_gfx_GLES2RenderPass_Destroy(se::State& s)
 {
-    cocos2d::GFXRenderPass* cobj = (cocos2d::GFXRenderPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXRenderPass_Destroy : Invalid Native Object");
+    cocos2d::GLES2RenderPass* cobj = (cocos2d::GLES2RenderPass*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2RenderPass_Destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -3333,141 +1723,85 @@ static bool js_gfx_GFXRenderPass_Destroy(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXRenderPass_Destroy)
+SE_BIND_FUNC(js_gfx_GLES2RenderPass_Destroy)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXRenderPass_finalize)
+static bool js_gfx_GLES2RenderPass_gpu_render_pass(se::State& s)
+{
+    cocos2d::GLES2RenderPass* cobj = (cocos2d::GLES2RenderPass*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2RenderPass_gpu_render_pass : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cocos2d::GLES2GPURenderPass* result = cobj->gpu_render_pass();
+        ok &= native_ptr_to_seval<cocos2d::GLES2GPURenderPass>((cocos2d::GLES2GPURenderPass*)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2RenderPass_gpu_render_pass : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GLES2RenderPass_gpu_render_pass)
 
-static bool js_gfx_GFXRenderPass_constructor(se::State& s)
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GLES2RenderPass_finalize)
+
+static bool js_gfx_GLES2RenderPass_constructor(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     cocos2d::GFXDevice* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXRenderPass_constructor : Error processing arguments");
-    cocos2d::GFXRenderPass* cobj = new (std::nothrow) cocos2d::GFXRenderPass(arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_GLES2RenderPass_constructor : Error processing arguments");
+    cocos2d::GLES2RenderPass* cobj = new (std::nothrow) cocos2d::GLES2RenderPass(arg0);
     s.thisObject()->setPrivateData(cobj);
     se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
-SE_BIND_CTOR(js_gfx_GFXRenderPass_constructor, __jsb_cocos2d_GFXRenderPass_class, js_cocos2d_GFXRenderPass_finalize)
+SE_BIND_CTOR(js_gfx_GLES2RenderPass_constructor, __jsb_cocos2d_GLES2RenderPass_class, js_cocos2d_GLES2RenderPass_finalize)
 
 
 
+extern se::Object* __jsb_cocos2d_GFXRenderPass_proto;
 
-static bool js_cocos2d_GFXRenderPass_finalize(se::State& s)
+static bool js_cocos2d_GLES2RenderPass_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXRenderPass)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2RenderPass)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXRenderPass* cobj = (cocos2d::GFXRenderPass*)s.nativeThisObject();
+        cocos2d::GLES2RenderPass* cobj = (cocos2d::GLES2RenderPass*)s.nativeThisObject();
         delete cobj;
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXRenderPass_finalize)
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2RenderPass_finalize)
 
-bool js_register_gfx_GFXRenderPass(se::Object* obj)
+bool js_register_gfx_GLES2RenderPass(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXRenderPass", obj, nullptr, _SE(js_gfx_GFXRenderPass_constructor));
+    auto cls = se::Class::create("GLES2RenderPass", obj, __jsb_cocos2d_GFXRenderPass_proto, _SE(js_gfx_GLES2RenderPass_constructor));
 
-    cls->defineFunction("depth_stencil_attachment", _SE(js_gfx_GFXRenderPass_depth_stencil_attachment));
-    cls->defineFunction("device", _SE(js_gfx_GFXRenderPass_device));
-    cls->defineFunction("sub_passes", _SE(js_gfx_GFXRenderPass_sub_passes));
-    cls->defineFunction("color_attachments", _SE(js_gfx_GFXRenderPass_color_attachments));
-    cls->defineFunction("Initialize", _SE(js_gfx_GFXRenderPass_Initialize));
-    cls->defineFunction("Destroy", _SE(js_gfx_GFXRenderPass_Destroy));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXRenderPass_finalize));
+    cls->defineFunction("Initialize", _SE(js_gfx_GLES2RenderPass_Initialize));
+    cls->defineFunction("Destroy", _SE(js_gfx_GLES2RenderPass_Destroy));
+    cls->defineFunction("gpu_render_pass", _SE(js_gfx_GLES2RenderPass_gpu_render_pass));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2RenderPass_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXRenderPass>(cls);
+    JSBClassType::registerClass<cocos2d::GLES2RenderPass>(cls);
 
-    __jsb_cocos2d_GFXRenderPass_proto = cls->getProto();
-    __jsb_cocos2d_GFXRenderPass_class = cls;
+    __jsb_cocos2d_GLES2RenderPass_proto = cls->getProto();
+    __jsb_cocos2d_GLES2RenderPass_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXFramebuffer_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXFramebuffer_class = nullptr;
+se::Object* __jsb_cocos2d_GLES2Framebuffer_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2Framebuffer_class = nullptr;
 
-static bool js_gfx_GFXFramebuffer_color_views(se::State& s)
+static bool js_gfx_GLES2Framebuffer_Initialize(se::State& s)
 {
-    cocos2d::GFXFramebuffer* cobj = (cocos2d::GFXFramebuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXFramebuffer_color_views : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const std::vector<cocos2d::GFXTextureView *>& result = cobj->color_views();
-        ok &= native_ptr_to_seval<cocos2d::GFXTextureViewList&>((cocos2d::GFXTextureViewList&)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXFramebuffer_color_views : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXFramebuffer_color_views)
-
-static bool js_gfx_GFXFramebuffer_is_offscreen(se::State& s)
-{
-    cocos2d::GFXFramebuffer* cobj = (cocos2d::GFXFramebuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXFramebuffer_is_offscreen : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        bool result = cobj->is_offscreen();
-        ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXFramebuffer_is_offscreen : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXFramebuffer_is_offscreen)
-
-static bool js_gfx_GFXFramebuffer_device(se::State& s)
-{
-    cocos2d::GFXFramebuffer* cobj = (cocos2d::GFXFramebuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXFramebuffer_device : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXDevice* result = cobj->device();
-        ok &= native_ptr_to_seval<cocos2d::GFXDevice>((cocos2d::GFXDevice*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXFramebuffer_device : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXFramebuffer_device)
-
-static bool js_gfx_GFXFramebuffer_depth_stencil_view(se::State& s)
-{
-    cocos2d::GFXFramebuffer* cobj = (cocos2d::GFXFramebuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXFramebuffer_depth_stencil_view : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXTextureView* result = cobj->depth_stencil_view();
-        ok &= native_ptr_to_seval<cocos2d::GFXTextureView>((cocos2d::GFXTextureView*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXFramebuffer_depth_stencil_view : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXFramebuffer_depth_stencil_view)
-
-static bool js_gfx_GFXFramebuffer_Initialize(se::State& s)
-{
-    cocos2d::GFXFramebuffer* cobj = (cocos2d::GFXFramebuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXFramebuffer_Initialize : Invalid Native Object");
+    cocos2d::GLES2Framebuffer* cobj = (cocos2d::GLES2Framebuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Framebuffer_Initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -3475,21 +1809,21 @@ static bool js_gfx_GFXFramebuffer_Initialize(se::State& s)
         cocos2d::GFXFramebufferInfo arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXFramebufferInfo
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXFramebuffer_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Framebuffer_Initialize : Error processing arguments");
         bool result = cobj->Initialize(arg0);
         ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXFramebuffer_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Framebuffer_Initialize : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXFramebuffer_Initialize)
+SE_BIND_FUNC(js_gfx_GLES2Framebuffer_Initialize)
 
-static bool js_gfx_GFXFramebuffer_Destroy(se::State& s)
+static bool js_gfx_GLES2Framebuffer_Destroy(se::State& s)
 {
-    cocos2d::GFXFramebuffer* cobj = (cocos2d::GFXFramebuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXFramebuffer_Destroy : Invalid Native Object");
+    cocos2d::GLES2Framebuffer* cobj = (cocos2d::GLES2Framebuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Framebuffer_Destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -3499,151 +1833,140 @@ static bool js_gfx_GFXFramebuffer_Destroy(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXFramebuffer_Destroy)
+SE_BIND_FUNC(js_gfx_GLES2Framebuffer_Destroy)
 
-static bool js_gfx_GFXFramebuffer_render_pass(se::State& s)
+static bool js_gfx_GLES2Framebuffer_gpu_fbo(se::State& s)
 {
-    cocos2d::GFXFramebuffer* cobj = (cocos2d::GFXFramebuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXFramebuffer_render_pass : Invalid Native Object");
+    cocos2d::GLES2Framebuffer* cobj = (cocos2d::GLES2Framebuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Framebuffer_gpu_fbo : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        cocos2d::GFXRenderPass* result = cobj->render_pass();
-        ok &= native_ptr_to_seval<cocos2d::GFXRenderPass>((cocos2d::GFXRenderPass*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXFramebuffer_render_pass : Error processing arguments");
+        cocos2d::GLES2GPUFramebuffer* result = cobj->gpu_fbo();
+        ok &= native_ptr_to_seval<cocos2d::GLES2GPUFramebuffer>((cocos2d::GLES2GPUFramebuffer*)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Framebuffer_gpu_fbo : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXFramebuffer_render_pass)
+SE_BIND_FUNC(js_gfx_GLES2Framebuffer_gpu_fbo)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXFramebuffer_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GLES2Framebuffer_finalize)
 
-static bool js_gfx_GFXFramebuffer_constructor(se::State& s)
+static bool js_gfx_GLES2Framebuffer_constructor(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     cocos2d::GFXDevice* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXFramebuffer_constructor : Error processing arguments");
-    cocos2d::GFXFramebuffer* cobj = new (std::nothrow) cocos2d::GFXFramebuffer(arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_GLES2Framebuffer_constructor : Error processing arguments");
+    cocos2d::GLES2Framebuffer* cobj = new (std::nothrow) cocos2d::GLES2Framebuffer(arg0);
     s.thisObject()->setPrivateData(cobj);
     se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
-SE_BIND_CTOR(js_gfx_GFXFramebuffer_constructor, __jsb_cocos2d_GFXFramebuffer_class, js_cocos2d_GFXFramebuffer_finalize)
+SE_BIND_CTOR(js_gfx_GLES2Framebuffer_constructor, __jsb_cocos2d_GLES2Framebuffer_class, js_cocos2d_GLES2Framebuffer_finalize)
 
 
 
+extern se::Object* __jsb_cocos2d_GFXFramebuffer_proto;
 
-static bool js_cocos2d_GFXFramebuffer_finalize(se::State& s)
+static bool js_cocos2d_GLES2Framebuffer_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXFramebuffer)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2Framebuffer)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXFramebuffer* cobj = (cocos2d::GFXFramebuffer*)s.nativeThisObject();
+        cocos2d::GLES2Framebuffer* cobj = (cocos2d::GLES2Framebuffer*)s.nativeThisObject();
         delete cobj;
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXFramebuffer_finalize)
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2Framebuffer_finalize)
 
-bool js_register_gfx_GFXFramebuffer(se::Object* obj)
+bool js_register_gfx_GLES2Framebuffer(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXFramebuffer", obj, nullptr, _SE(js_gfx_GFXFramebuffer_constructor));
+    auto cls = se::Class::create("GLES2Framebuffer", obj, __jsb_cocos2d_GFXFramebuffer_proto, _SE(js_gfx_GLES2Framebuffer_constructor));
 
-    cls->defineFunction("color_views", _SE(js_gfx_GFXFramebuffer_color_views));
-    cls->defineFunction("is_offscreen", _SE(js_gfx_GFXFramebuffer_is_offscreen));
-    cls->defineFunction("device", _SE(js_gfx_GFXFramebuffer_device));
-    cls->defineFunction("depth_stencil_view", _SE(js_gfx_GFXFramebuffer_depth_stencil_view));
-    cls->defineFunction("Initialize", _SE(js_gfx_GFXFramebuffer_Initialize));
-    cls->defineFunction("Destroy", _SE(js_gfx_GFXFramebuffer_Destroy));
-    cls->defineFunction("render_pass", _SE(js_gfx_GFXFramebuffer_render_pass));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXFramebuffer_finalize));
+    cls->defineFunction("Initialize", _SE(js_gfx_GLES2Framebuffer_Initialize));
+    cls->defineFunction("Destroy", _SE(js_gfx_GLES2Framebuffer_Destroy));
+    cls->defineFunction("gpu_fbo", _SE(js_gfx_GLES2Framebuffer_gpu_fbo));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2Framebuffer_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXFramebuffer>(cls);
+    JSBClassType::registerClass<cocos2d::GLES2Framebuffer>(cls);
 
-    __jsb_cocos2d_GFXFramebuffer_proto = cls->getProto();
-    __jsb_cocos2d_GFXFramebuffer_class = cls;
+    __jsb_cocos2d_GLES2Framebuffer_proto = cls->getProto();
+    __jsb_cocos2d_GLES2Framebuffer_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXBindingLayout_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXBindingLayout_class = nullptr;
+se::Object* __jsb_cocos2d_GLES2BindingLayout_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2BindingLayout_class = nullptr;
 
-static bool js_gfx_GFXBindingLayout_BindTextureView(se::State& s)
+static bool js_gfx_GLES2BindingLayout_Initialize(se::State& s)
 {
-    cocos2d::GFXBindingLayout* cobj = (cocos2d::GFXBindingLayout*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingLayout_BindTextureView : Invalid Native Object");
+    cocos2d::GLES2BindingLayout* cobj = (cocos2d::GLES2BindingLayout*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2BindingLayout_Initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        unsigned int arg0 = 0;
-        cocos2d::GFXTextureView* arg1 = nullptr;
-        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-        ok &= seval_to_native_ptr(args[1], &arg1);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXBindingLayout_BindTextureView : Error processing arguments");
-        cobj->BindTextureView(arg0, arg1);
+    if (argc == 1) {
+        cocos2d::GFXBindingLayoutInfo arg0;
+        #pragma warning NO CONVERSION TO NATIVE FOR GFXBindingLayoutInfo
+        ok = false;
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2BindingLayout_Initialize : Error processing arguments");
+        bool result = cobj->Initialize(arg0);
+        ok &= boolean_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2BindingLayout_Initialize : Error processing arguments");
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXBindingLayout_BindTextureView)
+SE_BIND_FUNC(js_gfx_GLES2BindingLayout_Initialize)
 
-static bool js_gfx_GFXBindingLayout_BindBuffer(se::State& s)
+static bool js_gfx_GLES2BindingLayout_Destroy(se::State& s)
 {
-    cocos2d::GFXBindingLayout* cobj = (cocos2d::GFXBindingLayout*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingLayout_BindBuffer : Invalid Native Object");
+    cocos2d::GLES2BindingLayout* cobj = (cocos2d::GLES2BindingLayout*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2BindingLayout_Destroy : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->Destroy();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GLES2BindingLayout_Destroy)
+
+static bool js_gfx_GLES2BindingLayout_gpu_binding_layout(se::State& s)
+{
+    cocos2d::GLES2BindingLayout* cobj = (cocos2d::GLES2BindingLayout*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2BindingLayout_gpu_binding_layout : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        unsigned int arg0 = 0;
-        cocos2d::GFXBuffer* arg1 = nullptr;
-        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-        ok &= seval_to_native_ptr(args[1], &arg1);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXBindingLayout_BindBuffer : Error processing arguments");
-        cobj->BindBuffer(arg0, arg1);
+    if (argc == 0) {
+        cocos2d::GLES2GPUBindingLayout* result = cobj->gpu_binding_layout();
+        ok &= native_ptr_to_seval<cocos2d::GLES2GPUBindingLayout>((cocos2d::GLES2GPUBindingLayout*)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2BindingLayout_gpu_binding_layout : Error processing arguments");
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXBindingLayout_BindBuffer)
+SE_BIND_FUNC(js_gfx_GLES2BindingLayout_gpu_binding_layout)
 
-static bool js_gfx_GFXBindingLayout_BindSampler(se::State& s)
+static bool js_gfx_GLES2BindingLayout_Update(se::State& s)
 {
-    cocos2d::GFXBindingLayout* cobj = (cocos2d::GFXBindingLayout*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingLayout_BindSampler : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        unsigned int arg0 = 0;
-        cocos2d::GFXSampler* arg1 = nullptr;
-        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
-        ok &= seval_to_native_ptr(args[1], &arg1);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXBindingLayout_BindSampler : Error processing arguments");
-        cobj->BindSampler(arg0, arg1);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXBindingLayout_BindSampler)
-
-static bool js_gfx_GFXBindingLayout_Update(se::State& s)
-{
-    cocos2d::GFXBindingLayout* cobj = (cocos2d::GFXBindingLayout*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingLayout_Update : Invalid Native Object");
+    cocos2d::GLES2BindingLayout* cobj = (cocos2d::GLES2BindingLayout*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2BindingLayout_Update : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -3653,198 +1976,68 @@ static bool js_gfx_GFXBindingLayout_Update(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXBindingLayout_Update)
+SE_BIND_FUNC(js_gfx_GLES2BindingLayout_Update)
 
-static bool js_gfx_GFXBindingLayout_device(se::State& s)
-{
-    cocos2d::GFXBindingLayout* cobj = (cocos2d::GFXBindingLayout*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingLayout_device : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXDevice* result = cobj->device();
-        ok &= native_ptr_to_seval<cocos2d::GFXDevice>((cocos2d::GFXDevice*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXBindingLayout_device : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXBindingLayout_device)
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GLES2BindingLayout_finalize)
 
-static bool js_gfx_GFXBindingLayout_binding_units(se::State& s)
-{
-    cocos2d::GFXBindingLayout* cobj = (cocos2d::GFXBindingLayout*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingLayout_binding_units : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const std::vector<cocos2d::GFXBindingUnit>& result = cobj->binding_units();
-        ok &= native_ptr_to_seval<cocos2d::GFXBindingUnitList&>((cocos2d::GFXBindingUnitList&)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXBindingLayout_binding_units : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXBindingLayout_binding_units)
-
-static bool js_gfx_GFXBindingLayout_Initialize(se::State& s)
-{
-    cocos2d::GFXBindingLayout* cobj = (cocos2d::GFXBindingLayout*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingLayout_Initialize : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        cocos2d::GFXBindingLayoutInfo arg0;
-        #pragma warning NO CONVERSION TO NATIVE FOR GFXBindingLayoutInfo
-        ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXBindingLayout_Initialize : Error processing arguments");
-        bool result = cobj->Initialize(arg0);
-        ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXBindingLayout_Initialize : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXBindingLayout_Initialize)
-
-static bool js_gfx_GFXBindingLayout_Destroy(se::State& s)
-{
-    cocos2d::GFXBindingLayout* cobj = (cocos2d::GFXBindingLayout*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBindingLayout_Destroy : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cobj->Destroy();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXBindingLayout_Destroy)
-
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXBindingLayout_finalize)
-
-static bool js_gfx_GFXBindingLayout_constructor(se::State& s)
+static bool js_gfx_GLES2BindingLayout_constructor(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     cocos2d::GFXDevice* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXBindingLayout_constructor : Error processing arguments");
-    cocos2d::GFXBindingLayout* cobj = new (std::nothrow) cocos2d::GFXBindingLayout(arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_GLES2BindingLayout_constructor : Error processing arguments");
+    cocos2d::GLES2BindingLayout* cobj = new (std::nothrow) cocos2d::GLES2BindingLayout(arg0);
     s.thisObject()->setPrivateData(cobj);
     se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
-SE_BIND_CTOR(js_gfx_GFXBindingLayout_constructor, __jsb_cocos2d_GFXBindingLayout_class, js_cocos2d_GFXBindingLayout_finalize)
+SE_BIND_CTOR(js_gfx_GLES2BindingLayout_constructor, __jsb_cocos2d_GLES2BindingLayout_class, js_cocos2d_GLES2BindingLayout_finalize)
 
 
 
+extern se::Object* __jsb_cocos2d_GFXBindingLayout_proto;
 
-static bool js_cocos2d_GFXBindingLayout_finalize(se::State& s)
+static bool js_cocos2d_GLES2BindingLayout_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXBindingLayout)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2BindingLayout)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXBindingLayout* cobj = (cocos2d::GFXBindingLayout*)s.nativeThisObject();
+        cocos2d::GLES2BindingLayout* cobj = (cocos2d::GLES2BindingLayout*)s.nativeThisObject();
         delete cobj;
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXBindingLayout_finalize)
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2BindingLayout_finalize)
 
-bool js_register_gfx_GFXBindingLayout(se::Object* obj)
+bool js_register_gfx_GLES2BindingLayout(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXBindingLayout", obj, nullptr, _SE(js_gfx_GFXBindingLayout_constructor));
+    auto cls = se::Class::create("GLES2BindingLayout", obj, __jsb_cocos2d_GFXBindingLayout_proto, _SE(js_gfx_GLES2BindingLayout_constructor));
 
-    cls->defineFunction("BindTextureView", _SE(js_gfx_GFXBindingLayout_BindTextureView));
-    cls->defineFunction("BindBuffer", _SE(js_gfx_GFXBindingLayout_BindBuffer));
-    cls->defineFunction("BindSampler", _SE(js_gfx_GFXBindingLayout_BindSampler));
-    cls->defineFunction("Update", _SE(js_gfx_GFXBindingLayout_Update));
-    cls->defineFunction("device", _SE(js_gfx_GFXBindingLayout_device));
-    cls->defineFunction("binding_units", _SE(js_gfx_GFXBindingLayout_binding_units));
-    cls->defineFunction("Initialize", _SE(js_gfx_GFXBindingLayout_Initialize));
-    cls->defineFunction("Destroy", _SE(js_gfx_GFXBindingLayout_Destroy));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXBindingLayout_finalize));
+    cls->defineFunction("Initialize", _SE(js_gfx_GLES2BindingLayout_Initialize));
+    cls->defineFunction("Destroy", _SE(js_gfx_GLES2BindingLayout_Destroy));
+    cls->defineFunction("gpu_binding_layout", _SE(js_gfx_GLES2BindingLayout_gpu_binding_layout));
+    cls->defineFunction("Update", _SE(js_gfx_GLES2BindingLayout_Update));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2BindingLayout_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXBindingLayout>(cls);
+    JSBClassType::registerClass<cocos2d::GLES2BindingLayout>(cls);
 
-    __jsb_cocos2d_GFXBindingLayout_proto = cls->getProto();
-    __jsb_cocos2d_GFXBindingLayout_class = cls;
+    __jsb_cocos2d_GLES2BindingLayout_proto = cls->getProto();
+    __jsb_cocos2d_GLES2BindingLayout_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXPipelineLayout_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXPipelineLayout_class = nullptr;
+se::Object* __jsb_cocos2d_GLES2PipelineLayout_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2PipelineLayout_class = nullptr;
 
-static bool js_gfx_GFXPipelineLayout_push_constant_ranges(se::State& s)
+static bool js_gfx_GLES2PipelineLayout_Initialize(se::State& s)
 {
-    cocos2d::GFXPipelineLayout* cobj = (cocos2d::GFXPipelineLayout*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineLayout_push_constant_ranges : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const std::vector<cocos2d::GFXPushConstantRange>& result = cobj->push_constant_ranges();
-        ok &= native_ptr_to_seval<cocos2d::GFXPushConstantRangeList&>((cocos2d::GFXPushConstantRangeList&)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineLayout_push_constant_ranges : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXPipelineLayout_push_constant_ranges)
-
-static bool js_gfx_GFXPipelineLayout_device(se::State& s)
-{
-    cocos2d::GFXPipelineLayout* cobj = (cocos2d::GFXPipelineLayout*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineLayout_device : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXDevice* result = cobj->device();
-        ok &= native_ptr_to_seval<cocos2d::GFXDevice>((cocos2d::GFXDevice*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineLayout_device : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXPipelineLayout_device)
-
-static bool js_gfx_GFXPipelineLayout_layouts(se::State& s)
-{
-    cocos2d::GFXPipelineLayout* cobj = (cocos2d::GFXPipelineLayout*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineLayout_layouts : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const std::vector<cocos2d::GFXBindingLayout *>& result = cobj->layouts();
-        ok &= native_ptr_to_seval<cocos2d::GFXBindingLayoutList&>((cocos2d::GFXBindingLayoutList&)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineLayout_layouts : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXPipelineLayout_layouts)
-
-static bool js_gfx_GFXPipelineLayout_Initialize(se::State& s)
-{
-    cocos2d::GFXPipelineLayout* cobj = (cocos2d::GFXPipelineLayout*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineLayout_Initialize : Invalid Native Object");
+    cocos2d::GLES2PipelineLayout* cobj = (cocos2d::GLES2PipelineLayout*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2PipelineLayout_Initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -3852,21 +2045,21 @@ static bool js_gfx_GFXPipelineLayout_Initialize(se::State& s)
         cocos2d::GFXPipelineLayoutInfo arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXPipelineLayoutInfo
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineLayout_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2PipelineLayout_Initialize : Error processing arguments");
         bool result = cobj->Initialize(arg0);
         ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineLayout_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2PipelineLayout_Initialize : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXPipelineLayout_Initialize)
+SE_BIND_FUNC(js_gfx_GLES2PipelineLayout_Initialize)
 
-static bool js_gfx_GFXPipelineLayout_Destroy(se::State& s)
+static bool js_gfx_GLES2PipelineLayout_Destroy(se::State& s)
 {
-    cocos2d::GFXPipelineLayout* cobj = (cocos2d::GFXPipelineLayout*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineLayout_Destroy : Invalid Native Object");
+    cocos2d::GLES2PipelineLayout* cobj = (cocos2d::GLES2PipelineLayout*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2PipelineLayout_Destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -3876,230 +2069,85 @@ static bool js_gfx_GFXPipelineLayout_Destroy(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXPipelineLayout_Destroy)
+SE_BIND_FUNC(js_gfx_GLES2PipelineLayout_Destroy)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXPipelineLayout_finalize)
+static bool js_gfx_GLES2PipelineLayout_gpu_pipeline_layout(se::State& s)
+{
+    cocos2d::GLES2PipelineLayout* cobj = (cocos2d::GLES2PipelineLayout*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2PipelineLayout_gpu_pipeline_layout : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cocos2d::GLES2GPUPipelineLayout* result = cobj->gpu_pipeline_layout();
+        ok &= native_ptr_to_seval<cocos2d::GLES2GPUPipelineLayout>((cocos2d::GLES2GPUPipelineLayout*)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2PipelineLayout_gpu_pipeline_layout : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GLES2PipelineLayout_gpu_pipeline_layout)
 
-static bool js_gfx_GFXPipelineLayout_constructor(se::State& s)
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GLES2PipelineLayout_finalize)
+
+static bool js_gfx_GLES2PipelineLayout_constructor(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     cocos2d::GFXDevice* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineLayout_constructor : Error processing arguments");
-    cocos2d::GFXPipelineLayout* cobj = new (std::nothrow) cocos2d::GFXPipelineLayout(arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_GLES2PipelineLayout_constructor : Error processing arguments");
+    cocos2d::GLES2PipelineLayout* cobj = new (std::nothrow) cocos2d::GLES2PipelineLayout(arg0);
     s.thisObject()->setPrivateData(cobj);
     se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
-SE_BIND_CTOR(js_gfx_GFXPipelineLayout_constructor, __jsb_cocos2d_GFXPipelineLayout_class, js_cocos2d_GFXPipelineLayout_finalize)
+SE_BIND_CTOR(js_gfx_GLES2PipelineLayout_constructor, __jsb_cocos2d_GLES2PipelineLayout_class, js_cocos2d_GLES2PipelineLayout_finalize)
 
 
 
+extern se::Object* __jsb_cocos2d_GFXPipelineLayout_proto;
 
-static bool js_cocos2d_GFXPipelineLayout_finalize(se::State& s)
+static bool js_cocos2d_GLES2PipelineLayout_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXPipelineLayout)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2PipelineLayout)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXPipelineLayout* cobj = (cocos2d::GFXPipelineLayout*)s.nativeThisObject();
+        cocos2d::GLES2PipelineLayout* cobj = (cocos2d::GLES2PipelineLayout*)s.nativeThisObject();
         delete cobj;
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXPipelineLayout_finalize)
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2PipelineLayout_finalize)
 
-bool js_register_gfx_GFXPipelineLayout(se::Object* obj)
+bool js_register_gfx_GLES2PipelineLayout(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXPipelineLayout", obj, nullptr, _SE(js_gfx_GFXPipelineLayout_constructor));
+    auto cls = se::Class::create("GLES2PipelineLayout", obj, __jsb_cocos2d_GFXPipelineLayout_proto, _SE(js_gfx_GLES2PipelineLayout_constructor));
 
-    cls->defineFunction("push_constant_ranges", _SE(js_gfx_GFXPipelineLayout_push_constant_ranges));
-    cls->defineFunction("device", _SE(js_gfx_GFXPipelineLayout_device));
-    cls->defineFunction("layouts", _SE(js_gfx_GFXPipelineLayout_layouts));
-    cls->defineFunction("Initialize", _SE(js_gfx_GFXPipelineLayout_Initialize));
-    cls->defineFunction("Destroy", _SE(js_gfx_GFXPipelineLayout_Destroy));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXPipelineLayout_finalize));
+    cls->defineFunction("Initialize", _SE(js_gfx_GLES2PipelineLayout_Initialize));
+    cls->defineFunction("Destroy", _SE(js_gfx_GLES2PipelineLayout_Destroy));
+    cls->defineFunction("gpu_pipeline_layout", _SE(js_gfx_GLES2PipelineLayout_gpu_pipeline_layout));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2PipelineLayout_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXPipelineLayout>(cls);
+    JSBClassType::registerClass<cocos2d::GLES2PipelineLayout>(cls);
 
-    __jsb_cocos2d_GFXPipelineLayout_proto = cls->getProto();
-    __jsb_cocos2d_GFXPipelineLayout_class = cls;
+    __jsb_cocos2d_GLES2PipelineLayout_proto = cls->getProto();
+    __jsb_cocos2d_GLES2PipelineLayout_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXPipelineState_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXPipelineState_class = nullptr;
+se::Object* __jsb_cocos2d_GLES2PipelineState_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2PipelineState_class = nullptr;
 
-static bool js_gfx_GFXPipelineState_primitive(se::State& s)
+static bool js_gfx_GLES2PipelineState_Initialize(se::State& s)
 {
-    cocos2d::GFXPipelineState* cobj = (cocos2d::GFXPipelineState*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineState_primitive : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->primitive();
-        ok &= int32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineState_primitive : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXPipelineState_primitive)
-
-static bool js_gfx_GFXPipelineState_layout(se::State& s)
-{
-    cocos2d::GFXPipelineState* cobj = (cocos2d::GFXPipelineState*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineState_layout : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const cocos2d::GFXPipelineLayout* result = cobj->layout();
-        ok &= native_ptr_to_seval<cocos2d::GFXPipelineLayout>((cocos2d::GFXPipelineLayout*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineState_layout : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXPipelineState_layout)
-
-static bool js_gfx_GFXPipelineState_rs(se::State& s)
-{
-    cocos2d::GFXPipelineState* cobj = (cocos2d::GFXPipelineState*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineState_rs : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const cocos2d::GFXRasterizerState& result = cobj->rs();
-        #pragma warning NO CONVERSION FROM NATIVE FOR GFXRasterizerState;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineState_rs : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXPipelineState_rs)
-
-static bool js_gfx_GFXPipelineState_dynamic_states(se::State& s)
-{
-    cocos2d::GFXPipelineState* cobj = (cocos2d::GFXPipelineState*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineState_dynamic_states : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const std::vector<cocos2d::GFXDynamicState>& result = cobj->dynamic_states();
-        ok &= native_ptr_to_seval<cocos2d::GFXDynamicStateList&>((cocos2d::GFXDynamicStateList&)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineState_dynamic_states : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXPipelineState_dynamic_states)
-
-static bool js_gfx_GFXPipelineState_is(se::State& s)
-{
-    cocos2d::GFXPipelineState* cobj = (cocos2d::GFXPipelineState*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineState_is : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const cocos2d::GFXInputState& result = cobj->is();
-        #pragma warning NO CONVERSION FROM NATIVE FOR GFXInputState;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineState_is : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXPipelineState_is)
-
-static bool js_gfx_GFXPipelineState_bs(se::State& s)
-{
-    cocos2d::GFXPipelineState* cobj = (cocos2d::GFXPipelineState*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineState_bs : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const cocos2d::GFXBlendState& result = cobj->bs();
-        #pragma warning NO CONVERSION FROM NATIVE FOR GFXBlendState;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineState_bs : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXPipelineState_bs)
-
-static bool js_gfx_GFXPipelineState_shader(se::State& s)
-{
-    cocos2d::GFXPipelineState* cobj = (cocos2d::GFXPipelineState*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineState_shader : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXShader* result = cobj->shader();
-        ok &= native_ptr_to_seval<cocos2d::GFXShader>((cocos2d::GFXShader*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineState_shader : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXPipelineState_shader)
-
-static bool js_gfx_GFXPipelineState_dss(se::State& s)
-{
-    cocos2d::GFXPipelineState* cobj = (cocos2d::GFXPipelineState*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineState_dss : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const cocos2d::GFXDepthStencilState& result = cobj->dss();
-        #pragma warning NO CONVERSION FROM NATIVE FOR GFXDepthStencilState;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineState_dss : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXPipelineState_dss)
-
-static bool js_gfx_GFXPipelineState_device(se::State& s)
-{
-    cocos2d::GFXPipelineState* cobj = (cocos2d::GFXPipelineState*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineState_device : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXDevice* result = cobj->device();
-        ok &= native_ptr_to_seval<cocos2d::GFXDevice>((cocos2d::GFXDevice*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineState_device : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXPipelineState_device)
-
-static bool js_gfx_GFXPipelineState_Initialize(se::State& s)
-{
-    cocos2d::GFXPipelineState* cobj = (cocos2d::GFXPipelineState*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineState_Initialize : Invalid Native Object");
+    cocos2d::GLES2PipelineState* cobj = (cocos2d::GLES2PipelineState*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2PipelineState_Initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -4107,21 +2155,21 @@ static bool js_gfx_GFXPipelineState_Initialize(se::State& s)
         cocos2d::GFXPipelineStateInfo arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXPipelineStateInfo
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineState_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2PipelineState_Initialize : Error processing arguments");
         bool result = cobj->Initialize(arg0);
         ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineState_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2PipelineState_Initialize : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXPipelineState_Initialize)
+SE_BIND_FUNC(js_gfx_GLES2PipelineState_Initialize)
 
-static bool js_gfx_GFXPipelineState_Destroy(se::State& s)
+static bool js_gfx_GLES2PipelineState_Destroy(se::State& s)
 {
-    cocos2d::GFXPipelineState* cobj = (cocos2d::GFXPipelineState*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineState_Destroy : Invalid Native Object");
+    cocos2d::GLES2PipelineState* cobj = (cocos2d::GLES2PipelineState*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2PipelineState_Destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -4131,93 +2179,808 @@ static bool js_gfx_GFXPipelineState_Destroy(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXPipelineState_Destroy)
+SE_BIND_FUNC(js_gfx_GLES2PipelineState_Destroy)
 
-static bool js_gfx_GFXPipelineState_render_pass(se::State& s)
+static bool js_gfx_GLES2PipelineState_gpu_pso(se::State& s)
 {
-    cocos2d::GFXPipelineState* cobj = (cocos2d::GFXPipelineState*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXPipelineState_render_pass : Invalid Native Object");
+    cocos2d::GLES2PipelineState* cobj = (cocos2d::GLES2PipelineState*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2PipelineState_gpu_pso : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const cocos2d::GFXRenderPass* result = cobj->render_pass();
-        ok &= native_ptr_to_seval<cocos2d::GFXRenderPass>((cocos2d::GFXRenderPass*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineState_render_pass : Error processing arguments");
+        cocos2d::GLES2GPUPipelineState* result = cobj->gpu_pso();
+        ok &= native_ptr_to_seval<cocos2d::GLES2GPUPipelineState>((cocos2d::GLES2GPUPipelineState*)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2PipelineState_gpu_pso : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXPipelineState_render_pass)
+SE_BIND_FUNC(js_gfx_GLES2PipelineState_gpu_pso)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXPipelineState_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GLES2PipelineState_finalize)
 
-static bool js_gfx_GFXPipelineState_constructor(se::State& s)
+static bool js_gfx_GLES2PipelineState_constructor(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     cocos2d::GFXDevice* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineState_constructor : Error processing arguments");
-    cocos2d::GFXPipelineState* cobj = new (std::nothrow) cocos2d::GFXPipelineState(arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_GLES2PipelineState_constructor : Error processing arguments");
+    cocos2d::GLES2PipelineState* cobj = new (std::nothrow) cocos2d::GLES2PipelineState(arg0);
     s.thisObject()->setPrivateData(cobj);
     se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
-SE_BIND_CTOR(js_gfx_GFXPipelineState_constructor, __jsb_cocos2d_GFXPipelineState_class, js_cocos2d_GFXPipelineState_finalize)
+SE_BIND_CTOR(js_gfx_GLES2PipelineState_constructor, __jsb_cocos2d_GLES2PipelineState_class, js_cocos2d_GLES2PipelineState_finalize)
 
 
 
+extern se::Object* __jsb_cocos2d_GFXPipelineState_proto;
 
-static bool js_cocos2d_GFXPipelineState_finalize(se::State& s)
+static bool js_cocos2d_GLES2PipelineState_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXPipelineState)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2PipelineState)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXPipelineState* cobj = (cocos2d::GFXPipelineState*)s.nativeThisObject();
+        cocos2d::GLES2PipelineState* cobj = (cocos2d::GLES2PipelineState*)s.nativeThisObject();
         delete cobj;
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXPipelineState_finalize)
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2PipelineState_finalize)
 
-bool js_register_gfx_GFXPipelineState(se::Object* obj)
+bool js_register_gfx_GLES2PipelineState(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXPipelineState", obj, nullptr, _SE(js_gfx_GFXPipelineState_constructor));
+    auto cls = se::Class::create("GLES2PipelineState", obj, __jsb_cocos2d_GFXPipelineState_proto, _SE(js_gfx_GLES2PipelineState_constructor));
 
-    cls->defineFunction("primitive", _SE(js_gfx_GFXPipelineState_primitive));
-    cls->defineFunction("layout", _SE(js_gfx_GFXPipelineState_layout));
-    cls->defineFunction("rs", _SE(js_gfx_GFXPipelineState_rs));
-    cls->defineFunction("dynamic_states", _SE(js_gfx_GFXPipelineState_dynamic_states));
-    cls->defineFunction("is", _SE(js_gfx_GFXPipelineState_is));
-    cls->defineFunction("bs", _SE(js_gfx_GFXPipelineState_bs));
-    cls->defineFunction("shader", _SE(js_gfx_GFXPipelineState_shader));
-    cls->defineFunction("dss", _SE(js_gfx_GFXPipelineState_dss));
-    cls->defineFunction("device", _SE(js_gfx_GFXPipelineState_device));
-    cls->defineFunction("Initialize", _SE(js_gfx_GFXPipelineState_Initialize));
-    cls->defineFunction("Destroy", _SE(js_gfx_GFXPipelineState_Destroy));
-    cls->defineFunction("render_pass", _SE(js_gfx_GFXPipelineState_render_pass));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXPipelineState_finalize));
+    cls->defineFunction("Initialize", _SE(js_gfx_GLES2PipelineState_Initialize));
+    cls->defineFunction("Destroy", _SE(js_gfx_GLES2PipelineState_Destroy));
+    cls->defineFunction("gpu_pso", _SE(js_gfx_GLES2PipelineState_gpu_pso));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2PipelineState_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXPipelineState>(cls);
+    JSBClassType::registerClass<cocos2d::GLES2PipelineState>(cls);
 
-    __jsb_cocos2d_GFXPipelineState_proto = cls->getProto();
-    __jsb_cocos2d_GFXPipelineState_class = cls;
+    __jsb_cocos2d_GLES2PipelineState_proto = cls->getProto();
+    __jsb_cocos2d_GLES2PipelineState_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXCommandAllocator_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXCommandAllocator_class = nullptr;
+se::Object* __jsb_cocos2d_GLES2GPUBuffer_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2GPUBuffer_class = nullptr;
 
-static bool js_gfx_GFXCommandAllocator_Initialize(se::State& s)
+
+
+static bool js_cocos2d_GLES2GPUBuffer_finalize(se::State& s)
 {
-    cocos2d::GFXCommandAllocator* cobj = (cocos2d::GFXCommandAllocator*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandAllocator_Initialize : Invalid Native Object");
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2GPUBuffer)", s.nativeThisObject());
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cocos2d::GLES2GPUBuffer* cobj = (cocos2d::GLES2GPUBuffer*)s.nativeThisObject();
+        delete cobj;
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2GPUBuffer_finalize)
+
+bool js_register_gfx_GLES2GPUBuffer(se::Object* obj)
+{
+    auto cls = se::Class::create("GLES2GPUBuffer", obj, nullptr, nullptr);
+
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2GPUBuffer_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::GLES2GPUBuffer>(cls);
+
+    __jsb_cocos2d_GLES2GPUBuffer_proto = cls->getProto();
+    __jsb_cocos2d_GLES2GPUBuffer_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+se::Object* __jsb_cocos2d_GLES2GPUTexture_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2GPUTexture_class = nullptr;
+
+
+
+static bool js_cocos2d_GLES2GPUTexture_finalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2GPUTexture)", s.nativeThisObject());
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cocos2d::GLES2GPUTexture* cobj = (cocos2d::GLES2GPUTexture*)s.nativeThisObject();
+        delete cobj;
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2GPUTexture_finalize)
+
+bool js_register_gfx_GLES2GPUTexture(se::Object* obj)
+{
+    auto cls = se::Class::create("GLES2GPUTexture", obj, nullptr, nullptr);
+
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2GPUTexture_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::GLES2GPUTexture>(cls);
+
+    __jsb_cocos2d_GLES2GPUTexture_proto = cls->getProto();
+    __jsb_cocos2d_GLES2GPUTexture_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+se::Object* __jsb_cocos2d_GLES2GPUTextureView_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2GPUTextureView_class = nullptr;
+
+
+
+static bool js_cocos2d_GLES2GPUTextureView_finalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2GPUTextureView)", s.nativeThisObject());
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cocos2d::GLES2GPUTextureView* cobj = (cocos2d::GLES2GPUTextureView*)s.nativeThisObject();
+        delete cobj;
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2GPUTextureView_finalize)
+
+bool js_register_gfx_GLES2GPUTextureView(se::Object* obj)
+{
+    auto cls = se::Class::create("GLES2GPUTextureView", obj, nullptr, nullptr);
+
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2GPUTextureView_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::GLES2GPUTextureView>(cls);
+
+    __jsb_cocos2d_GLES2GPUTextureView_proto = cls->getProto();
+    __jsb_cocos2d_GLES2GPUTextureView_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+se::Object* __jsb_cocos2d_GLES2GPUSampler_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2GPUSampler_class = nullptr;
+
+
+
+static bool js_cocos2d_GLES2GPUSampler_finalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2GPUSampler)", s.nativeThisObject());
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cocos2d::GLES2GPUSampler* cobj = (cocos2d::GLES2GPUSampler*)s.nativeThisObject();
+        delete cobj;
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2GPUSampler_finalize)
+
+bool js_register_gfx_GLES2GPUSampler(se::Object* obj)
+{
+    auto cls = se::Class::create("GLES2GPUSampler", obj, nullptr, nullptr);
+
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2GPUSampler_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::GLES2GPUSampler>(cls);
+
+    __jsb_cocos2d_GLES2GPUSampler_proto = cls->getProto();
+    __jsb_cocos2d_GLES2GPUSampler_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+se::Object* __jsb_cocos2d_GLES2GPUShader_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2GPUShader_class = nullptr;
+
+
+
+static bool js_cocos2d_GLES2GPUShader_finalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2GPUShader)", s.nativeThisObject());
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cocos2d::GLES2GPUShader* cobj = (cocos2d::GLES2GPUShader*)s.nativeThisObject();
+        delete cobj;
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2GPUShader_finalize)
+
+bool js_register_gfx_GLES2GPUShader(se::Object* obj)
+{
+    auto cls = se::Class::create("GLES2GPUShader", obj, nullptr, nullptr);
+
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2GPUShader_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::GLES2GPUShader>(cls);
+
+    __jsb_cocos2d_GLES2GPUShader_proto = cls->getProto();
+    __jsb_cocos2d_GLES2GPUShader_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+se::Object* __jsb_cocos2d_GLES2GPUInputAssembler_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2GPUInputAssembler_class = nullptr;
+
+
+
+static bool js_cocos2d_GLES2GPUInputAssembler_finalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2GPUInputAssembler)", s.nativeThisObject());
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cocos2d::GLES2GPUInputAssembler* cobj = (cocos2d::GLES2GPUInputAssembler*)s.nativeThisObject();
+        delete cobj;
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2GPUInputAssembler_finalize)
+
+bool js_register_gfx_GLES2GPUInputAssembler(se::Object* obj)
+{
+    auto cls = se::Class::create("GLES2GPUInputAssembler", obj, nullptr, nullptr);
+
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2GPUInputAssembler_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::GLES2GPUInputAssembler>(cls);
+
+    __jsb_cocos2d_GLES2GPUInputAssembler_proto = cls->getProto();
+    __jsb_cocos2d_GLES2GPUInputAssembler_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+se::Object* __jsb_cocos2d_GLES2GPURenderPass_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2GPURenderPass_class = nullptr;
+
+
+
+static bool js_cocos2d_GLES2GPURenderPass_finalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2GPURenderPass)", s.nativeThisObject());
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cocos2d::GLES2GPURenderPass* cobj = (cocos2d::GLES2GPURenderPass*)s.nativeThisObject();
+        delete cobj;
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2GPURenderPass_finalize)
+
+bool js_register_gfx_GLES2GPURenderPass(se::Object* obj)
+{
+    auto cls = se::Class::create("GLES2GPURenderPass", obj, nullptr, nullptr);
+
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2GPURenderPass_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::GLES2GPURenderPass>(cls);
+
+    __jsb_cocos2d_GLES2GPURenderPass_proto = cls->getProto();
+    __jsb_cocos2d_GLES2GPURenderPass_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+se::Object* __jsb_cocos2d_GLES2GPUFramebuffer_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2GPUFramebuffer_class = nullptr;
+
+
+
+static bool js_cocos2d_GLES2GPUFramebuffer_finalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2GPUFramebuffer)", s.nativeThisObject());
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cocos2d::GLES2GPUFramebuffer* cobj = (cocos2d::GLES2GPUFramebuffer*)s.nativeThisObject();
+        delete cobj;
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2GPUFramebuffer_finalize)
+
+bool js_register_gfx_GLES2GPUFramebuffer(se::Object* obj)
+{
+    auto cls = se::Class::create("GLES2GPUFramebuffer", obj, nullptr, nullptr);
+
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2GPUFramebuffer_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::GLES2GPUFramebuffer>(cls);
+
+    __jsb_cocos2d_GLES2GPUFramebuffer_proto = cls->getProto();
+    __jsb_cocos2d_GLES2GPUFramebuffer_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+se::Object* __jsb_cocos2d_GLES2GPUPipelineLayout_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2GPUPipelineLayout_class = nullptr;
+
+
+
+static bool js_cocos2d_GLES2GPUPipelineLayout_finalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2GPUPipelineLayout)", s.nativeThisObject());
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cocos2d::GLES2GPUPipelineLayout* cobj = (cocos2d::GLES2GPUPipelineLayout*)s.nativeThisObject();
+        delete cobj;
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2GPUPipelineLayout_finalize)
+
+bool js_register_gfx_GLES2GPUPipelineLayout(se::Object* obj)
+{
+    auto cls = se::Class::create("GLES2GPUPipelineLayout", obj, nullptr, nullptr);
+
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2GPUPipelineLayout_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::GLES2GPUPipelineLayout>(cls);
+
+    __jsb_cocos2d_GLES2GPUPipelineLayout_proto = cls->getProto();
+    __jsb_cocos2d_GLES2GPUPipelineLayout_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+se::Object* __jsb_cocos2d_GLES2GPUPipelineState_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2GPUPipelineState_class = nullptr;
+
+
+
+static bool js_cocos2d_GLES2GPUPipelineState_finalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2GPUPipelineState)", s.nativeThisObject());
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cocos2d::GLES2GPUPipelineState* cobj = (cocos2d::GLES2GPUPipelineState*)s.nativeThisObject();
+        delete cobj;
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2GPUPipelineState_finalize)
+
+bool js_register_gfx_GLES2GPUPipelineState(se::Object* obj)
+{
+    auto cls = se::Class::create("GLES2GPUPipelineState", obj, nullptr, nullptr);
+
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2GPUPipelineState_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::GLES2GPUPipelineState>(cls);
+
+    __jsb_cocos2d_GLES2GPUPipelineState_proto = cls->getProto();
+    __jsb_cocos2d_GLES2GPUPipelineState_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+se::Object* __jsb_cocos2d_GLES2GPUBindingLayout_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2GPUBindingLayout_class = nullptr;
+
+
+
+static bool js_cocos2d_GLES2GPUBindingLayout_finalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2GPUBindingLayout)", s.nativeThisObject());
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cocos2d::GLES2GPUBindingLayout* cobj = (cocos2d::GLES2GPUBindingLayout*)s.nativeThisObject();
+        delete cobj;
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2GPUBindingLayout_finalize)
+
+bool js_register_gfx_GLES2GPUBindingLayout(se::Object* obj)
+{
+    auto cls = se::Class::create("GLES2GPUBindingLayout", obj, nullptr, nullptr);
+
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2GPUBindingLayout_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::GLES2GPUBindingLayout>(cls);
+
+    __jsb_cocos2d_GLES2GPUBindingLayout_proto = cls->getProto();
+    __jsb_cocos2d_GLES2GPUBindingLayout_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+se::Object* __jsb_cocos2d_GLES2CmdBeginRenderPass_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2CmdBeginRenderPass_class = nullptr;
+
+static bool js_gfx_GLES2CmdBeginRenderPass_Clear(se::State& s)
+{
+    cocos2d::GLES2CmdBeginRenderPass* cobj = (cocos2d::GLES2CmdBeginRenderPass*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CmdBeginRenderPass_Clear : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->Clear();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GLES2CmdBeginRenderPass_Clear)
+
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GLES2CmdBeginRenderPass_finalize)
+
+static bool js_gfx_GLES2CmdBeginRenderPass_constructor(se::State& s)
+{
+    cocos2d::GLES2CmdBeginRenderPass* cobj = new (std::nothrow) cocos2d::GLES2CmdBeginRenderPass();
+    s.thisObject()->setPrivateData(cobj);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_gfx_GLES2CmdBeginRenderPass_constructor, __jsb_cocos2d_GLES2CmdBeginRenderPass_class, js_cocos2d_GLES2CmdBeginRenderPass_finalize)
+
+
+
+extern se::Object* __jsb_cocos2d_GFXCmd_proto;
+
+static bool js_cocos2d_GLES2CmdBeginRenderPass_finalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2CmdBeginRenderPass)", s.nativeThisObject());
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cocos2d::GLES2CmdBeginRenderPass* cobj = (cocos2d::GLES2CmdBeginRenderPass*)s.nativeThisObject();
+        delete cobj;
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2CmdBeginRenderPass_finalize)
+
+bool js_register_gfx_GLES2CmdBeginRenderPass(se::Object* obj)
+{
+    auto cls = se::Class::create("GLES2CmdBeginRenderPass", obj, __jsb_cocos2d_GFXCmd_proto, _SE(js_gfx_GLES2CmdBeginRenderPass_constructor));
+
+    cls->defineFunction("Clear", _SE(js_gfx_GLES2CmdBeginRenderPass_Clear));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2CmdBeginRenderPass_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::GLES2CmdBeginRenderPass>(cls);
+
+    __jsb_cocos2d_GLES2CmdBeginRenderPass_proto = cls->getProto();
+    __jsb_cocos2d_GLES2CmdBeginRenderPass_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+se::Object* __jsb_cocos2d_GLES2CmdBindStates_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2CmdBindStates_class = nullptr;
+
+static bool js_gfx_GLES2CmdBindStates_Clear(se::State& s)
+{
+    cocos2d::GLES2CmdBindStates* cobj = (cocos2d::GLES2CmdBindStates*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CmdBindStates_Clear : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->Clear();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GLES2CmdBindStates_Clear)
+
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GLES2CmdBindStates_finalize)
+
+static bool js_gfx_GLES2CmdBindStates_constructor(se::State& s)
+{
+    cocos2d::GLES2CmdBindStates* cobj = new (std::nothrow) cocos2d::GLES2CmdBindStates();
+    s.thisObject()->setPrivateData(cobj);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_gfx_GLES2CmdBindStates_constructor, __jsb_cocos2d_GLES2CmdBindStates_class, js_cocos2d_GLES2CmdBindStates_finalize)
+
+
+
+extern se::Object* __jsb_cocos2d_GFXCmd_proto;
+
+static bool js_cocos2d_GLES2CmdBindStates_finalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2CmdBindStates)", s.nativeThisObject());
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cocos2d::GLES2CmdBindStates* cobj = (cocos2d::GLES2CmdBindStates*)s.nativeThisObject();
+        delete cobj;
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2CmdBindStates_finalize)
+
+bool js_register_gfx_GLES2CmdBindStates(se::Object* obj)
+{
+    auto cls = se::Class::create("GLES2CmdBindStates", obj, __jsb_cocos2d_GFXCmd_proto, _SE(js_gfx_GLES2CmdBindStates_constructor));
+
+    cls->defineFunction("Clear", _SE(js_gfx_GLES2CmdBindStates_Clear));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2CmdBindStates_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::GLES2CmdBindStates>(cls);
+
+    __jsb_cocos2d_GLES2CmdBindStates_proto = cls->getProto();
+    __jsb_cocos2d_GLES2CmdBindStates_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+se::Object* __jsb_cocos2d_GLES2CmdDraw_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2CmdDraw_class = nullptr;
+
+static bool js_gfx_GLES2CmdDraw_Clear(se::State& s)
+{
+    cocos2d::GLES2CmdDraw* cobj = (cocos2d::GLES2CmdDraw*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CmdDraw_Clear : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->Clear();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GLES2CmdDraw_Clear)
+
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GLES2CmdDraw_finalize)
+
+static bool js_gfx_GLES2CmdDraw_constructor(se::State& s)
+{
+    cocos2d::GLES2CmdDraw* cobj = new (std::nothrow) cocos2d::GLES2CmdDraw();
+    s.thisObject()->setPrivateData(cobj);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_gfx_GLES2CmdDraw_constructor, __jsb_cocos2d_GLES2CmdDraw_class, js_cocos2d_GLES2CmdDraw_finalize)
+
+
+
+extern se::Object* __jsb_cocos2d_GFXCmd_proto;
+
+static bool js_cocos2d_GLES2CmdDraw_finalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2CmdDraw)", s.nativeThisObject());
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cocos2d::GLES2CmdDraw* cobj = (cocos2d::GLES2CmdDraw*)s.nativeThisObject();
+        delete cobj;
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2CmdDraw_finalize)
+
+bool js_register_gfx_GLES2CmdDraw(se::Object* obj)
+{
+    auto cls = se::Class::create("GLES2CmdDraw", obj, __jsb_cocos2d_GFXCmd_proto, _SE(js_gfx_GLES2CmdDraw_constructor));
+
+    cls->defineFunction("Clear", _SE(js_gfx_GLES2CmdDraw_Clear));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2CmdDraw_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::GLES2CmdDraw>(cls);
+
+    __jsb_cocos2d_GLES2CmdDraw_proto = cls->getProto();
+    __jsb_cocos2d_GLES2CmdDraw_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+se::Object* __jsb_cocos2d_GLES2CmdUpdateBuffer_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2CmdUpdateBuffer_class = nullptr;
+
+static bool js_gfx_GLES2CmdUpdateBuffer_Clear(se::State& s)
+{
+    cocos2d::GLES2CmdUpdateBuffer* cobj = (cocos2d::GLES2CmdUpdateBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CmdUpdateBuffer_Clear : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->Clear();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GLES2CmdUpdateBuffer_Clear)
+
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GLES2CmdUpdateBuffer_finalize)
+
+static bool js_gfx_GLES2CmdUpdateBuffer_constructor(se::State& s)
+{
+    cocos2d::GLES2CmdUpdateBuffer* cobj = new (std::nothrow) cocos2d::GLES2CmdUpdateBuffer();
+    s.thisObject()->setPrivateData(cobj);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_gfx_GLES2CmdUpdateBuffer_constructor, __jsb_cocos2d_GLES2CmdUpdateBuffer_class, js_cocos2d_GLES2CmdUpdateBuffer_finalize)
+
+
+
+extern se::Object* __jsb_cocos2d_GFXCmd_proto;
+
+static bool js_cocos2d_GLES2CmdUpdateBuffer_finalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2CmdUpdateBuffer)", s.nativeThisObject());
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cocos2d::GLES2CmdUpdateBuffer* cobj = (cocos2d::GLES2CmdUpdateBuffer*)s.nativeThisObject();
+        delete cobj;
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2CmdUpdateBuffer_finalize)
+
+bool js_register_gfx_GLES2CmdUpdateBuffer(se::Object* obj)
+{
+    auto cls = se::Class::create("GLES2CmdUpdateBuffer", obj, __jsb_cocos2d_GFXCmd_proto, _SE(js_gfx_GLES2CmdUpdateBuffer_constructor));
+
+    cls->defineFunction("Clear", _SE(js_gfx_GLES2CmdUpdateBuffer_Clear));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2CmdUpdateBuffer_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::GLES2CmdUpdateBuffer>(cls);
+
+    __jsb_cocos2d_GLES2CmdUpdateBuffer_proto = cls->getProto();
+    __jsb_cocos2d_GLES2CmdUpdateBuffer_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+se::Object* __jsb_cocos2d_GLES2CmdCopyBufferToTexture_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2CmdCopyBufferToTexture_class = nullptr;
+
+static bool js_gfx_GLES2CmdCopyBufferToTexture_Clear(se::State& s)
+{
+    cocos2d::GLES2CmdCopyBufferToTexture* cobj = (cocos2d::GLES2CmdCopyBufferToTexture*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CmdCopyBufferToTexture_Clear : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->Clear();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GLES2CmdCopyBufferToTexture_Clear)
+
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GLES2CmdCopyBufferToTexture_finalize)
+
+static bool js_gfx_GLES2CmdCopyBufferToTexture_constructor(se::State& s)
+{
+    cocos2d::GLES2CmdCopyBufferToTexture* cobj = new (std::nothrow) cocos2d::GLES2CmdCopyBufferToTexture();
+    s.thisObject()->setPrivateData(cobj);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_gfx_GLES2CmdCopyBufferToTexture_constructor, __jsb_cocos2d_GLES2CmdCopyBufferToTexture_class, js_cocos2d_GLES2CmdCopyBufferToTexture_finalize)
+
+
+
+extern se::Object* __jsb_cocos2d_GFXCmd_proto;
+
+static bool js_cocos2d_GLES2CmdCopyBufferToTexture_finalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2CmdCopyBufferToTexture)", s.nativeThisObject());
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cocos2d::GLES2CmdCopyBufferToTexture* cobj = (cocos2d::GLES2CmdCopyBufferToTexture*)s.nativeThisObject();
+        delete cobj;
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2CmdCopyBufferToTexture_finalize)
+
+bool js_register_gfx_GLES2CmdCopyBufferToTexture(se::Object* obj)
+{
+    auto cls = se::Class::create("GLES2CmdCopyBufferToTexture", obj, __jsb_cocos2d_GFXCmd_proto, _SE(js_gfx_GLES2CmdCopyBufferToTexture_constructor));
+
+    cls->defineFunction("Clear", _SE(js_gfx_GLES2CmdCopyBufferToTexture_Clear));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2CmdCopyBufferToTexture_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::GLES2CmdCopyBufferToTexture>(cls);
+
+    __jsb_cocos2d_GLES2CmdCopyBufferToTexture_proto = cls->getProto();
+    __jsb_cocos2d_GLES2CmdCopyBufferToTexture_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+se::Object* __jsb_cocos2d_GLES2CmdPackage_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2CmdPackage_class = nullptr;
+
+
+
+static bool js_cocos2d_GLES2CmdPackage_finalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2CmdPackage)", s.nativeThisObject());
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cocos2d::GLES2CmdPackage* cobj = (cocos2d::GLES2CmdPackage*)s.nativeThisObject();
+        delete cobj;
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2CmdPackage_finalize)
+
+bool js_register_gfx_GLES2CmdPackage(se::Object* obj)
+{
+    auto cls = se::Class::create("GLES2CmdPackage", obj, nullptr, nullptr);
+
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2CmdPackage_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::GLES2CmdPackage>(cls);
+
+    __jsb_cocos2d_GLES2CmdPackage_proto = cls->getProto();
+    __jsb_cocos2d_GLES2CmdPackage_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
+se::Object* __jsb_cocos2d_GLES2CommandAllocator_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2CommandAllocator_class = nullptr;
+
+static bool js_gfx_GLES2CommandAllocator_Initialize(se::State& s)
+{
+    cocos2d::GLES2CommandAllocator* cobj = (cocos2d::GLES2CommandAllocator*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CommandAllocator_Initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -4225,21 +2988,21 @@ static bool js_gfx_GFXCommandAllocator_Initialize(se::State& s)
         cocos2d::GFXCommandAllocatorInfo arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXCommandAllocatorInfo
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandAllocator_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2CommandAllocator_Initialize : Error processing arguments");
         bool result = cobj->Initialize(arg0);
         ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandAllocator_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2CommandAllocator_Initialize : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXCommandAllocator_Initialize)
+SE_BIND_FUNC(js_gfx_GLES2CommandAllocator_Initialize)
 
-static bool js_gfx_GFXCommandAllocator_Destroy(se::State& s)
+static bool js_gfx_GLES2CommandAllocator_Destroy(se::State& s)
 {
-    cocos2d::GFXCommandAllocator* cobj = (cocos2d::GFXCommandAllocator*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandAllocator_Destroy : Invalid Native Object");
+    cocos2d::GLES2CommandAllocator* cobj = (cocos2d::GLES2CommandAllocator*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CommandAllocator_Destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -4249,84 +3012,102 @@ static bool js_gfx_GFXCommandAllocator_Destroy(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXCommandAllocator_Destroy)
+SE_BIND_FUNC(js_gfx_GLES2CommandAllocator_Destroy)
 
-static bool js_gfx_GFXCommandAllocator_device(se::State& s)
+static bool js_gfx_GLES2CommandAllocator_ClearCmds(se::State& s)
 {
-    cocos2d::GFXCommandAllocator* cobj = (cocos2d::GFXCommandAllocator*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandAllocator_device : Invalid Native Object");
+    cocos2d::GLES2CommandAllocator* cobj = (cocos2d::GLES2CommandAllocator*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CommandAllocator_ClearCmds : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        cocos2d::GLES2CmdPackage* arg0 = nullptr;
+        ok &= seval_to_native_ptr(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2CommandAllocator_ClearCmds : Error processing arguments");
+        cobj->ClearCmds(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GLES2CommandAllocator_ClearCmds)
+
+static bool js_gfx_GLES2CommandAllocator_ReleaseCmds(se::State& s)
+{
+    cocos2d::GLES2CommandAllocator* cobj = (cocos2d::GLES2CommandAllocator*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CommandAllocator_ReleaseCmds : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
     if (argc == 0) {
-        cocos2d::GFXDevice* result = cobj->device();
-        ok &= native_ptr_to_seval<cocos2d::GFXDevice>((cocos2d::GFXDevice*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandAllocator_device : Error processing arguments");
+        cobj->ReleaseCmds();
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXCommandAllocator_device)
+SE_BIND_FUNC(js_gfx_GLES2CommandAllocator_ReleaseCmds)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXCommandAllocator_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GLES2CommandAllocator_finalize)
 
-static bool js_gfx_GFXCommandAllocator_constructor(se::State& s)
+static bool js_gfx_GLES2CommandAllocator_constructor(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     cocos2d::GFXDevice* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandAllocator_constructor : Error processing arguments");
-    cocos2d::GFXCommandAllocator* cobj = new (std::nothrow) cocos2d::GFXCommandAllocator(arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_GLES2CommandAllocator_constructor : Error processing arguments");
+    cocos2d::GLES2CommandAllocator* cobj = new (std::nothrow) cocos2d::GLES2CommandAllocator(arg0);
     s.thisObject()->setPrivateData(cobj);
     se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
-SE_BIND_CTOR(js_gfx_GFXCommandAllocator_constructor, __jsb_cocos2d_GFXCommandAllocator_class, js_cocos2d_GFXCommandAllocator_finalize)
+SE_BIND_CTOR(js_gfx_GLES2CommandAllocator_constructor, __jsb_cocos2d_GLES2CommandAllocator_class, js_cocos2d_GLES2CommandAllocator_finalize)
 
 
 
+extern se::Object* __jsb_cocos2d_GFXCommandAllocator_proto;
 
-static bool js_cocos2d_GFXCommandAllocator_finalize(se::State& s)
+static bool js_cocos2d_GLES2CommandAllocator_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXCommandAllocator)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2CommandAllocator)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXCommandAllocator* cobj = (cocos2d::GFXCommandAllocator*)s.nativeThisObject();
+        cocos2d::GLES2CommandAllocator* cobj = (cocos2d::GLES2CommandAllocator*)s.nativeThisObject();
         delete cobj;
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXCommandAllocator_finalize)
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2CommandAllocator_finalize)
 
-bool js_register_gfx_GFXCommandAllocator(se::Object* obj)
+bool js_register_gfx_GLES2CommandAllocator(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXCommandAllocator", obj, nullptr, _SE(js_gfx_GFXCommandAllocator_constructor));
+    auto cls = se::Class::create("GLES2CommandAllocator", obj, __jsb_cocos2d_GFXCommandAllocator_proto, _SE(js_gfx_GLES2CommandAllocator_constructor));
 
-    cls->defineFunction("Initialize", _SE(js_gfx_GFXCommandAllocator_Initialize));
-    cls->defineFunction("Destroy", _SE(js_gfx_GFXCommandAllocator_Destroy));
-    cls->defineFunction("device", _SE(js_gfx_GFXCommandAllocator_device));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXCommandAllocator_finalize));
+    cls->defineFunction("Initialize", _SE(js_gfx_GLES2CommandAllocator_Initialize));
+    cls->defineFunction("Destroy", _SE(js_gfx_GLES2CommandAllocator_Destroy));
+    cls->defineFunction("ClearCmds", _SE(js_gfx_GLES2CommandAllocator_ClearCmds));
+    cls->defineFunction("ReleaseCmds", _SE(js_gfx_GLES2CommandAllocator_ReleaseCmds));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2CommandAllocator_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXCommandAllocator>(cls);
+    JSBClassType::registerClass<cocos2d::GLES2CommandAllocator>(cls);
 
-    __jsb_cocos2d_GFXCommandAllocator_proto = cls->getProto();
-    __jsb_cocos2d_GFXCommandAllocator_class = cls;
+    __jsb_cocos2d_GLES2CommandAllocator_proto = cls->getProto();
+    __jsb_cocos2d_GLES2CommandAllocator_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXCommandBuffer_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXCommandBuffer_class = nullptr;
+se::Object* __jsb_cocos2d_GLES2CommandBuffer_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2CommandBuffer_class = nullptr;
 
-static bool js_gfx_GFXCommandBuffer_End(se::State& s)
+static bool js_gfx_GLES2CommandBuffer_End(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_End : Invalid Native Object");
+    cocos2d::GLES2CommandBuffer* cobj = (cocos2d::GLES2CommandBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CommandBuffer_End : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -4336,50 +3117,50 @@ static bool js_gfx_GFXCommandBuffer_End(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXCommandBuffer_End)
+SE_BIND_FUNC(js_gfx_GLES2CommandBuffer_End)
 
-static bool js_gfx_GFXCommandBuffer_BindInputAssembler(se::State& s)
+static bool js_gfx_GLES2CommandBuffer_BindInputAssembler(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_BindInputAssembler : Invalid Native Object");
+    cocos2d::GLES2CommandBuffer* cobj = (cocos2d::GLES2CommandBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CommandBuffer_BindInputAssembler : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::GFXInputAssembler* arg0 = nullptr;
         ok &= seval_to_native_ptr(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_BindInputAssembler : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2CommandBuffer_BindInputAssembler : Error processing arguments");
         cobj->BindInputAssembler(arg0);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXCommandBuffer_BindInputAssembler)
+SE_BIND_FUNC(js_gfx_GLES2CommandBuffer_BindInputAssembler)
 
-static bool js_gfx_GFXCommandBuffer_BindPipelineState(se::State& s)
+static bool js_gfx_GLES2CommandBuffer_BindPipelineState(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_BindPipelineState : Invalid Native Object");
+    cocos2d::GLES2CommandBuffer* cobj = (cocos2d::GLES2CommandBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CommandBuffer_BindPipelineState : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::GFXPipelineState* arg0 = nullptr;
         ok &= seval_to_native_ptr(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_BindPipelineState : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2CommandBuffer_BindPipelineState : Error processing arguments");
         cobj->BindPipelineState(arg0);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXCommandBuffer_BindPipelineState)
+SE_BIND_FUNC(js_gfx_GLES2CommandBuffer_BindPipelineState)
 
-static bool js_gfx_GFXCommandBuffer_Destroy(se::State& s)
+static bool js_gfx_GLES2CommandBuffer_Destroy(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_Destroy : Invalid Native Object");
+    cocos2d::GLES2CommandBuffer* cobj = (cocos2d::GLES2CommandBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CommandBuffer_Destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -4389,48 +3170,12 @@ static bool js_gfx_GFXCommandBuffer_Destroy(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXCommandBuffer_Destroy)
+SE_BIND_FUNC(js_gfx_GLES2CommandBuffer_Destroy)
 
-static bool js_gfx_GFXCommandBuffer_num_tris(se::State& s)
+static bool js_gfx_GLES2CommandBuffer_SetDepthBias(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_num_tris : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->num_tris();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_num_tris : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXCommandBuffer_num_tris)
-
-static bool js_gfx_GFXCommandBuffer_allocator(se::State& s)
-{
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_allocator : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXCommandAllocator* result = cobj->allocator();
-        ok &= native_ptr_to_seval<cocos2d::GFXCommandAllocator>((cocos2d::GFXCommandAllocator*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_allocator : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXCommandBuffer_allocator)
-
-static bool js_gfx_GFXCommandBuffer_SetDepthBias(se::State& s)
-{
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_SetDepthBias : Invalid Native Object");
+    cocos2d::GLES2CommandBuffer* cobj = (cocos2d::GLES2CommandBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CommandBuffer_SetDepthBias : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -4441,19 +3186,19 @@ static bool js_gfx_GFXCommandBuffer_SetDepthBias(se::State& s)
         ok &= seval_to_float(args[0], &arg0);
         ok &= seval_to_float(args[1], &arg1);
         ok &= seval_to_float(args[2], &arg2);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_SetDepthBias : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2CommandBuffer_SetDepthBias : Error processing arguments");
         cobj->SetDepthBias(arg0, arg1, arg2);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXCommandBuffer_SetDepthBias)
+SE_BIND_FUNC(js_gfx_GLES2CommandBuffer_SetDepthBias)
 
-static bool js_gfx_GFXCommandBuffer_Begin(se::State& s)
+static bool js_gfx_GLES2CommandBuffer_Begin(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_Begin : Invalid Native Object");
+    cocos2d::GLES2CommandBuffer* cobj = (cocos2d::GLES2CommandBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CommandBuffer_Begin : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -4463,31 +3208,31 @@ static bool js_gfx_GFXCommandBuffer_Begin(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXCommandBuffer_Begin)
+SE_BIND_FUNC(js_gfx_GLES2CommandBuffer_Begin)
 
-static bool js_gfx_GFXCommandBuffer_BindBindingLayout(se::State& s)
+static bool js_gfx_GLES2CommandBuffer_BindBindingLayout(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_BindBindingLayout : Invalid Native Object");
+    cocos2d::GLES2CommandBuffer* cobj = (cocos2d::GLES2CommandBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CommandBuffer_BindBindingLayout : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::GFXBindingLayout* arg0 = nullptr;
         ok &= seval_to_native_ptr(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_BindBindingLayout : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2CommandBuffer_BindBindingLayout : Error processing arguments");
         cobj->BindBindingLayout(arg0);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXCommandBuffer_BindBindingLayout)
+SE_BIND_FUNC(js_gfx_GLES2CommandBuffer_BindBindingLayout)
 
-static bool js_gfx_GFXCommandBuffer_EndRenderPass(se::State& s)
+static bool js_gfx_GLES2CommandBuffer_EndRenderPass(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_EndRenderPass : Invalid Native Object");
+    cocos2d::GLES2CommandBuffer* cobj = (cocos2d::GLES2CommandBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CommandBuffer_EndRenderPass : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -4497,12 +3242,12 @@ static bool js_gfx_GFXCommandBuffer_EndRenderPass(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXCommandBuffer_EndRenderPass)
+SE_BIND_FUNC(js_gfx_GLES2CommandBuffer_EndRenderPass)
 
-static bool js_gfx_GFXCommandBuffer_CopyBufferToTexture(se::State& s)
+static bool js_gfx_GLES2CommandBuffer_CopyBufferToTexture(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_CopyBufferToTexture : Invalid Native Object");
+    cocos2d::GLES2CommandBuffer* cobj = (cocos2d::GLES2CommandBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CommandBuffer_CopyBufferToTexture : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -4518,52 +3263,22 @@ static bool js_gfx_GFXCommandBuffer_CopyBufferToTexture(se::State& s)
         #pragma warning NO CONVERSION TO NATIVE FOR GFXBufferTextureCopy*
         ok = false;
         ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_CopyBufferToTexture : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2CommandBuffer_CopyBufferToTexture : Error processing arguments");
         cobj->CopyBufferToTexture(arg0, arg1, arg2, arg3, arg4);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 5);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXCommandBuffer_CopyBufferToTexture)
+SE_BIND_FUNC(js_gfx_GLES2CommandBuffer_CopyBufferToTexture)
 
-static bool js_gfx_GFXCommandBuffer_type(se::State& s)
+static bool js_gfx_GLES2CommandBuffer_UpdateBuffer(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_type : Invalid Native Object");
+    cocos2d::GLES2CommandBuffer* cobj = (cocos2d::GLES2CommandBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CommandBuffer_UpdateBuffer : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->type();
-        ok &= int32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_type : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXCommandBuffer_type)
-
-static bool js_gfx_GFXCommandBuffer_UpdateBuffer(se::State& s)
-{
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_UpdateBuffer : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 3) {
-        cocos2d::GFXBuffer* arg0 = nullptr;
-        void* arg1 = nullptr;
-        unsigned int arg2 = 0;
-        ok &= seval_to_native_ptr(args[0], &arg0);
-        #pragma warning NO CONVERSION TO NATIVE FOR void*
-        ok = false;
-        ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_UpdateBuffer : Error processing arguments");
-        cobj->UpdateBuffer(arg0, arg1, arg2);
-        return true;
-    }
     if (argc == 4) {
         cocos2d::GFXBuffer* arg0 = nullptr;
         void* arg1 = nullptr;
@@ -4574,19 +3289,19 @@ static bool js_gfx_GFXCommandBuffer_UpdateBuffer(se::State& s)
         ok = false;
         ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
         ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_UpdateBuffer : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2CommandBuffer_UpdateBuffer : Error processing arguments");
         cobj->UpdateBuffer(arg0, arg1, arg2, arg3);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 4);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXCommandBuffer_UpdateBuffer)
+SE_BIND_FUNC(js_gfx_GLES2CommandBuffer_UpdateBuffer)
 
-static bool js_gfx_GFXCommandBuffer_Execute(se::State& s)
+static bool js_gfx_GLES2CommandBuffer_Execute(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_Execute : Invalid Native Object");
+    cocos2d::GLES2CommandBuffer* cobj = (cocos2d::GLES2CommandBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CommandBuffer_Execute : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -4595,19 +3310,19 @@ static bool js_gfx_GFXCommandBuffer_Execute(se::State& s)
         unsigned int arg1 = 0;
         ok &= seval_to_native_ptr(args[0], &arg0);
         ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_Execute : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2CommandBuffer_Execute : Error processing arguments");
         cobj->Execute(arg0, arg1);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXCommandBuffer_Execute)
+SE_BIND_FUNC(js_gfx_GLES2CommandBuffer_Execute)
 
-static bool js_gfx_GFXCommandBuffer_SetStencilWriteMask(se::State& s)
+static bool js_gfx_GLES2CommandBuffer_SetStencilWriteMask(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_SetStencilWriteMask : Invalid Native Object");
+    cocos2d::GLES2CommandBuffer* cobj = (cocos2d::GLES2CommandBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CommandBuffer_SetStencilWriteMask : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -4616,38 +3331,38 @@ static bool js_gfx_GFXCommandBuffer_SetStencilWriteMask(se::State& s)
         unsigned int arg1 = 0;
         do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXStencilFace)tmp; } while(false);
         ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_SetStencilWriteMask : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2CommandBuffer_SetStencilWriteMask : Error processing arguments");
         cobj->SetStencilWriteMask(arg0, arg1);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXCommandBuffer_SetStencilWriteMask)
+SE_BIND_FUNC(js_gfx_GLES2CommandBuffer_SetStencilWriteMask)
 
-static bool js_gfx_GFXCommandBuffer_Draw(se::State& s)
+static bool js_gfx_GLES2CommandBuffer_Draw(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_Draw : Invalid Native Object");
+    cocos2d::GLES2CommandBuffer* cobj = (cocos2d::GLES2CommandBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CommandBuffer_Draw : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         cocos2d::GFXInputAssembler* arg0 = nullptr;
         ok &= seval_to_native_ptr(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_Draw : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2CommandBuffer_Draw : Error processing arguments");
         cobj->Draw(arg0);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXCommandBuffer_Draw)
+SE_BIND_FUNC(js_gfx_GLES2CommandBuffer_Draw)
 
-static bool js_gfx_GFXCommandBuffer_BeginRenderPass(se::State& s)
+static bool js_gfx_GLES2CommandBuffer_BeginRenderPass(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_BeginRenderPass : Invalid Native Object");
+    cocos2d::GLES2CommandBuffer* cobj = (cocos2d::GLES2CommandBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CommandBuffer_BeginRenderPass : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -4668,19 +3383,19 @@ static bool js_gfx_GFXCommandBuffer_BeginRenderPass(se::State& s)
         ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
         ok &= seval_to_float(args[5], &arg5);
         do { int32_t tmp = 0; ok &= seval_to_int32(args[6], &tmp); arg6 = (int)tmp; } while(false);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_BeginRenderPass : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2CommandBuffer_BeginRenderPass : Error processing arguments");
         cobj->BeginRenderPass(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 7);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXCommandBuffer_BeginRenderPass)
+SE_BIND_FUNC(js_gfx_GLES2CommandBuffer_BeginRenderPass)
 
-static bool js_gfx_GFXCommandBuffer_SetStencilCompareMask(se::State& s)
+static bool js_gfx_GLES2CommandBuffer_SetStencilCompareMask(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_SetStencilCompareMask : Invalid Native Object");
+    cocos2d::GLES2CommandBuffer* cobj = (cocos2d::GLES2CommandBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CommandBuffer_SetStencilCompareMask : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -4691,19 +3406,19 @@ static bool js_gfx_GFXCommandBuffer_SetStencilCompareMask(se::State& s)
         do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXStencilFace)tmp; } while(false);
         do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (int)tmp; } while(false);
         ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_SetStencilCompareMask : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2CommandBuffer_SetStencilCompareMask : Error processing arguments");
         cobj->SetStencilCompareMask(arg0, arg1, arg2);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXCommandBuffer_SetStencilCompareMask)
+SE_BIND_FUNC(js_gfx_GLES2CommandBuffer_SetStencilCompareMask)
 
-static bool js_gfx_GFXCommandBuffer_Initialize(se::State& s)
+static bool js_gfx_GLES2CommandBuffer_Initialize(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_Initialize : Invalid Native Object");
+    cocos2d::GLES2CommandBuffer* cobj = (cocos2d::GLES2CommandBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CommandBuffer_Initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -4711,21 +3426,21 @@ static bool js_gfx_GFXCommandBuffer_Initialize(se::State& s)
         cocos2d::GFXCommandBufferInfo arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXCommandBufferInfo
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2CommandBuffer_Initialize : Error processing arguments");
         bool result = cobj->Initialize(arg0);
         ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2CommandBuffer_Initialize : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXCommandBuffer_Initialize)
+SE_BIND_FUNC(js_gfx_GLES2CommandBuffer_Initialize)
 
-static bool js_gfx_GFXCommandBuffer_SetDepthBounds(se::State& s)
+static bool js_gfx_GLES2CommandBuffer_SetDepthBounds(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_SetDepthBounds : Invalid Native Object");
+    cocos2d::GLES2CommandBuffer* cobj = (cocos2d::GLES2CommandBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CommandBuffer_SetDepthBounds : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -4734,37 +3449,19 @@ static bool js_gfx_GFXCommandBuffer_SetDepthBounds(se::State& s)
         float arg1 = 0;
         ok &= seval_to_float(args[0], &arg0);
         ok &= seval_to_float(args[1], &arg1);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_SetDepthBounds : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2CommandBuffer_SetDepthBounds : Error processing arguments");
         cobj->SetDepthBounds(arg0, arg1);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXCommandBuffer_SetDepthBounds)
+SE_BIND_FUNC(js_gfx_GLES2CommandBuffer_SetDepthBounds)
 
-static bool js_gfx_GFXCommandBuffer_device(se::State& s)
+static bool js_gfx_GLES2CommandBuffer_SetViewport(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_device : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXDevice* result = cobj->device();
-        ok &= native_ptr_to_seval<cocos2d::GFXDevice>((cocos2d::GFXDevice*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_device : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXCommandBuffer_device)
-
-static bool js_gfx_GFXCommandBuffer_SetViewport(se::State& s)
-{
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_SetViewport : Invalid Native Object");
+    cocos2d::GLES2CommandBuffer* cobj = (cocos2d::GLES2CommandBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CommandBuffer_SetViewport : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -4772,37 +3469,19 @@ static bool js_gfx_GFXCommandBuffer_SetViewport(se::State& s)
         cocos2d::GFXViewport arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXViewport
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_SetViewport : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2CommandBuffer_SetViewport : Error processing arguments");
         cobj->SetViewport(arg0);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXCommandBuffer_SetViewport)
+SE_BIND_FUNC(js_gfx_GLES2CommandBuffer_SetViewport)
 
-static bool js_gfx_GFXCommandBuffer_num_draw_calls(se::State& s)
+static bool js_gfx_GLES2CommandBuffer_SetBlendConstants(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_num_draw_calls : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->num_draw_calls();
-        ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_num_draw_calls : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXCommandBuffer_num_draw_calls)
-
-static bool js_gfx_GFXCommandBuffer_SetBlendConstants(se::State& s)
-{
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_SetBlendConstants : Invalid Native Object");
+    cocos2d::GLES2CommandBuffer* cobj = (cocos2d::GLES2CommandBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CommandBuffer_SetBlendConstants : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -4810,19 +3489,19 @@ static bool js_gfx_GFXCommandBuffer_SetBlendConstants(se::State& s)
         cocos2d::GFXColor arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXColor
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_SetBlendConstants : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2CommandBuffer_SetBlendConstants : Error processing arguments");
         cobj->SetBlendConstants(arg0);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXCommandBuffer_SetBlendConstants)
+SE_BIND_FUNC(js_gfx_GLES2CommandBuffer_SetBlendConstants)
 
-static bool js_gfx_GFXCommandBuffer_SetScissor(se::State& s)
+static bool js_gfx_GLES2CommandBuffer_SetScissor(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_SetScissor : Invalid Native Object");
+    cocos2d::GLES2CommandBuffer* cobj = (cocos2d::GLES2CommandBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CommandBuffer_SetScissor : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -4830,154 +3509,111 @@ static bool js_gfx_GFXCommandBuffer_SetScissor(se::State& s)
         cocos2d::GFXRect arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXRect
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_SetScissor : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2CommandBuffer_SetScissor : Error processing arguments");
         cobj->SetScissor(arg0);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXCommandBuffer_SetScissor)
+SE_BIND_FUNC(js_gfx_GLES2CommandBuffer_SetScissor)
 
-static bool js_gfx_GFXCommandBuffer_SetLineWidth(se::State& s)
+static bool js_gfx_GLES2CommandBuffer_SetLineWidth(se::State& s)
 {
-    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_SetLineWidth : Invalid Native Object");
+    cocos2d::GLES2CommandBuffer* cobj = (cocos2d::GLES2CommandBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2CommandBuffer_SetLineWidth : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         float arg0 = 0;
         ok &= seval_to_float(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_SetLineWidth : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2CommandBuffer_SetLineWidth : Error processing arguments");
         cobj->SetLineWidth(arg0);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXCommandBuffer_SetLineWidth)
+SE_BIND_FUNC(js_gfx_GLES2CommandBuffer_SetLineWidth)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXCommandBuffer_finalize)
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GLES2CommandBuffer_finalize)
 
-static bool js_gfx_GFXCommandBuffer_constructor(se::State& s)
+static bool js_gfx_GLES2CommandBuffer_constructor(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     cocos2d::GFXDevice* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_constructor : Error processing arguments");
-    cocos2d::GFXCommandBuffer* cobj = new (std::nothrow) cocos2d::GFXCommandBuffer(arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_GLES2CommandBuffer_constructor : Error processing arguments");
+    cocos2d::GLES2CommandBuffer* cobj = new (std::nothrow) cocos2d::GLES2CommandBuffer(arg0);
     s.thisObject()->setPrivateData(cobj);
     se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
-SE_BIND_CTOR(js_gfx_GFXCommandBuffer_constructor, __jsb_cocos2d_GFXCommandBuffer_class, js_cocos2d_GFXCommandBuffer_finalize)
+SE_BIND_CTOR(js_gfx_GLES2CommandBuffer_constructor, __jsb_cocos2d_GLES2CommandBuffer_class, js_cocos2d_GLES2CommandBuffer_finalize)
 
 
 
+extern se::Object* __jsb_cocos2d_GFXCommandBuffer_proto;
 
-static bool js_cocos2d_GFXCommandBuffer_finalize(se::State& s)
+static bool js_cocos2d_GLES2CommandBuffer_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXCommandBuffer)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2CommandBuffer)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+        cocos2d::GLES2CommandBuffer* cobj = (cocos2d::GLES2CommandBuffer*)s.nativeThisObject();
         delete cobj;
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXCommandBuffer_finalize)
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2CommandBuffer_finalize)
 
-bool js_register_gfx_GFXCommandBuffer(se::Object* obj)
+bool js_register_gfx_GLES2CommandBuffer(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXCommandBuffer", obj, nullptr, _SE(js_gfx_GFXCommandBuffer_constructor));
+    auto cls = se::Class::create("GLES2CommandBuffer", obj, __jsb_cocos2d_GFXCommandBuffer_proto, _SE(js_gfx_GLES2CommandBuffer_constructor));
 
-    cls->defineFunction("End", _SE(js_gfx_GFXCommandBuffer_End));
-    cls->defineFunction("BindInputAssembler", _SE(js_gfx_GFXCommandBuffer_BindInputAssembler));
-    cls->defineFunction("BindPipelineState", _SE(js_gfx_GFXCommandBuffer_BindPipelineState));
-    cls->defineFunction("Destroy", _SE(js_gfx_GFXCommandBuffer_Destroy));
-    cls->defineFunction("num_tris", _SE(js_gfx_GFXCommandBuffer_num_tris));
-    cls->defineFunction("allocator", _SE(js_gfx_GFXCommandBuffer_allocator));
-    cls->defineFunction("SetDepthBias", _SE(js_gfx_GFXCommandBuffer_SetDepthBias));
-    cls->defineFunction("Begin", _SE(js_gfx_GFXCommandBuffer_Begin));
-    cls->defineFunction("BindBindingLayout", _SE(js_gfx_GFXCommandBuffer_BindBindingLayout));
-    cls->defineFunction("EndRenderPass", _SE(js_gfx_GFXCommandBuffer_EndRenderPass));
-    cls->defineFunction("CopyBufferToTexture", _SE(js_gfx_GFXCommandBuffer_CopyBufferToTexture));
-    cls->defineFunction("type", _SE(js_gfx_GFXCommandBuffer_type));
-    cls->defineFunction("UpdateBuffer", _SE(js_gfx_GFXCommandBuffer_UpdateBuffer));
-    cls->defineFunction("Execute", _SE(js_gfx_GFXCommandBuffer_Execute));
-    cls->defineFunction("SetStencilWriteMask", _SE(js_gfx_GFXCommandBuffer_SetStencilWriteMask));
-    cls->defineFunction("Draw", _SE(js_gfx_GFXCommandBuffer_Draw));
-    cls->defineFunction("BeginRenderPass", _SE(js_gfx_GFXCommandBuffer_BeginRenderPass));
-    cls->defineFunction("SetStencilCompareMask", _SE(js_gfx_GFXCommandBuffer_SetStencilCompareMask));
-    cls->defineFunction("Initialize", _SE(js_gfx_GFXCommandBuffer_Initialize));
-    cls->defineFunction("SetDepthBounds", _SE(js_gfx_GFXCommandBuffer_SetDepthBounds));
-    cls->defineFunction("device", _SE(js_gfx_GFXCommandBuffer_device));
-    cls->defineFunction("SetViewport", _SE(js_gfx_GFXCommandBuffer_SetViewport));
-    cls->defineFunction("num_draw_calls", _SE(js_gfx_GFXCommandBuffer_num_draw_calls));
-    cls->defineFunction("SetBlendConstants", _SE(js_gfx_GFXCommandBuffer_SetBlendConstants));
-    cls->defineFunction("SetScissor", _SE(js_gfx_GFXCommandBuffer_SetScissor));
-    cls->defineFunction("SetLineWidth", _SE(js_gfx_GFXCommandBuffer_SetLineWidth));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXCommandBuffer_finalize));
+    cls->defineFunction("End", _SE(js_gfx_GLES2CommandBuffer_End));
+    cls->defineFunction("BindInputAssembler", _SE(js_gfx_GLES2CommandBuffer_BindInputAssembler));
+    cls->defineFunction("BindPipelineState", _SE(js_gfx_GLES2CommandBuffer_BindPipelineState));
+    cls->defineFunction("Destroy", _SE(js_gfx_GLES2CommandBuffer_Destroy));
+    cls->defineFunction("SetDepthBias", _SE(js_gfx_GLES2CommandBuffer_SetDepthBias));
+    cls->defineFunction("Begin", _SE(js_gfx_GLES2CommandBuffer_Begin));
+    cls->defineFunction("BindBindingLayout", _SE(js_gfx_GLES2CommandBuffer_BindBindingLayout));
+    cls->defineFunction("EndRenderPass", _SE(js_gfx_GLES2CommandBuffer_EndRenderPass));
+    cls->defineFunction("CopyBufferToTexture", _SE(js_gfx_GLES2CommandBuffer_CopyBufferToTexture));
+    cls->defineFunction("UpdateBuffer", _SE(js_gfx_GLES2CommandBuffer_UpdateBuffer));
+    cls->defineFunction("Execute", _SE(js_gfx_GLES2CommandBuffer_Execute));
+    cls->defineFunction("SetStencilWriteMask", _SE(js_gfx_GLES2CommandBuffer_SetStencilWriteMask));
+    cls->defineFunction("Draw", _SE(js_gfx_GLES2CommandBuffer_Draw));
+    cls->defineFunction("BeginRenderPass", _SE(js_gfx_GLES2CommandBuffer_BeginRenderPass));
+    cls->defineFunction("SetStencilCompareMask", _SE(js_gfx_GLES2CommandBuffer_SetStencilCompareMask));
+    cls->defineFunction("Initialize", _SE(js_gfx_GLES2CommandBuffer_Initialize));
+    cls->defineFunction("SetDepthBounds", _SE(js_gfx_GLES2CommandBuffer_SetDepthBounds));
+    cls->defineFunction("SetViewport", _SE(js_gfx_GLES2CommandBuffer_SetViewport));
+    cls->defineFunction("SetBlendConstants", _SE(js_gfx_GLES2CommandBuffer_SetBlendConstants));
+    cls->defineFunction("SetScissor", _SE(js_gfx_GLES2CommandBuffer_SetScissor));
+    cls->defineFunction("SetLineWidth", _SE(js_gfx_GLES2CommandBuffer_SetLineWidth));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2CommandBuffer_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXCommandBuffer>(cls);
+    JSBClassType::registerClass<cocos2d::GLES2CommandBuffer>(cls);
 
-    __jsb_cocos2d_GFXCommandBuffer_proto = cls->getProto();
-    __jsb_cocos2d_GFXCommandBuffer_class = cls;
+    __jsb_cocos2d_GLES2CommandBuffer_proto = cls->getProto();
+    __jsb_cocos2d_GLES2CommandBuffer_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXQueue_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXQueue_class = nullptr;
+se::Object* __jsb_cocos2d_GLES2Queue_proto = nullptr;
+se::Class* __jsb_cocos2d_GLES2Queue_class = nullptr;
 
-static bool js_gfx_GFXQueue_submit(se::State& s)
+static bool js_gfx_GLES2Queue_Initialize(se::State& s)
 {
-    cocos2d::GFXQueue* cobj = (cocos2d::GFXQueue*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXQueue_submit : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        cocos2d::GFXCommandBuffer** arg0 = nullptr;
-        unsigned int arg1 = 0;
-        ok &= seval_to_native_ptr(args[0], &arg0);
-        ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXQueue_submit : Error processing arguments");
-        cobj->submit(arg0, arg1);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXQueue_submit)
-
-static bool js_gfx_GFXQueue_device(se::State& s)
-{
-    cocos2d::GFXQueue* cobj = (cocos2d::GFXQueue*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXQueue_device : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXDevice* result = cobj->device();
-        ok &= native_ptr_to_seval<cocos2d::GFXDevice>((cocos2d::GFXDevice*)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXQueue_device : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXQueue_device)
-
-static bool js_gfx_GFXQueue_Initialize(se::State& s)
-{
-    cocos2d::GFXQueue* cobj = (cocos2d::GFXQueue*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXQueue_Initialize : Invalid Native Object");
+    cocos2d::GLES2Queue* cobj = (cocos2d::GLES2Queue*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Queue_Initialize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -4985,21 +3621,21 @@ static bool js_gfx_GFXQueue_Initialize(se::State& s)
         cocos2d::GFXQueueInfo arg0;
         #pragma warning NO CONVERSION TO NATIVE FOR GFXQueueInfo
         ok = false;
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXQueue_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Queue_Initialize : Error processing arguments");
         bool result = cobj->Initialize(arg0);
         ok &= boolean_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXQueue_Initialize : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Queue_Initialize : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXQueue_Initialize)
+SE_BIND_FUNC(js_gfx_GLES2Queue_Initialize)
 
-static bool js_gfx_GFXQueue_Destroy(se::State& s)
+static bool js_gfx_GLES2Queue_Destroy(se::State& s)
 {
-    cocos2d::GFXQueue* cobj = (cocos2d::GFXQueue*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXQueue_Destroy : Invalid Native Object");
+    cocos2d::GLES2Queue* cobj = (cocos2d::GLES2Queue*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Queue_Destroy : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -5009,74 +3645,95 @@ static bool js_gfx_GFXQueue_Destroy(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXQueue_Destroy)
+SE_BIND_FUNC(js_gfx_GLES2Queue_Destroy)
 
-static bool js_gfx_GFXQueue_type(se::State& s)
+static bool js_gfx_GLES2Queue_is_async(se::State& s)
 {
-    cocos2d::GFXQueue* cobj = (cocos2d::GFXQueue*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXQueue_type : Invalid Native Object");
+    cocos2d::GLES2Queue* cobj = (cocos2d::GLES2Queue*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Queue_is_async : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cobj->type();
-        ok &= int32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXQueue_type : Error processing arguments");
+        bool result = cobj->is_async();
+        ok &= boolean_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Queue_is_async : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXQueue_type)
+SE_BIND_FUNC(js_gfx_GLES2Queue_is_async)
 
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXQueue_finalize)
+static bool js_gfx_GLES2Queue_submit(se::State& s)
+{
+    cocos2d::GLES2Queue* cobj = (cocos2d::GLES2Queue*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Queue_submit : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        cocos2d::GFXCommandBuffer** arg0 = nullptr;
+        unsigned int arg1 = 0;
+        ok &= seval_to_native_ptr(args[0], &arg0);
+        ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+        SE_PRECONDITION2(ok, false, "js_gfx_GLES2Queue_submit : Error processing arguments");
+        cobj->submit(arg0, arg1);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GLES2Queue_submit)
 
-static bool js_gfx_GFXQueue_constructor(se::State& s)
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GLES2Queue_finalize)
+
+static bool js_gfx_GLES2Queue_constructor(se::State& s)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
     cocos2d::GFXDevice* arg0 = nullptr;
     ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXQueue_constructor : Error processing arguments");
-    cocos2d::GFXQueue* cobj = new (std::nothrow) cocos2d::GFXQueue(arg0);
+    SE_PRECONDITION2(ok, false, "js_gfx_GLES2Queue_constructor : Error processing arguments");
+    cocos2d::GLES2Queue* cobj = new (std::nothrow) cocos2d::GLES2Queue(arg0);
     s.thisObject()->setPrivateData(cobj);
     se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
 }
-SE_BIND_CTOR(js_gfx_GFXQueue_constructor, __jsb_cocos2d_GFXQueue_class, js_cocos2d_GFXQueue_finalize)
+SE_BIND_CTOR(js_gfx_GLES2Queue_constructor, __jsb_cocos2d_GLES2Queue_class, js_cocos2d_GLES2Queue_finalize)
 
 
 
+extern se::Object* __jsb_cocos2d_GFXQueue_proto;
 
-static bool js_cocos2d_GFXQueue_finalize(se::State& s)
+static bool js_cocos2d_GLES2Queue_finalize(se::State& s)
 {
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXQueue)", s.nativeThisObject());
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GLES2Queue)", s.nativeThisObject());
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXQueue* cobj = (cocos2d::GFXQueue*)s.nativeThisObject();
+        cocos2d::GLES2Queue* cobj = (cocos2d::GLES2Queue*)s.nativeThisObject();
         delete cobj;
     }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXQueue_finalize)
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GLES2Queue_finalize)
 
-bool js_register_gfx_GFXQueue(se::Object* obj)
+bool js_register_gfx_GLES2Queue(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXQueue", obj, nullptr, _SE(js_gfx_GFXQueue_constructor));
+    auto cls = se::Class::create("GLES2Queue", obj, __jsb_cocos2d_GFXQueue_proto, _SE(js_gfx_GLES2Queue_constructor));
 
-    cls->defineFunction("submit", _SE(js_gfx_GFXQueue_submit));
-    cls->defineFunction("device", _SE(js_gfx_GFXQueue_device));
-    cls->defineFunction("Initialize", _SE(js_gfx_GFXQueue_Initialize));
-    cls->defineFunction("Destroy", _SE(js_gfx_GFXQueue_Destroy));
-    cls->defineFunction("type", _SE(js_gfx_GFXQueue_type));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXQueue_finalize));
+    cls->defineFunction("Initialize", _SE(js_gfx_GLES2Queue_Initialize));
+    cls->defineFunction("Destroy", _SE(js_gfx_GLES2Queue_Destroy));
+    cls->defineFunction("is_async", _SE(js_gfx_GLES2Queue_is_async));
+    cls->defineFunction("submit", _SE(js_gfx_GLES2Queue_submit));
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GLES2Queue_finalize));
     cls->install();
-    JSBClassType::registerClass<cocos2d::GFXQueue>(cls);
+    JSBClassType::registerClass<cocos2d::GLES2Queue>(cls);
 
-    __jsb_cocos2d_GFXQueue_proto = cls->getProto();
-    __jsb_cocos2d_GFXQueue_class = cls;
+    __jsb_cocos2d_GLES2Queue_proto = cls->getProto();
+    __jsb_cocos2d_GLES2Queue_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -5094,23 +3751,40 @@ bool register_all_gfx(se::Object* obj)
     }
     se::Object* ns = nsVal.toObject();
 
-    js_register_gfx_GFXWindow(ns);
-    js_register_gfx_GFXSampler(ns);
-    js_register_gfx_GFXBuffer(ns);
-    js_register_gfx_GFXPipelineLayout(ns);
-    js_register_gfx_GFXRenderPass(ns);
-    js_register_gfx_GFXInputAssembler(ns);
-    js_register_gfx_GFXShader(ns);
-    js_register_gfx_GFXContext(ns);
-    js_register_gfx_GFXCommandBuffer(ns);
-    js_register_gfx_GFXBindingLayout(ns);
-    js_register_gfx_GFXTextureView(ns);
-    js_register_gfx_GFXFramebuffer(ns);
-    js_register_gfx_GFXCommandAllocator(ns);
-    js_register_gfx_GFXDevice(ns);
-    js_register_gfx_GFXTexture(ns);
-    js_register_gfx_GFXPipelineState(ns);
-    js_register_gfx_GFXQueue(ns);
+    js_register_gfx_GLES2CmdCopyBufferToTexture(ns);
+    js_register_gfx_GLES2GPUPipelineLayout(ns);
+    js_register_gfx_GLES2CmdDraw(ns);
+    js_register_gfx_GLES2GPUSampler(ns);
+    js_register_gfx_GLES2TextureView(ns);
+    js_register_gfx_GLES2PipelineLayout(ns);
+    js_register_gfx_GLES2Window(ns);
+    js_register_gfx_GLES2Framebuffer(ns);
+    js_register_gfx_GLES2Sampler(ns);
+    js_register_gfx_GLES2Texture(ns);
+    js_register_gfx_GLES2InputAssembler(ns);
+    js_register_gfx_GLES2GPUBuffer(ns);
+    js_register_gfx_GLES2RenderPass(ns);
+    js_register_gfx_GLES2CmdUpdateBuffer(ns);
+    js_register_gfx_GLES2GPUFramebuffer(ns);
+    js_register_gfx_GLES2GPUInputAssembler(ns);
+    js_register_gfx_GLES2Queue(ns);
+    js_register_gfx_GLES2GPUBindingLayout(ns);
+    js_register_gfx_GLES2GPUShader(ns);
+    js_register_gfx_GLES2CmdPackage(ns);
+    js_register_gfx_GLES2CmdBindStates(ns);
+    js_register_gfx_GLES2CommandAllocator(ns);
+    js_register_gfx_GLES2GPUPipelineState(ns);
+    js_register_gfx_GLES2Shader(ns);
+    js_register_gfx_GLES2GPUTextureView(ns);
+    js_register_gfx_GLES2CmdBeginRenderPass(ns);
+    js_register_gfx_GLES2Device(ns);
+    js_register_gfx_GLES2Context(ns);
+    js_register_gfx_GLES2GPURenderPass(ns);
+    js_register_gfx_GLES2PipelineState(ns);
+    js_register_gfx_GLES2GPUTexture(ns);
+    js_register_gfx_GLES2BindingLayout(ns);
+    js_register_gfx_GLES2Buffer(ns);
+    js_register_gfx_GLES2CommandBuffer(ns);
     return true;
 }
 
