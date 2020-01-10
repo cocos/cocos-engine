@@ -31,6 +31,33 @@ const textureUtil = require('../../utils/texture-util');
 const gfx = cc.gfx;
 
 /**
+ * !#en Material builtin name
+ * !#zh 内置材质名字
+ * @enum Material.BUILTIN_NAME
+ */
+const BUILTIN_NAME = cc.Enum({
+    /**
+     * @property SPRITE
+     * @readonly
+     * @type {String}
+     */
+    SPRITE: '2d-sprite',
+    /**
+     * @property GRAY_SPRITE
+     * @readonly
+     * @type {String}
+     */
+    GRAY_SPRITE: '2d-gray-sprite',
+    /**
+     * @property UNLIT
+     * @readonly
+     * @type {String}
+     */
+    UNLIT: 'unlit',
+})
+
+
+/**
  * !#en Material Asset.
  * !#zh 材质资源类。
  * @class Material
@@ -124,33 +151,8 @@ let Material = cc.Class({
             return cc.AssetLibrary.getBuiltin('material', 'builtin-' + name);
         },
 
-        /**
-         * !#en Material builtin name
-         * !#zh 内置材质名字
-         * @static
-         * @enum Material.BUILTIN_NAME
-         */
-        BUILTIN_NAME: cc.Enum({
-            /**
-             * @property SPRITE
-             * @readonly
-             * @type {String}
-             */
-            SPRITE: '2d-sprite',
-            /**
-             * @property GRAY_SPRITE
-             * @readonly
-             * @type {String}
-             */
-            GRAY_SPRITE: '2d-gray-sprite',
-            /**
-             * @property UNLIT
-             * @readonly
-             * @type {String}
-             */
-            UNLIT: 'unlit',
-        }),
-
+        BUILTIN_NAME,
+        
         /**
          * !#en Creates a Material with builtin Effect.
          * !#zh 使用内建 Effect 创建一个材质。
