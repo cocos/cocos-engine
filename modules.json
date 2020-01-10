@@ -2,7 +2,18 @@
   {
     "name": "Core",
     "locked": true,
-    "entries": []
+    "entries": [],
+    "loadRes-internals": [
+      "db://internal/resources/effects/builtin-2d-gray-sprite.effect",
+      "db://internal/resources/effects/builtin-2d-sprite.effect",
+      "db://internal/resources/effects/builtin-clear-stencil.effect",
+      "db://internal/resources/effects/builtin-unlit.effect",
+      "db://internal/resources/materials/builtin-2d-base.mtl",
+      "db://internal/resources/materials/builtin-2d-gray-sprite.mtl",
+      "db://internal/resources/materials/builtin-2d-sprite.mtl",
+      "db://internal/resources/materials/builtin-clear-stencil.mtl",
+      "db://internal/resources/materials/builtin-unlit.mtl"
+    ]
   },
   {
     "name": "Canvas",
@@ -244,6 +255,10 @@
     "entries": [
       "./extensions/spine/index.js"
     ],
+    "loadRes-internals": [
+      "db://internal/resources/effects/builtin-2d-spine.effect",
+      "db://internal/resources/materials/builtin-2d-spine.mtl"
+    ],
     "dependencies": ["WebGL Renderer"]
   },
   {
@@ -374,6 +389,12 @@
     "entries": [
       "./cocos2d/core/3d/particle/particle-system-3d.ts",
       "./cocos2d/core/3d/particle/renderer/particle-system-3d-renderer.ts"
+    ],
+    "loadRes-internals": [
+      "db://internal/resources/effects/builtin-particle.effect",
+      "db://internal/resources/effects/builtin-particle-trail.effect",
+      "db://internal/resources/materials/builtin-particle.mtl",
+      "db://internal/resources/materials/builtin-particle-trail.mtl"
     ],
     "dependencies": ["3D"]
   }
