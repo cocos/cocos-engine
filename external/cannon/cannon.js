@@ -23,7 +23,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.CANNON=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{let f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.CANNON=e()}}(function(){let define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){let a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}let f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){let n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}let i=typeof require=="function"&&require;for(let o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 module.exports={
   "name": "@cocos/cannon",
   "version": "1.0.3",
@@ -130,8 +130,8 @@ module.exports = {
 };
 
 },{"../package.json":1,"./collision/AABB":3,"./collision/ArrayCollisionMatrix":4,"./collision/Broadphase":5,"./collision/GridBroadphase":6,"./collision/NaiveBroadphase":7,"./collision/ObjectCollisionMatrix":8,"./collision/Ray":10,"./collision/RaycastResult":11,"./collision/SAPBroadphase":12,"./constraints/ConeTwistConstraint":13,"./constraints/Constraint":14,"./constraints/DistanceConstraint":15,"./constraints/HingeConstraint":16,"./constraints/LockConstraint":17,"./constraints/PointToPointConstraint":18,"./equations/ContactEquation":20,"./equations/Equation":21,"./equations/FrictionEquation":22,"./equations/RotationalEquation":23,"./equations/RotationalMotorEquation":24,"./material/ContactMaterial":25,"./material/Material":26,"./math/Mat3":28,"./math/Quaternion":29,"./math/Transform":30,"./math/Vec3":31,"./objects/Body":32,"./objects/RaycastVehicle":33,"./objects/RigidVehicle":34,"./objects/SPHSystem":35,"./objects/Spring":36,"./shapes/Box":38,"./shapes/ConvexPolyhedron":39,"./shapes/Cylinder":40,"./shapes/Heightfield":41,"./shapes/Particle":42,"./shapes/Plane":43,"./shapes/Shape":44,"./shapes/Sphere":45,"./shapes/Trimesh":46,"./solver/GSSolver":47,"./solver/Solver":48,"./solver/SplitSolver":49,"./utils/EventTarget":50,"./utils/Pool":52,"./utils/Vec3Pool":55,"./world/Narrowphase":56,"./world/World":57}],3:[function(_dereq_,module,exports){
-var Vec3 = _dereq_('../math/Vec3');
-var Utils = _dereq_('../utils/Utils');
+let Vec3 = _dereq_('../math/Vec3');
+let Utils = _dereq_('../utils/Utils');
 
 module.exports = AABB;
 
@@ -167,7 +167,7 @@ function AABB(options){
     }
 }
 
-var tmp = new Vec3();
+let tmp = new Vec3();
 
 /**
  * Set the AABB bounds from a set of points.
@@ -179,7 +179,7 @@ var tmp = new Vec3();
  * @return {AABB} The self object
  */
 AABB.prototype.setFromPoints = function(points, position, quaternion, skinSize){
-    var l = this.lowerBound,
+    let l = this.lowerBound,
         u = this.upperBound,
         q = quaternion;
 
@@ -190,8 +190,8 @@ AABB.prototype.setFromPoints = function(points, position, quaternion, skinSize){
     }
     u.copy(l);
 
-    for(var i = 1; i<points.length; i++){
-        var p = points[i];
+    for(let i = 1; i<points.length; i++){
+        let p = points[i];
 
         if(q){
             q.vmult(p, tmp);
@@ -265,7 +265,7 @@ AABB.prototype.extend = function(aabb){
  * @return {Boolean}
  */
 AABB.prototype.overlaps = function(aabb){
-    var l1 = this.lowerBound,
+    let l1 = this.lowerBound,
         u1 = this.upperBound,
         l2 = aabb.lowerBound,
         u2 = aabb.upperBound;
@@ -275,16 +275,23 @@ AABB.prototype.overlaps = function(aabb){
     // |--------|
     // l1       u1
 
-    var overlapsX = ((l2.x <= u1.x && u1.x <= u2.x) || (l1.x <= u2.x && u2.x <= u1.x));
-    var overlapsY = ((l2.y <= u1.y && u1.y <= u2.y) || (l1.y <= u2.y && u2.y <= u1.y));
-    var overlapsZ = ((l2.z <= u1.z && u1.z <= u2.z) || (l1.z <= u2.z && u2.z <= u1.z));
+    // no consider contain case
+    // let overlapsX = ((l2.x <= u1.x && u1.x <= u2.x) || (l1.x <= u2.x && u2.x <= u1.x));
+    // let overlapsY = ((l2.y <= u1.y && u1.y <= u2.y) || (l1.y <= u2.y && u2.y <= u1.y));
+    // let overlapsZ = ((l2.z <= u1.z && u1.z <= u2.z) || (l1.z <= u2.z && u2.z <= u1.z));
+
+    // overlaps must consider contain case
+    // or ray cast may miss
+    let overlapsX = l2.x <= u1.x && l1.x <= u2.x;
+    let overlapsY = l2.y <= u1.y && l1.y <= u2.y;
+    let overlapsZ = l2.z <= u1.z && l1.z <= u2.z;
 
     return overlapsX && overlapsY && overlapsZ;
 };
 
 // Mostly for debugging
 AABB.prototype.volume = function(){
-    var l = this.lowerBound,
+    let l = this.lowerBound,
         u = this.upperBound;
     return (u.x - l.x) * (u.y - l.y) * (u.z - l.z);
 };
@@ -297,7 +304,7 @@ AABB.prototype.volume = function(){
  * @return {Boolean}
  */
 AABB.prototype.contains = function(aabb){
-    var l1 = this.lowerBound,
+    let l1 = this.lowerBound,
         u1 = this.upperBound,
         l2 = aabb.lowerBound,
         u2 = aabb.upperBound;
@@ -326,7 +333,7 @@ AABB.prototype.contains = function(aabb){
  * @param {Vec3} h
  */
 AABB.prototype.getCorners = function(a, b, c, d, e, f, g, h){
-    var l = this.lowerBound,
+    let l = this.lowerBound,
         u = this.upperBound;
 
     a.copy(l);
@@ -339,7 +346,7 @@ AABB.prototype.getCorners = function(a, b, c, d, e, f, g, h){
     h.copy(u);
 };
 
-var transformIntoFrame_corners = [
+let transformIntoFrame_corners = [
     new Vec3(),
     new Vec3(),
     new Vec3(),
@@ -359,22 +366,22 @@ var transformIntoFrame_corners = [
  */
 AABB.prototype.toLocalFrame = function(frame, target){
 
-    var corners = transformIntoFrame_corners;
-    var a = corners[0];
-    var b = corners[1];
-    var c = corners[2];
-    var d = corners[3];
-    var e = corners[4];
-    var f = corners[5];
-    var g = corners[6];
-    var h = corners[7];
+    let corners = transformIntoFrame_corners;
+    let a = corners[0];
+    let b = corners[1];
+    let c = corners[2];
+    let d = corners[3];
+    let e = corners[4];
+    let f = corners[5];
+    let g = corners[6];
+    let h = corners[7];
 
     // Get corners in current frame
     this.getCorners(a, b, c, d, e, f, g, h);
 
     // Transform them to new local frame
-    for(var i=0; i !== 8; i++){
-        var corner = corners[i];
+    for(let i=0; i !== 8; i++){
+        let corner = corners[i];
         frame.pointToLocal(corner, corner);
     }
 
@@ -390,22 +397,22 @@ AABB.prototype.toLocalFrame = function(frame, target){
  */
 AABB.prototype.toWorldFrame = function(frame, target){
 
-    var corners = transformIntoFrame_corners;
-    var a = corners[0];
-    var b = corners[1];
-    var c = corners[2];
-    var d = corners[3];
-    var e = corners[4];
-    var f = corners[5];
-    var g = corners[6];
-    var h = corners[7];
+    let corners = transformIntoFrame_corners;
+    let a = corners[0];
+    let b = corners[1];
+    let c = corners[2];
+    let d = corners[3];
+    let e = corners[4];
+    let f = corners[5];
+    let g = corners[6];
+    let h = corners[7];
 
     // Get corners in current frame
     this.getCorners(a, b, c, d, e, f, g, h);
 
     // Transform them to new local frame
-    for(var i=0; i !== 8; i++){
-        var corner = corners[i];
+    for(let i=0; i !== 8; i++){
+        let corner = corners[i];
         frame.pointToWorld(corner, corner);
     }
 
@@ -418,25 +425,25 @@ AABB.prototype.toWorldFrame = function(frame, target){
  * @return {number}
  */
 AABB.prototype.overlapsRay = function(ray){
-    var t = 0;
+    let t = 0;
 
     // ray.direction is unit direction vector of ray
-    var dirFracX = 1 / ray._direction.x;
-    var dirFracY = 1 / ray._direction.y;
-    var dirFracZ = 1 / ray._direction.z;
+    let dirFracX = 1 / ray._direction.x;
+    let dirFracY = 1 / ray._direction.y;
+    let dirFracZ = 1 / ray._direction.z;
 
     // this.lowerBound is the corner of AABB with minimal coordinates - left bottom, rt is maximal corner
-    var t1 = (this.lowerBound.x - ray.from.x) * dirFracX;
-    var t2 = (this.upperBound.x - ray.from.x) * dirFracX;
-    var t3 = (this.lowerBound.y - ray.from.y) * dirFracY;
-    var t4 = (this.upperBound.y - ray.from.y) * dirFracY;
-    var t5 = (this.lowerBound.z - ray.from.z) * dirFracZ;
-    var t6 = (this.upperBound.z - ray.from.z) * dirFracZ;
+    let t1 = (this.lowerBound.x - ray.from.x) * dirFracX;
+    let t2 = (this.upperBound.x - ray.from.x) * dirFracX;
+    let t3 = (this.lowerBound.y - ray.from.y) * dirFracY;
+    let t4 = (this.upperBound.y - ray.from.y) * dirFracY;
+    let t5 = (this.lowerBound.z - ray.from.z) * dirFracZ;
+    let t6 = (this.upperBound.z - ray.from.z) * dirFracZ;
 
-    // var tmin = Math.max(Math.max(Math.min(t1, t2), Math.min(t3, t4)));
-    // var tmax = Math.min(Math.min(Math.max(t1, t2), Math.max(t3, t4)));
-    var tmin = Math.max(Math.max(Math.min(t1, t2), Math.min(t3, t4)), Math.min(t5, t6));
-    var tmax = Math.min(Math.min(Math.max(t1, t2), Math.max(t3, t4)), Math.max(t5, t6));
+    // let tmin = Math.max(Math.max(Math.min(t1, t2), Math.min(t3, t4)));
+    // let tmax = Math.min(Math.min(Math.max(t1, t2), Math.max(t3, t4)));
+    let tmin = Math.max(Math.max(Math.min(t1, t2), Math.min(t3, t4)), Math.min(t5, t6));
+    let tmax = Math.min(Math.min(Math.max(t1, t2), Math.max(t3, t4)), Math.max(t5, t6));
 
     // if tmax < 0, ray (line) is intersecting AABB, but whole AABB is behing us
     if (tmax < 0){
@@ -482,7 +489,7 @@ ArrayCollisionMatrix.prototype.get = function(i, j) {
     i = i.index;
     j = j.index;
     if (j > i) {
-        var temp = j;
+        let temp = j;
         j = i;
         i = temp;
     }
@@ -500,7 +507,7 @@ ArrayCollisionMatrix.prototype.set = function(i, j, value) {
     i = i.index;
     j = j.index;
     if (j > i) {
-        var temp = j;
+        let temp = j;
         j = i;
         i = temp;
     }
@@ -512,7 +519,7 @@ ArrayCollisionMatrix.prototype.set = function(i, j, value) {
  * @method reset
  */
 ArrayCollisionMatrix.prototype.reset = function() {
-    for (var i=0, l=this.matrix.length; i!==l; i++) {
+    for (let i=0, l=this.matrix.length; i!==l; i++) {
         this.matrix[i]=0;
     }
 };
@@ -527,11 +534,11 @@ ArrayCollisionMatrix.prototype.setNumObjects = function(n) {
 };
 
 },{}],5:[function(_dereq_,module,exports){
-var Body = _dereq_('../objects/Body');
-var Vec3 = _dereq_('../math/Vec3');
-var Quaternion = _dereq_('../math/Quaternion');
-var Shape = _dereq_('../shapes/Shape');
-var Plane = _dereq_('../shapes/Plane');
+let Body = _dereq_('../objects/Body');
+let Vec3 = _dereq_('../math/Vec3');
+let Quaternion = _dereq_('../math/Quaternion');
+let Shape = _dereq_('../shapes/Shape');
+let Plane = _dereq_('../shapes/Plane');
 
 module.exports = Broadphase;
 
@@ -627,15 +634,15 @@ Broadphase.prototype.intersectionTest = function(bodyA, bodyB, pairs1, pairs2){
  * @param {Array} pairs1 bodyA is appended to this array if intersection
  * @param {Array} pairs2 bodyB is appended to this array if intersection
  */
-var Broadphase_collisionPairs_r = new Vec3(), // Temp objects
+let Broadphase_collisionPairs_r = new Vec3(), // Temp objects
     Broadphase_collisionPairs_normal =  new Vec3(),
     Broadphase_collisionPairs_quat =  new Quaternion(),
     Broadphase_collisionPairs_relpos  =  new Vec3();
 Broadphase.prototype.doBoundingSphereBroadphase = function(bodyA,bodyB,pairs1,pairs2){
-    var r = Broadphase_collisionPairs_r;
+    let r = Broadphase_collisionPairs_r;
     bodyB.position.vsub(bodyA.position,r);
-    var boundingRadiusSum2 = Math.pow(bodyA.boundingRadius + bodyB.boundingRadius, 2);
-    var norm2 = r.norm2();
+    let boundingRadiusSum2 = Math.pow(bodyA.boundingRadius + bodyB.boundingRadius, 2);
+    let norm2 = r.norm2();
     if(norm2 < boundingRadiusSum2){
         pairs1.push(bodyA);
         pairs2.push(bodyB);
@@ -671,16 +678,16 @@ Broadphase.prototype.doBoundingBoxBroadphase = function(bodyA,bodyB,pairs1,pairs
  * @param {Array} pairs1
  * @param {Array} pairs2
  */
-var Broadphase_makePairsUnique_temp = { keys:[] },
+let Broadphase_makePairsUnique_temp = { keys:[] },
     Broadphase_makePairsUnique_p1 = [],
     Broadphase_makePairsUnique_p2 = [];
 Broadphase.prototype.makePairsUnique = function(pairs1,pairs2){
-    var t = Broadphase_makePairsUnique_temp,
+    let t = Broadphase_makePairsUnique_temp,
         p1 = Broadphase_makePairsUnique_p1,
         p2 = Broadphase_makePairsUnique_p2,
         N = pairs1.length;
 
-    for(var i=0; i!==N; i++){
+    for(let i=0; i!==N; i++){
         p1[i] = pairs1[i];
         p2[i] = pairs2[i];
     }
@@ -688,16 +695,16 @@ Broadphase.prototype.makePairsUnique = function(pairs1,pairs2){
     pairs1.length = 0;
     pairs2.length = 0;
 
-    for(var i=0; i!==N; i++){
-        var id1 = p1[i].id,
+    for(let i=0; i!==N; i++){
+        let id1 = p1[i].id,
             id2 = p2[i].id;
-        var key = id1 < id2 ? id1+","+id2 :  id2+","+id1;
+        let key = id1 < id2 ? id1+","+id2 :  id2+","+id1;
         t[key] = i;
         t.keys.push(key);
     }
 
-    for(var i=0; i!==t.keys.length; i++){
-        var key = t.keys.pop(),
+    for(let i=0; i!==t.keys.length; i++){
+        let key = t.keys.pop(),
             pairIndex = t[key];
         pairs1.push(p1[pairIndex]);
         pairs2.push(p2[pairIndex]);
@@ -720,9 +727,9 @@ Broadphase.prototype.setWorld = function(world){
  * @param {Body} bodyB
  * @return {boolean}
  */
-var bsc_dist = new Vec3();
+let bsc_dist = new Vec3();
 Broadphase.boundingSphereCheck = function(bodyA,bodyB){
-    var dist = bsc_dist;
+    let dist = bsc_dist;
     bodyA.position.vsub(bodyB.position,dist);
     return Math.pow(bodyA.shape.boundingSphereRadius + bodyB.shape.boundingSphereRadius,2) > dist.norm2();
 };
@@ -742,9 +749,9 @@ Broadphase.prototype.aabbQuery = function(world, aabb, result){
 },{"../math/Quaternion":29,"../math/Vec3":31,"../objects/Body":32,"../shapes/Plane":43,"../shapes/Shape":44}],6:[function(_dereq_,module,exports){
 module.exports = GridBroadphase;
 
-var Broadphase = _dereq_('./Broadphase');
-var Vec3 = _dereq_('../math/Vec3');
-var Shape = _dereq_('../shapes/Shape');
+let Broadphase = _dereq_('./Broadphase');
+let Vec3 = _dereq_('../math/Vec3');
+let Shape = _dereq_('../shapes/Shape');
 
 /**
  * Axis aligned uniform grid broadphase.
@@ -765,7 +772,7 @@ function GridBroadphase(aabbMin,aabbMax,nx,ny,nz){
     this.nz = nz || 10;
     this.aabbMin = aabbMin || new Vec3(100,100,100);
     this.aabbMax = aabbMax || new Vec3(-100,-100,-100);
-	var nbins = this.nx * this.ny * this.nz;
+	let nbins = this.nx * this.ny * this.nz;
 	if (nbins <= 0) {
 		throw "GridBroadphase: Each dimension's n must be >0";
 	}
@@ -773,7 +780,7 @@ function GridBroadphase(aabbMin,aabbMax,nx,ny,nz){
 	this.binLengths = []; //Rather than continually resizing arrays (thrashing the memory), just record length and allow them to grow
 	this.bins.length = nbins;
 	this.binLengths.length = nbins;
-	for (var i=0;i<nbins;i++) {
+	for (let i=0;i<nbins;i++) {
 		this.bins[i]=[];
 		this.binLengths[i]=0;
 	}
@@ -788,61 +795,59 @@ GridBroadphase.prototype.constructor = GridBroadphase;
  * @param {Array} pairs1
  * @param {Array} pairs2
  */
-var GridBroadphase_collisionPairs_d = new Vec3();
-var GridBroadphase_collisionPairs_binPos = new Vec3();
+let GridBroadphase_collisionPairs_d = new Vec3();
+let GridBroadphase_collisionPairs_binPos = new Vec3();
 GridBroadphase.prototype.collisionPairs = function(world,pairs1,pairs2){
-    var N = world.numObjects(),
+    let N = world.numObjects(),
         bodies = world.bodies;
 
-    var max = this.aabbMax,
+    let max = this.aabbMax,
         min = this.aabbMin,
         nx = this.nx,
         ny = this.ny,
         nz = this.nz;
 
-	var xstep = ny*nz;
-	var ystep = nz;
-	var zstep = 1;
+	let xstep = ny*nz;
+	let ystep = nz;
+	let zstep = 1;
 
-    var xmax = max.x,
+    let xmax = max.x,
         ymax = max.y,
         zmax = max.z,
         xmin = min.x,
         ymin = min.y,
         zmin = min.z;
 
-    var xmult = nx / (xmax-xmin),
+    let xmult = nx / (xmax-xmin),
         ymult = ny / (ymax-ymin),
         zmult = nz / (zmax-zmin);
 
-    var binsizeX = (xmax - xmin) / nx,
+    let binsizeX = (xmax - xmin) / nx,
         binsizeY = (ymax - ymin) / ny,
         binsizeZ = (zmax - zmin) / nz;
 
-	var binRadius = Math.sqrt(binsizeX*binsizeX + binsizeY*binsizeY + binsizeZ*binsizeZ) * 0.5;
+	let binRadius = Math.sqrt(binsizeX*binsizeX + binsizeY*binsizeY + binsizeZ*binsizeZ) * 0.5;
 
-    var types = Shape.types;
-    var SPHERE =            types.SPHERE,
+    let types = Shape.types;
+    let SPHERE =            types.SPHERE,
         PLANE =             types.PLANE,
         BOX =               types.BOX,
         COMPOUND =          types.COMPOUND,
         CONVEXPOLYHEDRON =  types.CONVEXPOLYHEDRON;
 
-    var bins=this.bins,
+    let bins=this.bins,
 		binLengths=this.binLengths,
         Nbins=this.bins.length;
 
     // Reset bins
-    for(var i=0; i!==Nbins; i++){
+    for(let i=0; i!==Nbins; i++){
         binLengths[i] = 0;
     }
 
-    var ceil = Math.ceil;
-	var min = Math.min;
-	var max = Math.max;
+    let ceil = Math.ceil;
 
 	function addBoxToBins(x0,y0,z0,x1,y1,z1,bi) {
-		var xoff0 = ((x0 - xmin) * xmult)|0,
+		let xoff0 = ((x0 - xmin) * xmult)|0,
 			yoff0 = ((y0 - ymin) * ymult)|0,
 			zoff0 = ((z0 - zmin) * zmult)|0,
 			xoff1 = ceil((x1 - xmin) * xmult),
@@ -863,10 +868,10 @@ GridBroadphase.prototype.collisionPairs = function(world,pairs1,pairs2){
 		yoff1 *= ystep;
 		zoff1 *= zstep;
 
-		for (var xoff = xoff0; xoff <= xoff1; xoff += xstep) {
-			for (var yoff = yoff0; yoff <= yoff1; yoff += ystep) {
-				for (var zoff = zoff0; zoff <= zoff1; zoff += zstep) {
-					var idx = xoff+yoff+zoff;
+		for (let xoff = xoff0; xoff <= xoff1; xoff += xstep) {
+			for (let yoff = yoff0; yoff <= yoff1; yoff += ystep) {
+				for (let zoff = zoff0; zoff <= zoff1; zoff += zstep) {
+					let idx = xoff+yoff+zoff;
 					bins[idx][binLengths[idx]++] = bi;
 				}
 			}
@@ -874,18 +879,18 @@ GridBroadphase.prototype.collisionPairs = function(world,pairs1,pairs2){
 	}
 
     // Put all bodies into the bins
-    for(var i=0; i!==N; i++){
-        var bi = bodies[i];
-        var si = bi.shape;
+    for(let i=0; i!==N; i++){
+        let bi = bodies[i];
+        let si = bi.shape;
 
         switch(si.type){
         case SPHERE:
             // Put in bin
             // check if overlap with other bins
-            var x = bi.position.x,
+            let x = bi.position.x,
                 y = bi.position.y,
                 z = bi.position.z;
-            var r = si.radius;
+            let r = si.radius;
 
 			addBoxToBins(x-r, y-r, z-r, x+r, y+r, z+r, bi);
             break;
@@ -894,22 +899,22 @@ GridBroadphase.prototype.collisionPairs = function(world,pairs1,pairs2){
             if(si.worldNormalNeedsUpdate){
                 si.computeWorldNormal(bi.quaternion);
             }
-            var planeNormal = si.worldNormal;
+            let planeNormal = si.worldNormal;
 
 			//Relative position from origin of plane object to the first bin
 			//Incremented as we iterate through the bins
-			var xreset = xmin + binsizeX*0.5 - bi.position.x,
+			let xreset = xmin + binsizeX*0.5 - bi.position.x,
 				yreset = ymin + binsizeY*0.5 - bi.position.y,
 				zreset = zmin + binsizeZ*0.5 - bi.position.z;
 
-            var d = GridBroadphase_collisionPairs_d;
+            let d = GridBroadphase_collisionPairs_d;
 			d.set(xreset, yreset, zreset);
 
-			for (var xi = 0, xoff = 0; xi !== nx; xi++, xoff += xstep, d.y = yreset, d.x += binsizeX) {
-				for (var yi = 0, yoff = 0; yi !== ny; yi++, yoff += ystep, d.z = zreset, d.y += binsizeY) {
-					for (var zi = 0, zoff = 0; zi !== nz; zi++, zoff += zstep, d.z += binsizeZ) {
+			for (let xi = 0, xoff = 0; xi !== nx; xi++, xoff += xstep, d.y = yreset, d.x += binsizeX) {
+				for (let yi = 0, yoff = 0; yi !== ny; yi++, yoff += ystep, d.z = zreset, d.y += binsizeY) {
+					for (let zi = 0, zoff = 0; zi !== nz; zi++, zoff += zstep, d.z += binsizeZ) {
 						if (d.dot(planeNormal) < binRadius) {
-							var idx = xoff + yoff + zoff;
+							let idx = xoff + yoff + zoff;
 							bins[idx][binLengths[idx]++] = bi;
 						}
 					}
@@ -935,17 +940,17 @@ GridBroadphase.prototype.collisionPairs = function(world,pairs1,pairs2){
     }
 
     // Check each bin
-    for(var i=0; i!==Nbins; i++){
-		var binLength = binLengths[i];
+    for(let i=0; i!==Nbins; i++){
+		let binLength = binLengths[i];
 		//Skip bins with no potential collisions
 		if (binLength > 1) {
-			var bin = bins[i];
+			let bin = bins[i];
 
 			// Do N^2 broadphase inside
-			for(var xi=0; xi!==binLength; xi++){
-				var bi = bin[xi];
-				for(var yi=0; yi!==xi; yi++){
-					var bj = bin[yi];
+			for(let xi=0; xi!==binLength; xi++){
+				let bi = bin[xi];
+				for(let yi=0; yi!==xi; yi++){
+					let bj = bin[yi];
 					if(this.needBroadphaseCollision(bi,bj)){
 						this.intersectionTest(bi,bj,pairs1,pairs2);
 					}
@@ -954,12 +959,12 @@ GridBroadphase.prototype.collisionPairs = function(world,pairs1,pairs2){
 		}
     }
 
-//	for (var zi = 0, zoff=0; zi < nz; zi++, zoff+= zstep) {
+//	for (let zi = 0, zoff=0; zi < nz; zi++, zoff+= zstep) {
 //		console.log("layer "+zi);
-//		for (var yi = 0, yoff=0; yi < ny; yi++, yoff += ystep) {
-//			var row = '';
-//			for (var xi = 0, xoff=0; xi < nx; xi++, xoff += xstep) {
-//				var idx = xoff + yoff + zoff;
+//		for (let yi = 0, yoff=0; yi < ny; yi++, yoff += ystep) {
+//			let row = '';
+//			for (let xi = 0, xoff=0; xi < nx; xi++, xoff += xstep) {
+//				let idx = xoff + yoff + zoff;
 //				row += ' ' + binLengths[idx];
 //			}
 //			console.log(row);
@@ -972,8 +977,8 @@ GridBroadphase.prototype.collisionPairs = function(world,pairs1,pairs2){
 },{"../math/Vec3":31,"../shapes/Shape":44,"./Broadphase":5}],7:[function(_dereq_,module,exports){
 module.exports = NaiveBroadphase;
 
-var Broadphase = _dereq_('./Broadphase');
-var AABB = _dereq_('./AABB');
+let Broadphase = _dereq_('./Broadphase');
+let AABB = _dereq_('./AABB');
 
 /**
  * Naive broadphase implementation, used in lack of better ones.
@@ -996,7 +1001,7 @@ NaiveBroadphase.prototype.constructor = NaiveBroadphase;
  * @param {Array} pairs2
  */
 NaiveBroadphase.prototype.collisionPairs = function(world,pairs1,pairs2){
-    var bodies = world.bodies,
+    let bodies = world.bodies,
         n = bodies.length,
         i,j,bi,bj;
 
@@ -1016,7 +1021,7 @@ NaiveBroadphase.prototype.collisionPairs = function(world,pairs1,pairs2){
     }
 };
 
-var tmpAABB = new AABB();
+// let tmpAABB = new AABB();
 
 /**
  * Returns all the bodies within an AABB.
@@ -1029,8 +1034,8 @@ var tmpAABB = new AABB();
 NaiveBroadphase.prototype.aabbQuery = function(world, aabb, result){
     result = result || [];
 
-    for(var i = 0; i < world.bodies.length; i++){
-        var b = world.bodies[i];
+    for(let i = 0; i < world.bodies.length; i++){
+        let b = world.bodies[i];
 
         if(b.aabbNeedsUpdate){
             b.computeAABB();
@@ -1072,7 +1077,7 @@ ObjectCollisionMatrix.prototype.get = function(i, j) {
 	i = i.id;
 	j = j.id;
     if (j > i) {
-        var temp = j;
+        let temp = j;
         j = i;
         i = temp;
     }
@@ -1089,7 +1094,7 @@ ObjectCollisionMatrix.prototype.set = function(i, j, value) {
 	i = i.id;
 	j = j.id;
     if (j > i) {
-        var temp = j;
+        let temp = j;
         j = i;
         i = temp;
 	}
@@ -1131,7 +1136,7 @@ function OverlapKeeper() {
 
 OverlapKeeper.prototype.getKey = function(i, j) {
     if (j < i) {
-        var temp = j;
+        let temp = j;
         j = i;
         i = temp;
     }
@@ -1146,16 +1151,16 @@ OverlapKeeper.prototype.getKey = function(i, j) {
  */
 OverlapKeeper.prototype.set = function(i, j) {
     // Insertion sort. This way the diff will have linear complexity.
-    var key = this.getKey(i, j);
-    var current = this.current;
-    var index = 0;
+    let key = this.getKey(i, j);
+    let current = this.current;
+    let index = 0;
     while(key > current[index]){
         index++;
     }
     if(key === current[index]){
         return; // Pair was already added
     }
-    for(var j=current.length-1; j>=index; j--){
+    for(let j=current.length-1; j>=index; j--){
         current[j + 1] = current[j];
     }
     current[index] = key;
@@ -1165,7 +1170,7 @@ OverlapKeeper.prototype.set = function(i, j) {
  * @method tick
  */
 OverlapKeeper.prototype.tick = function() {
-    var tmp = this.current;
+    let tmp = this.current;
     this.current = this.previous;
     this.previous = tmp;
     this.current.length = 0;
@@ -1189,15 +1194,15 @@ function unpackAndPush(array, key){
  * @param  {array} removals
  */
 OverlapKeeper.prototype.getDiff = function(additions, removals) {
-    var a = this.current;
-    var b = this.previous;
-    var al = a.length;
-    var bl = b.length;
+    let a = this.current;
+    let b = this.previous;
+    let al = a.length;
+    let bl = b.length;
 
-    var j=0;
-    for (var i = 0; i < al; i++) {
-        var found = false;
-        var keyA = a[i];
+    let j=0;
+    for (let i = 0; i < al; i++) {
+        let found = false;
+        let keyA = a[i];
         while(keyA > b[j]){
             j++;
         }
@@ -1208,9 +1213,9 @@ OverlapKeeper.prototype.getDiff = function(additions, removals) {
         }
     }
     j = 0;
-    for (var i = 0; i < bl; i++) {
-        var found = false;
-        var keyB = b[i];
+    for (let i = 0; i < bl; i++) {
+        let found = false;
+        let keyB = b[i];
         while(keyB > a[j]){
             j++;
         }
@@ -1231,14 +1236,14 @@ OverlapKeeper.prototype.copy = function(overlapKeeper) {
 },{}],10:[function(_dereq_,module,exports){
 module.exports = Ray;
 
-var Vec3 = _dereq_('../math/Vec3');
-var Quaternion = _dereq_('../math/Quaternion');
-var Transform = _dereq_('../math/Transform');
-var ConvexPolyhedron = _dereq_('../shapes/ConvexPolyhedron');
-var Box = _dereq_('../shapes/Box');
-var RaycastResult = _dereq_('../collision/RaycastResult');
-var Shape = _dereq_('../shapes/Shape');
-var AABB = _dereq_('../collision/AABB');
+let Vec3 = _dereq_('../math/Vec3');
+let Quaternion = _dereq_('../math/Quaternion');
+let Transform = _dereq_('../math/Transform');
+let ConvexPolyhedron = _dereq_('../shapes/ConvexPolyhedron');
+let Box = _dereq_('../shapes/Box');
+let RaycastResult = _dereq_('../collision/RaycastResult');
+let Shape = _dereq_('../shapes/Shape');
+let AABB = _dereq_('../collision/AABB');
 
 /**
  * A line in 3D space that intersects bodies and return points.
@@ -1324,8 +1329,8 @@ Ray.CLOSEST = 1;
 Ray.ANY = 2;
 Ray.ALL = 4;
 
-var tmpAABB = new AABB();
-var tmpArray = [];
+let tmpAABB = new AABB();
+let tmpArray = [];
 
 /**
  * Do itersection against all bodies in the given World.
@@ -1360,7 +1365,7 @@ Ray.prototype.intersectWorld = function (world, options) {
     return this.hasHit;
 };
 
-var v1 = new Vec3(),
+let v1 = new Vec3(),
     v2 = new Vec3();
 
 /*
@@ -1372,13 +1377,13 @@ function pointInTriangle(p, a, b, c) {
     b.vsub(a,v1);
     p.vsub(a,v2);
 
-    var dot00 = v0.dot( v0 );
-    var dot01 = v0.dot( v1 );
-    var dot02 = v0.dot( v2 );
-    var dot11 = v1.dot( v1 );
-    var dot12 = v1.dot( v2 );
+    let dot00 = v0.dot( v0 );
+    let dot01 = v0.dot( v1 );
+    let dot02 = v0.dot( v2 );
+    let dot11 = v1.dot( v1 );
+    let dot12 = v1.dot( v2 );
 
-    var u,v;
+    let u,v;
 
     return  ( (u = dot11 * dot02 - dot01 * dot12) >= 0 ) &&
             ( (v = dot00 * dot12 - dot01 * dot02) >= 0 ) &&
@@ -1392,14 +1397,14 @@ function pointInTriangle(p, a, b, c) {
  * @param {Body} body
  * @param {RaycastResult} [result] Deprecated - set the result property of the Ray instead.
  */
-var intersectBody_xi = new Vec3();
-var intersectBody_qi = new Quaternion();
+let intersectBody_xi = new Vec3();
+let intersectBody_qi = new Quaternion();
 Ray.prototype.intersectBody = function (body, result) {
     if(result){
         this.result = result;
         this._updateDirection();
     }
-    var checkCollisionResponse = this.checkCollisionResponse;
+    let checkCollisionResponse = this.checkCollisionResponse;
 
     if(checkCollisionResponse && !body.collisionResponse){
         return;
@@ -1409,11 +1414,11 @@ Ray.prototype.intersectBody = function (body, result) {
         return;
     }
 
-    var xi = intersectBody_xi;
-    var qi = intersectBody_qi;
+    let xi = intersectBody_xi;
+    let qi = intersectBody_qi;
 
-    for (var i = 0, N = body.shapes.length; i < N; i++) {
-        var shape = body.shapes[i];
+    for (let i = 0, N = body.shapes.length; i < N; i++) {
+        let shape = body.shapes[i];
 
         if(checkCollisionResponse && !shape.collisionResponse){
             continue; // Skip
@@ -1447,7 +1452,7 @@ Ray.prototype.intersectBodies = function (bodies, result) {
         this._updateDirection();
     }
 
-    for ( var i = 0, l = bodies.length; !this.result._shouldStop && i < l; i ++ ) {
+    for ( let i = 0, l = bodies.length; !this.result._shouldStop && i < l; i ++ ) {
         this.intersectBody(bodies[i]);
     }
 };
@@ -1471,31 +1476,30 @@ Ray.prototype._updateDirection = function(){
  * @param {Body} body
  */
 Ray.prototype.intersectShape = function(shape, quat, position, body){
-    var from = this.from;
-
+    let from = this.from;
 
     // Checking boundingSphere
-    var distance = distanceFromIntersection(from, this._direction, position);
+    let distance = distanceFromIntersection(from, this._direction, position);
     if ( distance > shape.boundingSphereRadius ) {
         return;
     }
 
-    var intersectMethod = this[shape.type];
+    let intersectMethod = this[shape.type];
     if(intersectMethod){
         intersectMethod.call(this, shape, quat, position, body, shape);
     }
 };
 
-var vector = new Vec3();
-var normal = new Vec3();
-var intersectPoint = new Vec3();
+let vector = new Vec3();
+let normal = new Vec3();
+let intersectPoint = new Vec3();
 
-var a = new Vec3();
-var b = new Vec3();
-var c = new Vec3();
-var d = new Vec3();
+let a = new Vec3();
+let b = new Vec3();
+let c = new Vec3();
+let d = new Vec3();
 
-var tmpRaycastResult = new RaycastResult();
+let tmpRaycastResult = new RaycastResult();
 
 /**
  * @method intersectBox
@@ -1519,19 +1523,19 @@ Ray.prototype[Shape.types.BOX] = Ray.prototype.intersectBox;
  * @param  {Body} body
  */
 Ray.prototype.intersectPlane = function(shape, quat, position, body, reportedShape){
-    var from = this.from;
-    var to = this.to;
-    var direction = this._direction;
+    let from = this.from;
+    let to = this.to;
+    let direction = this._direction;
 
     // Get plane normal
-    var worldNormal = new Vec3(0, 0, 1);
+    let worldNormal = new Vec3(0, 0, 1);
     quat.vmult(worldNormal, worldNormal);
 
-    var len = new Vec3();
+    let len = new Vec3();
     from.vsub(position, len);
-    var planeToFrom = len.dot(worldNormal);
+    let planeToFrom = len.dot(worldNormal);
     to.vsub(position, len);
-    var planeToTo = len.dot(worldNormal);
+    let planeToTo = len.dot(worldNormal);
 
     if(planeToFrom * planeToTo > 0){
         // "from" and "to" are on the same side of the plane... bail out
@@ -1542,19 +1546,19 @@ Ray.prototype.intersectPlane = function(shape, quat, position, body, reportedSha
         return;
     }
 
-    var n_dot_dir = worldNormal.dot(direction);
+    let n_dot_dir = worldNormal.dot(direction);
 
     if (Math.abs(n_dot_dir) < this.precision) {
         // No intersection
         return;
     }
 
-    var planePointToFrom = new Vec3();
-    var dir_scaled_with_t = new Vec3();
-    var hitPointWorld = new Vec3();
+    let planePointToFrom = new Vec3();
+    let dir_scaled_with_t = new Vec3();
+    let hitPointWorld = new Vec3();
 
     from.vsub(position, planePointToFrom);
-    var t = -worldNormal.dot(planePointToFrom) / n_dot_dir;
+    let t = -worldNormal.dot(planePointToFrom) / n_dot_dir;
     direction.scale(t, dir_scaled_with_t);
     from.vadd(dir_scaled_with_t, hitPointWorld);
 
@@ -1568,23 +1572,28 @@ Ray.prototype[Shape.types.PLANE] = Ray.prototype.intersectPlane;
  * @param  {AABB} aabb
  */
 Ray.prototype.getAABB = function(result){
-    var to = this.to;
-    var from = this.from;
-    result.lowerBound.x = Math.min(to.x, from.x);
-    result.lowerBound.y = Math.min(to.y, from.y);
-    result.lowerBound.z = Math.min(to.z, from.z);
-    result.upperBound.x = Math.max(to.x, from.x);
-    result.upperBound.y = Math.max(to.y, from.y);
-    result.upperBound.z = Math.max(to.z, from.z);
+    let to = this.to;
+    let from = this.from;
+
+    let lx = Math.min(to.x, from.x);
+    let ly = Math.min(to.y, from.y);
+    let lz = Math.min(to.z, from.z);
+
+    let ux = Math.max(to.x, from.x);
+    let uy = Math.max(to.y, from.y);
+    let uz = Math.max(to.z, from.z);
+
+    result.lowerBound.set(lx, ly, lz);
+    result.upperBound.set(ux, uy, uz);
 };
 
-var intersectConvexOptions = {
+let intersectConvexOptions = {
     faceList: [0]
 };
-var worldPillarOffset = new Vec3();
-var intersectHeightfield_localRay = new Ray();
-var intersectHeightfield_index = [];
-var intersectHeightfield_minMax = [];
+let worldPillarOffset = new Vec3();
+let intersectHeightfield_localRay = new Ray();
+let intersectHeightfield_index = [];
+let intersectHeightfield_minMax = [];
 
 /**
  * @method intersectHeightfield
@@ -1595,11 +1604,11 @@ var intersectHeightfield_minMax = [];
  * @param  {Body} body
  */
 Ray.prototype.intersectHeightfield = function(shape, quat, position, body, reportedShape){
-    var data = shape.data,
+    let data = shape.data,
         w = shape.elementSize;
 
     // Convert the ray to local heightfield coordinates
-    var localRay = intersectHeightfield_localRay; //new Ray(this.from, this.to);
+    let localRay = intersectHeightfield_localRay; //new Ray(this.from, this.to);
     localRay.from.copy(this.from);
     localRay.to.copy(this.to);
     Transform.pointToLocalFrame(position, quat, localRay.from, localRay.from);
@@ -1607,14 +1616,14 @@ Ray.prototype.intersectHeightfield = function(shape, quat, position, body, repor
     localRay._updateDirection();
 
     // Get the index of the data points to test against
-    var index = intersectHeightfield_index;
-    var iMinX, iMinY, iMaxX, iMaxY;
+    let index = intersectHeightfield_index;
+    let iMinX, iMinY, iMaxX, iMaxY;
 
     // Set to max
     iMinX = iMinY = 0;
     iMaxX = iMaxY = shape.data.length - 1;
 
-    var aabb = new AABB();
+    let aabb = new AABB();
     localRay.getAABB(aabb);
 
     shape.getIndexOfPosition(aabb.lowerBound.x, aabb.lowerBound.y, index, true);
@@ -1624,8 +1633,8 @@ Ray.prototype.intersectHeightfield = function(shape, quat, position, body, repor
     iMaxX = Math.min(iMaxX, index[0] + 1);
     iMaxY = Math.min(iMaxY, index[1] + 1);
 
-    for(var i = iMinX; i < iMaxX; i++){
-        for(var j = iMinY; j < iMaxY; j++){
+    for(let i = iMinX; i < iMaxX; i++){
+        for(let j = iMinY; j < iMaxY; j++){
 
             if(this.result._shouldStop){
                 return;
@@ -1654,8 +1663,8 @@ Ray.prototype.intersectHeightfield = function(shape, quat, position, body, repor
 };
 Ray.prototype[Shape.types.HEIGHTFIELD] = Ray.prototype.intersectHeightfield;
 
-var Ray_intersectSphere_intersectionPoint = new Vec3();
-var Ray_intersectSphere_normal = new Vec3();
+let Ray_intersectSphere_intersectionPoint = new Vec3();
+let Ray_intersectSphere_normal = new Vec3();
 
 /**
  * @method intersectSphere
@@ -1666,18 +1675,18 @@ var Ray_intersectSphere_normal = new Vec3();
  * @param  {Body} body
  */
 Ray.prototype.intersectSphere = function(shape, quat, position, body, reportedShape){
-    var from = this.from,
+    let from = this.from,
         to = this.to,
         r = shape.radius;
 
-    var a = Math.pow(to.x - from.x, 2) + Math.pow(to.y - from.y, 2) + Math.pow(to.z - from.z, 2);
-    var b = 2 * ((to.x - from.x) * (from.x - position.x) + (to.y - from.y) * (from.y - position.y) + (to.z - from.z) * (from.z - position.z));
-    var c = Math.pow(from.x - position.x, 2) + Math.pow(from.y - position.y, 2) + Math.pow(from.z - position.z, 2) - Math.pow(r, 2);
+    let a = Math.pow(to.x - from.x, 2) + Math.pow(to.y - from.y, 2) + Math.pow(to.z - from.z, 2);
+    let b = 2 * ((to.x - from.x) * (from.x - position.x) + (to.y - from.y) * (from.y - position.y) + (to.z - from.z) * (from.z - position.z));
+    let c = Math.pow(from.x - position.x, 2) + Math.pow(from.y - position.y, 2) + Math.pow(from.z - position.z, 2) - Math.pow(r, 2);
 
-    var delta = Math.pow(b, 2) - 4 * a * c;
+    let delta = Math.pow(b, 2) - 4 * a * c;
 
-    var intersectionPoint = Ray_intersectSphere_intersectionPoint;
-    var normal = Ray_intersectSphere_normal;
+    let intersectionPoint = Ray_intersectSphere_intersectionPoint;
+    let normal = Ray_intersectSphere_normal;
 
     if(delta < 0){
         // No intersection
@@ -1693,8 +1702,8 @@ Ray.prototype.intersectSphere = function(shape, quat, position, body, reportedSh
         this.reportIntersection(normal, intersectionPoint, reportedShape, body, -1);
 
     } else {
-        var d1 = (- b - Math.sqrt(delta)) / (2 * a);
-        var d2 = (- b + Math.sqrt(delta)) / (2 * a);
+        let d1 = (- b - Math.sqrt(delta)) / (2 * a);
+        let d2 = (- b + Math.sqrt(delta)) / (2 * a);
 
         if(d1 >= 0 && d1 <= 1){
             from.lerp(to, d1, intersectionPoint);
@@ -1718,10 +1727,10 @@ Ray.prototype.intersectSphere = function(shape, quat, position, body, reportedSh
 Ray.prototype[Shape.types.SPHERE] = Ray.prototype.intersectSphere;
 
 
-var intersectConvex_normal = new Vec3();
-var intersectConvex_minDistNormal = new Vec3();
-var intersectConvex_minDistIntersect = new Vec3();
-var intersectConvex_vector = new Vec3();
+let intersectConvex_normal = new Vec3();
+let intersectConvex_minDistNormal = new Vec3();
+let intersectConvex_minDistIntersect = new Vec3();
+let intersectConvex_vector = new Vec3();
 
 /**
  * @method intersectConvex
@@ -1741,33 +1750,33 @@ Ray.prototype.intersectConvex = function intersectConvex(
     reportedShape,
     options
 ){
-    var minDistNormal = intersectConvex_minDistNormal;
-    var normal = intersectConvex_normal;
-    var vector = intersectConvex_vector;
-    var minDistIntersect = intersectConvex_minDistIntersect;
-    var faceList = (options && options.faceList) || null;
+    let minDistNormal = intersectConvex_minDistNormal;
+    let normal = intersectConvex_normal;
+    let vector = intersectConvex_vector;
+    let minDistIntersect = intersectConvex_minDistIntersect;
+    let faceList = (options && options.faceList) || null;
 
     // Checking faces
-    var faces = shape.faces,
+    let faces = shape.faces,
         vertices = shape.vertices,
         normals = shape.faceNormals;
-    var direction = this._direction;
+    let direction = this._direction;
 
-    var from = this.from;
-    var to = this.to;
-    var fromToDistance = from.distanceTo(to);
+    let from = this.from;
+    let to = this.to;
+    let fromToDistance = from.distanceTo(to);
 
-    var minDist = -1;
-    var Nfaces = faceList ? faceList.length : faces.length;
-    var result = this.result;
+    let minDist = -1;
+    let Nfaces = faceList ? faceList.length : faces.length;
+    let result = this.result;
 
-    for (var j = 0; !result._shouldStop && j < Nfaces; j++) {
-        var fi = faceList ? faceList[j] : j;
+    for (let j = 0; !result._shouldStop && j < Nfaces; j++) {
+        let fi = faceList ? faceList[j] : j;
 
-        var face = faces[fi];
-        var faceNormal = normals[fi];
-        var q = quat;
-        var x = position;
+        let face = faces[fi];
+        let faceNormal = normals[fi];
+        let q = quat;
+        let x = position;
 
         // determine if ray intersects the plane of the face
         // note: this works regardless of the direction of the face normal
@@ -1784,7 +1793,7 @@ Ray.prototype.intersectConvex = function intersectConvex(
         q.vmult(faceNormal,normal);
 
         // If this dot product is negative, we have something interesting
-        var dot = direction.dot(normal);
+        let dot = direction.dot(normal);
 
         // Bail out if ray and plane are parallel
         if ( Math.abs( dot ) < this.precision ){
@@ -1792,7 +1801,7 @@ Ray.prototype.intersectConvex = function intersectConvex(
         }
 
         // calc distance to plane
-        var scalar = normal.dot(vector) / dot;
+        let scalar = normal.dot(vector) / dot;
 
         // if negative distance, then plane is behind ray
         if (scalar < 0){
@@ -1810,7 +1819,7 @@ Ray.prototype.intersectConvex = function intersectConvex(
         q.vmult(a,a);
         x.vadd(a,a);
 
-        for(var i = 1; !result._shouldStop && i < face.length - 1; i++){
+        for(let i = 1; !result._shouldStop && i < face.length - 1; i++){
             // Transform 3 vertices to world coords
             b.copy(vertices[face[i]]);
             c.copy(vertices[face[i+1]]);
@@ -1819,7 +1828,7 @@ Ray.prototype.intersectConvex = function intersectConvex(
             x.vadd(b,b);
             x.vadd(c,c);
 
-            var distance = intersectPoint.distanceTo(from);
+            let distance = intersectPoint.distanceTo(from);
 
             if(!(pointInTriangle(intersectPoint, a, b, c) || pointInTriangle(intersectPoint, b, a, c)) || distance > fromToDistance){
                 continue;
@@ -1832,15 +1841,15 @@ Ray.prototype.intersectConvex = function intersectConvex(
 };
 Ray.prototype[Shape.types.CONVEXPOLYHEDRON] = Ray.prototype.intersectConvex;
 
-var intersectTrimesh_normal = new Vec3();
-var intersectTrimesh_localDirection = new Vec3();
-var intersectTrimesh_localFrom = new Vec3();
-var intersectTrimesh_localTo = new Vec3();
-var intersectTrimesh_worldNormal = new Vec3();
-var intersectTrimesh_worldIntersectPoint = new Vec3();
-var intersectTrimesh_localAABB = new AABB();
-var intersectTrimesh_triangles = [];
-var intersectTrimesh_treeTransform = new Transform();
+let intersectTrimesh_normal = new Vec3();
+let intersectTrimesh_localDirection = new Vec3();
+let intersectTrimesh_localFrom = new Vec3();
+let intersectTrimesh_localTo = new Vec3();
+let intersectTrimesh_worldNormal = new Vec3();
+let intersectTrimesh_worldIntersectPoint = new Vec3();
+let intersectTrimesh_localAABB = new AABB();
+let intersectTrimesh_triangles = [];
+let intersectTrimesh_treeTransform = new Transform();
 
 /**
  * @method intersectTrimesh
@@ -1861,30 +1870,30 @@ Ray.prototype.intersectTrimesh = function intersectTrimesh(
     reportedShape,
     options
 ){
-    var normal = intersectTrimesh_normal;
-    var triangles = intersectTrimesh_triangles;
-    var treeTransform = intersectTrimesh_treeTransform;
-    var minDistNormal = intersectConvex_minDistNormal;
-    var vector = intersectConvex_vector;
-    var minDistIntersect = intersectConvex_minDistIntersect;
-    var localAABB = intersectTrimesh_localAABB;
-    var localDirection = intersectTrimesh_localDirection;
-    var localFrom = intersectTrimesh_localFrom;
-    var localTo = intersectTrimesh_localTo;
-    var worldIntersectPoint = intersectTrimesh_worldIntersectPoint;
-    var worldNormal = intersectTrimesh_worldNormal;
-    var faceList = (options && options.faceList) || null;
+    let normal = intersectTrimesh_normal;
+    let triangles = intersectTrimesh_triangles;
+    let treeTransform = intersectTrimesh_treeTransform;
+    let minDistNormal = intersectConvex_minDistNormal;
+    let vector = intersectConvex_vector;
+    let minDistIntersect = intersectConvex_minDistIntersect;
+    let localAABB = intersectTrimesh_localAABB;
+    let localDirection = intersectTrimesh_localDirection;
+    let localFrom = intersectTrimesh_localFrom;
+    let localTo = intersectTrimesh_localTo;
+    let worldIntersectPoint = intersectTrimesh_worldIntersectPoint;
+    let worldNormal = intersectTrimesh_worldNormal;
+    let faceList = (options && options.faceList) || null;
 
     // Checking faces
-    var indices = mesh.indices,
+    let indices = mesh.indices,
         vertices = mesh.vertices,
         normals = mesh.faceNormals;
 
-    var from = this.from;
-    var to = this.to;
-    var direction = this._direction;
+    let from = this.from;
+    let to = this.to;
+    let direction = this._direction;
 
-    var minDist = -1;
+    let minDist = -1;
     treeTransform.position.copy(position);
     treeTransform.quaternion.copy(quat);
 
@@ -1903,12 +1912,12 @@ Ray.prototype.intersectTrimesh = function intersectTrimesh(
     localTo.vsub(localFrom, localDirection);
     localDirection.normalize();
 
-    var fromToDistanceSquared = localFrom.distanceSquared(localTo);
+    let fromToDistanceSquared = localFrom.distanceSquared(localTo);
 
     mesh.tree.rayQuery(this, treeTransform, triangles);
 
-    for (var i = 0, N = triangles.length; !this.result._shouldStop && i !== N; i++) {
-        var trianglesIndex = triangles[i];
+    for (let i = 0, N = triangles.length; !this.result._shouldStop && i !== N; i++) {
+        let trianglesIndex = triangles[i];
 
         mesh.getNormal(trianglesIndex, normal);
 
@@ -1922,7 +1931,7 @@ Ray.prototype.intersectTrimesh = function intersectTrimesh(
         a.vsub(localFrom,vector);
 
         // If this dot product is negative, we have something interesting
-        var dot = localDirection.dot(normal);
+        let dot = localDirection.dot(normal);
 
         // Bail out if ray and plane are parallel
         // if (Math.abs( dot ) < this.precision){
@@ -1930,7 +1939,7 @@ Ray.prototype.intersectTrimesh = function intersectTrimesh(
         // }
 
         // calc distance to plane
-        var scalar = normal.dot(vector) / dot;
+        let scalar = normal.dot(vector) / dot;
 
         // if negative distance, then plane is behind ray
         if (scalar < 0){
@@ -1945,7 +1954,7 @@ Ray.prototype.intersectTrimesh = function intersectTrimesh(
         mesh.getVertex(indices[trianglesIndex * 3 + 1], b);
         mesh.getVertex(indices[trianglesIndex * 3 + 2], c);
 
-        var squaredDistance = intersectPoint.distanceSquared(localFrom);
+        let squaredDistance = intersectPoint.distanceSquared(localFrom);
 
         if(!(pointInTriangle(intersectPoint, b, a, c) || pointInTriangle(intersectPoint, a, b, c)) || squaredDistance > fromToDistanceSquared){
             continue;
@@ -1971,10 +1980,10 @@ Ray.prototype[Shape.types.TRIMESH] = Ray.prototype.intersectTrimesh;
  * @return {boolean} True if the intersections should continue
  */
 Ray.prototype.reportIntersection = function(normal, hitPointWorld, shape, body, hitFaceIndex){
-    var from = this.from;
-    var to = this.to;
-    var distance = from.distanceTo(hitPointWorld);
-    var result = this.result;
+    let from = this.from;
+    let to = this.to;
+    let distance = from.distanceTo(hitPointWorld);
+    let result = this.result;
 
     // Skip back faces?
     if(this.skipBackfaces && normal.dot(this._direction) > 0){
@@ -2036,26 +2045,26 @@ Ray.prototype.reportIntersection = function(normal, hitPointWorld, shape, body, 
     }
 };
 
-var v0 = new Vec3(),
+let v0 = new Vec3(),
     intersect = new Vec3();
 function distanceFromIntersection(from, direction, position) {
 
     // v0 is vector from from to position
     position.vsub(from,v0);
-    var dot = v0.dot(direction);
+    let dot = v0.dot(direction);
 
     // intersect = direction*dot + from
     direction.mult(dot,intersect);
     intersect.vadd(from,intersect);
 
-    var distance = position.distanceTo(intersect);
+    let distance = position.distanceTo(intersect);
 
     return distance;
 }
 
 
 },{"../collision/AABB":3,"../collision/RaycastResult":11,"../math/Quaternion":29,"../math/Transform":30,"../math/Vec3":31,"../shapes/Box":38,"../shapes/ConvexPolyhedron":39,"../shapes/Shape":44}],11:[function(_dereq_,module,exports){
-var Vec3 = _dereq_('../math/Vec3');
+let Vec3 = _dereq_('../math/Vec3');
 
 module.exports = RaycastResult;
 
@@ -2178,8 +2187,8 @@ RaycastResult.prototype.set = function(
 	this.distance = distance;
 };
 },{"../math/Vec3":31}],12:[function(_dereq_,module,exports){
-var Shape = _dereq_('../shapes/Shape');
-var Broadphase = _dereq_('../collision/Broadphase');
+let Shape = _dereq_('../shapes/Shape');
+let Broadphase = _dereq_('../collision/Broadphase');
 
 module.exports = SAPBroadphase;
 
@@ -2215,14 +2224,14 @@ function SAPBroadphase(world){
      */
     this.axisIndex = 0;
 
-    var axisList = this.axisList;
+    let axisList = this.axisList;
 
     this._addBodyHandler = function(e){
         axisList.push(e.body);
     };
 
     this._removeBodyHandler = function(e){
-        var idx = axisList.indexOf(e.body);
+        let idx = axisList.indexOf(e.body);
         if(idx !== -1){
             axisList.splice(idx,1);
         }
@@ -2244,7 +2253,7 @@ SAPBroadphase.prototype.setWorld = function(world){
     this.axisList.length = 0;
 
     // Add all bodies from the new world
-    for(var i=0; i<world.bodies.length; i++){
+    for(let i=0; i<world.bodies.length; i++){
         this.axisList.push(world.bodies[i]);
     }
 
@@ -2267,9 +2276,9 @@ SAPBroadphase.prototype.setWorld = function(world){
  * @return {Array}
  */
 SAPBroadphase.insertionSortX = function(a) {
-    for(var i=1,l=a.length;i<l;i++) {
-        var v = a[i];
-        for(var j=i - 1;j>=0;j--) {
+    for(let i=1,l=a.length;i<l;i++) {
+        let v = a[i];
+        for(let j=i - 1;j>=0;j--) {
             if(a[j].aabb.lowerBound.x <= v.aabb.lowerBound.x){
                 break;
             }
@@ -2287,9 +2296,9 @@ SAPBroadphase.insertionSortX = function(a) {
  * @return {Array}
  */
 SAPBroadphase.insertionSortY = function(a) {
-    for(var i=1,l=a.length;i<l;i++) {
-        var v = a[i];
-        for(var j=i - 1;j>=0;j--) {
+    for(let i=1,l=a.length;i<l;i++) {
+        let v = a[i];
+        for(let j=i - 1;j>=0;j--) {
             if(a[j].aabb.lowerBound.y <= v.aabb.lowerBound.y){
                 break;
             }
@@ -2307,9 +2316,9 @@ SAPBroadphase.insertionSortY = function(a) {
  * @return {Array}
  */
 SAPBroadphase.insertionSortZ = function(a) {
-    for(var i=1,l=a.length;i<l;i++) {
-        var v = a[i];
-        for(var j=i - 1;j>=0;j--) {
+    for(let i=1,l=a.length;i<l;i++) {
+        let v = a[i];
+        for(let j=i - 1;j>=0;j--) {
             if(a[j].aabb.lowerBound.z <= v.aabb.lowerBound.z){
                 break;
             }
@@ -2328,7 +2337,7 @@ SAPBroadphase.insertionSortZ = function(a) {
  * @param  {Array} p2
  */
 SAPBroadphase.prototype.collisionPairs = function(world,p1,p2){
-    var bodies = this.axisList,
+    let bodies = this.axisList,
         N = bodies.length,
         axisIndex = this.axisIndex,
         i, j;
@@ -2340,10 +2349,10 @@ SAPBroadphase.prototype.collisionPairs = function(world,p1,p2){
 
     // Look through the list
     for(i=0; i !== N; i++){
-        var bi = bodies[i];
+        let bi = bodies[i];
 
         for(j=i+1; j < N; j++){
-            var bj = bodies[j];
+            let bj = bodies[j];
 
             if(!this.needBroadphaseCollision(bi,bj)){
                 continue;
@@ -2359,13 +2368,13 @@ SAPBroadphase.prototype.collisionPairs = function(world,p1,p2){
 };
 
 SAPBroadphase.prototype.sortList = function(){
-    var axisList = this.axisList;
-    var axisIndex = this.axisIndex;
-    var N = axisList.length;
+    let axisList = this.axisList;
+    let axisIndex = this.axisIndex;
+    let N = axisList.length;
 
     // Update AABBs
-    for(var i = 0; i!==N; i++){
-        var bi = axisList[i];
+    for(let i = 0; i!==N; i++){
+        let bi = axisList[i];
         if(bi.aabbNeedsUpdate){
             bi.computeAABB();
         }
@@ -2391,8 +2400,8 @@ SAPBroadphase.prototype.sortList = function(){
  * @return {Boolean}
  */
 SAPBroadphase.checkBounds = function(bi, bj, axisIndex){
-    var biPos;
-    var bjPos;
+    let biPos;
+    let bjPos;
 
     if(axisIndex === 0){
         biPos = bi.position.x;
@@ -2405,7 +2414,7 @@ SAPBroadphase.checkBounds = function(bi, bj, axisIndex){
         bjPos = bj.position.z;
     }
 
-    var ri = bi.boundingRadius,
+    let ri = bi.boundingRadius,
         rj = bj.boundingRadius,
         boundA1 = biPos - ri,
         boundA2 = biPos + ri,
@@ -2421,7 +2430,7 @@ SAPBroadphase.checkBounds = function(bi, bj, axisIndex){
  * @method autoDetectAxis
  */
 SAPBroadphase.prototype.autoDetectAxis = function(){
-    var sumX=0,
+    let sumX=0,
         sumX2=0,
         sumY=0,
         sumY2=0,
@@ -2431,23 +2440,23 @@ SAPBroadphase.prototype.autoDetectAxis = function(){
         N = bodies.length,
         invN=1/N;
 
-    for(var i=0; i!==N; i++){
-        var b = bodies[i];
+    for(let i=0; i!==N; i++){
+        let b = bodies[i];
 
-        var centerX = b.position.x;
+        let centerX = b.position.x;
         sumX += centerX;
         sumX2 += centerX*centerX;
 
-        var centerY = b.position.y;
+        let centerY = b.position.y;
         sumY += centerY;
         sumY2 += centerY*centerY;
 
-        var centerZ = b.position.z;
+        let centerZ = b.position.z;
         sumZ += centerZ;
         sumZ2 += centerZ*centerZ;
     }
 
-    var varianceX = sumX2 - sumX*sumX*invN,
+    let varianceX = sumX2 - sumX*sumX*invN,
         varianceY = sumY2 - sumY*sumY*invN,
         varianceZ = sumZ2 - sumZ*sumZ*invN;
 
@@ -2480,15 +2489,15 @@ SAPBroadphase.prototype.aabbQuery = function(world, aabb, result){
         this.dirty = false;
     }
 
-    var axisIndex = this.axisIndex, axis = 'x';
+    let axisIndex = this.axisIndex, axis = 'x';
     if(axisIndex === 1){ axis = 'y'; }
     if(axisIndex === 2){ axis = 'z'; }
 
-    var axisList = this.axisList;
-    var lower = aabb.lowerBound[axis];
-    var upper = aabb.upperBound[axis];
-    for(var i = 0; i < axisList.length; i++){
-        var b = axisList[i];
+    let axisList = this.axisList;
+    let lower = aabb.lowerBound[axis];
+    let upper = aabb.upperBound[axis];
+    for(let i = 0; i < axisList.length; i++){
+        let b = axisList[i];
 
         if(b.aabbNeedsUpdate){
             b.computeAABB();
@@ -2504,12 +2513,12 @@ SAPBroadphase.prototype.aabbQuery = function(world, aabb, result){
 },{"../collision/Broadphase":5,"../shapes/Shape":44}],13:[function(_dereq_,module,exports){
 module.exports = ConeTwistConstraint;
 
-var Constraint = _dereq_('./Constraint');
-var PointToPointConstraint = _dereq_('./PointToPointConstraint');
-var ConeEquation = _dereq_('../equations/ConeEquation');
-var RotationalEquation = _dereq_('../equations/RotationalEquation');
-var ContactEquation = _dereq_('../equations/ContactEquation');
-var Vec3 = _dereq_('../math/Vec3');
+let Constraint = _dereq_('./Constraint');
+let PointToPointConstraint = _dereq_('./PointToPointConstraint');
+let ConeEquation = _dereq_('../equations/ConeEquation');
+let RotationalEquation = _dereq_('../equations/RotationalEquation');
+let ContactEquation = _dereq_('../equations/ContactEquation');
+let Vec3 = _dereq_('../math/Vec3');
 
 /**
  * @class ConeTwistConstraint
@@ -2527,11 +2536,11 @@ var Vec3 = _dereq_('../math/Vec3');
  */
 function ConeTwistConstraint(bodyA, bodyB, options){
     options = options || {};
-    var maxForce = typeof(options.maxForce) !== 'undefined' ? options.maxForce : 1e6;
+    let maxForce = typeof(options.maxForce) !== 'undefined' ? options.maxForce : 1e6;
 
     // Set pivot point in between
-    var pivotA = options.pivotA ? options.pivotA.clone() : new Vec3();
-    var pivotB = options.pivotB ? options.pivotB.clone() : new Vec3();
+    let pivotA = options.pivotA ? options.pivotA.clone() : new Vec3();
+    let pivotB = options.pivotB ? options.pivotB.clone() : new Vec3();
     this.axisA = options.axisA ? options.axisA.clone() : new Vec3();
     this.axisB = options.axisB ? options.axisB.clone() : new Vec3();
 
@@ -2544,12 +2553,12 @@ function ConeTwistConstraint(bodyA, bodyB, options){
     /**
      * @property {ConeEquation} coneEquation
      */
-    var c = this.coneEquation = new ConeEquation(bodyA,bodyB,options);
+    let c = this.coneEquation = new ConeEquation(bodyA,bodyB,options);
 
     /**
      * @property {RotationalEquation} twistEquation
      */
-    var t = this.twistEquation = new RotationalEquation(bodyA,bodyB,options);
+    let t = this.twistEquation = new RotationalEquation(bodyA,bodyB,options);
     this.twistAngle = typeof(options.twistAngle) !== 'undefined' ? options.twistAngle : 0;
 
     // Make the cone equation push the bodies toward the cone axis, not outward
@@ -2565,11 +2574,11 @@ function ConeTwistConstraint(bodyA, bodyB, options){
 ConeTwistConstraint.prototype = new PointToPointConstraint();
 ConeTwistConstraint.constructor = ConeTwistConstraint;
 
-var ConeTwistConstraint_update_tmpVec1 = new Vec3();
-var ConeTwistConstraint_update_tmpVec2 = new Vec3();
+let ConeTwistConstraint_update_tmpVec1 = new Vec3();
+let ConeTwistConstraint_update_tmpVec2 = new Vec3();
 
 ConeTwistConstraint.prototype.update = function(){
-    var bodyA = this.bodyA,
+    let bodyA = this.bodyA,
         bodyB = this.bodyB,
         cone = this.coneEquation,
         twist = this.twistEquation;
@@ -2595,7 +2604,7 @@ ConeTwistConstraint.prototype.update = function(){
 },{"../equations/ConeEquation":19,"../equations/ContactEquation":20,"../equations/RotationalEquation":23,"../math/Vec3":31,"./Constraint":14,"./PointToPointConstraint":18}],14:[function(_dereq_,module,exports){
 module.exports = Constraint;
 
-var Utils = _dereq_('../utils/Utils');
+let Utils = _dereq_('../utils/Utils');
 
 /**
  * Constraint base class
@@ -2666,8 +2675,8 @@ Constraint.prototype.update = function(){
  * @method enable
  */
 Constraint.prototype.enable = function(){
-    var eqs = this.equations;
-    for(var i=0; i<eqs.length; i++){
+    let eqs = this.equations;
+    for(let i=0; i<eqs.length; i++){
         eqs[i].enabled = true;
     }
 };
@@ -2677,8 +2686,8 @@ Constraint.prototype.enable = function(){
  * @method disable
  */
 Constraint.prototype.disable = function(){
-    var eqs = this.equations;
-    for(var i=0; i<eqs.length; i++){
+    let eqs = this.equations;
+    for(let i=0; i<eqs.length; i++){
         eqs[i].enabled = false;
     }
 };
@@ -2688,8 +2697,8 @@ Constraint.idCounter = 0;
 },{"../utils/Utils":54}],15:[function(_dereq_,module,exports){
 module.exports = DistanceConstraint;
 
-var Constraint = _dereq_('./Constraint');
-var ContactEquation = _dereq_('../equations/ContactEquation');
+let Constraint = _dereq_('./Constraint');
+let ContactEquation = _dereq_('../equations/ContactEquation');
 
 /**
  * Constrains two bodies to be at a constant distance from each others center of mass.
@@ -2721,7 +2730,7 @@ function DistanceConstraint(bodyA,bodyB,distance,maxForce){
     /**
      * @property {ContactEquation} distanceEquation
      */
-    var eq = this.distanceEquation = new ContactEquation(bodyA, bodyB);
+    let eq = this.distanceEquation = new ContactEquation(bodyA, bodyB);
     this.equations.push(eq);
 
     // Make it bidirectional
@@ -2731,11 +2740,11 @@ function DistanceConstraint(bodyA,bodyB,distance,maxForce){
 DistanceConstraint.prototype = new Constraint();
 
 DistanceConstraint.prototype.update = function(){
-    var bodyA = this.bodyA;
-    var bodyB = this.bodyB;
-    var eq = this.distanceEquation;
-    var halfDist = this.distance * 0.5;
-    var normal = eq.ni;
+    let bodyA = this.bodyA;
+    let bodyB = this.bodyB;
+    let eq = this.distanceEquation;
+    let halfDist = this.distance * 0.5;
+    let normal = eq.ni;
 
     bodyB.position.vsub(bodyA.position, normal);
     normal.normalize();
@@ -2745,12 +2754,12 @@ DistanceConstraint.prototype.update = function(){
 },{"../equations/ContactEquation":20,"./Constraint":14}],16:[function(_dereq_,module,exports){
 module.exports = HingeConstraint;
 
-var Constraint = _dereq_('./Constraint');
-var PointToPointConstraint = _dereq_('./PointToPointConstraint');
-var RotationalEquation = _dereq_('../equations/RotationalEquation');
-var RotationalMotorEquation = _dereq_('../equations/RotationalMotorEquation');
-var ContactEquation = _dereq_('../equations/ContactEquation');
-var Vec3 = _dereq_('../math/Vec3');
+let Constraint = _dereq_('./Constraint');
+let PointToPointConstraint = _dereq_('./PointToPointConstraint');
+let RotationalEquation = _dereq_('../equations/RotationalEquation');
+let RotationalMotorEquation = _dereq_('../equations/RotationalMotorEquation');
+let ContactEquation = _dereq_('../equations/ContactEquation');
+let Vec3 = _dereq_('../math/Vec3');
 
 /**
  * Hinge constraint. Think of it as a door hinge. It tries to keep the door in the correct place and with the correct orientation.
@@ -2769,9 +2778,9 @@ var Vec3 = _dereq_('../math/Vec3');
  */
 function HingeConstraint(bodyA, bodyB, options){
     options = options || {};
-    var maxForce = typeof(options.maxForce) !== 'undefined' ? options.maxForce : 1e6;
-    var pivotA = options.pivotA ? options.pivotA.clone() : new Vec3();
-    var pivotB = options.pivotB ? options.pivotB.clone() : new Vec3();
+    let maxForce = typeof(options.maxForce) !== 'undefined' ? options.maxForce : 1e6;
+    let pivotA = options.pivotA ? options.pivotA.clone() : new Vec3();
+    let pivotB = options.pivotB ? options.pivotB.clone() : new Vec3();
 
     PointToPointConstraint.call(this, bodyA, pivotA, bodyB, pivotB, maxForce);
 
@@ -2779,30 +2788,30 @@ function HingeConstraint(bodyA, bodyB, options){
      * Rotation axis, defined locally in bodyA.
      * @property {Vec3} axisA
      */
-    var axisA = this.axisA = options.axisA ? options.axisA.clone() : new Vec3(1,0,0);
+    let axisA = this.axisA = options.axisA ? options.axisA.clone() : new Vec3(1,0,0);
     axisA.normalize();
 
     /**
      * Rotation axis, defined locally in bodyB.
      * @property {Vec3} axisB
      */
-    var axisB = this.axisB = options.axisB ? options.axisB.clone() : new Vec3(1,0,0);
+    let axisB = this.axisB = options.axisB ? options.axisB.clone() : new Vec3(1,0,0);
     axisB.normalize();
 
     /**
      * @property {RotationalEquation} rotationalEquation1
      */
-    var r1 = this.rotationalEquation1 = new RotationalEquation(bodyA,bodyB,options);
+    let r1 = this.rotationalEquation1 = new RotationalEquation(bodyA,bodyB,options);
 
     /**
      * @property {RotationalEquation} rotationalEquation2
      */
-    var r2 = this.rotationalEquation2 = new RotationalEquation(bodyA,bodyB,options);
+    let r2 = this.rotationalEquation2 = new RotationalEquation(bodyA,bodyB,options);
 
     /**
      * @property {RotationalMotorEquation} motorEquation
      */
-    var motor = this.motorEquation = new RotationalMotorEquation(bodyA,bodyB,maxForce);
+    let motor = this.motorEquation = new RotationalMotorEquation(bodyA,bodyB,maxForce);
     motor.enabled = false; // Not enabled by default
 
     // Equations to be fed to the solver
@@ -2846,11 +2855,11 @@ HingeConstraint.prototype.setMotorMaxForce = function(maxForce){
     this.motorEquation.minForce = -maxForce;
 };
 
-var HingeConstraint_update_tmpVec1 = new Vec3();
-var HingeConstraint_update_tmpVec2 = new Vec3();
+let HingeConstraint_update_tmpVec1 = new Vec3();
+let HingeConstraint_update_tmpVec2 = new Vec3();
 
 HingeConstraint.prototype.update = function(){
-    var bodyA = this.bodyA,
+    let bodyA = this.bodyA,
         bodyB = this.bodyB,
         motor = this.motorEquation,
         r1 = this.rotationalEquation1,
@@ -2858,8 +2867,8 @@ HingeConstraint.prototype.update = function(){
         worldAxisA = HingeConstraint_update_tmpVec1,
         worldAxisB = HingeConstraint_update_tmpVec2;
 
-    var axisA = this.axisA;
-    var axisB = this.axisB;
+    let axisA = this.axisA;
+    let axisB = this.axisB;
 
     PointToPointConstraint.prototype.update.call(this);
 
@@ -2881,12 +2890,12 @@ HingeConstraint.prototype.update = function(){
 },{"../equations/ContactEquation":20,"../equations/RotationalEquation":23,"../equations/RotationalMotorEquation":24,"../math/Vec3":31,"./Constraint":14,"./PointToPointConstraint":18}],17:[function(_dereq_,module,exports){
 module.exports = LockConstraint;
 
-var Constraint = _dereq_('./Constraint');
-var PointToPointConstraint = _dereq_('./PointToPointConstraint');
-var RotationalEquation = _dereq_('../equations/RotationalEquation');
-var RotationalMotorEquation = _dereq_('../equations/RotationalMotorEquation');
-var ContactEquation = _dereq_('../equations/ContactEquation');
-var Vec3 = _dereq_('../math/Vec3');
+let Constraint = _dereq_('./Constraint');
+let PointToPointConstraint = _dereq_('./PointToPointConstraint');
+let RotationalEquation = _dereq_('../equations/RotationalEquation');
+let RotationalMotorEquation = _dereq_('../equations/RotationalMotorEquation');
+let ContactEquation = _dereq_('../equations/ContactEquation');
+let Vec3 = _dereq_('../math/Vec3');
 
 /**
  * Lock constraint. Will remove all degrees of freedom between the bodies.
@@ -2901,12 +2910,12 @@ var Vec3 = _dereq_('../math/Vec3');
  */
 function LockConstraint(bodyA, bodyB, options){
     options = options || {};
-    var maxForce = typeof(options.maxForce) !== 'undefined' ? options.maxForce : 1e6;
+    let maxForce = typeof(options.maxForce) !== 'undefined' ? options.maxForce : 1e6;
 
     // Set pivot point in between
-    var pivotA = new Vec3();
-    var pivotB = new Vec3();
-    var halfWay = new Vec3();
+    let pivotA = new Vec3();
+    let pivotB = new Vec3();
+    let halfWay = new Vec3();
     bodyA.position.vadd(bodyB.position, halfWay);
     halfWay.scale(0.5, halfWay);
     bodyB.pointToLocalFrame(halfWay, pivotB);
@@ -2928,28 +2937,28 @@ function LockConstraint(bodyA, bodyB, options){
     /**
      * @property {RotationalEquation} rotationalEquation1
      */
-    var r1 = this.rotationalEquation1 = new RotationalEquation(bodyA,bodyB,options);
+    let r1 = this.rotationalEquation1 = new RotationalEquation(bodyA,bodyB,options);
 
     /**
      * @property {RotationalEquation} rotationalEquation2
      */
-    var r2 = this.rotationalEquation2 = new RotationalEquation(bodyA,bodyB,options);
+    let r2 = this.rotationalEquation2 = new RotationalEquation(bodyA,bodyB,options);
 
     /**
      * @property {RotationalEquation} rotationalEquation3
      */
-    var r3 = this.rotationalEquation3 = new RotationalEquation(bodyA,bodyB,options);
+    let r3 = this.rotationalEquation3 = new RotationalEquation(bodyA,bodyB,options);
 
     this.equations.push(r1, r2, r3);
 }
 LockConstraint.prototype = new PointToPointConstraint();
 LockConstraint.constructor = LockConstraint;
 
-var LockConstraint_update_tmpVec1 = new Vec3();
-var LockConstraint_update_tmpVec2 = new Vec3();
+let LockConstraint_update_tmpVec1 = new Vec3();
+let LockConstraint_update_tmpVec2 = new Vec3();
 
 LockConstraint.prototype.update = function(){
-    var bodyA = this.bodyA,
+    let bodyA = this.bodyA,
         bodyB = this.bodyB,
         motor = this.motorEquation,
         r1 = this.rotationalEquation1,
@@ -2975,9 +2984,9 @@ LockConstraint.prototype.update = function(){
 },{"../equations/ContactEquation":20,"../equations/RotationalEquation":23,"../equations/RotationalMotorEquation":24,"../math/Vec3":31,"./Constraint":14,"./PointToPointConstraint":18}],18:[function(_dereq_,module,exports){
 module.exports = PointToPointConstraint;
 
-var Constraint = _dereq_('./Constraint');
-var ContactEquation = _dereq_('../equations/ContactEquation');
-var Vec3 = _dereq_('../math/Vec3');
+let Constraint = _dereq_('./Constraint');
+let ContactEquation = _dereq_('../equations/ContactEquation');
+let Vec3 = _dereq_('../math/Vec3');
 
 /**
  * Connects two bodies at given offset points.
@@ -2991,17 +3000,17 @@ var Vec3 = _dereq_('../math/Vec3');
  * @param {Number} maxForce The maximum force that should be applied to constrain the bodies.
  *
  * @example
- *     var bodyA = new Body({ mass: 1 });
- *     var bodyB = new Body({ mass: 1 });
+ *     let bodyA = new Body({ mass: 1 });
+ *     let bodyB = new Body({ mass: 1 });
  *     bodyA.position.set(-1, 0, 0);
  *     bodyB.position.set(1, 0, 0);
  *     bodyA.addShape(shapeA);
  *     bodyB.addShape(shapeB);
  *     world.addBody(bodyA);
  *     world.addBody(bodyB);
- *     var localPivotA = new Vec3(1, 0, 0);
- *     var localPivotB = new Vec3(-1, 0, 0);
- *     var constraint = new PointToPointConstraint(bodyA, localPivotA, bodyB, localPivotB);
+ *     let localPivotA = new Vec3(1, 0, 0);
+ *     let localPivotB = new Vec3(-1, 0, 0);
+ *     let constraint = new PointToPointConstraint(bodyA, localPivotA, bodyB, localPivotB);
  *     world.addConstraint(constraint);
  */
 function PointToPointConstraint(bodyA,pivotA,bodyB,pivotB,maxForce){
@@ -3024,17 +3033,17 @@ function PointToPointConstraint(bodyA,pivotA,bodyB,pivotB,maxForce){
     /**
      * @property {ContactEquation} equationX
      */
-    var x = this.equationX = new ContactEquation(bodyA,bodyB);
+    let x = this.equationX = new ContactEquation(bodyA,bodyB);
 
     /**
      * @property {ContactEquation} equationY
      */
-    var y = this.equationY = new ContactEquation(bodyA,bodyB);
+    let y = this.equationY = new ContactEquation(bodyA,bodyB);
 
     /**
      * @property {ContactEquation} equationZ
      */
-    var z = this.equationZ = new ContactEquation(bodyA,bodyB);
+    let z = this.equationZ = new ContactEquation(bodyA,bodyB);
 
     // Equations to be fed to the solver
     this.equations.push(x, y, z);
@@ -3050,11 +3059,11 @@ function PointToPointConstraint(bodyA,pivotA,bodyB,pivotB,maxForce){
 PointToPointConstraint.prototype = new Constraint();
 
 PointToPointConstraint.prototype.update = function(){
-    var bodyA = this.bodyA;
-    var bodyB = this.bodyB;
-    var x = this.equationX;
-    var y = this.equationY;
-    var z = this.equationZ;
+    let bodyA = this.bodyA;
+    let bodyB = this.bodyB;
+    let x = this.equationX;
+    let y = this.equationY;
+    let z = this.equationZ;
 
     // Rotate the pivots to world space
     bodyA.quaternion.vmult(this.pivotA,x.ri);
@@ -3068,9 +3077,9 @@ PointToPointConstraint.prototype.update = function(){
 },{"../equations/ContactEquation":20,"../math/Vec3":31,"./Constraint":14}],19:[function(_dereq_,module,exports){
 module.exports = ConeEquation;
 
-var Vec3 = _dereq_('../math/Vec3');
-var Mat3 = _dereq_('../math/Mat3');
-var Equation = _dereq_('./Equation');
+let Vec3 = _dereq_('../math/Vec3');
+let Mat3 = _dereq_('../math/Mat3');
+let Equation = _dereq_('./Equation');
 
 /**
  * Cone equation. Works to keep the given body world vectors aligned, or tilted within a given angle from each other.
@@ -3087,7 +3096,7 @@ var Equation = _dereq_('./Equation');
  */
 function ConeEquation(bodyA, bodyB, options){
     options = options || {};
-    var maxForce = typeof(options.maxForce) !== 'undefined' ? options.maxForce : 1e6;
+    let maxForce = typeof(options.maxForce) !== 'undefined' ? options.maxForce : 1e6;
 
     Equation.call(this,bodyA,bodyB,-maxForce, maxForce);
 
@@ -3104,11 +3113,11 @@ function ConeEquation(bodyA, bodyB, options){
 ConeEquation.prototype = new Equation();
 ConeEquation.prototype.constructor = ConeEquation;
 
-var tmpVec1 = new Vec3();
-var tmpVec2 = new Vec3();
+let tmpVec1 = new Vec3();
+let tmpVec2 = new Vec3();
 
 ConeEquation.prototype.computeB = function(h){
-    var a = this.a,
+    let a = this.a,
         b = this.b,
 
         ni = this.axisA,
@@ -3134,11 +3143,11 @@ ConeEquation.prototype.computeB = function(h){
     GA.rotational.copy(njxni);
     GB.rotational.copy(nixnj);
 
-    var g = Math.cos(this.angle) - ni.dot(nj),
+    let g = Math.cos(this.angle) - ni.dot(nj),
         GW = this.computeGW(),
         GiMf = this.computeGiMf();
 
-    var B = - g * a - GW * b - h * GiMf;
+    let B = - g * a - GW * b - h * GiMf;
 
     return B;
 };
@@ -3147,9 +3156,9 @@ ConeEquation.prototype.computeB = function(h){
 },{"../math/Mat3":28,"../math/Vec3":31,"./Equation":21}],20:[function(_dereq_,module,exports){
 module.exports = ContactEquation;
 
-var Equation = _dereq_('./Equation');
-var Vec3 = _dereq_('../math/Vec3');
-var Mat3 = _dereq_('../math/Mat3');
+let Equation = _dereq_('./Equation');
+let Vec3 = _dereq_('../math/Vec3');
+let Mat3 = _dereq_('../math/Mat3');
 
 /**
  * Contact/non-penetration constraint equation
@@ -3204,11 +3213,11 @@ function ContactEquation(bodyA, bodyB, maxForce){
 ContactEquation.prototype = new Equation();
 ContactEquation.prototype.constructor = ContactEquation;
 
-var ContactEquation_computeB_temp1 = new Vec3(); // Temp vectors
-var ContactEquation_computeB_temp2 = new Vec3();
-var ContactEquation_computeB_temp3 = new Vec3();
+let ContactEquation_computeB_temp1 = new Vec3(); // Temp vectors
+let ContactEquation_computeB_temp2 = new Vec3();
+let ContactEquation_computeB_temp3 = new Vec3();
 ContactEquation.prototype.computeB = function(h){
-    var a = this.a,
+    let a = this.a,
         b = this.b,
         bi = this.bi,
         bj = this.bj,
@@ -3251,23 +3260,23 @@ ContactEquation.prototype.computeB = function(h){
     penetrationVec.vsub(bi.position,penetrationVec);
     penetrationVec.vsub(ri,penetrationVec);
 
-    var g = n.dot(penetrationVec);
+    let g = n.dot(penetrationVec);
 
     // Compute iteration
-    var ePlusOne = this.restitution + 1;
-    var GW = ePlusOne * vj.dot(n) - ePlusOne * vi.dot(n) + wj.dot(rjxn) - wi.dot(rixn);
-    var GiMf = this.computeGiMf();
+    let ePlusOne = this.restitution + 1;
+    let GW = ePlusOne * vj.dot(n) - ePlusOne * vi.dot(n) + wj.dot(rjxn) - wi.dot(rixn);
+    let GiMf = this.computeGiMf();
 
-    var B = - g * a - GW * b - h*GiMf;
+    let B = - g * a - GW * b - h*GiMf;
 
     return B;
 };
 
-var ContactEquation_getImpactVelocityAlongNormal_vi = new Vec3();
-var ContactEquation_getImpactVelocityAlongNormal_vj = new Vec3();
-var ContactEquation_getImpactVelocityAlongNormal_xi = new Vec3();
-var ContactEquation_getImpactVelocityAlongNormal_xj = new Vec3();
-var ContactEquation_getImpactVelocityAlongNormal_relVel = new Vec3();
+let ContactEquation_getImpactVelocityAlongNormal_vi = new Vec3();
+let ContactEquation_getImpactVelocityAlongNormal_vj = new Vec3();
+let ContactEquation_getImpactVelocityAlongNormal_xi = new Vec3();
+let ContactEquation_getImpactVelocityAlongNormal_xj = new Vec3();
+let ContactEquation_getImpactVelocityAlongNormal_relVel = new Vec3();
 
 /**
  * Get the current relative velocity in the contact point.
@@ -3275,11 +3284,11 @@ var ContactEquation_getImpactVelocityAlongNormal_relVel = new Vec3();
  * @return {number}
  */
 ContactEquation.prototype.getImpactVelocityAlongNormal = function(){
-    var vi = ContactEquation_getImpactVelocityAlongNormal_vi;
-    var vj = ContactEquation_getImpactVelocityAlongNormal_vj;
-    var xi = ContactEquation_getImpactVelocityAlongNormal_xi;
-    var xj = ContactEquation_getImpactVelocityAlongNormal_xj;
-    var relVel = ContactEquation_getImpactVelocityAlongNormal_relVel;
+    let vi = ContactEquation_getImpactVelocityAlongNormal_vi;
+    let vj = ContactEquation_getImpactVelocityAlongNormal_vj;
+    let xi = ContactEquation_getImpactVelocityAlongNormal_xi;
+    let xj = ContactEquation_getImpactVelocityAlongNormal_xj;
+    let relVel = ContactEquation_getImpactVelocityAlongNormal_relVel;
 
     this.bi.position.vadd(this.ri, xi);
     this.bj.position.vadd(this.rj, xj);
@@ -3296,7 +3305,7 @@ ContactEquation.prototype.getImpactVelocityAlongNormal = function(){
 },{"../math/Mat3":28,"../math/Vec3":31,"./Equation":21}],21:[function(_dereq_,module,exports){
 module.exports = Equation;
 
-var JacobianElement = _dereq_('../math/JacobianElement'),
+let JacobianElement = _dereq_('../math/JacobianElement'),
     Vec3 = _dereq_('../math/Vec3');
 
 /**
@@ -3387,7 +3396,7 @@ Equation.id = 0;
  * @method setSpookParams
  */
 Equation.prototype.setSpookParams = function(stiffness,relaxation,timeStep){
-    var d = relaxation,
+    let d = relaxation,
         k = stiffness,
         h = timeStep;
     this.a = 4.0 / (h * (1 + 4 * d));
@@ -3401,7 +3410,7 @@ Equation.prototype.setSpookParams = function(stiffness,relaxation,timeStep){
  * @return {Number}
  */
 Equation.prototype.computeB = function(a,b,h){
-    var GW = this.computeGW(),
+    let GW = this.computeGW(),
         Gq = this.computeGq(),
         GiMf = this.computeGiMf();
     return - Gq * a - GW * b - GiMf*h;
@@ -3413,7 +3422,7 @@ Equation.prototype.computeB = function(a,b,h){
  * @return {Number}
  */
 Equation.prototype.computeGq = function(){
-    var GA = this.jacobianElementA,
+    let GA = this.jacobianElementA,
         GB = this.jacobianElementB,
         bi = this.bi,
         bj = this.bj,
@@ -3422,7 +3431,7 @@ Equation.prototype.computeGq = function(){
     return GA.spatial.dot(xi) + GB.spatial.dot(xj);
 };
 
-var zero = new Vec3();
+let zero = new Vec3();
 
 /**
  * Computes G*W, where W are the body velocities
@@ -3430,7 +3439,7 @@ var zero = new Vec3();
  * @return {Number}
  */
 Equation.prototype.computeGW = function(){
-    var GA = this.jacobianElementA,
+    let GA = this.jacobianElementA,
         GB = this.jacobianElementB,
         bi = this.bi,
         bj = this.bj,
@@ -3448,7 +3457,7 @@ Equation.prototype.computeGW = function(){
  * @return {Number}
  */
 Equation.prototype.computeGWlambda = function(){
-    var GA = this.jacobianElementA,
+    let GA = this.jacobianElementA,
         GB = this.jacobianElementB,
         bi = this.bi,
         bj = this.bj,
@@ -3464,12 +3473,12 @@ Equation.prototype.computeGWlambda = function(){
  * @method computeGiMf
  * @return {Number}
  */
-var iMfi = new Vec3(),
+let iMfi = new Vec3(),
     iMfj = new Vec3(),
     invIi_vmult_taui = new Vec3(),
     invIj_vmult_tauj = new Vec3();
 Equation.prototype.computeGiMf = function(){
-    var GA = this.jacobianElementA,
+    let GA = this.jacobianElementA,
         GB = this.jacobianElementB,
         bi = this.bi,
         bj = this.bj,
@@ -3494,9 +3503,9 @@ Equation.prototype.computeGiMf = function(){
  * @method computeGiMGt
  * @return {Number}
  */
-var tmp = new Vec3();
+let tmp = new Vec3();
 Equation.prototype.computeGiMGt = function(){
-    var GA = this.jacobianElementA,
+    let GA = this.jacobianElementA,
         GB = this.jacobianElementB,
         bi = this.bi,
         bj = this.bj,
@@ -3515,7 +3524,7 @@ Equation.prototype.computeGiMGt = function(){
     return  result;
 };
 
-var addToWlambda_temp = new Vec3(),
+let addToWlambda_temp = new Vec3(),
     addToWlambda_Gi = new Vec3(),
     addToWlambda_Gj = new Vec3(),
     addToWlambda_ri = new Vec3(),
@@ -3528,7 +3537,7 @@ var addToWlambda_temp = new Vec3(),
  * @param {Number} deltalambda
  */
 Equation.prototype.addToWlambda = function(deltalambda){
-    var GA = this.jacobianElementA,
+    let GA = this.jacobianElementA,
         GB = this.jacobianElementB,
         bi = this.bi,
         bj = this.bj,
@@ -3560,9 +3569,9 @@ Equation.prototype.computeC = function(){
 },{"../math/JacobianElement":27,"../math/Vec3":31}],22:[function(_dereq_,module,exports){
 module.exports = FrictionEquation;
 
-var Equation = _dereq_('./Equation');
-var Vec3 = _dereq_('../math/Vec3');
-var Mat3 = _dereq_('../math/Mat3');
+let Equation = _dereq_('./Equation');
+let Vec3 = _dereq_('../math/Vec3');
+let Mat3 = _dereq_('../math/Mat3');
 
 /**
  * Constrains the slipping in a contact along a tangent
@@ -3584,10 +3593,10 @@ function FrictionEquation(bodyA, bodyB, slipForce){
 FrictionEquation.prototype = new Equation();
 FrictionEquation.prototype.constructor = FrictionEquation;
 
-var FrictionEquation_computeB_temp1 = new Vec3();
-var FrictionEquation_computeB_temp2 = new Vec3();
+let FrictionEquation_computeB_temp1 = new Vec3();
+let FrictionEquation_computeB_temp2 = new Vec3();
 FrictionEquation.prototype.computeB = function(h){
-    var a = this.a,
+    let a = this.a,
         b = this.b,
         bi = this.bi,
         bj = this.bj,
@@ -3603,17 +3612,17 @@ FrictionEquation.prototype.computeB = function(h){
 
     // G = [-t -rixt t rjxt]
     // And remember, this is a pure velocity constraint, g is always zero!
-    var GA = this.jacobianElementA,
+    let GA = this.jacobianElementA,
         GB = this.jacobianElementB;
     t.negate(GA.spatial);
     rixt.negate(GA.rotational);
     GB.spatial.copy(t);
     GB.rotational.copy(rjxt);
 
-    var GW = this.computeGW();
-    var GiMf = this.computeGiMf();
+    let GW = this.computeGW();
+    let GiMf = this.computeGiMf();
 
-    var B = - GW * b - h * GiMf;
+    let B = - GW * b - h * GiMf;
 
     return B;
 };
@@ -3621,9 +3630,9 @@ FrictionEquation.prototype.computeB = function(h){
 },{"../math/Mat3":28,"../math/Vec3":31,"./Equation":21}],23:[function(_dereq_,module,exports){
 module.exports = RotationalEquation;
 
-var Vec3 = _dereq_('../math/Vec3');
-var Mat3 = _dereq_('../math/Mat3');
-var Equation = _dereq_('./Equation');
+let Vec3 = _dereq_('../math/Vec3');
+let Mat3 = _dereq_('../math/Mat3');
+let Equation = _dereq_('./Equation');
 
 /**
  * Rotational constraint. Works to keep the local vectors orthogonal to each other in world space.
@@ -3639,7 +3648,7 @@ var Equation = _dereq_('./Equation');
  */
 function RotationalEquation(bodyA, bodyB, options){
     options = options || {};
-    var maxForce = typeof(options.maxForce) !== 'undefined' ? options.maxForce : 1e6;
+    let maxForce = typeof(options.maxForce) !== 'undefined' ? options.maxForce : 1e6;
 
     Equation.call(this,bodyA,bodyB,-maxForce, maxForce);
 
@@ -3652,11 +3661,11 @@ function RotationalEquation(bodyA, bodyB, options){
 RotationalEquation.prototype = new Equation();
 RotationalEquation.prototype.constructor = RotationalEquation;
 
-var tmpVec1 = new Vec3();
-var tmpVec2 = new Vec3();
+let tmpVec1 = new Vec3();
+let tmpVec2 = new Vec3();
 
 RotationalEquation.prototype.computeB = function(h){
-    var a = this.a,
+    let a = this.a,
         b = this.b,
 
         ni = this.axisA,
@@ -3679,11 +3688,11 @@ RotationalEquation.prototype.computeB = function(h){
     GA.rotational.copy(njxni);
     GB.rotational.copy(nixnj);
 
-    var g = Math.cos(this.maxAngle) - ni.dot(nj),
+    let g = Math.cos(this.maxAngle) - ni.dot(nj),
         GW = this.computeGW(),
         GiMf = this.computeGiMf();
 
-    var B = - g * a - GW * b - h * GiMf;
+    let B = - g * a - GW * b - h * GiMf;
 
     return B;
 };
@@ -3692,9 +3701,9 @@ RotationalEquation.prototype.computeB = function(h){
 },{"../math/Mat3":28,"../math/Vec3":31,"./Equation":21}],24:[function(_dereq_,module,exports){
 module.exports = RotationalMotorEquation;
 
-var Vec3 = _dereq_('../math/Vec3');
-var Mat3 = _dereq_('../math/Mat3');
-var Equation = _dereq_('./Equation');
+let Vec3 = _dereq_('../math/Vec3');
+let Mat3 = _dereq_('../math/Mat3');
+let Equation = _dereq_('./Equation');
 
 /**
  * Rotational motor constraint. Tries to keep the relative angular velocity of the bodies to a given value.
@@ -3733,7 +3742,7 @@ RotationalMotorEquation.prototype = new Equation();
 RotationalMotorEquation.prototype.constructor = RotationalMotorEquation;
 
 RotationalMotorEquation.prototype.computeB = function(h){
-    var a = this.a,
+    let a = this.a,
         b = this.b,
         bi = this.bi,
         bj = this.bj,
@@ -3753,16 +3762,16 @@ RotationalMotorEquation.prototype.computeB = function(h){
     GA.rotational.copy(axisA);
     axisB.negate(GB.rotational);
 
-    var GW = this.computeGW() - this.targetVelocity,
+    let GW = this.computeGW() - this.targetVelocity,
         GiMf = this.computeGiMf();
 
-    var B = - GW * b - h * GiMf;
+    let B = - GW * b - h * GiMf;
 
     return B;
 };
 
 },{"../math/Mat3":28,"../math/Vec3":31,"./Equation":21}],25:[function(_dereq_,module,exports){
-var Utils = _dereq_('../utils/Utils');
+let Utils = _dereq_('../utils/Utils');
 
 module.exports = ContactMaterial;
 
@@ -3853,7 +3862,7 @@ module.exports = Material;
  * @author schteppe
  */
 function Material(options){
-    var name = '';
+    let name = '';
     options = options || {};
 
     // Backwards compatibility fix
@@ -3895,7 +3904,7 @@ Material.idCounter = 0;
 },{}],27:[function(_dereq_,module,exports){
 module.exports = JacobianElement;
 
-var Vec3 = _dereq_('./Vec3');
+let Vec3 = _dereq_('./Vec3');
 
 /**
  * An element containing 6 entries, 3 spatial and 3 rotational degrees of freedom.
@@ -3939,7 +3948,7 @@ JacobianElement.prototype.multiplyVectors = function(spatial,rotational){
 },{"./Vec3":31}],28:[function(_dereq_,module,exports){
 module.exports = Mat3;
 
-var Vec3 = _dereq_('./Vec3');
+let Vec3 = _dereq_('./Vec3');
 
 /**
  * A 3x3 matrix.
@@ -3967,7 +3976,7 @@ function Mat3(elements){
  * @todo Create another function that immediately creates an identity matrix eg. eye()
  */
 Mat3.prototype.identity = function(){
-    var e = this.elements;
+    let e = this.elements;
     e[0] = 1;
     e[1] = 0;
     e[2] = 0;
@@ -3986,7 +3995,7 @@ Mat3.prototype.identity = function(){
  * @method setZero
  */
 Mat3.prototype.setZero = function(){
-    var e = this.elements;
+    let e = this.elements;
     e[0] = 0;
     e[1] = 0;
     e[2] = 0;
@@ -4004,7 +4013,7 @@ Mat3.prototype.setZero = function(){
  * @param {Vec3} vec3
  */
 Mat3.prototype.setTrace = function(vec3){
-    var e = this.elements;
+    let e = this.elements;
     e[0] = vec3.x;
     e[4] = vec3.y;
     e[8] = vec3.z;
@@ -4016,8 +4025,8 @@ Mat3.prototype.setTrace = function(vec3){
  * @return {Vec3}
  */
 Mat3.prototype.getTrace = function(target){
-    var target = target || new Vec3();
-    var e = this.elements;
+    target = target || new Vec3();
+    let e = this.elements;
     target.x = e[0];
     target.y = e[4];
     target.z = e[8];
@@ -4032,7 +4041,7 @@ Mat3.prototype.getTrace = function(target){
 Mat3.prototype.vmult = function(v,target){
     target = target || new Vec3();
 
-    var e = this.elements,
+    let e = this.elements,
         x = v.x,
         y = v.y,
         z = v.z;
@@ -4049,7 +4058,7 @@ Mat3.prototype.vmult = function(v,target){
  * @param {Number} s
  */
 Mat3.prototype.smult = function(s){
-    for(var i=0; i<this.elements.length; i++){
+    for(let i=0; i<this.elements.length; i++){
         this.elements[i] *= s;
     }
 };
@@ -4061,11 +4070,11 @@ Mat3.prototype.smult = function(s){
  * @return {Mat3} The result.
  */
 Mat3.prototype.mmult = function(m,target){
-    var r = target || new Mat3();
-    for(var i=0; i<3; i++){
-        for(var j=0; j<3; j++){
-            var sum = 0.0;
-            for(var k=0; k<3; k++){
+    let r = target || new Mat3();
+    for(let i=0; i<3; i++){
+        for(let j=0; j<3; j++){
+            let sum = 0.0;
+            for(let k=0; k<3; k++){
                 sum += m.elements[i+k*3] * this.elements[k+j*3];
             }
             r.elements[i+j*3] = sum;
@@ -4082,9 +4091,9 @@ Mat3.prototype.mmult = function(m,target){
  */
 Mat3.prototype.scale = function(v,target){
     target = target || new Mat3();
-    var e = this.elements,
+    let e = this.elements,
         t = target.elements;
-    for(var i=0; i!==3; i++){
+    for(let i=0; i!==3; i++){
         t[3*i + 0] = v.x * e[3*i + 0];
         t[3*i + 1] = v.y * e[3*i + 1];
         t[3*i + 2] = v.z * e[3*i + 2];
@@ -4104,13 +4113,13 @@ Mat3.prototype.solve = function(b,target){
     target = target || new Vec3();
 
     // Construct equations
-    var nr = 3; // num rows
-    var nc = 4; // num cols
-    var eqns = [];
-    for(var i=0; i<nr*nc; i++){
+    let nr = 3; // num rows
+    let nc = 4; // num cols
+    let eqns = [];
+    for(let i=0; i<nr*nc; i++){
         eqns.push(0);
     }
-    var i,j;
+    let i,j;
     for(i=0; i<3; i++){
         for(j=0; j<3; j++){
             eqns[i+nc*j] = this.elements[i+3*j];
@@ -4121,9 +4130,9 @@ Mat3.prototype.solve = function(b,target){
     eqns[3+4*2] = b.z;
 
     // Compute right upper triangular version of the matrix - Gauss elimination
-    var n = 3, k = n, np;
-    var kp = 4; // num rows
-    var p, els;
+    let n = 3, k = n, np;
+    let kp = 4; // num rows
+    let p, els;
     do {
         i = k - n;
         if (eqns[i+nc*i] === 0) {
@@ -4141,7 +4150,7 @@ Mat3.prototype.solve = function(b,target){
         }
         if (eqns[i+nc*i] !== 0) {
             for (j = i + 1; j < k; j++) {
-                var multiplier = eqns[i+nc*j] / eqns[i+nc*i];
+                let multiplier = eqns[i+nc*j] / eqns[i+nc*i];
                 np = kp;
                 do {  // do ligne( k ) = ligne( k ) - multiplier * ligne( i )
                     p = kp - np;
@@ -4187,7 +4196,7 @@ Mat3.prototype.e = function( row , column ,value){
  * @return {Mat3} this
  */
 Mat3.prototype.copy = function(source){
-    for(var i=0; i < source.elements.length; i++){
+    for(let i=0; i < source.elements.length; i++){
         this.elements[i] = source.elements[i];
     }
     return this;
@@ -4199,9 +4208,9 @@ Mat3.prototype.copy = function(source){
  * @return string
  */
 Mat3.prototype.toString = function(){
-    var r = "";
-    var sep = ",";
-    for(var i=0; i<9; i++){
+    let r = "";
+    let sep = ",";
+    for(let i=0; i<9; i++){
         r += this.elements[i] + sep;
     }
     return r;
@@ -4218,13 +4227,13 @@ Mat3.prototype.reverse = function(target){
     target = target || new Mat3();
 
     // Construct equations
-    var nr = 3; // num rows
-    var nc = 6; // num cols
-    var eqns = [];
-    for(var i=0; i<nr*nc; i++){
+    let nr = 3; // num rows
+    let nc = 6; // num cols
+    let eqns = [];
+    for(let i=0; i<nr*nc; i++){
         eqns.push(0);
     }
-    var i,j;
+    let i,j;
     for(i=0; i<3; i++){
         for(j=0; j<3; j++){
             eqns[i+nc*j] = this.elements[i+3*j];
@@ -4241,9 +4250,9 @@ Mat3.prototype.reverse = function(target){
     eqns[5+6*2] = 1;
 
     // Compute right upper triangular version of the matrix - Gauss elimination
-    var n = 3, k = n, np;
-    var kp = nc; // num rows
-    var p;
+    let n = 3, k = n, np;
+    let kp = nc; // num rows
+    let p;
     do {
         i = k - n;
         if (eqns[i+nc*i] === 0) {
@@ -4261,7 +4270,7 @@ Mat3.prototype.reverse = function(target){
         }
         if (eqns[i+nc*i] !== 0) {
             for (j = i + 1; j < k; j++) {
-                var multiplier = eqns[i+nc*j] / eqns[i+nc*i];
+                let multiplier = eqns[i+nc*j] / eqns[i+nc*i];
                 np = kp;
                 do { // do line( k ) = line( k ) - multiplier * line( i )
                     p = kp - np;
@@ -4276,7 +4285,7 @@ Mat3.prototype.reverse = function(target){
     do {
         j = i-1;
         do {
-            var multiplier = eqns[i+nc*j] / eqns[i+nc*i];
+            let multiplier = eqns[i+nc*j] / eqns[i+nc*i];
             np = nc;
             do {
                 p = nc - np;
@@ -4288,7 +4297,7 @@ Mat3.prototype.reverse = function(target){
     // operations on the diagonal
     i = 2;
     do {
-        var multiplier = 1 / eqns[i+nc*i];
+        let multiplier = 1 / eqns[i+nc*i];
         np = nc;
         do {
             p = nc - np;
@@ -4317,7 +4326,7 @@ Mat3.prototype.reverse = function(target){
  * @param {Quaternion} q
  */
 Mat3.prototype.setRotationFromQuaternion = function( q ) {
-    var x = q.x, y = q.y, z = q.z, w = q.w,
+    let x = q.x, y = q.y, z = q.z, w = q.w,
         x2 = x + x, y2 = y + y, z2 = z + z,
         xx = x * x2, xy = x * y2, xz = x * z2,
         yy = y * y2, yz = y * z2, zz = z * z2,
@@ -4348,11 +4357,11 @@ Mat3.prototype.setRotationFromQuaternion = function( q ) {
 Mat3.prototype.transpose = function( target ) {
     target = target || new Mat3();
 
-    var Mt = target.elements,
+    let Mt = target.elements,
         M = this.elements;
 
-    for(var i=0; i!==3; i++){
-        for(var j=0; j!==3; j++){
+    for(let i=0; i!==3; i++){
+        for(let j=0; j!==3; j++){
             Mt[3*i + j] = M[3*j + i];
         }
     }
@@ -4363,7 +4372,7 @@ Mat3.prototype.transpose = function( target ) {
 },{"./Vec3":31}],29:[function(_dereq_,module,exports){
 module.exports = Quaternion;
 
-var Vec3 = _dereq_('./Vec3');
+let Vec3 = _dereq_('./Vec3');
 
 /**
  * A Quaternion describes a rotation in 3D space. The Quaternion is mathematically defined as Q = x*i + y*j + z*k + w, where (i,j,k) are imaginary basis vectors. (x,y,z) can be seen as a vector related to the axis of rotation, while the real multiplier, w, is related to the amount of rotation.
@@ -4439,7 +4448,7 @@ Quaternion.prototype.toArray = function(){
  * @param {Number} angle in radians
  */
 Quaternion.prototype.setFromAxisAngle = function(axis,angle){
-    var s = Math.sin(angle*0.5);
+    let s = Math.sin(angle*0.5);
     this.x = axis.x * s;
     this.y = axis.y * s;
     this.z = axis.z * s;
@@ -4456,8 +4465,8 @@ Quaternion.prototype.setFromAxisAngle = function(axis,angle){
 Quaternion.prototype.toAxisAngle = function(targetAxis){
     targetAxis = targetAxis || new Vec3();
     this.normalize(); // if w>1 acos and sqrt will produce errors, this cant happen if quaternion is normalised
-    var angle = 2 * Math.acos(this.w);
-    var s = Math.sqrt(1-this.w*this.w); // assuming quaternion normalised then w is less than 1, so term always positive.
+    let angle = 2 * Math.acos(this.w);
+    let s = Math.sqrt(1-this.w*this.w); // assuming quaternion normalised then w is less than 1, so term always positive.
     if (s < 0.001) { // test to avoid divide by zero, s is always positive due to sqrt
         // if s close to zero then direction of axis not important
         targetAxis.x = this.x; // if it is important that axis is normalised then replace with x=1; y=z=0;
@@ -4471,7 +4480,7 @@ Quaternion.prototype.toAxisAngle = function(targetAxis){
     return [targetAxis,angle];
 };
 
-var sfv_t1 = new Vec3(),
+let sfv_t1 = new Vec3(),
     sfv_t2 = new Vec3();
 
 /**
@@ -4482,13 +4491,13 @@ var sfv_t1 = new Vec3(),
  */
 Quaternion.prototype.setFromVectors = function(u,v){
     if(u.isAntiparallelTo(v)){
-        var t1 = sfv_t1;
-        var t2 = sfv_t2;
+        let t1 = sfv_t1;
+        let t2 = sfv_t2;
 
         u.tangents(t1,t2);
         this.setFromAxisAngle(t1,Math.PI);
     } else {
-        var a = u.cross(v);
+        let a = u.cross(v);
         this.x = a.x;
         this.y = a.y;
         this.z = a.z;
@@ -4505,13 +4514,13 @@ Quaternion.prototype.setFromVectors = function(u,v){
  * @param {Quaternion} target Optional.
  * @return {Quaternion}
  */
-var Quaternion_mult_va = new Vec3();
-var Quaternion_mult_vb = new Vec3();
-var Quaternion_mult_vaxvb = new Vec3();
+let Quaternion_mult_va = new Vec3();
+let Quaternion_mult_vb = new Vec3();
+let Quaternion_mult_vaxvb = new Vec3();
 Quaternion.prototype.mult = function(q,target){
     target = target || new Quaternion();
 
-    var ax = this.x, ay = this.y, az = this.z, aw = this.w,
+    let ax = this.x, ay = this.y, az = this.z, aw = this.w,
         bx = q.x, by = q.y, bz = q.z, bw = q.w;
 
     target.x = ax * bw + aw * bx + ay * bz - az * by;
@@ -4529,11 +4538,11 @@ Quaternion.prototype.mult = function(q,target){
  * @return {Quaternion}
  */
 Quaternion.prototype.inverse = function(target){
-    var x = this.x, y = this.y, z = this.z, w = this.w;
+    let x = this.x, y = this.y, z = this.z, w = this.w;
     target = target || new Quaternion();
 
     this.conjugate(target);
-    var inorm2 = 1/(x*x + y*y + z*z + w*w);
+    let inorm2 = 1/(x*x + y*y + z*z + w*w);
     target.x *= inorm2;
     target.y *= inorm2;
     target.z *= inorm2;
@@ -4564,7 +4573,7 @@ Quaternion.prototype.conjugate = function(target){
  * @method normalize
  */
 Quaternion.prototype.normalize = function(){
-    var l = Math.sqrt(this.x*this.x+this.y*this.y+this.z*this.z+this.w*this.w);
+    let l = Math.sqrt(this.x*this.x+this.y*this.y+this.z*this.z+this.w*this.w);
     if ( l === 0 ) {
         this.x = 0;
         this.y = 0;
@@ -4587,7 +4596,7 @@ Quaternion.prototype.normalize = function(){
  * @author unphased, https://github.com/unphased
  */
 Quaternion.prototype.normalizeFast = function () {
-    var f = (3.0-(this.x*this.x+this.y*this.y+this.z*this.z+this.w*this.w))/2.0;
+    let f = (3.0-(this.x*this.x+this.y*this.y+this.z*this.z+this.w*this.w))/2.0;
     if ( f === 0 ) {
         this.x = 0;
         this.y = 0;
@@ -4612,17 +4621,17 @@ Quaternion.prototype.normalizeFast = function () {
 Quaternion.prototype.vmult = function(v,target){
     target = target || new Vec3();
 
-    var x = v.x,
+    let x = v.x,
         y = v.y,
         z = v.z;
 
-    var qx = this.x,
+    let qx = this.x,
         qy = this.y,
         qz = this.z,
         qw = this.w;
 
     // q*v
-    var ix =  qw * x + qy * z - qz * y,
+    let ix =  qw * x + qy * z - qz * y,
     iy =  qw * y + qz * x - qx * z,
     iz =  qw * z + qx * y - qy * x,
     iw = -qx * x - qy * y - qz * z;
@@ -4657,12 +4666,12 @@ Quaternion.prototype.copy = function(source){
 Quaternion.prototype.toEuler = function(target,order){
     order = order || "YZX";
 
-    var heading, attitude, bank;
-    var x = this.x, y = this.y, z = this.z, w = this.w;
+    let heading, attitude, bank;
+    let x = this.x, y = this.y, z = this.z, w = this.w;
 
     switch(order){
     case "YZX":
-        var test = x*y + z*w;
+        let test = x*y + z*w;
         if (test > 0.499) { // singularity at north pole
             heading = 2 * Math.atan2(x,w);
             attitude = Math.PI/2;
@@ -4674,9 +4683,9 @@ Quaternion.prototype.toEuler = function(target,order){
             bank = 0;
         }
         if(isNaN(heading)){
-            var sqx = x*x;
-            var sqy = y*y;
-            var sqz = z*z;
+            let sqx = x*x;
+            let sqy = y*y;
+            let sqz = z*z;
             heading = Math.atan2(2*y*w - 2*x*z , 1 - 2*sqy - 2*sqz); // Heading
             attitude = Math.asin(2*test); // attitude
             bank = Math.atan2(2*x*w - 2*y*z , 1 - 2*sqx - 2*sqz); // bank
@@ -4702,12 +4711,12 @@ Quaternion.prototype.toEuler = function(target,order){
 Quaternion.prototype.setFromEuler = function ( x, y, z, order ) {
     order = order || "XYZ";
 
-    var c1 = Math.cos( x / 2 );
-    var c2 = Math.cos( y / 2 );
-    var c3 = Math.cos( z / 2 );
-    var s1 = Math.sin( x / 2 );
-    var s2 = Math.sin( y / 2 );
-    var s3 = Math.sin( z / 2 );
+    let c1 = Math.cos( x / 2 );
+    let c2 = Math.cos( y / 2 );
+    let c3 = Math.cos( z / 2 );
+    let s1 = Math.sin( x / 2 );
+    let s2 = Math.sin( y / 2 );
+    let s3 = Math.sin( z / 2 );
 
     if ( order === 'XYZ' ) {
 
@@ -4776,7 +4785,7 @@ Quaternion.prototype.clone = function(){
 Quaternion.prototype.slerp = function (toQuat, t, target) {
     target = target || new Quaternion();
 
-    var ax = this.x,
+    let ax = this.x,
         ay = this.y,
         az = this.z,
         aw = this.w,
@@ -4785,7 +4794,7 @@ Quaternion.prototype.slerp = function (toQuat, t, target) {
         bz = toQuat.z,
         bw = toQuat.w;
 
-    var omega, cosom, sinom, scale0, scale1;
+    let omega, cosom, sinom, scale0, scale1;
 
     // calc cosine
     cosom = ax * bx + ay * by + az * bz + aw * bw;
@@ -4833,7 +4842,7 @@ Quaternion.prototype.slerp = function (toQuat, t, target) {
 Quaternion.prototype.integrate = function(angularVelocity, dt, angularFactor, target){
     target = target || new Quaternion();
 
-    var ax = angularVelocity.x * angularFactor.x,
+    let ax = angularVelocity.x * angularFactor.x,
         ay = angularVelocity.y * angularFactor.y,
         az = angularVelocity.z * angularFactor.z,
         bx = this.x,
@@ -4841,7 +4850,7 @@ Quaternion.prototype.integrate = function(angularVelocity, dt, angularFactor, ta
         bz = this.z,
         bw = this.w;
 
-    var half_dt = dt * 0.5;
+    let half_dt = dt * 0.5;
 
     target.x += half_dt * (ax * bw + ay * bz - az * by);
     target.y += half_dt * (ay * bw + az * bx - ax * bz);
@@ -4851,8 +4860,8 @@ Quaternion.prototype.integrate = function(angularVelocity, dt, angularFactor, ta
     return target;
 };
 },{"./Vec3":31}],30:[function(_dereq_,module,exports){
-var Vec3 = _dereq_('./Vec3');
-var Quaternion = _dereq_('./Quaternion');
+let Vec3 = _dereq_('./Vec3');
+let Quaternion = _dereq_('./Quaternion');
 
 module.exports = Transform;
 
@@ -4880,7 +4889,7 @@ function Transform(options) {
     }
 }
 
-var tmpQuat = new Quaternion();
+let tmpQuat = new Quaternion();
 
 /**
  * @static
@@ -4891,7 +4900,7 @@ var tmpQuat = new Quaternion();
  * @param {Vec3} result
  */
 Transform.pointToLocalFrame = function(position, quaternion, worldPoint, result){
-    var result = result || new Vec3();
+    result = result || new Vec3();
     worldPoint.vsub(position, result);
     quaternion.conjugate(tmpQuat);
     tmpQuat.vmult(result, result);
@@ -4918,7 +4927,7 @@ Transform.prototype.pointToLocal = function(worldPoint, result){
  * @param {Vec3} result
  */
 Transform.pointToWorldFrame = function(position, quaternion, localPoint, result){
-    var result = result || new Vec3();
+    result = result || new Vec3();
     quaternion.vmult(localPoint, result);
     result.vadd(position, result);
     return result;
@@ -4937,7 +4946,7 @@ Transform.prototype.pointToWorld = function(localPoint, result){
 
 
 Transform.prototype.vectorToWorldFrame = function(localVector, result){
-    var result = result || new Vec3();
+    result = result || new Vec3();
     this.quaternion.vmult(localVector, result);
     return result;
 };
@@ -4948,7 +4957,7 @@ Transform.vectorToWorldFrame = function(quaternion, localVector, result){
 };
 
 Transform.vectorToLocalFrame = function(position, quaternion, worldVector, result){
-    var result = result || new Vec3();
+    result = result || new Vec3();
     quaternion.w *= -1;
     quaternion.vmult(worldVector, result);
     quaternion.w *= -1;
@@ -4958,7 +4967,7 @@ Transform.vectorToLocalFrame = function(position, quaternion, worldVector, resul
 },{"./Quaternion":29,"./Vec3":31}],31:[function(_dereq_,module,exports){
 module.exports = Vec3;
 
-var Mat3 = _dereq_('./Mat3');
+let Mat3 = _dereq_('./Mat3');
 
 /**
  * 3-dimensional vector
@@ -4969,7 +4978,7 @@ var Mat3 = _dereq_('./Mat3');
  * @param {Number} z
  * @author schteppe
  * @example
- *     var v = new Vec3(1, 2, 3);
+ *     let v = new Vec3(1, 2, 3);
  *     console.log('x=' + v.x); // x=1
  */
 function Vec3(x,y,z){
@@ -5024,7 +5033,7 @@ Vec3.UNIT_Z = new Vec3(0, 0, 1);
  * @return {Vec3}
  */
 Vec3.prototype.cross = function(v,target){
-    var vx=v.x, vy=v.y, vz=v.z, x=this.x, y=this.y, z=this.z;
+    let vx=v.x, vy=v.y, vz=v.z, x=this.x, y=this.y, z=this.z;
     target = target || new Vec3();
 
     target.x = (y * vz) - (z * vy);
@@ -5113,10 +5122,10 @@ Vec3.prototype.crossmat = function(){
  * @return {Number} Returns the norm of the vector
  */
 Vec3.prototype.normalize = function(){
-    var x=this.x, y=this.y, z=this.z;
-    var n = Math.sqrt(x*x + y*y + z*z);
+    let x=this.x, y=this.y, z=this.z;
+    let n = Math.sqrt(x*x + y*y + z*z);
     if(n>0.0){
-        var invN = 1/n;
+        let invN = 1/n;
         this.x *= invN;
         this.y *= invN;
         this.z *= invN;
@@ -5137,8 +5146,8 @@ Vec3.prototype.normalize = function(){
  */
 Vec3.prototype.unit = function(target){
     target = target || new Vec3();
-    var x=this.x, y=this.y, z=this.z;
-    var ninv = Math.sqrt(x*x + y*y + z*z);
+    let x=this.x, y=this.y, z=this.z;
+    let ninv = Math.sqrt(x*x + y*y + z*z);
     if(ninv>0.0){
         ninv = 1.0/ninv;
         target.x = x * ninv;
@@ -5159,7 +5168,7 @@ Vec3.prototype.unit = function(target){
  * @deprecated Use .length() instead
  */
 Vec3.prototype.norm = function(){
-    var x=this.x, y=this.y, z=this.z;
+    let x=this.x, y=this.y, z=this.z;
     return Math.sqrt(x*x + y*y + z*z);
 };
 
@@ -5194,8 +5203,8 @@ Vec3.prototype.lengthSquared = Vec3.prototype.norm2;
  * @return {Number}
  */
 Vec3.prototype.distanceTo = function(p){
-    var x=this.x, y=this.y, z=this.z;
-    var px=p.x, py=p.y, pz=p.z;
+    let x=this.x, y=this.y, z=this.z;
+    let px=p.x, py=p.y, pz=p.z;
     return Math.sqrt((px-x)*(px-x)+
                      (py-y)*(py-y)+
                      (pz-z)*(pz-z));
@@ -5208,8 +5217,8 @@ Vec3.prototype.distanceTo = function(p){
  * @return {Number}
  */
 Vec3.prototype.distanceSquared = function(p){
-    var x=this.x, y=this.y, z=this.z;
-    var px=p.x, py=p.y, pz=p.z;
+    let x=this.x, y=this.y, z=this.z;
+    let px=p.x, py=p.y, pz=p.z;
     return (px-x)*(px-x) + (py-y)*(py-y) + (pz-z)*(pz-z);
 };
 
@@ -5224,7 +5233,7 @@ Vec3.prototype.distanceSquared = function(p){
  */
 Vec3.prototype.mult = function(scalar,target){
     target = target || new Vec3();
-    var x = this.x,
+    let x = this.x,
         y = this.y,
         z = this.z;
     target.x = scalar * x;
@@ -5311,15 +5320,15 @@ Vec3.prototype.negate = function(target){
  * @param {Vec3} t1 Vector object to save the first tangent in
  * @param {Vec3} t2 Vector object to save the second tangent in
  */
-var Vec3_tangents_n = new Vec3();
-var Vec3_tangents_randVec = new Vec3();
+let Vec3_tangents_n = new Vec3();
+let Vec3_tangents_randVec = new Vec3();
 Vec3.prototype.tangents = function(t1,t2){
-    var norm = this.norm();
+    let norm = this.norm();
     if(norm>0.0){
-        var n = Vec3_tangents_n;
-        var inorm = 1/norm;
+        let n = Vec3_tangents_n;
+        let inorm = 1/norm;
         n.set(this.x*inorm,this.y*inorm,this.z*inorm);
-        var randVec = Vec3_tangents_randVec;
+        let randVec = Vec3_tangents_randVec;
         if(Math.abs(n.x) < 0.9){
             randVec.set(1,0,0);
             n.cross(randVec,t1);
@@ -5375,7 +5384,7 @@ Vec3.prototype.copy = function(source){
  * @param {Vec3} target
  */
 Vec3.prototype.lerp = function(v,t,target){
-    var x=this.x, y=this.y, z=this.z;
+    let x=this.x, y=this.y, z=this.z;
     target.x = x + (v.x-x)*t;
     target.y = y + (v.y-y)*t;
     target.z = z + (v.z-z)*t;
@@ -5417,7 +5426,7 @@ Vec3.prototype.almostZero = function(precision){
     return true;
 };
 
-var antip_neg = new Vec3();
+let antip_neg = new Vec3();
 
 /**
  * Check if the vector is anti-parallel to another vector.
@@ -5442,15 +5451,15 @@ Vec3.prototype.clone = function(){
 },{"./Mat3":28}],32:[function(_dereq_,module,exports){
 module.exports = Body;
 
-var EventTarget = _dereq_('../utils/EventTarget');
-var Shape = _dereq_('../shapes/Shape');
-var Vec3 = _dereq_('../math/Vec3');
-var Mat3 = _dereq_('../math/Mat3');
-var Quaternion = _dereq_('../math/Quaternion');
-var Material = _dereq_('../material/Material');
-var AABB = _dereq_('../collision/AABB');
-var Box = _dereq_('../shapes/Box');
-var World = _dereq_('../world/World');
+let EventTarget = _dereq_('../utils/EventTarget');
+let Shape = _dereq_('../shapes/Shape');
+let Vec3 = _dereq_('../math/Vec3');
+let Mat3 = _dereq_('../math/Mat3');
+let Quaternion = _dereq_('../math/Quaternion');
+let Material = _dereq_('../material/Material');
+let AABB = _dereq_('../collision/AABB');
+let Box = _dereq_('../shapes/Box');
+let World = _dereq_('../world/World');
 
 /**
  * Base class for all body types.
@@ -5477,10 +5486,10 @@ var World = _dereq_('../world/World');
  * @param {Vec3} [options.angularFactor]
  * @param {Shape} [options.shape]
  * @example
- *     var body = new Body({
+ *     let body = new Body({
  *         mass: 1
  *     });
- *     var shape = new Sphere(1);
+ *     let shape = new Sphere(1);
  *     body.addShape(shape);
  *     world.addBody(body);
  */
@@ -5588,7 +5597,7 @@ function Body(options){
      */
     this.force = new Vec3();
 
-    var mass = typeof(options.mass) === 'number' ? options.mass : 0;
+    let mass = typeof(options.mass) === 'number' ? options.mass : 0;
 
     /**
      * @property mass
@@ -5908,7 +5917,7 @@ Body.wakeupEvent = {
  * @method wakeUp
  */
 Body.prototype.wakeUp = function(){
-    var s = this.sleepState;
+    let s = this.sleepState;
     this.sleepState = 0;
     this._wakeUpAfterNarrowphase = false;
     if(s === Body.SLEEPING){
@@ -5950,9 +5959,9 @@ Body.sleepEvent = {
  */
 Body.prototype.sleepTick = function(time){
     if(this.allowSleep){
-        var sleepState = this.sleepState;
-        var speedSquared = this.velocity.norm2() + this.angularVelocity.norm2();
-        var speedLimitSquared = Math.pow(this.sleepSpeedLimit,2);
+        let sleepState = this.sleepState;
+        let speedSquared = this.velocity.norm2() + this.angularVelocity.norm2();
+        let speedLimitSquared = Math.pow(this.sleepSpeedLimit,2);
         if(sleepState===Body.AWAKE && speedSquared < speedLimitSquared){
             this.sleepState = Body.SLEEPY; // Sleepy
             this.timeLastSleepy = time;
@@ -5990,7 +5999,7 @@ Body.prototype.updateSolveMassProperties = function(){
  * @return {Vec3}
  */
 Body.prototype.pointToLocalFrame = function(worldPoint,result){
-    var result = result || new Vec3();
+    result = result || new Vec3();
     worldPoint.vsub(this.position,result);
     this.quaternion.conjugate().vmult(result,result);
     return result;
@@ -6004,7 +6013,7 @@ Body.prototype.pointToLocalFrame = function(worldPoint,result){
  * @return {Vec3}
  */
 Body.prototype.vectorToLocalFrame = function(worldVector, result){
-    var result = result || new Vec3();
+    result = result || new Vec3();
     this.quaternion.conjugate().vmult(worldVector,result);
     return result;
 };
@@ -6017,7 +6026,7 @@ Body.prototype.vectorToLocalFrame = function(worldVector, result){
  * @return {Vec3}
  */
 Body.prototype.pointToWorldFrame = function(localPoint,result){
-    var result = result || new Vec3();
+    result = result || new Vec3();
     this.quaternion.vmult(localPoint,result);
     result.vadd(this.position,result);
     return result;
@@ -6031,13 +6040,13 @@ Body.prototype.pointToWorldFrame = function(localPoint,result){
  * @return {Vec3}
  */
 Body.prototype.vectorToWorldFrame = function(localVector, result){
-    var result = result || new Vec3();
+    result = result || new Vec3();
     this.quaternion.vmult(localVector, result);
     return result;
 };
 
-var tmpVec = new Vec3();
-var tmpQuat = new Quaternion();
+let tmpVec = new Vec3();
+let tmpQuat = new Quaternion();
 
 /**
  * Add a shape to the body with a local offset and orientation.
@@ -6049,8 +6058,8 @@ var tmpQuat = new Quaternion();
  */
 Body.prototype.addShape = function(shape, _offset, _orientation){
 
-    var offset;
-    var orientation;
+    let offset;
+    let orientation;
 
     if (DEBUG) {
         offset = new Vec3();
@@ -6089,7 +6098,7 @@ Body.prototype.addShape = function(shape, _offset, _orientation){
  * Remove a shape from the body
  */
 Body.prototype.removeShape = function(shape){   
-    var idx = this.shapes.indexOf(shape);
+    let idx = this.shapes.indexOf(shape);
     if (idx === -1) {
         return;
     }
@@ -6112,15 +6121,15 @@ Body.prototype.removeShape = function(shape){
  * @method updateBoundingRadius
  */
 Body.prototype.updateBoundingRadius = function(){
-    var shapes = this.shapes,
+    let shapes = this.shapes,
         shapeOffsets = this.shapeOffsets,
         N = shapes.length,
         radius = 0;
 
-    for(var i=0; i!==N; i++){
-        var shape = shapes[i];
+    for(let i=0; i!==N; i++){
+        let shape = shapes[i];
         shape.updateBoundingSphereRadius();
-        var offset = shapeOffsets[i].norm(),
+        let offset = shapeOffsets[i].norm(),
             r = shape.boundingSphereRadius;
         if(offset + r > radius){
             radius = offset + r;
@@ -6130,7 +6139,7 @@ Body.prototype.updateBoundingRadius = function(){
     this.boundingRadius = radius;
 };
 
-var computeAABB_shapeAABB = new AABB();
+let computeAABB_shapeAABB = new AABB();
 
 /**
  * Updates the .aabb
@@ -6138,7 +6147,7 @@ var computeAABB_shapeAABB = new AABB();
  * @todo rename to updateAABB()
  */
 Body.prototype.computeAABB = function(){
-    var shapes = this.shapes,
+    let shapes = this.shapes,
         shapeOffsets = this.shapeOffsets,
         shapeOrientations = this.shapeOrientations,
         N = shapes.length,
@@ -6148,8 +6157,8 @@ Body.prototype.computeAABB = function(){
         aabb = this.aabb,
         shapeAABB = computeAABB_shapeAABB;
 
-    for(var i=0; i!==N; i++){
-        var shape = shapes[i];
+    for(let i=0; i!==N; i++){
+        let shape = shapes[i];
 
         // Get shape world position
         bodyQuat.vmult(shapeOffsets[i], offset);
@@ -6171,7 +6180,7 @@ Body.prototype.computeAABB = function(){
     this.aabbNeedsUpdate = false;
 };
 
-var uiw_m1 = new Mat3(),
+let uiw_m1 = new Mat3(),
     uiw_m2 = new Mat3(),
     uiw_m3 = new Mat3();
 
@@ -6180,7 +6189,7 @@ var uiw_m1 = new Mat3(),
  * @method updateInertiaWorld
  */
 Body.prototype.updateInertiaWorld = function(force){
-    var I = this.invInertia;
+    let I = this.invInertia;
     if (I.x === I.y && I.y === I.z && !force) {
         // If inertia M = s*I, where I is identity and s a scalar, then
         //    R*M*R' = R*(s*I)*R' = s*R*I*R' = s*R*R' = s*I = M
@@ -6188,7 +6197,7 @@ Body.prototype.updateInertiaWorld = function(force){
         // In other words, we don't have to transform the inertia if all
         // inertia diagonal entries are equal.
     } else {
-        var m1 = uiw_m1,
+        let m1 = uiw_m1,
             m2 = uiw_m2,
             m3 = uiw_m3;
         m1.setRotationFromQuaternion(this.quaternion);
@@ -6204,15 +6213,15 @@ Body.prototype.updateInertiaWorld = function(force){
  * @param  {Vec3} force The amount of force to add.
  * @param  {Vec3} relativePoint A point relative to the center of mass to apply the force on.
  */
-// var Body_applyForce_r = new Vec3();
-var Body_applyForce_rotForce = new Vec3();
+// let Body_applyForce_r = new Vec3();
+let Body_applyForce_rotForce = new Vec3();
 Body.prototype.applyForce = function(force,relativePoint){
     if(this.type !== Body.DYNAMIC){ // Needed?
         return;
     }
 
     // Compute produced rotational force
-    var rotForce = Body_applyForce_rotForce;
+    let rotForce = Body_applyForce_rotForce;
     relativePoint.cross(force,rotForce);
 
     // Add linear force
@@ -6228,15 +6237,15 @@ Body.prototype.applyForce = function(force,relativePoint){
  * @param  {Vec3} force The force vector to apply, defined locally in the body frame.
  * @param  {Vec3} localPoint A local point in the body to apply the force on.
  */
-var Body_applyLocalForce_worldForce = new Vec3();
-var Body_applyLocalForce_relativePointWorld = new Vec3();
+let Body_applyLocalForce_worldForce = new Vec3();
+let Body_applyLocalForce_relativePointWorld = new Vec3();
 Body.prototype.applyLocalForce = function(localForce, localPoint){
     if(this.type !== Body.DYNAMIC){
         return;
     }
 
-    var worldForce = Body_applyLocalForce_worldForce;
-    var relativePointWorld = Body_applyLocalForce_relativePointWorld;
+    let worldForce = Body_applyLocalForce_worldForce;
+    let relativePointWorld = Body_applyLocalForce_relativePointWorld;
 
     // Transform the force vector to world space
     this.vectorToWorldFrame(localForce, worldForce);
@@ -6251,19 +6260,19 @@ Body.prototype.applyLocalForce = function(localForce, localPoint){
  * @param  {Vec3} impulse The amount of impulse to add.
  * @param  {Vec3} relativePoint A point relative to the center of mass to apply the force on.
  */
-// var Body_applyImpulse_r = new Vec3();
-var Body_applyImpulse_velo = new Vec3();
-var Body_applyImpulse_rotVelo = new Vec3();
+// let Body_applyImpulse_r = new Vec3();
+let Body_applyImpulse_velo = new Vec3();
+let Body_applyImpulse_rotVelo = new Vec3();
 Body.prototype.applyImpulse = function(impulse, relativePoint){
     if(this.type !== Body.DYNAMIC){
         return;
     }
 
     // Compute point position relative to the body center
-    var r = relativePoint;
+    let r = relativePoint;
 
     // Compute produced central impulse velocity
-    var velo = Body_applyImpulse_velo;
+    let velo = Body_applyImpulse_velo;
     velo.copy(impulse);
     velo.mult(this.invMass,velo);
 
@@ -6271,7 +6280,7 @@ Body.prototype.applyImpulse = function(impulse, relativePoint){
     this.velocity.vadd(velo, this.velocity);
 
     // Compute produced rotational impulse velocity
-    var rotVelo = Body_applyImpulse_rotVelo;
+    let rotVelo = Body_applyImpulse_rotVelo;
     r.cross(impulse,rotVelo);
 
     /*
@@ -6291,15 +6300,15 @@ Body.prototype.applyImpulse = function(impulse, relativePoint){
  * @param  {Vec3} force The force vector to apply, defined locally in the body frame.
  * @param  {Vec3} localPoint A local point in the body to apply the force on.
  */
-var Body_applyLocalImpulse_worldImpulse = new Vec3();
-var Body_applyLocalImpulse_relativePoint = new Vec3();
+let Body_applyLocalImpulse_worldImpulse = new Vec3();
+let Body_applyLocalImpulse_relativePoint = new Vec3();
 Body.prototype.applyLocalImpulse = function(localImpulse, localPoint){
     if(this.type !== Body.DYNAMIC){
         return;
     }
 
-    var worldImpulse = Body_applyLocalImpulse_worldImpulse;
-    var relativePointWorld = Body_applyLocalImpulse_relativePoint;
+    let worldImpulse = Body_applyLocalImpulse_worldImpulse;
+    let relativePointWorld = Body_applyLocalImpulse_relativePoint;
 
     // Transform the force vector to world space
     this.vectorToWorldFrame(localImpulse, worldImpulse);
@@ -6308,18 +6317,18 @@ Body.prototype.applyLocalImpulse = function(localImpulse, localPoint){
     this.applyImpulse(worldImpulse, relativePointWorld);
 };
 
-var Body_updateMassProperties_halfExtents = new Vec3();
+let Body_updateMassProperties_halfExtents = new Vec3();
 
 /**
  * Should be called whenever you change the body shape or mass.
  * @method updateMassProperties
  */
 Body.prototype.updateMassProperties = function(){
-    var halfExtents = Body_updateMassProperties_halfExtents;
+    let halfExtents = Body_updateMassProperties_halfExtents;
 
     this.invMass = this.mass > 0 ? 1.0 / this.mass : 0;
-    var I = this.inertia;
-    var fixed = this.fixedRotation;
+    let I = this.inertia;
+    let fixed = this.fixedRotation;
 
     // Approximate with AABB box
     this.computeAABB();
@@ -6346,17 +6355,17 @@ Body.prototype.updateMassProperties = function(){
  * @return {Vec3} The result vector.
  */
 Body.prototype.getVelocityAtWorldPoint = function(worldPoint, result){
-    var r = new Vec3();
+    let r = new Vec3();
     worldPoint.vsub(this.position, r);
     this.angularVelocity.cross(r, result);
     this.velocity.vadd(result, result);
     return result;
 };
 
-// var torque = new Vec3();
-// var invI_tau_dt = new Vec3();
-// var w = new Quaternion();
-// var wq = new Quaternion();
+// let torque = new Vec3();
+// let invI_tau_dt = new Vec3();
+// let w = new Quaternion();
+// let wq = new Quaternion();
 
 /**
  * Move the body forward in time.
@@ -6374,7 +6383,7 @@ Body.prototype.integrate = function(dt, quatNormalize, quatNormalizeFast){
         return;
     }
 
-    var velo = this.velocity,
+    let velo = this.velocity,
         angularVelo = this.angularVelocity,
         pos = this.position,
         force = this.force,
@@ -6384,16 +6393,16 @@ Body.prototype.integrate = function(dt, quatNormalize, quatNormalizeFast){
         invInertia = this.invInertiaWorld,
         linearFactor = this.linearFactor;
 
-    var iMdt = invMass * dt;
+    let iMdt = invMass * dt;
     velo.x += force.x * iMdt * linearFactor.x;
     velo.y += force.y * iMdt * linearFactor.y;
     velo.z += force.z * iMdt * linearFactor.z;
 
-    var e = invInertia.elements;
-    var angularFactor = this.angularFactor;
-    var tx = torque.x * angularFactor.x;
-    var ty = torque.y * angularFactor.y;
-    var tz = torque.z * angularFactor.z;
+    let e = invInertia.elements;
+    let angularFactor = this.angularFactor;
+    let tx = torque.x * angularFactor.x;
+    let ty = torque.y * angularFactor.y;
+    let tz = torque.z * angularFactor.z;
     angularVelo.x += dt * (e[0] * tx + e[1] * ty + e[2] * tz);
     angularVelo.y += dt * (e[3] * tx + e[4] * ty + e[5] * tz);
     angularVelo.z += dt * (e[6] * tx + e[7] * ty + e[8] * tz);
@@ -6444,19 +6453,19 @@ Body.prototype.isAwake = function(){
  * Update hasTrigger
  */
 Body.prototype.updateHasTrigger = function () {
-    for (var i = this.shapes.length; i--;) {
+    for (let i = this.shapes.length; i--;) {
         this.hasTrigger = !this.shapes[i].collisionResponse;
         if (this.hasTrigger) break;
     }
 }
 
 },{"../collision/AABB":3,"../material/Material":26,"../math/Mat3":28,"../math/Quaternion":29,"../math/Vec3":31,"../shapes/Box":38,"../shapes/Shape":44,"../utils/EventTarget":50,"../world/World":57}],33:[function(_dereq_,module,exports){
-var Body = _dereq_('./Body');
-var Vec3 = _dereq_('../math/Vec3');
-var Quaternion = _dereq_('../math/Quaternion');
-var RaycastResult = _dereq_('../collision/RaycastResult');
-var Ray = _dereq_('../collision/Ray');
-var WheelInfo = _dereq_('../objects/WheelInfo');
+let Body = _dereq_('./Body');
+let Vec3 = _dereq_('../math/Vec3');
+let Quaternion = _dereq_('../math/Quaternion');
+let RaycastResult = _dereq_('../collision/RaycastResult');
+let Ray = _dereq_('../collision/Ray');
+let WheelInfo = _dereq_('../objects/WheelInfo');
 
 module.exports = RaycastVehicle;
 
@@ -6516,13 +6525,13 @@ function RaycastVehicle(options){
     this.indexUpAxis = typeof(options.indexUpAxis) !== 'undefined' ? options.indexUpAxis : 2;
 }
 
-var tmpVec1 = new Vec3();
-var tmpVec2 = new Vec3();
-var tmpVec3 = new Vec3();
-var tmpVec4 = new Vec3();
-var tmpVec5 = new Vec3();
-var tmpVec6 = new Vec3();
-var tmpRay = new Ray();
+let tmpVec1 = new Vec3();
+let tmpVec2 = new Vec3();
+let tmpVec3 = new Vec3();
+let tmpVec4 = new Vec3();
+let tmpVec5 = new Vec3();
+let tmpVec6 = new Vec3();
+let tmpRay = new Ray();
 
 /**
  * Add a wheel. For information about the options, see WheelInfo.
@@ -6532,8 +6541,8 @@ var tmpRay = new Ray();
 RaycastVehicle.prototype.addWheel = function(options){
     options = options || {};
 
-    var info = new WheelInfo(options);
-    var index = this.wheelInfos.length;
+    let info = new WheelInfo(options);
+    let index = this.wheelInfos.length;
     this.wheelInfos.push(info);
 
     return index;
@@ -6546,11 +6555,11 @@ RaycastVehicle.prototype.addWheel = function(options){
  * @param {integer} wheelIndex
  */
 RaycastVehicle.prototype.setSteeringValue = function(value, wheelIndex){
-    var wheel = this.wheelInfos[wheelIndex];
+    let wheel = this.wheelInfos[wheelIndex];
     wheel.steering = value;
 };
 
-var torque = new Vec3();
+let torque = new Vec3();
 
 /**
  * Set the wheel force to apply on one of the wheels each time step
@@ -6578,9 +6587,9 @@ RaycastVehicle.prototype.setBrake = function(brake, wheelIndex){
  * @param {World} world
  */
 RaycastVehicle.prototype.addToWorld = function(world){
-    var constraints = this.constraints;
+    let constraints = this.constraints;
     world.addBody(this.chassisBody);
-    var that = this;
+    let that = this;
     this.preStepCallback = function(){
         that.updateVehicle(world.dt);
     };
@@ -6605,17 +6614,17 @@ RaycastVehicle.prototype.getVehicleAxisWorld = function(axisIndex, result){
 };
 
 RaycastVehicle.prototype.updateVehicle = function(timeStep){
-    var wheelInfos = this.wheelInfos;
-    var numWheels = wheelInfos.length;
-    var chassisBody = this.chassisBody;
+    let wheelInfos = this.wheelInfos;
+    let numWheels = wheelInfos.length;
+    let chassisBody = this.chassisBody;
 
-    for (var i = 0; i < numWheels; i++) {
+    for (let i = 0; i < numWheels; i++) {
         this.updateWheelTransform(i);
     }
 
     this.currentVehicleSpeedKmHour = 3.6 * chassisBody.velocity.norm();
 
-    var forwardWorld = new Vec3();
+    let forwardWorld = new Vec3();
     this.getVehicleAxisWorld(this.indexForwardAxis, forwardWorld);
 
     if (forwardWorld.dot(chassisBody.velocity) < 0){
@@ -6623,18 +6632,18 @@ RaycastVehicle.prototype.updateVehicle = function(timeStep){
     }
 
     // simulate suspension
-    for (var i = 0; i < numWheels; i++) {
+    for (let i = 0; i < numWheels; i++) {
         this.castRay(wheelInfos[i]);
     }
 
     this.updateSuspension(timeStep);
 
-    var impulse = new Vec3();
-    var relpos = new Vec3();
-    for (var i = 0; i < numWheels; i++) {
+    let impulse = new Vec3();
+    let relpos = new Vec3();
+    for (let i = 0; i < numWheels; i++) {
         //apply suspension force
-        var wheel = wheelInfos[i];
-        var suspensionForce = wheel.suspensionForce;
+        let wheel = wheelInfos[i];
+        let suspensionForce = wheel.suspensionForce;
         if (suspensionForce > wheel.maxSuspensionForce) {
             suspensionForce = wheel.maxSuspensionForce;
         }
@@ -6646,17 +6655,17 @@ RaycastVehicle.prototype.updateVehicle = function(timeStep){
 
     this.updateFriction(timeStep);
 
-    var hitNormalWorldScaledWithProj = new Vec3();
-    var fwd  = new Vec3();
-    var vel = new Vec3();
+    let hitNormalWorldScaledWithProj = new Vec3();
+    let fwd  = new Vec3();
+    let vel = new Vec3();
     for (i = 0; i < numWheels; i++) {
-        var wheel = wheelInfos[i];
-        //var relpos = new Vec3();
+        let wheel = wheelInfos[i];
+        //let relpos = new Vec3();
         //wheel.chassisConnectionPointWorld.vsub(chassisBody.position, relpos);
         chassisBody.getVelocityAtWorldPoint(wheel.chassisConnectionPointWorld, vel);
 
         // Hack to get the rotation in the correct direction
-        var m = 1;
+        let m = 1;
         switch(this.indexUpAxis){
         case 1:
             m = -1;
@@ -6666,12 +6675,12 @@ RaycastVehicle.prototype.updateVehicle = function(timeStep){
         if (wheel.isInContact) {
 
             this.getVehicleAxisWorld(this.indexForwardAxis, fwd);
-            var proj = fwd.dot(wheel.raycastResult.hitNormalWorld);
+            let proj = fwd.dot(wheel.raycastResult.hitNormalWorld);
             wheel.raycastResult.hitNormalWorld.scale(proj, hitNormalWorldScaledWithProj);
 
             fwd.vsub(hitNormalWorldScaledWithProj, fwd);
 
-            var proj2 = fwd.dot(vel);
+            let proj2 = fwd.dot(vel);
             wheel.deltaRotation = m * proj2 * timeStep / wheel.radius;
         }
 
@@ -6691,27 +6700,27 @@ RaycastVehicle.prototype.updateVehicle = function(timeStep){
 };
 
 RaycastVehicle.prototype.updateSuspension = function(deltaTime) {
-    var chassisBody = this.chassisBody;
-    var chassisMass = chassisBody.mass;
-    var wheelInfos = this.wheelInfos;
-    var numWheels = wheelInfos.length;
+    let chassisBody = this.chassisBody;
+    let chassisMass = chassisBody.mass;
+    let wheelInfos = this.wheelInfos;
+    let numWheels = wheelInfos.length;
 
-    for (var w_it = 0; w_it < numWheels; w_it++){
-        var wheel = wheelInfos[w_it];
+    for (let w_it = 0; w_it < numWheels; w_it++){
+        let wheel = wheelInfos[w_it];
 
         if (wheel.isInContact){
-            var force;
+            let force;
 
             // Spring
-            var susp_length = wheel.suspensionRestLength;
-            var current_length = wheel.suspensionLength;
-            var length_diff = (susp_length - current_length);
+            let susp_length = wheel.suspensionRestLength;
+            let current_length = wheel.suspensionLength;
+            let length_diff = (susp_length - current_length);
 
             force = wheel.suspensionStiffness * length_diff * wheel.clippedInvContactDotSuspension;
 
             // Damper
-            var projected_rel_vel = wheel.suspensionRelativeVelocity;
-            var susp_damping;
+            let projected_rel_vel = wheel.suspensionRelativeVelocity;
+            let susp_damping;
             if (projected_rel_vel < 0) {
                 susp_damping = wheel.dampingCompression;
             } else {
@@ -6735,42 +6744,42 @@ RaycastVehicle.prototype.updateSuspension = function(deltaTime) {
  * @param {World} world
  */
 RaycastVehicle.prototype.removeFromWorld = function(world){
-    var constraints = this.constraints;
+    let constraints = this.constraints;
     world.remove(this.chassisBody);
     world.removeEventListener('preStep', this.preStepCallback);
     this.world = null;
 };
 
-var castRay_rayvector = new Vec3();
-var castRay_target = new Vec3();
+let castRay_rayvector = new Vec3();
+let castRay_target = new Vec3();
 RaycastVehicle.prototype.castRay = function(wheel) {
-    var rayvector = castRay_rayvector;
-    var target = castRay_target;
+    let rayvector = castRay_rayvector;
+    let target = castRay_target;
 
     this.updateWheelTransformWorld(wheel);
-    var chassisBody = this.chassisBody;
+    let chassisBody = this.chassisBody;
 
-    var depth = -1;
+    let depth = -1;
 
-    var raylen = wheel.suspensionRestLength + wheel.radius;
+    let raylen = wheel.suspensionRestLength + wheel.radius;
 
     wheel.directionWorld.scale(raylen, rayvector);
-    var source = wheel.chassisConnectionPointWorld;
+    let source = wheel.chassisConnectionPointWorld;
     source.vadd(rayvector, target);
-    var raycastResult = wheel.raycastResult;
+    let raycastResult = wheel.raycastResult;
 
-    var param = 0;
+    let param = 0;
 
     raycastResult.reset();
     // Turn off ray collision with the chassis temporarily
-    var oldState = chassisBody.collisionResponse;
+    let oldState = chassisBody.collisionResponse;
     chassisBody.collisionResponse = false;
 
     // Cast ray against world
     this.world.rayTest(source, target, raycastResult);
     chassisBody.collisionResponse = oldState;
 
-    var object = raycastResult.body;
+    let object = raycastResult.body;
 
     wheel.raycastResult.groundObject = 0;
 
@@ -6779,12 +6788,12 @@ RaycastVehicle.prototype.castRay = function(wheel) {
         wheel.raycastResult.hitNormalWorld  = raycastResult.hitNormalWorld;
         wheel.isInContact = true;
 
-        var hitDistance = raycastResult.distance;
+        let hitDistance = raycastResult.distance;
         wheel.suspensionLength = hitDistance - wheel.radius;
 
         // clamp on max suspension travel
-        var minSuspensionLength = wheel.suspensionRestLength - wheel.maxSuspensionTravel;
-        var maxSuspensionLength = wheel.suspensionRestLength + wheel.maxSuspensionTravel;
+        let minSuspensionLength = wheel.suspensionRestLength - wheel.maxSuspensionTravel;
+        let maxSuspensionLength = wheel.suspensionRestLength + wheel.maxSuspensionTravel;
         if (wheel.suspensionLength < minSuspensionLength) {
             wheel.suspensionLength = minSuspensionLength;
         }
@@ -6793,18 +6802,18 @@ RaycastVehicle.prototype.castRay = function(wheel) {
             wheel.raycastResult.reset();
         }
 
-        var denominator = wheel.raycastResult.hitNormalWorld.dot(wheel.directionWorld);
+        let denominator = wheel.raycastResult.hitNormalWorld.dot(wheel.directionWorld);
 
-        var chassis_velocity_at_contactPoint = new Vec3();
+        let chassis_velocity_at_contactPoint = new Vec3();
         chassisBody.getVelocityAtWorldPoint(wheel.raycastResult.hitPointWorld, chassis_velocity_at_contactPoint);
 
-        var projVel = wheel.raycastResult.hitNormalWorld.dot( chassis_velocity_at_contactPoint );
+        let projVel = wheel.raycastResult.hitNormalWorld.dot( chassis_velocity_at_contactPoint );
 
         if (denominator >= -0.1) {
             wheel.suspensionRelativeVelocity = 0;
             wheel.clippedInvContactDotSuspension = 1 / 0.1;
         } else {
-            var inv = -1 / denominator;
+            let inv = -1 / denominator;
             wheel.suspensionRelativeVelocity = projVel * inv;
             wheel.clippedInvContactDotSuspension = inv;
         }
@@ -6823,7 +6832,7 @@ RaycastVehicle.prototype.castRay = function(wheel) {
 
 RaycastVehicle.prototype.updateWheelTransformWorld = function(wheel){
     wheel.isInContact = false;
-    var chassisBody = this.chassisBody;
+    let chassisBody = this.chassisBody;
     chassisBody.pointToWorldFrame(wheel.chassisConnectionPointLocal, wheel.chassisConnectionPointWorld);
     chassisBody.vectorToWorldFrame(wheel.directionLocal, wheel.directionWorld);
     chassisBody.vectorToWorldFrame(wheel.axleLocal, wheel.axleWorld);
@@ -6837,11 +6846,11 @@ RaycastVehicle.prototype.updateWheelTransformWorld = function(wheel){
  * @param {integer} wheelIndex The wheel index to update.
  */
 RaycastVehicle.prototype.updateWheelTransform = function(wheelIndex){
-    var up = tmpVec4;
-    var right = tmpVec5;
-    var fwd = tmpVec6;
+    let up = tmpVec4;
+    let right = tmpVec5;
+    let fwd = tmpVec6;
 
-    var wheel = this.wheelInfos[wheelIndex];
+    let wheel = this.wheelInfos[wheelIndex];
     this.updateWheelTransformWorld(wheel);
 
     wheel.directionLocal.scale(-1, up);
@@ -6851,28 +6860,28 @@ RaycastVehicle.prototype.updateWheelTransform = function(wheelIndex){
     right.normalize();
 
     // Rotate around steering over the wheelAxle
-    var steering = wheel.steering;
-    var steeringOrn = new Quaternion();
+    let steering = wheel.steering;
+    let steeringOrn = new Quaternion();
     steeringOrn.setFromAxisAngle(up, steering);
 
-    var rotatingOrn = new Quaternion();
+    let rotatingOrn = new Quaternion();
     rotatingOrn.setFromAxisAngle(right, wheel.rotation);
 
     // World rotation of the wheel
-    var q = wheel.worldTransform.quaternion;
+    let q = wheel.worldTransform.quaternion;
     this.chassisBody.quaternion.mult(steeringOrn, q);
     q.mult(rotatingOrn, q);
 
     q.normalize();
 
     // world position of the wheel
-    var p = wheel.worldTransform.position;
+    let p = wheel.worldTransform.position;
     p.copy(wheel.directionWorld);
     p.scale(wheel.suspensionLength, p);
     p.vadd(wheel.chassisConnectionPointWorld, p);
 };
 
-var directions = [
+let directions = [
     new Vec3(1, 0, 0),
     new Vec3(0, 1, 0),
     new Vec3(0, 0, 1)
@@ -6889,26 +6898,26 @@ RaycastVehicle.prototype.getWheelTransformWorld = function(wheelIndex) {
 };
 
 
-var updateFriction_surfNormalWS_scaled_proj = new Vec3();
-var updateFriction_axle = [];
-var updateFriction_forwardWS = [];
-var sideFrictionStiffness2 = 1;
+let updateFriction_surfNormalWS_scaled_proj = new Vec3();
+let updateFriction_axle = [];
+let updateFriction_forwardWS = [];
+let sideFrictionStiffness2 = 1;
 RaycastVehicle.prototype.updateFriction = function(timeStep) {
-    var surfNormalWS_scaled_proj = updateFriction_surfNormalWS_scaled_proj;
+    let surfNormalWS_scaled_proj = updateFriction_surfNormalWS_scaled_proj;
 
     //calculate the impulse, so that the wheels don't move sidewards
-    var wheelInfos = this.wheelInfos;
-    var numWheels = wheelInfos.length;
-    var chassisBody = this.chassisBody;
-    var forwardWS = updateFriction_forwardWS;
-    var axle = updateFriction_axle;
+    let wheelInfos = this.wheelInfos;
+    let numWheels = wheelInfos.length;
+    let chassisBody = this.chassisBody;
+    let forwardWS = updateFriction_forwardWS;
+    let axle = updateFriction_axle;
 
-    var numWheelsOnGround = 0;
+    let numWheelsOnGround = 0;
 
-    for (var i = 0; i < numWheels; i++) {
-        var wheel = wheelInfos[i];
+    for (let i = 0; i < numWheels; i++) {
+        let wheel = wheelInfos[i];
 
-        var groundObject = wheel.raycastResult.body;
+        let groundObject = wheel.raycastResult.body;
         if (groundObject){
             numWheelsOnGround++;
         }
@@ -6923,20 +6932,20 @@ RaycastVehicle.prototype.updateFriction = function(timeStep) {
         }
     }
 
-    for (var i = 0; i < numWheels; i++){
-        var wheel = wheelInfos[i];
+    for (let i = 0; i < numWheels; i++){
+        let wheel = wheelInfos[i];
 
-        var groundObject = wheel.raycastResult.body;
+        let groundObject = wheel.raycastResult.body;
 
         if (groundObject) {
-            var axlei = axle[i];
-            var wheelTrans = this.getWheelTransformWorld(i);
+            let axlei = axle[i];
+            let wheelTrans = this.getWheelTransformWorld(i);
 
             // Get world axle
             wheelTrans.vectorToWorldFrame(directions[this.indexRightAxis], axlei);
 
-            var surfNormalWS = wheel.raycastResult.hitNormalWorld;
-            var proj = axlei.dot(surfNormalWS);
+            let surfNormalWS = wheel.raycastResult.hitNormalWorld;
+            let proj = axlei.dot(surfNormalWS);
             surfNormalWS.scale(proj, surfNormalWS_scaled_proj);
             axlei.vsub(surfNormalWS_scaled_proj, axlei);
             axlei.normalize();
@@ -6956,20 +6965,20 @@ RaycastVehicle.prototype.updateFriction = function(timeStep) {
         }
     }
 
-    var sideFactor = 1;
-    var fwdFactor = 0.5;
+    let sideFactor = 1;
+    let fwdFactor = 0.5;
 
     this.sliding = false;
-    for (var i = 0; i < numWheels; i++) {
-        var wheel = wheelInfos[i];
-        var groundObject = wheel.raycastResult.body;
+    for (let i = 0; i < numWheels; i++) {
+        let wheel = wheelInfos[i];
+        let groundObject = wheel.raycastResult.body;
 
-        var rollingFriction = 0;
+        let rollingFriction = 0;
 
         wheel.slipInfo = 1;
         if (groundObject) {
-            var defaultRollingFrictionImpulse = 0;
-            var maxImpulse = wheel.brake ? wheel.brake : defaultRollingFrictionImpulse;
+            let defaultRollingFrictionImpulse = 0;
+            let maxImpulse = wheel.brake ? wheel.brake : defaultRollingFrictionImpulse;
 
             // btWheelContactPoint contactPt(chassisBody,groundObject,wheelInfraycastInfo.hitPointWorld,forwardWS[wheel],maxImpulse);
             // rollingFriction = calcRollingFriction(contactPt);
@@ -6978,7 +6987,7 @@ RaycastVehicle.prototype.updateFriction = function(timeStep) {
             rollingFriction += wheel.engineForce * timeStep;
 
             // rollingFriction = 0;
-            var factor = maxImpulse / rollingFriction;
+            let factor = maxImpulse / rollingFriction;
             wheel.slipInfo *= factor;
         }
 
@@ -6990,24 +6999,24 @@ RaycastVehicle.prototype.updateFriction = function(timeStep) {
         if (groundObject) {
             wheel.skidInfo = 1;
 
-            var maximp = wheel.suspensionForce * timeStep * wheel.frictionSlip;
-            var maximpSide = maximp;
+            let maximp = wheel.suspensionForce * timeStep * wheel.frictionSlip;
+            let maximpSide = maximp;
 
-            var maximpSquared = maximp * maximpSide;
+            let maximpSquared = maximp * maximpSide;
 
             wheel.forwardImpulse = rollingFriction;//wheelInfo.engineForce* timeStep;
 
-            var x = wheel.forwardImpulse * fwdFactor;
-            var y = wheel.sideImpulse * sideFactor;
+            let x = wheel.forwardImpulse * fwdFactor;
+            let y = wheel.sideImpulse * sideFactor;
 
-            var impulseSquared = x * x + y * y;
+            let impulseSquared = x * x + y * y;
 
             wheel.sliding = false;
             if (impulseSquared > maximpSquared) {
                 this.sliding = true;
                 wheel.sliding = true;
 
-                var factor = maximp / Math.sqrt(impulseSquared);
+                let factor = maximp / Math.sqrt(impulseSquared);
 
                 wheel.skidInfo *= factor;
             }
@@ -7015,8 +7024,8 @@ RaycastVehicle.prototype.updateFriction = function(timeStep) {
     }
 
     if (this.sliding) {
-        for (var i = 0; i < numWheels; i++) {
-            var wheel = wheelInfos[i];
+        for (let i = 0; i < numWheels; i++) {
+            let wheel = wheelInfos[i];
             if (wheel.sideImpulse !== 0) {
                 if (wheel.skidInfo < 1){
                     wheel.forwardImpulse *= wheel.skidInfo;
@@ -7027,27 +7036,27 @@ RaycastVehicle.prototype.updateFriction = function(timeStep) {
     }
 
     // apply the impulses
-    for (var i = 0; i < numWheels; i++) {
-        var wheel = wheelInfos[i];
+    for (let i = 0; i < numWheels; i++) {
+        let wheel = wheelInfos[i];
 
-        var rel_pos = new Vec3();
+        let rel_pos = new Vec3();
         wheel.raycastResult.hitPointWorld.vsub(chassisBody.position, rel_pos);
         // cannons applyimpulse is using world coord for the position
         //rel_pos.copy(wheel.raycastResult.hitPointWorld);
 
         if (wheel.forwardImpulse !== 0) {
-            var impulse = new Vec3();
+            let impulse = new Vec3();
             forwardWS[i].scale(wheel.forwardImpulse, impulse);
             chassisBody.applyImpulse(impulse, rel_pos);
         }
 
         if (wheel.sideImpulse !== 0){
-            var groundObject = wheel.raycastResult.body;
+            let groundObject = wheel.raycastResult.body;
 
-            var rel_pos2 = new Vec3();
+            let rel_pos2 = new Vec3();
             wheel.raycastResult.hitPointWorld.vsub(groundObject.position, rel_pos2);
             //rel_pos2.copy(wheel.raycastResult.hitPointWorld);
-            var sideImp = new Vec3();
+            let sideImp = new Vec3();
             axle[i].scale(wheel.sideImpulse, sideImp);
 
             // Scale the relative position in the up direction with rollInfluence.
@@ -7064,19 +7073,19 @@ RaycastVehicle.prototype.updateFriction = function(timeStep) {
     }
 };
 
-var calcRollingFriction_vel1 = new Vec3();
-var calcRollingFriction_vel2 = new Vec3();
-var calcRollingFriction_vel = new Vec3();
+let calcRollingFriction_vel1 = new Vec3();
+let calcRollingFriction_vel2 = new Vec3();
+let calcRollingFriction_vel = new Vec3();
 
 function calcRollingFriction(body0, body1, frictionPosWorld, frictionDirectionWorld, maxImpulse) {
-    var j1 = 0;
-    var contactPosWorld = frictionPosWorld;
+    let j1 = 0;
+    let contactPosWorld = frictionPosWorld;
 
-    // var rel_pos1 = new Vec3();
-    // var rel_pos2 = new Vec3();
-    var vel1 = calcRollingFriction_vel1;
-    var vel2 = calcRollingFriction_vel2;
-    var vel = calcRollingFriction_vel;
+    // let rel_pos1 = new Vec3();
+    // let rel_pos2 = new Vec3();
+    let vel1 = calcRollingFriction_vel1;
+    let vel2 = calcRollingFriction_vel2;
+    let vel = calcRollingFriction_vel;
     // contactPosWorld.vsub(body0.position, rel_pos1);
     // contactPosWorld.vsub(body1.position, rel_pos2);
 
@@ -7084,12 +7093,12 @@ function calcRollingFriction(body0, body1, frictionPosWorld, frictionDirectionWo
     body1.getVelocityAtWorldPoint(contactPosWorld, vel2);
     vel1.vsub(vel2, vel);
 
-    var vrel = frictionDirectionWorld.dot(vel);
+    let vrel = frictionDirectionWorld.dot(vel);
 
-    var denom0 = computeImpulseDenominator(body0, frictionPosWorld, frictionDirectionWorld);
-    var denom1 = computeImpulseDenominator(body1, frictionPosWorld, frictionDirectionWorld);
-    var relaxation = 1;
-    var jacDiagABInv = relaxation / (denom0 + denom1);
+    let denom0 = computeImpulseDenominator(body0, frictionPosWorld, frictionDirectionWorld);
+    let denom1 = computeImpulseDenominator(body1, frictionPosWorld, frictionDirectionWorld);
+    let relaxation = 1;
+    let jacDiagABInv = relaxation / (denom0 + denom1);
 
     // calculate j that moves us to zero relative velocity
     j1 = -vrel * jacDiagABInv;
@@ -7104,15 +7113,15 @@ function calcRollingFriction(body0, body1, frictionPosWorld, frictionDirectionWo
     return j1;
 }
 
-var computeImpulseDenominator_r0 = new Vec3();
-var computeImpulseDenominator_c0 = new Vec3();
-var computeImpulseDenominator_vec = new Vec3();
-var computeImpulseDenominator_m = new Vec3();
+let computeImpulseDenominator_r0 = new Vec3();
+let computeImpulseDenominator_c0 = new Vec3();
+let computeImpulseDenominator_vec = new Vec3();
+let computeImpulseDenominator_m = new Vec3();
 function computeImpulseDenominator(body, pos, normal) {
-    var r0 = computeImpulseDenominator_r0;
-    var c0 = computeImpulseDenominator_c0;
-    var vec = computeImpulseDenominator_vec;
-    var m = computeImpulseDenominator_m;
+    let r0 = computeImpulseDenominator_r0;
+    let c0 = computeImpulseDenominator_c0;
+    let vec = computeImpulseDenominator_vec;
+    let m = computeImpulseDenominator_m;
 
     pos.vsub(body.position, r0);
     r0.cross(normal, c0);
@@ -7123,43 +7132,43 @@ function computeImpulseDenominator(body, pos, normal) {
 }
 
 
-var resolveSingleBilateral_vel1 = new Vec3();
-var resolveSingleBilateral_vel2 = new Vec3();
-var resolveSingleBilateral_vel = new Vec3();
+let resolveSingleBilateral_vel1 = new Vec3();
+let resolveSingleBilateral_vel2 = new Vec3();
+let resolveSingleBilateral_vel = new Vec3();
 
 //bilateral constraint between two dynamic objects
 function resolveSingleBilateral(body1, pos1, body2, pos2, normal, impulse){
-    var normalLenSqr = normal.norm2();
+    let normalLenSqr = normal.norm2();
     if (normalLenSqr > 1.1){
         return 0; // no impulse
     }
-    // var rel_pos1 = new Vec3();
-    // var rel_pos2 = new Vec3();
+    // let rel_pos1 = new Vec3();
+    // let rel_pos2 = new Vec3();
     // pos1.vsub(body1.position, rel_pos1);
     // pos2.vsub(body2.position, rel_pos2);
 
-    var vel1 = resolveSingleBilateral_vel1;
-    var vel2 = resolveSingleBilateral_vel2;
-    var vel = resolveSingleBilateral_vel;
+    let vel1 = resolveSingleBilateral_vel1;
+    let vel2 = resolveSingleBilateral_vel2;
+    let vel = resolveSingleBilateral_vel;
     body1.getVelocityAtWorldPoint(pos1, vel1);
     body2.getVelocityAtWorldPoint(pos2, vel2);
 
     vel1.vsub(vel2, vel);
 
-    var rel_vel = normal.dot(vel);
+    let rel_vel = normal.dot(vel);
 
-    var contactDamping = 0.2;
-    var massTerm = 1 / (body1.invMass + body2.invMass);
-    var impulse = - contactDamping * rel_vel * massTerm;
+    let contactDamping = 0.2;
+    let massTerm = 1 / (body1.invMass + body2.invMass);
+    impulse = - contactDamping * rel_vel * massTerm;
 
     return impulse;
 }
 },{"../collision/Ray":10,"../collision/RaycastResult":11,"../math/Quaternion":29,"../math/Vec3":31,"../objects/WheelInfo":37,"./Body":32}],34:[function(_dereq_,module,exports){
-var Body = _dereq_('./Body');
-var Sphere = _dereq_('../shapes/Sphere');
-var Box = _dereq_('../shapes/Box');
-var Vec3 = _dereq_('../math/Vec3');
-var HingeConstraint = _dereq_('../constraints/HingeConstraint');
+let Body = _dereq_('./Body');
+let Sphere = _dereq_('../shapes/Sphere');
+let Box = _dereq_('../shapes/Box');
+let Vec3 = _dereq_('../math/Vec3');
+let HingeConstraint = _dereq_('../constraints/HingeConstraint');
 
 module.exports = RigidVehicle;
 
@@ -7185,7 +7194,7 @@ function RigidVehicle(options){
 
     if(!this.chassisBody){
         // No chassis body given. Create it!
-        var chassisShape = new Box(new Vec3(5, 2, 0.5));
+        let chassisShape = new Box(new Vec3(5, 2, 0.5));
         this.chassisBody = new Body(1, chassisShape);
     }
 
@@ -7211,7 +7220,7 @@ function RigidVehicle(options){
  */
 RigidVehicle.prototype.addWheel = function(options){
     options = options || {};
-    var wheelBody = options.body;
+    let wheelBody = options.body;
     if(!wheelBody){
         wheelBody =  new Body(1, new Sphere(1.2));
     }
@@ -7219,19 +7228,19 @@ RigidVehicle.prototype.addWheel = function(options){
     this.wheelForces.push(0);
 
     // Position constrain wheels
-    var zero = new Vec3();
-    var position = typeof(options.position) !== 'undefined' ? options.position.clone() : new Vec3();
+    let zero = new Vec3();
+    let position = typeof(options.position) !== 'undefined' ? options.position.clone() : new Vec3();
 
     // Set position locally to the chassis
-    var worldPosition = new Vec3();
+    let worldPosition = new Vec3();
     this.chassisBody.pointToWorldFrame(position, worldPosition);
     wheelBody.position.set(worldPosition.x, worldPosition.y, worldPosition.z);
 
     // Constrain wheel
-    var axis = typeof(options.axis) !== 'undefined' ? options.axis.clone() : new Vec3(0, 1, 0);
+    let axis = typeof(options.axis) !== 'undefined' ? options.axis.clone() : new Vec3(0, 1, 0);
     this.wheelAxes.push(axis);
 
-    var hingeConstraint = new HingeConstraint(this.chassisBody, wheelBody, {
+    let hingeConstraint = new HingeConstraint(this.chassisBody, wheelBody, {
         pivotA: position,
         axisA: axis,
         pivotB: Vec3.ZERO,
@@ -7252,9 +7261,9 @@ RigidVehicle.prototype.addWheel = function(options){
  */
 RigidVehicle.prototype.setSteeringValue = function(value, wheelIndex){
     // Set angle of the hinge axis
-    var axis = this.wheelAxes[wheelIndex];
+    let axis = this.wheelAxes[wheelIndex];
 
-    var c = Math.cos(value),
+    let c = Math.cos(value),
         s = Math.sin(value),
         x = axis.x,
         y = axis.y;
@@ -7272,7 +7281,7 @@ RigidVehicle.prototype.setSteeringValue = function(value, wheelIndex){
  * @param {integer} wheelIndex
  */
 RigidVehicle.prototype.setMotorSpeed = function(value, wheelIndex){
-    var hingeConstraint = this.constraints[wheelIndex];
+    let hingeConstraint = this.constraints[wheelIndex];
     hingeConstraint.enableMotor();
     hingeConstraint.motorTargetVelocity = value;
 };
@@ -7284,11 +7293,11 @@ RigidVehicle.prototype.setMotorSpeed = function(value, wheelIndex){
  * @param {integer} wheelIndex
  */
 RigidVehicle.prototype.disableMotor = function(wheelIndex){
-    var hingeConstraint = this.constraints[wheelIndex];
+    let hingeConstraint = this.constraints[wheelIndex];
     hingeConstraint.disableMotor();
 };
 
-var torque = new Vec3();
+let torque = new Vec3();
 
 /**
  * Set the wheel force to apply on one of the wheels each time step
@@ -7307,9 +7316,9 @@ RigidVehicle.prototype.setWheelForce = function(value, wheelIndex){
  * @param  {integer} wheelIndex
  */
 RigidVehicle.prototype.applyWheelForce = function(value, wheelIndex){
-    var axis = this.wheelAxes[wheelIndex];
-    var wheelBody = this.wheelBodies[wheelIndex];
-    var bodyTorque = wheelBody.torque;
+    let axis = this.wheelAxes[wheelIndex];
+    let wheelBody = this.wheelBodies[wheelIndex];
+    let bodyTorque = wheelBody.torque;
 
     axis.scale(value, torque);
     wheelBody.vectorToWorldFrame(torque, torque);
@@ -7322,14 +7331,14 @@ RigidVehicle.prototype.applyWheelForce = function(value, wheelIndex){
  * @param {World} world
  */
 RigidVehicle.prototype.addToWorld = function(world){
-    var constraints = this.constraints;
-    var bodies = this.wheelBodies.concat([this.chassisBody]);
+    let constraints = this.constraints;
+    let bodies = this.wheelBodies.concat([this.chassisBody]);
 
-    for (var i = 0; i < bodies.length; i++) {
+    for (let i = 0; i < bodies.length; i++) {
         world.addBody(bodies[i]);
     }
 
-    for (var i = 0; i < constraints.length; i++) {
+    for (let i = 0; i < constraints.length; i++) {
         world.addConstraint(constraints[i]);
     }
 
@@ -7337,8 +7346,8 @@ RigidVehicle.prototype.addToWorld = function(world){
 };
 
 RigidVehicle.prototype._update = function(){
-    var wheelForces = this.wheelForces;
-    for (var i = 0; i < wheelForces.length; i++) {
+    let wheelForces = this.wheelForces;
+    for (let i = 0; i < wheelForces.length; i++) {
         this.applyWheelForce(wheelForces[i], i);
     }
 };
@@ -7349,19 +7358,19 @@ RigidVehicle.prototype._update = function(){
  * @param {World} world
  */
 RigidVehicle.prototype.removeFromWorld = function(world){
-    var constraints = this.constraints;
-    var bodies = this.wheelBodies.concat([this.chassisBody]);
+    let constraints = this.constraints;
+    let bodies = this.wheelBodies.concat([this.chassisBody]);
 
-    for (var i = 0; i < bodies.length; i++) {
+    for (let i = 0; i < bodies.length; i++) {
         world.remove(bodies[i]);
     }
 
-    for (var i = 0; i < constraints.length; i++) {
+    for (let i = 0; i < constraints.length; i++) {
         world.removeConstraint(constraints[i]);
     }
 };
 
-var worldAxis = new Vec3();
+let worldAxis = new Vec3();
 
 /**
  * Get current rotational velocity of a wheel
@@ -7369,9 +7378,9 @@ var worldAxis = new Vec3();
  * @param {integer} wheelIndex
  */
 RigidVehicle.prototype.getWheelSpeed = function(wheelIndex){
-    var axis = this.wheelAxes[wheelIndex];
-    var wheelBody = this.wheelBodies[wheelIndex];
-    var w = wheelBody.angularVelocity;
+    let axis = this.wheelAxes[wheelIndex];
+    let wheelBody = this.wheelBodies[wheelIndex];
+    let w = wheelBody.angularVelocity;
     this.chassisBody.vectorToWorldFrame(axis, worldAxis);
     return w.dot(worldAxis);
 };
@@ -7379,12 +7388,12 @@ RigidVehicle.prototype.getWheelSpeed = function(wheelIndex){
 },{"../constraints/HingeConstraint":16,"../math/Vec3":31,"../shapes/Box":38,"../shapes/Sphere":45,"./Body":32}],35:[function(_dereq_,module,exports){
 module.exports = SPHSystem;
 
-var Shape = _dereq_('../shapes/Shape');
-var Vec3 = _dereq_('../math/Vec3');
-var Quaternion = _dereq_('../math/Quaternion');
-var Particle = _dereq_('../shapes/Particle');
-var Body = _dereq_('../objects/Body');
-var Material = _dereq_('../material/Material');
+let Shape = _dereq_('../shapes/Shape');
+let Vec3 = _dereq_('../math/Vec3');
+let Quaternion = _dereq_('../math/Quaternion');
+let Particle = _dereq_('../shapes/Particle');
+let Body = _dereq_('../objects/Body');
+let Material = _dereq_('../material/Material');
 
 /**
  * Smoothed-particle hydrodynamics system
@@ -7439,7 +7448,7 @@ SPHSystem.prototype.add = function(particle){
  * @param {Body} particle
  */
 SPHSystem.prototype.remove = function(particle){
-    var idx = this.particles.indexOf(particle);
+    let idx = this.particles.indexOf(particle);
     if(idx !== -1){
         this.particles.splice(idx,1);
         if(this.neighbors.length > this.particles.length){
@@ -7454,14 +7463,14 @@ SPHSystem.prototype.remove = function(particle){
  * @param {Body} particle
  * @param {Array} neighbors
  */
-var SPHSystem_getNeighbors_dist = new Vec3();
+let SPHSystem_getNeighbors_dist = new Vec3();
 SPHSystem.prototype.getNeighbors = function(particle,neighbors){
-    var N = this.particles.length,
+    let N = this.particles.length,
         id = particle.id,
         R2 = this.smoothingRadius * this.smoothingRadius,
         dist = SPHSystem_getNeighbors_dist;
-    for(var i=0; i!==N; i++){
-        var p = this.particles[i];
+    for(let i=0; i!==N; i++){
+        let p = this.particles[i];
         p.position.vsub(particle.position,dist);
         if(id!==p.id && dist.norm2() < R2){
             neighbors.push(p);
@@ -7470,37 +7479,37 @@ SPHSystem.prototype.getNeighbors = function(particle,neighbors){
 };
 
 // Temp vectors for calculation
-var SPHSystem_update_dist = new Vec3(),
+let SPHSystem_update_dist = new Vec3(),
     SPHSystem_update_a_pressure = new Vec3(),
     SPHSystem_update_a_visc = new Vec3(),
     SPHSystem_update_gradW = new Vec3(),
     SPHSystem_update_r_vec = new Vec3(),
     SPHSystem_update_u = new Vec3(); // Relative velocity
 SPHSystem.prototype.update = function(){
-    var N = this.particles.length,
+    let N = this.particles.length,
         dist = SPHSystem_update_dist,
         cs = this.speedOfSound,
         eps = this.eps;
 
-    for(var i=0; i!==N; i++){
-        var p = this.particles[i]; // Current particle
-        var neighbors = this.neighbors[i];
+    for(let i=0; i!==N; i++){
+        let p = this.particles[i]; // Current particle
+        let neighbors = this.neighbors[i];
 
         // Get neighbors
         neighbors.length = 0;
         this.getNeighbors(p,neighbors);
         neighbors.push(this.particles[i]); // Add current too
-        var numNeighbors = neighbors.length;
+        let numNeighbors = neighbors.length;
 
         // Accumulate density for the particle
-        var sum = 0.0;
-        for(var j=0; j!==numNeighbors; j++){
+        let sum = 0.0;
+        for(let j=0; j!==numNeighbors; j++){
 
             //printf("Current particle has position %f %f %f\n",objects[id].pos.x(),objects[id].pos.y(),objects[id].pos.z());
             p.position.vsub(neighbors[j].position, dist);
-            var len = dist.norm();
+            let len = dist.norm();
 
-            var weight = this.w(len);
+            let weight = this.w(len);
             sum += neighbors[j].mass * weight;
         }
 
@@ -7512,37 +7521,37 @@ SPHSystem.prototype.update = function(){
     // Add forces
 
     // Sum to these accelerations
-    var a_pressure= SPHSystem_update_a_pressure;
-    var a_visc =    SPHSystem_update_a_visc;
-    var gradW =     SPHSystem_update_gradW;
-    var r_vec =     SPHSystem_update_r_vec;
-    var u =         SPHSystem_update_u;
+    let a_pressure= SPHSystem_update_a_pressure;
+    let a_visc =    SPHSystem_update_a_visc;
+    let gradW =     SPHSystem_update_gradW;
+    let r_vec =     SPHSystem_update_r_vec;
+    let u =         SPHSystem_update_u;
 
-    for(var i=0; i!==N; i++){
+    for(let i=0; i!==N; i++){
 
-        var particle = this.particles[i];
+        let particle = this.particles[i];
 
         a_pressure.set(0,0,0);
         a_visc.set(0,0,0);
 
         // Init vars
-        var Pij;
-        var nabla;
-        var Vij;
+        let Pij;
+        let nabla;
+        let Vij;
 
         // Sum up for all other neighbors
-        var neighbors = this.neighbors[i];
-        var numNeighbors = neighbors.length;
+        let neighbors = this.neighbors[i];
+        let numNeighbors = neighbors.length;
 
         //printf("Neighbors: ");
-        for(var j=0; j!==numNeighbors; j++){
+        for(let j=0; j!==numNeighbors; j++){
 
-            var neighbor = neighbors[j];
+            let neighbor = neighbors[j];
             //printf("%d ",nj);
 
             // Get r once for all..
             particle.position.vsub(neighbor.position,r_vec);
-            var r = r_vec.norm();
+            let r = r_vec.norm();
 
             // Pressure contribution
             Pij = -neighbor.mass * (this.pressures[i] / (this.densities[i]*this.densities[i] + eps) + this.pressures[j] / (this.densities[j]*this.densities[j] + eps));
@@ -7573,26 +7582,26 @@ SPHSystem.prototype.update = function(){
 // Calculate the weight using the W(r) weightfunction
 SPHSystem.prototype.w = function(r){
     // 315
-    var h = this.smoothingRadius;
+    let h = this.smoothingRadius;
     return 315.0/(64.0*Math.PI*Math.pow(h,9)) * Math.pow(h*h-r*r,3);
 };
 
 // calculate gradient of the weight function
 SPHSystem.prototype.gradw = function(rVec,resultVec){
-    var r = rVec.norm(),
+    let r = rVec.norm(),
         h = this.smoothingRadius;
     rVec.mult(945.0/(32.0*Math.PI*Math.pow(h,9)) * Math.pow((h*h-r*r),2) , resultVec);
 };
 
 // Calculate nabla(W)
 SPHSystem.prototype.nablaw = function(r){
-    var h = this.smoothingRadius;
-    var nabla = 945.0/(32.0*Math.PI*Math.pow(h,9)) * (h*h-r*r)*(7*r*r - 3*h*h);
+    let h = this.smoothingRadius;
+    let nabla = 945.0/(32.0*Math.PI*Math.pow(h,9)) * (h*h-r*r)*(7*r*r - 3*h*h);
     return nabla;
 };
 
 },{"../material/Material":26,"../math/Quaternion":29,"../math/Vec3":31,"../objects/Body":32,"../shapes/Particle":42,"../shapes/Shape":44}],36:[function(_dereq_,module,exports){
-var Vec3 = _dereq_('../math/Vec3');
+let Vec3 = _dereq_('../math/Vec3');
 
 module.exports = Spring;
 
@@ -7714,7 +7723,7 @@ Spring.prototype.getWorldAnchorB = function(result){
     this.bodyB.pointToWorldFrame(this.localAnchorB,result);
 };
 
-var applyForce_r =              new Vec3(),
+let applyForce_r =              new Vec3(),
     applyForce_r_unit =         new Vec3(),
     applyForce_u =              new Vec3(),
     applyForce_f =              new Vec3(),
@@ -7731,7 +7740,7 @@ var applyForce_r =              new Vec3(),
  * @method applyForce
  */
 Spring.prototype.applyForce = function(){
-    var k = this.stiffness,
+    let k = this.stiffness,
         d = this.damping,
         l = this.restLength,
         bodyA = this.bodyA,
@@ -7742,7 +7751,7 @@ Spring.prototype.applyForce = function(){
         f = applyForce_f,
         tmp = applyForce_tmp;
 
-    var worldAnchorA = applyForce_worldAnchorA,
+    let worldAnchorA = applyForce_worldAnchorA,
         worldAnchorB = applyForce_worldAnchorB,
         ri = applyForce_ri,
         rj = applyForce_rj,
@@ -7759,7 +7768,7 @@ Spring.prototype.applyForce = function(){
 
     // Compute distance vector between world anchor points
     worldAnchorB.vsub(worldAnchorA,r);
-    var rlen = r.norm();
+    let rlen = r.norm();
     r_unit.copy(r);
     r_unit.normalize();
 
@@ -7787,10 +7796,10 @@ Spring.prototype.applyForce = function(){
 };
 
 },{"../math/Vec3":31}],37:[function(_dereq_,module,exports){
-var Vec3 = _dereq_('../math/Vec3');
-var Transform = _dereq_('../math/Transform');
-var RaycastResult = _dereq_('../collision/RaycastResult');
-var Utils = _dereq_('../utils/Utils');
+let Vec3 = _dereq_('../math/Vec3');
+let Transform = _dereq_('../math/Transform');
+let RaycastResult = _dereq_('../collision/RaycastResult');
+let Utils = _dereq_('../utils/Utils');
 
 module.exports = WheelInfo;
 
@@ -8041,22 +8050,21 @@ function WheelInfo(options){
     this.isInContact = false;
 }
 
-var chassis_velocity_at_contactPoint = new Vec3();
-var relpos = new Vec3();
-var chassis_velocity_at_contactPoint = new Vec3();
+let chassis_velocity_at_contactPoint = new Vec3();
+let relpos = new Vec3();
 WheelInfo.prototype.updateWheel = function(chassis){
-    var raycastResult = this.raycastResult;
+    let raycastResult = this.raycastResult;
 
     if (this.isInContact){
-        var project= raycastResult.hitNormalWorld.dot(raycastResult.directionWorld);
+        let project= raycastResult.hitNormalWorld.dot(raycastResult.directionWorld);
         raycastResult.hitPointWorld.vsub(chassis.position, relpos);
         chassis.getVelocityAtWorldPoint(relpos, chassis_velocity_at_contactPoint);
-        var projVel = raycastResult.hitNormalWorld.dot( chassis_velocity_at_contactPoint );
+        let projVel = raycastResult.hitNormalWorld.dot( chassis_velocity_at_contactPoint );
         if (project >= -0.1) {
             this.suspensionRelativeVelocity = 0.0;
             this.clippedInvContactDotSuspension = 1.0 / 0.1;
         } else {
-            var inv = -1 / project;
+            let inv = -1 / project;
             this.suspensionRelativeVelocity = projVel * inv;
             this.clippedInvContactDotSuspension = inv;
         }
@@ -8072,9 +8080,9 @@ WheelInfo.prototype.updateWheel = function(chassis){
 },{"../collision/RaycastResult":11,"../math/Transform":30,"../math/Vec3":31,"../utils/Utils":54}],38:[function(_dereq_,module,exports){
 module.exports = Box;
 
-var Shape = _dereq_('./Shape');
-var Vec3 = _dereq_('../math/Vec3');
-var ConvexPolyhedron = _dereq_('./ConvexPolyhedron');
+let Shape = _dereq_('./Shape');
+let Vec3 = _dereq_('../math/Vec3');
+let ConvexPolyhedron = _dereq_('./ConvexPolyhedron');
 
 /**
  * A 3d box shape.
@@ -8113,12 +8121,12 @@ Box.prototype.constructor = Box;
  * @method updateConvexPolyhedronRepresentation
  */
 Box.prototype.updateConvexPolyhedronRepresentation = function(){
-    var sx = this.halfExtents.x;
-    var sy = this.halfExtents.y;
-    var sz = this.halfExtents.z;
-    var V = Vec3;
+    let sx = this.halfExtents.x;
+    let sy = this.halfExtents.y;
+    let sz = this.halfExtents.z;
+    let V = Vec3;
 
-    var vertices = [
+    let vertices = [
         new V(-sx,-sy,-sz),
         new V( sx,-sy,-sz),
         new V( sx, sy,-sz),
@@ -8129,7 +8137,7 @@ Box.prototype.updateConvexPolyhedronRepresentation = function(){
         new V(-sx, sy, sz)
     ];
 
-    var indices = [
+    let indices = [
         [3,2,1,0], // -z
         [4,5,6,7], // +z
         [5,4,0,1], // -y
@@ -8138,13 +8146,13 @@ Box.prototype.updateConvexPolyhedronRepresentation = function(){
         [1,2,6,5], // +x
     ];
 
-    var axes = [
+    let axes = [
         new V(0, 0, 1),
         new V(0, 1, 0),
         new V(1, 0, 0)
     ];
 
-    var h = new ConvexPolyhedron(vertices, indices);
+    let h = new ConvexPolyhedron(vertices, indices);
     this.convexPolyhedronRepresentation = h;
     h.material = this.material;
 };
@@ -8162,7 +8170,7 @@ Box.prototype.calculateLocalInertia = function(mass,target){
 };
 
 Box.calculateInertia = function(halfExtents,mass,target){
-    var e = halfExtents;
+    let e = halfExtents;
     if (e.isZero()) {
         target.x = 2.0 / 12.0 * mass;
         target.y = 2.0 / 12.0 * mass;
@@ -8182,8 +8190,8 @@ Box.calculateInertia = function(halfExtents,mass,target){
  * @return {array}
  */
 Box.prototype.getSideNormals = function(sixTargetVectors,quat){
-    var sides = sixTargetVectors;
-    var ex = this.halfExtents;
+    let sides = sixTargetVectors;
+    let ex = this.halfExtents;
     sides[0].set(  ex.x,     0,     0);
     sides[1].set(     0,  ex.y,     0);
     sides[2].set(     0,     0,  ex.z);
@@ -8192,7 +8200,7 @@ Box.prototype.getSideNormals = function(sixTargetVectors,quat){
     sides[5].set(     0,     0, -ex.z);
 
     if(quat!==undefined){
-        for(var i=0; i!==sides.length; i++){
+        for(let i=0; i!==sides.length; i++){
             quat.vmult(sides[i],sides[i]);
         }
     }
@@ -8208,12 +8216,12 @@ Box.prototype.updateBoundingSphereRadius = function(){
     this.boundingSphereRadius = this.halfExtents.norm();
 };
 
-var worldCornerTempPos = new Vec3();
-var worldCornerTempNeg = new Vec3();
+let worldCornerTempPos = new Vec3();
+let worldCornerTempNeg = new Vec3();
 Box.prototype.forEachWorldCorner = function(pos,quat,callback){
 
-    var e = this.halfExtents;
-    var corners = [[  e.x,  e.y,  e.z],
+    let e = this.halfExtents;
+    let corners = [[  e.x,  e.y,  e.z],
                    [ -e.x,  e.y,  e.z],
                    [ -e.x, -e.y,  e.z],
                    [ -e.x, -e.y, -e.z],
@@ -8221,7 +8229,7 @@ Box.prototype.forEachWorldCorner = function(pos,quat,callback){
                    [  e.x,  e.y, -e.z],
                    [ -e.x,  e.y, -e.z],
                    [  e.x, -e.y,  e.z]];
-    for(var i=0; i<corners.length; i++){
+    for(let i=0; i<corners.length; i++){
         worldCornerTempPos.set(corners[i][0],corners[i][1],corners[i][2]);
         quat.vmult(worldCornerTempPos,worldCornerTempPos);
         pos.vadd(worldCornerTempPos,worldCornerTempPos);
@@ -8231,7 +8239,7 @@ Box.prototype.forEachWorldCorner = function(pos,quat,callback){
     }
 };
 
-var worldCornersTemp = [
+let worldCornersTemp = [
     new Vec3(),
     new Vec3(),
     new Vec3(),
@@ -8243,7 +8251,7 @@ var worldCornersTemp = [
 ];
 Box.prototype.calculateWorldAABB = function(pos,quat,min,max){
 
-    var e = this.halfExtents;
+    let e = this.halfExtents;
     worldCornersTemp[0].set(e.x, e.y, e.z);
     worldCornersTemp[1].set(-e.x,  e.y, e.z);
     worldCornersTemp[2].set(-e.x, -e.y, e.z);
@@ -8253,18 +8261,18 @@ Box.prototype.calculateWorldAABB = function(pos,quat,min,max){
     worldCornersTemp[6].set(-e.x,  e.y, -e.z);
     worldCornersTemp[7].set(e.x, -e.y,  e.z);
 
-    var wc = worldCornersTemp[0];
+    let wc = worldCornersTemp[0];
     quat.vmult(wc, wc);
     pos.vadd(wc, wc);
     max.copy(wc);
     min.copy(wc);
-    for(var i=1; i<8; i++){
-        var wc = worldCornersTemp[i];
+    for(let i=1; i<8; i++){
+        let wc = worldCornersTemp[i];
         quat.vmult(wc, wc);
         pos.vadd(wc, wc);
-        var x = wc.x;
-        var y = wc.y;
-        var z = wc.z;
+        let x = wc.x;
+        let y = wc.y;
+        let z = wc.z;
         if(x > max.x){
             max.x = x;
         }
@@ -8315,10 +8323,10 @@ Box.prototype.calculateWorldAABB = function(pos,quat,min,max){
 },{"../math/Vec3":31,"./ConvexPolyhedron":39,"./Shape":44}],39:[function(_dereq_,module,exports){
 module.exports = ConvexPolyhedron;
 
-var Shape = _dereq_('./Shape');
-var Vec3 = _dereq_('../math/Vec3');
-var Quaternion = _dereq_('../math/Quaternion');
-var Transform = _dereq_('../math/Transform');
+let Shape = _dereq_('./Shape');
+let Vec3 = _dereq_('../math/Vec3');
+let Quaternion = _dereq_('../math/Quaternion');
+let Transform = _dereq_('../math/Transform');
 
 /**
  * A set of polygons describing a convex shape.
@@ -8391,30 +8399,30 @@ function ConvexPolyhedron(points, faces, uniqueAxes) {
 ConvexPolyhedron.prototype = new Shape();
 ConvexPolyhedron.prototype.constructor = ConvexPolyhedron;
 
-var computeEdges_tmpEdge = new Vec3();
+let computeEdges_tmpEdge = new Vec3();
 /**
  * Computes uniqueEdges
  * @method computeEdges
  */
 ConvexPolyhedron.prototype.computeEdges = function(){
-    var faces = this.faces;
-    var vertices = this.vertices;
-    var nv = vertices.length;
-    var edges = this.uniqueEdges;
+    let faces = this.faces;
+    let vertices = this.vertices;
+    let nv = vertices.length;
+    let edges = this.uniqueEdges;
 
     edges.length = 0;
 
-    var edge = computeEdges_tmpEdge;
+    let edge = computeEdges_tmpEdge;
 
-    for(var i=0; i !== faces.length; i++){
-        var face = faces[i];
-        var numVertices = face.length;
-        for(var j = 0; j !== numVertices; j++){
-            var k = ( j+1 ) % numVertices;
+    for(let i=0; i !== faces.length; i++){
+        let face = faces[i];
+        let numVertices = face.length;
+        for(let j = 0; j !== numVertices; j++){
+            let k = ( j+1 ) % numVertices;
             vertices[face[j]].vsub(vertices[face[k]], edge);
             edge.normalize();
-            var found = false;
-            for(var p=0; p !== edges.length; p++){
+            let found = false;
+            for(let p=0; p !== edges.length; p++){
                 if (edges[p].almostEquals(edge) || edges[p].almostEquals(edge)){
                     found = true;
                     break;
@@ -8436,23 +8444,23 @@ ConvexPolyhedron.prototype.computeNormals = function(){
     this.faceNormals.length = this.faces.length;
 
     // Generate normals
-    for(var i=0; i<this.faces.length; i++){
+    for(let i=0; i<this.faces.length; i++){
 
         // Check so all vertices exists for this face
-        for(var j=0; j<this.faces[i].length; j++){
+        for(let j=0; j<this.faces[i].length; j++){
             if(!this.vertices[this.faces[i][j]]){
                 throw new Error("Vertex "+this.faces[i][j]+" not found!");
             }
         }
 
-        var n = this.faceNormals[i] || new Vec3();
+        let n = this.faceNormals[i] || new Vec3();
         this.getFaceNormal(i,n);
         n.negate(n);
         this.faceNormals[i] = n;
-        var vertex = this.vertices[this.faces[i][0]];
+        let vertex = this.vertices[this.faces[i][0]];
         if(n.dot(vertex) < 0){
             console.error(".faceNormals[" + i + "] = Vec3("+n.toString()+") looks like it points into the shape? The vertices follow. Make sure they are ordered CCW around the normal, using the right hand rule.");
-            for(var j=0; j<this.faces[i].length; j++){
+            for(let j=0; j<this.faces[i].length; j++){
                 console.warn(".vertices["+this.faces[i][j]+"] = Vec3("+this.vertices[this.faces[i][j]].toString()+")");
             }
         }
@@ -8468,8 +8476,8 @@ ConvexPolyhedron.prototype.computeNormals = function(){
  * @param {Vec3} vc
  * @param {Vec3} target
  */
-var cb = new Vec3();
-var ab = new Vec3();
+let cb = new Vec3();
+let ab = new Vec3();
 ConvexPolyhedron.computeNormal = function ( va, vb, vc, target ) {
     vb.vsub(va,ab);
     vc.vsub(vb,cb);
@@ -8486,10 +8494,10 @@ ConvexPolyhedron.computeNormal = function ( va, vb, vc, target ) {
  * @param  {Vec3} target
  */
 ConvexPolyhedron.prototype.getFaceNormal = function(i,target){
-    var f = this.faces[i];
-    var va = this.vertices[f[0]];
-    var vb = this.vertices[f[1]];
-    var vc = this.vertices[f[2]];
+    let f = this.faces[i];
+    let va = this.vertices[f[0]];
+    let vb = this.vertices[f[1]];
+    let vc = this.vertices[f[2]];
     return ConvexPolyhedron.computeNormal(va,vb,vc,target);
 };
 
@@ -8506,29 +8514,29 @@ ConvexPolyhedron.prototype.getFaceNormal = function(i,target){
  * @param {array} result The an array of contact point objects, see clipFaceAgainstHull
  * @see http://bullet.googlecode.com/svn/trunk/src/BulletCollision/NarrowPhaseCollision/btPolyhedralContactClipping.cpp
  */
-var cah_WorldNormal = new Vec3();
+let cah_WorldNormal = new Vec3();
 ConvexPolyhedron.prototype.clipAgainstHull = function(posA,quatA,hullB,posB,quatB,separatingNormal,minDist,maxDist,result){
-    var WorldNormal = cah_WorldNormal;
-    var hullA = this;
-    var curMaxDist = maxDist;
-    var closestFaceB = -1;
-    var dmax = -Number.MAX_VALUE;
-    for(var face=0; face < hullB.faces.length; face++){
+    let WorldNormal = cah_WorldNormal;
+    let hullA = this;
+    let curMaxDist = maxDist;
+    let closestFaceB = -1;
+    let dmax = -Number.MAX_VALUE;
+    for(let face=0; face < hullB.faces.length; face++){
         WorldNormal.copy(hullB.faceNormals[face]);
         quatB.vmult(WorldNormal,WorldNormal);
         //posB.vadd(WorldNormal,WorldNormal);
-        var d = WorldNormal.dot(separatingNormal);
+        let d = WorldNormal.dot(separatingNormal);
         if (d > dmax){
             dmax = d;
             closestFaceB = face;
         }
     }
-    var worldVertsB1 = [];
-    var polyB = hullB.faces[closestFaceB];
-    var numVertices = polyB.length;
-    for(var e0=0; e0<numVertices; e0++){
-        var b = hullB.vertices[polyB[e0]];
-        var worldb = new Vec3();
+    let worldVertsB1 = [];
+    let polyB = hullB.faces[closestFaceB];
+    let numVertices = polyB.length;
+    for(let e0=0; e0<numVertices; e0++){
+        let b = hullB.vertices[polyB[e0]];
+        let worldb = new Vec3();
         worldb.copy(b);
         quatB.vmult(worldb,worldb);
         posB.vadd(worldb,worldb);
@@ -8557,37 +8565,37 @@ ConvexPolyhedron.prototype.clipAgainstHull = function(posA,quatA,hullB,posB,quat
  * @param {Vec3} target The target vector to save the axis in
  * @return {bool} Returns false if a separation is found, else true
  */
-var fsa_faceANormalWS3 = new Vec3(),
+let fsa_faceANormalWS3 = new Vec3(),
     fsa_Worldnormal1 = new Vec3(),
     fsa_deltaC = new Vec3(),
     fsa_worldEdge0 = new Vec3(),
     fsa_worldEdge1 = new Vec3(),
     fsa_Cross = new Vec3();
 ConvexPolyhedron.prototype.findSeparatingAxis = function(hullB,posA,quatA,posB,quatB,target, faceListA, faceListB){
-    var faceANormalWS3 = fsa_faceANormalWS3,
+    let faceANormalWS3 = fsa_faceANormalWS3,
         Worldnormal1 = fsa_Worldnormal1,
         deltaC = fsa_deltaC,
         worldEdge0 = fsa_worldEdge0,
         worldEdge1 = fsa_worldEdge1,
         Cross = fsa_Cross;
 
-    var dmin = Number.MAX_VALUE;
-    var hullA = this;
-    var curPlaneTests=0;
+    let dmin = Number.MAX_VALUE;
+    let hullA = this;
+    let curPlaneTests=0;
 
     if(!hullA.uniqueAxes){
 
-        var numFacesA = faceListA ? faceListA.length : hullA.faces.length;
+        let numFacesA = faceListA ? faceListA.length : hullA.faces.length;
 
         // Test face normals from hullA
-        for(var i=0; i<numFacesA; i++){
-            var fi = faceListA ? faceListA[i] : i;
+        for(let i=0; i<numFacesA; i++){
+            let fi = faceListA ? faceListA[i] : i;
 
             // Get world face normal
             faceANormalWS3.copy(hullA.faceNormals[fi]);
             quatA.vmult(faceANormalWS3,faceANormalWS3);
 
-            var d = hullA.testSepAxis(faceANormalWS3, hullB, posA, quatA, posB, quatB);
+            let d = hullA.testSepAxis(faceANormalWS3, hullB, posA, quatA, posB, quatB);
             if(d===false){
                 return false;
             }
@@ -8601,12 +8609,12 @@ ConvexPolyhedron.prototype.findSeparatingAxis = function(hullB,posA,quatA,posB,q
     } else {
 
         // Test unique axes
-        for(var i = 0; i !== hullA.uniqueAxes.length; i++){
+        for(let i = 0; i !== hullA.uniqueAxes.length; i++){
 
             // Get world axis
             quatA.vmult(hullA.uniqueAxes[i],faceANormalWS3);
 
-            var d = hullA.testSepAxis(faceANormalWS3, hullB, posA, quatA, posB, quatB);
+            let d = hullA.testSepAxis(faceANormalWS3, hullB, posA, quatA, posB, quatB);
             if(d===false){
                 return false;
             }
@@ -8621,15 +8629,15 @@ ConvexPolyhedron.prototype.findSeparatingAxis = function(hullB,posA,quatA,posB,q
     if(!hullB.uniqueAxes){
 
         // Test face normals from hullB
-        var numFacesB = faceListB ? faceListB.length : hullB.faces.length;
-        for(var i=0;i<numFacesB;i++){
+        let numFacesB = faceListB ? faceListB.length : hullB.faces.length;
+        for(let i=0;i<numFacesB;i++){
 
-            var fi = faceListB ? faceListB[i] : i;
+            let fi = faceListB ? faceListB[i] : i;
 
             Worldnormal1.copy(hullB.faceNormals[fi]);
             quatB.vmult(Worldnormal1,Worldnormal1);
             curPlaneTests++;
-            var d = hullA.testSepAxis(Worldnormal1, hullB,posA,quatA,posB,quatB);
+            let d = hullA.testSepAxis(Worldnormal1, hullB,posA,quatA,posB,quatB);
             if(d===false){
                 return false;
             }
@@ -8642,11 +8650,11 @@ ConvexPolyhedron.prototype.findSeparatingAxis = function(hullB,posA,quatA,posB,q
     } else {
 
         // Test unique axes in B
-        for(var i = 0; i !== hullB.uniqueAxes.length; i++){
+        for(let i = 0; i !== hullB.uniqueAxes.length; i++){
             quatB.vmult(hullB.uniqueAxes[i],Worldnormal1);
 
             curPlaneTests++;
-            var d = hullA.testSepAxis(Worldnormal1, hullB,posA,quatA,posB,quatB);
+            let d = hullA.testSepAxis(Worldnormal1, hullB,posA,quatA,posB,quatB);
             if(d===false){
                 return false;
             }
@@ -8659,12 +8667,12 @@ ConvexPolyhedron.prototype.findSeparatingAxis = function(hullB,posA,quatA,posB,q
     }
 
     // Test edges
-    for(var e0=0; e0 !== hullA.uniqueEdges.length; e0++){
+    for(let e0=0; e0 !== hullA.uniqueEdges.length; e0++){
 
         // Get world edge
         quatA.vmult(hullA.uniqueEdges[e0],worldEdge0);
 
-        for(var e1=0; e1 !== hullB.uniqueEdges.length; e1++){
+        for(let e1=0; e1 !== hullB.uniqueEdges.length; e1++){
 
             // Get world edge 2
             quatB.vmult(hullB.uniqueEdges[e1], worldEdge1);
@@ -8672,7 +8680,7 @@ ConvexPolyhedron.prototype.findSeparatingAxis = function(hullB,posA,quatA,posB,q
 
             if(!Cross.almostZero()){
                 Cross.normalize();
-                var dist = hullA.testSepAxis(Cross, hullB, posA, quatA, posB, quatB);
+                let dist = hullA.testSepAxis(Cross, hullB, posA, quatA, posB, quatB);
                 if(dist === false){
                     return false;
                 }
@@ -8692,7 +8700,7 @@ ConvexPolyhedron.prototype.findSeparatingAxis = function(hullB,posA,quatA,posB,q
     return true;
 };
 
-var maxminA=[], maxminB=[];
+let maxminA=[], maxminB=[];
 
 /**
  * Test separating axis against two hulls. Both hulls are projected onto the axis and the overlap size is returned if there is one.
@@ -8706,23 +8714,23 @@ var maxminA=[], maxminB=[];
  * @return {number} The overlap depth, or FALSE if no penetration.
  */
 ConvexPolyhedron.prototype.testSepAxis = function(axis, hullB, posA, quatA, posB, quatB){
-    var hullA=this;
+    let hullA=this;
     ConvexPolyhedron.project(hullA, axis, posA, quatA, maxminA);
     ConvexPolyhedron.project(hullB, axis, posB, quatB, maxminB);
-    var maxA = maxminA[0];
-    var minA = maxminA[1];
-    var maxB = maxminB[0];
-    var minB = maxminB[1];
+    let maxA = maxminA[0];
+    let minA = maxminA[1];
+    let maxB = maxminB[0];
+    let minB = maxminB[1];
     if(maxA<minB || maxB<minA){
         return false; // Separated
     }
-    var d0 = maxA - minB;
-    var d1 = maxB - minA;
-    var depth = d0<d1 ? d0:d1;
+    let d0 = maxA - minB;
+    let d1 = maxB - minA;
+    let depth = d0<d1 ? d0:d1;
     return depth;
 };
 
-var cli_aabbmin = new Vec3(),
+let cli_aabbmin = new Vec3(),
     cli_aabbmax = new Vec3();
 
 /**
@@ -8734,7 +8742,7 @@ ConvexPolyhedron.prototype.calculateLocalInertia = function(mass,target){
     // Approximate with box inertia
     // Exact inertia calculation is overkill, but see http://geometrictools.com/Documentation/PolyhedralMassProperties.pdf for the correct way to do it
     this.computeLocalAABB(cli_aabbmin,cli_aabbmax);
-    var x = cli_aabbmax.x - cli_aabbmin.x,
+    let x = cli_aabbmax.x - cli_aabbmin.x,
         y = cli_aabbmax.y - cli_aabbmin.y,
         z = cli_aabbmax.z - cli_aabbmin.z;
     target.x = 1.0 / 12.0 * mass * ( 2*y*2*y + 2*z*2*z );
@@ -8748,10 +8756,10 @@ ConvexPolyhedron.prototype.calculateLocalInertia = function(mass,target){
  * @return {Number}
  */
 ConvexPolyhedron.prototype.getPlaneConstantOfFace = function(face_i){
-    var f = this.faces[face_i];
-    var n = this.faceNormals[face_i];
-    var v = this.vertices[f[0]];
-    var c = -n.dot(v);
+    let f = this.faces[face_i];
+    let n = this.faceNormals[face_i];
+    let v = this.vertices[f[0]];
+    let c = -n.dot(v);
     return c;
 };
 
@@ -8766,7 +8774,7 @@ ConvexPolyhedron.prototype.getPlaneConstantOfFace = function(face_i){
  * @param {Number} maxDist
  * @param Array result Array to store resulting contact points in. Will be objects with properties: point, depth, normal. These are represented in world coordinates.
  */
-var cfah_faceANormalWS = new Vec3(),
+let cfah_faceANormalWS = new Vec3(),
     cfah_edge0 = new Vec3(),
     cfah_WorldEdge0 = new Vec3(),
     cfah_worldPlaneAnormal1 = new Vec3(),
@@ -8775,7 +8783,7 @@ var cfah_faceANormalWS = new Vec3(),
     cfah_localPlaneNormal = new Vec3(),
     cfah_planeNormalWS = new Vec3();
 ConvexPolyhedron.prototype.clipFaceAgainstHull = function(separatingNormal, posA, quatA, worldVertsB1, minDist, maxDist,result){
-    var faceANormalWS = cfah_faceANormalWS,
+    let faceANormalWS = cfah_faceANormalWS,
         edge0 = cfah_edge0,
         WorldEdge0 = cfah_WorldEdge0,
         worldPlaneAnormal1 = cfah_worldPlaneAnormal1,
@@ -8784,18 +8792,18 @@ ConvexPolyhedron.prototype.clipFaceAgainstHull = function(separatingNormal, posA
         localPlaneNormal = cfah_localPlaneNormal,
         planeNormalWS = cfah_planeNormalWS;
 
-    var hullA = this;
-    var worldVertsB2 = [];
-    var pVtxIn = worldVertsB1;
-    var pVtxOut = worldVertsB2;
+    let hullA = this;
+    let worldVertsB2 = [];
+    let pVtxIn = worldVertsB1;
+    let pVtxOut = worldVertsB2;
     // Find the face with normal closest to the separating axis
-    var closestFaceA = -1;
-    var dmin = Number.MAX_VALUE;
-    for(var face=0; face<hullA.faces.length; face++){
+    let closestFaceA = -1;
+    let dmin = Number.MAX_VALUE;
+    for(let face=0; face<hullA.faces.length; face++){
         faceANormalWS.copy(hullA.faceNormals[face]);
         quatA.vmult(faceANormalWS,faceANormalWS);
         //posA.vadd(faceANormalWS,faceANormalWS);
-        var d = faceANormalWS.dot(separatingNormal);
+        let d = faceANormalWS.dot(separatingNormal);
         if (d < dmin){
             dmin = d;
             closestFaceA = face;
@@ -8807,22 +8815,22 @@ ConvexPolyhedron.prototype.clipFaceAgainstHull = function(separatingNormal, posA
     }
     //console.log("closest A: ",closestFaceA);
     // Get the face and construct connected faces
-    var polyA = hullA.faces[closestFaceA];
+    let polyA = hullA.faces[closestFaceA];
     polyA.connectedFaces = [];
-    for(var i=0; i<hullA.faces.length; i++){
-        for(var j=0; j<hullA.faces[i].length; j++){
+    for(let i=0; i<hullA.faces.length; i++){
+        for(let j=0; j<hullA.faces[i].length; j++){
             if(polyA.indexOf(hullA.faces[i][j])!==-1 /* Sharing a vertex*/ && i!==closestFaceA /* Not the one we are looking for connections from */ && polyA.connectedFaces.indexOf(i)===-1 /* Not already added */ ){
                 polyA.connectedFaces.push(i);
             }
         }
     }
     // Clip the polygon to the back of the planes of all faces of hull A, that are adjacent to the witness face
-    var numContacts = pVtxIn.length;
-    var numVerticesA = polyA.length;
-    var res = [];
-    for(var e0=0; e0<numVerticesA; e0++){
-        var a = hullA.vertices[polyA[e0]];
-        var b = hullA.vertices[polyA[(e0+1)%numVerticesA]];
+    let numContacts = pVtxIn.length;
+    let numVerticesA = polyA.length;
+    let res = [];
+    for(let e0=0; e0<numVerticesA; e0++){
+        let a = hullA.vertices[polyA[e0]];
+        let b = hullA.vertices[polyA[(e0+1)%numVerticesA]];
         a.vsub(b,edge0);
         WorldEdge0.copy(edge0);
         quatA.vmult(WorldEdge0,WorldEdge0);
@@ -8835,17 +8843,17 @@ ConvexPolyhedron.prototype.clipFaceAgainstHull = function(separatingNormal, posA
         worldA1.copy(a);
         quatA.vmult(worldA1,worldA1);
         posA.vadd(worldA1,worldA1);
-        var planeEqWS1 = -worldA1.dot(planeNormalWS1);
-        var planeEqWS;
+        let planeEqWS1 = -worldA1.dot(planeNormalWS1);
+        let planeEqWS;
         if(true){
-            var otherFace = polyA.connectedFaces[e0];
+            let otherFace = polyA.connectedFaces[e0];
             localPlaneNormal.copy(this.faceNormals[otherFace]);
-            var localPlaneEq = this.getPlaneConstantOfFace(otherFace);
+            let localPlaneEq = this.getPlaneConstantOfFace(otherFace);
 
             planeNormalWS.copy(localPlaneNormal);
             quatA.vmult(planeNormalWS,planeNormalWS);
             //posA.vadd(planeNormalWS,planeNormalWS);
-            var planeEqWS = localPlaneEq - planeNormalWS.dot(posA);
+            let planeEqWS = localPlaneEq - planeNormalWS.dot(posA);
         } else  {
             planeNormalWS.copy(planeNormalWS1);
             planeEqWS = planeEqWS1;
@@ -8868,13 +8876,13 @@ ConvexPolyhedron.prototype.clipFaceAgainstHull = function(separatingNormal, posA
     // only keep contact points that are behind the witness face
     localPlaneNormal.copy(this.faceNormals[closestFaceA]);
 
-    var localPlaneEq = this.getPlaneConstantOfFace(closestFaceA);
+    let localPlaneEq = this.getPlaneConstantOfFace(closestFaceA);
     planeNormalWS.copy(localPlaneNormal);
     quatA.vmult(planeNormalWS,planeNormalWS);
 
-    var planeEqWS = localPlaneEq - planeNormalWS.dot(posA);
-    for (var i=0; i<pVtxIn.length; i++){
-        var depth = planeNormalWS.dot(pVtxIn[i]) + planeEqWS; //???
+    let planeEqWS = localPlaneEq - planeNormalWS.dot(posA);
+    for (let i=0; i<pVtxIn.length; i++){
+        let depth = planeNormalWS.dot(pVtxIn[i]) + planeEqWS; //???
         /*console.log("depth calc from normal=",planeNormalWS.toString()," and constant "+planeEqWS+" and vertex ",pVtxIn[i].toString()," gives "+depth);*/
         if (depth <=minDist){
             // console.log("clamped: depth="+depth+" to minDist="+(minDist+""));
@@ -8882,14 +8890,14 @@ ConvexPolyhedron.prototype.clipFaceAgainstHull = function(separatingNormal, posA
         }
 
         if (depth <=maxDist){
-            var point = pVtxIn[i];
+            let point = pVtxIn[i];
             if(depth<=0){
                 /*console.log("Got contact point ",point.toString(),
                   ", depth=",depth,
                   "contact normal=",separatingNormal.toString(),
                   "plane",planeNormalWS.toString(),
                   "planeConstant",planeEqWS);*/
-                var p = {
+                let p = {
                     point:point,
                     normal:planeNormalWS,
                     depth: depth,
@@ -8909,30 +8917,30 @@ ConvexPolyhedron.prototype.clipFaceAgainstHull = function(separatingNormal, posA
  * @param {Number} planeConstant The constant in the mathematical plane equation
  */
 ConvexPolyhedron.prototype.clipFaceAgainstPlane = function(inVertices,outVertices, planeNormal, planeConstant){
-    var n_dot_first, n_dot_last;
-    var numVerts = inVertices.length;
+    let n_dot_first, n_dot_last;
+    let numVerts = inVertices.length;
 
     if(numVerts < 2){
         return outVertices;
     }
 
-    var firstVertex = inVertices[inVertices.length-1],
+    let firstVertex = inVertices[inVertices.length-1],
         lastVertex =   inVertices[0];
 
     n_dot_first = planeNormal.dot(firstVertex) + planeConstant;
 
-    for(var vi = 0; vi < numVerts; vi++){
+    for(let vi = 0; vi < numVerts; vi++){
         lastVertex = inVertices[vi];
         n_dot_last = planeNormal.dot(lastVertex) + planeConstant;
         if(n_dot_first < 0){
             if(n_dot_last < 0){
                 // Start < 0, end < 0, so output lastVertex
-                var newv = new Vec3();
+                let newv = new Vec3();
                 newv.copy(lastVertex);
                 outVertices.push(newv);
             } else {
                 // Start < 0, end >= 0, so output intersection
-                var newv = new Vec3();
+                let newv = new Vec3();
                 firstVertex.lerp(lastVertex,
                                  n_dot_first / (n_dot_first - n_dot_last),
                                  newv);
@@ -8941,7 +8949,7 @@ ConvexPolyhedron.prototype.clipFaceAgainstPlane = function(inVertices,outVertice
         } else {
             if(n_dot_last<0){
                 // Start >= 0, end < 0 so output intersection and end
-                var newv = new Vec3();
+                let newv = new Vec3();
                 firstVertex.lerp(lastVertex,
                                  n_dot_first / (n_dot_first - n_dot_last),
                                  newv);
@@ -8957,14 +8965,14 @@ ConvexPolyhedron.prototype.clipFaceAgainstPlane = function(inVertices,outVertice
 
 // Updates .worldVertices and sets .worldVerticesNeedsUpdate to false.
 ConvexPolyhedron.prototype.computeWorldVertices = function(position,quat){
-    var N = this.vertices.length;
+    let N = this.vertices.length;
     while(this.worldVertices.length < N){
         this.worldVertices.push( new Vec3() );
     }
 
-    var verts = this.vertices,
+    let verts = this.vertices,
         worldVerts = this.worldVertices;
-    for(var i=0; i!==N; i++){
+    for(let i=0; i!==N; i++){
         quat.vmult( verts[i] , worldVerts[i] );
         position.vadd( worldVerts[i] , worldVerts[i] );
     }
@@ -8972,17 +8980,17 @@ ConvexPolyhedron.prototype.computeWorldVertices = function(position,quat){
     this.worldVerticesNeedsUpdate = false;
 };
 
-var computeLocalAABB_worldVert = new Vec3();
+let computeLocalAABB_worldVert = new Vec3();
 ConvexPolyhedron.prototype.computeLocalAABB = function(aabbmin,aabbmax){
-    var n = this.vertices.length,
+    let n = this.vertices.length,
         vertices = this.vertices,
         worldVert = computeLocalAABB_worldVert;
 
     aabbmin.set(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
     aabbmax.set(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE);
 
-    for(var i=0; i<n; i++){
-        var v = vertices[i];
+    for(let i=0; i<n; i++){
+        let v = vertices[i];
         if     (v.x < aabbmin.x){
             aabbmin.x = v.x;
         } else if(v.x > aabbmax.x){
@@ -9007,14 +9015,14 @@ ConvexPolyhedron.prototype.computeLocalAABB = function(aabbmin,aabbmax){
  * @param  {Quaternion} quat
  */
 ConvexPolyhedron.prototype.computeWorldFaceNormals = function(quat){
-    var N = this.faceNormals.length;
+    let N = this.faceNormals.length;
     while(this.worldFaceNormals.length < N){
         this.worldFaceNormals.push( new Vec3() );
     }
 
-    var normals = this.faceNormals,
+    let normals = this.faceNormals,
         worldNormals = this.worldFaceNormals;
-    for(var i=0; i!==N; i++){
+    for(let i=0; i!==N; i++){
         quat.vmult( normals[i] , worldNormals[i] );
     }
 
@@ -9026,10 +9034,10 @@ ConvexPolyhedron.prototype.computeWorldFaceNormals = function(quat){
  */
 ConvexPolyhedron.prototype.updateBoundingSphereRadius = function(){
     // Assume points are distributed with local (0,0,0) as center
-    var max2 = 0;
-    var verts = this.vertices;
-    for(var i=0, N=verts.length; i!==N; i++) {
-        var norm2 = verts[i].norm2();
+    let max2 = 0;
+    let verts = this.vertices;
+    for(let i=0, N=verts.length; i!==N; i++) {
+        let norm2 = verts[i].norm2();
         if(norm2 > max2){
             max2 = norm2;
         }
@@ -9037,7 +9045,7 @@ ConvexPolyhedron.prototype.updateBoundingSphereRadius = function(){
     this.boundingSphereRadius = Math.sqrt(max2);
 };
 
-var tempWorldVertex = new Vec3();
+let tempWorldVertex = new Vec3();
 
 /**
  * @method calculateWorldAABB
@@ -9047,13 +9055,13 @@ var tempWorldVertex = new Vec3();
  * @param {Vec3}        max
  */
 ConvexPolyhedron.prototype.calculateWorldAABB = function(pos,quat,min,max){
-    var n = this.vertices.length, verts = this.vertices;
-    var minx,miny,minz,maxx,maxy,maxz;
-    for(var i=0; i<n; i++){
+    let n = this.vertices.length, verts = this.vertices;
+    let minx,miny,minz,maxx,maxy,maxz;
+    for(let i=0; i<n; i++){
         tempWorldVertex.copy(verts[i]);
         quat.vmult(tempWorldVertex,tempWorldVertex);
         pos.vadd(tempWorldVertex,tempWorldVertex);
-        var v = tempWorldVertex;
+        let v = tempWorldVertex;
         if     (v.x < minx || minx===undefined){
             minx = v.x;
         } 
@@ -9099,9 +9107,9 @@ ConvexPolyhedron.prototype.volume = function(){
  */
 ConvexPolyhedron.prototype.getAveragePointLocal = function(target){
     target = target || new Vec3();
-    var n = this.vertices.length,
+    let n = this.vertices.length,
         verts = this.vertices;
-    for(var i=0; i<n; i++){
+    for(let i=0; i<n; i++){
         target.vadd(verts[i],target);
     }
     target.mult(1/n,target);
@@ -9115,33 +9123,33 @@ ConvexPolyhedron.prototype.getAveragePointLocal = function(target){
  * @param  {Quaternion} quat
  */
 ConvexPolyhedron.prototype.transformAllPoints = function(offset,quat){
-    var n = this.vertices.length,
+    let n = this.vertices.length,
         verts = this.vertices;
 
     // Apply rotation
     if(quat){
         // Rotate vertices
-        for(var i=0; i<n; i++){
-            var v = verts[i];
+        for(let i=0; i<n; i++){
+            let v = verts[i];
             quat.vmult(v,v);
         }
         // Rotate face normals
-        for(var i=0; i<this.faceNormals.length; i++){
-            var v = this.faceNormals[i];
+        for(let i=0; i<this.faceNormals.length; i++){
+            let v = this.faceNormals[i];
             quat.vmult(v,v);
         }
         /*
         // Rotate edges
-        for(var i=0; i<this.uniqueEdges.length; i++){
-            var v = this.uniqueEdges[i];
+        for(let i=0; i<this.uniqueEdges.length; i++){
+            let v = this.uniqueEdges[i];
             quat.vmult(v,v);
         }*/
     }
 
     // Apply offset
     if(offset){
-        for(var i=0; i<n; i++){
-            var v = verts[i];
+        for(let i=0; i<n; i++){
+            let v = verts[i];
             v.vadd(offset,v);
         }
     }
@@ -9153,31 +9161,31 @@ ConvexPolyhedron.prototype.transformAllPoints = function(offset,quat){
  * @param  {Vec3} p      A point given in local coordinates
  * @return {Boolean}
  */
-var ConvexPolyhedron_pointIsInside = new Vec3();
-var ConvexPolyhedron_vToP = new Vec3();
-var ConvexPolyhedron_vToPointInside = new Vec3();
+let ConvexPolyhedron_pointIsInside = new Vec3();
+let ConvexPolyhedron_vToP = new Vec3();
+let ConvexPolyhedron_vToPointInside = new Vec3();
 ConvexPolyhedron.prototype.pointIsInside = function(p){
-    var n = this.vertices.length,
+    let n = this.vertices.length,
         verts = this.vertices,
         faces = this.faces,
         normals = this.faceNormals;
-    var positiveResult = null;
-    var N = this.faces.length;
-    var pointInside = ConvexPolyhedron_pointIsInside;
+    let positiveResult = null;
+    let N = this.faces.length;
+    let pointInside = ConvexPolyhedron_pointIsInside;
     this.getAveragePointLocal(pointInside);
-    for(var i=0; i<N; i++){
-        var numVertices = this.faces[i].length;
-        var n = normals[i];
-        var v = verts[faces[i][0]]; // We only need one point in the face
+    for(let i=0; i<N; i++){
+        let numVertices = this.faces[i].length;
+        let n = normals[i];
+        let v = verts[faces[i][0]]; // We only need one point in the face
 
         // This dot product determines which side of the edge the point is
-        var vToP = ConvexPolyhedron_vToP;
+        let vToP = ConvexPolyhedron_vToP;
         p.vsub(v,vToP);
-        var r1 = n.dot(vToP);
+        let r1 = n.dot(vToP);
 
-        var vToPointInside = ConvexPolyhedron_vToPointInside;
+        let vToPointInside = ConvexPolyhedron_vToPointInside;
         pointInside.vsub(v,vToPointInside);
-        var r2 = n.dot(vToPointInside);
+        let r2 = n.dot(vToPointInside);
 
         if((r1<0 && r2>0) || (r1>0 && r2<0)){
             return false; // Encountered some other sign. Exit.
@@ -9199,11 +9207,11 @@ ConvexPolyhedron.prototype.pointIsInside = function(p){
  * @param {Quaternion} quat
  * @param {array} result result[0] and result[1] will be set to maximum and minimum, respectively.
  */
-var project_worldVertex = new Vec3();
-var project_localAxis = new Vec3();
-var project_localOrigin = new Vec3();
+let project_worldVertex = new Vec3();
+let project_localAxis = new Vec3();
+let project_localOrigin = new Vec3();
 ConvexPolyhedron.project = function(hull, axis, pos, quat, result){
-    var n = hull.vertices.length,
+    let n = hull.vertices.length,
         worldVertex = project_worldVertex,
         localAxis = project_localAxis,
         max = 0,
@@ -9216,12 +9224,12 @@ ConvexPolyhedron.project = function(hull, axis, pos, quat, result){
     // Transform the axis to local
     Transform.vectorToLocalFrame(pos, quat, axis, localAxis);
     Transform.pointToLocalFrame(pos, quat, localOrigin, localOrigin);
-    var add = localOrigin.dot(localAxis);
+    let add = localOrigin.dot(localAxis);
 
     min = max = vs[0].dot(localAxis);
 
-    for(var i = 1; i < n; i++){
-        var val = vs[i].dot(localAxis);
+    for(let i = 1; i < n; i++){
+        let val = vs[i].dot(localAxis);
 
         if(val > max){
             max = val;
@@ -9237,7 +9245,7 @@ ConvexPolyhedron.project = function(hull, axis, pos, quat, result){
 
     if(min > max){
         // Inconsistent - swap
-        var temp = min;
+        let temp = min;
         min = max;
         max = temp;
     }
@@ -9249,10 +9257,10 @@ ConvexPolyhedron.project = function(hull, axis, pos, quat, result){
 },{"../math/Quaternion":29,"../math/Transform":30,"../math/Vec3":31,"./Shape":44}],40:[function(_dereq_,module,exports){
 module.exports = Cylinder;
 
-var Shape = _dereq_('./Shape');
-var Vec3 = _dereq_('../math/Vec3');
-var Quaternion = _dereq_('../math/Quaternion');
-var ConvexPolyhedron = _dereq_('./ConvexPolyhedron');
+let Shape = _dereq_('./Shape');
+let Vec3 = _dereq_('../math/Vec3');
+let Quaternion = _dereq_('../math/Quaternion');
+let ConvexPolyhedron = _dereq_('./ConvexPolyhedron');
 
 /**
  * @class Cylinder
@@ -9265,7 +9273,7 @@ var ConvexPolyhedron = _dereq_('./ConvexPolyhedron');
  * @param {Number} numSegments The number of segments to build the cylinder out of
  */
 function Cylinder( radiusTop, radiusBottom, height , numSegments ) {
-    var N = numSegments,
+    let N = numSegments,
         verts = [],
         axes = [],
         faces = [],
@@ -9286,9 +9294,9 @@ function Cylinder( radiusTop, radiusBottom, height , numSegments ) {
                                height*0.5));
     topface.push(1);
 
-    for(var i=0; i<N; i++){
-        var theta = 2*Math.PI/N * (i+1);
-        var thetaN = 2*Math.PI/N * (i+0.5);
+    for(let i=0; i<N; i++){
+        let theta = 2*Math.PI/N * (i+1);
+        let thetaN = 2*Math.PI/N * (i+0.5);
         if(i<N-1){
             // Bottom
             verts.push(new Vec3(radiusBottom*cos(theta),
@@ -9316,8 +9324,8 @@ function Cylinder( radiusTop, radiusBottom, height , numSegments ) {
     axes.push(new Vec3(0,0,1));
 
     // Reorder bottom face
-    var temp = [];
-    for(var i=0; i<bottomface.length; i++){
+    let temp = [];
+    for(let i=0; i<bottomface.length; i++){
         temp.push(bottomface[bottomface.length - i - 1]);
     }
     faces.push(temp);
@@ -9328,10 +9336,10 @@ function Cylinder( radiusTop, radiusBottom, height , numSegments ) {
 Cylinder.prototype = new ConvexPolyhedron();
 
 },{"../math/Quaternion":29,"../math/Vec3":31,"./ConvexPolyhedron":39,"./Shape":44}],41:[function(_dereq_,module,exports){
-var Shape = _dereq_('./Shape');
-var ConvexPolyhedron = _dereq_('./ConvexPolyhedron');
-var Vec3 = _dereq_('../math/Vec3');
-var Utils = _dereq_('../utils/Utils');
+let Shape = _dereq_('./Shape');
+let ConvexPolyhedron = _dereq_('./ConvexPolyhedron');
+let Vec3 = _dereq_('../math/Vec3');
+let Utils = _dereq_('../utils/Utils');
 
 module.exports = Heightfield;
 
@@ -9350,17 +9358,17 @@ module.exports = Heightfield;
  *
  * @example
  *     // Generate some height data (y-values).
- *     var data = [];
- *     for(var i = 0; i < 1000; i++){
- *         var y = 0.5 * Math.cos(0.2 * i);
+ *     let data = [];
+ *     for(let i = 0; i < 1000; i++){
+ *         let y = 0.5 * Math.cos(0.2 * i);
  *         data.push(y);
  *     }
  *
  *     // Create the heightfield shape
- *     var heightfieldShape = new Heightfield(data, {
+ *     let heightfieldShape = new Heightfield(data, {
  *         elementSize: 1 // Distance between the data points in X and Y directions
  *     });
- *     var heightfieldBody = new Body();
+ *     let heightfieldBody = new Body();
  *     heightfieldBody.addShape(heightfieldShape);
  *     world.addBody(heightfieldBody);
  */
@@ -9434,11 +9442,11 @@ Heightfield.prototype.update = function(){
  * @method updateMinValue
  */
 Heightfield.prototype.updateMinValue = function(){
-    var data = this.data;
-    var minValue = data[0][0];
-    for(var i=0; i !== data.length; i++){
-        for(var j=0; j !== data[i].length; j++){
-            var v = data[i][j];
+    let data = this.data;
+    let minValue = data[0][0];
+    for(let i=0; i !== data.length; i++){
+        for(let j=0; j !== data[i].length; j++){
+            let v = data[i][j];
             if(v < minValue){
                 minValue = v;
             }
@@ -9452,11 +9460,11 @@ Heightfield.prototype.updateMinValue = function(){
  * @method updateMaxValue
  */
 Heightfield.prototype.updateMaxValue = function(){
-    var data = this.data;
-    var maxValue = data[0][0];
-    for(var i=0; i !== data.length; i++){
-        for(var j=0; j !== data[i].length; j++){
-            var v = data[i][j];
+    let data = this.data;
+    let maxValue = data[0][0];
+    for(let i=0; i !== data.length; i++){
+        for(let j=0; j !== data[i].length; j++){
+            let v = data[i][j];
             if(v > maxValue){
                 maxValue = v;
             }
@@ -9473,7 +9481,7 @@ Heightfield.prototype.updateMaxValue = function(){
  * @param {number} value
  */
 Heightfield.prototype.setHeightValueAtIndex = function(xi, yi, value){
-    var data = this.data;
+    let data = this.data;
     data[xi][yi] = value;
 
     // Invalidate cache
@@ -9505,11 +9513,11 @@ Heightfield.prototype.getRectMinMax = function (iMinX, iMinY, iMaxX, iMaxY, resu
     result = result || [];
 
     // Get max and min of the data
-    var data = this.data,
+    let data = this.data,
         max = this.minValue; // Set first value
-    for(var i = iMinX; i <= iMaxX; i++){
-        for(var j = iMinY; j <= iMaxY; j++){
-            var height = data[i][j];
+    for(let i = iMinX; i <= iMaxX; i++){
+        for(let j = iMinY; j <= iMaxY; j++){
+            let height = data[i][j];
             if(height > max){
                 max = height;
             }
@@ -9534,10 +9542,10 @@ Heightfield.prototype.getRectMinMax = function (iMinX, iMinY, iMaxX, iMaxY, resu
 Heightfield.prototype.getIndexOfPosition = function (x, y, result, clamp) {
 
     // Get the index of the data points to test against
-    var w = this.elementSize;
-    var data = this.data;
-    var xi = Math.floor(x / w);
-    var yi = Math.floor(y / w);
+    let w = this.elementSize;
+    let data = this.data;
+    let xi = Math.floor(x / w);
+    let yi = Math.floor(y / w);
 
     result[0] = xi;
     result[1] = yi;
@@ -9559,43 +9567,43 @@ Heightfield.prototype.getIndexOfPosition = function (x, y, result, clamp) {
 };
 
 
-var getHeightAt_idx = [];
-var getHeightAt_weights = new Vec3();
-var getHeightAt_a = new Vec3();
-var getHeightAt_b = new Vec3();
-var getHeightAt_c = new Vec3();
+let getHeightAt_idx = [];
+let getHeightAt_weights = new Vec3();
+let getHeightAt_a = new Vec3();
+let getHeightAt_b = new Vec3();
+let getHeightAt_c = new Vec3();
 
 Heightfield.prototype.getTriangleAt = function(x, y, edgeClamp, a, b, c){
-    var idx = getHeightAt_idx;
+    let idx = getHeightAt_idx;
     this.getIndexOfPosition(x, y, idx, edgeClamp);
-    var xi = idx[0];
-    var yi = idx[1];
+    let xi = idx[0];
+    let yi = idx[1];
 
-    var data = this.data;
+    let data = this.data;
     if(edgeClamp){
         xi = Math.min(data.length - 2, Math.max(0, xi));
         yi = Math.min(data[0].length - 2, Math.max(0, yi));
     }
 
-    var elementSize = this.elementSize;
-    var lowerDist2 = Math.pow(x / elementSize - xi, 2) + Math.pow(y / elementSize - yi, 2);
-    var upperDist2 = Math.pow(x / elementSize - (xi + 1), 2) + Math.pow(y / elementSize - (yi + 1), 2);
-    var upper = lowerDist2 > upperDist2;
+    let elementSize = this.elementSize;
+    let lowerDist2 = Math.pow(x / elementSize - xi, 2) + Math.pow(y / elementSize - yi, 2);
+    let upperDist2 = Math.pow(x / elementSize - (xi + 1), 2) + Math.pow(y / elementSize - (yi + 1), 2);
+    let upper = lowerDist2 > upperDist2;
     this.getTriangle(xi, yi, upper, a, b, c);
     return upper;
 };
 
-var getNormalAt_a = new Vec3();
-var getNormalAt_b = new Vec3();
-var getNormalAt_c = new Vec3();
-var getNormalAt_e0 = new Vec3();
-var getNormalAt_e1 = new Vec3();
+let getNormalAt_a = new Vec3();
+let getNormalAt_b = new Vec3();
+let getNormalAt_c = new Vec3();
+let getNormalAt_e0 = new Vec3();
+let getNormalAt_e1 = new Vec3();
 Heightfield.prototype.getNormalAt = function(x, y, edgeClamp, result){
-    var a = getNormalAt_a;
-    var b = getNormalAt_b;
-    var c = getNormalAt_c;
-    var e0 = getNormalAt_e0;
-    var e1 = getNormalAt_e1;
+    let a = getNormalAt_a;
+    let b = getNormalAt_b;
+    let c = getNormalAt_c;
+    let e0 = getNormalAt_e0;
+    let e1 = getNormalAt_e1;
     this.getTriangleAt(x, y, edgeClamp, a, b, c);
     b.vsub(a, e0);
     c.vsub(a, e1);
@@ -9611,8 +9619,8 @@ Heightfield.prototype.getNormalAt = function(x, y, edgeClamp, result){
  * @param  {AABB} result
  */
 Heightfield.prototype.getAabbAtIndex = function(xi, yi, result){
-    var data = this.data;
-    var elementSize = this.elementSize;
+    let data = this.data;
+    let elementSize = this.elementSize;
 
     result.lowerBound.set(
         xi * elementSize,
@@ -9635,23 +9643,23 @@ Heightfield.prototype.getAabbAtIndex = function(xi, yi, result){
  * @return {number}
  */
 Heightfield.prototype.getHeightAt = function(x, y, edgeClamp){
-    var data = this.data;
-    var a = getHeightAt_a;
-    var b = getHeightAt_b;
-    var c = getHeightAt_c;
-    var idx = getHeightAt_idx;
+    let data = this.data;
+    let a = getHeightAt_a;
+    let b = getHeightAt_b;
+    let c = getHeightAt_c;
+    let idx = getHeightAt_idx;
 
     this.getIndexOfPosition(x, y, idx, edgeClamp);
-    var xi = idx[0];
-    var yi = idx[1];
+    let xi = idx[0];
+    let yi = idx[1];
     if(edgeClamp){
         xi = Math.min(data.length - 2, Math.max(0, xi));
         yi = Math.min(data[0].length - 2, Math.max(0, yi));
     }
-    var upper = this.getTriangleAt(x, y, edgeClamp, a, b, c);
+    let upper = this.getTriangleAt(x, y, edgeClamp, a, b, c);
     barycentricWeights(x, y, a.x, a.y, b.x, b.y, c.x, c.y, getHeightAt_weights);
 
-    var w = getHeightAt_weights;
+    let w = getHeightAt_weights;
 
     if(upper){
 
@@ -9701,8 +9709,8 @@ Heightfield.prototype.clearCachedConvexTrianglePillar = function(xi, yi, getUppe
  * @param  {Vec3} c
  */
 Heightfield.prototype.getTriangle = function(xi, yi, upper, a, b, c){
-    var data = this.data;
-    var elementSize = this.elementSize;
+    let data = this.data;
+    let elementSize = this.elementSize;
 
     if(upper){
 
@@ -9752,11 +9760,11 @@ Heightfield.prototype.getTriangle = function(xi, yi, upper, a, b, c){
  * @param  {boolean} getUpperTriangle
  */
 Heightfield.prototype.getConvexTrianglePillar = function(xi, yi, getUpperTriangle){
-    var result = this.pillarConvex;
-    var offsetResult = this.pillarOffset;
+    let result = this.pillarConvex;
+    let offsetResult = this.pillarOffset;
 
     if(this.cacheEnabled){
-        var data = this.getCachedConvexTrianglePillar(xi, yi, getUpperTriangle);
+        let data = this.getCachedConvexTrianglePillar(xi, yi, getUpperTriangle);
         if(data){
             this.pillarConvex = data.convex;
             this.pillarOffset = data.offset;
@@ -9770,13 +9778,13 @@ Heightfield.prototype.getConvexTrianglePillar = function(xi, yi, getUpperTriangl
         this.pillarOffset = offsetResult;
     }
 
-    var data = this.data;
-    var elementSize = this.elementSize;
-    var faces = result.faces;
+    let data = this.data;
+    let elementSize = this.elementSize;
+    let faces = result.faces;
 
     // Reuse verts if possible
     result.vertices.length = 6;
-    for (var i = 0; i < 6; i++) {
+    for (let i = 0; i < 6; i++) {
         if(!result.vertices[i]){
             result.vertices[i] = new Vec3();
         }
@@ -9784,15 +9792,15 @@ Heightfield.prototype.getConvexTrianglePillar = function(xi, yi, getUpperTriangl
 
     // Reuse faces if possible
     faces.length = 5;
-    for (var i = 0; i < 5; i++) {
+    for (let i = 0; i < 5; i++) {
         if(!faces[i]){
             faces[i] = [];
         }
     }
 
-    var verts = result.vertices;
+    let verts = result.vertices;
 
-    var h = (Math.min(
+    let h = (Math.min(
         data[xi][yi],
         data[xi+1][yi],
         data[xi][yi+1],
@@ -9968,7 +9976,7 @@ Heightfield.prototype.calculateWorldAABB = function(pos, quat, min, max){
 
 Heightfield.prototype.updateBoundingSphereRadius = function(){
     // Use the bounding box of the min/max values
-    var data = this.data,
+    let data = this.data,
         s = this.elementSize;
     this.boundingSphereRadius = new Vec3(data.length * s, data[0].length * s, Math.max(Math.abs(this.maxValue), Math.abs(this.minValue))).norm();
 };
@@ -9980,23 +9988,23 @@ Heightfield.prototype.updateBoundingSphereRadius = function(){
  * @param {Vec3} scale
  */
 Heightfield.prototype.setHeightsFromImage = function(image, scale){
-    var canvas = document.createElement('canvas');
+    let canvas = document.createElement('canvas');
     canvas.width = image.width;
     canvas.height = image.height;
-    var context = canvas.getContext('2d');
+    let context = canvas.getContext('2d');
     context.drawImage(image, 0, 0);
-    var imageData = context.getImageData(0, 0, image.width, image.height);
+    let imageData = context.getImageData(0, 0, image.width, image.height);
 
-    var matrix = this.data;
+    let matrix = this.data;
     matrix.length = 0;
     this.elementSize = Math.abs(scale.x) / imageData.width;
-    for(var i=0; i<imageData.height; i++){
-        var row = [];
-        for(var j=0; j<imageData.width; j++){
-            var a = imageData.data[(i*imageData.height + j) * 4];
-            var b = imageData.data[(i*imageData.height + j) * 4 + 1];
-            var c = imageData.data[(i*imageData.height + j) * 4 + 2];
-            var height = (a + b + c) / 4 / 255 * scale.z;
+    for(let i=0; i<imageData.height; i++){
+        let row = [];
+        for(let j=0; j<imageData.width; j++){
+            let a = imageData.data[(i*imageData.height + j) * 4];
+            let b = imageData.data[(i*imageData.height + j) * 4 + 1];
+            let c = imageData.data[(i*imageData.height + j) * 4 + 2];
+            let height = (a + b + c) / 4 / 255 * scale.z;
             if(scale.x < 0){
                 row.push(height);
             } else {
@@ -10016,8 +10024,8 @@ Heightfield.prototype.setHeightsFromImage = function(image, scale){
 },{"../math/Vec3":31,"../utils/Utils":54,"./ConvexPolyhedron":39,"./Shape":44}],42:[function(_dereq_,module,exports){
 module.exports = Particle;
 
-var Shape = _dereq_('./Shape');
-var Vec3 = _dereq_('../math/Vec3');
+let Shape = _dereq_('./Shape');
+let Vec3 = _dereq_('../math/Vec3');
 
 /**
  * Particle shape.
@@ -10063,8 +10071,8 @@ Particle.prototype.calculateWorldAABB = function(pos,quat,min,max){
 },{"../math/Vec3":31,"./Shape":44}],43:[function(_dereq_,module,exports){
 module.exports = Plane;
 
-var Shape = _dereq_('./Shape');
-var Vec3 = _dereq_('../math/Vec3');
+let Shape = _dereq_('./Shape');
+let Vec3 = _dereq_('../math/Vec3');
 
 /**
  * A plane, facing in the Z direction. The plane has its surface at z=0 and everything below z=0 is assumed to be solid plane. To make the plane face in some other direction than z, you must put it inside a Body and rotate that body. See the demos.
@@ -10088,7 +10096,7 @@ Plane.prototype = new Shape();
 Plane.prototype.constructor = Plane;
 
 Plane.prototype.computeWorldNormal = function(quat){
-    var n = this.worldNormal;
+    let n = this.worldNormal;
     n.set(0,0,1);
     quat.vmult(n,n);
     this.worldNormalNeedsUpdate = false;
@@ -10103,12 +10111,12 @@ Plane.prototype.volume = function(){
     return Number.MAX_VALUE; // The plane is infinite...
 };
 
-var tempNormal = new Vec3();
+let tempNormal = new Vec3();
 Plane.prototype.calculateWorldAABB = function(pos, quat, min, max){
     // The plane AABB is infinite, except if the normal is pointing along any axis
     tempNormal.set(0,0,1); // Default plane normal is z
     quat.vmult(tempNormal,tempNormal);
-    var maxVal = Number.MAX_VALUE;
+    let maxVal = Number.MAX_VALUE;
     min.set(-maxVal, -maxVal, -maxVal);
     max.set(maxVal, maxVal, maxVal);
 
@@ -10127,11 +10135,10 @@ Plane.prototype.updateBoundingSphereRadius = function(){
 },{"../math/Vec3":31,"./Shape":44}],44:[function(_dereq_,module,exports){
 module.exports = Shape;
 
-var EventTarget = _dereq_('../utils/EventTarget');
-var Shape = _dereq_('./Shape');
-var Vec3 = _dereq_('../math/Vec3');
-var Quaternion = _dereq_('../math/Quaternion');
-var Material = _dereq_('../material/Material');
+let EventTarget = _dereq_('../utils/EventTarget');
+let Vec3 = _dereq_('../math/Vec3');
+let Quaternion = _dereq_('../math/Quaternion');
+let Material = _dereq_('../material/Material');
 
 /**
  * Base class for shapes
@@ -10249,8 +10256,8 @@ Shape.types = {
 },{"../material/Material":26,"../math/Quaternion":29,"../math/Vec3":31,"../utils/EventTarget":50,"./Shape":44}],45:[function(_dereq_,module,exports){
 module.exports = Sphere;
 
-var Shape = _dereq_('./Shape');
-var Vec3 = _dereq_('../math/Vec3');
+let Shape = _dereq_('./Shape');
+let Vec3 = _dereq_('../math/Vec3');
 
 /**
  * Spherical shape
@@ -10281,7 +10288,7 @@ Sphere.prototype.constructor = Sphere;
 
 Sphere.prototype.calculateLocalInertia = function(mass,target){
     target = target || new Vec3();
-    var I = 2.0*mass*this.radius*this.radius/5.0;
+    let I = 2.0*mass*this.radius*this.radius/5.0;
     target.x = I;
     target.y = I;
     target.z = I;
@@ -10297,10 +10304,10 @@ Sphere.prototype.updateBoundingSphereRadius = function(){
 };
 
 Sphere.prototype.calculateWorldAABB = function(pos,quat,min,max){
-    var r = this.radius;
-    var axes = ['x','y','z'];
-    for(var i=0; i<axes.length; i++){
-        var ax = axes[i];
+    let r = this.radius;
+    let axes = ['x','y','z'];
+    for(let i=0; i<axes.length; i++){
+        let ax = axes[i];
         min[ax] = pos[ax] - r;
         max[ax] = pos[ax] + r;
     }
@@ -10309,12 +10316,12 @@ Sphere.prototype.calculateWorldAABB = function(pos,quat,min,max){
 },{"../math/Vec3":31,"./Shape":44}],46:[function(_dereq_,module,exports){
 module.exports = Trimesh;
 
-var Shape = _dereq_('./Shape');
-var Vec3 = _dereq_('../math/Vec3');
-var Quaternion = _dereq_('../math/Quaternion');
-var Transform = _dereq_('../math/Transform');
-var AABB = _dereq_('../collision/AABB');
-var Octree = _dereq_('../utils/Octree');
+let Shape = _dereq_('./Shape');
+let Vec3 = _dereq_('../math/Vec3');
+let Quaternion = _dereq_('../math/Quaternion');
+let Transform = _dereq_('../math/Transform');
+let AABB = _dereq_('../collision/AABB');
+let Octree = _dereq_('../utils/Octree');
 
 /**
  * @class Trimesh
@@ -10324,15 +10331,15 @@ var Octree = _dereq_('../utils/Octree');
  * @extends Shape
  * @example
  *     // How to make a mesh with a single triangle
- *     var vertices = [
+ *     let vertices = [
  *         0, 0, 0, // vertex 0
  *         1, 0, 0, // vertex 1
  *         0, 1, 0  // vertex 2
  *     ];
- *     var indices = [
+ *     let indices = [
  *         0, 1, 2  // triangle 0
  *     ];
- *     var trimeshShape = new Trimesh(vertices, indices);
+ *     let trimeshShape = new Trimesh(vertices, indices);
  */
 function Trimesh(vertices, indices) {
     Shape.call(this, {
@@ -10393,17 +10400,17 @@ function Trimesh(vertices, indices) {
 Trimesh.prototype = new Shape();
 Trimesh.prototype.constructor = Trimesh;
 
-var computeNormals_n = new Vec3();
+let computeNormals_n = new Vec3();
 
 /**
  * @method updateTree
  */
 Trimesh.prototype.updateTree = function(){
-    var tree = this.tree;
+    let tree = this.tree;
 
     tree.reset();
     tree.aabb.copy(this.aabb);
-    var scale = this.scale; // The local mesh AABB is scaled, but the octree AABB should be unscaled
+    let scale = this.scale; // The local mesh AABB is scaled, but the octree AABB should be unscaled
     tree.aabb.lowerBound.x *= 1 / scale.x;
     tree.aabb.lowerBound.y *= 1 / scale.y;
     tree.aabb.lowerBound.z *= 1 / scale.z;
@@ -10412,16 +10419,16 @@ Trimesh.prototype.updateTree = function(){
     tree.aabb.upperBound.z *= 1 / scale.z;
 
     // Insert all triangles
-    var triangleAABB = new AABB();
-    var a = new Vec3();
-    var b = new Vec3();
-    var c = new Vec3();
-    var points = [a, b, c];
-    for (var i = 0; i < this.indices.length / 3; i++) {
+    let triangleAABB = new AABB();
+    let a = new Vec3();
+    let b = new Vec3();
+    let c = new Vec3();
+    let points = [a, b, c];
+    for (let i = 0; i < this.indices.length / 3; i++) {
         //this.getTriangleVertices(i, a, b, c);
 
         // Get unscaled triangle verts
-        var i3 = i * 3;
+        let i3 = i * 3;
         this._getUnscaledVertex(this.indices[i3], a);
         this._getUnscaledVertex(this.indices[i3 + 1], b);
         this._getUnscaledVertex(this.indices[i3 + 2], c);
@@ -10432,7 +10439,7 @@ Trimesh.prototype.updateTree = function(){
     tree.removeEmptyNodes();
 };
 
-var unscaledAABB = new AABB();
+let unscaledAABB = new AABB();
 
 /**
  * Get triangles in a local AABB from the trimesh.
@@ -10444,12 +10451,12 @@ Trimesh.prototype.getTrianglesInAABB = function(aabb, result){
     unscaledAABB.copy(aabb);
 
     // Scale it to local
-    var scale = this.scale;
-    var isx = scale.x;
-    var isy = scale.y;
-    var isz = scale.z;
-    var l = unscaledAABB.lowerBound;
-    var u = unscaledAABB.upperBound;
+    let scale = this.scale;
+    let isx = scale.x;
+    let isy = scale.y;
+    let isz = scale.z;
+    let l = unscaledAABB.lowerBound;
+    let u = unscaledAABB.upperBound;
     l.x /= isx;
     l.y /= isy;
     l.z /= isz;
@@ -10465,8 +10472,8 @@ Trimesh.prototype.getTrianglesInAABB = function(aabb, result){
  * @param {Vec3} scale
  */
 Trimesh.prototype.setScale = function(scale){
-    var wasUniform = this.scale.x === this.scale.y === this.scale.z;
-    var isUniform = scale.x === scale.y === scale.z;
+    let wasUniform = this.scale.x === this.scale.y === this.scale.z;
+    let isUniform = scale.x === scale.y === scale.z;
 
     if(!(wasUniform && isUniform)){
         // Non-uniform scaling. Need to update normals.
@@ -10482,14 +10489,14 @@ Trimesh.prototype.setScale = function(scale){
  * @method updateNormals
  */
 Trimesh.prototype.updateNormals = function(){
-    var n = computeNormals_n;
+    let n = computeNormals_n;
 
     // Generate normals
-    var normals = this.normals;
-    for(var i=0; i < this.indices.length / 3; i++){
-        var i3 = i * 3;
+    let normals = this.normals;
+    for(let i=0; i < this.indices.length / 3; i++){
+        let i3 = i * 3;
 
-        var a = this.indices[i3],
+        let a = this.indices[i3],
             b = this.indices[i3 + 1],
             c = this.indices[i3 + 2];
 
@@ -10510,24 +10517,24 @@ Trimesh.prototype.updateNormals = function(){
  * @method updateEdges
  */
 Trimesh.prototype.updateEdges = function(){
-    var edges = {};
-    var add = function(indexA, indexB){
-        var key = a < b ? a + '_' + b : b + '_' + a;
+    let edges = {};
+    let add = function(indexA, indexB){
+        let key = a < b ? a + '_' + b : b + '_' + a;
         edges[key] = true;
     };
-    for(var i=0; i < this.indices.length / 3; i++){
-        var i3 = i * 3;
-        var a = this.indices[i3],
+    for(let i=0; i < this.indices.length / 3; i++){
+        let i3 = i * 3;
+        let a = this.indices[i3],
             b = this.indices[i3 + 1],
             c = this.indices[i3 + 2];
         add(a,b);
         add(b,c);
         add(c,a);
     }
-    var keys = Object.keys(edges);
+    let keys = Object.keys(edges);
     this.edges = new Int16Array(keys.length * 2);
-    for (var i = 0; i < keys.length; i++) {
-        var indices = keys[i].split('_');
+    for (let i = 0; i < keys.length; i++) {
+        let indices = keys[i].split('_');
         this.edges[2 * i] = parseInt(indices[0], 10);
         this.edges[2 * i + 1] = parseInt(indices[1], 10);
     }
@@ -10541,12 +10548,12 @@ Trimesh.prototype.updateEdges = function(){
  * @param  {Vec3} vertexStore Where to store the result
  */
 Trimesh.prototype.getEdgeVertex = function(edgeIndex, firstOrSecond, vertexStore){
-    var vertexIndex = this.edges[edgeIndex * 2 + (firstOrSecond ? 1 : 0)];
+    let vertexIndex = this.edges[edgeIndex * 2 + (firstOrSecond ? 1 : 0)];
     this.getVertex(vertexIndex, vertexStore);
 };
 
-var getEdgeVector_va = new Vec3();
-var getEdgeVector_vb = new Vec3();
+let getEdgeVector_va = new Vec3();
+let getEdgeVector_vb = new Vec3();
 
 /**
  * Get a vector along an edge.
@@ -10555,8 +10562,8 @@ var getEdgeVector_vb = new Vec3();
  * @param  {Vec3} vectorStore
  */
 Trimesh.prototype.getEdgeVector = function(edgeIndex, vectorStore){
-    var va = getEdgeVector_va;
-    var vb = getEdgeVector_vb;
+    let va = getEdgeVector_va;
+    let vb = getEdgeVector_vb;
     this.getEdgeVertex(edgeIndex, 0, va);
     this.getEdgeVertex(edgeIndex, 1, vb);
     vb.vsub(va, vectorStore);
@@ -10571,8 +10578,8 @@ Trimesh.prototype.getEdgeVector = function(edgeIndex, vectorStore){
  * @param {Vec3} vc
  * @param {Vec3} target
  */
-var cb = new Vec3();
-var ab = new Vec3();
+let cb = new Vec3();
+let ab = new Vec3();
 Trimesh.computeNormal = function ( va, vb, vc, target ) {
     vb.vsub(va,ab);
     vc.vsub(vb,cb);
@@ -10582,9 +10589,9 @@ Trimesh.computeNormal = function ( va, vb, vc, target ) {
     }
 };
 
-var va = new Vec3();
-var vb = new Vec3();
-var vc = new Vec3();
+let va = new Vec3();
+let vb = new Vec3();
+let vc = new Vec3();
 
 /**
  * Get vertex i.
@@ -10594,7 +10601,7 @@ var vc = new Vec3();
  * @return {Vec3} The "out" vector object
  */
 Trimesh.prototype.getVertex = function(i, out){
-    var scale = this.scale;
+    let scale = this.scale;
     this._getUnscaledVertex(i, out);
     out.x *= scale.x;
     out.y *= scale.y;
@@ -10611,8 +10618,8 @@ Trimesh.prototype.getVertex = function(i, out){
  * @return {Vec3} The "out" vector object
  */
 Trimesh.prototype._getUnscaledVertex = function(i, out){
-    var i3 = i * 3;
-    var vertices = this.vertices;
+    let i3 = i * 3;
+    let vertices = this.vertices;
     return out.set(
         vertices[i3],
         vertices[i3 + 1],
@@ -10644,7 +10651,7 @@ Trimesh.prototype.getWorldVertex = function(i, pos, quat, out){
  * @param  {Vec3} c
  */
 Trimesh.prototype.getTriangleVertices = function(i, a, b, c){
-    var i3 = i * 3;
+    let i3 = i * 3;
     this.getVertex(this.indices[i3], a);
     this.getVertex(this.indices[i3 + 1], b);
     this.getVertex(this.indices[i3 + 2], c);
@@ -10658,7 +10665,7 @@ Trimesh.prototype.getTriangleVertices = function(i, a, b, c){
  * @return {Vec3} The "target" vector object
  */
 Trimesh.prototype.getNormal = function(i, target){
-    var i3 = i * 3;
+    let i3 = i * 3;
     return target.set(
         this.normals[i3],
         this.normals[i3 + 1],
@@ -10666,7 +10673,7 @@ Trimesh.prototype.getNormal = function(i, target){
     );
 };
 
-var cli_aabb = new AABB();
+let cli_aabb = new AABB();
 
 /**
  * @method calculateLocalInertia
@@ -10678,7 +10685,7 @@ Trimesh.prototype.calculateLocalInertia = function(mass,target){
     // Approximate with box inertia
     // Exact inertia calculation is overkill, but see http://geometrictools.com/Documentation/PolyhedralMassProperties.pdf for the correct way to do it
     this.computeLocalAABB(cli_aabb);
-    var x = cli_aabb.upperBound.x - cli_aabb.lowerBound.x,
+    let x = cli_aabb.upperBound.x - cli_aabb.lowerBound.x,
         y = cli_aabb.upperBound.y - cli_aabb.lowerBound.y,
         z = cli_aabb.upperBound.z - cli_aabb.lowerBound.z;
     return target.set(
@@ -10688,7 +10695,7 @@ Trimesh.prototype.calculateLocalInertia = function(mass,target){
     );
 };
 
-var computeLocalAABB_worldVert = new Vec3();
+let computeLocalAABB_worldVert = new Vec3();
 
 /**
  * Compute the local AABB for the trimesh
@@ -10696,7 +10703,7 @@ var computeLocalAABB_worldVert = new Vec3();
  * @param  {AABB} aabb
  */
 Trimesh.prototype.computeLocalAABB = function(aabb){
-    var l = aabb.lowerBound,
+    let l = aabb.lowerBound,
         u = aabb.upperBound,
         n = this.vertices.length,
         vertices = this.vertices,
@@ -10706,7 +10713,7 @@ Trimesh.prototype.computeLocalAABB = function(aabb){
     l.copy(v);
     u.copy(v);
 
-    for(var i=0; i !== n; i++){
+    for(let i=0; i !== n; i++){
         this.getVertex(i, v);
 
         if(v.x < l.x){
@@ -10744,12 +10751,12 @@ Trimesh.prototype.updateAABB = function(){
  */
 Trimesh.prototype.updateBoundingSphereRadius = function(){
     // Assume points are distributed with local (0,0,0) as center
-    var max2 = 0;
-    var vertices = this.vertices;
-    var v = new Vec3();
-    for(var i=0, N=vertices.length / 3; i !== N; i++) {
+    let max2 = 0;
+    let vertices = this.vertices;
+    let v = new Vec3();
+    for(let i=0, N=vertices.length / 3; i !== N; i++) {
         this.getVertex(i, v);
-        var norm2 = v.norm2();
+        let norm2 = v.norm2();
         if(norm2 > max2){
             max2 = norm2;
         }
@@ -10757,9 +10764,9 @@ Trimesh.prototype.updateBoundingSphereRadius = function(){
     this.boundingSphereRadius = Math.sqrt(max2);
 };
 
-var tempWorldVertex = new Vec3();
-var calculateWorldAABB_frame = new Transform();
-var calculateWorldAABB_aabb = new AABB();
+let tempWorldVertex = new Vec3();
+let calculateWorldAABB_frame = new Transform();
+let calculateWorldAABB_aabb = new AABB();
 
 /**
  * @method calculateWorldAABB
@@ -10770,12 +10777,12 @@ var calculateWorldAABB_aabb = new AABB();
  */
 Trimesh.prototype.calculateWorldAABB = function(pos,quat,min,max){
     /*
-    var n = this.vertices.length / 3,
+    let n = this.vertices.length / 3,
         verts = this.vertices;
-    var minx,miny,minz,maxx,maxy,maxz;
+    let minx,miny,minz,maxx,maxy,maxz;
 
-    var v = tempWorldVertex;
-    for(var i=0; i<n; i++){
+    let v = tempWorldVertex;
+    for(let i=0; i<n; i++){
         this.getVertex(i, v);
         quat.vmult(v, v);
         pos.vadd(v, v);
@@ -10802,8 +10809,8 @@ Trimesh.prototype.calculateWorldAABB = function(pos,quat,min,max){
     */
 
     // Faster approximation using local AABB
-    var frame = calculateWorldAABB_frame;
-    var result = calculateWorldAABB_aabb;
+    let frame = calculateWorldAABB_frame;
+    let result = calculateWorldAABB_aabb;
     frame.position = pos;
     frame.quaternion = quat;
     this.aabb.toWorldFrame(frame, result);
@@ -10838,28 +10845,28 @@ Trimesh.createTorus = function (radius, tube, radialSegments, tubularSegments, a
     tubularSegments = tubularSegments || 6;
     arc = arc || Math.PI * 2;
 
-    var vertices = [];
-    var indices = [];
+    let vertices = [];
+    let indices = [];
 
-    for ( var j = 0; j <= radialSegments; j ++ ) {
-        for ( var i = 0; i <= tubularSegments; i ++ ) {
-            var u = i / tubularSegments * arc;
-            var v = j / radialSegments * Math.PI * 2;
+    for ( let j = 0; j <= radialSegments; j ++ ) {
+        for ( let i = 0; i <= tubularSegments; i ++ ) {
+            let u = i / tubularSegments * arc;
+            let v = j / radialSegments * Math.PI * 2;
 
-            var x = ( radius + tube * Math.cos( v ) ) * Math.cos( u );
-            var y = ( radius + tube * Math.cos( v ) ) * Math.sin( u );
-            var z = tube * Math.sin( v );
+            let x = ( radius + tube * Math.cos( v ) ) * Math.cos( u );
+            let y = ( radius + tube * Math.cos( v ) ) * Math.sin( u );
+            let z = tube * Math.sin( v );
 
             vertices.push( x, y, z );
         }
     }
 
-    for ( var j = 1; j <= radialSegments; j ++ ) {
-        for ( var i = 1; i <= tubularSegments; i ++ ) {
-            var a = ( tubularSegments + 1 ) * j + i - 1;
-            var b = ( tubularSegments + 1 ) * ( j - 1 ) + i - 1;
-            var c = ( tubularSegments + 1 ) * ( j - 1 ) + i;
-            var d = ( tubularSegments + 1 ) * j + i;
+    for ( let j = 1; j <= radialSegments; j ++ ) {
+        for ( let i = 1; i <= tubularSegments; i ++ ) {
+            let a = ( tubularSegments + 1 ) * j + i - 1;
+            let b = ( tubularSegments + 1 ) * ( j - 1 ) + i - 1;
+            let c = ( tubularSegments + 1 ) * ( j - 1 ) + i;
+            let d = ( tubularSegments + 1 ) * j + i;
 
             indices.push(a, b, d);
             indices.push(b, c, d);
@@ -10872,9 +10879,9 @@ Trimesh.createTorus = function (radius, tube, radialSegments, tubularSegments, a
 },{"../collision/AABB":3,"../math/Quaternion":29,"../math/Transform":30,"../math/Vec3":31,"../utils/Octree":51,"./Shape":44}],47:[function(_dereq_,module,exports){
 module.exports = GSSolver;
 
-var Vec3 = _dereq_('../math/Vec3');
-var Quaternion = _dereq_('../math/Quaternion');
-var Solver = _dereq_('./Solver');
+let Vec3 = _dereq_('../math/Vec3');
+let Quaternion = _dereq_('../math/Quaternion');
+let Solver = _dereq_('./Solver');
 
 /**
  * Constraint equation Gauss-Seidel solver.
@@ -10905,11 +10912,11 @@ function GSSolver(){
 }
 GSSolver.prototype = new Solver();
 
-var GSSolver_solve_lambda = []; // Just temporary number holders that we want to reuse each solve.
-var GSSolver_solve_invCs = [];
-var GSSolver_solve_Bs = [];
+let GSSolver_solve_lambda = []; // Just temporary number holders that we want to reuse each solve.
+let GSSolver_solve_invCs = [];
+let GSSolver_solve_Bs = [];
 GSSolver.prototype.solve = function(dt,world){
-    var iter = 0,
+    let iter = 0,
         maxIter = this.iterations,
         tolSquared = this.tolerance*this.tolerance,
         equations = this.equations,
@@ -10921,20 +10928,20 @@ GSSolver.prototype.solve = function(dt,world){
 
     // Update solve mass
     if(Neq !== 0){
-        for(var i=0; i!==Nbodies; i++){
+        for(let i=0; i!==Nbodies; i++){
             bodies[i].updateSolveMassProperties();
         }
     }
 
     // Things that does not change during iteration can be computed once
-    var invCs = GSSolver_solve_invCs,
+    let invCs = GSSolver_solve_invCs,
         Bs = GSSolver_solve_Bs,
         lambda = GSSolver_solve_lambda;
     invCs.length = Neq;
     Bs.length = Neq;
     lambda.length = Neq;
-    for(var i=0; i!==Neq; i++){
-        var c = equations[i];
+    for(let i=0; i!==Neq; i++){
+        let c = equations[i];
         lambda[i] = 0.0;
         Bs[i] = c.computeB(h);
         invCs[i] = 1.0 / c.computeC();
@@ -10943,8 +10950,8 @@ GSSolver.prototype.solve = function(dt,world){
     if(Neq !== 0){
 
         // Reset vlambda
-        for(var i=0; i!==Nbodies; i++){
-            var b=bodies[i],
+        for(let i=0; i!==Nbodies; i++){
+            let b=bodies[i],
                 vlambda=b.vlambda,
                 wlambda=b.wlambda;
             vlambda.set(0,0,0);
@@ -10957,9 +10964,9 @@ GSSolver.prototype.solve = function(dt,world){
             // Accumulate the total error for each iteration.
             deltalambdaTot = 0.0;
 
-            for(var j=0; j!==Neq; j++){
+            for(let j=0; j!==Neq; j++){
 
-                var c = equations[j];
+                let c = equations[j];
 
                 // Compute iteration
                 B = Bs[j];
@@ -10988,8 +10995,8 @@ GSSolver.prototype.solve = function(dt,world){
         }
 
         // Add result to velocity
-        for(var i=0; i!==Nbodies; i++){
-            var b=bodies[i],
+        for(let i=0; i!==Nbodies; i++){
+            let b=bodies[i],
                 v=b.velocity,
                 w=b.angularVelocity;
 
@@ -11001,8 +11008,8 @@ GSSolver.prototype.solve = function(dt,world){
         }
 
         // Set the .multiplier property of each equation
-        var l = equations.length;
-        var invDt = 1 / h;
+        let l = equations.length;
+        let invDt = 1 / h;
         while(l--){
             equations[l].multiplier = lambda[l] * invDt;
         }
@@ -11056,8 +11063,8 @@ Solver.prototype.addEquation = function(eq){
  * @param {Equation} eq
  */
 Solver.prototype.removeEquation = function(eq){
-    var eqs = this.equations;
-    var i = eqs.indexOf(eq);
+    let eqs = this.equations;
+    let i = eqs.indexOf(eq);
     if(i !== -1){
         eqs.splice(i,1);
     }
@@ -11075,10 +11082,10 @@ Solver.prototype.removeAllEquations = function(){
 },{}],49:[function(_dereq_,module,exports){
 module.exports = SplitSolver;
 
-var Vec3 = _dereq_('../math/Vec3');
-var Quaternion = _dereq_('../math/Quaternion');
-var Solver = _dereq_('./Solver');
-var Body = _dereq_('../objects/Body');
+let Vec3 = _dereq_('../math/Vec3');
+let Quaternion = _dereq_('../math/Quaternion');
+let Solver = _dereq_('./Solver');
+let Body = _dereq_('../objects/Body');
 
 /**
  * Splits the equations into islands and solves them independently. Can improve performance.
@@ -11103,17 +11110,17 @@ function SplitSolver(subsolver){
 SplitSolver.prototype = new Solver();
 
 // Returns the number of subsystems
-var SplitSolver_solve_nodes = []; // All allocated node objects
-var SplitSolver_solve_nodePool = []; // All allocated node objects
-var SplitSolver_solve_eqs = [];   // Temp array
-var SplitSolver_solve_bds = [];   // Temp array
-var SplitSolver_solve_dummyWorld = {bodies:[]}; // Temp object
+let SplitSolver_solve_nodes = []; // All allocated node objects
+let SplitSolver_solve_nodePool = []; // All allocated node objects
+let SplitSolver_solve_eqs = [];   // Temp array
+let SplitSolver_solve_bds = [];   // Temp array
+let SplitSolver_solve_dummyWorld = {bodies:[]}; // Temp object
 
-var STATIC = Body.STATIC;
+let STATIC = Body.STATIC;
 function getUnvisitedNode(nodes){
-    var Nnodes = nodes.length;
-    for(var i=0; i!==Nnodes; i++){
-        var node = nodes[i];
+    let Nnodes = nodes.length;
+    for(let i=0; i!==Nnodes; i++){
+        let node = nodes[i];
         if(!node.visited && !(node.body.type & STATIC)){
             return node;
         }
@@ -11121,15 +11128,15 @@ function getUnvisitedNode(nodes){
     return false;
 }
 
-var queue = [];
+let queue = [];
 function bfs(root,visitFunc,bds,eqs){
     queue.push(root);
     root.visited = true;
     visitFunc(root,bds,eqs);
     while(queue.length) {
-        var node = queue.pop();
+        let node = queue.pop();
         // Loop over unvisited child nodes
-        var child;
+        let child;
         while((child = getUnvisitedNode(node.children))) {
             child.visited = true;
             visitFunc(child,bds,eqs);
@@ -11140,9 +11147,9 @@ function bfs(root,visitFunc,bds,eqs){
 
 function visitFunc(node,bds,eqs){
     bds.push(node.body);
-    var Neqs = node.eqs.length;
-    for(var i=0; i!==Neqs; i++){
-        var eq = node.eqs[i];
+    let Neqs = node.eqs.length;
+    for(let i=0; i!==Neqs; i++){
+        let eq = node.eqs[i];
         if(eqs.indexOf(eq) === -1){
             eqs.push(eq);
         }
@@ -11160,7 +11167,7 @@ SplitSolver.prototype.createNode = function(){
  * @param  {World} world
  */
 SplitSolver.prototype.solve = function(dt,world){
-    var nodes=SplitSolver_solve_nodes,
+    let nodes=SplitSolver_solve_nodes,
         nodePool=this.nodePool,
         bodies=world.bodies,
         equations=this.equations,
@@ -11173,20 +11180,20 @@ SplitSolver.prototype.solve = function(dt,world){
         nodePool.push(this.createNode());
     }
     nodes.length = Nbodies;
-    for (var i = 0; i < Nbodies; i++) {
+    for (let i = 0; i < Nbodies; i++) {
         nodes[i] = nodePool[i];
     }
 
     // Reset node values
-    for(var i=0; i!==Nbodies; i++){
-        var node = nodes[i];
+    for(let i=0; i!==Nbodies; i++){
+        let node = nodes[i];
         node.body = bodies[i];
         node.children.length = 0;
         node.eqs.length = 0;
         node.visited = false;
     }
-    for(var k=0; k!==Neq; k++){
-        var eq=equations[k],
+    for(let k=0; k!==Neq; k++){
+        let eq=equations[k],
             i=bodies.indexOf(eq.bi),
             j=bodies.indexOf(eq.bj),
             ni=nodes[i],
@@ -11197,26 +11204,26 @@ SplitSolver.prototype.solve = function(dt,world){
         nj.eqs.push(eq);
     }
 
-    var child, n=0, eqs=SplitSolver_solve_eqs;
+    let child, n=0, eqs=SplitSolver_solve_eqs;
 
     subsolver.tolerance = this.tolerance;
     subsolver.iterations = this.iterations;
 
-    var dummyWorld = SplitSolver_solve_dummyWorld;
+    let dummyWorld = SplitSolver_solve_dummyWorld;
     while((child = getUnvisitedNode(nodes))){
         eqs.length = 0;
         dummyWorld.bodies.length = 0;
         bfs(child, visitFunc, dummyWorld.bodies, eqs);
 
-        var Neqs = eqs.length;
+        let Neqs = eqs.length;
 
         eqs = eqs.sort(sortById);
 
-        for(var i=0; i!==Neqs; i++){
+        for(let i=0; i!==Neqs; i++){
             subsolver.addEquation(eqs[i]);
         }
 
-        var iter = subsolver.solve(dt,dummyWorld);
+        let iter = subsolver.solve(dt,dummyWorld);
         subsolver.removeAllEquations();
         n++;
     }
@@ -11233,7 +11240,7 @@ function sortById(a, b){
  * @class EventTarget
  * @constructor
  */
-var EventTarget = function () {
+let EventTarget = function () {
 
 };
 
@@ -11251,7 +11258,7 @@ EventTarget.prototype = {
      */
     addEventListener: function ( type, listener ) {
         if ( this._listeners === undefined ){ this._listeners = {}; }
-        var listeners = this._listeners;
+        let listeners = this._listeners;
         if ( listeners[ type ] === undefined ) {
             listeners[ type ] = [];
         }
@@ -11270,7 +11277,7 @@ EventTarget.prototype = {
      */
     hasEventListener: function ( type, listener ) {
         if ( this._listeners === undefined ){ return false; }
-        var listeners = this._listeners;
+        let listeners = this._listeners;
         if ( listeners[ type ] !== undefined && listeners[ type ].indexOf( listener ) !== - 1 ) {
             return true;
         }
@@ -11285,7 +11292,7 @@ EventTarget.prototype = {
      */
     hasAnyEventListener: function ( type ) {
         if ( this._listeners === undefined ){ return false; }
-        var listeners = this._listeners;
+        let listeners = this._listeners;
         return ( listeners[ type ] !== undefined );
     },
 
@@ -11298,9 +11305,9 @@ EventTarget.prototype = {
      */
     removeEventListener: function ( type, listener ) {
         if ( this._listeners === undefined ){ return this; }
-        var listeners = this._listeners;
+        let listeners = this._listeners;
         if ( listeners[type] === undefined ){ return this; }
-        var index = listeners[ type ].indexOf( listener );
+        let index = listeners[ type ].indexOf( listener );
         if ( index !== - 1 ) {
             listeners[ type ].splice( index, 1 );
         }
@@ -11316,11 +11323,11 @@ EventTarget.prototype = {
      */
     dispatchEvent: function ( event ) {
         if ( this._listeners === undefined ){ return this; }
-        var listeners = this._listeners;
-        var listenerArray = listeners[ event.type ];
+        let listeners = this._listeners;
+        let listenerArray = listeners[ event.type ];
         if ( listenerArray !== undefined ) {
             event.target = this;
-            for ( var i = 0, l = listenerArray.length; i < l; i ++ ) {
+            for ( let i = 0, l = listenerArray.length; i < l; i ++ ) {
                 listenerArray[ i ].call( this, event );
             }
         }
@@ -11329,8 +11336,8 @@ EventTarget.prototype = {
 };
 
 },{}],51:[function(_dereq_,module,exports){
-var AABB = _dereq_('../collision/AABB');
-var Vec3 = _dereq_('../math/Vec3');
+let AABB = _dereq_('../collision/AABB');
+let Vec3 = _dereq_('../math/Vec3');
 
 module.exports = Octree;
 
@@ -11401,7 +11408,7 @@ OctreeNode.prototype.reset = function(aabb, options){
  * @return {boolean} True if successful, otherwise false
  */
 OctreeNode.prototype.insert = function(aabb, elementData, level){
-    var nodeData = this.data;
+    let nodeData = this.data;
     level = level || 0;
 
     // Ignore objects that do not belong in this node
@@ -11409,18 +11416,18 @@ OctreeNode.prototype.insert = function(aabb, elementData, level){
         return false; // object cannot be added
     }
 
-    var children = this.children;
+    let children = this.children;
 
     if(level < (this.maxDepth || this.root.maxDepth)){
         // Subdivide if there are no children yet
-        var subdivided = false;
+        let subdivided = false;
         if (!children.length){
             this.subdivide();
             subdivided = true;
         }
 
         // add to whichever node will accept it
-        for (var i = 0; i !== 8; i++) {
+        for (let i = 0; i !== 8; i++) {
             if (children[i].insert(aabb, elementData, level + 1)){
                 return true;
             }
@@ -11438,18 +11445,18 @@ OctreeNode.prototype.insert = function(aabb, elementData, level){
     return true;
 };
 
-var halfDiagonal = new Vec3();
+let halfDiagonal = new Vec3();
 
 /**
  * Create 8 equally sized children nodes and put them in the .children array.
  * @method subdivide
  */
 OctreeNode.prototype.subdivide = function() {
-    var aabb = this.aabb;
-    var l = aabb.lowerBound;
-    var u = aabb.upperBound;
+    let aabb = this.aabb;
+    let l = aabb.lowerBound;
+    let u = aabb.upperBound;
 
-    var children = this.children;
+    let children = this.children;
 
     children.push(
         new OctreeNode({ aabb: new AABB({ lowerBound: new Vec3(0,0,0) }) }),
@@ -11465,16 +11472,16 @@ OctreeNode.prototype.subdivide = function() {
     u.vsub(l, halfDiagonal);
     halfDiagonal.scale(0.5, halfDiagonal);
 
-    var root = this.root || this;
+    let root = this.root || this;
 
-    for (var i = 0; i !== 8; i++) {
-        var child = children[i];
+    for (let i = 0; i !== 8; i++) {
+        let child = children[i];
 
         // Set current node as root
         child.root = root;
 
         // Compute bounds
-        var lowerBound = child.aabb.lowerBound;
+        let lowerBound = child.aabb.lowerBound;
         lowerBound.x *= halfDiagonal.x;
         lowerBound.y *= halfDiagonal.y;
         lowerBound.z *= halfDiagonal.z;
@@ -11495,7 +11502,7 @@ OctreeNode.prototype.subdivide = function() {
  */
 OctreeNode.prototype.aabbQuery = function(aabb, result) {
 
-    var nodeData = this.data;
+    let nodeData = this.data;
 
     // abort if the range does not intersect this node
     // if (!this.aabb.overlaps(aabb)){
@@ -11507,16 +11514,16 @@ OctreeNode.prototype.aabbQuery = function(aabb, result) {
 
     // Add child data
     // @todo unwrap recursion into a queue / loop, that's faster in JS
-    var children = this.children;
+    let children = this.children;
 
 
-    // for (var i = 0, N = this.children.length; i !== N; i++) {
+    // for (let i = 0, N = this.children.length; i !== N; i++) {
     //     children[i].aabbQuery(aabb, result);
     // }
 
-    var queue = [this];
+    let queue = [this];
     while (queue.length) {
-        var node = queue.pop();
+        let node = queue.pop();
         if (node.aabb.overlaps(aabb)){
             Array.prototype.push.apply(result, node.data);
         }
@@ -11526,7 +11533,7 @@ OctreeNode.prototype.aabbQuery = function(aabb, result) {
     return result;
 };
 
-var tmpAABB = new AABB();
+let tmpAABB = new AABB();
 
 /**
  * Get all data, potentially intersected by a ray.
@@ -11551,7 +11558,7 @@ OctreeNode.prototype.rayQuery = function(ray, treeTransform, result) {
  * @method removeEmptyNodes
  */
 OctreeNode.prototype.removeEmptyNodes = function() {
-    for (var i = this.children.length - 1; i >= 0; i--) {
+    for (let i = this.children.length - 1; i >= 0; i--) {
         this.children[i].removeEmptyNodes();
         if(!this.children[i].children.length && !this.children[i].data.length){
             this.children.splice(i, 1);
@@ -11587,8 +11594,8 @@ function Pool(){
  * @param {Object} obj
  */
 Pool.prototype.release = function(){
-    var Nargs = arguments.length;
-    for(var i=0; i!==Nargs; i++){
+    let Nargs = arguments.length;
+    for(let i=0; i!==Nargs; i++){
         this.objects.push(arguments[i]);
     }
     return this;
@@ -11622,7 +11629,7 @@ Pool.prototype.constructObject = function(){
  * @return {Pool} Self, for chaining
  */
 Pool.prototype.resize = function (size) {
-    var objects = this.objects;
+    let objects = this.objects;
 
     while (objects.length > size) {
         objects.pop();
@@ -11662,7 +11669,7 @@ function TupleDictionary() {
 TupleDictionary.prototype.get = function(i, j) {
     if (i > j) {
         // swap
-        var temp = j;
+        let temp = j;
         j = i;
         i = temp;
     }
@@ -11677,11 +11684,11 @@ TupleDictionary.prototype.get = function(i, j) {
  */
 TupleDictionary.prototype.set = function(i, j, value) {
     if (i > j) {
-        var temp = j;
+        let temp = j;
         j = i;
         i = temp;
     }
-    var key = i+'-'+j;
+    let key = i+'-'+j;
 
     // Check if key already exists
     if(!this.get(i,j)){
@@ -11696,10 +11703,10 @@ TupleDictionary.prototype.set = function(i, j, value) {
  * @method reset
  */
 TupleDictionary.prototype.reset = function() {
-    var data = this.data,
+    let data = this.data,
         keys = data.keys;
     while(keys.length > 0){
-        var key = keys.pop();
+        let key = keys.pop();
         delete data[key];        
     }
 };
@@ -11742,7 +11749,7 @@ module.exports = Utils;
 Utils.defaults = function(options, defaults){
     options = options || {};
 
-    for(var key in defaults){
+    for(let key in defaults){
         if(!(key in options)){
             options[key] = defaults[key];
         }
@@ -11754,8 +11761,8 @@ Utils.defaults = function(options, defaults){
 },{}],55:[function(_dereq_,module,exports){
 module.exports = Vec3Pool;
 
-var Vec3 = _dereq_('../math/Vec3');
-var Pool = _dereq_('./Pool');
+let Vec3 = _dereq_('../math/Vec3');
+let Pool = _dereq_('./Pool');
 
 /**
  * @class Vec3Pool
@@ -11780,18 +11787,18 @@ Vec3Pool.prototype.constructObject = function(){
 },{"../math/Vec3":31,"./Pool":52}],56:[function(_dereq_,module,exports){
 module.exports = Narrowphase;
 
-var AABB = _dereq_('../collision/AABB');
-var Body = _dereq_('../objects/Body');
-var Shape = _dereq_('../shapes/Shape');
-var Ray = _dereq_('../collision/Ray');
-var Vec3 = _dereq_('../math/Vec3');
-var Transform = _dereq_('../math/Transform');
-var ConvexPolyhedron = _dereq_('../shapes/ConvexPolyhedron');
-var Quaternion = _dereq_('../math/Quaternion');
-var Solver = _dereq_('../solver/Solver');
-var Vec3Pool = _dereq_('../utils/Vec3Pool');
-var ContactEquation = _dereq_('../equations/ContactEquation');
-var FrictionEquation = _dereq_('../equations/FrictionEquation');
+let AABB = _dereq_('../collision/AABB');
+let Body = _dereq_('../objects/Body');
+let Shape = _dereq_('../shapes/Shape');
+let Ray = _dereq_('../collision/Ray');
+let Vec3 = _dereq_('../math/Vec3');
+let Transform = _dereq_('../math/Transform');
+let ConvexPolyhedron = _dereq_('../shapes/ConvexPolyhedron');
+let Quaternion = _dereq_('../math/Quaternion');
+let Solver = _dereq_('../solver/Solver');
+let Vec3Pool = _dereq_('../utils/Vec3Pool');
+let ContactEquation = _dereq_('../equations/ContactEquation');
+let FrictionEquation = _dereq_('../equations/FrictionEquation');
 
 /**
  * Helper class for the World. Generates ContactEquations.
@@ -11841,7 +11848,7 @@ function Narrowphase(world){
  * @return {ContactEquation}
  */
 Narrowphase.prototype.createContactEquation = function(bi, bj, si, sj, overrideShapeA, overrideShapeB){
-    var c;
+    let c;
     if(this.contactPointPool.length){
         c = this.contactPointPool.pop();
         c.bi = bi;
@@ -11852,7 +11859,7 @@ Narrowphase.prototype.createContactEquation = function(bi, bj, si, sj, overrideS
     // need ?, trigger is already filter
     // c.enabled = bi.collisionResponse && bj.collisionResponse && si.collisionResponse && sj.collisionResponse;
     
-    var cm = this.currentContactMaterial;
+    let cm = this.currentContactMaterial;
 
     c.restitution = cm.restitution;
 
@@ -11862,8 +11869,8 @@ Narrowphase.prototype.createContactEquation = function(bi, bj, si, sj, overrideS
         this.world.dt
     );
 
-    var matA = si.material || bi.material;
-    var matB = sj.material || bj.material;
+    let matA = si.material || bi.material;
+    let matB = sj.material || bj.material;
     if(matA && matB && matA.restitution >= 0 && matB.restitution >= 0){
         c.restitution = matA.restitution * matB.restitution;
     }
@@ -11875,18 +11882,18 @@ Narrowphase.prototype.createContactEquation = function(bi, bj, si, sj, overrideS
 };
 
 Narrowphase.prototype.createFrictionEquationsFromContact = function(contactEquation, outArray){
-    var bodyA = contactEquation.bi;
-    var bodyB = contactEquation.bj;
-    var shapeA = contactEquation.si;
-    var shapeB = contactEquation.sj;
+    let bodyA = contactEquation.bi;
+    let bodyB = contactEquation.bj;
+    let shapeA = contactEquation.si;
+    let shapeB = contactEquation.sj;
 
-    var world = this.world;
-    var cm = this.currentContactMaterial;
+    let world = this.world;
+    let cm = this.currentContactMaterial;
 
     // If friction or restitution were specified in the material, use them
-    var friction = cm.friction;
-    var matA = shapeA.material || bodyA.material;
-    var matB = shapeB.material || bodyB.material;
+    let friction = cm.friction;
+    let matA = shapeA.material || bodyA.material;
+    let matB = shapeB.material || bodyB.material;
     if(matA && matB && matA.friction >= 0 && matB.friction >= 0){
         friction = matA.friction * matB.friction;
     }
@@ -11894,14 +11901,14 @@ Narrowphase.prototype.createFrictionEquationsFromContact = function(contactEquat
     if(friction > 0){
 
         // Create 2 tangent equations
-        var mug = friction * world.gravity.length();
-        var reducedMass = (bodyA.invMass + bodyB.invMass);
+        let mug = friction * world.gravity.length();
+        let reducedMass = (bodyA.invMass + bodyB.invMass);
         if(reducedMass > 0){
             reducedMass = 1/reducedMass;
         }
-        var pool = this.frictionEquationPool;
-        var c1 = pool.length ? pool.pop() : new FrictionEquation(bodyA,bodyB,mug*reducedMass);
-        var c2 = pool.length ? pool.pop() : new FrictionEquation(bodyA,bodyB,mug*reducedMass);
+        let pool = this.frictionEquationPool;
+        let c1 = pool.length ? pool.pop() : new FrictionEquation(bodyA,bodyB,mug*reducedMass);
+        let c2 = pool.length ? pool.pop() : new FrictionEquation(bodyA,bodyB,mug*reducedMass);
 
         c1.bi = c2.bi = bodyA;
         c1.bj = c2.bj = bodyB;
@@ -11931,30 +11938,30 @@ Narrowphase.prototype.createFrictionEquationsFromContact = function(contactEquat
     return false;
 };
 
-var averageNormal = new Vec3();
-var averageContactPointA = new Vec3();
-var averageContactPointB = new Vec3();
+let averageNormal = new Vec3();
+let averageContactPointA = new Vec3();
+let averageContactPointB = new Vec3();
 
 // Take the average N latest contact point on the plane.
 Narrowphase.prototype.createFrictionFromAverage = function(numContacts){
     // The last contactEquation
-    var c = this.result[this.result.length - 1];
+    let c = this.result[this.result.length - 1];
 
     // Create the result: two "average" friction equations
     if (!this.createFrictionEquationsFromContact(c, this.frictionResult) || numContacts === 1) {
         return;
     }
 
-    var f1 = this.frictionResult[this.frictionResult.length - 2];
-    var f2 = this.frictionResult[this.frictionResult.length - 1];
+    let f1 = this.frictionResult[this.frictionResult.length - 2];
+    let f2 = this.frictionResult[this.frictionResult.length - 1];
 
     averageNormal.setZero();
     averageContactPointA.setZero();
     averageContactPointB.setZero();
 
-    var bodyA = c.bi;
-    var bodyB = c.bj;
-    for(var i=0; i!==numContacts; i++){
+    let bodyA = c.bi;
+    let bodyB = c.bj;
+    for(let i=0; i!==numContacts; i++){
         c = this.result[this.result.length - 1 - i];
         if(c.bodyA !== bodyA){
             averageNormal.vadd(c.ni, averageNormal);
@@ -11967,7 +11974,7 @@ Narrowphase.prototype.createFrictionFromAverage = function(numContacts){
         }
     }
 
-    var invNumContacts = 1 / numContacts;
+    let invNumContacts = 1 / numContacts;
     averageContactPointA.scale(invNumContacts, f1.ri);
     averageContactPointB.scale(invNumContacts, f1.rj);
     f2.ri.copy(f1.ri); // Should be the same
@@ -11978,10 +11985,10 @@ Narrowphase.prototype.createFrictionFromAverage = function(numContacts){
 };
 
 
-var tmpVec1 = new Vec3();
-var tmpVec2 = new Vec3();
-var tmpQuat1 = new Quaternion();
-var tmpQuat2 = new Quaternion();
+let tmpVec1 = new Vec3();
+let tmpVec2 = new Vec3();
+let tmpQuat1 = new Quaternion();
+let tmpQuat2 = new Quaternion();
 
 /**
  * Generate all contacts between a list of body pairs
@@ -11998,24 +12005,24 @@ Narrowphase.prototype.getContacts = function(p1, p2, world, result, oldcontacts,
     this.result = result;
     this.frictionResult = frictionResult;
 
-    var qi = tmpQuat1;
-    var qj = tmpQuat2;
-    var xi = tmpVec1;
-    var xj = tmpVec2;
+    let qi = tmpQuat1;
+    let qj = tmpQuat2;
+    let xi = tmpVec1;
+    let xj = tmpVec2;
 
-    for(var k=0, N=p1.length; k!==N; k++){
+    for(let k=0, N=p1.length; k!==N; k++){
 
         // Get current collision bodies
-        var bi = p1[k],
+        let bi = p1[k],
             bj = p2[k];
 
         // Get contact material
-        var bodyContactMaterial = null;
+        let bodyContactMaterial = null;
         if(bi.material && bj.material){
             bodyContactMaterial = world.getContactMaterial(bi.material,bj.material) || null;
         }
 
-        var justTest = ( bi.collisionResponse == false || bj.collisionResponse == false ||
+        let justTest = ( bi.collisionResponse == false || bj.collisionResponse == false ||
             (
                 (bi.type & Body.KINEMATIC) && (bj.type & Body.STATIC)
             ) || (
@@ -12025,19 +12032,19 @@ Narrowphase.prototype.getContacts = function(p1, p2, world, result, oldcontacts,
             )
         );
 
-        for (var i = 0; i < bi.shapes.length; i++) {
+        for (let i = 0; i < bi.shapes.length; i++) {
             bi.quaternion.mult(bi.shapeOrientations[i], qi);
             bi.quaternion.vmult(bi.shapeOffsets[i], xi);
             xi.vadd(bi.position, xi);
-            var si = bi.shapes[i];
+            let si = bi.shapes[i];
 
-            for (var j = 0; j < bj.shapes.length; j++) {
+            for (let j = 0; j < bj.shapes.length; j++) {
 
                 // Compute world transform of shapes
                 bj.quaternion.mult(bj.shapeOrientations[j], qj);
                 bj.quaternion.vmult(bj.shapeOffsets[j], xj);
                 xj.vadd(bj.position, xj);
-                var sj = bj.shapes[j];
+                let sj = bj.shapes[j];
 
                 if(!((si.collisionFilterMask & sj.collisionFilterGroup) && (sj.collisionFilterMask & si.collisionFilterGroup))){
                     continue;
@@ -12051,7 +12058,7 @@ Narrowphase.prototype.getContacts = function(p1, p2, world, result, oldcontacts,
                 justTest |= (si.collisionResponse == false) || (sj.collisionResponse == false);
 
                 // Get collision material
-                var shapeContactMaterial = null;
+                let shapeContactMaterial = null;
                 if(si.material && sj.material){
                     shapeContactMaterial = world.getContactMaterial(si.material,sj.material) || null;
                 }
@@ -12059,9 +12066,9 @@ Narrowphase.prototype.getContacts = function(p1, p2, world, result, oldcontacts,
                 this.currentContactMaterial = shapeContactMaterial || bodyContactMaterial || world.defaultContactMaterial;
 
                 // Get contacts
-                var resolver = this[si.type | sj.type];
+                let resolver = this[si.type | sj.type];
                 if(resolver){
-                    var retval = false;
+                    let retval = false;
                     if (si.type < sj.type) {
                         retval = resolver.call(this, si, sj, xi, xj, qi, qj, bi, bj, si, sj, justTest);
                     } else {
@@ -12079,8 +12086,8 @@ Narrowphase.prototype.getContacts = function(p1, p2, world, result, oldcontacts,
     }
 };
 
-var numWarnings = 0;
-var maxWarnings = 10;
+let numWarnings = 0;
+let maxWarnings = 10;
 
 function warn(msg){
     if(numWarnings > maxWarnings){
@@ -12133,7 +12140,7 @@ Narrowphase.prototype.sphereSphere = function(si,sj,xi,xj,qi,qj,bi,bj,rsi,rsj,ju
     }
 
     // We will have only one contact in this case
-    var r = this.createContactEquation(bi,bj,si,sj,rsi,rsj);
+    let r = this.createContactEquation(bi,bj,si,sj,rsi,rsj);
 
     // Contact normal
     xj.vsub(xi, r.ni);
@@ -12167,9 +12174,9 @@ Narrowphase.prototype.sphereSphere = function(si,sj,xi,xj,qi,qj,bi,bj,rsi,rsj,ju
  * @param  {Body}       bi
  * @param  {Body}       bj
  */
-var planeTrimesh_normal = new Vec3();
-var planeTrimesh_relpos = new Vec3();
-var planeTrimesh_projected = new Vec3();
+let planeTrimesh_normal = new Vec3();
+let planeTrimesh_relpos = new Vec3();
+let planeTrimesh_projected = new Vec3();
 Narrowphase.prototype[Shape.types.PLANE | Shape.types.TRIMESH] =
 Narrowphase.prototype.planeTrimesh = function(
     planeShape,
@@ -12185,38 +12192,38 @@ Narrowphase.prototype.planeTrimesh = function(
     justTest
 ){
     // Make contacts!
-    var v = new Vec3();
+    let v = new Vec3();
 
-    var normal = planeTrimesh_normal;
+    let normal = planeTrimesh_normal;
     normal.set(0,0,1);
     planeQuat.vmult(normal,normal); // Turn normal according to plane
 
-    for(var i=0; i<trimeshShape.vertices.length / 3; i++){
+    for(let i=0; i<trimeshShape.vertices.length / 3; i++){
 
         // Get world vertex from trimesh
         trimeshShape.getVertex(i, v);
 
         // Safe up
-        var v2 = new Vec3();
+        let v2 = new Vec3();
         v2.copy(v);
         Transform.pointToWorldFrame(trimeshPos, trimeshQuat, v2, v);
 
         // Check plane side
-        var relpos = planeTrimesh_relpos;
+        let relpos = planeTrimesh_relpos;
         v.vsub(planePos, relpos);
-        var dot = normal.dot(relpos);
+        let dot = normal.dot(relpos);
 
         if(dot <= 0.0){
             if(justTest){
                 return true;
             }
 
-            var r = this.createContactEquation(planeBody,trimeshBody,planeShape,trimeshShape,rsi,rsj);
+            let r = this.createContactEquation(planeBody,trimeshBody,planeShape,trimeshShape,rsi,rsj);
 
             r.ni.copy(normal); // Contact normal is the plane normal
 
             // Get vertex position projected on plane
-            var projected = planeTrimesh_projected;
+            let projected = planeTrimesh_projected;
             normal.scale(relpos.dot(normal), projected);
             v.vsub(projected,projected);
 
@@ -12245,22 +12252,22 @@ Narrowphase.prototype.planeTrimesh = function(
  * @param  {Body}       sphereBody
  * @param  {Body}       trimeshBody
  */
-var sphereTrimesh_normal = new Vec3();
-var sphereTrimesh_relpos = new Vec3();
-var sphereTrimesh_projected = new Vec3();
-var sphereTrimesh_v = new Vec3();
-var sphereTrimesh_v2 = new Vec3();
-var sphereTrimesh_edgeVertexA = new Vec3();
-var sphereTrimesh_edgeVertexB = new Vec3();
-var sphereTrimesh_edgeVector = new Vec3();
-var sphereTrimesh_edgeVectorUnit = new Vec3();
-var sphereTrimesh_localSpherePos = new Vec3();
-var sphereTrimesh_tmp = new Vec3();
-var sphereTrimesh_va = new Vec3();
-var sphereTrimesh_vb = new Vec3();
-var sphereTrimesh_vc = new Vec3();
-var sphereTrimesh_localSphereAABB = new AABB();
-var sphereTrimesh_triangles = [];
+let sphereTrimesh_normal = new Vec3();
+let sphereTrimesh_relpos = new Vec3();
+let sphereTrimesh_projected = new Vec3();
+let sphereTrimesh_v = new Vec3();
+let sphereTrimesh_v2 = new Vec3();
+let sphereTrimesh_edgeVertexA = new Vec3();
+let sphereTrimesh_edgeVertexB = new Vec3();
+let sphereTrimesh_edgeVector = new Vec3();
+let sphereTrimesh_edgeVectorUnit = new Vec3();
+let sphereTrimesh_localSpherePos = new Vec3();
+let sphereTrimesh_tmp = new Vec3();
+let sphereTrimesh_va = new Vec3();
+let sphereTrimesh_vb = new Vec3();
+let sphereTrimesh_vc = new Vec3();
+let sphereTrimesh_localSphereAABB = new AABB();
+let sphereTrimesh_triangles = [];
 Narrowphase.prototype[Shape.types.SPHERE | Shape.types.TRIMESH] =
 Narrowphase.prototype.sphereTrimesh = function (
     sphereShape,
@@ -12276,22 +12283,22 @@ Narrowphase.prototype.sphereTrimesh = function (
     justTest
 ) {
 
-    var edgeVertexA = sphereTrimesh_edgeVertexA;
-    var edgeVertexB = sphereTrimesh_edgeVertexB;
-    var edgeVector = sphereTrimesh_edgeVector;
-    var edgeVectorUnit = sphereTrimesh_edgeVectorUnit;
-    var localSpherePos = sphereTrimesh_localSpherePos;
-    var tmp = sphereTrimesh_tmp;
-    var localSphereAABB = sphereTrimesh_localSphereAABB;
-    var v2 = sphereTrimesh_v2;
-    var relpos = sphereTrimesh_relpos;
-    var triangles = sphereTrimesh_triangles;
+    let edgeVertexA = sphereTrimesh_edgeVertexA;
+    let edgeVertexB = sphereTrimesh_edgeVertexB;
+    let edgeVector = sphereTrimesh_edgeVector;
+    let edgeVectorUnit = sphereTrimesh_edgeVectorUnit;
+    let localSpherePos = sphereTrimesh_localSpherePos;
+    let tmp = sphereTrimesh_tmp;
+    let localSphereAABB = sphereTrimesh_localSphereAABB;
+    let v2 = sphereTrimesh_v2;
+    let relpos = sphereTrimesh_relpos;
+    let triangles = sphereTrimesh_triangles;
 
     // Convert sphere position to local in the trimesh
     Transform.pointToLocalFrame(trimeshPos, trimeshQuat, spherePos, localSpherePos);
 
     // Get the aabb of the sphere locally in the trimesh
-    var sphereRadius = sphereShape.radius;
+    let sphereRadius = sphereShape.radius;
     localSphereAABB.lowerBound.set(
         localSpherePos.x - sphereRadius,
         localSpherePos.y - sphereRadius,
@@ -12304,13 +12311,13 @@ Narrowphase.prototype.sphereTrimesh = function (
     );
 
     trimeshShape.getTrianglesInAABB(localSphereAABB, triangles);
-    //for (var i = 0; i < trimeshShape.indices.length / 3; i++) triangles.push(i); // All
+    //for (let i = 0; i < trimeshShape.indices.length / 3; i++) triangles.push(i); // All
 
     // Vertices
-    var v = sphereTrimesh_v;
-    var radiusSquared = sphereShape.radius * sphereShape.radius;
-    for(var i=0; i<triangles.length; i++){
-        for (var j = 0; j < 3; j++) {
+    let v = sphereTrimesh_v;
+    let radiusSquared = sphereShape.radius * sphereShape.radius;
+    for(let i=0; i<triangles.length; i++){
+        for (let j = 0; j < 3; j++) {
 
             trimeshShape.getVertex(trimeshShape.indices[triangles[i] * 3 + j], v);
 
@@ -12329,7 +12336,7 @@ Narrowphase.prototype.sphereTrimesh = function (
                     return true;
                 }
 
-                var r = this.createContactEquation(sphereBody,trimeshBody,sphereShape,trimeshShape,rsi,rsj);
+                let r = this.createContactEquation(sphereBody,trimeshBody,sphereShape,trimeshShape,rsi,rsj);
                 r.ni.copy(relpos);
                 r.ni.normalize();
 
@@ -12350,8 +12357,8 @@ Narrowphase.prototype.sphereTrimesh = function (
     }
 
     // Check all edges
-    for(var i=0; i<triangles.length; i++){
-        for (var j = 0; j < 3; j++) {
+    for(let i=0; i<triangles.length; i++){
+        for (let j = 0; j < 3; j++) {
 
             trimeshShape.getVertex(trimeshShape.indices[triangles[i] * 3 + j], edgeVertexA);
             trimeshShape.getVertex(trimeshShape.indices[triangles[i] * 3 + ((j+1)%3)], edgeVertexB);
@@ -12359,10 +12366,10 @@ Narrowphase.prototype.sphereTrimesh = function (
 
             // Project sphere position to the edge
             localSpherePos.vsub(edgeVertexB, tmp);
-            var positionAlongEdgeB = tmp.dot(edgeVector);
+            let positionAlongEdgeB = tmp.dot(edgeVector);
 
             localSpherePos.vsub(edgeVertexA, tmp);
-            var positionAlongEdgeA = tmp.dot(edgeVector);
+            let positionAlongEdgeA = tmp.dot(edgeVector);
 
             if(positionAlongEdgeA > 0 && positionAlongEdgeB < 0){
 
@@ -12377,14 +12384,14 @@ Narrowphase.prototype.sphereTrimesh = function (
                 tmp.vadd(edgeVertexA, tmp);
 
                 // tmp is now the sphere center position projected to the edge, defined locally in the trimesh frame
-                var dist = tmp.distanceTo(localSpherePos);
+                let dist = tmp.distanceTo(localSpherePos);
                 if(dist < sphereShape.radius){
 
                     if(justTest){
                         return true;
                     }
 
-                    var r = this.createContactEquation(sphereBody, trimeshBody, sphereShape, trimeshShape,rsi,rsj);
+                    let r = this.createContactEquation(sphereBody, trimeshBody, sphereShape, trimeshShape,rsi,rsj);
 
                     tmp.vsub(localSpherePos, r.ni);
                     r.ni.normalize();
@@ -12404,15 +12411,15 @@ Narrowphase.prototype.sphereTrimesh = function (
     }
 
     // Triangle faces
-    var va = sphereTrimesh_va;
-    var vb = sphereTrimesh_vb;
-    var vc = sphereTrimesh_vc;
-    var normal = sphereTrimesh_normal;
-    for(var i=0, N = triangles.length; i !== N; i++){
+    let va = sphereTrimesh_va;
+    let vb = sphereTrimesh_vb;
+    let vc = sphereTrimesh_vc;
+    let normal = sphereTrimesh_normal;
+    for(let i=0, N = triangles.length; i !== N; i++){
         trimeshShape.getTriangleVertices(triangles[i], va, vb, vc);
         trimeshShape.getNormal(triangles[i], normal);
         localSpherePos.vsub(va, tmp);
-        var dist = tmp.dot(normal);
+        let dist = tmp.dot(normal);
         normal.scale(dist, tmp);
         localSpherePos.vsub(tmp, tmp);
 
@@ -12422,7 +12429,7 @@ Narrowphase.prototype.sphereTrimesh = function (
             if(justTest){
                 return true;
             }
-            var r = this.createContactEquation(sphereBody, trimeshBody, sphereShape, trimeshShape,rsi,rsj);
+            let r = this.createContactEquation(sphereBody, trimeshBody, sphereShape, trimeshShape,rsi,rsj);
 
             tmp.vsub(localSpherePos, r.ni);
             r.ni.normalize();
@@ -12442,11 +12449,11 @@ Narrowphase.prototype.sphereTrimesh = function (
     triangles.length = 0;
 };
 
-var point_on_plane_to_sphere = new Vec3();
-var plane_to_sphere_ortho = new Vec3();
-var p_s_ni = new Vec3(); 
-var p_s_ri = new Vec3();
-var p_s_rj = new Vec3(); 
+let point_on_plane_to_sphere = new Vec3();
+let plane_to_sphere_ortho = new Vec3();
+let p_s_ni = new Vec3(); 
+let p_s_ri = new Vec3();
+let p_s_rj = new Vec3(); 
 /**
  * @method spherePlane
  * @param  {Shape}      si
@@ -12481,13 +12488,13 @@ Narrowphase.prototype.spherePlane = function(si,sj,xi,xj,qi,qj,bi,bj,rsi,rsj,jus
         }
 
         // We will have one contact in this case
-        var r = this.createContactEquation(bi,bj,si,sj,rsi,rsj);
+        let r = this.createContactEquation(bi,bj,si,sj,rsi,rsj);
         // Make it relative to the body
         r.ni.copy(p_s_ni);
         r.ri.copy(p_s_ri);
         r.rj.copy(p_s_rj);
-        var ri = r.ri;
-        var rj = r.rj;
+        let ri = r.ri;
+        let rj = r.rj;
         ri.vadd(xi, ri);
         ri.vsub(bi.position, ri);
         rj.vadd(xj, rj);
@@ -12499,30 +12506,30 @@ Narrowphase.prototype.spherePlane = function(si,sj,xi,xj,qi,qj,bi,bj,rsi,rsj,jus
 };
 
 // See http://bulletphysics.com/Bullet/BulletFull/SphereTriangleDetector_8cpp_source.html
-var pointInPolygon_edge = new Vec3();
-var pointInPolygon_edge_x_normal = new Vec3();
-var pointInPolygon_vtp = new Vec3();
+let pointInPolygon_edge = new Vec3();
+let pointInPolygon_edge_x_normal = new Vec3();
+let pointInPolygon_vtp = new Vec3();
 function pointInPolygon(verts, normal, p){
-    var positiveResult = null;
-    var N = verts.length;
-    for(var i=0; i!==N; i++){
-        var v = verts[i];
+    let positiveResult = null;
+    let N = verts.length;
+    for(let i=0; i!==N; i++){
+        let v = verts[i];
 
         // Get edge to the next vertex
-        var edge = pointInPolygon_edge;
+        let edge = pointInPolygon_edge;
         verts[(i+1) % (N)].vsub(v,edge);
 
         // Get cross product between polygon normal and the edge
-        var edge_x_normal = pointInPolygon_edge_x_normal;
-        //var edge_x_normal = new Vec3();
+        let edge_x_normal = pointInPolygon_edge_x_normal;
+        //let edge_x_normal = new Vec3();
         edge.cross(normal,edge_x_normal);
 
         // Get vector between point and current vertex
-        var vertex_to_p = pointInPolygon_vtp;
+        let vertex_to_p = pointInPolygon_vtp;
         p.vsub(v,vertex_to_p);
 
         // This dot product determines which side of the edge the point is
-        var r = edge_x_normal.dot(vertex_to_p);
+        let r = edge_x_normal.dot(vertex_to_p);
 
         // If all such dot products have same sign, we are inside the polygon.
         if(positiveResult===null || (r>0 && positiveResult===true) || (r<=0 && positiveResult===false)){
@@ -12539,15 +12546,15 @@ function pointInPolygon(verts, normal, p){
     return true;
 }
 
-var box_to_sphere = new Vec3();
-var sphereBox_ns = new Vec3();
-var sphereBox_ns1 = new Vec3();
-var sphereBox_ns2 = new Vec3();
-var sphereBox_sides = [new Vec3(),new Vec3(),new Vec3(),new Vec3(),new Vec3(),new Vec3()];
-var sphereBox_sphere_to_corner = new Vec3();
-var sphereBox_side_ns = new Vec3();
-var sphereBox_side_ns1 = new Vec3();
-var sphereBox_side_ns2 = new Vec3();
+let box_to_sphere = new Vec3();
+let sphereBox_ns = new Vec3();
+let sphereBox_ns1 = new Vec3();
+let sphereBox_ns2 = new Vec3();
+let sphereBox_sides = [new Vec3(),new Vec3(),new Vec3(),new Vec3(),new Vec3(),new Vec3()];
+let sphereBox_sphere_to_corner = new Vec3();
+let sphereBox_side_ns = new Vec3();
+let sphereBox_side_ns1 = new Vec3();
+let sphereBox_side_ns2 = new Vec3();
 
 /**
  * @method sphereBox
@@ -12562,52 +12569,52 @@ var sphereBox_side_ns2 = new Vec3();
  */
 Narrowphase.prototype[Shape.types.SPHERE | Shape.types.BOX] =
 Narrowphase.prototype.sphereBox = function(si,sj,xi,xj,qi,qj,bi,bj,rsi,rsj,justTest){
-    var v3pool = this.v3pool;
+    let v3pool = this.v3pool;
 
     // we refer to the box as body j
-    var sides = sphereBox_sides;
+    let sides = sphereBox_sides;
     xi.vsub(xj,box_to_sphere);
     sj.getSideNormals(sides,qj);
-    var R =     si.radius;
-    var penetrating_sides = [];
+    let R =     si.radius;
+    let penetrating_sides = [];
 
     // Check side (plane) intersections
-    var found = false;
+    let found = false;
 
     // Store the resulting side penetration info
-    var side_ns = sphereBox_side_ns;
-    var side_ns1 = sphereBox_side_ns1;
-    var side_ns2 = sphereBox_side_ns2;
-    var side_h = null;
-    var side_penetrations = 0;
-    var side_dot1 = 0;
-    var side_dot2 = 0;
-    var side_distance = null;
-    for(var idx=0,nsides=sides.length; idx!==nsides && found===false; idx++){
+    let side_ns = sphereBox_side_ns;
+    let side_ns1 = sphereBox_side_ns1;
+    let side_ns2 = sphereBox_side_ns2;
+    let side_h = null;
+    let side_penetrations = 0;
+    let side_dot1 = 0;
+    let side_dot2 = 0;
+    let side_distance = null;
+    for(let idx=0,nsides=sides.length; idx!==nsides && found===false; idx++){
         // Get the plane side normal (ns)
-        var ns = sphereBox_ns;
+        let ns = sphereBox_ns;
         ns.copy(sides[idx]);
 
-        var h = ns.norm();
+        let h = ns.norm();
         ns.normalize();
 
         // The normal/distance dot product tells which side of the plane we are
-        var dot = box_to_sphere.dot(ns);
+        let dot = box_to_sphere.dot(ns);
 
         if(dot<h+R && dot>0){
             // Intersects plane. Now check the other two dimensions
-            var ns1 = sphereBox_ns1;
-            var ns2 = sphereBox_ns2;
+            let ns1 = sphereBox_ns1;
+            let ns2 = sphereBox_ns2;
             ns1.copy(sides[(idx+1)%3]);
             ns2.copy(sides[(idx+2)%3]);
-            var h1 = ns1.norm();
-            var h2 = ns2.norm();
+            let h1 = ns1.norm();
+            let h2 = ns2.norm();
             ns1.normalize();
             ns2.normalize();
-            var dot1 = box_to_sphere.dot(ns1);
-            var dot2 = box_to_sphere.dot(ns2);
+            let dot1 = box_to_sphere.dot(ns1);
+            let dot2 = box_to_sphere.dot(ns2);
             if(dot1<h1 && dot1>-h1 && dot2<h2 && dot2>-h2){
-                var dist = Math.abs(dot-h-R);
+                let dist = Math.abs(dot-h-R);
                 if(side_distance===null || dist < side_distance){
                     side_distance = dist;
                     side_dot1 = dot1;
@@ -12627,7 +12634,7 @@ Narrowphase.prototype.sphereBox = function(si,sj,xi,xj,qi,qj,bi,bj,rsi,rsj,justT
     }
     if(side_penetrations){
         found = true;
-        var r = this.createContactEquation(bi,bj,si,sj,rsi,rsj);
+        let r = this.createContactEquation(bi,bj,si,sj,rsi,rsj);
         side_ns.mult(-R,r.ri); // Sphere r
         r.ni.copy(side_ns);
         r.ni.negate(r.ni); // Normal should be out of sphere
@@ -12648,11 +12655,11 @@ Narrowphase.prototype.sphereBox = function(si,sj,xi,xj,qi,qj,bi,bj,rsi,rsj,justT
     }
 
     // Check corners
-    var rj = v3pool.get();
-    var sphere_to_corner = sphereBox_sphere_to_corner;
-    for(var j=0; j!==2 && !found; j++){
-        for(var k=0; k!==2 && !found; k++){
-            for(var l=0; l!==2 && !found; l++){
+    let rj = v3pool.get();
+    let sphere_to_corner = sphereBox_sphere_to_corner;
+    for(let j=0; j!==2 && !found; j++){
+        for(let k=0; k!==2 && !found; k++){
+            for(let l=0; l!==2 && !found; l++){
                 rj.set(0,0,0);
                 if(j){
                     rj.vadd(sides[0],rj);
@@ -12679,7 +12686,7 @@ Narrowphase.prototype.sphereBox = function(si,sj,xi,xj,qi,qj,bi,bj,rsi,rsj,justT
                         return true;
                     }
                     found = true;
-                    var r = this.createContactEquation(bi,bj,si,sj,rsi,rsj);
+                    let r = this.createContactEquation(bi,bj,si,sj,rsi,rsj);
                     r.ri.copy(sphere_to_corner);
                     r.ri.normalize();
                     r.ni.copy(r.ri);
@@ -12702,14 +12709,14 @@ Narrowphase.prototype.sphereBox = function(si,sj,xi,xj,qi,qj,bi,bj,rsi,rsj,justT
     rj = null;
 
     // Check edges
-    var edgeTangent = v3pool.get();
-    var edgeCenter = v3pool.get();
-    var r = v3pool.get(); // r = edge center to sphere center
-    var orthogonal = v3pool.get();
-    var dist = v3pool.get();
-    var Nsides = sides.length;
-    for(var j=0; j!==Nsides && !found; j++){
-        for(var k=0; k!==Nsides && !found; k++){
+    let edgeTangent = v3pool.get();
+    let edgeCenter = v3pool.get();
+    let r = v3pool.get(); // r = edge center to sphere center
+    let orthogonal = v3pool.get();
+    let dist = v3pool.get();
+    let Nsides = sides.length;
+    for(let j=0; j!==Nsides && !found; j++){
+        for(let k=0; k!==Nsides && !found; k++){
             if(j%3 !== k%3){
                 // Get edge tangent
                 sides[k].cross(sides[j],edgeTangent);
@@ -12718,11 +12725,11 @@ Narrowphase.prototype.sphereBox = function(si,sj,xi,xj,qi,qj,bi,bj,rsi,rsj,justT
                 r.copy(xi);
                 r.vsub(edgeCenter,r);
                 r.vsub(xj,r);
-                var orthonorm = r.dot(edgeTangent); // distance from edge center to sphere center in the tangent direction
+                let orthonorm = r.dot(edgeTangent); // distance from edge center to sphere center in the tangent direction
                 edgeTangent.mult(orthonorm,orthogonal); // Vector from edge center to sphere center in the tangent direction
 
                 // Find the third side orthogonal to this one
-                var l = 0;
+                let l = 0;
                 while(l===j%3 || l===k%3){
                     l++;
                 }
@@ -12734,15 +12741,15 @@ Narrowphase.prototype.sphereBox = function(si,sj,xi,xj,qi,qj,bi,bj,rsi,rsj,justT
                 dist.vsub(xj,dist);
 
                 // Distances in tangent direction and distance in the plane orthogonal to it
-                var tdist = Math.abs(orthonorm);
-                var ndist = dist.norm();
+                let tdist = Math.abs(orthonorm);
+                let ndist = dist.norm();
 
                 if(tdist < sides[l].norm() && ndist<R){
                     if(justTest){
                         return true;
                     }
                     found = true;
-                    var res = this.createContactEquation(bi,bj,si,sj,rsi,rsj);
+                    let res = this.createContactEquation(bi,bj,si,sj,rsi,rsj);
                     edgeCenter.vadd(orthogonal,res.rj); // box rj
                     res.rj.copy(res.rj);
                     dist.negate(res.ni);
@@ -12769,16 +12776,16 @@ Narrowphase.prototype.sphereBox = function(si,sj,xi,xj,qi,qj,bi,bj,rsi,rsj,justT
     v3pool.release(edgeTangent,edgeCenter,r,orthogonal,dist);
 };
 
-var convex_to_sphere = new Vec3();
-var sphereConvex_edge = new Vec3();
-var sphereConvex_edgeUnit = new Vec3();
-var sphereConvex_sphereToCorner = new Vec3();
-var sphereConvex_worldCorner = new Vec3();
-var sphereConvex_worldNormal = new Vec3();
-var sphereConvex_worldPoint = new Vec3();
-var sphereConvex_worldSpherePointClosestToPlane = new Vec3();
-var sphereConvex_penetrationVec = new Vec3();
-var sphereConvex_sphereToWorldPoint = new Vec3();
+let convex_to_sphere = new Vec3();
+let sphereConvex_edge = new Vec3();
+let sphereConvex_edgeUnit = new Vec3();
+let sphereConvex_sphereToCorner = new Vec3();
+let sphereConvex_worldCorner = new Vec3();
+let sphereConvex_worldNormal = new Vec3();
+let sphereConvex_worldPoint = new Vec3();
+let sphereConvex_worldSpherePointClosestToPlane = new Vec3();
+let sphereConvex_penetrationVec = new Vec3();
+let sphereConvex_sphereToWorldPoint = new Vec3();
 
 /**
  * @method sphereConvex
@@ -12793,34 +12800,34 @@ var sphereConvex_sphereToWorldPoint = new Vec3();
  */
 Narrowphase.prototype[Shape.types.SPHERE | Shape.types.CONVEXPOLYHEDRON] =
 Narrowphase.prototype.sphereConvex = function(si,sj,xi,xj,qi,qj,bi,bj,rsi,rsj,justTest){
-    var v3pool = this.v3pool;
+    let v3pool = this.v3pool;
     xi.vsub(xj,convex_to_sphere);
-    var normals = sj.faceNormals;
-    var faces = sj.faces;
-    var verts = sj.vertices;
-    var R =     si.radius;
-    var penetrating_sides = [];
+    let normals = sj.faceNormals;
+    let faces = sj.faces;
+    let verts = sj.vertices;
+    let R =     si.radius;
+    let penetrating_sides = [];
 
     // if(convex_to_sphere.norm2() > si.boundingSphereRadius + sj.boundingSphereRadius){
     //     return;
     // }
 
     // Check corners
-    for(var i=0; i!==verts.length; i++){
-        var v = verts[i];
+    for(let i=0; i!==verts.length; i++){
+        let v = verts[i];
 
         // World position of corner
-        var worldCorner = sphereConvex_worldCorner;
+        let worldCorner = sphereConvex_worldCorner;
         qj.vmult(v,worldCorner);
         xj.vadd(worldCorner,worldCorner);
-        var sphere_to_corner = sphereConvex_sphereToCorner;
+        let sphere_to_corner = sphereConvex_sphereToCorner;
         worldCorner.vsub(xi, sphere_to_corner);
         if(sphere_to_corner.norm2() < R * R){
             if(justTest){
                 return true;
             }
             found = true;
-            var r = this.createContactEquation(bi,bj,si,sj,rsi,rsj);
+            let r = this.createContactEquation(bi,bj,si,sj,rsi,rsj);
             r.ri.copy(sphere_to_corner);
             r.ri.normalize();
             r.ni.copy(r.ri);
@@ -12842,40 +12849,40 @@ Narrowphase.prototype.sphereConvex = function(si,sj,xi,xj,qi,qj,bi,bj,rsi,rsj,ju
     }
 
     // Check side (plane) intersections
-    var found = false;
-    for(var i=0, nfaces=faces.length; i!==nfaces && found===false; i++){
-        var normal = normals[i];
-        var face = faces[i];
+    let found = false;
+    for(let i=0, nfaces=faces.length; i!==nfaces && found===false; i++){
+        let normal = normals[i];
+        let face = faces[i];
 
         // Get world-transformed normal of the face
-        var worldNormal = sphereConvex_worldNormal;
+        let worldNormal = sphereConvex_worldNormal;
         qj.vmult(normal,worldNormal);
 
         // Get a world vertex from the face
-        var worldPoint = sphereConvex_worldPoint;
+        let worldPoint = sphereConvex_worldPoint;
         qj.vmult(verts[face[0]],worldPoint);
         worldPoint.vadd(xj,worldPoint);
 
         // Get a point on the sphere, closest to the face normal
-        var worldSpherePointClosestToPlane = sphereConvex_worldSpherePointClosestToPlane;
+        let worldSpherePointClosestToPlane = sphereConvex_worldSpherePointClosestToPlane;
         worldNormal.mult(-R, worldSpherePointClosestToPlane);
         xi.vadd(worldSpherePointClosestToPlane, worldSpherePointClosestToPlane);
 
         // Vector from a face point to the closest point on the sphere
-        var penetrationVec = sphereConvex_penetrationVec;
+        let penetrationVec = sphereConvex_penetrationVec;
         worldSpherePointClosestToPlane.vsub(worldPoint,penetrationVec);
 
         // The penetration. Negative value means overlap.
-        var penetration = penetrationVec.dot(worldNormal);
+        let penetration = penetrationVec.dot(worldNormal);
 
-        var worldPointToSphere = sphereConvex_sphereToWorldPoint;
+        let worldPointToSphere = sphereConvex_sphereToWorldPoint;
         xi.vsub(worldPoint, worldPointToSphere);
 
         if(penetration < 0 && worldPointToSphere.dot(worldNormal)>0){
             // Intersects plane. Now check if the sphere is inside the face polygon
-            var faceVerts = []; // Face vertices, in world coords
-            for(var j=0, Nverts=face.length; j!==Nverts; j++){
-                var worldVertex = v3pool.get();
+            let faceVerts = []; // Face vertices, in world coords
+            for(let j=0, Nverts=face.length; j!==Nverts; j++){
+                let worldVertex = v3pool.get();
                 qj.vmult(verts[face[j]], worldVertex);
                 xj.vadd(worldVertex,worldVertex);
                 faceVerts.push(worldVertex);
@@ -12886,14 +12893,14 @@ Narrowphase.prototype.sphereConvex = function(si,sj,xi,xj,qi,qj,bi,bj,rsi,rsj,ju
                     return true;
                 }
                 found = true;
-                var r = this.createContactEquation(bi,bj,si,sj,rsi,rsj);
+                let r = this.createContactEquation(bi,bj,si,sj,rsi,rsj);
 
                 worldNormal.mult(-R, r.ri); // Contact offset, from sphere center to contact
                 worldNormal.negate(r.ni); // Normal pointing out of sphere
 
-                var penetrationVec2 = v3pool.get();
+                let penetrationVec2 = v3pool.get();
                 worldNormal.mult(-penetration, penetrationVec2);
-                var penetrationSpherePoint = v3pool.get();
+                let penetrationSpherePoint = v3pool.get();
                 worldNormal.mult(-R, penetrationSpherePoint);
 
                 //xi.vsub(xj).vadd(penetrationSpherePoint).vadd(penetrationVec2 , r.rj);
@@ -12916,41 +12923,41 @@ Narrowphase.prototype.sphereConvex = function(si,sj,xi,xj,qi,qj,bi,bj,rsi,rsj,ju
                 this.createFrictionEquationsFromContact(r, this.frictionResult);
 
                 // Release world vertices
-                for(var j=0, Nfaceverts=faceVerts.length; j!==Nfaceverts; j++){
+                for(let j=0, Nfaceverts=faceVerts.length; j!==Nfaceverts; j++){
                     v3pool.release(faceVerts[j]);
                 }
 
                 return; // We only expect *one* face contact
             } else {
                 // Edge?
-                for(var j=0; j!==face.length; j++){
+                for(let j=0; j!==face.length; j++){
 
                     // Get two world transformed vertices
-                    var v1 = v3pool.get();
-                    var v2 = v3pool.get();
+                    let v1 = v3pool.get();
+                    let v2 = v3pool.get();
                     qj.vmult(verts[face[(j+1)%face.length]], v1);
                     qj.vmult(verts[face[(j+2)%face.length]], v2);
                     xj.vadd(v1, v1);
                     xj.vadd(v2, v2);
 
                     // Construct edge vector
-                    var edge = sphereConvex_edge;
+                    let edge = sphereConvex_edge;
                     v2.vsub(v1,edge);
 
                     // Construct the same vector, but normalized
-                    var edgeUnit = sphereConvex_edgeUnit;
+                    let edgeUnit = sphereConvex_edgeUnit;
                     edge.unit(edgeUnit);
 
                     // p is xi projected onto the edge
-                    var p = v3pool.get();
-                    var v1_to_xi = v3pool.get();
+                    let p = v3pool.get();
+                    let v1_to_xi = v3pool.get();
                     xi.vsub(v1, v1_to_xi);
-                    var dot = v1_to_xi.dot(edgeUnit);
+                    let dot = v1_to_xi.dot(edgeUnit);
                     edgeUnit.mult(dot, p);
                     p.vadd(v1, p);
 
                     // Compute a vector from p to the center of the sphere
-                    var xi_to_p = v3pool.get();
+                    let xi_to_p = v3pool.get();
                     p.vsub(xi, xi_to_p);
 
                     // Collision if the edge-sphere distance is less than the radius
@@ -12960,7 +12967,7 @@ Narrowphase.prototype.sphereConvex = function(si,sj,xi,xj,qi,qj,bi,bj,rsi,rsj,ju
                         if(justTest){
                             return true;
                         }
-                        var r = this.createContactEquation(bi,bj,si,sj,rsi,rsj);
+                        let r = this.createContactEquation(bi,bj,si,sj,rsi,rsj);
                         p.vsub(xj,r.rj);
 
                         p.vsub(xi,r.ni);
@@ -12980,7 +12987,7 @@ Narrowphase.prototype.sphereConvex = function(si,sj,xi,xj,qi,qj,bi,bj,rsi,rsj,ju
                         this.createFrictionEquationsFromContact(r, this.frictionResult);
 
                         // Release world vertices
-                        for(var j=0, Nfaceverts=faceVerts.length; j!==Nfaceverts; j++){
+                        for(let j=0, Nfaceverts=faceVerts.length; j!==Nfaceverts; j++){
                             v3pool.release(faceVerts[j]);
                         }
 
@@ -13002,15 +13009,15 @@ Narrowphase.prototype.sphereConvex = function(si,sj,xi,xj,qi,qj,bi,bj,rsi,rsj,ju
             }
 
             // Release world vertices
-            for(var j=0, Nfaceverts=faceVerts.length; j!==Nfaceverts; j++){
+            for(let j=0, Nfaceverts=faceVerts.length; j!==Nfaceverts; j++){
                 v3pool.release(faceVerts[j]);
             }
         }
     }
 };
 
-var planeBox_normal = new Vec3();
-var plane_to_corner = new Vec3();
+let planeBox_normal = new Vec3();
+let plane_to_corner = new Vec3();
 
 /**
  * @method planeBox
@@ -13032,10 +13039,10 @@ Narrowphase.prototype.planeBox = function(si,sj,xi,xj,qi,qj,bi,bj,rsi,rsj,justTe
     return this.planeConvex(si,sj.convexPolyhedronRepresentation,xi,xj,qi,qj,bi,bj,si,sj,justTest);
 };
 
-var planeConvex_v = new Vec3();
-var planeConvex_normal = new Vec3();
-var planeConvex_relpos = new Vec3();
-var planeConvex_projected = new Vec3();
+let planeConvex_v = new Vec3();
+let planeConvex_normal = new Vec3();
+let planeConvex_relpos = new Vec3();
+let planeConvex_projected = new Vec3();
 
 /**
  * @method planeConvex
@@ -13063,14 +13070,14 @@ Narrowphase.prototype.planeConvex = function(
     justTest
 ){
     // Simply return the points behind the plane.
-    var worldVertex = planeConvex_v,
+    let worldVertex = planeConvex_v,
         worldNormal = planeConvex_normal;
     worldNormal.set(0,0,1);
     planeQuat.vmult(worldNormal,worldNormal); // Turn normal according to plane orientation
 
-    var numContacts = 0;
-    var relpos = planeConvex_relpos;
-    for(var i = 0; i !== convexShape.vertices.length; i++){
+    let numContacts = 0;
+    let relpos = planeConvex_relpos;
+    for(let i = 0; i !== convexShape.vertices.length; i++){
 
         // Get world convex vertex
         worldVertex.copy(convexShape.vertices[i]);
@@ -13078,16 +13085,16 @@ Narrowphase.prototype.planeConvex = function(
         convexPosition.vadd(worldVertex, worldVertex);
         worldVertex.vsub(planePosition, relpos);
 
-        var dot = worldNormal.dot(relpos);
+        let dot = worldNormal.dot(relpos);
         if(dot <= 0.0){
             if(justTest){
                 return true;
             }
 
-            var r = this.createContactEquation(planeBody, convexBody, planeShape, convexShape, si, sj);
+            let r = this.createContactEquation(planeBody, convexBody, planeShape, convexShape, si, sj);
 
             // Get vertex position projected on plane
-            var projected = planeConvex_projected;
+            let projected = planeConvex_projected;
             worldNormal.mult(worldNormal.dot(relpos),projected);
             worldVertex.vsub(projected, projected);
             projected.vsub(planePosition, r.ri); // From plane to vertex projected on plane
@@ -13116,8 +13123,8 @@ Narrowphase.prototype.planeConvex = function(
     }
 };
 
-var convexConvex_sepAxis = new Vec3();
-var convexConvex_q = new Vec3();
+let convexConvex_sepAxis = new Vec3();
+let convexConvex_q = new Vec3();
 
 /**
  * @method convexConvex
@@ -13132,22 +13139,22 @@ var convexConvex_q = new Vec3();
  */
 Narrowphase.prototype[Shape.types.CONVEXPOLYHEDRON] =
 Narrowphase.prototype.convexConvex = function(si,sj,xi,xj,qi,qj,bi,bj,rsi,rsj,justTest,faceListA,faceListB){
-    var sepAxis = convexConvex_sepAxis;
+    let sepAxis = convexConvex_sepAxis;
 
     if(xi.distanceTo(xj) > si.boundingSphereRadius + sj.boundingSphereRadius){
         return;
     }
 
     if(si.findSeparatingAxis(sj,xi,qi,xj,qj,sepAxis,faceListA,faceListB)){
-        var res = [];
-        var q = convexConvex_q;
+        let res = [];
+        let q = convexConvex_q;
         si.clipAgainstHull(xi,qi,sj,xj,qj,sepAxis,-100,100,res);
-        var numContacts = 0;
-        for(var j = 0; j !== res.length; j++){
+        let numContacts = 0;
+        for(let j = 0; j !== res.length; j++){
             if(justTest){
                 return true;
             }
-            var r = this.createContactEquation(bi,bj,si,sj,rsi,rsj),
+            let r = this.createContactEquation(bi,bj,si,sj,rsi,rsj),
                 ri = r.ri,
                 rj = r.rj;
             sepAxis.negate(r.ni);
@@ -13193,34 +13200,34 @@ Narrowphase.prototype.convexConvex = function(si,sj,xi,xj,qi,qj,bi,bj,rsi,rsj,ju
  */
 // Narrowphase.prototype[Shape.types.CONVEXPOLYHEDRON | Shape.types.TRIMESH] =
 // Narrowphase.prototype.convexTrimesh = function(si,sj,xi,xj,qi,qj,bi,bj,rsi,rsj,faceListA,faceListB){
-//     var sepAxis = convexConvex_sepAxis;
+//     let sepAxis = convexConvex_sepAxis;
 
 //     if(xi.distanceTo(xj) > si.boundingSphereRadius + sj.boundingSphereRadius){
 //         return;
 //     }
 
 //     // Construct a temp hull for each triangle
-//     var hullB = new ConvexPolyhedron();
+//     let hullB = new ConvexPolyhedron();
 
 //     hullB.faces = [[0,1,2]];
-//     var va = new Vec3();
-//     var vb = new Vec3();
-//     var vc = new Vec3();
+//     let va = new Vec3();
+//     let vb = new Vec3();
+//     let vc = new Vec3();
 //     hullB.vertices = [
 //         va,
 //         vb,
 //         vc
 //     ];
 
-//     for (var i = 0; i < sj.indices.length / 3; i++) {
+//     for (let i = 0; i < sj.indices.length / 3; i++) {
 
-//         var triangleNormal = new Vec3();
+//         let triangleNormal = new Vec3();
 //         sj.getNormal(i, triangleNormal);
 //         hullB.faceNormals = [triangleNormal];
 
 //         sj.getTriangleVertices(i, va, vb, vc);
 
-//         var d = si.testSepAxis(triangleNormal, hullB, xi, qi, xj, qj);
+//         let d = si.testSepAxis(triangleNormal, hullB, xi, qi, xj, qj);
 //         if(!d){
 //             triangleNormal.scale(-1, triangleNormal);
 //             d = si.testSepAxis(triangleNormal, hullB, xi, qi, xj, qj);
@@ -13230,11 +13237,11 @@ Narrowphase.prototype.convexConvex = function(si,sj,xi,xj,qi,qj,bi,bj,rsi,rsj,ju
 //             }
 //         }
 
-//         var res = [];
-//         var q = convexConvex_q;
+//         let res = [];
+//         let q = convexConvex_q;
 //         si.clipAgainstHull(xi,qi,hullB,xj,qj,triangleNormal,-100,100,res);
-//         for(var j = 0; j !== res.length; j++){
-//             var r = this.createContactEquation(bi,bj,si,sj,rsi,rsj),
+//         for(let j = 0; j !== res.length; j++){
+//             let r = this.createContactEquation(bi,bj,si,sj,rsi,rsj),
 //                 ri = r.ri,
 //                 rj = r.rj;
 //             r.ni.copy(triangleNormal);
@@ -13259,9 +13266,9 @@ Narrowphase.prototype.convexConvex = function(si,sj,xi,xj,qi,qj,bi,bj,rsi,rsj,ju
 //     }
 // };
 
-var particlePlane_normal = new Vec3();
-var particlePlane_relpos = new Vec3();
-var particlePlane_projected = new Vec3();
+let particlePlane_normal = new Vec3();
+let particlePlane_relpos = new Vec3();
+let particlePlane_projected = new Vec3();
 
 /**
  * @method particlePlane
@@ -13277,25 +13284,25 @@ var particlePlane_projected = new Vec3();
  */
 Narrowphase.prototype[Shape.types.PLANE | Shape.types.PARTICLE] =
 Narrowphase.prototype.planeParticle = function(sj,si,xj,xi,qj,qi,bj,bi,rsi,rsj,justTest){
-    var normal = particlePlane_normal;
+    let normal = particlePlane_normal;
     normal.set(0,0,1);
     bj.quaternion.vmult(normal,normal); // Turn normal according to plane orientation
-    var relpos = particlePlane_relpos;
+    let relpos = particlePlane_relpos;
     xi.vsub(bj.position,relpos);
-    var dot = normal.dot(relpos);
+    let dot = normal.dot(relpos);
     if(dot <= 0.0){
 
         if(justTest){
             return true;
         }
 
-        var r = this.createContactEquation(bi,bj,si,sj,rsi,rsj);
+        let r = this.createContactEquation(bi,bj,si,sj,rsi,rsj);
         r.ni.copy(normal); // Contact normal is the plane normal
         r.ni.negate(r.ni);
         r.ri.set(0,0,0); // Center of particle
 
         // Get particle position projected on plane
-        var projected = particlePlane_projected;
+        let projected = particlePlane_projected;
         normal.mult(normal.dot(xi),projected);
         xi.vsub(projected,projected);
         //projected.vadd(bj.position,projected);
@@ -13307,7 +13314,7 @@ Narrowphase.prototype.planeParticle = function(sj,si,xj,xi,qj,qi,bj,bi,rsi,rsj,j
     }
 };
 
-var particleSphere_normal = new Vec3();
+let particleSphere_normal = new Vec3();
 
 /**
  * @method particleSphere
@@ -13324,16 +13331,16 @@ var particleSphere_normal = new Vec3();
 Narrowphase.prototype[Shape.types.PARTICLE | Shape.types.SPHERE] =
 Narrowphase.prototype.sphereParticle = function(sj,si,xj,xi,qj,qi,bj,bi,rsi,rsj,justTest){
     // The normal is the unit vector from sphere center to particle center
-    var normal = particleSphere_normal;
+    let normal = particleSphere_normal;
     normal.set(0,0,1);
     xi.vsub(xj,normal);
-    var lengthSquared = normal.norm2();
+    let lengthSquared = normal.norm2();
 
     if(lengthSquared <= sj.radius * sj.radius){
         if(justTest){
             return true;
         }
-        var r = this.createContactEquation(bi,bj,si,sj,rsi,rsj);
+        let r = this.createContactEquation(bi,bj,si,sj,rsi,rsj);
         normal.normalize();
         r.rj.copy(normal);
         r.rj.mult(sj.radius,r.rj);
@@ -13346,12 +13353,12 @@ Narrowphase.prototype.sphereParticle = function(sj,si,xj,xi,qj,qi,bj,bi,rsi,rsj,
 };
 
 // WIP
-var cqj = new Quaternion();
-var convexParticle_local = new Vec3();
-var convexParticle_normal = new Vec3();
-var convexParticle_penetratedFaceNormal = new Vec3();
-var convexParticle_vertexToParticle = new Vec3();
-var convexParticle_worldPenetrationVec = new Vec3();
+let cqj = new Quaternion();
+let convexParticle_local = new Vec3();
+let convexParticle_normal = new Vec3();
+let convexParticle_penetratedFaceNormal = new Vec3();
+let convexParticle_vertexToParticle = new Vec3();
+let convexParticle_worldPenetrationVec = new Vec3();
 
 /**
  * @method convexParticle
@@ -13367,14 +13374,14 @@ var convexParticle_worldPenetrationVec = new Vec3();
  */
 Narrowphase.prototype[Shape.types.PARTICLE | Shape.types.CONVEXPOLYHEDRON] =
 Narrowphase.prototype.convexParticle = function(sj,si,xj,xi,qj,qi,bj,bi,rsi,rsj,justTest){
-    var penetratedFaceIndex = -1;
-    var penetratedFaceNormal = convexParticle_penetratedFaceNormal;
-    var worldPenetrationVec = convexParticle_worldPenetrationVec;
-    var minPenetration = null;
-    var numDetectedFaces = 0;
+    let penetratedFaceIndex = -1;
+    let penetratedFaceNormal = convexParticle_penetratedFaceNormal;
+    let worldPenetrationVec = convexParticle_worldPenetrationVec;
+    let minPenetration = null;
+    let numDetectedFaces = 0;
 
     // Convert particle position xi to local coords in the convex
-    var local = convexParticle_local;
+    let local = convexParticle_local;
     local.copy(xi);
     local.vsub(xj,local); // Convert position to relative the convex origin
     qj.conjugate(cqj);
@@ -13390,15 +13397,15 @@ Narrowphase.prototype.convexParticle = function(sj,si,xj,xi,qj,qi,bj,bi,rsi,rsj,
         }
 
         // For each world polygon in the polyhedra
-        for(var i=0,nfaces=sj.faces.length; i!==nfaces; i++){
+        for(let i=0,nfaces=sj.faces.length; i!==nfaces; i++){
 
             // Construct world face vertices
-            var verts = [ sj.worldVertices[ sj.faces[i][0] ] ];
-            var normal = sj.worldFaceNormals[i];
+            let verts = [ sj.worldVertices[ sj.faces[i][0] ] ];
+            let normal = sj.worldFaceNormals[i];
 
             // Check how much the particle penetrates the polygon plane.
             xi.vsub(verts[0],convexParticle_vertexToParticle);
-            var penetration = -normal.dot(convexParticle_vertexToParticle);
+            let penetration = -normal.dot(convexParticle_vertexToParticle);
             if(minPenetration===null || Math.abs(penetration)<Math.abs(minPenetration)){
 
                 if(justTest){
@@ -13414,21 +13421,21 @@ Narrowphase.prototype.convexParticle = function(sj,si,xj,xi,qj,qi,bj,bi,rsi,rsj,
 
         if(penetratedFaceIndex!==-1){
             // Setup contact
-            var r = this.createContactEquation(bi,bj,si,sj,rsi,rsj);
+            let r = this.createContactEquation(bi,bj,si,sj,rsi,rsj);
             penetratedFaceNormal.mult(minPenetration, worldPenetrationVec);
 
             // rj is the particle position projected to the face
             worldPenetrationVec.vadd(xi,worldPenetrationVec);
             worldPenetrationVec.vsub(xj,worldPenetrationVec);
             r.rj.copy(worldPenetrationVec);
-            //var projectedToFace = xi.vsub(xj).vadd(worldPenetrationVec);
+            //let projectedToFace = xi.vsub(xj).vadd(worldPenetrationVec);
             //projectedToFace.copy(r.rj);
 
             //qj.vmult(r.rj,r.rj);
             penetratedFaceNormal.negate( r.ni ); // Contact normal
             r.ri.set(0,0,0); // Center of particle
 
-            var ri = r.ri,
+            let ri = r.ri,
                 rj = r.rj;
 
             // Make relative to bodies
@@ -13452,9 +13459,9 @@ Narrowphase.prototype.boxHeightfield = function (si,sj,xi,xj,qi,qj,bi,bj,rsi,rsj
     return this.convexHeightfield(si.convexPolyhedronRepresentation,sj,xi,xj,qi,qj,bi,bj,si,sj,justTest);
 };
 
-var convexHeightfield_tmp1 = new Vec3();
-var convexHeightfield_tmp2 = new Vec3();
-var convexHeightfield_faceList = [0];
+let convexHeightfield_tmp1 = new Vec3();
+let convexHeightfield_tmp2 = new Vec3();
+let convexHeightfield_faceList = [0];
 
 /**
  * @method convexHeightfield
@@ -13473,18 +13480,18 @@ Narrowphase.prototype.convexHeightfield = function (
     rsj,
     justTest
 ){
-    var data = hfShape.data,
+    let data = hfShape.data,
         w = hfShape.elementSize,
         radius = convexShape.boundingSphereRadius,
         worldPillarOffset = convexHeightfield_tmp2,
         faceList = convexHeightfield_faceList;
 
     // Get sphere position to heightfield local!
-    var localConvexPos = convexHeightfield_tmp1;
+    let localConvexPos = convexHeightfield_tmp1;
     Transform.pointToLocalFrame(hfPos, hfQuat, convexPos, localConvexPos);
 
     // Get the index of the data points to test against
-    var iMinX = Math.floor((localConvexPos.x - radius) / w) - 1,
+    let iMinX = Math.floor((localConvexPos.x - radius) / w) - 1,
         iMaxX = Math.ceil((localConvexPos.x + radius) / w) + 1,
         iMinY = Math.floor((localConvexPos.y - radius) / w) - 1,
         iMaxY = Math.ceil((localConvexPos.y + radius) / w) + 1;
@@ -13504,20 +13511,20 @@ Narrowphase.prototype.convexHeightfield = function (
     if(iMaxY >= data[0].length){ iMaxY = data[0].length - 1; }
     if(iMinY >= data[0].length){ iMinY = data[0].length - 1; }
 
-    var minMax = [];
+    let minMax = [];
     hfShape.getRectMinMax(iMinX, iMinY, iMaxX, iMaxY, minMax);
-    var min = minMax[0];
-    var max = minMax[1];
+    let min = minMax[0];
+    let max = minMax[1];
 
     // Bail out if we're cant touch the bounding height box
     if(localConvexPos.z - radius > max || localConvexPos.z + radius < min){
         return;
     }
 
-    for(var i = iMinX; i < iMaxX; i++){
-        for(var j = iMinY; j < iMaxY; j++){
+    for(let i = iMinX; i < iMaxX; i++){
+        for(let j = iMinY; j < iMaxY; j++){
 
-            var intersecting = false;
+            let intersecting = false;
 
             // Lower triangle
             hfShape.getConvexTrianglePillar(i, j, false);
@@ -13544,8 +13551,8 @@ Narrowphase.prototype.convexHeightfield = function (
     }
 };
 
-var sphereHeightfield_tmp1 = new Vec3();
-var sphereHeightfield_tmp2 = new Vec3();
+let sphereHeightfield_tmp1 = new Vec3();
+let sphereHeightfield_tmp2 = new Vec3();
 
 /**
  * @method sphereHeightfield
@@ -13564,17 +13571,17 @@ Narrowphase.prototype.sphereHeightfield = function (
     rsj,
     justTest
 ){
-    var data = hfShape.data,
+    let data = hfShape.data,
         radius = sphereShape.radius,
         w = hfShape.elementSize,
         worldPillarOffset = sphereHeightfield_tmp2;
 
     // Get sphere position to heightfield local!
-    var localSpherePos = sphereHeightfield_tmp1;
+    let localSpherePos = sphereHeightfield_tmp1;
     Transform.pointToLocalFrame(hfPos, hfQuat, spherePos, localSpherePos);
 
     // Get the index of the data points to test against
-    var iMinX = Math.floor((localSpherePos.x - radius) / w) - 1,
+    let iMinX = Math.floor((localSpherePos.x - radius) / w) - 1,
         iMaxX = Math.ceil((localSpherePos.x + radius) / w) + 1,
         iMinY = Math.floor((localSpherePos.y - radius) / w) - 1,
         iMaxY = Math.ceil((localSpherePos.y + radius) / w) + 1;
@@ -13594,23 +13601,23 @@ Narrowphase.prototype.sphereHeightfield = function (
     if(iMaxY >= data[0].length){ iMaxY = data[0].length - 1; }
     if(iMinY >= data[0].length){ iMinY = data[0].length - 1; }
 
-    var minMax = [];
+    let minMax = [];
     hfShape.getRectMinMax(iMinX, iMinY, iMaxX, iMaxY, minMax);
-    var min = minMax[0];
-    var max = minMax[1];
+    let min = minMax[0];
+    let max = minMax[1];
 
     // Bail out if we're cant touch the bounding height box
     if(localSpherePos.z - radius > max || localSpherePos.z + radius < min){
         return;
     }
 
-    var result = this.result;
-    for(var i = iMinX; i < iMaxX; i++){
-        for(var j = iMinY; j < iMaxY; j++){
+    let result = this.result;
+    for(let i = iMinX; i < iMaxX; i++){
+        for(let j = iMinY; j < iMaxY; j++){
 
-            var numContactsBefore = result.length;
+            let numContactsBefore = result.length;
 
-            var intersecting = false;
+            let intersecting = false;
 
             // Lower triangle
             hfShape.getConvexTrianglePillar(i, j, false);
@@ -13634,14 +13641,14 @@ Narrowphase.prototype.sphereHeightfield = function (
                 return true;
             }
 
-            var numContacts = result.length - numContactsBefore;
+            let numContacts = result.length - numContactsBefore;
 
             if(numContacts > 2){
                 return;
             }
             /*
             // Skip all but 1
-            for (var k = 0; k < numContacts - 1; k++) {
+            for (let k = 0; k < numContacts - 1; k++) {
                 result.pop();
             }
             */
@@ -13655,25 +13662,25 @@ Narrowphase.prototype.sphereHeightfield = function (
 
 module.exports = World;
 
-var Shape = _dereq_('../shapes/Shape');
-var Vec3 = _dereq_('../math/Vec3');
-var Quaternion = _dereq_('../math/Quaternion');
-var GSSolver = _dereq_('../solver/GSSolver');
-var ContactEquation = _dereq_('../equations/ContactEquation');
-var FrictionEquation = _dereq_('../equations/FrictionEquation');
-var Narrowphase = _dereq_('./Narrowphase');
-var EventTarget = _dereq_('../utils/EventTarget');
-var ArrayCollisionMatrix = _dereq_('../collision/ArrayCollisionMatrix');
-var ObjectCollisionMatrix = _dereq_('../collision/ObjectCollisionMatrix');
-var OverlapKeeper = _dereq_('../collision/OverlapKeeper');
-var Material = _dereq_('../material/Material');
-var ContactMaterial = _dereq_('../material/ContactMaterial');
-var Body = _dereq_('../objects/Body');
-var TupleDictionary = _dereq_('../utils/TupleDictionary');
-var RaycastResult = _dereq_('../collision/RaycastResult');
-var AABB = _dereq_('../collision/AABB');
-var Ray = _dereq_('../collision/Ray');
-var NaiveBroadphase = _dereq_('../collision/NaiveBroadphase');
+let Shape = _dereq_('../shapes/Shape');
+let Vec3 = _dereq_('../math/Vec3');
+let Quaternion = _dereq_('../math/Quaternion');
+let GSSolver = _dereq_('../solver/GSSolver');
+let ContactEquation = _dereq_('../equations/ContactEquation');
+let FrictionEquation = _dereq_('../equations/FrictionEquation');
+let Narrowphase = _dereq_('./Narrowphase');
+let EventTarget = _dereq_('../utils/EventTarget');
+let ArrayCollisionMatrix = _dereq_('../collision/ArrayCollisionMatrix');
+let ObjectCollisionMatrix = _dereq_('../collision/ObjectCollisionMatrix');
+let OverlapKeeper = _dereq_('../collision/OverlapKeeper');
+let Material = _dereq_('../material/Material');
+let ContactMaterial = _dereq_('../material/ContactMaterial');
+let Body = _dereq_('../objects/Body');
+let TupleDictionary = _dereq_('../utils/TupleDictionary');
+let RaycastResult = _dereq_('../collision/RaycastResult');
+let AABB = _dereq_('../collision/AABB');
+let Ray = _dereq_('../collision/Ray');
+let NaiveBroadphase = _dereq_('../collision/NaiveBroadphase');
 
 if (global) {
     global['doProfiling'] = false;
@@ -13898,9 +13905,9 @@ World.idToShapeMap = {};
 World.prototype = new EventTarget();
 
 // Temp stuff
-// var tmpAABB1 = new AABB();
-// var tmpArray1 = [];
-var tmpRay = new Ray();
+// let tmpAABB1 = new AABB();
+// let tmpArray1 = [];
+let tmpRay = new Ray();
 
 /**
  * Get the contact material between materials m1 and m2
@@ -13975,7 +13982,7 @@ World.prototype.addConstraint = function (c) {
  * @param {Constraint} c
  */
 World.prototype.removeConstraint = function (c) {
-    var idx = this.constraints.indexOf(c);
+    let idx = this.constraints.indexOf(c);
     if (idx !== -1) {
         this.constraints.splice(idx, 1);
     }
@@ -14074,14 +14081,14 @@ World.prototype.raycastClosest = function (from, to, options, result) {
  */
 World.prototype.remove = function (body) {
     body.world = null;
-    var n = this.bodies.length - 1,
+    let n = this.bodies.length - 1,
         bodies = this.bodies,
         idx = bodies.indexOf(body);
     if (idx !== -1) {
         bodies.splice(idx, 1); // Todo: should use a garbage free method
 
         // Recompute index
-        for (var i = 0; i !== bodies.length; i++) {
+        for (let i = 0; i !== bodies.length; i++) {
             bodies[i].index = i;
         }
 
@@ -14137,7 +14144,7 @@ if (DEBUG) {
         performance = {};
     }
     if (!performance.now) {
-        var nowOffset = Date.now();
+        let nowOffset = Date.now();
         if (performance.timing && performance.timing.navigationStart) {
             nowOffset = performance.timing.navigationStart;
         }
@@ -14147,7 +14154,7 @@ if (DEBUG) {
     }
 }
 
-// var step_tmp1 = new Vec3();
+// let step_tmp1 = new Vec3();
 
 /**
  * Step the physics world forward in time.
@@ -14192,9 +14199,9 @@ World.prototype.step = function (dt, timeSinceLastCalled, maxSubSteps) {
             this.substeps++;
         }
 
-        var t = (this.accumulator % dt) / dt;
-        for (var j = 0; j !== this.bodies.length; j++) {
-            var b = this.bodies[j];
+        let t = (this.accumulator % dt) / dt;
+        for (let j = 0; j !== this.bodies.length; j++) {
+            let b = this.bodies[j];
             b.previousPosition.lerp(b.position, t, b.interpolatedPosition);
             b.previousQuaternion.slerp(b.quaternion, t, b.interpolatedQuaternion);
             b.previousQuaternion.normalize();
@@ -14214,7 +14221,7 @@ World.prototype.step = function (dt, timeSinceLastCalled, maxSubSteps) {
  * @event preStep
  */
 // World_step_preStepEvent = {type:"preStep"},
-var
+let
     World_step_collideEvent = {
         type: "collide",
         event: '',
@@ -14244,7 +14251,7 @@ var
 World.prototype.internalStep = function (dt) {
     this.dt = dt;
 
-    var world = this,
+    let world = this,
         that = this,
         contacts = this.contacts,
         p1 = World_step_p1,
@@ -14270,9 +14277,9 @@ World.prototype.internalStep = function (dt) {
 
     // Add gravity to all objects
     for (i = 0; i !== N; i++) {
-        var bi = bodies[i];
+        let bi = bodies[i];
         if (bi.useGravity && bi.type === DYNAMIC) { // Only for dynamic bodies
-            var f = bi.force, m = bi.mass;
+            let f = bi.force, m = bi.mass;
             f.x += m * gx;
             f.y += m * gy;
             f.z += m * gz;
@@ -14280,7 +14287,7 @@ World.prototype.internalStep = function (dt) {
     }
 
     // Update subsystems
-    for (var i = 0, Nsubsystems = this.subsystems.length; i !== Nsubsystems; i++) {
+    for (let i = 0, Nsubsystems = this.subsystems.length; i !== Nsubsystems; i++) {
         this.subsystems[i].update();
     }
 
@@ -14292,11 +14299,11 @@ World.prototype.internalStep = function (dt) {
     if (doProfiling) { profile.broadphase = performance.now() - profilingStart; }
 
     // Remove constrained pairs with collideConnected == false
-    var Nconstraints = constraints.length;
+    let Nconstraints = constraints.length;
     for (i = 0; i !== Nconstraints; i++) {
-        var c = constraints[i];
+        let c = constraints[i];
         if (!c.collideConnected) {
-            for (var j = p1.length - 1; j >= 0; j -= 1) {
+            for (let j = p1.length - 1; j >= 0; j -= 1) {
                 if ((c.bodyA === p1[j] && c.bodyB === p2[j]) ||
                     (c.bodyB === p1[j] && c.bodyA === p2[j])) {
                     p1.splice(j, 1);
@@ -14312,7 +14319,7 @@ World.prototype.internalStep = function (dt) {
     contacts.length = 0;
 
     // Transfer FrictionEquation from current list to the pool for reuse
-    var NoldFrictionEquations = this.frictionEquations.length;
+    let NoldFrictionEquations = this.frictionEquations.length;
     for (i = 0; i !== NoldFrictionEquations; i++) {
         frictionEquationPool.push(this.frictionEquations[i]);
     }
@@ -14342,7 +14349,7 @@ World.prototype.internalStep = function (dt) {
         solver.addEquation(this.frictionEquations[i]);
     }
 
-    var ncontacts = contacts.length;
+    let ncontacts = contacts.length;
     for (i = 0; i !== ncontacts; i++) {
         solver.addEquation(contacts[i]);
     }
@@ -14354,12 +14361,12 @@ World.prototype.internalStep = function (dt) {
 
 
     // Add user-added constraints
-    var Nconstraints = constraints.length;
+    Nconstraints = constraints.length;
     for (i = 0; i !== Nconstraints; i++) {
-        var c = constraints[i];
+        let c = constraints[i];
         c.update();
-        for (var j = 0, Neq = c.equations.length; j !== Neq; j++) {
-            var eq = c.equations[j];
+        for (let j = 0, Neq = c.equations.length; j !== Neq; j++) {
+            let eq = c.equations[j];
             solver.addEquation(eq);
         }
     }
@@ -14375,17 +14382,17 @@ World.prototype.internalStep = function (dt) {
     solver.removeAllEquations();
 
     // Apply damping, see http://code.google.com/p/bullet/issues/detail?id=74 for details
-    var pow = Math.pow;
+    let pow = Math.pow;
     N = this.numObjects();
     for (i = 0; i !== N; i++) {
-        var bi = bodies[i];
+        let bi = bodies[i];
         if (bi.type & DYNAMIC) { // Only for dynamic bodies
-            var ld = pow(1.0 - bi.linearDamping, dt);
-            var v = bi.velocity;
+            let ld = pow(1.0 - bi.linearDamping, dt);
+            let v = bi.velocity;
             v.mult(ld, v);
-            var av = bi.angularVelocity;
+            let av = bi.angularVelocity;
             if (av) {
-                var ad = pow(1.0 - bi.angularDamping, dt);
+                let ad = pow(1.0 - bi.angularDamping, dt);
                 av.mult(ad, av);
             }
         }
@@ -14395,7 +14402,7 @@ World.prototype.internalStep = function (dt) {
 
     // // Invoke pre-step callbacks
     // for(i=0; i!==N; i++){
-    //     var bi = bodies[i];
+    //     let bi = bodies[i];
     //     if(bi.preStep){
     //         bi.preStep.call(bi);
     //     }
@@ -14407,9 +14414,9 @@ World.prototype.internalStep = function (dt) {
     if (doProfiling) {
         profilingStart = performance.now();
     }
-    var stepnumber = this.stepnumber;
-    var quatNormalize = stepnumber % (this.quatNormalizeSkip + 1) === 0;
-    var quatNormalizeFast = this.quatNormalizeFast;
+    let stepnumber = this.stepnumber;
+    let quatNormalize = stepnumber % (this.quatNormalizeSkip + 1) === 0;
+    let quatNormalizeFast = this.quatNormalizeFast;
 
     for (i = 0; i !== N; i++) {
         bodies[i].integrate(dt, quatNormalize, quatNormalizeFast);
@@ -14430,8 +14437,8 @@ World.prototype.internalStep = function (dt) {
 
     // // Invoke post-step callbacks
     // for(i=0; i!==N; i++){
-    //     var bi = bodies[i];
-    //     var postStep = bi.postStep;
+    //     let bi = bodies[i];
+    //     let postStep = bi.postStep;
     //     if(postStep){
     //         postStep.call(bi);
     //     }
@@ -14445,9 +14452,9 @@ World.prototype.internalStep = function (dt) {
     }
 };
 
-var additions = [];
-var removals = [];
-var triggeredEvent = {
+let additions = [];
+let removals = [];
+let triggeredEvent = {
     type: 'triggered',
     event: '',
     selfBody: null, // need ?
@@ -14459,16 +14466,16 @@ World.prototype.emitTriggeredEvents = function () {
     if (this.substeps == 0)
         return;
 
-    var id1;
-    var id2;
+    let id1;
+    let id2;
 
     additions.length = removals.length = 0;
     this.shapeOverlapKeeperExit.getDiff(additions, removals);
 
-    for (var i = 0, l = removals.length; i < l; i += 2) {
+    for (let i = 0, l = removals.length; i < l; i += 2) {
         triggeredEvent.event = 'onTriggerExit';
-        var shapeA = this.getShapeById(removals[i]);
-        var shapeB = this.getShapeById(removals[i + 1]);
+        let shapeA = this.getShapeById(removals[i]);
+        let shapeB = this.getShapeById(removals[i + 1]);
         // if(!shapeA.body.isSleeping || !shapeB.body.isSleeping){
         this.triggerMatrix.set(shapeA, shapeB, false);
         triggeredEvent.selfShape = shapeA;
@@ -14487,11 +14494,11 @@ World.prototype.emitTriggeredEvents = function () {
 
     additions.length = removals.length = 0;
     this.shapeOverlapKeeper.getDiff(additions, removals);
-    for (var i = 0, l = additions.length; i < l; i += 2) {
-        var id1 = additions[i];
-        var id2 = additions[i + 1];
-        var shapeA = this.getShapeById(id1);
-        var shapeB = this.getShapeById(id2);
+    for (let i = 0, l = additions.length; i < l; i += 2) {
+        let id1 = additions[i];
+        let id2 = additions[i + 1];
+        let shapeA = this.getShapeById(id1);
+        let shapeB = this.getShapeById(id2);
         if (!shapeA || !shapeB) continue;
         
         if (this.triggerMatrix.get(shapeA, shapeB)) {
@@ -14521,25 +14528,25 @@ World.prototype.emitCollisionEvents = function () {
     if (this.substeps == 0)
         return;
 
-    var contacts = this.contacts;
-    var i = this.contacts.length;
+    let contacts = this.contacts;
+    let i = this.contacts.length;
     while (i--) {
         // Current contact
-        var c = contacts[i];
+        let c = contacts[i];
         // Get current collision indeces
-        var si = c.si;
-        var sj = c.sj;
-        var item = this.contactsDic.get(si.id, sj.id);
+        let si = c.si;
+        let sj = c.sj;
+        let item = this.contactsDic.get(si.id, sj.id);
         if (item == null) {
             item = this.contactsDic.set(si.id, sj.id, []);
         }
         item.push(c);
     }
 
-    var key;
-    var data;
+    let key;
+    let data;
     // is collision enter or stay
-    var i = this.contactsDic.getLength();
+    i = this.contactsDic.getLength();
     while (i--) {
         key = this.contactsDic.getKeyByIndex(i);
         data = this.contactsDic.getDataByKey(key);
@@ -14547,10 +14554,10 @@ World.prototype.emitCollisionEvents = function () {
         if (data == null)
             continue;
 
-        var bi = data[0].bi;
-        var bj = data[0].bj;
-        var si = data[0].si;
-        var sj = data[0].sj;
+        let bi = data[0].bi;
+        let bj = data[0].bj;
+        let si = data[0].si;
+        let sj = data[0].sj;
 
         if (bi.allowSleep &&
             bi.type === Body.DYNAMIC &&
@@ -14558,8 +14565,8 @@ World.prototype.emitCollisionEvents = function () {
             bj.sleepState === Body.AWAKE &&
             bj.type !== Body.STATIC
         ) {
-            var speedSquaredB = bj.velocity.norm2() + bj.angularVelocity.norm2();
-            var speedLimitSquaredB = Math.pow(bj.sleepSpeedLimit, 2);
+            let speedSquaredB = bj.velocity.norm2() + bj.angularVelocity.norm2();
+            let speedLimitSquaredB = Math.pow(bj.sleepSpeedLimit, 2);
             if (speedSquaredB >= speedLimitSquaredB * 2) {
                 // bi._wakeUpAfterNarrowphase = true;
                 bi.wakeUp();
@@ -14572,8 +14579,8 @@ World.prototype.emitCollisionEvents = function () {
             bi.sleepState === Body.AWAKE &&
             bi.type !== Body.STATIC
         ) {
-            var speedSquaredA = bi.velocity.norm2() + bi.angularVelocity.norm2();
-            var speedLimitSquaredA = Math.pow(bi.sleepSpeedLimit, 2);
+            let speedSquaredA = bi.velocity.norm2() + bi.angularVelocity.norm2();
+            let speedLimitSquaredA = Math.pow(bi.sleepSpeedLimit, 2);
             if (speedSquaredA >= speedLimitSquaredA * 2) {
                 // bj._wakeUpAfterNarrowphase = true;
                 bj.wakeUp();
@@ -14608,14 +14615,14 @@ World.prototype.emitCollisionEvents = function () {
         World_step_collideEvent.otherShape = si;
         sj.body.dispatchEvent(World_step_collideEvent);
     }
-    var oldcontacts = World_step_oldContacts;
+    let oldcontacts = World_step_oldContacts;
     for (i = oldcontacts.length; i--;) {
         // Current contact
-        var c = oldcontacts[i];
+        let c = oldcontacts[i];
 
         // Get current collision indeces
-        var si = c.si;
-        var sj = c.sj;
+        let si = c.si;
+        let sj = c.sj;
         if (this.oldContactsDic.get(si.id, sj.id) == null) {
             this.oldContactsDic.set(si.id, sj.id, c);
         }
@@ -14627,10 +14634,10 @@ World.prototype.emitCollisionEvents = function () {
         key = this.oldContactsDic.getKeyByIndex(i);
         if (this.contactsDic.getDataByKey(key) == null) {
             data = this.oldContactsDic.getDataByKey(key);
-            var bi = data.bi;
-            var bj = data.bj;
-            var si = data.si;
-            var sj = data.sj;
+            let bi = data.bi;
+            let bj = data.bj;
+            let si = data.si;
+            let sj = data.sj;
             if (this.collisionMatrix.get(bi, bj)) {
                 if (!bi.isSleeping() || !bj.isSleeping()) {
                     this.collisionMatrix.set(bi, bj, false);
@@ -14669,10 +14676,10 @@ World.prototype.emitCollisionEvents = function () {
  * @method clearForces
  */
 World.prototype.clearForces = function () {
-    var bodies = this.bodies;
-    var N = bodies.length;
-    for (var i = 0; i !== N; i++) {
-        var b = bodies[i];
+    let bodies = this.bodies;
+    let N = bodies.length;
+    for (let i = 0; i !== N; i++) {
+        let b = bodies[i];
         b.force.set(0, 0, 0);
         b.torque.set(0, 0, 0);
     }

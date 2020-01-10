@@ -149,7 +149,9 @@ export class CannonSharedBody {
     syncSceneToPhysics (force: boolean = false) {
         let node = this.node;
         let needUpdateTransform = updateWorldTransform(node, force);
-        if (!force && !needUpdateTransform) return;
+        if (!force && !needUpdateTransform) {
+            return;
+        }
 
         Vec3.copy(this.body.position, node.__wpos);
         Quat.copy(this.body.quaternion, node.__wrot);
@@ -164,6 +166,9 @@ export class CannonSharedBody {
         if (this.body.isSleeping()) {
             this.body.wakeUp();
         }
+
+        // body world aabb need to be recalculated
+        this.body.aabbNeedsUpdate = true;
     }
 
     syncPhysicsToScene () {
