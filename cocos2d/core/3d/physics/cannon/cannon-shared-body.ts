@@ -43,7 +43,7 @@ const v3_0 = new Vec3();
 const quat_0 = new Quat();
 const contactsPool = [] as any;
 const CollisionEventObject = {
-    type: 'onCollisionEnter' as CollisionEventType,
+    type: 'collision-enter' as CollisionEventType,
     selfCollider: null as Collider3D | null,
     otherCollider: null as Collider3D | null,
     contacts: [] as any,

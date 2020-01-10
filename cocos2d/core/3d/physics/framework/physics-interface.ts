@@ -70,7 +70,7 @@ export interface ITriggerEvent {
  * !#zh
  * 触发事件的值类型定义。
  */
-export type TriggerEventType = 'onTriggerEnter' | 'onTriggerStay' | 'onTriggerExit';
+export type TriggerEventType = 'trigger-enter' | 'trigger-stay' | 'trigger-exit';
 
 /**
  * !#en
@@ -174,7 +174,7 @@ export interface ICollisionEvent {
  * !#zh
  * 碰撞事件的值类型定义。
  */
-export type CollisionEventType = 'onCollisionEnter' | 'onCollisionStay' | 'onCollisionExit';
+export type CollisionEventType = 'collision-enter' | 'collision-stay' | 'collision-exit';
 
 /**
  * !#en
