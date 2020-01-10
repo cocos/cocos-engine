@@ -236,14 +236,14 @@ export default class ParticleBatchModel{
             let subData = subDatas[i];
             let subMesh = subMeshes[i];
             if (subData.vDirty) {
-                let buffer = subMesh._vertexBuffer, data = subData.vData;
-                buffer.update(0, data);
+                let vBuffer = subMesh._vertexBuffer, vData = subData.vData;
+                vBuffer.update(0, vData);
                 subData.vDirty = false;
             }
 
             if (subData.iDirty) {
-                let buffer = subMesh._indexBuffer, data = subData.iData;
-                buffer.update(0, data);
+                let iBuffer = subMesh._indexBuffer, iData = subData.iData;
+                iBuffer.update(0, iData);
                 subData.iDirty = false;
             }
         }
