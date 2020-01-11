@@ -257,6 +257,10 @@ export class WebGLGFXDevice extends GFXDevice {
         this._depthBits = gl.getParameter(gl.DEPTH_BITS);
         this._stencilBits = gl.getParameter(gl.STENCIL_BITS);
 
+        if (CC_ALIPAY) {
+            this._depthBits = 24;
+        }
+
         this._devicePixelRatio = info.devicePixelRatio || 1.0;
         this._width = this._canvas.width;
         this._height = this._canvas.height;
@@ -313,6 +317,10 @@ export class WebGLGFXDevice extends GFXDevice {
         this._OES_standard_derivatives = this.getExtension('OES_standard_derivatives');
         this._OES_element_index_uint = this.getExtension('OES_element_index_uint');
         this._ANGLE_instanced_arrays = this.getExtension('ANGLE_instanced_arrays');
+
+        if (CC_ALIPAY) {
+            this._WEBGL_depth_texture = { UNSIGNED_INT_24_8_WEBGL: 0x84FA };
+        }
 
         this._features.fill(false);
 
