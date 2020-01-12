@@ -624,8 +624,8 @@ export class Game extends EventTarget {
             if (!CC_EDITOR && !CC_PREVIEW && cc.internal.SplashScreenWebgl) {
                 cc.internal.SplashScreenWebgl.instance.setOnFinish(cb);
                 cc.internal.SplashScreenWebgl.instance.loadFinish = true;
-            } else {
-                cb && cb();
+            } else if (cb) {
+                cb();
             }
         });
     }

@@ -29,27 +29,24 @@
 
 import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
 import { Mat4 } from '../math';
+import { IAnimInfo, JointsAnimationInfo } from '../renderer/models/skeletal-animation-utils';
+import { Node } from '../scene-graph';
 import { AnimationClip, IObjectCurveData } from './animation-clip';
 import { AnimCurve } from './animation-curve';
 import { AnimationState, ICurveInstance } from './animation-state';
 import { Socket } from './skeletal-animation-component';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
-import { ComponentPath, TargetPath, HierarchyPath } from './target-path';
-import { getPathFromRoot, getWorldTransformUntilRoot } from './transform-utils';
-import { Node } from '../scene-graph';
+import { HierarchyPath } from './target-path';
+import { getWorldTransformUntilRoot } from './transform-utils';
 
 const m4_1 = new Mat4();
-
-function isFrameIDCurve (modifiers: TargetPath[]) {
-    return modifiers.length === 3 &&
-        modifiers[0] instanceof HierarchyPath &&
-        modifiers[1] instanceof ComponentPath &&
-        modifiers[2] === 'frameID';
-}
+const _defaultCurves = []; // no curves
 
 export class SkeletalAnimationState extends AnimationState {
 
     protected _preSample = true;
+    protected _frames = 1;
+    protected _animInfo: IAnimInfo | null = null;
 
     constructor (clip: AnimationClip, name = '', preSample = true) {
         super(clip, name);
@@ -57,10 +54,13 @@ export class SkeletalAnimationState extends AnimationState {
     }
 
     public initialize (root: Node) {
+        if (this._curveLoaded) { return; }
         if (this._preSample) {
             const info = SkelAnimDataHub.getOrExtract(this.clip).info;
-            super.initialize(root, info.curves);
-            this.duration = (info.frames - 1) / info.sample; // last key
+            super.initialize(root, _defaultCurves);
+            this._frames = info.frames - 1;
+            this._animInfo = (cc.director.root.dataPoolManager.jointsAnimationInfo as JointsAnimationInfo).create(root.uuid);
+            this.duration = this._frames / info.sample; // last key
         } else {
             super.initialize(root);
         }
@@ -78,23 +78,20 @@ export class SkeletalAnimationState extends AnimationState {
     }
 
     public rebuildSocketCurves (sockets: Socket[]) {
-        // TODO: curve reuse perhaps?
-        // delete previous sockets
         if (!this._samplerSharedGroups.length) { return; }
         const curves = this._samplerSharedGroups[0].curves;
-        for (let iCurve = 0; iCurve < curves.length; iCurve++) {
-            const curveDetail = curves[iCurve].curveDetail;
-            if (isFrameIDCurve(curveDetail.modifiers)) {
-                continue;
-            } else {
-                curves.splice(iCurve--, 1);
-            }
-        }
-        // build new ones
+        curves.length = 0; // remove previous curves
         for (let iSocket = 0; iSocket < sockets.length; ++iSocket) {
             const curve = this._buildSocketData(sockets[iSocket]);
             if (curve) { curves.push(curve); }
         }
+    }
+
+    protected _sampleCurves (ratio: number) {
+        super._sampleCurves(ratio);
+        const info = this._animInfo!;
+        info.data[1] = (ratio * this._frames + 0.5) | 0;
+        info.dirty = true;
     }
 
     private _buildSocketData (socket: Socket) {
@@ -125,17 +122,6 @@ export class SkeletalAnimationState extends AnimationState {
         for (let i = 0; i < matrix.length; i++) {
             const m = matrix[i];
             Mat4.multiply(m, m, m4_1);
-        }
-        if (CC_EDITOR) { // assign back to clip to sync with animation editor
-            const path = getPathFromRoot(socket.target, root);
-            const curves = this.clip.curves;
-            const dstcurve = curves.find((curve) => {
-                const modifier = curve.modifiers[0];
-                return modifier instanceof HierarchyPath && modifier.path === path && curve.modifiers[1] === 'matrix';
-            });
-            if (dstcurve) { dstcurve.data = data.matrix; }
-            else { curves.push({ modifiers: [ new HierarchyPath(path), 'matrix' ], data: data.matrix }); }
-            this.clip.curves = curves;
         }
         // wrap up
         const duration = this.clip.duration;
