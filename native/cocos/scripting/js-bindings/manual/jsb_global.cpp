@@ -610,20 +610,23 @@ static bool JSB_getOSVersion(se::State& s)
 }
 SE_BIND_FUNC(JSB_getOSVersion)
 
-//static bool JSB_core_restartVM(se::State& s)
-//{
-//    //REFINE: release AudioEngine, waiting HttpClient & WebSocket threads to exit.
+static bool JSB_core_restartVM(se::State& s)
+{
+    //TODO: minggo
+    return true;
+    //REFINE: release AudioEngine, waiting HttpClient & WebSocket threads to exit.
 //    Application::getInstance()->restart();
 //    return true;
-//}
-//SE_BIND_FUNC(JSB_core_restartVM)
+}
+SE_BIND_FUNC(JSB_core_restartVM)
 
-//static bool JSB_closeWindow(se::State& s)
-//{
+static bool JSB_closeWindow(se::State& s)
+{
+    //TODO: minggo
 //    Application::getInstance()->end();
-//    return true;
-//}
-//SE_BIND_FUNC(JSB_closeWindow)
+    return true;
+}
+SE_BIND_FUNC(JSB_closeWindow)
 
 static bool JSB_isObjectValid(se::State& s)
 {
@@ -1193,12 +1196,12 @@ bool jsb_register_global_variables(se::Object* global)
 
     global->defineFunction("__getPlatform", _SE(JSBCore_platform));
     global->defineFunction("__getOS", _SE(JSBCore_os));
-//    global->defineFunction("__getOSVersion", _SE(JSB_getOSVersion));
+    global->defineFunction("__getOSVersion", _SE(JSB_getOSVersion));
     global->defineFunction("__getCurrentLanguage", _SE(JSBCore_getCurrentLanguage));
     global->defineFunction("__getCurrentLanguageCode", _SE(JSBCore_getCurrentLanguageCode));
-//    global->defineFunction("__restartVM", _SE(JSB_core_restartVM));
+    global->defineFunction("__restartVM", _SE(JSB_core_restartVM));
     global->defineFunction("__isObjectValid", _SE(JSB_isObjectValid));
-//    global->defineFunction("close", _SE(JSB_closeWindow));
+    global->defineFunction("close", _SE(JSB_closeWindow));
 
     se::HandleObject performanceObj(se::Object::createPlainObject());
     performanceObj->defineFunction("now", _SE(js_performance_now));

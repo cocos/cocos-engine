@@ -513,6 +513,113 @@ getInstance : function (
 };
 
 /**
+ * @class Device
+ */
+jsb.Device = {
+
+/**
+ * @method getNetworkType
+ * @return {cc.Device::NetworkType}
+ */
+getNetworkType : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method setAccelerometerEnabled
+ * @param {bool} arg0
+ */
+setAccelerometerEnabled : function (
+bool 
+)
+{
+},
+
+/**
+ * @method setAccelerometerInterval
+ * @param {float} arg0
+ */
+setAccelerometerInterval : function (
+float 
+)
+{
+},
+
+/**
+ * @method vibrate
+ * @param {float} arg0
+ */
+vibrate : function (
+float 
+)
+{
+},
+
+/**
+ * @method setKeepScreenOn
+ * @param {bool} arg0
+ */
+setKeepScreenOn : function (
+bool 
+)
+{
+},
+
+/**
+ * @method getBatteryLevel
+ * @return {float}
+ */
+getBatteryLevel : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method getDeviceRotation
+ * @return {cc.Device::Rotation}
+ */
+getDeviceRotation : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method getDPI
+ * @return {int}
+ */
+getDPI : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method getSafeAreaEdge
+ * @return {vec4_object}
+ */
+getSafeAreaEdge : function (
+)
+{
+    return cc.Vec4;
+},
+
+/**
+ * @method getDeviceModel
+ * @return {String}
+ */
+getDeviceModel : function (
+)
+{
+    return ;
+},
+
+};
+
+/**
  * @class SAXParser
  */
 jsb.PlistParser = {

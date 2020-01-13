@@ -52,6 +52,22 @@ SE_DECLARE_FUNC(js_engine_FileUtils_getWritablePath);
 SE_DECLARE_FUNC(js_engine_FileUtils_setDelegate);
 SE_DECLARE_FUNC(js_engine_FileUtils_getInstance);
 
+extern se::Object* __jsb_cocos2d_Device_proto;
+extern se::Class* __jsb_cocos2d_Device_class;
+
+bool js_register_cocos2d_Device(se::Object* obj);
+bool register_all_engine(se::Object* obj);
+SE_DECLARE_FUNC(js_engine_Device_getNetworkType);
+SE_DECLARE_FUNC(js_engine_Device_setAccelerometerEnabled);
+SE_DECLARE_FUNC(js_engine_Device_setAccelerometerInterval);
+SE_DECLARE_FUNC(js_engine_Device_vibrate);
+SE_DECLARE_FUNC(js_engine_Device_setKeepScreenOn);
+SE_DECLARE_FUNC(js_engine_Device_getBatteryLevel);
+SE_DECLARE_FUNC(js_engine_Device_getDeviceRotation);
+SE_DECLARE_FUNC(js_engine_Device_getDPI);
+SE_DECLARE_FUNC(js_engine_Device_getSafeAreaEdge);
+SE_DECLARE_FUNC(js_engine_Device_getDeviceModel);
+
 extern se::Object* __jsb_cocos2d_SAXParser_proto;
 extern se::Class* __jsb_cocos2d_SAXParser_class;
 

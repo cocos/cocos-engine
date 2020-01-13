@@ -431,6 +431,9 @@
 		46BFDF9F23C8712600CC5F8E /* CCApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = 46BFDF9E23C8712600CC5F8E /* CCApplication.h */; };
 		46BFDFA023C8712600CC5F8E /* CCApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = 46BFDF9E23C8712600CC5F8E /* CCApplication.h */; };
 		46BFDFA123C8792400CC5F8E /* CCApplication-ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = 46BFDF9923C870A000CC5F8E /* CCApplication-ios.mm */; };
+		46BFDFC223CC136500CC5F8E /* CCDevice-ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = 46BFDFC123CC136500CC5F8E /* CCDevice-ios.mm */; };
+		46BFDFC423CC137400CC5F8E /* CCDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 46BFDFC323CC137400CC5F8E /* CCDevice.h */; };
+		46BFDFC523CC137400CC5F8E /* CCDevice.h in Headers */ = {isa = PBXBuildFile; fileRef = 46BFDFC323CC137400CC5F8E /* CCDevice.h */; };
 		46FDDB4D202ADDCE00931238 /* pvr.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDAEB202ADDCE00931238 /* pvr.h */; };
 		46FDDB4E202ADDCE00931238 /* pvr.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDAEB202ADDCE00931238 /* pvr.h */; };
 		46FDDB4F202ADDCE00931238 /* CCValue.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDAEC202ADDCE00931238 /* CCValue.h */; };
@@ -1189,6 +1192,8 @@
 		46BFDF9923C870A000CC5F8E /* CCApplication-ios.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "CCApplication-ios.mm"; sourceTree = "<group>"; };
 		46BFDF9B23C8710900CC5F8E /* CCApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CCApplication.h; path = ../CCApplication.h; sourceTree = "<group>"; };
 		46BFDF9E23C8712600CC5F8E /* CCApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCApplication.h; sourceTree = "<group>"; };
+		46BFDFC123CC136500CC5F8E /* CCDevice-ios.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "CCDevice-ios.mm"; sourceTree = "<group>"; };
+		46BFDFC323CC137400CC5F8E /* CCDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCDevice.h; sourceTree = "<group>"; };
 		46FDDAEB202ADDCE00931238 /* pvr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pvr.h; sourceTree = "<group>"; };
 		46FDDAEC202ADDCE00931238 /* CCValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCValue.h; sourceTree = "<group>"; };
 		46FDDAEE202ADDCE00931238 /* utlist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utlist.h; sourceTree = "<group>"; };
@@ -2181,6 +2186,7 @@
 		503DD8CD1926736A00CD74DD /* ios */ = {
 			isa = PBXGroup;
 			children = (
+				46BFDFC123CC136500CC5F8E /* CCDevice-ios.mm */,
 				46BFDF9923C870A000CC5F8E /* CCApplication-ios.mm */,
 				051C016F21E2F85C00D4A347 /* CCModuleConfigIOS.debug.xcconfig */,
 				051C017021E2F85C00D4A347 /* CCModuleConfigIOS.release.xcconfig */,
@@ -2195,6 +2201,7 @@
 		50ABBEDB1926664700A911A9 /* platform */ = {
 			isa = PBXGroup;
 			children = (
+				46BFDFC323CC137400CC5F8E /* CCDevice.h */,
 				4043D65B20D2132E00C55611 /* desktop */,
 				50ABBF1A1926664700A911A9 /* apple */,
 				503DD8CD1926736A00CD74DD /* ios */,
@@ -2948,6 +2955,7 @@
 				BA06A68823583DBD007740C5 /* JeAlloc.h in Headers */,
 				BA06A85423584B92007740C5 /* khrplatform.h in Headers */,
 				BAC32B41236C28C600F3D55F /* tommyarray.h in Headers */,
+				46BFDFC423CC137400CC5F8E /* CCDevice.h in Headers */,
 				ED30577F1BEC76C90083C3ED /* ioapi_mem.h in Headers */,
 				BA06A85C23584B93007740C5 /* vulkan.h in Headers */,
 				46AE3FED2092F3A600F3A228 /* http_parser.h in Headers */,
@@ -3152,6 +3160,7 @@
 				BA06A7E623583DFE007740C5 /* GLES3PipelineLayout.h in Headers */,
 				BA39055B23B1BFD600CAFB49 /* CCCoreMath.h in Headers */,
 				4617863E20522469008256E1 /* HttpResponse.h in Headers */,
+				46BFDFC523CC137400CC5F8E /* CCDevice.h in Headers */,
 				BA06A78023583DFE007740C5 /* gles2w.h in Headers */,
 				461786542052301A008256E1 /* CCScheduler.h in Headers */,
 				50ABC0181926664800A911A9 /* CCImage.h in Headers */,
@@ -3543,6 +3552,7 @@
 				ED30578A1BEC77460083C3ED /* tinyxml2.cpp in Sources */,
 				1A29D76A205665BE00168D9A /* jsb_cocos2dx_auto.cpp in Sources */,
 				BA06A6F523583DBD007740C5 /* Log.cc in Sources */,
+				46BFDFC223CC136500CC5F8E /* CCDevice-ios.mm in Sources */,
 				BAC32B4E236C28C600F3D55F /* tommyhashtbl.c in Sources */,
 				46FDDBFC202ADDCE00931238 /* ccCArray.cpp in Sources */,
 				BA06A6CD23583DBD007740C5 /* GFXInputAssembler.cc in Sources */,

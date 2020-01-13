@@ -301,29 +301,31 @@ Device::NetworkType Device::getNetworkType()
 
 cocos2d::Vec4 Device::getSafeAreaEdge()
 {
-    UIView* screenView = (UIView*)Application::getInstance()->getView();
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
-    float version = [[UIDevice currentDevice].systemVersion floatValue];
-    if (version >= 11.0f)
-    {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wpartial-availability"
-        UIEdgeInsets safeAreaEdge = screenView.safeAreaInsets;
-#pragma clang diagnostic pop
-
-        // Multiply contentScaleFactor since safeAreaInsets return points.
-        uint8_t scale = screenView.contentScaleFactor;
-        safeAreaEdge.left *= scale;
-        safeAreaEdge.right *= scale;
-        safeAreaEdge.top *= scale;
-        safeAreaEdge.bottom *= scale;
-
-        return cocos2d::Vec4(safeAreaEdge.top, safeAreaEdge.left, safeAreaEdge.bottom, safeAreaEdge.right);
-    }
-#endif
-
-    // If running on iOS devices lower than 11.0, return ZERO Vec4.
+    //TODO:minggo
+//    UIView* screenView = (UIView*)Application::getInstance()->getView();
+//
+//#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
+//    float version = [[UIDevice currentDevice].systemVersion floatValue];
+//    if (version >= 11.0f)
+//    {
+//#pragma clang diagnostic push
+//#pragma clang diagnostic ignored "-Wpartial-availability"
+//        UIEdgeInsets safeAreaEdge = screenView.safeAreaInsets;
+//#pragma clang diagnostic pop
+//
+//        // Multiply contentScaleFactor since safeAreaInsets return points.
+//        uint8_t scale = screenView.contentScaleFactor;
+//        safeAreaEdge.left *= scale;
+//        safeAreaEdge.right *= scale;
+//        safeAreaEdge.top *= scale;
+//        safeAreaEdge.bottom *= scale;
+//
+//        return cocos2d::Vec4(safeAreaEdge.top, safeAreaEdge.left, safeAreaEdge.bottom, safeAreaEdge.right);
+//    }
+//#endif
+//
+//    // If running on iOS devices lower than 11.0, return ZERO Vec4.
+//    return cocos2d::Vec4();
     return cocos2d::Vec4();
 }
 NS_CC_END

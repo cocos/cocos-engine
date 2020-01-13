@@ -22,28 +22,18 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
 #include "Game.h"
-
-#include "cocos2d.h"
-
+#include "cocos/scripting/js-bindings/event/CustomEventTypes.h"
+#include "cocos/scripting/js-bindings/event/EventDispatcher.h"
 #include "cocos/scripting/js-bindings/manual/jsb_module_register.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/event/EventDispatcher.h"
 #include "cocos/scripting/js-bindings/manual/jsb_classtype.hpp"
 
-USING_NS_CC;
+Game::Game(int width, int height) : cocos2d::Application(width, height) {}
 
-Game::Game(int width, int height) : Application("Cocos Game", width, height)
-{
-}
-
-Game::~Game()
-{
-}
-
-bool Game::applicationDidFinishLaunching()
+bool Game::init()
 {
     se::ScriptEngine *se = se::ScriptEngine::getInstance();
     
@@ -71,17 +61,23 @@ bool Game::applicationDidFinishLaunching()
         JSBClassType::destroy();
     });
     
+    cocos2d::Application::init();
+    
     return true;
 }
 
-// This function will be called when the app is inactive. When comes a phone call,it's be invoked too
-void Game::applicationDidEnterBackground()
+void Game::onPause()
 {
-    EventDispatcher::dispatchEnterBackgroundEvent();
+    cocos2d::CustomEvent event;
+    event.name = EVENT_COME_TO_BACKGROUND;
+    cocos2d::EventDispatcher::dispatchCustomEvent(event);
+    cocos2d::EventDispatcher::dispatchEnterBackgroundEvent();
 }
 
-// this function will be called when the app is active again
-void Game::applicationWillEnterForeground()
+void Game::onResume()
 {
-    EventDispatcher::dispatchEnterForegroundEvent();
+    cocos2d::CustomEvent event;
+    event.name = EVENT_COME_TO_FOREGROUND;
+    cocos2d::EventDispatcher::dispatchCustomEvent(event);
+    cocos2d::EventDispatcher::dispatchEnterForegroundEvent();
 }
