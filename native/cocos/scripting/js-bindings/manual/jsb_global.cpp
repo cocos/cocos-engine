@@ -31,7 +31,7 @@
 #include "base/CCThreadPool.h"
 #include "network/HttpClient.h"
 #include "platform/CCApplication.h"
-#include "ui/edit-box/EditBox.h"
+//#include "ui/edit-box/EditBox.h"
 
 #if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
 #include "platform/android/jni/JniImp.h"
@@ -499,16 +499,6 @@ static bool JSBCore_platform(se::State& s)
 }
 SE_BIND_FUNC(JSBCore_platform)
 
-static bool JSBCore_version(se::State& s)
-{
-//cjh    char version[256];
-//    snprintf(version, sizeof(version)-1, "%s", cocos2dVersion());
-//
-//    s.rval().setString(version);
-    return true;
-}
-SE_BIND_FUNC(JSBCore_version)
-
 static bool JSBCore_os(se::State& s)
 {
     se::Value os;
@@ -520,19 +510,10 @@ static bool JSBCore_os(se::State& s)
     os.setString("Android");
 #elif (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
     os.setString("Windows");
-#elif (CC_TARGET_PLATFORM == CC_PLATFORM_MARMALADE)
-    os.setString("Marmalade");
 #elif (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
     os.setString("Linux");
-#elif (CC_TARGET_PLATFORM == CC_PLATFORM_BADA)
-    os.setString("Bada");
-#elif (CC_TARGET_PLATFORM == CC_PLATFORM_BLACKBERRY)
-    os.setString("Blackberry");
 #elif (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
-    os.setString("OS X");
-#elif (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
-    os.setString("WINRT");
-#else
+    os.setString("macOS");
     os.setString("Unknown");
 #endif
 
@@ -629,27 +610,20 @@ static bool JSB_getOSVersion(se::State& s)
 }
 SE_BIND_FUNC(JSB_getOSVersion)
 
-static bool JSB_cleanScript(se::State& s)
-{
-    assert(false); //IDEA:
-    return true;
-}
-SE_BIND_FUNC(JSB_cleanScript)
+//static bool JSB_core_restartVM(se::State& s)
+//{
+//    //REFINE: release AudioEngine, waiting HttpClient & WebSocket threads to exit.
+//    Application::getInstance()->restart();
+//    return true;
+//}
+//SE_BIND_FUNC(JSB_core_restartVM)
 
-static bool JSB_core_restartVM(se::State& s)
-{
-    //REFINE: release AudioEngine, waiting HttpClient & WebSocket threads to exit.
-    Application::getInstance()->restart();
-    return true;
-}
-SE_BIND_FUNC(JSB_core_restartVM)
-
-static bool JSB_closeWindow(se::State& s)
-{
-    Application::getInstance()->end();
-    return true;
-}
-SE_BIND_FUNC(JSB_closeWindow)
+//static bool JSB_closeWindow(se::State& s)
+//{
+//    Application::getInstance()->end();
+//    return true;
+//}
+//SE_BIND_FUNC(JSB_closeWindow)
 
 static bool JSB_isObjectValid(se::State& s)
 {
@@ -668,19 +642,19 @@ static bool JSB_isObjectValid(se::State& s)
 }
 SE_BIND_FUNC(JSB_isObjectValid)
 
-static bool JSB_setCursorEnabled(se::State& s)
-{
-    const auto& args = s.args();
-    int argc = (int)args.size();
-    SE_PRECONDITION2(argc == 1, false, "Invalid number of arguments");
-    bool ok = true, value = true;
-    ok &= seval_to_boolean(args[0], &value);
-    SE_PRECONDITION2(ok, false, "Error processing arguments");
-
-    Application::getInstance()->setCursorEnabled(value);
-    return true;
-}
-SE_BIND_FUNC(JSB_setCursorEnabled)
+//static bool JSB_setCursorEnabled(se::State& s)
+//{
+//    const auto& args = s.args();
+//    int argc = (int)args.size();
+//    SE_PRECONDITION2(argc == 1, false, "Invalid number of arguments");
+//    bool ok = true, value = true;
+//    ok &= seval_to_boolean(args[0], &value);
+//    SE_PRECONDITION2(ok, false, "Error processing arguments");
+//
+//    Application::getInstance()->setCursorEnabled(value);
+//    return true;
+//}
+//SE_BIND_FUNC(JSB_setCursorEnabled)
 
 static bool getOrCreatePlainObject_r(const char* name, se::Object* parent, se::Object** outObj)
 {
@@ -1003,49 +977,40 @@ static bool js_saveImageData(se::State& s)
 }
 SE_BIND_FUNC(js_saveImageData)
 
-static bool js_setDebugViewText(se::State& s)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        int32_t index;
-        ok = seval_to_int32(args[0], &index);
-        SE_PRECONDITION2(ok, false, "Convert arg0 index failed!");
+//static bool js_setDebugViewText(se::State& s)
+//{
+//    const auto& args = s.args();
+//    size_t argc = args.size();
+//    CC_UNUSED bool ok = true;
+//    if (argc == 2) {
+//        int32_t index;
+//        ok = seval_to_int32(args[0], &index);
+//        SE_PRECONDITION2(ok, false, "Convert arg0 index failed!");
+//
+//        std::string text;
+//        ok = seval_to_std_string(args[1], &text);
+//        SE_PRECONDITION2(ok, false, "Convert arg1 text failed!");
+//
+//
+//#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+//        setGameInfoDebugViewTextJNI(index, text);
+//#endif
+//        return true;
+//    }
+//
+//    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+//    return false;
+//}
+//SE_BIND_FUNC(js_setDebugViewText)
 
-        std::string text;
-        ok = seval_to_std_string(args[1], &text);
-        SE_PRECONDITION2(ok, false, "Convert arg1 text failed!");
-
-
-#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
-        setGameInfoDebugViewTextJNI(index, text);
-#endif
-        return true;
-    }
-
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
-    return false;
-}
-SE_BIND_FUNC(js_setDebugViewText)
-
-static bool js_openDebugView(se::State& s)
-{
-#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
-    openDebugViewJNI();
-#endif
-    return true;
-}
-SE_BIND_FUNC(js_openDebugView)
-
-static bool js_disableBatchGLCommandsToNative(se::State& s)
-{
-#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
-    disableBatchGLCommandsToNativeJNI();
-#endif
-    return true;
-}
-SE_BIND_FUNC(js_disableBatchGLCommandsToNative)
+//static bool js_openDebugView(se::State& s)
+//{
+//#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+//    openDebugViewJNI();
+//#endif
+//    return true;
+//}
+//SE_BIND_FUNC(js_openDebugView)
 
 static bool JSB_openURL(se::State& s)
 {
@@ -1083,117 +1048,117 @@ static bool JSB_copyTextToClipboard(se::State& s)
 }
 SE_BIND_FUNC(JSB_copyTextToClipboard)
 
-static bool JSB_setPreferredFramesPerSecond(se::State& s)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc > 0) {
-        int32_t fps;
-        ok = seval_to_int32(args[0], &fps);
-        SE_PRECONDITION2(ok, false, "fps is invalid!");
-        Application::getInstance()->setPreferredFramesPerSecond(fps);
-        return true;
-    }
+//static bool JSB_setPreferredFramesPerSecond(se::State& s)
+//{
+//    const auto& args = s.args();
+//    size_t argc = args.size();
+//    CC_UNUSED bool ok = true;
+//    if (argc > 0) {
+//        int32_t fps;
+//        ok = seval_to_int32(args[0], &fps);
+//        SE_PRECONDITION2(ok, false, "fps is invalid!");
+//        Application::getInstance()->setPreferredFramesPerSecond(fps);
+//        return true;
+//    }
+//
+//    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+//    return false;
+//}
+//SE_BIND_FUNC(JSB_setPreferredFramesPerSecond)
 
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(JSB_setPreferredFramesPerSecond)
+//static bool JSB_showInputBox(se::State& s)
+//{
+//    const auto& args = s.args();
+//    size_t argc = args.size();
+//    CC_UNUSED bool ok = true;
+//    if (argc == 1)
+//    {
+//        bool ok;
+//        se::Value tmp;
+//        const auto& obj = args[0].toObject();
+//
+//        cocos2d::EditBox::ShowInfo showInfo;
+//
+//        ok = obj->getProperty("defaultValue", &tmp);
+//        SE_PRECONDITION2(ok && tmp.isString(), false, "defaultValue is invalid!");
+//        showInfo.defaultValue = tmp.toString();
+//
+//
+//        ok = obj->getProperty("maxLength", &tmp);
+//        SE_PRECONDITION2(ok && tmp.isNumber(), false, "maxLength is invalid!");
+//        showInfo.maxLength = tmp.toInt32();
+//
+//        ok = obj->getProperty("multiple", &tmp);
+//        SE_PRECONDITION2(ok && tmp.isBoolean(), false, "multiple is invalid!");
+//        showInfo.isMultiline = tmp.toBoolean();
+//
+//        if (obj->getProperty("confirmHold", &tmp))
+//        {
+//            SE_PRECONDITION2(tmp.isBoolean(), false, "confirmHold is invalid!");
+//            if (! tmp.isUndefined())
+//                showInfo.confirmHold = tmp.toBoolean();
+//        }
+//
+//
+//        if (obj->getProperty("confirmType", &tmp))
+//        {
+//            SE_PRECONDITION2(tmp.isString(), false, "confirmType is invalid!");
+//            if (!tmp.isUndefined())
+//                showInfo.confirmType = tmp.toString();
+//        }
+//
+//        if (obj->getProperty("inputType", &tmp))
+//        {
+//            SE_PRECONDITION2(tmp.isString(), false, "inputType is invalid!");
+//            if (! tmp.isUndefined())
+//                showInfo.inputType = tmp.toString();
+//        }
+//
+//
+//        if (obj->getProperty("originX", &tmp))
+//        {
+//            SE_PRECONDITION2(tmp.isNumber(), false, "originX is invalid!");
+//            if (! tmp.isUndefined())
+//                showInfo.x = tmp.toInt32();
+//        }
+//
+//        if (obj->getProperty("originY", &tmp))
+//        {
+//            SE_PRECONDITION2(tmp.isNumber(), false, "originY is invalid!");
+//            if (! tmp.isUndefined())
+//                showInfo.y = tmp.toInt32();
+//        }
+//
+//        if (obj->getProperty("width", &tmp))
+//        {
+//            SE_PRECONDITION2(tmp.isNumber(), false, "width is invalid!");
+//            if (! tmp.isUndefined())
+//                showInfo.width = tmp.toInt32();
+//        }
+//
+//        if (obj->getProperty("height", &tmp))
+//        {
+//            SE_PRECONDITION2(tmp.isNumber(), false, "height is invalid!");
+//            if (! tmp.isUndefined())
+//                showInfo.height = tmp.toInt32();
+//        }
+//
+//        EditBox::show(showInfo);
+//
+//        return true;
+//    }
+//
+//    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+//    return false;
+//}
+//SE_BIND_FUNC(JSB_showInputBox);
 
-static bool JSB_showInputBox(se::State& s)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1)
-    {
-        bool ok;
-        se::Value tmp;
-        const auto& obj = args[0].toObject();
-
-        cocos2d::EditBox::ShowInfo showInfo;
-
-        ok = obj->getProperty("defaultValue", &tmp);
-        SE_PRECONDITION2(ok && tmp.isString(), false, "defaultValue is invalid!");
-        showInfo.defaultValue = tmp.toString();
-
-
-        ok = obj->getProperty("maxLength", &tmp);
-        SE_PRECONDITION2(ok && tmp.isNumber(), false, "maxLength is invalid!");
-        showInfo.maxLength = tmp.toInt32();
-
-        ok = obj->getProperty("multiple", &tmp);
-        SE_PRECONDITION2(ok && tmp.isBoolean(), false, "multiple is invalid!");
-        showInfo.isMultiline = tmp.toBoolean();
-
-        if (obj->getProperty("confirmHold", &tmp))
-        {
-            SE_PRECONDITION2(tmp.isBoolean(), false, "confirmHold is invalid!");
-            if (! tmp.isUndefined())
-                showInfo.confirmHold = tmp.toBoolean();
-        }
-
-
-        if (obj->getProperty("confirmType", &tmp))
-        {
-            SE_PRECONDITION2(tmp.isString(), false, "confirmType is invalid!");
-            if (!tmp.isUndefined())
-                showInfo.confirmType = tmp.toString();
-        }
-
-        if (obj->getProperty("inputType", &tmp))
-        {
-            SE_PRECONDITION2(tmp.isString(), false, "inputType is invalid!");
-            if (! tmp.isUndefined())
-                showInfo.inputType = tmp.toString();
-        }
-
-
-        if (obj->getProperty("originX", &tmp))
-        {
-            SE_PRECONDITION2(tmp.isNumber(), false, "originX is invalid!");
-            if (! tmp.isUndefined())
-                showInfo.x = tmp.toInt32();
-        }
-
-        if (obj->getProperty("originY", &tmp))
-        {
-            SE_PRECONDITION2(tmp.isNumber(), false, "originY is invalid!");
-            if (! tmp.isUndefined())
-                showInfo.y = tmp.toInt32();
-        }
-
-        if (obj->getProperty("width", &tmp))
-        {
-            SE_PRECONDITION2(tmp.isNumber(), false, "width is invalid!");
-            if (! tmp.isUndefined())
-                showInfo.width = tmp.toInt32();
-        }
-
-        if (obj->getProperty("height", &tmp))
-        {
-            SE_PRECONDITION2(tmp.isNumber(), false, "height is invalid!");
-            if (! tmp.isUndefined())
-                showInfo.height = tmp.toInt32();
-        }
-
-        EditBox::show(showInfo);
-
-        return true;
-    }
-
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(JSB_showInputBox);
-
-static bool JSB_hideInputBox(se::State& s)
-{
-    EditBox::hide();
-    return true;
-}
-SE_BIND_FUNC(JSB_hideInputBox)
+//static bool JSB_hideInputBox(se::State& s)
+//{
+//    EditBox::hide();
+//    return true;
+//}
+//SE_BIND_FUNC(JSB_hideInputBox)
 
 bool jsb_register_global_variables(se::Object* global)
 {
@@ -1216,27 +1181,24 @@ bool jsb_register_global_variables(se::Object* global)
 
     __jsbObj->defineFunction("loadImage", _SE(js_loadImage));
     __jsbObj->defineFunction("saveImageData", _SE(js_saveImageData));
-    __jsbObj->defineFunction("setDebugViewText", _SE(js_setDebugViewText));
-    __jsbObj->defineFunction("openDebugView", _SE(js_openDebugView));
-    __jsbObj->defineFunction("disableBatchGLCommandsToNative", _SE(js_disableBatchGLCommandsToNative));
+//    __jsbObj->defineFunction("setDebugViewText", _SE(js_setDebugViewText));
+//    __jsbObj->defineFunction("openDebugView", _SE(js_openDebugView));
     __jsbObj->defineFunction("openURL", _SE(JSB_openURL));
     __jsbObj->defineFunction("copyTextToClipboard", _SE(JSB_copyTextToClipboard));
 
-    __jsbObj->defineFunction("setPreferredFramesPerSecond", _SE(JSB_setPreferredFramesPerSecond));
-    __jsbObj->defineFunction("showInputBox", _SE(JSB_showInputBox));
-    __jsbObj->defineFunction("hideInputBox", _SE(JSB_hideInputBox));
-    __jsbObj->defineFunction("setCursorEnabled", _SE(JSB_setCursorEnabled));
+//    __jsbObj->defineFunction("setPreferredFramesPerSecond", _SE(JSB_setPreferredFramesPerSecond));
+//    __jsbObj->defineFunction("showInputBox", _SE(JSB_showInputBox));
+//    __jsbObj->defineFunction("hideInputBox", _SE(JSB_hideInputBox));
+//    __jsbObj->defineFunction("setCursorEnabled", _SE(JSB_setCursorEnabled));
 
     global->defineFunction("__getPlatform", _SE(JSBCore_platform));
     global->defineFunction("__getOS", _SE(JSBCore_os));
-    global->defineFunction("__getOSVersion", _SE(JSB_getOSVersion));
+//    global->defineFunction("__getOSVersion", _SE(JSB_getOSVersion));
     global->defineFunction("__getCurrentLanguage", _SE(JSBCore_getCurrentLanguage));
     global->defineFunction("__getCurrentLanguageCode", _SE(JSBCore_getCurrentLanguageCode));
-    global->defineFunction("__getVersion", _SE(JSBCore_version));
-    global->defineFunction("__restartVM", _SE(JSB_core_restartVM));
-    global->defineFunction("__cleanScript", _SE(JSB_cleanScript));
+//    global->defineFunction("__restartVM", _SE(JSB_core_restartVM));
     global->defineFunction("__isObjectValid", _SE(JSB_isObjectValid));
-    global->defineFunction("close", _SE(JSB_closeWindow));
+//    global->defineFunction("close", _SE(JSB_closeWindow));
 
     se::HandleObject performanceObj(se::Object::createPlainObject());
     performanceObj->defineFunction("now", _SE(js_performance_now));

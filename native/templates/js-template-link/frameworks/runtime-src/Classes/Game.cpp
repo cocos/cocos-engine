@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "AppDelegate.h"
+#include "Game.h"
 
 #include "cocos2d.h"
 
@@ -35,15 +35,15 @@
 
 USING_NS_CC;
 
-AppDelegate::AppDelegate(int width, int height) : Application("Cocos Game", width, height)
+Game::Game(int width, int height) : Application("Cocos Game", width, height)
 {
 }
 
-AppDelegate::~AppDelegate()
+Game::~Game()
 {
 }
 
-bool AppDelegate::applicationDidFinishLaunching()
+bool Game::applicationDidFinishLaunching()
 {
     se::ScriptEngine *se = se::ScriptEngine::getInstance();
     
@@ -75,13 +75,13 @@ bool AppDelegate::applicationDidFinishLaunching()
 }
 
 // This function will be called when the app is inactive. When comes a phone call,it's be invoked too
-void AppDelegate::applicationDidEnterBackground()
+void Game::applicationDidEnterBackground()
 {
     EventDispatcher::dispatchEnterBackgroundEvent();
 }
 
 // this function will be called when the app is active again
-void AppDelegate::applicationWillEnterForeground()
+void Game::applicationWillEnterForeground()
 {
     EventDispatcher::dispatchEnterForegroundEvent();
 }

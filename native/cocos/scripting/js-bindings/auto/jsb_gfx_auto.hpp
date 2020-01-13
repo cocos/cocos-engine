@@ -4,6 +4,275 @@
 
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 
+extern se::Object* __jsb_cocos2d_GFXWindow_proto;
+extern se::Class* __jsb_cocos2d_GFXWindow_class;
+
+bool js_register_cocos2d_GFXWindow(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+SE_DECLARE_FUNC(js_gfx_GFXWindow_depth_stencil_tex_view);
+SE_DECLARE_FUNC(js_gfx_GFXWindow_render_pass);
+SE_DECLARE_FUNC(js_gfx_GFXWindow_native_width);
+SE_DECLARE_FUNC(js_gfx_GFXWindow_native_height);
+SE_DECLARE_FUNC(js_gfx_GFXWindow_title);
+SE_DECLARE_FUNC(js_gfx_GFXWindow_color_fmt);
+SE_DECLARE_FUNC(js_gfx_GFXWindow_top);
+SE_DECLARE_FUNC(js_gfx_GFXWindow_depth_stencil_texture);
+SE_DECLARE_FUNC(js_gfx_GFXWindow_color_texture);
+SE_DECLARE_FUNC(js_gfx_GFXWindow_is_offscreen);
+SE_DECLARE_FUNC(js_gfx_GFXWindow_height);
+SE_DECLARE_FUNC(js_gfx_GFXWindow_device);
+SE_DECLARE_FUNC(js_gfx_GFXWindow_Initialize);
+SE_DECLARE_FUNC(js_gfx_GFXWindow_Destroy);
+SE_DECLARE_FUNC(js_gfx_GFXWindow_framebuffer);
+SE_DECLARE_FUNC(js_gfx_GFXWindow_depth_stencil_fmt);
+SE_DECLARE_FUNC(js_gfx_GFXWindow_color_tex_view);
+SE_DECLARE_FUNC(js_gfx_GFXWindow_width);
+SE_DECLARE_FUNC(js_gfx_GFXWindow_Resize);
+SE_DECLARE_FUNC(js_gfx_GFXWindow_left);
+SE_DECLARE_FUNC(js_gfx_GFXWindow_GFXWindow);
+
+extern se::Object* __jsb_cocos2d_GFXBuffer_proto;
+extern se::Class* __jsb_cocos2d_GFXBuffer_class;
+
+bool js_register_cocos2d_GFXBuffer(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+SE_DECLARE_FUNC(js_gfx_GFXBuffer_count);
+SE_DECLARE_FUNC(js_gfx_GFXBuffer_memUsage);
+SE_DECLARE_FUNC(js_gfx_GFXBuffer_usage);
+SE_DECLARE_FUNC(js_gfx_GFXBuffer_buffer);
+SE_DECLARE_FUNC(js_gfx_GFXBuffer_Update);
+SE_DECLARE_FUNC(js_gfx_GFXBuffer_device);
+SE_DECLARE_FUNC(js_gfx_GFXBuffer_flags);
+SE_DECLARE_FUNC(js_gfx_GFXBuffer_Initialize);
+SE_DECLARE_FUNC(js_gfx_GFXBuffer_Destroy);
+SE_DECLARE_FUNC(js_gfx_GFXBuffer_stride);
+SE_DECLARE_FUNC(js_gfx_GFXBuffer_Resize);
+SE_DECLARE_FUNC(js_gfx_GFXBuffer_size);
+SE_DECLARE_FUNC(js_gfx_GFXBuffer_GFXBuffer);
+
+extern se::Object* __jsb_cocos2d_GFXTexture_proto;
+extern se::Class* __jsb_cocos2d_GFXTexture_class;
+
+bool js_register_cocos2d_GFXTexture(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+SE_DECLARE_FUNC(js_gfx_GFXTexture_array_layer);
+SE_DECLARE_FUNC(js_gfx_GFXTexture_format);
+SE_DECLARE_FUNC(js_gfx_GFXTexture_buffer);
+SE_DECLARE_FUNC(js_gfx_GFXTexture_height);
+SE_DECLARE_FUNC(js_gfx_GFXTexture_usage);
+SE_DECLARE_FUNC(js_gfx_GFXTexture_depth);
+SE_DECLARE_FUNC(js_gfx_GFXTexture_flags);
+SE_DECLARE_FUNC(js_gfx_GFXTexture_mip_level);
+SE_DECLARE_FUNC(js_gfx_GFXTexture_samples);
+SE_DECLARE_FUNC(js_gfx_GFXTexture_Initialize);
+SE_DECLARE_FUNC(js_gfx_GFXTexture_Destroy);
+SE_DECLARE_FUNC(js_gfx_GFXTexture_type);
+SE_DECLARE_FUNC(js_gfx_GFXTexture_width);
+SE_DECLARE_FUNC(js_gfx_GFXTexture_Resize);
+SE_DECLARE_FUNC(js_gfx_GFXTexture_size);
+SE_DECLARE_FUNC(js_gfx_GFXTexture_GFXTexture);
+
+extern se::Object* __jsb_cocos2d_GFXTextureView_proto;
+extern se::Class* __jsb_cocos2d_GFXTextureView_class;
+
+bool js_register_cocos2d_GFXTextureView(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+SE_DECLARE_FUNC(js_gfx_GFXTextureView_level_count);
+SE_DECLARE_FUNC(js_gfx_GFXTextureView_format);
+SE_DECLARE_FUNC(js_gfx_GFXTextureView_texture);
+SE_DECLARE_FUNC(js_gfx_GFXTextureView_device);
+SE_DECLARE_FUNC(js_gfx_GFXTextureView_layer_count);
+SE_DECLARE_FUNC(js_gfx_GFXTextureView_base_level);
+SE_DECLARE_FUNC(js_gfx_GFXTextureView_Initialize);
+SE_DECLARE_FUNC(js_gfx_GFXTextureView_Destroy);
+SE_DECLARE_FUNC(js_gfx_GFXTextureView_base_layer);
+SE_DECLARE_FUNC(js_gfx_GFXTextureView_type);
+SE_DECLARE_FUNC(js_gfx_GFXTextureView_GFXTextureView);
+
+extern se::Object* __jsb_cocos2d_GFXSampler_proto;
+extern se::Class* __jsb_cocos2d_GFXSampler_class;
+
+bool js_register_cocos2d_GFXSampler(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+SE_DECLARE_FUNC(js_gfx_GFXSampler_cmp_func);
+SE_DECLARE_FUNC(js_gfx_GFXSampler_min_filter);
+SE_DECLARE_FUNC(js_gfx_GFXSampler_name);
+SE_DECLARE_FUNC(js_gfx_GFXSampler_address_u);
+SE_DECLARE_FUNC(js_gfx_GFXSampler_border_color);
+SE_DECLARE_FUNC(js_gfx_GFXSampler_max_anisotropy);
+SE_DECLARE_FUNC(js_gfx_GFXSampler_device);
+SE_DECLARE_FUNC(js_gfx_GFXSampler_address_v);
+SE_DECLARE_FUNC(js_gfx_GFXSampler_address_w);
+SE_DECLARE_FUNC(js_gfx_GFXSampler_min_lod);
+SE_DECLARE_FUNC(js_gfx_GFXSampler_Initialize);
+SE_DECLARE_FUNC(js_gfx_GFXSampler_Destroy);
+SE_DECLARE_FUNC(js_gfx_GFXSampler_mag_filter);
+SE_DECLARE_FUNC(js_gfx_GFXSampler_mip_lod_bias);
+SE_DECLARE_FUNC(js_gfx_GFXSampler_max_lod);
+SE_DECLARE_FUNC(js_gfx_GFXSampler_mip_filter);
+SE_DECLARE_FUNC(js_gfx_GFXSampler_GFXSampler);
+
+extern se::Object* __jsb_cocos2d_GFXShader_proto;
+extern se::Class* __jsb_cocos2d_GFXShader_class;
+
+bool js_register_cocos2d_GFXShader(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+SE_DECLARE_FUNC(js_gfx_GFXShader_hash);
+SE_DECLARE_FUNC(js_gfx_GFXShader_name);
+SE_DECLARE_FUNC(js_gfx_GFXShader_samplers);
+SE_DECLARE_FUNC(js_gfx_GFXShader_blocks);
+SE_DECLARE_FUNC(js_gfx_GFXShader_device);
+SE_DECLARE_FUNC(js_gfx_GFXShader_Initialize);
+SE_DECLARE_FUNC(js_gfx_GFXShader_Destroy);
+SE_DECLARE_FUNC(js_gfx_GFXShader_stages);
+SE_DECLARE_FUNC(js_gfx_GFXShader_GFXShader);
+
+extern se::Object* __jsb_cocos2d_GFXInputAssembler_proto;
+extern se::Class* __jsb_cocos2d_GFXInputAssembler_class;
+
+bool js_register_cocos2d_GFXInputAssembler(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_set_first_vertex);
+SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_set_vertex_offset);
+SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_vertex_count);
+SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_first_instance);
+SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_set_index_count);
+SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_Destroy);
+SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_first_index);
+SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_first_vertex);
+SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_vertex_buffers);
+SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_set_vertex_count);
+SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_Initialize);
+SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_set_first_instance);
+SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_set_instance_count);
+SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_vertex_offset);
+SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_instance_count);
+SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_attributes);
+SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_device);
+SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_set_first_index);
+SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_index_count);
+SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_indirect_buffer);
+SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_index_buffer);
+SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_GFXInputAssembler);
+
+extern se::Object* __jsb_cocos2d_GFXRenderPass_proto;
+extern se::Class* __jsb_cocos2d_GFXRenderPass_class;
+
+bool js_register_cocos2d_GFXRenderPass(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+SE_DECLARE_FUNC(js_gfx_GFXRenderPass_depth_stencil_attachment);
+SE_DECLARE_FUNC(js_gfx_GFXRenderPass_device);
+SE_DECLARE_FUNC(js_gfx_GFXRenderPass_sub_passes);
+SE_DECLARE_FUNC(js_gfx_GFXRenderPass_color_attachments);
+SE_DECLARE_FUNC(js_gfx_GFXRenderPass_Initialize);
+SE_DECLARE_FUNC(js_gfx_GFXRenderPass_Destroy);
+SE_DECLARE_FUNC(js_gfx_GFXRenderPass_GFXRenderPass);
+
+extern se::Object* __jsb_cocos2d_GFXFramebuffer_proto;
+extern se::Class* __jsb_cocos2d_GFXFramebuffer_class;
+
+bool js_register_cocos2d_GFXFramebuffer(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+SE_DECLARE_FUNC(js_gfx_GFXFramebuffer_color_views);
+SE_DECLARE_FUNC(js_gfx_GFXFramebuffer_is_offscreen);
+SE_DECLARE_FUNC(js_gfx_GFXFramebuffer_device);
+SE_DECLARE_FUNC(js_gfx_GFXFramebuffer_depth_stencil_view);
+SE_DECLARE_FUNC(js_gfx_GFXFramebuffer_Initialize);
+SE_DECLARE_FUNC(js_gfx_GFXFramebuffer_Destroy);
+SE_DECLARE_FUNC(js_gfx_GFXFramebuffer_render_pass);
+SE_DECLARE_FUNC(js_gfx_GFXFramebuffer_GFXFramebuffer);
+
+extern se::Object* __jsb_cocos2d_GFXBindingLayout_proto;
+extern se::Class* __jsb_cocos2d_GFXBindingLayout_class;
+
+bool js_register_cocos2d_GFXBindingLayout(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+SE_DECLARE_FUNC(js_gfx_GFXBindingLayout_BindTextureView);
+SE_DECLARE_FUNC(js_gfx_GFXBindingLayout_BindBuffer);
+SE_DECLARE_FUNC(js_gfx_GFXBindingLayout_BindSampler);
+SE_DECLARE_FUNC(js_gfx_GFXBindingLayout_Update);
+SE_DECLARE_FUNC(js_gfx_GFXBindingLayout_device);
+SE_DECLARE_FUNC(js_gfx_GFXBindingLayout_binding_units);
+SE_DECLARE_FUNC(js_gfx_GFXBindingLayout_Initialize);
+SE_DECLARE_FUNC(js_gfx_GFXBindingLayout_Destroy);
+SE_DECLARE_FUNC(js_gfx_GFXBindingLayout_GFXBindingLayout);
+
+extern se::Object* __jsb_cocos2d_GFXPipelineLayout_proto;
+extern se::Class* __jsb_cocos2d_GFXPipelineLayout_class;
+
+bool js_register_cocos2d_GFXPipelineLayout(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+SE_DECLARE_FUNC(js_gfx_GFXPipelineLayout_push_constant_ranges);
+SE_DECLARE_FUNC(js_gfx_GFXPipelineLayout_device);
+SE_DECLARE_FUNC(js_gfx_GFXPipelineLayout_layouts);
+SE_DECLARE_FUNC(js_gfx_GFXPipelineLayout_Initialize);
+SE_DECLARE_FUNC(js_gfx_GFXPipelineLayout_Destroy);
+SE_DECLARE_FUNC(js_gfx_GFXPipelineLayout_GFXPipelineLayout);
+
+extern se::Object* __jsb_cocos2d_GFXPipelineState_proto;
+extern se::Class* __jsb_cocos2d_GFXPipelineState_class;
+
+bool js_register_cocos2d_GFXPipelineState(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+SE_DECLARE_FUNC(js_gfx_GFXPipelineState_primitive);
+SE_DECLARE_FUNC(js_gfx_GFXPipelineState_layout);
+SE_DECLARE_FUNC(js_gfx_GFXPipelineState_rs);
+SE_DECLARE_FUNC(js_gfx_GFXPipelineState_dynamic_states);
+SE_DECLARE_FUNC(js_gfx_GFXPipelineState_is);
+SE_DECLARE_FUNC(js_gfx_GFXPipelineState_bs);
+SE_DECLARE_FUNC(js_gfx_GFXPipelineState_shader);
+SE_DECLARE_FUNC(js_gfx_GFXPipelineState_dss);
+SE_DECLARE_FUNC(js_gfx_GFXPipelineState_device);
+SE_DECLARE_FUNC(js_gfx_GFXPipelineState_Initialize);
+SE_DECLARE_FUNC(js_gfx_GFXPipelineState_Destroy);
+SE_DECLARE_FUNC(js_gfx_GFXPipelineState_render_pass);
+SE_DECLARE_FUNC(js_gfx_GFXPipelineState_GFXPipelineState);
+
+extern se::Object* __jsb_cocos2d_GFXCommandBuffer_proto;
+extern se::Class* __jsb_cocos2d_GFXCommandBuffer_class;
+
+bool js_register_cocos2d_GFXCommandBuffer(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_End);
+SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_BindInputAssembler);
+SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_BindPipelineState);
+SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_Destroy);
+SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_num_tris);
+SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_allocator);
+SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_SetDepthBias);
+SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_Begin);
+SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_BindBindingLayout);
+SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_EndRenderPass);
+SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_CopyBufferToTexture);
+SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_type);
+SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_UpdateBuffer);
+SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_Execute);
+SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_SetStencilWriteMask);
+SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_Draw);
+SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_BeginRenderPass);
+SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_SetStencilCompareMask);
+SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_Initialize);
+SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_SetDepthBounds);
+SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_device);
+SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_SetViewport);
+SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_num_draw_calls);
+SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_SetBlendConstants);
+SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_SetScissor);
+SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_SetLineWidth);
+SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_GFXCommandBuffer);
+
+extern se::Object* __jsb_cocos2d_GFXQueue_proto;
+extern se::Class* __jsb_cocos2d_GFXQueue_class;
+
+bool js_register_cocos2d_GFXQueue(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+SE_DECLARE_FUNC(js_gfx_GFXQueue_submit);
+SE_DECLARE_FUNC(js_gfx_GFXQueue_device);
+SE_DECLARE_FUNC(js_gfx_GFXQueue_Initialize);
+SE_DECLARE_FUNC(js_gfx_GFXQueue_Destroy);
+SE_DECLARE_FUNC(js_gfx_GFXQueue_type);
+SE_DECLARE_FUNC(js_gfx_GFXQueue_GFXQueue);
+
 extern se::Object* __jsb_cocos2d_GLES2Device_proto;
 extern se::Class* __jsb_cocos2d_GLES2Device_class;
 
@@ -32,312 +301,5 @@ SE_DECLARE_FUNC(js_gfx_GLES2Device_Present);
 SE_DECLARE_FUNC(js_gfx_GLES2Device_CreateGFXInputAssembler);
 SE_DECLARE_FUNC(js_gfx_GLES2Device_CreateGFXFramebuffer);
 SE_DECLARE_FUNC(js_gfx_GLES2Device_GLES2Device);
-
-extern se::Object* __jsb_cocos2d_GLES2Context_proto;
-extern se::Class* __jsb_cocos2d_GLES2Context_class;
-
-bool js_register_cocos2d_GLES2Context(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GLES2Context_egl_config);
-SE_DECLARE_FUNC(js_gfx_GLES2Context_minor_ver);
-SE_DECLARE_FUNC(js_gfx_GLES2Context_CheckExtension);
-SE_DECLARE_FUNC(js_gfx_GLES2Context_egl_context);
-SE_DECLARE_FUNC(js_gfx_GLES2Context_major_ver);
-SE_DECLARE_FUNC(js_gfx_GLES2Context_egl_display);
-SE_DECLARE_FUNC(js_gfx_GLES2Context_native_display);
-SE_DECLARE_FUNC(js_gfx_GLES2Context_MakeCurrent);
-SE_DECLARE_FUNC(js_gfx_GLES2Context_egl_shared_ctx);
-SE_DECLARE_FUNC(js_gfx_GLES2Context_Initialize);
-SE_DECLARE_FUNC(js_gfx_GLES2Context_Destroy);
-SE_DECLARE_FUNC(js_gfx_GLES2Context_egl_surface);
-SE_DECLARE_FUNC(js_gfx_GLES2Context_Present);
-SE_DECLARE_FUNC(js_gfx_GLES2Context_GLES2Context);
-
-extern se::Object* __jsb_cocos2d_GLES2Window_proto;
-extern se::Class* __jsb_cocos2d_GLES2Window_class;
-
-bool js_register_cocos2d_GLES2Window(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GLES2Window_Initialize);
-SE_DECLARE_FUNC(js_gfx_GLES2Window_Destroy);
-SE_DECLARE_FUNC(js_gfx_GLES2Window_Resize);
-SE_DECLARE_FUNC(js_gfx_GLES2Window_GLES2Window);
-
-extern se::Object* __jsb_cocos2d_GLES2Buffer_proto;
-extern se::Class* __jsb_cocos2d_GLES2Buffer_class;
-
-bool js_register_cocos2d_GLES2Buffer(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GLES2Buffer_Update);
-SE_DECLARE_FUNC(js_gfx_GLES2Buffer_gpu_buffer);
-SE_DECLARE_FUNC(js_gfx_GLES2Buffer_Initialize);
-SE_DECLARE_FUNC(js_gfx_GLES2Buffer_Destroy);
-SE_DECLARE_FUNC(js_gfx_GLES2Buffer_Resize);
-SE_DECLARE_FUNC(js_gfx_GLES2Buffer_GLES2Buffer);
-
-extern se::Object* __jsb_cocos2d_GLES2Texture_proto;
-extern se::Class* __jsb_cocos2d_GLES2Texture_class;
-
-bool js_register_cocos2d_GLES2Texture(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GLES2Texture_Initialize);
-SE_DECLARE_FUNC(js_gfx_GLES2Texture_Destroy);
-SE_DECLARE_FUNC(js_gfx_GLES2Texture_gpu_texture);
-SE_DECLARE_FUNC(js_gfx_GLES2Texture_Resize);
-SE_DECLARE_FUNC(js_gfx_GLES2Texture_GLES2Texture);
-
-extern se::Object* __jsb_cocos2d_GLES2TextureView_proto;
-extern se::Class* __jsb_cocos2d_GLES2TextureView_class;
-
-bool js_register_cocos2d_GLES2TextureView(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GLES2TextureView_Initialize);
-SE_DECLARE_FUNC(js_gfx_GLES2TextureView_Destroy);
-SE_DECLARE_FUNC(js_gfx_GLES2TextureView_gpu_tex_view);
-SE_DECLARE_FUNC(js_gfx_GLES2TextureView_GLES2TextureView);
-
-extern se::Object* __jsb_cocos2d_GLES2Sampler_proto;
-extern se::Class* __jsb_cocos2d_GLES2Sampler_class;
-
-bool js_register_cocos2d_GLES2Sampler(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GLES2Sampler_Initialize);
-SE_DECLARE_FUNC(js_gfx_GLES2Sampler_Destroy);
-SE_DECLARE_FUNC(js_gfx_GLES2Sampler_gpu_sampler);
-SE_DECLARE_FUNC(js_gfx_GLES2Sampler_GLES2Sampler);
-
-extern se::Object* __jsb_cocos2d_GLES2Shader_proto;
-extern se::Class* __jsb_cocos2d_GLES2Shader_class;
-
-bool js_register_cocos2d_GLES2Shader(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GLES2Shader_Initialize);
-SE_DECLARE_FUNC(js_gfx_GLES2Shader_Destroy);
-SE_DECLARE_FUNC(js_gfx_GLES2Shader_gpu_shader);
-SE_DECLARE_FUNC(js_gfx_GLES2Shader_GLES2Shader);
-
-extern se::Object* __jsb_cocos2d_GLES2InputAssembler_proto;
-extern se::Class* __jsb_cocos2d_GLES2InputAssembler_class;
-
-bool js_register_cocos2d_GLES2InputAssembler(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GLES2InputAssembler_Initialize);
-SE_DECLARE_FUNC(js_gfx_GLES2InputAssembler_Destroy);
-SE_DECLARE_FUNC(js_gfx_GLES2InputAssembler_gpu_input_assembler);
-SE_DECLARE_FUNC(js_gfx_GLES2InputAssembler_ExtractCmdDraw);
-SE_DECLARE_FUNC(js_gfx_GLES2InputAssembler_GLES2InputAssembler);
-
-extern se::Object* __jsb_cocos2d_GLES2RenderPass_proto;
-extern se::Class* __jsb_cocos2d_GLES2RenderPass_class;
-
-bool js_register_cocos2d_GLES2RenderPass(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GLES2RenderPass_Initialize);
-SE_DECLARE_FUNC(js_gfx_GLES2RenderPass_Destroy);
-SE_DECLARE_FUNC(js_gfx_GLES2RenderPass_gpu_render_pass);
-SE_DECLARE_FUNC(js_gfx_GLES2RenderPass_GLES2RenderPass);
-
-extern se::Object* __jsb_cocos2d_GLES2Framebuffer_proto;
-extern se::Class* __jsb_cocos2d_GLES2Framebuffer_class;
-
-bool js_register_cocos2d_GLES2Framebuffer(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GLES2Framebuffer_Initialize);
-SE_DECLARE_FUNC(js_gfx_GLES2Framebuffer_Destroy);
-SE_DECLARE_FUNC(js_gfx_GLES2Framebuffer_gpu_fbo);
-SE_DECLARE_FUNC(js_gfx_GLES2Framebuffer_GLES2Framebuffer);
-
-extern se::Object* __jsb_cocos2d_GLES2BindingLayout_proto;
-extern se::Class* __jsb_cocos2d_GLES2BindingLayout_class;
-
-bool js_register_cocos2d_GLES2BindingLayout(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GLES2BindingLayout_Initialize);
-SE_DECLARE_FUNC(js_gfx_GLES2BindingLayout_Destroy);
-SE_DECLARE_FUNC(js_gfx_GLES2BindingLayout_gpu_binding_layout);
-SE_DECLARE_FUNC(js_gfx_GLES2BindingLayout_Update);
-SE_DECLARE_FUNC(js_gfx_GLES2BindingLayout_GLES2BindingLayout);
-
-extern se::Object* __jsb_cocos2d_GLES2PipelineLayout_proto;
-extern se::Class* __jsb_cocos2d_GLES2PipelineLayout_class;
-
-bool js_register_cocos2d_GLES2PipelineLayout(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GLES2PipelineLayout_Initialize);
-SE_DECLARE_FUNC(js_gfx_GLES2PipelineLayout_Destroy);
-SE_DECLARE_FUNC(js_gfx_GLES2PipelineLayout_gpu_pipeline_layout);
-SE_DECLARE_FUNC(js_gfx_GLES2PipelineLayout_GLES2PipelineLayout);
-
-extern se::Object* __jsb_cocos2d_GLES2PipelineState_proto;
-extern se::Class* __jsb_cocos2d_GLES2PipelineState_class;
-
-bool js_register_cocos2d_GLES2PipelineState(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GLES2PipelineState_Initialize);
-SE_DECLARE_FUNC(js_gfx_GLES2PipelineState_Destroy);
-SE_DECLARE_FUNC(js_gfx_GLES2PipelineState_gpu_pso);
-SE_DECLARE_FUNC(js_gfx_GLES2PipelineState_GLES2PipelineState);
-
-extern se::Object* __jsb_cocos2d_GLES2GPUBuffer_proto;
-extern se::Class* __jsb_cocos2d_GLES2GPUBuffer_class;
-
-bool js_register_cocos2d_GLES2GPUBuffer(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cocos2d_GLES2GPUTexture_proto;
-extern se::Class* __jsb_cocos2d_GLES2GPUTexture_class;
-
-bool js_register_cocos2d_GLES2GPUTexture(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cocos2d_GLES2GPUTextureView_proto;
-extern se::Class* __jsb_cocos2d_GLES2GPUTextureView_class;
-
-bool js_register_cocos2d_GLES2GPUTextureView(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cocos2d_GLES2GPUSampler_proto;
-extern se::Class* __jsb_cocos2d_GLES2GPUSampler_class;
-
-bool js_register_cocos2d_GLES2GPUSampler(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cocos2d_GLES2GPUShader_proto;
-extern se::Class* __jsb_cocos2d_GLES2GPUShader_class;
-
-bool js_register_cocos2d_GLES2GPUShader(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cocos2d_GLES2GPUInputAssembler_proto;
-extern se::Class* __jsb_cocos2d_GLES2GPUInputAssembler_class;
-
-bool js_register_cocos2d_GLES2GPUInputAssembler(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cocos2d_GLES2GPURenderPass_proto;
-extern se::Class* __jsb_cocos2d_GLES2GPURenderPass_class;
-
-bool js_register_cocos2d_GLES2GPURenderPass(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cocos2d_GLES2GPUFramebuffer_proto;
-extern se::Class* __jsb_cocos2d_GLES2GPUFramebuffer_class;
-
-bool js_register_cocos2d_GLES2GPUFramebuffer(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cocos2d_GLES2GPUPipelineLayout_proto;
-extern se::Class* __jsb_cocos2d_GLES2GPUPipelineLayout_class;
-
-bool js_register_cocos2d_GLES2GPUPipelineLayout(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cocos2d_GLES2GPUPipelineState_proto;
-extern se::Class* __jsb_cocos2d_GLES2GPUPipelineState_class;
-
-bool js_register_cocos2d_GLES2GPUPipelineState(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cocos2d_GLES2GPUBindingLayout_proto;
-extern se::Class* __jsb_cocos2d_GLES2GPUBindingLayout_class;
-
-bool js_register_cocos2d_GLES2GPUBindingLayout(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cocos2d_GLES2CmdBeginRenderPass_proto;
-extern se::Class* __jsb_cocos2d_GLES2CmdBeginRenderPass_class;
-
-bool js_register_cocos2d_GLES2CmdBeginRenderPass(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GLES2CmdBeginRenderPass_Clear);
-SE_DECLARE_FUNC(js_gfx_GLES2CmdBeginRenderPass_GLES2CmdBeginRenderPass);
-
-extern se::Object* __jsb_cocos2d_GLES2CmdBindStates_proto;
-extern se::Class* __jsb_cocos2d_GLES2CmdBindStates_class;
-
-bool js_register_cocos2d_GLES2CmdBindStates(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GLES2CmdBindStates_Clear);
-SE_DECLARE_FUNC(js_gfx_GLES2CmdBindStates_GLES2CmdBindStates);
-
-extern se::Object* __jsb_cocos2d_GLES2CmdDraw_proto;
-extern se::Class* __jsb_cocos2d_GLES2CmdDraw_class;
-
-bool js_register_cocos2d_GLES2CmdDraw(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GLES2CmdDraw_Clear);
-SE_DECLARE_FUNC(js_gfx_GLES2CmdDraw_GLES2CmdDraw);
-
-extern se::Object* __jsb_cocos2d_GLES2CmdUpdateBuffer_proto;
-extern se::Class* __jsb_cocos2d_GLES2CmdUpdateBuffer_class;
-
-bool js_register_cocos2d_GLES2CmdUpdateBuffer(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GLES2CmdUpdateBuffer_Clear);
-SE_DECLARE_FUNC(js_gfx_GLES2CmdUpdateBuffer_GLES2CmdUpdateBuffer);
-
-extern se::Object* __jsb_cocos2d_GLES2CmdCopyBufferToTexture_proto;
-extern se::Class* __jsb_cocos2d_GLES2CmdCopyBufferToTexture_class;
-
-bool js_register_cocos2d_GLES2CmdCopyBufferToTexture(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GLES2CmdCopyBufferToTexture_Clear);
-SE_DECLARE_FUNC(js_gfx_GLES2CmdCopyBufferToTexture_GLES2CmdCopyBufferToTexture);
-
-extern se::Object* __jsb_cocos2d_GLES2CmdPackage_proto;
-extern se::Class* __jsb_cocos2d_GLES2CmdPackage_class;
-
-bool js_register_cocos2d_GLES2CmdPackage(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-extern se::Object* __jsb_cocos2d_GLES2CommandAllocator_proto;
-extern se::Class* __jsb_cocos2d_GLES2CommandAllocator_class;
-
-bool js_register_cocos2d_GLES2CommandAllocator(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GLES2CommandAllocator_Initialize);
-SE_DECLARE_FUNC(js_gfx_GLES2CommandAllocator_Destroy);
-SE_DECLARE_FUNC(js_gfx_GLES2CommandAllocator_ClearCmds);
-SE_DECLARE_FUNC(js_gfx_GLES2CommandAllocator_ReleaseCmds);
-SE_DECLARE_FUNC(js_gfx_GLES2CommandAllocator_GLES2CommandAllocator);
-
-extern se::Object* __jsb_cocos2d_GLES2CommandBuffer_proto;
-extern se::Class* __jsb_cocos2d_GLES2CommandBuffer_class;
-
-bool js_register_cocos2d_GLES2CommandBuffer(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GLES2CommandBuffer_End);
-SE_DECLARE_FUNC(js_gfx_GLES2CommandBuffer_BindInputAssembler);
-SE_DECLARE_FUNC(js_gfx_GLES2CommandBuffer_BindPipelineState);
-SE_DECLARE_FUNC(js_gfx_GLES2CommandBuffer_Destroy);
-SE_DECLARE_FUNC(js_gfx_GLES2CommandBuffer_SetDepthBias);
-SE_DECLARE_FUNC(js_gfx_GLES2CommandBuffer_Begin);
-SE_DECLARE_FUNC(js_gfx_GLES2CommandBuffer_BindBindingLayout);
-SE_DECLARE_FUNC(js_gfx_GLES2CommandBuffer_EndRenderPass);
-SE_DECLARE_FUNC(js_gfx_GLES2CommandBuffer_CopyBufferToTexture);
-SE_DECLARE_FUNC(js_gfx_GLES2CommandBuffer_UpdateBuffer);
-SE_DECLARE_FUNC(js_gfx_GLES2CommandBuffer_Execute);
-SE_DECLARE_FUNC(js_gfx_GLES2CommandBuffer_SetStencilWriteMask);
-SE_DECLARE_FUNC(js_gfx_GLES2CommandBuffer_Draw);
-SE_DECLARE_FUNC(js_gfx_GLES2CommandBuffer_BeginRenderPass);
-SE_DECLARE_FUNC(js_gfx_GLES2CommandBuffer_SetStencilCompareMask);
-SE_DECLARE_FUNC(js_gfx_GLES2CommandBuffer_Initialize);
-SE_DECLARE_FUNC(js_gfx_GLES2CommandBuffer_SetDepthBounds);
-SE_DECLARE_FUNC(js_gfx_GLES2CommandBuffer_SetViewport);
-SE_DECLARE_FUNC(js_gfx_GLES2CommandBuffer_SetBlendConstants);
-SE_DECLARE_FUNC(js_gfx_GLES2CommandBuffer_SetScissor);
-SE_DECLARE_FUNC(js_gfx_GLES2CommandBuffer_SetLineWidth);
-SE_DECLARE_FUNC(js_gfx_GLES2CommandBuffer_GLES2CommandBuffer);
-
-extern se::Object* __jsb_cocos2d_GLES2Queue_proto;
-extern se::Class* __jsb_cocos2d_GLES2Queue_class;
-
-bool js_register_cocos2d_GLES2Queue(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GLES2Queue_Initialize);
-SE_DECLARE_FUNC(js_gfx_GLES2Queue_Destroy);
-SE_DECLARE_FUNC(js_gfx_GLES2Queue_is_async);
-SE_DECLARE_FUNC(js_gfx_GLES2Queue_submit);
-SE_DECLARE_FUNC(js_gfx_GLES2Queue_GLES2Queue);
 
 #endif //#if (USE_GFX_RENDERER > 0) && (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)

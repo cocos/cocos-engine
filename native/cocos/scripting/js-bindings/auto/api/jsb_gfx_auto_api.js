@@ -4,6 +4,2016 @@
 var gfx = gfx || {};
 
 /**
+ * @class GFXWindow
+ */
+gfx.GFXWindow = {
+
+/**
+ * @method depth_stencil_tex_view
+ * @return {cc.GFXTextureView}
+ */
+depth_stencil_tex_view : function (
+)
+{
+    return cc.GFXTextureView;
+},
+
+/**
+ * @method render_pass
+ * @return {cc.GFXRenderPass}
+ */
+render_pass : function (
+)
+{
+    return cc.GFXRenderPass;
+},
+
+/**
+ * @method native_width
+ * @return {unsigned int}
+ */
+native_width : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method native_height
+ * @return {unsigned int}
+ */
+native_height : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method title
+ * @return {String}
+ */
+title : function (
+)
+{
+    return ;
+},
+
+/**
+ * @method color_fmt
+ * @return {cc.GFXFormat}
+ */
+color_fmt : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method top
+ * @return {int}
+ */
+top : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method depth_stencil_texture
+ * @return {cc.GFXTexture}
+ */
+depth_stencil_texture : function (
+)
+{
+    return cc.GFXTexture;
+},
+
+/**
+ * @method color_texture
+ * @return {cc.GFXTexture}
+ */
+color_texture : function (
+)
+{
+    return cc.GFXTexture;
+},
+
+/**
+ * @method is_offscreen
+ * @return {bool}
+ */
+is_offscreen : function (
+)
+{
+    return false;
+},
+
+/**
+ * @method height
+ * @return {unsigned int}
+ */
+height : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method device
+ * @return {cc.GFXDevice}
+ */
+device : function (
+)
+{
+    return cc.GFXDevice;
+},
+
+/**
+ * @method Initialize
+ * @param {cc.GFXWindowInfo} arg0
+ * @return {bool}
+ */
+Initialize : function (
+gfxwindowinfo 
+)
+{
+    return false;
+},
+
+/**
+ * @method Destroy
+ */
+Destroy : function (
+)
+{
+},
+
+/**
+ * @method framebuffer
+ * @return {cc.GFXFramebuffer}
+ */
+framebuffer : function (
+)
+{
+    return cc.GFXFramebuffer;
+},
+
+/**
+ * @method depth_stencil_fmt
+ * @return {cc.GFXFormat}
+ */
+depth_stencil_fmt : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method color_tex_view
+ * @return {cc.GFXTextureView}
+ */
+color_tex_view : function (
+)
+{
+    return cc.GFXTextureView;
+},
+
+/**
+ * @method width
+ * @return {unsigned int}
+ */
+width : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method Resize
+ * @param {unsigned int} arg0
+ * @param {unsigned int} arg1
+ */
+Resize : function (
+int, 
+int 
+)
+{
+},
+
+/**
+ * @method left
+ * @return {int}
+ */
+left : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method GFXWindow
+ * @constructor
+ * @param {cc.GFXDevice} arg0
+ */
+GFXWindow : function (
+gfxdevice 
+)
+{
+},
+
+};
+
+/**
+ * @class GFXBuffer
+ */
+gfx.GFXBuffer = {
+
+/**
+ * @method count
+ * @return {unsigned int}
+ */
+count : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method memUsage
+ * @return {cc.GFXMemoryUsageBit}
+ */
+memUsage : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method usage
+ * @return {cc.GFXBufferUsageBit}
+ */
+usage : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method buffer
+ * @return {unsigned char}
+ */
+buffer : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method Update
+ * @param {void} arg0
+ * @param {unsigned int} arg1
+ * @param {unsigned int} arg2
+ */
+Update : function (
+void, 
+int, 
+int 
+)
+{
+},
+
+/**
+ * @method device
+ * @return {cc.GFXDevice}
+ */
+device : function (
+)
+{
+    return cc.GFXDevice;
+},
+
+/**
+ * @method flags
+ * @return {cc.GFXBufferFlagBit}
+ */
+flags : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method Initialize
+ * @param {cc.GFXBufferInfo} arg0
+ * @return {bool}
+ */
+Initialize : function (
+gfxbufferinfo 
+)
+{
+    return false;
+},
+
+/**
+ * @method Destroy
+ */
+Destroy : function (
+)
+{
+},
+
+/**
+ * @method stride
+ * @return {unsigned int}
+ */
+stride : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method Resize
+ * @param {unsigned int} arg0
+ */
+Resize : function (
+int 
+)
+{
+},
+
+/**
+ * @method size
+ * @return {unsigned int}
+ */
+size : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method GFXBuffer
+ * @constructor
+ * @param {cc.GFXDevice} arg0
+ */
+GFXBuffer : function (
+gfxdevice 
+)
+{
+},
+
+};
+
+/**
+ * @class GFXTexture
+ */
+gfx.GFXTexture = {
+
+/**
+ * @method array_layer
+ * @return {unsigned int}
+ */
+array_layer : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method format
+ * @return {cc.GFXFormat}
+ */
+format : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method buffer
+ * @return {unsigned char}
+ */
+buffer : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method height
+ * @return {unsigned int}
+ */
+height : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method usage
+ * @return {cc.GFXTextureUsageBit}
+ */
+usage : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method depth
+ * @return {unsigned int}
+ */
+depth : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method flags
+ * @return {cc.GFXTextureFlagBit}
+ */
+flags : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method mip_level
+ * @return {unsigned int}
+ */
+mip_level : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method samples
+ * @return {cc.GFXSampleCount}
+ */
+samples : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method Initialize
+ * @param {cc.GFXTextureInfo} arg0
+ * @return {bool}
+ */
+Initialize : function (
+gfxtextureinfo 
+)
+{
+    return false;
+},
+
+/**
+ * @method Destroy
+ */
+Destroy : function (
+)
+{
+},
+
+/**
+ * @method type
+ * @return {cc.GFXTextureType}
+ */
+type : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method width
+ * @return {unsigned int}
+ */
+width : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method Resize
+ * @param {unsigned int} arg0
+ * @param {unsigned int} arg1
+ */
+Resize : function (
+int, 
+int 
+)
+{
+},
+
+/**
+ * @method size
+ * @return {unsigned int}
+ */
+size : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method GFXTexture
+ * @constructor
+ * @param {cc.GFXDevice} arg0
+ */
+GFXTexture : function (
+gfxdevice 
+)
+{
+},
+
+};
+
+/**
+ * @class GFXTextureView
+ */
+gfx.GFXTextureView = {
+
+/**
+ * @method level_count
+ * @return {unsigned int}
+ */
+level_count : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method format
+ * @return {cc.GFXFormat}
+ */
+format : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method texture
+ * @return {cc.GFXTexture}
+ */
+texture : function (
+)
+{
+    return cc.GFXTexture;
+},
+
+/**
+ * @method device
+ * @return {cc.GFXDevice}
+ */
+device : function (
+)
+{
+    return cc.GFXDevice;
+},
+
+/**
+ * @method layer_count
+ * @return {unsigned int}
+ */
+layer_count : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method base_level
+ * @return {unsigned int}
+ */
+base_level : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method Initialize
+ * @param {cc.GFXTextureViewInfo} arg0
+ * @return {bool}
+ */
+Initialize : function (
+gfxtextureviewinfo 
+)
+{
+    return false;
+},
+
+/**
+ * @method Destroy
+ */
+Destroy : function (
+)
+{
+},
+
+/**
+ * @method base_layer
+ * @return {unsigned int}
+ */
+base_layer : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method type
+ * @return {cc.GFXTextureViewType}
+ */
+type : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method GFXTextureView
+ * @constructor
+ * @param {cc.GFXDevice} arg0
+ */
+GFXTextureView : function (
+gfxdevice 
+)
+{
+},
+
+};
+
+/**
+ * @class GFXSampler
+ */
+gfx.GFXSampler = {
+
+/**
+ * @method cmp_func
+ * @return {cc.GFXComparisonFunc}
+ */
+cmp_func : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method min_filter
+ * @return {cc.GFXFilter}
+ */
+min_filter : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method name
+ * @return {String}
+ */
+name : function (
+)
+{
+    return ;
+},
+
+/**
+ * @method address_u
+ * @return {cc.GFXAddress}
+ */
+address_u : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method border_color
+ * @return {cc.GFXColor}
+ */
+border_color : function (
+)
+{
+    return cc.GFXColor;
+},
+
+/**
+ * @method max_anisotropy
+ * @return {unsigned int}
+ */
+max_anisotropy : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method device
+ * @return {cc.GFXDevice}
+ */
+device : function (
+)
+{
+    return cc.GFXDevice;
+},
+
+/**
+ * @method address_v
+ * @return {cc.GFXAddress}
+ */
+address_v : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method address_w
+ * @return {cc.GFXAddress}
+ */
+address_w : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method min_lod
+ * @return {unsigned int}
+ */
+min_lod : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method Initialize
+ * @param {cc.GFXSamplerInfo} arg0
+ * @return {bool}
+ */
+Initialize : function (
+gfxsamplerinfo 
+)
+{
+    return false;
+},
+
+/**
+ * @method Destroy
+ */
+Destroy : function (
+)
+{
+},
+
+/**
+ * @method mag_filter
+ * @return {cc.GFXFilter}
+ */
+mag_filter : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method mip_lod_bias
+ * @return {float}
+ */
+mip_lod_bias : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method max_lod
+ * @return {unsigned int}
+ */
+max_lod : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method mip_filter
+ * @return {cc.GFXFilter}
+ */
+mip_filter : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method GFXSampler
+ * @constructor
+ * @param {cc.GFXDevice} arg0
+ */
+GFXSampler : function (
+gfxdevice 
+)
+{
+},
+
+};
+
+/**
+ * @class GFXShader
+ */
+gfx.GFXShader = {
+
+/**
+ * @method hash
+ * @return {unsigned int}
+ */
+hash : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method name
+ * @return {String}
+ */
+name : function (
+)
+{
+    return ;
+},
+
+/**
+ * @method samplers
+ * @return {Array}
+ */
+samplers : function (
+)
+{
+    return new Array();
+},
+
+/**
+ * @method blocks
+ * @return {Array}
+ */
+blocks : function (
+)
+{
+    return new Array();
+},
+
+/**
+ * @method device
+ * @return {cc.GFXDevice}
+ */
+device : function (
+)
+{
+    return cc.GFXDevice;
+},
+
+/**
+ * @method Initialize
+ * @param {cc.GFXShaderInfo} arg0
+ * @return {bool}
+ */
+Initialize : function (
+gfxshaderinfo 
+)
+{
+    return false;
+},
+
+/**
+ * @method Destroy
+ */
+Destroy : function (
+)
+{
+},
+
+/**
+ * @method stages
+ * @return {Array}
+ */
+stages : function (
+)
+{
+    return new Array();
+},
+
+/**
+ * @method GFXShader
+ * @constructor
+ * @param {cc.GFXDevice} arg0
+ */
+GFXShader : function (
+gfxdevice 
+)
+{
+},
+
+};
+
+/**
+ * @class GFXInputAssembler
+ */
+gfx.GFXInputAssembler = {
+
+/**
+ * @method set_first_vertex
+ * @param {unsigned int} arg0
+ */
+set_first_vertex : function (
+int 
+)
+{
+},
+
+/**
+ * @method set_vertex_offset
+ * @param {unsigned int} arg0
+ */
+set_vertex_offset : function (
+int 
+)
+{
+},
+
+/**
+ * @method vertex_count
+ * @return {unsigned int}
+ */
+vertex_count : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method first_instance
+ * @return {unsigned int}
+ */
+first_instance : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method set_index_count
+ * @param {unsigned int} arg0
+ */
+set_index_count : function (
+int 
+)
+{
+},
+
+/**
+ * @method Destroy
+ */
+Destroy : function (
+)
+{
+},
+
+/**
+ * @method first_index
+ * @return {unsigned int}
+ */
+first_index : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method first_vertex
+ * @return {unsigned int}
+ */
+first_vertex : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method vertex_buffers
+ * @return {Array}
+ */
+vertex_buffers : function (
+)
+{
+    return new Array();
+},
+
+/**
+ * @method set_vertex_count
+ * @param {unsigned int} arg0
+ */
+set_vertex_count : function (
+int 
+)
+{
+},
+
+/**
+ * @method Initialize
+ * @param {cc.GFXInputAssemblerInfo} arg0
+ * @return {bool}
+ */
+Initialize : function (
+gfxinputassemblerinfo 
+)
+{
+    return false;
+},
+
+/**
+ * @method set_first_instance
+ * @param {unsigned int} arg0
+ */
+set_first_instance : function (
+int 
+)
+{
+},
+
+/**
+ * @method set_instance_count
+ * @param {unsigned int} arg0
+ */
+set_instance_count : function (
+int 
+)
+{
+},
+
+/**
+ * @method vertex_offset
+ * @return {unsigned int}
+ */
+vertex_offset : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method instance_count
+ * @return {unsigned int}
+ */
+instance_count : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method attributes
+ * @return {Array}
+ */
+attributes : function (
+)
+{
+    return new Array();
+},
+
+/**
+ * @method device
+ * @return {cc.GFXDevice}
+ */
+device : function (
+)
+{
+    return cc.GFXDevice;
+},
+
+/**
+ * @method set_first_index
+ * @param {unsigned int} arg0
+ */
+set_first_index : function (
+int 
+)
+{
+},
+
+/**
+ * @method index_count
+ * @return {unsigned int}
+ */
+index_count : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method indirect_buffer
+ * @return {cc.GFXBuffer}
+ */
+indirect_buffer : function (
+)
+{
+    return cc.GFXBuffer;
+},
+
+/**
+ * @method index_buffer
+ * @return {cc.GFXBuffer}
+ */
+index_buffer : function (
+)
+{
+    return cc.GFXBuffer;
+},
+
+/**
+ * @method GFXInputAssembler
+ * @constructor
+ * @param {cc.GFXDevice} arg0
+ */
+GFXInputAssembler : function (
+gfxdevice 
+)
+{
+},
+
+};
+
+/**
+ * @class GFXRenderPass
+ */
+gfx.GFXRenderPass = {
+
+/**
+ * @method depth_stencil_attachment
+ * @return {cc.GFXDepthStencilAttachment}
+ */
+depth_stencil_attachment : function (
+)
+{
+    return cc.GFXDepthStencilAttachment;
+},
+
+/**
+ * @method device
+ * @return {cc.GFXDevice}
+ */
+device : function (
+)
+{
+    return cc.GFXDevice;
+},
+
+/**
+ * @method sub_passes
+ * @return {Array}
+ */
+sub_passes : function (
+)
+{
+    return new Array();
+},
+
+/**
+ * @method color_attachments
+ * @return {Array}
+ */
+color_attachments : function (
+)
+{
+    return new Array();
+},
+
+/**
+ * @method Initialize
+ * @param {cc.GFXRenderPassInfo} arg0
+ * @return {bool}
+ */
+Initialize : function (
+gfxrenderpassinfo 
+)
+{
+    return false;
+},
+
+/**
+ * @method Destroy
+ */
+Destroy : function (
+)
+{
+},
+
+/**
+ * @method GFXRenderPass
+ * @constructor
+ * @param {cc.GFXDevice} arg0
+ */
+GFXRenderPass : function (
+gfxdevice 
+)
+{
+},
+
+};
+
+/**
+ * @class GFXFramebuffer
+ */
+gfx.GFXFramebuffer = {
+
+/**
+ * @method color_views
+ * @return {Array}
+ */
+color_views : function (
+)
+{
+    return new Array();
+},
+
+/**
+ * @method is_offscreen
+ * @return {bool}
+ */
+is_offscreen : function (
+)
+{
+    return false;
+},
+
+/**
+ * @method device
+ * @return {cc.GFXDevice}
+ */
+device : function (
+)
+{
+    return cc.GFXDevice;
+},
+
+/**
+ * @method depth_stencil_view
+ * @return {cc.GFXTextureView}
+ */
+depth_stencil_view : function (
+)
+{
+    return cc.GFXTextureView;
+},
+
+/**
+ * @method Initialize
+ * @param {cc.GFXFramebufferInfo} arg0
+ * @return {bool}
+ */
+Initialize : function (
+gfxframebufferinfo 
+)
+{
+    return false;
+},
+
+/**
+ * @method Destroy
+ */
+Destroy : function (
+)
+{
+},
+
+/**
+ * @method render_pass
+ * @return {cc.GFXRenderPass}
+ */
+render_pass : function (
+)
+{
+    return cc.GFXRenderPass;
+},
+
+/**
+ * @method GFXFramebuffer
+ * @constructor
+ * @param {cc.GFXDevice} arg0
+ */
+GFXFramebuffer : function (
+gfxdevice 
+)
+{
+},
+
+};
+
+/**
+ * @class GFXBindingLayout
+ */
+gfx.GFXBindingLayout = {
+
+/**
+ * @method BindTextureView
+ * @param {unsigned int} arg0
+ * @param {cc.GFXTextureView} arg1
+ */
+BindTextureView : function (
+int, 
+gfxtextureview 
+)
+{
+},
+
+/**
+ * @method BindBuffer
+ * @param {unsigned int} arg0
+ * @param {cc.GFXBuffer} arg1
+ */
+BindBuffer : function (
+int, 
+gfxbuffer 
+)
+{
+},
+
+/**
+ * @method BindSampler
+ * @param {unsigned int} arg0
+ * @param {cc.GFXSampler} arg1
+ */
+BindSampler : function (
+int, 
+gfxsampler 
+)
+{
+},
+
+/**
+ * @method Update
+ */
+Update : function (
+)
+{
+},
+
+/**
+ * @method device
+ * @return {cc.GFXDevice}
+ */
+device : function (
+)
+{
+    return cc.GFXDevice;
+},
+
+/**
+ * @method binding_units
+ * @return {Array}
+ */
+binding_units : function (
+)
+{
+    return new Array();
+},
+
+/**
+ * @method Initialize
+ * @param {cc.GFXBindingLayoutInfo} arg0
+ * @return {bool}
+ */
+Initialize : function (
+gfxbindinglayoutinfo 
+)
+{
+    return false;
+},
+
+/**
+ * @method Destroy
+ */
+Destroy : function (
+)
+{
+},
+
+/**
+ * @method GFXBindingLayout
+ * @constructor
+ * @param {cc.GFXDevice} arg0
+ */
+GFXBindingLayout : function (
+gfxdevice 
+)
+{
+},
+
+};
+
+/**
+ * @class GFXPipelineLayout
+ */
+gfx.GFXPipelineLayout = {
+
+/**
+ * @method push_constant_ranges
+ * @return {Array}
+ */
+push_constant_ranges : function (
+)
+{
+    return new Array();
+},
+
+/**
+ * @method device
+ * @return {cc.GFXDevice}
+ */
+device : function (
+)
+{
+    return cc.GFXDevice;
+},
+
+/**
+ * @method layouts
+ * @return {Array}
+ */
+layouts : function (
+)
+{
+    return new Array();
+},
+
+/**
+ * @method Initialize
+ * @param {cc.GFXPipelineLayoutInfo} arg0
+ * @return {bool}
+ */
+Initialize : function (
+gfxpipelinelayoutinfo 
+)
+{
+    return false;
+},
+
+/**
+ * @method Destroy
+ */
+Destroy : function (
+)
+{
+},
+
+/**
+ * @method GFXPipelineLayout
+ * @constructor
+ * @param {cc.GFXDevice} arg0
+ */
+GFXPipelineLayout : function (
+gfxdevice 
+)
+{
+},
+
+};
+
+/**
+ * @class GFXPipelineState
+ */
+gfx.GFXPipelineState = {
+
+/**
+ * @method primitive
+ * @return {cc.GFXPrimitiveMode}
+ */
+primitive : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method layout
+ * @return {cc.GFXPipelineLayout}
+ */
+layout : function (
+)
+{
+    return cc.GFXPipelineLayout;
+},
+
+/**
+ * @method rs
+ * @return {cc.GFXRasterizerState}
+ */
+rs : function (
+)
+{
+    return cc.GFXRasterizerState;
+},
+
+/**
+ * @method dynamic_states
+ * @return {Array}
+ */
+dynamic_states : function (
+)
+{
+    return new Array();
+},
+
+/**
+ * @method is
+ * @return {cc.GFXInputState}
+ */
+is : function (
+)
+{
+    return cc.GFXInputState;
+},
+
+/**
+ * @method bs
+ * @return {cc.GFXBlendState}
+ */
+bs : function (
+)
+{
+    return cc.GFXBlendState;
+},
+
+/**
+ * @method shader
+ * @return {cc.GFXShader}
+ */
+shader : function (
+)
+{
+    return cc.GFXShader;
+},
+
+/**
+ * @method dss
+ * @return {cc.GFXDepthStencilState}
+ */
+dss : function (
+)
+{
+    return cc.GFXDepthStencilState;
+},
+
+/**
+ * @method device
+ * @return {cc.GFXDevice}
+ */
+device : function (
+)
+{
+    return cc.GFXDevice;
+},
+
+/**
+ * @method Initialize
+ * @param {cc.GFXPipelineStateInfo} arg0
+ * @return {bool}
+ */
+Initialize : function (
+gfxpipelinestateinfo 
+)
+{
+    return false;
+},
+
+/**
+ * @method Destroy
+ */
+Destroy : function (
+)
+{
+},
+
+/**
+ * @method render_pass
+ * @return {cc.GFXRenderPass}
+ */
+render_pass : function (
+)
+{
+    return cc.GFXRenderPass;
+},
+
+/**
+ * @method GFXPipelineState
+ * @constructor
+ * @param {cc.GFXDevice} arg0
+ */
+GFXPipelineState : function (
+gfxdevice 
+)
+{
+},
+
+};
+
+/**
+ * @class GFXCommandBuffer
+ */
+gfx.GFXCommandBuffer = {
+
+/**
+ * @method End
+ */
+End : function (
+)
+{
+},
+
+/**
+ * @method BindInputAssembler
+ * @param {cc.GFXInputAssembler} arg0
+ */
+BindInputAssembler : function (
+gfxinputassembler 
+)
+{
+},
+
+/**
+ * @method BindPipelineState
+ * @param {cc.GFXPipelineState} arg0
+ */
+BindPipelineState : function (
+gfxpipelinestate 
+)
+{
+},
+
+/**
+ * @method Destroy
+ */
+Destroy : function (
+)
+{
+},
+
+/**
+ * @method num_tris
+ * @return {unsigned int}
+ */
+num_tris : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method allocator
+ * @return {cc.GFXCommandAllocator}
+ */
+allocator : function (
+)
+{
+    return cc.GFXCommandAllocator;
+},
+
+/**
+ * @method SetDepthBias
+ * @param {float} arg0
+ * @param {float} arg1
+ * @param {float} arg2
+ */
+SetDepthBias : function (
+float, 
+float, 
+float 
+)
+{
+},
+
+/**
+ * @method Begin
+ */
+Begin : function (
+)
+{
+},
+
+/**
+ * @method BindBindingLayout
+ * @param {cc.GFXBindingLayout} arg0
+ */
+BindBindingLayout : function (
+gfxbindinglayout 
+)
+{
+},
+
+/**
+ * @method EndRenderPass
+ */
+EndRenderPass : function (
+)
+{
+},
+
+/**
+ * @method CopyBufferToTexture
+ * @param {cc.GFXBuffer} arg0
+ * @param {cc.GFXTexture} arg1
+ * @param {cc.GFXTextureLayout} arg2
+ * @param {cc.GFXBufferTextureCopy} arg3
+ * @param {unsigned int} arg4
+ */
+CopyBufferToTexture : function (
+gfxbuffer, 
+gfxtexture, 
+gfxtexturelayout, 
+gfxbuffertexturecopy, 
+int 
+)
+{
+},
+
+/**
+ * @method type
+ * @return {cc.GFXCommandBufferType}
+ */
+type : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method UpdateBuffer
+ * @param {cc.GFXBuffer} arg0
+ * @param {void} arg1
+ * @param {unsigned int} arg2
+ * @param {unsigned int} arg3
+ */
+UpdateBuffer : function (
+gfxbuffer, 
+void, 
+int, 
+int 
+)
+{
+},
+
+/**
+ * @method Execute
+ * @param {cc.GFXCommandBuffer} arg0
+ * @param {unsigned int} arg1
+ */
+Execute : function (
+gfxcommandbuffer, 
+int 
+)
+{
+},
+
+/**
+ * @method SetStencilWriteMask
+ * @param {cc.GFXStencilFace} arg0
+ * @param {unsigned int} arg1
+ */
+SetStencilWriteMask : function (
+gfxstencilface, 
+int 
+)
+{
+},
+
+/**
+ * @method Draw
+ * @param {cc.GFXInputAssembler} arg0
+ */
+Draw : function (
+gfxinputassembler 
+)
+{
+},
+
+/**
+ * @method BeginRenderPass
+ * @param {cc.GFXFramebuffer} arg0
+ * @param {cc.GFXRect} arg1
+ * @param {cc.GFXClearFlagBit} arg2
+ * @param {cc.GFXColor} arg3
+ * @param {unsigned int} arg4
+ * @param {float} arg5
+ * @param {int} arg6
+ */
+BeginRenderPass : function (
+gfxframebuffer, 
+gfxrect, 
+gfxclearflagbit, 
+gfxcolor, 
+int, 
+float, 
+int 
+)
+{
+},
+
+/**
+ * @method SetStencilCompareMask
+ * @param {cc.GFXStencilFace} arg0
+ * @param {int} arg1
+ * @param {unsigned int} arg2
+ */
+SetStencilCompareMask : function (
+gfxstencilface, 
+int, 
+int 
+)
+{
+},
+
+/**
+ * @method Initialize
+ * @param {cc.GFXCommandBufferInfo} arg0
+ * @return {bool}
+ */
+Initialize : function (
+gfxcommandbufferinfo 
+)
+{
+    return false;
+},
+
+/**
+ * @method SetDepthBounds
+ * @param {float} arg0
+ * @param {float} arg1
+ */
+SetDepthBounds : function (
+float, 
+float 
+)
+{
+},
+
+/**
+ * @method device
+ * @return {cc.GFXDevice}
+ */
+device : function (
+)
+{
+    return cc.GFXDevice;
+},
+
+/**
+ * @method SetViewport
+ * @param {cc.GFXViewport} arg0
+ */
+SetViewport : function (
+gfxviewport 
+)
+{
+},
+
+/**
+ * @method num_draw_calls
+ * @return {unsigned int}
+ */
+num_draw_calls : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method SetBlendConstants
+ * @param {cc.GFXColor} arg0
+ */
+SetBlendConstants : function (
+gfxcolor 
+)
+{
+},
+
+/**
+ * @method SetScissor
+ * @param {cc.GFXRect} arg0
+ */
+SetScissor : function (
+gfxrect 
+)
+{
+},
+
+/**
+ * @method SetLineWidth
+ * @param {float} arg0
+ */
+SetLineWidth : function (
+float 
+)
+{
+},
+
+/**
+ * @method GFXCommandBuffer
+ * @constructor
+ * @param {cc.GFXDevice} arg0
+ */
+GFXCommandBuffer : function (
+gfxdevice 
+)
+{
+},
+
+};
+
+/**
+ * @class GFXQueue
+ */
+gfx.GFXQueue = {
+
+/**
+ * @method submit
+ * @param {cc.GFXCommandBuffer} arg0
+ * @param {unsigned int} arg1
+ */
+submit : function (
+gfxcommandbuffer, 
+int 
+)
+{
+},
+
+/**
+ * @method device
+ * @return {cc.GFXDevice}
+ */
+device : function (
+)
+{
+    return cc.GFXDevice;
+},
+
+/**
+ * @method Initialize
+ * @param {cc.GFXQueueInfo} arg0
+ * @return {bool}
+ */
+Initialize : function (
+gfxqueueinfo 
+)
+{
+    return false;
+},
+
+/**
+ * @method Destroy
+ */
+Destroy : function (
+)
+{
+},
+
+/**
+ * @method type
+ * @return {cc.GFXQueueType}
+ */
+type : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method GFXQueue
+ * @constructor
+ * @param {cc.GFXDevice} arg0
+ */
+GFXQueue : function (
+gfxdevice 
+)
+{
+},
+
+};
+
+/**
  * @class GLES2Device
  */
 gfx.GLES2Device = {
@@ -261,1368 +2271,6 @@ gfxframebufferinfo
  * @constructor
  */
 GLES2Device : function (
-)
-{
-},
-
-};
-
-/**
- * @class GLES2Context
- */
-gfx.GLES2Context = {
-
-/**
- * @method egl_config
- * @return {void}
- */
-egl_config : function (
-)
-{
-    return void;
-},
-
-/**
- * @method minor_ver
- * @return {int}
- */
-minor_ver : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method CheckExtension
- * @param {String} arg0
- * @return {bool}
- */
-CheckExtension : function (
-str 
-)
-{
-    return false;
-},
-
-/**
- * @method egl_context
- * @return {void}
- */
-egl_context : function (
-)
-{
-    return void;
-},
-
-/**
- * @method major_ver
- * @return {int}
- */
-major_ver : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method egl_display
- * @return {void}
- */
-egl_display : function (
-)
-{
-    return void;
-},
-
-/**
- * @method native_display
- * @return {void}
- */
-native_display : function (
-)
-{
-    return void;
-},
-
-/**
- * @method MakeCurrent
- * @return {bool}
- */
-MakeCurrent : function (
-)
-{
-    return false;
-},
-
-/**
- * @method egl_shared_ctx
- * @return {void}
- */
-egl_shared_ctx : function (
-)
-{
-    return void;
-},
-
-/**
- * @method Initialize
- * @param {cc.GFXContextInfo} arg0
- * @return {bool}
- */
-Initialize : function (
-gfxcontextinfo 
-)
-{
-    return false;
-},
-
-/**
- * @method Destroy
- */
-Destroy : function (
-)
-{
-},
-
-/**
- * @method egl_surface
- * @return {void}
- */
-egl_surface : function (
-)
-{
-    return void;
-},
-
-/**
- * @method Present
- */
-Present : function (
-)
-{
-},
-
-/**
- * @method GLES2Context
- * @constructor
- * @param {cc.GFXDevice} arg0
- */
-GLES2Context : function (
-gfxdevice 
-)
-{
-},
-
-};
-
-/**
- * @class GLES2Window
- */
-gfx.GLES2Window = {
-
-/**
- * @method Initialize
- * @param {cc.GFXWindowInfo} arg0
- * @return {bool}
- */
-Initialize : function (
-gfxwindowinfo 
-)
-{
-    return false;
-},
-
-/**
- * @method Destroy
- */
-Destroy : function (
-)
-{
-},
-
-/**
- * @method Resize
- * @param {unsigned int} arg0
- * @param {unsigned int} arg1
- */
-Resize : function (
-int, 
-int 
-)
-{
-},
-
-/**
- * @method GLES2Window
- * @constructor
- * @param {cc.GFXDevice} arg0
- */
-GLES2Window : function (
-gfxdevice 
-)
-{
-},
-
-};
-
-/**
- * @class GLES2Buffer
- */
-gfx.GLES2Buffer = {
-
-/**
- * @method Update
- * @param {void} arg0
- * @param {unsigned int} arg1
- * @param {unsigned int} arg2
- */
-Update : function (
-void, 
-int, 
-int 
-)
-{
-},
-
-/**
- * @method gpu_buffer
- * @return {cc.GLES2GPUBuffer}
- */
-gpu_buffer : function (
-)
-{
-    return cc.GLES2GPUBuffer;
-},
-
-/**
- * @method Initialize
- * @param {cc.GFXBufferInfo} arg0
- * @return {bool}
- */
-Initialize : function (
-gfxbufferinfo 
-)
-{
-    return false;
-},
-
-/**
- * @method Destroy
- */
-Destroy : function (
-)
-{
-},
-
-/**
- * @method Resize
- * @param {unsigned int} arg0
- */
-Resize : function (
-int 
-)
-{
-},
-
-/**
- * @method GLES2Buffer
- * @constructor
- * @param {cc.GFXDevice} arg0
- */
-GLES2Buffer : function (
-gfxdevice 
-)
-{
-},
-
-};
-
-/**
- * @class GLES2Texture
- */
-gfx.GLES2Texture = {
-
-/**
- * @method Initialize
- * @param {cc.GFXTextureInfo} arg0
- * @return {bool}
- */
-Initialize : function (
-gfxtextureinfo 
-)
-{
-    return false;
-},
-
-/**
- * @method Destroy
- */
-Destroy : function (
-)
-{
-},
-
-/**
- * @method gpu_texture
- * @return {cc.GLES2GPUTexture}
- */
-gpu_texture : function (
-)
-{
-    return cc.GLES2GPUTexture;
-},
-
-/**
- * @method Resize
- * @param {unsigned int} arg0
- * @param {unsigned int} arg1
- */
-Resize : function (
-int, 
-int 
-)
-{
-},
-
-/**
- * @method GLES2Texture
- * @constructor
- * @param {cc.GFXDevice} arg0
- */
-GLES2Texture : function (
-gfxdevice 
-)
-{
-},
-
-};
-
-/**
- * @class GLES2TextureView
- */
-gfx.GLES2TextureView = {
-
-/**
- * @method Initialize
- * @param {cc.GFXTextureViewInfo} arg0
- * @return {bool}
- */
-Initialize : function (
-gfxtextureviewinfo 
-)
-{
-    return false;
-},
-
-/**
- * @method Destroy
- */
-Destroy : function (
-)
-{
-},
-
-/**
- * @method gpu_tex_view
- * @return {cc.GLES2GPUTextureView}
- */
-gpu_tex_view : function (
-)
-{
-    return cc.GLES2GPUTextureView;
-},
-
-/**
- * @method GLES2TextureView
- * @constructor
- * @param {cc.GFXDevice} arg0
- */
-GLES2TextureView : function (
-gfxdevice 
-)
-{
-},
-
-};
-
-/**
- * @class GLES2Sampler
- */
-gfx.GLES2Sampler = {
-
-/**
- * @method Initialize
- * @param {cc.GFXSamplerInfo} arg0
- * @return {bool}
- */
-Initialize : function (
-gfxsamplerinfo 
-)
-{
-    return false;
-},
-
-/**
- * @method Destroy
- */
-Destroy : function (
-)
-{
-},
-
-/**
- * @method gpu_sampler
- * @return {cc.GLES2GPUSampler}
- */
-gpu_sampler : function (
-)
-{
-    return cc.GLES2GPUSampler;
-},
-
-/**
- * @method GLES2Sampler
- * @constructor
- * @param {cc.GFXDevice} arg0
- */
-GLES2Sampler : function (
-gfxdevice 
-)
-{
-},
-
-};
-
-/**
- * @class GLES2Shader
- */
-gfx.GLES2Shader = {
-
-/**
- * @method Initialize
- * @param {cc.GFXShaderInfo} arg0
- * @return {bool}
- */
-Initialize : function (
-gfxshaderinfo 
-)
-{
-    return false;
-},
-
-/**
- * @method Destroy
- */
-Destroy : function (
-)
-{
-},
-
-/**
- * @method gpu_shader
- * @return {cc.GLES2GPUShader}
- */
-gpu_shader : function (
-)
-{
-    return cc.GLES2GPUShader;
-},
-
-/**
- * @method GLES2Shader
- * @constructor
- * @param {cc.GFXDevice} arg0
- */
-GLES2Shader : function (
-gfxdevice 
-)
-{
-},
-
-};
-
-/**
- * @class GLES2InputAssembler
- */
-gfx.GLES2InputAssembler = {
-
-/**
- * @method Initialize
- * @param {cc.GFXInputAssemblerInfo} arg0
- * @return {bool}
- */
-Initialize : function (
-gfxinputassemblerinfo 
-)
-{
-    return false;
-},
-
-/**
- * @method Destroy
- */
-Destroy : function (
-)
-{
-},
-
-/**
- * @method gpu_input_assembler
- * @return {cc.GLES2GPUInputAssembler}
- */
-gpu_input_assembler : function (
-)
-{
-    return cc.GLES2GPUInputAssembler;
-},
-
-/**
- * @method ExtractCmdDraw
- * @param {cc.GLES2CmdDraw} arg0
- */
-ExtractCmdDraw : function (
-gles2cmddraw 
-)
-{
-},
-
-/**
- * @method GLES2InputAssembler
- * @constructor
- * @param {cc.GFXDevice} arg0
- */
-GLES2InputAssembler : function (
-gfxdevice 
-)
-{
-},
-
-};
-
-/**
- * @class GLES2RenderPass
- */
-gfx.GLES2RenderPass = {
-
-/**
- * @method Initialize
- * @param {cc.GFXRenderPassInfo} arg0
- * @return {bool}
- */
-Initialize : function (
-gfxrenderpassinfo 
-)
-{
-    return false;
-},
-
-/**
- * @method Destroy
- */
-Destroy : function (
-)
-{
-},
-
-/**
- * @method gpu_render_pass
- * @return {cc.GLES2GPURenderPass}
- */
-gpu_render_pass : function (
-)
-{
-    return cc.GLES2GPURenderPass;
-},
-
-/**
- * @method GLES2RenderPass
- * @constructor
- * @param {cc.GFXDevice} arg0
- */
-GLES2RenderPass : function (
-gfxdevice 
-)
-{
-},
-
-};
-
-/**
- * @class GLES2Framebuffer
- */
-gfx.GLES2Framebuffer = {
-
-/**
- * @method Initialize
- * @param {cc.GFXFramebufferInfo} arg0
- * @return {bool}
- */
-Initialize : function (
-gfxframebufferinfo 
-)
-{
-    return false;
-},
-
-/**
- * @method Destroy
- */
-Destroy : function (
-)
-{
-},
-
-/**
- * @method gpu_fbo
- * @return {cc.GLES2GPUFramebuffer}
- */
-gpu_fbo : function (
-)
-{
-    return cc.GLES2GPUFramebuffer;
-},
-
-/**
- * @method GLES2Framebuffer
- * @constructor
- * @param {cc.GFXDevice} arg0
- */
-GLES2Framebuffer : function (
-gfxdevice 
-)
-{
-},
-
-};
-
-/**
- * @class GLES2BindingLayout
- */
-gfx.GLES2BindingLayout = {
-
-/**
- * @method Initialize
- * @param {cc.GFXBindingLayoutInfo} arg0
- * @return {bool}
- */
-Initialize : function (
-gfxbindinglayoutinfo 
-)
-{
-    return false;
-},
-
-/**
- * @method Destroy
- */
-Destroy : function (
-)
-{
-},
-
-/**
- * @method gpu_binding_layout
- * @return {cc.GLES2GPUBindingLayout}
- */
-gpu_binding_layout : function (
-)
-{
-    return cc.GLES2GPUBindingLayout;
-},
-
-/**
- * @method Update
- */
-Update : function (
-)
-{
-},
-
-/**
- * @method GLES2BindingLayout
- * @constructor
- * @param {cc.GFXDevice} arg0
- */
-GLES2BindingLayout : function (
-gfxdevice 
-)
-{
-},
-
-};
-
-/**
- * @class GLES2PipelineLayout
- */
-gfx.GLES2PipelineLayout = {
-
-/**
- * @method Initialize
- * @param {cc.GFXPipelineLayoutInfo} arg0
- * @return {bool}
- */
-Initialize : function (
-gfxpipelinelayoutinfo 
-)
-{
-    return false;
-},
-
-/**
- * @method Destroy
- */
-Destroy : function (
-)
-{
-},
-
-/**
- * @method gpu_pipeline_layout
- * @return {cc.GLES2GPUPipelineLayout}
- */
-gpu_pipeline_layout : function (
-)
-{
-    return cc.GLES2GPUPipelineLayout;
-},
-
-/**
- * @method GLES2PipelineLayout
- * @constructor
- * @param {cc.GFXDevice} arg0
- */
-GLES2PipelineLayout : function (
-gfxdevice 
-)
-{
-},
-
-};
-
-/**
- * @class GLES2PipelineState
- */
-gfx.GLES2PipelineState = {
-
-/**
- * @method Initialize
- * @param {cc.GFXPipelineStateInfo} arg0
- * @return {bool}
- */
-Initialize : function (
-gfxpipelinestateinfo 
-)
-{
-    return false;
-},
-
-/**
- * @method Destroy
- */
-Destroy : function (
-)
-{
-},
-
-/**
- * @method gpu_pso
- * @return {cc.GLES2GPUPipelineState}
- */
-gpu_pso : function (
-)
-{
-    return cc.GLES2GPUPipelineState;
-},
-
-/**
- * @method GLES2PipelineState
- * @constructor
- * @param {cc.GFXDevice} arg0
- */
-GLES2PipelineState : function (
-gfxdevice 
-)
-{
-},
-
-};
-
-/**
- * @class GLES2GPUBuffer
- */
-gfx.GLES2GPUBuffer = {
-
-};
-
-/**
- * @class GLES2GPUTexture
- */
-gfx.GLES2GPUTexture = {
-
-};
-
-/**
- * @class GLES2GPUTextureView
- */
-gfx.GLES2GPUTextureView = {
-
-};
-
-/**
- * @class GLES2GPUSampler
- */
-gfx.GLES2GPUSampler = {
-
-};
-
-/**
- * @class GLES2GPUShader
- */
-gfx.GLES2GPUShader = {
-
-};
-
-/**
- * @class GLES2GPUInputAssembler
- */
-gfx.GLES2GPUInputAssembler = {
-
-};
-
-/**
- * @class GLES2GPURenderPass
- */
-gfx.GLES2GPURenderPass = {
-
-};
-
-/**
- * @class GLES2GPUFramebuffer
- */
-gfx.GLES2GPUFramebuffer = {
-
-};
-
-/**
- * @class GLES2GPUPipelineLayout
- */
-gfx.GLES2GPUPipelineLayout = {
-
-};
-
-/**
- * @class GLES2GPUPipelineState
- */
-gfx.GLES2GPUPipelineState = {
-
-};
-
-/**
- * @class GLES2GPUBindingLayout
- */
-gfx.GLES2GPUBindingLayout = {
-
-};
-
-/**
- * @class GLES2CmdBeginRenderPass
- */
-gfx.GLES2CmdBeginRenderPass = {
-
-/**
- * @method Clear
- */
-Clear : function (
-)
-{
-},
-
-/**
- * @method GLES2CmdBeginRenderPass
- * @constructor
- */
-GLES2CmdBeginRenderPass : function (
-)
-{
-},
-
-};
-
-/**
- * @class GLES2CmdBindStates
- */
-gfx.GLES2CmdBindStates = {
-
-/**
- * @method Clear
- */
-Clear : function (
-)
-{
-},
-
-/**
- * @method GLES2CmdBindStates
- * @constructor
- */
-GLES2CmdBindStates : function (
-)
-{
-},
-
-};
-
-/**
- * @class GLES2CmdDraw
- */
-gfx.GLES2CmdDraw = {
-
-/**
- * @method Clear
- */
-Clear : function (
-)
-{
-},
-
-/**
- * @method GLES2CmdDraw
- * @constructor
- */
-GLES2CmdDraw : function (
-)
-{
-},
-
-};
-
-/**
- * @class GLES2CmdUpdateBuffer
- */
-gfx.GLES2CmdUpdateBuffer = {
-
-/**
- * @method Clear
- */
-Clear : function (
-)
-{
-},
-
-/**
- * @method GLES2CmdUpdateBuffer
- * @constructor
- */
-GLES2CmdUpdateBuffer : function (
-)
-{
-},
-
-};
-
-/**
- * @class GLES2CmdCopyBufferToTexture
- */
-gfx.GLES2CmdCopyBufferToTexture = {
-
-/**
- * @method Clear
- */
-Clear : function (
-)
-{
-},
-
-/**
- * @method GLES2CmdCopyBufferToTexture
- * @constructor
- */
-GLES2CmdCopyBufferToTexture : function (
-)
-{
-},
-
-};
-
-/**
- * @class GLES2CmdPackage
- */
-gfx.GLES2CmdPackage = {
-
-};
-
-/**
- * @class GLES2CommandAllocator
- */
-gfx.GLES2CommandAllocator = {
-
-/**
- * @method Initialize
- * @param {cc.GFXCommandAllocatorInfo} arg0
- * @return {bool}
- */
-Initialize : function (
-gfxcommandallocatorinfo 
-)
-{
-    return false;
-},
-
-/**
- * @method Destroy
- */
-Destroy : function (
-)
-{
-},
-
-/**
- * @method ClearCmds
- * @param {cc.GLES2CmdPackage} arg0
- */
-ClearCmds : function (
-gles2cmdpackage 
-)
-{
-},
-
-/**
- * @method ReleaseCmds
- */
-ReleaseCmds : function (
-)
-{
-},
-
-/**
- * @method GLES2CommandAllocator
- * @constructor
- * @param {cc.GFXDevice} arg0
- */
-GLES2CommandAllocator : function (
-gfxdevice 
-)
-{
-},
-
-};
-
-/**
- * @class GLES2CommandBuffer
- */
-gfx.GLES2CommandBuffer = {
-
-/**
- * @method End
- */
-End : function (
-)
-{
-},
-
-/**
- * @method BindInputAssembler
- * @param {cc.GFXInputAssembler} arg0
- */
-BindInputAssembler : function (
-gfxinputassembler 
-)
-{
-},
-
-/**
- * @method BindPipelineState
- * @param {cc.GFXPipelineState} arg0
- */
-BindPipelineState : function (
-gfxpipelinestate 
-)
-{
-},
-
-/**
- * @method Destroy
- */
-Destroy : function (
-)
-{
-},
-
-/**
- * @method SetDepthBias
- * @param {float} arg0
- * @param {float} arg1
- * @param {float} arg2
- */
-SetDepthBias : function (
-float, 
-float, 
-float 
-)
-{
-},
-
-/**
- * @method Begin
- */
-Begin : function (
-)
-{
-},
-
-/**
- * @method BindBindingLayout
- * @param {cc.GFXBindingLayout} arg0
- */
-BindBindingLayout : function (
-gfxbindinglayout 
-)
-{
-},
-
-/**
- * @method EndRenderPass
- */
-EndRenderPass : function (
-)
-{
-},
-
-/**
- * @method CopyBufferToTexture
- * @param {cc.GFXBuffer} arg0
- * @param {cc.GFXTexture} arg1
- * @param {cc.GFXTextureLayout} arg2
- * @param {cc.GFXBufferTextureCopy} arg3
- * @param {unsigned int} arg4
- */
-CopyBufferToTexture : function (
-gfxbuffer, 
-gfxtexture, 
-gfxtexturelayout, 
-gfxbuffertexturecopy, 
-int 
-)
-{
-},
-
-/**
- * @method UpdateBuffer
- * @param {cc.GFXBuffer} arg0
- * @param {void} arg1
- * @param {unsigned int} arg2
- * @param {unsigned int} arg3
- */
-UpdateBuffer : function (
-gfxbuffer, 
-void, 
-int, 
-int 
-)
-{
-},
-
-/**
- * @method Execute
- * @param {cc.GFXCommandBuffer} arg0
- * @param {unsigned int} arg1
- */
-Execute : function (
-gfxcommandbuffer, 
-int 
-)
-{
-},
-
-/**
- * @method SetStencilWriteMask
- * @param {cc.GFXStencilFace} arg0
- * @param {unsigned int} arg1
- */
-SetStencilWriteMask : function (
-gfxstencilface, 
-int 
-)
-{
-},
-
-/**
- * @method Draw
- * @param {cc.GFXInputAssembler} arg0
- */
-Draw : function (
-gfxinputassembler 
-)
-{
-},
-
-/**
- * @method BeginRenderPass
- * @param {cc.GFXFramebuffer} arg0
- * @param {cc.GFXRect} arg1
- * @param {cc.GFXClearFlagBit} arg2
- * @param {cc.GFXColor} arg3
- * @param {unsigned int} arg4
- * @param {float} arg5
- * @param {int} arg6
- */
-BeginRenderPass : function (
-gfxframebuffer, 
-gfxrect, 
-gfxclearflagbit, 
-gfxcolor, 
-int, 
-float, 
-int 
-)
-{
-},
-
-/**
- * @method SetStencilCompareMask
- * @param {cc.GFXStencilFace} arg0
- * @param {int} arg1
- * @param {unsigned int} arg2
- */
-SetStencilCompareMask : function (
-gfxstencilface, 
-int, 
-int 
-)
-{
-},
-
-/**
- * @method Initialize
- * @param {cc.GFXCommandBufferInfo} arg0
- * @return {bool}
- */
-Initialize : function (
-gfxcommandbufferinfo 
-)
-{
-    return false;
-},
-
-/**
- * @method SetDepthBounds
- * @param {float} arg0
- * @param {float} arg1
- */
-SetDepthBounds : function (
-float, 
-float 
-)
-{
-},
-
-/**
- * @method SetViewport
- * @param {cc.GFXViewport} arg0
- */
-SetViewport : function (
-gfxviewport 
-)
-{
-},
-
-/**
- * @method SetBlendConstants
- * @param {cc.GFXColor} arg0
- */
-SetBlendConstants : function (
-gfxcolor 
-)
-{
-},
-
-/**
- * @method SetScissor
- * @param {cc.GFXRect} arg0
- */
-SetScissor : function (
-gfxrect 
-)
-{
-},
-
-/**
- * @method SetLineWidth
- * @param {float} arg0
- */
-SetLineWidth : function (
-float 
-)
-{
-},
-
-/**
- * @method GLES2CommandBuffer
- * @constructor
- * @param {cc.GFXDevice} arg0
- */
-GLES2CommandBuffer : function (
-gfxdevice 
-)
-{
-},
-
-};
-
-/**
- * @class GLES2Queue
- */
-gfx.GLES2Queue = {
-
-/**
- * @method Initialize
- * @param {cc.GFXQueueInfo} arg0
- * @return {bool}
- */
-Initialize : function (
-gfxqueueinfo 
-)
-{
-    return false;
-},
-
-/**
- * @method Destroy
- */
-Destroy : function (
-)
-{
-},
-
-/**
- * @method is_async
- * @return {bool}
- */
-is_async : function (
-)
-{
-    return false;
-},
-
-/**
- * @method submit
- * @param {cc.GFXCommandBuffer} arg0
- * @param {unsigned int} arg1
- */
-submit : function (
-gfxcommandbuffer, 
-int 
-)
-{
-},
-
-/**
- * @method GLES2Queue
- * @constructor
- * @param {cc.GFXDevice} arg0
- */
-GLES2Queue : function (
-gfxdevice 
 )
 {
 },

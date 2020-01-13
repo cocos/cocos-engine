@@ -30,11 +30,11 @@
  
  The reason for implement as private inheritance is to hide some interface call by Director.
  */
-class  AppDelegate : public cocos2d::Application
+class  Game : public cocos2d::Application
 {
 public:
-    AppDelegate(int width, int height);
-    virtual ~AppDelegate();
+    Game(int width, int height);
+    virtual ~Game();
     
     /**
      @brief    Implement Director and Scene init code here.

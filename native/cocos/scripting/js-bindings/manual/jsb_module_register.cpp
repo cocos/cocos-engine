@@ -31,9 +31,7 @@
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_auto.hpp"
 
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
-#include "cocos/scripting/js-bindings/manual/jsb_node.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_conversions.hpp"
-#include "cocos/scripting/js-bindings/manual/jsb_opengl_manual.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_platform.h"
 #include "cocos/scripting/js-bindings/manual/jsb_cocos2dx_manual.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_xmlhttprequest.hpp"
@@ -91,7 +89,6 @@ bool jsb_register_all_modules()
     });
 
     se->addRegisterCallback(jsb_register_global_variables);
-    se->addRegisterCallback(JSB_register_opengl);
     se->addRegisterCallback(register_all_engine);
     se->addRegisterCallback(register_all_cocos2dx_manual);
     se->addRegisterCallback(register_platform_bindings);
@@ -122,11 +119,11 @@ bool jsb_register_all_modules()
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 
 #if USE_VIDEO
-    se->addRegisterCallback(register_all_video);
+//    se->addRegisterCallback(register_all_video);
 #endif
 
 #if USE_WEB_VIEW
-    se->addRegisterCallback(register_all_webview);
+//    se->addRegisterCallback(register_all_webview);
 #endif
 
 #endif // (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)

@@ -467,51 +467,51 @@ static bool js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback(se::State
 }
 SE_BIND_FUNC(js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback)
 
-static se::Object* __deviceMotionObject = nullptr;
-static bool JSB_getDeviceMotionValue(se::State& s)
-{
-    if (__deviceMotionObject == nullptr)
-    {
-        __deviceMotionObject = se::Object::createArrayObject(9);
-        __deviceMotionObject->root();
-    }
+//static se::Object* __deviceMotionObject = nullptr;
+//static bool JSB_getDeviceMotionValue(se::State& s)
+//{
+//    if (__deviceMotionObject == nullptr)
+//    {
+//        __deviceMotionObject = se::Object::createArrayObject(9);
+//        __deviceMotionObject->root();
+//    }
+//
+//    const auto& v = Device::getDeviceMotionValue();
+//
+//    __deviceMotionObject->setArrayElement(0, se::Value(v.accelerationX));
+//    __deviceMotionObject->setArrayElement(1, se::Value(v.accelerationY));
+//    __deviceMotionObject->setArrayElement(2, se::Value(v.accelerationZ));
+//    __deviceMotionObject->setArrayElement(3, se::Value(v.accelerationIncludingGravityX));
+//    __deviceMotionObject->setArrayElement(4, se::Value(v.accelerationIncludingGravityY));
+//    __deviceMotionObject->setArrayElement(5, se::Value(v.accelerationIncludingGravityZ));
+//    __deviceMotionObject->setArrayElement(6, se::Value(v.rotationRateAlpha));
+//    __deviceMotionObject->setArrayElement(7, se::Value(v.rotationRateBeta));
+//    __deviceMotionObject->setArrayElement(8, se::Value(v.rotationRateGamma));
+//
+//    s.rval().setObject(__deviceMotionObject);
+//    return true;
+//}
+//SE_BIND_FUNC(JSB_getDeviceMotionValue)
 
-    const auto& v = Device::getDeviceMotionValue();
-
-    __deviceMotionObject->setArrayElement(0, se::Value(v.accelerationX));
-    __deviceMotionObject->setArrayElement(1, se::Value(v.accelerationY));
-    __deviceMotionObject->setArrayElement(2, se::Value(v.accelerationZ));
-    __deviceMotionObject->setArrayElement(3, se::Value(v.accelerationIncludingGravityX));
-    __deviceMotionObject->setArrayElement(4, se::Value(v.accelerationIncludingGravityY));
-    __deviceMotionObject->setArrayElement(5, se::Value(v.accelerationIncludingGravityZ));
-    __deviceMotionObject->setArrayElement(6, se::Value(v.rotationRateAlpha));
-    __deviceMotionObject->setArrayElement(7, se::Value(v.rotationRateBeta));
-    __deviceMotionObject->setArrayElement(8, se::Value(v.rotationRateGamma));
-
-    s.rval().setObject(__deviceMotionObject);
-    return true;
-}
-SE_BIND_FUNC(JSB_getDeviceMotionValue)
-
-static bool register_device(se::Object* obj)
-{
-    se::Value device;
-    __jsbObj->getProperty("Device", &device);
-
-    device.toObject()->defineFunction("getDeviceMotionValue", _SE(JSB_getDeviceMotionValue));
-
-    se::ScriptEngine::getInstance()->addBeforeCleanupHook([](){
-        if (__deviceMotionObject != nullptr)
-        {
-            __deviceMotionObject->unroot();
-            __deviceMotionObject->decRef();
-            __deviceMotionObject = nullptr;
-        }
-    });
-
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
+//static bool register_device(se::Object* obj)
+//{
+//    se::Value device;
+//    __jsbObj->getProperty("Device", &device);
+//
+//    device.toObject()->defineFunction("getDeviceMotionValue", _SE(JSB_getDeviceMotionValue));
+//
+//    se::ScriptEngine::getInstance()->addBeforeCleanupHook([](){
+//        if (__deviceMotionObject != nullptr)
+//        {
+//            __deviceMotionObject->unroot();
+//            __deviceMotionObject->decRef();
+//            __deviceMotionObject = nullptr;
+//        }
+//    });
+//
+//    se::ScriptEngine::getInstance()->clearException();
+//    return true;
+//}
 
 static bool register_canvas_context2d(se::Object* obj)
 {
@@ -538,7 +538,7 @@ bool register_all_cocos2dx_manual(se::Object* obj)
 {
     register_plist_parser(obj);
     register_sys_localStorage(obj);
-    register_device(obj);
+//    register_device(obj);
     register_canvas_context2d(obj);
     return true;
 }

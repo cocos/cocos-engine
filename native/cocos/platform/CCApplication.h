@@ -29,12 +29,10 @@ THE SOFTWARE.
 #include "base/ccMacros.h"
 #include "platform/CCPlatformConfig.h"
 #include "platform/CCPlatformDefine.h"
-#include "base/CCRenderTexture.h"
+#include "scripting/js-bindings/event/EventDispatcher.h"
+#include "base/CCScheduler.h"
 
 NS_CC_BEGIN
-
-class Scheduler;
-
 /**
  * @addtogroup platform
  * @{
@@ -80,51 +78,40 @@ public:
         BULGARIAN
     };
 
-    enum class PixelFormat
-    {
-        RGB8,
-        RGB565,
-        RGBA8
-    };
-
-    enum class DepthFormat
-    {
-        NONE,                   // no depth and no stencil
-        DEPTH_COMPONENT16,
-        DEPTH_COMPONENT24,
-        DEPTH_COMPONENT32F,
-        DEPTH24_STENCIL8,
-        DEPTH32F_STENCIL8,
-        STENCIL_INDEX8
-    };
-
     // This class is useful for internal usage.
     static Application* getInstance() { return _instance; }
 
-    Application(const std::string& name, int width, int height);
+    Application(int width, int height);
     virtual ~Application();
 
-    virtual bool applicationDidFinishLaunching();
-    virtual void applicationDidEnterBackground();
-    virtual void applicationWillEnterForeground();
+    virtual bool init();
+    virtual void onPause();
+    virtual void onResume();
+    
+    void tick()
+    {
+        static std::chrono::steady_clock::time_point prevTime;
+        static std::chrono::steady_clock::time_point now;
+        static float dt = 0.f;
 
-    inline void* getView() const { return _view; }
+        prevTime = std::chrono::steady_clock::now();
+
+        _scheduler->update(dt);
+        cocos2d::EventDispatcher::dispatchTickEvent(dt);
+
+        now = std::chrono::steady_clock::now();
+        dt = std::chrono::duration_cast<std::chrono::microseconds>(now - prevTime).count() / 1000000.f;
+    }
+
     inline std::shared_ptr<Scheduler> getScheduler() const { return _scheduler; }
-    inline RenderTexture* getRenderTexture() const { return _renderTexture; }
 
     void runOnMainThread();
-
-    void start();
-    void restart();
-    void end();
 
     /**
      * @brief Sets the preferred frame rate for main loop callback.
      * @param fps The preferred frame rate for main loop callback.
      */
     void setPreferredFramesPerSecond(int fps);
-
-    void setMultitouch(bool value);
 
     /**
      @brief Get current language config.
@@ -154,23 +141,9 @@ public:
      */
     void setCursorEnabled(bool value);
 
-    void setDevicePixelRatio(uint8_t ratio)
-    {
-        if (ratio <= 1)
-            return;
-
-        _devicePixelRatio = ratio;
-        _isDownsampleEnabled = true;
-        _renderTexture->init(ratio);
-    }
-    inline uint8_t getDevicePixelRatio() const { return _devicePixelRatio; }
-    inline bool isDownsampleEnabled() const { return _isDownsampleEnabled; }
-
     /** The value is (framebuffer size) / (window size), but on iOS, it is special, its value is 1.
      */
     float getScreenScale() const;
-
-    GLint getMainFBO() const;
 
     /**
      @brief Get target platform.
@@ -188,27 +161,11 @@ public:
 
     std::string getSystemVersion();
 
-protected:
-    virtual void onCreateView(PixelFormat& pixelformat, DepthFormat& depthFormat, int& multisamplingCount);
-
 private:
-    void createView(const std::string& name, int width, int height);
-
     static Application* _instance;
     static std::shared_ptr<Scheduler> _scheduler;
-
-    void* _view = nullptr;
     void* _delegate = nullptr;
-    RenderTexture* _renderTexture = nullptr;
     int _fps = 60;
-    GLint _mainFBO = 0;
-
-    // The ratio to downsample, for example, if its value is 2,
-    // then the rendering size of render texture is device_resolution/2.
-    uint8_t _devicePixelRatio = 1;
-    bool _multiTouch = false;
-    bool _isStarted = false;
-    bool _isDownsampleEnabled = false;
 };
 
 // end of platform group

@@ -1,8 +1,8 @@
 /****************************************************************************
- Copyright (c) 2010-2013 cocos2d-x.org
+ Copyright (c) 2013      cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
- 
+
  http://www.cocos2d-x.org
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,16 +22,43 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
-#import <UIKit/UIKit.h>
+****************************************************************************/
 
-@class RootViewController;
+#import "ViewController.h"
+#import "cocos2d.h"
 
-@interface AppController : NSObject <UIApplicationDelegate>
-{
-}
+#import "View.h"
 
-@property(nonatomic, readonly) RootViewController* viewController;
+@interface ViewController ()
 
 @end
 
+@implementation ViewController
+
+// Implement loadView to create a view hierarchy programmatically, without using a nib.
+- (void)loadView {
+    // Set EAGLView as view of RootViewController
+    self.view = [[View alloc] initWithFrame: [[UIScreen mainScreen] bounds]];
+}
+
+// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
+- (void)viewDidLoad {
+    [super viewDidLoad];
+}
+
+- (BOOL) shouldAutorotate {
+    return YES;
+}
+
+//fix not hide status on ios7
+- (BOOL)prefersStatusBarHidden {
+    return YES;
+}
+
+// Controls the application's preferred home indicator auto-hiding when this view controller is shown.
+- (BOOL)prefersHomeIndicatorAutoHidden {
+    return YES;
+}
+
+
+@end
