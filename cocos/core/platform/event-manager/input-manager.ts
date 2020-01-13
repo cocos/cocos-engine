@@ -819,7 +819,7 @@ class InputManager {
 
 const inputManager = new InputManager();
 
-game.on(Game.EVENT_ENGINE_INITED, () => {
+game.once(Game.EVENT_ENGINE_INITED, () => {
     // register system events
     if (!CC_EDITOR && game.config.registerSystemEvent) {
         inputManager.registerSystemEvent(game.canvas);

@@ -151,7 +151,7 @@ export class Profiler {
             this.initDevice();
             this.generateCanvas();
             this.generateStats();
-            cc.game.on(cc.Game.EVENT_ENGINE_INITED, this.generateNode, this);
+            cc.game.once(cc.Game.EVENT_ENGINE_INITED, this.generateNode, this);
 
             if (this._rootNode) {
                 this._rootNode.active = true;
