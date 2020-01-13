@@ -373,12 +373,17 @@ export class Game extends EventTarget {
             this._intervalId = 0;
         }
         // Because JSB platforms never actually stops the swap chain,
-        // we draw one more frame here to (try to) make sure swap chain consistency
+        // we draw some more frames here to (try to) make sure swap chain consistency
         if (CC_JSB || CC_RUNTIME_BASED) {
-            window.requestAnimationFrame(() => {
+            let swapbuffers = 3;
+            const cb = () => {
+                if (--swapbuffers > 1) {
+                    window.requestAnimationFrame(cb);
+                }
                 const root = cc.director.root;
                 root.frameMove(0); root.device.present();
-            });
+            };
+            window.requestAnimationFrame(cb);
         }
     }
 
