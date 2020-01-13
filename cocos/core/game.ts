@@ -485,7 +485,7 @@ export class Game extends EventTarget {
      * @param {Object} [target] - The target (this object) to invoke the callback, can be null
      */
     // @ts-ignore
-    public once (type: string, callback: Function, target: object) {
+    public once (type: string, callback: Function, target?: object) {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
         if (this._prepared && type === Game.EVENT_ENGINE_INITED) {
             callback.call(target);
@@ -580,7 +580,6 @@ export class Game extends EventTarget {
         }
 
         const start = () => {
-            this._prepared = true;
             this._setAnimFrame();
             this._runMainLoop();
 
@@ -605,6 +604,7 @@ export class Game extends EventTarget {
         // Log engine version
         console.log('Cocos Creator 3D v' + cc.ENGINE_VERSION);
         this.emit(Game.EVENT_ENGINE_INITED);
+        this._prepared = true;
 
         // load renderpipeline
         const config = this.config;

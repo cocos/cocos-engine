@@ -75,7 +75,7 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     public static Socket = Socket;
 
     @property({ type: [Socket] })
-    public _sockets: Socket[] = [];
+    protected _sockets: Socket[] = [];
 
     protected _enablePreSample = true;
 

@@ -99,7 +99,7 @@ export class AnimationComponent extends Component implements IEventTarget {
      */
     @property({
         type: [AnimationClip],
-        tooltip:'此动画组件的自有动画剪辑',
+        tooltip: '此动画组件的自有动画剪辑',
     })
     get clips () {
         return this._clips;
@@ -142,7 +142,7 @@ export class AnimationComponent extends Component implements IEventTarget {
      */
     @property({
         type: AnimationClip,
-        tooltip:'默认动画剪辑',
+        tooltip: '默认动画剪辑',
     })
     get defaultClip () {
         return this._defaultClip;
@@ -169,7 +169,7 @@ export class AnimationComponent extends Component implements IEventTarget {
      * 是否在动画组件开始运行时自动播放默认动画剪辑。
      */
     @property({
-        tooltip:'是否在动画组件开始运行时自动播放默认动画剪辑',
+        tooltip: '是否在动画组件开始运行时自动播放默认动画剪辑',
     })
     public playOnLoad = false;
 
