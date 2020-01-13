@@ -1187,8 +1187,13 @@ export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: Web
                 console.error('Shader source dump:', gpuStage.source.replace(/^|\n/g, () => `\n${lineNumber++} `));
                 console.error(gl.getShaderInfoLog(gpuStage.glShader));
 
-                gl.deleteShader(gpuStage.glShader);
-                gpuStage.glShader = null;
+                for (let l = 0; l < gpuShader.gpuStages.length; l++) {
+                    const stage = gpuShader.gpuStages[k];
+                    if (stage.glShader) {
+                        gl.deleteShader(stage.glShader);
+                        stage.glShader = null;
+                    }
+                }
                 return;
             }
         }
@@ -1208,19 +1213,22 @@ export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: Web
     }
 
     gl.linkProgram(gpuShader.glProgram);
+
+    // detach & delete immediately
+    for (let k = 0; k < gpuShader.gpuStages.length; k++) {
+        const gpuStage = gpuShader.gpuStages[k];
+        if (gpuStage.glShader) {
+            gl.detachShader(gpuShader.glProgram, gpuStage.glShader);
+            gl.deleteShader(gpuStage.glShader);
+            gpuStage.glShader = null;
+        }
+    }
+
     if (gl.getProgramParameter(gpuShader.glProgram, gl.LINK_STATUS)) {
         console.info('Shader \'' + gpuShader.name + '\' compilation succeeded.');
     } else {
         console.error('Failed to link shader \'' + gpuShader.name + '\'.');
         console.error(gl.getProgramInfoLog(gpuShader.glProgram));
-
-        for (let k = 0; k < gpuShader.gpuStages.length; k++) {
-            const gpuStage = gpuShader.gpuStages[k];
-            if (gpuStage.glShader) {
-                gl.deleteShader(gpuStage.glShader);
-                gpuStage.glShader = null;
-            }
-        }
         return;
     }
 
@@ -1426,15 +1434,6 @@ export function WebGLCmdFuncCreateShader (device: WebGLGFXDevice, gpuShader: Web
 }
 
 export function WebGLCmdFuncDestroyShader (device: WebGLGFXDevice, gpuShader: WebGLGPUShader) {
-
-    for (let i = 0; i < gpuShader.gpuStages.length; i++) {
-        const gpuStage = gpuShader.gpuStages[i];
-        if (gpuStage.glShader) {
-            device.gl.deleteShader(gpuStage.glShader);
-            gpuStage.glShader = null;
-        }
-    }
-
     if (gpuShader.glProgram) {
         device.gl.deleteProgram(gpuShader.glProgram);
         gpuShader.glProgram = null;
