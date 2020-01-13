@@ -95,7 +95,7 @@ let Material = cc.Class({
 
         effectName: CC_EDITOR ? {
             get () {
-                return this._effectAsset.name;
+                return this._effectAsset && this._effectAsset.name;
             },
             set (val) {
                 let effectAsset = cc.AssetLibrary.getBuiltin('effect', val);
