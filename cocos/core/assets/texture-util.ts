@@ -30,12 +30,12 @@
 
 import { assertID, error } from '../platform/debug';
 import { loader } from '../load-pipeline/CCLoader';
-import { LoadCallbackParams } from '../load-pipeline/callback-params';
 import { ImageAsset, ImageSource } from './image-asset';
 
 export type LoadImageCallback<T> = (
     this: T | undefined,
-    ...args: LoadCallbackParams<ImageAsset>
+    error: Error | null | undefined,
+    asset: ImageAsset | undefined,
     ) => void;
 
 /**
