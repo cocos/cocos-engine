@@ -35,7 +35,7 @@ import { ImageAsset, ImageSource } from './image-asset';
 export type LoadImageCallback<T> = (
     this: T | undefined,
     error: Error | null | undefined,
-    asset: ImageAsset | undefined,
+    asset?: ImageAsset,
     ) => void;
 
 /**
