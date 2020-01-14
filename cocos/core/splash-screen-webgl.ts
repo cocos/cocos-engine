@@ -335,6 +335,7 @@ export class SplashScreenWebgl {
         const precent = clamp01(elapsedTime / this.setting.totalTime);
         const alpha = easing.cubicOut(precent);
 
+        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         gl.clearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
         gl.depthMask(true);
