@@ -41,6 +41,7 @@ import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Root } from '../../root';
 import { Layers, Node, Scene } from '../../scene-graph';
 import { Enum } from '../../value-types';
+import { view } from '../../platform';
 
 const _temp_vec3_1 = new Vec3();
 
@@ -452,7 +453,7 @@ export class CameraComponent extends Component {
 
         this.worldToScreen(wpos, _temp_vec3_1);
         const cmp = uiNode.getComponent('cc.UITransformComponent') as UITransformComponent;
-        const designSize = cc.view._designResolutionSize;
+        const designSize = view.getVisibleSize();
         const xoffset = _temp_vec3_1.x - this._camera!.width * 0.5;
         const yoffset = _temp_vec3_1.y - this._camera!.height * 0.5;
         _temp_vec3_1.x = xoffset / cc.view.getScaleX() + designSize.width * 0.5;
