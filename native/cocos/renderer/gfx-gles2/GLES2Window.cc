@@ -146,6 +146,7 @@ void GLES2Window::Resize(uint width, uint height) {
       framebuffer_->Destroy();
 
       GFXFramebufferInfo fbo_info;
+      fbo_info.is_offscreen = is_offscreen_;
       fbo_info.render_pass = render_pass_;
       fbo_info.color_views.push_back(color_tex_view_);
       fbo_info.depth_stencil_view = depth_stencil_tex_view_;

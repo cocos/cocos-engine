@@ -139,7 +139,9 @@ void GLES2Device::Destroy()
 
 void GLES2Device::Resize(uint width, uint height)
 {
-  
+    width_ = width;
+    height_ = height;
+    window_->Resize(width, height);
 }
 
 void GLES2Device::Present()
