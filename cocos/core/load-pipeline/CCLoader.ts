@@ -391,7 +391,7 @@ export class CCLoader extends Pipeline {
         if (owner) {
             const ownerQueue = LoadingItems.getQueue(owner);
             // Set the root ownerQueue, if no ownerQueue defined in ownerQueue, it's the root
-            queue._ownerQueue = ownerQueue._ownerQueue || ownerQueue;
+            queue._ownerQueue = (ownerQueue && ownerQueue._ownerQueue) || ownerQueue;
         }
         const accepted = queue.append(_sharedList, owner);
         _sharedList.length = 0;
