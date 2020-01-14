@@ -4,22 +4,12 @@ import gfx from '../gfx';
 
 let _shdID = 0;
 
-function _getValueFromDefineList (name, defineList) {
-  let value;
-  for (let i = defineList.length - 1; i >= 0; i--) {
-    value = defineList[i][name];
-    if (value !== undefined) {
-      return value;
-    }
-  }
-}
-
 function _generateDefines(tmpDefines, defines) {
   let results = [];
   for (let i = 0; i < tmpDefines.length; i++) {
     let name = tmpDefines[i].name;
     let value = defines[name];
-    if (typeof result !== 'number') {
+    if (typeof value !== 'number') {
       value = value ? 1 : 0;
     }
     results.push(`#define ${name} ${value}`);
@@ -137,8 +127,8 @@ export default class ProgramLib {
         }.bind(def);
       }
 
-      offset += cnt;
       def._offset = offset;
+      offset += cnt;
     }
 
     let uniforms = prog.uniforms || [];
