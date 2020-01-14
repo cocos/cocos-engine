@@ -1037,7 +1037,7 @@ let ScrollView = cc.Class({
         if (realMove.y > 0) { //up
             let icBottomPos = this.content.y - this.content.anchorY * this.content.height;
 
-            if (icBottomPos + realMove.y > this._bottomBoundary) {
+            if (icBottomPos + realMove.y >= this._bottomBoundary) {
                 scrollEventType = 'scroll-to-bottom';
             }
         }
