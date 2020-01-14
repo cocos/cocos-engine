@@ -334,8 +334,14 @@ export class SplashScreenWebgl {
         const elapsedTime = time - this.startTime;
         const precent = clamp01(elapsedTime / this.setting.totalTime);
         const alpha = easing.cubicOut(precent);
-
+            
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        
+        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
         gl.clearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
         gl.depthMask(true);
         gl.clearDepth(1);
@@ -343,6 +349,9 @@ export class SplashScreenWebgl {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
 
         gl.useProgram(this.program);
+
+        var resolutionLocation = gl.getUniformLocation(this.program, "u_resolution");
+        gl.uniform2f(resolutionLocation, gl.canvas.width, gl.canvas.height);
 
         let location = gl.getUniformLocation(program, "u_alpha");
         gl.uniform1f(location, alpha);
