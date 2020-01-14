@@ -34,7 +34,6 @@ THE SOFTWARE.
 #include "math/CCGeometry.h"
 #include "math/CCMath.h"
 #include "base/CCRef.h"
-#include "platform/CCGL.h"
 
 /**
  * @addtogroup base

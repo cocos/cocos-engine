@@ -24,17 +24,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 #include "platform/CCApplication.h"
-#import <Cocoa/Cocoa.h>
 #include <algorithm>
 #include <mutex>
 #include "base/CCScheduler.h"
 #include "base/CCAutoreleasePool.h"
-#include "base/CCGLUtils.h"
 #include "base/CCConfiguration.h"
-#include "platform/desktop/CCGLView-desktop.h"
 #include "scripting/js-bindings/event/EventDispatcher.h"
 #include "scripting/js-bindings/jswrapper/SeApi.h"
-#include "base/CCGLUtils.h"
 #include "audio/include/AudioEngine.h"
 
 NS_CC_BEGIN
@@ -47,13 +43,10 @@ namespace
     {
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
         char commandBuf[200] = {0};
-        int devicePixelRatio = Application::getInstance()->getDevicePixelRatio();
         sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d;",
-                g_width / devicePixelRatio,
-                g_height / devicePixelRatio);
+                g_width,
+                g_height);
         se->evalString(commandBuf);
-        ccViewport(0, 0, g_width / devicePixelRatio, g_height / devicePixelRatio);
-        glDepthMask(GL_TRUE);
         return true;
     }
 }
@@ -63,18 +56,13 @@ std::shared_ptr<Scheduler> Application::_scheduler = nullptr;
 
 #define CAST_VIEW(view)    ((GLView*)view)
 
-Application::Application(const std::string& name, int width, int height)
+Application::Application(int width, int height)
 {
     Application::_instance = this;
 
     g_width = width;
     g_height = height;
 
-    createView(name, width, height);
-
-    Configuration::getInstance();
-
-    _renderTexture = new RenderTexture(width, height);
     _scheduler = std::make_shared<Scheduler>();
 
     EventDispatcher::init();
@@ -91,98 +79,15 @@ Application::~Application()
     EventDispatcher::destroy();
     se::ScriptEngine::destroyInstance();
 
-    delete CAST_VIEW(_view);
-    _view = nullptr;
-
-    delete _renderTexture;
-    _renderTexture = nullptr;
-
     Application::_instance = nullptr;
 }
 
-void Application::start()
+bool Application::init()
 {
-    if (!_view)
-        return;
-
-    float dt = 0.f;
-    long long actualInternal = 0; // actual frame internal
-    long long desiredInterval = 0; // desired frame internal, 1 / fps
-
-    std::chrono::steady_clock::time_point prev;
-    std::chrono::steady_clock::time_point now;
-
-    prev = std::chrono::steady_clock::now();
-
     se::ScriptEngine* se = se::ScriptEngine::getInstance();
-
-    while (!CAST_VIEW(_view)->windowShouldClose())
-    {
-        desiredInterval = 1.0 / _fps * 1000000;
-        if (!_isStarted)
-        {
-            auto scheduler = Application::getInstance()->getScheduler();
-            scheduler->removeAllFunctionsToBePerformedInCocosThread();
-            scheduler->unscheduleAll();
-
-            se::ScriptEngine::getInstance()->cleanup();
-            cocos2d::PoolManager::getInstance()->getCurrentPool()->clear();
-            cocos2d::EventDispatcher::init();
-
-            ccInvalidateStateCache();
-            se->addRegisterCallback(setCanvasCallback);
-
-            if(!applicationDidFinishLaunching())
-                return;
-
-            _isStarted = true;
-        }
-
-        // should be invoked at the begin of rendering a frame
-        if (_isDownsampleEnabled)
-            _renderTexture->prepare();
-
-        CAST_VIEW(_view)->pollEvents();
-
-        if (_isStarted)
-        {
-            now = std::chrono::steady_clock::now();
-            actualInternal = std::chrono::duration_cast<std::chrono::microseconds>(now - prev).count();
-            if (actualInternal >= desiredInterval)
-            {
-                prev = now;
-                dt = (float)actualInternal / 1000000.f;
-                _scheduler->update(dt);
-
-                EventDispatcher::dispatchTickEvent(dt);
-
-                if (_isDownsampleEnabled)
-                    _renderTexture->draw();
-
-                CAST_VIEW(_view)->swapBuffers();
-                PoolManager::getInstance()->getCurrentPool()->clear();
-            }
-            else
-            {
-                // sleep 3ms may make a sleep of 4ms
-                std::this_thread::sleep_for(std::chrono::microseconds(desiredInterval - actualInternal - 1000));
-            }
-        }
-        else
-        {
-            std::this_thread::sleep_for(std::chrono::microseconds(desiredInterval));
-        }
-    }
-}
-
-void Application::restart()
-{
-    _isStarted = false;
-}
-
-void Application::end()
-{
-    glfwSetWindowShouldClose(CAST_VIEW(_view)->getGLFWWindow(), 1);
+    se->addRegisterCallback(setCanvasCallback);
+    
+    return true;
 }
 
 void Application::setPreferredFramesPerSecond(int fps)
@@ -222,7 +127,6 @@ void Application::setDisplayStats(bool isShow)
 
 void Application::setCursorEnabled(bool value)
 {
-    glfwSetInputMode(CAST_VIEW(_view)->getGLFWWindow(), GLFW_CURSOR, value ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
 }
 
 Application::LanguageType Application::getCurrentLanguage() const
@@ -260,12 +164,7 @@ Application::LanguageType Application::getCurrentLanguage() const
 
 float Application::getScreenScale() const
 {
-    return CAST_VIEW(_view)->getScale();
-}
-
-GLint Application::getMainFBO() const
-{
-    return CAST_VIEW(_view)->getMainFBO();
+    return 1.f;
 }
 
 bool Application::openURL(const std::string &url)
@@ -283,42 +182,12 @@ void Application::copyTextToClipboard(const std::string &text)
     [pasteboard setString:tmp forType:NSStringPboardType];
 }
 
-bool Application::applicationDidFinishLaunching()
-{
-    return true;
-}
-
-void Application::applicationDidEnterBackground()
+void Application::onPause()
 {
 }
 
-void Application::applicationWillEnterForeground()
+void Application::onResume()
 {
-}
-
-void Application::setMultitouch(bool)
-{
-}
-
-void Application::onCreateView(PixelFormat& pixelformat, DepthFormat& depthFormat, int& multisamplingCount)
-{
-    pixelformat = PixelFormat::RGBA8;
-    depthFormat = DepthFormat::DEPTH24_STENCIL8;
-
-    multisamplingCount = 0;
-}
-
-void Application::createView(const std::string& name, int width, int height)
-{
-    int multisamplingCount = 0;
-    PixelFormat pixelformat;
-    DepthFormat depthFormat;
-
-    onCreateView(pixelformat,
-                 depthFormat,
-                 multisamplingCount);
-
-    _view = new GLView(this, name, 0, 0, width, height, pixelformat, depthFormat, multisamplingCount);
 }
 
 std::string Application::getSystemVersion()

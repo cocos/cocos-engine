@@ -56,7 +56,7 @@ bool CCMTLBuffer::Initialize(const GFXBufferInfo& info)
             _transferBuffer = (uint8_t*)CC_MALLOC(size_);
             if (!_transferBuffer)
             {
-                CCASSERT(false, "CCMTLBuffer: failed to create memory for transfer buffer.")
+                CCASSERT(false, "CCMTLBuffer: failed to create memory for transfer buffer.");
                 return false;
             }
             device_->mem_status().buffer_size += size_;

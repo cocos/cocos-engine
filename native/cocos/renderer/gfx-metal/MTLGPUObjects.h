@@ -9,13 +9,14 @@
 
 NS_CC_BEGIN
 
-class CCMTLBuffer;
-
 struct CCMTLGPUUniformBlock
 {
     uint mtlBinding = 0;
     uint originBinding = 0;
     id<MTLBuffer> buffer = nil;
+    
+    CCMTLGPUUniformBlock(uint _mtlBinding, uint _originBinding, id<MTLBuffer> _buffer)
+    : mtlBinding(_mtlBinding), originBinding(_originBinding), buffer(_buffer) {}
 };
 typedef vector<CCMTLGPUUniformBlock>::type CCMTLGPUUniformBlockList;
 
@@ -24,14 +25,20 @@ struct CCMTLGPUTexture
     uint mtlBinding = 0;
     uint originBinding = 0;
     id<MTLTexture> texture = nil;
+    
+    CCMTLGPUTexture(uint _mtlBinding, uint _originBinding, id<MTLTexture> _texture)
+    : mtlBinding(_mtlBinding), originBinding(_originBinding), texture(_texture) {}
 };
 typedef vector<CCMTLGPUTexture>::type CCMTLGPUTextureList;
 
 struct CCMTLGPUSamplerState
 {
     uint mtlBinding = 0;
-    uint originBInding = 0;
+    uint originBinding = 0;
     id<MTLSamplerState> samplerState = nil;
+    
+    CCMTLGPUSamplerState(uint _mtlBinding, uint _originBinding, id<MTLSamplerState> _samplerState)
+    : mtlBinding(_mtlBinding), originBinding(_originBinding), samplerState(_samplerState) {}
 };
 typedef vector<CCMTLGPUSamplerState>::type CCMTLGPUSamplerStateList;
 

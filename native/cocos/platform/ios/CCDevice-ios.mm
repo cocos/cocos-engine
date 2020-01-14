@@ -25,7 +25,6 @@
  ****************************************************************************/
 #include "CCApplication.h"
 #include "platform/CCDevice.h"
-#include "platform/ios/CCEAGLView-ios.h"
 
 // Vibrate
 #import <AudioToolbox/AudioToolbox.h>
