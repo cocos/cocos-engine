@@ -1,5 +1,5 @@
 import { ccclass, property } from '../class-decorator';
-import { Vec3, Quat, Vec4, Vec2 } from '../../math';
+import { Vec3, Quat, Vec4, Vec2, Mat4 } from '../../math';
 
 export enum StorageUnit {
     Uint8, Uint16, Uint32,
@@ -13,6 +13,7 @@ export enum ElementType {
     Vec3,
     Vec4,
     Quat,
+    Mat4,
 }
 
 const elementTypeBits = 3;
@@ -196,6 +197,15 @@ const BuiltinElementTypeTraits: Record<ElementType, CompactTraits> = {
         decompress (storage: CompactValueTypeArrayStorage, index: number) {
             return new Quat(storage[index * 4], storage[index * 4 + 1], storage[index * 4 + 2], storage[index * 4 + 3]);
         }
+    },
+    [ElementType.Mat4]: {
+        requiredUnits: 16,
+        compress (storage: CompactValueTypeArrayStorage, index: number, value: Mat4) {
+            Mat4.toArray(storage, value, index * 16);
+        },
+        decompress (storage: CompactValueTypeArrayStorage, index: number) {
+            return Mat4.fromArray(new Mat4(), storage, index * 16);
+        },
     },
 };
 
