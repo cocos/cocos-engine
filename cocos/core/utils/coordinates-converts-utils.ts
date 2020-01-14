@@ -26,7 +26,8 @@ export function WorldNode3DToLocalNodeUI (mainCamera: CameraComponent, wpos: Vec
     }
 
     mainCamera.convertToUINode(wpos, uiNode, out);
-
+    const pos = uiNode.position;
+    out.add(pos);
     return out;
 }
 
