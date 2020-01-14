@@ -1065,6 +1065,7 @@ void GLES2CmdFuncCreateInputAssembler(GLES2Device* device, GLES2GPUInputAssemble
       gpu_attrib.gl_buffer = gpu_vb->gl_buffer;
       gpu_attrib.stride = gpu_vb->stride;
     }
+      stream_offsets[attrib.stream] += gpu_attrib.size;
   }
 }
 
@@ -1522,7 +1523,7 @@ void GLES2CmdFuncExecuteCmds(GLES2Device* device, GLES2CmdPackage* cmd_package) 
         GFXBlendTarget& cache_target = cache->bs.targets[0];
         const GFXBlendTarget& target = gpu_pso->bs.targets[0];
         if (cache_target.is_blend != target.is_blend) {
-          if (cache_target.is_blend) {
+          if (!cache_target.is_blend) {
             glEnable(GL_BLEND);
           } else {
             glDisable(GL_BLEND);
@@ -1692,6 +1693,7 @@ void GLES2CmdFuncExecuteCmds(GLES2Device* device, GLES2CmdPackage* cmd_package) 
                             gl_wrap_t = gpu_binding.gpu_sampler->gl_wrap_t;
 
                             if (gpu_binding.gpu_tex_view->gpu_texture->mip_level <= 1 &&
+                                !(gpu_binding.gpu_tex_view->gpu_texture->flags & GFXTextureFlagBit::GEN_MIPMAP) &&
                                 (gpu_binding.gpu_sampler->gl_min_filter == GL_LINEAR_MIPMAP_NEAREST ||
                                  gpu_binding.gpu_sampler->gl_min_filter == GL_LINEAR_MIPMAP_LINEAR)) {
                               gl_min_filter = GL_LINEAR;
@@ -2059,6 +2061,12 @@ void GLES2CmdFuncCopyBuffersToTexture(GLES2Device* device, uint8_t** buffers, ui
     CCASSERT(false, "Unsupported GFXTextureType, copy buffers to texture failed.");
     break;
   }
+    
+    if(gpu_texture->flags & GFXTextureFlagBit::GEN_MIPMAP)
+    {
+        glBindTexture(gpu_texture->gl_target, gpu_texture->gl_texture);
+        glGenerateMipmap(gpu_texture->gl_target);
+    }
 }
 
 

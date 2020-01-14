@@ -1190,6 +1190,7 @@ void GLES3CmdFuncCreateInputAssembler(GLES3Device* device, GLES3GPUInputAssemble
       gpu_attrib.gl_buffer = gpu_vb->gl_buffer;
       gpu_attrib.stride = gpu_vb->stride;
     }
+      stream_offsets[attrib.stream] += gpu_attrib.size;
   }
 }
 
@@ -1648,7 +1649,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device* device, GLES3CmdPackage* cmd_package) 
         GFXBlendTarget& cache_target = cache->bs.targets[0];
         const GFXBlendTarget& target = gpu_pso->bs.targets[0];
         if (cache_target.is_blend != target.is_blend) {
-          if (cache_target.is_blend) {
+          if (!cache_target.is_blend) {
             glEnable(GL_BLEND);
           } else {
             glDisable(GL_BLEND);
@@ -2022,6 +2023,12 @@ void GLES3CmdFuncCopyBuffersToTexture(GLES3Device* device, uint8_t** buffers, ui
     CCASSERT(false, "Unsupported GFXTextureType, copy buffers to texture failed.");
     break;
   }
+    
+    if(gpu_texture->flags & GFXTextureFlagBit::GEN_MIPMAP)
+    {
+        glBindTexture(gpu_texture->gl_target, gpu_texture->gl_texture);
+        glGenerateMipmap(gpu_texture->gl_target);
+    }
 }
 
 
