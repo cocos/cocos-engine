@@ -133,7 +133,7 @@ const ray_aabb = (function () {
         const tmin = Math.max(Math.max(Math.min(t1, t2), Math.min(t3, t4)), Math.min(t5, t6));
         const tmax = Math.min(Math.min(Math.max(t1, t2), Math.max(t3, t4)), Math.max(t5, t6));
         if (tmax < 0 || tmin > tmax) { return 0; }
-        return tmin;
+        return tmin > 0 ? tmin : tmax; // ray origin inside aabb
     };
 })();
 
