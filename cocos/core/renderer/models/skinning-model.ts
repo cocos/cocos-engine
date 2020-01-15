@@ -128,7 +128,7 @@ export class SkinningModel extends Model {
         resMgr.jointsAnimationInfo.switchClip(this._jointsMedium.animInfo!, anim);
         this._applyJointsTexture(texture);
         this._jointsMedium.boundsInfo = anim ? resMgr.animatedBoundsInfo.get(this._mesh, this._skeleton, anim) : null;
-        this._modelBounds = anim ? this._staticModelBounds : null; // don't calc bounds again in Model
+        this._modelBounds = anim ? null : this._staticModelBounds; // don't calc bounds again in Model
     }
 
     protected _applyJointsTexture (texture: IJointsTextureHandle | null) {
