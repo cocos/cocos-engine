@@ -4,16 +4,17 @@ import { GFXPrimitiveMode } from '../../gfx/define';
 import { Mat4, Vec3 } from '../../math';
 import { RecyclePool } from '../../memop';
 import { Root } from '../../root';
+import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
+import { SkinningModel } from '../models/skinning-model';
 import { Ambient } from './ambient';
-import { Camera, ICameraInfo } from './camera';
+import { Camera } from './camera';
 import { DirectionalLight } from './directional-light';
 import { Model } from './model';
 import { PlanarShadows } from './planar-shadows';
 import { Skybox } from './skybox';
 import { SphereLight } from './sphere-light';
 import { SpotLight } from './spot-light';
-import { Node } from '../../scene-graph';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -301,24 +302,27 @@ export class RenderScene {
         pool.reset();
         for (const m of this._models) {
             const transform = m.transform;
-            if (!transform || !m.enabled || m.node.layer & Layers.Enum.IGNORE_RAYCAST || !(m.node.layer & mask) || !m.modelBounds) { continue; }
+            if (!transform || !m.enabled || m.node.layer & Layers.Enum.IGNORE_RAYCAST || !(m.node.layer & mask) || !m.worldBounds) { continue; }
             // transform ray back to model space
             Mat4.invert(m4, transform.getWorldMatrix(m4));
             Vec3.transformMat4(modelRay.o, worldRay.o, m4);
             Vec3.normalize(modelRay.d, Vec3.transformMat4Normal(modelRay.d, worldRay.d, m4));
             // broadphase
-            const d = intersect.ray_aabb(modelRay, m.modelBounds);
+            const d = intersect.ray_aabb(worldRay, m.worldBounds);
             if (d <= 0 || d > distance) { continue; }
             for (let i = 0; i < m.subModelNum; ++i) {
                 const subModel = m.getSubModel(i).subMeshData;
-                if (subModel && subModel.geometricInfo) {
+                if (m instanceof SkinningModel) {
+                    narrowDis = d;
+                } else if (subModel && subModel.geometricInfo) {
                     const { positions: vb, indices: ib, doubleSided: sides } = subModel.geometricInfo;
                     narrowphase(vb, ib!, subModel.primitiveMode, sides!, distance);
+                    narrowDis *= Vec3.multiply(v3, modelRay.d, transform.worldScale).length();
                 }
                 if (narrowDis < distance) {
                     const r = pool.add();
                     r.node = m.node;
-                    r.distance = narrowDis * Vec3.multiply(v3, modelRay.d, transform.worldScale).length();
+                    r.distance = narrowDis;
                     resultModels[pool.length - 1] = r;
                 }
             }
@@ -350,24 +354,27 @@ export class RenderScene {
         pool.reset();
         const m = model;
         const transform = m.transform;
-        if (!transform || !m.enabled || m.node.layer & Layers.Enum.IGNORE_RAYCAST || !(m.node.layer & mask) || !m.modelBounds) { return false; }
+        if (!transform || !m.enabled || m.node.layer & Layers.Enum.IGNORE_RAYCAST || !(m.node.layer & mask) || !m.worldBounds) { return false; }
         // transform ray back to model space
         Mat4.invert(m4, transform.getWorldMatrix(m4));
         Vec3.transformMat4(modelRay.o, worldRay.o, m4);
         Vec3.normalize(modelRay.d, Vec3.transformMat4Normal(modelRay.d, worldRay.d, m4));
         // broadphase
-        const d = intersect.ray_aabb(modelRay, m.modelBounds);
+        const d = intersect.ray_aabb(worldRay, m.worldBounds);
         if (d <= 0 || d > distance) { return false; }
         for (let i = 0; i < m.subModelNum; ++i) {
             const subModel = m.getSubModel(i).subMeshData;
-            if (subModel && subModel.geometricInfo) {
+            if (m instanceof SkinningModel) {
+                narrowDis = d;
+            } else if (subModel && subModel.geometricInfo) {
                 const { positions: vb, indices: ib, doubleSided: sides } = subModel.geometricInfo;
                 narrowphase(vb, ib!, subModel.primitiveMode, sides!, distance);
+                narrowDis *= Vec3.multiply(v3, modelRay.d, transform.worldScale).length();
             }
             if (narrowDis < distance) {
                 const r = pool.add();
                 r.node = m.node;
-                r.distance = narrowDis * Vec3.multiply(v3, modelRay.d, transform.worldScale).length();
+                r.distance = narrowDis;
                 resultSingleModel[pool.length - 1] = r;
             }
         }
