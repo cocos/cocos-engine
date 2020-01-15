@@ -3556,9 +3556,9 @@ let NodeDefines = {
             -this._anchorPoint.y * height, 
             width, 
             height);
-
-        var parentMat = Mat4.mul(this._worldMatrix, parentMat, this._matrix);
-        rect.transformMat4(rect, parentMat);
+        
+        this._calculWorldMatrix();
+        rect.transformMat4(rect, this._worldMatrix);
 
         //query child's BoundingBox
         if (!this._children)
