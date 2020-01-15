@@ -66,26 +66,16 @@ export default class TiledAssembler extends Assembler2D {
         let contentWidth = this.contentWidth = Math.abs(node.width);
         let contentHeight = this.contentHeight = Math.abs(node.height);
         let rect = frame._rect;
-        let rectWidth = this.rectWidth = rect.width;
-        let rectHeight = this.rectHeight = rect.height;
         let leftWidth = frame.insetLeft, rightWidth = frame.insetRight, centerWidth = rect.width - leftWidth - rightWidth,
             topHeight = frame.insetTop, bottomHeight = frame.insetBottom, centerHeight = rect.height - topHeight - bottomHeight;
-        if (frame.insetBottom > 0 || frame.insetTop > 0) {
-            if (contentHeight >= rectHeight) {
-                contentHeight -= topHeight + bottomHeight;
-                rectHeight = centerHeight;
-            }
-        }
-        if (frame.insetLeft > 0 || frame.insetRight > 0) {
-            if (contentWidth >= rectWidth) {
-                contentWidth -= rightWidth + leftWidth;
-                rectWidth = centerWidth;
-            }
-        }
-        let hRepeat = this.hRepeat = contentWidth / rectWidth;
-        let vRepeat = this.vRepeat = contentHeight / rectHeight;
-        let row = this.row = Math.ceil(vRepeat);
-        let col = this.col = Math.ceil(hRepeat);
+        this.sizableWidth = contentWidth - leftWidth - rightWidth;
+        this.sizableHeight = contentHeight - topHeight - bottomHeight;
+        this.sizableWidth = this.sizableWidth > 0 ? this.sizableWidth : 0;
+        this.sizableHeight = this.sizableHeight > 0 ? this.sizableHeight : 0;
+        let hRepeat = this.hRepeat = this.sizableWidth / centerWidth;
+        let vRepeat = this.vRepeat = this.sizableHeight / centerHeight;
+        let row = this.row = Math.ceil(vRepeat + 2);
+        let col = this.col = Math.ceil(hRepeat + 2);
 
         // update data property
         let count = row * col;
@@ -113,40 +103,59 @@ export default class TiledAssembler extends Assembler2D {
         let node = sprite.node,
             appx = node.anchorX * node.width, appy = node.anchorY * node.height;
 
-        let { row, col, rectWidth, rectHeight, contentWidth, contentHeight } = this;
+        let { row, col, contentWidth, contentHeight } = this;
         let { x, y } = this._local;
         x.length = y.length = 0;
 
         let leftWidth = frame.insetLeft, rightWidth = frame.insetRight, centerWidth = rect.width - leftWidth - rightWidth,
             topHeight = frame.insetTop, bottomHeight = frame.insetBottom, centerHeight = rect.height - topHeight - bottomHeight;
-        if (contentWidth <= rectWidth) {
-            for (let i = 0; i <= col; ++i) {
-                x[i] = Math.min(rectWidth * i , contentWidth) - appx;
+        let xScale = node.width / (leftWidth + rightWidth) > 1 ? 1 : node.width / (leftWidth + rightWidth);
+        let yScale = node.height / (topHeight + bottomHeight) > 1 ? 1 : node.height / (topHeight + bottomHeight);
+        let offsetWidth = this.sizableWidth > 0 
+        && this.sizableWidth % centerWidth === 0 ? centerWidth : this.sizableWidth % centerWidth;
+        let offsetHeight = this.sizableHeight > 0 
+        && this.sizableHeight % centerHeight === 0 ? centerHeight : this.sizableHeight % centerHeight;
+
+        for (let i = 0; i <= col; i++) {
+            if (i === 0) {
+                x[i] = - appx;
             }
-        } else {
-            for (let i = 0; i <= col; ++i) {
-                if (i === 0) {
-                    x[i] =  - appx;
-                } else if (i > 0 && i < col){
-                    x[i] = Math.min(leftWidth + centerWidth * i, contentWidth) - appx;
-                } else if (i === col) {
-                    x[i] = Math.min(leftWidth + centerWidth * i + rightWidth, contentWidth) - appx;
+            else if (i > 0 && i < col) {
+                if (i <= 2) {
+                    x[i] = leftWidth * xScale + Math.min(centerWidth, this.sizableWidth) - appx;
                 }
+                else {
+                    if (i === (col - 1)) {
+                        x[i] = leftWidth + offsetWidth + (i - 2) * centerWidth - appx;
+                    }
+                    else {
+                        x[i] = leftWidth + Math.min(centerWidth, this.sizableWidth) + (i - 2) * centerWidth - appx
+                    }
+                }
+            }
+            else if (i === col) {
+                x[i] = Math.min(leftWidth + centerWidth * (i - 2) + rightWidth, contentWidth) - appx;
             }
         }
-        if (contentHeight <= rectHeight) {
-            for (let i = 0; i <= row; ++i) {
-                y[i] = Math.min(rectHeight * i, contentHeight) - appy;
+        for (let i = 0; i <= row; i++) {
+            if (i == 0) {
+                y[i] = - appy;
             }
-        } else {
-            for (let i = 0; i <= row; ++i) {
-                if (i === 0) {
-                    y[i] = - appy;
-                } else if (i > 0 && i < row) {
-                    y[i] = Math.min(bottomHeight + centerHeight * i, contentHeight) - appy;
-                } else if (i === row) {
-                    y[i] = Math.min(bottomHeight + centerHeight * i + topHeight, contentHeight) - appy;
+            else if (i > 0 && i < row) {
+                if (i <= 2) {
+                    y[i] = bottomHeight * yScale + Math.min(centerHeight, this.sizableHeight) - appy;
                 }
+                else {
+                    if (i === (row - 1)) {
+                        y[i] = bottomHeight + offsetHeight + (i - 2) * centerHeight - appy;
+                    }
+                    else {
+                        y[i] = bottomHeight + Math.min(centerHeight, this.sizableHeight) + (i - 2) * centerHeight - appy;
+                    }
+                }
+            }
+            else if (i === row) {
+                y[i] = Math.min(bottomHeight + centerHeight * (i - 2) + topHeight, contentHeight) - appy;
             }
         }
 
@@ -198,18 +207,41 @@ export default class TiledAssembler extends Assembler2D {
         let verts = this._renderData.vDatas[0];
         if (!verts) return;
         
+        let frame = sprite._spriteFrame;
+        let rect = frame._rect;
+        let leftWidth = frame.insetLeft, rightWidth = frame.insetRight, centerWidth = rect.width - leftWidth - rightWidth,
+            topHeight = frame.insetTop, bottomHeight = frame.insetBottom, centerHeight = rect.height - topHeight - bottomHeight;
+
         let { row, col, hRepeat, vRepeat } = this;
+        let coefu = 0, coefv = 0;
         let uv = sprite.spriteFrame.uv;
         let uvSliced = sprite.spriteFrame.uvSliced;
-
-        let hasTopOrBottomBorder = (sprite.spriteFrame.insetTop > 0 || sprite.spriteFrame.insetBottom > 0);
-        let hasLeftOrRightBorder = (sprite.spriteFrame.insetLeft > 0 || sprite.spriteFrame.insetRight > 0);
         let rotated = sprite.spriteFrame._rotated;
         let floatsPerVert = this.floatsPerVert, uvOffset = this.uvOffset;
         for (let yindex = 0, ylength = row; yindex < ylength; ++yindex) {
-            let coefv = Math.min(1, vRepeat - yindex);
+            if (this.sizableHeight > centerHeight) {
+                if (this.sizableHeight >= yindex * centerHeight) {
+                    coefv = 1;
+                }
+                else {
+                    coefv = vRepeat % 1;
+                }
+            }
+            else {
+                coefv = vRepeat;
+            }
             for (let xindex = 0, xlength = col; xindex < xlength; ++xindex) {
-                let coefu = Math.min(1, hRepeat - xindex);
+                if (this.sizableWidth > centerWidth) {
+                    if (this.sizableWidth >= xindex * centerWidth) {
+                        coefu = 1;
+                    }
+                    else {
+                        coefu = hRepeat % 1;
+                    }
+                }
+                else {
+                    coefu = hRepeat;
+                }
 
                 // UV
                 if (rotated) {
@@ -233,95 +265,67 @@ export default class TiledAssembler extends Assembler2D {
                 else {
                     // lb
                     if (xindex === 0) {
-                        verts[uvOffset] = uvSliced[0].u;
-                    } else if (xindex > 0 && xindex < (col - 1)) {
+                        verts[uvOffset] = uv[0];
+                    }
+                    else if (xindex > 0 && xindex < (col - 1)) {
                         verts[uvOffset] = uvSliced[1].u;
-                    } else if (xindex === (col - 1)) {
-                        if (hasLeftOrRightBorder) {
-                            verts[uvOffset] = uvSliced[2].u + (uvSliced[1].u - uvSliced[2].u) * coefu;
-                        } else {
-                            verts[uvOffset] = uvSliced[0].u;
-                        }
+                    }
+                    else if(xindex === (col - 1)) {
+                        verts[uvOffset] = uvSliced[2].u;
                     }
                     if (yindex === 0) {
                         verts[uvOffset + 1] = uvSliced[0].v;
-                    } else if(yindex > 0 && yindex < (row - 1)) {
+                    }
+                    else if (yindex > 0 && yindex < (row - 1)) {
                         verts[uvOffset + 1] = uvSliced[4].v;
-                    } else if (yindex === (row - 1)){
-                        if (hasTopOrBottomBorder) {
-                            verts[uvOffset + 1] = uvSliced[8].v + (uvSliced[4].v - uvSliced[8].v) * coefv;
-                        } else {
-                            verts[uvOffset + 1] = uvSliced[0].v;
-                        }
+                    }
+                    else if (yindex === (row - 1)) {
+                        verts[uvOffset + 1] = uvSliced[8].v;
                     }
                     uvOffset += floatsPerVert;
                     // rb
                     if (xindex === 0) {
-                        verts[uvOffset] = uvSliced[0].u + (uvSliced[3].u - uvSliced[0].u) * coefu;
-                    } else if(xindex > 0 && xindex < (col - 1)){
-                        verts[uvOffset] = uvSliced[0].u + (uvSliced[2].u - uvSliced[0].u) * coefu;
-                    } else if (xindex === (col - 1)) {
-                        verts[uvOffset - 4 * floatsPerVert * xindex] = uvSliced[2].u;
-                        if (hasLeftOrRightBorder) {
-                            verts[uvOffset] = uvSliced[3].u;
-                        } else {
-                            verts[uvOffset] = uvSliced[0].u + (uvSliced[3].u - uvSliced[0].u) * coefu;
-                        }
+                        verts[uvOffset] = uvSliced[1].u + (uvSliced[2].u - uvSliced[1].u) * coefu;
+                    }
+                    else if (xindex > 0 && xindex < (col - 1)) {
+                        verts[uvOffset] = uvSliced[1].u + (uvSliced[2].u - uvSliced[1].u) * coefu;
+                    }
+                    else if (xindex ===(col - 1)){
+                        verts[uvOffset] = uvSliced[3].u;
                     }
                     if (yindex === 0) {
                         verts[uvOffset + 1] = uvSliced[0].v;
-                    } else if (yindex > 0 && yindex < (row - 1)) {
+                    }
+                    else if (yindex > 0 && yindex < (row - 1)) {
                         verts[uvOffset + 1] = uvSliced[4].v;
-                    } else if (yindex === (row - 1)) {
-                        if (hasTopOrBottomBorder) {
-                            verts[uvOffset + 1] = uvSliced[8].v + (uvSliced[4].v - uvSliced[8].v) * coefv;
-                        } else {
-                            verts[uvOffset + 1] = uvSliced[0].v;
-                        }
+                    }
+                    else if (yindex === (row - 1)) {
+                        verts[uvOffset + 1] = uvSliced[8].v;
                     }
                     uvOffset += floatsPerVert;
                     // lt
                     if (xindex === 0) {
-                        verts[uvOffset] = uvSliced[0].u;
-                    } else if (xindex > 0 && xindex < (col - 1)) {
+                        verts[uvOffset] = uv[0];
+                    }
+                    else if (xindex > 0 && xindex < (col - 1)) {
                         verts[uvOffset] = uvSliced[1].u;
-                    } else if (xindex === (col - 1)) {
-                        if (hasLeftOrRightBorder) {
-                            verts[uvOffset] = uvSliced[2].u + (uvSliced[1].u - uvSliced[2].u) * coefu;
-                        } else {
-                            verts[uvOffset] = uvSliced[0].u;
-                        }
+                    }
+                    else if (xindex === (col - 1)) {
+                        verts[uvOffset] = uvSliced[2].u;
                     }
                     if (yindex === 0) {
-                        verts[uvOffset + 1] = uvSliced[0].v + (uvSliced[12].v - uvSliced[0].v) * coefv;
-                    } else if (yindex > 0 && yindex < (row - 1)) {
-                        verts[uvOffset + 1] = uvSliced[0].v + (uvSliced[8].v - uvSliced[0].v) * coefv;
-                    } else if (yindex === (row - 1)) {
-                        verts[uvOffset + 1 - 4 * floatsPerVert * col * yindex] = uvSliced[8].v;
-                        if (hasTopOrBottomBorder) {
-                            verts[uvOffset + 1] = uvSliced[12].v;
-                        } else {
-                            verts[uvOffset + 1] = uvSliced[0].v + (uvSliced[12].v - uvSliced[0].v) * coefv;
-                        }
+                        verts[uvOffset + 1] = uvSliced[4].v + (uvSliced[8].v - uvSliced[4].v) * coefv;
+                    }
+                    else if (yindex > 0 && yindex < (row - 1)) {
+                        verts[uvOffset + 1] = uvSliced[4].v + (uvSliced[8].v - uvSliced[4].v) * coefv;
+                    }
+                    else if (yindex === (row - 1)) {
+                        verts[uvOffset + 1] = uvSliced[12].v;
                     }
                     uvOffset += floatsPerVert;
                     // rt
-                    if (xindex === 0) {
-                        verts[uvOffset] = verts[uvOffset - floatsPerVert * 2];
-                    } else if(xindex > 0 && xindex < (col - 1)){
-                        verts[uvOffset] = verts[uvOffset - floatsPerVert * 2]
-                    } else if (xindex === (col - 1)) {
-                        verts[uvOffset - 4 * floatsPerVert * xindex] = uvSliced[2].u;
-                        verts[uvOffset] = verts[uvOffset - floatsPerVert * 2];
-                    }
-                    if (yindex === 0) {
-                        verts[uvOffset + 1] = verts[uvOffset + 1 - floatsPerVert];
-                    } else if (yindex > 0 && yindex < (row - 1)) {
-                        verts[uvOffset + 1] = verts[uvOffset + 1 - floatsPerVert];
-                    } else if (yindex === (row - 1)) {
-                        verts[uvOffset + 1 - 4 * floatsPerVert * col * yindex] = uvSliced[8].v;
-                        verts[uvOffset + 1] = verts[uvOffset + 1 - floatsPerVert];
-                    }
+                    verts[uvOffset] = verts[uvOffset - floatsPerVert * 2];
+                    verts[uvOffset + 1] = verts[uvOffset + 1 - floatsPerVert];
                     uvOffset += floatsPerVert;
                 }
             }
