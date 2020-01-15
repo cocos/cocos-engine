@@ -31,6 +31,10 @@ const OUT_OF_BOUNDARY_BREAKING_FACTOR = 0.05;
 const EPSILON = 1e-4;
 const MOVEMENT_FACTOR = 0.7;
 
+let _tempPoint = cc.v2();
+let _tempPrevPoint = cc.v2();
+let _tempDelta = cc.v2();
+
 let quintEaseOut = function(time) {
     time -= 1;
     return (time * time * time * time * time + 1);
@@ -1011,8 +1015,15 @@ let ScrollView = cc.Class({
         this._gatherTouchMove(deltaMove);
     },
 
+    // Contains node angle calculations
+    _getLocalAxisAlignDelta (touch) {
+        this.node.convertToNodeSpaceAR(touch.getLocation(), _tempPoint);
+        this.node.convertToNodeSpaceAR(touch.getPreviousLocation(), _tempPrevPoint);
+        return _tempPoint.sub(_tempPrevPoint, _tempDelta);
+    },
+
     _handleMoveLogic (touch) {
-        let deltaMove = touch.getDelta();
+        let deltaMove = this._getLocalAxisAlignDelta(touch);
         this._processDeltaMove(deltaMove);
     },
 
@@ -1158,7 +1169,7 @@ let ScrollView = cc.Class({
     },
 
     _handleReleaseLogic (touch) {
-        let delta = touch.getDelta();
+        let delta = this._getLocalAxisAlignDelta(touch);
         this._gatherTouchMove(delta);
         this._processInertiaScroll();
         if (this._scrolling) {
