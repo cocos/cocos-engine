@@ -43,7 +43,7 @@ Color3B::Color3B()
 , b(0)
 {}
 
-Color3B::Color3B(GLubyte _r, GLubyte _g, GLubyte _b)
+Color3B::Color3B(uint8_t _r, uint8_t _g, uint8_t _b)
 : r(_r)
 , g(_g)
 , b(_b)
@@ -102,14 +102,14 @@ Color4B::Color4B()
 , a(0)
 {}
 
-Color4B::Color4B(GLubyte _r, GLubyte _g, GLubyte _b, GLubyte _a)
+Color4B::Color4B(uint8_t _r, uint8_t _g, uint8_t _b, uint8_t _a)
 : r(_r)
 , g(_g)
 , b(_b)
 , a(_a)
 {}
 
-Color4B::Color4B(const Color3B& color, GLubyte _a)
+Color4B::Color4B(const Color3B& color, uint8_t _a)
 : r(color.r)
 , g(color.g)
 , b(color.b)
@@ -265,6 +265,15 @@ const Color4F Color4F::BLACK  (    0,     0,     0, 1);
 const Color4F Color4F::ORANGE (    1,  0.5f,     0, 1);
 const Color4F Color4F::GRAY   (0.65f, 0.65f, 0.65f, 1);
 
+/* BlendingFactorDest */
+#define GL_ZERO                                          0
+#define GL_ONE                                           1
+#define GL_SRC_COLOR                                     0x0300
+#define GL_ONE_MINUS_SRC_COLOR                           0x0301
+#define GL_SRC_ALPHA                                     0x0302
+#define GL_ONE_MINUS_SRC_ALPHA                           0x0303
+#define GL_DST_ALPHA                                     0x0304
+#define GL_ONE_MINUS_DST_ALPHA                           0x0305
 const BlendFunc BlendFunc::DISABLE = {GL_ONE, GL_ZERO};
 const BlendFunc BlendFunc::ALPHA_PREMULTIPLIED = {GL_ONE, GL_ONE_MINUS_SRC_ALPHA};
 const BlendFunc BlendFunc::ALPHA_NON_PREMULTIPLIED = {GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA};

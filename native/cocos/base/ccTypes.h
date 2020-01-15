@@ -49,10 +49,11 @@ struct Color4F;
  * RGB color composed of bytes 3 bytes.
  * @since v3.0
  */
+
 struct CC_DLL Color3B
 {
     Color3B();
-    Color3B(GLubyte _r, GLubyte _g, GLubyte _b);
+    Color3B(uint8_t _r, uint8_t _g, uint8_t _b);
     explicit Color3B(const Color4B& color);
     explicit Color3B(const Color4F& color);
 
@@ -68,9 +69,9 @@ struct CC_DLL Color3B
         return (*this == other);
     }
 
-    GLubyte r;
-    GLubyte g;
-    GLubyte b;
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
 
     static const Color3B WHITE;
     static const Color3B YELLOW;
@@ -90,11 +91,11 @@ struct CC_DLL Color3B
 struct CC_DLL Color4B
 {
     Color4B();
-    Color4B(GLubyte _r, GLubyte _g, GLubyte _b, GLubyte _a);
-    explicit Color4B(const Color3B& color, GLubyte _a = 255);
+    Color4B(uint8_t _r, uint8_t _g, uint8_t _b, uint8_t _a);
+    explicit Color4B(const Color3B& color, uint8_t _a = 255);
     explicit Color4B(const Color4F& color);
 
-    inline void set(GLubyte _r, GLubyte _g, GLubyte _b, GLubyte _a)
+    inline void set(uint8_t _r, uint8_t _g, uint8_t _b, uint8_t _a)
     {
         r = _r;
         g = _g;
@@ -109,10 +110,10 @@ struct CC_DLL Color4B
     bool operator!=(const Color3B& right) const;
     bool operator!=(const Color4F& right) const;
 
-    GLubyte r;
-    GLubyte g;
-    GLubyte b;
-    GLubyte a;
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+    uint8_t a;
 
     static const Color4B WHITE;
     static const Color4B YELLOW;
@@ -157,10 +158,10 @@ struct CC_DLL Color4F
         a = _a;
     }
 
-    GLfloat r;
-    GLfloat g;
-    GLfloat b;
-    GLfloat a;
+    float r;
+    float g;
+    float b;
+    float a;
 
     static const Color4F WHITE;
     static const Color4F YELLOW;
@@ -185,9 +186,9 @@ struct CC_DLL Color3F
         b = _b;
     }
     
-    GLfloat r;
-    GLfloat g;
-    GLfloat b;
+    float r;
+    float g;
+    float b;
     
     static const Color3F BLACK;
 };
@@ -198,9 +199,9 @@ struct CC_DLL Color3F
 struct CC_DLL BlendFunc
 {
     /** source blend function */
-    GLenum src;
+    uint32_t src;
     /** destination blend function */
-    GLenum dst;
+    uint32_t dst;
 
     /** Blending disabled. Uses {GL_ONE, GL_ZERO} */
     static const BlendFunc DISABLE;
