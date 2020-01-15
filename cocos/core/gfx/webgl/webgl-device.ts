@@ -391,6 +391,10 @@ export class WebGLGFXDevice extends GFXDevice {
             } else if ((sys.platform !== sys.WECHAT_GAME || sys.os !== sys.OS_IOS)) { this._useVAO = true; }
         }
 
+        if ((sys.platform === sys.WECHAT_GAME && sys.os === sys.OS_ANDROID)) {
+            gl.detachShader = () => {}; // Android WeChat may throw errors on detach shader
+        }
+
         if (this._OES_element_index_uint) {
             this._features[GFXFeature.ELEMENT_INDEX_UINT] = true;
         }
