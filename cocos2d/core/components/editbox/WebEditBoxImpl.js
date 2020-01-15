@@ -253,20 +253,19 @@ Object.assign(WebEditBoxImpl.prototype, {
 
     _hideDomOnMobile () {
         if (cc.sys.os === cc.sys.OS_ANDROID) {
-            // Closing soft keyboard on mobile will fire 'resize' event
-            // So we need to set a timeout to enable resizeWithBrowserSize
-            setTimeout(function () {
-                if (!_currentEditBoxImpl) {
+            if (!_currentEditBoxImpl) {
+                if (_autoResize) {
+                    cc.view.resizeWithBrowserSize(true);
+                }
+                // In case enter full screen when soft keyboard still showing
+                setTimeout(function () {
                     if (_fullscreen) {
                         cc.view.enableAutoFullScreen(true);
                     }
-                    if (_autoResize) {
-                        cc.view.resizeWithBrowserSize(true);
-                    }
-                }
-            }, DELAY_TIME);
+                }, DELAY_TIME);
+            }
         }
-        
+
         // Some browser like wechat on iOS need to mannully scroll back window
         this._scrollBackWindow();
     },
