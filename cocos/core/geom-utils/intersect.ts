@@ -834,8 +834,8 @@ const obb_capsule = (function () {
     const v3_2 = new Vec3();
     const v3_verts8 = new Array<Vec3>(8);
     for (let i = 0; i < 8; i++) { v3_verts8[i] = new Vec3(); }
-    const v3_axis7 = new Array<Vec3>(7);
-    for (let i = 0; i < 7; i++) { v3_axis7[i] = new Vec3(); }
+    const v3_axis8 = new Array<Vec3>(8);
+    for (let i = 0; i < 8; i++) { v3_axis8[i] = new Vec3(); }
     return function (obb: obb, capsule: capsule) {
         const h = Vec3.squaredDistance(capsule.ellipseCenter0, capsule.ellipseCenter1);
         if (h == 0) {
@@ -854,25 +854,26 @@ const obb_capsule = (function () {
             v3_2.z = obb.orientation.m08;
             getOBBVertices(obb.center, obb.halfExtents, v3_0, v3_1, v3_2, v3_verts8);
 
-            const axes = v3_axis7;
+            const axes = v3_axis8;
             const a0 = Vec3.copy(axes[0], v3_0);
             const a1 = Vec3.copy(axes[1], v3_1);
             const a2 = Vec3.copy(axes[2], v3_2);
-            const B = Vec3.subtract(axes[3], capsule.ellipseCenter0, capsule.ellipseCenter1);
-            Vec3.cross(axes[4], a0, B);
-            Vec3.cross(axes[5], a1, B);
-            Vec3.cross(axes[6], a2, B);
-            for (let i = 0; i < 7; ++i) {
+            const C = Vec3.subtract(axes[3], capsule.center, obb.center);
+            C.normalize();
+            const B = Vec3.subtract(axes[4], capsule.ellipseCenter0, capsule.ellipseCenter1);
+            B.normalize();
+            Vec3.cross(axes[5], a0, B);
+            Vec3.cross(axes[6], a1, B);
+            Vec3.cross(axes[7], a2, B);
+
+            for (let i = 0; i < 8; ++i) {
                 const a = getInterval(v3_verts8, axes[i]);
                 const d0 = Vec3.dot(axes[i], capsule.ellipseCenter0);
                 const d1 = Vec3.dot(axes[i], capsule.ellipseCenter1);
-                const d0_min = d0 - capsule.radius;
-                const d0_max = d0 + capsule.radius;
-                const d1_min = d1 - capsule.radius;
-                const d1_max = d1 + capsule.radius;
-                const d_max = Math.max(d0_min, d1_min, d0_max, d1_max);
-                const d_min = Math.min(d0_min, d1_min, d0_max, d1_max);
-
+                const max_d = Math.max(d0, d1);
+                const min_d = Math.min(d0, d1);
+                const d_min = min_d - capsule.radius;
+                const d_max = max_d + capsule.radius;
                 if (d_min > a[1] || a[0] > d_max) {
                     return 0; // Seperating axis found
                 }
