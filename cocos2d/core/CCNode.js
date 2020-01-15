@@ -3548,7 +3548,6 @@ let NodeDefines = {
     },
 
     _getBoundingBoxTo (parentMat) {
-        this._updateLocalMatrix();
         let width = this._contentSize.width;
         let height = this._contentSize.height;
         let rect = cc.rect(
