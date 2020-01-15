@@ -219,6 +219,14 @@ export class SplashScreenWebgl {
     }
 
     private initMatrix () {
+        // TODO: hack for cocosPlay cause on landscape canvas value is wrong
+        if (CC_COCOSPLAY && window._CCSettings.orientation === 'landscape' && this.gl.canvas.width < this.gl.canvas.height ) {
+            let width = this.gl.canvas.height;
+            let height = this.gl.canvas.width;
+            this.gl.canvas.width = width;
+            this.gl.canvas.height = height;
+        }
+
         const screenWidth = this.gl.canvas.width;
         const screenHeight = this.gl.canvas.height;
         const displayRatio = this.setting.displayRatio;
@@ -334,12 +342,20 @@ export class SplashScreenWebgl {
         const elapsedTime = time - this.startTime;
         const precent = clamp01(elapsedTime / this.setting.totalTime);
         const alpha = easing.cubicOut(precent);
-            
+
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-        
+
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        
+
+        // TODO: hack for cocosPlay cause on landscape canvas value is wrong
+        if (CC_COCOSPLAY && window._CCSettings.orientation === 'landscape' && this.gl.canvas.width < this.gl.canvas.height ) {
+            let width = this.gl.canvas.height;
+            let height = this.gl.canvas.width;
+            this.gl.canvas.width = width;
+            this.gl.canvas.height = height;
+        }
+
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
         gl.clearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
