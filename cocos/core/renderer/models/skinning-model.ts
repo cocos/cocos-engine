@@ -75,6 +75,7 @@ export class SkinningModel extends Model {
         if (this._jointsMedium.buffer) {
             this._jointsMedium.buffer.destroy();
             this._jointsMedium.buffer = null;
+            this.uploadedAnim = undefined; // uninitialized
         }
     }
 
