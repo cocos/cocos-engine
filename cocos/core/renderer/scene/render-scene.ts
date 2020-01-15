@@ -302,15 +302,15 @@ export class RenderScene {
         pool.reset();
         for (const m of this._models) {
             const transform = m.transform;
-            if (!transform || !m.enabled || m.node.layer & Layers.Enum.IGNORE_RAYCAST || !(m.node.layer & mask) || !m.worldBounds) { continue; }
-            // transform ray back to model space
-            Mat4.invert(m4, transform.getWorldMatrix(m4));
-            Vec3.transformMat4(modelRay.o, worldRay.o, m4);
-            Vec3.normalize(modelRay.d, Vec3.transformMat4Normal(modelRay.d, worldRay.d, m4));
+            if (!transform || !m.enabled || !(m.node.layer & (mask & ~Layers.Enum.IGNORE_RAYCAST)) || !m.worldBounds) { continue; }
             // broadphase
             let d = intersect.ray_aabb(worldRay, m.worldBounds);
             if (d <= 0 || d >= distance) { continue; }
-            if (!(m instanceof SkinningModel)) {
+            if (!(m instanceof SkinningModel && m.uploadedAnim)) {
+                // transform ray back to model space
+                Mat4.invert(m4, transform.getWorldMatrix(m4));
+                Vec3.transformMat4(modelRay.o, worldRay.o, m4);
+                Vec3.normalize(modelRay.d, Vec3.transformMat4Normal(modelRay.d, worldRay.d, m4));
                 d = Infinity;
                 for (let i = 0; i < m.subModelNum; ++i) {
                     const subModel = m.getSubModel(i).subMeshData;
@@ -355,15 +355,15 @@ export class RenderScene {
         pool.reset();
         const m = model;
         const transform = m.transform;
-        if (!transform || !m.enabled || m.node.layer & Layers.Enum.IGNORE_RAYCAST || !(m.node.layer & mask) || !m.worldBounds) { return false; }
-        // transform ray back to model space
-        Mat4.invert(m4, transform.getWorldMatrix(m4));
-        Vec3.transformMat4(modelRay.o, worldRay.o, m4);
-        Vec3.normalize(modelRay.d, Vec3.transformMat4Normal(modelRay.d, worldRay.d, m4));
+        if (!transform || !m.enabled || !(m.node.layer & (mask & ~Layers.Enum.IGNORE_RAYCAST)) || !m.worldBounds) { return false; }
         // broadphase
         let d = intersect.ray_aabb(worldRay, m.worldBounds);
         if (d <= 0 || d >= distance) { return false; }
-        if (!(m instanceof SkinningModel)) {
+        if (!(m instanceof SkinningModel && m.uploadedAnim)) {
+            // transform ray back to model space
+            Mat4.invert(m4, transform.getWorldMatrix(m4));
+            Vec3.transformMat4(modelRay.o, worldRay.o, m4);
+            Vec3.normalize(modelRay.d, Vec3.transformMat4Normal(modelRay.d, worldRay.d, m4));
             d = Infinity;
             for (let i = 0; i < m.subModelNum; ++i) {
                 const subModel = m.getSubModel(i).subMeshData;
