@@ -272,7 +272,7 @@ export default class TTFAssembler extends Assembler2D {
         let isMultiple = _splitedStrings.length > 1;
 
         //do real rendering
-        let measureText = this._measureText(_context);
+        let measureText = this._measureText(_context, _fontDesc);
 
         let drawTextPosX = 0, drawTextPosY = 0;
 
@@ -359,7 +359,7 @@ export default class TTFAssembler extends Assembler2D {
             let canvasSizeX = 0;
             let canvasSizeY = 0;
             for (let i = 0; i < paragraphedStrings.length; ++i) {
-                let paraLength = textUtils.safeMeasureText(_context, paragraphedStrings[i]);
+                let paraLength = textUtils.safeMeasureText(_context, paragraphedStrings[i], _fontDesc);
                 canvasSizeX = canvasSizeX > paraLength ? canvasSizeX : paraLength;
             }
             canvasSizeY = (_splitedStrings.length + textUtils.BASELINE_RATIO) * this._getLineHeight();
@@ -406,11 +406,11 @@ export default class TTFAssembler extends Assembler2D {
             _splitedStrings = [];
             let canvasWidthNoMargin = _nodeContentSize.width;
             for (let i = 0; i < paragraphedStrings.length; ++i) {
-                let allWidth = textUtils.safeMeasureText(_context, paragraphedStrings[i]);
+                let allWidth = textUtils.safeMeasureText(_context, paragraphedStrings[i], _fontDesc);
                 let textFragment = textUtils.fragmentText(paragraphedStrings[i],
                                                         allWidth,
                                                         canvasWidthNoMargin,
-                                                        this._measureText(_context));
+                                                        this._measureText(_context, _fontDesc));
                 _splitedStrings = _splitedStrings.concat(textFragment);
             }
         }
@@ -447,16 +447,16 @@ export default class TTFAssembler extends Assembler2D {
         let paragraphLength = [];
 
         for (let i = 0; i < paragraphedStrings.length; ++i) {
-            let width = textUtils.safeMeasureText(ctx, paragraphedStrings[i]);
+            let width = textUtils.safeMeasureText(ctx, paragraphedStrings[i], _fontDesc);
             paragraphLength.push(width);
         }
 
         return paragraphLength;
     }
 
-    _measureText (ctx) {
+    _measureText (ctx, fontDesc) {
         return function (string) {
-            return textUtils.safeMeasureText(ctx, string);
+            return textUtils.safeMeasureText(ctx, string, fontDesc);
         };
     }
 
@@ -502,13 +502,13 @@ export default class TTFAssembler extends Assembler2D {
                     totalHeight = 0;
                     for (i = 0; i < paragraphedStrings.length; ++i) {
                         let j = 0;
-                        let allWidth = textUtils.safeMeasureText(_context, paragraphedStrings[i]);
+                        let allWidth = textUtils.safeMeasureText(_context, paragraphedStrings[i], _fontDesc);
                         textFragment = textUtils.fragmentText(paragraphedStrings[i],
                                                             allWidth,
                                                             canvasWidthNoMargin,
-                                                            this._measureText(_context));
+                                                            this._measureText(_context, _fontDesc));
                         while (j < textFragment.length) {
-                            maxLength = textUtils.safeMeasureText(_context, textFragment[j]);
+                            maxLength = textUtils.safeMeasureText(_context, textFragment[j], _fontDesc);
                             totalHeight += this._getLineHeight();
                             ++j;
                         }

@@ -155,8 +155,8 @@ var textUtils = {
         return ((ch >= 9 && ch <= 13) || ch === 32 || ch === 133 || ch === 160 || ch === 5760 || (ch >= 8192 && ch <= 8202) || ch === 8232 || ch === 8233 || ch === 8239 || ch === 8287 || ch === 12288);
     },
 
-    safeMeasureText: function (ctx, string) {
-        let font = ctx.font;
+    safeMeasureText: function (ctx, string, desc) {
+        let font = desc || ctx.font;
         let key = font + "\uD83C\uDFAE" + string;
         let cache = measureCache.get(key);
         if (cache !== null) {

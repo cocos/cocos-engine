@@ -123,7 +123,11 @@ var View = function () {
     _t._autoFullScreen = false;
     // The device's pixel ratio (for retina displays)
     _t._devicePixelRatio = 1;
-    _t._maxPixelRatio = 2;
+    if(CC_JSB) {
+        _t._maxPixelRatio = 4;
+    } else {
+        _t._maxPixelRatio = 2;
+    }
     // Retina disabled by default
     _t._retinaEnabled = false;
     // Custom callback for resize event
@@ -1055,8 +1059,12 @@ cc.ContainerStrategy = cc.Class({
         
         // Setup pixel ratio for retina display
         var devicePixelRatio = view._devicePixelRatio = 1;
-        if (view.isRetinaEnabled())
+        if(CC_JSB){
+            // view.isRetinaEnabled only work on web. 
+            devicePixelRatio = view._devicePixelRatio = window.devicePixelRatio;
+        }else if (view.isRetinaEnabled()) {
             devicePixelRatio = view._devicePixelRatio = Math.min(view._maxPixelRatio, window.devicePixelRatio || 1);
+        }
         // Setup canvas
         locCanvas.width = w * devicePixelRatio;
         locCanvas.height = h * devicePixelRatio;
