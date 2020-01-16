@@ -31,6 +31,7 @@ THE SOFTWARE.
 
 #include "base/CCRef.h"
 #include "base/CCValue.h"
+#include "platform/CCGL.h"
 
 /**
  * @addtogroup base
