@@ -1612,11 +1612,11 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                     case GFXLoadOp.CLEAR: {
                                         if (cmd0.clearFlag & GFXClearFlag.STENCIL) {
                                             if (!cache.dss.stencilWriteMaskFront) {
-                                                gl.stencilMaskSeparate(gl.FRONT, -1);
+                                                gl.stencilMaskSeparate(gl.FRONT, 0xffff);
                                             }
 
                                             if (!cache.dss.stencilWriteMaskBack) {
-                                                gl.stencilMaskSeparate(gl.BACK, -1);
+                                                gl.stencilMaskSeparate(gl.BACK, 0xffff);
                                             }
 
                                             gl.clearStencil(cmd0.clearStencil);
