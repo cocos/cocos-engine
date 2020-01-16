@@ -2743,3 +2743,7 @@ Program not support highp precision, will change to mediump.
 ### 9200
 
 cc.view.enableAntiAlias is deprecated now, please use cc.Texture2D.setFilters instead
+
+### 9201
+
+cc.Action is deprecated now, please use cc.TweenAction instead
