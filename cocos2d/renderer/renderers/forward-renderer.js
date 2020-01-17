@@ -36,7 +36,9 @@ export default class ForwardRenderer extends BaseRenderer {
 
     this._numLights = 0;
 
-    this._defines = {};
+    this._defines = {
+      CC_SUPPORT_FLOAT_TEXTURE: !!device.ext('OES_texture_float'),
+    };
 
     this._registerStage('shadowcast', this._shadowStage.bind(this));
     this._registerStage('opaque', this._opaqueStage.bind(this));
@@ -125,6 +127,7 @@ export default class ForwardRenderer extends BaseRenderer {
     for (let i = 0; i < this._lights.length; ++i) {
       let light = this._lights[i];
       defines[`CC_LIGHT_${i}_TYPE`] = light._type;
+      defines[`CC_SHADOW_${i}_TYPE`] = light._shadowType;
     }
 
     defines.CC_NUM_LIGHTS = Math.min(CC_MAX_LIGHTS, this._lights.length);
@@ -177,10 +180,13 @@ export default class ForwardRenderer extends BaseRenderer {
     this._device.setUniform('cc_shadow_map_lightViewProjMatrix', Mat4.toArray(_a16_viewProj, view._matViewProj));
     this._device.setUniform('cc_shadow_map_info', shadowInfo);
     this._device.setUniform('cc_shadow_map_bias', light.shadowBias);
+
+    this._defines.CC_SHADOW_TYPE = light._shadowType;
   }
 
   _submitOtherStagesUniforms() {
     let shadowInfo = _float16_pool.add();
+    let shadowInfo2 = _float16_pool.add()
     
     for (let i = 0; i < this._shadowLights.length; ++i) {
       let light = this._shadowLights[i];
@@ -190,15 +196,18 @@ export default class ForwardRenderer extends BaseRenderer {
       }
       Mat4.toArray(view, light.viewProjMatrix);
       
-      let infoIndex = i*4;
-      shadowInfo[infoIndex] = light.shadowMinDepth;
-      shadowInfo[infoIndex+1] = light.shadowMaxDepth;
-      shadowInfo[infoIndex+2] = light.shadowDepthScale;
-      shadowInfo[infoIndex+3] = light.shadowDarkness;
+      let index = i*4;
+      shadowInfo[index] = light.shadowMinDepth;
+      shadowInfo[index+1] = light.shadowMaxDepth;
+      shadowInfo[index+2] = light.shadowDepthScale;
+      shadowInfo[index+3] = light.shadowDarkness;
+
+      shadowInfo2[index] = light._shadowResolution;
     }
 
     this._device.setUniform(`cc_shadow_lightViewProjMatrix`, _a64_shadow_lightViewProj);
     this._device.setUniform(`cc_shadow_info`, shadowInfo);
+    this._device.setUniform(`cc_shadow_info2`, shadowInfo2);
     // this._device.setUniform(`cc_frustumEdgeFalloff_${index}`, light.frustumEdgeFalloff);
   }
 

@@ -454,10 +454,11 @@ export default class Light {
   }
 
   _generateShadowMap(device) {
+    let SUPPORT_FLOAT_TEXTURE = !!cc.sys.glExtension('OES_texture_float');
     this._shadowMap = new gfx.Texture2D(device, {
       width: this._shadowResolution,
       height: this._shadowResolution,
-      format: gfx.TEXTURE_FMT_RGBA8,
+      format: SUPPORT_FLOAT_TEXTURE ? gfx.TEXTURE_FMT_RGBA32F : gfx.TEXTURE_FMT_RGBA8,
       wrapS: gfx.WRAP_CLAMP,
       wrapT: gfx.WRAP_CLAMP,
     });

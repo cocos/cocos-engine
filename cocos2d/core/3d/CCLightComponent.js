@@ -100,15 +100,6 @@ const LightShadowType = Enum({
      * @type {Number}
      */
     NONE: 0,
-    // /**
-    //  * !#en Soft shadows
-    //  *
-    //  * !#zh 软阴影
-    //  * @property SOFT
-    //  * @readonly
-    //  * @type {Number}
-    //  */
-    // SOFT: 1,
     /**
      * !#en Hard shadows
      *
@@ -117,7 +108,44 @@ const LightShadowType = Enum({
      * @readonly
      * @type {Number}
      */
-    HARD: 2,
+    HARD: 1,
+    /**
+     * !#en Soft PCF 3x3 shadows
+     *
+     * !#zh PCF 3x3 软阴影
+     * @property SOFT_PCF3X3
+     * @readonly
+     * @type {Number}
+     */
+    SOFT_PCF3X3: 2,
+    /**
+     * !#en Soft PCF 5x5 shadows
+     *
+     * !#zh PCF 5x5 软阴影
+     * @property SOFT_PCF5X5
+     * @readonly
+     * @type {Number}
+     */
+    SOFT_PCF5X5: 3,
+    /**
+     * !#en Soft ESM shadows
+     *
+     * !#zh ESM 软阴影
+     * @property SOFT_ESM
+     * @readonly
+     * @type {Number}
+     */
+    SOFT_ESM: 4,
+
+    /**
+     * !#en Soft VSM shadows
+     *
+     * !#zh VSM 软阴影
+     * @property SOFT_VSM
+     * @readonly
+     * @type {Number}
+     */
+    SOFT_VSM: 5,
 });
 
 /**
@@ -295,14 +323,7 @@ export default class Light extends CCComponent {
 
     set shadowType(val) {
         this._shadowType = val;
-
-        let type = enums.SHADOW_NONE;
-        if (val === LightShadowType.HARD) {
-            type = enums.SHADOW_HARD;
-        } else if (val === LightShadowType.SOFT) {
-            type = enums.SHADOW_SOFT;
-        }
-        this._light.setShadowType(type);
+        this._light.setShadowType(val);
     }
 
     /**
