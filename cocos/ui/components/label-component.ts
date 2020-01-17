@@ -732,19 +732,7 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     protected _flushMaterial () {
-        const material = this._material;
-        // Setup blend function for premultiplied ttf label texture
-        // if (this._texture === this._ttfSpriteFrame) {
-        //     this._srcBlendFactor = macro.BlendFactor.ONE;
-        // } else {
-        //     this._srcBlendFactor = macro.BlendFactor.SRC_ALPHA;
-        // }
-
-        if (material) {
-            material.setProperty('mainTexture', this._texture);
-        }
-
-        this._updateMaterial(material);
+        this._updateMaterial(this._material);
     }
 
     protected _applyFontTexture (force: boolean) {

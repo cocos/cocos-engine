@@ -88,7 +88,6 @@ export enum UniformBinding {
     UBO_FORWARD_LIGHTS = MAX_BINDING_SUPPORTED - 4,
     UBO_SKINNING_ANIMATION = MAX_BINDING_SUPPORTED - 5,
     UBO_SKINNING_TEXTURE = MAX_BINDING_SUPPORTED - 6,
-    UBO_UI = MAX_BINDING_SUPPORTED - 7,
 
     // samplers
     SAMPLER_JOINTS = MAX_BINDING_SUPPORTED + 1,
@@ -96,7 +95,7 @@ export enum UniformBinding {
 
     // rooms left for custom bindings
     // effect importer prepares bindings according to this
-    CUSTUM_UBO_BINDING_END_POINT = MAX_BINDING_SUPPORTED - 7,
+    CUSTUM_UBO_BINDING_END_POINT = MAX_BINDING_SUPPORTED - 6,
     CUSTOM_SAMPLER_BINDING_START_POINT = MAX_BINDING_SUPPORTED + 6,
 }
 

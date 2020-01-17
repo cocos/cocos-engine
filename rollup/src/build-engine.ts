@@ -1,7 +1,6 @@
 import { existsSync } from 'fs';
 import fs from 'fs-extra';
 import { dirname, join, normalize, relative } from 'path';
-import { rollup, ModuleFormat } from 'rollup';
 // @ts-ignore
 import babel from 'rollup-plugin-babel';
 // @ts-ignore
@@ -21,6 +20,9 @@ import { terser } from 'rollup-plugin-terser';
 import babelPresetEnv from '@babel/preset-env';
 import babelPresetCc from '@cocos/babel-preset-cc';
 import { writeFile, ensureDir } from 'fs-extra';
+import * as rollup from 'rollup';
+// @ts-ignore
+import rpProgress from 'rollup-plugin-progress';
 
 interface IBaseOptions {
     moduleEntries: string[];
@@ -65,6 +67,8 @@ interface IBaseOptions {
     sourcemapFile?: string;
 
     watchFiles?: boolean;
+
+    progress?: boolean;
 }
 
 interface IAdvancedOptions extends IBaseOptions {
@@ -154,7 +158,7 @@ async function _internalBuild (options: IAdvancedOptions) {
     console.log(`Build-engine options: ${JSON.stringify(options, undefined, 2)}`);
     const doUglify = !!options.compress;
 
-    let format: ModuleFormat = 'iife';
+    let format: rollup.ModuleFormat = 'iife';
     switch (options.moduleFormat) {
         case ModuleOption.cjs:
             format = 'cjs';
@@ -167,7 +171,7 @@ async function _internalBuild (options: IAdvancedOptions) {
             break;
     }
 
-    const rollupPlugins = [
+    const rollupPlugins: rollup.Plugin[] = [
         multiEntry(),
 
         excludes({
@@ -208,37 +212,31 @@ async function _internalBuild (options: IAdvancedOptions) {
         }),
     ];
 
+    if (options.progress) {
+        rollupPlugins.unshift(rpProgress());
+    }
+
     /** adapt: reduce_funcs not suitable for ammo.js */
     const defines = options.globalDefines as IGlobaldefines;
     const isReduceFuncs = !defines.CC_PHYSICS_AMMO;
 
-    if (format === 'esm') {
-        rollupPlugins.push(terser({
-            compress: {
-                global_defs: options.globalDefines,
-                reduce_funcs: isReduceFuncs
-            },
-            mangle: doUglify,
-            keep_fnames: !doUglify,
-            output: {
-                beautify: !doUglify,
-            },
-            sourcemap: !!options.sourcemap,
-        }));
-    } else {
-        rollupPlugins.push(uglify({
-            compress: {
-                global_defs: options.globalDefines,
-                reduce_funcs: isReduceFuncs
-            },
-            mangle: doUglify,
-            keep_fnames: !doUglify,
-            output: {
-                beautify: !doUglify,
-            },
-            sourcemap: !!options.sourcemap,
-        }));
-    }
+    rollupPlugins.push(terser({
+        compress: {
+            global_defs: options.globalDefines,
+            reduce_funcs: isReduceFuncs
+        },
+        mangle: doUglify,
+        keep_fnames: !doUglify,
+        output: {
+            beautify: !doUglify,
+        },
+        sourcemap: !!options.sourcemap,
+
+        // https://github.com/rollup/rollup/issues/3315
+        // We only do this for CommonJS.
+        // Especially, we cannot do this for IIFE.
+        toplevel: format === 'cjs',
+    }));
 
     const outputPath = options.outputPath;
     const sourcemapFile = options.sourcemapFile || `${options.outputPath}.map`;
@@ -253,7 +251,7 @@ async function _internalBuild (options: IAdvancedOptions) {
         }
     });
 
-    const rollupBuild = await rollup({
+    const rollupBuild = await rollup.rollup({
         input: moduleEntries,
         plugins: rollupPlugins,
     });
@@ -354,10 +352,11 @@ export enum ModuleOption {
     esm,
     cjs,
     system,
+    iife,
 }
 
 export function enumerateModuleOptionReps () {
-    return Object.values(ModuleOption).filter((value) => typeof value === 'string');
+    return Object.values(ModuleOption).filter((value) => typeof value === 'string') as Array<keyof typeof ModuleOption>;
 }
 
 export function parseModuleOption (rep: string) {

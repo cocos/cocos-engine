@@ -53,8 +53,8 @@ export class StencilManager {
     private _stencilPattern = {
         stencilTest: true,
         func: GFXComparisonFunc.ALWAYS,
-        stencilMask: 0xffffffff,
-        writeMask: 0xffffffff,
+        stencilMask: -1,
+        writeMask: -1,
         failOp: GFXStencilOp.KEEP,
         zFailOp: GFXStencilOp.KEEP,
         passOp: GFXStencilOp.KEEP,
@@ -103,7 +103,7 @@ export class StencilManager {
             pattern.stencilTest = false;
             pattern.func = GFXComparisonFunc.ALWAYS;
             pattern.failOp = GFXStencilOp.KEEP;
-            pattern.stencilMask = pattern.writeMask = 0xffffffff;
+            pattern.stencilMask = pattern.writeMask = -1;
             pattern.ref = 1;
         } else {
             pattern.stencilTest = true;

@@ -59,78 +59,6 @@ const getTimeInMilliseconds = () => {
     return currentTime.getMilliseconds();
 };
 
-// /**
-//  * @zh
-//  * 滚动视图事件类型。
-//  */
-// enum ScrollViewEventType {
-//     /**
-//      * @zh
-//      * 滚动视图滚动到顶部边界事件。
-//      */
-//     SCROLL_TO_TOP = 0,
-//     /**
-//      * @zh
-//      * 滚动视图滚动到底部边界事件。
-//      */
-//     SCROLL_TO_BOTTOM = 1,
-//     /**
-//      * @zh
-//      * 滚动视图滚动到左边界事件。
-//      */
-//     SCROLL_TO_LEFT = 2,
-//     /**
-//      * @zh
-//      * 滚动视图滚动到右边界事件。
-//      */
-//     SCROLL_TO_RIGHT = 3,
-//     /**
-//      * @zh
-//      * 滚动视图正在滚动时发出的事件。
-//      */
-//     SCROLLING = 4,
-//     /**
-//      * @zh
-//      * 滚动视图滚动到顶部边界并且开始回弹时发出的事件。
-//      */
-//     BOUNCE_TOP = 5,
-//     /**
-//      * @zh
-//      * 滚动视图滚动到底部边界并且开始回弹时发出的事件。
-//      */
-//     BOUNCE_BOTTOM = 6,
-//     /**
-//      * @zh
-//      * 滚动视图滚动到左边界并且开始回弹时发出的事件。
-//      */
-//     BOUNCE_LEFT = 7,
-//     /**
-//      * @zh
-//      * 滚动视图滚动到右边界并且开始回弹时发出的事件。
-//      */
-//     BOUNCE_RIGHT = 8,
-//     /**
-//      * @zh
-//      * 滚动视图滚动结束的时候发出的事件。
-//      */
-//     SCROLL_ENDED = 9,
-//     /**
-//      * @zh
-//      * 当用户松手的时候会发出一个事件。
-//      */
-//     TOUCH_UP = 10,
-//     /**
-//      * @zh
-//      * 滚动视图自动滚动快要结束的时候发出的事件。
-//      */
-//     AUTOSCROLL_ENDED_WITH_THRESHOLD = 11,
-//     /**
-//      * @zh
-//      * 滚动视图滚动开始时发出的事件。
-//      */
-//     SCROLL_BEGAN = 12,
-// }
-
 const eventMap = {
     'scroll-to-top': 0,
     'scroll-to-bottom': 1,
@@ -432,7 +360,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * scrollView.scrollToBottom(0.1);
      * ```
      */
-    public scrollToBottom (timeInSecond: number, attenuated: boolean) {
+    public scrollToBottom (timeInSecond?: number, attenuated = true) {
         const moveDelta = this._calculateMovePercentDelta({
             anchor: new Vec2(0, 0),
             applyToHorizontal: false,
@@ -458,7 +386,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * scrollView.scrollToTop(0.1);
      * ```
      */
-    public scrollToTop (timeInSecond: number, attenuated: boolean) {
+    public scrollToTop (timeInSecond?: number, attenuated = true) {
         const moveDelta = this._calculateMovePercentDelta({
             anchor: new Vec2(0, 1),
             applyToHorizontal: false,
@@ -484,7 +412,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * scrollView.scrollToLeft(0.1);
      * ```
      */
-    public scrollToLeft (timeInSecond: number, attenuated: boolean) {
+    public scrollToLeft (timeInSecond?: number, attenuated = true) {
         const moveDelta = this._calculateMovePercentDelta({
             anchor: new Vec2(0, 0),
             applyToHorizontal: true,
@@ -510,7 +438,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * scrollView.scrollToRight(0.1);
      * ```
      */
-    public scrollToRight (timeInSecond: number, attenuated: boolean) {
+    public scrollToRight (timeInSecond?: number, attenuated = true) {
         const moveDelta = this._calculateMovePercentDelta({
             anchor: new Vec2(1, 0),
             applyToHorizontal: true,
@@ -536,7 +464,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * scrollView.scrollToTopLeft(0.1);
      * ```
      */
-    public scrollToTopLeft (timeInSecond, attenuated) {
+    public scrollToTopLeft (timeInSecond?: number, attenuated = true) {
         const moveDelta = this._calculateMovePercentDelta({
             anchor: new Vec2(0, 1),
             applyToHorizontal: true,
@@ -562,7 +490,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * scrollView.scrollToTopRight(0.1);
      * ```
      */
-    public scrollToTopRight (timeInSecond: number, attenuated: boolean) {
+    public scrollToTopRight (timeInSecond?: number, attenuated = true) {
         const moveDelta = this._calculateMovePercentDelta({
             anchor: new Vec2(1, 1),
             applyToHorizontal: true,
@@ -588,7 +516,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * scrollView.scrollToBottomLeft(0.1);
      * ```
      */
-    public scrollToBottomLeft (timeInSecond: number, attenuated: boolean) {
+    public scrollToBottomLeft (timeInSecond?: number, attenuated = true) {
         const moveDelta = this._calculateMovePercentDelta({
             anchor: new Vec2(0, 0),
             applyToHorizontal: true,
@@ -614,7 +542,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * scrollView.scrollToBottomRight(0.1);
      * ```
      */
-    public scrollToBottomRight (timeInSecond: number, attenuated: boolean) {
+    public scrollToBottomRight (timeInSecond?: number, attenuated = true) {
         const moveDelta = this._calculateMovePercentDelta({
             anchor: new Vec2(1, 0),
             applyToHorizontal: true,
@@ -642,7 +570,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * scrollView.scrollToOffset(new Vec3(maxScrollOffset.x / 2, 0, 0), 0.1);
      * ```
      */
-    public scrollToOffset (offset: Vec3, timeInSecond: number, attenuated: boolean) {
+    public scrollToOffset (offset: Vec3, timeInSecond?: number, attenuated = true) {
         const maxScrollOffset = this.getMaxScrollOffset();
 
         const anchor = new Vec2(0, 0);
@@ -682,8 +610,8 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * @return - 最大可滚动偏移量。
      */
     public getMaxScrollOffset () {
-        const scrollSize = this.node.getContentSize();
-        const contentSize = this._content!.getContentSize();
+        const scrollSize = this.node._uiProps.uiTransformComp!.contentSize;
+        const contentSize = this._content!._uiProps.uiTransformComp!.contentSize;
         let horizontalMaximizeOffset = contentSize.width - scrollSize.width;
         let verticalMaximizeOffset = contentSize.height - scrollSize.height;
         horizontalMaximizeOffset = horizontalMaximizeOffset >= 0 ? horizontalMaximizeOffset : 0;
@@ -735,7 +663,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * scrollView.scrollTo(new Vec2(1, 0), 0.1);
      * ```
      */
-    public scrollTo (anchor: Vec2, timeInSecond: number, attenuated?: boolean) {
+    public scrollTo (anchor: Vec2, timeInSecond?: number, attenuated?: boolean) {
         const moveDelta = this._calculateMovePercentDelta({
             anchor: new Vec2(anchor),
             applyToHorizontal: true,
@@ -761,7 +689,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * scrollView.scrollToPercentVertical(0.5, 0.1);
      * ```
      */
-    public scrollToPercentVertical (percent: number, timeInSecond: number, attenuated?: boolean) {
+    public scrollToPercentVertical (percent: number, timeInSecond?: number, attenuated?: boolean) {
         const moveDelta = this._calculateMovePercentDelta({
             anchor: new Vec2(0, percent),
             applyToHorizontal: false,
@@ -1011,7 +939,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
             if (layout && layout.enabledInHierarchy) {
                 layout.updateLayout();
             }
-            const viewSize = this.view!.getContentSize();
+            const viewSize = this.view!._uiProps.uiTransformComp!.contentSize;
 
             const anchorX = viewSize.width * this.view!.anchorX;
             const anchorY = viewSize.height * this.view!.anchorY;
@@ -1086,8 +1014,8 @@ export class ScrollViewComponent extends ViewGroupComponent {
 
         const targetDelta = new Vec3(deltaMove);
         targetDelta.normalize();
-        const contentSize = this._content!.getContentSize();
-        const scrollViewSize = this.node.getContentSize();
+        const contentSize = this._content!._uiProps.uiTransformComp!.contentSize;
+        const scrollViewSize = this.node._uiProps.uiTransformComp!.contentSize;
 
         const totalMoveWidth = (contentSize.width - scrollViewSize.width);
         const totalMoveHeight = (contentSize.height - scrollViewSize.height);
@@ -1415,8 +1343,8 @@ export class ScrollViewComponent extends ViewGroupComponent {
     }
 
     protected _clampDelta (delta: Vec3) {
-        const contentSize = this._content!.getContentSize();
-        const scrollViewSize = this.node.getContentSize();
+        const contentSize = this._content!._uiProps.uiTransformComp!.contentSize;
+        const scrollViewSize = this.node._uiProps.uiTransformComp!.contentSize;
         if (contentSize.width < scrollViewSize.width) {
             delta.x = 0;
         }
@@ -1591,8 +1519,8 @@ export class ScrollViewComponent extends ViewGroupComponent {
 
         anchor.clampf(new Vec2(0, 0), new Vec2(1, 1));
 
-        const scrollSize = this.node.getContentSize();
-        const contentSize = this._content!.getContentSize();
+        const scrollSize = this.node._uiProps.uiTransformComp!.contentSize;
+        const contentSize = this._content!._uiProps.uiTransformComp!.contentSize;
         let bottomDelta = this._getContentBottomBoundary() - this._bottomBoundary;
         bottomDelta = -bottomDelta;
 
@@ -1615,7 +1543,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
     }
 
     protected _moveContentToTopLeft (scrollViewSize: Size) {
-        const contentSize = this._content!.getContentSize();
+        const contentSize = this._content!._uiProps.uiTransformComp!.contentSize;
 
         let bottomDelta = this._getContentBottomBoundary() - this._bottomBoundary;
         bottomDelta = -bottomDelta;

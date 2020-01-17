@@ -238,8 +238,10 @@ class InputManager {
         }
 
         const docElem = document.documentElement;
-        const leftOffset = window.pageXOffset - docElem.clientLeft;
-        const topOffset = window.pageYOffset - docElem.clientTop;
+        let leftOffset = sys.os === sys.OS_IOS && sys.isBrowser ? window.screenLeft : window.pageXOffset;
+        leftOffset -= docElem.clientLeft;
+        let topOffset = sys.os === sys.OS_IOS && sys.isBrowser ? window.screenTop : window.pageYOffset;
+        topOffset -= docElem.clientTop;
         if (element.getBoundingClientRect) {
             const box = element.getBoundingClientRect();
             return {
@@ -819,7 +821,7 @@ class InputManager {
 
 const inputManager = new InputManager();
 
-game.on(Game.EVENT_ENGINE_INITED, () => {
+game.once(Game.EVENT_ENGINE_INITED, () => {
     // register system events
     if (!CC_EDITOR && game.config.registerSystemEvent) {
         inputManager.registerSystemEvent(game.canvas);

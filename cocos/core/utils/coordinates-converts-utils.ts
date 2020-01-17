@@ -7,6 +7,8 @@ import { Vec3 } from '../math';
 import { Node } from '../scene-graph';
 import { replaceProperty } from './deprecated';
 
+const _vec3 = new Vec3();
+
 /**
  * @en
  * Conversion of non-UI nodes to UI Node (Local) Space coordinate system.
@@ -24,7 +26,8 @@ export function WorldNode3DToLocalNodeUI (mainCamera: CameraComponent, wpos: Vec
     }
 
     mainCamera.convertToUINode(wpos, uiNode, out);
-
+    const pos = uiNode.position;
+    out.add(pos);
     return out;
 }
 
@@ -60,12 +63,17 @@ const convertUtils = {
 export { convertUtils };
 cc.pipelineUtils = convertUtils;
 
-replaceProperty(cc, 'cc', [
+replaceProperty(cc.pipelineUtils, 'cc.pipelineUtils', [
     {
-        name: 'pipelineUtils',
-        newName: 'CameraComponent.convertToUINode',
-        customGetter: () => {
-            return CameraComponent;
+        'name': 'WorldNode3DToLocalNodeUI',
+        'newName': 'convertToUINode',
+        'targetName': 'cc.CameraComponent.prototype',
+        'customFunction': function (...args: any[]) {
+            const camera = args[0] as CameraComponent;
+            const out = args[3] || _vec3;
+            camera.convertToUINode(args[1], args[2], out);
+            out.add(args[2].position);
+            return args[3] || out.clone();
         },
     },
 ]);

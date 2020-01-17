@@ -52,7 +52,7 @@ interface IJointsInfo {
 
 export class SkinningModel extends Model {
 
-    public uploadedAnim: AnimationClip | null = null;
+    public uploadedAnim: AnimationClip | null | undefined = undefined; // uninitialized
 
     private _jointsMedium: IJointsInfo;
     private _skeleton: Skeleton | null = null;
@@ -75,6 +75,7 @@ export class SkinningModel extends Model {
         if (this._jointsMedium.buffer) {
             this._jointsMedium.buffer.destroy();
             this._jointsMedium.buffer = null;
+            this.uploadedAnim = undefined; // uninitialized
         }
     }
 
@@ -120,7 +121,7 @@ export class SkinningModel extends Model {
     }
 
     public uploadAnimation (anim: AnimationClip | null) {
-        if (!this._skeleton || !this._mesh) { return; }
+        if (!this._skeleton || !this._mesh || this.uploadedAnim === anim) { return; }
         this.uploadedAnim = anim;
         const resMgr = this._dataPoolManager;
         const texture = anim ? resMgr.jointsTexturePool.getJointsTextureWithAnimation(this._skeleton, anim) :
@@ -128,7 +129,7 @@ export class SkinningModel extends Model {
         resMgr.jointsAnimationInfo.switchClip(this._jointsMedium.animInfo!, anim);
         this._applyJointsTexture(texture);
         this._jointsMedium.boundsInfo = anim ? resMgr.animatedBoundsInfo.get(this._mesh, this._skeleton, anim) : null;
-        this._modelBounds = anim ? this._staticModelBounds : null; // don't calc bounds again in Model
+        this._modelBounds = anim ? null : this._staticModelBounds; // don't calc bounds again in Model
     }
 
     protected _applyJointsTexture (texture: IJointsTextureHandle | null) {

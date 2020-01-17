@@ -28,6 +28,7 @@
  */
 
 import { RenderTexture } from '../../assets/render-texture';
+import { UITransformComponent } from '../../components';
 import { Component } from '../../components/component';
 import { ccclass, executeInEditMode, menu, property } from '../../data/class-decorator';
 import { ray } from '../../geom-utils';
@@ -38,9 +39,9 @@ import { CameraDefaultMask } from '../../pipeline/define';
 import { Camera } from '../../renderer';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Root } from '../../root';
-import { Layers, Scene, Node } from '../../scene-graph';
+import { Layers, Node, Scene } from '../../scene-graph';
 import { Enum } from '../../value-types';
-import { UITransformComponent } from '../../components';
+import { view } from '../../platform';
 
 const _temp_vec3_1 = new Vec3();
 
@@ -431,21 +432,36 @@ export class CameraComponent extends Component {
         return out;
     }
 
-    public convertToUINode(wpos: Vec3, uiNode: Node, out?: Vec3){
+    /**
+     * @zh 3D 节点转 UI 本地节点坐标。
+     * 注意：千万不要设置负责做转换的 uiNode 和最终设置位置的 uiNode 是同一个 node，否则可能出现跳动现象。
+     * @param wpos 3D 节点事件坐标
+     * @param uiNode UI 节点
+     * @param out 返回在当前传入的 UI 节点下的偏移量
+     *
+     * @example
+     * ```typescript
+     * this.convertToUINode(target.worldPosition, uiNode.parent, out);
+     * uiNode.position = out;
+     * ```
+     */
+    public convertToUINode (wpos: Vec3, uiNode: Node, out?: Vec3){
         if (!out) {
             out = new Vec3();
         }
+        if (!this._camera) { return out; }
 
         this.worldToScreen(wpos, _temp_vec3_1);
-        _temp_vec3_1.x = _temp_vec3_1.x / cc.view.getScaleX();
-        _temp_vec3_1.y = _temp_vec3_1.y / cc.view.getScaleY();
         const cmp = uiNode.getComponent('cc.UITransformComponent') as UITransformComponent;
+        const designSize = view.getVisibleSize();
+        const xoffset = _temp_vec3_1.x - this._camera!.width * 0.5;
+        const yoffset = _temp_vec3_1.y - this._camera!.height * 0.5;
+        _temp_vec3_1.x = xoffset / cc.view.getScaleX() + designSize.width * 0.5;
+        _temp_vec3_1.y = yoffset / cc.view.getScaleY() + designSize.height * 0.5;
 
-        if (!cmp) {
-            return out;
+        if (cmp) {
+            cmp.convertToNodeSpaceAR(_temp_vec3_1, out);
         }
-
-        cmp.convertToNodeSpaceAR(_temp_vec3_1, out);
 
         return out;
     }

@@ -29,27 +29,28 @@
 
 import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
 import { Mat4 } from '../math';
-import { AnimationClip, IObjectCurveData } from './animation-clip';
-import { AnimCurve } from './animation-curve';
-import { AnimationState, ICurveInstance } from './animation-state';
+import { IAnimInfo, JointsAnimationInfo } from '../renderer/models/skeletal-animation-utils';
+import { Node } from '../scene-graph';
+import { AnimationClip } from './animation-clip';
+import { AnimationState } from './animation-state';
 import { Socket } from './skeletal-animation-component';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
-import { ComponentPath, TargetPath, HierarchyPath } from './target-path';
-import { getPathFromRoot, getWorldTransformUntilRoot } from './transform-utils';
-import { Node } from '../scene-graph';
+import { getWorldTransformUntilRoot } from './transform-utils';
 
 const m4_1 = new Mat4();
+const _defaultCurves = []; // no curves
 
-function isFrameIDCurve (modifiers: TargetPath[]) {
-    return modifiers.length === 3 &&
-        modifiers[0] instanceof HierarchyPath &&
-        modifiers[1] instanceof ComponentPath &&
-        modifiers[2] === 'frameID';
+interface ISocketData {
+    target: Node;
+    frames: Mat4[];
 }
 
 export class SkeletalAnimationState extends AnimationState {
 
     protected _preSample = true;
+    protected _frames = 1;
+    protected _animInfo: IAnimInfo | null = null;
+    protected _sockets: ISocketData[] = [];
 
     constructor (clip: AnimationClip, name = '', preSample = true) {
         super(clip, name);
@@ -57,10 +58,13 @@ export class SkeletalAnimationState extends AnimationState {
     }
 
     public initialize (root: Node) {
+        if (this._curveLoaded) { return; }
         if (this._preSample) {
             const info = SkelAnimDataHub.getOrExtract(this.clip).info;
-            super.initialize(root, info.curves);
-            this.duration = (info.frames - 1) / info.sample; // last key
+            super.initialize(root, _defaultCurves);
+            this._frames = info.frames - 1;
+            this._animInfo = (cc.director.root.dataPoolManager.jointsAnimationInfo as JointsAnimationInfo).create(root.uuid);
+            this.duration = this._frames / info.sample; // last key
         } else {
             super.initialize(root);
         }
@@ -78,22 +82,21 @@ export class SkeletalAnimationState extends AnimationState {
     }
 
     public rebuildSocketCurves (sockets: Socket[]) {
-        // TODO: curve reuse perhaps?
-        // delete previous sockets
-        if (!this._samplerSharedGroups.length) { return; }
-        const curves = this._samplerSharedGroups[0].curves;
-        for (let iCurve = 0; iCurve < curves.length; iCurve++) {
-            const curveDetail = curves[iCurve].curveDetail;
-            if (isFrameIDCurve(curveDetail.modifiers)) {
-                continue;
-            } else {
-                curves.splice(iCurve--, 1);
-            }
+        this._sockets.length = 0;
+        for (let i = 0; i < sockets.length; ++i) {
+            const socket = this._buildSocketData(sockets[i]);
+            if (socket) { this._sockets.push(socket); }
         }
-        // build new ones
-        for (let iSocket = 0; iSocket < sockets.length; ++iSocket) {
-            const curve = this._buildSocketData(sockets[iSocket]);
-            if (curve) { curves.push(curve); }
+    }
+
+    protected _sampleCurves (ratio: number) {
+        const info = this._animInfo!;
+        const curFrame = (ratio * this._frames + 0.5) | 0;
+        info.data[1] = curFrame;
+        info.dirty = true;
+        for (let i = 0; i < this._sockets.length; ++i) {
+            const { target, frames } = this._sockets[i];
+            target.matrix = frames[curFrame]; // ratio guaranteed to be in [0, 1]
         }
     }
 
@@ -116,34 +119,17 @@ export class SkeletalAnimationState extends AnimationState {
             if (idx < 0) { return null; }
         }
         // create animation data
-        const data: IObjectCurveData = {
-            matrix: { keys: 0, interpolate: false, values: source.worldMatrix.values.map((v) => v.clone()) },
+        const socketData: ISocketData = {
+            target: socket.target,
+            frames: source.worldMatrix.values.map((v) => v.clone()) as Mat4[],
         };
-        const matrix = data.matrix.values;
         // apply downstream default pose
         getWorldTransformUntilRoot(targetNode, animNode, m4_1);
-        for (let i = 0; i < matrix.length; i++) {
-            const m = matrix[i];
+        for (let i = 0; i < socketData.frames.length; i++) {
+            const m = socketData.frames[i];
             Mat4.multiply(m, m, m4_1);
         }
-        if (CC_EDITOR) { // assign back to clip to sync with animation editor
-            const path = getPathFromRoot(socket.target, root);
-            const curves = this.clip.curves;
-            const dstcurve = curves.find((curve) => {
-                const modifier = curve.modifiers[0];
-                return modifier instanceof HierarchyPath && modifier.path === path && curve.modifiers[1] === 'matrix';
-            });
-            if (dstcurve) { dstcurve.data = data.matrix; }
-            else { curves.push({ modifiers: [ new HierarchyPath(path), 'matrix' ], data: data.matrix }); }
-            this.clip.curves = curves;
-        }
-        // wrap up
-        const duration = this.clip.duration;
-        const hierarchyPath = new HierarchyPath();
-        return new ICurveInstance({
-            curve: new AnimCurve(data.matrix, duration),
-            modifiers: [ hierarchyPath, 'matrix' ],
-        }, socket.target);
+        return socketData;
     }
 }
 

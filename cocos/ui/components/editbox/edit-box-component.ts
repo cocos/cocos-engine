@@ -55,6 +55,13 @@ function capitalize (str: string) {
 function capitalizeFirstLetter (str: string) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+enum EventType {
+    EDITING_DID_BEGAN = 'editing-did-began',
+    EDITING_DID_ENDED = 'editing-did-ended',
+    TEXT_CHANGED = 'text-changed',
+    EDITING_RETURN = 'editing-return',
+}
 /**
  * @en
  * cc.EditBoxComponent is a component for inputing text, you can use it to gather small amounts of text from users.
@@ -429,6 +436,7 @@ export class EditBoxComponent extends Component {
     public static KeyboardReturnType = KeyboardReturnType;
     public static InputFlag = InputFlag;
     public static InputMode = InputMode;
+    public static EventType = EventType;
     /**
      * @en
      * The event handler to be called when EditBox began to edit text.
@@ -585,24 +593,24 @@ export class EditBoxComponent extends Component {
 
     public _editBoxEditingDidBegan () {
         ComponentEventHandler.emitEvents(this.editingDidBegan, this);
-        this.node.emit('editing-did-began', this);
+        this.node.emit(EventType.EDITING_DID_BEGAN, this);
     }
 
     public _editBoxEditingDidEnded () {
         ComponentEventHandler.emitEvents(this.editingDidEnded, this);
-        this.node.emit('editing-did-ended', this);
+        this.node.emit(EventType.EDITING_DID_ENDED, this);
     }
 
     public _editBoxTextChanged (text: string) {
         text = this._updateLabelStringStyle(text, true);
         this.string = text;
         ComponentEventHandler.emitEvents(this.textChanged, text, this);
-        this.node.emit('text-changed', this);
+        this.node.emit(EventType.TEXT_CHANGED, this);
     }
 
     public _editBoxEditingReturn () {
         ComponentEventHandler.emitEvents(this.editingReturn, this);
-        this.node.emit('editing-return', this);
+        this.node.emit(EventType.EDITING_RETURN, this);
     }
 
     public _showLabels () {

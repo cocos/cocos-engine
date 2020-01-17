@@ -326,10 +326,10 @@ const ab_1 = new aabb();
 
 export class AnimatedBoundsInfo {
     private _perJointBoundsPool = new Map<number, Map<number, Array<aabb | null>>>(); // per Mesh per Skeleton
-    private _fullClipBoundsPool = new Map<number, Map<number, aabb[]>>(); // per Skeleton per AnimationClip
+    private _fullClipBoundsPool = new Map<number, Map<number, Map<number, aabb[]>>>(); // per Mesh per Skeleton per AnimationClip
 
     public get (mesh: Mesh, skeleton: Skeleton, clip: AnimationClip) {
-        const list: aabb[] = this._getFullClipBounds(skeleton, clip) || [];
+        const list: aabb[] = this._getFullClipBounds(mesh, skeleton, clip) || [];
         if (list.length) { return list; }
         let perJointBounds = this._getPerJointBounds(mesh, skeleton);
         if (!perJointBounds) {
@@ -361,7 +361,7 @@ export class AnimatedBoundsInfo {
             const { center, halfExtents } = list[fid];
             aabb.fromPoints(list[fid], center, halfExtents);
         }
-        this._setFullClipBounds(skeleton, clip, list);
+        this._setFullClipBounds(mesh, skeleton, clip, list);
         return list;
     }
 
@@ -408,23 +408,34 @@ export class AnimatedBoundsInfo {
 
     public releaseMesh (mesh: Mesh) {
         this._perJointBoundsPool.delete(mesh.hash);
+        this._fullClipBoundsPool.delete(mesh.hash);
     }
 
     public releaseSkeleton (skeleton: Skeleton) {
-        const it = this._perJointBoundsPool.values();
-        let res = it.next();
-        while (!res.done) {
-            res.value.delete(skeleton.hash);
-            res = it.next();
+        const it1 = this._perJointBoundsPool.values();
+        let res1 = it1.next();
+        while (!res1.done) {
+            res1.value.delete(skeleton.hash);
+            res1 = it1.next();
         }
-        this._fullClipBoundsPool.delete(skeleton.hash);
+        const it2 = this._fullClipBoundsPool.values();
+        let res2 = it2.next();
+        while (!res2.done) {
+            res2.value.delete(skeleton.hash);
+            res2 = it2.next();
+        }
     }
 
     public releaseAnimationClip (clip: AnimationClip) {
         const it = this._fullClipBoundsPool.values();
         let res = it.next();
         while (!res.done) {
-            res.value.delete(clip.hash);
+            const it2 = res.value.values();
+            let res2 = it2.next();
+            while (!res2.done) {
+                res2.value.delete(clip.hash);
+                res2 = it2.next();
+            }
             res = it.next();
         }
     }
@@ -434,20 +445,23 @@ export class AnimatedBoundsInfo {
         return m && m.get(skeleton.hash);
     }
 
-    private _getFullClipBounds (skeleton: Skeleton, clip: AnimationClip) {
-        const m = this._fullClipBoundsPool.get(skeleton.hash);
-        return m && m.get(clip.hash);
+    private _getFullClipBounds (mesh: Mesh, skeleton: Skeleton, clip: AnimationClip) {
+        const m = this._fullClipBoundsPool.get(mesh.hash);
+        const s = m && m.get(skeleton.hash);
+        return s && s.get(clip.hash);
     }
 
     private _setPerJointBounds (mesh: Mesh, skeleton: Skeleton, bounds: Array<aabb | null>) {
         let m = this._perJointBoundsPool.get(mesh.hash);
-        if (!m) { m = new Map<number, Array<aabb | null>>(); }
+        if (!m) { m = new Map<number, Array<aabb | null>>(); this._perJointBoundsPool.set(mesh.hash, m); }
         m.set(skeleton.hash, bounds);
     }
 
-    private _setFullClipBounds (skeleton: Skeleton, clip: AnimationClip, bounds: aabb[]) {
-        let m = this._fullClipBoundsPool.get(skeleton.hash);
-        if (!m) { m = new Map<number, aabb[]>(); }
-        m.set(clip.hash, bounds);
+    private _setFullClipBounds (mesh: Mesh, skeleton: Skeleton, clip: AnimationClip, bounds: aabb[]) {
+        let m = this._fullClipBoundsPool.get(mesh.hash);
+        if (!m) { m = new Map<number, Map<number, aabb[]>>(); this._fullClipBoundsPool.set(mesh.hash, m); }
+        let s = m.get(skeleton.hash);
+        if (!s) { s = new Map<number, aabb[]>(); m.set(skeleton.hash, s); }
+        s.set(clip.hash, bounds);
     }
 }

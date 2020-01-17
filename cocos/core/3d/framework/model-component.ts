@@ -177,7 +177,7 @@ export class ModelComponent extends RenderableComponent {
     }
 
     protected _attachToScene () {
-        if (!this.node.scene && !this._model) {
+        if (!this.node.scene || !this._model) {
             return;
         }
         const scene = this._getRenderScene();

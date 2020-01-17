@@ -197,12 +197,14 @@ export class AmmoSharedBody {
             if (index < 0) {
                 this.ghostStruct.wrappedShapes.push(v);
                 v.setCompound(this.ghostCompoundShape);
+                this.ghostEnabled = true;
             }
         } else {
             const index = this.bodyStruct.wrappedShapes.indexOf(v);
             if (index < 0) {
                 this.bodyStruct.wrappedShapes.push(v);
                 v.setCompound(this.bodyCompoundShape);
+                this.bodyEnabled = true;
             }
         }
     }
@@ -213,12 +215,14 @@ export class AmmoSharedBody {
             if (index >= 0) {
                 this.ghostStruct.wrappedShapes.splice(index, 1);
                 v.setCompound(null);
+                this.ghostEnabled = false;
             }
         } else {
             const index = this.bodyStruct.wrappedShapes.indexOf(v);
             if (index >= 0) {
                 this.bodyStruct.wrappedShapes.splice(index, 1);
                 v.setCompound(null);
+                this.bodyEnabled = false;
             }
         }
     }

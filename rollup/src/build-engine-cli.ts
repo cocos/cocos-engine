@@ -23,6 +23,10 @@ yargs.option('flags', {
     alias: 'f',
     description: 'Engine flags.',
 });
+yargs.option('module', {
+    choices: enumerateModuleOptionReps(),
+    description: 'Output module format. If not specified, IIFE will be used.',
+});
 yargs.option('destination', {
     type: 'string',
     alias: 'd',
@@ -44,6 +48,11 @@ yargs.options('sourcemap', {
 yargs.option('compress', {
     type: 'boolean',
     description: 'Whether to compress compiled engine.',
+});
+yargs.option('progress', {
+    type: 'boolean',
+    default: false,
+    description: 'Whether to show build progress.',
 });
 yargs.option('watch-files', {
     type: 'string',
@@ -74,8 +83,9 @@ const options: IBuildOptions = {
     sourcemap: sourceMap,
     flags,
     watchFiles: !!watchFiles,
+    progress: yargs.argv.progress as (boolean | undefined),
 };
-if (yargs.argv['module']) {
+if (yargs.argv.module) {
     options.moduleFormat = parseModuleOption(yargs.argv['module'] as unknown as string);
 }
 if (yargs.argv.buildmode) {
