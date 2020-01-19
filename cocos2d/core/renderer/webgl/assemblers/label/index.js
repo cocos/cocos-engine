@@ -29,6 +29,7 @@ import Label from '../../../../components/CCLabel';
 import TTF from './2d/ttf';
 import Bmfont from './2d/bmfont';
 import Letter from './2d/letter';
+import NativeTTF from './2d/nativeTTF.js';
 
 import TTF3D from './3d/ttf';
 import Bmfont3D from './3d/bmfont';
@@ -66,7 +67,10 @@ Assembler.register(cc.Label, {
         if (label.font instanceof cc.BitmapFont) {
             ctor = is3DNode ? Bmfont3D : Bmfont;
         } else if (label.cacheMode === Label.CacheMode.CHAR) {
-            if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+
+            if(CC_JSB && !is3DNode && label.font instanceof cc.TTFFont){
+                ctor = NativeTTF;
+            } else if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
                 cc.warn('sorry, subdomain does not support CHAR mode currently!');
             } else {
                 ctor = is3DNode ? Letter3D : Letter;
@@ -79,6 +83,7 @@ Assembler.register(cc.Label, {
     TTF,
     Bmfont,
     Letter,
+    NativeTTF,
 
     TTF3D,
     Bmfont3D,
