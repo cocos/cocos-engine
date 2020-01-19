@@ -68,12 +68,12 @@ export default class TiledAssembler extends Assembler2D {
         let rect = frame._rect;
         let leftWidth = frame.insetLeft, rightWidth = frame.insetRight, centerWidth = rect.width - leftWidth - rightWidth,
             topHeight = frame.insetTop, bottomHeight = frame.insetBottom, centerHeight = rect.height - topHeight - bottomHeight;
-        this.sizableWidth = contentWidth - leftWidth - rightWidth;
-        this.sizableHeight = contentHeight - topHeight - bottomHeight;
+        this.sizableWidth = Math.floor((contentWidth - leftWidth - rightWidth) * 1000) / 1000;
+        this.sizableHeight = Math.floor((contentHeight - topHeight - bottomHeight) * 1000) / 1000;
         this.sizableWidth = this.sizableWidth > 0 ? this.sizableWidth : 0;
         this.sizableHeight = this.sizableHeight > 0 ? this.sizableHeight : 0;
-        let hRepeat = this.hRepeat = this.sizableWidth / centerWidth;
-        let vRepeat = this.vRepeat = this.sizableHeight / centerHeight;
+        let hRepeat = this.hRepeat = centerWidth === 0 ? this.sizableWidth : this.sizableWidth / centerWidth;
+        let vRepeat = this.vRepeat = centerHeight === 0 ? this.sizableHeight : this.sizableHeight / centerHeight;
         let row = this.row = Math.ceil(vRepeat + 2);
         let col = this.col = Math.ceil(hRepeat + 2);
 
@@ -106,15 +106,23 @@ export default class TiledAssembler extends Assembler2D {
         let { row, col, contentWidth, contentHeight } = this;
         let { x, y } = this._local;
         x.length = y.length = 0;
-
         let leftWidth = frame.insetLeft, rightWidth = frame.insetRight, centerWidth = rect.width - leftWidth - rightWidth,
             topHeight = frame.insetTop, bottomHeight = frame.insetBottom, centerHeight = rect.height - topHeight - bottomHeight;
         let xScale = node.width / (leftWidth + rightWidth) > 1 ? 1 : node.width / (leftWidth + rightWidth);
         let yScale = node.height / (topHeight + bottomHeight) > 1 ? 1 : node.height / (topHeight + bottomHeight);
-        let offsetWidth = this.sizableWidth > 0 
-        && this.sizableWidth % centerWidth === 0 ? centerWidth : this.sizableWidth % centerWidth;
-        let offsetHeight = this.sizableHeight > 0 
-        && this.sizableHeight % centerHeight === 0 ? centerHeight : this.sizableHeight % centerHeight;
+        let offsetWidth = 0, offsetHeight = 0;
+        if (centerWidth > 0) {
+            offsetWidth = this.sizableWidth % centerWidth === 0 ? centerWidth : this.sizableWidth % centerWidth;
+        }
+        else {
+            offsetWidth = this.sizableWidth;
+        }
+        if (centerHeight > 0) {
+            offsetHeight = this.sizableHeight % centerHeight === 0 ? centerHeight : this.sizableHeight % centerHeight;
+        }
+        else {
+            offsetHeight = this.sizableHeight;
+        }
 
         for (let i = 0; i <= col; i++) {
             if (i === 0) {
@@ -125,20 +133,25 @@ export default class TiledAssembler extends Assembler2D {
                     x[i] = leftWidth * xScale + Math.min(centerWidth, this.sizableWidth) - appx;
                 }
                 else {
-                    if (i === (col - 1)) {
-                        x[i] = leftWidth + offsetWidth + (i - 2) * centerWidth - appx;
+                    if (centerWidth > 0) {
+                        if (i === (col - 1)) {
+                            x[i] = leftWidth + offsetWidth + centerWidth * (i - 2) - appx;
+                        }
+                        else {
+                            x[i] = leftWidth + Math.min(centerWidth, this.sizableWidth) + centerWidth * (i - 2) - appx;
+                        }
                     }
                     else {
-                        x[i] = leftWidth + Math.min(centerWidth, this.sizableWidth) + (i - 2) * centerWidth - appx
+                        x[i] = leftWidth + this.sizableWidth - appx;
                     }
                 }
             }
             else if (i === col) {
-                x[i] = Math.min(leftWidth + centerWidth * (i - 2) + rightWidth, contentWidth) - appx;
+                x[i] = Math.min(leftWidth + this.sizableWidth + rightWidth, contentWidth) - appx;
             }
         }
         for (let i = 0; i <= row; i++) {
-            if (i == 0) {
+            if (i === 0) {
                 y[i] = - appy;
             }
             else if (i > 0 && i < row) {
@@ -146,16 +159,21 @@ export default class TiledAssembler extends Assembler2D {
                     y[i] = bottomHeight * yScale + Math.min(centerHeight, this.sizableHeight) - appy;
                 }
                 else {
-                    if (i === (row - 1)) {
-                        y[i] = bottomHeight + offsetHeight + (i - 2) * centerHeight - appy;
+                    if (centerHeight > 0) {
+                        if (i === (row - 1)) {
+                            y[i] = bottomHeight + offsetHeight + (i - 2) * centerHeight - appy;
+                        }
+                        else {
+                            y[i] = bottomHeight + Math.min(centerHeight, this.sizableHeight) + (i - 2) * centerHeight - appy;
+                        }
                     }
                     else {
-                        y[i] = bottomHeight + Math.min(centerHeight, this.sizableHeight) + (i - 2) * centerHeight - appy;
+                        y[i] = bottomHeight + this.sizableHeight - appy;
                     }
                 }
             }
             else if (i === row) {
-                y[i] = Math.min(bottomHeight + centerHeight * (i - 2) + topHeight, contentHeight) - appy;
+                y[i] = Math.min(bottomHeight + this.sizableHeight + topHeight, contentHeight) - appy;
             }
         }
 
@@ -290,7 +308,7 @@ export default class TiledAssembler extends Assembler2D {
                     else if (xindex > 0 && xindex < (col - 1)) {
                         verts[uvOffset] = uvSliced[1].u + (uvSliced[2].u - uvSliced[1].u) * coefu;
                     }
-                    else if (xindex ===(col - 1)){
+                    else if (xindex === (col - 1)){
                         verts[uvOffset] = uvSliced[3].u;
                     }
                     if (yindex === 0) {
