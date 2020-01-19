@@ -38,6 +38,8 @@ THE SOFTWARE.
 #define JNI_METHOD2(CLASS2,FUNC2) Java_##CLASS2##_##FUNC2
 #define JNI_METHOD1(CLASS1,FUNC1) JNI_METHOD2(CLASS1,FUNC1)
 
+struct android_app;
+
 NS_CC_BEGIN
 
 typedef struct JniMethodInfo_
@@ -50,12 +52,11 @@ typedef struct JniMethodInfo_
 class CC_DLL JniHelper
 {
 public:
-    static void setJavaVM(JavaVM *javaVM);
     static JavaVM* getJavaVM();
     static JNIEnv* getEnv();
     static jobject getActivity();
+    static void setAndroidApp(android_app* app);
 
-    static bool setClassLoaderFrom(jobject activityInstance);
     static bool getStaticMethodInfo(JniMethodInfo &methodinfo,
                                     const char *className,
                                     const char *methodName,
@@ -294,16 +295,15 @@ public:
         return ret;
     }
 private:
-    static JNIEnv* cacheEnv(JavaVM* jvm);
+    static jobject _activity;
+    static android_app* _app;
 
+    static JNIEnv* cacheEnv();
+    static bool setClassLoaderFrom(jobject activityInstance);
     static bool getMethodInfo_DefaultClassLoader(JniMethodInfo &methodinfo,
                                                  const char *className,
                                                  const char *methodName,
                                                  const char *paramCode);
-
-    static JavaVM* _psJavaVM;
-    
-    static jobject _activity;
 
     static jstring convert(cocos2d::JniMethodInfo& t, const char* x);
 

@@ -24,9 +24,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 #include "platform/android/jni/JniHelper.h"
+#include "platform/android/CCFileUtils-android.h"
 #include <android/log.h>
 #include <string.h>
 #include <pthread.h>
+#include <android_native_app_glue.h>
 
 #include "base/ccUTF8.h"
 
@@ -65,7 +67,7 @@ void _detachCurrentThread(void* a) {
 
 namespace cocos2d {
 
-    JavaVM* JniHelper::_psJavaVM = nullptr;
+    android_app* JniHelper::_app = nullptr;
     jmethodID JniHelper::loadclassMethod_methodID = nullptr;
     jobject JniHelper::classloader = nullptr;
     std::function<void()> JniHelper::classloaderCallback = nullptr;
@@ -76,18 +78,17 @@ namespace cocos2d {
     JavaVM* JniHelper::getJavaVM() {
         pthread_t thisthread = pthread_self();
         LOGD("JniHelper::getJavaVM(), pthread_self() = %ld", thisthread);
-        return _psJavaVM;
+        return _app->activity->vm;
     }
 
-    void JniHelper::setJavaVM(JavaVM *javaVM) {
-        pthread_t thisthread = pthread_self();
-        LOGD("JniHelper::setJavaVM(%p), pthread_self() = %ld", javaVM, thisthread);
-        _psJavaVM = javaVM;
-
-        pthread_key_create(&g_key, _detachCurrentThread);
+    void JniHelper::setAndroidApp(android_app *app) {
+        JniHelper::_app = app;
+        JniHelper::setClassLoaderFrom(_app->activity->clazz);
+        static_cast<FileUtilsAndroid*>(FileUtils::getInstance())->setassetmanager(_app->activity->assetManager);
     }
 
-    JNIEnv* JniHelper::cacheEnv(JavaVM* jvm) {
+    JNIEnv* JniHelper::cacheEnv() {
+        JavaVM* jvm = _app->activity->vm;
         JNIEnv* _env = nullptr;
         // get jni environment
         jint ret = jvm->GetEnv((void**)&_env, JNI_VERSION_1_4);
@@ -123,7 +124,7 @@ namespace cocos2d {
     JNIEnv* JniHelper::getEnv() {
         JNIEnv *_env = (JNIEnv *)pthread_getspecific(g_key);
         if (_env == nullptr)
-            _env = JniHelper::cacheEnv(_psJavaVM);
+            _env = JniHelper::cacheEnv();
         return _env;
     }
     

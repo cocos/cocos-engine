@@ -28,6 +28,7 @@
 #include <android/asset_manager_jni.h>
 #include <jni.h>
 #include <mutex>
+#include <android_native_app_glue.h>
 #include "JniHelper.h"
 #include "platform/CCApplication.h"
 #include "scripting/js-bindings/jswrapper/SeApi.h"
@@ -35,7 +36,6 @@
 #include "platform/android/CCFileUtils-android.h"
 #include "base/CCScheduler.h"
 #include "base/CCAutoreleasePool.h"
-#include "base/CCGLUtils.h"
 
 #define  JNI_IMP_LOG_TAG    "JniImp"
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,JNI_IMP_LOG_TAG,__VA_ARGS__)
@@ -110,21 +110,14 @@ namespace
         se::AutoHandleScope scope;
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
         char commandBuf[200] = {0};
-        uint8_t devicePixelRatio = Application::getInstance()->getDevicePixelRatio();
         sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d;",
-                g_width / devicePixelRatio,
-                g_height / devicePixelRatio);
+                g_width,
+                g_height);
         se->evalString(commandBuf);
-        glViewport(0, 0, g_width / devicePixelRatio, g_height / devicePixelRatio);
-        glDepthMask(GL_TRUE);
-        
+
         return true;
     }
 }
-
-void cocos_jni_env_init (JNIEnv* env);
-
-Application* cocos_android_app_init(JNIEnv* env, int width, int height);
 
 extern "C"
 {
@@ -143,15 +136,6 @@ extern "C"
 
             g_SDKInt = env->GetStaticIntField(versionClass, sdkIntFieldID);
         }
-    }
-
-    JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved)
-    {
-        JniHelper::setJavaVM(vm);
-        cocos_jni_env_init(JniHelper::getEnv());
-        getSDKInt(JniHelper::getEnv());
-
-        return JNI_VERSION_1_4;
     }
 
     /*****************************************************
@@ -178,10 +162,8 @@ extern "C"
         g_width = w;
         g_height = h;
         
-        g_app = cocos_android_app_init(env, w, h);
 
         g_isGameFinished = false;
-        ccInvalidateStateCache();
         std::string defaultResourcePath = JniHelper::jstring2string(jDefaultResourcePath);
         LOGD("nativeInit: %d, %d, %s", w, h, defaultResourcePath.c_str());
         
@@ -194,7 +176,6 @@ extern "C"
 
         EventDispatcher::init();
 
-        g_app->start();
         g_isStarted = true;
     }
 
@@ -222,18 +203,12 @@ extern "C"
 
             //REFINE: Wait HttpClient, WebSocket, Audio thread to exit
 
-            ccInvalidateStateCache();
-          
             se::ScriptEngine* se = se::ScriptEngine::getInstance();
             se->addRegisterCallback(setCanvasCallback);
 
             EventDispatcher::init();
 
-            if(!g_app->applicationDidFinishLaunching())
-            {
-                g_isGameFinished = true;
-                return;
-            }
+
 
             g_isStarted = true;
         }
@@ -244,16 +219,11 @@ extern "C"
         static float dtSum = 0.f;
         static uint32_t jsbInvocationTotalCount = 0;
         static uint32_t jsbInvocationTotalFrames = 0;
-        bool downsampleEnabled = g_app->isDownsampleEnabled();
-        
-        if (downsampleEnabled)
-            g_app->getRenderTexture()->prepare();
+        bool downsampleEnabled = false;
 
         g_app->getScheduler()->update(dt);
         EventDispatcher::dispatchTickEvent(dt);
-       
-        if (downsampleEnabled)
-            g_app->getRenderTexture()->draw();
+
 
         PoolManager::getInstance()->getCurrentPool()->clear();
 
@@ -281,20 +251,12 @@ extern "C"
 
     JNIEXPORT void JNICALL JNI_RENDER(nativeOnPause)()
     {
-        if (g_isGameFinished) {
-            return;
-        }
-        if (g_app)
-            g_app->applicationDidEnterBackground();
+
     }
 
     JNIEXPORT void JNICALL JNI_RENDER(nativeOnResume)()
     {
-        if (g_isGameFinished) {
-            return;
-        }
-        if (g_app)
-            g_app->applicationWillEnterForeground();
+
     }
 
     JNIEXPORT void JNICALL JNI_RENDER(nativeInsertText)(JNIEnv* env, jobject thiz, jstring text)
@@ -307,10 +269,7 @@ extern "C"
         //REFINE
     }
 
-    JNIEXPORT jstring JNICALL JNI_RENDER(nativeGetContentText)()
-    {
-        //REFINE
-    }
+
 
     JNIEXPORT void JNICALL JNI_RENDER(nativeOnSurfaceChanged)(JNIEnv*  env, jobject thiz, jint w, jint h)
     {
@@ -332,50 +291,12 @@ extern "C"
 
     static void dispatchTouchEventWithOnePoint(JNIEnv* env, cocos2d::TouchEvent::Type type, jint id, jfloat x, jfloat y)
     {
-        if (g_isGameFinished) {
-            return;
-        }
-        cocos2d::TouchEvent touchEvent;
-        touchEvent.type = type;
 
-        uint8_t devicePixelRatio = Application::getInstance()->getDevicePixelRatio();
-        cocos2d::TouchInfo touchInfo;
-        touchInfo.index = id;
-        touchInfo.x = x / devicePixelRatio;
-        touchInfo.y = y / devicePixelRatio;
-        touchEvent.touches.push_back(touchInfo);
-        
-        cocos2d::EventDispatcher::dispatchTouchEvent(touchEvent);
     }
 
     static void dispatchTouchEventWithPoints(JNIEnv* env, cocos2d::TouchEvent::Type type, jintArray ids, jfloatArray xs, jfloatArray ys)
     {
-        if (g_isGameFinished) {
-            return;
-        }
-        cocos2d::TouchEvent touchEvent;
-        touchEvent.type = type;
-
-        int size = env->GetArrayLength(ids);
-        jint id[size];
-        jfloat x[size];
-        jfloat y[size];
-
-        env->GetIntArrayRegion(ids, 0, size, id);
-        env->GetFloatArrayRegion(xs, 0, size, x);
-        env->GetFloatArrayRegion(ys, 0, size, y);
-
-        uint8_t devicePixelRatio = Application::getInstance()->getDevicePixelRatio();
-        for(int i = 0; i < size; i++)
-        {
-            cocos2d::TouchInfo touchInfo;
-            touchInfo.index = id[i];
-            touchInfo.x = x[i] / devicePixelRatio;
-            touchInfo.y = y[i] / devicePixelRatio;
-            touchEvent.touches.push_back(touchInfo);
-        }
-
-        cocos2d::EventDispatcher::dispatchTouchEvent(touchEvent);
+        
     }
 
     JNIEXPORT void JNICALL JNI_RENDER(nativeTouchesBegin)(JNIEnv * env, jobject thiz, jint id, jfloat x, jfloat y)
@@ -466,7 +387,6 @@ extern "C"
 
     JNIEXPORT void JNICALL JNI_HELPER(nativeSetContext)(JNIEnv*  env, jobject thiz, jobject context, jobject assetManager)
     {
-        JniHelper::setClassLoaderFrom(context);
         FileUtilsAndroid::setassetmanager(AAssetManager_fromJava(env, assetManager));
     }
 

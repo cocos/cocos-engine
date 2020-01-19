@@ -24,12 +24,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 #include "platform/CCApplication.h"
-#include <EGL/egl.h>
 #include <cstring>
 #include "platform/android/jni/JniImp.h"
-#include "platform/android/CCGL-android.h"
 #include "base/CCScheduler.h"
-#include "base/CCConfiguration.h"
 #include "audio/include/AudioEngine.h"
 #include "scripting/js-bindings/jswrapper/SeApi.h"
 #include "scripting/js-bindings/event/EventDispatcher.h"
@@ -46,27 +43,36 @@ extern "C" size_t __ctype_get_mb_cur_max(void)
 }
 #endif
 
-PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysOESEXT = 0;
-PFNGLBINDVERTEXARRAYOESPROC glBindVertexArrayOESEXT = 0;
-PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysOESEXT = 0;
+namespace
+{
+    int g_width = 0;
+    int g_height = 0;
+    bool setCanvasCallback(se::Object* global)
+    {
+        se::AutoHandleScope scope;
+        se::ScriptEngine* se = se::ScriptEngine::getInstance();
+        char commandBuf[200] = {0};
+        sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d;",
+                g_width,
+                g_height);
+        se->evalString(commandBuf);
+
+        return true;
+    }
+}
+
 
 NS_CC_BEGIN
 
 Application* Application::_instance = nullptr;
 std::shared_ptr<Scheduler> Application::_scheduler = nullptr;
 
-Application::Application(const std::string& name, int width, int height)
+Application::Application(int width, int height)
 {
     Application::_instance = this;
-    Configuration::getInstance();
-
     _scheduler = std::make_shared<Scheduler>();
-
-    PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysOESEXT = (PFNGLGENVERTEXARRAYSOESPROC)eglGetProcAddress("glGenVertexArraysOES");
-    PFNGLBINDVERTEXARRAYOESPROC glBindVertexArrayOESEXT = (PFNGLBINDVERTEXARRAYOESPROC)eglGetProcAddress("glBindVertexArrayOES");
-    PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysOESEXT = (PFNGLDELETEVERTEXARRAYSOESPROC)eglGetProcAddress("glDeleteVertexArraysOES");
-
-    _renderTexture = new RenderTexture(width, height);
+    g_width = width;
+    g_height = height;
 }
 
 Application::~Application()
@@ -78,46 +84,23 @@ Application::~Application()
     EventDispatcher::destroy();
     se::ScriptEngine::destroyInstance();
 
-    delete _renderTexture;
-    _renderTexture = nullptr;
-
     Application::_instance = nullptr;
 }
 
-void Application::start()
-{
-    if(!applicationDidFinishLaunching())
-        return;
-}
 
-void Application::restart()
+bool Application::init()
 {
-    restartJSVM();
-}
-
-void Application::end()
-{
-    exitApplication();
-}
-
-void Application::setMultitouch(bool /*value*/)
-{
-
-}
-
-bool Application::applicationDidFinishLaunching()
-{
+    se::ScriptEngine* se = se::ScriptEngine::getInstance();
+    se->addRegisterCallback(setCanvasCallback);
     return true;
 }
 
-void Application::applicationDidEnterBackground()
+void Application::onPause()
 {
-
 }
 
-void Application::applicationWillEnterForeground()
+void Application::onResume()
 {
-
 }
 
 void Application::setPreferredFramesPerSecond(int fps)
@@ -245,16 +228,6 @@ Application::Platform Application::getPlatform() const
 float Application::getScreenScale() const
 {
     return 1.f;
-}
-
-GLint Application::getMainFBO() const
-{
-    return _mainFBO;
-}
-
-void Application::onCreateView(PixelFormat& /*pixelformat*/, DepthFormat& /*depthFormat*/, int& /*multisamplingCount*/)
-{
-
 }
 
 bool Application::openURL(const std::string &url)

@@ -11,13 +11,13 @@ LOCAL_ARM_MODE := arm
 endif
 
 LOCAL_SRC_FILES := hellojavascript/main.cpp \
-				   ../../../Classes/AppDelegate.cpp \
-				   ../../../Classes/jsb_module_register.cpp \
+				   ../../../Classes/Game.cpp \
+				   ../../../Classes/jsb_module_register.cpp
 
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../Classes
-
-LOCAL_STATIC_LIBRARIES := cocos2dx_static
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../../Classes 
+LOCAL_STATIC_LIBRARIES := cocos2dx_static android_native_app_glue
 
 include $(BUILD_SHARED_LIBRARY)
 
 $(call import-module, cocos)
+$(call import-module, android/native_app_glue)

@@ -47,8 +47,6 @@ base/pvr.cpp \
 base/CCLog.cpp \
 base/CCScheduler.cpp \
 base/csscolorparser.cpp \
-base/CCGLUtils.cpp \
-base/CCRenderTexture.cpp \
 storage/local-storage/LocalStorage-android.cpp \
 network/CCDownloader.cpp \
 network/CCDownloader-android.cpp \
@@ -58,8 +56,6 @@ scripting/js-bindings/auto/jsb_cocos2dx_auto.cpp \
 scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.cpp \
 scripting/js-bindings/auto/jsb_cocos2dx_network_auto.cpp \
 scripting/js-bindings/manual/JavaScriptJavaBridge.cpp \
-scripting/js-bindings/manual/jsb_opengl_manual.cpp \
-scripting/js-bindings/manual/jsb_opengl_utils.cpp \
 scripting/js-bindings/manual/jsb_classtype.cpp \
 scripting/js-bindings/manual/jsb_conversions.cpp \
 scripting/js-bindings/manual/jsb_cocos2dx_manual.cpp \
@@ -133,21 +129,20 @@ renderer/core/memory/Memory.cc \
 renderer/core/memory/MemTracker.cc \
 renderer/core/memory/NedPooling.cc \
 renderer/core/math/CCCoreMath.cc \
-renderer/core/util/StringUtil.cc \
-renderer/core/util/GFXUtils.cpp
+renderer/core/util/StringUtil.cc
 endif # USE_GFX_RENDERER
 
-ifeq ($(USE_VIDEO),1)
-LOCAL_SRC_FILES += \
-ui/videoplayer/VideoPlayer-android.cpp \
-scripting/js-bindings/auto/jsb_video_auto.cpp
-endif # USE_VIDEO
+# ifeq ($(USE_VIDEO),1)
+# LOCAL_SRC_FILES += \
+# ui/videoplayer/VideoPlayer-android.cpp \
+# scripting/js-bindings/auto/jsb_video_auto.cpp
+# endif # USE_VIDEO
 
-ifeq ($(USE_WEB_VIEW),1)
-LOCAL_SRC_FILES += \
-ui/webview/WebViewImpl-android.cpp \
-scripting/js-bindings/auto/jsb_webview_auto.cpp
-endif # USE_WEB_VIEW
+# ifeq ($(USE_WEB_VIEW),1)
+# LOCAL_SRC_FILES += \
+# ui/webview/WebViewImpl-android.cpp \
+# scripting/js-bindings/auto/jsb_webview_auto.cpp
+# endif # USE_WEB_VIEW
 
 ifeq ($(USE_AUDIO),1)
 LOCAL_SRC_FILES += \
@@ -200,6 +195,7 @@ endif
 LOCAL_STATIC_LIBRARIES += cocos_webp_static
 LOCAL_STATIC_LIBRARIES += cocos_zlib_static
 LOCAL_STATIC_LIBRARIES += v8_static
+LOCAL_STATIC_LIBRARIES += android_native_app_glue
 
 LOCAL_WHOLE_STATIC_LIBRARIES := cocos2dxandroid_static
 LOCAL_WHOLE_STATIC_LIBRARIES += cpufeatures
@@ -226,3 +222,4 @@ $(call import-module,platform/android)
 $(call import-module,audio/android)
 $(call import-module,extensions)
 $(call import-module,android/cpufeatures)
+$(call import-module, android/native_app_glue)

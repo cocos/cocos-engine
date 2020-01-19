@@ -22,32 +22,122 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-
-#include "AppDelegate.h"
-#include "cocos2d.h"
-#include "platform/android/jni/JniHelper.h"
 #include <jni.h>
+#include <android_native_app_glue.h>
+#include "platform/android/CCFileUtils-android.h"
+#include "platform/android/jni/JniHelper.h"
 #include <android/log.h>
+#include "Game.h"
 
 #define LOG_TAG "main"
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
-using namespace cocos2d;
 
-//called when JNI_OnLoad()
-void cocos_jni_env_init(JNIEnv *env)
+namespace
 {
-    LOGD("cocos_jni_env_init");
+    Game *game = nullptr;
+
+    /**
+     * Shared state for our app.
+     */
+    struct SavedState {
+        struct android_app* app;
+
+        int animating;
+        int32_t width;
+        int32_t height;
+    };
+
+    void engineHandleCmd(struct android_app* app, int32_t cmd)
+    {
+        struct SavedState* state = (struct SavedState*)app->userData;
+        switch (cmd)
+        {
+            case APP_CMD_INIT_WINDOW:
+                if (state->app->window)
+                {
+                    state->width = ANativeWindow_getWidth(app->window);
+                    state->height = ANativeWindow_getHeight(app->window);
+                    cocos2d::JniHelper::setAndroidApp(app);
+                    game = new Game(state->width, state->height);
+                    game->init();
+                }
+
+                break;
+            case APP_CMD_TERM_WINDOW:
+                state->animating = 0;
+                break;
+            case APP_CMD_GAINED_FOCUS:
+                state->animating = 1;
+                break;
+            case APP_CMD_LOST_FOCUS:
+                state->animating = 0;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * Process the next input event.
+     */
+    int32_t engineHandleInput(struct android_app* app, AInputEvent* event) {
+        struct engine* engine = (struct engine*)app->userData;
+        int type = AInputEvent_getType(event);
+        int src = AInputEvent_getSource(event);
+        if(type == AINPUT_EVENT_TYPE_KEY){
+            return 1;
+        } else if(type == AINPUT_EVENT_TYPE_MOTION){
+            int action = AMotionEvent_getAction(event);
+            switch (action)
+            {
+                case AMOTION_EVENT_ACTION_DOWN:
+                case AMOTION_EVENT_ACTION_POINTER_DOWN:
+                    return 1;
+                    break;
+                case AMOTION_EVENT_ACTION_UP:
+                case AMOTION_EVENT_ACTION_POINTER_UP:
+                    return 1;
+                    break;
+            }
+            return 1;
+        }
+        return 0;
+    }
 }
 
-//called when onSurfaceCreated()
-Application *cocos_android_app_init(JNIEnv *env, int width, int height)
-{
-    LOGD("cocos_android_app_init");
-    auto app = new AppDelegate(width, height);
-    return app;
-}
+void android_main(struct android_app* state) {
+    struct SavedState savedState;
+    memset(&savedState, 0, sizeof(savedState));
+    state->userData = &savedState;
+    state->onAppCmd = engineHandleCmd;
+    state->onInputEvent = engineHandleInput;
+    savedState.app = state;
+    while (1)
+    {
+        // Read all pending events.
+        int ident;
+        int events;
+        struct android_poll_source* source;
 
-extern "C"
-{
-    /*JNI_CALL_FUNCTION*/
+        // If not animating, we will block forever waiting for events.
+        // If animating, we loop until all events are read, then continue
+        // to draw the next frame of animation.
+        while ((ident = ALooper_pollAll(savedState.animating ? 0 : -1, NULL, &events,
+                                        (void**)&source)) >= 0)
+        {
+
+            // Process this event.
+            if (source != nullptr)
+                source->process(state, source);
+        }
+
+        if (state->destroyRequested != 0)
+        {
+            return;
+        }
+
+        if (savedState.animating)
+        {
+            game->tick();
+        }
+    }
 }
