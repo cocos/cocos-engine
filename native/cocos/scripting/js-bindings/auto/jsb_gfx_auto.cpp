@@ -4,6 +4,13 @@
 #include "scripting/js-bindings/manual/jsb_global.h"
 #include "renderer/gfx-gles2/GFXGLES2.h"
 
+#ifndef JSB_ALLOC
+#define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
+#endif
+
+#ifndef JSB_FREE
+#define JSB_FREE(ptr) delete ptr
+#endif
 se::Object* __jsb_cocos2d_GFXWindow_proto = nullptr;
 se::Class* __jsb_cocos2d_GFXWindow_class = nullptr;
 
@@ -375,15 +382,9 @@ SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXWindow_finalize)
 
 static bool js_gfx_GFXWindow_constructor(se::State& s)
 {
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cocos2d::GFXDevice* arg0 = nullptr;
-    ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_constructor : Error processing arguments");
-    cocos2d::GFXWindow* cobj = new (std::nothrow) cocos2d::GFXWindow(arg0);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-    return true;
+    //#3 cocos2d::GFXWindow: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cocos2d::GFXWindow constructor is skipped\")");
+    return false;
 }
 SE_BIND_CTOR(js_gfx_GFXWindow_constructor, __jsb_cocos2d_GFXWindow_class, js_cocos2d_GFXWindow_finalize)
 
@@ -398,7 +399,7 @@ static bool js_cocos2d_GFXWindow_finalize(se::State& s)
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
-        delete cobj;
+        JSB_FREE(cobj);
     }
     return true;
 }
@@ -688,15 +689,9 @@ SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXBuffer_finalize)
 
 static bool js_gfx_GFXBuffer_constructor(se::State& s)
 {
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cocos2d::GFXDevice* arg0 = nullptr;
-    ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXBuffer_constructor : Error processing arguments");
-    cocos2d::GFXBuffer* cobj = new (std::nothrow) cocos2d::GFXBuffer(arg0);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-    return true;
+    //#3 cocos2d::GFXBuffer: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cocos2d::GFXBuffer constructor is skipped\")");
+    return false;
 }
 SE_BIND_CTOR(js_gfx_GFXBuffer_constructor, __jsb_cocos2d_GFXBuffer_class, js_cocos2d_GFXBuffer_finalize)
 
@@ -711,7 +706,7 @@ static bool js_cocos2d_GFXBuffer_finalize(se::State& s)
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         cocos2d::GFXBuffer* cobj = (cocos2d::GFXBuffer*)s.nativeThisObject();
-        delete cobj;
+        JSB_FREE(cobj);
     }
     return true;
 }
@@ -1025,15 +1020,9 @@ SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXTexture_finalize)
 
 static bool js_gfx_GFXTexture_constructor(se::State& s)
 {
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cocos2d::GFXDevice* arg0 = nullptr;
-    ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXTexture_constructor : Error processing arguments");
-    cocos2d::GFXTexture* cobj = new (std::nothrow) cocos2d::GFXTexture(arg0);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-    return true;
+    //#3 cocos2d::GFXTexture: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cocos2d::GFXTexture constructor is skipped\")");
+    return false;
 }
 SE_BIND_CTOR(js_gfx_GFXTexture_constructor, __jsb_cocos2d_GFXTexture_class, js_cocos2d_GFXTexture_finalize)
 
@@ -1048,7 +1037,7 @@ static bool js_cocos2d_GFXTexture_finalize(se::State& s)
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         cocos2d::GFXTexture* cobj = (cocos2d::GFXTexture*)s.nativeThisObject();
-        delete cobj;
+        JSB_FREE(cobj);
     }
     return true;
 }
@@ -1272,15 +1261,9 @@ SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXTextureView_finalize)
 
 static bool js_gfx_GFXTextureView_constructor(se::State& s)
 {
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cocos2d::GFXDevice* arg0 = nullptr;
-    ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXTextureView_constructor : Error processing arguments");
-    cocos2d::GFXTextureView* cobj = new (std::nothrow) cocos2d::GFXTextureView(arg0);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-    return true;
+    //#3 cocos2d::GFXTextureView: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cocos2d::GFXTextureView constructor is skipped\")");
+    return false;
 }
 SE_BIND_CTOR(js_gfx_GFXTextureView_constructor, __jsb_cocos2d_GFXTextureView_class, js_cocos2d_GFXTextureView_finalize)
 
@@ -1295,7 +1278,7 @@ static bool js_cocos2d_GFXTextureView_finalize(se::State& s)
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         cocos2d::GFXTextureView* cobj = (cocos2d::GFXTextureView*)s.nativeThisObject();
-        delete cobj;
+        JSB_FREE(cobj);
     }
     return true;
 }
@@ -1622,15 +1605,9 @@ SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXSampler_finalize)
 
 static bool js_gfx_GFXSampler_constructor(se::State& s)
 {
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cocos2d::GFXDevice* arg0 = nullptr;
-    ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXSampler_constructor : Error processing arguments");
-    cocos2d::GFXSampler* cobj = new (std::nothrow) cocos2d::GFXSampler(arg0);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-    return true;
+    //#3 cocos2d::GFXSampler: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cocos2d::GFXSampler constructor is skipped\")");
+    return false;
 }
 SE_BIND_CTOR(js_gfx_GFXSampler_constructor, __jsb_cocos2d_GFXSampler_class, js_cocos2d_GFXSampler_finalize)
 
@@ -1645,7 +1622,7 @@ static bool js_cocos2d_GFXSampler_finalize(se::State& s)
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         cocos2d::GFXSampler* cobj = (cocos2d::GFXSampler*)s.nativeThisObject();
-        delete cobj;
+        JSB_FREE(cobj);
     }
     return true;
 }
@@ -1834,15 +1811,9 @@ SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXShader_finalize)
 
 static bool js_gfx_GFXShader_constructor(se::State& s)
 {
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cocos2d::GFXDevice* arg0 = nullptr;
-    ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXShader_constructor : Error processing arguments");
-    cocos2d::GFXShader* cobj = new (std::nothrow) cocos2d::GFXShader(arg0);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-    return true;
+    //#3 cocos2d::GFXShader: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cocos2d::GFXShader constructor is skipped\")");
+    return false;
 }
 SE_BIND_CTOR(js_gfx_GFXShader_constructor, __jsb_cocos2d_GFXShader_class, js_cocos2d_GFXShader_finalize)
 
@@ -1857,7 +1828,7 @@ static bool js_cocos2d_GFXShader_finalize(se::State& s)
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         cocos2d::GFXShader* cobj = (cocos2d::GFXShader*)s.nativeThisObject();
-        delete cobj;
+        JSB_FREE(cobj);
     }
     return true;
 }
@@ -2279,15 +2250,9 @@ SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXInputAssembler_finalize)
 
 static bool js_gfx_GFXInputAssembler_constructor(se::State& s)
 {
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cocos2d::GFXDevice* arg0 = nullptr;
-    ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_constructor : Error processing arguments");
-    cocos2d::GFXInputAssembler* cobj = new (std::nothrow) cocos2d::GFXInputAssembler(arg0);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-    return true;
+    //#3 cocos2d::GFXInputAssembler: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cocos2d::GFXInputAssembler constructor is skipped\")");
+    return false;
 }
 SE_BIND_CTOR(js_gfx_GFXInputAssembler_constructor, __jsb_cocos2d_GFXInputAssembler_class, js_cocos2d_GFXInputAssembler_finalize)
 
@@ -2302,7 +2267,7 @@ static bool js_cocos2d_GFXInputAssembler_finalize(se::State& s)
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
-        delete cobj;
+        JSB_FREE(cobj);
     }
     return true;
 }
@@ -2460,15 +2425,9 @@ SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXRenderPass_finalize)
 
 static bool js_gfx_GFXRenderPass_constructor(se::State& s)
 {
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cocos2d::GFXDevice* arg0 = nullptr;
-    ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXRenderPass_constructor : Error processing arguments");
-    cocos2d::GFXRenderPass* cobj = new (std::nothrow) cocos2d::GFXRenderPass(arg0);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-    return true;
+    //#3 cocos2d::GFXRenderPass: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cocos2d::GFXRenderPass constructor is skipped\")");
+    return false;
 }
 SE_BIND_CTOR(js_gfx_GFXRenderPass_constructor, __jsb_cocos2d_GFXRenderPass_class, js_cocos2d_GFXRenderPass_finalize)
 
@@ -2483,7 +2442,7 @@ static bool js_cocos2d_GFXRenderPass_finalize(se::State& s)
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         cocos2d::GFXRenderPass* cobj = (cocos2d::GFXRenderPass*)s.nativeThisObject();
-        delete cobj;
+        JSB_FREE(cobj);
     }
     return true;
 }
@@ -2644,15 +2603,9 @@ SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXFramebuffer_finalize)
 
 static bool js_gfx_GFXFramebuffer_constructor(se::State& s)
 {
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cocos2d::GFXDevice* arg0 = nullptr;
-    ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXFramebuffer_constructor : Error processing arguments");
-    cocos2d::GFXFramebuffer* cobj = new (std::nothrow) cocos2d::GFXFramebuffer(arg0);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-    return true;
+    //#3 cocos2d::GFXFramebuffer: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cocos2d::GFXFramebuffer constructor is skipped\")");
+    return false;
 }
 SE_BIND_CTOR(js_gfx_GFXFramebuffer_constructor, __jsb_cocos2d_GFXFramebuffer_class, js_cocos2d_GFXFramebuffer_finalize)
 
@@ -2667,7 +2620,7 @@ static bool js_cocos2d_GFXFramebuffer_finalize(se::State& s)
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         cocos2d::GFXFramebuffer* cobj = (cocos2d::GFXFramebuffer*)s.nativeThisObject();
-        delete cobj;
+        JSB_FREE(cobj);
     }
     return true;
 }
@@ -2853,15 +2806,9 @@ SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXBindingLayout_finalize)
 
 static bool js_gfx_GFXBindingLayout_constructor(se::State& s)
 {
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cocos2d::GFXDevice* arg0 = nullptr;
-    ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXBindingLayout_constructor : Error processing arguments");
-    cocos2d::GFXBindingLayout* cobj = new (std::nothrow) cocos2d::GFXBindingLayout(arg0);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-    return true;
+    //#3 cocos2d::GFXBindingLayout: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cocos2d::GFXBindingLayout constructor is skipped\")");
+    return false;
 }
 SE_BIND_CTOR(js_gfx_GFXBindingLayout_constructor, __jsb_cocos2d_GFXBindingLayout_class, js_cocos2d_GFXBindingLayout_finalize)
 
@@ -2876,7 +2823,7 @@ static bool js_cocos2d_GFXBindingLayout_finalize(se::State& s)
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         cocos2d::GFXBindingLayout* cobj = (cocos2d::GFXBindingLayout*)s.nativeThisObject();
-        delete cobj;
+        JSB_FREE(cobj);
     }
     return true;
 }
@@ -3003,15 +2950,9 @@ SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXPipelineLayout_finalize)
 
 static bool js_gfx_GFXPipelineLayout_constructor(se::State& s)
 {
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cocos2d::GFXDevice* arg0 = nullptr;
-    ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineLayout_constructor : Error processing arguments");
-    cocos2d::GFXPipelineLayout* cobj = new (std::nothrow) cocos2d::GFXPipelineLayout(arg0);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-    return true;
+    //#3 cocos2d::GFXPipelineLayout: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cocos2d::GFXPipelineLayout constructor is skipped\")");
+    return false;
 }
 SE_BIND_CTOR(js_gfx_GFXPipelineLayout_constructor, __jsb_cocos2d_GFXPipelineLayout_class, js_cocos2d_GFXPipelineLayout_finalize)
 
@@ -3026,7 +2967,7 @@ static bool js_cocos2d_GFXPipelineLayout_finalize(se::State& s)
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         cocos2d::GFXPipelineLayout* cobj = (cocos2d::GFXPipelineLayout*)s.nativeThisObject();
-        delete cobj;
+        JSB_FREE(cobj);
     }
     return true;
 }
@@ -3276,15 +3217,9 @@ SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXPipelineState_finalize)
 
 static bool js_gfx_GFXPipelineState_constructor(se::State& s)
 {
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cocos2d::GFXDevice* arg0 = nullptr;
-    ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineState_constructor : Error processing arguments");
-    cocos2d::GFXPipelineState* cobj = new (std::nothrow) cocos2d::GFXPipelineState(arg0);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-    return true;
+    //#3 cocos2d::GFXPipelineState: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cocos2d::GFXPipelineState constructor is skipped\")");
+    return false;
 }
 SE_BIND_CTOR(js_gfx_GFXPipelineState_constructor, __jsb_cocos2d_GFXPipelineState_class, js_cocos2d_GFXPipelineState_finalize)
 
@@ -3299,7 +3234,7 @@ static bool js_cocos2d_GFXPipelineState_finalize(se::State& s)
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         cocos2d::GFXPipelineState* cobj = (cocos2d::GFXPipelineState*)s.nativeThisObject();
-        delete cobj;
+        JSB_FREE(cobj);
     }
     return true;
 }
@@ -3874,15 +3809,9 @@ SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXCommandBuffer_finalize)
 
 static bool js_gfx_GFXCommandBuffer_constructor(se::State& s)
 {
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cocos2d::GFXDevice* arg0 = nullptr;
-    ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_constructor : Error processing arguments");
-    cocos2d::GFXCommandBuffer* cobj = new (std::nothrow) cocos2d::GFXCommandBuffer(arg0);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-    return true;
+    //#3 cocos2d::GFXCommandBuffer: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cocos2d::GFXCommandBuffer constructor is skipped\")");
+    return false;
 }
 SE_BIND_CTOR(js_gfx_GFXCommandBuffer_constructor, __jsb_cocos2d_GFXCommandBuffer_class, js_cocos2d_GFXCommandBuffer_finalize)
 
@@ -3897,7 +3826,7 @@ static bool js_cocos2d_GFXCommandBuffer_finalize(se::State& s)
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
-        delete cobj;
+        JSB_FREE(cobj);
     }
     return true;
 }
@@ -4045,15 +3974,9 @@ SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXQueue_finalize)
 
 static bool js_gfx_GFXQueue_constructor(se::State& s)
 {
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    cocos2d::GFXDevice* arg0 = nullptr;
-    ok &= seval_to_native_ptr(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXQueue_constructor : Error processing arguments");
-    cocos2d::GFXQueue* cobj = new (std::nothrow) cocos2d::GFXQueue(arg0);
-    s.thisObject()->setPrivateData(cobj);
-    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-    return true;
+    //#3 cocos2d::GFXQueue: is_skip_construtor True
+    se::ScriptEngine::getInstance()->evalString("throw new Error(\"cocos2d::GFXQueue constructor is skipped\")");
+    return false;
 }
 SE_BIND_CTOR(js_gfx_GFXQueue_constructor, __jsb_cocos2d_GFXQueue_class, js_cocos2d_GFXQueue_finalize)
 
@@ -4068,7 +3991,7 @@ static bool js_cocos2d_GFXQueue_finalize(se::State& s)
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         cocos2d::GFXQueue* cobj = (cocos2d::GFXQueue*)s.nativeThisObject();
-        delete cobj;
+        JSB_FREE(cobj);
     }
     return true;
 }
@@ -4553,7 +4476,7 @@ SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GLES2Device_finalize)
 
 static bool js_gfx_GLES2Device_constructor(se::State& s)
 {
-    cocos2d::GLES2Device* cobj = new (std::nothrow) cocos2d::GLES2Device();
+    cocos2d::GLES2Device* cobj = JSB_ALLOC(cocos2d::GLES2Device);
     s.thisObject()->setPrivateData(cobj);
     se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
@@ -4572,7 +4495,7 @@ static bool js_cocos2d_GLES2Device_finalize(se::State& s)
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         cocos2d::GLES2Device* cobj = (cocos2d::GLES2Device*)s.nativeThisObject();
-        delete cobj;
+        JSB_FREE(cobj);
     }
     return true;
 }

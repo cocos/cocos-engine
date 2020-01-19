@@ -25,7 +25,45 @@
 
 #pragma once
 
+#include "renderer/core/CoreStd.h"
+#include "renderer/core/memory/Memory.h"
 #include <string>
+#include <type_traits>
+
+template<typename T, class ... Args>
+typename std::enable_if<std::is_base_of<cocos2d::Object, T>::value, T>::type*
+jsb_override_new(Args &&... args)
+{
+    //create object in gfx way
+    return CC_NEW(T(args...));
+}
+
+template<typename T>
+typename std::enable_if<std::is_base_of<cocos2d::Object, T>::value, void>::type
+jsb_override_delete(T* arg)
+{
+    //create object in gfx way
+    CC_DELETE(arg);
+}
+
+template<typename T, class ... Args>
+typename std::enable_if<!std::is_base_of<cocos2d::Object, T>::value, T>::type*
+jsb_override_new(Args &&... args)
+{
+    //create object in the default way
+    return new T(args...);
+}
+
+template<typename T>
+typename std::enable_if<!std::is_base_of<cocos2d::Object, T>::value, void>::type
+jsb_override_delete(T* arg)
+{
+    //create object in gfx way
+    delete(arg);
+}
+
+#define JSB_ALLOC(kls, ...) jsb_override_new<kls>(__VA_ARGS__)
+#define JSB_FREE(kls)  jsb_override_delete(kls)
 
 namespace se {
     class Object;
