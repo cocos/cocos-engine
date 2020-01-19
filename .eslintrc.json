@@ -35,6 +35,10 @@
         "no-extra-parens": "off",
         "semi": "off",
 
+        "sort-imports": ["warn", {
+            "memberSyntaxSortOrder": ["all", "single", "multiple", "none"]
+        }],
+
         "@typescript-eslint/adjacent-overload-signatures": "off",
         "@typescript-eslint/array-type": ["warn", "array-simple"],
         "@typescript-eslint/await-thenable": "off",
@@ -76,7 +80,35 @@
         "@typescript-eslint/member-naming": ["warn", {
             "private": "^_"
         }],
-        "@typescript-eslint/member-ordering": ["warn"],
+        "@typescript-eslint/member-ordering": ["warn", {
+            "default": [
+                "public-static-field",
+                "protected-static-field",
+                "private-static-field",
+                "public-instance-field",
+                "protected-instance-field",
+                "private-instance-field",
+                "public-field",
+                "protected-field",
+                "private-field",
+                "static-field",
+                "instance-field",
+                "field",
+                "constructor",
+                "public-static-method",
+                "protected-static-method",
+                "private-static-method",
+                "public-instance-method",
+                "protected-instance-method",
+                "private-instance-method",
+                "public-method",
+                "protected-method",
+                "private-method",
+                "static-method",
+                "instance-method",
+                "method"
+            ]
+        }],
         "@typescript-eslint/no-array-constructor": ["error"],
         "@typescript-eslint/no-empty-function": "off",
         "@typescript-eslint/no-empty-interface": "off",

@@ -218,7 +218,7 @@ export class AnimationClip extends Asset {
     /**
      * @protected
      */
-    get eventGroups (): ReadonlyArray<IAnimationEventGroup> {
+    get eventGroups (): readonly IAnimationEventGroup[] {
         if (!this._runtimeEvents) {
             this._createRuntimeEvents();
         }
@@ -265,7 +265,7 @@ export class AnimationClip extends Asset {
         return this._commonTargets;
     }
 
-    set commonTargets(value) {
+    set commonTargets (value) {
         this._commonTargets = value;
     }
 
@@ -275,7 +275,7 @@ export class AnimationClip extends Asset {
         this._decodeCVTAs();
     }
 
-    public getPropertyCurves (): ReadonlyArray<IRuntimeCurve> {
+    public getPropertyCurves (): readonly IRuntimeCurve[] {
         if (!this._runtimeCurves) {
             this._createPropertyCurves();
         }
