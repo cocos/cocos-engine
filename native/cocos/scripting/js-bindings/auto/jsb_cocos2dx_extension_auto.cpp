@@ -3,6 +3,13 @@
 #include "scripting/js-bindings/manual/jsb_global.h"
 #include "extensions/cocos-ext.h"
 
+#ifndef JSB_ALLOC
+#define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
+#endif
+
+#ifndef JSB_FREE
+#define JSB_FREE(ptr) delete ptr
+#endif
 se::Object* __jsb_cocos2d_extension_EventAssetsManagerEx_proto = nullptr;
 se::Class* __jsb_cocos2d_extension_EventAssetsManagerEx_class = nullptr;
 
@@ -253,7 +260,7 @@ static bool js_extension_EventAssetsManagerEx_constructor(se::State& s)
     ok &= seval_to_native_ptr(args[1], &arg1);
     do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::extension::EventAssetsManagerEx::EventCode)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_extension_EventAssetsManagerEx_constructor : Error processing arguments");
-    cocos2d::extension::EventAssetsManagerEx* cobj = new (std::nothrow) cocos2d::extension::EventAssetsManagerEx(arg0, arg1, arg2);
+    cocos2d::extension::EventAssetsManagerEx* cobj = JSB_ALLOC(cocos2d::extension::EventAssetsManagerEx, arg0, arg1, arg2);
     s.thisObject()->setPrivateData(cobj);
     return true;
 }
@@ -538,14 +545,14 @@ static bool js_extension_Manifest_constructor(se::State& s)
             std::string arg1;
             ok &= seval_to_std_string(args[1], &arg1);
             if (!ok) { ok = true; break; }
-            cocos2d::extension::Manifest* cobj = new (std::nothrow) cocos2d::extension::Manifest(arg0, arg1);
+            cocos2d::extension::Manifest* cobj = JSB_ALLOC(cocos2d::extension::Manifest, arg0, arg1);
             s.thisObject()->setPrivateData(cobj);
             return true;
         }
     } while(false);
     do {
         if (argc == 0) {
-            cocos2d::extension::Manifest* cobj = new (std::nothrow) cocos2d::extension::Manifest();
+            cocos2d::extension::Manifest* cobj = JSB_ALLOC(cocos2d::extension::Manifest);
             s.thisObject()->setPrivateData(cobj);
             return true;
         }
@@ -555,7 +562,7 @@ static bool js_extension_Manifest_constructor(se::State& s)
             std::string arg0;
             ok &= seval_to_std_string(args[0], &arg0);
             if (!ok) { ok = true; break; }
-            cocos2d::extension::Manifest* cobj = new (std::nothrow) cocos2d::extension::Manifest(arg0);
+            cocos2d::extension::Manifest* cobj = JSB_ALLOC(cocos2d::extension::Manifest, arg0);
             s.thisObject()->setPrivateData(cobj);
             return true;
         }
@@ -1155,7 +1162,7 @@ static bool js_extension_AssetsManagerEx_constructor(se::State& s)
             } while(false)
             ;
             if (!ok) { ok = true; break; }
-            cocos2d::extension::AssetsManagerEx* cobj = new (std::nothrow) cocos2d::extension::AssetsManagerEx(arg0, arg1, arg2);
+            cocos2d::extension::AssetsManagerEx* cobj = JSB_ALLOC(cocos2d::extension::AssetsManagerEx, arg0, arg1, arg2);
             s.thisObject()->setPrivateData(cobj);
             return true;
         }
@@ -1168,7 +1175,7 @@ static bool js_extension_AssetsManagerEx_constructor(se::State& s)
             std::string arg1;
             ok &= seval_to_std_string(args[1], &arg1);
             if (!ok) { ok = true; break; }
-            cocos2d::extension::AssetsManagerEx* cobj = new (std::nothrow) cocos2d::extension::AssetsManagerEx(arg0, arg1);
+            cocos2d::extension::AssetsManagerEx* cobj = JSB_ALLOC(cocos2d::extension::AssetsManagerEx, arg0, arg1);
             s.thisObject()->setPrivateData(cobj);
             return true;
         }

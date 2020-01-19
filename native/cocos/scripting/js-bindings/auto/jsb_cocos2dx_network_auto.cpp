@@ -4,6 +4,13 @@
 #include "scripting/js-bindings/manual/jsb_global.h"
 #include "network/CCDownloader.h"
 
+#ifndef JSB_ALLOC
+#define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
+#endif
+
+#ifndef JSB_FREE
+#define JSB_FREE(ptr) delete ptr
+#endif
 se::Object* __jsb_cocos2d_network_Downloader_proto = nullptr;
 se::Class* __jsb_cocos2d_network_Downloader_class = nullptr;
 
@@ -70,7 +77,7 @@ static bool js_network_Downloader_constructor(se::State& s)
             cocos2d::network::DownloaderHints arg0;
             ok &= seval_to_DownloaderHints(args[0], &arg0);
             if (!ok) { ok = true; break; }
-            cocos2d::network::Downloader* cobj = new (std::nothrow) cocos2d::network::Downloader(arg0);
+            cocos2d::network::Downloader* cobj = JSB_ALLOC(cocos2d::network::Downloader, arg0);
             s.thisObject()->setPrivateData(cobj);
             se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
             return true;
@@ -78,7 +85,7 @@ static bool js_network_Downloader_constructor(se::State& s)
     } while(false);
     do {
         if (argc == 0) {
-            cocos2d::network::Downloader* cobj = new (std::nothrow) cocos2d::network::Downloader();
+            cocos2d::network::Downloader* cobj = JSB_ALLOC(cocos2d::network::Downloader);
             s.thisObject()->setPrivateData(cobj);
             se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
             return true;
@@ -100,7 +107,7 @@ static bool js_cocos2d_network_Downloader_finalize(se::State& s)
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         cocos2d::network::Downloader* cobj = (cocos2d::network::Downloader*)s.nativeThisObject();
-        delete cobj;
+        JSB_FREE(cobj);
     }
     return true;
 }

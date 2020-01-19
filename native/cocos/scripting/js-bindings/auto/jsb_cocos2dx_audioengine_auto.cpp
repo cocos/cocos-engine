@@ -4,6 +4,13 @@
 #include "scripting/js-bindings/manual/jsb_global.h"
 #include "audio/include/AudioEngine.h"
 
+#ifndef JSB_ALLOC
+#define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
+#endif
+
+#ifndef JSB_FREE
+#define JSB_FREE(ptr) delete ptr
+#endif
 se::Object* __jsb_cocos2d_AudioProfile_proto = nullptr;
 se::Class* __jsb_cocos2d_AudioProfile_class = nullptr;
 
@@ -95,7 +102,7 @@ SE_DECLARE_FINALIZE_FUNC(js_cocos2d_AudioProfile_finalize)
 
 static bool js_audioengine_AudioProfile_constructor(se::State& s)
 {
-    cocos2d::AudioProfile* cobj = new (std::nothrow) cocos2d::AudioProfile();
+    cocos2d::AudioProfile* cobj = JSB_ALLOC(cocos2d::AudioProfile);
     s.thisObject()->setPrivateData(cobj);
     se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
@@ -113,7 +120,7 @@ static bool js_cocos2d_AudioProfile_finalize(se::State& s)
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         cocos2d::AudioProfile* cobj = (cocos2d::AudioProfile*)s.nativeThisObject();
-        delete cobj;
+        JSB_FREE(cobj);
     }
     return true;
 }

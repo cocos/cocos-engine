@@ -4,6 +4,13 @@
 #include "scripting/js-bindings/manual/jsb_global.h"
 #include "ui/webview/WebView.h"
 
+#ifndef JSB_ALLOC
+#define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
+#endif
+
+#ifndef JSB_FREE
+#define JSB_FREE(ptr) delete ptr
+#endif
 se::Object* __jsb_cocos2d_WebView_proto = nullptr;
 se::Class* __jsb_cocos2d_WebView_class = nullptr;
 
@@ -627,7 +634,7 @@ SE_DECLARE_FINALIZE_FUNC(js_cocos2d_WebView_finalize)
 
 static bool js_webview_WebView_constructor(se::State& s)
 {
-    cocos2d::WebView* cobj = new (std::nothrow) cocos2d::WebView();
+    cocos2d::WebView* cobj = JSB_ALLOC(cocos2d::WebView);
     s.thisObject()->setPrivateData(cobj);
     return true;
 }

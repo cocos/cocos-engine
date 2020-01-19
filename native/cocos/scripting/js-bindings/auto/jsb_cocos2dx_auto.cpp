@@ -3,6 +3,13 @@
 #include "scripting/js-bindings/manual/jsb_global.h"
 #include "cocos2d.h"
 
+#ifndef JSB_ALLOC
+#define JSB_ALLOC(kls, ...) new (std::nothrow) kls(__VA_ARGS__)
+#endif
+
+#ifndef JSB_FREE
+#define JSB_FREE(ptr) delete ptr
+#endif
 se::Object* __jsb_cocos2d_FileUtils_proto = nullptr;
 se::Class* __jsb_cocos2d_FileUtils_class = nullptr;
 
@@ -926,7 +933,7 @@ static bool js_cocos2d_FileUtils_finalize(se::State& s)
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         cocos2d::FileUtils* cobj = (cocos2d::FileUtils*)s.nativeThisObject();
-        delete cobj;
+        JSB_FREE(cobj);
     }
     return true;
 }
@@ -1254,7 +1261,7 @@ SE_DECLARE_FINALIZE_FUNC(js_cocos2d_CanvasGradient_finalize)
 
 static bool js_engine_CanvasGradient_constructor(se::State& s)
 {
-    cocos2d::CanvasGradient* cobj = new (std::nothrow) cocos2d::CanvasGradient();
+    cocos2d::CanvasGradient* cobj = JSB_ALLOC(cocos2d::CanvasGradient);
     s.thisObject()->setPrivateData(cobj);
     se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
@@ -1272,7 +1279,7 @@ static bool js_cocos2d_CanvasGradient_finalize(se::State& s)
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         cocos2d::CanvasGradient* cobj = (cocos2d::CanvasGradient*)s.nativeThisObject();
-        delete cobj;
+        JSB_FREE(cobj);
     }
     return true;
 }
@@ -1781,7 +1788,7 @@ static bool js_engine_CanvasRenderingContext2D_constructor(se::State& s)
     ok &= seval_to_float(args[0], &arg0);
     ok &= seval_to_float(args[1], &arg1);
     SE_PRECONDITION2(ok, false, "js_engine_CanvasRenderingContext2D_constructor : Error processing arguments");
-    cocos2d::CanvasRenderingContext2D* cobj = new (std::nothrow) cocos2d::CanvasRenderingContext2D(arg0, arg1);
+    cocos2d::CanvasRenderingContext2D* cobj = JSB_ALLOC(cocos2d::CanvasRenderingContext2D, arg0, arg1);
     s.thisObject()->setPrivateData(cobj);
     se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
     return true;
@@ -1799,7 +1806,7 @@ static bool js_cocos2d_CanvasRenderingContext2D_finalize(se::State& s)
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
         cocos2d::CanvasRenderingContext2D* cobj = (cocos2d::CanvasRenderingContext2D*)s.nativeThisObject();
-        delete cobj;
+        JSB_FREE(cobj);
     }
     return true;
 }
