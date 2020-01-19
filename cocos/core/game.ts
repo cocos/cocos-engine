@@ -32,6 +32,7 @@ import { WebGLGFXDevice } from './gfx/webgl/webgl-device';
 import { WebGL2GFXDevice } from './gfx/webgl2/webgl2-device';
 import { ForwardPipeline } from './pipeline';
 import * as debug from './platform/debug';
+import sys from './platform/sys';
 
 /**
  * @en
@@ -860,10 +861,10 @@ export class Game extends EventTarget {
             let useWebGL2 = (!!window.WebGL2RenderingContext);
 
             const userAgent = window.navigator.userAgent.toLowerCase();
-            if (userAgent.indexOf('safari') !== -1) {
-                if (userAgent.indexOf('chrome') === -1) {
-                    useWebGL2 = false;
-                }
+            if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1
+                || sys.browserType === sys.BROWSER_TYPE_UC // UC browser implementation doesn't not conform to WebGL2 standard
+            ) {
+                useWebGL2 = false;
             }
 
             // useWebGL2 = false;
