@@ -75,11 +75,11 @@
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
 #	define CC_ENDIAN CC_ENDIAN_LITTLE
 #else
-#   if (CC_PLATFORM == CC_PLATFORM_MAC_OSX_OSX)
+#   if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
 #	   include <machine/endian.h>
 #   else
 #      include <endian.h>
-#   endif // (CC_PLATFORM == CC_PLATFORM_MAC_OSX_OSX)
+#   endif // (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
 #
 #	if __BYTE_ORDER == __LITTLE_ENDIAN
 #		define CC_ENDIAN	CC_ENDIAN_LITTLE
@@ -91,9 +91,9 @@
 // CPU architecture type recognition
 #if (defined(_MSC_VER) && (defined(_M_IX86) || defined(_M_X64))) ||(defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__)))
 #   define CC_CPU	CC_CPU_X86
-#elif CC_PLATFORM == CC_PLATFORM_MAC_OSX_OSX && CC_ENDIAN == CC_ENDIAN_BIG
+#elif CC_PLATFORM == CC_PLATFORM_MAC_OSX && CC_ENDIAN == CC_ENDIAN_BIG
 #   define CC_CPU	CC_CPU_PPC
-#elif CC_PLATFORM == CC_PLATFORM_MAC_OSX_OSX
+#elif CC_PLATFORM == CC_PLATFORM_MAC_OSX
 #   define COCOS_CPU	CC_CPU_X86
 #elif CC_PLATFORM == CC_PLATFORM_MAC_IOS && (defined(__i386__) || defined(__x86_64__))
 #   define CC_CPU	CC_CPU_X86
