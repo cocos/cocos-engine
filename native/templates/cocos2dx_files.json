@@ -304,7 +304,6 @@
         "cocos/platform/win32/inet_pton_mingw.cpp", 
         "cocos/platform/win32/inet_pton_mingw.h", 
         "cocos/renderer/CMakeLists.txt", 
-        "cocos/renderer/Macro.h", 
         "cocos/renderer/core/CMakeLists.txt", 
         "cocos/renderer/core/Core.h", 
         "cocos/renderer/core/CoreDef.h", 
