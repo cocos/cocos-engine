@@ -32,7 +32,7 @@
 #include <string>
 #include <sstream>
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID) 
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID) 
 #include "platform/android/jni/JniHelper.h"
 #endif
 
@@ -109,7 +109,7 @@ CC_DLL bool UTF32ToUTF16(const std::u32string& inUtf32, std::u16string& outUtf16
 
 
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
 
 
 /**

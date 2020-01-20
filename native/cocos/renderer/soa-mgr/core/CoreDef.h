@@ -12,7 +12,7 @@
 // Initial platform stuff to set.
 #define CC_PLATFORM_WINDOWS		1
 #define CC_PLATFORM_LINUX   	2
-#define CC_PLATFORM_MAC_OSX   	3
+#define CC_PLATFORM_MAC_OSX_OSX   	3
 #define CC_PLATFORM_MAC_IOS   	4
 #define CC_PLATFORM_ANDROID     5
 #define CC_PLATFORM_NACL		6
@@ -118,7 +118,7 @@
 #       define CC_PLATFORM        CC_PLATFORM_MAC_IOS
 #   else
 //#		warning	" Mac os"
-#       define CC_PLATFORM        CC_PLATFORM_MAC_OSX
+#       define CC_PLATFORM        CC_PLATFORM_MAC_OSX_OSX
 #   endif
 #elif defined(__ANDROID__)
 #	define CC_PLATFORM    CC_PLATFORM_ANDROID
@@ -128,7 +128,7 @@
 #   define CC_PLATFORM	CC_PLATFORM_NACL
 #else
 //#	error "Couldn't recognize platform"
-#   define CC_PLATFORM        CC_PLATFORM_MAC_OSX
+#   define CC_PLATFORM        CC_PLATFORM_MAC_OSX_OSX
 #endif
 
 // Endian Settings
@@ -150,9 +150,9 @@
 // CPU architecture type recognition
 #if (defined(_MSC_VER) && (defined(_M_IX86) || defined(_M_X64))) ||(defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__)))
 #   define CC_CPU	CC_CPU_X86
-#elif CC_PLATFORM == CC_PLATFORM_MAC_OSX && CC_ENDIAN == CC_ENDIAN_BIG
+#elif CC_PLATFORM == CC_PLATFORM_MAC_OSX_OSX && CC_ENDIAN == CC_ENDIAN_BIG
 #   define CC_CPU	CC_CPU_PPC
-#elif CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#elif CC_PLATFORM == CC_PLATFORM_MAC_OSX_OSX
 #   define CC_CPU	CC_CPU_X86
 //#	warning "CC_cPU x86"
 #elif CC_PLATFORM == CC_PLATFORM_MAC_IOS && (defined(__i386__) || defined(__x86_64__))

@@ -30,17 +30,17 @@ THE SOFTWARE.
 
 #include "platform/CCPlatformConfig.h"
 
-#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
 #include "platform/mac/CCPlatformDefine-mac.h"
-#elif CC_TARGET_PLATFORM == CC_PLATFORM_IOS
+#elif CC_PLATFORM == CC_PLATFORM_MAC_IOS
 #include "platform/ios/CCPlatformDefine-ios.h"
-#elif CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+#elif CC_PLATFORM == CC_PLATFORM_ANDROID
 #include "platform/android/CCPlatformDefine-android.h"
-#elif CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+#elif CC_PLATFORM == CC_PLATFORM_WINDOWS
 #include "platform/win32/CCPlatformDefine-win32.h"
-#elif CC_TARGET_PLATFORM == CC_PLATFORM_WINRT
+#elif CC_PLATFORM == CC_PLATFORM_WINRT
 #include "platform/winrt/CCPlatformDefine-winrt.h"
-#elif CC_TARGET_PLATFORM == CC_PLATFORM_LINUX
+#elif CC_PLATFORM == CC_PLATFORM_LINUX
 #include "platform/linux/CCPlatformDefine-linux.h"
 #endif
 

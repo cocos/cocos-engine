@@ -119,7 +119,7 @@ void Configuration::gatherGPUInfo()
 //    const char* version = (const char*)glGetString(GL_VERSION);
 //    _valueDict["gl.version"] = Value(version);
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
     const char* version = (const char*)glGetString(GL_VERSION);
     _valueDict["gl.version"] = Value(version);
     if (std::regex_match(version, std::regex("OpenGL ES 3.*"))) {
@@ -138,7 +138,7 @@ void Configuration::gatherGPUInfo()
 //    glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &_maxTextureUnits);
     _valueDict["gl.max_texture_units"] = Value((int)_maxTextureUnits);
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
     glGetIntegerv(GL_MAX_SAMPLES_APPLE, &_maxSamplesAllowed);
     _valueDict["gl.max_samples_allowed"] = Value((int)_maxSamplesAllowed);
 #endif
@@ -189,8 +189,6 @@ void Configuration::gatherGPUInfo()
         _supportsShareableVAO = checkForGLExtension("vertex_array_object");
         _valueDict["gl.supports_vertex_array_object"] = Value(_supportsShareableVAO);
     }
-
-    CHECK_GL_ERROR_DEBUG();
 }
 
 Configuration* Configuration::getInstance()
@@ -324,7 +322,7 @@ bool Configuration::supportsMapBuffer() const
     // is always implemented in OpenGL.
 
     // XXX: Warning. On iOS this is always `true`. Avoiding the comparison.
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     return _supportsOESMapBuffer;
 #else
     return true;

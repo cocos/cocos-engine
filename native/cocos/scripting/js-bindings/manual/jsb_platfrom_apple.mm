@@ -47,7 +47,7 @@ static std::vector<std::string> getAvailableFontFamilyNames()
 {
     std::vector<std::string> ret;
 
-#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
     CFArrayRef allFamilyNames = CTFontManagerCopyAvailableFontFamilyNames();
 #else
     CFArrayRef allFamilyNames = (CFArrayRef) [[UIFont familyNames] retain];

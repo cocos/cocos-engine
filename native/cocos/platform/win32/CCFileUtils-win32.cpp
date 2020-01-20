@@ -25,7 +25,7 @@ THE SOFTWARE.
 ****************************************************************************/
 
 #include "platform/CCPlatformConfig.h"
-#if CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
 
 #include "platform/win32/CCFileUtils-win32.h"
 #include "platform/win32/CCUtils-win32.h"
@@ -426,4 +426,4 @@ bool FileUtilsWin32::removeDirectory(const std::string& dirPath)
 
 NS_CC_END
 
-#endif // CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+#endif // CC_PLATFORM == CC_PLATFORM_WINDOWS

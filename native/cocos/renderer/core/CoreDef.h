@@ -8,14 +8,6 @@
 #define CC_COMPILER_CLANG	    2
 #define CC_COMPILER_GNUC		3
 
-// Initial platform stuff to set.
-#define CC_PLATFORM_WINDOWS     1
-#define CC_PLATFORM_LINUX       2
-#define CC_PLATFORM_MAC_OSX     3
-#define CC_PLATFORM_MAC_IOS     4
-#define CC_PLATFORM_ANDROID     5
-#define CC_PLATFORM_NACL		6
-
 // CPU Architecture
 #define CC_CPU_UNKNOWN		    0
 #define CC_CPU_X86			    1
@@ -80,35 +72,14 @@
 #   error "Unknown compiler. Abort!"
 #endif
 
-// Platform recognition
-#if defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(_WIN64) || defined(__WIN64__) || defined(WIN64)
-#	define CC_PLATFORM    CC_PLATFORM_WINDOWS
-#elif defined(__APPLE_CC__)
-// Device                                                     Simulator
-// Both requiring OS version 4.0 or greater
-#   if __ENVIRONMENT_IPHONE_OS_VERSION_MIN_REQUIRED__ >= 40000 || __IPHONE_OS_VERSION_MIN_REQUIRED >= 40000
-#       define CC_PLATFORM        CC_PLATFORM_MAC_IOS
-#   else
-#       define CC_PLATFORM        CC_PLATFORM_MAC_OSX
-#   endif
-#elif defined(__ANDROID__)
-#	define CC_PLATFORM   CC_PLATFORM_ANDROID
-#elif defined(linux) || defined(__linux) || defined(__linux__)
-#	define CC_PLATFORM   CC_PLATFORM_LINUX
-#elif defined(__native_client__)
-#   define CC_PLATFORM   CC_PLATFORM_NACL
-#else
-#	error "Couldn't recognize platform"
-#endif
-
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
 #	define CC_ENDIAN CC_ENDIAN_LITTLE
 #else
-#   if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#   if (CC_PLATFORM == CC_PLATFORM_MAC_OSX_OSX)
 #	   include <machine/endian.h>
 #   else
 #      include <endian.h>
-#   endif // (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#   endif // (CC_PLATFORM == CC_PLATFORM_MAC_OSX_OSX)
 #
 #	if __BYTE_ORDER == __LITTLE_ENDIAN
 #		define CC_ENDIAN	CC_ENDIAN_LITTLE
@@ -120,9 +91,9 @@
 // CPU architecture type recognition
 #if (defined(_MSC_VER) && (defined(_M_IX86) || defined(_M_X64))) ||(defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__)))
 #   define CC_CPU	CC_CPU_X86
-#elif CC_PLATFORM == CC_PLATFORM_MAC_OSX && CC_ENDIAN == CC_ENDIAN_BIG
+#elif CC_PLATFORM == CC_PLATFORM_MAC_OSX_OSX && CC_ENDIAN == CC_ENDIAN_BIG
 #   define CC_CPU	CC_CPU_PPC
-#elif CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#elif CC_PLATFORM == CC_PLATFORM_MAC_OSX_OSX
 #   define COCOS_CPU	CC_CPU_X86
 #elif CC_PLATFORM == CC_PLATFORM_MAC_IOS && (defined(__i386__) || defined(__x86_64__))
 #   define CC_CPU	CC_CPU_X86
@@ -329,9 +300,6 @@ Note:
 #else
 #define CC_STL_MEMORY_ALLOCATOR	CC_STL_MEMORY_ALLOCATOR_CUSTOM
 #endif
-
-// Namespace define
-#define CC_USING_NAMESPACE	using namespace cocos2d;
 
 #define CC_TOSTR(s) #s
 

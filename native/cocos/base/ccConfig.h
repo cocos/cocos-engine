@@ -203,7 +203,7 @@ THE SOFTWARE.
  * To disable it set it to 0. Enabled by default.
  */
 #ifndef CC_TEXTURE_ATLAS_USE_VAO
-    #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
+    #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS) || (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
         #define CC_TEXTURE_ATLAS_USE_VAO 1
     #else
         /* Some Windows display adapter driver cannot support VAO.
@@ -322,7 +322,7 @@ THE SOFTWARE.
 /** Support webp or not. If your application don't use webp format picture, you can undefine this macro to save package size.
  */
 #ifndef CC_USE_WEBP
-#if (CC_TARGET_PLATFORM != CC_PLATFORM_WINRT)
+#if (CC_PLATFORM != CC_PLATFORM_WINRT)
 #define CC_USE_WEBP  1
 #endif
 #endif // CC_USE_WEBP
@@ -330,7 +330,7 @@ THE SOFTWARE.
 /** Support webp or not. If your application don't use webp format picture, you can undefine this macro to save package size.
  */
 //#ifndef CC_USE_WEBP
-//#if (CC_TARGET_PLATFORM != CC_PLATFORM_WINRT)
+//#if (CC_PLATFORM != CC_PLATFORM_WINRT)
 //#define CC_USE_WEBP  1
 //#endif
 //#endif // CC_USE_WEBP
@@ -338,7 +338,7 @@ THE SOFTWARE.
  /** Support WIC (Windows Image Component) or not. Replaces PNG, TIFF and JPEG
  */
 #ifndef CC_USE_WIC
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
+#if (CC_PLATFORM == CC_PLATFORM_WINRT)
 #define CC_USE_WIC  1
 #undef CC_USE_TIFF
 #undef CC_USE_JPEG

@@ -221,7 +221,7 @@ bool HTTPRequest::start(void)
 
 #ifdef _WINDOWS_
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WP8) || (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
+#if (CC_PLATFORM == CC_PLATFORM_WP8) || (CC_PLATFORM == CC_PLATFORM_WINRT)
 	std::thread worker(requestCURL, this);
 	worker.detach();
 
@@ -232,7 +232,7 @@ bool HTTPRequest::start(void)
                  this,          // argument to thread function
                  0,             // use default creation flags
                  NULL);
-#endif // CC_TARGET_PLATFORM == CC_PLATFORM_WP8
+#endif // CC_PLATFORM == CC_PLATFORM_WP8
 
 #else
     pthread_create(&_thread, NULL, requestCURL, this);

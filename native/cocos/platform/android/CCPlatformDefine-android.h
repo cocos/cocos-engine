@@ -28,7 +28,7 @@ THE SOFTWARE.
 #define __CCPLATFORMDEFINE_H__
 
 #include "platform/CCPlatformConfig.h"
-#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
 
 #include <android/log.h>
 
@@ -63,6 +63,6 @@ THE SOFTWARE.
 #endif
 #endif
 
-#endif // CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+#endif // CC_PLATFORM == CC_PLATFORM_ANDROID
 
 #endif /* __CCPLATFORMDEFINE_H__*/

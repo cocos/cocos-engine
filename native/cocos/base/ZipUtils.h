@@ -32,9 +32,9 @@ THE SOFTWARE.
 #include "platform/CCFileUtils.h"
 #include <string>
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
 #include "platform/android/CCFileUtils-android.h"
-#elif(CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
+#elif(CC_PLATFORM == CC_PLATFORM_WINDOWS) || (CC_PLATFORM == CC_PLATFORM_WINRT)
 // for import ssize_t on win32 platform
 #include "platform/CCStdC.h"
 #endif

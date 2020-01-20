@@ -211,7 +211,7 @@ void ConsoleCommand::onSendCommand(int fd, const std::string &args)
                 dReplyParse.AddMember("code",0,allocator);
             } else if(strcmp(strcmd.c_str(), "shutdownapp") == 0)
             {
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
 #include <windows.h>
                 auto glview = dynamic_cast<GLViewImpl*> (Director::getInstance()->getOpenGLView());
                 HWND hWnd = glview->getWin32Window();
@@ -222,13 +222,13 @@ void ConsoleCommand::onSendCommand(int fd, const std::string &args)
             } else if(strcmp(strcmd.c_str(), "getplatform") == 0)
             {
                 string platform="UNKNOW";
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
                 platform = "WIN32";
-#elif (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
+#elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
                 platform = "MAC";
-#elif (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+#elif (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
                 platform = "IOS";
-#elif (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#elif (CC_PLATFORM == CC_PLATFORM_ANDROID)
                 platform = "ANDROID";
 #endif
                 rapidjson::Value bodyvalue(rapidjson::kObjectType);
@@ -239,7 +239,7 @@ void ConsoleCommand::onSendCommand(int fd, const std::string &args)
                 dReplyParse.AddMember("code", 0, allocator);
             } else if(strcmp(strcmd.c_str(), "usewritablepath") == 0)
             {
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
                 // only iOS and Android need to open using write path by Code IDE
                 FileServer::getShareInstance()->setIsUsingWritePath(true);
                 

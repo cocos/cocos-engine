@@ -30,7 +30,7 @@ THE SOFTWARE.
 #include "ConfigParser.h"
 #include "RuntimeProtocol.h"
 
-#if ((CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC))
+#if ((CC_PLATFORM == CC_PLATFORM_WINDOWS) || (CC_PLATFORM == CC_PLATFORM_MAC_OSX))
 #include "DeviceEx.h"
 #include "network/CCHTTPRequest.h"
 #include "xxhash/xxhash.h"
@@ -134,7 +134,7 @@ void RuntimeEngine::setupRuntime()
     // get project type fron config.json
     updateConfigParser();
     auto entryFile = ConfigParser::getInstance()->getEntryFile();
-#if (CC_TARGET_PLATFORM != CC_PLATFORM_WIN32) && (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
+#if (CC_PLATFORM != CC_PLATFORM_WINDOWS) && (CC_PLATFORM != CC_PLATFORM_MAC_OSX)
     ConfigParser::getInstance()->readConfig();
     entryFile = ConfigParser::getInstance()->getEntryFile();
 #endif
@@ -155,13 +155,13 @@ const ProjectConfig &RuntimeEngine::getProjectConfig()
 
 void RuntimeEngine::setProjectPath(const std::string &workPath)
 {
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32 || CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
+#if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_MAC_OSX)
     vector<std::string> searchPathArray = cocos2d::FileUtils::getInstance()->getSearchPaths();
 
     if (workPath.empty())
     {
         std::string appPath = std::string("");
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
         TCHAR szAppDir[MAX_PATH] = { 0 };
         if (GetModuleFileName(NULL, szAppDir, MAX_PATH))
         {
@@ -182,7 +182,7 @@ void RuntimeEngine::setProjectPath(const std::string &workPath)
             _fullpath(fuldir, strPath.c_str(), MAX_PATH);
             appPath = fuldir;
         }
-#elif (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
+#elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
         appPath.append("/../../../");
 #endif
         appPath = replaceAll(appPath, "\\", "/");
@@ -217,7 +217,7 @@ void RuntimeEngine::startScript(const std::string &args)
 void RuntimeEngine::start()
 {
 
-#if (CC_TARGET_PLATFORM != CC_PLATFORM_WIN32) && (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
+#if (CC_PLATFORM != CC_PLATFORM_WINDOWS) && (CC_PLATFORM != CC_PLATFORM_MAC_OSX)
     _project.setDebuggerType(kCCRuntimeDebuggerCodeIDE);
 #endif
 
@@ -312,11 +312,11 @@ void RuntimeEngine::trackEvent(const std::string &eventName)
         return ;
     }
 
-#if ((CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC))
+#if ((CC_PLATFORM == CC_PLATFORM_WINDOWS) || (CC_PLATFORM == CC_PLATFORM_MAC_OSX))
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     const char *platform = "win";
-#elif (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
+#elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
     const char *platform = "mac";
 #else
     const char *platform = "UNKNOWN";
@@ -341,7 +341,7 @@ void RuntimeEngine::trackEvent(const std::string &eventName)
 
     request->start();
     */
-#endif // ((CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC))
+#endif // ((CC_PLATFORM == CC_PLATFORM_WINDOWS) || (CC_PLATFORM == CC_PLATFORM_MAC_OSX))
 }
 
 void RuntimeEngine::trackLaunchEvent()

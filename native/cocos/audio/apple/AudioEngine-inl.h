@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 #include "platform/CCPlatformConfig.h"
-#if CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+#if CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
 
 #ifndef __AUDIO_ENGINE_INL_H_
 #define __AUDIO_ENGINE_INL_H_

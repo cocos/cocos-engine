@@ -27,7 +27,7 @@
 USING_NS_CC;
 
 // No Available on tvOS
-#if CC_TARGET_PLATFORM == CC_PLATFORM_IOS && !defined(CC_TARGET_OS_TVOS)
+#if CC_PLATFORM == CC_PLATFORM_MAC_IOS && !defined(CC_TARGET_OS_TVOS)
 
 //-------------------------------------------------------------------------------------
 

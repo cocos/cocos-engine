@@ -1,5 +1,5 @@
 #include "scripting/js-bindings/auto/jsb_video_auto.hpp"
-#if (USE_VIDEO > 0) && (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS) && !defined(CC_TARGET_OS_TVOS)
+#if (USE_VIDEO > 0) && (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS) && !defined(CC_TARGET_OS_TVOS)
 #include "scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "scripting/js-bindings/manual/jsb_global.h"
 #include "ui/videoplayer/VideoPlayer.h"
@@ -365,4 +365,4 @@ bool register_all_video(se::Object* obj)
     return true;
 }
 
-#endif //#if (USE_VIDEO > 0) && (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS) && !defined(CC_TARGET_OS_TVOS)
+#endif //#if (USE_VIDEO > 0) && (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS) && !defined(CC_TARGET_OS_TVOS)

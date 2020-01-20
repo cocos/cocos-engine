@@ -36,7 +36,7 @@ NS_CC_BEGIN
 
 namespace network {
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
 typedef int int32_t;
 #endif
 

@@ -47,7 +47,7 @@ NS_CC_BEGIN
 
 // Implement DictMaker
 
-#if (CC_TARGET_PLATFORM != CC_PLATFORM_IOS) && (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
+#if (CC_PLATFORM != CC_PLATFORM_MAC_IOS) && (CC_PLATFORM != CC_PLATFORM_MAC_OSX)
 
 typedef enum
 {
@@ -544,7 +544,7 @@ ValueMap FileUtils::getValueMapFromData(const char* filedata, int filesize) {ret
 ValueVector FileUtils::getValueVectorFromFile(const std::string& filename) {return ValueVector();}
 bool FileUtils::writeToFile(const ValueMap& dict, const std::string &fullPath) {return false;}
 
-#endif /* (CC_TARGET_PLATFORM != CC_PLATFORM_IOS) && (CC_TARGET_PLATFORM != CC_PLATFORM_MAC) */
+#endif /* (CC_PLATFORM != CC_PLATFORM_MAC_IOS) && (CC_PLATFORM != CC_PLATFORM_MAC_OSX) */
 
 // Implement FileUtils
 FileUtils* FileUtils::s_sharedFileUtils = nullptr;
@@ -1187,7 +1187,7 @@ void FileUtils::listFilesRecursively(const std::string& dirPath, std::vector<std
     }
 }
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
+#if (CC_PLATFORM == CC_PLATFORM_WINDOWS) || (CC_PLATFORM == CC_PLATFORM_WINRT)
 // windows os implement should override in platform specific FileUtiles class
 bool FileUtils::isDirectoryExistInternal(const std::string& dirPath) const
 {
@@ -1244,7 +1244,7 @@ long FileUtils::getFileSize(const std::string &filepath)
 #include <dirent.h>
 
 // android doesn't have ftw.h
-#if (CC_TARGET_PLATFORM != CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM != CC_PLATFORM_ANDROID)
 #include <ftw.h>
 #endif
 
@@ -1323,7 +1323,7 @@ bool FileUtils::createDirectory(const std::string& path)
 
 namespace
 {
-#if (CC_TARGET_PLATFORM != CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM != CC_PLATFORM_ANDROID)
     int unlink_cb(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf)
     {
         int rv = remove(fpath);
@@ -1340,7 +1340,7 @@ bool FileUtils::removeDirectory(const std::string& path)
 {
 #if !defined(CC_TARGET_OS_TVOS)
 
-#if (CC_TARGET_PLATFORM != CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM != CC_PLATFORM_ANDROID)
     if (nftw(path.c_str(), unlink_cb, 64, FTW_DEPTH | FTW_PHYS) == -1)
         return false;
     else
@@ -1353,7 +1353,7 @@ bool FileUtils::removeDirectory(const std::string& path)
         return true;
     else
         return false;
-#endif // (CC_TARGET_PLATFORM != CC_PLATFORM_ANDROID)
+#endif // (CC_PLATFORM != CC_PLATFORM_ANDROID)
 
 #else
     return false;

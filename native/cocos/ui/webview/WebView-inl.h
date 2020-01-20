@@ -27,9 +27,9 @@
 #include "platform/CCFileUtils.h"
 #include "platform/CCPlatformConfig.h"
 
-#if CC_TARGET_PLATFORM == CC_PLATFORM_IOS && !defined(CC_PLATFORM_OS_TVOS)
+#if CC_PLATFORM == CC_PLATFORM_MAC_IOS && !defined(CC_PLATFORM_OS_TVOS)
 #include "WebViewImpl-ios.h"
-#elif CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+#elif CC_PLATFORM == CC_PLATFORM_ANDROID
 #include "WebViewImpl-android.h"
 #else
 static_assert(false, "WebView only supported on iOS & Android");

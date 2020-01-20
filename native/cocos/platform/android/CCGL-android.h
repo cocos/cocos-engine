@@ -28,7 +28,7 @@ THE SOFTWARE.
 #define __CCGL_H__
 
 #include "platform/CCPlatformConfig.h"
-#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
 
 #define glClearDepth                glClearDepthf
 #define glDeleteVertexArrays        glDeleteVertexArraysOES
@@ -75,7 +75,7 @@ extern PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysOESEXT;
 #define glDeleteVertexArraysOES glDeleteVertexArraysOESEXT
 
 
-#endif // CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+#endif // CC_PLATFORM == CC_PLATFORM_ANDROID
 
 #endif // __CCGL_H__
 

@@ -51,7 +51,7 @@ void ConfigParser::readConfig(const string &filepath)
 {
     string fullPathFile = filepath;
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
     // add writable path to search path temporarily for reading config file
     vector<std::string> searchPathArray = cocos2d::FileUtils::getInstance()->getSearchPaths();
     searchPathArray.insert(searchPathArray.begin(), FileServer::getShareInstance()->getWritePath());
@@ -65,7 +65,7 @@ void ConfigParser::readConfig(const string &filepath)
     }
     string fileContent = cocos2d::FileUtils::getInstance()->getStringFromFile(fullPathFile);
   
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
     // revert search path
     searchPathArray.erase(searchPathArray.begin());
     cocos2d::FileUtils::getInstance()->setSearchPaths(searchPathArray);

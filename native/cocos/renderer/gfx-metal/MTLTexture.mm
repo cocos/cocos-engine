@@ -77,7 +77,7 @@ bool CCMTLTexture::Initialize(const GFXTextureInfo& info)
     descriptor.mipmapLevelCount = mip_level_;
     descriptor.arrayLength = array_layer_;
     
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX_OSX)
     //FIXME: is it correct here for performace optimization?
     // Should change to MTLStorageModeManaged if texture usage is GFXTextureFlags::BAKUP_BUFFER?
     if (usage_ == GFXTextureUsage::COLOR_ATTACHMENT ||

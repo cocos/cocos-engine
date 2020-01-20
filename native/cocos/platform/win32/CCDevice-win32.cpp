@@ -25,7 +25,7 @@ THE SOFTWARE.
 ****************************************************************************/
 
 #include "platform/CCPlatformConfig.h"
-#if CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
 
 #include "platform/CCDevice.h"
 #include "platform/CCFileUtils.h"
@@ -98,4 +98,4 @@ cocos2d::Vec4 Device::getSafeAreaEdge()
 
 NS_CC_END
 
-#endif // CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+#endif // CC_PLATFORM == CC_PLATFORM_WINDOWS

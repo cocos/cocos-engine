@@ -27,7 +27,7 @@ THE SOFTWARE.
 #define __CC_FILEUTILS_WIN32_H__
 
 #include "platform/CCPlatformConfig.h"
-#if CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
 
 #include "platform/CCFileUtils.h"
 #include "base/ccMacros.h"
@@ -139,6 +139,6 @@ protected:
 
 NS_CC_END
 
-#endif // CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+#endif // CC_PLATFORM == CC_PLATFORM_WINDOWS
 
 #endif    // __CC_FILEUTILS_WIN32_H__

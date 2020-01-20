@@ -229,7 +229,7 @@ bool UTF32ToUTF16(const std::u32string& utf32, std::u16string& outUtf16)
     return utfConvert(utf32, outUtf16, ConvertUTF32toUTF16);
 }
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID) 
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID) 
 std::string getStringUTFCharsJNI(JNIEnv* env, jstring srcjStr, bool* ret)
 {
     std::string utf8Str;

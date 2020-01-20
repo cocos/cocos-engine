@@ -26,7 +26,7 @@ THE SOFTWARE.
 
 
 #include "platform/CCPlatformConfig.h"
-#if CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
 
 #include "platform/CCStdC.h"
 
@@ -51,5 +51,5 @@ NS_CC_END
 
 #endif // __MINGW32__
 
-#endif // CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+#endif // CC_PLATFORM == CC_PLATFORM_WINDOWS
 

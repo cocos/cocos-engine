@@ -23,7 +23,7 @@
  ****************************************************************************/
 
 #include "platform/CCPlatformConfig.h"
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX) || (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
 
 #import "network/HttpAsynConnection-apple.h"
 
@@ -227,4 +227,4 @@
 
 @end
 
-#endif // #if (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+#endif // #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX) || (CC_PLATFORM == CC_PLATFORM_MAC_IOS)

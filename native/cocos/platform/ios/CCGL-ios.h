@@ -27,7 +27,7 @@ THE SOFTWARE.
 #pragma once
 
 #include "platform/CCPlatformConfig.h"
-#if CC_TARGET_PLATFORM == CC_PLATFORM_IOS
+#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
 
 #include <OpenGLES/ES2/gl.h>
 #include <OpenGLES/ES2/glext.h>
@@ -47,4 +47,4 @@ THE SOFTWARE.
 #define GL_MAX_TEXTURE_UNITS    GL_MAX_TEXTURE_IMAGE_UNITS
 //#define GL_MAX_SAMPLES_APPLE    GL_MAX_SAMPLES
 
-#endif // CC_PLATFORM_IOS
+#endif // CC_PLATFORM_MAC_IOS

@@ -373,7 +373,7 @@ namespace se {
         }
         _beforeInitHookArray.clear();
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
         std::string flags("--jitless");
         v8::V8::SetFlagsFromString(flags.c_str(), (int)flags.length());
 #endif

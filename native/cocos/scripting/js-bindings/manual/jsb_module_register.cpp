@@ -51,15 +51,15 @@
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.hpp"
 #endif
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX)
 #include "cocos/scripting/js-bindings/manual/JavaScriptObjCBridge.h"
 #endif
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
 #include "cocos/scripting/js-bindings/manual/JavaScriptJavaBridge.h"
 #endif
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
 
 #if USE_VIDEO
 #include "cocos/scripting/js-bindings/auto/jsb_video_auto.hpp"
@@ -69,7 +69,7 @@
 #include "cocos/scripting/js-bindings/auto/jsb_webview_auto.hpp"
 #endif
 
-#endif // (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#endif // (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
 
 using namespace cocos2d;
 
@@ -99,11 +99,11 @@ bool jsb_register_all_modules()
     // extension depend on network
     se->addRegisterCallback(register_all_extension);
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX)
     se->addRegisterCallback(register_javascript_objc_bridge);
 #endif
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     se->addRegisterCallback(register_javascript_java_bridge);
 #endif
 
@@ -116,7 +116,7 @@ bool jsb_register_all_modules()
     se->addRegisterCallback(register_all_socketio);
 #endif
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
 
 #if USE_VIDEO
 //    se->addRegisterCallback(register_all_video);
@@ -126,7 +126,7 @@ bool jsb_register_all_modules()
 //    se->addRegisterCallback(register_all_webview);
 #endif
 
-#endif // (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#endif // (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
 
     se->addAfterCleanupHook([](){
         PoolManager::getInstance()->getCurrentPool()->clear();

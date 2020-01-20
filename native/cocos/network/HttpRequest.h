@@ -57,7 +57,7 @@ typedef std::function<void(HttpClient*/* client*/, HttpResponse*/* response*/)> 
  * @lua NA
  */
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
+#if (CC_PLATFORM == CC_PLATFORM_WINRT)
 #ifdef DELETE
 #undef DELETE
 #endif

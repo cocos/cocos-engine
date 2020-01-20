@@ -26,7 +26,7 @@
  ****************************************************************************/
 
 #include "platform/CCPlatformConfig.h"
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
 
 #include "network/HttpClient.h"
 
@@ -1117,4 +1117,4 @@ const std::string& HttpClient::getSSLVerification()
 
 NS_CC_END
 
-#endif // #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#endif // #if (CC_PLATFORM == CC_PLATFORM_ANDROID)

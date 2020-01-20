@@ -27,7 +27,7 @@ THE SOFTWARE.
 
 #include "platform/CCPlatformConfig.h"
 
-#if CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
 
 	#define WIN32_LEAN_AND_MEAN
 	#include <Windows.h>
@@ -80,4 +80,4 @@ THE SOFTWARE.
 	#include <sys/time.h>
 	#include <stdint.h>
 
-#endif // CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+#endif // CC_PLATFORM == CC_PLATFORM_WINDOWS

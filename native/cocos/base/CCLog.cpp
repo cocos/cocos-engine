@@ -28,12 +28,12 @@
 #include <algorithm>
 #include <string.h>
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
 #include <io.h>
 #include <WS2tcpip.h>
 #include <Winsock2.h>
 
-#endif // (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+#endif // (CC_PLATFORM == CC_PLATFORM_WINDOWS)
 
 /** private functions */
 namespace 
@@ -70,10 +70,10 @@ namespace
         
         strcat(buf, "\n");
         
-#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
         #include <android/log.h>
         __android_log_print(ANDROID_LOG_DEBUG, "debug info", "%s", buf);
-#elif CC_TARGET_PLATFORM ==  CC_PLATFORM_WIN32
+#elif CC_PLATFORM ==  CC_PLATFORM_WINDOWS
         int pos = 0;
         int len = strlen(buf);
         char tempBuf[MAX_LOG_LENGTH + 1] = { 0 };

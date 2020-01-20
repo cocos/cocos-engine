@@ -7,7 +7,7 @@
 
 #import <Foundation/Foundation.h>
 
-#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
 #import <Cocoa/Cocoa.h>
 #else
 #import <CoreText/CoreText.h>
@@ -44,7 +44,7 @@ enum class CanvasTextBaseline {
     CGFloat _height;
     CGContextRef _context;
 
-#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
     NSGraphicsContext* _currentGraphicsContext;
     NSGraphicsContext* _oldGraphicsContext;
 #else
@@ -90,7 +90,7 @@ enum class CanvasTextBaseline {
         _context = nil;
         _colorSpace = nil;
 
-#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
         _currentGraphicsContext = nil;
         _oldGraphicsContext = nil;
 #endif
@@ -110,13 +110,13 @@ enum class CanvasTextBaseline {
     // release the context
     CGContextRelease(_context);
     [_path release];
-#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
     [_currentGraphicsContext release];
 #endif
     [super dealloc];
 }
 
-#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
 
 -(NSFont*) _createSystemFont {
     NSFontTraitMask mask = NSUnitalicFontMask;
@@ -225,7 +225,7 @@ enum class CanvasTextBaseline {
         _context = nil;
     }
 
-#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
     if (_currentGraphicsContext != nil)
     {
         [_currentGraphicsContext release];
@@ -248,7 +248,7 @@ enum class CanvasTextBaseline {
         _colorSpace = nil;
     }
 
-#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
     _currentGraphicsContext = [NSGraphicsContext graphicsContextWithCGContext:_context flipped: NO];
     [_currentGraphicsContext retain];
 #else
@@ -291,7 +291,7 @@ enum class CanvasTextBaseline {
         point.x -= textSize.width;
     }
 
-#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
     // The origin on macOS is bottom-left by default,
     // so we need to convert y from top-left origin to bottom-left origin.
     point.y = _height - point.y;
@@ -438,7 +438,7 @@ enum class CanvasTextBaseline {
 
     NSColor* color = [NSColor colorWithRed:_fillStyle.r green:_fillStyle.g blue:_fillStyle.b alpha:_fillStyle.a];
     [color setFill];
-#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
     CGRect tmpRect = CGRectMake(rect.origin.x, _height - rect.origin.y - rect.size.height, rect.size.width, rect.size.height);
     [NSBezierPath fillRect:tmpRect];
 #else
@@ -449,7 +449,7 @@ enum class CanvasTextBaseline {
 }
 
 -(void) saveContext {
-#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
     // save the old graphics context
     _oldGraphicsContext = [NSGraphicsContext currentContext];
     // store the current context
@@ -467,7 +467,7 @@ enum class CanvasTextBaseline {
 }
 
 -(void) restoreContext {
-#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
     // pop the context
     [NSGraphicsContext restoreGraphicsState];
     // reset the old graphics context
@@ -494,7 +494,7 @@ enum class CanvasTextBaseline {
 }
 
 -(void) moveToX: (float) x y:(float) y {
-#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
     [_path moveToPoint: NSMakePoint(x, _height - y)];
 #else
     [_path moveToPoint: NSMakePoint(x, y)];
@@ -502,7 +502,7 @@ enum class CanvasTextBaseline {
 }
 
 -(void) lineToX: (float) x y:(float) y {
-#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
     [_path lineToPoint: NSMakePoint(x, _height - y)];
 #else
     [_path addLineToPoint: NSMakePoint(x, y)];

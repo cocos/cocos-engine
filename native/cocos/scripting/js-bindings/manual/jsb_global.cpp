@@ -33,7 +33,7 @@
 #include "platform/CCApplication.h"
 //#include "ui/edit-box/EditBox.h"
 
-#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
 #include "platform/android/jni/JniImp.h"
 #endif
 
@@ -359,8 +359,8 @@ namespace {
 //            fclose(fp);
 
             std::string reletivePath = fullPath;
-#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_IOS
-    #if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+#if CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_MAC_IOS
+    #if CC_PLATFORM == CC_PLATFORM_MAC_OSX
             const std::string reletivePathKey = "/Contents/Resources";
     #else
             const std::string reletivePathKey = ".app";
@@ -504,15 +504,15 @@ static bool JSBCore_os(se::State& s)
     se::Value os;
 
     // osx, ios, android, windows, linux, etc..
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
     os.setString("iOS");
-#elif (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#elif (CC_PLATFORM == CC_PLATFORM_ANDROID)
     os.setString("Android");
-#elif (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+#elif (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     os.setString("Windows");
-#elif (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
+#elif (CC_PLATFORM == CC_PLATFORM_LINUX)
     os.setString("Linux");
-#elif (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
+#elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
     os.setString("macOS");
     os.setString("Unknown");
 #endif
@@ -995,7 +995,7 @@ SE_BIND_FUNC(js_saveImageData)
 //        SE_PRECONDITION2(ok, false, "Convert arg1 text failed!");
 //
 //
-//#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+//#if CC_PLATFORM == CC_PLATFORM_ANDROID
 //        setGameInfoDebugViewTextJNI(index, text);
 //#endif
 //        return true;
@@ -1008,7 +1008,7 @@ SE_BIND_FUNC(js_saveImageData)
 
 //static bool js_openDebugView(se::State& s)
 //{
-//#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+//#if CC_PLATFORM == CC_PLATFORM_ANDROID
 //    openDebugViewJNI();
 //#endif
 //    return true;

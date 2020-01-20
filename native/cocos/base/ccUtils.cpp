@@ -35,7 +35,7 @@ NS_CC_BEGIN
 
 namespace
 {
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
 #include "platform/CCStdC.h"
     int gettimeofday(struct timeval * val, void *)
     {

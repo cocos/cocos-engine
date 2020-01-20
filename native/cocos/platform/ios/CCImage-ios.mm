@@ -25,7 +25,7 @@ THE SOFTWARE.
 ****************************************************************************/
 
 #include "platform/CCPlatformConfig.h"
-#if CC_TARGET_PLATFORM == CC_PLATFORM_IOS
+#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
 
 #import "platform/CCImage.h"
 #import <string>
@@ -123,5 +123,5 @@ bool cocos2d::Image::saveToFile(const std::string& filename, bool isToRGB)
 
 NS_CC_END
 
-#endif // CC_PLATFORM_IOS
+#endif // CC_PLATFORM_MAC_IOS
 

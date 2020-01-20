@@ -25,7 +25,7 @@ THE SOFTWARE.
 ****************************************************************************/
 
 #include "platform/CCPlatformConfig.h"
-#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
 
 #include "platform/CCDevice.h"
 #include "platform/apple/CCDevice-apple.h"
@@ -125,4 +125,4 @@ cocos2d::Vec4 Device::getSafeAreaEdge()
 
 NS_CC_END
 
-#endif // CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+#endif // CC_PLATFORM == CC_PLATFORM_MAC_OSX

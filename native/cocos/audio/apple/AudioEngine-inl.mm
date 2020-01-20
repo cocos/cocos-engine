@@ -26,7 +26,7 @@
 #define LOG_TAG "AudioEngine-inl.mm"
 
 #include "platform/CCPlatformConfig.h"
-#if CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+#if CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
 
 #include "audio/apple/AudioEngine-inl.h"
 
@@ -63,7 +63,7 @@ static ALenum alSourceAddNotificationExt(ALuint sid, ALuint notificationID, alSo
     return AL_INVALID_VALUE;
 }
 
-#if CC_TARGET_PLATFORM == CC_PLATFORM_IOS
+#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
 @interface AudioEngineSessionHandler : NSObject
 {
 }
@@ -259,7 +259,7 @@ AudioEngineImpl::~AudioEngineImpl()
         alcCloseDevice(s_ALDevice);
     }
 
-#if CC_TARGET_PLATFORM == CC_PLATFORM_IOS
+#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
     [s_AudioEngineSessionHandler release];
 #endif
     s_instance = nullptr;
@@ -269,7 +269,7 @@ bool AudioEngineImpl::init()
 {
     bool ret = false;
     do{
-#if CC_TARGET_PLATFORM == CC_PLATFORM_IOS
+#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
         s_AudioEngineSessionHandler = [[AudioEngineSessionHandler alloc] init];
 #endif
 

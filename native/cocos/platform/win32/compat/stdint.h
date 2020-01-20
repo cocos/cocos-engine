@@ -33,7 +33,7 @@
 #define _MSC_STDINT_H_
 
 #include "platform/CCPlatformConfig.h"
-#if CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
 
 #ifndef _MSC_VER // [
 #error "Use this header only with Microsoft Visual C++ compilers!"
@@ -246,6 +246,6 @@ typedef uint64_t  uintmax_t;
 
 #endif // __STDC_CONSTANT_MACROS ]
 
-#endif // CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+#endif // CC_PLATFORM == CC_PLATFORM_WINDOWS
 
 #endif // _MSC_STDINT_H_ ]

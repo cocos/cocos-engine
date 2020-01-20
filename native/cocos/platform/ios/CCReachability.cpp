@@ -41,7 +41,7 @@ namespace {
 #if ShouldPrintReachabilityFlags
 
         printf("Reachability Flag Status: %c%c %c%c%c%c%c%c%c %s\n",
-#if CC_TARGET_PLATFORM == CC_PLATFORM_IOS
+#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
                (flags & kSCNetworkReachabilityFlagsIsWWAN)               ? 'W' : '-',
 #else
                '-',
@@ -95,7 +95,7 @@ namespace {
             }
         }
 
-#if CC_TARGET_PLATFORM == CC_PLATFORM_IOS
+#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
         if ((flags & kSCNetworkReachabilityFlagsIsWWAN) == kSCNetworkReachabilityFlagsIsWWAN)
         {
             /*

@@ -34,17 +34,17 @@
 #include <thread>
 #include <mutex>
 
-#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
 #include "audio/android/AudioEngine-inl.h"
-#elif CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+#elif CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
 #include "audio/apple/AudioEngine-inl.h"
-#elif CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+#elif CC_PLATFORM == CC_PLATFORM_WINDOWS
 #include "audio/win32/AudioEngine-win32.h"
-#elif CC_TARGET_PLATFORM == CC_PLATFORM_WINRT
+#elif CC_PLATFORM == CC_PLATFORM_WINRT
 #include "audio/winrt/AudioEngine-winrt.h"
-#elif CC_TARGET_PLATFORM == CC_PLATFORM_LINUX
+#elif CC_PLATFORM == CC_PLATFORM_LINUX
 #include "audio/linux/AudioEngine-linux.h"
-#elif CC_TARGET_PLATFORM == CC_PLATFORM_TIZEN
+#elif CC_PLATFORM == CC_PLATFORM_TIZEN
 #include "audio/tizen/AudioEngine-tizen.h"
 #endif
 
@@ -195,7 +195,7 @@ bool AudioEngine::lazyInit()
         }
     }
 
-#if (CC_TARGET_PLATFORM != CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM != CC_PLATFORM_ANDROID)
     if (_audioEngineImpl && s_threadPool == nullptr)
     {
         s_threadPool = new (std::nothrow) AudioEngineThreadPool();

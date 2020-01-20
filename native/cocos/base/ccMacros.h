@@ -36,7 +36,7 @@ THE SOFTWARE.
 #include "base/CCLog.h"
 #include "base/ccConfig.h"
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
 #include <BaseTsd.h>
 #ifndef __SSIZE_T
 #define __SSIZE_T
@@ -84,17 +84,6 @@ typedef SSIZE_T ssize_t;
             TypeName(const TypeName&);\
             void operator=(const TypeName&)
 
-
- /** @def CC_SWAP
- simple macro that swaps 2 variables
- @deprecated use std::swap() instead
- */
-#define CC_SWAP(x, y, type)    \
-{    type temp = (x);        \
-    x = y; y = temp;        \
-}
-
-
 /**
 Helper macros which converts 4-byte little/big endian
 integral number to the machine native number representation
@@ -110,46 +99,6 @@ It should work same as apples CFSwapInt32LittleToHost(..)
 #define CC_SWAP_INT16_LITTLE_TO_HOST(i) ((CC_HOST_IS_BIG_ENDIAN == true)? CC_SWAP16(i) : (i) )
 #define CC_SWAP_INT32_BIG_TO_HOST(i)    ((CC_HOST_IS_BIG_ENDIAN == true)? (i) : CC_SWAP32(i) )
 #define CC_SWAP_INT16_BIG_TO_HOST(i)    ((CC_HOST_IS_BIG_ENDIAN == true)? (i):  CC_SWAP16(i) )
-
-#if !defined(COCOS2D_DEBUG) || COCOS2D_DEBUG == 0
-#define CHECK_GL_ERROR_DEBUG()
-#else
-#define CHECK_GL_ERROR_DEBUG() \
-//    do { \
-//        GLenum __error = glGetError(); \
-//        if(__error) { \
-//            cocos2d::log("OpenGL error 0x%04X in %s %s %d\n", __error, __FILE__, __FUNCTION__, __LINE__); \
-//        } \
-//    } while (false)
-#endif // !defined(COCOS2D_DEBUG) || COCOS2D_DEBUG == 0
-
-/**
- * GL assertion that can be used for any OpenGL function call.
- *
- * This macro will assert if an error is detected when executing
- * the specified GL code. This macro will do nothing in release
- * mode and is therefore safe to use for realtime/per-frame GL
- * function calls.
- */
-#if defined(NDEBUG) || (defined(__APPLE__) && !defined(DEBUG))
-#define CC_GL_ASSERT( gl_code ) gl_code
-#else
-#define CC_GL_ASSERT( gl_code ) do \
-//{ \
-//gl_code; \
-//__gl_error_code = glGetError(); \
-//CC_ASSERT(__gl_error_code == GL_NO_ERROR, "Error"); \
-} while(0)
-#endif // defined(NDEBUG) || (defined(__APPLE__) && !defined(DEBUG))
-
- /*********************************/
- /** 64bits Program Sense Macros **/
- /*********************************/
-#if defined(_M_X64) || defined(_WIN64) || defined(__LP64__) || defined(_LP64) || defined(__x86_64)
-#define CC_64BITS 1
-#else
-#define CC_64BITS 0
-#endif
 
 // new callbacks based on C++11
 #define CC_CALLBACK_0(__selector__,__target__, ...) std::bind(&__selector__,__target__, ##__VA_ARGS__)
@@ -196,7 +145,7 @@ It should work same as apples CFSwapInt32LittleToHost(..)
 
 #elif COCOS2D_DEBUG == 1
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
 #define COCOS_LOG_TAG "cocos2d-x"
 #define CCLOG(...) __android_log_print(ANDROID_LOG_DEBUG, COCOS_LOG_TAG, __VA_ARGS__)
 #define CCLOGINFO(format,...)   do {} while (0)
@@ -253,43 +202,8 @@ It should work same as apples CFSwapInt32LittleToHost(..)
 */
 #define CC_DEPRECATED(...) CC_DEPRECATED_ATTRIBUTE
 
-/** @def CC_FORMAT_PRINTF(formatPos, argPos)
-* Only certain compiler support __attribute__((format))
-*
-* @param formatPos 1-based position of format string argument.
-* @param argPos    1-based position of first format-dependent argument.
-*/
-#if defined(__GNUC__) && (__GNUC__ >= 4)
-#define CC_FORMAT_PRINTF(formatPos, argPos) __attribute__((__format__(printf, formatPos, argPos)))
-#elif defined(__has_attribute)
-#if __has_attribute(format)
-#define CC_FORMAT_PRINTF(formatPos, argPos) __attribute__((__format__(printf, formatPos, argPos)))
-#endif // __has_attribute(format)
-#else
-#define CC_FORMAT_PRINTF(formatPos, argPos)
-#endif
-
-#if defined(_MSC_VER)
-#define CC_FORMAT_PRINTF_SIZE_T "%08lX"
-#else
-#define CC_FORMAT_PRINTF_SIZE_T "%08zX"
-#endif
-
 #ifdef __GNUC__
 #define CC_UNUSED __attribute__ ((unused))
 #else
 #define CC_UNUSED
-#endif
-
-/** @def CC_REQUIRES_NULL_TERMINATION
-*
-*/
-#if !defined(CC_REQUIRES_NULL_TERMINATION)
-#if defined(__APPLE_CC__) && (__APPLE_CC__ >= 5549)
-#define CC_REQUIRES_NULL_TERMINATION __attribute__((sentinel(0,1)))
-#elif defined(__GNUC__)
-#define CC_REQUIRES_NULL_TERMINATION __attribute__((sentinel))
-#else
-#define CC_REQUIRES_NULL_TERMINATION
-#endif
 #endif

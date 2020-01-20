@@ -28,7 +28,7 @@ THE SOFTWARE.
 #define __CCGL_H__
 
 #include "platform/CCPlatformConfig.h"
-#if CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
 
 #include "gles/glew.h"
 
@@ -41,6 +41,6 @@ THE SOFTWARE.
 #define GL_HALF_FLOAT_OES           0x8D61
 #define GL_UNSIGNED_INT_24_8_OES    0x84FA
 
-#endif // CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+#endif // CC_PLATFORM == CC_PLATFORM_WINDOWS
 
 #endif // __CCGL_H__

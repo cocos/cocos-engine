@@ -25,7 +25,7 @@ THE SOFTWARE.
 ****************************************************************************/
 
 #include "platform/CCPlatformConfig.h"
-#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
 
 #include "platform/CCDevice.h"
 #include <string.h>
@@ -127,4 +127,4 @@ cocos2d::Vec4 Device::getSafeAreaEdge()
 
 NS_CC_END
 
-#endif // CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+#endif // CC_PLATFORM == CC_PLATFORM_ANDROID

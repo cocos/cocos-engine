@@ -91,7 +91,7 @@ static bool runtime_FileUtils_addSearchPath(se::State& s)
                 cobj->addSearchPath(arg0, arg1);
             }
             
-#if(CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+#if(CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS)
             // add project path to search path
             cobj->addSearchPath(RuntimeEngine::getInstance()->getRuntime()->getProjectPath() + arg0, arg1);
 #endif
@@ -127,7 +127,7 @@ static bool runtime_FileUtils_setSearchPaths(se::State& s)
             }
         }
         
-#if(CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+#if(CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS)
         vecPaths.insert(vecPaths.end(), projPath.begin(), projPath.end());
 #endif
         if (FileServer::getShareInstance()->getIsUsingWritePath())

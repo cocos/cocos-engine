@@ -99,17 +99,17 @@ THE SOFTWARE.
 #define GL_DEPTH_STENCIL 0x84F9
 #endif
 
-#if CC_TARGET_PLATFORM == CC_PLATFORM_MAC
+#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
 #include "platform/mac/CCGL-mac.h"
-#elif CC_TARGET_PLATFORM == CC_PLATFORM_IOS
+#elif CC_PLATFORM == CC_PLATFORM_MAC_IOS
 #include "platform/ios/CCGL-ios.h"
-#elif CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+#elif CC_PLATFORM == CC_PLATFORM_ANDROID
 #include "platform/android/CCGL-android.h"
-#elif CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+#elif CC_PLATFORM == CC_PLATFORM_WINDOWS
 #include "platform/win32/CCGL-win32.h"
-#elif CC_TARGET_PLATFORM == CC_PLATFORM_WINRT
+#elif CC_PLATFORM == CC_PLATFORM_WINRT
 #include "platform/winrt/CCGL.h"
-#elif CC_TARGET_PLATFORM == CC_PLATFORM_LINUX
+#elif CC_PLATFORM == CC_PLATFORM_LINUX
 #include "platform/linux/CCGL-linux.h"
 #endif
 

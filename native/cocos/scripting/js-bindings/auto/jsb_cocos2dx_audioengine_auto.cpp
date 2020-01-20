@@ -1,5 +1,5 @@
 #include "scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.hpp"
-#if (USE_AUDIO > 0) && (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+#if (USE_AUDIO > 0) && (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS)
 #include "scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "scripting/js-bindings/manual/jsb_global.h"
 #include "audio/include/AudioEngine.h"
@@ -831,4 +831,4 @@ bool register_all_audioengine(se::Object* obj)
     return true;
 }
 
-#endif //#if (USE_AUDIO > 0) && (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC || CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+#endif //#if (USE_AUDIO > 0) && (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS)

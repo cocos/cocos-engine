@@ -27,7 +27,7 @@ THE SOFTWARE.
 #define __CCPLATFORMDEFINE_H__
 
 #include "platform/CCPlatformConfig.h"
-#if CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
 
 #ifdef __MINGW32__
 #include <string.h>
@@ -73,7 +73,7 @@ THE SOFTWARE.
 #pragma comment(lib,"glfw3.lib")
 #endif
 
-#endif //s CC_TARGET_PLATFORM == CC_PLATFORM_WIN32
+#endif //s CC_PLATFORM == CC_PLATFORM_WINDOWS
 
 #endif /* __CCPLATFORMDEFINE_H__*/
 

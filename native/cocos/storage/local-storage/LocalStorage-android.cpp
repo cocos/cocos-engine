@@ -33,7 +33,7 @@
 #include "storage/local-storage/LocalStorage.h"
 #include "base/ccMacros.h"
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -148,4 +148,4 @@ void localStorageGetLength( int& outLength )
     outLength = JniHelper::callStaticIntMethod(JCLS_LOCALSTORAGE,"getLength");
 }
 
-#endif // #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#endif // #if (CC_PLATFORM == CC_PLATFORM_ANDROID)

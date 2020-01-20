@@ -36,7 +36,7 @@ THE SOFTWARE.
 #include <sys/stat.h>
 #endif
 
-#if CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
     #ifndef bzero
         #define bzero(a, b) memset(a, 0, b);
     #endif
@@ -143,7 +143,7 @@ bool FileServer::listenOnTCP(int port)
     hints.ai_family = AF_INET; // AF_UNSPEC: Do we need IPv6 ?
     hints.ai_socktype = SOCK_STREAM;
 
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     WSADATA wsaData;
     n = WSAStartup(MAKEWORD(2, 2),&wsaData);
 #endif
@@ -183,7 +183,7 @@ bool FileServer::listenOnTCP(int port)
             break;          /* success */
    
 		/* bind error, close and try next one */
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32)
+#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
 		closesocket(listenfd);
 #else
 		close(listenfd);
@@ -255,7 +255,7 @@ _writeEndThread(false),
 _responseRunning(false),
 _responseEndThread(false)
 {
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
     // need to be opened by Code IDE
     _isUsingWritePath = false;
 #else
@@ -264,7 +264,7 @@ _responseEndThread(false)
     
     _writePath = cocos2d::FileUtils::getInstance()->getWritablePath();
     
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
+#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
 #include "Widget_mac.h"
     _writePath += getCurAppName();
     _writePath += "/";
