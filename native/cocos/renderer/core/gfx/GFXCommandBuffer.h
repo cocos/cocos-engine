@@ -12,7 +12,7 @@ class CC_CORE_API GFXCommandBuffer : public Object {
   
 public:
   virtual bool Initialize(const GFXCommandBufferInfo& info) = 0;
-  virtual void Destroy() = 0;
+  virtual void destroy() = 0;
   virtual void Begin() = 0;
   virtual void End() = 0;
   virtual void BeginRenderPass(GFXFramebuffer* fbo, const GFXRect& render_area, GFXClearFlags clear_flags, GFXColor* colors, uint count, float depth, int stencil) = 0;
@@ -36,15 +36,15 @@ public:
   CC_INLINE GFXDevice* device() const { return device_; }
   CC_INLINE GFXCommandAllocator* allocator() const { return allocator_; }
   CC_INLINE GFXCommandBufferType type() const { return type_; }
-  CC_INLINE uint num_draw_calls() const { return num_draw_calls_; }
-  CC_INLINE uint num_tris() const { return num_tris_; }
+  CC_INLINE uint numDrawCalls() const { return _numDrawCalls; }
+  CC_INLINE uint numTris() const { return _numTriangles; }
   
 protected:
   GFXDevice* device_;
   GFXCommandAllocator* allocator_;
   GFXCommandBufferType type_;
-  uint num_draw_calls_;
-  uint num_tris_;
+  uint _numDrawCalls = 0;
+  uint _numTriangles = 0;
 };
 
 NS_CC_END

@@ -10,7 +10,7 @@ public:
   
 public:
   bool Initialize(const GFXWindowInfo& info);
-  void Destroy();
+  void destroy();
   void Resize(uint width, uint height);
 };
 

@@ -21,7 +21,7 @@ bool GLES3PipelineLayout::Initialize(const GFXPipelineLayoutInfo &info) {
   return true;
 }
 
-void GLES3PipelineLayout::Destroy() {
+void GLES3PipelineLayout::destroy() {
   if (gpu_pipeline_layout_) {
     CC_DELETE(gpu_pipeline_layout_);
     gpu_pipeline_layout_ = nullptr;

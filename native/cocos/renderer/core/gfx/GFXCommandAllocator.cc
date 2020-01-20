@@ -3,8 +3,7 @@
 
 NS_CC_BEGIN
 
-GFXCommandAllocator::GFXCommandAllocator(GFXDevice* device)
-    : device_(device) {
+GFXCommandAllocator::GFXCommandAllocator(GFXDevice* device) {
 }
 
 GFXCommandAllocator::~GFXCommandAllocator() {

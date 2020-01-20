@@ -12,7 +12,7 @@ class CC_CORE_API GFXPipelineLayout : public Object {
   
 public:
   virtual bool Initialize(const GFXPipelineLayoutInfo& info) = 0;
-  virtual void Destroy() = 0;
+  virtual void destroy() = 0;
   
   CC_INLINE GFXDevice* device() const { return device_; }
   CC_INLINE const GFXPushConstantRangeList& push_constant_ranges() const { return push_constant_ranges_; }

@@ -12,7 +12,7 @@ class CC_CORE_API GFXFramebuffer : public Object {
   
  public:
   virtual bool Initialize(const GFXFramebufferInfo& info) = 0;
-  virtual void Destroy() = 0;
+  virtual void destroy() = 0;
   
   CC_INLINE GFXDevice* device() const { return device_; }
   CC_INLINE GFXRenderPass* render_pass() const { return render_pass_; }

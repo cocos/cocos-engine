@@ -15,7 +15,7 @@
 NS_CC_BEGIN
 
 CCMTLPipelineState::CCMTLPipelineState(GFXDevice* device) : GFXPipelineState(device) {}
-CCMTLPipelineState::~CCMTLPipelineState() { Destroy(); }
+CCMTLPipelineState::~CCMTLPipelineState() { destroy(); }
 
 bool CCMTLPipelineState::Initialize(const GFXPipelineStateInfo& info)
 {
@@ -32,7 +32,7 @@ bool CCMTLPipelineState::Initialize(const GFXPipelineStateInfo& info)
     return  createGPUPipelineState();
 }
 
-void CCMTLPipelineState::Destroy()
+void CCMTLPipelineState::destroy()
 {
     if (_mtlRenderPipelineState)
     {

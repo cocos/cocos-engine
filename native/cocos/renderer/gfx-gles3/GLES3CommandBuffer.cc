@@ -40,9 +40,9 @@ bool GLES3CommandBuffer::Initialize(const GFXCommandBufferInfo& info) {
   return true;
 }
 
-void GLES3CommandBuffer::Destroy() {
+void GLES3CommandBuffer::destroy() {
   if (gles3_allocator_) {
-    gles3_allocator_->ClearCmds(cmd_package_);
+    gles3_allocator_->clearCmds(cmd_package_);
     gles3_allocator_ = nullptr;
   }
   allocator_ = nullptr;
@@ -51,12 +51,12 @@ void GLES3CommandBuffer::Destroy() {
 }
 
 void GLES3CommandBuffer::Begin() {
-  gles3_allocator_->ClearCmds(cmd_package_);
+  gles3_allocator_->clearCmds(cmd_package_);
   cur_gpu_pso_ = nullptr;
   cur_gpu_bl_ = nullptr;
   cur_gpu_ia_ = nullptr;
-  num_draw_calls_ = 0;
-  num_tris_ = 0;
+  _numDrawCalls = 0;
+  _numTriangles = 0;
 }
 
 void GLES3CommandBuffer::End() {
@@ -69,7 +69,7 @@ void GLES3CommandBuffer::End() {
 void GLES3CommandBuffer::BeginRenderPass(GFXFramebuffer* fbo, const GFXRect& render_area, GFXClearFlags clear_flags, GFXColor* colors, uint count, float depth, int stencil) {
   is_in_render_pass_ = true;
   
-  GLES3CmdBeginRenderPass* cmd = gles3_allocator_->begin_render_pass_cmd_pool.Alloc();
+  GLES3CmdBeginRenderPass* cmd = gles3_allocator_->beginRenderPassCmdPool.alloc();
   cmd->gpu_fbo = ((GLES3Framebuffer*)fbo)->gpu_fbo();
   cmd->render_area = render_area;
   cmd->clear_flags = clear_flags;
@@ -83,13 +83,13 @@ void GLES3CommandBuffer::BeginRenderPass(GFXFramebuffer* fbo, const GFXRect& ren
     cur_viewport_.top = render_area.y;
     cur_viewport_.width = render_area.width;
     cur_viewport_.height = render_area.height;
-  cmd_package_->begin_render_pass_cmds.Push(cmd);
-  cmd_package_->cmd_types.Push(GFXCmdType::BEGIN_RENDER_PASS);
+  cmd_package_->begin_render_pass_cmds.push(cmd);
+  cmd_package_->cmd_types.push(GFXCmdType::BEGIN_RENDER_PASS);
 }
 
 void GLES3CommandBuffer::EndRenderPass() {
   is_in_render_pass_ = false;
-  cmd_package_->cmd_types.Push(GFXCmdType::END_RENDER_PASS);
+  cmd_package_->cmd_types.push(GFXCmdType::END_RENDER_PASS);
 }
 
 void GLES3CommandBuffer::BindPipelineState(GFXPipelineState* pso) {
@@ -198,21 +198,21 @@ void GLES3CommandBuffer::Draw(GFXInputAssembler* ia) {
       BindStates();
     }
     
-    GLES3CmdDraw* cmd = gles3_allocator_->draw_cmd_pool.Alloc();
+    GLES3CmdDraw* cmd = gles3_allocator_->drawCmdPool.alloc();
     ((GLES3InputAssembler*)ia)->ExtractCmdDraw(cmd);
-    cmd_package_->draw_cmds.Push(cmd);
-    cmd_package_->cmd_types.Push(GFXCmdType::DRAW);
+    cmd_package_->draw_cmds.push(cmd);
+    cmd_package_->cmd_types.push(GFXCmdType::DRAW);
     
-    ++num_draw_calls_;
+    ++_numDrawCalls;
     if(cur_gpu_pso_) {
       switch (cur_gpu_pso_->gl_primitive) {
         case GL_TRIANGLES: {
-          num_tris_ += ia->index_count() / 3 * std::max(ia->instance_count(), 1U);
+          _numTriangles += ia->index_count() / 3 * std::max(ia->instance_count(), 1U);
           break;
         }
         case GL_TRIANGLE_STRIP:
         case GL_TRIANGLE_FAN: {
-          num_tris_ += (ia->index_count() - 2) * std::max(ia->instance_count(), 1U);
+          _numTriangles += (ia->index_count() - 2) * std::max(ia->instance_count(), 1U);
           break;
         }
         default:
@@ -229,14 +229,14 @@ void GLES3CommandBuffer::UpdateBuffer(GFXBuffer* buff, void* data, uint size, ui
       (type_ == GFXCommandBufferType::SECONDARY)) {
     GLES3GPUBuffer* gpu_buffer = ((GLES3Buffer*)buff)->gpu_buffer();
     if (gpu_buffer) {
-      GLES3CmdUpdateBuffer* cmd = gles3_allocator_->update_buffer_cmd_pool.Alloc();
+      GLES3CmdUpdateBuffer* cmd = gles3_allocator_->updateBufferCmdPool.alloc();
       cmd->gpu_buffer = gpu_buffer;
       cmd->buffer = (uint8_t*)data;
       cmd->size = size;
       cmd->offset = offset;
       
-      cmd_package_->update_buffer_cmds.Push(cmd);
-      cmd_package_->cmd_types.Push(GFXCmdType::UPDATE_BUFFER);
+      cmd_package_->update_buffer_cmds.push(cmd);
+      cmd_package_->cmd_types.push(GFXCmdType::UPDATE_BUFFER);
     }
   } else {
     CC_LOG_ERROR("Command 'UpdateBuffer' must be recorded inside a render pass.");
@@ -249,7 +249,7 @@ void GLES3CommandBuffer::CopyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GF
     GLES3GPUBuffer* gpu_buffer = ((GLES3Buffer*)src)->gpu_buffer();
     GLES3GPUTexture* gpu_texture = ((GLES3Texture*)dst)->gpu_texture();
     if (gpu_buffer && gpu_texture) {
-      GLES3CmdCopyBufferToTexture* cmd = gles3_allocator_->copy_buffer_to_texture_cmd_pool.Alloc();
+      GLES3CmdCopyBufferToTexture* cmd = gles3_allocator_->copyBufferToTextureCmdPool.alloc();
       cmd->gpu_buffer = gpu_buffer;
       cmd->gpu_texture = gpu_texture;
       cmd->dst_layout = layout;
@@ -258,8 +258,8 @@ void GLES3CommandBuffer::CopyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GF
         cmd->regions[i] = regions[i];
       }
       
-      cmd_package_->copy_buffer_to_texture_cmds.Push(cmd);
-      cmd_package_->cmd_types.Push(GFXCmdType::COPY_BUFFER_TO_TEXTURE);
+      cmd_package_->copy_buffer_to_texture_cmds.push(cmd);
+      cmd_package_->cmd_types.push(GFXCmdType::COPY_BUFFER_TO_TEXTURE);
     }
   } else {
     CC_LOG_ERROR("Command 'CopyBufferToTexture' must be recorded inside a render pass.");
@@ -270,40 +270,40 @@ void GLES3CommandBuffer::Execute(GFXCommandBuffer** cmd_buffs, uint count) {
   for (uint i = 0; i < count; ++i) {
     GLES3CommandBuffer* cmd_buff = (GLES3CommandBuffer*)cmd_buffs[i];
     
-    for (uint j = 0; j < cmd_buff->cmd_package_->begin_render_pass_cmds.Size(); ++j) {
+    for (uint j = 0; j < cmd_buff->cmd_package_->begin_render_pass_cmds.size(); ++j) {
       GLES3CmdBeginRenderPass* cmd = cmd_buff->cmd_package_->begin_render_pass_cmds[j];
       ++cmd->ref_count;
-      cmd_buff->cmd_package_->begin_render_pass_cmds.Push(cmd);
+      cmd_buff->cmd_package_->begin_render_pass_cmds.push(cmd);
     }
-    for (uint j = 0; j < cmd_buff->cmd_package_->bind_states_cmds.Size(); ++j) {
+    for (uint j = 0; j < cmd_buff->cmd_package_->bind_states_cmds.size(); ++j) {
       GLES3CmdBindStates* cmd = cmd_buff->cmd_package_->bind_states_cmds[j];
       ++cmd->ref_count;
-      cmd_buff->cmd_package_->bind_states_cmds.Push(cmd);
+      cmd_buff->cmd_package_->bind_states_cmds.push(cmd);
     }
-    for (uint j = 0; j < cmd_buff->cmd_package_->draw_cmds.Size(); ++j) {
+    for (uint j = 0; j < cmd_buff->cmd_package_->draw_cmds.size(); ++j) {
       GLES3CmdDraw* cmd = cmd_buff->cmd_package_->draw_cmds[j];
       ++cmd->ref_count;
-      cmd_buff->cmd_package_->draw_cmds.Push(cmd);
+      cmd_buff->cmd_package_->draw_cmds.push(cmd);
     }
-    for (uint j = 0; j < cmd_buff->cmd_package_->update_buffer_cmds.Size(); ++j) {
+    for (uint j = 0; j < cmd_buff->cmd_package_->update_buffer_cmds.size(); ++j) {
       GLES3CmdUpdateBuffer* cmd = cmd_buff->cmd_package_->update_buffer_cmds[j];
       ++cmd->ref_count;
-      cmd_buff->cmd_package_->update_buffer_cmds.Push(cmd);
+      cmd_buff->cmd_package_->update_buffer_cmds.push(cmd);
     }
-    for (uint j = 0; j < cmd_buff->cmd_package_->copy_buffer_to_texture_cmds.Size(); ++j) {
+    for (uint j = 0; j < cmd_buff->cmd_package_->copy_buffer_to_texture_cmds.size(); ++j) {
       GLES3CmdCopyBufferToTexture* cmd = cmd_buff->cmd_package_->copy_buffer_to_texture_cmds[j];
       ++cmd->ref_count;
-      cmd_buff->cmd_package_->copy_buffer_to_texture_cmds.Push(cmd);
+      cmd_buff->cmd_package_->copy_buffer_to_texture_cmds.push(cmd);
     }
-    cmd_package_->cmd_types.Concat(cmd_buff->cmd_package_->cmd_types);
+    cmd_package_->cmd_types.concat(cmd_buff->cmd_package_->cmd_types);
     
-    num_draw_calls_ += cmd_buff->num_draw_calls();
-    num_tris_ += cmd_buff->num_tris();
+    _numDrawCalls += cmd_buff->numDrawCalls();
+    _numTriangles += cmd_buff->numTris();
   }
 }
 
 void GLES3CommandBuffer::BindStates() {
-  GLES3CmdBindStates* cmd = gles3_allocator_->bind_states_cmd_pool.Alloc();
+  GLES3CmdBindStates* cmd = gles3_allocator_->bindStatesCmdPool.alloc();
   cmd->gpu_pso = cur_gpu_pso_;
   cmd->gpu_binding_layout = cur_gpu_bl_;
   cmd->gpu_ia = cur_gpu_ia_;
@@ -319,8 +319,8 @@ void GLES3CommandBuffer::BindStates() {
   cmd->stencil_write_mask = cur_stencil_write_mask_;
   cmd->stencil_compare_mask = cur_stencil_compare_mask_;
   
-  cmd_package_->bind_states_cmds.Push(cmd);
-  cmd_package_->cmd_types.Push(GFXCmdType::BIND_STATES);
+  cmd_package_->bind_states_cmds.push(cmd);
+  cmd_package_->cmd_types.push(GFXCmdType::BIND_STATES);
   is_state_invalid_ = false;
 }
 

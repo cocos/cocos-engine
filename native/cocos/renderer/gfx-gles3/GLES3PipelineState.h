@@ -12,7 +12,7 @@ class CC_GLES3_API GLES3PipelineState : public GFXPipelineState {
   
  public:
   bool Initialize(const GFXPipelineStateInfo& info);
-  void Destroy();
+  void destroy();
 
   CC_INLINE GLES3GPUPipelineState* gpu_pso() const { return gpu_pso_; }
   

@@ -13,7 +13,7 @@ class CC_GLES3_API GLES3InputAssembler : public GFXInputAssembler {
   
  public:
   bool Initialize(const GFXInputAssemblerInfo& info);
-  void Destroy();
+  void destroy();
   
   void ExtractCmdDraw(GLES3CmdDraw* cmd);
   

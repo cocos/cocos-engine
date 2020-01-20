@@ -12,7 +12,7 @@
 NS_CC_BEGIN
 
 CCMTLCommandBuffer::CCMTLCommandBuffer(GFXDevice* device) : GFXCommandBuffer(device) {}
-CCMTLCommandBuffer::~CCMTLCommandBuffer() { Destroy(); }
+CCMTLCommandBuffer::~CCMTLCommandBuffer() { destroy(); }
 
 bool CCMTLCommandBuffer::Initialize(const GFXCommandBufferInfo& info)
 {
@@ -37,7 +37,7 @@ bool CCMTLCommandBuffer::Initialize(const GFXCommandBufferInfo& info)
     return true;
 }
 
-void CCMTLCommandBuffer::Destroy()
+void CCMTLCommandBuffer::destroy()
 {
     if (_MTLCommandAllocator)
     {
@@ -53,8 +53,8 @@ void CCMTLCommandBuffer::Destroy()
 void CCMTLCommandBuffer::Begin()
 {
     _MTLCommandAllocator->clearCommands(_commandPackage);
-    num_tris_ = 0;
-    num_draw_calls_ = 0;
+    _numTriangles = 0;
+    _numDrawCalls = 0;
 }
 
 void CCMTLCommandBuffer::End()
@@ -67,7 +67,7 @@ void CCMTLCommandBuffer::BeginRenderPass(GFXFramebuffer* fbo, const GFXRect& ren
 {
     _isInRenderPass = true;
     
-    CCMTLCmdBeginRenderPass* cmd = _MTLCommandAllocator->_beginRenderPassCmdPool.Alloc();
+    CCMTLCmdBeginRenderPass* cmd = _MTLCommandAllocator->_beginRenderPassCmdPool.alloc();
     cmd->frameBuffer = (CCMTLFrameBuffer*)fbo;
     cmd->clearFlags = clear_flags;
     cmd->renderArea = render_area;
@@ -76,14 +76,14 @@ void CCMTLCommandBuffer::BeginRenderPass(GFXFramebuffer* fbo, const GFXRect& ren
     for (uint i = 0; i < count; ++i)
         cmd->clearColors[i] = colors[i];
     
-    _commandPackage->beginRenderPassCmds.Push(cmd);
-    _commandPackage->commandTypes.Push(GFXCmdType::BEGIN_RENDER_PASS);
+    _commandPackage->beginRenderPassCmds.push(cmd);
+    _commandPackage->commandTypes.push(GFXCmdType::BEGIN_RENDER_PASS);
 }
 
 void CCMTLCommandBuffer::EndRenderPass()
 {
     _isInRenderPass = false;
-    _commandPackage->commandTypes.Push(GFXCmdType::END_RENDER_PASS);
+    _commandPackage->commandTypes.push(GFXCmdType::END_RENDER_PASS);
     
     // In metal, every render pass will create a new encoder, so should bind state again.
     _isStateInValid = true;
@@ -185,7 +185,7 @@ void CCMTLCommandBuffer::Draw(GFXInputAssembler* ia)
     if ( (type_ == GFXCommandBufferType::PRIMARY && _isInRenderPass) ||
         type_ ==  GFXCommandBufferType::SECONDARY)
     {
-        CCMTLCmdDraw* cmd = _MTLCommandAllocator->_drawCmdPool.Alloc();
+        CCMTLCmdDraw* cmd = _MTLCommandAllocator->_drawCmdPool.alloc();
         if (!cmd)
             return;
         
@@ -193,18 +193,18 @@ void CCMTLCommandBuffer::Draw(GFXInputAssembler* ia)
             bindStates();
         
         static_cast<CCMTLInputAssembler*>(ia)->extractDrawInfo(cmd);
-        _commandPackage->drawCmds.Push(cmd);
-        _commandPackage->commandTypes.Push(GFXCmdType::DRAW);
+        _commandPackage->drawCmds.push(cmd);
+        _commandPackage->commandTypes.push(GFXCmdType::DRAW);
         
-        ++num_draw_calls_;
+        ++_numDrawCalls;
         if (_currentGPUPipelineState)
         {
             switch (_currentGPUPipelineState->primitiveType) {
                 case MTLPrimitiveTypeTriangle:
-                    num_tris_ += ia->index_count() / 3 * std::max(ia->index_count(), 1U);
+                    _numTriangles += ia->index_count() / 3 * std::max(ia->index_count(), 1U);
                     break;
                 case MTLPrimitiveTypeTriangleStrip:
-                    num_tris_ += (ia->index_count() - 2) * std::max(ia->instance_count(), 1U);
+                    _numTriangles += (ia->index_count() - 2) * std::max(ia->instance_count(), 1U);
                     break;
                 default:
                     break;
@@ -236,7 +236,7 @@ void CCMTLCommandBuffer::Execute(GFXCommandBuffer** cmd_buffs, uint count)
 
 void CCMTLCommandBuffer::bindStates()
 {
-    auto commandBindState = _MTLCommandAllocator->_bindStatesCmdPool.Alloc();
+    auto commandBindState = _MTLCommandAllocator->_bindStatesCmdPool.alloc();
     commandBindState->inputAssembler = _currentInputAssembler;
     commandBindState->gpuPipelineState = _currentGPUPipelineState;
     commandBindState->depthBias = *_currentDepthBias;
@@ -248,8 +248,8 @@ void CCMTLCommandBuffer::bindStates()
     if (_currentPipelineState)
         _currentPipelineState->bindBuffer(_currentBindingLayout);
     
-    _commandPackage->bindStatesCmds.Push(commandBindState);
-    _commandPackage->commandTypes.Push(GFXCmdType::BIND_STATES);
+    _commandPackage->bindStatesCmds.push(commandBindState);
+    _commandPackage->commandTypes.push(GFXCmdType::BIND_STATES);
     
     _isStateInValid = false;
 }

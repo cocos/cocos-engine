@@ -46,7 +46,7 @@ bool GLES2Window::Initialize(const GFXWindowInfo &info) {
   depth_stencil_attachment.begin_layout = GFXTextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
   depth_stencil_attachment.end_layout = GFXTextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-  render_pass_ = device_->CreateGFXRenderPass(render_pass_info);
+  render_pass_ = device_->createRenderPass(render_pass_info);
 
   // Create texture & texture views
   if (is_offscreen_) {
@@ -60,7 +60,7 @@ bool GLES2Window::Initialize(const GFXWindowInfo &info) {
       color_tex_info.depth = 1;
       color_tex_info.array_layer = 1;
       color_tex_info.mip_level = 1;
-      color_texture_ = device_->CreateGFXTexture(color_tex_info);
+      color_texture_ = device_->createTexture(color_tex_info);
 
       GFXTextureViewInfo color_tex_view_info;
       color_tex_view_info.type = GFXTextureViewType::TV2D;
@@ -69,7 +69,7 @@ bool GLES2Window::Initialize(const GFXWindowInfo &info) {
       color_tex_view_info.level_count = 1;
       color_tex_view_info.base_layer = 0;
       color_tex_view_info.layer_count = 1;
-      color_tex_view_ = device_->CreateGFXTextureView(color_tex_view_info);
+      color_tex_view_ = device_->createTextureView(color_tex_view_info);
     }
     if (depth_stencil_fmt_ != GFXFormat::UNKNOWN) {
       GFXTextureInfo depth_stecnil_tex_info;
@@ -81,7 +81,7 @@ bool GLES2Window::Initialize(const GFXWindowInfo &info) {
       depth_stecnil_tex_info.depth = 1;
       depth_stecnil_tex_info.array_layer = 1;
       depth_stecnil_tex_info.mip_level = 1;
-      depth_stencil_texture_ = device_->CreateGFXTexture(depth_stecnil_tex_info);
+      depth_stencil_texture_ = device_->createTexture(depth_stecnil_tex_info);
 
       GFXTextureViewInfo depth_stecnil_tex_view_info;
         depth_stecnil_tex_view_info.texture = depth_stencil_texture_;
@@ -91,7 +91,7 @@ bool GLES2Window::Initialize(const GFXWindowInfo &info) {
       depth_stecnil_tex_view_info.level_count = 1;
       depth_stecnil_tex_view_info.base_layer = 0;
       depth_stecnil_tex_view_info.layer_count = 1;
-      depth_stencil_tex_view_ = device_->CreateGFXTextureView(depth_stecnil_tex_view_info);
+      depth_stencil_tex_view_ = device_->createTextureView(depth_stecnil_tex_view_info);
     }
   }
 
@@ -101,12 +101,12 @@ bool GLES2Window::Initialize(const GFXWindowInfo &info) {
         fbo_info.color_views.push_back(color_tex_view_);
   fbo_info.depth_stencil_view = depth_stencil_tex_view_;
   fbo_info.is_offscreen = is_offscreen_;
-  framebuffer_ = device_->CreateGFXFramebuffer(fbo_info);
+  framebuffer_ = device_->createFramebuffer(fbo_info);
 
   return true;
 }
 
-void GLES2Window::Destroy() {
+void GLES2Window::destroy() {
   CC_SAFE_DESTROY(render_pass_);
   CC_SAFE_DESTROY(color_tex_view_);
   CC_SAFE_DESTROY(color_texture_);
@@ -124,7 +124,7 @@ void GLES2Window::Resize(uint width, uint height) {
 
     if (color_texture_) {
       color_texture_->Resize(width, height);
-      color_tex_view_->Destroy();
+      color_tex_view_->destroy();
 
       GFXTextureViewInfo color_tex_view_info;
       color_tex_view_info.type = GFXTextureViewType::TV2D;
@@ -134,7 +134,7 @@ void GLES2Window::Resize(uint width, uint height) {
 
     if (depth_stencil_texture_) {
       depth_stencil_texture_->Resize(width, height);
-      depth_stencil_tex_view_->Destroy();
+      depth_stencil_tex_view_->destroy();
 
       GFXTextureViewInfo depth_stencil_tex_view__info;
       depth_stencil_tex_view__info.type = GFXTextureViewType::TV2D;
@@ -143,7 +143,7 @@ void GLES2Window::Resize(uint width, uint height) {
     }
 
     if (framebuffer_) {
-      framebuffer_->Destroy();
+      framebuffer_->destroy();
 
       GFXFramebufferInfo fbo_info;
       fbo_info.is_offscreen = is_offscreen_;

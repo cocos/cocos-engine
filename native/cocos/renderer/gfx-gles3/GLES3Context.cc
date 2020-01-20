@@ -337,7 +337,7 @@ bool GLES3Context::Initialize(const GFXContextInfo &info) {
   return true;
 }
 
-void GLES3Context::Destroy() {
+void GLES3Context::destroy() {
   if (egl_context_ != EGL_NO_CONTEXT) {
     eglDestroyContext(egl_display_, egl_context_);
     egl_context_ = EGL_NO_CONTEXT;

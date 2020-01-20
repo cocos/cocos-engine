@@ -33,7 +33,7 @@ bool GLES2Shader::Initialize(const GFXShaderInfo &info) {
   return true;
 }
 
-void GLES2Shader::Destroy() {
+void GLES2Shader::destroy() {
   if (gpu_shader_) {
     GLES2CmdFuncDestroyShader((GLES2Device*)device_, gpu_shader_);
     CC_DELETE(gpu_shader_);

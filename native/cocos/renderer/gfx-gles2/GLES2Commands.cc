@@ -1156,7 +1156,7 @@ void GLES2CmdFuncExecuteCmds(GLES2Device* device, GLES2CmdPackage* cmd_package) 
   GLenum gl_wrap_t;
   GLenum gl_min_filter;
   
-  for (uint i = 0; i < cmd_package->cmd_types.Size(); ++i) {
+  for (uint i = 0; i < cmd_package->cmd_types.size(); ++i) {
     GFXCmdType cmd_type = cmd_package->cmd_types[i];
     uint& cmd_idx = cmd_indices[(int)cmd_type];
     

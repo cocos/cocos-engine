@@ -8,7 +8,7 @@
 NS_CC_BEGIN
 
 CCMTLSampler::CCMTLSampler(GFXDevice* device) : GFXSampler(device) {}
-CCMTLSampler::~CCMTLSampler() { Destroy(); }
+CCMTLSampler::~CCMTLSampler() { destroy(); }
 
 bool CCMTLSampler::Initialize(const GFXSamplerInfo& info)
 {
@@ -47,7 +47,7 @@ bool CCMTLSampler::Initialize(const GFXSamplerInfo& info)
     return _mtlSamplerState != nil;
 }
 
-void CCMTLSampler::Destroy()
+void CCMTLSampler::destroy()
 {
     if (_mtlSamplerState)
     {

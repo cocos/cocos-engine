@@ -41,7 +41,7 @@ bool GLES3InputAssembler::Initialize(const GFXInputAssemblerInfo &info) {
   return true;
 }
 
-void GLES3InputAssembler::Destroy() {
+void GLES3InputAssembler::destroy() {
   if (gpu_input_assembler_) {
     GLES3CmdFuncDestroyInputAssembler((GLES3Device*)device_, gpu_input_assembler_);
     CC_DELETE(gpu_input_assembler_);

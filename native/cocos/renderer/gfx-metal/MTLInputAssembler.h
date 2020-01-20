@@ -12,7 +12,7 @@ public:
     ~CCMTLInputAssembler();
     
     virtual bool Initialize(const GFXInputAssemblerInfo& info) override;
-    virtual void Destroy() override;
+    virtual void destroy() override;
     
     void extractDrawInfo(CCMTLCmdDraw*) const;
     

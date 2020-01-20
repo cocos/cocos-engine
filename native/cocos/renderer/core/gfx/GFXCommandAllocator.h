@@ -11,13 +11,13 @@ class CC_CORE_API GFXCommandAllocator : public Object {
   virtual ~GFXCommandAllocator();
   
 public:
-  virtual bool Initialize(const GFXCommandAllocatorInfo& info) = 0;
-  virtual void Destroy() = 0;
+  virtual bool initialize(const GFXCommandAllocatorInfo& info) = 0;
+  virtual void destroy() = 0;
   
-  CC_INLINE GFXDevice* device() const { return device_; }
+  CC_INLINE GFXDevice* device() const { return _device; }
   
 protected:
-  GFXDevice* device_;
+  GFXDevice* _device = nullptr;
   
 };
 

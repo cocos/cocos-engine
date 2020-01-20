@@ -10,26 +10,26 @@ public:
     CCMTLDevice();
     ~CCMTLDevice();
     
-    virtual bool Initialize(const GFXDeviceInfo& info) override;
-    virtual void Destroy() override;
-    virtual void Resize(uint width, uint height) override;
-    virtual void Present() override;
-    virtual GFXWindow* CreateGFXWindow(const GFXWindowInfo& info) override;
-    virtual GFXQueue* CreateGFXQueue(const GFXQueueInfo& info) override;
-    virtual GFXCommandAllocator* CreateGFXCommandAllocator(const GFXCommandAllocatorInfo& info) override;
-    virtual GFXCommandBuffer* CreateGFXCommandBuffer(const GFXCommandBufferInfo& info) override;
-    virtual GFXBuffer* CreateGFXBuffer(const GFXBufferInfo& info) override;
-    virtual GFXTexture* CreateGFXTexture(const GFXTextureInfo& info) override;
-    virtual GFXTextureView* CreateGFXTextureView(const GFXTextureViewInfo& info) override;
-    virtual GFXSampler* CreateGFXSampler(const GFXSamplerInfo& info) override;
-    virtual GFXShader* CreateGFXShader(const GFXShaderInfo& info) override;
-    virtual GFXInputAssembler* CreateGFXInputAssembler(const GFXInputAssemblerInfo& info) override;
-    virtual GFXRenderPass* CreateGFXRenderPass(const GFXRenderPassInfo& info) override;
-    virtual GFXFramebuffer* CreateGFXFramebuffer(const GFXFramebufferInfo& info) override;
-    virtual GFXBindingLayout* CreateGFXBindingLayout(const GFXBindingLayoutInfo& info) override;
-    virtual GFXPipelineState* CreateGFXPipelineState(const GFXPipelineStateInfo& info) override;
-    virtual GFXPipelineLayout* CreateGFXPipelieLayout(const GFXPipelineLayoutInfo& info) override;
-    virtual void CopyBuffersToTexture(GFXBuffer* src, GFXTexture* dst, const GFXBufferTextureCopyList& regions) override;
+    virtual bool initialize(const GFXDeviceInfo& info) override;
+    virtual void destroy() override;
+    virtual void resize(uint width, uint height) override;
+    virtual void present() override;
+    virtual GFXWindow* createWindow(const GFXWindowInfo& info) override;
+    virtual GFXQueue* createQueue(const GFXQueueInfo& info) override;
+    virtual GFXCommandAllocator* createCommandAllocator(const GFXCommandAllocatorInfo& info) override;
+    virtual GFXCommandBuffer* createCommandBuffer(const GFXCommandBufferInfo& info) override;
+    virtual GFXBuffer* createBuffer(const GFXBufferInfo& info) override;
+    virtual GFXTexture* createTexture(const GFXTextureInfo& info) override;
+    virtual GFXTextureView* createTextureView(const GFXTextureViewInfo& info) override;
+    virtual GFXSampler* createSampler(const GFXSamplerInfo& info) override;
+    virtual GFXShader* createShader(const GFXShaderInfo& info) override;
+    virtual GFXInputAssembler* createInputAssembler(const GFXInputAssemblerInfo& info) override;
+    virtual GFXRenderPass* createRenderPass(const GFXRenderPassInfo& info) override;
+    virtual GFXFramebuffer* createFramebuffer(const GFXFramebufferInfo& info) override;
+    virtual GFXBindingLayout* createBindingLayout(const GFXBindingLayoutInfo& info) override;
+    virtual GFXPipelineState* createPipelineState(const GFXPipelineStateInfo& info) override;
+    virtual GFXPipelineLayout* createPipelineLayout(const GFXPipelineLayoutInfo& info) override;
+    virtual void copyBuffersToTexture(GFXBuffer* src, GFXTexture* dst, const GFXBufferTextureCopyList& regions) override;
     
     CC_INLINE void* getMTKView() const { return _mtkView; }
     CC_INLINE void* getMTLDevice() const { return _mtlDevice; }

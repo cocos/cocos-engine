@@ -12,7 +12,7 @@ public:
   
 public:
   bool Initialize(const GFXBufferInfo& info);
-  void Destroy();
+  void destroy();
   void Resize(uint size);
   void Update(void* buffer, uint offset, uint size);
   

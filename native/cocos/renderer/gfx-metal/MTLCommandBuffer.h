@@ -17,7 +17,7 @@ public:
     ~CCMTLCommandBuffer();
     
     virtual bool Initialize(const GFXCommandBufferInfo& info) override;
-    virtual void Destroy() override;
+    virtual void destroy() override;
     virtual void Begin() override;
     virtual void End() override;
     virtual void BeginRenderPass(GFXFramebuffer* fbo, const GFXRect& render_area, GFXClearFlags clear_flags, GFXColor* colors, uint count, float depth, int stencil) override;

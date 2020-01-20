@@ -12,7 +12,7 @@ class CC_GLES3_API GLES3PipelineLayout : public GFXPipelineLayout {
   
  public:
   bool Initialize(const GFXPipelineLayoutInfo& info);
-  void Destroy();
+  void destroy();
   
   CC_INLINE GLES3GPUPipelineLayout* gpu_pipeline_layout() const { return gpu_pipeline_layout_; }
  private:

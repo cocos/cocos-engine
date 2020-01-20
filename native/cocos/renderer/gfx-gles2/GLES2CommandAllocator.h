@@ -11,24 +11,24 @@ public:
   GLES2CommandAllocator(GFXDevice* device);
   ~GLES2CommandAllocator();
   
-  GFXCommandPool<GLES2CmdBeginRenderPass> begin_render_pass_cmd_pool;
-  GFXCommandPool<GLES2CmdBindStates> bind_states_cmd_pool;
-  GFXCommandPool<GLES2CmdDraw> draw_cmd_pool;
-  GFXCommandPool<GLES2CmdUpdateBuffer> update_buffer_cmd_pool;
-  GFXCommandPool<GLES2CmdCopyBufferToTexture> copy_buffer_to_texture_cmd_pool;
+  GFXCommandPool<GLES2CmdBeginRenderPass> beginRenderPassCmdPool;
+  GFXCommandPool<GLES2CmdBindStates> bindStatesCmdPool;
+  GFXCommandPool<GLES2CmdDraw> drawCmdPool;
+  GFXCommandPool<GLES2CmdUpdateBuffer> updateBufferCmdPool;
+  GFXCommandPool<GLES2CmdCopyBufferToTexture> copyBufferToTextureCmdPool;
   
 public:
-  bool Initialize(const GFXCommandAllocatorInfo& info);
-  void Destroy();
+  bool initialize(const GFXCommandAllocatorInfo& info);
+  void destroy();
   
-  void ClearCmds(GLES2CmdPackage* cmd_package);
+  void clearCmds(GLES2CmdPackage* cmd_package);
   
-  CC_INLINE void ReleaseCmds() {
-    begin_render_pass_cmd_pool.Release();
-    bind_states_cmd_pool.Release();
-    draw_cmd_pool.Release();
-    update_buffer_cmd_pool.Release();
-    copy_buffer_to_texture_cmd_pool.Release();
+  CC_INLINE void releaseCmds() {
+    beginRenderPassCmdPool.release();
+    bindStatesCmdPool.release();
+    drawCmdPool.release();
+    updateBufferCmdPool.release();
+    copyBufferToTextureCmdPool.release();
   }
 };
 

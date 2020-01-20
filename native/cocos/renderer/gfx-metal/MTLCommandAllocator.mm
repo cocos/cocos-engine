@@ -5,14 +5,14 @@
 NS_CC_BEGIN
 
 CCMTLCommandAllocator::CCMTLCommandAllocator(GFXDevice* device) : GFXCommandAllocator(device) {}
-CCMTLCommandAllocator::~CCMTLCommandAllocator() { Destroy(); }
+CCMTLCommandAllocator::~CCMTLCommandAllocator() { destroy(); }
 
-bool CCMTLCommandAllocator::Initialize(const GFXCommandAllocatorInfo& info)
+bool CCMTLCommandAllocator::initialize(const GFXCommandAllocatorInfo& info)
 {
     return true;
 }
 
-void CCMTLCommandAllocator::Destroy()
+void CCMTLCommandAllocator::destroy()
 {
     
 }
@@ -20,18 +20,18 @@ void CCMTLCommandAllocator::Destroy()
 void CCMTLCommandAllocator::clearCommands(CCMTLCommandPackage* commandPackage)
 {
     //FIXME: it is not a good idea to use like this.
-    if (commandPackage->beginRenderPassCmds.Size() )
-        _beginRenderPassCmdPool.FreeCmds(commandPackage->beginRenderPassCmds);
+    if (commandPackage->beginRenderPassCmds.size() )
+        _beginRenderPassCmdPool.freeCmds(commandPackage->beginRenderPassCmds);
     
-    if (commandPackage->bindStatesCmds.Size() )
-        _bindStatesCmdPool.FreeCmds(commandPackage->bindStatesCmds);
+    if (commandPackage->bindStatesCmds.size() )
+        _bindStatesCmdPool.freeCmds(commandPackage->bindStatesCmds);
     
-    if (commandPackage->drawCmds.Size() )
-        _drawCmdPool.FreeCmds(commandPackage->drawCmds);
+    if (commandPackage->drawCmds.size() )
+        _drawCmdPool.freeCmds(commandPackage->drawCmds);
     
     //TODO: free other commands.
     
-    commandPackage->commandTypes.Clear();
+    commandPackage->commandTypes.clear();
 }
 
 NS_CC_END

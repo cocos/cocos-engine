@@ -33,7 +33,7 @@ bool GLES3TextureView::Initialize(const GFXTextureViewInfo &info) {
   return true;
 }
 
-void GLES3TextureView::Destroy() {
+void GLES3TextureView::destroy() {
   if (gpu_tex_view_) {
     CC_DELETE(gpu_tex_view_);
     gpu_tex_view_ = nullptr;

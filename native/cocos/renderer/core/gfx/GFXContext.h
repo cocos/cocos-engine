@@ -12,7 +12,7 @@ class CC_CORE_API GFXContext : public Object {
   
  public:
   virtual bool Initialize(const GFXContextInfo& info) = 0;
-  virtual void Destroy() = 0;
+  virtual void destroy() = 0;
   virtual void Present() = 0;
 
   CC_INLINE GFXDevice* device() const { return device_; }

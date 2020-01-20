@@ -49,7 +49,7 @@ bool GLES2Framebuffer::Initialize(const GFXFramebufferInfo &info) {
   return true;
 }
 
-void GLES2Framebuffer::Destroy() {
+void GLES2Framebuffer::destroy() {
   if (gpu_fbo_) {
     if(is_offscreen())
         GLES2CmdFuncDestroyFramebuffer((GLES2Device*)device_, gpu_fbo_);

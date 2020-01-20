@@ -42,9 +42,9 @@
 #define CC_MALLOC_SIMD(bytes)			  _CC_MALLOC_SIMD(bytes)
 #define CC_FREE_SIMD(ptr)					  _CC_FREE_SIMD(ptr)
 
-#define CC_DESTROY(ptr)						  { (ptr)->Destroy(); CC_DELETE(ptr); }
-#define CC_SAFE_DESTROY(ptr)			  if (ptr) { (ptr)->Destroy(); CC_DELETE(ptr); ptr = nullptr; }
-#define CC_UNSAFE_DESTROY(ptr)		  if (ptr) { (ptr)->Destroy(); CC_DELETE(ptr); }
+#define CC_DESTROY(ptr)						  { (ptr)->destroy(); CC_DELETE(ptr); }
+#define CC_SAFE_DESTROY(ptr)			  if (ptr) { (ptr)->destroy(); CC_DELETE(ptr); ptr = nullptr; }
+#define CC_UNSAFE_DESTROY(ptr)		  if (ptr) { (ptr)->destroy(); CC_DELETE(ptr); }
 
 #define CC_SAFE_RELEASE_REF(ptr)	  if (ptr) { (ptr)->ReleaseRef(); ptr = nullptr; }
 #define CC_UNSAFE_RELEASE_REF(ptr)	if (ptr) { (ptr)->ReleaseRef(); }

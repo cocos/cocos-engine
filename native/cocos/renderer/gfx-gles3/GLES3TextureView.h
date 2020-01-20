@@ -12,7 +12,7 @@ public:
   
 public:
   bool Initialize(const GFXTextureViewInfo& info);
-  void Destroy();
+  void destroy();
   
   CC_INLINE GLES3GPUTextureView* gpu_tex_view() const { return gpu_tex_view_; }
   

@@ -7,69 +7,69 @@ template <typename T>
 class CachedArray {
  public:
   CachedArray(uint size = 1) {
-    size_ = 0;
-    capacity_ = std::max(size, 1U);
-    array_ = new T[capacity_];
+    _size = 0;
+    _capacity = std::max(size, 1U);
+    _array = new T[_capacity];
   }
   
   ~CachedArray() {
-    delete [] (array_);
+    delete [] (_array);
   }
   
   T& operator [] (int index) {
-    return array_[index];
+    return _array[index];
   }
   
   const T& operator [] (int index) const {
-    return array_[index];
+    return _array[index];
   }
   
-  void Clear() {
-    // memset(array_, 0, size_ * sizeof(T));
-    size_ = 0;
+  void clear() {
+    // memset(_array, 0, _size * sizeof(T));
+    _size = 0;
   }
   
-  void Push(T item) {
-    if (size_ >= capacity_) {
-      T* temp = array_;
-      array_ = new T[capacity_*2];
-      for (uint i = 0; i < capacity_; ++i) {
-        array_[i] = temp[i];
+  void push(T item) {
+    if (_size >= _capacity) {
+      T* temp = _array;
+      _array = new T[_capacity*2];
+      for (uint i = 0; i < _capacity; ++i) {
+        _array[i] = temp[i];
       }
-      capacity_ *= 2;
+      _capacity *= 2;
       delete [] (temp);
     }
-    array_[size_++] = item;
+    _array[_size++] = item;
   }
   
-  T Pop() {
-    return array_[size_--];
+  T pop() {
+    return _array[_size--];
   }
   
-  uint Size() const {
-    return size_;
+  uint size() const {
+    return _size;
   }
   
-  void Concat(const CachedArray<T>& array) {
-    if (size_ + array.Size() >= capacity_) {
-      T* temp = array_;
-      uint size = std::max(capacity_*2, size_ + array.Size());
-      array_ = new T[size];
-      for (uint i = 0; i < capacity_; ++i) {
-        array_[i] = temp[i];
+  void concat(const CachedArray<T>& array) {
+    if (_size + array.size() >= _capacity) {
+      T* temp = _array;
+      uint size = std::max(_capacity*2, _size + array.size());
+      _array = new T[size];
+      for (uint i = 0; i < _capacity; ++i) {
+        _array[i] = temp[i];
       }
-      capacity_ = size;
+      _capacity = size;
       delete [] (temp);
     }
-    for (uint i = 0; i < array.Size(); ++i) {
-      array_[size_++] = array[i];
+    for (uint i = 0; i < array.size(); ++i) {
+      _array[_size++] = array[i];
     }
   }
   
  private:
-  uint size_ = 0;
-  uint capacity_ = 0;
-  T* array_ = nullptr;
+  uint _size = 0;
+  uint _capacity = 0;
+  T* _array = nullptr;
 };
 
 NS_CC_END

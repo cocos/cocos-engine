@@ -11,7 +11,7 @@ public:
     ~CCMTLSampler();
     
     bool Initialize(const GFXSamplerInfo& info) override;
-    void Destroy() override;
+    void destroy() override;
     
     CC_INLINE id<MTLSamplerState> getMTLSamplerState() const { return _mtlSamplerState; }
     

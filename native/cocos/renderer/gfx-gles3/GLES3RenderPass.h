@@ -12,7 +12,7 @@ class CC_GLES3_API GLES3RenderPass : public GFXRenderPass {
   
  public:
   bool Initialize(const GFXRenderPassInfo& info);
-  void Destroy();
+  void destroy();
   
   CC_INLINE GLES3GPURenderPass* gpu_render_pass() const { return gpu_render_pass_; }
   

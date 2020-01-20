@@ -12,15 +12,15 @@ class CC_GLES2_API GLES2Queue : public GFXQueue {
   
  public:
   bool Initialize(const GFXQueueInfo& info);
-  void Destroy();
+  void destroy();
   void submit(GFXCommandBuffer** cmd_buffs, uint count);
   
   CC_INLINE bool is_async() const { return is_async_; }
   
  private:
   bool is_async_;
-  uint num_draw_calls_;
-  uint num_tris_;
+  uint _numDrawCalls;
+  uint _numTriangles;
 };
 
 NS_CC_END

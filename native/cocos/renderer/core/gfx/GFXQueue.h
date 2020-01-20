@@ -12,7 +12,7 @@ class CC_CORE_API GFXQueue : public Object {
   
 public:
   virtual bool Initialize(const GFXQueueInfo& info) = 0;
-  virtual void Destroy() = 0;
+  virtual void destroy() = 0;
   virtual void submit(GFXCommandBuffer** cmd_buffs, uint count) = 0;
   
   CC_INLINE GFXDevice* device() const { return device_; }

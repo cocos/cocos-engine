@@ -11,7 +11,7 @@ public:
     ~CCMTLBuffer();
     
     virtual bool Initialize(const GFXBufferInfo& info) override;
-    virtual void Destroy() override;
+    virtual void destroy() override;
     virtual void Resize(uint size) override;
     virtual void Update(void* buffer, uint offset, uint size) override;
     

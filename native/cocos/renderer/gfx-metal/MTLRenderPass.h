@@ -12,7 +12,7 @@ public:
     ~CCMTLRenderPass();
     
     virtual bool Initialize(const GFXRenderPassInfo& info) override;
-    virtual void Destroy() override;
+    virtual void destroy() override;
     
     CC_INLINE MTLRenderPassDescriptor* getMTLRenderPassDescriptor() const { return _mtlRenderPassDescriptor; }
     

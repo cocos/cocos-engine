@@ -4,7 +4,7 @@
 NS_CC_BEGIN
 
 CCMTLBindingLayout::CCMTLBindingLayout(GFXDevice* device) : GFXBindingLayout(device) {}
-CCMTLBindingLayout::~CCMTLBindingLayout() { Destroy(); }
+CCMTLBindingLayout::~CCMTLBindingLayout() { destroy(); }
 
 bool CCMTLBindingLayout::Initialize(const GFXBindingLayoutInfo& info)
 {
@@ -24,7 +24,7 @@ bool CCMTLBindingLayout::Initialize(const GFXBindingLayoutInfo& info)
     return true;
 }
 
-void CCMTLBindingLayout::Destroy()
+void CCMTLBindingLayout::destroy()
 {
     
 }

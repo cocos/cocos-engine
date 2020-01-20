@@ -4,7 +4,7 @@
 NS_CC_BEGIN
 
 CCMTLFrameBuffer::CCMTLFrameBuffer(GFXDevice* device) : GFXFramebuffer(device) {}
-CCMTLFrameBuffer::~CCMTLFrameBuffer() { Destroy(); }
+CCMTLFrameBuffer::~CCMTLFrameBuffer() { destroy(); }
 
 bool CCMTLFrameBuffer::Initialize(const GFXFramebufferInfo& info)
 {
@@ -16,7 +16,7 @@ bool CCMTLFrameBuffer::Initialize(const GFXFramebufferInfo& info)
     return true;
 }
 
-void CCMTLFrameBuffer::Destroy()
+void CCMTLFrameBuffer::destroy()
 {
     
 }

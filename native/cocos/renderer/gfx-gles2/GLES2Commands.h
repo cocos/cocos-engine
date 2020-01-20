@@ -57,7 +57,7 @@ class GLES2CmdBeginRenderPass : public GFXCmd {
   
   GLES2CmdBeginRenderPass() : GFXCmd(GFXCmdType::BEGIN_RENDER_PASS) {}
   
-  void Clear() {
+  void clear() {
     gpu_fbo = nullptr;
     num_clear_colors = 0;
   }
@@ -92,7 +92,7 @@ class GLES2CmdBindStates : public GFXCmd {
   
   GLES2CmdBindStates() : GFXCmd(GFXCmdType::BIND_STATES) {}
   
-  void Clear() {
+  void clear() {
     gpu_pso = nullptr;
     gpu_binding_layout = nullptr;
     gpu_ia = nullptr;
@@ -105,7 +105,7 @@ class GLES2CmdDraw : public GFXCmd {
   GFXDrawInfo draw_info;
   
   GLES2CmdDraw() : GFXCmd(GFXCmdType::DRAW) {}
-  void Clear() {}
+  void clear() {}
 };
 
 class GLES2CmdUpdateBuffer : public GFXCmd {
@@ -117,7 +117,7 @@ class GLES2CmdUpdateBuffer : public GFXCmd {
   
   GLES2CmdUpdateBuffer() : GFXCmd(GFXCmdType::UPDATE_BUFFER) {}
   
-  void Clear() {
+  void clear() {
     gpu_buffer = nullptr;
     buffer = nullptr;
   }
@@ -132,7 +132,7 @@ class GLES2CmdCopyBufferToTexture : public GFXCmd {
   
   GLES2CmdCopyBufferToTexture() : GFXCmd(GFXCmdType::COPY_BUFFER_TO_TEXTURE) {}
   
-  void Clear() {
+  void clear() {
     gpu_buffer = nullptr;
     gpu_texture = nullptr;
     regions.clear();

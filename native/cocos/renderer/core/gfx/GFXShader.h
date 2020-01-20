@@ -12,7 +12,7 @@ class CC_CORE_API GFXShader : public Object {
   
  public:
   virtual bool Initialize(const GFXShaderInfo& info) = 0;
-  virtual void Destroy() = 0;
+  virtual void destroy() = 0;
   
   CC_INLINE GFXDevice* device() const { return device_; }
   CC_INLINE uint hash() const { return hash_; }

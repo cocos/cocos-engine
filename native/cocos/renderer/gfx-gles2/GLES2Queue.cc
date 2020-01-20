@@ -19,7 +19,7 @@ bool GLES2Queue::Initialize(const GFXQueueInfo &info) {
   return true;
 }
 
-void GLES2Queue::Destroy() {
+void GLES2Queue::destroy() {
 }
 
 void GLES2Queue::submit(GFXCommandBuffer** cmd_buffs, uint count) {
@@ -27,8 +27,8 @@ void GLES2Queue::submit(GFXCommandBuffer** cmd_buffs, uint count) {
     for (uint i = 0; i < count; ++i) {
       GLES2CommandBuffer* cmd_buff = (GLES2CommandBuffer*)cmd_buffs[i];
       GLES2CmdFuncExecuteCmds((GLES2Device*)device_, cmd_buff->cmd_package_);
-      num_draw_calls_ += cmd_buff->num_draw_calls_;
-      num_tris_ += cmd_buff->num_tris_;
+      _numDrawCalls += cmd_buff->_numDrawCalls;
+      _numTriangles += cmd_buff->_numTriangles;
     }
   }
 }

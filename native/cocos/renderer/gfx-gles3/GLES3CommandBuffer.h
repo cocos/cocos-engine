@@ -16,7 +16,7 @@ class CC_GLES3_API GLES3CommandBuffer : public GFXCommandBuffer {
   
  public:
   bool Initialize(const GFXCommandBufferInfo& info);
-  void Destroy();
+  void destroy();
   
   void Begin();
   void End();

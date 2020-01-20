@@ -13,30 +13,30 @@ public:
   GLES3StateCache* state_cache = nullptr;
   
 public:
-  bool Initialize(const GFXDeviceInfo& info);
-  void Destroy();
-  void Resize(uint width, uint height);
-  void Present();
-  GFXWindow* CreateGFXWindow(const GFXWindowInfo& info);
-  GFXQueue* CreateGFXQueue(const GFXQueueInfo& info);
-  GFXCommandAllocator* CreateGFXCommandAllocator(const GFXCommandAllocatorInfo& info);
-  GFXCommandBuffer* CreateGFXCommandBuffer(const GFXCommandBufferInfo& info);
-  GFXBuffer* CreateGFXBuffer(const GFXBufferInfo& info);
-  GFXTexture* CreateGFXTexture(const GFXTextureInfo& info);
-  GFXTextureView* CreateGFXTextureView(const GFXTextureViewInfo& info);
-  GFXSampler* CreateGFXSampler(const GFXSamplerInfo& info);
-  GFXShader* CreateGFXShader(const GFXShaderInfo& info);
-  GFXInputAssembler* CreateGFXInputAssembler(const GFXInputAssemblerInfo& info);
-  GFXRenderPass* CreateGFXRenderPass(const GFXRenderPassInfo& info);
-  GFXFramebuffer* CreateGFXFramebuffer(const GFXFramebufferInfo& info);
-  GFXBindingLayout* CreateGFXBindingLayout(const GFXBindingLayoutInfo& info);
-  virtual GFXPipelineState* CreateGFXPipelineState(const GFXPipelineStateInfo& info) override;
-  virtual GFXPipelineLayout* CreateGFXPipelieLayout(const GFXPipelineLayoutInfo& info) override;
-    virtual void CopyBuffersToTexture(GFXBuffer* src, GFXTexture* dst, const GFXBufferTextureCopyList& regions) override;
+  bool initialize(const GFXDeviceInfo& info);
+  void destroy();
+  void resize(uint width, uint height);
+  void present();
+  GFXWindow* createWindow(const GFXWindowInfo& info);
+  GFXQueue* createQueue(const GFXQueueInfo& info);
+  GFXCommandAllocator* createCommandAllocator(const GFXCommandAllocatorInfo& info);
+  GFXCommandBuffer* createCommandBuffer(const GFXCommandBufferInfo& info);
+  GFXBuffer* createBuffer(const GFXBufferInfo& info);
+  GFXTexture* createTexture(const GFXTextureInfo& info);
+  GFXTextureView* createTextureView(const GFXTextureViewInfo& info);
+  GFXSampler* createSampler(const GFXSamplerInfo& info);
+  GFXShader* createShader(const GFXShaderInfo& info);
+  GFXInputAssembler* createInputAssembler(const GFXInputAssemblerInfo& info);
+  GFXRenderPass* createRenderPass(const GFXRenderPassInfo& info);
+  GFXFramebuffer* createFramebuffer(const GFXFramebufferInfo& info);
+  GFXBindingLayout* createBindingLayout(const GFXBindingLayoutInfo& info);
+  virtual GFXPipelineState* createPipelineState(const GFXPipelineStateInfo& info) override;
+  virtual GFXPipelineLayout* createPipelineLayout(const GFXPipelineLayoutInfo& info) override;
+    virtual void copyBuffersToTexture(GFXBuffer* src, GFXTexture* dst, const GFXBufferTextureCopyList& regions) override;
   
   CC_INLINE bool use_vao() const { return use_vao_; }
 
-  CC_INLINE bool CheckExtension(const String& extension) const {
+  CC_INLINE bool checkExtension(const String& extension) const {
     for (size_t i = 0; i < extensions_.size(); ++i) {
       if (extensions_[i].find(extension) != String::npos) {
         return true;

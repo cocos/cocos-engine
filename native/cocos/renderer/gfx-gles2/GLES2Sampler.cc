@@ -42,7 +42,7 @@ bool GLES2Sampler::Initialize(const GFXSamplerInfo &info) {
   return true;
 }
 
-void GLES2Sampler::Destroy() {
+void GLES2Sampler::destroy() {
   if (gpu_sampler_) {
     GLES2CmdFuncDestroySampler((GLES2Device*)device_, gpu_sampler_);
     CC_DELETE(gpu_sampler_);

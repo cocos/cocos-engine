@@ -34,7 +34,7 @@ bool GLES3Shader::Initialize(const GFXShaderInfo &info)
     return true;
 }
 
-void GLES3Shader::Destroy() {
+void GLES3Shader::destroy() {
   if (gpu_shader_) {
     GLES3CmdFuncDestroyShader((GLES3Device*)device_, gpu_shader_);
     CC_DELETE(gpu_shader_);

@@ -7,7 +7,7 @@
 NS_CC_BEGIN
 
 CCMTLShader::CCMTLShader(GFXDevice* device) : GFXShader(device) {}
-CCMTLShader::~CCMTLShader() { Destroy(); }
+CCMTLShader::~CCMTLShader() { destroy(); }
 
 bool CCMTLShader::Initialize(const GFXShaderInfo& info)
 {
@@ -20,7 +20,7 @@ bool CCMTLShader::Initialize(const GFXShaderInfo& info)
     {
         if (! createMTLFunction(stage) )
         {
-            Destroy();
+            destroy();
             return false;
         }
     }
@@ -28,7 +28,7 @@ bool CCMTLShader::Initialize(const GFXShaderInfo& info)
     return true;
 }
 
-void CCMTLShader::Destroy()
+void CCMTLShader::destroy()
 {
     if (_vertexMTLFunction)
     {

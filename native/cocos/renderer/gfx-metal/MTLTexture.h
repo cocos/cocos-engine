@@ -12,7 +12,7 @@ public:
     ~CCMTLTexture();
     
     virtual bool Initialize(const GFXTextureInfo& info) override;
-    virtual void Destroy() override;
+    virtual void destroy() override;
     virtual void Resize(uint width, uint height) override;
     
     CC_INLINE id<MTLTexture> getMTLTexture() const { return _mtlTexture; }

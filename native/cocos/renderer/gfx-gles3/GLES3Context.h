@@ -37,7 +37,7 @@ class CC_GLES3_API GLES3Context : public GFXContext {
   
  public:
   bool Initialize(const GFXContextInfo& info);
-  void Destroy();
+  void destroy();
   void Present();
   bool MakeCurrent();
 

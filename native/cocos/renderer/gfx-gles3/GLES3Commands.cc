@@ -1277,7 +1277,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device* device, GLES3CmdPackage* cmd_package) 
   GLES3GPUInputAssembler* gpu_ia = nullptr;
   GLES3CmdBeginRenderPass* cmd_begin_render_pass = nullptr;
   
-  for (uint i = 0; i < cmd_package->cmd_types.Size(); ++i) {
+  for (uint i = 0; i < cmd_package->cmd_types.size(); ++i) {
     GFXCmdType cmd_type = cmd_package->cmd_types[i];
     uint& cmd_idx = cmd_indices[(int)cmd_type];
     

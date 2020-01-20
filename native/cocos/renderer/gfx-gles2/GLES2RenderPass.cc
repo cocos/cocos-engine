@@ -24,7 +24,7 @@ bool GLES2RenderPass::Initialize(const GFXRenderPassInfo &info) {
   return true;
 }
 
-void GLES2RenderPass::Destroy() {
+void GLES2RenderPass::destroy() {
   if (gpu_render_pass_) {
     CC_DELETE(gpu_render_pass_);
     gpu_render_pass_ = nullptr;

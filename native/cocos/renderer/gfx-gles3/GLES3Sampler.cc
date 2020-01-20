@@ -42,7 +42,7 @@ bool GLES3Sampler::Initialize(const GFXSamplerInfo &info) {
   return true;
 }
 
-void GLES3Sampler::Destroy() {
+void GLES3Sampler::destroy() {
   if (gpu_sampler_) {
     GLES3CmdFuncDestroySampler((GLES3Device*)device_, gpu_sampler_);
     CC_DELETE(gpu_sampler_);

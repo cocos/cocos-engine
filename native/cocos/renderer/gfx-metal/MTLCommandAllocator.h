@@ -13,8 +13,8 @@ public:
     CCMTLCommandAllocator(GFXDevice* device);
     ~CCMTLCommandAllocator();
     
-    virtual bool Initialize(const GFXCommandAllocatorInfo& info) override;
-    virtual void Destroy() override;
+    virtual bool initialize(const GFXCommandAllocatorInfo& info) override;
+    virtual void destroy() override;
     
     void clearCommands(CCMTLCommandPackage* commandPackage);
     

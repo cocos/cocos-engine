@@ -11,7 +11,7 @@ public:
     ~CCMTLTextureView();
     
     bool Initialize(const GFXTextureViewInfo& info) override;
-    void Destroy() override;
+    void destroy() override;
     
     CC_INLINE id<MTLTexture> getMTLTexture() const { return _mtlTexture; }
     

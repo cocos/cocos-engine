@@ -6,7 +6,7 @@
 NS_CC_BEGIN
 
 CCMTLRenderPass::CCMTLRenderPass(GFXDevice* device) : GFXRenderPass(device) {}
-CCMTLRenderPass::~CCMTLRenderPass() { Destroy(); }
+CCMTLRenderPass::~CCMTLRenderPass() { destroy(); }
 
 bool CCMTLRenderPass::Initialize(const GFXRenderPassInfo& info)
 {
@@ -31,7 +31,7 @@ bool CCMTLRenderPass::Initialize(const GFXRenderPassInfo& info)
     return true;
 }
 
-void CCMTLRenderPass::Destroy()
+void CCMTLRenderPass::destroy()
 {
     if (_mtlRenderPassDescriptor)
     {

@@ -7,80 +7,80 @@ NS_CC_BEGIN
 template <typename T, typename = std::enable_if<std::is_base_of<GFXCmd, T>::value>>
 class GFXCommandPool {
  public:
-  GFXCommandPool(): free_cmds_(1) {
-    frees_ = new T*[1];
-    count_ = 1;
-    free_idx_ = 0;
-    for (uint i = 0; i < count_; ++i) {
-      frees_[i] = CC_NEW(T);
+  GFXCommandPool(): _freeCmds(1) {
+    _frees = new T*[1];
+    _count = 1;
+    _freeIdx = 0;
+    for (uint i = 0; i < _count; ++i) {
+      _frees[i] = CC_NEW(T);
     }
   }
   
   ~GFXCommandPool() {
-    for (uint i = 0; i < count_; ++i) {
-      CC_DELETE(frees_[i]);
+    for (uint i = 0; i < _count; ++i) {
+      CC_DELETE(_frees[i]);
     }
-    delete [] (frees_);
+    delete [] (_frees);
 
-    for (uint i = 0; i < free_cmds_.Size(); ++i) {
-      CC_DELETE(free_cmds_[i]);
+    for (uint i = 0; i < _freeCmds.size(); ++i) {
+      CC_DELETE(_freeCmds[i]);
     }
-    free_cmds_.Clear();
+    _freeCmds.clear();
   }
   
-  T* Alloc() {
-    if (free_idx_ < 0) {
-      T** old_frees = frees_;
-      uint size = count_ * 2;
-      frees_ = new T*[size];
-      uint increase = size - count_;
+  T* alloc() {
+    if (_freeIdx < 0) {
+      T** old_frees = _frees;
+      uint size = _count * 2;
+      _frees = new T*[size];
+      uint increase = size - _count;
       for (uint i = 0; i < increase; ++i) {
-        frees_[i] = CC_NEW(T);
+        _frees[i] = CC_NEW(T);
       }
       for (uint i = increase, j = 0; i < size; ++i, ++j) {
-        frees_[i] = old_frees[j];
+        _frees[i] = old_frees[j];
       }
       delete [] (old_frees);
 
-      count_ = size;
-      free_idx_ += (int)increase;
+      _count = size;
+      _freeIdx += (int)increase;
     }
     
-    T* cmd = frees_[free_idx_];
-    frees_[free_idx_--] = nullptr;
+    T* cmd = _frees[_freeIdx];
+    _frees[_freeIdx--] = nullptr;
     ++cmd->ref_count;
     return cmd;
   }
   
-  void Free(T* cmd) {
+  void free(T* cmd) {
     if (--cmd->ref_count == 0) {
-      free_cmds_.Push(cmd);
+      _freeCmds.push(cmd);
     }
   }
   
-  void FreeCmds(CachedArray<T*>& cmds) {
-    for (uint i = 0; i < cmds.Size(); ++i) {
+  void freeCmds(CachedArray<T*>& cmds) {
+    for (uint i = 0; i < cmds.size(); ++i) {
       if (--cmds[i]->ref_count == 0) {
-        free_cmds_.Push(cmds[i]);
+        _freeCmds.push(cmds[i]);
       }
     }
-    cmds.Clear();
+    cmds.clear();
   }
   
-  void Release() {
-    for (uint i = 0; i < free_cmds_.Size(); ++i) {
-      T* cmd = free_cmds_[i];
-      cmd->Clear();
-      frees_[++free_idx_] = cmd;
+  void release() {
+    for (uint i = 0; i < _freeCmds.size(); ++i) {
+      T* cmd = _freeCmds[i];
+      cmd->clear();
+      _frees[++_freeIdx] = cmd;
     }
-    free_cmds_.Clear();
+    _freeCmds.clear();
   }
   
  private:
-  T** frees_ = nullptr;
-  uint count_ = 0;
-  CachedArray<T*> free_cmds_;
-  int free_idx_ = 0;
+  T** _frees = nullptr;
+  uint _count = 0;
+  CachedArray<T*> _freeCmds;
+  int _freeIdx = 0;
 };
 
 NS_CC_END

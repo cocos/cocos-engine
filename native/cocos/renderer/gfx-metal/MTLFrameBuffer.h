@@ -9,7 +9,7 @@ public:
     ~CCMTLFrameBuffer();
     
     virtual bool Initialize(const GFXFramebufferInfo& info) override;
-    virtual void Destroy() override;
+    virtual void destroy() override;
 };
 
 NS_CC_END

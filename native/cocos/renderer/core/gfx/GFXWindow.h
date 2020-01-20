@@ -12,7 +12,7 @@ class CC_CORE_API GFXWindow : public Object {
   
  public:
   virtual bool Initialize(const GFXWindowInfo& info) = 0;
-  virtual void Destroy() = 0;
+  virtual void destroy() = 0;
   virtual void Resize(uint width, uint height) = 0;
   
   CC_INLINE GFXDevice* device() const { return device_; }

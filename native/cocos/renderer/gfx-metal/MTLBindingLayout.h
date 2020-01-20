@@ -9,7 +9,7 @@ public:
     virtual ~CCMTLBindingLayout();
     
     virtual bool Initialize(const GFXBindingLayoutInfo& info) override;
-    virtual void Destroy() override;
+    virtual void destroy() override;
     virtual void Update() override;
 };
 

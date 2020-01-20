@@ -41,7 +41,7 @@ bool GLES2BindingLayout::Initialize(const GFXBindingLayoutInfo &info) {
   return true;
 }
 
-void GLES2BindingLayout::Destroy() {
+void GLES2BindingLayout::destroy() {
   if (gpu_binding_layout_) {
     CC_DELETE(gpu_binding_layout_);
     gpu_binding_layout_ = nullptr;

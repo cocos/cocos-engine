@@ -9,7 +9,7 @@ public:
     ~CCMTLPipelineLayout();
     
     virtual bool Initialize(const GFXPipelineLayoutInfo& info) override;
-    virtual void Destroy() override;
+    virtual void destroy() override;
 };
 
 NS_CC_END

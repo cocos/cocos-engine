@@ -22,7 +22,7 @@ public:
     GFXCmd(GFXCmdType _type) : type(_type) {}
     virtual ~GFXCmd() {}
     
-    virtual void Clear() = 0;
+    virtual void clear() = 0;
 };
 
 NS_CC_END

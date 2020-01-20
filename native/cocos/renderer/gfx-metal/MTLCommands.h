@@ -28,7 +28,7 @@ public:
     
     CCMTLCmdBeginRenderPass() : GFXCmd(GFXCmdType::BEGIN_RENDER_PASS) {}
     
-    virtual void Clear() override
+    virtual void clear() override
     {
         numOfClearColor = 0;
     }
@@ -47,7 +47,7 @@ public:
     
     CCMTLCmdBindStates() : GFXCmd(GFXCmdType::BIND_STATES) {}
     
-    virtual void Clear() override {}
+    virtual void clear() override {}
 };
 
 class CCMTLCmdDraw : public GFXCmd
@@ -56,7 +56,7 @@ public:
     GFXDrawInfo drawInfo;
     
     CCMTLCmdDraw() : GFXCmd(GFXCmdType::DRAW) {}
-    virtual void Clear() override {}
+    virtual void clear() override {}
 };
 
 class CCMTLCmdCopyBufferToTexture : public GFXCmd

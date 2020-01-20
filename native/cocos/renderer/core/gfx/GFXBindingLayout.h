@@ -12,7 +12,7 @@ class CC_CORE_API GFXBindingLayout : public Object {
   
  public:
   virtual bool Initialize(const GFXBindingLayoutInfo& info) = 0;
-  virtual void Destroy() = 0;
+  virtual void destroy() = 0;
   virtual void Update() = 0;
   
   void BindBuffer(uint binding, GFXBuffer* buffer);

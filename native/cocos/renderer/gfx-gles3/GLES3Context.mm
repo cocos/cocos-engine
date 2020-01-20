@@ -164,7 +164,7 @@ void GLES3Context::destroyCustomFrameBuffer()
     }
 }
 
-void GLES3Context::Destroy()
+void GLES3Context::destroy()
 {
     destroyCustomFrameBuffer();
     

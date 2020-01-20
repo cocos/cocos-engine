@@ -12,7 +12,7 @@ public:
     ~CCMTLShader();
     
     virtual bool Initialize(const GFXShaderInfo& info) override;
-    virtual void Destroy() override;
+    virtual void destroy() override;
         
     CC_INLINE id<MTLFunction> getVertMTLFunction() const { return _vertexMTLFunction; }
     CC_INLINE id<MTLFunction> getFragmentMTLFunction() const { return _fragmentMTLFunction; }

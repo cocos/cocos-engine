@@ -57,7 +57,7 @@ bool GLES3PipelineState::Initialize(const GFXPipelineStateInfo &info) {
   return true;
 }
 
-void GLES3PipelineState::Destroy() {
+void GLES3PipelineState::destroy() {
   if (gpu_pso_) {
     CC_DELETE(gpu_pso_);
     gpu_pso_ = nullptr;

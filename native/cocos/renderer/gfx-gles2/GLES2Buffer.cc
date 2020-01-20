@@ -23,7 +23,7 @@ bool GLES2Buffer::Initialize(const GFXBufferInfo& info) {
   
   if ((flags_ & GFXBufferFlagBit::BAKUP_BUFFER) && size_ > 0) {
     buffer_ = (uint8_t*)CC_MALLOC(size_);
-    device_->mem_status().buffer_size += size_;
+    device_->memoryStatus().buffer_size += size_;
   }
   
   gpu_buffer_ = CC_NEW(GLES2GPUBuffer);
@@ -38,22 +38,22 @@ bool GLES2Buffer::Initialize(const GFXBufferInfo& info) {
   }
   
   GLES2CmdFuncCreateBuffer((GLES2Device*)device_, gpu_buffer_);
-  device_->mem_status().buffer_size += size_;
+  device_->memoryStatus().buffer_size += size_;
   
   return true;
 }
 
-void GLES2Buffer::Destroy() {
+void GLES2Buffer::destroy() {
   if (gpu_buffer_) {
     GLES2CmdFuncDestroyBuffer((GLES2Device*)device_, gpu_buffer_);
-    device_->mem_status().buffer_size -= size_;
+    device_->memoryStatus().buffer_size -= size_;
     CC_DELETE(gpu_buffer_);
     gpu_buffer_ = nullptr;
   }
   
   if (buffer_) {
     CC_FREE(buffer_);
-    device_->mem_status().buffer_size -= size_;
+    device_->memoryStatus().buffer_size -= size_;
     buffer_ = nullptr;
   }
 }
@@ -64,7 +64,7 @@ void GLES2Buffer::Resize(uint size) {
     size_ = size;
     count_ = size_ / stride_;
     
-    GFXMemoryStatus& status = device_->mem_status();
+    GFXMemoryStatus& status = device_->memoryStatus();
     gpu_buffer_->size = size_;
     gpu_buffer_->count = count_;
     GLES2CmdFuncResizeBuffer((GLES2Device*)device_, gpu_buffer_);

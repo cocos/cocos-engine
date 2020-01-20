@@ -50,7 +50,7 @@ bool GLES3Framebuffer::Initialize(const GFXFramebufferInfo &info) {
   return true;
 }
 
-void GLES3Framebuffer::Destroy() {
+void GLES3Framebuffer::destroy() {
   if (gpu_fbo_) {
       if(is_offscreen())
           GLES3CmdFuncDestroyFramebuffer((GLES3Device*)device_, gpu_fbo_);

@@ -40,7 +40,7 @@ namespace
 }
 
 CCMTLTexture::CCMTLTexture(GFXDevice* device) : GFXTexture(device) {}
-CCMTLTexture::~CCMTLTexture() { Destroy(); }
+CCMTLTexture::~CCMTLTexture() { destroy(); }
 
 bool CCMTLTexture::Initialize(const GFXTextureInfo& info)
 {
@@ -59,7 +59,7 @@ bool CCMTLTexture::Initialize(const GFXTextureInfo& info)
     if (flags_ & GFXTextureFlags::BAKUP_BUFFER)
     {
         buffer_ = (uint8_t*)CC_MALLOC(size_);
-        device_->mem_status().texture_size += size_;
+        device_->memoryStatus().texture_size += size_;
     }
     
     _convertedFormat = mu::convertGFXPixelFormat(format_);
@@ -93,17 +93,17 @@ bool CCMTLTexture::Initialize(const GFXTextureInfo& info)
     _mtlTexture = [mtlDevice newTextureWithDescriptor:descriptor];
     
     if (_mtlTexture)
-        device_->mem_status().texture_size += size_;
+        device_->memoryStatus().texture_size += size_;
     
     return _mtlTexture != nil;
 }
 
-void CCMTLTexture::Destroy()
+void CCMTLTexture::destroy()
 {
     if (buffer_)
     {
         CC_FREE(buffer_);
-        device_->mem_status().texture_size -= size_;
+        device_->memoryStatus().texture_size -= size_;
         buffer_ = nullptr;
     }
     

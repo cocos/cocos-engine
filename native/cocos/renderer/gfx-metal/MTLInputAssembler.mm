@@ -7,7 +7,7 @@
 NS_CC_BEGIN
 
 CCMTLInputAssembler::CCMTLInputAssembler(GFXDevice* device) : GFXInputAssembler(device) {}
-CCMTLInputAssembler::~CCMTLInputAssembler() { Destroy(); }
+CCMTLInputAssembler::~CCMTLInputAssembler() { destroy(); }
 
 bool CCMTLInputAssembler::Initialize(const GFXInputAssemblerInfo& info)
 {
@@ -36,7 +36,7 @@ bool CCMTLInputAssembler::Initialize(const GFXInputAssemblerInfo& info)
     return true;
 }
 
-void CCMTLInputAssembler::Destroy()
+void CCMTLInputAssembler::destroy()
 {
     CC_SAFE_DELETE(_GPUInputAssembler);
 }

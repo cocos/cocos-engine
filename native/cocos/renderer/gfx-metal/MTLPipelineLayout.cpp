@@ -4,7 +4,7 @@
 NS_CC_BEGIN
 
 CCMTLPipelineLayout::CCMTLPipelineLayout(GFXDevice* device) : GFXPipelineLayout(device) {}
-CCMTLPipelineLayout::~CCMTLPipelineLayout() { Destroy(); }
+CCMTLPipelineLayout::~CCMTLPipelineLayout() { destroy(); }
 
 bool CCMTLPipelineLayout::Initialize(const GFXPipelineLayoutInfo& info)
 {
@@ -14,7 +14,7 @@ bool CCMTLPipelineLayout::Initialize(const GFXPipelineLayoutInfo& info)
     return true;
 }
 
-void CCMTLPipelineLayout::Destroy()
+void CCMTLPipelineLayout::destroy()
 {
     
 }

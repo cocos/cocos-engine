@@ -159,7 +159,7 @@ void GLES2Context::destroyCustomFrameBuffer()
     }
 }
 
-void GLES2Context::Destroy() {
+void GLES2Context::destroy() {
     destroyCustomFrameBuffer();
   
   if (eagl_context_) {

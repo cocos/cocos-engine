@@ -12,7 +12,7 @@ class CC_CORE_API GFXTextureView : public Object {
   
  public:
   virtual bool Initialize(const GFXTextureViewInfo& info) = 0;
-  virtual void Destroy() = 0;
+  virtual void destroy() = 0;
   
   CC_INLINE GFXDevice* device() const { return device_; }
   CC_INLINE GFXTexture* texture() const { return texture_; }

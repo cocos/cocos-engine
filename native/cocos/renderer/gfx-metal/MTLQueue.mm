@@ -20,7 +20,7 @@ CCMTLQueue::CCMTLQueue(GFXDevice* device) : GFXQueue(device) {}
 
 CCMTLQueue::~CCMTLQueue()
 {
-    Destroy();
+    destroy();
 }
 
 bool CCMTLQueue::Initialize(const GFXQueueInfo &info)
@@ -32,7 +32,7 @@ bool CCMTLQueue::Initialize(const GFXQueueInfo &info)
     return _metalQueue != nil;
 }
 
-void CCMTLQueue::Destroy()
+void CCMTLQueue::destroy()
 {
     if (_metalQueue)
     {
@@ -55,7 +55,7 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage)
 {
     static uint commandIndices[(int)GFXCmdType::COUNT] = {0};
     
-    auto commandSize = commandPackage->commandTypes.Size();
+    auto commandSize = commandPackage->commandTypes.size();
     if (commandSize == 0)
         return;
     
