@@ -29,26 +29,6 @@ render_pass : function (
 },
 
 /**
- * @method native_width
- * @return {unsigned int}
- */
-native_width : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method native_height
- * @return {unsigned int}
- */
-native_height : function (
-)
-{
-    return 0;
-},
-
-/**
  * @method title
  * @return {String}
  */
@@ -141,9 +121,9 @@ gfxwindowinfo
 },
 
 /**
- * @method Destroy
+ * @method destroy
  */
-Destroy : function (
+destroy : function (
 )
 {
 },
@@ -315,9 +295,9 @@ gfxbufferinfo
 },
 
 /**
- * @method Destroy
+ * @method destroy
  */
-Destroy : function (
+destroy : function (
 )
 {
 },
@@ -473,9 +453,9 @@ gfxtextureinfo
 },
 
 /**
- * @method Destroy
+ * @method destroy
  */
-Destroy : function (
+destroy : function (
 )
 {
 },
@@ -613,9 +593,9 @@ gfxtextureviewinfo
 },
 
 /**
- * @method Destroy
+ * @method destroy
  */
-Destroy : function (
+destroy : function (
 )
 {
 },
@@ -771,9 +751,9 @@ gfxsamplerinfo
 },
 
 /**
- * @method Destroy
+ * @method destroy
  */
-Destroy : function (
+destroy : function (
 )
 {
 },
@@ -899,9 +879,9 @@ gfxshaderinfo
 },
 
 /**
- * @method Destroy
+ * @method destroy
  */
-Destroy : function (
+destroy : function (
 )
 {
 },
@@ -985,14 +965,6 @@ int
 },
 
 /**
- * @method Destroy
- */
-Destroy : function (
-)
-{
-},
-
-/**
  * @method first_index
  * @return {unsigned int}
  */
@@ -1042,6 +1014,14 @@ gfxinputassemblerinfo
 )
 {
     return false;
+},
+
+/**
+ * @method destroy
+ */
+destroy : function (
+)
+{
 },
 
 /**
@@ -1215,9 +1195,9 @@ gfxrenderpassinfo
 },
 
 /**
- * @method Destroy
+ * @method destroy
  */
-Destroy : function (
+destroy : function (
 )
 {
 },
@@ -1293,9 +1273,9 @@ gfxframebufferinfo
 },
 
 /**
- * @method Destroy
+ * @method destroy
  */
-Destroy : function (
+destroy : function (
 )
 {
 },
@@ -1405,9 +1385,9 @@ gfxbindinglayoutinfo
 },
 
 /**
- * @method Destroy
+ * @method destroy
  */
-Destroy : function (
+destroy : function (
 )
 {
 },
@@ -1473,9 +1453,9 @@ gfxpipelinelayoutinfo
 },
 
 /**
- * @method Destroy
+ * @method destroy
  */
-Destroy : function (
+destroy : function (
 )
 {
 },
@@ -1601,9 +1581,9 @@ gfxpipelinestateinfo
 },
 
 /**
- * @method Destroy
+ * @method destroy
  */
-Destroy : function (
+destroy : function (
 )
 {
 },
@@ -1645,6 +1625,16 @@ End : function (
 },
 
 /**
+ * @method numTris
+ * @return {unsigned int}
+ */
+numTris : function (
+)
+{
+    return 0;
+},
+
+/**
  * @method BindInputAssembler
  * @param {cc.GFXInputAssembler} arg0
  */
@@ -1662,24 +1652,6 @@ BindPipelineState : function (
 gfxpipelinestate 
 )
 {
-},
-
-/**
- * @method Destroy
- */
-Destroy : function (
-)
-{
-},
-
-/**
- * @method num_tris
- * @return {unsigned int}
- */
-num_tris : function (
-)
-{
-    return 0;
 },
 
 /**
@@ -1751,6 +1723,14 @@ int
 },
 
 /**
+ * @method destroy
+ */
+destroy : function (
+)
+{
+},
+
+/**
  * @method type
  * @return {cc.GFXCommandBufferType}
  */
@@ -1798,6 +1778,16 @@ gfxstencilface,
 int 
 )
 {
+},
+
+/**
+ * @method numDrawCalls
+ * @return {unsigned int}
+ */
+numDrawCalls : function (
+)
+{
+    return 0;
 },
 
 /**
@@ -1891,16 +1881,6 @@ gfxviewport
 },
 
 /**
- * @method num_draw_calls
- * @return {unsigned int}
- */
-num_draw_calls : function (
-)
-{
-    return 0;
-},
-
-/**
  * @method SetBlendConstants
  * @param {cc.GFXColor} arg0
  */
@@ -1983,9 +1963,9 @@ gfxqueueinfo
 },
 
 /**
- * @method Destroy
+ * @method destroy
  */
-Destroy : function (
+destroy : function (
 )
 {
 },
@@ -2039,59 +2019,15 @@ use_instanced_arrays : function (
 },
 
 /**
- * @method CreateGFXTextureView
- * @param {cc.GFXTextureViewInfo} arg0
- * @return {cc.GFXTextureView}
- */
-CreateGFXTextureView : function (
-gfxtextureviewinfo 
-)
-{
-    return cc.GFXTextureView;
-},
-
-/**
- * @method CreateGFXCommandAllocator
+ * @method createCommandAllocator
  * @param {cc.GFXCommandAllocatorInfo} arg0
  * @return {cc.GFXCommandAllocator}
  */
-CreateGFXCommandAllocator : function (
+createCommandAllocator : function (
 gfxcommandallocatorinfo 
 )
 {
     return cc.GFXCommandAllocator;
-},
-
-/**
- * @method CreateGFXBuffer
- * @param {cc.GFXBufferInfo} arg0
- * @return {cc.GFXBuffer}
- */
-CreateGFXBuffer : function (
-gfxbufferinfo 
-)
-{
-    return cc.GFXBuffer;
-},
-
-/**
- * @method Destroy
- */
-Destroy : function (
-)
-{
-},
-
-/**
- * @method CreateGFXWindow
- * @param {cc.GFXWindowInfo} arg0
- * @return {cc.GFXWindow}
- */
-CreateGFXWindow : function (
-gfxwindowinfo 
-)
-{
-    return cc.GFXWindow;
 },
 
 /**
@@ -2115,35 +2051,11 @@ use_draw_instanced : function (
 },
 
 /**
- * @method CreateGFXTexture
- * @param {cc.GFXTextureInfo} arg0
- * @return {cc.GFXTexture}
- */
-CreateGFXTexture : function (
-gfxtextureinfo 
-)
-{
-    return cc.GFXTexture;
-},
-
-/**
- * @method CreateGFXShader
- * @param {cc.GFXShaderInfo} arg0
- * @return {cc.GFXShader}
- */
-CreateGFXShader : function (
-gfxshaderinfo 
-)
-{
-    return cc.GFXShader;
-},
-
-/**
- * @method CreateGFXCommandBuffer
+ * @method createCommandBuffer
  * @param {cc.GFXCommandBufferInfo} arg0
  * @return {cc.GFXCommandBuffer}
  */
-CreateGFXCommandBuffer : function (
+createCommandBuffer : function (
 gfxcommandbufferinfo 
 )
 {
@@ -2151,71 +2063,51 @@ gfxcommandbufferinfo
 },
 
 /**
- * @method CheckExtension
- * @param {String} arg0
- * @return {bool}
+ * @method present
  */
-CheckExtension : function (
-str 
-)
-{
-    return false;
-},
-
-/**
- * @method Initialize
- * @param {cc.GFXDeviceInfo} arg0
- * @return {bool}
- */
-Initialize : function (
-gfxdeviceinfo 
-)
-{
-    return false;
-},
-
-/**
- * @method Resize
- * @param {unsigned int} arg0
- * @param {unsigned int} arg1
- */
-Resize : function (
-int, 
-int 
+present : function (
 )
 {
 },
 
 /**
- * @method CreateGFXSampler
- * @param {cc.GFXSamplerInfo} arg0
- * @return {cc.GFXSampler}
+ * @method createTexture
+ * @param {cc.GFXTextureInfo} arg0
+ * @return {cc.GFXTexture}
  */
-CreateGFXSampler : function (
-gfxsamplerinfo 
+createTexture : function (
+gfxtextureinfo 
 )
 {
-    return cc.GFXSampler;
+    return cc.GFXTexture;
 },
 
 /**
- * @method CreateGFXQueue
- * @param {cc.GFXQueueInfo} arg0
- * @return {cc.GFXQueue}
+ * @method destroy
  */
-CreateGFXQueue : function (
-gfxqueueinfo 
+destroy : function (
 )
 {
-    return cc.GFXQueue;
 },
 
 /**
- * @method CreateGFXRenderPass
+ * @method createFramebuffer
+ * @param {cc.GFXFramebufferInfo} arg0
+ * @return {cc.GFXFramebuffer}
+ */
+createFramebuffer : function (
+gfxframebufferinfo 
+)
+{
+    return cc.GFXFramebuffer;
+},
+
+/**
+ * @method createRenderPass
  * @param {cc.GFXRenderPassInfo} arg0
  * @return {cc.GFXRenderPass}
  */
-CreateGFXRenderPass : function (
+createRenderPass : function (
 gfxrenderpassinfo 
 )
 {
@@ -2223,31 +2115,35 @@ gfxrenderpassinfo
 },
 
 /**
- * @method CreateGFXBindingLayout
- * @param {cc.GFXBindingLayoutInfo} arg0
- * @return {cc.GFXBindingLayout}
+ * @method createWindow
+ * @param {cc.GFXWindowInfo} arg0
+ * @return {cc.GFXWindow}
  */
-CreateGFXBindingLayout : function (
-gfxbindinglayoutinfo 
+createWindow : function (
+gfxwindowinfo 
 )
 {
-    return cc.GFXBindingLayout;
+    return cc.GFXWindow;
 },
 
 /**
- * @method Present
+ * @method createShader
+ * @param {cc.GFXShaderInfo} arg0
+ * @return {cc.GFXShader}
  */
-Present : function (
+createShader : function (
+gfxshaderinfo 
 )
 {
+    return cc.GFXShader;
 },
 
 /**
- * @method CreateGFXInputAssembler
+ * @method createInputAssembler
  * @param {cc.GFXInputAssemblerInfo} arg0
  * @return {cc.GFXInputAssembler}
  */
-CreateGFXInputAssembler : function (
+createInputAssembler : function (
 gfxinputassemblerinfo 
 )
 {
@@ -2255,15 +2151,99 @@ gfxinputassemblerinfo
 },
 
 /**
- * @method CreateGFXFramebuffer
- * @param {cc.GFXFramebufferInfo} arg0
- * @return {cc.GFXFramebuffer}
+ * @method createSampler
+ * @param {cc.GFXSamplerInfo} arg0
+ * @return {cc.GFXSampler}
  */
-CreateGFXFramebuffer : function (
-gfxframebufferinfo 
+createSampler : function (
+gfxsamplerinfo 
 )
 {
-    return cc.GFXFramebuffer;
+    return cc.GFXSampler;
+},
+
+/**
+ * @method createBuffer
+ * @param {cc.GFXBufferInfo} arg0
+ * @return {cc.GFXBuffer}
+ */
+createBuffer : function (
+gfxbufferinfo 
+)
+{
+    return cc.GFXBuffer;
+},
+
+/**
+ * @method initialize
+ * @param {cc.GFXDeviceInfo} arg0
+ * @return {bool}
+ */
+initialize : function (
+gfxdeviceinfo 
+)
+{
+    return false;
+},
+
+/**
+ * @method resize
+ * @param {unsigned int} arg0
+ * @param {unsigned int} arg1
+ */
+resize : function (
+int, 
+int 
+)
+{
+},
+
+/**
+ * @method createQueue
+ * @param {cc.GFXQueueInfo} arg0
+ * @return {cc.GFXQueue}
+ */
+createQueue : function (
+gfxqueueinfo 
+)
+{
+    return cc.GFXQueue;
+},
+
+/**
+ * @method checkExtension
+ * @param {String} arg0
+ * @return {bool}
+ */
+checkExtension : function (
+str 
+)
+{
+    return false;
+},
+
+/**
+ * @method createBindingLayout
+ * @param {cc.GFXBindingLayoutInfo} arg0
+ * @return {cc.GFXBindingLayout}
+ */
+createBindingLayout : function (
+gfxbindinglayoutinfo 
+)
+{
+    return cc.GFXBindingLayout;
+},
+
+/**
+ * @method createTextureView
+ * @param {cc.GFXTextureViewInfo} arg0
+ * @return {cc.GFXTextureView}
+ */
+createTextureView : function (
+gfxtextureviewinfo 
+)
+{
+    return cc.GFXTextureView;
 },
 
 /**
