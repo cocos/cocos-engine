@@ -38,7 +38,6 @@
 /** private functions */
 namespace 
 {
-    const size_t SEND_BUFSIZ = 512;
     const int MAX_LOG_LENGTH = 16*1024;
 
     //

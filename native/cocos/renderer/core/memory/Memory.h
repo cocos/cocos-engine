@@ -7,6 +7,13 @@
 
 // Global Interface Definitions
 
+
+// Undefine these macros that are defined in cocos2d-x lite.
+// Should unify them in future.
+#undef CC_SAFE_DELETE
+#undef CC_SAFE_DELETE_ARRAY
+#undef CC_SAFE_FREE
+
 #define CC_NEW(T)								      _CC_NEW T
 #define CC_NEW_ARRAY(T, count)				_CC_NEW T[count]
 #define CC_DELETE(ptr)							  _CC_DELETE (ptr)
