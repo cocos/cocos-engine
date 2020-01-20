@@ -742,7 +742,7 @@ let Label = cc.Class({
 
     _updateMaterialWebgl () {
 
-        let material = this.sharedMaterials[0];
+        let material = this.getMaterial(0);
         if(this._nativeTTF()) {
             if(material) this._assembler._updateTTFMaterial(material)
             return;
