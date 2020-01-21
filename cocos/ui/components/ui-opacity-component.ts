@@ -1,3 +1,6 @@
+/**
+ * @category ui
+ */
 
 import { Component } from '../../core/components/component';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';

@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { IGFXColor } from "./gfx";
 import { clamp01 } from "./math";
 import { easing } from "./animation";

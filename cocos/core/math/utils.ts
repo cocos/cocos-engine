@@ -1,8 +1,8 @@
-import { IVec3Like } from "./type-define";
-
 /**
  * @category core/math
  */
+
+import { IVec3Like } from "./type-define";
 
 const _d2r = Math.PI / 180.0;
 
@@ -155,7 +155,7 @@ export function pseudoRandomRangeInt (seed: number, min: number, max: number) {
 
 /**
  * Returns the next power of two for the value.<br/>
- * 
+ *
  * @param val
  * @return The the next power of two.
  */

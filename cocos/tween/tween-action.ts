@@ -162,7 +162,7 @@ export class TweenAction extends ActionInterval {
                 if (prop.start == null) {
                     prop.start = {}; prop.current = {}; prop.end = {};
                 }
-                
+
                 for (var k in value) {
                     prop.start[k] = _t[k];
                     prop.current[k] = _t[k];

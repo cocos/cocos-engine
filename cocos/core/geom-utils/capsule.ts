@@ -1,3 +1,7 @@
+/**
+ * @category geometry
+ */
+
 import { Vec3, Quat, Mat4, absMaxComponent } from "../math";
 import enums from "./enums";
 import { IVec3Like, IQuatLike } from "../math/type-define";
@@ -10,7 +14,7 @@ export class capsule {
 
     protected _type: number;
 
-    /** 
+    /**
      * @zh
      * 胶囊体球部半径
      */
