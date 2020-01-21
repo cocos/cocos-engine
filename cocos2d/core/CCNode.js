@@ -3540,15 +3540,14 @@ let NodeDefines = {
     getBoundingBoxToWorld () {
         if (this._parent) {
             this._parent._updateWorldMatrix();
-            return this._getBoundingBoxTo(this._parent._worldMatrix);
+            return this._getBoundingBoxTo();
         }
         else {
             return this.getBoundingBox();
         }
     },
 
-    _getBoundingBoxTo (parentMat) {
-        this._updateLocalMatrix();
+    _getBoundingBoxTo () {
         let width = this._contentSize.width;
         let height = this._contentSize.height;
         let rect = cc.rect(
@@ -3556,9 +3555,9 @@ let NodeDefines = {
             -this._anchorPoint.y * height, 
             width, 
             height);
-
-        var parentMat = Mat4.mul(this._worldMatrix, parentMat, this._matrix);
-        rect.transformMat4(rect, parentMat);
+        
+        this._calculWorldMatrix();
+        rect.transformMat4(rect, this._worldMatrix);
 
         //query child's BoundingBox
         if (!this._children)
@@ -3568,7 +3567,7 @@ let NodeDefines = {
         for (var i = 0; i < locChildren.length; i++) {
             var child = locChildren[i];
             if (child && child.active) {
-                var childRect = child._getBoundingBoxTo(parentMat);
+                var childRect = child._getBoundingBoxTo();
                 if (childRect)
                     rect.union(rect, childRect);
             }

@@ -721,12 +721,10 @@ export default class ParticleSystem3D extends RenderComponent {
                 case Space.Local:
                     break;
                 case Space.World:
-                    if (!CC_NATIVERENDERER) {
-                        Vec3.transformMat4(particle.position, particle.position, _world_mat);
-                        const worldRot = new Quat();
-                        this.node.getWorldRotation(worldRot);
-                        Vec3.transformQuat(particle.velocity, particle.velocity, worldRot);
-                    }
+                    Vec3.transformMat4(particle.position, particle.position, _world_mat);
+                    const worldRot = new Quat();
+                    this.node.getWorldRotation(worldRot);
+                    Vec3.transformQuat(particle.velocity, particle.velocity, worldRot);
                     break;
                 case Space.Custom:
                     // TODO:
