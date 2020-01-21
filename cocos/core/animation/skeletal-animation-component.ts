@@ -29,7 +29,6 @@
 
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../data/class-decorator';
 import { Mat4 } from '../math';
-import { IAnimInfo, JointsAnimationInfo } from '../renderer/models/skeletal-animation-utils';
 import { Node } from '../scene-graph/node';
 import { AnimationClip } from './animation-clip';
 import { AnimationComponent } from './animation-component';
@@ -77,8 +76,6 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     @property({ type: [Socket] })
     protected _sockets: Socket[] = [];
 
-    protected _enablePreSample = true;
-
     @property({
         type: [Socket],
         tooltip: 'Joint Sockets',
@@ -89,14 +86,6 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     set sockets (val) {
         this._sockets = val;
         this.rebuildSocketAnimations();
-    }
-
-    set enablePreSample (val) {
-        this._enablePreSample = val;
-        this.clips = this._clips; // release old states
-    }
-    get enablePreSample () {
-        return this._enablePreSample;
     }
 
     public onDestroy () {
@@ -155,7 +144,7 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     }
 
     protected _createState (clip: AnimationClip, name?: string) {
-        return new SkeletalAnimationState(clip, name, this._enablePreSample);
+        return new SkeletalAnimationState(clip, name);
     }
 
     protected _doCreateState (clip: AnimationClip, name: string) {

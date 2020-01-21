@@ -47,27 +47,21 @@ interface ISocketData {
 
 export class SkeletalAnimationState extends AnimationState {
 
-    protected _preSample = true;
     protected _frames = 1;
     protected _animInfo: IAnimInfo | null = null;
     protected _sockets: ISocketData[] = [];
 
-    constructor (clip: AnimationClip, name = '', preSample = true) {
+    constructor (clip: AnimationClip, name = '') {
         super(clip, name);
-        this._preSample = preSample;
     }
 
     public initialize (root: Node) {
         if (this._curveLoaded) { return; }
-        if (this._preSample) {
-            const info = SkelAnimDataHub.getOrExtract(this.clip).info;
-            super.initialize(root, _defaultCurves);
-            this._frames = info.frames - 1;
-            this._animInfo = (cc.director.root.dataPoolManager.jointsAnimationInfo as JointsAnimationInfo).create(root.uuid);
-            this.duration = this._frames / info.sample; // last key
-        } else {
-            super.initialize(root);
-        }
+        const info = SkelAnimDataHub.getOrExtract(this.clip).info;
+        super.initialize(root, _defaultCurves);
+        this._frames = info.frames - 1;
+        this._animInfo = (cc.director.root.dataPoolManager.jointsAnimationInfo as JointsAnimationInfo).create(root.uuid);
+        this.duration = this._frames / info.sample; // last key
     }
 
     public onPlay () {

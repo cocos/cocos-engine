@@ -298,6 +298,21 @@ localBindingsDesc.set(UBOSkinningAnimation.BLOCK.name, {
     type: GFXBindingType.UNIFORM_BUFFER,
     blockInfo: UBOSkinningAnimation.BLOCK,
 });
+export class UBOSkinningFlexible {
+    public static JOINTS_OFFSET: number = 0;
+    public static COUNT: number = UBOSkinningFlexible.JOINTS_OFFSET + JointUniformCapacity * 12;
+    public static SIZE: number = UBOSkinningFlexible.COUNT * 4;
+
+    public static BLOCK: GFXUniformBlock = {
+        binding: UniformBinding.UBO_SKINNING_TEXTURE, name: 'CCSkinningFlexible', members: [
+            { name: 'cc_joints', type: GFXType.FLOAT4, count: JointUniformCapacity * 3 },
+        ],
+    };
+}
+localBindingsDesc.set(UBOSkinningFlexible.BLOCK.name, {
+    type: GFXBindingType.UNIFORM_BUFFER,
+    blockInfo: UBOSkinningFlexible.BLOCK,
+});
 
 /**
  * 骨骼纹理采样器。

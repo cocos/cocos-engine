@@ -61,8 +61,9 @@ export class SkinningModel extends Model {
     public uploadedAnim: AnimationClip | null | undefined = undefined; // uninitialized
 
     private _jointsMedium: IJointsInfo;
-    private _skeleton: Skeleton | null = null;
     private _staticModelBounds: aabb | null = null;
+
+    private _skeleton: Skeleton | null = null;
     private _mesh: Mesh | null = null;
     private _dataPoolManager: DataPoolManager;
 
@@ -78,10 +79,10 @@ export class SkinningModel extends Model {
 
     public destroy () {
         super.destroy();
+        this.uploadedAnim = undefined; // uninitialized
         if (this._jointsMedium.buffer) {
             this._jointsMedium.buffer.destroy();
             this._jointsMedium.buffer = null;
-            this.uploadedAnim = undefined; // uninitialized
         }
     }
 
@@ -166,6 +167,9 @@ export class SkinningModel extends Model {
     }
 
     protected createPipelineState (pass: Pass) {
+        if (CC_EDITOR && !pass.defines.ANIMATION_BAKED) {
+            console.warn(`${this._node!.name}: for baked animation, ANIMATION_BAKED should be defined in material`);
+        }
         const pso = super.createPipelineState(pass);
         const { buffer, texture, animInfo } = this._jointsMedium;
         const bindingLayout = pso.pipelineLayout.layouts[0];

@@ -218,13 +218,13 @@ export class Model {
     }
 
     public updateTransform () {
-        const node = this._transform;
-        // @ts-ignore
+        const node = this._transform!;
+        // @ts-ignore TS2445
         if (node.hasChangedFlags || node._dirtyFlags) {
-            node!.updateWorldTransform();
+            node.updateWorldTransform();
             this._transformUpdated = true;
             if (this._modelBounds && this._worldBounds) {
-                // @ts-ignore TS2339
+                // @ts-ignore TS2445
                 this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, this._worldBounds);
             }
         }

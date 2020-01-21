@@ -27,10 +27,11 @@
  * @category model
  */
 
-import { AnimationClip } from '../../animation';
+import { AnimationClip } from '../../animation/animation-clip';
 import { Material } from '../../assets/material';
 import { Skeleton } from '../../assets/skeleton';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
+import { FlexibleSkinningModel } from '../../renderer/models/flexible-skinning-model';
 import { SkinningModel } from '../../renderer/models/skinning-model';
 import { Node } from '../../scene-graph/node';
 import { builtinResMgr } from '../builtin';
@@ -66,6 +67,7 @@ export class SkinningModelComponent extends ModelComponent {
     }
 
     set skeleton (val) {
+        if (val === this._skeleton) { return; }
         this._skeleton = val;
         this._update();
     }
@@ -83,12 +85,13 @@ export class SkinningModelComponent extends ModelComponent {
     }
 
     set skinningRoot (value) {
+        if (value === this._skinningRoot) { return; }
         this._skinningRoot = value;
         this._update();
     }
 
     get model () {
-        return (this._model as SkinningModel);
+        return this._model as SkinningModel | FlexibleSkinningModel;
     }
 
     constructor () {
@@ -98,10 +101,27 @@ export class SkinningModelComponent extends ModelComponent {
 
     public uploadAnimation (clip: AnimationClip | null) {
         this._clip = clip;
-        if (this._model) { (this._model as SkinningModel).uploadAnimation(clip); }
+        if (this._model instanceof SkinningModel) {
+            this._model.uploadAnimation(clip);
+        }
     }
 
-    public _updateModelParams () {
+    protected _updateModels () {
+        let modelType = this._modelType;
+        if (this._skinningRoot) {
+            const comp = this._skinningRoot.getComponent('cc.SkeletalAnimationComponent');
+            modelType = comp ? SkinningModel : FlexibleSkinningModel;
+        }
+        if (this._model && modelType !== this._modelType) {
+            cc.director.root.destroyModel(this._model);
+            this._model = null;
+            this._models.length = 0;
+        }
+        this._modelType = modelType;
+        super._updateModels();
+    }
+
+    protected _updateModelParams () {
         // should bind skeleton before super create pso
         this._update();
         super._updateModelParams();
@@ -109,14 +129,15 @@ export class SkinningModelComponent extends ModelComponent {
 
     protected _getBuiltinMaterial () {
         // classic ugly pink indicating missing material
-        return builtinResMgr.get<Material>('missing-skinning-material');
+        return builtinResMgr.get<Material>(`missing-${this._modelType === SkinningModel ? '' : 'flexible-'}skinning-material`);
     }
 
     private _update () {
         if (this._model) {
-            const model = (this._model as SkinningModel);
-            model.bindSkeleton(this._skeleton, this._skinningRoot, this._mesh);
-            model.uploadAnimation(this._clip);
+            (this._model as SkinningModel | FlexibleSkinningModel).bindSkeleton(this._skeleton, this._skinningRoot, this._mesh);
+            if (this._model instanceof SkinningModel) {
+                this._model.uploadAnimation(this._clip);
+            }
         }
     }
 }

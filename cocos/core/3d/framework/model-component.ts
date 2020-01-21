@@ -163,11 +163,6 @@ export class ModelComponent extends RenderableComponent {
         }
 
         this._updateModelParams();
-
-        if (this._model) {
-            this._model.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
-            this._model.enabled = true;
-        }
     }
 
     protected _createModel () {
@@ -211,6 +206,8 @@ export class ModelComponent extends RenderableComponent {
                 }
             }
         }
+        this._model.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
+        this._model.enabled = true;
     }
 
     protected _onMaterialModified (idx: number, material: Material | null) {
@@ -257,7 +254,6 @@ export class ModelComponent extends RenderableComponent {
     }
 
     private _isBatchingEnabled () {
-        if (!this._model || !this._mesh) { return false; }
         for (let i = 0; i < this._materials.length; ++i) {
             const mat = this._materials[i];
             if (!mat) { continue; }

@@ -131,27 +131,6 @@ class BuiltinResMgr {
         });
         resources[standardMtl._uuid] = standardMtl;
 
-        // material indicating missing material (purple)
-        const missingMtl = new cc.Material();
-        missingMtl._uuid = 'missing-material';
-        missingMtl.initialize({
-            effectName: 'builtin-unlit',
-            defines: { USE_COLOR: true },
-        });
-        missingMtl.setProperty('color', cc.color('#ff00ff'));
-        resources[missingMtl._uuid] = missingMtl;
-
-        // material indicating missing material on skinning model (purple)
-        const missingSkinningMtl = new cc.Material();
-        missingSkinningMtl._uuid = 'missing-skinning-material';
-        const type = selectJointsMediumType(device);
-        missingSkinningMtl.initialize({
-            effectName: 'builtin-unlit',
-            defines: { USE_COLOR: true, USE_SKINNING: type },
-        });
-        missingSkinningMtl.setProperty('color', cc.color('#ff00ff'));
-        resources[missingSkinningMtl._uuid] = missingSkinningMtl;
-
         // material indicating missing effect (yellow)
         const missingEfxMtl = new cc.Material();
         missingEfxMtl._uuid = 'missing-effect-material';
@@ -159,8 +138,38 @@ class BuiltinResMgr {
             effectName: 'builtin-unlit',
             defines: { USE_COLOR: true },
         });
-        missingEfxMtl.setProperty('color', cc.color('#ffff00'));
+        missingEfxMtl.setProperty('mainColor', cc.color('#ffff00'));
         resources[missingEfxMtl._uuid] = missingEfxMtl;
+
+        // material indicating missing material (purple)
+        const missingMtl = new cc.Material();
+        missingMtl._uuid = 'missing-material';
+        missingMtl.initialize({
+            effectName: 'builtin-unlit',
+            defines: { USE_COLOR: true },
+        });
+        missingMtl.setProperty('mainColor', cc.color('#ff00ff'));
+        resources[missingMtl._uuid] = missingMtl;
+
+        // material indicating missing material on flexible skinning model (purple)
+        const missingFlexibleSkinningMtl = new cc.Material();
+        missingFlexibleSkinningMtl._uuid = 'missing-flexible-skinning-material';
+        missingFlexibleSkinningMtl.initialize({
+            effectName: 'builtin-unlit',
+            defines: { USE_COLOR: true, USE_SKINNING: true },
+        });
+        missingFlexibleSkinningMtl.setProperty('mainColor', cc.color('#ff00ff'));
+        resources[missingFlexibleSkinningMtl._uuid] = missingFlexibleSkinningMtl;
+
+        // material indicating missing material on skinning model (purple)
+        const missingSkinningMtl = new cc.Material();
+        missingSkinningMtl._uuid = 'missing-skinning-material';
+        missingSkinningMtl.initialize({
+            effectName: 'builtin-unlit',
+            defines: { USE_COLOR: true, USE_SKINNING: true, ANIMATION_BAKED: true },
+        });
+        missingSkinningMtl.setProperty('mainColor', cc.color('#ff00ff'));
+        resources[missingSkinningMtl._uuid] = missingSkinningMtl;
 
         // sprite material
         const spriteMtl = new cc.Material();

@@ -301,7 +301,6 @@ class ProgramLib {
      */
     public getGFXShader (device: GFXDevice, name: string, defines: IDefineMap, pipeline: RenderPipeline) {
         Object.assign(defines, pipeline.macros);
-        if (defines.USE_SKINNING) { defines.USE_SKINNING = selectJointsMediumType(device); }
         const key = this.getKey(name, defines);
         const res = this._cache[key];
         if (res) { return res; }
