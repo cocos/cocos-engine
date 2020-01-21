@@ -56,6 +56,7 @@ let _quadTriangles = [0, 1, 2, 2, 3, 0];
 //Cache all frames in an animation
 let AnimationCache = cc.Class({
     ctor () {
+        this._privateMode = false;
         this._inited = false;
         this._invalid = true;
         this._enableCacheAttachedInfo = false;
@@ -106,9 +107,15 @@ let AnimationCache = cc.Class({
 
         let skeletonInfo = this._skeletonInfo;
         let preAnimationCache = skeletonInfo.curAnimationCache;
-        // If pre animation not finished, play it to the end.
+        
         if (preAnimationCache && preAnimationCache !== this) {
-            preAnimationCache.updateToFrame();
+            if (this._privateMode) {
+                // Private cache mode just invalid pre animation frame.
+                preAnimationCache.invalidAllFrame();
+            } else {
+                // If pre animation not finished, play it to the end.
+                preAnimationCache.updateToFrame();
+            }
         }
 
         let skeleton = skeletonInfo.skeleton;
@@ -510,8 +517,13 @@ let AnimationCache = cc.Class({
 
 let SkeletonCache = cc.Class({
     ctor () {
+        this._privateMode = false;
         this._animationPool = {};
         this._skeletonCache = {};
+    },
+
+    enablePrivateMode () {
+        this._privateMode = true;
     },
 
     clear () {
@@ -600,6 +612,7 @@ let SkeletonCache = cc.Class({
                 delete this._animationPool[poolKey];
             } else {
                 animationCache = new AnimationCache();
+                animationCache._privateMode = this._privateMode;
             }
             animationCache.init(skeletonInfo, animationName);
             animationsCache[animationName] = animationCache;
