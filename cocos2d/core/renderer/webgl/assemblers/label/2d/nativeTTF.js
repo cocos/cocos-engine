@@ -18,7 +18,7 @@ export default class NativeTTF {
 
     _extendNative() {
         renderer.CustomAssembler.prototype.ctor.call(this);
-        this._layout = new jsb.CCLabelRenderer();
+        this._layout = new jsb.LabelRenderer();
     }
 
     updateRenderData(comp) {
@@ -56,12 +56,16 @@ export default class NativeTTF {
         layout.setFontSize(comp.fontSize, retinaSize / 72 * comp.fontSize);
         layout.setLineHeight(comp.lineHeight);
         layout.setEnableWrap(comp.enableWrapText);
+        layout.setItalic(comp.enableItalic);
+        layout.setUnderline(comp.enableUnderline);
+        layout.setBold(comp.enableBold);
         layout.setOverFlow(comp.overflow);
         layout.setVerticalAlign(comp.verticalAlign);
         layout.setHorizontalAlign(comp.horizontalAlign);
         layout.setContentSize(node.getContentSize().width, node.getContentSize().height);
         layout.setAnchorPoint(node.anchorX, node.anchorY);
         layout.setColor(c.getR(), c.getG(), c.getB(), Math.ceil(c.getA() * node.opacity / 255));
+
 
         let shadow = node.getComponent(cc.LabelShadow);
         if (shadow && shadow.enabled) {
@@ -74,13 +78,13 @@ export default class NativeTTF {
 
         let material = comp.getMaterial(0);
         if(material) {
-            this._updateTTFMaterial(material);
+            this._updateTTFMaterial(material, comp);
         }
 
         layout.render();
     }
 
-    _updateTTFMaterial(material) {
+    _updateTTFMaterial(material, comp) {
         
         let node = this._label.node;
         let layout = this._layout;
@@ -88,13 +92,14 @@ export default class NativeTTF {
         let outlineSize = 0;
         if (outline && outline.enabled && outline.width > 0) {
             outlineSize = Math.max(Math.min(outline.width / 10, 0.4), 0.1);
-            let color = outline.color;
-            layout.setOutlineColor(color.getR(), color.getG(), color.getB(), Math.ceil(color.getA() * node.opacity / 255));
+            let c = outline.color;
+            layout.setOutlineColor(c.getR(), c.getG(), c.getB(), Math.ceil(c.getA() * node.opacity / 255));
         }
         layout.setOutline(outlineSize);
         material.define('CC_USE_MODEL', true);
         material.define('USE_TEXTURE_ALPHAONLY', true);
-        material.define('USE_SDF', outlineSize > 0.0);
+        material.define('USE_SDF', outlineSize > 0.0 || comp.enableBold );
+        material.define('USE_SDF_EXTEND', comp.enableBold ? 1 : 0);
         layout.setEffect(material.effect._nativeObj);
     }
 

@@ -727,9 +727,8 @@ let Label = cc.Class({
                     this._frame._resetDynamicAtlasFrame();
                     this._frame._refreshTexture(this._ttfTexture);
                 }
+                this._updateMaterial();
             }
-            
-            this._updateMaterial();
             this._assembler && this._assembler.updateRenderData(this);
         }
         this.markForValidate();
@@ -744,7 +743,7 @@ let Label = cc.Class({
 
         let material = this.getMaterial(0);
         if(this._nativeTTF()) {
-            if(material) this._assembler._updateTTFMaterial(material)
+            if(material) this._assembler._updateTTFMaterial(material, this)
             return;
         }
 
