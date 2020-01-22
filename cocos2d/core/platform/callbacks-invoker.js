@@ -142,10 +142,10 @@ proto.clear = function () {
 
 const MAX_SIZE = 16;
 let callbackListPool = new js.Pool(function (info) {
-    info.callback = empty;
-    info.target = undefined;
-    info.once = false;
-    return true;
+    this.callbackInfos = [];
+    this.isInvoking = false;
+    this.containCanceled = false;
+    return true
 }, MAX_SIZE);
 
 callbackListPool.get = function () {
