@@ -33,6 +33,7 @@ import '../data/class';
 import { EventTarget } from '../event/event-target';
 import '../game';
 import { Rect, Size } from '../math';
+import visibleRect from './visible-rect';
 
 class BrowserGetter {
 
@@ -686,8 +687,8 @@ export class View extends EventTarget {
         cc.winSize.width = this._visibleRect.width;
         cc.winSize.height = this._visibleRect.height;
 
-        if (cc.visibleRect) {
-            cc.visibleRect.init(this._visibleRect);
+        if (visibleRect) {
+            visibleRect.init(this._visibleRect);
         }
 
         this.emit('design-resolution-changed');

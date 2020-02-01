@@ -160,7 +160,7 @@ export class CanvasComponent extends Component {
 
         const old = this._targetTexture;
         this._targetTexture = value;
-        this._chechTargetTextureEvent(old);
+        this._checkTargetTextureEvent(old);
         this._updateTargetTexture();
     }
 
@@ -230,12 +230,9 @@ export class CanvasComponent extends Component {
             this._camera.viewport = new Rect(0, 0, 1, 1);
             this.color = this._color;
 
-            const device = director.root!.device;
-            this._camera.resize(device.width, device.height);
             if (this._targetTexture) {
-                const window = this._targetTexture.getGFXWindow();
-                this._camera.changeTargetWindow(window);
-                this._camera.setFixedSize(window!.width, window!.height);
+                const win = this._targetTexture.getGFXWindow();
+                this._camera.changeTargetWindow(win);
             }
         }
 
@@ -291,14 +288,13 @@ export class CanvasComponent extends Component {
         let nodeSize;
         let designSize;
         this.node.getPosition(this._pos);
+        const visibleSize = visibleRect;
         if (CC_EDITOR) {
             // nodeSize = designSize = cc.engine.getDesignResolutionSize();
             nodeSize = designSize = view.getDesignResolutionSize();
             Vec3.set(_worldPos, designSize.width * 0.5, designSize.height * 0.5, 1);
-        }
-        else {
-            const canvasSize = visibleRect;
-            nodeSize = canvasSize;
+        } else {
+            nodeSize = visibleSize;
             designSize = view.getDesignResolutionSize();
             const policy = view.getResolutionPolicy();
             // const clipTopRight = !this.fitHeight && !this.fitWidth;
@@ -307,11 +303,11 @@ export class CanvasComponent extends Component {
             let offsetY = 0;
             if (clipTopRight) {
                 // offset the canvas to make it in the center of screen
-                offsetX = (designSize.width - canvasSize.width) * 0.5;
-                offsetY = (designSize.height - canvasSize.height) * 0.5;
+                offsetX = (designSize.width - visibleSize.width) * 0.5;
+                offsetY = (designSize.height - visibleSize.height) * 0.5;
             }
 
-            Vec3.set(_worldPos, canvasSize.width * 0.5 + offsetX, canvasSize.height * 0.5 + offsetY, 0);
+            Vec3.set(_worldPos, visibleSize.width * 0.5 + offsetX, visibleSize.height * 0.5 + offsetY, 0);
         }
 
         if (!this._pos.equals(_worldPos)) {
@@ -327,51 +323,26 @@ export class CanvasComponent extends Component {
         }
 
         this.node.getWorldPosition(_worldPos);
-        if (this._camera) {
-            const size = game.canvas!;
-            this._camera.resize(size.width, size.height);
-            this._camera.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
-            this._camera.node.setPosition(_worldPos.x, _worldPos.y, 1000);
-            this._camera.update();
+        const camera = this._camera;
+        if (camera) {
+            if (this._targetTexture) {
+                camera.setFixedSize(visibleSize.width, visibleSize.height);
+                camera.orthoHeight = visibleSize.height / 2;
+            } else {
+                const size = game.canvas!;
+                camera.resize(size.width, size.height);
+                camera.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
+            }
+
+            camera.node.setPosition(_worldPos.x, _worldPos.y, 1000);
+            camera.update();
         }
     }
 
-    // /**
-    //  * @zh
-    //  * 应用适配策略。
-    //  */
-    // public applySettings () {
-    //     const ResolutionPolicy = cc.ResolutionPolicy;
-    //     let policy;
-
-    //     if (this.fitHeight && this.fitWidth) {
-    //         policy = ResolutionPolicy.SHOW_ALL;
-    //     } else if (!this.fitHeight && !this.fitWidth) {
-    //         policy = ResolutionPolicy.NO_BORDER;
-    //     } else if (this.fitWidth) {
-    //         policy = ResolutionPolicy.FIXED_WIDTH;
-    //     } else {      // fitHeight
-    //         policy = ResolutionPolicy.FIXED_HEIGHT;
-    //     }
-
-    //     const designRes = this._designResolution;
-    //     if (CC_EDITOR) {
-    //         // cc.engine.setDesignResolutionSize(designRes.width, designRes.height);
-    //     }
-    //     else {
-    //         const root = director.root;
-    //         if (root && root.ui && root.ui.debugScreen && root.ui.debugScreen === this ){
-    //             return;
-    //         }
-
-    //         cc.view.setDesignResolutionSize(designRes.width, designRes.height, policy);
-    //     }
-    // }
-
-    protected _chechTargetTextureEvent (old: RenderTexture | null) {
-        const resizeFunc = (window: GFXWindow) => {
+    protected _checkTargetTextureEvent (old: RenderTexture | null) {
+        const resizeFunc = (win: GFXWindow) => {
             if (this._camera) {
-                this._camera.setFixedSize(window.width, window.height);
+                this._camera.setFixedSize(win.width, win.height);
             }
         };
 
@@ -389,13 +360,16 @@ export class CanvasComponent extends Component {
             return;
         }
 
+        const camera = this._camera;
         if (!this._targetTexture) {
-            this._camera.changeTargetWindow();
-            this._camera.isWindowSize = true;
+            camera.changeTargetWindow();
+            camera.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
+            camera.isWindowSize = true;
         } else {
-            const window = this._targetTexture.getGFXWindow();
-            this._camera.changeTargetWindow(window);
-            this._camera.setFixedSize(window!.width, window!.height);
+            const win = this._targetTexture.getGFXWindow();
+            camera.changeTargetWindow(win);
+            camera.orthoHeight = visibleRect.height / 2;
+            camera.isWindowSize = false;
         }
     }
 
