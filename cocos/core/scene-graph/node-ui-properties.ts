@@ -23,6 +23,10 @@
  THE SOFTWARE.
 */
 
+/**
+ * @category scene-graph
+ */
+
 import { UIComponent } from '../components/ui-base/ui-component';
 import { UITransformComponent } from '../components/ui-base/ui-transform-component';
 

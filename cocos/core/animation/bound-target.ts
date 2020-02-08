@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { IValueProxy, IValueProxyFactory } from './value-proxy';
 import { PropertyPath, isPropertyPath, TargetPath, CustomTargetPath } from './target-path';
 import { Vec2, Vec4, Vec3, Color } from '../math';

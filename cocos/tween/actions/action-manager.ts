@@ -1,8 +1,4 @@
-/**
- * @hidden
- */
-
-/****************************************************************************
+/*
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
@@ -27,7 +23,11 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+ */
+
+/**
+ * @hidden
+ */
 
 import * as js from '../../core/utils/js';
 import { errorID } from '../../core/platform/debug';
@@ -185,7 +185,7 @@ export class ActionManager {
     /**
      * !#en Removes an action given an action reference.
      * !#zh 移除指定的动作。
-     * @method removeAction 
+     * @method removeAction
      * @param {Action} action
      */
     removeAction (action: Action) {

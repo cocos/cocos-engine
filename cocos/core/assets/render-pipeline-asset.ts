@@ -1,3 +1,7 @@
+/**
+ * @category asset
+ */
+
 import { ccclass, property } from '../data/class-decorator';
 import { RenderPipeline } from '../pipeline/render-pipeline';
 import { Asset } from './asset';

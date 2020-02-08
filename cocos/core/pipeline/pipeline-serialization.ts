@@ -1,3 +1,6 @@
+/**
+ * @category pipeline
+ */
 
 import { CCString } from '../data';
 import { ccclass, property } from '../data/class-decorator';
