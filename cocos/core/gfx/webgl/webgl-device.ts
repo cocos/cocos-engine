@@ -727,12 +727,12 @@ export class WebGLGFXDevice extends GFXDevice {
         gl.depthFunc(gl.LESS);
         gl.depthRange(0.0, 1.0);
 
-        gl.stencilFuncSeparate(gl.FRONT, gl.ALWAYS, 1, -1);
+        gl.stencilFuncSeparate(gl.FRONT, gl.ALWAYS, 1, 0xffff);
         gl.stencilOpSeparate(gl.FRONT, gl.KEEP, gl.KEEP, gl.KEEP);
-        gl.stencilMaskSeparate(gl.FRONT, -1);
-        gl.stencilFuncSeparate(gl.BACK, gl.ALWAYS, 1, -1);
+        gl.stencilMaskSeparate(gl.FRONT, 0xffff);
+        gl.stencilFuncSeparate(gl.BACK, gl.ALWAYS, 1, 0xffff);
         gl.stencilOpSeparate(gl.BACK, gl.KEEP, gl.KEEP, gl.KEEP);
-        gl.stencilMaskSeparate(gl.BACK, -1);
+        gl.stencilMaskSeparate(gl.BACK, 0xffff);
 
         gl.disable(gl.STENCIL_TEST);
 

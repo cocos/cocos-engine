@@ -53,8 +53,8 @@ export class StencilManager {
     private _stencilPattern = {
         stencilTest: true,
         func: GFXComparisonFunc.ALWAYS,
-        stencilMask: -1,
-        writeMask: -1,
+        stencilMask: 0xffff,
+        writeMask: 0xffff,
         failOp: GFXStencilOp.KEEP,
         zFailOp: GFXStencilOp.KEEP,
         passOp: GFXStencilOp.KEEP,
@@ -103,7 +103,7 @@ export class StencilManager {
             pattern.stencilTest = false;
             pattern.func = GFXComparisonFunc.ALWAYS;
             pattern.failOp = GFXStencilOp.KEEP;
-            pattern.stencilMask = pattern.writeMask = -1;
+            pattern.stencilMask = pattern.writeMask = 0xffff;
             pattern.ref = 1;
         } else {
             pattern.stencilTest = true;
@@ -156,11 +156,11 @@ export class StencilManager {
     }
 
     public getWriteMask () {
-        return 0x00000001 << (this._maskStack.length - 1);
+        return 1 << (this._maskStack.length - 1);
     }
 
     public getExitWriteMask () {
-        return 0x00000001 << this._maskStack.length;
+        return 1 << this._maskStack.length;
     }
 
     public getStencilRef () {
