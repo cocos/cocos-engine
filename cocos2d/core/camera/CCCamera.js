@@ -782,7 +782,7 @@ let Camera = cc.Class({
             fov = Math.atan(Math.tan(fov / 2) / this.zoomRatio) * 2;
             this._camera.setFov(fov);
 
-            this._camera.setOrthoHeight(this._orthoSize * this.zoomRatio);
+            this._camera.setOrthoHeight(this._orthoSize / this.zoomRatio);
         }
 
         this._camera.dirty = true;
