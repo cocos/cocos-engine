@@ -516,6 +516,7 @@ sp.Skeleton = cc.Class({
                 this._skeletonCache = SkeletonCache.sharedCache;
             } else if (this._cacheMode === AnimationCacheMode.PRIVATE_CACHE) {
                 this._skeletonCache = new SkeletonCache;
+                this._skeletonCache.enablePrivateMode();
             }
         }
 

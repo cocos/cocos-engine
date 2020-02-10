@@ -672,6 +672,7 @@ let ArmatureDisplay = cc.Class({
                 this._armatureCache = ArmatureCache.sharedCache;
             } else if (this._cacheMode === AnimationCacheMode.PRIVATE_CACHE) {
                 this._armatureCache = new ArmatureCache;
+                this._armatureCache.enablePrivateMode();
             }
         }
 
@@ -700,6 +701,12 @@ let ArmatureDisplay = cc.Class({
 
         if (this._cacheMode !== AnimationCacheMode.REALTIME && this.debugBones) {
             cc.warn("Debug bones is invalid in cached mode");
+        }
+
+        if (this._armature) {
+            let armatureData = this._armature.armatureData;
+            let aabb = armatureData.aabb;
+            this.node.setContentSize(aabb.width, aabb.height);
         }
 
         this._updateBatch();

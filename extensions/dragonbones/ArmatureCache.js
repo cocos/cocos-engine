@@ -43,6 +43,7 @@ let _x, _y;
 //Cache all frames in an animation
 let AnimationCache = cc.Class({
     ctor () {
+        this._privateMode = false;
         this._inited = false;
         this._invalid = true;
         this._enableCacheAttachedInfo = false;
@@ -80,7 +81,11 @@ let AnimationCache = cc.Class({
         let armatureInfo = this._armatureInfo;
         let curAnimationCache = armatureInfo.curAnimationCache;
         if (curAnimationCache && curAnimationCache != this) {
-            curAnimationCache.updateToFrame();
+            if (this._privateMode) {
+                curAnimationCache.invalidAllFrame();
+            } else {
+                curAnimationCache.updateToFrame();
+            }
         }
         let armature = armatureInfo.armature;
         let animation = armature.animation;
@@ -358,8 +363,13 @@ let AnimationCache = cc.Class({
 
 let ArmatureCache = cc.Class({
     ctor () {
+        this._privateMode = false;
         this._animationPool = {};
         this._armatureCache = {};
+    },
+
+    enablePrivateMode () {
+        this._privateMode = true;
     },
 
     // If cache is private, cache will be destroy when dragonbones node destroy.
@@ -456,6 +466,7 @@ let ArmatureCache = cc.Class({
                 delete this._animationPool[poolKey];
             } else {
                 animationCache = new AnimationCache();
+                animationCache._privateMode = this._privateMode;
             }
             animationCache.init(armatureInfo, animationName);
             animationsCache[animationName] = animationCache;
