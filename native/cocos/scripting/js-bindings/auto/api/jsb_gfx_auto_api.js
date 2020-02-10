@@ -4,95 +4,35 @@
 var gfx = gfx || {};
 
 /**
- * @class GFXWindow
+ * @class GFXContext
  */
-gfx.GFXWindow = {
+gfx.GFXContext = {
 
 /**
- * @method depth_stencil_tex_view
- * @return {cc.GFXTextureView}
+ * @method sharedContext
+ * @return {cc.GFXContext}
  */
-depth_stencil_tex_view : function (
+sharedContext : function (
 )
 {
-    return cc.GFXTextureView;
+    return cc.GFXContext;
 },
 
 /**
- * @method render_pass
- * @return {cc.GFXRenderPass}
- */
-render_pass : function (
-)
-{
-    return cc.GFXRenderPass;
-},
-
-/**
- * @method title
- * @return {String}
- */
-title : function (
-)
-{
-    return ;
-},
-
-/**
- * @method color_fmt
+ * @method colorFormat
  * @return {cc.GFXFormat}
  */
-color_fmt : function (
+colorFormat : function (
 )
 {
     return 0;
 },
 
 /**
- * @method top
- * @return {int}
+ * @method detphStencilFormat
+ * @return {cc.GFXFormat}
  */
-top : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method depth_stencil_texture
- * @return {cc.GFXTexture}
- */
-depth_stencil_texture : function (
-)
-{
-    return cc.GFXTexture;
-},
-
-/**
- * @method color_texture
- * @return {cc.GFXTexture}
- */
-color_texture : function (
-)
-{
-    return cc.GFXTexture;
-},
-
-/**
- * @method is_offscreen
- * @return {bool}
- */
-is_offscreen : function (
-)
-{
-    return false;
-},
-
-/**
- * @method height
- * @return {unsigned int}
- */
-height : function (
+detphStencilFormat : function (
 )
 {
     return 0;
@@ -109,11 +49,127 @@ device : function (
 },
 
 /**
- * @method Initialize
+ * @method initialize
+ * @param {cc.GFXContextInfo} arg0
+ * @return {bool}
+ */
+initialize : function (
+gfxcontextinfo 
+)
+{
+    return false;
+},
+
+/**
+ * @method destroy
+ */
+destroy : function (
+)
+{
+},
+
+/**
+ * @method vsyncMode
+ * @return {cc.GFXVsyncMode}
+ */
+vsyncMode : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method present
+ */
+present : function (
+)
+{
+},
+
+/**
+ * @method GFXContext
+ * @constructor
+ * @param {cc.GFXDevice} arg0
+ */
+GFXContext : function (
+gfxdevice 
+)
+{
+},
+
+};
+
+/**
+ * @class GFXWindow
+ */
+gfx.GFXWindow = {
+
+/**
+ * @method depthStencilTexView
+ * @return {cc.GFXTextureView}
+ */
+depthStencilTexView : function (
+)
+{
+    return cc.GFXTextureView;
+},
+
+/**
+ * @method renderPass
+ * @return {cc.GFXRenderPass}
+ */
+renderPass : function (
+)
+{
+    return cc.GFXRenderPass;
+},
+
+/**
+ * @method isOffscreen
+ * @return {bool}
+ */
+isOffscreen : function (
+)
+{
+    return false;
+},
+
+/**
+ * @method detphStencilFormat
+ * @return {cc.GFXFormat}
+ */
+detphStencilFormat : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method height
+ * @return {unsigned int}
+ */
+height : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method colorTexView
+ * @return {cc.GFXTextureView}
+ */
+colorTexView : function (
+)
+{
+    return cc.GFXTextureView;
+},
+
+/**
+ * @method initialize
  * @param {cc.GFXWindowInfo} arg0
  * @return {bool}
  */
-Initialize : function (
+initialize : function (
 gfxwindowinfo 
 )
 {
@@ -139,23 +195,13 @@ framebuffer : function (
 },
 
 /**
- * @method depth_stencil_fmt
+ * @method colorFormat
  * @return {cc.GFXFormat}
  */
-depth_stencil_fmt : function (
+colorFormat : function (
 )
 {
     return 0;
-},
-
-/**
- * @method color_tex_view
- * @return {cc.GFXTextureView}
- */
-color_tex_view : function (
-)
-{
-    return cc.GFXTextureView;
 },
 
 /**
@@ -169,25 +215,15 @@ width : function (
 },
 
 /**
- * @method Resize
+ * @method resize
  * @param {unsigned int} arg0
  * @param {unsigned int} arg1
  */
-Resize : function (
+resize : function (
 int, 
 int 
 )
 {
-},
-
-/**
- * @method left
- * @return {int}
- */
-left : function (
-)
-{
-    return 0;
 },
 
 /**
@@ -239,37 +275,27 @@ usage : function (
 },
 
 /**
- * @method buffer
+ * @method bufferView
  * @return {unsigned char}
  */
-buffer : function (
+bufferView : function (
 )
 {
     return 0;
 },
 
 /**
- * @method Update
+ * @method update
  * @param {void} arg0
  * @param {unsigned int} arg1
  * @param {unsigned int} arg2
  */
-Update : function (
+update : function (
 void, 
 int, 
 int 
 )
 {
-},
-
-/**
- * @method device
- * @return {cc.GFXDevice}
- */
-device : function (
-)
-{
-    return cc.GFXDevice;
 },
 
 /**
@@ -283,11 +309,11 @@ flags : function (
 },
 
 /**
- * @method Initialize
+ * @method initialize
  * @param {cc.GFXBufferInfo} arg0
  * @return {bool}
  */
-Initialize : function (
+initialize : function (
 gfxbufferinfo 
 )
 {
@@ -313,10 +339,10 @@ stride : function (
 },
 
 /**
- * @method Resize
+ * @method resize
  * @param {unsigned int} arg0
  */
-Resize : function (
+resize : function (
 int 
 )
 {
@@ -351,10 +377,10 @@ gfxdevice
 gfx.GFXTexture = {
 
 /**
- * @method array_layer
+ * @method arrayLayer
  * @return {unsigned int}
  */
-array_layer : function (
+arrayLayer : function (
 )
 {
     return 0;
@@ -375,6 +401,16 @@ format : function (
  * @return {unsigned char}
  */
 buffer : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method mipLevel
+ * @return {unsigned int}
+ */
+mipLevel : function (
 )
 {
     return 0;
@@ -421,16 +457,6 @@ flags : function (
 },
 
 /**
- * @method mip_level
- * @return {unsigned int}
- */
-mip_level : function (
-)
-{
-    return 0;
-},
-
-/**
  * @method samples
  * @return {cc.GFXSampleCount}
  */
@@ -441,11 +467,11 @@ samples : function (
 },
 
 /**
- * @method Initialize
+ * @method initialize
  * @param {cc.GFXTextureInfo} arg0
  * @return {bool}
  */
-Initialize : function (
+initialize : function (
 gfxtextureinfo 
 )
 {
@@ -481,11 +507,11 @@ width : function (
 },
 
 /**
- * @method Resize
+ * @method resize
  * @param {unsigned int} arg0
  * @param {unsigned int} arg1
  */
-Resize : function (
+resize : function (
 int, 
 int 
 )
@@ -521,10 +547,10 @@ gfxdevice
 gfx.GFXTextureView = {
 
 /**
- * @method level_count
+ * @method baseLevel
  * @return {unsigned int}
  */
-level_count : function (
+baseLevel : function (
 )
 {
     return 0;
@@ -541,6 +567,16 @@ format : function (
 },
 
 /**
+ * @method levelCount
+ * @return {unsigned int}
+ */
+levelCount : function (
+)
+{
+    return 0;
+},
+
+/**
  * @method texture
  * @return {cc.GFXTexture}
  */
@@ -551,41 +587,21 @@ texture : function (
 },
 
 /**
- * @method device
- * @return {cc.GFXDevice}
- */
-device : function (
-)
-{
-    return cc.GFXDevice;
-},
-
-/**
- * @method layer_count
+ * @method layerCount
  * @return {unsigned int}
  */
-layer_count : function (
+layerCount : function (
 )
 {
     return 0;
 },
 
 /**
- * @method base_level
- * @return {unsigned int}
- */
-base_level : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method Initialize
+ * @method initialize
  * @param {cc.GFXTextureViewInfo} arg0
  * @return {bool}
  */
-Initialize : function (
+initialize : function (
 gfxtextureviewinfo 
 )
 {
@@ -601,10 +617,10 @@ destroy : function (
 },
 
 /**
- * @method base_layer
+ * @method baseLayer
  * @return {unsigned int}
  */
-base_layer : function (
+baseLayer : function (
 )
 {
     return 0;
@@ -639,111 +655,21 @@ gfxdevice
 gfx.GFXSampler = {
 
 /**
- * @method cmp_func
- * @return {cc.GFXComparisonFunc}
- */
-cmp_func : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method min_filter
- * @return {cc.GFXFilter}
- */
-min_filter : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method name
- * @return {String}
- */
-name : function (
-)
-{
-    return ;
-},
-
-/**
- * @method address_u
- * @return {cc.GFXAddress}
- */
-address_u : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method border_color
- * @return {cc.GFXColor}
- */
-border_color : function (
-)
-{
-    return cc.GFXColor;
-},
-
-/**
- * @method max_anisotropy
+ * @method max_lod
  * @return {unsigned int}
  */
-max_anisotropy : function (
+max_lod : function (
 )
 {
     return 0;
 },
 
 /**
- * @method device
- * @return {cc.GFXDevice}
- */
-device : function (
-)
-{
-    return cc.GFXDevice;
-},
-
-/**
- * @method address_v
- * @return {cc.GFXAddress}
- */
-address_v : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method address_w
- * @return {cc.GFXAddress}
- */
-address_w : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method min_lod
- * @return {unsigned int}
- */
-min_lod : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method Initialize
+ * @method initialize
  * @param {cc.GFXSamplerInfo} arg0
  * @return {bool}
  */
-Initialize : function (
+initialize : function (
 gfxsamplerinfo 
 )
 {
@@ -756,36 +682,6 @@ gfxsamplerinfo
 destroy : function (
 )
 {
-},
-
-/**
- * @method mag_filter
- * @return {cc.GFXFilter}
- */
-mag_filter : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method mip_lod_bias
- * @return {float}
- */
-mip_lod_bias : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method max_lod
- * @return {unsigned int}
- */
-max_lod : function (
-)
-{
-    return 0;
 },
 
 /**
@@ -817,16 +713,6 @@ gfxdevice
 gfx.GFXShader = {
 
 /**
- * @method hash
- * @return {unsigned int}
- */
-hash : function (
-)
-{
-    return 0;
-},
-
-/**
  * @method name
  * @return {String}
  */
@@ -837,41 +723,11 @@ name : function (
 },
 
 /**
- * @method samplers
- * @return {Array}
- */
-samplers : function (
-)
-{
-    return new Array();
-},
-
-/**
- * @method blocks
- * @return {Array}
- */
-blocks : function (
-)
-{
-    return new Array();
-},
-
-/**
- * @method device
- * @return {cc.GFXDevice}
- */
-device : function (
-)
-{
-    return cc.GFXDevice;
-},
-
-/**
- * @method Initialize
+ * @method initialize
  * @param {cc.GFXShaderInfo} arg0
  * @return {bool}
  */
-Initialize : function (
+initialize : function (
 gfxshaderinfo 
 )
 {
@@ -887,13 +743,13 @@ destroy : function (
 },
 
 /**
- * @method stages
- * @return {Array}
+ * @method id
+ * @return {unsigned int}
  */
-stages : function (
+id : function (
 )
 {
-    return new Array();
+    return 0;
 },
 
 /**
@@ -915,105 +771,65 @@ gfxdevice
 gfx.GFXInputAssembler = {
 
 /**
- * @method set_first_vertex
- * @param {unsigned int} arg0
- */
-set_first_vertex : function (
-int 
-)
-{
-},
-
-/**
- * @method set_vertex_offset
- * @param {unsigned int} arg0
- */
-set_vertex_offset : function (
-int 
-)
-{
-},
-
-/**
- * @method vertex_count
- * @return {unsigned int}
- */
-vertex_count : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method first_instance
- * @return {unsigned int}
- */
-first_instance : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method set_index_count
- * @param {unsigned int} arg0
- */
-set_index_count : function (
-int 
-)
-{
-},
-
-/**
- * @method first_index
- * @return {unsigned int}
- */
-first_index : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method first_vertex
- * @return {unsigned int}
- */
-first_vertex : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method vertex_buffers
+ * @method vertexBuffers
  * @return {Array}
  */
-vertex_buffers : function (
+vertexBuffers : function (
 )
 {
     return new Array();
 },
 
 /**
- * @method set_vertex_count
+ * @method firstInstance
+ * @return {unsigned int}
+ */
+firstInstance : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method initialize
+ * @param {cc.GFXInputAssemblerInfo} arg0
+ * @return {bool}
+ */
+initialize : function (
+gfxinputassemblerinfo 
+)
+{
+    return false;
+},
+
+/**
+ * @method setIndexCount
  * @param {unsigned int} arg0
  */
-set_vertex_count : function (
+setIndexCount : function (
 int 
 )
 {
 },
 
 /**
- * @method Initialize
- * @param {cc.GFXInputAssemblerInfo} arg0
- * @return {bool}
+ * @method vertexOffset
+ * @return {unsigned int}
  */
-Initialize : function (
-gfxinputassemblerinfo 
+vertexOffset : function (
 )
 {
-    return false;
+    return 0;
+},
+
+/**
+ * @method setFirstInstance
+ * @param {unsigned int} arg0
+ */
+setFirstInstance : function (
+int 
+)
+{
 },
 
 /**
@@ -1025,40 +841,40 @@ destroy : function (
 },
 
 /**
- * @method set_first_instance
+ * @method setVertexOffset
  * @param {unsigned int} arg0
  */
-set_first_instance : function (
+setVertexOffset : function (
 int 
 )
 {
 },
 
 /**
- * @method set_instance_count
- * @param {unsigned int} arg0
- */
-set_instance_count : function (
-int 
-)
-{
-},
-
-/**
- * @method vertex_offset
+ * @method firstVertex
  * @return {unsigned int}
  */
-vertex_offset : function (
+firstVertex : function (
 )
 {
     return 0;
 },
 
 /**
- * @method instance_count
+ * @method instanceCount
  * @return {unsigned int}
  */
-instance_count : function (
+instanceCount : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method vertexCount
+ * @return {unsigned int}
+ */
+vertexCount : function (
 )
 {
     return 0;
@@ -1075,53 +891,83 @@ attributes : function (
 },
 
 /**
- * @method device
- * @return {cc.GFXDevice}
- */
-device : function (
-)
-{
-    return cc.GFXDevice;
-},
-
-/**
- * @method set_first_index
+ * @method setFirstVertex
  * @param {unsigned int} arg0
  */
-set_first_index : function (
+setFirstVertex : function (
 int 
 )
 {
 },
 
 /**
- * @method index_count
+ * @method firstIndex
  * @return {unsigned int}
  */
-index_count : function (
+firstIndex : function (
 )
 {
     return 0;
 },
 
 /**
- * @method indirect_buffer
+ * @method indirectBuffer
  * @return {cc.GFXBuffer}
  */
-indirect_buffer : function (
+indirectBuffer : function (
 )
 {
     return cc.GFXBuffer;
 },
 
 /**
- * @method index_buffer
+ * @method indexCount
+ * @return {unsigned int}
+ */
+indexCount : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method setVertexCount
+ * @param {unsigned int} arg0
+ */
+setVertexCount : function (
+int 
+)
+{
+},
+
+/**
+ * @method indexBuffer
  * @return {cc.GFXBuffer}
  */
-index_buffer : function (
+indexBuffer : function (
 )
 {
     return cc.GFXBuffer;
+},
+
+/**
+ * @method setFirstIndex
+ * @param {unsigned int} arg0
+ */
+setFirstIndex : function (
+int 
+)
+{
+},
+
+/**
+ * @method setInstanceCount
+ * @param {unsigned int} arg0
+ */
+setInstanceCount : function (
+int 
+)
+{
 },
 
 /**
@@ -1143,51 +989,11 @@ gfxdevice
 gfx.GFXRenderPass = {
 
 /**
- * @method depth_stencil_attachment
- * @return {cc.GFXDepthStencilAttachment}
- */
-depth_stencil_attachment : function (
-)
-{
-    return cc.GFXDepthStencilAttachment;
-},
-
-/**
- * @method device
- * @return {cc.GFXDevice}
- */
-device : function (
-)
-{
-    return cc.GFXDevice;
-},
-
-/**
- * @method sub_passes
- * @return {Array}
- */
-sub_passes : function (
-)
-{
-    return new Array();
-},
-
-/**
- * @method color_attachments
- * @return {Array}
- */
-color_attachments : function (
-)
-{
-    return new Array();
-},
-
-/**
- * @method Initialize
+ * @method initialize
  * @param {cc.GFXRenderPassInfo} arg0
  * @return {bool}
  */
-Initialize : function (
+initialize : function (
 gfxrenderpassinfo 
 )
 {
@@ -1221,51 +1027,41 @@ gfxdevice
 gfx.GFXFramebuffer = {
 
 /**
- * @method color_views
- * @return {Array}
- */
-color_views : function (
-)
-{
-    return new Array();
-},
-
-/**
- * @method is_offscreen
- * @return {bool}
- */
-is_offscreen : function (
-)
-{
-    return false;
-},
-
-/**
- * @method device
- * @return {cc.GFXDevice}
- */
-device : function (
-)
-{
-    return cc.GFXDevice;
-},
-
-/**
- * @method depth_stencil_view
+ * @method depthStencilView
  * @return {cc.GFXTextureView}
  */
-depth_stencil_view : function (
+depthStencilView : function (
 )
 {
     return cc.GFXTextureView;
 },
 
 /**
- * @method Initialize
+ * @method isOffscreen
+ * @return {bool}
+ */
+isOffscreen : function (
+)
+{
+    return false;
+},
+
+/**
+ * @method renderPass
+ * @return {cc.GFXRenderPass}
+ */
+renderPass : function (
+)
+{
+    return cc.GFXRenderPass;
+},
+
+/**
+ * @method initialize
  * @param {cc.GFXFramebufferInfo} arg0
  * @return {bool}
  */
-Initialize : function (
+initialize : function (
 gfxframebufferinfo 
 )
 {
@@ -1281,13 +1077,13 @@ destroy : function (
 },
 
 /**
- * @method render_pass
- * @return {cc.GFXRenderPass}
+ * @method colorViews
+ * @return {Array}
  */
-render_pass : function (
+colorViews : function (
 )
 {
-    return cc.GFXRenderPass;
+    return new Array();
 },
 
 /**
@@ -1309,11 +1105,11 @@ gfxdevice
 gfx.GFXBindingLayout = {
 
 /**
- * @method BindTextureView
+ * @method bindTextureView
  * @param {unsigned int} arg0
  * @param {cc.GFXTextureView} arg1
  */
-BindTextureView : function (
+bindTextureView : function (
 int, 
 gfxtextureview 
 )
@@ -1321,11 +1117,11 @@ gfxtextureview
 },
 
 /**
- * @method BindBuffer
+ * @method bindBuffer
  * @param {unsigned int} arg0
  * @param {cc.GFXBuffer} arg1
  */
-BindBuffer : function (
+bindBuffer : function (
 int, 
 gfxbuffer 
 )
@@ -1333,11 +1129,11 @@ gfxbuffer
 },
 
 /**
- * @method BindSampler
+ * @method bindSampler
  * @param {unsigned int} arg0
  * @param {cc.GFXSampler} arg1
  */
-BindSampler : function (
+bindSampler : function (
 int, 
 gfxsampler 
 )
@@ -1345,39 +1141,19 @@ gfxsampler
 },
 
 /**
- * @method Update
+ * @method update
  */
-Update : function (
+update : function (
 )
 {
 },
 
 /**
- * @method device
- * @return {cc.GFXDevice}
- */
-device : function (
-)
-{
-    return cc.GFXDevice;
-},
-
-/**
- * @method binding_units
- * @return {Array}
- */
-binding_units : function (
-)
-{
-    return new Array();
-},
-
-/**
- * @method Initialize
+ * @method initialize
  * @param {cc.GFXBindingLayoutInfo} arg0
  * @return {bool}
  */
-Initialize : function (
+initialize : function (
 gfxbindinglayoutinfo 
 )
 {
@@ -1411,26 +1187,6 @@ gfxdevice
 gfx.GFXPipelineLayout = {
 
 /**
- * @method push_constant_ranges
- * @return {Array}
- */
-push_constant_ranges : function (
-)
-{
-    return new Array();
-},
-
-/**
- * @method device
- * @return {cc.GFXDevice}
- */
-device : function (
-)
-{
-    return cc.GFXDevice;
-},
-
-/**
  * @method layouts
  * @return {Array}
  */
@@ -1441,11 +1197,11 @@ layouts : function (
 },
 
 /**
- * @method Initialize
+ * @method initialize
  * @param {cc.GFXPipelineLayoutInfo} arg0
  * @return {bool}
  */
-Initialize : function (
+initialize : function (
 gfxpipelinelayoutinfo 
 )
 {
@@ -1489,53 +1245,33 @@ primitive : function (
 },
 
 /**
- * @method layout
- * @return {cc.GFXPipelineLayout}
+ * @method renderPass
+ * @return {cc.GFXRenderPass}
  */
-layout : function (
+renderPass : function (
 )
 {
-    return cc.GFXPipelineLayout;
+    return cc.GFXRenderPass;
 },
 
 /**
- * @method rs
+ * @method rasterizerState
  * @return {cc.GFXRasterizerState}
  */
-rs : function (
+rasterizerState : function (
 )
 {
     return cc.GFXRasterizerState;
 },
 
 /**
- * @method dynamic_states
+ * @method dynamicStates
  * @return {Array}
  */
-dynamic_states : function (
+dynamicStates : function (
 )
 {
     return new Array();
-},
-
-/**
- * @method is
- * @return {cc.GFXInputState}
- */
-is : function (
-)
-{
-    return cc.GFXInputState;
-},
-
-/**
- * @method bs
- * @return {cc.GFXBlendState}
- */
-bs : function (
-)
-{
-    return cc.GFXBlendState;
 },
 
 /**
@@ -1549,31 +1285,41 @@ shader : function (
 },
 
 /**
- * @method dss
- * @return {cc.GFXDepthStencilState}
+ * @method inputState
+ * @return {cc.GFXInputState}
  */
-dss : function (
+inputState : function (
 )
 {
-    return cc.GFXDepthStencilState;
+    return cc.GFXInputState;
 },
 
 /**
- * @method device
- * @return {cc.GFXDevice}
+ * @method blendState
+ * @return {cc.GFXBlendState}
  */
-device : function (
+blendState : function (
 )
 {
-    return cc.GFXDevice;
+    return cc.GFXBlendState;
 },
 
 /**
- * @method Initialize
+ * @method pipelineLayout
+ * @return {cc.GFXPipelineLayout}
+ */
+pipelineLayout : function (
+)
+{
+    return cc.GFXPipelineLayout;
+},
+
+/**
+ * @method initialize
  * @param {cc.GFXPipelineStateInfo} arg0
  * @return {bool}
  */
-Initialize : function (
+initialize : function (
 gfxpipelinestateinfo 
 )
 {
@@ -1589,13 +1335,13 @@ destroy : function (
 },
 
 /**
- * @method render_pass
- * @return {cc.GFXRenderPass}
+ * @method depthStencilState
+ * @return {cc.GFXDepthStencilState}
  */
-render_pass : function (
+depthStencilState : function (
 )
 {
-    return cc.GFXRenderPass;
+    return cc.GFXDepthStencilState;
 },
 
 /**
@@ -1617,39 +1363,121 @@ gfxdevice
 gfx.GFXCommandBuffer = {
 
 /**
- * @method End
- */
-End : function (
-)
-{
-},
-
-/**
- * @method numTris
- * @return {unsigned int}
- */
-numTris : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method BindInputAssembler
+ * @method draw
  * @param {cc.GFXInputAssembler} arg0
  */
-BindInputAssembler : function (
+draw : function (
 gfxinputassembler 
 )
 {
 },
 
 /**
- * @method BindPipelineState
- * @param {cc.GFXPipelineState} arg0
+ * @method setBlendConstants
+ * @param {cc.GFXColor} arg0
  */
-BindPipelineState : function (
-gfxpipelinestate 
+setBlendConstants : function (
+gfxcolor 
+)
+{
+},
+
+/**
+ * @method setDepthBound
+ * @param {float} arg0
+ * @param {float} arg1
+ */
+setDepthBound : function (
+float, 
+float 
+)
+{
+},
+
+/**
+ * @method copyBufferToTexture
+ * @param {cc.GFXBuffer} arg0
+ * @param {cc.GFXTexture} arg1
+ * @param {cc.GFXTextureLayout} arg2
+ * @param {cc.GFXBufferTextureCopy} arg3
+ * @param {unsigned int} arg4
+ */
+copyBufferToTexture : function (
+gfxbuffer, 
+gfxtexture, 
+gfxtexturelayout, 
+gfxbuffertexturecopy, 
+int 
+)
+{
+},
+
+/**
+ * @method setLineWidth
+ * @param {float} arg0
+ */
+setLineWidth : function (
+float 
+)
+{
+},
+
+/**
+ * @method updateBuffer
+ * @param {cc.GFXBuffer} arg0
+ * @param {void} arg1
+ * @param {unsigned int} arg2
+ * @param {unsigned int} arg3
+ */
+updateBuffer : function (
+gfxbuffer, 
+void, 
+int, 
+int 
+)
+{
+},
+
+/**
+ * @method end
+ */
+end : function (
+)
+{
+},
+
+/**
+ * @method setStencilWriteMask
+ * @param {cc.GFXStencilFace} arg0
+ * @param {unsigned int} arg1
+ */
+setStencilWriteMask : function (
+gfxstencilface, 
+int 
+)
+{
+},
+
+/**
+ * @method setStencilCompareMask
+ * @param {cc.GFXStencilFace} arg0
+ * @param {int} arg1
+ * @param {unsigned int} arg2
+ */
+setStencilCompareMask : function (
+gfxstencilface, 
+int, 
+int 
+)
+{
+},
+
+/**
+ * @method bindInputAssembler
+ * @param {cc.GFXInputAssembler} arg0
+ */
+bindInputAssembler : function (
+gfxinputassembler 
 )
 {
 },
@@ -1665,59 +1493,11 @@ allocator : function (
 },
 
 /**
- * @method SetDepthBias
- * @param {float} arg0
- * @param {float} arg1
- * @param {float} arg2
+ * @method bindPipelineState
+ * @param {cc.GFXPipelineState} arg0
  */
-SetDepthBias : function (
-float, 
-float, 
-float 
-)
-{
-},
-
-/**
- * @method Begin
- */
-Begin : function (
-)
-{
-},
-
-/**
- * @method BindBindingLayout
- * @param {cc.GFXBindingLayout} arg0
- */
-BindBindingLayout : function (
-gfxbindinglayout 
-)
-{
-},
-
-/**
- * @method EndRenderPass
- */
-EndRenderPass : function (
-)
-{
-},
-
-/**
- * @method CopyBufferToTexture
- * @param {cc.GFXBuffer} arg0
- * @param {cc.GFXTexture} arg1
- * @param {cc.GFXTextureLayout} arg2
- * @param {cc.GFXBufferTextureCopy} arg3
- * @param {unsigned int} arg4
- */
-CopyBufferToTexture : function (
-gfxbuffer, 
-gfxtexture, 
-gfxtexturelayout, 
-gfxbuffertexturecopy, 
-int 
+bindPipelineState : function (
+gfxpipelinestate 
 )
 {
 },
@@ -1741,41 +1521,33 @@ type : function (
 },
 
 /**
- * @method UpdateBuffer
- * @param {cc.GFXBuffer} arg0
- * @param {void} arg1
- * @param {unsigned int} arg2
- * @param {unsigned int} arg3
+ * @method setViewport
+ * @param {cc.GFXViewport} arg0
  */
-UpdateBuffer : function (
-gfxbuffer, 
-void, 
-int, 
-int 
+setViewport : function (
+gfxviewport 
 )
 {
 },
 
 /**
- * @method Execute
- * @param {cc.GFXCommandBuffer} arg0
- * @param {unsigned int} arg1
+ * @method setDepthBias
+ * @param {float} arg0
+ * @param {float} arg1
+ * @param {float} arg2
  */
-Execute : function (
-gfxcommandbuffer, 
-int 
+setDepthBias : function (
+float, 
+float, 
+float 
 )
 {
 },
 
 /**
- * @method SetStencilWriteMask
- * @param {cc.GFXStencilFace} arg0
- * @param {unsigned int} arg1
+ * @method begin
  */
-SetStencilWriteMask : function (
-gfxstencilface, 
-int 
+begin : function (
 )
 {
 },
@@ -1791,17 +1563,69 @@ numDrawCalls : function (
 },
 
 /**
- * @method Draw
- * @param {cc.GFXInputAssembler} arg0
+ * @method bindBindingLayout
+ * @param {cc.GFXBindingLayout} arg0
  */
-Draw : function (
-gfxinputassembler 
+bindBindingLayout : function (
+gfxbindinglayout 
 )
 {
 },
 
 /**
- * @method BeginRenderPass
+ * @method endRenderPass
+ */
+endRenderPass : function (
+)
+{
+},
+
+/**
+ * @method initialize
+ * @param {cc.GFXCommandBufferInfo} arg0
+ * @return {bool}
+ */
+initialize : function (
+gfxcommandbufferinfo 
+)
+{
+    return false;
+},
+
+/**
+ * @method setScissor
+ * @param {cc.GFXRect} arg0
+ */
+setScissor : function (
+gfxrect 
+)
+{
+},
+
+/**
+ * @method execute
+ * @param {cc.GFXCommandBuffer} arg0
+ * @param {unsigned int} arg1
+ */
+execute : function (
+gfxcommandbuffer, 
+int 
+)
+{
+},
+
+/**
+ * @method numTris
+ * @return {unsigned int}
+ */
+numTris : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method beginRenderPass
  * @param {cc.GFXFramebuffer} arg0
  * @param {cc.GFXRect} arg1
  * @param {cc.GFXClearFlagBit} arg2
@@ -1810,7 +1634,7 @@ gfxinputassembler
  * @param {float} arg5
  * @param {int} arg6
  */
-BeginRenderPass : function (
+beginRenderPass : function (
 gfxframebuffer, 
 gfxrect, 
 gfxclearflagbit, 
@@ -1818,94 +1642,6 @@ gfxcolor,
 int, 
 float, 
 int 
-)
-{
-},
-
-/**
- * @method SetStencilCompareMask
- * @param {cc.GFXStencilFace} arg0
- * @param {int} arg1
- * @param {unsigned int} arg2
- */
-SetStencilCompareMask : function (
-gfxstencilface, 
-int, 
-int 
-)
-{
-},
-
-/**
- * @method Initialize
- * @param {cc.GFXCommandBufferInfo} arg0
- * @return {bool}
- */
-Initialize : function (
-gfxcommandbufferinfo 
-)
-{
-    return false;
-},
-
-/**
- * @method SetDepthBounds
- * @param {float} arg0
- * @param {float} arg1
- */
-SetDepthBounds : function (
-float, 
-float 
-)
-{
-},
-
-/**
- * @method device
- * @return {cc.GFXDevice}
- */
-device : function (
-)
-{
-    return cc.GFXDevice;
-},
-
-/**
- * @method SetViewport
- * @param {cc.GFXViewport} arg0
- */
-SetViewport : function (
-gfxviewport 
-)
-{
-},
-
-/**
- * @method SetBlendConstants
- * @param {cc.GFXColor} arg0
- */
-SetBlendConstants : function (
-gfxcolor 
-)
-{
-},
-
-/**
- * @method SetScissor
- * @param {cc.GFXRect} arg0
- */
-SetScissor : function (
-gfxrect 
-)
-{
-},
-
-/**
- * @method SetLineWidth
- * @param {float} arg0
- */
-SetLineWidth : function (
-float 
 )
 {
 },
@@ -1941,21 +1677,11 @@ int
 },
 
 /**
- * @method device
- * @return {cc.GFXDevice}
- */
-device : function (
-)
-{
-    return cc.GFXDevice;
-},
-
-/**
- * @method Initialize
+ * @method initialize
  * @param {cc.GFXQueueInfo} arg0
  * @return {bool}
  */
-Initialize : function (
+initialize : function (
 gfxqueueinfo 
 )
 {
