@@ -1253,7 +1253,7 @@ sp.Skeleton = cc.Class({
     /**
      * !#en Get the animation state object
      * !#zh 获取
-     * @method setTrackEventListener
+     * @method getState
      * @return {sp.spine.AnimationState} state
      */
     getState () {
