@@ -19,7 +19,7 @@ public:
   CC_INLINE const GFXBindingLayoutList& layouts() const { return _layouts; }
   
 protected:
-  GFXDevice* _device;
+  GFXDevice* _device = nullptr;
   GFXPushConstantRangeList _pushConstantsRanges;
   GFXBindingLayoutList _layouts;
 };

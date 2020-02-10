@@ -19,8 +19,8 @@ public:
   CC_INLINE GFXQueueType type() const { return _type; }
   
 protected:
-  GFXDevice* _device;
-  GFXQueueType _type;
+  GFXDevice* _device = nullptr;
+  GFXQueueType _type = GFXQueueType::GRAPHICS;
 };
 
 NS_CC_END

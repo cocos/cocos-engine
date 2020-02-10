@@ -20,7 +20,7 @@ class CC_CORE_API GFXRenderPass : public Object {
   CC_INLINE const GFXSubPassList& subPasses() const { return _subPasses; }
 
  protected:
-  GFXDevice* _device;
+  GFXDevice* _device = nullptr;
   GFXColorAttachmentList _colorAttachments;
   GFXDepthStencilAttachment _depthStencilAttachment;
   GFXSubPassList _subPasses;

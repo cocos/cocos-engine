@@ -26,7 +26,7 @@ public:
   CC_INLINE const GFXRenderPass* renderPass() const { return _renderPass; }
 
 protected:
-  GFXDevice* _device;
+  GFXDevice* _device = nullptr;
   GFXShader* _shader = nullptr;
   GFXPrimitiveMode _primitive = GFXPrimitiveMode::TRIANGLE_LIST;
   GFXInputState _is;
