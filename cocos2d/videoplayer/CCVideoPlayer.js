@@ -334,6 +334,7 @@ let VideoPlayer = cc.Class({
             url = cc.loader.md5Pipe.transformURL(url);
         }
         this._impl.setURL(url, this._mute || this._volume === 0);
+        this._impl.setKeepAspectRatioEnabled(this.keepAspectRatio);
     },
 
     onLoad () {
@@ -345,7 +346,6 @@ let VideoPlayer = cc.Class({
 
             if (!CC_EDITOR) {
                 impl.seekTo(this.currentTime);
-                impl.setKeepAspectRatioEnabled(this.keepAspectRatio);
                 impl.setFullScreenEnabled(this._isFullscreen);
                 this.pause();
 
