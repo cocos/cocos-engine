@@ -116,7 +116,7 @@ export class AmmoWorld implements IPhysicsWorld {
         let to = cocos2AmmoVec3(this.allHitsCB.m_rayToWorld, v3_0);
 
         this.allHitsCB.m_collisionFilterGroup = -1;
-        this.allHitsCB.m_collisionFilterMask = -1;
+        this.allHitsCB.m_collisionFilterMask = options.mask;
         this.allHitsCB.m_closestHitFraction = 1;
         this.allHitsCB.m_shapePart = -1;
         (this.allHitsCB.m_collisionObject as any) = null;
@@ -152,13 +152,13 @@ export class AmmoWorld implements IPhysicsWorld {
      * Ray cast, and return information of the closest hit.
      * @return True if any body was hit.
      */
-    raycastClosest (worldRay: ray, options: any, result: PhysicsRayResult): boolean {
+    raycastClosest (worldRay: ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
         let from = cocos2AmmoVec3(this.closeHitCB.m_rayFromWorld, worldRay.o);
         worldRay.computeHit(v3_0, options.maxDistance);
         let to = cocos2AmmoVec3(this.closeHitCB.m_rayToWorld, v3_0);
 
         this.closeHitCB.m_collisionFilterGroup = -1;
-        this.closeHitCB.m_collisionFilterMask = -1;
+        this.closeHitCB.m_collisionFilterMask = options.mask;
         this.closeHitCB.m_closestHitFraction = 1;
         (this.closeHitCB.m_collisionObject as any) = null;
 

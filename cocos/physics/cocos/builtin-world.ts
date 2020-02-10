@@ -77,10 +77,9 @@ export class BuiltInWorld implements IPhysicsWorld {
             const body = this.bodies[i] as BuiltinSharedBody;
             for (let i = 0; i < body.shapes.length; i++) {
                 const shape = body.shapes[i];
-                // const collider = shape.collider;
-                // if (!(collider.node.layer & mask)) {
-                //     continue;
-                // }
+                if (!(shape.collisionFilterGroup & mask)) {
+                    continue;
+                }
                 const distance = intersect.resolve(worldRay, shape.worldShape);
                 if (distance == 0 || distance > max_d) {
                     continue;
@@ -104,10 +103,9 @@ export class BuiltInWorld implements IPhysicsWorld {
             const body = this.bodies[i] as BuiltinSharedBody;
             for (let i = 0; i < body.shapes.length; i++) {
                 const shape = body.shapes[i];
-                // const collider = shape.collider;
-                // if (!(collider.node.layer & mask)) {
-                //     continue;
-                // }
+                if (!(shape.collisionFilterGroup & mask)) {
+                    continue;
+                }
                 const distance = intersect.resolve(worldRay, shape.worldShape);
                 if (distance == 0 || distance > max_d) {
                     continue;
