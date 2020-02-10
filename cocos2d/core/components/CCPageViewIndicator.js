@@ -148,6 +148,7 @@ var PageViewIndicator = cc.Class({
         var node = new cc.Node();
         var sprite = node.addComponent(cc.Sprite);
         sprite.spriteFrame = this.spriteFrame;
+        sprite.sizeMode = cc.Sprite.SizeMode.CUSTOM;
         node.parent = this.node;
         node.width = this.cellSize.width;
         node.height = this.cellSize.height;
