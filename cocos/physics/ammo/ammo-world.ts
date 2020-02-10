@@ -108,6 +108,15 @@ export class AmmoWorld implements IPhysicsWorld {
         }
 
         this.emitEvents();
+
+        // force sync scene to physics
+        for (let i = 0; i < this.bodies.length; i++) {
+            this.bodies[i].forceSyncBody();
+        }
+
+        for (let i = 0; i < this.ghosts.length; i++) {
+            this.ghosts[i].forceSyncGhost();
+        }
     }
 
     raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {

@@ -67,6 +67,11 @@ export class BuiltInWorld implements IPhysicsWorld {
 
         // emit trigger event
         this.emitTriggerEvent();
+
+        // force sync scene to physics
+        for (let i = 0; i < this.bodies.length; i++) {
+            this.bodies[i].syncInitial();
+        }
     }
 
     raycastClosest (worldRay: ray, options: IRaycastOptions, out: PhysicsRayResult): boolean {
