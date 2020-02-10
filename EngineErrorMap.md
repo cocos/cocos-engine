@@ -475,6 +475,10 @@ Node's zIndex value can't be smaller than cc.macro.MIN_ZINDEX, setting to the mi
 
 Private node's zIndex can't be set, it will keep cc.macro.MIN_ZINDEX as its value
 
+### 1639
+
+cc.Action is deprecated now, please use cc.TweenAction instead
+
 ### 1700
 
 <!-- DEPRECATED -->
@@ -2743,7 +2747,3 @@ Program not support highp precision, will change to mediump.
 ### 9200
 
 cc.view.enableAntiAlias is deprecated now, please use cc.Texture2D.setFilters instead
-
-### 9201
-
-cc.Action is deprecated now, please use cc.TweenAction instead
