@@ -1078,7 +1078,7 @@ cc.TMXMapInfo.prototype = {
                 }
 
                 // Add the object to the objectGroup
-                objectGroup._objects.push(objectProp);
+                objectGroup._objects.unshift(objectProp);
             }
         }
         return objectGroup;
