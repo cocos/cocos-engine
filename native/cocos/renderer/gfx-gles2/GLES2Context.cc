@@ -89,20 +89,20 @@ GLES2Context::~GLES2Context() {
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_ANDROID)
 
-bool GLES2Context::Initialize(const GFXContextInfo &info) {
+bool GLES2Context::initialize(const GFXContextInfo &info) {
   
-  vsync_mode_ = info.vsync_mode;
-  window_handle_ = info.window_handle;
+  _vsyncMode = info.vsync_mode;
+  _windowHandle = info.window_handle;
 
   //////////////////////////////////////////////////////////////////////////
 
   if (!info.shared_ctx)
   {
     is_primary_ctx_ = true;
-    window_handle_ = info.window_handle;
+    _windowHandle = info.window_handle;
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-    native_display_ = (NativeDisplayType)GetDC((HWND)window_handle_);
+    native_display_ = (NativeDisplayType)GetDC((HWND)_windowHandle);
     if (!native_display_) {
       return false;
     }
@@ -137,8 +137,8 @@ bool GLES2Context::Initialize(const GFXContextInfo &info) {
       return false;
     }
 
-    color_fmt_ = GFXFormat::RGBA8;
-    depth_stencil_fmt_ = GFXFormat::D24S8;
+    _colorFmt = GFXFormat::RGBA8;
+    _depthStencilFmt = GFXFormat::D24S8;
 
     const EGLint attribs[] = {
       EGL_SURFACE_TYPE, EGL_WINDOW_BIT | EGL_PBUFFER_BIT,
@@ -175,25 +175,25 @@ bool GLES2Context::Initialize(const GFXContextInfo &info) {
     CC_LOG_INFO("Setup EGLConfig: depth [%d] stencil [%d]", depth, stencil);
 
     if (depth == 16 && stencil == 0) {
-      depth_stencil_fmt_ = GFXFormat::D16;
+      _depthStencilFmt = GFXFormat::D16;
     } else if (depth == 16 && stencil == 8) {
-      depth_stencil_fmt_ = GFXFormat::D16S8;
+      _depthStencilFmt = GFXFormat::D16S8;
     } else if (depth == 24 && stencil == 0) {
-      depth_stencil_fmt_ = GFXFormat::D24;
+      _depthStencilFmt = GFXFormat::D24;
     } else if (depth == 24 && stencil == 8) {
-      depth_stencil_fmt_ = GFXFormat::D24S8;
+      _depthStencilFmt = GFXFormat::D24S8;
     } else if (depth == 32 && stencil == 0) {
-      depth_stencil_fmt_ = GFXFormat::D32F;
+      _depthStencilFmt = GFXFormat::D32F;
     } else if (depth == 32 && stencil == 8) {
-      depth_stencil_fmt_ = GFXFormat::D32F_S8;
+      _depthStencilFmt = GFXFormat::D32F_S8;
     } else {
       CC_LOG_ERROR("Unknown depth stencil format.");
       return false;
     }
 
     CC_LOG_INFO("Chosen EGLConfig: color [%s], depth stencil [%s].",
-      GFX_FORMAT_INFOS[(int)color_fmt_].name.c_str(),
-      GFX_FORMAT_INFOS[(int)depth_stencil_fmt_].name.c_str());
+      GFX_FORMAT_INFOS[(int)_colorFmt].name.c_str(),
+      GFX_FORMAT_INFOS[(int)_depthStencilFmt].name.c_str());
 
     /* EGL_NATIVE_VISUAL_ID is an attribute of the EGLConfig that is
     * guaranteed to be accepted by ANativeWindow_setBuffersGeometry().
@@ -207,12 +207,12 @@ bool GLES2Context::Initialize(const GFXContextInfo &info) {
       return false;
     }
 
-    uint width = device_->width();
-    uint height = device_->height();
-    ANativeWindow_setBuffersGeometry((ANativeWindow*)window_handle_, width, height, n_fmt);
+    uint width = _device->width();
+    uint height = _device->height();
+    ANativeWindow_setBuffersGeometry((ANativeWindow*)_windowHandle, width, height, n_fmt);
 #endif
 
-    egl_surface_ = eglCreateWindowSurface(egl_display_, egl_config_, (EGLNativeWindowType)window_handle_, NULL);
+    egl_surface_ = eglCreateWindowSurface(egl_display_, egl_config_, (EGLNativeWindowType)_windowHandle, NULL);
     if (egl_surface_ == EGL_NO_SURFACE) {
       CC_LOG_ERROR("Window surface created failed.");
       return false;
@@ -263,8 +263,8 @@ bool GLES2Context::Initialize(const GFXContextInfo &info) {
     egl_display_ = shared_ctx->egl_display();
     egl_config_ = shared_ctx->egl_config();
     egl_shared_ctx_ = shared_ctx->egl_shared_ctx();
-    color_fmt_ = shared_ctx->color_fmt();
-    depth_stencil_fmt_ = shared_ctx->depth_stencil_fmt();
+    _colorFmt = shared_ctx->colorFormat();
+    _depthStencilFmt = shared_ctx->detphStencilFormat();
 
     EGLint pbuff_attribs[] =
     {
@@ -342,14 +342,14 @@ void GLES2Context::destroy() {
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
   if (is_primary_ctx_ && native_display_)
   {
-    ReleaseDC((HWND)window_handle_, native_display_);
+    ReleaseDC((HWND)_windowHandle, native_display_);
   }
 #endif
 
   is_primary_ctx_ = false;
-  window_handle_ = 0;
+  _windowHandle = 0;
   native_display_ = 0;
-  vsync_mode_ = GFXVsyncMode::OFF;
+  _vsyncMode = GFXVsyncMode::OFF;
   is_initialized = false;
 }
 
@@ -357,7 +357,7 @@ bool GLES2Context::MakeCurrentImpl() {
   return eglMakeCurrent(egl_display_, egl_surface_, egl_surface_, egl_context_);
 }
 
-void GLES2Context::Present()
+void GLES2Context::present()
 {
   eglSwapBuffers(egl_display_, egl_surface_);
 }
@@ -371,7 +371,7 @@ bool GLES2Context::MakeCurrent() {
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_ANDROID)
       // Turn on or off the vertical sync depending on the input bool value.
       int interval = 1;
-      switch (vsync_mode_) {
+      switch (_vsyncMode) {
       case GFXVsyncMode::OFF: interval = 0; break;
       case GFXVsyncMode::ON: interval = 1; break;
       case GFXVsyncMode::RELAXED: interval = -1; break;

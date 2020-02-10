@@ -11,16 +11,16 @@ class CC_CORE_API GFXQueue : public Object {
   virtual ~GFXQueue();
   
 public:
-  virtual bool Initialize(const GFXQueueInfo& info) = 0;
+  virtual bool initialize(const GFXQueueInfo& info) = 0;
   virtual void destroy() = 0;
   virtual void submit(GFXCommandBuffer** cmd_buffs, uint count) = 0;
   
-  CC_INLINE GFXDevice* device() const { return device_; }
-  CC_INLINE GFXQueueType type() const { return type_; }
+  CC_INLINE GFXDevice* device() const { return _device; }
+  CC_INLINE GFXQueueType type() const { return _type; }
   
 protected:
-  GFXDevice* device_;
-  GFXQueueType type_;
+  GFXDevice* _device;
+  GFXQueueType _type;
 };
 
 NS_CC_END

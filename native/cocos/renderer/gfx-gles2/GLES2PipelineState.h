@@ -11,7 +11,7 @@ class CC_GLES2_API GLES2PipelineState : public GFXPipelineState {
   ~GLES2PipelineState();
   
  public:
-  bool Initialize(const GFXPipelineStateInfo& info);
+  bool initialize(const GFXPipelineStateInfo& info);
   void destroy();
 
   CC_INLINE GLES2GPUPipelineState* gpu_pso() const { return gpu_pso_; }

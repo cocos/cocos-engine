@@ -11,29 +11,29 @@ class CC_CORE_API GFXBuffer : public Object {
   virtual ~GFXBuffer();
   
  public:
-  virtual bool Initialize(const GFXBufferInfo& info) = 0;
+  virtual bool initialize(const GFXBufferInfo& info) = 0;
   virtual void destroy() = 0;
-  virtual void Resize(uint size) = 0;
-  virtual void Update(void* buffer, uint offset = 0, uint size = 0) = 0;
+  virtual void resize(uint size) = 0;
+  virtual void update(void* buffer, uint offset = 0, uint size = 0) = 0;
   
-  CC_INLINE GFXDevice* device() const { return device_; }
-  CC_INLINE GFXBufferUsage usage() const { return usage_; }
-  CC_INLINE GFXMemoryUsage memUsage() const { return mem_usage_; }
-  CC_INLINE uint stride() const { return stride_; }
-  CC_INLINE uint count() const { return count_; }
-  CC_INLINE uint size() const { return size_; }
-  CC_INLINE GFXBufferFlags flags() const { return flags_; }
-  CC_INLINE uint8_t* buffer() const { return buffer_; }
+  CC_INLINE GFXDevice* device() const { return _device; }
+  CC_INLINE GFXBufferUsage usage() const { return _usage; }
+  CC_INLINE GFXMemoryUsage memUsage() const { return _memUsage; }
+  CC_INLINE uint stride() const { return _stride; }
+  CC_INLINE uint count() const { return _count; }
+  CC_INLINE uint size() const { return _size; }
+  CC_INLINE GFXBufferFlags flags() const { return _flags; }
+  CC_INLINE uint8_t* bufferView() const { return _buffer; }
   
  protected:
-  GFXDevice* device_;
-  GFXBufferUsage usage_;
-  GFXMemoryUsage mem_usage_;
-  uint stride_;
-  uint count_;
-  uint size_;
-  GFXBufferFlags flags_;
-  uint8_t* buffer_ = nullptr;
+  GFXDevice* _device = nullptr;
+  GFXBufferUsage _usage = GFXBufferUsageBit::NONE;
+  GFXMemoryUsage _memUsage = GFXMemoryUsageBit::NONE;
+  uint _stride = 0;
+  uint _count = 0;
+  uint _size = 0;
+  GFXBufferFlags _flags = GFXBufferFlagBit::NONE;
+  uint8_t* _buffer = nullptr;
 };
 
 NS_CC_END

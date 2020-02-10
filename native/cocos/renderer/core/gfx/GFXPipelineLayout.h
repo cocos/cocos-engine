@@ -11,17 +11,17 @@ class CC_CORE_API GFXPipelineLayout : public Object {
   virtual ~GFXPipelineLayout();
   
 public:
-  virtual bool Initialize(const GFXPipelineLayoutInfo& info) = 0;
+  virtual bool initialize(const GFXPipelineLayoutInfo& info) = 0;
   virtual void destroy() = 0;
   
-  CC_INLINE GFXDevice* device() const { return device_; }
-  CC_INLINE const GFXPushConstantRangeList& push_constant_ranges() const { return push_constant_ranges_; }
-  CC_INLINE const GFXBindingLayoutList& layouts() const { return layouts_; }
+  CC_INLINE GFXDevice* device() const { return _device; }
+  CC_INLINE const GFXPushConstantRangeList& push_constant_ranges() const { return _pushConstantsRanges; }
+  CC_INLINE const GFXBindingLayoutList& layouts() const { return _layouts; }
   
 protected:
-  GFXDevice* device_;
-  GFXPushConstantRangeList push_constant_ranges_;
-  GFXBindingLayoutList layouts_;
+  GFXDevice* _device;
+  GFXPushConstantRangeList _pushConstantsRanges;
+  GFXBindingLayoutList _layouts;
 };
 
 NS_CC_END

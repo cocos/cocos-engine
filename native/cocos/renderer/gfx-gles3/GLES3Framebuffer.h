@@ -11,7 +11,7 @@ class CC_GLES3_API GLES3Framebuffer : public GFXFramebuffer {
   ~GLES3Framebuffer();
   
  public:
-  bool Initialize(const GFXFramebufferInfo& info);
+  bool initialize(const GFXFramebufferInfo& info);
   void destroy();
   
   CC_INLINE GLES3GPUFramebuffer* gpu_fbo() const { return gpu_fbo_; }

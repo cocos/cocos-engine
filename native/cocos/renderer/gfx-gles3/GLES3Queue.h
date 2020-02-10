@@ -11,7 +11,7 @@ class CC_GLES3_API GLES3Queue : public GFXQueue {
   friend class GLES3Device;
   
  public:
-  bool Initialize(const GFXQueueInfo& info);
+  bool initialize(const GFXQueueInfo& info);
   void destroy();
   void submit(GFXCommandBuffer** cmd_buffs, uint count);
   

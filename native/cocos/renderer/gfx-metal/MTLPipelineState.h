@@ -14,7 +14,7 @@ public:
     CCMTLPipelineState(GFXDevice* device);
     virtual ~CCMTLPipelineState();
     
-    virtual bool Initialize(const GFXPipelineStateInfo& info) override;
+    virtual bool initialize(const GFXPipelineStateInfo& info) override;
     virtual void destroy() override;
     
     void bindBuffer(GFXBindingLayout*);

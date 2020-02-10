@@ -11,7 +11,7 @@ public:
     CCMTLInputAssembler(GFXDevice* device);
     ~CCMTLInputAssembler();
     
-    virtual bool Initialize(const GFXInputAssemblerInfo& info) override;
+    virtual bool initialize(const GFXInputAssemblerInfo& info) override;
     virtual void destroy() override;
     
     void extractDrawInfo(CCMTLCmdDraw*) const;

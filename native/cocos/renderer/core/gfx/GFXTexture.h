@@ -11,37 +11,37 @@ class CC_CORE_API GFXTexture : public Object {
   virtual ~GFXTexture();
   
  public:
-  virtual bool Initialize(const GFXTextureInfo& info) = 0;
+  virtual bool initialize(const GFXTextureInfo& info) = 0;
   virtual void destroy() = 0;
-  virtual void Resize(uint width, uint height) = 0;
+  virtual void resize(uint width, uint height) = 0;
   
-  CC_INLINE GFXTextureType type() const { return type_; }
-  CC_INLINE GFXTextureUsage usage() const { return usage_; }
-  CC_INLINE GFXFormat format() const { return format_; }
-  CC_INLINE uint width() const { return width_; }
-  CC_INLINE uint height() const { return height_; }
-  CC_INLINE uint depth() const { return depth_; }
-  CC_INLINE uint array_layer() const { return array_layer_; }
-  CC_INLINE uint mip_level() const { return mip_level_; }
-  CC_INLINE uint size() const { return size_; }
-  CC_INLINE GFXSampleCount samples() const { return samples_; }
-  CC_INLINE GFXTextureFlags flags() const { return flags_; }
-  CC_INLINE uint8_t* buffer() const { return buffer_; }
+  CC_INLINE GFXTextureType type() const { return _type; }
+  CC_INLINE GFXTextureUsage usage() const { return _usage; }
+  CC_INLINE GFXFormat format() const { return _format; }
+  CC_INLINE uint width() const { return _width; }
+  CC_INLINE uint height() const { return _height; }
+  CC_INLINE uint depth() const { return _depth; }
+  CC_INLINE uint arrayLayer() const { return _arrayLayer; }
+  CC_INLINE uint mipLevel() const { return _mipLevel; }
+  CC_INLINE uint size() const { return _size; }
+  CC_INLINE GFXSampleCount samples() const { return _samples; }
+  CC_INLINE GFXTextureFlags flags() const { return _flags; }
+  CC_INLINE uint8_t* buffer() const { return _buffer; }
   
  protected:
-  GFXDevice* device_;
-  GFXTextureType type_;
-  GFXTextureUsage usage_;
-  GFXFormat format_;
-  uint width_;
-  uint height_;
-  uint depth_;
-  uint array_layer_;
-  uint mip_level_;
-  uint size_;
-  GFXSampleCount samples_;
-  GFXTextureFlags flags_;
-  uint8_t* buffer_;
+  GFXDevice* _device = nullptr;
+  GFXTextureType _type = GFXTextureType::TEX2D;
+  GFXTextureUsage _usage = GFXTextureUsageBit::NONE;
+  GFXFormat _format = GFXFormat::UNKNOWN;
+  uint _width = 0;
+  uint _height = 0;
+  uint _depth = 1;
+  uint _arrayLayer = 1;
+  uint _mipLevel = 1;
+  uint _size = 0;
+  GFXSampleCount _samples = GFXSampleCount::X1;
+  GFXTextureFlags _flags = GFXTextureFlagBit::NONE;
+  uint8_t* _buffer = nullptr;
 };
 
 NS_CC_END

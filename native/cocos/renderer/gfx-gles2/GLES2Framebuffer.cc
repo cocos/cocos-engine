@@ -15,35 +15,35 @@ GLES2Framebuffer::GLES2Framebuffer(GFXDevice* device)
 GLES2Framebuffer::~GLES2Framebuffer() {
 }
 
-bool GLES2Framebuffer::Initialize(const GFXFramebufferInfo &info) {
+bool GLES2Framebuffer::initialize(const GFXFramebufferInfo &info) {
   
-  render_pass_ = info.render_pass;
-  color_views_ = info.color_views;
-  depth_stencil_view_ = info.depth_stencil_view;
-  is_offscreen_ = info.is_offscreen;
+  _renderPass = info.render_pass;
+  _colorViews = info.color_views;
+  _depthStencilView = info.depth_stencil_view;
+  _isOffscreen = info.is_offscreen;
   
   gpu_fbo_ = CC_NEW(GLES2GPUFramebuffer);
-  gpu_fbo_->gpu_render_pass = ((GLES2RenderPass*)render_pass_)->gpu_render_pass();
+  gpu_fbo_->gpu_render_pass = ((GLES2RenderPass*)_renderPass)->gpu_render_pass();
   
-  if (is_offscreen_) {
-    gpu_fbo_->gpu_color_views.resize(color_views_.size());
-    for (size_t i = 0; i < color_views_.size(); ++i) {
-      GLES2TextureView* color_view = (GLES2TextureView*)color_views_[i];
+  if (_isOffscreen) {
+    gpu_fbo_->gpu_color_views.resize(_colorViews.size());
+    for (size_t i = 0; i < _colorViews.size(); ++i) {
+      GLES2TextureView* color_view = (GLES2TextureView*)_colorViews[i];
       gpu_fbo_->gpu_color_views[i] = color_view->gpu_tex_view();
     }
     
-    if (depth_stencil_view_) {
-      gpu_fbo_->gpu_depth_stencil_view = ((GLES2TextureView*)depth_stencil_view_)->gpu_tex_view();
+    if (_depthStencilView) {
+      gpu_fbo_->gpu_depth_stencil_view = ((GLES2TextureView*)_depthStencilView)->gpu_tex_view();
     }
     
-    gpu_fbo_->is_offscreen = is_offscreen_;
+    gpu_fbo_->is_offscreen = _isOffscreen;
     
-    GLES2CmdFuncCreateFramebuffer((GLES2Device*)device_, gpu_fbo_);
+    GLES2CmdFuncCreateFramebuffer((GLES2Device*)_device, gpu_fbo_);
   }
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
     else
     {
-        gpu_fbo_->gl_fbo = static_cast<GLES2Context*>(device_->context())->getDefaultFramebuffer();
+        gpu_fbo_->gl_fbo = static_cast<GLES2Context*>(_device->context())->getDefaultFramebuffer();
     }
 #endif
   return true;
@@ -51,8 +51,8 @@ bool GLES2Framebuffer::Initialize(const GFXFramebufferInfo &info) {
 
 void GLES2Framebuffer::destroy() {
   if (gpu_fbo_) {
-    if(is_offscreen())
-        GLES2CmdFuncDestroyFramebuffer((GLES2Device*)device_, gpu_fbo_);
+    if(isOffscreen())
+        GLES2CmdFuncDestroyFramebuffer((GLES2Device*)_device, gpu_fbo_);
       CC_DELETE(gpu_fbo_);
       gpu_fbo_ = nullptr;
   }

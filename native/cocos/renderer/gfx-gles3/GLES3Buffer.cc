@@ -12,81 +12,81 @@ GLES3Buffer::GLES3Buffer(GFXDevice* device)
 GLES3Buffer::~GLES3Buffer() {
 }
 
-bool GLES3Buffer::Initialize(const GFXBufferInfo& info) {
+bool GLES3Buffer::initialize(const GFXBufferInfo& info) {
   
-  usage_ = info.usage;
-  mem_usage_ = info.mem_usage;
-  size_ = info.size;
-  stride_ = std::max(info.stride, 1U);
-  count_ = size_ / stride_;
-  flags_ = info.flags;
+  _usage = info.usage;
+  _memUsage = info.mem_usage;
+  _size = info.size;
+  _stride = std::max(info.stride, 1U);
+  _count = _size / _stride;
+  _flags = info.flags;
   
-  if ((flags_ & GFXBufferFlagBit::BAKUP_BUFFER) && size_ > 0) {
-    buffer_ = (uint8_t*)CC_MALLOC(size_);
-    device_->memoryStatus().buffer_size += size_;
+  if ((_flags & GFXBufferFlagBit::BAKUP_BUFFER) && _size > 0) {
+    _buffer = (uint8_t*)CC_MALLOC(_size);
+    _device->memoryStatus().buffer_size += _size;
   }
   
   gpu_buffer_ = CC_NEW(GLES3GPUBuffer);
-  gpu_buffer_->usage = usage_;
-  gpu_buffer_->mem_usage = mem_usage_;
-  gpu_buffer_->size = size_;
-  gpu_buffer_->stride = stride_;
-  gpu_buffer_->count = count_;
+  gpu_buffer_->usage = _usage;
+  gpu_buffer_->mem_usage = _memUsage;
+  gpu_buffer_->size = _size;
+  gpu_buffer_->stride = _stride;
+  gpu_buffer_->count = _count;
   
-  if (!(usage_ & GFXBufferUsageBit::INDIRECT)) {
-    gpu_buffer_->buffer = buffer_;
+  if (!(_usage & GFXBufferUsageBit::INDIRECT)) {
+    gpu_buffer_->buffer = _buffer;
   }
   
-  GLES3CmdFuncCreateBuffer((GLES3Device*)device_, gpu_buffer_);
-  device_->memoryStatus().buffer_size += size_;
+  GLES3CmdFuncCreateBuffer((GLES3Device*)_device, gpu_buffer_);
+  _device->memoryStatus().buffer_size += _size;
   
   return true;
 }
 
 void GLES3Buffer::destroy() {
   if (gpu_buffer_) {
-    GLES3CmdFuncDestroyBuffer((GLES3Device*)device_, gpu_buffer_);
-    device_->memoryStatus().buffer_size -= size_;
+    GLES3CmdFuncDestroyBuffer((GLES3Device*)_device, gpu_buffer_);
+    _device->memoryStatus().buffer_size -= _size;
     CC_DELETE(gpu_buffer_);
     gpu_buffer_ = nullptr;
   }
   
-  if (buffer_) {
-    CC_FREE(buffer_);
-    device_->memoryStatus().buffer_size -= size_;
-    buffer_ = nullptr;
+  if (_buffer) {
+    CC_FREE(_buffer);
+    _device->memoryStatus().buffer_size -= _size;
+    _buffer = nullptr;
   }
 }
 
-void GLES3Buffer::Resize(uint size) {
-  if (size_ != size) {
-    const uint old_size = size_;
-    size_ = size;
-    count_ = size_ / stride_;
+void GLES3Buffer::resize(uint size) {
+  if (_size != size) {
+    const uint old_size = _size;
+    _size = size;
+    _count = _size / _stride;
     
-    GFXMemoryStatus& status = device_->memoryStatus();
-    gpu_buffer_->size = size_;
-    gpu_buffer_->count = count_;
-    GLES3CmdFuncResizeBuffer((GLES3Device*)device_, gpu_buffer_);
+    GFXMemoryStatus& status = _device->memoryStatus();
+    gpu_buffer_->size = _size;
+    gpu_buffer_->count = _count;
+    GLES3CmdFuncResizeBuffer((GLES3Device*)_device, gpu_buffer_);
     status.buffer_size -= old_size;
-    status.buffer_size += size_;
+    status.buffer_size += _size;
 
-    if (buffer_) {
-      const uint8_t* old_buff = buffer_;
-      buffer_ = (uint8_t*)CC_MALLOC(size_);
-      memcpy(buffer_, old_buff, old_size);
-      CC_FREE(buffer_);
+    if (_buffer) {
+      const uint8_t* old_buff = _buffer;
+      _buffer = (uint8_t*)CC_MALLOC(_size);
+      memcpy(_buffer, old_buff, old_size);
+      CC_FREE(_buffer);
       status.buffer_size -= old_size;
-      status.buffer_size += size_;
+      status.buffer_size += _size;
     }
   }
 }
 
-void GLES3Buffer::Update(void* buffer, uint offset, uint size) {
-  if (buffer_) {
-    memcpy(buffer_ + offset, buffer, size);
+void GLES3Buffer::update(void* buffer, uint offset, uint size) {
+  if (_buffer) {
+    memcpy(_buffer + offset, buffer, size);
   }
-  GLES3CmdFuncUpdateBuffer((GLES3Device*)device_, gpu_buffer_, buffer, offset, size);
+  GLES3CmdFuncUpdateBuffer((GLES3Device*)_device, gpu_buffer_, buffer, offset, size);
 }
 
 NS_CC_END

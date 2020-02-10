@@ -9,9 +9,9 @@ public:
   ~GLES3Window();
   
 public:
-  bool Initialize(const GFXWindowInfo& info);
+  bool initialize(const GFXWindowInfo& info);
   void destroy();
-  void Resize(uint width, uint height);
+  void resize(uint width, uint height);
 };
 
 NS_CC_END

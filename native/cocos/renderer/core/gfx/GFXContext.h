@@ -11,23 +11,23 @@ class CC_CORE_API GFXContext : public Object {
   virtual ~GFXContext();
   
  public:
-  virtual bool Initialize(const GFXContextInfo& info) = 0;
+  virtual bool initialize(const GFXContextInfo& info) = 0;
   virtual void destroy() = 0;
-  virtual void Present() = 0;
+  virtual void present() = 0;
 
-  CC_INLINE GFXDevice* device() const { return device_; }
-  CC_INLINE GFXContext* shared_ctx() const { return shared_ctx_; }
-  CC_INLINE GFXVsyncMode vsync_mode() const { return vsync_mode_; }
-  CC_INLINE GFXFormat color_fmt() const { return color_fmt_; }
-  CC_INLINE GFXFormat depth_stencil_fmt() const { return depth_stencil_fmt_; }
+  CC_INLINE GFXDevice* device() const { return _device; }
+  CC_INLINE GFXContext* sharedContext() const { return _sharedContext; }
+  CC_INLINE GFXVsyncMode vsyncMode() const { return _vsyncMode; }
+  CC_INLINE GFXFormat colorFormat() const { return _colorFmt; }
+  CC_INLINE GFXFormat detphStencilFormat() const { return _depthStencilFmt; }
   
  protected:
-  GFXDevice* device_;
-  intptr_t window_handle_;
-  GFXContext* shared_ctx_;
-  GFXVsyncMode vsync_mode_;
-  GFXFormat color_fmt_;
-  GFXFormat depth_stencil_fmt_;
+  GFXDevice* _device = nullptr;
+  intptr_t _windowHandle = 0;
+  GFXContext* _sharedContext = nullptr;
+  GFXVsyncMode _vsyncMode = GFXVsyncMode::OFF;
+  GFXFormat _colorFmt = GFXFormat::UNKNOWN;
+  GFXFormat _depthStencilFmt = GFXFormat::UNKNOWN;
 };
 
 NS_CC_END

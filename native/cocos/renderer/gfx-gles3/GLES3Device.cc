@@ -44,7 +44,7 @@ bool GLES3Device::initialize(const GFXDeviceInfo& info)
     ctx_info.shared_ctx = info.shared_ctx;
 
     _context = CC_NEW(GLES3Context(this));
-    if (!_context->Initialize(ctx_info))
+    if (!_context->initialize(ctx_info))
     {
         destroy();
         return false;
@@ -107,8 +107,8 @@ bool GLES3Device::initialize(const GFXDeviceInfo& info)
     CC_LOG_INFO("COMPRESSED_FORMATS: %s", compressed_fmts.c_str());
 
     GFXWindowInfo window_info;
-    window_info.color_fmt = _context->color_fmt();
-    window_info.depth_stencil_fmt = _context->depth_stencil_fmt();
+    window_info.color_fmt = _context->colorFormat();
+    window_info.depth_stencil_fmt = _context->detphStencilFormat();
     window_info.is_offscreen = false;
     _window = createWindow(window_info);
 
@@ -143,7 +143,7 @@ void GLES3Device::present()
     _numDrawCalls += queue->_numDrawCalls;
     _numTriangles += queue->_numTriangles;
 
-    _context->Present();
+    _context->present();
 
     // Clear queue stats
     queue->_numDrawCalls = 0;
@@ -153,7 +153,7 @@ void GLES3Device::present()
 GFXWindow* GLES3Device::createWindow(const GFXWindowInfo& info)
 {
     GFXWindow* gfx_window = CC_NEW(GLES3Window(this));
-    if (gfx_window->Initialize(info))
+    if (gfx_window->initialize(info))
         return gfx_window;
 
     CC_SAFE_DESTROY(gfx_window);
@@ -163,7 +163,7 @@ GFXWindow* GLES3Device::createWindow(const GFXWindowInfo& info)
 GFXQueue* GLES3Device::createQueue(const GFXQueueInfo& info)
 {
     GFXQueue* gfx_queue = CC_NEW(GLES3Queue(this));
-    if (gfx_queue->Initialize(info))
+    if (gfx_queue->initialize(info))
         return gfx_queue;
 
     CC_SAFE_DESTROY(gfx_queue);
@@ -183,7 +183,7 @@ GFXCommandAllocator* GLES3Device::createCommandAllocator(const GFXCommandAllocat
 GFXCommandBuffer* GLES3Device::createCommandBuffer(const GFXCommandBufferInfo& info)
 {
     GFXCommandBuffer* gfx_cmd_buff = CC_NEW(GLES3CommandBuffer(this));
-    if (gfx_cmd_buff->Initialize(info))
+    if (gfx_cmd_buff->initialize(info))
         return gfx_cmd_buff;
 
     CC_SAFE_DESTROY(gfx_cmd_buff)
@@ -193,7 +193,7 @@ GFXCommandBuffer* GLES3Device::createCommandBuffer(const GFXCommandBufferInfo& i
 GFXBuffer* GLES3Device::createBuffer(const GFXBufferInfo& info)
 {
     GFXBuffer* gfx_buffer = CC_NEW(GLES3Buffer(this));
-    if (gfx_buffer->Initialize(info))
+    if (gfx_buffer->initialize(info))
         return gfx_buffer;
 
     CC_SAFE_DESTROY(gfx_buffer);
@@ -203,7 +203,7 @@ GFXBuffer* GLES3Device::createBuffer(const GFXBufferInfo& info)
 GFXTexture* GLES3Device::createTexture(const GFXTextureInfo& info)
 {
     GFXTexture* gfx_texture = CC_NEW(GLES3Texture(this));
-    if (gfx_texture->Initialize(info))
+    if (gfx_texture->initialize(info))
         return gfx_texture;
 
     CC_SAFE_DESTROY(gfx_texture);
@@ -213,7 +213,7 @@ GFXTexture* GLES3Device::createTexture(const GFXTextureInfo& info)
 GFXTextureView* GLES3Device::createTextureView(const GFXTextureViewInfo& info)
 {
     GFXTextureView* gfx_tex_view = CC_NEW(GLES3TextureView(this));
-    if (gfx_tex_view->Initialize(info))
+    if (gfx_tex_view->initialize(info))
         return gfx_tex_view;
 
     CC_SAFE_DESTROY(gfx_tex_view);
@@ -223,7 +223,7 @@ GFXTextureView* GLES3Device::createTextureView(const GFXTextureViewInfo& info)
 GFXSampler* GLES3Device::createSampler(const GFXSamplerInfo& info)
 {
     GFXSampler* gfx_sampler = CC_NEW(GLES3Sampler(this));
-    if (gfx_sampler->Initialize(info))
+    if (gfx_sampler->initialize(info))
         return gfx_sampler;
 
     CC_SAFE_DESTROY(gfx_sampler);
@@ -233,7 +233,7 @@ GFXSampler* GLES3Device::createSampler(const GFXSamplerInfo& info)
 GFXShader* GLES3Device::createShader(const GFXShaderInfo& info)
 {
     GFXShader* gfx_shader = CC_NEW(GLES3Shader(this));
-    if (gfx_shader->Initialize(info))
+    if (gfx_shader->initialize(info))
         return gfx_shader;
 
     CC_SAFE_DESTROY(gfx_shader);
@@ -243,7 +243,7 @@ GFXShader* GLES3Device::createShader(const GFXShaderInfo& info)
 GFXInputAssembler* GLES3Device::createInputAssembler(const GFXInputAssemblerInfo& info)
 {
     GFXInputAssembler* gfx_input_assembler = CC_NEW(GLES3InputAssembler(this));
-    if (gfx_input_assembler->Initialize(info))
+    if (gfx_input_assembler->initialize(info))
         return gfx_input_assembler;
 
     CC_SAFE_DESTROY(gfx_input_assembler);
@@ -253,7 +253,7 @@ GFXInputAssembler* GLES3Device::createInputAssembler(const GFXInputAssemblerInfo
 GFXRenderPass* GLES3Device::createRenderPass(const GFXRenderPassInfo& info)
 {
     GFXRenderPass* gfx_render_pass = CC_NEW(GLES3RenderPass(this));
-    if (gfx_render_pass->Initialize(info))
+    if (gfx_render_pass->initialize(info))
         return gfx_render_pass;
 
     CC_SAFE_DESTROY(gfx_render_pass);
@@ -263,7 +263,7 @@ GFXRenderPass* GLES3Device::createRenderPass(const GFXRenderPassInfo& info)
 GFXFramebuffer* GLES3Device::createFramebuffer(const GFXFramebufferInfo& info)
 {
     GFXFramebuffer* gfx_framebuffer = CC_NEW(GLES3Framebuffer(this));
-    if (gfx_framebuffer->Initialize(info))
+    if (gfx_framebuffer->initialize(info))
         return gfx_framebuffer;
 
     CC_SAFE_DESTROY(gfx_framebuffer);
@@ -273,7 +273,7 @@ GFXFramebuffer* GLES3Device::createFramebuffer(const GFXFramebufferInfo& info)
 GFXBindingLayout* GLES3Device::createBindingLayout(const GFXBindingLayoutInfo& info)
 {
     GFXBindingLayout* gfx_binding_layout = CC_NEW(GLES3BindingLayout(this));
-    if (gfx_binding_layout->Initialize(info))
+    if (gfx_binding_layout->initialize(info))
         return gfx_binding_layout;
 
     CC_SAFE_DESTROY(gfx_binding_layout);
@@ -284,7 +284,7 @@ GFXBindingLayout* GLES3Device::createBindingLayout(const GFXBindingLayoutInfo& i
 GFXPipelineState* GLES3Device::createPipelineState(const GFXPipelineStateInfo& info)
 {
     GFXPipelineState* pipelineState = CC_NEW(GLES3PipelineState(this));
-    if (pipelineState->Initialize(info))
+    if (pipelineState->initialize(info))
         return pipelineState;
 
     CC_SAFE_DESTROY(pipelineState);
@@ -294,7 +294,7 @@ GFXPipelineState* GLES3Device::createPipelineState(const GFXPipelineStateInfo& i
 GFXPipelineLayout* GLES3Device::createPipelineLayout(const GFXPipelineLayoutInfo& info)
 {
     GFXPipelineLayout* layout = CC_NEW(GLES3PipelineLayout(this));
-    if (layout->Initialize(info))
+    if (layout->initialize(info))
         return layout;
 
     CC_SAFE_DESTROY(layout);

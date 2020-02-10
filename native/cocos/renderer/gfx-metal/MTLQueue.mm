@@ -23,11 +23,11 @@ CCMTLQueue::~CCMTLQueue()
     destroy();
 }
 
-bool CCMTLQueue::Initialize(const GFXQueueInfo &info)
+bool CCMTLQueue::initialize(const GFXQueueInfo &info)
 {
-    MTKView* mtkView = (MTKView*)((CCMTLDevice*)device_)->getMTKView();
+    MTKView* mtkView = (MTKView*)((CCMTLDevice*)_device)->getMTKView();
     _metalQueue = [mtkView.device newCommandQueue];
-    type_ = info.type;
+    _type = info.type;
     
     return _metalQueue != nil;
 }
@@ -64,7 +64,7 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage)
     id<MTLCommandBuffer> mtlCommandBuffer = [_metalQueue commandBuffer];
     [mtlCommandBuffer enqueue];
     id<MTLRenderCommandEncoder> encoder;
-    MTKView* mtkView = (MTKView*)((CCMTLDevice*)device_)->getMTKView();
+    MTKView* mtkView = (MTKView*)((CCMTLDevice*)_device)->getMTKView();
     GFXCmdType commandType;
     CCMTLCmdBeginRenderPass* cmdBeginRenderPass = nullptr;
     CCMTLGPUPipelineState* gpuPipelineState = nullptr;
@@ -81,7 +81,7 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage)
                 cmdBeginRenderPass = commandPackage->beginRenderPassCmds[cmdIdx++];
                 
                 MTLRenderPassDescriptor* mtlRenderPassDescriptor;
-                if (!cmdBeginRenderPass->frameBuffer->is_offscreen() )
+                if (!cmdBeginRenderPass->frameBuffer->isOffscreen() )
                 {
                     mtlRenderPassDescriptor = mtkView.currentRenderPassDescriptor;
                     mtlRenderPassDescriptor.colorAttachments[0].clearColor = mu::toMTLClearColor(cmdBeginRenderPass->clearColors[0]);
@@ -163,7 +163,7 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage)
                         if (gpuInputAssembler->mtlIndirectBuffer && cmd->drawInfo.index_count >= 0)
                         {
                             uint8_t* offset = 0;
-                            offset += cmd->drawInfo.first_index * inputAssembler->index_buffer()->stride();
+                            offset += cmd->drawInfo.first_index * inputAssembler->indexBuffer()->stride();
                             if (cmd->drawInfo.instance_count == 0)
                             {
                                 // TODO: translate index type

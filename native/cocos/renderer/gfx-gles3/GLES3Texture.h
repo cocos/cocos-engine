@@ -11,9 +11,9 @@ class CC_GLES3_API GLES3Texture : public GFXTexture {
   ~GLES3Texture();
   
  public:
-  bool Initialize(const GFXTextureInfo& info);
+  bool initialize(const GFXTextureInfo& info);
   void destroy();
-  void Resize(uint width, uint height);
+  void resize(uint width, uint height);
   
   CC_INLINE GLES3GPUTexture* gpu_texture() const { return gpu_texture_; }
 

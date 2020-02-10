@@ -11,23 +11,23 @@ class CC_CORE_API GFXShader : public Object {
   virtual ~GFXShader();
   
  public:
-  virtual bool Initialize(const GFXShaderInfo& info) = 0;
+  virtual bool initialize(const GFXShaderInfo& info) = 0;
   virtual void destroy() = 0;
   
-  CC_INLINE GFXDevice* device() const { return device_; }
-  CC_INLINE uint hash() const { return hash_; }
-  CC_INLINE const String& name() const { return name_; }
-  CC_INLINE const GFXShaderStageList& stages() const { return stages_; }
-  CC_INLINE const GFXUniformBlockList& blocks() const { return blocks_; }
-  CC_INLINE const GFXUniformSamplerList& samplers() const { return samplers_; }
+  CC_INLINE GFXDevice* device() const { return _device; }
+  CC_INLINE uint id() const { return _hash; }
+  CC_INLINE const String& name() const { return _name; }
+  CC_INLINE const GFXShaderStageList& stages() const { return _stages; }
+  CC_INLINE const GFXUniformBlockList& blocks() const { return _blocks; }
+  CC_INLINE const GFXUniformSamplerList& samplers() const { return _samplers; }
   
  protected:
-  GFXDevice* device_;
-  uint hash_;
-  String name_;
-  GFXShaderStageList stages_;
-  GFXUniformBlockList blocks_;
-  GFXUniformSamplerList samplers_;
+  GFXDevice* _device = nullptr;
+  uint _hash = 0;
+  String _name;
+  GFXShaderStageList _stages;
+  GFXUniformBlockList _blocks;
+  GFXUniformSamplerList _samplers;
 };
 
 NS_CC_END

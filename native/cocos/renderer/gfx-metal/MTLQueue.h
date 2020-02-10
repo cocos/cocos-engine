@@ -12,7 +12,7 @@ public:
     CCMTLQueue(GFXDevice* device);
     ~CCMTLQueue();
     
-    virtual bool Initialize(const GFXQueueInfo &info) override;
+    virtual bool initialize(const GFXQueueInfo &info) override;
     virtual void destroy() override;
     virtual void submit(GFXCommandBuffer** cmd_buffs, uint count) override;
     

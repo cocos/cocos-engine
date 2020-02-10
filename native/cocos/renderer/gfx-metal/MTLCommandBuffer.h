@@ -16,27 +16,27 @@ public:
     CCMTLCommandBuffer(GFXDevice* device);
     ~CCMTLCommandBuffer();
     
-    virtual bool Initialize(const GFXCommandBufferInfo& info) override;
+    virtual bool initialize(const GFXCommandBufferInfo& info) override;
     virtual void destroy() override;
-    virtual void Begin() override;
-    virtual void End() override;
-    virtual void BeginRenderPass(GFXFramebuffer* fbo, const GFXRect& render_area, GFXClearFlags clear_flags, GFXColor* colors, uint count, float depth, int stencil) override;
-    virtual void EndRenderPass() override;
-    virtual void BindPipelineState(GFXPipelineState* pso) override;
-    virtual void BindBindingLayout(GFXBindingLayout* layout) override;
-    virtual void BindInputAssembler(GFXInputAssembler* ia) override;
-    virtual void SetViewport(const GFXViewport& vp) override;
-    virtual void SetScissor(const GFXRect& rect) override;
-    virtual void SetLineWidth(const float width) override;
-    virtual void SetDepthBias(float constant, float clamp, float slope) override;
-    virtual void SetBlendConstants(const GFXColor& constants) override;
-    virtual void SetDepthBounds(float min_bounds, float max_bounds) override;
-    virtual void SetStencilWriteMask(GFXStencilFace face, uint mask) override;
-    virtual void SetStencilCompareMask(GFXStencilFace face, int ref, uint mask) override;
-    virtual void Draw(GFXInputAssembler* ia) override;
-    virtual void UpdateBuffer(GFXBuffer* buff, void* data, uint size, uint offset = 0) override;
-    virtual void CopyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GFXTextureLayout layout, GFXBufferTextureCopy* regions, uint count) override;
-    virtual void Execute(GFXCommandBuffer** cmd_buffs, uint count) override;
+    virtual void begin() override;
+    virtual void end() override;
+    virtual void beginRenderPass(GFXFramebuffer* fbo, const GFXRect& render_area, GFXClearFlags clear_flags, GFXColor* colors, uint count, float depth, int stencil) override;
+    virtual void endRenderPass() override;
+    virtual void bindPipelineState(GFXPipelineState* pso) override;
+    virtual void bindBindingLayout(GFXBindingLayout* layout) override;
+    virtual void bindInputAssembler(GFXInputAssembler* ia) override;
+    virtual void setViewport(const GFXViewport& vp) override;
+    virtual void setScissor(const GFXRect& rect) override;
+    virtual void setLineWidth(const float width) override;
+    virtual void setDepthBias(float constant, float clamp, float slope) override;
+    virtual void setBlendConstants(const GFXColor& constants) override;
+    virtual void setDepthBound(float min_bounds, float max_bounds) override;
+    virtual void setStencilWriteMask(GFXStencilFace face, uint mask) override;
+    virtual void setStencilCompareMask(GFXStencilFace face, int ref, uint mask) override;
+    virtual void draw(GFXInputAssembler* ia) override;
+    virtual void updateBuffer(GFXBuffer* buff, void* data, uint size, uint offset = 0) override;
+    virtual void copyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GFXTextureLayout layout, GFXBufferTextureCopy* regions, uint count) override;
+    virtual void execute(GFXCommandBuffer** cmd_buffs, uint count) override;
     
     CC_INLINE const CCMTLCommandPackage* getCommandPackage() const { return _commandPackage; }
     

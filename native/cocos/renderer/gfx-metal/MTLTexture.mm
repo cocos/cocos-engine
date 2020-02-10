@@ -42,69 +42,69 @@ namespace
 CCMTLTexture::CCMTLTexture(GFXDevice* device) : GFXTexture(device) {}
 CCMTLTexture::~CCMTLTexture() { destroy(); }
 
-bool CCMTLTexture::Initialize(const GFXTextureInfo& info)
+bool CCMTLTexture::initialize(const GFXTextureInfo& info)
 {
-    type_ = info.type;
-    usage_ = info.usage;
-    format_ = info.format;
-    width_ = info.width;
-    height_ = info.height;
-    depth_ = info.depth;
-    array_layer_ = info.array_layer;
-    mip_level_ = info.mip_level;
-    samples_ = info.samples;
-    flags_ = info.flags;
-    size_ = GFXFormatSize(format_, width_, height_, depth_);
+    _type = info.type;
+    _usage = info.usage;
+    _format = info.format;
+    _width = info.width;
+    _height = info.height;
+    _depth = info.depth;
+    _arrayLayer = info.array_layer;
+    _mipLevel = info.mip_level;
+    _samples = info.samples;
+    _flags = info.flags;
+    _size = GFXFormatSize(_format, _width, _height, _depth);
     
-    if (flags_ & GFXTextureFlags::BAKUP_BUFFER)
+    if (_flags & GFXTextureFlags::BAKUP_BUFFER)
     {
-        buffer_ = (uint8_t*)CC_MALLOC(size_);
-        device_->memoryStatus().texture_size += size_;
+        _buffer = (uint8_t*)CC_MALLOC(_size);
+        _device->memoryStatus().texture_size += _size;
     }
     
-    _convertedFormat = mu::convertGFXPixelFormat(format_);
+    _convertedFormat = mu::convertGFXPixelFormat(_format);
     MTLPixelFormat mtlFormat = mu::toMTLPixelFormat(_convertedFormat);
     if (mtlFormat == MTLPixelFormatInvalid)
         return false;
     
     MTLTextureDescriptor* descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:mtlFormat
-                                                                                          width:width_
-                                                                                         height:height_
-                                                                                      mipmapped:flags_ & GFXTextureFlags::GEN_MIPMAP];
-    descriptor.usage = mu::toMTLTextureUsage(usage_);
-    descriptor.textureType = mu::toMTLTextureType(type_, array_layer_, flags_ & GFXTextureFlags::CUBEMAP);
-    descriptor.sampleCount = mu::toMTLSampleCount(samples_);
-    descriptor.mipmapLevelCount = mip_level_;
-    descriptor.arrayLength = array_layer_;
+                                                                                          width:_width
+                                                                                         height:_height
+                                                                                      mipmapped:_flags & GFXTextureFlags::GEN_MIPMAP];
+    descriptor.usage = mu::toMTLTextureUsage(_usage);
+    descriptor.textureType = mu::toMTLTextureType(_type, _arrayLayer, _flags & GFXTextureFlags::CUBEMAP);
+    descriptor.sampleCount = mu::toMTLSampleCount(_samples);
+    descriptor.mipmapLevelCount = _mipLevel;
+    descriptor.arrayLength = _arrayLayer;
     
 #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
     //FIXME: is it correct here for performace optimization?
     // Should change to MTLStorageModeManaged if texture usage is GFXTextureFlags::BAKUP_BUFFER?
-    if (usage_ == GFXTextureUsage::COLOR_ATTACHMENT ||
-        usage_ == GFXTextureUsage::DEPTH_STENCIL_ATTACHMENT ||
-        usage_ == GFXTextureUsage::INPUT_ATTACHMENT ||
-        usage_ == GFXTextureUsage::TRANSIENT_ATTACHMENT)
+    if (_usage == GFXTextureUsage::COLOR_ATTACHMENT ||
+        _usage == GFXTextureUsage::DEPTH_STENCIL_ATTACHMENT ||
+        _usage == GFXTextureUsage::INPUT_ATTACHMENT ||
+        _usage == GFXTextureUsage::TRANSIENT_ATTACHMENT)
     {
         descriptor.storageMode = MTLStorageModePrivate;
     }
 #endif
     
-    id<MTLDevice> mtlDevice = id<MTLDevice>(static_cast<CCMTLDevice*>(device_)->getMTLDevice() );
+    id<MTLDevice> mtlDevice = id<MTLDevice>(static_cast<CCMTLDevice*>(_device)->getMTLDevice() );
     _mtlTexture = [mtlDevice newTextureWithDescriptor:descriptor];
     
     if (_mtlTexture)
-        device_->memoryStatus().texture_size += size_;
+        _device->memoryStatus().texture_size += _size;
     
     return _mtlTexture != nil;
 }
 
 void CCMTLTexture::destroy()
 {
-    if (buffer_)
+    if (_buffer)
     {
-        CC_FREE(buffer_);
-        device_->memoryStatus().texture_size -= size_;
-        buffer_ = nullptr;
+        CC_FREE(_buffer);
+        _device->memoryStatus().texture_size -= _size;
+        _buffer = nullptr;
     }
     
     if (_mtlTexture)
@@ -114,7 +114,7 @@ void CCMTLTexture::destroy()
     }
 }
 
-void CCMTLTexture::Resize(uint width, uint height)
+void CCMTLTexture::resize(uint width, uint height)
 {
     //TODO
 }
@@ -126,7 +126,7 @@ void CCMTLTexture::update(uint8_t* data, const GFXBufferTextureCopy& region)
     
     uint8_t* convertedData = convertData(data,
                                          region.tex_extent.width * region.tex_extent.height,
-                                         format_);
+                                         _format);
     
     MTLRegion mtlRegion =
     {

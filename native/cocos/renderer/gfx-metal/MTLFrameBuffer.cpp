@@ -6,12 +6,12 @@ NS_CC_BEGIN
 CCMTLFrameBuffer::CCMTLFrameBuffer(GFXDevice* device) : GFXFramebuffer(device) {}
 CCMTLFrameBuffer::~CCMTLFrameBuffer() { destroy(); }
 
-bool CCMTLFrameBuffer::Initialize(const GFXFramebufferInfo& info)
+bool CCMTLFrameBuffer::initialize(const GFXFramebufferInfo& info)
 {
-    render_pass_ = info.render_pass;
-    color_views_ = info.color_views;
-    depth_stencil_view_ = info.depth_stencil_view;
-    is_offscreen_ = info.is_offscreen;
+    _renderPass = info.render_pass;
+    _colorViews = info.color_views;
+    _depthStencilView = info.depth_stencil_view;
+    _isOffscreen = info.is_offscreen;
     
     return true;
 }

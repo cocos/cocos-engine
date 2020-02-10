@@ -32,27 +32,27 @@ GLES3PipelineState::GLES3PipelineState(GFXDevice* device)
 GLES3PipelineState::~GLES3PipelineState() {
 }
 
-bool GLES3PipelineState::Initialize(const GFXPipelineStateInfo &info) {
+bool GLES3PipelineState::initialize(const GFXPipelineStateInfo &info) {
   
-  primitive_ = info.primitive;
-  shader_ = info.shader;
-  is_ = info.is;
-  rs_ = info.rs;
-  dss_ = info.dss;
-  bs_ = info.bs;
-  dynamic_states_ = info.dynamic_states;
+  _primitive = info.primitive;
+  _shader = info.shader;
+  _is = info.is;
+  _rs = info.rs;
+  _dss = info.dss;
+  _bs = info.bs;
+  _dynamicStates = info.dynamic_states;
   layout_ = info.layout;
-  render_pass_ = info.render_pass;
+  _renderPass = info.render_pass;
   
   gpu_pso_ = CC_NEW(GLES3GPUPipelineState);
-  gpu_pso_->gl_primitive = GLES3Primitives[(int)primitive_];
-  gpu_pso_->gpu_shader = ((GLES3Shader*)shader_)->gpu_shader();
-  gpu_pso_->rs = rs_;
-  gpu_pso_->dss = dss_;
-  gpu_pso_->bs = bs_;
-  gpu_pso_->dynamic_states = dynamic_states_;
+  gpu_pso_->gl_primitive = GLES3Primitives[(int)_primitive];
+  gpu_pso_->gpu_shader = ((GLES3Shader*)_shader)->gpu_shader();
+  gpu_pso_->rs = _rs;
+  gpu_pso_->dss = _dss;
+  gpu_pso_->bs = _bs;
+  gpu_pso_->dynamic_states = _dynamicStates;
   gpu_pso_->gpu_layout = ((GLES3PipelineLayout*)layout_)->gpu_pipeline_layout();
-  gpu_pso_->gpu_render_pass = ((GLES3RenderPass*)render_pass_)->gpu_render_pass();
+  gpu_pso_->gpu_render_pass = ((GLES3RenderPass*)_renderPass)->gpu_render_pass();
   
   return true;
 }

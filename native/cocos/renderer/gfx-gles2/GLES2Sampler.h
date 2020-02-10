@@ -11,26 +11,26 @@ public:
   ~GLES2Sampler();
   
 public:
-  bool Initialize(const GFXSamplerInfo& info);
+  bool initialize(const GFXSamplerInfo& info);
   void destroy();
   
   CC_INLINE GLES2GPUSampler* gpu_sampler() const { return gpu_sampler_; }
   
 private:
   GLES2GPUSampler* gpu_sampler_;
-  String name_;
-  GFXFilter min_filter_ = GFXFilter::LINEAR;
-  GFXFilter mag_filter_ = GFXFilter::LINEAR;
-  GFXFilter mip_filter_ = GFXFilter::NONE;
-  GFXAddress address_u_ = GFXAddress::WRAP;
-  GFXAddress address_v_ = GFXAddress::WRAP;
-  GFXAddress address_w_ = GFXAddress::WRAP;
-  uint max_anisotropy_ = 16;
-  GFXComparisonFunc cmp_func_ = GFXComparisonFunc::NEVER;
-  GFXColor border_color_;
-  uint min_lod_ = 0;
-  uint max_lod_ = 1000;
-  float mip_lod_bias_ = 0.0f;
+  String _name;
+  GFXFilter _minFilter = GFXFilter::LINEAR;
+  GFXFilter _magFilter = GFXFilter::LINEAR;
+  GFXFilter _mipFilter = GFXFilter::NONE;
+  GFXAddress _addressU = GFXAddress::WRAP;
+  GFXAddress _addressV = GFXAddress::WRAP;
+  GFXAddress _addressW = GFXAddress::WRAP;
+  uint _maxAnisotropy = 16;
+  GFXComparisonFunc _cmpFunc = GFXComparisonFunc::NEVER;
+  GFXColor _borderColor;
+  uint _minLod = 0;
+  uint _maxLod = 1000;
+  float _mipLodBias = 0.0f;
 };
 
 NS_CC_END

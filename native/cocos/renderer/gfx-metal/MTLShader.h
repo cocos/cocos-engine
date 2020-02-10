@@ -11,7 +11,7 @@ public:
     CCMTLShader(GFXDevice* device);
     ~CCMTLShader();
     
-    virtual bool Initialize(const GFXShaderInfo& info) override;
+    virtual bool initialize(const GFXShaderInfo& info) override;
     virtual void destroy() override;
         
     CC_INLINE id<MTLFunction> getVertMTLFunction() const { return _vertexMTLFunction; }

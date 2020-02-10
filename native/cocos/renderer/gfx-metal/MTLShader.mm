@@ -9,14 +9,14 @@ NS_CC_BEGIN
 CCMTLShader::CCMTLShader(GFXDevice* device) : GFXShader(device) {}
 CCMTLShader::~CCMTLShader() { destroy(); }
 
-bool CCMTLShader::Initialize(const GFXShaderInfo& info)
+bool CCMTLShader::initialize(const GFXShaderInfo& info)
 {
-    name_ = info.name;
-    stages_ = info.stages;
-    blocks_ = info.blocks;
-    samplers_ = info.samplers;
+    _name = info.name;
+    _stages = info.stages;
+    _blocks = info.blocks;
+    _samplers = info.samplers;
     
-    for (const auto& stage : stages_)
+    for (const auto& stage : _stages)
     {
         if (! createMTLFunction(stage) )
         {
@@ -45,7 +45,7 @@ void CCMTLShader::destroy()
 
 bool CCMTLShader::createMTLFunction(const GFXShaderStage& stage)
 {
-    id<MTLDevice> mtlDevice = id<MTLDevice>(((CCMTLDevice*)device_)->getMTLDevice());
+    id<MTLDevice> mtlDevice = id<MTLDevice>(((CCMTLDevice*)_device)->getMTLDevice());
     
     NSString* shader = [NSString stringWithUTF8String:stage.source.c_str()];
     NSError* error;

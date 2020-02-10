@@ -15,12 +15,12 @@ GLES2BindingLayout::GLES2BindingLayout(GFXDevice* device)
 GLES2BindingLayout::~GLES2BindingLayout() {
 }
 
-bool GLES2BindingLayout::Initialize(const GFXBindingLayoutInfo &info) {
+bool GLES2BindingLayout::initialize(const GFXBindingLayoutInfo &info) {
   
   if (info.bindings.size()) {
-    binding_units_.resize(info.bindings.size());
-    for (size_t i = 0; i < binding_units_.size(); ++i) {
-      GFXBindingUnit& binding_unit = binding_units_[i];
+    _bindingUnits.resize(info.bindings.size());
+    for (size_t i = 0; i < _bindingUnits.size(); ++i) {
+      GFXBindingUnit& binding_unit = _bindingUnits[i];
       const GFXBinding& binding = info.bindings[i];
       binding_unit.binding = binding.binding;
       binding_unit.type = binding.type;
@@ -29,10 +29,10 @@ bool GLES2BindingLayout::Initialize(const GFXBindingLayoutInfo &info) {
   }
   
   gpu_binding_layout_ = CC_NEW(GLES2GPUBindingLayout);
-  gpu_binding_layout_->gpu_bindings.resize(binding_units_.size());
+  gpu_binding_layout_->gpu_bindings.resize(_bindingUnits.size());
   for (size_t i = 0; i < gpu_binding_layout_->gpu_bindings.size(); ++i) {
     GLES2GPUBinding& gpu_binding = gpu_binding_layout_->gpu_bindings[i];
-    const GFXBindingUnit& binding_unit = binding_units_[i];
+    const GFXBindingUnit& binding_unit = _bindingUnits[i];
     gpu_binding.binding = binding_unit.binding;
     gpu_binding.type = binding_unit.type;
     gpu_binding.name = binding_unit.name;
@@ -48,10 +48,10 @@ void GLES2BindingLayout::destroy() {
   }
 }
 
-void GLES2BindingLayout::Update() {
-  if (is_dirty_ && gpu_binding_layout_) {
-    for (size_t i = 0; i < binding_units_.size(); ++i) {
-      GFXBindingUnit& binding_unit = binding_units_[i];
+void GLES2BindingLayout::update() {
+  if (_isDirty && gpu_binding_layout_) {
+    for (size_t i = 0; i < _bindingUnits.size(); ++i) {
+      GFXBindingUnit& binding_unit = _bindingUnits[i];
       switch (binding_unit.type) {
         case GFXBindingType::UNIFORM_BUFFER: {
           if (binding_unit.buffer) {
@@ -71,7 +71,7 @@ void GLES2BindingLayout::Update() {
         default:;
       }
     }
-    is_dirty_ = false;
+    _isDirty = false;
   }
 }
 

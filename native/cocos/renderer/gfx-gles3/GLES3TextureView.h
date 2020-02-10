@@ -11,7 +11,7 @@ public:
   ~GLES3TextureView();
   
 public:
-  bool Initialize(const GFXTextureViewInfo& info);
+  bool initialize(const GFXTextureViewInfo& info);
   void destroy();
   
   CC_INLINE GLES3GPUTextureView* gpu_tex_view() const { return gpu_tex_view_; }

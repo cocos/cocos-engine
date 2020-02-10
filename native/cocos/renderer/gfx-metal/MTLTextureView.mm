@@ -8,23 +8,23 @@ NS_CC_BEGIN
 CCMTLTextureView::CCMTLTextureView(GFXDevice* device) : GFXTextureView(device) {}
 CCMTLTextureView::~CCMTLTextureView() { destroy(); }
 
-bool CCMTLTextureView::Initialize(const GFXTextureViewInfo& info)
+bool CCMTLTextureView::initialize(const GFXTextureViewInfo& info)
 {
-    texture_ = info.texture;
-    type_ = info.type;
-    format_ = info.format;
-    base_level_ = info.base_level;
-    level_count_ = info.level_count;
-    base_layer_ = info.base_layer;
-    layer_count_ = info.layer_count;
+    _texture = info.texture;
+    _type = info.type;
+    _format = info.format;
+    _baseLevel = info.base_level;
+    _levelCount = info.level_count;
+    _baseLayer = info.base_layer;
+    _layerCount = info.layer_count;
     
-    NSRange levels = NSMakeRange(base_level_, level_count_);
-    NSRange slics = NSMakeRange(base_layer_, layer_count_);
-    auto ccmtlTexture = static_cast<CCMTLTexture*>(texture_);
+    NSRange levels = NSMakeRange(_baseLevel, _levelCount);
+    NSRange slics = NSMakeRange(_baseLayer, _layerCount);
+    auto ccmtlTexture = static_cast<CCMTLTexture*>(_texture);
     id<MTLTexture> mtlTexture = ccmtlTexture->getMTLTexture();
     _convertedFormat = ccmtlTexture->getConvertedFormat();
     _mtlTexture = [mtlTexture newTextureViewWithPixelFormat:mu::toMTLPixelFormat(_convertedFormat)
-                                                textureType:mu::toMTLTextureType(type_)
+                                                textureType:mu::toMTLTextureType(_type)
                                                      levels:levels
                                                      slices:slics];
     

@@ -10,7 +10,7 @@ public:
     CCMTLTextureView(GFXDevice* device);
     ~CCMTLTextureView();
     
-    bool Initialize(const GFXTextureViewInfo& info) override;
+    bool initialize(const GFXTextureViewInfo& info) override;
     void destroy() override;
     
     CC_INLINE id<MTLTexture> getMTLTexture() const { return _mtlTexture; }

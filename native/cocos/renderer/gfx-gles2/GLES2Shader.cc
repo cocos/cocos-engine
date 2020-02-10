@@ -12,30 +12,30 @@ GLES2Shader::GLES2Shader(GFXDevice* device)
 GLES2Shader::~GLES2Shader() {
 }
 
-bool GLES2Shader::Initialize(const GFXShaderInfo &info) {
-  name_ = info.name;
-  stages_ = info.stages;
-  blocks_ = info.blocks;
-  samplers_ = info.samplers;
+bool GLES2Shader::initialize(const GFXShaderInfo &info) {
+  _name = info.name;
+  _stages = info.stages;
+  _blocks = info.blocks;
+  _samplers = info.samplers;
   
   gpu_shader_ = CC_NEW(GLES2GPUShader);
-  gpu_shader_->name = name_;
-  gpu_shader_->blocks = blocks_;
-  gpu_shader_->samplers = samplers_;
-  for (const auto& stage : stages_)
+  gpu_shader_->name = _name;
+  gpu_shader_->blocks = _blocks;
+  gpu_shader_->samplers = _samplers;
+  for (const auto& stage : _stages)
   {
       GLES2GPUShaderStage gpuShaderStage = { stage.type, stage.source, stage.macros, 0};
       gpu_shader_->gpu_stages.emplace_back(std::move(gpuShaderStage));
   }
 
-  GLES2CmdFuncCreateShader((GLES2Device*)device_, gpu_shader_);
+  GLES2CmdFuncCreateShader((GLES2Device*)_device, gpu_shader_);
   
   return true;
 }
 
 void GLES2Shader::destroy() {
   if (gpu_shader_) {
-    GLES2CmdFuncDestroyShader((GLES2Device*)device_, gpu_shader_);
+    GLES2CmdFuncDestroyShader((GLES2Device*)_device, gpu_shader_);
     CC_DELETE(gpu_shader_);
     gpu_shader_ = nullptr;
   }

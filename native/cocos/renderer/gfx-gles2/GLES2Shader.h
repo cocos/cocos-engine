@@ -11,7 +11,7 @@ class CC_GLES2_API GLES2Shader : public GFXShader {
   ~GLES2Shader();
   
  public:
-  bool Initialize(const GFXShaderInfo& info);
+  bool initialize(const GFXShaderInfo& info);
   void destroy();
   
   CC_INLINE GLES2GPUShader* gpu_shader() const { return gpu_shader_; }

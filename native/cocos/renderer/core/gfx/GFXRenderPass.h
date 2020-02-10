@@ -11,19 +11,19 @@ class CC_CORE_API GFXRenderPass : public Object {
   virtual ~GFXRenderPass();
   
  public:
-  virtual bool Initialize(const GFXRenderPassInfo& info) = 0;
+  virtual bool initialize(const GFXRenderPassInfo& info) = 0;
   virtual void destroy() = 0;
   
-  CC_INLINE GFXDevice* device() const { return device_; }
-  CC_INLINE const GFXColorAttachmentList& color_attachments() const { return color_attachments_; }
-  CC_INLINE const GFXDepthStencilAttachment& depth_stencil_attachment() const { return depth_stencil_attachment_; }
-  CC_INLINE const GFXSubPassList& sub_passes() const { return sub_passes_; }
+  CC_INLINE GFXDevice* device() const { return _device; }
+  CC_INLINE const GFXColorAttachmentList& colorAttachments() const { return _colorAttachments; }
+  CC_INLINE const GFXDepthStencilAttachment& depthStencilAttachment() const { return _depthStencilAttachment; }
+  CC_INLINE const GFXSubPassList& subPasses() const { return _subPasses; }
 
  protected:
-  GFXDevice* device_;
-  GFXColorAttachmentList color_attachments_;
-  GFXDepthStencilAttachment depth_stencil_attachment_;
-  GFXSubPassList sub_passes_;
+  GFXDevice* _device;
+  GFXColorAttachmentList _colorAttachments;
+  GFXDepthStencilAttachment _depthStencilAttachment;
+  GFXSubPassList _subPasses;
 };
 
 NS_CC_END

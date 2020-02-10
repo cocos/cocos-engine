@@ -4,7 +4,7 @@
 NS_CC_BEGIN
 
 GFXRenderPass::GFXRenderPass(GFXDevice* device)
-    : device_(device) {
+    : _device(device) {
 }
 
 GFXRenderPass::~GFXRenderPass() {

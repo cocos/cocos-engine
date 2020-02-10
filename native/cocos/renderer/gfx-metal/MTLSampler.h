@@ -10,7 +10,7 @@ public:
     CCMTLSampler(GFXDevice* device);
     ~CCMTLSampler();
     
-    bool Initialize(const GFXSamplerInfo& info) override;
+    bool initialize(const GFXSamplerInfo& info) override;
     void destroy() override;
     
     CC_INLINE id<MTLSamplerState> getMTLSamplerState() const { return _mtlSamplerState; }

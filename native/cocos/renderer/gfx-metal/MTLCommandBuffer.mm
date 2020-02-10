@@ -14,14 +14,14 @@ NS_CC_BEGIN
 CCMTLCommandBuffer::CCMTLCommandBuffer(GFXDevice* device) : GFXCommandBuffer(device) {}
 CCMTLCommandBuffer::~CCMTLCommandBuffer() { destroy(); }
 
-bool CCMTLCommandBuffer::Initialize(const GFXCommandBufferInfo& info)
+bool CCMTLCommandBuffer::initialize(const GFXCommandBufferInfo& info)
 {
     if (!info.allocator)
         return false;
     
-    allocator_ = info.allocator;
-    _MTLCommandAllocator = static_cast<CCMTLCommandAllocator*>(allocator_);
-    type_ = info.type;
+    _allocator = info.allocator;
+    _MTLCommandAllocator = static_cast<CCMTLCommandAllocator*>(_allocator);
+    _type = info.type;
     
     _currentDepthBias = CC_NEW(CCMTLDepthBias);
     if (_currentDepthBias == nullptr)
@@ -44,26 +44,26 @@ void CCMTLCommandBuffer::destroy()
         _MTLCommandAllocator->clearCommands(_commandPackage);
         _MTLCommandAllocator = nullptr;
     }
-    allocator_ = nullptr;
+    _allocator = nullptr;
     
     CC_SAFE_DELETE(_commandPackage);
     CC_SAFE_DELETE(_currentDepthBias);
 }
 
-void CCMTLCommandBuffer::Begin()
+void CCMTLCommandBuffer::begin()
 {
     _MTLCommandAllocator->clearCommands(_commandPackage);
     _numTriangles = 0;
     _numDrawCalls = 0;
 }
 
-void CCMTLCommandBuffer::End()
+void CCMTLCommandBuffer::end()
 {
     if (_isStateInValid) bindStates();
     _isInRenderPass = false;
 }
 
-void CCMTLCommandBuffer::BeginRenderPass(GFXFramebuffer* fbo, const GFXRect& render_area, GFXClearFlags clear_flags, GFXColor* colors, uint count, float depth, int stencil)
+void CCMTLCommandBuffer::beginRenderPass(GFXFramebuffer* fbo, const GFXRect& render_area, GFXClearFlags clear_flags, GFXColor* colors, uint count, float depth, int stencil)
 {
     _isInRenderPass = true;
     
@@ -80,7 +80,7 @@ void CCMTLCommandBuffer::BeginRenderPass(GFXFramebuffer* fbo, const GFXRect& ren
     _commandPackage->commandTypes.push(GFXCmdType::BEGIN_RENDER_PASS);
 }
 
-void CCMTLCommandBuffer::EndRenderPass()
+void CCMTLCommandBuffer::endRenderPass()
 {
     _isInRenderPass = false;
     _commandPackage->commandTypes.push(GFXCmdType::END_RENDER_PASS);
@@ -95,7 +95,7 @@ void CCMTLCommandBuffer::EndRenderPass()
     _isScissorDirty = false;
 }
 
-void CCMTLCommandBuffer::BindPipelineState(GFXPipelineState* pso)
+void CCMTLCommandBuffer::bindPipelineState(GFXPipelineState* pso)
 {
     if (pso)
     {
@@ -112,19 +112,19 @@ void CCMTLCommandBuffer::BindPipelineState(GFXPipelineState* pso)
     _isStateInValid = true;
 }
 
-void CCMTLCommandBuffer::BindBindingLayout(GFXBindingLayout* layout)
+void CCMTLCommandBuffer::bindBindingLayout(GFXBindingLayout* layout)
 {
     _currentBindingLayout = static_cast<CCMTLBindingLayout*>(layout);
     _isStateInValid = true;
 }
 
-void CCMTLCommandBuffer::BindInputAssembler(GFXInputAssembler* ia)
+void CCMTLCommandBuffer::bindInputAssembler(GFXInputAssembler* ia)
 {
     _currentInputAssembler = static_cast<CCMTLInputAssembler*>(ia);
     _isStateInValid = true;
 }
 
-void CCMTLCommandBuffer::SetViewport(const GFXViewport& vp)
+void CCMTLCommandBuffer::setViewport(const GFXViewport& vp)
 {
     if (_currentViewport != vp)
     {
@@ -134,7 +134,7 @@ void CCMTLCommandBuffer::SetViewport(const GFXViewport& vp)
     }
 }
 
-void CCMTLCommandBuffer::SetScissor(const GFXRect& rect)
+void CCMTLCommandBuffer::setScissor(const GFXRect& rect)
 {
     if ( _currentScissor != rect)
     {
@@ -144,12 +144,12 @@ void CCMTLCommandBuffer::SetScissor(const GFXRect& rect)
     }
 }
 
-void CCMTLCommandBuffer::SetLineWidth(const float width)
+void CCMTLCommandBuffer::setLineWidth(const float width)
 {
     CC_LOG_WARNING("Metal doesn't support setting line width.");
 }
 
-void CCMTLCommandBuffer::SetDepthBias(float constant, float clamp, float slope)
+void CCMTLCommandBuffer::setDepthBias(float constant, float clamp, float slope)
 {
     if (math::IsNotEqualF(constant, _currentDepthBias->depthBias) ||
         math::IsNotEqualF(clamp, _currentDepthBias->clamp) ||
@@ -160,30 +160,30 @@ void CCMTLCommandBuffer::SetDepthBias(float constant, float clamp, float slope)
     }
 }
 
-void CCMTLCommandBuffer::SetBlendConstants(const GFXColor& constants)
+void CCMTLCommandBuffer::setBlendConstants(const GFXColor& constants)
 {
     
 }
 
-void CCMTLCommandBuffer::SetDepthBounds(float min_bounds, float max_bounds)
+void CCMTLCommandBuffer::setDepthBound(float min_bounds, float max_bounds)
 {
     
 }
 
-void CCMTLCommandBuffer::SetStencilWriteMask(GFXStencilFace face, uint mask)
+void CCMTLCommandBuffer::setStencilWriteMask(GFXStencilFace face, uint mask)
 {
     
 }
 
-void CCMTLCommandBuffer::SetStencilCompareMask(GFXStencilFace face, int ref, uint mask)
+void CCMTLCommandBuffer::setStencilCompareMask(GFXStencilFace face, int ref, uint mask)
 {
     
 }
 
-void CCMTLCommandBuffer::Draw(GFXInputAssembler* ia)
+void CCMTLCommandBuffer::draw(GFXInputAssembler* ia)
 {
-    if ( (type_ == GFXCommandBufferType::PRIMARY && _isInRenderPass) ||
-        type_ ==  GFXCommandBufferType::SECONDARY)
+    if ( (_type == GFXCommandBufferType::PRIMARY && _isInRenderPass) ||
+        _type ==  GFXCommandBufferType::SECONDARY)
     {
         CCMTLCmdDraw* cmd = _MTLCommandAllocator->_drawCmdPool.alloc();
         if (!cmd)
@@ -201,10 +201,10 @@ void CCMTLCommandBuffer::Draw(GFXInputAssembler* ia)
         {
             switch (_currentGPUPipelineState->primitiveType) {
                 case MTLPrimitiveTypeTriangle:
-                    _numTriangles += ia->index_count() / 3 * std::max(ia->index_count(), 1U);
+                    _numTriangles += ia->indexCount() / 3 * std::max(ia->indexCount(), 1U);
                     break;
                 case MTLPrimitiveTypeTriangleStrip:
-                    _numTriangles += (ia->index_count() - 2) * std::max(ia->instance_count(), 1U);
+                    _numTriangles += (ia->indexCount() - 2) * std::max(ia->instanceCount(), 1U);
                     break;
                 default:
                     break;
@@ -212,24 +212,24 @@ void CCMTLCommandBuffer::Draw(GFXInputAssembler* ia)
         }
     }
     else
-        CC_LOG_ERROR("Command 'Draw' must be recorded inside a render pass.");
+        CC_LOG_ERROR("Command 'draw' must be recorded inside a render pass.");
 }
 
-void CCMTLCommandBuffer::UpdateBuffer(GFXBuffer* buff, void* data, uint size, uint offset)
+void CCMTLCommandBuffer::updateBuffer(GFXBuffer* buff, void* data, uint size, uint offset)
 {
     
 }
 
-void CCMTLCommandBuffer::CopyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GFXTextureLayout layout, GFXBufferTextureCopy* regions, uint count)
+void CCMTLCommandBuffer::copyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GFXTextureLayout layout, GFXBufferTextureCopy* regions, uint count)
 {
-    if ( (type_ == GFXCommandBufferType::PRIMARY && _isInRenderPass) ||
-         (type_ == GFXCommandBufferType::SECONDARY) )
+    if ( (_type == GFXCommandBufferType::PRIMARY && _isInRenderPass) ||
+         (_type == GFXCommandBufferType::SECONDARY) )
     {
         
     }
 }
 
-void CCMTLCommandBuffer::Execute(GFXCommandBuffer** cmd_buffs, uint count)
+void CCMTLCommandBuffer::execute(GFXCommandBuffer** cmd_buffs, uint count)
 {
     
 }

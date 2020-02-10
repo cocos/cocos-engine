@@ -15,28 +15,28 @@ class CC_GLES3_API GLES3CommandBuffer : public GFXCommandBuffer {
   friend class GLES3Queue;
   
  public:
-  bool Initialize(const GFXCommandBufferInfo& info);
+  bool initialize(const GFXCommandBufferInfo& info);
   void destroy();
   
-  void Begin();
-  void End();
-  void BeginRenderPass(GFXFramebuffer* fbo, const GFXRect& render_area, GFXClearFlags clear_flags, GFXColor* colors, uint count, float depth, int stencil);
-  void EndRenderPass();
-  void BindPipelineState(GFXPipelineState* pso);
-  void BindBindingLayout(GFXBindingLayout* layout);
-  void BindInputAssembler(GFXInputAssembler* ia);
-  void SetViewport(const GFXViewport& vp);
-  void SetScissor(const GFXRect& rect);
-  void SetLineWidth(const float width);
-  void SetDepthBias(float constant, float clamp, float slope);
-  void SetBlendConstants(const GFXColor& constants);
-  void SetDepthBounds(float min_bounds, float max_bounds);
-  void SetStencilWriteMask(GFXStencilFace face, uint mask);
-  void SetStencilCompareMask(GFXStencilFace face, int ref, uint mask);
-  void Draw(GFXInputAssembler* ia);
-  void UpdateBuffer(GFXBuffer* buff, void* data, uint size, uint offset);
-  void CopyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GFXTextureLayout layout, GFXBufferTextureCopy* regions, uint count);
-  void Execute(GFXCommandBuffer** cmd_buffs, uint count);
+  void begin();
+  void end();
+  void beginRenderPass(GFXFramebuffer* fbo, const GFXRect& render_area, GFXClearFlags clear_flags, GFXColor* colors, uint count, float depth, int stencil);
+  void endRenderPass();
+  void bindPipelineState(GFXPipelineState* pso);
+  void bindBindingLayout(GFXBindingLayout* layout);
+  void bindInputAssembler(GFXInputAssembler* ia);
+  void setViewport(const GFXViewport& vp);
+  void setScissor(const GFXRect& rect);
+  void setLineWidth(const float width);
+  void setDepthBias(float constant, float clamp, float slope);
+  void setBlendConstants(const GFXColor& constants);
+  void setDepthBound(float min_bounds, float max_bounds);
+  void setStencilWriteMask(GFXStencilFace face, uint mask);
+  void setStencilCompareMask(GFXStencilFace face, int ref, uint mask);
+  void draw(GFXInputAssembler* ia);
+  void updateBuffer(GFXBuffer* buff, void* data, uint size, uint offset);
+  void copyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GFXTextureLayout layout, GFXBufferTextureCopy* regions, uint count);
+  void execute(GFXCommandBuffer** cmd_buffs, uint count);
   
  private:
   void BindStates();

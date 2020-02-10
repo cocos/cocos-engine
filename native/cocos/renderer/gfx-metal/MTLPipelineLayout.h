@@ -8,7 +8,7 @@ public:
     CCMTLPipelineLayout(GFXDevice* device);
     ~CCMTLPipelineLayout();
     
-    virtual bool Initialize(const GFXPipelineLayoutInfo& info) override;
+    virtual bool initialize(const GFXPipelineLayoutInfo& info) override;
     virtual void destroy() override;
 };
 

@@ -12,10 +12,10 @@ GLES3PipelineLayout::GLES3PipelineLayout(GFXDevice* device)
 GLES3PipelineLayout::~GLES3PipelineLayout() {
 }
 
-bool GLES3PipelineLayout::Initialize(const GFXPipelineLayoutInfo &info) {
+bool GLES3PipelineLayout::initialize(const GFXPipelineLayoutInfo &info) {
   
-  layouts_ = info.layouts;
-  push_constant_ranges_ = info.push_constant_ranges;
+  _layouts = info.layouts;
+  _pushConstantsRanges = info.push_constant_ranges;
   
   gpu_pipeline_layout_ = CC_NEW(GLES3GPUPipelineLayout);
   return true;

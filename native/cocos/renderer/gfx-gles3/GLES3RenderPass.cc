@@ -12,14 +12,14 @@ GLES3RenderPass::GLES3RenderPass(GFXDevice* device)
 GLES3RenderPass::~GLES3RenderPass() {
 }
 
-bool GLES3RenderPass::Initialize(const GFXRenderPassInfo &info) {
+bool GLES3RenderPass::initialize(const GFXRenderPassInfo &info) {
   
-  color_attachments_ = info.color_attachments;
-  depth_stencil_attachment_ = info.depth_stencil_attachment;
+  _colorAttachments = info.color_attachments;
+  _depthStencilAttachment = info.depth_stencil_attachment;
   
   gpu_render_pass_ = CC_NEW(GLES3GPURenderPass);
-  gpu_render_pass_->color_attachments = color_attachments_;
-  gpu_render_pass_->depth_stencil_attachment = depth_stencil_attachment_;
+  gpu_render_pass_->color_attachments = _colorAttachments;
+  gpu_render_pass_->depth_stencil_attachment = _depthStencilAttachment;
   
   return true;
 }

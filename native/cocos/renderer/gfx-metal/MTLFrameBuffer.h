@@ -8,7 +8,7 @@ public:
     CCMTLFrameBuffer(GFXDevice* device);
     ~CCMTLFrameBuffer();
     
-    virtual bool Initialize(const GFXFramebufferInfo& info) override;
+    virtual bool initialize(const GFXFramebufferInfo& info) override;
     virtual void destroy() override;
 };
 

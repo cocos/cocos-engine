@@ -10,36 +10,36 @@ NS_CC_BEGIN
 CCMTLSampler::CCMTLSampler(GFXDevice* device) : GFXSampler(device) {}
 CCMTLSampler::~CCMTLSampler() { destroy(); }
 
-bool CCMTLSampler::Initialize(const GFXSamplerInfo& info)
+bool CCMTLSampler::initialize(const GFXSamplerInfo& info)
 {
-    name_ = info.name;
-    min_filter_ = info.min_filter;
-    mag_filter_ = info.mag_filter;
-    mip_filter_ = info.mip_filter;
-    address_u_ = info.address_u;
-    address_v_ = info.address_v;
-    address_w_ = info.address_w;
-    max_anisotropy_ = info.max_anisotropy;
-    cmp_func_ = info.cmp_func;
-    border_color_ = info.border_color;
-    min_lod_ = info.min_lod;
-    max_lod_ = info.max_lod;
-    mip_lod_bias_ = info.mip_lod_bias;
+    _name = info.name;
+    _minFilter = info.min_filter;
+    _magFilter = info.mag_filter;
+    _mipFilter = info.mip_filter;
+    _addressU = info.address_u;
+    _addressV = info.address_v;
+    _addressW = info.address_w;
+    _maxAnisotropy = info.max_anisotropy;
+    _cmpFunc = info.cmp_func;
+    _borderColor = info.border_color;
+    _minLod = info.min_lod;
+    _maxLod = info.max_lod;
+    _mipLodBias = info.mip_lod_bias;
     
     MTLSamplerDescriptor* descriptor = [[MTLSamplerDescriptor alloc] init];
-    descriptor.borderColor = mu::toMTLSamplerBorderColor(border_color_);
-    descriptor.sAddressMode = mu::toMTLSamplerAddressMode(address_u_);
-    descriptor.tAddressMode = mu::toMTLSamplerAddressMode(address_v_);
-    descriptor.rAddressMode = mu::toMTLSamplerAddressMode(address_w_);
-    descriptor.minFilter = mu::toMTLSamplerMinMagFilter(min_filter_);
-    descriptor.magFilter = mu::toMTLSamplerMinMagFilter(mag_filter_);
-    descriptor.mipFilter = mu::toMTLSamplerMipFilter(mip_filter_);
-    descriptor.maxAnisotropy = max_anisotropy_;
-    descriptor.compareFunction = mu::toMTLCompareFunction(cmp_func_);
-    descriptor.lodMinClamp = min_lod_;
-    descriptor.lodMaxClamp = max_lod_;
+    descriptor.borderColor = mu::toMTLSamplerBorderColor(_borderColor);
+    descriptor.sAddressMode = mu::toMTLSamplerAddressMode(_addressU);
+    descriptor.tAddressMode = mu::toMTLSamplerAddressMode(_addressV);
+    descriptor.rAddressMode = mu::toMTLSamplerAddressMode(_addressW);
+    descriptor.minFilter = mu::toMTLSamplerMinMagFilter(_minFilter);
+    descriptor.magFilter = mu::toMTLSamplerMinMagFilter(_magFilter);
+    descriptor.mipFilter = mu::toMTLSamplerMipFilter(_mipFilter);
+    descriptor.maxAnisotropy = _maxAnisotropy;
+    descriptor.compareFunction = mu::toMTLCompareFunction(_cmpFunc);
+    descriptor.lodMinClamp = _minLod;
+    descriptor.lodMaxClamp = _maxLod;
     
-    id<MTLDevice> mtlDevice = id<MTLDevice>(static_cast<CCMTLDevice*>(device_)->getMTLDevice() );
+    id<MTLDevice> mtlDevice = id<MTLDevice>(static_cast<CCMTLDevice*>(_device)->getMTLDevice() );
     _mtlSamplerState = [mtlDevice newSamplerStateWithDescriptor:descriptor];
     
     [descriptor release];

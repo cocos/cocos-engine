@@ -11,7 +11,7 @@ public:
     CCMTLRenderPass(GFXDevice* device);
     ~CCMTLRenderPass();
     
-    virtual bool Initialize(const GFXRenderPassInfo& info) override;
+    virtual bool initialize(const GFXRenderPassInfo& info) override;
     virtual void destroy() override;
     
     CC_INLINE MTLRenderPassDescriptor* getMTLRenderPassDescriptor() const { return _mtlRenderPassDescriptor; }

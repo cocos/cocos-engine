@@ -11,7 +11,7 @@ public:
   ~GLES3Sampler();
   
 public:
-  bool Initialize(const GFXSamplerInfo& info);
+  bool initialize(const GFXSamplerInfo& info);
   void destroy();
   
   CC_INLINE GLES3GPUSampler* gpu_sampler() const { return gpu_sampler_; }
