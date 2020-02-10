@@ -425,6 +425,10 @@ cc.js.mixin(View.prototype, {
      * @param {Boolean} enabled - Enable or disable retina display
      */
     enableRetina: function(enabled) {
+        if (CC_EDITOR && enabled) {
+            cc.warn('Can not enable retina in Editor.');
+            return;
+        }
         this._retinaEnabled = !!enabled;
     },
 
@@ -438,6 +442,9 @@ cc.js.mixin(View.prototype, {
      * @return {Boolean}
      */
     isRetinaEnabled: function() {
+        if (CC_EDITOR) {
+            return false;
+        }
         return this._retinaEnabled;
     },
 
