@@ -33,7 +33,6 @@ const MOVEMENT_FACTOR = 0.7;
 
 let _tempPoint = cc.v2();
 let _tempPrevPoint = cc.v2();
-let _tempDelta = cc.v2();
 
 let quintEaseOut = function(time) {
     time -= 1;
@@ -1019,7 +1018,7 @@ let ScrollView = cc.Class({
     _getLocalAxisAlignDelta (touch) {
         this.node.convertToNodeSpaceAR(touch.getLocation(), _tempPoint);
         this.node.convertToNodeSpaceAR(touch.getPreviousLocation(), _tempPrevPoint);
-        return _tempPoint.sub(_tempPrevPoint, _tempDelta);
+        return _tempPoint.sub(_tempPrevPoint);
     },
 
     _handleMoveLogic (touch) {
