@@ -23,13 +23,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Vec3 from '../../../../../value-types/vec3';
 const Assembler3D = require('../../../../assembler-3d');
 const WebglBmfontAssembler = require('../2d/bmfont');
 
-const vec3 = cc.vmath.vec3;
-
-const vec3_temp_local = vec3.create();
-const vec3_temp_world = vec3.create();
+const vec3_temp_local = new Vec3();
+const vec3_temp_world = new Vec3();
 
 export default class WebglBmfontAssembler3D extends WebglBmfontAssembler {
 
@@ -43,8 +42,8 @@ cc.js.mixin(WebglBmfontAssembler3D.prototype, Assembler3D, {
 
         let floatsPerVert = this.floatsPerVert;
         for (let offset = 0; offset < world.length; offset += floatsPerVert) {
-            vec3.set(vec3_temp_local, local[offset], local[offset+1], 0);
-            vec3.transformMat4(vec3_temp_world, vec3_temp_local, matrix);
+            Vec3.set(vec3_temp_local, local[offset], local[offset+1], 0);
+            Vec3.transformMat4(vec3_temp_world, vec3_temp_local, matrix);
 
             world[offset] = vec3_temp_world.x;
             world[offset+1] = vec3_temp_world.y;

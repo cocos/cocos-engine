@@ -102,19 +102,19 @@ function _getSlotMaterial (tex, blendMode) {
     }
 
     let useModel = !_comp.enableBatch;
-    let key = tex.getId() + src + dst + _useTint + useModel;
-    let baseMaterial = _comp.sharedMaterials[0];
+    let baseMaterial = _comp._materials[0];
     if (!baseMaterial) return null;
 
+    // The key use to find corresponding material
+    let key = tex.getId() + src + dst + _useTint + useModel;
     let materialCache = _comp._materialCache;
     let material = materialCache[key];
     if (!material) {
-        let baseKey = baseMaterial._hash;
-        if (!materialCache[baseKey]) {
+        if (!materialCache.baseMaterial) {
             material = baseMaterial;
+            materialCache.baseMaterial = baseMaterial;
         } else {
-            material = new cc.Material();
-            material.copy(baseMaterial);
+            material = cc.MaterialVariant.create(baseMaterial);
         }
         
         material.define('CC_USE_MODEL', useModel);
@@ -123,19 +123,14 @@ function _getSlotMaterial (tex, blendMode) {
         material.setProperty('texture', tex);
 
         // update blend function
-        material.effect.setBlend(
+        material.setBlend(
             true,
             gfx.BLEND_FUNC_ADD,
             src, dst,
             gfx.BLEND_FUNC_ADD,
             src, dst
         );
-        material.updateHash(key);
         materialCache[key] = material;
-    }
-    else if (material.getProperty('texture') !== tex) {
-        material.setProperty('texture', tex);
-        material.updateHash(key);
     }
     return material;
 }
@@ -370,7 +365,7 @@ export default class SpineAssembler extends Assembler {
                 continue;
             }
 
-            if (_mustFlush || material._hash !== _renderer.material._hash) {
+            if (_mustFlush || material.getHash() !== _renderer.material.getHash()) {
                 _mustFlush = false;
                 _renderer._flush();
                 _renderer.node = _node;
@@ -556,7 +551,7 @@ export default class SpineAssembler extends Assembler {
             material = _getSlotMaterial(segInfo.tex, segInfo.blendMode);
             if (!material) continue;
 
-            if (_mustFlush || material._hash !== _renderer.material._hash) {
+            if (_mustFlush || material.getHash() !== _renderer.material.getHash()) {
                 _mustFlush = false;
                 _renderer._flush();
                 _renderer.node = _node;
@@ -666,12 +661,20 @@ export default class SpineAssembler extends Assembler {
             if (_vertexEffect) _vertexEffect.end();
         }
 
+        // sync attached node matrix
+        renderer.worldMatDirty++;
+        comp.attachUtil._syncAttachedNode();
+
         // Clear temp var.
         _node = undefined;
         _buffer = undefined;
         _renderer = undefined;
         _comp = undefined;
         _vertexEffect = null;
+    }
+
+    postFillBuffers (comp, renderer) {
+        renderer.worldMatDirty--;
     }
 }
 

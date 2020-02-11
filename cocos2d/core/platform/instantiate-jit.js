@@ -55,10 +55,37 @@ const DEFAULT_MODULE_CACHE = {
     'cc.PrefabInfo': false
 };
 
-!Float32Array.name && (Float32Array.name = 'Float32Array');
-!Uint32Array.name && (Uint32Array.name = 'Uint32Array');
-!Int32Array.name && (Int32Array.name = 'Int32Array');
-!Uint8Array.name && (Uint8Array.name = 'Uint8Array');
+try {
+    // compatible for IE
+    !Float32Array.name && (Float32Array.name = 'Float32Array');
+    !Float64Array.name && (Float64Array.name = 'Float64Array');
+
+    !Int8Array.name && (Int8Array.name = 'Int8Array');
+    !Int16Array.name && (Int16Array.name = 'Int16Array');
+    !Int32Array.name && (Int32Array.name = 'Int32Array');
+
+    !Uint8Array.name && (Uint8Array.name = 'Uint8Array');
+    !Uint16Array.name && (Uint16Array.name = 'Uint16Array');
+    !Uint32Array.name && (Uint32Array.name = 'Uint32Array');
+}
+catch (e) {}
+
+// compatible for iOS 9
+function getTypedArrayName (constructor) {
+    if (constructor === Float32Array) { return 'Float32Array'; }
+    else if (constructor === Float64Array) { return 'Float64Array'; }
+
+    else if (constructor === Int8Array) { return 'Int8Array'; }
+    else if (constructor === Int16Array) { return 'Int16Array'; }
+    else if (constructor === Int32Array) { return 'Int32Array'; }
+
+    else if (constructor === Uint8Array) { return 'Uint8Array'; }
+    else if (constructor === Uint16Array) { return 'Uint16Array'; }
+    else if (constructor === Uint32Array) { return 'Uint32Array'; }
+    else {
+        throw new Error(`Unknown TypedArray could not be instantiated: ${constructor}`);
+    }
+}
 
 // HELPER CLASSES
 
@@ -368,7 +395,7 @@ proto.instantiateArray = function (value) {
 };
 
 proto.instantiateTypedArray = function (value) {
-    let type = value.constructor.name;
+    let type = value.constructor.name || getTypedArrayName(value.constructor);
     if (value.length === 0) {
         return 'new ' + type;
     }

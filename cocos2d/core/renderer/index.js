@@ -22,7 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-import config from '../../renderer/config';
 import gfx from '../../renderer/gfx';
 
 import InputAssembler from '../../renderer/core/input-assembler';
@@ -59,7 +58,7 @@ function _initBuiltins(device) {
  * @class renderer
  * @static
  */
-cc.renderer = module.exports = {
+export default cc.renderer = {
     Texture2D: null,
 
     InputAssembler: InputAssembler,
@@ -133,9 +132,6 @@ cc.renderer = module.exports = {
             this._handle = new ModelBatcher(this.device, this.scene);
             this._flow.init(this._handle, this._forward);
         }
-        config.addStage('shadowcast');
-        config.addStage('opaque');
-        config.addStage('transparent');
     },
 
     initCanvas (canvas) {

@@ -26,6 +26,10 @@ export default class InputAssembler {
       return this._indexBuffer.count;
     }
 
-    return this._vertexBuffer.count;
+    if (this._vertexBuffer) {
+      return this._vertexBuffer.count;
+    }
+
+    return 0;
   }
 }

@@ -3,8 +3,6 @@ import Texture from './texture';
 import { enums, glFilter, glTextureFmt } from './enums';
 import { isPow2 } from './misc';
 
-const ArrayBufferView = Object.getPrototypeOf(Object.getPrototypeOf(new Uint8Array)).constructor
-
 /**
  * @typedef {HTMLImageElement | HTMLCanvasElement} HTMLImageSource
  * @typedef {HTMLImageSource | ArrayBufferView} ImageSource

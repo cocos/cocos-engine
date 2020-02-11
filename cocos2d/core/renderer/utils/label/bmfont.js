@@ -107,6 +107,8 @@ export default class BmfontAssembler extends Assembler2D {
         _spriteFrame = fontAsset.spriteFrame;
         _fntConfig = fontAsset._fntConfig;
         shareLabelInfo.fontAtlas = fontAsset._fontDefDictionary;
+
+        this.packToDynamicAtlas(comp, _spriteFrame);
     }
 
     _updateLabelInfo() {
@@ -202,7 +204,7 @@ export default class BmfontAssembler extends Assembler2D {
                 letterRight = 0;
                 lineIndex++;
                 nextTokenX = 0;
-                nextTokenY -= _lineHeight * _bmfontScale + _lineSpacing;
+                nextTokenY -= _lineHeight * this._getFontScale() + _lineSpacing;
                 this._recordPlaceholderInfo(index, character);
                 index++;
                 continue;
@@ -240,7 +242,7 @@ export default class BmfontAssembler extends Assembler2D {
                     letterRight = 0;
                     lineIndex++;
                     nextTokenX = 0;
-                    nextTokenY -= (_lineHeight * _bmfontScale + _lineSpacing);
+                    nextTokenY -= (_lineHeight * this._getFontScale() + _lineSpacing);
                     newLine = true;
                     break;
                 } else {
@@ -289,7 +291,7 @@ export default class BmfontAssembler extends Assembler2D {
         _linesWidth.push(letterRight);
 
         _numberOfLines = lineIndex + 1;
-        _textDesiredHeight = _numberOfLines * _lineHeight * _bmfontScale;
+        _textDesiredHeight = _numberOfLines * _lineHeight * this._getFontScale();
         if (_numberOfLines > 1) {
             _textDesiredHeight += (_numberOfLines - 1) * _lineSpacing;
         }
@@ -305,11 +307,15 @@ export default class BmfontAssembler extends Assembler2D {
 
         _tailoredTopY = _contentSize.height;
         _tailoredBottomY = 0;
-        if (highestY > 0) {
-            _tailoredTopY = _contentSize.height + highestY;
-        }
-        if (lowestY < -_textDesiredHeight) {
-            _tailoredBottomY = _textDesiredHeight + lowestY;
+
+        if (_overflow !== Overflow.CLAMP) {
+            if (highestY > 0) {
+                _tailoredTopY = _contentSize.height + highestY;
+            }
+    
+            if (lowestY < -_textDesiredHeight) {
+                _tailoredBottomY = _textDesiredHeight + lowestY;
+            }
         }
 
         return true;
@@ -317,6 +323,10 @@ export default class BmfontAssembler extends Assembler2D {
 
     _getFirstCharLen () {
         return 1;
+    }
+
+    _getFontScale () {
+        return _overflow === Overflow.SHRINK ? _bmfontScale : 1;
     }
 
     _getFirstWordLen (text, startIndex, textLen) {
@@ -436,15 +446,12 @@ export default class BmfontAssembler extends Assembler2D {
 
     _shrinkLabelToContentSize (lambda) {
         let fontSize = _fontSize;
-    
-        let i = 0;
-        let flag = true;
 
-        while (lambda()) {
-            ++i;
+        let left = 0, right = fontSize | 0, mid = 0;
+        while (left < right) {
+            mid = (left + right + 1) >> 1;
 
-            let newFontSize = fontSize - i;
-            flag = false;
+            let newFontSize = mid;
             if (newFontSize <= 0) {
                 break;
             }
@@ -457,12 +464,17 @@ export default class BmfontAssembler extends Assembler2D {
                 this._multilineTextWrapByChar();
             }
             this._computeAlignmentOffset();
+
+            if (lambda()) {
+                right = mid - 1;
+            } else {
+                left = mid;
+            }
         }
 
-        if (!flag) {
-            if (fontSize - i >= 0) {
-                this._scaleFontSizeDown(fontSize - i);
-            }
+        let actualFontSize = left;
+        if (actualFontSize >= 0) {
+            this._scaleFontSizeDown(actualFontSize);
         }
     }
 
@@ -515,11 +527,14 @@ export default class BmfontAssembler extends Assembler2D {
     }
 
     _updateQuads () {
-        let texture = shareLabelInfo.fontAtlas.getTexture();
+        let texture = _spriteFrame ? _spriteFrame._texture : shareLabelInfo.fontAtlas.getTexture();
 
         let node = _comp.node;
 
         this.verticesCount = this.indicesCount = 0;
+        
+        // Need to reset dataLength in Canvas rendering mode.
+        this._renderData && (this._renderData.dataLength = 0);
 
         let contentSize = _contentSize,
             appx = node._anchorPoint.x * contentSize.width,
@@ -547,7 +562,7 @@ export default class BmfontAssembler extends Assembler2D {
                 }
 
                 if ((py - letterDef.h * _bmfontScale < _tailoredBottomY) && _overflow === Overflow.CLAMP) {
-                    _tmpRect.height = (py < _tailoredBottomY) ? 0 : (py - _tailoredBottomY);
+                    _tmpRect.height = (py < _tailoredBottomY) ? 0 : (py - _tailoredBottomY) / _bmfontScale;
                 }
             }
 
@@ -630,7 +645,7 @@ export default class BmfontAssembler extends Assembler2D {
         // TOP
         _letterOffsetY = _contentSize.height;
         if (_vAlign !== macro.VerticalTextAlignment.TOP) {
-            let blank = _contentSize.height - _textDesiredHeight + (_lineHeight - _originFontSize) * _bmfontScale;
+            let blank = _contentSize.height - _textDesiredHeight + _lineHeight * this._getFontScale() - _originFontSize * _bmfontScale;
             if (_vAlign === macro.VerticalTextAlignment.BOTTOM) {
                 // BOTTOM
                 _letterOffsetY -= blank;

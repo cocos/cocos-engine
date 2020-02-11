@@ -39,6 +39,14 @@ const Chalk = require('chalk');
 const HandleErrors = require('../util/handleErrors');
 const Optimizejs = require('gulp-optimize-js');
 
+let physicsSkipModules = [
+    '../../cocos2d/core/3d/physics/exports/physics-builtin.ts',
+    '../../cocos2d/core/3d/physics/exports/physics-cannon.ts',
+    '../../cocos2d/core/3d/physics/exports/physics-framework.ts',
+    '../../cocos2d/core/3d/physics/framework/assets/physics-material.ts',
+    '../../external/cannon/cannon.js',
+];
+
 var jsbSkipModules = [
     // modules need to skip in jsb
     '../../extensions/spine/skeleton-cache.js',
@@ -86,6 +94,11 @@ var jsbAliasify = {
     verbose: false
 };
 
+const WEBVIEW_REGEXP = /[Ww]eb[Vv]iew/;
+function excludedWebView (excludes) {
+    return excludes ? excludes.some(item => /.*CCWebView(\.js)?/.test(item)) : false;
+}
+
 exports.buildDebugInfos = require('./buildDebugInfos');
 
 exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlags, callback, createMap) {
@@ -101,6 +114,9 @@ exports.buildCocosJs = function (sourceFile, outputFile, excludes, opt_macroFlag
     var outFile = Path.basename(outputFile);
     var bundler = createBundler(sourceFile, opts);
 
+    physicsSkipModules.forEach(function (file) {
+        bundler.exclude(require.resolve(file));
+    });
     excludes && excludes.forEach(function (file) {
         bundler.exclude(file);
     });
@@ -143,6 +159,9 @@ exports.buildCocosJsMin = function (sourceFile, outputFile, excludes, opt_macroF
     var outFile = Path.basename(outputFile);
     var bundler = createBundler(sourceFile, opts);
 
+    physicsSkipModules.forEach(function (file) {
+        bundler.exclude(require.resolve(file));
+    });
     excludes && excludes.forEach(function (file) {
         bundler.exclude(file);
     });
@@ -204,6 +223,7 @@ exports.buildPreview = function (sourceFile, outputFile, callback, devMode) {
         cacheDir: cacheDir,
         sourcemaps: !devMode
     });
+    // NOTE: no need to exclude physics module for cocos2d-js-preview.js
     var bundler = bundler
         .bundle()
         .on('error', HandleErrors.handler)
@@ -213,7 +233,7 @@ exports.buildPreview = function (sourceFile, outputFile, callback, devMode) {
     if (!devMode) {
         bundler = bundler
             .pipe(Sourcemaps.init({loadMaps: true}))
-            .pipe(Utils.uglify('preview'))
+            .pipe(Utils.uglify('preview', {physics_cannon: true}))
             .pipe(Optimizejs({
                 sourceMap: false
             }))
@@ -237,6 +257,7 @@ exports.buildJsbPreview = function (sourceFile, outputFile, excludes, callback) 
     excludes = excludes.concat(jsbSkipModules);
 
     var bundler = createBundler(sourceFile);
+    // NOTE: no need to exclude physics module for cocos2d-jsb-preview.js
     excludes.forEach(function (module) {
         bundler.exclude(require.resolve(module));
     });
@@ -246,7 +267,7 @@ exports.buildJsbPreview = function (sourceFile, outputFile, excludes, callback) 
         .pipe(Source(outFile))
         .pipe(Buffer())
         .pipe(FixJavaScriptCore())
-        .pipe(Utils.uglify('preview', { jsb: true, nativeRenderer: true }))
+        .pipe(Utils.uglify('preview', { jsb: true, nativeRenderer: true, physics_cannon: true}))
         .pipe(Optimizejs({
             sourceMap: false
         }))
@@ -267,9 +288,15 @@ exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, c
     let flags = Object.assign({ jsb: true, debug: true }, opt_macroFlags);
     let macro = Utils.getMacros('build', flags);
     let nativeRenderer = macro["CC_NATIVERENDERER"];
+    let needHandleWebview = excludedWebView(excludes);
 
     if (opt_macroFlags && nativeRenderer) {
         opts.aliasifyConfig = jsbAliasify;
+    }
+    if (needHandleWebview) {
+        opts.aliasifyConfig = opts.aliasifyConfig || jsbAliasify;
+        // this will replace require call with an empty object
+        opts.aliasifyConfig.replacements['.*CCWebView(\.js)?'] = false;
     }
 
     var FixJavaScriptCore = require('../util/fix-jsb-javascriptcore');
@@ -278,6 +305,9 @@ exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, c
     var outDir = Path.dirname(outputFile);
 
     var bundler = createBundler(sourceFile, opts);
+    physicsSkipModules.forEach(function (file) {
+        bundler.exclude(require.resolve(file));
+    });
     if (nativeRenderer) {
         excludes = excludes.concat(jsbSkipModules);
     }
@@ -294,6 +324,14 @@ exports.buildJsb = function (sourceFile, outputFile, excludes, opt_macroFlags, c
         .pipe(Optimizejs({
             sourceMap: false
         }))
+        .on('data', function (file) {
+            if (needHandleWebview) {
+                let contents = file.contents.toString();
+                if (WEBVIEW_REGEXP.test(contents)) {
+                    throw new Error('WebView field still exists in engine');
+                }
+            }
+        })
         .pipe(Gulp.dest(outDir))
         .on('end', callback);
 };
@@ -311,17 +349,26 @@ exports.buildJsbMin = function (sourceFile, outputFile, excludes, opt_macroFlags
     let flags = Object.assign({ jsb: true }, opt_macroFlags);
     let macro = Utils.getMacros('build', flags);
     let nativeRenderer = macro["CC_NATIVERENDERER"];
+    let needHandleWebview = excludedWebView(excludes);
 
     if (opt_macroFlags && nativeRenderer) {
         opts.aliasifyConfig = jsbAliasify;
     }
-    
+    if (needHandleWebview) {
+        opts.aliasifyConfig = opts.aliasifyConfig || jsbAliasify;
+        // this will replace require call with an empty object
+        opts.aliasifyConfig.replacements['.*CCWebView(\.js)?'] = false;
+    }
+
     var FixJavaScriptCore = require('../util/fix-jsb-javascriptcore');
 
     var outFile = Path.basename(outputFile);
     var outDir = Path.dirname(outputFile);
 
     var bundler = createBundler(sourceFile, opts);
+    physicsSkipModules.forEach(function (file) {
+        bundler.exclude(require.resolve(file));
+    });
     if (nativeRenderer) {
         excludes = excludes.concat(jsbSkipModules);
     }
@@ -341,6 +388,14 @@ exports.buildJsbMin = function (sourceFile, outputFile, excludes, opt_macroFlags
         .pipe(Optimizejs({
             sourceMap: false
         }))
+        .on('data', function (file) {
+            if (needHandleWebview) {
+                let contents = file.contents.toString();
+                if (WEBVIEW_REGEXP.test(contents)) {
+                    throw new Error('WebView field still exists in engine');
+                }
+            }
+        })
         .pipe(Gulp.dest(outDir))
         .on('end', callback);
 };
@@ -369,6 +424,9 @@ exports.buildRuntime = function (sourceFile, outputFile, excludes, opt_macroFlag
     var outDir = Path.dirname(outputFile);
 
     var bundler = createBundler(sourceFile, opts);
+    physicsSkipModules.forEach(function (file) {
+        bundler.exclude(require.resolve(file));
+    });
     excludes.forEach(function (module) {
         bundler.exclude(require.resolve(module));
     });
@@ -411,6 +469,9 @@ exports.buildRuntimeMin = function (sourceFile, outputFile, excludes, opt_macroF
     var outDir = Path.dirname(outputFile);
 
     var bundler = createBundler(sourceFile, opts);
+    physicsSkipModules.forEach(function (file) {
+        bundler.exclude(require.resolve(file));
+    });
     excludes.forEach(function (module) {
         bundler.exclude(require.resolve(module));
     });

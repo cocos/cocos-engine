@@ -1,66 +1,60 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
-import { color4, vec3, mat4, lerp } from '../../core/vmath';
-import geomUtils from '../../core/geom-utils';
+import { Vec3, Mat4, lerp, Vec4 } from '../../core/value-types';
+import { Ray } from '../../core/geom-utils';
 import enums from '../enums';
 
-let _tmp_mat4 = mat4.create();
+let _tmp_mat4 = new Mat4();
 
-let _matView = mat4.create();
-let _matProj = mat4.create();
-let _matViewProj = mat4.create();
-let _matInvViewProj = mat4.create();
-let _tmp_v3 = cc.v3();
-let _tmp2_v3 = cc.v3();
+let _matView = new Mat4();
+let _matProj = new Mat4();
+let _matViewProj = new Mat4();
+let _matInvViewProj = new Mat4();
+let _tmp_v3 = new Vec3();
+let _tmp2_v3 = new Vec3();
 
 /**
  * A representation of a camera instance
  */
 export default class Camera {
-  /**
-   * Setup a default perspective camera
-   */
-  constructor() {
-    this._poolID = -1;
-    this._node = null;
+  _poolID = -1;
+  _node = null;
+  _projection = enums.PROJ_PERSPECTIVE;
 
-    //
-    this._projection = enums.PROJ_PERSPECTIVE;
+  // priority. the smaller one will be rendered first
+  _priority = 0;
 
-    // priority. the smaller one will be rendered first
-    this._priority = 0;
+  // clear options
+  _color = new Vec4(0.2, 0.3, 0.47, 1);
+  _depth = 1;
+  _stencil = 0;
+  _clearFlags = enums.CLEAR_COLOR | enums.CLEAR_DEPTH;
+  _clearModel = null;
 
-    // clear options
-    this._color = color4.create(0.2, 0.3, 0.47, 1);
-    this._depth = 1;
-    this._stencil = 0;
-    this._clearFlags = enums.CLEAR_COLOR | enums.CLEAR_DEPTH;
-    this._clearModel = null;
+  // stages & framebuffer
+  _stages = [];
+  _framebuffer = null;
 
-    // stages & framebuffer
-    this._stages = [];
-    this._framebuffer = null;
+  // projection properties
+  _near = 0.01;
+  _far = 1000.0;
+  _fov = Math.PI / 4.0; // vertical fov
+  _rect = {
+    x: 0, y: 0, w: 1, h: 1
+  };
 
-    // projection properties
-    this._near = 0.01;
-    this._far = 1000.0;
-    this._fov = Math.PI/4.0; // vertical fov
-    this._rect = {
-      x: 0, y: 0, w: 1, h: 1
-    };
+  // ortho properties
+  _orthoHeight = 10;
 
-    // ortho properties
-    this._orthoHeight = 10;
+  _cullingMask = 0xffffffff;
 
-    this._cullingMask = 0xffffffff;
-  }
 
   // culling mask
-  get cullingMask() {
+  get cullingMask () {
     return this._cullingMask;
   }
 
-  set cullingMask(mask) {
+  set cullingMask (mask) {
     this._cullingMask = mask;
   }
 
@@ -72,7 +66,7 @@ export default class Camera {
    * Get the hosting node of this camera
    * @returns {Node} the hosting node
    */
-  getNode() {
+  getNode () {
     return this._node;
   }
 
@@ -80,7 +74,7 @@ export default class Camera {
    * Set the hosting node of this camera
    * @param {Node} node the hosting node
    */
-  setNode(node) {
+  setNode (node) {
     this._node = node;
   }
 
@@ -88,7 +82,7 @@ export default class Camera {
    * Get the projection type of the camera
    * @returns {number} camera projection type
    */
-  getType() {
+  getType () {
     return this._projection;
   }
 
@@ -96,7 +90,7 @@ export default class Camera {
    * Set the projection type of the camera
    * @param {number} type camera projection type
    */
-  setType(type) {
+  setType (type) {
     this._projection = type;
   }
 
@@ -104,7 +98,7 @@ export default class Camera {
    * Get the priority of the camera
    * @returns {number} camera priority
    */
-  getPriority() {
+  getPriority () {
     return this._priority;
   }
 
@@ -112,7 +106,7 @@ export default class Camera {
    * Set the priority of the camera
    * @param {number} priority camera priority
    */
-  setPriority(priority) {
+  setPriority (priority) {
     this._priority = priority;
   }
 
@@ -120,7 +114,7 @@ export default class Camera {
    * Get the orthogonal height of the camera
    * @returns {number} camera height
    */
-  getOrthoHeight() {
+  getOrthoHeight () {
     return this._orthoHeight;
   }
 
@@ -128,7 +122,7 @@ export default class Camera {
    * Set the orthogonal height of the camera
    * @param {number} val camera height
    */
-  setOrthoHeight(val) {
+  setOrthoHeight (val) {
     this._orthoHeight = val;
   }
 
@@ -136,7 +130,7 @@ export default class Camera {
    * Get the field of view of the camera
    * @returns {number} camera field of view
    */
-  getFov() {
+  getFov () {
     return this._fov;
   }
 
@@ -144,7 +138,7 @@ export default class Camera {
    * Set the field of view of the camera
    * @param {number} fov camera field of view
    */
-  setFov(fov) {
+  setFov (fov) {
     this._fov = fov;
   }
 
@@ -152,7 +146,7 @@ export default class Camera {
    * Get the near clipping distance of the camera
    * @returns {number} camera near clipping distance
    */
-  getNear() {
+  getNear () {
     return this._near;
   }
 
@@ -160,7 +154,7 @@ export default class Camera {
    * Set the near clipping distance of the camera
    * @param {number} near camera near clipping distance
    */
-  setNear(near) {
+  setNear (near) {
     this._near = near;
   }
 
@@ -168,7 +162,7 @@ export default class Camera {
    * Get the far clipping distance of the camera
    * @returns {number} camera far clipping distance
    */
-  getFar() {
+  getFar () {
     return this._far;
   }
 
@@ -176,16 +170,16 @@ export default class Camera {
    * Set the far clipping distance of the camera
    * @param {number} far camera far clipping distance
    */
-  setFar(far) {
+  setFar (far) {
     this._far = far;
   }
 
   /**
    * Get the clear color of the camera
-   * @returns {color4} out the receiving color vector
+   * @returns {Vec4} out the receiving color vector
    */
-  getColor(out) {
-    return color4.copy(out, this._color);
+  getColor (out) {
+    return Vec4.copy(out, this._color);
   }
 
   /**
@@ -195,15 +189,15 @@ export default class Camera {
    * @param {number} b blue channel of camera clear color
    * @param {number} a alpha channel of camera clear color
    */
-  setColor(r, g, b, a) {
-    color4.set(this._color, r, g, b, a);
+  setColor (r, g, b, a) {
+    Vec4.set(this._color, r, g, b, a);
   }
 
   /**
    * Get the clear depth of the camera
    * @returns {number} camera clear depth
    */
-  getDepth() {
+  getDepth () {
     return this._depth;
   }
 
@@ -211,7 +205,7 @@ export default class Camera {
    * Set the clear depth of the camera
    * @param {number} depth camera clear depth
    */
-  setDepth(depth) {
+  setDepth (depth) {
     this._depth = depth;
   }
 
@@ -219,7 +213,7 @@ export default class Camera {
    * Get the clearing stencil value of the camera
    * @returns {number} camera clearing stencil value
    */
-  getStencil() {
+  getStencil () {
     return this._stencil;
   }
 
@@ -227,7 +221,7 @@ export default class Camera {
    * Set the clearing stencil value of the camera
    * @param {number} stencil camera clearing stencil value
    */
-  setStencil(stencil) {
+  setStencil (stencil) {
     this._stencil = stencil;
   }
 
@@ -235,7 +229,7 @@ export default class Camera {
    * Get the clearing flags of the camera
    * @returns {number} camera clearing flags
    */
-  getClearFlags() {
+  getClearFlags () {
     return this._clearFlags;
   }
 
@@ -243,7 +237,7 @@ export default class Camera {
    * Set the clearing flags of the camera
    * @param {number} flags camera clearing flags
    */
-  setClearFlags(flags) {
+  setClearFlags (flags) {
     this._clearFlags = flags;
   }
 
@@ -252,7 +246,7 @@ export default class Camera {
    * @param {Object} out the receiving object
    * @returns {Object} camera rect
    */
-  getRect(out) {
+  getRect (out) {
     out.x = this._rect.x;
     out.y = this._rect.y;
     out.w = this._rect.w;
@@ -268,7 +262,7 @@ export default class Camera {
    * @param {Number} w - [0,1]
    * @param {Number} h - [0,1]
    */
-  setRect(x, y, w, h) {
+  setRect (x, y, w, h) {
     this._rect.x = x;
     this._rect.y = y;
     this._rect.w = w;
@@ -279,7 +273,7 @@ export default class Camera {
    * Get the stages of the camera
    * @returns {string[]} camera stages
    */
-  getStages() {
+  getStages () {
     return this._stages;
   }
 
@@ -287,7 +281,7 @@ export default class Camera {
    * Set the stages of the camera
    * @param {string[]} stages camera stages
    */
-  setStages(stages) {
+  setStages (stages) {
     this._stages = stages;
   }
 
@@ -295,7 +289,7 @@ export default class Camera {
    * Get the framebuffer of the camera
    * @returns {FrameBuffer} camera framebuffer
    */
-  getFramebuffer() {
+  getFramebuffer () {
     return this._framebuffer;
   }
 
@@ -303,19 +297,19 @@ export default class Camera {
    * Set the framebuffer of the camera
    * @param {FrameBuffer} framebuffer camera framebuffer
    */
-  setFrameBuffer(framebuffer) {
+  setFrameBuffer (framebuffer) {
     this._framebuffer = framebuffer;
   }
 
-  _calcMatrices(width, height) {
+  _calcMatrices (width, height) {
     // view matrix
     this._node.getWorldRT(_matView);
-    mat4.invert(_matView, _matView);
+    Mat4.invert(_matView, _matView);
 
     // projection matrix
     let aspect = width / height;
     if (this._projection === enums.PROJ_PERSPECTIVE) {
-      mat4.perspective(_matProj,
+      Mat4.perspective(_matProj,
         this._fov,
         aspect,
         this._near,
@@ -324,15 +318,15 @@ export default class Camera {
     } else {
       let x = this._orthoHeight * aspect;
       let y = this._orthoHeight;
-      mat4.ortho(_matProj,
+      Mat4.ortho(_matProj,
         -x, x, -y, y, this._near, this._far
       );
     }
 
     // view-projection
-    mat4.mul(_matViewProj, _matProj, _matView);
+    Mat4.mul(_matViewProj, _matProj, _matView);
     // inv view-projection
-    mat4.invert(_matInvViewProj, _matViewProj);
+    Mat4.invert(_matInvViewProj, _matViewProj);
   }
 
   /**
@@ -341,7 +335,7 @@ export default class Camera {
    * @param {number} width framebuffer width
    * @param {number} height framebuffer height
    */
-  extractView(out, width, height) {
+  extractView (out, width, height) {
     if (this._framebuffer) {
       width = this._framebuffer._width;
       height = this._framebuffer._height;
@@ -368,10 +362,10 @@ export default class Camera {
     out._framebuffer = this._framebuffer;
 
     this._calcMatrices(width, height);
-    mat4.copy(out._matView, _matView);
-    mat4.copy(out._matProj, _matProj);
-    mat4.copy(out._matViewProj, _matViewProj);
-    mat4.copy(out._matInvViewProj, _matInvViewProj);
+    Mat4.copy(out._matView, _matView);
+    Mat4.copy(out._matProj, _matProj);
+    Mat4.copy(out._matViewProj, _matViewProj);
+    Mat4.copy(out._matInvViewProj, _matInvViewProj);
 
     out._cullingMask = this._cullingMask;
   }
@@ -385,10 +379,10 @@ export default class Camera {
    * @param {Ray} out the resulting ray
    * @returns {Ray} the resulting ray
    */
-  screenPointToRay(x, y, width, height, out) {
-    if (!geomUtils) return out;
-    
-    out = out || geomUtils.Ray.create();
+  screenPointToRay (x, y, width, height, out) {
+    if (!cc.geomUtils) return out;
+
+    out = out || new Ray();
     this._calcMatrices(width, height);
 
     let cx = this._rect.x * width;
@@ -397,19 +391,19 @@ export default class Camera {
     let ch = this._rect.h * height;
 
     // far plane intersection
-    vec3.set(_tmp2_v3, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, 1);
-    vec3.transformMat4(_tmp2_v3, _tmp2_v3, _matInvViewProj);
+    Vec3.set(_tmp2_v3, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, 1);
+    Vec3.transformMat4(_tmp2_v3, _tmp2_v3, _matInvViewProj);
 
     if (this._projection === enums.PROJ_PERSPECTIVE) {
       // camera origin
       this._node.getWorldPosition(_tmp_v3);
     } else {
       // near plane intersection
-      vec3.set(_tmp_v3, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, -1);
-      vec3.transformMat4(_tmp_v3, _tmp_v3, _matInvViewProj);
+      Vec3.set(_tmp_v3, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, -1);
+      Vec3.transformMat4(_tmp_v3, _tmp_v3, _matInvViewProj);
     }
 
-    return geomUtils.Ray.fromPoints(out, _tmp_v3, _tmp2_v3);
+    return Ray.fromPoints(out, _tmp_v3, _tmp2_v3);
   }
 
   /**
@@ -420,7 +414,7 @@ export default class Camera {
    * @param {number} height framebuffer height
    * @returns {Vec3} the resulting vector
    */
-  screenToWorld(out, screenPos, width, height) {
+  screenToWorld (out, screenPos, width, height) {
     this._calcMatrices(width, height);
 
     let cx = this._rect.x * width;
@@ -430,28 +424,28 @@ export default class Camera {
 
     if (this._projection === enums.PROJ_PERSPECTIVE) {
       // calculate screen pos in far clip plane
-      vec3.set(out,
+      Vec3.set(out,
         (screenPos.x - cx) / cw * 2 - 1,
         (screenPos.y - cy) / ch * 2 - 1,
         0.9999
       );
 
       // transform to world
-      vec3.transformMat4(out, out, _matInvViewProj);
+      Vec3.transformMat4(out, out, _matInvViewProj);
 
       // lerp to depth z
       this._node.getWorldPosition(_tmp_v3);
 
-      vec3.lerp(out, _tmp_v3, out, lerp(this._near / this._far, 1, screenPos.z));
+      Vec3.lerp(out, _tmp_v3, out, lerp(this._near / this._far, 1, screenPos.z));
     } else {
-      vec3.set(out,
+      Vec3.set(out,
         (screenPos.x - cx) / cw * 2 - 1,
         (screenPos.y - cy) / ch * 2 - 1,
         screenPos.z * 2 - 1
       );
 
       // transform to world
-      vec3.transformMat4(out, out, _matInvViewProj);
+      Vec3.transformMat4(out, out, _matInvViewProj);
     }
 
     return out;
@@ -465,7 +459,7 @@ export default class Camera {
    * @param {number} height framebuffer height
    * @returns {Vec3} the resulting vector
    */
-  worldToScreen(out, worldPos, width, height) {
+  worldToScreen (out, worldPos, width, height) {
     this._calcMatrices(width, height);
 
     let cx = this._rect.x * width;
@@ -473,7 +467,7 @@ export default class Camera {
     let cw = this._rect.w * width;
     let ch = this._rect.h * height;
 
-    vec3.transformMat4(out, worldPos, _matViewProj);
+    Vec3.transformMat4(out, worldPos, _matViewProj);
     out.x = cx + (out.x + 1) * 0.5 * cw;
     out.y = cy + (out.y + 1) * 0.5 * ch;
     out.z = out.z * 0.5 + 0.5;
@@ -492,15 +486,15 @@ export default class Camera {
   worldMatrixToScreen (out, worldMatrix, width, height) {
     this._calcMatrices(width, height);
 
-    mat4.mul(out, _matViewProj, worldMatrix);
+    Mat4.mul(out, _matViewProj, worldMatrix);
 
     let halfWidth = width / 2;
     let halfHeight = height / 2;
-    mat4.identity(_tmp_mat4);
-    mat4.translate(_tmp_mat4, _tmp_mat4, vec3.set(_tmp_v3, halfWidth, halfHeight, 0));
-    mat4.scale(_tmp_mat4, _tmp_mat4, vec3.set(_tmp_v3, halfWidth, halfHeight, 1));
-    
-    mat4.mul(out, _tmp_mat4, out);
+    Mat4.identity(_tmp_mat4);
+    Mat4.transform(_tmp_mat4, _tmp_mat4, Vec3.set(_tmp_v3, halfWidth, halfHeight, 0));
+    Mat4.scale(_tmp_mat4, _tmp_mat4, Vec3.set(_tmp_v3, halfWidth, halfHeight, 1));
+
+    Mat4.mul(out, _tmp_mat4, out);
 
     return out;
   }

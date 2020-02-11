@@ -131,7 +131,7 @@ export default class Assembler2D extends Assembler {
                 frame._setDynamicAtlasFrame(packedFrame);
             }
         }
-        let material = comp.sharedMaterials[0];
+        let material = comp._materials[0];
         if (!material) return;
         
         if (material.getProperty('texture') !== frame._texture) {

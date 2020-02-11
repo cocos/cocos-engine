@@ -214,6 +214,7 @@ export default class RadialFilledAssembler extends Assembler2D {
         let fillEnd = fillStart + fillRange;
         
         let local = this._local;
+        local.length = 0;
 
         let offset = 0;
         let floatsPerTriangle = 3 * this.floatsPerVert;

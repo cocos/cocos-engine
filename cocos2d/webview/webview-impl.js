@@ -23,12 +23,10 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-import { mat4 } from '../core/vmath';
-
 const utils = require('../core/platform/utils');
 const sys = require('../core/platform/CCSys');
 
-let _mat4_temp = mat4.create();
+let _mat4_temp = cc.mat4();
 
 let WebViewImpl = cc.Class({
     name: "WebViewImpl",
@@ -42,9 +40,9 @@ let WebViewImpl = cc.Class({
         this._div = null;
         this._iframe = null;
         this._listener = null;
+        this._forceUpdate = false;
 
         // update matrix cache
-        this._forceUpdate = true;
         this._m00 = 0;
         this._m01 = 0;
         this._m04 = 0;
@@ -66,7 +64,6 @@ let WebViewImpl = cc.Class({
         else {
             div.style.visibility = 'hidden';
         }
-        this._forceUpdate = true;
     },
 
     _updateSize (w, h) {
@@ -82,6 +79,7 @@ let WebViewImpl = cc.Class({
         if (iframe) {
             let cbs = this.__eventListeners, self = this;
             cbs.load = function () {
+                self._forceUpdate = true;
                 self._dispatchEvent(WebViewImpl.EventType.LOADED);
             };
             cbs.error = function () {
@@ -344,9 +342,10 @@ let WebViewImpl = cc.Class({
         if (!this._div || !this._visible) return;
 
         node.getWorldMatrix(_mat4_temp);
+
         let renderCamera = cc.Camera._findRendererCamera(node);
         if (renderCamera) {
-            renderCamera.worldMatrixToScreen(_mat4_temp, _mat4_temp, cc.visibleRect.width, cc.visibleRect.height);
+            renderCamera.worldMatrixToScreen(_mat4_temp, _mat4_temp, cc.game.canvas.width, cc.game.canvas.height);
         }
 
         let _mat4_tempm = _mat4_temp.m;
@@ -368,11 +367,9 @@ let WebViewImpl = cc.Class({
         this._w = node._contentSize.width;
         this._h = node._contentSize.height;
 
-        let scaleX = cc.view._scaleX, scaleY = cc.view._scaleY;
         let dpr = cc.view._devicePixelRatio;
-
-        scaleX /= dpr;
-        scaleY /= dpr;
+        let scaleX = 1 / dpr;
+        let scaleY = 1 / dpr;
 
         let container = cc.game.container;
         let a = _mat4_tempm[0] * scaleX, b = _mat4_tempm[1], c = _mat4_tempm[4], d = _mat4_tempm[5] * scaleY;
@@ -380,14 +377,12 @@ let WebViewImpl = cc.Class({
         let offsetX = container && container.style.paddingLeft ? parseInt(container.style.paddingLeft) : 0;
         let offsetY = container && container.style.paddingBottom ? parseInt(container.style.paddingBottom) : 0;
         this._updateSize(this._w, this._h);
-        let w = this._div.clientWidth * scaleX;
-        let h = this._div.clientHeight * scaleY;
+        let w = this._w * scaleX;
+        let h = this._h * scaleY;
+
         let appx = (w * _mat4_tempm[0]) * node._anchorPoint.x;
         let appy = (h * _mat4_tempm[5]) * node._anchorPoint.y;
 
-        let viewport = cc.view._viewportRect;
-        offsetX += viewport.x / dpr;
-        offsetY += viewport.y / dpr;
 
         let tx = _mat4_tempm[12] * scaleX - appx + offsetX, ty = _mat4_tempm[13] * scaleY - appy + offsetY;
 
@@ -399,6 +394,7 @@ let WebViewImpl = cc.Class({
 
         // chagned iframe opacity
         this._setOpacity(node.opacity);
+        this._forceUpdate = false;
     }
 });
 

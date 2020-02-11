@@ -27,10 +27,11 @@ const RenderComponent = require('../core/components/CCRenderComponent');
 const Material = require('../core/assets/material/CCMaterial');
 const RenderFlow = require('../core/renderer/render-flow');
 
-import { mat4, vec2 } from '../core/vmath';
-let _mat4_temp = mat4.create();
-let _vec2_temp = vec2.create();
-let _vec2_temp2 = vec2.create();
+import { Mat4, Vec2 } from '../core/value-types';
+import MaterialVariant from '../core/assets/material/material-variant';
+let _mat4_temp = cc.mat4();
+let _vec2_temp = cc.v2();
+let _vec2_temp2 = cc.v2();
 let _tempRowCol = {row:0, col:0};
 
 let TiledUserNodeData = cc.Class({
@@ -443,16 +444,36 @@ let TiledLayer = cc.Class({
     },
 
     _positionForIsoAt (x, y) {
+        let offsetX = 0, offsetY = 0;
+        let index = Math.floor(x) + Math.floor(y) * this._layerSize.width;
+        let gid = this._tiles[index];
+        if (gid) {
+            let tileset = this._texGrids[gid].tileset;
+            let offset = tileset.tileOffset;
+            offsetX = offset.x;
+            offsetY = offset.y;
+        }
+
         return cc.v2(
-            this._mapTileSize.width / 2 * ( this._layerSize.width + x - y - 1),
-            this._mapTileSize.height / 2 * (( this._layerSize.height * 2 - x - y) - 2)
+            this._mapTileSize.width * 0.5 * (this._layerSize.height + x - y - 1) + offsetX,
+            this._mapTileSize.height * 0.5 * (this._layerSize.width - x + this._layerSize.height - y - 2) - offsetY
         );
     },
 
     _positionForOrthoAt (x, y) {
+        let offsetX = 0, offsetY = 0;
+        let index = Math.floor(x) + Math.floor(y) * this._layerSize.width;
+        let gid = this._tiles[index];
+        if (gid) {
+            let tileset = this._texGrids[gid].tileset;
+            let offset = tileset.tileOffset;
+            offsetX = offset.x;
+            offsetY = offset.y;
+        }
+
         return cc.v2(
-            x * this._mapTileSize.width,
-            (this._layerSize.height - y - 1) * this._mapTileSize.height
+            x * this._mapTileSize.width + offsetX,
+            (this._layerSize.height - y - 1) * this._mapTileSize.height - offsetY
         );
     },
 
@@ -466,32 +487,26 @@ let TiledLayer = cc.Class({
         let tileset = this._texGrids[gid].tileset;
         let offset = tileset.tileOffset;
 
-        let centerWidth = this.node.width / 2;
-        let centerHeight = this.node.height / 2;
         let odd_even = (this._staggerIndex === cc.TiledMap.StaggerIndex.STAGGERINDEX_ODD) ? 1 : -1;
         let x = 0, y = 0;
         let diffX = 0;
-        let diffX1 = 0;
         let diffY = 0;
-        let diffY1 = 0;
         switch (this._staggerAxis) {
             case cc.TiledMap.StaggerAxis.STAGGERAXIS_Y:
                 diffX = 0;
-                diffX1 = (this._staggerIndex === cc.TiledMap.StaggerIndex.STAGGERINDEX_ODD) ? 0 : tileWidth / 2;
                 if (row % 2 === 1) {
                     diffX = tileWidth / 2 * odd_even;
                 }
-                x = col * tileWidth + diffX + diffX1 + offset.x - centerWidth;
-                y = (rows - row - 1) * (tileHeight - (tileHeight - this._hexSideLength) / 2) - offset.y - centerHeight;
+                x = col * tileWidth + diffX + offset.x;
+                y = (rows - row - 1) * (tileHeight - (tileHeight - this._hexSideLength) / 2) - offset.y;
                 break;
             case cc.TiledMap.StaggerAxis.STAGGERAXIS_X:
                 diffY = 0;
-                diffY1 = (this._staggerIndex === cc.TiledMap.StaggerIndex.STAGGERINDEX_ODD) ? tileHeight / 2 : 0;
                 if (col % 2 === 1) {
                     diffY = tileHeight / 2 * -odd_even;
                 }
-                x = col * (tileWidth - (tileWidth - this._hexSideLength) / 2) + offset.x - centerWidth;
-                y = (rows - row - 1) * tileHeight + diffY + diffY1 - offset.y - centerHeight;
+                x = col * (tileWidth - (tileWidth - this._hexSideLength) / 2) + offset.x;
+                y = (rows - row - 1) * tileHeight + diffY - offset.y;
                 break;
         }
         return cc.v2(x, y);
@@ -559,6 +574,7 @@ let TiledLayer = cc.Class({
         let idx = 0 | (pos.x + pos.y * this._layerSize.width);
         if (idx < this._tiles.length) {
             this._tiles[idx] = gid;
+            this._cullingDirty = true;
         }
     },
 
@@ -750,7 +766,7 @@ let TiledLayer = cc.Class({
             this.enableCulling(false);
         } else if (this._enableCulling) {
             this.node._updateWorldMatrix();
-            mat4.invert(_mat4_temp, this.node._worldMatrix);
+            Mat4.invert(_mat4_temp, this.node._worldMatrix);
             let rect = cc.visibleRect;
             let camera = cc.Camera.findCamera(this.node);
             if (camera) {
@@ -760,8 +776,8 @@ let TiledLayer = cc.Class({
                 _vec2_temp2.y = _vec2_temp.y + rect.height;
                 camera.getScreenToWorldPoint(_vec2_temp, _vec2_temp);
                 camera.getScreenToWorldPoint(_vec2_temp2, _vec2_temp2);
-                vec2.transformMat4(_vec2_temp, _vec2_temp, _mat4_temp);
-                vec2.transformMat4(_vec2_temp2, _vec2_temp2, _mat4_temp);
+                Vec2.transformMat4(_vec2_temp, _vec2_temp, _mat4_temp);
+                Vec2.transformMat4(_vec2_temp2, _vec2_temp2, _mat4_temp);
                 this._updateViewPort(_vec2_temp.x, _vec2_temp.y, _vec2_temp2.x - _vec2_temp.x, _vec2_temp2.y - _vec2_temp.y);
             }
         }
@@ -1021,6 +1037,7 @@ let TiledLayer = cc.Class({
 
         let index = Math.floor(x) + Math.floor(y) * this._layerSize.width;
         this._tiledTiles[index] = tiledTile;
+        this._cullingDirty = true;
 
         if (tiledTile) {
             this._hasTiledNodeGrid = true;
@@ -1227,33 +1244,36 @@ let TiledLayer = cc.Class({
         this._layerOrientation = mapInfo.orientation;
         this._mapTileSize = mapInfo.getTileSize();
 
+        let maptw = this._mapTileSize.width;
+        let mapth = this._mapTileSize.height;
+        let layerW = this._layerSize.width;
+        let layerH = this._layerSize.height;
+
         if (this._layerOrientation === cc.TiledMap.Orientation.HEX) {
             // handle hex map
             const TiledMap = cc.TiledMap;
             const StaggerAxis = TiledMap.StaggerAxis;
-            const StaggerIndex = TiledMap.StaggerIndex;
-
-            let maptw = this._mapTileSize.width;
-            let mapth = this._mapTileSize.height;
+            const StaggerIndex = TiledMap.StaggerIndex;            
             let width = 0, height = 0;
 
             this._odd_even = (this._staggerIndex === StaggerIndex.STAGGERINDEX_ODD) ? 1 : -1;
-
             if (this._staggerAxis === StaggerAxis.STAGGERAXIS_X) {
                 this._diffX1 = (maptw - this._hexSideLength) / 2;
                 this._diffY1 = 0;
-                height = mapth * (this._layerSize.height + 0.5);
-                width = (maptw + this._hexSideLength) * Math.floor(this._layerSize.width / 2) + maptw * (this._layerSize.width % 2);
+                height = mapth * (layerH + 0.5);
+                width = (maptw + this._hexSideLength) * Math.floor(layerW / 2) + maptw * (layerW % 2);
             } else {
                 this._diffX1 = 0;
                 this._diffY1 = (mapth - this._hexSideLength) / 2;
-                width = maptw * (this._layerSize.width + 0.5);
-                height = (mapth + this._hexSideLength) * Math.floor(this._layerSize.height / 2) + mapth * (this._layerSize.height % 2);
+                width = maptw * (layerW + 0.5);
+                height = (mapth + this._hexSideLength) * Math.floor(layerH / 2) + mapth * (layerH % 2);
             }
             this.node.setContentSize(width, height);
+        } else if (this._layerOrientation === cc.TiledMap.Orientation.ISO) {
+            let wh = layerW + layerH;
+            this.node.setContentSize(maptw * 0.5 * wh, mapth * 0.5 * wh);
         } else {
-            this.node.setContentSize(this._layerSize.width * this._mapTileSize.width,
-                this._layerSize.height * this._mapTileSize.height);
+            this.node.setContentSize(layerW * maptw, layerH * mapth);
         }
 
         // offset (after layer orientation is set);
@@ -1280,27 +1300,28 @@ let TiledLayer = cc.Class({
 
         let texIdMatIdx = this._texIdToMatIndex = {};
         let textures = this._textures;
+        let matLen = tilesetIndexArr.length;
 
-        for (let i = 0; i < tilesetIndexArr.length; i++) {
+        for (let i = 0; i < matLen; i++) {
             let tilesetIdx = tilesetIndexArr[i];
             let texture = textures[tilesetIdx];
 
-            let material = this.sharedMaterials[i];
+            let material = this._materials[i];
             if (!material) {
-                material = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
+                material = Material.getBuiltinMaterial('2d-sprite');
             }
-            else {
-                material = Material.getInstantiatedMaterial(material, this);
-            }
+            material = MaterialVariant.create(material, this);
 
             material.define('CC_USE_MODEL', true);
             material.setProperty('texture', texture);
-            this.setMaterial(i, material);
+
+            this._materials[i] = material;
+            
             texIdMatIdx[tilesetIdx] = i;
         }
-
+        this._materials.length = matLen;
         this.markForRender(true);
-    },
+    }
 });
 
 cc.TiledLayer = module.exports = TiledLayer;

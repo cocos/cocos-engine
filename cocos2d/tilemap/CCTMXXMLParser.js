@@ -331,7 +331,7 @@ function getPropertyList (node, map) {
  * @param {Object} tsxMap
  * @param {Object} textures
  */
-cc.TMXMapInfo = function (tmxFile, tsxMap, textures, imageLayerTextures) {
+cc.TMXMapInfo = function (tmxFile, tsxMap, textures, textureSizes, imageLayerTextures) {
     this.properties = [];
     this.orientation = null;
     this.parentElement = null;
@@ -364,7 +364,7 @@ cc.TMXMapInfo = function (tmxFile, tsxMap, textures, imageLayerTextures) {
 
     this._imageLayerTextures = null;
 
-    this.initWithXML(tmxFile, tsxMap, textures, imageLayerTextures);
+    this.initWithXML(tmxFile, tsxMap, textures, textureSizes, imageLayerTextures);
 };
 cc.TMXMapInfo.prototype = {
     constructor: cc.TMXMapInfo,
@@ -650,7 +650,7 @@ cc.TMXMapInfo.prototype = {
      * @param {Object} textures
      * @return {Boolean}
      */
-    initWithXML (tmxString, tsxMap, textures, imageLayerTextures) {
+    initWithXML (tmxString, tsxMap, textures, textureSizes, imageLayerTextures) {
         this._tilesets.length = 0;
         this._layers.length = 0;
         this._imageLayers.length = 0;
@@ -658,6 +658,7 @@ cc.TMXMapInfo.prototype = {
         this._tsxMap = tsxMap;
         this._textures = textures;
         this._imageLayerTextures = imageLayerTextures;
+        this._textureSizes = textureSizes;
 
         this._objectGroups.length = 0;
         this._allChildren.length = 0;
@@ -775,60 +776,89 @@ cc.TMXMapInfo.prototype = {
                     this.parseXMLString(tsxXmlString, currentFirstGID);
                 }
             } else {
-                let tileset = new cc.TMXTilesetInfo();
-                tileset.name = selTileset.getAttribute('name') || "";
-                if (tilesetFirstGid) {
-                    tileset.firstGid = tilesetFirstGid;
-                } else {
-                    tileset.firstGid = parseInt(selTileset.getAttribute('firstgid')) || 0;
-                }
+                let images = selTileset.getElementsByTagName('image');
+                let multiTextures = images.length > 1;
+                let image = images[0];
+                let firstImageName = image.getAttribute('source');
+                firstImageName.replace(/\\/g, '\/');
 
-                tileset.spacing = parseInt(selTileset.getAttribute('spacing')) || 0;
-                tileset.margin = parseInt(selTileset.getAttribute('margin')) || 0;
+                let tiles = selTileset.getElementsByTagName('tile');
+                let tileCount = tiles && tiles.length || 1;
+                let tile = null;
+
+                let tilesetName = selTileset.getAttribute('name') || "";
+                let tilesetSpacing = parseInt(selTileset.getAttribute('spacing')) || 0;
+                let tilesetMargin = parseInt(selTileset.getAttribute('margin')) || 0;
+                let fgid = parseInt(tilesetFirstGid);
+                if (!fgid) {
+                    fgid = parseInt(selTileset.getAttribute('firstgid')) || 0;
+                }
 
                 let tilesetSize = cc.size(0, 0);
                 tilesetSize.width = parseFloat(selTileset.getAttribute('tilewidth'));
                 tilesetSize.height = parseFloat(selTileset.getAttribute('tileheight'));
-                tileset._tileSize = tilesetSize;
-
-                let image = selTileset.getElementsByTagName('image')[0];
-                let imagename = image.getAttribute('source');
-                imagename.replace(/\\/g, '\/');
-                tileset.sourceImage = this._textures[imagename];
-                if (!tileset.sourceImage) {
-                    cc.errorID(7221, imagename);
-                }
-
-                this.setTilesets(tileset);
 
                 // parse tile offset
                 let offset = selTileset.getElementsByTagName('tileoffset')[0];
+                let tileOffset = cc.v2(0, 0);
                 if (offset) {
-                    let offsetX = parseFloat(offset.getAttribute('x'));
-                    let offsetY = parseFloat(offset.getAttribute('y'));
-                    tileset.tileOffset = cc.v2(offsetX, offsetY);
+                    tileOffset.x = parseFloat(offset.getAttribute('x'));
+                    tileOffset.y = parseFloat(offset.getAttribute('y'));
                 }
 
-                // PARSE  <tile>
-                let tiles = selTileset.getElementsByTagName('tile');
-                if (tiles) {
-                    for (let tIdx = 0; tIdx < tiles.length; tIdx++) {
-                        let t = tiles[tIdx];
-                        this.parentGID = parseInt(tileset.firstGid) + parseInt(t.getAttribute('id') || 0);
-                        this._tileProperties[this.parentGID] = getPropertyList(t);
-                        let animations = t.getElementsByTagName('animation');
-                        if (animations && animations.length > 0) {
-                            let animation = animations[0];
-                            let framesData = animation.getElementsByTagName('frame');
-                            let animationProp = {frames:[], dt:0, frameIdx:0};
-                            this._tileAnimations[this.parentGID] = animationProp;
-                            let frames = animationProp.frames;
-                            for (let frameIdx = 0; frameIdx < framesData.length; frameIdx++) {
-                                let frame = framesData[frameIdx];
-                                let tileid = parseInt(tileset.firstGid) + parseInt(frame.getAttribute('tileid'));
-                                let duration = parseFloat(frame.getAttribute('duration'));
-                                frames.push({tileid : tileid, duration : duration / 1000, grid: null});
-                            }
+                let tileset = null;
+                for (let tileIdx = 0; tileIdx < tileCount; tileIdx++) {
+                    if (!tileset || multiTextures) {
+                        tileset = new cc.TMXTilesetInfo();
+                        tileset.name = tilesetName;
+                        tileset.firstGid = fgid;
+
+                        tileset.spacing = tilesetSpacing;
+                        tileset.margin = tilesetMargin;
+                        tileset._tileSize = tilesetSize;
+                        tileset.tileOffset = tileOffset;
+                        tileset.sourceImage = this._textures[firstImageName];
+                        tileset.imageSize = this._textureSizes[firstImageName] || tileset.imageSize;
+                        if (!tileset.sourceImage) {
+                            cc.errorID(7221, firstImageName);
+                        }
+                        this.setTilesets(tileset);
+                    }
+
+                    tile = tiles && tiles[tileIdx];
+                    if (!tile) continue;
+
+                    this.parentGID = parseInt(fgid) + parseInt(tile.getAttribute('id') || 0);
+                    let tileImages = tile.getElementsByTagName('image');
+                    if (tileImages && tileImages.length > 0) {
+                        image = tileImages[0];
+                        let imageName = image.getAttribute('source');
+                        imageName.replace(/\\/g, '\/');
+                        tileset.sourceImage = this._textures[imageName];
+                        if (!tileset.sourceImage) {
+                            cc.errorID(7221, imageName);
+                        }
+                        
+                        let tileSize = cc.size(0, 0);
+                        tileSize.width = parseFloat(image.getAttribute('width'));
+                        tileSize.height = parseFloat(image.getAttribute('height'));
+                        tileset._tileSize = tileSize;
+                        tileset.firstGid = this.parentGID;
+                    }
+
+                    this._tileProperties[this.parentGID] = getPropertyList(tile);
+                    let animations = tile.getElementsByTagName('animation');
+                    if (animations && animations.length > 0) {
+                        let animation = animations[0];
+                        let framesData = animation.getElementsByTagName('frame');
+                        let animationProp = {frames:[], dt:0, frameIdx:0};
+                        this._tileAnimations[this.parentGID] = animationProp;
+                        let frames = animationProp.frames;
+                        for (let frameIdx = 0; frameIdx < framesData.length; frameIdx++) {
+                            let frame = framesData[frameIdx];
+                            let tileid = parseInt(fgid) + parseInt(frame.getAttribute('tileid'));
+                            let duration = parseFloat(frame.getAttribute('duration'));
+                            frames.push({tileid : tileid, duration : duration / 1000, grid: null});
                         }
                     }
                 }
@@ -1009,7 +1039,7 @@ cc.TMXMapInfo.prototype = {
                 let objectProp = {};
 
                 // Set the id of the object
-                objectProp['id'] = selObj.getAttribute('id') || 0;
+                objectProp['id'] = selObj.getAttribute('id') || j;
 
                 // Set the name of the object to the value for "name"
                 objectProp["name"] = selObj.getAttribute('name') || "";

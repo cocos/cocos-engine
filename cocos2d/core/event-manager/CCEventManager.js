@@ -120,6 +120,7 @@ var eventManager = {
     _dirtyListeners: {},
     _inDispatch: 0,
     _isEnabled: false,
+    _currentTouch: null,
 
     _internalCustomListenerIDs:[],
 
@@ -127,17 +128,17 @@ var eventManager = {
         // Mark the node dirty only when there is an event listener associated with it.
         let selListeners = this._nodeListenersMap[node._id];
         if (selListeners !== undefined) {
-            for (var j = 0, len = selListeners.length; j < len; j++) {
+            for (let j = 0, len = selListeners.length; j < len; j++) {
                 let selListener = selListeners[j];
                 let listenerID = selListener._getListenerID();
                 if (this._dirtyListeners[listenerID] == null)
                     this._dirtyListeners[listenerID] = true;
             }
         }
-        if (node.getChildren) {
-            var _children = node.getChildren();
-            for(var i = 0, len = _children ? _children.length : 0; i < len; i++)
-                this._setDirtyForNode(_children[i]);
+        if (node.childrenCount > 0) {
+            let children = node._children;
+            for(let i = 0, len = children.length; i < len; i++)
+                this._setDirtyForNode(children[i]);
         }
     },
 
@@ -159,7 +160,7 @@ var eventManager = {
                 listeners[i]._setPaused(true);
         }
         if (recursive === true) {
-            var locChildren = node.getChildren();
+            var locChildren = node._children;
             for (i = 0, len = locChildren ? locChildren.length : 0; i < len; i++)
                 this.pauseTarget(locChildren[i], true);
         }
@@ -183,8 +184,8 @@ var eventManager = {
                 listeners[i]._setPaused(false);
         }
         this._setDirtyForNode(node);
-        if (recursive === true && node.getChildren) {
-            var locChildren = node.getChildren();
+        if (recursive === true) {
+            var locChildren = node._children;
             for (i = 0, len = locChildren ? locChildren.length : 0; i < len; i++)
                 this.resumeTarget(locChildren[i], true);
         }
@@ -488,14 +489,25 @@ var eventManager = {
         var isClaimed = false, removedIdx;
         var getCode = event.getEventCode(), EventTouch = cc.Event.EventTouch;
         if (getCode === EventTouch.BEGAN) {
+            if (!cc.macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch) {
+                return false;
+            }
+
             if (listener.onTouchBegan) {
                 isClaimed = listener.onTouchBegan(selTouch, event);
-                if (isClaimed && listener._registered)
+                if (isClaimed && listener._registered) {
                     listener._claimedTouches.push(selTouch);
+                    eventManager._currentTouch = selTouch;
+                }
             }
         } else if (listener._claimedTouches.length > 0
             && ((removedIdx = listener._claimedTouches.indexOf(selTouch)) !== -1)) {
             isClaimed = true;
+            
+            if (!cc.macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch && eventManager._currentTouch !== selTouch) {
+                return false;
+            }
+
             if (getCode === EventTouch.MOVED && listener.onTouchMoved) {
                 listener.onTouchMoved(selTouch, event);
             } else if (getCode === EventTouch.ENDED) {
@@ -503,11 +515,13 @@ var eventManager = {
                     listener.onTouchEnded(selTouch, event);
                 if (listener._registered)
                     listener._claimedTouches.splice(removedIdx, 1);
+                eventManager._currentTouch = null;
             } else if (getCode === EventTouch.CANCELLED) {
                 if (listener.onTouchCancelled)
                     listener.onTouchCancelled(selTouch, event);
                 if (listener._registered)
                     listener._claimedTouches.splice(removedIdx, 1);
+                eventManager._currentTouch = null;
             }
         }
 
@@ -892,7 +906,7 @@ var eventManager = {
             }
 
             if (recursive === true) {
-                var locChildren = listenerType.getChildren(), len;
+                var locChildren = listenerType.children, len;
                 for (i = 0, len = locChildren.length; i< len; i++)
                     _t.removeListeners(locChildren[i], true);
             }

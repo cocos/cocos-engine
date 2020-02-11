@@ -27,6 +27,18 @@
 var Camera = require('../camera/CCCamera');
 var Component = require('./CCComponent');
 
+// Screen adaptation strategy for Canvas + Widget
+function addWidgetComponent (canvas) {
+    let widget = canvas.node.getComponent(cc.Widget);
+    if (!widget) {
+        widget = canvas.node.addComponent(cc.Widget);
+    }
+    widget.isAlignTop = true;
+    widget.isAlignBottom = true;
+    widget.isAlignLeft = true;
+    widget.isAlignRight = true;
+}
+
 /**
  * !#zh: 作为 UI 根节点，为所有子节点提供视窗四边的位置信息以供对齐，另外提供屏幕适配策略接口，方便从编辑器设置。
  * 注：由于本节点的尺寸会跟随屏幕拉伸，所以 anchorPoint 只支持 (0.5, 0.5)，否则适配不同屏幕时坐标会有偏差。
@@ -47,6 +59,7 @@ var Canvas = cc.Class({
 
     resetInEditor: CC_EDITOR && function () {
         _Scene._applyCanvasPreferences(this);
+        addWidgetComponent(this);
     },
 
     statics: {
@@ -123,14 +136,10 @@ var Canvas = cc.Class({
         }
     },
 
-    ctor: function () {
-        if (CC_EDITOR) {
-            this._fitDesignResolution = (function () {
-                var designSize = cc.engine.getDesignResolutionSize();
-                this.node.setPosition(designSize.width * 0.5, designSize.height * 0.5);
-                this.node.setContentSize(designSize);
-            }).bind(this);
-        }
+    _fitDesignResolution: CC_EDITOR && function () {
+        var designSize = cc.engine.getDesignResolutionSize();
+        this.node.setPosition(designSize.width * 0.5, designSize.height * 0.5);
+        this.node.setContentSize(designSize);
     },
 
     __preload: function () {
@@ -147,7 +156,7 @@ var Canvas = cc.Class({
 
         if (CC_EDITOR) {
             cc.director.on(cc.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution, this);
-            cc.engine.on('design-resolution-changed', this._fitDesignResolution);
+            cc.engine.on('design-resolution-changed', this._fitDesignResolution, this);
         }
 
         this.applySettings();
@@ -174,7 +183,7 @@ var Canvas = cc.Class({
     onDestroy: function () {
         if (CC_EDITOR) {
             cc.director.off(cc.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution, this);
-            cc.engine.off('design-resolution-changed', this._fitDesignResolution);
+            cc.engine.off('design-resolution-changed', this._fitDesignResolution, this);
         }
 
         if (Canvas.instance === this) {

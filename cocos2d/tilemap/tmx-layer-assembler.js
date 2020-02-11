@@ -36,12 +36,12 @@ const vfmtPosUvColor = require('../core/renderer/webgl/vertex-format').vfmtPosUv
 const MaxGridsLimit = parseInt(65535 / 6);
 const RenderOrder = TiledMap.RenderOrder;
 
-import { mat4, vec3 } from '../core/vmath';
+import { Mat4, Vec3 } from '../core/value-types';
 
 const RenderFlow = require('../core/renderer/render-flow');
 
-let _mat4_temp = mat4.create();
-let _vec3_temp = vec3.create();
+let _mat4_temp = cc.mat4();
+let _vec3_temp = cc.v3();
 let _leftDown = {row:0, col:0};
 let _uva = {x:0, y:0};
 let _uvb = {x:0, y:0};
@@ -56,7 +56,7 @@ let _renderData = null, _ia = null, _fillGrids = 0,
 function _visitUserNode (userNode) {
     if (CC_NATIVERENDERER) return;
     userNode._updateLocalMatrix();
-    mat4.mul(userNode._worldMatrix, _layerMat, userNode._matrix);
+    Mat4.mul(userNode._worldMatrix, _layerMat, userNode._matrix);
     userNode._renderFlag &= ~(RenderFlow.FLAG_TRANSFORM | RenderFlow.FLAG_BREAK_FLOW);
     RenderFlow.visitRootNode(userNode);
     userNode._renderFlag |= RenderFlow.FLAG_BREAK_FLOW;
@@ -297,7 +297,7 @@ export default class TmxAssembler extends Assembler {
         let texGrids = _comp._texGrids;
         let tiles = _comp._tiles;
         let texIdToMatIdx = _comp._texIdToMatIndex;
-        let mats = _comp.sharedMaterials;
+        let mats = _comp._materials;
     
         let vertices = _comp._vertices;
         let rowData, col, cols, row, rows, colData, tileSize, grid = null, gid = 0;
@@ -435,9 +435,9 @@ export default class TmxAssembler extends Assembler {
 
     fillByTiledNode (tiledNode, vbuf, uintbuf, left, right, top, bottom) {
         tiledNode._updateLocalMatrix();
-        mat4.copy(_mat4_temp, tiledNode._matrix);
-        vec3.set(_vec3_temp, -(left + _moveX), -(bottom + _moveY), 0);
-        mat4.translate(_mat4_temp, _mat4_temp, _vec3_temp);
+        Mat4.copy(_mat4_temp, tiledNode._matrix);
+        Vec3.set(_vec3_temp, -(left + _moveX), -(bottom + _moveY), 0);
+        Mat4.transform(_mat4_temp, _mat4_temp, _vec3_temp);
         let m = _mat4_temp.m;
         let a = m[0];
         let b = m[1];

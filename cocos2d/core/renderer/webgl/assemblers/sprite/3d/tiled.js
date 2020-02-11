@@ -23,13 +23,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import Vec3 from '../../../../../value-types/vec3';
+
 const Assembler3D = require('../../../../assembler-3d');
 const TiledAssembler = require('../2d/tiled');
-const vec3 = cc.vmath.vec3;
 
 let vec3_temps = [];
 for (let i = 0; i < 4; i++) {
-    vec3_temps.push(vec3.create());
+    vec3_temps.push(new Vec3);
 }
 
 export default class TiledAssembler3D extends TiledAssembler {
@@ -52,14 +53,14 @@ cc.js.mixin(TiledAssembler3D.prototype, Assembler3D, {
                 x = localX[xindex];
                 x1 = localX[xindex + 1];
 
-                vec3.set(vec3_temps[0], x, y, 0);
-                vec3.set(vec3_temps[1], x1, y, 0);
-                vec3.set(vec3_temps[2], x, y1, 0);
-                vec3.set(vec3_temps[3], x1, y1, 0);
+                Vec3.set(vec3_temps[0], x, y, 0);
+                Vec3.set(vec3_temps[1], x1, y, 0);
+                Vec3.set(vec3_temps[2], x, y1, 0);
+                Vec3.set(vec3_temps[3], x1, y1, 0);
 
                 for (let i = 0; i < 4; i++) {
                     let vec3_temp = vec3_temps[i];
-                    vec3.transformMat4(vec3_temp, vec3_temp, matrix);
+                    Vec3.transformMat4(vec3_temp, vec3_temp, matrix);
                     let offset = i * 6;
                     world[vertexOffset + offset] = vec3_temp.x;
                     world[vertexOffset + offset + 1] = vec3_temp.y;

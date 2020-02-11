@@ -39,7 +39,8 @@ const FontLetterDefinition = cc.BitmapFont.FontLetterDefinition;
 const FontAtlas = cc.BitmapFont.FontAtlas;
 
 const WHITE = cc.Color.WHITE;
-const space = 2;
+const space = 0;
+const bleed = 2;
 const _invisibleAlpha = (1 / 255).toFixed(3);
 
 function LetterTexture(char, labelInfo) {
@@ -69,9 +70,10 @@ LetterTexture.prototype = {
         this._canvas = this._data.canvas;
         this._context = this._data.context;
         this._context.font = this._labelInfo.fontDesc;
-        let width = textUtils.safeMeasureText(this._context, this._char);
-        this._width = parseFloat(width.toFixed(2)) + this._labelInfo.margin * 2;
-        this._height = (1 + textUtils.BASELINE_RATIO) * this._labelInfo.fontSize + this._labelInfo.margin * 2;
+        let width = textUtils.safeMeasureText(this._context, this._char, this._labelInfo.fontDesc);
+        let blank = this._labelInfo.margin * 2 + bleed;
+        this._width = parseFloat(width.toFixed(2)) + blank;
+        this._height = (1 + textUtils.BASELINE_RATIO) * this._labelInfo.fontSize + blank;
         this._offsetY = - (this._labelInfo.fontSize * textUtils.BASELINE_RATIO) / 2;
 
         if (this._canvas.width !== this._width) {
@@ -105,7 +107,7 @@ LetterTexture.prototype = {
         //use round for line join to avoid sharp intersect point
         context.lineJoin = 'round';
         context.fillStyle = `rgba(${color.r}, ${color.g}, ${color.b}, 1)`;
-        if (labelInfo.isOutlined) {
+        if (labelInfo.isOutlined && labelInfo.margin > 0) {
             let strokeColor = labelInfo.out || WHITE;
             context.strokeStyle = `rgba(${strokeColor.r}, ${strokeColor.g}, ${strokeColor.b}, ${strokeColor.a / 255})`;
             context.lineWidth = labelInfo.margin * 2;
@@ -163,13 +165,13 @@ cc.js.mixin(LetterAtlas.prototype, {
         this._dirty = true;
         
         let letter = new FontLetterDefinition();
-        letter.u = this._x;
-        letter.v = this._y;
+        letter.u = this._x + bleed/2;
+        letter.v = this._y + bleed/2;
         letter.texture = this._fontDefDictionary._texture;
         letter.valid = true;
-        letter.w = letterTexture._width;
-        letter.h = letterTexture._height;
-        letter.xAdvance = letterTexture._width;
+        letter.w = letterTexture._width - bleed;
+        letter.h = letterTexture._height - bleed;
+        letter.xAdvance = letter.w;
         letter.offsetY = letterTexture._offsetY;
 
         this._x += width + space;
@@ -248,7 +250,7 @@ function computeHash (labelInfo) {
     let hashData = '';
     let color = labelInfo.color.toHEX("#rrggbb");
     let out = '';
-    if (labelInfo.isOutlined) {
+    if (labelInfo.isOutlined && labelInfo.margin > 0) {
         out = out + labelInfo.margin + labelInfo.out.toHEX("#rrggbb");
     };
     

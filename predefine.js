@@ -162,6 +162,13 @@ if (CC_BUILD) {
     _global.CC_JSB = CC_JSB;
     _global.CC_NATIVERENDERER = CC_NATIVERENDERER;
     _global.CC_SUPPORT_JIT = CC_SUPPORT_JIT;
+    _global.CC_PHYSICS_BUILTIN = CC_PHYSICS_BUILTIN;
+    _global.CC_PHYSICS_CANNON = CC_PHYSICS_CANNON;
+    _global.CC_EDITOR = CC_EDITOR;
+    _global.CC_PREVIEW = CC_PREVIEW;
+    _global.CC_TEST = CC_TEST;
+    _global.CC_RUNTIME = CC_RUNTIME;
+    _global.CC_JSB = CC_JSB;
 }
 else {
     defineMacro('CC_DEV', true);    // (CC_EDITOR && !CC_BUILD) || CC_PREVIEW || CC_TEST
@@ -169,13 +176,15 @@ else {
     defineMacro('CC_JSB', defined('jsb'));
     defineMacro('CC_NATIVERENDERER', defined('jsb'));
     defineMacro('CC_SUPPORT_JIT', true);
+    defineMacro('CC_PHYSICS_BUILTIN', false);
+    defineMacro('CC_PHYSICS_CANNON', true);
+    defineMacro('CC_EDITOR', defined('Editor') && defined('process') && ('electron' in process.versions));
+    defineMacro('CC_PREVIEW', !CC_EDITOR);
+    defineMacro('CC_TEST', defined('tap') || defined('QUnit'));
+    defineMacro('CC_RUNTIME', 'function' === typeof loadRuntime);
+    defineMacro('CC_JSB', defined('jsb') && !CC_RUNTIME);
 }
-// defined in the runtime
-defineMacro('CC_TEST', defined('tap') || defined('QUnit'));
-defineMacro('CC_EDITOR', defined('Editor') && defined('process') && ('electron' in process.versions));
-defineMacro('CC_PREVIEW', !CC_EDITOR);
-defineMacro('CC_RUNTIME', 'function' === typeof loadRuntime);
-defineMacro('CC_JSB', defined('jsb') && !CC_RUNTIME);
+
 // deprecated 
 const WECHATGAMESUB = !!(defined('wx') && wx.getSharedCanvas);
 const WECHATGAME = !!(defined('wx') && (wx.getSystemInfoSync || wx.getSharedCanvas));

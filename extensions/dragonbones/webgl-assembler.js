@@ -24,16 +24,17 @@
  ****************************************************************************/
 
 import Assembler from '../../cocos2d/core/renderer/assembler';
+import Mat4 from '../../cocos2d/core/value-types/mat4';
 
 const Armature = require('./ArmatureDisplay');
 const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
 const gfx = cc.gfx;
-const mat4 = cc.vmath.mat4;
 const NEED_COLOR = 0x01;
 const NEED_BATCH = 0x10;
 
 let _boneColor = cc.color(255, 0, 0, 255);
 let _slotColor = cc.color(0, 0, 255, 255);
+let _originColor = cc.color(0, 255, 0, 255);
 
 let _nodeR, _nodeG, _nodeB, _nodeA,
     _premultipliedAlpha, _multiply,
@@ -70,30 +71,28 @@ function _getSlotMaterial (tex, blendMode) {
     }
 
     let useModel = !_comp.enableBatch;
-    // Add useModel flag due to if pre same db useModel but next db no useModel,
-    // then next db will multiply model matrix more than once.
-    let key = tex.getId() + src + dst + useModel;
-    let baseMaterial = _comp.sharedMaterials[0];
+    let baseMaterial = _comp._materials[0];
     if (!baseMaterial) {
         return null;
     }
     let materialCache = _comp._materialCache;
 
+    // The key use to find corresponding material
+    let key = tex.getId() + src + dst + useModel;
     let material = materialCache[key];
     if (!material) {
-        let baseKey = baseMaterial._hash;
-        if (!materialCache[baseKey]) {
+        if (!materialCache.baseMaterial) {
             material = baseMaterial;
+            materialCache.baseMaterial = baseMaterial;
         } else {
-            material = new cc.Material();
-            material.copy(baseMaterial);
+            material = cc.MaterialVariant.create(baseMaterial);
         }
 
         material.define('CC_USE_MODEL', useModel);
         material.setProperty('texture', tex);
 
         // update blend function
-        material.effect.setBlend(
+        material.setBlend(
             true,
             gfx.BLEND_FUNC_ADD,
             src, dst,
@@ -101,11 +100,6 @@ function _getSlotMaterial (tex, blendMode) {
             src, dst
         );
         materialCache[key] = material;
-        material.updateHash(key);
-    }
-    else if (material.texture !== tex) {
-        material.setProperty('texture', tex);
-        material.updateHash(key);
     }
     return material;
 }
@@ -142,7 +136,7 @@ export default class ArmatureAssembler extends Assembler {
             if (parentMat) {
                 slot._mulMat(slot._worldMatrix, parentMat, slot._matrix);
             } else {
-                mat4.copy(slot._worldMatrix, slot._matrix);
+                Mat4.copy(slot._worldMatrix, slot._matrix);
             }
 
             if (slot.childArmature) {
@@ -155,7 +149,7 @@ export default class ArmatureAssembler extends Assembler {
                 continue;
             }
 
-            if (_mustFlush || material._hash !== _renderer.material._hash) {
+            if (_mustFlush || material.getHash() !== _renderer.material.getHash()) {
                 _mustFlush = false;
                 _renderer._flush();
                 _renderer.node = _node;
@@ -240,7 +234,7 @@ export default class ArmatureAssembler extends Assembler {
         for (let i = 0, n = segments.length; i < n; i++) {
             let segInfo = segments[i];
             material = _getSlotMaterial(segInfo.tex, segInfo.blendMode);
-            if (_mustFlush || material._hash !== _renderer.material._hash) {
+            if (_mustFlush || material.getHash() !== _renderer.material.getHash()) {
                 _mustFlush = false;
                 _renderer._flush();
                 _renderer.node = _node;
@@ -346,22 +340,37 @@ export default class ArmatureAssembler extends Assembler {
                     let bone =  bones[i];
                     let boneLength = Math.max(bone.boneData.length, 5);
                     let startX = bone.globalTransformMatrix.tx;
-                    let startY = -bone.globalTransformMatrix.ty;
+                    let startY = bone.globalTransformMatrix.ty;
                     let endX = startX + bone.globalTransformMatrix.a * boneLength;
-                    let endY = startY - bone.globalTransformMatrix.b * boneLength;
+                    let endY = startY + bone.globalTransformMatrix.b * boneLength;
 
                     graphics.moveTo(startX, startY);
                     graphics.lineTo(endX, endY);
                     graphics.stroke();
+
+                    // Bone origins.
+                    graphics.circle(startX, startY, Math.PI * 2);
+                    graphics.fill();
+                    if (i === 0) {
+                        graphics.fillColor = _originColor;
+                    }
                 }
             }
         }
         
+        // sync attached node matrix
+        renderer.worldMatDirty++;
+        comp.attachUtil._syncAttachedNode();
+
         // Clear temp var.
         _node = undefined;
         _buffer = undefined;
         _renderer = undefined;
         _comp = undefined;
+    }
+
+    postFillBuffers (comp, renderer) {
+        renderer.worldMatDirty--;
     }
 }
 

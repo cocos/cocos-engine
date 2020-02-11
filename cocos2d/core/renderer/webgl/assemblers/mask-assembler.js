@@ -122,10 +122,10 @@ function applyAreaMask (mask, renderer) {
     let writeMask = ref;
     let failOp = mask.inverted ? gfx.STENCIL_OP_ZERO : gfx.STENCIL_OP_REPLACE;
 
-    applyStencil(mask.sharedMaterials[0], func, failOp, ref, stencilMask, writeMask);
+    applyStencil(mask._materials[0], func, failOp, ref, stencilMask, writeMask);
 
     // vertex buffer
-    renderer.material = mask.sharedMaterials[0];
+    renderer.material = mask._materials[0];
 
     if (mask._type === Mask.Type.IMAGE_STENCIL) {
         renderer.node = renderer._dummyNode;
@@ -161,7 +161,7 @@ export class MaskAssembler  extends SimpleSpriteAssembler {
             }
         }
         else {
-            mask._graphics.setMaterial(0, mask.sharedMaterials[0]);
+            mask._graphics.setMaterial(0, mask._materials[0]);
             GraphicsAssembler.prototype.updateRenderData.call(mask._graphics._assembler, mask._graphics, mask._graphics);
         }
     }

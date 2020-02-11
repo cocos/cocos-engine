@@ -84,6 +84,8 @@ let LabelOutline = cc.Class({
                 return this._width;
             },
             set: function (value) {
+                if (this._width === value) return;
+
                 this._width = value;
                 this._updateRenderData();
             },
@@ -102,7 +104,7 @@ let LabelOutline = cc.Class({
     _updateRenderData () {
         let label = this.node.getComponent(cc.Label);
         if (label) {
-            label.markForRender(true);
+            label.setVertsDirty();
         }
     }
 

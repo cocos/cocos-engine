@@ -997,6 +997,7 @@ cc.RotateBy = cc.Class({
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
         this._startAngle = target.angle;
+        this._deltaAngle *= -1;
     },
 
     update:function (dt) {
@@ -1007,7 +1008,8 @@ cc.RotateBy = cc.Class({
     },
 
     reverse:function () {
-        var action = new cc.RotateBy(this._duration, -this._deltaAngle);
+        var action = new cc.RotateBy();
+        action.initWithDuration(this._duration, -this._deltaAngle);
         this._cloneDecoration(action);
         this._reverseEaseList(action);
         return action;

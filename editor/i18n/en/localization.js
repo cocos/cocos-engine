@@ -113,6 +113,10 @@ module.exports = {
             "line_height": "Line height, in points",
             "overflow": "Text layout modes: \n 1. CLAMP: text nodes outside the bounding box will be truncated \n 2. SHRINK: automatically shrink text box according to the constraint node \n 3. RESIZE: Automatically updates the Node based on heightof the text.",
             "wrap": "Wrap text?",
+            'bold': 'Enable bold',
+            'italic': 'Enable italic',
+            'underline': 'Enable underline',
+            'underline_height': 'Height of underline',
             "font": "What font to use",
             "system_font": "Whether to use the system default font",
             'cacheMode': 'The text cache mode includes the following three types: \n 1. NONE : Do not do any caching, text content is drawn once. \n 2. BITMAP: Add text as a static image to the dynamic atlas for batch merging, but not frequently dynamically Text content \n 3. CHAR: Splits text into characters and caches characters into character atlas, suitable for text content with repeated and frequently updated character content',
@@ -317,6 +321,11 @@ module.exports = {
             'category': 'Collider component category',
             'mask': 'The collider mask can collide with this collider'
         },
+        'collider3D': {
+            'center': 'The center point of the collider',
+            'size': 'The size of the box, in local space',
+            'radius': 'The radius of the sphere',
+        },
         'particle_system': {
             'preview': 'Play particle in edit mode',
             'custom': 'If set custom to true, then use custom properties insteadof read particle file',
@@ -358,7 +367,7 @@ module.exports = {
             'type': 'The mask type',
             'spriteFrame': 'The mask image',
             'inverted': 'The Reverse mask (Not supported Canvas Mode)',
-            'alphaThreshold': 'The alpha threshold，The content is drawn only where the stencil have pixel with alpha greater than the alphaThreshold (Not supported Canvas Mode)',
+            'alphaThreshold': 'The alpha threshold，The content is drawn only where the stencil have pixel with alpha greater than or equal to the alphaThreshold (Not supported Canvas Mode)',
             'segements': 'The segements for ellipse mask'
         },
         'physics': {
@@ -432,5 +441,8 @@ module.exports = {
         'skeleton_animation': {
             'search_animation_clips': 'Search Animation Clips',
         },
+        'attach_util': {
+            "generate_attached_node": "Generate Attached Node"
+        }
     }
 };

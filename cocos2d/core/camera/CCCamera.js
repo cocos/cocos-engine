@@ -24,12 +24,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+import { Mat4, Vec2, Vec3 } from '../value-types';
+import { Ray } from '../geom-utils';
+
 const AffineTrans = require('../utils/affine-transform');
 const renderer = require('../renderer/index');
 const RenderFlow = require('../renderer/render-flow');
 const game = require('../CCGame');
 
-import geomUtils from '../geom-utils';
 let RendererCamera = null;
 if (CC_JSB && CC_NATIVERENDERER) {
     RendererCamera = window.renderer.Camera;
@@ -37,12 +39,8 @@ if (CC_JSB && CC_NATIVERENDERER) {
     RendererCamera = require('../../renderer/scene/camera');
 }
 
-const mat4 = cc.vmath.mat4;
-const vec2 = cc.vmath.vec2;
-const vec3 = cc.vmath.vec3;
-
-let _mat4_temp_1 = mat4.create();
-let _mat4_temp_2 = mat4.create();
+let _mat4_temp_1 = cc.mat4();
+let _mat4_temp_2 = cc.mat4();
 
 let _v3_temp_1 = cc.v3();
 let _v3_temp_2 = cc.v3();
@@ -151,6 +149,7 @@ let Camera = cc.Class({
         _ortho: true,
         _rect: cc.rect(0, 0, 1, 1),
         _renderStages: 1,
+        _alignWithScreen: true,
 
         /**
          * !#en
@@ -395,6 +394,20 @@ let Camera = cc.Class({
             tooltip: CC_DEV && 'i18n:COMPONENT.camera.renderStages',
         },
 
+        /**
+         * !#en Whether auto align camera viewport to screen
+         * !#zh 是否自动将摄像机的视口对准屏幕
+         * @property {Boolean} alignWithScreen
+         */
+        alignWithScreen: {
+            get () {
+                return this._alignWithScreen;
+            },
+            set (v) {
+                this._alignWithScreen = v;
+            }
+        },
+
         _is3D: {
             get () {
                 return this.node && this.node._is3DNode;
@@ -584,24 +597,24 @@ let Camera = cc.Class({
 
     /**
      * !#en
-     * Get the screen to world matrix, only support 2D camera.
+     * Get the screen to world matrix, only support 2D camera which alignWithScreen is true.
      * !#zh
-     * 获取屏幕坐标系到世界坐标系的矩阵，只适用于 2D 摄像机。
+     * 获取屏幕坐标系到世界坐标系的矩阵，只适用于 alignWithScreen 为 true 的 2D 摄像机。
      * @method getScreenToWorldMatrix2D
      * @param {Mat4} out - the matrix to receive the result
      * @return {Mat4}
      */
     getScreenToWorldMatrix2D (out) {
         this.getWorldToScreenMatrix2D(out);
-        mat4.invert(out, out);
+        Mat4.invert(out, out);
         return out;
     },
 
     /**
      * !#en
-     * Get the world to camera matrix, only support 2D camera.
+     * Get the world to camera matrix, only support 2D camera which alignWithScreen is true.
      * !#zh
-     * 获取世界坐标系到摄像机坐标系的矩阵，只适用于 2D 摄像机。
+     * 获取世界坐标系到摄像机坐标系的矩阵，只适用于 alignWithScreen 为 true 的 2D 摄像机。
      * @method getWorldToScreenMatrix2D
      * @param {Mat4} out - the matrix to receive the result
      * @return {Mat4}
@@ -624,7 +637,7 @@ let Camera = cc.Class({
         _mat4_temp_1m[13] = center.y - (_mat4_temp_1m[1] * m12 + _mat4_temp_1m[5] * m13);
 
         if (out !== _mat4_temp_1) {
-            mat4.copy(out, _mat4_temp_1);
+            Mat4.copy(out, _mat4_temp_1);
         }
         return out;
     },
@@ -647,7 +660,7 @@ let Camera = cc.Class({
         else {
             out = out || new cc.Vec2();
             this.getScreenToWorldMatrix2D(_mat4_temp_1);
-            vec2.transformMat4(out, screenPosition, _mat4_temp_1);
+            Vec2.transformMat4(out, screenPosition, _mat4_temp_1);
         }
         return out;
     },
@@ -670,7 +683,7 @@ let Camera = cc.Class({
         else {
             out = out || new cc.Vec2();
             this.getWorldToScreenMatrix2D(_mat4_temp_1);
-            vec2.transformMat4(out, worldPosition, _mat4_temp_1);
+            Vec2.transformMat4(out, worldPosition, _mat4_temp_1);
         }
         
         return out;
@@ -686,20 +699,20 @@ let Camera = cc.Class({
      * @return {Ray}
      */
     getRay (screenPos) {
-        if (!geomUtils) return screenPos;
+        if (!cc.geomUtils) return screenPos;
         
-        vec3.set(_v3_temp_3, screenPos.x, screenPos.y, 1);
+        Vec3.set(_v3_temp_3, screenPos.x, screenPos.y, 1);
         this._camera.screenToWorld(_v3_temp_2, _v3_temp_3, cc.visibleRect.width, cc.visibleRect.height);
 
         if (this.ortho) {
-            vec3.set(_v3_temp_3, screenPos.x, screenPos.y, -1);
+            Vec3.set(_v3_temp_3, screenPos.x, screenPos.y, -1);
             this._camera.screenToWorld(_v3_temp_1, _v3_temp_3, cc.visibleRect.width, cc.visibleRect.height);
         }
         else {
             this.node.getWorldPosition(_v3_temp_1);
         }
 
-        return geomUtils.Ray.fromPoints(geomUtils.Ray.create(), _v3_temp_1, _v3_temp_2);
+        return Ray.fromPoints(new Ray(), _v3_temp_1, _v3_temp_2);
     },
 
     /**
@@ -736,7 +749,7 @@ let Camera = cc.Class({
         }
     },
 
-    _layout2D () {
+    _onAlignWithScreen () {
         let height = cc.game.canvas.height / cc.view._scaleY;
 
         let targetTexture = this._targetTexture;
@@ -755,17 +768,21 @@ let Camera = cc.Class({
         fov = Math.atan(Math.tan(fov / 2) / this.zoomRatio) * 2;
         this._camera.setFov(fov);
         this._camera.setOrthoHeight(height / 2 / this.zoomRatio);
+        this.node.setRotation(0, 0, 0, 1);
     },
 
     beforeDraw () {
         if (!this._camera) return;
 
-        if (!this.node._is3DNode) {
-            this._layout2D();
+        if (this._alignWithScreen) {
+            this._onAlignWithScreen();
         }
         else {
-            this._camera.setFov(this._fov * cc.macro.RAD);
-            this._camera.setOrthoHeight(this._orthoSize);
+            let fov = this._fov * cc.macro.RAD;
+            fov = Math.atan(Math.tan(fov / 2) / this.zoomRatio) * 2;
+            this._camera.setFov(fov);
+
+            this._camera.setOrthoHeight(this._orthoSize / this.zoomRatio);
         }
 
         this._camera.dirty = true;
@@ -789,7 +806,7 @@ cc.js.mixin(Camera.prototype, {
         node.getWorldMatrix(_mat4_temp_2);
         if (this.containsNode(node)) {
             this.getWorldToCameraMatrix(_mat4_temp_1);
-            mat4.mul(_mat4_temp_2, _mat4_temp_2, _mat4_temp_1);
+            Mat4.mul(_mat4_temp_2, _mat4_temp_2, _mat4_temp_1);
         }
         AffineTrans.fromMat4(out, _mat4_temp_2);
         return out;

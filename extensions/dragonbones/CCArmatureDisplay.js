@@ -78,7 +78,7 @@ dragonBones.CCArmatureDisplay = cc.Class({
     convertToWorldSpace (point) {
         var newPos = this.convertToRootSpace(point);
         var ccNode = this.getRootNode();
-        var finalPos = ccNode.convertToWorldSpace(newPos);
+        var finalPos = ccNode.convertToWorldSpaceAR(newPos);
         return finalPos;
     },
 
