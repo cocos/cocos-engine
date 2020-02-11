@@ -270,7 +270,7 @@ export class RigidBodyComponent extends Component {
 
     protected get _assertOnload (): boolean {
         const r = this._isOnLoadCalled == 0;
-        if (r) { error('Physics Error: Please make sure that the node has been added to the scene'); }
+        if (r) { error('[Physics]: Please make sure that the node has been added to the scene'); }
         return !r;
     }
 

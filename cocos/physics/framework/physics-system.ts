@@ -4,7 +4,7 @@
 
 import { Vec3 } from '../../core/math';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
-import { createPhysicsWorld } from './instance';
+import { createPhysicsWorld, checkPhysicsModule } from './instance';
 import { director, Director } from '../../core/director';
 import { System } from '../../core/components';
 import { PhysicMaterial } from './assets/physic-material';
@@ -129,7 +129,12 @@ export class PhysicsSystem extends System {
     //     this._deltaTime = 1 / this._frameRate;
     // }
 
-    static readonly instance: PhysicsSystem;
+    private static readonly _instance: PhysicsSystem;
+    static get instance () {
+        if (CC_DEBUG && checkPhysicsModule(PhysicsSystem._instance)) { return null as any; }
+        return PhysicsSystem._instance;
+    }
+
     static readonly ID: 'physics';
 
     readonly physicsWorld: IPhysicsWorld;
@@ -254,8 +259,10 @@ export class PhysicsSystem extends System {
     }
 }
 
-director.on(Director.EVENT_INIT, function () {
-    const sys = new cc.PhysicsSystem();
-    cc.PhysicsSystem.instance = sys;
-    director.registerSystem(PhysicsSystem.ID, sys, 0);
-});
+if (CC_PHYSICS_BUILTIN || CC_PHYSICS_CANNON || CC_PHYSICS_AMMO) {
+    director.on(Director.EVENT_INIT, function () {
+        const sys = new cc.PhysicsSystem();
+        cc.PhysicsSystem._instance = sys;
+        director.registerSystem(PhysicsSystem.ID, sys, 0);
+    });
+}
