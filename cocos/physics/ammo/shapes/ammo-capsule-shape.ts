@@ -1,5 +1,5 @@
 import Ammo from '@cocos/ammo';
-import { Vec3 } from "../../../core";
+import { Vec3, absMaxComponent } from "../../../core";
 import { AmmoShape } from "./ammo-shape";
 import { CapsuleColliderComponent } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3 } from '../ammo-util';
@@ -19,14 +19,13 @@ export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
 
     set radius (radius: number) {
         const ws = this._collider.node.worldScale;
-        const max_sp = Math.abs(Math.max(Math.max(ws.x, ws.y), ws.z));
-        v3_0.set(radius, radius, radius);
-        v3_0.multiplyScalar(max_sp * 2);
-        cocos2AmmoVec3(this.scale, v3_0);
-        this._btShape.setLocalScaling(this.scale);
-        if (this._btCompound) {
-            this._btCompound.updateChildTransform(this.index, this.transform, true);
-        }
+        const s = absMaxComponent(ws);
+        const wr = this.radius * Math.abs(s);
+        const wh = this.height * Math.abs(ws.y);
+        let h = wh - wr * 2;
+        if (h < 0) h = 0;
+        const halfH = h / 2;
+        // this.btCapsule
     }
 
     get btCapsule () {
@@ -39,7 +38,7 @@ export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
 
     constructor (radius: number, height: number) {
         super(AmmoBroadphaseNativeTypes.CAPSULE_SHAPE_PROXYTYPE);
-        this._btShape = new Ammo.btCapsuleShape(radius, height);
+        this._btShape = new Ammo.btCapsuleShape(0.5, 1);
     }
 
     onLoad () {

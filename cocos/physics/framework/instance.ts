@@ -30,11 +30,11 @@ export function createSphereShape (radius: number): ISphereShape {
 }
 
 export function createCapsuleShape (radius = 0.5, height = 2, dir = 1): ICapsuleShape {
-    if (CC_PHYSICS_BUILTIN) {
+    if (CC_PHYSICS_BUILTIN || CC_PHYSICS_AMMO) {
         if (CC_DEBUG && checkPhysicsModule(CapsuleShape)) { return null as any; }
         return new CapsuleShape(radius, height, dir) as ICapsuleShape;
     } else {
-        warn('[v1.0.3][Physics]: Currently only builtin support capsule collider');
+        warn('[v1.0.3][Physics]: Currently cannon.js unsupport capsule collider');
         /** apater */
         return {
             radius: radius, height: height, direction: dir,
