@@ -9,23 +9,42 @@ import Pool from '../../utils/pool';
  * }
  */
 class MaterialPool extends Pool {
+    // default disabled material pool
+    enabled = false;
+    
     _pool = {};
 
     get (exampleMat, renderComponent) {
         let pool = this._pool;
 
+        if (exampleMat instanceof cc.MaterialVariant) {
+            if (exampleMat._owner) {
+                if (exampleMat._owner === renderComponent) {
+                    return exampleMat;
+                }
+                else {
+                    exampleMat = exampleMat.material;
+                }
+            }
+            else {
+                exampleMat._owner = renderComponent;
+                return exampleMat;
+            }
+        }
+
         let instance;
-        if (!CC_EDITOR && this.enabled) {
+        if (this.enabled) {
             let uuid = exampleMat.effectAsset._uuid;
             if (pool[uuid]) {
-                let key = utils.serializeDefines(exampleMat._effect._defines);
+                let key = 
+                    utils.serializeDefines(exampleMat._effect._defines) +
+                    utils.serializeTechniques(exampleMat._effect._techniques);
                 instance = pool[uuid][key] && pool[uuid][key].pop();
             }
         }
     
         if (!instance) {
-            instance = new cc.Material();
-            instance.copy(exampleMat);
+            instance = new cc.MaterialVariant(exampleMat);
             instance._name = exampleMat._name + ' (Instance)';
             instance._uuid = exampleMat._uuid;
         }
@@ -39,7 +58,7 @@ class MaterialPool extends Pool {
     }
     
     put (mat) {
-        if (!this.enabled) {
+        if (!this.enabled || !mat._owner) {
             return;
         }
 
@@ -48,7 +67,9 @@ class MaterialPool extends Pool {
         if (!pool[uuid]) {
             pool[uuid] = {};
         }
-        let key = utils.serializeDefines(mat._effect._defines);
+        let key = 
+            utils.serializeDefines(mat._effect._defines) +
+            utils.serializeTechniques(mat._effect._techniques);
         if (!pool[uuid][key]) {
             pool[uuid][key] = [];
         }

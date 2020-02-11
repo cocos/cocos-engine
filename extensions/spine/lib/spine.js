@@ -2422,8 +2422,10 @@ var spine;
         }
         AtlasAttachmentLoader.prototype.newRegionAttachment = function (skin, name, path) {
             var region = this.atlas.findRegion(path);
-            if (region == null)
-                throw new Error("Region not found in atlas: " + path + " (region attachment: " + name + ")");
+            if (region == null) {
+                // throw new Error("Region not found in atlas: " + path + " (region attachment: " + name + ")");
+                return null;
+            }
             region.renderObject = region;
             var attachment = new spine.RegionAttachment(name);
             attachment.setRegion(region);
@@ -2431,8 +2433,10 @@ var spine;
         };
         AtlasAttachmentLoader.prototype.newMeshAttachment = function (skin, name, path) {
             var region = this.atlas.findRegion(path);
-            if (region == null)
-                throw new Error("Region not found in atlas: " + path + " (mesh attachment: " + name + ")");
+            if (region == null) {
+                // throw new Error("Region not found in atlas: " + path + " (mesh attachment: " + name + ")");
+                return null;
+            }
             region.renderObject = region;
             var attachment = new spine.MeshAttachment(name);
             attachment.region = region;
@@ -6084,8 +6088,10 @@ var spine;
                         for (var timelineName in slotMap) {
                             var timelineMap = slotMap[timelineName];
                             var attachment = skin.getAttachment(slotIndex, timelineName);
-                            if (attachment == null)
-                                throw new Error("Deform attachment not found: " + timelineMap.name);
+                            if (attachment == null) {
+                                // throw new Error("Deform attachment not found: " + timelineMap.name);
+                                continue;
+                            }
                             var weighted = attachment.bones != null;
                             var vertices = attachment.vertices;
                             var deformLength = weighted ? vertices.length / 3 * 2 : vertices.length;

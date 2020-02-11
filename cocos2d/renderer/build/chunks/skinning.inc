@@ -6,17 +6,16 @@
   in vec4 a_joints;
 
   #if CC_USE_JOINTS_TEXTRUE
-    #pragma builtin(local)
     uniform SKINNING {
-      vec2 cc_jointsTextureSize;
-    }
+      vec2 jointsTextureSize;
+    };
     #pragma builtin(local)
-    uniform sampler2D cc_jointsTexture;
+    uniform sampler2D jointsTexture;
 
     #if CC_JOINTS_TEXTURE_FLOAT32
       mat4 getBoneMatrix(const in float i) {
-        float width = cc_jointsTextureSize.x;
-        float height = cc_jointsTextureSize.y;
+        float width = jointsTextureSize.x;
+        float height = jointsTextureSize.y;
         float j = i * 4.0;
         float x = mod(j, width);
         float y = floor(j / width);
@@ -26,10 +25,10 @@
 
         y = dy * (y + 0.5);
 
-        vec4 v1 = texture2D(cc_jointsTexture, vec2(dx * (x + 0.5), y));
-        vec4 v2 = texture2D(cc_jointsTexture, vec2(dx * (x + 1.5), y));
-        vec4 v3 = texture2D(cc_jointsTexture, vec2(dx * (x + 2.5), y));
-        vec4 v4 = texture2D(cc_jointsTexture, vec2(dx * (x + 3.5), y));
+        vec4 v1 = texture2D(jointsTexture, vec2(dx * (x + 0.5), y));
+        vec4 v2 = texture2D(jointsTexture, vec2(dx * (x + 1.5), y));
+        vec4 v3 = texture2D(jointsTexture, vec2(dx * (x + 2.5), y));
+        vec4 v4 = texture2D(jointsTexture, vec2(dx * (x + 3.5), y));
 
         return mat4(v1, v2, v3, v4);
       }
@@ -52,16 +51,16 @@
 
       vec4 decodevec4 (float dx, float x, float y) {
         return decodevec4(
-          texture2D(cc_jointsTexture, vec2(dx * (x + 0.5), y)),
-          texture2D(cc_jointsTexture, vec2(dx * (x + 1.5), y)),
-          texture2D(cc_jointsTexture, vec2(dx * (x + 2.5), y)),
-          texture2D(cc_jointsTexture, vec2(dx * (x + 3.5), y))
+          texture2D(jointsTexture, vec2(dx * (x + 0.5), y)),
+          texture2D(jointsTexture, vec2(dx * (x + 1.5), y)),
+          texture2D(jointsTexture, vec2(dx * (x + 2.5), y)),
+          texture2D(jointsTexture, vec2(dx * (x + 3.5), y))
         );
       }
 
       mat4 getBoneMatrix(const in float i) {
-        float width = cc_jointsTextureSize.x;
-        float height = cc_jointsTextureSize.y;
+        float width = jointsTextureSize.x;
+        float height = jointsTextureSize.y;
         float j = i * 16.0;
         float x = mod(j, width);
         float y = floor(j / width);
@@ -83,12 +82,12 @@
     #define CC_JOINT_MATRICES_SIZE 50
 
     #pragma builtin(local)
-    uniform CC_JOINT_MATRIX {
-      mat4 cc_jointMatrices[CC_JOINT_MATRICES_SIZE];
-    }
+    uniform JOINT_MATRIX {
+      mat4 jointMatrices[CC_JOINT_MATRICES_SIZE];
+    };
 
     mat4 getBoneMatrix(const in float i) {
-      return cc_jointMatrices[int(i)];
+      return jointMatrices[int(i)];
     }
   #endif
 

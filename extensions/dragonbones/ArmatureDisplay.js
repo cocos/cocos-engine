@@ -25,14 +25,13 @@
  ****************************************************************************/
 
 const RenderComponent = require('../../cocos2d/core/components/CCRenderComponent');
-const Material = require('../../cocos2d/core/assets/material/CCMaterial');
-
 let EventTarget = require('../../cocos2d/core/event/event-target');
-
-const Node = require('../../cocos2d/core/CCNode');
 const Graphics = require('../../cocos2d/core/graphics/graphics');
+const RenderFlow = require('../../cocos2d/core/renderer/render-flow');
+const FLAG_POST_RENDER = RenderFlow.FLAG_POST_RENDER;
 
 let ArmatureCache = require('./ArmatureCache');
+let AttachUtil = require('./AttachUtil');
 
 /**
  * @module dragonBones
@@ -96,7 +95,7 @@ let ArmatureDisplay = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/DragonBones',
-        //help: 'app://docs/html/components/dragonbones.html', // TODO help document of dragonBones
+        inspector: 'packages://inspector/inspectors/comps/skeleton2d.js',
     },
     
     statics: {
@@ -148,7 +147,6 @@ let ArmatureDisplay = cc.Class({
                 // parse the atlas asset data
                 this._parseDragonAtlasAsset();
                 this._refresh();
-                this._activateMaterial();
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.dragon_bones_atlas_asset'
         },
@@ -392,6 +390,7 @@ let ArmatureDisplay = cc.Class({
         this._eventTarget = new EventTarget();
         this._materialCache = {};
         this._inited = false;
+        this.attachUtil = new AttachUtil();
         this._factory = dragonBones.CCFactory.getInstance();
     },
 
@@ -408,28 +407,51 @@ let ArmatureDisplay = cc.Class({
         }
     },
 
+    // if change use batch mode, just clear material cache
     _updateBatch () {
         let baseMaterial = this.getMaterial(0);
         if (baseMaterial) {
             baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
         }
-        let cache = this._materialCache;
-        for (let mKey in cache) {
-            let material = cache[mKey];
-            if (material) {
-                material.define('CC_USE_MODEL', !this.enableBatch);
-            }
-        }
-    },
-
-    // override
-    setMaterial (index, material) {
-        this._super(index, material);
         this._materialCache = {};
     },
 
+    // override base class _updateMaterial to set define value and clear material cache
+    _updateMaterial () {
+        let baseMaterial = this.getMaterial(0);
+        if (baseMaterial) {
+            baseMaterial.define('CC_USE_MODEL', !this.enableBatch);
+            baseMaterial.define('USE_TEXTURE', true);
+        }
+        this._materialCache = {};
+    },
+
+    // override base class disableRender to clear post render flag
+    disableRender () {
+        this._super();
+        this.node._renderFlag &= ~FLAG_POST_RENDER;
+    },
+
+    // override base class disableRender to add post render flag
+    markForRender (enable) {
+        this._super(enable);
+        if (enable) {
+            this.node._renderFlag |= FLAG_POST_RENDER;
+        } else {
+            this.node._renderFlag &= ~FLAG_POST_RENDER;
+        }
+    },
+
+    _validateRender () {
+        let texture = this.dragonAtlasAsset && this.dragonAtlasAsset.texture;
+        if (!texture || !texture.loaded) {
+            this.disableRender();
+            return;
+        }
+        this._super();
+    },
+
     __preload () {
-        this._resetAssembler();
         this._init();
     },
 
@@ -437,10 +459,10 @@ let ArmatureDisplay = cc.Class({
         if (this._inited) return;
         this._inited = true;
         
+        this._resetAssembler();
+        this._activateMaterial();
         this._parseDragonAtlasAsset();
         this._refresh();
-
-        this._activateMaterial();
 
         let children = this.node.children;
         for (let i = 0, n = children.length; i < n; i++) {
@@ -458,6 +480,7 @@ let ArmatureDisplay = cc.Class({
      * !#zh 
      * 缓存龙骨数据的key值，换装的时会使用到该值，作为dragonbonesName使用
      * @method getArmatureKey
+     * @return {String}
      * @example
      * let factory = dragonBones.CCFactory.getInstance();
      * let needChangeSlot = needChangeArmature.armature().getSlot("changeSlotName");
@@ -481,7 +504,6 @@ let ArmatureDisplay = cc.Class({
      * armatureDisplay.setAnimationCacheMode(dragonBones.ArmatureDisplay.AnimationCacheMode.SHARED_CACHE);
      */
     setAnimationCacheMode (cacheMode) {
-        if (CC_JSB) return;
         if (this._preCacheMode !== cacheMode) {
             this._cacheMode = cacheMode;
             this._buildArmature();
@@ -492,6 +514,7 @@ let ArmatureDisplay = cc.Class({
      * !#en Whether in cached mode.
      * !#zh 当前是否处于缓存模式。
      * @method isAnimationCached
+     * @return {Boolean}
      */
     isAnimationCached () {
         if (CC_EDITOR) return false;
@@ -504,7 +527,6 @@ let ArmatureDisplay = cc.Class({
         if (this._armature && !this.isAnimationCached()) {
             this._factory._dragonBones.clock.add(this._armature);
         }
-        this._activateMaterial();
     },
 
     onDisable () {
@@ -620,43 +642,6 @@ let ArmatureDisplay = cc.Class({
         }
     },
 
-    _activateMaterial () {
-        let texture = this.dragonAtlasAsset && this.dragonAtlasAsset.texture;
-        if (!texture) {
-            this.disableRender();
-            return;
-        }
-
-        if (!texture.loaded) {
-            this.disableRender();
-            texture.once('load', this._activateMaterial, this);
-            return;
-        }
-
-        // Get material
-        let material = this.sharedMaterials[0];
-        if (!material) {
-            material = Material.getInstantiatedBuiltinMaterial('2d-sprite', this);
-        }
-        else {
-            material = Material.getInstantiatedMaterial(material, this);
-        }
-
-        material.define('CC_USE_MODEL', true);
-        material.define('USE_TEXTURE', true);
-        material.setProperty('texture', texture);
-        
-        this.setMaterial(0, material);
-        this._prepareToRender();
-    },
-
-    _prepareToRender () {
-        // only when component's onEnable function has been invoke, need to enable render
-        if (this.node && this.node._renderComponent == this) {
-            this.markForRender(true);
-        }
-    },
-
     _buildArmature () {
         if (!this.dragonAsset || !this.dragonAtlasAsset || !this.armatureName) return;
 
@@ -687,6 +672,7 @@ let ArmatureDisplay = cc.Class({
                 this._armatureCache = ArmatureCache.sharedCache;
             } else if (this._cacheMode === AnimationCacheMode.PRIVATE_CACHE) {
                 this._armatureCache = new ArmatureCache;
+                this._armatureCache.enablePrivateMode();
             }
         }
 
@@ -709,16 +695,29 @@ let ArmatureDisplay = cc.Class({
             this._displayProxy.setEventTarget(this._eventTarget);
             this._armature = this._displayProxy._armature;
             this._armature.animation.timeScale = this.timeScale;
+            // If change mode or armature, armature must insert into clock.
+            this._factory._dragonBones.clock.add(this._armature);
         }
 
         if (this._cacheMode !== AnimationCacheMode.REALTIME && this.debugBones) {
             cc.warn("Debug bones is invalid in cached mode");
         }
 
+        if (this._armature) {
+            let armatureData = this._armature.armatureData;
+            let aabb = armatureData.aabb;
+            this.node.setContentSize(aabb.width, aabb.height);
+        }
+
         this._updateBatch();
+        this.attachUtil.init(this);
+        this.attachUtil._associateAttachedNode();
+
         if (this.animationName) {
             this.playAnimation(this.animationName, this.playTimes);
         }
+
+        this.markForRender(true);
     },
 
     _parseDragonAtlasAsset () {
@@ -801,6 +800,9 @@ let ArmatureDisplay = cc.Class({
                 this._accTime = 0;
                 this._playCount = 0;
                 this._frameCache = cache;
+                if (this.attachUtil._hasAttachedNode()) {
+                    this._frameCache.enableCacheAttachedInfo();
+                }
                 this._frameCache.updateToFrame(0);
                 this._playing = true;
                 this._curFrame = this._frameCache.frames[0];

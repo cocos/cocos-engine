@@ -37,6 +37,7 @@ var HtmlTextParser = function() {
     this._specialSymbolArray.push([/&amp;/g, '&']);
     this._specialSymbolArray.push([/&quot;/g, '"']);
     this._specialSymbolArray.push([/&apos;/g, '\'']);
+    this._specialSymbolArray.push([/&nbsp;/g, ' ']);
 };
 
 HtmlTextParser.prototype = {

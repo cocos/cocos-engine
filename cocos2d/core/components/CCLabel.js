@@ -152,6 +152,10 @@ const CacheMode = cc.Enum({
     CHAR: 2,
 });
 
+const BOLD_FLAG = 1 << 0;
+const ITALIC_FLAG = 1 << 1;
+const UNDERLINE_FLAG = 1 << 2;
+
 /**
  * !#en The Label Component.
  * !#zh 文字标签组件
@@ -477,7 +481,7 @@ let Label = cc.Class({
                 if (this.cacheMode === oldValue) return;
                 
                 if (oldValue === CacheMode.BITMAP && !(this.font instanceof cc.BitmapFont)) {
-                    this._frame._resetDynamicAtlasFrame();
+                    this._frame && this._frame._resetDynamicAtlasFrame();
                 }
 
                 if (oldValue === CacheMode.CHAR) {
@@ -491,17 +495,91 @@ let Label = cc.Class({
             animatable: false
         },
 
-        _isBold: {
-            default: false,
-            serializable: false,
+        _styleFlags: 0,
+
+        /**
+         * !#en Whether enable bold.
+         * !#zh 是否启用黑体。
+         * @property {Boolean} enableBold
+         */
+        enableBold: {
+            get () {
+                return !!(this._styleFlags & BOLD_FLAG);
+            },
+            set (value) {
+                if (value) {
+                    this._styleFlags |= BOLD_FLAG;
+                } else {
+                    this._styleFlags &= ~BOLD_FLAG;
+                }
+
+                this.setVertsDirty();
+            },
+            animatable: false,
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.bold'
         },
-        _isItalic: {
-            default: false,
-            serializable: false,
+
+        /**
+         * !#en Whether enable italic.
+         * !#zh 是否启用黑体。
+         * @property {Boolean} enableItalic
+         */
+        enableItalic: {
+            get () {
+                return !!(this._styleFlags & ITALIC_FLAG);
+            },
+            set (value) {
+                if (value) {
+                    this._styleFlags |= ITALIC_FLAG;
+                } else {
+                    this._styleFlags &= ~ITALIC_FLAG;
+                }
+                
+                this.setVertsDirty();
+            },
+            animatable: false,
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.italic'
         },
-        _isUnderline: {
-            default: false,
-            serializable: false,
+
+        /**
+         * !#en Whether enable underline.
+         * !#zh 是否启用下划线。
+         * @property {Boolean} enableUnderline
+         */
+        enableUnderline: {
+            get () {
+                return !!(this._styleFlags & UNDERLINE_FLAG);
+            },
+            set (value) {
+                if (value) {
+                    this._styleFlags |= UNDERLINE_FLAG;
+                } else {
+                    this._styleFlags &= ~UNDERLINE_FLAG;
+                }
+
+                this.setVertsDirty();
+            },
+            animatable: false,
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.underline'
+        },
+
+        _underlineHeight: 0,
+        /**
+         * !#en The height of underline.
+         * !#zh 下划线高度。
+         * @property {Number} underlineHeight
+         */
+        underlineHeight: {
+            get () {
+                return this._underlineHeight;
+            },
+            set (value) {
+                if (this._underlineHeight === value) return;
+                
+                this._underlineHeight = value;
+                this.setVertsDirty();
+            },
+            tooltip: CC_DEV && 'i18n:COMPONENT.label.underline_height',
         },
     },
 
@@ -531,13 +609,18 @@ let Label = cc.Class({
             this.cacheMode = CacheMode.BITMAP;
             this._batchAsBitmap = false;
         }
+
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
+            // CacheMode is not supported in Canvas.
+            this.cacheMode = CacheMode.NONE;
+        }
     },
 
     onEnable () {
         this._super();
 
         // Keep track of Node size
-        this.node.on(cc.Node.EventType.SIZE_CHANGED, this.setVertsDirty, this);
+        this.node.on(cc.Node.EventType.SIZE_CHANGED, this._nodeSizeChanged, this);
         this.node.on(cc.Node.EventType.ANCHOR_CHANGED, this.setVertsDirty, this);
 
         this._forceUpdateRenderData();
@@ -545,7 +628,7 @@ let Label = cc.Class({
 
     onDisable () {
         this._super();
-        this.node.off(cc.Node.EventType.SIZE_CHANGED, this.setVertsDirty, this);
+        this.node.off(cc.Node.EventType.SIZE_CHANGED, this._nodeSizeChanged, this);
         this.node.off(cc.Node.EventType.ANCHOR_CHANGED, this.setVertsDirty, this);
     },
 
@@ -558,6 +641,15 @@ let Label = cc.Class({
             this._ttfTexture = null;
         }
         this._super();
+    },
+
+    _nodeSizeChanged () {
+        if (CC_EDITOR) return;
+        // Because the content size is automatically updated when overflow is NONE.
+        // And this will conflict with the alignment of the CCWidget.
+        if (this.overflow !== Overflow.NONE) {
+            this.setVertsDirty();
+        }
     },
 
     _updateColor () {
@@ -573,7 +665,7 @@ let Label = cc.Class({
             return;
         }
 
-        if (this.sharedMaterials[0]) {
+        if (this._materials[0]) {
             let font = this.font;
             if (font instanceof cc.BitmapFont) {
                 let spriteFrame = font.spriteFrame;
@@ -626,7 +718,7 @@ let Label = cc.Class({
                 this._frame = new LabelFrame();
             }
  
-            if (this.cacheMode === CacheMode.CHAR && cc.sys.browserType !== cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+            if (this.cacheMode === CacheMode.CHAR) {
                 this._letterTexture = this._assembler._getAssemblerData();
                 this._frame._refreshTexture(this._letterTexture);
             } else if (!this._ttfTexture) {
@@ -653,7 +745,7 @@ let Label = cc.Class({
 
     _updateMaterialWebgl () {
         if (!this._frame) return;
-        let material = this.sharedMaterials[0];
+        let material = this._materials[0];
         material && material.setProperty('texture', this._frame._texture);
     },
 
@@ -663,16 +755,34 @@ let Label = cc.Class({
         this._applyFontTexture();
     },
 
+    /**
+     * @deprecated `label._enableBold` is deprecated, use `label.enableBold = true` instead please.
+     */
     _enableBold (enabled) {
-        this._isBold = !!enabled;
+        if (CC_DEBUG) {
+            cc.warn('`label._enableBold` is deprecated, use `label.enableBold = true` instead please');
+        }
+        this.enableBold = !!enabled;
     },
 
+    /**
+     * @deprecated `label._enableItalics` is deprecated, use `label.enableItalics = true` instead please.
+     */
     _enableItalics (enabled) {
-        this._isItalic = !!enabled;
+        if (CC_DEBUG) {
+            cc.warn('`label._enableItalics` is deprecated, use `label.enableItalics = true` instead please');
+        }
+        this.enableItalic = !!enabled;
     },
 
+    /**
+     * @deprecated `label._enableUnderline` is deprecated, use `label.enableUnderline = true` instead please.
+     */
     _enableUnderline (enabled) {
-        this._isUnderline = !!enabled;
+        if (CC_DEBUG) {
+            cc.warn('`label._enableUnderline` is deprecated, use `label.enableUnderline = true` instead please');
+        }
+        this.enableUnderline = !!enabled;
     },
  });
 

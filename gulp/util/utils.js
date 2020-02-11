@@ -1,6 +1,6 @@
 
 const PLATFORM_MACROS = ['CC_EDITOR', 'CC_PREVIEW', 'CC_BUILD', 'CC_TEST'];
-const FLAGS = ['support_jit', 'jsb', 'runtime', 'debug', 'nativeRenderer', 'minigame'];
+const FLAGS = ['support_jit', 'jsb', 'runtime', 'debug', 'nativeRenderer', 'minigame', 'physics_builtin', 'physics_cannon'];
 
 // generate macros for uglify's global_defs
 // available platforms: 'editor' | 'preview' | 'build' | 'test'

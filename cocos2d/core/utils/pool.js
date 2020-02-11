@@ -1,6 +1,6 @@
 
 export default class Pool {
-    enabled = true;
+    enabled = false;
     count = 0;
     maxSize = 1024;
 

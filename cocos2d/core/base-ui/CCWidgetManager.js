@@ -24,7 +24,12 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var Event = require('../CCNode').EventType;
+var Event;
+
+// Support serializing widget in asset db, see cocos-creator/2d-tasks/issues/1894
+if (!CC_EDITOR || !Editor.isMainProcess) {
+  Event = require('../CCNode').EventType;
+}
 
 var TOP     = 1 << 0;
 var MID     = 1 << 1;   // vertical center
@@ -460,7 +465,9 @@ var widgetManager = cc._widgetManager = module.exports = {
         }
         else {
             if (cc.sys.isMobile) {
-                window.addEventListener('resize', this.onResized.bind(this));
+                let thisOnResized = this.onResized.bind(this);
+                window.addEventListener('resize', thisOnResized);
+                window.addEventListener('orientationchange', thisOnResized);
             }
             else {
                 cc.view.on('canvas-resize', this.onResized, this);

@@ -160,7 +160,7 @@ export default class TTFAssembler extends Assembler2D {
         _string = comp.string.toString();
         _fontSize = comp._fontSize;
         _drawFontSize = _fontSize;
-        _underlineThickness = _drawFontSize / 8;
+        _underlineThickness = comp.underlineHeight || _drawFontSize / 8;
         _overflow = comp.overflow;
         _canvasSize.width = comp.node.width;
         _canvasSize.height = comp.node.height;
@@ -169,9 +169,9 @@ export default class TTFAssembler extends Assembler2D {
         _hAlign = comp.horizontalAlign;
         _vAlign = comp.verticalAlign;
         _color = comp.node.color;
-        _enableBold = comp._isBold;
-        _enableItalic = comp._isItalic;
-        _enableUnderline = comp._isUnderline;
+        _enableBold = comp.enableBold;
+        _enableItalic = comp.enableItalic;
+        _enableUnderline = comp.enableUnderline;
 
         if (_overflow === Overflow.NONE) {
             _isWrapText = false;
@@ -219,6 +219,8 @@ export default class TTFAssembler extends Assembler2D {
             // free space in vertical direction
             let blank = drawStartY + _canvasPadding.height + _fontSize - _canvasSize.height;
             if (_vAlign === macro.VerticalTextAlignment.BOTTOM) {
+                // Unlike BMFont, needs to reserve space below.
+                blank += textUtils.BASELINE_RATIO / 2 * _fontSize;
                 // BOTTOM
                 firstLinelabelY -= blank;
             } else {
@@ -270,7 +272,7 @@ export default class TTFAssembler extends Assembler2D {
         let isMultiple = _splitedStrings.length > 1;
 
         //do real rendering
-        let measureText = this._measureText(_context);
+        let measureText = this._measureText(_context, _fontDesc);
 
         let drawTextPosX = 0, drawTextPosY = 0;
 
@@ -278,7 +280,7 @@ export default class TTFAssembler extends Assembler2D {
         if (_shadowComp) {
             this._setupShadow();
         }
-        if (_outlineComp) {
+        if (_outlineComp && _outlineComp.width > 0) {
             this._setupOutline();
         }
 
@@ -289,7 +291,7 @@ export default class TTFAssembler extends Assembler2D {
             if (_shadowComp) {
                 // multiple lines need to be drawn outline and fill text
                 if (isMultiple) {
-                    if (_outlineComp) {
+                    if (_outlineComp && _outlineComp.width > 0) {
                         _context.strokeText(_splitedStrings[i], drawTextPosX, drawTextPosY);
                     }
                     _context.fillText(_splitedStrings[i], drawTextPosX, drawTextPosY);
@@ -306,7 +308,7 @@ export default class TTFAssembler extends Assembler2D {
                 } else {
                     _drawUnderlinePos.x = startPosition.x;
                 }
-                _drawUnderlinePos.y = drawTextPosY;
+                _drawUnderlinePos.y = drawTextPosY + _drawFontSize / 8;
                 this._drawUnderline(_drawUnderlineWidth);
             }
         }
@@ -319,7 +321,7 @@ export default class TTFAssembler extends Assembler2D {
         for (let i = 0; i < _splitedStrings.length; ++i) {
             drawTextPosX = startPosition.x;
             drawTextPosY = startPosition.y + i * lineHeight;
-            if (_outlineComp) {
+            if (_outlineComp && _outlineComp.width > 0) {
                 _context.strokeText(_splitedStrings[i], drawTextPosX, drawTextPosY);
             }
             _context.fillText(_splitedStrings[i], drawTextPosX, drawTextPosY);
@@ -357,7 +359,7 @@ export default class TTFAssembler extends Assembler2D {
             let canvasSizeX = 0;
             let canvasSizeY = 0;
             for (let i = 0; i < paragraphedStrings.length; ++i) {
-                let paraLength = textUtils.safeMeasureText(_context, paragraphedStrings[i]);
+                let paraLength = textUtils.safeMeasureText(_context, paragraphedStrings[i], _fontDesc);
                 canvasSizeX = canvasSizeX > paraLength ? canvasSizeX : paraLength;
             }
             canvasSizeY = (_splitedStrings.length + textUtils.BASELINE_RATIO) * this._getLineHeight();
@@ -404,11 +406,11 @@ export default class TTFAssembler extends Assembler2D {
             _splitedStrings = [];
             let canvasWidthNoMargin = _nodeContentSize.width;
             for (let i = 0; i < paragraphedStrings.length; ++i) {
-                let allWidth = textUtils.safeMeasureText(_context, paragraphedStrings[i]);
+                let allWidth = textUtils.safeMeasureText(_context, paragraphedStrings[i], _fontDesc);
                 let textFragment = textUtils.fragmentText(paragraphedStrings[i],
                                                         allWidth,
                                                         canvasWidthNoMargin,
-                                                        this._measureText(_context));
+                                                        this._measureText(_context, _fontDesc));
                 _splitedStrings = _splitedStrings.concat(textFragment);
             }
         }
@@ -445,16 +447,16 @@ export default class TTFAssembler extends Assembler2D {
         let paragraphLength = [];
 
         for (let i = 0; i < paragraphedStrings.length; ++i) {
-            let width = textUtils.safeMeasureText(ctx, paragraphedStrings[i]);
+            let width = textUtils.safeMeasureText(ctx, paragraphedStrings[i], _fontDesc);
             paragraphLength.push(width);
         }
 
         return paragraphLength;
     }
 
-    _measureText (ctx) {
+    _measureText (ctx, fontDesc) {
         return function (string) {
-            return textUtils.safeMeasureText(ctx, string);
+            return textUtils.safeMeasureText(ctx, string, fontDesc);
         };
     }
 
@@ -465,7 +467,7 @@ export default class TTFAssembler extends Assembler2D {
         if (_overflow === Overflow.SHRINK) {
             let paragraphedStrings = _string.split('\n');
             let paragraphLength = this._calculateParagraphLength(paragraphedStrings, _context);
-
+            
             let i = 0;
             let totalHeight = 0;
             let maxLength = 0;
@@ -482,47 +484,49 @@ export default class TTFAssembler extends Assembler2D {
                 maxLength = canvasWidthNoMargin + 1;
                 let actualFontSize = _fontSize + 1;
                 let textFragment = "";
-                let tryDivideByTwo = true;
-                let startShrinkFontSize = actualFontSize | 0;
+                //let startShrinkFontSize = actualFontSize | 0;
+                let left = 0, right = actualFontSize | 0, mid = 0;
 
-                while (totalHeight > canvasHeightNoMargin || maxLength > canvasWidthNoMargin) {
-                    if (tryDivideByTwo) {
-                        actualFontSize = (startShrinkFontSize / 2) | 0;
-                    } else {
-                        actualFontSize = startShrinkFontSize - 1;
-                        startShrinkFontSize = actualFontSize;
-                    }
-                    if (actualFontSize <= 0) {
+                while (left < right) {
+                    mid = (left + right + 1) >> 1;
+
+                    if (mid <= 0) {
                         cc.logID(4003);
                         break;
                     }
-                    _fontSize = actualFontSize;
+
+                    _fontSize = mid;
                     _fontDesc = this._getFontDesc();
                     _context.font = _fontDesc;
 
                     totalHeight = 0;
                     for (i = 0; i < paragraphedStrings.length; ++i) {
                         let j = 0;
-                        let allWidth = textUtils.safeMeasureText(_context, paragraphedStrings[i]);
+                        let allWidth = textUtils.safeMeasureText(_context, paragraphedStrings[i], _fontDesc);
                         textFragment = textUtils.fragmentText(paragraphedStrings[i],
                                                             allWidth,
                                                             canvasWidthNoMargin,
-                                                            this._measureText(_context));
+                                                            this._measureText(_context, _fontDesc));
                         while (j < textFragment.length) {
-                            maxLength = textUtils.safeMeasureText(_context, textFragment[j]);
+                            maxLength = textUtils.safeMeasureText(_context, textFragment[j], _fontDesc);
                             totalHeight += this._getLineHeight();
                             ++j;
                         }
                     }
 
-                    if (tryDivideByTwo) {
-                        if (totalHeight > canvasHeightNoMargin) {
-                            startShrinkFontSize = actualFontSize | 0;
-                        } else {
-                            tryDivideByTwo = false;
-                            totalHeight = canvasHeightNoMargin + 1;
-                        }
+                    if (totalHeight > canvasHeightNoMargin) {
+                        right = mid - 1;
+                    } else {
+                        left = mid;
                     }
+                }
+
+                if (left === 0) {
+                    cc.logID(4003);
+                } else {
+                    _fontSize = left;
+                    _fontDesc = this._getFontDesc();
+                    _context.font = _fontDesc;
                 }
             }
             else {

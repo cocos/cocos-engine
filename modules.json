@@ -2,7 +2,14 @@
   {
     "name": "Core",
     "locked": true,
-    "entries": []
+    "entries": [],
+    "internal/resources": [
+      "builtin-2d-gray-sprite",
+      "builtin-2d-sprite",
+      "builtin-clear-stencil",
+      "builtin-unlit",
+      "builtin-2d-base"
+    ]
   },
   {
     "name": "Canvas",
@@ -112,7 +119,7 @@
     "name": "Geom Utils",
     "since": "2.1.0",
     "entries": [
-      "./cocos2d/core/geom-utils/index.js"
+      "./cocos2d/core/geom-utils/index.ts"
     ]
   },
 
@@ -244,6 +251,9 @@
     "entries": [
       "./extensions/spine/index.js"
     ],
+    "internal/resources": [
+      "builtin-2d-spine"
+    ],
     "dependencies": ["WebGL Renderer"]
   },
   {
@@ -325,7 +335,7 @@
     "name": "3D Primitive",
     "since": "2.1.1",
     "entries": [
-      "./cocos2d/core/3d/primitive/index.js"
+      "./cocos2d/core/3d/primitive/index.ts"
     ],
     "dependencies": ["3D"]
   },
@@ -349,5 +359,36 @@
       "./polyfill/typescript.js"
     ],
     "hide": true
+  },
+  {
+    "name": "3D Physics/cannon.js",
+    "since": "2.3.0",
+    "entries": [
+      "./cocos2d/core/3d/physics/exports/physics-cannon.ts",
+      "./cocos2d/core/3d/physics/exports/physics-framework.ts"
+    ],
+    "dependencies": ["3D"]
+  },
+  {
+    "name": "3D Physics/Builtin",
+    "since": "2.3.0",
+    "entries": [
+      "./cocos2d/core/3d/physics/exports/physics-builtin.ts",
+      "./cocos2d/core/3d/physics/exports/physics-framework.ts"
+    ],
+    "dependencies": ["3D"]
+  },
+  {
+    "name": "3D Particle",
+    "since": "2.3.0",
+    "entries": [
+      "./cocos2d/core/3d/particle/particle-system-3d.ts",
+      "./cocos2d/core/3d/particle/renderer/particle-system-3d-renderer.ts"
+    ],
+    "internal/resources": [
+      "builtin-3d-particle",
+      "builtin-3d-particle-trail"
+    ],
+    "dependencies": ["3D"]
   }
 ]

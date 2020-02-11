@@ -213,6 +213,7 @@ cc.screen = /** @lends cc.screen# */{
         let self = this;
         let touchTarget = cc.game.canvas || element;
         let fullScreenErrorEventName = this._fn.fullscreenerror;
+        if (typeof document[fullScreenErrorEventName] === "undefined") return;
         let touchEventName = this._touchEvent;
         
         function onFullScreenError () {

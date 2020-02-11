@@ -66,6 +66,7 @@ let SkeletonData = cc.Class({
                 return this._skeletonJson;
             },
             set: function (value) {
+                this.reset();
                 if (typeof(value) == "string") {
                     this._skeletonJson = JSON.parse(value);
                 } else {
@@ -75,7 +76,6 @@ let SkeletonData = cc.Class({
                 if (!this._uuid && value.skeleton) {
                     this._uuid = value.skeleton.hash;
                 }
-                this.reset();
             }
         },
 
@@ -191,6 +191,18 @@ let SkeletonData = cc.Class({
                 tex.once('load', loadedItem);
             }
         }
+    },
+
+    isTexturesLoaded () {
+        let textures = this.textures; 
+        let texsLen = textures.length;
+        for (let i = 0; i < texsLen; i++) {
+            let tex = textures[i];
+            if (!tex.loaded) {
+                return false;
+            }
+        }
+        return true;
     },
 
     /**

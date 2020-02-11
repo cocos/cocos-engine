@@ -5,8 +5,6 @@ let _atlasIndex = -1;
 
 let _maxAtlasCount = 5;
 let _textureSize = 2048;
-// Smaller frame is more likely to be affected by linear filter
-let _minFrameSize = 8;
 let _maxFrameSize = 512;
 let _textureBleeding = true;
 
@@ -116,13 +114,8 @@ let dynamicAtlasManager = {
      * !#zh 可以添加进图集的图片的最小尺寸。
      * @property minFrameSize
      * @type {Number}
+     * @deprecated
      */
-    get minFrameSize () {
-        return _minFrameSize;
-    },
-    set minFrameSize (value) {
-        _minFrameSize = value;
-    },
     
     /**
      * !#en Append a sprite frame into the dynamic atlas.
@@ -163,13 +156,23 @@ let dynamicAtlasManager = {
         _atlasIndex = -1;
     },
 
-    deleteAtlasTexture (spriteFrame) {
+    deleteAtlasSpriteFrame (spriteFrame) {
         if (!spriteFrame._original) return;
 
         let texture = spriteFrame._original._texture;
+        this.deleteAtlasTexture(texture);
+    },
+
+    deleteAtlasTexture (texture) {
         if (texture) {
-            for (let i = 0, l = _atlases.length; i < l; i++) {
+            for (let i = _atlases.length - 1; i >= 0; i--) {
                 _atlases[i].deleteInnerTexture(texture);
+                
+                if (_atlases[i].isEmpty()) {
+                    _atlases[i].destroy();
+                    _atlases.splice(i, 1);
+                    _atlasIndex--;
+                }
             }
         }
     },

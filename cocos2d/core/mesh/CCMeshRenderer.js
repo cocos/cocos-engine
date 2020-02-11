@@ -25,11 +25,11 @@
 
 import gfx from '../../renderer/gfx';
 import InputAssembler from '../../renderer/core/input-assembler';
-import geomUtils from '../geom-utils';
-import CustomProperties from '../assets/material/custom-properties';
+import Aabb from '../geom-utils/aabb';
 import { postLoadMesh } from '../utils/mesh-util';
-import vec3 from '../vmath/vec3';
-import mat4 from '../vmath/mat4';
+import Vec3 from '../value-types/vec3';
+import Mat4 from '../value-types/mat4';
+import MaterialVariant from '../assets/material/material-variant';
 
 const RenderComponent = require('../components/CCRenderComponent');
 const Mesh = require('./CCMesh');
@@ -201,8 +201,7 @@ let MeshRenderer = cc.Class({
     },
 
     ctor () {
-        this._boundingBox = geomUtils && geomUtils.Aabb.create();
-        this._customProperties = new cc.CustomProperties();
+        this._boundingBox = cc.geomUtils && new Aabb();
 
         if (CC_DEBUG) {
             this._debugDatas = {
@@ -217,6 +216,7 @@ let MeshRenderer = cc.Class({
         if (this._mesh && !this._mesh.loaded) {
             this.disableRender();
             this._mesh.once('load', () => {
+                if (!this.isValid) return;
                 this._setMesh(this._mesh);
                 this.markForRender(true);
             });
@@ -226,10 +226,8 @@ let MeshRenderer = cc.Class({
             this._setMesh(this._mesh);
         }
 
-        this._updateReceiveShadow();
-        this._updateCastShadow();
-        this._updateBoundingBox();
         this._updateRenderNode();
+        this._updateMaterial();
     },
 
     onDestroy () {
@@ -242,8 +240,8 @@ let MeshRenderer = cc.Class({
     },
 
     _setMesh (mesh) {
-        if (geomUtils && mesh) {
-            geomUtils.Aabb.fromPoints(this._boundingBox, mesh._minPos, mesh._maxPos);
+        if (cc.geomUtils && mesh) {
+            Aabb.fromPoints(this._boundingBox, mesh._minPos, mesh._maxPos);
         }
 
         if (this._mesh) {
@@ -260,14 +258,6 @@ let MeshRenderer = cc.Class({
         return Material.getBuiltinMaterial('unlit');
     },
 
-    _activateMaterial () {
-        let materials = this.sharedMaterials;
-        if (!materials[0]) {
-            let material = this._getDefaultMaterial();
-            materials[0] = material;
-        }
-    },
-
     _validateRender () {
         let mesh = this._mesh;
         if (mesh && mesh._subDatas.length > 0) {
@@ -282,39 +272,47 @@ let MeshRenderer = cc.Class({
         let textures = this.textures;
         if (textures && textures.length > 0) {
             for (let i = 0; i < textures.length; i++) {
-                let material = this.sharedMaterials[i];
+                let material = this._materials[i];
                 if (material) continue;
-                material = cc.Material.getInstantiatedMaterial(this._getDefaultMaterial(), this);
+                material = MaterialVariant.create(this._getDefaultMaterial(), this);
                 material.setProperty('diffuseTexture', textures[i]);
                 this.setMaterial(i, material);
             }
         }
-    },
 
-    _updateBoundingBox () {
-        let mesh = this._mesh;
-        if (geomUtils && mesh) {
-            this._boundingBox = geomUtils.Aabb.fromPoints(geomUtils.Aabb.create(), mesh._minPos, mesh._maxPos);
-        }
+        this._updateReceiveShadow();
+        this._updateCastShadow();
+        this._updateMeshAttribute();
     },
 
     _updateReceiveShadow () {
-        this._customProperties.define('CC_USE_SHADOW_MAP', this._receiveShadows);
+        let materials = this._materials;
+        for (let i = 0; i < materials.length; i++) {
+            materials[i].define('CC_USE_SHADOW_MAP', this._receiveShadows, undefined, true);
+        }
     },
 
     _updateCastShadow () {
-        this._customProperties.define('CC_SHADOW_CASTING', this._shadowCastingMode === ShadowCastingMode.ON);
+        let materials = this._materials;
+        for (let i = 0; i < materials.length; i++) {
+            materials[i].define('CC_CASTING_SHADOW', this._shadowCastingMode === ShadowCastingMode.ON, undefined, true);
+        }
     },
 
     _updateMeshAttribute () {
         let subDatas = this._mesh && this._mesh.subDatas;
-        if (!subDatas || !subDatas[0]) return;
+        if (!subDatas) return;
 
-        let vfm = subDatas[0].vfm;
-        this._customProperties.define('CC_USE_ATTRIBUTE_COLOR', !!vfm.element(gfx.ATTR_COLOR));
-        this._customProperties.define('CC_USE_ATTRIBUTE_UV0', !!vfm.element(gfx.ATTR_UV0));
-        this._customProperties.define('CC_USE_ATTRIBUTE_NORMAL', !!vfm.element(gfx.ATTR_NORMAL));
-        this._customProperties.define('CC_USE_ATTRIBUTE_TANGENT', !!vfm.element(gfx.ATTR_TANGENT));
+        let materials = this._materials;
+        for (let i = 0; i < materials.length; i++) {
+            if (!subDatas[i]) break;
+            let vfm = subDatas[i].vfm;
+            let material = materials[i];
+            material.define('CC_USE_ATTRIBUTE_COLOR', !!vfm.element(gfx.ATTR_COLOR), undefined, true);
+            material.define('CC_USE_ATTRIBUTE_UV0', !!vfm.element(gfx.ATTR_UV0), undefined, true);
+            material.define('CC_USE_ATTRIBUTE_NORMAL', !!vfm.element(gfx.ATTR_NORMAL), undefined, true);
+            material.define('CC_USE_ATTRIBUTE_TANGENT', !!vfm.element(gfx.ATTR_TANGENT), undefined, true);
+        }
 
         if (CC_DEBUG) {
             for (let name in this._debugDatas) {
@@ -355,9 +353,9 @@ if (CC_DEBUG) {
             let vbData = [];
 
             let lineLength = 100;
-            vec3.set(v3_tmp[0], 5, 0, 0);
-            mat4.invert(mat4_tmp, comp.node._worldMatrix);
-            vec3.transformMat4Normal(v3_tmp[0], v3_tmp[0], mat4_tmp);
+            Vec3.set(v3_tmp[0], 5, 0, 0);
+            Mat4.invert(mat4_tmp, comp.node._worldMatrix);
+            Vec3.transformMat4Normal(v3_tmp[0], v3_tmp[0], mat4_tmp);
             lineLength = v3_tmp[0].mag();
 
             let mesh = comp.mesh;
@@ -372,9 +370,9 @@ if (CC_DEBUG) {
                 let normalIndex = i * normalEle.num;
                 let posIndex = i * posEle.num;
 
-                vec3.set(v3_tmp[0], normalData[normalIndex], normalData[normalIndex+1], normalData[normalIndex+2]);
-                vec3.set(v3_tmp[1], posData[posIndex], posData[posIndex+1], posData[posIndex+2]);
-                vec3.scaleAndAdd(v3_tmp[0], v3_tmp[1], v3_tmp[0], lineLength);
+                Vec3.set(v3_tmp[0], normalData[normalIndex], normalData[normalIndex+1], normalData[normalIndex+2]);
+                Vec3.set(v3_tmp[1], posData[posIndex], posData[posIndex+1], posData[posIndex+2]);
+                Vec3.scaleAndAdd(v3_tmp[0], v3_tmp[1], v3_tmp[0], lineLength);
 
                 for (let lineIndex = 0; lineIndex < 2; lineIndex++) {
                     vbData.push(v3_tmp[lineIndex].x, v3_tmp[lineIndex].y, v3_tmp[lineIndex].z);
@@ -422,8 +420,7 @@ if (CC_DEBUG) {
                 ibData.length
             );
 
-            let m = new Material();
-            m.copy(Material.getBuiltinMaterial('unlit'));
+            let m = MaterialVariant.createWithBuiltin('unlit');
             m.setProperty('diffuseColor', RED_COLOR);
 
             return {
@@ -434,8 +431,7 @@ if (CC_DEBUG) {
 
         wireFrame (comp, ia, subData) {
             let oldIbData = subData.getIData(Uint16Array);
-            let m = new Material();
-            m.copy(Material.getBuiltinMaterial('unlit'));
+            let m = MaterialVariant.createWithBuiltin('unlit');
             m.setProperty('diffuseColor', BLACK_COLOR);
 
             let indices = [];

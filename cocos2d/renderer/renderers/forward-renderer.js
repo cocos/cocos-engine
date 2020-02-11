@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.  
 
-import { vec3, vec4, mat4 } from '../../core/vmath';
+import { Vec3, Vec4, Mat4 } from '../../core/value-types';
 import BaseRenderer from '../core/base-renderer';
 import enums from '../enums';
 import { RecyclePool } from '../memop';
@@ -14,11 +14,12 @@ let _a64_shadow_lightViewProj = new Float32Array(64);
 let _a16_shadow_lightViewProjs = [];
 let _a4_shadow_info = new Float32Array(4);
 
-let _camPos = cc.v4(0, 0, 0, 0);
-let _camFwd = cc.v3(0, 0, 0);
-let _v3_tmp1 = cc.v3(0, 0, 0);
+let _camPos = new Vec4(0, 0, 0, 0);
+let _camFwd = new Vec3(0, 0, 0);
+let _v3_tmp1 = new Vec3(0, 0, 0);
 
 const CC_MAX_LIGHTS = 4;
+const CC_MAX_SHADOW_LIGHTS = 2;
 
 let _float16_pool = new RecyclePool(() => {
   return new Float32Array(16);
@@ -35,9 +36,6 @@ export default class ForwardRenderer extends BaseRenderer {
     this._spotLights = [];
     this._shadowLights = [];
     this._ambientLights = [];
-
-    this._shadowMaps = [];
-    this._shadowMapSlots = new Int32Array(4);
 
     this._numLights = 0;
 
@@ -109,7 +107,9 @@ export default class ForwardRenderer extends BaseRenderer {
       let light = lights.data[i];
       light.update(this._device);
       if (light.shadowType !== enums.SHADOW_NONE) {
-        this._shadowLights.push(light);
+        if (this._shadowLights.length < CC_MAX_SHADOW_LIGHTS) {
+          this._shadowLights.push(light);
+        }
         let view = this._requestView();
         light.extractView(view, ['shadowcast']);
       }
@@ -223,7 +223,7 @@ export default class ForwardRenderer extends BaseRenderer {
     shadowInfo[2] = light.shadowDepthScale;
     shadowInfo[3] = light.shadowDarkness;
 
-    this._device.setUniform('cc_shadow_map_lightViewProjMatrix', mat4.array(_a16_viewProj, view._matViewProj));
+    this._device.setUniform('cc_shadow_map_lightViewProjMatrix', Mat4.toArray(_a16_viewProj, view._matViewProj));
     this._device.setUniform('cc_shadow_map_info', shadowInfo);
     this._device.setUniform('cc_shadow_map_bias', light.shadowBias);
   }
@@ -235,9 +235,9 @@ export default class ForwardRenderer extends BaseRenderer {
       let light = this._shadowLights[i];
       let view = _a16_shadow_lightViewProjs[i];
       if (!view) {
-        view = _a16_shadow_lightViewProjs[i] = new Float32Array(_a64_shadow_lightViewProj.buffer, i * 16, 16);
+        view = _a16_shadow_lightViewProjs[i] = new Float32Array(_a64_shadow_lightViewProj.buffer, i * 64, 16);
       }
-      mat4.array(view, light.viewProjMatrix);
+      Mat4.toArray(view, light.viewProjMatrix);
       
       let infoIndex = i*4;
       shadowInfo[infoIndex] = light.shadowMinDepth;
@@ -251,22 +251,15 @@ export default class ForwardRenderer extends BaseRenderer {
     // this._device.setUniform(`cc_frustumEdgeFalloff_${index}`, light.frustumEdgeFalloff);
   }
 
-  _updateShaderDefines (item) {
-    item.defines.push(this._defines);
-  }
-
   _sortItems (items) {
     // sort items
     items.sort((a, b) => {
-      let techA = a.technique;
-      let techB = b.technique;
+      // if (a.layer !== b.layer) {
+      //   return a.layer - b.layer;
+      // }
 
-      if (techA._layer !== techB._layer) {
-        return techA._layer - techB._layer;
-      }
-
-      if (techA._passes.length !== techB._passes.length) {
-        return techA._passes.length - techB._passes.length;
+      if (a.passes.length !== b.passes.length) {
+        return a.passes.length - b.passes.length;
       }
 
       return a.sortKey - b.sortKey;
@@ -282,8 +275,7 @@ export default class ForwardRenderer extends BaseRenderer {
     // draw it
     for (let i = 0; i < items.length; ++i) {
       let item = items.data[i];
-      if (this._programLib._getValueFromDefineList('CC_SHADOW_CASTING', item.defines)) {
-        this._updateShaderDefines(item);
+      if (item.effect.getDefine('CC_CASTING_SHADOW')) {
         this._draw(item);
       }
     }
@@ -294,23 +286,17 @@ export default class ForwardRenderer extends BaseRenderer {
     if (shadowLights.length === 0 && this._numLights === 0) {
       for (let i = 0; i < items.length; ++i) {
         let item = items.data[i];
-        this._updateShaderDefines(item);
         this._draw(item);
       }
     }
     else {
       for (let i = 0; i < items.length; ++i) {
         let item = items.data[i];
-  
-        this._shadowMaps.length = shadowLights.length;
-        for (let index = 0; index < shadowLights.length; ++index) {
-          let light = shadowLights[index];
-          this._shadowMaps[index] = light.shadowMap;
-          this._shadowMapSlots[index] = this._allocTextureUnit();
+
+        for (let shadowIdx = 0; shadowIdx < shadowLights.length; ++shadowIdx) {
+          this._device.setTexture('cc_shadow_map_'+shadowIdx, shadowLights[shadowIdx].shadowMap, this._allocTextureUnit());  
         }
-        this._device.setTextureArray('cc_shadow_map', this._shadowMaps, this._shadowMapSlots);
-  
-        this._updateShaderDefines(item);
+
         this._draw(item);
       }
     }
@@ -320,10 +306,10 @@ export default class ForwardRenderer extends BaseRenderer {
     view.getPosition(_camPos);
 
     // update uniforms
-    this._device.setUniform('cc_matView', mat4.array(_a16_view, view._matView));
-    this._device.setUniform('cc_matpProj', mat4.array(_a16_proj, view._matProj));
-    this._device.setUniform('cc_matViewProj', mat4.array(_a16_viewProj, view._matViewProj));
-    this._device.setUniform('cc_cameraPos', vec4.array(_a4_camPos, _camPos));
+    this._device.setUniform('cc_matView', Mat4.toArray(_a16_view, view._matView));
+    this._device.setUniform('cc_matpProj', Mat4.toArray(_a16_proj, view._matProj));
+    this._device.setUniform('cc_matViewProj', Mat4.toArray(_a16_viewProj, view._matViewProj));
+    this._device.setUniform('cc_cameraPos', Vec4.toArray(_a4_camPos, _camPos));
 
     // update rendering
     this._submitLightsUniforms();
@@ -337,10 +323,10 @@ export default class ForwardRenderer extends BaseRenderer {
     view.getForward(_camFwd);
 
     // update uniforms
-    this._device.setUniform('cc_matView', mat4.array(_a16_view, view._matView));
-    this._device.setUniform('cc_matpProj', mat4.array(_a16_proj, view._matProj));
-    this._device.setUniform('cc_matViewProj', mat4.array(_a16_viewProj, view._matViewProj));
-    this._device.setUniform('cc_cameraPos', vec4.array(_a4_camPos, _camPos));
+    this._device.setUniform('cc_matView', Mat4.toArray(_a16_view, view._matView));
+    this._device.setUniform('cc_matpProj', Mat4.toArray(_a16_proj, view._matProj));
+    this._device.setUniform('cc_matViewProj', Mat4.toArray(_a16_viewProj, view._matViewProj));
+    this._device.setUniform('cc_cameraPos', Vec4.toArray(_a4_camPos, _camPos));
 
     this._submitLightsUniforms();
     this._submitOtherStagesUniforms();
@@ -352,8 +338,8 @@ export default class ForwardRenderer extends BaseRenderer {
       // TODO: we should use mesh center instead!
       item.node.getWorldPosition(_v3_tmp1);
 
-      vec3.sub(_v3_tmp1, _v3_tmp1, _camPos);
-      item.sortKey = -vec3.dot(_v3_tmp1, _camFwd);
+      Vec3.sub(_v3_tmp1, _v3_tmp1, _camPos);
+      item.sortKey = -Vec3.dot(_v3_tmp1, _camFwd);
     }
 
     this._sortItems(items);

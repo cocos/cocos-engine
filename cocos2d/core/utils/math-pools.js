@@ -26,18 +26,17 @@
 const js = require('../platform/js');
 // const Vec2 = require('../value-types/vec2');
 // const Vec3 = require('../value-types/vec3');
-// const Quat = require('../value-types/quat');
-
-import { mat4, quat } from '../vmath';
+const Quat = require('../value-types/quat');
+const Mat4 = require('../value-types/mat4');
 
 var mat4Pool = new js.Pool(128);
 mat4Pool.get = function () {
     var matrix = this._get();
     if (matrix) {
-        mat4.identity(matrix);
+        Mat4.identity(matrix);
     }
     else {
-        matrix = mat4.create();
+        matrix = new Mat4();
     }
     return matrix;
 };
@@ -74,7 +73,7 @@ quatPool.get = function () {
         q.w = 1;
     }
     else {
-        q = quat.create();
+        q = new Quat();
     }
     return q;
 };
