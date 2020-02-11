@@ -1,31 +1,24 @@
 import Ammo from '@cocos/ammo';
-import { Vec3, absMaxComponent } from "../../../core";
+import { Vec3, absMax } from "../../../core";
 import { AmmoShape } from "./ammo-shape";
 import { CapsuleColliderComponent } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { ICapsuleShape } from '../../spec/i-physics-shape';
-
-const v3_0 = new Vec3();
+import { IVec3Like } from '../../../core/math/type-define';
 
 export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
-    set height (v: number) {
 
+    set height (v: number) {
+        this.updateCapsuleProp(this.capsuleCollider.radius, v, this._collider.node.worldScale);
     }
 
     set direction (v: number) {
-
+        this.btCapsule.setUpAxis(v);
     }
 
-    set radius (radius: number) {
-        const ws = this._collider.node.worldScale;
-        const s = absMaxComponent(ws);
-        const wr = this.radius * Math.abs(s);
-        const wh = this.height * Math.abs(ws.y);
-        let h = wh - wr * 2;
-        if (h < 0) h = 0;
-        const halfH = h / 2;
-        // this.btCapsule
+    set radius (v: number) {
+        this.updateCapsuleProp(v, this.capsuleCollider.height, this._collider.node.worldScale);
     }
 
     get btCapsule () {
@@ -49,5 +42,32 @@ export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
     updateScale () {
         super.updateScale();
         this.radius = this.capsuleCollider.radius;
+    }
+
+    /**
+     * radius \ height \ scale
+     */
+    updateCapsuleProp (radius: number, height: number, scale: IVec3Like) {
+        const ws = scale;
+        const upAxis = this.btCapsule.getUpAxis();
+        const isd = this.btCapsule.getImplicitShapeDimensions();
+        if (upAxis == 1) {
+            const wh = height * Math.abs(ws.y);
+            const wr = radius * absMax(ws.x, ws.z);
+            const halfH = (wh - wr * 2) / 2;
+            isd.setValue(wr, halfH, wr);
+        } else if (upAxis == 0) {
+            const wh = height * Math.abs(ws.x);
+            const wr = radius * absMax(ws.y, ws.z);
+            const halfH = (wh - wr * 2) / 2;
+            isd.setValue(halfH, wr, wr);
+        } else {
+            const wh = height * Math.abs(ws.z);
+            const wr = radius * absMax(ws.x, ws.y);
+            const halfH = (wh - wr * 2) / 2;
+            isd.setValue(wr, wr, halfH);
+        }
+        cocos2AmmoVec3(this.scale, Vec3.ONE);
+        this.btCapsule.setLocalScaling(this.scale);
     }
 }
