@@ -46,6 +46,9 @@ export class Vec3 extends ValueType {
     public static UNIT_X = Object.freeze(new Vec3(1, 0, 0));
     public static UNIT_Y = Object.freeze(new Vec3(0, 1, 0));
     public static UNIT_Z = Object.freeze(new Vec3(0, 0, 1));
+    public static RIGHT = Object.freeze(new Vec3(1, 0, 0));
+    public static UP = Object.freeze(new Vec3(0, 1, 0));
+    public static FORWARD = Object.freeze(new Vec3(0, 0, -1)); // we use -z for view-dir
     public static ZERO = Object.freeze(new Vec3(0, 0, 0));
     public static ONE = Object.freeze(new Vec3(1, 1, 1));
     public static NEG_ONE = Object.freeze(new Vec3(-1, -1, -1));
