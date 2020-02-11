@@ -15,7 +15,8 @@ class CC_CORE_API GFXShader : public Object {
   virtual void destroy() = 0;
   
   CC_INLINE GFXDevice* device() const { return _device; }
-  CC_INLINE uint id() const { return _hash; }
+  // Can not rename to `id` as JS code, because `id` is a keyword in objective-c.
+  CC_INLINE uint hash() const { return _hash; }
   CC_INLINE const String& name() const { return _name; }
   CC_INLINE const GFXShaderStageList& stages() const { return _stages; }
   CC_INLINE const GFXUniformBlockList& blocks() const { return _blocks; }
