@@ -122,6 +122,8 @@ let TiledObjectGroup = cc.Class({
         const StaggerAxis = TiledMap.StaggerAxis;
         const TileFlag = TiledMap.TileFlag;
         const FLIPPED_MASK = TileFlag.FLIPPED_MASK;
+        const FLAG_HORIZONTAL = TileFlag.HORIZONTAL;
+        const FLAG_VERTICAL = TileFlag.VERTICAL;
 
         this._groupName = groupInfo.name;
         this._positionOffset = groupInfo.offset;
@@ -155,8 +157,16 @@ let TiledObjectGroup = cc.Class({
         let leftTopY = height * (1 - this.node.anchorY);
 
         let objects = groupInfo._objects;
+        let draworder = groupInfo._draworder;
+        if (draworder == 'topdown') {
+            objects = objects.concat();
+            objects.sort(function (a, b) {
+                return a.y - b.y;
+            });
+        }
+        
         let aliveNodes = {};
-        for (let i = 0, childIdx = objects.length - 1, l = objects.length; i < l; i++, childIdx--) {
+        for (let i = 0, l = objects.length; i < l; i++) {
             let object = objects[i];
             let objType = object.type;
             object.offset = cc.v2(object.x, object.y);
@@ -171,7 +181,7 @@ let TiledObjectGroup = cc.Class({
             if (Orientation.ISO !== mapInfo.orientation) {
                 object.y = height - object.y;
             } else {
-                let posIdxX = object.x / tileSize.width * 2;
+                let posIdxX = object.x / tileSize.height;
                 let posIdxY = object.y / tileSize.height;
                 object.x = tileSize.width * 0.5 * (mapSize.height + posIdxX - posIdxY);
                 object.y = tileSize.height * 0.5 * (mapSize.width + mapSize.height - posIdxX - posIdxY);
@@ -195,7 +205,7 @@ let TiledObjectGroup = cc.Class({
                 textNode.parent = this.node;
                 textNode.color = object.color;
                 textNode.opacity = this._opacity;
-                textNode.setSiblingIndex(childIdx);
+                textNode.setSiblingIndex(i);
 
                 let label = textNode.getComponent(cc.Label);
                 if (!label) {
@@ -214,7 +224,8 @@ let TiledObjectGroup = cc.Class({
             }
 
             if (objType === TMXObjectType.IMAGE) {
-                let grid = texGrids[(object.gid & FLIPPED_MASK) >>> 0];
+                let gid = object.gid;
+                let grid = texGrids[(gid & FLIPPED_MASK) >>> 0];
                 if (!grid) continue;
                 let tileset = grid.tileset;
                 let imgName = "img" + object.id;
@@ -250,11 +261,39 @@ let TiledObjectGroup = cc.Class({
                 imgNode.name = imgName;
                 imgNode.parent = this.node;
                 imgNode.opacity = this._opacity;
-                imgNode.setSiblingIndex(childIdx);
+                imgNode.setSiblingIndex(i);
 
                 let sp = imgNode.getComponent(cc.Sprite);
+                // destory old sprite component
+                if (sp) {
+                    sp.destroy();
+                }
+
+                // use private node to add sprite component
+                // because of sprite need to flip x or y
+                // use child node can avoid flip conflict with parent node transform
+                let contentNode = imgNode.getChildByName('img-content');
+                if (!contentNode) {
+                    contentNode = new cc.PrivateNode();
+                    contentNode.name = 'img-content';
+                    imgNode.addChild(contentNode);
+                }
+
+                if ((gid & FLAG_HORIZONTAL) >>> 0) {
+                    contentNode.scaleX = -1;
+                } else {
+                    contentNode.scaleX = 1;
+                }
+
+                if ((gid & FLAG_VERTICAL) >>> 0) {
+                    contentNode.scaleY = -1;
+                } else {
+                    contentNode.scaleY = 1;
+                }
+
+                sp = contentNode.getComponent(cc.Sprite);
                 if (!sp) {
-                    sp = imgNode.addComponent(cc.Sprite);
+                    sp = contentNode.addComponent(cc.Sprite);
                 }
                 let spf = sp.spriteFrame;
                 if (!spf) {
@@ -264,6 +303,8 @@ let TiledObjectGroup = cc.Class({
                 sp.spriteFrame = spf;
 
                 // object group may has no width or height info
+                contentNode.width = imgWidth;
+                contentNode.height = imgHeight;
                 imgNode.width = imgWidth;
                 imgNode.height = imgHeight;
             }
