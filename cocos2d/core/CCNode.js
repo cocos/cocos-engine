@@ -2379,9 +2379,11 @@ let NodeDefines = {
 
         this._updateWorldMatrix();
         // If scale is 0, it can't be hit.
-        if (!Mat4.invert(_mat4_temp, this._worldMatrix)) {
+        const m = this._worldMatrix.m;
+        if (!m[0] || !m[5] || !m[10]) {
             return false;
         }
+        Mat4.invert(_mat4_temp, this._worldMatrix);
         Vec2.transformMat4(testPt, cameraPt, _mat4_temp);
         testPt.x += this._anchorPoint.x * w;
         testPt.y += this._anchorPoint.y * h;
