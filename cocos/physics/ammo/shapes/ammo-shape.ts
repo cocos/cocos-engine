@@ -16,7 +16,8 @@ export class AmmoShape implements IBaseShape {
     set material (v: PhysicMaterial) {
         if (!this._isTrigger && this._isEnabled) {
             if (this._btCompound) {
-                this._btCompound.setMaterial(this._index, v.friction, v.restitution, 0.1);
+                const rollingFriction = 0.1;
+                this._btCompound.setMaterial(this._index, v.friction, v.restitution, rollingFriction);
             } else {
                 this._sharedBody.body.setFriction(v.friction);
                 this._sharedBody.body.setRestitution(v.restitution);
