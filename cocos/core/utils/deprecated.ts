@@ -4,8 +4,6 @@
 
 import { error, warn } from '../platform/debug';
 
-// TODO: will redefined in ALIPAY and runtime
-
 let defaultLogTimes = 10;
 
 export function setDefaultLogTimes (times: number): void {
@@ -78,8 +76,7 @@ replacePropertyLog = function (n: string, dp: string, n2: string, newp: string, 
     }
 };
 
-replaceProperty = (owner: object, ownerName: string, properties: IReplacement[]) => {
-    if (CC_ALIPAY) { return; }
+replaceProperty = (owner: object, ownerName: string, properties: IReplacement[]) => {    
     if (owner == null) return;
 
     properties.forEach(function (item: IReplacement) {
@@ -165,8 +162,7 @@ removePropertyLog = function (n: string, dp: string, f: Function, id: number) {
     }
 };
 
-removeProperty = (owner: object, ownerName: string, properties: IRemoveItem[]) => {
-    if (CC_ALIPAY) { return; }
+removeProperty = (owner: object, ownerName: string, properties: IRemoveItem[]) => {    
     if (owner == null) return;
 
     properties.forEach(function (item: IRemoveItem) {
@@ -193,8 +189,7 @@ markAsWarningLog = function (n: string, dp: string, f: Function, id: number) {
     }
 };
 
-markAsWarning = (owner: object, ownerName: string, properties: IMarkItem[]) => {
-    if (CC_ALIPAY) { return; }
+markAsWarning = (owner: object, ownerName: string, properties: IMarkItem[]) => {    
     if (owner == null) return;
 
     let _defaultGetSet = function (o: {}, p: string, d: PropertyDescriptor, n: string, dp: string, f: Function, id: number) {
