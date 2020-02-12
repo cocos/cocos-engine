@@ -248,11 +248,6 @@ export class AmmoSharedBody {
      */
     syncPhysicsToScene () {
         if (this.body.isStaticObject() || !this.body.isActive()) {
-            // // debug, 静态 body 在动态 body 之前加入到世界，将会导致球抖动。
-            // if (this.ghostIndex != 666) {
-            //     this.updateByReAdd();
-            //     this.ghostIndex = 666;
-            // }
             return;
         }
 

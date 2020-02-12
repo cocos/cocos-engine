@@ -1,5 +1,5 @@
 import CANNON from '@cocos/cannon';
-import { Vec3 } from '../../core/math';
+import { Vec3, Quat } from '../../core/math';
 import { fillRaycastResult, toCannonRaycastOptions } from './cannon-util';
 import { CannonConstraint } from './constraint/cannon-constraint';
 import { CannonShape } from './shapes/cannon-shape';
@@ -59,6 +59,11 @@ export class CannonWorld implements IPhysicsWorld {
 
         this._world.emitTriggeredEvents();
         this._world.emitCollisionEvents();
+
+        // sync scene to physics again
+        for (let i = 0; i < this.bodies.length; i++) {
+            this.bodies[i].syncSceneToPhysics();
+        }
     }
 
     raycastClosest (worldRay: ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
