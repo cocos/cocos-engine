@@ -60,11 +60,9 @@ export class CannonWorld implements IPhysicsWorld {
         this._world.emitTriggeredEvents();
         this._world.emitCollisionEvents();
 
-        // force sync scene to physics
+        // sync scene to physics again
         for (let i = 0; i < this.bodies.length; i++) {
-            const that = this.bodies[i];
-            Vec3.copy(that.body.position, that.node.worldPosition);
-            Quat.copy(that.body.quaternion, that.node.worldRotation);
+            this.bodies[i].syncSceneToPhysics();
         }
     }
 
