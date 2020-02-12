@@ -226,3 +226,16 @@ export function absMaxComponent (v: IVec3Like) {
         }
     }
 }
+
+/**
+ * @zh 对 a b 的绝对值进行比较大小，返回绝对值最大的值。
+ * @param a number
+ * @param b number
+ */
+export function absMax (a: number, b: number) {
+    if (Math.abs(a) > Math.abs(b)) {
+        return a;
+    } else {
+        return b;
+    }
+}
