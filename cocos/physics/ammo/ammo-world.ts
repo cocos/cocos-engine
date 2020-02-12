@@ -7,7 +7,7 @@ import { ArrayCollisionMatrix } from '../utils/array-collision-matrix';
 import { TupleDictionary } from '../utils/tuple-dictionary';
 import { TriggerEventObject, CollisionEventObject } from './ammo-const';
 import { ammo2CocosVec3, cocos2AmmoVec3, cocos2AmmoQuat } from './ammo-util';
-import { ray } from '../../core/geom-utils';
+import { ray } from '../../core/geometry';
 import { IRaycastOptions, IPhysicsWorld } from '../spec/i-physics-world';
 import { PhysicsRayResult, PhysicMaterial } from '../framework';
 import { Node, RecyclePool } from '../../core';

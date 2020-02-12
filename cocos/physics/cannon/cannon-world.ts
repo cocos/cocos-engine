@@ -3,7 +3,7 @@ import { Vec3, Quat } from '../../core/math';
 import { fillRaycastResult, toCannonRaycastOptions } from './cannon-util';
 import { CannonConstraint } from './constraint/cannon-constraint';
 import { CannonShape } from './shapes/cannon-shape';
-import { ray } from '../../core/geom-utils';
+import { ray } from '../../core/geometry';
 import { RecyclePool, Node } from '../../core';
 import { CannonSharedBody } from './cannon-shared-body';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';

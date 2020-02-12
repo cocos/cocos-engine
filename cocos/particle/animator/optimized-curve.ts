@@ -4,7 +4,7 @@
  */
 
 import { repeat } from '../../core/math';
-import { AnimationCurve, evalOptCurve, OptimizedKey } from '../../core/geom-utils/curve';
+import { AnimationCurve, evalOptCurve, OptimizedKey } from '../../core/geometry/curve';
 
 // tslint:disable: max-line-length
 

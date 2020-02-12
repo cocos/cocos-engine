@@ -7,7 +7,7 @@ import { PhysicsRayResult } from '../framework/physics-ray-result';
 import { BuiltinSharedBody } from './builtin-shared-body';
 import { BuiltinShape } from './shapes/builtin-shape';
 import { ArrayCollisionMatrix } from '../utils/array-collision-matrix';
-import { ray, intersect } from '../../core/geom-utils';
+import { ray, intersect } from '../../core/geometry';
 import { RecyclePool, Node } from '../../core';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { IVec3Like } from '../../core/math/type-define';

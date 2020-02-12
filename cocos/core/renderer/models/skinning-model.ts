@@ -30,7 +30,7 @@
 import { AnimationClip } from '../../animation/animation-clip';
 import { Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
-import { aabb } from '../../geom-utils';
+import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { Vec3 } from '../../math';

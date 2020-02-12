@@ -9,7 +9,7 @@ import { director, Director } from '../../core/director';
 import { System } from '../../core/components';
 import { PhysicMaterial } from './assets/physic-material';
 import { Layers, RecyclePool } from '../../core';
-import { ray } from '../../core/geom-utils';
+import { ray } from '../../core/geometry';
 import { PhysicsRayResult } from './physics-ray-result';
 import { property, ccclass } from '../../core/data/class-decorator';
 

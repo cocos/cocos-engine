@@ -3,7 +3,7 @@
  */
 
 import { ccclass } from '../../data/class-decorator';
-import { intersect, sphere } from '../../geom-utils';
+import { intersect, sphere } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { Vec3 } from '../../math';

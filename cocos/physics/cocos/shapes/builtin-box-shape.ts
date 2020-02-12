@@ -1,5 +1,5 @@
 import { Vec3 } from '../../../core/math';
-import { obb } from '../../../core/geom-utils';
+import { obb } from '../../../core/geometry';
 import { BuiltinShape } from './builtin-shape';
 import { IBoxShape } from '../../spec/i-physics-shape';
 import { BoxColliderComponent } from '../../../../exports/physics-framework';

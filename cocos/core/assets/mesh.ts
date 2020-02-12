@@ -47,7 +47,7 @@ import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { Asset } from './asset';
 import { postLoadMesh } from './utils/mesh-utils';
 import { warnID } from '../platform/debug';
-import { aabb } from '../geom-utils';
+import { aabb } from '../geometry';
 import sys from '../platform/sys';
 
 function getIndexStrideCtor (stride: number) {

@@ -1,5 +1,5 @@
 import { IBArray } from '../../assets/mesh';
-import { aabb, intersect, ray, triangle } from '../../geom-utils';
+import { aabb, intersect, ray, triangle } from '../../geometry';
 import { GFXPrimitiveMode } from '../../gfx/define';
 import { Mat4, Vec3 } from '../../math';
 import { RecyclePool } from '../../memop';
