@@ -68,9 +68,9 @@ export class BuiltInWorld implements IPhysicsWorld {
         // emit trigger event
         this.emitTriggerEvent();
 
-        // force sync scene to physics
+        // sync scene to physics again
         for (let i = 0; i < this.bodies.length; i++) {
-            this.bodies[i].syncInitial();
+            this.bodies[i].syncSceneToPhysics();
         }
     }
 
