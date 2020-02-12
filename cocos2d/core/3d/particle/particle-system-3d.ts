@@ -655,7 +655,8 @@ export default class ParticleSystem3D extends RenderComponent {
     onEnable () {
         super.onEnable();
         if (this.playOnAwake) {
-            this.play();
+            // Here must wait until the nodes are aligned, otherwise the first emit will not get the correct world matrix.
+            cc.director.on(cc.Director.EVENT_AFTER_UPDATE, this.play, this);
         }
         this._assembler.onEnable();
         this.trailModule.onEnable();
