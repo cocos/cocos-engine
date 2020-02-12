@@ -19,12 +19,13 @@ import { AmmoRigidBody } from '../ammo/ammo-rigid-body';
 import { AmmoWorld } from '../ammo/ammo-world';
 import { AmmoBoxShape } from '../ammo/shapes/ammo-box-shape';
 import { AmmoSphereShape } from '../ammo/shapes/ammo-sphere-shape';
+import { AmmoCapsuleShape } from '../ammo/shapes/ammo-capsule-shape';
 
 export let BoxShape: typeof CannonBoxShape | typeof BuiltinBoxShape | typeof AmmoBoxShape;
 export let SphereShape: typeof CannonSphereShape | typeof BuiltinSphereShape | typeof AmmoSphereShape;
 export let RigidBody: typeof CannonRigidBody | null | typeof AmmoRigidBody;
 export let PhysicsWorld: typeof CannonWorld | typeof BuiltInWorld | typeof AmmoWorld;
-export let CapsuleShape: typeof BuiltinCapsuleShape;
+export let CapsuleShape: typeof BuiltinCapsuleShape | typeof AmmoCapsuleShape;
 
 export function instantiate (
     boxShape: typeof BoxShape,

@@ -11,6 +11,6 @@ if (CC_PHYSICS_AMMO) {
         AmmoSphereShape,
         AmmoRigidBody,
         AmmoWorld,
-        AmmoCapsuleShape as any
+        AmmoCapsuleShape
     );
 }
