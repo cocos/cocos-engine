@@ -743,10 +743,10 @@ destroy : function (
 },
 
 /**
- * @method id
+ * @method hash
  * @return {unsigned int}
  */
-id : function (
+hash : function (
 )
 {
     return 0;

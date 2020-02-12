@@ -113,7 +113,7 @@ bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_GFXShader_name);
 SE_DECLARE_FUNC(js_gfx_GFXShader_initialize);
 SE_DECLARE_FUNC(js_gfx_GFXShader_destroy);
-SE_DECLARE_FUNC(js_gfx_GFXShader_id);
+SE_DECLARE_FUNC(js_gfx_GFXShader_hash);
 SE_DECLARE_FUNC(js_gfx_GFXShader_GFXShader);
 
 extern se::Object* __jsb_cocos2d_GFXInputAssembler_proto;

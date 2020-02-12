@@ -1500,23 +1500,23 @@ static bool js_gfx_GFXShader_destroy(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_GFXShader_destroy)
 
-static bool js_gfx_GFXShader_id(se::State& s)
+static bool js_gfx_GFXShader_hash(se::State& s)
 {
     cocos2d::GFXShader* cobj = (cocos2d::GFXShader*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXShader_id : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXShader_hash : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        unsigned int result = cobj->id();
+        unsigned int result = cobj->hash();
         ok &= uint32_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXShader_id : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXShader_hash : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXShader_id)
+SE_BIND_FUNC(js_gfx_GFXShader_hash)
 
 SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXShader_finalize)
 
@@ -1552,7 +1552,7 @@ bool js_register_gfx_GFXShader(se::Object* obj)
     cls->defineFunction("name", _SE(js_gfx_GFXShader_name));
     cls->defineFunction("initialize", _SE(js_gfx_GFXShader_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_GFXShader_destroy));
-    cls->defineFunction("id", _SE(js_gfx_GFXShader_id));
+    cls->defineFunction("id", _SE(js_gfx_GFXShader_hash));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXShader_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXShader>(cls);
