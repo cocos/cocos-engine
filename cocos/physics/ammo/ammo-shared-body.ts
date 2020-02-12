@@ -302,20 +302,6 @@ export class AmmoSharedBody {
         this.ghost.activate();
     }
 
-    forceSyncBody () {
-        const wt = this.body.getWorldTransform();
-        cocos2AmmoVec3(wt.getOrigin(), this.node.worldPosition)
-        cocos2AmmoQuat(this.bodyStruct.worldQuat, this.node.worldRotation);
-        wt.setRotation(this.bodyStruct.worldQuat);
-    }
-
-    forceSyncGhost () {
-        const wt1 = this.ghost.getWorldTransform();
-        cocos2AmmoVec3(wt1.getOrigin(), this.node.worldPosition)
-        cocos2AmmoQuat(this.ghostStruct.worldQuat, this.node.worldRotation);
-        wt1.setRotation(this.ghostStruct.worldQuat);
-    }
-
     // private updateGroupMask () {
     //     const body = this.bodyStruct.body;
     //     const bodyProxy = body.getBroadphaseHandle();
