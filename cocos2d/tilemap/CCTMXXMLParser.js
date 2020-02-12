@@ -1110,6 +1110,12 @@ cc.TMXMapInfo.prototype = {
                 // Add the object to the objectGroup
                 objectGroup._objects.push(objectProp);
             }
+
+            if (draworder !== 'index') {
+                objectGroup._objects.sort(function (a, b) {
+                    return a.y - b.y;
+                });
+            }
         }
         return objectGroup;
     },

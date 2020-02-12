@@ -157,14 +157,6 @@ let TiledObjectGroup = cc.Class({
         let leftTopY = height * (1 - this.node.anchorY);
 
         let objects = groupInfo._objects;
-        let draworder = groupInfo._draworder;
-        if (draworder == 'topdown') {
-            objects = objects.concat();
-            objects.sort(function (a, b) {
-                return a.y - b.y;
-            });
-        }
-        
         let aliveNodes = {};
         for (let i = 0, l = objects.length; i < l; i++) {
             let object = objects[i];
@@ -264,47 +256,31 @@ let TiledObjectGroup = cc.Class({
                 imgNode.setSiblingIndex(i);
 
                 let sp = imgNode.getComponent(cc.Sprite);
-                // destory old sprite component
-                if (sp) {
-                    sp.destroy();
-                }
-
-                // use private node to add sprite component
-                // because of sprite need to flip x or y
-                // use child node can avoid flip conflict with parent node transform
-                let contentNode = imgNode.getChildByName('img-content');
-                if (!contentNode) {
-                    contentNode = new cc.PrivateNode();
-                    contentNode.name = 'img-content';
-                    imgNode.addChild(contentNode);
-                }
-
-                if ((gid & FLAG_HORIZONTAL) >>> 0) {
-                    contentNode.scaleX = -1;
-                } else {
-                    contentNode.scaleX = 1;
-                }
-
-                if ((gid & FLAG_VERTICAL) >>> 0) {
-                    contentNode.scaleY = -1;
-                } else {
-                    contentNode.scaleY = 1;
-                }
-
-                sp = contentNode.getComponent(cc.Sprite);
                 if (!sp) {
-                    sp = contentNode.addComponent(cc.Sprite);
+                    sp = imgNode.addComponent(cc.Sprite);
                 }
                 let spf = sp.spriteFrame;
                 if (!spf) {
                     spf = new cc.SpriteFrame();
                 }
+
+                if ((gid & FLAG_HORIZONTAL) >>> 0) {
+                    spf.setFlipX(true);
+                } else {
+                    spf.setFlipX(false);
+                }
+
+                if ((gid & FLAG_VERTICAL) >>> 0) {
+                    spf.setFlipY(true);
+                } else {
+                    spf.setFlipY(false);
+                }
+
                 spf.setTexture(grid.tileset.sourceImage, cc.rect(grid));
                 sp.spriteFrame = spf;
+                sp.setVertsDirty();
 
                 // object group may has no width or height info
-                contentNode.width = imgWidth;
-                contentNode.height = imgHeight;
                 imgNode.width = imgWidth;
                 imgNode.height = imgHeight;
             }

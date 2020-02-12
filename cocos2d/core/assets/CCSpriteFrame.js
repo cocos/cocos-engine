@@ -209,6 +209,9 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
         this._rotated = false;
 
+        this._flipX = false;
+        this._flipY = false;
+
         this.vertices = null;
 
         this._capInsets = [0, 0, 0, 0];
@@ -272,6 +275,52 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         this._rotated = bRotated;
         if (this._texture)
             this._calculateUV();
+    },
+
+    /**
+     * !#en Returns whether the sprite frame is flip x axis in the texture.
+     * !#zh 获取 SpriteFrame 是否反转 x 轴
+     * @method isFlipX
+     * @return {Boolean}
+     */
+    isFlipX: function () {
+        return this._flipX;
+    },
+
+    /**
+     * !#en Returns whether the sprite frame is flip y axis in the texture.
+     * !#zh 获取 SpriteFrame 是否反转 y 轴
+     * @method isFlipY
+     * @return {Boolean}
+     */
+    isFlipY: function () {
+        return this._flipY;
+    },
+
+    /**
+     * !#en Set whether the sprite frame is flip x axis in the texture.
+     * !#zh 设置 SpriteFrame 是否翻转 x 轴
+     * @method setFlipX
+     * @param {Boolean} flipX
+     */
+    setFlipX: function (flipX) {
+        this._flipX = flipX;
+        if (this._texture) {
+            this._calculateUV();
+        }
+    },
+
+    /**
+     * !#en Set whether the sprite frame is flip y axis in the texture.
+     * !#zh 设置 SpriteFrame 是否翻转 y 轴
+     * @method setFlipY
+     * @param {Boolean} flipY
+     */
+    setFlipY: function (flipY) {
+        this._flipY = flipY;
+        if (this._texture) {
+            this._calculateUV();
+        }
     },
 
     /**
@@ -522,6 +571,28 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         }
     },
 
+    _flipXY (uvs) {
+        if (this._flipX) {
+            let tempVal = uvs[0];
+            uvs[0] = uvs[1];
+            uvs[1] = tempVal;
+
+            tempVal = uvs[2];
+            uvs[2] = uvs[3];
+            uvs[3] = tempVal;
+        }
+
+        if (this._flipY) {
+            let tempVal = uvs[0];
+            uvs[0] = uvs[2];
+            uvs[2] = tempVal;
+
+            tempVal = uvs[1];
+            uvs[1] = uvs[3];
+            uvs[3] = tempVal;
+        }
+    },
+
     _calculateSlicedUV () {
         let rect = this._rect;
         let atlasWidth = this._texture.width;
@@ -545,6 +616,8 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             temp_uvs[1].v = (rect.y + leftWidth + centerWidth) / atlasHeight;
             temp_uvs[0].v = (rect.y + rect.width) / atlasHeight;
 
+            this._flipXY(temp_uvs);
+
             for (let row = 0; row < 4; ++row) {
                 let rowD = temp_uvs[row];
                 for (let col = 0; col < 4; ++col) {
@@ -565,6 +638,8 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             temp_uvs[2].v = (rect.y + topHeight) / atlasHeight;
             temp_uvs[1].v = (rect.y + topHeight + centerHeight) / atlasHeight;
             temp_uvs[0].v = (rect.y + rect.height) / atlasHeight;
+
+            this._flipXY(temp_uvs);
 
             for (let row = 0; row < 4; ++row) {
                 let rowD = temp_uvs[row];
@@ -637,6 +712,42 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             uv[5] = t;
             uv[6] = r;
             uv[7] = t;
+        }
+
+        if (this._flipX) {
+            let tempVal = uv[0];
+            uv[0] = uv[2];
+            uv[2] = tempVal;
+
+            tempVal = uv[1];
+            uv[1] = uv[3];
+            uv[3] = tempVal;
+
+            tempVal = uv[4];
+            uv[4] = uv[6];
+            uv[6] = tempVal;
+
+            tempVal = uv[5];
+            uv[5] = uv[7];
+            uv[7] = tempVal;
+        }
+
+        if (this._flipY) {
+            let tempVal = uv[0];
+            uv[0] = uv[4];
+            uv[4] = tempVal;
+
+            tempVal = uv[1];
+            uv[1] = uv[5];
+            uv[5] = tempVal;
+
+            tempVal = uv[2];
+            uv[2] = uv[6];
+            uv[6] = tempVal;
+
+            tempVal = uv[3];
+            uv[3] = uv[7];
+            uv[7] = tempVal;
         }
 
         let vertices = this.vertices;
