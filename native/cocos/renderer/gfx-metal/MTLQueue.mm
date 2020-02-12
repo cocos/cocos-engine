@@ -160,16 +160,16 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage)
                 {
                     if (!gpuInputAssembler->mtlIndirectBuffer)
                     {
-                        if (gpuInputAssembler->mtlIndirectBuffer && cmd->drawInfo.index_count >= 0)
+                        if (gpuInputAssembler->mtlIndexBuffer && cmd->drawInfo.index_count >= 0)
                         {
                             uint8_t* offset = 0;
                             offset += cmd->drawInfo.first_index * inputAssembler->indexBuffer()->stride();
                             if (cmd->drawInfo.instance_count == 0)
                             {
-                                // TODO: translate index type
                                 [encoder drawIndexedPrimitives:primitiveType
                                                     indexCount:cmd->drawInfo.index_count
-                                                     indexType:MTLIndexTypeUInt32
+                                                     // TODO: remove static_cast<>.
+                                                     indexType:static_cast<CCMTLBuffer*>(inputAssembler->indexBuffer() )->getIndexType()
                                                    indexBuffer:gpuInputAssembler->mtlIndexBuffer
                                              indexBufferOffset:0];
                             }

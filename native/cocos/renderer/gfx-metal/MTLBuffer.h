@@ -1,6 +1,7 @@
 #pragma once
 
 #import <Metal/MTLBuffer.h>
+#import <Metal/MTLStageInputOutputDescriptor.h>
 
 NS_CC_BEGIN
 
@@ -17,9 +18,12 @@ public:
     
     CC_INLINE id<MTLBuffer> getMTLBuffer() const { return _mtlBuffer; }
     CC_INLINE uint8_t* getTransferBuffer() const { return _transferBuffer; }
+    CC_INLINE MTLIndexType getIndexType() const { return _indexType; }
     
 private:
     id<MTLBuffer> _mtlBuffer = nullptr;
-    uint8_t* _transferBuffer = nullptr;};
+    uint8_t* _transferBuffer = nullptr;
+    MTLIndexType _indexType = MTLIndexTypeUInt16;
+};
 
 NS_CC_END

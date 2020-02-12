@@ -34,6 +34,9 @@ bool CCMTLBuffer::initialize(const GFXBufferInfo& info)
     _count = _size / _stride;
     _flags = info.flags;
     
+    if (_size == 4)
+        _indexType = MTLIndexTypeUInt32;
+    
     if ((_flags & GFXBufferFlagBit::BAKUP_BUFFER) && _size > 0)
     {
         _buffer = (uint8_t*)CC_MALLOC(_size);
