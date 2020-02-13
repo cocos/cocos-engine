@@ -843,6 +843,17 @@ void GLES2CmdFuncCreateShader(GLES2Device* device, GLES2GPUShader* gpu_shader) {
   }
   
   glLinkProgram(gpu_shader->gl_program);
+
+  // detach & delete immediately
+  for (size_t i = 0; i < gpu_shader->gpu_stages.size(); ++i) {
+    GLES2GPUShaderStage& gpu_stage = gpu_shader->gpu_stages[i];
+    if (gpu_stage.gl_shader) {
+      glDetachShader(gpu_shader->gl_program, gpu_stage.gl_shader);
+      glDeleteShader(gpu_stage.gl_shader);
+      gpu_stage.gl_shader = 0;
+    }
+  }
+
   glGetProgramiv(gpu_shader->gl_program, GL_LINK_STATUS, &status);
   if (status != 1) {
     CC_LOG_ERROR("Failed to link Shader [%s].", gpu_shader->name.c_str());
@@ -856,11 +867,6 @@ void GLES2CmdFuncCreateShader(GLES2Device* device, GLES2GPUShader* gpu_shader) {
       CC_LOG_ERROR("Failed to link shader '%s'.", gpu_shader->name.c_str());
       CC_LOG_ERROR(logs);
       CC_FREE(logs);
-      for (size_t i = 0; i < gpu_shader->gpu_stages.size(); ++i) {
-        GLES2GPUShaderStage& gpu_stage = gpu_shader->gpu_stages[i];
-        glDeleteShader(gpu_stage.gl_shader);
-        gpu_stage.gl_shader = 0;
-      }
       return;
     }
   }
@@ -1017,13 +1023,6 @@ void GLES2CmdFuncCreateShader(GLES2Device* device, GLES2GPUShader* gpu_shader) {
 }
 
 void GLES2CmdFuncDestroyShader(GLES2Device* device, GLES2GPUShader* gpu_shader) {
-  for (size_t i = 0; i < gpu_shader->gpu_stages.size(); ++i) {
-    GLES2GPUShaderStage& gpu_stage = gpu_shader->gpu_stages[i];
-    if (gpu_stage.gl_shader) {
-      glDeleteShader(gpu_stage.gl_shader);
-      gpu_stage.gl_shader = 0;
-    }
-  }
   if (gpu_shader->gl_program) {
     glDeleteProgram(gpu_shader->gl_program);
     gpu_shader->gl_program = 0;
