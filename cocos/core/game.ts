@@ -375,7 +375,7 @@ export class Game extends EventTarget {
         }
         // Because JSB platforms never actually stops the swap chain,
         // we draw some more frames here to (try to) make sure swap chain consistency
-        if (CC_JSB || CC_RUNTIME_BASED) {
+        if (CC_JSB || CC_RUNTIME_BASED || CC_ALIPAY) {
             let swapbuffers = 3;
             const cb = () => {
                 if (--swapbuffers > 1) {
