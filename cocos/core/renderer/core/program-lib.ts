@@ -34,7 +34,6 @@ import { GFXAPI, GFXDevice } from '../../gfx/device';
 import { GFXShader, GFXUniformBlock } from '../../gfx/shader';
 import { IInternalBindingDesc, localBindingsDesc } from '../../pipeline/define';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
-import { selectJointsMediumType } from '../models/skeletal-animation-utils';
 import { genHandle, IDefineMap } from './pass-utils';
 
 interface IDefineRecord extends IDefineInfo {

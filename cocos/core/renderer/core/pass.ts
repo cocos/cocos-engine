@@ -451,7 +451,6 @@ export class Pass {
      */
     public resetTextures () {
         for (const u of this._shaderInfo.samplers) {
-            if (isBuiltinBinding(u.binding)) { continue; }
             const inf = this._properties[u.name];
             const texName = inf && inf.value ? inf.value + '-texture' : type2default[u.type];
             const texture = builtinResMgr.get<TextureBase>(texName);
@@ -586,10 +585,10 @@ export class Pass {
         const blocks = this._shaderInfo.blocks;
         for (let i = 0; i < blocks.length; i++) {
             const { size, binding } = blocks[i];
-            if (isBuiltinBinding(binding)) { continue; }
             // create gfx buffer resource
             _bfInfo.size = Math.ceil(size / 16) * 16; // https://bugs.chromium.org/p/chromium/issues/detail?id=988988
             this._buffers[binding] = device.createBuffer(_bfInfo);
+            if (isBuiltinBinding(binding)) { continue; }
             // non-builtin UBO data pools, note that the effect compiler
             // guarantees these bindings to be consecutive, starting from 0
             const buffer = new ArrayBuffer(size);
