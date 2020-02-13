@@ -69,7 +69,7 @@ class JointTransformManager {
                 joint = { node, local: new Mat4(), world: new Mat4(), stamp: -1 };
                 pool.set(id, joint);
             }
-            if (joint.stamp === stamp) {
+            if (joint.stamp === stamp || joint.stamp + 1 === stamp && !node.hasChangedFlags) {
                 res = joint.world;
                 break;
             }
@@ -84,6 +84,13 @@ class JointTransformManager {
             res = Mat4.multiply(joint.world, res, joint.local);
         }
         return res;
+    }
+
+    public static destroyJoints (joints: IJointInfo[]) {
+        const pool = JointTransformManager.pool;
+        for (const joint of joints) {
+            pool.delete(joint.target.uuid);
+        }
     }
 
     private static stack: IJointTransform[] = [];
@@ -114,14 +121,15 @@ export class FlexibleSkinningModel extends Model {
 
     public destroy () {
         super.destroy();
-        this._joints.length = 0;
+        this.bindSkeleton();
         if (this._buffer) {
             this._buffer.destroy();
             this._buffer = null;
         }
     }
 
-    public bindSkeleton (skeleton: Skeleton | null, skinningRoot: Node | null, mesh: Mesh | null) {
+    public bindSkeleton (skeleton: Skeleton | null = null, skinningRoot: Node | null = null, mesh: Mesh | null = null) {
+        JointTransformManager.destroyJoints(this._joints);
         this._joints.length = 0;
         if (!skeleton || !skinningRoot || !mesh) { return; }
         this._transform = skinningRoot;
