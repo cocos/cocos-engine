@@ -670,7 +670,7 @@ export class LabelComponent extends UIRenderComponent {
         }
 
         if (this._letterTexture) {
-            this._letterTexture.destroy();
+            // texture cannot be destroyed in here, lettertexture image source is public.
             this._letterTexture = null;
         }
 

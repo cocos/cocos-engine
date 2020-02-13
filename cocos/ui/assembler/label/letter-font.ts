@@ -27,7 +27,7 @@
  * @hidden
  */
 
-import { ImageAsset, SpriteFrame, Texture2D } from '../../../core/assets';
+import { ImageAsset, Texture2D } from '../../../core/assets';
 import { isUnicodeCJK, isUnicodeSpace, safeMeasureText} from '../../../core/utils';
 import { mixin } from '../../../core/utils/js';
 import { Color, Rect, Size, Vec2 } from '../../../core/math';
@@ -83,7 +83,7 @@ class FontLetterDefinition {
 const _backgroundStyle = 'rgba(255, 255, 255, 0.005)';
 
 class LetterTexture {
-    public spriteframe: SpriteFrame | null = null;
+    public image: ImageAsset | null = null;
     public labelInfo: ILabelInfo;
     public char: string;
     public data: ISharedLabelData | null  = null;
@@ -105,18 +105,11 @@ class LetterTexture {
     }
 
     public destroy () {
-        if (!this.spriteframe) {
-            return;
-        }
-
-        this.spriteframe.texture.destroy();
-        this.spriteframe.destroy();
-        this.spriteframe = null;
+        this.image = null;
         // LabelComponent._canvasPool.put(this._data);
     }
 
     private _updateProperties () {
-        this.spriteframe = new SpriteFrame();
         this.data = LabelComponent._canvasPool.get();
         this.canvas = this.data.canvas;
         this.context = this.data.context;
@@ -137,14 +130,12 @@ class LetterTexture {
 
         // Note: after the optimization
         if (this._lastImage) {
-            this._lastImage._texture.destroy();
             this._lastImage.destroy();
         }
 
         const image = new ImageAsset(this.canvas);
         this._lastImage = image;
-        const tex = image._texture;
-        this.spriteframe.texture = tex;
+        this.image = image;
     }
 
     private _updateTexture () {
@@ -180,7 +171,7 @@ class LetterTexture {
         context.fillText(this.char, startX, startY);
 
         // this.texture.handleLoadedTexture();
-        (this.spriteframe!.texture as Texture2D).updateImage();
+        // (this.image as Texture2D).updateImage();
 
     }
 }
@@ -196,7 +187,6 @@ export class LetterRenderTexture extends Texture2D {
      * @param [string]
      */
     public initWithSize (width: number, height: number, format: number = PixelFormat.RGBA8888) {
-        this.destroy();
         this.reset({
             width,
             height,
@@ -209,13 +199,13 @@ export class LetterRenderTexture extends Texture2D {
     /**
      * @en Draw a texture to the specified position
      * @zh 将指定的图片渲染到指定的位置上。
-     * @param {Texture2D} texture
+     * @param {Texture2D} image
      * @param {Number} x
      * @param {Number} y
      */
-    public drawTextureAt (texture: SpriteFrame, x: number, y: number) {
+    public drawTextureAt (image: ImageAsset, x: number, y: number) {
         const gfxTexture = this.getGFXTexture();
-        if (!texture._image || !gfxTexture) {
+        if (!image || !gfxTexture) {
             return;
         }
 
@@ -235,8 +225,8 @@ export class LetterRenderTexture extends Texture2D {
                 z: 0,
             },
             texExtent: {
-                width: texture._image.width,
-                height: texture._image.height,
+                width: image.width,
+                height: image.height,
                 depth: 1,
             },
             texSubres: {
@@ -247,7 +237,7 @@ export class LetterRenderTexture extends Texture2D {
             },
         };
 
-        gfxDevice.copyTexImagesToTexture([texture._image.data as HTMLCanvasElement], gfxTexture, [region]);
+        gfxDevice.copyTexImagesToTexture([image.data as HTMLCanvasElement], gfxTexture, [region]);
     }
 }
 
@@ -263,15 +253,15 @@ export class LetterAtlas {
     public texture: LetterRenderTexture;
     private _x = space;
     private _y = space;
-    private _nexty = space;
+    private _nextY = space;
     private _width = 0;
     private _height = 0;
     private _letterDefinitions = new Map<string, FontLetterDefinition>();
-    private _imageAssets: ImageAsset[] = [];
     private _dirty = false;
 
     constructor (width: number, height: number) {
         this.texture = new LetterRenderTexture();
+        this.texture.name = 'LetterRenderTexture';
         this.texture.initWithSize(width, height);
 
         this._width = width;
@@ -280,9 +270,9 @@ export class LetterAtlas {
     }
 
     public insertLetterTexture (letterTexture: LetterTexture) {
-        const texture = letterTexture.spriteframe;
+        const texture = letterTexture.image;
         const device = director.root!.device;
-        if (!texture || !this.texture || !device || !texture._image) {
+        if (!texture || !this.texture || !device) {
             return null;
         }
 
@@ -291,14 +281,14 @@ export class LetterAtlas {
 
         if ((this._x + width + space) > this._width) {
             this._x = space;
-            this._y = this._nexty;
+            this._y = this._nextY;
         }
 
-        if ((this._y + height) > this._nexty) {
-            this._nexty = this._y + height + space;
+        if ((this._y + height) > this._nextY) {
+            this._nextY = this._y + height + space;
         }
 
-        if (this._nexty > this._height) {
+        if (this._nextY > this._height) {
             return null;
         }
 
@@ -341,7 +331,7 @@ export class LetterAtlas {
     public reset () {
         this._x = space;
         this._y = space;
-        this._nexty = space;
+        this._nextY = space;
 
         // const chars = this._letterDefinitions;
         // for (let i = 0, l = (Object.keys(chars)).length; i < l; i++) {
@@ -1020,7 +1010,7 @@ export const letterFont = {
 
             if (_tmpRect.height > 0 && _tmpRect.width > 0) {
                 const letterPositionX = letterInfo.x + _linesOffsetX[letterInfo.line];
-                this.appendQuad(renderData, texture, _tmpRect, false, letterPositionX - appx, py - appy, _bmfontScale);
+                this.appendQuad(_comp, texture, _tmpRect, false, letterPositionX - appx, py - appy, _bmfontScale);
             }
         }
 

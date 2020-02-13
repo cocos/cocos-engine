@@ -403,6 +403,7 @@ export class RichTextComponent extends UIComponent {
 
     public start () {
         this._onTTFLoaded();
+        this.node.on(Node.EventType.ANCHOR_CHANGED, this._anchorChanged, this);
     }
 
     public onRestore () {
@@ -426,6 +427,8 @@ export class RichTextComponent extends UIComponent {
             seg.node.removeFromParent();
             pool.put(seg);
         }
+
+        this.node.off(Node.EventType.ANCHOR_CHANGED, this._anchorChanged);
     }
 
     protected _addEventListeners () {
@@ -664,8 +667,7 @@ export class RichTextComponent extends UIComponent {
             const newItem = newTextArray[i];
             if (oldItem.text !== newItem.text) {
                 return true;
-            }
-            else {
+            } else {
                 if (oldItem.style) {
                     if (newItem.style) {
                         if (!!newItem.style.outline !== !!oldItem.style.outline) {
@@ -681,14 +683,12 @@ export class RichTextComponent extends UIComponent {
                                 return true;
                             }
                         }
-                    }
-                    else {
+                    } else {
                         if (oldItem.style.size || oldItem.style.italic || oldItem.style.isImage || oldItem.style.outline) {
                             return true;
                         }
                     }
-                }
-                else {
+                } else {
                     if (newItem.style) {
                         if (newItem.style.size || newItem.style.italic || newItem.style.isImage || newItem.style.outline) {
                             return true;
@@ -752,8 +752,7 @@ export class RichTextComponent extends UIComponent {
                 }
                 this._lineOffsetX += spriteWidth;
 
-            }
-            else {
+            } else {
                 this._lineOffsetX += spriteWidth;
                 if (this._lineOffsetX > this._labelWidth) {
                     this._labelWidth = this._lineOffsetX;
@@ -896,32 +895,30 @@ export class RichTextComponent extends UIComponent {
                 nextLineIndex = lineCount;
             }
 
-            let lineOffsetX = 0;
-            // let nodeAnchorXOffset = (0.5 - this.node.anchorX) * this._labelWidth;
+            const anchorX = this.node.anchorX;
+            let lineOffsetX = this._labelWidth * (this.horizontalAlign * 0.5 - anchorX);
             switch (this.horizontalAlign) {
                 case HorizontalTextAlignment.LEFT:
-                    lineOffsetX = - this._labelWidth / 2;
                     break;
                 case HorizontalTextAlignment.CENTER:
-                    lineOffsetX = - this._linesWidth[lineCount - 1] / 2;
+                    lineOffsetX -= this._linesWidth[lineCount - 1] / 2;
                     break;
                 case HorizontalTextAlignment.RIGHT:
-                    lineOffsetX = this._labelWidth / 2 - this._linesWidth[lineCount - 1];
+                    lineOffsetX -= this._linesWidth[lineCount - 1];
                     break;
                 default:
                     break;
             }
 
-            const labelSize = label.node.getContentSize();
-
-            const pos = label.node.getPosition();
+            const pos = label.node.position;
+            const anchorY = this.node.anchorY;
             label.node.setPosition(nextTokenX + lineOffsetX,
-                this.lineHeight * (totalLineCount - lineCount) - this._labelHeight / 2,
+                this.lineHeight * (totalLineCount - lineCount) - this._labelHeight * anchorY,
                 pos.z,
             );
 
             if (lineCount === nextLineIndex) {
-                nextTokenX += labelSize.width;
+                nextTokenX += label.node.width;
             }
         }
     }
@@ -997,6 +994,10 @@ export class RichTextComponent extends UIComponent {
                 labelSeg.clickHandler = textStyle.event[c];
             }
         }
+    }
+
+    private _anchorChanged () {
+        this._updateRichTextPosition();
     }
 }
 
