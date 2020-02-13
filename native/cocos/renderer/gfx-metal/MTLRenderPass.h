@@ -5,6 +5,8 @@
 
 NS_CC_BEGIN
 
+class GFXTextureView;
+
 class CCMTLRenderPass : public GFXRenderPass
 {
 public:
@@ -13,6 +15,9 @@ public:
     
     virtual bool initialize(const GFXRenderPassInfo& info) override;
     virtual void destroy() override;
+    
+    void setColorAttachment(GFXTextureView* textureView);
+    void setDepthStencilAttachment(GFXTextureView* textureView);
     
     CC_INLINE MTLRenderPassDescriptor* getMTLRenderPassDescriptor() const { return _mtlRenderPassDescriptor; }
     

@@ -17,7 +17,7 @@ public:
     virtual bool initialize(const GFXPipelineStateInfo& info) override;
     virtual void destroy() override;
     
-    void bindBuffer(GFXBindingLayout*);
+    void updateBindingBlocks(const GFXBindingLayout*);
     
     CC_INLINE const CCMTLGPUUniformBlockList& getVertexUniformBlocks() const { return _vertexUniformBlocks; }
     CC_INLINE const CCMTLGPUUniformBlockList& getFragmentUniformBlocks() const { return _fragmentUniformBlocks; }

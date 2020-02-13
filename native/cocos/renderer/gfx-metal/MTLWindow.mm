@@ -1,5 +1,6 @@
 #include "MTLStd.h"
 #include "MTLWindow.h"
+#include "MTLRenderPass.h"
 
 NS_CC_BEGIN
 
@@ -23,7 +24,14 @@ bool CCMTLWindow::initialize(const GFXWindowInfo& info)
     GFXRenderPassInfo render_pass_info;
     
     GFXColorAttachment color_attachment;
-    color_attachment.format = GFXFormat::BGRA8UN;
+    
+    // FIXME: use `_isOffscreen` to determine if it is the default window(created by device).
+    // As metal only supports GFXFormat::BGRA8UN for color attachment.
+    if (_isOffscreen)
+        color_attachment.format = info.color_fmt;
+    else
+        color_attachment.format = GFXFormat::BGRA8UN;
+    
     color_attachment.load_op = GFXLoadOp::CLEAR;
     color_attachment.store_op = GFXStoreOp::STORE;
     color_attachment.sample_count = 1;
@@ -33,10 +41,10 @@ bool CCMTLWindow::initialize(const GFXWindowInfo& info)
     
     GFXDepthStencilAttachment& depth_stencil_attachment = render_pass_info.depth_stencil_attachment;
     render_pass_info.depth_stencil_attachment.format = GFXFormat::D24S8;
-    depth_stencil_attachment.depth_load_op = GFXLoadOp::DISCARD;
-    depth_stencil_attachment.depth_store_op = GFXStoreOp::DISCARD;
-    depth_stencil_attachment.stencil_load_op = GFXLoadOp::DISCARD;
-    depth_stencil_attachment.stencil_store_op = GFXStoreOp::DISCARD;
+    depth_stencil_attachment.depth_load_op = GFXLoadOp::CLEAR;
+    depth_stencil_attachment.depth_store_op = GFXStoreOp::STORE;
+    depth_stencil_attachment.stencil_load_op = GFXLoadOp::CLEAR;
+    depth_stencil_attachment.stencil_store_op = GFXStoreOp::STORE;
     depth_stencil_attachment.sample_count = 1;
     depth_stencil_attachment.begin_layout = GFXTextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
     depth_stencil_attachment.end_layout = GFXTextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
@@ -58,6 +66,7 @@ bool CCMTLWindow::initialize(const GFXWindowInfo& info)
             _colorTex = _device->createTexture(color_tex_info);
             
             GFXTextureViewInfo color_tex_view_info;
+            color_tex_view_info.texture = _colorTex;
             color_tex_view_info.type = GFXTextureViewType::TV2D;
             color_tex_view_info.format = _colorFmt;
             color_tex_view_info.base_level = 0;
@@ -65,6 +74,8 @@ bool CCMTLWindow::initialize(const GFXWindowInfo& info)
             color_tex_view_info.base_layer = 0;
             color_tex_view_info.layer_count = 1;
             _colorTexView = _device->createTextureView(color_tex_view_info);
+            
+            static_cast<CCMTLRenderPass*>(_renderPass)->setColorAttachment(_colorTexView);
         }
         if (_depthStencilFmt != GFXFormat::UNKNOWN) {
             GFXTextureInfo depth_stecnil_tex_info;
@@ -79,6 +90,7 @@ bool CCMTLWindow::initialize(const GFXWindowInfo& info)
             _depthStencilTex = _device->createTexture(depth_stecnil_tex_info);
             
             GFXTextureViewInfo depth_stecnil_tex_view_info;
+            depth_stecnil_tex_view_info.texture = _depthStencilTex;
             depth_stecnil_tex_view_info.type = GFXTextureViewType::TV2D;
             depth_stecnil_tex_view_info.format = _colorFmt;
             depth_stecnil_tex_view_info.base_level = 0;
@@ -86,6 +98,8 @@ bool CCMTLWindow::initialize(const GFXWindowInfo& info)
             depth_stecnil_tex_view_info.base_layer = 0;
             depth_stecnil_tex_view_info.layer_count = 1;
             _depthStencilTexView = _device->createTextureView(depth_stecnil_tex_view_info);
+            
+            static_cast<CCMTLRenderPass*>(_renderPass)->setDepthStencilAttachment(_depthStencilTexView);
         }
     }
 

@@ -301,17 +301,27 @@ namespace mu
     
     MTLTextureUsage toMTLTextureUsage(GFXTextureUsage usage)
     {
-        switch (usage) {
-            case GFXTextureUsage::NONE: return MTLTextureUsageUnknown;
-            case GFXTextureUsage::TRANSFER_SRC: return MTLTextureUsageShaderRead;
-            case GFXTextureUsage::TRANSFER_DST: return MTLTextureUsageShaderWrite;
-            case GFXTextureUsage::SAMPLED: return MTLTextureUsageShaderRead | MTLTextureUsagePixelFormatView;
-            case GFXTextureUsage::STORAGE: return MTLTextureUsageShaderWrite;
-            case GFXTextureUsage::COLOR_ATTACHMENT: return MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
-            case GFXTextureUsage::DEPTH_STENCIL_ATTACHMENT: return MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
-            case GFXTextureUsage::TRANSIENT_ATTACHMENT: return MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
-            case GFXTextureUsage::INPUT_ATTACHMENT: return MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
+        if (usage == GFXTextureUsage::NONE)
+            return MTLTextureUsageUnknown;
+        
+        MTLTextureUsage ret = MTLTextureUsageUnknown;
+        if (usage & GFXTextureUsage::TRANSFER_SRC)
+            ret |= MTLTextureUsageShaderRead;
+        if (usage & GFXTextureUsage::TRANSFER_DST)
+            ret |= MTLTextureUsageShaderWrite;
+        if (usage & GFXTextureUsage::SAMPLED)
+            ret |= MTLTextureUsageShaderRead;
+        if (usage & GFXTextureUsage::STORAGE)
+            ret |= MTLTextureUsageShaderWrite;
+        if (usage & GFXTextureUsage::COLOR_ATTACHMENT ||
+            usage & GFXTextureUsage::DEPTH_STENCIL_ATTACHMENT ||
+            usage & GFXTextureUsage::TRANSIENT_ATTACHMENT ||
+            usage & GFXTextureUsage::INPUT_ATTACHMENT)
+        {
+            ret |= MTLTextureUsageRenderTarget;
         }
+        
+        return ret;
     }
     
     MTLTextureType toMTLTextureType(GFXTextureType type, uint arrayLength, bool isCube)

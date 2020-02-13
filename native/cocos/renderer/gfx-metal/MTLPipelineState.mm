@@ -8,6 +8,7 @@
 #include "MTLTextureView.h"
 #include "MTLSampler.h"
 #include "MTLGPUObjects.h"
+#include "MTLBindingLayout.h"
 
 #import <Metal/MTLVertexDescriptor.h>
 #import <Metal/MTLDevice.h>
@@ -29,7 +30,7 @@ bool CCMTLPipelineState::initialize(const GFXPipelineStateInfo& info)
     layout_ = info.layout;
     _renderPass = info.render_pass;
     
-    return  createGPUPipelineState();
+    return createGPUPipelineState();
 }
 
 void CCMTLPipelineState::destroy()
@@ -49,7 +50,7 @@ void CCMTLPipelineState::destroy()
     CC_SAFE_DELETE(_GPUPipelieState);
 }
 
-void CCMTLPipelineState::bindBuffer(GFXBindingLayout* bl)
+void CCMTLPipelineState::updateBindingBlocks(const GFXBindingLayout* bl)
 {
     if (!bl)
         return;
@@ -58,7 +59,7 @@ void CCMTLPipelineState::bindBuffer(GFXBindingLayout* bl)
     {
         for (auto& block : _vertexUniformBlocks)
         {
-            if (block.originBinding == bindingUnit.binding)
+            if (block.originBinding == bindingUnit.binding && bindingUnit.buffer)
             {
                 block.buffer = static_cast<CCMTLBuffer*>(bindingUnit.buffer)->getMTLBuffer();
                 break;
@@ -67,9 +68,45 @@ void CCMTLPipelineState::bindBuffer(GFXBindingLayout* bl)
         
         for (auto& block : _fragmentUniformBlocks)
         {
-            if (block.originBinding == bindingUnit.binding)
+            if (block.originBinding == bindingUnit.binding && bindingUnit.buffer)
             {
                 block.buffer = static_cast<CCMTLBuffer*>(bindingUnit.buffer)->getMTLBuffer();
+                break;
+            }
+        }
+        
+        for (auto& block : _vertexTextures)
+        {
+            if (block.originBinding == bindingUnit.binding && bindingUnit.tex_view)
+            {
+                block.texture = static_cast<CCMTLTextureView*>(bindingUnit.tex_view)->getMTLTexture();
+                break;
+            }
+        }
+        
+        for (auto& block : _fragmentTextures)
+        {
+            if (block.originBinding == bindingUnit.binding && bindingUnit.tex_view)
+            {
+                block.texture = static_cast<CCMTLTextureView*>(bindingUnit.tex_view)->getMTLTexture();
+                break;
+            }
+        }
+        
+        for (auto& block : _vertexSamplerStates)
+        {
+            if (block.originBinding == bindingUnit.binding && bindingUnit.sampler)
+            {
+                block.samplerState = static_cast<CCMTLSampler*>(bindingUnit.sampler)->getMTLSamplerState();
+                break;
+            }
+        }
+        
+        for (auto& block : _fragmentSamplerStates)
+        {
+            if (block.originBinding == bindingUnit.binding && bindingUnit.sampler)
+            {
+                block.samplerState = static_cast<CCMTLSampler*>(bindingUnit.sampler)->getMTLSamplerState();
                 break;
             }
         }
@@ -110,7 +147,7 @@ void CCMTLPipelineState::createMTLDepthStencilState()
     if (!_dss.depth_test &&
         !_dss.depth_write &&
         !_dss.stencil_test_front &&
-        !_dss.stencil_ref_back)
+        !_dss.stencil_test_back)
     {
         return;
     }
@@ -132,6 +169,15 @@ void CCMTLPipelineState::createMTLDepthStencilState()
         descriptor.frontFaceStencil.depthFailureOperation = mu::toMTLStencilOperation(_dss.stencil_z_fail_op_front);
         descriptor.frontFaceStencil.depthStencilPassOperation = mu::toMTLStencilOperation(_dss.stencil_pass_op_front);
     }
+    else
+    {
+        descriptor.frontFaceStencil.stencilCompareFunction = MTLCompareFunctionAlways;
+        descriptor.frontFaceStencil.readMask = _dss.stencil_read_mask_front;
+        descriptor.frontFaceStencil.writeMask = _dss.stencil_write_mask_front;
+        descriptor.frontFaceStencil.stencilFailureOperation = MTLStencilOperationKeep;
+        descriptor.frontFaceStencil.depthFailureOperation = MTLStencilOperationKeep;
+        descriptor.frontFaceStencil.depthStencilPassOperation = MTLStencilOperationKeep;
+    }
     
     if (_dss.stencil_test_back)
     {
@@ -141,6 +187,15 @@ void CCMTLPipelineState::createMTLDepthStencilState()
         descriptor.backFaceStencil.stencilFailureOperation = mu::toMTLStencilOperation(_dss.stencil_fail_op_back);
         descriptor.backFaceStencil.depthFailureOperation = mu::toMTLStencilOperation(_dss.stencil_z_fail_op_back);
         descriptor.backFaceStencil.depthStencilPassOperation = mu::toMTLStencilOperation(_dss.stencil_pass_op_back);
+    }
+    else
+    {
+        descriptor.backFaceStencil.stencilCompareFunction = MTLCompareFunctionAlways;
+        descriptor.backFaceStencil.readMask = _dss.stencil_read_mask_back;
+        descriptor.backFaceStencil.writeMask = _dss.stencil_write_mask_back;
+        descriptor.backFaceStencil.stencilFailureOperation = MTLStencilOperationKeep;
+        descriptor.backFaceStencil.depthFailureOperation = MTLStencilOperationKeep;
+        descriptor.backFaceStencil.depthStencilPassOperation = MTLStencilOperationKeep;
     }
     
     id<MTLDevice> mtlDevice = id<MTLDevice>( ((CCMTLDevice*)_device)->getMTLDevice() );
@@ -368,19 +423,23 @@ void CCMTLPipelineState::bindTexture(MTLArgument* argument, uint originBinding, 
     {
         for (const auto& bindingUnit : bindingLayout->bindingUnits() )
         {
-            if (bindingUnit.tex_view && bindingUnit.binding == originBinding)
+            if (bindingUnit.binding == originBinding)
             {
                 if (isVertex)
                 {
-                    _vertexTextures.push_back({(uint)argument.index,
-                                               originBinding,
-                                               static_cast<CCMTLTextureView*>(bindingUnit.tex_view)->getMTLTexture()});
+                    _vertexTextures.push_back({ (uint)argument.index,
+                                                originBinding,
+                                                bindingUnit.tex_view ? static_cast<CCMTLTextureView*>(bindingUnit.tex_view)->getMTLTexture()
+                                                                     : nullptr
+                    });
                 }
                 else
                 {
-                    _fragmentTextures.push_back({(uint)argument.index,
-                                                 originBinding,
-                                                 static_cast<CCMTLTextureView*>(bindingUnit.tex_view)->getMTLTexture()});
+                    _fragmentTextures.push_back({ (uint)argument.index,
+                                                  originBinding,
+                                                  bindingUnit.tex_view ? static_cast<CCMTLTextureView*>(bindingUnit.tex_view)->getMTLTexture()
+                                                                       : nullptr
+                    });
                 }
             }
         }

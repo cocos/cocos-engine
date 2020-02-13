@@ -77,17 +77,14 @@ bool CCMTLTexture::initialize(const GFXTextureInfo& info)
     descriptor.mipmapLevelCount = _mipLevel;
     descriptor.arrayLength = _arrayLayer;
     
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
-    //FIXME: is it correct here for performace optimization?
-    // Should change to MTLStorageModeManaged if texture usage is GFXTextureFlags::BAKUP_BUFFER?
-    if (_usage == GFXTextureUsage::COLOR_ATTACHMENT ||
-        _usage == GFXTextureUsage::DEPTH_STENCIL_ATTACHMENT ||
-        _usage == GFXTextureUsage::INPUT_ATTACHMENT ||
-        _usage == GFXTextureUsage::TRANSIENT_ATTACHMENT)
+    //FIXME: should change to MTLStorageModeManaged if texture usage is GFXTextureFlags::BAKUP_BUFFER?
+    if (_usage & GFXTextureUsage::COLOR_ATTACHMENT ||
+        _usage & GFXTextureUsage::DEPTH_STENCIL_ATTACHMENT ||
+        _usage & GFXTextureUsage::INPUT_ATTACHMENT ||
+        _usage & GFXTextureUsage::TRANSIENT_ATTACHMENT)
     {
-        descriptor.storageMode = MTLStorageModePrivate;
+        descriptor.resourceOptions = MTLResourceStorageModePrivate;
     }
-#endif
     
     id<MTLDevice> mtlDevice = id<MTLDevice>(static_cast<CCMTLDevice*>(_device)->getMTLDevice() );
     _mtlTexture = [mtlDevice newTextureWithDescriptor:descriptor];

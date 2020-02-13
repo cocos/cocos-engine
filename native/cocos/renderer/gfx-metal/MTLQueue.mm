@@ -82,16 +82,16 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage)
                 
                 MTLRenderPassDescriptor* mtlRenderPassDescriptor;
                 if (!cmdBeginRenderPass->frameBuffer->isOffscreen() )
-                {
                     mtlRenderPassDescriptor = mtkView.currentRenderPassDescriptor;
-                    mtlRenderPassDescriptor.colorAttachments[0].clearColor = mu::toMTLClearColor(cmdBeginRenderPass->clearColors[0]);
-                    mtlRenderPassDescriptor.depthAttachment.clearDepth = cmdBeginRenderPass->clearDepth;
-                    mtlRenderPassDescriptor.stencilAttachment.clearStencil = cmdBeginRenderPass->clearStencil;
-                }
                 else
-                {
-                    //TODO
-                }
+                    mtlRenderPassDescriptor = static_cast<CCMTLRenderPass*>(cmdBeginRenderPass->frameBuffer->renderPass() )->getMTLRenderPassDescriptor();
+                
+                if (cmdBeginRenderPass->clearFlags & GFXClearFlagBit::COLOR)
+                    mtlRenderPassDescriptor.colorAttachments[0].clearColor = mu::toMTLClearColor(cmdBeginRenderPass->clearColors[0]);
+                if (cmdBeginRenderPass->clearFlags & GFXClearFlagBit::DEPTH)
+                    mtlRenderPassDescriptor.depthAttachment.clearDepth = cmdBeginRenderPass->clearDepth;
+                if (cmdBeginRenderPass->clearFlags & GFXClearFlagBit::STENCIL)
+                    mtlRenderPassDescriptor.stencilAttachment.clearStencil = cmdBeginRenderPass->clearStencil;
                 
                 encoder = [mtlCommandBuffer renderCommandEncoderWithDescriptor:mtlRenderPassDescriptor];
                 
