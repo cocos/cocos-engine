@@ -4,7 +4,7 @@
 
 import { IVec3Like } from "../../core/math/type-define";
 import { PhysicsRayResult } from '../framework/physics-ray-result';
-import { ray } from '../../core/geom-utils';
+import { ray } from '../../core/geometry';
 import { RecyclePool } from '../../core';
 
 export interface IRaycastOptions {

@@ -31,7 +31,7 @@ import { AnimationClip } from '../../animation/animation-clip';
 import { SkelAnimDataHub } from '../../animation/skeletal-animation-data-hub';
 import { Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
-import { aabb } from '../../geom-utils';
+import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXAddress, GFXAttributeName, GFXBufferUsageBit, GFXFilter, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXDevice, GFXFeature } from '../../gfx/device';

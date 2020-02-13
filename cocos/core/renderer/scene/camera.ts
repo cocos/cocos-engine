@@ -1,4 +1,4 @@
-import { frustum, ray } from '../../geom-utils';
+import { frustum, ray } from '../../geometry';
 import { GFXClearFlag, IGFXColor } from '../../gfx/define';
 import { GFXWindow } from '../../gfx/window';
 import { lerp, Mat4, Rect, toRadian, Vec3 } from '../../math';

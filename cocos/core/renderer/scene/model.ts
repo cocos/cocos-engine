@@ -1,7 +1,7 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 import { Material } from '../../assets/material';
 import { IRenderingSubmesh } from '../../assets/mesh';
-import { aabb } from '../../geom-utils';
+import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXGetTypeSize, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';

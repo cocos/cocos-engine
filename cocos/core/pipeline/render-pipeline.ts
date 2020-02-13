@@ -3,7 +3,7 @@
  */
 
 import { ccclass, property } from '../data/class-decorator';
-import { intersect } from '../geom-utils';
+import { intersect } from '../geometry';
 import { GFXBuffer } from '../gfx/buffer';
 import {
     GFXBindingType,

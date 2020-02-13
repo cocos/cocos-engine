@@ -1,6 +1,6 @@
 
 import { Material } from '../../assets/material';
-import { aabb, frustum, intersect } from '../../geom-utils';
+import { aabb, frustum, intersect } from '../../geometry';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../../gfx/command-buffer';
 import { GFXCommandBufferType, GFXStatus } from '../../gfx/define';
 import { GFXInputAssembler } from '../../gfx/input-assembler';

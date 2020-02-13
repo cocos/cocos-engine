@@ -1,4 +1,4 @@
-import { aabb, frustum } from '../../geom-utils';
+import { aabb, frustum } from '../../geometry';
 import { Mat4, Quat, Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
 import { RenderScene } from './render-scene';
