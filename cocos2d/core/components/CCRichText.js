@@ -357,7 +357,7 @@ let RichText = cc.Class({
         if (this.handleTouchEvent) {
             this._addEventListeners();
         }
-        this._onTTFLoaded();
+        this._updateRichText();
         this._activateChildren(true);
     },
 
@@ -366,6 +366,10 @@ let RichText = cc.Class({
             this._removeEventListeners();
         }
         this._activateChildren(false);
+    },
+
+    start () {
+        this._onTTFLoaded();
     },
 
     _onColorChanged (parentColor) {
