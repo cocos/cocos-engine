@@ -77,7 +77,8 @@ enum EventType {
 export class EditBoxComponent extends Component {
 
     /**
-     * @en Input string of EditBox.
+     * @en
+     * Input string of EditBox.
      *
      * @zh
      * 输入框的初始输入内容，如果为空则会显示占位符的文本。
@@ -99,9 +100,11 @@ export class EditBoxComponent extends Component {
     }
 
     /**
-     * @en The Label component attached to the node for EditBox's input text label
+     * @en
+     * The Label component attached to the node for EditBox's input text label
      *
-     * @zh 输入框输入文本节点上挂载的 Label 组件对象
+     * @zh
+     * 输入框输入文本节点上挂载的 Label 组件对象
      */
     @property({
         tooltip: '输入框输入文本节点上挂载的 Label 组件对象',
@@ -121,9 +124,11 @@ export class EditBoxComponent extends Component {
         }
     }
     /**
-     * @en The Label component attached to the node for EditBox's placeholder text label.
+     * @en
+     * The Label component attached to the node for EditBox's placeholder text label.
      *
-     * @zh 输入框占位符节点上挂载的 Label 组件对象。
+     * @zh
+     * 输入框占位符节点上挂载的 Label 组件对象。
      */
     @property({
         tooltip: '输入框占位符节点上挂载的 Label 组件对象',
@@ -370,11 +375,13 @@ export class EditBoxComponent extends Component {
     }
 
     /**
-     * @en The maximize input length of EditBox.
+     * @en
+     * The maximize input length of EditBox.
      * - If pass a value less than 0, it won't limit the input number of characters.
      * - If pass 0, it doesn't allow input any characters.
      *
-     * @zh 输入框最大允许输入的字符个数。
+     * @zh
+     * 输入框最大允许输入的字符个数。
      * - 如果值为小于 0 的值，则不会限制输入字符个数。
      * - 如果值为 0，则不允许用户进行任何输入。
      */

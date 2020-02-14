@@ -47,9 +47,11 @@ const _matInsInfo: IMaterialInstanceInfo = {
 };
 
 /**
+ * @en
+ * Graphics component.
+ *
  * @zh
  * 自定义图形类
- * 可通过 cc.GraphicsComponent 获得此组件
  */
 @ccclass('cc.GraphicsComponent')
 @executionOrder(110)
@@ -57,6 +59,9 @@ const _matInsInfo: IMaterialInstanceInfo = {
 export class GraphicsComponent extends UIRenderComponent {
 
     /**
+     * @en
+     * Current line width.
+     *
      * @zh
      * 当前线条宽度。
      */
@@ -73,8 +78,11 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Determines how two connecting segments (of lines, arcs or curves) with non-zero lengths in a shape are joined together.
+     *
      * @zh
-     * lineJoin 用来设置2个长度不为0的相连部分（线段，圆弧，曲线）如何连接在一起的属性。
+     * 用来设置2个长度不为0的相连部分（线段，圆弧，曲线）如何连接在一起的属性。
      */
     @property({
         type: LineJoin,
@@ -94,8 +102,11 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Determines how the end points of every line are drawn.
+     *
      * @zh
-     * lineCap 指定如何绘制每一条线段末端。
+     * 指定如何绘制每一条线段末端。
      */
     @property({
         type: LineCap,
@@ -115,6 +126,9 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Stroke color.
+     *
      * @zh
      * 线段颜色。
      */
@@ -136,6 +150,9 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Fill color.
+     *
      * @zh
      * 填充颜色。
      */
@@ -157,6 +174,9 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Sets the miter limit ratio.
+     *
      * @zh
      * 设置斜接面限制比例。
      */
@@ -273,6 +293,9 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Move path start point to (x,y).
+     *
      * @zh
      * 移动路径起点到坐标(x, y)。
      *
@@ -288,6 +311,9 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Adds a straight line to the path.
+     *
      * @zh
      * 绘制直线路径。
      *
@@ -303,6 +329,9 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Adds a cubic Bézier curve to the path.
+     *
      * @zh
      * 绘制三次贝赛尔曲线路径。
      *
@@ -322,6 +351,9 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Adds a quadratic Bézier curve to the path.
+     *
      * @zh
      * 绘制二次贝赛尔曲线路径。
      *
@@ -339,6 +371,10 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Adds an arc to the path which is centered at (cx, cy) position with radius r starting at startAngle
+     * and ending at endAngle going in the given direction by counterclockwise (defaulting to false).
+     *
      * @zh
      * 绘制圆弧路径。圆弧路径的圆心在 (cx, cy) 位置，半径为 r ，根据 counterclockwise （默认为false）指定的方向从 startAngle 开始绘制，到 endAngle 结束。
      *
@@ -358,6 +394,9 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Adds an ellipse to the path.
+     *
      * @zh
      * 绘制椭圆路径。
      *
@@ -375,6 +414,9 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Adds an circle to the path.
+     *
      * @zh
      * 绘制圆形路径。
      *
@@ -391,6 +433,9 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Adds an rectangle to the path.
+     *
      * @zh
      * 绘制矩形路径。
      *
@@ -408,6 +453,9 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Adds an round corner rectangle to the path.
+     *
      * @zh
      * 绘制圆角矩形路径。
      *
@@ -426,6 +474,9 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Draws a filled rectangle.
+     *
      * @zh
      * 绘制填充矩形。
      *
@@ -440,6 +491,9 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Erasing any previously drawn content.
+     *
      * @zh
      * 擦除之前绘制的所有内容的方法。
      */
@@ -457,6 +511,10 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Causes the point of the pen to move back to the start of the current path.
+     * It tries to add a straight line from the current point to the start.
+     *
      * @zh
      * 将笔点返回到当前路径起始点的。它尝试从当前点到起始点绘制一条直线。
      */
@@ -469,6 +527,9 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Strokes the current or given path with the current stroke style.
+     *
      * @zh
      * 根据当前的画线样式，绘制当前或已经存在的路径。
      */
@@ -477,6 +538,9 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Fills the current or given path with the current fill style.
+     *
      * @zh
      * 根据当前的画线样式，填充当前或已经存在的路径。
      */
@@ -485,6 +549,9 @@ export class GraphicsComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Manual instance material.
+     *
      * @zh
      * 辅助材质实例化。可用于只取数据而无实体情况下渲染使用。特殊情况可参考：[[instanceMaterial]]
      */

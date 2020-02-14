@@ -33,10 +33,14 @@ import { ccclass, executeInEditMode, executionOrder, menu, property } from '../.
 import { ToggleComponent} from './toggle-component';
 
 /**
+ * @en
+ * ToggleContainer is not a visible UI component but a way to modify the behavior of a set of Toggles. <br/>
+ * Toggles that belong to the same group could only have one of them to be switched on at a time.<br/>
+ * Note: All the first layer child node containing the toggle component will auto be added to the container.
+ *
  * @zh
  * ToggleGroup 不是一个可见的 UI 组件，它可以用来修改一组 Toggle  组件的行为。当一组 Toggle 属于同一个 ToggleGroup 的时候，<br/>
  * 任何时候只能有一个 Toggle 处于选中状态。
- * 可通过 cc.ToggleContainerComponent 获得该组件。
  */
 
 @ccclass('cc.ToggleContainerComponent')
@@ -44,6 +48,13 @@ import { ToggleComponent} from './toggle-component';
 @menu('UI/ToggleContainer')
 @executeInEditMode
 export class ToggleContainerComponent extends Component {
+    /**
+     * @en
+     * If Toggle is clicked, it will trigger event's handler.
+     *
+     * @zh
+     * Toggle 按钮的点击事件列表。
+     */
     @property({
         type: [ComponentEventHandler],
         tooltip:'选中事件。列表类型，默认为空，用户添加的每一个事件由节点引用，组件名称和一个响应函数组成。',
@@ -54,6 +65,11 @@ export class ToggleContainerComponent extends Component {
     private _toggleItems: ToggleComponent[] = [];
 
     /**
+     * @en
+     * If this setting is true, a toggle could be switched off and on when pressed.
+     * If it is false, it will make sure there is always only one toggle could be switched on
+     * and the already switched on toggle can't be switched off.
+     *
      * @zh
      * 如果这个设置为 true，那么 toggle 按钮在被点击的时候可以反复地被选中和未选中。
      */
@@ -81,6 +97,9 @@ export class ToggleContainerComponent extends Component {
     }
 
     /**
+     * @en
+     * Refresh the state of the managed toggles.
+     *
      * @zh
      * 刷新管理的 toggle 状态。
      *
@@ -103,6 +122,9 @@ export class ToggleContainerComponent extends Component {
     }
 
     /**
+     * @en
+     * Add toggle that needs to be managed.
+     *
      * @zh
      * 添加需要被控制的 toggle。
      *
@@ -117,6 +139,9 @@ export class ToggleContainerComponent extends Component {
     }
 
     /**
+     * @en
+     * Remove toggle that needs to be managed.
+     *
      * @zh
      * 移除 toggle。
      *

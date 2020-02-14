@@ -41,30 +41,35 @@ import { SpriteComponent } from './sprite-component';
 import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
 
 /**
- * @zh
- * 过渡类型。
+ * @en Enum for transition type.
+ *
+ * @zh 过渡类型。
  */
 enum Transition {
     /**
-     * @zh
-     * 不做任何过渡。
+     * @en The none type.
+     *
+     * @zh 不做任何过渡。
      */
     NONE = 0,
 
     /**
-     * @zh
-     * 颜色过渡。
+     * @en The color type.
+     *
+     * @zh 颜色过渡。
      */
     COLOR = 1,
 
     /**
-     * @zh
-     * 精灵过渡。
+     * @en The sprite type.
+     *
+     * @zh 精灵过渡。
      */
     SPRITE = 2,
     /**
-     * @zh
-     * 缩放过渡。
+     * @en The scale type.
+     *
+     * @zh 缩放过渡。
      */
     SCALE = 3,
 }
@@ -83,9 +88,24 @@ export enum EventType {
 }
 
 /**
+ * @en
+ * Button has 4 Transition types<br/>
+ * When Button state changed:<br/>
+ *  If Transition type is Button.Transition.NONE, Button will do nothing<br/>
+ *  If Transition type is Button.Transition.COLOR, Button will change target's color<br/>
+ *  If Transition type is Button.Transition.SPRITE, Button will change target Sprite's sprite<br/>
+ *  If Transition type is Button.Transition.SCALE, Button will change target node's scale<br/>
+ *
+ * Button will trigger 5 events:<br/>
+ *  Button.EVENT_TOUCH_DOWN<br/>
+ *  Button.EVENT_TOUCH_UP<br/>
+ *  Button.EVENT_HOVER_IN<br/>
+ *  Button.EVENT_HOVER_MOVE<br/>
+ *  Button.EVENT_HOVER_OUT<br/>
+ *  User can get the current clicked node with 'event.target' from event object which is passed as parameter in the callback function of click event.
+ *
  * @zh
  * 按钮组件。可以被按下,或者点击。<br/>
- * 可通过 cc.ButtonComponent 获得此组件
  *
  * 按钮可以通过修改 Transition 来设置按钮状态过渡的方式：<br/>
  *   -Button.Transition.NONE   // 不做任何过渡<br/>
@@ -127,6 +147,10 @@ export enum EventType {
 export class ButtonComponent extends Component {
 
     /**
+     * @en
+     * Whether the Button is disabled.
+     * If true, the Button will trigger event and do transition.
+     *
      * @zh
      * 按钮事件是否被响应，如果为 false，则按钮将被禁用。
      */
@@ -161,6 +185,9 @@ export class ButtonComponent extends Component {
     }
 
     /**
+     * @en
+     * Transition type.
+     *
      * @zh
      * 按钮状态改变时过渡方式。
      */
@@ -184,6 +211,9 @@ export class ButtonComponent extends Component {
     // color transition
 
     /**
+     * @en
+     * Normal state color.
+     *
      * @zh
      * 普通状态下按钮所显示的颜色。
      */
@@ -205,6 +235,9 @@ export class ButtonComponent extends Component {
     }
 
     /**
+     * @en
+     * Pressed state color.
+     *
      * @zh
      * 按下状态时按钮所显示的颜色。
      */
@@ -225,6 +258,9 @@ export class ButtonComponent extends Component {
     }
 
     /**
+     * @en
+     * Hover state color.
+     *
      * @zh
      * 悬停状态下按钮所显示的颜色。
      */
@@ -244,6 +280,9 @@ export class ButtonComponent extends Component {
         this._hoverColor.set(value);
     }
     /**
+     * @en
+     * Disabled state color.
+     *
      * @zh
      * 禁用状态下按钮所显示的颜色。
      */
@@ -265,6 +304,9 @@ export class ButtonComponent extends Component {
     }
 
     /**
+     * @en
+     * Color and Scale transition duration.
+     *
      * @zh
      * 颜色过渡和缩放过渡时所需时间。
      */
@@ -286,6 +328,10 @@ export class ButtonComponent extends Component {
     }
 
     /**
+     * @en
+     * When user press the button, the button will zoom to a scale.
+     * The final scale of the button equals (button original scale * zoomScale)
+     *
      * @zh
      * 当用户点击按钮后，按钮会缩放到一个值，这个值等于 Button 原始 scale * zoomScale。
      */
@@ -306,6 +352,9 @@ export class ButtonComponent extends Component {
 
     // sprite transition
     /**
+     * @en
+     * Normal state sprite.
+     *
      * @zh
      * 普通状态下按钮所显示的 Sprite。
      */
@@ -332,6 +381,9 @@ export class ButtonComponent extends Component {
     }
 
     /**
+     * @en
+     * Pressed state sprite.
+     *
      * @zh
      * 按下状态时按钮所显示的 Sprite。
      */
@@ -353,6 +405,9 @@ export class ButtonComponent extends Component {
     }
 
     /**
+     * @en
+     * Hover state sprite.
+     *
      * @zh
      * 悬停状态下按钮所显示的 Sprite。
      */
@@ -374,6 +429,9 @@ export class ButtonComponent extends Component {
     }
 
     /**
+     * @en
+     * Disabled state sprite.
+     *
      * @zh
      * 禁用状态下按钮所显示的 Sprite。
      */
@@ -395,12 +453,19 @@ export class ButtonComponent extends Component {
     }
 
     /**
+     * @en
+     * Transition target.
+     * When Button state changed:
+     * - If Transition type is Button.Transition.NONE, Button will do nothing.
+     * - If Transition type is Button.Transition.COLOR, Button will change target's color.
+     * - If Transition type is Button.Transition.SPRITE, Button will change target Sprite's sprite.
+     *
      * @zh
      * 需要过渡的目标。<br/>
      * 当前按钮状态改变规则：<br/>
-     * -如果 Transition type 选择 Button.Transition.NONE，按钮不做任何过渡。<br/>
-     * -如果 Transition type 选择 Button.Transition.COLOR，按钮会对目标颜色进行颜色之间的过渡。<br/>
-     * -如果 Transition type 选择 Button.Transition.Sprite，按钮会对目标 Sprite 进行 Sprite 之间的过渡。<br/>
+     * - 如果 Transition type 选择 Button.Transition.NONE，按钮不做任何过渡。
+     * - 如果 Transition type 选择 Button.Transition.COLOR，按钮会对目标颜色进行颜色之间的过渡。
+     * - 如果 Transition type 选择 Button.Transition.Sprite，按钮会对目标 Sprite 进行 Sprite 之间的过渡。
      */
     @property({
         type: Node,
@@ -423,6 +488,9 @@ export class ButtonComponent extends Component {
     public static Transition = Transition;
     public static EventType = EventType;
     /**
+     * @en
+     * If Button is clicked, it will trigger event's handler.
+     *
      * @zh
      * 按钮的点击事件列表。
      */
