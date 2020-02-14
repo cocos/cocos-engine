@@ -726,8 +726,10 @@ let TiledMap = cc.Class({
                     if (!image) {
                         image = child.addComponent(cc.Sprite);
                     }
-                    image.spriteFrame = new cc.SpriteFrame();
-                    image.spriteFrame.setTexture(texture);
+                    
+                    let spf = image.spriteFrame || new cc.SpriteFrame();
+                    spf.setTexture(texture);
+                    image.spriteFrame = spf;
 
                     child.width = texture.width;
                     child.height = texture.height;
