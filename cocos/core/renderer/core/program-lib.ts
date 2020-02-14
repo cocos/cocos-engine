@@ -101,6 +101,7 @@ function insertBuiltinBindings (tmpl: IProgramInfo, source: Map<string, IInterna
             defines: b.defines,
             size: getSize(info.blockInfo!),
             bindingType: GFXBindingType.UNIFORM_BUFFER,
+            defaultValue: info.defaultValue as ArrayBuffer,
         }, info.blockInfo!);
         blocks.push(builtin);
     }
@@ -108,7 +109,7 @@ function insertBuiltinBindings (tmpl: IProgramInfo, source: Map<string, IInterna
     for (const s of target.samplers) {
         const info = source.get(s.name);
         if (!info || info.type !== GFXBindingType.SAMPLER) { console.warn(`builtin sampler '${s.name}' not available!`); continue; }
-        const builtin = Object.assign({ defines: s.defines, bindingType: GFXBindingType.SAMPLER }, info.samplerInfo);
+        const builtin = Object.assign({ defines: s.defines, bindingType: GFXBindingType.SAMPLER, defaultValue: info.defaultValue as string }, info.samplerInfo);
         samplers.push(builtin);
     }
 }
@@ -208,8 +209,11 @@ class ProgramLib {
             offset += cnt;
         }
         if (offset > 31) { tmpl.uber = true; }
-        tmpl.blocks.forEach((b) => (b.size = getSize(b), b.bindingType = GFXBindingType.UNIFORM_BUFFER));
-        tmpl.samplers.forEach((s) => (s.bindingType = GFXBindingType.SAMPLER));
+        tmpl.blocks.forEach((b) => {
+            b.bindingType = GFXBindingType.UNIFORM_BUFFER; b.size = getSize(b);
+            if (b.defaultValue) { b.defaultValue = Float32Array.from(b.defaultValue as unknown as number[]); }
+        });
+        tmpl.samplers.forEach((s) => s.bindingType = GFXBindingType.SAMPLER);
         tmpl.handleMap = genHandles(tmpl);
         if (!tmpl.localsInited) { insertBuiltinBindings(tmpl, localBindingsDesc, 'locals'); tmpl.localsInited = true; }
         // store it

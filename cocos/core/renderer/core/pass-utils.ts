@@ -71,20 +71,39 @@ export const type2writer = {
     [GFXType.MAT4]: (a: Float32Array, v: any, idx: number = 0) => Mat4.toArray(a, v, idx),
 };
 
-export const type2default = {
-    [GFXType.INT]: [0],
-    [GFXType.INT2]: [0, 0],
-    [GFXType.INT3]: [0, 0, 0],
-    [GFXType.INT4]: [0, 0, 0, 0],
-    [GFXType.FLOAT]: [0],
-    [GFXType.FLOAT2]: [0, 0],
-    [GFXType.FLOAT3]: [0, 0, 0],
-    [GFXType.FLOAT4]: [0, 0, 0, 0],
-    [GFXType.MAT3]: [1, 0, 0, 0, 1, 0, 0, 0, 1],
-    [GFXType.MAT4]: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-    [GFXType.SAMPLER2D]: 'default-texture',
-    [GFXType.SAMPLER_CUBE]: 'default-cube-texture',
-};
+const defaultValues = [
+    Object.freeze([0]),
+    Object.freeze([0, 0]),
+    Object.freeze([0, 0, 0, 0]),
+    Object.freeze([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]),
+];
+
+export function getDefaultFromType (type: GFXType) {
+    switch (type) {
+        case GFXType.BOOL:
+        case GFXType.INT:
+        case GFXType.UINT:
+        case GFXType.FLOAT:
+            return defaultValues[0];
+        case GFXType.BOOL2:
+        case GFXType.INT2:
+        case GFXType.UINT2:
+        case GFXType.FLOAT2:
+            return defaultValues[1];
+        case GFXType.BOOL4:
+        case GFXType.INT4:
+        case GFXType.UINT4:
+        case GFXType.FLOAT4:
+            return defaultValues[2];
+        case GFXType.MAT4:
+            return defaultValues[3];
+        case GFXType.SAMPLER2D:
+            return 'default-texture';
+        case GFXType.SAMPLER_CUBE:
+            return 'default-cube-texture';
+    }
+    return defaultValues[0];
+}
 
 export interface IDefineMap { [name: string]: number | boolean | string; }
 

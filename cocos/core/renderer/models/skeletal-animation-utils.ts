@@ -36,12 +36,14 @@ import { GFXBuffer } from '../../gfx/buffer';
 import { GFXAddress, GFXAttributeName, GFXBufferUsageBit, GFXFilter, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
 import { Mat4, Quat, Vec3 } from '../../math';
-import { UBOSkinningAnimation } from '../../pipeline/define';
 import { genSamplerHash } from '../core/sampler-lib';
 import { ITextureBufferHandle, nearestPOT, TextureBufferPool } from '../core/texture-buffer-pool';
 
 // change here and cc-skinning.chunk to use other skinning algorithms
 export const uploadJointData = uploadJointDataLBS;
+
+export const jointDefault = new Float32Array(12);
+uploadJointData(jointDefault, 0, Mat4.IDENTITY, true);
 
 export enum JointsMediumType {
     NONE, // for non-skinning models only
@@ -286,8 +288,8 @@ export class JointsAnimationInfo {
         const buffer = this._device.createBuffer({
             usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: UBOSkinningAnimation.SIZE,
-            stride: UBOSkinningAnimation.SIZE,
+            size: 16, // UBOSkinningAnimation.SIZE
+            stride: 16,
         });
         const data = new Float32Array([1, 0, 0, 0]);
         buffer.update(data);

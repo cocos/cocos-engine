@@ -67,9 +67,11 @@ export interface ITechniqueInfo {
 
 export interface IBlockInfo extends GFXUniformBlock {
     defines: string[];
+    defaultValue?: ArrayBuffer;
 }
 export interface ISamplerInfo extends GFXUniformSampler {
     defines: string[];
+    defaultValue?: string;
 }
 export interface IDefineInfo {
     name: string;

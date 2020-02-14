@@ -359,6 +359,9 @@ export class Model {
     }
 
     protected createPipelineState (pass: Pass) {
+        if (CC_EDITOR && pass.defines.USE_SKINNING && !this._type.includes('skinning')) {
+            console.warn(`${this._node!.name}: USE_SKINNING shouldn't be defined in material on non-skinning models`);
+        }
         const pso = pass.createPipelineState()!;
         pso.pipelineLayout.layouts[0].bindBuffer(UBOLocal.BLOCK.binding, this._localBindings.get(UBOLocal.BLOCK.name)!.buffer!);
         if (this._localBindings.has(UBOForwardLight.BLOCK.name)) {

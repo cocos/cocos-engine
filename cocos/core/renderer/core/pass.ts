@@ -48,7 +48,7 @@ import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
 import { customizeType, getBindingFromHandle, getBindingTypeFromHandle,
-    getOffsetFromHandle, getTypeFromHandle, IDefineMap, type2default, type2reader, type2writer } from './pass-utils';
+    getDefaultFromType, getOffsetFromHandle, getTypeFromHandle, IDefineMap, type2reader, type2writer } from './pass-utils';
 import { IProgramInfo, programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
 
@@ -430,16 +430,20 @@ export class Pass {
     public resetUBOs () {
         for (const u of this._shaderInfo.blocks) {
             if (isBuiltinBinding(u.binding)) { continue; }
+            if (u.defaultValue) {
+                this._buffers[u.binding].update(u.defaultValue);
+            }
             const block: IBlock = this._blocks[u.binding];
+            if (!block) { continue; }
             let ofs = 0;
             for (let i = 0; i < u.members.length; i++) {
                 const cur = u.members[i];
                 const inf = this._properties[cur.name];
                 const givenDefault = inf && inf.value;
-                const value = givenDefault ? givenDefault : type2default[cur.type];
-                const stride = GFXGetTypeSize(cur.type) >> 2;
-                for (let j = 0; j < cur.count; j++) { block.view.set(value, ofs + j * stride); }
-                ofs += stride * cur.count;
+                const value = (givenDefault ? givenDefault : getDefaultFromType(cur.type)) as number[];
+                const size = (GFXGetTypeSize(cur.type) >> 2) * cur.count;
+                for (let j = 0; j + value.length <= size; j += value.length) { block.view.set(value, ofs + j); }
+                ofs += size;
             }
             block.dirty = true;
         }
@@ -451,8 +455,10 @@ export class Pass {
      */
     public resetTextures () {
         for (const u of this._shaderInfo.samplers) {
+            if (isBuiltinBinding(u.binding)) { continue; }
             const inf = this._properties[u.name];
-            const texName = inf && inf.value ? inf.value + '-texture' : type2default[u.type];
+            const value = inf && inf.value || u.defaultValue;
+            const texName = value ? value + '-texture' : getDefaultFromType(u.type) as string;
             const texture = builtinResMgr.get<TextureBase>(texName);
             const textureView = texture && texture.getGFXTextureView();
             if (!textureView) { console.warn('illegal texture default value: ' + texName); continue; }
@@ -585,10 +591,10 @@ export class Pass {
         const blocks = this._shaderInfo.blocks;
         for (let i = 0; i < blocks.length; i++) {
             const { size, binding } = blocks[i];
+            if (isBuiltinBinding(binding)) { continue; }
             // create gfx buffer resource
             _bfInfo.size = Math.ceil(size / 16) * 16; // https://bugs.chromium.org/p/chromium/issues/detail?id=988988
             this._buffers[binding] = device.createBuffer(_bfInfo);
-            if (isBuiltinBinding(binding)) { continue; }
             // non-builtin UBO data pools, note that the effect compiler
             // guarantees these bindings to be consecutive, starting from 0
             const buffer = new ArrayBuffer(size);
