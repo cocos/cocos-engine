@@ -68,7 +68,7 @@ Assembler.register(cc.Label, {
             ctor = is3DNode ? Bmfont3D : Bmfont;
         } else if (label.cacheMode === Label.CacheMode.CHAR) {
 
-            if(CC_JSB && !is3DNode && label.font instanceof cc.TTFFont){
+            if(CC_JSB && !is3DNode && !!jsb.LabelRenderer && label.font instanceof cc.TTFFont){
                 ctor = NativeTTF;
             } else if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
                 cc.warn('sorry, subdomain does not support CHAR mode currently!');
