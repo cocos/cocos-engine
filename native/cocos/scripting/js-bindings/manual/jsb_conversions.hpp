@@ -202,6 +202,134 @@ bool seval_to_Vector(const se::Value& v, cocos2d::Vector<T>* ret)
 }
 
 template<typename T>
+typename std::enable_if<std::is_class<T>::value && !std::is_same<T, std::string>::value, T>::type
+seval_to_type(const se::Value &v, bool &ok)
+{
+    if(!v.isObject())
+    {
+        ok = false;
+        return T();
+    }
+    T* nativeObj = (T*)v.toObject()->getPrivateData();
+    ok = true;
+    return *nativeObj;
+}
+template<typename T>
+typename std::enable_if<std::is_integral<T>::value, T>::type
+seval_to_type(const se::Value &v, bool &ok)
+{
+    if(!v.isNumber())
+    {
+        ok = false;
+        return 0;
+    }
+    ok = true;
+    return v.toInt32();
+}
+
+template<typename T>
+typename std::enable_if<std::is_floating_point<T>::value, T>::type
+seval_to_type(const se::Value &v, bool &ok)
+{
+    if(!v.isNumber())
+    {
+        ok = false;
+        return 0;
+    }
+    ok = true;
+    return v.toFloat();
+}
+
+template<typename T>
+typename std::enable_if<std::is_same<T, std::string>::value, T>::type
+seval_to_type(const se::Value &v, bool &ok)
+{
+    if(!v.isString())
+    {
+        ok = false;
+        return "";
+    }
+    ok = true;
+    return v.toString();
+}
+
+
+template<typename T>
+typename std::enable_if<std::is_pointer<T>::value && std::is_class<typename std::remove_pointer<T>::type>::value, bool>::type
+seval_to_std_vector(const se::Value& v, std::vector<T>* ret)
+{
+    assert(ret != nullptr);
+    assert(v.isObject());
+    se::Object* obj = v.toObject();
+    assert(obj->isArray());
+    
+    bool ok = true;
+    uint32_t len = 0;
+    ok = obj->getArrayLength(&len);
+    if (!ok)
+    {
+        ret->clear();
+        return false;
+    }
+    
+    ret->resize(len);
+    
+    se::Value tmp;
+    for (uint32_t i = 0; i < len; ++i)
+    {
+        ok = obj->getArrayElement(i, &tmp);
+        if (!ok || !tmp.isObject())
+        {
+            ret->clear();
+            return false;
+        }
+        
+        T nativeObj = (T)tmp.toObject()->getPrivateData();
+        
+        (*ret)[i] = nativeObj;
+    }
+    
+    return true;
+}
+
+template<typename T>
+typename std::enable_if<!std::is_pointer<T>::value, bool>::type
+seval_to_std_vector(const se::Value& v, std::vector<T>* ret)
+{
+    assert(ret != nullptr);
+    assert(v.isObject());
+    se::Object* obj = v.toObject();
+    assert(obj->isArray());
+    
+    bool ok = true;
+    uint32_t len = 0;
+    ok = obj->getArrayLength(&len);
+    if (!ok)
+    {
+        ret->clear();
+        return false;
+    }
+    
+    ret->resize(len);
+    
+    se::Value tmp;
+    for (uint32_t i = 0; i < len; ++i)
+    {
+        ok = obj->getArrayElement(i, &tmp);
+        if(!ok) {
+            ret->clear();
+            return false;
+        }
+        (*ret)[i] = seval_to_type<T>(tmp, ok);
+        if(!ok) {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+template<typename T>
 bool seval_to_Map_string_key(const se::Value& v, cocos2d::Map<std::string, T>* ret)
 {
     assert(ret != nullptr);
@@ -286,8 +414,11 @@ bool std_vector_EffectDefine_to_seval(const std::vector<cocos2d::ValueMap>& v, s
 #endif
 
 template<typename T>
-bool native_ptr_to_seval(typename std::enable_if<!std::is_base_of<cocos2d::Ref,T>::value,T>::type* v, se::Value* ret, bool* isReturnCachedValue = nullptr)
+typename std::enable_if<!std::is_base_of<cocos2d::Ref,T>::value,bool>::type
+native_ptr_to_seval(T* v_c, se::Value* ret, bool* isReturnCachedValue = nullptr)
 {
+    typedef typename std::decay<typename std::remove_const<T>::type>::type DecayT;
+    DecayT* v = const_cast<DecayT*>(v_c);
     assert(ret != nullptr);
     if (v == nullptr)
     {
@@ -320,6 +451,51 @@ bool native_ptr_to_seval(typename std::enable_if<!std::is_base_of<cocos2d::Ref,T
         ret->setObject(obj);
     }
 
+    return true;
+}
+
+//handle reference
+template<typename T>
+typename std::enable_if<!std::is_base_of<cocos2d::Ref,T>::value && !std::is_pointer<T>::value,bool>::type
+native_ptr_to_seval(T& v_ref, se::Value* ret, bool* isReturnCachedValue = nullptr)
+{
+    typedef typename std::decay<typename std::remove_const<decltype(v_ref)>::type>::type  DecayT;
+    DecayT *v = const_cast<DecayT*>(&v_ref);
+    
+    assert(ret != nullptr);
+    if (v == nullptr)
+    {
+        ret->setNull();
+        return true;
+    }
+    
+    se::Object* obj = nullptr;
+    auto iter = se::NativePtrToObjectMap::find(v);
+    if (iter == se::NativePtrToObjectMap::end())
+    { // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
+        // CCLOGWARN("WARNING: non-Ref type: (%s) isn't catched!", typeid(*v).name());
+        CCLOGWARN("WARNING: non-Ref type: (%s) isn't catched!", typeid(*v).name());
+
+        se::Class* cls = JSBClassType::findClass<DecayT>(v);
+        assert(cls != nullptr);
+        obj = se::Object::createObjectWithClass(cls);
+        ret->setObject(obj, true);
+        obj->setPrivateData(v);
+        if (isReturnCachedValue != nullptr)
+        {
+            *isReturnCachedValue = false;
+        }
+    }
+    else
+    {
+        obj = iter->second;
+        if (isReturnCachedValue != nullptr)
+        {
+            *isReturnCachedValue = true;
+        }
+        ret->setObject(obj);
+    }
+    
     return true;
 }
 
@@ -365,8 +541,11 @@ bool native_ptr_to_rooted_seval(const typename std::enable_if<!std::is_base_of<c
 }
 
 template<typename T>
-bool native_ptr_to_seval(typename std::enable_if<!std::is_base_of<cocos2d::Ref,T>::value,T>::type* v, se::Class* cls, se::Value* ret, bool* isReturnCachedValue = nullptr)
+typename std::enable_if<!std::is_base_of<cocos2d::Ref,T>::value,bool>::type
+native_ptr_to_seval(T* vp, se::Class* cls, se::Value* ret, bool* isReturnCachedValue = nullptr)
 {
+    typedef typename std::decay<typename std::remove_const<T>::type>::type DecayT;
+    DecayT *v = const_cast<DecayT*>(vp);
     assert(ret != nullptr);
     if (v == nullptr)
     {
@@ -401,6 +580,51 @@ bool native_ptr_to_seval(typename std::enable_if<!std::is_base_of<cocos2d::Ref,T
 
     return true;
 }
+
+//handle ref
+template<typename T>
+typename std::enable_if<!std::is_base_of<cocos2d::Ref,T>::value,bool>::type
+native_ptr_to_seval(T& v_ref, se::Class* cls, se::Value* ret, bool* isReturnCachedValue = nullptr)
+{
+    typedef typename std::decay<typename std::remove_const<decltype(v_ref)>::type>::type  DecayT;
+    DecayT *v = const_cast<DecayT*>(&v_ref);
+    
+    
+    assert(ret != nullptr);
+    if (v == nullptr)
+    {
+        ret->setNull();
+        return true;
+    }
+    
+    se::Object* obj = nullptr;
+    auto iter = se::NativePtrToObjectMap::find(v);
+    if (iter == se::NativePtrToObjectMap::end())
+    { // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
+        //        CCLOGWARN("WARNING: Ref type: (%s) isn't catched!", typeid(*v).name());
+        assert(cls != nullptr);
+        obj = se::Object::createObjectWithClass(cls);
+        ret->setObject(obj, true);
+        obj->setPrivateData(v);
+        
+        if (isReturnCachedValue != nullptr)
+        {
+            *isReturnCachedValue = false;
+        }
+    }
+    else
+    {
+        obj = iter->second;
+        if (isReturnCachedValue != nullptr)
+        {
+            *isReturnCachedValue = true;
+        }
+        ret->setObject(obj);
+    }
+    
+    return true;
+}
+
 
 template<typename T>
 bool native_ptr_to_rooted_seval(typename std::enable_if<!std::is_base_of<cocos2d::Ref,T>::value,T>::type* v, se::Class* cls, se::Value* ret, bool* isReturnCachedValue = nullptr)
@@ -443,8 +667,11 @@ bool native_ptr_to_rooted_seval(typename std::enable_if<!std::is_base_of<cocos2d
 }
 
 template<typename T>
-bool native_ptr_to_seval(typename std::enable_if<std::is_base_of<cocos2d::Ref,T>::value,T>::type* v, se::Value* ret, bool* isReturnCachedValue = nullptr)
+typename std::enable_if<std::is_base_of<cocos2d::Ref,T>::value, bool>::type
+native_ptr_to_seval(T* vp, se::Value* ret, bool* isReturnCachedValue = nullptr)
 {
+    typedef typename std::decay<typename std::remove_const<T>::type>::type DecayT;
+    DecayT *v = const_cast<DecayT*>(vp);
     assert(ret != nullptr);
     if (v == nullptr)
     {
@@ -483,8 +710,11 @@ bool native_ptr_to_seval(typename std::enable_if<std::is_base_of<cocos2d::Ref,T>
 }
 
 template<typename T>
-bool native_ptr_to_seval(typename std::enable_if<std::is_base_of<cocos2d::Ref,T>::value,T>::type* v, se::Class* cls, se::Value* ret, bool* isReturnCachedValue = nullptr)
+typename std::enable_if<std::is_base_of<cocos2d::Ref,T>::value,bool>::type
+native_ptr_to_seval(T* vp, se::Class* cls, se::Value* ret, bool* isReturnCachedValue = nullptr)
 {
+    typedef typename std::decay<typename std::remove_const<T>::type>::type DecayT;
+    DecayT *v = const_cast<DecayT*>(vp);
     assert(ret != nullptr);
     if (v == nullptr)
     {
@@ -558,3 +788,12 @@ bool Vector_to_seval(const cocos2d::Vector<T*>& v, se::Value* ret)
 //    ret->setObject(obj, true);
 //    return false;
 //}
+
+template<typename T>
+bool seval_to_reference(const se::Value& v, T** ret)
+{
+    assert(ret != nullptr);
+    assert(v.isObject());
+    *ret = (T*)v.toObject()->getPrivateData();
+    return true;
+}
