@@ -197,7 +197,7 @@ export class Model {
         }
         this._worldBounds = null;
         this._modelBounds = null;
-        this._subModels.splice(0);
+        this._subModels.length = 0;
         this._matPSORecord.clear();
         this._matRefCount.clear();
         this._inited = false;
@@ -266,9 +266,6 @@ export class Model {
         if (!minPos || !maxPos) { return; }
         this._modelBounds = aabb.fromPoints(aabb.create(), minPos, maxPos);
         this._worldBounds = aabb.clone(this._modelBounds);
-        this._transform!.updateWorldTransform();
-        // @ts-ignore
-        this._modelBounds.transform(this._transform._mat, this._transform._pos, this._transform._rot, this._transform._scale, this._worldBounds);
     }
 
     public initSubModel (idx: number, subMeshData: IRenderingSubmesh, mat: Material) {

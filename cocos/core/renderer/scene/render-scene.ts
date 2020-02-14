@@ -306,7 +306,8 @@ export class RenderScene {
             // broadphase
             let d = intersect.ray_aabb(worldRay, m.worldBounds);
             if (d <= 0 || d >= distance) { continue; }
-            if (!(m instanceof SkinningModel && m.uploadedAnim)) {
+            // @ts-ignore TS2445
+            if (m._type === 'default') {
                 // transform ray back to model space
                 Mat4.invert(m4, transform.getWorldMatrix(m4));
                 Vec3.transformMat4(modelRay.o, worldRay.o, m4);
@@ -359,7 +360,8 @@ export class RenderScene {
         // broadphase
         let d = intersect.ray_aabb(worldRay, m.worldBounds);
         if (d <= 0 || d >= distance) { return false; }
-        if (!(m instanceof SkinningModel && m.uploadedAnim)) {
+        // @ts-ignore TS2445
+        if (m._type === 'default') {
             // transform ray back to model space
             Mat4.invert(m4, transform.getWorldMatrix(m4));
             Vec3.transformMat4(modelRay.o, worldRay.o, m4);

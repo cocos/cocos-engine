@@ -81,7 +81,7 @@ function getTransform (node: Node, root: Node) {
         if (pool.has(id)) {
             joint = pool.get(id)!;
             break;
-        } else {
+        } else { // TODO: object reuse
             joint = { node, local: new Mat4(), world: new Mat4(), stamp: -1, parent: null };
             pool.set(id, joint);
         }
@@ -154,13 +154,12 @@ export class FlexibleSkinningModel extends Model {
         this._transform = skinningRoot;
         const dataPoolManager: DataPoolManager = cc.director.root.dataPoolManager;
         const boneSpaceBounds = dataPoolManager.animatedBoundsInfo.getBoneSpacePerJointBounds(mesh, skeleton);
-        getWorldTransformUntilRoot(this._node!, skinningRoot, m4_1);
         for (let index = 0; index < skeleton.joints.length; index++) {
             const bound = boneSpaceBounds[index];
             const target = skinningRoot.getChildByPath(skeleton.joints[index]);
             if (!bound || !target) { continue; }
             const transform = getTransform(target, skinningRoot)!;
-            const bindpose = Mat4.multiply(new Mat4(), skeleton.bindposes[index], m4_1);
+            const bindpose = skeleton.bindposes[index];
             this._joints.push({ index, bound, target, bindpose, transform });
         }
         if (!this._buffer) { // create buffer here so re-init after destroy could work

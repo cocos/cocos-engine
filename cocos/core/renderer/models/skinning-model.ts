@@ -28,12 +28,13 @@
  */
 
 import { AnimationClip } from '../../animation/animation-clip';
+import { getWorldTransformUntilRoot } from '../../animation/transform-utils';
 import { Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
-import { Vec3 } from '../../math';
+import { Mat4, Vec3 } from '../../math';
 import { UBOSkinningAnimation, UBOSkinningTexture, UniformJointsTexture } from '../../pipeline/define';
 import { Node } from '../../scene-graph';
 import { Pass } from '../core/pass';
@@ -61,7 +62,6 @@ export class SkinningModel extends Model {
     public uploadedAnim: AnimationClip | null | undefined = undefined; // uninitialized
 
     private _jointsMedium: IJointsInfo;
-    private _staticModelBounds: aabb | null = null;
 
     private _skeleton: Skeleton | null = null;
     private _mesh: Mesh | null = null;
@@ -72,18 +72,19 @@ export class SkinningModel extends Model {
         this._type = 'skinning';
         this._dataPoolManager = cc.director.root.dataPoolManager;
         const jointsTextureInfo = new Float32Array(4);
-        const texture = this._dataPoolManager.jointsTexturePool.getDefaultJointsTexture();
         const animInfo = this._dataPoolManager.jointsAnimationInfo.get();
-        this._jointsMedium = { buffer: null, jointsTextureInfo, texture, animInfo, boundsInfo: null };
+        this._jointsMedium = { buffer: null, jointsTextureInfo, animInfo, texture: null, boundsInfo: null };
     }
 
     public destroy () {
         super.destroy();
         this.uploadedAnim = undefined; // uninitialized
+        this._jointsMedium.boundsInfo = null;
         if (this._jointsMedium.buffer) {
             this._jointsMedium.buffer.destroy();
             this._jointsMedium.buffer = null;
         }
+        this._applyJointsTexture();
     }
 
     public bindSkeleton (skeleton: Skeleton | null = null, skinningRoot: Node | null = null, mesh: Mesh | null = null) {
@@ -91,7 +92,8 @@ export class SkinningModel extends Model {
         this._mesh = mesh;
         if (!skeleton || !skinningRoot || !mesh) { return; }
         this._transform = skinningRoot;
-        this._jointsMedium.animInfo = this._dataPoolManager.jointsAnimationInfo.get(skinningRoot.uuid);
+        const resMgr = this._dataPoolManager;
+        this._jointsMedium.animInfo = resMgr.jointsAnimationInfo.get(skinningRoot.uuid);
         if (!this._jointsMedium.buffer) { // create buffer here so re-init after destroy could work
             this._jointsMedium.buffer = this._device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
@@ -123,27 +125,33 @@ export class SkinningModel extends Model {
     }
 
     public createBoundingShape (minPos?: Vec3, maxPos?: Vec3) {
-        super.createBoundingShape(minPos, maxPos);
-        this._staticModelBounds = this._modelBounds && aabb.clone(this._modelBounds);
+        if (!minPos || !maxPos) { return; }
+        this._worldBounds = new aabb();
     }
 
     public uploadAnimation (anim: AnimationClip | null) {
         if (!this._skeleton || !this._mesh || this.uploadedAnim === anim) { return; }
         this.uploadedAnim = anim;
         const resMgr = this._dataPoolManager;
-        const texture = anim ? resMgr.jointsTexturePool.getJointsTextureWithAnimation(this._skeleton, anim) :
-            resMgr.jointsTexturePool.getDefaultJointsTexture(this._skeleton);
         resMgr.jointsAnimationInfo.switchClip(this._jointsMedium.animInfo!, anim);
+        let texture: IJointsTextureHandle | null = null;
+        if (anim) {
+            texture = resMgr.jointsTexturePool.getJointsTextureWithAnimation(this._skeleton, this._mesh, anim);
+            this._jointsMedium.boundsInfo = resMgr.animatedBoundsInfo.get(this._mesh, this._skeleton, anim);
+            this._modelBounds = null; // don't calc bounds again in Model
+        } else {
+            texture = resMgr.jointsTexturePool.getDefaultJointsTexture(this._skeleton, this._mesh, this._transform!);
+            this._jointsMedium.boundsInfo = null;
+            this._modelBounds = texture && texture.bound!;
+        }
         this._applyJointsTexture(texture);
-        this._jointsMedium.boundsInfo = anim ? resMgr.animatedBoundsInfo.get(this._mesh, this._skeleton, anim) : null;
-        this._modelBounds = anim ? null : this._staticModelBounds; // don't calc bounds again in Model
     }
 
-    protected _applyJointsTexture (texture: IJointsTextureHandle | null) {
-        if (!texture) { return; }
+    protected _applyJointsTexture (texture: IJointsTextureHandle | null = null) {
         const oldTex = this._jointsMedium.texture;
         if (oldTex && oldTex !== texture) { this._dataPoolManager.jointsTexturePool.releaseHandle(oldTex); }
         this._jointsMedium.texture = texture;
+        if (!texture) { return; }
         const { buffer, jointsTextureInfo } = this._jointsMedium;
         jointsTextureInfo[0] = texture.handle.texture.width;
         jointsTextureInfo[1] = 1 / jointsTextureInfo[0];
