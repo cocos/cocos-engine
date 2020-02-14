@@ -158,6 +158,7 @@ export class ModelComponent extends RenderableComponent {
 
         if (this._model) {
             this._model.destroy();
+            this._model.initialize(this.node);
         } else {
             this._createModel();
         }

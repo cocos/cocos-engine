@@ -27,6 +27,7 @@
  * @hidden
  */
 
+import { getWorldTransformUntilRoot } from '../../animation/transform-utils';
 import { Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { aabb } from '../../geom-utils';
@@ -40,61 +41,69 @@ import { DataPoolManager } from '../data-pool-manager';
 import { Model } from '../scene/model';
 import { uploadJointData } from './skeletal-animation-utils';
 
-const v3_min = new Vec3();
-const v3_max = new Vec3();
-const v3_1 = new Vec3();
-const v3_2 = new Vec3();
-const m4_1 = new Mat4();
-const ab_1 = new aabb();
-
 interface IJointTransform {
     node: Node;
     local: Mat4;
     world: Mat4;
     stamp: number;
+    parent: IJointTransform | null;
 }
 
-class JointTransformManager {
-    public static getWorldMatrix (node: Node, root: Node, stamp: number) {
-        const { pool, stack } = JointTransformManager;
-        let joint: IJointTransform;
-        let id: string;
-        let i = 0;
-        let res = Mat4.IDENTITY;
-        while (node !== root) {
-            id = node.uuid;
-            if (pool.has(id)) {
-                joint = pool.get(id)!;
-            } else {
-                joint = { node, local: new Mat4(), world: new Mat4(), stamp: -1 };
-                pool.set(id, joint);
-            }
-            if (joint.stamp === stamp || joint.stamp + 1 === stamp && !node.hasChangedFlags) {
-                res = joint.world;
-                break;
-            }
-            joint.stamp = stamp;
-            stack[i++] = joint;
-            node = node.parent!;
-        }
-        while (i > 0) {
-            joint = stack[--i];
-            node = joint.node;
-            Mat4.fromRTS(joint.local, node.rotation, node.position, node.scale);
-            res = Mat4.multiply(joint.world, res, joint.local);
-        }
-        return res;
-    }
+const stack: IJointTransform[] = [];
+const pool: Map<string, IJointTransform> = new Map();
 
-    public static destroyJoints (joints: IJointInfo[]) {
-        const pool = JointTransformManager.pool;
-        for (const joint of joints) {
-            pool.delete(joint.target.uuid);
+function getWorldMatrix (transform: IJointTransform | null, stamp: number) {
+    let i = 0;
+    let res = Mat4.IDENTITY;
+    while (transform) {
+        if (transform.stamp === stamp || transform.stamp + 1 === stamp && !transform.node.hasChangedFlags) {
+            res = transform.world;
+            break;
         }
+        transform.stamp = stamp;
+        stack[i++] = transform;
+        transform = transform.parent;
     }
+    while (i > 0) {
+        transform = stack[--i];
+        const node = transform.node;
+        Mat4.fromRTS(transform.local, node.rotation, node.position, node.scale);
+        res = Mat4.multiply(transform.world, res, transform.local);
+    }
+    return res;
+}
 
-    private static stack: IJointTransform[] = [];
-    private static pool: Map<string, IJointTransform> = new Map();
+function getTransform (node: Node, root: Node) {
+    let joint: IJointTransform | null = null;
+    let i = 0;
+    while (node !== root) {
+        const id = node.uuid;
+        if (pool.has(id)) {
+            joint = pool.get(id)!;
+            break;
+        } else {
+            joint = { node, local: new Mat4(), world: new Mat4(), stamp: -1, parent: null };
+            pool.set(id, joint);
+        }
+        stack[i++] = joint;
+        node = node.parent!;
+        joint = null;
+    }
+    let child: IJointTransform;
+    while (i > 0) {
+        child = stack[--i];
+        child.parent = joint;
+        joint = child;
+    }
+    return joint;
+}
+
+function deleteTransform (node: Node) {
+    let transform = pool.get(node.uuid) || null;
+    while (transform) {
+        pool.delete(transform.node.uuid);
+        transform = transform.parent;
+    }
 }
 
 interface IJointInfo {
@@ -102,7 +111,15 @@ interface IJointInfo {
     bound: aabb;
     target: Node;
     bindpose: Mat4;
+    transform: IJointTransform;
 }
+
+const v3_min = new Vec3();
+const v3_max = new Vec3();
+const v3_1 = new Vec3();
+const v3_2 = new Vec3();
+const m4_1 = new Mat4();
+const ab_1 = new aabb();
 
 /**
  * 实时动画模式的蒙皮模型
@@ -129,18 +146,22 @@ export class FlexibleSkinningModel extends Model {
     }
 
     public bindSkeleton (skeleton: Skeleton | null = null, skinningRoot: Node | null = null, mesh: Mesh | null = null) {
-        JointTransformManager.destroyJoints(this._joints);
+        for (let i = 0; i < this._joints.length; i++) {
+            deleteTransform(this._joints[i].target);
+        }
         this._joints.length = 0;
         if (!skeleton || !skinningRoot || !mesh) { return; }
         this._transform = skinningRoot;
         const dataPoolManager: DataPoolManager = cc.director.root.dataPoolManager;
         const boneSpaceBounds = dataPoolManager.animatedBoundsInfo.getBoneSpacePerJointBounds(mesh, skeleton);
+        getWorldTransformUntilRoot(this._node!, skinningRoot, m4_1);
         for (let index = 0; index < skeleton.joints.length; index++) {
             const bound = boneSpaceBounds[index];
             const target = skinningRoot.getChildByPath(skeleton.joints[index]);
             if (!bound || !target) { continue; }
-            const bindpose = skeleton.bindposes[index];
-            this._joints.push({ index, bound, target, bindpose });
+            const transform = getTransform(target, skinningRoot)!;
+            const bindpose = Mat4.multiply(new Mat4(), skeleton.bindposes[index], m4_1);
+            this._joints.push({ index, bound, target, bindpose, transform });
         }
         if (!this._buffer) { // create buffer here so re-init after destroy could work
             this._buffer = this._device.createBuffer({
@@ -153,26 +174,23 @@ export class FlexibleSkinningModel extends Model {
     }
 
     public updateTransform () {
-        Vec3.set(v3_min,  Infinity,  Infinity,  Infinity);
-        Vec3.set(v3_max, -Infinity, -Infinity, -Infinity);
         const root = this._transform!;
-        const stamp = cc.director.getTotalFrames();
-        for (let i = 0; i < this._joints.length; i++) {
-            const { index, bound, target, bindpose } = this._joints[i];
-            const worldMatrix = JointTransformManager.getWorldMatrix(target, root, stamp);
-            // update bounds
-            aabb.transform(ab_1, bound, worldMatrix);
-            ab_1.getBoundary(v3_1, v3_2);
-            Vec3.min(v3_min, v3_min, v3_1);
-            Vec3.max(v3_max, v3_max, v3_2);
-            // upload data
-            Mat4.multiply(m4_1, worldMatrix, bindpose);
-            uploadJointData(this._data, index * 12, m4_1, i === 0);
-        }
         // @ts-ignore TS2445
         if (root.hasChangedFlags || root._dirtyFlags) {
             root.updateWorldTransform();
             this._transformUpdated = true;
+        }
+        // update bounds
+        const stamp = cc.director.getTotalFrames();
+        Vec3.set(v3_min,  Infinity,  Infinity,  Infinity);
+        Vec3.set(v3_max, -Infinity, -Infinity, -Infinity);
+        for (let i = 0; i < this._joints.length; i++) {
+            const { bound, transform } = this._joints[i];
+            const worldMatrix = getWorldMatrix(transform, stamp);
+            aabb.transform(ab_1, bound, worldMatrix);
+            ab_1.getBoundary(v3_1, v3_2);
+            Vec3.min(v3_min, v3_min, v3_1);
+            Vec3.max(v3_max, v3_max, v3_2);
         }
         if (this._modelBounds && this._worldBounds) {
             aabb.fromPoints(this._modelBounds, v3_min, v3_max);
@@ -183,6 +201,11 @@ export class FlexibleSkinningModel extends Model {
 
     public updateUBOs () {
         if (!super.updateUBOs() || !this._buffer) { return false; }
+        for (let i = 0; i < this._joints.length; i++) {
+            const { index, transform, bindpose } = this._joints[i];
+            Mat4.multiply(m4_1, transform.world, bindpose);
+            uploadJointData(this._data, index * 12, m4_1, i === 0);
+        }
         this._buffer.update(this._data);
         return true;
     }
