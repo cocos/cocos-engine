@@ -36,7 +36,7 @@ static bool js_webview_WebView_setOnShouldStartLoading(se::State& s)
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(2);
-                    ok &= native_ptr_to_seval<cocos2d::WebView>((cocos2d::WebView*)larg0, &args[0]);
+                    ok &= native_ptr_to_seval(larg0, &args[0]);
                     ok &= std_string_to_seval(larg1, &args[1]);
                     se::Value rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
@@ -89,7 +89,7 @@ static bool js_webview_WebView_setOnDidFailLoading(se::State& s)
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(2);
-                    ok &= native_ptr_to_seval<cocos2d::WebView>((cocos2d::WebView*)larg0, &args[0]);
+                    ok &= native_ptr_to_seval(larg0, &args[0]);
                     ok &= std_string_to_seval(larg1, &args[1]);
                     se::Value rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
@@ -327,7 +327,7 @@ static bool js_webview_WebView_setOnJSCallback(se::State& s)
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(2);
-                    ok &= native_ptr_to_seval<cocos2d::WebView>((cocos2d::WebView*)larg0, &args[0]);
+                    ok &= native_ptr_to_seval(larg0, &args[0]);
                     ok &= std_string_to_seval(larg1, &args[1]);
                     se::Value rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
@@ -567,7 +567,7 @@ static bool js_webview_WebView_setOnDidFinishLoading(se::State& s)
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(2);
-                    ok &= native_ptr_to_seval<cocos2d::WebView>((cocos2d::WebView*)larg0, &args[0]);
+                    ok &= native_ptr_to_seval(larg0, &args[0]);
                     ok &= std_string_to_seval(larg1, &args[1]);
                     se::Value rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;

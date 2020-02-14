@@ -22,7 +22,7 @@ static bool js_extension_EventAssetsManagerEx_getAssetsManagerEx(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         cocos2d::extension::AssetsManagerEx* result = cobj->getAssetsManagerEx();
-        ok &= native_ptr_to_seval<cocos2d::extension::AssetsManagerEx>((cocos2d::extension::AssetsManagerEx*)result, &s.rval());
+        ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_extension_EventAssetsManagerEx_getAssetsManagerEx : Error processing arguments");
         return true;
     }
@@ -40,7 +40,7 @@ static bool js_extension_EventAssetsManagerEx_getDownloadedFiles(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = cobj->getDownloadedFiles();
-        ok &= int32_to_seval(result, &s.rval());
+        ok &= int32_to_seval((int)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_extension_EventAssetsManagerEx_getDownloadedFiles : Error processing arguments");
         return true;
     }
@@ -58,7 +58,7 @@ static bool js_extension_EventAssetsManagerEx_getTotalFiles(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = cobj->getTotalFiles();
-        ok &= int32_to_seval(result, &s.rval());
+        ok &= int32_to_seval((int)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_extension_EventAssetsManagerEx_getTotalFiles : Error processing arguments");
         return true;
     }
@@ -112,7 +112,7 @@ static bool js_extension_EventAssetsManagerEx_getCURLECode(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = cobj->getCURLECode();
-        ok &= int32_to_seval(result, &s.rval());
+        ok &= int32_to_seval((int)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_extension_EventAssetsManagerEx_getCURLECode : Error processing arguments");
         return true;
     }
@@ -148,7 +148,7 @@ static bool js_extension_EventAssetsManagerEx_getCURLMCode(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = cobj->getCURLMCode();
-        ok &= int32_to_seval(result, &s.rval());
+        ok &= int32_to_seval((int)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_extension_EventAssetsManagerEx_getCURLMCode : Error processing arguments");
         return true;
     }
@@ -202,7 +202,7 @@ static bool js_extension_EventAssetsManagerEx_getEventCode(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = (int)cobj->getEventCode();
-        ok &= int32_to_seval(result, &s.rval());
+        ok &= int32_to_seval((int)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_extension_EventAssetsManagerEx_getEventCode : Error processing arguments");
         return true;
     }
@@ -623,7 +623,7 @@ static bool js_extension_AssetsManagerEx_getDownloadedFiles(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = cobj->getDownloadedFiles();
-        ok &= int32_to_seval(result, &s.rval());
+        ok &= int32_to_seval((int)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_getDownloadedFiles : Error processing arguments");
         return true;
     }
@@ -641,7 +641,7 @@ static bool js_extension_AssetsManagerEx_getState(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = (int)cobj->getState();
-        ok &= int32_to_seval(result, &s.rval());
+        ok &= int32_to_seval((int)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_getState : Error processing arguments");
         return true;
     }
@@ -659,7 +659,7 @@ static bool js_extension_AssetsManagerEx_getMaxConcurrentTask(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         const int result = cobj->getMaxConcurrentTask();
-        ok &= int32_to_seval(result, &s.rval());
+        ok &= int32_to_seval((int)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_getMaxConcurrentTask : Error processing arguments");
         return true;
     }
@@ -677,7 +677,7 @@ static bool js_extension_AssetsManagerEx_getTotalFiles(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = cobj->getTotalFiles();
-        ok &= int32_to_seval(result, &s.rval());
+        ok &= int32_to_seval((int)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_getTotalFiles : Error processing arguments");
         return true;
     }
@@ -848,7 +848,7 @@ static bool js_extension_AssetsManagerEx_setEventCallback(se::State& s)
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(1);
-                    ok &= native_ptr_to_seval<cocos2d::extension::EventAssetsManagerEx>((cocos2d::extension::EventAssetsManagerEx*)larg0, &args[0]);
+                    ok &= native_ptr_to_seval(larg0, &args[0]);
                     se::Value rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
                     se::Object* funcObj = jsFunc.toObject();
@@ -973,7 +973,7 @@ static bool js_extension_AssetsManagerEx_getLocalManifest(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         const cocos2d::extension::Manifest* result = cobj->getLocalManifest();
-        ok &= native_ptr_to_seval<cocos2d::extension::Manifest>((cocos2d::extension::Manifest*)result, &s.rval());
+        ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_getLocalManifest : Error processing arguments");
         return true;
     }
@@ -1030,7 +1030,7 @@ static bool js_extension_AssetsManagerEx_getRemoteManifest(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         const cocos2d::extension::Manifest* result = cobj->getRemoteManifest();
-        ok &= native_ptr_to_seval<cocos2d::extension::Manifest>((cocos2d::extension::Manifest*)result, &s.rval());
+        ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_extension_AssetsManagerEx_getRemoteManifest : Error processing arguments");
         return true;
     }

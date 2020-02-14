@@ -479,7 +479,7 @@ static bool js_engine_FileUtils_setSearchPaths(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         std::vector<std::string> arg0;
-        ok &= seval_to_std_vector_string(args[0], &arg0);
+        ok &= seval_to_std_vector(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_setSearchPaths : Error processing arguments");
         cobj->setSearchPaths(arg0);
         return true;
@@ -521,7 +521,7 @@ static bool js_engine_FileUtils_setSearchResolutionsOrder(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         std::vector<std::string> arg0;
-        ok &= seval_to_std_vector_string(args[0], &arg0);
+        ok &= seval_to_std_vector(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_setSearchResolutionsOrder : Error processing arguments");
         cobj->setSearchResolutionsOrder(arg0);
         return true;
@@ -914,7 +914,7 @@ static bool js_engine_FileUtils_getInstance(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         cocos2d::FileUtils* result = cocos2d::FileUtils::getInstance();
-        ok &= native_ptr_to_seval<cocos2d::FileUtils>((cocos2d::FileUtils*)result, &s.rval());
+        ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getInstance : Error processing arguments");
         return true;
     }
@@ -1007,7 +1007,7 @@ static bool js_engine_Device_getNetworkType(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = (int)cocos2d::Device::getNetworkType();
-        ok &= int32_to_seval(result, &s.rval());
+        ok &= int32_to_seval((int)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_engine_Device_getNetworkType : Error processing arguments");
         return true;
     }
@@ -1107,7 +1107,7 @@ static bool js_engine_Device_getDeviceRotation(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = (int)cocos2d::Device::getDeviceRotation();
-        ok &= int32_to_seval(result, &s.rval());
+        ok &= int32_to_seval((int)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_engine_Device_getDeviceRotation : Error processing arguments");
         return true;
     }
@@ -1123,7 +1123,7 @@ static bool js_engine_Device_getDPI(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = cocos2d::Device::getDPI();
-        ok &= int32_to_seval(result, &s.rval());
+        ok &= int32_to_seval((int)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_engine_Device_getDPI : Error processing arguments");
         return true;
     }
@@ -1753,7 +1753,7 @@ static bool js_engine_CanvasRenderingContext2D_createLinearGradient(se::State& s
         ok &= seval_to_float(args[3], &arg3);
         SE_PRECONDITION2(ok, false, "js_engine_CanvasRenderingContext2D_createLinearGradient : Error processing arguments");
         cocos2d::CanvasGradient* result = cobj->createLinearGradient(arg0, arg1, arg2, arg3);
-        ok &= native_ptr_to_seval<cocos2d::CanvasGradient>((cocos2d::CanvasGradient*)result, &s.rval());
+        ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_engine_CanvasRenderingContext2D_createLinearGradient : Error processing arguments");
         return true;
     }

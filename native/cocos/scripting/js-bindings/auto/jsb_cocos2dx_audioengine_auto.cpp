@@ -49,7 +49,7 @@ static bool js_audioengine_AudioProfile_get_maxInstances(se::State& s)
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= uint32_to_seval(cobj->maxInstances, &jsret);
+    ok &= uint32_to_seval((unsigned int)cobj->maxInstances, &jsret);
     s.rval() = jsret;
     return true;
 }
@@ -283,7 +283,7 @@ static bool js_audioengine_AudioEngine_getMaxAudioInstance(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = cocos2d::AudioEngine::getMaxAudioInstance();
-        ok &= int32_to_seval(result, &s.rval());
+        ok &= int32_to_seval((int)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_audioengine_AudioEngine_getMaxAudioInstance : Error processing arguments");
         return true;
     }
@@ -516,7 +516,7 @@ static bool js_audioengine_AudioEngine_play2d(se::State& s)
         ok &= seval_to_std_string(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_audioengine_AudioEngine_play2d : Error processing arguments");
         int result = cocos2d::AudioEngine::play2d(arg0);
-        ok &= int32_to_seval(result, &s.rval());
+        ok &= int32_to_seval((int)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_audioengine_AudioEngine_play2d : Error processing arguments");
         return true;
     }
@@ -527,7 +527,7 @@ static bool js_audioengine_AudioEngine_play2d(se::State& s)
         ok &= seval_to_boolean(args[1], &arg1);
         SE_PRECONDITION2(ok, false, "js_audioengine_AudioEngine_play2d : Error processing arguments");
         int result = cocos2d::AudioEngine::play2d(arg0, arg1);
-        ok &= int32_to_seval(result, &s.rval());
+        ok &= int32_to_seval((int)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_audioengine_AudioEngine_play2d : Error processing arguments");
         return true;
     }
@@ -540,7 +540,7 @@ static bool js_audioengine_AudioEngine_play2d(se::State& s)
         ok &= seval_to_float(args[2], &arg2);
         SE_PRECONDITION2(ok, false, "js_audioengine_AudioEngine_play2d : Error processing arguments");
         int result = cocos2d::AudioEngine::play2d(arg0, arg1, arg2);
-        ok &= int32_to_seval(result, &s.rval());
+        ok &= int32_to_seval((int)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_audioengine_AudioEngine_play2d : Error processing arguments");
         return true;
     }
@@ -555,7 +555,7 @@ static bool js_audioengine_AudioEngine_play2d(se::State& s)
         ok &= seval_to_native_ptr(args[3], &arg3);
         SE_PRECONDITION2(ok, false, "js_audioengine_AudioEngine_play2d : Error processing arguments");
         int result = cocos2d::AudioEngine::play2d(arg0, arg1, arg2, arg3);
-        ok &= int32_to_seval(result, &s.rval());
+        ok &= int32_to_seval((int)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_audioengine_AudioEngine_play2d : Error processing arguments");
         return true;
     }
@@ -574,7 +574,7 @@ static bool js_audioengine_AudioEngine_getState(se::State& s)
         do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
         SE_PRECONDITION2(ok, false, "js_audioengine_AudioEngine_getState : Error processing arguments");
         int result = (int)cocos2d::AudioEngine::getState(arg0);
-        ok &= int32_to_seval(result, &s.rval());
+        ok &= int32_to_seval((int)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_audioengine_AudioEngine_getState : Error processing arguments");
         return true;
     }
@@ -662,7 +662,7 @@ static bool js_audioengine_AudioEngine_getDefaultProfile(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         cocos2d::AudioProfile* result = cocos2d::AudioEngine::getDefaultProfile();
-        ok &= native_ptr_to_seval<cocos2d::AudioProfile>((cocos2d::AudioProfile*)result, &s.rval());
+        ok &= native_ptr_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_audioengine_AudioEngine_getDefaultProfile : Error processing arguments");
         return true;
     }
@@ -693,7 +693,7 @@ static bool js_audioengine_AudioEngine_setFinishCallback(se::State& s)
                     CC_UNUSED bool ok = true;
                     se::ValueArray args;
                     args.resize(2);
-                    ok &= int32_to_seval(larg0, &args[0]);
+                    ok &= int32_to_seval((int)larg0, &args[0]);
                     ok &= std_string_to_seval(larg1, &args[1]);
                     se::Value rval;
                     se::Object* thisObj = jsThis.isObject() ? jsThis.toObject() : nullptr;
@@ -731,7 +731,7 @@ static bool js_audioengine_AudioEngine_getProfile(se::State& s)
             ok &= seval_to_std_string(args[0], &arg0);
             if (!ok) { ok = true; break; }
             cocos2d::AudioProfile* result = cocos2d::AudioEngine::getProfile(arg0);
-            ok &= native_ptr_to_seval<cocos2d::AudioProfile>((cocos2d::AudioProfile*)result, &s.rval());
+            ok &= native_ptr_to_seval(result, &s.rval());
             SE_PRECONDITION2(ok, false, "js_audioengine_AudioEngine_getProfile : Error processing arguments");
             return true;
         }
@@ -742,7 +742,7 @@ static bool js_audioengine_AudioEngine_getProfile(se::State& s)
             do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
             if (!ok) { ok = true; break; }
             cocos2d::AudioProfile* result = cocos2d::AudioEngine::getProfile(arg0);
-            ok &= native_ptr_to_seval<cocos2d::AudioProfile>((cocos2d::AudioProfile*)result, &s.rval());
+            ok &= native_ptr_to_seval(result, &s.rval());
             SE_PRECONDITION2(ok, false, "js_audioengine_AudioEngine_getProfile : Error processing arguments");
             return true;
         }
@@ -759,7 +759,7 @@ static bool js_audioengine_AudioEngine_getPlayingAudioCount(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         int result = cocos2d::AudioEngine::getPlayingAudioCount();
-        ok &= int32_to_seval(result, &s.rval());
+        ok &= int32_to_seval((int)result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_audioengine_AudioEngine_getPlayingAudioCount : Error processing arguments");
         return true;
     }
