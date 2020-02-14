@@ -92,7 +92,6 @@ class LetterTexture {
     public width = 0;
     public height = 0;
     public hash: string;
-    private _lastImage: ImageAsset | null = null;
     constructor (char: string, labelInfo: ILabelInfo) {
         this.char = char;
         this.labelInfo = labelInfo;
@@ -128,14 +127,11 @@ class LetterTexture {
             this.canvas.height = this.height;
         }
 
-        // Note: after the optimization
-        if (this._lastImage) {
-            this._lastImage.destroy();
+        if (!this.image) {
+            this.image = new ImageAsset();
         }
 
-        const image = new ImageAsset(this.canvas);
-        this._lastImage = image;
-        this.image = image;
+        this.image.reset(this.canvas);
     }
 
     private _updateTexture () {
@@ -261,7 +257,6 @@ export class LetterAtlas {
 
     constructor (width: number, height: number) {
         this.texture = new LetterRenderTexture();
-        this.texture.name = 'LetterRenderTexture';
         this.texture.initWithSize(width, height);
 
         this._width = width;
