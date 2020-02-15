@@ -7,10 +7,6 @@ import { GFXBuffer, GFXBufferSource, IGFXDrawInfo } from './buffer';
 import { GFXFormat, GFXFormatInfos, GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
 
-/**
- * @zh
- * GFX顶点属性。
- */
 export interface IGFXAttribute {
     name: string;
     format: GFXFormat;
@@ -19,10 +15,6 @@ export interface IGFXAttribute {
     isInstanced?: boolean;
 }
 
-/**
- * @zh
- * GFX输入汇集器描述信息。
- */
 export interface IGFXInputAssemblerInfo {
     attributes: IGFXAttribute[];
     vertexBuffers: GFXBuffer[];
@@ -31,38 +23,38 @@ export interface IGFXInputAssemblerInfo {
 }
 
 /**
- * @zh
- * GFX输入汇集器。
+ * @en GFX input assembler.
+ * @zh GFX 输入汇集器。
  */
 export abstract class GFXInputAssembler extends GFXObject {
 
     /**
-     * @zh
-     * 顶点缓冲数组。
+     * @en Get current vertex buffers.
+     * @zh 顶点缓冲数组。
      */
     public get vertexBuffers (): GFXBuffer[] {
         return this._vertexBuffers;
     }
 
     /**
-     * @zh
-     * 索引缓冲。
+     * @en Get current index buffer.
+     * @zh 索引缓冲。
      */
     public get indexBuffer (): GFXBuffer | null {
         return this._indexBuffer;
     }
 
     /**
-     * @zh
-     * 顶点属性数组。
+     * @en Get current attributes.
+     * @zh 顶点属性数组。
      */
     public get attributes (): IGFXAttribute[] {
         return this._attributes;
     }
 
     /**
-     * @zh
-     * 顶点数量。
+     * @en Get current vertex count.
+     * @zh 顶点数量。
      */
     public get vertexCount (): number {
         return this._vertexCount;
@@ -73,8 +65,8 @@ export abstract class GFXInputAssembler extends GFXObject {
     }
 
     /**
-     * @zh
-     * 起始顶点。
+     * @en Get starting vertex.
+     * @zh 起始顶点。
      */
     public get firstVertex (): number {
         return this._firstVertex;
@@ -85,8 +77,8 @@ export abstract class GFXInputAssembler extends GFXObject {
     }
 
     /**
-     * @zh
-     * 索引数量。
+     * @en Get current index count.
+     * @zh 索引数量。
      */
     public get indexCount (): number {
         return this._indexCount;
@@ -97,8 +89,8 @@ export abstract class GFXInputAssembler extends GFXObject {
     }
 
     /**
-     * @zh
-     * 起始索引。
+     * @en Get starting index.
+     * @zh 起始索引。
      */
     public get firstIndex (): number {
         return this._firstIndex;
@@ -109,8 +101,8 @@ export abstract class GFXInputAssembler extends GFXObject {
     }
 
     /**
-     * @zh
-     * 顶点偏移量。
+     * @en Get current vertex offset.
+     * @zh 顶点偏移量。
      */
     public get vertexOffset (): number {
         return this._vertexOffset;
@@ -121,8 +113,8 @@ export abstract class GFXInputAssembler extends GFXObject {
     }
 
     /**
-     * @zh
-     * 实例数量。
+     * @en Get current instance count.
+     * @zh 实例数量。
      */
     public get instanceCount (): number {
         return this._instanceCount;
@@ -133,8 +125,8 @@ export abstract class GFXInputAssembler extends GFXObject {
     }
 
     /**
-     * @zh
-     * 起始实例。
+     * @en Get starting instance.
+     * @zh 起始实例。
      */
     public get firstInstance (): number {
         return this._firstInstance;
@@ -145,25 +137,21 @@ export abstract class GFXInputAssembler extends GFXObject {
     }
 
     /**
-     * @zh
-     * 是否间接绘制。
+     * @en Is the assembler an indirect command?
+     * @zh 是否间接绘制。
      */
     public get isIndirect (): boolean {
         return this._isIndirect;
     }
 
     /**
-     * @zh
-     * 间接绘制缓冲。
+     * @en Get the indirect buffer, if present.
+     * @zh 间接绘制缓冲。
      */
     public get indirectBuffer (): GFXBuffer | null {
         return this._indirectBuffer;
     }
 
-    /**
-     * @zh
-     * GFX设备。
-     */
     protected _device: GFXDevice;
 
     protected _attributes: IGFXAttribute[] = [];
@@ -190,31 +178,18 @@ export abstract class GFXInputAssembler extends GFXObject {
 
     protected _indirectBuffer: GFXBuffer | null = null;
 
-    /**
-     * 构造函数。
-     * @param device GFX设备。
-     */
     constructor (device: GFXDevice) {
         super(GFXObjectType.INPUT_ASSEMBLER);
         this._device = device;
     }
 
-    /**
-     * @zh
-     * 初始化函数。
-     * @param info GFX汇集器描述信息。
-     */
     public abstract initialize (info: IGFXInputAssemblerInfo): boolean;
 
-    /**
-     * @zh
-     * 销毁函数。
-     */
     public abstract destroy (): void;
 
     /**
-     * @zh
-     * 得到顶点缓冲。
+     * @en Get the specified vertex buffer.
+     * @zh 获取顶点缓冲。
      * @param stream 顶点流索引。
      */
     public getVertexBuffer (stream: number = 0): GFXBuffer | null {
@@ -226,8 +201,8 @@ export abstract class GFXInputAssembler extends GFXObject {
     }
 
     /**
-     * @zh
-     * 提取绘制信息。
+     * @en Extract drawing info.
+     * @zh 提取绘制信息。
      * @param drawInfo 绘制信息。
      */
     public extractDrawInfo (drawInfo: IGFXDrawInfo) {

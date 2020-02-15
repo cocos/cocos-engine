@@ -56,13 +56,13 @@ export class AudioSourceComponent extends Component {
 
     /**
      * @en
-     * The default AudioClip to play
+     * The default AudioClip to play.
      * @zh
      * 设定要播放的音频。
      */
     @property({
         type: AudioClip,
-        tooltip:'设定要播放的音频',
+        tooltip: 'The default AudioClip to play',
     })
     set clip (val) {
         this._clip = val;
@@ -79,7 +79,7 @@ export class AudioSourceComponent extends Component {
      * 是否循环播放音频？
      */
     @property({
-        tooltip:'是否循环播放音频',
+        tooltip: 'Is the audio clip looping?',
     })
     set loop (val) {
         this._loop = val;
@@ -101,7 +101,7 @@ export class AudioSourceComponent extends Component {
      * 参考：https://www.chromium.org/audio-video/autoplay
      */
     @property({
-        tooltip:'是否启用自动播放',
+        tooltip: 'Is the autoplay enabled?',
     })
     set playOnAwake (val) {
         this._playOnAwake = val;
@@ -119,8 +119,8 @@ export class AudioSourceComponent extends Component {
      * 请注意,在某些平台上，音量控制可能不起效。<br>
      */
     @property({
-        range:[0.0,1.0],
-        tooltip:'音频的音量（大小范围为 0.0 到 1.0 ）\n请注意,在某些平台上，音量控制可能不起效'
+        range: [0.0, 1.0],
+        tooltip: 'The volume of this audio source (0.0 to 1.0)',
     })
     set volume (val) {
         if (isNaN(val)) { console.warn('illegal audio volume!'); return; }

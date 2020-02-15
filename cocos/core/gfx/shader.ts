@@ -5,19 +5,11 @@
 import { GFXObject, GFXObjectType, GFXShaderType, GFXType } from './define';
 import { GFXDevice } from './device';
 
-/**
- * @zh
- * GFX着色器宏。
- */
 export interface IGFXShaderMacro {
     macro: string;
     value: string;
 }
 
-/**
- * @zh
- * GFX着色器阶段。
- */
 export interface IGFXShaderStage {
     type: GFXShaderType;
     source: string;
@@ -25,8 +17,8 @@ export interface IGFXShaderStage {
 }
 
 /**
- * @zh
- * GFX Uniform。
+ * @en GFX uniform.
+ * @zh GFX uniform。
  */
 export class GFXUniform {
     public name: string = '';
@@ -35,8 +27,8 @@ export class GFXUniform {
 }
 
 /**
- * @zh
- * GFX Uniform块。
+ * @en GFX uniform block.
+ * @zh GFX uniform 块。
  */
 export class GFXUniformBlock {
     public binding: number = -1;
@@ -46,8 +38,8 @@ export class GFXUniformBlock {
 }
 
 /**
- * @zh
- * GFX Uniform采样器。
+ * @en GFX uniform sampler.
+ * @zh GFX Uniform 采样器。
  */
 export class GFXUniformSampler {
     public binding: number = -1;
@@ -56,10 +48,6 @@ export class GFXUniformSampler {
     public count: number = 1;
 }
 
-/**
- * @zh
- * GFX着色器描述信息。
- */
 export interface IGFXShaderInfo {
     name: string;
     stages: IGFXShaderStage[];
@@ -70,84 +58,48 @@ export interface IGFXShaderInfo {
 }
 
 /**
- * @zh
- * GFX着色器。
+ * @en GFX shader.
+ * @zh GFX 着色器。
  */
 export abstract class GFXShader extends GFXObject {
 
     /**
-     * @zh
-     * 着色器id。
+     * @en Get current shader id.
+     * @zh 着色器 id。
      */
     public get id (): number {
         return this._id;
     }
 
     /**
-     * @zh
-     * 着色器名称。
+     * @en Get current shader name.
+     * @zh 着色器名称。
      */
     public get name (): string {
         return this._name;
     }
 
-    /**
-     * @zh
-     * GFX设备。
-     */
     protected _device: GFXDevice;
 
-    /**
-     * @zh
-     * 着色器id。
-     */
     protected _id: number;
 
-    /**
-     * @zh
-     * 着色器名称。
-     */
     protected _name: string = '';
 
-    /**
-     * @zh
-     * 着色器阶段数组。
-     */
     protected _stages: IGFXShaderStage[] = [];
+
     // protected _bindings: GFXBinding[] = [];
 
-    /**
-     * @zh
-     * 着色器Uniform块数组。
-     */
     protected _blocks: GFXUniformBlock[] = [];  // blocks are used for being compatible with single uniforms
 
-    /**
-     * @zh
-     * 着色器Uniform采样器数组。
-     */
     protected _samplers: GFXUniformSampler[] = [];
 
-    /**
-     * 构造函数。
-     * @param device GFX设备。
-     */
     constructor (device: GFXDevice) {
         super(GFXObjectType.SHADER);
         this._device = device;
         this._id = device.genShaderId();
     }
 
-    /**
-     * @zh
-     * 初始化函数。
-     * @param info GFX着色器描述信息。
-     */
     public abstract initialize (info: IGFXShaderInfo): boolean;
 
-    /**
-     * @zh
-     * 销毁函数。
-     */
-    public abstract destroy ();
+    public abstract destroy (): void;
 }

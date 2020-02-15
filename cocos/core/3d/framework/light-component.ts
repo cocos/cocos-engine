@@ -61,7 +61,7 @@ export class LightComponent extends Component {
 
     /**
      * @en
-     * The light source color
+     * The light source color.
      * @zh
      * 光源颜色。
      */
@@ -83,7 +83,7 @@ export class LightComponent extends Component {
 
     /**
      * @en
-     * Whether to enable light color temperature
+     * Whether to enable light color temperature.
      * @zh
      * 是否启用光源色温。
      */
@@ -100,7 +100,7 @@ export class LightComponent extends Component {
 
     /**
      * @en
-     * The light color temperature
+     * The light color temperature.
      * @zh
      * 光源色温。
      */
@@ -120,7 +120,7 @@ export class LightComponent extends Component {
 
     /**
      * @en
-     * The light type
+     * The light type.
      * @zh
      * 光源类型。
      */

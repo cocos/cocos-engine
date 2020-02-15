@@ -50,6 +50,12 @@ interface IJointsInfo {
     boundsInfo: aabb[] | null;
 }
 
+/**
+ * @en
+ * Skinning model using baked animation.
+ * @zh
+ * 预烘焙动画的蒙皮模型。
+ */
 export class SkinningModel extends Model {
 
     public uploadedAnim: AnimationClip | null | undefined = undefined; // uninitialized
@@ -79,7 +85,7 @@ export class SkinningModel extends Model {
         }
     }
 
-    public bindSkeleton (skeleton: Skeleton | null, skinningRoot: Node | null, mesh: Mesh | null) {
+    public bindSkeleton (skeleton: Skeleton | null = null, skinningRoot: Node | null = null, mesh: Mesh | null = null) {
         this._skeleton = skeleton;
         this._mesh = mesh;
         if (!skeleton || !skinningRoot || !mesh) { return; }

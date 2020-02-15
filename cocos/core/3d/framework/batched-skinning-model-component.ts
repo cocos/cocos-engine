@@ -49,17 +49,36 @@ const batch_extras_size = GFXFormatInfos[batch_id.format].size + GFXFormatInfos[
 @ccclass('cc.SkinningModelUnit')
 export class SkinningModelUnit {
 
+    /**
+     * @en Skinning mesh of this unit.
+     * @zh 子蒙皮模型的网格模型。
+     */
     @property(Mesh)
     public mesh: Mesh | null = null;
+
+    /**
+     * @en Skeleton of this unit.
+     * @zh 子蒙皮模型的骨骼。
+     */
     @property(Skeleton)
     public skeleton: Skeleton | null = null;
+
+    /**
+     * @en Skinning material of this unit.
+     * @zh 子蒙皮模型使用的材质。
+     */
     @property(Material)
     public material: Material | null = null;
+
     @property
     private _offset: Vec2 = new Vec2(0, 0);
     @property
     private _size: Vec2 = new Vec2(1, 1);
 
+    /**
+     * @en UV offset on texture atlas.
+     * @zh 在图集中的 uv 坐标偏移。
+     */
     @property
     set offset (offset) {
         Vec2.copy(this._offset, offset);
@@ -68,6 +87,10 @@ export class SkinningModelUnit {
         return this._offset;
     }
 
+    /**
+     * @en UV extent on texture atlas.
+     * @zh 在图集中占的 UV 尺寸。
+     */
     @property
     set size (size) {
         Vec2.copy(this._size, size);
@@ -76,6 +99,10 @@ export class SkinningModelUnit {
         return this._size;
     }
 
+    /**
+     * @en Convevient setter, copying all the necessary information from target skinning model component.
+     * @zh 复制目标 SkinningModelComponent 的所有属性到本单元，方便快速配置。
+     */
     @property({ type: SkinningModelComponent })
     set copyFrom (comp: SkinningModelComponent | null) {
         if (!comp) { return; }
@@ -89,8 +116,8 @@ export class SkinningModelUnit {
 }
 
 /**
- * @en The Batched Skinning Model Component
- * @zh 蒙皮模型合批组件
+ * @en The Batched Skinning Model Component, batches multiple skeleton-sharing skinning models.
+ * @zh 蒙皮模型合批组件，用于合并绘制共享同一骨骼资源的所有蒙皮模型。
  */
 @ccclass('cc.BatchedSkinningModelComponent')
 @executionOrder(100)
@@ -98,18 +125,32 @@ export class SkinningModelUnit {
 @menu('Components/BatchedSkinningModel')
 export class BatchedSkinningModelComponent extends SkinningModelComponent {
 
+    /**
+     * @en Size of the generated texture atlas.
+     * @zh 合图生成的最终图集的边长。
+     */
     @property({
-        tooltip: '合图生成的最终图集的边长',
+        tooltip: 'Size of the generated texture atlas',
     })
     public atlasSize: number = 1024;
+
+    /**
+     * @en Size of the generated texture atlas.
+     * @zh 材质中真正参与合图的贴图属性，不参与的属性统一使用第一个 unit 的贴图。
+     */
     @property({
         type: [CCString],
-        tooltip: '材质中真正参与合图的贴图属性，不参与的属性统一使用第一个 unit 的贴图',
+        tooltip: '',
     })
     public batchableTextureNames: string[] = [];
+
+    /**
+     * @en Source skinning model components, containing all the data to be batched.
+     * @zh 合批前的子蒙皮模型数组，最主要的数据来源。
+     */
     @property({
         type: [SkinningModelUnit],
-        tooltip: '合批前的子蒙皮模型数组，最主要的数据来源',
+        tooltip: 'Source skinning components, containing all the data to be batched',
     })
     public units: SkinningModelUnit[] = [];
 

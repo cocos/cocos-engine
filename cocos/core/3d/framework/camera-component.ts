@@ -36,32 +36,28 @@ import { GFXClearFlag } from '../../gfx/define';
 import { GFXWindow } from '../../gfx/window';
 import { Color, Rect, toRadian, Vec3 } from '../../math';
 import { CameraDefaultMask } from '../../pipeline/define';
+import { view } from '../../platform/view';
 import { Camera } from '../../renderer';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Root } from '../../root';
 import { Layers, Node, Scene } from '../../scene-graph';
 import { Enum } from '../../value-types';
-import { view } from '../../platform';
 
 const _temp_vec3_1 = new Vec3();
 
 /**
- * The projection type<br/>
- * 投影类型。
- * @static
- * @enum CameraComponent.Projection
+ * @en The projection type.
+ * @zh 投影类型。
  */
 const ProjectionType = Enum({
     /**
-     * 正交相机。
-     * @property Ortho
-     * @readonly
+     * @en Orthographic camera.
+     * @zh 正交相机。
      */
     ORTHO: 0,
     /**
-     * 透视相机。
-     * @property Perspective
-     * @readonly
+     * @en Projective camera.
+     * @zh 透视相机。
      */
     PERSPECTIVE: 1,
 });
@@ -74,7 +70,7 @@ const CameraClearFlag = Enum({
 });
 
 /**
- * @en The Camera Component
+ * @en The Camera Component.
  * @zh 相机组件。
  */
 @ccclass('cc.CameraComponent')
@@ -122,7 +118,7 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @en The projection type of the camera
+     * @en Projection type of the camera.
      * @zh 相机的投影类型。
      */
     @property({
@@ -139,7 +135,7 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @en The priority of the camera, it cannot be modified at runtime, instead, it should be set in editor.
+     * @en Render priority of the camera, should be statically set in editor. Dynamically changing this property at runtime won't work.
      * @zh 相机的优先级顺序，只能在编辑器中设置，动态设置无效。
      */
     @property({
@@ -157,7 +153,7 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @en The camera field of view
+     * @en Field of view of the camera.
      * @zh 相机的视角大小。
      */
     @property({
@@ -173,7 +169,7 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @en The camera height when in orthogonal mode
+     * @en Viewport height in orthographic mode.
      * @zh 正交模式下的相机视角大小。
      */
     @property({
@@ -189,7 +185,7 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @en The near clipping distance of the camera
+     * @en Near clipping distance of the camera.
      * @zh 相机的近平面。
      */
     @property({
@@ -205,7 +201,7 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @en The far clipping distance of the camera
+     * @en Far clipping distance of the camera.
      * @zh 相机的远平面。
      */
     @property({
@@ -221,7 +217,7 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @en The color clearing value of the camera
+     * @en Clearing color of the camera.
      * @zh 相机的颜色缓冲默认值。
      */
     @property({
@@ -243,7 +239,7 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @en The depth clearing value of the camera
+     * @en Clearing depth of the camera.
      * @zh 相机的深度缓冲默认值。
      */
     @property({
@@ -259,7 +255,7 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @en The stencil clearing value of the camera
+     * @en Clearing stencil of the camera.
      * @zh 相机的模板缓冲默认值。
      */
     @property({
@@ -275,7 +271,7 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @en The clearing flags of this camera
+     * @en Clearing flags of the camera, specifies which part of the framebuffer with be actually cleared.
      * @zh 相机的缓冲清除标志位。
      */
     @property({
@@ -292,7 +288,7 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @en The screen viewport of the camera wrt. sceen size
+     * @en Screen viewport of the camera wrt. sceen size.
      * @zh 相机相对屏幕的 viewport。
      */
     @property({
@@ -308,8 +304,8 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @en The scale of the interal buffer size,
-     * set to 1 to keep the same with the canvas size
+     * @en Scale of the interal buffer size,
+     * set to 1 to keep the same with the canvas size.
      * @zh 相机内部缓冲尺寸的缩放值, 1 为与 canvas 尺寸相同。
      */
     @property({ visible: false })
@@ -323,11 +319,13 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @zh 设置摄像机可见掩码，与Component中的visibility同时使用，用于过滤摄像机不需要渲染的物体
+     * @en Visibility mask of the camera, based on what layer the target node is in,
+     * to filter out the models that don't need to render for this camera.
+     * @zh 相机可见性掩码，对应模型所在节点的 layer 信息，用于过滤相机不需要渲染的物体。
      */
     @property({
         type: Layers.BitMask,
-        tooltip: '设置摄像机可见掩码，与 Component 中的 visibility 同时使用，用于过滤摄像机不需要渲染的物体',
+        tooltip: '设置相机可见掩码，与 Component 中的 visibility 同时使用，用于过滤相机不需要渲染的物体',
     })
     get visibility () {
         return this._visibility;
@@ -341,11 +339,12 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @zh 设置摄像机 RenderTexture
+     * @en Output render texture of the camera. Output directly to screen if not specified.
+     * @zh 相机的输出 RenderTexture，如未指定会直接输出到主屏幕。
      */
     @property({
         type: RenderTexture,
-        tooltip: '设置摄像机 RenderTexture',
+        tooltip: '设置相机 RenderTexture',
     })
     get targetTexture () {
         return this._targetTexture;

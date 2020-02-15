@@ -14,8 +14,8 @@ import {
 import { GFXDevice } from './device';
 
 /**
- * @zh
- * GFX颜色附件。
+ * @en Color attachment.
+ * @zh GFX 颜色附件。
  */
 export class GFXColorAttachment {
     public format: GFXFormat = GFXFormat.UNKNOWN;
@@ -27,8 +27,8 @@ export class GFXColorAttachment {
 }
 
 /**
- * @zh
- * GFX深度模板附件。
+ * @en Depth stencil attachment.
+ * @zh GFX 深度模板附件。
  */
 export class GFXDepthStencilAttachment {
     public format: GFXFormat = GFXFormat.UNKNOWN;
@@ -41,10 +41,6 @@ export class GFXDepthStencilAttachment {
     public endLayout: GFXTextureLayout = GFXTextureLayout.DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 }
 
-/**
- * @zh
- * GFX子过程描述信息。
- */
 export interface IGFXSubPassInfo {
     bindPoint: GFXPipelineBindPoint;
     inputs: number[];
@@ -54,10 +50,6 @@ export interface IGFXSubPassInfo {
     preserves: number[];
 }
 
-/**
- * @zh
- * GFX渲染过程描述信息。
- */
 export interface IGFXRenderPassInfo {
     colorAttachments?: GFXColorAttachment[];
     depthStencilAttachment?: GFXDepthStencilAttachment;
@@ -65,49 +57,25 @@ export interface IGFXRenderPassInfo {
 }
 
 /**
- * @zh
- * GFX渲染过程。
+ * @en GFX render pass.
+ * @zh GFX 渲染过程。
  */
 export abstract class GFXRenderPass extends GFXObject {
 
-    /**
-     * @zh
-     * GFX设备。
-     */
     protected _device: GFXDevice;
 
-    /**
-     * @zh
-     * GFX颜色附件数组。
-     */
     protected _colorInfos: GFXColorAttachment[] = [];
 
-    /**
-     * @zh
-     * GFX深度模板附件。
-     */
     protected _depthStencilInfo: GFXDepthStencilAttachment | null = null;
 
-    /**
-     * 构造函数。
-     * @param device GFX设备。
-     */
+    // protected _subPasses : GFXSubPassInfo[] = [];
+
     constructor (device: GFXDevice) {
         super(GFXObjectType.RENDER_PASS);
         this._device = device;
     }
 
-    /**
-     * @zh
-     * 提交命令缓冲数组。
-     * @param info GFX渲染过程描述信息。
-     */
     public abstract initialize (info: IGFXRenderPassInfo): boolean;
 
-    /**
-     * @zh
-     * 销毁函数。
-     */
     public abstract destroy (): void;
-    // protected _subPasses : GFXSubPassInfo[] = [];
 }

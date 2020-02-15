@@ -49,11 +49,12 @@ export class SphereLightComponent extends LightComponent {
     protected _light: SphereLight | null = null;
 
     /**
-     * 光通量。
+     * @en Luminous power of the light.
+     * @zh 光通量。
      */
     @property({
         unit: 'lm',
-        tooltip: '光通量',
+        tooltip: 'Luminous power of the light',
     })
     get luminousPower () {
         return this._luminance * nt2lm(this._size);
@@ -64,11 +65,12 @@ export class SphereLightComponent extends LightComponent {
     }
 
     /**
-     * 亮度。
+     * @en Luminance of the light.
+     * @zh 光亮度。
      */
     @property({
         unit: 'cd/m²',
-        tooltip: '亮度',
+        tooltip: 'Luminance of the light',
     })
     get luminance () {
         return this._luminance;
@@ -79,11 +81,12 @@ export class SphereLightComponent extends LightComponent {
     }
 
     /**
-     * 指定光通量或亮度。
+     * @en The photometric term currently using.
+     * @zh 当前使用的光度学计量单位。
      */
     @property({
         type: PhotometricTerm,
-        tooltip: '指定光通量或亮度',
+        tooltip: 'The photometric term currently using',
     })
     get term () {
         return this._term;
@@ -94,12 +97,12 @@ export class SphereLightComponent extends LightComponent {
 
     /**
      * @en
-     * The light size, used for spot and point light
+     * The light source size, used for spot and point light.
      * @zh
      * 针对聚光灯和点光源设置光源大小。
      */
     @property({
-        tooltip: '针对聚光灯和点光源设置光源大小',
+        tooltip: 'The light source size, used for spot and point light',
     })
     get size () {
         return this._size;
@@ -111,12 +114,12 @@ export class SphereLightComponent extends LightComponent {
 
     /**
      * @en
-     * The light range, used for spot and point light
+     * The light source range, used for spot and point light
      * @zh
      * 针对聚光灯和点光源设置光源范围。
      */
     @property({
-        tooltip: '针对聚光灯和点光源设置光源范围',
+        tooltip: 'The light source range, used for spot and point light',
     })
     get range () {
         return this._range;

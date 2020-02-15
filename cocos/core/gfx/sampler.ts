@@ -5,10 +5,6 @@
 import { GFXAddress, GFXComparisonFunc, GFXFilter, GFXObject, GFXObjectType, IGFXColor } from './define';
 import { GFXDevice } from './device';
 
-/**
- * @zh
- * GFX采样器描述信息。
- */
 export interface IGFXSamplerInfo {
     name?: string;
     minFilter?: GFXFilter;
@@ -26,8 +22,8 @@ export interface IGFXSamplerInfo {
 }
 
 /**
- * @zh
- * GFX采样器状态。
+ * @en GFX sampler state.
+ * @zh GFX 采样器状态。
  */
 export class GFXSamplerState {
 
@@ -45,11 +41,6 @@ export class GFXSamplerState {
     public maxLOD: number = 0;
     public mipLODBias: number = 0.0;
 
-    /**
-     * @zh
-     * 比较函数。
-     * @param state GFX采样器状态。
-     */
     public compare (state: GFXSamplerState): boolean {
         return (this.minFilter === state.minFilter) &&
         (this.magFilter === state.magFilter) &&
@@ -70,49 +61,29 @@ export class GFXSamplerState {
 }
 
 /**
- * @zh
- * GFX采样器。
+ * @en GFX sampler.
+ * @zh GFX 采样器。
  */
 export abstract class GFXSampler extends GFXObject {
 
     /**
-     * @zh
-     * GFX采样器状态。
+     * @en Get current sampler state.
+     * @zh GFX 采样器状态。
      */
     public get state (): GFXSamplerState {
         return this._state;
     }
 
-    /**
-     * @zh
-     * GFX设备。
-     */
     protected _device: GFXDevice;
 
-    /**
-     * @zh
-     * GFX采样器状态。
-     */
     protected _state: GFXSamplerState = new GFXSamplerState();
 
-    /**
-     * 构造函数。
-     */
     constructor (device: GFXDevice) {
         super(GFXObjectType.SAMPLER);
         this._device = device;
     }
 
-    /**
-     * @zh
-     * 初始化函数。
-     * @param info GFX采样器描述信息。
-     */
     public abstract initialize (info: IGFXSamplerInfo): boolean;
 
-    /**
-     * @zh
-     * 销毁函数。
-     */
     public abstract destroy (): void;
 }

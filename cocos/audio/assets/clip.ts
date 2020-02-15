@@ -42,6 +42,10 @@ export const AudioType = Enum({
 });
 
 /**
+ * @en
+ * The audio clip asset. Every clip handles the low-level affairs itself.
+ * 'started' event is emitted once the audio began to play.
+ * 'ended' event is emitted once the audio stopped.
  * @zh
  * 音频片段资源，每个片段知道自己应该如何播放、寻址等。
  * 每当音频片段实际开始播放时，会发出 'started' 事件；

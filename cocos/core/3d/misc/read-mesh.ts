@@ -1,6 +1,6 @@
 
-import { GFXAttributeName, GFXFormat, GFXFormatInfos, GFXFormatType, GFXPrimitiveMode, IGFXFormatInfo } from '../../gfx/define';
 import { Mesh } from '../../assets/mesh';
+import { GFXAttributeName, GFXFormat, GFXFormatInfos } from '../../gfx/define';
 import { IGeometry } from '../../primitive/define';
 import { readBuffer } from './buffer';
 
