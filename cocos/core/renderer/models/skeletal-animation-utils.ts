@@ -46,17 +46,11 @@ import { DataPoolManager } from '../data-pool-manager';
 // change here and cc-skinning.chunk to use other skinning algorithms
 export const uploadJointData = uploadJointDataLBS;
 
-export enum JointsMediumType {
-    NONE, // for non-skinning models only
-    RGBA8,
-    RGBA32F,
-}
-
-export function selectJointsMediumType (device: GFXDevice) {
+export function selectJointsMediumFormat (device: GFXDevice): GFXFormat {
     if (device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
-        return JointsMediumType.RGBA32F;
+        return GFXFormat.RGBA32F;
     } else {
-        return JointsMediumType.RGBA8;
+        return GFXFormat.RGBA8;
     }
 }
 
@@ -115,11 +109,6 @@ function roundUpTextureSize (targetLength: number, formatSize: number) {
     return Math.ceil(Math.max(minSize * formatScale, targetLength) / 12) * 12;
 }
 
-const _jointsFormat = {
-    [JointsMediumType.RGBA8]: GFXFormat.RGBA8,
-    [JointsMediumType.RGBA32F]: GFXFormat.RGBA32F,
-};
-
 export const jointsTextureSamplerHash = genSamplerHash([
     GFXFilter.POINT,
     GFXFilter.POINT,
@@ -134,10 +123,9 @@ export interface IJointsTextureHandle {
     refCount: number;
     clipHash: number;
     skeletonHash: number;
-    meshHash: number;
     readyToBeDeleted: boolean;
     handle: ITextureBufferHandle;
-    bounds: aabb[];
+    bounds: Map<number, aabb[]>;
 }
 
 const v3_3 = new Vec3();
@@ -157,7 +145,7 @@ export class JointsTexturePool {
     constructor (device: GFXDevice, maxChunks = 8) {
         this._device = device;
         this._pool = new TextureBufferPool(device);
-        const format = _jointsFormat[selectJointsMediumType(this._device)];
+        const format = selectJointsMediumFormat(this._device);
         this._formatSize = GFXFormatInfos[format].size;
         const scale = 16 / this._formatSize;
         this._pool.initialize({
@@ -179,16 +167,18 @@ export class JointsTexturePool {
      * 获取默认姿势的骨骼贴图。
      */
     public getDefaultPoseTexture (skeleton: Skeleton, mesh: Mesh, skinningRoot: Node) {
-        const hash = skeleton.hash ^ mesh.hash;
-        let texture: IJointsTextureHandle | null = this._textureBuffers.get(hash) || null;
-        if (texture) { texture.refCount++; return texture; }
+        let texture: IJointsTextureHandle | null = this._textureBuffers.get(skeleton.hash) || null;
+        if (texture && texture.bounds.has(mesh.hash)) { texture.refCount++; return texture; }
         const { joints, bindposes } = skeleton;
-        const bufSize = joints.length * 12;
-        const handle = this._pool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT);
-        if (!handle) { return null; }
-        texture = { pixelOffset: handle.start / this._formatSize, refCount: 1, bounds: [new aabb()],
-            skeletonHash: skeleton.hash, meshHash: mesh.hash, clipHash: 0, readyToBeDeleted: false, handle };
-        const textureBuffer = new Float32Array(bufSize);
+        let textureBuffer: Float32Array = null!; let buildTexture = false;
+        if (!texture) {
+            const bufSize = joints.length * 12;
+            const handle = this._pool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT);
+            if (!handle) { return texture; }
+            texture = { pixelOffset: handle.start / this._formatSize, refCount: 1, bounds: new Map(),
+                skeletonHash: skeleton.hash, clipHash: 0, readyToBeDeleted: false, handle };
+            textureBuffer = new Float32Array(bufSize); buildTexture = true;
+        }
         Vec3.set(v3_min,  Infinity,  Infinity,  Infinity);
         Vec3.set(v3_max, -Infinity, -Infinity, -Infinity);
         const dataPoolManager: DataPoolManager = cc.director.root.dataPoolManager;
@@ -196,18 +186,25 @@ export class JointsTexturePool {
         for (let i = 0; i < joints.length; i++) {
             const node = skinningRoot.getChildByPath(joints[i]);
             const bound = boneSpaceBounds[i];
-            if (!bound || !node) { continue; }
+            if (!node) { continue; } // don't skip null `bound` here, or it becomes mesh-specific
             getWorldTransformUntilRoot(node, skinningRoot, m4_1);
-            aabb.transform(ab_1, bound, m4_1);
-            ab_1.getBoundary(v3_3, v3_4);
-            Vec3.min(v3_min, v3_min, v3_3);
-            Vec3.max(v3_max, v3_max, v3_4);
-            Mat4.multiply(m4_1, m4_1, bindposes[i]);
-            uploadJointData(textureBuffer, 12 * i, m4_1, i === 0);
+            if (bound) {
+                aabb.transform(ab_1, bound, m4_1);
+                ab_1.getBoundary(v3_3, v3_4);
+                Vec3.min(v3_min, v3_min, v3_3);
+                Vec3.max(v3_max, v3_max, v3_4);
+            }
+            if (buildTexture) {
+                Mat4.multiply(m4_1, m4_1, bindposes[i]);
+                uploadJointData(textureBuffer, 12 * i, m4_1, i === 0);
+            }
         }
-        aabb.fromPoints(texture.bounds[0], v3_min, v3_max);
-        this._pool.update(handle, textureBuffer.buffer);
-        this._textureBuffers.set(hash, texture);
+        const bounds = [new aabb()]; texture.bounds.set(mesh.hash, bounds);
+        aabb.fromPoints(bounds[0], v3_min, v3_max);
+        if (buildTexture) {
+            this._pool.update(texture.handle, textureBuffer.buffer);
+            this._textureBuffers.set(skeleton.hash, texture);
+        }
         return texture;
     }
 
@@ -217,55 +214,64 @@ export class JointsTexturePool {
      * @zh
      * 获取指定动画片段的骨骼贴图。
      */
-    public getSequencePoseTexture (skeleton: Skeleton, mesh: Mesh, clip: AnimationClip) {
-        const hash = skeleton.hash ^ mesh.hash ^ clip.hash;
+    public getSequencePoseTexture (skeleton: Skeleton, clip: AnimationClip, mesh: Mesh) {
+        const hash = skeleton.hash ^ clip.hash;
         let texture: IJointsTextureHandle | null = this._textureBuffers.get(hash) || null;
-        if (texture) { texture.refCount++; return texture; }
+        if (texture && texture.bounds.has(mesh.hash)) { texture.refCount++; return texture; }
         const { joints, bindposes } = skeleton;
         const clipData = SkelAnimDataHub.getOrExtract(clip);
         const frames = clipData.info.frames;
-        const bufSize = joints.length * 12 * frames;
-        const handle = this._pool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT);
-        if (!handle) { return null; }
-        const bounds: aabb[] = [];
-        texture = { pixelOffset: handle.start / this._formatSize, refCount: 1, bounds,
-            skeletonHash: skeleton.hash, meshHash: mesh.hash, clipHash: clip.hash, readyToBeDeleted: false, handle };
-        const textureBuffer = new Float32Array(bufSize);
+        let textureBuffer: Float32Array = null!; let buildTexture = false;
+        if (!texture) {
+            const bufSize = joints.length * 12 * frames;
+            const handle = this._pool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT);
+            if (!handle) { return null; }
+            texture = { pixelOffset: handle.start / this._formatSize, refCount: 1, bounds: new Map(),
+                skeletonHash: skeleton.hash, clipHash: clip.hash, readyToBeDeleted: false, handle };
+            textureBuffer = new Float32Array(bufSize); buildTexture = true;
+        }
         Vec3.set(v3_min,  Infinity,  Infinity,  Infinity);
         Vec3.set(v3_max, -Infinity, -Infinity, -Infinity);
         const dataPoolManager: DataPoolManager = cc.director.root.dataPoolManager;
         const boneSpaceBounds = dataPoolManager.boneSpaceBoundsInfo.get(mesh, skeleton);
+        const bounds: aabb[] = []; texture.bounds.set(mesh.hash, bounds);
         for (let fid = 0; fid < frames; fid++) {
             bounds.push(new aabb(Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity));
         }
         for (let i = 0; i < joints.length; i++) {
             const boneSpaceBound = boneSpaceBounds[i];
             const nodeData = clipData.data[joints[i]];
-            if (!boneSpaceBound || !nodeData) { continue; }
+            if (!nodeData) { continue; } // don't skip null `boneSpaceBounds` here, or it becomes mesh-specific
             const bindpose = bindposes[i];
             const matrix = nodeData.worldMatrix.values as Mat4[];
             for (let frame = 0; frame < frames; frame++) {
                 const m = matrix[frame];
                 const bound = bounds[frame];
-                aabb.transform(ab_1, boneSpaceBound, m);
-                ab_1.getBoundary(v3_3, v3_4);
-                Vec3.min(bound.center, bound.center, v3_3);
-                Vec3.max(bound.halfExtents, bound.halfExtents, v3_4);
-                Mat4.multiply(m4_1, m, bindpose);
-                uploadJointData(textureBuffer, 12 * (frames * i + frame), m4_1, i === 0);
+                if (boneSpaceBound) {
+                    aabb.transform(ab_1, boneSpaceBound, m);
+                    ab_1.getBoundary(v3_3, v3_4);
+                    Vec3.min(bound.center, bound.center, v3_3);
+                    Vec3.max(bound.halfExtents, bound.halfExtents, v3_4);
+                }
+                if (buildTexture) {
+                    Mat4.multiply(m4_1, m, bindpose);
+                    uploadJointData(textureBuffer, 12 * (frames * i + frame), m4_1, i === 0);
+                }
             }
         }
         for (let frame = 0; frame < frames; frame++) {
             const { center, halfExtents } = bounds[frame];
             aabb.fromPoints(bounds[frame], center, halfExtents);
         }
-        this._pool.update(handle, textureBuffer.buffer);
-        this._textureBuffers.set(hash, texture);
+        if (buildTexture) {
+            this._pool.update(texture.handle, textureBuffer.buffer);
+            this._textureBuffers.set(hash, texture);
+        }
         return texture;
     }
 
-    public releaseHandle (handle: IJointsTextureHandle, decr = true) {
-        if (decr && handle.refCount > 0) { handle.refCount--; }
+    public releaseHandle (handle: IJointsTextureHandle) {
+        if (handle.refCount > 0) { handle.refCount--; }
         if (!handle.refCount && handle.readyToBeDeleted) {
             this._pool.free(handle.handle);
             this._textureBuffers.delete(handle.skeletonHash ^ handle.clipHash);
@@ -276,11 +282,15 @@ export class JointsTexturePool {
         const it = this._textureBuffers.values();
         let res = it.next();
         while (!res.done) {
-            if (res.value.skeletonHash === skeleton.hash) {
-                res.value.readyToBeDeleted = true;
-                this.releaseHandle(res.value, false);
-                // delete handle refs immediately so new allocations with the same asset could work
-                this._textureBuffers.delete(res.value.skeletonHash ^ res.value.clipHash);
+            const handle = res.value;
+            if (handle.skeletonHash === skeleton.hash) {
+                handle.readyToBeDeleted = true;
+                if (handle.refCount) {
+                    // delete handle record immediately so new allocations with the same asset could work
+                    this._textureBuffers.delete(handle.skeletonHash ^ handle.clipHash);
+                } else {
+                    this.releaseHandle(handle);
+                }
             }
             res = it.next();
         }
@@ -290,11 +300,15 @@ export class JointsTexturePool {
         const it = this._textureBuffers.values();
         let res = it.next();
         while (!res.done) {
-            if (res.value.clipHash === clip.hash) {
-                res.value.readyToBeDeleted = true;
-                this.releaseHandle(res.value, false);
-                // delete handle refs immediately so new allocations with the same asset could work
-                this._textureBuffers.delete(res.value.skeletonHash ^ res.value.clipHash);
+            const handle = res.value;
+            if (handle.clipHash === clip.hash) {
+                handle.readyToBeDeleted = true;
+                if (handle.refCount) {
+                    // delete handle record immediately so new allocations with the same asset could work
+                    this._textureBuffers.delete(handle.skeletonHash ^ handle.clipHash);
+                } else {
+                    this.releaseHandle(handle);
+                }
             }
             res = it.next();
         }

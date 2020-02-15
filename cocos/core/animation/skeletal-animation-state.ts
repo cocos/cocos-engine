@@ -28,7 +28,7 @@
  */
 
 import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
-import { Mat4 } from '../math';
+import { Mat4, Quat, Vec3 } from '../math';
 import { IAnimInfo, JointsAnimationInfo } from '../renderer/models/skeletal-animation-utils';
 import { Node } from '../scene-graph';
 import { AnimationClip } from './animation-clip';
@@ -38,11 +38,18 @@ import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { getWorldTransformUntilRoot } from './transform-utils';
 
 const m4_1 = new Mat4();
+const m4_2 = new Mat4();
 const _defaultCurves = []; // no curves
+
+interface ITransform {
+    pos: Vec3;
+    rot: Quat;
+    scale: Vec3;
+}
 
 interface ISocketData {
     target: Node;
-    frames: Mat4[];
+    frames: ITransform[];
 }
 
 export class SkeletalAnimationState extends AnimationState {
@@ -50,28 +57,36 @@ export class SkeletalAnimationState extends AnimationState {
     protected _frames = 1;
     protected _animInfo: IAnimInfo | null = null;
     protected _sockets: ISocketData[] = [];
+    protected _animInfoMgr: JointsAnimationInfo;
+    protected _comps: SkinningModelComponent[] = [];
 
     constructor (clip: AnimationClip, name = '') {
         super(clip, name);
+        this._animInfoMgr = cc.director.root.dataPoolManager.jointsAnimationInfo;
     }
 
     public initialize (root: Node) {
         if (this._curveLoaded) { return; }
-        const info = SkelAnimDataHub.getOrExtract(this.clip).info;
         super.initialize(root, _defaultCurves);
+        const info = SkelAnimDataHub.getOrExtract(this.clip).info;
         this._frames = info.frames - 1;
-        this._animInfo = (cc.director.root.dataPoolManager.jointsAnimationInfo as JointsAnimationInfo).get(root.uuid);
+        this._animInfo = this._animInfoMgr.get(root.uuid);
         this.duration = this._frames / info.sample; // last key
+        this._comps.length = 0;
+        const comps = root.getComponentsInChildren(SkinningModelComponent);
+        for (let i = 0; i < comps.length; ++i) {
+            const comp = comps[i];
+            if (comp.skinningRoot === root) {
+                this._comps.push(comp);
+            }
+        }
     }
 
     public onPlay () {
         super.onPlay();
-        const comps = this._targetNode!.getComponentsInChildren(SkinningModelComponent);
-        for (let i = 0; i < comps.length; ++i) {
-            const comp = comps[i];
-            if (comp.skinningRoot === this._targetNode) {
-                comp.uploadAnimation(this.clip);
-            }
+        this._animInfoMgr.switchClip(this._animInfo!, this._clip);
+        for (let i = 0; i < this._comps.length; ++i) {
+            this._comps[i].uploadAnimation(this.clip);
         }
     }
 
@@ -90,7 +105,8 @@ export class SkeletalAnimationState extends AnimationState {
         info.dirty = true;
         for (let i = 0; i < this._sockets.length; ++i) {
             const { target, frames } = this._sockets[i];
-            target.matrix = frames[curFrame]; // ratio guaranteed to be in [0, 1]
+            const { pos, rot, scale } = frames[curFrame]; // ratio guaranteed to be in [0, 1]
+            target.setRTS(rot, pos, scale);
         }
     }
 
@@ -115,13 +131,15 @@ export class SkeletalAnimationState extends AnimationState {
         // create animation data
         const socketData: ISocketData = {
             target: socket.target,
-            frames: source.worldMatrix.values.map((v) => v.clone()) as Mat4[],
+            frames: source.worldMatrix.values.map(() => ({ pos: new Vec3(), rot: new Quat(), scale: new Vec3() })),
         };
+        const frames = source.worldMatrix.values as Mat4[];
+        const data = socketData.frames;
         // apply downstream default pose
         getWorldTransformUntilRoot(targetNode, animNode, m4_1);
         for (let i = 0; i < socketData.frames.length; i++) {
-            const m = socketData.frames[i];
-            Mat4.multiply(m, m, m4_1);
+            const m = frames[i]; const dst = data[i];
+            Mat4.toRTS(Mat4.multiply(m4_2, m, m4_1), dst.rot, dst.pos, dst.scale);
         }
         return socketData;
     }

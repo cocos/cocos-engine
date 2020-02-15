@@ -132,16 +132,15 @@ export class SkinningModel extends Model {
         if (!this._skeleton || !this._mesh || this.uploadedAnim === anim) { return; }
         this.uploadedAnim = anim;
         const resMgr = this._dataPoolManager;
-        resMgr.jointsAnimationInfo.switchClip(this._jointsMedium.animInfo, anim);
         let texture: IJointsTextureHandle | null = null;
         if (anim) {
-            texture = resMgr.jointsTexturePool.getSequencePoseTexture(this._skeleton, this._mesh, anim);
-            this._jointsMedium.boundsInfo = texture && texture.bounds;
+            texture = resMgr.jointsTexturePool.getSequencePoseTexture(this._skeleton, anim, this._mesh);
+            this._jointsMedium.boundsInfo = texture && texture.bounds.get(this._mesh.hash)!;
             this._modelBounds = null; // don't calc bounds again in Model
         } else {
             texture = resMgr.jointsTexturePool.getDefaultPoseTexture(this._skeleton, this._mesh, this._transform!);
             this._jointsMedium.boundsInfo = null;
-            this._modelBounds = texture && texture.bounds[0];
+            this._modelBounds = texture && texture.bounds.get(this._mesh.hash)![0];
         }
         this._applyJointsTexture(texture);
     }
