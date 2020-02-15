@@ -60,7 +60,7 @@ export class SkeletalAnimationState extends AnimationState {
         const info = SkelAnimDataHub.getOrExtract(this.clip).info;
         super.initialize(root, _defaultCurves);
         this._frames = info.frames - 1;
-        this._animInfo = (cc.director.root.dataPoolManager.jointsAnimationInfo as JointsAnimationInfo).create(root.uuid);
+        this._animInfo = (cc.director.root.dataPoolManager.jointsAnimationInfo as JointsAnimationInfo).get(root.uuid);
         this.duration = this._frames / info.sample; // last key
     }
 

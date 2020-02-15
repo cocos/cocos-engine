@@ -27,7 +27,6 @@
  * @hidden
  */
 
-import { getWorldTransformUntilRoot } from '../../animation/transform-utils';
 import { Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { aabb } from '../../geom-utils';
@@ -153,7 +152,7 @@ export class FlexibleSkinningModel extends Model {
         if (!skeleton || !skinningRoot || !mesh) { return; }
         this._transform = skinningRoot;
         const dataPoolManager: DataPoolManager = cc.director.root.dataPoolManager;
-        const boneSpaceBounds = dataPoolManager.animatedBoundsInfo.getBoneSpacePerJointBounds(mesh, skeleton);
+        const boneSpaceBounds = dataPoolManager.boneSpaceBoundsInfo.get(mesh, skeleton);
         for (let index = 0; index < skeleton.joints.length; index++) {
             const bound = boneSpaceBounds[index];
             const target = skinningRoot.getChildByPath(skeleton.joints[index]);

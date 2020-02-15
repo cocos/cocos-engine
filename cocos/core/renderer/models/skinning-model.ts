@@ -28,13 +28,12 @@
  */
 
 import { AnimationClip } from '../../animation/animation-clip';
-import { getWorldTransformUntilRoot } from '../../animation/transform-utils';
 import { Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
-import { Mat4, Vec3 } from '../../math';
+import { Vec3 } from '../../math';
 import { UBOSkinningAnimation, UBOSkinningTexture, UniformJointsTexture } from '../../pipeline/define';
 import { Node } from '../../scene-graph';
 import { Pass } from '../core/pass';
@@ -108,7 +107,7 @@ export class SkinningModel extends Model {
         super.updateTransform();
         if (!this.uploadedAnim) { return; }
         const { animInfo, boundsInfo } = this._jointsMedium;
-        const skelBound = boundsInfo![animInfo!.data[1]];
+        const skelBound = boundsInfo![animInfo.data[1]];
         const node = this._transform;
         if (this._worldBounds && skelBound) {
             // @ts-ignore TS2339
@@ -119,7 +118,7 @@ export class SkinningModel extends Model {
     // update fid buffer only when visible
     public updateUBOs () {
         if (!super.updateUBOs()) { return false; }
-        const info = this._jointsMedium.animInfo!;
+        const info = this._jointsMedium.animInfo;
         if (info.dirty) { info.buffer.update(info.data); info.dirty = false; }
         return true;
     }
@@ -133,16 +132,16 @@ export class SkinningModel extends Model {
         if (!this._skeleton || !this._mesh || this.uploadedAnim === anim) { return; }
         this.uploadedAnim = anim;
         const resMgr = this._dataPoolManager;
-        resMgr.jointsAnimationInfo.switchClip(this._jointsMedium.animInfo!, anim);
+        resMgr.jointsAnimationInfo.switchClip(this._jointsMedium.animInfo, anim);
         let texture: IJointsTextureHandle | null = null;
         if (anim) {
-            texture = resMgr.jointsTexturePool.getJointsTextureWithAnimation(this._skeleton, this._mesh, anim);
-            this._jointsMedium.boundsInfo = resMgr.animatedBoundsInfo.get(this._mesh, this._skeleton, anim);
+            texture = resMgr.jointsTexturePool.getSequencePoseTexture(this._skeleton, this._mesh, anim);
+            this._jointsMedium.boundsInfo = texture && texture.bounds;
             this._modelBounds = null; // don't calc bounds again in Model
         } else {
-            texture = resMgr.jointsTexturePool.getDefaultJointsTexture(this._skeleton, this._mesh, this._transform!);
+            texture = resMgr.jointsTexturePool.getDefaultPoseTexture(this._skeleton, this._mesh, this._transform!);
             this._jointsMedium.boundsInfo = null;
-            this._modelBounds = texture && texture.bound!;
+            this._modelBounds = texture && texture.bounds[0];
         }
         this._applyJointsTexture(texture);
     }
@@ -182,7 +181,7 @@ export class SkinningModel extends Model {
         const { buffer, texture, animInfo } = this._jointsMedium;
         const bindingLayout = pso.pipelineLayout.layouts[0];
         bindingLayout.bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);
-        bindingLayout.bindBuffer(UBOSkinningAnimation.BLOCK.binding, animInfo!.buffer);
+        bindingLayout.bindBuffer(UBOSkinningAnimation.BLOCK.binding, animInfo.buffer);
         const sampler = samplerLib.getSampler(this._device, jointsTextureSamplerHash);
         if (texture) {
             bindingLayout.bindTextureView(UniformJointsTexture.binding, texture.handle.texView);

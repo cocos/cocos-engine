@@ -29,6 +29,7 @@
 
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../data/class-decorator';
 import { Mat4 } from '../math';
+import { DataPoolManager } from '../renderer/data-pool-manager';
 import { Node } from '../scene-graph/node';
 import { AnimationClip } from './animation-clip';
 import { AnimationComponent } from './animation-component';
@@ -90,7 +91,7 @@ export class SkeletalAnimationComponent extends AnimationComponent {
 
     public onDestroy () {
         super.onDestroy();
-        cc.director.root.dataPoolManager.jointsAnimationInfo.destroy(this.node.uuid);
+        (cc.director.root.dataPoolManager as DataPoolManager).jointsAnimationInfo.destroy(this.node.uuid);
     }
 
     public start () {

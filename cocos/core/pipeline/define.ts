@@ -9,7 +9,6 @@ import { GFXSampler } from '../gfx/sampler';
 import { GFXUniformBlock, GFXUniformSampler } from '../gfx/shader';
 import { GFXTextureView } from '../gfx/texture-view';
 import { Pass } from '../renderer/core/pass';
-import { jointDefault } from '../renderer/models/skeletal-animation-utils';
 import { Model } from '../renderer/scene/model';
 import { SubModel } from '../renderer/scene/submodel';
 import { Layers } from '../scene-graph/layers';
@@ -280,12 +279,10 @@ export class UBOSkinningTexture {
             { name: 'cc_jointsTextureInfo', type: GFXType.FLOAT4, count: 1 },
         ],
     };
-    public static DEFAULT = Float32Array.from([3, 1 / 3, 0, 0]);
 }
 localBindingsDesc.set(UBOSkinningTexture.BLOCK.name, {
     type: GFXBindingType.UNIFORM_BUFFER,
     blockInfo: UBOSkinningTexture.BLOCK,
-    defaultValue: UBOSkinningTexture.DEFAULT,
 });
 export class UBOSkinningAnimation {
     public static JOINTS_ANIM_INFO_OFFSET: number = 0;
@@ -312,12 +309,10 @@ export class UBOSkinningFlexible {
             { name: 'cc_joints', type: GFXType.FLOAT4, count: JointUniformCapacity * 3 },
         ],
     };
-    public static DEFAULT = jointDefault.buffer;
 }
 localBindingsDesc.set(UBOSkinningFlexible.BLOCK.name, {
     type: GFXBindingType.UNIFORM_BUFFER,
     blockInfo: UBOSkinningFlexible.BLOCK,
-    defaultValue: UBOSkinningFlexible.DEFAULT,
 });
 
 /**
