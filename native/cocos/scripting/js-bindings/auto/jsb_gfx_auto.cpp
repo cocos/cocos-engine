@@ -108,7 +108,7 @@ static bool js_gfx_GFXOffset_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXOffset* cobj = new (std::nothrow) cocos2d::GFXOffset();
+        cocos2d::GFXOffset* cobj = JSB_ALLOC(cocos2d::GFXOffset);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -145,7 +145,7 @@ static bool js_gfx_GFXOffset_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXOffset* cobj = new (std::nothrow) cocos2d::GFXOffset();
+        cocos2d::GFXOffset* cobj = JSB_ALLOC(cocos2d::GFXOffset);
         cobj->x = arg0;
         cobj->y = arg1;
         cobj->z = arg2;
@@ -167,7 +167,7 @@ static bool js_gfx_GFXOffset_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXOffset* cobj = new (std::nothrow) cocos2d::GFXOffset();
+        cocos2d::GFXOffset* cobj = JSB_ALLOC(cocos2d::GFXOffset);
         cobj->x = arg0;
         cobj->y = arg1;
         cobj->z = arg2;
@@ -342,7 +342,7 @@ static bool js_gfx_GFXRect_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXRect* cobj = new (std::nothrow) cocos2d::GFXRect();
+        cocos2d::GFXRect* cobj = JSB_ALLOC(cocos2d::GFXRect);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -386,7 +386,7 @@ static bool js_gfx_GFXRect_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXRect* cobj = new (std::nothrow) cocos2d::GFXRect();
+        cocos2d::GFXRect* cobj = JSB_ALLOC(cocos2d::GFXRect);
         cobj->x = arg0;
         cobj->y = arg1;
         cobj->width = arg2;
@@ -411,7 +411,7 @@ static bool js_gfx_GFXRect_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXRect* cobj = new (std::nothrow) cocos2d::GFXRect();
+        cocos2d::GFXRect* cobj = JSB_ALLOC(cocos2d::GFXRect);
         cobj->x = arg0;
         cobj->y = arg1;
         cobj->width = arg2;
@@ -560,7 +560,7 @@ static bool js_gfx_GFXExtent_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXExtent* cobj = new (std::nothrow) cocos2d::GFXExtent();
+        cocos2d::GFXExtent* cobj = JSB_ALLOC(cocos2d::GFXExtent);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -597,7 +597,7 @@ static bool js_gfx_GFXExtent_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXExtent* cobj = new (std::nothrow) cocos2d::GFXExtent();
+        cocos2d::GFXExtent* cobj = JSB_ALLOC(cocos2d::GFXExtent);
         cobj->width = arg0;
         cobj->height = arg1;
         cobj->depth = arg2;
@@ -619,7 +619,7 @@ static bool js_gfx_GFXExtent_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXExtent* cobj = new (std::nothrow) cocos2d::GFXExtent();
+        cocos2d::GFXExtent* cobj = JSB_ALLOC(cocos2d::GFXExtent);
         cobj->width = arg0;
         cobj->height = arg1;
         cobj->depth = arg2;
@@ -794,7 +794,7 @@ static bool js_gfx_GFXTextureSubres_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXTextureSubres* cobj = new (std::nothrow) cocos2d::GFXTextureSubres();
+        cocos2d::GFXTextureSubres* cobj = JSB_ALLOC(cocos2d::GFXTextureSubres);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -838,7 +838,7 @@ static bool js_gfx_GFXTextureSubres_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXTextureSubres* cobj = new (std::nothrow) cocos2d::GFXTextureSubres();
+        cocos2d::GFXTextureSubres* cobj = JSB_ALLOC(cocos2d::GFXTextureSubres);
         cobj->base_mip_level = arg0;
         cobj->level_count = arg1;
         cobj->base_array_layer = arg2;
@@ -863,7 +863,7 @@ static bool js_gfx_GFXTextureSubres_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXTextureSubres* cobj = new (std::nothrow) cocos2d::GFXTextureSubres();
+        cocos2d::GFXTextureSubres* cobj = JSB_ALLOC(cocos2d::GFXTextureSubres);
         cobj->base_mip_level = arg0;
         cobj->level_count = arg1;
         cobj->base_array_layer = arg2;
@@ -1068,7 +1068,7 @@ static bool js_gfx_GFXTextureCopy_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXTextureCopy* cobj = new (std::nothrow) cocos2d::GFXTextureCopy();
+        cocos2d::GFXTextureCopy* cobj = JSB_ALLOC(cocos2d::GFXTextureCopy);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -1078,35 +1078,35 @@ static bool js_gfx_GFXTextureCopy_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        cocos2d::GFXTextureSubres* arg0 = 0;
+        cocos2d::GFXTextureSubres* arg0 = nullptr;
         json->getProperty("src_subres", &field);  
         if(field.isUndefined()) {
             SE_REPORT_ERROR("argument Field \".src_subres\" is undefined!");
             return false;
         }
         ok &= seval_to_reference(field, &arg0);
-        cocos2d::GFXOffset* arg1 = 0;
+        cocos2d::GFXOffset* arg1 = nullptr;
         json->getProperty("src_offset", &field);  
         if(field.isUndefined()) {
             SE_REPORT_ERROR("argument Field \".src_offset\" is undefined!");
             return false;
         }
         ok &= seval_to_reference(field, &arg1);
-        cocos2d::GFXTextureSubres* arg2 = 0;
+        cocos2d::GFXTextureSubres* arg2 = nullptr;
         json->getProperty("dst_subres", &field);  
         if(field.isUndefined()) {
             SE_REPORT_ERROR("argument Field \".dst_subres\" is undefined!");
             return false;
         }
         ok &= seval_to_reference(field, &arg2);
-        cocos2d::GFXOffset* arg3 = 0;
+        cocos2d::GFXOffset* arg3 = nullptr;
         json->getProperty("dst_offset", &field);  
         if(field.isUndefined()) {
             SE_REPORT_ERROR("argument Field \".dst_offset\" is undefined!");
             return false;
         }
         ok &= seval_to_reference(field, &arg3);
-        cocos2d::GFXExtent* arg4 = 0;
+        cocos2d::GFXExtent* arg4 = nullptr;
         json->getProperty("extent", &field);  
         if(field.isUndefined()) {
             SE_REPORT_ERROR("argument Field \".extent\" is undefined!");
@@ -1119,7 +1119,7 @@ static bool js_gfx_GFXTextureCopy_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXTextureCopy* cobj = new (std::nothrow) cocos2d::GFXTextureCopy();
+        cocos2d::GFXTextureCopy* cobj = JSB_ALLOC(cocos2d::GFXTextureCopy);
         cobj->src_subres = *arg0;
         cobj->src_offset = *arg1;
         cobj->dst_subres = *arg2;
@@ -1131,33 +1131,28 @@ static bool js_gfx_GFXTextureCopy_constructor(se::State& s)
     }
     else if(argc == 5)
     {
-        cocos2d::GFXTextureSubres arg0;
-        #pragma warning NO CONVERSION TO NATIVE FOR GFXTextureSubres
-            ok = false;
-        cocos2d::GFXOffset arg1;
-        #pragma warning NO CONVERSION TO NATIVE FOR GFXOffset
-            ok = false;
-        cocos2d::GFXTextureSubres arg2;
-        #pragma warning NO CONVERSION TO NATIVE FOR GFXTextureSubres
-            ok = false;
-        cocos2d::GFXOffset arg3;
-        #pragma warning NO CONVERSION TO NATIVE FOR GFXOffset
-            ok = false;
-        cocos2d::GFXExtent arg4;
-        #pragma warning NO CONVERSION TO NATIVE FOR GFXExtent
-            ok = false;
+        cocos2d::GFXTextureSubres* arg0 = nullptr;
+        ok &= seval_to_reference(args[0], &arg0);
+        cocos2d::GFXOffset* arg1 = nullptr;
+        ok &= seval_to_reference(args[1], &arg1);
+        cocos2d::GFXTextureSubres* arg2 = nullptr;
+        ok &= seval_to_reference(args[2], &arg2);
+        cocos2d::GFXOffset* arg3 = nullptr;
+        ok &= seval_to_reference(args[3], &arg3);
+        cocos2d::GFXExtent* arg4 = nullptr;
+        ok &= seval_to_reference(args[4], &arg4);
 
         if(!ok) {
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
 
-        cocos2d::GFXTextureCopy* cobj = new (std::nothrow) cocos2d::GFXTextureCopy();
-        cobj->src_subres = arg0;
-        cobj->src_offset = arg1;
-        cobj->dst_subres = arg2;
-        cobj->dst_offset = arg3;
-        cobj->extent = arg4;
+        cocos2d::GFXTextureCopy* cobj = JSB_ALLOC(cocos2d::GFXTextureCopy);
+        cobj->src_subres = *arg0;
+        cobj->src_offset = *arg1;
+        cobj->dst_subres = *arg2;
+        cobj->dst_offset = *arg3;
+        cobj->extent = *arg4;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -1387,7 +1382,7 @@ static bool js_gfx_GFXBufferTextureCopy_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXBufferTextureCopy* cobj = new (std::nothrow) cocos2d::GFXBufferTextureCopy();
+        cocos2d::GFXBufferTextureCopy* cobj = JSB_ALLOC(cocos2d::GFXBufferTextureCopy);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -1418,21 +1413,21 @@ static bool js_gfx_GFXBufferTextureCopy_constructor(se::State& s)
             return false;
         }
         ok &= seval_to_uint32(field, (uint32_t*)&arg2);
-        cocos2d::GFXOffset* arg3 = 0;
+        cocos2d::GFXOffset* arg3 = nullptr;
         json->getProperty("tex_offset", &field);  
         if(field.isUndefined()) {
             SE_REPORT_ERROR("argument Field \".tex_offset\" is undefined!");
             return false;
         }
         ok &= seval_to_reference(field, &arg3);
-        cocos2d::GFXExtent* arg4 = 0;
+        cocos2d::GFXExtent* arg4 = nullptr;
         json->getProperty("tex_extent", &field);  
         if(field.isUndefined()) {
             SE_REPORT_ERROR("argument Field \".tex_extent\" is undefined!");
             return false;
         }
         ok &= seval_to_reference(field, &arg4);
-        cocos2d::GFXTextureSubres* arg5 = 0;
+        cocos2d::GFXTextureSubres* arg5 = nullptr;
         json->getProperty("tex_subres", &field);  
         if(field.isUndefined()) {
             SE_REPORT_ERROR("argument Field \".tex_subres\" is undefined!");
@@ -1445,7 +1440,7 @@ static bool js_gfx_GFXBufferTextureCopy_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXBufferTextureCopy* cobj = new (std::nothrow) cocos2d::GFXBufferTextureCopy();
+        cocos2d::GFXBufferTextureCopy* cobj = JSB_ALLOC(cocos2d::GFXBufferTextureCopy);
         cobj->buff_offset = arg0;
         cobj->buff_stride = arg1;
         cobj->buff_tex_height = arg2;
@@ -1464,28 +1459,25 @@ static bool js_gfx_GFXBufferTextureCopy_constructor(se::State& s)
         ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
         unsigned int arg2 = 0;
         ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
-        cocos2d::GFXOffset arg3;
-        #pragma warning NO CONVERSION TO NATIVE FOR GFXOffset
-            ok = false;
-        cocos2d::GFXExtent arg4;
-        #pragma warning NO CONVERSION TO NATIVE FOR GFXExtent
-            ok = false;
-        cocos2d::GFXTextureSubres arg5;
-        #pragma warning NO CONVERSION TO NATIVE FOR GFXTextureSubres
-            ok = false;
+        cocos2d::GFXOffset* arg3 = nullptr;
+        ok &= seval_to_reference(args[3], &arg3);
+        cocos2d::GFXExtent* arg4 = nullptr;
+        ok &= seval_to_reference(args[4], &arg4);
+        cocos2d::GFXTextureSubres* arg5 = nullptr;
+        ok &= seval_to_reference(args[5], &arg5);
 
         if(!ok) {
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
 
-        cocos2d::GFXBufferTextureCopy* cobj = new (std::nothrow) cocos2d::GFXBufferTextureCopy();
+        cocos2d::GFXBufferTextureCopy* cobj = JSB_ALLOC(cocos2d::GFXBufferTextureCopy);
         cobj->buff_offset = arg0;
         cobj->buff_stride = arg1;
         cobj->buff_tex_height = arg2;
-        cobj->tex_offset = arg3;
-        cobj->tex_extent = arg4;
-        cobj->tex_subres = arg5;
+        cobj->tex_offset = *arg3;
+        cobj->tex_extent = *arg4;
+        cobj->tex_subres = *arg5;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -1716,7 +1708,7 @@ static bool js_gfx_GFXViewport_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXViewport* cobj = new (std::nothrow) cocos2d::GFXViewport();
+        cocos2d::GFXViewport* cobj = JSB_ALLOC(cocos2d::GFXViewport);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -1774,7 +1766,7 @@ static bool js_gfx_GFXViewport_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXViewport* cobj = new (std::nothrow) cocos2d::GFXViewport();
+        cocos2d::GFXViewport* cobj = JSB_ALLOC(cocos2d::GFXViewport);
         cobj->left = arg0;
         cobj->top = arg1;
         cobj->width = arg2;
@@ -1805,7 +1797,7 @@ static bool js_gfx_GFXViewport_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXViewport* cobj = new (std::nothrow) cocos2d::GFXViewport();
+        cocos2d::GFXViewport* cobj = JSB_ALLOC(cocos2d::GFXViewport);
         cobj->left = arg0;
         cobj->top = arg1;
         cobj->width = arg2;
@@ -1986,7 +1978,7 @@ static bool js_gfx_GFXColor_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXColor* cobj = new (std::nothrow) cocos2d::GFXColor();
+        cocos2d::GFXColor* cobj = JSB_ALLOC(cocos2d::GFXColor);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -2030,7 +2022,7 @@ static bool js_gfx_GFXColor_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXColor* cobj = new (std::nothrow) cocos2d::GFXColor();
+        cocos2d::GFXColor* cobj = JSB_ALLOC(cocos2d::GFXColor);
         cobj->r = arg0;
         cobj->g = arg1;
         cobj->b = arg2;
@@ -2055,7 +2047,7 @@ static bool js_gfx_GFXColor_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXColor* cobj = new (std::nothrow) cocos2d::GFXColor();
+        cocos2d::GFXColor* cobj = JSB_ALLOC(cocos2d::GFXColor);
         cobj->r = arg0;
         cobj->g = arg1;
         cobj->b = arg2;
@@ -2288,7 +2280,7 @@ static bool js_gfx_GFXDeviceInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXDeviceInfo* cobj = new (std::nothrow) cocos2d::GFXDeviceInfo();
+        cocos2d::GFXDeviceInfo* cobj = JSB_ALLOC(cocos2d::GFXDeviceInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -2346,7 +2338,7 @@ static bool js_gfx_GFXDeviceInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXDeviceInfo* cobj = new (std::nothrow) cocos2d::GFXDeviceInfo();
+        cocos2d::GFXDeviceInfo* cobj = JSB_ALLOC(cocos2d::GFXDeviceInfo);
         cobj->window_handle = arg0;
         cobj->width = arg1;
         cobj->height = arg2;
@@ -2360,7 +2352,7 @@ static bool js_gfx_GFXDeviceInfo_constructor(se::State& s)
     else if(argc == 6)
     {
         int arg0 = 0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (intptr_t)tmp; } while(false);
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
         unsigned int arg1 = 0;
         ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
         unsigned int arg2 = 0;
@@ -2377,7 +2369,7 @@ static bool js_gfx_GFXDeviceInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXDeviceInfo* cobj = new (std::nothrow) cocos2d::GFXDeviceInfo();
+        cocos2d::GFXDeviceInfo* cobj = JSB_ALLOC(cocos2d::GFXDeviceInfo);
         cobj->window_handle = arg0;
         cobj->width = arg1;
         cobj->height = arg2;
@@ -2754,7 +2746,7 @@ static bool js_gfx_GFXWindowInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXWindowInfo* cobj = new (std::nothrow) cocos2d::GFXWindowInfo();
+        cocos2d::GFXWindowInfo* cobj = JSB_ALLOC(cocos2d::GFXWindowInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -2847,7 +2839,7 @@ static bool js_gfx_GFXWindowInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXWindowInfo* cobj = new (std::nothrow) cocos2d::GFXWindowInfo();
+        cocos2d::GFXWindowInfo* cobj = JSB_ALLOC(cocos2d::GFXWindowInfo);
         cobj->title = arg0;
         cobj->left = arg1;
         cobj->top = arg2;
@@ -2886,14 +2878,14 @@ static bool js_gfx_GFXWindowInfo_constructor(se::State& s)
         cocos2d::GFXVsyncMode arg9;
         do { int32_t tmp = 0; ok &= seval_to_int32(args[9], &tmp); arg9 = (cocos2d::GFXVsyncMode)tmp; } while(false);
         int arg10 = 0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[10], &tmp); arg10 = (intptr_t)tmp; } while(false);
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[10], &tmp); arg10 = (int)tmp; } while(false);
 
         if(!ok) {
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
 
-        cocos2d::GFXWindowInfo* cobj = new (std::nothrow) cocos2d::GFXWindowInfo();
+        cocos2d::GFXWindowInfo* cobj = JSB_ALLOC(cocos2d::GFXWindowInfo);
         cobj->title = arg0;
         cobj->left = arg1;
         cobj->top = arg2;
@@ -3056,7 +3048,7 @@ static bool js_gfx_GFXContextInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXContextInfo* cobj = new (std::nothrow) cocos2d::GFXContextInfo();
+        cocos2d::GFXContextInfo* cobj = JSB_ALLOC(cocos2d::GFXContextInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -3093,7 +3085,7 @@ static bool js_gfx_GFXContextInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXContextInfo* cobj = new (std::nothrow) cocos2d::GFXContextInfo();
+        cocos2d::GFXContextInfo* cobj = JSB_ALLOC(cocos2d::GFXContextInfo);
         cobj->window_handle = arg0;
         cobj->shared_ctx = arg1;
         cobj->vsync_mode = arg2;
@@ -3104,7 +3096,7 @@ static bool js_gfx_GFXContextInfo_constructor(se::State& s)
     else if(argc == 3)
     {
         int arg0 = 0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (intptr_t)tmp; } while(false);
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
         cocos2d::GFXContext* arg1 = nullptr;
         ok &= seval_to_native_ptr(args[1], &arg1);
         cocos2d::GFXVsyncMode arg2;
@@ -3115,7 +3107,7 @@ static bool js_gfx_GFXContextInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXContextInfo* cobj = new (std::nothrow) cocos2d::GFXContextInfo();
+        cocos2d::GFXContextInfo* cobj = JSB_ALLOC(cocos2d::GFXContextInfo);
         cobj->window_handle = arg0;
         cobj->shared_ctx = arg1;
         cobj->vsync_mode = arg2;
@@ -3318,7 +3310,7 @@ static bool js_gfx_GFXBufferInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXBufferInfo* cobj = new (std::nothrow) cocos2d::GFXBufferInfo();
+        cocos2d::GFXBufferInfo* cobj = JSB_ALLOC(cocos2d::GFXBufferInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -3369,7 +3361,7 @@ static bool js_gfx_GFXBufferInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXBufferInfo* cobj = new (std::nothrow) cocos2d::GFXBufferInfo();
+        cocos2d::GFXBufferInfo* cobj = JSB_ALLOC(cocos2d::GFXBufferInfo);
         cobj->usage = arg0;
         cobj->mem_usage = arg1;
         cobj->stride = arg2;
@@ -3382,22 +3374,22 @@ static bool js_gfx_GFXBufferInfo_constructor(se::State& s)
     else if(argc == 5)
     {
         cocos2d::GFXBufferUsageBit arg0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXBufferUsage)tmp; } while(false);
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXBufferUsageBit)tmp; } while(false);
         cocos2d::GFXMemoryUsageBit arg1;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXMemoryUsage)tmp; } while(false);
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXMemoryUsageBit)tmp; } while(false);
         unsigned int arg2 = 0;
         ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
         unsigned int arg3 = 0;
         ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
         cocos2d::GFXBufferFlagBit arg4;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cocos2d::GFXBufferFlags)tmp; } while(false);
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cocos2d::GFXBufferFlagBit)tmp; } while(false);
 
         if(!ok) {
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
 
-        cocos2d::GFXBufferInfo* cobj = new (std::nothrow) cocos2d::GFXBufferInfo();
+        cocos2d::GFXBufferInfo* cobj = JSB_ALLOC(cocos2d::GFXBufferInfo);
         cobj->usage = arg0;
         cobj->mem_usage = arg1;
         cobj->stride = arg2;
@@ -3660,7 +3652,7 @@ static bool js_gfx_GFXDrawInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXDrawInfo* cobj = new (std::nothrow) cocos2d::GFXDrawInfo();
+        cocos2d::GFXDrawInfo* cobj = JSB_ALLOC(cocos2d::GFXDrawInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -3725,7 +3717,7 @@ static bool js_gfx_GFXDrawInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXDrawInfo* cobj = new (std::nothrow) cocos2d::GFXDrawInfo();
+        cocos2d::GFXDrawInfo* cobj = JSB_ALLOC(cocos2d::GFXDrawInfo);
         cobj->vertex_count = arg0;
         cobj->first_vertex = arg1;
         cobj->index_count = arg2;
@@ -3759,7 +3751,7 @@ static bool js_gfx_GFXDrawInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXDrawInfo* cobj = new (std::nothrow) cocos2d::GFXDrawInfo();
+        cocos2d::GFXDrawInfo* cobj = JSB_ALLOC(cocos2d::GFXDrawInfo);
         cobj->vertex_count = arg0;
         cobj->first_vertex = arg1;
         cobj->index_count = arg2;
@@ -3858,7 +3850,7 @@ static bool js_gfx_GFXIndirectBuffer_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXIndirectBuffer* cobj = new (std::nothrow) cocos2d::GFXIndirectBuffer();
+        cocos2d::GFXIndirectBuffer* cobj = JSB_ALLOC(cocos2d::GFXIndirectBuffer);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -3881,7 +3873,7 @@ static bool js_gfx_GFXIndirectBuffer_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXIndirectBuffer* cobj = new (std::nothrow) cocos2d::GFXIndirectBuffer();
+        cocos2d::GFXIndirectBuffer* cobj = JSB_ALLOC(cocos2d::GFXIndirectBuffer);
         cobj->draws = arg0;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -3897,7 +3889,7 @@ static bool js_gfx_GFXIndirectBuffer_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXIndirectBuffer* cobj = new (std::nothrow) cocos2d::GFXIndirectBuffer();
+        cocos2d::GFXIndirectBuffer* cobj = JSB_ALLOC(cocos2d::GFXIndirectBuffer);
         cobj->draws = arg0;
 
         s.thisObject()->setPrivateData(cobj);
@@ -4236,7 +4228,7 @@ static bool js_gfx_GFXTextureInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXTextureInfo* cobj = new (std::nothrow) cocos2d::GFXTextureInfo();
+        cocos2d::GFXTextureInfo* cobj = JSB_ALLOC(cocos2d::GFXTextureInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -4322,7 +4314,7 @@ static bool js_gfx_GFXTextureInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXTextureInfo* cobj = new (std::nothrow) cocos2d::GFXTextureInfo();
+        cocos2d::GFXTextureInfo* cobj = JSB_ALLOC(cocos2d::GFXTextureInfo);
         cobj->type = arg0;
         cobj->usage = arg1;
         cobj->format = arg2;
@@ -4342,7 +4334,7 @@ static bool js_gfx_GFXTextureInfo_constructor(se::State& s)
         cocos2d::GFXTextureType arg0;
         do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXTextureType)tmp; } while(false);
         cocos2d::GFXTextureUsageBit arg1;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXTextureUsage)tmp; } while(false);
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXTextureUsageBit)tmp; } while(false);
         cocos2d::GFXFormat arg2;
         do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXFormat)tmp; } while(false);
         unsigned int arg3 = 0;
@@ -4358,14 +4350,14 @@ static bool js_gfx_GFXTextureInfo_constructor(se::State& s)
         cocos2d::GFXSampleCount arg8;
         do { int32_t tmp = 0; ok &= seval_to_int32(args[8], &tmp); arg8 = (cocos2d::GFXSampleCount)tmp; } while(false);
         cocos2d::GFXTextureFlagBit arg9;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[9], &tmp); arg9 = (cocos2d::GFXTextureFlags)tmp; } while(false);
+        do { int32_t tmp = 0; ok &= seval_to_int32(args[9], &tmp); arg9 = (cocos2d::GFXTextureFlagBit)tmp; } while(false);
 
         if(!ok) {
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
 
-        cocos2d::GFXTextureInfo* cobj = new (std::nothrow) cocos2d::GFXTextureInfo();
+        cocos2d::GFXTextureInfo* cobj = JSB_ALLOC(cocos2d::GFXTextureInfo);
         cobj->type = arg0;
         cobj->usage = arg1;
         cobj->format = arg2;
@@ -4638,7 +4630,7 @@ static bool js_gfx_GFXTextureViewInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXTextureViewInfo* cobj = new (std::nothrow) cocos2d::GFXTextureViewInfo();
+        cocos2d::GFXTextureViewInfo* cobj = JSB_ALLOC(cocos2d::GFXTextureViewInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -4703,7 +4695,7 @@ static bool js_gfx_GFXTextureViewInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXTextureViewInfo* cobj = new (std::nothrow) cocos2d::GFXTextureViewInfo();
+        cocos2d::GFXTextureViewInfo* cobj = JSB_ALLOC(cocos2d::GFXTextureViewInfo);
         cobj->texture = arg0;
         cobj->type = arg1;
         cobj->format = arg2;
@@ -4737,7 +4729,7 @@ static bool js_gfx_GFXTextureViewInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXTextureViewInfo* cobj = new (std::nothrow) cocos2d::GFXTextureViewInfo();
+        cocos2d::GFXTextureViewInfo* cobj = JSB_ALLOC(cocos2d::GFXTextureViewInfo);
         cobj->texture = arg0;
         cobj->type = arg1;
         cobj->format = arg2;
@@ -5172,7 +5164,7 @@ static bool js_gfx_GFXSamplerInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXSamplerInfo* cobj = new (std::nothrow) cocos2d::GFXSamplerInfo();
+        cocos2d::GFXSamplerInfo* cobj = JSB_ALLOC(cocos2d::GFXSamplerInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -5245,7 +5237,7 @@ static bool js_gfx_GFXSamplerInfo_constructor(se::State& s)
             return false;
         }
         do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg8 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
-        cocos2d::GFXColor* arg9 = 0;
+        cocos2d::GFXColor* arg9 = nullptr;
         json->getProperty("border_color", &field);  
         if(field.isUndefined()) {
             SE_REPORT_ERROR("argument Field \".border_color\" is undefined!");
@@ -5279,7 +5271,7 @@ static bool js_gfx_GFXSamplerInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXSamplerInfo* cobj = new (std::nothrow) cocos2d::GFXSamplerInfo();
+        cocos2d::GFXSamplerInfo* cobj = JSB_ALLOC(cocos2d::GFXSamplerInfo);
         cobj->name = arg0;
         cobj->min_filter = arg1;
         cobj->mag_filter = arg2;
@@ -5317,9 +5309,8 @@ static bool js_gfx_GFXSamplerInfo_constructor(se::State& s)
         ok &= seval_to_uint32(args[7], (uint32_t*)&arg7);
         cocos2d::GFXComparisonFunc arg8;
         do { int32_t tmp = 0; ok &= seval_to_int32(args[8], &tmp); arg8 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
-        cocos2d::GFXColor arg9;
-        #pragma warning NO CONVERSION TO NATIVE FOR GFXColor
-            ok = false;
+        cocos2d::GFXColor* arg9 = nullptr;
+        ok &= seval_to_reference(args[9], &arg9);
         unsigned int arg10 = 0;
         ok &= seval_to_uint32(args[10], (uint32_t*)&arg10);
         unsigned int arg11 = 0;
@@ -5332,7 +5323,7 @@ static bool js_gfx_GFXSamplerInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXSamplerInfo* cobj = new (std::nothrow) cocos2d::GFXSamplerInfo();
+        cocos2d::GFXSamplerInfo* cobj = JSB_ALLOC(cocos2d::GFXSamplerInfo);
         cobj->name = arg0;
         cobj->min_filter = arg1;
         cobj->mag_filter = arg2;
@@ -5342,7 +5333,7 @@ static bool js_gfx_GFXSamplerInfo_constructor(se::State& s)
         cobj->address_w = arg6;
         cobj->max_anisotropy = arg7;
         cobj->cmp_func = arg8;
-        cobj->border_color = arg9;
+        cobj->border_color = *arg9;
         cobj->min_lod = arg10;
         cobj->max_lod = arg11;
         cobj->mip_lod_bias = arg12;
@@ -5471,7 +5462,7 @@ static bool js_gfx_GFXShaderMacro_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXShaderMacro* cobj = new (std::nothrow) cocos2d::GFXShaderMacro();
+        cocos2d::GFXShaderMacro* cobj = JSB_ALLOC(cocos2d::GFXShaderMacro);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -5501,7 +5492,7 @@ static bool js_gfx_GFXShaderMacro_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXShaderMacro* cobj = new (std::nothrow) cocos2d::GFXShaderMacro();
+        cocos2d::GFXShaderMacro* cobj = JSB_ALLOC(cocos2d::GFXShaderMacro);
         cobj->macro = arg0;
         cobj->value = arg1;
         s.thisObject()->setPrivateData(cobj);
@@ -5520,7 +5511,7 @@ static bool js_gfx_GFXShaderMacro_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXShaderMacro* cobj = new (std::nothrow) cocos2d::GFXShaderMacro();
+        cocos2d::GFXShaderMacro* cobj = JSB_ALLOC(cocos2d::GFXShaderMacro);
         cobj->macro = arg0;
         cobj->value = arg1;
 
@@ -5665,7 +5656,7 @@ static bool js_gfx_GFXUniform_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXUniform* cobj = new (std::nothrow) cocos2d::GFXUniform();
+        cocos2d::GFXUniform* cobj = JSB_ALLOC(cocos2d::GFXUniform);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -5702,7 +5693,7 @@ static bool js_gfx_GFXUniform_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXUniform* cobj = new (std::nothrow) cocos2d::GFXUniform();
+        cocos2d::GFXUniform* cobj = JSB_ALLOC(cocos2d::GFXUniform);
         cobj->name = arg0;
         cobj->type = arg1;
         cobj->count = arg2;
@@ -5724,7 +5715,7 @@ static bool js_gfx_GFXUniform_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXUniform* cobj = new (std::nothrow) cocos2d::GFXUniform();
+        cocos2d::GFXUniform* cobj = JSB_ALLOC(cocos2d::GFXUniform);
         cobj->name = arg0;
         cobj->type = arg1;
         cobj->count = arg2;
@@ -5871,7 +5862,7 @@ static bool js_gfx_GFXUniformBlock_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXUniformBlock* cobj = new (std::nothrow) cocos2d::GFXUniformBlock();
+        cocos2d::GFXUniformBlock* cobj = JSB_ALLOC(cocos2d::GFXUniformBlock);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -5908,7 +5899,7 @@ static bool js_gfx_GFXUniformBlock_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXUniformBlock* cobj = new (std::nothrow) cocos2d::GFXUniformBlock();
+        cocos2d::GFXUniformBlock* cobj = JSB_ALLOC(cocos2d::GFXUniformBlock);
         cobj->binding = arg0;
         cobj->name = arg1;
         cobj->uniforms = arg2;
@@ -5930,7 +5921,7 @@ static bool js_gfx_GFXUniformBlock_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXUniformBlock* cobj = new (std::nothrow) cocos2d::GFXUniformBlock();
+        cocos2d::GFXUniformBlock* cobj = JSB_ALLOC(cocos2d::GFXUniformBlock);
         cobj->binding = arg0;
         cobj->name = arg1;
         cobj->uniforms = arg2;
@@ -6105,7 +6096,7 @@ static bool js_gfx_GFXUniformSampler_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXUniformSampler* cobj = new (std::nothrow) cocos2d::GFXUniformSampler();
+        cocos2d::GFXUniformSampler* cobj = JSB_ALLOC(cocos2d::GFXUniformSampler);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -6149,7 +6140,7 @@ static bool js_gfx_GFXUniformSampler_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXUniformSampler* cobj = new (std::nothrow) cocos2d::GFXUniformSampler();
+        cocos2d::GFXUniformSampler* cobj = JSB_ALLOC(cocos2d::GFXUniformSampler);
         cobj->binding = arg0;
         cobj->name = arg1;
         cobj->type = arg2;
@@ -6174,7 +6165,7 @@ static bool js_gfx_GFXUniformSampler_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXUniformSampler* cobj = new (std::nothrow) cocos2d::GFXUniformSampler();
+        cocos2d::GFXUniformSampler* cobj = JSB_ALLOC(cocos2d::GFXUniformSampler);
         cobj->binding = arg0;
         cobj->name = arg1;
         cobj->type = arg2;
@@ -6323,7 +6314,7 @@ static bool js_gfx_GFXShaderStage_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXShaderStage* cobj = new (std::nothrow) cocos2d::GFXShaderStage();
+        cocos2d::GFXShaderStage* cobj = JSB_ALLOC(cocos2d::GFXShaderStage);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -6360,7 +6351,7 @@ static bool js_gfx_GFXShaderStage_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXShaderStage* cobj = new (std::nothrow) cocos2d::GFXShaderStage();
+        cocos2d::GFXShaderStage* cobj = JSB_ALLOC(cocos2d::GFXShaderStage);
         cobj->type = arg0;
         cobj->source = arg1;
         cobj->macros = arg2;
@@ -6382,7 +6373,7 @@ static bool js_gfx_GFXShaderStage_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXShaderStage* cobj = new (std::nothrow) cocos2d::GFXShaderStage();
+        cocos2d::GFXShaderStage* cobj = JSB_ALLOC(cocos2d::GFXShaderStage);
         cobj->type = arg0;
         cobj->source = arg1;
         cobj->macros = arg2;
@@ -6557,7 +6548,7 @@ static bool js_gfx_GFXShaderInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXShaderInfo* cobj = new (std::nothrow) cocos2d::GFXShaderInfo();
+        cocos2d::GFXShaderInfo* cobj = JSB_ALLOC(cocos2d::GFXShaderInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -6601,7 +6592,7 @@ static bool js_gfx_GFXShaderInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXShaderInfo* cobj = new (std::nothrow) cocos2d::GFXShaderInfo();
+        cocos2d::GFXShaderInfo* cobj = JSB_ALLOC(cocos2d::GFXShaderInfo);
         cobj->name = arg0;
         cobj->stages = arg1;
         cobj->blocks = arg2;
@@ -6626,7 +6617,7 @@ static bool js_gfx_GFXShaderInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXShaderInfo* cobj = new (std::nothrow) cocos2d::GFXShaderInfo();
+        cocos2d::GFXShaderInfo* cobj = JSB_ALLOC(cocos2d::GFXShaderInfo);
         cobj->name = arg0;
         cobj->stages = arg1;
         cobj->blocks = arg2;
@@ -6831,7 +6822,7 @@ static bool js_gfx_GFXAttribute_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXAttribute* cobj = new (std::nothrow) cocos2d::GFXAttribute();
+        cocos2d::GFXAttribute* cobj = JSB_ALLOC(cocos2d::GFXAttribute);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -6882,7 +6873,7 @@ static bool js_gfx_GFXAttribute_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXAttribute* cobj = new (std::nothrow) cocos2d::GFXAttribute();
+        cocos2d::GFXAttribute* cobj = JSB_ALLOC(cocos2d::GFXAttribute);
         cobj->name = arg0;
         cobj->format = arg1;
         cobj->is_normalized = arg2;
@@ -6910,7 +6901,7 @@ static bool js_gfx_GFXAttribute_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXAttribute* cobj = new (std::nothrow) cocos2d::GFXAttribute();
+        cocos2d::GFXAttribute* cobj = JSB_ALLOC(cocos2d::GFXAttribute);
         cobj->name = arg0;
         cobj->format = arg1;
         cobj->is_normalized = arg2;
@@ -7089,7 +7080,7 @@ static bool js_gfx_GFXInputAssemblerInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXInputAssemblerInfo* cobj = new (std::nothrow) cocos2d::GFXInputAssemblerInfo();
+        cocos2d::GFXInputAssemblerInfo* cobj = JSB_ALLOC(cocos2d::GFXInputAssemblerInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -7133,7 +7124,7 @@ static bool js_gfx_GFXInputAssemblerInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXInputAssemblerInfo* cobj = new (std::nothrow) cocos2d::GFXInputAssemblerInfo();
+        cocos2d::GFXInputAssemblerInfo* cobj = JSB_ALLOC(cocos2d::GFXInputAssemblerInfo);
         cobj->attributes = arg0;
         cobj->vertex_buffers = arg1;
         cobj->index_buffer = arg2;
@@ -7158,7 +7149,7 @@ static bool js_gfx_GFXInputAssemblerInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXInputAssemblerInfo* cobj = new (std::nothrow) cocos2d::GFXInputAssemblerInfo();
+        cocos2d::GFXInputAssemblerInfo* cobj = JSB_ALLOC(cocos2d::GFXInputAssemblerInfo);
         cobj->attributes = arg0;
         cobj->vertex_buffers = arg1;
         cobj->index_buffer = arg2;
@@ -7391,7 +7382,7 @@ static bool js_gfx_GFXColorAttachment_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXColorAttachment* cobj = new (std::nothrow) cocos2d::GFXColorAttachment();
+        cocos2d::GFXColorAttachment* cobj = JSB_ALLOC(cocos2d::GFXColorAttachment);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -7449,7 +7440,7 @@ static bool js_gfx_GFXColorAttachment_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXColorAttachment* cobj = new (std::nothrow) cocos2d::GFXColorAttachment();
+        cocos2d::GFXColorAttachment* cobj = JSB_ALLOC(cocos2d::GFXColorAttachment);
         cobj->format = arg0;
         cobj->load_op = arg1;
         cobj->store_op = arg2;
@@ -7480,7 +7471,7 @@ static bool js_gfx_GFXColorAttachment_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXColorAttachment* cobj = new (std::nothrow) cocos2d::GFXColorAttachment();
+        cocos2d::GFXColorAttachment* cobj = JSB_ALLOC(cocos2d::GFXColorAttachment);
         cobj->format = arg0;
         cobj->load_op = arg1;
         cobj->store_op = arg2;
@@ -7773,7 +7764,7 @@ static bool js_gfx_GFXDepthStencilAttachment_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXDepthStencilAttachment* cobj = new (std::nothrow) cocos2d::GFXDepthStencilAttachment();
+        cocos2d::GFXDepthStencilAttachment* cobj = JSB_ALLOC(cocos2d::GFXDepthStencilAttachment);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -7845,7 +7836,7 @@ static bool js_gfx_GFXDepthStencilAttachment_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXDepthStencilAttachment* cobj = new (std::nothrow) cocos2d::GFXDepthStencilAttachment();
+        cocos2d::GFXDepthStencilAttachment* cobj = JSB_ALLOC(cocos2d::GFXDepthStencilAttachment);
         cobj->format = arg0;
         cobj->depth_load_op = arg1;
         cobj->depth_store_op = arg2;
@@ -7882,7 +7873,7 @@ static bool js_gfx_GFXDepthStencilAttachment_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXDepthStencilAttachment* cobj = new (std::nothrow) cocos2d::GFXDepthStencilAttachment();
+        cocos2d::GFXDepthStencilAttachment* cobj = JSB_ALLOC(cocos2d::GFXDepthStencilAttachment);
         cobj->format = arg0;
         cobj->depth_load_op = arg1;
         cobj->depth_store_op = arg2;
@@ -8123,7 +8114,7 @@ static bool js_gfx_GFXSubPass_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXSubPass* cobj = new (std::nothrow) cocos2d::GFXSubPass();
+        cocos2d::GFXSubPass* cobj = JSB_ALLOC(cocos2d::GFXSubPass);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -8140,21 +8131,21 @@ static bool js_gfx_GFXSubPass_constructor(se::State& s)
             return false;
         }
         do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXPipelineBindPoint)tmp; } while(false);
-        ??* arg1 = 0;
+        ??* arg1 = nullptr;
         json->getProperty("inputs", &field);  
         if(field.isUndefined()) {
             SE_REPORT_ERROR("argument Field \".inputs\" is undefined!");
             return false;
         }
         ok &= seval_to_reference(field, &arg1);
-        ??* arg2 = 0;
+        ??* arg2 = nullptr;
         json->getProperty("colors", &field);  
         if(field.isUndefined()) {
             SE_REPORT_ERROR("argument Field \".colors\" is undefined!");
             return false;
         }
         ok &= seval_to_reference(field, &arg2);
-        ??* arg3 = 0;
+        ??* arg3 = nullptr;
         json->getProperty("resolves", &field);  
         if(field.isUndefined()) {
             SE_REPORT_ERROR("argument Field \".resolves\" is undefined!");
@@ -8168,7 +8159,7 @@ static bool js_gfx_GFXSubPass_constructor(se::State& s)
             return false;
         }
         ok &= seval_to_uint8(field, (uint8_t*)&arg4);
-        ??* arg5 = 0;
+        ??* arg5 = nullptr;
         json->getProperty("preserves", &field);  
         if(field.isUndefined()) {
             SE_REPORT_ERROR("argument Field \".preserves\" is undefined!");
@@ -8181,7 +8172,7 @@ static bool js_gfx_GFXSubPass_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXSubPass* cobj = new (std::nothrow) cocos2d::GFXSubPass();
+        cocos2d::GFXSubPass* cobj = JSB_ALLOC(cocos2d::GFXSubPass);
         cobj->bind_point = arg0;
         cobj->inputs = *arg1;
         cobj->colors = *arg2;
@@ -8196,33 +8187,29 @@ static bool js_gfx_GFXSubPass_constructor(se::State& s)
     {
         cocos2d::GFXPipelineBindPoint arg0 = 0;
         do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXPipelineBindPoint)tmp; } while(false);
-        ?? arg1;
-        #pragma warning NO CONVERSION TO NATIVE FOR ??
-            ok = false;
-        ?? arg2;
-        #pragma warning NO CONVERSION TO NATIVE FOR ??
-            ok = false;
-        ?? arg3;
-        #pragma warning NO CONVERSION TO NATIVE FOR ??
-            ok = false;
+        ??* arg1 = nullptr;
+        ok &= seval_to_reference(args[1], &arg1);
+        ??* arg2 = nullptr;
+        ok &= seval_to_reference(args[2], &arg2);
+        ??* arg3 = nullptr;
+        ok &= seval_to_reference(args[3], &arg3);
         uint8_t arg4;
         ok &= seval_to_uint8(args[4], (uint8_t*)&arg4);
-        ?? arg5;
-        #pragma warning NO CONVERSION TO NATIVE FOR ??
-            ok = false;
+        ??* arg5 = nullptr;
+        ok &= seval_to_reference(args[5], &arg5);
 
         if(!ok) {
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
 
-        cocos2d::GFXSubPass* cobj = new (std::nothrow) cocos2d::GFXSubPass();
+        cocos2d::GFXSubPass* cobj = JSB_ALLOC(cocos2d::GFXSubPass);
         cobj->bind_point = arg0;
-        cobj->inputs = arg1;
-        cobj->colors = arg2;
-        cobj->resolves = arg3;
+        cobj->inputs = *arg1;
+        cobj->colors = *arg2;
+        cobj->resolves = *arg3;
         cobj->depth_stencil = arg4;
-        cobj->preserves = arg5;
+        cobj->preserves = *arg5;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -8369,7 +8356,7 @@ static bool js_gfx_GFXRenderPassInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXRenderPassInfo* cobj = new (std::nothrow) cocos2d::GFXRenderPassInfo();
+        cocos2d::GFXRenderPassInfo* cobj = JSB_ALLOC(cocos2d::GFXRenderPassInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -8386,7 +8373,7 @@ static bool js_gfx_GFXRenderPassInfo_constructor(se::State& s)
             return false;
         }
         ok &= seval_to_std_vector(field, &arg0);
-        cocos2d::GFXDepthStencilAttachment* arg1 = 0;
+        cocos2d::GFXDepthStencilAttachment* arg1 = nullptr;
         json->getProperty("depth_stencil_attachment", &field);  
         if(field.isUndefined()) {
             SE_REPORT_ERROR("argument Field \".depth_stencil_attachment\" is undefined!");
@@ -8406,7 +8393,7 @@ static bool js_gfx_GFXRenderPassInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXRenderPassInfo* cobj = new (std::nothrow) cocos2d::GFXRenderPassInfo();
+        cocos2d::GFXRenderPassInfo* cobj = JSB_ALLOC(cocos2d::GFXRenderPassInfo);
         cobj->color_attachments = arg0;
         cobj->depth_stencil_attachment = *arg1;
         cobj->sub_passes = arg2;
@@ -8418,9 +8405,8 @@ static bool js_gfx_GFXRenderPassInfo_constructor(se::State& s)
     {
         std::vector<cocos2d::GFXColorAttachment> arg0;
         ok &= seval_to_std_vector(args[0], &arg0);
-        cocos2d::GFXDepthStencilAttachment arg1;
-        #pragma warning NO CONVERSION TO NATIVE FOR GFXDepthStencilAttachment
-            ok = false;
+        cocos2d::GFXDepthStencilAttachment* arg1 = nullptr;
+        ok &= seval_to_reference(args[1], &arg1);
         std::vector<cocos2d::GFXSubPass> arg2;
         ok &= seval_to_std_vector(args[2], &arg2);
 
@@ -8429,9 +8415,9 @@ static bool js_gfx_GFXRenderPassInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXRenderPassInfo* cobj = new (std::nothrow) cocos2d::GFXRenderPassInfo();
+        cocos2d::GFXRenderPassInfo* cobj = JSB_ALLOC(cocos2d::GFXRenderPassInfo);
         cobj->color_attachments = arg0;
-        cobj->depth_stencil_attachment = arg1;
+        cobj->depth_stencil_attachment = *arg1;
         cobj->sub_passes = arg2;
 
         s.thisObject()->setPrivateData(cobj);
@@ -8604,7 +8590,7 @@ static bool js_gfx_GFXFramebufferInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXFramebufferInfo* cobj = new (std::nothrow) cocos2d::GFXFramebufferInfo();
+        cocos2d::GFXFramebufferInfo* cobj = JSB_ALLOC(cocos2d::GFXFramebufferInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -8648,7 +8634,7 @@ static bool js_gfx_GFXFramebufferInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXFramebufferInfo* cobj = new (std::nothrow) cocos2d::GFXFramebufferInfo();
+        cocos2d::GFXFramebufferInfo* cobj = JSB_ALLOC(cocos2d::GFXFramebufferInfo);
         cobj->render_pass = arg0;
         cobj->color_views = arg1;
         cobj->depth_stencil_view = arg2;
@@ -8673,7 +8659,7 @@ static bool js_gfx_GFXFramebufferInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXFramebufferInfo* cobj = new (std::nothrow) cocos2d::GFXFramebufferInfo();
+        cocos2d::GFXFramebufferInfo* cobj = JSB_ALLOC(cocos2d::GFXFramebufferInfo);
         cobj->render_pass = arg0;
         cobj->color_views = arg1;
         cobj->depth_stencil_view = arg2;
@@ -8822,7 +8808,7 @@ static bool js_gfx_GFXBinding_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXBinding* cobj = new (std::nothrow) cocos2d::GFXBinding();
+        cocos2d::GFXBinding* cobj = JSB_ALLOC(cocos2d::GFXBinding);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -8859,7 +8845,7 @@ static bool js_gfx_GFXBinding_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXBinding* cobj = new (std::nothrow) cocos2d::GFXBinding();
+        cocos2d::GFXBinding* cobj = JSB_ALLOC(cocos2d::GFXBinding);
         cobj->binding = arg0;
         cobj->type = arg1;
         cobj->name = arg2;
@@ -8881,7 +8867,7 @@ static bool js_gfx_GFXBinding_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXBinding* cobj = new (std::nothrow) cocos2d::GFXBinding();
+        cocos2d::GFXBinding* cobj = JSB_ALLOC(cocos2d::GFXBinding);
         cobj->binding = arg0;
         cobj->type = arg1;
         cobj->name = arg2;
@@ -8972,7 +8958,7 @@ static bool js_gfx_GFXBindingLayoutInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXBindingLayoutInfo* cobj = new (std::nothrow) cocos2d::GFXBindingLayoutInfo();
+        cocos2d::GFXBindingLayoutInfo* cobj = JSB_ALLOC(cocos2d::GFXBindingLayoutInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -8995,7 +8981,7 @@ static bool js_gfx_GFXBindingLayoutInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXBindingLayoutInfo* cobj = new (std::nothrow) cocos2d::GFXBindingLayoutInfo();
+        cocos2d::GFXBindingLayoutInfo* cobj = JSB_ALLOC(cocos2d::GFXBindingLayoutInfo);
         cobj->bindings = arg0;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -9011,7 +8997,7 @@ static bool js_gfx_GFXBindingLayoutInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXBindingLayoutInfo* cobj = new (std::nothrow) cocos2d::GFXBindingLayoutInfo();
+        cocos2d::GFXBindingLayoutInfo* cobj = JSB_ALLOC(cocos2d::GFXBindingLayoutInfo);
         cobj->bindings = arg0;
 
         s.thisObject()->setPrivateData(cobj);
@@ -9238,7 +9224,7 @@ static bool js_gfx_GFXBindingUnit_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXBindingUnit* cobj = new (std::nothrow) cocos2d::GFXBindingUnit();
+        cocos2d::GFXBindingUnit* cobj = JSB_ALLOC(cocos2d::GFXBindingUnit);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -9296,7 +9282,7 @@ static bool js_gfx_GFXBindingUnit_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXBindingUnit* cobj = new (std::nothrow) cocos2d::GFXBindingUnit();
+        cocos2d::GFXBindingUnit* cobj = JSB_ALLOC(cocos2d::GFXBindingUnit);
         cobj->binding = arg0;
         cobj->type = arg1;
         cobj->name = arg2;
@@ -9327,7 +9313,7 @@ static bool js_gfx_GFXBindingUnit_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXBindingUnit* cobj = new (std::nothrow) cocos2d::GFXBindingUnit();
+        cocos2d::GFXBindingUnit* cobj = JSB_ALLOC(cocos2d::GFXBindingUnit);
         cobj->binding = arg0;
         cobj->type = arg1;
         cobj->name = arg2;
@@ -9480,7 +9466,7 @@ static bool js_gfx_GFXPushConstantRange_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXPushConstantRange* cobj = new (std::nothrow) cocos2d::GFXPushConstantRange();
+        cocos2d::GFXPushConstantRange* cobj = JSB_ALLOC(cocos2d::GFXPushConstantRange);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -9517,7 +9503,7 @@ static bool js_gfx_GFXPushConstantRange_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXPushConstantRange* cobj = new (std::nothrow) cocos2d::GFXPushConstantRange();
+        cocos2d::GFXPushConstantRange* cobj = JSB_ALLOC(cocos2d::GFXPushConstantRange);
         cobj->shader_type = arg0;
         cobj->offset = arg1;
         cobj->count = arg2;
@@ -9539,7 +9525,7 @@ static bool js_gfx_GFXPushConstantRange_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXPushConstantRange* cobj = new (std::nothrow) cocos2d::GFXPushConstantRange();
+        cocos2d::GFXPushConstantRange* cobj = JSB_ALLOC(cocos2d::GFXPushConstantRange);
         cobj->shader_type = arg0;
         cobj->offset = arg1;
         cobj->count = arg2;
@@ -9658,7 +9644,7 @@ static bool js_gfx_GFXPipelineLayoutInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXPipelineLayoutInfo* cobj = new (std::nothrow) cocos2d::GFXPipelineLayoutInfo();
+        cocos2d::GFXPipelineLayoutInfo* cobj = JSB_ALLOC(cocos2d::GFXPipelineLayoutInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -9688,7 +9674,7 @@ static bool js_gfx_GFXPipelineLayoutInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXPipelineLayoutInfo* cobj = new (std::nothrow) cocos2d::GFXPipelineLayoutInfo();
+        cocos2d::GFXPipelineLayoutInfo* cobj = JSB_ALLOC(cocos2d::GFXPipelineLayoutInfo);
         cobj->push_constant_ranges = arg0;
         cobj->layouts = arg1;
         s.thisObject()->setPrivateData(cobj);
@@ -9707,7 +9693,7 @@ static bool js_gfx_GFXPipelineLayoutInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXPipelineLayoutInfo* cobj = new (std::nothrow) cocos2d::GFXPipelineLayoutInfo();
+        cocos2d::GFXPipelineLayoutInfo* cobj = JSB_ALLOC(cocos2d::GFXPipelineLayoutInfo);
         cobj->push_constant_ranges = arg0;
         cobj->layouts = arg1;
 
@@ -9796,7 +9782,7 @@ static bool js_gfx_GFXInputState_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXInputState* cobj = new (std::nothrow) cocos2d::GFXInputState();
+        cocos2d::GFXInputState* cobj = JSB_ALLOC(cocos2d::GFXInputState);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -9819,7 +9805,7 @@ static bool js_gfx_GFXInputState_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXInputState* cobj = new (std::nothrow) cocos2d::GFXInputState();
+        cocos2d::GFXInputState* cobj = JSB_ALLOC(cocos2d::GFXInputState);
         cobj->attributes = arg0;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -9835,7 +9821,7 @@ static bool js_gfx_GFXInputState_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXInputState* cobj = new (std::nothrow) cocos2d::GFXInputState();
+        cocos2d::GFXInputState* cobj = JSB_ALLOC(cocos2d::GFXInputState);
         cobj->attributes = arg0;
 
         s.thisObject()->setPrivateData(cobj);
@@ -10202,7 +10188,7 @@ static bool js_gfx_GFXRasterizerState_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXRasterizerState* cobj = new (std::nothrow) cocos2d::GFXRasterizerState();
+        cocos2d::GFXRasterizerState* cobj = JSB_ALLOC(cocos2d::GFXRasterizerState);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -10295,7 +10281,7 @@ static bool js_gfx_GFXRasterizerState_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXRasterizerState* cobj = new (std::nothrow) cocos2d::GFXRasterizerState();
+        cocos2d::GFXRasterizerState* cobj = JSB_ALLOC(cocos2d::GFXRasterizerState);
         cobj->is_discard = arg0;
         cobj->polygon_mode = arg1;
         cobj->shade_model = arg2;
@@ -10341,7 +10327,7 @@ static bool js_gfx_GFXRasterizerState_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXRasterizerState* cobj = new (std::nothrow) cocos2d::GFXRasterizerState();
+        cocos2d::GFXRasterizerState* cobj = JSB_ALLOC(cocos2d::GFXRasterizerState);
         cobj->is_discard = arg0;
         cobj->polygon_mode = arg1;
         cobj->shade_model = arg2;
@@ -10952,7 +10938,7 @@ static bool js_gfx_GFXDepthStencilState_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXDepthStencilState* cobj = new (std::nothrow) cocos2d::GFXDepthStencilState();
+        cocos2d::GFXDepthStencilState* cobj = JSB_ALLOC(cocos2d::GFXDepthStencilState);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -11101,7 +11087,7 @@ static bool js_gfx_GFXDepthStencilState_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXDepthStencilState* cobj = new (std::nothrow) cocos2d::GFXDepthStencilState();
+        cocos2d::GFXDepthStencilState* cobj = JSB_ALLOC(cocos2d::GFXDepthStencilState);
         cobj->depth_test = arg0;
         cobj->depth_write = arg1;
         cobj->depth_func = arg2;
@@ -11171,7 +11157,7 @@ static bool js_gfx_GFXDepthStencilState_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXDepthStencilState* cobj = new (std::nothrow) cocos2d::GFXDepthStencilState();
+        cocos2d::GFXDepthStencilState* cobj = JSB_ALLOC(cocos2d::GFXDepthStencilState);
         cobj->depth_test = arg0;
         cobj->depth_write = arg1;
         cobj->depth_func = arg2;
@@ -11490,7 +11476,7 @@ static bool js_gfx_GFXBlendTarget_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXBlendTarget* cobj = new (std::nothrow) cocos2d::GFXBlendTarget();
+        cocos2d::GFXBlendTarget* cobj = JSB_ALLOC(cocos2d::GFXBlendTarget);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -11562,7 +11548,7 @@ static bool js_gfx_GFXBlendTarget_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXBlendTarget* cobj = new (std::nothrow) cocos2d::GFXBlendTarget();
+        cocos2d::GFXBlendTarget* cobj = JSB_ALLOC(cocos2d::GFXBlendTarget);
         cobj->is_blend = arg0;
         cobj->blend_src = arg1;
         cobj->blend_dst = arg2;
@@ -11599,7 +11585,7 @@ static bool js_gfx_GFXBlendTarget_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXBlendTarget* cobj = new (std::nothrow) cocos2d::GFXBlendTarget();
+        cocos2d::GFXBlendTarget* cobj = JSB_ALLOC(cocos2d::GFXBlendTarget);
         cobj->is_blend = arg0;
         cobj->blend_src = arg1;
         cobj->blend_dst = arg2;
@@ -11784,7 +11770,7 @@ static bool js_gfx_GFXBlendState_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXBlendState* cobj = new (std::nothrow) cocos2d::GFXBlendState();
+        cocos2d::GFXBlendState* cobj = JSB_ALLOC(cocos2d::GFXBlendState);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -11808,7 +11794,7 @@ static bool js_gfx_GFXBlendState_constructor(se::State& s)
             return false;
         }
         ok &= seval_to_boolean(field, &arg1);
-        cocos2d::GFXColor* arg2 = 0;
+        cocos2d::GFXColor* arg2 = nullptr;
         json->getProperty("blend_color", &field);  
         if(field.isUndefined()) {
             SE_REPORT_ERROR("argument Field \".blend_color\" is undefined!");
@@ -11828,7 +11814,7 @@ static bool js_gfx_GFXBlendState_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXBlendState* cobj = new (std::nothrow) cocos2d::GFXBlendState();
+        cocos2d::GFXBlendState* cobj = JSB_ALLOC(cocos2d::GFXBlendState);
         cobj->is_a2c = arg0;
         cobj->is_independ = arg1;
         cobj->blend_color = *arg2;
@@ -11843,9 +11829,8 @@ static bool js_gfx_GFXBlendState_constructor(se::State& s)
         ok &= seval_to_boolean(args[0], &arg0);
         bool arg1;
         ok &= seval_to_boolean(args[1], &arg1);
-        cocos2d::GFXColor arg2;
-        #pragma warning NO CONVERSION TO NATIVE FOR GFXColor
-            ok = false;
+        cocos2d::GFXColor* arg2 = nullptr;
+        ok &= seval_to_reference(args[2], &arg2);
         std::vector<cocos2d::GFXBlendTarget> arg3;
         ok &= seval_to_std_vector(args[3], &arg3);
 
@@ -11854,10 +11839,10 @@ static bool js_gfx_GFXBlendState_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXBlendState* cobj = new (std::nothrow) cocos2d::GFXBlendState();
+        cocos2d::GFXBlendState* cobj = JSB_ALLOC(cocos2d::GFXBlendState);
         cobj->is_a2c = arg0;
         cobj->is_independ = arg1;
-        cobj->blend_color = arg2;
+        cobj->blend_color = *arg2;
         cobj->targets = arg3;
 
         s.thisObject()->setPrivateData(cobj);
@@ -12171,7 +12156,7 @@ static bool js_gfx_GFXPipelineStateInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXPipelineStateInfo* cobj = new (std::nothrow) cocos2d::GFXPipelineStateInfo();
+        cocos2d::GFXPipelineStateInfo* cobj = JSB_ALLOC(cocos2d::GFXPipelineStateInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -12195,28 +12180,28 @@ static bool js_gfx_GFXPipelineStateInfo_constructor(se::State& s)
             return false;
         }
         ok &= seval_to_native_ptr(field, &arg1);
-        cocos2d::GFXInputState* arg2 = 0;
+        cocos2d::GFXInputState* arg2 = nullptr;
         json->getProperty("is", &field);  
         if(field.isUndefined()) {
             SE_REPORT_ERROR("argument Field \".is\" is undefined!");
             return false;
         }
         ok &= seval_to_reference(field, &arg2);
-        cocos2d::GFXRasterizerState* arg3 = 0;
+        cocos2d::GFXRasterizerState* arg3 = nullptr;
         json->getProperty("rs", &field);  
         if(field.isUndefined()) {
             SE_REPORT_ERROR("argument Field \".rs\" is undefined!");
             return false;
         }
         ok &= seval_to_reference(field, &arg3);
-        cocos2d::GFXDepthStencilState* arg4 = 0;
+        cocos2d::GFXDepthStencilState* arg4 = nullptr;
         json->getProperty("dss", &field);  
         if(field.isUndefined()) {
             SE_REPORT_ERROR("argument Field \".dss\" is undefined!");
             return false;
         }
         ok &= seval_to_reference(field, &arg4);
-        cocos2d::GFXBlendState* arg5 = 0;
+        cocos2d::GFXBlendState* arg5 = nullptr;
         json->getProperty("bs", &field);  
         if(field.isUndefined()) {
             SE_REPORT_ERROR("argument Field \".bs\" is undefined!");
@@ -12250,7 +12235,7 @@ static bool js_gfx_GFXPipelineStateInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXPipelineStateInfo* cobj = new (std::nothrow) cocos2d::GFXPipelineStateInfo();
+        cocos2d::GFXPipelineStateInfo* cobj = JSB_ALLOC(cocos2d::GFXPipelineStateInfo);
         cobj->primitive = arg0;
         cobj->shader = arg1;
         cobj->is = *arg2;
@@ -12270,18 +12255,14 @@ static bool js_gfx_GFXPipelineStateInfo_constructor(se::State& s)
         do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXPrimitiveMode)tmp; } while(false);
         cocos2d::GFXShader* arg1 = nullptr;
         ok &= seval_to_native_ptr(args[1], &arg1);
-        cocos2d::GFXInputState arg2;
-        #pragma warning NO CONVERSION TO NATIVE FOR GFXInputState
-            ok = false;
-        cocos2d::GFXRasterizerState arg3;
-        #pragma warning NO CONVERSION TO NATIVE FOR GFXRasterizerState
-            ok = false;
-        cocos2d::GFXDepthStencilState arg4;
-        #pragma warning NO CONVERSION TO NATIVE FOR GFXDepthStencilState
-            ok = false;
-        cocos2d::GFXBlendState arg5;
-        #pragma warning NO CONVERSION TO NATIVE FOR GFXBlendState
-            ok = false;
+        cocos2d::GFXInputState* arg2 = nullptr;
+        ok &= seval_to_reference(args[2], &arg2);
+        cocos2d::GFXRasterizerState* arg3 = nullptr;
+        ok &= seval_to_reference(args[3], &arg3);
+        cocos2d::GFXDepthStencilState* arg4 = nullptr;
+        ok &= seval_to_reference(args[4], &arg4);
+        cocos2d::GFXBlendState* arg5 = nullptr;
+        ok &= seval_to_reference(args[5], &arg5);
         std::vector<cocos2d::GFXDynamicState> arg6;
         ok &= seval_to_std_vector(args[6], &arg6);
         cocos2d::GFXPipelineLayout* arg7 = nullptr;
@@ -12294,13 +12275,13 @@ static bool js_gfx_GFXPipelineStateInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXPipelineStateInfo* cobj = new (std::nothrow) cocos2d::GFXPipelineStateInfo();
+        cocos2d::GFXPipelineStateInfo* cobj = JSB_ALLOC(cocos2d::GFXPipelineStateInfo);
         cobj->primitive = arg0;
         cobj->shader = arg1;
-        cobj->is = arg2;
-        cobj->rs = arg3;
-        cobj->dss = arg4;
-        cobj->bs = arg5;
+        cobj->is = *arg2;
+        cobj->rs = *arg3;
+        cobj->dss = *arg4;
+        cobj->bs = *arg5;
         cobj->dynamic_states = arg6;
         cobj->layout = arg7;
         cobj->render_pass = arg8;
@@ -12425,7 +12406,7 @@ static bool js_gfx_GFXCommandBufferInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXCommandBufferInfo* cobj = new (std::nothrow) cocos2d::GFXCommandBufferInfo();
+        cocos2d::GFXCommandBufferInfo* cobj = JSB_ALLOC(cocos2d::GFXCommandBufferInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -12455,7 +12436,7 @@ static bool js_gfx_GFXCommandBufferInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXCommandBufferInfo* cobj = new (std::nothrow) cocos2d::GFXCommandBufferInfo();
+        cocos2d::GFXCommandBufferInfo* cobj = JSB_ALLOC(cocos2d::GFXCommandBufferInfo);
         cobj->allocator = arg0;
         cobj->type = arg1;
         s.thisObject()->setPrivateData(cobj);
@@ -12474,7 +12455,7 @@ static bool js_gfx_GFXCommandBufferInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXCommandBufferInfo* cobj = new (std::nothrow) cocos2d::GFXCommandBufferInfo();
+        cocos2d::GFXCommandBufferInfo* cobj = JSB_ALLOC(cocos2d::GFXCommandBufferInfo);
         cobj->allocator = arg0;
         cobj->type = arg1;
 
@@ -12563,7 +12544,7 @@ static bool js_gfx_GFXQueueInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXQueueInfo* cobj = new (std::nothrow) cocos2d::GFXQueueInfo();
+        cocos2d::GFXQueueInfo* cobj = JSB_ALLOC(cocos2d::GFXQueueInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -12586,7 +12567,7 @@ static bool js_gfx_GFXQueueInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXQueueInfo* cobj = new (std::nothrow) cocos2d::GFXQueueInfo();
+        cocos2d::GFXQueueInfo* cobj = JSB_ALLOC(cocos2d::GFXQueueInfo);
         cobj->type = arg0;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -12602,7 +12583,7 @@ static bool js_gfx_GFXQueueInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXQueueInfo* cobj = new (std::nothrow) cocos2d::GFXQueueInfo();
+        cocos2d::GFXQueueInfo* cobj = JSB_ALLOC(cocos2d::GFXQueueInfo);
         cobj->type = arg0;
 
         s.thisObject()->setPrivateData(cobj);
@@ -12885,7 +12866,7 @@ static bool js_gfx_GFXFormatInfo_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXFormatInfo* cobj = new (std::nothrow) cocos2d::GFXFormatInfo();
+        cocos2d::GFXFormatInfo* cobj = JSB_ALLOC(cocos2d::GFXFormatInfo);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -12957,7 +12938,7 @@ static bool js_gfx_GFXFormatInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXFormatInfo* cobj = new (std::nothrow) cocos2d::GFXFormatInfo();
+        cocos2d::GFXFormatInfo* cobj = JSB_ALLOC(cocos2d::GFXFormatInfo);
         cobj->name = arg0;
         cobj->size = arg1;
         cobj->count = arg2;
@@ -12994,7 +12975,7 @@ static bool js_gfx_GFXFormatInfo_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXFormatInfo* cobj = new (std::nothrow) cocos2d::GFXFormatInfo();
+        cocos2d::GFXFormatInfo* cobj = JSB_ALLOC(cocos2d::GFXFormatInfo);
         cobj->name = arg0;
         cobj->size = arg1;
         cobj->count = arg2;
@@ -13123,7 +13104,7 @@ static bool js_gfx_GFXMemoryStatus_constructor(se::State& s)
 
     if(argc == 0) 
     {
-        cocos2d::GFXMemoryStatus* cobj = new (std::nothrow) cocos2d::GFXMemoryStatus();
+        cocos2d::GFXMemoryStatus* cobj = JSB_ALLOC(cocos2d::GFXMemoryStatus);
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -13153,7 +13134,7 @@ static bool js_gfx_GFXMemoryStatus_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXMemoryStatus* cobj = new (std::nothrow) cocos2d::GFXMemoryStatus();
+        cocos2d::GFXMemoryStatus* cobj = JSB_ALLOC(cocos2d::GFXMemoryStatus);
         cobj->buffer_size = arg0;
         cobj->texture_size = arg1;
         s.thisObject()->setPrivateData(cobj);
@@ -13172,7 +13153,7 @@ static bool js_gfx_GFXMemoryStatus_constructor(se::State& s)
             return false;
         }
 
-        cocos2d::GFXMemoryStatus* cobj = new (std::nothrow) cocos2d::GFXMemoryStatus();
+        cocos2d::GFXMemoryStatus* cobj = JSB_ALLOC(cocos2d::GFXMemoryStatus);
         cobj->buffer_size = arg0;
         cobj->texture_size = arg1;
 
