@@ -2490,7 +2490,7 @@ let NodeDefines = {
         if (!this.active)
             return;
         cc.assertID(action, 1618);
-        cc.warnID(1639);
+        if (!cc.director.getActionManager().haveWarn) cc.director.getActionManager().haveWarn = new cc.warnID(1639);
         cc.director.getActionManager().addAction(action, this, false);
         return action;
     } : emptyFunc,
