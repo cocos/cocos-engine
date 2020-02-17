@@ -4,6 +4,321 @@
 var gfx = gfx || {};
 
 /**
+ * @class GFXOffset
+ */
+gfx.GFXOffset = {
+
+};
+
+/**
+ * @class GFXRect
+ */
+gfx.GFXRect = {
+
+};
+
+/**
+ * @class GFXExtent
+ */
+gfx.GFXExtent = {
+
+};
+
+/**
+ * @class GFXTextureSubres
+ */
+gfx.GFXTextureSubres = {
+
+};
+
+/**
+ * @class GFXTextureCopy
+ */
+gfx.GFXTextureCopy = {
+
+};
+
+/**
+ * @class GFXBufferTextureCopy
+ */
+gfx.GFXBufferTextureCopy = {
+
+};
+
+/**
+ * @class GFXViewport
+ */
+gfx.GFXViewport = {
+
+};
+
+/**
+ * @class GFXColor
+ */
+gfx.GFXColor = {
+
+};
+
+/**
+ * @class GFXDeviceInfo
+ */
+gfx.GFXDeviceInfo = {
+
+};
+
+/**
+ * @class GFXWindowInfo
+ */
+gfx.GFXWindowInfo = {
+
+};
+
+/**
+ * @class GFXContextInfo
+ */
+gfx.GFXContextInfo = {
+
+};
+
+/**
+ * @class GFXBufferInfo
+ */
+gfx.GFXBufferInfo = {
+
+};
+
+/**
+ * @class GFXDrawInfo
+ */
+gfx.GFXDrawInfo = {
+
+};
+
+/**
+ * @class GFXIndirectBuffer
+ */
+gfx.GFXIndirectBuffer = {
+
+};
+
+/**
+ * @class GFXTextureInfo
+ */
+gfx.GFXTextureInfo = {
+
+};
+
+/**
+ * @class GFXTextureViewInfo
+ */
+gfx.GFXTextureViewInfo = {
+
+};
+
+/**
+ * @class GFXSamplerInfo
+ */
+gfx.GFXSamplerInfo = {
+
+};
+
+/**
+ * @class GFXShaderMacro
+ */
+gfx.GFXShaderMacro = {
+
+};
+
+/**
+ * @class GFXUniform
+ */
+gfx.GFXUniform = {
+
+};
+
+/**
+ * @class GFXUniformBlock
+ */
+gfx.GFXUniformBlock = {
+
+};
+
+/**
+ * @class GFXUniformSampler
+ */
+gfx.GFXUniformSampler = {
+
+};
+
+/**
+ * @class GFXShaderStage
+ */
+gfx.GFXShaderStage = {
+
+};
+
+/**
+ * @class GFXShaderInfo
+ */
+gfx.GFXShaderInfo = {
+
+};
+
+/**
+ * @class GFXAttribute
+ */
+gfx.GFXAttribute = {
+
+};
+
+/**
+ * @class GFXInputAssemblerInfo
+ */
+gfx.GFXInputAssemblerInfo = {
+
+};
+
+/**
+ * @class GFXColorAttachment
+ */
+gfx.GFXColorAttachment = {
+
+};
+
+/**
+ * @class GFXDepthStencilAttachment
+ */
+gfx.GFXDepthStencilAttachment = {
+
+};
+
+/**
+ * @class GFXSubPass
+ */
+gfx.GFXSubPass = {
+
+};
+
+/**
+ * @class GFXRenderPassInfo
+ */
+gfx.GFXRenderPassInfo = {
+
+};
+
+/**
+ * @class GFXFramebufferInfo
+ */
+gfx.GFXFramebufferInfo = {
+
+};
+
+/**
+ * @class GFXBinding
+ */
+gfx.GFXBinding = {
+
+};
+
+/**
+ * @class GFXBindingLayoutInfo
+ */
+gfx.GFXBindingLayoutInfo = {
+
+};
+
+/**
+ * @class GFXBindingUnit
+ */
+gfx.GFXBindingUnit = {
+
+};
+
+/**
+ * @class GFXPushConstantRange
+ */
+gfx.GFXPushConstantRange = {
+
+};
+
+/**
+ * @class GFXPipelineLayoutInfo
+ */
+gfx.GFXPipelineLayoutInfo = {
+
+};
+
+/**
+ * @class GFXInputState
+ */
+gfx.GFXInputState = {
+
+};
+
+/**
+ * @class GFXRasterizerState
+ */
+gfx.GFXRasterizerState = {
+
+};
+
+/**
+ * @class GFXDepthStencilState
+ */
+gfx.GFXDepthStencilState = {
+
+};
+
+/**
+ * @class GFXBlendTarget
+ */
+gfx.GFXBlendTarget = {
+
+};
+
+/**
+ * @class GFXBlendState
+ */
+gfx.GFXBlendState = {
+
+};
+
+/**
+ * @class GFXPipelineStateInfo
+ */
+gfx.GFXPipelineStateInfo = {
+
+};
+
+/**
+ * @class GFXCommandBufferInfo
+ */
+gfx.GFXCommandBufferInfo = {
+
+};
+
+/**
+ * @class GFXQueueInfo
+ */
+gfx.GFXQueueInfo = {
+
+};
+
+/**
+ * @class GFXFormatInfo
+ */
+gfx.GFXFormatInfo = {
+
+};
+
+/**
+ * @class GFXMemoryStatus
+ */
+gfx.GFXMemoryStatus = {
+
+};
+
+/**
  * @class GFXContext
  */
 gfx.GFXContext = {

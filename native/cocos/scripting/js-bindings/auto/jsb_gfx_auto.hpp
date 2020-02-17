@@ -4,6 +4,276 @@
 
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 
+extern se::Object* __jsb_cocos2d_GFXOffset_proto;
+extern se::Class* __jsb_cocos2d_GFXOffset_class;
+
+bool js_register_cocos2d_GFXOffset(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXRect_proto;
+extern se::Class* __jsb_cocos2d_GFXRect_class;
+
+bool js_register_cocos2d_GFXRect(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXExtent_proto;
+extern se::Class* __jsb_cocos2d_GFXExtent_class;
+
+bool js_register_cocos2d_GFXExtent(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXTextureSubres_proto;
+extern se::Class* __jsb_cocos2d_GFXTextureSubres_class;
+
+bool js_register_cocos2d_GFXTextureSubres(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXTextureCopy_proto;
+extern se::Class* __jsb_cocos2d_GFXTextureCopy_class;
+
+bool js_register_cocos2d_GFXTextureCopy(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXBufferTextureCopy_proto;
+extern se::Class* __jsb_cocos2d_GFXBufferTextureCopy_class;
+
+bool js_register_cocos2d_GFXBufferTextureCopy(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXViewport_proto;
+extern se::Class* __jsb_cocos2d_GFXViewport_class;
+
+bool js_register_cocos2d_GFXViewport(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXColor_proto;
+extern se::Class* __jsb_cocos2d_GFXColor_class;
+
+bool js_register_cocos2d_GFXColor(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXDeviceInfo_proto;
+extern se::Class* __jsb_cocos2d_GFXDeviceInfo_class;
+
+bool js_register_cocos2d_GFXDeviceInfo(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXWindowInfo_proto;
+extern se::Class* __jsb_cocos2d_GFXWindowInfo_class;
+
+bool js_register_cocos2d_GFXWindowInfo(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXContextInfo_proto;
+extern se::Class* __jsb_cocos2d_GFXContextInfo_class;
+
+bool js_register_cocos2d_GFXContextInfo(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXBufferInfo_proto;
+extern se::Class* __jsb_cocos2d_GFXBufferInfo_class;
+
+bool js_register_cocos2d_GFXBufferInfo(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXDrawInfo_proto;
+extern se::Class* __jsb_cocos2d_GFXDrawInfo_class;
+
+bool js_register_cocos2d_GFXDrawInfo(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXIndirectBuffer_proto;
+extern se::Class* __jsb_cocos2d_GFXIndirectBuffer_class;
+
+bool js_register_cocos2d_GFXIndirectBuffer(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXTextureInfo_proto;
+extern se::Class* __jsb_cocos2d_GFXTextureInfo_class;
+
+bool js_register_cocos2d_GFXTextureInfo(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXTextureViewInfo_proto;
+extern se::Class* __jsb_cocos2d_GFXTextureViewInfo_class;
+
+bool js_register_cocos2d_GFXTextureViewInfo(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXSamplerInfo_proto;
+extern se::Class* __jsb_cocos2d_GFXSamplerInfo_class;
+
+bool js_register_cocos2d_GFXSamplerInfo(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXShaderMacro_proto;
+extern se::Class* __jsb_cocos2d_GFXShaderMacro_class;
+
+bool js_register_cocos2d_GFXShaderMacro(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXUniform_proto;
+extern se::Class* __jsb_cocos2d_GFXUniform_class;
+
+bool js_register_cocos2d_GFXUniform(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXUniformBlock_proto;
+extern se::Class* __jsb_cocos2d_GFXUniformBlock_class;
+
+bool js_register_cocos2d_GFXUniformBlock(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXUniformSampler_proto;
+extern se::Class* __jsb_cocos2d_GFXUniformSampler_class;
+
+bool js_register_cocos2d_GFXUniformSampler(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXShaderStage_proto;
+extern se::Class* __jsb_cocos2d_GFXShaderStage_class;
+
+bool js_register_cocos2d_GFXShaderStage(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXShaderInfo_proto;
+extern se::Class* __jsb_cocos2d_GFXShaderInfo_class;
+
+bool js_register_cocos2d_GFXShaderInfo(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXAttribute_proto;
+extern se::Class* __jsb_cocos2d_GFXAttribute_class;
+
+bool js_register_cocos2d_GFXAttribute(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXInputAssemblerInfo_proto;
+extern se::Class* __jsb_cocos2d_GFXInputAssemblerInfo_class;
+
+bool js_register_cocos2d_GFXInputAssemblerInfo(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXColorAttachment_proto;
+extern se::Class* __jsb_cocos2d_GFXColorAttachment_class;
+
+bool js_register_cocos2d_GFXColorAttachment(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXDepthStencilAttachment_proto;
+extern se::Class* __jsb_cocos2d_GFXDepthStencilAttachment_class;
+
+bool js_register_cocos2d_GFXDepthStencilAttachment(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXSubPass_proto;
+extern se::Class* __jsb_cocos2d_GFXSubPass_class;
+
+bool js_register_cocos2d_GFXSubPass(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXRenderPassInfo_proto;
+extern se::Class* __jsb_cocos2d_GFXRenderPassInfo_class;
+
+bool js_register_cocos2d_GFXRenderPassInfo(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXFramebufferInfo_proto;
+extern se::Class* __jsb_cocos2d_GFXFramebufferInfo_class;
+
+bool js_register_cocos2d_GFXFramebufferInfo(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXBinding_proto;
+extern se::Class* __jsb_cocos2d_GFXBinding_class;
+
+bool js_register_cocos2d_GFXBinding(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXBindingLayoutInfo_proto;
+extern se::Class* __jsb_cocos2d_GFXBindingLayoutInfo_class;
+
+bool js_register_cocos2d_GFXBindingLayoutInfo(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXBindingUnit_proto;
+extern se::Class* __jsb_cocos2d_GFXBindingUnit_class;
+
+bool js_register_cocos2d_GFXBindingUnit(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXPushConstantRange_proto;
+extern se::Class* __jsb_cocos2d_GFXPushConstantRange_class;
+
+bool js_register_cocos2d_GFXPushConstantRange(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXPipelineLayoutInfo_proto;
+extern se::Class* __jsb_cocos2d_GFXPipelineLayoutInfo_class;
+
+bool js_register_cocos2d_GFXPipelineLayoutInfo(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXInputState_proto;
+extern se::Class* __jsb_cocos2d_GFXInputState_class;
+
+bool js_register_cocos2d_GFXInputState(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXRasterizerState_proto;
+extern se::Class* __jsb_cocos2d_GFXRasterizerState_class;
+
+bool js_register_cocos2d_GFXRasterizerState(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXDepthStencilState_proto;
+extern se::Class* __jsb_cocos2d_GFXDepthStencilState_class;
+
+bool js_register_cocos2d_GFXDepthStencilState(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXBlendTarget_proto;
+extern se::Class* __jsb_cocos2d_GFXBlendTarget_class;
+
+bool js_register_cocos2d_GFXBlendTarget(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXBlendState_proto;
+extern se::Class* __jsb_cocos2d_GFXBlendState_class;
+
+bool js_register_cocos2d_GFXBlendState(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXPipelineStateInfo_proto;
+extern se::Class* __jsb_cocos2d_GFXPipelineStateInfo_class;
+
+bool js_register_cocos2d_GFXPipelineStateInfo(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXCommandBufferInfo_proto;
+extern se::Class* __jsb_cocos2d_GFXCommandBufferInfo_class;
+
+bool js_register_cocos2d_GFXCommandBufferInfo(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXQueueInfo_proto;
+extern se::Class* __jsb_cocos2d_GFXQueueInfo_class;
+
+bool js_register_cocos2d_GFXQueueInfo(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXFormatInfo_proto;
+extern se::Class* __jsb_cocos2d_GFXFormatInfo_class;
+
+bool js_register_cocos2d_GFXFormatInfo(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+extern se::Object* __jsb_cocos2d_GFXMemoryStatus_proto;
+extern se::Class* __jsb_cocos2d_GFXMemoryStatus_class;
+
+bool js_register_cocos2d_GFXMemoryStatus(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
 extern se::Object* __jsb_cocos2d_GFXContext_proto;
 extern se::Class* __jsb_cocos2d_GFXContext_class;
 
