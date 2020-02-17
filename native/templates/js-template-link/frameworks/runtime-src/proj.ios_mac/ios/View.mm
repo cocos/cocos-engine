@@ -27,12 +27,12 @@
 
 namespace
 {
-    void dispatchEvents(cocos2d::TouchEvent& touchEvent, NSSet* touches, float scaleFactor)
+    void dispatchEvents(cocos2d::TouchEvent& touchEvent, NSSet* touches)
     {
         for (UITouch* touch in touches) {
             touchEvent.touches.push_back({
-                static_cast<float>([touch locationInView: [touch view]].x / scaleFactor),
-                static_cast<float>([touch locationInView: [touch view]].y / scaleFactor),
+                static_cast<float>([touch locationInView: [touch view]].x),
+                static_cast<float>([touch locationInView: [touch view]].y),
                 static_cast<int>((intptr_t)touch)
             });
         }
@@ -62,7 +62,7 @@ namespace
     cocos2d::TouchEvent touchEvent;
     touchEvent.type = cocos2d::TouchEvent::Type::BEGAN;
     
-    dispatchEvents(touchEvent, touches, self.contentScaleFactor);
+    dispatchEvents(touchEvent, touches);
 }
 
 
@@ -70,21 +70,21 @@ namespace
     cocos2d::TouchEvent touchEvent;
     touchEvent.type = cocos2d::TouchEvent::Type::MOVED;
     
-    dispatchEvents(touchEvent, touches, self.contentScaleFactor);
+    dispatchEvents(touchEvent, touches);
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
     cocos2d::TouchEvent touchEvent;
     touchEvent.type = cocos2d::TouchEvent::Type::ENDED;
     
-    dispatchEvents(touchEvent, touches, self.contentScaleFactor);
+    dispatchEvents(touchEvent, touches);
 }
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
     cocos2d::TouchEvent touchEvent;
     touchEvent.type = cocos2d::TouchEvent::Type::CANCELLED;
     
-    dispatchEvents(touchEvent, touches, self.contentScaleFactor);
+    dispatchEvents(touchEvent, touches);
 }
 
 -(void) setPreventTouchEvent:(BOOL) flag {
