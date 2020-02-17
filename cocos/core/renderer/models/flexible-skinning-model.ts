@@ -40,7 +40,7 @@ import { DataPoolManager } from '../data-pool-manager';
 import { Model } from '../scene/model';
 import { uploadJointData } from './skeletal-animation-utils';
 
-interface IJointTransform {
+export interface IJointTransform {
     node: Node;
     local: Mat4;
     world: Mat4;
@@ -51,7 +51,7 @@ interface IJointTransform {
 const stack: IJointTransform[] = [];
 const pool: Map<string, IJointTransform> = new Map();
 
-function getWorldMatrix (transform: IJointTransform | null, stamp: number) {
+export function getWorldMatrix (transform: IJointTransform | null, stamp: number) {
     let i = 0;
     let res = Mat4.IDENTITY;
     while (transform) {
@@ -72,7 +72,7 @@ function getWorldMatrix (transform: IJointTransform | null, stamp: number) {
     return res;
 }
 
-function getTransform (node: Node, root: Node) {
+export function getTransform (node: Node, root: Node) {
     let joint: IJointTransform | null = null;
     let i = 0;
     while (node !== root) {
@@ -97,7 +97,7 @@ function getTransform (node: Node, root: Node) {
     return joint;
 }
 
-function deleteTransform (node: Node) {
+export function deleteTransform (node: Node) {
     let transform = pool.get(node.uuid) || null;
     while (transform) {
         pool.delete(transform.node.uuid);
@@ -209,9 +209,6 @@ export class FlexibleSkinningModel extends Model {
     }
 
     protected createPipelineState (pass: Pass) {
-        if (CC_EDITOR && pass.defines.ANIMATION_BAKED) {
-            console.warn(`${this._node!.name}: for real-time animation, ANIMATION_BAKED should not be defined in material`);
-        }
         const pso = super.createPipelineState(pass);
         const bindingLayout = pso.pipelineLayout.layouts[0];
         if (this._buffer) {

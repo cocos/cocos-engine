@@ -106,12 +106,28 @@ export class SkinningModelComponent extends ModelComponent {
         }
     }
 
+    public get realTimePoseCalculation () {
+        const mat = this._materialInstances[0] || this._materials[0];
+        const pass = mat && mat.passes[0];
+        const res = pass && pass.defines.REALTIME_POSE_CALCULATION || false;
+        if (CC_EDITOR) {
+            for (let i = 0; i < this._materials.length; i++) {
+                const m = this._materialInstances[i] || this._materials[i];
+                if (!m) { continue; }
+                for (let j = 0; j < m.passes.length; j++) {
+                    if (res !== (m.passes[j].defines.REALTIME_POSE_CALCULATION || false)) {
+                        console.warn(`${this.node.name}: REALTIME_POSE_CALCULATION should be consistently declared among submodels and passes`);
+                        m.passes[j].defines.REALTIME_POSE_CALCULATION = res; m.passes[j].tryCompile();
+                    }
+                }
+            }
+        }
+        return res as boolean;
+    }
+
     protected _updateModels () {
         let modelType = this._modelType;
-        if (this._skinningRoot) {
-            const comp = this._skinningRoot.getComponent('cc.SkeletalAnimationComponent');
-            modelType = comp ? SkinningModel : FlexibleSkinningModel;
-        }
+        modelType = this.realTimePoseCalculation ? FlexibleSkinningModel : SkinningModel;
         if (this._model && modelType !== this._modelType) {
             cc.director.root.destroyModel(this._model);
             this._model = null;
@@ -121,9 +137,25 @@ export class SkinningModelComponent extends ModelComponent {
         super._updateModels();
     }
 
+    protected _onMaterialModified (idx: number, material: Material | null) {
+        let modelType = this._modelType;
+        modelType = this.realTimePoseCalculation ? FlexibleSkinningModel : SkinningModel;
+        if (modelType !== this._modelType) {
+            this._modelType = modelType;
+            if (this._model) {
+                cc.director.root.destroyModel(this._model);
+                this._model = null;
+                this._models.length = 0;
+                super._updateModels();
+                this._attachToScene();
+            }
+        } else {
+            super._onMaterialModified(idx, material);
+        }
+    }
+
     protected _updateModelParams () {
-        // should bind skeleton before super create pso
-        this._update();
+        this._update(); // should bind skeleton before super create pso
         super._updateModelParams();
     }
 

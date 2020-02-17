@@ -141,25 +141,24 @@ function genHandles (tmpl: IProgramInfo) {
 
 function dependencyCheck (dependencies: string[], defines: IDefineMap) {
     for (let i = 0; i < dependencies.length; i++) {
-        if (!defines[dependencies[i]]) { return false; }
+        const d = dependencies[i];
+        if (d[0] === '!') { if (defines[d.slice(1)]) { return false; } } // negative dependency
+        else if (!defines[d]) { return false; }
     }
     return true;
 }
 function getShaderBindings (
         tmpl: IProgramInfo, defines: IDefineMap, outBlocks: IBlockInfoRT[], outSamplers: ISamplerInfoRT[], bindings: IGFXBinding[]) {
     const { blocks, samplers } = tmpl;
-    let lastBinding = -1;
     for (let i = 0; i < blocks.length; i++) {
         const block = blocks[i];
-        if (block.binding === lastBinding || !dependencyCheck(block.defines, defines)) { continue; }
-        lastBinding = block.binding;
+        if (!dependencyCheck(block.defines, defines)) { continue; }
         outBlocks.push(block);
         bindings.push(block);
     }
     for (let i = 0; i < samplers.length; i++) {
         const sampler = samplers[i];
-        if (sampler.binding === lastBinding || !dependencyCheck(sampler.defines, defines)) { continue; }
-        lastBinding = sampler.binding;
+        if (!dependencyCheck(sampler.defines, defines)) { continue; }
         outSamplers.push(sampler);
         bindings.push(sampler);
     }

@@ -173,9 +173,6 @@ export class SkinningModel extends Model {
     }
 
     protected createPipelineState (pass: Pass) {
-        if (CC_EDITOR && !pass.defines.ANIMATION_BAKED) {
-            console.warn(`${this._node!.name}: for baked animation, ANIMATION_BAKED should be defined in material`);
-        }
         const pso = super.createPipelineState(pass);
         const { buffer, texture, animInfo } = this._jointsMedium;
         const bindingLayout = pso.pipelineLayout.layouts[0];

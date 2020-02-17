@@ -64,7 +64,8 @@ function collectRecursively (node: Node, prefix = '', out: string[] = []) {
 }
 
 /**
- * 骨骼动画组件，额外提供骨骼挂点功能
+ * @en Skeletal animaiton component, handles joint animations on skinning models with explicit joint socket support.
+ * @zh 骨骼动画组件，控制蒙皮模型的骨骼动画，并提供显式指定的骨骼挂点功能
  */
 @ccclass('cc.SkeletalAnimationComponent')
 @executionOrder(99)
@@ -102,7 +103,7 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     public querySockets () {
         const animPaths = this._defaultClip && Object.keys(SkelAnimDataHub.getOrExtract(this._defaultClip).data).sort().reduce((acc, cur) =>
             cur.startsWith(acc[acc.length - 1]) ? acc : (acc.push(cur), acc), [] as string[]) || [];
-        if (!animPaths.length) { return ['default animation clip missing/invalid']; }
+        if (!animPaths.length) { return ['please specify a valid default animation clip first']; }
         const out: string[] = [];
         for (let i = 0; i < animPaths.length; i++) {
             const path = animPaths[i];

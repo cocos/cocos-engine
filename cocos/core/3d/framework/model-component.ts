@@ -106,7 +106,7 @@ export class ModelComponent extends RenderableComponent {
         this._mesh = val;
         this._onMeshChanged(old);
         this._updateModels();
-        if (this.node.activeInHierarchy) {
+        if (this.enabledInHierarchy) {
             this._attachToScene();
         }
     }
@@ -132,9 +132,7 @@ export class ModelComponent extends RenderableComponent {
         if (!this._model) {
             this._updateModels();
         }
-        if (this._model) {
-            this._attachToScene();
-        }
+        this._attachToScene();
     }
 
     public onDisable () {

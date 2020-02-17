@@ -42,7 +42,7 @@ export class RenderableComponent extends Component {
     })
     get sharedMaterials () {
         // if we don't create an array copy, the editor will modify the original array directly.
-        return this._materials.slice();
+        return CC_EDITOR && this._materials.slice() || this._materials;
     }
 
     set sharedMaterials (val) {

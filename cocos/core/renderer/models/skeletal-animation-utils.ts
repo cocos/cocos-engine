@@ -167,7 +167,8 @@ export class JointsTexturePool {
      * 获取默认姿势的骨骼贴图。
      */
     public getDefaultPoseTexture (skeleton: Skeleton, mesh: Mesh, skinningRoot: Node) {
-        let texture: IJointsTextureHandle | null = this._textureBuffers.get(skeleton.hash) || null;
+        const hash = skeleton.hash ^ 0; // may not equal to skeleton.hash
+        let texture: IJointsTextureHandle | null = this._textureBuffers.get(hash) || null;
         if (texture && texture.bounds.has(mesh.hash)) { texture.refCount++; return texture; }
         const { joints, bindposes } = skeleton;
         let textureBuffer: Float32Array = null!; let buildTexture = false;
@@ -203,7 +204,7 @@ export class JointsTexturePool {
         aabb.fromPoints(bounds[0], v3_min, v3_max);
         if (buildTexture) {
             this._pool.update(texture.handle, textureBuffer.buffer);
-            this._textureBuffers.set(skeleton.hash, texture);
+            this._textureBuffers.set(hash, texture);
         }
         return texture;
     }
