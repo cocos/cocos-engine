@@ -357,7 +357,7 @@ let RichText = cc.Class({
         if (this.handleTouchEvent) {
             this._addEventListeners();
         }
-        this._onTTFLoaded();
+        this._updateRichText();
         this._activateChildren(true);
     },
 
@@ -366,6 +366,10 @@ let RichText = cc.Class({
             this._removeEventListeners();
         }
         this._activateChildren(false);
+    },
+
+    start () {
+        this._onTTFLoaded();
     },
 
     _onColorChanged (parentColor) {
@@ -648,7 +652,19 @@ let RichText = cc.Class({
         if (spriteFrame) {
             let spriteNode = new cc.PrivateNode(RichTextChildImageName);
             let spriteComponent = spriteNode.addComponent(cc.Sprite);
-            spriteNode.setAnchorPoint(0, 0);
+            switch (richTextElement.style.imageAlign)
+            {
+                case 'top':
+                    spriteNode.setAnchorPoint(0, 1);
+                    break;
+                case 'center':
+                    spriteNode.setAnchorPoint(0, 0.5);
+                    break;
+                default:
+                    spriteNode.setAnchorPoint(0, 0);
+                    break;
+            }
+            if (richTextElement.style.imageOffset) spriteNode._imageOffset = richTextElement.style.imageOffset;
             spriteComponent.type = cc.Sprite.Type.SLICED;
             spriteComponent.sizeMode = cc.Sprite.SizeMode.CUSTOM;
             this.node.addChild(spriteNode);
@@ -661,8 +677,7 @@ let RichText = cc.Class({
             let expectWidth = richTextElement.style.imageWidth;
             let expectHeight = richTextElement.style.imageHeight;
 
-            //follow the original rule, expectHeight must less then lineHeight
-            if (expectHeight > 0 && expectHeight < this.lineHeight) {
+            if (expectHeight > 0) {
                 scaleFactor = expectHeight / spriteHeight;
                 spriteWidth = spriteWidth * scaleFactor;
                 spriteHeight = spriteHeight * scaleFactor;
@@ -853,6 +868,46 @@ let RichText = cc.Class({
             if (lineCount === nextLineIndex) {
                 nextTokenX += labelSize.width;
             }
+
+            let sprite = label.getComponent(cc.Sprite);
+            if (sprite) {
+                // adjust img align (from <img align=top|center|bottom>)
+                let lineHeightSet = this.lineHeight;
+                let lineHeightReal = this.lineHeight * (1 + textUtils.BASELINE_RATIO); //single line node height
+                switch (label.anchorY)
+                {
+                    case 1:
+                        label.y += ( lineHeightSet + ( ( lineHeightReal - lineHeightSet) / 2 ) );
+                        break;
+                    case 0.5:
+                        label.y += ( lineHeightReal / 2 );
+                        break;
+                    default:
+                        label.y += ( (lineHeightReal - lineHeightSet) / 2 );
+                        break;
+                }
+                // adjust img offset (from <img offset=12|12,34>)
+                if (label._imageOffset)
+                {
+                    let offsets = label._imageOffset.split(',');
+                    if (offsets.length === 1 && offsets[0])
+                    {
+                        let offsetY = parseFloat(offsets[0]);
+                        if (Number.isInteger(offsetY)) label.y += offsetY;
+                    }
+                    else if(offsets.length === 2)
+                    {
+                        let offsetX = parseFloat(offsets[0]);
+                        let offsetY = parseFloat(offsets[1]);
+                        if (Number.isInteger(offsetX)) label.x += offsetX;
+                        if (Number.isInteger(offsetY)) label.y += offsetY;
+                    }
+                }
+            }
+
+            //adjust y for label with outline
+            let outline = label.getComponent(cc.LabelOutline);
+            if (outline && outline.width) label.y = label.y - outline.width;
         }
     },
 
