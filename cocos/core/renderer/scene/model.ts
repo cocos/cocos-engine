@@ -356,7 +356,7 @@ export class Model {
     }
 
     protected createPipelineState (pass: Pass) {
-        if (CC_EDITOR && (pass.defines.USE_SKINNING || false) !== this._type.includes('skinning')) {
+        if (CC_EDITOR && (pass.defines.USE_SKINNING || false) && !this._type.includes('skinning')) {
             console.warn(`${this._node!.name}: USE_SKINNING macro should be defined if and only if on skinning models`);
         }
         const pso = pass.createPipelineState()!;

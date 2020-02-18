@@ -86,7 +86,7 @@ export class TextureBufferPool {
 
     public alloc (size: number): ITextureBufferHandle | null {
         if (size === 0) {
-            return null;
+            return this._handles[0] || null;
         }
 
         for (let i = 0; i < this._chunkCount; ++i) {

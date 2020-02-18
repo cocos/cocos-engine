@@ -26,6 +26,7 @@
  * @category model
  */
 
+import { getWorldTransformUntilRoot } from '../../animation/transform-utils';
 import { Filter, PixelFormat } from '../../assets/asset-enum';
 import { Material } from '../../assets/material';
 import { Mesh } from '../../assets/mesh';
@@ -37,8 +38,8 @@ import { GFXAttributeName, GFXBufferTextureCopy, GFXFormatInfos } from '../../gf
 import { GFXFormat, GFXType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { IGFXAttribute } from '../../gfx/input-assembler';
-import { Mat4, Vec2 } from '../../math';
-import { mapBuffer } from '../misc/buffer';
+import { Mat4, Vec2, Vec3 } from '../../math';
+import { mapBuffer, readBuffer, writeBuffer } from '../misc/buffer';
 import { SkinningModelComponent } from './skinning-model-component';
 
 const repeat = (n: number) => n - Math.floor(n);
@@ -71,9 +72,11 @@ export class SkinningModelUnit {
     public material: Material | null = null;
 
     @property
-    private _offset: Vec2 = new Vec2(0, 0);
+    public _localTransform = new Mat4();
     @property
-    private _size: Vec2 = new Vec2(1, 1);
+    private _offset = new Vec2(0, 0);
+    @property
+    private _size = new Vec2(1, 1);
 
     /**
      * @en UV offset on texture atlas.
@@ -109,11 +112,16 @@ export class SkinningModelUnit {
         this.mesh = comp.mesh;
         this.skeleton = comp.skeleton;
         this.material = comp.getMaterial(0);
+        if (comp.skinningRoot) { getWorldTransformUntilRoot(comp.node, comp.skinningRoot, this._localTransform); }
     }
     get copyFrom () {
         return null;
     }
 }
+
+const m4_local = new Mat4();
+const m4_1 = new Mat4();
+const v3_1 = new Vec3();
 
 /**
  * @en The Batched Skinning Model Component, batches multiple skeleton-sharing skinning models.
@@ -245,26 +253,38 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
     public cookSkeletons () {
         if (!this._skinningRoot) { console.warn('no skinning root specified!'); return; }
         // merge joints accordingly
-        const skeleton = new Skeleton();
+        const joints: string[] = [];
         const bindposes: Mat4[] = [];
-        for (const unit of this.units) {
+        for (let u = 0; u < this.units.length; u++) {
+            const unit = this.units[u];
             if (!unit || !unit.skeleton) { continue; }
             const partial = unit.skeleton;
+            Mat4.invert(m4_local, unit._localTransform);
             for (let i = 0; i < partial.joints.length; i++) {
                 const path = partial.joints[i];
-                const idx = skeleton.joints.findIndex((p) => p === path);
-                if (idx >= 0) { continue; }
-                skeleton.joints.push(path);
-                bindposes.push(partial.bindposes[i] || new Mat4());
+                const idx = joints.findIndex((p) => p === path);
+                if (idx >= 0) {
+                    if (CC_EDITOR) { // consistency check
+                        Mat4.multiply(m4_1, partial.bindposes[i], m4_local);
+                        if (!m4_1.equals(bindposes[idx])) {
+                            console.warn(`${this.node.name}: Inconsistent bindpose at ${joints[idx]} in unit ${u}, artifacts may present`);
+                        }
+                    }
+                    continue;
+                }
+                joints.push(path);
+                // cancel out local transform
+                bindposes.push(Mat4.multiply(new Mat4(), partial.bindposes[i], m4_local) || new Mat4());
             }
         }
         // sort the array to be more cache-friendly
-        const idxMap = Array.from(Array(skeleton.joints.length).keys()).sort((a, b) => {
-            if (skeleton.joints[a] > skeleton.joints[b]) { return 1; }
-            if (skeleton.joints[a] < skeleton.joints[b]) { return -1; }
+        const idxMap = Array.from(Array(joints.length).keys()).sort((a, b) => {
+            if (joints[a] > joints[b]) { return 1; }
+            if (joints[a] < joints[b]) { return -1; }
             return 0;
         });
-        skeleton.joints = skeleton.joints.map((_, idx, arr) => arr[idxMap[idx]]);
+        const skeleton = new Skeleton();
+        skeleton.joints = joints.map((_, idx, arr) => arr[idxMap[idx]]);
         skeleton.bindposes = bindposes.map((_, idx, arr) => arr[idxMap[idx]]);
         // apply
         if (this._skeleton) { this._skeleton.destroy(); }
@@ -290,9 +310,15 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
             return;
         }
 
+        let dataView: DataView;
+        let posOffset = 0;
+        let posFormat = GFXFormat.UNKNOWN;
+        let normalOffset = 0;
+        let normalFormat = GFXFormat.UNKNOWN;
+        let tangentOffset = 0;
+        let tangentFormat = GFXFormat.UNKNOWN;
         let uvOffset = 0;
         let uvFormat = GFXFormat.UNKNOWN;
-        let dataView: DataView;
         let jointOffset = 0;
         let jointFormat = GFXFormat.UNKNOWN;
 
@@ -310,6 +336,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
         for (let i = 0; i < unitLen; i++) {
             const unit = this.units[i];
             if (!unit || !unit.mesh || !unit.mesh.data) { continue; }
+            Mat4.inverseTranspose(m4_local, unit._localTransform);
 
             // add batch ID to this temp mesh
             // first, update bookkeepping
@@ -392,6 +419,61 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
             const offset = unit.offset;
             const size = unit.size;
             for (const bundle of newMeshStruct.vertexBundles) {
+                // apply local transform to mesh
+                posOffset = bundle.view.offset;
+                posFormat = GFXFormat.UNKNOWN;
+                for (const attr of bundle.attributes) {
+                    if (attr.name === GFXAttributeName.ATTR_POSITION) {
+                        posFormat = attr.format;
+                        break;
+                    }
+                    posOffset += GFXFormatInfos[attr.format].size;
+                }
+                if (posFormat) {
+                    const pos = readBuffer(dataView, posFormat, posOffset, bundle.view.length, bundle.view.stride);
+                    for (let j = 0; j < pos.length; j += 3) {
+                        Vec3.fromArray(v3_1, pos, j);
+                        Vec3.transformMat4(v3_1, v3_1, unit._localTransform);
+                        Vec3.toArray(pos, v3_1, j);
+                    }
+                    writeBuffer(dataView, pos, posFormat, posOffset, bundle.view.stride);
+                }
+                normalOffset = bundle.view.offset;
+                normalFormat = GFXFormat.UNKNOWN;
+                for (const attr of bundle.attributes) {
+                    if (attr.name === GFXAttributeName.ATTR_NORMAL) {
+                        normalFormat = attr.format;
+                        break;
+                    }
+                    normalOffset += GFXFormatInfos[attr.format].size;
+                }
+                if (normalFormat) {
+                    const normal = readBuffer(dataView, normalFormat, normalOffset, bundle.view.length, bundle.view.stride);
+                    for (let j = 0; j < normal.length; j += 3) {
+                        Vec3.fromArray(v3_1, normal, j);
+                        Vec3.transformMat4Normal(v3_1, v3_1, m4_local);
+                        Vec3.toArray(normal, v3_1, j);
+                    }
+                    writeBuffer(dataView, normal, normalFormat, normalOffset, bundle.view.stride);
+                }
+                tangentOffset = bundle.view.offset;
+                tangentFormat = GFXFormat.UNKNOWN;
+                for (const attr of bundle.attributes) {
+                    if (attr.name === GFXAttributeName.ATTR_TANGENT) {
+                        tangentFormat = attr.format;
+                        break;
+                    }
+                    tangentOffset += GFXFormatInfos[attr.format].size;
+                }
+                if (tangentFormat) {
+                    const tangent = readBuffer(dataView, tangentFormat, tangentOffset, bundle.view.length, bundle.view.stride);
+                    for (let j = 0; j < tangent.length; j += 3) {
+                        Vec3.fromArray(v3_1, tangent, j);
+                        Vec3.transformMat4Normal(v3_1, v3_1, m4_local);
+                        Vec3.toArray(tangent, v3_1, j);
+                    }
+                    writeBuffer(dataView, tangent, tangentFormat, tangentOffset, bundle.view.stride);
+                }
                 // merge UV
                 uvOffset = bundle.view.offset;
                 uvFormat = GFXFormat.UNKNOWN;
@@ -465,6 +547,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
     protected createTexture (prop: string) {
         const tex = new Texture2D();
         tex.setFilters(Filter.LINEAR, Filter.LINEAR);
+        tex.setMipFilter(Filter.LINEAR);
         tex.reset({
             width: this.atlasSize,
             height: this.atlasSize,
