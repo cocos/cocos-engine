@@ -387,6 +387,31 @@ bool seval_to_Mat4(const se::Value& v, cocos2d::Mat4* mat)
     return true;
 }
 
+bool seval_to_Uint8Array(const se::Value& v, uint8_t* ret)
+{
+    assert(ret != nullptr);
+    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to Array failed!");
+    se::Object* obj = v.toObject();
+    SE_PRECONDITION2(obj->isArray(), false, "Convert parameter to Array failed!");
+
+    CC_UNUSED bool ok = true;    
+    uint32_t length = 0;
+    obj->getArrayLength(&length);
+    se::Value value;
+    uint8_t data = 0;
+    for (uint32_t i = 0; i < length; ++i)
+    {
+        if (obj->getArrayElement(i, &value))
+        {
+            ok = seval_to_uint8(value, &data);
+            SE_PRECONDITION2(ok, false, "Convert parameter to Array failed!");
+            ret[i] = data;
+        }
+    }
+
+    return true;
+}
+
 bool seval_to_Size(const se::Value& v, cocos2d::Size* size)
 {
     assert(size != nullptr);

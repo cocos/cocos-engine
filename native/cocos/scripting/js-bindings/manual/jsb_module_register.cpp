@@ -36,6 +36,8 @@
 #include "cocos/scripting/js-bindings/manual/jsb_cocos2dx_manual.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_xmlhttprequest.hpp"
 #include "cocos/scripting/js-bindings/manual/jsb_cocos2dx_network_manual.h"
+#include "cocos/scripting/js-bindings/manual/jsb_gfx_manual.hpp"
+#include "cocos/scripting/js-bindings/auto/jsb_gfx_auto.hpp"
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_network_auto.hpp"
 #include "cocos/scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.hpp"
 
@@ -92,6 +94,8 @@ bool jsb_register_all_modules()
     se->addRegisterCallback(register_all_engine);
     se->addRegisterCallback(register_all_cocos2dx_manual);
     se->addRegisterCallback(register_platform_bindings);
+    se->addRegisterCallback(register_all_gfx_manual);
+    se->addRegisterCallback(register_all_gfx);
     
     se->addRegisterCallback(register_all_network);
     se->addRegisterCallback(register_all_cocos2dx_network_manual);
