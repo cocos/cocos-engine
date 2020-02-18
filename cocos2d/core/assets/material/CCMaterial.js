@@ -164,7 +164,7 @@ let Material = cc.Class({
          * @return {Material}
          */
         createWithBuiltin (effectName, techniqueIndex = 0) {
-            let effectAsset = cc.AssetLibrary.getBuiltin('effect', 'builtin-' + effectName);
+            let effectAsset = cc.assetManager.builtins.getBuiltin('effect', 'builtin-' + effectName);
             return Material.create(effectAsset, techniqueIndex);
         },
         /**
