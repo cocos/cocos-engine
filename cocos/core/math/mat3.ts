@@ -149,7 +149,10 @@ export class Mat3 extends ValueType {
         // Calculate the determinant
         let det = _a00 * b01 + _a01 * b11 + _a02 * b21;
 
-        if (!det) {
+        if (det === 0) {
+            out.m00 = 0; out.m01 = 0; out.m02 = 0;
+            out.m03 = 0; out.m04 = 0; out.m05 = 0;
+            out.m06 = 0; out.m07 = 0; out.m08 = 0;
             return out;
         }
         det = 1.0 / det;
@@ -808,8 +811,9 @@ export class Mat3 extends ValueType {
         // Calculate the determinant
         let det = _a00 * b01 + _a01 * b11 + _a02 * b21;
 
-        if (!det) {
-            return null;
+        if (det === 0) {
+            this.set(0, 0, 0, 0, 0, 0, 0, 0, 0);
+            return this;
         }
         det = 1.0 / det;
 
