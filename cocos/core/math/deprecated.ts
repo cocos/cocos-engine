@@ -357,6 +357,14 @@ replaceProperty(Color, 'Color', [
         target: Color,
         targetName: 'Color',
     },
+    {
+        name: 'fromHex',
+        newName: 'fromHEX',
+        customFunction: function (...args: any) {
+            let arg1 = args[1].toString(16);
+            return cc.Color.fromHEX(args[0], arg1);
+        },
+    },
 ]);
 
 replaceProperty(Mat3, 'Mat3', [
