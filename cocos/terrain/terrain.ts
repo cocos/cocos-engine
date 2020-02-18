@@ -259,7 +259,7 @@ export class TerrainBlock {
         this._renderable._meshData = {
             attributes: gfxAttributes,
             vertexBuffers: [vertexBuffer],
-            indexBuffer : this._terrain.getSharedIndexBuffer(),
+            indexBuffer: this._terrain.getSharedIndexBuffer() || undefined,
             flatBuffers : [],
             primitiveMode: GFXPrimitiveMode.TRIANGLE_LIST,
         };

@@ -28,8 +28,9 @@
  */
 
 import { ccclass, property } from '../../core/data/class-decorator';
-import { Vec3, Mat4, Quat } from '../../core/math';
+import { Mat4, Quat, Vec3 } from '../../core/math';
 import { BufferBlob } from '../3d/misc/buffer-blob';
+import { aabb } from '../geom-utils';
 import { GFXBuffer } from '../gfx/buffer';
 import {
     GFXAttributeName,
@@ -42,13 +43,12 @@ import {
 } from '../gfx/define';
 import { GFXDevice, GFXFeature } from '../gfx/device';
 import { IGFXAttribute } from '../gfx/input-assembler';
+import { warnID } from '../platform/debug';
+import sys from '../platform/sys';
 import { DataPoolManager } from '../renderer/data-pool-manager';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { Asset } from './asset';
 import { postLoadMesh } from './utils/mesh-utils';
-import { warnID } from '../platform/debug';
-import { aabb } from '../geometry';
-import sys from '../platform/sys';
 
 function getIndexStrideCtor (stride: number) {
     switch (stride) {
@@ -100,9 +100,9 @@ export interface IRenderingSubmesh {
     vertexBuffers: GFXBuffer[];
 
     /**
-     * 使用的索引缓冲区，若未使用则为 `null`。
+     * 使用的索引缓冲区，若未使用则无需指定。
      */
-    indexBuffer: GFXBuffer | null;
+    indexBuffer?: GFXBuffer;
 
     /**
      * 间接绘制缓冲区。
@@ -395,7 +395,7 @@ export class Mesh extends Asset {
                 continue;
             }
 
-            let indexBuffer: GFXBuffer | null = null;
+            let indexBuffer: GFXBuffer | undefined;
             let ib: any = null;
             if (prim.indexView) {
                 const idxView = prim.indexView;
