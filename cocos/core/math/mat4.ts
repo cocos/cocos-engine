@@ -194,6 +194,7 @@ export class Mat4 extends ValueType {
             out.m04 = 0; out.m05 = 0; out.m06 = 0; out.m07 = 0;
             out.m08 = 0; out.m09 = 0; out.m10 = 0; out.m11 = 0;
             out.m12 = 0; out.m13 = 0; out.m14 = 0; out.m15 = 0;
+            console.warn('This matrix has no inverse,Please check your data!');
             return out;
         }
         det = 1.0 / det;
@@ -1618,6 +1619,7 @@ export class Mat4 extends ValueType {
 
         if (det === 0) {
             this.set(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+            console.warn('This matrix has no inverse,Please check your data!');
             return this;
         }
         det = 1.0 / det;

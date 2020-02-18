@@ -153,6 +153,7 @@ export class Mat3 extends ValueType {
             out.m00 = 0; out.m01 = 0; out.m02 = 0;
             out.m03 = 0; out.m04 = 0; out.m05 = 0;
             out.m06 = 0; out.m07 = 0; out.m08 = 0;
+            console.warn('This matrix has no inverse,Please check your data!');
             return out;
         }
         det = 1.0 / det;
@@ -813,6 +814,7 @@ export class Mat3 extends ValueType {
 
         if (det === 0) {
             this.set(0, 0, 0, 0, 0, 0, 0, 0, 0);
+            console.warn('This matrix has no inverse,Please check your data!');
             return this;
         }
         det = 1.0 / det;
