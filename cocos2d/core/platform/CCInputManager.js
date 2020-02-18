@@ -567,4 +567,4 @@ let inputManager = {
     }
 };
 
-module.exports = _cc.inputManager = inputManager;
+module.exports = cc.internal.inputManager = inputManager;
