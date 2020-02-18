@@ -50,25 +50,160 @@ export default class Vec2 extends ValueType {
     static mag   = Vec2.len;
     static squaredMagnitude = Vec2.lengthSqr;
     static div = Vec2.divide;
+    /**
+     * !#en Returns the length of this vector.
+     * !#zh 返回该向量的长度。
+     * @method mag
+     * @return {number} the result
+     * @example
+     * var v = cc.v2(10, 10);
+     * v.mag(); // return 14.142135623730951;
+     */
     mag  = Vec2.prototype.len;
+    /**
+     * !#en Returns the squared length of this vector.
+     * !#zh 返回该向量的长度平方。
+     * @method magSqr
+     * @return {number} the result
+     * @example
+     * var v = cc.v2(10, 10);
+     * v.magSqr(); // return 200;
+     */
     magSqr = Vec2.prototype.lengthSqr;
+    /**
+     * !#en Subtracts one vector from this. If you want to save result to another vector, use sub() instead.
+     * !#zh 向量减法。如果你想保存结果到另一个向量，可使用 sub() 代替。
+     * @method subSelf
+     * @param {Vec2} vector
+     * @return {Vec2} returns this
+     * @chainable
+     * @example
+     * var v = cc.v2(10, 10);
+     * v.subSelf(cc.v2(5, 5));// return Vec2 {x: 5, y: 5};
+     */
     subSelf  = Vec2.prototype.subtract;
+    /**
+     * !#en Subtracts one vector from this, and returns the new result.
+     * !#zh 向量减法，并返回新结果。
+     * @method sub
+     * @param {Vec2} vector
+     * @param {Vec2} [out] - optional, the receiving vector, you can pass the same vec2 to save result to itself, if not provided, a new vec2 will be created
+     * @return {Vec2} the result
+     * @example
+     * var v = cc.v2(10, 10);
+     * v.sub(cc.v2(5, 5));      // return Vec2 {x: 5, y: 5};
+     * var v1;
+     * v.sub(cc.v2(5, 5), v1);  // return Vec2 {x: 5, y: 5};
+     */
     sub (vector: Vec2, out?: Vec2): Vec2 {
         return Vec2.subtract(out || new Vec2(), this, vector);
     }
+    /**
+     * !#en Multiplies this by a number. If you want to save result to another vector, use mul() instead.
+     * !#zh 缩放当前向量。如果你想结果保存到另一个向量，可使用 mul() 代替。
+     * @method mulSelf
+     * @param {number} num
+     * @return {Vec2} returns this
+     * @chainable
+     * @example
+     * var v = cc.v2(10, 10);
+     * v.mulSelf(5);// return Vec2 {x: 50, y: 50};
+     */
     mulSelf  = Vec2.prototype.multiplyScalar;
+    /**
+     * !#en Multiplies by a number, and returns the new result.
+     * !#zh 缩放向量，并返回新结果。
+     * @method mul
+     * @param {number} num
+     * @param {Vec2} [out] - optional, the receiving vector, you can pass the same vec2 to save result to itself, if not provided, a new vec2 will be created
+     * @return {Vec2} the result
+     * @example
+     * var v = cc.v2(10, 10);
+     * v.mul(5);      // return Vec2 {x: 50, y: 50};
+     * var v1;
+     * v.mul(5, v1);  // return Vec2 {x: 50, y: 50};
+     */
     mul (num: number, out?: Vec2): Vec2 {
         return Vec2.multiplyScalar(out || new Vec2(), this, num);
     }
+    /**
+     * !#en Divides by a number. If you want to save result to another vector, use div() instead.
+     * !#zh 向量除法。如果你想结果保存到另一个向量，可使用 div() 代替。
+     * @method divSelf
+     * @param {number} num
+     * @return {Vec2} returns this
+     * @chainable
+     * @example
+     * var v = cc.v2(10, 10);
+     * v.divSelf(5); // return Vec2 {x: 2, y: 2};
+     */
     divSelf  = Vec2.prototype.divide;
+    /**
+     * !#en Divides by a number, and returns the new result.
+     * !#zh 向量除法，并返回新的结果。
+     * @method div
+     * @param {number} num
+     * @param {Vec2} [out] - optional, the receiving vector, you can pass the same vec2 to save result to itself, if not provided, a new vec2 will be created
+     * @return {Vec2} the result
+     * @example
+     * var v = cc.v2(10, 10);
+     * v.div(5);      // return Vec2 {x: 2, y: 2};
+     * var v1;
+     * v.div(5, v1);  // return Vec2 {x: 2, y: 2};
+     */
     div (vector: Vec2, out?: Vec2): Vec2 {
         return Vec2.divide(out || new Vec2(), this, vector);
     }
+    /**
+     * !#en Multiplies two vectors.
+     * !#zh 分量相乘。
+     * @method scaleSelf
+     * @param {Vec2} vector
+     * @return {Vec2} returns this
+     * @chainable
+     * @example
+     * var v = cc.v2(10, 10);
+     * v.scaleSelf(cc.v2(5, 5));// return Vec2 {x: 50, y: 50};
+     */
     scaleSelf = Vec2.prototype.multiply;
+    /**
+     * !#en Multiplies two vectors, and returns the new result.
+     * !#zh 分量相乘，并返回新的结果。
+     * @method scale
+     * @param {Vec2} vector
+     * @param {Vec2} [out] - optional, the receiving vector, you can pass the same vec2 to save result to itself, if not provided, a new vec2 will be created
+     * @return {Vec2} the result
+     * @example
+     * var v = cc.v2(10, 10);
+     * v.scale(cc.v2(5, 5));      // return Vec2 {x: 50, y: 50};
+     * var v1;
+     * v.scale(cc.v2(5, 5), v1);  // return Vec2 {x: 50, y: 50};
+     */
     scale (vector: Vec2, out?: Vec2): Vec2 {
         return Vec2.multiply(out || new Vec2(), this, vector);
     }
+    /**
+     * !#en Negates the components. If you want to save result to another vector, use neg() instead.
+     * !#zh 向量取反。如果你想结果保存到另一个向量，可使用 neg() 代替。
+     * @method negSelf
+     * @return {Vec2} returns this
+     * @chainable
+     * @example
+     * var v = cc.v2(10, 10);
+     * v.negSelf(); // return Vec2 {x: -10, y: -10};
+     */
     negSelf = Vec2.prototype.negate;
+    /**
+     * !#en Negates the components, and returns the new result.
+     * !#zh 返回取反后的新向量。
+     * @method neg
+     * @param {Vec2} [out] - optional, the receiving vector, you can pass the same vec2 to save result to itself, if not provided, a new vec2 will be created
+     * @return {Vec2} the result
+     * @example
+     * var v = cc.v2(10, 10);
+     * var v1;
+     * v.neg(v1);  // return Vec2 {x: -10, y: -10};
+     */
     neg (out?: Vec2): Vec2 {
         return Vec2.negate(out || new Vec2(), this);
     }

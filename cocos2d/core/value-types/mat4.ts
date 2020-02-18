@@ -46,12 +46,34 @@ let _a30: number = 0; let _a31: number = 0; let _a32: number = 0; let _a33: numb
 export default class Mat4 extends ValueType {
     static mul = Mat4.multiply;
     static sub = Mat4.subtract;
+
+    /**
+     * Subtracts the current matrix with another one
+     * @method mul
+     * @param {Mat4} other the second operand
+     * @param {Mat4} [out] the receiving matrix, you can pass the same matrix to save result to itself, if not provided, a new matrix will be created
+     * @returns {Mat4} out
+     */
     mul (m: Mat4, out: Mat4): Mat4 {
         return Mat4.multiply(out || new Mat4(), this, m);
     }
+    /**
+     * Multiply each element of the matrix by a scalar.
+     * @method mulScalar
+     * @param {Number} number amount to scale the matrix's elements by
+     * @param {Mat4} [out] the receiving matrix, you can pass the same matrix to save result to itself, if not provided, a new matrix will be created
+     * @returns {Mat4} out
+     */
     mulScalar (num: number, out: Mat4) {
         Mat4.multiplyScalar(out || new Mat4(), this, num);
     }
+    /**
+     * Subtracts the current matrix with another one
+     * @method sub
+     * @param {Mat4} other the second operand
+     * @param {Mat4} [out] the receiving matrix, you can pass the same matrix to save result to itself, if not provided, a new matrix will be created
+     * @returns {Mat4} out
+     */
     sub (m: Mat4, out: Mat4) {
         Mat4.subtract(out || new Mat4(), this, m);
     }

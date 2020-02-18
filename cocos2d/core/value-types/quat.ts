@@ -60,6 +60,14 @@ export default class Quat extends ValueType {
     static scale = Quat.multiplyScalar;
     static mag = Quat.len;
 
+    /**
+     * !#en Calculate the multiply result between this quaternion and another one
+     * !#zh 计算四元数乘积的结果
+     * @method mul
+     * @param {Quat} other
+     * @param {Quat} [out]
+     * @returns {Quat} out
+     */
     mul (other: Quat, out?: Quat): Quat {
         return Quat.multiply(out || new Quat(), this, other);
     }
