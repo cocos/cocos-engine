@@ -7933,332 +7933,6 @@ bool js_register_gfx_GFXDepthStencilAttachment(se::Object* obj)
     return true;
 }
 
-se::Object* __jsb_cocos2d_GFXSubPass_proto = nullptr;
-se::Class* __jsb_cocos2d_GFXSubPass_class = nullptr;
-
-static bool js_gfx_GFXSubPass_get_bind_point(se::State& s)
-{
-    cocos2d::GFXSubPass* cobj = (cocos2d::GFXSubPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSubPass_get_bind_point : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= int32_to_seval((int)cobj->bind_point, &jsret);
-    s.rval() = jsret;
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_GFXSubPass_get_bind_point)
-
-static bool js_gfx_GFXSubPass_set_bind_point(se::State& s)
-{
-    const auto& args = s.args();
-    cocos2d::GFXSubPass* cobj = (cocos2d::GFXSubPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSubPass_set_bind_point : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    cocos2d::GFXPipelineBindPoint arg0 = 0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXPipelineBindPoint)tmp; } while(false);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXSubPass_set_bind_point : Error processing new value");
-    cobj->bind_point = arg0;
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_GFXSubPass_set_bind_point)
-
-static bool js_gfx_GFXSubPass_get_inputs(se::State& s)
-{
-    cocos2d::GFXSubPass* cobj = (cocos2d::GFXSubPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSubPass_get_inputs : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    #pragma warning NO CONVERSION FROM NATIVE FOR ??;
-    s.rval() = jsret;
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_GFXSubPass_get_inputs)
-
-static bool js_gfx_GFXSubPass_set_inputs(se::State& s)
-{
-    const auto& args = s.args();
-    cocos2d::GFXSubPass* cobj = (cocos2d::GFXSubPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSubPass_set_inputs : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ??* arg0 = nullptr;
-    ok &= seval_to_reference(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXSubPass_set_inputs : Error processing new value");
-    cobj->inputs = *arg0;
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_GFXSubPass_set_inputs)
-
-static bool js_gfx_GFXSubPass_get_colors(se::State& s)
-{
-    cocos2d::GFXSubPass* cobj = (cocos2d::GFXSubPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSubPass_get_colors : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    #pragma warning NO CONVERSION FROM NATIVE FOR ??;
-    s.rval() = jsret;
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_GFXSubPass_get_colors)
-
-static bool js_gfx_GFXSubPass_set_colors(se::State& s)
-{
-    const auto& args = s.args();
-    cocos2d::GFXSubPass* cobj = (cocos2d::GFXSubPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSubPass_set_colors : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ??* arg0 = nullptr;
-    ok &= seval_to_reference(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXSubPass_set_colors : Error processing new value");
-    cobj->colors = *arg0;
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_GFXSubPass_set_colors)
-
-static bool js_gfx_GFXSubPass_get_resolves(se::State& s)
-{
-    cocos2d::GFXSubPass* cobj = (cocos2d::GFXSubPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSubPass_get_resolves : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    #pragma warning NO CONVERSION FROM NATIVE FOR ??;
-    s.rval() = jsret;
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_GFXSubPass_get_resolves)
-
-static bool js_gfx_GFXSubPass_set_resolves(se::State& s)
-{
-    const auto& args = s.args();
-    cocos2d::GFXSubPass* cobj = (cocos2d::GFXSubPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSubPass_set_resolves : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ??* arg0 = nullptr;
-    ok &= seval_to_reference(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXSubPass_set_resolves : Error processing new value");
-    cobj->resolves = *arg0;
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_GFXSubPass_set_resolves)
-
-static bool js_gfx_GFXSubPass_get_depth_stencil(se::State& s)
-{
-    cocos2d::GFXSubPass* cobj = (cocos2d::GFXSubPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSubPass_get_depth_stencil : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= uint8_to_seval((unsigned char)cobj->depth_stencil, &jsret);
-    s.rval() = jsret;
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_GFXSubPass_get_depth_stencil)
-
-static bool js_gfx_GFXSubPass_set_depth_stencil(se::State& s)
-{
-    const auto& args = s.args();
-    cocos2d::GFXSubPass* cobj = (cocos2d::GFXSubPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSubPass_set_depth_stencil : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    uint8_t arg0;
-    ok &= seval_to_uint8(args[0], (uint8_t*)&arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXSubPass_set_depth_stencil : Error processing new value");
-    cobj->depth_stencil = arg0;
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_GFXSubPass_set_depth_stencil)
-
-static bool js_gfx_GFXSubPass_get_preserves(se::State& s)
-{
-    cocos2d::GFXSubPass* cobj = (cocos2d::GFXSubPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSubPass_get_preserves : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    #pragma warning NO CONVERSION FROM NATIVE FOR ??;
-    s.rval() = jsret;
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_GFXSubPass_get_preserves)
-
-static bool js_gfx_GFXSubPass_set_preserves(se::State& s)
-{
-    const auto& args = s.args();
-    cocos2d::GFXSubPass* cobj = (cocos2d::GFXSubPass*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXSubPass_set_preserves : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ??* arg0 = nullptr;
-    ok &= seval_to_reference(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXSubPass_set_preserves : Error processing new value");
-    cobj->preserves = *arg0;
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_GFXSubPass_set_preserves)
-
-SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXSubPass_finalize)
-
-static bool js_gfx_GFXSubPass_constructor(se::State& s)
-{
-    CC_UNUSED bool ok = true;
-    const auto& args = s.args();
-    size_t argc = args.size();
-
-    if(argc == 0) 
-    {
-        cocos2d::GFXSubPass* cobj = JSB_ALLOC(cocos2d::GFXSubPass);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-        return true;
-    }
-    else if(argc == 1 && args[0].isObject())
-    {
-        se::Object *json = args[0].toObject();
-        se::Value field;
-
-        cocos2d::GFXPipelineBindPoint arg0 = 0;
-        json->getProperty("bind_point", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".bind_point\" is undefined!");
-            return false;
-        }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXPipelineBindPoint)tmp; } while(false);
-        ??* arg1 = nullptr;
-        json->getProperty("inputs", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".inputs\" is undefined!");
-            return false;
-        }
-        ok &= seval_to_reference(field, &arg1);
-        ??* arg2 = nullptr;
-        json->getProperty("colors", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".colors\" is undefined!");
-            return false;
-        }
-        ok &= seval_to_reference(field, &arg2);
-        ??* arg3 = nullptr;
-        json->getProperty("resolves", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".resolves\" is undefined!");
-            return false;
-        }
-        ok &= seval_to_reference(field, &arg3);
-        uint8_t arg4;
-        json->getProperty("depth_stencil", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".depth_stencil\" is undefined!");
-            return false;
-        }
-        ok &= seval_to_uint8(field, (uint8_t*)&arg4);
-        ??* arg5 = nullptr;
-        json->getProperty("preserves", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".preserves\" is undefined!");
-            return false;
-        }
-        ok &= seval_to_reference(field, &arg5);
-
-        if(!ok) {
-            SE_REPORT_ERROR("argument convertion error");
-            return false;
-        }
-
-        cocos2d::GFXSubPass* cobj = JSB_ALLOC(cocos2d::GFXSubPass);
-        cobj->bind_point = arg0;
-        cobj->inputs = *arg1;
-        cobj->colors = *arg2;
-        cobj->resolves = *arg3;
-        cobj->depth_stencil = arg4;
-        cobj->preserves = *arg5;
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-        return true;
-    }
-    else if(argc == 6)
-    {
-        cocos2d::GFXPipelineBindPoint arg0 = 0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXPipelineBindPoint)tmp; } while(false);
-        ??* arg1 = nullptr;
-        ok &= seval_to_reference(args[1], &arg1);
-        ??* arg2 = nullptr;
-        ok &= seval_to_reference(args[2], &arg2);
-        ??* arg3 = nullptr;
-        ok &= seval_to_reference(args[3], &arg3);
-        uint8_t arg4;
-        ok &= seval_to_uint8(args[4], (uint8_t*)&arg4);
-        ??* arg5 = nullptr;
-        ok &= seval_to_reference(args[5], &arg5);
-
-        if(!ok) {
-            SE_REPORT_ERROR("Argument convertion error");
-            return false;
-        }
-
-        cocos2d::GFXSubPass* cobj = JSB_ALLOC(cocos2d::GFXSubPass);
-        cobj->bind_point = arg0;
-        cobj->inputs = *arg1;
-        cobj->colors = *arg2;
-        cobj->resolves = *arg3;
-        cobj->depth_stencil = arg4;
-        cobj->preserves = *arg5;
-
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-        return true;
-    }
-
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXSubPass_constructor, __jsb_cocos2d_GFXSubPass_class, js_cocos2d_GFXSubPass_finalize)
-
-
-
-
-static bool js_cocos2d_GFXSubPass_finalize(se::State& s)
-{
-    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXSubPass)", s.nativeThisObject());
-    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
-    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
-    {
-        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cocos2d::GFXSubPass* cobj = (cocos2d::GFXSubPass*)s.nativeThisObject();
-        JSB_FREE(cobj);
-    }
-    return true;
-}
-SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXSubPass_finalize)
-
-bool js_register_gfx_GFXSubPass(se::Object* obj)
-{
-    auto cls = se::Class::create("GFXSubPass", obj, nullptr, _SE(js_gfx_GFXSubPass_constructor));
-
-    cls->defineProperty("bind_point", _SE(js_gfx_GFXSubPass_get_bind_point), _SE(js_gfx_GFXSubPass_set_bind_point));
-    cls->defineProperty("inputs", _SE(js_gfx_GFXSubPass_get_inputs), _SE(js_gfx_GFXSubPass_set_inputs));
-    cls->defineProperty("colors", _SE(js_gfx_GFXSubPass_get_colors), _SE(js_gfx_GFXSubPass_set_colors));
-    cls->defineProperty("resolves", _SE(js_gfx_GFXSubPass_get_resolves), _SE(js_gfx_GFXSubPass_set_resolves));
-    cls->defineProperty("depth_stencil", _SE(js_gfx_GFXSubPass_get_depth_stencil), _SE(js_gfx_GFXSubPass_set_depth_stencil));
-    cls->defineProperty("preserves", _SE(js_gfx_GFXSubPass_get_preserves), _SE(js_gfx_GFXSubPass_set_preserves));
-    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXSubPass_finalize));
-    cls->install();
-    JSBClassType::registerClass<cocos2d::GFXSubPass>(cls);
-
-    __jsb_cocos2d_GFXSubPass_proto = cls->getProto();
-    __jsb_cocos2d_GFXSubPass_class = cls;
-
-    se::ScriptEngine::getInstance()->clearException();
-    return true;
-}
-
 se::Object* __jsb_cocos2d_GFXRenderPassInfo_proto = nullptr;
 se::Class* __jsb_cocos2d_GFXRenderPassInfo_class = nullptr;
 
@@ -13761,8 +13435,7 @@ static bool js_gfx_GFXBuffer_update(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 1) {
         void* arg0 = nullptr;
-        #pragma warning NO CONVERSION TO NATIVE FOR void*
-        ok = false;
+        ok &= seval_to_native_ptr(args[0], &arg0);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXBuffer_update : Error processing arguments");
         cobj->update(arg0);
         return true;
@@ -13770,8 +13443,7 @@ static bool js_gfx_GFXBuffer_update(se::State& s)
     if (argc == 2) {
         void* arg0 = nullptr;
         unsigned int arg1 = 0;
-        #pragma warning NO CONVERSION TO NATIVE FOR void*
-        ok = false;
+        ok &= seval_to_native_ptr(args[0], &arg0);
         ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXBuffer_update : Error processing arguments");
         cobj->update(arg0, arg1);
@@ -13781,8 +13453,7 @@ static bool js_gfx_GFXBuffer_update(se::State& s)
         void* arg0 = nullptr;
         unsigned int arg1 = 0;
         unsigned int arg2 = 0;
-        #pragma warning NO CONVERSION TO NATIVE FOR void*
-        ok = false;
+        ok &= seval_to_native_ptr(args[0], &arg0);
         ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
         ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXBuffer_update : Error processing arguments");
@@ -16062,8 +15733,7 @@ static bool js_gfx_GFXCommandBuffer_updateBuffer(se::State& s)
         void* arg1 = nullptr;
         unsigned int arg2 = 0;
         ok &= seval_to_native_ptr(args[0], &arg0);
-        #pragma warning NO CONVERSION TO NATIVE FOR void*
-        ok = false;
+        ok &= seval_to_native_ptr(args[1], &arg1);
         ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_updateBuffer : Error processing arguments");
         cobj->updateBuffer(arg0, arg1, arg2);
@@ -16075,8 +15745,7 @@ static bool js_gfx_GFXCommandBuffer_updateBuffer(se::State& s)
         unsigned int arg2 = 0;
         unsigned int arg3 = 0;
         ok &= seval_to_native_ptr(args[0], &arg0);
-        #pragma warning NO CONVERSION TO NATIVE FOR void*
-        ok = false;
+        ok &= seval_to_native_ptr(args[1], &arg1);
         ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
         ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_updateBuffer : Error processing arguments");
@@ -17194,7 +16863,6 @@ bool register_all_gfx(se::Object* obj)
     js_register_gfx_GFXRasterizerState(ns);
     js_register_gfx_GFXTextureInfo(ns);
     js_register_gfx_GFXQueueInfo(ns);
-    js_register_gfx_GFXSubPass(ns);
     js_register_gfx_GFXShaderStage(ns);
     js_register_gfx_GFXShaderInfo(ns);
     js_register_gfx_GFXOffset(ns);

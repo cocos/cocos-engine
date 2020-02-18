@@ -166,12 +166,6 @@ extern se::Class* __jsb_cocos2d_GFXDepthStencilAttachment_class;
 bool js_register_cocos2d_GFXDepthStencilAttachment(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
-extern se::Object* __jsb_cocos2d_GFXSubPass_proto;
-extern se::Class* __jsb_cocos2d_GFXSubPass_class;
-
-bool js_register_cocos2d_GFXSubPass(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
 extern se::Object* __jsb_cocos2d_GFXRenderPassInfo_proto;
 extern se::Class* __jsb_cocos2d_GFXRenderPassInfo_class;
 

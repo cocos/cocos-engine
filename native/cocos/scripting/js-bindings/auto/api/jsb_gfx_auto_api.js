@@ -193,13 +193,6 @@ gfx.GFXDepthStencilAttachment = {
 };
 
 /**
- * @class GFXSubPass
- */
-gfx.GFXSubPass = {
-
-};
-
-/**
  * @class GFXRenderPassInfo
  */
 gfx.GFXRenderPassInfo = {
