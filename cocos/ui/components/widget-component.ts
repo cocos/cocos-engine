@@ -111,16 +111,16 @@ export enum AlignMode {
      * 开启后会在 onEnable 时所在的那一帧结束前对齐一次，然后立刻禁用该 Widget。
      */
     ONCE = 0,
-    // /**
-    //  * @zh
-    //  * 一开始会像 ONCE 一样对齐一次，之后每当窗口大小改变时还会重新对齐。
-    //  */
-    // ON_WINDOW_RESIZE = 1,
     /**
      * @zh
      * 始终保持对齐。
      */
     ALWAYS = 1,
+    /**
+     * @zh
+     * 一开始会像 ONCE 一样对齐一次，之后每当窗口大小改变时还会重新对齐。
+     */
+    ON_WINDOW_RESIZE = 2,
 }
 
 ccenum(AlignMode);
@@ -670,7 +670,7 @@ export class WidgetComponent extends Component {
     @property
     private _originalHeight = 0;
     @property
-    private _alignMode = AlignMode.ALWAYS;
+    private _alignMode = AlignMode.ON_WINDOW_RESIZE;
 
     /**
      * @zh
