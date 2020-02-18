@@ -767,7 +767,7 @@ cc.js.mixin(View.prototype, {
         cc.visibleRect && cc.visibleRect.init(this._visibleRect);
 
         renderer.updateCameraViewport();
-        _cc.inputManager._updateCanvasBoundingRect();
+        cc.internal.inputManager._updateCanvasBoundingRect();
         this.emit('design-resolution-changed');
     },
 
