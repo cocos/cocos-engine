@@ -326,15 +326,13 @@ cc.macro = {
 
     /**
      * !#en
-     * Whether or not clear dom Image object cache after uploading to gl texture.
-     * Concretely, we are setting image.src to empty string to release the cache.
-     * Normally you don't need to enable this option, because on web the Image object doesn't consume too much memory.
+     * Whether to clear the original image cache after uploaded a texture to GPU. If cleared, [Dynamic Atlas](https://docs.cocos.com/creator/manual/en/advanced-topics/dynamic-atlas.html) will not be supported.
+     * Normally you don't need to enable this option on the web platform, because Image object doesn't consume too much memory.
      * But on WeChat Game platform, the current version cache decoded data in Image object, which has high memory usage.
      * So we enabled this option by default on WeChat, so that we can release Image cache immediately after uploaded to GPU.
      * !#zh
-     * 是否在将贴图上传至 GPU 之后删除 DOM Image 缓存。
-     * 具体来说，我们通过设置 image.src 为空字符串来释放这部分内存。
-     * 正常情况下，你不需要开启这个选项，因为在 web 平台，Image 对象所占用的内存很小。
+     * 是否在将贴图上传至 GPU 之后删除原始图片缓存，删除之后图片将无法进行 [动态合图](https://docs.cocos.com/creator/manual/zh/advanced-topics/dynamic-atlas.html)。
+     * 在 Web 平台，你通常不需要开启这个选项，因为在 Web 平台 Image 对象所占用的内存很小。
      * 但是在微信小游戏平台的当前版本，Image 对象会缓存解码后的图片数据，它所占用的内存空间很大。
      * 所以我们在微信平台默认开启了这个选项，这样我们就可以在上传 GL 贴图之后立即释放 Image 对象的内存，避免过高的内存占用。
      * @property {Boolean} CLEANUP_IMAGE_CACHE
@@ -365,10 +363,10 @@ cc.macro = {
     /**
      * !#en
      * Set cc.RotateTo/cc.RotateBy rotate direction.
-     * If need set rotate positive direction to counterclockwise, please change setting to : cc.macro.ROTATE_ACTION_CCW = true;
+     * If need set rotate positive direction to counterclockwise, please change setting to: `cc.macro.ROTATE_ACTION_CCW = true;`
      * !#zh
      * 设置 cc.RotateTo/cc.RotateBy 的旋转方向。
-     * 如果需要设置旋转的正方向为逆时针方向，请设置选项为： cc.macro.ROTATE_ACTION_CCW = true;
+     * 如果需要设置旋转的正方向为逆时针方向，请设置选项为：`cc.macro.ROTATE_ACTION_CCW = true;`
      * @property {Boolean} ROTATE_ACTION_CCW
      * @default false
      */
@@ -389,13 +387,13 @@ cc.macro = {
 let SUPPORT_TEXTURE_FORMATS = ['.pkm', '.pvr', '.webp', '.jpg', '.jpeg', '.bmp', '.png'];
 
 /**
- * !en
+ * !#en
  * The image format supported by the engine defaults, and the supported formats may differ in different build platforms and device types.
  * Currently all platform and device support ['.webp', '.jpg', '.jpeg', '.bmp', '.png'], The iOS mobile platform also supports the PVR format。
- * !zh
+ * !#zh
  * 引擎默认支持的图片格式，支持的格式可能在不同的构建平台和设备类型上有所差别。
  * 目前所有平台和设备支持的格式有 ['.webp', '.jpg', '.jpeg', '.bmp', '.png']. 另外 Ios 手机平台还额外支持了 PVR 格式。
- * @property {[String]} SUPPORT_TEXTURE_FORMATS
+ * @property {String[]} SUPPORT_TEXTURE_FORMATS
  */
 cc.macro.SUPPORT_TEXTURE_FORMATS = SUPPORT_TEXTURE_FORMATS;
 

@@ -1004,16 +1004,16 @@ cc.js.mixin(View.prototype, {
 });
 
 /**
- * !en
+ * !#en
  * Emit when design resolution changed.
- * !zh
+ * !#zh
  * 当设计分辨率改变时发送。
  * @event design-resolution-changed
  */
  /**
- * !en
+ * !#en
  * Emit when canvas resize.
- * !zh
+ * !#zh
  * 当画布大小改变时发送。
  * @event canvas-resize
  */
