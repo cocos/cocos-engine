@@ -32,6 +32,7 @@ import MaterialVariant from '../core/assets/material/material-variant';
 let _mat4_temp = cc.mat4();
 let _vec2_temp = cc.v2();
 let _vec2_temp2 = cc.v2();
+let _vec2_temp3 = cc.v2();
 let _tempRowCol = {row:0, col:0};
 
 let TiledUserNodeData = cc.Class({
@@ -516,6 +517,35 @@ let TiledLayer = cc.Class({
 
     /**
      * !#en
+     * Sets the tiles gid (gid = tile global id) at a given tiles rect.
+     * !#zh
+     * 设置给定区域的 tile 的 gid (gid = tile 全局 id)，
+     * @method setTilesGIDAt
+     * @param {Number} beginRow begin row number
+     * @param {Number} beginCol begin col number
+     * @param {Number} totalCols count of column
+     * @param {Array} gids an array contains gid
+     * @example
+     * tiledLayer.setTilesGIDAt(10, 10, 2, [1, 1, 1, 1])
+     */
+    setTilesGIDAt (beginRow, beginCol, totalCols, gids) {
+        if (!gids || gids.length == 0 || totalCols <= 0) return;
+        if (beginRow < 0) beginRow = 0;
+        if (beginCol < 0) beginCol = 0;
+        let gidsIdx = 0;
+        let endCol = beginCol + totalCols;
+        for (let row = beginRow; ; row++) {
+            for (let col = beginCol; col < endCol; col++) {
+                if (gidsIdx >= gids.length) return;
+                let gid = gids[gidsIdx];
+                this.setTileGIDAt(gid, col, row);
+                gidsIdx++;
+            }
+        }
+    },
+
+    /**
+     * !#en
      * Sets the tile gid (gid = tile global id) at a given tile coordinate.<br />
      * The Tile GID can be obtained by using the method "tileGIDAt" or by using the TMX editor . Tileset Mgr +1.<br />
      * If a tile is already placed at that position, then it will be removed.
@@ -538,7 +568,9 @@ let TiledLayer = cc.Class({
         let pos;
         if (flags !== undefined || !(posOrX instanceof cc.Vec2)) {
             // four parameters or posOrX is not a Vec2 object
-            pos = cc.v2(posOrX, flagsOrY);
+            _vec2_temp3.x = posOrX;
+            _vec2_temp3.y = flagsOrY;
+            pos = _vec2_temp3;
         } else {
             pos = posOrX;
             flags = flagsOrY;
@@ -559,17 +591,15 @@ let TiledLayer = cc.Class({
         }
 
         flags = flags || 0;
-        let currentFlags = this.getTileFlagsAt(pos);
-        let currentGID = this.getTileGIDAt(pos);
-
-        if (currentGID === gid && currentFlags === flags) return;
-
         let gidAndFlags = (gid | flags) >>> 0;
+        let index = pos.x + pos.y * this._layerSize.width;
+        let oldGIDAndFlags = this._tiles[index];
+        if (gidAndFlags === oldGIDAndFlags) return;
         this._updateTileForGID(gidAndFlags, pos);
     },
 
     _updateTileForGID (gidAndFlags, pos) {
-        const FLIPPED_MASK = TileFlag.FLIPPED_MASK;
+        const FLIPPED_MASK = cc.TiledMap.TileFlag.FLIPPED_MASK;
         let gid = ((gidAndFlags & FLIPPED_MASK) >>> 0);
         let grid = this._texGrids[gid];
         let tilesetIdx = grid && grid.texId;
@@ -1317,7 +1347,7 @@ let TiledLayer = cc.Class({
     _buildMaterial (tilesetIdx) {
         let texIdMatIdx = this._texIdToMatIndex;
         if (texIdMatIdx[tilesetIdx] !== undefined) {
-            return;
+            return null;
         }
 
         let tilesetIndexArr = this._tilesetIndexArr;
@@ -1340,6 +1370,7 @@ let TiledLayer = cc.Class({
 
         this._materials[index] = material;
         texIdMatIdx[tilesetIdx] = index;
+        return material;
     },
 
     _activateMaterial () {
