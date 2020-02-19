@@ -190,7 +190,7 @@ export abstract class GFXInputAssembler extends GFXObject {
     /**
      * @en Get the specified vertex buffer.
      * @zh 获取顶点缓冲。
-     * @param stream 顶点流索引。
+     * @param stream The stream index of the vertex buffer.
      */
     public getVertexBuffer (stream: number = 0): GFXBuffer | null {
         if (stream < this._vertexBuffers.length) {

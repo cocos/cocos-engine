@@ -48,7 +48,7 @@ export interface IGFXBufferInfo {
 }
 
 /**
- * @zh GFX buffer.
+ * @en GFX buffer.
  * @zh GFX 缓冲。
  */
 export abstract class GFXBuffer extends GFXObject {
@@ -126,16 +126,16 @@ export abstract class GFXBuffer extends GFXObject {
     /**
      * @en Resize the buffer.
      * @zh 重置缓冲大小。
-     * @param size 缓冲大小。
+     * @param size The new buffer size.
      */
     public abstract resize (size: number): void;
 
     /**
      * @en Update the buffer data.
      * @zh 更新缓冲内容。
-     * @param buffer 缓冲数据源。
-     * @param offset 目的缓冲的偏移量。
-     * @param size 更新的缓冲大小。
+     * @param buffer The new buffer data.
+     * @param offset Offset into the buffer.
+     * @param size Size of the data to be updated.
      */
     public abstract update (buffer: GFXBufferSource, offset?: number, size?: number): void;
 }

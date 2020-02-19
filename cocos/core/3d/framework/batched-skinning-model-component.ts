@@ -100,7 +100,7 @@ export class SkinningModelUnit {
     }
 
     /**
-     * @en Convevient setter, copying all the necessary information from target skinning model component.
+     * @en Convevient setter, copying all necessary information from target skinning model component.
      * @zh 复制目标 SkinningModelComponent 的所有属性到本单元，方便快速配置。
      */
     @property({ type: SkinningModelComponent })
@@ -130,17 +130,20 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
      * @zh 合图生成的最终图集的边长。
      */
     @property({
-        tooltip: 'Size of the generated texture atlas',
+        tooltip: 'i18n:batched_skinning_model.atlas_size',
     })
     public atlasSize: number = 1024;
 
     /**
-     * @en Size of the generated texture atlas.
-     * @zh 材质中真正参与合图的贴图属性，不参与的属性统一使用第一个 unit 的贴图。
+     * @en
+     * Texture properties that will be actually using the generated atlas.<br>
+     * The first unit's texture will be used if not specified.
+     * @zh
+     * 材质中真正参与合图的贴图属性，不参与的属性统一使用第一个 unit 的贴图。
      */
     @property({
         type: [CCString],
-        tooltip: '',
+        tooltip: 'i18n:batched_skinning_model.batchable_texture_names',
     })
     public batchableTextureNames: string[] = [];
 
@@ -150,7 +153,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
      */
     @property({
         type: [SkinningModelUnit],
-        tooltip: 'Source skinning components, containing all the data to be batched',
+        tooltip: 'i18n:batched_skinning_model.units',
     })
     public units: SkinningModelUnit[] = [];
 

@@ -716,10 +716,10 @@ export const GFXFormatInfos: IGFXFormatInfo[] = [
 /**
  * @en Get memory size of the specified fomat.
  * @zh 获取指定格式对应的内存大小。
- * @param format GFX 格式。
- * @param width 像素宽度。
- * @param height 像素高度。
- * @param depth 像素深度。
+ * @param format The target format.
+ * @param width The target width.
+ * @param height The target height.
+ * @param depth The target depth.
  */
 export function GFXFormatSize (format: GFXFormat, width: number, height: number, depth: number): number {
 
@@ -778,11 +778,11 @@ export function GFXFormatSize (format: GFXFormat, width: number, height: number,
 /**
  * @en Get memory size of the specified surface.
  * @zh GFX 格式表面内存大小。
- * @param format GFX格式。
- * @param width 像素宽度。
- * @param height 像素高度。
- * @param depth 像素深度。
- * @param mips mip层数。
+ * @param format The target format.
+ * @param width The target width.
+ * @param height The target height.
+ * @param depth The target depth.
+ * @param mips The target mip levels.
  */
 export function GFXFormatSurfaceSize (
     format: GFXFormat, width: number, height: number,
@@ -838,7 +838,7 @@ const _type2size = [
 /**
  * @en Get the memory size of the specified type.
  * @zh 得到 GFX 数据类型的大小。
- * @param type GFX 数据类型。
+ * @param type The target type.
  */
 export function GFXGetTypeSize (type: GFXType): number {
     return _type2size[type] || 0;

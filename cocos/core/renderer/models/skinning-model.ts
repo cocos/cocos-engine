@@ -52,7 +52,7 @@ interface IJointsInfo {
 
 /**
  * @en
- * Skinning model using baked animation.
+ * The skinning model that is using baked animation.
  * @zh
  * 预烘焙动画的蒙皮模型。
  */

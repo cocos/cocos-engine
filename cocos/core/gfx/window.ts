@@ -128,8 +128,8 @@ export abstract class GFXWindow extends GFXObject {
     /**
      * @en Resize window.
      * @zh 重置窗口大小。
-     * @param width 窗口宽度。
-     * @param height 窗口高度。
+     * @param width The new width.
+     * @param height The new height.
      */
     public abstract resize (width: number, height: number): void;
 }

@@ -123,7 +123,7 @@ export class CameraComponent extends Component {
      */
     @property({
         type: ProjectionType,
-        tooltip: '相机的投影类型',
+        tooltip: 'i18n:camera.projection',
     })
     get projection () {
         return this._projection;
@@ -135,11 +135,13 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @en Render priority of the camera, should be statically set in editor. Dynamically changing this property at runtime won't work.
+     * @en
+     * Render priority of the camera, should be statically set in editor.<br>
+     * You cannot dynamically change this property at runtime.
      * @zh 相机的优先级顺序，只能在编辑器中设置，动态设置无效。
      */
     @property({
-        tooltip: '相机的优先级顺序，只能在编辑器中设置，动态设置无效',
+        tooltip: 'i18n:camera.priority',
     })
     get priority () {
         return this._priority;
@@ -157,7 +159,7 @@ export class CameraComponent extends Component {
      * @zh 相机的视角大小。
      */
     @property({
-        tooltip: '相机的视角大小',
+        tooltip: 'i18n:camera.fov',
     })
     get fov () {
         return this._fov;
@@ -173,7 +175,7 @@ export class CameraComponent extends Component {
      * @zh 正交模式下的相机视角大小。
      */
     @property({
-        tooltip: '正交模式下的相机视角大小',
+        tooltip: 'i18n:camera.ortho_height',
     })
     get orthoHeight () {
         return this._orthoHeight;
@@ -189,7 +191,7 @@ export class CameraComponent extends Component {
      * @zh 相机的近平面。
      */
     @property({
-        tooltip: '相机的近平面',
+        tooltip: 'i18n:camera.near',
     })
     get near () {
         return this._near;
@@ -205,7 +207,7 @@ export class CameraComponent extends Component {
      * @zh 相机的远平面。
      */
     @property({
-        tooltip: '相机的远平面',
+        tooltip: 'i18n:camera.far',
     })
     get far () {
         return this._far;
@@ -221,7 +223,7 @@ export class CameraComponent extends Component {
      * @zh 相机的颜色缓冲默认值。
      */
     @property({
-        tooltip: '相机的颜色缓冲默认值',
+        tooltip: 'i18n:camera.color',
     })
     // @constget
     get color (): Readonly<Color>  {
@@ -243,7 +245,7 @@ export class CameraComponent extends Component {
      * @zh 相机的深度缓冲默认值。
      */
     @property({
-        tooltip: '相机的深度缓冲默认值',
+        tooltip: 'i18n:camera.depth',
     })
     get depth () {
         return this._depth;
@@ -259,7 +261,7 @@ export class CameraComponent extends Component {
      * @zh 相机的模板缓冲默认值。
      */
     @property({
-        tooltip: '相机的模板缓冲默认值',
+        tooltip: 'i18n:camera.stencil',
     })
     get stencil () {
         return this._stencil;
@@ -271,12 +273,12 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @en Clearing flags of the camera, specifies which part of the framebuffer with be actually cleared.
-     * @zh 相机的缓冲清除标志位。
+     * @en Clearing flags of the camera, specifies which part of the framebuffer will be actually cleared every frame.
+     * @zh 相机的缓冲清除标志位，指定帧缓冲的哪部分要每帧清除。
      */
     @property({
         type: CameraClearFlag,
-        tooltip: '相机的缓冲清除标志位',
+        tooltip: 'i18n:camera.clear_flags',
     })
     get clearFlags () {
         return this._clearFlags;
@@ -288,11 +290,11 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @en Screen viewport of the camera wrt. sceen size.
+     * @en Screen viewport of the camera wrt. the sceen size.
      * @zh 相机相对屏幕的 viewport。
      */
     @property({
-        tooltip: '相机相对屏幕的 viewport',
+        tooltip: 'i18n:camera.rect',
     })
     get rect () {
         return this._rect;
@@ -304,7 +306,7 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @en Scale of the interal buffer size,
+     * @en Scale of the internal buffer size,
      * set to 1 to keep the same with the canvas size.
      * @zh 相机内部缓冲尺寸的缩放值, 1 为与 canvas 尺寸相同。
      */
@@ -325,7 +327,7 @@ export class CameraComponent extends Component {
      */
     @property({
         type: Layers.BitMask,
-        tooltip: '设置相机可见掩码，与 Component 中的 visibility 同时使用，用于过滤相机不需要渲染的物体',
+        tooltip: 'i18n:camera.visibility',
     })
     get visibility () {
         return this._visibility;
@@ -344,7 +346,7 @@ export class CameraComponent extends Component {
      */
     @property({
         type: RenderTexture,
-        tooltip: '设置相机 RenderTexture',
+        tooltip: 'i18n:camera.target_texture',
     })
     get targetTexture () {
         return this._targetTexture;

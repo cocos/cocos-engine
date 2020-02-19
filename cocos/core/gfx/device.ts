@@ -365,113 +365,113 @@ export abstract class GFXDevice {
     /**
      * @en Resize the device.
      * @zh 重置设备大小。
-     * @param width 设备宽度。
-     * @param height 设备高度。
+     * @param width The device width.
+     * @param height The device height.
      */
     public abstract resize (width: number, height: number): void;
 
     /**
      * @en Create buffer.
      * @zh 创建缓冲。
-     * @param info GFX 缓冲描述信息。
+     * @param info GFX buffer description info.
      */
     public abstract createBuffer (info: IGFXBufferInfo): GFXBuffer;
 
     /**
      * @en Create texture.
      * @zh 创建纹理。
-     * @param info GFX 纹理描述信息。
+     * @param info GFX texture description info.
      */
     public abstract createTexture (info: IGFXTextureInfo): GFXTexture;
 
     /**
      * @en Create texture view.
      * @zh 创建纹理视图。
-     * @param info GFX 纹理视图描述信息。
+     * @param info GFX texture view description info.
      */
     public abstract createTextureView (info: IGFXTextureViewInfo): GFXTextureView;
 
     /**
      * @en Create sampler.
      * @zh 创建采样器。
-     * @param info GFX 采样器描述信息。
+     * @param info GFX sampler description info.
      */
     public abstract createSampler (info: IGFXSamplerInfo): GFXSampler;
 
     /**
      * @en Create binding layout.
      * @zh 创建绑定布局。
-     * @param info GFX 绑定布局描述信息。
+     * @param info GFX binding layout description info.
      */
     public abstract createBindingLayout (info: IGFXBindingLayoutInfo): GFXBindingLayout;
 
     /**
      * @en Create shader.
      * @zh 创建着色器。
-     * @param info GFX 着色器描述信息。
+     * @param info GFX shader description info.
      */
     public abstract createShader (info: IGFXShaderInfo): GFXShader;
 
     /**
      * @en Create input assembler.
      * @zh 创建纹理。
-     * @param info GFX 纹理描述信息。
+     * @param info GFX input assembler description info.
      */
     public abstract createInputAssembler (info: IGFXInputAssemblerInfo): GFXInputAssembler;
 
     /**
      * @en Create render pass.
      * @zh 创建渲染过程。
-     * @param info GFX 渲染过程描述信息。
+     * @param info GFX render pass description info.
      */
     public abstract createRenderPass (info: IGFXRenderPassInfo): GFXRenderPass;
 
     /**
      * @en Create frame buffer.
      * @zh 创建帧缓冲。
-     * @param info GFX 帧缓冲描述信息。
+     * @param info GFX frame buffer description info.
      */
     public abstract createFramebuffer (info: IGFXFramebufferInfo): GFXFramebuffer;
 
     /**
      * @en Create pipeline layout.
      * @zh 创建管线布局。
-     * @param info GFX 管线布局描述信息。
+     * @param info GFX pipeline layout description info.
      */
     public abstract createPipelineLayout (info: IGFXPipelineLayoutInfo): GFXPipelineLayout;
 
     /**
      * @en Create pipeline state.
      * @zh 创建管线状态。
-     * @param info GFX 管线状态描述信息。
+     * @param info GFX pipeline state description info.
      */
     public abstract createPipelineState (info: IGFXPipelineStateInfo): GFXPipelineState;
 
     /**
      * @en Create command allocator.
      * @zh 创建命令分配器。
-     * @param info GFX 命令分配器描述信息。
+     * @param info GFX command allocator description info.
      */
     public abstract createCommandAllocator (info: IGFXCommandAllocatorInfo): GFXCommandAllocator;
 
     /**
      * @en Create command buffer.
      * @zh 创建命令缓冲。
-     * @param info GFX 命令缓冲描述信息。
+     * @param info GFX command buffer description info.
      */
     public abstract createCommandBuffer (info: IGFXCommandBufferInfo): GFXCommandBuffer;
 
     /**
      * @en Create queue.
      * @zh 创建队列。
-     * @param info GFX 队列描述信息。
+     * @param info GFX queue description info.
      */
     public abstract createQueue (info: IGFXQueueInfo): GFXQueue;
 
     /**
      * @en Create window.
      * @zh 创建窗口。
-     * @param info GFX 窗口描述信息。
+     * @param info GFX window description info.
      */
     public abstract createWindow (info: IGFXWindowInfo): GFXWindow;
 
@@ -484,45 +484,45 @@ export abstract class GFXDevice {
     /**
      * @en Copy buffers to texture.
      * @zh 拷贝缓冲到纹理。
-     * @param buffers 缓冲数组。
-     * @param texture GFX 纹理。
-     * @param regions GFX 缓冲纹理拷贝区域信息。
+     * @param buffers The buffers to be copied.
+     * @param texture The texture to copy to.
+     * @param regions The region descriptions.
      */
     public abstract copyBuffersToTexture (buffers: ArrayBufferView[], texture: GFXTexture, regions: GFXBufferTextureCopy[]): void;
 
     /**
      * @en Copy texture images to texture.
      * @zh 拷贝图像到纹理。
-     * @param texImages 图像数据源。
-     * @param texture GFX 纹理。
-     * @param regions GFX 缓冲纹理拷贝区域信息。
+     * @param texImages The texture to be copied.
+     * @param texture The texture to copy to.
+     * @param regions The region descriptions.
      */
     public abstract copyTexImagesToTexture (texImages: TexImageSource[], texture: GFXTexture, regions: GFXBufferTextureCopy[]): void;
 
     /**
      * @en Copy frame buffer to buffer.
      * @zh 拷贝帧缓冲到缓冲。
-     * @param srcFramebuffer 源帧缓冲。
-     * @param dstBuffer 目的缓冲。
-     * @param regions GFX 缓冲纹理拷贝区域信息。
+     * @param srcFramebuffer The frame buffer to be copied.
+     * @param dstBuffer The buffer to copy to.
+     * @param regions The region descriptions.
      */
     public abstract copyFramebufferToBuffer (srcFramebuffer: GFXFramebuffer, dstBuffer: ArrayBuffer, regions: GFXBufferTextureCopy[]): void;
 
     /**
      * @en Blit frame buffers.
      * @zh 填充帧缓冲。
-     * @param src 源帧缓冲。
-     * @param dst 目的帧缓冲。
-     * @param srcRect 源矩形区域。
-     * @param dstRect 目的矩形区域。
-     * @param filter 过滤模式。
+     * @param src The source frame buffer.
+     * @param dst The destination frame buffer.
+     * @param srcRect The source region.
+     * @param dstRect The target region.
+     * @param filter Filtering mode for the process.
      */
     public abstract blitFramebuffer (src: GFXFramebuffer, dst: GFXFramebuffer, srcRect: IGFXRect, dstRect: IGFXRect, filter: GFXFilter): void;
 
     /**
      * @en Whether the device has specific feature.
      * @zh 是否具备特性。
-     * @param feature GFX 特性。
+     * @param feature The GFX feature to be queried.
      */
     public hasFeature (feature: GFXFeature): boolean {
         return this._features[feature];
@@ -539,8 +539,8 @@ export abstract class GFXDevice {
     /**
      * @en Define a macro.
      * @zh 定义宏。
-     * @param macro 宏。
-     * @param value 值。
+     * @param macro The macro name.
+     * @param value The macro value.
      */
     public defineMacro (macro: string, value?: string) {
         const val = (value !== undefined ? value : '');

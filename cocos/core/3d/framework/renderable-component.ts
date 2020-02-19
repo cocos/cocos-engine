@@ -20,7 +20,6 @@ const _matInsInfo: IMaterialInstanceInfo = {
 export class RenderableComponent extends Component {
     @property({
         type: [Material],
-        tooltip: '材质',
     })
     protected _materials: Array<Material | null> = [];
 
@@ -40,7 +39,6 @@ export class RenderableComponent extends Component {
     @property({
         type: Material,
         displayName: 'Materials',
-        tooltip: '源材质',
     })
     get sharedMaterials () {
         // if we don't create an array copy, the editor will modify the original array directly.
@@ -141,7 +139,7 @@ export class RenderableComponent extends Component {
     }
 
     /**
-     * @en Get material instance of the specified sub-model.
+     * @en Get the material instance of the specified sub-model.
      * @zh 获取指定子模型的材质实例。
      */
     public getMaterialInstance (idx: number): Material | null {
@@ -160,7 +158,7 @@ export class RenderableComponent extends Component {
     }
 
     /**
-     * @en Set material instance of the specified sub-model.
+     * @en Set the material instance of the specified sub-model.
      * @zh 获取指定子模型的材质实例。
      */
     public setMaterialInstance (index: number, matInst: Material | null) {

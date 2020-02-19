@@ -58,7 +58,7 @@ export class SpotLightComponent extends LightComponent {
      */
     @property({
         unit: 'lm',
-        tooltip: 'Luminous power of the light',
+        tooltip: 'i18n:lights.luminous_power',
     })
     get luminousPower () {
         return this._luminance * nt2lm(this._size);
@@ -74,7 +74,7 @@ export class SpotLightComponent extends LightComponent {
      */
     @property({
         unit: 'cd/m²',
-        tooltip: 'Luminance of the light',
+        tooltip: 'i18n:lights.luminance',
     })
     get luminance () {
         return this._luminance;
@@ -85,12 +85,12 @@ export class SpotLightComponent extends LightComponent {
     }
 
     /**
-     * @en The photometric term currently using.
+     * @en The photometric term currently being used.
      * @zh 当前使用的光度学计量单位。
      */
     @property({
         type: PhotometricTerm,
-        tooltip: 'The photometric term currently using',
+        tooltip: 'i18n:lights.term',
     })
     get term () {
         return this._term;
@@ -101,12 +101,12 @@ export class SpotLightComponent extends LightComponent {
 
     /**
      * @en
-     * The light size, used for spot and point light.
+     * Size of the light.
      * @zh
-     * 针对聚光灯和点光源设置光源大小。
+     * 光源大小。
      */
     @property({
-        tooltip: 'The light source size, used for spot and point light',
+        tooltip: 'i18n:lights.size',
     })
     get size () {
         return this._size;
@@ -118,12 +118,12 @@ export class SpotLightComponent extends LightComponent {
 
     /**
      * @en
-     * The light range, used for spot and point light.
+     * Range of the light.
      * @zh
-     * 针对聚光灯和点光源设置光源范围。
+     * 光源范围。
      */
     @property({
-        tooltip: 'The light source range, used for spot and point light',
+        tooltip: 'i18n:lights.range',
     })
     get range () {
         return this._range;

@@ -53,8 +53,8 @@ export abstract class GFXBindingLayout extends GFXObject {
     /**
      * @en Bind buffer to the specified binding unit.
      * @zh 在指定的 binding 位置上绑定缓冲。
-     * @param binding 绑定 GFX 组件的插槽。
-     * @param buffer GFX 缓冲。
+     * @param binding The target binding.
+     * @param buffer The buffer to be bound.
      */
     public bindBuffer (binding: number, buffer: GFXBuffer) {
         for (const bindingUnit of this._bindingUnits) {
@@ -75,8 +75,8 @@ export abstract class GFXBindingLayout extends GFXObject {
     /**
      * @en Bind sampler to the specified binding unit.
      * @zh 在指定的 binding 位置上绑定采样器。
-     * @param binding 绑定 GFX 组件的插槽。
-     * @param sampler GFX 采样器。
+     * @param binding The target binding.
+     * @param sampler The sampler to be bound.
      */
     public bindSampler (binding: number, sampler: GFXSampler) {
         for (const bindingUnit of this._bindingUnits) {
@@ -97,8 +97,8 @@ export abstract class GFXBindingLayout extends GFXObject {
     /**
      * @en Bind texture view to the specified binding unit.
      * @zh 在指定的 binding 位置上绑定纹理视图。
-     * @param binding 绑定 GFX 组件的插槽。
-     * @param texView GFX 纹理视图。
+     * @param binding The target binding.
+     * @param texView The texture view to be bound.
      */
     public bindTextureView (binding: number, texView: GFXTextureView) {
         for (const bindingUnit of this._bindingUnits) {
@@ -119,7 +119,7 @@ export abstract class GFXBindingLayout extends GFXObject {
     /**
      * @en Get the specified binding unit.
      * @zh 得到指定的 binding 位置上的GFX绑定单元。
-     * @param binding 绑定 GFX 组件的插槽。
+     * @param binding The target binding.
      */
     public getBindingUnit (binding: number): GFXBindingUnit | null {
         for (const unit of this._bindingUnits) {

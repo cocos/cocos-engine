@@ -115,12 +115,12 @@ export abstract class GFXCommandBuffer extends GFXObject {
     /**
      * @en Begin render pass.
      * @zh 开始 RenderPass。
-     * @param framebuffer GFX 帧缓冲。
-     * @param renderArea 渲染区域。
-     * @param clearFlag 清除标识。
-     * @param clearColors 清除颜色数组。
-     * @param clearDepth 清除深度值。
-     * @param clearStencil 清除模板值。
+     * @param framebuffer The frame buffer used.
+     * @param renderArea The target render area.
+     * @param clearFlag The clear flags.
+     * @param clearColors The clearing colors.
+     * @param clearDepth The clearing depth.
+     * @param clearStencil The clearing stencil.
      */
     public abstract beginRenderPass (framebuffer: GFXFramebuffer, renderArea: IGFXRect, clearFlag: GFXClearFlag, clearColors: IGFXColor[], clearDepth: number, clearStencil: number): void;
 
@@ -133,117 +133,117 @@ export abstract class GFXCommandBuffer extends GFXObject {
     /**
      * @en Bind pipeline state.
      * @zh 绑定 GFX 管线状态。
-     * @param pipelineState GFX 管线状态。
+     * @param pipelineState The pipeline state to be bound.
      */
     public abstract bindPipelineState (pipelineState: GFXPipelineState): void;
 
     /**
      * @en Bind binding layout.
      * @zh 绑定 GFX 绑定布局。
-     * @param bindingLayout GFX 绑定布局。
+     * @param bindingLayout The binding layout to be bound.
      */
     public abstract bindBindingLayout (bindingLayout: GFXBindingLayout): void;
 
     /**
      * @en Bind input assembler.
      * @zh 绑定GFX输入汇集器。
-     * @param inputAssembler GFX 输入汇集器。
+     * @param inputAssembler The input assembler to be bound.
      */
     public abstract bindInputAssembler (inputAssembler: GFXInputAssembler): void;
 
     /**
      * @en Set viewport.
      * @zh 设置视口。
-     * @param viewport 视口。
+     * @param viewport The new viewport.
      */
     public abstract setViewport (viewport: IGFXViewport): void;
 
     /**
      * @en Set scissor range.
      * @zh 设置剪裁区域。
-     * @param scissor 剪裁区域。
+     * @param scissor The new scissor range.
      */
     public abstract setScissor (scissor: IGFXRect): void;
 
     /**
      * @en Set line width.
      * @zh 设置线宽。
-     * @param lineWidth 线的宽度。
+     * @param lineWidth The new line width.
      */
     public abstract setLineWidth (lineWidth: number): void;
 
     /**
      * @en Set depth bias.
      * @zh 设置深度偏移。
-     * @param depthBiasConstantFacotr
-     * @param depthBiasClamp
-     * @param depthBiasSlopeFactor
+     * @param depthBiasConstantFactor The new depth bias factor.
+     * @param depthBiasClamp The new depth bias clamp threshold.
+     * @param depthBiasSlopeFactor  The new depth bias slope factor.
      */
-    public abstract setDepthBias (depthBiasConstantFacotr: number, depthBiasClamp: number, depthBiasSlopeFactor: number): void;
+    public abstract setDepthBias (depthBiasConstantFactor: number, depthBiasClamp: number, depthBiasSlopeFactor: number): void;
 
     /**
      * @en Set blend constants.
      * @zh 设置混合因子。
-     * @param blendConstants 混合因子。
+     * @param blendConstants The new blend constants.
      */
     public abstract setBlendConstants (blendConstants: number[]): void;
 
     /**
      * @en Set depth bound.
      * @zh 设置深度边界。
-     * @param minDepthBounds 最小深度边界。
-     * @param maxDepthBounds 最大深度边界。
+     * @param minDepthBounds The new minimum depth bound.
+     * @param maxDepthBounds The new maximum depth bound.
      */
     public abstract setDepthBound (minDepthBounds: number, maxDepthBounds: number): void;
 
     /**
      * @en Set stencil write mask.
      * @zh 设置模板写掩码。
-     * @param face 三角面朝向。
-     * @param writeMask 写掩码。
+     * @param face The effective triangle face.
+     * @param writeMask The new stencil write mask.
      */
     public abstract setStencilWriteMask (face: GFXStencilFace, writeMask: number): void;
 
     /**
      * @en Set stencil compare mask.
      * @zh 设置模板比较掩码。
-     * @param face 三角面朝向。
-     * @param reference 参考值。
-     * @param compareMask 比较掩码。
+     * @param face The effective triangle face.
+     * @param reference The new stencil reference constant.
+     * @param compareMask The new stencil read mask.
      */
     public abstract setStencilCompareMask (face: GFXStencilFace, reference: number, compareMask: number): void;
 
     /**
      * @en Draw the specified primitives.
      * @zh 绘制。
-     * @param inputAssembler GFX 输入汇集器。
+     * @param inputAssembler The target input assembler.
      */
     public abstract draw (inputAssembler: GFXInputAssembler): void;
 
     /**
      * @en Update buffer.
      * @zh 更新缓冲。
-     * @param buffer GFX 缓冲。
-     * @param data 数据源。
-     * @param offset 目的缓冲的偏移量。
+     * @param buffer The buffer to be updated.
+     * @param data The source data.
+     * @param offset Offset into the buffer.
      */
     public abstract updateBuffer (buffer: GFXBuffer, data: ArrayBuffer, offset?: number): void;
 
     /**
      * @en Copy buffer to texture.
      * @zh 拷贝缓冲到纹理。
-     * @param srcBuff 源 GFX 缓冲。
-     * @param dstTex 目的 GFX 纹理。
-     * @param dstLayout 目的纹理布局。
-     * @param regions 拷贝区域数组。
+     * @param srcBuff The buffer to be copied.
+     * @param dstTex The texture to copy to.
+     * @param dstLayout The target texture layout.
+     * @param regions The region descriptions.
      */
     public abstract copyBufferToTexture (srcBuff: GFXBuffer, dstTex: GFXTexture, dstLayout: GFXTextureLayout, regions: GFXBufferTextureCopy[]): void;
 
     /**
      * @en Execute specified command buffers.
      * @zh 执行一组命令缓冲。
-     * @param cmdBuffs 命令缓冲数组。
-     * @param count 执行命令缓冲的数组数量。
+     * @param cmdBuffs The command buffers to be executed.
+     * @param count The number of command buffers to be executed.
      */
     public abstract execute (cmdBuffs: GFXCommandBuffer[], count: number): void;
 }

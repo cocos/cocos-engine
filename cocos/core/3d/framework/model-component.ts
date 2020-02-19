@@ -78,7 +78,7 @@ export class ModelComponent extends RenderableComponent {
      */
     @property({
         type: ModelShadowCastingMode,
-        tooltip: '投射阴影方式',
+        tooltip: 'i18n:model.shadow_casting_model',
     })
     get shadowCastingMode () {
         return this._shadowCastingMode;
@@ -95,7 +95,7 @@ export class ModelComponent extends RenderableComponent {
      */
     @property({
         type: Mesh,
-        tooltip: '模型网格',
+        tooltip: 'i18n:model.mesh',
     })
     get mesh () {
         return this._mesh;

@@ -40,8 +40,8 @@ export abstract class GFXQueue extends GFXObject {
     /**
      * @en Submit command buffers.
      * @zh 提交命令缓冲数组。
-     * @param cmdBuffs GFX命令缓冲数组。
-     * @param fence GFX栅栏。
+     * @param cmdBuffs The command buffers to be submitted.
+     * @param fence The syncing fence.
      */
     public abstract submit (cmdBuffs: GFXCommandBuffer[], fence?: any): void;
 }

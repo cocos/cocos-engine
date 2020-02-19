@@ -76,6 +76,7 @@ export class SkinningModelComponent extends ModelComponent {
      */
     @property({
         type: Node,
+        tooltip: 'i18n:model.skinning_root',
     })
     get skinningRoot () {
         return this._skinningRoot;

@@ -170,8 +170,8 @@ export abstract class GFXTexture extends GFXObject {
     /**
      * @en Resize texture.
      * @zh 重置纹理大小。
-     * @param width 纹理宽度。
-     * @param height 纹理高度。
+     * @param width The new width.
+     * @param height The new height.
      */
     public abstract resize (width: number, height: number): void;
 }
