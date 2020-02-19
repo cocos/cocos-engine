@@ -135,7 +135,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @zh 矩阵求逆
+     * @zh 矩阵求逆，注意，在矩阵不可逆时，会返回一个全为 0 的矩阵。
      */
     public static invert <Out extends IMat3Like> (out: Out, a: Out) {
         _a00 = a.m00; _a01 = a.m01; _a02 = a.m02;
@@ -153,7 +153,6 @@ export class Mat3 extends ValueType {
             out.m00 = 0; out.m01 = 0; out.m02 = 0;
             out.m03 = 0; out.m04 = 0; out.m05 = 0;
             out.m06 = 0; out.m07 = 0; out.m08 = 0;
-            console.warn('This matrix has no inverse,Please check your data!');
             return out;
         }
         det = 1.0 / det;
@@ -798,7 +797,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @zh 计算当前矩阵的逆矩阵。
+     * @zh 计算当前矩阵的逆矩阵。注意，在矩阵不可逆时，会返回一个全为 0 的矩阵。
      */
     public invert () {
         _a00 = this.m00; _a01 = this.m01; _a02 = this.m02;
@@ -814,7 +813,6 @@ export class Mat3 extends ValueType {
 
         if (det === 0) {
             this.set(0, 0, 0, 0, 0, 0, 0, 0, 0);
-            console.warn('This matrix has no inverse,Please check your data!');
             return this;
         }
         det = 1.0 / det;
