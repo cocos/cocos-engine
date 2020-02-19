@@ -59,8 +59,8 @@ export default class Vec3 extends ValueType {
      * @method mag
      * @return {number} the result
      * @example
-     * var v = cc.v2(10, 10);
-     * v.mag(); // return 14.142135623730951;
+     * var v = cc.v3(10, 10, 10);
+     * v.mag(); // return 17.320508075688775;
      */
     mag  = Vec3.prototype.len;
     /**
@@ -1294,8 +1294,8 @@ export default class Vec3 extends ValueType {
      * @method len
      * @return {number} the result
      * @example
-     * var v = cc.v2(10, 10);
-     * v.len(); // return 14.142135623730951;
+     * var v = cc.v3(10, 10, 10);
+     * v.len(); // return 17.320508075688775;
      */
     len (): number {
         return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
