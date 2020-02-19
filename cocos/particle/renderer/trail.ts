@@ -433,6 +433,8 @@ export default class TrailModule {
         if (!trail) {
             trail = this._trailSegments.alloc();
             this._particleTrail.set(p, trail);
+            // Avoid position and trail are one frame apart at the end of the particle animation.
+            return;
         }
         let lastSeg = trail.getElement(trail.end - 1);
         if (this._needTransform) {
