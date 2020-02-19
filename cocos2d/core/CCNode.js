@@ -2490,8 +2490,12 @@ let NodeDefines = {
         if (!this.active)
             return;
         cc.assertID(action, 1618);
-        cc.warnID(1639);
-        cc.director.getActionManager().addAction(action, this, false);
+        let am = cc.director.getActionManager();
+        if (!am._suppressDeprecation) {
+            am._suppressDeprecation = true;
+            cc.warnID(1639);
+        }
+        am.addAction(action, this, false);
         return action;
     } : emptyFunc,
 
