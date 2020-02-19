@@ -225,14 +225,13 @@ export class Asset extends RawAsset implements IEventTarget {
 
     /**
      * 应 AssetDB 要求提供这个方法。
+     * 返回一个序列化后的对象
      *
      * @method serialize
      * @return {String}
      * @private
      */
-    // public serialize () {
-    //     return Editor.serialize(this);
-    // }
+    public serialize () { }
 
     /**
      * @en

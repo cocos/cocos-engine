@@ -213,12 +213,12 @@ export class TextureCube extends SimpleTexture {
         return {
             base: super._serialize(),
             mipmaps: this._mipmaps.map((mipmap) => exporting ? {
-                front: Editor.Utils.UuidUtils.compressUuid(mipmap.front._uuid, true),
-                back: Editor.Utils.UuidUtils.compressUuid(mipmap.back._uuid, true),
-                left: Editor.Utils.UuidUtils.compressUuid(mipmap.left._uuid, true),
-                right: Editor.Utils.UuidUtils.compressUuid(mipmap.right._uuid, true),
-                top: Editor.Utils.UuidUtils.compressUuid(mipmap.top._uuid, true),
-                bottom: Editor.Utils.UuidUtils.compressUuid(mipmap.bottom._uuid, true),
+                front: EditorExtends.UuidUtils.compressUuid(mipmap.front._uuid, true),
+                back: EditorExtends.UuidUtils.compressUuid(mipmap.back._uuid, true),
+                left: EditorExtends.UuidUtils.compressUuid(mipmap.left._uuid, true),
+                right: EditorExtends.UuidUtils.compressUuid(mipmap.right._uuid, true),
+                top: EditorExtends.UuidUtils.compressUuid(mipmap.top._uuid, true),
+                bottom: EditorExtends.UuidUtils.compressUuid(mipmap.bottom._uuid, true),
             } : {
                 front: mipmap.front._uuid,
                 back: mipmap.back._uuid,

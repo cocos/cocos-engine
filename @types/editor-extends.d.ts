@@ -49,11 +49,29 @@ interface EditorExtendsAsset {
     getAssetInfoFromUrl(url: string): EditorAssetInfo;
 }
 
+interface EditorExtendsUuid {
+    NonUuidMark: string;
+    compressUuid(uuid: string, min: boolean): string;
+    compressHex(hexString: string, reservedHeadLength: number): string;
+    decompressUuid(str: string): string;
+    isUuid(str: string): boolean;
+    getUuidFromLibPath(path: string): string;
+    uuid(): string;
+}
+
 declare namespace EditorExtends {
     const Script: EditorExtendsScript;
     const Node: EditorExtendsNode;
     const Component: EditorExtendsComponent;
     const Asset: EditorExtendsAsset;
+    const UuidUtils: EditorExtendsUuid;
+
+    const MissingReporter: {
+        class: any;
+        object: any;
+    }
+
+    const serialize: any;
 
     interface EventMap {
         /**

@@ -867,7 +867,7 @@ function deserialize (data, details, options) {
 
     _Deserializer.pool.put(deserializer);
     if (createAssetRefs) {
-        details.assignAssetsBy(Editor.serialize.asAsset);
+        details.assignAssetsBy(EditorExtends.serialize.asAsset);
     }
     if (tempDetails) {
         Details.pool.put(details);
@@ -882,8 +882,8 @@ function deserialize (data, details, options) {
 }
 (deserialize as any).Details = Details;
 deserialize.reportMissingClass = (id) => {
-    if (CC_EDITOR && Editor.Utils.UuidUtils.isUuid(id)) {
-        id = Editor.Utils.UuidUtils.decompressUuid(id);
+    if (CC_EDITOR && EditorExtends.UuidUtils.isUuid(id)) {
+        id = EditorExtends.UuidUtils.decompressUuid(id);
         warnID(5301, id);
     }
     else {

@@ -113,7 +113,7 @@ export class SpriteAtlas extends Asset {
             const spriteFrame = this.spriteFrames[key];
             let id = spriteFrame ? spriteFrame._uuid : '';
             if (id && exporting) {
-                id = Editor.Utils.UuidUtils.compressUuid(id, true);
+                id = EditorExtends.UuidUtils.compressUuid(id, true);
             }
             frames.push(key);
             frames.push(id);
