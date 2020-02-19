@@ -67,6 +67,7 @@ declare namespace EditorExtends {
     const UuidUtils: EditorExtendsUuid;
 
     const MissingReporter: {
+        classInstance: any;
         class: any;
         object: any;
     }
