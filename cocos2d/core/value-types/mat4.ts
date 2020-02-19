@@ -70,7 +70,8 @@ export default class Mat4 extends ValueType {
         Mat4.multiplyScalar(out || new Mat4(), this, num);
     }
     /**
-     * Subtracts the current matrix with another one
+     * !#en Subtracts the current matrix with another one
+     * !#zh 将当前矩阵与指定的矩阵相减
      * @method sub
      * @param {Mat4} other the second operand
      * @param {Mat4} [out] the receiving matrix, you can pass the same matrix to save result to itself, if not provided, a new matrix will be created
