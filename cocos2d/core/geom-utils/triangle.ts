@@ -141,7 +141,7 @@ export default class triangle {
     c: Vec3;
 
     /**
-     * @property geometry type
+     * geometry type
      */
     _type: number;
 
