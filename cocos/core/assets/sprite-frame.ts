@@ -851,9 +851,7 @@ export class SpriteFrame extends Asset {
         let uuid = this._uuid;
 
         if (uuid && exporting) {
-            // @ts-ignore
-            // TODO:
-            uuid = Editor.Utils.UuidUtils.compressUuid(uuid, true);
+            uuid = EditorExtends.UuidUtils.compressUuid(uuid, true);
         }
 
         let vertices;
@@ -868,7 +866,7 @@ export class SpriteFrame extends Asset {
         }
 
         const serialize = {
-            image: this._image ? exporting ? Editor.Utils.UuidUtils.compressUuid(this._image._uuid, true) : this._image._uuid : undefined,
+            image: this._image ? exporting ? EditorExtends.UuidUtils.compressUuid(this._image._uuid, true) : this._image._uuid : undefined,
             name: this._name,
             atlas: exporting ? undefined : this._atlasUuid,  // strip from json if exporting
             rect,

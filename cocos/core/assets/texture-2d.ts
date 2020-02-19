@@ -217,7 +217,7 @@ export class Texture2D extends SimpleTexture {
                     return null;
                 }
                 if (exporting) {
-                    return Editor.Utils.UuidUtils.compressUuid(mipmap._uuid, true);
+                    return EditorExtends.UuidUtils.compressUuid(mipmap._uuid, true);
                 }
                 return mipmap._uuid;
             }),

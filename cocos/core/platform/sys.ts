@@ -563,7 +563,7 @@ if (_global.__globalAdapter && _global.__globalAdapter.adaptSys) {
     // init sys info in adapter
     _global.__globalAdapter.adaptSys(sys);
 }
-else if (CC_EDITOR && Editor.isMainProcess) {
+else if (CC_EDITOR) {
     sys.isMobile = false;
     sys.platform = sys.EDITOR_CORE;
     sys.language = sys.LANGUAGE_UNKNOWN;

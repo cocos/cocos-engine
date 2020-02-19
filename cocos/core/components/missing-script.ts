@@ -62,8 +62,8 @@ export default class MissingScript extends Component {
     // _scriptUuid: {
     //    get: function () {
     //        var id = this._$erialized.__type__;
-    //        if (Editor.Utils.UuidUtils.isUuid(id)) {
-    //            return Editor.Utils.UuidUtils.decompressUuid(id);
+    //        if (EditorExtends.UuidUtils.isUuid(id)) {
+    //            return EditorExtends.UuidUtils.decompressUuid(id);
     //        }
     //        return '';
     //    },

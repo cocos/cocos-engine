@@ -37,7 +37,7 @@ class SAXParser {
     private _isSupportDOMParser;
     private _parser;
     constructor () {
-        if (!(CC_EDITOR && Editor.isMainProcess) && window.DOMParser) {
+        if (!CC_EDITOR && window.DOMParser) {
             this._isSupportDOMParser = true;
             this._parser = new DOMParser();
         } else {

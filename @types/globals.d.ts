@@ -111,12 +111,4 @@ declare type Getter = () => any;
 
 declare type Setter = (value: any) => void;
 
-declare namespace Editor {
-    function require (str: string): any;
-    const isMainProcess: boolean | undefined;
-    const Utils: any;
-    const serialize: any;
-    const Selection: any;
-}
-
 declare const Buffer: any;
