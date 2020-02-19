@@ -226,11 +226,13 @@ export class Pass {
     }
 
     /**
+     * @en
+     * Get the handle of a UBO member, or specific channels of it.
      * @zh
      * 获取指定 UBO 成员，或其更具体分量的读写句柄。默认以成员自身的类型为目标读写类型（即读写时必须传入与成员类型相同的变量）。
-     * @param name 目标 UBO 成员名
-     * @param offset 目标分量在成员内的偏移量
-     * @param targetType 目标读写类型，用于定制化在使用此句柄时，将以什么类型进行读写操作
+     * @param name Name of the target UBO member.
+     * @param offset Channel offset into the member.
+     * @param targetType Target type of the handle, i.e. the type of data when read/write to it.
      * @example
      * ```
      * // say 'pbrParams' is a uniform vec4

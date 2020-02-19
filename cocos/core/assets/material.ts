@@ -43,31 +43,43 @@ import { SpriteFrame } from './sprite-frame';
 import { TextureBase } from './texture-base';
 
 /**
+ * @en
+ * The basic infos for material initialization.
  * @zh
- * 用来初始化材质的基本信息结构体。
+ * 用来初始化材质的基本信息。
  */
 interface IMaterialInfo {
     /**
+     * @en
+     * The EffectAsset to use. Must provide if `effectName` is not specified.
      * @zh
-     * 这个材质将使用的 EffectAsset，直接提供资源引用，和 effectName 至少要指定一个。
+     * 这个材质将使用的 EffectAsset，直接提供资源引用，和 `effectName` 至少要指定一个。
      */
     effectAsset?: EffectAsset | null;
     /**
+     * @en
+     * The name of the EffectAsset to use. Must provide if `effectAsset` is not specified.
      * @zh
-     * 这个材质将使用的 EffectAsset，通过 effect 名指定，和 effectAsset 至少要指定一个。
+     * 这个材质将使用的 EffectAsset，通过 effect 名指定，和 `effectAsset` 至少要指定一个。
      */
     effectName?: string;
     /**
+     * @en
+     * The index of the technique to use.
      * @zh
      * 这个材质将使用第几个 technique，默认为 0。
      */
     technique?: number;
     /**
+     * @en
+     * The shader macro definitions. Default to 0 or the specified value in [[EffectAsset]].
      * @zh
-     * 这个材质定义的预处理宏，应与 shader 中的声明对应，默认全为 false。
+     * 这个材质定义的预处理宏，默认全为 0，或 [[EffectAsset]] 中的指定值。
      */
     defines?: IDefineMap | IDefineMap[];
     /**
+     * @en
+     * The override values on top of the pipeline states specified in [[EffectAsset]].
      * @zh
      * 这个材质的自定义管线状态，将覆盖 effect 中的属性。<br>
      * 注意在可能的情况下请尽量少的自定义管线状态，以减小对渲染效率的影响。
@@ -76,8 +88,10 @@ interface IMaterialInfo {
 }
 
 /**
+ * @en
+ * The material asset, specifies in details how a model is drawn on screen.
  * @zh
- * 材质资源类，负责指定每个模型的材质信息。
+ * 材质资源类，包含模型绘制方式的全部细节描述。
  */
 @ccclass('cc.Material')
 export class Material extends Asset {
@@ -105,40 +119,40 @@ export class Material extends Asset {
     protected _hash = 0;
 
     /**
-     * @zh
-     * 当前使用的 EffectAsset 资源。
+     * @en The current [[EffectAsset]].
+     * @zh 当前使用的 [[EffectAsset]] 资源。
      */
     get effectAsset () {
         return this._effectAsset;
     }
 
     /**
-     * @zh
-     * 当前使用的 EffectAsset 资源名。
+     * @en Name of the current [[EffectAsset]].
+     * @zh 当前使用的 [[EffectAsset]] 资源名。
      */
     get effectName () {
         return this._effectAsset ? this._effectAsset.name : '';
     }
 
     /**
-     * @zh
-     * 当前的 technique 索引。
+     * @en The current technique index.
+     * @zh 当前的 technique 索引。
      */
     get technique () {
         return this._techIdx;
     }
 
     /**
-     * @zh
-     * 当前正在使用的 pass 数组。
+     * @en The passes defined in this material.
+     * @zh 当前正在使用的 pass 数组。
      */
     get passes () {
         return this._passes;
     }
 
     /**
-     * @zh
-     * 材质的 hash。
+     * @en The hash value of this material.
+     * @zh 材质的 hash。
      */
     get hash () {
         return this._hash;
@@ -158,9 +172,9 @@ export class Material extends Asset {
     }
 
     /**
-     * @zh
-     * 根据所给信息初始化这个材质，初始化正常结束后材质即可立即用于渲染。
-     * @param info 初始化材质需要的基本信息。
+     * @en Initialize this material with the given information.
+     * @zh 根据所给信息初始化这个材质，初始化正常结束后材质即可立即用于渲染。
+     * @param info Material description info.
      */
     public initialize (info: IMaterialInfo) {
         if (!this._defines) { this._defines = []; }
@@ -178,6 +192,10 @@ export class Material extends Asset {
     }
 
     /**
+     * @en
+     * Destroy the material definitively.<br>
+     * Cannot re-initialize after destroy.<br>
+     * For re-initialize purposes, call [[Material.initialize]] directly.
      * @zh
      * 彻底销毁材质，注意销毁后无法重新初始化。<br>
      * 如需重新初始化材质，不必先调用 destroy。
@@ -188,28 +206,28 @@ export class Material extends Asset {
     }
 
     /**
-     * @zh
-     * 使用指定预处理宏重新编译当前 pass（数组）中的 shader。
-     * @param overrides 新增的预处理宏列表，会覆盖进当前列表。
-     * @param passIdx 要编译的 pass 索引，默认编译所有 pass。
+     * @en Recompile the shader with the specified macro overrides. Allowed only on material instances.
+     * @zh 使用指定预处理宏重新编译当前 pass（数组）中的 shader。只允许对材质实例执行。
+     * @param overrides The shader macro override values.
+     * @param passIdx The pass to apply to. Will apply to all passes if not specified.
      */
     public recompileShaders (overrides: IDefineMap, passIdx?: number) {
         console.warn('Shaders in material asset \'' + this.name + '\' cannot be modified at runtime, please instantiate the material first.');
     }
 
     /**
-     * @zh
-     * 使用指定管线状态重载当前的 pass（数组）。
-     * @param overrides 新增的管线状态列表，会覆盖进当前列表。
-     * @param passIdx 要重载的 pass 索引，默认重载所有 pass。
+     * @en Override the passes with the specified pipeline states. Allowed only on material instances.
+     * @zh 使用指定管线状态重载当前的 pass（数组）。只允许对材质实例执行。
+     * @param overrides The pipeline state override values.
+     * @param passIdx The pass to apply to. Will apply to all passes if not specified.
      */
     public overridePipelineStates (overrides: PassOverrides, passIdx?: number) {
         console.warn('Pipeline states in material asset \'' + this.name + '\' cannot be modified at runtime, please instantiate the material first.');
     }
 
     /**
-     * @zh
-     * 通过 Loader 加载完成时的回调，将自动初始化材质资源。
+     * @en Callback function after material is loaded in [[Loader]]. Initialize the resources automatically.
+     * @zh 通过 [[Loader]] 加载完成时的回调，将自动初始化材质资源。
      */
     public onLoaded () {
         this._update();
@@ -218,9 +236,9 @@ export class Material extends Asset {
     }
 
     /**
-     * @zh
-     * 重置材质的所有 uniform 参数数据为 effect 默认初始值。
-     * @param clearPasses 是否同时重置当前正在用于渲染的 pass 数组内的信息
+     * @en Reset all the uniforms to the default value specified in [[EffectAsset]].
+     * @zh 重置材质的所有 uniform 参数数据为 [[EffectAsset]] 中的默认初始值。
+     * @param clearPasses Will the rendering data be cleared too?
      */
     public resetUniforms (clearPasses = true) {
         this._props.length = this._passes.length;
@@ -235,14 +253,13 @@ export class Material extends Asset {
     /**
      * @en
      * Convenient property setter provided for quick material setup.<br>
-     * [[Pass.setUniform]] should be used instead<br>
-     * if you need to do per-frame property update.
+     * [[Pass.setUniform]] should be used instead if you need to do per-frame uniform update.
      * @zh
      * 设置材质 uniform 参数的统一入口。<br>
      * 注意如果需要每帧更新 uniform，建议使用 [[Pass.setUniform]] 以获得更好的性能。
-     * @param name 要设置的 uniform 名字。
-     * @param val 要设置的 uniform 值。
-     * @param passIdx 要设置的 pass 索引，默认设置所有 pass。
+     * @param name The target uniform name.
+     * @param val The target value.
+     * @param passIdx The pass to apply to. Will apply to all passes if not specified.
      */
     public setProperty (name: string, val: any, passIdx?: number) {
         let success = false;
@@ -271,10 +288,16 @@ export class Material extends Asset {
     }
 
     /**
+     * @en
+     * Get the specified uniform value for this material.<br>
+     * Note that only uniforms set through [[Material.setProperty]] can be acquired here.<br>
+     * For the complete rendering data, use [[Pass.getUniform]] instead.
      * @zh
-     * 获取当前材质的指定 uniform 值。
-     * @param name 要获取的 uniform 名字。
-     * @param passIdx 要获取的源 pass 索引，默认遍历所有 pass，返回第一个找到指定名字的 uniform。
+     * 获取当前材质的指定 uniform 参数的值。<br>
+     * 注意只有通过 [[Material.setProperty]] 函数设置的参数才能从此函数取出，<br>
+     * 如需取出完整的渲染数据，请使用 [[Pass.getUniform]]。
+     * @param name The property or uniform name.
+     * @param passIdx The target pass index. If not specified, return the first found value in all passes.
      */
     public getProperty (name: string, passIdx?: number) {
         if (passIdx === undefined) { // try get property in all possible passes
@@ -297,9 +320,9 @@ export class Material extends Asset {
     }
 
     /**
-     * @zh
-     * 复制目标材质到当前实例。
-     * @param mat 要负责的目标材质。
+     * @en Copy the target material.
+     * @zh 复制目标材质到当前实例。
+     * @param mat The material to be copied.
      */
     public copy (mat: Material) {
         this._techIdx = mat._techIdx;
