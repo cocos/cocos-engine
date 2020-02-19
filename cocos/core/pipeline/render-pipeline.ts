@@ -849,31 +849,27 @@ export abstract class RenderPipeline {
         this._shadingWidth = width;
         this._shadingHeight = height;
 
-        const rtIter = this.renderTextures.values();
-        let rtRes = rtIter.next();
-        while (!rtRes.done) {
-            this._renderTextures.get(rtRes.value.name)!.resize(width, height);
-            this._textureViews.get(rtRes.value.name)!.destroy();
-            this._textureViews.get(rtRes.value.name)!.initialize({
-                texture: this._renderTextures.get(rtRes.value.name)!,
-                type: rtRes.value.viewType,
-                format: this._getTextureFormat(rtRes.value.format, rtRes.value.usage),
+        for (let i = 0; i < this.renderTextures.length; i++) {
+            const rt = this.renderTextures[i];
+            this._renderTextures.get(rt.name)!.resize(width, height);
+            this._textureViews.get(rt.name)!.destroy();
+            this._textureViews.get(rt.name)!.initialize({
+                texture: this._renderTextures.get(rt.name)!,
+                type: rt.viewType,
+                format: this._getTextureFormat(rt.format, rt.usage),
             });
-            rtRes = rtIter.next();
         }
 
-        const fbIter = this.framebuffers.values();
-        let fbRes = fbIter.next();
-        while (!fbRes.done) {
-            this._frameBuffers.get(fbRes.value.name)!.destroy();
-            this._frameBuffers.get(fbRes.value.name)!.initialize({
-                renderPass: this._renderPasses.get(fbRes.value.renderPass)!,
-                colorViews: fbRes.value.colorViews.map((value) => {
+        for (let i = 0; i < this.framebuffers.length; i++) {
+            const fb = this.framebuffers[i];
+            this._frameBuffers.get(fb.name)!.destroy();
+            this._frameBuffers.get(fb.name)!.initialize({
+                renderPass: this._renderPasses.get(fb.renderPass)!,
+                colorViews: fb.colorViews.map((value) => {
                     return this._textureViews.get(value)!;
                 }, this),
-                depthStencilView: this._textureViews.get(fbRes.value.depthStencilView)!,
+                depthStencilView: this._textureViews.get(fb.depthStencilView)!,
             });
-            fbRes = fbIter.next();
         }
 
         console.info('Resizing shading fbos: ' + this._shadingWidth + 'x' + this._shadingHeight);
