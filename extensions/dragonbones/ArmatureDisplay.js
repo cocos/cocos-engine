@@ -282,7 +282,7 @@ let ArmatureDisplay = cc.Class({
                 if (this._defaultCacheMode !== AnimationCacheMode.REALTIME) {
                     if (this._armature && !ArmatureCache.canCache(this._armature)) {
                         this._defaultCacheMode = AnimationCacheMode.REALTIME;
-                        cc.warn("Animation cache mode does not support skeletal nesting");
+                        cc.warn("Animation cache mode doesn't support skeletal nesting");
                         return;
                     }
                 }
