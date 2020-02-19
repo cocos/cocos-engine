@@ -3,7 +3,7 @@ import Vec3 from './vec3';
 import Vec2 from './vec2';
 import Mat4 from './mat4';
 import Quat from './quat';
-import { IMat3Like } from './math';
+import { IMat3Like, IMat4Like, FloatArray } from './math';
 
 /**
  * Mathematical 3x3 matrix.
@@ -799,8 +799,9 @@ export default class Mat3 {
      * !#en Matrix transpose array
      * @method toArray
      * @typescript
-     * static toArray <Out extends IWritableArrayLike<number>> (out: Out, mat: IMat3Like, ofs = 0)
+     * toArray <Out extends IWritableArrayLike<number>> (out: Out, mat: IMat3Like, ofs = 0)
      * @param ofs 数组内的起始偏移量
+     * @static
      */
     static toArray <Out extends IWritableArrayLike<number>> (out: Out, mat: IMat3Like, ofs = 0) {
         let m = mat.m;
@@ -815,8 +816,9 @@ export default class Mat3 {
      * !#en Transfer matrix array
      * @method fromArray
      * @typescript
-     * static fromArray <Out extends IMat3Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0)
+     * fromArray <Out extends IMat3Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0)
      * @param ofs 数组起始偏移量
+     * @static
      */
     static fromArray <Out extends IMat3Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0) {
         let m = out.m;
@@ -835,15 +837,9 @@ export default class Mat3 {
 
 
     /**
-     * Creates a matrix, with elements specified separately.
-     *
      * @method constructor
      * @typescript
-     * constructor (
-            m00: number | Float32Array = 1, m01 = 0, m02 = 0,
-            m03 = 0, m04 = 1, m05 = 0,
-            m06 = 0, m07 = 0, m08 = 1
-        )
+     * constructor (m00: number | Float32Array = 1, m01 = 0, m02 = 0, m03 = 0, m04 = 1, m05 = 0, m06 = 0, m07 = 0, m08 = 1)
      */
     constructor (
         m00: number | FloatArray = 1, m01 = 0, m02 = 0,
@@ -859,7 +855,7 @@ export default class Mat3 {
              * The element at column 0 row 0.
              * @type {number}
              * */
-            m[0] = m00;
+            m[0] = m00 as number;
 
             /**
              * The element at column 0 row 1.

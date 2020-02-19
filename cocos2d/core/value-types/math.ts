@@ -1,5 +1,6 @@
 
-type FloatArray = Float64Array | Float32Array;
+export type FloatArray = Float64Array | Float32Array;
+
 export interface IColorLike {
     r: number;
     g: number;
