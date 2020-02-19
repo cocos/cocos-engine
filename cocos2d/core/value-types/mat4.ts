@@ -48,7 +48,8 @@ export default class Mat4 extends ValueType {
     static sub = Mat4.subtract;
 
     /**
-     * Subtracts the current matrix with another one
+     * !#en Multiply the current matrix with another one
+     * !#zh 将当前矩阵与指定矩阵相乘
      * @method mul
      * @param {Mat4} other the second operand
      * @param {Mat4} [out] the receiving matrix, you can pass the same matrix to save result to itself, if not provided, a new matrix will be created
@@ -58,7 +59,8 @@ export default class Mat4 extends ValueType {
         return Mat4.multiply(out || new Mat4(), this, m);
     }
     /**
-     * Multiply each element of the matrix by a scalar.
+     * !#en Multiply each element of the matrix by a scalar.
+     * !#zh 将矩阵的每一个元素都乘以指定的缩放值。
      * @method mulScalar
      * @param {Number} number amount to scale the matrix's elements by
      * @param {Mat4} [out] the receiving matrix, you can pass the same matrix to save result to itself, if not provided, a new matrix will be created
