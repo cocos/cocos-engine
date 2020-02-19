@@ -25,8 +25,6 @@
  ****************************************************************************/
 
 const RenderComponent = require('../components/CCRenderComponent');
-const Material = require('../assets/material/CCMaterial');
-const textureUtil = require('../utils/texture-util');
 const BlendFunc = require('../../core/utils/blend-func');
 
 /**
@@ -252,7 +250,7 @@ var MotionStreak = cc.Class({
         }
     },
 
-    update (dt) {
+    lateUpdate (dt) {
         this._assembler && this._assembler.update(this, dt);
     }
 });

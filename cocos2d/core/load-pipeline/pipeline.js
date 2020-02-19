@@ -194,9 +194,9 @@ proto.insertPipe = function (pipe, index) {
 };
 
 /**
- * !en
+ * !#en
  * Insert a pipe to the end of an existing pipe. The existing pipe must be a valid pipe in the pipeline.
- * !zh
+ * !#zh
  * 在当前 pipeline 的一个已知 pipe 后面插入一个新的 pipe。
  * @method insertPipeAfter
  * @param {Object} refPipe An existing pipe in the pipeline.
