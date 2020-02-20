@@ -22,6 +22,8 @@
  THE SOFTWARE.
  ****************************************************************************/
 
+#include <scripting/js-bindings/event/EventDispatcher.h>
+#include <platform/CCApplication.h>
 #include "EditBox.h"
 #include "platform/android/jni/JniHelper.h"
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
@@ -95,16 +97,25 @@ extern "C"
 {
     JNIEXPORT void JNICALL JNI_EDITBOX(onKeyboardInputNative)(JNIEnv* env, jclass, jstring text)
     {
-        callJSFunc("input", text);
+        auto func = [=]() {
+            callJSFunc("input", text);
+        };
+        cocos2d::Application::getInstance()->getScheduler()->performFunctionInCocosThread(func);
     }
 
     JNIEXPORT void JNICALL JNI_EDITBOX(onKeyboardCompleteNative)(JNIEnv* env, jclass, jstring text)
     {
-        callJSFunc("complete", text);
+        auto func = [=]() {
+            callJSFunc("complete", text);
+        };
+        cocos2d::Application::getInstance()->getScheduler()->performFunctionInCocosThread(func);
     }
 
     JNIEXPORT void JNICALL JNI_EDITBOX(onKeyboardConfirmNative)(JNIEnv* env, jclass, jstring text)
     {
-        callJSFunc("confirm", text);
+        auto func = [=]() {
+            callJSFunc("confirm", text);
+        };
+        cocos2d::Application::getInstance()->getScheduler()->performFunctionInCocosThread(func);
     }
 }

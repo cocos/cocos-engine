@@ -25,19 +25,15 @@ import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnErrorListener;
 import android.net.Uri;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.widget.FrameLayout;
-import android.widget.MediaController.MediaPlayerControl;
 import android.widget.RelativeLayout;
+import android.app.Activity;
 
 import java.io.IOException;
-import java.net.IDN;
 import java.util.Map;
 
 public class Cocos2dxVideoView extends SurfaceView {
@@ -90,7 +86,7 @@ public class Cocos2dxVideoView extends SurfaceView {
     // recording the seek position while preparing
     private int         mSeekWhenPrepared = 0;
 
-    protected Cocos2dxActivity mCocos2dxActivity = null;
+    protected Activity mActivity = null;
 
     protected int mViewLeft = 0;
     protected int mViewTop = 0;
@@ -121,11 +117,11 @@ public class Cocos2dxVideoView extends SurfaceView {
     // Constructors
     // ===========================================================
 
-    public Cocos2dxVideoView(Cocos2dxActivity activity,int tag) {
+    public Cocos2dxVideoView(Activity activity,int tag) {
         super(activity);
 
         mViewTag = tag;
-        mCocos2dxActivity = activity;
+        mActivity = activity;
         initVideoView();
     }
 
@@ -294,10 +290,11 @@ public class Cocos2dxVideoView extends SurfaceView {
 
     public void fixSize() {
         if (mFullScreenEnabled) {
-            mFullScreenWidth = mCocos2dxActivity.getGLSurfaceView().getWidth();
-            mFullScreenHeight = mCocos2dxActivity.getGLSurfaceView().getHeight();
+            //TOTO:minggo
+//            mFullScreenWidth = mActivity.getGLSurfaceView().getWidth();
+//            mFullScreenHeight = mActivity.getGLSurfaceView().getHeight();
 
-            fixSize(0, 0, mFullScreenWidth, mFullScreenHeight);
+//            fixSize(0, 0, mFullScreenWidth, mFullScreenHeight);
         } else {
             fixSize(mViewLeft, mViewTop, mViewWidth, mViewHeight);
         }
@@ -422,7 +419,7 @@ public class Cocos2dxVideoView extends SurfaceView {
             mMediaPlayer.setScreenOnWhilePlaying(true);
 
             if (mIsAssetRouse) {
-                AssetFileDescriptor afd = mCocos2dxActivity.getAssets().openFd(mVideoFilePath);
+                AssetFileDescriptor afd = mActivity.getAssets().openFd(mVideoFilePath);
                 mMediaPlayer.setDataSource(afd.getFileDescriptor(),afd.getStartOffset(),afd.getLength());
             } else {
                 mMediaPlayer.setDataSource(mVideoUri.toString());
@@ -496,7 +493,7 @@ public class Cocos2dxVideoView extends SurfaceView {
              * longer have a window, don't bother showing the user an error.
              */
             if (getWindowToken() != null) {
-                Resources r = mCocos2dxActivity.getResources();
+                Resources r = mActivity.getResources();
                 int messageId;
 
                 if (framework_err == MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK) {
@@ -510,7 +507,7 @@ public class Cocos2dxVideoView extends SurfaceView {
                 int titleId = r.getIdentifier("VideoView_error_title", "string", "android");
                 int buttonStringId = r.getIdentifier("VideoView_error_button", "string", "android");
 
-                new AlertDialog.Builder(mCocos2dxActivity)
+                new AlertDialog.Builder(mActivity)
                         .setTitle(r.getString(titleId))
                         .setMessage(messageId)
                         .setPositiveButton(r.getString(buttonStringId),
@@ -575,6 +572,6 @@ public class Cocos2dxVideoView extends SurfaceView {
     private void pausePlaybackService() {
         Intent i = new Intent("com.android.music.musicservicecommand");
         i.putExtra("command", "pause");
-        mCocos2dxActivity.sendBroadcast(i);
+        mActivity.sendBroadcast(i);
     }
 }

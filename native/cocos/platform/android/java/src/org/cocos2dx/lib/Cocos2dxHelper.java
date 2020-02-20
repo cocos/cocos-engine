@@ -81,12 +81,10 @@ public class Cocos2dxHelper {
     private static AssetManager sAssetManager;
     private static Cocos2dxAccelerometer sCocos2dxAccelerometer;
     private static boolean sAccelerometerEnabled;
-    private static boolean sCompassEnabled;
     private static boolean sActivityVisible;
     private static String sPackageName;
     private static String sFileDirectory;
     private static Activity sActivity = null;
-    private static Cocos2dxHelperListener sCocos2dxHelperListener;
     private static Set<OnActivityResultListener> onActivityResultListeners = new LinkedHashSet<OnActivityResultListener>();
     private static Vibrator sVibrateService = null;
 
@@ -163,14 +161,9 @@ public class Cocos2dxHelper {
     // Constructors
     // ===========================================================
 
-    public static void runOnGLThread(final Runnable r) {
-        ((Cocos2dxActivity)sActivity).runOnGLThread(r);
-    }
-
     private static boolean sInited = false;
     public static void init(final Activity activity) {
         sActivity = activity;
-        Cocos2dxHelper.sCocos2dxHelperListener = (Cocos2dxHelperListener)activity;
         if (!sInited) {
 
             PackageManager pm = activity.getPackageManager();
@@ -220,12 +213,12 @@ public class Cocos2dxHelper {
             
             int versionCode = 1;
             try {
-                versionCode = Cocos2dxActivity.getContext().getPackageManager().getPackageInfo(Cocos2dxHelper.getPackageName(), 0).versionCode;
+                versionCode = sActivity.getPackageManager().getPackageInfo(Cocos2dxHelper.getPackageName(), 0).versionCode;
             } catch (NameNotFoundException e) {
                 e.printStackTrace();
             }
             try {
-                Cocos2dxHelper.sOBBFile = APKExpansionSupport.getAPKExpansionZipFile(Cocos2dxActivity.getContext(), versionCode, 0);
+                Cocos2dxHelper.sOBBFile = APKExpansionSupport.getAPKExpansionZipFile(sActivity, versionCode, 0);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -258,11 +251,7 @@ public class Cocos2dxHelper {
     {
         return Cocos2dxHelper.sOBBFile;
     }
-    
-    public static Activity getActivity() {
-        return sActivity;
-    }
-    
+
     public static void addOnActivityResultListener(OnActivityResultListener listener) {
         onActivityResultListeners.add(listener);
     }
@@ -288,8 +277,6 @@ public class Cocos2dxHelper {
     // ===========================================================
 
     private static native void nativeSetApkPath(final String pApkPath);
-
-    private static native void nativeSetEditTextDialogResult(final byte[] pBytes);
 
     private static native void nativeSetContext(final Context pContext, final AssetManager pAssetManager);
 
@@ -332,10 +319,6 @@ public class Cocos2dxHelper {
         Cocos2dxHelper.sCocos2dxAccelerometer.disable();
     }
 
-    public static void setKeepScreenOn(boolean value) {
-        ((Cocos2dxActivity)sActivity).setKeepScreenOn(value);
-    }
-
     public static void vibrate(float duration) {
         try {
             if (sVibrateService != null && sVibrateService.hasVibrator()) {
@@ -366,7 +349,7 @@ public class Cocos2dxHelper {
 
  	public static String getVersion() {
  		try {
- 			String version = Cocos2dxActivity.getContext().getPackageManager().getPackageInfo(Cocos2dxActivity.getContext().getPackageName(), 0).versionName;
+ 			String version = sActivity.getPackageManager().getPackageInfo(sActivity.getPackageName(), 0).versionName;
  			return version;
  		} catch(Exception e) {
  			return "";
@@ -385,7 +368,6 @@ public class Cocos2dxHelper {
         return ret;
     }
 
-    // 复制文本到剪切板
     public static void copyTextToClipboard(final String text){
         sActivity.runOnUiThread(new Runnable() {
             @Override
@@ -438,36 +420,9 @@ public class Cocos2dxHelper {
             Cocos2dxHelper.sCocos2dxAccelerometer.disable();
         }
     }
-
-    public static void onEnterBackground() {
-
-    }
-    
-    public static void onEnterForeground() {
-
-    }
     
     public static void terminateProcess() {
         android.os.Process.killProcess(android.os.Process.myPid());
-    }
-
-    private static void showDialog(final String pTitle, final String pMessage) {
-        Cocos2dxHelper.sCocos2dxHelperListener.showDialog(pTitle, pMessage);
-    }
-
-    public static void setEditTextDialogResult(final String pResult) {
-        try {
-            final byte[] bytesUTF8 = pResult.getBytes("UTF8");
-
-            Cocos2dxHelper.sCocos2dxHelperListener.runOnGLThread(new Runnable() {
-                @Override
-                public void run() {
-                    Cocos2dxHelper.nativeSetEditTextDialogResult(bytesUTF8);
-                }
-            });
-        } catch (UnsupportedEncodingException pUnsupportedEncodingException) {
-            /* Nothing. */
-        }
     }
 
     public static int getDPI()
@@ -556,12 +511,6 @@ public class Cocos2dxHelper {
     // ===========================================================
     // Inner and Anonymous Classes
     // ===========================================================
-
-    public static interface Cocos2dxHelperListener {
-        public void showDialog(final String pTitle, final String pMessage);
-
-        public void runOnGLThread(final Runnable pRunnable);
-    }
 
     private static float[] sDeviceMotionValues = new float[9];
 

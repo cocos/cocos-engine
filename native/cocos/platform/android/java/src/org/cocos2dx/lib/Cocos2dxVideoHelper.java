@@ -34,6 +34,7 @@ import android.util.SparseArray;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
+import android.app.Activity;
 
 import org.cocos2dx.lib.Cocos2dxVideoView.OnVideoEventListener;
 
@@ -45,12 +46,12 @@ import java.util.concurrent.FutureTask;
 public class Cocos2dxVideoHelper {
 
     private RelativeLayout mLayout = null;
-    private Cocos2dxActivity mActivity = null;  
+    private Activity mActivity = null;
     private static SparseArray<Cocos2dxVideoView> sVideoViews = null;
     static VideoHandler mVideoHandler = null;
     private static Handler sHandler = null;
     
-    Cocos2dxVideoHelper(Cocos2dxActivity activity,RelativeLayout layout)
+    Cocos2dxVideoHelper(Activity activity,RelativeLayout layout)
     {
         mActivity = activity;
         mLayout = layout;
@@ -164,29 +165,13 @@ public class Cocos2dxVideoHelper {
         }
     }
 
-    private class VideoEventRunnable implements Runnable
-    {
-        private int mVideoTag;
-        private int mVideoEvent;
-
-        public VideoEventRunnable(int tag,int event) {
-            mVideoTag = tag;
-            mVideoEvent = event;
-        }
-        @Override
-        public void run() {
-            nativeExecuteVideoCallback(mVideoTag, mVideoEvent);
-        }
-
-    }
-
     public static native void nativeExecuteVideoCallback(int index,int event);
 
     OnVideoEventListener videoEventListener = new OnVideoEventListener() {
 
         @Override
         public void onVideoEvent(int tag,int event) {
-            mActivity.runOnGLThread(new VideoEventRunnable(tag, event));
+            nativeExecuteVideoCallback(tag, event);
         }
     };
 
@@ -292,7 +277,7 @@ public class Cocos2dxVideoHelper {
             Cocos2dxVideoView videoView = sVideoViews.get(key);
             if (videoView != null) {
                 videoView.setFullScreenEnabled(false);
-                mActivity.runOnGLThread(new VideoEventRunnable(key, KeyEventBack));
+                nativeExecuteVideoCallback(key, KeyEventBack);
             }
         }
     }

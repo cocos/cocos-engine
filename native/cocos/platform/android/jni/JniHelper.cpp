@@ -87,6 +87,11 @@ namespace cocos2d {
         static_cast<FileUtilsAndroid*>(FileUtils::getInstance())->setassetmanager(_app->activity->assetManager);
     }
 
+    android_app* JniHelper::getAndroidApp()
+    {
+        return JniHelper::_app;
+    }
+
     JNIEnv* JniHelper::cacheEnv() {
         JavaVM* jvm = _app->activity->vm;
         JNIEnv* _env = nullptr;

@@ -30,6 +30,7 @@
 #include "platform/android/jni/JniImp.h"
 
 #include <mutex>
+#include <platform/CCApplication.h>
 
 #ifndef JCLS_DOWNLOADER
 #define JCLS_DOWNLOADER "org/cocos2dx/lib/Cocos2dxDownloader"
@@ -264,56 +265,62 @@ extern "C" {
 
 JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnProgress)(JNIEnv *env, jclass clazz, jint id, jint taskId, jlong dl, jlong dlnow, jlong dltotal)
 {
-    if(getApplicationExited()) {
-        return;
-    }
+    auto func = [=]() -> void {
+        if(getApplicationExited()) {
+            return;
+        }
 
-    DLLOG("_nativeOnProgress(id: %d, taskId: %d, dl: %lld, dlnow: %lld, dltotal: %lld)", id, taskId, dl, dlnow, dltotal);
-    //It's not thread-safe here, use thread-safe method instead
-    cocos2d::network::DownloaderAndroid *downloader = _findDownloaderAndroid(id);
-    if (nullptr == downloader)
-    {
-        DLLOG("_nativeOnProgress can't find downloader by key: %p for task: %d", clazz, id);
-        return;
-    }
-    downloader->_onProcess((int)taskId, (int64_t)dl, (int64_t)dlnow, (int64_t)dltotal);
+        DLLOG("_nativeOnProgress(id: %d, taskId: %d, dl: %lld, dlnow: %lld, dltotal: %lld)", id, taskId, dl, dlnow, dltotal);
+        //It's not thread-safe here, use thread-safe method instead
+        cocos2d::network::DownloaderAndroid *downloader = _findDownloaderAndroid(id);
+        if (nullptr == downloader)
+        {
+            DLLOG("_nativeOnProgress can't find downloader by key: %p for task: %d", clazz, id);
+            return;
+        }
+        downloader->_onProcess((int)taskId, (int64_t)dl, (int64_t)dlnow, (int64_t)dltotal);
+    };
+    cocos2d::Application::getInstance()->getScheduler()->performFunctionInCocosThread(func);
 }
 
 JNIEXPORT void JNICALL JNI_DOWNLOADER(nativeOnFinish)(JNIEnv *env, jclass clazz, jint id, jint taskId, jint errCode, jstring errStr, jbyteArray data)
 {
-    if(getApplicationExited())
-    {
-        return;
-    }
-    DLLOG("_nativeOnFinish(id: %d, taskId: %d)", id, taskId);
-    //It's not thread-safe here, use thread-safe method instead
-    cocos2d::network::DownloaderAndroid *downloader = _findDownloaderAndroid(id);
-    if (nullptr == downloader)
-    {
-        DLLOG("_nativeOnFinish can't find downloader id: %d for task: %d", id, taskId);
-        return;
-    }
-    std::vector<unsigned char> buf;
-    if (errStr)
-    {
-        // failure
-        const char *nativeErrStr = env->GetStringUTFChars(errStr, JNI_FALSE);
-        downloader->_onFinish((int)taskId, (int)errCode, nativeErrStr, buf);
-        env->ReleaseStringUTFChars(errStr, nativeErrStr);
-        return;
-    }
-
-    // success
-    if (data)
-    {
-        int len = env->GetArrayLength(data);
-        if (len)
+    auto func = [=]() -> void {
+        if(getApplicationExited())
         {
-            buf.resize(len);
-            env->GetByteArrayRegion(data, 0, len, reinterpret_cast<jbyte*>(buf.data()));
+            return;
         }
-    }
-    downloader->_onFinish((int)taskId, (int)errCode, nullptr, buf);
+        DLLOG("_nativeOnFinish(id: %d, taskId: %d)", id, taskId);
+        //It's not thread-safe here, use thread-safe method instead
+        cocos2d::network::DownloaderAndroid *downloader = _findDownloaderAndroid(id);
+        if (nullptr == downloader)
+        {
+            DLLOG("_nativeOnFinish can't find downloader id: %d for task: %d", id, taskId);
+            return;
+        }
+        std::vector<unsigned char> buf;
+        if (errStr)
+        {
+            // failure
+            const char *nativeErrStr = env->GetStringUTFChars(errStr, JNI_FALSE);
+            downloader->_onFinish((int)taskId, (int)errCode, nativeErrStr, buf);
+            env->ReleaseStringUTFChars(errStr, nativeErrStr);
+            return;
+        }
+
+        // success
+        if (data)
+        {
+            int len = env->GetArrayLength(data);
+            if (len)
+            {
+                buf.resize(len);
+                env->GetByteArrayRegion(data, 0, len, reinterpret_cast<jbyte*>(buf.data()));
+            }
+        }
+        downloader->_onFinish((int)taskId, (int)errCode, nullptr, buf);
+    };
+    cocos2d::Application::getInstance()->getScheduler()->performFunctionInCocosThread(func);
 }
 
 } // extern "C" {

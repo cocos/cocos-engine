@@ -62,12 +62,7 @@ public class Cocos2dxDownloader {
     private static ConcurrentHashMap<String, Boolean> _resumingSupport = new ConcurrentHashMap<>();
 
     private void onProgress(final int id, final long downloadBytes, final long downloadNow, final long downloadTotal) {
-        Cocos2dxHelper.runOnGLThread(new Runnable() {
-            @Override
-            public void run() {
-                nativeOnProgress(_id, id, downloadBytes, downloadNow, downloadTotal);
-            }
-        });
+        nativeOnProgress(_id, id, downloadBytes, downloadNow, downloadTotal);
     }
 
     private void onFinish(final int id, final int errCode, final String errStr, final byte[] data) {
@@ -75,12 +70,7 @@ public class Cocos2dxDownloader {
         if (null == task) return;
         _taskMap.remove(id);
         _runningTaskCount -= 1;
-        Cocos2dxHelper.runOnGLThread(new Runnable() {
-            @Override
-            public void run() {
-                nativeOnFinish(_id, id, errCode, errStr, data);
-            }
-        });
+        nativeOnFinish(_id, id, errCode, errStr, data);
         runNextTaskIfExists();
     }
 
@@ -282,12 +272,7 @@ public class Cocos2dxDownloader {
 
                 if (null == task) {
                     final String errStr = "Can't create DownloadTask for " + url;
-                    Cocos2dxHelper.runOnGLThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            downloader.nativeOnFinish(downloader._id, id, 0, errStr, null);
-                        }
-                    });
+                    downloader.nativeOnFinish(downloader._id, id, 0, errStr, null);
                 } else {
                     downloader._taskMap.put(id, task);
                 }
@@ -297,7 +282,7 @@ public class Cocos2dxDownloader {
     }
 
     public static void abort(final Cocos2dxDownloader downloader, final int id) {
-        Cocos2dxHelper.getActivity().runOnUiThread(new Runnable() {
+        GlobalObject.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Iterator iter = downloader._taskMap.entrySet().iterator();
@@ -317,7 +302,7 @@ public class Cocos2dxDownloader {
     }
 
     public static void cancelAllRequests(final Cocos2dxDownloader downloader) {
-        Cocos2dxHelper.getActivity().runOnUiThread(new Runnable() {
+        GlobalObject.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 for (Object o : downloader._taskMap.entrySet()) {
@@ -335,7 +320,7 @@ public class Cocos2dxDownloader {
     private void enqueueTask(Runnable taskRunnable) {
         synchronized (_taskQueue) {
             if (_runningTaskCount < _countOfMaxProcessingTasks) {
-                Cocos2dxHelper.getActivity().runOnUiThread(taskRunnable);
+                GlobalObject.getActivity().runOnUiThread(taskRunnable);
                 _runningTaskCount++;
             } else {
                 _taskQueue.add(taskRunnable);
@@ -349,7 +334,7 @@ public class Cocos2dxDownloader {
                 Cocos2dxDownloader.this._taskQueue.size() > 0) {
                 
                 Runnable taskRunnable = Cocos2dxDownloader.this._taskQueue.poll();
-                Cocos2dxHelper.getActivity().runOnUiThread(taskRunnable);
+                GlobalObject.getActivity().runOnUiThread(taskRunnable);
                 _runningTaskCount += 1;
             }
         }

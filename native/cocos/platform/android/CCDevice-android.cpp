@@ -31,6 +31,8 @@ THE SOFTWARE.
 #include <string.h>
 #include <android/log.h>
 #include <jni.h>
+#include <android_native_app_glue.h>
+#include <android/window.h>
 #include "base/ccTypes.h"
 #include "platform/android/jni/JniHelper.h"
 #include "platform/CCFileUtils.h"
@@ -101,7 +103,8 @@ std::string Device::getDeviceModel()
 
 void Device::setKeepScreenOn(bool value)
 {
-    JniHelper::callStaticVoidMethod(JCLS_HELPER, "setKeepScreenOn", value);
+    // JniHelper::callStaticVoidMethod(JCLS_HELPER, "setKeepScreenOn", value);
+    ANativeActivity_setWindowFlags(JniHelper::getAndroidApp()->activity, AWINDOW_FLAG_KEEP_SCREEN_ON, 0);
 }
 
 void Device::vibrate(float duration)

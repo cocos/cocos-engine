@@ -32,6 +32,7 @@
 #include "platform/CCApplication.h"
 #include "platform/android/jni/JniHelper.h"
 #include "platform/CCFileUtils.h"
+#include "../../platform/CCApplication.h"
 
 //-----------------------------------------------------------------------------------------------------------
 
@@ -45,7 +46,10 @@ static void executeVideoCallback(int index,int event);
 
 extern "C" {
     void Java_org_cocos2dx_lib_Cocos2dxVideoHelper_nativeExecuteVideoCallback(JNIEnv * env, jobject obj, jint index,jint event) {
-        executeVideoCallback(index,event);
+        auto func = []() -> void {
+            executeVideoCallback(index,event);
+        };
+        cocos2d::Application::getInstance()->getScheduler()->performFunctionInCocosThread(func);
     }
 }
 

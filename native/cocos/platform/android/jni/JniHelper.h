@@ -56,6 +56,7 @@ public:
     static JNIEnv* getEnv();
     static jobject getActivity();
     static void setAndroidApp(android_app* app);
+    static android_app* getAndroidApp();
 
     static bool getStaticMethodInfo(JniMethodInfo &methodinfo,
                                     const char *className,

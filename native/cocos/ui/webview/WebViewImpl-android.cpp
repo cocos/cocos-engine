@@ -31,6 +31,7 @@
 
 #include "platform/CCFileUtils.h"
 #include "platform/android/jni/JniHelper.h"
+#include "../../platform/CCApplication.h"
 
 
 static const std::string className = "org/cocos2dx/lib/Cocos2dxWebViewHelper";
@@ -72,10 +73,15 @@ extern "C" {
 JNIEXPORT jboolean JNICALL
 Java_org_cocos2dx_lib_Cocos2dxWebViewHelper_shouldStartLoading(JNIEnv *env, jclass, jint index,
                                                                jstring jurl) {
-    auto charUrl = env->GetStringUTFChars(jurl, NULL);
-    std::string url = charUrl;
-    env->ReleaseStringUTFChars(jurl, charUrl);
-    return cocos2d::WebViewImpl::shouldStartLoading(index, url);
+    auto func = []() -> void {
+        auto charUrl = env->GetStringUTFChars(jurl, NULL);
+        std::string url = charUrl;
+        env->ReleaseStringUTFChars(jurl, charUrl);
+        bool ret = cocos2d::WebViewImpl::shouldStartLoading(index, url);
+
+        cocos2d::JniHelper::callStaticVoidMethod(className, "shouldStartLoadingCallback", index, ret);
+    };
+    cocos2d::Application::getInstance()->getScheduler()->performFunctionInCocosThread(func);
 }
 
 /*
@@ -87,10 +93,13 @@ JNIEXPORT void JNICALL
 Java_org_cocos2dx_lib_Cocos2dxWebViewHelper_didFinishLoading(JNIEnv *env, jclass, jint index,
                                                              jstring jurl) {
     // LOGD("didFinishLoading");
-    auto charUrl = env->GetStringUTFChars(jurl, NULL);
-    std::string url = charUrl;
-    env->ReleaseStringUTFChars(jurl, charUrl);
-    cocos2d::WebViewImpl::didFinishLoading(index, url);
+    auto func = []() -> void {
+        auto charUrl = env->GetStringUTFChars(jurl, NULL);
+        std::string url = charUrl;
+        env->ReleaseStringUTFChars(jurl, charUrl);
+        cocos2d::WebViewImpl::didFinishLoading(index, url);
+    };
+    cocos2d::Application::getInstance()->getScheduler()->performFunctionInCocosThread(func);
 }
 
 /*
@@ -102,10 +111,13 @@ JNIEXPORT void JNICALL
 Java_org_cocos2dx_lib_Cocos2dxWebViewHelper_didFailLoading(JNIEnv *env, jclass, jint index,
                                                            jstring jurl) {
     // LOGD("didFailLoading");
-    auto charUrl = env->GetStringUTFChars(jurl, NULL);
-    std::string url = charUrl;
-    env->ReleaseStringUTFChars(jurl, charUrl);
-    cocos2d::WebViewImpl::didFailLoading(index, url);
+    auto func = []() -> void {
+        auto charUrl = env->GetStringUTFChars(jurl, NULL);
+        std::string url = charUrl;
+        env->ReleaseStringUTFChars(jurl, charUrl);
+        cocos2d::WebViewImpl::didFailLoading(index, url);
+    };
+    cocos2d::Application::getInstance()->getScheduler()->performFunctionInCocosThread(func);
 }
 
 /*
@@ -117,11 +129,13 @@ JNIEXPORT void JNICALL
 Java_org_cocos2dx_lib_Cocos2dxWebViewHelper_onJsCallback(JNIEnv *env, jclass, jint index,
                                                          jstring jmessage) {
     // LOGD("jsCallback");
-    auto charMessage = env->GetStringUTFChars(jmessage, NULL);
-    std::string message = charMessage;
-    env->ReleaseStringUTFChars(jmessage, charMessage);
-    cocos2d::WebViewImpl::onJsCallback(index, message);
-}
+    auto func = []() -> void {
+        auto charMessage = env->GetStringUTFChars(jmessage, NULL);
+        std::string message = charMessage;
+        env->ReleaseStringUTFChars(jmessage, charMessage);
+        cocos2d::WebViewImpl::onJsCallback(index, message);
+    };
+    cocos2d::Application::getInstance()->getScheduler()->performFunctionInCocosThread(func);
 }
 
 namespace {

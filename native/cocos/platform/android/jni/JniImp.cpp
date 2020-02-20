@@ -396,41 +396,6 @@ extern "C"
         g_deviceAudioBufferSizeInFrames = deviceAudioBufferSizeInFrames;
         LOGD("nativeSetAudioDeviceInfo: sampleRate: %d, bufferSizeInFrames: %d", g_deviceSampleRate, g_deviceAudioBufferSizeInFrames);
     }
-
-    JNIEXPORT void JNICALL JNI_HELPER(nativeSetEditTextDialogResult)(JNIEnv* env, jobject obj, jbyteArray text)
-    {
-        jsize  size = env->GetArrayLength(text);
-
-        if (size > 0) 
-        {
-            jbyte * data = (jbyte*)env->GetByteArrayElements(text, 0);
-            char* buffer = (char*)malloc(size+1);
-            if (buffer != nullptr) 
-            {
-                memcpy(buffer, data, size);
-                buffer[size] = '\0';
-                // pass data to edittext's delegate
-                if (s_editTextCallback)
-                    s_editTextCallback(buffer, s_ctx);
-                free(buffer);
-            }
-            env->ReleaseByteArrayElements(text, data, 0);
-        } 
-        else 
-        {
-            if (s_editTextCallback)
-                s_editTextCallback("", s_ctx);
-        }
-    }
-
-    /***********************************************************
-     * Cocos2dxAudioFocusManager native functions implementation.
-     ***********************************************************/
-
-    JNIEXPORT void JNICALL JNI_AUDIO(nativeOnAudioFocusChange)(JNIEnv* env, jobject thiz, jint focusChange)
-    {
-        // cocos_audioengine_focus_change(focusChange);
-    }
 } // end of extern "C"
 
 void restartJSVM()

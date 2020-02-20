@@ -23,20 +23,14 @@
  ****************************************************************************/
 package org.cocos2dx.lib;
 
-import android.app.Activity;
 import android.os.Build;
 import android.view.View;
 
 public class Utils {
-    private static Activity sActivity = null;
-
-    public static void setActivity(final Activity activity) {
-        Utils.sActivity = activity;
-    }
 
     public static void hideVirtualButton() {
         if (Build.VERSION.SDK_INT >= 19 &&
-                null != Utils.sActivity) {
+                null != GlobalObject.getActivity()) {
             // use reflection to remove dependence of API level
 
             Class viewClass = View.class;
@@ -54,7 +48,7 @@ public class Utils {
                     | SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
                     | SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
                     | SYSTEM_UI_FLAG_IMMERSIVE_STICKY};
-            Cocos2dxReflectionHelper.<Void>invokeInstanceMethod(Utils.sActivity.getWindow().getDecorView(),
+            Cocos2dxReflectionHelper.<Void>invokeInstanceMethod(GlobalObject.getActivity().getWindow().getDecorView(),
                     "setSystemUiVisibility",
                     new Class[]{Integer.TYPE},
                     parameters);

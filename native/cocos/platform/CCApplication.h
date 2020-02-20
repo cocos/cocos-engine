@@ -105,8 +105,6 @@ public:
 
     inline std::shared_ptr<Scheduler> getScheduler() const { return _scheduler; }
 
-    void runOnMainThread();
-
     /**
      * @brief Sets the preferred frame rate for main loop callback.
      * @param fps The preferred frame rate for main loop callback.

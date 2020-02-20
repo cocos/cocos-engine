@@ -59,7 +59,6 @@ namespace
                 {
                     state->width = ANativeWindow_getWidth(app->window);
                     state->height = ANativeWindow_getHeight(app->window);
-                    cocos2d::JniHelper::setAndroidApp(app);
                     game = new Game(state->width, state->height);
                     game->init();
                 }
@@ -189,6 +188,8 @@ void android_main(struct android_app* state) {
     state->onAppCmd = engineHandleCmd;
     state->onInputEvent = engineHandleInput;
     savedState.app = state;
+
+    cocos2d::JniHelper::setAndroidApp(state);
     while (1)
     {
         // Read all pending events.

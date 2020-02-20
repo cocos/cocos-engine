@@ -39,9 +39,7 @@ import android.text.InputFilter;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,6 +51,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.app.Activity;
 
 public class Cocos2dxEditBox {
 
@@ -65,7 +64,7 @@ public class Cocos2dxEditBox {
     private Button mButton = null;
     private String mButtonTitle = null;
     private boolean mConfirmHold = true;
-    private Cocos2dxActivity mActivity = null;
+    private Activity mActivity = null;
     private RelativeLayout mButtonLayout = null;
     private RelativeLayout.LayoutParams mButtonParams;
     private int mEditTextID = 1;
@@ -84,7 +83,7 @@ public class Cocos2dxEditBox {
         private boolean keyboardVisible = false;
         private int mScreenHeight;
 
-        public  Cocos2dxEditText(Cocos2dxActivity context){
+        public  Cocos2dxEditText(Activity context){
             super(context);
             //remove focus border
             this.setBackground(null);
@@ -248,7 +247,7 @@ public class Cocos2dxEditBox {
         }
     }
 
-    public Cocos2dxEditBox(Cocos2dxActivity context, RelativeLayout layout) {
+    public Cocos2dxEditBox(Activity context, RelativeLayout layout) {
         Cocos2dxEditBox.sThis = this;
         mActivity = context;
         this.addItems(context, layout);
@@ -266,7 +265,7 @@ public class Cocos2dxEditBox {
     /***************************************************************************************
      Private functions.
      **************************************************************************************/
-    private void addItems(Cocos2dxActivity context, RelativeLayout layout) {
+    private void addItems(Activity context, RelativeLayout layout) {
         RelativeLayout myLayout = new RelativeLayout(context);
         this.addEditText(context, myLayout);
         this.addButton(context, myLayout);
@@ -288,7 +287,7 @@ public class Cocos2dxEditBox {
 //        });
     }
 
-    private void addEditText(Cocos2dxActivity context, RelativeLayout layout) {
+    private void addEditText(Activity context, RelativeLayout layout) {
         mEditText = new Cocos2dxEditText(context);
         mEditText.setVisibility(View.INVISIBLE);
         mEditText.setBackgroundColor(Color.WHITE);
@@ -299,12 +298,12 @@ public class Cocos2dxEditBox {
         layout.addView(mEditText, editParams);
     }
 
-    private void addButton(Cocos2dxActivity context, RelativeLayout layout) {
+    private void addButton(Activity context, RelativeLayout layout) {
         mButton = new Button(context);
         mButtonParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         mButton.setTextColor(Color.WHITE);
         mButton.setBackground(getRoundRectShape());
-        mButtonLayout = new RelativeLayout(Cocos2dxHelper.getActivity());
+        mButtonLayout = new RelativeLayout(GlobalObject.getActivity());
         mButtonLayout.setVisibility(View.INVISIBLE);
         mButtonLayout.setBackgroundColor(Color.WHITE);
         RelativeLayout.LayoutParams buttonLayoutParams = new RelativeLayout.LayoutParams(
@@ -352,8 +351,9 @@ public class Cocos2dxEditBox {
         mButtonLayout.setVisibility(View.INVISIBLE);
         this.closeKeyboard();
 
-        mActivity.getGLSurfaceView().requestFocus();
-        mActivity.getGLSurfaceView().setStopHandleTouchAndKeyEvents(false);
+        //TODO: minggo
+//        mActivity.getGLSurfaceView().requestFocus();
+//        mActivity.getGLSurfaceView().setStopHandleTouchAndKeyEvents(false);
     }
 
     private void show(String defaultValue, int maxLength, boolean isMultiline, boolean confirmHold, String confirmType, String inputType) {
@@ -373,7 +373,8 @@ public class Cocos2dxEditBox {
             mButtonParams.setMargins(0, buttonTextPadding, 2, 0);
             mButtonLayout.setVisibility(View.VISIBLE);
         }
-        mActivity.getGLSurfaceView().setStopHandleTouchAndKeyEvents(true);
+        //TODO:minggo
+//        mActivity.getGLSurfaceView().setStopHandleTouchAndKeyEvents(true);
         this.openKeyboard();
     }
 
@@ -419,32 +420,15 @@ public class Cocos2dxEditBox {
      Native functions invoked by UI.
      **************************************************************************************/
     private void onKeyboardInput(String text) {
-        mActivity.runOnGLThread(new Runnable() {
-            @Override
-            public void run() {
-                Cocos2dxEditBox.onKeyboardInputNative(text);
-            }
-        });
+        Cocos2dxEditBox.onKeyboardInputNative(text);
     }
 
     private void onKeyboardComplete(String text) {
-        mActivity.getGLSurfaceView().requestFocus();
-        mActivity.getGLSurfaceView().setStopHandleTouchAndKeyEvents(false);
-        mActivity.runOnGLThread(new Runnable() {
-            @Override
-            public void run() {
-                Cocos2dxEditBox.onKeyboardCompleteNative(text);
-            }
-        });
+        Cocos2dxEditBox.onKeyboardCompleteNative(text);
     }
 
     private void onKeyboardConfirm(String text) {
-        mActivity.runOnGLThread(new Runnable() {
-            @Override
-            public void run() {
-                Cocos2dxEditBox.onKeyboardConfirmNative(text);
-            }
-        });
+        Cocos2dxEditBox.onKeyboardConfirmNative(text);
     }
 
     private static native void onKeyboardInputNative(String text);
