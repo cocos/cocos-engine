@@ -1692,7 +1692,8 @@ void GLES3CmdFuncExecuteCmds(GLES3Device* device, GLES3CmdPackage* cmd_package) 
                 if (gpu_binding.gpu_buffer) {
                   for (size_t k = 0; k < gpu_pso->gpu_shader->gpu_blocks.size(); ++k) {
                     const GLES3GPUUniformBlock& gpu_block = gpu_pso->gpu_shader->gpu_blocks[k];
-                    if (cache->gl_bind_ubos[gpu_block.binding] != gpu_binding.gpu_buffer->gl_buffer) {
+                    if ((gpu_block.binding == gpu_binding.binding) && cache->gl_bind_ubos[gpu_block.binding] != gpu_binding.gpu_buffer->gl_buffer)
+                    {
                       glBindBufferBase(GL_UNIFORM_BUFFER, gpu_block.binding, gpu_binding.gpu_buffer->gl_buffer);
                       cache->gl_bind_ubos[gpu_block.binding] = gpu_binding.gpu_buffer->gl_buffer;
                       cache->gl_uniform_buffer = gpu_binding.gpu_buffer->gl_buffer;
