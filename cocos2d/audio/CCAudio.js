@@ -452,6 +452,12 @@ let WebAudioElement = function (buffer, audio) {
                 }
             }, 10);
         }
+        // HACK: fix mobile safari can't play
+        if (cc.sys.browserType === cc.sys.BROWSER_TYPE_SAFARI && cc.sys.isMobile) {
+            if (audio.context.state === 'interrupted') {
+                audio.context.resume();
+            }
+        }
     };
 
     proto.pause = function () {
