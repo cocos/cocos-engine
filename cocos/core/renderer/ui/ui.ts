@@ -182,9 +182,28 @@ export class UI {
      * @param comp - 屏幕组件。
      */
     public addScreen (comp: CanvasComponent) {
+        const screens = this._screens;
+        // clear the canvas old visibility cache in canvasMaterial list
+        for (let i = 0; i < screens.length; i++) {
+            const screen = screens[i];
+            if (screen.camera) {
+                const visibility = screen.camera.view.visibility;
+                const matRecord = this._canvasMaterials.get(visibility);
+                if (matRecord) {
+                    const matHashInter = matRecord!.keys();
+                    let matHash = matHashInter.next();
+                    while (!matHash.done) {
+                        this._removeUIMaterial(matHash.value);
+                        matHash = matHashInter.next();
+                    }
+
+                    matRecord.clear();
+                }
+            }
+        }
+
         this._screens.push(comp);
         this._screens.sort(this._screenSort);
-        const screens = this._screens;
         for (let i = 0; i < screens.length; i++) {
             const element = screens[i];
             if (element.camera) {
@@ -238,9 +257,7 @@ export class UI {
                 matHash = matHashInter.next();
             }
 
-            if (this._screens.length === 0) { 
-                matRecord!.clear();
-            }
+            matRecord!.clear();
         }
 
         let camera: Camera | null;
@@ -250,10 +267,11 @@ export class UI {
                 const matRecord = this._canvasMaterials.get(camera.view.visibility)!;
                 camera.view.visibility = Layers.BitMask.UI_2D | (i + 1);
                 const newMatRecord = this._canvasMaterials.get(camera.view.visibility)!;
-                newMatRecord.clear();
                 matRecord.forEach((value: number, key: number) => {
                     newMatRecord.set(key, value);
                 });
+
+                matRecord.clear();
             }
         }
     }
