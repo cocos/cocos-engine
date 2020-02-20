@@ -186,7 +186,7 @@ export class RenderingMesh {
 }
 
 export declare namespace Mesh {
-    export interface BufferView {
+    export interface IBufferView {
         offset: number;
         length: number;
         count: number;
@@ -198,11 +198,11 @@ export declare namespace Mesh {
      * 顶点块。顶点块描述了一组**交错排列**（interleaved）的顶点属性并存储了顶点属性的实际数据。<br>
      * 交错排列是指在实际数据的缓冲区中，每个顶点的所有属性总是依次排列，并总是出现在下一个顶点的所有属性之前。
      */
-    export interface VertexBundle {
+    export interface IVertexBundle {
         /**
          * 所有顶点属性的实际数据块。
          */
-        view: BufferView;
+        view: IBufferView;
 
         /**
          * 包含的所有顶点属性。
@@ -213,7 +213,7 @@ export declare namespace Mesh {
     /**
      * 子网格。子网格由一系列相同类型的图元组成（例如点、线、面等）。
      */
-    export interface Submesh {
+    export interface ISubmesh {
         /**
          * 此子网格引用的顶点块，索引至网格的顶点块数组。
          */
@@ -227,30 +227,30 @@ export declare namespace Mesh {
         /**
          * 此子网格使用的索引数据。
          */
-        indexView?: BufferView;
+        indexView?: IBufferView;
 
         /**
          * （用于射线检测的）几何信息。
          */
         geometricInfo?: {
             doubleSided?: boolean;
-            view: BufferView;
+            view: IBufferView;
         };
     }
 
     /**
      * 描述了网格的结构。
      */
-    export interface Struct {
+    export interface IStruct {
         /**
          * 此网格所有的顶点块。
          */
-        vertexBundles: VertexBundle[];
+        vertexBundles: IVertexBundle[];
 
         /**
          * 此网格的所有子网格。
          */
-        primitives: Submesh[];
+        primitives: ISubmesh[];
 
         /**
          * （各分量都）小于等于此网格任何顶点位置的最大位置。
@@ -263,11 +263,11 @@ export declare namespace Mesh {
         maxPosition?: Vec3;
     }
 
-    export interface CreateInfo {
+    export interface ICreateInfo {
         /**
          * 网格结构。
          */
-        struct: Mesh.Struct;
+        struct: Mesh.IStruct;
 
         /**
          * 网格二进制数据。
@@ -352,7 +352,7 @@ export class Mesh extends Asset {
     }
 
     @property
-    private _struct: Mesh.Struct = {
+    private _struct: Mesh.IStruct = {
         vertexBundles: [],
         primitives: [],
     };
@@ -494,7 +494,7 @@ export class Mesh extends Asset {
      * @param data 新的数据。
      * @deprecated 将在 V1.0.0 移除，请转用 `this.reset()`。
      */
-    public assign (struct: Mesh.Struct, data: Uint8Array) {
+    public assign (struct: Mesh.IStruct, data: Uint8Array) {
         this.reset({
             struct,
             data,
@@ -505,7 +505,7 @@ export class Mesh extends Asset {
      * 重置此网格。
      * @param info 网格重置选项。
      */
-    public reset (info: Mesh.CreateInfo) {
+    public reset (info: Mesh.ICreateInfo) {
         this.destroyRenderingMesh();
         this._struct = info.struct;
         this._data = info.data;
@@ -553,7 +553,7 @@ export class Mesh extends Asset {
             worldMatrix!.getRotation(rotate);
         }
         if (!this._initialized && mesh._data) {
-            const struct = JSON.parse(JSON.stringify(mesh._struct)) as Mesh.Struct;
+            const struct = JSON.parse(JSON.stringify(mesh._struct)) as Mesh.IStruct;
             const data = mesh._data.slice();
             if (worldMatrix) {
                 if (struct.maxPosition && struct.minPosition) {
@@ -629,7 +629,7 @@ export class Mesh extends Asset {
         let dstAttrView: Uint8Array;
         let hasAttr = false;
 
-        const vertexBundles = new Array<Mesh.VertexBundle>(this._struct.vertexBundles.length);
+        const vertexBundles = new Array<Mesh.IVertexBundle>(this._struct.vertexBundles.length);
         for (let i = 0; i < this._struct.vertexBundles.length; ++i) {
             const bundle = this._struct.vertexBundles[i];
             const dstBundle = mesh._struct.vertexBundles[i];
@@ -709,7 +709,7 @@ export class Mesh extends Asset {
         let srcIBView: Uint8Array | Uint16Array | Uint32Array;
         let dstIBView: Uint8Array | Uint16Array | Uint32Array;
 
-        const primitives: Mesh.Submesh[] = new Array<Mesh.Submesh>(this._struct.primitives.length);
+        const primitives: Mesh.ISubmesh[] = new Array<Mesh.ISubmesh>(this._struct.primitives.length);
         for (let i = 0; i < this._struct.primitives.length; ++i) {
             const prim = this._struct.primitives[i];
             const dstPrim = mesh._struct.primitives[i];
@@ -813,7 +813,7 @@ export class Mesh extends Asset {
         }
 
         // Create mesh struct.
-        const meshStruct: Mesh.Struct = {
+        const meshStruct: Mesh.IStruct = {
             vertexBundles,
             primitives,
             minPosition: this._struct.minPosition,
@@ -1143,7 +1143,7 @@ export class Mesh extends Asset {
     private _accessAttribute (
         primitiveIndex: number,
         attributeName: GFXAttributeName,
-        accessor: (vertexBundle: Mesh.VertexBundle, iAttribute: number) => void) {
+        accessor: (vertexBundle: Mesh.IVertexBundle, iAttribute: number) => void) {
         if (!this._data ||
             primitiveIndex >= this._struct.primitives.length) {
             return;

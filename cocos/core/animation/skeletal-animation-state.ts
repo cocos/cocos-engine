@@ -32,7 +32,7 @@ import { Mat4, Quat, Vec3 } from '../math';
 import { deleteTransform, getTransform, getWorldMatrix, IJointTransform } from '../renderer/models/flexible-skinning-model';
 import { IAnimInfo, JointsAnimationInfo } from '../renderer/models/skeletal-animation-utils';
 import { Node } from '../scene-graph/node';
-import { AnimationClip } from './animation-clip';
+import { AnimationClip, IRuntimeCurve } from './animation-clip';
 import { AnimationState } from './animation-state';
 import { Socket } from './skeletal-animation-component';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
@@ -53,6 +53,8 @@ interface ISocketData {
     frames: ITransform[];
 }
 
+const noCurves: IRuntimeCurve[] = [];
+
 export class SkeletalAnimationState extends AnimationState {
 
     protected _frames = 1;
@@ -61,6 +63,7 @@ export class SkeletalAnimationState extends AnimationState {
     protected _sockets: ISocketData[] = [];
     protected _animInfoMgr: JointsAnimationInfo;
     protected _comps: SkinningModelComponent[] = [];
+    protected _curvesInited = false;
 
     constructor (clip: AnimationClip, name = '') {
         super(clip, name);
@@ -69,11 +72,6 @@ export class SkeletalAnimationState extends AnimationState {
 
     public initialize (root: Node) {
         if (this._curveLoaded) { return; }
-        super.initialize(root);
-        const info = SkelAnimDataHub.getOrExtract(this.clip).info;
-        this._frames = info.frames - 1;
-        this._animInfo = this._animInfoMgr.get(root.uuid);
-        this._bakedDuration = this._frames / info.sample; // last key
         this._comps.length = 0;
         const comps = root.getComponentsInChildren(SkinningModelComponent);
         for (let i = 0; i < comps.length; ++i) {
@@ -82,6 +80,12 @@ export class SkeletalAnimationState extends AnimationState {
                 this._comps.push(comp);
             }
         }
+        const realTime = this._curvesInited = this._comps[0].realTimePoseCalculation;
+        super.initialize(root, realTime ? undefined : noCurves);
+        const info = SkelAnimDataHub.getOrExtract(this.clip).info;
+        this._frames = info.frames - 1;
+        this._animInfo = this._animInfoMgr.get(root.uuid);
+        this._bakedDuration = this._frames / info.sample; // last key
     }
 
     public onPlay () {
@@ -99,6 +103,11 @@ export class SkeletalAnimationState extends AnimationState {
         if (realTime) {
             this._sampleCurves = this._sampleCurvesRealTime;
             this.duration = this._clip.duration;
+            if (!this._curvesInited) {
+                this._curveLoaded = false;
+                super.initialize(this._targetNode!);
+                this._curvesInited = true;
+            }
         } else {
             this._sampleCurves = this._sampleCurvesBaked;
             this.duration = this._bakedDuration;

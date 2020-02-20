@@ -121,7 +121,10 @@ const m4_1 = new Mat4();
 const ab_1 = new aabb();
 
 /**
- * 实时动画模式的蒙皮模型
+ * @en
+ * The skinning model that is using real-time animation calculation.
+ * @zh
+ * 实时计算动画的蒙皮模型。
  */
 export class FlexibleSkinningModel extends Model {
 

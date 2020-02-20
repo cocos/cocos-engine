@@ -274,7 +274,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
                 }
                 joints.push(path);
                 // cancel out local transform
-                bindposes.push(Mat4.multiply(new Mat4(), partial.bindposes[i], m4_local) || new Mat4());
+                bindposes.push(Mat4.multiply(new Mat4(), partial.bindposes[i] || Mat4.IDENTITY, m4_local));
             }
         }
         // sort the array to be more cache-friendly
@@ -340,7 +340,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
 
             // add batch ID to this temp mesh
             // first, update bookkeepping
-            const newMeshStruct: Mesh.Struct = JSON.parse(JSON.stringify(unit.mesh.struct));
+            const newMeshStruct: Mesh.IStruct = JSON.parse(JSON.stringify(unit.mesh.struct));
             let newOffset = 0;
             for (const vb of newMeshStruct.vertexBundles) {
                 vb.attributes.push(batch_id);
