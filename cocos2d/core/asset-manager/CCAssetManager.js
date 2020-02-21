@@ -41,7 +41,7 @@ const packManager = require('./pack-manager');
 const Bundle = require('./bundle');
 const builtins = require('./builtins')
 const { parse, combine } = require('./urlTransformer');
-const { parseParameters, urlAppendTimestamp } = require('./utilities');
+const { parseParameters, urlAppendTimestamp, deferCallback } = require('./utilities');
 const { assets, files, parsed, pipeline, transformPipeline, fetchPipeline, initializePipeline, LoadStrategy, RequestType, bundles } = require('./shared');
 /**
  * @module cc
@@ -373,12 +373,12 @@ AssetManager.prototype = {
         var { options, onProgress, onComplete } = parseParameters(options, onProgress, onComplete);
 
         if (requests instanceof Task) {
-            requests.onComplete = onComplete;
+            requests.onComplete = deferCallback(onComplete);
             initializePipeline.async(requests);
             return null;
         }
         
-        var task = new Task({input: requests, onProgress, onComplete, options});
+        var task = new Task({input: requests, onProgress, onComplete: deferCallback(onComplete), options});
         pipeline.async(task);
         return task;
     },
@@ -418,7 +418,7 @@ AssetManager.prototype = {
     
         options.loadStrategy = LoadStrategy.PRELOAD;
         options.priority = -1;
-        var task = new Task({input: requests, onProgress, onComplete, options});
+        var task = new Task({input: requests, onProgress, onComplete: deferCallback(onComplete), options});
         fetchPipeline.async(task);
         return task;
     },

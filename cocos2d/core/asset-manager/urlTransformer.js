@@ -146,10 +146,10 @@ function combine (task) {
         var url = '', base = '';
     
         if (item.isNative) {
-            base = item.config ? (item.config.base + item.config.nativeBase) : cc.assetManager.generalNativeBase;
+            base = (item.config && item.config.nativeBase) ? (item.config.base + item.config.nativeBase) : cc.assetManager.generalNativeBase;
         } 
         else {
-            base = item.config ? (item.config.base + item.config.importBase) : cc.assetManager.generalImportBase;
+            base = (item.config && item.config.nativeBase) ? (item.config.base + item.config.importBase) : cc.assetManager.generalImportBase;
         }
 
         let uuid = item.uuid;

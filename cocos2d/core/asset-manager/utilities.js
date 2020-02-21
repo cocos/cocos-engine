@@ -25,6 +25,7 @@
 const dependUtil = require('./depend-util');
 const { isScene, decodeUuid } = require('./helper');
 const { assets } = require('./shared');
+const { callInNextTick } = require('../platform/utils');
 const MissingObjectReporter = CC_EDITOR && Editor.require('app://editor/page/scene-utils/missing-object-reporter');
 require('../assets/CCAsset');
 
@@ -324,6 +325,12 @@ var utils = {
             }
         }
         return result;
+    },
+
+    deferCallback (cb) {
+        return function (p1, p2) {
+            cb && callInNextTick(cb, p1, p2);
+        }
     }
 };
 
