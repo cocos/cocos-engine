@@ -3855,30 +3855,6 @@ static bool js_gfx_GFXIndirectBuffer_constructor(se::State& s)
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
-    else if(argc == 1 && args[0].isObject())
-    {
-        se::Object *json = args[0].toObject();
-        se::Value field;
-
-        std::vector<cocos2d::GFXDrawInfo> arg0;
-        json->getProperty("draws", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".draws\" is undefined!");
-            return false;
-        }
-        ok &= seval_to_std_vector(field, &arg0);
-
-        if(!ok) {
-            SE_REPORT_ERROR("argument convertion error");
-            return false;
-        }
-
-        cocos2d::GFXIndirectBuffer* cobj = JSB_ALLOC(cocos2d::GFXIndirectBuffer);
-        cobj->draws = arg0;
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-        return true;
-    }
     else if(argc == 1)
     {
         std::vector<cocos2d::GFXDrawInfo> arg0;
@@ -8637,30 +8613,6 @@ static bool js_gfx_GFXBindingLayoutInfo_constructor(se::State& s)
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
-    else if(argc == 1 && args[0].isObject())
-    {
-        se::Object *json = args[0].toObject();
-        se::Value field;
-
-        std::vector<cocos2d::GFXBinding> arg0;
-        json->getProperty("bindings", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".bindings\" is undefined!");
-            return false;
-        }
-        ok &= seval_to_std_vector(field, &arg0);
-
-        if(!ok) {
-            SE_REPORT_ERROR("argument convertion error");
-            return false;
-        }
-
-        cocos2d::GFXBindingLayoutInfo* cobj = JSB_ALLOC(cocos2d::GFXBindingLayoutInfo);
-        cobj->bindings = arg0;
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-        return true;
-    }
     else if(argc == 1)
     {
         std::vector<cocos2d::GFXBinding> arg0;
@@ -9457,30 +9409,6 @@ static bool js_gfx_GFXInputState_constructor(se::State& s)
     if(argc == 0) 
     {
         cocos2d::GFXInputState* cobj = JSB_ALLOC(cocos2d::GFXInputState);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-        return true;
-    }
-    else if(argc == 1 && args[0].isObject())
-    {
-        se::Object *json = args[0].toObject();
-        se::Value field;
-
-        std::vector<cocos2d::GFXAttribute> arg0;
-        json->getProperty("attributes", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".attributes\" is undefined!");
-            return false;
-        }
-        ok &= seval_to_std_vector(field, &arg0);
-
-        if(!ok) {
-            SE_REPORT_ERROR("argument convertion error");
-            return false;
-        }
-
-        cocos2d::GFXInputState* cobj = JSB_ALLOC(cocos2d::GFXInputState);
-        cobj->attributes = arg0;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -12219,30 +12147,6 @@ static bool js_gfx_GFXQueueInfo_constructor(se::State& s)
     if(argc == 0) 
     {
         cocos2d::GFXQueueInfo* cobj = JSB_ALLOC(cocos2d::GFXQueueInfo);
-        s.thisObject()->setPrivateData(cobj);
-        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
-        return true;
-    }
-    else if(argc == 1 && args[0].isObject())
-    {
-        se::Object *json = args[0].toObject();
-        se::Value field;
-
-        cocos2d::GFXQueueType arg0;
-        json->getProperty("type", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".type\" is undefined!");
-            return false;
-        }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXQueueType)tmp; } while(false);
-
-        if(!ok) {
-            SE_REPORT_ERROR("argument convertion error");
-            return false;
-        }
-
-        cocos2d::GFXQueueInfo* cobj = JSB_ALLOC(cocos2d::GFXQueueInfo);
-        cobj->type = arg0;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
