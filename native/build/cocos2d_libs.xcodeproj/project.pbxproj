@@ -3825,7 +3825,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
@@ -3882,7 +3882,7 @@
 					"-DFIPS_DEBUG=1",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
-					"-std=c++11",
+					"-std=c++14",
 					"${OTHER_CFLAGS}",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -3902,7 +3902,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
@@ -3952,7 +3952,7 @@
 					"-DNDEBUG",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
-					"-std=c++11",
+					"-std=c++14",
 					"${OTHER_CFLAGS}",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4040,7 +4040,7 @@
 			baseConfigurationReference = 051C016F21E2F85C00D4A347 /* CCModuleConfigIOS.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				ENABLE_BITCODE = NO;
 				EXECUTABLE_PREFIX = "";
@@ -4070,7 +4070,7 @@
 					"-DFIPS_DEBUG=1",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
-					"-std=c++11",
+					"-std=c++14",
 					"${OTHER_CFLAGS}",
 				);
 				OTHER_LDFLAGS = (
@@ -4091,7 +4091,7 @@
 			baseConfigurationReference = 051C017021E2F85C00D4A347 /* CCModuleConfigIOS.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_BITCODE = NO;
@@ -4122,7 +4122,7 @@
 					"-DNDEBUG",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
-					"-std=c++11",
+					"-std=c++14",
 					"${OTHER_CFLAGS}",
 				);
 				OTHER_LDFLAGS = (
