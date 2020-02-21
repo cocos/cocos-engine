@@ -201,7 +201,7 @@ export class TweenAction extends ActionInterval {
             target[name] = prop.current;
         }
         if (opts.onUpdate) { opts.onUpdate(); }
-        if (opts.onComplete && t == 1) { opts.onComplete(); }
+        if (t == 1 && opts.onComplete) { opts.onComplete(); }
     }
 
     progress (start: any, end: any, current: any, t: number) {
