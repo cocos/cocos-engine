@@ -253,6 +253,11 @@ export declare namespace Mesh {
         primitives: ISubmesh[];
 
         /**
+         * 此网格的骨骼索引基数。
+         */
+        baseJoint?: number;
+
+        /**
          * （各分量都）小于等于此网格任何顶点位置的最大位置。
          */
         minPosition?: Vec3;
