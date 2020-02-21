@@ -179,7 +179,7 @@ static bool js_gfx_GFXOffset_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXOffset_constructor, __jsb_cocos2d_GFXOffset_class, js_cocos2d_GFXOffset_finalize)
+SE_BIND_CTOR(js_gfx_GFXOffset_constructor, __jsb_cocos2d_GFXOffset_class, js_cocos2d_GFXOffset_finalize)
 
 
 
@@ -424,7 +424,7 @@ static bool js_gfx_GFXRect_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXRect_constructor, __jsb_cocos2d_GFXRect_class, js_cocos2d_GFXRect_finalize)
+SE_BIND_CTOR(js_gfx_GFXRect_constructor, __jsb_cocos2d_GFXRect_class, js_cocos2d_GFXRect_finalize)
 
 
 
@@ -631,7 +631,7 @@ static bool js_gfx_GFXExtent_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXExtent_constructor, __jsb_cocos2d_GFXExtent_class, js_cocos2d_GFXExtent_finalize)
+SE_BIND_CTOR(js_gfx_GFXExtent_constructor, __jsb_cocos2d_GFXExtent_class, js_cocos2d_GFXExtent_finalize)
 
 
 
@@ -876,7 +876,7 @@ static bool js_gfx_GFXTextureSubres_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXTextureSubres_constructor, __jsb_cocos2d_GFXTextureSubres_class, js_cocos2d_GFXTextureSubres_finalize)
+SE_BIND_CTOR(js_gfx_GFXTextureSubres_constructor, __jsb_cocos2d_GFXTextureSubres_class, js_cocos2d_GFXTextureSubres_finalize)
 
 
 
@@ -1161,7 +1161,7 @@ static bool js_gfx_GFXTextureCopy_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXTextureCopy_constructor, __jsb_cocos2d_GFXTextureCopy_class, js_cocos2d_GFXTextureCopy_finalize)
+SE_BIND_CTOR(js_gfx_GFXTextureCopy_constructor, __jsb_cocos2d_GFXTextureCopy_class, js_cocos2d_GFXTextureCopy_finalize)
 
 
 
@@ -1486,7 +1486,7 @@ static bool js_gfx_GFXBufferTextureCopy_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXBufferTextureCopy_constructor, __jsb_cocos2d_GFXBufferTextureCopy_class, js_cocos2d_GFXBufferTextureCopy_finalize)
+SE_BIND_CTOR(js_gfx_GFXBufferTextureCopy_constructor, __jsb_cocos2d_GFXBufferTextureCopy_class, js_cocos2d_GFXBufferTextureCopy_finalize)
 
 
 
@@ -1812,7 +1812,7 @@ static bool js_gfx_GFXViewport_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXViewport_constructor, __jsb_cocos2d_GFXViewport_class, js_cocos2d_GFXViewport_finalize)
+SE_BIND_CTOR(js_gfx_GFXViewport_constructor, __jsb_cocos2d_GFXViewport_class, js_cocos2d_GFXViewport_finalize)
 
 
 
@@ -2060,7 +2060,7 @@ static bool js_gfx_GFXColor_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXColor_constructor, __jsb_cocos2d_GFXColor_class, js_cocos2d_GFXColor_finalize)
+SE_BIND_CTOR(js_gfx_GFXColor_constructor, __jsb_cocos2d_GFXColor_class, js_cocos2d_GFXColor_finalize)
 
 
 
@@ -2384,7 +2384,7 @@ static bool js_gfx_GFXDeviceInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXDeviceInfo_constructor, __jsb_cocos2d_GFXDeviceInfo_class, js_cocos2d_GFXDeviceInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXDeviceInfo_constructor, __jsb_cocos2d_GFXDeviceInfo_class, js_cocos2d_GFXDeviceInfo_finalize)
 
 
 
@@ -2905,7 +2905,7 @@ static bool js_gfx_GFXWindowInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXWindowInfo_constructor, __jsb_cocos2d_GFXWindowInfo_class, js_cocos2d_GFXWindowInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXWindowInfo_constructor, __jsb_cocos2d_GFXWindowInfo_class, js_cocos2d_GFXWindowInfo_finalize)
 
 
 
@@ -3119,7 +3119,7 @@ static bool js_gfx_GFXContextInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXContextInfo_constructor, __jsb_cocos2d_GFXContextInfo_class, js_cocos2d_GFXContextInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXContextInfo_constructor, __jsb_cocos2d_GFXContextInfo_class, js_cocos2d_GFXContextInfo_finalize)
 
 
 
@@ -3403,7 +3403,7 @@ static bool js_gfx_GFXBufferInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXBufferInfo_constructor, __jsb_cocos2d_GFXBufferInfo_class, js_cocos2d_GFXBufferInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXBufferInfo_constructor, __jsb_cocos2d_GFXBufferInfo_class, js_cocos2d_GFXBufferInfo_finalize)
 
 
 
@@ -3767,7 +3767,7 @@ static bool js_gfx_GFXDrawInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXDrawInfo_constructor, __jsb_cocos2d_GFXDrawInfo_class, js_cocos2d_GFXDrawInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXDrawInfo_constructor, __jsb_cocos2d_GFXDrawInfo_class, js_cocos2d_GFXDrawInfo_finalize)
 
 
 
@@ -3854,6 +3854,30 @@ static bool js_gfx_GFXIndirectBuffer_constructor(se::State& s)
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
+    else if(argc == 1 && args[0].isObject())
+    {
+        se::Object *json = args[0].toObject();
+        se::Value field;
+
+        std::vector<cocos2d::GFXDrawInfo> arg0;
+        json->getProperty("draws", &field);  
+        if(field.isUndefined()) {
+            SE_REPORT_ERROR("argument Field \".draws\" is undefined!");
+            return false;
+        }
+        ok &= seval_to_std_vector(field, &arg0);
+
+        if(!ok) {
+            SE_REPORT_ERROR("argument convertion error");
+            return false;
+        }
+
+        cocos2d::GFXIndirectBuffer* cobj = JSB_ALLOC(cocos2d::GFXIndirectBuffer);
+        cobj->draws = arg0;
+        s.thisObject()->setPrivateData(cobj);
+        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        return true;
+    }
     else if(argc == 1)
     {
         std::vector<cocos2d::GFXDrawInfo> arg0;
@@ -3875,7 +3899,7 @@ static bool js_gfx_GFXIndirectBuffer_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXIndirectBuffer_constructor, __jsb_cocos2d_GFXIndirectBuffer_class, js_cocos2d_GFXIndirectBuffer_finalize)
+SE_BIND_CTOR(js_gfx_GFXIndirectBuffer_constructor, __jsb_cocos2d_GFXIndirectBuffer_class, js_cocos2d_GFXIndirectBuffer_finalize)
 
 
 
@@ -4352,7 +4376,7 @@ static bool js_gfx_GFXTextureInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXTextureInfo_constructor, __jsb_cocos2d_GFXTextureInfo_class, js_cocos2d_GFXTextureInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXTextureInfo_constructor, __jsb_cocos2d_GFXTextureInfo_class, js_cocos2d_GFXTextureInfo_finalize)
 
 
 
@@ -4721,7 +4745,7 @@ static bool js_gfx_GFXTextureViewInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXTextureViewInfo_constructor, __jsb_cocos2d_GFXTextureViewInfo_class, js_cocos2d_GFXTextureViewInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXTextureViewInfo_constructor, __jsb_cocos2d_GFXTextureViewInfo_class, js_cocos2d_GFXTextureViewInfo_finalize)
 
 
 
@@ -5321,7 +5345,7 @@ static bool js_gfx_GFXSamplerInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXSamplerInfo_constructor, __jsb_cocos2d_GFXSamplerInfo_class, js_cocos2d_GFXSamplerInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXSamplerInfo_constructor, __jsb_cocos2d_GFXSamplerInfo_class, js_cocos2d_GFXSamplerInfo_finalize)
 
 
 
@@ -5498,7 +5522,7 @@ static bool js_gfx_GFXShaderMacro_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXShaderMacro_constructor, __jsb_cocos2d_GFXShaderMacro_class, js_cocos2d_GFXShaderMacro_finalize)
+SE_BIND_CTOR(js_gfx_GFXShaderMacro_constructor, __jsb_cocos2d_GFXShaderMacro_class, js_cocos2d_GFXShaderMacro_finalize)
 
 
 
@@ -5703,7 +5727,7 @@ static bool js_gfx_GFXUniform_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXUniform_constructor, __jsb_cocos2d_GFXUniform_class, js_cocos2d_GFXUniform_finalize)
+SE_BIND_CTOR(js_gfx_GFXUniform_constructor, __jsb_cocos2d_GFXUniform_class, js_cocos2d_GFXUniform_finalize)
 
 
 
@@ -5909,7 +5933,7 @@ static bool js_gfx_GFXUniformBlock_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXUniformBlock_constructor, __jsb_cocos2d_GFXUniformBlock_class, js_cocos2d_GFXUniformBlock_finalize)
+SE_BIND_CTOR(js_gfx_GFXUniformBlock_constructor, __jsb_cocos2d_GFXUniformBlock_class, js_cocos2d_GFXUniformBlock_finalize)
 
 
 
@@ -6154,7 +6178,7 @@ static bool js_gfx_GFXUniformSampler_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXUniformSampler_constructor, __jsb_cocos2d_GFXUniformSampler_class, js_cocos2d_GFXUniformSampler_finalize)
+SE_BIND_CTOR(js_gfx_GFXUniformSampler_constructor, __jsb_cocos2d_GFXUniformSampler_class, js_cocos2d_GFXUniformSampler_finalize)
 
 
 
@@ -6361,7 +6385,7 @@ static bool js_gfx_GFXShaderStage_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXShaderStage_constructor, __jsb_cocos2d_GFXShaderStage_class, js_cocos2d_GFXShaderStage_finalize)
+SE_BIND_CTOR(js_gfx_GFXShaderStage_constructor, __jsb_cocos2d_GFXShaderStage_class, js_cocos2d_GFXShaderStage_finalize)
 
 
 
@@ -6606,7 +6630,7 @@ static bool js_gfx_GFXShaderInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXShaderInfo_constructor, __jsb_cocos2d_GFXShaderInfo_class, js_cocos2d_GFXShaderInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXShaderInfo_constructor, __jsb_cocos2d_GFXShaderInfo_class, js_cocos2d_GFXShaderInfo_finalize)
 
 
 
@@ -6891,7 +6915,7 @@ static bool js_gfx_GFXAttribute_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXAttribute_constructor, __jsb_cocos2d_GFXAttribute_class, js_cocos2d_GFXAttribute_finalize)
+SE_BIND_CTOR(js_gfx_GFXAttribute_constructor, __jsb_cocos2d_GFXAttribute_class, js_cocos2d_GFXAttribute_finalize)
 
 
 
@@ -7138,7 +7162,7 @@ static bool js_gfx_GFXInputAssemblerInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXInputAssemblerInfo_constructor, __jsb_cocos2d_GFXInputAssemblerInfo_class, js_cocos2d_GFXInputAssemblerInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXInputAssemblerInfo_constructor, __jsb_cocos2d_GFXInputAssemblerInfo_class, js_cocos2d_GFXInputAssemblerInfo_finalize)
 
 
 
@@ -7462,7 +7486,7 @@ static bool js_gfx_GFXColorAttachment_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXColorAttachment_constructor, __jsb_cocos2d_GFXColorAttachment_class, js_cocos2d_GFXColorAttachment_finalize)
+SE_BIND_CTOR(js_gfx_GFXColorAttachment_constructor, __jsb_cocos2d_GFXColorAttachment_class, js_cocos2d_GFXColorAttachment_finalize)
 
 
 
@@ -7866,7 +7890,7 @@ static bool js_gfx_GFXDepthStencilAttachment_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXDepthStencilAttachment_constructor, __jsb_cocos2d_GFXDepthStencilAttachment_class, js_cocos2d_GFXDepthStencilAttachment_finalize)
+SE_BIND_CTOR(js_gfx_GFXDepthStencilAttachment_constructor, __jsb_cocos2d_GFXDepthStencilAttachment_class, js_cocos2d_GFXDepthStencilAttachment_finalize)
 
 
 
@@ -8077,7 +8101,7 @@ static bool js_gfx_GFXRenderPassInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXRenderPassInfo_constructor, __jsb_cocos2d_GFXRenderPassInfo_class, js_cocos2d_GFXRenderPassInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXRenderPassInfo_constructor, __jsb_cocos2d_GFXRenderPassInfo_class, js_cocos2d_GFXRenderPassInfo_finalize)
 
 
 
@@ -8322,7 +8346,7 @@ static bool js_gfx_GFXFramebufferInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXFramebufferInfo_constructor, __jsb_cocos2d_GFXFramebufferInfo_class, js_cocos2d_GFXFramebufferInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXFramebufferInfo_constructor, __jsb_cocos2d_GFXFramebufferInfo_class, js_cocos2d_GFXFramebufferInfo_finalize)
 
 
 
@@ -8529,7 +8553,7 @@ static bool js_gfx_GFXBinding_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXBinding_constructor, __jsb_cocos2d_GFXBinding_class, js_cocos2d_GFXBinding_finalize)
+SE_BIND_CTOR(js_gfx_GFXBinding_constructor, __jsb_cocos2d_GFXBinding_class, js_cocos2d_GFXBinding_finalize)
 
 
 
@@ -8612,6 +8636,30 @@ static bool js_gfx_GFXBindingLayoutInfo_constructor(se::State& s)
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
+    else if(argc == 1 && args[0].isObject())
+    {
+        se::Object *json = args[0].toObject();
+        se::Value field;
+
+        std::vector<cocos2d::GFXBinding> arg0;
+        json->getProperty("bindings", &field);  
+        if(field.isUndefined()) {
+            SE_REPORT_ERROR("argument Field \".bindings\" is undefined!");
+            return false;
+        }
+        ok &= seval_to_std_vector(field, &arg0);
+
+        if(!ok) {
+            SE_REPORT_ERROR("argument convertion error");
+            return false;
+        }
+
+        cocos2d::GFXBindingLayoutInfo* cobj = JSB_ALLOC(cocos2d::GFXBindingLayoutInfo);
+        cobj->bindings = arg0;
+        s.thisObject()->setPrivateData(cobj);
+        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        return true;
+    }
     else if(argc == 1)
     {
         std::vector<cocos2d::GFXBinding> arg0;
@@ -8633,7 +8681,7 @@ static bool js_gfx_GFXBindingLayoutInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXBindingLayoutInfo_constructor, __jsb_cocos2d_GFXBindingLayoutInfo_class, js_cocos2d_GFXBindingLayoutInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXBindingLayoutInfo_constructor, __jsb_cocos2d_GFXBindingLayoutInfo_class, js_cocos2d_GFXBindingLayoutInfo_finalize)
 
 
 
@@ -8954,7 +9002,7 @@ static bool js_gfx_GFXBindingUnit_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXBindingUnit_constructor, __jsb_cocos2d_GFXBindingUnit_class, js_cocos2d_GFXBindingUnit_finalize)
+SE_BIND_CTOR(js_gfx_GFXBindingUnit_constructor, __jsb_cocos2d_GFXBindingUnit_class, js_cocos2d_GFXBindingUnit_finalize)
 
 
 
@@ -9163,7 +9211,7 @@ static bool js_gfx_GFXPushConstantRange_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXPushConstantRange_constructor, __jsb_cocos2d_GFXPushConstantRange_class, js_cocos2d_GFXPushConstantRange_finalize)
+SE_BIND_CTOR(js_gfx_GFXPushConstantRange_constructor, __jsb_cocos2d_GFXPushConstantRange_class, js_cocos2d_GFXPushConstantRange_finalize)
 
 
 
@@ -9330,7 +9378,7 @@ static bool js_gfx_GFXPipelineLayoutInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXPipelineLayoutInfo_constructor, __jsb_cocos2d_GFXPipelineLayoutInfo_class, js_cocos2d_GFXPipelineLayoutInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXPipelineLayoutInfo_constructor, __jsb_cocos2d_GFXPipelineLayoutInfo_class, js_cocos2d_GFXPipelineLayoutInfo_finalize)
 
 
 
@@ -9412,6 +9460,30 @@ static bool js_gfx_GFXInputState_constructor(se::State& s)
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
+    else if(argc == 1 && args[0].isObject())
+    {
+        se::Object *json = args[0].toObject();
+        se::Value field;
+
+        std::vector<cocos2d::GFXAttribute> arg0;
+        json->getProperty("attributes", &field);  
+        if(field.isUndefined()) {
+            SE_REPORT_ERROR("argument Field \".attributes\" is undefined!");
+            return false;
+        }
+        ok &= seval_to_std_vector(field, &arg0);
+
+        if(!ok) {
+            SE_REPORT_ERROR("argument convertion error");
+            return false;
+        }
+
+        cocos2d::GFXInputState* cobj = JSB_ALLOC(cocos2d::GFXInputState);
+        cobj->attributes = arg0;
+        s.thisObject()->setPrivateData(cobj);
+        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        return true;
+    }
     else if(argc == 1)
     {
         std::vector<cocos2d::GFXAttribute> arg0;
@@ -9433,7 +9505,7 @@ static bool js_gfx_GFXInputState_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXInputState_constructor, __jsb_cocos2d_GFXInputState_class, js_cocos2d_GFXInputState_finalize)
+SE_BIND_CTOR(js_gfx_GFXInputState_constructor, __jsb_cocos2d_GFXInputState_class, js_cocos2d_GFXInputState_finalize)
 
 
 
@@ -9949,7 +10021,7 @@ static bool js_gfx_GFXRasterizerState_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXRasterizerState_constructor, __jsb_cocos2d_GFXRasterizerState_class, js_cocos2d_GFXRasterizerState_finalize)
+SE_BIND_CTOR(js_gfx_GFXRasterizerState_constructor, __jsb_cocos2d_GFXRasterizerState_class, js_cocos2d_GFXRasterizerState_finalize)
 
 
 
@@ -10787,7 +10859,7 @@ static bool js_gfx_GFXDepthStencilState_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXDepthStencilState_constructor, __jsb_cocos2d_GFXDepthStencilState_class, js_cocos2d_GFXDepthStencilState_finalize)
+SE_BIND_CTOR(js_gfx_GFXDepthStencilState_constructor, __jsb_cocos2d_GFXDepthStencilState_class, js_cocos2d_GFXDepthStencilState_finalize)
 
 
 
@@ -11204,7 +11276,7 @@ static bool js_gfx_GFXBlendTarget_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXBlendTarget_constructor, __jsb_cocos2d_GFXBlendTarget_class, js_cocos2d_GFXBlendTarget_finalize)
+SE_BIND_CTOR(js_gfx_GFXBlendTarget_constructor, __jsb_cocos2d_GFXBlendTarget_class, js_cocos2d_GFXBlendTarget_finalize)
 
 
 
@@ -11454,7 +11526,7 @@ static bool js_gfx_GFXBlendState_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXBlendState_constructor, __jsb_cocos2d_GFXBlendState_class, js_cocos2d_GFXBlendState_finalize)
+SE_BIND_CTOR(js_gfx_GFXBlendState_constructor, __jsb_cocos2d_GFXBlendState_class, js_cocos2d_GFXBlendState_finalize)
 
 
 
@@ -11895,7 +11967,7 @@ static bool js_gfx_GFXPipelineStateInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXPipelineStateInfo_constructor, __jsb_cocos2d_GFXPipelineStateInfo_class, js_cocos2d_GFXPipelineStateInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXPipelineStateInfo_constructor, __jsb_cocos2d_GFXPipelineStateInfo_class, js_cocos2d_GFXPipelineStateInfo_finalize)
 
 
 
@@ -12068,7 +12140,7 @@ static bool js_gfx_GFXCommandBufferInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXCommandBufferInfo_constructor, __jsb_cocos2d_GFXCommandBufferInfo_class, js_cocos2d_GFXCommandBufferInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXCommandBufferInfo_constructor, __jsb_cocos2d_GFXCommandBufferInfo_class, js_cocos2d_GFXCommandBufferInfo_finalize)
 
 
 
@@ -12150,6 +12222,30 @@ static bool js_gfx_GFXQueueInfo_constructor(se::State& s)
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
+    else if(argc == 1 && args[0].isObject())
+    {
+        se::Object *json = args[0].toObject();
+        se::Value field;
+
+        cocos2d::GFXQueueType arg0;
+        json->getProperty("type", &field);  
+        if(field.isUndefined()) {
+            SE_REPORT_ERROR("argument Field \".type\" is undefined!");
+            return false;
+        }
+        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXQueueType)tmp; } while(false);
+
+        if(!ok) {
+            SE_REPORT_ERROR("argument convertion error");
+            return false;
+        }
+
+        cocos2d::GFXQueueInfo* cobj = JSB_ALLOC(cocos2d::GFXQueueInfo);
+        cobj->type = arg0;
+        s.thisObject()->setPrivateData(cobj);
+        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        return true;
+    }
     else if(argc == 1)
     {
         cocos2d::GFXQueueType arg0;
@@ -12171,7 +12267,7 @@ static bool js_gfx_GFXQueueInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXQueueInfo_constructor, __jsb_cocos2d_GFXQueueInfo_class, js_cocos2d_GFXQueueInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXQueueInfo_constructor, __jsb_cocos2d_GFXQueueInfo_class, js_cocos2d_GFXQueueInfo_finalize)
 
 
 
@@ -12570,7 +12666,7 @@ static bool js_gfx_GFXFormatInfo_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXFormatInfo_constructor, __jsb_cocos2d_GFXFormatInfo_class, js_cocos2d_GFXFormatInfo_finalize)
+SE_BIND_CTOR(js_gfx_GFXFormatInfo_constructor, __jsb_cocos2d_GFXFormatInfo_class, js_cocos2d_GFXFormatInfo_finalize)
 
 
 
@@ -12742,7 +12838,7 @@ static bool js_gfx_GFXMemoryStatus_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXMemoryStatus_constructor, __jsb_cocos2d_GFXMemoryStatus_class, js_cocos2d_GFXMemoryStatus_finalize)
+SE_BIND_CTOR(js_gfx_GFXMemoryStatus_constructor, __jsb_cocos2d_GFXMemoryStatus_class, js_cocos2d_GFXMemoryStatus_finalize)
 
 
 
