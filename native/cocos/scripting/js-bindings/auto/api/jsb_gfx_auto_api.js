@@ -963,10 +963,20 @@ gfxdevice
 gfx.GFXSampler = {
 
 /**
- * @method max_lod
+ * @method maxLOD
  * @return {unsigned int}
  */
-max_lod : function (
+maxLOD : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method mipLODBias
+ * @return {float}
+ */
+mipLODBias : function (
 )
 {
     return 0;
@@ -993,10 +1003,10 @@ destroy : function (
 },
 
 /**
- * @method mip_filter
- * @return {cc.GFXFilter}
+ * @method minLOD
+ * @return {unsigned int}
  */
-mip_filter : function (
+minLOD : function (
 )
 {
     return 0;
@@ -2033,20 +2043,10 @@ gfxdevice
 gfx.GLES2Device = {
 
 /**
- * @method use_discard_framebuffer
+ * @method useInstancedArrays
  * @return {bool}
  */
-use_discard_framebuffer : function (
-)
-{
-    return false;
-},
-
-/**
- * @method use_instanced_arrays
- * @return {bool}
- */
-use_instanced_arrays : function (
+useInstancedArrays : function (
 )
 {
     return false;
@@ -2065,20 +2065,20 @@ gfxcommandallocatorinfo
 },
 
 /**
- * @method use_vao
+ * @method useDrawInstanced
  * @return {bool}
  */
-use_vao : function (
+useDrawInstanced : function (
 )
 {
     return false;
 },
 
 /**
- * @method use_draw_instanced
+ * @method useDiscardFramebuffer
  * @return {bool}
  */
-use_draw_instanced : function (
+useDiscardFramebuffer : function (
 )
 {
     return false;
@@ -2194,6 +2194,16 @@ gfxsamplerinfo
 )
 {
     return cc.GFXSampler;
+},
+
+/**
+ * @method useVAO
+ * @return {bool}
+ */
+useVAO : function (
+)
+{
+    return false;
 },
 
 /**

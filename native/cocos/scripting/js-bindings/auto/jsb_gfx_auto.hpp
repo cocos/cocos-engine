@@ -363,10 +363,11 @@ extern se::Class* __jsb_cocos2d_GFXSampler_class;
 
 bool js_register_cocos2d_GFXSampler(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GFXSampler_max_lod);
+SE_DECLARE_FUNC(js_gfx_GFXSampler_maxLOD);
+SE_DECLARE_FUNC(js_gfx_GFXSampler_mipLODBias);
 SE_DECLARE_FUNC(js_gfx_GFXSampler_initialize);
 SE_DECLARE_FUNC(js_gfx_GFXSampler_destroy);
-SE_DECLARE_FUNC(js_gfx_GFXSampler_mip_filter);
+SE_DECLARE_FUNC(js_gfx_GFXSampler_minLOD);
 SE_DECLARE_FUNC(js_gfx_GFXSampler_GFXSampler);
 
 extern se::Object* __jsb_cocos2d_GFXShader_proto;
@@ -518,11 +519,10 @@ extern se::Class* __jsb_cocos2d_GLES2Device_class;
 
 bool js_register_cocos2d_GLES2Device(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GLES2Device_use_discard_framebuffer);
-SE_DECLARE_FUNC(js_gfx_GLES2Device_use_instanced_arrays);
+SE_DECLARE_FUNC(js_gfx_GLES2Device_useInstancedArrays);
 SE_DECLARE_FUNC(js_gfx_GLES2Device_createCommandAllocator);
-SE_DECLARE_FUNC(js_gfx_GLES2Device_use_vao);
-SE_DECLARE_FUNC(js_gfx_GLES2Device_use_draw_instanced);
+SE_DECLARE_FUNC(js_gfx_GLES2Device_useDrawInstanced);
+SE_DECLARE_FUNC(js_gfx_GLES2Device_useDiscardFramebuffer);
 SE_DECLARE_FUNC(js_gfx_GLES2Device_createCommandBuffer);
 SE_DECLARE_FUNC(js_gfx_GLES2Device_present);
 SE_DECLARE_FUNC(js_gfx_GLES2Device_createTexture);
@@ -533,6 +533,7 @@ SE_DECLARE_FUNC(js_gfx_GLES2Device_createWindow);
 SE_DECLARE_FUNC(js_gfx_GLES2Device_createShader);
 SE_DECLARE_FUNC(js_gfx_GLES2Device_createInputAssembler);
 SE_DECLARE_FUNC(js_gfx_GLES2Device_createSampler);
+SE_DECLARE_FUNC(js_gfx_GLES2Device_useVAO);
 SE_DECLARE_FUNC(js_gfx_GLES2Device_createBuffer);
 SE_DECLARE_FUNC(js_gfx_GLES2Device_initialize);
 SE_DECLARE_FUNC(js_gfx_GLES2Device_resize);
