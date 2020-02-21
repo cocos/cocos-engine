@@ -184,7 +184,10 @@ export class JointsTexturePool {
     }
 
     /**
-     * 获取指定动画片段的骨骼贴图
+     * @en
+     * Get joint texture for specified animation clip.
+     * @zh
+     * 获取指定动画片段的骨骼贴图。
      */
     public getJointsTextureWithAnimation (skeleton: Skeleton, clip: AnimationClip) {
         const hash = skeleton.hash ^ clip.hash;

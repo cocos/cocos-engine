@@ -20,7 +20,6 @@ const _matInsInfo: IMaterialInstanceInfo = {
 export class RenderableComponent extends Component {
     @property({
         type: [Material],
-        tooltip: '材质',
     })
     protected _materials: Array<Material | null> = [];
 
@@ -40,7 +39,6 @@ export class RenderableComponent extends Component {
     @property({
         type: Material,
         displayName: 'Materials',
-        tooltip: '源材质',
     })
     get sharedMaterials () {
         // if we don't create an array copy, the editor will modify the original array directly.
@@ -62,7 +60,7 @@ export class RenderableComponent extends Component {
     }
 
     /**
-     * @en The material of the model
+     * @en The materials of the model.
      * @zh 模型材质。
      */
     get materials () {
@@ -98,8 +96,8 @@ export class RenderableComponent extends Component {
     }
 
     /**
-     * 获取指定的sharedMaterial
-     * @param idx 材质序号
+     * @en Get the shared material asset of the specified sub-model.
+     * @zh 获取指定子模型的共享材质资源。
      */
     public getMaterial (idx: number): Material | null {
         if (idx < 0 || idx >= this._materials.length) {
@@ -109,9 +107,9 @@ export class RenderableComponent extends Component {
     }
 
     /**
-     * 设置指定的 sharedMaterial，如果对应位置有材质实例则会创建一个对应的材质实例
-     * @param index 材质序号
-     * @param material 材质对象
+     * @en Set the shared material asset of the specified sub-model,
+     * new material instance will be created automatically if the sub-model is already using one.
+     * @zh 设置指定子模型的 sharedMaterial，如果对应位置有材质实例则会创建一个对应的材质实例。
      */
     public setMaterial (material: Material | null, index: number) {
         if (material && material instanceof MaterialInstance) {
@@ -141,9 +139,8 @@ export class RenderableComponent extends Component {
     }
 
     /**
-     * @en Returns the material instance corresponding to the sequence number
-     * @zh 获取相对应序号的材质实例。
-     * @param idx Look for the material list number
+     * @en Get the material instance of the specified sub-model.
+     * @zh 获取指定子模型的材质实例。
      */
     public getMaterialInstance (idx: number): Material | null {
         const mat = this._materials[idx];
@@ -161,9 +158,8 @@ export class RenderableComponent extends Component {
     }
 
     /**
-     * 设置对应序号的材质实例
-     * @param index 材质序号
-     * @param matInst 材质实例
+     * @en Set the material instance of the specified sub-model.
+     * @zh 获取指定子模型的材质实例。
      */
     public setMaterialInstance (index: number, matInst: Material | null) {
         if (matInst && matInst.parent) {
@@ -179,8 +175,9 @@ export class RenderableComponent extends Component {
     }
 
     /**
-     * 获取指定位置可供渲染的材质，如果有材质实例则使用材质实例，如果没有则使用材质资源
-     * @param index 材质序号
+     * @en Get the actual rendering material of the specified sub-model.
+     * (material instance if there is one, or the shared material asset)
+     * @zh 获取指定位置可供渲染的材质，如果有材质实例则使用材质实例，如果没有则使用材质资源
      */
     public getRenderMaterial (index: number): Material | null {
         return this._materialInstances[index] || this._materials[index];

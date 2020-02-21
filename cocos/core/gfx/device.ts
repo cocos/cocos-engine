@@ -22,20 +22,12 @@ import { GFXWindow, IGFXWindowInfo } from './window';
 
 ccenum(GFXFormat);
 
-/**
- * @zh
- * GFX API。
- */
 export enum GFXAPI {
     UNKNOWN,
     WEBGL,
     WEBGL2,
 }
 
-/**
- * @zh
- * GFX特性。
- */
 export enum GFXFeature {
     COLOR_FLOAT,
     COLOR_HALF_FLOAT,
@@ -59,10 +51,6 @@ export enum GFXFeature {
     ELEMENT_INDEX_UINT,
 }
 
-/**
- * @zh
- * GFX设备描述信息。
- */
 export interface IGFXDeviceInfo {
     canvasElm: HTMLElement;
     isAntialias?: boolean;
@@ -74,257 +62,260 @@ export interface IGFXDeviceInfo {
 }
 
 /**
- * @zh
- * GFX设备。
+ * @en GFX Device.
+ * @zh GFX 设备。
  */
-// tslint:disable: max-line-length
 export abstract class GFXDevice {
 
     /**
-     * @zh
-     * HTML画布。
+     * @en The HTML canvas element.
+     * @zh HTML 画布。
      */
     public get canvas (): HTMLCanvasElement {
         return this._canvas as HTMLCanvasElement;
     }
 
     /**
-     * @zh
-     * 用于2D绘制的HTML画布。
+     * @en The HTML canvas element for 2D rendering.
+     * @zh 用于 2D 绘制的 HTML 画布。
      */
     public get canvas2D (): HTMLCanvasElement {
         return this._canvas2D as HTMLCanvasElement;
     }
 
     /**
-     * @zh
-     * GFX API。
+     * @en Current rendering API.
+     * @zh 当前 GFX 使用的渲染 API。
      */
     public get gfxAPI (): GFXAPI {
         return this._gfxAPI;
     }
 
     /**
-     * @zh
-     * GFX队列。
+     * @en GFX queue.
+     * @zh GFX 队列。
      */
     public get queue (): GFXQueue {
         return this._queue as GFXQueue;
     }
 
     /**
-     * @zh
-     * DPR 设备像素比。
+     * @en Device pixel ratio.
+     * @zh DPR 设备像素比。
      */
     public get devicePixelRatio (): number {
         return this._devicePixelRatio;
     }
 
     /**
-     * @zh
-     * 设备像素宽度。
+     * @en Device pixel width.
+     * @zh 设备像素宽度。
      */
     public get width (): number {
         return this._width;
     }
 
     /**
-     * @zh
-     * 设备像素高度。
+     * @en Device pixel height.
+     * @zh 设备像素高度。
      */
     public get height (): number {
         return this._height;
     }
 
     /**
-     * @zh
-     * 设备原生的像素宽度。
+     * @en Device native width.
+     * @zh 设备原生的像素宽度。
      */
     public get nativeWidth (): number {
         return this._nativeWidth;
     }
 
     /**
-     * @zh
-     * 设备原生的像素高度。
+     * @en Device native height.
+     * @zh 设备原生的像素高度。
      */
     public get nativeHeight (): number {
         return this._nativeHeight;
     }
 
     /**
-     * @zh
-     * 设备主窗口。
+     * @en Device main window.
+     * @zh 设备主窗口。
      */
     public get mainWindow (): GFXWindow {
         return this._mainWindow as GFXWindow;
     }
 
     /**
-     * @zh
-     * 命令分配器。
+     * @en Device command allocator.
+     * @zh 命令分配器。
      */
     public get commandAllocator (): GFXCommandAllocator {
         return this._cmdAllocator as GFXCommandAllocator;
     }
 
     /**
-     * @zh
-     * 渲染器描述。
+     * @en Renderer description.
+     * @zh 渲染器描述。
      */
     public get renderer (): string {
         return this._renderer;
     }
 
     /**
-     * @zh
-     * 厂商描述。
+     * @en Vendor description.
+     * @zh 厂商描述。
      */
     public get vendor (): string {
         return this._vendor;
     }
 
     /**
-     * @zh
-     * 最大顶点属性数量。
+     * @en Max vertex attributes supported.
+     * @zh 最大顶点属性数量。
      */
     public get maxVertexAttributes (): number {
         return this._maxVertexAttributes;
     }
 
     /**
-     * @zh
-     * 最大顶点Uniform向量数。
+     * @en Max vertex uniform vectors supported.
+     * @zh 最大顶点Uniform向量数。
      */
     public get maxVertexUniformVectors (): number {
         return this._maxVertexUniformVectors;
     }
 
     /**
-     * @zh
-     * 最大片段Uniform向量数。
+     * @en Max fragment uniform vectors supported.
+     * @zh 最大片段Uniform向量数。
      */
     public get maxFragmentUniformVectors (): number {
         return this._maxFragmentUniformVectors;
     }
 
     /**
-     * @zh
-     * 最大纹理单元数量。
+     * @en Max texture units supported.
+     * @zh 最大纹理单元数量。
      */
     public get maxTextureUnits (): number {
         return this._maxTextureUnits;
     }
 
     /**
-     * @zh
-     * 最大顶点纹理单元数量。
+     * @en Max vertex texture units supported.
+     * @zh 最大顶点纹理单元数量。
      */
     public get maxVertexTextureUnits (): number {
         return this._maxVertexTextureUnits;
     }
 
     /**
-     * @zh
-     * 最大UniformBuffer绑定数量。
+     * @en Max uniform buffer bindings supported.
+     * @zh 最大 UniformBuffer 绑定数量。
      */
     public get maxUniformBufferBindings (): number {
         return this._maxUniformBufferBindings;
     }
 
     /**
-     * @zh
-     * 最大Uniform块大小。
+     * @en Max uniform block size supported.
+     * @zh 最大Uniform块大小。
      */
     public get maxUniformBlockSize (): number {
         return this._maxUniformBlockSize;
     }
 
     /**
-     * @zh
-     * 最大贴图尺寸。
+     * @en Max texture size supported.
+     * @zh 最大贴图尺寸。
      */
     public get maxTextureSize (): number {
         return this._maxTextureSize;
     }
 
     /**
-     * @zh
-     * 最大立方贴图尺寸。
+     * @en Max cube map texture size supported.
+     * @zh 最大立方贴图尺寸。
      */
     public get maxCubeMapTextureSize (): number {
         return this._maxCubeMapTextureSize;
     }
 
     /**
-     * @zh
-     * 深度位数。
+     * @en Device depth bits.
+     * @zh 深度位数。
      */
     public get depthBits (): number {
         return this._depthBits;
     }
 
     /**
-     * @zh
-     * 模板位数。
+     * @en Device stencil bits.
+     * @zh 模板位数。
      */
     public get stencilBits (): number {
         return this._stencilBits;
     }
 
     /**
-     * @zh
-     * 颜色格式。
+     * @en Device color format.
+     * @zh 颜色格式。
      */
     public get colorFormat (): GFXFormat {
         return this._colorFmt;
     }
 
     /**
-     * @zh
-     * 深度模板格式。
+     * @en Device depth stencil format.
+     * @zh 深度模板格式。
      */
     public get depthStencilFormat (): GFXFormat {
         return this._depthStencilFmt;
     }
 
     /**
-     * @zh
-     * 系统宏定义。
+     * @en Device built-in macros.
+     * @zh 系统宏定义。
      */
     public get macros (): Map<string, string> {
         return this._macros;
     }
 
     /**
-     * @zh
-     * 绘制调用次数。
+     * @en Number of draw calls currently recorded.
+     * @zh 绘制调用次数。
      */
     public get numDrawCalls (): number {
         return this._numDrawCalls;
     }
 
     /**
-     * @zh
-     * 渲染三角形数量。
+     * @en Number of triangles currently recorded.
+     * @zh 渲染三角形数量。
      */
     public get numTris (): number {
         return this._numTris;
     }
 
     /**
-     * @zh
-     * 内存状态。
+     * @en Total memory size currently allocated.
+     * @zh 内存状态。
      */
     public get memoryStatus (): IGFXMemoryStatus {
         return this._memoryStatus;
     }
 
-    get reverseCW (): boolean {
+    /**
+     * @en Is the front face winding order reversed?
+     * @zh 是否倒置三角面缠绕顺序？
+     */
+    public get reverseCW (): boolean {
         return this._reverseCW;
     }
 
-    set reverseCW (val: boolean) {
+    public set reverseCW (val: boolean) {
         this._reverseCW = val;
     }
 
@@ -367,198 +358,189 @@ export abstract class GFXDevice {
         textureSize: 0,
     };
 
-    /**
-     * @zh
-     * 初始化函数。
-     * @param info GFX设备描述信息。
-     */
     public abstract initialize (info: IGFXDeviceInfo): boolean;
 
-    /**
-     * @zh
-     * 销毁函数。
-     */
     public abstract destroy (): void;
 
     /**
-     * @zh
-     * 重置设备大小。
-     * @param width 设备宽度。
-     * @param height 设备高度。
+     * @en Resize the device.
+     * @zh 重置设备大小。
+     * @param width The device width.
+     * @param height The device height.
      */
-    public abstract resize (width: number, height: number);
+    public abstract resize (width: number, height: number): void;
 
     /**
-     * @zh
-     * 创建缓冲。
-     * @param info GFX缓冲描述信息。
+     * @en Create buffer.
+     * @zh 创建缓冲。
+     * @param info GFX buffer description info.
      */
     public abstract createBuffer (info: IGFXBufferInfo): GFXBuffer;
 
     /**
-     * @zh
-     * 创建纹理。
-     * @param info GFX纹理描述信息。
+     * @en Create texture.
+     * @zh 创建纹理。
+     * @param info GFX texture description info.
      */
     public abstract createTexture (info: IGFXTextureInfo): GFXTexture;
 
     /**
-     * @zh
-     * 创建纹理视图。
-     * @param info GFX纹理视图描述信息。
+     * @en Create texture view.
+     * @zh 创建纹理视图。
+     * @param info GFX texture view description info.
      */
     public abstract createTextureView (info: IGFXTextureViewInfo): GFXTextureView;
 
     /**
-     * @zh
-     * 创建采样器。
-     * @param info GFX采样器描述信息。
+     * @en Create sampler.
+     * @zh 创建采样器。
+     * @param info GFX sampler description info.
      */
     public abstract createSampler (info: IGFXSamplerInfo): GFXSampler;
 
     /**
-     * @zh
-     * 创建绑定布局。
-     * @param info GFX绑定布局描述信息。
+     * @en Create binding layout.
+     * @zh 创建绑定布局。
+     * @param info GFX binding layout description info.
      */
     public abstract createBindingLayout (info: IGFXBindingLayoutInfo): GFXBindingLayout;
 
     /**
-     * @zh
-     * 创建着色器。
-     * @param info GFX着色器描述信息。
+     * @en Create shader.
+     * @zh 创建着色器。
+     * @param info GFX shader description info.
      */
     public abstract createShader (info: IGFXShaderInfo): GFXShader;
 
     /**
-     * @zh
-     * 创建纹理。
-     * @param info GFX纹理描述信息。
+     * @en Create input assembler.
+     * @zh 创建纹理。
+     * @param info GFX input assembler description info.
      */
     public abstract createInputAssembler (info: IGFXInputAssemblerInfo): GFXInputAssembler;
 
     /**
-     * @zh
-     * 创建渲染过程。
-     * @param info GFX渲染过程描述信息。
+     * @en Create render pass.
+     * @zh 创建渲染过程。
+     * @param info GFX render pass description info.
      */
     public abstract createRenderPass (info: IGFXRenderPassInfo): GFXRenderPass;
 
     /**
-     * @zh
-     * 创建帧缓冲。
-     * @param info GFX帧缓冲描述信息。
+     * @en Create frame buffer.
+     * @zh 创建帧缓冲。
+     * @param info GFX frame buffer description info.
      */
     public abstract createFramebuffer (info: IGFXFramebufferInfo): GFXFramebuffer;
 
     /**
-     * @zh
-     * 创建管线布局。
-     * @param info GFX管线布局描述信息。
+     * @en Create pipeline layout.
+     * @zh 创建管线布局。
+     * @param info GFX pipeline layout description info.
      */
     public abstract createPipelineLayout (info: IGFXPipelineLayoutInfo): GFXPipelineLayout;
 
     /**
-     * @zh
-     * 创建管线状态。
-     * @param info GFX管线状态描述信息。
+     * @en Create pipeline state.
+     * @zh 创建管线状态。
+     * @param info GFX pipeline state description info.
      */
     public abstract createPipelineState (info: IGFXPipelineStateInfo): GFXPipelineState;
 
     /**
-     * @zh
-     * 创建命令分配器。
-     * @param info GFX命令分配器描述信息。
+     * @en Create command allocator.
+     * @zh 创建命令分配器。
+     * @param info GFX command allocator description info.
      */
     public abstract createCommandAllocator (info: IGFXCommandAllocatorInfo): GFXCommandAllocator;
 
     /**
-     * @zh
-     * 创建命令缓冲。
-     * @param info GFX命令缓冲描述信息。
+     * @en Create command buffer.
+     * @zh 创建命令缓冲。
+     * @param info GFX command buffer description info.
      */
     public abstract createCommandBuffer (info: IGFXCommandBufferInfo): GFXCommandBuffer;
 
     /**
-     * @zh
-     * 创建队列。
-     * @param info GFX队列描述信息。
+     * @en Create queue.
+     * @zh 创建队列。
+     * @param info GFX queue description info.
      */
     public abstract createQueue (info: IGFXQueueInfo): GFXQueue;
 
     /**
-     * @zh
-     * 创建窗口。
-     * @param info GFX窗口描述信息。
+     * @en Create window.
+     * @zh 创建窗口。
+     * @param info GFX window description info.
      */
     public abstract createWindow (info: IGFXWindowInfo): GFXWindow;
 
     /**
-     * @zh
-     * 呈现当前帧。
+     * @en Present current frame.
+     * @zh 呈现当前帧。
      */
-    public abstract present ();
+    public abstract present (): void;
 
     /**
-     * @zh
-     * 拷贝缓冲到纹理。
-     * @param buffers 缓冲数组。
-     * @param texture GFX纹理。
-     * @param regions GFX缓冲纹理拷贝区域信息。
+     * @en Copy buffers to texture.
+     * @zh 拷贝缓冲到纹理。
+     * @param buffers The buffers to be copied.
+     * @param texture The texture to copy to.
+     * @param regions The region descriptions.
      */
-    public abstract copyBuffersToTexture (buffers: ArrayBufferView[], texture: GFXTexture, regions: GFXBufferTextureCopy[]);
+    public abstract copyBuffersToTexture (buffers: ArrayBufferView[], texture: GFXTexture, regions: GFXBufferTextureCopy[]): void;
 
     /**
-     * @zh
-     * 拷贝图像到纹理。
-     * @param texImages 图像数据源。
-     * @param texture GFX纹理。
-     * @param regions GFX缓冲纹理拷贝区域信息。
+     * @en Copy texture images to texture.
+     * @zh 拷贝图像到纹理。
+     * @param texImages The texture to be copied.
+     * @param texture The texture to copy to.
+     * @param regions The region descriptions.
      */
-    public abstract copyTexImagesToTexture (texImages: TexImageSource[], texture: GFXTexture, regions: GFXBufferTextureCopy[]);
+    public abstract copyTexImagesToTexture (texImages: TexImageSource[], texture: GFXTexture, regions: GFXBufferTextureCopy[]): void;
 
     /**
-     * @zh
-     * 拷贝帧缓冲到缓冲。
-     * @param srcFramebuffer 源帧缓冲。
-     * @param dstBuffer 目的缓冲。
-     * @param regions GFX缓冲纹理拷贝区域信息。
+     * @en Copy frame buffer to buffer.
+     * @zh 拷贝帧缓冲到缓冲。
+     * @param srcFramebuffer The frame buffer to be copied.
+     * @param dstBuffer The buffer to copy to.
+     * @param regions The region descriptions.
      */
-    public abstract copyFramebufferToBuffer (srcFramebuffer: GFXFramebuffer, dstBuffer: ArrayBuffer, regions: GFXBufferTextureCopy[]);
+    public abstract copyFramebufferToBuffer (srcFramebuffer: GFXFramebuffer, dstBuffer: ArrayBuffer, regions: GFXBufferTextureCopy[]): void;
 
     /**
-     * @zh
-     * 填充帧缓冲。
-     * @param src 源帧缓冲。
-     * @param dst 目的帧缓冲。
-     * @param srcRect 源矩形区域。
-     * @param dstRect 目的矩形区域。
-     * @param filter 过滤模式。
+     * @en Blit frame buffers.
+     * @zh 填充帧缓冲。
+     * @param src The source frame buffer.
+     * @param dst The destination frame buffer.
+     * @param srcRect The source region.
+     * @param dstRect The target region.
+     * @param filter Filtering mode for the process.
      */
-    public abstract blitFramebuffer (src: GFXFramebuffer, dst: GFXFramebuffer, srcRect: IGFXRect, dstRect: IGFXRect, filter: GFXFilter);
+    public abstract blitFramebuffer (src: GFXFramebuffer, dst: GFXFramebuffer, srcRect: IGFXRect, dstRect: IGFXRect, filter: GFXFilter): void;
 
     /**
-     * @zh
-     * 是否具备特性。
-     * @param feature GFX特性。
+     * @en Whether the device has specific feature.
+     * @zh 是否具备特性。
+     * @param feature The GFX feature to be queried.
      */
     public hasFeature (feature: GFXFeature): boolean {
         return this._features[feature];
     }
 
     /**
-     * @zh
-     * 生成 Shader ID。
+     * @en Generate shader ID.
+     * @zh 生成 Shader ID。
      */
     public genShaderId (): number {
         return this._shaderIdGen++;
     }
 
     /**
-     * @zh
-     * 定义宏。
-     * @param macro 宏。
-     * @param value 值。
+     * @en Define a macro.
+     * @zh 定义宏。
+     * @param macro The macro name.
+     * @param value The macro value.
      */
     public defineMacro (macro: string, value?: string) {
         const val = (value !== undefined ? value : '');

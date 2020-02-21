@@ -30,7 +30,6 @@
 import { ccclass, executeInEditMode, menu, property } from '../../data/class-decorator';
 import { DirectionalLight } from '../../renderer/scene/directional-light';
 import { LightType } from '../../renderer/scene/light';
-import { RenderScene } from '../../renderer/scene/render-scene';
 import { LightComponent } from './light-component';
 
 @ccclass('cc.DirectionalLightComponent')
@@ -46,13 +45,13 @@ export class DirectionalLightComponent extends LightComponent {
 
     /**
      * @en
-     * The light source intensity
+     * The light source intensity.
      * @zh
      * 光源强度。
      */
     @property({
         unit: 'lx',
-        tooltip: '光源强度',
+        tooltip: 'i18n:lights.illuminance',
     })
     get illuminance () {
         return this._illuminance;

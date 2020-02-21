@@ -1,10 +1,10 @@
-import { GFXAttributeName, GFXFormat, GFXFormatInfos, GFXPrimitiveMode } from '../../gfx/define';
 import { Mesh } from '../../assets/mesh';
+import { GFXAttributeName, GFXFormat, GFXFormatInfos, GFXPrimitiveMode } from '../../gfx/define';
 import { IGFXAttribute } from '../../gfx/input-assembler';
 import { Vec3 } from '../../math';
 import { IGeometry } from '../../primitive/define';
-import { BufferBlob } from './buffer-blob';
 import { writeBuffer } from './buffer';
+import { BufferBlob } from './buffer-blob';
 
 const _defAttrs: IGFXAttribute[] = [
     { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F },
@@ -14,7 +14,7 @@ const _defAttrs: IGFXAttribute[] = [
 ];
 
 const v3_1 = new Vec3();
-export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMesh.Options) {
+export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMesh.IOptions) {
     options = options || {};
     // Collect attributes and calculate length of result vertex buffer.
     const attributes: IGFXAttribute[] = [];
@@ -229,7 +229,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMes
 }
 
 export declare namespace createMesh {
-    export interface Options {
+    export interface IOptions {
         calculateBounds?: boolean;
     }
 }

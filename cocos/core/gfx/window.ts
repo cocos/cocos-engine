@@ -9,10 +9,6 @@ import { GFXRenderPass } from './render-pass';
 import { GFXTexture } from './texture';
 import { GFXTextureView } from './texture-view';
 
-/**
- * @zh
- * GFX窗口描述信息。
- */
 export interface IGFXWindowInfo {
     title?: string;
     left?: number;
@@ -25,78 +21,78 @@ export interface IGFXWindowInfo {
 }
 
 /**
- * @zh
- * GFX窗口。
+ * @en GFX window.
+ * @zh GFX 窗口。
  */
 export abstract class GFXWindow extends GFXObject {
 
     /**
-     * @zh
-     * 窗口宽度。
+     * @en Get window width.
+     * @zh 窗口宽度。
      */
     public get width (): number {
         return this._width;
     }
 
     /**
-     * @zh
-     * 窗口高度。
+     * @en Get window height.
+     * @zh 窗口高度。
      */
     public get height (): number {
         return this._height;
     }
 
     /**
-     * @zh
-     * 窗口颜色格式。
+     * @en Get window color format.
+     * @zh 窗口颜色格式。
      */
     public get colorFormat (): GFXFormat {
         return this._colorFmt;
     }
 
     /**
-     * @zh
-     * 窗口深度模板格式。
+     * @en Get window depth stencil format.
+     * @zh 窗口深度模板格式。
      */
     public get detphStencilFormat (): GFXFormat {
         return this._depthStencilFmt;
     }
 
     /**
-     * @zh
-     * 是否是离屏的。
+     * @en Is this window offscreen?
+     * @zh 是否是离屏的。
      */
     public get isOffscreen (): boolean {
         return this._isOffscreen;
     }
 
     /**
-     * @zh
-     * GFX渲染过程。
+     * @en Get the render pass of this window.
+     * @zh GFX 渲染过程。
      */
     public get renderPass (): GFXRenderPass {
         return this._renderPass!;
     }
 
     /**
-     * @zh
-     * 颜色纹理视图。
+     * @en Get color texture view of this window.
+     * @zh 颜色纹理视图。
      */
     public get colorTexView (): GFXTextureView | null {
         return this._colorTexView;
     }
 
     /**
-     * @zh
-     * 深度模板纹理视图。
+     * @en Get depth stencil texture view of this window.
+     * @zh 深度模板纹理视图。
      */
     public get depthStencilTexView (): GFXTextureView | null {
         return this._depthStencilTexView;
     }
 
     /**
-     * @zh
-     * GFX帧缓冲。
+     * @en Get window frame buffer.
+     * @zh GFX帧缓冲。
      */
     public get framebuffer (): GFXFramebuffer {
         return this._framebuffer!;
@@ -120,33 +116,20 @@ export abstract class GFXWindow extends GFXObject {
     protected _depthStencilTexView: GFXTextureView | null = null;
     protected _framebuffer: GFXFramebuffer | null = null;
 
-    /**
-     * 构造函数。
-     * @param device GFX设备。
-     */
     constructor (device: GFXDevice) {
         super(GFXObjectType.WINDOW);
         this._device = device;
     }
 
-    /**
-     * @zh
-     * 初始化函数。
-     * @param info GFX窗口描述信息。
-     */
     public abstract initialize (info: IGFXWindowInfo): boolean;
 
-    /**
-     * @zh
-     * 销毁函数。
-     */
-    public abstract destroy ();
+    public abstract destroy (): void;
 
     /**
-     * @zh
-     * 重置窗口大小。
-     * @param width 窗口宽度。
-     * @param height 窗口高度。
+     * @en Resize window.
+     * @zh 重置窗口大小。
+     * @param width The new width.
+     * @param height The new height.
      */
-    public abstract resize (width: number, height: number);
+    public abstract resize (width: number, height: number): void;
 }

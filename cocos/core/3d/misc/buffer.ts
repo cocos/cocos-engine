@@ -16,7 +16,6 @@ function _getDataViewType (info: IGFXFormatInfo) {
     return type + bytes;
 }
 
-
 // default params bahaves just like on an plain, compact Float32Array
 export function writeBuffer (target: DataView, data: number[], format: GFXFormat = GFXFormat.R32F, offset: number = 0, stride: number = 0) {
     const info = GFXFormatInfos[format];

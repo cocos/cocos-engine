@@ -37,7 +37,7 @@ import { builtinResMgr } from '../builtin';
 import { ModelComponent } from './model-component';
 
 /**
- * @en The Skinning Model Component
+ * @en The Skinning Model Component.
  * @zh 蒙皮模型组件。
  */
 @ccclass('cc.SkinningModelComponent')
@@ -55,7 +55,7 @@ export class SkinningModelComponent extends ModelComponent {
     protected _clip: AnimationClip | null = null;
 
     /**
-     * @en The skeleton resource
+     * @en The skeleton asset.
      * @zh 骨骼资源。
      */
     @property({
@@ -71,10 +71,12 @@ export class SkinningModelComponent extends ModelComponent {
     }
 
     /**
-     * 骨骼根节点的引用。
+     * @en The skinning root. (The node where the controlling AnimationComponent is located)
+     * 骨骼根节点的引用，对应控制此模型的动画组件所在节点。
      */
     @property({
         type: Node,
+        tooltip: 'i18n:model.skinning_root',
     })
     get skinningRoot () {
         return this._skinningRoot;
