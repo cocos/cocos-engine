@@ -39,14 +39,15 @@ namespace
     {
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
         char commandBuf[200] = {0};
-        sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d;",
+        // https://stackoverflow.com/questions/5795978/string-format-for-intptr-t-and-uintptr-t/41897226#41897226
+        // format intptr_t
+        sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d; window.windowHandler = %" PRIxPTR ";",
                 g_width,
-                g_height);
+                g_height,
+                (intptr_t)(UIApplication.sharedApplication.delegate.window.rootViewController.view) );
         se->evalString(commandBuf);
         return true;
     }
-
-
 }
 
 Application* Application::_instance = nullptr;

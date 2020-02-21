@@ -1,5 +1,4 @@
 #include "jsb_gfx_manual.hpp"
-#if (USE_GFX_RENDERER > 0) && (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS)
 #include "scripting/js-bindings/manual/jsb_conversions.hpp"
 #include "scripting/js-bindings/manual/jsb_global.h"
 #include "scripting/js-bindings/jswrapper/SeApi.h"
@@ -23,7 +22,7 @@ static bool js_gfx_GFXSubPass_get_bind_point(se::State& s)
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= int32_to_seval((int)cobj->bind_point, &jsret);
+    ok &= int32_to_seval((int)cobj->bindPoint, &jsret);
     s.rval() = jsret;
     return true;
 }
@@ -39,7 +38,7 @@ static bool js_gfx_GFXSubPass_set_bind_point(se::State& s)
     cocos2d::GFXPipelineBindPoint arg0 = cocos2d::GFXPipelineBindPoint::GRAPHICS;
     do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXPipelineBindPoint)tmp; } while(false);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXSubPass_set_bind_point : Error processing new value");
-    cobj->bind_point = arg0;
+    cobj->bindPoint = arg0;
     return true;
 }
 SE_BIND_PROP_SET(js_gfx_GFXSubPass_set_bind_point)
@@ -139,7 +138,7 @@ static bool js_gfx_GFXSubPass_get_depth_stencil(se::State& s)
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= uint8_to_seval((unsigned char)cobj->depth_stencil, &jsret);
+    ok &= uint8_to_seval((unsigned char)cobj->depthStencil, &jsret);
     s.rval() = jsret;
     return true;
 }
@@ -155,7 +154,7 @@ static bool js_gfx_GFXSubPass_set_depth_stencil(se::State& s)
     uint8_t arg0;
     ok &= seval_to_uint8(args[0], (uint8_t*)&arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXSubPass_set_depth_stencil : Error processing new value");
-    cobj->depth_stencil = arg0;
+    cobj->depthStencil = arg0;
     return true;
 }
 SE_BIND_PROP_SET(js_gfx_GFXSubPass_set_depth_stencil)
@@ -221,7 +220,7 @@ static bool js_gfx_GFXSubPass_constructor(se::State& s)
             return false;
         }
         do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXPipelineBindPoint)tmp; } while(false);
-        cobj->bind_point = arg0;
+        cobj->bindPoint = arg0;
         
         json->getProperty("inputs", &field);  
         if(field.isUndefined()) {
@@ -252,7 +251,7 @@ static bool js_gfx_GFXSubPass_constructor(se::State& s)
             SE_REPORT_ERROR("argument Field \".depth_stencil\" is undefined!");
             return false;
         }
-        ok &= seval_to_uint8(field, (uint8_t*)&cobj->depth_stencil);
+        ok &= seval_to_uint8(field, (uint8_t*)&cobj->depthStencil);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXSubPass_constructor : Error processing depth_stencil value");
         
         json->getProperty("preserves", &field);  
@@ -273,7 +272,7 @@ static bool js_gfx_GFXSubPass_constructor(se::State& s)
 
         cocos2d::GFXPipelineBindPoint arg0 = cocos2d::GFXPipelineBindPoint::GRAPHICS;
         do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXPipelineBindPoint)tmp; } while(false);
-        cobj->bind_point = arg0;
+        cobj->bindPoint = arg0;
 
         ok &= seval_to_Uint8Array(args[1], (uint8_t*)&cobj->inputs);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXSubPass_constructor : Error processing inputs value");
@@ -284,7 +283,7 @@ static bool js_gfx_GFXSubPass_constructor(se::State& s)
         ok &= seval_to_Uint8Array(args[3], (uint8_t*)&cobj->resolves);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXSubPass_constructor : Error processing resolves value");
 
-        ok &= seval_to_uint8(args[4], (uint8_t*)&cobj->depth_stencil);
+        ok &= seval_to_uint8(args[4], (uint8_t*)&cobj->depthStencil);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXSubPass_constructor : Error processing depth_stencil value");
 
         ok &= seval_to_Uint8Array(args[5], (uint8_t*)&cobj->preserves);
@@ -296,7 +295,7 @@ static bool js_gfx_GFXSubPass_constructor(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_SUB_CLS_CTOR(js_gfx_GFXSubPass_constructor, __jsb_cocos2d_GFXSubPass_class, js_cocos2d_GFXSubPass_finalize)
+SE_BIND_CTOR(js_gfx_GFXSubPass_constructor, __jsb_cocos2d_GFXSubPass_class, js_cocos2d_GFXSubPass_finalize)
 
 static bool js_cocos2d_GFXSubPass_finalize(se::State& s)
 {
@@ -316,11 +315,11 @@ bool js_register_gfx_GFXSubPass(se::Object* obj)
 {
     auto cls = se::Class::create("GFXSubPass", obj, nullptr, _SE(js_gfx_GFXSubPass_constructor));
 
-    cls->defineProperty("bind_point", _SE(js_gfx_GFXSubPass_get_bind_point), _SE(js_gfx_GFXSubPass_set_bind_point));
+    cls->defineProperty("bindPoint", _SE(js_gfx_GFXSubPass_get_bind_point), _SE(js_gfx_GFXSubPass_set_bind_point));
     cls->defineProperty("inputs", _SE(js_gfx_GFXSubPass_get_inputs), _SE(js_gfx_GFXSubPass_set_inputs));
     cls->defineProperty("colors", _SE(js_gfx_GFXSubPass_get_colors), _SE(js_gfx_GFXSubPass_set_colors));
     cls->defineProperty("resolves", _SE(js_gfx_GFXSubPass_get_resolves), _SE(js_gfx_GFXSubPass_set_resolves));
-    cls->defineProperty("depth_stencil", _SE(js_gfx_GFXSubPass_get_depth_stencil), _SE(js_gfx_GFXSubPass_set_depth_stencil));
+    cls->defineProperty("depthStencil", _SE(js_gfx_GFXSubPass_get_depth_stencil), _SE(js_gfx_GFXSubPass_set_depth_stencil));
     cls->defineProperty("preserves", _SE(js_gfx_GFXSubPass_get_preserves), _SE(js_gfx_GFXSubPass_set_preserves));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXSubPass_finalize));
     cls->install();
@@ -338,5 +337,3 @@ bool register_all_gfx_manual(se::Object* obj)
     js_register_gfx_GFXSubPass(obj);
     return true;
 }
-
-#endif //#if (USE_GFX_RENDERER > 0) && (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS) \n#define GFX_MAX_VERTEX_ATTRIBUTES 16
