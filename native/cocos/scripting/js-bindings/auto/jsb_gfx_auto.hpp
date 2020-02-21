@@ -1,6 +1,5 @@
 #pragma once
 #include "base/ccConfig.h"
-#if (USE_GFX_RENDERER > 0) && (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS)
 
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 
@@ -543,4 +542,3 @@ SE_DECLARE_FUNC(js_gfx_GLES2Device_createBindingLayout);
 SE_DECLARE_FUNC(js_gfx_GLES2Device_createTextureView);
 SE_DECLARE_FUNC(js_gfx_GLES2Device_GLES2Device);
 
-#endif //#if (USE_GFX_RENDERER > 0) && (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS)
