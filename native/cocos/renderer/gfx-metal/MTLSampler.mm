@@ -13,18 +13,18 @@ CCMTLSampler::~CCMTLSampler() { destroy(); }
 bool CCMTLSampler::initialize(const GFXSamplerInfo& info)
 {
     _name = info.name;
-    _minFilter = info.min_filter;
-    _magFilter = info.mag_filter;
-    _mipFilter = info.mip_filter;
-    _addressU = info.address_u;
-    _addressV = info.address_v;
-    _addressW = info.address_w;
-    _maxAnisotropy = info.max_anisotropy;
-    _cmpFunc = info.cmp_func;
-    _borderColor = info.border_color;
-    _minLod = info.min_lod;
-    _maxLod = info.max_lod;
-    _mipLodBias = info.mip_lod_bias;
+    _minFilter = info.minFilter;
+    _magFilter = info.magFilter;
+    _mipFilter = info.mipFilter;
+    _addressU = info.addressU;
+    _addressV = info.addressV;
+    _addressW = info.addressW;
+    _maxAnisotropy = info.maxAnisotropy;
+    _cmpFunc = info.cmpFunc;
+    _borderColor = info.borderColor;
+    _minLOD = info.minLOD;
+    _maxLOD = info.maxLOD;
+    _mipLODBias = info.mipLODBias;
     
     MTLSamplerDescriptor* descriptor = [[MTLSamplerDescriptor alloc] init];
     descriptor.borderColor = mu::toMTLSamplerBorderColor(_borderColor);
@@ -36,8 +36,8 @@ bool CCMTLSampler::initialize(const GFXSamplerInfo& info)
     descriptor.mipFilter = mu::toMTLSamplerMipFilter(_mipFilter);
     descriptor.maxAnisotropy = _maxAnisotropy;
     descriptor.compareFunction = mu::toMTLCompareFunction(_cmpFunc);
-    descriptor.lodMinClamp = _minLod;
-    descriptor.lodMaxClamp = _maxLod;
+    descriptor.lodMinClamp = _minLOD;
+    descriptor.lodMaxClamp = _maxLOD;
     
     id<MTLDevice> mtlDevice = id<MTLDevice>(static_cast<CCMTLDevice*>(_device)->getMTLDevice() );
     _mtlSamplerState = [mtlDevice newSamplerStateWithDescriptor:descriptor];

@@ -10,7 +10,7 @@ public:
   GLES3Device();
   ~GLES3Device();
   
-  GLES3StateCache* state_cache = nullptr;
+  GLES3StateCache* stateCache = nullptr;
   
 public:
   bool initialize(const GFXDeviceInfo& info);
@@ -34,11 +34,11 @@ public:
   virtual GFXPipelineLayout* createPipelineLayout(const GFXPipelineLayoutInfo& info) override;
     virtual void copyBuffersToTexture(GFXBuffer* src, GFXTexture* dst, const GFXBufferTextureCopyList& regions) override;
   
-  CC_INLINE bool use_vao() const { return use_vao_; }
+  CC_INLINE bool useVAO() const { return _useVAO; }
 
   CC_INLINE bool checkExtension(const String& extension) const {
-    for (size_t i = 0; i < extensions_.size(); ++i) {
-      if (extensions_[i].find(extension) != String::npos) {
+    for (size_t i = 0; i < _extensions.size(); ++i) {
+      if (_extensions[i].find(extension) != String::npos) {
         return true;
       }
     }
@@ -46,8 +46,8 @@ public:
   }
   
  private:
-  StringArray extensions_;
-  bool use_vao_ = true;
+  StringArray _extensions;
+  bool _useVAO = true;
 };
 
 NS_CC_END

@@ -160,14 +160,14 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage)
                 {
                     if (!gpuInputAssembler->mtlIndirectBuffer)
                     {
-                        if (gpuInputAssembler->mtlIndexBuffer && cmd->drawInfo.index_count >= 0)
+                        if (gpuInputAssembler->mtlIndexBuffer && cmd->drawInfo.indexCount >= 0)
                         {
                             uint8_t* offset = 0;
-                            offset += cmd->drawInfo.first_index * inputAssembler->indexBuffer()->stride();
-                            if (cmd->drawInfo.instance_count == 0)
+                            offset += cmd->drawInfo.firstIndex * inputAssembler->indexBuffer()->stride();
+                            if (cmd->drawInfo.instanceCount == 0)
                             {
                                 [encoder drawIndexedPrimitives:primitiveType
-                                                    indexCount:cmd->drawInfo.index_count
+                                                    indexCount:cmd->drawInfo.indexCount
                                                      // TODO: remove static_cast<>.
                                                      indexType:static_cast<CCMTLBuffer*>(inputAssembler->indexBuffer() )->getIndexType()
                                                    indexBuffer:gpuInputAssembler->mtlIndexBuffer
@@ -180,18 +180,18 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage)
                         }
                         else
                         {
-                            if (cmd->drawInfo.instance_count == 0)
+                            if (cmd->drawInfo.instanceCount == 0)
                             {
                                 [encoder drawPrimitives:primitiveType
-                                            vertexStart:cmd->drawInfo.first_index
-                                            vertexCount:cmd->drawInfo.vertex_count];
+                                            vertexStart:cmd->drawInfo.firstIndex
+                                            vertexCount:cmd->drawInfo.vertexCount];
                             }
                             else
                             {
                                 [encoder drawPrimitives:primitiveType
-                                            vertexStart:cmd->drawInfo.first_index
-                                            vertexCount:cmd->drawInfo.vertex_count
-                                          instanceCount:cmd->drawInfo.instance_count];
+                                            vertexStart:cmd->drawInfo.firstIndex
+                                            vertexCount:cmd->drawInfo.vertexCount
+                                          instanceCount:cmd->drawInfo.instanceCount];
                             }
                         }
                     }

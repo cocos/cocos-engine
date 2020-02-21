@@ -14,10 +14,10 @@ class CC_GLES3_API GLES3RenderPass : public GFXRenderPass {
   bool initialize(const GFXRenderPassInfo& info);
   void destroy();
   
-  CC_INLINE GLES3GPURenderPass* gpu_render_pass() const { return gpu_render_pass_; }
+  CC_INLINE GLES3GPURenderPass* gpuRenderPass() const { return _gpuRenderPass; }
   
  private:
-  GLES3GPURenderPass* gpu_render_pass_;
+  GLES3GPURenderPass* _gpuRenderPass = nullptr;
 };
 
 NS_CC_END

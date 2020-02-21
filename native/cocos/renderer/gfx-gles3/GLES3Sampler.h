@@ -14,10 +14,10 @@ public:
   bool initialize(const GFXSamplerInfo& info);
   void destroy();
   
-  CC_INLINE GLES3GPUSampler* gpu_sampler() const { return gpu_sampler_; }
+  CC_INLINE GLES3GPUSampler* gpuSampler() const { return _gpuSampler; }
   
 private:
-  GLES3GPUSampler* gpu_sampler_;
+  GLES3GPUSampler* _gpuSampler = nullptr;
 };
 
 NS_CC_END

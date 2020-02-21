@@ -10,7 +10,7 @@ public:
   GLES2Device();
   ~GLES2Device();
   
-  GLES2StateCache* state_cache = nullptr;
+  GLES2StateCache* stateCache = nullptr;
   
 public:
   bool initialize(const GFXDeviceInfo& info);
@@ -34,14 +34,14 @@ public:
   virtual GFXPipelineLayout* createPipelineLayout(const GFXPipelineLayoutInfo& info) override;
     virtual void copyBuffersToTexture(GFXBuffer* src, GFXTexture* dst, const GFXBufferTextureCopyList& regions) override;
   
-  CC_INLINE bool use_vao() const { return use_vao_; }
-  CC_INLINE bool use_draw_instanced() const { return use_draw_instanced_; }
-  CC_INLINE bool use_instanced_arrays() const { return use_instanced_arrays_; }
-  CC_INLINE bool use_discard_framebuffer() const { return use_discard_framebuffer_; }
+  CC_INLINE bool useVAO() const { return _useVAO; }
+  CC_INLINE bool useDrawInstanced() const { return _useDrawInstanced; }
+  CC_INLINE bool useInstancedArrays() const { return _useInstancedArrays; }
+  CC_INLINE bool useDiscardFramebuffer() const { return _useDiscardFramebuffer; }
 
   CC_INLINE bool checkExtension(const String& extension) const {
-    for (size_t i = 0; i < extensions_.size(); ++i) {
-      if (extensions_[i].find(extension) != String::npos) {
+    for (size_t i = 0; i < _extensions.size(); ++i) {
+      if (_extensions[i].find(extension) != String::npos) {
         return true;
       }
     }
@@ -49,11 +49,11 @@ public:
   }
   
  private:
-  StringArray extensions_;
-  bool use_vao_                     = false;
-  bool use_draw_instanced_          = false;
-  bool use_instanced_arrays_        = false;
-  bool use_discard_framebuffer_     = false;
+  StringArray _extensions;
+  bool _useVAO                    = false;
+  bool _useDrawInstanced          = false;
+  bool _useInstancedArrays        = false;
+  bool _useDiscardFramebuffer     = false;
 };
 
 NS_CC_END

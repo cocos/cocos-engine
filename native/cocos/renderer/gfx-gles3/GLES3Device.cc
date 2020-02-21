@@ -33,15 +33,15 @@ bool GLES3Device::initialize(const GFXDeviceInfo& info)
     _api = GFXAPI::GLES3;
     _width = info.width;
     _height = info.height;
-    _nativeWidth = info.native_width;
-    _nativeHeight = info.native_height;
-    _windowHandle = info.window_handle;
+    _nativeWidth = info.nativeWidth;
+    _nativeHeight = info.nativeHeight;
+    _windowHandle = info.windowHandle;
 
-    state_cache = CC_NEW(GLES3StateCache);
+    stateCache = CC_NEW(GLES3StateCache);
 
     GFXContextInfo ctx_info;
-    ctx_info.window_handle = _windowHandle;
-    ctx_info.shared_ctx = info.shared_ctx;
+    ctx_info.windowHandle = _windowHandle;
+    ctx_info.sharedCtx = info.sharedCtx;
 
     _context = CC_NEW(GLES3Context(this));
     if (!_context->initialize(ctx_info))
@@ -51,7 +51,7 @@ bool GLES3Device::initialize(const GFXDeviceInfo& info)
     }
 
     String extStr = (const char*)glGetString(GL_EXTENSIONS);
-    extensions_ = StringUtil::Split(extStr, " ");
+    _extensions = StringUtil::Split(extStr, " ");
 
     _features[(int)GFXFeature::TEXTURE_FLOAT] = true;
     _features[(int)GFXFeature::TEXTURE_HALF_FLOAT] = true;
@@ -103,13 +103,13 @@ bool GLES3Device::initialize(const GFXDeviceInfo& info)
     CC_LOG_INFO("VERSION: %s", _version.c_str());
     CC_LOG_INFO("SCREEN_SIZE: %d x %d", _width, _height);
     CC_LOG_INFO("NATIVE_SIZE: %d x %d", _nativeWidth, _nativeHeight);
-    CC_LOG_INFO("USE_VAO: %s", use_vao_ ? "true" : "false");
+    CC_LOG_INFO("USE_VAO: %s", _useVAO ? "true" : "false");
     CC_LOG_INFO("COMPRESSED_FORMATS: %s", compressed_fmts.c_str());
 
     GFXWindowInfo window_info;
-    window_info.color_fmt = _context->colorFormat();
-    window_info.depth_stencil_fmt = _context->detphStencilFormat();
-    window_info.is_offscreen = false;
+    window_info.colorFmt = _context->colorFormat();
+    window_info.depthStencilFmt = _context->detphStencilFormat();
+    window_info.isOffscreen = false;
     _window = createWindow(window_info);
 
     GFXQueueInfo queue_info;
@@ -128,7 +128,7 @@ void GLES3Device::destroy()
     CC_SAFE_DESTROY(_queue);
     CC_SAFE_DESTROY(_window);
     CC_SAFE_DESTROY(_context);
-    CC_SAFE_DELETE(state_cache);
+    CC_SAFE_DELETE(stateCache);
 }
 
 void GLES3Device::resize(uint width, uint height)
@@ -304,7 +304,7 @@ GFXPipelineLayout* GLES3Device::createPipelineLayout(const GFXPipelineLayoutInfo
 void GLES3Device::copyBuffersToTexture(GFXBuffer* src, GFXTexture* dst, const GFXBufferTextureCopyList& regions)
 {
     
-    GLES3CmdFuncCopyBuffersToTexture(this, &((GLES3Buffer*)src)->gpu_buffer()->buffer, 1, ((GLES3Texture*)dst)->gpu_texture(), regions);
+    GLES3CmdFuncCopyBuffersToTexture(this, &((GLES3Buffer*)src)->gpuBuffer()->buffer, 1, ((GLES3Texture*)dst)->gpuTexture(), regions);
 }
 
 NS_CC_END

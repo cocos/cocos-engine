@@ -15,7 +15,7 @@ public:
   virtual void destroy() = 0;
   
   CC_INLINE GFXDevice* device() const { return _device; }
-  CC_INLINE const GFXPushConstantRangeList& push_constant_ranges() const { return _pushConstantsRanges; }
+  CC_INLINE const GFXPushConstantRangeList& pushConstantsRanges() const { return _pushConstantsRanges; }
   CC_INLINE const GFXBindingLayoutList& layouts() const { return _layouts; }
   
 protected:

@@ -44,19 +44,19 @@ class CC_GLES2_API GLES2Context : public GFXContext {
   bool CheckExtension(const String& extension) const;
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-  CC_INLINE intptr_t eagl_context() const { return eagl_context_; }
-  CC_INLINE intptr_t eagl_shared_ctx() const { return eagl_shared_ctx_; }
+  CC_INLINE intptr_t eagl_context() const { return _eaglContext; }
+  CC_INLINE intptr_t eagl_shared_ctx() const { return _eaglSharedContext; }
     CC_INLINE uint getDefaultFramebuffer() const { return _defaultFBO; }
 #else
-  CC_INLINE NativeDisplayType native_display() const { return native_display_; }
-  CC_INLINE EGLDisplay egl_display() const { return egl_display_; }
-  CC_INLINE EGLConfig egl_config() const { return egl_config_; }
-  CC_INLINE EGLSurface egl_surface() const { return egl_surface_; }
-  CC_INLINE EGLContext egl_context() const { return egl_context_; }
-  CC_INLINE EGLContext egl_shared_ctx() const { return egl_shared_ctx_; }
+  CC_INLINE NativeDisplayType native_display() const { return _nativeDisplay; }
+  CC_INLINE EGLDisplay egl_display() const { return _eglDisplay; }
+  CC_INLINE EGLConfig egl_config() const { return _eglConfig; }
+  CC_INLINE EGLSurface egl_surface() const { return _eglSurface; }
+  CC_INLINE EGLContext egl_context() const { return _eglContext; }
+  CC_INLINE EGLContext egl_shared_ctx() const { return _eglSharedContext; }
 #endif
-  CC_INLINE int major_ver() const { return major_ver_; }
-  CC_INLINE int minor_ver() const { return minor_ver_; }
+  CC_INLINE int major_ver() const { return _majorVersion; }
+  CC_INLINE int minor_ver() const { return _minorVersion; }
  
  private:
   bool MakeCurrentImpl();
@@ -67,26 +67,26 @@ class CC_GLES2_API GLES2Context : public GFXContext {
 #endif
   
  private:
-  bool is_primary_ctx_;
+  bool _isPrimaryContex = false;
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-  intptr_t eagl_context_;
-  intptr_t eagl_shared_ctx_;
+  intptr_t _eaglContext = 0;
+  intptr_t _eaglSharedContext = 0;
     // iOS needs to created frame buffer and attach color/depth/stencil buffer.
     uint _defaultFBO = 0;
     uint _defaultColorBuffer = 0;
     uint _defaultDepthStencilBuffer = 0;
 #else
-  NativeDisplayType native_display_;
-  EGLDisplay egl_display_;
-  EGLConfig egl_config_;
-  EGLSurface egl_surface_;
-  EGLContext egl_context_;
-  EGLContext egl_shared_ctx_;
+  NativeDisplayType _nativeDisplay = 0;
+  EGLDisplay _eglDisplay = EGL_NO_DISPLAY;
+  EGLConfig _eglConfig = EGL_NO_CONFIG_KHR;
+  EGLSurface _eglSurface = EGL_NO_SURFACE;
+  EGLContext _eglContext = EGL_NO_CONTEXT;
+  EGLContext _eglSharedContext = EGL_NO_CONTEXT;
 #endif
-  int major_ver_;
-  int minor_ver_;
-  StringArray extensions_;
-  bool is_initialized;
+  int _majorVersion = 0;
+  int _minorVersion = 0;
+  StringArray _extensions;
+  bool _isInitialized = false;
 };
 
 NS_CC_END

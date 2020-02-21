@@ -17,24 +17,24 @@ public:
   CC_INLINE GFXDevice* device() const { return _device; }
   CC_INLINE GFXShader* shader() const { return _shader; }
   CC_INLINE GFXPrimitiveMode primitive() const { return _primitive; }
-  CC_INLINE const GFXInputState& inputState() const { return _is; }
-  CC_INLINE const GFXRasterizerState& rasterizerState() const { return _rs; }
-  CC_INLINE const GFXDepthStencilState& depthStencilState() const { return _dss; }
-  CC_INLINE const GFXBlendState& blendState() const { return _bs; }
+  CC_INLINE const GFXInputState& inputState() const { return _inputState; }
+  CC_INLINE const GFXRasterizerState& rasterizerState() const { return _rasterizerState; }
+  CC_INLINE const GFXDepthStencilState& depthStencilState() const { return _depthStencilState; }
+  CC_INLINE const GFXBlendState& blendState() const { return _blendState; }
   CC_INLINE const GFXDynamicStateList& dynamicStates() const { return _dynamicStates; }
-  CC_INLINE const GFXPipelineLayout* pipelineLayout() const { return layout_; }
+  CC_INLINE const GFXPipelineLayout* pipelineLayout() const { return _layout; }
   CC_INLINE const GFXRenderPass* renderPass() const { return _renderPass; }
 
 protected:
   GFXDevice* _device = nullptr;
   GFXShader* _shader = nullptr;
   GFXPrimitiveMode _primitive = GFXPrimitiveMode::TRIANGLE_LIST;
-  GFXInputState _is;
-  GFXRasterizerState _rs;
-  GFXDepthStencilState _dss;
-  GFXBlendState _bs;
+  GFXInputState _inputState;
+  GFXRasterizerState _rasterizerState;
+  GFXDepthStencilState _depthStencilState;
+  GFXBlendState _blendState;
   GFXDynamicStateList _dynamicStates;
-  GFXPipelineLayout* layout_ = nullptr;
+  GFXPipelineLayout* _layout = nullptr;
   GFXRenderPass* _renderPass = nullptr;
 };
 

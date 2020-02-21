@@ -14,10 +14,10 @@ public:
   bool initialize(const GFXTextureViewInfo& info);
   void destroy();
   
-  CC_INLINE GLES2GPUTextureView* gpu_tex_view() const { return gpu_tex_view_; }
+  CC_INLINE GLES2GPUTextureView* gpuTexView() const { return _gpuTexView; }
   
 private:
-  GLES2GPUTextureView* gpu_tex_view_;
+  GLES2GPUTextureView* _gpuTexView = nullptr;
 };
 
 NS_CC_END

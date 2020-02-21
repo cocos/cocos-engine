@@ -108,7 +108,7 @@ const GFXFormatInfo GFX_FORMAT_INFOS[] = {
 
 uint GFXFormatSize(GFXFormat format, uint width, uint height, uint depth) {
   
-  if (!GFX_FORMAT_INFOS[(uint)format].is_compressed) {
+  if (!GFX_FORMAT_INFOS[(uint)format].isCompressed) {
     return (width * height * depth * GFX_FORMAT_INFOS[(uint)format].size);
   } else {
     switch (format) {

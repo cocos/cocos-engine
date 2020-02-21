@@ -5,8 +5,7 @@
 NS_CC_BEGIN
 
 GLES3Shader::GLES3Shader(GFXDevice* device)
-    : GFXShader(device),
-      gpu_shader_(nullptr) {
+    : GFXShader(device) {
 }
 
 GLES3Shader::~GLES3Shader() {
@@ -19,26 +18,26 @@ bool GLES3Shader::initialize(const GFXShaderInfo &info)
     _blocks = info.blocks;
     _samplers = info.samplers;
 
-    gpu_shader_ = CC_NEW(GLES3GPUShader);
-    gpu_shader_->name = _name;
-    gpu_shader_->blocks = _blocks;
-    gpu_shader_->samplers = _samplers;
+    _gpuShader = CC_NEW(GLES3GPUShader);
+    _gpuShader->name = _name;
+    _gpuShader->blocks = _blocks;
+    _gpuShader->samplers = _samplers;
     for (const auto& stage : _stages)
     {
         GLES3GPUShaderStage gpuShaderStage = { stage.type, stage.source, stage.macros, 0};
-        gpu_shader_->gpu_stages.emplace_back(std::move(gpuShaderStage));
+        _gpuShader->gpuStages.emplace_back(std::move(gpuShaderStage));
     }
 
-    GLES3CmdFuncCreateShader((GLES3Device*)_device, gpu_shader_);
+    GLES3CmdFuncCreateShader((GLES3Device*)_device, _gpuShader);
 
     return true;
 }
 
 void GLES3Shader::destroy() {
-  if (gpu_shader_) {
-    GLES3CmdFuncDestroyShader((GLES3Device*)_device, gpu_shader_);
-    CC_DELETE(gpu_shader_);
-    gpu_shader_ = nullptr;
+  if (_gpuShader) {
+    GLES3CmdFuncDestroyShader((GLES3Device*)_device, _gpuShader);
+    CC_DELETE(_gpuShader);
+    _gpuShader = nullptr;
   }
 }
 

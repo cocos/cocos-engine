@@ -11,14 +11,14 @@ NS_CC_BEGIN
 
 bool GLES2Context::initialize(const GFXContextInfo &info) {
   
-    _vsyncMode = info.vsync_mode;
-    _windowHandle = info.window_handle;
+    _vsyncMode = info.vsyncMode;
+    _windowHandle = info.windowHandle;
 
     //////////////////////////////////////////////////////////////////////////
 
-    if (!info.shared_ctx) {
-        is_primary_ctx_ = true;
-        _windowHandle = info.window_handle;
+    if (!info.sharedCtx) {
+        _isPrimaryContex = true;
+        _windowHandle = info.windowHandle;
         
         CAEAGLLayer* eaglLayer = (CAEAGLLayer*)( ((UIView*)(_windowHandle)).layer);
         eaglLayer.opaque = TRUE;
@@ -29,20 +29,20 @@ bool GLES2Context::initialize(const GFXContextInfo &info) {
             return false;
         }
 
-        eagl_context_ = (intptr_t)eagl_context;
-        eagl_shared_ctx_ = (intptr_t)eagl_context;
+        _eaglContext = (intptr_t)eagl_context;
+        _eaglSharedContext = (intptr_t)eagl_context;
 
         if (!gles2wInit())
             return false;
     } else {
-        GLES2Context* shared_ctx = (GLES2Context*)info.shared_ctx;
-        EAGLContext* eagl_shared_context = (EAGLContext*)shared_ctx->eagl_shared_ctx();
+        GLES2Context* sharedCtx = (GLES2Context*)info.sharedCtx;
+        EAGLContext* eagl_shared_context = (EAGLContext*)sharedCtx->eagl_shared_ctx();
         EAGLContext* eagl_context = [[EAGLContext alloc] initWithAPI: [eagl_shared_context API] sharegroup: [eagl_shared_context sharegroup]];
         if (!eagl_context) {
             CC_LOG_ERROR("Create EGL context with share context [0x%p] failed.", eagl_shared_context);
 
-            eagl_context_ = (intptr_t)eagl_context;
-            eagl_shared_ctx_ = (intptr_t)eagl_shared_context;
+            _eaglContext = (intptr_t)eagl_context;
+            _eaglSharedContext = (intptr_t)eagl_shared_context;
 
             return false;
         }
@@ -78,7 +78,7 @@ bool GLES2Context::createCustomFrameBuffer()
     CAEAGLLayer* eaglLayer = (CAEAGLLayer*)( ((UIView*)(_windowHandle)).layer);
     
     //get the storage from iOS so it can be displayed in the view
-    if (! [(EAGLContext*)eagl_context_ renderbufferStorage:GL_RENDERBUFFER
+    if (! [(EAGLContext*)_eaglContext renderbufferStorage:GL_RENDERBUFFER
                                               fromDrawable:eaglLayer])
     {
         CC_LOG_ERROR("Attaches EAGLDrawable as storage for the OpenGL ES renderbuffer object failed.");
@@ -162,25 +162,25 @@ void GLES2Context::destroyCustomFrameBuffer()
 void GLES2Context::destroy() {
     destroyCustomFrameBuffer();
   
-  if (eagl_context_) {
-    [(EAGLContext*)eagl_context_ release];
+  if (_eaglContext) {
+    [(EAGLContext*)_eaglContext release];
   }
 
-  is_primary_ctx_ = false;
+  _isPrimaryContex = false;
   _windowHandle = 0;
   _vsyncMode = GFXVsyncMode::OFF;
-  is_initialized = false;
+  _isInitialized = false;
 }
 
 void GLES2Context::present() {
-  if (! [(EAGLContext*)eagl_context_ presentRenderbuffer:GL_RENDERBUFFER] )
+  if (! [(EAGLContext*)_eaglContext presentRenderbuffer:GL_RENDERBUFFER] )
   {
       CC_LOG_ERROR("Failed to present content.");
   }
 }
 
 bool GLES2Context::MakeCurrentImpl() {
-  return [EAGLContext setCurrentContext:(EAGLContext*)eagl_context_];
+  return [EAGLContext setCurrentContext:(EAGLContext*)_eaglContext];
 }
 
 #endif

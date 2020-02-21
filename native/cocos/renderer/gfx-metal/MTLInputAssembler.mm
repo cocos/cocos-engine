@@ -12,9 +12,9 @@ CCMTLInputAssembler::~CCMTLInputAssembler() { destroy(); }
 bool CCMTLInputAssembler::initialize(const GFXInputAssemblerInfo& info)
 {
     _attributes = info.attributes;
-    _vertexBuffers = info.vertex_buffers;
-    _indexBuffer = info.index_buffer;
-    _indirectBuffer = info.indirect_buffer;
+    _vertexBuffers = info.vertexBuffers;
+    _indexBuffer = info.indexBuffer;
+    _indirectBuffer = info.indirectBuffer;
     
     if (_indexBuffer)
         _indexCount = _indexBuffer->count();
@@ -25,12 +25,12 @@ bool CCMTLInputAssembler::initialize(const GFXInputAssemblerInfo& info)
     if (!_GPUInputAssembler)
         return false;
     
-    if (info.index_buffer)
-        _GPUInputAssembler->mtlIndexBuffer = static_cast<CCMTLBuffer*>(info.index_buffer)->getMTLBuffer();
-    if (info.indirect_buffer)
-        _GPUInputAssembler->mtlIndirectBuffer = static_cast<CCMTLBuffer*>(info.indirect_buffer)->getMTLBuffer();
+    if (info.indexBuffer)
+        _GPUInputAssembler->mtlIndexBuffer = static_cast<CCMTLBuffer*>(info.indexBuffer)->getMTLBuffer();
+    if (info.indirectBuffer)
+        _GPUInputAssembler->mtlIndirectBuffer = static_cast<CCMTLBuffer*>(info.indirectBuffer)->getMTLBuffer();
     
-    for (const auto& vertexBuffer : info.vertex_buffers)
+    for (const auto& vertexBuffer : info.vertexBuffers)
         _GPUInputAssembler->mtlVertexBufers.push_back(static_cast<CCMTLBuffer*>(vertexBuffer)->getMTLBuffer() );
     
     return true;
@@ -43,13 +43,13 @@ void CCMTLInputAssembler::destroy()
 
 void CCMTLInputAssembler::extractDrawInfo(CCMTLCmdDraw* cmd) const
 {
-    cmd->drawInfo.vertex_count = _vertexCount;
-    cmd->drawInfo.first_vertex = _firstVertex;
-    cmd->drawInfo.index_count = _indexCount;
-    cmd->drawInfo.first_index = _firstIndex;
-    cmd->drawInfo.vertex_offset = _vertexOffset;
-    cmd->drawInfo.instance_count = _instanceCount;
-    cmd->drawInfo.first_instance = _firstInstance;
+    cmd->drawInfo.vertexCount = _vertexCount;
+    cmd->drawInfo.firstVertex = _firstVertex;
+    cmd->drawInfo.indexCount = _indexCount;
+    cmd->drawInfo.firstIndex = _firstIndex;
+    cmd->drawInfo.vertexOffset = _vertexOffset;
+    cmd->drawInfo.instanceCount = _instanceCount;
+    cmd->drawInfo.firstInstance = _firstInstance;
 }
 
 NS_CC_END

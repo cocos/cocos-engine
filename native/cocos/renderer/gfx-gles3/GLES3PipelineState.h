@@ -14,10 +14,10 @@ class CC_GLES3_API GLES3PipelineState : public GFXPipelineState {
   bool initialize(const GFXPipelineStateInfo& info);
   void destroy();
 
-  CC_INLINE GLES3GPUPipelineState* gpu_pso() const { return gpu_pso_; }
+  CC_INLINE GLES3GPUPipelineState* gpuPipelineState() const { return _gpuPipelineState; }
   
  private:
-  GLES3GPUPipelineState* gpu_pso_;
+  GLES3GPUPipelineState* _gpuPipelineState = nullptr;
 };
 
 NS_CC_END

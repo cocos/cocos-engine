@@ -5,8 +5,7 @@
 NS_CC_BEGIN
 
 GLES3PipelineLayout::GLES3PipelineLayout(GFXDevice* device)
-    : GFXPipelineLayout(device),
-      gpu_pipeline_layout_(nullptr) {
+    : GFXPipelineLayout(device) {
 }
 
 GLES3PipelineLayout::~GLES3PipelineLayout() {
@@ -15,16 +14,16 @@ GLES3PipelineLayout::~GLES3PipelineLayout() {
 bool GLES3PipelineLayout::initialize(const GFXPipelineLayoutInfo &info) {
   
   _layouts = info.layouts;
-  _pushConstantsRanges = info.push_constant_ranges;
+  _pushConstantsRanges = info.pushConstantsRanges;
   
-  gpu_pipeline_layout_ = CC_NEW(GLES3GPUPipelineLayout);
+  _gpuPipelineLayout = CC_NEW(GLES3GPUPipelineLayout);
   return true;
 }
 
 void GLES3PipelineLayout::destroy() {
-  if (gpu_pipeline_layout_) {
-    CC_DELETE(gpu_pipeline_layout_);
-    gpu_pipeline_layout_ = nullptr;
+  if (_gpuPipelineLayout) {
+    CC_DELETE(_gpuPipelineLayout);
+    _gpuPipelineLayout = nullptr;
   }
 }
 

@@ -17,10 +17,10 @@ class CC_GLES3_API GLES3InputAssembler : public GFXInputAssembler {
   
   void ExtractCmdDraw(GLES3CmdDraw* cmd);
   
-  CC_INLINE GLES3GPUInputAssembler* gpu_input_assembler() const { return gpu_input_assembler_; }
+  CC_INLINE GLES3GPUInputAssembler* gpuInputAssembler() const { return _gpuInputAssembler; }
   
  private:
-  GLES3GPUInputAssembler* gpu_input_assembler_;
+  GLES3GPUInputAssembler* _gpuInputAssembler = nullptr;
 };
 
 NS_CC_END

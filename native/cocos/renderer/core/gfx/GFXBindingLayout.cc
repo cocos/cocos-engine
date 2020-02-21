@@ -12,11 +12,11 @@ GFXBindingLayout::~GFXBindingLayout() {
 
 void GFXBindingLayout::bindBuffer(uint binding, GFXBuffer* buffer) {
   for (size_t i = 0; i < _bindingUnits.size(); ++i) {
-    GFXBindingUnit& binding_unit = _bindingUnits[i];
-    if (binding_unit.binding == binding) {
-      if (binding_unit.type == GFXBindingType::UNIFORM_BUFFER) {
-        if (binding_unit.buffer != buffer) {
-          binding_unit.buffer = buffer;
+    GFXBindingUnit& bindingUnit = _bindingUnits[i];
+    if (bindingUnit.binding == binding) {
+      if (bindingUnit.type == GFXBindingType::UNIFORM_BUFFER) {
+        if (bindingUnit.buffer != buffer) {
+          bindingUnit.buffer = buffer;
           _isDirty = true;
         }
       } else {
@@ -27,13 +27,13 @@ void GFXBindingLayout::bindBuffer(uint binding, GFXBuffer* buffer) {
   }
 }
 
-void GFXBindingLayout::bindTextureView(uint binding, GFXTextureView* tex_view) {
+void GFXBindingLayout::bindTextureView(uint binding, GFXTextureView* texView) {
   for (size_t i = 0; i < _bindingUnits.size(); ++i) {
-    GFXBindingUnit& binding_unit = _bindingUnits[i];
-    if (binding_unit.binding == binding) {
-      if (binding_unit.type == GFXBindingType::SAMPLER) {
-        if (binding_unit.tex_view != tex_view) {
-          binding_unit.tex_view = tex_view;
+    GFXBindingUnit& bindingUnit = _bindingUnits[i];
+    if (bindingUnit.binding == binding) {
+      if (bindingUnit.type == GFXBindingType::SAMPLER) {
+        if (bindingUnit.texView != texView) {
+          bindingUnit.texView = texView;
           _isDirty = true;
         }
       } else {
@@ -46,11 +46,11 @@ void GFXBindingLayout::bindTextureView(uint binding, GFXTextureView* tex_view) {
 
 void GFXBindingLayout::bindSampler(uint binding, GFXSampler* sampler) {
   for (size_t i = 0; i < _bindingUnits.size(); ++i) {
-    GFXBindingUnit& binding_unit = _bindingUnits[i];
-    if (binding_unit.binding == binding) {
-      if (binding_unit.type == GFXBindingType::SAMPLER) {
-        if (binding_unit.sampler != sampler) {
-          binding_unit.sampler = sampler;
+    GFXBindingUnit& bindingUnit = _bindingUnits[i];
+    if (bindingUnit.binding == binding) {
+      if (bindingUnit.type == GFXBindingType::SAMPLER) {
+        if (bindingUnit.sampler != sampler) {
+          bindingUnit.sampler = sampler;
           _isDirty = true;
         }
       } else {

@@ -13,11 +13,11 @@ bool CCMTLBindingLayout::initialize(const GFXBindingLayoutInfo& info)
         _bindingUnits.resize(info.bindings.size());
         for (size_t i = 0; i < _bindingUnits.size(); ++i)
         {
-            GFXBindingUnit& binding_unit = _bindingUnits[i];
+            GFXBindingUnit& bindingUnit = _bindingUnits[i];
             const GFXBinding& binding = info.bindings[i];
-            binding_unit.binding = binding.binding;
-            binding_unit.type = binding.type;
-            binding_unit.name = binding.name;
+            bindingUnit.binding = binding.binding;
+            bindingUnit.type = binding.type;
+            bindingUnit.name = binding.name;
         }
     }
     

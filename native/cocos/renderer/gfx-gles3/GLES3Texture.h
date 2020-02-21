@@ -15,10 +15,10 @@ class CC_GLES3_API GLES3Texture : public GFXTexture {
   void destroy();
   void resize(uint width, uint height);
   
-  CC_INLINE GLES3GPUTexture* gpu_texture() const { return gpu_texture_; }
+  CC_INLINE GLES3GPUTexture* gpuTexture() const { return _gpuTexture; }
 
  private:
-  GLES3GPUTexture* gpu_texture_;
+  GLES3GPUTexture* _gpuTexture = nullptr;
 };
 
 NS_CC_END

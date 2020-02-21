@@ -29,9 +29,9 @@ bool CCMTLDevice::initialize(const GFXDeviceInfo& info)
     _api = GFXAPI::METAL;
     _width = info.width;
     _height = info.height;
-    _nativeWidth = info.native_width;
-    _nativeHeight = info.native_height;
-    _windowHandle = info.window_handle;
+    _nativeWidth = info.nativeWidth;
+    _nativeHeight = info.nativeHeight;
+    _windowHandle = info.windowHandle;
     
     _stateCache = CC_NEW(CCMTLStateCache);
     
@@ -39,7 +39,7 @@ bool CCMTLDevice::initialize(const GFXDeviceInfo& info)
     _mtlDevice = ((MTKView*)_mtkView).device;
     
     GFXWindowInfo window_info;
-    window_info.is_offscreen = false;
+    window_info.isOffscreen = false;
     _window = createWindow(window_info);
     
     GFXQueueInfo queue_info;

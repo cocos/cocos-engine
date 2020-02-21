@@ -14,9 +14,9 @@ class CC_GLES3_API GLES3Shader : public GFXShader {
   bool initialize(const GFXShaderInfo& info);
   void destroy();
   
-  CC_INLINE GLES3GPUShader* gpu_shader() const { return gpu_shader_; }
+  CC_INLINE GLES3GPUShader* gpuShader() const { return _gpuShader; }
  private:
-  GLES3GPUShader* gpu_shader_;
+  GLES3GPUShader* _gpuShader = nullptr;
 };
 
 NS_CC_END

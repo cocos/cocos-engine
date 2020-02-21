@@ -16,7 +16,7 @@ class CC_CORE_API GFXBindingLayout : public Object {
   virtual void update() = 0;
   
   void bindBuffer(uint binding, GFXBuffer* buffer);
-  void bindTextureView(uint binding, GFXTextureView* tex_view);
+  void bindTextureView(uint binding, GFXTextureView* texView);
   void bindSampler(uint binding, GFXSampler* sampler);
   
   CC_INLINE GFXDevice* device() const { return _device; }

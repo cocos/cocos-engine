@@ -15,10 +15,10 @@ class CC_GLES3_API GLES3BindingLayout : public GFXBindingLayout {
   void destroy();
   void update();
   
-  CC_INLINE GLES3GPUBindingLayout* gpu_binding_layout() const { return gpu_binding_layout_; }
+  CC_INLINE GLES3GPUBindingLayout* gpuBindingLayout() const { return _gpuBindingLayout; }
   
  private:
-  GLES3GPUBindingLayout* gpu_binding_layout_;
+  GLES3GPUBindingLayout* _gpuBindingLayout = nullptr;
 };
 
 NS_CC_END

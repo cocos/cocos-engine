@@ -28,7 +28,7 @@ CCMTLBuffer::~CCMTLBuffer()
 bool CCMTLBuffer::initialize(const GFXBufferInfo& info)
 {
     _usage = info.usage;
-    _memUsage = info.mem_usage;
+    _memUsage = info.memUsage;
     _size = info.size;
     _stride = std::max(info.stride, 1U);
     _count = _size / _stride;
@@ -40,14 +40,14 @@ bool CCMTLBuffer::initialize(const GFXBufferInfo& info)
     if ((_flags & GFXBufferFlagBit::BAKUP_BUFFER) && _size > 0)
     {
         _buffer = (uint8_t*)CC_MALLOC(_size);
-        _device->memoryStatus().buffer_size += _size;
+        _device->memoryStatus().bufferSize += _size;
     }
     
     switch (info.usage) {
         case GFXBufferUsage::VERTEX:
         case GFXBufferUsage::INDEX:
         case GFXBufferUsage::UNIFORM:
-            _mtlBuffer = [id<MTLDevice>(((CCMTLDevice*)_device)->getMTLDevice() ) newBufferWithLength:_size options:toMTLResourseOption(info.mem_usage)];
+            _mtlBuffer = [id<MTLDevice>(((CCMTLDevice*)_device)->getMTLDevice() ) newBufferWithLength:_size options:toMTLResourseOption(info.memUsage)];
             if (_mtlBuffer == nil)
             {
                 CCASSERT(false, "Failed to create MTLBuffer.");
@@ -62,7 +62,7 @@ bool CCMTLBuffer::initialize(const GFXBufferInfo& info)
                 CCASSERT(false, "CCMTLBuffer: failed to create memory for transfer buffer.");
                 return false;
             }
-            _device->memoryStatus().buffer_size += _size;
+            _device->memoryStatus().bufferSize += _size;
             break;
             
         case GFXBufferUsage::STORAGE:
@@ -80,7 +80,7 @@ bool CCMTLBuffer::initialize(const GFXBufferInfo& info)
         if (!_buffer)
             CCLOG("CCMTLBuffer: failed to create backup memory.");
         else
-            _device->memoryStatus().buffer_size += _size;
+            _device->memoryStatus().bufferSize += _size;
     }
     
     return true;
@@ -98,13 +98,13 @@ void CCMTLBuffer::destroy()
     {
         CC_FREE(_transferBuffer);
         _transferBuffer = nullptr;
-        _device->memoryStatus().buffer_size -= _size;
+        _device->memoryStatus().bufferSize -= _size;
     }
     
     if (_buffer)
     {
         CC_FREE(_buffer);
-        _device->memoryStatus().buffer_size -= _size;
+        _device->memoryStatus().bufferSize -= _size;
         _buffer = nullptr;
     }
 }

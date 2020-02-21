@@ -14,10 +14,10 @@ class CC_GLES2_API GLES2Framebuffer : public GFXFramebuffer {
   bool initialize(const GFXFramebufferInfo& info);
   void destroy();
   
-  CC_INLINE GLES2GPUFramebuffer* gpu_fbo() const { return gpu_fbo_; }
+  CC_INLINE GLES2GPUFramebuffer* gpuFBO() const { return _gpuFBO; }
   
  private:
-  GLES2GPUFramebuffer* gpu_fbo_;
+  GLES2GPUFramebuffer* _gpuFBO = nullptr;
 };
 
 NS_CC_END

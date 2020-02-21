@@ -8,8 +8,7 @@
 NS_CC_BEGIN
 
 GLES3Framebuffer::GLES3Framebuffer(GFXDevice* device)
-    : GFXFramebuffer(device),
-      gpu_fbo_(nullptr) {
+    : GFXFramebuffer(device) {
 }
 
 GLES3Framebuffer::~GLES3Framebuffer() {
@@ -17,33 +16,33 @@ GLES3Framebuffer::~GLES3Framebuffer() {
 
 bool GLES3Framebuffer::initialize(const GFXFramebufferInfo &info) {
   
-  _renderPass = info.render_pass;
-  _colorViews = info.color_views;
-  _depthStencilView = info.depth_stencil_view;
-  _isOffscreen = info.is_offscreen;
+  _renderPass = info.renderPass;
+  _colorViews = info.colorViews;
+  _depthStencilView = info.depthStencilView;
+  _isOffscreen = info.isOffscreen;
   
-  gpu_fbo_ = CC_NEW(GLES3GPUFramebuffer);
-  gpu_fbo_->gpu_render_pass = ((GLES3RenderPass*)_renderPass)->gpu_render_pass();
+  _gpuFBO = CC_NEW(GLES3GPUFramebuffer);
+  _gpuFBO->gpuRenderPass = ((GLES3RenderPass*)_renderPass)->gpuRenderPass();
   
   if (_isOffscreen) {
-    gpu_fbo_->gpu_color_views.resize(_colorViews.size());
+    _gpuFBO->gpuColorViews.resize(_colorViews.size());
     for (size_t i = 0; i < _colorViews.size(); ++i) {
       GLES3TextureView* color_view = (GLES3TextureView*)_colorViews[i];
-      gpu_fbo_->gpu_color_views[i] = color_view->gpu_tex_view();
+      _gpuFBO->gpuColorViews[i] = color_view->gpuTexView();
     }
     
     if (_depthStencilView) {
-      gpu_fbo_->gpu_depth_stencil_view = ((GLES3TextureView*)_depthStencilView)->gpu_tex_view();
+      _gpuFBO->gpuDepthStencilView = ((GLES3TextureView*)_depthStencilView)->gpuTexView();
     }
     
-    gpu_fbo_->is_offscreen = _isOffscreen;
+    _gpuFBO->isOffscreen = _isOffscreen;
     
-    GLES3CmdFuncCreateFramebuffer((GLES3Device*)_device, gpu_fbo_);
+    GLES3CmdFuncCreateFramebuffer((GLES3Device*)_device, _gpuFBO);
   }
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
   else
   {
-      gpu_fbo_->gl_fbo = static_cast<GLES3Context*>(_device->context())->getDefaultFramebuffer();
+      _gpuFBO->glFramebuffer = static_cast<GLES3Context*>(_device->context())->getDefaultFramebuffer();
   }
 #endif
 
@@ -51,11 +50,11 @@ bool GLES3Framebuffer::initialize(const GFXFramebufferInfo &info) {
 }
 
 void GLES3Framebuffer::destroy() {
-  if (gpu_fbo_) {
+  if (_gpuFBO) {
       if(isOffscreen())
-          GLES3CmdFuncDestroyFramebuffer((GLES3Device*)_device, gpu_fbo_);
-      CC_DELETE(gpu_fbo_);
-      gpu_fbo_ = nullptr;
+          GLES3CmdFuncDestroyFramebuffer((GLES3Device*)_device, _gpuFBO);
+      CC_DELETE(_gpuFBO);
+      _gpuFBO = nullptr;
   }
 }
 

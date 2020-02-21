@@ -14,9 +14,9 @@ class CC_GLES3_API GLES3PipelineLayout : public GFXPipelineLayout {
   bool initialize(const GFXPipelineLayoutInfo& info);
   void destroy();
   
-  CC_INLINE GLES3GPUPipelineLayout* gpu_pipeline_layout() const { return gpu_pipeline_layout_; }
+  CC_INLINE GLES3GPUPipelineLayout* gpuPipelineLayout() const { return _gpuPipelineLayout; }
  private:
-  GLES3GPUPipelineLayout* gpu_pipeline_layout_;
+  GLES3GPUPipelineLayout* _gpuPipelineLayout = nullptr;
 };
 
 NS_CC_END

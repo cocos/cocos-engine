@@ -560,27 +560,27 @@ struct GFXExtent {
 };
 
 struct GFXTextureSubres {
-  uint base_mip_level = 0;
-  uint level_count = 1;
-  uint base_array_layer = 0;
-  uint layer_count = 1;
+  uint baseMipLevel = 0;
+  uint levelCount = 1;
+  uint baseArrayLayer = 0;
+  uint layerCount = 1;
 };
 
 struct GFXTextureCopy {
-  GFXTextureSubres src_subres;
-  GFXOffset src_offset = { 0, 0, 0 };
-  GFXTextureSubres dst_subres;
-  GFXOffset dst_offset = { 0, 0, 0 };
+  GFXTextureSubres srcSubres;
+  GFXOffset srcOffset = { 0, 0, 0 };
+  GFXTextureSubres dstSubres;
+  GFXOffset dstOffset = { 0, 0, 0 };
   GFXExtent extent = { 0, 0, 0 };
 };
 
 struct GFXBufferTextureCopy {
-  uint buff_offset = 0;
-  uint buff_stride = 0;
-  uint buff_tex_height = 0;
-  GFXOffset tex_offset = { 0, 0, 0 };
-  GFXExtent tex_extent = { 0, 0, 0 };
-  GFXTextureSubres tex_subres;
+  uint buffOffset = 0;
+  uint buffStride = 0;
+  uint buffTexHeight = 0;
+  GFXOffset texOffset = { 0, 0, 0 };
+  GFXExtent texExtent = { 0, 0, 0 };
+  GFXTextureSubres texSubres;
 };
 typedef vector<GFXBufferTextureCopy>::type GFXBufferTextureCopyList;
 
@@ -623,12 +623,12 @@ struct GFXColor {
 #pragma pack(pop)
 
 struct GFXDeviceInfo {
-  intptr_t window_handle = 0;
+  intptr_t windowHandle = 0;
   uint width = 0;
   uint height = 0;
-  uint native_width = 0;
-  uint native_height = 0;
-  GFXContext* shared_ctx = nullptr;
+  uint nativeWidth = 0;
+  uint nativeHeight = 0;
+  GFXContext* sharedCtx = nullptr;
 };
 
 struct GFXWindowInfo {
@@ -637,23 +637,23 @@ struct GFXWindowInfo {
   int top = 0;
   uint width = 800;
   uint height = 600;
-  GFXFormat color_fmt = GFXFormat::UNKNOWN;
-  GFXFormat depth_stencil_fmt = GFXFormat::UNKNOWN;
-  bool is_offscreen = false;
-  bool is_fullscreen = false;
-  GFXVsyncMode vsync_mode = GFXVsyncMode::OFF;
-  intptr_t window_handle = 0;
+  GFXFormat colorFmt = GFXFormat::UNKNOWN;
+  GFXFormat depthStencilFmt = GFXFormat::UNKNOWN;
+  bool isOffscreen = false;
+  bool isFullscreen = false;
+  GFXVsyncMode vsyncMode = GFXVsyncMode::OFF;
+  intptr_t windowHandle = 0;
 };
 
 struct GFXContextInfo {
-  intptr_t window_handle = 0;
-  GFXContext* shared_ctx = nullptr;
-  GFXVsyncMode vsync_mode = GFXVsyncMode::OFF;
+  intptr_t windowHandle = 0;
+  GFXContext* sharedCtx = nullptr;
+  GFXVsyncMode vsyncMode = GFXVsyncMode::OFF;
 };
 
 struct GFXBufferInfo {
   GFXBufferUsage usage = GFXBufferUsage::NONE;
-  GFXMemoryUsage mem_usage = GFXMemoryUsage::NONE;
+  GFXMemoryUsage memUsage = GFXMemoryUsage::NONE;
   uint stride = 1;
   uint size = 0;
   GFXBufferFlags flags = GFXBufferFlagBit::NONE;
@@ -661,13 +661,13 @@ struct GFXBufferInfo {
 
 #pragma pack(push, 1)
 struct GFXDrawInfo {
-  uint vertex_count = 0;
-  uint first_vertex = 0;
-  uint index_count = 0;
-  uint first_index = 0;
-  uint vertex_offset = 0;
-  uint instance_count = 0;
-  uint first_instance = 0;
+  uint vertexCount = 0;
+  uint firstVertex = 0;
+  uint indexCount = 0;
+  uint firstIndex = 0;
+  uint vertexOffset = 0;
+  uint instanceCount = 0;
+  uint firstInstance = 0;
 };
 #pragma pack(pop)
 
@@ -684,8 +684,8 @@ struct GFXTextureInfo {
   uint width = 0;
   uint height = 0;
   uint depth = 1;
-  uint array_layer = 1;
-  uint mip_level = 1;
+  uint arrayLayer = 1;
+  uint mipLevel = 1;
   GFXSampleCount samples = GFXSampleCount::X1;
   GFXTextureFlags flags = GFXTextureFlagBit::NONE;
 };
@@ -694,26 +694,26 @@ struct GFXTextureViewInfo {
   GFXTexture* texture = nullptr;
   GFXTextureViewType type = GFXTextureViewType::TV2D;
   GFXFormat format = GFXFormat::UNKNOWN;
-  uint base_level = 0;
-  uint level_count = 1;
-  uint base_layer = 0;
-  uint layer_count = 1;
+  uint baseLevel = 0;
+  uint levelCount = 1;
+  uint baseLayer = 0;
+  uint layerCount = 1;
 };
 
 struct GFXSamplerInfo {
   String name;
-  GFXFilter min_filter = GFXFilter::LINEAR;
-  GFXFilter mag_filter = GFXFilter::LINEAR;
-  GFXFilter mip_filter = GFXFilter::NONE;
-  GFXAddress address_u = GFXAddress::WRAP;
-  GFXAddress address_v = GFXAddress::WRAP;
-  GFXAddress address_w = GFXAddress::WRAP;
-  uint max_anisotropy = 16;
-  GFXComparisonFunc cmp_func = GFXComparisonFunc::NEVER;
-  GFXColor border_color;
-  uint min_lod = 0;
-  uint max_lod = 1000;
-  float mip_lod_bias = 0.0f;
+  GFXFilter minFilter = GFXFilter::LINEAR;
+  GFXFilter magFilter = GFXFilter::LINEAR;
+  GFXFilter mipFilter = GFXFilter::NONE;
+  GFXAddress addressU = GFXAddress::WRAP;
+  GFXAddress addressV = GFXAddress::WRAP;
+  GFXAddress addressW = GFXAddress::WRAP;
+  uint maxAnisotropy = 16;
+  GFXComparisonFunc cmpFunc = GFXComparisonFunc::NEVER;
+  GFXColor borderColor;
+  uint minLOD = 0;
+  uint maxLOD = 1000;
+  float mipLODBias = 0.0f;
 };
 
 struct GFXShaderMacro {
@@ -725,14 +725,14 @@ typedef vector<GFXShaderMacro>::type GFXShaderMacroList;
 
 struct GFXUniform {
   String name;
-  GFXType type;
-  uint count;
+  GFXType type = GFXType::UNKNOWN;
+  uint count = 0;
 };
 
 typedef vector<GFXUniform>::type GFXUniformList;
 
 struct GFXUniformBlock {
-  uint binding;
+  uint binding = 0;
   String name;
   GFXUniformList uniforms;
 };
@@ -740,10 +740,10 @@ struct GFXUniformBlock {
 typedef vector<GFXUniformBlock>::type GFXUniformBlockList;
 
 struct GFXUniformSampler {
-  uint binding;
+  uint binding = 0;
   String name;
-  GFXType type;
-  uint count;
+  GFXType type = GFXType::UNKNOWN;
+  uint count = 0;
 };
 
 typedef vector<GFXUniformSampler>::type GFXUniformSamplerList;
@@ -766,9 +766,9 @@ struct GFXShaderInfo {
 struct GFXAttribute {
   String name;
   GFXFormat format = GFXFormat::UNKNOWN;
-  bool is_normalized = false;
+  bool isNormalized = false;
   uint stream = 0;
-  bool is_instanced = false;
+  bool isInstanced = false;
 };
 
 typedef vector<GFXAttribute>::type GFXAttributeList;
@@ -776,44 +776,43 @@ typedef vector<GFXBuffer*>::type GFXBufferList;
 
 struct GFXInputAssemblerInfo {
   GFXAttributeList attributes;
-  GFXBufferList vertex_buffers;
-  GFXBuffer* index_buffer = nullptr;
-  GFXBuffer* indirect_buffer = nullptr;
+  GFXBufferList vertexBuffers;
+  GFXBuffer* indexBuffer = nullptr;
+  GFXBuffer* indirectBuffer = nullptr;
 };
 
 struct GFXColorAttachment {
   GFXFormat format = GFXFormat::UNKNOWN;
-  GFXLoadOp load_op = GFXLoadOp::CLEAR;
-  GFXStoreOp store_op = GFXStoreOp::STORE;
-  uint sample_count = 1;
-  GFXTextureLayout begin_layout = GFXTextureLayout::COLOR_ATTACHMENT_OPTIMAL;
-  GFXTextureLayout end_layout = GFXTextureLayout::COLOR_ATTACHMENT_OPTIMAL;
+  GFXLoadOp loadOp = GFXLoadOp::CLEAR;
+  GFXStoreOp storeOp = GFXStoreOp::STORE;
+  uint sampleCount = 1;
+  GFXTextureLayout beginLayout = GFXTextureLayout::COLOR_ATTACHMENT_OPTIMAL;
+  GFXTextureLayout endLayout = GFXTextureLayout::COLOR_ATTACHMENT_OPTIMAL;
 };
 
 typedef vector<GFXColorAttachment>::type GFXColorAttachmentList;
 
 struct GFXDepthStencilAttachment {
   GFXFormat format = GFXFormat::UNKNOWN;
-  GFXLoadOp depth_load_op = GFXLoadOp::CLEAR;
-  GFXStoreOp depth_store_op = GFXStoreOp::STORE;
-  GFXLoadOp stencil_load_op = GFXLoadOp::CLEAR;
-  GFXStoreOp stencil_store_op = GFXStoreOp::STORE;
-  uint sample_count = 1;
-  GFXTextureLayout begin_layout = GFXTextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-  GFXTextureLayout end_layout = GFXTextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+  GFXLoadOp depthLoadOp = GFXLoadOp::CLEAR;
+  GFXStoreOp depthStoreOp = GFXStoreOp::STORE;
+  GFXLoadOp stencilLoadOp = GFXLoadOp::CLEAR;
+  GFXStoreOp stencilStoreOp = GFXStoreOp::STORE;
+  uint sampleCount = 1;
+  GFXTextureLayout beginLayout = GFXTextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+  GFXTextureLayout endLayout = GFXTextureLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 };
 
 struct GFXSubPass {
-  GFXPipelineBindPoint bind_point;
+  GFXPipelineBindPoint bindPoint = GFXPipelineBindPoint::GRAPHICS;
   uint8_t inputs[GFX_MAX_ATTACHMENTS];
   uint8_t colors[GFX_MAX_ATTACHMENTS];
   uint8_t resolves[GFX_MAX_ATTACHMENTS];
-  uint8_t depth_stencil;
+  uint8_t depthStencil = GFX_INVALID_BINDING;
   uint8_t preserves[GFX_MAX_ATTACHMENTS];
   
   GFXSubPass()
-    : bind_point(GFXPipelineBindPoint::GRAPHICS),
-      depth_stencil(GFX_INVALID_BINDING) {
+  {
     memset(inputs, -1, sizeof(inputs));
     memset(colors, -1, sizeof(colors));
     memset(resolves, -1, sizeof(resolves));
@@ -824,23 +823,23 @@ struct GFXSubPass {
 typedef vector<GFXSubPass>::type GFXSubPassList;
 
 struct GFXRenderPassInfo {
-  GFXColorAttachmentList color_attachments;
-  GFXDepthStencilAttachment depth_stencil_attachment;
-  GFXSubPassList sub_passes;
+  GFXColorAttachmentList colorAttachments;
+  GFXDepthStencilAttachment depthStencilAttachment;
+  GFXSubPassList subPasses;
 };
 
 typedef vector<GFXTextureView*>::type GFXTextureViewList;
 
 struct GFXFramebufferInfo {
-  GFXRenderPass* render_pass = nullptr;
-  GFXTextureViewList color_views;
-  GFXTextureView* depth_stencil_view = nullptr;
-  bool is_offscreen = true;
+  GFXRenderPass* renderPass = nullptr;
+  GFXTextureViewList colorViews;
+  GFXTextureView* depthStencilView = nullptr;
+  bool isOffscreen = true;
 };
 
 struct GFXBinding {
-  uint binding;
-  GFXBindingType type;
+  uint binding = 0;
+  GFXBindingType type = GFXBindingType::UNKNOWN;
   String name;
 };
 
@@ -851,27 +850,27 @@ struct GFXBindingLayoutInfo {
 };
 
 struct GFXBindingUnit {
-  uint binding;
-  GFXBindingType type;
+  uint binding = 0;
+  GFXBindingType type = GFXBindingType::UNKNOWN;
   String name;
-  GFXBuffer* buffer;
-  GFXTextureView* tex_view;
-  GFXSampler* sampler;
+  GFXBuffer* buffer = nullptr;
+  GFXTextureView* texView = nullptr;
+  GFXSampler* sampler = nullptr;
 };
 
 typedef vector<GFXBindingUnit>::type GFXBindingUnitList;
 
 struct GFXPushConstantRange {
-  GFXShaderType shader_type;
-  uint offset;
-  uint count;
+  GFXShaderType shaderType;
+  uint offset = 0;
+  uint count = 0;
 };
 
 typedef vector<GFXPushConstantRange>::type GFXPushConstantRangeList;
 typedef vector<GFXBindingLayout*>::type GFXBindingLayoutList;
 
 struct GFXPipelineLayoutInfo {
-  GFXPushConstantRangeList push_constant_ranges;
+  GFXPushConstantRangeList pushConstantsRanges;
   GFXBindingLayoutList layouts;
 };
 
@@ -880,58 +879,58 @@ struct GFXInputState {
 };
 
 struct GFXRasterizerState {
-  bool is_discard = false;
-  GFXPolygonMode polygon_mode = GFXPolygonMode::FILL;
-  GFXShadeModel shade_model = GFXShadeModel::GOURAND;
-  GFXCullMode cull_mode = GFXCullMode::BACK;
-  bool is_front_face_ccw = true;
-  float depth_bias = 0.0f;
-  float depth_bias_clamp = 0.0f;
-  float depth_bias_slope = 0.0f;
-  bool is_depth_clip = true;
-  bool is_multisample = false;
-  float line_width = 1.0f;
+  bool isDiscard = false;
+  GFXPolygonMode polygonMode = GFXPolygonMode::FILL;
+  GFXShadeModel shadeModel = GFXShadeModel::GOURAND;
+  GFXCullMode cullMode = GFXCullMode::BACK;
+  bool isFrontFaceCCW = true;
+  float depthBias = 0.0f;
+  float depthBiasClamp = 0.0f;
+  float depthBiasSlop = 0.0f;
+  bool isDepthClip = true;
+  bool isMultisample = false;
+  float lineWidth = 1.0f;
 };
 
 struct GFXDepthStencilState {
-  bool depth_test = true;
-  bool depth_write = true;
-  GFXComparisonFunc depth_func = GFXComparisonFunc::LESS;
-  bool stencil_test_front = false;
-  GFXComparisonFunc stencil_func_front = GFXComparisonFunc::ALWAYS;
-  uint stencil_read_mask_front = 0xffffffff;
-  uint stencil_write_mask_front = 0xffffffff;
-  GFXStencilOp stencil_fail_op_front = GFXStencilOp::KEEP;
-  GFXStencilOp stencil_z_fail_op_front = GFXStencilOp::KEEP;
-  GFXStencilOp stencil_pass_op_front = GFXStencilOp::KEEP;
-  uint stencil_ref_front = 1;
-  bool stencil_test_back = false;
-  GFXComparisonFunc stencil_func_back = GFXComparisonFunc::ALWAYS;
-  uint stencil_read_mask_back = 0xffffffff;
-  uint stencil_write_mask_back = 0xffffffff;
-  GFXStencilOp stencil_fail_op_back = GFXStencilOp::KEEP;
-  GFXStencilOp stencil_z_fail_op_back = GFXStencilOp::KEEP;
-  GFXStencilOp stencil_pass_op_back = GFXStencilOp::KEEP;
-  uint stencil_ref_back = 1;
+  bool depthTest = true;
+  bool depthWrite = true;
+  GFXComparisonFunc depthFunc = GFXComparisonFunc::LESS;
+  bool stencilTestFront = false;
+  GFXComparisonFunc stencilFuncFront = GFXComparisonFunc::ALWAYS;
+  uint stencilReadMaskFront = 0xffffffff;
+  uint stencilWriteMaskFront = 0xffffffff;
+  GFXStencilOp stencilFailOpFront = GFXStencilOp::KEEP;
+  GFXStencilOp stencilZFailOpFront = GFXStencilOp::KEEP;
+  GFXStencilOp stencilPassOpFront = GFXStencilOp::KEEP;
+  uint stencilRefFront = 1;
+  bool stencilTestBack = false;
+  GFXComparisonFunc stencilFuncBack = GFXComparisonFunc::ALWAYS;
+  uint stencilReadMaskBack = 0xffffffff;
+  uint stencilWriteMaskBack = 0xffffffff;
+  GFXStencilOp stencilFailOpBack = GFXStencilOp::KEEP;
+  GFXStencilOp stencilZFailOpBack = GFXStencilOp::KEEP;
+  GFXStencilOp stencilPassOpBack = GFXStencilOp::KEEP;
+  uint stencilRefBack = 1;
 };
 
 struct GFXBlendTarget {
-  bool is_blend = false;
-  GFXBlendFactor blend_src = GFXBlendFactor::ONE;
-  GFXBlendFactor blend_dst = GFXBlendFactor::ZERO;
-  GFXBlendOp blend_eq = GFXBlendOp::ADD;
-  GFXBlendFactor blend_src_alpha = GFXBlendFactor::ONE;
-  GFXBlendFactor blend_dst_alpha = GFXBlendFactor::ZERO;
-  GFXBlendOp blend_alpha_eq = GFXBlendOp::ADD;
-  GFXColorMask blend_color_mask = GFXColorMask::ALL;
+  bool blend = false;
+  GFXBlendFactor blendSrc = GFXBlendFactor::ONE;
+  GFXBlendFactor blendDst = GFXBlendFactor::ZERO;
+  GFXBlendOp blendEq = GFXBlendOp::ADD;
+  GFXBlendFactor blendSrcAlpha = GFXBlendFactor::ONE;
+  GFXBlendFactor blendDstAlpha = GFXBlendFactor::ZERO;
+  GFXBlendOp blendAlphaEq = GFXBlendOp::ADD;
+  GFXColorMask blendColorMask = GFXColorMask::ALL;
 };
 
 typedef vector<GFXBlendTarget>::type GFXBlendTargetList;
 
 struct GFXBlendState {
-  bool is_a2c = false;
-  bool is_independ = false;
-  GFXColor blend_color;
+  bool isA2C = false;
+  bool isIndepend = false;
+  GFXColor blendColor;
   GFXBlendTargetList targets;
   
   GFXBlendState() {
@@ -942,13 +941,13 @@ struct GFXBlendState {
 struct GFXPipelineStateInfo {
   GFXPrimitiveMode primitive;
   GFXShader* shader = nullptr;
-  GFXInputState is;
-  GFXRasterizerState rs;
-  GFXDepthStencilState dss;
-  GFXBlendState bs;
-  GFXDynamicStateList dynamic_states;
+  GFXInputState inputState;
+  GFXRasterizerState rasterizerState;
+  GFXDepthStencilState depthStencilState;
+  GFXBlendState blendState;
+  GFXDynamicStateList dynamicStates;
   GFXPipelineLayout* layout = nullptr;
-  GFXRenderPass* render_pass = nullptr;
+  GFXRenderPass* renderPass = nullptr;
 };
 
 struct GFXCommandAllocatorInfo {
@@ -965,21 +964,21 @@ struct GFXQueueInfo {
 
 struct GFXFormatInfo {
   String name;
-  uint size;
-  uint count;
-  GFXFormatType type;
-  bool has_alpha;
-  bool has_depth;
-  bool has_stencil;
-  bool is_compressed;
+  uint size = 0;
+  uint count = 0;
+  GFXFormatType type = GFXFormatType::NONE;
+  bool hasAlpha = false;
+  bool hasDepth = false;
+  bool hasStencil = false;
+  bool isCompressed = false;
 };
 
 extern CC_CORE_API const GFXFormatInfo GFX_FORMAT_INFOS[];
 extern CC_CORE_API const uint GFX_TYPE_SIZES[];
 
 struct GFXMemoryStatus {
-  uint buffer_size = 0;
-  uint texture_size = 0;
+  uint bufferSize = 0;
+  uint textureSize = 0;
 };
 
 extern CC_CORE_API uint GFXFormatSize(GFXFormat format, uint width, uint height, uint depth);

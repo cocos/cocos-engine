@@ -9,7 +9,7 @@ CCMTLPipelineLayout::~CCMTLPipelineLayout() { destroy(); }
 bool CCMTLPipelineLayout::initialize(const GFXPipelineLayoutInfo& info)
 {
     _layouts = info.layouts;
-    _pushConstantsRanges = info.push_constant_ranges;
+    _pushConstantsRanges = info.pushConstantsRanges;
     
     return true;
 }

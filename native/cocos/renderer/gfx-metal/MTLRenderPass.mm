@@ -11,23 +11,23 @@ CCMTLRenderPass::~CCMTLRenderPass() { destroy(); }
 
 bool CCMTLRenderPass::initialize(const GFXRenderPassInfo& info)
 {
-    _colorAttachments = info.color_attachments;
-    _depthStencilAttachment = info.depth_stencil_attachment;
+    _colorAttachments = info.colorAttachments;
+    _depthStencilAttachment = info.depthStencilAttachment;
     
     _mtlRenderPassDescriptor = [[MTLRenderPassDescriptor alloc] init];
     
     int i = 0;
     for (const auto& colorAttachment: _colorAttachments)
     {
-        _mtlRenderPassDescriptor.colorAttachments[i].loadAction = mu::toMTLLoadAction(colorAttachment.load_op);
-        _mtlRenderPassDescriptor.colorAttachments[i].storeAction = mu::toMTLStoreAction(colorAttachment.store_op);
+        _mtlRenderPassDescriptor.colorAttachments[i].loadAction = mu::toMTLLoadAction(colorAttachment.loadOp);
+        _mtlRenderPassDescriptor.colorAttachments[i].storeAction = mu::toMTLStoreAction(colorAttachment.storeOp);
         
         ++i;
     }
-    _mtlRenderPassDescriptor.depthAttachment.loadAction =  mu::toMTLLoadAction(_depthStencilAttachment.depth_load_op);
-    _mtlRenderPassDescriptor.depthAttachment.storeAction = mu::toMTLStoreAction(_depthStencilAttachment.depth_store_op);
-    _mtlRenderPassDescriptor.stencilAttachment.loadAction = mu::toMTLLoadAction(_depthStencilAttachment.depth_load_op);
-    _mtlRenderPassDescriptor.stencilAttachment.storeAction = mu::toMTLStoreAction(_depthStencilAttachment.depth_store_op);
+    _mtlRenderPassDescriptor.depthAttachment.loadAction =  mu::toMTLLoadAction(_depthStencilAttachment.depthLoadOp);
+    _mtlRenderPassDescriptor.depthAttachment.storeAction = mu::toMTLStoreAction(_depthStencilAttachment.depthStoreOp);
+    _mtlRenderPassDescriptor.stencilAttachment.loadAction = mu::toMTLLoadAction(_depthStencilAttachment.depthLoadOp);
+    _mtlRenderPassDescriptor.stencilAttachment.storeAction = mu::toMTLStoreAction(_depthStencilAttachment.depthStoreOp);
     
     return true;
 }

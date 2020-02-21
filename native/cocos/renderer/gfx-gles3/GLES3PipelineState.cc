@@ -25,8 +25,7 @@ const GLenum GLES3Primitives []  = {
 };
 
 GLES3PipelineState::GLES3PipelineState(GFXDevice* device)
-    : GFXPipelineState(device),
-      gpu_pso_(nullptr) {
+    : GFXPipelineState(device) {
 }
 
 GLES3PipelineState::~GLES3PipelineState() {
@@ -36,31 +35,31 @@ bool GLES3PipelineState::initialize(const GFXPipelineStateInfo &info) {
   
   _primitive = info.primitive;
   _shader = info.shader;
-  _is = info.is;
-  _rs = info.rs;
-  _dss = info.dss;
-  _bs = info.bs;
-  _dynamicStates = info.dynamic_states;
-  layout_ = info.layout;
-  _renderPass = info.render_pass;
+  _inputState = info.inputState;
+  _rasterizerState = info.rasterizerState;
+  _depthStencilState = info.depthStencilState;
+  _blendState = info.blendState;
+  _dynamicStates = info.dynamicStates;
+  _layout = info.layout;
+  _renderPass = info.renderPass;
   
-  gpu_pso_ = CC_NEW(GLES3GPUPipelineState);
-  gpu_pso_->gl_primitive = GLES3Primitives[(int)_primitive];
-  gpu_pso_->gpu_shader = ((GLES3Shader*)_shader)->gpu_shader();
-  gpu_pso_->rs = _rs;
-  gpu_pso_->dss = _dss;
-  gpu_pso_->bs = _bs;
-  gpu_pso_->dynamic_states = _dynamicStates;
-  gpu_pso_->gpu_layout = ((GLES3PipelineLayout*)layout_)->gpu_pipeline_layout();
-  gpu_pso_->gpu_render_pass = ((GLES3RenderPass*)_renderPass)->gpu_render_pass();
+  _gpuPipelineState = CC_NEW(GLES3GPUPipelineState);
+  _gpuPipelineState->glPrimitive = GLES3Primitives[(int)_primitive];
+  _gpuPipelineState->gpuShader = ((GLES3Shader*)_shader)->gpuShader();
+  _gpuPipelineState->rs = _rasterizerState;
+  _gpuPipelineState->dss = _depthStencilState;
+  _gpuPipelineState->bs = _blendState;
+  _gpuPipelineState->dynamicStates = _dynamicStates;
+  _gpuPipelineState->gpuLayout = ((GLES3PipelineLayout*)_layout)->gpuPipelineLayout();
+  _gpuPipelineState->gpuRenderPass = ((GLES3RenderPass*)_renderPass)->gpuRenderPass();
   
   return true;
 }
 
 void GLES3PipelineState::destroy() {
-  if (gpu_pso_) {
-    CC_DELETE(gpu_pso_);
-    gpu_pso_ = nullptr;
+  if (_gpuPipelineState) {
+    CC_DELETE(_gpuPipelineState);
+    _gpuPipelineState = nullptr;
   }
 }
 

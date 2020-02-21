@@ -42,21 +42,21 @@ class CC_GLES3_API GLES3CommandBuffer : public GFXCommandBuffer {
   void BindStates();
   
  private:
-  GLES3CmdPackage* cmd_package_;
-  GLES3CommandAllocator* gles3_allocator_;
-  bool is_in_render_pass_;
-  GLES3GPUPipelineState* cur_gpu_pso_;
-  GLES3GPUBindingLayout* cur_gpu_bl_;
-  GLES3GPUInputAssembler* cur_gpu_ia_;
-  GFXViewport cur_viewport_;
-  GFXRect cur_scissor_;
-  float cur_line_width_;
-  GLES3DepthBias cur_depth_bias_;
-  GFXColor cur_blend_constants_;
-  GLES3DepthBounds cur_depth_bounds_;
-  GLES3StencilWriteMask cur_stencil_write_mask_;
-  GLES3StencilCompareMask cur_stencil_compare_mask_;
-  bool is_state_invalid_;
+  GLES3CmdPackage* _cmdPackage = nullptr;
+  GLES3CommandAllocator* _gles3Allocator = nullptr;
+  bool _isInRenderPass = false;
+  GLES3GPUPipelineState* _curGPUPipelineState = nullptr;
+  GLES3GPUBindingLayout* _curGPUBlendLayout = nullptr;
+  GLES3GPUInputAssembler* _curGPUInputAssember = nullptr;
+  GFXViewport _curViewport;
+  GFXRect _curScissor;
+  float _curLineWidth = 1.0f;
+  GLES3DepthBias _curDepthBias;
+  GFXColor _curBlendConstants;
+  GLES3DepthBounds _curDepthBounds;
+  GLES3StencilWriteMask _curStencilWriteMask;
+  GLES3StencilCompareMask _curStencilCompareMask;
+  bool _isStateInvalid = false;
 };
 
 NS_CC_END

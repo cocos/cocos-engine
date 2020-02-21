@@ -30,24 +30,24 @@ struct GLES2StencilCompareMask {
 };
 
 struct GLES2TextureSubres {
-  uint base_mip_level = 0;
-  uint level_count = 1;
-  uint base_array_layer = 0;
-  uint layer_count = 1;
+  uint baseMipLevel = 0;
+  uint levelCount = 1;
+  uint baseArrayLayer = 0;
+  uint layerCount = 1;
 };
 
 struct GLES2BufferTextureCopy {
-  uint buff_offset = 0;
-  uint buff_stride = 0;
-  uint buff_tex_height = 0;
-  uint tex_offset[3] = {0};
-  uint tex_extent[3] = {0};
-  GLES2TextureSubres tex_subres;
+  uint buffOffset = 0;
+  uint buffStride = 0;
+  uint buffTexHeight = 0;
+  uint texOffset[3] = {0};
+  uint texExtent[3] = {0};
+  GLES2TextureSubres texSubres;
 };
 
 class GLES2CmdBeginRenderPass : public GFXCmd {
  public:
-  GLES2GPUFramebuffer* gpu_fbo = nullptr;
+  GLES2GPUFramebuffer* gpuFBO = nullptr;
   GFXRect render_area;
   GFXClearFlags clear_flags = GFXClearFlagBit::NONE;
   uint num_clear_colors = 0;
@@ -58,7 +58,7 @@ class GLES2CmdBeginRenderPass : public GFXCmd {
   GLES2CmdBeginRenderPass() : GFXCmd(GFXCmdType::BEGIN_RENDER_PASS) {}
   
   void clear() {
-    gpu_fbo = nullptr;
+    gpuFBO = nullptr;
     num_clear_colors = 0;
   }
 };
@@ -77,25 +77,25 @@ enum class GLES2State : uint8_t {
 
 class GLES2CmdBindStates : public GFXCmd {
  public:
-  GLES2GPUPipelineState* gpu_pso = nullptr;
-  GLES2GPUBindingLayout* gpu_binding_layout = nullptr;
-  GLES2GPUInputAssembler* gpu_ia = nullptr;
+  GLES2GPUPipelineState* gpuPipelineState = nullptr;
+  GLES2GPUBindingLayout* gpuBindingLayout = nullptr;
+  GLES2GPUInputAssembler* gpuInputAssembler = nullptr;
   uint8_t state_flags[(int)GLES2State::COUNT] = {0};
   GFXViewport viewport;
   GFXRect scissor;
-  float line_width = 1.0f;
-  GLES2DepthBias depth_bias;
-  GFXColor blend_constants;
-  GLES2DepthBounds depth_bounds;
-  GLES2StencilWriteMask stencil_write_mask;
-  GLES2StencilCompareMask stencil_compare_mask;
+  float lineWidth = 1.0f;
+  GLES2DepthBias depthBias;
+  GFXColor blendConstants;
+  GLES2DepthBounds depthBounds;
+  GLES2StencilWriteMask stencilWriteMask;
+  GLES2StencilCompareMask stencilCompareMask;
   
   GLES2CmdBindStates() : GFXCmd(GFXCmdType::BIND_STATES) {}
   
   void clear() {
-    gpu_pso = nullptr;
-    gpu_binding_layout = nullptr;
-    gpu_ia = nullptr;
+    gpuPipelineState = nullptr;
+    gpuBindingLayout = nullptr;
+    gpuInputAssembler = nullptr;
     memset(state_flags, 0, sizeof(state_flags));
   }
 };
@@ -110,7 +110,7 @@ class GLES2CmdDraw : public GFXCmd {
 
 class GLES2CmdUpdateBuffer : public GFXCmd {
  public:
-  GLES2GPUBuffer* gpu_buffer = nullptr;
+  GLES2GPUBuffer* gpuBuffer = nullptr;
   uint8_t* buffer = nullptr;
   uint size = 0;
   uint offset = 0;
@@ -118,54 +118,54 @@ class GLES2CmdUpdateBuffer : public GFXCmd {
   GLES2CmdUpdateBuffer() : GFXCmd(GFXCmdType::UPDATE_BUFFER) {}
   
   void clear() {
-    gpu_buffer = nullptr;
+    gpuBuffer = nullptr;
     buffer = nullptr;
   }
 };
 
 class GLES2CmdCopyBufferToTexture : public GFXCmd {
  public:
-  GLES2GPUBuffer* gpu_buffer = nullptr;
-  GLES2GPUTexture* gpu_texture = nullptr;
+  GLES2GPUBuffer* gpuBuffer = nullptr;
+  GLES2GPUTexture* gpuTexture = nullptr;
   GFXTextureLayout dst_layout;
   GFXBufferTextureCopyList regions;
   
   GLES2CmdCopyBufferToTexture() : GFXCmd(GFXCmdType::COPY_BUFFER_TO_TEXTURE) {}
   
   void clear() {
-    gpu_buffer = nullptr;
-    gpu_texture = nullptr;
+    gpuBuffer = nullptr;
+    gpuTexture = nullptr;
     regions.clear();
   }
 };
 
 class GLES2CmdPackage : public Object {
  public:
-  CachedArray<GFXCmdType> cmd_types;
-  CachedArray<GLES2CmdBeginRenderPass*> begin_render_pass_cmds;
-  CachedArray<GLES2CmdBindStates*> bind_states_cmds;
-  CachedArray<GLES2CmdDraw*> draw_cmds;
-  CachedArray<GLES2CmdUpdateBuffer*> update_buffer_cmds;
-  CachedArray<GLES2CmdCopyBufferToTexture*> copy_buffer_to_texture_cmds;
+  CachedArray<GFXCmdType> cmds;
+  CachedArray<GLES2CmdBeginRenderPass*> beginRenderPassCmds;
+  CachedArray<GLES2CmdBindStates*> bindStatesCmds;
+  CachedArray<GLES2CmdDraw*> drawCmds;
+  CachedArray<GLES2CmdUpdateBuffer*> updateBufferCmds;
+  CachedArray<GLES2CmdCopyBufferToTexture*> copyBufferToTextureCmds;
 };
 
-CC_GLES2_API void GLES2CmdFuncCreateBuffer(GLES2Device* device, GLES2GPUBuffer* gpu_buffer);
-CC_GLES2_API void GLES2CmdFuncDestroyBuffer(GLES2Device* device, GLES2GPUBuffer* gpu_buffer);
-CC_GLES2_API void GLES2CmdFuncResizeBuffer(GLES2Device* device, GLES2GPUBuffer* gpu_buffer);
-CC_GLES2_API void GLES2CmdFuncUpdateBuffer(GLES2Device* device, GLES2GPUBuffer* gpu_buffer, void* buffer, uint offset, uint size);
-CC_GLES2_API void GLES2CmdFuncCreateTexture(GLES2Device* device, GLES2GPUTexture* gpu_texture);
-CC_GLES2_API void GLES2CmdFuncDestroyTexture(GLES2Device* device, GLES2GPUTexture* gpu_texture);
-CC_GLES2_API void GLES2CmdFuncResizeTexture(GLES2Device* device, GLES2GPUTexture* gpu_texture);
-CC_GLES2_API void GLES2CmdFuncCreateSampler(GLES2Device* device, GLES2GPUSampler* gpu_sampler);
-CC_GLES2_API void GLES2CmdFuncDestroySampler(GLES2Device* device, GLES2GPUSampler* gpu_sampler);
-CC_GLES2_API void GLES2CmdFuncCreateShader(GLES2Device* device, GLES2GPUShader* gpu_shader);
-CC_GLES2_API void GLES2CmdFuncDestroyShader(GLES2Device* device, GLES2GPUShader* gpu_shader);
-CC_GLES2_API void GLES2CmdFuncCreateInputAssembler(GLES2Device* device, GLES2GPUInputAssembler* gpu_ia);
-CC_GLES2_API void GLES2CmdFuncDestroyInputAssembler(GLES2Device* device, GLES2GPUInputAssembler* gpu_ia);
-CC_GLES2_API void GLES2CmdFuncCreateFramebuffer(GLES2Device* device, GLES2GPUFramebuffer* gpu_fbo);
-CC_GLES2_API void GLES2CmdFuncDestroyFramebuffer(GLES2Device* device, GLES2GPUFramebuffer* gpu_fbo);
+CC_GLES2_API void GLES2CmdFuncCreateBuffer(GLES2Device* device, GLES2GPUBuffer* gpuBuffer);
+CC_GLES2_API void GLES2CmdFuncDestroyBuffer(GLES2Device* device, GLES2GPUBuffer* gpuBuffer);
+CC_GLES2_API void GLES2CmdFuncResizeBuffer(GLES2Device* device, GLES2GPUBuffer* gpuBuffer);
+CC_GLES2_API void GLES2CmdFuncUpdateBuffer(GLES2Device* device, GLES2GPUBuffer* gpuBuffer, void* buffer, uint offset, uint size);
+CC_GLES2_API void GLES2CmdFuncCreateTexture(GLES2Device* device, GLES2GPUTexture* gpuTexture);
+CC_GLES2_API void GLES2CmdFuncDestroyTexture(GLES2Device* device, GLES2GPUTexture* gpuTexture);
+CC_GLES2_API void GLES2CmdFuncResizeTexture(GLES2Device* device, GLES2GPUTexture* gpuTexture);
+CC_GLES2_API void GLES2CmdFuncCreateSampler(GLES2Device* device, GLES2GPUSampler* gpuSampler);
+CC_GLES2_API void GLES2CmdFuncDestroySampler(GLES2Device* device, GLES2GPUSampler* gpuSampler);
+CC_GLES2_API void GLES2CmdFuncCreateShader(GLES2Device* device, GLES2GPUShader* gpuShader);
+CC_GLES2_API void GLES2CmdFuncDestroyShader(GLES2Device* device, GLES2GPUShader* gpuShader);
+CC_GLES2_API void GLES2CmdFuncCreateInputAssembler(GLES2Device* device, GLES2GPUInputAssembler* gpuInputAssembler);
+CC_GLES2_API void GLES2CmdFuncDestroyInputAssembler(GLES2Device* device, GLES2GPUInputAssembler* gpuInputAssembler);
+CC_GLES2_API void GLES2CmdFuncCreateFramebuffer(GLES2Device* device, GLES2GPUFramebuffer* gpuFBO);
+CC_GLES2_API void GLES2CmdFuncDestroyFramebuffer(GLES2Device* device, GLES2GPUFramebuffer* gpuFBO);
 CC_GLES2_API void GLES2CmdFuncExecuteCmds(GLES2Device* device, GLES2CmdPackage* cmd_package);
-CC_GLES2_API void GLES2CmdFuncCopyBuffersToTexture(GLES2Device* device, uint8_t** buffers, uint count, GLES2GPUTexture* gpu_texture, const GFXBufferTextureCopyList& regions);
+CC_GLES2_API void GLES2CmdFuncCopyBuffersToTexture(GLES2Device* device, uint8_t** buffers, uint count, GLES2GPUTexture* gpuTexture, const GFXBufferTextureCopyList& regions);
 
 NS_CC_END
 

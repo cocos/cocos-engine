@@ -50,8 +50,8 @@ bool CCMTLTexture::initialize(const GFXTextureInfo& info)
     _width = info.width;
     _height = info.height;
     _depth = info.depth;
-    _arrayLayer = info.array_layer;
-    _mipLevel = info.mip_level;
+    _arrayLayer = info.arrayLayer;
+    _mipLevel = info.mipLevel;
     _samples = info.samples;
     _flags = info.flags;
     _size = GFXFormatSize(_format, _width, _height, _depth);
@@ -59,7 +59,7 @@ bool CCMTLTexture::initialize(const GFXTextureInfo& info)
     if (_flags & GFXTextureFlags::BAKUP_BUFFER)
     {
         _buffer = (uint8_t*)CC_MALLOC(_size);
-        _device->memoryStatus().texture_size += _size;
+        _device->memoryStatus().textureSize += _size;
     }
     
     _convertedFormat = mu::convertGFXPixelFormat(_format);
@@ -90,7 +90,7 @@ bool CCMTLTexture::initialize(const GFXTextureInfo& info)
     _mtlTexture = [mtlDevice newTextureWithDescriptor:descriptor];
     
     if (_mtlTexture)
-        _device->memoryStatus().texture_size += _size;
+        _device->memoryStatus().textureSize += _size;
     
     return _mtlTexture != nil;
 }
@@ -100,7 +100,7 @@ void CCMTLTexture::destroy()
     if (_buffer)
     {
         CC_FREE(_buffer);
-        _device->memoryStatus().texture_size -= _size;
+        _device->memoryStatus().textureSize -= _size;
         _buffer = nullptr;
     }
     
@@ -122,19 +122,19 @@ void CCMTLTexture::update(uint8_t* data, const GFXBufferTextureCopy& region)
         return;
     
     uint8_t* convertedData = convertData(data,
-                                         region.tex_extent.width * region.tex_extent.height,
+                                         region.texExtent.width * region.texExtent.height,
                                          _format);
     
     MTLRegion mtlRegion =
     {
-        {(uint)region.tex_offset.x, (uint)region.tex_offset.y, (uint)region.tex_offset.z},
-        {region.tex_extent.width, region.tex_extent.height, region.tex_extent.depth}
+        {(uint)region.texOffset.x, (uint)region.texOffset.y, (uint)region.texOffset.z},
+        {region.texExtent.width, region.texExtent.height, region.texExtent.depth}
     };
     
     [_mtlTexture replaceRegion:mtlRegion
-                   mipmapLevel:region.tex_subres.base_mip_level
+                   mipmapLevel:region.texSubres.baseMipLevel
                      withBytes:convertedData
-                   bytesPerRow:GFX_FORMAT_INFOS[(uint)_convertedFormat].size * region.tex_extent.width];
+                   bytesPerRow:GFX_FORMAT_INFOS[(uint)_convertedFormat].size * region.texExtent.width];
     
     if (convertedData != data)
         CC_FREE(convertedData);

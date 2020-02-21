@@ -16,10 +16,10 @@ public:
   void resize(uint size);
   void update(void* buffer, uint offset, uint size);
   
-  CC_INLINE GLES2GPUBuffer* gpu_buffer() const { return gpu_buffer_; }
+  CC_INLINE GLES2GPUBuffer* gpuBuffer() const { return _gpuBuffer; }
 
 private:
-  GLES2GPUBuffer* gpu_buffer_;
+  GLES2GPUBuffer* _gpuBuffer = nullptr;
 };
 
 NS_CC_END

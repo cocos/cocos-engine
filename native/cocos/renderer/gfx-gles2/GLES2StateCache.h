@@ -7,26 +7,26 @@ NS_CC_BEGIN
 
 class GLES2StateCache : public Object {
  public:
-  GLuint gl_array_buffer = 0;
-  GLuint gl_element_array_buffer = 0;
-  GLuint gl_uniform_buffer = 0;
-  GLuint gl_bind_ubos[GFX_MAX_BUFFER_BINDINGS] = { 0 };
-  GLuint gl_vao = 0;
-  uint tex_uint = 0;
-  GLuint gl_textures[GFX_MAX_TEXTURE_UNITS] = { 0 };
-  GLuint gl_samplers[GFX_MAX_TEXTURE_UNITS] = { 0 };
-  GLuint gl_program = 0;
-   bool gl_enabled_attrib_locs[GFX_MAX_VERTEX_ATTRIBUTES] = { false };
-  bool gl_current_attrib_locs[GFX_MAX_VERTEX_ATTRIBUTES] = { false };
-  GLuint gl_fbo = 0;
-  GLuint gl_read_fbo = 0;
+  GLuint glArrayBuffer = 0;
+  GLuint glElementArrayBuffer = 0;
+  GLuint glUniformBuffer = 0;
+  GLuint glBindUBOs[GFX_MAX_BUFFER_BINDINGS] = { 0 };
+  GLuint glVAO = 0;
+  uint texUint = 0;
+  GLuint glTextures[GFX_MAX_TEXTURE_UNITS] = { 0 };
+  GLuint glSamplers[GFX_MAX_TEXTURE_UNITS] = { 0 };
+  GLuint glProgram = 0;
+   bool glEnabledAttribLocs[GFX_MAX_VERTEX_ATTRIBUTES] = { false };
+  bool glCurrentAttribLocs[GFX_MAX_VERTEX_ATTRIBUTES] = { false };
+  GLuint glFramebuffer = 0;
+  GLuint glReadFBO = 0;
   GFXViewport viewport;
   GFXRect scissor;
   GFXRasterizerState rs;
   GFXDepthStencilState dss;
   GFXBlendState bs;
-  bool is_cull_face_enabled = true;
-  bool is_stencil_test_enabled = false;
+  bool isCullFaceEnabled = true;
+  bool isStencilTestEnabled = false;
 
   GLES2StateCache() {}
 };

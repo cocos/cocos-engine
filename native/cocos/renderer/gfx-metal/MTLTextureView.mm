@@ -13,10 +13,10 @@ bool CCMTLTextureView::initialize(const GFXTextureViewInfo& info)
     _texture = info.texture;
     _type = info.type;
     _format = info.format;
-    _baseLevel = info.base_level;
-    _levelCount = info.level_count;
-    _baseLayer = info.base_layer;
-    _layerCount = info.layer_count;
+    _baseLevel = info.baseLevel;
+    _levelCount = info.levelCount;
+    _baseLayer = info.baseLayer;
+    _layerCount = info.layerCount;
     
     NSRange levels = NSMakeRange(_baseLevel, _levelCount);
     NSRange slics = NSMakeRange(_baseLayer, _layerCount);

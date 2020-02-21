@@ -18,23 +18,23 @@ void GLES2CommandAllocator::destroy() {
 }
 
 void GLES2CommandAllocator::clearCmds(GLES2CmdPackage* cmd_package) {
-  if (cmd_package->begin_render_pass_cmds.size()) {
-    beginRenderPassCmdPool.freeCmds(cmd_package->begin_render_pass_cmds);
+  if (cmd_package->beginRenderPassCmds.size()) {
+    beginRenderPassCmdPool.freeCmds(cmd_package->beginRenderPassCmds);
   }
-  if (cmd_package->bind_states_cmds.size()) {
-    bindStatesCmdPool.freeCmds(cmd_package->bind_states_cmds);
+  if (cmd_package->bindStatesCmds.size()) {
+    bindStatesCmdPool.freeCmds(cmd_package->bindStatesCmds);
   }
-  if (cmd_package->draw_cmds.size()) {
-    drawCmdPool.freeCmds(cmd_package->draw_cmds);
+  if (cmd_package->drawCmds.size()) {
+    drawCmdPool.freeCmds(cmd_package->drawCmds);
   }
-  if (cmd_package->update_buffer_cmds.size()) {
-    updateBufferCmdPool.freeCmds(cmd_package->update_buffer_cmds);
+  if (cmd_package->updateBufferCmds.size()) {
+    updateBufferCmdPool.freeCmds(cmd_package->updateBufferCmds);
   }
-  if (cmd_package->copy_buffer_to_texture_cmds.size()) {
-    copyBufferToTextureCmdPool.freeCmds(cmd_package->copy_buffer_to_texture_cmds);
+  if (cmd_package->copyBufferToTextureCmds.size()) {
+    copyBufferToTextureCmdPool.freeCmds(cmd_package->copyBufferToTextureCmds);
   }
 
-  cmd_package->cmd_types.clear();
+  cmd_package->cmds.clear();
 }
 
 NS_CC_END
