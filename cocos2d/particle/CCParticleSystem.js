@@ -1240,7 +1240,7 @@ var ParticleSystem = cc.Class({
     },
 
     _updateMaterial () {
-        let material = this._materials[0];
+        let material = this.getMaterial(0);
         if (!material) return;
         
         material.define('CC_USE_MODEL', this._positionType !== PositionType.FREE);
