@@ -161,23 +161,20 @@ var Canvas = cc.Class({
 
         this.applySettings();
         CC_EDITOR && this._fitDesignResolution();
+    },
 
-        // Camera could be removed in canvas render mode
-        let cameraNode = cc.find('Main Camera', this.node);
-        if (!cameraNode) {
-            cameraNode = new cc.Node('Main Camera');
+    start () {
+        if (!Camera.main && cc.game.renderType !== cc.game.RENDER_TYPE_CANVAS) {
+            // Create default Main Camera
+            let cameraNode = new cc.Node('Main Camera');
             cameraNode.parent = this.node;
             cameraNode.setSiblingIndex(0);
-        }
-        let camera = cameraNode.getComponent(Camera);
-        if (!camera) {
-            camera = cameraNode.addComponent(Camera);
 
+            let camera = cameraNode.addComponent(Camera);
             let ClearFlags = Camera.ClearFlags;
             camera.clearFlags = ClearFlags.COLOR | ClearFlags.DEPTH | ClearFlags.STENCIL;
             camera.depth = -1;
         }
-        Camera.main = camera;
     },
 
     onDestroy: function () {
