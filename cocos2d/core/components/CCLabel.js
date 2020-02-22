@@ -738,7 +738,7 @@ let Label = cc.Class({
 
     _updateMaterialWebgl () {
         if (!this._frame) return;
-        let material = this._materials[0];
+        let material = this.getMaterial(0);
         material && material.setProperty('texture', this._frame._texture);
     },
 
