@@ -370,7 +370,7 @@ export default class Vec2 extends ValueType {
 
     /**
      * !#zh 逐元素向量向下取整
-     * @method ceil
+     * @method floor
      * @typescript
      * floor <Out extends IVec2Like> (out: Out, a: Out)
      * @static
@@ -926,7 +926,7 @@ export default class Vec2 extends ValueType {
     /**
      * !#en Multiplies this by a number.
      * !#zh 缩放当前向量。
-     * @method multiply
+     * @method multiplyScalar
      * @param {number} num
      * @return {Vec2} returns this
      * @chainable
