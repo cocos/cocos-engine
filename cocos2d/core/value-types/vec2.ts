@@ -151,8 +151,8 @@ export default class Vec2 extends ValueType {
      * var v1;
      * v.div(5, v1);  // return Vec2 {x: 2, y: 2};
      */
-    div (vector: Vec2, out?: Vec2): Vec2 {
-        return Vec2.divide(out || new Vec2(), this, vector);
+    div (num: number, out?: Vec2): Vec2 {
+        return Vec2.multiplyScalar(out || new Vec2(), this, 1/num);
     }
     /**
      * !#en Multiplies two vectors.

@@ -109,8 +109,8 @@ export default class Vec4 extends ValueType {
      * @param {Vec4} [out] - optional, the receiving vector, you can pass the same vec4 to save result to itself, if not provided, a new vec4 will be created
      * @return {Vec4} the result
      */
-    div (vector: Vec4, out?: Vec4) {
-        return Vec4.divide(out || new Vec4(), this, vector);
+    div (num: number, out?: Vec4): Vec4 {
+        return Vec4.multiplyScalar(out || new Vec4(), this, 1/num);
     }
     /**
      * !#en Multiplies two vectors.
