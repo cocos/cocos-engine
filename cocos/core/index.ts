@@ -48,8 +48,7 @@ export * from './scheduler';
 export * from './director';
 
 export * from './gfx';
-import './pipeline';
-export { RenderPassStage, RenderPipeline, RenderFlow, RenderStage, RenderView } from './pipeline';
+export * from './pipeline';
 export * from './load-pipeline';
 export * from './scene-graph';
 export * from './components';

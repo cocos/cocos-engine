@@ -71,9 +71,8 @@ export class SkeletalAnimationState extends AnimationState {
         this._animInfoMgr = cc.director.root.dataPoolManager.jointsAnimationInfo;
     }
 
-    public initialize (parent: SkeletalAnimationComponent) {
+    public initialize (root: Node) {
         if (this._curveLoaded) { return; }
-        const root = parent.node;
         this._comps.length = 0;
         const comps = root.getComponentsInChildren(SkinningModelComponent);
         for (let i = 0; i < comps.length; ++i) {
@@ -82,9 +81,9 @@ export class SkeletalAnimationState extends AnimationState {
                 this._comps.push(comp);
             }
         }
-        this._parent = parent;
+        this._parent = root.getComponent('cc.SkeletalAnimationComponent') as SkeletalAnimationComponent;
         const baked = this._curvesInited = this._parent.bakeAnimations;
-        super.initialize(parent, baked ? noCurves : undefined);
+        super.initialize(root, baked ? noCurves : undefined);
         const info = SkelAnimDataHub.getOrExtract(this.clip).info;
         this._frames = info.frames - 1;
         this._animInfo = this._animInfoMgr.get(root.uuid);
@@ -106,7 +105,7 @@ export class SkeletalAnimationState extends AnimationState {
             this.duration = this._clip.duration;
             if (!this._curvesInited) {
                 this._curveLoaded = false;
-                super.initialize(this._parent!);
+                super.initialize(this._targetNode!);
                 this._curvesInited = true;
             }
         }
@@ -157,6 +156,7 @@ export class SkeletalAnimationState extends AnimationState {
     private _sampleCurvesBaked (ratio: number) {
         const info = this._animInfo!;
         const curFrame = (ratio * this._frames + 0.5) | 0;
+        if (curFrame === info.data[1]) { return; }
         info.data[1] = curFrame;
         info.dirty = true;
         for (let i = 0; i < this._sockets.length; ++i) {

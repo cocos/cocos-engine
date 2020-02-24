@@ -376,9 +376,8 @@ export class AnimationState extends Playable {
         return this._curveLoaded;
     }
 
-    public initialize (parent: AnimationComponent, propertyCurves?: readonly IRuntimeCurve[]) {
+    public initialize (root: Node, propertyCurves?: readonly IRuntimeCurve[]) {
         if (this._curveLoaded) { return; }
-        const root = parent.node;
         this._curveLoaded = true;
         this._samplerSharedGroups.length = 0;
         this._targetNode = root;

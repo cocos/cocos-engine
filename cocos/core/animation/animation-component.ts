@@ -189,7 +189,7 @@ export class AnimationComponent extends Component implements IEventTarget {
         this.clips = this._clips;
         for (const stateName of Object.keys(this._nameToState)) {
             const state = this._nameToState[stateName];
-            state.initialize(this);
+            state.initialize(this.node);
         }
     }
 
@@ -281,7 +281,7 @@ export class AnimationComponent extends Component implements IEventTarget {
     public getState (name: string) {
         const state = this._nameToState[name];
         if (state && !state.curveLoaded) {
-            state.initialize(this);
+            state.initialize(this.node);
         }
         return state || null;
     }
@@ -455,7 +455,7 @@ export class AnimationComponent extends Component implements IEventTarget {
         const state = this._createState(clip, name);
         state._setEventTarget(this);
         if (this.node) {
-            state.initialize(this);
+            state.initialize(this.node);
         }
         this._nameToState[state.name] = state;
         return state;

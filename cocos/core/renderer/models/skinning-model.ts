@@ -33,7 +33,7 @@ import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { Mat4, Vec3 } from '../../math';
-import { UBOSkinningFlexible } from '../../pipeline/define';
+import { UBOSkinning } from '../../pipeline/define';
 import { Node } from '../../scene-graph/node';
 import { Pass } from '../core/pass';
 import { DataPoolManager } from '../data-pool-manager';
@@ -126,7 +126,7 @@ const ab_1 = new aabb();
 
 /**
  * @en
- * The skinning model that is using real-time animation calculation.
+ * The skinning model that is using real-time pose calculation.
  * @zh
  * 实时计算动画的蒙皮模型。
  */
@@ -135,7 +135,7 @@ export class SkinningModel extends Model {
     public uploadAnimation = null;
 
     private _buffer: GFXBuffer | null = null;
-    private _data: Float32Array = new Float32Array(UBOSkinningFlexible.COUNT);
+    private _data: Float32Array = new Float32Array(UBOSkinning.COUNT);
 
     private _joints: IJointInfo[] = [];
 
@@ -162,20 +162,22 @@ export class SkinningModel extends Model {
         this._transform = skinningRoot;
         const dataPoolManager: DataPoolManager = cc.director.root.dataPoolManager;
         const boneSpaceBounds = dataPoolManager.boneSpaceBoundsInfo.get(mesh, skeleton);
+        let offset = -1; // offset to the first bone actually used in mesh
         for (let index = 0; index < skeleton.joints.length; index++) {
             const bound = boneSpaceBounds[index];
             const target = skinningRoot.getChildByPath(skeleton.joints[index]);
             if (!bound || !target) { continue; }
+            if (offset < 0) { this._data[0] = offset = index; }
             const transform = getTransform(target, skinningRoot)!;
             const bindpose = skeleton.bindposes[index];
-            this._joints.push({ index, bound, target, bindpose, transform });
+            this._joints.push({ index: index - offset, bound, target, bindpose, transform });
         }
         if (!this._buffer) { // create buffer here so re-init after destroy could work
             this._buffer = this._device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: UBOSkinningFlexible.SIZE,
-                stride: UBOSkinningFlexible.SIZE,
+                size: UBOSkinning.SIZE,
+                stride: UBOSkinning.SIZE,
             });
         }
     }
@@ -211,7 +213,7 @@ export class SkinningModel extends Model {
         for (let i = 0; i < this._joints.length; i++) {
             const { index, transform, bindpose } = this._joints[i];
             Mat4.multiply(m4_1, transform.world, bindpose);
-            uploadJointData(this._data, index * 12, m4_1, i === 0);
+            uploadJointData(this._data, index * 12 + 4, m4_1, i === 0);
         }
         this._buffer.update(this._data);
         return true;
@@ -221,7 +223,7 @@ export class SkinningModel extends Model {
         const pso = super.createPipelineState(pass, patches);
         const bindingLayout = pso.pipelineLayout.layouts[0];
         if (this._buffer) {
-            bindingLayout.bindBuffer(UBOSkinningFlexible.BLOCK.binding, this._buffer);
+            bindingLayout.bindBuffer(UBOSkinning.BLOCK.binding, this._buffer);
         }
         return pso;
     }
