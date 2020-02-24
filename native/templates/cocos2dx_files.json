@@ -236,7 +236,6 @@
         "cocos/platform/android/java/proguard-project.txt", 
         "cocos/platform/android/java/project.properties", 
         "cocos/platform/android/java/src/org/cocos2dx/lib/CanvasRenderingContext2DImpl.java", 
-        "cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxAccelerometer.java", 
         "cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxActivity.java", 
         "cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxDownloader.java", 
         "cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxEditBox.java", 
