@@ -389,13 +389,6 @@ extern "C"
     {
         FileUtilsAndroid::setassetmanager(AAssetManager_fromJava(env, assetManager));
     }
-
-    JNIEXPORT void JNICALL JNI_HELPER(nativeSetAudioDeviceInfo)(JNIEnv*  env, jobject thiz, jboolean isSupportLowLatency, jint deviceSampleRate, jint deviceAudioBufferSizeInFrames)
-    {
-        g_deviceSampleRate = deviceSampleRate;
-        g_deviceAudioBufferSizeInFrames = deviceAudioBufferSizeInFrames;
-        LOGD("nativeSetAudioDeviceInfo: sampleRate: %d, bufferSizeInFrames: %d", g_deviceSampleRate, g_deviceAudioBufferSizeInFrames);
-    }
 } // end of extern "C"
 
 void restartJSVM()

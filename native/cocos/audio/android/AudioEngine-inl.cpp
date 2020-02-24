@@ -58,13 +58,22 @@
 using namespace cocos2d;
 
 // Audio focus values synchronized with which in cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxActivity.java
-static const int AUDIOFOCUS_GAIN = 0;
-static const int AUDIOFOCUS_LOST = 1;
-static const int AUDIOFOCUS_LOST_TRANSIENT = 2;
-static const int AUDIOFOCUS_LOST_TRANSIENT_CAN_DUCK = 3;
+namespace
+{
+    AudioEngineImpl* __impl = nullptr;
+    int outputSampleRate = 44100;
+    int bufferSizeInFrames = 192;
 
-static int __currentAudioFocus = AUDIOFOCUS_GAIN;
-static AudioEngineImpl* __impl = nullptr;
+    void getAudioInfo()
+    {
+        JNIEnv* env = JniHelper::getEnv();
+        jclass audioSystem = env->FindClass("android/media/AudioSystem");
+        jmethodID method = env->GetStaticMethodID(audioSystem, "getPrimaryOutputSamplingRate", "()I");
+        outputSampleRate = env->CallStaticIntMethod(audioSystem, method);
+        method = env->GetStaticMethodID(audioSystem, "getPrimaryOutputFrameCount", "()I");
+        bufferSizeInFrames = env->CallStaticIntMethod(audioSystem, method);
+    }
+}
 
 class CallerThreadUtils : public ICallerThreadUtils
 {
@@ -124,6 +133,7 @@ AudioEngineImpl::AudioEngineImpl()
 {
     __callerThreadUtils.setCallerThreadId(std::this_thread::get_id());
     __impl = this;
+    getAudioInfo();
 }
 
 AudioEngineImpl::~AudioEngineImpl()
@@ -173,7 +183,7 @@ bool AudioEngineImpl::init()
         result = (*_outputMixObject)->Realize(_outputMixObject, SL_BOOLEAN_FALSE);
         if(SL_RESULT_SUCCESS != result){ ERRORLOG("realize the output mix fail"); break; }
 
-        _audioPlayerProvider = new AudioPlayerProvider(_engineEngine, _outputMixObject, getDeviceSampleRateJNI(), getDeviceAudioBufferSizeInFramesJNI(), fdGetter, &__callerThreadUtils);
+        _audioPlayerProvider = new AudioPlayerProvider(_engineEngine, _outputMixObject, outputSampleRate, bufferSizeInFrames, fdGetter, &__callerThreadUtils);
 
         ret = true;
     }while (false);
@@ -244,7 +254,6 @@ int AudioEngineImpl::play2d(const std::string &filePath ,bool loop ,float volume
 
             player->setLoop(loop);
             player->setVolume(volume);
-            player->setAudioFocus(__currentAudioFocus == AUDIOFOCUS_GAIN);
             player->play();
         } 
         else
@@ -417,33 +426,6 @@ void AudioEngineImpl::uncacheAll()
     if (_audioPlayerProvider != nullptr)
     {
         _audioPlayerProvider->clearAllPcmCaches();
-    }
-}
-
-// It's invoked from javaactivity-android.cpp
-void cocos_audioengine_focus_change(int focusChange)
-{
-    if (focusChange < AUDIOFOCUS_GAIN || focusChange > AUDIOFOCUS_LOST_TRANSIENT_CAN_DUCK)
-    {
-        CCLOGERROR("cocos_audioengine_focus_change: unknown value: %d", focusChange);
-        return;
-    }
-    CCLOG("cocos_audioengine_focus_change: %d", focusChange);
-    __currentAudioFocus = focusChange;
-
-    if (__impl == nullptr)
-    {
-        CCLOGWARN("cocos_audioengine_focus_change: AudioEngineImpl isn't ready!");
-        return;
-    }
-
-    if (__currentAudioFocus == AUDIOFOCUS_GAIN)
-    {
-        __impl->setAudioFocusForAllPlayers(true);
-    }
-    else
-    {
-        __impl->setAudioFocusForAllPlayers(false);
     }
 }
 
