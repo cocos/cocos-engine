@@ -3,7 +3,7 @@
  */
 
 import { TweenSystem } from './tween-system';
-import { warn } from '../core';
+import { warn, Node, SystemEventType } from '../core';
 import { ActionInterval, sequence, repeat, repeatForever, reverseTime, delayTime, spawn } from './actions/action-interval';
 import { removeSelf, show, hide, callFunc } from './actions/action-instant';
 import { Action } from './actions/action';
@@ -33,6 +33,9 @@ export class Tween {
 
     constructor (target?: object | null) {
         this._target = target === undefined ? null : target;
+        if (this._target && this._target instanceof Node) {
+            this._target.on(SystemEventType.NODE_DESTROYED, this._destroy, this);
+        }
     }
 
     /**
@@ -64,7 +67,15 @@ export class Tween {
      * @return {Tween}
      */
     target (target: object | null): Tween {
+        if (this._target && this._target instanceof Node) {
+            this._target.off(SystemEventType.NODE_DESTROYED, this._destroy, this);
+        }
+
         this._target = target;
+
+        if (this._target && this._target instanceof Node) {
+            this._target.on(SystemEventType.NODE_DESTROYED, this._destroy, this);
+        }
         return this;
     }
 
@@ -383,6 +394,10 @@ export class Tween {
         }
 
         return action;
+    }
+
+    private _destroy () {
+        this.stop();
     }
 
     private static readonly _tmp_args: Tween[] | Action[] = [];
