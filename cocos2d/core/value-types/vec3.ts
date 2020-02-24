@@ -127,8 +127,8 @@ export default class Vec3 extends ValueType {
      * @param {Vec3} [out] - optional, the receiving vector, you can pass the same vec3 to save result to itself, if not provided, a new vec3 will be created
      * @return {Vec3} the result
      */
-    div (vector: Vec3, out?: Vec3) {
-        return Vec3.divide(out || new Vec3(), this, vector);
+    div (num: number, out?: Vec3): Vec3 {
+        return Vec3.multiplyScalar(out || new Vec3(), this, 1/num);
     }
     /**
      * !#en Multiplies two vectors.
