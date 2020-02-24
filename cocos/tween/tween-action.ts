@@ -161,7 +161,7 @@ export class TweenAction extends ActionInterval {
                 }
             }
         }
-        if (this._opts.onStart) { this._opts.onStart(); }
+        if (this._opts.onStart) { this._opts.onStart(this.target); }
     }
 
     update (t: number) {
@@ -200,8 +200,8 @@ export class TweenAction extends ActionInterval {
 
             target[name] = prop.current;
         }
-        if (opts.onUpdate) { opts.onUpdate(); }
-        if (t == 1 && opts.onComplete) { opts.onComplete(); }
+        if (opts.onUpdate) { opts.onUpdate(this.target, t); }
+        if (t == 1 && opts.onComplete) { opts.onComplete(this.target); }
     }
 
     progress (start: any, end: any, current: any, t: number) {
