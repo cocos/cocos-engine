@@ -489,7 +489,8 @@ void CanvasRenderingContext2D::set_font(const std::string& font)
             // if regex rule that does not conform to the rules,such as Chinese,it defaults to sans-serif
             std::match_results<std::string::const_iterator> fontResults;
             std::regex fontRe("([\\w\\s-]+|\"[\\w\\s-]+\"$)");
-            if(std::regex_match(results[4].str(), fontResults, fontRe))
+            std::string tmp(results[4].str());
+            if(std::regex_match(tmp, fontResults, fontRe))
             {
                 fontName = results[4].str();
             }

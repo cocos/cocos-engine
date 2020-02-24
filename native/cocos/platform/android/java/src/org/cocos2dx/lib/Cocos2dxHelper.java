@@ -389,25 +389,6 @@ public class Cocos2dxHelper {
         android.os.Process.killProcess(android.os.Process.myPid());
     }
 
-    public static int getDPI()
-    {
-        if (sActivity != null)
-        {
-            DisplayMetrics metrics = new DisplayMetrics();
-            WindowManager wm = sActivity.getWindowManager();
-            if (wm != null)
-            {
-                Display d = wm.getDefaultDisplay();
-                if (d != null)
-                {
-                    d.getMetrics(metrics);
-                    return (int)(metrics.density*160.0f);
-                }
-            }
-        }
-        return -1;
-    }
-
     public static byte[] conversionEncoding(byte[] text, String fromCharset,String newCharset)
     {
         try {

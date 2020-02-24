@@ -148,7 +148,11 @@ int Device::getDPI()
     static int dpi = -1;
     if (dpi == -1)
     {
-        dpi = JniHelper::callStaticIntMethod(JCLS_HELPER, "getDPI");
+        AConfiguration* config = AConfiguration_new();
+        AConfiguration_fromAssetManager(config, JniHelper::getAndroidApp()->activity->assetManager);
+        int32_t density = AConfiguration_getDensity(config);
+        AConfiguration_delete(config);
+        dpi = density * 160;
     }
     return dpi;
 }
