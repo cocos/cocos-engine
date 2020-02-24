@@ -43,6 +43,7 @@ import { TransformBit } from '../../core/scene-graph/node-enum';
 const NUMBER_OF_GATHERED_TOUCHES_FOR_MOVE_SPEED = 5;
 const OUT_OF_BOUNDARY_BREAKING_FACTOR = 0.05;
 const EPSILON = 1e-4;
+const TOLERANCE = 1e4;
 const MOVEMENT_FACTOR = 0.7;
 const ZERO = new Vec3();
 const _tempVec3 = new Vec3();
@@ -719,7 +720,8 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * @param position - 当前视图坐标点.
      */
     public setContentPosition (position: Vec3) {
-        if (position.equals(this.getContentPosition(), EPSILON)) {
+        const contentPos = this.getContentPosition();
+        if (Math.abs(position.x - contentPos.x) < EPSILON && Math.abs(position.y - contentPos.y) < EPSILON) {
             return;
         }
 
@@ -1093,7 +1095,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
         const adjustedMove = this._flattenVectorByDirection(deltaMove);
         _tempVec3.set(this.getContentPosition());
         _tempVec3.add(adjustedMove);
-        _tempVec3.set(Math.floor(_tempVec3.x), Math.floor(_tempVec3.y), _tempVec3.z);
+        _tempVec3.set(Math.floor(_tempVec3.x * TOLERANCE) * EPSILON, Math.floor(_tempVec3.y * TOLERANCE) * EPSILON, _tempVec3.z);
         this.setContentPosition(_tempVec3);
         const outOfBoundary = this._getHowMuchOutOfBoundary();
         this._updateScrollBar(outOfBoundary);
