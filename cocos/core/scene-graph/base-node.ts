@@ -1404,6 +1404,7 @@ export class BaseNode extends CCObject implements ISchedulable {
             }
         }
 
+        this.emit(SystemEventType.NODE_DESTROYED, this);
         return destroyByParent;
     }
 
