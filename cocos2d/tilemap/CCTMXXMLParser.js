@@ -128,6 +128,7 @@ cc.TMXObjectGroupInfo = function () {
     this._color = new cc.Color(255, 255, 255, 255);
     this.offset = cc.v2(0,0);
     this._draworder = 'topdown';
+    this.template = '';
 };
 
 cc.TMXObjectGroupInfo.prototype = {
@@ -1051,6 +1052,12 @@ cc.TMXMapInfo.prototype = {
 
                 // Set the name of the object to the value for "name"
                 objectProp["name"] = selObj.getAttribute('name') || "";
+
+                // Check template exists
+                objectProp["template"] = selObj.getAttribute('template') || '';
+                if (objectProp["template"]) {
+                    cc.log(selGroup)
+                }
 
                 // Assign all the attributes as key/name pairs in the properties dictionary
                 objectProp["width"] = parseFloat(selObj.getAttribute('width')) || 0;

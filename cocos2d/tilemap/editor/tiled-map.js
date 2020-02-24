@@ -45,6 +45,7 @@ async function searchDependFiles(tmxFile, tmxFileData, cb) {
   var imageLayerTextureNames = [];
   var textures = [];
   var tsxFiles = [];
+  var txFiles = [];
   var textureNames = [];
   var textureSizes = [];
   async function parseTilesetImages(tilesetNode, sourcePath) {
@@ -69,6 +70,29 @@ async function searchDependFiles(tmxFile, tmxFileData, cb) {
     }
   }
 
+  async function parseObjectGroupTx(parent, tsxPath) {
+    // check objectGroup existed
+    var groups = parent.getElementsByTagName('objectgroup');
+    if(!(groups && groups.length > 0)) {
+      return;
+    }
+    for(var i = 0, n = groups.length; i < n; i++) {
+      var objects = groups[i].getElementsByTagName('object');
+      if(!(objects && objects.length > 0)) continue;
+      // check template, if existed, push
+      for(var ii = 0, nn = objects.length; ii < nn; ii++) {
+        var object = objects[ii];
+        var objectTemplate = object.getAttribute('template');
+        if(objectTemplate) {
+          var txPath = Path.join(Path.dirname(tsxPath), objectTemplate);
+          if(Fs.existsSync(txPath)) {
+            txFiles.push(objectTemplate);
+          }
+        }
+      }
+    }
+  }
+
   var rootElement = doc.documentElement;
   var tilesetElements = rootElement.getElementsByTagName('tileset');
   for (var i = 0, n = tilesetElements.length; i < n; i++) {
@@ -83,6 +107,13 @@ async function searchDependFiles(tmxFile, tmxFileData, cb) {
         var tsxDoc = new DOMParser().parseFromString(tsxContent);
         if (tsxDoc) {
           await parseTilesetImages(tsxDoc, tsxPath);
+          var tiles = tsxDoc.getElementsByTagName('tile');
+          if(tiles && tiles.length > 0) {        
+            // iterate tiles
+            for (var iii = 0, nnn = tiles.length; iii < nnn; iii++) {
+              await parseObjectGroupTx(tiles[iii], tsxPath);
+            }
+          }
         } else {
           Editor.warn('Parse %s failed.', tsxPath);
         }
@@ -112,7 +143,7 @@ async function searchDependFiles(tmxFile, tmxFileData, cb) {
     }
   }
 
-  cb(null, { textures, tsxFiles, textureNames, textureSizes, imageLayerTextures, imageLayerTextureNames});
+  cb(null, { textures, tsxFiles, txFiles, textureNames, textureSizes, imageLayerTextures, imageLayerTextureNames});
 }
 
 const AssetRootUrl = 'db://assets/';
@@ -123,6 +154,7 @@ class TiledMapMeta extends CustomAssetMeta {
     this._tmxData = '';
     this._textures = [];
     this._tsxFiles = [];
+    this._txFiles = [];
     this._textureNames = [];
     this._textureSizes = [];
     this._imageLayerTextures = [];
@@ -146,6 +178,7 @@ class TiledMapMeta extends CustomAssetMeta {
 
         this._textures = info.textures;
         this._tsxFiles = info.tsxFiles;
+        this._txFiles = info.txFiles;
         this._textureNames = info.textureNames;
         this._textureSizes = info.textureSizes;
         this._imageLayerTextures = info.imageLayerTextures;
@@ -186,6 +219,19 @@ class TiledMapMeta extends CustomAssetMeta {
         }
         return null;
     });
+
+    asset.txFiles = this._txFiles.map(p => {
+        var txPath = Path.join(Path.dirname(fspath), p);
+        var uuid = db.fspathToUuid(txPath);
+        if (uuid) {
+            asset.txFileNames.push(p);
+            return Editor.serialize.asAsset(uuid);
+        } else {
+            Editor.error(`Can not find file ${txPath}`);
+            asset.txFileNames.push('');
+        }
+        return null;
+    })
     db.saveAssetToLibrary(this.uuid, asset);
     cb();
   }

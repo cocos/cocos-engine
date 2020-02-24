@@ -159,6 +159,7 @@ var defaultMap = {
 
     'tmx' : downloadText,
     'tsx' : downloadText,
+    'tx'  : downloadText,
 
     'json' : downloadText,
     'ExportJson' : downloadText,
