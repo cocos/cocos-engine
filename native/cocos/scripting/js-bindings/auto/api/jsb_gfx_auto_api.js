@@ -312,102 +312,6 @@ gfx.GFXMemoryStatus = {
 };
 
 /**
- * @class GFXContext
- */
-gfx.GFXContext = {
-
-/**
- * @method sharedContext
- * @return {cc.GFXContext}
- */
-sharedContext : function (
-)
-{
-    return cc.GFXContext;
-},
-
-/**
- * @method colorFormat
- * @return {cc.GFXFormat}
- */
-colorFormat : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method detphStencilFormat
- * @return {cc.GFXFormat}
- */
-detphStencilFormat : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method device
- * @return {cc.GFXDevice}
- */
-device : function (
-)
-{
-    return cc.GFXDevice;
-},
-
-/**
- * @method initialize
- * @param {cc.GFXContextInfo} arg0
- * @return {bool}
- */
-initialize : function (
-gfxcontextinfo 
-)
-{
-    return false;
-},
-
-/**
- * @method destroy
- */
-destroy : function (
-)
-{
-},
-
-/**
- * @method vsyncMode
- * @return {cc.GFXVsyncMode}
- */
-vsyncMode : function (
-)
-{
-    return 0;
-},
-
-/**
- * @method present
- */
-present : function (
-)
-{
-},
-
-/**
- * @method GFXContext
- * @constructor
- * @param {cc.GFXDevice} arg0
- */
-GFXContext : function (
-gfxdevice 
-)
-{
-},
-
-};
-
-/**
  * @class GFXWindow
  */
 gfx.GFXWindow = {
@@ -2085,6 +1989,18 @@ useDiscardFramebuffer : function (
 },
 
 /**
+ * @method createPipelineState
+ * @param {cc.GFXPipelineStateInfo} arg0
+ * @return {cc.GFXPipelineState}
+ */
+createPipelineState : function (
+gfxpipelinestateinfo 
+)
+{
+    return cc.GFXPipelineState;
+},
+
+/**
  * @method createCommandBuffer
  * @param {cc.GFXCommandBufferInfo} arg0
  * @return {cc.GFXCommandBuffer}
@@ -2149,6 +2065,18 @@ gfxrenderpassinfo
 },
 
 /**
+ * @method createPipelineLayout
+ * @param {cc.GFXPipelineLayoutInfo} arg0
+ * @return {cc.GFXPipelineLayout}
+ */
+createPipelineLayout : function (
+gfxpipelinelayoutinfo 
+)
+{
+    return cc.GFXPipelineLayout;
+},
+
+/**
  * @method createWindow
  * @param {cc.GFXWindowInfo} arg0
  * @return {cc.GFXWindow}
@@ -2170,6 +2098,20 @@ gfxshaderinfo
 )
 {
     return cc.GFXShader;
+},
+
+/**
+ * @method copyBuffersToTexture
+ * @param {cc.GFXBuffer} arg0
+ * @param {cc.GFXTexture} arg1
+ * @param {Array} arg2
+ */
+copyBuffersToTexture : function (
+gfxbuffer, 
+gfxtexture, 
+array 
+)
+{
 },
 
 /**
