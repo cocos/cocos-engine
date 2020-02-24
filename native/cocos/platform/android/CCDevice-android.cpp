@@ -33,6 +33,7 @@ THE SOFTWARE.
 #include <jni.h>
 #include <android_native_app_glue.h>
 #include <android/window.h>
+#include <android/sensor.h>
 #include "base/ccTypes.h"
 #include "platform/android/jni/JniHelper.h"
 #include "platform/CCFileUtils.h"
@@ -41,6 +42,104 @@ THE SOFTWARE.
 #ifndef JCLS_HELPER
 #define JCLS_HELPER "org/cocos2dx/lib/Cocos2dxHelper"
 #endif
+
+#define SENSOR_EVENT_DELAY   200000
+
+namespace {
+    int getSensorEvents(int fd, int events, void* data);
+    struct Sensor
+    {
+        ASensorManager* sensorManager = nullptr;
+        const ASensor* accelerometerSensor = nullptr;
+        const ASensor* linearAccelerometerSensor = nullptr;
+        const ASensor* gyroscopeSensor = nullptr;
+        ASensorEventQueue* sensorEventQueue = nullptr;
+        cocos2d::Device::MotionValue motionValue;
+        int delay = 0; // us
+
+        Sensor()
+        {
+            sensorManager = ASensorManager_getInstance();
+            if (!sensorManager)
+                return;
+
+            accelerometerSensor = ASensorManager_getDefaultSensor(sensorManager, ASENSOR_TYPE_ACCELEROMETER);
+            linearAccelerometerSensor = ASensorManager_getDefaultSensor(sensorManager, ASENSOR_TYPE_LINEAR_ACCELERATION);
+            gyroscopeSensor = ASensorManager_getDefaultSensor(sensorManager, ASENSOR_TYPE_GYROSCOPE);
+
+            android_app* app = cocos2d::JniHelper::getAndroidApp();
+            sensorEventQueue = ASensorManager_createEventQueue(sensorManager, app->looper, 3, getSensorEvents, NULL);
+            if (!sensorEventQueue)
+                return;
+
+            delay = SENSOR_EVENT_DELAY;
+            enable();
+        }
+
+        ~Sensor() {
+            if (sensorEventQueue)
+                ASensorManager_destroyEventQueue(sensorManager, sensorEventQueue);
+        }
+
+        void enable() {
+            if (!sensorEventQueue)
+                return;
+
+            if (accelerometerSensor) {
+                ASensorEventQueue_enableSensor(sensorEventQueue, accelerometerSensor);
+                ASensorEventQueue_setEventRate(sensorEventQueue, accelerometerSensor, delay);
+            }
+            if (linearAccelerometerSensor) {
+                ASensorEventQueue_enableSensor(sensorEventQueue, linearAccelerometerSensor);
+                ASensorEventQueue_setEventRate(sensorEventQueue, linearAccelerometerSensor, delay);
+            }
+            if (gyroscopeSensor) {
+                ASensorEventQueue_enableSensor(sensorEventQueue, gyroscopeSensor);
+                ASensorEventQueue_setEventRate(sensorEventQueue, gyroscopeSensor, delay);
+            }
+        }
+
+        void disable() {
+            if (!sensorEventQueue)
+                return;
+
+            if (accelerometerSensor)
+                ASensorEventQueue_disableSensor(sensorEventQueue, accelerometerSensor);
+            if (linearAccelerometerSensor)
+                ASensorEventQueue_disableSensor(sensorEventQueue, linearAccelerometerSensor);
+            if (gyroscopeSensor)
+                ASensorEventQueue_disableSensor(sensorEventQueue, gyroscopeSensor);
+        }
+
+        void setSensorInterval(float interval) {
+            disable();
+            delay = (int)(interval * 1000000);
+            enable();
+        }
+    };
+
+    struct Sensor* g_sensor = nullptr;
+    int getSensorEvents(int fd, int events, void* data) {
+        ASensorEvent event;
+        while (ASensorEventQueue_getEvents(g_sensor->sensorEventQueue, &event, 1) > 0) {
+            if (event.type == ASENSOR_TYPE_ACCELEROMETER) {
+                g_sensor->motionValue.accelerationIncludingGravityX = event.acceleration.x;
+                g_sensor->motionValue.accelerationIncludingGravityY = event.acceleration.y;
+                g_sensor->motionValue.accelerationIncludingGravityZ = event.acceleration.z;
+            }
+            else if (event.type == ASENSOR_TYPE_GYROSCOPE) {
+                g_sensor->motionValue.rotationRateAlpha = CC_RADIANS_TO_DEGREES(event.acceleration.azimuth);
+                g_sensor->motionValue.rotationRateBeta = CC_RADIANS_TO_DEGREES(event.acceleration.pitch);
+                g_sensor->motionValue.rotationRateGamma = CC_RADIANS_TO_DEGREES(event.acceleration.roll);
+            }
+            else if (event.type == ASENSOR_TYPE_LINEAR_ACCELERATION) {
+                g_sensor->motionValue.accelerationX = event.acceleration.x;
+                g_sensor->motionValue.accelerationY = event.acceleration.y;
+                g_sensor->motionValue.accelerationZ = event.acceleration.z;
+            }
+        }
+    }
+}
 
 NS_CC_BEGIN
 
@@ -58,36 +157,28 @@ void Device::setAccelerometerEnabled(bool isEnabled)
 {
     if (isEnabled)
     {
-        JniHelper::callStaticVoidMethod(JCLS_HELPER, "enableAccelerometer");
+        if (!g_sensor)
+            g_sensor = new (std::nothrow) struct Sensor();
+
+        if (g_sensor)
+            g_sensor->enable();
     }
     else
     {
-        JniHelper::callStaticVoidMethod(JCLS_HELPER, "disableAccelerometer");
+        if (g_sensor)
+            g_sensor->disable();
     }
 }
 
 void Device::setAccelerometerInterval(float interval)
 {
-    JniHelper::callStaticVoidMethod(JCLS_HELPER, "setAccelerometerInterval", interval);
+    if (g_sensor)
+        g_sensor->setSensorInterval(interval);
 }
 
 const Device::MotionValue& Device::getDeviceMotionValue()
 {
-    static MotionValue __motionValue;
-    float* v = JniHelper::callStaticFloatArrayMethod(JCLS_HELPER, "getDeviceMotionValue");
-    __motionValue.accelerationX = v[0];
-    __motionValue.accelerationY = v[1];
-    __motionValue.accelerationZ = v[2];
-
-    __motionValue.accelerationIncludingGravityX = v[3];
-    __motionValue.accelerationIncludingGravityY = v[4];
-    __motionValue.accelerationIncludingGravityZ = v[5];
-
-    __motionValue.rotationRateAlpha = v[6];
-    __motionValue.rotationRateBeta = v[7];
-    __motionValue.rotationRateGamma = v[8];
-
-    return __motionValue;
+    return g_sensor->motionValue;
 }
 
 Device::Rotation Device::getDeviceRotation()

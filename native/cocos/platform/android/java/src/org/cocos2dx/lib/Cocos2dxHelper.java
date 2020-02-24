@@ -79,9 +79,6 @@ public class Cocos2dxHelper {
     // ===========================================================
 
     private static AssetManager sAssetManager;
-    private static Cocos2dxAccelerometer sCocos2dxAccelerometer;
-    private static boolean sAccelerometerEnabled;
-    private static boolean sActivityVisible;
     private static String sPackageName;
     private static String sFileDirectory;
     private static Activity sActivity = null;
@@ -204,7 +201,6 @@ public class Cocos2dxHelper {
             
             Cocos2dxHelper.nativeSetApkPath(Cocos2dxHelper.getAssetsPath());
     
-            Cocos2dxHelper.sCocos2dxAccelerometer = new Cocos2dxAccelerometer(activity);
             Cocos2dxHelper.sAssetManager = activity.getAssets();
             Cocos2dxHelper.nativeSetContext((Context)activity, Cocos2dxHelper.sAssetManager);
             Cocos2dxHelper.sVibrateService = (Vibrator)activity.getSystemService(Context.VIBRATOR_SERVICE);
@@ -259,10 +255,6 @@ public class Cocos2dxHelper {
     public static Set<OnActivityResultListener> getOnActivityResultListeners() {
         return onActivityResultListeners;
     }
-    
-    public static boolean isActivityVisible(){
-        return sActivityVisible;
-    }
 
     // ===========================================================
     // Getter & Setter
@@ -303,20 +295,6 @@ public class Cocos2dxHelper {
 
     public static AssetManager getAssetManager() {
         return Cocos2dxHelper.sAssetManager;
-    }
-
-    public static void enableAccelerometer() {
-        Cocos2dxHelper.sAccelerometerEnabled = true;
-        Cocos2dxHelper.sCocos2dxAccelerometer.enable();
-    }
-
-    public static void setAccelerometerInterval(float interval) {
-        Cocos2dxHelper.sCocos2dxAccelerometer.setInterval(interval);
-    }
-
-    public static void disableAccelerometer() {
-        Cocos2dxHelper.sAccelerometerEnabled = false;
-        Cocos2dxHelper.sCocos2dxAccelerometer.disable();
     }
 
     public static void vibrate(float duration) {
@@ -405,20 +383,6 @@ public class Cocos2dxHelper {
     public static void endApplication() {
         if (sActivity != null)
             sActivity.finish();
-    }
-
-    public static void onResume() {
-        sActivityVisible = true;
-        if (Cocos2dxHelper.sAccelerometerEnabled) {
-            Cocos2dxHelper.sCocos2dxAccelerometer.enable();
-        }
-    }
-
-    public static void onPause() {
-        sActivityVisible = false;
-        if (Cocos2dxHelper.sAccelerometerEnabled) {
-            Cocos2dxHelper.sCocos2dxAccelerometer.disable();
-        }
     }
     
     public static void terminateProcess() {
@@ -511,25 +475,6 @@ public class Cocos2dxHelper {
     // ===========================================================
     // Inner and Anonymous Classes
     // ===========================================================
-
-    private static float[] sDeviceMotionValues = new float[9];
-
-    private static float[] getDeviceMotionValue() {
-        Cocos2dxAccelerometer.DeviceMotionEvent event = Cocos2dxHelper.sCocos2dxAccelerometer.getDeviceMotionEvent();
-        sDeviceMotionValues[0] = event.acceleration.x;
-        sDeviceMotionValues[1] = event.acceleration.y;
-        sDeviceMotionValues[2] = event.acceleration.z;
-
-        sDeviceMotionValues[3] = event.accelerationIncludingGravity.x;
-        sDeviceMotionValues[4] = event.accelerationIncludingGravity.y;
-        sDeviceMotionValues[5] = event.accelerationIncludingGravity.z;
-
-        sDeviceMotionValues[6] = event.rotationRate.alpha;
-        sDeviceMotionValues[7] = event.rotationRate.beta;
-        sDeviceMotionValues[8] = event.rotationRate.gamma;
-
-        return sDeviceMotionValues;
-    }
 
     public static int getSDKVersion() {
         return Build.VERSION.SDK_INT;

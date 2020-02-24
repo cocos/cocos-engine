@@ -151,7 +151,6 @@ public abstract class Cocos2dxActivity extends NativeActivity {
         Log.d(TAG, "onPause()");
         paused = true;
         super.onPause();
-        Cocos2dxHelper.onPause();
     }
 
     @Override
@@ -189,7 +188,6 @@ public abstract class Cocos2dxActivity extends NativeActivity {
     private void resumeIfHasFocus() {
         if(hasFocus && !paused) {
             Utils.hideVirtualButton();
-            Cocos2dxHelper.onResume();
         }
     }
 
