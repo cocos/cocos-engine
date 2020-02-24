@@ -229,6 +229,19 @@ seval_to_type(const se::Value &v, bool &ok)
 }
 
 template<typename T>
+typename std::enable_if<std::is_enum<T>::value, T>::type
+seval_to_type(const se::Value &v, bool &ok)
+{
+    if(!v.isNumber())
+    {
+        ok = false;
+        return (T)0;
+    }
+    ok = true;
+    return (T)v.toInt32();
+}
+
+template<typename T>
 typename std::enable_if<std::is_floating_point<T>::value, T>::type
 seval_to_type(const se::Value &v, bool &ok)
 {
