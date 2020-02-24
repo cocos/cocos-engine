@@ -527,7 +527,7 @@ Object.assign(WebEditBoxImpl.prototype, {
         // font size
         elem.style.fontSize = `${fontSize}px`;
         // font color
-        elem.style.color = textLabel.node.color.toCSS('rgba');
+        elem.style.color = textLabel.node.color.toCSS();
         // font family
         elem.style.fontFamily = font;
         // text-align
@@ -582,7 +582,7 @@ Object.assign(WebEditBoxImpl.prototype, {
         let styleEl = this._placeholderStyleSheet;
         
         // font color
-        let fontColor = placeholderLabel.node.color.toCSS('rgba');
+        let fontColor = placeholderLabel.node.color.toCSS();
         // line height
         let lineHeight = placeholderLabel.fontSize;  // top vertical align by default
         // horizontal align
