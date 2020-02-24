@@ -733,6 +733,7 @@ cc.TMXMapInfo.prototype = {
         this.properties.length = 0;
         this._tileProperties = {};
         this._tileAnimations = {};
+        this._tileObjectGroups = {};
 
         // tmp vars
         this.currentString = "";
@@ -915,6 +916,13 @@ cc.TMXMapInfo.prototype = {
                     }
 
                     this._tileProperties[this.parentGID] = getPropertyList(tile);
+                    
+                    let objectGroups = tile.getElementsByTagName('objectgroup');
+                    if (objectGroups && objectGroups.length > 0) {
+                        let objectGroup = objectGroups[0];
+                        this._tileObjectGroups[this.parentGID] = this._parseObjectGroup(objectGroup);
+                    }
+                    
                     let animations = tile.getElementsByTagName('animation');
                     if (animations && animations.length > 0) {
                         let animation = animations[0];
@@ -1215,6 +1223,22 @@ cc.TMXMapInfo.prototype = {
      */
     getTileAnimations () {
         return this._tileAnimations;
+    },
+
+    /**
+     * Sets the tile objectGroup.
+     * @return {Object}
+     */
+    setTileObjectGroups (objectGroups) {
+        this._tileObjectGroups = objectGroups;
+    },
+
+    /**
+     * Gets the tile objectGroup.
+     * @return {Object}
+     */
+    getTileObjectGroups () {
+        return this._tileObjectGroups;
     },
 
     /**

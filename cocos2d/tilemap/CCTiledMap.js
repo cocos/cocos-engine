@@ -406,6 +406,14 @@ let TiledMap = cc.Class({
         return this._groups;
     },
 
+    getTileObjectGroupForGID(gid) {
+        return this._tileObjectGroups[gid];
+    },
+
+    getTileObjectGroups(gid) {
+        return this._tileObjectGroups;
+    },
+
     /**
      * !#en Return the TMXObjectGroup for the specific group.
      * !#zh 获取指定的 TMXObjectGroup。
@@ -776,6 +784,7 @@ let TiledMap = cc.Class({
         this._mapOrientation = mapInfo.orientation;
         this._properties = mapInfo.properties;
         this._tileProperties = mapInfo.getTileProperties();
+        this._tileObjectGroups = mapInfo.getTileObjectGroups();
         this._imageLayers = mapInfo.getImageLayers();
         this._animations = mapInfo.getTileAnimations();
         this._tilesets = mapInfo.getTilesets();
