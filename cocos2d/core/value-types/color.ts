@@ -28,8 +28,6 @@ import ValueType from './value-type';
 import CCClass from '../platform/CCClass';
 import misc from '../utils/misc';
 
-import { IColorLike } from './math';
-
 /**
  * !#en
  * Representation of RGBA colors.
