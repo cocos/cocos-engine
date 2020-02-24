@@ -1525,6 +1525,7 @@ export default class Mat4 extends ValueType {
      * !#zh 矩阵等价判断
      * !#en Analyzing the equivalent matrix
      * @method strictEquals
+     * @return {bool}
      * @typescript
      * strictEquals<Out extends IMat4Like> (a: Out, b: Out)
      * @static

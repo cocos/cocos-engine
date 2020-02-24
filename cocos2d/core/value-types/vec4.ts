@@ -825,12 +825,12 @@ export default class Vec4 extends ValueType {
      * !#en Check whether the vector equals another one
      * !#zh 判断当前向量是否在误差范围内与指定分量的向量相等。
      * @method equals4f
-     * @param {number} x 相比较的向量的 x 分量。
-     * @param {number} y 相比较的向量的 y 分量。
-     * @param {number} z 相比较的向量的 z 分量。
-     * @param {number} w 相比较的向量的 w 分量。
-     * @param {number} [epsilon] 允许的误差，应为非负数。
-     * @returns {Boolean} 当两向量的各分量都在指定的误差范围内分别相等时，返回 `true`；否则返回 `false`。
+     * @param {number} x - 相比较的向量的 x 分量。
+     * @param {number} y - 相比较的向量的 y 分量。
+     * @param {number} z - 相比较的向量的 z 分量。
+     * @param {number} w - 相比较的向量的 w 分量。
+     * @param {number} [epsilon] - 允许的误差，应为非负数。
+     * @returns {Boolean} - 当两向量的各分量都在指定的误差范围内分别相等时，返回 `true`；否则返回 `false`。
      */
     public equals4f (x: number, y: number, z: number, w: number, epsilon = EPSILON) {
         return (Math.abs(this.x - x) <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(x)) &&
@@ -841,10 +841,10 @@ export default class Vec4 extends ValueType {
 
     /**
      * !#en Check whether strict equals other Vec4
-     * !#zh 判断当前向量是否与指定向量相等。
+     * !#zh 判断当前向量是否与指定向量相等。两向量的各分量都分别相等时返回 `true`；否则返回 `false`。
      * @method strictEquals
-     * @param other 相比较的向量。
-     * @returns 两向量的各分量都分别相等时返回 `true`；否则返回 `false`。
+     * @param {Vec4} other - 相比较的向量。
+     * @returns {boolean}
      */
     public strictEquals (other: Vec4) {
         return this.x === other.x && this.y === other.y && this.z === other.z && this.w === other.w;
@@ -852,13 +852,13 @@ export default class Vec4 extends ValueType {
 
     /**
      * !#en Check whether strict equals other Vec4
-     * !#zh 判断当前向量是否与指定分量的向量相等。
+     * !#zh 判断当前向量是否与指定分量的向量相等。两向量的各分量都分别相等时返回 `true`；否则返回 `false`。
      * @method strictEquals4f
-     * @param x 指定向量的 x 分量。
-     * @param y 指定向量的 y 分量。
-     * @param z 指定向量的 z 分量。
-     * @param w 指定向量的 w 分量。
-     * @returns 两向量的各分量都分别相等时返回 `true`；否则返回 `false`。
+     * @param {number} x - 指定向量的 x 分量。
+     * @param {number} y - 指定向量的 y 分量。
+     * @param {number} z - 指定向量的 z 分量。
+     * @param {number} w - 指定向量的 w 分量。
+     * @returns {boolean}
      */
     public strictEquals4f (x: number, y: number, z: number, w: number) {
         return this.x === x && this.y === y && this.z === z && this.w === w;

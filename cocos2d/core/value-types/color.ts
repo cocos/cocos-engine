@@ -591,7 +591,13 @@ export default class Color extends ValueType {
      * @method toCSS
      * @param {String} [opt="rgba"] - "rgba", "rgb", "#rgb" or "#rrggbb".
      * @return {String}
-     * @example {@link cocos2d/core/value-types/CCColor/toCSS.js}
+     * @example
+     * var color = cc.Color.BLACK;
+     * color.toCSS();          // "rgba(0,0,0,1.00)";
+     * color.toCSS("rgba");    // "rgba(0,0,0,1.00)";
+     * color.toCSS("rgb");     // "rgba(0,0,0)";
+     * color.toCSS("#rgb");    // "#000";
+     * color.toCSS("#rrggbb"); // "#000000";
      */
     toCSS (opt: string): string {
         if (!opt || opt === 'rgba') {
