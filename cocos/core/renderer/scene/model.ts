@@ -12,7 +12,7 @@ import { Pool } from '../../memop';
 import { IInternalBindingInst, UBOForwardLight, UBOLocal } from '../../pipeline/define';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
-import { Pass } from '../core/pass';
+import { IMacroPatch, Pass } from '../core/pass';
 import { customizationManager } from './customization-manager';
 import { RenderScene } from './render-scene';
 import { SubModel } from './submodel';
@@ -355,11 +355,8 @@ export class Model {
         }
     }
 
-    protected createPipelineState (pass: Pass) {
-        if (CC_EDITOR && (pass.defines.USE_SKINNING || false) && !this._type.includes('skinning')) {
-            console.warn(`${this._node!.name}: USE_SKINNING macro should be defined if and only if on skinning models`);
-        }
-        const pso = pass.createPipelineState()!;
+    protected createPipelineState (pass: Pass, patches?: IMacroPatch[]) {
+        const pso = pass.createPipelineState(patches)!;
         pso.pipelineLayout.layouts[0].bindBuffer(UBOLocal.BLOCK.binding, this._localBindings.get(UBOLocal.BLOCK.name)!.buffer!);
         if (this._localBindings.has(UBOForwardLight.BLOCK.name)) {
             pso.pipelineLayout.layouts[0].bindBuffer(UBOForwardLight.BLOCK.binding, this._localBindings.get(UBOForwardLight.BLOCK.name)!.buffer!);

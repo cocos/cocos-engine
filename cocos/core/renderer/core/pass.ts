@@ -66,6 +66,11 @@ export interface IBlock {
     dirty: boolean;
 }
 
+export interface IMacroPatch {
+    name: string;
+    value: boolean | number | string;
+}
+
 interface IPassResources {
     bindingLayout: GFXBindingLayout;
     pipelineLayout: GFXPipelineLayout;
@@ -494,12 +499,14 @@ export class Pass {
      * @zh
      * 根据当前 pass 持有的信息创建 [[GFXPipelineState]]。
      */
-    public createPipelineState (): GFXPipelineState | null {
+    public createPipelineState (patches?: IMacroPatch[]): GFXPipelineState | null {
         if ((!this._renderPass || !this._shader || !this._bindings.length) && !this.tryCompile()) {
             console.warn(`pass resources not complete, create PSO failed`);
             return null;
         }
-        const shader = this._shader!; _blInfo.bindings = this._bindings;
+        const res = patches ? this._getShaderWithBuiltinMacroPatches (patches) : null;
+        const shader = res && res.shader || this._shader!;
+        _blInfo.bindings = res && res.bindings || this._bindings;
         // bind resources
         const bindingLayout = this._device.createBindingLayout(_blInfo);
         for (const b in this._buffers) {
@@ -610,6 +617,29 @@ export class Pass {
         }
         Object.assign(directHandleMap, indirectHandleMap);
         this.tryCompile();
+    }
+
+    protected _getShaderWithBuiltinMacroPatches (patches: IMacroPatch[]) {
+        if (CC_EDITOR) {
+            for (let i = 0; i < patches.length; i++) {
+                if (!patches[i].name.startsWith('CC_')) {
+                    console.warn('cannot patch non-builtin macros');
+                    return null;
+                }
+            }
+        }
+        const pipeline = (cc.director.root as Root).pipeline;
+        if (!pipeline) { return null; }
+        for (let i = 0; i < patches.length; i++) {
+            const patch = patches[i];
+            this._defines[patch.name] = patch.value;
+        }
+        const res = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
+        for (let i = 0; i < patches.length; i++) {
+            const patch = patches[i];
+            delete this._defines[patch.name];
+        }
+        return res;
     }
 
     // states

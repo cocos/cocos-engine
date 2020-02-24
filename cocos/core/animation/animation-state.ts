@@ -31,6 +31,7 @@ import { EventArgumentsOf, EventCallbackOf } from '../event/defines';
 import { Node } from '../scene-graph/node';
 import { AnimationBlendState, PropertyBlendState } from './animation-blend-state';
 import { AnimationClip, IRuntimeCurve } from './animation-clip';
+import { AnimationComponent } from './animation-component';
 import { AnimCurve, RatioSampler } from './animation-curve';
 import { additive3D, additiveQuat, BlendFunction } from './blending';
 import { BoundTarget, BufferedTarget } from './bound-target';
@@ -375,8 +376,9 @@ export class AnimationState extends Playable {
         return this._curveLoaded;
     }
 
-    public initialize (root: Node, propertyCurves?: readonly IRuntimeCurve[]) {
+    public initialize (parent: AnimationComponent, propertyCurves?: readonly IRuntimeCurve[]) {
         if (this._curveLoaded) { return; }
+        const root = parent.node;
         this._curveLoaded = true;
         this._samplerSharedGroups.length = 0;
         this._targetNode = root;

@@ -6,7 +6,6 @@ import { RecyclePool } from '../../memop';
 import { Root } from '../../root';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
-import { SkinningModel } from '../models/skinning-model';
 import { Ambient } from './ambient';
 import { Camera } from './camera';
 import { DirectionalLight } from './directional-light';

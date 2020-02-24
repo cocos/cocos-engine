@@ -8,7 +8,6 @@ import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { Color, Mat4, Quat, Vec3 } from '../../math';
 import { CachedArray } from '../../memop/cached-array';
 import { IInternalBindingInst, UBOShadow } from '../../pipeline/define';
-import { SkinningModel } from '../models/skinning-model';
 import { DirectionalLight } from './directional-light';
 import { Model } from './model';
 import { RenderScene } from './render-scene';
@@ -86,17 +85,14 @@ export class PlanarShadows {
     protected _cmdBuffCount = 0;
     protected _psoRecord = new Map<Model, GFXPipelineState>();
     protected _cbRecord = new Map<GFXInputAssembler, GFXCommandBuffer>();
-    protected _matNormal: Material;
-    protected _matSkinning: Material;
+    protected _material: Material;
 
     constructor (scene: RenderScene) {
         this._scene = scene;
         this._globalBindings = scene.root.pipeline.globalBindings.get(UBOShadow.BLOCK.name)!;
         this._cmdBuffs = new CachedArray<GFXCommandBuffer>(64);
-        this._matNormal = new Material();
-        this._matNormal.initialize({ effectName: 'pipeline/planar-shadow' });
-        this._matSkinning = new Material();
-        this._matSkinning.initialize({ effectName: 'pipeline/planar-shadow', defines: { USE_SKINNING: true } });
+        this._material = new Material();
+        this._material.initialize({ effectName: 'pipeline/planar-shadow' });
     }
 
     public updateSphereLight (light: SphereLight) {
@@ -215,22 +211,20 @@ export class PlanarShadows {
 
     public destroy () {
         this.onGlobalPipelineStateChanged();
-        this._matNormal.destroy();
-        this._matSkinning.destroy();
+        this._material.destroy();
     }
 
     protected _createPSO (model: Model) {
-        const mat = model instanceof SkinningModel ? this._matSkinning : this._matNormal;
         // @ts-ignore TS2445
-        const pso = model.createPipelineState(mat.passes[0]);
+        const pso = model.createPipelineState(this._material.passes[0]);
         model.insertImplantPSO(pso); // add back to model to sync binding layouts
         pso.pipelineLayout.layouts[0].update();
         return pso;
     }
 
     protected _destroyPSO (model: Model, pso: GFXPipelineState) {
-        const mat = model instanceof SkinningModel ? this._matSkinning : this._matNormal;
-        model.removeImplantPSO(pso); mat.passes[0].destroyPipelineState(pso);
+        model.removeImplantPSO(pso);
+        this._material.passes[0].destroyPipelineState(pso);
     }
 
     protected _createOrReuseCommandBuffer (cb?: GFXCommandBuffer) {

@@ -27,6 +27,7 @@
  * @category animation
  */
 
+import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../data/class-decorator';
 import { Mat4 } from '../math';
 import { DataPoolManager } from '../renderer/data-pool-manager';
@@ -39,10 +40,21 @@ import { getWorldTransformUntilRoot } from './transform-utils';
 
 @ccclass('cc.SkeletalAnimationComponent.Socket')
 export class Socket {
+
+    /**
+     * @en Path of the target joint.
+     * @zh 此挂点的目标骨骼路径。
+     */
     @property
     public path: string = '';
+
+    /**
+     * @en Transform ouput node.
+     * @zh 此挂点的变换信息输出节点。
+     */
     @property(Node)
     public target: Node | null = null;
+
     constructor (path = '', target: Node | null = null) {
         this.path = path;
         this.target = target;
@@ -75,12 +87,16 @@ export class SkeletalAnimationComponent extends AnimationComponent {
 
     public static Socket = Socket;
 
-    @property({ type: [Socket] })
-    protected _sockets: Socket[] = [];
-
+    /**
+     * @en
+     * The joint sockets this animation component maintains.<br>
+     * Sockets have to be registered before attaching custom nodes to animated joints.
+     * @zh
+     * 当前动画组件维护的挂点数组。要挂载自定义节点到受动画驱动的骨骼上，必须先在此注册挂点。
+     */
     @property({
         type: [Socket],
-        tooltip: 'Joint Sockets',
+        tooltip: 'i18n:animation.sockets',
     })
     get sockets () {
         return this._sockets;
@@ -90,14 +106,48 @@ export class SkeletalAnimationComponent extends AnimationComponent {
         this.rebuildSocketAnimations();
     }
 
+    /**
+     * @en
+     * Whether to bake animations. Default to true,<br>
+     * which substantially increases performance while making all animations completely fixed.<br>
+     * Dynamically changing this property will take effect when playing the next animation clip.
+     * @zh
+     * 是否使用预烘焙动画，默认启用，可以大幅提高运行效时率，但所有动画效果会被彻底固定，不支持任何形式的编辑。
+     * 运行时动态修改此选项会在播放下一条动画片段时生效。
+     */
+    @property({
+        tooltip: 'i18n:animation.bake_animations',
+    })
+    get bakeAnimations () {
+        return this._bakeAnimations;
+    }
+    set bakeAnimations (val) {
+        this._bakeAnimations = val;
+        this.stop();
+        const comps = this.node.getComponentsInChildren(SkinningModelComponent);
+        for (let i = 0; i < comps.length; ++i) {
+            const comp = comps[i];
+            if (comp.skinningRoot === this.node) {
+                comp.updateAnimatingMode(this._bakeAnimations);
+            }
+        }
+    }
+
+    @property
+    protected _bakeAnimations = true;
+
+    @property({ type: [Socket] })
+    protected _sockets: Socket[] = [];
+
     public onDestroy () {
         super.onDestroy();
         (cc.director.root.dataPoolManager as DataPoolManager).jointsAnimationInfo.destroy(this.node.uuid);
     }
 
     public start () {
-        super.start();
         this.sockets = this._sockets;
+        this.bakeAnimations = this._bakeAnimations;
+        super.start();
     }
 
     public querySockets () {

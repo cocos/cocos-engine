@@ -29,12 +29,12 @@
 
 import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
 import { Mat4, Quat, Vec3 } from '../math';
-import { deleteTransform, getTransform, getWorldMatrix, IJointTransform } from '../renderer/models/flexible-skinning-model';
 import { IAnimInfo, JointsAnimationInfo } from '../renderer/models/skeletal-animation-utils';
+import { deleteTransform, getTransform, getWorldMatrix, IJointTransform } from '../renderer/models/skinning-model';
 import { Node } from '../scene-graph/node';
 import { AnimationClip, IRuntimeCurve } from './animation-clip';
 import { AnimationState } from './animation-state';
-import { Socket } from './skeletal-animation-component';
+import { SkeletalAnimationComponent, Socket } from './skeletal-animation-component';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { getWorldTransformUntilRoot } from './transform-utils';
 
@@ -63,6 +63,7 @@ export class SkeletalAnimationState extends AnimationState {
     protected _sockets: ISocketData[] = [];
     protected _animInfoMgr: JointsAnimationInfo;
     protected _comps: SkinningModelComponent[] = [];
+    protected _parent: SkeletalAnimationComponent | null = null;
     protected _curvesInited = false;
 
     constructor (clip: AnimationClip, name = '') {
@@ -70,8 +71,9 @@ export class SkeletalAnimationState extends AnimationState {
         this._animInfoMgr = cc.director.root.dataPoolManager.jointsAnimationInfo;
     }
 
-    public initialize (root: Node) {
+    public initialize (parent: SkeletalAnimationComponent) {
         if (this._curveLoaded) { return; }
+        const root = parent.node;
         this._comps.length = 0;
         const comps = root.getComponentsInChildren(SkinningModelComponent);
         for (let i = 0; i < comps.length; ++i) {
@@ -80,8 +82,9 @@ export class SkeletalAnimationState extends AnimationState {
                 this._comps.push(comp);
             }
         }
-        const realTime = this._curvesInited = this._comps[0].realTimePoseCalculation;
-        super.initialize(root, realTime ? undefined : noCurves);
+        this._parent = parent;
+        const baked = this._curvesInited = this._parent.bakeAnimations;
+        super.initialize(parent, baked ? noCurves : undefined);
         const info = SkelAnimDataHub.getOrExtract(this.clip).info;
         this._frames = info.frames - 1;
         this._animInfo = this._animInfoMgr.get(root.uuid);
@@ -90,30 +93,21 @@ export class SkeletalAnimationState extends AnimationState {
 
     public onPlay () {
         super.onPlay();
-        const realTime = this._comps[0].realTimePoseCalculation;
-        if (CC_EDITOR) {
-            for (let i = 1; i < this._comps.length; ++i) {
-                const comp = this._comps[i];
-                if (comp.realTimePoseCalculation !== realTime) {
-                    console.warn(`${comp.node.name}: REALTIME_POSE_CALCULATION should be consistently declared ` +
-                        'among skinning models controlled by the same animation component');
-                }
-            }
-        }
-        if (realTime) {
-            this._sampleCurves = this._sampleCurvesRealTime;
-            this.duration = this._clip.duration;
-            if (!this._curvesInited) {
-                this._curveLoaded = false;
-                super.initialize(this._targetNode!);
-                this._curvesInited = true;
-            }
-        } else {
+        const baked = this._parent!.bakeAnimations;
+        if (baked) {
             this._sampleCurves = this._sampleCurvesBaked;
             this.duration = this._bakedDuration;
             this._animInfoMgr.switchClip(this._animInfo!, this._clip);
             for (let i = 0; i < this._comps.length; ++i) {
                 this._comps[i].uploadAnimation(this.clip);
+            }
+        } else {
+            this._sampleCurves = this._sampleCurvesRealTime;
+            this.duration = this._clip.duration;
+            if (!this._curvesInited) {
+                this._curveLoaded = false;
+                super.initialize(this._parent!);
+                this._curvesInited = true;
             }
         }
     }

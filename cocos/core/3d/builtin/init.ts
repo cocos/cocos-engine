@@ -150,26 +150,6 @@ class BuiltinResMgr {
         missingMtl.setProperty('mainColor', cc.color('#ff00ff'));
         resources[missingMtl._uuid] = missingMtl;
 
-        // material indicating missing material on skinning model (purple)
-        const missingSkinningMtl = new cc.Material();
-        missingSkinningMtl._uuid = 'missing-skinning-material';
-        missingSkinningMtl.initialize({
-            effectName: 'builtin-unlit',
-            defines: { USE_COLOR: true, USE_SKINNING: true },
-        });
-        missingSkinningMtl.setProperty('mainColor', cc.color('#ff00ff'));
-        resources[missingSkinningMtl._uuid] = missingSkinningMtl;
-
-        // material indicating missing material on flexible skinning model (purple)
-        const missingFlexibleSkinningMtl = new cc.Material();
-        missingFlexibleSkinningMtl._uuid = 'missing-flexible-skinning-material';
-        missingFlexibleSkinningMtl.initialize({
-            effectName: 'builtin-unlit',
-            defines: { USE_COLOR: true, USE_SKINNING: true, REALTIME_POSE_CALCULATION: true },
-        });
-        missingFlexibleSkinningMtl.setProperty('mainColor', cc.color('#ff00ff'));
-        resources[missingFlexibleSkinningMtl._uuid] = missingFlexibleSkinningMtl;
-
         // sprite material
         const spriteMtl = new cc.Material();
         spriteMtl._uuid = 'ui-base-material';

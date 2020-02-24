@@ -2,27 +2,27 @@
  * @hidden
  */
 
-import { ccclass, property, string } from '../data/class-decorator';
+import { ccclass, property } from '../data/class-decorator';
 import { Node } from '../scene-graph/node';
 
 export type PropertyPath = string | number;
 
-export interface CustomTargetPath {
-    get(target: any): any;
+export interface ICustomTargetPath {
+    get (target: any): any;
 }
 
-export type TargetPath = PropertyPath | CustomTargetPath;
+export type TargetPath = PropertyPath | ICustomTargetPath;
 
 export function isPropertyPath (path: TargetPath): path is PropertyPath {
     return typeof path === 'string' || typeof path === 'number';
 }
 
-export function isCustomPath<T extends CustomTargetPath> (path: TargetPath, constructor: Constructor<T>): path is T {
+export function isCustomPath<T extends ICustomTargetPath> (path: TargetPath, constructor: Constructor<T>): path is T {
     return path instanceof constructor;
 }
 
 @ccclass('cc.animation.HierarchyPath')
-export class HierarchyPath implements CustomTargetPath {
+export class HierarchyPath implements ICustomTargetPath {
     @property
     public path: string = '';
 
@@ -30,7 +30,7 @@ export class HierarchyPath implements CustomTargetPath {
         this.path = path || '';
     }
 
-    public get(target: Node) {
+    public get (target: Node) {
         if (!(target instanceof Node)) {
             /* cspell: disable-next-line */
             throw new Error(`Target of hierachy path shall be Node.`);
@@ -44,7 +44,7 @@ export class HierarchyPath implements CustomTargetPath {
 }
 
 @ccclass('cc.animation.ComponentPath')
-export class ComponentPath implements CustomTargetPath {
+export class ComponentPath implements ICustomTargetPath {
     @property
     public component: string = '';
 

@@ -27,161 +27,201 @@
  * @hidden
  */
 
-import { AnimationClip } from '../../animation/animation-clip';
 import { Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
-import { Vec3 } from '../../math';
-import { UBOSkinningAnimation, UBOSkinningTexture, UniformJointsTexture } from '../../pipeline/define';
-import { Node } from '../../scene-graph';
+import { Mat4, Vec3 } from '../../math';
+import { UBOSkinningFlexible } from '../../pipeline/define';
+import { Node } from '../../scene-graph/node';
 import { Pass } from '../core/pass';
-import { samplerLib } from '../core/sampler-lib';
 import { DataPoolManager } from '../data-pool-manager';
 import { Model } from '../scene/model';
-import { IAnimInfo, IJointsTextureHandle, jointsTextureSamplerHash } from './skeletal-animation-utils';
+import { uploadJointData } from './skeletal-animation-utils';
 
-interface IJointsInfo {
-    buffer: GFXBuffer | null;
-    jointsTextureInfo: Float32Array;
-    texture: IJointsTextureHandle | null;
-    animInfo: IAnimInfo;
-    boundsInfo: aabb[] | null;
+export interface IJointTransform {
+    node: Node;
+    local: Mat4;
+    world: Mat4;
+    stamp: number;
+    parent: IJointTransform | null;
 }
+
+const stack: IJointTransform[] = [];
+const pool: Map<string, IJointTransform> = new Map();
+
+const patches = [
+    { name: 'CC_USE_SKINNING', value: true },
+];
+
+export function getWorldMatrix (transform: IJointTransform | null, stamp: number) {
+    let i = 0;
+    let res = Mat4.IDENTITY;
+    while (transform) {
+        if (transform.stamp === stamp || transform.stamp + 1 === stamp && !transform.node.hasChangedFlags) {
+            res = transform.world;
+            break;
+        }
+        transform.stamp = stamp;
+        stack[i++] = transform;
+        transform = transform.parent;
+    }
+    while (i > 0) {
+        transform = stack[--i];
+        const node = transform.node;
+        Mat4.fromRTS(transform.local, node.rotation, node.position, node.scale);
+        res = Mat4.multiply(transform.world, res, transform.local);
+    }
+    return res;
+}
+
+export function getTransform (node: Node, root: Node) {
+    let joint: IJointTransform | null = null;
+    let i = 0;
+    while (node !== root) {
+        const id = node.uuid;
+        if (pool.has(id)) {
+            joint = pool.get(id)!;
+            break;
+        } else { // TODO: object reuse
+            joint = { node, local: new Mat4(), world: new Mat4(), stamp: -1, parent: null };
+            pool.set(id, joint);
+        }
+        stack[i++] = joint;
+        node = node.parent!;
+        joint = null;
+    }
+    let child: IJointTransform;
+    while (i > 0) {
+        child = stack[--i];
+        child.parent = joint;
+        joint = child;
+    }
+    return joint;
+}
+
+export function deleteTransform (node: Node) {
+    let transform = pool.get(node.uuid) || null;
+    while (transform) {
+        pool.delete(transform.node.uuid);
+        transform = transform.parent;
+    }
+}
+
+interface IJointInfo {
+    index: number;
+    bound: aabb;
+    target: Node;
+    bindpose: Mat4;
+    transform: IJointTransform;
+}
+
+const v3_min = new Vec3();
+const v3_max = new Vec3();
+const v3_1 = new Vec3();
+const v3_2 = new Vec3();
+const m4_1 = new Mat4();
+const ab_1 = new aabb();
 
 /**
  * @en
- * The skinning model that is using baked animation.
+ * The skinning model that is using real-time animation calculation.
  * @zh
- * 预烘焙动画的蒙皮模型。
+ * 实时计算动画的蒙皮模型。
  */
 export class SkinningModel extends Model {
 
-    public uploadedAnim: AnimationClip | null | undefined = undefined; // uninitialized
+    public uploadAnimation = null;
 
-    private _jointsMedium: IJointsInfo;
+    private _buffer: GFXBuffer | null = null;
+    private _data: Float32Array = new Float32Array(UBOSkinningFlexible.COUNT);
 
-    private _skeleton: Skeleton | null = null;
-    private _mesh: Mesh | null = null;
-    private _dataPoolManager: DataPoolManager;
+    private _joints: IJointInfo[] = [];
 
     constructor () {
         super();
         this._type = 'skinning';
-        this._dataPoolManager = cc.director.root.dataPoolManager;
-        const jointsTextureInfo = new Float32Array(4);
-        const animInfo = this._dataPoolManager.jointsAnimationInfo.get();
-        this._jointsMedium = { buffer: null, jointsTextureInfo, animInfo, texture: null, boundsInfo: null };
     }
 
     public destroy () {
         super.destroy();
-        this.uploadedAnim = undefined; // uninitialized
-        this._jointsMedium.boundsInfo = null;
-        if (this._jointsMedium.buffer) {
-            this._jointsMedium.buffer.destroy();
-            this._jointsMedium.buffer = null;
+        this.bindSkeleton();
+        if (this._buffer) {
+            this._buffer.destroy();
+            this._buffer = null;
         }
-        this._applyJointsTexture();
     }
 
     public bindSkeleton (skeleton: Skeleton | null = null, skinningRoot: Node | null = null, mesh: Mesh | null = null) {
-        this._skeleton = skeleton;
-        this._mesh = mesh;
+        for (let i = 0; i < this._joints.length; i++) {
+            deleteTransform(this._joints[i].target);
+        }
+        this._joints.length = 0;
         if (!skeleton || !skinningRoot || !mesh) { return; }
         this._transform = skinningRoot;
-        const resMgr = this._dataPoolManager;
-        this._jointsMedium.animInfo = resMgr.jointsAnimationInfo.get(skinningRoot.uuid);
-        if (!this._jointsMedium.buffer) { // create buffer here so re-init after destroy could work
-            this._jointsMedium.buffer = this._device.createBuffer({
+        const dataPoolManager: DataPoolManager = cc.director.root.dataPoolManager;
+        const boneSpaceBounds = dataPoolManager.boneSpaceBoundsInfo.get(mesh, skeleton);
+        for (let index = 0; index < skeleton.joints.length; index++) {
+            const bound = boneSpaceBounds[index];
+            const target = skinningRoot.getChildByPath(skeleton.joints[index]);
+            if (!bound || !target) { continue; }
+            const transform = getTransform(target, skinningRoot)!;
+            const bindpose = skeleton.bindposes[index];
+            this._joints.push({ index, bound, target, bindpose, transform });
+        }
+        if (!this._buffer) { // create buffer here so re-init after destroy could work
+            this._buffer = this._device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: UBOSkinningTexture.SIZE,
-                stride: UBOSkinningTexture.SIZE,
+                size: UBOSkinningFlexible.SIZE,
+                stride: UBOSkinningFlexible.SIZE,
             });
         }
     }
 
     public updateTransform () {
-        super.updateTransform();
-        if (!this.uploadedAnim) { return; }
-        const { animInfo, boundsInfo } = this._jointsMedium;
-        const skelBound = boundsInfo![animInfo.data[1]];
-        const node = this._transform;
-        if (this._worldBounds && skelBound) {
-            // @ts-ignore TS2339
-            skelBound.transform(node._mat, node._pos, node._rot, node._scale, this._worldBounds);
+        const root = this._transform!;
+        // @ts-ignore TS2445
+        if (root.hasChangedFlags || root._dirtyFlags) {
+            root.updateWorldTransform();
+            this._transformUpdated = true;
+        }
+        // update bounds
+        const stamp = cc.director.getTotalFrames();
+        Vec3.set(v3_min,  Infinity,  Infinity,  Infinity);
+        Vec3.set(v3_max, -Infinity, -Infinity, -Infinity);
+        for (let i = 0; i < this._joints.length; i++) {
+            const { bound, transform } = this._joints[i];
+            const worldMatrix = getWorldMatrix(transform, stamp);
+            aabb.transform(ab_1, bound, worldMatrix);
+            ab_1.getBoundary(v3_1, v3_2);
+            Vec3.min(v3_min, v3_min, v3_1);
+            Vec3.max(v3_max, v3_max, v3_2);
+        }
+        if (this._modelBounds && this._worldBounds) {
+            aabb.fromPoints(this._modelBounds, v3_min, v3_max);
+            // @ts-ignore TS2445
+            this._modelBounds.transform(root._mat, root._pos, root._rot, root._scale, this._worldBounds);
         }
     }
 
-    // update fid buffer only when visible
     public updateUBOs () {
-        if (!super.updateUBOs()) { return false; }
-        const info = this._jointsMedium.animInfo;
-        if (info.dirty) { info.buffer.update(info.data); info.dirty = false; }
+        if (!super.updateUBOs() || !this._buffer) { return false; }
+        for (let i = 0; i < this._joints.length; i++) {
+            const { index, transform, bindpose } = this._joints[i];
+            Mat4.multiply(m4_1, transform.world, bindpose);
+            uploadJointData(this._data, index * 12, m4_1, i === 0);
+        }
+        this._buffer.update(this._data);
         return true;
     }
 
-    public createBoundingShape (minPos?: Vec3, maxPos?: Vec3) {
-        if (!minPos || !maxPos) { return; }
-        this._worldBounds = new aabb();
-    }
-
-    public uploadAnimation (anim: AnimationClip | null) {
-        if (!this._skeleton || !this._mesh || this.uploadedAnim === anim) { return; }
-        this.uploadedAnim = anim;
-        const resMgr = this._dataPoolManager;
-        let texture: IJointsTextureHandle | null = null;
-        if (anim) {
-            texture = resMgr.jointsTexturePool.getSequencePoseTexture(this._skeleton, anim, this._mesh);
-            this._jointsMedium.boundsInfo = texture && texture.bounds.get(this._mesh.hash)!;
-            this._modelBounds = null; // don't calc bounds again in Model
-        } else {
-            texture = resMgr.jointsTexturePool.getDefaultPoseTexture(this._skeleton, this._mesh, this._transform!);
-            this._jointsMedium.boundsInfo = null;
-            this._modelBounds = texture && texture.bounds.get(this._mesh.hash)![0];
-        }
-        this._applyJointsTexture(texture);
-    }
-
-    protected _applyJointsTexture (texture: IJointsTextureHandle | null = null) {
-        const oldTex = this._jointsMedium.texture;
-        if (oldTex && oldTex !== texture) { this._dataPoolManager.jointsTexturePool.releaseHandle(oldTex); }
-        this._jointsMedium.texture = texture;
-        if (!texture) { return; }
-        const { buffer, jointsTextureInfo } = this._jointsMedium;
-        jointsTextureInfo[0] = texture.handle.texture.width;
-        jointsTextureInfo[1] = 1 / jointsTextureInfo[0];
-        jointsTextureInfo[2] = texture.pixelOffset + 0.1; // guard against floor() underflow
-        if (buffer) { buffer.update(jointsTextureInfo); }
-        const sampler = samplerLib.getSampler(this._device, jointsTextureSamplerHash);
-        for (const submodel of this._subModels) {
-            if (!submodel.psos) { continue; }
-            for (const pso of submodel.psos) {
-                const bindingLayout = pso.pipelineLayout.layouts[0];
-                bindingLayout.bindTextureView(UniformJointsTexture.binding, texture.handle.texView);
-                bindingLayout.bindSampler(UniformJointsTexture.binding, sampler);
-            }
-        }
-        for (const pso of this._implantPSOs) {
-            const bindingLayout = pso.pipelineLayout.layouts[0];
-            bindingLayout.bindTextureView(UniformJointsTexture.binding, texture.handle.texView);
-            bindingLayout.bindSampler(UniformJointsTexture.binding, sampler);
-            bindingLayout.update();
-        }
-    }
-
     protected createPipelineState (pass: Pass) {
-        const pso = super.createPipelineState(pass);
-        const { buffer, texture, animInfo } = this._jointsMedium;
+        const pso = super.createPipelineState(pass, patches);
         const bindingLayout = pso.pipelineLayout.layouts[0];
-        bindingLayout.bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);
-        bindingLayout.bindBuffer(UBOSkinningAnimation.BLOCK.binding, animInfo.buffer);
-        const sampler = samplerLib.getSampler(this._device, jointsTextureSamplerHash);
-        if (texture) {
-            bindingLayout.bindTextureView(UniformJointsTexture.binding, texture.handle.texView);
-            bindingLayout.bindSampler(UniformJointsTexture.binding, sampler);
+        if (this._buffer) {
+            bindingLayout.bindBuffer(UBOSkinningFlexible.BLOCK.binding, this._buffer);
         }
         return pso;
     }

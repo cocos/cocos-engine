@@ -2,9 +2,9 @@
  * @hidden
  */
 
+import { Color, Vec2, Vec3, Vec4 } from '../math';
+import { isPropertyPath, PropertyPath, TargetPath } from './target-path';
 import { IValueProxy, IValueProxyFactory } from './value-proxy';
-import { PropertyPath, isPropertyPath, TargetPath, CustomTargetPath } from './target-path';
-import { Vec2, Vec4, Vec3, Color } from '../math';
 
 export class BoundTarget {
     protected _ap: {
@@ -100,13 +100,13 @@ export class BufferedTarget extends BoundTarget {
         this.setValue(this._buffer);
     }
 }
-interface Copyable {
+interface ICopyable {
     createBuffer: () => any;
     copy: (out: any, source: any) => any;
 }
 
 const getBuiltinCopy = (() => {
-    const map = new Map<Constructor, Copyable>();
+    const map = new Map<Constructor, ICopyable>();
     map.set(Vec2, { createBuffer: () => new Vec2(), copy: Vec2.copy});
     map.set(Vec3, { createBuffer: () => new Vec3(), copy: Vec3.copy});
     map.set(Vec4, { createBuffer: () => new Vec4(), copy: Vec4.copy});
