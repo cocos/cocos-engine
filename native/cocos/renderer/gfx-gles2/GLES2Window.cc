@@ -63,6 +63,7 @@ bool GLES2Window::initialize(const GFXWindowInfo &info) {
       _colorTex = _device->createTexture(colorTexInfo);
 
       GFXTextureViewInfo colorTexViewInfo;
+      colorTexViewInfo.texture = _colorTex;
       colorTexViewInfo.type = GFXTextureViewType::TV2D;
       colorTexViewInfo.format = _colorFmt;
       colorTexViewInfo.baseLevel = 0;
