@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,37 +23,17 @@
  THE SOFTWARE.
  ****************************************************************************/
 #include "JniImp.h"
-#include <unordered_map>
 #include <android/log.h>
-#include <android/asset_manager_jni.h>
 #include <jni.h>
-#include <mutex>
-#include <android_native_app_glue.h>
 #include "JniHelper.h"
-#include "platform/CCApplication.h"
-#include "scripting/js-bindings/jswrapper/SeApi.h"
-#include "scripting/js-bindings/event/EventDispatcher.h"
-#include "platform/android/CCFileUtils-android.h"
-#include "base/CCScheduler.h"
-#include "base/CCAutoreleasePool.h"
 
 #define  JNI_IMP_LOG_TAG    "JniImp"
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,JNI_IMP_LOG_TAG,__VA_ARGS__)
-
-#ifndef ORG_RENDER_CLASS_NAME
-#define ORG_RENDER_CLASS_NAME org_cocos2dx_lib_Cocos2dxRenderer
-#endif
-#define JNI_RENDER(FUNC) JNI_METHOD1(ORG_RENDER_CLASS_NAME,FUNC)
 
 #ifndef ORG_ACTIVITY_CLASS_NAME
 #define ORG_ACTIVITY_CLASS_NAME org_cocos2dx_lib_Cocos2dxActivity
 #endif
 #define JNI_ACTIVITY(FUNC) JNI_METHOD1(ORG_ACTIVITY_CLASS_NAME,FUNC)
-
-#ifndef ORG_ACCELEROMETER_CLASS_NAME
-#define ORG_ACCELEROMETER_CLASS_NAME org_cocos2dx_lib_Cocos2dxAccelerometer
-#endif
-#define JNI_ACCELEROMETER(FUNC) JNI_METHOD1(ORG_ACCELEROMETER_CLASS_NAME,FUNC)
 
 #ifndef ORG_HELPER_CLASS_NAME
 #define ORG_HELPER_CLASS_NAME org_cocos2dx_lib_Cocos2dxHelper
@@ -69,34 +49,13 @@
 #define JCLS_HELPER "org/cocos2dx/lib/Cocos2dxHelper"
 #endif
 
-#ifndef JCLS_RENDERER
-#define JCLS_RENDERER "org/cocos2dx/lib/Cocos2dxRenderer"
-#endif
-
-
-#define KEYCODE_BACK 0x04
-#define KEYCODE_MENU 0x52
-#define KEYCODE_DPAD_UP 0x13
-#define KEYCODE_DPAD_DOWN 0x14
-#define KEYCODE_DPAD_LEFT 0x15
-#define KEYCODE_DPAD_RIGHT 0x16
-#define KEYCODE_ENTER 0x42
-#define KEYCODE_DPAD_CENTER  0x17
-
 using namespace cocos2d;
-
-extern uint32_t __jsbInvocationCount;
-
 
 namespace
 {
     std::string g_apkPath;
-    EditTextCallback s_editTextCallback = nullptr;
-    void* s_ctx = nullptr;
     int g_width = 0;
     int g_height = 0;
-    bool g_isStarted = false;
-    bool g_isGameFinished = false;
     int g_SDKInt = 0;
 }
 
@@ -132,17 +91,7 @@ extern "C"
     {
         g_apkPath = JniHelper::jstring2string(apkPath);
     }
-
-    JNIEXPORT void JNICALL JNI_HELPER(nativeSetContext)(JNIEnv*  env, jobject thiz, jobject context, jobject assetManager)
-    {
-        FileUtilsAndroid::setassetmanager(AAssetManager_fromJava(env, assetManager));
-    }
 } // end of extern "C"
-
-void restartJSVM()
-{
-    g_isStarted = false;
-}
 
 /***********************************************************
  * Functions invoke from cpp to Java.
@@ -233,16 +182,6 @@ bool openURLJNI(const std::string& url)
 void copyTextToClipboardJNI(const std::string& text)
 {
     JniHelper::callStaticVoidMethod(JCLS_HELPER, "copyTextToClipboard", text);
-}
-
-void setPreferredFramesPerSecondJNI(int fps)
-{
-    JniHelper::callStaticVoidMethod(JCLS_RENDERER, "setPreferredFramesPerSecond", fps);
-}
-
-bool getApplicationExited()
-{
-    return g_isGameFinished;
 }
 
 int getAndroidSDKInt()

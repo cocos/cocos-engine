@@ -35,7 +35,6 @@ import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetFileDescriptor;
-import android.content.res.AssetManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -64,15 +63,12 @@ public class Cocos2dxHelper {
     // ===========================================================
     // Constants
     // ===========================================================
-    private static final String PREFS_NAME = "Cocos2dxPrefsFile";
-    private static final int RUNNABLES_PER_FRAME = 5;
     private static final String TAG = Cocos2dxHelper.class.getSimpleName();
 
     // ===========================================================
     // Fields
     // ===========================================================
 
-    private static AssetManager sAssetManager;
     private static String sPackageName;
     private static String sFileDirectory;
     private static Activity sActivity = null;
@@ -161,9 +157,7 @@ public class Cocos2dxHelper {
             Cocos2dxHelper.sFileDirectory = activity.getFilesDir().getAbsolutePath();
             
             Cocos2dxHelper.nativeSetApkPath(Cocos2dxHelper.getAssetsPath());
-    
-            Cocos2dxHelper.sAssetManager = activity.getAssets();
-            Cocos2dxHelper.nativeSetContext((Context)activity, Cocos2dxHelper.sAssetManager);
+
             Cocos2dxHelper.sVibrateService = (Vibrator)activity.getSystemService(Context.VIBRATOR_SERVICE);
 
             sInited = true;
@@ -223,8 +217,6 @@ public class Cocos2dxHelper {
 
     private static native void nativeSetApkPath(final String pApkPath);
 
-    private static native void nativeSetContext(final Context pContext, final AssetManager pAssetManager);
-
     public static String getPackageName() {
         return Cocos2dxHelper.sPackageName;
     }
@@ -242,10 +234,6 @@ public class Cocos2dxHelper {
 
     public static String getDeviceModel(){
         return Build.MODEL;
-    }
-
-    public static AssetManager getAssetManager() {
-        return Cocos2dxHelper.sAssetManager;
     }
 
     public static void vibrate(float duration) {
