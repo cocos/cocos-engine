@@ -62,7 +62,6 @@ namespace
                     game = new Game(state->width, state->height);
                     game->init();
                 }
-
                 break;
             case APP_CMD_TERM_WINDOW:
                 state->animating = 0;
@@ -72,6 +71,13 @@ namespace
                 break;
             case APP_CMD_LOST_FOCUS:
                 state->animating = 0;
+                break;
+            case APP_CMD_PAUSE:
+                cocos2d::Application::getInstance()->onPause();
+                break;
+            case APP_CMD_RESUME:
+                cocos2d::Application::getInstance()->onResume();
+                break;
             default:
                 break;
         }

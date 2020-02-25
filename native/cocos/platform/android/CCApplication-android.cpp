@@ -95,8 +95,6 @@ bool Application::init()
 
     EventDispatcher::init();
 
-    //TODO: minggo
-    // FileUtils::getInstance()->setDefaultResourceRootPath(defaultResourcePath);
     return true;
 }
 
@@ -111,7 +109,6 @@ void Application::onResume()
 void Application::setPreferredFramesPerSecond(int fps)
 {
     _fps = fps;
-    setPreferredFramesPerSecondJNI(_fps);
 }
 
 std::string Application::getCurrentLanguageCode() const
