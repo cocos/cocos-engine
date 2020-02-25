@@ -302,7 +302,7 @@ bool CCMTLPipelineState::createMTLRenderPipeline(MTLRenderPipelineDescriptor* de
     MTLRenderPipelineReflection* reflection;
     NSError* nsError;
     _mtlRenderPipelineState = [mtlDevice newRenderPipelineStateWithDescriptor: descriptor
-                                                                      options:MTLPipelineOptionArgumentInfo
+                                                                      options:MTLPipelineOptionBufferTypeInfo
                                                                    reflection:&reflection
                                                                         error:&nsError];
     if (!_mtlRenderPipelineState)
@@ -384,12 +384,7 @@ std::tuple<uint,uint> CCMTLPipelineState::getBufferBinding(MTLArgument* argument
             }
         }
     }
-    
-    if(std::strcmp([argument.name UTF8String], "_12") == 0)
-    {
-        return std::make_tuple( (int)argument.index, 0);
-    }
-                    
+  
     return std::make_tuple(UINT_MAX, UINT_MAX);
 }
 
