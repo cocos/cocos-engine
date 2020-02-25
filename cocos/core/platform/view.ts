@@ -141,6 +141,7 @@ export class View extends EventTarget {
     private _visibleRect: Rect;
     private _autoFullScreen: boolean;
     private _devicePixelRatio: number;
+    private _maxPixelRatio: number;
     private _retinaEnabled: boolean;
     private _resizeCallback: null;
     private _resizing: boolean;
@@ -179,6 +180,11 @@ export class View extends EventTarget {
         this._autoFullScreen = false;
         // The device's pixel ratio (for retina displays)
         this._devicePixelRatio = 1;
+        if (CC_JSB) {
+            this._maxPixelRatio = 4;
+        } else {
+            this._maxPixelRatio = 2;
+        }
         // Retina disabled by default
         this._retinaEnabled = false;
         // Custom callback for resize event
@@ -1152,8 +1158,10 @@ class ContainerStrategy {
         }
         // Setup pixel ratio for retina display
         let devicePixelRatio = _view._devicePixelRatio = 1;
-        if (_view.isRetinaEnabled()) {
-            devicePixelRatio = _view._devicePixelRatio = Math.min(2, window.devicePixelRatio || 1);
+        if (CC_JSB) {
+            devicePixelRatio = _view._devicePixelRatio = window.devicePixelRatio;
+        } else if (_view.isRetinaEnabled()) {
+            devicePixelRatio = _view._devicePixelRatio = Math.min(_view._maxPixelRatio, window.devicePixelRatio || 1);
         }
         // Setup canvas
         locCanvas.width = w * devicePixelRatio;
