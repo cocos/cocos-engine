@@ -1,7 +1,12 @@
+/**
+ * @hidden
+ */
+
 import { IGFXColor } from "./gfx";
 import { clamp01 } from "./math";
 import { easing } from "./animation";
 import { macro } from "./platform";
+import sys from "./platform/sys";
 
 type SplashEffectType = 'none' | 'Fade-InOut';
 
@@ -148,11 +153,12 @@ export class SplashScreenWebgl {
 
             let useWebGL2 = (!!window.WebGL2RenderingContext);
             const userAgent = window.navigator.userAgent.toLowerCase();
-            if (userAgent.indexOf('safari') !== -1) {
-                if (userAgent.indexOf('chrome') === -1) {
-                    useWebGL2 = false;
-                }
+            if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1
+                || sys.browserType === sys.BROWSER_TYPE_UC // UC browser implementation doesn't not conform to WebGL2 standard
+            ) {
+                useWebGL2 = false;
             }
+
             const webGLCtxAttribs: WebGLContextAttributes = {
                 alpha: macro.ENABLE_TRANSPARENT_CANVAS,
                 antialias: true,

@@ -1,8 +1,8 @@
-import { IVec3Like } from "./type-define";
-
 /**
  * @category core/math
  */
+
+import { IVec3Like } from "./type-define";
 
 const _d2r = Math.PI / 180.0;
 
@@ -155,7 +155,7 @@ export function pseudoRandomRangeInt (seed: number, min: number, max: number) {
 
 /**
  * Returns the next power of two for the value.<br/>
- * 
+ *
  * @param val
  * @return The the next power of two.
  */
@@ -224,5 +224,18 @@ export function absMaxComponent (v: IVec3Like) {
         } else {
             return v.z;
         }
+    }
+}
+
+/**
+ * @zh 对 a b 的绝对值进行比较大小，返回绝对值最大的值。
+ * @param a number
+ * @param b number
+ */
+export function absMax (a: number, b: number) {
+    if (Math.abs(a) > Math.abs(b)) {
+        return a;
+    } else {
+        return b;
     }
 }

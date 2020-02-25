@@ -93,14 +93,15 @@ export class Color extends ValueType {
     }
 
     /**
-     * @zh 根据指定整型数据设置颜色
+     * @zh 从十六进制颜色字符串中读入颜色到 out 中
      */
-    public static fromHex <Out extends IColorLike> (out: Out, hex: number) {
-        out.r = ((hex >> 24)) / 255.0;
-        out.g = ((hex >> 16) & 0xff) / 255.0;
-        out.b = ((hex >> 8) & 0xff) / 255.0;
-        out.a = ((hex) & 0xff) / 255.0;
-
+    public static fromHEX <Out extends IColorLike> (out: Out, hexString: string) {
+        hexString = (hexString.indexOf('#') === 0) ? hexString.substring(1) : hexString;
+        out.r = parseInt(hexString.substr(0, 2), 16) || 0;
+        out.g = parseInt(hexString.substr(2, 2), 16) || 0;
+        out.b = parseInt(hexString.substr(4, 2), 16) || 0;
+        out.a = parseInt(hexString.substr(6, 2), 16) || 255;
+        out._val = ((out.a << 24) >>> 0) + (out.b << 16) + (out.g << 8) + out.r;
         return out;
     }
 

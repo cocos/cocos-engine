@@ -4,12 +4,12 @@
 
 import { Vec3 } from '../../core/math';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
-import { createPhysicsWorld } from './instance';
+import { createPhysicsWorld, checkPhysicsModule } from './instance';
 import { director, Director } from '../../core/director';
 import { System } from '../../core/components';
 import { PhysicMaterial } from './assets/physic-material';
 import { Layers, RecyclePool } from '../../core';
-import { ray } from '../../core/geom-utils';
+import { ray } from '../../core/geometry';
 import { PhysicsRayResult } from './physics-ray-result';
 import { property, ccclass } from '../../core/data/class-decorator';
 
@@ -129,7 +129,12 @@ export class PhysicsSystem extends System {
     //     this._deltaTime = 1 / this._frameRate;
     // }
 
-    static readonly instance: PhysicsSystem;
+    private static readonly _instance: PhysicsSystem;
+    static get instance () {
+        if (CC_DEBUG && checkPhysicsModule(PhysicsSystem._instance)) { return null as any; }
+        return PhysicsSystem._instance;
+    }
+
     static readonly ID: 'physics';
 
     readonly physicsWorld: IPhysicsWorld;
@@ -215,13 +220,12 @@ export class PhysicsSystem extends System {
      * @zh
      * 检测所有的碰撞盒，并记录所有被检测到的结果，通过 PhysicsSystem.instance.raycastResults 访问结果
      * @param worldRay 世界空间下的一条射线
-     * @param mask 掩码
-     * @param maxDistance 最大检测距离，目前请勿传入 Infinity 或 Number.MAX_VALUE
+     * @param mask 掩码，默认为 0xffffffff
+     * @param maxDistance 最大检测距离，默认为 10000000，目前请勿传入 Infinity 或 Number.MAX_VALUE
      * @param queryTrigger 是否检测触发器
      * @return boolean 表示是否有检测到碰撞盒
-     * @note 由于目前 Layer 还未完善，mask 暂时失效，请留意更新公告
      */
-    raycast (worldRay: ray, mask: number = Layers.Enum.DEFAULT, maxDistance = 10000000, queryTrigger = true): boolean {
+    raycast (worldRay: ray, mask: number = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
         this.raycastResultPool.reset();
         this.raycastResults.length = 0;
         this.raycastOptions.mask = mask;
@@ -234,13 +238,12 @@ export class PhysicsSystem extends System {
      * @zh
      * 检测所有的碰撞盒，并记录与射线距离最短的检测结果，通过 PhysicsSystem.instance.raycastClosestResult 访问结果
      * @param worldRay 世界空间下的一条射线
-     * @param mask 掩码
-     * @param maxDistance 最大检测距离，目前请勿传入 Infinity 或 Number.MAX_VALUE
+     * @param mask 掩码，默认为 0xffffffff
+     * @param maxDistance 最大检测距离，默认为 10000000，目前请勿传入 Infinity 或 Number.MAX_VALUE
      * @param queryTrigger 是否检测触发器
      * @return boolean 表示是否有检测到碰撞盒
-     * @note 由于目前 Layer 还未完善，mask 暂时失效，请留意更新公告
      */
-    raycastClosest (worldRay: ray, mask: number = Layers.Enum.DEFAULT, maxDistance = 10000000, queryTrigger = true): boolean {
+    raycastClosest (worldRay: ray, mask: number = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
         this.raycastOptions.mask = mask;
         this.raycastOptions.maxDistance = maxDistance;
         this.raycastOptions.queryTrigger = queryTrigger;
@@ -254,8 +257,10 @@ export class PhysicsSystem extends System {
     }
 }
 
-director.on(Director.EVENT_INIT, function () {
-    const sys = new cc.PhysicsSystem();
-    cc.PhysicsSystem.instance = sys;
-    director.registerSystem(PhysicsSystem.ID, sys, 0);
-});
+if (CC_PHYSICS_BUILTIN || CC_PHYSICS_CANNON || CC_PHYSICS_AMMO) {
+    director.on(Director.EVENT_INIT, function () {
+        const sys = new cc.PhysicsSystem();
+        cc.PhysicsSystem._instance = sys;
+        director.registerSystem(PhysicsSystem.ID, sys, 0);
+    });
+}

@@ -669,10 +669,8 @@ export class LabelComponent extends UIRenderComponent {
             this._ttfSpriteFrame = null;
         }
 
-        if (this._letterTexture) {
-            this._letterTexture.destroy();
-            this._letterTexture = null;
-        }
+        // texture cannot be destroyed in here, lettertexture image source is public.
+        this._letterTexture = null;
 
         super.onDestroy();
     }

@@ -3,8 +3,9 @@
  * @category geometry
  */
 
-import { Mat3, Vec3, EPSILON, Vec2 } from '../math';
+import { EPSILON, Mat3, Vec3 } from '../math';
 import aabb from './aabb';
+import { capsule } from './capsule';
 import * as distance from './distance';
 import enums from './enums';
 import { frustum } from './frustum';
@@ -14,7 +15,6 @@ import plane from './plane';
 import ray from './ray';
 import sphere from './sphere';
 import triangle from './triangle';
-import { capsule } from './capsule';
 
 // tslint:disable:only-arrow-functions
 // tslint:disable:one-variable-per-declaration
@@ -205,11 +205,11 @@ const ray_obb = (function () {
                 Math.max(t[2], t[3])),
             Math.max(t[4], t[5]),
         );
-        if (tmax < 0 || tmin > tmax || tmin < 0) {
+        if (tmax < 0 || tmin > tmax) {
             return 0;
         }
 
-        return tmin;
+        return tmin > 0 ? tmin : tmax; // ray origin inside aabb
     };
 })();
 
@@ -224,23 +224,23 @@ const ray_capsule = (function () {
     const sphere_0 = new sphere();
     return function (ray: ray, capsule: capsule) {
         const radiusSqr = capsule.radius * capsule.radius;
-        var vRayNorm = Vec3.normalize(v3_0, ray.d);
-        var A = capsule.ellipseCenter0;
-        var B = capsule.ellipseCenter1;
-        var BA = Vec3.subtract(v3_1, B, A);
+        const vRayNorm = Vec3.normalize(v3_0, ray.d);
+        const A = capsule.ellipseCenter0;
+        const B = capsule.ellipseCenter1;
+        const BA = Vec3.subtract(v3_1, B, A);
         if (BA.equals(Vec3.ZERO)) {
             sphere_0.radius = capsule.radius;
             sphere_0.center.set(capsule.ellipseCenter0);
             return intersect.ray_sphere(ray, sphere_0);
         }
 
-        var O = ray.o;
-        var OA = Vec3.subtract(v3_2, O, A);
-        var VxBA = Vec3.cross(v3_3, vRayNorm, BA);
-        var a = VxBA.lengthSqr();
-        if (a == 0) {
+        const O = ray.o;
+        const OA = Vec3.subtract(v3_2, O, A);
+        const VxBA = Vec3.cross(v3_3, vRayNorm, BA);
+        const a = VxBA.lengthSqr();
+        if (a === 0) {
             sphere_0.radius = capsule.radius;
-            var BO = Vec3.subtract(v3_4, B, O);
+            const BO = Vec3.subtract(v3_4, B, O);
             if (OA.lengthSqr() < BO.lengthSqr()) {
                 sphere_0.center.set(capsule.ellipseCenter0);
             } else {
@@ -249,18 +249,18 @@ const ray_capsule = (function () {
             return intersect.ray_sphere(ray, sphere_0);
         }
 
-        var OAxBA = Vec3.cross(v3_4, OA, BA);
-        var ab2 = BA.lengthSqr();
-        var b = 2 * Vec3.dot(VxBA, OAxBA);
-        var c = OAxBA.lengthSqr() - (radiusSqr * ab2);
-        var d = b * b - 4 * a * c;
+        const OAxBA = Vec3.cross(v3_4, OA, BA);
+        const ab2 = BA.lengthSqr();
+        const b = 2 * Vec3.dot(VxBA, OAxBA);
+        const c = OAxBA.lengthSqr() - (radiusSqr * ab2);
+        const d = b * b - 4 * a * c;
 
-        if (d < 0) return 0;
+        if (d < 0) { return 0; }
 
-        var t = (-b - Math.sqrt(d)) / (2 * a);
+        const t = (-b - Math.sqrt(d)) / (2 * a);
         if (t < 0) {
             sphere_0.radius = capsule.radius;
-            var BO = Vec3.subtract(v3_5, B, O);
+            const BO = Vec3.subtract(v3_5, B, O);
             if (OA.lengthSqr() < BO.lengthSqr()) {
                 sphere_0.center.set(capsule.ellipseCenter0);
             } else {
@@ -268,10 +268,10 @@ const ray_capsule = (function () {
             }
             return intersect.ray_sphere(ray, sphere_0);
         } else {
-            //Limit intersection between the bounds of the cylinder's end caps.
-            var iPos = Vec3.scaleAndAdd(v3_5, ray.o, vRayNorm, t);
-            var iPosLen = Vec3.subtract(v3_6, iPos, A);
-            var tLimit = Vec3.dot(iPosLen, BA) / ab2;
+            // Limit intersection between the bounds of the cylinder's end caps.
+            const iPos = Vec3.scaleAndAdd(v3_5, ray.o, vRayNorm, t);
+            const iPosLen = Vec3.subtract(v3_6, iPos, A);
+            const tLimit = Vec3.dot(iPosLen, BA) / ab2;
 
             if (tLimit >= 0 && tLimit <= 1) {
                 return t;
@@ -288,7 +288,7 @@ const ray_capsule = (function () {
             }
         }
 
-    }
+    };
 })();
 
 /**
@@ -820,7 +820,7 @@ const obb_obb = (function () {
     };
 })();
 
-
+// tslint:disable-next-line: max-line-length
 // https://github.com/diku-dk/bvh-tvcg18/blob/1fd3348c17bc8cf3da0b4ae60fdb8f2aa90a6ff0/FOUNDATION/GEOMETRY/GEOMETRY/include/overlap/geometry_overlap_obb_capsule.h
 /**
  * 方向包围盒和胶囊体的重叠检测
@@ -838,7 +838,7 @@ const obb_capsule = (function () {
     for (let i = 0; i < 8; i++) { v3_axis8[i] = new Vec3(); }
     return function (obb: obb, capsule: capsule) {
         const h = Vec3.squaredDistance(capsule.ellipseCenter0, capsule.ellipseCenter1);
-        if (h == 0) {
+        if (h === 0) {
             sphere_0.radius = capsule.radius;
             sphere_0.center.set(capsule.ellipseCenter0);
             return intersect.sphere_obb(sphere_0, obb);
@@ -880,7 +880,7 @@ const obb_capsule = (function () {
             }
             return 1;
         }
-    }
+    };
 })();
 
 /**
@@ -998,7 +998,7 @@ const sphere_capsule = (function () {
         const r = sphere.radius + capsule.radius;
         const squaredR = r * r;
         const h = Vec3.squaredDistance(capsule.ellipseCenter0, capsule.ellipseCenter1);
-        if (h == 0) {
+        if (h === 0) {
             return Vec3.squaredDistance(sphere.center, capsule.center) < squaredR;
         } else {
             Vec3.subtract(v3_0, sphere.center, capsule.ellipseCenter0);
@@ -1013,7 +1013,7 @@ const sphere_capsule = (function () {
                 return Vec3.squaredDistance(sphere.center, v3_0) < squaredR;
             }
         }
-    }
+    };
 })();
 
 // http://www.geomalgorithms.com/a07-_distance.html
@@ -1025,15 +1025,15 @@ const capsule_capsule = (function () {
     const v3_4 = new Vec3();
     const v3_5 = new Vec3();
     return function capsule_capsule (capsuleA: capsule, capsuleB: capsule) {
-        let u = Vec3.subtract(v3_0, capsuleA.ellipseCenter1, capsuleA.ellipseCenter0);
-        let v = Vec3.subtract(v3_1, capsuleB.ellipseCenter1, capsuleB.ellipseCenter0);
-        let w = Vec3.subtract(v3_2, capsuleA.ellipseCenter0, capsuleB.ellipseCenter0);
-        let a = Vec3.dot(u, u);         // always >= 0
-        let b = Vec3.dot(u, v);
-        let c = Vec3.dot(v, v);         // always >= 0
-        let d = Vec3.dot(u, w);
-        let e = Vec3.dot(v, w);
-        let D = a * c - b * b;        // always >= 0
+        const u = Vec3.subtract(v3_0, capsuleA.ellipseCenter1, capsuleA.ellipseCenter0);
+        const v = Vec3.subtract(v3_1, capsuleB.ellipseCenter1, capsuleB.ellipseCenter0);
+        const w = Vec3.subtract(v3_2, capsuleA.ellipseCenter0, capsuleB.ellipseCenter0);
+        const a = Vec3.dot(u, u);         // always >= 0
+        const b = Vec3.dot(u, v);
+        const c = Vec3.dot(v, v);         // always >= 0
+        const d = Vec3.dot(u, w);
+        const e = Vec3.dot(v, w);
+        const D = a * c - b * b;        // always >= 0
         let sc: number;
         let sN: number;
         let sD = D;       // sc = sN / sD, default sD = D >= 0
@@ -1066,10 +1066,12 @@ const capsule_capsule = (function () {
         if (tN < 0.0) {            // tc < 0 => the t=0 edge is visible
             tN = 0.0;
             // recompute sc for this edge
-            if (-d < 0.0)
+            if (-d < 0.0) {
                 sN = 0.0;
-            else if (-d > a)
+            }
+            else if (-d > a) {
                 sN = sD;
+ }
             else {
                 sN = -d;
                 sD = a;
@@ -1078,10 +1080,12 @@ const capsule_capsule = (function () {
         else if (tN > tD) {      // tc > 1  => the t=1 edge is visible
             tN = tD;
             // recompute sc for this edge
-            if ((-d + b) < 0.0)
+            if ((-d + b) < 0.0) {
                 sN = 0;
-            else if ((-d + b) > a)
+            }
+            else if ((-d + b) > a) {
                 sN = sD;
+ }
             else {
                 sN = (-d + b);
                 sD = a;
@@ -1092,13 +1096,13 @@ const capsule_capsule = (function () {
         tc = (Math.abs(tN) < EPSILON ? 0.0 : tN / tD);
 
         // get the difference of the two closest points
-        var dP = v3_3;
+        const dP = v3_3;
         dP.set(w);
         dP.add(Vec3.multiplyScalar(v3_4, u, sc));
         dP.subtract(Vec3.multiplyScalar(v3_5, v, tc));
         const radius = capsuleA.radius + capsuleB.radius;
         return dP.lengthSqr() < radius * radius;
-    }
+    };
 })();
 
 const intersect = {

@@ -189,6 +189,13 @@ export enum SystemEventType {
      * 父节点改变时触发的事件。
      */
     PARENT_CHANGED = 'parent-changed',
+    
+    /**
+     * @en
+     * @zh
+     * 节点销毁时触发的事件。
+     */
+    NODE_DESTROYED = 'node-destroyed',
 }
 
 ccenum(SystemEventType);

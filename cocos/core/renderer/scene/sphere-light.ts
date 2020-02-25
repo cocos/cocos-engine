@@ -1,4 +1,4 @@
-import { aabb } from '../../geom-utils';
+import { aabb } from '../../geometry';
 import { Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
 

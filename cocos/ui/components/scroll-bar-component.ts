@@ -30,7 +30,7 @@
 
 import { Component } from '../../core/components';
 import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
-import { Color, Size, Vec2, Vec3 } from '../../core/math';
+import { Color, Size, Vec2, Vec3, size } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { clamp01 } from '../../core/math/utils';
 import { ScrollViewComponent } from './scroll-view-component';
@@ -41,6 +41,8 @@ const GETTINGSHORTERFACTOR = 20;
 const ZERO = new Vec3();
 const _tempPos_1 = new Vec3();
 const _tempPos_2 = new Vec3();
+const _tempSize = new Size();
+const _tempVec2 = new Vec2();
 const defaultAnchor = new Vec2();
 const _tempColor = new Color();
 
@@ -315,15 +317,17 @@ export class ScrollBarComponent extends Component {
             return ZERO;
         }
 
-        let ap = content.getAnchorPoint();
-        let contentSize = content.getContentSize();
-        const scrollViewSpacePos = new Vec3(- ap.x * contentSize.width, - ap.y * contentSize.height, 0);
-        content._uiProps.uiTransformComp!.convertToWorldSpaceAR(scrollViewSpacePos, scrollViewSpacePos);
-        ap = this._scrollView.node.getAnchorPoint();
-        contentSize = this._scrollView.node.getContentSize();
-        scrollViewSpacePos.x += ap.x * contentSize.width;
-        scrollViewSpacePos.y += ap.y * contentSize.height;
-        this._scrollView.node._uiProps.uiTransformComp!.convertToNodeSpaceAR(scrollViewSpacePos, scrollViewSpacePos);
+        const scrollTrans = this._scrollView.node._uiProps.uiTransformComp;
+        const contentTrans = content._uiProps.uiTransformComp;
+        if (!scrollTrans || !contentTrans) {
+            return ZERO;
+        }
+
+        _tempPos_1.set(-content.anchorX * content.width, -content.anchorY * content.height, 0);
+        contentTrans.convertToWorldSpaceAR(_tempPos_1, _tempPos_2);
+        const scrollViewSpacePos = scrollTrans.convertToNodeSpaceAR(_tempPos_2);
+        scrollViewSpacePos.x += scrollTrans.anchorX * scrollTrans.width;
+        scrollViewSpacePos.y += scrollTrans.anchorY * scrollTrans.height;
         return scrollViewSpacePos;
     }
 

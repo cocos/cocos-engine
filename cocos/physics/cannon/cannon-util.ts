@@ -7,8 +7,8 @@ import { IRaycastOptions } from '../spec/i-physics-world';
 
 export function toCannonRaycastOptions (out: CANNON.IRaycastOptions, options: IRaycastOptions) {
     out.checkCollisionResponse = !options.queryTrigger;
-    // out.collisionFilterGroup = options.group;
-    // out.collisionFilterMask = options.mask;
+    out.collisionFilterGroup = -1;
+    out.collisionFilterMask = options.mask;
     out.skipBackFaces = false;
 }
 

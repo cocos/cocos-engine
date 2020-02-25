@@ -31,7 +31,7 @@ import { RenderTexture } from '../../assets/render-texture';
 import { UITransformComponent } from '../../components';
 import { Component } from '../../components/component';
 import { ccclass, executeInEditMode, menu, property } from '../../data/class-decorator';
-import { ray } from '../../geom-utils';
+import { ray } from '../../geometry';
 import { GFXClearFlag } from '../../gfx/define';
 import { GFXWindow } from '../../gfx/window';
 import { Color, Rect, toRadian, Vec3 } from '../../math';

@@ -1,6 +1,5 @@
 const { spawn, spawnSync } = require('child_process');
 const fs = require('fs');
-
 let program = require('commander');
 program
     .version('1.0.0')

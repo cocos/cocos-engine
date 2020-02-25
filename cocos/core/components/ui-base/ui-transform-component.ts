@@ -32,7 +32,7 @@ import { ccclass, executeInEditMode, executionOrder, menu, property } from '../.
 import { SystemEventType } from '../../platform/event-manager/event-enum';
 import { EventListener, IListenerMask } from '../../platform/event-manager/event-listener';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../math';
-import { aabb } from '../../geom-utils';
+import { aabb } from '../../geometry';
 import { CanvasComponent } from './canvas-component';
 import { Node } from '../../scene-graph';
 

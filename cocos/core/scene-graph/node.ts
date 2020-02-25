@@ -232,14 +232,14 @@ export class Node extends BaseNode {
 
     /**
      * @zh
-     * 当前节点面向的前方方向
+     * 当前节点面向的前方方向，默认前方为 -z 方向
      */
     get forward (): Vec3 {
-        return Vec3.transformQuat(new Vec3(), Vec3.UNIT_Z, this.worldRotation);
+        return Vec3.transformQuat(new Vec3(), Vec3.FORWARD, this.worldRotation);
     }
     set forward (dir: Vec3) {
         const len = dir.length();
-        Vec3.multiplyScalar(v3_a, dir, -1 / len); // we use -z for view-dir
+        Vec3.multiplyScalar(v3_a, dir, -1 / len);
         Quat.fromViewUp(q_a, v3_a);
         this.setWorldRotation(q_a);
     }
@@ -419,13 +419,13 @@ export class Node extends BaseNode {
 
     /**
      * @zh
-     * 设置当前节点旋转为面向目标位置
+     * 设置当前节点旋转为面向目标位置，默认前方为 -z 方向
      * @param pos 目标位置
      * @param up 坐标系的上方向
      */
     public lookAt (pos: Vec3, up?: Vec3): void {
         this.getWorldPosition(v3_a);
-        Vec3.subtract(v3_a, v3_a, pos); // we use -z for view-dir
+        Vec3.subtract(v3_a, v3_a, pos);
         Vec3.normalize(v3_a, v3_a);
         Quat.fromViewUp(q_a, v3_a, up);
         this.setWorldRotation(q_a);

@@ -63,17 +63,8 @@ function TweenOptionChecker (opts: ITweenOption) {
     if (opts['interpolation']) {
         warn(header + 'interpolation' + message);
     }
-    if (opts['onStart']) {
-        warn(header + 'onStart' + message);
-    }
     if (opts['onStop']) {
         warn(header + 'onStop' + message);
-    }
-    if (opts['onUpdate']) {
-        warn(header + 'onUpdate' + message);
-    }
-    if (opts['onComplete']) {
-        warn(header + 'onComplete' + message);
     }
 }
 
@@ -162,7 +153,7 @@ export class TweenAction extends ActionInterval {
                 if (prop.start == null) {
                     prop.start = {}; prop.current = {}; prop.end = {};
                 }
-                
+
                 for (var k in value) {
                     prop.start[k] = _t[k];
                     prop.current[k] = _t[k];
@@ -170,6 +161,7 @@ export class TweenAction extends ActionInterval {
                 }
             }
         }
+        if (this._opts.onStart) { this._opts.onStart(this.target); }
     }
 
     update (t: number) {
@@ -182,7 +174,7 @@ export class TweenAction extends ActionInterval {
         let easingTime = t;
         if (opts.easing) easingTime = opts.easing(t);
 
-        let progress = this._opts.progress;
+        let progress = opts.progress;
         for (const name in props) {
             let prop = props[name];
             let time = prop.easing ? prop.easing(t) : easingTime;
@@ -208,6 +200,8 @@ export class TweenAction extends ActionInterval {
 
             target[name] = prop.current;
         }
+        if (opts.onUpdate) { opts.onUpdate(this.target, t); }
+        if (t == 1 && opts.onComplete) { opts.onComplete(this.target); }
     }
 
     progress (start: any, end: any, current: any, t: number) {

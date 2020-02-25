@@ -3,7 +3,7 @@
  */
 
 import { Mat4, Quat, Vec3 } from '../../core/math';
-import { intersect } from '../../core/geom-utils';
+import { intersect } from '../../core/geometry';
 import { BuiltInWorld } from './builtin-world';
 import { BuiltinObject } from './object/builtin-object';
 import { BuiltinShape } from './shapes/builtin-shape';

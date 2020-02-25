@@ -2,7 +2,7 @@
 import { BuiltinShape } from './builtin-shape';
 import { ICapsuleShape } from '../../spec/i-physics-shape';
 import { ECapsuleDirection, CapsuleColliderComponent } from '../../framework/components/collider/capsule-collider-component';
-import { capsule } from '../../../core/geom-utils';
+import { capsule } from '../../../core/geometry';
 
 export class BuiltinCapsuleShape extends BuiltinShape implements ICapsuleShape {
 
