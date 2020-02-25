@@ -84,6 +84,10 @@ public:
                 only if it doesn't exist, AssetsManagerEx will use the given manifestUrl.
      */
     static AssetsManagerEx* create(const std::string &manifestUrl, const std::string &storagePath);
+
+    AssetsManagerEx(const std::string& manifestUrl, const std::string& storagePath);
+    AssetsManagerEx(const std::string& manifestUrl, const std::string& storagePath, const VersionCompareHandle& handle);
+    virtual ~AssetsManagerEx();
     
     /** @brief  Check out if there is a new version of manifest.
      *          You may use this method before updating, then let user determine whether
@@ -192,14 +196,6 @@ public:
      * @param callback  The event callback function
      */
     void setEventCallback(const EventCallback& callback) {_eventCallback = callback;};
-    
-CC_CONSTRUCTOR_ACCESS:
-    
-    AssetsManagerEx(const std::string& manifestUrl, const std::string& storagePath);
-    
-    AssetsManagerEx(const std::string& manifestUrl, const std::string& storagePath, const VersionCompareHandle& handle);
-    
-    virtual ~AssetsManagerEx();
     
 protected:
     

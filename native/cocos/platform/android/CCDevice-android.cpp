@@ -34,7 +34,6 @@ THE SOFTWARE.
 #include <android_native_app_glue.h>
 #include <android/window.h>
 #include <android/sensor.h>
-#include "base/ccTypes.h"
 #include "platform/android/jni/JniHelper.h"
 #include "platform/CCFileUtils.h"
 #include "base/ccUTF8.h"

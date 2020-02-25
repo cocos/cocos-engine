@@ -28,7 +28,6 @@
 
 // Vibrate
 #import <AudioToolbox/AudioToolbox.h>
-#include "base/ccTypes.h"
 #include "platform/apple/CCDevice-apple.h"
 #include "CCReachability.h"
 

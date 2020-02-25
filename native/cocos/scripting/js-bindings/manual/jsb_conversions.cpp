@@ -429,119 +429,93 @@ bool seval_to_Size(const se::Value& v, cocos2d::Size* size)
     return true;
 }
 
-//bool seval_to_Rect(const se::Value& v, cocos2d::Rect* rect)
+//bool seval_to_Color3B(const se::Value& v, cocos2d::Color3B* color)
 //{
-//    assert(rect != nullptr);
-//    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to Rect failed!");
+//    assert(color != nullptr);
+//    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to Color3B failed!");
 //    se::Object* obj = v.toObject();
-//    se::Value x;
-//    se::Value y;
-//    se::Value width;
-//    se::Value height;
-//
-//    bool ok = obj->getProperty("x", &x);
-//    SE_PRECONDITION3(ok && x.isNumber(), false, *rect = cocos2d::Rect::ZERO);
-//    ok = obj->getProperty("y", &y);
-//    SE_PRECONDITION3(ok && y.isNumber(), false, *rect = cocos2d::Rect::ZERO);
-//    ok = obj->getProperty("width", &width);
-//    SE_PRECONDITION3(ok && width.isNumber(), false, *rect = cocos2d::Rect::ZERO);
-//    ok = obj->getProperty("height", &height);
-//    SE_PRECONDITION3(ok && height.isNumber(), false, *rect = cocos2d::Rect::ZERO);
-//    rect->origin.x = x.toFloat();
-//    rect->origin.y = y.toFloat();
-//    rect->size.width = width.toFloat();
-//    rect->size.height = height.toFloat();
-//
+//    se::Value r;
+//    se::Value g;
+//    se::Value b;
+//    bool ok = obj->getProperty("r", &r);
+//    SE_PRECONDITION3(ok && r.isNumber(), false, *color = cocos2d::Color3B::BLACK);
+//    ok = obj->getProperty("g", &g);
+//    SE_PRECONDITION3(ok && g.isNumber(), false, *color = cocos2d::Color3B::BLACK);
+//    ok = obj->getProperty("b", &b);
+//    SE_PRECONDITION3(ok && b.isNumber(), false, *color = cocos2d::Color3B::BLACK);
+//    color->r = (GLubyte)r.toUint16();
+//    color->g = (GLubyte)g.toUint16();
+//    color->b = (GLubyte)b.toUint16();
 //    return true;
 //}
-
-bool seval_to_Color3B(const se::Value& v, cocos2d::Color3B* color)
-{
-    assert(color != nullptr);
-    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to Color3B failed!");
-    se::Object* obj = v.toObject();
-    se::Value r;
-    se::Value g;
-    se::Value b;
-    bool ok = obj->getProperty("r", &r);
-    SE_PRECONDITION3(ok && r.isNumber(), false, *color = cocos2d::Color3B::BLACK);
-    ok = obj->getProperty("g", &g);
-    SE_PRECONDITION3(ok && g.isNumber(), false, *color = cocos2d::Color3B::BLACK);
-    ok = obj->getProperty("b", &b);
-    SE_PRECONDITION3(ok && b.isNumber(), false, *color = cocos2d::Color3B::BLACK);
-    color->r = (GLubyte)r.toUint16();
-    color->g = (GLubyte)g.toUint16();
-    color->b = (GLubyte)b.toUint16();
-    return true;
-}
-
-bool seval_to_Color4B(const se::Value& v, cocos2d::Color4B* color)
-{
-    assert(color != nullptr);
-    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to Color4B failed!");
-    se::Object* obj = v.toObject();
-    se::Value r;
-    se::Value g;
-    se::Value b;
-    se::Value a;
-    bool ok = obj->getProperty("r", &r);
-    SE_PRECONDITION3(ok && r.isNumber(), false, *color = cocos2d::Color4B::BLACK);
-    ok = obj->getProperty("g", &g);
-    SE_PRECONDITION3(ok && g.isNumber(), false, *color = cocos2d::Color4B::BLACK);
-    ok = obj->getProperty("b", &b);
-    SE_PRECONDITION3(ok && b.isNumber(), false, *color = cocos2d::Color4B::BLACK);
-    ok = obj->getProperty("a", &a);
-    SE_PRECONDITION3(ok && b.isNumber(), false, *color = cocos2d::Color4B::BLACK);
-    color->r = (GLubyte)r.toUint16();
-    color->g = (GLubyte)g.toUint16();
-    color->b = (GLubyte)b.toUint16();
-    color->a = (GLubyte)a.toUint16();
-    return true;
-}
-
-bool seval_to_Color4F(const se::Value& v, cocos2d::Color4F* color)
-{
-    assert(color != nullptr);
-    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to Color4F failed!");
-    se::Object* obj = v.toObject();
-    se::Value r;
-    se::Value g;
-    se::Value b;
-    se::Value a;
-    bool ok = obj->getProperty("r", &r);
-    SE_PRECONDITION3(ok && r.isNumber(), false, *color = cocos2d::Color4F::BLACK);
-    ok = obj->getProperty("g", &g);
-    SE_PRECONDITION3(ok && g.isNumber(), false, *color = cocos2d::Color4F::BLACK);
-    ok = obj->getProperty("b", &b);
-    SE_PRECONDITION3(ok && b.isNumber(), false, *color = cocos2d::Color4F::BLACK);
-    ok = obj->getProperty("a", &a);
-    SE_PRECONDITION3(ok && b.isNumber(), false, *color = cocos2d::Color4F::BLACK);
-    color->r = r.toFloat();
-    color->g = g.toFloat();
-    color->b = b.toFloat();
-    color->a = a.toFloat();
-    return true;
-}
-
-bool seval_to_Color3F(const se::Value& v, cocos2d::Color3F* color)
-{
-    assert(color != nullptr);
-    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to Color3F failed!");
-    se::Object* obj = v.toObject();
-    se::Value r;
-    se::Value g;
-    se::Value b;
-    bool ok = obj->getProperty("r", &r);
-    SE_PRECONDITION3(ok && r.isNumber(), false, *color = cocos2d::Color3F::BLACK);
-    ok = obj->getProperty("g", &g);
-    SE_PRECONDITION3(ok && g.isNumber(), false, *color = cocos2d::Color3F::BLACK);
-    ok = obj->getProperty("b", &b);
-    SE_PRECONDITION3(ok && b.isNumber(), false, *color = cocos2d::Color3F::BLACK);
-    color->r = r.toFloat();
-    color->g = g.toFloat();
-    color->b = b.toFloat();
-    return true;
-}
+//
+//bool seval_to_Color4B(const se::Value& v, cocos2d::Color4B* color)
+//{
+//    assert(color != nullptr);
+//    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to Color4B failed!");
+//    se::Object* obj = v.toObject();
+//    se::Value r;
+//    se::Value g;
+//    se::Value b;
+//    se::Value a;
+//    bool ok = obj->getProperty("r", &r);
+//    SE_PRECONDITION3(ok && r.isNumber(), false, *color = cocos2d::Color4B::BLACK);
+//    ok = obj->getProperty("g", &g);
+//    SE_PRECONDITION3(ok && g.isNumber(), false, *color = cocos2d::Color4B::BLACK);
+//    ok = obj->getProperty("b", &b);
+//    SE_PRECONDITION3(ok && b.isNumber(), false, *color = cocos2d::Color4B::BLACK);
+//    ok = obj->getProperty("a", &a);
+//    SE_PRECONDITION3(ok && b.isNumber(), false, *color = cocos2d::Color4B::BLACK);
+//    color->r = (GLubyte)r.toUint16();
+//    color->g = (GLubyte)g.toUint16();
+//    color->b = (GLubyte)b.toUint16();
+//    color->a = (GLubyte)a.toUint16();
+//    return true;
+//}
+//
+//bool seval_to_Color4F(const se::Value& v, cocos2d::Color4F* color)
+//{
+//    assert(color != nullptr);
+//    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to Color4F failed!");
+//    se::Object* obj = v.toObject();
+//    se::Value r;
+//    se::Value g;
+//    se::Value b;
+//    se::Value a;
+//    bool ok = obj->getProperty("r", &r);
+//    SE_PRECONDITION3(ok && r.isNumber(), false, *color = cocos2d::Color4F::BLACK);
+//    ok = obj->getProperty("g", &g);
+//    SE_PRECONDITION3(ok && g.isNumber(), false, *color = cocos2d::Color4F::BLACK);
+//    ok = obj->getProperty("b", &b);
+//    SE_PRECONDITION3(ok && b.isNumber(), false, *color = cocos2d::Color4F::BLACK);
+//    ok = obj->getProperty("a", &a);
+//    SE_PRECONDITION3(ok && b.isNumber(), false, *color = cocos2d::Color4F::BLACK);
+//    color->r = r.toFloat();
+//    color->g = g.toFloat();
+//    color->b = b.toFloat();
+//    color->a = a.toFloat();
+//    return true;
+//}
+//
+//bool seval_to_Color3F(const se::Value& v, cocos2d::Color3F* color)
+//{
+//    assert(color != nullptr);
+//    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to Color3F failed!");
+//    se::Object* obj = v.toObject();
+//    se::Value r;
+//    se::Value g;
+//    se::Value b;
+//    bool ok = obj->getProperty("r", &r);
+//    SE_PRECONDITION3(ok && r.isNumber(), false, *color = cocos2d::Color3F::BLACK);
+//    ok = obj->getProperty("g", &g);
+//    SE_PRECONDITION3(ok && g.isNumber(), false, *color = cocos2d::Color3F::BLACK);
+//    ok = obj->getProperty("b", &b);
+//    SE_PRECONDITION3(ok && b.isNumber(), false, *color = cocos2d::Color3F::BLACK);
+//    color->r = r.toFloat();
+//    color->g = g.toFloat();
+//    color->b = b.toFloat();
+//    return true;
+//}
 
 bool seval_to_ccvalue(const se::Value& v, cocos2d::Value* ret)
 {
@@ -717,23 +691,6 @@ bool sevals_variadic_to_ccvaluevector(const se::ValueArray& args, cocos2d::Value
         ret->push_back(ccvalue);
     }
 
-    return true;
-}
-
-bool seval_to_blendfunc(const se::Value& v, cocos2d::BlendFunc* ret)
-{
-    SE_PRECONDITION2(v.isObject(), false, "Convert parameter to BlendFunc failed!");
-    se::Object* obj = v.toObject();
-    se::Value value;
-    bool ok = false;
-
-    ok = obj->getProperty("src", &value);
-    SE_PRECONDITION3(ok, false, *ret = cocos2d::BlendFunc::DISABLE);
-    ret->src = value.toUint32();
-    ok = obj->getProperty("dst", &value);
-    SE_PRECONDITION3(ok, false, *ret = cocos2d::BlendFunc::DISABLE);
-
-    ret->dst = value.toUint32();
     return true;
 }
 
@@ -1401,56 +1358,6 @@ bool Rect_to_seval(const cocos2d::Rect& v, se::Value* ret)
     return true;
 }
 
-bool Color3B_to_seval(const cocos2d::Color3B& v, se::Value* ret)
-{
-    assert(ret != nullptr);
-    se::HandleObject obj(se::Object::createPlainObject());
-    obj->setProperty("r", se::Value(v.r));
-    obj->setProperty("g", se::Value(v.g));
-    obj->setProperty("b", se::Value(v.b));
-    obj->setProperty("a", se::Value(255));
-    ret->setObject(obj);
-
-    return true;
-}
-
-bool Color4B_to_seval(const cocos2d::Color4B& v, se::Value* ret)
-{
-    assert(ret != nullptr);
-    se::HandleObject obj(se::Object::createPlainObject());
-    obj->setProperty("r", se::Value(v.r));
-    obj->setProperty("g", se::Value(v.g));
-    obj->setProperty("b", se::Value(v.b));
-    obj->setProperty("a", se::Value(v.a));
-    ret->setObject(obj);
-
-    return true;
-}
-
-bool Color4F_to_seval(const cocos2d::Color4F& v, se::Value* ret)
-{
-    assert(ret != nullptr);
-    se::HandleObject obj(se::Object::createPlainObject());
-    obj->setProperty("r", se::Value(v.r));
-    obj->setProperty("g", se::Value(v.g));
-    obj->setProperty("b", se::Value(v.b));
-    obj->setProperty("a", se::Value(v.a));
-    ret->setObject(obj);
-
-    return true;
-}
-
-bool Color3F_to_seval(const cocos2d::Color3F& v, se::Value* ret)
-{
-    assert(ret != nullptr);
-    se::HandleObject obj(se::Object::createPlainObject());
-    obj->setProperty("r", se::Value(v.r));
-    obj->setProperty("g", se::Value(v.g));
-    obj->setProperty("b", se::Value(v.b));
-    ret->setObject(obj);
-    return true;
-}
-
 bool ccvalue_to_seval(const cocos2d::Value& v, se::Value* ret)
 {
     assert(ret != nullptr);
@@ -1580,17 +1487,6 @@ bool ccvaluevector_to_seval(const cocos2d::ValueVector& v, se::Value* ret)
         ret->setObject(obj);
 
     return ok;
-}
-
-bool blendfunc_to_seval(const cocos2d::BlendFunc& v, se::Value* ret)
-{
-    assert(ret != nullptr);
-    se::HandleObject obj(se::Object::createPlainObject());
-    obj->setProperty("src", se::Value(v.src));
-    obj->setProperty("dst", se::Value(v.dst));
-    ret->setObject(obj);
-
-    return true;
 }
 
 namespace {

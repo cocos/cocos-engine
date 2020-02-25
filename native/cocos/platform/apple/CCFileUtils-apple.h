@@ -33,7 +33,6 @@
 
 #include "platform/CCFileUtils.h"
 #include "base/ccMacros.h"
-#include "base/ccTypes.h"
 
 NS_CC_BEGIN
 

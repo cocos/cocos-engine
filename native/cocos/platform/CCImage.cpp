@@ -810,9 +810,7 @@ namespace
 
 bool Image::initWithJpgData(const unsigned char * data, ssize_t dataLen)
 {
-#if CC_USE_WIC
-    return decodeWithWIC(data, dataLen);
-#elif CC_USE_JPEG
+#if CC_USE_JPEG
     /* these are standard libjpeg structures for reading(decompression) */
     struct jpeg_decompress_struct cinfo;
     /* We use our private extension JPEG error handler.
@@ -843,9 +841,7 @@ bool Image::initWithJpgData(const unsigned char * data, ssize_t dataLen)
         /* setup decompression process and source, then read JPEG header */
         jpeg_create_decompress( &cinfo );
 
-#ifndef CC_TARGET_QT5
         jpeg_mem_src(&cinfo, const_cast<unsigned char*>(data), dataLen);
-#endif /* CC_TARGET_QT5 */
 
         /* reading the image header which contains image information */
 #if (JPEG_LIB_VERSION >= 90)
@@ -898,17 +894,12 @@ bool Image::initWithJpgData(const unsigned char * data, ssize_t dataLen)
     } while (0);
 
     return ret;
-#else
-    CCLOG("jpeg is not enabled, please enable it in ccConfig.h");
-    return false;
 #endif // CC_USE_JPEG
 }
 
 bool Image::initWithPngData(const unsigned char * data, ssize_t dataLen)
 {
-#if CC_USE_WIC
-    return decodeWithWIC(data, dataLen);
-#elif CC_USE_PNG
+#if CC_USE_PNG
     // length of bytes to check if it is a valid png file
 #define PNGSIGSIZE  8
     bool ret = false;
@@ -933,9 +924,7 @@ bool Image::initWithPngData(const unsigned char * data, ssize_t dataLen)
         info_ptr = png_create_info_struct(png_ptr);
         CC_BREAK_IF(!info_ptr);
 
-#if (CC_PLATFORM != CC_PLATFORM_BADA && CC_PLATFORM != CC_PLATFORM_NACL)
         CC_BREAK_IF(setjmp(png_jmpbuf(png_ptr)));
-#endif
 
         // set the read call back function
         tImageSource imageSource;
@@ -1055,9 +1044,6 @@ bool Image::initWithPngData(const unsigned char * data, ssize_t dataLen)
         png_destroy_read_struct(&png_ptr, (info_ptr) ? &info_ptr : 0, 0);
     }
     return ret;
-#else
-    CCLOG("png is not enabled, please enable it in ccConfig.h");
-    return false;
 #endif //CC_USE_PNG
 }
 
@@ -1705,9 +1691,7 @@ bool Image::saveToFile(const std::string& filename, bool isToRGB)
 
 bool Image::saveImageToPNG(const std::string& filePath, bool isToRGB)
 {
-#if CC_USE_WIC
-    return encodeWithWIC(filePath, isToRGB, GUID_ContainerFormatPng);
-#elif CC_USE_PNG
+#if CC_USE_PNG
     bool ret = false;
     do
     {
@@ -1735,14 +1719,12 @@ bool Image::saveImageToPNG(const std::string& filePath, bool isToRGB)
             png_destroy_write_struct(&png_ptr, nullptr);
             break;
         }
-#if (CC_PLATFORM != CC_PLATFORM_BADA && CC_PLATFORM != CC_PLATFORM_NACL)
         if (setjmp(png_jmpbuf(png_ptr)))
         {
             fclose(fp);
             png_destroy_write_struct(&png_ptr, &info_ptr);
             break;
         }
-#endif
         png_init_io(png_ptr, fp);
 
         if (!isToRGB && hasAlpha())
@@ -1849,17 +1831,12 @@ bool Image::saveImageToPNG(const std::string& filePath, bool isToRGB)
         ret = true;
     } while (0);
     return ret;
-#else
-    CCLOG("png is not enabled, please enable it in ccConfig.h");
-    return false;
 #endif // CC_USE_PNG
 }
 
 bool Image::saveImageToJPG(const std::string& filePath)
 {
-#if CC_USE_WIC
-    return encodeWithWIC(filePath, false, GUID_ContainerFormatJpeg);
-#elif CC_USE_JPEG
+#if CC_USE_JPEG
     bool ret = false;
     do
     {
@@ -1937,9 +1914,6 @@ bool Image::saveImageToJPG(const std::string& filePath)
         ret = true;
     } while (0);
     return ret;
-#else
-    CCLOG("jpeg is not enabled, please enable it in ccConfig.h");
-    return false;
 #endif // CC_USE_JPEG
 }
 

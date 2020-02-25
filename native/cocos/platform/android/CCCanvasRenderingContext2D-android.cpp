@@ -1,5 +1,4 @@
 #include "platform/CCCanvasRenderingContext2D.h"
-#include "base/ccTypes.h"
 #include "base/csscolorparser.hpp"
 
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"

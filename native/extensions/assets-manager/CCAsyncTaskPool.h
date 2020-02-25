@@ -73,6 +73,9 @@ public:
      * Destroys the async task pool.
      */
     static void destroyInstance();
+    
+    AsyncTaskPool();
+    ~AsyncTaskPool();
 
     /**
      * Stop tasks.
@@ -92,10 +95,6 @@ public:
      */
     template<class F>
     inline void enqueue(TaskType type, const TaskCallBack& callback, void* callbackParam, F&& f);
-
-CC_CONSTRUCTOR_ACCESS:
-    AsyncTaskPool();
-    ~AsyncTaskPool();
 
 protected:
 

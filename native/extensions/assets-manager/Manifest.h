@@ -31,6 +31,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "base/CCRef.h"
 #include "extensions/ExtensionMacros.h"
 #include "extensions/ExtensionExport.h"
 #include "network/CCDownloader.h"

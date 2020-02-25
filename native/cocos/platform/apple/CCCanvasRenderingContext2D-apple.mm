@@ -1,5 +1,4 @@
 #include "platform/CCCanvasRenderingContext2D.h"
-#include "base/ccTypes.h"
 #include "base/csscolorparser.hpp"
 
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
@@ -23,6 +22,7 @@
 #endif
 
 #include <regex>
+#include <array>
 enum class CanvasTextAlign {
     LEFT,
     CENTER,
@@ -57,8 +57,8 @@ enum class CanvasTextBaseline {
 
     CanvasTextAlign _textAlign;
     CanvasTextBaseline _textBaseLine;
-    cocos2d::Color4F _fillStyle;
-    cocos2d::Color4F _strokeStyle;
+    std::array<float, 4> _fillStyle;
+    std::array<float, 4> _strokeStyle;
     float _lineWidth;
     bool _bold;
 }
@@ -337,13 +337,13 @@ enum class CanvasTextBaseline {
     [_tokenAttributesDict removeObjectForKey:NSStrokeColorAttributeName];
 
     [_tokenAttributesDict setObject:paragraphStyle forKey:NSParagraphStyleAttributeName];
-    [_tokenAttributesDict setObject:[NSColor colorWithRed:_fillStyle.r green:_fillStyle.g blue:_fillStyle.b alpha:_fillStyle.a]
+    [_tokenAttributesDict setObject:[NSColor colorWithRed:_fillStyle[0] green:_fillStyle[1] blue:_fillStyle[2] alpha:_fillStyle[3] ]
                              forKey:NSForegroundColorAttributeName];
 
     [self saveContext];
 
     // text color
-    CGContextSetRGBFillColor(_context, _fillStyle.r, _fillStyle.g, _fillStyle.b, _fillStyle.a);
+    CGContextSetRGBFillColor(_context, _fillStyle[0], _fillStyle[1], _fillStyle[2], _fillStyle[3]);
     CGContextSetShouldSubpixelQuantizeFonts(_context, false);
     CGContextBeginTransparencyLayerWithRect(_context, CGRectMake(0, 0, _width, _height), nullptr);
     CGContextSetTextDrawingMode(_context, kCGTextFill);
@@ -370,15 +370,16 @@ enum class CanvasTextBaseline {
     [_tokenAttributesDict removeObjectForKey:NSForegroundColorAttributeName];
 
     [_tokenAttributesDict setObject:paragraphStyle forKey:NSParagraphStyleAttributeName];
-    [_tokenAttributesDict setObject:[NSColor colorWithRed:_strokeStyle.r
-                                                    green:_strokeStyle.g
-                                                     blue:_strokeStyle.b
-                                                    alpha:_strokeStyle.a] forKey:NSStrokeColorAttributeName];
+    [_tokenAttributesDict setObject:[NSColor colorWithRed:_strokeStyle[0]
+                                                    green:_strokeStyle[1]
+                                                     blue:_strokeStyle[2]
+                                                    alpha:_strokeStyle[3]
+                          forKey:NSStrokeColorAttributeName] ];
 
     [self saveContext];
 
     // text color
-    CGContextSetRGBFillColor(_context, _fillStyle.r, _fillStyle.g, _fillStyle.b, _fillStyle.a);
+    CGContextSetRGBFillColor(_context, _fillStyle[0], _fillStyle[1], _fillStyle[2], _fillStyle[3]);
     CGContextSetLineWidth(_context, _lineWidth);
     CGContextSetLineJoin(_context, kCGLineJoinRound);
     CGContextSetShouldSubpixelQuantizeFonts(_context, false);
@@ -397,17 +398,17 @@ enum class CanvasTextBaseline {
 }
 
 -(void) setFillStyleWithRed:(CGFloat) r green:(CGFloat) g blue:(CGFloat) b alpha:(CGFloat) a {
-    _fillStyle.r = r;
-    _fillStyle.g = g;
-    _fillStyle.b = b;
-    _fillStyle.a = a;
+    _fillStyle[0] = r;
+    _fillStyle[1] = g;
+    _fillStyle[2] = b;
+    _fillStyle[3] = a;
 }
 
 -(void) setStrokeStyleWithRed:(CGFloat) r green:(CGFloat) g blue:(CGFloat) b alpha:(CGFloat) a {
-    _strokeStyle.r = r;
-    _strokeStyle.g = g;
-    _strokeStyle.b = b;
-    _strokeStyle.a = a;
+    _strokeStyle[0] = r;
+    _strokeStyle[1] = g;
+    _strokeStyle[2] = b;
+    _strokeStyle[3] = a;
 }
 
 -(const cocos2d::Data&) getDataRef {
@@ -436,7 +437,7 @@ enum class CanvasTextBaseline {
 -(void) fillRect:(CGRect) rect {
     [self saveContext];
 
-    NSColor* color = [NSColor colorWithRed:_fillStyle.r green:_fillStyle.g blue:_fillStyle.b alpha:_fillStyle.a];
+    NSColor* color = [NSColor colorWithRed:_fillStyle[0] green:_fillStyle[1] blue:_fillStyle[2] alpha:_fillStyle[3] ];
     [color setFill];
 #if CC_PLATFORM == CC_PLATFORM_MAC_OSX
     CGRect tmpRect = CGRectMake(rect.origin.x, _height - rect.origin.y - rect.size.height, rect.size.width, rect.size.height);
@@ -487,7 +488,7 @@ enum class CanvasTextBaseline {
 }
 
 -(void) stroke {
-    NSColor* color = [NSColor colorWithRed:_strokeStyle.r green:_strokeStyle.g blue:_strokeStyle.b alpha:_strokeStyle.a];
+    NSColor* color = [NSColor colorWithRed:_strokeStyle[0] green:_strokeStyle[1] blue:_strokeStyle[2] alpha:_strokeStyle[3]];
     [color setStroke];
     [_path setLineWidth: _lineWidth];
     [_path stroke];

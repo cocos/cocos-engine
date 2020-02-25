@@ -494,16 +494,12 @@
 		46FDDB72202ADDCE00931238 /* base64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDAFD202ADDCE00931238 /* base64.cpp */; };
 		46FDDB7B202ADDCE00931238 /* CCRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDB02202ADDCE00931238 /* CCRef.cpp */; };
 		46FDDB7C202ADDCE00931238 /* CCRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDB02202ADDCE00931238 /* CCRef.cpp */; };
-		46FDDB81202ADDCE00931238 /* ccTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDB05202ADDCE00931238 /* ccTypes.h */; };
-		46FDDB82202ADDCE00931238 /* ccTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDB05202ADDCE00931238 /* ccTypes.h */; };
 		46FDDB83202ADDCE00931238 /* ccRandom.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDB06202ADDCE00931238 /* ccRandom.h */; };
 		46FDDB84202ADDCE00931238 /* ccRandom.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDB06202ADDCE00931238 /* ccRandom.h */; };
 		46FDDB89202ADDCE00931238 /* CCRef.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDB09202ADDCE00931238 /* CCRef.h */; };
 		46FDDB8A202ADDCE00931238 /* CCRef.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDB09202ADDCE00931238 /* CCRef.h */; };
 		46FDDB8B202ADDCE00931238 /* CCAutoreleasePool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDB0A202ADDCE00931238 /* CCAutoreleasePool.cpp */; };
 		46FDDB8C202ADDCE00931238 /* CCAutoreleasePool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDB0A202ADDCE00931238 /* CCAutoreleasePool.cpp */; };
-		46FDDB8D202ADDCE00931238 /* ccTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDB0B202ADDCE00931238 /* ccTypes.cpp */; };
-		46FDDB8E202ADDCE00931238 /* ccTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDB0B202ADDCE00931238 /* ccTypes.cpp */; };
 		46FDDB8F202ADDCE00931238 /* ccUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDB0C202ADDCE00931238 /* ccUtils.cpp */; };
 		46FDDB90202ADDCE00931238 /* ccUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDB0C202ADDCE00931238 /* ccUtils.cpp */; };
 		46FDDB93202ADDCE00931238 /* TGAlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDB0E202ADDCE00931238 /* TGAlib.cpp */; };
@@ -1285,11 +1281,9 @@
 		46FDDAFC202ADDCE00931238 /* ZipUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ZipUtils.cpp; sourceTree = "<group>"; };
 		46FDDAFD202ADDCE00931238 /* base64.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = base64.cpp; sourceTree = "<group>"; };
 		46FDDB02202ADDCE00931238 /* CCRef.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCRef.cpp; sourceTree = "<group>"; };
-		46FDDB05202ADDCE00931238 /* ccTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ccTypes.h; sourceTree = "<group>"; };
 		46FDDB06202ADDCE00931238 /* ccRandom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ccRandom.h; sourceTree = "<group>"; };
 		46FDDB09202ADDCE00931238 /* CCRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCRef.h; sourceTree = "<group>"; };
 		46FDDB0A202ADDCE00931238 /* CCAutoreleasePool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCAutoreleasePool.cpp; sourceTree = "<group>"; };
-		46FDDB0B202ADDCE00931238 /* ccTypes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ccTypes.cpp; sourceTree = "<group>"; };
 		46FDDB0C202ADDCE00931238 /* ccUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ccUtils.cpp; sourceTree = "<group>"; };
 		46FDDB0E202ADDCE00931238 /* TGAlib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TGAlib.cpp; sourceTree = "<group>"; };
 		46FDDB11202ADDCE00931238 /* ccUTF8.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ccUTF8.cpp; sourceTree = "<group>"; };
@@ -2219,8 +2213,6 @@
 				461786512052301A008256E1 /* CCScheduler.h */,
 				1A52DAF5205BB81400350EE3 /* CCThreadPool.cpp */,
 				1A52DAF4205BB81400350EE3 /* CCThreadPool.h */,
-				46FDDB0B202ADDCE00931238 /* ccTypes.cpp */,
-				46FDDB05202ADDCE00931238 /* ccTypes.h */,
 				46FDDB11202ADDCE00931238 /* ccUTF8.cpp */,
 				46FDDB2D202ADDCE00931238 /* ccUTF8.h */,
 				46FDDB0C202ADDCE00931238 /* ccUtils.cpp */,
@@ -3016,7 +3008,6 @@
 				46178670205262BC008256E1 /* jsb_conversions.hpp in Headers */,
 				469303A82046AE05004A3D6C /* SeApi.h in Headers */,
 				50ABBD5A1925AB0000A911A9 /* Vec2.h in Headers */,
-				46FDDB81202ADDCE00931238 /* ccTypes.h in Headers */,
 				BA06A84C23584B92007740C5 /* egl.h in Headers */,
 				469304302046AE06004A3D6C /* jsb_classtype.hpp in Headers */,
 				1A28FF8D1F20AFAB007A1D9D /* NSRunLoop+SRWebSocket.h in Headers */,
@@ -3208,7 +3199,6 @@
 				46AE3FF82092F3A600F3A228 /* util-inl.h in Headers */,
 				1A28FF621F20AFAB007A1D9D /* SRRunLoopThread.h in Headers */,
 				BA06A67523583DBD007740C5 /* Core.h in Headers */,
-				46FDDB82202ADDCE00931238 /* ccTypes.h in Headers */,
 				1A28FF7A1F20AFAB007A1D9D /* SRLog.h in Headers */,
 				46AE3FF42092F3A600F3A228 /* node.h in Headers */,
 				46FDDC64202D502F00931238 /* CCApplication.h in Headers */,
@@ -3527,7 +3517,6 @@
 				50ABC0191926664800A911A9 /* CCSAXParser.cpp in Sources */,
 				1A28FF571F20AFAB007A1D9D /* SRIOConsumerPool.m in Sources */,
 				46FDDB7B202ADDCE00931238 /* CCRef.cpp in Sources */,
-				46FDDB8D202ADDCE00931238 /* ccTypes.cpp in Sources */,
 				1A28FF4F1F20AFAB007A1D9D /* SRDelegateController.m in Sources */,
 				46FDDBFB202ADDCE00931238 /* ccCArray.cpp in Sources */,
 				1AAAC8E1205CB6E9005321B9 /* AudioPlayer.mm in Sources */,
@@ -3720,7 +3709,6 @@
 				4693039F2046AE05004A3D6C /* Object.mm in Sources */,
 				BAC32B4A236C28C600F3D55F /* tommyarrayblk.c in Sources */,
 				461786562052301A008256E1 /* CCScheduler.cpp in Sources */,
-				46FDDB8E202ADDCE00931238 /* ccTypes.cpp in Sources */,
 				BA06A7D023583DFE007740C5 /* GLES3Sampler.cc in Sources */,
 				50ABBD4D1925AB0000A911A9 /* MathUtil.cpp in Sources */,
 				46AE40082092F3A600F3A228 /* node_debug_options.cc in Sources */,

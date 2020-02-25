@@ -38,7 +38,6 @@ base/ZipUtils.cpp \
 base/base64.cpp \
 base/ccCArray.cpp \
 base/ccRandom.cpp \
-base/ccTypes.cpp \
 base/ccUTF8.cpp \
 base/ccUtils.cpp \
 base/etc1.cpp \

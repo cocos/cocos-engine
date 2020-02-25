@@ -31,7 +31,6 @@ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 
 #include "platform/CCFileUtils.h"
 #include "base/ccMacros.h"
-#include "base/ccTypes.h"
 #include <string>
 #include <vector>
 #include "jni.h"

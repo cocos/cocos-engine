@@ -26,7 +26,6 @@ THE SOFTWARE.
 ****************************************************************************/
 
 #include "base/ccCArray.h"
-#include "base/ccTypes.h"
 
 NS_CC_BEGIN
 
@@ -103,7 +102,7 @@ void ccArrayShrink(ccArray *arr)
     }
 }
 
-/** Returns index of first occurrence of object, CC_INVALID_INDEX if object not found. */
+/** Returns index of first occurrence of object, -1 if object not found. */
 ssize_t ccArrayGetIndexOfObject(ccArray *arr, Ref* object)
 {
     const auto arrNum = arr->num;
@@ -114,13 +113,13 @@ ssize_t ccArrayGetIndexOfObject(ccArray *arr, Ref* object)
             return i;
     }
 
-    return CC_INVALID_INDEX;
+    return -1;
 }
 
 /** Returns a Boolean value that indicates whether object is present in array. */
 bool ccArrayContainsObject(ccArray *arr, Ref* object)
 {
-    return ccArrayGetIndexOfObject(arr, object) != CC_INVALID_INDEX;
+    return ccArrayGetIndexOfObject(arr, object) != -1;
 }
 
 /** Appends an object. Behavior undefined if array doesn't have enough capacity. */
@@ -228,7 +227,7 @@ void ccArrayFastRemoveObjectAtIndex(ccArray *arr, ssize_t index)
 void ccArrayFastRemoveObject(ccArray *arr, Ref* object)
 {
     auto index = ccArrayGetIndexOfObject(arr, object);
-    if (index != CC_INVALID_INDEX)
+    if (index != -1)
     {
         ccArrayFastRemoveObjectAtIndex(arr, index);
     }
@@ -239,7 +238,7 @@ void ccArrayFastRemoveObject(ccArray *arr, Ref* object)
 void ccArrayRemoveObject(ccArray *arr, Ref* object, bool releaseObj/* = true*/)
 {
     auto index = ccArrayGetIndexOfObject(arr, object);
-    if (index != CC_INVALID_INDEX)
+    if (index != -1)
     {
         ccArrayRemoveObjectAtIndex(arr, index, releaseObj);
     }
@@ -321,7 +320,7 @@ void ccCArrayEnsureExtraCapacity(ccCArray *arr, ssize_t extra)
     ccArrayEnsureExtraCapacity((ccArray*)arr,extra);
 }
 
-/** Returns index of first occurrence of value, CC_INVALID_INDEX if value not found. */
+/** Returns index of first occurrence of value, -1 if value not found. */
 ssize_t ccCArrayGetIndexOfValue(ccCArray *arr, void* value)
 {
     for(ssize_t i = 0; i < arr->num; i++)
@@ -329,13 +328,13 @@ ssize_t ccCArrayGetIndexOfValue(ccCArray *arr, void* value)
         if( arr->arr[i] == value )
             return i;
     }
-    return CC_INVALID_INDEX;
+    return -1;
 }
 
 /** Returns a Boolean value that indicates whether value is present in the C array. */
 bool ccCArrayContainsValue(ccCArray *arr, void* value)
 {
-    return ccCArrayGetIndexOfValue(arr, value) != CC_INVALID_INDEX;
+    return ccCArrayGetIndexOfValue(arr, value) != -1;
 }
 
 /** Inserts a value at a certain position. Behavior undefined if array doesn't have enough capacity */
@@ -432,7 +431,7 @@ void ccCArrayFastRemoveValueAtIndex(ccCArray *arr, ssize_t index)
 void ccCArrayRemoveValue(ccCArray *arr, void* value)
 {
     auto index = ccCArrayGetIndexOfValue(arr, value);
-    if (index != CC_INVALID_INDEX)
+    if (index != -1)
     {
         ccCArrayRemoveValueAtIndex(arr, index);
     }

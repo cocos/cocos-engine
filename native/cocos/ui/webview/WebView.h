@@ -56,6 +56,16 @@ NS_CC_BEGIN
         static WebView *create();
 
         /**
+         * Default constructor.
+         */
+        WebView();
+
+        /**
+         * Default destructor.
+         */
+        virtual ~WebView();
+
+        /**
          * Set javascript interface scheme.
          *
          * @see WebView::setOnJSCallback()
@@ -224,18 +234,6 @@ NS_CC_BEGIN
         ccWebViewCallback _onDidFailLoading;
 
         ccWebViewCallback _onJSCallback;
-
-    CC_CONSTRUCTOR_ACCESS:
-
-        /**
-         * Default constructor.
-         */
-        WebView();
-
-        /**
-         * Default destructor.
-         */
-        virtual ~WebView();
 
     private:
         WebViewImpl *_impl;
