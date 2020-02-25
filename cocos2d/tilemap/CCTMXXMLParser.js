@@ -128,7 +128,6 @@ cc.TMXObjectGroupInfo = function () {
     this._color = new cc.Color(255, 255, 255, 255);
     this.offset = cc.v2(0,0);
     this._draworder = 'topdown';
-    this.template = '';
 };
 
 cc.TMXObjectGroupInfo.prototype = {
@@ -332,7 +331,7 @@ function getPropertyList (node, map) {
  * @param {Object} tsxMap
  * @param {Object} textures
  */
-cc.TMXMapInfo = function (tmxFile, tsxMap, textures, textureSizes, imageLayerTextures) {
+cc.TMXMapInfo = function (tmxFile, tsxMap, txMap, textures, textureSizes, imageLayerTextures) {
     this.properties = [];
     this.orientation = null;
     this.parentElement = null;
@@ -354,6 +353,7 @@ cc.TMXMapInfo = function (tmxFile, tsxMap, textures, textureSizes, imageLayerTex
     this._tileProperties = {};
     this._tileAnimations = {};
     this._tsxMap = null;
+    this._txMap = null;
 
     // map of textures indexed by name
     this._textures = null;
@@ -365,7 +365,7 @@ cc.TMXMapInfo = function (tmxFile, tsxMap, textures, textureSizes, imageLayerTex
 
     this._imageLayerTextures = null;
 
-    this.initWithXML(tmxFile, tsxMap, textures, textureSizes, imageLayerTextures);
+    this.initWithXML(tmxFile, tsxMap, txMap, textures, textureSizes, imageLayerTextures);
 };
 cc.TMXMapInfo.prototype = {
     constructor: cc.TMXMapInfo,
@@ -651,12 +651,13 @@ cc.TMXMapInfo.prototype = {
      * @param {Object} textures
      * @return {Boolean}
      */
-    initWithXML (tmxString, tsxMap, textures, textureSizes, imageLayerTextures) {
+    initWithXML (tmxString, tsxMap, txMap, textures, textureSizes, imageLayerTextures) {
         this._tilesets.length = 0;
         this._layers.length = 0;
         this._imageLayers.length = 0;
 
         this._tsxMap = tsxMap;
+        this._txMap = txMap;
         this._textures = textures;
         this._imageLayerTextures = imageLayerTextures;
         this._textureSizes = textureSizes;
@@ -1038,90 +1039,10 @@ cc.TMXMapInfo.prototype = {
 
         // set the properties to the group
         objectGroup.setProperties(getPropertyList(selGroup));
-
         let objects = selGroup.getElementsByTagName('object');
         if (objects) {
             for (let j = 0; j < objects.length; j++) {
-                let selObj = objects[j];
-                // The value for "type" was blank or not a valid class name
-                // Create an instance of TMXObjectInfo to store the object and its properties
-                let objectProp = {};
-
-                // Set the id of the object
-                objectProp['id'] = selObj.getAttribute('id') || j;
-
-                // Set the name of the object to the value for "name"
-                objectProp["name"] = selObj.getAttribute('name') || "";
-
-                // Check template exists
-                objectProp["template"] = selObj.getAttribute('template') || '';
-                if (objectProp["template"]) {
-                    cc.log(selGroup)
-                }
-
-                // Assign all the attributes as key/name pairs in the properties dictionary
-                objectProp["width"] = parseFloat(selObj.getAttribute('width')) || 0;
-                objectProp["height"] = parseFloat(selObj.getAttribute('height')) || 0;
-
-                objectProp["x"] = parseFloat(selObj.getAttribute('x')) || 0;
-                objectProp["y"] = parseFloat(selObj.getAttribute('y')) || 0;
-
-                objectProp["rotation"] = parseFloat(selObj.getAttribute('rotation')) || 0;
-
-                getPropertyList(selObj, objectProp);
-
-                // visible
-                let visibleAttr = selObj.getAttribute('visible');
-                objectProp['visible'] = !(visibleAttr && parseInt(visibleAttr) === 0);
-
-                // text
-                let texts = selObj.getElementsByTagName('text');
-                if (texts && texts.length > 0) {
-                    let text = texts[0];
-                    objectProp['type'] = cc.TiledMap.TMXObjectType.TEXT;
-                    objectProp['wrap'] = text.getAttribute('wrap') == '1';
-                    objectProp['color'] = strToColor(text.getAttribute('color'));
-                    objectProp['halign'] = strToHAlign(text.getAttribute('halign'));
-                    objectProp['valign'] = strToVAlign(text.getAttribute('valign'));
-                    objectProp['pixelsize'] = parseInt(text.getAttribute('pixelsize')) || 16;
-                    objectProp['text'] = text.childNodes[0].nodeValue;
-                }
-
-                // image
-                let gid = selObj.getAttribute('gid');
-                if (gid) {
-                    objectProp['gid'] = parseInt(gid);
-                    objectProp['type'] = cc.TiledMap.TMXObjectType.IMAGE;
-                }
-
-                // ellipse
-                let ellipse = selObj.getElementsByTagName('ellipse');
-                if (ellipse && ellipse.length > 0) {
-                    objectProp['type'] = cc.TiledMap.TMXObjectType.ELLIPSE;
-                }
-
-                //polygon
-                let polygonProps = selObj.getElementsByTagName("polygon");
-                if (polygonProps && polygonProps.length > 0) {
-                    objectProp['type'] = cc.TiledMap.TMXObjectType.POLYGON;
-                    let selPgPointStr = polygonProps[0].getAttribute('points');
-                    if (selPgPointStr)
-                        objectProp["points"] = this._parsePointsString(selPgPointStr);
-                }
-
-                //polyline
-                let polylineProps = selObj.getElementsByTagName("polyline");
-                if (polylineProps && polylineProps.length > 0) {
-                    objectProp['type'] = cc.TiledMap.TMXObjectType.POLYLINE;
-                    let selPlPointStr = polylineProps[0].getAttribute('points');
-                    if (selPlPointStr)
-                        objectProp["polylinePoints"] = this._parsePointsString(selPlPointStr);
-                }
-
-                if (!objectProp['type']) {
-                    objectProp['type'] = cc.TiledMap.TMXObjectType.RECT;
-                }
-
+                var objectProp = this._parseObject(objects[j], j);
                 // Add the object to the objectGroup
                 objectGroup._objects.push(objectProp);
             }
@@ -1133,6 +1054,98 @@ cc.TMXMapInfo.prototype = {
             }
         }
         return objectGroup;
+    },
+
+    _parseObject (selObj, id) {
+        // The value for "type" was blank or not a valid class name
+        // Create an instance of TMXObjectInfo to store the object and its properties
+        let objectProp = {};
+
+        // Set the id of the object
+        objectProp['id'] = selObj.getAttribute('id') || id;
+
+        // Set the name of the object to the value for "name"
+        objectProp["name"] = selObj.getAttribute('name') || "";
+
+        // Assign all the attributes as key/name pairs in the properties dictionary
+        objectProp["width"] = parseFloat(selObj.getAttribute('width')) || 0;
+        objectProp["height"] = parseFloat(selObj.getAttribute('height')) || 0;
+
+        objectProp["x"] = parseFloat(selObj.getAttribute('x')) || 0;
+        objectProp["y"] = parseFloat(selObj.getAttribute('y')) || 0;
+
+        objectProp["rotation"] = parseFloat(selObj.getAttribute('rotation')) || 0;
+
+        getPropertyList(selObj, objectProp);
+
+        // visible
+        let visibleAttr = selObj.getAttribute('visible');
+        objectProp['visible'] = !(visibleAttr && parseInt(visibleAttr) === 0);
+
+        // Check template exists
+        var txName = objectProp["template"] = selObj.getAttribute('template') || '';
+        if (objectProp["template"]) {
+            let txXmlString = this._txMap[txName];
+            if (txXmlString) {
+                let mapXML = this._parser._parseXML(txXmlString);
+                let map = mapXML.documentElement;
+                var objects = map.getElementsByTagName('object');
+                if (objects && objects.length > 0) {
+                    var objectPropTx = this._parseObject(objects[0], '1');
+                    return js.mixin({}, objectPropTx, objectProp);
+                }
+            }
+        }
+
+        // text
+        let texts = selObj.getElementsByTagName('text');
+        if (texts && texts.length > 0) {
+            let text = texts[0];
+            objectProp['type'] = cc.TiledMap.TMXObjectType.TEXT;
+            objectProp['wrap'] = text.getAttribute('wrap') == '1';
+            objectProp['color'] = strToColor(text.getAttribute('color'));
+            objectProp['halign'] = strToHAlign(text.getAttribute('halign'));
+            objectProp['valign'] = strToVAlign(text.getAttribute('valign'));
+            objectProp['pixelsize'] = parseInt(text.getAttribute('pixelsize')) || 16;
+            objectProp['text'] = text.childNodes[0].nodeValue;
+        }
+
+        // image
+        let gid = selObj.getAttribute('gid');
+        if (gid) {
+            objectProp['gid'] = parseInt(gid);
+            objectProp['type'] = cc.TiledMap.TMXObjectType.IMAGE;
+        }
+
+        // ellipse
+        let ellipse = selObj.getElementsByTagName('ellipse');
+        if (ellipse && ellipse.length > 0) {
+            objectProp['type'] = cc.TiledMap.TMXObjectType.ELLIPSE;
+        }
+
+        //polygon
+        let polygonProps = selObj.getElementsByTagName("polygon");
+        if (polygonProps && polygonProps.length > 0) {
+            objectProp['type'] = cc.TiledMap.TMXObjectType.POLYGON;
+            let selPgPointStr = polygonProps[0].getAttribute('points');
+            if (selPgPointStr)
+                objectProp["points"] = this._parsePointsString(selPgPointStr);
+        }
+
+        //polyline
+        let polylineProps = selObj.getElementsByTagName("polyline");
+        if (polylineProps && polylineProps.length > 0) {
+            objectProp['type'] = cc.TiledMap.TMXObjectType.POLYLINE;
+            let selPlPointStr = polylineProps[0].getAttribute('points');
+            if (selPlPointStr)
+                objectProp["polylinePoints"] = this._parsePointsString(selPlPointStr);
+        }
+
+        if (!objectProp['type']) {
+            objectProp['type'] = cc.TiledMap.TMXObjectType.RECT;
+        }
+
+        return objectProp;
     },
 
     _parsePointsString (pointsString) {
