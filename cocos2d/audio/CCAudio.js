@@ -326,11 +326,11 @@ Audio.State = {
             }
             else {
                 this._src = null;
-                if (this._element instanceof HTMLAudioElement) {
-                    this._element.src = '';
+                if (this._element instanceof WebAudioElement) {
+                    this._element = null;
                 }
                 else {
-                    this._element = null;
+                    this._element.src = '';
                 }
                 this._state = Audio.State.INITIALZING;
             }
