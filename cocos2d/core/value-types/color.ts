@@ -589,12 +589,18 @@ export default class Color extends ValueType {
      * !#en Convert color to css format.
      * !#zh 转换为 CSS 格式。
      * @method toCSS
-     * @param {String} opt - "rgba", "rgb", "#rgb" or "#rrggbb".
+     * @param {String} [opt="rgba"] - "rgba", "rgb", "#rgb" or "#rrggbb".
      * @return {String}
-     * @example {@link cocos2d/core/value-types/CCColor/toCSS.js}
+     * @example
+     * var color = cc.Color.BLACK;
+     * color.toCSS();          // "rgba(0,0,0,1.00)";
+     * color.toCSS("rgba");    // "rgba(0,0,0,1.00)";
+     * color.toCSS("rgb");     // "rgba(0,0,0)";
+     * color.toCSS("#rgb");    // "#000";
+     * color.toCSS("#rrggbb"); // "#000000";
      */
     toCSS (opt: string): string {
-        if (opt === 'rgba') {
+        if (!opt || opt === 'rgba') {
             return "rgba(" +
                 (this.r | 0) + "," +
                 (this.g | 0) + "," +

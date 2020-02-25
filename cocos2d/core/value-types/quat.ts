@@ -172,11 +172,11 @@ export default class Quat extends ValueType {
      * !#zh 获取四元数的旋转轴和旋转弧度
      * !#en Get the rotary shaft and the arc of rotation quaternion
      * @method getAxisAngle
+     * @param {Vec3} outAxis - 旋转轴输出
+     * @param {Quat} q - 源四元数
+     * @return {Number} - 旋转弧度
      * @typescript
      * getAxisAngle<Out extends IQuatLike, VecLike extends IVec3Like> (outAxis: VecLike, q: Out)
-     * @param outAxis 旋转轴输出
-     * @param q 源四元数
-     * @return 旋转弧度
      * @static
      */
     static getAxisAngle<Out extends IQuatLike, VecLike extends IVec3Like> (outAxis: VecLike, q: Out) {

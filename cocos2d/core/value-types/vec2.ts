@@ -244,7 +244,7 @@ export default class Vec2 extends ValueType {
     /**
      * !#en return a readonly Vec2 object with x = 0 and y = 1.
      * !#zh 返回 x = 0 和 y = 1 的 Vec2 只读对象。
-     * @property {Vec2} UP
+     * @property {Vec2} UP_R
      * @static
      * @readonly
      */

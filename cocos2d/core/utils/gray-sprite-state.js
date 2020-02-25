@@ -3,9 +3,9 @@ import MaterialVariant from '../assets/material/material-variant';
 const Material = require('../assets/material/CCMaterial');
 
 /**
- * HelpClass for switching render component's material between normal sprite material and gray sprite material.
+ * An internal helper class for switching render component's material between normal sprite material and gray sprite material.
+ * @class GraySpriteState
  */
-
 let GraySpriteState = cc.Class({
     properties: {
         _normalMaterial: null,
@@ -72,6 +72,6 @@ let GraySpriteState = cc.Class({
     
         renderComp.setMaterial(0, material);
     }
-})
+});
 
 module.exports = GraySpriteState;
