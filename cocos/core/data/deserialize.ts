@@ -33,6 +33,7 @@ import * as js from '../utils/js';
 import * as misc from '../utils/misc';
 import CCClass from './class';
 import * as Attr from './utils/attribute';
+import MissingScript from '../components/missing-script';
 
 // HELPERS
 
@@ -626,7 +627,9 @@ class _Deserializer {
                 }
                 catch (e) {
                     console.error('deserialize ' + klass.name + ' failed, ' + e.stack);
-                    obj = null;
+                    klass = MissingScript.getMissingWrapper(type, serialized);
+                    cc.deserialize.reportMissingClass(type);
+                    deserializeByType();
                 }
             }
 
