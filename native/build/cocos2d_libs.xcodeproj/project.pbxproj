@@ -627,7 +627,6 @@
 		B21770471977ED34009EE11B /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B21770461977ED34009EE11B /* QuartzCore.framework */; };
 		B291B51B1D4A106A00BBB345 /* libjpeg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B291B5171D4A106A00BBB345 /* libjpeg.a */; };
 		B291B51C1D4A106A00BBB345 /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B291B5181D4A106A00BBB345 /* libpng.a */; };
-		B291B51D1D4A106A00BBB345 /* libtiff.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B291B5191D4A106A00BBB345 /* libtiff.a */; };
 		B291B51E1D4A106A00BBB345 /* libwebp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B291B51A1D4A106A00BBB345 /* libwebp.a */; };
 		BA06A67523583DBD007740C5 /* Core.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A62C23583DBD007740C5 /* Core.h */; };
 		BA06A67623583DBD007740C5 /* NedPooling.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A62F23583DBD007740C5 /* NedPooling.cc */; };
@@ -978,7 +977,6 @@
 		ED3057CF1BEC7DA80083C3ED /* libglfw3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED3057C91BEC7DA80083C3ED /* libglfw3.a */; };
 		ED3057D01BEC7DA80083C3ED /* libjpeg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED3057CA1BEC7DA80083C3ED /* libjpeg.a */; };
 		ED3057D11BEC7DA80083C3ED /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED3057CB1BEC7DA80083C3ED /* libpng.a */; };
-		ED3057D21BEC7DA80083C3ED /* libtiff.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED3057CC1BEC7DA80083C3ED /* libtiff.a */; };
 		ED3057D31BEC7DA80083C3ED /* libwebsockets.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED3057CD1BEC7DA80083C3ED /* libwebsockets.a */; };
 		ED997669216C459E00A46923 /* libuv_a.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED997661216C459D00A46923 /* libuv_a.a */; };
 		EDAD7A3F23FFDDEC0014B660 /* jsb_gfx_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = EDAD7A3D23FFDDEB0014B660 /* jsb_gfx_auto.hpp */; };
@@ -1642,7 +1640,6 @@
 				ED3057D01BEC7DA80083C3ED /* libjpeg.a in Frameworks */,
 				BAEC733023965C93008A0F30 /* libinspector.a in Frameworks */,
 				ED3057D11BEC7DA80083C3ED /* libpng.a in Frameworks */,
-				ED3057D21BEC7DA80083C3ED /* libtiff.a in Frameworks */,
 				ED3057D31BEC7DA80083C3ED /* libwebsockets.a in Frameworks */,
 				B21770471977ED34009EE11B /* QuartzCore.framework in Frameworks */,
 				B21770451977ED14009EE11B /* Cocoa.framework in Frameworks */,
@@ -1666,7 +1663,6 @@
 				1ACF6A3C1E4AFDC80033C137 /* libcrypto.a in Frameworks */,
 				1ACF6A3D1E4AFDC80033C137 /* libssl.a in Frameworks */,
 				BAEC733123965CA8008A0F30 /* libuv_a.a in Frameworks */,
-				B291B51D1D4A106A00BBB345 /* libtiff.a in Frameworks */,
 				B291B51B1D4A106A00BBB345 /* libjpeg.a in Frameworks */,
 				B291B51E1D4A106A00BBB345 /* libwebp.a in Frameworks */,
 				BAEC732E23965C7B008A0F30 /* libv8_monolith.a in Frameworks */,
