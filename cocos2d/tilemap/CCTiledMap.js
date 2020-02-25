@@ -584,7 +584,16 @@ let TiledMap = cc.Class({
                 }
             }
 
-            let mapInfo = new cc.TMXMapInfo(file.tmxXmlStr, tsxMap, textures, textureSizes, imageLayerTextures);
+            let txFileNames = file.txFileNames;
+            let txFiles = file.txFiles;
+            let txMap = {};
+            for (let i = 0; i < txFileNames.length; ++i) {
+                if (txFileNames[i].length > 0) {
+                    txMap[txFileNames[i]] = txFiles[i]._nativeAsset;
+                }
+            }
+
+            let mapInfo = new cc.TMXMapInfo(file.tmxXmlStr, tsxMap, txMap, textures, textureSizes, imageLayerTextures);
             let tilesets = mapInfo.getTilesets();
             if(!tilesets || tilesets.length === 0)
                 cc.logID(7241);
