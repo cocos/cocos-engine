@@ -70,7 +70,17 @@ async function searchDependFiles(tmxFile, tmxFileData, cb) {
     }
   }
 
-  async function parseObjectGroupTx(parent, tsxPath) {
+  function parseTilesetObjectGroup(tilesetNode, sourcePath) {
+    var tiles = tilesetNode.getElementsByTagName('tile');
+    if(tiles && tiles.length > 0) {        
+      // iterate tiles
+      for (var i = 0, n = tiles.length; i < n; i++) {
+        parseObjectGroupTx(tiles[i], sourcePath);
+      }
+    }
+  }
+
+  function parseObjectGroupTx(parent, tsxPath) {
     // check objectGroup existed
     var groups = parent.getElementsByTagName('objectgroup');
     if(!(groups && groups.length > 0)) {
@@ -87,8 +97,10 @@ async function searchDependFiles(tmxFile, tmxFileData, cb) {
           var txPath = Path.join(Path.dirname(tsxPath), objectTemplate);
           if(Fs.existsSync(txPath)) {
             txFiles.push(objectTemplate);
+          } else {
+            Editor.warn('Parse %s failed.', txPath);
           }
-        }
+        } 
       }
     }
   }
@@ -107,13 +119,7 @@ async function searchDependFiles(tmxFile, tmxFileData, cb) {
         var tsxDoc = new DOMParser().parseFromString(tsxContent);
         if (tsxDoc) {
           await parseTilesetImages(tsxDoc, tsxPath);
-          var tiles = tsxDoc.getElementsByTagName('tile');
-          if(tiles && tiles.length > 0) {        
-            // iterate tiles
-            for (var iii = 0, nnn = tiles.length; iii < nnn; iii++) {
-              await parseObjectGroupTx(tiles[iii], tsxPath);
-            }
-          }
+          parseTilesetObjectGroup(tsxDoc, tsxPath);
         } else {
           Editor.warn('Parse %s failed.', tsxPath);
         }
@@ -122,6 +128,7 @@ async function searchDependFiles(tmxFile, tmxFileData, cb) {
 
     // import images
     await parseTilesetImages(tileset, tmxFile);
+    parseTilesetObjectGroup(tileset, tmxFile);
   }
 
   var imageLayerElements = rootElement.getElementsByTagName('imagelayer');
