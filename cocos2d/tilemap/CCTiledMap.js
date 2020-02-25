@@ -410,7 +410,7 @@ let TiledMap = cc.Class({
         return this._tileObjectGroups[gid];
     },
 
-    getTileObjectGroups(gid) {
+    getTileObjectGroups() {
         return this._tileObjectGroups;
     },
 
