@@ -1152,7 +1152,7 @@ cc.TMXMapInfo.prototype = {
 
         // Check template exists
         var txName = objectProp["template"] = selObj.getAttribute('template') || '';
-        if (objectProp["template"]) {
+        if (txName) {
             let txXmlString = this._txMap[txName];
             if (txXmlString) {
                 let mapXML = this._parser._parseXML(txXmlString);
