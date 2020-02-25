@@ -327,7 +327,7 @@ var utils = {
         return result;
     },
 
-    deferCallback (cb) {
+    asyncify (cb) {
         return function (p1, p2) {
             cb && callInNextTick(cb, p1, p2);
         }

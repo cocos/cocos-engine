@@ -26,7 +26,7 @@ const Config = require('./config');
 const Task = require('./task');
 const Cache = require('./cache');
 const finalizer = require('./finalizer');
-const { parseParameters, parseLoadResArgs, deferCallback } = require('./utilities');
+const { parseParameters, parseLoadResArgs, asyncify } = require('./utilities');
 const { pipeline, fetchPipeline, initializePipeline, LoadStrategy, RequestType, assets, bundles } = require('./shared');
 
 /**
@@ -125,14 +125,14 @@ Bundle.prototype = {
                 cc.error('preloading task is not finished');
                 return null;
             }
-            requests.onComplete = deferCallback(onComplete);
+            requests.onComplete = asyncify(onComplete);
             initializePipeline.async(requests);
             return requests;
         }
         
         options = options || Object.create(null);
         options.bundle = this.config.name;
-        var task = new Task({input: requests, onProgress, onComplete: deferCallback(onComplete), options});
+        var task = new Task({input: requests, onProgress, onComplete: asyncify(onComplete), options});
         pipeline.async(task);
         return task;
     },
@@ -168,7 +168,7 @@ Bundle.prototype = {
         options.loadStrategy = LoadStrategy.PRELOAD;
         options.bundle = this.config.name;
         options.priority = -1;
-        var task = new Task({input: requests, onProgress, onComplete: deferCallback(onComplete), options});
+        var task = new Task({input: requests, onProgress, onComplete: asyncify(onComplete), options});
         fetchPipeline.async(task);
         return task;
     },
