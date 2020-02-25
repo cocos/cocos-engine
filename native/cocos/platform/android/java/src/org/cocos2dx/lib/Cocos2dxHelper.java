@@ -33,11 +33,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
-import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -46,8 +44,6 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.os.Vibrator;
-import android.preference.PreferenceManager.OnActivityResultListener;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.Surface;
@@ -61,9 +57,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.LinkedHashSet;
 import java.util.Locale;
-import java.util.Set;
 
 
 public class Cocos2dxHelper {
@@ -82,7 +76,6 @@ public class Cocos2dxHelper {
     private static String sPackageName;
     private static String sFileDirectory;
     private static Activity sActivity = null;
-    private static Set<OnActivityResultListener> onActivityResultListeners = new LinkedHashSet<OnActivityResultListener>();
     private static Vibrator sVibrateService = null;
 
     // The absolute path to the OBB if it exists, else the absolute path to the APK.
@@ -216,14 +209,6 @@ public class Cocos2dxHelper {
         return Cocos2dxHelper.sOBBFile;
     }
 
-    public static void addOnActivityResultListener(OnActivityResultListener listener) {
-        onActivityResultListeners.add(listener);
-    }
-    
-    public static Set<OnActivityResultListener> getOnActivityResultListeners() {
-        return onActivityResultListeners;
-    }
-
     // ===========================================================
     // Getter & Setter
     // ===========================================================
@@ -239,8 +224,6 @@ public class Cocos2dxHelper {
     private static native void nativeSetApkPath(final String pApkPath);
 
     private static native void nativeSetContext(final Context pContext, final AssetManager pAssetManager);
-
-    private static native void nativeSetAudioDeviceInfo(boolean isSupportLowLatency, int deviceSampleRate, int audioBufferSizeInFames);
 
     public static String getPackageName() {
         return Cocos2dxHelper.sPackageName;
@@ -348,15 +331,6 @@ public class Cocos2dxHelper {
         return array;
     }
 
-    public static void endApplication() {
-        if (sActivity != null)
-            sActivity.finish();
-    }
-    
-    public static void terminateProcess() {
-        android.os.Process.killProcess(android.os.Process.myPid());
-    }
-
     public static byte[] conversionEncoding(byte[] text, String fromCharset,String newCharset)
     {
         try {
@@ -367,58 +341,6 @@ public class Cocos2dxHelper {
         }
 
         return null;
-    }
-
-    private static void setGameInfoDebugViewText(int index, String text) {
-        if (sOnGameInfoUpdatedListener != null) {
-            if (index == 0) {
-                sOnGameInfoUpdatedListener.onGameInfoUpdated_0(text);
-            }
-            else if (index == 1) {
-                sOnGameInfoUpdatedListener.onGameInfoUpdated_1(text);
-            }
-            else if (index == 2) {
-                sOnGameInfoUpdatedListener.onGameInfoUpdated_2(text);
-            }
-        }
-    }
-
-    private static void setJSBInvocationCount(int count) {
-        if (sOnGameInfoUpdatedListener != null) {
-            sOnGameInfoUpdatedListener.onJSBInvocationCountUpdated(count);
-        }
-    }
-
-    private static void openDebugView() {
-        if (sOnGameInfoUpdatedListener != null) {
-            sOnGameInfoUpdatedListener.onOpenDebugView();
-        }
-    }
-
-    private static void disableBatchGLCommandsToNative() {
-        if (sOnGameInfoUpdatedListener != null) {
-            sOnGameInfoUpdatedListener.onDisableBatchGLCommandsToNative();
-        }
-    }
-
-    public interface OnGameInfoUpdatedListener {
-        void onFPSUpdated(float fps);
-        void onJSBInvocationCountUpdated(int count);
-        void onOpenDebugView();
-        void onDisableBatchGLCommandsToNative();
-        void onGameInfoUpdated_0(String text);
-        void onGameInfoUpdated_1(String text);
-        void onGameInfoUpdated_2(String text);
-    }
-
-    private static OnGameInfoUpdatedListener sOnGameInfoUpdatedListener;
-
-    public static void setOnGameInfoUpdatedListener(OnGameInfoUpdatedListener listener) {
-        sOnGameInfoUpdatedListener = listener;
-    }
-
-    public static OnGameInfoUpdatedListener getOnGameInfoUpdatedListener() {
-        return sOnGameInfoUpdatedListener;
     }
 
     // ===========================================================

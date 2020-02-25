@@ -92,6 +92,11 @@ bool Application::init()
 {
     se::ScriptEngine* se = se::ScriptEngine::getInstance();
     se->addRegisterCallback(setCanvasCallback);
+
+    EventDispatcher::init();
+
+    //TODO: minggo
+    // FileUtils::getInstance()->setDefaultResourceRootPath(defaultResourcePath);
     return true;
 }
 

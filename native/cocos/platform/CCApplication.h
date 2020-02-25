@@ -31,6 +31,7 @@ THE SOFTWARE.
 #include "platform/CCPlatformDefine.h"
 #include "scripting/js-bindings/event/EventDispatcher.h"
 #include "base/CCScheduler.h"
+#include "base/CCAutoreleasePool.h"
 
 NS_CC_BEGIN
 /**
@@ -98,6 +99,8 @@ public:
 
         _scheduler->update(dt);
         cocos2d::EventDispatcher::dispatchTickEvent(dt);
+
+        PoolManager::getInstance()->getCurrentPool()->clear();
 
         now = std::chrono::steady_clock::now();
         dt = std::chrono::duration_cast<std::chrono::microseconds>(now - prevTime).count() / 1000000.f;

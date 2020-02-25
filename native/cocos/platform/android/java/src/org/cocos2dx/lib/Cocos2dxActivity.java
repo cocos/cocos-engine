@@ -26,17 +26,13 @@ THE SOFTWARE.
 package org.cocos2dx.lib;
 
 import android.app.NativeActivity;
-import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
-import android.preference.PreferenceManager.OnActivityResultListener;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.content.pm.PackageManager;
 import android.content.pm.ApplicationInfo;
 
@@ -155,20 +151,10 @@ public abstract class Cocos2dxActivity extends NativeActivity {
 
     @Override
     protected void onDestroy() {
+        super.onDestroy();
+
         Cocos2dxHelper.unregisterBatteryLevelReceiver(this);;
         CanvasRenderingContext2DImpl.destroy();
-
-        super.onDestroy();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        for (OnActivityResultListener listener : Cocos2dxHelper.getOnActivityResultListeners()) {
-            listener.onActivityResult(requestCode, resultCode, data);
-        }
-
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     // ===========================================================

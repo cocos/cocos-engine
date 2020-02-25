@@ -89,34 +89,15 @@ extern uint32_t __jsbInvocationCount;
 
 
 namespace
-{	
-    bool __isOpenDebugView = false;
-    bool __isGLOptModeEnabled = true;
+{
     std::string g_apkPath;
     EditTextCallback s_editTextCallback = nullptr;
     void* s_ctx = nullptr;
-    int g_deviceSampleRate = 44100;
-    int g_deviceAudioBufferSizeInFrames = 192;
     int g_width = 0;
     int g_height = 0;
     bool g_isStarted = false;
     bool g_isGameFinished = false;
     int g_SDKInt = 0;
-
-    cocos2d::Application* g_app = nullptr;
-
-    bool setCanvasCallback(se::Object* global)
-    {
-        se::AutoHandleScope scope;
-        se::ScriptEngine* se = se::ScriptEngine::getInstance();
-        char commandBuf[200] = {0};
-        sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d;",
-                g_width,
-                g_height);
-        se->evalString(commandBuf);
-
-        return true;
-    }
 }
 
 extern "C"
@@ -142,239 +123,6 @@ extern "C"
      * Cocos2dxActivity native functions implementation.
      *****************************************************/
 
-    JNIEXPORT jintArray JNICALL JNI_ACTIVITY(getGLContextAttrs)(JNIEnv*  env, jobject thiz)
-    {
-        //REFINE
-        int tmp[7] = {8, 8, 8,
-                      8, 0, 0, 0};
-        jintArray glContextAttrsJava = env->NewIntArray(7);
-        env->SetIntArrayRegion(glContextAttrsJava, 0, 7, tmp);
-
-        return glContextAttrsJava;
-    }
-
-	/*****************************************************
-	 * Cocos2dxRenderer native functions implementation.
-	 *****************************************************/
-
-    JNIEXPORT void JNICALL JNI_RENDER(nativeInit)(JNIEnv*  env, jobject thiz, jint w, jint h, jstring jDefaultResourcePath)
-    {
-        g_width = w;
-        g_height = h;
-        
-
-        g_isGameFinished = false;
-        std::string defaultResourcePath = JniHelper::jstring2string(jDefaultResourcePath);
-        LOGD("nativeInit: %d, %d, %s", w, h, defaultResourcePath.c_str());
-        
-
-        if (!defaultResourcePath.empty())
-            FileUtils::getInstance()->setDefaultResourceRootPath(defaultResourcePath);
-
-        se::ScriptEngine* se = se::ScriptEngine::getInstance();
-        se->addRegisterCallback(setCanvasCallback);
-
-        EventDispatcher::init();
-
-        g_isStarted = true;
-    }
-
-	JNIEXPORT void JNICALL JNI_RENDER(nativeRender)(JNIEnv* env)
-	{
-        if (g_isGameFinished)
-        {
-            // with Application destructor called, native resource will be released
-            delete g_app;
-            g_app = nullptr;
-
-            JniHelper::callStaticVoidMethod(JCLS_HELPER, "endApplication");
-            return;
-        }
-
-
-        if (!g_isStarted)
-        {
-            auto scheduler = Application::getInstance()->getScheduler();
-            scheduler->removeAllFunctionsToBePerformedInCocosThread();
-            scheduler->unscheduleAll();
-
-            se::ScriptEngine::getInstance()->cleanup();
-            cocos2d::PoolManager::getInstance()->getCurrentPool()->clear();
-
-            //REFINE: Wait HttpClient, WebSocket, Audio thread to exit
-
-            se::ScriptEngine* se = se::ScriptEngine::getInstance();
-            se->addRegisterCallback(setCanvasCallback);
-
-            EventDispatcher::init();
-
-
-
-            g_isStarted = true;
-        }
-
-        static std::chrono::steady_clock::time_point prevTime;
-        static std::chrono::steady_clock::time_point now;
-        static float dt = 0.f;
-        static float dtSum = 0.f;
-        static uint32_t jsbInvocationTotalCount = 0;
-        static uint32_t jsbInvocationTotalFrames = 0;
-        bool downsampleEnabled = false;
-
-        g_app->getScheduler()->update(dt);
-        EventDispatcher::dispatchTickEvent(dt);
-
-
-        PoolManager::getInstance()->getCurrentPool()->clear();
-
-        now = std::chrono::steady_clock::now();
-        dt = std::chrono::duration_cast<std::chrono::microseconds>(now - prevTime).count() / 1000000.f;
-
-        prevTime = std::chrono::steady_clock::now();
-
-        if (__isOpenDebugView)
-        {
-            dtSum += dt;
-            ++jsbInvocationTotalFrames;
-            jsbInvocationTotalCount += __jsbInvocationCount;
-
-            if (dtSum > 1.0f)
-            {
-                dtSum = 0.0f;
-                setJSBInvocationCountJNI(jsbInvocationTotalCount / jsbInvocationTotalFrames);
-                jsbInvocationTotalCount = 0;
-                jsbInvocationTotalFrames = 0;
-            }
-        }
-        __jsbInvocationCount = 0;
-    }
-
-    JNIEXPORT void JNICALL JNI_RENDER(nativeOnPause)()
-    {
-
-    }
-
-    JNIEXPORT void JNICALL JNI_RENDER(nativeOnResume)()
-    {
-
-    }
-
-    JNIEXPORT void JNICALL JNI_RENDER(nativeInsertText)(JNIEnv* env, jobject thiz, jstring text)
-    {
-        //REFINE
-    }
-
-    JNIEXPORT void JNICALL JNI_RENDER(nativeDeleteBackward)(JNIEnv* env, jobject thiz)
-    {
-        //REFINE
-    }
-
-
-
-    JNIEXPORT void JNICALL JNI_RENDER(nativeOnSurfaceChanged)(JNIEnv*  env, jobject thiz, jint w, jint h)
-    {
-        //REFINE
-    }
-
-    /***********************************************************
-	 * Cocos2dxAccelerometer native functions implementation.
-	 ***********************************************************/
-
-    JNIEXPORT void JNICALL JNI_ACCELEROMETER(onSensorChanged)(JNIEnv*  env, jobject thiz, jfloat x, jfloat y, jfloat z, jlong timeStamp)
-    {
-        //REFINE
-    }
-
-    /***********************************************************
-	 * Touches native functions implementation.
-	 ***********************************************************/
-
-    static void dispatchTouchEventWithOnePoint(JNIEnv* env, cocos2d::TouchEvent::Type type, jint id, jfloat x, jfloat y)
-    {
-
-    }
-
-    static void dispatchTouchEventWithPoints(JNIEnv* env, cocos2d::TouchEvent::Type type, jintArray ids, jfloatArray xs, jfloatArray ys)
-    {
-        
-    }
-
-    JNIEXPORT void JNICALL JNI_RENDER(nativeTouchesBegin)(JNIEnv * env, jobject thiz, jint id, jfloat x, jfloat y)
-    {
-        if (g_isGameFinished) {
-            return;
-        }
-        dispatchTouchEventWithOnePoint(env, cocos2d::TouchEvent::Type::BEGAN, id, x, y);
-    }
-
-    JNIEXPORT void JNICALL JNI_RENDER(nativeTouchesEnd)(JNIEnv * env, jobject thiz, jint id, jfloat x, jfloat y)
-    {
-        if (g_isGameFinished) {
-            return;
-        }
-        dispatchTouchEventWithOnePoint(env, cocos2d::TouchEvent::Type::ENDED, id, x, y);
-    }
-
-    JNIEXPORT void JNICALL JNI_RENDER(nativeTouchesMove)(JNIEnv * env, jobject thiz, jintArray ids, jfloatArray xs, jfloatArray ys)
-    {
-        if (g_isGameFinished) {
-            return;
-        }
-        dispatchTouchEventWithPoints(env, cocos2d::TouchEvent::Type::MOVED, ids, xs, ys);
-    }
-
-    JNIEXPORT void JNICALL JNI_RENDER(nativeTouchesCancel)(JNIEnv * env, jobject thiz, jintArray ids, jfloatArray xs, jfloatArray ys)
-    {
-        if (g_isGameFinished) {
-            return;
-        }
-        dispatchTouchEventWithPoints(env, cocos2d::TouchEvent::Type::CANCELLED, ids, xs, ys);
-    }
-
-    JNIEXPORT jboolean JNICALL JNI_RENDER(nativeKeyEvent)(JNIEnv * env, jobject thiz, jint keyCode, jboolean isPressed)
-    {
-        if (g_isGameFinished) {
-            return JNI_TRUE;
-        }
-
-        int keyInWeb = -1;
-        // key values in web, refer to http://docs.cocos.com/creator/api/en/enums/KEY.html
-        switch(keyCode)
-        {
-            case KEYCODE_BACK:
-                keyInWeb = 6;
-                break;
-            case KEYCODE_ENTER:
-                keyInWeb = 13;
-                break;
-            case KEYCODE_MENU:
-                keyInWeb = 18;
-                break;
-            case KEYCODE_DPAD_UP:
-                keyInWeb = 1003;
-                break;
-            case KEYCODE_DPAD_DOWN:
-                keyInWeb = 1004;
-                break;
-            case KEYCODE_DPAD_LEFT:
-                keyInWeb = 1000;
-                break;
-            case KEYCODE_DPAD_RIGHT:
-                keyInWeb = 1001;
-                break;
-            case KEYCODE_DPAD_CENTER:
-                keyInWeb = 1005;
-                break;
-            default:
-                keyInWeb = 0; // If the key can't be identified, this value is 0
-        }
-        KeyboardEvent event;
-        event.key = keyInWeb;
-        event.action = isPressed ? KeyboardEvent::Action::PRESS : KeyboardEvent::Action::RELEASE;
-        EventDispatcher::dispatchKeyboardEvent(event);
-
-        return JNI_TRUE;
-    }
 
     /***********************************************************
      * Cocos2dxHelper native functions implementation.
@@ -438,16 +186,6 @@ int getObbAssetFileDescriptorJNI(const std::string& path, long* startOffset, lon
     return fd;
 }
 
-int getDeviceSampleRateJNI()
-{
-    return g_deviceSampleRate;
-}
-
-int getDeviceAudioBufferSizeInFramesJNI()
-{
-    return g_deviceAudioBufferSizeInFrames;
-}
-
 void convertEncodingJNI(const std::string& src, int byteSize, const std::string& fromCharset, std::string& dst, const std::string& newCharset)
 {
     JniMethodInfo methodInfo;
@@ -501,49 +239,6 @@ void setPreferredFramesPerSecondJNI(int fps)
 {
     JniHelper::callStaticVoidMethod(JCLS_RENDERER, "setPreferredFramesPerSecond", fps);
 }
-
-void setGameInfoDebugViewTextJNI(int index, const std::string& text)
-{
-    if (!__isOpenDebugView)
-        return;
-    JniHelper::callStaticVoidMethod(JCLS_HELPER, "setGameInfoDebugViewText", index, text);
-}
-
-void setJSBInvocationCountJNI(int count)
-{
-    if (!__isOpenDebugView)
-        return;
-    JniHelper::callStaticVoidMethod(JCLS_HELPER, "setJSBInvocationCount", count);
-}
-
-void openDebugViewJNI()
-{
-    if (!__isOpenDebugView)
-    {
-        LOGD("openDebugViewJNI ...");
-        __isOpenDebugView = true;
-        JniHelper::callStaticVoidMethod(JCLS_HELPER, "openDebugView");
-        if (!__isGLOptModeEnabled)
-        {
-            JniHelper::callStaticVoidMethod(JCLS_HELPER, "disableBatchGLCommandsToNative");
-        }
-    }
-}
-
-void disableBatchGLCommandsToNativeJNI()
-{
-    __isGLOptModeEnabled = false;
-    if (__isOpenDebugView)
-    {
-        JniHelper::callStaticVoidMethod(JCLS_HELPER, "disableBatchGLCommandsToNative");
-    }
-}
-
-void exitApplication()
-{
-    g_isGameFinished = true;
-}
-
 
 bool getApplicationExited()
 {
