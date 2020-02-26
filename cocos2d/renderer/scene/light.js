@@ -82,7 +82,6 @@ export default class Light {
     this._shadowDarkness = 1;
     this._shadowMinDepth = 1;
     this._shadowMaxDepth = 1000;
-    this._shadowDepthScale = 50; // maybe need to change it if the distance between shadowMaxDepth and shadowMinDepth is small.
     this._frustumEdgeFalloff = 0; // used by directional and spot light.
     this._viewProjMatrix = cc.mat4();
     this._spotAngleScale = 1; // used for spot light.
@@ -336,22 +335,6 @@ export default class Light {
   }
 
   /**
-   * set the shadow depth scale of the light source
-   * @param {number} val light source shadow depth scale
-   */
-  setShadowDepthScale(val) {
-    this._shadowDepthScale = val;
-  }
-
-  /**
-   * get the shadow depth scale of the light source
-   * @returns {number} light source shadow depth scale
-   */
-  get shadowDepthScale() {
-    return this._shadowDepthScale;
-  }
-
-  /**
    * set the frustum edge falloff of the light source
    * @param {number} val light source frustum edge falloff
    */
@@ -454,11 +437,10 @@ export default class Light {
   }
 
   _generateShadowMap(device) {
-    let SUPPORT_FLOAT_TEXTURE = !!cc.sys.glExtension('OES_texture_float');
     this._shadowMap = new gfx.Texture2D(device, {
       width: this._shadowResolution,
       height: this._shadowResolution,
-      format: SUPPORT_FLOAT_TEXTURE ? gfx.TEXTURE_FMT_RGBA32F : gfx.TEXTURE_FMT_RGBA8,
+      format: gfx.TEXTURE_FMT_RGBA8,
       wrapS: gfx.WRAP_CLAMP,
       wrapT: gfx.WRAP_CLAMP,
     });

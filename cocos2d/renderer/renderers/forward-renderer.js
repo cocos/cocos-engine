@@ -37,7 +37,6 @@ export default class ForwardRenderer extends BaseRenderer {
     this._numLights = 0;
 
     this._defines = {
-      CC_SUPPORT_FLOAT_TEXTURE: !!device.ext('OES_texture_float'),
     };
 
     this._registerStage('shadowcast', this._shadowStage.bind(this));
@@ -186,7 +185,6 @@ export default class ForwardRenderer extends BaseRenderer {
 
   _submitOtherStagesUniforms() {
     let shadowInfo = _float16_pool.add();
-    let shadowInfo2 = _float16_pool.add()
     
     for (let i = 0; i < this._shadowLights.length; ++i) {
       let light = this._shadowLights[i];
@@ -199,15 +197,12 @@ export default class ForwardRenderer extends BaseRenderer {
       let index = i*4;
       shadowInfo[index] = light.shadowMinDepth;
       shadowInfo[index+1] = light.shadowMaxDepth;
-      shadowInfo[index+2] = light.shadowDepthScale;
+      shadowInfo[index+2] = light._shadowResolution;
       shadowInfo[index+3] = light.shadowDarkness;
-
-      shadowInfo2[index] = light._shadowResolution;
     }
 
     this._device.setUniform(`cc_shadow_lightViewProjMatrix`, _a64_shadow_lightViewProj);
     this._device.setUniform(`cc_shadow_info`, shadowInfo);
-    this._device.setUniform(`cc_shadow_info2`, shadowInfo2);
     // this._device.setUniform(`cc_frustumEdgeFalloff_${index}`, light.frustumEdgeFalloff);
   }
 

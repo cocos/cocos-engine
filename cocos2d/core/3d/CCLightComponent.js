@@ -127,25 +127,24 @@ const LightShadowType = Enum({
      * @type {Number}
      */
     SOFT_PCF5X5: 3,
-    /**
-     * !#en Soft ESM shadows
-     *
-     * !#zh ESM 软阴影
-     * @property SOFT_ESM
-     * @readonly
-     * @type {Number}
-     */
-    SOFT_ESM: 4,
-
-    /**
-     * !#en Soft VSM shadows
-     *
-     * !#zh VSM 软阴影
-     * @property SOFT_VSM
-     * @readonly
-     * @type {Number}
-     */
-    SOFT_VSM: 5,
+    // /**
+    //  * !#en Soft VSM shadows
+    //  *
+    //  * !#zh VSM 软阴影
+    //  * @property SOFT_VSM
+    //  * @readonly
+    //  * @type {Number}
+    //  */
+    // SOFT_VSM: 4,
+    // /**
+    //  * !#en Soft ESM shadows
+    //  *
+    //  * !#zh ESM 软阴影
+    //  * @property SOFT_ESM
+    //  * @readonly
+    //  * @type {Number}
+    //  */
+    // SOFT_ESM: 5,
 });
 
 /**
@@ -192,9 +191,6 @@ export default class Light extends CCComponent {
 
     @property
     _shadowMaxDepth = 4096;
-
-    @property
-    _shadowDepthScale = 250;
 
     @property
     _shadowFrustumSize = 1024;
@@ -395,23 +391,6 @@ export default class Light extends CCComponent {
     }
 
     /**
-     * !#en The shadow depth scale
-     *
-     * !#zh 阴影深度比例
-     *
-     * @type {Number}
-     */
-    @property
-    get shadowDepthScale() {
-        return this._shadowDepthScale;
-    }
-
-    set shadowDepthScale(val) {
-        this._shadowDepthScale = val;
-        this._light.setShadowDepthScale(val);
-    }
-
-    /**
      * !#en The shadow frustum size
      *
      * !#zh 阴影截锥体大小
@@ -467,7 +446,6 @@ export default class Light extends CCComponent {
         this.shadowResolution = this._shadowResolution;
         this.shadowDarkness = this._shadowDarkness;
         this.shadowMaxDepth = this._shadowMaxDepth;
-        this.shadowDepthScale = this._shadowDepthScale;
         this.shadowFrustumSize = this._shadowFrustumSize;
         this.shadowBias = this._shadowBias;
     }
