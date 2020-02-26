@@ -127,24 +127,6 @@ const LightShadowType = Enum({
      * @type {Number}
      */
     SOFT_PCF5X5: 3,
-    // /**
-    //  * !#en Soft VSM shadows
-    //  *
-    //  * !#zh VSM 软阴影
-    //  * @property SOFT_VSM
-    //  * @readonly
-    //  * @type {Number}
-    //  */
-    // SOFT_VSM: 4,
-    // /**
-    //  * !#en Soft ESM shadows
-    //  *
-    //  * !#zh ESM 软阴影
-    //  * @property SOFT_ESM
-    //  * @readonly
-    //  * @type {Number}
-    //  */
-    // SOFT_ESM: 5,
 });
 
 /**
