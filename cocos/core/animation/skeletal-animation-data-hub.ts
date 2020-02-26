@@ -72,8 +72,6 @@ export class SkelAnimDataHub {
 }
 
 function convertToSkeletalCurves (clip: AnimationClip): IConvertedData {
-    // tslint:disable-next-line: no-unused-expression
-    clip.hash; // calculate hash before conversion
     const data: Record<string, ConvertedProps> = {};
     clip.curves.forEach((curve) => {
         if (!curve.valueAdapter &&

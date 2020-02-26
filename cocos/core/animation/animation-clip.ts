@@ -182,7 +182,9 @@ export class AnimationClip extends Asset {
     @property
     private _commonTargets: AnimationClip.ICommonTarget[] = [];
 
+    @property
     private _hash = 0;
+
     private frameRate = 0;
     private _ratioSamplers: RatioSampler[] = [];
     private _runtimeCurves?: IRuntimeCurve[];
@@ -241,7 +243,8 @@ export class AnimationClip extends Asset {
     }
 
     get hash () {
-        if (!this._hash) { this._hash = murmurhash2_32_gc(JSON.stringify(this._curves), 666); }
+        // hashes should already be computed offline, but if not, make one
+        if (!this._hash) { this._hash = murmurhash2_32_gc(JSON.stringify(SkelAnimDataHub.getOrExtract(this).data), 666); }
         return this._hash;
     }
 
