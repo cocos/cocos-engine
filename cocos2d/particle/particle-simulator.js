@@ -23,7 +23,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-const AffineTrans = require('../core/utils/affine-transform');
 const js = require('../core/platform/js');
 const misc = require('../core/utils/misc');
 
