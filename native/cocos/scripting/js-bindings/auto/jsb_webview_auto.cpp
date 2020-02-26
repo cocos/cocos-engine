@@ -373,6 +373,25 @@ static bool js_webview_WebView_setBackgroundTransparent(se::State& s)
 }
 SE_BIND_FUNC(js_webview_WebView_setBackgroundTransparent)
 
+static bool js_webview_WebView_setJavascriptInterfaceScheme(se::State& s)
+{
+    cocos2d::WebView* cobj = (cocos2d::WebView*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_webview_WebView_setJavascriptInterfaceScheme : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        std::string arg0;
+        ok &= seval_to_std_string(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_webview_WebView_setJavascriptInterfaceScheme : Error processing arguments");
+        cobj->setJavascriptInterfaceScheme(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_webview_WebView_setJavascriptInterfaceScheme)
+
 static bool js_webview_WebView_getOnJSCallback(se::State& s)
 {
     cocos2d::WebView* cobj = (cocos2d::WebView*)s.nativeThisObject();
@@ -526,25 +545,6 @@ static bool js_webview_WebView_loadData(se::State& s)
 }
 SE_BIND_FUNC(js_webview_WebView_loadData)
 
-static bool js_webview_WebView_setJavascriptInterfaceScheme(se::State& s)
-{
-    cocos2d::WebView* cobj = (cocos2d::WebView*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_webview_WebView_setJavascriptInterfaceScheme : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        std::string arg0;
-        ok &= seval_to_std_string(args[0], &arg0);
-        SE_PRECONDITION2(ok, false, "js_webview_WebView_setJavascriptInterfaceScheme : Error processing arguments");
-        cobj->setJavascriptInterfaceScheme(arg0);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_webview_WebView_setJavascriptInterfaceScheme)
-
 static bool js_webview_WebView_setOnDidFinishLoading(se::State& s)
 {
     cocos2d::WebView* cobj = (cocos2d::WebView*)s.nativeThisObject();
@@ -670,6 +670,7 @@ bool js_register_webview_WebView(se::Object* obj)
     cls->defineFunction("evaluateJS", _SE(js_webview_WebView_evaluateJS));
     cls->defineFunction("setOnJSCallback", _SE(js_webview_WebView_setOnJSCallback));
     cls->defineFunction("setBackgroundTransparent", _SE(js_webview_WebView_setBackgroundTransparent));
+    cls->defineFunction("setJavascriptInterfaceScheme", _SE(js_webview_WebView_setJavascriptInterfaceScheme));
     cls->defineFunction("getOnJSCallback", _SE(js_webview_WebView_getOnJSCallback));
     cls->defineFunction("canGoForward", _SE(js_webview_WebView_canGoForward));
     cls->defineFunction("getOnShouldStartLoading", _SE(js_webview_WebView_getOnShouldStartLoading));
@@ -678,7 +679,6 @@ bool js_register_webview_WebView(se::Object* obj)
     cls->defineFunction("setVisible", _SE(js_webview_WebView_setVisible));
     cls->defineFunction("reload", _SE(js_webview_WebView_reload));
     cls->defineFunction("loadData", _SE(js_webview_WebView_loadData));
-    cls->defineFunction("setJavascriptInterfaceScheme", _SE(js_webview_WebView_setJavascriptInterfaceScheme));
     cls->defineFunction("setOnDidFinishLoading", _SE(js_webview_WebView_setOnDidFinishLoading));
     cls->defineFunction("getOnDidFinishLoading", _SE(js_webview_WebView_getOnDidFinishLoading));
     cls->defineStaticFunction("create", _SE(js_webview_WebView_create));

@@ -131,8 +131,6 @@
         "cocos/base/ccMacros.h", 
         "cocos/base/ccRandom.cpp", 
         "cocos/base/ccRandom.h", 
-        "cocos/base/ccTypes.cpp", 
-        "cocos/base/ccTypes.h", 
         "cocos/base/ccUTF8.cpp", 
         "cocos/base/ccUTF8.h", 
         "cocos/base/ccUtils.cpp", 

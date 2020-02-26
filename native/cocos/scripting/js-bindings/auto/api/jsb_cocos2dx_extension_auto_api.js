@@ -311,6 +311,16 @@ str
 jsb.AssetsManager = {
 
 /**
+ * @method setVerifyCallback
+ * @param {function} arg0
+ */
+setVerifyCallback : function (
+func 
+)
+{
+},
+
+/**
  * @method getDownloadedFiles
  * @return {int}
  */
@@ -381,13 +391,17 @@ getTotalBytes : function (
 },
 
 /**
- * @method setVerifyCallback
- * @param {function} arg0
- */
-setVerifyCallback : function (
-func 
+ * @method loadLocalManifest
+* @param {String|cc.Manifest} str
+* @param {String} str
+* @return {bool|bool}
+*/
+loadLocalManifest : function(
+manifest,
+str 
 )
 {
+    return false;
 },
 
 /**
@@ -456,20 +470,6 @@ getLocalManifest : function (
 )
 {
     return cc.Manifest;
-},
-
-/**
- * @method loadLocalManifest
-* @param {String|cc.Manifest} str
-* @param {String} str
-* @return {bool|bool}
-*/
-loadLocalManifest : function(
-manifest,
-str 
-)
-{
-    return false;
 },
 
 /**

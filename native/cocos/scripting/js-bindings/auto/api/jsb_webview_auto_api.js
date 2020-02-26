@@ -147,6 +147,16 @@ bool
 },
 
 /**
+ * @method setJavascriptInterfaceScheme
+ * @param {String} arg0
+ */
+setJavascriptInterfaceScheme : function (
+str 
+)
+{
+},
+
+/**
  * @method getOnJSCallback
  * @return {function}
  */
@@ -229,16 +239,6 @@ loadData : function (
 data, 
 str, 
 str, 
-str 
-)
-{
-},
-
-/**
- * @method setJavascriptInterfaceScheme
- * @param {String} arg0
- */
-setJavascriptInterfaceScheme : function (
 str 
 )
 {
