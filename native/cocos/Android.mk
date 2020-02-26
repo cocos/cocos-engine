@@ -28,7 +28,6 @@ math/Vec3.cpp \
 math/Vec4.cpp \
 math/Mat3.cpp \
 base/CCAutoreleasePool.cpp \
-base/CCConfiguration.cpp \
 base/CCData.cpp \
 base/CCRef.cpp \
 base/CCValue.cpp \
