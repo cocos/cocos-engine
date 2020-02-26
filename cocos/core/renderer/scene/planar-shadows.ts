@@ -216,7 +216,7 @@ export class PlanarShadows {
 
     protected _createPSO (model: Model) {
         // @ts-ignore TS2445
-        const pso = model.createPipelineState(this._material.passes[0]);
+        const pso = model.createPipelineState(this._material.passes[0], 0);
         model.insertImplantPSO(pso); // add back to model to sync binding layouts
         pso.pipelineLayout.layouts[0].update();
         return pso;

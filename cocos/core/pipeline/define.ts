@@ -302,12 +302,12 @@ localBindingsDesc.set(UBOSkinningAnimation.BLOCK.name, {
 });
 export class UBOSkinning {
     public static JOINTS_OFFSET: number = 0;
-    public static COUNT: number = UBOSkinning.JOINTS_OFFSET + JointUniformCapacity * 12 + 4;
+    public static COUNT: number = UBOSkinning.JOINTS_OFFSET + JointUniformCapacity * 12;
     public static SIZE: number = UBOSkinning.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
         binding: UniformBinding.UBO_SKINNING_TEXTURE, name: 'CCSkinning', members: [
-            { name: 'cc_joints', type: GFXType.FLOAT4, count: JointUniformCapacity * 3 + 1 },
+            { name: 'cc_joints', type: GFXType.FLOAT4, count: JointUniformCapacity * 3 },
         ],
     };
 }

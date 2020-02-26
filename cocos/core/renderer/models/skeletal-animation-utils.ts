@@ -390,17 +390,21 @@ export class BoneSpaceBoundsInfo {
             bounds.push(new aabb(Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity));
             valid.push(false);
         }
-        for (let p = 0; p < mesh.struct.primitives.length; p++) {
+        const primitives = mesh.struct.primitives;
+        for (let p = 0; p < primitives.length; p++) {
             const joints = mesh.readAttribute(p, GFXAttributeName.ATTR_JOINTS);
             const weights = mesh.readAttribute(p, GFXAttributeName.ATTR_WEIGHTS);
             const positions = mesh.readAttribute(p, GFXAttributeName.ATTR_POSITION);
             if (!joints || !weights || !positions) { continue; }
+            const idxMap = mesh.struct.jointMaps && mesh.struct.jointMaps[primitives[p].jointMapIndex!] || [0];
             const vertCount = Math.min(joints.length / 4, weights.length / 4, positions.length / 3);
             for (let i = 0; i < vertCount; i++) {
                 Vec3.set(v3_3, positions[3 * i + 0], positions[3 * i + 1], positions[3 * i + 2]);
                 for (let j = 0; j < 4; ++j) {
                     const idx = 4 * i + j;
-                    const joint = joints[idx];
+                    let joint = joints[idx];
+                    if (idxMap.length === 1) { joint += idxMap[0]; }
+                    else { joint = idxMap[joint]; }
                     if (weights[idx] === 0 || joint >= bindposes.length) { continue; }
                     Vec3.transformMat4(v3_4, v3_3, bindposes[joint]);
                     valid[joint] = true;

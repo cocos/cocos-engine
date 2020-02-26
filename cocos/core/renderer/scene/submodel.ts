@@ -62,7 +62,7 @@ export class SubModel {
         if (this._inputAssembler) {
             this._inputAssembler.initialize(sm);
         } else {
-            this._inputAssembler = (cc.director.root!.device as GFXDevice).createInputAssembler(sm);
+            this._inputAssembler = (cc.director.root.device as GFXDevice).createInputAssembler(sm);
         }
     }
 

@@ -177,8 +177,8 @@ export class BakedSkinningModel extends Model {
         }
     }
 
-    protected createPipelineState (pass: Pass) {
-        const pso = super.createPipelineState(pass, patches);
+    protected createPipelineState (pass: Pass, subModelIdx: number) {
+        const pso = super.createPipelineState(pass, subModelIdx, patches);
         const { buffer, texture, animInfo } = this._jointsMedium;
         const bindingLayout = pso.pipelineLayout.layouts[0];
         bindingLayout.bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);

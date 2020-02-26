@@ -230,6 +230,12 @@ export declare namespace Mesh {
         indexView?: IBufferView;
 
         /**
+         * 此子网格使用的关节索引映射表在 IStruct.jointMaps 中的索引。
+         * 如未定义或指向的映射表不存在，则默认 VB 内所有关节索引数据直接对应骨骼资源数据。
+         */
+        jointMapIndex?: number;
+
+        /**
          * （用于射线检测的）几何信息。
          */
         geometricInfo?: {
@@ -253,11 +259,6 @@ export declare namespace Mesh {
         primitives: ISubmesh[];
 
         /**
-         * 此网格的骨骼索引基数。
-         */
-        baseJoint?: number;
-
-        /**
          * （各分量都）小于等于此网格任何顶点位置的最大位置。
          */
         minPosition?: Vec3;
@@ -266,6 +267,14 @@ export declare namespace Mesh {
          * （各分量都）大于等于此网格任何顶点位置的最小位置。
          */
         maxPosition?: Vec3;
+
+        /**
+         * 此网格使用的关节索引映射关系列表。
+         * * 长度为 1 的数组对应所有关节拥有统一的 offset；
+         * * 否则数组长度应为子模型中实际使用到的所有关节，
+         *   每个元素都对应一个原骨骼资源里的索引，按子模型 VB 内的实际索引排列。
+         */
+        jointMaps?: number[][];
     }
 
     export interface ICreateInfo {
@@ -344,6 +353,9 @@ export class Mesh extends Asset {
         return this._data;
     }
 
+    /**
+     * 此网格的哈希值。
+     */
     get hash () {
         // hashes should already be computed offline, but if not, make one
         if (!this._hash && this._data) { this._hash = murmurhash2_32_gc(this._data, 666); }
@@ -373,6 +385,8 @@ export class Mesh extends Asset {
     private _initialized = false;
     private _hasFlatBuffers = false;
     private _renderingMesh: RenderingMesh | null = null;
+
+    private _jointBufferIndices: number[] = [];
 
     constructor () {
         super();
