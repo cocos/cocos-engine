@@ -3652,7 +3652,8 @@ let NodeDefines = {
 
             // delay update arrivalOrder before sort children
             var _children = this._children, child;
-            this._parent && (this._parent._childArrivalOrder = 1);
+            // reset arrivalOrder before sort children
+            this._childArrivalOrder = 1;
             for (let i = 0, len = _children.length; i < len; i++) {
                 child = _children[i];
                 child._updateOrderOfArrival();
