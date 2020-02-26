@@ -77,7 +77,7 @@ const RenderMode = Enum({
 export class CanvasComponent extends Component {
     /**
      * @en
-     * The clearing flags of builtin camera.
+     * The flags to clear the built in camera.
      *
      * @zh
      * 清理屏幕缓冲标记。
@@ -99,7 +99,7 @@ export class CanvasComponent extends Component {
 
     /**
      * @en
-     * The color clearing value of builtin camera.
+     * The color clearing value of the builtin camera.
      *
      * @zh
      * 内置相机的颜色缓冲默认值。
@@ -152,8 +152,8 @@ export class CanvasComponent extends Component {
     /**
      * @en
      * Camera render priority.
-     * When you choose the RenderModel is INTERSPERSE, specifies the render order with other cameras.
-     * When you choose the RenderModel is OVERLAY, specifies sorting with the rest of the Canvas.
+     * When you choose the RenderModel of INTERSPERSE, specifies the render order with other cameras.
+     * When you choose the RenderModel of OVERLAY, specifies sorting with the rest of the Canvas.
      *
      * @zh
      * 相机渲染优先级。当 RenderMode 为 intersperse 时，指定与其它相机的渲染顺序，当 RenderMode 为 overlay 时，指定跟其余 Canvas 做排序使用。需要对多 Canvas 设定 priority 以免出现不同平台下的闪屏问题。

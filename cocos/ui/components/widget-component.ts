@@ -136,49 +136,49 @@ ccenum(AlignMode);
  */
 export enum AlignFlags {
     /**
-     * @en Alignment top.
+     * @en Align top.
      *
      * @zh 上边对齐。
      */
     TOP = 1 << 0,
     /**
-     * @en Alignment middle.
+     * @en Align middle.
      *
      * @zh 垂直中心对齐。
      */
     MID = 1 << 1,
     /**
-     * @en Alignment bottom.
+     * @en Align bottom.
      *
      * @zh 下边对齐。
      */
     BOT = 1 << 2,
     /**
-     * @en Alignment left.
+     * @en Align left.
      *
      * @zh 左边对齐。
      */
     LEFT = 1 << 3,
     /**
-     * @en Alignment center.
+     * @en Align center.
      *
      * @zh 横向中心对齐。
      */
     CENTER = 1 << 4,
     /**
-     * @en Alignment right.
+     * @en Align right.
      *
      * @zh 右边对齐。
      */
     RIGHT = 1 << 5,
     /**
-     * @en Alignment horizontal.
+     * @en Align horizontal.
      *
      * @zh 横向对齐。
      */
     HORIZONTAL = LEFT | CENTER | RIGHT,
     /**
-     * @en Alignment vertical.
+     * @en Align vertical.
      *
      * @zh 纵向对齐。
      */
@@ -240,7 +240,7 @@ export class WidgetComponent extends Component {
 
     /**
      * @en
-     * Whether to align the top.
+     * Whether to align to the top.
      *
      * @zh
      * 是否对齐上边。
@@ -258,7 +258,7 @@ export class WidgetComponent extends Component {
 
     /**
      * @en
-     * Whether to align the bottom.
+     * Whether to align to the bottom.
      *
      * @zh
      * 是否对齐下边。
@@ -276,7 +276,7 @@ export class WidgetComponent extends Component {
 
     /**
      * @en
-     * Whether to align the left.
+     * Whether to align to the left.
      *
      * @zh
      * 是否对齐左边。
@@ -294,7 +294,7 @@ export class WidgetComponent extends Component {
 
     /**
      * @en
-     * Whether to align the right.
+     * Whether to align to the right.
      *
      * @zh
      * 是否对齐右边。
@@ -312,7 +312,7 @@ export class WidgetComponent extends Component {
 
     /**
      * @en
-     * Whether to align the vertical.
+     * Whether to align vertically.
      *
      * @zh
      * 是否垂直方向对齐中点，开启此项会将垂直方向其他对齐选项取消。
@@ -337,7 +337,7 @@ export class WidgetComponent extends Component {
 
     /**
      * @en
-     * Whether to align the horizontal.
+     * Whether to align horizontally.
      *
      * @zh
      * 是否水平方向对齐中点，开启此选项会将水平方向其他对齐选项取消。
@@ -361,7 +361,7 @@ export class WidgetComponent extends Component {
 
     /**
      * @en
-     * Whether the stretched horizontally, when enable the left and right alignment will be stretched horizontally,
+     * Whether to stretch horizontally, when enable the left and right alignment will be stretched horizontally,
      * the width setting is invalid (read only).
      *
      * @zh
@@ -376,7 +376,7 @@ export class WidgetComponent extends Component {
 
     /**
      * @en
-     * Whether the stretched vertically, when enable the left and right alignment will be stretched vertically,
+     * Whether to stretch vertically, when enable the left and right alignment will be stretched vertically,
      * then height setting is invalid (read only).
      *
      * @zh
@@ -505,7 +505,7 @@ export class WidgetComponent extends Component {
 
     /**
      * @en
-     * Horizontal aligns the midpoint offset value,
+     * Horizontally aligns the midpoint offset value,
      * the value can be negative, Only available in 'isAlignHorizontalCenter' open.
      *
      * @zh
@@ -533,7 +533,7 @@ export class WidgetComponent extends Component {
 
     /**
      * @en
-     * Vertical aligns the midpoint offset value,
+     * Vertically aligns the midpoint offset value,
      * the value can be negative, Only available in 'isAlignVerticalCenter' open.
      *
      * @zh

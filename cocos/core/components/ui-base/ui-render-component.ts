@@ -49,7 +49,7 @@ ccenum(GFXBlendFactor);
 
 /**
  * @en
- * The shader property type of the material after the instance.
+ * The shader property type of the material after instantiation.
  *
  * @zh
  * 实例后的材质的着色器属性类型。
@@ -57,7 +57,7 @@ ccenum(GFXBlendFactor);
 export enum InstanceMaterialType {
     /**
      * @en
-     * The shader only have color properties.
+     * The shader only has color properties.
      *
      * @zh
      * 着色器只带颜色属性。
@@ -66,7 +66,7 @@ export enum InstanceMaterialType {
 
     /**
      * @en
-     * The shader have color and texture properties.
+     * The shader has color and texture properties.
      *
      * @zh
      * 着色器带颜色和贴图属性。
@@ -75,7 +75,7 @@ export enum InstanceMaterialType {
 
     /**
      * @en
-     * The shader have color and texture properties and use grayscale mode.
+     * The shader has color and texture properties and uses grayscale mode.
      *
      * @zh
      * 着色器带颜色和贴图属性,并使用灰度模式。

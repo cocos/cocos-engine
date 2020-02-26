@@ -80,7 +80,7 @@ ccenum(Type);
  */
 enum ResizeMode {
     /**
-     * @en Don't do any scale.
+     * @en Don't scale.
      *
      * @zh 不做任何缩放。
      */

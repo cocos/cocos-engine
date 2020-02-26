@@ -265,8 +265,8 @@ export class UITransformComponent extends Component {
     /**
      * @en
      * Sets the untransformed size of the node.<br/>
-     * The contentSize remains the same no matter the node is scaled or rotated.<br/>
-     * All nodes has a size. Layer and Scene has the same size of the screen.
+     * The contentSize remains the same no matter if the node is scaled or rotated.<br/>
+     * All nodes have a size. Layer and Scene have the same size of the screen.
      *
      * @zh
      * 设置节点原始大小，不受该节点是否被缩放或者旋转的影响。

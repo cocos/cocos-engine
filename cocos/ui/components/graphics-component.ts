@@ -415,7 +415,7 @@ export class GraphicsComponent extends UIRenderComponent {
 
     /**
      * @en
-     * Adds an circle to the path.
+     * Adds a circle to the path.
      *
      * @zh
      * 绘制圆形路径。
@@ -434,7 +434,7 @@ export class GraphicsComponent extends UIRenderComponent {
 
     /**
      * @en
-     * Adds an rectangle to the path.
+     * Adds a rectangle to the path.
      *
      * @zh
      * 绘制矩形路径。
@@ -454,7 +454,7 @@ export class GraphicsComponent extends UIRenderComponent {
 
     /**
      * @en
-     * Adds an round corner rectangle to the path.
+     * Adds a round corner rectangle to the path.
      *
      * @zh
      * 绘制圆角矩形路径。
