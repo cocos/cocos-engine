@@ -389,6 +389,8 @@ let Label = cc.Class({
                     cc.warnID(4000);
                 }
 
+                if (!this.enabledInHierarchy) return;
+
                 this._forceUpdateRenderData();
             },
             type: cc.Font,
@@ -421,6 +423,8 @@ let Label = cc.Class({
                 if (value) {
                     this.font = null;
 
+                    if (!this.enabledInHierarchy) return;
+                    
                     this._forceUpdateRenderData();
                 }
                 this.markForValidate();
@@ -483,6 +487,8 @@ let Label = cc.Class({
                 if (oldValue === CacheMode.CHAR) {
                     this._ttfTexture = null;
                 }
+
+                if (!this.enabledInHierarchy) return;
 
                 this._forceUpdateRenderData();
             },
@@ -743,8 +749,6 @@ let Label = cc.Class({
     },
 
     _forceUpdateRenderData () {
-        if (!this.enabledInHierarchy) return;
-
         this.setVertsDirty();
         this._resetAssembler();
         this._applyFontTexture();
