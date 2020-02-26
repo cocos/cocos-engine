@@ -188,7 +188,7 @@ cc.TMXObjectGroupInfo.prototype = {
 
 /**
  * Texture containing the tiles (should be sprite sheet / texture atlas)
- * @property {null} sourceImage
+ * @property {any} sourceImage
  */
 
 /**
