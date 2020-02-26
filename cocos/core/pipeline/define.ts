@@ -24,6 +24,7 @@ export const PIPELINE_FLOW_TONEMAP: string = 'ToneMapFlow';
 export enum RenderPassStage {
     DEFAULT = 100,
 }
+cc.RenderPassStage = RenderPassStage;
 
 /**
  * @zh

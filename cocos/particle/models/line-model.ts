@@ -6,7 +6,7 @@ import { IRenderingSubmesh } from '../../core/assets/mesh';
 import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
 import { Vec3 } from '../../core/math';
-import { Model } from '../../core/renderer/scene/model';
+import { Model, ModelType } from '../../core/renderer/scene/model';
 import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';
 
@@ -36,6 +36,7 @@ export class LineModel extends Model {
 
     constructor () {
         super();
+        this._type = ModelType.LINE;
         this._capacity = 100;
         this._iaInfo = {
             drawInfos: [{

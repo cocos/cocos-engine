@@ -49,7 +49,7 @@ export class Socket {
     public path: string = '';
 
     /**
-     * @en Transform ouput node.
+     * @en Transform output node.
      * @zh 此挂点的变换信息输出节点。
      */
     @property(Node)
@@ -76,8 +76,15 @@ function collectRecursively (node: Node, prefix = '', out: string[] = []) {
 }
 
 /**
- * @en Skeletal animaiton component, handles joint animations on skinning models with explicit joint socket support.
- * @zh 骨骼动画组件，控制蒙皮模型的骨骼动画，并提供显式指定的骨骼挂点功能
+ * @en
+ * Skeletal animaiton component, offers the following features on top of [[AnimationComponent]]:
+ * * Choice between baked animation and real-time calculation, to leverage efficiency and expressiveness.
+ * * Joint socket system: Create any socket node directly under the animation component root node,
+ *   find your target joint and register both to the socket list, so that the socket node would be in-sync with the joint.
+ * @zh
+ * 骨骼动画组件，在普通动画组件基础上额外提供以下功能：
+ * * 可选预烘焙动画模式或实时计算模式，用以权衡运行时效率与效果；
+ * * 提供骨骼挂点功能：通过在动画根节点下创建挂点节点，并在骨骼动画组件上配置 socket 列表，挂点节点的 Transform 就能与骨骼保持同步。
  */
 @ccclass('cc.SkeletalAnimationComponent')
 @executionOrder(99)
@@ -90,7 +97,7 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     /**
      * @en
      * The joint sockets this animation component maintains.<br>
-     * Sockets have to be registered before attaching custom nodes to animated joints.
+     * Sockets have to be registered here before attaching custom nodes to animated joints.
      * @zh
      * 当前动画组件维护的挂点数组。要挂载自定义节点到受动画驱动的骨骼上，必须先在此注册挂点。
      */
@@ -112,29 +119,29 @@ export class SkeletalAnimationComponent extends AnimationComponent {
      * which substantially increases performance while making all animations completely fixed.<br>
      * Dynamically changing this property will take effect when playing the next animation clip.
      * @zh
-     * 是否使用预烘焙动画，默认启用，可以大幅提高运行效时率，但所有动画效果会被彻底固定，不支持任何形式的编辑。
+     * 是否使用预烘焙动画，默认启用，可以大幅提高运行效时率，但所有动画效果会被彻底固定，不支持任何形式的编辑和混合。<br>
      * 运行时动态修改此选项会在播放下一条动画片段时生效。
      */
     @property({
-        tooltip: 'i18n:animation.bake_animations',
+        tooltip: 'i18n:animation.use_baked_animation',
     })
-    get bakeAnimations () {
-        return this._bakeAnimations;
+    get useBakedAnimation () {
+        return this._useBakedAnimation;
     }
-    set bakeAnimations (val) {
-        this._bakeAnimations = val;
+    set useBakedAnimation (val) {
+        this._useBakedAnimation = val;
         this.stop();
         const comps = this.node.getComponentsInChildren(SkinningModelComponent);
         for (let i = 0; i < comps.length; ++i) {
             const comp = comps[i];
             if (comp.skinningRoot === this.node) {
-                comp.updateAnimatingMode(this._bakeAnimations);
+                comp.setUseBakedAnimation(this._useBakedAnimation);
             }
         }
     }
 
     @property
-    protected _bakeAnimations = true;
+    protected _useBakedAnimation = true;
 
     @property({ type: [Socket] })
     protected _sockets: Socket[] = [];
@@ -146,7 +153,7 @@ export class SkeletalAnimationComponent extends AnimationComponent {
 
     public start () {
         this.sockets = this._sockets;
-        this.bakeAnimations = this._bakeAnimations;
+        this.useBakedAnimation = this._useBakedAnimation;
         super.start();
     }
 

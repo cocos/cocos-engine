@@ -183,7 +183,7 @@ export class JointsTexturePool {
         Vec3.set(v3_min,  Infinity,  Infinity,  Infinity);
         Vec3.set(v3_max, -Infinity, -Infinity, -Infinity);
         const dataPoolManager: DataPoolManager = cc.director.root.dataPoolManager;
-        const boneSpaceBounds = dataPoolManager.boneSpaceBoundsInfo.get(mesh, skeleton);
+        const boneSpaceBounds = dataPoolManager.boneSpaceBoundsInfo.getData(mesh, skeleton);
         for (let i = 0; i < joints.length; i++) {
             const node = skinningRoot.getChildByPath(joints[i]);
             const bound = boneSpaceBounds[i];
@@ -234,7 +234,7 @@ export class JointsTexturePool {
         Vec3.set(v3_min,  Infinity,  Infinity,  Infinity);
         Vec3.set(v3_max, -Infinity, -Infinity, -Infinity);
         const dataPoolManager: DataPoolManager = cc.director.root.dataPoolManager;
-        const boneSpaceBounds = dataPoolManager.boneSpaceBoundsInfo.get(mesh, skeleton);
+        const boneSpaceBounds = dataPoolManager.boneSpaceBoundsInfo.getData(mesh, skeleton);
         const bounds: aabb[] = []; texture.bounds.set(mesh.hash, bounds);
         for (let fid = 0; fid < frames; fid++) {
             bounds.push(new aabb(Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity));
@@ -330,7 +330,7 @@ export class JointsAnimationInfo {
         this._device = device;
     }
 
-    public get (nodeID = '-1') {
+    public getData (nodeID = '-1') {
         const res = this._pool.get(nodeID);
         if (res) { return res; }
         const buffer = this._device.createBuffer({
@@ -378,7 +378,7 @@ export class BoneSpaceBoundsInfo {
      * @zh
      * 获取指定模型的骨骼空间包围盒。
      */
-    public get (mesh: Mesh, skeleton: Skeleton) {
+    public getData (mesh: Mesh, skeleton: Skeleton) {
         let m = this._pool.get(mesh.hash);
         let bounds = m && m.get(skeleton.hash);
         if (bounds) { return bounds; }

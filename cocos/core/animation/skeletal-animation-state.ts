@@ -82,17 +82,17 @@ export class SkeletalAnimationState extends AnimationState {
             }
         }
         this._parent = root.getComponent('cc.SkeletalAnimationComponent') as SkeletalAnimationComponent;
-        const baked = this._curvesInited = this._parent.bakeAnimations;
+        const baked = this._curvesInited = this._parent.useBakedAnimation;
         super.initialize(root, baked ? noCurves : undefined);
         const info = SkelAnimDataHub.getOrExtract(this.clip).info;
         this._frames = info.frames - 1;
-        this._animInfo = this._animInfoMgr.get(root.uuid);
+        this._animInfo = this._animInfoMgr.getData(root.uuid);
         this._bakedDuration = this._frames / info.sample; // last key
     }
 
     public onPlay () {
         super.onPlay();
-        const baked = this._parent!.bakeAnimations;
+        const baked = this._parent!.useBakedAnimation;
         if (baked) {
             this._sampleCurves = this._sampleCurvesBaked;
             this.duration = this._bakedDuration;

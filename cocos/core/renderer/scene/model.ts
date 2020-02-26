@@ -33,6 +33,15 @@ function getUniformBlockSize (block: GFXUniformBlock): number {
 
 let MODEL_ID = 0;
 
+export enum ModelType {
+    DEFAULT,
+    SKINNING,
+    BAKED_SKINNING,
+    UI_BATCH,
+    PARTICLE_BATCH,
+    LINE,
+}
+
 /**
  * A representation of a model
  */
@@ -48,6 +57,10 @@ export class Model {
 
     get id () {
         return this._id;
+    }
+
+    get type () {
+        return this._type;
     }
 
     get subModels () {
@@ -141,7 +154,7 @@ export class Model {
         return this._uboUpdated;
     }
 
-    protected _type: string = 'default';
+    protected _type = ModelType.DEFAULT;
     protected _device: GFXDevice;
     protected _scene: RenderScene | null = null;
     protected _node: Node | null = null;

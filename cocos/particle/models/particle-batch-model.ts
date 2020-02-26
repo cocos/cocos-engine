@@ -34,7 +34,7 @@ import { GFXAttributeName, GFXBufferUsageBit, GFXFormatInfos,
     GFXMemoryUsageBit, GFXPrimitiveMode, GFXStatus } from '../../core/gfx/define';
 import { IGFXAttribute } from '../../core/gfx/input-assembler';
 import { Color } from '../../core/math/color';
-import { Model } from '../../core/renderer/scene/model';
+import { Model, ModelType } from '../../core/renderer/scene/model';
 
 export default class ParticleBatchModel extends Model {
 
@@ -55,7 +55,7 @@ export default class ParticleBatchModel extends Model {
     constructor () {
         super();
 
-        this._type = 'particle-batch';
+        this._type = ModelType.PARTICLE_BATCH;
         this._capacity = 0;
         this._vertAttrs = null;
         this._vertSize = 0;

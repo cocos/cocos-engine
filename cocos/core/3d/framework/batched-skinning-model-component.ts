@@ -310,7 +310,6 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
             return;
         }
 
-        let dataView: DataView;
         let posOffset = 0;
         let posFormat = GFXFormat.UNKNOWN;
         let normalOffset = 0;
@@ -336,89 +335,12 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
         for (let i = 0; i < unitLen; i++) {
             const unit = this.units[i];
             if (!unit || !unit.mesh || !unit.mesh.data) { continue; }
+            const newMesh = this._createUnitMesh(i, unit.mesh);
+            const dataView = new DataView(newMesh.data!.buffer);
             Mat4.inverseTranspose(m4_local, unit._localTransform);
-
-            // add batch ID to this temp mesh
-            // first, update bookkeepping
-            const newMeshStruct: Mesh.IStruct = JSON.parse(JSON.stringify(unit.mesh.struct));
-            let newOffset = 0;
-            for (const vb of newMeshStruct.vertexBundles) {
-                vb.attributes.push(batch_id);
-                vb.attributes.push(batch_uv);
-                vb.view.offset = newOffset;
-                vb.view.length += vb.view.count * batch_extras_size;
-                vb.view.stride += batch_extras_size;
-                newOffset += vb.view.length;
-            }
-            for (const pm of newMeshStruct.primitives) {
-                if (pm.indexView) {
-                    pm.indexView.offset = newOffset;
-                    newOffset += pm.indexView.length;
-                }
-                if (pm.geometricInfo) {
-                    newOffset = Math.ceil(newOffset / 4) * 4;
-                    pm.geometricInfo.view.offset = newOffset;
-                    newOffset += pm.geometricInfo.view.length;
-                }
-            }
-            // now, we ride!
-            const src = unit.mesh.data; let oldOffset = 0;
-            const newMeshData = new Uint8Array(newOffset);
-            dataView = new DataView(newMeshData.buffer);
-            for (let k = 0; k < newMeshStruct.vertexBundles.length; k++) {
-                const uvs = unit.mesh.readAttribute(k, GFXAttributeName.ATTR_TEX_COORD)!; // FIXME: should be k-th bundle instead of primitive
-                const oldView = unit.mesh.struct.vertexBundles[k].view;
-                const newView = newMeshStruct.vertexBundles[k].view;
-                const oldStride = oldView.stride;
-                const newStride = newView.stride;
-                oldOffset = oldView.offset;
-                newOffset = newView.offset;
-                for (let j = 0; j < newView.count; j++) {
-                    const srcVertex = src.subarray(oldOffset, oldOffset + oldStride);
-                    newMeshData.set(srcVertex, newOffset);
-                    // insert batch ID
-                    dataView.setFloat32(newOffset + oldStride, i, cc.sys.isLittleEndian);
-                    // insert batch UV
-                    dataView.setFloat32(newOffset + oldStride + 4, uvs[j * 2], cc.sys.isLittleEndian);
-                    dataView.setFloat32(newOffset + oldStride + 8, uvs[j * 2 + 1], cc.sys.isLittleEndian);
-                    newOffset += newStride; oldOffset += oldStride;
-                }
-            }
-            for (let k = 0; k < newMeshStruct.primitives.length; k++) {
-                const oldPrimitive = unit.mesh.struct.primitives[k];
-                const newPrimitive = newMeshStruct.primitives[k];
-                if (oldPrimitive.indexView && newPrimitive.indexView) {
-                    const oldStride = oldPrimitive.indexView.stride;
-                    const newStride = newPrimitive.indexView.stride;
-                    oldOffset = oldPrimitive.indexView.offset;
-                    newOffset = newPrimitive.indexView.offset;
-                    for (let j = 0; j < newPrimitive.indexView.count; j++) {
-                        const srcIndices = src.subarray(oldOffset, oldOffset + oldStride);
-                        newMeshData.set(srcIndices, newOffset);
-                        newOffset += newStride; oldOffset += oldStride;
-                    }
-                }
-                if (oldPrimitive.geometricInfo && newPrimitive.geometricInfo) {
-                    const oldStride = oldPrimitive.geometricInfo.view.stride;
-                    const newStride = newPrimitive.geometricInfo.view.stride;
-                    oldOffset = oldPrimitive.geometricInfo.view.offset;
-                    newOffset = newPrimitive.geometricInfo.view.offset;
-                    for (let j = 0; j < newPrimitive.geometricInfo.view.count; j++) {
-                        const srcPositions = src.subarray(oldOffset, oldOffset + oldStride);
-                        newMeshData.set(srcPositions, newOffset);
-                        newOffset += newStride; oldOffset += oldStride;
-                    }
-                }
-            }
-            const newMesh = new Mesh();
-            newMesh.reset({
-                struct: newMeshStruct,
-                data: newMeshData,
-            });
-
             const offset = unit.offset;
             const size = unit.size;
-            for (const bundle of newMeshStruct.vertexBundles) {
+            for (const bundle of newMesh.struct.vertexBundles) {
                 // apply local transform to mesh
                 posOffset = bundle.view.offset;
                 posFormat = GFXFormat.UNKNOWN;
@@ -567,5 +489,86 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
                 format: PixelFormat.RGBA8888,
             });
         }
+    }
+
+    private _createUnitMesh (unitIdx: number, mesh: Mesh) {
+        // add batch ID to this temp mesh
+        // first, update bookkeepping
+        const newMeshStruct: Mesh.IStruct = JSON.parse(JSON.stringify(mesh.struct));
+        let newOffset = 0;
+        for (const vb of newMeshStruct.vertexBundles) {
+            vb.attributes.push(batch_id);
+            vb.attributes.push(batch_uv);
+            vb.view.offset = newOffset;
+            vb.view.length += vb.view.count * batch_extras_size;
+            vb.view.stride += batch_extras_size;
+            newOffset += vb.view.length;
+        }
+        for (const pm of newMeshStruct.primitives) {
+            if (pm.indexView) {
+                pm.indexView.offset = newOffset;
+                newOffset += pm.indexView.length;
+            }
+            if (pm.geometricInfo) {
+                newOffset = Math.ceil(newOffset / 4) * 4;
+                pm.geometricInfo.view.offset = newOffset;
+                newOffset += pm.geometricInfo.view.length;
+            }
+        }
+        // now, we ride!
+        const src = mesh.data!; let oldOffset = 0;
+        const newMeshData = new Uint8Array(newOffset);
+        const dataView = new DataView(newMeshData.buffer);
+        for (let k = 0; k < newMeshStruct.vertexBundles.length; k++) {
+            const uvs = mesh.readAttribute(k, GFXAttributeName.ATTR_TEX_COORD)!; // FIXME: should be k-th bundle instead of primitive
+            const oldView = mesh!.struct.vertexBundles[k].view;
+            const newView = newMeshStruct.vertexBundles[k].view;
+            const oldStride = oldView.stride;
+            const newStride = newView.stride;
+            oldOffset = oldView.offset;
+            newOffset = newView.offset;
+            for (let j = 0; j < newView.count; j++) {
+                const srcVertex = src.subarray(oldOffset, oldOffset + oldStride);
+                newMeshData.set(srcVertex, newOffset);
+                // insert batch ID
+                dataView.setFloat32(newOffset + oldStride, unitIdx, cc.sys.isLittleEndian);
+                // insert batch UV
+                dataView.setFloat32(newOffset + oldStride + 4, uvs[j * 2], cc.sys.isLittleEndian);
+                dataView.setFloat32(newOffset + oldStride + 8, uvs[j * 2 + 1], cc.sys.isLittleEndian);
+                newOffset += newStride; oldOffset += oldStride;
+            }
+        }
+        for (let k = 0; k < newMeshStruct.primitives.length; k++) {
+            const oldPrimitive = mesh.struct.primitives[k];
+            const newPrimitive = newMeshStruct.primitives[k];
+            if (oldPrimitive.indexView && newPrimitive.indexView) {
+                const oldStride = oldPrimitive.indexView.stride;
+                const newStride = newPrimitive.indexView.stride;
+                oldOffset = oldPrimitive.indexView.offset;
+                newOffset = newPrimitive.indexView.offset;
+                for (let j = 0; j < newPrimitive.indexView.count; j++) {
+                    const srcIndices = src.subarray(oldOffset, oldOffset + oldStride);
+                    newMeshData.set(srcIndices, newOffset);
+                    newOffset += newStride; oldOffset += oldStride;
+                }
+            }
+            if (oldPrimitive.geometricInfo && newPrimitive.geometricInfo) {
+                const oldStride = oldPrimitive.geometricInfo.view.stride;
+                const newStride = newPrimitive.geometricInfo.view.stride;
+                oldOffset = oldPrimitive.geometricInfo.view.offset;
+                newOffset = newPrimitive.geometricInfo.view.offset;
+                for (let j = 0; j < newPrimitive.geometricInfo.view.count; j++) {
+                    const srcPositions = src.subarray(oldOffset, oldOffset + oldStride);
+                    newMeshData.set(srcPositions, newOffset);
+                    newOffset += newStride; oldOffset += oldStride;
+                }
+            }
+        }
+        const newMesh = new Mesh();
+        newMesh.reset({
+            struct: newMeshStruct,
+            data: newMeshData,
+        });
+        return newMesh;
     }
 }

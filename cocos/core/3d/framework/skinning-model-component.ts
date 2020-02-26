@@ -104,8 +104,8 @@ export class SkinningModelComponent extends ModelComponent {
         }
     }
 
-    public updateAnimatingMode (baked = true) {
-        const modelType = baked ? BakedSkinningModel : SkinningModel;
+    public setUseBakedAnimation (val = true) {
+        const modelType = val ? BakedSkinningModel : SkinningModel;
         if (this._model && modelType !== this._modelType) {
             cc.director.root.destroyModel(this._model);
             this._model = null;

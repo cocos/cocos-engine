@@ -9,7 +9,7 @@ import { Layers } from '../../scene-graph/layers';
 import { Ambient } from './ambient';
 import { Camera } from './camera';
 import { DirectionalLight } from './directional-light';
-import { Model } from './model';
+import { Model, ModelType } from './model';
 import { PlanarShadows } from './planar-shadows';
 import { Skybox } from './skybox';
 import { SphereLight } from './sphere-light';
@@ -305,8 +305,7 @@ export class RenderScene {
             // broadphase
             let d = intersect.ray_aabb(worldRay, m.worldBounds);
             if (d <= 0 || d >= distance) { continue; }
-            // @ts-ignore TS2445
-            if (m._type === 'default') {
+            if (m.type === ModelType.DEFAULT) {
                 // transform ray back to model space
                 Mat4.invert(m4, transform.getWorldMatrix(m4));
                 Vec3.transformMat4(modelRay.o, worldRay.o, m4);
@@ -359,8 +358,7 @@ export class RenderScene {
         // broadphase
         let d = intersect.ray_aabb(worldRay, m.worldBounds);
         if (d <= 0 || d >= distance) { return false; }
-        // @ts-ignore TS2445
-        if (m._type === 'default') {
+        if (m.type === ModelType.DEFAULT) {
             // transform ray back to model space
             Mat4.invert(m4, transform.getWorldMatrix(m4));
             Vec3.transformMat4(modelRay.o, worldRay.o, m4);

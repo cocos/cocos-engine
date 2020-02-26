@@ -37,7 +37,7 @@ import { UBOSkinning } from '../../pipeline/define';
 import { Node } from '../../scene-graph/node';
 import { Pass } from '../core/pass';
 import { DataPoolManager } from '../data-pool-manager';
-import { Model } from '../scene/model';
+import { Model, ModelType } from '../scene/model';
 import { uploadJointData } from './skeletal-animation-utils';
 
 export interface IJointTransform {
@@ -141,16 +141,16 @@ export class SkinningModel extends Model {
 
     constructor () {
         super();
-        this._type = 'skinning';
+        this._type = ModelType.SKINNING;
     }
 
     public destroy () {
-        super.destroy();
         this.bindSkeleton();
         if (this._buffer) {
             this._buffer.destroy();
             this._buffer = null;
         }
+        super.destroy();
     }
 
     public bindSkeleton (skeleton: Skeleton | null = null, skinningRoot: Node | null = null, mesh: Mesh | null = null) {
@@ -161,7 +161,7 @@ export class SkinningModel extends Model {
         if (!skeleton || !skinningRoot || !mesh) { return; }
         this._transform = skinningRoot;
         const dataPoolManager: DataPoolManager = cc.director.root.dataPoolManager;
-        const boneSpaceBounds = dataPoolManager.boneSpaceBoundsInfo.get(mesh, skeleton);
+        const boneSpaceBounds = dataPoolManager.boneSpaceBoundsInfo.getData(mesh, skeleton);
         let offset = -1; // offset to the first bone actually used in mesh
         for (let index = 0; index < skeleton.joints.length; index++) {
             const bound = boneSpaceBounds[index];

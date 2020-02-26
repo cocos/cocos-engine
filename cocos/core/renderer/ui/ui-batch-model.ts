@@ -29,7 +29,7 @@
 import { Material } from '../../assets/material';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
-import { Model } from '../scene/model';
+import { Model, ModelType } from '../scene/model';
 import { SubModel } from '../scene/submodel';
 import { UIDrawBatch } from './ui-draw-batch';
 
@@ -39,6 +39,7 @@ export class UIBatchModel extends Model {
 
     constructor () {
         super();
+        this._type = ModelType.UI_BATCH;
         this._subModel = new UISubModel();
     }
 

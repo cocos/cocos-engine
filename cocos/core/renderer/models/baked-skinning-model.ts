@@ -39,7 +39,7 @@ import { Node } from '../../scene-graph';
 import { Pass } from '../core/pass';
 import { samplerLib } from '../core/sampler-lib';
 import { DataPoolManager } from '../data-pool-manager';
-import { Model } from '../scene/model';
+import { Model, ModelType } from '../scene/model';
 import { IAnimInfo, IJointsTextureHandle, jointsTextureSamplerHash } from './skeletal-animation-utils';
 
 interface IJointsInfo {
@@ -52,7 +52,7 @@ interface IJointsInfo {
 
 const patches = [
     { name: 'CC_USE_SKINNING', value: true },
-    { name: 'CC_BAKED_ANIMATION', value: true },
+    { name: 'CC_USE_BAKED_ANIMATION', value: true },
 ];
 
 /**
@@ -73,15 +73,14 @@ export class BakedSkinningModel extends Model {
 
     constructor () {
         super();
-        this._type = 'baked-skinning';
+        this._type = ModelType.BAKED_SKINNING;
         this._dataPoolManager = cc.director.root.dataPoolManager;
         const jointsTextureInfo = new Float32Array(4);
-        const animInfo = this._dataPoolManager.jointsAnimationInfo.get();
+        const animInfo = this._dataPoolManager.jointsAnimationInfo.getData();
         this._jointsMedium = { buffer: null, jointsTextureInfo, animInfo, texture: null, boundsInfo: null };
     }
 
     public destroy () {
-        super.destroy();
         this.uploadedAnim = undefined; // uninitialized
         this._jointsMedium.boundsInfo = null;
         if (this._jointsMedium.buffer) {
@@ -89,6 +88,7 @@ export class BakedSkinningModel extends Model {
             this._jointsMedium.buffer = null;
         }
         this._applyJointsTexture();
+        super.destroy();
     }
 
     public bindSkeleton (skeleton: Skeleton | null = null, skinningRoot: Node | null = null, mesh: Mesh | null = null) {
@@ -97,7 +97,7 @@ export class BakedSkinningModel extends Model {
         if (!skeleton || !skinningRoot || !mesh) { return; }
         this._transform = skinningRoot;
         const resMgr = this._dataPoolManager;
-        this._jointsMedium.animInfo = resMgr.jointsAnimationInfo.get(skinningRoot.uuid);
+        this._jointsMedium.animInfo = resMgr.jointsAnimationInfo.getData(skinningRoot.uuid);
         if (!this._jointsMedium.buffer) { // create buffer here so re-init after destroy could work
             this._jointsMedium.buffer = this._device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
