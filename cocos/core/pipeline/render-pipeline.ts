@@ -495,6 +495,7 @@ export abstract class RenderPipeline {
     public updateMacros () {
         programLib.destroyShaderByDefines(this._macros);
         this._macros.CC_USE_HDR = (this._isHDR);
+        this._macros.CC_SUPPORT_FLOAT_TEXTURE = this.device.hasFeature(GFXFeature.TEXTURE_FLOAT);
         for (let i = 0; i < this._root.scenes.length; i++) {
             this._root.scenes[i].onGlobalPipelineStateChanged();
         }

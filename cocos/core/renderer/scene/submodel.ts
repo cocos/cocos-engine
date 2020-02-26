@@ -3,7 +3,7 @@ import { IRenderingSubmesh } from '../../assets/mesh';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXCommandBufferType, GFXStatus } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
-import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../../gfx/input-assembler';
+import { GFXInputAssembler } from '../../gfx/input-assembler';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { RenderPriority } from '../../pipeline/define';
 import { Pass } from '../core/pass';
@@ -59,19 +59,10 @@ export class SubModel {
             this._inputAssembler.destroy();
         }
         this._subMeshObject = sm;
-        const iaInfo = {} as IGFXInputAssemblerInfo;
-        iaInfo.attributes = this._subMeshObject!.attributes;
-        iaInfo.vertexBuffers = this._subMeshObject!.vertexBuffers;
-        if (this._subMeshObject!.indexBuffer) {
-            iaInfo.indexBuffer = this._subMeshObject!.indexBuffer;
-        }
-        if (this._subMeshObject!.indirectBuffer) {
-            iaInfo.indirectBuffer = this._subMeshObject!.indirectBuffer;
-        }
         if (this._inputAssembler) {
-            this._inputAssembler.initialize(iaInfo);
+            this._inputAssembler.initialize(sm);
         } else {
-            this._inputAssembler = (cc.director.root!.device as GFXDevice).createInputAssembler(iaInfo);
+            this._inputAssembler = (cc.director.root!.device as GFXDevice).createInputAssembler(sm);
         }
     }
 
@@ -108,7 +99,7 @@ export class SubModel {
             return;
         }
         for (let i = 0; i < this._material!.passes.length; i++) {
-            if (this._subMeshObject && this._material!.passes[i].primitive !== this._subMeshObject.primitiveMode) {
+            if (CC_EDITOR && this._subMeshObject && this._material!.passes[i].primitive !== this._subMeshObject.primitiveMode) {
                 console.warn(`mesh primitive type doesn't match with pass settings`);
             }
             this.recordCommandBuffer(i);

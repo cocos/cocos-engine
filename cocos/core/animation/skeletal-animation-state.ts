@@ -28,109 +28,150 @@
  */
 
 import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
-import { Mat4 } from '../math';
+import { Mat4, Quat, Vec3 } from '../math';
 import { IAnimInfo, JointsAnimationInfo } from '../renderer/models/skeletal-animation-utils';
-import { Node } from '../scene-graph';
-import { AnimationClip } from './animation-clip';
+import { deleteTransform, getTransform, getWorldMatrix, IJointTransform } from '../renderer/models/skinning-model';
+import { Node } from '../scene-graph/node';
+import { AnimationClip, IRuntimeCurve } from './animation-clip';
 import { AnimationState } from './animation-state';
-import { Socket } from './skeletal-animation-component';
+import { SkeletalAnimationComponent, Socket } from './skeletal-animation-component';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { getWorldTransformUntilRoot } from './transform-utils';
 
 const m4_1 = new Mat4();
-const _defaultCurves = []; // no curves
+const m4_2 = new Mat4();
+
+interface ITransform {
+    pos: Vec3;
+    rot: Quat;
+    scale: Vec3;
+}
 
 interface ISocketData {
     target: Node;
-    frames: Mat4[];
+    transform: IJointTransform;
+    frames: ITransform[];
 }
+
+const noCurves: IRuntimeCurve[] = [];
 
 export class SkeletalAnimationState extends AnimationState {
 
-    protected _preSample = true;
     protected _frames = 1;
+    protected _bakedDuration = 0;
     protected _animInfo: IAnimInfo | null = null;
     protected _sockets: ISocketData[] = [];
+    protected _animInfoMgr: JointsAnimationInfo;
+    protected _comps: SkinningModelComponent[] = [];
+    protected _parent: SkeletalAnimationComponent | null = null;
+    protected _curvesInited = false;
 
-    constructor (clip: AnimationClip, name = '', preSample = true) {
+    constructor (clip: AnimationClip, name = '') {
         super(clip, name);
-        this._preSample = preSample;
+        this._animInfoMgr = cc.director.root.dataPoolManager.jointsAnimationInfo;
     }
 
     public initialize (root: Node) {
         if (this._curveLoaded) { return; }
-        if (this._preSample) {
-            const info = SkelAnimDataHub.getOrExtract(this.clip).info;
-            super.initialize(root, _defaultCurves);
-            this._frames = info.frames - 1;
-            this._animInfo = (cc.director.root.dataPoolManager.jointsAnimationInfo as JointsAnimationInfo).create(root.uuid);
-            this.duration = this._frames / info.sample; // last key
-        } else {
-            super.initialize(root);
+        this._comps.length = 0;
+        const comps = root.getComponentsInChildren(SkinningModelComponent);
+        for (let i = 0; i < comps.length; ++i) {
+            const comp = comps[i];
+            if (comp.skinningRoot === root) {
+                this._comps.push(comp);
+            }
         }
+        this._parent = root.getComponent('cc.SkeletalAnimationComponent') as SkeletalAnimationComponent;
+        const baked = this._curvesInited = this._parent.useBakedAnimation;
+        super.initialize(root, baked ? noCurves : undefined);
+        const info = SkelAnimDataHub.getOrExtract(this.clip).info;
+        this._frames = info.frames - 1;
+        this._animInfo = this._animInfoMgr.getData(root.uuid);
+        this._bakedDuration = this._frames / info.sample; // last key
     }
 
     public onPlay () {
         super.onPlay();
-        const comps = this._targetNode!.getComponentsInChildren(SkinningModelComponent);
-        for (let i = 0; i < comps.length; ++i) {
-            const comp = comps[i];
-            if (comp.skinningRoot === this._targetNode) {
-                comp.uploadAnimation(this.clip);
+        const baked = this._parent!.useBakedAnimation;
+        if (baked) {
+            this._sampleCurves = this._sampleCurvesBaked;
+            this.duration = this._bakedDuration;
+            this._animInfoMgr.switchClip(this._animInfo!, this._clip);
+            for (let i = 0; i < this._comps.length; ++i) {
+                this._comps[i].uploadAnimation(this.clip);
+            }
+        } else {
+            this._sampleCurves = this._sampleCurvesRealTime;
+            this.duration = this._clip.duration;
+            if (!this._curvesInited) {
+                this._curveLoaded = false;
+                super.initialize(this._targetNode!);
+                this._curvesInited = true;
             }
         }
     }
 
     public rebuildSocketCurves (sockets: Socket[]) {
+        for (let i = 0; i < this._sockets.length; ++i) {
+            const socket = this._sockets[i];
+            deleteTransform(socket.transform.node);
+        }
         this._sockets.length = 0;
+        if (!this._targetNode) { return null; }
+        const root = this._targetNode;
         for (let i = 0; i < sockets.length; ++i) {
-            const socket = this._buildSocketData(sockets[i]);
-            if (socket) { this._sockets.push(socket); }
+            const socket = sockets[i];
+            const targetNode = root.getChildByPath(socket.path);
+            const transform = targetNode && getTransform(targetNode, root);
+            if (!transform || !socket.target) { continue; }
+            const sourceData = SkelAnimDataHub.getOrExtract(this.clip).data;
+            // find lowest joint animation
+            let animPath = socket.path;
+            let source = sourceData[animPath];
+            let animNode = targetNode!;
+            while (!source) {
+                const idx = animPath.lastIndexOf('/');
+                animPath = animPath.substring(0, idx);
+                source = sourceData[animPath];
+                animNode = animNode.parent!;
+                if (idx < 0) { continue; }
+            }
+            // create animation data
+            const socketData: ISocketData = {
+                target: socket.target, transform,
+                frames: source.worldMatrix.values.map(() => ({ pos: new Vec3(), rot: new Quat(), scale: new Vec3() })),
+            };
+            const frames = source.worldMatrix.values as Mat4[];
+            const data = socketData.frames;
+            // apply downstream default pose
+            getWorldTransformUntilRoot(targetNode!, animNode, m4_1);
+            for (let j = 0; j < socketData.frames.length; j++) {
+                const m = frames[j]; const dst = data[j];
+                Mat4.toRTS(Mat4.multiply(m4_2, m, m4_1), dst.rot, dst.pos, dst.scale);
+            }
+            this._sockets.push(socketData);
         }
     }
 
-    protected _sampleCurves (ratio: number) {
+    private _sampleCurvesBaked (ratio: number) {
         const info = this._animInfo!;
         const curFrame = (ratio * this._frames + 0.5) | 0;
+        if (curFrame === info.data[1]) { return; }
         info.data[1] = curFrame;
         info.dirty = true;
         for (let i = 0; i < this._sockets.length; ++i) {
             const { target, frames } = this._sockets[i];
-            target.matrix = frames[curFrame]; // ratio guaranteed to be in [0, 1]
+            const { pos, rot, scale } = frames[curFrame]; // ratio guaranteed to be in [0, 1]
+            target.setRTS(rot, pos, scale);
         }
     }
 
-    private _buildSocketData (socket: Socket) {
-        if (!this._targetNode) { return null; }
-        const root = this._targetNode;
-        const targetNode = root.getChildByPath(socket.path);
-        if (!targetNode || !socket.target) { return null; }
-        const targetPath = socket.path;
-        const sourceData = SkelAnimDataHub.getOrExtract(this.clip).data;
-        // find lowest joint animation
-        let animPath = targetPath;
-        let source = sourceData[animPath];
-        let animNode = targetNode;
-        while (!source) {
-            const idx = animPath.lastIndexOf('/');
-            animPath = animPath.substring(0, idx);
-            source = sourceData[animPath];
-            animNode = animNode.parent!;
-            if (idx < 0) { return null; }
+    private _sampleCurvesRealTime (ratio: number) {
+        super._sampleCurves(ratio);
+        const stamp = cc.director.getTotalFrames();
+        for (let i = 0; i < this._sockets.length; ++i) {
+            const { target, transform } = this._sockets[i];
+            target.matrix = getWorldMatrix(transform, stamp);
         }
-        // create animation data
-        const socketData: ISocketData = {
-            target: socket.target,
-            frames: source.worldMatrix.values.map((v) => v.clone()) as Mat4[],
-        };
-        // apply downstream default pose
-        getWorldTransformUntilRoot(targetNode, animNode, m4_1);
-        for (let i = 0; i < socketData.frames.length; i++) {
-            const m = socketData.frames[i];
-            Mat4.multiply(m, m, m4_1);
-        }
-        return socketData;
     }
 }
-
-cc.SkeletalAnimationState = SkeletalAnimationState;

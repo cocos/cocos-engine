@@ -132,7 +132,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMes
         writeBuffer(vertexBufferView, channel.data, channel.attribute.format, channel.offset, stride);
     }
     bufferBlob.setNextAlignment(0);
-    const vertexBundle: Mesh.VertexBundle = {
+    const vertexBundle: Mesh.IVertexBundle = {
         attributes,
         view: {
             offset: bufferBlob.getLength(),
@@ -156,7 +156,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMes
     }
 
     // Create primitive.
-    const primitive: Mesh.Submesh = {
+    const primitive: Mesh.ISubmesh = {
         primitiveMode: geometry.primitiveMode || GFXPrimitiveMode.TRIANGLE_LIST,
         vertexBundelIndices: [0],
     };
@@ -205,7 +205,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMes
     }
 
     // Create mesh struct.
-    const meshStruct: Mesh.Struct = {
+    const meshStruct: Mesh.IStruct = {
         vertexBundles: [vertexBundle],
         primitives: [primitive],
     };

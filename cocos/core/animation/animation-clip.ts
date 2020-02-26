@@ -12,10 +12,10 @@ import { DataPoolManager } from '../renderer/data-pool-manager';
 import binarySearchEpsilon from '../utils/binary-search';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { AnimCurve, IPropertyCurveData, RatioSampler } from './animation-curve';
-import { IValueProxyFactory } from './value-proxy';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
-import { ComponentPath, TargetPath, HierarchyPath } from './target-path';
+import { ComponentPath, HierarchyPath, TargetPath } from './target-path';
 import { WrapMode as AnimationWrapMode } from './types';
+import { IValueProxyFactory } from './value-proxy';
 
 export interface IObjectCurveData {
     [propertyName: string]: IPropertyCurveData;
@@ -65,7 +65,7 @@ export declare namespace AnimationClip {
         data: PropertyCurveData;
     }
 
-    export interface CommonTarget {
+    export interface ICommonTarget {
         modifiers: TargetPath[];
         valueAdapter?: IValueProxyFactory;
     }
@@ -180,7 +180,7 @@ export class AnimationClip extends Asset {
     private _curves: AnimationClip.ICurve[] = [];
 
     @property
-    private _commonTargets: AnimationClip.CommonTarget[] = [];
+    private _commonTargets: AnimationClip.ICommonTarget[] = [];
 
     private _hash = 0;
     private frameRate = 0;

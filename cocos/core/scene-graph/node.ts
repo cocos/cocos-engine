@@ -901,6 +901,21 @@ export class Node extends BaseNode {
         return Mat4.fromRT(out, this._rot, this._pos);
     }
 
+    /**
+     * @zh
+     * 一次性设置所有局部变换（平移、旋转、缩放）信息
+     */
+    public setRTS (rot: Quat, pos: Vec3, scale: Vec3) {
+        Quat.copy(this._lrot, rot);
+        Vec3.copy(this._lpos, pos);
+        Vec3.copy(this._lscale, scale);
+        this.invalidateChildren(TransformBit.TRS);
+        this._eulerDirty = true;
+        if (this._eventMask & TRANSFORM_ON) {
+            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.TRS);
+        }
+    }
+
     // ===============================
     // for backward-compatibility
     // ===============================

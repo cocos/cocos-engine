@@ -31,6 +31,7 @@ import { EventArgumentsOf, EventCallbackOf } from '../event/defines';
 import { Node } from '../scene-graph/node';
 import { AnimationBlendState, PropertyBlendState } from './animation-blend-state';
 import { AnimationClip, IRuntimeCurve } from './animation-clip';
+import { AnimationComponent } from './animation-component';
 import { AnimCurve, RatioSampler } from './animation-curve';
 import { additive3D, additiveQuat, BlendFunction } from './blending';
 import { BoundTarget, BufferedTarget } from './bound-target';

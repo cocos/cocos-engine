@@ -27,9 +27,10 @@
  * @category animation
  */
 
+import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../data/class-decorator';
 import { Mat4 } from '../math';
-import { IAnimInfo, JointsAnimationInfo } from '../renderer/models/skeletal-animation-utils';
+import { DataPoolManager } from '../renderer/data-pool-manager';
 import { Node } from '../scene-graph/node';
 import { AnimationClip } from './animation-clip';
 import { AnimationComponent } from './animation-component';
@@ -39,10 +40,21 @@ import { getWorldTransformUntilRoot } from './transform-utils';
 
 @ccclass('cc.SkeletalAnimationComponent.Socket')
 export class Socket {
+
+    /**
+     * @en Path of the target joint.
+     * @zh 此挂点的目标骨骼路径。
+     */
     @property
     public path: string = '';
+
+    /**
+     * @en Transform output node.
+     * @zh 此挂点的变换信息输出节点。
+     */
     @property(Node)
     public target: Node | null = null;
+
     constructor (path = '', target: Node | null = null) {
         this.path = path;
         this.target = target;
@@ -64,7 +76,15 @@ function collectRecursively (node: Node, prefix = '', out: string[] = []) {
 }
 
 /**
- * 骨骼动画组件，额外提供骨骼挂点功能
+ * @en
+ * Skeletal animaiton component, offers the following features on top of [[AnimationComponent]]:
+ * * Choice between baked animation and real-time calculation, to leverage efficiency and expressiveness.
+ * * Joint socket system: Create any socket node directly under the animation component root node,
+ *   find your target joint and register both to the socket list, so that the socket node would be in-sync with the joint.
+ * @zh
+ * 骨骼动画组件，在普通动画组件基础上额外提供以下功能：
+ * * 可选预烘焙动画模式或实时计算模式，用以权衡运行时效率与效果；
+ * * 提供骨骼挂点功能：通过在动画根节点下创建挂点节点，并在骨骼动画组件上配置 socket 列表，挂点节点的 Transform 就能与骨骼保持同步。
  */
 @ccclass('cc.SkeletalAnimationComponent')
 @executionOrder(99)
@@ -74,14 +94,16 @@ export class SkeletalAnimationComponent extends AnimationComponent {
 
     public static Socket = Socket;
 
-    @property({ type: [Socket] })
-    protected _sockets: Socket[] = [];
-
-    protected _enablePreSample = true;
-
+    /**
+     * @en
+     * The joint sockets this animation component maintains.<br>
+     * Sockets have to be registered here before attaching custom nodes to animated joints.
+     * @zh
+     * 当前动画组件维护的挂点数组。要挂载自定义节点到受动画驱动的骨骼上，必须先在此注册挂点。
+     */
     @property({
         type: [Socket],
-        tooltip: 'Joint Sockets',
+        tooltip: 'i18n:animation.sockets',
     })
     get sockets () {
         return this._sockets;
@@ -91,28 +113,54 @@ export class SkeletalAnimationComponent extends AnimationComponent {
         this.rebuildSocketAnimations();
     }
 
-    set enablePreSample (val) {
-        this._enablePreSample = val;
-        this.clips = this._clips; // release old states
+    /**
+     * @en
+     * Whether to bake animations. Default to true,<br>
+     * which substantially increases performance while making all animations completely fixed.<br>
+     * Dynamically changing this property will take effect when playing the next animation clip.
+     * @zh
+     * 是否使用预烘焙动画，默认启用，可以大幅提高运行效时率，但所有动画效果会被彻底固定，不支持任何形式的编辑和混合。<br>
+     * 运行时动态修改此选项会在播放下一条动画片段时生效。
+     */
+    @property({
+        tooltip: 'i18n:animation.use_baked_animation',
+    })
+    get useBakedAnimation () {
+        return this._useBakedAnimation;
     }
-    get enablePreSample () {
-        return this._enablePreSample;
+    set useBakedAnimation (val) {
+        this._useBakedAnimation = val;
+        this.stop();
+        const comps = this.node.getComponentsInChildren(SkinningModelComponent);
+        for (let i = 0; i < comps.length; ++i) {
+            const comp = comps[i];
+            if (comp.skinningRoot === this.node) {
+                comp.setUseBakedAnimation(this._useBakedAnimation);
+            }
+        }
     }
+
+    @property
+    protected _useBakedAnimation = true;
+
+    @property({ type: [Socket] })
+    protected _sockets: Socket[] = [];
 
     public onDestroy () {
         super.onDestroy();
-        cc.director.root.dataPoolManager.jointsAnimationInfo.destroy(this.node.uuid);
+        (cc.director.root.dataPoolManager as DataPoolManager).jointsAnimationInfo.destroy(this.node.uuid);
     }
 
     public start () {
-        super.start();
         this.sockets = this._sockets;
+        this.useBakedAnimation = this._useBakedAnimation;
+        super.start();
     }
 
     public querySockets () {
         const animPaths = this._defaultClip && Object.keys(SkelAnimDataHub.getOrExtract(this._defaultClip).data).sort().reduce((acc, cur) =>
             cur.startsWith(acc[acc.length - 1]) ? acc : (acc.push(cur), acc), [] as string[]) || [];
-        if (!animPaths.length) { return ['default animation clip missing/invalid']; }
+        if (!animPaths.length) { return ['please specify a valid default animation clip first']; }
         const out: string[] = [];
         for (let i = 0; i < animPaths.length; i++) {
             const path = animPaths[i];
@@ -155,7 +203,7 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     }
 
     protected _createState (clip: AnimationClip, name?: string) {
-        return new SkeletalAnimationState(clip, name, this._enablePreSample);
+        return new SkeletalAnimationState(clip, name);
     }
 
     protected _doCreateState (clip: AnimationClip, name: string) {

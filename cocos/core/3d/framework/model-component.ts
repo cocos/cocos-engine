@@ -106,7 +106,7 @@ export class ModelComponent extends RenderableComponent {
         this._mesh = val;
         this._onMeshChanged(old);
         this._updateModels();
-        if (this.node.activeInHierarchy) {
+        if (this.enabledInHierarchy) {
             this._attachToScene();
         }
     }
@@ -132,9 +132,7 @@ export class ModelComponent extends RenderableComponent {
         if (!this._model) {
             this._updateModels();
         }
-        if (this._model) {
-            this._attachToScene();
-        }
+        this._attachToScene();
     }
 
     public onDisable () {
@@ -158,16 +156,12 @@ export class ModelComponent extends RenderableComponent {
 
         if (this._model) {
             this._model.destroy();
+            this._model.initialize(this.node);
         } else {
             this._createModel();
         }
 
         this._updateModelParams();
-
-        if (this._model) {
-            this._model.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
-            this._model.enabled = true;
-        }
     }
 
     protected _createModel () {
@@ -211,6 +205,8 @@ export class ModelComponent extends RenderableComponent {
                 }
             }
         }
+        this._model.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
+        this._model.enabled = true;
     }
 
     protected _onMaterialModified (idx: number, material: Material | null) {
@@ -257,7 +253,6 @@ export class ModelComponent extends RenderableComponent {
     }
 
     private _isBatchingEnabled () {
-        if (!this._model || !this._mesh) { return false; }
         for (let i = 0; i < this._materials.length; ++i) {
             const mat = this._materials[i];
             if (!mat) { continue; }

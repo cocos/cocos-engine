@@ -48,7 +48,7 @@ import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
 import { customizeType, getBindingFromHandle, getBindingTypeFromHandle,
-    getOffsetFromHandle, getTypeFromHandle, IDefineMap, type2default, type2reader, type2writer } from './pass-utils';
+    getDefaultFromType, getOffsetFromHandle, getTypeFromHandle, IDefineMap, type2reader, type2writer } from './pass-utils';
 import { IProgramInfo, programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
 
@@ -64,6 +64,11 @@ export interface IBlock {
     buffer: ArrayBuffer;
     view: Float32Array;
     dirty: boolean;
+}
+
+export interface IMacroPatch {
+    name: string;
+    value: boolean | number | string;
 }
 
 interface IPassResources {
@@ -430,16 +435,20 @@ export class Pass {
     public resetUBOs () {
         for (const u of this._shaderInfo.blocks) {
             if (isBuiltinBinding(u.binding)) { continue; }
+            if (u.defaultValue) {
+                this._buffers[u.binding].update(u.defaultValue);
+            }
             const block: IBlock = this._blocks[u.binding];
+            if (!block) { continue; }
             let ofs = 0;
             for (let i = 0; i < u.members.length; i++) {
                 const cur = u.members[i];
                 const inf = this._properties[cur.name];
                 const givenDefault = inf && inf.value;
-                const value = givenDefault ? givenDefault : type2default[cur.type];
-                const stride = GFXGetTypeSize(cur.type) >> 2;
-                for (let j = 0; j < cur.count; j++) { block.view.set(value, ofs + j * stride); }
-                ofs += stride * cur.count;
+                const value = (givenDefault ? givenDefault : getDefaultFromType(cur.type)) as number[];
+                const size = (GFXGetTypeSize(cur.type) >> 2) * cur.count;
+                for (let j = 0; j + value.length <= size; j += value.length) { block.view.set(value, ofs + j); }
+                ofs += size;
             }
             block.dirty = true;
         }
@@ -453,7 +462,8 @@ export class Pass {
         for (const u of this._shaderInfo.samplers) {
             if (isBuiltinBinding(u.binding)) { continue; }
             const inf = this._properties[u.name];
-            const texName = inf && inf.value ? inf.value + '-texture' : type2default[u.type];
+            const value = inf && inf.value || u.defaultValue;
+            const texName = value ? value + '-texture' : getDefaultFromType(u.type) as string;
             const texture = builtinResMgr.get<TextureBase>(texName);
             const textureView = texture && texture.getGFXTextureView();
             if (!textureView) { console.warn('illegal texture default value: ' + texName); continue; }
@@ -489,12 +499,14 @@ export class Pass {
      * @zh
      * 根据当前 pass 持有的信息创建 [[GFXPipelineState]]。
      */
-    public createPipelineState (): GFXPipelineState | null {
+    public createPipelineState (patches?: IMacroPatch[]): GFXPipelineState | null {
         if ((!this._renderPass || !this._shader || !this._bindings.length) && !this.tryCompile()) {
             console.warn(`pass resources not complete, create PSO failed`);
             return null;
         }
-        const shader = this._shader!; _blInfo.bindings = this._bindings;
+        const res = patches ? this._getShaderWithBuiltinMacroPatches (patches) : null;
+        const shader = res && res.shader || this._shader!;
+        _blInfo.bindings = res && res.bindings || this._bindings;
         // bind resources
         const bindingLayout = this._device.createBindingLayout(_blInfo);
         for (const b in this._buffers) {
@@ -605,6 +617,29 @@ export class Pass {
         }
         Object.assign(directHandleMap, indirectHandleMap);
         this.tryCompile();
+    }
+
+    protected _getShaderWithBuiltinMacroPatches (patches: IMacroPatch[]) {
+        if (CC_EDITOR) {
+            for (let i = 0; i < patches.length; i++) {
+                if (!patches[i].name.startsWith('CC_')) {
+                    console.warn('cannot patch non-builtin macros');
+                    return null;
+                }
+            }
+        }
+        const pipeline = (cc.director.root as Root).pipeline;
+        if (!pipeline) { return null; }
+        for (let i = 0; i < patches.length; i++) {
+            const patch = patches[i];
+            this._defines[patch.name] = patch.value;
+        }
+        const res = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
+        for (let i = 0; i < patches.length; i++) {
+            const patch = patches[i];
+            delete this._defines[patch.name];
+        }
+        return res;
     }
 
     // states
