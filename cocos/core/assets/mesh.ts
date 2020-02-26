@@ -340,6 +340,7 @@ export class Mesh extends Asset {
     }
 
     get hash () {
+        // hashes should already be computed offline, but if not, make one
         if (!this._hash && this._data) { this._hash = murmurhash2_32_gc(this._data, 666); }
         return this._hash;
     }
