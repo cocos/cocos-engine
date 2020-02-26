@@ -35,6 +35,8 @@ Game::Game(int width, int height) : cocos2d::Application(width, height) {}
 
 bool Game::init()
 {
+    cocos2d::Application::init();
+    
     se::ScriptEngine *se = se::ScriptEngine::getInstance();
     
     jsb_set_xxtea_key("");
@@ -60,8 +62,6 @@ bool Game::init()
     se->addAfterCleanupHook([]() {
         JSBClassType::destroy();
     });
-    
-    cocos2d::Application::init();
     
     return true;
 }

@@ -43,15 +43,15 @@ Game* game = nullptr;
     float scale = [[UIScreen mainScreen] scale];
     CGRect bounds = [[UIScreen mainScreen] bounds];
     self.window = [[UIWindow alloc] initWithFrame: bounds];
+
+    // Should create view controller first, cocos2d::Application will use it.
+    _viewController = [[ViewController alloc]init];
+    [self.window setRootViewController:_viewController];
     
     // cocos2d application instance
     game = new Game(bounds.size.width * scale, bounds.size.height * scale);
     game->init();
     
-    // Use RootViewController to manage CCEAGLView
-    _viewController = [[ViewController alloc]init];
-    
-    [self.window setRootViewController:_viewController];
     [self.window makeKeyAndVisible];
 
     CADisplayLink* displayLink = [NSClassFromString(@"CADisplayLink") displayLinkWithTarget:self selector:@selector(loop:)];
