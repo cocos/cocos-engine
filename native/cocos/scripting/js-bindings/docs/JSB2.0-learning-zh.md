@@ -1030,7 +1030,7 @@ classes_owned_by_cpp =
 #### Windows
 
 * 编译、运行游戏（或在 Creator 中直接使用模拟器运行）
-* 用 Chrome 浏览器打开[chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=127.0.0.1:6086/00010002-0003-4004-8005-000600070008](chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=127.0.0.1:6086/00010002-0003-4004-8005-000600070008)
+* 用 Chrome 浏览器打开[chrome-devtools://devtools/bundled/js_app.html?v8only=true&ws=127.0.0.1:6086/00010002-0003-4004-8005-000600070008](chrome-devtools://devtools/bundled/js_app.html?v8only=true&ws=127.0.0.1:6086/00010002-0003-4004-8005-000600070008)
 
 断点调试：
 ![](v8-win32-debug.jpg)
@@ -1045,7 +1045,7 @@ Profile
 
 * 保证 Android 设备与 PC 或者 Mac 在同一个局域网中
 * 编译，运行游戏
-* 用 Chrome 浏览器打开[chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=xxx.xxx.xxx.xxx:6086/00010002-0003-4004-8005-000600070008](chrome-devtools://devtools/bundled/inspector.html?v8only=true&ws=xxx.xxx.xxx.xxx:6086/00010002-0003-4004-8005-000600070008), 其中 `xxx.xxx.xxx.xxx` 为局域网中 Android 设备的 IP 地址
+* 用 Chrome 浏览器打开[chrome-devtools://devtools/bundled/js_app.html?v8only=true&ws=xxx.xxx.xxx.xxx:6086/00010002-0003-4004-8005-000600070008](chrome-devtools://devtools/bundled/js_app.html?v8only=true&ws=xxx.xxx.xxx.xxx:6086/00010002-0003-4004-8005-000600070008), 其中 `xxx.xxx.xxx.xxx` 为局域网中 Android 设备的 IP 地址
 * 调试界面与 Windows 相同
 
 
