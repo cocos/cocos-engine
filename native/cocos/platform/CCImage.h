@@ -28,9 +28,7 @@ THE SOFTWARE.
 /// @cond DO_NOT_SHOW
 
 #include "base/CCRef.h"
-#include "platform/CCGL.h"
-#include "platform/CCStdC.h"
-#include "platform/CCGL.h"
+#include "renderer/core/Core.h"
 
 #include <string>
 #include <map>
@@ -83,95 +81,26 @@ public:
         ETC,
         //! ETC2
         ETC2,
-        //! S3TC
-        S3TC,
-        //! ATITC
-//        ATITC,
-        //! TGA
-        TGA,
         //! Raw Data
         RAW_DATA,
         //! Unknown format
         UNKNOWN
     };
 
-    /** @typedef Texture2D::PixelFormat
-     Possible texture pixel formats
-     */
-    enum class PixelFormat
-    {
-        //! auto detect the type
-        AUTO,
-        //! 32-bit texture: BGRA8888
-        BGRA8888,
-        //! 32-bit texture: RGBA8888
-        RGBA8888,
-        //! 24-bit texture: RGBA888
-        RGB888,
-        //! 16-bit texture without Alpha channel
-        RGB565,
-        //! 8-bit textures used as masks
-        A8,
-        //! 8-bit intensity texture
-        I8,
-        //! 16-bit textures used as masks
-        AI88,
-        //! 16-bit textures: RGBA4444
-        RGBA4444,
-        //! 16-bit textures: RGB5A1
-        RGB5A1,
-        //! 4-bit PVRTC-compressed texture: PVRTC4
-        PVRTC4,
-        //! 4-bit PVRTC-compressed texture: PVRTC4 (has alpha channel)
-        PVRTC4A,
-        //! 2-bit PVRTC-compressed texture: PVRTC2
-        PVRTC2,
-        //! 2-bit PVRTC-compressed texture: PVRTC2 (has alpha channel)
-        PVRTC2A,
-        //! ETC-compressed texture: ETC
-        ETC,
-        //! ETC-compressed texture: GL_COMPRESSED_RGB8_ETC2
-        ETC2_RGB,
-        //! ETC-compressed texture: GL_COMPRESSED_RGBA8_ETC2
-        ETC2_RGBA,
-        //! S3TC-compressed texture: S3TC_Dxt1
-        S3TC_DXT1,
-        //! S3TC-compressed texture: S3TC_Dxt3
-        S3TC_DXT3,
-        //! S3TC-compressed texture: S3TC_Dxt5
-        S3TC_DXT5,
-        //! ATITC-compressed texture: ATC_RGB
-        ATC_RGB,
-        //! ATITC-compressed texture: ATC_EXPLICIT_ALPHA
-        ATC_EXPLICIT_ALPHA,
-        //! ATITC-compressed texture: ATC_INTERPOLATED_ALPHA
-        ATC_INTERPOLATED_ALPHA,
-        //! Default texture format: AUTO
-        DEFAULT = AUTO,
-
-        NONE = -1
-    };
-
     struct PixelFormatInfo {
 
-        PixelFormatInfo(GLenum anInternalFormat, GLenum aFormat, GLenum aType, int aBpp, bool aCompressed, bool anAlpha)
-        : internalFormat(anInternalFormat)
-        , format(aFormat)
-        , type(aType)
-        , bpp(aBpp)
+        PixelFormatInfo(int aBpp, bool aCompressed, bool anAlpha)
+        : bpp(aBpp)
         , compressed(aCompressed)
         , alpha(anAlpha)
         {}
 
-        GLenum internalFormat;
-        GLenum format;
-        GLenum type;
         int bpp;
         bool compressed;
         bool alpha;
     };
 
-    typedef std::map<PixelFormat, const PixelFormatInfo> PixelFormatInfoMap;
+    typedef std::map<GFXFormat, const PixelFormatInfo> PixelFormatInfoMap;
 
     /**
      * Enables or disables premultiplied alpha for PNG files.
@@ -212,7 +141,7 @@ public:
     inline unsigned char*    getData() const               { return _data; }
     inline ssize_t           getDataLen() const            { return _dataLen; }
     inline Format            getFileType() const           { return _fileType; }
-    inline PixelFormat       getRenderFormat() const       { return _renderFormat; }
+    inline GFXFormat         getRenderFormat() const       { return _renderFormat; }
     inline int               getWidth() const              { return _width; }
     inline int               getHeight() const             { return _height; }
     inline int               getNumberOfMipmaps() const    { return _numberOfMipmaps; }
@@ -220,11 +149,8 @@ public:
     inline bool              hasPremultipliedAlpha() const { return _hasPremultipliedAlpha; }
     inline std::string       getFilePath() const           { return _filePath; }
 
-    int                      getBitPerPixel() const;
     bool                     hasAlpha() const;
     bool                     isCompressed() const;
-
-    const PixelFormatInfo& getPixelFormatInfo() const;
 
     /**
      @brief    Save Image data to the specified file, with specified format.
@@ -242,10 +168,6 @@ protected:
     bool initWithPVRv3Data(const unsigned char * data, ssize_t dataLen);
     bool initWithETCData(const unsigned char * data, ssize_t dataLen);
     bool initWithETC2Data(const unsigned char * data, ssize_t dataLen);
-    bool initWithS3TCData(const unsigned char * data, ssize_t dataLen);
-
-    typedef struct sImageTGA tImageTGA;
-    bool initWithTGAData(tImageTGA* tgaData);
 
     bool saveImageToPNG(const std::string& filePath, bool isToRGB = true);
     bool saveImageToJPG(const std::string& filePath);
@@ -262,16 +184,16 @@ protected:
      @brief Determine whether we premultiply alpha for png files.
      */
     static bool PNG_PREMULTIPLIED_ALPHA_ENABLED;
-    unsigned char *_data;
-    ssize_t _dataLen;
-    int _width;
-    int _height;
-    Format _fileType;
-    PixelFormat _renderFormat;
+    unsigned char *_data = nullptr;
+    ssize_t _dataLen = 0;
+    int _width = 0;
+    int _height = 0;
+    Format _fileType = Format::UNKNOWN;
+    GFXFormat _renderFormat = GFXFormat::UNKNOWN;
     MipmapInfo _mipmaps[MIPMAP_MAX];   // pointer to mipmap images
-    int _numberOfMipmaps;
+    int _numberOfMipmaps = 0;
     // false if we can't auto detect the image is premultiplied or not.
-    bool _hasPremultipliedAlpha;
+    bool _hasPremultipliedAlpha = false;
     std::string _filePath;
 
 protected:
@@ -296,7 +218,6 @@ protected:
     bool isPvr(const unsigned char * data, ssize_t dataLen);
     bool isEtc(const unsigned char * data, ssize_t dataLen);
     bool isEtc2(const unsigned char * data, ssize_t dataLen);
-    bool isS3TC(const unsigned char * data,ssize_t dataLen);
 };
 
 // end of platform group

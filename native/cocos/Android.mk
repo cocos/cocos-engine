@@ -33,7 +33,6 @@ base/CCData.cpp \
 base/CCRef.cpp \
 base/CCValue.cpp \
 base/CCThreadPool.cpp \
-base/TGAlib.cpp \
 base/ZipUtils.cpp \
 base/base64.cpp \
 base/ccCArray.cpp \

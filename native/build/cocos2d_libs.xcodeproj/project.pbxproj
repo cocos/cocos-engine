@@ -502,8 +502,6 @@
 		46FDDB8C202ADDCE00931238 /* CCAutoreleasePool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDB0A202ADDCE00931238 /* CCAutoreleasePool.cpp */; };
 		46FDDB8F202ADDCE00931238 /* ccUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDB0C202ADDCE00931238 /* ccUtils.cpp */; };
 		46FDDB90202ADDCE00931238 /* ccUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDB0C202ADDCE00931238 /* ccUtils.cpp */; };
-		46FDDB93202ADDCE00931238 /* TGAlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDB0E202ADDCE00931238 /* TGAlib.cpp */; };
-		46FDDB94202ADDCE00931238 /* TGAlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDB0E202ADDCE00931238 /* TGAlib.cpp */; };
 		46FDDB99202ADDCE00931238 /* ccUTF8.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDB11202ADDCE00931238 /* ccUTF8.cpp */; };
 		46FDDB9A202ADDCE00931238 /* ccUTF8.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDB11202ADDCE00931238 /* ccUTF8.cpp */; };
 		46FDDB9F202ADDCE00931238 /* CCVector.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDB14202ADDCE00931238 /* CCVector.h */; };
@@ -524,8 +522,6 @@
 		46FDDBD0202ADDCE00931238 /* CCMap.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDB2C202ADDCE00931238 /* CCMap.h */; };
 		46FDDBD1202ADDCE00931238 /* ccUTF8.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDB2D202ADDCE00931238 /* ccUTF8.h */; };
 		46FDDBD2202ADDCE00931238 /* ccUTF8.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDB2D202ADDCE00931238 /* ccUTF8.h */; };
-		46FDDBDD202ADDCE00931238 /* TGAlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDB33202ADDCE00931238 /* TGAlib.h */; };
-		46FDDBDE202ADDCE00931238 /* TGAlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDB33202ADDCE00931238 /* TGAlib.h */; };
 		46FDDBE3202ADDCE00931238 /* CCData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDB36202ADDCE00931238 /* CCData.cpp */; };
 		46FDDBE4202ADDCE00931238 /* CCData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46FDDB36202ADDCE00931238 /* CCData.cpp */; };
 		46FDDBE9202ADDCE00931238 /* CCAutoreleasePool.h in Headers */ = {isa = PBXBuildFile; fileRef = 46FDDB39202ADDCE00931238 /* CCAutoreleasePool.h */; };
@@ -1285,7 +1281,6 @@
 		46FDDB09202ADDCE00931238 /* CCRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCRef.h; sourceTree = "<group>"; };
 		46FDDB0A202ADDCE00931238 /* CCAutoreleasePool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCAutoreleasePool.cpp; sourceTree = "<group>"; };
 		46FDDB0C202ADDCE00931238 /* ccUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ccUtils.cpp; sourceTree = "<group>"; };
-		46FDDB0E202ADDCE00931238 /* TGAlib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TGAlib.cpp; sourceTree = "<group>"; };
 		46FDDB11202ADDCE00931238 /* ccUTF8.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ccUTF8.cpp; sourceTree = "<group>"; };
 		46FDDB14202ADDCE00931238 /* CCVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCVector.h; sourceTree = "<group>"; };
 		46FDDB16202ADDCE00931238 /* pvr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = pvr.cpp; sourceTree = "<group>"; };
@@ -1296,7 +1291,6 @@
 		46FDDB2A202ADDCE00931238 /* ZipUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZipUtils.h; sourceTree = "<group>"; };
 		46FDDB2C202ADDCE00931238 /* CCMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCMap.h; sourceTree = "<group>"; };
 		46FDDB2D202ADDCE00931238 /* ccUTF8.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ccUTF8.h; sourceTree = "<group>"; };
-		46FDDB33202ADDCE00931238 /* TGAlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TGAlib.h; sourceTree = "<group>"; };
 		46FDDB36202ADDCE00931238 /* CCData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCData.cpp; sourceTree = "<group>"; };
 		46FDDB39202ADDCE00931238 /* CCAutoreleasePool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCAutoreleasePool.h; sourceTree = "<group>"; };
 		46FDDB41202ADDCE00931238 /* etc1.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = etc1.cpp; sourceTree = "<group>"; };
@@ -2226,8 +2220,6 @@
 				46FDDAFB202ADDCE00931238 /* etc1.h */,
 				46FDDB16202ADDCE00931238 /* pvr.cpp */,
 				46FDDAEB202ADDCE00931238 /* pvr.h */,
-				46FDDB0E202ADDCE00931238 /* TGAlib.cpp */,
-				46FDDB33202ADDCE00931238 /* TGAlib.h */,
 				46FDDB1F202ADDCE00931238 /* uthash.h */,
 				46FDDAEE202ADDCE00931238 /* utlist.h */,
 				46FDDAFC202ADDCE00931238 /* ZipUtils.cpp */,
@@ -2881,7 +2873,6 @@
 				1A28FF551F20AFAB007A1D9D /* SRIOConsumerPool.h in Headers */,
 				BAC32B59236C28C600F3D55F /* tommyhashdyn.h in Headers */,
 				461786632052607E008256E1 /* jsb_socketio.hpp in Headers */,
-				46FDDBDD202ADDCE00931238 /* TGAlib.h in Headers */,
 				BAEA45551E279D5C00FA219F /* tinydir.h in Headers */,
 				4617864520522469008256E1 /* HttpAsynConnection-apple.h in Headers */,
 				46BFDFFB23CC573500CC5F8E /* MTLCommands.h in Headers */,
@@ -3221,7 +3212,6 @@
 				1A28FF721F20AFAB007A1D9D /* SRHash.h in Headers */,
 				50ABBD431925AB0000A911A9 /* CCMathBase.h in Headers */,
 				BA06A78A23583DFE007740C5 /* GLES2Shader.h in Headers */,
-				46FDDBDE202ADDCE00931238 /* TGAlib.h in Headers */,
 				469303812046AE05004A3D6C /* config.hpp in Headers */,
 				BA06A7FA23583DFE007740C5 /* GLES3RenderPass.h in Headers */,
 				BA06A84B23584B92007740C5 /* gl2platform.h in Headers */,
@@ -3527,7 +3517,6 @@
 				469303662046AE05004A3D6C /* HandleObject.cpp in Sources */,
 				BAC32B73236C28C600F3D55F /* tommyhash.c in Sources */,
 				BAC32B3F236C28C600F3D55F /* tommyhashdyn.c in Sources */,
-				46FDDB93202ADDCE00931238 /* TGAlib.cpp in Sources */,
 				BAC32B4D236C28C600F3D55F /* tommyhashtbl.c in Sources */,
 				1A52DB60205BCDC700350EE3 /* Utils.cpp in Sources */,
 				1A28FF831F20AFAB007A1D9D /* SRRandom.m in Sources */,
@@ -3820,7 +3809,6 @@
 				469304592046AE06004A3D6C /* EventDispatcher.cpp in Sources */,
 				4617864E205224CF008256E1 /* HttpClient-apple.mm in Sources */,
 				BA06A7B823583DFE007740C5 /* GLES2CommandBuffer.cc in Sources */,
-				46FDDB94202ADDCE00931238 /* TGAlib.cpp in Sources */,
 				46FDDB66202ADDCE00931238 /* ccRandom.cpp in Sources */,
 				1A28FF841F20AFAB007A1D9D /* SRRandom.m in Sources */,
 				468A968022F43F4F005034BE /* Object.cpp in Sources */,

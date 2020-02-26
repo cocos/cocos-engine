@@ -754,13 +754,6 @@ namespace
         imgInfo->width = img->getWidth();
         imgInfo->height = img->getHeight();
         imgInfo->data = img->getData();
-
-        const auto& pixelFormatInfo = img->getPixelFormatInfo();
-        imgInfo->glFormat = pixelFormatInfo.format;
-        imgInfo->glInternalFormat = pixelFormatInfo.internalFormat;
-        imgInfo->type = pixelFormatInfo.type;
-
-        imgInfo->bpp = img->getBitPerPixel();
         imgInfo->numberOfMipmaps = img->getNumberOfMipmaps();
         imgInfo->hasAlpha = img->hasAlpha();
         imgInfo->hasPremultipliedAlpha = img->hasPremultipliedAlpha();
@@ -794,9 +787,6 @@ namespace
 
             imgInfo->data = dst;
             imgInfo->hasAlpha = true;
-            imgInfo->bpp = 32;
-            imgInfo->glFormat = GL_RGBA;
-            imgInfo->glInternalFormat = GL_RGBA;
             imgInfo->freeData = true;
         }
 
