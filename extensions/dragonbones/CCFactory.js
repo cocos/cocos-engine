@@ -31,6 +31,7 @@ let BaseObject = dragonBones.BaseObject,
 */
 
 /**
+ * DragonBones factory
  * @class CCFactory
  * @extends BaseFactory
 */

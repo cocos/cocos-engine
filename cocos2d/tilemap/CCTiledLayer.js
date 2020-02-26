@@ -800,7 +800,7 @@ let TiledLayer = cc.Class({
      * !#en properties from the layer. They can be added using Tiled.
      * !#zh 获取 layer 的属性，可以使用 Tiled 编辑器添加属性。
      * @method getProperties
-     * @return {Array}
+     * @return {Object}
      * @example
      * let properties = tiledLayer.getProperties();
      * cc.log("Properties: " + properties);

@@ -48,16 +48,17 @@ function uint8ArrayToUint32Array (uint8Arr) {
 // Bits on the far end of the 32-bit global tile ID (GID's) are used for tile flags
 
 /**
- * <p>cc.TMXLayerInfo contains the information about the layers like: <br />
- * - Layer name<br />
- * - Layer size <br />
- * - Layer opacity at creation time (it can be modified at runtime)  <br />
- * - Whether the layer is visible (if it's not visible, then the CocosNode won't be created) <br />
- *  <br />
- * This information is obtained from the TMX file.</p>
+ * cc.TMXLayerInfo contains the information about the layers like:
+ * - Layer name
+ * - Layer size
+ * - Layer opacity at creation time (it can be modified at runtime)
+ * - Whether the layer is visible (if it's not visible, then the CocosNode won't be created)
+ * This information is obtained from the TMX file.
  * @class TMXLayerInfo
- *
- * @property {Array}    properties  - Properties of the layer info.
+ */
+/**
+ * Properties of the layer info.
+ * @property {Object} properties 
  */
 cc.TMXLayerInfo = function () {
     this.properties = {};
@@ -76,7 +77,7 @@ cc.TMXLayerInfo.prototype = {
     constructor: cc.TMXLayerInfo,
     /**
      * Gets the Properties.
-     * @return {Array}
+     * @return {Object}
      */
     getProperties () {
         return this.properties;
@@ -108,16 +109,19 @@ cc.TMXImageLayerInfo = function () {
 };
 
 /**
- * <p>cc.TMXObjectGroupInfo contains the information about the object group like: <br />
- * - group name<br />
- * - group size <br />
- * - group opacity at creation time (it can be modified at runtime)  <br />
- * - Whether the group is visible <br />
- *  <br />
+ * <p>cc.TMXObjectGroupInfo contains the information about the object group like:
+ * - group name
+ * - group size
+ * - group opacity at creation time (it can be modified at runtime)
+ * - Whether the group is visible
+ *
  * This information is obtained from the TMX file.</p>
  * @class TMXObjectGroupInfo
- *
- * @property {Array}    properties  - Properties of the ObjectGroup info.
+ */
+
+/**
+ * Properties of the ObjectGroup info.
+ * @property {Array} properties
  */
 cc.TMXObjectGroupInfo = function () {
     this.properties = {};
@@ -160,13 +164,36 @@ cc.TMXObjectGroupInfo.prototype = {
  *
  * This information is obtained from the TMX file. </p>
  * @class TMXTilesetInfo
- *
- * @property {string} name - Tileset name
- * @property {number} firstGid - First grid
- * @property {number} spacing - Spacing
- * @property {number} margin - Margin
- * @property {null} sourceImage - Texture containing the tiles (should be sprite sheet / texture atlas)
- * @property {cc.Size} imageSize - Size in pixels of the image
+ */
+
+/**
+ * Tileset name
+ * @property {string} name
+ */
+
+/**
+ * First grid
+ * @property {number} firstGid 
+ */
+
+/**
+ * Spacing
+ * @property {number} spacing
+ */
+
+/**
+ * Margin
+ * @property {number} margin 
+ */
+
+/**
+ * Texture containing the tiles (should be sprite sheet / texture atlas)
+ * @property {null} sourceImage
+ */
+
+/**
+ * Size in pixels of the image
+ * @property {cc.Size} imageSize
  */
 cc.TMXTilesetInfo = function () {
     // Tileset name
@@ -298,19 +325,65 @@ function getPropertyList (node, map) {
  * - ObjectGroups (an array of TMXObjectGroupInfo objects) </p>
  *
  * <p>This information is obtained from the TMX file. </p>
- * @class
- *
- * @property {Array}    properties          - Properties of the map info.
- * @property {Number}   orientation         - Map orientation.
- * @property {Object}   parentElement       - Parent element.
- * @property {Number}   parentGID           - Parent GID.
- * @property {Object}   layerAttrs        - Layer attributes.
- * @property {Boolean}  storingCharacters   - Is reading storing characters stream.
- * @property {String}   currentString       - Current string stored from characters stream.
- * @property {Number}   mapWidth            - Width of the map
- * @property {Number}   mapHeight           - Height of the map
- * @property {Number}   tileWidth           - Width of a tile
- * @property {Number}   tileHeight          - Height of a tile
+ * @class TMXMapInfo
+ */
+
+/**
+ * Properties of the map info.
+ * @property {Array}    properties          
+ */
+
+/**
+ * Map orientation.
+ * @property {Number}   orientation         
+ */
+
+/**
+ * Parent element.
+ * @property {Object}   parentElement       
+ */
+
+/**
+ * Parent GID.
+ * @property {Number}   parentGID           
+ */
+
+/**
+ * Layer attributes.
+ * @property {Object}   layerAttrs        
+ */
+
+/**
+ * Is reading storing characters stream.
+ * @property {Boolean}  storingCharacters   
+ */
+
+/**
+ * Current string stored from characters stream.
+ * @property {String}   currentString       
+ */
+
+/**
+ * Width of the map
+ * @property {Number}   mapWidth            
+ */
+
+/**
+ * Height of the map
+ * @property {Number}   mapHeight           
+ */
+
+/**
+ * Width of a tile
+ * @property {Number}   tileWidth           
+ */
+
+/** 
+ * Height of a tile
+ * @property {Number}   tileHeight          
+ */
+
+/**
  * @example
  * 1.
  * //create a TMXMapInfo with file name
@@ -324,12 +397,7 @@ function getPropertyList (node, map) {
  */
 
 /**
- * Creates a TMX Format with a tmx file or content string                           <br/>
- * Constructor of cc.TMXMapInfo
- * @method constructor
- * @param {String} tmxFile content string
- * @param {Object} tsxMap
- * @param {Object} textures
+ * Creates a TMX Format with a tmx file or content string
  */
 cc.TMXMapInfo = function (tmxFile, tsxMap, textures, textureSizes, imageLayerTextures) {
     this.properties = [];
@@ -1190,24 +1258,35 @@ js.getset(_p, "mapHeight", _p._getMapHeight, _p._setMapHeight);
 js.getset(_p, "tileWidth", _p._getTileWidth, _p._setTileWidth);
 js.getset(_p, "tileHeight", _p._getTileHeight, _p._setTileHeight);
 
-
 /**
+ * @property ATTRIB_NONE
  * @constant
- * @type Number
+ * @static
+ * @type {Number}
+ * @default 1
  */
 cc.TMXLayerInfo.ATTRIB_NONE = 1 << 0;
 /**
+ * @property ATTRIB_BASE64
  * @constant
- * @type Number
+ * @static
+ * @type {Number}
+ * @default 2
  */
 cc.TMXLayerInfo.ATTRIB_BASE64 = 1 << 1;
 /**
+ * @property ATTRIB_GZIP
  * @constant
- * @type Number
+ * @static
+ * @type {Number}
+ * @default 4
  */
 cc.TMXLayerInfo.ATTRIB_GZIP = 1 << 2;
 /**
+ * @property ATTRIB_ZLIB
  * @constant
- * @type Number
+ * @static
+ * @type {Number}
+ * @default 8
  */
 cc.TMXLayerInfo.ATTRIB_ZLIB = 1 << 3;
