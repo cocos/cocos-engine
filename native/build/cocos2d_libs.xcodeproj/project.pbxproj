@@ -442,7 +442,7 @@
 		46BFE00023CC573500CC5F8E /* MTLInputAssembler.h in Headers */ = {isa = PBXBuildFile; fileRef = 46BFDFD623CC573300CC5F8E /* MTLInputAssembler.h */; };
 		46BFE00123CC573500CC5F8E /* MTLBindingLayout.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46BFDFD723CC573300CC5F8E /* MTLBindingLayout.cpp */; };
 		46BFE00223CC573500CC5F8E /* MTLUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 46BFDFD823CC573300CC5F8E /* MTLUtils.h */; };
-		46BFE00323CC573500CC5F8E /* MTLWindow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46BFDFD923CC573300CC5F8E /* MTLWindow.cpp */; };
+		46BFE00323CC573500CC5F8E /* MTLWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = 46BFDFD923CC573300CC5F8E /* MTLWindow.mm */; };
 		46BFE00423CC573500CC5F8E /* GFXMTL.h in Headers */ = {isa = PBXBuildFile; fileRef = 46BFDFDA23CC573300CC5F8E /* GFXMTL.h */; };
 		46BFE00523CC573500CC5F8E /* MTLBuffer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 46BFDFDB23CC573300CC5F8E /* MTLBuffer.mm */; };
 		46BFE00623CC573500CC5F8E /* MTLSampler.h in Headers */ = {isa = PBXBuildFile; fileRef = 46BFDFDC23CC573300CC5F8E /* MTLSampler.h */; };
@@ -545,8 +545,6 @@
 		503DD8EE1926736A00CD74DD /* CCImage-ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = 503DD8DC1926736A00CD74DD /* CCImage-ios.mm */; };
 		503DD8EF1926736A00CD74DD /* CCPlatformDefine-ios.h in Headers */ = {isa = PBXBuildFile; fileRef = 503DD8DD1926736A00CD74DD /* CCPlatformDefine-ios.h */; };
 		50643BD619BFAEDA00EF68ED /* CCPlatformDefine.h in Headers */ = {isa = PBXBuildFile; fileRef = 5091A7A219BFABA800AC8789 /* CCPlatformDefine.h */; };
-		50643BDB19BFAF4400EF68ED /* CCStdC.h in Headers */ = {isa = PBXBuildFile; fileRef = 50643BD819BFAF4400EF68ED /* CCStdC.h */; };
-		50643BDC19BFAF4400EF68ED /* CCStdC.h in Headers */ = {isa = PBXBuildFile; fileRef = 50643BD819BFAF4400EF68ED /* CCStdC.h */; };
 		50643BE219BFCF1800EF68ED /* CCPlatformConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 50643BE019BFCF1800EF68ED /* CCPlatformConfig.h */; };
 		50643BE319BFCF1800EF68ED /* CCPlatformConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 50643BE019BFCF1800EF68ED /* CCPlatformConfig.h */; };
 		5091A7A319BFABA800AC8789 /* CCPlatformDefine.h in Headers */ = {isa = PBXBuildFile; fileRef = 5091A7A219BFABA800AC8789 /* CCPlatformDefine.h */; };
@@ -1234,7 +1232,7 @@
 		46BFDFD623CC573300CC5F8E /* MTLInputAssembler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MTLInputAssembler.h; sourceTree = "<group>"; };
 		46BFDFD723CC573300CC5F8E /* MTLBindingLayout.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MTLBindingLayout.cpp; sourceTree = "<group>"; };
 		46BFDFD823CC573300CC5F8E /* MTLUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MTLUtils.h; sourceTree = "<group>"; };
-		46BFDFD923CC573300CC5F8E /* MTLWindow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MTLWindow.cpp; sourceTree = "<group>"; };
+		46BFDFD923CC573300CC5F8E /* MTLWindow.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MTLWindow.mm; sourceTree = "<group>"; };
 		46BFDFDA23CC573300CC5F8E /* GFXMTL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GFXMTL.h; sourceTree = "<group>"; };
 		46BFDFDB23CC573300CC5F8E /* MTLBuffer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MTLBuffer.mm; sourceTree = "<group>"; };
 		46BFDFDC23CC573300CC5F8E /* MTLSampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MTLSampler.h; sourceTree = "<group>"; };
@@ -1300,7 +1298,6 @@
 		50272539190BF1B900AAF4ED /* cocos2d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = cocos2d.cpp; path = ../cocos/cocos2d.cpp; sourceTree = "<group>"; };
 		503DD8DC1926736A00CD74DD /* CCImage-ios.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "CCImage-ios.mm"; sourceTree = "<group>"; };
 		503DD8DD1926736A00CD74DD /* CCPlatformDefine-ios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CCPlatformDefine-ios.h"; sourceTree = "<group>"; };
-		50643BD819BFAF4400EF68ED /* CCStdC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCStdC.h; sourceTree = "<group>"; };
 		50643BE019BFCF1800EF68ED /* CCPlatformConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCPlatformConfig.h; sourceTree = "<group>"; };
 		5091A7A219BFABA800AC8789 /* CCPlatformDefine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCPlatformDefine.h; sourceTree = "<group>"; };
 		50ABBD1D1925AB0000A911A9 /* CCGeometry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCGeometry.cpp; sourceTree = "<group>"; };
@@ -2262,7 +2259,6 @@
 				5091A7A219BFABA800AC8789 /* CCPlatformDefine.h */,
 				50ABBF291926664700A911A9 /* CCSAXParser.cpp */,
 				50ABBF2A1926664700A911A9 /* CCSAXParser.h */,
-				50643BD819BFAF4400EF68ED /* CCStdC.h */,
 				46BFDF9E23C8712600CC5F8E /* CCApplication.h */,
 			);
 			name = platform;
@@ -2531,7 +2527,7 @@
 				46BFDFD823CC573300CC5F8E /* MTLUtils.h */,
 				46BFDFE423CC573400CC5F8E /* MTLUtils.hpp */,
 				46BFDFD323CC573300CC5F8E /* MTLUtils.mm */,
-				46BFDFD923CC573300CC5F8E /* MTLWindow.cpp */,
+				46BFDFD923CC573300CC5F8E /* MTLWindow.mm */,
 				46BFDFD223CC573300CC5F8E /* MTLWindow.h */,
 			);
 			path = "gfx-metal";
@@ -2884,7 +2880,6 @@
 				469304102046AE06004A3D6C /* jsb_helper.hpp in Headers */,
 				BA06A6B223583DBD007740C5 /* GFXRenderPass.h in Headers */,
 				46BFE00723CC573500CC5F8E /* MTLBindingLayout.h in Headers */,
-				50643BDB19BFAF4400EF68ED /* CCStdC.h in Headers */,
 				1A28FF591F20AFAB007A1D9D /* NSRunLoop+SRWebSocketPrivate.h in Headers */,
 				BAC32B4F236C28C600F3D55F /* tommyhash.h in Headers */,
 				46FDDB5B202ADDCE00931238 /* CCData.h in Headers */,
@@ -3161,7 +3156,6 @@
 				BA06A84D23584B92007740C5 /* egl.h in Headers */,
 				BA06A85923584B93007740C5 /* eglext.h in Headers */,
 				BA06A77823583DFE007740C5 /* GLES2RenderPass.h in Headers */,
-				50643BDC19BFAF4400EF68ED /* CCStdC.h in Headers */,
 				BA06A6AF23583DBD007740C5 /* GFXBindingLayout.h in Headers */,
 				469303AF2046AE05004A3D6C /* Base.h in Headers */,
 				46930467204FE20F004A3D6C /* CCLog.h in Headers */,
@@ -3429,7 +3423,7 @@
 				BA06A68A23583DBD007740C5 /* Memory.cc in Sources */,
 				ED30579A1BEC77B70083C3ED /* ConvertUTF.c in Sources */,
 				4617863320522469008256E1 /* Uri.cpp in Sources */,
-				46BFE00323CC573500CC5F8E /* MTLWindow.cpp in Sources */,
+				46BFE00323CC573500CC5F8E /* MTLWindow.mm in Sources */,
 				1A28FF6B1F20AFAB007A1D9D /* SRConstants.m in Sources */,
 				294D7D9C1D0E93A2002CE7B7 /* CCDevice-apple.mm in Sources */,
 				1A586C452064C90500B47573 /* EJConvertTypedArray.m in Sources */,

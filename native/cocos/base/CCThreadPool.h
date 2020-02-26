@@ -27,7 +27,6 @@
 #pragma once
 
 #include "base/ccUtils.h"
-#include "platform/CCStdC.h"
 #include "platform/CCPlatformDefine.h"
 
 #include <functional>

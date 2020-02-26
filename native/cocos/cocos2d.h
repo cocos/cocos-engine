@@ -78,18 +78,9 @@ THE SOFTWARE.
 #include "platform/CCSAXParser.h"
 #include "platform/CCCanvasRenderingContext2D.h"
 
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
-    #include "platform/android/CCGL-android.h"
-#endif // CC_PLATFORM == CC_PLATFORM_ANDROID
-
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-    #include "platform/win32/CCGL-win32.h"
     #include "platform/win32/CCStdC-win32.h"
 #endif // CC_PLATFORM == CC_PLATFORM_WINDOWS
-
-#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
-    #include "platform/mac/CCGL-mac.h"
-#endif // CC_PLATFORM == CC_PLATFORM_MAC_OSX
 
 NS_CC_BEGIN
 

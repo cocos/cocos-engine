@@ -29,7 +29,6 @@ THE SOFTWARE.
 
 #include "platform/CCDevice.h"
 #include "platform/apple/CCDevice-apple.h"
-#include "base/ccTypes.h"
 #include "CCReachability.h"
 
 #include <Foundation/Foundation.h>

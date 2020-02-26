@@ -30,7 +30,6 @@
 #include "base/ccMacros.h"
 #include <stdint.h> // for ssize_t on android
 #include <string>   // for ssize_t on linux
-#include "platform/CCStdC.h" // for ssize_t on window
 
 /**
  * @addtogroup base

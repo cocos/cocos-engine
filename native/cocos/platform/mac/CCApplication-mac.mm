@@ -28,7 +28,6 @@ THE SOFTWARE.
 #include <mutex>
 #include "base/CCScheduler.h"
 #include "base/CCAutoreleasePool.h"
-#include "base/CCConfiguration.h"
 #include "scripting/js-bindings/event/EventDispatcher.h"
 #include "scripting/js-bindings/jswrapper/SeApi.h"
 #include "audio/include/AudioEngine.h"

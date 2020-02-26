@@ -28,7 +28,6 @@
 #pragma once
 
 #include "base/ccMacros.h"
-#include "platform/CCStdC.h"
 #include "base/CCRef.h"
 
 #include <string>
