@@ -68,8 +68,8 @@ export default class TiledAssembler extends Assembler2D {
         let rect = frame._rect;
         let leftWidth = frame.insetLeft, rightWidth = frame.insetRight, centerWidth = rect.width - leftWidth - rightWidth,
             topHeight = frame.insetTop, bottomHeight = frame.insetBottom, centerHeight = rect.height - topHeight - bottomHeight;
-        this.sizableWidth = Math.floor((contentWidth - leftWidth - rightWidth) * 1000) / 1000;
-        this.sizableHeight = Math.floor((contentHeight - topHeight - bottomHeight) * 1000) / 1000;
+        this.sizableWidth = contentWidth - leftWidth - rightWidth;
+        this.sizableHeight = contentHeight - topHeight - bottomHeight;
         this.sizableWidth = this.sizableWidth > 0 ? this.sizableWidth : 0;
         this.sizableHeight = this.sizableHeight > 0 ? this.sizableHeight : 0;
         let hRepeat = this.hRepeat = centerWidth === 0 ? this.sizableWidth : this.sizableWidth / centerWidth;
@@ -112,13 +112,13 @@ export default class TiledAssembler extends Assembler2D {
         let yScale = node.height / (topHeight + bottomHeight) > 1 ? 1 : node.height / (topHeight + bottomHeight);
         let offsetWidth = 0, offsetHeight = 0;
         if (centerWidth > 0) {
-            offsetWidth = this.sizableWidth % centerWidth === 0 ? centerWidth : this.sizableWidth % centerWidth;
+            offsetWidth = Math.floor(this.sizableWidth * 1000) / 1000 % centerWidth === 0 ? centerWidth : this.sizableWidth % centerWidth;
         }
         else {
             offsetWidth = this.sizableWidth;
         }
         if (centerHeight > 0) {
-            offsetHeight = this.sizableHeight % centerHeight === 0 ? centerHeight : this.sizableHeight % centerHeight;
+            offsetHeight = Math.floor(this.sizableHeight * 1000) / 1000 % centerHeight === 0 ? centerHeight : this.sizableHeight % centerHeight;
         }
         else {
             offsetHeight = this.sizableHeight;
