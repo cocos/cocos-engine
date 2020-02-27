@@ -1,5 +1,4 @@
 /****************************************************************************
- Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
@@ -80,15 +79,10 @@ var SafeArea = cc.Class({
         if (!widget) {
             return;
         }
-        widget.isAlignTop = true;
-        widget.isAlignBottom = true;
-        widget.isAlignLeft = true;
-        widget.isAlignRight = true;
+
         if (CC_EDITOR) {
-            widget.top = 0;
-            widget.bottom = 0;
-            widget.left = 0;
-            widget.right = 0;
+            widget.top = widget.bottom = widget.left = widget.right = 0;
+            widget.isAlignTop = widget.isAlignBottom = widget.isAlignLeft = widget.isAlignRight = true;
             return;
         }
         // IMPORTANT: need to update alignment to get the latest position
@@ -96,6 +90,7 @@ var SafeArea = cc.Class({
         let lastPos = this.node.position;
         let lastAnchorPoint = this.node.getAnchorPoint();
         //
+        widget.isAlignTop = widget.isAlignBottom = widget.isAlignLeft = widget.isAlignRight = true;
         let screenWidth = cc.winSize.width, screenHeight = cc.winSize.height;
         let safeArea = cc.sys.getSafeAreaRect();
         widget.top = screenHeight - safeArea.y - safeArea.height;
