@@ -117,37 +117,32 @@ static bool js_gfx_GFXOffset_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXOffset* cobj = JSB_ALLOC(cocos2d::GFXOffset);
         int arg0 = 0;
-        json->getProperty("x", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".x\" is undefined!");
-            return false;
+        json->getProperty("x", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (int)tmp; } while(false);
+            cobj->x = arg0;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (int)tmp; } while(false);
         int arg1 = 0;
-        json->getProperty("y", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".y\" is undefined!");
-            return false;
+        json->getProperty("y", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (int)tmp; } while(false);
+            cobj->y = arg1;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (int)tmp; } while(false);
         int arg2 = 0;
-        json->getProperty("z", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".z\" is undefined!");
-            return false;
+        json->getProperty("z", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (int)tmp; } while(false);
+            cobj->z = arg2;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (int)tmp; } while(false);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXOffset* cobj = JSB_ALLOC(cocos2d::GFXOffset);
-        cobj->x = arg0;
-        cobj->y = arg1;
-        cobj->z = arg2;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -351,45 +346,38 @@ static bool js_gfx_GFXRect_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXRect* cobj = JSB_ALLOC(cocos2d::GFXRect);
         int arg0 = 0;
-        json->getProperty("x", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".x\" is undefined!");
-            return false;
+        json->getProperty("x", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (int)tmp; } while(false);
+            cobj->x = arg0;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (int)tmp; } while(false);
         int arg1 = 0;
-        json->getProperty("y", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".y\" is undefined!");
-            return false;
+        json->getProperty("y", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (int)tmp; } while(false);
+            cobj->y = arg1;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (int)tmp; } while(false);
         unsigned int arg2 = 0;
-        json->getProperty("width", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".width\" is undefined!");
-            return false;
+        json->getProperty("width", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg2);
+            cobj->width = arg2;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg2);
         unsigned int arg3 = 0;
-        json->getProperty("height", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".height\" is undefined!");
-            return false;
+        json->getProperty("height", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg3);
+            cobj->height = arg3;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg3);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXRect* cobj = JSB_ALLOC(cocos2d::GFXRect);
-        cobj->x = arg0;
-        cobj->y = arg1;
-        cobj->width = arg2;
-        cobj->height = arg3;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -569,37 +557,32 @@ static bool js_gfx_GFXExtent_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXExtent* cobj = JSB_ALLOC(cocos2d::GFXExtent);
         unsigned int arg0 = 0;
-        json->getProperty("width", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".width\" is undefined!");
-            return false;
+        json->getProperty("width", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg0);
+            cobj->width = arg0;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg0);
         unsigned int arg1 = 0;
-        json->getProperty("height", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".height\" is undefined!");
-            return false;
+        json->getProperty("height", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg1);
+            cobj->height = arg1;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg1);
         unsigned int arg2 = 0;
-        json->getProperty("depth", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".depth\" is undefined!");
-            return false;
+        json->getProperty("depth", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg2);
+            cobj->depth = arg2;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg2);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXExtent* cobj = JSB_ALLOC(cocos2d::GFXExtent);
-        cobj->width = arg0;
-        cobj->height = arg1;
-        cobj->depth = arg2;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -803,45 +786,38 @@ static bool js_gfx_GFXTextureSubres_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXTextureSubres* cobj = JSB_ALLOC(cocos2d::GFXTextureSubres);
         unsigned int arg0 = 0;
-        json->getProperty("baseMipLevel", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".baseMipLevel\" is undefined!");
-            return false;
+        json->getProperty("baseMipLevel", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg0);
+            cobj->baseMipLevel = arg0;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg0);
         unsigned int arg1 = 0;
-        json->getProperty("levelCount", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".levelCount\" is undefined!");
-            return false;
+        json->getProperty("levelCount", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg1);
+            cobj->levelCount = arg1;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg1);
         unsigned int arg2 = 0;
-        json->getProperty("baseArrayLayer", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".baseArrayLayer\" is undefined!");
-            return false;
+        json->getProperty("baseArrayLayer", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg2);
+            cobj->baseArrayLayer = arg2;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg2);
         unsigned int arg3 = 0;
-        json->getProperty("layerCount", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".layerCount\" is undefined!");
-            return false;
+        json->getProperty("layerCount", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg3);
+            cobj->layerCount = arg3;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg3);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXTextureSubres* cobj = JSB_ALLOC(cocos2d::GFXTextureSubres);
-        cobj->baseMipLevel = arg0;
-        cobj->levelCount = arg1;
-        cobj->baseArrayLayer = arg2;
-        cobj->layerCount = arg3;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -1077,53 +1053,44 @@ static bool js_gfx_GFXTextureCopy_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXTextureCopy* cobj = JSB_ALLOC(cocos2d::GFXTextureCopy);
         cocos2d::GFXTextureSubres* arg0 = nullptr;
-        json->getProperty("srcSubres", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".srcSubres\" is undefined!");
-            return false;
+        json->getProperty("srcSubres", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_reference(field, &arg0);
+            cobj->srcSubres = *arg0;
         }
-        ok &= seval_to_reference(field, &arg0);
         cocos2d::GFXOffset* arg1 = nullptr;
-        json->getProperty("srcOffset", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".srcOffset\" is undefined!");
-            return false;
+        json->getProperty("srcOffset", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_reference(field, &arg1);
+            cobj->srcOffset = *arg1;
         }
-        ok &= seval_to_reference(field, &arg1);
         cocos2d::GFXTextureSubres* arg2 = nullptr;
-        json->getProperty("dstSubres", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".dstSubres\" is undefined!");
-            return false;
+        json->getProperty("dstSubres", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_reference(field, &arg2);
+            cobj->dstSubres = *arg2;
         }
-        ok &= seval_to_reference(field, &arg2);
         cocos2d::GFXOffset* arg3 = nullptr;
-        json->getProperty("dstOffset", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".dstOffset\" is undefined!");
-            return false;
+        json->getProperty("dstOffset", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_reference(field, &arg3);
+            cobj->dstOffset = *arg3;
         }
-        ok &= seval_to_reference(field, &arg3);
         cocos2d::GFXExtent* arg4 = nullptr;
-        json->getProperty("extent", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".extent\" is undefined!");
-            return false;
+        json->getProperty("extent", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_reference(field, &arg4);
+            cobj->extent = *arg4;
         }
-        ok &= seval_to_reference(field, &arg4);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXTextureCopy* cobj = JSB_ALLOC(cocos2d::GFXTextureCopy);
-        cobj->srcSubres = *arg0;
-        cobj->srcOffset = *arg1;
-        cobj->dstSubres = *arg2;
-        cobj->dstOffset = *arg3;
-        cobj->extent = *arg4;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -1391,61 +1358,50 @@ static bool js_gfx_GFXBufferTextureCopy_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXBufferTextureCopy* cobj = JSB_ALLOC(cocos2d::GFXBufferTextureCopy);
         unsigned int arg0 = 0;
-        json->getProperty("buffOffset", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".buffOffset\" is undefined!");
-            return false;
+        json->getProperty("buffOffset", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg0);
+            cobj->buffOffset = arg0;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg0);
         unsigned int arg1 = 0;
-        json->getProperty("buffStride", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".buffStride\" is undefined!");
-            return false;
+        json->getProperty("buffStride", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg1);
+            cobj->buffStride = arg1;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg1);
         unsigned int arg2 = 0;
-        json->getProperty("buffTexHeight", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".buffTexHeight\" is undefined!");
-            return false;
+        json->getProperty("buffTexHeight", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg2);
+            cobj->buffTexHeight = arg2;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg2);
         cocos2d::GFXOffset* arg3 = nullptr;
-        json->getProperty("texOffset", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".texOffset\" is undefined!");
-            return false;
+        json->getProperty("texOffset", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_reference(field, &arg3);
+            cobj->texOffset = *arg3;
         }
-        ok &= seval_to_reference(field, &arg3);
         cocos2d::GFXExtent* arg4 = nullptr;
-        json->getProperty("texExtent", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".texExtent\" is undefined!");
-            return false;
+        json->getProperty("texExtent", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_reference(field, &arg4);
+            cobj->texExtent = *arg4;
         }
-        ok &= seval_to_reference(field, &arg4);
         cocos2d::GFXTextureSubres* arg5 = nullptr;
-        json->getProperty("texSubres", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".texSubres\" is undefined!");
-            return false;
+        json->getProperty("texSubres", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_reference(field, &arg5);
+            cobj->texSubres = *arg5;
         }
-        ok &= seval_to_reference(field, &arg5);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXBufferTextureCopy* cobj = JSB_ALLOC(cocos2d::GFXBufferTextureCopy);
-        cobj->buffOffset = arg0;
-        cobj->buffStride = arg1;
-        cobj->buffTexHeight = arg2;
-        cobj->texOffset = *arg3;
-        cobj->texExtent = *arg4;
-        cobj->texSubres = *arg5;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -1717,61 +1673,50 @@ static bool js_gfx_GFXViewport_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXViewport* cobj = JSB_ALLOC(cocos2d::GFXViewport);
         int arg0 = 0;
-        json->getProperty("left", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".left\" is undefined!");
-            return false;
+        json->getProperty("left", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (int)tmp; } while(false);
+            cobj->left = arg0;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (int)tmp; } while(false);
         int arg1 = 0;
-        json->getProperty("top", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".top\" is undefined!");
-            return false;
+        json->getProperty("top", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (int)tmp; } while(false);
+            cobj->top = arg1;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (int)tmp; } while(false);
         unsigned int arg2 = 0;
-        json->getProperty("width", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".width\" is undefined!");
-            return false;
+        json->getProperty("width", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg2);
+            cobj->width = arg2;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg2);
         unsigned int arg3 = 0;
-        json->getProperty("height", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".height\" is undefined!");
-            return false;
+        json->getProperty("height", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg3);
+            cobj->height = arg3;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg3);
         float arg4 = 0;
-        json->getProperty("minDepth", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".minDepth\" is undefined!");
-            return false;
+        json->getProperty("minDepth", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_float(field, &arg4);
+            cobj->minDepth = arg4;
         }
-        ok &= seval_to_float(field, &arg4);
         float arg5 = 0;
-        json->getProperty("maxDepth", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".maxDepth\" is undefined!");
-            return false;
+        json->getProperty("maxDepth", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_float(field, &arg5);
+            cobj->maxDepth = arg5;
         }
-        ok &= seval_to_float(field, &arg5);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXViewport* cobj = JSB_ALLOC(cocos2d::GFXViewport);
-        cobj->left = arg0;
-        cobj->top = arg1;
-        cobj->width = arg2;
-        cobj->height = arg3;
-        cobj->minDepth = arg4;
-        cobj->maxDepth = arg5;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -1987,45 +1932,38 @@ static bool js_gfx_GFXColor_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXColor* cobj = JSB_ALLOC(cocos2d::GFXColor);
         float arg0 = 0;
-        json->getProperty("r", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".r\" is undefined!");
-            return false;
+        json->getProperty("r", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_float(field, &arg0);
+            cobj->r = arg0;
         }
-        ok &= seval_to_float(field, &arg0);
         float arg1 = 0;
-        json->getProperty("g", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".g\" is undefined!");
-            return false;
+        json->getProperty("g", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_float(field, &arg1);
+            cobj->g = arg1;
         }
-        ok &= seval_to_float(field, &arg1);
         float arg2 = 0;
-        json->getProperty("b", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".b\" is undefined!");
-            return false;
+        json->getProperty("b", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_float(field, &arg2);
+            cobj->b = arg2;
         }
-        ok &= seval_to_float(field, &arg2);
         float arg3 = 0;
-        json->getProperty("a", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".a\" is undefined!");
-            return false;
+        json->getProperty("a", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_float(field, &arg3);
+            cobj->a = arg3;
         }
-        ok &= seval_to_float(field, &arg3);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXColor* cobj = JSB_ALLOC(cocos2d::GFXColor);
-        cobj->r = arg0;
-        cobj->g = arg1;
-        cobj->b = arg2;
-        cobj->a = arg3;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -2121,8 +2059,8 @@ static bool js_gfx_GFXDeviceInfo_set_windowHandle(se::State& s)
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDeviceInfo_set_windowHandle : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    int arg0 = 0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
+    intptr_t arg0 = 0;
+    ok &= seval_to_intptr_t(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXDeviceInfo_set_windowHandle : Error processing new value");
     cobj->windowHandle = arg0;
     return true;
@@ -2289,69 +2227,58 @@ static bool js_gfx_GFXDeviceInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        int arg0 = 0;
-        json->getProperty("windowHandle", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".windowHandle\" is undefined!");
-            return false;
+        cocos2d::GFXDeviceInfo* cobj = JSB_ALLOC(cocos2d::GFXDeviceInfo);
+        intptr_t arg0 = 0;
+        json->getProperty("windowHandle", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_intptr_t(field, &arg0);
+            cobj->windowHandle = arg0;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (int)tmp; } while(false);
         unsigned int arg1 = 0;
-        json->getProperty("width", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".width\" is undefined!");
-            return false;
+        json->getProperty("width", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg1);
+            cobj->width = arg1;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg1);
         unsigned int arg2 = 0;
-        json->getProperty("height", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".height\" is undefined!");
-            return false;
+        json->getProperty("height", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg2);
+            cobj->height = arg2;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg2);
         unsigned int arg3 = 0;
-        json->getProperty("nativeWidth", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".nativeWidth\" is undefined!");
-            return false;
+        json->getProperty("nativeWidth", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg3);
+            cobj->nativeWidth = arg3;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg3);
         unsigned int arg4 = 0;
-        json->getProperty("nativeHeight", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".nativeHeight\" is undefined!");
-            return false;
+        json->getProperty("nativeHeight", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg4);
+            cobj->nativeHeight = arg4;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg4);
         cocos2d::GFXContext* arg5 = nullptr;
-        json->getProperty("sharedCtx", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".sharedCtx\" is undefined!");
-            return false;
+        json->getProperty("sharedCtx", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_native_ptr(field, &arg5);
+            cobj->sharedCtx = arg5;
         }
-        ok &= seval_to_native_ptr(field, &arg5);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXDeviceInfo* cobj = JSB_ALLOC(cocos2d::GFXDeviceInfo);
-        cobj->windowHandle = arg0;
-        cobj->width = arg1;
-        cobj->height = arg2;
-        cobj->nativeWidth = arg3;
-        cobj->nativeHeight = arg4;
-        cobj->sharedCtx = arg5;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
     else if(argc == 6)
     {
-        int arg0 = 0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
+        intptr_t arg0 = 0;
+        ok &= seval_to_intptr_t(args[0], &arg0);
         unsigned int arg1 = 0;
         ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
         unsigned int arg2 = 0;
@@ -2727,8 +2654,8 @@ static bool js_gfx_GFXWindowInfo_set_windowHandle(se::State& s)
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindowInfo_set_windowHandle : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    int arg0 = 0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
+    intptr_t arg0 = 0;
+    ok &= seval_to_intptr_t(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXWindowInfo_set_windowHandle : Error processing new value");
     cobj->windowHandle = arg0;
     return true;
@@ -2755,101 +2682,80 @@ static bool js_gfx_GFXWindowInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXWindowInfo* cobj = JSB_ALLOC(cocos2d::GFXWindowInfo);
         cocos2d::String arg0;
-        json->getProperty("title", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".title\" is undefined!");
-            return false;
+        json->getProperty("title", &field);
+        if(!field.isUndefined()) {
+            arg0 = field.toStringForce().c_str();
+            cobj->title = arg0;
         }
-        arg0 = field.toStringForce().c_str();
         int arg1 = 0;
-        json->getProperty("left", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".left\" is undefined!");
-            return false;
+        json->getProperty("left", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (int)tmp; } while(false);
+            cobj->left = arg1;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (int)tmp; } while(false);
         int arg2 = 0;
-        json->getProperty("top", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".top\" is undefined!");
-            return false;
+        json->getProperty("top", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (int)tmp; } while(false);
+            cobj->top = arg2;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (int)tmp; } while(false);
         unsigned int arg3 = 0;
-        json->getProperty("width", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".width\" is undefined!");
-            return false;
+        json->getProperty("width", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg3);
+            cobj->width = arg3;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg3);
         unsigned int arg4 = 0;
-        json->getProperty("height", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".height\" is undefined!");
-            return false;
+        json->getProperty("height", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg4);
+            cobj->height = arg4;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg4);
         cocos2d::GFXFormat arg5;
-        json->getProperty("colorFmt", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".colorFmt\" is undefined!");
-            return false;
+        json->getProperty("colorFmt", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg5 = (cocos2d::GFXFormat)tmp; } while(false);
+            cobj->colorFmt = arg5;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg5 = (cocos2d::GFXFormat)tmp; } while(false);
         cocos2d::GFXFormat arg6;
-        json->getProperty("depthStencilFmt", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".depthStencilFmt\" is undefined!");
-            return false;
+        json->getProperty("depthStencilFmt", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg6 = (cocos2d::GFXFormat)tmp; } while(false);
+            cobj->depthStencilFmt = arg6;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg6 = (cocos2d::GFXFormat)tmp; } while(false);
         bool arg7;
-        json->getProperty("isOffscreen", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".isOffscreen\" is undefined!");
-            return false;
+        json->getProperty("isOffscreen", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_boolean(field, &arg7);
+            cobj->isOffscreen = arg7;
         }
-        ok &= seval_to_boolean(field, &arg7);
         bool arg8;
-        json->getProperty("isFullscreen", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".isFullscreen\" is undefined!");
-            return false;
+        json->getProperty("isFullscreen", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_boolean(field, &arg8);
+            cobj->isFullscreen = arg8;
         }
-        ok &= seval_to_boolean(field, &arg8);
         cocos2d::GFXVsyncMode arg9;
-        json->getProperty("vsyncMode", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".vsyncMode\" is undefined!");
-            return false;
+        json->getProperty("vsyncMode", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg9 = (cocos2d::GFXVsyncMode)tmp; } while(false);
+            cobj->vsyncMode = arg9;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg9 = (cocos2d::GFXVsyncMode)tmp; } while(false);
-        int arg10 = 0;
-        json->getProperty("windowHandle", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".windowHandle\" is undefined!");
-            return false;
+        intptr_t arg10 = 0;
+        json->getProperty("windowHandle", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_intptr_t(field, &arg10);
+            cobj->windowHandle = arg10;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg10 = (int)tmp; } while(false);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXWindowInfo* cobj = JSB_ALLOC(cocos2d::GFXWindowInfo);
-        cobj->title = arg0;
-        cobj->left = arg1;
-        cobj->top = arg2;
-        cobj->width = arg3;
-        cobj->height = arg4;
-        cobj->colorFmt = arg5;
-        cobj->depthStencilFmt = arg6;
-        cobj->isOffscreen = arg7;
-        cobj->isFullscreen = arg8;
-        cobj->vsyncMode = arg9;
-        cobj->windowHandle = arg10;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -2876,8 +2782,8 @@ static bool js_gfx_GFXWindowInfo_constructor(se::State& s)
         ok &= seval_to_boolean(args[8], &arg8);
         cocos2d::GFXVsyncMode arg9;
         do { int32_t tmp = 0; ok &= seval_to_int32(args[9], &tmp); arg9 = (cocos2d::GFXVsyncMode)tmp; } while(false);
-        int arg10 = 0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[10], &tmp); arg10 = (int)tmp; } while(false);
+        intptr_t arg10 = 0;
+        ok &= seval_to_intptr_t(args[10], &arg10);
 
         if(!ok) {
             SE_REPORT_ERROR("Argument convertion error");
@@ -2973,8 +2879,8 @@ static bool js_gfx_GFXContextInfo_set_windowHandle(se::State& s)
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXContextInfo_set_windowHandle : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    int arg0 = 0;
-    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
+    intptr_t arg0 = 0;
+    ok &= seval_to_intptr_t(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXContextInfo_set_windowHandle : Error processing new value");
     cobj->windowHandle = arg0;
     return true;
@@ -3057,45 +2963,40 @@ static bool js_gfx_GFXContextInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
-        int arg0 = 0;
-        json->getProperty("windowHandle", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".windowHandle\" is undefined!");
-            return false;
+        cocos2d::GFXContextInfo* cobj = JSB_ALLOC(cocos2d::GFXContextInfo);
+        intptr_t arg0 = 0;
+        json->getProperty("windowHandle", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_intptr_t(field, &arg0);
+            cobj->windowHandle = arg0;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (int)tmp; } while(false);
         cocos2d::GFXContext* arg1 = nullptr;
-        json->getProperty("sharedCtx", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".sharedCtx\" is undefined!");
-            return false;
+        json->getProperty("sharedCtx", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_native_ptr(field, &arg1);
+            cobj->sharedCtx = arg1;
         }
-        ok &= seval_to_native_ptr(field, &arg1);
         cocos2d::GFXVsyncMode arg2;
-        json->getProperty("vsyncMode", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".vsyncMode\" is undefined!");
-            return false;
+        json->getProperty("vsyncMode", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXVsyncMode)tmp; } while(false);
+            cobj->vsyncMode = arg2;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXVsyncMode)tmp; } while(false);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXContextInfo* cobj = JSB_ALLOC(cocos2d::GFXContextInfo);
-        cobj->windowHandle = arg0;
-        cobj->sharedCtx = arg1;
-        cobj->vsyncMode = arg2;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
     }
     else if(argc == 3)
     {
-        int arg0 = 0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
+        intptr_t arg0 = 0;
+        ok &= seval_to_intptr_t(args[0], &arg0);
         cocos2d::GFXContext* arg1 = nullptr;
         ok &= seval_to_native_ptr(args[1], &arg1);
         cocos2d::GFXVsyncMode arg2;
@@ -3319,53 +3220,44 @@ static bool js_gfx_GFXBufferInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXBufferInfo* cobj = JSB_ALLOC(cocos2d::GFXBufferInfo);
         cocos2d::GFXBufferUsageBit arg0;
-        json->getProperty("usage", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".usage\" is undefined!");
-            return false;
+        json->getProperty("usage", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXBufferUsageBit)tmp; } while(false);
+            cobj->usage = arg0;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXBufferUsageBit)tmp; } while(false);
         cocos2d::GFXMemoryUsageBit arg1;
-        json->getProperty("memUsage", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".memUsage\" is undefined!");
-            return false;
+        json->getProperty("memUsage", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXMemoryUsageBit)tmp; } while(false);
+            cobj->memUsage = arg1;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXMemoryUsageBit)tmp; } while(false);
         unsigned int arg2 = 0;
-        json->getProperty("stride", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".stride\" is undefined!");
-            return false;
+        json->getProperty("stride", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg2);
+            cobj->stride = arg2;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg2);
         unsigned int arg3 = 0;
-        json->getProperty("size", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".size\" is undefined!");
-            return false;
+        json->getProperty("size", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg3);
+            cobj->size = arg3;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg3);
         cocos2d::GFXBufferFlagBit arg4;
-        json->getProperty("flags", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".flags\" is undefined!");
-            return false;
+        json->getProperty("flags", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (cocos2d::GFXBufferFlagBit)tmp; } while(false);
+            cobj->flags = arg4;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (cocos2d::GFXBufferFlagBit)tmp; } while(false);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXBufferInfo* cobj = JSB_ALLOC(cocos2d::GFXBufferInfo);
-        cobj->usage = arg0;
-        cobj->memUsage = arg1;
-        cobj->stride = arg2;
-        cobj->size = arg3;
-        cobj->flags = arg4;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -3661,69 +3553,56 @@ static bool js_gfx_GFXDrawInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXDrawInfo* cobj = JSB_ALLOC(cocos2d::GFXDrawInfo);
         unsigned int arg0 = 0;
-        json->getProperty("vertexCount", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".vertexCount\" is undefined!");
-            return false;
+        json->getProperty("vertexCount", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg0);
+            cobj->vertexCount = arg0;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg0);
         unsigned int arg1 = 0;
-        json->getProperty("firstVertex", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".firstVertex\" is undefined!");
-            return false;
+        json->getProperty("firstVertex", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg1);
+            cobj->firstVertex = arg1;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg1);
         unsigned int arg2 = 0;
-        json->getProperty("indexCount", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".indexCount\" is undefined!");
-            return false;
+        json->getProperty("indexCount", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg2);
+            cobj->indexCount = arg2;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg2);
         unsigned int arg3 = 0;
-        json->getProperty("firstIndex", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".firstIndex\" is undefined!");
-            return false;
+        json->getProperty("firstIndex", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg3);
+            cobj->firstIndex = arg3;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg3);
         unsigned int arg4 = 0;
-        json->getProperty("vertexOffset", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".vertexOffset\" is undefined!");
-            return false;
+        json->getProperty("vertexOffset", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg4);
+            cobj->vertexOffset = arg4;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg4);
         unsigned int arg5 = 0;
-        json->getProperty("instanceCount", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".instanceCount\" is undefined!");
-            return false;
+        json->getProperty("instanceCount", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg5);
+            cobj->instanceCount = arg5;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg5);
         unsigned int arg6 = 0;
-        json->getProperty("firstInstance", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".firstInstance\" is undefined!");
-            return false;
+        json->getProperty("firstInstance", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg6);
+            cobj->firstInstance = arg6;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg6);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXDrawInfo* cobj = JSB_ALLOC(cocos2d::GFXDrawInfo);
-        cobj->vertexCount = arg0;
-        cobj->firstVertex = arg1;
-        cobj->indexCount = arg2;
-        cobj->firstIndex = arg3;
-        cobj->vertexOffset = arg4;
-        cobj->instanceCount = arg5;
-        cobj->firstInstance = arg6;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -4213,93 +4092,74 @@ static bool js_gfx_GFXTextureInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXTextureInfo* cobj = JSB_ALLOC(cocos2d::GFXTextureInfo);
         cocos2d::GFXTextureType arg0;
-        json->getProperty("type", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".type\" is undefined!");
-            return false;
+        json->getProperty("type", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXTextureType)tmp; } while(false);
+            cobj->type = arg0;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXTextureType)tmp; } while(false);
         cocos2d::GFXTextureUsageBit arg1;
-        json->getProperty("usage", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".usage\" is undefined!");
-            return false;
+        json->getProperty("usage", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXTextureUsageBit)tmp; } while(false);
+            cobj->usage = arg1;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXTextureUsageBit)tmp; } while(false);
         cocos2d::GFXFormat arg2;
-        json->getProperty("format", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".format\" is undefined!");
-            return false;
+        json->getProperty("format", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXFormat)tmp; } while(false);
+            cobj->format = arg2;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXFormat)tmp; } while(false);
         unsigned int arg3 = 0;
-        json->getProperty("width", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".width\" is undefined!");
-            return false;
+        json->getProperty("width", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg3);
+            cobj->width = arg3;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg3);
         unsigned int arg4 = 0;
-        json->getProperty("height", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".height\" is undefined!");
-            return false;
+        json->getProperty("height", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg4);
+            cobj->height = arg4;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg4);
         unsigned int arg5 = 0;
-        json->getProperty("depth", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".depth\" is undefined!");
-            return false;
+        json->getProperty("depth", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg5);
+            cobj->depth = arg5;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg5);
         unsigned int arg6 = 0;
-        json->getProperty("arrayLayer", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".arrayLayer\" is undefined!");
-            return false;
+        json->getProperty("arrayLayer", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg6);
+            cobj->arrayLayer = arg6;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg6);
         unsigned int arg7 = 0;
-        json->getProperty("mipLevel", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".mipLevel\" is undefined!");
-            return false;
+        json->getProperty("mipLevel", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg7);
+            cobj->mipLevel = arg7;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg7);
         cocos2d::GFXSampleCount arg8;
-        json->getProperty("samples", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".samples\" is undefined!");
-            return false;
+        json->getProperty("samples", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg8 = (cocos2d::GFXSampleCount)tmp; } while(false);
+            cobj->samples = arg8;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg8 = (cocos2d::GFXSampleCount)tmp; } while(false);
         cocos2d::GFXTextureFlagBit arg9;
-        json->getProperty("flags", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".flags\" is undefined!");
-            return false;
+        json->getProperty("flags", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg9 = (cocos2d::GFXTextureFlagBit)tmp; } while(false);
+            cobj->flags = arg9;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg9 = (cocos2d::GFXTextureFlagBit)tmp; } while(false);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXTextureInfo* cobj = JSB_ALLOC(cocos2d::GFXTextureInfo);
-        cobj->type = arg0;
-        cobj->usage = arg1;
-        cobj->format = arg2;
-        cobj->width = arg3;
-        cobj->height = arg4;
-        cobj->depth = arg5;
-        cobj->arrayLayer = arg6;
-        cobj->mipLevel = arg7;
-        cobj->samples = arg8;
-        cobj->flags = arg9;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -4615,69 +4475,56 @@ static bool js_gfx_GFXTextureViewInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXTextureViewInfo* cobj = JSB_ALLOC(cocos2d::GFXTextureViewInfo);
         cocos2d::GFXTexture* arg0 = nullptr;
-        json->getProperty("texture", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".texture\" is undefined!");
-            return false;
+        json->getProperty("texture", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_native_ptr(field, &arg0);
+            cobj->texture = arg0;
         }
-        ok &= seval_to_native_ptr(field, &arg0);
         cocos2d::GFXTextureViewType arg1;
-        json->getProperty("type", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".type\" is undefined!");
-            return false;
+        json->getProperty("type", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXTextureViewType)tmp; } while(false);
+            cobj->type = arg1;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXTextureViewType)tmp; } while(false);
         cocos2d::GFXFormat arg2;
-        json->getProperty("format", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".format\" is undefined!");
-            return false;
+        json->getProperty("format", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXFormat)tmp; } while(false);
+            cobj->format = arg2;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXFormat)tmp; } while(false);
         unsigned int arg3 = 0;
-        json->getProperty("baseLevel", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".baseLevel\" is undefined!");
-            return false;
+        json->getProperty("baseLevel", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg3);
+            cobj->baseLevel = arg3;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg3);
         unsigned int arg4 = 0;
-        json->getProperty("levelCount", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".levelCount\" is undefined!");
-            return false;
+        json->getProperty("levelCount", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg4);
+            cobj->levelCount = arg4;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg4);
         unsigned int arg5 = 0;
-        json->getProperty("baseLayer", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".baseLayer\" is undefined!");
-            return false;
+        json->getProperty("baseLayer", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg5);
+            cobj->baseLayer = arg5;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg5);
         unsigned int arg6 = 0;
-        json->getProperty("layerCount", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".layerCount\" is undefined!");
-            return false;
+        json->getProperty("layerCount", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg6);
+            cobj->layerCount = arg6;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg6);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXTextureViewInfo* cobj = JSB_ALLOC(cocos2d::GFXTextureViewInfo);
-        cobj->texture = arg0;
-        cobj->type = arg1;
-        cobj->format = arg2;
-        cobj->baseLevel = arg3;
-        cobj->levelCount = arg4;
-        cobj->baseLayer = arg5;
-        cobj->layerCount = arg6;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -5149,117 +4996,92 @@ static bool js_gfx_GFXSamplerInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXSamplerInfo* cobj = JSB_ALLOC(cocos2d::GFXSamplerInfo);
         cocos2d::String arg0;
-        json->getProperty("name", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".name\" is undefined!");
-            return false;
+        json->getProperty("name", &field);
+        if(!field.isUndefined()) {
+            arg0 = field.toStringForce().c_str();
+            cobj->name = arg0;
         }
-        arg0 = field.toStringForce().c_str();
         cocos2d::GFXFilter arg1;
-        json->getProperty("minFilter", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".minFilter\" is undefined!");
-            return false;
+        json->getProperty("minFilter", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXFilter)tmp; } while(false);
+            cobj->minFilter = arg1;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXFilter)tmp; } while(false);
         cocos2d::GFXFilter arg2;
-        json->getProperty("magFilter", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".magFilter\" is undefined!");
-            return false;
+        json->getProperty("magFilter", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXFilter)tmp; } while(false);
+            cobj->magFilter = arg2;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXFilter)tmp; } while(false);
         cocos2d::GFXFilter arg3;
-        json->getProperty("mipFilter", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".mipFilter\" is undefined!");
-            return false;
+        json->getProperty("mipFilter", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (cocos2d::GFXFilter)tmp; } while(false);
+            cobj->mipFilter = arg3;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (cocos2d::GFXFilter)tmp; } while(false);
         cocos2d::GFXAddress arg4;
-        json->getProperty("addressU", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".addressU\" is undefined!");
-            return false;
+        json->getProperty("addressU", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (cocos2d::GFXAddress)tmp; } while(false);
+            cobj->addressU = arg4;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (cocos2d::GFXAddress)tmp; } while(false);
         cocos2d::GFXAddress arg5;
-        json->getProperty("addressV", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".addressV\" is undefined!");
-            return false;
+        json->getProperty("addressV", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg5 = (cocos2d::GFXAddress)tmp; } while(false);
+            cobj->addressV = arg5;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg5 = (cocos2d::GFXAddress)tmp; } while(false);
         cocos2d::GFXAddress arg6;
-        json->getProperty("addressW", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".addressW\" is undefined!");
-            return false;
+        json->getProperty("addressW", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg6 = (cocos2d::GFXAddress)tmp; } while(false);
+            cobj->addressW = arg6;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg6 = (cocos2d::GFXAddress)tmp; } while(false);
         unsigned int arg7 = 0;
-        json->getProperty("maxAnisotropy", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".maxAnisotropy\" is undefined!");
-            return false;
+        json->getProperty("maxAnisotropy", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg7);
+            cobj->maxAnisotropy = arg7;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg7);
         cocos2d::GFXComparisonFunc arg8;
-        json->getProperty("cmpFunc", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".cmpFunc\" is undefined!");
-            return false;
+        json->getProperty("cmpFunc", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg8 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
+            cobj->cmpFunc = arg8;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg8 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
         cocos2d::GFXColor* arg9 = nullptr;
-        json->getProperty("borderColor", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".borderColor\" is undefined!");
-            return false;
+        json->getProperty("borderColor", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_reference(field, &arg9);
+            cobj->borderColor = *arg9;
         }
-        ok &= seval_to_reference(field, &arg9);
         unsigned int arg10 = 0;
-        json->getProperty("minLOD", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".minLOD\" is undefined!");
-            return false;
+        json->getProperty("minLOD", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg10);
+            cobj->minLOD = arg10;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg10);
         unsigned int arg11 = 0;
-        json->getProperty("maxLOD", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".maxLOD\" is undefined!");
-            return false;
+        json->getProperty("maxLOD", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg11);
+            cobj->maxLOD = arg11;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg11);
         float arg12 = 0;
-        json->getProperty("mipLODBias", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".mipLODBias\" is undefined!");
-            return false;
+        json->getProperty("mipLODBias", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_float(field, &arg12);
+            cobj->mipLODBias = arg12;
         }
-        ok &= seval_to_float(field, &arg12);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXSamplerInfo* cobj = JSB_ALLOC(cocos2d::GFXSamplerInfo);
-        cobj->name = arg0;
-        cobj->minFilter = arg1;
-        cobj->magFilter = arg2;
-        cobj->mipFilter = arg3;
-        cobj->addressU = arg4;
-        cobj->addressV = arg5;
-        cobj->addressW = arg6;
-        cobj->maxAnisotropy = arg7;
-        cobj->cmpFunc = arg8;
-        cobj->borderColor = *arg9;
-        cobj->minLOD = arg10;
-        cobj->maxLOD = arg11;
-        cobj->mipLODBias = arg12;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -5447,29 +5269,26 @@ static bool js_gfx_GFXShaderMacro_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXShaderMacro* cobj = JSB_ALLOC(cocos2d::GFXShaderMacro);
         cocos2d::String arg0;
-        json->getProperty("macro", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".macro\" is undefined!");
-            return false;
+        json->getProperty("macro", &field);
+        if(!field.isUndefined()) {
+            arg0 = field.toStringForce().c_str();
+            cobj->macro = arg0;
         }
-        arg0 = field.toStringForce().c_str();
         cocos2d::String arg1;
-        json->getProperty("value", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".value\" is undefined!");
-            return false;
+        json->getProperty("value", &field);
+        if(!field.isUndefined()) {
+            arg1 = field.toStringForce().c_str();
+            cobj->value = arg1;
         }
-        arg1 = field.toStringForce().c_str();
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXShaderMacro* cobj = JSB_ALLOC(cocos2d::GFXShaderMacro);
-        cobj->macro = arg0;
-        cobj->value = arg1;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -5641,37 +5460,32 @@ static bool js_gfx_GFXUniform_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXUniform* cobj = JSB_ALLOC(cocos2d::GFXUniform);
         cocos2d::String arg0;
-        json->getProperty("name", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".name\" is undefined!");
-            return false;
+        json->getProperty("name", &field);
+        if(!field.isUndefined()) {
+            arg0 = field.toStringForce().c_str();
+            cobj->name = arg0;
         }
-        arg0 = field.toStringForce().c_str();
         cocos2d::GFXType arg1;
-        json->getProperty("type", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".type\" is undefined!");
-            return false;
+        json->getProperty("type", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXType)tmp; } while(false);
+            cobj->type = arg1;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXType)tmp; } while(false);
         unsigned int arg2 = 0;
-        json->getProperty("count", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".count\" is undefined!");
-            return false;
+        json->getProperty("count", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg2);
+            cobj->count = arg2;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg2);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXUniform* cobj = JSB_ALLOC(cocos2d::GFXUniform);
-        cobj->name = arg0;
-        cobj->type = arg1;
-        cobj->count = arg2;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -5847,37 +5661,32 @@ static bool js_gfx_GFXUniformBlock_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXUniformBlock* cobj = JSB_ALLOC(cocos2d::GFXUniformBlock);
         unsigned int arg0 = 0;
-        json->getProperty("binding", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".binding\" is undefined!");
-            return false;
+        json->getProperty("binding", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg0);
+            cobj->binding = arg0;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg0);
         cocos2d::String arg1;
-        json->getProperty("name", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".name\" is undefined!");
-            return false;
+        json->getProperty("name", &field);
+        if(!field.isUndefined()) {
+            arg1 = field.toStringForce().c_str();
+            cobj->name = arg1;
         }
-        arg1 = field.toStringForce().c_str();
         std::vector<cocos2d::GFXUniform> arg2;
-        json->getProperty("uniforms", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".uniforms\" is undefined!");
-            return false;
+        json->getProperty("uniforms", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_std_vector(field, &arg2);
+            cobj->uniforms = arg2;
         }
-        ok &= seval_to_std_vector(field, &arg2);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXUniformBlock* cobj = JSB_ALLOC(cocos2d::GFXUniformBlock);
-        cobj->binding = arg0;
-        cobj->name = arg1;
-        cobj->uniforms = arg2;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -6081,45 +5890,38 @@ static bool js_gfx_GFXUniformSampler_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXUniformSampler* cobj = JSB_ALLOC(cocos2d::GFXUniformSampler);
         unsigned int arg0 = 0;
-        json->getProperty("binding", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".binding\" is undefined!");
-            return false;
+        json->getProperty("binding", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg0);
+            cobj->binding = arg0;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg0);
         cocos2d::String arg1;
-        json->getProperty("name", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".name\" is undefined!");
-            return false;
+        json->getProperty("name", &field);
+        if(!field.isUndefined()) {
+            arg1 = field.toStringForce().c_str();
+            cobj->name = arg1;
         }
-        arg1 = field.toStringForce().c_str();
         cocos2d::GFXType arg2;
-        json->getProperty("type", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".type\" is undefined!");
-            return false;
+        json->getProperty("type", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXType)tmp; } while(false);
+            cobj->type = arg2;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXType)tmp; } while(false);
         unsigned int arg3 = 0;
-        json->getProperty("count", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".count\" is undefined!");
-            return false;
+        json->getProperty("count", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg3);
+            cobj->count = arg3;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg3);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXUniformSampler* cobj = JSB_ALLOC(cocos2d::GFXUniformSampler);
-        cobj->binding = arg0;
-        cobj->name = arg1;
-        cobj->type = arg2;
-        cobj->count = arg3;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -6299,37 +6101,32 @@ static bool js_gfx_GFXShaderStage_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXShaderStage* cobj = JSB_ALLOC(cocos2d::GFXShaderStage);
         cocos2d::GFXShaderType arg0;
-        json->getProperty("type", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".type\" is undefined!");
-            return false;
+        json->getProperty("type", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+            cobj->type = arg0;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
         cocos2d::String arg1;
-        json->getProperty("source", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".source\" is undefined!");
-            return false;
+        json->getProperty("source", &field);
+        if(!field.isUndefined()) {
+            arg1 = field.toStringForce().c_str();
+            cobj->source = arg1;
         }
-        arg1 = field.toStringForce().c_str();
         std::vector<cocos2d::GFXShaderMacro> arg2;
-        json->getProperty("macros", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".macros\" is undefined!");
-            return false;
+        json->getProperty("macros", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_std_vector(field, &arg2);
+            cobj->macros = arg2;
         }
-        ok &= seval_to_std_vector(field, &arg2);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXShaderStage* cobj = JSB_ALLOC(cocos2d::GFXShaderStage);
-        cobj->type = arg0;
-        cobj->source = arg1;
-        cobj->macros = arg2;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -6533,45 +6330,38 @@ static bool js_gfx_GFXShaderInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXShaderInfo* cobj = JSB_ALLOC(cocos2d::GFXShaderInfo);
         cocos2d::String arg0;
-        json->getProperty("name", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".name\" is undefined!");
-            return false;
+        json->getProperty("name", &field);
+        if(!field.isUndefined()) {
+            arg0 = field.toStringForce().c_str();
+            cobj->name = arg0;
         }
-        arg0 = field.toStringForce().c_str();
         std::vector<cocos2d::GFXShaderStage> arg1;
-        json->getProperty("stages", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".stages\" is undefined!");
-            return false;
+        json->getProperty("stages", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_std_vector(field, &arg1);
+            cobj->stages = arg1;
         }
-        ok &= seval_to_std_vector(field, &arg1);
         std::vector<cocos2d::GFXUniformBlock> arg2;
-        json->getProperty("blocks", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".blocks\" is undefined!");
-            return false;
+        json->getProperty("blocks", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_std_vector(field, &arg2);
+            cobj->blocks = arg2;
         }
-        ok &= seval_to_std_vector(field, &arg2);
         std::vector<cocos2d::GFXUniformSampler> arg3;
-        json->getProperty("samplers", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".samplers\" is undefined!");
-            return false;
+        json->getProperty("samplers", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_std_vector(field, &arg3);
+            cobj->samplers = arg3;
         }
-        ok &= seval_to_std_vector(field, &arg3);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXShaderInfo* cobj = JSB_ALLOC(cocos2d::GFXShaderInfo);
-        cobj->name = arg0;
-        cobj->stages = arg1;
-        cobj->blocks = arg2;
-        cobj->samplers = arg3;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -6807,53 +6597,44 @@ static bool js_gfx_GFXAttribute_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXAttribute* cobj = JSB_ALLOC(cocos2d::GFXAttribute);
         cocos2d::String arg0;
-        json->getProperty("name", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".name\" is undefined!");
-            return false;
+        json->getProperty("name", &field);
+        if(!field.isUndefined()) {
+            arg0 = field.toStringForce().c_str();
+            cobj->name = arg0;
         }
-        arg0 = field.toStringForce().c_str();
         cocos2d::GFXFormat arg1;
-        json->getProperty("format", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".format\" is undefined!");
-            return false;
+        json->getProperty("format", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXFormat)tmp; } while(false);
+            cobj->format = arg1;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXFormat)tmp; } while(false);
         bool arg2;
-        json->getProperty("isNormalized", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".isNormalized\" is undefined!");
-            return false;
+        json->getProperty("isNormalized", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_boolean(field, &arg2);
+            cobj->isNormalized = arg2;
         }
-        ok &= seval_to_boolean(field, &arg2);
         unsigned int arg3 = 0;
-        json->getProperty("stream", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".stream\" is undefined!");
-            return false;
+        json->getProperty("stream", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg3);
+            cobj->stream = arg3;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg3);
         bool arg4;
-        json->getProperty("isInstanced", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".isInstanced\" is undefined!");
-            return false;
+        json->getProperty("isInstanced", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_boolean(field, &arg4);
+            cobj->isInstanced = arg4;
         }
-        ok &= seval_to_boolean(field, &arg4);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXAttribute* cobj = JSB_ALLOC(cocos2d::GFXAttribute);
-        cobj->name = arg0;
-        cobj->format = arg1;
-        cobj->isNormalized = arg2;
-        cobj->stream = arg3;
-        cobj->isInstanced = arg4;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -7065,45 +6846,38 @@ static bool js_gfx_GFXInputAssemblerInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXInputAssemblerInfo* cobj = JSB_ALLOC(cocos2d::GFXInputAssemblerInfo);
         std::vector<cocos2d::GFXAttribute> arg0;
-        json->getProperty("attributes", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".attributes\" is undefined!");
-            return false;
+        json->getProperty("attributes", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_std_vector(field, &arg0);
+            cobj->attributes = arg0;
         }
-        ok &= seval_to_std_vector(field, &arg0);
         std::vector<cocos2d::GFXBuffer *> arg1;
-        json->getProperty("vertexBuffers", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".vertexBuffers\" is undefined!");
-            return false;
+        json->getProperty("vertexBuffers", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_std_vector(field, &arg1);
+            cobj->vertexBuffers = arg1;
         }
-        ok &= seval_to_std_vector(field, &arg1);
         cocos2d::GFXBuffer* arg2 = nullptr;
-        json->getProperty("indexBuffer", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".indexBuffer\" is undefined!");
-            return false;
+        json->getProperty("indexBuffer", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_native_ptr(field, &arg2);
+            cobj->indexBuffer = arg2;
         }
-        ok &= seval_to_native_ptr(field, &arg2);
         cocos2d::GFXBuffer* arg3 = nullptr;
-        json->getProperty("indirectBuffer", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".indirectBuffer\" is undefined!");
-            return false;
+        json->getProperty("indirectBuffer", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_native_ptr(field, &arg3);
+            cobj->indirectBuffer = arg3;
         }
-        ok &= seval_to_native_ptr(field, &arg3);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXInputAssemblerInfo* cobj = JSB_ALLOC(cocos2d::GFXInputAssemblerInfo);
-        cobj->attributes = arg0;
-        cobj->vertexBuffers = arg1;
-        cobj->indexBuffer = arg2;
-        cobj->indirectBuffer = arg3;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -7367,61 +7141,50 @@ static bool js_gfx_GFXColorAttachment_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXColorAttachment* cobj = JSB_ALLOC(cocos2d::GFXColorAttachment);
         cocos2d::GFXFormat arg0;
-        json->getProperty("format", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".format\" is undefined!");
-            return false;
+        json->getProperty("format", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXFormat)tmp; } while(false);
+            cobj->format = arg0;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXFormat)tmp; } while(false);
         cocos2d::GFXLoadOp arg1;
-        json->getProperty("loadOp", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".loadOp\" is undefined!");
-            return false;
+        json->getProperty("loadOp", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXLoadOp)tmp; } while(false);
+            cobj->loadOp = arg1;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXLoadOp)tmp; } while(false);
         cocos2d::GFXStoreOp arg2;
-        json->getProperty("storeOp", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".storeOp\" is undefined!");
-            return false;
+        json->getProperty("storeOp", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXStoreOp)tmp; } while(false);
+            cobj->storeOp = arg2;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXStoreOp)tmp; } while(false);
         unsigned int arg3 = 0;
-        json->getProperty("sampleCount", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".sampleCount\" is undefined!");
-            return false;
+        json->getProperty("sampleCount", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg3);
+            cobj->sampleCount = arg3;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg3);
         cocos2d::GFXTextureLayout arg4;
-        json->getProperty("beginLayout", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".beginLayout\" is undefined!");
-            return false;
+        json->getProperty("beginLayout", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (cocos2d::GFXTextureLayout)tmp; } while(false);
+            cobj->beginLayout = arg4;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (cocos2d::GFXTextureLayout)tmp; } while(false);
         cocos2d::GFXTextureLayout arg5;
-        json->getProperty("endLayout", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".endLayout\" is undefined!");
-            return false;
+        json->getProperty("endLayout", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg5 = (cocos2d::GFXTextureLayout)tmp; } while(false);
+            cobj->endLayout = arg5;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg5 = (cocos2d::GFXTextureLayout)tmp; } while(false);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXColorAttachment* cobj = JSB_ALLOC(cocos2d::GFXColorAttachment);
-        cobj->format = arg0;
-        cobj->loadOp = arg1;
-        cobj->storeOp = arg2;
-        cobj->sampleCount = arg3;
-        cobj->beginLayout = arg4;
-        cobj->endLayout = arg5;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -7749,77 +7512,62 @@ static bool js_gfx_GFXDepthStencilAttachment_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXDepthStencilAttachment* cobj = JSB_ALLOC(cocos2d::GFXDepthStencilAttachment);
         cocos2d::GFXFormat arg0;
-        json->getProperty("format", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".format\" is undefined!");
-            return false;
+        json->getProperty("format", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXFormat)tmp; } while(false);
+            cobj->format = arg0;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXFormat)tmp; } while(false);
         cocos2d::GFXLoadOp arg1;
-        json->getProperty("depthLoadOp", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".depthLoadOp\" is undefined!");
-            return false;
+        json->getProperty("depthLoadOp", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXLoadOp)tmp; } while(false);
+            cobj->depthLoadOp = arg1;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXLoadOp)tmp; } while(false);
         cocos2d::GFXStoreOp arg2;
-        json->getProperty("depthStoreOp", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".depthStoreOp\" is undefined!");
-            return false;
+        json->getProperty("depthStoreOp", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXStoreOp)tmp; } while(false);
+            cobj->depthStoreOp = arg2;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXStoreOp)tmp; } while(false);
         cocos2d::GFXLoadOp arg3;
-        json->getProperty("stencilLoadOp", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".stencilLoadOp\" is undefined!");
-            return false;
+        json->getProperty("stencilLoadOp", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (cocos2d::GFXLoadOp)tmp; } while(false);
+            cobj->stencilLoadOp = arg3;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (cocos2d::GFXLoadOp)tmp; } while(false);
         cocos2d::GFXStoreOp arg4;
-        json->getProperty("stencilStoreOp", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".stencilStoreOp\" is undefined!");
-            return false;
+        json->getProperty("stencilStoreOp", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (cocos2d::GFXStoreOp)tmp; } while(false);
+            cobj->stencilStoreOp = arg4;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (cocos2d::GFXStoreOp)tmp; } while(false);
         unsigned int arg5 = 0;
-        json->getProperty("sampleCount", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".sampleCount\" is undefined!");
-            return false;
+        json->getProperty("sampleCount", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg5);
+            cobj->sampleCount = arg5;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg5);
         cocos2d::GFXTextureLayout arg6;
-        json->getProperty("beginLayout", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".beginLayout\" is undefined!");
-            return false;
+        json->getProperty("beginLayout", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg6 = (cocos2d::GFXTextureLayout)tmp; } while(false);
+            cobj->beginLayout = arg6;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg6 = (cocos2d::GFXTextureLayout)tmp; } while(false);
         cocos2d::GFXTextureLayout arg7;
-        json->getProperty("endLayout", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".endLayout\" is undefined!");
-            return false;
+        json->getProperty("endLayout", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg7 = (cocos2d::GFXTextureLayout)tmp; } while(false);
+            cobj->endLayout = arg7;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg7 = (cocos2d::GFXTextureLayout)tmp; } while(false);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXDepthStencilAttachment* cobj = JSB_ALLOC(cocos2d::GFXDepthStencilAttachment);
-        cobj->format = arg0;
-        cobj->depthLoadOp = arg1;
-        cobj->depthStoreOp = arg2;
-        cobj->stencilLoadOp = arg3;
-        cobj->stencilStoreOp = arg4;
-        cobj->sampleCount = arg5;
-        cobj->beginLayout = arg6;
-        cobj->endLayout = arg7;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -8015,37 +7763,32 @@ static bool js_gfx_GFXRenderPassInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXRenderPassInfo* cobj = JSB_ALLOC(cocos2d::GFXRenderPassInfo);
         std::vector<cocos2d::GFXColorAttachment> arg0;
-        json->getProperty("colorAttachments", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".colorAttachments\" is undefined!");
-            return false;
+        json->getProperty("colorAttachments", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_std_vector(field, &arg0);
+            cobj->colorAttachments = arg0;
         }
-        ok &= seval_to_std_vector(field, &arg0);
         cocos2d::GFXDepthStencilAttachment* arg1 = nullptr;
-        json->getProperty("depthStencilAttachment", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".depthStencilAttachment\" is undefined!");
-            return false;
+        json->getProperty("depthStencilAttachment", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_reference(field, &arg1);
+            cobj->depthStencilAttachment = *arg1;
         }
-        ok &= seval_to_reference(field, &arg1);
         std::vector<cocos2d::GFXSubPass> arg2;
-        json->getProperty("subPasses", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".subPasses\" is undefined!");
-            return false;
+        json->getProperty("subPasses", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_std_vector(field, &arg2);
+            cobj->subPasses = arg2;
         }
-        ok &= seval_to_std_vector(field, &arg2);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXRenderPassInfo* cobj = JSB_ALLOC(cocos2d::GFXRenderPassInfo);
-        cobj->colorAttachments = arg0;
-        cobj->depthStencilAttachment = *arg1;
-        cobj->subPasses = arg2;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -8249,45 +7992,38 @@ static bool js_gfx_GFXFramebufferInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXFramebufferInfo* cobj = JSB_ALLOC(cocos2d::GFXFramebufferInfo);
         cocos2d::GFXRenderPass* arg0 = nullptr;
-        json->getProperty("renderPass", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".renderPass\" is undefined!");
-            return false;
+        json->getProperty("renderPass", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_native_ptr(field, &arg0);
+            cobj->renderPass = arg0;
         }
-        ok &= seval_to_native_ptr(field, &arg0);
         std::vector<cocos2d::GFXTextureView *> arg1;
-        json->getProperty("colorViews", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".colorViews\" is undefined!");
-            return false;
+        json->getProperty("colorViews", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_std_vector(field, &arg1);
+            cobj->colorViews = arg1;
         }
-        ok &= seval_to_std_vector(field, &arg1);
         cocos2d::GFXTextureView* arg2 = nullptr;
-        json->getProperty("depthStencilView", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".depthStencilView\" is undefined!");
-            return false;
+        json->getProperty("depthStencilView", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_native_ptr(field, &arg2);
+            cobj->depthStencilView = arg2;
         }
-        ok &= seval_to_native_ptr(field, &arg2);
         bool arg3;
-        json->getProperty("isOffscreen", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".isOffscreen\" is undefined!");
-            return false;
+        json->getProperty("isOffscreen", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_boolean(field, &arg3);
+            cobj->isOffscreen = arg3;
         }
-        ok &= seval_to_boolean(field, &arg3);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXFramebufferInfo* cobj = JSB_ALLOC(cocos2d::GFXFramebufferInfo);
-        cobj->renderPass = arg0;
-        cobj->colorViews = arg1;
-        cobj->depthStencilView = arg2;
-        cobj->isOffscreen = arg3;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -8467,37 +8203,32 @@ static bool js_gfx_GFXBinding_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXBinding* cobj = JSB_ALLOC(cocos2d::GFXBinding);
         unsigned int arg0 = 0;
-        json->getProperty("binding", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".binding\" is undefined!");
-            return false;
+        json->getProperty("binding", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg0);
+            cobj->binding = arg0;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg0);
         cocos2d::GFXBindingType arg1;
-        json->getProperty("type", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".type\" is undefined!");
-            return false;
+        json->getProperty("type", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXBindingType)tmp; } while(false);
+            cobj->type = arg1;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXBindingType)tmp; } while(false);
         cocos2d::String arg2;
-        json->getProperty("name", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".name\" is undefined!");
-            return false;
+        json->getProperty("name", &field);
+        if(!field.isUndefined()) {
+            arg2 = field.toStringForce().c_str();
+            cobj->name = arg2;
         }
-        arg2 = field.toStringForce().c_str();
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXBinding* cobj = JSB_ALLOC(cocos2d::GFXBinding);
-        cobj->binding = arg0;
-        cobj->type = arg1;
-        cobj->name = arg2;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -8859,61 +8590,50 @@ static bool js_gfx_GFXBindingUnit_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXBindingUnit* cobj = JSB_ALLOC(cocos2d::GFXBindingUnit);
         unsigned int arg0 = 0;
-        json->getProperty("binding", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".binding\" is undefined!");
-            return false;
+        json->getProperty("binding", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg0);
+            cobj->binding = arg0;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg0);
         cocos2d::GFXBindingType arg1;
-        json->getProperty("type", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".type\" is undefined!");
-            return false;
+        json->getProperty("type", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXBindingType)tmp; } while(false);
+            cobj->type = arg1;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXBindingType)tmp; } while(false);
         cocos2d::String arg2;
-        json->getProperty("name", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".name\" is undefined!");
-            return false;
+        json->getProperty("name", &field);
+        if(!field.isUndefined()) {
+            arg2 = field.toStringForce().c_str();
+            cobj->name = arg2;
         }
-        arg2 = field.toStringForce().c_str();
         cocos2d::GFXBuffer* arg3 = nullptr;
-        json->getProperty("buffer", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".buffer\" is undefined!");
-            return false;
+        json->getProperty("buffer", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_native_ptr(field, &arg3);
+            cobj->buffer = arg3;
         }
-        ok &= seval_to_native_ptr(field, &arg3);
         cocos2d::GFXTextureView* arg4 = nullptr;
-        json->getProperty("texView", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".texView\" is undefined!");
-            return false;
+        json->getProperty("texView", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_native_ptr(field, &arg4);
+            cobj->texView = arg4;
         }
-        ok &= seval_to_native_ptr(field, &arg4);
         cocos2d::GFXSampler* arg5 = nullptr;
-        json->getProperty("sampler", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".sampler\" is undefined!");
-            return false;
+        json->getProperty("sampler", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_native_ptr(field, &arg5);
+            cobj->sampler = arg5;
         }
-        ok &= seval_to_native_ptr(field, &arg5);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXBindingUnit* cobj = JSB_ALLOC(cocos2d::GFXBindingUnit);
-        cobj->binding = arg0;
-        cobj->type = arg1;
-        cobj->name = arg2;
-        cobj->buffer = arg3;
-        cobj->texView = arg4;
-        cobj->sampler = arg5;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -9101,37 +8821,32 @@ static bool js_gfx_GFXPushConstantRange_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXPushConstantRange* cobj = JSB_ALLOC(cocos2d::GFXPushConstantRange);
         cocos2d::GFXShaderType arg0;
-        json->getProperty("shaderType", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".shaderType\" is undefined!");
-            return false;
+        json->getProperty("shaderType", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+            cobj->shaderType = arg0;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
         unsigned int arg1 = 0;
-        json->getProperty("offset", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".offset\" is undefined!");
-            return false;
+        json->getProperty("offset", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg1);
+            cobj->offset = arg1;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg1);
         unsigned int arg2 = 0;
-        json->getProperty("count", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".count\" is undefined!");
-            return false;
+        json->getProperty("count", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg2);
+            cobj->count = arg2;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg2);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXPushConstantRange* cobj = JSB_ALLOC(cocos2d::GFXPushConstantRange);
-        cobj->shaderType = arg0;
-        cobj->offset = arg1;
-        cobj->count = arg2;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -9279,29 +8994,26 @@ static bool js_gfx_GFXPipelineLayoutInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXPipelineLayoutInfo* cobj = JSB_ALLOC(cocos2d::GFXPipelineLayoutInfo);
         std::vector<cocos2d::GFXPushConstantRange> arg0;
-        json->getProperty("pushConstantsRanges", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".pushConstantsRanges\" is undefined!");
-            return false;
+        json->getProperty("pushConstantsRanges", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_std_vector(field, &arg0);
+            cobj->pushConstantsRanges = arg0;
         }
-        ok &= seval_to_std_vector(field, &arg0);
         std::vector<cocos2d::GFXBindingLayout *> arg1;
-        json->getProperty("layouts", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".layouts\" is undefined!");
-            return false;
+        json->getProperty("layouts", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_std_vector(field, &arg1);
+            cobj->layouts = arg1;
         }
-        ok &= seval_to_std_vector(field, &arg1);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXPipelineLayoutInfo* cobj = JSB_ALLOC(cocos2d::GFXPipelineLayoutInfo);
-        cobj->pushConstantsRanges = arg0;
-        cobj->layouts = arg1;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -9799,101 +9511,80 @@ static bool js_gfx_GFXRasterizerState_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXRasterizerState* cobj = JSB_ALLOC(cocos2d::GFXRasterizerState);
         bool arg0;
-        json->getProperty("isDiscard", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".isDiscard\" is undefined!");
-            return false;
+        json->getProperty("isDiscard", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_boolean(field, &arg0);
+            cobj->isDiscard = arg0;
         }
-        ok &= seval_to_boolean(field, &arg0);
         cocos2d::GFXPolygonMode arg1;
-        json->getProperty("polygonMode", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".polygonMode\" is undefined!");
-            return false;
+        json->getProperty("polygonMode", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXPolygonMode)tmp; } while(false);
+            cobj->polygonMode = arg1;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXPolygonMode)tmp; } while(false);
         cocos2d::GFXShadeModel arg2;
-        json->getProperty("shadeModel", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".shadeModel\" is undefined!");
-            return false;
+        json->getProperty("shadeModel", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXShadeModel)tmp; } while(false);
+            cobj->shadeModel = arg2;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXShadeModel)tmp; } while(false);
         cocos2d::GFXCullMode arg3;
-        json->getProperty("cullMode", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".cullMode\" is undefined!");
-            return false;
+        json->getProperty("cullMode", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (cocos2d::GFXCullMode)tmp; } while(false);
+            cobj->cullMode = arg3;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (cocos2d::GFXCullMode)tmp; } while(false);
         bool arg4;
-        json->getProperty("isFrontFaceCCW", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".isFrontFaceCCW\" is undefined!");
-            return false;
+        json->getProperty("isFrontFaceCCW", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_boolean(field, &arg4);
+            cobj->isFrontFaceCCW = arg4;
         }
-        ok &= seval_to_boolean(field, &arg4);
         float arg5 = 0;
-        json->getProperty("depthBias", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".depthBias\" is undefined!");
-            return false;
+        json->getProperty("depthBias", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_float(field, &arg5);
+            cobj->depthBias = arg5;
         }
-        ok &= seval_to_float(field, &arg5);
         float arg6 = 0;
-        json->getProperty("depthBiasClamp", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".depthBiasClamp\" is undefined!");
-            return false;
+        json->getProperty("depthBiasClamp", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_float(field, &arg6);
+            cobj->depthBiasClamp = arg6;
         }
-        ok &= seval_to_float(field, &arg6);
         float arg7 = 0;
-        json->getProperty("depthBiasSlop", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".depthBiasSlop\" is undefined!");
-            return false;
+        json->getProperty("depthBiasSlop", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_float(field, &arg7);
+            cobj->depthBiasSlop = arg7;
         }
-        ok &= seval_to_float(field, &arg7);
         bool arg8;
-        json->getProperty("isDepthClip", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".isDepthClip\" is undefined!");
-            return false;
+        json->getProperty("isDepthClip", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_boolean(field, &arg8);
+            cobj->isDepthClip = arg8;
         }
-        ok &= seval_to_boolean(field, &arg8);
         bool arg9;
-        json->getProperty("isMultisample", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".isMultisample\" is undefined!");
-            return false;
+        json->getProperty("isMultisample", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_boolean(field, &arg9);
+            cobj->isMultisample = arg9;
         }
-        ok &= seval_to_boolean(field, &arg9);
         float arg10 = 0;
-        json->getProperty("lineWidth", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".lineWidth\" is undefined!");
-            return false;
+        json->getProperty("lineWidth", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_float(field, &arg10);
+            cobj->lineWidth = arg10;
         }
-        ok &= seval_to_float(field, &arg10);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXRasterizerState* cobj = JSB_ALLOC(cocos2d::GFXRasterizerState);
-        cobj->isDiscard = arg0;
-        cobj->polygonMode = arg1;
-        cobj->shadeModel = arg2;
-        cobj->cullMode = arg3;
-        cobj->isFrontFaceCCW = arg4;
-        cobj->depthBias = arg5;
-        cobj->depthBiasClamp = arg6;
-        cobj->depthBiasSlop = arg7;
-        cobj->isDepthClip = arg8;
-        cobj->isMultisample = arg9;
-        cobj->lineWidth = arg10;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -10549,165 +10240,128 @@ static bool js_gfx_GFXDepthStencilState_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXDepthStencilState* cobj = JSB_ALLOC(cocos2d::GFXDepthStencilState);
         bool arg0;
-        json->getProperty("depthTest", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".depthTest\" is undefined!");
-            return false;
+        json->getProperty("depthTest", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_boolean(field, &arg0);
+            cobj->depthTest = arg0;
         }
-        ok &= seval_to_boolean(field, &arg0);
         bool arg1;
-        json->getProperty("depthWrite", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".depthWrite\" is undefined!");
-            return false;
+        json->getProperty("depthWrite", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_boolean(field, &arg1);
+            cobj->depthWrite = arg1;
         }
-        ok &= seval_to_boolean(field, &arg1);
         cocos2d::GFXComparisonFunc arg2;
-        json->getProperty("depthFunc", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".depthFunc\" is undefined!");
-            return false;
+        json->getProperty("depthFunc", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
+            cobj->depthFunc = arg2;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
         bool arg3;
-        json->getProperty("stencilTestFront", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".stencilTestFront\" is undefined!");
-            return false;
+        json->getProperty("stencilTestFront", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_boolean(field, &arg3);
+            cobj->stencilTestFront = arg3;
         }
-        ok &= seval_to_boolean(field, &arg3);
         cocos2d::GFXComparisonFunc arg4;
-        json->getProperty("stencilFuncFront", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".stencilFuncFront\" is undefined!");
-            return false;
+        json->getProperty("stencilFuncFront", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
+            cobj->stencilFuncFront = arg4;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
         unsigned int arg5 = 0;
-        json->getProperty("stencilReadMaskFront", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".stencilReadMaskFront\" is undefined!");
-            return false;
+        json->getProperty("stencilReadMaskFront", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg5);
+            cobj->stencilReadMaskFront = arg5;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg5);
         unsigned int arg6 = 0;
-        json->getProperty("stencilWriteMaskFront", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".stencilWriteMaskFront\" is undefined!");
-            return false;
+        json->getProperty("stencilWriteMaskFront", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg6);
+            cobj->stencilWriteMaskFront = arg6;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg6);
         cocos2d::GFXStencilOp arg7;
-        json->getProperty("stencilFailOpFront", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".stencilFailOpFront\" is undefined!");
-            return false;
+        json->getProperty("stencilFailOpFront", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg7 = (cocos2d::GFXStencilOp)tmp; } while(false);
+            cobj->stencilFailOpFront = arg7;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg7 = (cocos2d::GFXStencilOp)tmp; } while(false);
         cocos2d::GFXStencilOp arg8;
-        json->getProperty("stencilZFailOpFront", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".stencilZFailOpFront\" is undefined!");
-            return false;
+        json->getProperty("stencilZFailOpFront", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg8 = (cocos2d::GFXStencilOp)tmp; } while(false);
+            cobj->stencilZFailOpFront = arg8;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg8 = (cocos2d::GFXStencilOp)tmp; } while(false);
         cocos2d::GFXStencilOp arg9;
-        json->getProperty("stencilPassOpFront", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".stencilPassOpFront\" is undefined!");
-            return false;
+        json->getProperty("stencilPassOpFront", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg9 = (cocos2d::GFXStencilOp)tmp; } while(false);
+            cobj->stencilPassOpFront = arg9;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg9 = (cocos2d::GFXStencilOp)tmp; } while(false);
         unsigned int arg10 = 0;
-        json->getProperty("stencilRefFront", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".stencilRefFront\" is undefined!");
-            return false;
+        json->getProperty("stencilRefFront", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg10);
+            cobj->stencilRefFront = arg10;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg10);
         bool arg11;
-        json->getProperty("stencilTestBack", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".stencilTestBack\" is undefined!");
-            return false;
+        json->getProperty("stencilTestBack", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_boolean(field, &arg11);
+            cobj->stencilTestBack = arg11;
         }
-        ok &= seval_to_boolean(field, &arg11);
         cocos2d::GFXComparisonFunc arg12;
-        json->getProperty("stencilFuncBack", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".stencilFuncBack\" is undefined!");
-            return false;
+        json->getProperty("stencilFuncBack", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg12 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
+            cobj->stencilFuncBack = arg12;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg12 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
         unsigned int arg13 = 0;
-        json->getProperty("stencilReadMaskBack", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".stencilReadMaskBack\" is undefined!");
-            return false;
+        json->getProperty("stencilReadMaskBack", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg13);
+            cobj->stencilReadMaskBack = arg13;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg13);
         unsigned int arg14 = 0;
-        json->getProperty("stencilWriteMaskBack", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".stencilWriteMaskBack\" is undefined!");
-            return false;
+        json->getProperty("stencilWriteMaskBack", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg14);
+            cobj->stencilWriteMaskBack = arg14;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg14);
         cocos2d::GFXStencilOp arg15;
-        json->getProperty("stencilFailOpBack", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".stencilFailOpBack\" is undefined!");
-            return false;
+        json->getProperty("stencilFailOpBack", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg15 = (cocos2d::GFXStencilOp)tmp; } while(false);
+            cobj->stencilFailOpBack = arg15;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg15 = (cocos2d::GFXStencilOp)tmp; } while(false);
         cocos2d::GFXStencilOp arg16;
-        json->getProperty("stencilZFailOpBack", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".stencilZFailOpBack\" is undefined!");
-            return false;
+        json->getProperty("stencilZFailOpBack", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg16 = (cocos2d::GFXStencilOp)tmp; } while(false);
+            cobj->stencilZFailOpBack = arg16;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg16 = (cocos2d::GFXStencilOp)tmp; } while(false);
         cocos2d::GFXStencilOp arg17;
-        json->getProperty("stencilPassOpBack", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".stencilPassOpBack\" is undefined!");
-            return false;
+        json->getProperty("stencilPassOpBack", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg17 = (cocos2d::GFXStencilOp)tmp; } while(false);
+            cobj->stencilPassOpBack = arg17;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg17 = (cocos2d::GFXStencilOp)tmp; } while(false);
         unsigned int arg18 = 0;
-        json->getProperty("stencilRefBack", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".stencilRefBack\" is undefined!");
-            return false;
+        json->getProperty("stencilRefBack", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg18);
+            cobj->stencilRefBack = arg18;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg18);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXDepthStencilState* cobj = JSB_ALLOC(cocos2d::GFXDepthStencilState);
-        cobj->depthTest = arg0;
-        cobj->depthWrite = arg1;
-        cobj->depthFunc = arg2;
-        cobj->stencilTestFront = arg3;
-        cobj->stencilFuncFront = arg4;
-        cobj->stencilReadMaskFront = arg5;
-        cobj->stencilWriteMaskFront = arg6;
-        cobj->stencilFailOpFront = arg7;
-        cobj->stencilZFailOpFront = arg8;
-        cobj->stencilPassOpFront = arg9;
-        cobj->stencilRefFront = arg10;
-        cobj->stencilTestBack = arg11;
-        cobj->stencilFuncBack = arg12;
-        cobj->stencilReadMaskBack = arg13;
-        cobj->stencilWriteMaskBack = arg14;
-        cobj->stencilFailOpBack = arg15;
-        cobj->stencilZFailOpBack = arg16;
-        cobj->stencilPassOpBack = arg17;
-        cobj->stencilRefBack = arg18;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -11087,77 +10741,62 @@ static bool js_gfx_GFXBlendTarget_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXBlendTarget* cobj = JSB_ALLOC(cocos2d::GFXBlendTarget);
         bool arg0;
-        json->getProperty("blend", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".blend\" is undefined!");
-            return false;
+        json->getProperty("blend", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_boolean(field, &arg0);
+            cobj->blend = arg0;
         }
-        ok &= seval_to_boolean(field, &arg0);
         cocos2d::GFXBlendFactor arg1;
-        json->getProperty("blendSrc", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".blendSrc\" is undefined!");
-            return false;
+        json->getProperty("blendSrc", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXBlendFactor)tmp; } while(false);
+            cobj->blendSrc = arg1;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXBlendFactor)tmp; } while(false);
         cocos2d::GFXBlendFactor arg2;
-        json->getProperty("blendDst", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".blendDst\" is undefined!");
-            return false;
+        json->getProperty("blendDst", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXBlendFactor)tmp; } while(false);
+            cobj->blendDst = arg2;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg2 = (cocos2d::GFXBlendFactor)tmp; } while(false);
         cocos2d::GFXBlendOp arg3;
-        json->getProperty("blendEq", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".blendEq\" is undefined!");
-            return false;
+        json->getProperty("blendEq", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (cocos2d::GFXBlendOp)tmp; } while(false);
+            cobj->blendEq = arg3;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (cocos2d::GFXBlendOp)tmp; } while(false);
         cocos2d::GFXBlendFactor arg4;
-        json->getProperty("blendSrcAlpha", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".blendSrcAlpha\" is undefined!");
-            return false;
+        json->getProperty("blendSrcAlpha", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (cocos2d::GFXBlendFactor)tmp; } while(false);
+            cobj->blendSrcAlpha = arg4;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg4 = (cocos2d::GFXBlendFactor)tmp; } while(false);
         cocos2d::GFXBlendFactor arg5;
-        json->getProperty("blendDstAlpha", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".blendDstAlpha\" is undefined!");
-            return false;
+        json->getProperty("blendDstAlpha", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg5 = (cocos2d::GFXBlendFactor)tmp; } while(false);
+            cobj->blendDstAlpha = arg5;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg5 = (cocos2d::GFXBlendFactor)tmp; } while(false);
         cocos2d::GFXBlendOp arg6;
-        json->getProperty("blendAlphaEq", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".blendAlphaEq\" is undefined!");
-            return false;
+        json->getProperty("blendAlphaEq", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg6 = (cocos2d::GFXBlendOp)tmp; } while(false);
+            cobj->blendAlphaEq = arg6;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg6 = (cocos2d::GFXBlendOp)tmp; } while(false);
         cocos2d::GFXColorMask arg7;
-        json->getProperty("blendColorMask", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".blendColorMask\" is undefined!");
-            return false;
+        json->getProperty("blendColorMask", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg7 = (cocos2d::GFXColorMask)tmp; } while(false);
+            cobj->blendColorMask = arg7;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg7 = (cocos2d::GFXColorMask)tmp; } while(false);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXBlendTarget* cobj = JSB_ALLOC(cocos2d::GFXBlendTarget);
-        cobj->blend = arg0;
-        cobj->blendSrc = arg1;
-        cobj->blendDst = arg2;
-        cobj->blendEq = arg3;
-        cobj->blendSrcAlpha = arg4;
-        cobj->blendDstAlpha = arg5;
-        cobj->blendAlphaEq = arg6;
-        cobj->blendColorMask = arg7;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -11381,45 +11020,38 @@ static bool js_gfx_GFXBlendState_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXBlendState* cobj = JSB_ALLOC(cocos2d::GFXBlendState);
         bool arg0;
-        json->getProperty("isA2C", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".isA2C\" is undefined!");
-            return false;
+        json->getProperty("isA2C", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_boolean(field, &arg0);
+            cobj->isA2C = arg0;
         }
-        ok &= seval_to_boolean(field, &arg0);
         bool arg1;
-        json->getProperty("isIndepend", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".isIndepend\" is undefined!");
-            return false;
+        json->getProperty("isIndepend", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_boolean(field, &arg1);
+            cobj->isIndepend = arg1;
         }
-        ok &= seval_to_boolean(field, &arg1);
         cocos2d::GFXColor* arg2 = nullptr;
-        json->getProperty("blendColor", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".blendColor\" is undefined!");
-            return false;
+        json->getProperty("blendColor", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_reference(field, &arg2);
+            cobj->blendColor = *arg2;
         }
-        ok &= seval_to_reference(field, &arg2);
         std::vector<cocos2d::GFXBlendTarget> arg3;
-        json->getProperty("targets", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".targets\" is undefined!");
-            return false;
+        json->getProperty("targets", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_std_vector(field, &arg3);
+            cobj->targets = arg3;
         }
-        ok &= seval_to_std_vector(field, &arg3);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXBlendState* cobj = JSB_ALLOC(cocos2d::GFXBlendState);
-        cobj->isA2C = arg0;
-        cobj->isIndepend = arg1;
-        cobj->blendColor = *arg2;
-        cobj->targets = arg3;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -11767,85 +11399,68 @@ static bool js_gfx_GFXPipelineStateInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXPipelineStateInfo* cobj = JSB_ALLOC(cocos2d::GFXPipelineStateInfo);
         cocos2d::GFXPrimitiveMode arg0;
-        json->getProperty("primitive", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".primitive\" is undefined!");
-            return false;
+        json->getProperty("primitive", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXPrimitiveMode)tmp; } while(false);
+            cobj->primitive = arg0;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg0 = (cocos2d::GFXPrimitiveMode)tmp; } while(false);
         cocos2d::GFXShader* arg1 = nullptr;
-        json->getProperty("shader", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".shader\" is undefined!");
-            return false;
+        json->getProperty("shader", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_native_ptr(field, &arg1);
+            cobj->shader = arg1;
         }
-        ok &= seval_to_native_ptr(field, &arg1);
         cocos2d::GFXInputState* arg2 = nullptr;
-        json->getProperty("inputState", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".inputState\" is undefined!");
-            return false;
+        json->getProperty("inputState", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_reference(field, &arg2);
+            cobj->inputState = *arg2;
         }
-        ok &= seval_to_reference(field, &arg2);
         cocos2d::GFXRasterizerState* arg3 = nullptr;
-        json->getProperty("rasterizerState", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".rasterizerState\" is undefined!");
-            return false;
+        json->getProperty("rasterizerState", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_reference(field, &arg3);
+            cobj->rasterizerState = *arg3;
         }
-        ok &= seval_to_reference(field, &arg3);
         cocos2d::GFXDepthStencilState* arg4 = nullptr;
-        json->getProperty("depthStencilState", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".depthStencilState\" is undefined!");
-            return false;
+        json->getProperty("depthStencilState", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_reference(field, &arg4);
+            cobj->depthStencilState = *arg4;
         }
-        ok &= seval_to_reference(field, &arg4);
         cocos2d::GFXBlendState* arg5 = nullptr;
-        json->getProperty("blendState", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".blendState\" is undefined!");
-            return false;
+        json->getProperty("blendState", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_reference(field, &arg5);
+            cobj->blendState = *arg5;
         }
-        ok &= seval_to_reference(field, &arg5);
         std::vector<cocos2d::GFXDynamicState> arg6;
-        json->getProperty("dynamicStates", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".dynamicStates\" is undefined!");
-            return false;
+        json->getProperty("dynamicStates", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_std_vector(field, &arg6);
+            cobj->dynamicStates = arg6;
         }
-        ok &= seval_to_std_vector(field, &arg6);
         cocos2d::GFXPipelineLayout* arg7 = nullptr;
-        json->getProperty("layout", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".layout\" is undefined!");
-            return false;
+        json->getProperty("layout", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_native_ptr(field, &arg7);
+            cobj->layout = arg7;
         }
-        ok &= seval_to_native_ptr(field, &arg7);
         cocos2d::GFXRenderPass* arg8 = nullptr;
-        json->getProperty("renderPass", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".renderPass\" is undefined!");
-            return false;
+        json->getProperty("renderPass", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_native_ptr(field, &arg8);
+            cobj->renderPass = arg8;
         }
-        ok &= seval_to_native_ptr(field, &arg8);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXPipelineStateInfo* cobj = JSB_ALLOC(cocos2d::GFXPipelineStateInfo);
-        cobj->primitive = arg0;
-        cobj->shader = arg1;
-        cobj->inputState = *arg2;
-        cobj->rasterizerState = *arg3;
-        cobj->depthStencilState = *arg4;
-        cobj->blendState = *arg5;
-        cobj->dynamicStates = arg6;
-        cobj->layout = arg7;
-        cobj->renderPass = arg8;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -12017,29 +11632,26 @@ static bool js_gfx_GFXCommandBufferInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXCommandBufferInfo* cobj = JSB_ALLOC(cocos2d::GFXCommandBufferInfo);
         cocos2d::GFXCommandAllocator* arg0 = nullptr;
-        json->getProperty("allocator", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".allocator\" is undefined!");
-            return false;
+        json->getProperty("allocator", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_native_ptr(field, &arg0);
+            cobj->allocator = arg0;
         }
-        ok &= seval_to_native_ptr(field, &arg0);
         cocos2d::GFXCommandBufferType arg1;
-        json->getProperty("type", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".type\" is undefined!");
-            return false;
+        json->getProperty("type", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXCommandBufferType)tmp; } while(false);
+            cobj->type = arg1;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg1 = (cocos2d::GFXCommandBufferType)tmp; } while(false);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXCommandBufferInfo* cobj = JSB_ALLOC(cocos2d::GFXCommandBufferInfo);
-        cobj->allocator = arg0;
-        cobj->type = arg1;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -12453,77 +12065,62 @@ static bool js_gfx_GFXFormatInfo_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXFormatInfo* cobj = JSB_ALLOC(cocos2d::GFXFormatInfo);
         cocos2d::String arg0;
-        json->getProperty("name", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".name\" is undefined!");
-            return false;
+        json->getProperty("name", &field);
+        if(!field.isUndefined()) {
+            arg0 = field.toStringForce().c_str();
+            cobj->name = arg0;
         }
-        arg0 = field.toStringForce().c_str();
         unsigned int arg1 = 0;
-        json->getProperty("size", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".size\" is undefined!");
-            return false;
+        json->getProperty("size", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg1);
+            cobj->size = arg1;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg1);
         unsigned int arg2 = 0;
-        json->getProperty("count", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".count\" is undefined!");
-            return false;
+        json->getProperty("count", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg2);
+            cobj->count = arg2;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg2);
         cocos2d::GFXFormatType arg3;
-        json->getProperty("type", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".type\" is undefined!");
-            return false;
+        json->getProperty("type", &field);
+        if(!field.isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (cocos2d::GFXFormatType)tmp; } while(false);
+            cobj->type = arg3;
         }
-        do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg3 = (cocos2d::GFXFormatType)tmp; } while(false);
         bool arg4;
-        json->getProperty("hasAlpha", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".hasAlpha\" is undefined!");
-            return false;
+        json->getProperty("hasAlpha", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_boolean(field, &arg4);
+            cobj->hasAlpha = arg4;
         }
-        ok &= seval_to_boolean(field, &arg4);
         bool arg5;
-        json->getProperty("hasDepth", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".hasDepth\" is undefined!");
-            return false;
+        json->getProperty("hasDepth", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_boolean(field, &arg5);
+            cobj->hasDepth = arg5;
         }
-        ok &= seval_to_boolean(field, &arg5);
         bool arg6;
-        json->getProperty("hasStencil", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".hasStencil\" is undefined!");
-            return false;
+        json->getProperty("hasStencil", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_boolean(field, &arg6);
+            cobj->hasStencil = arg6;
         }
-        ok &= seval_to_boolean(field, &arg6);
         bool arg7;
-        json->getProperty("isCompressed", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".isCompressed\" is undefined!");
-            return false;
+        json->getProperty("isCompressed", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_boolean(field, &arg7);
+            cobj->isCompressed = arg7;
         }
-        ok &= seval_to_boolean(field, &arg7);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXFormatInfo* cobj = JSB_ALLOC(cocos2d::GFXFormatInfo);
-        cobj->name = arg0;
-        cobj->size = arg1;
-        cobj->count = arg2;
-        cobj->type = arg3;
-        cobj->hasAlpha = arg4;
-        cobj->hasDepth = arg5;
-        cobj->hasStencil = arg6;
-        cobj->isCompressed = arg7;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
@@ -12691,29 +12288,26 @@ static bool js_gfx_GFXMemoryStatus_constructor(se::State& s)
         se::Object *json = args[0].toObject();
         se::Value field;
 
+        cocos2d::GFXMemoryStatus* cobj = JSB_ALLOC(cocos2d::GFXMemoryStatus);
         unsigned int arg0 = 0;
-        json->getProperty("bufferSize", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".bufferSize\" is undefined!");
-            return false;
+        json->getProperty("bufferSize", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg0);
+            cobj->bufferSize = arg0;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg0);
         unsigned int arg1 = 0;
-        json->getProperty("textureSize", &field);  
-        if(field.isUndefined()) {
-            SE_REPORT_ERROR("argument Field \".textureSize\" is undefined!");
-            return false;
+        json->getProperty("textureSize", &field);
+        if(!field.isUndefined()) {
+            ok &= seval_to_uint32(field, (uint32_t*)&arg1);
+            cobj->textureSize = arg1;
         }
-        ok &= seval_to_uint32(field, (uint32_t*)&arg1);
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("argument convertion error");
             return false;
         }
 
-        cocos2d::GFXMemoryStatus* cobj = JSB_ALLOC(cocos2d::GFXMemoryStatus);
-        cobj->bufferSize = arg0;
-        cobj->textureSize = arg1;
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
         return true;
