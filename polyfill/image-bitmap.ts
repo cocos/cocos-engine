@@ -6,11 +6,11 @@ if (typeof ImageBitmap === 'undefined') {
         public width: Number = 0;
 
         constructor () {
-            throw new Error('not implement')
+            throw new Error('not implement');
         }
 
         public close () {
-            throw new Error('not implement')
+            throw new Error('not implement');
         }
     }
 
