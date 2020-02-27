@@ -22,14 +22,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-
-#ifndef __CC_IMAGE_H__
-#define __CC_IMAGE_H__
+#pragma once
 /// @cond DO_NOT_SHOW
 
 #include "base/CCRef.h"
-#include "renderer/core/Core.h"
-
 #include <string>
 #include <map>
 
@@ -42,6 +38,8 @@ THE SOFTWARE.
     ((unsigned)(unsigned char)(va) << 24))
 
 NS_CC_BEGIN
+
+enum class GFXFormat : unsigned int;
 
 /**
  * @addtogroup platform
@@ -189,7 +187,7 @@ protected:
     int _width = 0;
     int _height = 0;
     Format _fileType = Format::UNKNOWN;
-    GFXFormat _renderFormat = GFXFormat::UNKNOWN;
+    GFXFormat _renderFormat;
     MipmapInfo _mipmaps[MIPMAP_MAX];   // pointer to mipmap images
     int _numberOfMipmaps = 0;
     // false if we can't auto detect the image is premultiplied or not.
@@ -226,4 +224,3 @@ protected:
 NS_CC_END
 
 /// @endcond
-#endif    // __CC_IMAGE_H__
