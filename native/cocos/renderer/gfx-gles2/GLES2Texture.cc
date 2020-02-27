@@ -75,7 +75,7 @@ bool GLES2Texture::initialize(const GFXTextureInfo &info) {
   _gpuTexture->mipLevel = _mipLevel;
   _gpuTexture->samples = _samples;
   _gpuTexture->flags = _flags;
-    _gpuTexture->isPowerOf2 = math::IsPowerOfTwo(_width) && math::IsPowerOfTwo(_height);
+  _gpuTexture->isPowerOf2 = math::IsPowerOfTwo(_width) && math::IsPowerOfTwo(_height);
   
   GLES2CmdFuncCreateTexture((GLES2Device*)_device, _gpuTexture);
   _device->memoryStatus().textureSize += _size;

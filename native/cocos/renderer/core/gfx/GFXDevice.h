@@ -46,7 +46,7 @@ class CC_CORE_API GFXDevice : public Object {
   CC_INLINE const String& vendor() const { return _vendor; }
   CC_INLINE uint numDrawCalls() const { return _numDrawCalls; }
   CC_INLINE uint numTris() const { return _numTriangles; }
-  CC_INLINE bool HasFeature(GFXFeature feature) const { return _features[static_cast<uint8_t>(feature)]; }
+  CC_INLINE bool hasFeature(GFXFeature feature) const { return _features[static_cast<uint8_t>(feature)]; }
   
  protected:
   GFXAPI _api = GFXAPI::UNKNOWN;
