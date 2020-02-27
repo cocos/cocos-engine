@@ -49,25 +49,32 @@ HtmlTextParser.prototype = {
         var startIndex = 0;
         var length = htmlString.length;
         while (startIndex < length) {
-            var tagBeginIndex = htmlString.indexOf('<', startIndex);
+            var tagEndIndex = htmlString.indexOf('>', startIndex);
+            var tagBeginIndex = htmlString.lastIndexOf('<', tagEndIndex);
+            if (startIndex > 0 && htmlString.indexOf("<", tagBeginIndex) 
+                < htmlString.lastIndexOf(">", tagEndIndex - 1)) {
+                tagBeginIndex = htmlString.indexOf("<", tagEndIndex);
+                tagEndIndex = htmlString.indexOf(">", tagBeginIndex);
+            }
             if (tagBeginIndex < 0) {
                 this._stack.pop();
                 this._processResult(htmlString.substring(startIndex));
                 startIndex = length;
-            } else {
-                this._processResult(htmlString.substring(startIndex, tagBeginIndex));
-
-                var tagEndIndex = htmlString.indexOf('>', startIndex);
+            }
+            else {
+                var newStr = htmlString.substring(startIndex, tagBeginIndex);
+                var tagStr = htmlString.substring(tagBeginIndex + 1, tagEndIndex);
+                if (tagStr === "") newStr = htmlString.substring(startIndex, tagEndIndex + 1);
+                this._processResult(newStr);
                 if (tagEndIndex === -1) {
                     // cc.error('The HTML tag is invalid!');
                     tagEndIndex = tagBeginIndex;
                 } else if (htmlString.charAt(tagBeginIndex + 1) === '\/'){
                     this._stack.pop();
                 } else {
-                    this._addToStack(htmlString.substring(tagBeginIndex + 1, tagEndIndex));
+                    this._addToStack(tagStr);
                 }
                 startIndex = tagEndIndex + 1;
-
             }
         }
 
