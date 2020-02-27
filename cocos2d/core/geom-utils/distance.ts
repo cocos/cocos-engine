@@ -37,6 +37,11 @@ const u = new Array(3);
 const e = new Array(3);
 
 /**
+ * Some helpful utilities
+ * @module cc.geomUtils
+ */
+
+/**
  * !#en
  * the distance between a point and a plane
  * !#zh
@@ -44,7 +49,7 @@ const e = new Array(3);
  * @method point_plane
  * @param {Vec3} point
  * @param {Plane} plane
- * @return Distance
+ * @return {Number} Distance
  */
 export function point_plane (point: Vec3, plane_: plane) {
     return Vec3.dot(plane_.n, point) - plane_.d;
@@ -56,10 +61,10 @@ export function point_plane (point: Vec3, plane_: plane) {
  * !#zh
  * 计算平面上最接近给定点的点。
  * @method pt_point_plane
- * @param out Closest point
- * @param point Given point
- * @param plane
- * @return Closest point
+ * @param {Vec3} out Closest point
+ * @param {Vec3} point Given point
+ * @param {Plane} plane
+ * @return {Vec3} Closest point
  */
 export function pt_point_plane (out: Vec3, point: Vec3, plane_: plane) {
     const t = point_plane(point, plane_);

@@ -1058,4 +1058,4 @@ js.get(cc, 'eventManager', function () {
     return eventManager;
 });
 
-module.exports = eventManager;
+module.exports = cc.internal.eventManager = eventManager;

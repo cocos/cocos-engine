@@ -14,7 +14,6 @@ if (!Object.is) {
  * Helper class for ES5 Map.
  * !#zh
  * ES5 Map 辅助类。
- * @param {data[]}
  * @class MapUtils
  */
 export default class MapUtils {

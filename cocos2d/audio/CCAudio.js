@@ -322,11 +322,11 @@ Audio.State = {
             }
             else {
                 this._src = null;
-                if (this._element instanceof HTMLAudioElement) {
-                    this._element.src = '';
+                if (this._element instanceof WebAudioElement) {
+                    this._element = null;
                 }
                 else {
-                    this._element = null;
+                    this._element.src = '';
                 }
                 this._state = Audio.State.INITIALZING;
             }
@@ -447,6 +447,12 @@ let WebAudioElement = function (buffer, audio) {
                     });
                 }
             }, 10);
+        }
+        // HACK: fix mobile safari can't play
+        if (cc.sys.browserType === cc.sys.BROWSER_TYPE_SAFARI && cc.sys.isMobile) {
+            if (audio.context.state === 'interrupted') {
+                audio.context.resume();
+            }
         }
     };
 

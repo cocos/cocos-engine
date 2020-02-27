@@ -602,7 +602,7 @@ let Camera = cc.Class({
      * 获取屏幕坐标系到世界坐标系的矩阵，只适用于 alignWithScreen 为 true 的 2D 摄像机。
      * @method getScreenToWorldMatrix2D
      * @param {Mat4} out - the matrix to receive the result
-     * @return {Mat4}
+     * @return {Mat4} out
      */
     getScreenToWorldMatrix2D (out) {
         this.getWorldToScreenMatrix2D(out);
@@ -617,7 +617,7 @@ let Camera = cc.Class({
      * 获取世界坐标系到摄像机坐标系的矩阵，只适用于 alignWithScreen 为 true 的 2D 摄像机。
      * @method getWorldToScreenMatrix2D
      * @param {Mat4} out - the matrix to receive the result
-     * @return {Mat4}
+     * @return {Mat4} out
      */
     getWorldToScreenMatrix2D (out) {
         this.node.getWorldRT(_mat4_temp_1);
@@ -650,7 +650,7 @@ let Camera = cc.Class({
      * @method getScreenToWorldPoint
      * @param {Vec3|Vec2} screenPosition 
      * @param {Vec3|Vec2} [out] 
-     * @return {Vec3|Vec2}
+     * @return {Vec3|Vec2} out
      */
     getScreenToWorldPoint (screenPosition, out) {
         if (this.node.is3DNode) {
@@ -673,7 +673,7 @@ let Camera = cc.Class({
      * @method getWorldToScreenPoint
      * @param {Vec3|Vec2} worldPosition 
      * @param {Vec3|Vec2} [out] 
-     * @return {Vec3|Vec2}
+     * @return {Vec3|Vec2} out
      */
     getWorldToScreenPoint (worldPosition, out) {
         if (this.node.is3DNode) {
@@ -820,8 +820,8 @@ cc.js.mixin(Camera.prototype, {
      * @method getCameraToWorldPoint
      * @deprecated since v2.1.3
      * @param {Vec2} point - the point which should transform
-     * @param {Vec2} out - the point to receive the result
-     * @return {Vec2}
+     * @param {Vec2} [out] - the point to receive the result
+     * @return {Vec2} out
      */
     getCameraToWorldPoint (point, out) {
         return this.getScreenToWorldPoint(point, out);
@@ -835,8 +835,8 @@ cc.js.mixin(Camera.prototype, {
      * @method getWorldToCameraPoint
      * @deprecated since v2.1.3
      * @param {Vec2} point 
-     * @param {Vec2} out - the point to receive the result
-     * @return {Vec2}
+     * @param {Vec2} [out] - the point to receive the result
+     * @return {Vec2} out
      */
     getWorldToCameraPoint (point, out) {
         return this.getWorldToScreenPoint(point, out);
@@ -850,7 +850,7 @@ cc.js.mixin(Camera.prototype, {
      * @method getCameraToWorldMatrix
      * @deprecated since v2.1.3
      * @param {Mat4} out - the matrix to receive the result
-     * @return {Mat4}
+     * @return {Mat4} out
      */
     getCameraToWorldMatrix (out) {
         return this.getScreenToWorldMatrix2D(out);
@@ -865,11 +865,11 @@ cc.js.mixin(Camera.prototype, {
      * @method getWorldToCameraMatrix
      * @deprecated since v2.1.3
      * @param {Mat4} out - the matrix to receive the result
-     * @return {Mat4}
+     * @return {Mat4} out
      */
     getWorldToCameraMatrix (out) {
         return this.getWorldToScreenMatrix2D(out);
     },
-})
+});
 
 module.exports = cc.Camera = Camera;
