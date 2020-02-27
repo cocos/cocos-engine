@@ -279,6 +279,13 @@ let ArmatureDisplay = cc.Class({
             default: 0,
             type: AnimationCacheMode,
             notify () {
+                if (this._defaultCacheMode !== AnimationCacheMode.REALTIME) {
+                    if (this._armature && !ArmatureCache.canCache(this._armature)) {
+                        this._defaultCacheMode = AnimationCacheMode.REALTIME;
+                        cc.warn("Animation cache mode doesn't support skeletal nesting");
+                        return;
+                    }
+                }
                 this.setAnimationCacheMode(this._defaultCacheMode);
             },
             editorOnly: true,
@@ -739,7 +746,7 @@ let ArmatureDisplay = cc.Class({
     },
 
     _updateCacheModeEnum: CC_EDITOR && function () {
-        if (this._armature && ArmatureCache.canCache(this._armature)) {
+        if (this._armature) {
             setEnumAttr(this, '_defaultCacheMode', AnimationCacheMode);
         } else {
             setEnumAttr(this, '_defaultCacheMode', DefaultCacheMode);

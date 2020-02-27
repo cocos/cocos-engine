@@ -122,6 +122,8 @@ let TiledObjectGroup = cc.Class({
         const StaggerAxis = TiledMap.StaggerAxis;
         const TileFlag = TiledMap.TileFlag;
         const FLIPPED_MASK = TileFlag.FLIPPED_MASK;
+        const FLAG_HORIZONTAL = TileFlag.HORIZONTAL;
+        const FLAG_VERTICAL = TileFlag.VERTICAL;
 
         this._groupName = groupInfo.name;
         this._positionOffset = groupInfo.offset;
@@ -156,7 +158,7 @@ let TiledObjectGroup = cc.Class({
 
         let objects = groupInfo._objects;
         let aliveNodes = {};
-        for (let i = 0, childIdx = objects.length - 1, l = objects.length; i < l; i++, childIdx--) {
+        for (let i = 0, l = objects.length; i < l; i++) {
             let object = objects[i];
             let objType = object.type;
             object.offset = cc.v2(object.x, object.y);
@@ -171,7 +173,7 @@ let TiledObjectGroup = cc.Class({
             if (Orientation.ISO !== mapInfo.orientation) {
                 object.y = height - object.y;
             } else {
-                let posIdxX = object.x / tileSize.width * 2;
+                let posIdxX = object.x / tileSize.height;
                 let posIdxY = object.y / tileSize.height;
                 object.x = tileSize.width * 0.5 * (mapSize.height + posIdxX - posIdxY);
                 object.y = tileSize.height * 0.5 * (mapSize.width + mapSize.height - posIdxX - posIdxY);
@@ -195,7 +197,7 @@ let TiledObjectGroup = cc.Class({
                 textNode.parent = this.node;
                 textNode.color = object.color;
                 textNode.opacity = this._opacity;
-                textNode.setSiblingIndex(childIdx);
+                textNode.setSiblingIndex(i);
 
                 let label = textNode.getComponent(cc.Label);
                 if (!label) {
@@ -214,7 +216,8 @@ let TiledObjectGroup = cc.Class({
             }
 
             if (objType === TMXObjectType.IMAGE) {
-                let grid = texGrids[(object.gid & FLIPPED_MASK) >>> 0];
+                let gid = object.gid;
+                let grid = texGrids[(gid & FLIPPED_MASK) >>> 0];
                 if (!grid) continue;
                 let tileset = grid.tileset;
                 let imgName = "img" + object.id;
@@ -250,7 +253,7 @@ let TiledObjectGroup = cc.Class({
                 imgNode.name = imgName;
                 imgNode.parent = this.node;
                 imgNode.opacity = this._opacity;
-                imgNode.setSiblingIndex(childIdx);
+                imgNode.setSiblingIndex(i);
 
                 let sp = imgNode.getComponent(cc.Sprite);
                 if (!sp) {
@@ -260,8 +263,22 @@ let TiledObjectGroup = cc.Class({
                 if (!spf) {
                     spf = new cc.SpriteFrame();
                 }
+
+                if ((gid & FLAG_HORIZONTAL) >>> 0) {
+                    spf.setFlipX(true);
+                } else {
+                    spf.setFlipX(false);
+                }
+
+                if ((gid & FLAG_VERTICAL) >>> 0) {
+                    spf.setFlipY(true);
+                } else {
+                    spf.setFlipY(false);
+                }
+
                 spf.setTexture(grid.tileset.sourceImage, cc.rect(grid));
                 sp.spriteFrame = spf;
+                sp.setVertsDirty();
 
                 // object group may has no width or height info
                 imgNode.width = imgWidth;

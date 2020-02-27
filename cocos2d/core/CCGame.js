@@ -814,7 +814,7 @@ var game = {
 
         // register system events
         if (this.config.registerSystemEvent)
-            _cc.inputManager.registerSystemEvent(this.canvas);
+            cc.internal.inputManager.registerSystemEvent(this.canvas);
 
         if (typeof document.hidden !== 'undefined') {
             hiddenPropName = "hidden";

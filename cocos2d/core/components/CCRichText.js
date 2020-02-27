@@ -728,7 +728,7 @@ let RichText = cc.Class({
     },
 
     _updateRichText () {
-        if (!this.enabled) return;
+        if (!this.enabledInHierarchy) return;
 
         let newTextArray = _htmlTextParser.parse(this.string);
         if (!this._needsUpdateTextLayout(newTextArray)) {

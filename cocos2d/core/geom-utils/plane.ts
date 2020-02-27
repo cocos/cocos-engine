@@ -46,11 +46,11 @@ export default class plane {
      * !#zh
      * 创建一个新的 plane。
      * @method create
-     * @param nx The x part of the normal component.
-     * @param ny The y part of the normal component.
-     * @param nz The z part of the normal component.
-     * @param d Distance from the origin.
-     * @return
+     * @param {Number} nx The x part of the normal component.
+     * @param {Number} ny The y part of the normal component.
+     * @param {Number} nz The z part of the normal component.
+     * @param {Number} d Distance from the origin.
+     * @return {Plane}
      */
     public static create (nx: number, ny: number, nz: number, d: number) {
         return new plane(nx, ny, nz, d);
@@ -62,8 +62,8 @@ export default class plane {
      * !#zh
      * 克隆一个新的 plane。
      * @method clone
-     * @param p The source of cloning.
-     * @return The cloned object.
+     * @param {Plane} p The source of cloning.
+     * @return {Plane} The cloned object.
      */
     public static clone (p: plane) {
         return new plane(p.n.x, p.n.y, p.n.z, p.d);
@@ -75,9 +75,9 @@ export default class plane {
      * !#zh
      * 复制一个平面的值到另一个。
      * @method copy
-     * @param out The object that accepts the action.
-     * @param p The source of the copy.
-     * @return The object that accepts the action.
+     * @param {Plane} out The object that accepts the action.
+     * @param {Plane} p The source of the copy.
+     * @return {Plane} The object that accepts the action.
      */
     public static copy (out: plane, p: plane) {
         Vec3.copy(out.n, p.n);
@@ -92,11 +92,11 @@ export default class plane {
      * !#zh
      * 用三个点创建一个平面。
      * @method fromPoints
-     * @param out The object that accepts the action.
-     * @param a Point a。
-     * @param b Point b。
-     * @param c Point c。
-     * @return out The object that accepts the action.
+     * @param {Plane} out The object that accepts the action.
+     * @param {Vec3} a Point a。
+     * @param {Vec3} b Point b。
+     * @param {Vec3} c Point c。
+     * @return {Plane} out The object that accepts the action.
      */
     public static fromPoints (out: plane, a: Vec3, b: Vec3, c: Vec3) {
         Vec3.subtract(v1, b, a);
@@ -114,12 +114,12 @@ export default class plane {
      * !#zh
      * 将给定平面的属性设置为给定值。
      * @method set
-     * @param out The object that accepts the action.
-     * @param nx The x part of the normal component.
-     * @param ny The y part of the normal component.
-     * @param nz The z part of the normal component.
-     * @param d Distance from the origin.
-     * @return out The object that accepts the action.
+     * @param {Plane} out The object that accepts the action.
+     * @param {Number} nx The x part of the normal component.
+     * @param {Number} ny The y part of the normal component.
+     * @param {Number} nz The z part of the normal component.
+     * @param {Number} d Distance from the origin.
+     * @return {Plane} out The object that accepts the action.
      */
     public static set (out: plane, nx: number, ny: number, nz: number, d: number) {
         out.n.x = nx;
@@ -136,10 +136,10 @@ export default class plane {
      * !#zh
      * 用一条法线和一个点创建平面。
      * @method fromNormalAndPoint
-     * @param out The object that accepts the action.
-     * @param normal The normal of a plane.
-     * @param point A point on the plane.
-     * @return out The object that accepts the action.
+     * @param {Plane} out The object that accepts the action.
+     * @param {Vec3} normal The normal of a plane.
+     * @param {Vec3} point A point on the plane.
+     * @return {Plane} out The object that accepts the action.
      */
     public static fromNormalAndPoint (out: plane, normal: Vec3, point: Vec3) {
         Vec3.copy(out.n, normal);
@@ -154,9 +154,9 @@ export default class plane {
      * !#zh
      * 归一化一个平面。
      * @method normalize
-     * @param out The object that accepts the action.
-     * @param a Source data for operations.
-     * @return out The object that accepts the action.
+     * @param {Plane} out The object that accepts the action.
+     * @param {Plane} a Source data for operations.
+     * @return {Plane} out The object that accepts the action.
      */
     public static normalize (out: plane, a: plane) {
         const len = a.n.len();
@@ -191,10 +191,10 @@ export default class plane {
      * !#en Construct a plane.
      * !#zh 构造一个平面。
      * @constructor
-     * @param nx The x part of the normal component.
-     * @param ny The y part of the normal component.
-     * @param nz The z part of the normal component.
-     * @param d Distance from the origin.
+     * @param {Number} nx The x part of the normal component.
+     * @param {Number} ny The y part of the normal component.
+     * @param {Number} nz The z part of the normal component.
+     * @param {Number} d Distance from the origin.
      */
     constructor (nx = 0, ny = 1, nz = 0, d = 0) {
         this._type = enums.SHAPE_PLANE;
