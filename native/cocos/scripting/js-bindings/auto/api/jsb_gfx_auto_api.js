@@ -312,6 +312,399 @@ gfx.GFXMemoryStatus = {
 };
 
 /**
+ * @class GFXDevice
+ */
+gfx.GFXDevice = {
+
+/**
+ * @method height
+ * @return {unsigned int}
+ */
+height : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method renderer
+ * @return {String}
+ */
+renderer : function (
+)
+{
+    return ;
+},
+
+/**
+ * @method createCommandAllocator
+ * @param {cc.GFXCommandAllocatorInfo} arg0
+ * @return {cc.GFXCommandAllocator}
+ */
+createCommandAllocator : function (
+gfxcommandallocatorinfo 
+)
+{
+    return cc.GFXCommandAllocator;
+},
+
+/**
+ * @method nativeWidth
+ * @return {unsigned int}
+ */
+nativeWidth : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method commandAllocator
+ * @return {cc.GFXCommandAllocator}
+ */
+commandAllocator : function (
+)
+{
+    return cc.GFXCommandAllocator;
+},
+
+/**
+ * @method createPipelineState
+ * @param {cc.GFXPipelineStateInfo} arg0
+ * @return {cc.GFXPipelineState}
+ */
+createPipelineState : function (
+gfxpipelinestateinfo 
+)
+{
+    return cc.GFXPipelineState;
+},
+
+/**
+ * @method vendor
+ * @return {String}
+ */
+vendor : function (
+)
+{
+    return ;
+},
+
+/**
+ * @method width
+ * @return {unsigned int}
+ */
+width : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method createCommandBuffer
+ * @param {cc.GFXCommandBufferInfo} arg0
+ * @return {cc.GFXCommandBuffer}
+ */
+createCommandBuffer : function (
+gfxcommandbufferinfo 
+)
+{
+    return cc.GFXCommandBuffer;
+},
+
+/**
+ * @method present
+ */
+present : function (
+)
+{
+},
+
+/**
+ * @method createTexture
+ * @param {cc.GFXTextureInfo} arg0
+ * @return {cc.GFXTexture}
+ */
+createTexture : function (
+gfxtextureinfo 
+)
+{
+    return cc.GFXTexture;
+},
+
+/**
+ * @method destroy
+ */
+destroy : function (
+)
+{
+},
+
+/**
+ * @method createFramebuffer
+ * @param {cc.GFXFramebufferInfo} arg0
+ * @return {cc.GFXFramebuffer}
+ */
+createFramebuffer : function (
+gfxframebufferinfo 
+)
+{
+    return cc.GFXFramebuffer;
+},
+
+/**
+ * @method createRenderPass
+ * @param {cc.GFXRenderPassInfo} arg0
+ * @return {cc.GFXRenderPass}
+ */
+createRenderPass : function (
+gfxrenderpassinfo 
+)
+{
+    return cc.GFXRenderPass;
+},
+
+/**
+ * @method createPipelineLayout
+ * @param {cc.GFXPipelineLayoutInfo} arg0
+ * @return {cc.GFXPipelineLayout}
+ */
+createPipelineLayout : function (
+gfxpipelinelayoutinfo 
+)
+{
+    return cc.GFXPipelineLayout;
+},
+
+/**
+ * @method memoryStatus
+ * @return {cc.GFXMemoryStatus}
+ */
+memoryStatus : function (
+)
+{
+    return cc.GFXMemoryStatus;
+},
+
+/**
+ * @method createWindow
+ * @param {cc.GFXWindowInfo} arg0
+ * @return {cc.GFXWindow}
+ */
+createWindow : function (
+gfxwindowinfo 
+)
+{
+    return cc.GFXWindow;
+},
+
+/**
+ * @method numDrawCalls
+ * @return {unsigned int}
+ */
+numDrawCalls : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method createShader
+ * @param {cc.GFXShaderInfo} arg0
+ * @return {cc.GFXShader}
+ */
+createShader : function (
+gfxshaderinfo 
+)
+{
+    return cc.GFXShader;
+},
+
+/**
+ * @method copyBuffersToTexture
+ * @param {cc.GFXBuffer} arg0
+ * @param {cc.GFXTexture} arg1
+ * @param {Array} arg2
+ */
+copyBuffersToTexture : function (
+gfxbuffer, 
+gfxtexture, 
+array 
+)
+{
+},
+
+/**
+ * @method gfxAPI
+ * @return {cc.GFXAPI}
+ */
+gfxAPI : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method createInputAssembler
+ * @param {cc.GFXInputAssemblerInfo} arg0
+ * @return {cc.GFXInputAssembler}
+ */
+createInputAssembler : function (
+gfxinputassemblerinfo 
+)
+{
+    return cc.GFXInputAssembler;
+},
+
+/**
+ * @method createSampler
+ * @param {cc.GFXSamplerInfo} arg0
+ * @return {cc.GFXSampler}
+ */
+createSampler : function (
+gfxsamplerinfo 
+)
+{
+    return cc.GFXSampler;
+},
+
+/**
+ * @method createBuffer
+ * @param {cc.GFXBufferInfo} arg0
+ * @return {cc.GFXBuffer}
+ */
+createBuffer : function (
+gfxbufferinfo 
+)
+{
+    return cc.GFXBuffer;
+},
+
+/**
+ * @method hasFeature
+ * @param {cc.GFXFeature} arg0
+ * @return {bool}
+ */
+hasFeature : function (
+gfxfeature 
+)
+{
+    return false;
+},
+
+/**
+ * @method initialize
+ * @param {cc.GFXDeviceInfo} arg0
+ * @return {bool}
+ */
+initialize : function (
+gfxdeviceinfo 
+)
+{
+    return false;
+},
+
+/**
+ * @method resize
+ * @param {unsigned int} arg0
+ * @param {unsigned int} arg1
+ */
+resize : function (
+int, 
+int 
+)
+{
+},
+
+/**
+ * @method nativeHeight
+ * @return {unsigned int}
+ */
+nativeHeight : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method createQueue
+ * @param {cc.GFXQueueInfo} arg0
+ * @return {cc.GFXQueue}
+ */
+createQueue : function (
+gfxqueueinfo 
+)
+{
+    return cc.GFXQueue;
+},
+
+/**
+ * @method numTris
+ * @return {unsigned int}
+ */
+numTris : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method queue
+ * @return {cc.GFXQueue}
+ */
+queue : function (
+)
+{
+    return cc.GFXQueue;
+},
+
+/**
+ * @method context
+ * @return {cc.GFXContext}
+ */
+context : function (
+)
+{
+    return cc.GFXContext;
+},
+
+/**
+ * @method mainWindow
+ * @return {cc.GFXWindow}
+ */
+mainWindow : function (
+)
+{
+    return cc.GFXWindow;
+},
+
+/**
+ * @method createBindingLayout
+ * @param {cc.GFXBindingLayoutInfo} arg0
+ * @return {cc.GFXBindingLayout}
+ */
+createBindingLayout : function (
+gfxbindinglayoutinfo 
+)
+{
+    return cc.GFXBindingLayout;
+},
+
+/**
+ * @method createTextureView
+ * @param {cc.GFXTextureViewInfo} arg0
+ * @return {cc.GFXTextureView}
+ */
+createTextureView : function (
+gfxtextureviewinfo 
+)
+{
+    return cc.GFXTextureView;
+},
+
+};
+
+/**
  * @class GFXWindow
  */
 gfx.GFXWindow = {
@@ -1947,6 +2340,18 @@ gfxdevice
 gfx.GLES2Device = {
 
 /**
+ * @method checkExtension
+ * @param {String} arg0
+ * @return {bool}
+ */
+checkExtension : function (
+str 
+)
+{
+    return false;
+},
+
+/**
  * @method useInstancedArrays
  * @return {bool}
  */
@@ -1957,15 +2362,13 @@ useInstancedArrays : function (
 },
 
 /**
- * @method createCommandAllocator
- * @param {cc.GFXCommandAllocatorInfo} arg0
- * @return {cc.GFXCommandAllocator}
+ * @method useVAO
+ * @return {bool}
  */
-createCommandAllocator : function (
-gfxcommandallocatorinfo 
+useVAO : function (
 )
 {
-    return cc.GFXCommandAllocator;
+    return false;
 },
 
 /**
@@ -1986,250 +2389,6 @@ useDiscardFramebuffer : function (
 )
 {
     return false;
-},
-
-/**
- * @method createPipelineState
- * @param {cc.GFXPipelineStateInfo} arg0
- * @return {cc.GFXPipelineState}
- */
-createPipelineState : function (
-gfxpipelinestateinfo 
-)
-{
-    return cc.GFXPipelineState;
-},
-
-/**
- * @method createCommandBuffer
- * @param {cc.GFXCommandBufferInfo} arg0
- * @return {cc.GFXCommandBuffer}
- */
-createCommandBuffer : function (
-gfxcommandbufferinfo 
-)
-{
-    return cc.GFXCommandBuffer;
-},
-
-/**
- * @method present
- */
-present : function (
-)
-{
-},
-
-/**
- * @method createTexture
- * @param {cc.GFXTextureInfo} arg0
- * @return {cc.GFXTexture}
- */
-createTexture : function (
-gfxtextureinfo 
-)
-{
-    return cc.GFXTexture;
-},
-
-/**
- * @method destroy
- */
-destroy : function (
-)
-{
-},
-
-/**
- * @method createFramebuffer
- * @param {cc.GFXFramebufferInfo} arg0
- * @return {cc.GFXFramebuffer}
- */
-createFramebuffer : function (
-gfxframebufferinfo 
-)
-{
-    return cc.GFXFramebuffer;
-},
-
-/**
- * @method createRenderPass
- * @param {cc.GFXRenderPassInfo} arg0
- * @return {cc.GFXRenderPass}
- */
-createRenderPass : function (
-gfxrenderpassinfo 
-)
-{
-    return cc.GFXRenderPass;
-},
-
-/**
- * @method createPipelineLayout
- * @param {cc.GFXPipelineLayoutInfo} arg0
- * @return {cc.GFXPipelineLayout}
- */
-createPipelineLayout : function (
-gfxpipelinelayoutinfo 
-)
-{
-    return cc.GFXPipelineLayout;
-},
-
-/**
- * @method createWindow
- * @param {cc.GFXWindowInfo} arg0
- * @return {cc.GFXWindow}
- */
-createWindow : function (
-gfxwindowinfo 
-)
-{
-    return cc.GFXWindow;
-},
-
-/**
- * @method createShader
- * @param {cc.GFXShaderInfo} arg0
- * @return {cc.GFXShader}
- */
-createShader : function (
-gfxshaderinfo 
-)
-{
-    return cc.GFXShader;
-},
-
-/**
- * @method copyBuffersToTexture
- * @param {cc.GFXBuffer} arg0
- * @param {cc.GFXTexture} arg1
- * @param {Array} arg2
- */
-copyBuffersToTexture : function (
-gfxbuffer, 
-gfxtexture, 
-array 
-)
-{
-},
-
-/**
- * @method createInputAssembler
- * @param {cc.GFXInputAssemblerInfo} arg0
- * @return {cc.GFXInputAssembler}
- */
-createInputAssembler : function (
-gfxinputassemblerinfo 
-)
-{
-    return cc.GFXInputAssembler;
-},
-
-/**
- * @method createSampler
- * @param {cc.GFXSamplerInfo} arg0
- * @return {cc.GFXSampler}
- */
-createSampler : function (
-gfxsamplerinfo 
-)
-{
-    return cc.GFXSampler;
-},
-
-/**
- * @method useVAO
- * @return {bool}
- */
-useVAO : function (
-)
-{
-    return false;
-},
-
-/**
- * @method createBuffer
- * @param {cc.GFXBufferInfo} arg0
- * @return {cc.GFXBuffer}
- */
-createBuffer : function (
-gfxbufferinfo 
-)
-{
-    return cc.GFXBuffer;
-},
-
-/**
- * @method initialize
- * @param {cc.GFXDeviceInfo} arg0
- * @return {bool}
- */
-initialize : function (
-gfxdeviceinfo 
-)
-{
-    return false;
-},
-
-/**
- * @method resize
- * @param {unsigned int} arg0
- * @param {unsigned int} arg1
- */
-resize : function (
-int, 
-int 
-)
-{
-},
-
-/**
- * @method createQueue
- * @param {cc.GFXQueueInfo} arg0
- * @return {cc.GFXQueue}
- */
-createQueue : function (
-gfxqueueinfo 
-)
-{
-    return cc.GFXQueue;
-},
-
-/**
- * @method checkExtension
- * @param {String} arg0
- * @return {bool}
- */
-checkExtension : function (
-str 
-)
-{
-    return false;
-},
-
-/**
- * @method createBindingLayout
- * @param {cc.GFXBindingLayoutInfo} arg0
- * @return {cc.GFXBindingLayout}
- */
-createBindingLayout : function (
-gfxbindinglayoutinfo 
-)
-{
-    return cc.GFXBindingLayout;
-},
-
-/**
- * @method createTextureView
- * @param {cc.GFXTextureViewInfo} arg0
- * @return {cc.GFXTextureView}
- */
-createTextureView : function (
-gfxtextureviewinfo 
-)
-{
-    return cc.GFXTextureView;
 },
 
 /**
