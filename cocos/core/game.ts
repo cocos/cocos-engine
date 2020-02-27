@@ -627,7 +627,7 @@ export class Game extends EventTarget {
             this._rendererInitialized = true;
             this.emit(Game.EVENT_RENDERER_INITED);
 
-            if (!CC_EDITOR && !CC_PREVIEW && cc.internal.SplashScreenWebgl) {
+            if (!CC_JSB && !CC_EDITOR && !CC_PREVIEW && cc.internal.SplashScreenWebgl) {
                 cc.internal.SplashScreenWebgl.instance.setOnFinish(cb);
                 cc.internal.SplashScreenWebgl.instance.loadFinish = true;
             } else if (cb) {
@@ -868,7 +868,10 @@ export class Game extends EventTarget {
             }
 
             // useWebGL2 = false;
-            if (useWebGL2 && cc.WebGL2GFXDevice) {
+            if (CC_JSB) {
+                this._gfxDevice = new gfx.GLES2Device();
+            }
+            else if (useWebGL2 && cc.WebGL2GFXDevice) {
                 this._gfxDevice = new cc.WebGL2GFXDevice();
             } else if (cc.WebGLGFXDevice) {
                 this._gfxDevice = new cc.WebGLGFXDevice();
