@@ -9,6 +9,11 @@ const Mode = Enum({
     Fixed: 1,
 });
 
+/**
+ * !#en The color key of gradient.
+ * !#zh color 关键帧
+ * @class ColorKey
+ */
 @ccclass('cc.ColorKey')
 export class ColorKey {
 
@@ -19,6 +24,11 @@ export class ColorKey {
     time = 0;
 }
 
+/**
+ * !#en The alpha key of gradient.
+ * !#zh alpha 关键帧
+ * @class AlphaKey
+ */
 @ccclass('cc.AlphaKey')
 export class AlphaKey {
 
@@ -29,6 +39,11 @@ export class AlphaKey {
     time = 0;
 }
 
+/**
+ * !#en The gradient data of color.
+ * !#zh 颜色渐变数据
+ * @class Gradient
+ */
 @ccclass('cc.Gradient')
 export class Gradient {
 

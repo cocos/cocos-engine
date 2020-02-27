@@ -5,6 +5,11 @@ import CurveRange from './curve-range';
 // tslint:disable: max-line-length
 const SIZE_OVERTIME_RAND_OFFSET = 39825;
 
+/**
+ * !#en The size module of 3d particle.
+ * !#zh 3D 粒子的大小模块
+ * @class SizeOvertimeModule
+ */
 @ccclass('cc.SizeOvertimeModule')
 export default class SizeOvertimeModule {
 

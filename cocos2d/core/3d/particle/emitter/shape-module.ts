@@ -9,6 +9,11 @@ const _intermediVec = new Vec3(0, 0, 0);
 const _intermediArr = new Array();
 const _unitBoxExtent = new Vec3(0.5, 0.5, 0.5);
 
+/**
+ * !#en The shape module of 3d particle.
+ * !#zh 3D 粒子的发射形状模块
+ * @class ShapeModule
+ */
 @ccclass('cc.ShapeModule')
 export default class ShapeModule {
 

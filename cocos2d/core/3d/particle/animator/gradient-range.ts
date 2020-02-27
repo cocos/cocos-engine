@@ -20,6 +20,11 @@ const Mode = Enum({
     RandomColor: 4,
 });
 
+/**
+ * !#en The gradient range of color.
+ * !#zh 颜色值的渐变范围
+ * @class GradientRange
+ */
 @ccclass('cc.GradientRange')
 export default class GradientRange {
 
