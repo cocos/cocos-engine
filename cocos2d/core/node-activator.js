@@ -48,7 +48,6 @@ var callOnLoadInTryCatch = CC_EDITOR && function (c) {
     _onLoadInEditor(c);
 };
 var callOnDestroyInTryCatch = CC_EDITOR && callerFunctor('onDestroy');
-var callResetInTryCatch = CC_EDITOR && callerFunctor('resetInEditor');
 var callOnFocusInTryCatch = CC_EDITOR && callerFunctor('onFocusInEditor');
 var callOnLostFocusInTryCatch = CC_EDITOR && callerFunctor('onLostFocusInEditor');
 
@@ -370,9 +369,14 @@ var NodeActivator = cc.Class({
         }
     },
 
-    resetComp: CC_EDITOR && function (comp) {
+    resetComp: CC_EDITOR && function (comp, didResetToDefault) {
         if (comp.resetInEditor) {
-            callResetInTryCatch(comp);
+            try {
+                comp.resetInEditor(didResetToDefault);
+            }
+            catch (e) {
+                cc._throw(e);
+            }
         }
     }
 });
