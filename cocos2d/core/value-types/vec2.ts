@@ -901,7 +901,6 @@ export default class Vec2 extends ValueType {
     addSelf (vector: Vec2): this {
         this.x += vector.x;
         this.y += vector.y;
-        this.z += vector.z;
         return this;
     }
 
