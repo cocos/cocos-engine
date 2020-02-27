@@ -412,6 +412,18 @@ bool seval_to_Uint8Array(const se::Value& v, uint8_t* ret)
     return true;
 }
 
+bool seval_to_intptr_t(const se::Value& v, intptr_t* ret)
+{
+    assert(ret != nullptr);
+    if (v.isNumber())
+    {
+        *ret = (intptr_t)v.toUlong();
+        return true;
+    }
+    *ret = 0UL;
+    return false;
+}
+
 bool seval_to_Size(const se::Value& v, cocos2d::Size* size)
 {
     assert(size != nullptr);

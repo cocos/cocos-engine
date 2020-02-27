@@ -41,7 +41,7 @@ namespace
         char commandBuf[200] = {0};
         // https://stackoverflow.com/questions/5795978/string-format-for-intptr-t-and-uintptr-t/41897226#41897226
         // format intptr_t
-        sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d; window.windowHandler = %" PRIxPTR ";",
+        sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d; window.windowHandler = 0x%" PRIxPTR ";",
                 g_width,
                 g_height,
                 (intptr_t)(UIApplication.sharedApplication.delegate.window.rootViewController.view) );
