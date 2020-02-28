@@ -25,11 +25,13 @@ THE SOFTWARE.
 ****************************************************************************/
 #include "platform/CCApplication.h"
 #include <cstring>
+#include <android_native_app_glue.h>
 #include "platform/android/jni/JniImp.h"
 #include "base/CCScheduler.h"
 #include "audio/include/AudioEngine.h"
 #include "scripting/js-bindings/jswrapper/SeApi.h"
 #include "scripting/js-bindings/event/EventDispatcher.h"
+#include "platform/android/jni/JniHelper.h"
 
 #define  LOG_APP_TAG    "CCApplication_android Debug"
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_APP_TAG,__VA_ARGS__)
@@ -52,9 +54,10 @@ namespace
         se::AutoHandleScope scope;
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
         char commandBuf[200] = {0};
-        sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d;",
+        sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d; window.windowHandler = 0x%" PRIxPTR ";",
                 g_width,
-                g_height);
+                g_height,
+                (intptr_t)cocos2d::JniHelper::getAndroidApp()->window);
         se->evalString(commandBuf);
 
         return true;
