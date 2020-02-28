@@ -598,9 +598,16 @@ AssetManager.prototype = {
     loadBundle (root, options, onComplete) {
         if (!root) return;
         var { options, onComplete } = parseParameters(options, undefined, onComplete);
-        options.priority = options.priority || 2;
+        
         if (root.endsWith('/')) root = root.substr(0, root.length - 1);
-        var ver = options.ver || this.bundleVers[cc.path.basename(root)];
+        let bundleName = cc.path.basename(root);
+
+        if (this.bundles.has(bundleName)) {
+            return asyncify(onComplete)(null, this.bundles.get(bundleName));
+        }
+
+        options.priority = options.priority || 2;
+        var ver = options.ver || this.bundleVers[bundleName];
         var config = ver ?  `${root}/config.${ver}.json`: `${root}/config.json`;
         var bundle = null;
         var count = 0;
