@@ -30,6 +30,9 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- Tell NativeActivity the name of our .so -->
+            <meta-data android:name="android.app.lib_name"
+                android:value="cocos2djs" />
         </activity>
     </application>
 

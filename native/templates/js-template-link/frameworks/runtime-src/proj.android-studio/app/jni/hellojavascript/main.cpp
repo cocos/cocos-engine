@@ -47,6 +47,7 @@ namespace
         int animating = 0;
         int32_t width = 0;
         int32_t height = 0;
+        bool initialized = false;
     };
 
     void engineHandleCmd(struct android_app* app, int32_t cmd)
@@ -61,6 +62,7 @@ namespace
                     state->height = ANativeWindow_getHeight(app->window);
                     game = new Game(state->width, state->height);
                     game->init();
+                    state->initialized = true;
                 }
                 break;
             case APP_CMD_TERM_WINDOW:
@@ -73,10 +75,12 @@ namespace
                 state->animating = 0;
                 break;
             case APP_CMD_PAUSE:
-                cocos2d::Application::getInstance()->onPause();
+                if (state->initialized)
+                    cocos2d::Application::getInstance()->onPause();
                 break;
             case APP_CMD_RESUME:
-                cocos2d::Application::getInstance()->onResume();
+                if (state->initialized)
+                    cocos2d::Application::getInstance()->onResume();
                 break;
             default:
                 break;

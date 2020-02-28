@@ -24,13 +24,13 @@ THE SOFTWARE.
 ****************************************************************************/
 package org.cocos2dx.javascript;
 
-import android.app.NativeActivity;
 import android.os.Bundle;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.util.Log;
 
-public class AppActivity extends NativeActivity {
+import org.cocos2dx.lib.Cocos2dxActivity;
+
+public class AppActivity extends Cocos2dxActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

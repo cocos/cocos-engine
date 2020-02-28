@@ -31,7 +31,7 @@
 #include "base/CCThreadPool.h"
 #include "network/HttpClient.h"
 #include "platform/CCApplication.h"
-//#include "ui/edit-box/EditBox.h"
+#include "renderer/core/Core.h"
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
 #include "platform/android/jni/JniImp.h"
@@ -702,9 +702,7 @@ namespace
         uint32_t width = 0;
         uint32_t height = 0;
         uint8_t* data = nullptr;
-        GLenum glFormat = GL_RGBA;
-        GLenum glInternalFormat = GL_RGBA;
-        GLenum type = GL_UNSIGNED_BYTE;
+        cocos2d::GFXFormat format = cocos2d::GFXFormat::UNKNOWN;
         uint8_t bpp = 0;
         uint8_t numberOfMipmaps = 0;
         bool hasAlpha = false;
@@ -764,20 +762,22 @@ namespace
         // will create a big texture, and update its content with small pictures.
         // The big texture is RGBA888, then the small picture should be the same
         // format, or it will cause 0x502 error on OpenGL ES 2.
-        if (!imgInfo->compressed && imgInfo->glFormat != GL_RGBA) {
+        if (!imgInfo->compressed && imgInfo->format != cocos2d::GFXFormat::UNKNOWN) {
             imgInfo->length = img->getWidth() * img->getHeight() * 4;
             uint8_t* dst = nullptr;
             uint32_t length = imgInfo->length;
             uint8_t* src = imgInfo->data;
-            switch(imgInfo->glFormat) {
-                case GL_LUMINANCE_ALPHA:
+            switch(imgInfo->format) {
+                case cocos2d::GFXFormat::A8:
+                case cocos2d::GFXFormat::LA8:
                     dst = convertIA2RGBA(length, src);
                     break;
-                case GL_ALPHA:
-                case GL_LUMINANCE:
+                case cocos2d::GFXFormat::L8:
+                case cocos2d::GFXFormat::R8:
+                case cocos2d::GFXFormat::R8I:
                     dst = convertI2RGBA(length, src);
                     break;
-                case GL_RGB:
+                case cocos2d::GFXFormat::RGB8:
                     dst = convertRGB2RGBA(length, src);
                     break;
                 default:
@@ -859,10 +859,6 @@ bool jsb_global_load_image(const std::string& path, const se::Value& callbackVal
                             mipmapArray->setArrayElement(i, se::Value(info));
                         }
                     }
-
-                    retObj->setProperty("glFormat", se::Value(imgInfo->glFormat));
-                    retObj->setProperty("glInternalFormat", se::Value(imgInfo->glInternalFormat));
-                    retObj->setProperty("glType", se::Value(imgInfo->type));
 
                     seArgs.push_back(se::Value(retObj));
 
