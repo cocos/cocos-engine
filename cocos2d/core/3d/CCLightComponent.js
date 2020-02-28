@@ -108,7 +108,7 @@ const LightShadowType = Enum({
      * @readonly
      * @type {Number}
      */
-    HARD: 1,
+    HARD: 2,
     /**
      * !#en Soft PCF 3x3 shadows
      *
@@ -117,7 +117,7 @@ const LightShadowType = Enum({
      * @readonly
      * @type {Number}
      */
-    SOFT_PCF3X3: 2,
+    SOFT_PCF3X3: 3,
     /**
      * !#en Soft PCF 5x5 shadows
      *
@@ -126,7 +126,7 @@ const LightShadowType = Enum({
      * @readonly
      * @type {Number}
      */
-    SOFT_PCF5X5: 3,
+    SOFT_PCF5X5: 4,
 });
 
 /**
