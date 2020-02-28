@@ -39,6 +39,7 @@ import { lerp } from '../../core/math/utils';
 import { Node } from '../../core/scene-graph/node';
 import { SpriteComponent } from './sprite-component';
 import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
+import { EDITOR } from 'internal:constants';
 
 /**
  * @en Enum for transition type.
@@ -163,7 +164,7 @@ export class ButtonComponent extends Component {
     }
 
     set interactable (value) {
-        // if (CC_EDITOR) {
+        // if (EDITOR) {
         //     if (value) {
         //         this._previousNormalSprite = this.normalSprite;
         //     } else {
@@ -555,7 +556,7 @@ export class ButtonComponent extends Component {
     public onEnable () {
         // check sprite frames
         //
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             this._registerEvent();
         } else {
             this.node.on(SpriteComponent.EventType.SPRITE_FRAME_CHANGED, (comp: SpriteComponent) => {
@@ -575,7 +576,7 @@ export class ButtonComponent extends Component {
     public onDisable () {
         this._resetState();
 
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             this.node.off(SystemEventType.TOUCH_START, this._onTouchBegan, this);
             this.node.off(SystemEventType.TOUCH_MOVE, this._onTouchMove, this);
             this.node.off(SystemEventType.TOUCH_END, this._onTouchEnded, this);
@@ -625,7 +626,7 @@ export class ButtonComponent extends Component {
     }
 
     protected _resizeNodeToTargetNode () {
-        if (CC_EDITOR && this._target) {
+        if (EDITOR && this._target) {
             this.node.setContentSize(this._target.getContentSize());
         }
     }
@@ -801,7 +802,7 @@ export class ButtonComponent extends Component {
             return;
         }
 
-        if (CC_EDITOR || state === State.DISABLED) {
+        if (EDITOR || state === State.DISABLED) {
             renderComp.color = color;
         } else {
             this._fromColor = renderComp.color.clone();

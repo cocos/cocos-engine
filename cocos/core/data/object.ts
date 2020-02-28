@@ -30,6 +30,7 @@
 import * as js from '../utils/js';
 import CCClass from './class';
 import { errorID, warnID } from '../platform/debug';
+import { SUPPORT_JIT, EDITOR, TEST } from 'internal:constants';
 
 // definitions for CCObject.Flags
 
@@ -120,7 +121,7 @@ function compileDestruct (obj, ctor) {
         }
     }
 
-    if (CC_SUPPORT_JIT) {
+    if (SUPPORT_JIT) {
         // compile code
         let func = '';
         // tslint:disable: forin
@@ -178,7 +179,7 @@ class CCObject {
             objectsToDestroy.splice(0, deleteCount);
         }
 
-        if (CC_EDITOR) {
+        if (EDITOR) {
             deferredDestroyTimer = null;
         }
     }
@@ -280,7 +281,7 @@ class CCObject {
         this._objFlags |= ToDestroy;
         objectsToDestroy.push(this);
 
-        if (CC_EDITOR && deferredDestroyTimer === null && cc.engine && ! cc.engine._isUpdating) {
+        if (EDITOR && deferredDestroyTimer === null && cc.engine && ! cc.engine._isUpdating) {
             // auto destroy immediate in edit mode
             // @ts-ignore
             deferredDestroyTimer = setImmediate(CCObject._deferredDestroy);
@@ -331,7 +332,7 @@ class CCObject {
             this._onPreDestroy();
         }
 
-        if ((CC_TEST ? (/* make CC_EDITOR mockable*/ Function('return !CC_EDITOR'))() : !CC_EDITOR) || cc.engine._isPlaying) {
+        if ((TEST ? (/* make EDITOR mockable*/ Function('return !EDITOR'))() : !EDITOR) || cc.engine._isPlaying) {
             this._destruct();
         }
 
@@ -340,7 +341,7 @@ class CCObject {
 }
 
 const prototype = CCObject.prototype;
-if (CC_EDITOR || CC_TEST) {
+if (EDITOR || TEST) {
     js.get(prototype, 'isRealValid', function (this: CCObject) {
         return !(this._objFlags & RealDestroyed);
     });
@@ -370,7 +371,7 @@ if (CC_EDITOR || CC_TEST) {
     };
 }
 
-if (CC_EDITOR) {
+if (EDITOR) {
     js.value(CCObject, '_clearDeferredDestroyTimer', () => {
         if (deferredDestroyTimer !== null) {
             // @ts-ignore
@@ -560,7 +561,7 @@ export function isValid (value: any, strictMode?: boolean) {
 }
 cc.isValid = isValid;
 
-if (CC_EDITOR || CC_TEST) {
+if (EDITOR || TEST) {
     js.value(CCObject, '_willDestroy', (obj) => {
         return !(obj._objFlags & Destroyed) && (obj._objFlags & ToDestroy) > 0;
     });

@@ -46,6 +46,7 @@ import { IAcceptableAttributes } from './utils/attribute-defines';
 import { preprocessAttrs, validateMethodWithProps } from './utils/preprocess-class';
 import * as RF from './utils/requiring-frame';
 import { error } from '../platform/debug';
+import { DEV, EDITOR, SUPPORT_JIT, TEST } from 'internal:constants';
 
 const DELIMETER = attributeUtils.DELIMETER;
 
@@ -104,7 +105,7 @@ const deferredInitializer: any = {
 
 // both getter and prop must register the name into __props__ array
 function appendProp (cls, name) {
-    if (CC_DEV) {
+    if (DEV) {
         // if (!IDENTIFIER_RE.test(name)) {
         //    error('The property name "' + name + '" is not compliant with JavaScript naming standards');
         //    return;
@@ -121,7 +122,7 @@ const tmpArray = [];
 function defineProp (cls, className, propName, val, es6) {
     const defaultValue = val.default;
 
-    if (CC_DEV) {
+    if (DEV) {
         if (!es6) {
             // check default object value
             if (typeof defaultValue === 'object' && defaultValue) {
@@ -187,7 +188,7 @@ function defineGetSet (cls, name, propName, val, es6) {
     const setterUndefined = !d;
 
     if (getter) {
-        if (CC_DEV && !es6 && d && d.get) {
+        if (DEV && !es6 && d && d.get) {
             errorID(3638, name, propName);
             return;
         }
@@ -200,7 +201,7 @@ function defineGetSet (cls, name, propName, val, es6) {
 
         attributeUtils.setClassAttr(cls, propName, 'serializable', false);
 
-        if (CC_DEV) {
+        if (DEV) {
             // 不论是否 visible 都要添加到 props，否则 asset watcher 不能正常工作
             appendProp(cls, propName);
         }
@@ -209,19 +210,19 @@ function defineGetSet (cls, name, propName, val, es6) {
             js.get(proto, propName, getter, setterUndefined, setterUndefined);
         }
 
-        if (CC_EDITOR || CC_DEV) {
+        if (EDITOR || DEV) {
             attributeUtils.setClassAttr(cls, propName, 'hasGetter', true); // 方便 editor 做判断
         }
     }
 
     if (setter) {
         if (!es6) {
-            if (CC_DEV && d && d.set) {
+            if (DEV && d && d.set) {
                 return errorID(3640, name, propName);
             }
             js.set(proto, propName, setter, setterUndefined, setterUndefined);
         }
-        if (CC_EDITOR || CC_DEV) {
+        if (EDITOR || DEV) {
             attributeUtils.setClassAttr(cls, propName, 'hasSetter', true); // 方便 editor 做判断
         }
     }
@@ -229,7 +230,7 @@ function defineGetSet (cls, name, propName, val, es6) {
 
 function getDefault (defaultVal) {
     if (typeof defaultVal === 'function') {
-        if (CC_EDITOR) {
+        if (EDITOR) {
             try {
                 return defaultVal();
             }
@@ -259,7 +260,7 @@ function doDefine (className, baseClass, mixins, options) {
     let ctor = options.ctor;
     const __es6__ = options.__ES6__;
 
-    if (CC_DEV) {
+    if (DEV) {
         // check ctor
         const ctorToUse = __ctor__ || ctor;
         if (ctorToUse) {
@@ -317,7 +318,7 @@ function doDefine (className, baseClass, mixins, options) {
             prototype = fireClass.prototype;        // get extended prototype
         }
         fireClass.$super = baseClass;
-        if (CC_DEV && shouldAddProtoCtor) {
+        if (DEV && shouldAddProtoCtor) {
             prototype.ctor = function () { };
         }
     }
@@ -329,7 +330,7 @@ function doDefine (className, baseClass, mixins, options) {
 
             // mixin statics (this will also copy editor attributes for component)
             mixinWithInherited(fireClass, mixin, function (prop) {
-                return mixin.hasOwnProperty(prop) && (!CC_DEV || INVALID_STATICS_DEV.indexOf(prop) < 0);
+                return mixin.hasOwnProperty(prop) && (!DEV || INVALID_STATICS_DEV.indexOf(prop) < 0);
             });
 
             // mixin attributes
@@ -362,13 +363,13 @@ function define (className, baseClass, mixins, options) {
             errorID(3615);
             return null;
         }
-        if (CC_DEV && frame.uuid && className) {
+        if (DEV && frame.uuid && className) {
             // warnID(3616, className);
         }
         className = className || frame.script;
     }
 
-    if (CC_DEV) {
+    if (DEV) {
         if (!options.__ES6__) {
             warnID(3661, className);
         }
@@ -394,7 +395,7 @@ function define (className, baseClass, mixins, options) {
 
         if (renderName) {
             js._setClassId(className, cls);
-            if (CC_EDITOR) {
+            if (EDITOR) {
                 // 增加了 hidden: 开头标识，使它最终不会显示在 Editor inspector 的添加组件列表里
                 // @ts-ignore
                 // tslint:disable-next-line:no-unused-expression
@@ -403,7 +404,7 @@ function define (className, baseClass, mixins, options) {
         }
     }
 
-    if (CC_EDITOR) {
+    if (EDITOR) {
         // Note: `options.ctor` should be same as `cls` except if
         // cc-class is defined by `cc.Class({/* ... */})`.
         // In such case, `options.ctor` may be `undefined`.
@@ -417,7 +418,7 @@ function define (className, baseClass, mixins, options) {
             const uuid = frame.uuid;
             if (uuid) {
                 js._setClassId(uuid, cls);
-                if (CC_EDITOR) {
+                if (EDITOR) {
                     // @ts-ignore
                     // tslint:disable-next-line:no-unused-expression
                     EditorExtends.Component.addMenu(cls, 'i18n:menu.custom_script/' + className, -1);
@@ -456,7 +457,7 @@ function getNewValueTypeCodeJit (value) {
     for (let i = 0; i < type.__props__.length; i++) {
         const prop = type.__props__[i];
         const propVal = value[prop];
-        if (CC_DEV && typeof propVal === 'object') {
+        if (DEV && typeof propVal === 'object') {
             errorID(3641, clsName);
             return 'new ' + clsName + '()';
         }
@@ -512,7 +513,7 @@ function getInitPropsJit (attrs, propList) {
                 const index = F.length;
                 F.push(def);
                 expression = 'F[' + index + ']()';
-                if (CC_EDITOR) {
+                if (EDITOR) {
                     func += 'try {\n' + statement + expression + ';\n}\ncatch(e) {\ncc._throw(e);\n' + statement + 'undefined;\n}\n';
                     continue;
                 }
@@ -529,7 +530,7 @@ function getInitPropsJit (attrs, propList) {
         }
     }
 
-    // if (CC_TEST && !isPhantomJS) {
+    // if (TEST && !isPhantomJS) {
     //     console.log(func);
     // }
 
@@ -588,7 +589,7 @@ function getInitProps (attrs, propList) {
             }
             else {
                 // def is function
-                if (CC_EDITOR) {
+                if (EDITOR) {
                     try {
                         expression = def();
                     }
@@ -619,7 +620,7 @@ function compileProps (this: any, actualClass) {
     }
 
     // Overwite __initProps__ to avoid compile again.
-    const initProps = CC_SUPPORT_JIT ? getInitPropsJit(attrs, propList) : getInitProps(attrs, propList);
+    const initProps = SUPPORT_JIT ? getInitPropsJit(attrs, propList) : getInitProps(attrs, propList);
     actualClass.prototype.__initProps__ = initProps;
 
     // call instantiateProps immediately, no need to pass actualClass into it anymore
@@ -627,10 +628,10 @@ function compileProps (this: any, actualClass) {
     initProps.call(this);
 }
 
-const _createCtor = CC_SUPPORT_JIT ? function (ctors, baseClass, className, options) {
+const _createCtor = SUPPORT_JIT ? function (ctors, baseClass, className, options) {
     const superCallBounded = baseClass && boundSuperCalls(baseClass, options, className);
 
-    const ctorName = CC_DEV ? normalizeClassName_DEV(className) : 'CCClass';
+    const ctorName = DEV ? normalizeClassName_DEV(className) : 'CCClass';
     let body = 'return function ' + ctorName + '(){\n';
 
     if (superCallBounded) {
@@ -643,7 +644,7 @@ const _createCtor = CC_SUPPORT_JIT ? function (ctors, baseClass, className, opti
     // call user constructors
     const ctorLen = ctors.length;
     if (ctorLen > 0) {
-        const useTryCatch = CC_DEV && !(className && className.startsWith('cc.'));
+        const useTryCatch = DEV && !(className && className.startsWith('cc.'));
         if (useTryCatch) {
             body += 'try{\n';
         }
@@ -726,7 +727,7 @@ const _createCtor = CC_SUPPORT_JIT ? function (ctors, baseClass, className, opti
 };
 
 function _validateCtor_DEV (ctor, baseClass, className, options) {
-    if (CC_EDITOR && baseClass) {
+    if (EDITOR && baseClass) {
         // check super call in constructor
         const originCtor = ctor;
         if (SuperCallReg.test(ctor)) {
@@ -847,7 +848,7 @@ function boundSuperCalls (baseClass, options, className) {
                 continue;
             }
         }
-        if (CC_DEV && SuperCallRegStrict.test(func)) {
+        if (DEV && SuperCallRegStrict.test(func)) {
             warnID(3620, className, funcName);
         }
     }
@@ -1008,7 +1009,7 @@ function CCClass (options) {
             return x.__props__ === null;
         }))
     ) {
-        if (CC_DEV && options.__ES6__) {
+        if (DEV && options.__ES6__) {
             error('not yet implement deferred properties for ES6 Classes');
         }
         else {
@@ -1024,7 +1025,7 @@ function CCClass (options) {
     const statics = options.statics;
     if (statics) {
         let staticPropName;
-        if (CC_DEV) {
+        if (DEV) {
             for (staticPropName in statics) {
                 if (INVALID_STATICS_DEV.indexOf(staticPropName) !== -1) {
                     errorID(3642, name, staticPropName,
@@ -1055,7 +1056,7 @@ function CCClass (options) {
         if (js.isChildClassOf(base, cc.Component)) {
             cc.Component._registerEditorProps(cls, editor);
         }
-        else if (CC_DEV) {
+        else if (DEV) {
             warnID(3623, name);
         }
     }
@@ -1143,7 +1144,7 @@ interface IParsedAttribute {
 const tmpAttrs = [];
 
 function parseAttributes (constructor: Function, attributes: IAcceptableAttributes, className: string, propertyName: string, usedInGetter) {
-    const ERR_Type = CC_DEV ? 'The %s of %s must be type %s' : '';
+    const ERR_Type = DEV ? 'The %s of %s must be type %s' : '';
 
     let attrsProto = null;
     let attrsProtoKey = '';
@@ -1165,12 +1166,12 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
         if (primitiveType) {
             result.push({
                 type,
-                _onAfterProp: (CC_EDITOR || CC_TEST) && !attributes._short ?
+                _onAfterProp: (EDITOR || TEST) && !attributes._short ?
                     attributeUtils.getTypeChecker(primitiveType, 'cc.' + type) :
                     undefined,
             });
         } else if (type === 'Object') {
-            if (CC_DEV) {
+            if (DEV) {
                 errorID(3644, className, propertyName);
             }
         }
@@ -1193,12 +1194,12 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
                     bitmaskList: BitMask.getList(type),
                 });
             }
-            else if (CC_DEV) {
+            else if (DEV) {
                 errorID(3645, className, propertyName, type);
             }
         } else if (typeof type === 'function') {
             let typeChecker: OnAfterProp | undefined;
-            if ((CC_EDITOR || CC_TEST) && !attributes._short) {
+            if ((EDITOR || TEST) && !attributes._short) {
                 typeChecker = attributes.url ?
                     attributeUtils.getTypeChecker('String', 'cc.String') :
                     attributeUtils.getObjTypeChecker(type);
@@ -1208,7 +1209,7 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
                 ctor: type,
                 _onAfterProp: typeChecker,
             });
-        } else if (CC_DEV) {
+        } else if (DEV) {
             errorID(3646, className, propertyName, type);
         }
     }
@@ -1218,14 +1219,14 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
             const val = attributes[attributeName];
             if (typeof val === expectType) {
                 (attrsProto || getAttrsProto())[attrsProtoKey + attributeName] = val;
-            } else if (CC_DEV) {
+            } else if (DEV) {
                 error(ERR_Type, attributeName, className, propertyName, expectType);
             }
         }
     };
 
     if (attributes.editorOnly) {
-        if (CC_DEV && usedInGetter) {
+        if (DEV && usedInGetter) {
             errorID(3613, 'editorOnly', name, propertyName);
         }
         else {
@@ -1233,7 +1234,7 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
         }
     }
     // parseSimpleAttr('preventDeferredLoad', 'boolean');
-    if (CC_DEV) {
+    if (DEV) {
         parseSimpleAttribute('displayName', 'string');
         parseSimpleAttribute('displayOrder', 'number');
         parseSimpleAttribute('multiline', 'boolean');
@@ -1250,7 +1251,7 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
         (attrsProto || getAttrsProto())[attrsProtoKey + 'saveUrlAsAsset'] = true;
     }
     if (attributes.serializable === false) {
-        if (CC_DEV && usedInGetter) {
+        if (DEV && usedInGetter) {
             errorID(3613, 'serializable', name, propertyName);
         }
         else {
@@ -1259,13 +1260,13 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
     }
     parseSimpleAttribute('formerlySerializedAs', 'string');
 
-    if (CC_EDITOR) {
+    if (EDITOR) {
         if ('animatable' in attributes) {
             (attrsProto || getAttrsProto())[attrsProtoKey + 'animatable'] = attributes.animatable;
         }
     }
 
-    if (CC_DEV) {
+    if (DEV) {
         const visible = attributes.visible;
         if (typeof visible !== 'undefined') {
             if (!visible) {
@@ -1293,11 +1294,11 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
                     (attrsProto || getAttrsProto())[attrsProtoKey + 'step'] = range[2];
                 }
             }
-            else if (CC_DEV) {
+            else if (DEV) {
                 errorID(3647);
             }
         }
-        else if (CC_DEV) {
+        else if (DEV) {
             error(ERR_Type, 'range', className, propertyName, 'array');
         }
     }
@@ -1316,7 +1317,7 @@ CCClass.isArray = function (defaultVal) {
 CCClass.getDefault = getDefault;
 CCClass.escapeForJS = escapeForJS;
 CCClass.IDENTIFIER_RE = IDENTIFIER_RE;
-CCClass.getNewValueTypeCode = (CC_SUPPORT_JIT && getNewValueTypeCodeJit) as ((value: any) => string);
+CCClass.getNewValueTypeCode = (SUPPORT_JIT && getNewValueTypeCodeJit) as ((value: any) => string);
 
 export default CCClass;
 

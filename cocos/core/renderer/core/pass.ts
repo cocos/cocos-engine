@@ -51,6 +51,7 @@ import { customizeType, getBindingFromHandle, getBindingTypeFromHandle,
     getDefaultFromType, getOffsetFromHandle, getTypeFromHandle, IDefineMap, type2reader, type2writer } from './pass-utils';
 import { IProgramInfo, programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
+import { EDITOR } from 'internal:constants';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part
@@ -620,7 +621,7 @@ export class Pass {
     }
 
     protected _getShaderWithBuiltinMacroPatches (patches: IMacroPatch[]) {
-        if (CC_EDITOR) {
+        if (EDITOR) {
             for (let i = 0; i < patches.length; i++) {
                 if (!patches[i].name.startsWith('CC_')) {
                     console.warn('cannot patch non-builtin macros');

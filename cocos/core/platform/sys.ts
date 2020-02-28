@@ -27,6 +27,8 @@
  * @category core
  */
 
+import { EDITOR, TEST, WECHAT, ALIPAY, XIAOMI, BAIDU, COCOSPLAY, JSB, MINIGAME } from 'internal:constants';
+
 // tslint:disable
 
 /**
@@ -540,13 +542,13 @@ sys.BROWSER_TYPE_UNKNOWN = 'unknown';
  * Is native ? This is set to be true in jsb auto.
  * @property {Boolean} isNative
  */
-sys.isNative = CC_JSB;
+sys.isNative = JSB;
 
 /**
  * Is web browser ?
  * @property {Boolean} isBrowser
  */
-sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !CC_MINIGAME && !CC_JSB;
+sys.isBrowser = typeof window === 'object' && typeof document === 'object' && !MINIGAME && !JSB;
 
 /**
  * Endianess of current platform
@@ -564,7 +566,7 @@ if (_global.__globalAdapter && _global.__globalAdapter.adaptSys) {
     _global.__globalAdapter.adaptSys(sys);
 }
 // TODO: main process flag
-// else if (CC_EDITOR) {
+// else if (EDITOR) {
 //     sys.isMobile = false;
 //     sys.platform = sys.EDITOR_CORE;
 //     sys.language = sys.LANGUAGE_UNKNOWN;
@@ -582,7 +584,7 @@ if (_global.__globalAdapter && _global.__globalAdapter.adaptSys) {
 //     };
 //     sys.__audioSupport = {};
 // }
-else if (CC_JSB) {
+else if (JSB) {
     // @ts-ignore
     const platform = sys.platform = __getPlatform();
     sys.isMobile = (platform === sys.ANDROID ||
@@ -641,7 +643,7 @@ else {
     const win = window, nav = win.navigator, doc = document, docEle = doc.documentElement;
     const ua = nav.userAgent.toLowerCase();
 
-    if (CC_EDITOR) {
+    if (EDITOR) {
         sys.isMobile = false;
         sys.platform = sys.EDITOR_PAGE;
     }
@@ -735,19 +737,19 @@ else {
         if (!browserTypes) { browserTypes = typeReg3.exec(ua); }
 
         let browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
-        if (CC_WECHAT) {
+        if (WECHAT) {
             browserType = sys.BROWSER_TYPE_WECHAT_GAME;
         }
-        else if(CC_ALIPAY) {
+        else if(ALIPAY) {
             browserType = sys.BROWSER_TYPE_ALIPAY_GAME;
         }
-        else if(CC_XIAOMI) {
+        else if(XIAOMI) {
             browserType = sys.BROWSER_TYPE_XIAOMI_GAME;
         }
-        else if(CC_BAIDU) {
+        else if(BAIDU) {
             browserType = sys.BROWSER_TYPE_BAIDU_GAME;
         }
-        else if(CC_COCOSPLAY) {
+        else if(COCOSPLAY) {
             browserType = sys.BROWSER_TYPE_COCOSPLAY;
         }
         else if (browserType === 'micromessenger') {
@@ -848,10 +850,10 @@ else {
         };
     }
 
-    const _supportWebp = CC_TEST ? false : _tmpCanvas1.toDataURL('image/webp').startsWith('data:image/webp');
-    const _supportCanvas = CC_TEST ? false : !!_tmpCanvas1.getContext('2d');
+    const _supportWebp = TEST ? false : _tmpCanvas1.toDataURL('image/webp').startsWith('data:image/webp');
+    const _supportCanvas = TEST ? false : !!_tmpCanvas1.getContext('2d');
     let _supportWebGL = false;
-    if (CC_TEST) {
+    if (TEST) {
         _supportWebGL = false;
     }
     else if (sys.browserType === sys.BROWSER_TYPE_WECHAT_GAME) {
@@ -1166,7 +1168,7 @@ sys.dump = function () {
  * @param {String} url
  */
 sys.openURL = function (url) {
-    if (CC_JSB) {
+    if (JSB) {
         // @ts-ignore
         jsb.openURL(url);
     }

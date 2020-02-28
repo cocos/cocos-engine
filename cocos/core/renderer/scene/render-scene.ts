@@ -14,6 +14,7 @@ import { PlanarShadows } from './planar-shadows';
 import { Skybox } from './skybox';
 import { SphereLight } from './sphere-light';
 import { SpotLight } from './spot-light';
+import { PREVIEW } from 'internal:constants';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -348,7 +349,7 @@ export class RenderScene {
      * @returns boolean , 射线是否有击中
      */
     public raycastSingleModel (worldRay: ray, model: Model, mask = Layers.Enum.DEFAULT, distance = Infinity): boolean {
-        if (CC_PREVIEW) {
+        if (PREVIEW) {
             if (model == null) { console.error(' 检测前请保证 model 不为 null '); }
         }
         pool.reset();
@@ -415,7 +416,7 @@ export class RenderScene {
     }
 
     private _raycastUI2DNode (worldRay: ray, ui2dNode: Node, mask = Layers.Enum.UI_2D, distance = Infinity) {
-        if (CC_PREVIEW) {
+        if (PREVIEW) {
             if (ui2dNode == null) { console.error('make sure UINode is not null'); }
         }
         const uiTransfrom = ui2dNode._uiProps.uiTransformComp;

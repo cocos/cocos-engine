@@ -37,6 +37,7 @@ import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { director, Director } from '../../core/director';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Node } from '../../core';
+import { EDITOR } from 'internal:constants';
 const NodeEvent = SystemEventType;
 /**
  * @en Enum for layout.
@@ -206,7 +207,7 @@ export class LayoutComponent extends Component {
     set type (value: Type) {
         this._N$layoutType = value;
 
-        if (CC_EDITOR && this._N$layoutType !== Type.NONE && this._resizeMode === ResizeMode.CONTAINER /*&& !cc.engine.isPlaying*/) {
+        if (EDITOR && this._N$layoutType !== Type.NONE && this._resizeMode === ResizeMode.CONTAINER /*&& !cc.engine.isPlaying*/) {
             // const reLayouted = _Scene.DetectConflict.checkConflict_Layout(this);
             // if (reLayouted) {
             //     return;
@@ -236,7 +237,7 @@ export class LayoutComponent extends Component {
         }
 
         this._resizeMode = value;
-        if (CC_EDITOR && value === ResizeMode.CONTAINER /*&& !cc.engine.isPlaying*/) {
+        if (EDITOR && value === ResizeMode.CONTAINER /*&& !cc.engine.isPlaying*/) {
             // const reLayouted = _Scene.DetectConflict.checkConflict_Layout(this);
             // if (reLayouted) {
             //     return;
@@ -290,7 +291,7 @@ export class LayoutComponent extends Component {
             return;
         }
 
-        if (CC_EDITOR && this._resizeMode === ResizeMode.CONTAINER && !cc.engine.isPlaying) {
+        if (EDITOR && this._resizeMode === ResizeMode.CONTAINER && !cc.engine.isPlaying) {
             // const reLayouted = _Scene.DetectConflict.checkConflict_Layout(this);
             // if (reLayouted) {
             //     return;

@@ -36,6 +36,7 @@ import { RenderPassStage } from '../pipeline/define';
 import { IDefineMap } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
 import { Asset } from './asset';
+import { EDITOR } from 'internal:constants';
 
 export interface IPropertyInfo {
     type: number; // auto-extracted from shader
@@ -179,7 +180,7 @@ export class EffectAsset extends Asset {
      */
     public onLoaded () {
         this.shaders.forEach((s) => programLib.define(s));
-        if (!CC_EDITOR) { cc.game.once(cc.Game.EVENT_ENGINE_INITED, this._precompile, this); }
+        if (!EDITOR) { cc.game.once(cc.Game.EVENT_ENGINE_INITED, this._precompile, this); }
         EffectAsset.register(this);
     }
 

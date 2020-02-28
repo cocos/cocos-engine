@@ -24,6 +24,8 @@
  THE SOFTWARE.
 */
 
+import { DEV } from 'internal:constants';
+
 function deepFlatten (strList, array) {
     for (const item of array) {
         if (Array.isArray(item)) {
@@ -39,7 +41,7 @@ function deepFlatten (strList, array) {
 }
 
 export function flattenCodeArray (array) {
-    const separator = CC_DEV ? '\n' : '';
+    const separator = DEV ? '\n' : '';
     const strList = [];
     deepFlatten(strList, array);
     return strList.join(separator);

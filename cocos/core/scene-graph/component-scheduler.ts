@@ -31,6 +31,7 @@ import { CCObject } from '../data/object';
 import { MutableForwardIterator } from '../utils/array';
 import { array } from '../utils/js';
 import { tryCatchFunctor_EDITOR } from '../utils/misc';
+import { EDITOR, SUPPORT_JIT, DEV, TEST } from 'internal:constants';
 const fastRemoveAt = array.fastRemoveAt;
 
 // @ts-ignore
@@ -40,21 +41,21 @@ const IsOnEnableCalled = CCObject.Flags.IsOnEnableCalled;
 // @ts-ignore
 const IsEditorOnEnableCalled = CCObject.Flags.IsEditorOnEnableCalled;
 
-const callerFunctor: any = CC_EDITOR && tryCatchFunctor_EDITOR;
-const callOnEnableInTryCatch = CC_EDITOR && callerFunctor('onEnable');
-const callStartInTryCatch = CC_EDITOR && callerFunctor('start', null, 'target._objFlags |= ' + IsStartCalled);
-const callUpdateInTryCatch = CC_EDITOR && callerFunctor('update', 'dt');
-const callLateUpdateInTryCatch = CC_EDITOR && callerFunctor('lateUpdate', 'dt');
-const callOnDisableInTryCatch = CC_EDITOR && callerFunctor('onDisable');
+const callerFunctor: any = EDITOR && tryCatchFunctor_EDITOR;
+const callOnEnableInTryCatch = EDITOR && callerFunctor('onEnable');
+const callStartInTryCatch = EDITOR && callerFunctor('start', null, 'target._objFlags |= ' + IsStartCalled);
+const callUpdateInTryCatch = EDITOR && callerFunctor('update', 'dt');
+const callLateUpdateInTryCatch = EDITOR && callerFunctor('lateUpdate', 'dt');
+const callOnDisableInTryCatch = EDITOR && callerFunctor('onDisable');
 
-const callStart = CC_SUPPORT_JIT ? 'c.start();c._objFlags|=' + IsStartCalled : (c) => {
+const callStart = SUPPORT_JIT ? 'c.start();c._objFlags|=' + IsStartCalled : (c) => {
     c.start();
     c._objFlags |= IsStartCalled;
 };
-const callUpdate = CC_SUPPORT_JIT ? 'c.update(dt)' : (c, dt) => {
+const callUpdate = SUPPORT_JIT ? 'c.update(dt)' : (c, dt) => {
     c.update(dt);
 };
-const callLateUpdate = CC_SUPPORT_JIT ? 'c.lateUpdate(dt)' : (c, dt) => {
+const callLateUpdate = SUPPORT_JIT ? 'c.lateUpdate(dt)' : (c, dt) => {
     c.lateUpdate(dt);
 };
 
@@ -125,7 +126,7 @@ class LifeCycleInvoker {
         // components which priority > 0
         this._pos = new Iterator([]);
 
-        if (CC_TEST) {
+        if (TEST) {
             cc.assert(typeof invokeFunc === 'function', 'invokeFunc must be type function');
         }
         this._invoke = invokeFunc;
@@ -187,7 +188,7 @@ class ReusableInvoker extends LifeCycleInvoker {
             if (i < 0) {
                 array.splice(~i, 0, comp);
             }
-            else if (CC_DEV) {
+            else if (DEV) {
                 cc.error('component already added');
             }
         }
@@ -277,7 +278,7 @@ class ComponentScheduler {
     public static LifeCycleInvoker = LifeCycleInvoker;
     public static OneOffInvoker = OneOffInvoker;
     public static createInvokeImpl = createInvokeImpl;
-    public static invokeOnEnable = CC_EDITOR ? (iterator) => {
+    public static invokeOnEnable = EDITOR ? (iterator) => {
         const compScheduler = cc.director._compScheduler;
         const array = iterator.array;
         for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
@@ -318,11 +319,11 @@ class ComponentScheduler {
     public unscheduleAll () {
         // invokers
         this.startInvoker = new OneOffInvoker(createInvokeImpl(
-            CC_EDITOR ? callStartInTryCatch : callStart));
+            EDITOR ? callStartInTryCatch : callStart));
         this.updateInvoker = new ReusableInvoker(createInvokeImpl(
-            CC_EDITOR ? callUpdateInTryCatch : callUpdate, true));
+            EDITOR ? callUpdateInTryCatch : callUpdate, true));
         this.lateUpdateInvoker = new ReusableInvoker(createInvokeImpl(
-            CC_EDITOR ? callLateUpdateInTryCatch : callLateUpdate, true));
+            EDITOR ? callLateUpdateInTryCatch : callLateUpdate, true));
 
         // components deferred to next frame
         this.scheduleInNextFrame = [];
@@ -406,7 +407,7 @@ class ComponentScheduler {
 
         // call start
         this.startInvoker.invoke();
-        // if (CC_PREVIEW) {
+        // if (PREVIEW) {
         //     try {
         //         this.startInvoker.invoke();
         //     }
@@ -457,7 +458,7 @@ class ComponentScheduler {
 
 }
 
-if (CC_EDITOR) {
+if (EDITOR) {
     ComponentScheduler.prototype.enableComp = function (comp, invoker) {
         if (cc.engine.isPlaying || comp.constructor._executeInEditMode) {
             if (!(comp._objFlags & IsOnEnableCalled)) {

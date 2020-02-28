@@ -38,6 +38,7 @@ import { ImageAsset } from './image-asset';
 import { RenderTexture } from './render-texture';
 import { Texture2D } from './texture-2d';
 import { TextureBase } from './texture-base';
+import { EDITOR } from 'internal:constants';
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;
@@ -440,7 +441,7 @@ export class SpriteFrame extends Asset {
     constructor () {
         super();
 
-        if (CC_EDITOR) {
+        if (EDITOR) {
             // Atlas asset uuid
             this._atlasUuid = '';
         }
@@ -910,7 +911,7 @@ export class SpriteFrame extends Asset {
 
         handle.result.push(this, '_imageSource', data.image);
 
-        if (CC_EDITOR) {
+        if (EDITOR) {
             this._atlasUuid = data.atlas ? data.atlas : '';
         }
 

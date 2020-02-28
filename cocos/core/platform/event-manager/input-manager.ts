@@ -36,6 +36,7 @@ import sys from '../sys';
 import eventManager from './event-manager';
 import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './events';
 import { Touch } from './touch';
+import { EDITOR } from 'internal:constants';
 
 const TOUCH_TIMEOUT = macro.TOUCH_TIMEOUT;
 
@@ -823,7 +824,7 @@ const inputManager = new InputManager();
 
 game.once(Game.EVENT_ENGINE_INITED, () => {
     // register system events
-    if (!CC_EDITOR && game.config.registerSystemEvent) {
+    if (!EDITOR && game.config.registerSystemEvent) {
         inputManager.registerSystemEvent(game.canvas);
     }
 });

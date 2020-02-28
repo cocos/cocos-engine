@@ -33,6 +33,7 @@ import { WebGL2GFXDevice } from './gfx/webgl2/webgl2-device';
 import { ForwardPipeline } from './pipeline';
 import * as debug from './platform/debug';
 import sys from './platform/sys';
+import { JSB, RUNTIME_BASED, ALIPAY, EDITOR, PREVIEW } from 'internal:constants';
 
 /**
  * @en
@@ -371,7 +372,7 @@ export class Game extends EventTarget {
         }
         // Because JSB platforms never actually stops the swap chain,
         // we draw some more frames here to (try to) make sure swap chain consistency
-        if (CC_JSB || CC_RUNTIME_BASED || CC_ALIPAY) {
+        if (JSB || RUNTIME_BASED || ALIPAY) {
             let swapbuffers = 3;
             const cb = () => {
                 if (--swapbuffers > 1) {
@@ -599,7 +600,7 @@ export class Game extends EventTarget {
     private _initEngine (cb: Function | null) {
         this._initRenderer();
 
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             this._initEvents();
         }
 
@@ -623,7 +624,7 @@ export class Game extends EventTarget {
             this._rendererInitialized = true;
             this.emit(Game.EVENT_RENDERER_INITED);
 
-            if (!CC_EDITOR && !CC_PREVIEW && cc.internal.SplashScreenWebgl) {
+            if (!EDITOR && !PREVIEW && cc.internal.SplashScreenWebgl) {
                 cc.internal.SplashScreenWebgl.instance.setOnFinish(cb);
                 cc.internal.SplashScreenWebgl.instance.loadFinish = true;
             } else if (cb) {
@@ -640,7 +641,7 @@ export class Game extends EventTarget {
         const frameRate = cc.game.config.frameRate;
         this._frameTime = 1000 / frameRate;
 
-        if (CC_JSB) {
+        if (JSB) {
             jsb.setPreferredFramesPerSecond(frameRate);
         }
         else {
@@ -692,7 +693,7 @@ export class Game extends EventTarget {
         callback = (time: number) => {
             if (this._paused) { return; }
             this._intervalId = window.requestAnimationFrame(callback);
-            if (!CC_JSB && frameRate === 30) {
+            if (!JSB && frameRate === 30) {
                 skip = !skip;
                 if (skip) {
                     return;
@@ -791,19 +792,19 @@ export class Game extends EventTarget {
 
         // TODO: adapter for editor & preview
         let localCanvas: HTMLCanvasElement;
-        if (CC_EDITOR || CC_PREVIEW) {
+        if (EDITOR || PREVIEW) {
             const el = this.config.id;
             let width: any;
             let height: any;
             let localContainer: HTMLElement;
 
-            if (CC_JSB) {
+            if (JSB) {
                 this.container = localContainer = document.createElement<'div'>('div');
                 this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
                 if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
                     localCanvas = window.sharedCanvas || wx.getSharedCanvas();
                 }
-                else if (CC_JSB) {
+                else if (JSB) {
                     localCanvas = window.__canvas;
                 }
                 else {

@@ -35,6 +35,7 @@ import { Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { clamp01 } from '../../core/math/utils';
 import { SpriteComponent } from './sprite-component';
+import { EDITOR } from 'internal:constants';
 
 const _tempPos = new Vec3();
 /**
@@ -98,7 +99,7 @@ export class SliderComponent extends Component {
         }
 
         this._handle = value;
-        if (CC_EDITOR && this._handle) {
+        if (EDITOR && this._handle) {
             this._updateHandlePosition();
         }
     }

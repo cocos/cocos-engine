@@ -24,6 +24,8 @@
  THE SOFTWARE.
  */
 
+import { EDITOR } from 'internal:constants';
+
 /**
  * 加载相关模块
  * @category loader
@@ -67,7 +69,7 @@ let url = {
      * @example {@link cocos/core/platform/url/raw.js}
      */
     raw: function (url) {
-        if (CC_EDITOR && !this._rawAssets) {
+        if (EDITOR && !this._rawAssets) {
             cc.errorID(7000);
             return '';
         }
@@ -75,7 +77,7 @@ let url = {
         url = this.normalize(url);
 
         if ( !url.startsWith('resources/') ) {
-            cc.errorID(CC_EDITOR ? 7001 : 7002, url);
+            cc.errorID(EDITOR ? 7001 : 7002, url);
         }
         else {
             // Compatible with versions lower than 1.10

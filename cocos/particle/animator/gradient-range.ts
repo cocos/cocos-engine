@@ -7,6 +7,7 @@ import { ccclass, property } from '../../core/data/class-decorator';
 import { Color } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import Gradient, { AlphaKey, ColorKey } from './gradient';
+import { EDITOR } from 'internal:constants';
 
 // tslint:disable: max-line-length
 
@@ -41,7 +42,7 @@ export default class GradientRange {
     }
 
     set mode (m) {
-        if (CC_EDITOR) {
+        if (EDITOR) {
             if (m === Mode.RandomColor) {
                 if (this.gradient.colorKeys.length === 0) {
                     this.gradient.colorKeys.push(new ColorKey());

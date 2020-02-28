@@ -32,6 +32,7 @@ import {ccclass, inspector, property} from '../data/class-decorator';
 import {_getClassById} from '../utils/js';
 import {BUILTIN_CLASSID_RE} from '../utils/misc';
 import { Component } from './component';
+import { EDITOR } from 'internal:constants';
 
 /**
  * @en
@@ -108,7 +109,7 @@ export default class MissingScript extends Component {
 
     constructor () {
         super();
-        if (CC_EDITOR) {
+        if (EDITOR) {
             // @ts-ignore
             this.compiled = _Scene.Sandbox.compiled;
         }
