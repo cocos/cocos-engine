@@ -39,13 +39,32 @@ gulp.task('build-debug-infos', async () => {
 });
 
 gulp.task('build-code', gulp.series('build-debug-infos', () => {
-    return cp.exec(`node ./rollup/out/build-engine-cli.js --sourcemap --buildmode=universal --platform=HTML5 --physics=cannon --destination=./bin/dev/cc.js`, {
+    return cp.spawn('node', [
+        './rollup/out/build-engine-cli.js',
+        '--sourcemap',
+        '--buildmode=universal',
+        '--platform=HTML5',
+        '--physics=cannon',
+        '--destination=./bin/dev/cc.js',
+    ], {
+        shell: true,
+        stdio: 'inherit',
         cwd: __dirname,
     });
 }));
 
 gulp.task('build-code-minified', gulp.series('build-debug-infos', () => {
-    return cp.exec(`node ./rollup/out/build-engine-cli.js  --compress --sourcemap --buildmode=universal --platform=HTML5 --physics=cannon --destination=./bin/dev/cc.min.js`, {
+    return cp.spawn('node', [
+        './rollup/out/build-engine-cli.js',
+        '--compress',
+        '--sourcemap',
+        '--buildmode=universal',
+        '--platform=HTML5',
+        '--physics=cannon',
+        '--destination=./bin/dev/cc.min.js',
+    ], {
+        shell: true,
+        stdio: 'inherit',
         cwd: __dirname,
     });
 }));
@@ -61,13 +80,17 @@ gulp.task('build-declarations', async () => {
 gulp.task('build', gulp.parallel('build-code-minified', 'build-declarations'));
 
 gulp.task('code-check', () => {
-    return cp.exec(`tsc --noEmit`, {
+    return cp.spawn('tsc', ['--noEmit'], {
+        shell: true,
+        stdio: 'inherit',
         cwd: __dirname,
     });
 });
 
 gulp.task('unit-tests', () => {
-    return cp.exec(`jest`, {
+    return cp.spawn(`jest`, [], {
+        shell: true,
+        stdio: 'inherit',
         cwd: __dirname,
     });
 });
