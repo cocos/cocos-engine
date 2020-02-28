@@ -100,8 +100,8 @@ let EditBox = cc.Class({
         },
 
          /**
-         * !en The Label component attached to the node for EditBox's placeholder text label
-         * !zh 输入框占位符节点上挂载的 Label 组件对象
+         * !#en The Label component attached to the node for EditBox's placeholder text label
+         * !#zh 输入框占位符节点上挂载的 Label 组件对象
          * @property {Label} placeholderLabel
          */
         placeholderLabel: {

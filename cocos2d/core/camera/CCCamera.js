@@ -46,7 +46,17 @@ let _v3_temp_1 = cc.v3();
 let _v3_temp_2 = cc.v3();
 let _v3_temp_3 = cc.v3();
 
-let _cameras = [];
+let _cameras = [];  // unstable array
+
+function updateMainCamera () {
+    for (let i = 0, minDepth = Number.MAX_VALUE; i < _cameras.length; i++) {
+        let camera = _cameras[i];
+        if (camera._depth < minDepth) {
+            Camera.main = camera;
+            minDepth = camera._depth;
+        }
+    }
+}
 
 let _debugCamera = null;
 
@@ -338,9 +348,9 @@ let Camera = cc.Class({
 
         /**
          * !#en
-         * Camera's depth in the camera rendering order.
+         * Camera's depth in the camera rendering order. Cameras with higher depth are rendered after cameras with lower depth.
          * !#zh
-         * 摄像机深度，用于决定摄像机的渲染顺序。
+         * 摄像机深度。用于决定摄像机的渲染顺序，值越大渲染在越上层。
          * @property {Number} depth
          */
         depth: {
@@ -348,6 +358,15 @@ let Camera = cc.Class({
                 return this._depth;
             },
             set (value) {
+                if (Camera.main === this) {
+                    if (this._depth < value) {
+                        updateMainCamera();
+                    }
+                }
+                else if (Camera.main && value < Camera.main._depth && _cameras.includes(this)) {
+                    Camera.main = this;
+                }
+
                 this._depth = value;
                 if (this._camera) {
                     this._camera.setPriority(value);
@@ -418,9 +437,9 @@ let Camera = cc.Class({
     statics: {
         /**
          * !#en
-         * The first enabled camera.
+         * The primary camera in the scene. Returns the rear most rendered camera, which is the camera with the lowest depth.
          * !#zh
-         * 第一个被激活的摄像机。
+         * 当前场景中激活的主摄像机。将会返回渲染在屏幕最底层，也就是 depth 最小的摄像机。
          * @property {Camera} main
          * @static
          */
@@ -430,7 +449,7 @@ let Camera = cc.Class({
          * !#en
          * All enabled cameras.
          * !#zh
-         * 激活的所有摄像机。
+         * 当前激活的所有摄像机。
          * @property {[Camera]} cameras
          * @static
          */
@@ -585,6 +604,9 @@ let Camera = cc.Class({
             renderer.scene.addCamera(this._camera);
         }
         _cameras.push(this);
+        if (!Camera.main || (this._depth < Camera.main._depth)) {
+            Camera.main = this;
+        }
     },
 
     onDisable () {
@@ -592,7 +614,11 @@ let Camera = cc.Class({
             cc.director.off(cc.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
             renderer.scene.removeCamera(this._camera);
         }
-        cc.js.array.remove(_cameras, this);
+        cc.js.array.fastRemove(_cameras, this);
+        if (Camera.main === this) {
+            Camera.main = null;
+            updateMainCamera();
+        }
     },
 
     /**
@@ -602,7 +628,7 @@ let Camera = cc.Class({
      * 获取屏幕坐标系到世界坐标系的矩阵，只适用于 alignWithScreen 为 true 的 2D 摄像机。
      * @method getScreenToWorldMatrix2D
      * @param {Mat4} out - the matrix to receive the result
-     * @return {Mat4}
+     * @return {Mat4} out
      */
     getScreenToWorldMatrix2D (out) {
         this.getWorldToScreenMatrix2D(out);
@@ -617,7 +643,7 @@ let Camera = cc.Class({
      * 获取世界坐标系到摄像机坐标系的矩阵，只适用于 alignWithScreen 为 true 的 2D 摄像机。
      * @method getWorldToScreenMatrix2D
      * @param {Mat4} out - the matrix to receive the result
-     * @return {Mat4}
+     * @return {Mat4} out
      */
     getWorldToScreenMatrix2D (out) {
         this.node.getWorldRT(_mat4_temp_1);
@@ -650,7 +676,7 @@ let Camera = cc.Class({
      * @method getScreenToWorldPoint
      * @param {Vec3|Vec2} screenPosition 
      * @param {Vec3|Vec2} [out] 
-     * @return {Vec3|Vec2}
+     * @return {Vec3|Vec2} out
      */
     getScreenToWorldPoint (screenPosition, out) {
         if (this.node.is3DNode) {
@@ -673,7 +699,7 @@ let Camera = cc.Class({
      * @method getWorldToScreenPoint
      * @param {Vec3|Vec2} worldPosition 
      * @param {Vec3|Vec2} [out] 
-     * @return {Vec3|Vec2}
+     * @return {Vec3|Vec2} out
      */
     getWorldToScreenPoint (worldPosition, out) {
         if (this.node.is3DNode) {
@@ -725,7 +751,7 @@ let Camera = cc.Class({
      * @return {Boolean}
      */
     containsNode (node) {
-        return node._cullingMask & this.cullingMask;
+        return (node._cullingMask & this.cullingMask) > 0;
     },
 
     /**
@@ -820,8 +846,8 @@ cc.js.mixin(Camera.prototype, {
      * @method getCameraToWorldPoint
      * @deprecated since v2.1.3
      * @param {Vec2} point - the point which should transform
-     * @param {Vec2} out - the point to receive the result
-     * @return {Vec2}
+     * @param {Vec2} [out] - the point to receive the result
+     * @return {Vec2} out
      */
     getCameraToWorldPoint (point, out) {
         return this.getScreenToWorldPoint(point, out);
@@ -835,8 +861,8 @@ cc.js.mixin(Camera.prototype, {
      * @method getWorldToCameraPoint
      * @deprecated since v2.1.3
      * @param {Vec2} point 
-     * @param {Vec2} out - the point to receive the result
-     * @return {Vec2}
+     * @param {Vec2} [out] - the point to receive the result
+     * @return {Vec2} out
      */
     getWorldToCameraPoint (point, out) {
         return this.getWorldToScreenPoint(point, out);
@@ -850,7 +876,7 @@ cc.js.mixin(Camera.prototype, {
      * @method getCameraToWorldMatrix
      * @deprecated since v2.1.3
      * @param {Mat4} out - the matrix to receive the result
-     * @return {Mat4}
+     * @return {Mat4} out
      */
     getCameraToWorldMatrix (out) {
         return this.getScreenToWorldMatrix2D(out);
@@ -865,11 +891,11 @@ cc.js.mixin(Camera.prototype, {
      * @method getWorldToCameraMatrix
      * @deprecated since v2.1.3
      * @param {Mat4} out - the matrix to receive the result
-     * @return {Mat4}
+     * @return {Mat4} out
      */
     getWorldToCameraMatrix (out) {
         return this.getWorldToScreenMatrix2D(out);
     },
-})
+});
 
 module.exports = cc.Camera = Camera;

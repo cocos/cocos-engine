@@ -724,3 +724,8 @@ cc._decorator = module.exports = {
     help,
     mixins,
 };
+
+// fix submodule pollute ...
+/**
+ * @submodule cc
+ */

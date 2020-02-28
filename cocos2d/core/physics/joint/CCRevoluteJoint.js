@@ -199,9 +199,9 @@ var RevoluteJoint = cc.Class({
     },
 
     /**
-     * #!en
+     * !#en
      * Set the max and min limit angle.
-     * #!zh
+     * !#zh
      * 设置关节的角度最大和最小角度。
      * @param {Number} lower 
      * @param {Number} upper 

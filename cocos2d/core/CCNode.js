@@ -1554,9 +1554,9 @@ let NodeDefines = {
         },
 
         /**
-         * !en
+         * !#en
          * Switch 2D/3D node. The 2D nodes will run faster.
-         * !zh
+         * !#zh
          * 切换 2D/3D 节点，2D 节点会有更高的运行效率
          * @property {Boolean} is3DNode
          * @default false
@@ -2490,8 +2490,12 @@ let NodeDefines = {
         if (!this.active)
             return;
         cc.assertID(action, 1618);
-        cc.warnID(1639);
-        cc.director.getActionManager().addAction(action, this, false);
+        let am = cc.director.getActionManager();
+        if (!am._suppressDeprecation) {
+            am._suppressDeprecation = true;
+            cc.warnID(1639);
+        }
+        am.addAction(action, this, false);
         return action;
     } : emptyFunc,
 
@@ -3648,7 +3652,8 @@ let NodeDefines = {
 
             // delay update arrivalOrder before sort children
             var _children = this._children, child;
-            this._parent && (this._parent._childArrivalOrder = 1);
+            // reset arrivalOrder before sort children
+            this._childArrivalOrder = 1;
             for (let i = 0, len = _children.length; i < len; i++) {
                 child = _children[i];
                 child._updateOrderOfArrival();
