@@ -418,6 +418,8 @@ namespace se {
     bool Object::getProperty(const char* name, Value* data)
     {
         assert(data != nullptr);
+        data->setUndefined();
+
         JSStringRef jsName = JSStringCreateWithUTF8CString(name);
         bool exist = JSObjectHasProperty(__cx, _obj, jsName);
 

@@ -304,6 +304,8 @@ namespace se {
     bool Object::getProperty(const char* name, Value* data)
     {
         assert(data != nullptr);
+        data->setUndefined();
+
         JsPropertyIdRef propertyId;
         _CHECK(JsCreatePropertyId(name, strlen(name), &propertyId));
 

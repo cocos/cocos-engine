@@ -244,6 +244,9 @@ namespace se {
 
     bool Object::getProperty(const char* name, Value* data)
     {
+        assert(data != nullptr);
+        data->setUndefined();
+
         JSObject* jsobj = _getJSObject();
         if (jsobj == nullptr)
             return false;
