@@ -176,6 +176,9 @@ export class UI {
     }
 
     /**
+     * @en
+     * Add the managed CanvasComponent.
+     *
      * @zh
      * 添加屏幕组件管理。
      *
@@ -216,6 +219,9 @@ export class UI {
     }
 
     /**
+     * @en
+     * Get the CanvasComponent by number.
+     *
      * @zh
      * 通过屏幕编号获得屏幕组件。
      *
@@ -237,7 +243,7 @@ export class UI {
 
     /**
      * @zh
-     * 移除屏幕组件管理。
+     * Removes the CanvasComponent from the list.
      *
      * @param comp - 被移除的屏幕。
      */
@@ -349,8 +355,13 @@ export class UI {
     }
 
     /**
+     * @en
+     * Render component data submission process of UI.
+     * The submitted vertex data is the UI for world coordinates.
+     * For example: The UI components except Graphics and UIModelComponent.
+     *
      * @zh
-     * UI 渲染组件数据提交流程（针对顶点数据都是世界坐标下的提交流程，例如：除 graphics 和 uimodel 的大部分 ui 组件）。
+     * UI 渲染组件数据提交流程（针对提交的顶点数据是世界坐标的提交流程，例如：除 graphics 和 uimodel 的大部分 ui 组件）。
      * 此处的数据最终会生成需要提交渲染的 model 数据。
      *
      * @param comp - 当前执行组件。
@@ -376,6 +387,11 @@ export class UI {
     }
 
     /**
+     * @en
+     * Render component data submission process of UI.
+     * The submitted vertex data is the UI for local coordinates.
+     * For example: The UI components of Graphics and UIModelComponent.
+     *
      * @zh
      * UI 渲染组件数据提交流程（针对例如： graphics 和 uimodel 等数据量较为庞大的 ui 组件）。
      *
@@ -418,14 +434,26 @@ export class UI {
         this._batches.push(curDrawBatch);
     }
 
+    /**
+     * @en
+     * Submit separate render data.
+     * This data does not participate in the batch.
+     *
+     * @zh
+     * 提交独立渲染数据.
+     * @param comp 静态组件
+     */
     public commitStaticBatch (comp: UIStaticBatchComponent) {
         this._batches.concat(comp.drawBatchList);
         this.finishMergeBatches();
     }
 
     /**
+     * @en
+     * End a section of render data and submit according to the batch condition.
+     *
      * @zh
-     * UI 渲染数据合批
+     * 根据合批条件，结束一段渲染数据并提交。
      */
     public autoMergeBatches () {
         const mat = this._currMaterial;
@@ -459,8 +487,11 @@ export class UI {
     }
 
     /**
+     * @en
+     * Force changes to current batch data and merge
+     *
      * @zh
-     * 跳过默认合批操作，执行强制合批。
+     * 强行修改当前批次数据并合并。
      *
      * @param material - 当前批次的材质。
      * @param sprite - 当前批次的精灵帧。
@@ -471,6 +502,13 @@ export class UI {
         this.autoMergeBatches();
     }
 
+    /**
+     * @en
+     * Forced to merge the data of the previous batch to start a new batch.
+     *
+     * @zh
+     * 强制合并上一个批次的数据，开启新一轮合批。
+     */
     public finishMergeBatches () {
         this.autoMergeBatches();
         this._currMaterial = this._emptyMaterial;

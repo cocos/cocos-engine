@@ -38,16 +38,25 @@ import { SpriteComponent } from './sprite-component';
 
 const _tempPos = new Vec3();
 /**
+ * @en
+ * The Slider Direction.
+ *
  * @zh
  * 滑动器方向。
  */
 enum Direction {
     /**
+     * @en
+     * The horizontal direction.
+     *
      * @zh
      * 水平方向。
      */
     Horizontal = 0,
     /**
+     * @en
+     * The vertical direction.
+     *
      * @zh
      * 垂直方向。
      */
@@ -57,9 +66,11 @@ enum Direction {
 ccenum(Direction);
 
 /**
+ * @en
+ * The Slider Control.
+ *
  * @zh
  * 滑动器组件。
- * 可通过 cc.SliderComponent 获得该组件。
  */
 @ccclass('cc.SliderComponent')
 @executionOrder(110)
@@ -67,6 +78,9 @@ ccenum(Direction);
 export class SliderComponent extends Component {
 
     /**
+     * @en
+     * The "handle" part of the slider.
+     *
      * @zh
      * 滑动器滑块按钮部件。
      */
@@ -90,6 +104,9 @@ export class SliderComponent extends Component {
     }
 
     /**
+     * @en
+     * The slider direction.
+     *
      * @zh
      * 滑动器方向。
      */
@@ -111,6 +128,9 @@ export class SliderComponent extends Component {
     }
 
     /**
+     * @en
+     * The current progress of the slider. The valid value is between 0-1.
+     *
      * @zh
      * 当前进度值，该数值的区间是 0-1 之间。
      */
@@ -135,6 +155,9 @@ export class SliderComponent extends Component {
     public static Direction = Direction;
 
     /**
+     * @en
+     * The slider slide events' callback array.
+     *
      * @zh
      * 滑动器组件事件回调函数。
      */
