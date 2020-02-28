@@ -1110,7 +1110,7 @@ cc.TMXMapInfo.prototype = {
         let objects = selGroup.getElementsByTagName('object');
         if (objects) {
             for (let j = 0; j < objects.length; j++) {
-                var objectProp = this._parseObject(objects[j], j);
+                let objectProp = this._parseObject(objects[j], j);
                 // Add the object to the objectGroup
                 objectGroup._objects.push(objectProp);
             }
@@ -1151,15 +1151,15 @@ cc.TMXMapInfo.prototype = {
         objectProp['visible'] = !(visibleAttr && parseInt(visibleAttr) === 0);
 
         // Check template exists
-        var txName = objectProp["template"] = selObj.getAttribute('template') || '';
+        let txName = objectProp["template"] = selObj.getAttribute('template') || '';
         if (txName) {
             let txXmlString = this._txMap[txName];
             if (txXmlString) {
                 let mapXML = this._parser._parseXML(txXmlString);
                 let map = mapXML.documentElement;
-                var objects = map.getElementsByTagName('object');
+                let objects = map.getElementsByTagName('object');
                 if (objects && objects.length > 0) {
-                    var objectPropTx = this._parseObject(objects[0], '1');
+                    let objectPropTx = this._parseObject(objects[0], '1');
                     return js.mixin({}, objectPropTx, objectProp);
                 }
             }

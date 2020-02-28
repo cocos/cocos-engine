@@ -71,10 +71,10 @@ async function searchDependFiles(tmxFile, tmxFileData, cb) {
   }
 
   function parseTilesetObjectGroup(tilesetNode, sourcePath) {
-    var tiles = tilesetNode.getElementsByTagName('tile');
+    let tiles = tilesetNode.getElementsByTagName('tile');
     if(tiles && tiles.length > 0) {        
       // iterate tiles
-      for (var i = 0, n = tiles.length; i < n; i++) {
+      for (let i = 0, n = tiles.length; i < n; i++) {
         parseObjectGroupTx(tiles[i], sourcePath);
       }
     }
@@ -82,19 +82,19 @@ async function searchDependFiles(tmxFile, tmxFileData, cb) {
 
   function parseObjectGroupTx(parent, tsxPath) {
     // check objectGroup existed
-    var groups = parent.getElementsByTagName('objectgroup');
+    let groups = parent.getElementsByTagName('objectgroup');
     if(!(groups && groups.length > 0)) {
       return;
     }
     for(var i = 0, n = groups.length; i < n; i++) {
-      var objects = groups[i].getElementsByTagName('object');
+      let objects = groups[i].getElementsByTagName('object');
       if(!(objects && objects.length > 0)) continue;
       // check template, if existed, push
-      for(var ii = 0, nn = objects.length; ii < nn; ii++) {
-        var object = objects[ii];
-        var objectTemplate = object.getAttribute('template');
+      for(let ii = 0, nn = objects.length; ii < nn; ii++) {
+        let object = objects[ii];
+        let objectTemplate = object.getAttribute('template');
         if(objectTemplate) {
-          var txPath = Path.join(Path.dirname(tsxPath), objectTemplate);
+          let txPath = Path.join(Path.dirname(tsxPath), objectTemplate);
           if(Fs.existsSync(txPath)) {
             txFiles.push(objectTemplate);
           } else {
@@ -228,8 +228,8 @@ class TiledMapMeta extends CustomAssetMeta {
     });
 
     asset.txFiles = this._txFiles.map(p => {
-        var txPath = Path.join(Path.dirname(fspath), p);
-        var uuid = db.fspathToUuid(txPath);
+        let txPath = Path.join(Path.dirname(fspath), p);
+        let uuid = db.fspathToUuid(txPath);
         if (uuid) {
             asset.txFileNames.push(p);
             return Editor.serialize.asAsset(uuid);
