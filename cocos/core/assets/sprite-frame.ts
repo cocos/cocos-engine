@@ -723,16 +723,16 @@ export class SpriteFrame extends Asset {
             temp_uvs[0].u = (rect.x + rect.height) / atlasWidth;
             temp_uvs[1].u = (rect.x + topHeight + centerHeight) / atlasWidth;
             temp_uvs[2].u = (rect.x + topHeight) / atlasWidth;
-            temp_uvs[3].u = (rect.x) / atlasWidth;
-            temp_uvs[3].v = (rect.y + rect.width) / atlasHeight;
-            temp_uvs[2].v = (rect.y + leftWidth + centerWidth) / atlasHeight;
-            temp_uvs[1].v = (rect.y + leftWidth) / atlasHeight;
-            temp_uvs[0].v = (rect.y) / atlasHeight;
+            temp_uvs[3].u = rect.x / atlasWidth;
+            temp_uvs[3].v = rect.y / atlasHeight;
+            temp_uvs[2].v = (rect.y + rightWidth) / atlasHeight;
+            temp_uvs[1].v = (rect.y + rightWidth + centerWidth) / atlasHeight;
+            temp_uvs[0].v = (rect.y + rect.width) / atlasHeight;
 
             for (let row = 0; row < 4; ++row) {
                 const rowD = temp_uvs[row];
                 for (let col = 0; col < 4; ++col) {
-                    const colD = temp_uvs[3 - col];
+                    const colD = temp_uvs[col];
                     uvSliced.push({
                         u: rowD.u,
                         v: colD.v,
