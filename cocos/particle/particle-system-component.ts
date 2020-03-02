@@ -841,7 +841,7 @@ export class ParticleSystemComponent extends RenderableComponent {
 
     public _onBeforeSerialize (props: any): any {
         const self = this;
-        let data = [];
+        let data:Array<any> = [];
         for (let p = 0; p < props.length; p++) {
             let propName = props[p];
             let prop = self[propName];
