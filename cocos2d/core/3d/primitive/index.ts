@@ -11,7 +11,8 @@ import { PolyhedronType, polyhedron } from './polyhedron';
 import VertexData from './vertex-data';
 
 /**
- * 一个创建 3D 物体顶点数据的基础模块，你可以通过 "cc.primitive" 来访问这个模块。
+ * !#en A basic module for creating vertex data for 3D objects. You can access this module by `cc.primitive`.
+ * !#zh 一个创建 3D 物体顶点数据的基础模块，你可以通过 `cc.primitive` 来访问这个模块。
  * @module cc.primitive
  * @submodule cc.primitive
  * @main
@@ -144,3 +145,8 @@ cc.primitive = Object.assign({
     PolyhedronType,
     VertexData,
 }, utils);
+
+// fix submodule pollute ...
+/**
+ * @submodule cc
+ */

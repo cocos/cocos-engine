@@ -270,6 +270,7 @@ let TiledLayer = cc.Class({
         let self = dataComp._tiledLayer;
         self._nodeLocalPosToLayerPos(node, _vec2_temp);
         self._positionToRowCol(_vec2_temp.x, _vec2_temp.y, _tempRowCol);
+        self._limitInLayer(_tempRowCol);
         // users pos not change
         if (_tempRowCol.row === dataComp._row && _tempRowCol.col === dataComp._col) return;
 
@@ -300,27 +301,26 @@ let TiledLayer = cc.Class({
         this._userNodeDirty = true;
     },
 
-    _isInLayer (row, col) {
-        return row >= 0 && col >= 0 && row <= this._rightTop.row && col <= this._rightTop.col;
+    _limitInLayer (rowCol) {
+        let row = rowCol.row;
+        let col = rowCol.col;
+        if (row < 0) rowCol.row = 0;
+        if (row > this._rightTop.row) rowCol.row = this._rightTop.row;
+        if (col < 0) rowCol.col = 0;
+        if (col > this._rightTop.col) rowCol.col = this._rightTop.col;
     },
 
     _addUserNodeToGrid (dataComp, tempRowCol) {
         let row = tempRowCol.row;
         let col = tempRowCol.col;
-        if (this._isInLayer(row, col)) {
-            let rowData = this._userNodeGrid[row] = this._userNodeGrid[row] || {count : 0};
-            let colData = rowData[col] = rowData[col] || {count : 0, list: []};
-            dataComp._row = row;
-            dataComp._col = col;
-            dataComp._index = colData.list.length;
-            rowData.count++;
-            colData.count++;
-            colData.list.push(dataComp);
-        } else {
-            dataComp._row = -1;
-            dataComp._col = -1;
-            dataComp._index = -1;
-        }
+        let rowData = this._userNodeGrid[row] = this._userNodeGrid[row] || {count : 0};
+        let colData = rowData[col] = rowData[col] || {count : 0, list: []};
+        dataComp._row = row;
+        dataComp._col = col;
+        dataComp._index = colData.list.length;
+        rowData.count++;
+        colData.count++;
+        colData.list.push(dataComp);
         this._userNodeDirty = true;
     },
 
@@ -839,7 +839,7 @@ let TiledLayer = cc.Class({
      * !#en properties from the layer. They can be added using Tiled.
      * !#zh 获取 layer 的属性，可以使用 Tiled 编辑器添加属性。
      * @method getProperties
-     * @return {Array}
+     * @return {Object}
      * @example
      * let properties = tiledLayer.getProperties();
      * cc.log("Properties: " + properties);

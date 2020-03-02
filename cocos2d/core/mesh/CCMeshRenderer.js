@@ -286,14 +286,14 @@ let MeshRenderer = cc.Class({
     },
 
     _updateReceiveShadow () {
-        let materials = this._materials;
+        let materials = this.getMaterials();
         for (let i = 0; i < materials.length; i++) {
             materials[i].define('CC_USE_SHADOW_MAP', this._receiveShadows, undefined, true);
         }
     },
 
     _updateCastShadow () {
-        let materials = this._materials;
+        let materials = this.getMaterials();
         for (let i = 0; i < materials.length; i++) {
             materials[i].define('CC_CASTING_SHADOW', this._shadowCastingMode === ShadowCastingMode.ON, undefined, true);
         }
@@ -303,7 +303,7 @@ let MeshRenderer = cc.Class({
         let subDatas = this._mesh && this._mesh.subDatas;
         if (!subDatas) return;
 
-        let materials = this._materials;
+        let materials = this.getMaterials();
         for (let i = 0; i < materials.length; i++) {
             if (!subDatas[i]) break;
             let vfm = subDatas[i].vfm;

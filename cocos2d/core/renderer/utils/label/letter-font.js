@@ -248,11 +248,11 @@ cc.js.mixin(LetterAtlas.prototype, {
 
 function computeHash (labelInfo) {
     let hashData = '';
-    let color = labelInfo.color.toHEX("#rrggbb");
+    let color = labelInfo.color.toHEX();
     let out = '';
     if (labelInfo.isOutlined && labelInfo.margin > 0) {
-        out = out + labelInfo.margin + labelInfo.out.toHEX("#rrggbb");
-    };
+        out = out + labelInfo.margin + labelInfo.out.toHEX();
+    }
     
     return hashData + labelInfo.fontSize + labelInfo.fontFamily + color + out;
 }

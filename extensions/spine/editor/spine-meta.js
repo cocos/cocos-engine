@@ -135,7 +135,7 @@ class SpineMeta extends CustomAssetMeta {
         this.textures[0] = Editor.assetdb.urlToUuid(value);
     }
 
-    static version () { return '1.2.2'; }
+    static version () { return '1.2.3'; }
     static defaultType () {
         return 'spine';
     }
@@ -221,7 +221,8 @@ class SpineMeta extends CustomAssetMeta {
 
     _importBinary (fspath, cb) {
         // import native asset
-        let extname = Path.extname(fspath).toLowerCase();
+        // Since skel is not in the white list of the WeChat suffix, bin is used instead
+        let extname = ".bin";
         let dest = this._assetdb._uuidToImportPathNoExt(this.uuid) + extname;
         Fs.copy(fspath, dest, err => {
             if (err) {

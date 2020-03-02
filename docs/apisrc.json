@@ -71,6 +71,8 @@
     "./cocos2d/core/utils/CCPath.js",
     "./cocos2d/core/utils/find.js",
     "./cocos2d/core/utils/misc.js",
+    "./cocos2d/core/utils/blend-func.js",
+    "./cocos2d/core/utils/gray-sprite-state.js",
 
     "./cocos2d/core/value-types/**/*",
 
@@ -82,6 +84,7 @@
     "./cocos2d/tilemap/CCTiledObjectGroup.js",
     "./cocos2d/tilemap/CCTiledMapAsset.js",
     "./cocos2d/tilemap/CCTiledTile.js",
+    "./cocos2d/tilemap/CCTMXXMLParser.js",
 
     "./cocos2d/videoplayer/CCVideoPlayer.js",
 

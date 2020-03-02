@@ -63,22 +63,22 @@ export default class obb {
      * !#zh
      * 创建一个新的 obb 实例。
      * @method create
-     * @param cx X coordinates of the shape relative to the origin.
-     * @param cy Y coordinates of the shape relative to the origin.
-     * @param cz Z coordinates of the shape relative to the origin.
-     * @param hw Obb is half the width.
-     * @param hh Obb is half the height.
-     * @param hl Obb is half the Length.
-     * @param ox_1 Direction matrix parameter.
-     * @param ox_2 Direction matrix parameter.
-     * @param ox_3 Direction matrix parameter.
-     * @param oy_1 Direction matrix parameter.
-     * @param oy_2 Direction matrix parameter.
-     * @param oy_3 Direction matrix parameter.
-     * @param oz_1 Direction matrix parameter.
-     * @param oz_2 Direction matrix parameter.
-     * @param oz_3 Direction matrix parameter.
-     * @return Direction Box.
+     * @param {Number} cx X coordinates of the shape relative to the origin.
+     * @param {Number} cy Y coordinates of the shape relative to the origin.
+     * @param {Number} cz Z coordinates of the shape relative to the origin.
+     * @param {Number} hw Obb is half the width.
+     * @param {Number} hh Obb is half the height.
+     * @param {Number} hl Obb is half the Length.
+     * @param {Number} ox_1 Direction matrix parameter.
+     * @param {Number} ox_2 Direction matrix parameter.
+     * @param {Number} ox_3 Direction matrix parameter.
+     * @param {Number} oy_1 Direction matrix parameter.
+     * @param {Number} oy_2 Direction matrix parameter.
+     * @param {Number} oy_3 Direction matrix parameter.
+     * @param {Number} oz_1 Direction matrix parameter.
+     * @param {Number} oz_2 Direction matrix parameter.
+     * @param {Number} oz_3 Direction matrix parameter.
+     * @return {Obb} Direction Box.
      */
     public static create (
         cx: number, cy: number, cz: number,
@@ -95,8 +95,8 @@ export default class obb {
      * !#zh
      * 克隆一个 obb。
      * @method clone
-     * @param a The target of cloning.
-     * @returns New object cloned.
+     * @param {Obb} a The target of cloning.
+     * @returns {Obb} New object cloned.
      */
     public static clone (a: obb) {
         let aom = a.orientation.m;
@@ -131,9 +131,9 @@ export default class obb {
      * !#zh
      * 用两个点创建一个新的 obb。
      * @method fromPoints
-     * @param out Obb that accepts the operation.
-     * @param minPos The smallest point of obb.
-     * @param maxPos Obb's maximum point.
+     * @param {Obb} out Obb that accepts the operation.
+     * @param {Vec3} minPos The smallest point of obb.
+     * @param {Vec3} maxPos Obb's maximum point.
      * @returns {Obb} out Obb that accepts the operation.
      */
     public static fromPoints (out: obb, minPos: Vec3, maxPos: Vec3): obb {
@@ -149,21 +149,21 @@ export default class obb {
      * !#zh
      * 将给定 obb 的属性设置为给定的值。
      * @method set
-     * @param cx X coordinates of the shape relative to the origin.
-     * @param cy Y coordinates of the shape relative to the origin.
-     * @param cz Z coordinates of the shape relative to the origin.
-     * @param hw Obb is half the width.
-     * @param hh Obb is half the height.
-     * @param hl Obb is half the Length.
-     * @param ox_1 Direction matrix parameter.
-     * @param ox_2 Direction matrix parameter.
-     * @param ox_3 Direction matrix parameter.
-     * @param oy_1 Direction matrix parameter.
-     * @param oy_2 Direction matrix parameter.
-     * @param oy_3 Direction matrix parameter.
-     * @param oz_1 Direction matrix parameter.
-     * @param oz_2 Direction matrix parameter.
-     * @param oz_3 Direction matrix parameter.
+     * @param {Number} cx X coordinates of the shape relative to the origin.
+     * @param {Number} cy Y coordinates of the shape relative to the origin.
+     * @param {Number} cz Z coordinates of the shape relative to the origin.
+     * @param {Number} hw Obb is half the width.
+     * @param {Number} hh Obb is half the height.
+     * @param {Number} hl Obb is half the Length.
+     * @param {Number} ox_1 Direction matrix parameter.
+     * @param {Number} ox_2 Direction matrix parameter.
+     * @param {Number} ox_3 Direction matrix parameter.
+     * @param {Number} oy_1 Direction matrix parameter.
+     * @param {Number} oy_2 Direction matrix parameter.
+     * @param {Number} oy_3 Direction matrix parameter.
+     * @param {Number} oz_1 Direction matrix parameter.
+     * @param {Number} oz_2 Direction matrix parameter.
+     * @param {Number} oz_3 Direction matrix parameter.
      * @return {Obb} out
      */
     public static set (
@@ -202,7 +202,7 @@ export default class obb {
      * Direction matrix.
      * !#zh
      * 方向矩阵。
-     * @property {mat3} orientation
+     * @property {Mat3} orientation
      */
     public orientation: Mat3;
 
@@ -239,11 +239,11 @@ export default class obb {
      * !#zh
      * 将 out 根据这个 obb 的数据进行变换。
      * @method transform
-     * @param m The transformation matrix.
-     * @param pos The position part of the transformation.
-     * @param rot The rotating part of the transformation.
-     * @param scale The scaling part of the transformation.
-     * @param out Target of transformation.
+     * @param {Mat4} m The transformation matrix.
+     * @param {Vec3} pos The position part of the transformation.
+     * @param {Quat} rot The rotating part of the transformation.
+     * @param {Vec3} scale The scaling part of the transformation.
+     * @param {Obb} out Target of transformation.
      */
     public transform (m: Mat4, pos: Vec3, rot: Quat, scale: Vec3, out: obb) {
         Vec3.transformMat4(out.center, this.center, m);
@@ -258,9 +258,9 @@ export default class obb {
      * !#zh
      * 将 out 根据这个 obb 的数据进行变换。
      * @method translateAndRotate
-     * @param m The transformation matrix.
-     * @param rot The rotating part of the transformation.
-     * @param out Target of transformation.
+     * @param {Mat4} m The transformation matrix.
+     * @param {Quat} rot The rotating part of the transformation.
+     * @param {Obb} out Target of transformation.
      */
     public translateAndRotate (m: Mat4, rot: Quat, out: obb){
         Vec3.transformMat4(out.center, this.center, m);
@@ -274,8 +274,8 @@ export default class obb {
      * !#zh
      * 将 out 根据这个 obb 的数据进行缩放。
      * @method setScale
-     * @param scale Scale value.
-     * @param out Scaled target.
+     * @param {Vec3} scale Scale value.
+     * @param {Obb} out Scaled target.
      */
     public setScale (scale: Vec3, out: obb) {
         Vec3.multiply(out.halfExtents, this.halfExtents, scale);

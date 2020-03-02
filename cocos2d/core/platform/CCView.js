@@ -765,7 +765,7 @@ cc.js.mixin(View.prototype, {
         cc.visibleRect && cc.visibleRect.init(this._visibleRect);
 
         renderer.updateCameraViewport();
-        _cc.inputManager._updateCanvasBoundingRect();
+        cc.internal.inputManager._updateCanvasBoundingRect();
         this.emit('design-resolution-changed');
     },
 
@@ -1002,16 +1002,16 @@ cc.js.mixin(View.prototype, {
 });
 
 /**
- * !en
+ * !#en
  * Emit when design resolution changed.
- * !zh
+ * !#zh
  * 当设计分辨率改变时发送。
  * @event design-resolution-changed
  */
  /**
- * !en
+ * !#en
  * Emit when canvas resize.
- * !zh
+ * !#zh
  * 当画布大小改变时发送。
  * @event canvas-resize
  */

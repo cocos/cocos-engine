@@ -40,7 +40,7 @@ var _global = typeof window === 'undefined' ? global : window;
 _global.cc = _global.cc || {};
 
 // For internal usage
-_global._cc = _global._cc || {};
+cc.internal = cc.internal || {};
 
 require('./predefine');
 

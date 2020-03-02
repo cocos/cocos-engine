@@ -38,6 +38,10 @@ import ray from './ray';
 import sphere from './sphere';
 import triangle from './triangle';
 
+/**
+ * @class geomUtils.intersect
+ */
+
 const ray_mesh = (function () {
     let tri = triangle.create();
     let minDist = Infinity;
@@ -83,9 +87,10 @@ const rayMesh = ray_mesh;
  * Check whether ray intersect with nodes
  * !#zh
  * 检测射线是否与物体有交集
+ * @static
  * @method ray_cast
  * @param {Node} root - If root is null, then traversal nodes from scene node
- * @param {Ray} worldRay
+ * @param {geomUtils.Ray} worldRay
  * @param {Function} handler
  * @param {Function} filter
  * @return {[]} [{node, distance}]
@@ -193,9 +198,10 @@ const raycast = ray_cast;
 /**
  * !#en ray-plane intersect<br/>
  * !#zh 射线与平面的相交性检测。
+ * @static
  * @method ray_plane
- * @param {Ray} ray
- * @param {Plane} plane
+ * @param {geomUtils.Ray} ray
+ * @param {geomUtils.Plane} plane
  * @return {number} 0 or not 0
  */
 const ray_plane = (function () {
@@ -214,9 +220,10 @@ const ray_plane = (function () {
 /**
  * !#en line-plane intersect<br/>
  * !#zh 线段与平面的相交性检测。
+ * @static
  * @method line_plane
- * @param {Line} line
- * @param {Plane} plane
+ * @param {geomUtils.Line} line
+ * @param {geomUtils.Plane} plane
  * @return {number} 0 or not 0
  */
 const line_plane = (function () {
@@ -234,9 +241,10 @@ const line_plane = (function () {
 /**
  * !#en ray-triangle intersect<br/>
  * !#zh 射线与三角形的相交性检测。
+ * @static
  * @method ray_triangle
- * @param {Ray} ray
- * @param {Triangle} triangle
+ * @param {geomUtils.Ray} ray
+ * @param {geomUtils.Triangle} triangle
  * @param {boolean} doubleSided
  * @return {number} 0 or not 0
  */
@@ -276,9 +284,10 @@ const rayTriangle = ray_triangle;
 /**
  * !#en line-triangle intersect<br/>
  * !#zh 线段与三角形的相交性检测。
+ * @static
  * @method line_triangle
- * @param {Line} line
- * @param {Triangle} triangle
+ * @param {geomUtils.Line} line
+ * @param {geomUtils.Triangle} triangle
  * @param {Vec3} outPt optional, The intersection point
  * @return {number} 0 or not 0
  */
@@ -340,6 +349,7 @@ const line_triangle = (function () {
 /**
  * !#en line-quad intersect<br/>
  * !#zh 线段与四边形的相交性检测。
+ * @static
  * @method line_quad
  * @param {Vec3} p A point on a line segment
  * @param {Vec3} q Another point on the line segment
@@ -432,9 +442,10 @@ const line_quad = (function () {
 /**
  * !#en ray-sphere intersect<br/>
  * !#zh 射线和球的相交性检测。
+ * @static
  * @method ray_sphere
- * @param {Ray} ray
- * @param {Sphere} sphere
+ * @param {geomUtils.Ray} ray
+ * @param {geomUtils.Sphere} sphere
  * @return {number} 0 or not 0
  */
 const ray_sphere = (function () {
@@ -462,9 +473,10 @@ const ray_sphere = (function () {
 /**
  * !#en ray-aabb intersect<br/>
  * !#zh 射线和轴对齐包围盒的相交性检测。
+ * @static
  * @method ray_aabb
- * @param {Ray} ray
- * @param {Aabb} aabb Align the axis around the box
+ * @param {geomUtils.Ray} ray
+ * @param {geomUtils.Aabb} aabb Align the axis around the box
  * @return {number} 0 or not 0
  */
 const ray_aabb = (function () {
@@ -494,9 +506,10 @@ const rayAabb = ray_aabb;
 /**
  * !#en ray-obb intersect<br/>
  * !#zh 射线和方向包围盒的相交性检测。
+ * @static
  * @method ray_obb
- * @param {Ray} ray
- * @param {Obb} obb Direction box
+ * @param {geomUtils.Ray} ray
+ * @param {geomUtils.Obb} obb Direction box
  * @return {number} 0 or or 0
  */
 const ray_obb = (function () {
@@ -573,9 +586,10 @@ const ray_obb = (function () {
 /**
  * !#en aabb-aabb intersect<br/>
  * !#zh 轴对齐包围盒和轴对齐包围盒的相交性检测。
+ * @static
  * @method aabb_aabb
- * @param {Aabb} aabb1 Axis alignment surrounds box 1
- * @param {Aabb} aabb2 Axis alignment surrounds box 2
+ * @param {geomUtils.Aabb} aabb1 Axis alignment surrounds box 1
+ * @param {geomUtils.Aabb} aabb2 Axis alignment surrounds box 2
  * @return {number} 0 or not 0
  */
 const aabb_aabb = (function () {
@@ -661,9 +675,10 @@ function getInterval (vertices: any[] | Vec3[], axis: Vec3) {
 /**
  * !#en aabb-obb intersect<br/>
  * !#zh 轴对齐包围盒和方向包围盒的相交性检测。
+ * @static
  * @method aabb_obb
- * @param {Aabb} aabb Align the axis around the box
- * @param {Obb} obb Direction box
+ * @param {geomUtils.Aabb} aabb Align the axis around the box
+ * @param {geomUtils.Obb} obb Direction box
  * @return {number} 0 or not 0
  */
 const aabb_obb = (function () {
@@ -715,9 +730,10 @@ const aabb_obb = (function () {
 /**
  * !#en aabb-plane intersect<br/>
  * !#zh 轴对齐包围盒和平面的相交性检测。
+ * @static
  * @method aabb_plane
- * @param {Aabb} aabb Align the axis around the box
- * @param {Plane} plane
+ * @param {geomUtils.Aabb} aabb Align the axis around the box
+ * @param {geomUtils.Plane} plane
  * @return {number} inside(back) = -1, outside(front) = 0, intersect = 1
  */
 const aabb_plane = function (aabb: aabb, plane: plane): number {
@@ -733,9 +749,10 @@ const aabb_plane = function (aabb: aabb, plane: plane): number {
 /**
  * !#en aabb-frustum intersect, faster but has false positive corner cases<br/>
  * !#zh 轴对齐包围盒和锥台相交性检测，速度快，但有错误情况。
+ * @static
  * @method aabb_frustum
- * @param {Aabb} aabb Align the axis around the box
- * @param {Frustum} frustum
+ * @param {geomUtils.Aabb} aabb Align the axis around the box
+ * @param {geomUtils.Frustum} frustum
  * @return {number} 0 or not 0
  */
 const aabb_frustum = function (aabb: aabb, frustum: frustum): number {
@@ -752,9 +769,10 @@ const aabb_frustum = function (aabb: aabb, frustum: frustum): number {
 /**
  * !#en aabb-frustum intersect, handles most of the false positives correctly<br/>
  * !#zh 轴对齐包围盒和锥台相交性检测，正确处理大多数错误情况。
+ * @static
  * @method aabb_frustum_accurate
- * @param {Aabb} aabb Align the axis around the box
- * @param {Frustum} frustum
+ * @param {geomUtils.Aabb} aabb Align the axis around the box
+ * @param {geomUtils.Frustum} frustum
  * @return {number}
  */
 const aabb_frustum_accurate = (function () {
@@ -803,9 +821,10 @@ const aabb_frustum_accurate = (function () {
 /**
  * !#en obb-point intersect<br/>
  * !#zh 方向包围盒和点的相交性检测。
+ * @static
  * @method obb_point
- * @param {Obb} obb Direction box
- * @param {Vec3} point
+ * @param {geomUtils.Obb} obb Direction box
+ * @param {geomUtils.Vec3} point
  * @return {boolean} true or false
  */
 const obb_point = (function () {
@@ -821,9 +840,10 @@ const obb_point = (function () {
 /**
  * !#en obb-plane intersect<br/>
  * !#zh 方向包围盒和平面的相交性检测。
+ * @static
  * @method obb_plane
- * @param {Obb} obb Direction box
- * @param {Plane} plane
+ * @param {geomUtils.Obb} obb Direction box
+ * @param {geomUtils.Plane} plane
  * @return {number} inside(back) = -1, outside(front) = 0, intersect = 1
  */
 const obb_plane = (function () {
@@ -847,9 +867,10 @@ const obb_plane = (function () {
 /**
  * !#en obb-frustum intersect, faster but has false positive corner cases<br/>
  * !#zh 方向包围盒和锥台相交性检测，速度快，但有错误情况。
+ * @static
  * @method obb_frustum
- * @param {Obb} obb Direction box
- * @param {Frustum} frustum
+ * @param {geomUtils.Obb} obb Direction box
+ * @param {geomUtils.Frustum} frustum
  * @return {number} 0 or not 0
  */
 const obb_frustum = function (obb: obb, frustum: frustum): number {
@@ -866,9 +887,10 @@ const obb_frustum = function (obb: obb, frustum: frustum): number {
 /**
  * !#en obb-frustum intersect, handles most of the false positives correctly<br/>
  * !#zh 方向包围盒和锥台相交性检测，正确处理大多数错误情况。
+ * @static
  * @method obb_frustum_accurate
- * @param {Obb} obb Direction box
- * @param {Frustum} frustum
+ * @param {geomUtils.Obb} obb Direction box
+ * @param {geomUtils.Frustum} frustum
  * @return {number} 0 or not 0
  */
 const obb_frustum_accurate = (function () {
@@ -924,9 +946,10 @@ const obb_frustum_accurate = (function () {
 /**
  * !#en obb-obb intersect<br/>
  * !#zh 方向包围盒和方向包围盒的相交性检测。
+ * @static
  * @method obb_obb
- * @param {Obb} obb1 Direction box1
- * @param {Obb} obb2 Direction box2
+ * @param {geomUtils.Obb} obb1 Direction box1
+ * @param {geomUtils.Obb} obb2 Direction box2
  * @return {number} 0 or not 0
  */
 const obb_obb = (function () {
@@ -980,9 +1003,10 @@ const obb_obb = (function () {
  * due to the length calculation of the plane normal to factor out<br/>
  * the unnomalized plane distance<br/>
  * !#zh 球与平面的相交性检测。
+ * @static
  * @method sphere_plane
- * @param {Sphere} sphere
- * @param {Plane} plane
+ * @param {geomUtils.Sphere} sphere
+ * @param {geomUtils.Plane} plane
  * @return {number} inside(back) = -1, outside(front) = 0, intersect = 1
  */
 const sphere_plane = function (sphere: sphere, plane: plane): number {
@@ -996,9 +1020,10 @@ const sphere_plane = function (sphere: sphere, plane: plane): number {
 /**
  * !#en sphere-frustum intersect, faster but has false positive corner cases<br/>
  * !#zh 球和锥台的相交性检测，速度快，但有错误情况。
+ * @static
  * @method sphere_frustum
- * @param {Sphere} sphere
- * @param {Frustum} frustum
+ * @param {geomUtils.Sphere} sphere
+ * @param {geomUtils.Frustum} frustum
  * @return {number} 0 or not 0
  */
 const sphere_frustum = function (sphere: sphere, frustum: frustum): number {
@@ -1015,9 +1040,10 @@ const sphere_frustum = function (sphere: sphere, frustum: frustum): number {
 /**
  * !#en sphere-frustum intersect, handles the false positives correctly<br/>
  * !#zh 球和锥台的相交性检测，正确处理大多数错误情况。
+ * @static
  * @method sphere_frustum_accurate
- * @param {Sphere} sphere
- * @param {Frustum} frustum
+ * @param {geomUtils.Sphere} sphere
+ * @param {geomUtils.Frustum} frustum
  * @return {number} 0 or not 0
  */
 const sphere_frustum_accurate = (function () {
@@ -1047,9 +1073,10 @@ const sphere_frustum_accurate = (function () {
 /**
  * !#en sphere-sphere intersect<br/>
  * !#zh 球和球的相交性检测。
+ * @static
  * @method sphere_sphere
- * @param {Sphere} sphere0
- * @param {Sphere} sphere1
+ * @param {geomUtils.Sphere} sphere0
+ * @param {geomUtils.Sphere} sphere1
  * @return {boolean} true or false
  */
 const sphere_sphere = function (sphere0: sphere, sphere1: sphere): boolean {
@@ -1060,9 +1087,10 @@ const sphere_sphere = function (sphere0: sphere, sphere1: sphere): boolean {
 /**
  * !#en sphere-aabb intersect<br/>
  * !#zh 球和轴对齐包围盒的相交性检测。
+ * @static
  * @method sphere_aabb
- * @param {Sphere} sphere
- * @param {Aabb} aabb
+ * @param {geomUtils.Sphere} sphere
+ * @param {geomUtils.Aabb} aabb
  * @return {boolean} true or false
  */
 const sphere_aabb = (function () {
@@ -1076,9 +1104,10 @@ const sphere_aabb = (function () {
 /**
  * !#en sphere-obb intersect<br/>
  * !#zh 球和方向包围盒的相交性检测。
+ * @static
  * @method sphere_obb
- * @param {Sphere} sphere
- * @param {Obb} obb
+ * @param {geomUtils.Sphere} sphere
+ * @param {geomUtils.Obb} obb
  * @return {boolean} true or false
  */
 const sphere_obb = (function () {
@@ -1129,6 +1158,7 @@ const intersect = {
      * The intersection detection of g1 and g2 can fill in the shape in the basic geometry.
      * !#zh
      * g1 和 g2 的相交性检测，可填入基础几何中的形状。
+     * @static
      * @method resolve
      * @param g1 Geometry 1
      * @param g2 Geometry 2

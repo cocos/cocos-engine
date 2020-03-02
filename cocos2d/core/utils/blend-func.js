@@ -4,9 +4,6 @@ const BlendFactor = require('../platform/CCMacro').BlendFactor;
 const gfx = require('../../renderer/gfx');
 
 /**
- * @module cc
- */
-/**
  * !#en
  * Helper class for setting material blend function.
  * !#zh
@@ -82,7 +79,7 @@ let BlendFunc = cc.Class({
         if (this._srcBlendFactor === BlendFactor.SRC_ALPHA && this._dstBlendFactor === BlendFactor.ONE_MINUS_SRC_ALPHA) {
             return;
         }
-        let materials = this._materials;
+        let materials = this.getMaterials();
         for (let i = 0; i < materials.length; i++) {
             let material = materials[i];
             this._updateMaterialBlendFunc(material);

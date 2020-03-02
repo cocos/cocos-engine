@@ -389,9 +389,9 @@ let Label = cc.Class({
                     cc.warnID(4000);
                 }
 
-                this._resetAssembler();
-                this._applyFontTexture();
-                this.setVertsDirty();
+                if (!this.enabledInHierarchy) return;
+
+                this._forceUpdateRenderData();
             },
             type: cc.Font,
             tooltip: CC_DEV && 'i18n:COMPONENT.label.font',
@@ -423,9 +423,9 @@ let Label = cc.Class({
                 if (value) {
                     this.font = null;
 
-                    this._resetAssembler();
-                    this.setVertsDirty();
-                    this._applyFontTexture();
+                    if (!this.enabledInHierarchy) return;
+                    
+                    this._forceUpdateRenderData();
                 }
                 this.markForValidate();
             },
@@ -488,9 +488,9 @@ let Label = cc.Class({
                     this._ttfTexture = null;
                 }
 
-                this.setVertsDirty();
-                this._resetAssembler();
-                this._applyFontTexture();
+                if (!this.enabledInHierarchy) return;
+
+                this._forceUpdateRenderData();
             },
             animatable: false
         },
@@ -744,7 +744,7 @@ let Label = cc.Class({
 
     _updateMaterialWebgl () {
         if (!this._frame) return;
-        let material = this._materials[0];
+        let material = this.getMaterial(0);
         material && material.setProperty('texture', this._frame._texture);
     },
 

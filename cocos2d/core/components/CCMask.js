@@ -219,7 +219,6 @@ let Mask = cc.Class({
             notify: function () {
                 if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) {
                     cc.warnID(4202);
-                    return;
                 }
             }
         },
@@ -351,7 +350,7 @@ let Mask = cc.Class({
 
         this.setMaterial(0, material);
 
-        this._graphics._materials[0] = material
+        this._graphics._materials[0] = material;
 
         this._updateMaterial();
     },
@@ -418,6 +417,7 @@ let Mask = cc.Class({
     _removeGraphics () {
         if (this._graphics) {
             this._graphics.destroy();
+            this._graphics._destroyImmediate(); // FIX: cocos-creator/2d-tasks#2511. TODO: cocos-creator/2d-tasks#2516
             this._graphics = null;
         }
     },
