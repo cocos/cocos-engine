@@ -721,13 +721,13 @@ export class SpriteFrame extends Asset {
         const uvSliced = this.uvSliced;
         uvSliced.length = 0;
         if (this._rotated) {
-            temp_uvs[0].u = (rect.x + rect.height) / atlasWidth;
-            temp_uvs[1].u = (rect.x + topHeight + centerHeight) / atlasWidth;
-            temp_uvs[2].u = (rect.x + topHeight) / atlasWidth;
-            temp_uvs[3].u = rect.x / atlasWidth;
-            temp_uvs[3].v = rect.y / atlasHeight;
-            temp_uvs[2].v = (rect.y + rightWidth) / atlasHeight;
-            temp_uvs[1].v = (rect.y + rightWidth + centerWidth) / atlasHeight;
+            temp_uvs[0].u = (rect.x) / atlasWidth;
+            temp_uvs[1].u = (rect.x + bottomHeight) / atlasWidth;
+            temp_uvs[2].u = (rect.x + bottomHeight + centerHeight) / atlasWidth;
+            temp_uvs[3].u = (rect.x + rect.height) / atlasWidth;
+            temp_uvs[3].v = (rect.y) / atlasHeight;
+            temp_uvs[2].v = (rect.y + leftWidth) / atlasHeight;
+            temp_uvs[1].v = (rect.y + leftWidth + centerWidth) / atlasHeight;
             temp_uvs[0].v = (rect.y + rect.width) / atlasHeight;
 
             for (let row = 0; row < 4; ++row) {
@@ -790,14 +790,14 @@ export class SpriteFrame extends Asset {
                 uv[7] = b;
             }
             else {
-                uv[0] = r;
-                uv[1] = b;
-                uv[2] = r;
-                uv[3] = t;
-                uv[4] = l;
-                uv[5] = b;
-                uv[6] = l;
-                uv[7] = t;
+                uv[0] = l;
+                uv[1] = t;
+                uv[2] = l;
+                uv[3] = b;
+                uv[4] = r;
+                uv[5] = t;
+                uv[6] = r;
+                uv[7] = b;
             }
         } else {
             const l = texw === 0 ? 0 : rect.x / texw;
