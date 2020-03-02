@@ -514,6 +514,11 @@ if (CC_DEBUG) {
         'minFrameSize'
     ], 'cc.dynamicAtlasManager')
 
+    // light component
+    markAsRemovedInObject(cc.Light.prototype, [
+        'shadowDepthScale',
+    ], 'cc.Light.prototype');
+
     // Value types
     provideClearError(cc, {
         // AffineTransform
