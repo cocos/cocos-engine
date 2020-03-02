@@ -521,15 +521,15 @@ let TiledLayer = cc.Class({
      * !#zh
      * 设置给定区域的 tile 的 gid (gid = tile 全局 id)，
      * @method setTilesGIDAt
+     * @param {Array} gids an array contains gid
      * @param {Number} beginRow begin row number
      * @param {Number} beginCol begin col number
      * @param {Number} totalCols count of column
-     * @param {Array} gids an array contains gid
      * @example
-     * tiledLayer.setTilesGIDAt(10, 10, 2, [1, 1, 1, 1])
+     * tiledLayer.setTilesGIDAt([1, 1, 1, 1], 10, 10, 2)
      */
-    setTilesGIDAt (beginRow, beginCol, totalCols, gids) {
-        if (!gids || gids.length == 0 || totalCols <= 0) return;
+    setTilesGIDAt (gids, beginRow, beginCol, totalCols) {
+        if (!gids || gids.length === 0 || totalCols <= 0) return;
         if (beginRow < 0) beginRow = 0;
         if (beginCol < 0) beginCol = 0;
         let gidsIdx = 0;
