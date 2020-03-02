@@ -222,14 +222,17 @@ element type is wrong!
 
 ### 1401
 
+<!-- DEPRECATED -->
 The first argument should be the destination object
 
 ### 1402
 
+<!-- DEPRECATED -->
 The 'visible' property of %s is deprecated, use 'enabled' instead please.
 
 ### 1403
 
+<!-- DEPRECATED -->
 Sorry, cc.audioEngine.willPlayMusic is removed.
 
 ### 1404
@@ -238,7 +241,7 @@ cc.spriteFrameCache is removed, please use cc.loader to load and cache sprite fr
 
 ### 1405
 
-The '%s' will be removed in v2.0, please use '%s' instead.
+The '%s' has been removed, please use '%s' instead.
 
 ### 1406
 
@@ -246,7 +249,8 @@ The '%s' will be removed in v2.0, please use '%s' instead.
 
 ### 1407
 
-cc.pool is being removed from v2.0, you are getting cc.js.Pool instead.
+<!-- DEPRECATED -->
+cc.pool has been removed, you are getting cc.js.Pool instead.
 
 ### 1408
 
@@ -304,6 +308,7 @@ cc.Scheduler: pause state of the scheduled task doesn't match the element pause 
 
 ### 1512
 
+<!-- DEPRECATED -->
 cc.Scheduler: updateFunc parameter is deprecated in scheduleUpdate function, and will be removed in v2.0
 
 ### 1513
@@ -312,18 +317,22 @@ cc.Scheduler: scheduler stopped using `__instanceId` as id since v2.0, you shoul
 
 ### 1600
 
+<!-- DEPRECATED -->
 getZOrder is deprecated. Please use getLocalZOrder instead.
 
 ### 1601
 
+<!-- DEPRECATED -->
 setZOrder is deprecated. Please use setLocalZOrder instead.
 
 ### 1602
 
+<!-- DEPRECATED -->
 RotationX != RotationY. Don't know which one to return
 
 ### 1603
 
+<!-- DEPRECATED -->
 ScaleX != ScaleY. Don't know which one to return
 
 ### 1604
@@ -341,14 +350,17 @@ child must be non-null
 
 ### 1607
 
+<!-- DEPRECATED -->
 removeFromParentAndCleanup is deprecated. Use removeFromParent instead
 
 ### 1608
 
+<!-- DEPRECATED -->
 boundingBox is deprecated. Use getBoundingBox instead
 
 ### 1609
 
+<!-- DEPRECATED -->
 argument tag is an invalid tag
 
 ### 1610
@@ -370,10 +382,12 @@ cc.Node.getActionByTag(): argument tag is an invalid tag
 
 ### 1614
 
+<!-- DEPRECATED -->
 resumeSchedulerAndActions is deprecated, please use resume instead.
 
 ### 1615
 
+<!-- DEPRECATED -->
 pauseSchedulerAndActions is deprecated, please use pause instead.
 
 ### 1616
@@ -633,6 +647,7 @@ cc.Sprite.setDisplayFrameWithAnimationName(): Invalid frame index
 
 ### 2604
 
+<!-- DEPRECATED -->
 setDisplayFrame is deprecated, please use setSpriteFrame instead.
 
 ### 2605
@@ -945,6 +960,7 @@ TextureCache:addPVRTCImage does not support on HTML5
 
 ### 3002
 
+<!-- DEPRECATED -->
 textureForKey is deprecated. Please use getTextureForKey instead.
 
 ### 3003
@@ -1066,6 +1082,7 @@ Mimpap texture only works in POT textures
 
 ### 3118
 
+<!-- DEPRECATED -->
 contentSize parameter is deprecated and ignored for cc.Texture2D initWithData function.
 
 ### 3119
@@ -1548,6 +1565,7 @@ animator not added or already removed
 
 ### 3908
 
+<!-- DEPRECATED -->
 animation not added or already removed
 
 ### 3909
@@ -1635,6 +1653,7 @@ Sorry, lineHeight of system font not supported on JSB.
 
 ### 4100
 
+<!-- DEPRECATED -->
 Property padding is deprecated, please use paddingLeft, paddingRight, paddingTop and paddingBottom instead
 
 ### 4200
@@ -1852,10 +1871,12 @@ Can not find class '%s'
 
 ### 5400
 
+<!-- DEPRECATED -->
 '%s' is deprecated, use '%s' instead please.
 
 ### 5401
 
+<!-- DEPRECATED -->
 '%s' is deprecated, use '%s' instead please.
 
 ### 5402
@@ -2332,6 +2353,7 @@ _ccsg.TMXTiledMap.initWithXML(): Map not found. Please check the filename.
 
 ### 7214
 
+<!-- DEPRECATED -->
 propertiesForGID is deprecated. Please use getPropertiesForGID instead.
 
 ### 7215

@@ -281,9 +281,6 @@ var Layout = cc.Class({
             animatable: false
         },
 
-        _N$padding: {
-            default: 0
-        },
         /**
          * !#en The left padding of layout, it only effect the layout in one direction.
          * !#zh 容器内左边距，只会在一个布局方向上生效。
@@ -422,23 +419,11 @@ var Layout = cc.Class({
         AxisDirection: AxisDirection,
     },
 
-    _migratePaddingData: function () {
-        this.paddingLeft = this._N$padding;
-        this.paddingRight = this._N$padding;
-        this.paddingTop = this._N$padding;
-        this.paddingBottom = this._N$padding;
-        this._N$padding = 0;
-    },
-
     onEnable: function () {
         this._addEventListeners();
 
         if (this.node.getContentSize().equals(cc.size(0, 0))) {
             this.node.setContentSize(this._layoutSize);
-        }
-
-        if (this._N$padding !== 0) {
-            this._migratePaddingData();
         }
 
         this._doLayoutDirty();
@@ -1009,24 +994,6 @@ var Layout = cc.Class({
             this._doLayout();
             this._layoutDirty = false;
         }
-    }
-});
-
-/**
- * !#en The padding of layout, it effects the layout in four direction.
- * !#zh 容器内边距，该属性会在四个布局方向上生效。
- * @property {Number} padding
- */
-Object.defineProperty(Layout.prototype, "padding", {
-    get: function () {
-        cc.warnID(4100);
-        return this.paddingLeft;
-    },
-    set: function (value) {
-        this._N$padding = value;
-
-        this._migratePaddingData();
-        this._doLayoutDirty();
     }
 });
 
