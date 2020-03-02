@@ -47,6 +47,7 @@ export class Skeleton extends Asset {
     @property([Mat4])
     private _bindposes: Mat4[] = [];
 
+    @property
     private _hash = 0;
 
     /**
@@ -58,16 +59,6 @@ export class Skeleton extends Asset {
 
     set bindposes (value) {
         this._bindposes = value;
-        let str = '';
-        for (let i = 0; i < value.length; i++) {
-            const ibm = value[i];
-            str +=
-                ibm.m00.toPrecision(2) + ' ' + ibm.m01.toPrecision(2) + ' ' + ibm.m02.toPrecision(2) + ' ' + ibm.m03.toPrecision(2) + ' ' +
-                ibm.m04.toPrecision(2) + ' ' + ibm.m05.toPrecision(2) + ' ' + ibm.m06.toPrecision(2) + ' ' + ibm.m07.toPrecision(2) + ' ' +
-                ibm.m08.toPrecision(2) + ' ' + ibm.m09.toPrecision(2) + ' ' + ibm.m10.toPrecision(2) + ' ' + ibm.m11.toPrecision(2) + ' ' +
-                ibm.m12.toPrecision(2) + ' ' + ibm.m13.toPrecision(2) + ' ' + ibm.m14.toPrecision(2) + ' ' + ibm.m15.toPrecision(2) + '\n';
-        }
-        this._hash = murmurhash2_32_gc(str, 666);
     }
 
     /**
@@ -82,11 +73,20 @@ export class Skeleton extends Asset {
     }
 
     get hash () {
+        // hashes should already be computed offline, but if not, make one
+        if (!this._hash) {
+            let str = '';
+            for (let i = 0; i < this._bindposes.length; i++) {
+                const ibm = this._bindposes[i];
+                str +=
+                    ibm.m00.toPrecision(2) + ' ' + ibm.m01.toPrecision(2) + ' ' + ibm.m02.toPrecision(2) + ' ' + ibm.m03.toPrecision(2) + ' ' +
+                    ibm.m04.toPrecision(2) + ' ' + ibm.m05.toPrecision(2) + ' ' + ibm.m06.toPrecision(2) + ' ' + ibm.m07.toPrecision(2) + ' ' +
+                    ibm.m08.toPrecision(2) + ' ' + ibm.m09.toPrecision(2) + ' ' + ibm.m10.toPrecision(2) + ' ' + ibm.m11.toPrecision(2) + ' ' +
+                    ibm.m12.toPrecision(2) + ' ' + ibm.m13.toPrecision(2) + ' ' + ibm.m14.toPrecision(2) + ' ' + ibm.m15.toPrecision(2) + '\n';
+            }
+            this._hash = murmurhash2_32_gc(str, 666);
+        }
         return this._hash;
-    }
-
-    public onLoaded () {
-        this.bindposes = this._bindposes;
     }
 
     public destroy () {
