@@ -32,7 +32,7 @@ export class SphereColliderComponent extends ColliderComponent {
      * 获取或设置球的半径。
      */
     @property({
-        tooltip:'球的半径',
+        tooltip: '球的半径',
     })
     public get radius () {
         return this._radius;
@@ -40,7 +40,7 @@ export class SphereColliderComponent extends ColliderComponent {
 
     public set radius (value) {
         this._radius = value;
-        if (!CC_EDITOR) {
+        if (!CC_EDITOR && !CC_TEST) {
             this.sphereShape.radius = this._radius;
         }
     }
@@ -56,7 +56,7 @@ export class SphereColliderComponent extends ColliderComponent {
 
     constructor () {
         super();
-        if (!CC_EDITOR) {
+        if (!CC_EDITOR && !CC_TEST) {
             this._shape = createSphereShape(this._radius);
         }
     }

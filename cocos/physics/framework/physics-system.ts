@@ -10,14 +10,12 @@ import { System } from '../../core/components';
 import { PhysicMaterial } from './assets/physic-material';
 import { Layers, RecyclePool } from '../../core';
 import { ray } from '../../core/geometry';
-import { PhysicsRayResult } from './physics-ray-result';
-import { property, ccclass } from '../../core/data/class-decorator';
+import { PhysicsRayResult } from './physics-ray-result'
 
 /**
  * @zh
  * 物理系统。
  */
-@ccclass("cc.PhysicsSystem")
 export class PhysicsSystem extends System {
 
     /**
@@ -141,22 +139,11 @@ export class PhysicsSystem extends System {
     readonly raycastClosestResult = new PhysicsRayResult();
     readonly raycastResults: PhysicsRayResult[] = [];
 
-    @property
     private _enable = true;
-
-    @property
     private _allowSleep = true;
-
-    @property
     private readonly _gravity = new Vec3(0, -10, 0);
-
-    @property
     private _maxSubStep = 1;
-
-    @property
     private _deltaTime = 1.0 / 60.0;
-
-    @property
     private _useFixedTime = true;
 
     // private _frameRate = 60;

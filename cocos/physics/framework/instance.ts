@@ -51,7 +51,7 @@ export function createCapsuleShape (radius = 0.5, height = 2, dir = 1): ICapsule
 }
 
 export function checkPhysicsModule (obj: any) {
-    if (CC_DEBUG && !CC_EDITOR && obj == null) {
+    if (CC_DEBUG && !CC_TEST && !CC_EDITOR && obj == null) {
         error("[Physics]: Please check to see if physics modules are included.");
         return true;
     }
