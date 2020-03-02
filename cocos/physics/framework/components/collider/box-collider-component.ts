@@ -42,7 +42,7 @@ export class BoxColliderComponent extends ColliderComponent {
 
     public set size (value) {
         Vec3.copy(this._size, value);
-        if (!CC_EDITOR) {
+        if (!CC_EDITOR && !CC_TEST) {
             this.boxShape.size = this._size;
         }
     }
@@ -58,7 +58,7 @@ export class BoxColliderComponent extends ColliderComponent {
 
     constructor () {
         super();
-        if (!CC_EDITOR) {
+        if (!CC_EDITOR && !CC_TEST) {
             this._shape = createBoxShape(this._size);
         }
     }
