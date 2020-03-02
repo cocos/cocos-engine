@@ -170,6 +170,28 @@ function Tween (target) {
     this._actions = [];
     this._finalAction = null;
     this._target = target;
+    this._tag = cc.Action.TAG_INVALID;
+}
+
+
+/**
+ * !#en Stop all tweens
+ * !#zh 停止所有缓动
+ * @method stopAll
+ * @static
+ */
+Tween.stopAll = function () {
+    cc.director.getActionManager().removeAllActions();
+}
+/**
+ * !#en Stop all tweens by tag
+ * !#zh 停止所有指定标签的缓动
+ * @method stopAllByTag
+ * @static
+ * @param {number} tag
+ */
+Tween.stopAllByTag = function (tag) {
+    cc.director.getActionManager().removeActionByTag(tag);
 }
 
 /**
@@ -223,6 +245,7 @@ Tween.prototype.start = function () {
         cc.director.getActionManager().removeAction(this._finalAction);
     }
     this._finalAction = this._union();
+    this._finalAction.setTag(this._tag);
     cc.director.getActionManager().addAction(this._finalAction, this._target, false);
     return this;
 };
@@ -242,6 +265,18 @@ Tween.prototype.stop = function () {
     return this;
 };
 
+
+/**
+ * !#en Sets tween tag
+ * !#zh 设置缓动的标签
+ * @method tag
+ * @param {number} tag
+ * @return {Tween}
+ */
+Tween.prototype.tag = function (tag) {
+    this._tag = tag;
+    return this;
+};
 
 
 /**
