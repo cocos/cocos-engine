@@ -106,7 +106,7 @@ export default class GradientRange {
     private _color = Color.WHITE.clone();
 
     public evaluate (time: number, rndRatio: number) {
-        switch (this.mode) {
+        switch (this._mode) {
             case Mode.Color:
                 return this.color;
             case Mode.TwoColors:
@@ -122,6 +122,30 @@ export default class GradientRange {
             default:
                 return this.color;
         }
+    }
+
+    public _onBeforeSerialize (props: any): any {
+        const self = this;
+        let data = ["_mode"];
+        switch (self._mode) {
+            case Mode.Color:
+                data.push("color");
+                break;
+            case Mode.TwoColors:
+                data.push("colorMin");
+                data.push("colorMax");
+                break;
+            case Mode.RandomColor:
+            case Mode.Gradient:
+                data.push("gradient");
+                break;
+            case Mode.TwoGradients:
+                data.push("gradientMin");
+                data.push("gradientMax");
+                break;
+        }
+
+        return data;
     }
 }
 

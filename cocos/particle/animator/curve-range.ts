@@ -105,6 +105,29 @@ export default class CurveRange  {
         }
         return 0;
     }
+
+    public _onBeforeSerialize (props: any): any {
+        const self = this;
+        let data = ["mode"];
+        switch (self.mode) {
+            case Mode.Constant:
+                data.push("constant");
+                break;
+            case Mode.Curve:
+                data.push("curve");
+                break;
+            case Mode.TwoConstants:
+                data.push("constantMin");
+                data.push("constantMax");
+                break;
+            case Mode.TwoCurves:
+                data.push("curveMin");
+                data.push("curveMax");
+                break;
+        }
+
+        return data;
+    }
 }
 
 // CCClass.fastDefine('cc.CurveRange', CurveRange, {
