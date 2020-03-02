@@ -34,10 +34,9 @@ import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { Mat4, Vec3 } from '../../math';
-import { JointUniformCapacity, UBOSkinning } from '../../pipeline/define';
+import { UBOSkinning } from '../../pipeline/define';
 import { Node } from '../../scene-graph/node';
 import { Pass } from '../core/pass';
-import { DataPoolManager } from '../data-pool-manager';
 import { Model, ModelType } from '../scene/model';
 import { uploadJointData } from './skeletal-animation-utils';
 
@@ -114,16 +113,10 @@ function getRevelantBuffers (outIndices: number[], outBuffers: number[], jointMa
     for (let i = 0; i < jointMaps.length; i++) {
         const idxMap = jointMaps[i];
         let index = -1;
-        if (idxMap.length <= 1) {
-            const offset = idxMap[0] || 0;
-            index = targetJoint - offset;
-            if (index >= JointUniformCapacity) { continue; }
-        } else {
-            for (let j = 0; j < idxMap.length; j++) {
-                if (idxMap[j] === targetJoint) { index = j; break; }
-            }
+        for (let j = 0; j < idxMap.length; j++) {
+            if (idxMap[j] === targetJoint) { index = j; break; }
         }
-        if (index > 0) {
+        if (index >= 0) {
             outBuffers.push(i);
             outIndices.push(index);
         }
@@ -158,8 +151,8 @@ export class SkinningModel extends Model {
 
     private _buffers: GFXBuffer[] = [];
     private _datas: Float32Array[] = [];
-    private _bufferIndices: number[] = [];
     private _joints: IJointInfo[] = [];
+    private _bufferIndices: number[] | null = null;
 
     constructor () {
         super();
@@ -181,13 +174,13 @@ export class SkinningModel extends Model {
         for (let i = 0; i < this._joints.length; i++) {
             deleteTransform(this._joints[i].target);
         }
-        this._bufferIndices.length = 0; this._joints.length = 0;
+        this._bufferIndices = null; this._joints.length = 0;
         if (!skeleton || !skinningRoot || !mesh) { return; }
         this._transform = skinningRoot;
         const boneSpaceBounds = mesh.getBoneSpaceBounds(skeleton);
-        const { jointMaps, primitives } = mesh.struct;
+        const jointMaps = mesh.struct.jointMaps;
         this._ensureEnoughBuffers(jointMaps && jointMaps.length || 1);
-        for (let i = 0; i < primitives.length; i++) { this._bufferIndices.push(primitives[i].jointMapIndex || 0); }
+        this._bufferIndices = mesh.jointBufferIndices;
         for (let index = 0; index < skeleton.joints.length; index++) {
             const bound = boneSpaceBounds[index];
             const target = skinningRoot.getChildByPath(skeleton.joints[index]);
@@ -253,7 +246,7 @@ export class SkinningModel extends Model {
     protected createPipelineState (pass: Pass, subModelIdx: number) {
         const pso = super.createPipelineState(pass, subModelIdx, patches);
         const bindingLayout = pso.pipelineLayout.layouts[0];
-        const buffer = this._buffers[this._bufferIndices[subModelIdx]];
+        const buffer = this._buffers[this._bufferIndices![subModelIdx]];
         if (buffer) { bindingLayout.bindBuffer(UBOSkinning.BLOCK.binding, buffer); }
         return pso;
     }

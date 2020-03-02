@@ -67,7 +67,8 @@ export class Skybox extends Model {
     protected _updatePipeline () {
         const value = this._useIBL ? this._isRGBE ? 2 : 1 : 0;
         const pipeline = this._scene!.root.pipeline;
-        if (pipeline.macros.CC_USE_IBL === value) { return; }
+        const current = pipeline.macros.CC_USE_IBL || 0;
+        if (current === value) { return; }
         pipeline.macros.CC_USE_IBL = value;
         this._scene!.onGlobalPipelineStateChanged();
     }

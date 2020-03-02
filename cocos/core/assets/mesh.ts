@@ -190,10 +190,11 @@ export class RenderingSubMesh {
                 jointOffset += GFXFormatInfos[attr.format].size;
             }
             if (jointFormat) {
-                const dataView = new DataView(new Uint8Array(this.mesh.data!.buffer, bundle.view.offset, bundle.view.length).slice().buffer);
+                const data = new Uint8Array(this.mesh.data!.buffer, bundle.view.offset, bundle.view.length);
+                const dataView = new DataView(data.slice().buffer);
                 const idxMap = struct.jointMaps[prim.jointMapIndex];
-                const mapFn = idxMap.length > 1 ? (cur: number) => idxMap.indexOf(cur) : (cur: number) => cur - (idxMap[0] || 0);
-                mapBuffer(dataView, mapFn, jointFormat, jointOffset, bundle.view.length, bundle.view.stride, dataView);
+                mapBuffer(dataView, (cur) => idxMap.indexOf(cur), jointFormat, jointOffset,
+                    bundle.view.length, bundle.view.stride, dataView);
                 const buffer = device.createBuffer({
                     usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
                     memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
@@ -326,10 +327,8 @@ export declare namespace Mesh {
         maxPosition?: Vec3;
 
         /**
-         * 此网格使用的关节索引映射关系列表。
-         * * 长度为 1 的数组对应所有关节拥有统一的 offset；
-         * * 否则数组长度应为子模型中实际使用到的所有关节，
-         *   每个元素都对应一个原骨骼资源里的索引，按子模型 VB 内的实际索引排列。
+         * 此网格使用的关节索引映射关系列表，数组长度应为子模型中实际使用到的所有关节，
+         * 每个元素都对应一个原骨骼资源里的索引，按子模型 VB 内的实际索引排列。
          */
         jointMaps?: number[][];
     }
@@ -422,6 +421,11 @@ export class Mesh extends Asset {
         return this._hash;
     }
 
+    get jointBufferIndices () {
+        if (this._jointBufferIndices) { return this._jointBufferIndices; }
+        return this._jointBufferIndices = this._struct.primitives.map((p) => p.jointMapIndex || 0);
+    }
+
     @property
     private _struct: Mesh.IStruct = {
         vertexBundles: [],
@@ -438,6 +442,7 @@ export class Mesh extends Asset {
     private _initialized = false;
     private _renderingSubMeshes: RenderingSubMesh[] | null = null;
     private _boneSpaceBounds = new Map<number, Array<aabb | null>>();
+    private _jointBufferIndices: number[] | null = null;
 
     constructor () {
         super();

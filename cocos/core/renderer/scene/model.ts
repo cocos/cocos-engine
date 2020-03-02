@@ -325,20 +325,25 @@ export class Model {
     }
 
     public onGlobalPipelineStateChanged () {
-        for (let j = 0; j < this._subModels.length; j++) {
-            const m = this._subModels[j];
-            const mat = m.material!;
-            const psos = this._matPSORecord.get(mat)!;
-            for (let i = 0; i < mat.passes.length; i++) {
-                const pass = mat.passes[i];
+        const subModels = this._subModels;
+        this._matPSORecord.forEach((psos, mat) => {
+            let i = 0; for (; i < subModels.length; i++) {
+                if (subModels[i].material === mat) { break; }
+            }
+            if (i >= subModels.length) { return; }
+            for (let j = 0; j < mat.passes.length; j++) {
+                const pass = mat.passes[j];
+                pass.destroyPipelineState(psos[j]);
                 pass.beginChangeStatesSilently();
                 pass.tryCompile(); // force update shaders
                 pass.endChangeStatesSilently();
-                pass.destroyPipelineState(psos[i]);
-                psos[i] = this.createPipelineState(pass, j);
-                psos[i].pipelineLayout.layouts[0].update();
+                psos[j] = this.createPipelineState(pass, i);
+                psos[j].pipelineLayout.layouts[0].update();
             }
-            m.updateCommandBuffer();
+            psos.length = mat.passes.length;
+        });
+        for (let i = 0; i < subModels.length; i++) {
+            subModels[i].updateCommandBuffer();
         }
     }
 

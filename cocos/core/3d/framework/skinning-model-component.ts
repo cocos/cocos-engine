@@ -119,6 +119,13 @@ export class SkinningModelComponent extends ModelComponent {
         }
     }
 
+    public setMaterial (material: Material | null, index: number) {
+        super.setMaterial(material, index);
+        if (this._modelType === SkinningModel) {
+            this.getMaterialInstance(index);
+        }
+    }
+
     protected _updateModelParams () {
         this._update(); // should bind skeleton before super create pso
         super._updateModelParams();
