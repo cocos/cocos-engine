@@ -270,7 +270,7 @@ var loader = {
         cc.assetManager.loadResDir(url, type, onProgress, function (err, assets) {
             var urls = [];
             if (!err) {
-                var infos = cc.assetManager.bundles.get('resources').config.getDirWithPath(url, type);
+                var infos = cc.assetManager.bundles.get(cc.AssetManager.BuiltinBundle.RESOURCES).config.getDirWithPath(url, type);
                 urls = infos.map(function (info) {
                     return info.path;
                 });
@@ -569,7 +569,7 @@ var AssetLibrary = {
         cc.assetManager.init(options);
         if (options.rawAssets) {
             var resources = new cc.AssetManager.Bundle();
-            resources.init({name:'resources', importBase: options.importBase, nativeBase: options.nativeBase, paths: options.rawAssets.assets, uuids: Object.keys(options.rawAssets.assets)});
+            resources.init({name: cc.AssetManager.BuiltinBundle.RESOURCES, importBase: options.importBase, nativeBase: options.nativeBase, paths: options.rawAssets.assets, uuids: Object.keys(options.rawAssets.assets)});
         }
     },
 
@@ -614,7 +614,7 @@ cc.url = {
      */
     raw (url) {
         if (url.startsWith('resources/')) {
-            return cc.assetManager.transform({'path': cc.path.changeExtname(url.substr(10)), bundle: 'resources', isNative: true, ext: cc.path.extname(url)});
+            return cc.assetManager.transform({'path': cc.path.changeExtname(url.substr(10)), bundle: cc.AssetManager.BuiltinBundle.RESOURCES, isNative: true, ext: cc.path.extname(url)});
         }
         return '';
     }
@@ -724,7 +724,7 @@ Object.assign(cc.director, {
      * @deprecated `cc.director._getSceneUuid` is deprecated now, please use `config.getSceneInfo` instead
      */
     _getSceneUuid (sceneName) {
-        cc.assetManager.bundles.get('main').config.getSceneInfo(sceneName);
+        cc.assetManager.bundles.get(cc.AssetManager.BuiltinBundle.MAIN).config.getSceneInfo(sceneName);
     }
 }); 
 
@@ -735,7 +735,7 @@ Object.defineProperties(cc.game, {
     _sceneInfos: {
         get () {
             var scenes = [];
-            cc.assetManager.bundles.get('main').config.scenes.forEach(function (val) {
+            cc.assetManager.bundles.get(cc.AssetManager.BuiltinBundle.MAIN).config.scenes.forEach(function (val) {
                 scenes.push(val);
             });
             return scenes;

@@ -597,7 +597,7 @@ var Texture2D = cc.Class({
         if (!element)
             return;
         this._image = element;
-        if (element.complete || element instanceof HTMLCanvasElement || (cc.sys.capabilities.createImageBitmap && element instanceof ImageBitmap)) {
+        if (element.complete || element instanceof HTMLCanvasElement || element instanceof ImageBitmap) {
             this.handleLoadedTexture();
         }
         else {
@@ -680,7 +680,7 @@ var Texture2D = cc.Class({
      * @return {Boolean} inherit from the CCObject
      */
     destroy () {
-        if (cc.sys.capabilities.createImageBitmap && this._image instanceof ImageBitmap) {
+        if (this._image instanceof ImageBitmap) {
             this._image.close();
         }
         this._packable && cc.dynamicAtlasManager && cc.dynamicAtlasManager.deleteAtlasTexture(this);
