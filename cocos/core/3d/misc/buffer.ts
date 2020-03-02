@@ -1,6 +1,5 @@
 import { GFXFormat, GFXFormatInfos, GFXFormatType, IGFXFormatInfo } from '../../gfx/define';
 
-const isLittleEndian = cc.sys.isLittleEndian;
 const _typeMap = {
     [GFXFormatType.UNORM]: 'Uint',
     [GFXFormatType.SNORM]: 'Int',
@@ -23,6 +22,7 @@ export function writeBuffer (target: DataView, data: number[], format: GFXFormat
     const writer = 'set' + _getDataViewType(info);
     const componentBytesLength = info.size / info.count;
     const nSeg = Math.floor(data.length / info.count);
+    const isLittleEndian = cc.sys.isLittleEndian;
 
     for (let iSeg = 0; iSeg < nSeg; ++iSeg) {
         const x = offset + stride * iSeg;
@@ -40,6 +40,7 @@ export function readBuffer (
     const reader = 'get' + _getDataViewType(info);
     const componentBytesLength = info.size / info.count;
     const nSeg = Math.floor(length / stride);
+    const isLittleEndian = cc.sys.isLittleEndian;
 
     for (let iSeg = 0; iSeg < nSeg; ++iSeg) {
         const x = offset + stride * iSeg;
@@ -53,13 +54,14 @@ export function readBuffer (
 export function mapBuffer (
     target: DataView, callback: (cur: number, idx: number, view: DataView) => number, format: GFXFormat = GFXFormat.R32F,
     offset: number = 0, length: number = target.byteLength - offset, stride: number = 0, out?: DataView) {
-    if (!out) { out = new DataView(new ArrayBuffer(target.byteLength)); }
+    if (!out) { out = new DataView(target.buffer.slice(target.byteOffset, target.byteOffset + target.byteLength)); }
     const info = GFXFormatInfos[format];
     if (!stride) { stride = info.size; }
     const writer = 'set' + _getDataViewType(info);
     const reader = 'get' + _getDataViewType(info);
     const componentBytesLength = info.size / info.count;
     const nSeg = Math.floor(length / stride);
+    const isLittleEndian = cc.sys.isLittleEndian;
 
     for (let iSeg = 0; iSeg < nSeg; ++iSeg) {
         const x = offset + stride * iSeg;

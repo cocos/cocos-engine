@@ -130,13 +130,15 @@ export class SkinningModelComponent extends ModelComponent {
             if (this.model.uploadAnimation) { this.model.uploadAnimation(this._clip); }
         }
         // have to instantiate materials with multiple submodel references
-        const meshCount = this._mesh ? this._mesh.subMeshCount : 0;
-        let last: Material | null = null;
-        for (let i = 0; i < meshCount; ++i) {
-            const cur = this.getRenderMaterial(i);
-            if (cur === last) {
-                this.getMaterialInstance(i);
-            } else { last = cur; }
+        if (this._modelType === SkinningModel) {
+            const meshCount = this._mesh ? this._mesh.subMeshCount : 0;
+            let last: Material | null = null;
+            for (let i = 0; i < meshCount; ++i) {
+                const cur = this.getRenderMaterial(i);
+                if (cur === last) {
+                    this.getMaterialInstance(i);
+                } else { last = cur; }
+            }
         }
     }
 }

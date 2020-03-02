@@ -1,5 +1,5 @@
 import { Material } from '../../assets/material';
-import { IRenderingSubmesh } from '../../assets/mesh';
+import { RenderingSubMesh } from '../../assets/mesh';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXCommandBufferType, GFXStatus } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
@@ -9,7 +9,7 @@ import { RenderPriority } from '../../pipeline/define';
 import { Pass } from '../core/pass';
 
 export class SubModel {
-    protected _subMeshObject: IRenderingSubmesh | null;
+    protected _subMeshObject: RenderingSubMesh | null;
     protected _inputAssembler: GFXInputAssembler | null;
     private _material: Material | null;
     private _cmdBuffers: GFXCommandBuffer[];
@@ -25,7 +25,7 @@ export class SubModel {
         this._priority = RenderPriority.DEFAULT;
     }
 
-    public initialize (subMesh: IRenderingSubmesh, mat: Material, psos: GFXPipelineState[]) {
+    public initialize (subMesh: RenderingSubMesh, mat: Material, psos: GFXPipelineState[]) {
         this._psos = psos;
         this.subMeshData = subMesh;
 
@@ -54,7 +54,7 @@ export class SubModel {
         return this._priority;
     }
 
-    set subMeshData (sm: IRenderingSubmesh) {
+    set subMeshData (sm: RenderingSubMesh) {
         if (this._inputAssembler) {
             this._inputAssembler.destroy();
         }

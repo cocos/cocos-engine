@@ -34,7 +34,7 @@ import { Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
-import { GFXAddress, GFXAttributeName, GFXBufferUsageBit, GFXFilter, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit } from '../../gfx/define';
+import { GFXAddress, GFXBufferUsageBit, GFXFilter, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
 import { Mat4, Quat, Vec3 } from '../../math';
 import { UBOSkinningAnimation } from '../../pipeline/define';
@@ -182,8 +182,7 @@ export class JointsTexturePool {
         }
         Vec3.set(v3_min,  Infinity,  Infinity,  Infinity);
         Vec3.set(v3_max, -Infinity, -Infinity, -Infinity);
-        const dataPoolManager: DataPoolManager = cc.director.root.dataPoolManager;
-        const boneSpaceBounds = dataPoolManager.boneSpaceBoundsInfo.getData(mesh, skeleton);
+        const boneSpaceBounds = mesh.getBoneSpaceBounds(skeleton);
         for (let i = 0; i < joints.length; i++) {
             const node = skinningRoot.getChildByPath(joints[i]);
             const bound = boneSpaceBounds[i];
@@ -233,8 +232,7 @@ export class JointsTexturePool {
         }
         Vec3.set(v3_min,  Infinity,  Infinity,  Infinity);
         Vec3.set(v3_max, -Infinity, -Infinity, -Infinity);
-        const dataPoolManager: DataPoolManager = cc.director.root.dataPoolManager;
-        const boneSpaceBounds = dataPoolManager.boneSpaceBoundsInfo.getData(mesh, skeleton);
+        const boneSpaceBounds = mesh.getBoneSpaceBounds(skeleton);
         const bounds: aabb[] = []; texture.bounds.set(mesh.hash, bounds);
         for (let fid = 0; fid < frames; fid++) {
             bounds.push(new aabb(Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity));
@@ -366,76 +364,5 @@ export class JointsAnimationInfo {
             info.buffer.destroy();
         }
         this._pool.clear();
-    }
-}
-
-export class BoneSpaceBoundsInfo {
-    private _pool = new Map<number, Map<number, Array<aabb | null>>>(); // per Mesh per Skeleton
-
-    /**
-     * @en
-     * Get the bone space bounds of specified mesh.
-     * @zh
-     * 获取指定模型的骨骼空间包围盒。
-     */
-    public getData (mesh: Mesh, skeleton: Skeleton) {
-        let m = this._pool.get(mesh.hash);
-        let bounds = m && m.get(skeleton.hash);
-        if (bounds) { return bounds; }
-        if (!m) { m = new Map<number, Array<aabb | null>>(); this._pool.set(mesh.hash, m); }
-        bounds = []; m.set(skeleton.hash, bounds);
-        const valid: boolean[] = [];
-        const bindposes = skeleton.bindposes;
-        for (let i = 0; i < bindposes.length; i++) {
-            bounds.push(new aabb(Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity));
-            valid.push(false);
-        }
-        const primitives = mesh.struct.primitives;
-        for (let p = 0; p < primitives.length; p++) {
-            const joints = mesh.readAttribute(p, GFXAttributeName.ATTR_JOINTS);
-            const weights = mesh.readAttribute(p, GFXAttributeName.ATTR_WEIGHTS);
-            const positions = mesh.readAttribute(p, GFXAttributeName.ATTR_POSITION);
-            if (!joints || !weights || !positions) { continue; }
-            const idxMap = mesh.struct.jointMaps && mesh.struct.jointMaps[primitives[p].jointMapIndex!] || [0];
-            const vertCount = Math.min(joints.length / 4, weights.length / 4, positions.length / 3);
-            for (let i = 0; i < vertCount; i++) {
-                Vec3.set(v3_3, positions[3 * i + 0], positions[3 * i + 1], positions[3 * i + 2]);
-                for (let j = 0; j < 4; ++j) {
-                    const idx = 4 * i + j;
-                    let joint = joints[idx];
-                    if (idxMap.length === 1) { joint += idxMap[0]; }
-                    else { joint = idxMap[joint]; }
-                    if (weights[idx] === 0 || joint >= bindposes.length) { continue; }
-                    Vec3.transformMat4(v3_4, v3_3, bindposes[joint]);
-                    valid[joint] = true;
-                    const b = bounds[joint]!;
-                    Vec3.min(b.center, b.center, v3_4);
-                    Vec3.max(b.halfExtents, b.halfExtents, v3_4);
-                }
-            }
-        }
-        for (let i = 0; i < bindposes.length; i++) {
-            const b = bounds[i]!;
-            if (!valid[i]) { bounds[i] = null; }
-            else { aabb.fromPoints(b, b.center, b.halfExtents); }
-        }
-        return bounds;
-    }
-
-    public clear () {
-        this._pool.clear();
-    }
-
-    public releaseMesh (mesh: Mesh) {
-        this._pool.delete(mesh.hash);
-    }
-
-    public releaseSkeleton (skeleton: Skeleton) {
-        const it1 = this._pool.values();
-        let res1 = it1.next();
-        while (!res1.done) {
-            res1.value.delete(skeleton.hash);
-            res1 = it1.next();
-        }
     }
 }

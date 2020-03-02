@@ -61,7 +61,7 @@ export class Skybox extends Model {
             skybox_material = new MaterialInstance({ parent: mat });
         }
         if (!skybox_mesh) { skybox_mesh = createMesh(box({ width: 2, height: 2, length: 2 })); }
-        this.initSubModel(0, skybox_mesh.renderingMesh.getSubmesh(0), skybox_material);
+        this.initSubModel(0, skybox_mesh.renderingSubMeshes[0], skybox_material);
     }
 
     protected _updatePipeline () {

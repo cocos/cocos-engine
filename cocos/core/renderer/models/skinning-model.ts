@@ -27,7 +27,8 @@
  * @hidden
  */
 
-import { Mesh } from '../../assets/mesh';
+import { Material } from '../../assets/material';
+import { Mesh, RenderingSubMesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
@@ -180,11 +181,10 @@ export class SkinningModel extends Model {
         for (let i = 0; i < this._joints.length; i++) {
             deleteTransform(this._joints[i].target);
         }
-        this._joints.length = 0; this._bufferIndices.length = 0;
+        this._bufferIndices.length = 0; this._joints.length = 0;
         if (!skeleton || !skinningRoot || !mesh) { return; }
         this._transform = skinningRoot;
-        const dataPoolManager: DataPoolManager = cc.director.root.dataPoolManager;
-        const boneSpaceBounds = dataPoolManager.boneSpaceBoundsInfo.getData(mesh, skeleton);
+        const boneSpaceBounds = mesh.getBoneSpaceBounds(skeleton);
         const { jointMaps, primitives } = mesh.struct;
         this._ensureEnoughBuffers(jointMaps && jointMaps.length || 1);
         for (let i = 0; i < primitives.length; i++) { this._bufferIndices.push(primitives[i].jointMapIndex || 0); }
@@ -241,6 +241,13 @@ export class SkinningModel extends Model {
             this._buffers[b].update(this._datas[b]);
         }
         return true;
+    }
+
+    public initSubModel (idx: number, subMeshData: RenderingSubMesh, mat: Material) {
+        const original = subMeshData.vertexBuffers;
+        subMeshData.vertexBuffers = subMeshData.jointMappedBuffers;
+        super.initSubModel(idx, subMeshData, mat);
+        subMeshData.vertexBuffers = original;
     }
 
     protected createPipelineState (pass: Pass, subModelIdx: number) {

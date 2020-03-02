@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 import { Material } from '../../assets/material';
-import { IRenderingSubmesh } from '../../assets/mesh';
+import { RenderingSubMesh } from '../../assets/mesh';
 import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXGetTypeSize, GFXMemoryUsageBit } from '../../gfx/define';
@@ -281,7 +281,7 @@ export class Model {
         this._worldBounds = aabb.clone(this._modelBounds);
     }
 
-    public initSubModel (idx: number, subMeshData: IRenderingSubmesh, mat: Material) {
+    public initSubModel (idx: number, subMeshData: RenderingSubMesh, mat: Material) {
         this.initLocalBindings(mat);
         if (this._subModels[idx] == null) {
             this._subModels[idx] = _subMeshPool.alloc();
@@ -295,7 +295,7 @@ export class Model {
         this._inited = true;
     }
 
-    public setSubModelMesh (idx: number, subMeshData: IRenderingSubmesh) {
+    public setSubModelMesh (idx: number, subMeshData: RenderingSubMesh) {
         if (this._subModels[idx] == null) {
             this._subModels[idx] = _subMeshPool.alloc();
         }

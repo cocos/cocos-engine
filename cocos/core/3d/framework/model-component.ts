@@ -192,14 +192,13 @@ export class ModelComponent extends RenderableComponent {
     protected _updateModelParams () {
         if (!this._mesh || !this._model) { return; }
         this.node.hasChangedFlags = this._model.transform.hasChangedFlags = TransformBit.POSITION;
-        const batching = this._model.isDynamicBatching = this._isBatchingEnabled();
-        if (batching) { this._mesh.createFlatBuffers(); }
+        this._model.isDynamicBatching = this._isBatchingEnabled();
         const meshCount = this._mesh ? this._mesh.subMeshCount : 0;
-        for (let i = 0; i < meshCount; ++i) {
-            const material = this.getRenderMaterial(i);
-            const renderingMesh = this._mesh.renderingMesh;
-            if (renderingMesh) {
-                const subMeshData = renderingMesh.getSubmesh(i);
+        const renderingMesh = this._mesh.renderingSubMeshes;
+        if (renderingMesh) {
+            for (let i = 0; i < meshCount; ++i) {
+                const material = this.getRenderMaterial(i);
+                const subMeshData = renderingMesh[i];
                 if (subMeshData) {
                     this._model.initSubModel(i, subMeshData, material || this._getBuiltinMaterial());
                 }
@@ -216,8 +215,7 @@ export class ModelComponent extends RenderableComponent {
 
     protected _onRebuildPSO (idx: number, material: Material) {
         if (!this._model || !this._model.inited) { return; }
-        const batching = this._model.isDynamicBatching = this._isBatchingEnabled();
-        if (batching && this._mesh) { this._mesh.createFlatBuffers(); }
+        this._model.isDynamicBatching = this._isBatchingEnabled();
         this._model.setSubModelMaterial(idx, material);
     }
 

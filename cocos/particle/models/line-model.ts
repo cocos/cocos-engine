@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { IRenderingSubmesh } from '../../core/assets/mesh';
+import { RenderingSubMesh } from '../../core/assets/mesh';
 import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
 import { Vec3 } from '../../core/math';
@@ -30,7 +30,7 @@ export class LineModel extends Model {
     private _vdataUint32: Uint32Array | null = null;
     private _iaInfo: IGFXIndirectBuffer;
     private _iaInfoBuffer: GFXBuffer;
-    private _subMeshData: IRenderingSubmesh | null = null;
+    private _subMeshData: RenderingSubMesh | null = null;
     private _vertCount: number = 0;
     private _indexCount: number = 0;
 
@@ -114,14 +114,9 @@ export class LineModel extends Model {
         this._iaInfo.drawInfos[0].indexCount = (this._capacity - 1) * this._indexCount;
         this._iaInfoBuffer.update(this._iaInfo);
 
-        this._subMeshData = {
-            vertexBuffers: [vertexBuffer],
-            indexBuffer,
-            indirectBuffer: this._iaInfoBuffer,
-            attributes: _vertex_attrs,
-            primitiveMode: GFXPrimitiveMode.TRIANGLE_LIST,
-            flatBuffers: [],
-        };
+        this._subMeshData = new RenderingSubMesh([vertexBuffer], _vertex_attrs, GFXPrimitiveMode.TRIANGLE_LIST);
+        this._subMeshData.indexBuffer = indexBuffer;
+        this._subMeshData.indirectBuffer = this._iaInfoBuffer;
         this.setSubModelMesh(0, this._subMeshData);
         return vBuffer;
     }
