@@ -4,6 +4,7 @@
 
 import { Vec3 } from '../../core/math';
 import { ColliderComponent } from '../../../exports/physics-framework';
+import { IVec3Like } from '../../core/math/type-define';
 
 /**
  * @zh
@@ -35,7 +36,16 @@ export class PhysicsRayResult {
         return this._collidier!;
     }
 
+    /**
+     * @zh
+     * 击中面的法线
+     */
+    get hitNormal (): Vec3 {
+        return this._hitNormal;
+    }
+
     private _hitPoint: Vec3 = new Vec3();
+    private _hitNormal: Vec3 = new Vec3();
     private _distance: number = 0;
     private _collidier: ColliderComponent | null = null;
 
@@ -43,8 +53,9 @@ export class PhysicsRayResult {
      * @zh
      * 设置射线，此方法由引擎内部使用，请勿在外部脚本调用
      */
-    public _assign (hitPoint: Vec3, distance: number, collider: ColliderComponent) {
+    public _assign (hitPoint: IVec3Like, distance: number, collider: ColliderComponent, hitNormal: IVec3Like) {
         Vec3.copy(this._hitPoint, hitPoint);
+        Vec3.copy(this._hitNormal, hitNormal);
         this._distance = distance;
         this._collidier = collider;
     }
@@ -56,6 +67,7 @@ export class PhysicsRayResult {
     public clone () {
         const c = new PhysicsRayResult();
         Vec3.copy(c._hitPoint, this._hitPoint);
+        Vec3.copy(c._hitNormal, this._hitNormal);
         c._distance = this._distance;
         c._collidier = this._collidier;
         return c;
