@@ -28,6 +28,10 @@ THE SOFTWARE.
 #include "base/base64.h"
 #include "platform/CCFileUtils.h"
 
+#if CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#include <sys/time.h>
+#endif
+
 #include <cmath>
 #include <stdlib.h>
 
