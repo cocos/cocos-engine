@@ -521,20 +521,6 @@ gfxshaderinfo
 },
 
 /**
- * @method copyBuffersToTexture
- * @param {cc.GFXBuffer} arg0
- * @param {cc.GFXTexture} arg1
- * @param {Array} arg2
- */
-copyBuffersToTexture : function (
-gfxbuffer, 
-gfxtexture, 
-array 
-)
-{
-},
-
-/**
  * @method gfxAPI
  * @return {cc.GFXAPI}
  */
@@ -887,20 +873,6 @@ bufferView : function (
 )
 {
     return 0;
-},
-
-/**
- * @method update
- * @param {void} arg0
- * @param {unsigned int} arg1
- * @param {unsigned int} arg2
- */
-update : function (
-void, 
-int, 
-int 
-)
-{
 },
 
 /**
