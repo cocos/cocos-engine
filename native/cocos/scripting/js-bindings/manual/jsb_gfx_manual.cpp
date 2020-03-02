@@ -12,6 +12,108 @@
 #define GFX_INVALID_BINDING ((uint8_t)-1)
 #define GFX_INVALID_HANDLE ((uint)-1)
 
+static bool js_gfx_GLES2Device_copyBuffersToTexture(se::State& s)
+{
+    cocos2d::GLES2Device* cobj = (cocos2d::GLES2Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Device_copyBuffersToTexture : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 3) {
+        cocos2d::GFXBuffers arg0;
+        cocos2d::GFXTexture* arg1 = nullptr;
+        std::vector<cocos2d::GFXBufferTextureCopy> arg2;
+        if (args[0].isObject())
+        {
+            se::Object* dataObj = args[0].toObject();
+            SE_PRECONDITION2(dataObj->isArray(), false, "Buffers must be an array!");
+            uint32_t length = 0;
+            dataObj->getArrayLength(&length);
+            arg0.bufferArray.resize(length);
+
+            se::Value value;
+            for (uint32_t i = 0; i < length; ++i)
+            {
+                if (dataObj->getArrayElement(i, &value))
+                {
+                    uint8_t* ptr = nullptr;
+                    CC_UNUSED size_t dataLength = 0;
+                    se::Object* obj = value.toObject();
+                    if (obj->isArrayBuffer())
+                    {
+                        ok = obj->getArrayBufferData(&ptr, &dataLength);
+                        SE_PRECONDITION2(ok, false, "getArrayBufferData failed!");
+                    }
+                    else if (obj->isTypedArray())
+                    {
+                        ok = obj->getTypedArrayData(&ptr, &dataLength);
+                        SE_PRECONDITION2(ok, false, "getTypedArrayData failed!");
+                    }
+                    else
+                    {
+                        assert(false);
+                    }
+                    arg0.bufferArray.emplace_back(ptr);
+                }
+            }
+        }
+        ok &= seval_to_native_ptr(args[1], &arg1);
+        ok &= seval_to_std_vector(args[2], &arg2);
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_copyBuffersToTexture : Error processing arguments");
+        cobj->copyBuffersToTexture(arg0, arg1, arg2);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GLES2Device_copyBuffersToTexture)
+
+static bool js_gfx_GLES2Device_copyTexImagesToTexture(se::State& s)
+{
+    cocos2d::GLES2Device* cobj = (cocos2d::GLES2Device*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Device_copyBuffersToTexture : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 3) {
+        cocos2d::GFXBuffers arg0;
+        cocos2d::GFXTexture* arg1 = nullptr;
+        std::vector<cocos2d::GFXBufferTextureCopy> arg2;
+        if (args[0].isObject())
+        {
+            se::Object* dataObj = args[0].toObject();
+            SE_PRECONDITION2(dataObj->isArray(), false, "Buffers must be an array!");
+            uint32_t length = 0;
+            dataObj->getArrayLength(&length);
+            arg0.bufferArray.resize(length);
+
+            se::Value value;
+            for (uint32_t i = 0; i < length; ++i)
+            {
+                if (dataObj->getArrayElement(i, &value))
+                {
+                    CC_UNUSED size_t dataLength = 0;
+                    cocos2d::Data bufferData;
+                    ok &= seval_to_Data(value, &bufferData);
+                    arg0.bufferArray.emplace_back(bufferData.getBytes());
+                }
+            }
+        }
+        else
+        {
+            ok &= false;
+        }
+        ok &= seval_to_native_ptr(args[1], &arg1);
+        ok &= seval_to_std_vector(args[2], &arg2);
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_copyBuffersToTexture : Error processing arguments");
+        cobj->copyBuffersToTexture(arg0, arg1, arg2);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GLES2Device_copyTexImagesToTexture)
+
 se::Object* __jsb_cocos2d_GFXSubPass_proto = nullptr;
 se::Class* __jsb_cocos2d_GFXSubPass_class = nullptr;
 
@@ -334,6 +436,9 @@ bool js_register_gfx_GFXSubPass(se::Object* obj)
 
 bool register_all_gfx_manual(se::Object* obj)
 {
+    __jsb_cocos2d_GLES2Device_proto->defineFunction("copyBuffersToTexture", _SE(js_gfx_GLES2Device_copyBuffersToTexture));
+    __jsb_cocos2d_GLES2Device_proto->defineFunction("copyTexImagesToTexture", _SE(js_gfx_GLES2Device_copyTexImagesToTexture));
+    
     js_register_gfx_GFXSubPass(obj);
     return true;
 }

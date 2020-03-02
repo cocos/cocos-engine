@@ -19,7 +19,7 @@ public:
     CC_INLINE GFXFormat getConvertedFormat() const { return _convertedFormat; }
     
 private:
-    void update(uint8_t* data, const GFXBufferTextureCopy& region);
+    void update(uint8_t* const* data, const GFXBufferTextureCopy& region);
     
 private:
     id<MTLTexture> _mtlTexture = nil;

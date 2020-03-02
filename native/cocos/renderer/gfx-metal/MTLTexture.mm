@@ -116,12 +116,13 @@ void CCMTLTexture::resize(uint width, uint height)
     //TODO
 }
 
-void CCMTLTexture::update(uint8_t* data, const GFXBufferTextureCopy& region)
+//TODO coulsonwang: data is an array of memorys that may store mipmaps.
+void CCMTLTexture::update(uint8_t* const* data, const GFXBufferTextureCopy& region)
 {
     if (!_mtlTexture)
         return;
-    
-    uint8_t* convertedData = convertData(data,
+    int n = 0;
+    uint8_t* convertedData = convertData(data[n],
                                          region.texExtent.width * region.texExtent.height,
                                          _format);
     
@@ -136,7 +137,7 @@ void CCMTLTexture::update(uint8_t* data, const GFXBufferTextureCopy& region)
                      withBytes:convertedData
                    bytesPerRow:GFX_FORMAT_INFOS[(uint)_convertedFormat].size * region.texExtent.width];
     
-    if (convertedData != data)
+    if (convertedData != data[n])
         CC_FREE(convertedData);
 }
 

@@ -1884,7 +1884,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device* device, GLES3CmdPackage* cmd_package) 
       }
       case GFXCmdType::COPY_BUFFER_TO_TEXTURE: {
         GLES3CmdCopyBufferToTexture* cmd = cmd_package->copyBufferToTextureCmds[cmd_idx];
-        GLES3CmdFuncCopyBuffersToTexture(device, &(cmd->gpuBuffer->buffer), 1, cmd->gpuTexture, cmd->regions);
+        GLES3CmdFuncCopyBuffersToTexture(device, &(cmd->gpuBuffer->buffer), cmd->gpuTexture, cmd->regions);
         break;
       }
       default:
@@ -1894,7 +1894,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device* device, GLES3CmdPackage* cmd_package) 
   }
 }
 
-void GLES3CmdFuncCopyBuffersToTexture(GLES3Device* device, uint8_t** buffers, uint count, GLES3GPUTexture* gpuTexture, const GFXBufferTextureCopyList& regions) {
+void GLES3CmdFuncCopyBuffersToTexture(GLES3Device* device, uint8_t* const* buffers, GLES3GPUTexture* gpuTexture, const GFXBufferTextureCopyList& regions) {
   GLuint glTexture = device->stateCache->glTextures[device->stateCache->texUint];
   if (glTexture != gpuTexture->glTexture) {
     glBindTexture(gpuTexture->glTarget, gpuTexture->glTexture);

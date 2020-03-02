@@ -17,6 +17,7 @@
 #include "GLES2BindingLayout.h"
 #include "GLES2PipelineLayout.h"
 #include "GLES2PipelineState.h"
+#include <vector>
 
 NS_CC_BEGIN
 
@@ -309,9 +310,9 @@ GFXPipelineLayout* GLES2Device::createPipelineLayout(const GFXPipelineLayoutInfo
     return nullptr;
 }
 
-void GLES2Device::copyBuffersToTexture(GFXBuffer *src, GFXTexture *dst, const GFXBufferTextureCopyList &regions)
+void GLES2Device::copyBuffersToTexture(const GFXArrayBuffer& buffers, GFXTexture *dst, const GFXBufferTextureCopyList &regions)
 {
-    GLES2CmdFuncCopyBuffersToTexture(this, &((GLES2Buffer*)src)->gpuBuffer()->buffer, 1, ((GLES2Texture*)dst)->gpuTexture(), regions);
+    GLES2CmdFuncCopyBuffersToTexture(this, buffers.arrayBuffer.data(), ((GLES2Texture*)dst)->gpuTexture(), regions);
 }
 
 NS_CC_END

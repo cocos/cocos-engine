@@ -30,7 +30,7 @@ class CC_CORE_API GFXDevice : public Object {
   virtual GFXBindingLayout* createBindingLayout(const GFXBindingLayoutInfo& info) = 0;
   virtual GFXPipelineState* createPipelineState(const GFXPipelineStateInfo& info) = 0;
   virtual GFXPipelineLayout* createPipelineLayout(const GFXPipelineLayoutInfo& info) = 0;
-  virtual void copyBuffersToTexture(GFXBuffer* src, GFXTexture* dst, const GFXBufferTextureCopyList& regions) = 0;
+  virtual void copyBuffersToTexture(const GFXArrayBuffer& buffers, GFXTexture* dst, const GFXBufferTextureCopyList& regions) = 0;
 
   CC_INLINE GFXAPI gfxAPI() const { return _api; }
   CC_INLINE uint width() { return _width; }

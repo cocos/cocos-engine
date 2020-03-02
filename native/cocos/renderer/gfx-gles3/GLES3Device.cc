@@ -301,10 +301,10 @@ GFXPipelineLayout* GLES3Device::createPipelineLayout(const GFXPipelineLayoutInfo
     return nullptr;
 }
 
-void GLES3Device::copyBuffersToTexture(GFXBuffer* src, GFXTexture* dst, const GFXBufferTextureCopyList& regions)
+void GLES3Device::copyBuffersToTexture(const GFXArrayBuffer& buffers, GFXTexture* dst, const GFXBufferTextureCopyList& regions)
 {
     
-    GLES3CmdFuncCopyBuffersToTexture(this, &((GLES3Buffer*)src)->gpuBuffer()->buffer, 1, ((GLES3Texture*)dst)->gpuTexture(), regions);
+   GLES3CmdFuncCopyBuffersToTexture(this, buffers.arrayBuffer.data(), ((GLES3Texture*)dst)->gpuTexture(), regions);
 }
 
 NS_CC_END

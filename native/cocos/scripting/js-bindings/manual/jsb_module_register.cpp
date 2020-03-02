@@ -94,8 +94,8 @@ bool jsb_register_all_modules()
     se->addRegisterCallback(register_all_engine);
     se->addRegisterCallback(register_all_cocos2dx_manual);
     se->addRegisterCallback(register_platform_bindings);
-    se->addRegisterCallback(register_all_gfx_manual);
     se->addRegisterCallback(register_all_gfx);
+    se->addRegisterCallback(register_all_gfx_manual);
     
     se->addRegisterCallback(register_all_network);
     se->addRegisterCallback(register_all_cocos2dx_network_manual);

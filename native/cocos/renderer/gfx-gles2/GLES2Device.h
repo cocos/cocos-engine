@@ -32,7 +32,7 @@ public:
   GFXBindingLayout* createBindingLayout(const GFXBindingLayoutInfo& info) override;
   virtual GFXPipelineState* createPipelineState(const GFXPipelineStateInfo& info) override;
   virtual GFXPipelineLayout* createPipelineLayout(const GFXPipelineLayoutInfo& info) override;
-    virtual void copyBuffersToTexture(GFXBuffer* src, GFXTexture* dst, const GFXBufferTextureCopyList& regions) override;
+  virtual void copyBuffersToTexture(const GFXArrayBuffer& buffers, GFXTexture* dst, const GFXBufferTextureCopyList& regions) override;
   
   CC_INLINE bool useVAO() const { return _useVAO; }
   CC_INLINE bool useDrawInstanced() const { return _useDrawInstanced; }
