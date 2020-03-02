@@ -8,7 +8,7 @@
             });
             var resources = new cc.AssetManager.Bundle();
             resources.init({
-                name: 'resources',
+                name: cc.AssetManager.BuiltinBundle.RESOURCES,
                 importBase: libPath, 
                 nativeBase: libPath, 
                 paths: {

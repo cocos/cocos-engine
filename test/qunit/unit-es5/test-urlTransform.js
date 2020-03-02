@@ -31,7 +31,7 @@ test('raw', function () {
     cc.assetManager.init({importBase: 'import', nativeBase: 'native'});
     var bundle = new cc.AssetManager.Bundle();
     bundle.init({
-        name: 'resources', 
+        name: cc.AssetManager.BuiltinBundle.RESOURCES, 
         base: 'test/', 
         importBase: 'import', 
         nativeBase: 'native', 
@@ -50,7 +50,7 @@ test('md5', function () {
     cc.assetManager.init({importBase: 'import', nativeBase: 'native'});
     var bundle = new cc.AssetManager.Bundle();
     bundle.init({
-        name: 'resources', 
+        name: cc.AssetManager.BuiltinBundle.RESOURCES, 
         base: 'test/', 
         importBase: 'import', 
         nativeBase: 'native', 
