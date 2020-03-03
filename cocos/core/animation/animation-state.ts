@@ -33,8 +33,8 @@ import { AnimationBlendState, PropertyBlendState } from './animation-blend-state
 import { AnimationClip, IRuntimeCurve } from './animation-clip';
 import { AnimationComponent } from './animation-component';
 import { AnimCurve, RatioSampler } from './animation-curve';
-import { additive3D, additiveQuat, BlendFunction } from './blending';
-import { createBoundTarget, createBufferedTarget, IBufferedTarget, IBoundTarget } from './bound-target';
+import { BlendFunction, additive3D, additiveQuat } from './blending';
+import { IBoundTarget, IBufferedTarget, createBoundTarget, createBufferedTarget } from './bound-target';
 import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
 import { error } from '../platform/debug';
@@ -160,10 +160,10 @@ interface ISamplerSharedGroup {
     sampler: RatioSampler | null;
     curves: ICurveInstance[];
     samplerResultCache: {
-        from: number,
-        fromRatio: number,
-        to: number,
-        toRatio: number,
+        from: number;
+        fromRatio: number;
+        to: number;
+        toRatio: number;
     };
 }
 
@@ -778,7 +778,10 @@ export class AnimationState extends Playable {
                 const curveInstance = samplerSharedGroup.curves[iCurveInstance];
                 curveInstance.applySample(ratio, index, lerpRequired, samplerResultCache, this.weight);
                 if (curveInstance.commonTargetIndex !== undefined) {
-                    this._commonTargetStatuses[curveInstance.commonTargetIndex]!.changed = true;
+                    const commonTargetStatus = this._commonTargetStatuses[curveInstance.commonTargetIndex];
+                    if (commonTargetStatus) {
+                        commonTargetStatus.changed = true;
+                    }
                 }
             }
         }

@@ -4,7 +4,7 @@
 
 import { Color, Vec2, Vec3, Vec4 } from '../math';
 import { IValueProxy, IValueProxyFactory } from './value-proxy';
-import { isPropertyPath, PropertyPath, TargetPath } from './target-path';
+import { PropertyPath, TargetPath, isPropertyPath } from './target-path';
 import { error } from '../platform/debug';
 
 export interface IBoundTarget {
