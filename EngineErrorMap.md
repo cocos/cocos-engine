@@ -1427,7 +1427,7 @@ you can declare a texture object directly in properties by using:
 ```
 {
     default: null,
-    type: cc.Texture2D  // use 'type:' instead of 'url:'
+    type: cc.Texture2D, // use 'type:' instead of 'url:'
 }
 ```
 
@@ -1901,11 +1901,11 @@ Class should be extended before assigning any prototype members.
 
 ### 5500
 
-'notify' can't work with 'get/set' !
+'notify' can not be used in 'get/set' !
 
 ### 5501
 
-'notify' must work with 'default' !
+'notify' must be used with 'default' !
 
 ### 5502
 

@@ -567,7 +567,7 @@ cc.js.unregisterClass to remove the id of unused class';
 })();
 
 /**
- * Defines a polyfill field for obsoleted codes.
+ * Defines a polyfill field for deprecated codes.
  * @method obsolete
  * @param {any} obj - YourObject or YourClass.prototype
  * @param {String} obsoleted - "OldParam" or "YourClass.OldParam"
