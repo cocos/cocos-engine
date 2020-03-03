@@ -7,8 +7,10 @@ import { ColliderComponent } from '../../../exports/physics-framework';
 import { IVec3Like } from '../../core/math/type-define';
 
 /**
+ * @en
+ * Used to store physical ray test results.
  * @zh
- * 用于保存物理射线检测结果
+ * 用于保存物理射线检测结果。
  */
 export class PhysicsRayResult {
 

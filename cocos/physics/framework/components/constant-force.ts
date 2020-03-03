@@ -47,10 +47,10 @@ export class ConstantForce extends Component {
     private _mask: number = 0;
 
     /**
+     * @en
+     * Gets and sets forces in world coordinates.
      * @zh
-     * 获取和设置世界坐标系下的力
-     * @note
-     * 设置时请用 this.force = otherVec3 的方式
+     * 获取和设置世界坐标系下的力。
      */
     @property({
         displayOrder: 0,
@@ -66,10 +66,10 @@ export class ConstantForce extends Component {
     }
 
     /**
+     * @en
+     * Gets and sets the forces in the local coordinate system.
      * @zh
-     * 获取和设置本地坐标系下的力
-     * @note
-     * 设置时请用 this.localForce = otherVec3 的方式
+     * 获取和设置本地坐标系下的力。
      */
     @property({
         displayOrder: 1,
@@ -85,10 +85,10 @@ export class ConstantForce extends Component {
     }
 
     /**
+     * @en
+     * Gets and sets the torsional force in world coordinates.
      * @zh
-     * 获取和设置世界坐标系下的扭转力
-     * @note
-     * 设置时请用 this.torque = otherVec3 的方式
+     * 获取和设置世界坐标系下的扭转力。
      */
     @property({
         displayOrder: 2,
@@ -104,10 +104,10 @@ export class ConstantForce extends Component {
     }
 
     /**
+     * @en
+     * Gets and sets the torsional force in the local coordinate system.
      * @zh
-     * 获取和设置本地坐标系下的扭转力
-     * @note
-     * 设置时请用 this.localTorque = otherVec3 的方式
+     * 获取和设置本地坐标系下的扭转力。
      */
     @property({
         displayOrder: 3,

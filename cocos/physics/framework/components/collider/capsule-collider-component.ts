@@ -68,6 +68,12 @@ export class CapsuleColliderComponent extends ColliderComponent {
         }
     }
 
+    /**
+     * @en
+     * Get or set the capsule direction, in local space.
+     * @zh
+     * 获取或设置在胶囊体本地空间上的方向。
+     */
     @property({ type: EAxisDirection })
     public get direction () {
         return this._direction;
@@ -82,6 +88,12 @@ export class CapsuleColliderComponent extends ColliderComponent {
         }
     }
 
+    /**
+     * @en
+     * Gets the wrapper object, through which the lowlevel instance can be accessed.
+     * @zh
+     * 获取封装对象，通过此对象可以访问到底层实例。
+     */
     public get shape () {
         return this._shape as ICapsuleShape;
     }

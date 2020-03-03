@@ -6,6 +6,8 @@ import { Vec3 } from '../../core/math';
 import { ColliderComponent } from './components/collider/collider-component';
 
 /**
+ * @en
+ * The definition of the triggering event.
  * @zh
  * 触发事件。
  */
@@ -30,18 +32,24 @@ export interface ITriggerEvent {
 }
 
 /**
+ * @en
+ * The value type definition of the trigger event.
  * @zh
  * 触发事件的值类型定义。
  */
 export type TriggerEventType = 'onTriggerEnter' | 'onTriggerStay' | 'onTriggerExit';
 
 /**
+ * @en
+ * Signature definition of the callback function that triggers the event.
  * @zh
  * 触发事件的回调函数签名定义。
  */
 export type TriggerCallback = (event: ITriggerEvent) => void;
 
 /**
+ * @en
+ * Collision information for collision events.
  * @zh
  * 碰撞事件的碰撞信息。
  */
@@ -66,6 +74,8 @@ export interface IContactEquation {
 }
 
 /**
+ * @en
+ * The definition of the collision event.
  * @zh
  * 碰撞事件。
  */
@@ -96,12 +106,16 @@ export interface ICollisionEvent {
 }
 
 /**
+ * @en
+ * Value type definitions for collision events.
  * @zh
- * 碰撞事件的值类型定义。
+ * 碰撞事件的值类型定义。 
  */
 export type CollisionEventType = 'onCollisionEnter' | 'onCollisionStay' | 'onCollisionExit';
 
 /**
+ * @en
+ * Callback function signature definition for collision events.
  * @zh
  * 碰撞事件的回调函数签名定义。
  */

@@ -31,6 +31,12 @@ export class ColliderComponent extends Component implements IEventTarget {
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
+    /**
+     * @en
+     * Gets or sets the physical material for this collider.
+     * @zh
+     * 获取或设置此碰撞器的物理材质。
+     */
     @property({
         type: PhysicMaterial,
         displayName: 'Material',
@@ -49,6 +55,12 @@ export class ColliderComponent extends Component implements IEventTarget {
         }
     }
 
+    /**
+     * @en
+     * Gets or sets the physical material for this collider, which in Shared state will generate a new instance.
+     * @zh
+     * 获取或设置此碰撞器的物理材质，共享状态下获取将会生成新的实例。
+     */
     public get material () {
         if (!PHYSICS_BUILTIN) {
             if (this._isSharedMaterial && this._material != null) {
@@ -138,6 +150,12 @@ export class ColliderComponent extends Component implements IEventTarget {
         return this.shape.attachedRigidBody;
     }
 
+    /**
+     * @en
+     * Gets the wrapper object, through which the lowlevel instance can be accessed.
+     * @zh
+     * 获取封装对象，通过此对象可以访问到底层实例。
+     */
     public get shape () {
         return this._shape;
     }
@@ -222,6 +240,8 @@ export class ColliderComponent extends Component implements IEventTarget {
     /// GROUP MASK ///
 
     /**
+     * @en
+     * Set the group value.
      * @zh
      * 设置分组值。
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
@@ -231,6 +251,8 @@ export class ColliderComponent extends Component implements IEventTarget {
     }
 
     /**
+     * @en
+     * Get the group value.
      * @zh
      * 获取分组值。
      * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
@@ -240,6 +262,8 @@ export class ColliderComponent extends Component implements IEventTarget {
     }
 
     /**
+     * @en
+     * Add a grouping value to fill in the group you want to join.
      * @zh
      * 添加分组值，可填要加入的 group。
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
@@ -249,6 +273,8 @@ export class ColliderComponent extends Component implements IEventTarget {
     }
 
     /**
+     * @en
+     * Subtract the grouping value to fill in the group to be removed.
      * @zh
      * 减去分组值，可填要移除的 group。
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
@@ -258,6 +284,8 @@ export class ColliderComponent extends Component implements IEventTarget {
     }
 
     /**
+     * @en
+     * Gets the mask value.
      * @zh
      * 获取掩码值。
      * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
@@ -267,6 +295,8 @@ export class ColliderComponent extends Component implements IEventTarget {
     }
 
     /**
+     * @en
+     * Sets the mask value.
      * @zh
      * 设置掩码值。
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
@@ -276,6 +306,8 @@ export class ColliderComponent extends Component implements IEventTarget {
     }
 
     /**
+     * @en
+     * Add mask values to fill in groups that need to be checked.
      * @zh
      * 添加掩码值，可填入需要检查的 group。
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
@@ -285,6 +317,8 @@ export class ColliderComponent extends Component implements IEventTarget {
     }
 
     /**
+     * @en
+     * Subtract the mask value to fill in the group that does not need to be checked.
      * @zh
      * 减去掩码值，可填入不需要检查的 group。
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
