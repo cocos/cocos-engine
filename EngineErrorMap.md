@@ -1369,7 +1369,9 @@ Can not call `_super` or `prototype.ctor` in ES6 Classes "%s", use `super` inste
 
 ### 3652
 
-Failed to construct a dummy instance of the "%s" class using `new` behind the scenes. This is for getting default values declared in TypeScript. Please ensure the class will be able to construct during script's initialization. %s.
+Failed to `new %s()` under the hood, %s
+It is used for getting default values declared in TypeScript in the first place.
+Please ensure the constructor can be called during the script's initialization.
 
 ### 3653
 
@@ -1386,7 +1388,7 @@ myProp;
 @property({
   type: cc.Integer
 })
-myProp = 0;    // <--
+myProp = 0;   // <--
 ```
 
 ### 3654
@@ -1418,10 +1420,11 @@ set %s (value) {
 
 ### 3656
 
-The default value of %s.%s must be an empty string. (changed since 1.8)
+The default value of %s.%s must be an empty string.
 
 ### 3657
 
+<!-- DEPRECATED -->
 The value assigned to %s should be Texture2D object, not url string. Since 1.8,  
 you can declare a texture object directly in properties by using:  
 ```
@@ -1433,6 +1436,7 @@ you can declare a texture object directly in properties by using:
 
 ### 3658
 
+<!-- DEPRECATED -->
 browser does not support getters
 
 ### 3700
