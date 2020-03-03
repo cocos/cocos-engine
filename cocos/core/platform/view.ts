@@ -461,6 +461,8 @@ export class View extends EventTarget {
         const canvas = cc.game.canvas;
         const container = cc.game.container;
 
+        this._devicePixelRatio = window.devicePixelRatio;
+
         canvas.width = width * this._devicePixelRatio;
         canvas.height = height * this._devicePixelRatio;
 
@@ -971,15 +973,15 @@ export class View extends EventTarget {
         if (CC_EDITOR || !cc.sys.isMobile ||
             (isLandscape && this._orientation & cc.macro.ORIENTATION_LANDSCAPE) ||
             (!isLandscape && this._orientation & cc.macro.ORIENTATION_PORTRAIT)) {
-            locFrameSize.width = w;
-            locFrameSize.height = h;
+            locFrameSize.width = w * window.devicePixelRatio;
+            locFrameSize.height = h * window.devicePixelRatio;
             cc.game.container.style['-webkit-transform'] = 'rotate(0deg)';
             cc.game.container.style.transform = 'rotate(0deg)';
             this._isRotated = false;
         }
         else {
-            locFrameSize.width = h;
-            locFrameSize.height = w;
+            locFrameSize.width = h * window.devicePixelRatio;
+            locFrameSize.height = w * window.devicePixelRatio;
             cc.game.container.style['-webkit-transform'] = 'rotate(90deg)';
             cc.game.container.style.transform = 'rotate(90deg)';
             cc.game.container.style['-webkit-transform-origin'] = '0px 0px 0px';
@@ -1272,7 +1274,7 @@ class ContentStrategy {
         public apply (_view) {
             const frameH = _view._frameSize.height;
             const containerStyle = cc.game.container.style;
-            this._setupContainer(_view, _view._frameSize.width, _view._frameSize.height);
+            this._setupContainer(_view, _view._frameSize.width/window.devicePixelRatio, _view._frameSize.height/window.devicePixelRatio);
             // Setup container's margin and padding
             if (_view._isRotated) {
                 containerStyle.margin = '0 0 0 ' + frameH + 'px';
