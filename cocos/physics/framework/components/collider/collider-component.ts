@@ -252,7 +252,7 @@ export class ColliderComponent extends Component implements IEventTarget {
 
     /**
      * @en
-     * Get the group value.
+     * Gets the group value.
      * @zh
      * 获取分组值。
      * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方

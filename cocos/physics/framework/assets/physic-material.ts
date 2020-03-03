@@ -11,7 +11,7 @@ import { math } from '../../../core';
 
 /**
  * @en
- * Physical materials.
+ * Physics materials.
  * @zh
  * 物理材质。
  */
@@ -28,9 +28,9 @@ export class PhysicMaterial extends Asset {
 
     /**
      * @en
-     * Friction for this material, if empty, the global default physical material is used.
+     * Friction for this material.
      * @zh
-     * 此材质的摩擦系数, 如果为空，将会使用全局默认的物理材质。
+     * 此材质的摩擦系数。
      */
     @property
     get friction () {
@@ -46,9 +46,9 @@ export class PhysicMaterial extends Asset {
 
     /**
      * @en
-     * Restitution for this material, if empty, the global default physical material is used.
+     * Restitution for this material.
      * @zh
-     * 此材质的回弹系数, 如果为空，将会使用全局默认的物理材质。
+     * 此材质的回弹系数。
      */
     @property
     get restitution () {

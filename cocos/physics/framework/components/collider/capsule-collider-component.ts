@@ -30,7 +30,7 @@ export class CapsuleColliderComponent extends ColliderComponent {
 
     /**
      * @en
-     * Get or set the radius of the sphere on the capsule body, in local space.
+     * Gets or set the radius of the sphere on the capsule body, in local space.
      * @zh
      * 获取或设置胶囊体上的球半径。
      */
@@ -50,7 +50,7 @@ export class CapsuleColliderComponent extends ColliderComponent {
 
     /**
      * @en
-     * Get or set the capsule body is at the corresponding axial height, in local space.
+     * Gets or set the capsule body is at the corresponding axial height, in local space.
      * @zh
      * 胶囊体在相应轴向的高度，最小值为两倍的 radius。
      */
@@ -70,7 +70,7 @@ export class CapsuleColliderComponent extends ColliderComponent {
 
     /**
      * @en
-     * Get or set the capsule direction, in local space.
+     * Gets or set the capsule direction, in local space.
      * @zh
      * 获取或设置在胶囊体本地空间上的方向。
      */

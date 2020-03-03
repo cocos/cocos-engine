@@ -50,19 +50,6 @@ export class PhysicsSystem extends System {
         }
     }
 
-    // shielding for alpha version
-    // /**
-    //  * @zh
-    //  * 获取或设置是否只运行一步。
-    //  * @param {boolean} b
-    //  */
-    // get singleStep () {
-    //     return this._singleStep;
-    // }
-    // set singleStep (b: boolean) {
-    //     this._singleStep = b;
-    // }
-
     /**
      * @en
      * Gets or sets the maximum number of simulated substeps per frame.
@@ -131,22 +118,9 @@ export class PhysicsSystem extends System {
         return this._material;
     }
 
-    // shielding for alpha version
-    // /**
-    //  * @zh
-    //  * 获取或设置物理每秒模拟的帧率。
-    //  */
-    // get frameRate () {
-    //     return this._frameRate;
-    // }
-    // set frameRate (value: number) {
-    //     this._frameRate = value;
-    //     this._deltaTime = 1 / this._frameRate;
-    // }
-
     /**
      * @en
-     * Get the wrappered object of the physical world through which you can access the actual underlying object.
+     * Gets the wrappered object of the physical world through which you can access the actual underlying object.
      * @zh
      * 获取物理世界的封装对象，通过它你可以访问到实际的底层对象。
      */
@@ -154,7 +128,7 @@ export class PhysicsSystem extends System {
 
     /**
      * @en
-     * Get the raycastClosest test result.
+     * Gets the raycastClosest test result.
      * @zh
      * 获取 raycastClosest 的检测结果。
      */
@@ -248,9 +222,6 @@ export class PhysicsSystem extends System {
         } else {
             this.physicsWorld.step(this._deltaTime, deltaTime, this._maxSubStep);
         }
-        // if (this._singleStep) {
-        //     this._enable = false;
-        // }
 
         director.emit(Director.EVENT_AFTER_PHYSICS);
     }

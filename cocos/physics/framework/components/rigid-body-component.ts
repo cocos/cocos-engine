@@ -448,7 +448,7 @@ export class RigidBodyComponent extends Component {
 
     /**
      * @en
-     * Get the linear velocity.
+     * Gets the linear velocity.
      * @zh
      * 获取线性速度。
      * @param out 速度 Vec3
@@ -474,7 +474,7 @@ export class RigidBodyComponent extends Component {
 
     /**
      * @en
-     * Get the angular velocity.
+     * Gets the angular velocity.
      * @zh
      * 获取旋转速度。
      * @param out 速度 Vec3
@@ -515,7 +515,7 @@ export class RigidBodyComponent extends Component {
 
     /**
      * @en
-     * Get the group value.
+     * Gets the group value.
      * @zh
      * 获取分组值。
      * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方

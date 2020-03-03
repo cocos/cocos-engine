@@ -29,6 +29,12 @@ export class MeshColliderComponent extends ColliderComponent {
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
+    /**
+     * @en
+     * Gets or sets the mesh assets referenced by this collider.
+     * @zh
+     * 获取或设置此碰撞体引用的网格资源.
+     */
     @property({
         type: Mesh,
     })
@@ -50,6 +56,12 @@ export class MeshColliderComponent extends ColliderComponent {
     //     this._convex = value;
     // }
 
+    /**
+     * @en
+     * Gets the wrapper object, through which the lowlevel instance can be accessed.
+     * @zh
+     * 获取封装对象，通过此对象可以访问到底层实例。
+     */
     get shape () {
         return this._shape as ITrimeshShape;
     }
