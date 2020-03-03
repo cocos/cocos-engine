@@ -109,6 +109,7 @@ export default class CurveRange  {
     public _onBeforeSerialize (props: any): any {
         const self = this;
         let data = ["mode"];
+        
         switch (self.mode) {
             case Mode.Constant:
                 data.push("constant");
@@ -125,6 +126,8 @@ export default class CurveRange  {
                 data.push("curveMax");
                 break;
         }
+
+        data.push("multiplier");
 
         return data;
     }
