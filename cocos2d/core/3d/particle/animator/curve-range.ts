@@ -138,6 +138,8 @@ export default class CurveRange {
                 break;
         }
 
+        data.push("multiplier");
+
         return data;
     }
 }
