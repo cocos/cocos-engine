@@ -20,7 +20,7 @@ static bool js_gfx_GLES2Device_copyBuffersToTexture(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 3) {
-        cocos2d::GFXBuffers arg0;
+        cocos2d::GFXDataArray arg0;
         cocos2d::GFXTexture* arg1 = nullptr;
         std::vector<cocos2d::GFXBufferTextureCopy> arg2;
         if (args[0].isObject())
@@ -29,7 +29,7 @@ static bool js_gfx_GLES2Device_copyBuffersToTexture(se::State& s)
             SE_PRECONDITION2(dataObj->isArray(), false, "Buffers must be an array!");
             uint32_t length = 0;
             dataObj->getArrayLength(&length);
-            arg0.bufferArray.resize(length);
+            arg0.datas.resize(length);
 
             se::Value value;
             for (uint32_t i = 0; i < length; ++i)
@@ -53,7 +53,7 @@ static bool js_gfx_GLES2Device_copyBuffersToTexture(se::State& s)
                     {
                         assert(false);
                     }
-                    arg0.bufferArray.emplace_back(ptr);
+                    arg0.datas.emplace_back(ptr);
                 }
             }
         }
@@ -76,7 +76,7 @@ static bool js_gfx_GLES2Device_copyTexImagesToTexture(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 3) {
-        cocos2d::GFXBuffers arg0;
+        cocos2d::GFXDataArray arg0;
         cocos2d::GFXTexture* arg1 = nullptr;
         std::vector<cocos2d::GFXBufferTextureCopy> arg2;
         if (args[0].isObject())
@@ -85,7 +85,7 @@ static bool js_gfx_GLES2Device_copyTexImagesToTexture(se::State& s)
             SE_PRECONDITION2(dataObj->isArray(), false, "Buffers must be an array!");
             uint32_t length = 0;
             dataObj->getArrayLength(&length);
-            arg0.bufferArray.resize(length);
+            arg0.datas.resize(length);
 
             se::Value value;
             for (uint32_t i = 0; i < length; ++i)
@@ -95,7 +95,7 @@ static bool js_gfx_GLES2Device_copyTexImagesToTexture(se::State& s)
                     CC_UNUSED size_t dataLength = 0;
                     cocos2d::Data bufferData;
                     ok &= seval_to_Data(value, &bufferData);
-                    arg0.bufferArray.emplace_back(bufferData.getBytes());
+                    arg0.datas.emplace_back(bufferData.getBytes());
                 }
             }
         }
