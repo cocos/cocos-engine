@@ -139,7 +139,7 @@ function extractActualDefaultValues (ctor) {
     }
     catch (e) {
         if (CC_DEV) {
-            cc.warnID(3652, js.getClassName(ctor), e);
+            cc.errorID(3652, js.getClassName(ctor), e);
         }
         return {};
     }
@@ -148,17 +148,17 @@ function extractActualDefaultValues (ctor) {
 
 function genProperty (ctor, properties, propName, options, desc, cache) {
     var fullOptions;
+    var isGetset = desc && (desc.get || desc.set);
     if (options) {
-        fullOptions = CC_DEV ? Preprocess.getFullFormOfProperty(options, propName, js.getClassName(ctor)) :
-                               Preprocess.getFullFormOfProperty(options);
+        fullOptions = CC_DEV ? Preprocess.getFullFormOfProperty(options, isGetset, propName, js.getClassName(ctor)) :
+                               Preprocess.getFullFormOfProperty(options, isGetset);
     }
     var existsProperty = properties[propName];
     var prop = js.mixin(existsProperty || {}, fullOptions || options || {});
 
-    var isGetset = desc && (desc.get || desc.set);
     if (isGetset) {
         // typescript or babel
-        if (CC_DEV && options && (options.get || options.set)) {
+        if (CC_DEV && options && ((fullOptions || options).get || (fullOptions || options).set)) {
             var errorProps = getSubDict(cache, 'errorProps');
             if (!errorProps[propName]) {
                 errorProps[propName] = true;
@@ -229,7 +229,7 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
             ) {
                 // Avoid excessive warning when the ts decorator format is wrong
                 if (typeof options !== 'function' || cc.RawAsset.isRawAssetType(options)) {
-                    cc.warnID(3656, js.getClassName(ctor), propName);
+                    cc.errorID(3656, js.getClassName(ctor), propName);
                 }
             }
         }

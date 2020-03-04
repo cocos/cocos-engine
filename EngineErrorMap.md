@@ -222,14 +222,17 @@ element type is wrong!
 
 ### 1401
 
+<!-- DEPRECATED -->
 The first argument should be the destination object
 
 ### 1402
 
+<!-- DEPRECATED -->
 The 'visible' property of %s is deprecated, use 'enabled' instead please.
 
 ### 1403
 
+<!-- DEPRECATED -->
 Sorry, cc.audioEngine.willPlayMusic is removed.
 
 ### 1404
@@ -238,7 +241,7 @@ cc.spriteFrameCache is removed, please use cc.loader to load and cache sprite fr
 
 ### 1405
 
-The '%s' will be removed in v2.0, please use '%s' instead.
+The '%s' has been removed, please use '%s' instead.
 
 ### 1406
 
@@ -246,7 +249,8 @@ The '%s' will be removed in v2.0, please use '%s' instead.
 
 ### 1407
 
-cc.pool is being removed from v2.0, you are getting cc.js.Pool instead.
+<!-- DEPRECATED -->
+cc.pool has been removed, you are getting cc.js.Pool instead.
 
 ### 1408
 
@@ -304,6 +308,7 @@ cc.Scheduler: pause state of the scheduled task doesn't match the element pause 
 
 ### 1512
 
+<!-- DEPRECATED -->
 cc.Scheduler: updateFunc parameter is deprecated in scheduleUpdate function, and will be removed in v2.0
 
 ### 1513
@@ -312,18 +317,22 @@ cc.Scheduler: scheduler stopped using `__instanceId` as id since v2.0, you shoul
 
 ### 1600
 
+<!-- DEPRECATED -->
 getZOrder is deprecated. Please use getLocalZOrder instead.
 
 ### 1601
 
+<!-- DEPRECATED -->
 setZOrder is deprecated. Please use setLocalZOrder instead.
 
 ### 1602
 
+<!-- DEPRECATED -->
 RotationX != RotationY. Don't know which one to return
 
 ### 1603
 
+<!-- DEPRECATED -->
 ScaleX != ScaleY. Don't know which one to return
 
 ### 1604
@@ -341,14 +350,17 @@ child must be non-null
 
 ### 1607
 
+<!-- DEPRECATED -->
 removeFromParentAndCleanup is deprecated. Use removeFromParent instead
 
 ### 1608
 
+<!-- DEPRECATED -->
 boundingBox is deprecated. Use getBoundingBox instead
 
 ### 1609
 
+<!-- DEPRECATED -->
 argument tag is an invalid tag
 
 ### 1610
@@ -370,10 +382,12 @@ cc.Node.getActionByTag(): argument tag is an invalid tag
 
 ### 1614
 
+<!-- DEPRECATED -->
 resumeSchedulerAndActions is deprecated, please use resume instead.
 
 ### 1615
 
+<!-- DEPRECATED -->
 pauseSchedulerAndActions is deprecated, please use pause instead.
 
 ### 1616
@@ -633,6 +647,7 @@ cc.Sprite.setDisplayFrameWithAnimationName(): Invalid frame index
 
 ### 2604
 
+<!-- DEPRECATED -->
 setDisplayFrame is deprecated, please use setSpriteFrame instead.
 
 ### 2605
@@ -792,6 +807,7 @@ cc.SpriteBatchNode.addChild(): cc.SpriteBatchNode only supports cc.Sprites as ch
 
 ### 2710
 
+<!-- DEPRECATED -->
 Sprite.initWithTexture(): Argument must be non-nil 
 
 ### 2711
@@ -945,6 +961,7 @@ TextureCache:addPVRTCImage does not support on HTML5
 
 ### 3002
 
+<!-- DEPRECATED -->
 textureForKey is deprecated. Please use getTextureForKey instead.
 
 ### 3003
@@ -1066,6 +1083,7 @@ Mimpap texture only works in POT textures
 
 ### 3118
 
+<!-- DEPRECATED -->
 contentSize parameter is deprecated and ignored for cc.Texture2D initWithData function.
 
 ### 3119
@@ -1352,7 +1370,9 @@ Can not call `_super` or `prototype.ctor` in ES6 Classes "%s", use `super` inste
 
 ### 3652
 
-Failed to construct a dummy instance of the "%s" class using `new` behind the scenes. This is for getting default values declared in TypeScript. Please ensure the class will be able to construct during script's initialization. %s.
+Failed to `new %s()` under the hood, %s
+It is used for getting default values declared in TypeScript in the first place.
+Please ensure the constructor can be called during the script's initialization.
 
 ### 3653
 
@@ -1369,7 +1389,7 @@ myProp;
 @property({
   type: cc.Integer
 })
-myProp = 0;    // <--
+myProp = 0;   // <--
 ```
 
 ### 3654
@@ -1401,21 +1421,23 @@ set %s (value) {
 
 ### 3656
 
-The default value of %s.%s must be an empty string. (changed since 1.8)
+The default value of %s.%s must be an empty string.
 
 ### 3657
 
+<!-- DEPRECATED -->
 The value assigned to %s should be Texture2D object, not url string. Since 1.8,  
 you can declare a texture object directly in properties by using:  
 ```
 {
     default: null,
-    type: cc.Texture2D  // use 'type:' instead of 'url:'
+    type: cc.Texture2D, // use 'type:' instead of 'url:'
 }
 ```
 
 ### 3658
 
+<!-- DEPRECATED -->
 browser does not support getters
 
 ### 3700
@@ -1548,6 +1570,7 @@ animator not added or already removed
 
 ### 3908
 
+<!-- DEPRECATED -->
 animation not added or already removed
 
 ### 3909
@@ -1635,6 +1658,7 @@ Sorry, lineHeight of system font not supported on JSB.
 
 ### 4100
 
+<!-- DEPRECATED -->
 Property padding is deprecated, please use paddingLeft, paddingRight, paddingTop and paddingBottom instead
 
 ### 4200
@@ -1852,10 +1876,12 @@ Can not find class '%s'
 
 ### 5400
 
+<!-- DEPRECATED -->
 '%s' is deprecated, use '%s' instead please.
 
 ### 5401
 
+<!-- DEPRECATED -->
 '%s' is deprecated, use '%s' instead please.
 
 ### 5402
@@ -1880,11 +1906,11 @@ Class should be extended before assigning any prototype members.
 
 ### 5500
 
-'notify' can't work with 'get/set' !
+'notify' can not be used in 'get/set' !
 
 ### 5501
 
-'notify' must work with 'default' !
+'notify' must be used with 'default' !
 
 ### 5502
 
@@ -1952,6 +1978,7 @@ Property '%s.%s' must define at least one of 'default', 'get' or 'set'.
 
 ### 5600
 
+<!-- DEPRECATED -->
 Argument must be non-nil
 
 ### 5601
@@ -2148,18 +2175,22 @@ Not supported file types, Please try use the ccs.load
 
 ### 6200
 
+<!-- DEPRECATED -->
 Canvas doesn't support mesh slot!
 
 ### 6300
 
+<!-- DEPRECATED -->
 only cc.DrawNode is accepted as stencil
 
 ### 6301
 
+<!-- DEPRECATED -->
 Stencil buffer is not enabled.
 
 ### 6302
 
+<!-- DEPRECATED -->
 Nesting more than %d stencils is not supported. Everything will be drawn without stencil for this node and its children.
 
 ### 6400
@@ -2168,6 +2199,7 @@ asset.url is not usable in core process
 
 ### 6401
 
+<!-- DEPRECATED -->
 asset.urls is not usable in core process
 
 ### 6402
@@ -2188,26 +2220,31 @@ Can't find testFunc for (%s, $s).
 
 ### 6700
 
-Can't init canvas '%s' because it conflicts with the existing '%s', the scene should only have one active canvas at the same time
+Can't init canvas '%s' because it conflicts with the existing '%s', the scene should only have one active canvas at the same time.
 
 ### 6701
 
+<!-- DEPRECATED -->
 Should not add Canvas to a node which already contains a renderer component (%s).
 
 ### 6702
 
+<!-- DEPRECATED -->
 Should not add Canvas to a node which size is already used by its other component.
 
 ### 6703
 
-Can't initialise DrawingPrimitiveWebGL. context need is WebGLRenderingContext
+<!-- DEPRECATED -->
+Can't initialise DrawingPrimitiveWebGL. context need is WebGLRenderingContext.
 
 ### 6704
 
+<!-- DEPRECATED -->
 Polygon's point must greater than 2
 
 ### 6705
 
+<!-- DEPRECATED -->
 Argument must be non-nil
 
 ### 6800
@@ -2332,6 +2369,7 @@ _ccsg.TMXTiledMap.initWithXML(): Map not found. Please check the filename.
 
 ### 7214
 
+<!-- DEPRECATED -->
 propertiesForGID is deprecated. Please use getPropertiesForGID instead.
 
 ### 7215

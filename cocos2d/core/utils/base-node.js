@@ -676,7 +676,6 @@ var BaseNode = cc.Class({
      * 如果这个节点是一个孤节点，那么什么都不会发生。
      * @method removeFromParent
      * @param {Boolean} [cleanup=true] - true if all actions and callbacks on this node should be removed, false otherwise.
-     * @see cc.Node#removeFromParentAndCleanup
      * @example
      * node.removeFromParent();
      * node.removeFromParent(false);
