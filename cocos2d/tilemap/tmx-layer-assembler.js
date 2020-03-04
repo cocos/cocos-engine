@@ -94,7 +94,6 @@ function _renderNodes (nodeRow, nodeCol) {
     if (!nodesInfo || nodesInfo.count == 0) return;
     let nodesList = nodesInfo.list;
     let newIdx = 0, oldIdx = 0;
-    let layerNode = _comp.node;
 
     // flush map render data
     _flush();
@@ -119,7 +118,7 @@ function _renderNodes (nodeRow, nodeCol) {
 
     // flush user nodes render data
     _renderer._flush();
-    _renderer.node = layerNode;
+    _renderer.node = _comp.node;
 }
 
 /*
