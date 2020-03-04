@@ -213,10 +213,10 @@ RenderFlow.validateRenderers = function () {
 };
 
 
-RenderFlow.visitRootNode = function (rootNode) {
+RenderFlow.visitRootNode = function (rootNode, cullingMask) {
     RenderFlow.validateRenderers();    
 
-    _cullingMask = 1 << rootNode.groupIndex;
+    _cullingMask = rootNode.groupIndex === 0 && cullingMask ? cullingMask : (1 << rootNode.groupIndex);
 
     if (rootNode._renderFlag & WORLD_TRANSFORM) {
         _batcher.worldMatDirty ++;
