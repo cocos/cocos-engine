@@ -60,12 +60,10 @@ class ParticleAssembler extends Assembler {
         if (!this._ia) return;
         
         const PositionType = cc.ParticleSystem.PositionType;
-        let node = comp.node;
         if (comp.positionType === PositionType.RELATIVE) {
-            let parent = node.parent;
-            renderer.node = parent;
+            renderer.node = comp.node.parent;
         } else {
-            renderer.node = node;
+            renderer.node = comp.node;
         }
         renderer.material = comp._materials[0];
         renderer._flushIA(this._ia);
