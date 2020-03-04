@@ -623,7 +623,11 @@ let RichText = cc.Class({
                             return true;
                         }
                         if (oldItem.style.isImage === newItem.style.isImage) {
-                            if (oldItem.style.src !== newItem.style.src) {
+                            if (oldItem.style.src !== newItem.style.src ||
+                                oldItem.style.imageAlign !== newItem.style.imageAlign ||
+                                oldItem.style.imageHeight !== newItem.style.imageHeight ||
+                                oldItem.style.imageWidth !== newItem.style.imageWidth ||
+                                oldItem.style.imageOffset !== newItem.style.imageOffset) {
                                 return true;
                             }
                         }

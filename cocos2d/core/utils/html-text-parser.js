@@ -144,22 +144,22 @@ HtmlTextParser.prototype = {
                     tagName = tagName.toLocaleLowerCase();
 
                     attribute = remainingArgument.substring(nextSpace).trim();
+                    if ( tagValue.endsWith( '\/' ) ) tagValue = tagValue.substring( 0, tagValue.length - 1 );
                     if (tagName === "src") {
-                        obj.isImage = true
-                        if( tagValue.endsWith( '\/' ) ) tagValue = tagValue.substring( 0, tagValue.length - 1 );
-                        if( tagValue.indexOf('\'')===0 ) {
-                            isValidImageTag = true;
-                            tagValue = tagValue.substring( 1, tagValue.length - 1 );
-                        } else if( tagValue.indexOf('"')===0 ) {
+                        if ( tagValue.indexOf('\'') === 0 || tagValue.indexOf('"') === 0 ) {
                             isValidImageTag = true;
                             tagValue = tagValue.substring( 1, tagValue.length - 1 );
                         }
+                        obj.isImage = true;
                         obj.src = tagValue;
                     } else if (tagName === "height") {
                         obj.imageHeight = parseInt(tagValue);
                     } else if (tagName === "width") {
                         obj.imageWidth = parseInt(tagValue);
                     } else if (tagName === "align") {
+                        if ( tagValue.indexOf('\'') === 0 || tagValue.indexOf('"') === 0 ) {
+                            tagValue = tagValue.substring( 1, tagValue.length - 1 );
+                        }
                         obj.imageAlign = tagValue.toLocaleLowerCase();
                     } else if (tagName === "offset") {
                         obj.imageOffset = tagValue;
@@ -174,8 +174,7 @@ HtmlTextParser.prototype = {
                     header = attribute.match(imageAttrReg);
                 }
 
-                if( isValidImageTag && obj.isImage )
-                {
+                if( isValidImageTag && obj.isImage ) {
                     this._resultObjectArray.push({text: "", style: obj});
                 }
 
