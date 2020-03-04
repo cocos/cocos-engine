@@ -148,17 +148,17 @@ function extractActualDefaultValues (ctor) {
 
 function genProperty (ctor, properties, propName, options, desc, cache) {
     var fullOptions;
+    var isGetset = desc && (desc.get || desc.set);
     if (options) {
-        fullOptions = CC_DEV ? Preprocess.getFullFormOfProperty(options, propName, js.getClassName(ctor)) :
-                               Preprocess.getFullFormOfProperty(options);
+        fullOptions = CC_DEV ? Preprocess.getFullFormOfProperty(options, isGetset, propName, js.getClassName(ctor)) :
+                               Preprocess.getFullFormOfProperty(options, isGetset);
     }
     var existsProperty = properties[propName];
     var prop = js.mixin(existsProperty || {}, fullOptions || options || {});
 
-    var isGetset = desc && (desc.get || desc.set);
     if (isGetset) {
         // typescript or babel
-        if (CC_DEV && options && (options.get || options.set)) {
+        if (CC_DEV && options && ((fullOptions || options).get || (fullOptions || options).set)) {
             var errorProps = getSubDict(cache, 'errorProps');
             if (!errorProps[propName]) {
                 errorProps[propName] = true;

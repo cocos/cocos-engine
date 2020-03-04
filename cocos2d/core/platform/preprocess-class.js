@@ -250,7 +250,20 @@ function getBaseClassWherePropertyDefined_DEV (propName, cls) {
     }
 }
 
-exports.getFullFormOfProperty = function (options, propname_dev, classname_dev) {
+function _wrapOptions (isES6Getset, _default, type, isUrlType) {
+    let res = isES6Getset ? { _short: true } : { _short: true, default: _default };
+    if (type) {
+        if (isUrlType) {
+            res.url = type;
+        }
+        else {
+            res.type = type;
+        }
+    }
+    return res;
+}
+
+exports.getFullFormOfProperty = function (options, isES6Getset, propname_dev, classname_dev) {
     var isLiteral = options && options.constructor === Object;
     if (isLiteral) {
         return null;
@@ -275,17 +288,9 @@ exports.getFullFormOfProperty = function (options, propname_dev, classname_dev) 
                     '    })\n' +
                     '    %s: cc.Texture2D[] = [];',
                     propname_dev, classname_dev, propname_dev, propname_dev);
-            return {
-                default: [],
-                url: options,
-                _short: true
-            };
+            return _wrapOptions(isES6Getset, [], options, true);
         }
-        return {
-            default: [],
-            type: options,
-            _short: true
-        };
+        return _wrapOptions(isES6Getset, [], options);
     }
     else if (typeof options === 'function') {
         let type = options;
@@ -312,37 +317,23 @@ exports.getFullFormOfProperty = function (options, propname_dev, classname_dev) 
                 }
             }
             else {
-                return {
-                    default: js.isChildClassOf(type, cc.ValueType) ? new type() : null,
-                    type: type,
-                    _short: true
-                };
+                return _wrapOptions(isES6Getset, js.isChildClassOf(type, cc.ValueType) ? new type() : null, type);
             }
         }
-        return {
-            default: '',
-            url: type,
-            _short: true
-        };
+        return _wrapOptions(isES6Getset, '', type, true);
     }
     else if (options instanceof Attrs.PrimitiveType) {
-        return {
-            default: options.default,
-            _short: true
-        };
+        return _wrapOptions(isES6Getset, options.default);
     }
     else {
-        return {
-            default: options,
-            _short: true
-        };
+        return _wrapOptions(isES6Getset, options);
     }
 };
 
 exports.preprocessAttrs = function (properties, className, cls, es6) {
     for (var propName in properties) {
         var val = properties[propName];
-        var fullForm = exports.getFullFormOfProperty(val, propName, className);
+        var fullForm = exports.getFullFormOfProperty(val, false, propName, className);
         if (fullForm) {
             val = properties[propName] = fullForm;
         }
