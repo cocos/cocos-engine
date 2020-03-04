@@ -807,6 +807,7 @@ cc.SpriteBatchNode.addChild(): cc.SpriteBatchNode only supports cc.Sprites as ch
 
 ### 2710
 
+<!-- DEPRECATED -->
 Sprite.initWithTexture(): Argument must be non-nil 
 
 ### 2711
@@ -1977,6 +1978,7 @@ Property '%s.%s' must define at least one of 'default', 'get' or 'set'.
 
 ### 5600
 
+<!-- DEPRECATED -->
 Argument must be non-nil
 
 ### 5601
@@ -2173,18 +2175,22 @@ Not supported file types, Please try use the ccs.load
 
 ### 6200
 
+<!-- DEPRECATED -->
 Canvas doesn't support mesh slot!
 
 ### 6300
 
+<!-- DEPRECATED -->
 only cc.DrawNode is accepted as stencil
 
 ### 6301
 
+<!-- DEPRECATED -->
 Stencil buffer is not enabled.
 
 ### 6302
 
+<!-- DEPRECATED -->
 Nesting more than %d stencils is not supported. Everything will be drawn without stencil for this node and its children.
 
 ### 6400
@@ -2193,6 +2199,7 @@ asset.url is not usable in core process
 
 ### 6401
 
+<!-- DEPRECATED -->
 asset.urls is not usable in core process
 
 ### 6402
@@ -2213,26 +2220,31 @@ Can't find testFunc for (%s, $s).
 
 ### 6700
 
-Can't init canvas '%s' because it conflicts with the existing '%s', the scene should only have one active canvas at the same time
+Can't init canvas '%s' because it conflicts with the existing '%s', the scene should only have one active canvas at the same time.
 
 ### 6701
 
+<!-- DEPRECATED -->
 Should not add Canvas to a node which already contains a renderer component (%s).
 
 ### 6702
 
+<!-- DEPRECATED -->
 Should not add Canvas to a node which size is already used by its other component.
 
 ### 6703
 
-Can't initialise DrawingPrimitiveWebGL. context need is WebGLRenderingContext
+<!-- DEPRECATED -->
+Can't initialise DrawingPrimitiveWebGL. context need is WebGLRenderingContext.
 
 ### 6704
 
+<!-- DEPRECATED -->
 Polygon's point must greater than 2
 
 ### 6705
 
+<!-- DEPRECATED -->
 Argument must be non-nil
 
 ### 6800
