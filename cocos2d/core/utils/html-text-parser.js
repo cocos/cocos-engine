@@ -51,18 +51,19 @@ HtmlTextParser.prototype = {
         while (startIndex < length) {
             var tagEndIndex = htmlString.indexOf('>', startIndex);
             var tagBeginIndex = htmlString.lastIndexOf('<', tagEndIndex);
-            
+            var noValidTagBegineIndex = tagBeginIndex < (startIndex - 1);
+
+            if (startIndex > 0 && noValidTagBegineIndex) {
+                tagBeginIndex = htmlString.indexOf('<', tagEndIndex + 1);
+                tagEndIndex = htmlString.indexOf('>', tagBeginIndex + 1);
+            }
+
             if (tagBeginIndex < 0) {
                 this._stack.pop();
                 this._processResult(htmlString.substring(startIndex));
                 startIndex = length;
             }
             else {
-                if (tagBeginIndex < (startIndex - 1)) {
-                    tagBeginIndex = htmlString.indexOf('<', tagEndIndex);
-                    tagEndIndex = htmlString.indexOf('>', tagBeginIndex);
-                }
-
                 var newStr = htmlString.substring(startIndex, tagBeginIndex);
                 var tagStr = htmlString.substring(tagBeginIndex + 1, tagEndIndex);
                 if (tagStr === "") newStr = htmlString.substring(startIndex, tagEndIndex + 1);
