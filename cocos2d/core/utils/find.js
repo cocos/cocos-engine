@@ -38,7 +38,7 @@
  */
 cc.find = module.exports = function (path, referenceNode) {
     if (path == null) {
-        cc.errorID(5600);
+        cc.errorID(3814);
         return null;
     }
     if (!referenceNode) {
