@@ -1421,6 +1421,7 @@ set %s (value) {
 
 ### 3656
 
+<!-- DEPRECATED -->
 The default value of %s.%s must be an empty string.
 
 ### 3657
@@ -1594,6 +1595,7 @@ already-playing
 
 ### 4000
 
+<!-- DEPRECATED -->
 Sorry, the cc.Font has been modified from Raw Asset to Asset. Please load the font asset before using.
 
 ### 4001
@@ -1784,6 +1786,7 @@ cc.LabelBMFont._parseImageFileName() : file could not be found
 
 ### 4920
 
+<!-- DEPRECATED -->
 Sorry, you shouldn't use id as item identity any more, please use url or uuid instead, the current id is being set as url: (%s)
 
 ### 4921
@@ -1828,6 +1831,7 @@ Load image ( %s ) failed
 
 ### 4931
 
+<!-- DEPRECATED -->
 Download Uuid: can not find type of raw asset[ %s ]: %s
 
 ### 4932
@@ -1914,22 +1918,27 @@ Class should be extended before assigning any prototype members.
 
 ### 5502
 
+<!-- DEPRECATED -->
 Invalid url of %s.%s
 
 ### 5503
 
+<!-- DEPRECATED -->
 The 'url' attribute of '%s.%s' is undefined when loading script.
 
 ### 5504
 
+<!-- DEPRECATED -->
 The 'url' type of '%s.%s' must be child class of cc.RawAsset.
 
 ### 5505
 
+<!-- DEPRECATED -->
 The 'url' type of '%s.%s' must not be child class of cc.Asset, otherwise you should use 'type: %s' instead.
 
 ### 5506
 
+<!-- DEPRECATED -->
 Can not specify 'type' attribute for '%s.%s', because its 'url' is already defined.
 
 ### 5507
@@ -1942,6 +1951,7 @@ Invalid type of %s.%s
 
 ### 5509
 
+<!-- DEPRECATED -->
 The 'type' attribute of '%s.%s' must be child class of cc.Asset, otherwise you should use 'url: %s' instead
 
 ### 5510
@@ -2281,18 +2291,22 @@ Can not instantiate DOM element
 
 ### 7000
 
+<!-- DEPRECATED -->
 Failed to init asset's raw path.
 
 ### 7001
 
+<!-- DEPRECATED -->
 Should not load '%s' from script dynamically, unless it is placed in the 'resources' folder.
 
 ### 7002
 
+<!-- DEPRECATED -->
 Sorry can not load '%s' because it is not placed in the 'resources' folder.
 
 ### 7003
 
+<!-- DEPRECATED -->
 Failed to init builtin asset's raw path.
 
 ### 7100
@@ -2540,6 +2554,7 @@ Can not render dynamic created SkeletonData
 
 ### 7505
 
+<!-- DEPRECATED -->
 Invalid type of atlasFile, atlas should be registered as raw asset.
 
 ### 7506

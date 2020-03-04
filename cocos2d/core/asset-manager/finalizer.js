@@ -48,7 +48,7 @@ function visitComponent (comp, deps) {
             if (Array.isArray(value)) {
                 for (let j = 0; j < value.length; j++) {
                     let val = value[j];
-                    if (val instanceof cc.RawAsset) {
+                    if (val instanceof cc.Asset) {
                         visitAsset(val, deps);
                     }
                 }
@@ -57,12 +57,12 @@ function visitComponent (comp, deps) {
                 let keys = Object.getOwnPropertyNames(value);
                 for (let j = 0; j < keys.length; j++) {
                     let val = value[keys[j]];
-                    if (val instanceof cc.RawAsset) {
+                    if (val instanceof cc.Asset) {
                         visitAsset(val, deps);
                     }
                 }
             }
-            else if (value instanceof cc.RawAsset) {
+            else if (value instanceof cc.Asset) {
                 visitAsset(value, deps);
             }
         }

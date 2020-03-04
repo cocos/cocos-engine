@@ -304,7 +304,7 @@ var loader = {
      * 
      * @deprecated `cc.loader.getDependsRecursively` is deprecated now, please use use `cc.assetManager.dependUtil.getDepsRecursively` instead
      * @method getDependsRecursively
-     * @param {Asset|RawAsset|String} owner - The owner asset or the resource url or the asset's uuid
+     * @param {Asset|String} owner - The owner asset or the resource url or the asset's uuid
      * @returns {Array}
      */
     getDependsRecursively (owner) {
@@ -420,7 +420,7 @@ var loader = {
      * `cc.loader.release` is deprecated now, please use {{#crossLink "AssetManager/release:method"}}{{/crossLink}} instead
      * 
      * @method release
-     * @param {Asset|RawAsset|String|Array} asset
+     * @param {Asset|String|Array} asset
      * @deprecated `cc.loader.release` is deprecated now, please use `cc.assetManager.release` instead
      */
     release (asset) {
@@ -585,7 +585,7 @@ var AssetLibrary = {
     },
 
     queryAssetInfo () {
-        cc.error('cc.AssetLibrary.queryAssetInfo is not supported any more, only valid in editor as cc.assetManager.editorExtend.queryAssetInfo');
+        cc.error('cc.AssetLibrary.queryAssetInfo is not supported any more, only available in the editor by using cc.assetManager.editorExtend.queryAssetInfo');
     }
 };
 

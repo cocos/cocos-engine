@@ -53,9 +53,6 @@ var Details = function () {
      * @property {String[]} uuidPropList
      */
     this.uuidPropList = [];
-
-    // TODO - DELME since 2.0
-    this._stillUseUrl = js.createMap(true);
 };
 /**
  * @method reset
@@ -64,11 +61,9 @@ Details.prototype.reset = function () {
     this.uuidList.length = 0;
     this.uuidObjList.length = 0;
     this.uuidPropList.length = 0;
-    js.clear(this._stillUseUrl);
 };
 if (CC_EDITOR || CC_TEST) {
     Details.prototype.assignAssetsBy = function (getter) {
-        // ignore this._stillUseUrl
         for (var i = 0, len = this.uuidList.length; i < len; i++) {
             var uuid = this.uuidList[i];
             var obj = this.uuidObjList[i];
@@ -97,10 +92,7 @@ if (CC_EDITOR || CC_TEST) {
  * @param {String} propName
  * @param {String} uuid
  */
-Details.prototype.push = function (obj, propName, uuid, _stillUseUrl) {
-    if (_stillUseUrl) {
-        this._stillUseUrl[this.uuidList.length] = true;
-    }
+Details.prototype.push = function (obj, propName, uuid) {
     this.uuidList.push(uuid);
     this.uuidObjList.push(obj);
     this.uuidPropList.push(propName);
@@ -169,10 +161,10 @@ var _Deserializer = (function () {
                 if (jsonArray[i]) {
                     if (CC_EDITOR || CC_TEST) {
                         var mainTarget = (i === 0 && this._target);
-                        this.deserializedList[i] = this._deserializeObject(jsonArray[i], false, mainTarget, this.deserializedList, '' + i);
+                        this.deserializedList[i] = this._deserializeObject(jsonArray[i], mainTarget, this.deserializedList, '' + i);
                     }
                     else {
-                        this.deserializedList[i] = this._deserializeObject(jsonArray[i], false);
+                        this.deserializedList[i] = this._deserializeObject(jsonArray[i]);
                     }
                 }
             }
@@ -188,10 +180,10 @@ var _Deserializer = (function () {
         else {
             this.deserializedList.length = 1;
             if (CC_EDITOR || CC_TEST) {
-                this.deserializedData = jsonObj ? this._deserializeObject(jsonObj, false, this._target, this.deserializedList, '0') : null;
+                this.deserializedData = jsonObj ? this._deserializeObject(jsonObj, this._target, this.deserializedList, '0') : null;
             }
             else {
-                this.deserializedData = jsonObj ? this._deserializeObject(jsonObj, false) : null;
+                this.deserializedData = jsonObj ? this._deserializeObject(jsonObj) : null;
             }
             this.deserializedList[0] = this.deserializedData;
 
@@ -209,12 +201,11 @@ var _Deserializer = (function () {
 
     ///**
     // * @param {Object} serialized - The obj to deserialize, must be non-nil
-    // * @param {Boolean} _stillUseUrl
     // * @param {Object} [target=null] - editor only
     // * @param {Object} [owner] - debug only
     // * @param {String} [propName] - debug only
     // */
-    prototype._deserializeObject = function (serialized, _stillUseUrl, target, owner, propName) {
+    prototype._deserializeObject = function (serialized, target, owner, propName) {
         var prop;
         var obj = null;     // the obj to return
         var klass = null;
@@ -286,10 +277,10 @@ var _Deserializer = (function () {
                 prop = serialized[i];
                 if (typeof prop === 'object' && prop) {
                     if (CC_EDITOR || CC_TEST) {
-                        this._deserializeObjField(obj, prop, '' + i, target && obj, _stillUseUrl);
+                        this._deserializeObjField(obj, prop, '' + i, target && obj);
                     }
                     else {
-                        this._deserializeObjField(obj, prop, '' + i, null, _stillUseUrl);
+                        this._deserializeObjField(obj, prop, '' + i, null);
                     }
                 }
                 else {
@@ -301,7 +292,7 @@ var _Deserializer = (function () {
     };
 
     // 和 _deserializeObject 不同的地方在于会判断 id 和 uuid
-    prototype._deserializeObjField = function (obj, jsonObj, propName, target, _stillUseUrl) {
+    prototype._deserializeObjField = function (obj, jsonObj, propName, target) {
         var id = jsonObj.__id__;
         if (id === undefined) {
             var uuid = jsonObj.__uuid__;
@@ -315,14 +306,14 @@ var _Deserializer = (function () {
                 //        return;
                 //    }
                 // }
-                this.result.push(obj, propName, uuid, _stillUseUrl);
+                this.result.push(obj, propName, uuid);
             }
             else {
                 if (CC_EDITOR || CC_TEST) {
-                    obj[propName] = this._deserializeObject(jsonObj, _stillUseUrl, target && target[propName], obj, propName);
+                    obj[propName] = this._deserializeObject(jsonObj, target && target[propName], obj, propName);
                 }
                 else {
-                    obj[propName] = this._deserializeObject(jsonObj, _stillUseUrl);
+                    obj[propName] = this._deserializeObject(jsonObj);
                 }
             }
         }
@@ -451,7 +442,7 @@ var _Deserializer = (function () {
         }
     };
 
-    function compileObjectTypeJit (sources, defaultValue, accessorToSet, propNameLiteralToSet, assumeHavePropIfIsValue, stillUseUrl) {
+    function compileObjectTypeJit (sources, defaultValue, accessorToSet, propNameLiteralToSet, assumeHavePropIfIsValue) {
         if (defaultValue instanceof cc.ValueType) {
             // fast case
             if (!assumeHavePropIfIsValue) {
@@ -467,8 +458,7 @@ var _Deserializer = (function () {
             sources.push('if(prop){');
                 sources.push('s._deserializeObjField(o,prop,' +
                                  propNameLiteralToSet +
-                                 ((CC_EDITOR || CC_TEST) ? ',t&&o,' : ',null,') +
-                                 !!stillUseUrl +
+                                 ((CC_EDITOR || CC_TEST) ? ',t&&o' : ',null') +
                              ');');
             sources.push('}else o' + accessorToSet + '=null;');
         }
@@ -478,7 +468,6 @@ var _Deserializer = (function () {
         var TYPE = Attr.DELIMETER + 'type';
         var EDITOR_ONLY = Attr.DELIMETER + 'editorOnly';
         var DEFAULT = Attr.DELIMETER + 'default';
-        var SAVE_URL_AS_ASSET = Attr.DELIMETER + 'saveUrlAsAsset';
         var FORMERLY_SERIALIZED_AS = Attr.DELIMETER + 'formerlySerializedAs';
         var attrs = Attr.getClassAttrs(klass);
 
@@ -519,7 +508,6 @@ var _Deserializer = (function () {
             sources.push('prop=d' + accessorToGet + ';');
             sources.push(`if(typeof ${CC_JSB || CC_RUNTIME ? '(prop)' : 'prop'}!=="undefined"){`);
 
-            var stillUseUrl = attrs[propName + SAVE_URL_AS_ASSET];
             // function undefined object(null) string boolean number
             var defaultValue = CCClass.getDefault(attrs[propName + DEFAULT]);
             if (fastMode) {
@@ -530,7 +518,7 @@ var _Deserializer = (function () {
                 }
                 else {
                     var defaultType = typeof defaultValue;
-                    isPrimitiveType = (defaultType === 'string' && !stillUseUrl) ||
+                    isPrimitiveType = defaultType === 'string' ||
                                       defaultType === 'number' ||
                                       defaultType === 'boolean';
                 }
@@ -539,14 +527,14 @@ var _Deserializer = (function () {
                     sources.push(`o${accessorToSet}=prop;`);
                 }
                 else {
-                    compileObjectTypeJit(sources, defaultValue, accessorToSet, propNameLiteralToSet, true, stillUseUrl);
+                    compileObjectTypeJit(sources, defaultValue, accessorToSet, propNameLiteralToSet, true);
                 }
             }
             else {
                 sources.push(`if(typeof ${CC_JSB || CC_RUNTIME ? '(prop)' : 'prop'}!=="object"){` +
                                  'o' + accessorToSet + '=prop;' +
                              '}else{');
-                compileObjectTypeJit(sources, defaultValue, accessorToSet, propNameLiteralToSet, false, stillUseUrl);
+                compileObjectTypeJit(sources, defaultValue, accessorToSet, propNameLiteralToSet, false);
                 sources.push('}');
             }
             sources.push('}');
@@ -578,7 +566,6 @@ var _Deserializer = (function () {
         var simplePropsToRead = simpleProps;
         var advancedProps = [];
         var advancedPropsToRead = advancedProps;
-        var advancedPropsUseUrl = [];
         var advancedPropsValueType = [];
 
         (function () {
@@ -588,7 +575,6 @@ var _Deserializer = (function () {
             var attrs = Attr.getClassAttrs(klass);
             var TYPE = Attr.DELIMETER + 'type';
             var DEFAULT = Attr.DELIMETER + 'default';
-            var SAVE_URL_AS_ASSET = Attr.DELIMETER + 'saveUrlAsAsset';
             var FORMERLY_SERIALIZED_AS = Attr.DELIMETER + 'formerlySerializedAs';
 
             for (var p = 0; p < props.length; p++) {
@@ -597,7 +583,6 @@ var _Deserializer = (function () {
                 if (attrs[propName + FORMERLY_SERIALIZED_AS]) {
                     propNameToRead = attrs[propName + FORMERLY_SERIALIZED_AS];
                 }
-                var stillUseUrl = attrs[propName + SAVE_URL_AS_ASSET];
                 // function undefined object(null) string boolean number
                 var defaultValue = CCClass.getDefault(attrs[propName + DEFAULT]);
                 var isPrimitiveType = false;
@@ -608,7 +593,7 @@ var _Deserializer = (function () {
                     }
                     else {
                         var defaultType = typeof defaultValue;
-                        isPrimitiveType = (defaultType === 'string' && !stillUseUrl) ||
+                        isPrimitiveType = defaultType === 'string' ||
                                           defaultType === 'number' ||
                                           defaultType === 'boolean';
                     }
@@ -630,7 +615,6 @@ var _Deserializer = (function () {
                     if (advancedPropsToRead !== advancedProps) {
                         advancedPropsToRead.push(propNameToRead);
                     }
-                    advancedPropsUseUrl.push(stillUseUrl);
                     advancedPropsValueType.push((defaultValue instanceof cc.ValueType) && defaultValue.constructor);
                 }
             }
@@ -670,7 +654,6 @@ var _Deserializer = (function () {
                                 prop,
                                 propName,
                                 (CC_EDITOR || CC_TEST) ? (t && o) : null,
-                                advancedPropsUseUrl[i],
                             );
                         }
                         else {
@@ -784,7 +767,6 @@ var _Deserializer = (function () {
 cc.deserialize = function (data, details, options) {
     options = options || {};
     var classFinder = options.classFinder || js._getClassById;
-    // 启用 createAssetRefs 后，如果有 url 属性则会被统一强制设置为 { uuid: 'xxx' }，必须后面再特殊处理
     var createAssetRefs = options.createAssetRefs || cc.sys.platform === cc.sys.EDITOR_CORE;
     var target = (CC_EDITOR || CC_TEST) && options.target;
     var customEnv = options.customEnv;

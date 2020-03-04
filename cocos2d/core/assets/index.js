@@ -24,7 +24,6 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-require('./CCRawAsset');
 require('./CCAsset');
 require('./CCFont');
 require('./CCPrefab');
@@ -42,3 +41,6 @@ require('./CCTextAsset');
 require('./CCJsonAsset');
 require('./CCBufferAsset');
 require('./material');
+
+let js = require('../platform/js');
+js.obsolete(cc, 'cc.RawAsset', 'cc.Asset');

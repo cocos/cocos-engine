@@ -111,8 +111,8 @@ var TestDependency = cc.Class({
     extends: cc.Asset,
     properties: {
         dependency: {
-            default: '',
-            url: TestDependency,
+            default: null,
+            type: TestDependency,
         }
     }
 });

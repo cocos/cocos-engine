@@ -144,8 +144,8 @@ var utils = {
             if (data instanceof cc.Asset && (!data.__nativeDepend__ || data._nativeAsset)) includeNative = false; 
             if (!preload) {
                 asyncLoadAssets = !CC_EDITOR && (data.asyncLoadAssets || (asyncLoadAssets && !info.preventDeferredLoadDependents));
-                for (var i = 0, l = info.deps.length; i < l; i++) {
-                    var dep = info.deps[i];
+                for (let i = 0, l = info.deps.length; i < l; i++) {
+                    let dep = info.deps[i];
                     if (!(dep in exclude)) {
                         exclude[dep] = true;
                         depends.push({uuid: dep, asyncLoadAssets, bundle: config && config.name});
@@ -158,8 +158,8 @@ var utils = {
                 }
                 
             } else {
-                for (var i = 0, l = info.deps.length; i < l; i++) {
-                    var dep = info.deps[i];
+                for (let i = 0, l = info.deps.length; i < l; i++) {
+                    let dep = info.deps[i];
                     if (!(dep in exclude)) {
                         exclude[dep] = true;
                         depends.push({uuid: dep, bundle: config && config.name});
@@ -289,7 +289,7 @@ var utils = {
 
     parseLoadResArgs (type, onProgress, onComplete) {
         if (onComplete === undefined) {
-            var isValidType = cc.js.isChildClassOf(type, cc.RawAsset);
+            var isValidType = cc.js.isChildClassOf(type, cc.Asset);
             if (onProgress) {
                 onComplete = onProgress;
                 if (isValidType) {
