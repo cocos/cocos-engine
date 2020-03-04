@@ -239,7 +239,7 @@ export class ModelComponent extends RenderableComponent {
         this._model.visFlags = val;
     }
 
-    private _updateCastShadow () {
+    protected _updateCastShadow () {
         if (!this._model) { return; }
         if (this._shadowCastingMode === ModelShadowCastingMode.OFF) {
             this._model.castShadow = false;

@@ -113,6 +113,7 @@ export class SkinningModelComponent extends ModelComponent {
             this._models.length = 0;
             this._modelType = modelType;
             this._updateModels();
+            this._updateCastShadow();
             if (this.enabledInHierarchy) {
                 this._attachToScene();
             }

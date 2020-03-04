@@ -225,7 +225,7 @@ export class RenderScene {
     public removeModel (model: Model) {
         for (let i = 0; i < this._models.length; ++i) {
             if (this._models[i] === model) {
-                this._planarShadows.destroyShadowModel(model);
+                this._planarShadows.destroyShadowData(model);
                 model.detachFromScene();
                 this._models.splice(i, 1);
                 return;
@@ -235,7 +235,7 @@ export class RenderScene {
 
     public removeModels () {
         for (const m of this._models) {
-            this._planarShadows.destroyShadowModel(m);
+            this._planarShadows.destroyShadowData(m);
             m.detachFromScene();
         }
         this._models.length = 0;
