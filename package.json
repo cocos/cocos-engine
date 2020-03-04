@@ -25,7 +25,7 @@
     "url": "git+https://github.com/cocos-creator/engine.git"
   },
   "devDependencies": {
-    "@cocos/build-engine": "1.0.4",
+    "@cocos/build-engine": "1.0.7-alpha",
     "@types/fs-extra": "^5.0.4",
     "@types/jest": "^24.0.25",
     "@types/yargs": "^12.0.14",
