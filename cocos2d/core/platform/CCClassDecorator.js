@@ -139,7 +139,7 @@ function extractActualDefaultValues (ctor) {
     }
     catch (e) {
         if (CC_DEV) {
-            cc.warnID(3652, js.getClassName(ctor), e);
+            cc.errorID(3652, js.getClassName(ctor), e);
         }
         return {};
     }
@@ -229,7 +229,7 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
             ) {
                 // Avoid excessive warning when the ts decorator format is wrong
                 if (typeof options !== 'function' || cc.RawAsset.isRawAssetType(options)) {
-                    cc.warnID(3656, js.getClassName(ctor), propName);
+                    cc.errorID(3656, js.getClassName(ctor), propName);
                 }
             }
         }

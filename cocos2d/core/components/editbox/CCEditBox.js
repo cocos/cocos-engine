@@ -146,14 +146,14 @@ let EditBox = cc.Class({
          */
         backgroundImage: {
             get () {
-                // if (!CC_EDITOR) cc.warnID(5400, 'editBox.backgroundImage', 'editBox.background');
+                // if (!CC_EDITOR) cc.warnID(1400, 'editBox.backgroundImage', 'editBox.background');
                 if (!this.background) {
                     return null;
                 }
                 return this.background.spriteFrame;
             },
             set (value) {
-                // if (!CC_EDITOR) cc.warnID(5400, 'editBox.backgroundImage', 'editBox.background');
+                // if (!CC_EDITOR) cc.warnID(1400, 'editBox.backgroundImage', 'editBox.background');
                 if (this.background) {
                     this.background.spriteFrame = value;
                 }
@@ -226,14 +226,14 @@ let EditBox = cc.Class({
          */
         fontSize: {
             get () {
-                // if (!CC_EDITOR) cc.warnID(5400, 'editBox.fontSize', 'editBox.textLabel.fontSize');
+                // if (!CC_EDITOR) cc.warnID(1400, 'editBox.fontSize', 'editBox.textLabel.fontSize');
                 if (!this.textLabel) {
                     return null;
                 }
                 return this.textLabel.fontSize;
             },
             set (value) {
-                // if (!CC_EDITOR) cc.warnID(5400, 'editBox.fontSize', 'editBox.textLabel.fontSize');
+                // if (!CC_EDITOR) cc.warnID(1400, 'editBox.fontSize', 'editBox.textLabel.fontSize');
                 if (this.textLabel) {
                     this.textLabel.fontSize = value;
                 }
@@ -254,14 +254,14 @@ let EditBox = cc.Class({
          */
         lineHeight: {
             get () {
-                // if (!CC_EDITOR) cc.warnID(5400, 'editBox.lineHeight', 'editBox.textLabel.lineHeight');
+                // if (!CC_EDITOR) cc.warnID(1400, 'editBox.lineHeight', 'editBox.textLabel.lineHeight');
                 if (!this.textLabel) {
                     return null;
                 }
                 return this.textLabel.lineHeight;
             },
             set (value) {
-                // if (!CC_EDITOR) cc.warnID(5400, 'editBox.lineHeight', 'editBox.textLabel.lineHeight');
+                // if (!CC_EDITOR) cc.warnID(1400, 'editBox.lineHeight', 'editBox.textLabel.lineHeight');
                 if (this.textLabel) {
                     this.textLabel.lineHeight = value;
                 }
@@ -282,14 +282,14 @@ let EditBox = cc.Class({
          */
         fontColor: {
             get () {
-                // if (!CC_EDITOR) cc.warnID(5400, 'editBox.fontColor', 'editBox.textLabel.node.color');
+                // if (!CC_EDITOR) cc.warnID(1400, 'editBox.fontColor', 'editBox.textLabel.node.color');
                 if (!this.textLabel) {
                     return null;
                 }
                 return this.textLabel.node.color;
             },
             set (value) {
-                // if (!CC_EDITOR) cc.warnID(5400, 'editBox.fontColor', 'editBox.textLabel.node.color');
+                // if (!CC_EDITOR) cc.warnID(1400, 'editBox.fontColor', 'editBox.textLabel.node.color');
                 if (this.textLabel) {
                     this.textLabel.node.color = value;
                     this.textLabel.node.opacity = value.a;
@@ -334,14 +334,14 @@ let EditBox = cc.Class({
          */
         placeholderFontSize: {
             get () {
-                // if (!CC_EDITOR) cc.warnID(5400, 'editBox.placeholderFontSize', 'editBox.placeholderLabel.fontSize');
+                // if (!CC_EDITOR) cc.warnID(1400, 'editBox.placeholderFontSize', 'editBox.placeholderLabel.fontSize');
                 if (!this.placeholderLabel) {
                     return null;
                 }
                 return this.placeholderLabel.fontSize;
             },
             set (value) {
-                // if (!CC_EDITOR) cc.warnID(5400, 'editBox.placeholderFontSize', 'editBox.placeholderLabel.fontSize');
+                // if (!CC_EDITOR) cc.warnID(1400, 'editBox.placeholderFontSize', 'editBox.placeholderLabel.fontSize');
                 if (this.placeholderLabel) {
                     this.placeholderLabel.fontSize = value;
                 }
@@ -362,14 +362,14 @@ let EditBox = cc.Class({
          */
         placeholderFontColor: {
             get () {
-                // if (!CC_EDITOR) cc.warnID(5400, 'editBox.placeholderFontColor', 'editBox.placeholderLabel.node.color');
+                // if (!CC_EDITOR) cc.warnID(1400, 'editBox.placeholderFontColor', 'editBox.placeholderLabel.node.color');
                 if (!this.placeholderLabel) {
                     return null;
                 }
                 return this.placeholderLabel.node.color;
             },
             set (value) {
-                // if (!CC_EDITOR) cc.warnID(5400, 'editBox.placeholderFontColor', 'editBox.placeholderLabel.node.color');
+                // if (!CC_EDITOR) cc.warnID(1400, 'editBox.placeholderFontColor', 'editBox.placeholderLabel.node.color');
                 if (this.placeholderLabel) {
                     this.placeholderLabel.node.color = value;
                     this.placeholderLabel.node.opacity = value.a;
@@ -794,7 +794,7 @@ let EditBox = cc.Class({
      * @deprecated since 2.0.8
      */
     setFocus () {
-        cc.warnID(1400, 'setFocus()', 'focus()');
+        cc.errorID(1400, 'setFocus()', 'focus()');
         if (this._impl) {
             this._impl.setFocus(true);
         }
