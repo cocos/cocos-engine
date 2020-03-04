@@ -6,6 +6,8 @@ import { Vec3 } from '../math';
 import enums from './enums';
 
 /**
+ * @en
+ * Basic Geometry: line.
  * @zh
  * 基础几何 line。
  */
@@ -123,7 +125,17 @@ export default class line {
      */
     public e: Vec3;
 
-    private _type: number;
+    /**
+     * @en
+     * Gets the type of the shape.
+     * @zh
+     * 获取形状的类型。
+     */
+    get type () {
+        return this._type;
+    }
+
+    private readonly _type: number;
 
     /**
      * 构造一条线。

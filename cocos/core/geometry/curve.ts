@@ -17,7 +17,10 @@ const WrapMode = Enum({
 });
 
 /**
- * @zh 曲线中的一个关键帧。
+ * @en
+ * A key frame in the curve.
+ * @zh 
+ * 曲线中的一个关键帧。
  */
 export class Keyframe {
 
@@ -72,7 +75,10 @@ export function evalOptCurve (t: number, coefs: Float32Array | number[]) {
 }
 
 /**
- * @zh 描述一条曲线，其中每个相邻关键帧采用三次hermite插值计算。
+ * @en
+ * Describe a curve in which three times Hermite interpolation is used for each adjacent key frame.
+ * @zh
+ * 描述一条曲线，其中每个相邻关键帧采用三次hermite插值计算。
  */
 export class AnimationCurve {
 
@@ -89,17 +95,26 @@ export class AnimationCurve {
     }];
 
     /**
-     * @zh 曲线的关键帧。
+     * @en
+     * The key frame of the curve.
+     * @zh 
+     * 曲线的关键帧。
      */
     public keyFrames: Keyframe[] | null;
 
     /**
-     * @zh 当采样时间超出左端时采用的循环模式[[WrapMode]]。
+     * @en
+     * Loop mode [[WrapMode]] when the sampling time exceeds the left end.
+     * @zh 
+     * 当采样时间超出左端时采用的循环模式[[WrapMode]]。
      */
     public preWrapMode: number = WrapMode.Loop;
 
     /**
-     * @zh 当采样时间超出右端时采用的循环模式[[WrapMode]]。
+     * @en
+     * Cycle mode [[WrapMode]] when the sampling time exceeds the right end.
+     * @zh 
+     * 当采样时间超出右端时采用的循环模式[[WrapMode]]。
      */
     public postWrapMode: number = WrapMode.Loop;
 
@@ -115,7 +130,10 @@ export class AnimationCurve {
     }
 
     /**
-     * @zh 添加一个关键帧。
+     * @en
+     * Add a keyframe.
+     * @zh 
+     * 添加一个关键帧。
      * @param keyFrame 关键帧。
      */
     public addKey (keyFrame: Keyframe) {
@@ -180,7 +198,10 @@ export class AnimationCurve {
     }
 
     /**
-     * @zh 计算给定时间点的曲线插值。
+     * @en
+     * Calculate the curve interpolation at a given point in time.
+     * @zh 
+     * 计算给定时间点的曲线插值。
      * @param time 时间。
      */
     public evaluate (time: number) {

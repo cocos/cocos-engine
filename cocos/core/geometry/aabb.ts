@@ -20,19 +20,13 @@ const transform_extent_m4 = (out: Vec3, extent: Vec3, m4: Mat4) => {
 };
 
 /**
+ * @en
+ * Basic Geometry: Axis-aligned bounding box.
  * @zh
  * 基础几何  轴对齐包围盒。
  */
 // tslint:disable-next-line: class-name
 export default class aabb {
-
-    /**
-     * @zh
-     * 获取形状的类型。
-     */
-    get type () {
-        return this._type;
-    }
 
     /**
      * @en
@@ -119,6 +113,8 @@ export default class aabb {
     }
 
     /**
+     * @en
+     * Merge tow aabb.
      * @zh
      * 合并两个 aabb 到 out。
      * @param out 接受操作的 aabb。
@@ -137,6 +133,8 @@ export default class aabb {
     }
 
     /**
+     * @en
+     * Transform this aabb.
      * @zh
      * 变换一个 aabb 到 out 中。
      * @param out 接受操作的 aabb。
@@ -162,9 +160,20 @@ export default class aabb {
      */
     public halfExtents: Vec3;
 
-    protected _type: number = enums.SHAPE_AABB;
+    /**
+     * @en
+     * Gets the type of the shape.
+     * @zh
+     * 获取形状的类型。
+     */
+    get type () {
+        return this._type;
+    }
+
+    protected readonly _type: number;
 
     constructor (px = 0, py = 0, pz = 0, hw = 1, hh = 1, hl = 1) {
+        this._type = enums.SHAPE_AABB;
         this.center = new Vec3(px, py, pz);
         this.halfExtents = new Vec3(hw, hh, hl);
     }

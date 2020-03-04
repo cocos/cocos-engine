@@ -6,6 +6,8 @@ import { Vec3 } from '../math';
 import enums from './enums';
 
 /**
+ * @en
+ * Basic Geometry: triangle.
  * @zh
  * 基础几何 三角形。
  */
@@ -123,26 +125,45 @@ export default class triangle {
     }
 
     /**
+     * @en
+     * Point a.
      * @zh
      * 点 a。
      */
     public a: Vec3;
 
     /**
+     * @en
+     * Point b.
      * @zh
      * 点 b。
      */
     public b: Vec3;
 
     /**
+     * @en
+     * Point c.
      * @zh
      * 点 c。
      */
     public c: Vec3;
 
-    private _type: number;
+    /**
+     * @en
+     * Gets the type of the shape.
+     * @zh
+     * 获取形状的类型。
+     */
+    get type () {
+        return this._type;
+    }
+
+    protected readonly _type: number;
 
     /**
+     * @en
+     * Construct a triangle.
+     * @zh
      * 构造一个三角形。
      * @param {number} ax a 点的 x 部分。
      * @param {number} ay a 点的 y 部分。
