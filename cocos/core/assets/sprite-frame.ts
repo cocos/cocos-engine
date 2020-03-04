@@ -721,14 +721,15 @@ export class SpriteFrame extends Asset {
         const uvSliced = this.uvSliced;
         uvSliced.length = 0;
         if (this._rotated) {
-            temp_uvs[0].u = (rect.x) / atlasWidth;
+            // Canceling out the floating-point rounding errors by slightly nudging the UV coordinates
+            temp_uvs[0].u = (rect.x + 0.5) / atlasWidth;
             temp_uvs[1].u = (rect.x + bottomHeight) / atlasWidth;
             temp_uvs[2].u = (rect.x + bottomHeight + centerHeight) / atlasWidth;
-            temp_uvs[3].u = (rect.x + rect.height) / atlasWidth;
-            temp_uvs[3].v = (rect.y) / atlasHeight;
+            temp_uvs[3].u = (rect.x + rect.height - 0.5) / atlasWidth;
+            temp_uvs[3].v = (rect.y + 0.5) / atlasHeight;
             temp_uvs[2].v = (rect.y + leftWidth) / atlasHeight;
             temp_uvs[1].v = (rect.y + leftWidth + centerWidth) / atlasHeight;
-            temp_uvs[0].v = (rect.y + rect.width) / atlasHeight;
+            temp_uvs[0].v = (rect.y + rect.width - 0.5) / atlasHeight;
 
             for (let row = 0; row < 4; ++row) {
                 const rowD = temp_uvs[row];
@@ -741,14 +742,15 @@ export class SpriteFrame extends Asset {
                 }
             }
         } else {
-            temp_uvs[0].u = (rect.x) / atlasWidth;
+            // Canceling out the floating-point rounding errors by slightly nudging the UV coordinates
+            temp_uvs[0].u = (rect.x + 0.5) / atlasWidth;
             temp_uvs[1].u = (rect.x + leftWidth) / atlasWidth;
             temp_uvs[2].u = (rect.x + leftWidth + centerWidth) / atlasWidth;
-            temp_uvs[3].u = (rect.x + rect.width) / atlasWidth;
-            temp_uvs[3].v = (rect.y) / atlasHeight;
+            temp_uvs[3].u = (rect.x + rect.width - 0.5) / atlasWidth;
+            temp_uvs[3].v = (rect.y + 0.5) / atlasHeight;
             temp_uvs[2].v = (rect.y + topHeight) / atlasHeight;
             temp_uvs[1].v = (rect.y + topHeight + centerHeight) / atlasHeight;
-            temp_uvs[0].v = (rect.y + rect.height) / atlasHeight;
+            temp_uvs[0].v = (rect.y + rect.height - 0.5) / atlasHeight;
 
             for (let row = 0; row < 4; ++row) {
                 const rowD = temp_uvs[row];
@@ -775,10 +777,11 @@ export class SpriteFrame extends Asset {
         const texh = tex.height;
 
         if (this._rotated) {
-            const l = texw === 0 ? 0 : rect.x / texw;
-            const r = texw === 0 ? 0 : (rect.x + rect.height) / texw;
-            const t = texh === 0 ? 0 : rect.y / texh;
-            const b = texh === 0 ? 0 : (rect.y + rect.width) / texh;
+            // Canceling out the floating-point rounding errors by slightly nudging the UV coordinates
+            const l = texw === 0 ? 0 : (rect.x + 0.5) / texw;
+            const r = texw === 0 ? 0 : (rect.x + rect.height - 0.5) / texw;
+            const t = texh === 0 ? 0 : (rect.y + 0.5) / texh;
+            const b = texh === 0 ? 0 : (rect.y + rect.width - 0.5) / texh;
             if (this._flipUv) {
                 uv[0] = l;
                 uv[1] = t;
@@ -800,10 +803,11 @@ export class SpriteFrame extends Asset {
                 uv[7] = b;
             }
         } else {
-            const l = texw === 0 ? 0 : rect.x / texw;
-            const r = texw === 0 ? 0 : (rect.x + rect.width) / texw;
-            const b = texh === 0 ? 0 : (rect.y + rect.height) / texh;
-            const t = texh === 0 ? 0 : rect.y / texh;
+            // Canceling out the floating-point rounding errors by slightly nudging the UV coordinates
+            const l = texw === 0 ? 0 : (rect.x + 0.5) / texw;
+            const r = texw === 0 ? 0 : (rect.x + rect.width - 0.5) / texw;
+            const b = texh === 0 ? 0 : (rect.y + rect.height - 0.5) / texh;
+            const t = texh === 0 ? 0 : (rect.y + 0.5) / texh;
             if (this._flipUv) {
                 uv[0] = l;
                 uv[1] = t;
