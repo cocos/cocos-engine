@@ -559,7 +559,7 @@ AssetManager.prototype = {
      * 加载脚本
      * 
      * @method loadScript
-     * @param {string} url - Url of the script
+     * @param {string|string[]} url - Url of the script
      * @param {Object} [options] - Some optional paramters
      * @param {boolean} [options.isAsync] - Indicate whether or not loading process should be async
      * @param {Function} [onComplete] - Callback when script loaded or failed
@@ -569,10 +569,13 @@ AssetManager.prototype = {
      * loadScript('http://localhost:8080/index.js', null, (err) => console.log(err));
      * 
      * @typescript
-     * loadScript(url: string, options?: Record<string, any>, onComplete?: (err: Error) => void): void;
+     * loadScript(url: string|string[], options?: Record<string, any>, onComplete?: (err: Error) => void): void;
      */
     loadScript (url, options, onComplete) {
-        downloader.downloadScript(urlAppendTimestamp(url), options, onComplete);
+        var { options, onComplete } = parseParameters(options, undefined, onComplete);
+        options.requestType = RequestType.URL;
+        options.priority = options.priority || 2;
+        this.load(url, options, onComplete);
     },
 
     /**

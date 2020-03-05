@@ -476,28 +476,9 @@ var game = {
             return;
         }
 
-        // Load game scripts
-        let jsList = this.config.jsList;
-        if (jsList && jsList.length > 0) {
-            var self = this;
-            var count = 0;
-            for (var i = 0, l = jsList.length; i < l; i++) {
-                cc.assetManager.loadScript(jsList[i], function (err) {
-                    if (err) throw new Error(JSON.stringify(err));
-                    count++;
-                    if (count === l) {
-                        self._loadPreviewScript(() => {
-                            self._prepareFinished(cb);
-                        });
-                    }
-                });
-            }
-        }
-        else {
-            this._loadPreviewScript(() => {
-                this._prepareFinished(cb);
-            })
-        }
+        this._loadPreviewScript(() => {
+            this._prepareFinished(cb);
+        });
     },
 
     /**
