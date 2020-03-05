@@ -707,5 +707,3 @@ if (CC_DEBUG) {
     };
     
 }
-
-js.obsolete(cc, 'cc.RawAsset', 'cc.Asset');

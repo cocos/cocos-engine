@@ -491,7 +491,7 @@ Private node's zIndex can't be set, it will keep cc.macro.MIN_ZINDEX as its valu
 
 ### 1639
 
-cc.Action is deprecated now, please use cc.TweenAction instead
+cc.Action is deprecated, please use cc.TweenAction instead
 
 ### 1700
 
@@ -1787,7 +1787,7 @@ cc.LabelBMFont._parseImageFileName() : file could not be found
 ### 4920
 
 <!-- DEPRECATED -->
-Sorry, you shouldn't use id as item identity any more, please use url or uuid instead, the current id is being set as url: (%s)
+Sorry, you shouldn't use id as item identity anymore, please use url or uuid instead, the current id is being set as url: (%s)
 
 ### 4921
 
@@ -2799,4 +2799,4 @@ Program not support highp precision, will change to mediump.
 
 ### 9200
 
-cc.view.enableAntiAlias is deprecated now, please use cc.Texture2D.setFilters instead
+cc.view.enableAntiAlias is deprecated, please use cc.Texture2D.setFilters instead

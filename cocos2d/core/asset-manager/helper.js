@@ -184,6 +184,6 @@ var helper = {
         }
         return url;
     }
-}
+};
 
 module.exports = helper;

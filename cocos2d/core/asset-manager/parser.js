@@ -306,13 +306,15 @@ var parser = {
      * parseImport (file: any, options: Record<string, any>, onComplete?: (err: Error, asset: cc.Asset) => void): void
      */
     parseImport (file, options, onComplete) {
-        var result = deserialize(file, options);
-        if (result instanceof Error) {
-            onComplete && onComplete(result, null);
+        var result;
+        try {
+            result = deserialize(file, options);
         }
-        else {
-            onComplete && onComplete(null, result);
+        catch (e) {
+            onComplete && onComplete(e, null);
+            return;
         }
+        onComplete && onComplete(null, result);
     },
 
     /**

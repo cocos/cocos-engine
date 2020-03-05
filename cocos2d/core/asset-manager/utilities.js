@@ -40,50 +40,50 @@ var utils = {
         var realEntries = options.paths = Object.create(null);
 
         if (options.debug === false) {
-            for (var i = 0, l = uuids.length; i < l; i++) {
+            for (let i = 0, l = uuids.length; i < l; i++) {
                 uuids[i] = decodeUuid(uuids[i]);
             }
 
-            for (var id in paths) {
-                var entry = paths[id];
-                var type = entry[1];
+            for (let id in paths) {
+                let entry = paths[id];
+                let type = entry[1];
                 entry[1] = types[type];
             }
         }
         else {
             var out = Object.create(null);
-            for (var i = 0, l = uuids.length; i < l; i++) {
-                var uuid = uuids[i];
+            for (let i = 0, l = uuids.length; i < l; i++) {
+                let uuid = uuids[i];
                 uuids[i] = out[uuid] = decodeUuid(uuid);
             }
             uuids = out;
         }
 
-        for (var id in paths) {
-            var entry = paths[id];
+        for (let id in paths) {
+            let entry = paths[id];
             realEntries[uuids[id]] = entry;
         }
 
         var scenes = options.scenes;
-        for (var name in scenes) {
-            var uuid = scenes[name];
+        for (let name in scenes) {
+            let uuid = scenes[name];
             scenes[name] = uuids[uuid];
         }
 
         var packs = options.packs;
-        for (var packId in packs) {
-            var packedIds = packs[packId];
-            for (var j = 0; j < packedIds.length; ++j) {
+        for (let packId in packs) {
+            let packedIds = packs[packId];
+            for (let j = 0; j < packedIds.length; ++j) {
                 packedIds[j] = uuids[packedIds[j]];
             }
         }
 
         var versions = options.versions;
         if (versions) {
-            for (var folder in versions) {
+            for (let folder in versions) {
                 var entries = versions[folder];
-                for (var i = 0; i < entries.length; i += 2) {
-                    var uuid = entries[i];
+                for (let i = 0; i < entries.length; i += 2) {
+                    let uuid = entries[i];
                     entries[i] = uuids[uuid] || uuid;
                 }
             }
@@ -91,7 +91,7 @@ var utils = {
 
         var redirect = options.redirect;
         if (redirect) {
-            for (var i = 0; i < redirect.length; i += 2) {
+            for (let i = 0; i < redirect.length; i += 2) {
                 redirect[i] = uuids[redirect[i]];
                 redirect[i + 1] = bundles[redirect[i + 1]];
             }
@@ -111,7 +111,6 @@ var utils = {
     },
 
     urlAppendTimestamp (url) {
-        
         if (cc.assetManager.appendTimeStamp && typeof url === 'string') {
             if (/\?/.test(url))
                 return url + '&_t=' + (new Date() - 0);
@@ -284,7 +283,7 @@ var utils = {
             }
         }
         options = options || Object.create(null);
-        return {options, onProgress, onComplete};
+        return { options, onProgress, onComplete };
     },
 
     parseLoadResArgs (type, onProgress, onComplete) {
