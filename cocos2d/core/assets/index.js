@@ -41,6 +41,3 @@ require('./CCTextAsset');
 require('./CCJsonAsset');
 require('./CCBufferAsset');
 require('./material');
-
-let js = require('../platform/js');
-js.obsolete(cc, 'cc.RawAsset', 'cc.Asset');
