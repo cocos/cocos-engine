@@ -705,6 +705,11 @@ export class Game extends EventTarget {
             director.mainLoop(time);
         };
 
+        if(this._intervalId) {
+            window.cancelAnimationFrame(this._intervalId);
+            this._intervalId=0;
+        }
+
         this._intervalId = window.requestAnimationFrame(callback);
         this._paused = false;
     }
