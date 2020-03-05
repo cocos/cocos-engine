@@ -1372,7 +1372,7 @@ let NodeDefines = {
                     this._opacity = value;
                     if (CC_JSB && CC_NATIVERENDERER) {
                         this._proxy.updateOpacity();
-                    };
+                    }
                     this._renderFlag |= RenderFlow.FLAG_OPACITY_COLOR;
                 }
             },
@@ -2698,7 +2698,7 @@ let NodeDefines = {
             return Trs.toScale(out, this._trs);
         }
         else {
-            cc.warnID(1400, 'cc.Node.getScale', 'cc.Node.scale or cc.Node.getScale(cc.Vec3)');
+            cc.errorID(1400, 'cc.Node.getScale', 'cc.Node.scale or cc.Node.getScale(cc.Vec3)');
             return this._trs[7];
         }
     },

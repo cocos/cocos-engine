@@ -31,15 +31,13 @@ export default class ForwardRenderer extends BaseRenderer {
 
     this._time = new Float32Array(4);
 
-    this._directionalLights = [];
-    this._pointLights = [];
-    this._spotLights = [];
+    this._lights = [];
     this._shadowLights = [];
-    this._ambientLights = [];
 
     this._numLights = 0;
 
-    this._defines = {};
+    this._defines = {
+    };
 
     this._registerStage('shadowcast', this._shadowStage.bind(this));
     this._registerStage('opaque', this._opaqueStage.bind(this));
@@ -96,120 +94,75 @@ export default class ForwardRenderer extends BaseRenderer {
   }
 
   _updateLights (scene) {
-    this._directionalLights.length = 0;
-    this._pointLights.length = 0;
-    this._spotLights.length = 0;
+    this._lights.length = 0;
     this._shadowLights.length = 0;
-    this._ambientLights.length = 0;
 
     let lights = scene._lights;
     for (let i = 0; i < lights.length; ++i) {
       let light = lights.data[i];
       light.update(this._device);
+
       if (light.shadowType !== enums.SHADOW_NONE) {
         if (this._shadowLights.length < CC_MAX_SHADOW_LIGHTS) {
-          this._shadowLights.push(light);
+          this._shadowLights.splice(0, 0, light);
         }
         let view = this._requestView();
         light.extractView(view, ['shadowcast']);
-      }
-      if (light._type === enums.LIGHT_DIRECTIONAL) {
-        this._directionalLights.push(light);
-      }
-      else if (light._type === enums.LIGHT_POINT) {
-        this._pointLights.push(light);
-      }
-      else if (light._type === enums.LIGHT_SPOT) {
-        this._spotLights.push(light);
+        
+        this._lights.splice(0, 0, light);
       }
       else {
-        this._ambientLights.push(light);
+        this._lights.push(light);
       }
     }
 
-    this._updateDefines();
-
+    this._updateLightDefines();
     this._numLights = lights._count;
   }
 
-  _updateDefines () {
+  _updateLightDefines () {
     let defines = this._defines;
-    defines.CC_NUM_DIR_LIGHTS = Math.min(CC_MAX_LIGHTS, this._directionalLights.length);
-    defines.CC_NUM_POINT_LIGHTS = Math.min(CC_MAX_LIGHTS, this._pointLights.length);
-    defines.CC_NUM_SPOT_LIGHTS = Math.min(CC_MAX_LIGHTS, this._spotLights.length);
-    defines.CC_NUM_AMBIENT_LIGHTS = Math.min(CC_MAX_LIGHTS, this._ambientLights.length);
 
+    for (let i = 0; i < this._lights.length; ++i) {
+      let light = this._lights[i];
+      defines[`CC_LIGHT_${i}_TYPE`] = light._type;
+      defines[`CC_SHADOW_${i}_TYPE`] = light._shadowType;
+    }
+
+    defines.CC_NUM_LIGHTS = Math.min(CC_MAX_LIGHTS, this._lights.length);
     defines.CC_NUM_SHADOW_LIGHTS = Math.min(CC_MAX_LIGHTS, this._shadowLights.length);
   }
 
   _submitLightsUniforms () {
     let device = this._device;
 
-    if (this._directionalLights.length > 0) {
-      let directions = _float16_pool.add();
-      let colors = _float16_pool.add();
-      let lightNum = Math.min(CC_MAX_LIGHTS, this._directionalLights.length);
-      for (let i = 0; i < lightNum; ++i) {
-        let light = this._directionalLights[i];
-        let index = i * 4;
-        directions.set(light._directionUniform, index);
-        colors.set(light._colorUniform, index);
-      }
-
-      device.setUniform('cc_dirLightDirection', directions);
-      device.setUniform('cc_dirLightColor', colors);
-    }
-
-    if (this._pointLights.length > 0) {
-      let positionAndRanges = _float16_pool.add();
-      let colors = _float16_pool.add();
-      let lightNum = Math.min(CC_MAX_LIGHTS, this._pointLights.length);
-      for (let i = 0; i < lightNum; ++i) {
-        let light = this._pointLights[i];
-        let index = i * 4;
-        positionAndRanges.set(light._positionUniform, index);
-        positionAndRanges[index+3] = light._range;
-        colors.set(light._colorUniform, index);
-      }
-
-      device.setUniform('cc_pointLightPositionAndRange', positionAndRanges);
-      device.setUniform('cc_pointLightColor', colors);
-    }
-
-    if (this._spotLights.length > 0) {
+    if (this._lights.length > 0) {
       let positionAndRanges = _float16_pool.add();
       let directions = _float16_pool.add();
       let colors = _float16_pool.add();
-      let lightNum = Math.min(CC_MAX_LIGHTS, this._spotLights.length);
+      let lightNum = Math.min(CC_MAX_LIGHTS, this._lights.length);
       for (let i = 0; i < lightNum; ++i) {
-        let light = this._spotLights[i];
+        let light = this._lights[i];
         let index = i * 4;
         
+        colors.set(light._colorUniform, index);
+        directions.set(light._directionUniform, index);
         positionAndRanges.set(light._positionUniform, index);
         positionAndRanges[index+3] = light._range;
 
-        directions.set(light._directionUniform, index);
-        directions[index+3] = light._spotUniform[0];
-
-        colors.set(light._colorUniform, index);
-        colors[index+3] = light._spotUniform[1];
+        if (light._type === enums.LIGHT_SPOT) {
+          directions[index+3] = light._spotUniform[0];
+          colors[index+3] = light._spotUniform[1];
+        }
+        else {
+          directions[index+3] = 0;
+          colors[index+3] = 0;
+        }
       }
 
-      device.setUniform('cc_spotLightPositionAndRange', positionAndRanges);
-      device.setUniform('cc_spotLightDirection', directions);
-      device.setUniform('cc_spotLightColor', colors);
-    }
-
-    if (this._ambientLights.length > 0) {
-      let colors = _float16_pool.add();
-      let lightNum = Math.min(CC_MAX_LIGHTS, this._ambientLights.length);
-      for (let i = 0; i < lightNum; ++i) {
-        let light = this._ambientLights[i];
-        let index = i * 4;
-        colors.set(light._colorUniform, index);
-      }
-
-      device.setUniform('cc_ambientColor', colors);
+      device.setUniform('cc_lightDirection', directions);
+      device.setUniform('cc_lightColor', colors);
+      device.setUniform('cc_lightPositionAndRange', positionAndRanges);
     }
   }
 
@@ -226,6 +179,8 @@ export default class ForwardRenderer extends BaseRenderer {
     this._device.setUniform('cc_shadow_map_lightViewProjMatrix', Mat4.toArray(_a16_viewProj, view._matViewProj));
     this._device.setUniform('cc_shadow_map_info', shadowInfo);
     this._device.setUniform('cc_shadow_map_bias', light.shadowBias);
+
+    this._defines.CC_SHADOW_TYPE = light._shadowType;
   }
 
   _submitOtherStagesUniforms() {
@@ -239,11 +194,11 @@ export default class ForwardRenderer extends BaseRenderer {
       }
       Mat4.toArray(view, light.viewProjMatrix);
       
-      let infoIndex = i*4;
-      shadowInfo[infoIndex] = light.shadowMinDepth;
-      shadowInfo[infoIndex+1] = light.shadowMaxDepth;
-      shadowInfo[infoIndex+2] = light.shadowDepthScale;
-      shadowInfo[infoIndex+3] = light.shadowDarkness;
+      let index = i*4;
+      shadowInfo[index] = light.shadowMinDepth;
+      shadowInfo[index+1] = light.shadowMaxDepth;
+      shadowInfo[index+2] = light._shadowResolution;
+      shadowInfo[index+3] = light.shadowDarkness;
     }
 
     this._device.setUniform(`cc_shadow_lightViewProjMatrix`, _a64_shadow_lightViewProj);

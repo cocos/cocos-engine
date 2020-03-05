@@ -567,10 +567,10 @@ var PageView = cc.Class({
             let bounceBackAmount = this._getHowMuchOutOfBoundary();
             bounceBackAmount = this._clampDelta(bounceBackAmount);
             if (bounceBackAmount.x > 0 || bounceBackAmount.y < 0) {
-                this._curPageIdx = this._pages.length - 1
+                this._curPageIdx = this._pages.length === 0 ? 0 : this._pages.length - 1;
             }
             if (bounceBackAmount.x < 0 || bounceBackAmount.y > 0) {
-                this._curPageIdx = 0
+                this._curPageIdx = 0;
             }
 
             if (this.indicator) {
