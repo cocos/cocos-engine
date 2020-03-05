@@ -2336,6 +2336,7 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                     cache.glCurrentAttribLocs[glLoc] = true;
 
                                     gl.vertexAttribPointer(glLoc, glAttrib.count, glAttrib.glType, glAttrib.isNormalized, glAttrib.stride, attribOffset);
+                                    gl.vertexAttribDivisor(glLoc, glAttrib.isInstanced ? 1 : 0);
                                 }
                             }
                         } // for

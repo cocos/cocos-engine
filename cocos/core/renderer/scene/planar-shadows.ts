@@ -178,8 +178,7 @@ export class PlanarShadows {
         const psos: GFXPipelineState[] = [];
         cmdBuffer.begin();
         for (let i = 0; i < model.subModelNum; i++) {
-            const ia = model.getSubModel(i).inputAssembler;
-            if (!ia) { continue; }
+            const ia = model.getSubModel(i).inputAssembler!;
             // @ts-ignore TS2445
             const pso = model.createPipelineState(this._material.passes[0], i);
             model.insertImplantPSO(pso); // add back to model to sync binding layouts

@@ -44,6 +44,7 @@ import { GFXShader } from '../../gfx/shader';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { BatchedBuffer } from '../../pipeline/batched-buffer';
 import { isBuiltinBinding, RenderPassStage, RenderPriority } from '../../pipeline/define';
+import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
@@ -216,6 +217,7 @@ export class Pass {
     protected _shader: GFXShader | null = null;
     // for dynamic batching
     protected _batchedBuffer: BatchedBuffer | null = null;
+    protected _instancedBuffer: InstancedBuffer | null = null;
 
     public constructor (device: GFXDevice) {
         this._device = device;
@@ -486,6 +488,7 @@ export class Pass {
      */
     public tryCompile () {
         if (this._defines.USE_BATCHING) { this.createBatchedBuffer(); }
+        if (this._defines.USE_INSTANCING) { this.createInstancedBuffer(); }
         const pipeline = (cc.director.root as Root).pipeline;
         if (!pipeline) { return null; }
         this._renderPass = pipeline.getRenderPass(this._stage);
@@ -580,6 +583,20 @@ export class Pass {
         }
     }
 
+    /**
+     * @zh
+     * 创建 GPU instance 缓冲。
+     */
+    public createInstancedBuffer () {
+        if (!this._instancedBuffer) {
+            if (this._bs.targets[0].blend) {
+                console.error('Transparent pass(' + this.program + ') can\'t use instancing!');
+            } else {
+                this._instancedBuffer = new InstancedBuffer(this);
+            }
+        }
+    }
+
     // internal use
     public beginChangeStatesSilently () {}
     public endChangeStatesSilently () {}
@@ -666,6 +683,7 @@ export class Pass {
     get renderPass () { return this._renderPass!; }
     get dynamics () { return this._dynamics; }
     get batchedBuffer () { return this._batchedBuffer; }
+    get instancedBuffer () { return this._instancedBuffer; }
     get blocks () { return this._blocks; }
     get hash () { return this._hash; }
 }

@@ -150,7 +150,7 @@ export class ForwardPipeline extends RenderPipeline {
         for (let i = 0; i < this._renderObjects.length; i++) {
             this._uboLights.view.fill(0);
             const nextLightIndex = i + 1 < this._renderObjects.length ? this._lightIndexOffset[i + 1] : this._lightIndices.length;
-            if (!this._renderObjects[i].model.localBindings.get(UBOForwardLight.BLOCK.name)) {
+            if (!this._renderObjects[i].model.localBindings.get(UBOForwardLight.BLOCK.name) || this._renderObjects[i].model.isDynamicBatching) {
                 continue;
             }
             let sphereNum = 0;

@@ -5,10 +5,12 @@
 import { ccclass } from '../../data/class-decorator';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXClearFlag, GFXFilter, IGFXColor } from '../../gfx/define';
+import { ModelType } from '../../renderer/scene/model';
 import { Layers } from '../../scene-graph';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
 import { RenderFlow } from '../render-flow';
+import { RenderInstancedQueue } from '../render-instanced-queue';
 import { IRenderStageInfo, RenderQueueSortMode, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { ForwardStagePriority } from './enum';
@@ -41,6 +43,7 @@ export class ForwardStage extends RenderStage {
     };
 
     private _opaqueBatchedQueue: RenderBatchedQueue;
+    private _opaqueInstancedQueue: RenderInstancedQueue;
 
     /**
      * 构造函数。
@@ -49,6 +52,7 @@ export class ForwardStage extends RenderStage {
     constructor () {
         super();
         this._opaqueBatchedQueue = new RenderBatchedQueue();
+        this._opaqueInstancedQueue = new RenderInstancedQueue();
     }
 
     public activate (flow: RenderFlow) {
@@ -90,20 +94,24 @@ export class ForwardStage extends RenderStage {
      */
     public render (view: RenderView) {
 
+        this._opaqueInstancedQueue.clear();
         this._opaqueBatchedQueue.clear();
         this._renderQueues.forEach(this.renderQueueClearFunc);
 
         const renderObjects = this._pipeline.renderObjects;
         for (let i = 0; i < renderObjects.length; ++i) {
             const ro = renderObjects[i];
-            if (ro.model.isDynamicBatching) {
+            if (ro.model.type === ModelType.DEFAULT && ro.model.isDynamicBatching) {
                 for (let m = 0; m < ro.model.subModelNum; ++m) {
                     const subModel = ro.model.subModels[m];
                     const passes = subModel.passes;
                     for (let p = 0; p < passes.length; ++p) {
                         const pass = passes[p];
                         const pso = subModel.psos![p];
-                        if (pass.batchedBuffer) {
+                        if (pass.instancedBuffer) {
+                            pass.instancedBuffer.merge(subModel, ro, pso);
+                            this._opaqueInstancedQueue.queue.add(pass.instancedBuffer);
+                        } else if (pass.batchedBuffer) {
                             pass.batchedBuffer.merge(subModel, ro, pso);
                             this._opaqueBatchedQueue.queue.add(pass.batchedBuffer);
                         } else {
@@ -169,6 +177,7 @@ export class ForwardStage extends RenderStage {
 
         cmdBuff.execute(this._renderQueues[0].cmdBuffs.array, this._renderQueues[0].cmdBuffCount);
 
+        this._opaqueInstancedQueue.recordCommandBuffer(cmdBuff);
         this._opaqueBatchedQueue.recordCommandBuffer(cmdBuff);
 
         if (camera.visibility & Layers.BitMask.DEFAULT) {

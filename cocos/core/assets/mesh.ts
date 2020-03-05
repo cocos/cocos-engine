@@ -29,8 +29,8 @@
 
 import { ccclass, property } from '../../core/data/class-decorator';
 import { Mat4, Quat, Vec3 } from '../../core/math';
+import { mapBuffer } from '../3d/misc/buffer';
 import { BufferBlob } from '../3d/misc/buffer-blob';
-import { mapBuffer } from '../3d/misc/utils';
 import { aabb } from '../geometry';
 import { GFXBuffer } from '../gfx/buffer';
 import {
