@@ -49,6 +49,10 @@ var emptyFunc = function () {};
 
 // getWorldPosition temp var
 var _gwpVec3 = new Vec3();
+var _guwpVec3 = new Vec3();
+var _grwpVec3 = new Vec3();
+var _gfwpVec3 = new Vec3();
+
 var _gwpQuat = new Quat();
 
 // _invTransformPoint temp var
@@ -2991,6 +2995,39 @@ let NodeDefines = {
             curr = curr._parent;
         }
         return out;
+    },
+
+    /**
+     * !#en Get the world coordinates of the nodes that are converted to the up direction.
+     * !#zh 获取转换到正上方向的节点世界坐标
+     * 
+     * @method getUpWorldPosition
+     * @return {Vec3}
+     */
+    getUpWorldPosition () {
+        return Vec3.transformQuat(_guwpVec3, Vec3.UP, this.getWorldPosition(new Quat()));
+    },
+
+    /**
+     * !#en Get the world coordinates of the nodes that are converted to the right direction.
+     * !#zh 获取转换到正右方向的节点世界坐标
+     * 
+     * @method getRightWorldPosition
+     * @return {Vec3}
+     */
+    getRightWorldPosition () {
+        return Vec3.transformQuat(_guwpVec3, Vec3.RIGHT, this.getWorldPosition(new Quat()));
+    },
+
+    /**
+     * !#en Get the world coordinates of the nodes that are converted to the forward direction.
+     * !#zh 获取转换到正前方向的节点世界坐标
+     * 
+     * @method getForwardWorldPosition
+     * @return {Vec3}
+     */
+    getForwardWorldPosition () {
+        return Vec3.transformQuat(_guwpVec3, Vec3.FRONT, this.getWorldPosition(new Quat()));
     },
 
     /*
