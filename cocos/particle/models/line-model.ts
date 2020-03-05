@@ -6,8 +6,7 @@ import { IRenderingSubmesh } from '../../core/assets/mesh';
 import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
 import { Vec3 } from '../../core/math';
-import { Model } from '../../core/renderer/scene/model';
-import { RenderScene } from '../../core/renderer/scene/render-scene';
+import { Model, ModelType } from '../../core/renderer/scene/model';
 import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';
 
@@ -37,6 +36,7 @@ export class LineModel extends Model {
 
     constructor () {
         super();
+        this._type = ModelType.LINE;
         this._capacity = 100;
         this._iaInfo = {
             drawInfos: [{
@@ -208,9 +208,10 @@ export class LineModel extends Model {
     }
 
     public updateIA (count: number) {
-        this.getSubModel(0).inputAssembler!.vertexBuffers[0].update(this._vdataF32!);
-        this.getSubModel(0).inputAssembler!.indexCount = this._indexCount * count;
-        this.getSubModel(0).inputAssembler!.extractDrawInfo(this._iaInfo.drawInfos[0]);
+        const ia = this.getSubModel(0).inputAssembler!;
+        ia.vertexBuffers[0].update(this._vdataF32!);
+        ia.indexCount = this._indexCount * count;
+        this._iaInfo.drawInfos[0] = ia;
         this._iaInfoBuffer.update(this._iaInfo);
     }
 

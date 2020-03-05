@@ -1,7 +1,7 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 import { Material } from '../../assets/material';
 import { IRenderingSubmesh } from '../../assets/mesh';
-import { aabb } from '../../geom-utils';
+import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXGetTypeSize, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
@@ -12,7 +12,7 @@ import { Pool } from '../../memop';
 import { IInternalBindingInst, UBOForwardLight, UBOLocal } from '../../pipeline/define';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
-import { Pass } from '../core/pass';
+import { IMacroPatch, Pass } from '../core/pass';
 import { customizationManager } from './customization-manager';
 import { RenderScene } from './render-scene';
 import { SubModel } from './submodel';
@@ -33,6 +33,15 @@ function getUniformBlockSize (block: GFXUniformBlock): number {
 
 let MODEL_ID = 0;
 
+export enum ModelType {
+    DEFAULT,
+    SKINNING,
+    BAKED_SKINNING,
+    UI_BATCH,
+    PARTICLE_BATCH,
+    LINE,
+}
+
 /**
  * A representation of a model
  */
@@ -48,6 +57,10 @@ export class Model {
 
     get id () {
         return this._id;
+    }
+
+    get type () {
+        return this._type;
     }
 
     get subModels () {
@@ -141,7 +154,7 @@ export class Model {
         return this._uboUpdated;
     }
 
-    protected _type: string = 'default';
+    protected _type = ModelType.DEFAULT;
     protected _device: GFXDevice;
     protected _scene: RenderScene | null = null;
     protected _node: Node | null = null;
@@ -197,11 +210,12 @@ export class Model {
         }
         this._worldBounds = null;
         this._modelBounds = null;
-        this._subModels.splice(0);
+        this._subModels.length = 0;
         this._matPSORecord.clear();
         this._matRefCount.clear();
         this._inited = false;
         this._transformUpdated = true;
+        this._isDynamicBatching = false;
     }
 
     public attachToScene (scene: RenderScene) {
@@ -217,13 +231,13 @@ export class Model {
     }
 
     public updateTransform () {
-        const node = this._transform;
-        // @ts-ignore
+        const node = this._transform!;
+        // @ts-ignore TS2445
         if (node.hasChangedFlags || node._dirtyFlags) {
-            node!.updateWorldTransform();
+            node.updateWorldTransform();
             this._transformUpdated = true;
             if (this._modelBounds && this._worldBounds) {
-                // @ts-ignore TS2339
+                // @ts-ignore TS2445
                 this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, this._worldBounds);
             }
         }
@@ -265,9 +279,6 @@ export class Model {
         if (!minPos || !maxPos) { return; }
         this._modelBounds = aabb.fromPoints(aabb.create(), minPos, maxPos);
         this._worldBounds = aabb.clone(this._modelBounds);
-        this._transform!.updateWorldTransform();
-        // @ts-ignore
-        this._modelBounds.transform(this._transform._mat, this._transform._pos, this._transform._rot, this._transform._scale, this._worldBounds);
     }
 
     public initSubModel (idx: number, subMeshData: IRenderingSubmesh, mat: Material) {
@@ -357,8 +368,8 @@ export class Model {
         }
     }
 
-    protected createPipelineState (pass: Pass) {
-        const pso = pass.createPipelineState()!;
+    protected createPipelineState (pass: Pass, patches?: IMacroPatch[]) {
+        const pso = pass.createPipelineState(patches)!;
         pso.pipelineLayout.layouts[0].bindBuffer(UBOLocal.BLOCK.binding, this._localBindings.get(UBOLocal.BLOCK.name)!.buffer!);
         if (this._localBindings.has(UBOForwardLight.BLOCK.name)) {
             pso.pipelineLayout.layouts[0].bindBuffer(UBOForwardLight.BLOCK.binding, this._localBindings.get(UBOForwardLight.BLOCK.name)!.buffer!);

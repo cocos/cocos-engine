@@ -197,12 +197,14 @@ export class AmmoSharedBody {
             if (index < 0) {
                 this.ghostStruct.wrappedShapes.push(v);
                 v.setCompound(this.ghostCompoundShape);
+                this.ghostEnabled = true;
             }
         } else {
             const index = this.bodyStruct.wrappedShapes.indexOf(v);
             if (index < 0) {
                 this.bodyStruct.wrappedShapes.push(v);
                 v.setCompound(this.bodyCompoundShape);
+                this.bodyEnabled = true;
             }
         }
     }
@@ -213,12 +215,14 @@ export class AmmoSharedBody {
             if (index >= 0) {
                 this.ghostStruct.wrappedShapes.splice(index, 1);
                 v.setCompound(null);
+                this.ghostEnabled = false;
             }
         } else {
             const index = this.bodyStruct.wrappedShapes.indexOf(v);
             if (index >= 0) {
                 this.bodyStruct.wrappedShapes.splice(index, 1);
                 v.setCompound(null);
+                this.bodyEnabled = false;
             }
         }
     }
@@ -244,11 +248,6 @@ export class AmmoSharedBody {
      */
     syncPhysicsToScene () {
         if (this.body.isStaticObject() || !this.body.isActive()) {
-            // // debug, 静态 body 在动态 body 之前加入到世界，将会导致球抖动。
-            // if (this.ghostIndex != 666) {
-            //     this.updateByReAdd();
-            //     this.ghostIndex = 666;
-            // }
             return;
         }
 

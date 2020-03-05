@@ -134,7 +134,6 @@ export class UI {
     }
 
     public destroy () {
-        this._destroyUIMaterials();
 
         for (const batch of this._batches.array) {
             batch.destroy(this);
@@ -145,13 +144,7 @@ export class UI {
         }
         this._meshBuffers.splice(0);
 
-        const matIter = this._uiMaterials.values();
-        let result = matIter.next();
-        while (!result.done) {
-            const uiMat = result.value;
-            uiMat.destroy();
-            result = matIter.next();
-        }
+        this._destroyUIMaterials();
 
         if (this._cmdBuff) {
             this._cmdBuff.destroy();
@@ -183,15 +176,37 @@ export class UI {
     }
 
     /**
+     * @en
+     * Add the managed CanvasComponent.
+     *
      * @zh
      * 添加屏幕组件管理。
      *
      * @param comp - 屏幕组件。
      */
     public addScreen (comp: CanvasComponent) {
+        const screens = this._screens;
+        // clear the canvas old visibility cache in canvasMaterial list
+        for (let i = 0; i < screens.length; i++) {
+            const screen = screens[i];
+            if (screen.camera) {
+                const visibility = screen.camera.view.visibility;
+                const matRecord = this._canvasMaterials.get(visibility);
+                if (matRecord) {
+                    const matHashInter = matRecord!.keys();
+                    let matHash = matHashInter.next();
+                    while (!matHash.done) {
+                        this._removeUIMaterial(matHash.value);
+                        matHash = matHashInter.next();
+                    }
+
+                    matRecord.clear();
+                }
+            }
+        }
+
         this._screens.push(comp);
         this._screens.sort(this._screenSort);
-        const screens = this._screens;
         for (let i = 0; i < screens.length; i++) {
             const element = screens[i];
             if (element.camera) {
@@ -204,6 +219,9 @@ export class UI {
     }
 
     /**
+     * @en
+     * Get the CanvasComponent by number.
+     *
      * @zh
      * 通过屏幕编号获得屏幕组件。
      *
@@ -225,7 +243,7 @@ export class UI {
 
     /**
      * @zh
-     * 移除屏幕组件管理。
+     * Removes the CanvasComponent from the list.
      *
      * @param comp - 被移除的屏幕。
      */
@@ -237,12 +255,15 @@ export class UI {
 
         this._screens.splice(idx, 1);
         if (comp.camera) {
-            const matHashInter = this._canvasMaterials.get(comp.camera.view.visibility)!.keys();
+            const matRecord = this._canvasMaterials.get(comp.camera.view.visibility);
+            const matHashInter = matRecord!.keys();
             let matHash = matHashInter.next();
             while (!matHash.done) {
                 this._removeUIMaterial(matHash.value);
                 matHash = matHashInter.next();
             }
+
+            matRecord!.clear();
         }
 
         let camera: Camera | null;
@@ -251,7 +272,12 @@ export class UI {
             if (camera) {
                 const matRecord = this._canvasMaterials.get(camera.view.visibility)!;
                 camera.view.visibility = Layers.BitMask.UI_2D | (i + 1);
-                this._canvasMaterials.set(camera.view.visibility, matRecord);
+                const newMatRecord = this._canvasMaterials.get(camera.view.visibility)!;
+                matRecord.forEach((value: number, key: number) => {
+                    newMatRecord.set(key, value);
+                });
+
+                matRecord.clear();
             }
         }
     }
@@ -329,8 +355,13 @@ export class UI {
     }
 
     /**
+     * @en
+     * Render component data submission process of UI.
+     * The submitted vertex data is the UI for world coordinates.
+     * For example: The UI components except Graphics and UIModelComponent.
+     *
      * @zh
-     * UI 渲染组件数据提交流程（针对顶点数据都是世界坐标下的提交流程，例如：除 graphics 和 uimodel 的大部分 ui 组件）。
+     * UI 渲染组件数据提交流程（针对提交的顶点数据是世界坐标的提交流程，例如：除 graphics 和 uimodel 的大部分 ui 组件）。
      * 此处的数据最终会生成需要提交渲染的 model 数据。
      *
      * @param comp - 当前执行组件。
@@ -356,6 +387,11 @@ export class UI {
     }
 
     /**
+     * @en
+     * Render component data submission process of UI.
+     * The submitted vertex data is the UI for local coordinates.
+     * For example: The UI components of Graphics and UIModelComponent.
+     *
      * @zh
      * UI 渲染组件数据提交流程（针对例如： graphics 和 uimodel 等数据量较为庞大的 ui 组件）。
      *
@@ -398,14 +434,26 @@ export class UI {
         this._batches.push(curDrawBatch);
     }
 
+    /**
+     * @en
+     * Submit separate render data.
+     * This data does not participate in the batch.
+     *
+     * @zh
+     * 提交独立渲染数据.
+     * @param comp 静态组件
+     */
     public commitStaticBatch (comp: UIStaticBatchComponent) {
         this._batches.concat(comp.drawBatchList);
         this.finishMergeBatches();
     }
 
     /**
+     * @en
+     * End a section of render data and submit according to the batch condition.
+     *
      * @zh
-     * UI 渲染数据合批
+     * 根据合批条件，结束一段渲染数据并提交。
      */
     public autoMergeBatches () {
         const mat = this._currMaterial;
@@ -439,8 +487,11 @@ export class UI {
     }
 
     /**
+     * @en
+     * Force changes to current batch data and merge
+     *
      * @zh
-     * 跳过默认合批操作，执行强制合批。
+     * 强行修改当前批次数据并合并。
      *
      * @param material - 当前批次的材质。
      * @param sprite - 当前批次的精灵帧。
@@ -451,6 +502,13 @@ export class UI {
         this.autoMergeBatches();
     }
 
+    /**
+     * @en
+     * Forced to merge the data of the previous batch to start a new batch.
+     *
+     * @zh
+     * 强制合并上一个批次的数据，开启新一轮合批。
+     */
     public finishMergeBatches () {
         this.autoMergeBatches();
         this._currMaterial = this._emptyMaterial;

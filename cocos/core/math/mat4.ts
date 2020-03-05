@@ -164,7 +164,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 矩阵求逆
+     * @zh 矩阵求逆，注意，在矩阵不可逆时，会返回一个全为 0 的矩阵。
      */
     public static invert <Out extends IMat4Like> (out: Out, a: Out) {
 
@@ -189,7 +189,13 @@ export class Mat4 extends ValueType {
         // Calculate the determinant
         let det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 
-        if (det === 0) { return out; }
+        if (det === 0) {
+            out.m00 = 0; out.m01 = 0; out.m02 = 0; out.m03 = 0;
+            out.m04 = 0; out.m05 = 0; out.m06 = 0; out.m07 = 0;
+            out.m08 = 0; out.m09 = 0; out.m10 = 0; out.m11 = 0;
+            out.m12 = 0; out.m13 = 0; out.m14 = 0; out.m15 = 0;
+            return out;
+        }
         det = 1.0 / det;
 
         out.m00 = (_a11 * b11 - _a12 * b10 + _a13 * b09) * det;
@@ -1431,17 +1437,18 @@ export class Mat4 extends ValueType {
         m12 = 0, m13 = 0, m14 = 0, m15 = 1) {
         super();
         if (typeof m00 === 'object') {
-            this.m01 = m00.m01; this.m02 = m00.m02; this.m03 = m00.m03; this.m04 = m00.m04;
-            this.m05 = m00.m05; this.m06 = m00.m06; this.m07 = m00.m07; this.m08 = m00.m08;
-            this.m09 = m00.m09; this.m10 = m00.m10; this.m11 = m00.m11; this.m12 = m00.m12;
-            this.m13 = m00.m13; this.m14 = m00.m14; this.m15 = m00.m15; this.m00 = m00.m00;
+            this.m00 = m00.m00; this.m01 = m00.m01; this.m02 = m00.m02; this.m03 = m00.m03;
+            this.m04 = m00.m04; this.m05 = m00.m05; this.m06 = m00.m06; this.m07 = m00.m07;
+            this.m08 = m00.m08; this.m09 = m00.m09; this.m10 = m00.m10; this.m11 = m00.m11;
+            this.m12 = m00.m12; this.m13 = m00.m13; this.m14 = m00.m14; this.m15 = m00.m15;
         } else {
-            this.m01 = m01; this.m02 = m02; this.m03 = m03; this.m04 = m04;
-            this.m05 = m05; this.m06 = m06; this.m07 = m07; this.m08 = m08;
-            this.m09 = m09; this.m10 = m10; this.m11 = m11; this.m12 = m12;
-            this.m13 = m13; this.m14 = m14; this.m15 = m15; this.m00 = m00;
+            this.m00 = m00; this.m01 = m01; this.m02 = m02; this.m03 = m03;
+            this.m04 = m04; this.m05 = m05; this.m06 = m06; this.m07 = m07;
+            this.m08 = m08; this.m09 = m09; this.m10 = m10; this.m11 = m11;
+            this.m12 = m12; this.m13 = m13; this.m14 = m14; this.m15 = m15;
         }
     }
+
     /**
      * @zh 克隆当前矩阵。
      */
@@ -1586,7 +1593,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @zh 计算当前矩阵的逆矩阵。
+     * @zh 计算当前矩阵的逆矩阵。注意，在矩阵不可逆时，会返回一个全为 0 的矩阵。
      */
     public invert () {
         _a00 = this.m00; _a01 = this.m01; _a02 = this.m02; _a03 = this.m03;
@@ -1610,7 +1617,10 @@ export class Mat4 extends ValueType {
         // Calculate the determinant
         let det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 
-        if (det === 0) { return null; }
+        if (det === 0) {
+            this.set(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+            return this;
+        }
         det = 1.0 / det;
 
         this.m00 = (_a11 * b11 - _a12 * b10 + _a13 * b09) * det;

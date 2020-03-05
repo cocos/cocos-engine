@@ -38,7 +38,12 @@ export interface ITextureBufferPoolInfo {
     format: GFXFormat; // target texture format
     maxChunks: number; // maximum number of textures to allocate until exception
     inOrderFree?: boolean; // will the handles be freed exactly in the order of their allocation?
+    alignment?: number; // the data alignment for each handle allocated, in bytes
     roundUpFn?: (size: number, formatSize: number) => number; // given a target size, how will the actual texture size round up?
+}
+
+function roundUp (n: number, alignment: number) {
+    return Math.ceil(n / alignment) * alignment;
 }
 
 export class TextureBufferPool {
@@ -56,6 +61,7 @@ export class TextureBufferPool {
     private _bufferViewCtor: Uint8ArrayConstructor | Float32ArrayConstructor = Uint8Array;
     private _channels = 4;
     private _inOrderFree = false;
+    private _alignment = 1;
 
     public constructor (device: GFXDevice) {
         this._device = device;
@@ -70,6 +76,7 @@ export class TextureBufferPool {
         this._chunks = new Array(info.maxChunks);
         this._roundUpFn = info.roundUpFn || null;
         this._inOrderFree = info.inOrderFree || false;
+        this._alignment = info.alignment || 1;
 
         return true;
     }
@@ -88,6 +95,7 @@ export class TextureBufferPool {
         if (size === 0) {
             return null;
         }
+        size = roundUp(size, this._alignment);
 
         for (let i = 0; i < this._chunkCount; ++i) {
             const chunk = this._chunks[i];

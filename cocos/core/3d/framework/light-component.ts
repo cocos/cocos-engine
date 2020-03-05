@@ -61,12 +61,12 @@ export class LightComponent extends Component {
 
     /**
      * @en
-     * The light source color
+     * Color of the light.
      * @zh
      * 光源颜色。
      */
     @property({
-        tooltip: '光源颜色',
+        tooltip: 'i18n:lights.color',
     })
     // @constget
     get color (): Readonly<Color> {
@@ -83,12 +83,12 @@ export class LightComponent extends Component {
 
     /**
      * @en
-     * Whether to enable light color temperature
+     * Whether to enable light color temperature.
      * @zh
      * 是否启用光源色温。
      */
     @property({
-        tooltip: '是否启用光源色温',
+        tooltip: 'i18n:lights.use_color_temperature',
     })
     get useColorTemperature () {
         return this._useColorTemperature;
@@ -100,14 +100,14 @@ export class LightComponent extends Component {
 
     /**
      * @en
-     * The light color temperature
+     * The light color temperature.
      * @zh
      * 光源色温。
      */
     @property({
         slide: true,
         range: [1000, 15000, 1],
-        tooltip: '光源色温',
+        tooltip: 'i18n:lights.color_temperature',
     })
     get colorTemperature () {
         return this._colorTemperature;
@@ -120,7 +120,7 @@ export class LightComponent extends Component {
 
     /**
      * @en
-     * The light type
+     * The light type.
      * @zh
      * 光源类型。
      */

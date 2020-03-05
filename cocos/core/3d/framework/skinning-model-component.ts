@@ -27,17 +27,16 @@
  * @category model
  */
 
-import { AnimationClip } from '../../animation';
-import { Material } from '../../assets/material';
+import { AnimationClip } from '../../animation/animation-clip';
 import { Skeleton } from '../../assets/skeleton';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
+import { BakedSkinningModel } from '../../renderer/models/baked-skinning-model';
 import { SkinningModel } from '../../renderer/models/skinning-model';
 import { Node } from '../../scene-graph/node';
-import { builtinResMgr } from '../builtin';
 import { ModelComponent } from './model-component';
 
 /**
- * @en The Skinning Model Component
+ * @en The Skinning Model Component.
  * @zh 蒙皮模型组件。
  */
 @ccclass('cc.SkinningModelComponent')
@@ -55,7 +54,7 @@ export class SkinningModelComponent extends ModelComponent {
     protected _clip: AnimationClip | null = null;
 
     /**
-     * @en The skeleton resource
+     * @en The skeleton asset.
      * @zh 骨骼资源。
      */
     @property({
@@ -66,55 +65,68 @@ export class SkinningModelComponent extends ModelComponent {
     }
 
     set skeleton (val) {
+        if (val === this._skeleton) { return; }
         this._skeleton = val;
         this._update();
     }
 
     /**
-     * 骨骼根节点的引用。
+     * @en The skinning root. (The node where the controlling AnimationComponent is located)
+     * 骨骼根节点的引用，对应控制此模型的动画组件所在节点。
      */
     @property({
         type: Node,
+        tooltip: 'i18n:model.skinning_root',
     })
     get skinningRoot () {
         return this._skinningRoot;
     }
 
     set skinningRoot (value) {
+        if (value === this._skinningRoot) { return; }
         this._skinningRoot = value;
         this._update();
     }
 
     get model () {
-        return (this._model as SkinningModel);
+        return this._model as SkinningModel | BakedSkinningModel | null;
     }
 
     constructor () {
         super();
-        this._modelType = SkinningModel;
+        this._modelType = BakedSkinningModel;
     }
 
     public uploadAnimation (clip: AnimationClip | null) {
         this._clip = clip;
-        if (this._model) { (this._model as SkinningModel).uploadAnimation(clip); }
+        if (this.model && this.model.uploadAnimation) {
+            this.model.uploadAnimation(clip);
+        }
     }
 
-    public _updateModelParams () {
-        // should bind skeleton before super create pso
-        this._update();
+    public setUseBakedAnimation (val = true) {
+        const modelType = val ? BakedSkinningModel : SkinningModel;
+        if (this._model && modelType !== this._modelType) {
+            cc.director.root.destroyModel(this._model);
+            this._model = null;
+            this._models.length = 0;
+            this._modelType = modelType;
+            this._updateModels();
+            if (this.enabledInHierarchy) {
+                this._attachToScene();
+            }
+        }
+    }
+
+    protected _updateModelParams () {
+        this._update(); // should bind skeleton before super create pso
         super._updateModelParams();
     }
 
-    protected _getBuiltinMaterial () {
-        // classic ugly pink indicating missing material
-        return builtinResMgr.get<Material>('missing-skinning-material');
-    }
-
     private _update () {
-        if (this._model) {
-            const model = (this._model as SkinningModel);
-            model.bindSkeleton(this._skeleton, this._skinningRoot, this._mesh);
-            model.uploadAnimation(this._clip);
+        if (this.model) {
+            this.model.bindSkeleton(this._skeleton, this._skinningRoot, this._mesh);
+            if (this.model.uploadAnimation) { this.model.uploadAnimation(this._clip); }
         }
     }
 }

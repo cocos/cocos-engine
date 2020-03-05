@@ -118,6 +118,7 @@ function _componentCorrupted (node, comp, index) {
 
 function _onLoadInEditor (comp) {
     if (comp.onLoad && !cc.engine._isPlaying) {
+        // @ts-ignore
         const focused = Editor.Selection.curActivate('node') === comp.node.uuid;
         if (focused) {
             if (comp.onFocusInEditor) {

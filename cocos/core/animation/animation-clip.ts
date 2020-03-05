@@ -12,10 +12,10 @@ import { DataPoolManager } from '../renderer/data-pool-manager';
 import binarySearchEpsilon from '../utils/binary-search';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { AnimCurve, IPropertyCurveData, RatioSampler } from './animation-curve';
-import { IValueProxyFactory } from './value-proxy';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
-import { ComponentPath, TargetPath, HierarchyPath } from './target-path';
+import { ComponentPath, HierarchyPath, TargetPath } from './target-path';
 import { WrapMode as AnimationWrapMode } from './types';
+import { IValueProxyFactory } from './value-proxy';
 
 export interface IObjectCurveData {
     [propertyName: string]: IPropertyCurveData;
@@ -65,7 +65,7 @@ export declare namespace AnimationClip {
         data: PropertyCurveData;
     }
 
-    export interface CommonTarget {
+    export interface ICommonTarget {
         modifiers: TargetPath[];
         valueAdapter?: IValueProxyFactory;
     }
@@ -180,9 +180,11 @@ export class AnimationClip extends Asset {
     private _curves: AnimationClip.ICurve[] = [];
 
     @property
-    private _commonTargets: AnimationClip.CommonTarget[] = [];
+    private _commonTargets: AnimationClip.ICommonTarget[] = [];
 
+    @property
     private _hash = 0;
+
     private frameRate = 0;
     private _ratioSamplers: RatioSampler[] = [];
     private _runtimeCurves?: IRuntimeCurve[];
@@ -218,7 +220,7 @@ export class AnimationClip extends Asset {
     /**
      * @protected
      */
-    get eventGroups (): ReadonlyArray<IAnimationEventGroup> {
+    get eventGroups (): readonly IAnimationEventGroup[] {
         if (!this._runtimeEvents) {
             this._createRuntimeEvents();
         }
@@ -241,7 +243,8 @@ export class AnimationClip extends Asset {
     }
 
     get hash () {
-        if (!this._hash) { this._hash = murmurhash2_32_gc(JSON.stringify(this._curves), 666); }
+        // hashes should already be computed offline, but if not, make one
+        if (!this._hash) { this._hash = murmurhash2_32_gc(JSON.stringify(SkelAnimDataHub.getOrExtract(this).data), 666); }
         return this._hash;
     }
 
@@ -265,7 +268,7 @@ export class AnimationClip extends Asset {
         return this._commonTargets;
     }
 
-    set commonTargets(value) {
+    set commonTargets (value) {
         this._commonTargets = value;
     }
 
@@ -275,7 +278,7 @@ export class AnimationClip extends Asset {
         this._decodeCVTAs();
     }
 
-    public getPropertyCurves (): ReadonlyArray<IRuntimeCurve> {
+    public getPropertyCurves (): readonly IRuntimeCurve[] {
         if (!this._runtimeCurves) {
             this._createPropertyCurves();
         }

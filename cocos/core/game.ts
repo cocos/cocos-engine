@@ -30,9 +30,10 @@
 import { EventTarget } from './event/event-target';
 import { WebGLGFXDevice } from './gfx/webgl/webgl-device';
 import { WebGL2GFXDevice } from './gfx/webgl2/webgl2-device';
-import * as debug from './platform/debug';
-import { SplashScreen } from './splash-image';
 import { ForwardPipeline } from './pipeline';
+import * as debug from './platform/debug';
+import sys from './platform/sys';
+
 /**
  * @en
  * The current game configuration, including:<br/>
@@ -370,8 +371,21 @@ export class Game extends EventTarget {
         // Pause main loop
         if (this._intervalId) {
             window.cancelAnimationFrame(this._intervalId);
+            this._intervalId = 0;
         }
-        this._intervalId = 0;
+        // Because JSB platforms never actually stops the swap chain,
+        // we draw some more frames here to (try to) make sure swap chain consistency
+        if (CC_JSB || CC_RUNTIME_BASED || CC_ALIPAY) {
+            let swapbuffers = 3;
+            const cb = () => {
+                if (--swapbuffers > 1) {
+                    window.requestAnimationFrame(cb);
+                }
+                const root = cc.director.root;
+                root.frameMove(0); root.device.present();
+            };
+            window.requestAnimationFrame(cb);
+        }
     }
 
     /**
@@ -477,7 +491,7 @@ export class Game extends EventTarget {
      * @param {Object} [target] - The target (this object) to invoke the callback, can be null
      */
     // @ts-ignore
-    public once (type: string, callback: Function, target: object) {
+    public once (type: string, callback: Function, target?: object) {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
         if (this._prepared && type === Game.EVENT_ENGINE_INITED) {
             callback.call(target);
@@ -572,7 +586,6 @@ export class Game extends EventTarget {
         }
 
         const start = () => {
-            this._prepared = true;
             this._setAnimFrame();
             this._runMainLoop();
 
@@ -580,7 +593,6 @@ export class Game extends EventTarget {
 
             if (cb) { cb(); }
         };
-
 
         // Init engine
         this._initEngine(start);
@@ -595,8 +607,13 @@ export class Game extends EventTarget {
             this._initEvents();
         }
 
+        // Log engine version
+        console.log('Cocos Creator 3D v' + cc.ENGINE_VERSION);
+        this.emit(Game.EVENT_ENGINE_INITED);
+        this._prepared = true;
+
         // load renderpipeline
-        let config = this.config;
+        const config = this.config;
         cc.loader.load({ uuid: config.renderPipeline }, (err, asset) => {
             // failed load renderPipeline
             if (err || !(asset instanceof cc.RenderPipeline)) {
@@ -610,20 +627,13 @@ export class Game extends EventTarget {
             this._rendererInitialized = true;
             this.emit(Game.EVENT_RENDERER_INITED);
 
-            if (cc.internal.SplashScreen) {
-                // Start splash screen
-                cc.internal.SplashScreen.instance.main(this._gfxDevice);
-                cc.internal.SplashScreen.instance.setOnFinish(cb);
-                cc.internal.SplashScreen.instance.loadFinish = true;
-            }
-            else {
-                cb && cb();
+            if (!CC_EDITOR && !CC_PREVIEW && cc.internal.SplashScreenWebgl) {
+                cc.internal.SplashScreenWebgl.instance.setOnFinish(cb);
+                cc.internal.SplashScreenWebgl.instance.loadFinish = true;
+            } else if (cb) {
+                cb();
             }
         });
-
-        // Log engine version
-        console.log('Cocos Creator 3D v' + cc.ENGINE_VERSION);
-        this.emit(Game.EVENT_ENGINE_INITED);
     }
 
     // @Methods
@@ -666,8 +676,7 @@ export class Game extends EventTarget {
     private _stTime (callback) {
         const currTime = new Date().getTime();
         const timeToCall = Math.max(0, cc.game._frameTime - (currTime - cc.game._lastTime));
-        const id = window.setTimeout(() => { callback(); },
-            timeToCall);
+        const id = window.setTimeout(callback, timeToCall);
         cc.game._lastTime = currTime + timeToCall;
         return id;
     }
@@ -676,9 +685,8 @@ export class Game extends EventTarget {
     }
     // Run game.
     private _runMainLoop () {
-        const self = this;
         let callback: FrameRequestCallback;
-        const config = self.config;
+        const config = this.config;
         const director = cc.director;
         let skip: boolean = true;
         const frameRate = config.frameRate;
@@ -686,24 +694,22 @@ export class Game extends EventTarget {
         debug.setDisplayStats(!!config.showFPS);
 
         callback = (time: number) => {
-            if (!self._paused) {
-                self._intervalId = window.requestAnimationFrame(callback);
-                if (!CC_JSB && frameRate === 30) {
-                    skip = !skip;
-                    if (skip) {
-                        return;
-                    }
+            if (this._paused) { return; }
+            this._intervalId = window.requestAnimationFrame(callback);
+            if (!CC_JSB && frameRate === 30) {
+                skip = !skip;
+                if (skip) {
+                    return;
                 }
-                director.mainLoop(time);
             }
+            director.mainLoop(time);
         };
 
-        self._intervalId = window.requestAnimationFrame(callback);
-        self._paused = false;
+        this._intervalId = window.requestAnimationFrame(callback);
+        this._paused = false;
     }
 
-    //  @Game loading section
-    // tslint:disable-next-line: max-line-length
+    // @Game loading section
     private _initConfig (config: IGameConfig) {
         // Configs adjustment
         if (typeof config.debugMode !== 'number') {
@@ -782,62 +788,70 @@ export class Game extends EventTarget {
             }
         }
 
-        const el = this.config.id;
-        let width: any;
-        let height: any;
+        // TODO: adapter for editor & preview
         let localCanvas: HTMLCanvasElement;
-        let localContainer: HTMLElement;
+        if (CC_EDITOR || CC_PREVIEW) {
+            const el = this.config.id;
+            let width: any;
+            let height: any;
+            let localContainer: HTMLElement;
 
-        if (CC_JSB) {
-            this.container = localContainer = document.createElement<'div'>('div');
-            this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
-            if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-                localCanvas = window.sharedCanvas || wx.getSharedCanvas();
-            }
-            else if (CC_JSB) {
-                localCanvas = window.__canvas;
+            if (CC_JSB) {
+                this.container = localContainer = document.createElement<'div'>('div');
+                this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
+                if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+                    localCanvas = window.sharedCanvas || wx.getSharedCanvas();
+                }
+                else if (CC_JSB) {
+                    localCanvas = window.__canvas;
+                }
+                else {
+                    localCanvas = window.canvas;
+                }
+                this.canvas = localCanvas;
             }
             else {
-                localCanvas = window.canvas;
-            }
-            this.canvas = localCanvas;
-        }
-        else {
-            const element = !el ? null : ((el instanceof HTMLElement) ? el : (document.querySelector(el) || document.querySelector('#' + el)));
-            if (!element) {
-                throw new Error(debug.getError(200));
-            }
-
-            if (element.tagName === 'CANVAS') {
-                width = (element as HTMLCanvasElement).width;
-                height = (element as HTMLCanvasElement).height;
-
-                // it is already a canvas, we wrap it around with a div
-                this.canvas = localCanvas = (element as HTMLCanvasElement);
-                this.container = localContainer = document.createElement<'div'>('div');
-                if (localCanvas && localCanvas.parentNode) {
-                    localCanvas.parentNode.insertBefore(localContainer, localCanvas);
+                const element = !el ? null : ((el instanceof HTMLElement) ? el : (document.querySelector(el) || document.querySelector('#' + el)));
+                if (!element) {
+                    throw new Error(debug.getError(200));
                 }
-            } else {
-                // we must make a new canvas and place into this element
-                if (element.tagName !== 'DIV') {
-                    debug.warnID(3819);
+
+                if (element.tagName === 'CANVAS') {
+                    width = (element as HTMLCanvasElement).width;
+                    height = (element as HTMLCanvasElement).height;
+
+                    // it is already a canvas, we wrap it around with a div
+                    this.canvas = localCanvas = (element as HTMLCanvasElement);
+                    this.container = localContainer = document.createElement<'div'>('div');
+                    if (localCanvas && localCanvas.parentNode) {
+                        localCanvas.parentNode.insertBefore(localContainer, localCanvas);
+                    }
+                } else {
+                    // we must make a new canvas and place into this element
+                    if (element.tagName !== 'DIV') {
+                        debug.warnID(3819);
+                    }
+                    width = element.clientWidth;
+                    height = element.clientHeight;
+
+                    this.canvas = localCanvas = document.createElement('canvas');
+                    this.container = localContainer = document.createElement<'div'>('div');
+                    element.appendChild(localContainer);
                 }
-                width = element.clientWidth;
-                height = element.clientHeight;
+                localContainer.setAttribute('id', 'Cocos3dGameContainer');
+                localContainer.appendChild(localCanvas!);
+                this.frame = (localContainer.parentNode === document.body) ? document.documentElement : localContainer.parentNode;
 
-                this.canvas = localCanvas = document.createElement('canvas');
-                this.container = localContainer = document.createElement<'div'>('div');
-                element.appendChild(localContainer);
+                addClass(localCanvas!, 'gameCanvas');
+                localCanvas.setAttribute('width', width || '480');
+                localCanvas.setAttribute('height', height || '320');
+                localCanvas.setAttribute('tabindex', '99');
             }
-            localContainer.setAttribute('id', 'Cocos3dGameContainer');
-            localContainer.appendChild(localCanvas!);
-            this.frame = (localContainer.parentNode === document.body) ? document.documentElement : localContainer.parentNode;
-
-            addClass(localCanvas!, 'gameCanvas');
-            localCanvas.setAttribute('width', width || '480');
-            localCanvas.setAttribute('height', height || '320');
-            localCanvas.setAttribute('tabindex', '99');
+        } else {
+            this.canvas = (this.config as any).adapter.canvas;
+            this.frame = (this.config as any).adapter.frame;
+            this.container = (this.config as any).adapter.container;
+            localCanvas = this.canvas as HTMLCanvasElement;
         }
 
         this._determineRenderType();
@@ -846,11 +860,11 @@ export class Game extends EventTarget {
         if (this.renderType === Game.RENDER_TYPE_WEBGL) {
             let useWebGL2 = (!!window.WebGL2RenderingContext);
 
-            const userAgent = navigator.userAgent.toLowerCase();
-            if (userAgent.indexOf('safari') !== -1) {
-                if (userAgent.indexOf('chrome') === -1) {
-                    useWebGL2 = false;
-                }
+            const userAgent = window.navigator.userAgent.toLowerCase();
+            if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1
+                || sys.browserType === sys.BROWSER_TYPE_UC // UC browser implementation doesn't not conform to WebGL2 standard
+            ) {
+                useWebGL2 = false;
             }
 
             // useWebGL2 = false;

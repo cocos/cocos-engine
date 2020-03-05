@@ -7,7 +7,7 @@ import { ArrayCollisionMatrix } from '../utils/array-collision-matrix';
 import { TupleDictionary } from '../utils/tuple-dictionary';
 import { TriggerEventObject, CollisionEventObject } from './ammo-const';
 import { ammo2CocosVec3, cocos2AmmoVec3, cocos2AmmoQuat } from './ammo-util';
-import { ray } from '../../core/geom-utils';
+import { ray } from '../../core/geometry';
 import { IRaycastOptions, IPhysicsWorld } from '../spec/i-physics-world';
 import { PhysicsRayResult, PhysicMaterial } from '../framework';
 import { Node, RecyclePool } from '../../core';
@@ -108,6 +108,16 @@ export class AmmoWorld implements IPhysicsWorld {
         }
 
         this.emitEvents();
+
+        // sync scene to physics again
+        for (let i = 0; i < this.ghosts.length; i++) {
+            this.ghosts[i].syncSceneToGhost();
+        }
+
+        for (let i = 0; i < this.bodies.length; i++) {
+            this.bodies[i].syncSceneToPhysics();
+        }
+
     }
 
     raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
@@ -116,7 +126,7 @@ export class AmmoWorld implements IPhysicsWorld {
         let to = cocos2AmmoVec3(this.allHitsCB.m_rayToWorld, v3_0);
 
         this.allHitsCB.m_collisionFilterGroup = -1;
-        this.allHitsCB.m_collisionFilterMask = -1;
+        this.allHitsCB.m_collisionFilterMask = options.mask;
         this.allHitsCB.m_closestHitFraction = 1;
         this.allHitsCB.m_shapePart = -1;
         (this.allHitsCB.m_collisionObject as any) = null;
@@ -152,13 +162,13 @@ export class AmmoWorld implements IPhysicsWorld {
      * Ray cast, and return information of the closest hit.
      * @return True if any body was hit.
      */
-    raycastClosest (worldRay: ray, options: any, result: PhysicsRayResult): boolean {
+    raycastClosest (worldRay: ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
         let from = cocos2AmmoVec3(this.closeHitCB.m_rayFromWorld, worldRay.o);
         worldRay.computeHit(v3_0, options.maxDistance);
         let to = cocos2AmmoVec3(this.closeHitCB.m_rayToWorld, v3_0);
 
         this.closeHitCB.m_collisionFilterGroup = -1;
-        this.closeHitCB.m_collisionFilterMask = -1;
+        this.closeHitCB.m_collisionFilterMask = options.mask;
         this.closeHitCB.m_closestHitFraction = 1;
         (this.closeHitCB.m_collisionObject as any) = null;
 

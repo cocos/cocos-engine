@@ -387,8 +387,8 @@ export const widgetManager = cc._widgetManager = {
     refreshWidgetOnResized (node: Node) {
         if (Node.isNode(node)){
             const widget = node.getComponent(WidgetComponent);
-            if (widget && widget.alignFlags === AlignMode.ALWAYS) {
-                return;
+            if (widget && widget.alignMode === AlignMode.ON_WINDOW_RESIZE) {
+                widget.enabled = true;
             }
         }
 

@@ -1318,28 +1318,6 @@ export class BaseNode extends CCObject implements ISchedulable {
                 this._registerIfAttached!(false);
             }
 
-            // update prefab
-            const newPrefabRoot = newParent && newParent._prefab && newParent._prefab.root;
-            const myPrefabInfo = this._prefab;
-            // var PrefabUtils = Editor.require('scene://utils/prefab');
-            // if (myPrefabInfo) {
-            //     if (newPrefabRoot) {
-            //         if (myPrefabInfo.root !== newPrefabRoot) {
-            //             // change prefab
-            //             PrefabUtils.unlinkPrefab(this);
-            //             PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
-            //         }
-            //     }
-            //     else if (myPrefabInfo.root !== this) {
-            //         // detach from prefab
-            //         PrefabUtils.unlinkPrefab(this);
-            //     }
-            // }
-            // else if (newPrefabRoot) {
-            //     // attach to prefab
-            //     PrefabUtils.linkPrefab(newPrefabRoot._prefab.asset, newPrefabRoot, this);
-            // }
-
             // conflict detection
             // _Scene.DetectConflict.afterAddChild(this);
         }
@@ -1404,6 +1382,7 @@ export class BaseNode extends CCObject implements ISchedulable {
             }
         }
 
+        this.emit(SystemEventType.NODE_DESTROYED, this);
         return destroyByParent;
     }
 

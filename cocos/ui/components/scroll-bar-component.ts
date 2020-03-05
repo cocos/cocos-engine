@@ -30,7 +30,7 @@
 
 import { Component } from '../../core/components';
 import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
-import { Color, Size, Vec2, Vec3 } from '../../core/math';
+import { Color, Size, Vec2, Vec3, size } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { clamp01 } from '../../core/math/utils';
 import { ScrollViewComponent } from './scroll-view-component';
@@ -41,21 +41,32 @@ const GETTINGSHORTERFACTOR = 20;
 const ZERO = new Vec3();
 const _tempPos_1 = new Vec3();
 const _tempPos_2 = new Vec3();
+const _tempSize = new Size();
+const _tempVec2 = new Vec2();
 const defaultAnchor = new Vec2();
 const _tempColor = new Color();
 
 /**
+ * @en
+ * Enum for ScrollBar direction.
+ *
  * @zh
  * 滚动条方向。
  */
 enum Direction {
     /**
+     * @en
+     * Horizontal scroll.
+     *
      * @zh
      * 横向滚动。
      */
     HORIZONTAL = 0,
 
     /**
+     * @en
+     * Vertical scroll.
+     *
      * @zh
      * 纵向滚动。
      */
@@ -65,9 +76,11 @@ enum Direction {
 ccenum(Direction);
 
 /**
+ * @en
+ * The ScrollBar control allows the user to scroll an image or other view that is too large to see completely.
+ *
  * @zh
  * 滚动条组件。
- * 可通过 cc.ScrollBarComponent 获得该组件。
  */
 @ccclass('cc.ScrollBarComponent')
 @executionOrder(110)
@@ -75,6 +88,9 @@ ccenum(Direction);
 export class ScrollBarComponent extends Component {
 
     /**
+     * @en
+     * The "handle" part of the ScrollBar.
+     *
      * @zh
      * 作为当前滚动区域位置显示的滑块 Sprite。
      */
@@ -95,6 +111,9 @@ export class ScrollBarComponent extends Component {
     }
 
     /**
+     * @en
+     * The direction of scrolling.
+     *
      * @zh
      * ScrollBar 的滚动方向。
      */
@@ -116,6 +135,9 @@ export class ScrollBarComponent extends Component {
     }
 
     /**
+     * @en
+     * Whether enable auto hide or not.
+     *
      * @zh
      * 是否在没有滚动动作时自动隐藏 ScrollBar。
      */
@@ -138,6 +160,10 @@ export class ScrollBarComponent extends Component {
     }
 
     /**
+     * @en
+     * The time to hide ScrollBar when scroll finished.
+     * Note: This value is only useful when enableAutoHide is true.
+     *
      * @zh
      * 没有滚动动作后经过多久会自动隐藏。<br/>
      * 注意：只要当 “enableAutoHide” 为 true 时，才有效。
@@ -174,6 +200,9 @@ export class ScrollBarComponent extends Component {
     protected _autoHideRemainingTime = 0;
 
     /**
+     * @en
+     * Hide ScrollBar.
+     *
      * @zh
      * 滚动条隐藏。
      */
@@ -183,6 +212,9 @@ export class ScrollBarComponent extends Component {
     }
 
     /**
+     * @en
+     * Show ScrollBar.
+     *
      * @zh
      * 滚动条显示。
      */
@@ -192,6 +224,9 @@ export class ScrollBarComponent extends Component {
     }
 
     /**
+     * @en
+     * Reset the position of ScrollBar.
+     *
      * @zh
      * 重置滚动条位置。
      *
@@ -315,15 +350,17 @@ export class ScrollBarComponent extends Component {
             return ZERO;
         }
 
-        let ap = content.getAnchorPoint();
-        let contentSize = content.getContentSize();
-        const scrollViewSpacePos = new Vec3(- ap.x * contentSize.width, - ap.y * contentSize.height, 0);
-        content._uiProps.uiTransformComp!.convertToWorldSpaceAR(scrollViewSpacePos, scrollViewSpacePos);
-        ap = this._scrollView.node.getAnchorPoint();
-        contentSize = this._scrollView.node.getContentSize();
-        scrollViewSpacePos.x += ap.x * contentSize.width;
-        scrollViewSpacePos.y += ap.y * contentSize.height;
-        this._scrollView.node._uiProps.uiTransformComp!.convertToNodeSpaceAR(scrollViewSpacePos, scrollViewSpacePos);
+        const scrollTrans = this._scrollView.node._uiProps.uiTransformComp;
+        const contentTrans = content._uiProps.uiTransformComp;
+        if (!scrollTrans || !contentTrans) {
+            return ZERO;
+        }
+
+        _tempPos_1.set(-content.anchorX * content.width, -content.anchorY * content.height, 0);
+        contentTrans.convertToWorldSpaceAR(_tempPos_1, _tempPos_2);
+        const scrollViewSpacePos = scrollTrans.convertToNodeSpaceAR(_tempPos_2);
+        scrollViewSpacePos.x += scrollTrans.anchorX * scrollTrans.width;
+        scrollViewSpacePos.y += scrollTrans.anchorY * scrollTrans.height;
         return scrollViewSpacePos;
     }
 

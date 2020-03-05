@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { removeProperty } from '../../utils';
 import { ModelComponent } from './model-component';
 

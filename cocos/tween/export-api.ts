@@ -18,4 +18,7 @@ export type TweenEasing =
 export interface ITweenOption {
     easing?: TweenEasing | ((k: number) => number);
     progress?: (start: number, end: number, current: number, ratio: number) => number;
+    onStart?: (target?: object) => {};
+    onUpdate?: (target?: object, ratio?: number) => {};
+    onComplete?: (target?: object) => {};
 }

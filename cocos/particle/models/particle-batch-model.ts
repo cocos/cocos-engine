@@ -34,7 +34,7 @@ import { GFXAttributeName, GFXBufferUsageBit, GFXFormatInfos,
     GFXMemoryUsageBit, GFXPrimitiveMode, GFXStatus } from '../../core/gfx/define';
 import { IGFXAttribute } from '../../core/gfx/input-assembler';
 import { Color } from '../../core/math/color';
-import { Model } from '../../core/renderer/scene/model';
+import { Model, ModelType } from '../../core/renderer/scene/model';
 
 export default class ParticleBatchModel extends Model {
 
@@ -55,7 +55,7 @@ export default class ParticleBatchModel extends Model {
     constructor () {
         super();
 
-        this._type = 'particle-batch';
+        this._type = ModelType.PARTICLE_BATCH;
         this._capacity = 0;
         this._vertAttrs = null;
         this._vertSize = 0;
@@ -252,9 +252,10 @@ export default class ParticleBatchModel extends Model {
     }
 
     public updateIA (count: number) {
-        this.getSubModel(0).inputAssembler!.vertexBuffers[0].update(this._vdataF32!);
-        this.getSubModel(0).inputAssembler!.indexCount = this._indexCount * count;
-        this.getSubModel(0).inputAssembler!.extractDrawInfo(this._iaInfo.drawInfos[0]);
+        const ia = this.getSubModel(0).inputAssembler!;
+        ia.vertexBuffers[0].update(this._vdataF32!);
+        ia.indexCount = this._indexCount * count;
+        this._iaInfo.drawInfos[0] = ia;
         this._iaInfoBuffer.update(this._iaInfo);
     }
 

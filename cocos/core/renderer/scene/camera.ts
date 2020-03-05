@@ -1,11 +1,11 @@
-import { frustum, ray } from '../../geom-utils';
+import { frustum, ray } from '../../geometry';
 import { GFXClearFlag, IGFXColor } from '../../gfx/define';
 import { GFXWindow } from '../../gfx/window';
 import { lerp, Mat4, Rect, toRadian, Vec3 } from '../../math';
 import { CameraDefaultMask } from '../../pipeline/define';
 import { RenderView } from '../../pipeline/render-view';
-import { RenderScene } from './render-scene';
 import { Node } from '../../scene-graph';
+import { RenderScene } from './render-scene';
 
 export enum CameraProjection {
     ORTHO,
@@ -106,6 +106,7 @@ export class Camera {
     private _viewport: Rect = new Rect(0, 0, 1, 1);
     private _isProjDirty = true;
     private _matView: Mat4 = new Mat4();
+    private _matViewInv: Mat4 | null = null;
     private _matProj: Mat4 = new Mat4();
     private _matProjInv: Mat4 = new Mat4();
     private _matViewProj: Mat4 = new Mat4();
@@ -133,7 +134,6 @@ export class Camera {
         this.updateExposure();
 
         this._aspect = this._width = this._height = this._screenScale = 1;
-
     }
 
     public initialize (info: ICameraInfo) {
@@ -395,32 +395,72 @@ export class Camera {
         return this._aspect;
     }
 
+    set matView (val) {
+        this._matView = val;
+    }
+
     get matView () {
         return this._matView;
+    }
+
+    set matViewInv (val: Mat4 | null) {
+        this._matViewInv = val;
+    }
+
+    get matViewInv () {
+        return this._matViewInv || this._node!.worldMatrix;
+    }
+
+    set matProj (val) {
+        this._matProj = val;
     }
 
     get matProj () {
         return this._matProj;
     }
 
+    set matProjInv (val) {
+        this._matProjInv = val;
+    }
+
     get matProjInv () {
         return this._matProjInv;
+    }
+
+    set matViewProj (val) {
+        this._matViewProj = val;
     }
 
     get matViewProj () {
         return this._matViewProj;
     }
 
+    set matViewProjInv (val) {
+        this._matViewProjInv = val;
+    }
+
     get matViewProjInv () {
         return this._matViewProjInv;
+    }
+
+    set frustum (val) {
+        this._frustum = val;
     }
 
     get frustum () {
         return this._frustum;
     }
 
+    set forward (val) {
+        this._forward = val;
+    }
+
     get forward () {
         return this._forward;
+    }
+
+    set position (val) {
+        this._position = val;
     }
 
     get position () {

@@ -2,12 +2,12 @@
  * @hidden
  */
 import { ccclass } from '../data/class-decorator';
-import { UniformProxyFactory } from './value-proxy-factories/uniform';
-import { HierarchyPath, ComponentPath, CustomTargetPath, TargetPath } from './target-path';
 import * as animation from './animation';
-import * as easing from './easing';
 import './deprecated';
+import * as easing from './easing';
+import { ComponentPath, HierarchyPath, ICustomTargetPath, TargetPath } from './target-path';
 import { IValueProxyFactory } from './value-proxy';
+import { UniformProxyFactory } from './value-proxy-factories/uniform';
 
 cc.easing = easing;
 export * from './bezier';
@@ -93,7 +93,7 @@ cc.isElementModifier = isElementModifier;
  * Alias of `isCustomPath()`.
  * @deprecated Since v1.1.
  */
-export function isCustomTargetModifier<T extends CustomTargetPath> (path: TargetPath, constructor: Constructor<T>): path is T {
+export function isCustomTargetModifier<T extends ICustomTargetPath> (path: TargetPath, constructor: Constructor<T>): path is T {
     return path instanceof constructor;
 }
 cc.isCustomTargetModifier = isCustomTargetModifier;

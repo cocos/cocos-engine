@@ -41,6 +41,8 @@ export * from './text-utils';
 export * from './html-text-parser';
 export * from './prefab-helper';
 export * from './batch-utils';
+export * from './murmurhash2_gc';
+
 export {
     js,
     misc,

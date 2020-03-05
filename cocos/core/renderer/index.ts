@@ -15,6 +15,7 @@ export * from './core/pass-instance';
 
 export * from './models/skeletal-animation-utils';
 export * from './models/skinning-model';
+export * from './models/baked-skinning-model';
 
 export * from './scene/ambient';
 export * from './scene/camera';

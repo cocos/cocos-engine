@@ -45,13 +45,13 @@ export class ConstantForce extends Component {
 
     /**
      * @zh
-     * 获取和设置世界朝向的力
+     * 获取和设置世界坐标系下的力
      * @note
      * 设置时请用 this.force = otherVec3 的方式
      */
     @property({
         displayOrder: 0,
-        tooltip:'世界朝向的力',
+        tooltip:'世界坐标系下的力',
     })
     public get force () {
         return this._force;
@@ -64,13 +64,13 @@ export class ConstantForce extends Component {
 
     /**
      * @zh
-     * 获取和设置本地朝向的力
+     * 获取和设置本地坐标系下的力
      * @note
      * 设置时请用 this.localForce = otherVec3 的方式
      */
     @property({
         displayOrder: 1,
-        tooltip:'本地朝向的力',
+        tooltip:'本地坐标系下的力',
     })
     public get localForce () {
         return this._localForce;
@@ -83,13 +83,13 @@ export class ConstantForce extends Component {
 
     /**
      * @zh
-     * 获取和设置世界朝向的扭转力
+     * 获取和设置世界坐标系下的扭转力
      * @note
      * 设置时请用 this.torque = otherVec3 的方式
      */
     @property({
         displayOrder: 2,
-        tooltip:'世界朝向的扭转力',
+        tooltip:'世界坐标系下的扭转力',
     })
     public get torque () {
         return this._torque;
@@ -102,13 +102,13 @@ export class ConstantForce extends Component {
 
     /**
      * @zh
-     * 获取和设置本地朝向的扭转力
+     * 获取和设置本地坐标系下的扭转力
      * @note
      * 设置时请用 this.localTorque = otherVec3 的方式
      */
     @property({
         displayOrder: 3,
-        tooltip:'本地朝向的扭转力',
+        tooltip:'本地坐标系下的扭转力',
     })
     public get localTorque () {
         return this._localTorque;

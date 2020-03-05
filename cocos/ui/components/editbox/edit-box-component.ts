@@ -55,6 +55,13 @@ function capitalize (str: string) {
 function capitalizeFirstLetter (str: string) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+enum EventType {
+    EDITING_DID_BEGAN = 'editing-did-began',
+    EDITING_DID_ENDED = 'editing-did-ended',
+    TEXT_CHANGED = 'text-changed',
+    EDITING_RETURN = 'editing-return',
+}
 /**
  * @en
  * cc.EditBoxComponent is a component for inputing text, you can use it to gather small amounts of text from users.
@@ -70,7 +77,8 @@ function capitalizeFirstLetter (str: string) {
 export class EditBoxComponent extends Component {
 
     /**
-     * @en Input string of EditBox.
+     * @en
+     * Input string of EditBox.
      *
      * @zh
      * 输入框的初始输入内容，如果为空则会显示占位符的文本。
@@ -92,9 +100,11 @@ export class EditBoxComponent extends Component {
     }
 
     /**
-     * @en The Label component attached to the node for EditBox's input text label
+     * @en
+     * The Label component attached to the node for EditBox's input text label
      *
-     * @zh 输入框输入文本节点上挂载的 Label 组件对象
+     * @zh
+     * 输入框输入文本节点上挂载的 Label 组件对象
      */
     @property({
         tooltip: '输入框输入文本节点上挂载的 Label 组件对象',
@@ -114,9 +124,11 @@ export class EditBoxComponent extends Component {
         }
     }
     /**
-     * @en The Label component attached to the node for EditBox's placeholder text label.
+     * @en
+     * The Label component attached to the node for EditBox's placeholder text label.
      *
-     * @zh 输入框占位符节点上挂载的 Label 组件对象。
+     * @zh
+     * 输入框占位符节点上挂载的 Label 组件对象。
      */
     @property({
         tooltip: '输入框占位符节点上挂载的 Label 组件对象',
@@ -363,11 +375,13 @@ export class EditBoxComponent extends Component {
     }
 
     /**
-     * @en The maximize input length of EditBox.
+     * @en
+     * The maximize input length of EditBox.
      * - If pass a value less than 0, it won't limit the input number of characters.
      * - If pass 0, it doesn't allow input any characters.
      *
-     * @zh 输入框最大允许输入的字符个数。
+     * @zh
+     * 输入框最大允许输入的字符个数。
      * - 如果值为小于 0 的值，则不会限制输入字符个数。
      * - 如果值为 0，则不允许用户进行任何输入。
      */
@@ -429,6 +443,7 @@ export class EditBoxComponent extends Component {
     public static KeyboardReturnType = KeyboardReturnType;
     public static InputFlag = InputFlag;
     public static InputMode = InputMode;
+    public static EventType = EventType;
     /**
      * @en
      * The event handler to be called when EditBox began to edit text.
@@ -585,24 +600,24 @@ export class EditBoxComponent extends Component {
 
     public _editBoxEditingDidBegan () {
         ComponentEventHandler.emitEvents(this.editingDidBegan, this);
-        this.node.emit('editing-did-began', this);
+        this.node.emit(EventType.EDITING_DID_BEGAN, this);
     }
 
     public _editBoxEditingDidEnded () {
         ComponentEventHandler.emitEvents(this.editingDidEnded, this);
-        this.node.emit('editing-did-ended', this);
+        this.node.emit(EventType.EDITING_DID_ENDED, this);
     }
 
     public _editBoxTextChanged (text: string) {
         text = this._updateLabelStringStyle(text, true);
         this.string = text;
         ComponentEventHandler.emitEvents(this.textChanged, text, this);
-        this.node.emit('text-changed', this);
+        this.node.emit(EventType.TEXT_CHANGED, this);
     }
 
     public _editBoxEditingReturn () {
         ComponentEventHandler.emitEvents(this.editingReturn, this);
-        this.node.emit('editing-return', this);
+        this.node.emit(EventType.EDITING_RETURN, this);
     }
 
     public _showLabels () {

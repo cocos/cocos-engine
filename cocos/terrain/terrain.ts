@@ -259,7 +259,7 @@ export class TerrainBlock {
         this._renderable._meshData = {
             attributes: gfxAttributes,
             vertexBuffers: [vertexBuffer],
-            indexBuffer : this._terrain.getSharedIndexBuffer(),
+            indexBuffer: this._terrain.getSharedIndexBuffer() || undefined,
             flatBuffers : [],
             primitiveMode: GFXPrimitiveMode.TRIANGLE_LIST,
         };
@@ -896,7 +896,7 @@ export class Terrain extends Component {
     public onRestore () {
         this.onDisable();
         this.onLoad();
-        this._buildImp();
+        this._buildImp(true);
     }
 
     public update (dtime: number) {
@@ -1255,12 +1255,12 @@ export class Terrain extends Component {
         }
     }
 
-    private _buildImp () {
+    private _buildImp (restore: boolean = false) {
         if (this.valid) {
             return true;
         }
 
-        if (this.__asset != null) {
+        if (!restore && this.__asset != null) {
             this._tileSize = this.__asset.tileSize;
             this._blockCount = this.__asset.blockCount;
             this._weightMapSize = this.__asset.weightMapSize;
@@ -1295,7 +1295,7 @@ export class Terrain extends Component {
 
         // build heights & normals
         const vcount = this.vertexCount[0] * this.vertexCount[1];
-        if (this._heights.length !== vcount) {
+        if (this._heights === null || this._heights.length !== vcount) {
             this._heights = new Uint16Array(vcount);
             this._normals = new Array<number>(vcount * 3);
 

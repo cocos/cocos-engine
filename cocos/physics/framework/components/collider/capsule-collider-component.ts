@@ -52,12 +52,12 @@ export class CapsuleColliderComponent extends ColliderComponent {
         const doubleR = this._radius * 2
         if (this._height < doubleR) {
             this._height = doubleR;
-            // if (!CC_EDITOR) {
+            // if (!CC_EDITOR && !CC_TEST) {
             //     this.capsuleShape.height = this._height;
             // }
         }
 
-        if (!CC_EDITOR) {
+        if (!CC_EDITOR && !CC_TEST) {
             this.capsuleShape.radius = this._radius;
         }
     }
@@ -79,7 +79,7 @@ export class CapsuleColliderComponent extends ColliderComponent {
         }
 
         this._height = value;
-        if (!CC_EDITOR) {
+        if (!CC_EDITOR && !CC_TEST) {
             this.capsuleShape.height = this._height;
         }
     }
@@ -110,7 +110,7 @@ export class CapsuleColliderComponent extends ColliderComponent {
 
     constructor () {
         super();
-        if (!CC_EDITOR) {
+        if (!CC_EDITOR && !CC_TEST) {
             this._shape = createCapsuleShape();
         }
     }

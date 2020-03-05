@@ -44,9 +44,9 @@ import { Node } from '../../core';
 const _temp_vec2 = new Vec2();
 
 /**
- * @en The Page View Size Mode
+ * @en Enum for Page View Size Mode.
+ *
  * @zh 页面视图每个页面统一的大小类型
- * @enum PageView.SizeMode
  */
 enum SizeMode {
     /**
@@ -64,7 +64,8 @@ enum SizeMode {
 ccenum(SizeMode);
 
 /**
- * @en The Page View Direction
+ * @en Enum for Page View Direction.
+ *
  * @zh 页面视图滚动类型
  */
 enum Direction {
@@ -84,15 +85,19 @@ ccenum(Direction);
 
 /**
  * @en Enum for ScrollView event type.
+ *
  * @zh 滚动视图事件类型
  */
 enum EventType {
-    PAGE_TURING = 'page-turning',
+    PAGE_TURNING = 'page-turning',
 }
 
 /**
- * @en The PageView control
- * @zh 页面视图组件
+ * @en
+ * The PageView control.
+ *
+ * @zh
+ * 页面视图组件
  */
 @ccclass('cc.PageViewComponent')
 @executionOrder(110)
@@ -100,8 +105,11 @@ enum EventType {
 // @ts-ignore
 export class PageViewComponent extends ScrollViewComponent {
     /**
-     * @en Specify the size type of each page in PageView.
-     * @zh 页面视图中每个页面大小类型
+     * @en
+     * Specify the size type of each page in PageView.
+     *
+     * @zh
+     * 页面视图中每个页面大小类型
      */
     @property({
         type: SizeMode,
@@ -121,8 +129,11 @@ export class PageViewComponent extends ScrollViewComponent {
     }
 
     /**
-     * @en The page view direction
-     * @zh 页面视图滚动类型
+     * @en
+     * The page view direction.
+     *
+     * @zh
+     * 页面视图滚动类型
      */
     @property({
         type: Direction,
@@ -144,8 +155,10 @@ export class PageViewComponent extends ScrollViewComponent {
     /**
      * @en
      * The scroll threshold value, when drag exceeds this value,
-     * release the next page will automatically scroll, less than the restore
-     * @zh 滚动临界值，默认单位百分比，当拖拽超出该数值时，松开会自动滚动下一页，小于时则还原。
+     * release the next page will automatically scroll, less than the restore.
+     *
+     * @zh
+     * 滚动临界值，默认单位百分比，当拖拽超出该数值时，松开会自动滚动下一页，小于时则还原。
      */
     @property({
         slide: true,
@@ -165,8 +178,11 @@ export class PageViewComponent extends ScrollViewComponent {
     }
 
     /**
-     * @en Change the PageTurning event timing of PageView.
-     * @zh 设置 PageView PageTurning 事件的发送时机。
+     * @en
+     * Change the PageTurning event timing of PageView.
+     *
+     * @zh
+     * 设置 PageView PageTurning 事件的发送时机。
      */
     @property({
         slide: true,
@@ -186,8 +202,11 @@ export class PageViewComponent extends ScrollViewComponent {
     }
 
     /**
-     * @en The Page View Indicator
-     * @zh 页面视图指示器组件
+     * @en
+     * The Page View Indicator.
+     *
+     * @zh
+     * 页面视图指示器组件
      */
     @property({
         type: PageViewIndicatorComponent,
@@ -221,6 +240,7 @@ export class PageViewComponent extends ScrollViewComponent {
      * Auto page turning velocity threshold. When users swipe the PageView quickly,
      * it will calculate a velocity based on the scroll distance and time,
      * if the calculated velocity is larger than the threshold, then it will trigger page turning.
+     *
      * @zh
      * 快速滑动翻页临界值。
      * 当用户快速滑动时，会根据滑动开始和结束的距离与时间计算出一个速度值，
@@ -343,8 +363,12 @@ export class PageViewComponent extends ScrollViewComponent {
     }
 
     /**
-     * @en Returns current page index.
-     * @zh 返回当前页面索引。
+     * @en
+     * Returns current page index.
+     *
+     * @zh
+     * 返回当前页面索引。
+     *
      * @returns 当前页面索引。
      */
     public getCurrentPageIndex() {
@@ -352,8 +376,11 @@ export class PageViewComponent extends ScrollViewComponent {
     }
 
     /**
-     * @en Set current page index.
-     * @zh 设置当前页面索引。
+     * @en
+     * Set current page index.
+     *
+     * @zh
+     * 设置当前页面索引。
      * @param index 索引。
      */
     public setCurrentPageIndex(index: number) {
@@ -361,8 +388,12 @@ export class PageViewComponent extends ScrollViewComponent {
     }
 
     /**
-     * @en Returns all pages of pageview.
-     * @zh 返回视图中的所有页面。
+     * @en
+     * Returns all pages of pageview.
+     *
+     * @zh
+     * 返回视图中的所有页面。
+     *
      * @returns 输=视图所有页面。
      */
     public getPages() {
@@ -370,8 +401,12 @@ export class PageViewComponent extends ScrollViewComponent {
     }
 
     /**
-     * @en At the end of the current page view to insert a new view.
-     * @zh 在当前页面视图的尾部插入一个新视图。
+     * @en
+     * At the end of the current page view to insert a new view.
+     *
+     * @zh
+     * 在当前页面视图的尾部插入一个新视图。
+     *
      * @param page 新视图。
      */
     public addPage(page: Node) {
@@ -384,8 +419,12 @@ export class PageViewComponent extends ScrollViewComponent {
     }
 
     /**
-     * @en Inserts a page in the specified location.
-     * @zh 将页面插入指定位置中。
+     * @en
+     * Inserts a page in the specified location.
+     *
+     * @zh
+     * 将页面插入指定位置中。
+     *
      * @param page 新视图。
      * @param index 指定位置。
      */
@@ -405,8 +444,12 @@ export class PageViewComponent extends ScrollViewComponent {
     }
 
     /**
-     * @en Removes a page from PageView.
-     * @zh 移除指定页面。
+     * @en
+     * Removes a page from PageView.
+     *
+     * @zh
+     * 移除指定页面。
+     *
      * @param page 指定页面。
      */
     public removePage(page: Node) {
@@ -420,8 +463,12 @@ export class PageViewComponent extends ScrollViewComponent {
     }
 
     /**
-     * @en Removes a page at index of PageView.
-     * @zh 移除指定下标的页面。
+     * @en
+     * Removes a page at index of PageView.
+     *
+     * @zh
+     * 移除指定下标的页面。
+     *
      * @param index 页面下标。
      */
     public removePageAtIndex(index: number) {
@@ -435,8 +482,11 @@ export class PageViewComponent extends ScrollViewComponent {
     }
 
     /**
-     * @en Removes all pages from PageView
-     * @zh 移除所有页面。
+     * @en
+     * Removes all pages from PageView.
+     *
+     * @zh
+     * 移除所有页面。
      */
     public removeAllPages() {
         if (!this.content) { return; }
@@ -449,8 +499,12 @@ export class PageViewComponent extends ScrollViewComponent {
     }
 
     /**
-     * @en Scroll PageView to index.
-     * @zh 滚动到指定页面
+     * @en
+     * Scroll PageView to index.
+     *
+     * @zh
+     * 滚动到指定页面
+     *
      * @param idx index of page.
      * @param timeInSecond scrolling time.
      */
@@ -599,7 +653,7 @@ export class PageViewComponent extends ScrollViewComponent {
         if (this._lastPageIdx === this._curPageIdx) { return; }
         this._lastPageIdx = this._curPageIdx;
         ComponentEventHandler.emitEvents(this.pageEvents, this);
-        this.node.emit(EventType.PAGE_TURING, this);
+        this.node.emit(EventType.PAGE_TURNING, this);
     }
 
     // 快速滑动

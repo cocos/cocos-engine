@@ -8,7 +8,8 @@ import { GFXBindingType, GFXType } from '../gfx/define';
 import { GFXSampler } from '../gfx/sampler';
 import { GFXUniformBlock, GFXUniformSampler } from '../gfx/shader';
 import { GFXTextureView } from '../gfx/texture-view';
-import { Model, Pass } from '../renderer';
+import { Pass } from '../renderer/core/pass';
+import { Model } from '../renderer/scene/model';
 import { SubModel } from '../renderer/scene/submodel';
 import { Layers } from '../scene-graph/layers';
 
@@ -23,6 +24,7 @@ export const PIPELINE_FLOW_TONEMAP: string = 'ToneMapFlow';
 export enum RenderPassStage {
     DEFAULT = 100,
 }
+cc.RenderPassStage = RenderPassStage;
 
 /**
  * @zh
@@ -88,7 +90,6 @@ export enum UniformBinding {
     UBO_FORWARD_LIGHTS = MAX_BINDING_SUPPORTED - 4,
     UBO_SKINNING_ANIMATION = MAX_BINDING_SUPPORTED - 5,
     UBO_SKINNING_TEXTURE = MAX_BINDING_SUPPORTED - 6,
-    UBO_UI = MAX_BINDING_SUPPORTED - 7,
 
     // samplers
     SAMPLER_JOINTS = MAX_BINDING_SUPPORTED + 1,
@@ -96,7 +97,7 @@ export enum UniformBinding {
 
     // rooms left for custom bindings
     // effect importer prepares bindings according to this
-    CUSTUM_UBO_BINDING_END_POINT = MAX_BINDING_SUPPORTED - 7,
+    CUSTUM_UBO_BINDING_END_POINT = MAX_BINDING_SUPPORTED - 6,
     CUSTOM_SAMPLER_BINDING_START_POINT = MAX_BINDING_SUPPORTED + 6,
 }
 
@@ -299,6 +300,21 @@ localBindingsDesc.set(UBOSkinningAnimation.BLOCK.name, {
     type: GFXBindingType.UNIFORM_BUFFER,
     blockInfo: UBOSkinningAnimation.BLOCK,
 });
+export class UBOSkinning {
+    public static JOINTS_OFFSET: number = 0;
+    public static COUNT: number = UBOSkinning.JOINTS_OFFSET + JointUniformCapacity * 12 + 4;
+    public static SIZE: number = UBOSkinning.COUNT * 4;
+
+    public static BLOCK: GFXUniformBlock = {
+        binding: UniformBinding.UBO_SKINNING_TEXTURE, name: 'CCSkinning', members: [
+            { name: 'cc_joints', type: GFXType.FLOAT4, count: JointUniformCapacity * 3 + 1 },
+        ],
+    };
+}
+localBindingsDesc.set(UBOSkinning.BLOCK.name, {
+    type: GFXBindingType.UNIFORM_BUFFER,
+    blockInfo: UBOSkinning.BLOCK,
+});
 
 /**
  * 骨骼纹理采样器。
@@ -315,6 +331,7 @@ export interface IInternalBindingDesc {
     type: GFXBindingType;
     blockInfo?: GFXUniformBlock;
     samplerInfo?: GFXUniformSampler;
+    defaultValue?: ArrayBuffer | string;
 }
 
 export interface IInternalBindingInst extends IInternalBindingDesc {

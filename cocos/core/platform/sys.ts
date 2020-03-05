@@ -563,24 +563,25 @@ if (_global.__globalAdapter && _global.__globalAdapter.adaptSys) {
     // init sys info in adapter
     _global.__globalAdapter.adaptSys(sys);
 }
-else if (CC_EDITOR && Editor.isMainProcess) {
-    sys.isMobile = false;
-    sys.platform = sys.EDITOR_CORE;
-    sys.language = sys.LANGUAGE_UNKNOWN;
-    sys.os = ({
-        darwin: sys.OS_OSX,
-        win32: sys.OS_WINDOWS,
-        linux: sys.OS_LINUX,
-    // @ts-ignore
-    })[process.platform] || sys.OS_UNKNOWN;
-    sys.browserType = null;
-    sys.browserVersion = null;
-    sys.windowPixelResolution = {
-        width: 0,
-        height: 0,
-    };
-    sys.__audioSupport = {};
-}
+// TODO: main process flag
+// else if (CC_EDITOR) {
+//     sys.isMobile = false;
+//     sys.platform = sys.EDITOR_CORE;
+//     sys.language = sys.LANGUAGE_UNKNOWN;
+//     sys.os = ({
+//         darwin: sys.OS_OSX,
+//         win32: sys.OS_WINDOWS,
+//         linux: sys.OS_LINUX,
+//     // @ts-ignore
+//     })[process.platform] || sys.OS_UNKNOWN;
+//     sys.browserType = null;
+//     sys.browserVersion = null;
+//     sys.windowPixelResolution = {
+//         width: 0,
+//         height: 0,
+//     };
+//     sys.__audioSupport = {};
+// }
 else if (CC_JSB) {
     // @ts-ignore
     const platform = sys.platform = __getPlatform();

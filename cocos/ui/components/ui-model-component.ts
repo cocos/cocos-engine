@@ -38,9 +38,14 @@ import { UI } from '../../core/renderer/ui/ui';
 import { Model } from '../../core/renderer';
 
 /**
+ * @en
+ * The component of model.
+ * When you place particles or models in the UI, you must add this component to render.
+ * The component must be placed on a node with the modelComponent or the particleComponent.
+ *
  * @zh
  * UI 模型基础组件。
- * 可通过 cc.UIModelComponent 获得该组件。
+ * 当你在 UI 中放置模型或者粒子的时候，必须添加该组件才能渲染。该组件必须放置在带有 modelComponent 或者 particleComponent 组件的节点上。
  */
 @ccclass('cc.UIModelComponent')
 @executionOrder(110)
@@ -130,7 +135,7 @@ export class UIModelComponent extends UIComponent {
         }
         const matNum = this._modelComponent.sharedMaterials.length;
         for (let i = 0; i < matNum; i++) {
-            const material = this._modelComponent.getMaterial(i)! as Material;
+            const material = this._modelComponent.getMaterialInstance(i);
             if (material == null) {
                 continue;
             }
@@ -138,22 +143,17 @@ export class UIModelComponent extends UIComponent {
             const ea = material.effectAsset!;
             const techIdx = material.technique;
             const passNum = passes.length;
-            let needReconstruct = false;
             for (let j = 0; j < passNum; j++) {
                 if (!passes[j].blendState.targets[0].blend) {
-                    needReconstruct = true;
                     const bs = passes[j].blendState.targets[0];
                     bs.blend = true;
                     passes[j].overridePipelineStates(ea.techniques[techIdx].passes[j], { blendState: passes[j].blendState });
                 }
             }
-            if (needReconstruct) {
-                // @ts-ignore
-                material._onPassesChange();
-            }
         }
+
         for (let i = 0; i < matNum; i++) {
-            const material = this._modelComponent.getMaterial(i);
+            const material = this._modelComponent.getMaterialInstance(i);
             if (material == null) {
                 continue;
             }

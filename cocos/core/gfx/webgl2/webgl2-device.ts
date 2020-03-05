@@ -1,3 +1,4 @@
+import { macro } from '../../platform';
 import { GFXBindingLayout, IGFXBindingLayoutInfo } from '../binding-layout';
 import { GFXBuffer, IGFXBufferInfo } from '../buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from '../command-allocator';
@@ -135,7 +136,7 @@ export class WebGL2GFXDevice extends GFXDevice {
 
         try {
             const webGLCtxAttribs: WebGLContextAttributes = {
-                alpha: false,
+                alpha: macro.ENABLE_TRANSPARENT_CANVAS,
                 antialias: this._isAntialias,
                 depth: true,
                 stencil: true,
@@ -630,12 +631,12 @@ export class WebGL2GFXDevice extends GFXDevice {
         gl.depthMask(true);
         gl.depthFunc(gl.LESS);
 
-        gl.stencilFuncSeparate(gl.FRONT, gl.ALWAYS, 1, 0xffffffff);
+        gl.stencilFuncSeparate(gl.FRONT, gl.ALWAYS, 1, 0xffff);
         gl.stencilOpSeparate(gl.FRONT, gl.KEEP, gl.KEEP, gl.KEEP);
-        gl.stencilMaskSeparate(gl.FRONT, 0xffffffff);
-        gl.stencilFuncSeparate(gl.BACK, gl.ALWAYS, 1, 0xffffffff);
+        gl.stencilMaskSeparate(gl.FRONT, 0xffff);
+        gl.stencilFuncSeparate(gl.BACK, gl.ALWAYS, 1, 0xffff);
         gl.stencilOpSeparate(gl.BACK, gl.KEEP, gl.KEEP, gl.KEEP);
-        gl.stencilMaskSeparate(gl.BACK, 0xffffffff);
+        gl.stencilMaskSeparate(gl.BACK, 0xffff);
 
         gl.disable(gl.STENCIL_TEST);
 

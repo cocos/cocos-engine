@@ -40,23 +40,27 @@ import { warnID } from '../../core/platform/debug';
 import sys from '../../core/platform/sys';
 
 /**
- * @zh
- * 文本横向对齐类型。
+ * @en Enum for horizontal text alignment.
+ *
+ * @zh 文本横向对齐类型。
  */
 export enum HorizontalTextAlignment {
     /**
-     * @zh
-     * 左对齐。
+     * @en Alignment left for text.
+     *
+     * @zh 左对齐。
      */
     LEFT = 0,
     /**
-     * @zh
-     * 中心对齐。
+     * @en Alignment center for text.
+     *
+     * @zh 中心对齐。
      */
     CENTER = 1,
     /**
-     * @zh
-     * 右对齐。
+     * @en Alignment right for text.
+     *
+     * @zh 右对齐。
      */
     RIGHT = 2,
 }
@@ -64,23 +68,27 @@ export enum HorizontalTextAlignment {
 ccenum(HorizontalTextAlignment);
 
 /**
- * @zh
- * 文本垂直对齐类型。
+ * @en Enum for vertical text alignment.
+ *
+ * @zh 文本垂直对齐类型。
  */
 export enum VerticalTextAlignment {
     /**
-     * @zh
-     * 上对齐。
+     * @en Alignment top for text.
+     *
+     * @zh 上对齐。
      */
     TOP = 0,
     /**
-     * @zh
-     * 中心对齐。
+     * @en Alignment center for text.
+     *
+     * @zh 中心对齐。
      */
     CENTER = 1,
     /**
-     * @zh
-     * 下对齐。
+     * @en Alignment bottom for text.
+     *
+     * @zh 下对齐。
      */
     BOTTOM = 2,
 }
@@ -88,28 +96,34 @@ export enum VerticalTextAlignment {
 ccenum(VerticalTextAlignment);
 
 /**
- * @zh
- * 文本超载类型。
+ * @en Enum for Overflow.
+ *
+ * @zh 文本超载类型。
  */
 export enum Overflow {
     /**
-     * @zh
-     * 不做任何限制。
+     * @en None.
+     *
+     * @zh 不做任何限制。
      */
     NONE = 0,
     /**
-     * @zh
-     * CLAMP 模式中，当文本内容超出边界框时，多余的会被截断。
+     * @en In CLAMP mode, when label content goes out of the bounding box, it will be clipped.
+     *
+     * @zh CLAMP 模式中，当文本内容超出边界框时，多余的会被截断。
      */
     CLAMP = 1,
     /**
-     * @zh
-     * SHRINK 模式，字体大小会动态变化，以适应内容大小。
+     * @en In SHRINK mode, the font size will change dynamically to adapt the content size.
+     * This mode may takes up more CPU resources when the label is refreshed.
+     *
+     * @zh SHRINK 模式，字体大小会动态变化，以适应内容大小。
      */
     SHRINK = 2,
     /**
-     * @zh
-     * 在 RESIZE_HEIGHT 模式下，只能更改文本的宽度，高度是自动改变的。
+     * @en In RESIZE_HEIGHT mode, you can only change the width of label and the height is changed automatically.
+     *
+     * @zh 在 RESIZE_HEIGHT 模式下，只能更改文本的宽度，高度是自动改变的。
      */
     RESIZE_HEIGHT = 3,
 }
@@ -117,24 +131,29 @@ export enum Overflow {
 ccenum(Overflow);
 
 /**
- * @zh
- * 文本图集缓存类型。
+ * @en Enum for cache mode.
+ *
+ * @zh 文本图集缓存类型。
  */
 enum CacheMode {
     /**
-     * @zh
-     * 不做任何缓存。
+     * @en Do not do any caching.
+     *
+     * @zh 不做任何缓存。
      */
     NONE = 0,
     /**
-     * @zh
-     * BITMAP 模式，将 label 缓存成静态图像并加入到动态图集，以便进行批次合并，可与使用碎图的 Sprite 进行合批。
+     * @en In BITMAP mode, cache the label as a static image and add it to the dynamic atlas for batch rendering,
+     * and can batching with Sprites using broken images.
+     *
+     * @zh BITMAP 模式，将 label 缓存成静态图像并加入到动态图集，以便进行批次合并，可与使用碎图的 Sprite 进行合批。
      * （注：动态图集在 Chrome 以及微信小游戏暂时关闭，该功能无效）。
      */
     BITMAP = 1,
     /**
-     * @zh
-     *  CHAR 模式，将文本拆分为字符，并将字符缓存到一张单独的大小为 1024 * 1024 的图集中进行重复使用，不再使用动态图集。
+     * @en In CHAR mode, split text into characters and cache characters into a dynamic atlas which the size of 2048*2048.
+     *
+     * @zh CHAR 模式，将文本拆分为字符，并将字符缓存到一张单独的大小为 1024 * 1024 的图集中进行重复使用，不再使用动态图集。
      * （注：当图集满时将不再进行缓存，暂时不支持 SHRINK 自适应文本尺寸（后续完善））。
      */
     CHAR = 2,
@@ -160,15 +179,20 @@ ccenum(CacheMode);
  */
 
 /**
+ * @en
+ * The Label Component.
+ *
  * @zh
  * 文字标签组件。
- * 可通过 cc.LabelComponent 获得此组件
  */
 @ccclass('cc.LabelComponent')
 @executionOrder(110)
 @menu('UI/Render/Label')
 export class LabelComponent extends UIRenderComponent {
     /**
+     * @en
+     * Content string of label.
+     *
      * @zh
      * 标签显示的文本内容。
      */
@@ -191,6 +215,9 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Horizontal Alignment of label.
+     *
      * @zh
      * 文本内容的水平对齐方式。
      */
@@ -213,6 +240,9 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Vertical Alignment of label.
+     *
      * @zh
      * 文本内容的垂直对齐方式。
      */
@@ -235,6 +265,9 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * The actual rendering font size in shrink mode.
+     *
      * @zh
      * SHRINK 模式下面文本实际渲染的字体大小。
      */
@@ -252,6 +285,9 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Font size of label.
+     *
      * @zh
      * 文本字体大小。
      */
@@ -273,6 +309,9 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Font family of label, only take effect when useSystemFont property is true.
+     *
      * @zh
      * 文本字体名称, 只在 useSystemFont 属性为 true 的时候生效。
      */
@@ -294,6 +333,9 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Line Height of label.
+     *
      * @zh
      * 文本行高。
      */
@@ -314,6 +356,9 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Overflow of label.
+     *
      * @zh
      * 文字显示超出范围时的处理方式。
      */
@@ -336,6 +381,9 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Whether auto wrap label when string width is large than label width.
+     *
      * @zh
      * 是否自动换行。
      */
@@ -356,6 +404,9 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * The font of label.
+     *
      * @zh
      * 文本字体。
      */
@@ -400,6 +451,9 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Whether use system font name or not.
+     *
      * @zh
      * 是否使用系统字体。
      */
@@ -440,6 +494,9 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * The cache mode of label. This mode only supports system fonts.
+     *
      * @zh
      * 文本缓存模式, 该模式只支持系统字体。
      */
@@ -474,6 +531,9 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Whether the font is bold.
+     *
      * @zh
      * 字体是否加粗。
      */
@@ -496,6 +556,9 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Whether the font is italic.
+     *
      * @zh
      * 字体是否倾斜。
      */
@@ -518,6 +581,9 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Whether the font is underline.
+     *
      * @zh
      * 字体是否加下划线。
      */
@@ -669,10 +735,8 @@ export class LabelComponent extends UIRenderComponent {
             this._ttfSpriteFrame = null;
         }
 
-        if (this._letterTexture) {
-            this._letterTexture.destroy();
-            this._letterTexture = null;
-        }
+        // texture cannot be destroyed in here, lettertexture image source is public.
+        this._letterTexture = null;
 
         super.onDestroy();
     }
@@ -732,19 +796,7 @@ export class LabelComponent extends UIRenderComponent {
     }
 
     protected _flushMaterial () {
-        const material = this._material;
-        // Setup blend function for premultiplied ttf label texture
-        // if (this._texture === this._ttfSpriteFrame) {
-        //     this._srcBlendFactor = macro.BlendFactor.ONE;
-        // } else {
-        //     this._srcBlendFactor = macro.BlendFactor.SRC_ALPHA;
-        // }
-
-        if (material) {
-            material.setProperty('mainTexture', this._texture);
-        }
-
-        this._updateMaterial(material);
+        this._updateMaterial(this._material);
     }
 
     protected _applyFontTexture (force: boolean) {

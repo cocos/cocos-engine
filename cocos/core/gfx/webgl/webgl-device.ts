@@ -1,3 +1,4 @@
+import { macro } from '../../platform';
 import sys from '../../platform/sys';
 import { GFXBindingLayout, IGFXBindingLayoutInfo } from '../binding-layout';
 import { GFXBuffer, IGFXBufferInfo } from '../buffer';
@@ -201,7 +202,7 @@ export class WebGLGFXDevice extends GFXDevice {
 
         try {
             const webGLCtxAttribs: WebGLContextAttributes = {
-                alpha: false,
+                alpha: macro.ENABLE_TRANSPARENT_CANVAS,
                 antialias: this._isAntialias,
                 depth: true,
                 stencil: true,
@@ -255,6 +256,10 @@ export class WebGLGFXDevice extends GFXDevice {
         this._maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
         this._depthBits = gl.getParameter(gl.DEPTH_BITS);
         this._stencilBits = gl.getParameter(gl.STENCIL_BITS);
+
+        if (CC_ALIPAY) {
+            this._depthBits = 24;
+        }
 
         this._devicePixelRatio = info.devicePixelRatio || 1.0;
         this._width = this._canvas.width;
@@ -312,6 +317,10 @@ export class WebGLGFXDevice extends GFXDevice {
         this._OES_standard_derivatives = this.getExtension('OES_standard_derivatives');
         this._OES_element_index_uint = this.getExtension('OES_element_index_uint');
         this._ANGLE_instanced_arrays = this.getExtension('ANGLE_instanced_arrays');
+
+        if (CC_ALIPAY) {
+            this._WEBGL_depth_texture = { UNSIGNED_INT_24_8_WEBGL: 0x84FA };
+        }
 
         this._features.fill(false);
 
@@ -380,6 +389,10 @@ export class WebGLGFXDevice extends GFXDevice {
                     this._useVAO = true;
                 }
             } else if ((sys.platform !== sys.WECHAT_GAME || sys.os !== sys.OS_IOS)) { this._useVAO = true; }
+        }
+
+        if ((sys.platform === sys.WECHAT_GAME && sys.os === sys.OS_ANDROID)) {
+            gl.detachShader = () => {}; // Android WeChat may throw errors on detach shader
         }
 
         if (this._OES_element_index_uint) {
@@ -714,12 +727,12 @@ export class WebGLGFXDevice extends GFXDevice {
         gl.depthFunc(gl.LESS);
         gl.depthRange(0.0, 1.0);
 
-        gl.stencilFuncSeparate(gl.FRONT, gl.ALWAYS, 1, 0xffffffff);
+        gl.stencilFuncSeparate(gl.FRONT, gl.ALWAYS, 1, 0xffff);
         gl.stencilOpSeparate(gl.FRONT, gl.KEEP, gl.KEEP, gl.KEEP);
-        gl.stencilMaskSeparate(gl.FRONT, 0xffffffff);
-        gl.stencilFuncSeparate(gl.BACK, gl.ALWAYS, 1, 0xffffffff);
+        gl.stencilMaskSeparate(gl.FRONT, 0xffff);
+        gl.stencilFuncSeparate(gl.BACK, gl.ALWAYS, 1, 0xffff);
         gl.stencilOpSeparate(gl.BACK, gl.KEEP, gl.KEEP, gl.KEEP);
-        gl.stencilMaskSeparate(gl.BACK, 0xffffffff);
+        gl.stencilMaskSeparate(gl.BACK, 0xffff);
 
         gl.disable(gl.STENCIL_TEST);
 

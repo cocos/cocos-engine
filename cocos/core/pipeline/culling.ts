@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { frustum, intersect } from '../geom-utils';
+import { frustum, intersect } from '../geometry';
 import { Mat4, Quat, Vec3 } from '../math';
 import { Camera, Light, Model } from '../renderer';
 import { DirectionalLight } from '../renderer/scene/directional-light';

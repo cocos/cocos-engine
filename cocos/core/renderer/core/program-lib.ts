@@ -34,7 +34,6 @@ import { GFXAPI, GFXDevice } from '../../gfx/device';
 import { GFXShader, GFXUniformBlock } from '../../gfx/shader';
 import { IInternalBindingDesc, localBindingsDesc } from '../../pipeline/define';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
-import { selectJointsMediumType } from '../models/skeletal-animation-utils';
 import { genHandle, IDefineMap } from './pass-utils';
 
 interface IDefineRecord extends IDefineInfo {
@@ -102,6 +101,7 @@ function insertBuiltinBindings (tmpl: IProgramInfo, source: Map<string, IInterna
             defines: b.defines,
             size: getSize(info.blockInfo!),
             bindingType: GFXBindingType.UNIFORM_BUFFER,
+            defaultValue: info.defaultValue as ArrayBuffer,
         }, info.blockInfo!);
         blocks.push(builtin);
     }
@@ -109,7 +109,7 @@ function insertBuiltinBindings (tmpl: IProgramInfo, source: Map<string, IInterna
     for (const s of target.samplers) {
         const info = source.get(s.name);
         if (!info || info.type !== GFXBindingType.SAMPLER) { console.warn(`builtin sampler '${s.name}' not available!`); continue; }
-        const builtin = Object.assign({ defines: s.defines, bindingType: GFXBindingType.SAMPLER }, info.samplerInfo);
+        const builtin = Object.assign({ defines: s.defines, bindingType: GFXBindingType.SAMPLER, defaultValue: info.defaultValue as string }, info.samplerInfo);
         samplers.push(builtin);
     }
 }
@@ -141,25 +141,24 @@ function genHandles (tmpl: IProgramInfo) {
 
 function dependencyCheck (dependencies: string[], defines: IDefineMap) {
     for (let i = 0; i < dependencies.length; i++) {
-        if (!defines[dependencies[i]]) { return false; }
+        const d = dependencies[i];
+        if (d[0] === '!') { if (defines[d.slice(1)]) { return false; } } // negative dependency
+        else if (!defines[d]) { return false; }
     }
     return true;
 }
 function getShaderBindings (
         tmpl: IProgramInfo, defines: IDefineMap, outBlocks: IBlockInfoRT[], outSamplers: ISamplerInfoRT[], bindings: IGFXBinding[]) {
     const { blocks, samplers } = tmpl;
-    let lastBinding = -1;
     for (let i = 0; i < blocks.length; i++) {
         const block = blocks[i];
-        if (block.binding === lastBinding || !dependencyCheck(block.defines, defines)) { continue; }
-        lastBinding = block.binding;
+        if (!dependencyCheck(block.defines, defines)) { continue; }
         outBlocks.push(block);
         bindings.push(block);
     }
     for (let i = 0; i < samplers.length; i++) {
         const sampler = samplers[i];
-        if (sampler.binding === lastBinding || !dependencyCheck(sampler.defines, defines)) { continue; }
-        lastBinding = sampler.binding;
+        if (!dependencyCheck(sampler.defines, defines)) { continue; }
         outSamplers.push(sampler);
         bindings.push(sampler);
     }
@@ -209,8 +208,11 @@ class ProgramLib {
             offset += cnt;
         }
         if (offset > 31) { tmpl.uber = true; }
-        tmpl.blocks.forEach((b) => (b.size = getSize(b), b.bindingType = GFXBindingType.UNIFORM_BUFFER));
-        tmpl.samplers.forEach((s) => (s.bindingType = GFXBindingType.SAMPLER));
+        tmpl.blocks.forEach((b) => {
+            b.bindingType = GFXBindingType.UNIFORM_BUFFER; b.size = getSize(b);
+            if (b.defaultValue) { b.defaultValue = Float32Array.from(b.defaultValue as unknown as number[]); }
+        });
+        tmpl.samplers.forEach((s) => s.bindingType = GFXBindingType.SAMPLER);
         tmpl.handleMap = genHandles(tmpl);
         if (!tmpl.localsInited) { insertBuiltinBindings(tmpl, localBindingsDesc, 'locals'); tmpl.localsInited = true; }
         // store it
@@ -301,7 +303,6 @@ class ProgramLib {
      */
     public getGFXShader (device: GFXDevice, name: string, defines: IDefineMap, pipeline: RenderPipeline) {
         Object.assign(defines, pipeline.macros);
-        if (defines.USE_SKINNING) { defines.USE_SKINNING = selectJointsMediumType(device); }
         const key = this.getKey(name, defines);
         const res = this._cache[key];
         if (res) { return res; }

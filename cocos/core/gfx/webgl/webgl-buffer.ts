@@ -121,7 +121,7 @@ export class WebGLGFXBuffer extends GFXBuffer {
     public update (buffer: GFXBufferSource, offset?: number, size?: number) {
 
         let buffSize;
-        if (size !== undefined ) {
+        if (size !== undefined) {
             buffSize = size;
         } else if (this._usage & GFXBufferUsageBit.INDIRECT) {
             buffSize = 0;

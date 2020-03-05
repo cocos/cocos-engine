@@ -58,11 +58,15 @@ const RenderMode = Enum({
 });
 
 /**
+ * @en
+ * The root node of UI.
+ * Provide an aligned window for all child nodes, also provides ease of setting screen adaptation policy interfaces from the editor.
+ * Line-of-sight range is -999 to 1000.
+ *
  * @zh
- * 作为 UI 根节点，为所有子节点提供视窗四边的位置信息以供对齐，另外提供屏幕适配策略接口，方便从编辑器设置。
+ * 作为 UI 根节点，为所有子节点提供对齐视窗，另外提供屏幕适配策略接口，方便从编辑器设置。
  * 注：由于本节点的尺寸会跟随屏幕拉伸，所以 anchorPoint 只支持 (0.5, 0.5)，否则适配不同屏幕时坐标会有偏差。
- * 同时 UI 相机默认 fov 是 1000，所以 UI 节点的事件坐标一定是大于或等于 0 的，不支持负数。
- * 可通过 cc.CanvasComponent 获得此组件
+ * UI 的视距范围是 -999 ～ 1000.
  */
 @ccclass('cc.CanvasComponent')
 @executionOrder(100)
@@ -71,6 +75,13 @@ const RenderMode = Enum({
 @executeInEditMode
 @disallowMultiple
 export class CanvasComponent extends Component {
+    /**
+     * @en
+     * The flags to clear the built in camera.
+     *
+     * @zh
+     * 清理屏幕缓冲标记。
+     */
     @property({
         type: CanvasClearFlag,
         tooltip: '清理屏幕缓冲标记',
@@ -86,10 +97,17 @@ export class CanvasComponent extends Component {
         }
     }
 
+    /**
+     * @en
+     * The color clearing value of the builtin camera.
+     *
+     * @zh
+     * 内置相机的颜色缓冲默认值。
+     */
     @property({
         tooltip: '清理颜色缓冲区后的颜色',
     })
-    get color () {
+    get color() {
         return this._color;
     }
 
@@ -103,9 +121,22 @@ export class CanvasComponent extends Component {
         }
     }
 
+    /**
+     * @en
+     * The render mode of Canvas.
+     * When you choose the mode of INTERSPERSE, You can specify the rendering order of the Canvas with the camera in the scene.
+     * When you choose the mode of OVERLAY, the builtin camera of Canvas will render after all scene cameras are rendered.
+     * NOTE: The cameras in the scene (including the Canvas built-in camera) must have a ClearFlag selection of SOLID_COLOR,
+     * otherwise a splash screen may appear on the mobile device.
+     *
+     * @zh
+     * Canvas 渲染模式。
+     * intersperse 下可以指定 Canvas 与场景中的相机的渲染顺序，overlay 下 Canvas 会在所有场景相机渲染完成后渲染。
+     * 注意：场景里的相机（包括 Canvas 内置的相机）必须有一个的 ClearFlag 选择 SOLID_COLOR，否则在移动端可能会出现闪屏。
+     */
     @property({
         type: RenderMode,
-        tooltip: 'Canvas 渲染模式，intersperse 下可以指定 Canvas 与场景中的相机的渲染顺序，overlay 下 Canvas 会在所有场景相机渲染完成后渲染。\n注意：启用 intersperse 模式，如果 3D 场景的相机内容显示上要在 Canvas 前面，相机的 clearFlags 也要为 none',
+        tooltip: 'Canvas 渲染模式，intersperse 下可以指定 Canvas 与场景中的相机的渲染顺序，overlay 下 Canvas 会在所有场景相机渲染完成后渲染。\n注意：注意：场景里的相机（包括 Canvas 内置的相机）必须有一个的 ClearFlag 选择 SOLID_COLOR，否则在移动端可能会出现闪屏',
     })
     get renderMode () {
         return this._renderMode;
@@ -119,8 +150,13 @@ export class CanvasComponent extends Component {
     }
 
     /**
+     * @en
+     * Camera render priority.
+     * When you choose the RenderModel of INTERSPERSE, specifies the render order with other cameras.
+     * When you choose the RenderModel of OVERLAY, specifies sorting with the rest of the Canvas.
+     *
      * @zh
-     * 相机排序优先级。当 RenderMode 为 intersperse 时，指定与其它相机的渲染顺序，当 RenderMode 为 overlay 时，指定跟其余 Canvas 做排序使用。需要对多 Canvas 设定 priority 以免出现不同平台下的闪屏问题。
+     * 相机渲染优先级。当 RenderMode 为 intersperse 时，指定与其它相机的渲染顺序，当 RenderMode 为 overlay 时，指定跟其余 Canvas 做排序使用。需要对多 Canvas 设定 priority 以免出现不同平台下的闪屏问题。
      *
      * @param value - 渲染优先级。
      */
@@ -143,7 +179,11 @@ export class CanvasComponent extends Component {
     }
 
     /**
-     * @zh Canvas 的 RenderTexture
+     * @en
+     * Set the target render texture.
+     *
+     * @zh
+     * 设置目标渲染纹理。
      */
     @property({
         type: RenderTexture,
@@ -160,7 +200,7 @@ export class CanvasComponent extends Component {
 
         const old = this._targetTexture;
         this._targetTexture = value;
-        this._chechTargetTextureEvent(old);
+        this._checkTargetTextureEvent(old);
         this._updateTargetTexture();
     }
 
@@ -230,12 +270,9 @@ export class CanvasComponent extends Component {
             this._camera.viewport = new Rect(0, 0, 1, 1);
             this.color = this._color;
 
-            const device = director.root!.device;
-            this._camera.resize(device.width, device.height);
             if (this._targetTexture) {
-                const window = this._targetTexture.getGFXWindow();
-                this._camera.changeTargetWindow(window);
-                this._camera.setFixedSize(window!.width, window!.height);
+                const win = this._targetTexture.getGFXWindow();
+                this._camera.changeTargetWindow(win);
             }
         }
 
@@ -284,6 +321,9 @@ export class CanvasComponent extends Component {
     }
 
     /**
+     * @en
+     * Screen alignment.
+     *
      * @zh
      * 屏幕对齐。
      */
@@ -291,14 +331,13 @@ export class CanvasComponent extends Component {
         let nodeSize;
         let designSize;
         this.node.getPosition(this._pos);
+        const visibleSize = visibleRect;
         if (CC_EDITOR) {
             // nodeSize = designSize = cc.engine.getDesignResolutionSize();
             nodeSize = designSize = view.getDesignResolutionSize();
             Vec3.set(_worldPos, designSize.width * 0.5, designSize.height * 0.5, 1);
-        }
-        else {
-            const canvasSize = visibleRect;
-            nodeSize = canvasSize;
+        } else {
+            nodeSize = visibleSize;
             designSize = view.getDesignResolutionSize();
             const policy = view.getResolutionPolicy();
             // const clipTopRight = !this.fitHeight && !this.fitWidth;
@@ -307,11 +346,11 @@ export class CanvasComponent extends Component {
             let offsetY = 0;
             if (clipTopRight) {
                 // offset the canvas to make it in the center of screen
-                offsetX = (designSize.width - canvasSize.width) * 0.5;
-                offsetY = (designSize.height - canvasSize.height) * 0.5;
+                offsetX = (designSize.width - visibleSize.width) * 0.5;
+                offsetY = (designSize.height - visibleSize.height) * 0.5;
             }
 
-            Vec3.set(_worldPos, canvasSize.width * 0.5 + offsetX, canvasSize.height * 0.5 + offsetY, 0);
+            Vec3.set(_worldPos, visibleSize.width * 0.5 + offsetX, visibleSize.height * 0.5 + offsetY, 0);
         }
 
         if (!this._pos.equals(_worldPos)) {
@@ -327,51 +366,26 @@ export class CanvasComponent extends Component {
         }
 
         this.node.getWorldPosition(_worldPos);
-        if (this._camera) {
-            const size = game.canvas!;
-            this._camera.resize(size.width, size.height);
-            this._camera.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
-            this._camera.node.setPosition(_worldPos.x, _worldPos.y, 1000);
-            this._camera.update();
+        const camera = this._camera;
+        if (camera) {
+            if (this._targetTexture) {
+                camera.setFixedSize(visibleSize.width, visibleSize.height);
+                camera.orthoHeight = visibleSize.height / 2;
+            } else {
+                const size = game.canvas!;
+                camera.resize(size.width, size.height);
+                camera.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
+            }
+
+            camera.node.setPosition(_worldPos.x, _worldPos.y, 1000);
+            camera.update();
         }
     }
 
-    // /**
-    //  * @zh
-    //  * 应用适配策略。
-    //  */
-    // public applySettings () {
-    //     const ResolutionPolicy = cc.ResolutionPolicy;
-    //     let policy;
-
-    //     if (this.fitHeight && this.fitWidth) {
-    //         policy = ResolutionPolicy.SHOW_ALL;
-    //     } else if (!this.fitHeight && !this.fitWidth) {
-    //         policy = ResolutionPolicy.NO_BORDER;
-    //     } else if (this.fitWidth) {
-    //         policy = ResolutionPolicy.FIXED_WIDTH;
-    //     } else {      // fitHeight
-    //         policy = ResolutionPolicy.FIXED_HEIGHT;
-    //     }
-
-    //     const designRes = this._designResolution;
-    //     if (CC_EDITOR) {
-    //         // cc.engine.setDesignResolutionSize(designRes.width, designRes.height);
-    //     }
-    //     else {
-    //         const root = director.root;
-    //         if (root && root.ui && root.ui.debugScreen && root.ui.debugScreen === this ){
-    //             return;
-    //         }
-
-    //         cc.view.setDesignResolutionSize(designRes.width, designRes.height, policy);
-    //     }
-    // }
-
-    protected _chechTargetTextureEvent (old: RenderTexture | null) {
-        const resizeFunc = (window: GFXWindow) => {
+    protected _checkTargetTextureEvent (old: RenderTexture | null) {
+        const resizeFunc = (win: GFXWindow) => {
             if (this._camera) {
-                this._camera.setFixedSize(window.width, window.height);
+                this._camera.setFixedSize(win.width, win.height);
             }
         };
 
@@ -389,13 +403,16 @@ export class CanvasComponent extends Component {
             return;
         }
 
+        const camera = this._camera;
         if (!this._targetTexture) {
-            this._camera.changeTargetWindow();
-            this._camera.isWindowSize = true;
+            camera.changeTargetWindow();
+            camera.orthoHeight = game.canvas!.height / view.getScaleY() / 2;
+            camera.isWindowSize = true;
         } else {
-            const window = this._targetTexture.getGFXWindow();
-            this._camera.changeTargetWindow(window);
-            this._camera.setFixedSize(window!.width, window!.height);
+            const win = this._targetTexture.getGFXWindow();
+            camera.changeTargetWindow(win);
+            camera.orthoHeight = visibleRect.height / 2;
+            camera.isWindowSize = false;
         }
     }
 

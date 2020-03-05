@@ -421,7 +421,7 @@ function define (className, baseClass, mixins, options) {
                     // @ts-ignore
                     // tslint:disable-next-line:no-unused-expression
                     EditorExtends.Component.addMenu(cls, 'i18n:menu.custom_script/' + className, -1);
-                    cls.prototype.__scriptUuid = Editor.Utils.UuidUtils.decompressUuid(uuid);
+                    cls.prototype.__scriptUuid = EditorExtends.UuidUtils.decompressUuid(uuid);
                 }
             }
             frame.cls = cls;

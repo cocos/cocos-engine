@@ -24,6 +24,8 @@ export {
     RigidBodyComponent,
 
     PhysicMaterial,
+
+    ConstantForce
 };
 
 cc.PhysicsSystem = PhysicsSystem;

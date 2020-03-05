@@ -27,7 +27,7 @@
  * @category core
  */
 
-import * as geometry from './geom-utils';
+import * as geometry from './geometry';
 import * as math from './math';
 import * as memop from './memop';
 cc.math = math;
@@ -48,8 +48,7 @@ export * from './scheduler';
 export * from './director';
 
 export * from './gfx';
-import './pipeline';
-export { RenderPassStage, RenderPipeline, RenderFlow, RenderStage, RenderView } from './pipeline';
+export * from './pipeline';
 export * from './load-pipeline';
 export * from './scene-graph';
 export * from './components';
@@ -60,4 +59,5 @@ import './primitive';
 export * from './utils/profiler/profiler';
 
 import './deprecated';
-import './splash-image';
+// import './splash-image';
+import './splash-screen-webgl';

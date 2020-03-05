@@ -26,6 +26,7 @@
  * @category model
  */
 
+import { getWorldTransformUntilRoot } from '../../animation/transform-utils';
 import { Filter, PixelFormat } from '../../assets/asset-enum';
 import { Material } from '../../assets/material';
 import { Mesh } from '../../assets/mesh';
@@ -37,8 +38,8 @@ import { GFXAttributeName, GFXBufferTextureCopy, GFXFormatInfos } from '../../gf
 import { GFXFormat, GFXType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { IGFXAttribute } from '../../gfx/input-assembler';
-import { Mat4, Vec2 } from '../../math';
-import { mapBuffer } from '../misc/utils';
+import { Mat4, Vec2, Vec3 } from '../../math';
+import { mapBuffer, readBuffer, writeBuffer } from '../misc/buffer';
 import { SkinningModelComponent } from './skinning-model-component';
 
 const repeat = (n: number) => n - Math.floor(n);
@@ -49,17 +50,38 @@ const batch_extras_size = GFXFormatInfos[batch_id.format].size + GFXFormatInfos[
 @ccclass('cc.SkinningModelUnit')
 export class SkinningModelUnit {
 
+    /**
+     * @en Skinning mesh of this unit.
+     * @zh 子蒙皮模型的网格模型。
+     */
     @property(Mesh)
     public mesh: Mesh | null = null;
+
+    /**
+     * @en Skeleton of this unit.
+     * @zh 子蒙皮模型的骨骼。
+     */
     @property(Skeleton)
     public skeleton: Skeleton | null = null;
+
+    /**
+     * @en Skinning material of this unit.
+     * @zh 子蒙皮模型使用的材质。
+     */
     @property(Material)
     public material: Material | null = null;
-    @property
-    private _offset: Vec2 = new Vec2(0, 0);
-    @property
-    private _size: Vec2 = new Vec2(1, 1);
 
+    @property
+    public _localTransform = new Mat4();
+    @property
+    private _offset = new Vec2(0, 0);
+    @property
+    private _size = new Vec2(1, 1);
+
+    /**
+     * @en UV offset on texture atlas.
+     * @zh 在图集中的 uv 坐标偏移。
+     */
     @property
     set offset (offset) {
         Vec2.copy(this._offset, offset);
@@ -68,6 +90,10 @@ export class SkinningModelUnit {
         return this._offset;
     }
 
+    /**
+     * @en UV extent on texture atlas.
+     * @zh 在图集中占的 UV 尺寸。
+     */
     @property
     set size (size) {
         Vec2.copy(this._size, size);
@@ -76,21 +102,30 @@ export class SkinningModelUnit {
         return this._size;
     }
 
+    /**
+     * @en Convevient setter, copying all necessary information from target skinning model component.
+     * @zh 复制目标 SkinningModelComponent 的所有属性到本单元，方便快速配置。
+     */
     @property({ type: SkinningModelComponent })
     set copyFrom (comp: SkinningModelComponent | null) {
         if (!comp) { return; }
         this.mesh = comp.mesh;
         this.skeleton = comp.skeleton;
         this.material = comp.getMaterial(0);
+        if (comp.skinningRoot) { getWorldTransformUntilRoot(comp.node, comp.skinningRoot, this._localTransform); }
     }
     get copyFrom () {
         return null;
     }
 }
 
+const m4_local = new Mat4();
+const m4_1 = new Mat4();
+const v3_1 = new Vec3();
+
 /**
- * @en The Batched Skinning Model Component
- * @zh 蒙皮模型合批组件
+ * @en The Batched Skinning Model Component, batches multiple skeleton-sharing skinning models.
+ * @zh 蒙皮模型合批组件，用于合并绘制共享同一骨骼资源的所有蒙皮模型。
  */
 @ccclass('cc.BatchedSkinningModelComponent')
 @executionOrder(100)
@@ -98,18 +133,35 @@ export class SkinningModelUnit {
 @menu('Components/BatchedSkinningModel')
 export class BatchedSkinningModelComponent extends SkinningModelComponent {
 
+    /**
+     * @en Size of the generated texture atlas.
+     * @zh 合图生成的最终图集的边长。
+     */
     @property({
-        tooltip: '合图生成的最终图集的边长',
+        tooltip: 'i18n:batched_skinning_model.atlas_size',
     })
     public atlasSize: number = 1024;
+
+    /**
+     * @en
+     * Texture properties that will be actually using the generated atlas.<br>
+     * The first unit's texture will be used if not specified.
+     * @zh
+     * 材质中真正参与合图的贴图属性，不参与的属性统一使用第一个 unit 的贴图。
+     */
     @property({
         type: [CCString],
-        tooltip: '材质中真正参与合图的贴图属性，不参与的属性统一使用第一个 unit 的贴图',
+        tooltip: 'i18n:batched_skinning_model.batchable_texture_names',
     })
     public batchableTextureNames: string[] = [];
+
+    /**
+     * @en Source skinning model components, containing all the data to be batched.
+     * @zh 合批前的子蒙皮模型数组，最主要的数据来源。
+     */
     @property({
         type: [SkinningModelUnit],
-        tooltip: '合批前的子蒙皮模型数组，最主要的数据来源',
+        tooltip: 'i18n:batched_skinning_model.units',
     })
     public units: SkinningModelUnit[] = [];
 
@@ -201,26 +253,38 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
     public cookSkeletons () {
         if (!this._skinningRoot) { console.warn('no skinning root specified!'); return; }
         // merge joints accordingly
-        const skeleton = new Skeleton();
+        const joints: string[] = [];
         const bindposes: Mat4[] = [];
-        for (const unit of this.units) {
+        for (let u = 0; u < this.units.length; u++) {
+            const unit = this.units[u];
             if (!unit || !unit.skeleton) { continue; }
             const partial = unit.skeleton;
+            Mat4.invert(m4_local, unit._localTransform);
             for (let i = 0; i < partial.joints.length; i++) {
                 const path = partial.joints[i];
-                const idx = skeleton.joints.findIndex((p) => p === path);
-                if (idx >= 0) { continue; }
-                skeleton.joints.push(path);
-                bindposes.push(partial.bindposes[i] || new Mat4());
+                const idx = joints.findIndex((p) => p === path);
+                if (idx >= 0) {
+                    if (CC_EDITOR) { // consistency check
+                        Mat4.multiply(m4_1, partial.bindposes[i], m4_local);
+                        if (!m4_1.equals(bindposes[idx])) {
+                            console.warn(`${this.node.name}: Inconsistent bindpose at ${joints[idx]} in unit ${u}, artifacts may present`);
+                        }
+                    }
+                    continue;
+                }
+                joints.push(path);
+                // cancel out local transform
+                bindposes.push(Mat4.multiply(new Mat4(), partial.bindposes[i] || Mat4.IDENTITY, m4_local));
             }
         }
         // sort the array to be more cache-friendly
-        const idxMap = Array.from(Array(skeleton.joints.length).keys()).sort((a, b) => {
-            if (skeleton.joints[a] > skeleton.joints[b]) { return 1; }
-            if (skeleton.joints[a] < skeleton.joints[b]) { return -1; }
+        const idxMap = Array.from(Array(joints.length).keys()).sort((a, b) => {
+            if (joints[a] > joints[b]) { return 1; }
+            if (joints[a] < joints[b]) { return -1; }
             return 0;
         });
-        skeleton.joints = skeleton.joints.map((_, idx, arr) => arr[idxMap[idx]]);
+        const skeleton = new Skeleton();
+        skeleton.joints = joints.map((_, idx, arr) => arr[idxMap[idx]]);
         skeleton.bindposes = bindposes.map((_, idx, arr) => arr[idxMap[idx]]);
         // apply
         if (this._skeleton) { this._skeleton.destroy(); }
@@ -246,9 +310,14 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
             return;
         }
 
+        let posOffset = 0;
+        let posFormat = GFXFormat.UNKNOWN;
+        let normalOffset = 0;
+        let normalFormat = GFXFormat.UNKNOWN;
+        let tangentOffset = 0;
+        let tangentFormat = GFXFormat.UNKNOWN;
         let uvOffset = 0;
         let uvFormat = GFXFormat.UNKNOWN;
-        let dataView: DataView;
         let jointOffset = 0;
         let jointFormat = GFXFormat.UNKNOWN;
 
@@ -266,88 +335,67 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
         for (let i = 0; i < unitLen; i++) {
             const unit = this.units[i];
             if (!unit || !unit.mesh || !unit.mesh.data) { continue; }
-
-            // add batch ID to this temp mesh
-            // first, update bookkeepping
-            const newMeshStruct: Mesh.Struct = JSON.parse(JSON.stringify(unit.mesh.struct));
-            let newOffset = 0;
-            for (const vb of newMeshStruct.vertexBundles) {
-                vb.attributes.push(batch_id);
-                vb.attributes.push(batch_uv);
-                vb.view.offset = newOffset;
-                vb.view.length += vb.view.count * batch_extras_size;
-                vb.view.stride += batch_extras_size;
-                newOffset += vb.view.length;
-            }
-            for (const pm of newMeshStruct.primitives) {
-                if (pm.indexView) {
-                    pm.indexView.offset = newOffset;
-                    newOffset += pm.indexView.length;
-                }
-                if (pm.geometricInfo) {
-                    newOffset = Math.ceil(newOffset / 4) * 4;
-                    pm.geometricInfo.view.offset = newOffset;
-                    newOffset += pm.geometricInfo.view.length;
-                }
-            }
-            // now, we ride!
-            const src = unit.mesh.data; let oldOffset = 0;
-            const newMeshData = new Uint8Array(newOffset);
-            dataView = new DataView(newMeshData.buffer);
-            for (let k = 0; k < newMeshStruct.vertexBundles.length; k++) {
-                const uvs = unit.mesh.readAttribute(k, GFXAttributeName.ATTR_TEX_COORD)!; // FIXME: should be k-th bundle instead of primitive
-                const oldView = unit.mesh.struct.vertexBundles[k].view;
-                const newView = newMeshStruct.vertexBundles[k].view;
-                const oldStride = oldView.stride;
-                const newStride = newView.stride;
-                oldOffset = oldView.offset;
-                newOffset = newView.offset;
-                for (let j = 0; j < newView.count; j++) {
-                    const srcVertex = src.subarray(oldOffset, oldOffset + oldStride);
-                    newMeshData.set(srcVertex, newOffset);
-                    // insert batch ID
-                    dataView.setFloat32(newOffset + oldStride, i, cc.sys.isLittleEndian);
-                    // insert batch UV
-                    dataView.setFloat32(newOffset + oldStride + 4, uvs[j * 2], cc.sys.isLittleEndian);
-                    dataView.setFloat32(newOffset + oldStride + 8, uvs[j * 2 + 1], cc.sys.isLittleEndian);
-                    newOffset += newStride; oldOffset += oldStride;
-                }
-            }
-            for (let k = 0; k < newMeshStruct.primitives.length; k++) {
-                const oldPrimitive = unit.mesh.struct.primitives[k];
-                const newPrimitive = newMeshStruct.primitives[k];
-                if (oldPrimitive.indexView && newPrimitive.indexView) {
-                    const oldStride = oldPrimitive.indexView.stride;
-                    const newStride = newPrimitive.indexView.stride;
-                    oldOffset = oldPrimitive.indexView.offset;
-                    newOffset = newPrimitive.indexView.offset;
-                    for (let j = 0; j < newPrimitive.indexView.count; j++) {
-                        const srcIndices = src.subarray(oldOffset, oldOffset + oldStride);
-                        newMeshData.set(srcIndices, newOffset);
-                        newOffset += newStride; oldOffset += oldStride;
-                    }
-                }
-                if (oldPrimitive.geometricInfo && newPrimitive.geometricInfo) {
-                    const oldStride = oldPrimitive.geometricInfo.view.stride;
-                    const newStride = newPrimitive.geometricInfo.view.stride;
-                    oldOffset = oldPrimitive.geometricInfo.view.offset;
-                    newOffset = newPrimitive.geometricInfo.view.offset;
-                    for (let j = 0; j < newPrimitive.geometricInfo.view.count; j++) {
-                        const srcPositions = src.subarray(oldOffset, oldOffset + oldStride);
-                        newMeshData.set(srcPositions, newOffset);
-                        newOffset += newStride; oldOffset += oldStride;
-                    }
-                }
-            }
-            const newMesh = new Mesh();
-            newMesh.reset({
-                struct: newMeshStruct,
-                data: newMeshData,
-            });
-
+            const newMesh = this._createUnitMesh(i, unit.mesh);
+            const dataView = new DataView(newMesh.data!.buffer);
+            Mat4.inverseTranspose(m4_local, unit._localTransform);
             const offset = unit.offset;
             const size = unit.size;
-            for (const bundle of newMeshStruct.vertexBundles) {
+            for (const bundle of newMesh.struct.vertexBundles) {
+                // apply local transform to mesh
+                posOffset = bundle.view.offset;
+                posFormat = GFXFormat.UNKNOWN;
+                for (const attr of bundle.attributes) {
+                    if (attr.name === GFXAttributeName.ATTR_POSITION) {
+                        posFormat = attr.format;
+                        break;
+                    }
+                    posOffset += GFXFormatInfos[attr.format].size;
+                }
+                if (posFormat) {
+                    const pos = readBuffer(dataView, posFormat, posOffset, bundle.view.length, bundle.view.stride);
+                    for (let j = 0; j < pos.length; j += 3) {
+                        Vec3.fromArray(v3_1, pos, j);
+                        Vec3.transformMat4(v3_1, v3_1, unit._localTransform);
+                        Vec3.toArray(pos, v3_1, j);
+                    }
+                    writeBuffer(dataView, pos, posFormat, posOffset, bundle.view.stride);
+                }
+                normalOffset = bundle.view.offset;
+                normalFormat = GFXFormat.UNKNOWN;
+                for (const attr of bundle.attributes) {
+                    if (attr.name === GFXAttributeName.ATTR_NORMAL) {
+                        normalFormat = attr.format;
+                        break;
+                    }
+                    normalOffset += GFXFormatInfos[attr.format].size;
+                }
+                if (normalFormat) {
+                    const normal = readBuffer(dataView, normalFormat, normalOffset, bundle.view.length, bundle.view.stride);
+                    for (let j = 0; j < normal.length; j += 3) {
+                        Vec3.fromArray(v3_1, normal, j);
+                        Vec3.transformMat4Normal(v3_1, v3_1, m4_local);
+                        Vec3.toArray(normal, v3_1, j);
+                    }
+                    writeBuffer(dataView, normal, normalFormat, normalOffset, bundle.view.stride);
+                }
+                tangentOffset = bundle.view.offset;
+                tangentFormat = GFXFormat.UNKNOWN;
+                for (const attr of bundle.attributes) {
+                    if (attr.name === GFXAttributeName.ATTR_TANGENT) {
+                        tangentFormat = attr.format;
+                        break;
+                    }
+                    tangentOffset += GFXFormatInfos[attr.format].size;
+                }
+                if (tangentFormat) {
+                    const tangent = readBuffer(dataView, tangentFormat, tangentOffset, bundle.view.length, bundle.view.stride);
+                    for (let j = 0; j < tangent.length; j += 3) {
+                        Vec3.fromArray(v3_1, tangent, j);
+                        Vec3.transformMat4Normal(v3_1, v3_1, m4_local);
+                        Vec3.toArray(tangent, v3_1, j);
+                    }
+                    writeBuffer(dataView, tangent, tangentFormat, tangentOffset, bundle.view.stride);
+                }
                 // merge UV
                 uvOffset = bundle.view.offset;
                 uvFormat = GFXFormat.UNKNOWN;
@@ -421,6 +469,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
     protected createTexture (prop: string) {
         const tex = new Texture2D();
         tex.setFilters(Filter.LINEAR, Filter.LINEAR);
+        tex.setMipFilter(Filter.LINEAR);
         tex.reset({
             width: this.atlasSize,
             height: this.atlasSize,
@@ -440,5 +489,86 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
                 format: PixelFormat.RGBA8888,
             });
         }
+    }
+
+    private _createUnitMesh (unitIdx: number, mesh: Mesh) {
+        // add batch ID to this temp mesh
+        // first, update bookkeepping
+        const newMeshStruct: Mesh.IStruct = JSON.parse(JSON.stringify(mesh.struct));
+        let newOffset = 0;
+        for (const vb of newMeshStruct.vertexBundles) {
+            vb.attributes.push(batch_id);
+            vb.attributes.push(batch_uv);
+            vb.view.offset = newOffset;
+            vb.view.length += vb.view.count * batch_extras_size;
+            vb.view.stride += batch_extras_size;
+            newOffset += vb.view.length;
+        }
+        for (const pm of newMeshStruct.primitives) {
+            if (pm.indexView) {
+                pm.indexView.offset = newOffset;
+                newOffset += pm.indexView.length;
+            }
+            if (pm.geometricInfo) {
+                newOffset = Math.ceil(newOffset / 4) * 4;
+                pm.geometricInfo.view.offset = newOffset;
+                newOffset += pm.geometricInfo.view.length;
+            }
+        }
+        // now, we ride!
+        const src = mesh.data!; let oldOffset = 0;
+        const newMeshData = new Uint8Array(newOffset);
+        const dataView = new DataView(newMeshData.buffer);
+        for (let k = 0; k < newMeshStruct.vertexBundles.length; k++) {
+            const uvs = mesh.readAttribute(k, GFXAttributeName.ATTR_TEX_COORD)!; // FIXME: should be k-th bundle instead of primitive
+            const oldView = mesh!.struct.vertexBundles[k].view;
+            const newView = newMeshStruct.vertexBundles[k].view;
+            const oldStride = oldView.stride;
+            const newStride = newView.stride;
+            oldOffset = oldView.offset;
+            newOffset = newView.offset;
+            for (let j = 0; j < newView.count; j++) {
+                const srcVertex = src.subarray(oldOffset, oldOffset + oldStride);
+                newMeshData.set(srcVertex, newOffset);
+                // insert batch ID
+                dataView.setFloat32(newOffset + oldStride, unitIdx, cc.sys.isLittleEndian);
+                // insert batch UV
+                dataView.setFloat32(newOffset + oldStride + 4, uvs[j * 2], cc.sys.isLittleEndian);
+                dataView.setFloat32(newOffset + oldStride + 8, uvs[j * 2 + 1], cc.sys.isLittleEndian);
+                newOffset += newStride; oldOffset += oldStride;
+            }
+        }
+        for (let k = 0; k < newMeshStruct.primitives.length; k++) {
+            const oldPrimitive = mesh.struct.primitives[k];
+            const newPrimitive = newMeshStruct.primitives[k];
+            if (oldPrimitive.indexView && newPrimitive.indexView) {
+                const oldStride = oldPrimitive.indexView.stride;
+                const newStride = newPrimitive.indexView.stride;
+                oldOffset = oldPrimitive.indexView.offset;
+                newOffset = newPrimitive.indexView.offset;
+                for (let j = 0; j < newPrimitive.indexView.count; j++) {
+                    const srcIndices = src.subarray(oldOffset, oldOffset + oldStride);
+                    newMeshData.set(srcIndices, newOffset);
+                    newOffset += newStride; oldOffset += oldStride;
+                }
+            }
+            if (oldPrimitive.geometricInfo && newPrimitive.geometricInfo) {
+                const oldStride = oldPrimitive.geometricInfo.view.stride;
+                const newStride = newPrimitive.geometricInfo.view.stride;
+                oldOffset = oldPrimitive.geometricInfo.view.offset;
+                newOffset = newPrimitive.geometricInfo.view.offset;
+                for (let j = 0; j < newPrimitive.geometricInfo.view.count; j++) {
+                    const srcPositions = src.subarray(oldOffset, oldOffset + oldStride);
+                    newMeshData.set(srcPositions, newOffset);
+                    newOffset += newStride; oldOffset += oldStride;
+                }
+            }
+        }
+        const newMesh = new Mesh();
+        newMesh.reset({
+            struct: newMeshStruct,
+            data: newMeshData,
+        });
+        return newMesh;
     }
 }

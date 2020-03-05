@@ -24,186 +24,85 @@
  THE SOFTWARE.
  */
 
+/* eslint-disable @typescript-eslint/no-require-imports */
+/* eslint-disable @typescript-eslint/no-var-requires */
+
 'use strict';
 
-const Path = require('path');
 const gulp = require('gulp');
-const Del = require('del');
-const Shell = require('gulp-shell');
+const fs = require('fs-extra');
+const ps = require('path');
+const cp = require('child_process');
 
-const Engine = require('./gulp/tasks/engine');
-const Test = require('./gulp/tasks/test');
-const Watch = require('./gulp/tasks/watch');
-const APIBuilder = require('./gulp/util/api-docs-build');
-
-/////////////
-// engine //
-/////////////
-
-gulp.task('build-debug-infos', function () {
-    Engine.buildDebugInfos();
+gulp.task('build-debug-infos', async () => {
+    return await Promise.resolve(require('./gulp/tasks/buildDebugInfos')());
 });
 
-gulp.task('build-html5-dev', ['clean-cache', 'build-debug-infos'], function (done) {
-    Engine.buildCocosJs('./index.js', './bin/cocos2d-js.js', [],  done);
-});
-
-gulp.task('build-html5-min', ['clean-cache', 'build-debug-infos'], function (done) {
-    Engine.buildCocosJsMin('./index.js', './bin/cocos2d-js-min.js', [], done);
-});
-
-gulp.task('build-html5-preview',  ['build-debug-infos'], function (done) {
-    Engine.buildPreview('./index.js', './bin/cocos2d-js-for-preview.js', done);
-});
-
-gulp.task('build-html5-preview-dev', ['build-debug-infos'], function (done) {
-    Engine.buildPreview('./index.js', './bin/cocos2d-js-for-preview.js', done, true);
-});
-
-gulp.task('build-html5', ['build-html5-preview', 'build-html5-dev', 'build-html5-min']);
-
-gulp.task('build-jsb-dev',  ['clean-cache', 'build-debug-infos'], function (done) {
-    var args = process.argv.slice(3); // strip task name
-    var opts = {};
-    if (args.indexOf('--native-renderer') !== -1) {
-        opts.nativeRenderer = true;
-    }
-
-    Engine.buildJsb([
-        './index.js',
-    ], './bin/cocos2d-jsb.js', [], opts, done);
-});
-
-gulp.task('build-jsb-min',  ['clean-cache', 'build-debug-infos'], function (done) {
-    var args = process.argv.slice(3); // strip task name
-    var opts = {};
-    if (args.indexOf('--native-renderer') !== -1) {
-        opts.nativeRenderer = true;
-    }
-
-    Engine.buildJsbMin([
-        './index.js',
-    ], './bin/cocos2d-jsb-min.js', [], opts, done);
-});
-
-gulp.task('build-jsb-preview', ['build-debug-infos'], function (done) {
-    Engine.buildJsbPreview([
-        './index.js',
-    ], './bin/cocos2d-jsb-for-preview.js', [], done);
-});
-
-gulp.task('build-jsb', ['build-jsb-preview', 'build-jsb-dev', 'build-jsb-min']);
-
-/////////
-// test //
-/////////
-
-gulp.task('clean-test', ['clean-test-cases'], function (done) {
-    Del([
-        './bin/cocos2d-js-extends-for-test.js',
-        './bin/cocos2d-js-for-test.js',
-    ], done);
-});
-
-gulp.task('clean-test-cases', function (done) {
-    Del('./bin/test/**/*', done);
-});
-
-gulp.task('build-test-cases', ['clean-test-cases'], function (done) {
-    Test.buildTestCase('./bin/test/', done);
-});
-
-gulp.task('build-test', ['clean-test', 'build-test-cases', 'build-debug-infos'], function (done) {
-    Test.build('./index.js', './bin/cocos2d-js-for-test.js',
-               '../editor/test-utils/engine-extends-entry.js', './bin/cocos2d-js-extends-for-test.js',
-               false, done);
-});
-gulp.task('build-test-sm', ['clean-test', 'build-test-cases', 'build-debug-infos'], function (done) {
-    Test.build('./index.js', './bin/cocos2d-js-for-test.js',
-               '../editor/test-utils/engine-extends-entry.js', './bin/cocos2d-js-extends-for-test.js',
-               true, done);
-});
-
-gulp.task('unit-runner', ['build-test'], function (done) {
-    Test.unit('./bin', [
-        './bin/cocos2d-js-for-test.js'
-    ], done);
-});
-
-gulp.task('test', ['build-test', 'unit-runner'], function (done) {
-    Test.test(done);
-});
-
-gulp.task('visual-test', ['build-test'], Shell.task([
-    'sh ./test/visual-tests/run.sh'
-]));
-
-gulp.task('test-no-build', function (done) {
-    Test.test(done);
-});
-
-////////////
-// global //
-////////////
-
-gulp.task('clean-cache', function (done) {
-    Del(['./bin/.cache/*', '!./bin/.cache/dev/**'], done);
-});
-
-// fast build, only for develop
-gulp.task('build-dev', ['clean-cache', 'build-html5-preview', 'build-jsb-preview'], function (done) {
-    Del(['./bin/cocos2d-jsb-min.js', './bin/cocos2d-jsb.js'], done);
-});
-
-// only build preview for html5 since it will built by editor
-gulp.task('build', ['clean-cache', 'build-html5-preview', 'build-jsb']);
-
-// default task
-gulp.task('default', ['build']);
-
-gulp.task('clean', function (done) {
-    Del('./bin/**/*', done);
-});
-
-////////////
-// watch //
-////////////
-
-gulp.task('watch-preview', function () {
-    Watch.preview('./index.js', './bin/cocos2d-js-for-preview.js');
-});
-
-gulp.task('watch-jsb-polyfill', function () {
-    Watch.jsbPolyfill([
-        './index.js',
-    ], './bin/cocos2d-jsb.js');
-});
-
-gulp.task('watch-dev-files', ['watch-preview', 'watch-jsb-polyfill']);
-
-gulp.task('test-in-ci', function () {
-    const { spawn } = require('child_process');
-    var gulp = process.platform === 'win32' ? 'gulp.cmd' : 'gulp';
-    var child = spawn(gulp, ['test'], {
-        stdio: [0, 'pipe', 2]
+gulp.task('build-code', gulp.series('build-debug-infos', () => {
+    return cp.spawn('node', [
+        './rollup/out/build-engine-cli.js',
+        '--sourcemap',
+        '--buildmode=universal',
+        '--platform=HTML5',
+        '--physics=cannon',
+        '--destination=./bin/dev/cc.js',
+    ], {
+        shell: true,
+        stdio: 'inherit',
+        cwd: __dirname,
     });
-    child.stdout.on('data', function (data) {
-        process.stdout.write(data);
-        if (data.toString().indexOf(' assertions failed ') !== -1) {
-            process.exitCode = 1;
-            process.exit();
-        }
+}));
+
+gulp.task('build-code-minified', gulp.series('build-debug-infos', () => {
+    return cp.spawn('node', [
+        './rollup/out/build-engine-cli.js',
+        '--compress',
+        '--sourcemap',
+        '--buildmode=universal',
+        '--platform=HTML5',
+        '--physics=cannon',
+        '--destination=./bin/dev/cc.min.js',
+    ], {
+        shell: true,
+        stdio: 'inherit',
+        cwd: __dirname,
+    });
+}));
+
+gulp.task('build-declarations', async () => {
+    const outDir = ps.join('bin', '.declarations');
+    await fs.emptyDir(outDir);
+    return require('./scripts/generate-declarations/generate-declarations.js').generate({
+        outDir,
     });
 });
 
-////////////
-// API //
-////////////
+gulp.task('build', gulp.parallel('build-code-minified', 'build-declarations'));
 
-gulp.task('build-api-json', function () {
-    APIBuilder.generateJson();
+gulp.task('code-check', () => {
+    return cp.spawn('tsc', ['--noEmit'], {
+        shell: true,
+        stdio: 'inherit',
+        cwd: __dirname,
+    });
 });
 
-gulp.task('build-3d-api', function () {
-    APIBuilder.generateHTMLWithLocalization();
+gulp.task('unit-tests', () => {
+    return cp.spawn(`jest`, [], {
+        shell: true,
+        stdio: 'inherit',
+        cwd: __dirname,
+    });
+});
+
+gulp.task('test', gulp.series('code-check', 'unit-tests'));
+
+gulp.task('build-api-json', async () => {
+    const APIBuilder = require('./gulp/util/api-docs-build');
+    return await Promise.resolve(APIBuilder.generateJson());
+});
+
+gulp.task('build-3d-api', async () => {
+    const APIBuilder = require('./gulp/util/api-docs-build');
+    return await Promise.resolve(APIBuilder.generateHTMLWithLocalization());
 });

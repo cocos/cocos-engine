@@ -34,11 +34,10 @@ import { AudioClip } from './assets/clip';
 
 /**
  * @en
- * A representation of a single audio source,
+ * A representation of a single audio source, <br>
  * contains basic functionalities like play, pause and stop.
  * @zh
- * 音频组件，代表单个音源，提供播放、暂停、停止等基本功能。<br>
- * 用户可通过 cc.AudioSourceComponent 调用此类。
+ * 音频组件，代表单个音源，提供播放、暂停、停止等基本功能。
  */
 @ccclass('cc.AudioSourceComponent')
 @menu('Components/AudioSource')
@@ -56,13 +55,13 @@ export class AudioSourceComponent extends Component {
 
     /**
      * @en
-     * The default AudioClip to play
+     * The default AudioClip to be played for this audio source.
      * @zh
      * 设定要播放的音频。
      */
     @property({
         type: AudioClip,
-        tooltip:'设定要播放的音频',
+        tooltip: 'i18n:audio.clip',
     })
     set clip (val) {
         this._clip = val;
@@ -74,12 +73,12 @@ export class AudioSourceComponent extends Component {
 
     /**
      * @en
-     * Is the audio clip looping?
+     * Is looping enabled for this audio source?
      * @zh
      * 是否循环播放音频？
      */
     @property({
-        tooltip:'是否循环播放音频',
+        tooltip: 'i18n:audio.loop',
     })
     set loop (val) {
         this._loop = val;
@@ -92,16 +91,16 @@ export class AudioSourceComponent extends Component {
     /**
      * @en
      * Is the autoplay enabled? <br>
-     * Note that for the most time now the autoplay will only starts <br>
+     * Note that for most platform autoplay will only start <br>
      * after a user gesture is received, according to the latest autoplay policy: <br>
      * https://www.chromium.org/audio-video/autoplay
      * @zh
      * 是否启用自动播放。 <br>
-     * 请注意，根据最新的自动播放策略，现在大部分时候，自动播放只会在第一次收到用户输入后生效。 <br>
+     * 请注意，根据最新的自动播放策略，现在对大多数平台，自动播放只会在第一次收到用户输入后生效。 <br>
      * 参考：https://www.chromium.org/audio-video/autoplay
      */
     @property({
-        tooltip:'是否启用自动播放',
+        tooltip: 'i18n:audio.playOnAwake',
     })
     set playOnAwake (val) {
         this._playOnAwake = val;
@@ -112,15 +111,15 @@ export class AudioSourceComponent extends Component {
 
     /**
      * @en
-     * The volume of this audio source (0.0 to 1.0).
+     * The volume of this audio source (0.0 to 1.0).<br>
+     * Note: Volume control may be ineffective on some platforms.
      * @zh
-     * 音频的音量（大小范围为 0.0 到 1.0 ）。
-     *
-     * 请注意,在某些平台上，音量控制可能不起效。<br>
+     * 音频的音量（大小范围为 0.0 到 1.0）。<br>
+     * 请注意，在某些平台上，音量控制可能不起效。<br>
      */
     @property({
-        range:[0.0,1.0],
-        tooltip:'音频的音量（大小范围为 0.0 到 1.0 ）\n请注意,在某些平台上，音量控制可能不起效'
+        range: [0.0, 1.0],
+        tooltip: 'i18n:audio.volume',
     })
     set volume (val) {
         if (isNaN(val)) { console.warn('illegal audio volume!'); return; }
@@ -152,11 +151,12 @@ export class AudioSourceComponent extends Component {
 
     /**
      * @en
-     * Plays the clip
+     * Play the clip.<br>
+     * Restart if already playing.<br>
+     * Resume if paused.
      * @zh
-     * 开始播放音频。
-     *
-     * 如果音频处于正在播放状态，将会重新开始播放音频。 <br>
+     * 开始播放。<br>
+     * 如果音频处于正在播放状态，将会重新开始播放音频。<br>
      * 如果音频处于暂停状态，则会继续播放音频。
      */
     public play () {
@@ -167,7 +167,7 @@ export class AudioSourceComponent extends Component {
 
     /**
      * @en
-     * Pause the clip
+     * Pause the clip.
      * @zh
      * 暂停播放。
      */
@@ -178,7 +178,7 @@ export class AudioSourceComponent extends Component {
 
     /**
      * @en
-     * Stop the clip
+     * Stop the clip.
      * @zh
      * 停止播放。
      */
@@ -188,14 +188,16 @@ export class AudioSourceComponent extends Component {
     }
 
     /**
-     * @en Plays an AudioClip, and scales volume by volumeScale.
-     * @zh 以指定音量播放一个音频一次。
-     *
+     * @en
+     * Plays an AudioClip, and scales volume by volumeScale.<br>
+     * Note: for multiple playback on the same clip, the actual behavior is platform-specific.<br>
+     * Re-start style fallback will be used if the underlying platform doesn't support it.
+     * @zh
+     * 以指定音量播放一个音频一次。<br>
      * 注意，对同一个音频片段，不同平台多重播放效果存在差异。<br>
-     * 在 Web Audio 模式下，可以同时维护多个播放进度，达到多重播放。<br>
-     * 其他模式下都不支持多重播放，如前一次尚未播完，则会立即重新播放。
-     * @param clip 要播放的音频
-     * @param volumeScale 相对当前音量的缩放，默认为 1
+     * 对不支持的平台，如前一次尚未播完，则会立即重新播放。
+     * @param clip The audio clip to be played.
+     * @param volumeScale volume scaling factor wrt. current value.
      */
     public playOneShot (clip: AudioClip, volumeScale = 1) {
         clip.playOneShot(this._volume * volumeScale);
@@ -211,10 +213,10 @@ export class AudioSourceComponent extends Component {
 
     /**
      * @en
-     * set current playback time, in seconds
+     * Set current playback time, in seconds.
      * @zh
      * 以秒为单位设置当前播放时间。
-     * @param num 要跳转到的播放时间
+     * @param num playback time to jump to.
      */
     set currentTime (num: number) {
         if (isNaN(num)) { console.warn('illegal audio time!'); return; }
@@ -226,7 +228,7 @@ export class AudioSourceComponent extends Component {
 
     /**
      * @en
-     * get the current playback time, in seconds
+     * Get the current playback time, in seconds.
      * @zh
      * 以秒为单位获取当前播放时间。
      */
@@ -237,7 +239,7 @@ export class AudioSourceComponent extends Component {
 
     /**
      * @en
-     * get the audio duration, in seconds
+     * Get the audio duration, in seconds.
      * @zh
      * 获取以秒为单位的音频总时长。
      */
@@ -248,7 +250,7 @@ export class AudioSourceComponent extends Component {
 
     /**
      * @en
-     * get current audio state
+     * Get current audio state.
      * @zh
      * 获取当前音频状态。
      */
@@ -259,7 +261,7 @@ export class AudioSourceComponent extends Component {
 
     /**
      * @en
-     * is the audio currently playing?
+     * Is the audio currently playing?
      * @zh
      * 当前音频是否正在播放？
      */

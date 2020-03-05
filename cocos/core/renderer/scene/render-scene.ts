@@ -1,19 +1,19 @@
 import { IBArray } from '../../assets/mesh';
-import { aabb, intersect, ray, triangle } from '../../geom-utils';
+import { aabb, intersect, ray, triangle } from '../../geometry';
 import { GFXPrimitiveMode } from '../../gfx/define';
 import { Mat4, Vec3 } from '../../math';
 import { RecyclePool } from '../../memop';
 import { Root } from '../../root';
+import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
 import { Ambient } from './ambient';
-import { Camera, ICameraInfo } from './camera';
+import { Camera } from './camera';
 import { DirectionalLight } from './directional-light';
-import { Model } from './model';
+import { Model, ModelType } from './model';
 import { PlanarShadows } from './planar-shadows';
 import { Skybox } from './skybox';
 import { SphereLight } from './sphere-light';
 import { SpotLight } from './spot-light';
-import { Node } from '../../scene-graph';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -301,26 +301,30 @@ export class RenderScene {
         pool.reset();
         for (const m of this._models) {
             const transform = m.transform;
-            if (!transform || !m.enabled || m.node.layer & Layers.Enum.IGNORE_RAYCAST || !(m.node.layer & mask) || !m.modelBounds) { continue; }
-            // transform ray back to model space
-            Mat4.invert(m4, transform.getWorldMatrix(m4));
-            Vec3.transformMat4(modelRay.o, worldRay.o, m4);
-            Vec3.normalize(modelRay.d, Vec3.transformMat4Normal(modelRay.d, worldRay.d, m4));
+            if (!transform || !m.enabled || !(m.node.layer & (mask & ~Layers.Enum.IGNORE_RAYCAST)) || !m.worldBounds) { continue; }
             // broadphase
-            const d = intersect.ray_aabb(modelRay, m.modelBounds);
-            if (d <= 0 || d > distance) { continue; }
-            for (let i = 0; i < m.subModelNum; ++i) {
-                const subModel = m.getSubModel(i).subMeshData;
-                if (subModel && subModel.geometricInfo) {
-                    const { positions: vb, indices: ib, doubleSided: sides } = subModel.geometricInfo;
-                    narrowphase(vb, ib!, subModel.primitiveMode, sides!, distance);
+            let d = intersect.ray_aabb(worldRay, m.worldBounds);
+            if (d <= 0 || d >= distance) { continue; }
+            if (m.type === ModelType.DEFAULT) {
+                // transform ray back to model space
+                Mat4.invert(m4, transform.getWorldMatrix(m4));
+                Vec3.transformMat4(modelRay.o, worldRay.o, m4);
+                Vec3.normalize(modelRay.d, Vec3.transformMat4Normal(modelRay.d, worldRay.d, m4));
+                d = Infinity;
+                for (let i = 0; i < m.subModelNum; ++i) {
+                    const subModel = m.getSubModel(i).subMeshData;
+                    if (subModel && subModel.geometricInfo) {
+                        const { positions: vb, indices: ib, doubleSided: sides } = subModel.geometricInfo;
+                        narrowphase(vb, ib!, subModel.primitiveMode, sides!, distance);
+                        d = Math.min(d, narrowDis * Vec3.multiply(v3, modelRay.d, transform.worldScale).length());
+                    }
                 }
-                if (narrowDis < distance) {
-                    const r = pool.add();
-                    r.node = m.node;
-                    r.distance = narrowDis * Vec3.multiply(v3, modelRay.d, transform.worldScale).length();
-                    resultModels[pool.length - 1] = r;
-                }
+            }
+            if (d < distance) {
+                const r = pool.add();
+                r.node = m.node;
+                r.distance = d;
+                resultModels[pool.length - 1] = r;
             }
         }
         resultModels.length = pool.length;
@@ -350,26 +354,30 @@ export class RenderScene {
         pool.reset();
         const m = model;
         const transform = m.transform;
-        if (!transform || !m.enabled || m.node.layer & Layers.Enum.IGNORE_RAYCAST || !(m.node.layer & mask) || !m.modelBounds) { return false; }
-        // transform ray back to model space
-        Mat4.invert(m4, transform.getWorldMatrix(m4));
-        Vec3.transformMat4(modelRay.o, worldRay.o, m4);
-        Vec3.normalize(modelRay.d, Vec3.transformMat4Normal(modelRay.d, worldRay.d, m4));
+        if (!transform || !m.enabled || !(m.node.layer & (mask & ~Layers.Enum.IGNORE_RAYCAST)) || !m.worldBounds) { return false; }
         // broadphase
-        const d = intersect.ray_aabb(modelRay, m.modelBounds);
-        if (d <= 0 || d > distance) { return false; }
-        for (let i = 0; i < m.subModelNum; ++i) {
-            const subModel = m.getSubModel(i).subMeshData;
-            if (subModel && subModel.geometricInfo) {
-                const { positions: vb, indices: ib, doubleSided: sides } = subModel.geometricInfo;
-                narrowphase(vb, ib!, subModel.primitiveMode, sides!, distance);
+        let d = intersect.ray_aabb(worldRay, m.worldBounds);
+        if (d <= 0 || d >= distance) { return false; }
+        if (m.type === ModelType.DEFAULT) {
+            // transform ray back to model space
+            Mat4.invert(m4, transform.getWorldMatrix(m4));
+            Vec3.transformMat4(modelRay.o, worldRay.o, m4);
+            Vec3.normalize(modelRay.d, Vec3.transformMat4Normal(modelRay.d, worldRay.d, m4));
+            d = Infinity;
+            for (let i = 0; i < m.subModelNum; ++i) {
+                const subModel = m.getSubModel(i).subMeshData;
+                if (subModel && subModel.geometricInfo) {
+                    const { positions: vb, indices: ib, doubleSided: sides } = subModel.geometricInfo;
+                    narrowphase(vb, ib!, subModel.primitiveMode, sides!, distance);
+                    d = Math.min(d, narrowDis * Vec3.multiply(v3, modelRay.d, transform.worldScale).length());
+                }
             }
-            if (narrowDis < distance) {
-                const r = pool.add();
-                r.node = m.node;
-                r.distance = narrowDis * Vec3.multiply(v3, modelRay.d, transform.worldScale).length();
-                resultSingleModel[pool.length - 1] = r;
-            }
+        }
+        if (d < distance) {
+            const r = pool.add();
+            r.node = m.node;
+            r.distance = d;
+            resultSingleModel[pool.length - 1] = r;
         }
         resultSingleModel.length = pool.length;
         return resultSingleModel.length > 0;
@@ -470,7 +478,7 @@ const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, sides:
             Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
             Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
             const dist = intersect.ray_triangle(modelRay, tri, sides);
-            if (dist <= 0 || dist > narrowDis) { continue; }
+            if (dist <= 0 || dist >= narrowDis) { continue; }
             narrowDis = dist;
         }
     } else if (pm === GFXPrimitiveMode.TRIANGLE_STRIP) {
@@ -485,7 +493,7 @@ const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, sides:
             Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
             rev = ~rev;
             const dist = intersect.ray_triangle(modelRay, tri, sides);
-            if (dist <= 0 || dist > narrowDis) { continue; }
+            if (dist <= 0 || dist >= narrowDis) { continue; }
             narrowDis = dist;
         }
     } else if (pm === GFXPrimitiveMode.TRIANGLE_FAN) {
@@ -498,7 +506,7 @@ const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, sides:
             Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
             Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
             const dist = intersect.ray_triangle(modelRay, tri, sides);
-            if (dist <= 0 || dist > narrowDis) { continue; }
+            if (dist <= 0 || dist >= narrowDis) { continue; }
             narrowDis = dist;
         }
     }

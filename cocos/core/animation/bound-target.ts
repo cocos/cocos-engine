@@ -1,108 +1,127 @@
-import { IValueProxy, IValueProxyFactory } from './value-proxy';
-import { PropertyPath, isPropertyPath, TargetPath, CustomTargetPath } from './target-path';
-import { Vec2, Vec4, Vec3, Color } from '../math';
+/**
+ * @hidden
+ */
 
-export class BoundTarget {
-    protected _ap: {
+import { Color, Vec2, Vec3, Vec4 } from '../math';
+import { IValueProxy, IValueProxyFactory } from './value-proxy';
+import { isPropertyPath, PropertyPath, TargetPath } from './target-path';
+import { error } from '../platform/debug';
+
+export interface IBoundTarget {
+    setValue (value: any): void;
+    getValue (): any;
+}
+
+export interface IBufferedTarget extends IBoundTarget {
+    peek(): any;
+    pull(): void;
+    push(): void;
+}
+
+export function createBoundTarget (target: any, modifiers: TargetPath[], valueAdapter?: IValueProxyFactory): null | IBoundTarget {
+    let ap: {
         isProxy: false;
-        object: any,
-        property: PropertyPath,
+        object: any;
+        property: PropertyPath;
     } | {
         isProxy: true;
         proxy: IValueProxy;
     };
-
-    constructor (target: any, modifiers: TargetPath[], valueAdapter?: IValueProxyFactory) {
-        let assignmentModifier: PropertyPath | undefined;
-        for (let iModifier = 0; iModifier < modifiers.length; ++iModifier) {
-            const modifier = modifiers[iModifier];
-            if (isPropertyPath(modifier)) {
-                if (iModifier !== modifiers.length - 1 || valueAdapter) {
-                    if (modifier in target) {
-                        target = target[modifier];
-                    } else {
-                        throw new Error(`Target object has no property "${modifier}"`);
-                    }
+    let assignmentModifier: PropertyPath | undefined;
+    for (let iModifier = 0; iModifier < modifiers.length; ++iModifier) {
+        const modifier = modifiers[iModifier];
+        if (isPropertyPath(modifier)) {
+            if (iModifier !== modifiers.length - 1 || valueAdapter) {
+                if (modifier in target) {
+                    target = target[modifier];
                 } else {
-                    assignmentModifier = modifier;
+                    error(`Target object has no property "${modifier}"`);
+                    return null;
                 }
             } else {
-                target = modifier.get(target);
+                assignmentModifier = modifier;
+            }
+        } else {
+            target = modifier.get(target);
+            if (target === null) {
+                return null;
             }
         }
-
-        if (assignmentModifier !== undefined) {
-            this._ap = {
-                isProxy: false,
-                object: target,
-                property: assignmentModifier,
-            };
-        } else if (valueAdapter) {
-            this._ap = {
-                isProxy: true,
-                proxy: valueAdapter.forTarget(target),
-            };
-        } else {
-            throw new Error(`Bad animation curve.`);
-        }
     }
 
-    public setValue (value: any) {
-        if (this._ap.isProxy) {
-            this._ap.proxy.set(value);
-        } else {
-            this._ap.object[this._ap.property] = value;
-        }
+    if (assignmentModifier !== undefined) {
+        ap = {
+            isProxy: false,
+            object: target,
+            property: assignmentModifier,
+        };
+    } else if (valueAdapter) {
+        ap = {
+            isProxy: true,
+            proxy: valueAdapter.forTarget(target),
+        };
+    } else {
+        error(`Bad animation curve.`);
+        return null;
     }
 
-    protected getValue () {
-        if (this._ap.isProxy) {
-            if (!this._ap.proxy.get) {
-                throw new Error(`Target doesn't provide a get method.`);
+    return {
+        setValue: (value) => {
+            if (ap.isProxy) {
+                ap.proxy.set(value);
             } else {
-                return this._ap.proxy.get();
+                ap.object[ap.property] = value;
             }
-        } else {
-            return this._ap.object[this._ap.property];
-        }
-    }
+        },
+        getValue: () => {
+            if (ap.isProxy) {
+                if (!ap.proxy.get) {
+                    error(`Target doesn't provide a get method.`);
+                    return null;
+                } else {
+                    return ap.proxy.get();
+                }
+            } else {
+                return ap.object[ap.property];
+            }
+        },
+    };
 }
 
-export class BufferedTarget extends BoundTarget {
-    private _buffer: any;
-    private _copy: (out: any, from: any) => void;
-
-    constructor (target: any, modifiers: TargetPath[], valueAdapter?: IValueProxyFactory) {
-        super(target, modifiers, valueAdapter);
-        const value = this.getValue();
-        const copyable = getBuiltinCopy(value);
-        if (!copyable) {
-            throw new Error(`Value is not copyable!`);
-        }
-        this._buffer = copyable.createBuffer();
-        this._copy = copyable.copy;
+export function createBufferedTarget (target: any, modifiers: TargetPath[], valueAdapter?: IValueProxyFactory): null | IBufferedTarget {
+    const boundTarget = createBoundTarget(target, modifiers, valueAdapter);
+    if (boundTarget === null) {
+        return null;
     }
-
-    public peek () {
-        return this._buffer;
+    const value = boundTarget.getValue();
+    const copyable = getBuiltinCopy(value);
+    if (!copyable) {
+        error(`Value is not copyable!`);
+        return null;
     }
-
-    public pull () {
-        const value = this.getValue();
-        this._copy(this._buffer, value);
-    }
-
-    public push () {
-        this.setValue(this._buffer);
-    }
+    const buffer = copyable.createBuffer();
+    const copy = copyable.copy;
+    return Object.assign(boundTarget, {
+        peek: () => {
+            return buffer;
+        },
+        pull: () => {
+            const value = boundTarget.getValue();
+            copy(buffer, value);
+        },
+        push: () => {
+            boundTarget.setValue(buffer);
+        },
+    });
 }
-interface Copyable {
+
+interface ICopyable {
     createBuffer: () => any;
     copy: (out: any, source: any) => any;
 }
 
 const getBuiltinCopy = (() => {
-    const map = new Map<Constructor, Copyable>();
+    const map = new Map<Constructor, ICopyable>();
     map.set(Vec2, { createBuffer: () => new Vec2(), copy: Vec2.copy});
     map.set(Vec3, { createBuffer: () => new Vec3(), copy: Vec3.copy});
     map.set(Vec4, { createBuffer: () => new Vec4(), copy: Vec4.copy});

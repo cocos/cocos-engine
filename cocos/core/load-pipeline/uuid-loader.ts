@@ -152,10 +152,9 @@ function loadDepends (pipeline, item, asset, depends, callback) {
                 if (item.error) {
                     if (CC_EDITOR && item.error.errorCode === 'db.NOTFOUND') {
                         if (!missingAssetReporter) {
-                            let MissingObjectReporter = Editor.require('app://editor/page/scene-utils/missing-object-reporter');
-                            missingAssetReporter = new MissingObjectReporter(asset);
+                            missingAssetReporter = new EditorExtends.MissingReporter.object(asset);
                         }
-                        missingAssetReporter.stashByOwner(dependObj, dependProp, Editor.serialize.asAsset(dependSrc));
+                        missingAssetReporter.stashByOwner(dependObj, dependProp, EditorExtends.serialize.asAsset(dependSrc));
                     }
                     else {
                         cc._throw(item.error);
@@ -217,7 +216,7 @@ let MissingClass;
 
 export function loadUuid (item, callback) {
     if (CC_EDITOR) {
-        MissingClass = MissingClass || Editor.require('app://editor/page/scene-utils/missing-class-reporter').MissingClass;
+        MissingClass = MissingClass || EditorExtends.MissingReporter.classInstance;
     }
 
     let json;

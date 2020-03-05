@@ -32,7 +32,7 @@ import { ccclass, executeInEditMode, executionOrder, menu, property } from '../.
 import { SystemEventType } from '../../platform/event-manager/event-enum';
 import { EventListener, IListenerMask } from '../../platform/event-manager/event-listener';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../math';
-import { aabb } from '../../geom-utils';
+import { aabb } from '../../geometry';
 import { CanvasComponent } from './canvas-component';
 import { Node } from '../../scene-graph';
 
@@ -43,9 +43,11 @@ const _matrix = new Mat4();
 const _worldMatrix = new Mat4();
 const _rect = new Rect();
 /**
+ * @en
+ * The component of transform in UI.
+ *
  * @zh
  * UI 变换组件。
- * 可通过 cc.UITransformComponent 获得该组件。
  */
 @ccclass('cc.UITransformComponent')
 @executionOrder(110)
@@ -54,6 +56,9 @@ const _rect = new Rect();
 export class UITransformComponent extends Component {
 
     /**
+     * @en
+     * Size of the UI node.
+     *
      * @zh
      * 内容尺寸。
      */
@@ -133,6 +138,9 @@ export class UITransformComponent extends Component {
     }
 
     /**
+     * @en
+     * Anchor point of the UI node.
+     *
      * @zh
      * 锚点位置。
      */
@@ -181,6 +189,10 @@ export class UITransformComponent extends Component {
     }
 
     /**
+     * @en
+     * Render sequence.
+     * Note: UI rendering is only about priority.
+     *
      * @zh
      * 渲染先后顺序，按照广度渲染排列，按同级节点下进行一次排列。
      */
@@ -212,25 +224,22 @@ export class UITransformComponent extends Component {
      * @zh
      * 查找被渲染相机。
      */
-    get visibility() {
-        if (!this._screen) {
+    get visibility () {
+        if (!this._canvas) {
             return -1;
         }
 
-        return this._screen.visibility;
-    }
-
-    get _screen() {
-        return this._canvas;
+        return this._canvas.visibility;
     }
 
     public static EventType = SystemEventType;
+
+    public _canvas: CanvasComponent | null = null;
+
     @property
     protected _contentSize = new Size(100, 100);
     @property
     protected _anchorPoint = new Vec2(0.5, 0.5);
-
-    public _canvas: CanvasComponent | null = null;
 
     public __preload () {
         this.node._uiProps.uiTransformComp = this;
@@ -254,6 +263,11 @@ export class UITransformComponent extends Component {
     }
 
     /**
+     * @en
+     * Sets the untransformed size of the node.<br/>
+     * The contentSize remains the same no matter if the node is scaled or rotated.<br/>
+     * All nodes have a size. Layer and Scene have the same size of the screen.
+     *
      * @zh
      * 设置节点原始大小，不受该节点是否被缩放或者旋转的影响。
      *
@@ -302,6 +316,14 @@ export class UITransformComponent extends Component {
     }
 
     /**
+     * @en
+     * Sets the anchor point in percent. <br/>
+     * anchor point is the point around which all transformations and positioning manipulations take place. <br/>
+     * It's like a pin in the node where it is "attached" to its parent. <br/>
+     * The anchorPoint is normalized, like a percentage. (0,0) means the bottom-left corner and (1,1) means the top-right corner.<br/>
+     * But you can use values higher than (1,1) and lower than (0,0) too.<br/>
+     * The default anchor point is (0.5,0.5), so it starts at the center of the node.
+     *
      * @zh
      * 设置锚点的百分比。<br>
      * 锚点应用于所有变换和坐标点的操作，它就像在节点上连接其父节点的大头针。<br>
@@ -399,6 +421,9 @@ export class UITransformComponent extends Component {
     }
 
     /**
+     * @en
+     * Converts a Point to node (local) space coordinates.
+     *
      * @zh
      * 将一个 UI 节点世界坐标系下点转换到另一个 UI 节点 (局部) 空间坐标系，这个坐标系以锚点为原点。
      * 非 UI 节点转换到 UI 节点(局部) 空间坐标系，请走 CameraComponent 的 `convertToUINode`。
@@ -422,6 +447,9 @@ export class UITransformComponent extends Component {
     }
 
     /**
+     * @en
+     * Converts a Point in node coordinates to world space coordinates.
+     *
      * @zh
      * 将距当前节点坐标系下的一个点转换到世界坐标系。
      *
@@ -443,6 +471,10 @@ export class UITransformComponent extends Component {
     }
 
     /**
+     * @en
+     * Returns a "local" axis aligned bounding box of the node. <br/>
+     * The returned box is relative only to its parent.
+     *
      * @zh
      * 返回父节坐标系下的轴向对齐的包围盒。
      *
@@ -466,6 +498,10 @@ export class UITransformComponent extends Component {
     }
 
     /**
+     * @en
+     * Returns a "world" axis aligned bounding box of the node.<br/>
+     * The bounding box contains self and active children's world bounding box.
+     *
      * @zh
      * 返回节点在世界坐标系下的对齐轴向的包围盒（AABB）。
      * 该边框包含自身和已激活的子节点的世界边框。
@@ -486,6 +522,9 @@ export class UITransformComponent extends Component {
     }
 
     /**
+     * @en
+     * Returns the minimum bounding box containing the current bounding box and its child nodes.
+     *
      * @zh
      * 返回包含当前包围盒及其子节点包围盒的最小包围盒。
      *
@@ -528,7 +567,8 @@ export class UITransformComponent extends Component {
 
     /**
      * @en
-     * compute the corresponding aabb in world space for raycast
+     * Compute the corresponding aabb in world space for raycast.
+     *
      * @zh
      * 计算出此 UI_2D 节点在世界空间下的 aabb 包围盒
      */

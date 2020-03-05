@@ -38,16 +38,18 @@ import { builtinResMgr } from '../builtin';
 import { RenderableComponent } from './renderable-component';
 
 /**
- * Shadow projection mode<br/>
- * 阴影投射方式。
+ * @en Shadow projection mode.
+ * @zh 阴影投射方式。
  */
 const ModelShadowCastingMode = Enum({
     /**
-     * 不投射阴影。
+     * @zh Disable shadow projection.
+     * @zh 不投射阴影。
      */
     OFF: 0,
     /**
-     * 开启阴影投射。
+     * @zh Enable shadow projection.
+     * @zh 开启阴影投射。
      */
     ON: 1,
 });
@@ -71,12 +73,12 @@ export class ModelComponent extends RenderableComponent {
     protected _shadowCastingMode = ModelShadowCastingMode.OFF;
 
     /**
-     * @en The shadow casting mode
-     * @zh 投射阴影方式。
+     * @en Shadow projection mode.
+     * @zh 阴影投射方式。
      */
     @property({
         type: ModelShadowCastingMode,
-        tooltip: '投射阴影方式',
+        tooltip: 'i18n:model.shadow_casting_model',
     })
     get shadowCastingMode () {
         return this._shadowCastingMode;
@@ -88,12 +90,12 @@ export class ModelComponent extends RenderableComponent {
     }
 
     /**
-     * @en The mesh of the model
-     * @zh 模型网格。
+     * @en The mesh of the model.
+     * @zh 模型的网格数据。
      */
     @property({
         type: Mesh,
-        tooltip: '模型网格',
+        tooltip: 'i18n:model.mesh',
     })
     get mesh () {
         return this._mesh;
@@ -104,7 +106,7 @@ export class ModelComponent extends RenderableComponent {
         this._mesh = val;
         this._onMeshChanged(old);
         this._updateModels();
-        if (this.node.activeInHierarchy) {
+        if (this.enabledInHierarchy) {
             this._attachToScene();
         }
     }
@@ -130,9 +132,7 @@ export class ModelComponent extends RenderableComponent {
         if (!this._model) {
             this._updateModels();
         }
-        if (this._model) {
-            this._attachToScene();
-        }
+        this._attachToScene();
     }
 
     public onDisable () {
@@ -156,16 +156,12 @@ export class ModelComponent extends RenderableComponent {
 
         if (this._model) {
             this._model.destroy();
+            this._model.initialize(this.node);
         } else {
             this._createModel();
         }
 
         this._updateModelParams();
-
-        if (this._model) {
-            this._model.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
-            this._model.enabled = true;
-        }
     }
 
     protected _createModel () {
@@ -177,7 +173,7 @@ export class ModelComponent extends RenderableComponent {
     }
 
     protected _attachToScene () {
-        if (!this.node.scene && !this._model) {
+        if (!this.node.scene || !this._model) {
             return;
         }
         const scene = this._getRenderScene();
@@ -209,6 +205,8 @@ export class ModelComponent extends RenderableComponent {
                 }
             }
         }
+        this._model.createBoundingShape(this._mesh.minPosition, this._mesh.maxPosition);
+        this._model.enabled = true;
     }
 
     protected _onMaterialModified (idx: number, material: Material | null) {
@@ -255,7 +253,6 @@ export class ModelComponent extends RenderableComponent {
     }
 
     private _isBatchingEnabled () {
-        if (!this._model || !this._mesh) { return false; }
         for (let i = 0; i < this._materials.length; ++i) {
             const mat = this._materials[i];
             if (!mat) { continue; }

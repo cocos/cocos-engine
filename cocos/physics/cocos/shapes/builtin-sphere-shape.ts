@@ -1,4 +1,4 @@
-import { sphere } from '../../../core/geom-utils';
+import { sphere } from '../../../core/geometry';
 import { BuiltinShape } from './builtin-shape';
 import { ISphereShape } from '../../spec/i-physics-shape';
 import { maxComponent } from '../../framework/util';
