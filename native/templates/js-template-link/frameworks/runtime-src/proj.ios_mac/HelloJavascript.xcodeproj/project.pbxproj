@@ -28,13 +28,14 @@
 		467AF6082321FBED00770112 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 467AF6072321FBED00770112 /* WebKit.framework */; };
 		467AF613232881E400770112 /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 467AF612232881E400770112 /* AVKit.framework */; };
 		467AF615232881EB00770112 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 467AF614232881EB00770112 /* CoreMedia.framework */; };
+		469FFB172410A76800581BFC /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 469FFB162410A76700581BFC /* AppDelegate.mm */; };
+		469FFB1D2410AAAF00581BFC /* libGLESv2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 469FFB1B2410AAAF00581BFC /* libGLESv2.dylib */; };
+		469FFB1E2410AAAF00581BFC /* libEGL.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 469FFB1C2410AAAF00581BFC /* libEGL.dylib */; };
 		46BFDFA723CC0F4100CC5F8E /* Game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46BFDFA623CC0F4100CC5F8E /* Game.cpp */; };
 		46BFDFA823CC0F4100CC5F8E /* Game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46BFDFA623CC0F4100CC5F8E /* Game.cpp */; };
 		46BFDFBA23CC10E800CC5F8E /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 46BFDFB423CC10E700CC5F8E /* ViewController.mm */; };
 		46BFDFBB23CC10E800CC5F8E /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 46BFDFB623CC10E700CC5F8E /* AppDelegate.mm */; };
 		46BFDFBC23CC10E800CC5F8E /* View.mm in Sources */ = {isa = PBXBuildFile; fileRef = 46BFDFB723CC10E700CC5F8E /* View.mm */; };
-		46BFE04623CD5E9500CC5F8E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 46BFE04423CD5E9500CC5F8E /* Main.storyboard */; };
-		46BFE04723CD5E9D00CC5F8E /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 46BFE03F23CD5E7A00CC5F8E /* AppDelegate.m */; };
 		46BFE04823CD5EA300CC5F8E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 46BFE04023CD5E7A00CC5F8E /* main.m */; };
 		46BFE04923CD5EA700CC5F8E /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 46BFE03E23CD5E7A00CC5F8E /* ViewController.mm */; };
 		46BFE04E23CD5F3800CC5F8E /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 46BFE04C23CD5F3800CC5F8E /* Metal.framework */; };
@@ -134,6 +135,9 @@
 		467AF6072321FBED00770112 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.2.sdk/System/Library/Frameworks/WebKit.framework; sourceTree = DEVELOPER_DIR; };
 		467AF612232881E400770112 /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.2.sdk/System/Library/Frameworks/AVKit.framework; sourceTree = DEVELOPER_DIR; };
 		467AF614232881EB00770112 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.2.sdk/System/Library/Frameworks/CoreMedia.framework; sourceTree = DEVELOPER_DIR; };
+		469FFB162410A76700581BFC /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
+		469FFB1B2410AAAF00581BFC /* libGLESv2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLESv2.dylib; path = ../../../../../external/mac/libs/libGLESv2.dylib; sourceTree = "<group>"; };
+		469FFB1C2410AAAF00581BFC /* libEGL.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libEGL.dylib; path = ../../../../../external/mac/libs/libEGL.dylib; sourceTree = "<group>"; };
 		46BFDFA523CC0F4100CC5F8E /* Game.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Game.h; sourceTree = "<group>"; };
 		46BFDFA623CC0F4100CC5F8E /* Game.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Game.cpp; sourceTree = "<group>"; };
 		46BFDFB423CC10E700CC5F8E /* ViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ViewController.mm; path = ios/ViewController.mm; sourceTree = "<group>"; };
@@ -145,9 +149,7 @@
 		46BFE03C23CD5E7900CC5F8E /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		46BFE03D23CD5E7A00CC5F8E /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		46BFE03E23CD5E7A00CC5F8E /* ViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewController.mm; sourceTree = "<group>"; };
-		46BFE03F23CD5E7A00CC5F8E /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		46BFE04023CD5E7A00CC5F8E /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		46BFE04523CD5E9500CC5F8E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = mac/Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		46BFE04C23CD5F3800CC5F8E /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		46BFE04D23CD5F3800CC5F8E /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		4D697BD91CBD301C00A5AF29 /* libjs_static.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libjs_static.a; path = "/Applications/CocosCreator.app/Contents/Resources/cocos2d-x/external/ios/libs/libjs_static.a"; sourceTree = "<absolute>"; };
@@ -191,6 +193,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				469FFB1D2410AAAF00581BFC /* libGLESv2.dylib in Frameworks */,
+				469FFB1E2410AAAF00581BFC /* libEGL.dylib in Frameworks */,
 				46BFE04E23CD5F3800CC5F8E /* Metal.framework in Frameworks */,
 				46BFE04F23CD5F3800CC5F8E /* MetalKit.framework in Frameworks */,
 				1A37E9DC200DEF190078AF72 /* SystemConfiguration.framework in Frameworks */,
@@ -250,7 +254,6 @@
 		15628F5B15F0F5C2000CF24B /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				46BFE04423CD5E9500CC5F8E /* Main.storyboard */,
 				4033CDBB20E4935000DAA37B /* jsb-adapter */,
 				1A1A081B18C9DF05005C6854 /* project.json */,
 				1A6BF21418C9DB5900FB0E1C /* main.js */,
@@ -282,8 +285,8 @@
 		509D4ACA17EBB2BE00697056 /* mac */ = {
 			isa = PBXGroup;
 			children = (
+				469FFB162410A76700581BFC /* AppDelegate.mm */,
 				46BFE03D23CD5E7A00CC5F8E /* AppDelegate.h */,
-				46BFE03F23CD5E7A00CC5F8E /* AppDelegate.m */,
 				46BFE04023CD5E7A00CC5F8E /* main.m */,
 				46BFE03C23CD5E7900CC5F8E /* ViewController.h */,
 				46BFE03E23CD5E7A00CC5F8E /* ViewController.mm */,
@@ -317,6 +320,8 @@
 		A92275401517C094001B78AA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				469FFB1C2410AAAF00581BFC /* libEGL.dylib */,
+				469FFB1B2410AAAF00581BFC /* libGLESv2.dylib */,
 				46BFE04C23CD5F3800CC5F8E /* Metal.framework */,
 				46BFE04D23CD5F3800CC5F8E /* MetalKit.framework */,
 				467AF614232881EB00770112 /* CoreMedia.framework */,
@@ -494,7 +499,6 @@
 				1AC22EDE18CA0E11007112B9 /* project.json in Resources */,
 				1AD7E0A918C9DBE3004817A6 /* main.js in Resources */,
 				4033CDBD20E4935100DAA37B /* jsb-adapter in Resources */,
-				46BFE04623CD5E9500CC5F8E /* Main.storyboard in Resources */,
 				C0799CBA18BAE62000E9C828 /* res in Resources */,
 				C03780EC18BEE0E400FE4F13 /* src in Resources */,
 			);
@@ -523,8 +527,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				46BFE04923CD5EA700CC5F8E /* ViewController.mm in Sources */,
-				46BFE04723CD5E9D00CC5F8E /* AppDelegate.m in Sources */,
 				46BFE04823CD5EA300CC5F8E /* main.m in Sources */,
+				469FFB172410A76800581BFC /* AppDelegate.mm in Sources */,
 				46BFDFA823CC0F4100CC5F8E /* Game.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -566,14 +570,6 @@
 			);
 			name = Localizable.strings;
 			path = ios;
-			sourceTree = "<group>";
-		};
-		46BFE04423CD5E9500CC5F8E /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				46BFE04523CD5E9500CC5F8E /* Base */,
-			);
-			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

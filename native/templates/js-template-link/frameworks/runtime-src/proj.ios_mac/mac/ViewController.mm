@@ -6,40 +6,21 @@
 
 @implementation ViewController
 {
-    MTKView* _view;
-    Game* _game;
+    NSView* _view;
 }
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
-
-    [super viewDidLoad];
-    
-    // Set the view to use the default device
-    _view = (MTKView *)self.view;
-    _view.depthStencilPixelFormat = MTLPixelFormatDepth24Unorm_Stencil8;
-    _view.device = MTLCreateSystemDefaultDevice();
-    NSAssert(_view.device, @"Metal is not supported on this device");
-    _view.delegate = self;
-    
-    CGSize size = _view.drawableSize;
-    _game = new Game(size.width, size.height);
-    _game->init();
+- (instancetype)initWithSize:(NSRect)rect {
+    if ( self = [super init]) {
+        _view = [[NSView alloc] initWithFrame:rect];
+        self.view = _view;
+    }
+    return self;
 }
-
 
 - (void)setRepresentedObject:(id)representedObject {
     [super setRepresentedObject:representedObject];
 
     // Update the view, if already loaded.
-}
-
-
-- (void)drawInMTKView:(nonnull MTKView *)view {
-    _game->tick();
-}
-
-- (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size {
 }
 
 - (void)viewDidAppear

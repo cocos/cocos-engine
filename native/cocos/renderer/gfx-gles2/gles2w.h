@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #if defined(__APPLE__) || defined(__APPLE_CC__)
     #include <TargetConditionals.h>
@@ -6,6 +6,8 @@
         #   include <OpenGLES/ES2/gl.h>
             // Prevent Apple's non-standard extension header from being included
         #   define __gl_es20ext_h_
+    #else
+        #include <GLES2/gl2.h>
     #endif
 #else
     #   include <GLES2/gl2.h>

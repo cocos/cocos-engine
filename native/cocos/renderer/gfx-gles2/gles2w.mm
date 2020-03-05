@@ -28,6 +28,7 @@ static void *get_proc(const char *proc)
     return res;
 }
 #elif defined(__APPLE__) || defined(__APPLE_CC__)
+#if TARGET_OS_IPHONE
 #import <CoreFoundation/CoreFoundation.h>
 #import <UIKit/UIDevice.h>
 #import <string>
@@ -109,6 +110,43 @@ static void *get_proc(const char *proc)
     CFRelease(procname);
     return res;
 }
+#else
+// macos
+#include <dlfcn.h>
+#include <EGL/egl.h>
+#include <string>
+#import <Foundation/NSURL.h>
+#import <Foundation/NSBundle.h>
+
+static void* libgl;
+
+static int open_libgl(void)
+{
+    NSURL *appURL = [[NSBundle mainBundle] bundleURL];
+    std::string libPath(appURL.resourceSpecifier.UTF8String);
+    libPath.append("/Contents/Frameworks/libGLESv2.dylib");
+    
+    libgl = dlopen(libPath.c_str(), RTLD_LOCAL|RTLD_LAZY);
+    if (!libgl)
+        printf("%s\n", dlerror());
+    return (libgl != NULL);
+}
+
+static void close_libgl(void)
+{
+    dlclose(libgl);
+}
+
+static void *get_proc(const char *proc)
+{
+    void *res;
+    
+    res = (void*)eglGetProcAddress(proc);
+    if (!res)
+        res = (void*)dlsym(libgl, proc);
+    return res;
+}
+#endif // #if TARGET_OS_IPHONE
 #elif defined(__EMSCRIPTEN__)
 #include <EGL/egl.h>
 static void open_libgl() {}

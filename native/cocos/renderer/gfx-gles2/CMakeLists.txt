@@ -23,7 +23,17 @@ endif()
 
   link_libraries(
     ${PVRSDK_LIB_DIR}/libEGL.lib
-	${PVRSDK_LIB_DIR}/libGLESv2.lib
+	  ${PVRSDK_LIB_DIR}/libGLESv2.lib
+  )
+endif()
+
+if(COCOS_PLATFORM_OSX)
+  list(APPEND INCLUDE_FILES ${GFX_EXTERNAL_PATH}/pvrsdk/include)
+  set(PVRSDK_LIB_DIR ${GFX_EXTERNAL_PATH}/pvrsdk/lib/OSX_x86)
+
+  link_libraries(
+    ${PVRSDK_LIB_DIR}/libEGL.dylib
+    ${PVRSDK_LIB_DIR}/libGLESv2.dylib
   )
 endif()
 
@@ -49,6 +59,10 @@ if(COCOS_PLATFORM_IOS OR COCOS_PLATFORM_OSX)
 	list(REMOVE_ITEM ALL_FILES "${COCOS_SRC_PATH}/renderer/gfx-gles2/gles2w.c")
 else()
 	list(REMOVE_ITEM ALL_FILES "${COCOS_SRC_PATH}/renderer/gfx-gles2/gles2w.mm")
+endif()
+
+if(COCOS_PLATFORM_OSX)
+  list(REMOVE_ITEM ALL_FILES "${COCOS_SRC_PATH}/renderer/gfx-gles2/GLES2Context.mm")
 endif()
 	
 add_definitions("-DCC_GLES2_EXPORTS")

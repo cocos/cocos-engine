@@ -311,7 +311,12 @@ namespace se {
          *  @return unsigned long integer.
          */
         unsigned long toUlong() const;
-
+        
+        /**
+         *  @brief Converts se::Value to unsigned long.
+         *  @return intptr_t.
+         */
+        intptr_t toIntptr_t() const;
         /**
          *  @brief Converts se::Value to float number.
          *  @return float number.

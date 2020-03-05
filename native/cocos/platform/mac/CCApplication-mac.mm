@@ -42,9 +42,10 @@ namespace
     {
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
         char commandBuf[200] = {0};
-        sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d;",
+        sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d; window.windowHandler = 0x%" PRIxPTR ";",
                 g_width,
-                g_height);
+                g_height,
+                (intptr_t)[NSApplication sharedApplication].mainWindow.contentView);
         se->evalString(commandBuf);
         return true;
     }

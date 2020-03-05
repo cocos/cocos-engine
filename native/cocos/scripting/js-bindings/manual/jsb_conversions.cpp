@@ -417,7 +417,7 @@ bool seval_to_intptr_t(const se::Value& v, intptr_t* ret)
     assert(ret != nullptr);
     if (v.isNumber())
     {
-        *ret = (intptr_t)v.toUlong();
+        *ret = v.toIntptr_t();
         return true;
     }
     *ret = 0UL;
