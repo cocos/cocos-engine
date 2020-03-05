@@ -103,7 +103,7 @@ var utils = {
         for (var i = 0, l = task.input.length; i < l; i++) {
             var item = task.input[i];
             if (clearRef) {
-                !item.isNative && item.content && item.content.removeRef();
+                !item.isNative && item.content && item.content.removeRef && item.content.removeRef();
             }
             item.recycle();
         }

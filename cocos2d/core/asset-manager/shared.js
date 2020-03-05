@@ -151,4 +151,54 @@ var RequestType = {
     SCENE: 'scene'
 };
 
-module.exports = {assets, files, parsed, pipeline, fetchPipeline, initializePipeline, transformPipeline, LoadStrategy, RequestType, bundles};
+/**
+ * !#en
+ * The builtin bundles 
+ * 
+ * !#zh
+ * 内置 bundle
+ * 
+ * @enum BuiltinBundle
+ */
+var BuiltinBundle = {
+    /**
+     * !#en
+     * The builtin bundle corresponds to 'assets/resources'.
+     * 
+     * !#zh
+     * 内置 bundle, 对应 'assets/resources' 目录
+     * 
+     * @property RESOURCES
+     * @readonly
+     * @type {String}
+     */
+    RESOURCES: 'resources',
+
+    /**
+     * !#en
+     * The builtin bundle corresponds to 'internal/resources'.
+     * 
+     * !#zh
+     * 内置 bundle, 对应 'internal/resources' 目录
+     * 
+     * @property INTERNAL
+     * @readonly
+     * @type {String}
+     */
+    INTERNAL: 'internal',
+
+    /**
+     * !#en
+     * The builtin bundle
+     * 
+     * !#zh
+     * 内置 bundle
+     * 
+     * @property MAIN
+     * @readonly
+     * @type {String}
+     */
+    MAIN: 'main'
+};
+
+module.exports = { assets, files, parsed, pipeline, fetchPipeline, initializePipeline, transformPipeline, LoadStrategy, RequestType, bundles, BuiltinBundle };

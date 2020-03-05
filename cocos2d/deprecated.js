@@ -165,7 +165,7 @@ if (CC_DEBUG) {
     }
     // remove cc.info
     js.get(cc, 'info', function () {
-        cc.warnID(1400, 'cc.info', 'cc.log');
+        cc.errorID(1400, 'cc.info', 'cc.log');
         return cc.log;
     });
     // cc.spriteFrameCache
@@ -217,7 +217,7 @@ if (CC_DEBUG) {
     }, 'cc.Sprite');
 
     js.get(cc.SpriteFrame.prototype, 'clearTexture', function () {
-        cc.warnID(1406, 'cc.SpriteFrame', 'clearTexture');
+        cc.errorID(1406, 'cc.SpriteFrame', 'clearTexture');
         return function () {};
     });
 
@@ -228,10 +228,13 @@ if (CC_DEBUG) {
 
     // Texture
     let Texture2D = cc.Texture2D;
-    js.obsolete(Texture2D.prototype, 'texture.releaseTexture', 'texture.destroy');
+    js.get(Texture2D.prototype, 'releaseTexture', function () {
+        cc.errorID(1400, 'texture.releaseTexture()', 'texture.destroy()');
+        return this.destroy;
+    });
 
     js.get(Texture2D.prototype, 'getName', function () {
-        cc.warnID(1400, 'texture.getName()', 'texture._glID');
+        cc.errorID(1400, 'texture.getName()', 'texture._glID');
         return function () {
             return this._glID || null;
         };
@@ -245,14 +248,14 @@ if (CC_DEBUG) {
     });
 
     js.get(Texture2D.prototype, 'setAntiAliasTexParameters', function () {
-        cc.warnID(1400, 'texture.setAntiAliasTexParameters()', 'texture.setFilters(cc.Texture2D.Filter.LINEAR, cc.Texture2D.Filter.LINEAR)');
+        cc.errorID(1400, 'texture.setAntiAliasTexParameters()', 'texture.setFilters(cc.Texture2D.Filter.LINEAR, cc.Texture2D.Filter.LINEAR)');
         return function () {
             this.setFilters(Texture2D.Filter.LINEAR, Texture2D.Filter.LINEAR);
         };
     });
 
     js.get(Texture2D.prototype, 'setAliasTexParameters', function () {
-        cc.warnID(1400, 'texture.setAntiAliasTexParameters()', 'texture.setFilters(cc.Texture2D.Filter.NEAREST, cc.Texture2D.Filter.NEAREST)');
+        cc.errorID(1400, 'texture.setAntiAliasTexParameters()', 'texture.setFilters(cc.Texture2D.Filter.NEAREST, cc.Texture2D.Filter.NEAREST)');
         return function () {
             this.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
         };
@@ -266,7 +269,7 @@ if (CC_DEBUG) {
 
     provideClearError(cc.macro, {
         PI: 'Math.PI',
-        PI2: 'Math.PI*2',
+        PI2: 'Math.PI * 2',
         FLT_MAX: 'Number.MAX_VALUE',
         FLT_MIN: 'Number.MIN_VALUE',
         UINT_MAX: 'Number.MAX_SAFE_INTEGER'
@@ -429,11 +432,6 @@ if (CC_DEBUG) {
         setLocalZOrder: 'zIndex',
     });
 
-    // cc.Component
-    markAsRemoved(cc.Component, [
-        'isRunning',
-    ]);
-
     provideClearError(cc.Sprite.prototype, {
         setInsetLeft: 'cc.SpriteFrame insetLeft',
         setInsetRight: 'cc.SpriteFrame insetRight',
@@ -513,6 +511,11 @@ if (CC_DEBUG) {
     markAsRemovedInObject(cc.dynamicAtlasManager, [
         'minFrameSize'
     ], 'cc.dynamicAtlasManager')
+
+    // light component
+    markAsRemovedInObject(cc.Light.prototype, [
+        'shadowDepthScale',
+    ], 'cc.Light.prototype');
 
     // Value types
     provideClearError(cc, {
@@ -637,39 +640,39 @@ if (CC_DEBUG) {
 
     // macro functions
     js.get(cc, 'lerp', function () {
-        cc.warnID(1400, 'cc.lerp', 'cc.misc.lerp');
+        cc.errorID(1400, 'cc.lerp', 'cc.misc.lerp');
         return cc.misc.lerp;
     });
     js.get(cc, 'random0To1', function () {
-        cc.warnID(1400, 'cc.random0To1', 'Math.random');
+        cc.errorID(1400, 'cc.random0To1', 'Math.random');
         return Math.random;
     });
     js.get(cc, 'degreesToRadians', function () {
-        cc.warnID(1400, 'cc.degreesToRadians', 'cc.misc.degreesToRadians');
+        cc.errorID(1400, 'cc.degreesToRadians', 'cc.misc.degreesToRadians');
         return cc.misc.degreesToRadians;
     });
     js.get(cc, 'radiansToDegrees', function () {
-        cc.warnID(1400, 'cc.radiansToDegrees', 'cc.misc.radiansToDegrees');
+        cc.errorID(1400, 'cc.radiansToDegrees', 'cc.misc.radiansToDegrees');
         return cc.misc.radiansToDegrees;
     });
     js.get(cc, 'clampf', function () {
-        cc.warnID(1400, 'cc.clampf', 'cc.misc.clampf');
+        cc.errorID(1400, 'cc.clampf', 'cc.misc.clampf');
         return cc.misc.clampf;
     });
     js.get(cc, 'clamp01', function () {
-        cc.warnID(1400, 'cc.clamp01', 'cc.misc.clamp01');
+        cc.errorID(1400, 'cc.clamp01', 'cc.misc.clamp01');
         return cc.misc.clamp01;
     });
     js.get(cc, 'ImageFormat', function () {
-        cc.warnID(1400, 'cc.ImageFormat', 'cc.macro.ImageFormat');
+        cc.errorID(1400, 'cc.ImageFormat', 'cc.macro.ImageFormat');
         return cc.macro.ImageFormat;
     });
     js.get(cc, 'KEY', function () {
-        cc.warnID(1400, 'cc.KEY', 'cc.macro.KEY');
+        cc.errorID(1400, 'cc.KEY', 'cc.macro.KEY');
         return cc.macro.KEY;
     });
     js.get(cc, 'Easing', function () {
-        cc.warnID(1400, 'cc.Easing', 'cc.easing');
+        cc.errorID(1400, 'cc.Easing', 'cc.easing');
         return cc.easing;
     });
 
@@ -681,7 +684,10 @@ if (CC_DEBUG) {
 
     // dragon bones
     if (typeof dragonBones !== 'undefined') {
-        js.obsolete(dragonBones.CCFactory, 'dragonBones.CCFactory.getFactory', 'getInstance');
+        js.get(dragonBones.CCFactory, 'getFactory', function () {
+            cc.errorID(1400, 'dragonBones.CCFactory.getFactory', 'dragonBones.CCFactory.getInstance');
+            return dragonBones.CCFactory.getInstance;
+        });
     }
 
     // renderEngine

@@ -42,7 +42,7 @@ const Bundle = require('./bundle');
 const builtins = require('./builtins')
 const { parse, combine } = require('./urlTransformer');
 const { parseParameters, urlAppendTimestamp, asyncify } = require('./utilities');
-const { assets, files, parsed, pipeline, transformPipeline, fetchPipeline, initializePipeline, LoadStrategy, RequestType, bundles } = require('./shared');
+const { assets, files, parsed, pipeline, transformPipeline, fetchPipeline, initializePipeline, LoadStrategy, RequestType, bundles, BuiltinBundle } = require('./shared');
 /**
  * @module cc
  */
@@ -269,6 +269,7 @@ function AssetManager () {
      * @default false
      */
     this.appendTimeStamp = false;
+
 }
 
 AssetManager.Pipeline = Pipeline;
@@ -279,6 +280,7 @@ AssetManager.Config = Config;
 AssetManager.LoadStrategy = LoadStrategy;
 AssetManager.RequestType = RequestType;
 AssetManager.Bundle = Bundle;
+AssetManager.BuiltinBundle = BuiltinBundle;
 
 AssetManager.prototype = {
 
@@ -601,9 +603,16 @@ AssetManager.prototype = {
     loadBundle (root, options, onComplete) {
         if (!root) return;
         var { options, onComplete } = parseParameters(options, undefined, onComplete);
-        options.priority = options.priority || 2;
+        
         if (root.endsWith('/')) root = root.substr(0, root.length - 1);
-        var ver = options.ver || this.bundleVers[cc.path.basename(root)];
+        let bundleName = cc.path.basename(root);
+
+        if (this.bundles.has(bundleName)) {
+            return asyncify(onComplete)(null, this.bundles.get(bundleName));
+        }
+
+        options.priority = options.priority || 2;
+        var ver = options.ver || this.bundleVers[bundleName];
         var config = ver ?  `${root}/config.${ver}.json`: `${root}/config.json`;
         var bundle = null;
         var count = 0;
@@ -665,7 +674,7 @@ AssetManager.prototype = {
      * loadRes(paths: string|string[]|cc.AssetManager.Task, type?: typeof cc.Asset, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, resources: cc.Asset|cc.Asset[]) => void): cc.AssetManager.Task
      */
     loadRes (paths, type, onProgress, onComplete) {
-        return bundles.get('resources').loadAsset(paths, type, onProgress, onComplete);
+        return bundles.get(BuiltinBundle.RESOURCES).loadAsset(paths, type, onProgress, onComplete);
     },
 
     /**
@@ -699,7 +708,7 @@ AssetManager.prototype = {
      * preloadRes(paths: string|string[], type?: typeof cc.Asset, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, items: cc.AssetManager.RequestItem[]) => void): cc.AssetManager.Task
      */
     preloadRes (path, type, onProgress, onComplete) {
-        return bundles.get('resources').preloadAsset(path, type, onProgress, onComplete);
+        return bundles.get(BuiltinBundle.RESOURCES).preloadAsset(path, type, onProgress, onComplete);
     },
 
     /**
@@ -748,7 +757,7 @@ AssetManager.prototype = {
      * loadResDir(dir: string|cc.AssetManager.Task, type?: typeof cc.Asset, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, assets: cc.Asset|cc.Asset[]) => void): cc.AssetManager.Task
      */
     loadResDir (dir, type, onProgress, onComplete) {
-        return bundles.get('resources').loadDir(dir, type, onProgress, onComplete);
+        return bundles.get(BuiltinBundle.RESOURCES).loadDir(dir, type, onProgress, onComplete);
     },
 
     /**
@@ -791,7 +800,7 @@ AssetManager.prototype = {
      * preloadResDir(dir: string, type?: typeof cc.Asset, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, items: cc.AssetManager.RequestItem[]) => void): cc.AssetManager.Task
      */
     preloadResDir (dir, type, onProgress, onComplete) {
-        return bundles.get('resources').preloadDir(dir, type, onProgress, onComplete);
+        return bundles.get(BuiltinBundle.RESOURCES).preloadDir(dir, type, onProgress, onComplete);
     },
 
     /**
@@ -820,7 +829,7 @@ AssetManager.prototype = {
      * loadScene(sceneName: string|cc.AssetManager.Task, options?: Record<string, any>, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, scene: cc.Scene) => void): cc.AssetManager.Task
      */
     loadScene (sceneName, options, onProgress, onComplete) {
-        return bundles.get('main').loadScene(sceneName, options, onProgress, onComplete);
+        return bundles.get(BuiltinBundle.MAIN).loadScene(sceneName, options, onProgress, onComplete);
     },
 
     /**
@@ -851,7 +860,7 @@ AssetManager.prototype = {
      * preloadScene(sceneName: string, options?: Record<string, any>, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error) => void): cc.AssetManager.Task
      */
     preloadScene (sceneName, options, onProgress, onComplete) {
-        return bundles.get('main').preloadScene(sceneName, options, onProgress, onComplete);
+        return bundles.get(BuiltinBundle.MAIN).preloadScene(sceneName, options, onProgress, onComplete);
     },
 
     /**
@@ -873,7 +882,7 @@ AssetManager.prototype = {
      * getRes(path: string, type?: typeof cc.Asset): cc.Asset
      */
     getRes (path, type) {
-        return bundles.get('resources').getAsset(path, type);
+        return bundles.get(BuiltinBundle.RESOURCES).getAsset(path, type);
     },
 
     /**
@@ -928,7 +937,7 @@ AssetManager.prototype = {
      * releaseRes(path: string): void
      */
     releaseRes (path, type, force) {
-        bundles.get('resources').releaseAsset(path, type, force);
+        bundles.get(BuiltinBundle.RESOURCES).releaseAsset(path, type, force);
     },
 
     /**

@@ -567,7 +567,7 @@ cc.js.unregisterClass to remove the id of unused class';
 })();
 
 /**
- * Defines a polyfill field for obsoleted codes.
+ * Defines a polyfill field for deprecated codes.
  * @method obsolete
  * @param {any} obj - YourObject or YourClass.prototype
  * @param {String} obsoleted - "OldParam" or "YourClass.OldParam"
@@ -580,7 +580,7 @@ js.obsolete = function (obj, obsoleted, newExpr, writable) {
     var newProp = extractPropName.exec(newExpr)[0];
     function get () {
         if (CC_DEV) {
-            cc.warnID(5400, obsoleted, newExpr);
+            cc.warnID(1400, obsoleted, newExpr);
         }
         return this[newProp];
     }
@@ -589,7 +589,7 @@ js.obsolete = function (obj, obsoleted, newExpr, writable) {
             get,
             function (value) {
                 if (CC_DEV) {
-                    cc.warnID(5401, obsoleted, newExpr);
+                    cc.warnID(1400, obsoleted, newExpr);
                 }
                 this[newProp] = value;
             }
