@@ -55,7 +55,7 @@ export default class ParticleBatchModel extends Model {
     constructor () {
         super();
 
-        this._type = ModelType.PARTICLE_BATCH;
+        this.type = ModelType.PARTICLE_BATCH;
         this._capacity = 0;
         this._vertAttrs = null;
         this._vertSize = 0;

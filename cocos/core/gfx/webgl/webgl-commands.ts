@@ -2230,10 +2230,10 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                 if (cmd2.gpuInputAssembler && gpuShader &&
                     (isShaderChanged || gpuInputAssembler !== cmd2.gpuInputAssembler)) {
                     gpuInputAssembler = cmd2.gpuInputAssembler;
+                    const ia = device.ANGLE_instanced_arrays;
 
                     if (device.useVAO) {
                         const vao = device.OES_vertex_array_object!;
-                        const ia = device.ANGLE_instanced_arrays;
 
                         // check vao
                         let glVAO = gpuInputAssembler.glVAOs.get(gpuShader.glProgram!);

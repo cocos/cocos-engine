@@ -73,7 +73,7 @@ export class BakedSkinningModel extends Model {
 
     constructor () {
         super();
-        this._type = ModelType.BAKED_SKINNING;
+        this.type = ModelType.BAKED_SKINNING;
         this._dataPoolManager = cc.director.root.dataPoolManager;
         const jointsTextureInfo = new Float32Array(4);
         const animInfo = this._dataPoolManager.jointsAnimationInfo.getData();
@@ -95,7 +95,7 @@ export class BakedSkinningModel extends Model {
         this._skeleton = skeleton;
         this._mesh = mesh;
         if (!skeleton || !skinningRoot || !mesh) { return; }
-        this._transform = skinningRoot;
+        this.transform = skinningRoot;
         const resMgr = this._dataPoolManager;
         this._jointsMedium.animInfo = resMgr.jointsAnimationInfo.getData(skinningRoot.uuid);
         if (!this._jointsMedium.buffer) { // create buffer here so re-init after destroy could work
@@ -108,12 +108,12 @@ export class BakedSkinningModel extends Model {
         }
     }
 
-    public updateTransform () {
-        super.updateTransform();
+    public updateTransform (stamp: number) {
+        super.updateTransform(stamp);
         if (!this.uploadedAnim) { return; }
         const { animInfo, boundsInfo } = this._jointsMedium;
         const skelBound = boundsInfo![animInfo.data[1]];
-        const node = this._transform;
+        const node = this.transform;
         if (this._worldBounds && skelBound) {
             // @ts-ignore TS2339
             skelBound.transform(node._mat, node._pos, node._rot, node._scale, this._worldBounds);
@@ -121,8 +121,8 @@ export class BakedSkinningModel extends Model {
     }
 
     // update fid buffer only when visible
-    public updateUBOs () {
-        if (!super.updateUBOs()) { return false; }
+    public updateUBOs (stamp: number) {
+        if (!super.updateUBOs(stamp)) { return false; }
         const info = this._jointsMedium.animInfo;
         if (info.dirty) { info.buffer.update(info.data); info.dirty = false; }
         return true;
@@ -143,7 +143,7 @@ export class BakedSkinningModel extends Model {
             this._jointsMedium.boundsInfo = texture && texture.bounds.get(this._mesh.hash)!;
             this._modelBounds = null; // don't calc bounds again in Model
         } else {
-            texture = resMgr.jointsTexturePool.getDefaultPoseTexture(this._skeleton, this._mesh, this._transform!);
+            texture = resMgr.jointsTexturePool.getDefaultPoseTexture(this._skeleton, this._mesh, this.transform!);
             this._jointsMedium.boundsInfo = null;
             this._modelBounds = texture && texture.bounds.get(this._mesh.hash)![0];
         }

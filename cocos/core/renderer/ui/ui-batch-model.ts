@@ -39,7 +39,7 @@ export class UIBatchModel extends Model {
 
     constructor () {
         super();
-        this._type = ModelType.UI_BATCH;
+        this.type = ModelType.UI_BATCH;
         this._subModel = new UISubModel();
     }
 

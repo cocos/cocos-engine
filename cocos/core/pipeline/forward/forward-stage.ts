@@ -101,9 +101,10 @@ export class ForwardStage extends RenderStage {
         const renderObjects = this._pipeline.renderObjects;
         for (let i = 0; i < renderObjects.length; ++i) {
             const ro = renderObjects[i];
-            if (ro.model.type === ModelType.DEFAULT && ro.model.isDynamicBatching) {
-                for (let m = 0; m < ro.model.subModelNum; ++m) {
-                    const subModel = ro.model.subModels[m];
+            if (ro.model.isDynamicBatching) {
+                const subModels = ro.model.subModels;
+                for (let m = 0; m < subModels.length; ++m) {
+                    const subModel = subModels[m];
                     const passes = subModel.passes;
                     for (let p = 0; p < passes.length; ++p) {
                         const pass = passes[p];

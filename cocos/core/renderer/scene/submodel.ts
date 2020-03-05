@@ -1,3 +1,4 @@
+import { EDITOR } from 'internal:constants';
 import { Material } from '../../assets/material';
 import { RenderingSubMesh } from '../../assets/mesh';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
@@ -6,56 +7,29 @@ import { GFXDevice } from '../../gfx/device';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { RenderPriority } from '../../pipeline/define';
-import { Pass } from '../core/pass';
-import { EDITOR } from 'internal:constants';
 
 export class SubModel {
+    public psos: GFXPipelineState[] | null;
+    public priority: RenderPriority;
+
     protected _subMeshObject: RenderingSubMesh | null;
     protected _inputAssembler: GFXInputAssembler | null;
     private _material: Material | null;
     private _cmdBuffers: GFXCommandBuffer[];
-    private _psos: GFXPipelineState[] | null;
-    private _priority: RenderPriority;
 
-    constructor () {
-        this._subMeshObject = null;
-        this._material = null;
-        this._cmdBuffers = new Array<GFXCommandBuffer>();
-        this._psos = null;
-        this._inputAssembler = null;
-        this._priority = RenderPriority.DEFAULT;
+    get commandBuffers () {
+        return this._cmdBuffers;
     }
 
-    public initialize (subMesh: RenderingSubMesh, mat: Material, psos: GFXPipelineState[]) {
-        this._psos = psos;
-        this.subMeshData = subMesh;
-
-        this.material = mat;
+    get passes () {
+        return this._material!.passes;
     }
 
-    public destroy () {
-        if (this._inputAssembler) {
-            this._inputAssembler.destroy();
-        }
-        for (let i = 0; i < this.passes.length; i++) {
-            this.passes[i].destroyPipelineState(this._psos![i]);
-        }
-        for (const cmdBuffer of this._cmdBuffers) {
-            cmdBuffer.destroy();
-        }
-        this._cmdBuffers.splice(0);
-        this._material = null;
+    get inputAssembler () {
+        return this._inputAssembler;
     }
 
-    set priority (val: RenderPriority) {
-        this._priority = val;
-    }
-
-    get priority () {
-        return this._priority;
-    }
-
-    set subMeshData (sm: RenderingSubMesh) {
+    set subMeshData (sm) {
         if (this._inputAssembler) {
             this._inputAssembler.destroy();
         }
@@ -71,15 +45,7 @@ export class SubModel {
         return this._subMeshObject!;
     }
 
-    get psos (): GFXPipelineState[] | null {
-        return this._psos;
-    }
-
-    set psos (val: GFXPipelineState[] | null) {
-        this._psos = val;
-    }
-
-    set material (material: Material | null) {
+    set material (material) {
         this._material = material;
         if (material == null) {
             return;
@@ -87,12 +53,38 @@ export class SubModel {
         this.updateCommandBuffer();
     }
 
-    get material (): Material | null {
+    get material () {
         return this._material;
     }
 
-    get inputAssembler (): GFXInputAssembler | null {
-        return this._inputAssembler;
+    constructor () {
+        this.psos = null;
+        this.priority = RenderPriority.DEFAULT;
+        this._subMeshObject = null;
+        this._material = null;
+        this._cmdBuffers = new Array<GFXCommandBuffer>();
+        this._inputAssembler = null;
+    }
+
+    public initialize (subMesh: RenderingSubMesh, mat: Material, psos: GFXPipelineState[]) {
+        this.psos = psos;
+        this.subMeshData = subMesh;
+
+        this.material = mat;
+    }
+
+    public destroy () {
+        if (this._inputAssembler) {
+            this._inputAssembler.destroy();
+        }
+        for (let i = 0; i < this.passes.length; i++) {
+            this.passes[i].destroyPipelineState(this.psos![i]);
+        }
+        for (const cmdBuffer of this._cmdBuffers) {
+            cmdBuffer.destroy();
+        }
+        this._cmdBuffers.splice(0);
+        this._material = null;
     }
 
     public updateCommandBuffer () {
@@ -115,7 +107,7 @@ export class SubModel {
 
     protected recordCommandBuffer (index: number) {
         const device = cc.director.root!.device as GFXDevice;
-        const pso = this._psos![index];
+        const pso = this.psos![index];
         if (this._cmdBuffers[index] == null) {
             const cmdBufferInfo = {
                 allocator: device.commandAllocator,
@@ -137,13 +129,5 @@ export class SubModel {
         cmdBuff.bindInputAssembler(inputAssembler);
         cmdBuff.draw(inputAssembler);
         cmdBuff.end();
-    }
-
-    get passes (): Pass[] {
-        return this._material!.passes;
-    }
-
-    get commandBuffers (): GFXCommandBuffer[] {
-        return this._cmdBuffers;
     }
 }

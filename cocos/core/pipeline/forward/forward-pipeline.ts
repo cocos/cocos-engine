@@ -257,12 +257,13 @@ export class ForwardPipeline extends RenderPipeline {
             }
         }
 
-        this._lightIndexOffset.length = 0;
-        this._lightIndices.length = 0;
-        for (let i = 0; i < this._renderObjects.length; i++) {
-            this._lightIndexOffset[i] = this._lightIndices.length;
-            if (this._renderObjects[i].model.localBindings.get(UBOForwardLight.BLOCK.name)) {
-                this.cullLightPerModel(this._renderObjects[i].model);
+        this._lightIndexOffset.length = this._lightIndices.length = 0;
+        if (this._validLights.length) {
+            for (let i = 0; i < this._renderObjects.length; i++) {
+                this._lightIndexOffset[i] = this._lightIndices.length;
+                if (this._renderObjects[i].model.localBindings.get(UBOForwardLight.BLOCK.name)) {
+                    this.cullLightPerModel(this._renderObjects[i].model);
+                }
             }
         }
     }

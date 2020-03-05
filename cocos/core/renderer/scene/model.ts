@@ -13,7 +13,6 @@ import { IInternalBindingInst, UBOForwardLight, UBOLocal } from '../../pipeline/
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
 import { IMacroPatch, Pass } from '../core/pass';
-import { customizationManager } from './customization-manager';
 import { RenderScene } from './render-scene';
 import { SubModel } from './submodel';
 
@@ -31,8 +30,6 @@ function getUniformBlockSize (block: GFXUniformBlock): number {
     return size;
 }
 
-let MODEL_ID = 0;
-
 export enum ModelType {
     DEFAULT,
     SKINNING,
@@ -47,22 +44,6 @@ export enum ModelType {
  */
 export class Model {
 
-    set scene (scene: RenderScene) {
-        this._scene = scene;
-    }
-
-    get scene () {
-        return this._scene!;
-    }
-
-    get id () {
-        return this._id;
-    }
-
-    get type () {
-        return this._type;
-    }
-
     get subModels () {
         return this._subModels;
     }
@@ -75,51 +56,11 @@ export class Model {
         return this._inited;
     }
 
-    set enabled (val) {
-        this._enabled = val;
-    }
-
-    get enabled () {
-        return this._enabled;
-    }
-
-    get node () {
-        return this._node!;
-    }
-
-    set node (node) {
-        this._node = node;
-    }
-
-    get transform () {
-        return this._transform!;
-    }
-
-    set transform (transform) {
-        this._transform = transform;
-    }
-
     get worldBounds () {
         return this._worldBounds;
     }
     get modelBounds () {
         return this._modelBounds;
-    }
-
-    get visFlags () {
-        return this._visFlags;
-    }
-
-    set visFlags (id: number) {
-        this._visFlags = id;
-    }
-
-    /**
-     * Set the user key
-     * @param {number} key
-     */
-    set userKey (key: number) {
-        this._userKey = key;
     }
 
     get uboLocal () {
@@ -134,36 +75,20 @@ export class Model {
         return this._localBindings;
     }
 
-    get castShadow (): boolean {
-        return this._castShadow;
+    get updateStamp () {
+        return this._updateStamp;
     }
 
-    set castShadow (val: boolean) {
-        this._castShadow = val;
-    }
+    public type = ModelType.DEFAULT;
+    public scene: RenderScene | null = null;
+    public node: Node = null!;
+    public transform: Node = null!;
+    public enabled: boolean = true;
+    public visFlags = Layers.Enum.NONE;
+    public castShadow = false;
+    public isDynamicBatching = false;
 
-    get isDynamicBatching () {
-        return this._isDynamicBatching;
-    }
-
-    set isDynamicBatching (val: boolean) {
-        this._isDynamicBatching = val;
-    }
-
-    get UBOUpdated () {
-        return this._uboUpdated;
-    }
-
-    protected _type = ModelType.DEFAULT;
     protected _device: GFXDevice;
-    protected _scene: RenderScene | null = null;
-    protected _node: Node | null = null;
-    protected _transform: Node | null = null;
-    protected _id: number = MODEL_ID++;
-    protected _enabled: boolean = true;
-    protected _visFlags = Layers.Enum.NONE;
-    protected _cameraID = -1;
-    protected _userKey = -1;
     protected _worldBounds: aabb | null = null;
     protected _modelBounds: aabb | null = null;
     protected _subModels: SubModel[] = [];
@@ -174,9 +99,7 @@ export class Model {
     protected _localUBO: GFXBuffer | null = null;
     protected _localBindings = new Map<string, IInternalBindingInst>();
     protected _inited = false;
-    protected _uboUpdated = false;
-    protected _castShadow = false;
-    protected _isDynamicBatching = false;
+    protected _updateStamp = -1;
     protected _transformUpdated = true;
 
     /**
@@ -187,7 +110,7 @@ export class Model {
     }
 
     public initialize (node: Node) {
-        this._transform = this._node = node;
+        this.transform = this.node = node;
     }
 
     public destroy () {
@@ -215,23 +138,23 @@ export class Model {
         this._matRefCount.clear();
         this._inited = false;
         this._transformUpdated = true;
-        this._isDynamicBatching = false;
+        this.isDynamicBatching = false;
     }
 
     public attachToScene (scene: RenderScene) {
-        this._scene = scene;
+        this.scene = scene;
     }
 
     public detachFromScene () {
-        this._scene = null;
+        this.scene = null;
     }
 
     public getSubModel (idx: number) {
         return this._subModels[idx];
     }
 
-    public updateTransform () {
-        const node = this._transform!;
+    public updateTransform (stamp: number) {
+        const node = this.transform!;
         // @ts-ignore TS2445
         if (node.hasChangedFlags || node._dirtyFlags) {
             node.updateWorldTransform();
@@ -243,18 +166,12 @@ export class Model {
         }
     }
 
-    public _resetUBOUpdateFlag () {
-        this._uboUpdated = false;
-    }
-
-    public updateUBOs () {
-        if (this._uboUpdated) {
-            return false;
-        }
-        this._uboUpdated = true;
-        if (this._transformUpdated && !this._isDynamicBatching) {
+    public updateUBOs (stamp: number) {
+        if (this._updateStamp === stamp) { return false; }
+        this._updateStamp = stamp;
+        if (this._transformUpdated && !this.isDynamicBatching) {
             // @ts-ignore
-            const worldMatrix = this._transform._mat;
+            const worldMatrix = this.transform._mat;
             Mat4.toArray(this._uboLocal.view, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
             Mat4.inverseTranspose(m4_1, worldMatrix);
             Mat4.toArray(this._uboLocal.view, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
@@ -360,7 +277,6 @@ export class Model {
         const ret = new Array<GFXPipelineState>(mat.passes.length);
         for (let i = 0; i < ret.length; i++) {
             const pass = mat.passes[i];
-            for (const cus of pass.customizations) { customizationManager.attach(cus, this); }
             ret[i] = this.createPipelineState(pass, subModelIdx);
         }
         return ret;
@@ -370,7 +286,6 @@ export class Model {
         for (let i = 0; i < mat.passes.length; i++) {
             const pass = mat.passes[i];
             pass.destroyPipelineState(pso[i]);
-            for (const cus of pass.customizations) { customizationManager.detach(cus, this); }
         }
     }
 
@@ -428,7 +343,7 @@ export class Model {
 
     private _updatePass (psos: GFXPipelineState[], mat: Material) {
         for (let i = 0; i < mat.passes.length; i++) {
-            mat.passes[i].update();
+            mat.passes[i].update(this._updateStamp);
         }
         for (let i = 0; i < psos.length; i++) {
             psos[i].pipelineLayout.layouts[0].update();

@@ -3,7 +3,7 @@
  */
 
 import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit } from '../gfx';
-import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../gfx/buffer';
+import { GFXBuffer } from '../gfx/buffer';
 import { GFXInputAssembler } from '../gfx/input-assembler';
 import { GFXPipelineState } from '../gfx/pipeline-state';
 import { Mat4 } from '../math';
@@ -18,11 +18,10 @@ export interface IInstancedItem {
     vbs: GFXBuffer[];
     vbDatas: Float32Array[];
     ia: GFXInputAssembler;
-    indirectBuffer: GFXBuffer;
-    indirectData: IGFXIndirectBuffer;
 }
 
 const INITIAL_CAPACITY = 32;
+const MAX_CAPACITY = 1024;
 
 function uploadMat4AsVec4x3 (out: Float32Array, mat: Mat4, base: number) {
     out[base + 0] = mat.m00;
@@ -55,7 +54,6 @@ export class InstancedBuffer {
                 instance.vbs[j].destroy();
             }
             instance.ia.destroy();
-            instance.indirectBuffer.destroy();
         }
         this.instances.length = 0;
     }
@@ -65,7 +63,7 @@ export class InstancedBuffer {
         const sourceIA = subModel.inputAssembler!;
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
-            if (instance.ia.indexBuffer !== sourceIA.indexBuffer) { continue; }
+            if (instance.ia.indexBuffer !== sourceIA.indexBuffer || instance.count >= MAX_CAPACITY) { continue; }
             if (instance.count >= instance.capacity) { // resize buffers
                 instance.capacity <<= 1;
                 for (let j = 0; j < instance.vbs.length; j++) {
@@ -109,34 +107,15 @@ export class InstancedBuffer {
         uploadMat4AsVec4x3(data, ro.model.transform.worldMatrix, 0);
         vbs.push(newVB); vbDatas.push(data); vertexBuffers.push(newVB); strides.push(48);
 
-        const indirectBuffer = device.createBuffer({
-            usage: GFXBufferUsageBit.INDIRECT,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: GFX_DRAW_INFO_SIZE,
-            stride: 1,
-        });
-        const indirectData: IGFXIndirectBuffer = {
-            drawInfos: [{
-                vertexCount: sourceIA.vertexCount,
-                firstVertex: sourceIA.firstVertex,
-                indexCount: sourceIA.indexCount,
-                firstIndex: sourceIA.firstIndex,
-                vertexOffset: sourceIA.vertexOffset,
-                instanceCount: 1,
-                firstInstance: 0,
-            }],
-        };
-        indirectBuffer.update(indirectData);
-        const ia = device.createInputAssembler({ attributes, vertexBuffers, indexBuffer, indirectBuffer });
-        this.instances.push({ count: 1, capacity: INITIAL_CAPACITY, vbs, vbDatas, strides, ia, indirectBuffer, indirectData });
+        const ia = device.createInputAssembler({ attributes, vertexBuffers, indexBuffer });
+        this.instances.push({ count: 1, capacity: INITIAL_CAPACITY, vbs, vbDatas, strides, ia });
     }
 
     public uploadBuffers () {
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
             if (!instance.count) { continue; }
-            instance.indirectData.drawInfos[0].instanceCount = instance.count;
-            instance.indirectBuffer.update(instance.indirectData);
+            instance.ia.instanceCount = instance.count;
             for (let j = 0; j < instance.vbs.length; j++) {
                 instance.vbs[j].update(instance.vbDatas[j].buffer);
             }
