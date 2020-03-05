@@ -31,6 +31,7 @@
 		469FFB172410A76800581BFC /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 469FFB162410A76700581BFC /* AppDelegate.mm */; };
 		469FFB1D2410AAAF00581BFC /* libGLESv2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 469FFB1B2410AAAF00581BFC /* libGLESv2.dylib */; };
 		469FFB1E2410AAAF00581BFC /* libEGL.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 469FFB1C2410AAAF00581BFC /* libEGL.dylib */; };
+		469FFB262411054700581BFC /* KeyCodeHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 469FFB242411054700581BFC /* KeyCodeHelper.cpp */; };
 		46BFDFA723CC0F4100CC5F8E /* Game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46BFDFA623CC0F4100CC5F8E /* Game.cpp */; };
 		46BFDFA823CC0F4100CC5F8E /* Game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46BFDFA623CC0F4100CC5F8E /* Game.cpp */; };
 		46BFDFBA23CC10E800CC5F8E /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 46BFDFB423CC10E700CC5F8E /* ViewController.mm */; };
@@ -138,6 +139,8 @@
 		469FFB162410A76700581BFC /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
 		469FFB1B2410AAAF00581BFC /* libGLESv2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLESv2.dylib; path = ../../../../../external/mac/libs/libGLESv2.dylib; sourceTree = "<group>"; };
 		469FFB1C2410AAAF00581BFC /* libEGL.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libEGL.dylib; path = ../../../../../external/mac/libs/libEGL.dylib; sourceTree = "<group>"; };
+		469FFB242411054700581BFC /* KeyCodeHelper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KeyCodeHelper.cpp; sourceTree = "<group>"; };
+		469FFB252411054700581BFC /* KeyCodeHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyCodeHelper.h; sourceTree = "<group>"; };
 		46BFDFA523CC0F4100CC5F8E /* Game.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Game.h; sourceTree = "<group>"; };
 		46BFDFA623CC0F4100CC5F8E /* Game.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Game.cpp; sourceTree = "<group>"; };
 		46BFDFB423CC10E700CC5F8E /* ViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ViewController.mm; path = ios/ViewController.mm; sourceTree = "<group>"; };
@@ -285,6 +288,8 @@
 		509D4ACA17EBB2BE00697056 /* mac */ = {
 			isa = PBXGroup;
 			children = (
+				469FFB242411054700581BFC /* KeyCodeHelper.cpp */,
+				469FFB252411054700581BFC /* KeyCodeHelper.h */,
 				469FFB162410A76700581BFC /* AppDelegate.mm */,
 				46BFE03D23CD5E7A00CC5F8E /* AppDelegate.h */,
 				46BFE04023CD5E7A00CC5F8E /* main.m */,
@@ -530,6 +535,7 @@
 				46BFE04823CD5EA300CC5F8E /* main.m in Sources */,
 				469FFB172410A76800581BFC /* AppDelegate.mm in Sources */,
 				46BFDFA823CC0F4100CC5F8E /* Game.cpp in Sources */,
+				469FFB262411054700581BFC /* KeyCodeHelper.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

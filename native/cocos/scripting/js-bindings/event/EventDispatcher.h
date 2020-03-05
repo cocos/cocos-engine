@@ -94,6 +94,7 @@ struct KeyboardEvent
     bool ctrlKeyActive = false;
     bool metaKeyActive = false;
     bool shiftKeyActive = false;
+    // TODO: support caps lock?
 };
 
 class CustomEvent
