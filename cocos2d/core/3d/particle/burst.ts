@@ -79,7 +79,7 @@ export default class Burst {
     _curTime = 0;
 
     constructor () {
-        this._remainingCount = 1;
+        this._remainingCount = 0;
         this._curTime = 0.0;
     }
 
