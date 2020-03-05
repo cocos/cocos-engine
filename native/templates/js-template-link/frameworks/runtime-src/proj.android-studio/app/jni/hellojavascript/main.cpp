@@ -48,6 +48,8 @@ namespace
         int32_t width = 0;
         int32_t height = 0;
         bool initialized = false;
+        cocos2d::TouchEvent touchEvent；
+        cocos2d::KeyboardEvent keyboardEvent;
     };
 
     void engineHandleCmd(struct android_app* app, int32_t cmd)
@@ -139,7 +141,6 @@ namespace
             else
                 keyCode = 0;
 
-            cocos2d::KeyboardEvent keyboardEvent;
             keyboardEvent.key = keyCode;
             keyboardEvent.action = action == AKEY_EVENT_ACTION_DOWN
                                              ? cocos2d::KeyboardEvent::Action::RELEASE
@@ -148,7 +149,6 @@ namespace
 
             return 1;
         } else if (type == AINPUT_EVENT_TYPE_MOTION){
-            cocos2d::TouchEvent touchEvent;
             int action = AMotionEvent_getAction(event);
 
             switch (action & AMOTION_EVENT_ACTION_MASK) {

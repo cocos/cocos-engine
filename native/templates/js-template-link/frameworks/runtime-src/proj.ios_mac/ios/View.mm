@@ -41,6 +41,9 @@ namespace
 }
 
 @implementation View
+{
+    cocos2d::TouchEvent _touchEvent;
+}
 
 @synthesize preventTouch;
 
@@ -59,32 +62,24 @@ namespace
     if (self.preventTouch)
         return;
     
-    cocos2d::TouchEvent touchEvent;
-    touchEvent.type = cocos2d::TouchEvent::Type::BEGAN;
-    
-    dispatchEvents(touchEvent, touches);
+    _touchEvent.type = cocos2d::TouchEvent::Type::BEGAN;
+    dispatchEvents(_touchEvent, touches);
 }
 
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
-    cocos2d::TouchEvent touchEvent;
-    touchEvent.type = cocos2d::TouchEvent::Type::MOVED;
-    
-    dispatchEvents(touchEvent, touches);
+    _touchEvent.type = cocos2d::TouchEvent::Type::MOVED;
+    dispatchEvents(_touchEvent, touches);
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-    cocos2d::TouchEvent touchEvent;
-    touchEvent.type = cocos2d::TouchEvent::Type::ENDED;
-    
-    dispatchEvents(touchEvent, touches);
+    _touchEvent.type = cocos2d::TouchEvent::Type::ENDED;
+    dispatchEvents(_touchEvent, touches);
 }
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
-    cocos2d::TouchEvent touchEvent;
-    touchEvent.type = cocos2d::TouchEvent::Type::CANCELLED;
-    
-    dispatchEvents(touchEvent, touches);
+    _touchEvent.type = cocos2d::TouchEvent::Type::CANCELLED;
+    dispatchEvents(_touchEvent, touches);
 }
 
 -(void) setPreventTouchEvent:(BOOL) flag {
