@@ -333,10 +333,6 @@ export class Game extends EventTarget {
             }
         }
         config.frameRate = frameRate;
-        if (this._intervalId) {
-            window.cancelAnimationFrame(this._intervalId);
-        }
-        this._intervalId = 0;
         this._paused = true;
         this._setAnimFrame();
         this._runMainLoop();
