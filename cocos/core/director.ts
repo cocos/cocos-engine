@@ -1088,6 +1088,7 @@ export class Director extends EventTarget {
         this._root = new Root(cc.game._gfxDevice);
         const rootInfo = {};
         if (!this._root.initialize(rootInfo)) {
+            cc.errorID(1217);
             return false;
         }
 
