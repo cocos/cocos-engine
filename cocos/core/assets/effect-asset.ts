@@ -68,11 +68,9 @@ export interface ITechniqueInfo {
 
 export interface IBlockInfo extends GFXUniformBlock {
     defines: string[];
-    defaultValue?: ArrayBuffer;
 }
 export interface ISamplerInfo extends GFXUniformSampler {
     defines: string[];
-    defaultValue?: string;
 }
 export interface IDefineInfo {
     name: string;
@@ -94,7 +92,7 @@ export interface IShaderInfo {
     hash: number;
     glsl3: { vert: string, frag: string };
     glsl1: { vert: string, frag: string };
-    builtins: { globals: IBuiltinInfo, locals: IBuiltinInfo };
+    builtins: { globals: IBuiltinInfo, locals: IBuiltinInfo, instances: string[] };
     defines: IDefineInfo[];
     blocks: IBlockInfo[];
     samplers: ISamplerInfo[];

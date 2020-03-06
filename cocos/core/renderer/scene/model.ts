@@ -13,6 +13,7 @@ import { IInternalBindingInst, UBOForwardLight, UBOLocal } from '../../pipeline/
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
 import { IMacroPatch, Pass } from '../core/pass';
+import { MaterialProperty, type2writer } from '../core/pass-utils';
 import { RenderScene } from './render-scene';
 import { SubModel } from './submodel';
 
@@ -101,6 +102,7 @@ export class Model {
     protected _inited = false;
     protected _updateStamp = -1;
     protected _transformUpdated = true;
+    protected _instancedProperties = new Float32Array(0);
 
     /**
      * Setup a default empty model
@@ -187,10 +189,14 @@ export class Model {
         return true;
     }
 
+    public setInstancedProperties (name: string, val: MaterialProperty, subModelIdx?: number, passIdx?: number) {
+        // type2writer[];
+    }
+
     /**
      * Create the bounding shape of this model
-     * @param {vec3} minPos the min position of the model
-     * @param {vec3} maxPos the max position of the model
+     * @param minPos the min position of the model
+     * @param maxPos the max position of the model
      */
     public createBoundingShape (minPos?: Vec3, maxPos?: Vec3) {
         if (!minPos || !maxPos) { return; }

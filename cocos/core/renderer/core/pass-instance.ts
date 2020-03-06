@@ -57,8 +57,8 @@ export class PassInstance extends Pass {
         }
         for (const u of this._shaderInfo.samplers) {
             if (isBuiltinBinding(u.binding)) { continue; }
-            this._textureViews[u.binding] = (this._parent as PassInstance)._textureViews[u.binding]; // TS2446
-            this._samplers[u.binding] = (this._parent as PassInstance)._samplers[u.binding]; // TS2446
+            this._textureViews[u.binding] = (this._parent as PassInstance)._textureViews[u.binding];
+            this._samplers[u.binding] = (this._parent as PassInstance)._samplers[u.binding];
         }
     }
 

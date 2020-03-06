@@ -353,6 +353,14 @@ export class WebGLGFXDevice extends GFXDevice {
             this._features[GFXFeature.FORMAT_D24S8] = true;
         }
 
+        if (this._OES_element_index_uint) {
+            this._features[GFXFeature.ELEMENT_INDEX_UINT] = true;
+        }
+
+        if (this._ANGLE_instanced_arrays) {
+            this._features[GFXFeature.INSTANCED_ARRAYS] = true;
+        }
+
         let compressedFormat: string = '';
 
         if (this._WEBGL_compressed_texture_etc1) {
@@ -394,10 +402,6 @@ export class WebGLGFXDevice extends GFXDevice {
 
         if ((sys.platform === sys.WECHAT_GAME && sys.os === sys.OS_ANDROID)) {
             gl.detachShader = () => {}; // Android WeChat may throw errors on detach shader
-        }
-
-        if (this._OES_element_index_uint) {
-            this._features[GFXFeature.ELEMENT_INDEX_UINT] = true;
         }
 
         console.info('RENDERER: ' + this._renderer);

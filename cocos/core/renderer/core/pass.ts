@@ -34,7 +34,7 @@ import { GFXBindingLayout, IGFXBinding, IGFXBindingLayoutInfo } from '../../gfx/
 import { GFXBuffer, IGFXBufferInfo } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXDynamicState,
     GFXGetTypeSize, GFXMemoryUsageBit, GFXPrimitiveMode, GFXType } from '../../gfx/define';
-import { GFXDevice } from '../../gfx/device';
+import { GFXDevice, GFXFeature } from '../../gfx/device';
 import { GFXPipelineLayout, IGFXPipelineLayoutInfo } from '../../gfx/pipeline-layout';
 import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState,
     GFXInputState, GFXPipelineState, GFXRasterizerState, IGFXPipelineStateInfo } from '../../gfx/pipeline-state';
@@ -49,7 +49,7 @@ import { getPhaseID } from '../../pipeline/pass-phase';
 import { Root } from '../../root';
 import { murmurhash2_32_gc } from '../../utils/murmurhash2_gc';
 import { customizeType, getBindingFromHandle, getBindingTypeFromHandle,
-    getDefaultFromType, getOffsetFromHandle, getTypeFromHandle, IDefineMap, type2reader, type2writer } from './pass-utils';
+    getDefaultFromType, getOffsetFromHandle, getTypeFromHandle, IDefineMap, MaterialProperty, type2reader, type2writer } from './pass-utils';
 import { IProgramInfo, programLib } from './program-lib';
 import { samplerLib } from './sampler-lib';
 import { EDITOR } from 'internal:constants';
@@ -277,7 +277,7 @@ export class Pass {
      * @param handle 目标 uniform 的 handle。
      * @param value 目标值。
      */
-    public setUniform (handle: number, value: any) {
+    public setUniform (handle: number, value: MaterialProperty) {
         const binding = Pass.getBindingFromHandle(handle);
         const type = Pass.getTypeFromHandle(handle);
         const ofs = Pass.getOffsetFromHandle(handle);
@@ -292,7 +292,7 @@ export class Pass {
      * @param handle 目标 uniform 的 handle。
      * @param out 输出向量。
      */
-    public getUniform (handle: number, out: any) {
+    public getUniform (handle: number, out: MaterialProperty) {
         const binding = Pass.getBindingFromHandle(handle);
         const type = Pass.getTypeFromHandle(handle);
         const ofs = Pass.getOffsetFromHandle(handle);
@@ -306,7 +306,7 @@ export class Pass {
      * @param handle 目标 uniform 的 handle。
      * @param value 目标值。
      */
-    public setUniformArray (handle: number, value: any[]) {
+    public setUniformArray (handle: number, value: MaterialProperty[]) {
         const binding = Pass.getBindingFromHandle(handle);
         const type = Pass.getTypeFromHandle(handle);
         const stride = GFXGetTypeSize(type) >> 2;
@@ -436,21 +436,58 @@ export class Pass {
 
     /**
      * @zh
-     * 重置所有 UBO 为初始默认值。
+     * 重置指定（非数组） Uniform  为 Effect 默认值。
+     */
+    public resetUniform (name: string) {
+        const handle = this.getHandle(name)!;
+        const type = Pass.getTypeFromHandle(handle);
+        const binding = Pass.getBindingFromHandle(handle);
+        const ofs = Pass.getOffsetFromHandle(handle);
+        const block = this._blocks[binding];
+        const info = this._properties[name];
+        const value = info && info.value || getDefaultFromType(type);
+        type2writer[type](block.view, value, ofs);
+        block.dirty = true;
+    }
+
+    /**
+     * @zh
+     * 重置指定贴图为 Effect 默认值。
+     */
+    public resetTexture (name: string) {
+        const handle = this.getHandle(name)!;
+        const type = Pass.getTypeFromHandle(handle);
+        const binding = Pass.getBindingFromHandle(handle);
+        const info = this._properties[name];
+        const value = info && info.value;
+        const texName = value ? value + '-texture' : getDefaultFromType(type) as string;
+        const texture = builtinResMgr.get<TextureBase>(texName);
+        const textureView = texture && texture.getGFXTextureView()!;
+        const samplerHash = info && (info.samplerHash !== undefined) ? info.samplerHash : texture.getSamplerHash();
+        const sampler = samplerLib.getSampler(this._device, samplerHash);
+        this._textureViews[binding] = textureView;
+        this._samplers[binding] = sampler;
+        for (let i = 0; i < this._resources.length; i++) {
+            const res = this._resources[i];
+            res.bindingLayout.bindSampler(binding, sampler);
+            res.bindingLayout.bindTextureView(binding, textureView);
+        }
+    }
+
+    /**
+     * @zh
+     * 重置所有 UBO 为默认值。
      */
     public resetUBOs () {
         for (const u of this._shaderInfo.blocks) {
             if (isBuiltinBinding(u.binding)) { continue; }
-            if (u.defaultValue) {
-                this._buffers[u.binding].update(u.defaultValue);
-            }
             const block: IBlock = this._blocks[u.binding];
             if (!block) { continue; }
             let ofs = 0;
             for (let i = 0; i < u.members.length; i++) {
                 const cur = u.members[i];
-                const inf = this._properties[cur.name];
-                const givenDefault = inf && inf.value;
+                const info = this._properties[cur.name];
+                const givenDefault = info && info.value;
                 const value = (givenDefault ? givenDefault : getDefaultFromType(cur.type)) as number[];
                 const size = (GFXGetTypeSize(cur.type) >> 2) * cur.count;
                 for (let j = 0; j + value.length <= size; j += value.length) { block.view.set(value, ofs + j); }
@@ -467,20 +504,7 @@ export class Pass {
     public resetTextures () {
         for (const u of this._shaderInfo.samplers) {
             if (isBuiltinBinding(u.binding)) { continue; }
-            const inf = this._properties[u.name];
-            const value = inf && inf.value || u.defaultValue;
-            const texName = value ? value + '-texture' : getDefaultFromType(u.type) as string;
-            const texture = builtinResMgr.get<TextureBase>(texName);
-            const textureView = texture && texture.getGFXTextureView();
-            if (!textureView) { console.warn('illegal texture default value: ' + texName); continue; }
-            this._textureViews[u.binding] = textureView;
-            const samplerHash = inf && (inf.samplerHash !== undefined) ? inf.samplerHash : texture.getSamplerHash();
-            const sampler = this._samplers[u.binding] = samplerLib.getSampler(this._device, samplerHash);
-            for (let i = 0; i < this._resources.length; i++) {
-                const res = this._resources[i];
-                res.bindingLayout.bindSampler(u.binding, sampler);
-                res.bindingLayout.bindTextureView(u.binding, textureView);
-            }
+            this.resetTexture(u.name);
         }
     }
 
@@ -491,7 +515,10 @@ export class Pass {
      */
     public tryCompile () {
         if (this._defines.USE_BATCHING) { this.createBatchedBuffer(); }
-        if (this._defines.USE_INSTANCING) { this.createInstancedBuffer(); }
+        if (this._defines.USE_INSTANCING) {
+            if (this._device.hasFeature(GFXFeature.INSTANCED_ARRAYS)) { this.createInstancedBuffer(); }
+            else { this._defines.USE_INSTANCING = false; }
+        }
         const pipeline = (cc.director.root as Root).pipeline;
         if (!pipeline) { return null; }
         this._renderPass = pipeline.getRenderPass(this._stage);

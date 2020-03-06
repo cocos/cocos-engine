@@ -210,7 +210,6 @@ class ProgramLib {
         if (offset > 31) { tmpl.uber = true; }
         tmpl.blocks.forEach((b) => {
             b.bindingType = GFXBindingType.UNIFORM_BUFFER; b.size = getSize(b);
-            if (b.defaultValue) { b.defaultValue = Float32Array.from(b.defaultValue as unknown as number[]); }
         });
         tmpl.samplers.forEach((s) => s.bindingType = GFXBindingType.SAMPLER);
         tmpl.handleMap = genHandles(tmpl);
