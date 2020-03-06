@@ -272,7 +272,9 @@ extern se::Class* __jsb_cocos2d_GFXDevice_class;
 
 bool js_register_cocos2d_GFXDevice(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
+SE_DECLARE_FUNC(js_gfx_GFXDevice_hasFeature);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_createCommandAllocator);
+SE_DECLARE_FUNC(js_gfx_GFXDevice_getAPI);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_createPipelineState);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_createCommandBuffer);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_present);
@@ -283,11 +285,9 @@ SE_DECLARE_FUNC(js_gfx_GFXDevice_createRenderPass);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_createPipelineLayout);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_createWindow);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_createShader);
-SE_DECLARE_FUNC(js_gfx_GFXDevice_gfxAPI);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_createInputAssembler);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_createSampler);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_createBuffer);
-SE_DECLARE_FUNC(js_gfx_GFXDevice_hasFeature);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_initialize);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_resize);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_createQueue);
@@ -299,7 +299,7 @@ extern se::Class* __jsb_cocos2d_GFXWindow_class;
 
 bool js_register_cocos2d_GFXWindow(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GFXWindow_detphStencilFormat);
+SE_DECLARE_FUNC(js_gfx_GFXWindow_getDetphStencilFormat);
 SE_DECLARE_FUNC(js_gfx_GFXWindow_initialize);
 SE_DECLARE_FUNC(js_gfx_GFXWindow_destroy);
 SE_DECLARE_FUNC(js_gfx_GFXWindow_resize);
@@ -357,15 +357,8 @@ extern se::Class* __jsb_cocos2d_GFXInputAssembler_class;
 
 bool js_register_cocos2d_GFXInputAssembler(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_initialize);
-SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_setIndexCount);
-SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_setFirstInstance);
 SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_destroy);
-SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_setVertexOffset);
-SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_setFirstVertex);
-SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_setVertexCount);
-SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_setFirstIndex);
-SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_setInstanceCount);
+SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_initialize);
 SE_DECLARE_FUNC(js_gfx_GFXInputAssembler_GFXInputAssembler);
 
 extern se::Object* __jsb_cocos2d_GFXRenderPass_proto;
@@ -382,13 +375,13 @@ extern se::Class* __jsb_cocos2d_GFXFramebuffer_class;
 
 bool js_register_cocos2d_GFXFramebuffer(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GFXFramebuffer_depthStencilView);
+SE_DECLARE_FUNC(js_gfx_GFXFramebuffer_getDepthStencilView);
 SE_DECLARE_FUNC(js_gfx_GFXFramebuffer_isOffscreen);
-SE_DECLARE_FUNC(js_gfx_GFXFramebuffer_device);
-SE_DECLARE_FUNC(js_gfx_GFXFramebuffer_renderPass);
+SE_DECLARE_FUNC(js_gfx_GFXFramebuffer_getColorViews);
 SE_DECLARE_FUNC(js_gfx_GFXFramebuffer_initialize);
 SE_DECLARE_FUNC(js_gfx_GFXFramebuffer_destroy);
-SE_DECLARE_FUNC(js_gfx_GFXFramebuffer_colorViews);
+SE_DECLARE_FUNC(js_gfx_GFXFramebuffer_getRenderPass);
+SE_DECLARE_FUNC(js_gfx_GFXFramebuffer_getDevice);
 SE_DECLARE_FUNC(js_gfx_GFXFramebuffer_GFXFramebuffer);
 
 extern se::Object* __jsb_cocos2d_GFXBindingLayout_proto;
@@ -409,8 +402,10 @@ extern se::Class* __jsb_cocos2d_GFXPipelineLayout_class;
 
 bool js_register_cocos2d_GFXPipelineLayout(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
+SE_DECLARE_FUNC(js_gfx_GFXPipelineLayout_getLayouts);
 SE_DECLARE_FUNC(js_gfx_GFXPipelineLayout_initialize);
 SE_DECLARE_FUNC(js_gfx_GFXPipelineLayout_destroy);
+SE_DECLARE_FUNC(js_gfx_GFXPipelineLayout_getPushConstantsRanges);
 SE_DECLARE_FUNC(js_gfx_GFXPipelineLayout_GFXPipelineLayout);
 
 extern se::Object* __jsb_cocos2d_GFXPipelineState_proto;
@@ -418,9 +413,9 @@ extern se::Class* __jsb_cocos2d_GFXPipelineState_class;
 
 bool js_register_cocos2d_GFXPipelineState(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GFXPipelineState_dynamicStates);
 SE_DECLARE_FUNC(js_gfx_GFXPipelineState_initialize);
 SE_DECLARE_FUNC(js_gfx_GFXPipelineState_destroy);
+SE_DECLARE_FUNC(js_gfx_GFXPipelineState_getDynamicStates);
 SE_DECLARE_FUNC(js_gfx_GFXPipelineState_GFXPipelineState);
 
 extern se::Object* __jsb_cocos2d_GFXCommandAllocator_proto;
@@ -430,7 +425,7 @@ bool js_register_cocos2d_GFXCommandAllocator(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 SE_DECLARE_FUNC(js_gfx_GFXCommandAllocator_initialize);
 SE_DECLARE_FUNC(js_gfx_GFXCommandAllocator_destroy);
-SE_DECLARE_FUNC(js_gfx_GFXCommandAllocator_device);
+SE_DECLARE_FUNC(js_gfx_GFXCommandAllocator_getDevice);
 SE_DECLARE_FUNC(js_gfx_GFXCommandAllocator_GFXCommandAllocator);
 
 extern se::Object* __jsb_cocos2d_GFXCommandBuffer_proto;
