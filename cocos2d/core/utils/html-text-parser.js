@@ -51,9 +51,9 @@ HtmlTextParser.prototype = {
         while (startIndex < length) {
             var tagEndIndex = htmlString.indexOf('>', startIndex);
             var tagBeginIndex = htmlString.lastIndexOf('<', tagEndIndex);
-            var noValidTagBegineIndex = tagBeginIndex < (startIndex - 1);
+            var noTagBegin = tagBeginIndex < (startIndex - 1);
 
-            if (startIndex > 0 && noValidTagBegineIndex) {
+            if (noTagBegin) {
                 tagBeginIndex = htmlString.indexOf('<', tagEndIndex + 1);
                 tagEndIndex = htmlString.indexOf('>', tagBeginIndex + 1);
             }
