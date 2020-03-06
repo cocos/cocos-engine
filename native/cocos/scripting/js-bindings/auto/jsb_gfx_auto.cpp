@@ -149,22 +149,28 @@ static bool js_gfx_GFXOffset_constructor(se::State& s)
     }
     else if(argc == 3)
     {
+        cocos2d::GFXOffset* cobj = JSB_ALLOC(cocos2d::GFXOffset);
         int arg0 = 0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
+        if (!args[0].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
+            cobj->x = arg0;
+        }
         int arg1 = 0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (int)tmp; } while(false);
+        if (!args[1].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (int)tmp; } while(false);
+            cobj->y = arg1;
+        }
         int arg2 = 0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (int)tmp; } while(false);
+        if (!args[2].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (int)tmp; } while(false);
+            cobj->z = arg2;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXOffset* cobj = JSB_ALLOC(cocos2d::GFXOffset);
-        cobj->x = arg0;
-        cobj->y = arg1;
-        cobj->z = arg2;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -384,25 +390,33 @@ static bool js_gfx_GFXRect_constructor(se::State& s)
     }
     else if(argc == 4)
     {
+        cocos2d::GFXRect* cobj = JSB_ALLOC(cocos2d::GFXRect);
         int arg0 = 0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
+        if (!args[0].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
+            cobj->x = arg0;
+        }
         int arg1 = 0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (int)tmp; } while(false);
+        if (!args[1].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (int)tmp; } while(false);
+            cobj->y = arg1;
+        }
         unsigned int arg2 = 0;
-        ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+        if (!args[2].isUndefined()) {
+            ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+            cobj->width = arg2;
+        }
         unsigned int arg3 = 0;
-        ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+        if (!args[3].isUndefined()) {
+            ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+            cobj->height = arg3;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXRect* cobj = JSB_ALLOC(cocos2d::GFXRect);
-        cobj->x = arg0;
-        cobj->y = arg1;
-        cobj->width = arg2;
-        cobj->height = arg3;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -589,22 +603,28 @@ static bool js_gfx_GFXExtent_constructor(se::State& s)
     }
     else if(argc == 3)
     {
+        cocos2d::GFXExtent* cobj = JSB_ALLOC(cocos2d::GFXExtent);
         unsigned int arg0 = 0;
-        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+        if (!args[0].isUndefined()) {
+            ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+            cobj->width = arg0;
+        }
         unsigned int arg1 = 0;
-        ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+        if (!args[1].isUndefined()) {
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            cobj->height = arg1;
+        }
         unsigned int arg2 = 0;
-        ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+        if (!args[2].isUndefined()) {
+            ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+            cobj->depth = arg2;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXExtent* cobj = JSB_ALLOC(cocos2d::GFXExtent);
-        cobj->width = arg0;
-        cobj->height = arg1;
-        cobj->depth = arg2;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -824,25 +844,33 @@ static bool js_gfx_GFXTextureSubres_constructor(se::State& s)
     }
     else if(argc == 4)
     {
+        cocos2d::GFXTextureSubres* cobj = JSB_ALLOC(cocos2d::GFXTextureSubres);
         unsigned int arg0 = 0;
-        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+        if (!args[0].isUndefined()) {
+            ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+            cobj->baseMipLevel = arg0;
+        }
         unsigned int arg1 = 0;
-        ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+        if (!args[1].isUndefined()) {
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            cobj->levelCount = arg1;
+        }
         unsigned int arg2 = 0;
-        ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+        if (!args[2].isUndefined()) {
+            ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+            cobj->baseArrayLayer = arg2;
+        }
         unsigned int arg3 = 0;
-        ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+        if (!args[3].isUndefined()) {
+            ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+            cobj->layerCount = arg3;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXTextureSubres* cobj = JSB_ALLOC(cocos2d::GFXTextureSubres);
-        cobj->baseMipLevel = arg0;
-        cobj->levelCount = arg1;
-        cobj->baseArrayLayer = arg2;
-        cobj->layerCount = arg3;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -1097,28 +1125,38 @@ static bool js_gfx_GFXTextureCopy_constructor(se::State& s)
     }
     else if(argc == 5)
     {
+        cocos2d::GFXTextureCopy* cobj = JSB_ALLOC(cocos2d::GFXTextureCopy);
         cocos2d::GFXTextureSubres* arg0 = nullptr;
-        ok &= seval_to_reference(args[0], &arg0);
+        if (!args[0].isUndefined()) {
+            ok &= seval_to_reference(args[0], &arg0);
+            cobj->srcSubres = *arg0;
+        }
         cocos2d::GFXOffset* arg1 = nullptr;
-        ok &= seval_to_reference(args[1], &arg1);
+        if (!args[1].isUndefined()) {
+            ok &= seval_to_reference(args[1], &arg1);
+            cobj->srcOffset = *arg1;
+        }
         cocos2d::GFXTextureSubres* arg2 = nullptr;
-        ok &= seval_to_reference(args[2], &arg2);
+        if (!args[2].isUndefined()) {
+            ok &= seval_to_reference(args[2], &arg2);
+            cobj->dstSubres = *arg2;
+        }
         cocos2d::GFXOffset* arg3 = nullptr;
-        ok &= seval_to_reference(args[3], &arg3);
+        if (!args[3].isUndefined()) {
+            ok &= seval_to_reference(args[3], &arg3);
+            cobj->dstOffset = *arg3;
+        }
         cocos2d::GFXExtent* arg4 = nullptr;
-        ok &= seval_to_reference(args[4], &arg4);
+        if (!args[4].isUndefined()) {
+            ok &= seval_to_reference(args[4], &arg4);
+            cobj->extent = *arg4;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXTextureCopy* cobj = JSB_ALLOC(cocos2d::GFXTextureCopy);
-        cobj->srcSubres = *arg0;
-        cobj->srcOffset = *arg1;
-        cobj->dstSubres = *arg2;
-        cobj->dstOffset = *arg3;
-        cobj->extent = *arg4;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -1408,31 +1446,43 @@ static bool js_gfx_GFXBufferTextureCopy_constructor(se::State& s)
     }
     else if(argc == 6)
     {
+        cocos2d::GFXBufferTextureCopy* cobj = JSB_ALLOC(cocos2d::GFXBufferTextureCopy);
         unsigned int arg0 = 0;
-        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+        if (!args[0].isUndefined()) {
+            ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+            cobj->buffOffset = arg0;
+        }
         unsigned int arg1 = 0;
-        ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+        if (!args[1].isUndefined()) {
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            cobj->buffStride = arg1;
+        }
         unsigned int arg2 = 0;
-        ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+        if (!args[2].isUndefined()) {
+            ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+            cobj->buffTexHeight = arg2;
+        }
         cocos2d::GFXOffset* arg3 = nullptr;
-        ok &= seval_to_reference(args[3], &arg3);
+        if (!args[3].isUndefined()) {
+            ok &= seval_to_reference(args[3], &arg3);
+            cobj->texOffset = *arg3;
+        }
         cocos2d::GFXExtent* arg4 = nullptr;
-        ok &= seval_to_reference(args[4], &arg4);
+        if (!args[4].isUndefined()) {
+            ok &= seval_to_reference(args[4], &arg4);
+            cobj->texExtent = *arg4;
+        }
         cocos2d::GFXTextureSubres* arg5 = nullptr;
-        ok &= seval_to_reference(args[5], &arg5);
+        if (!args[5].isUndefined()) {
+            ok &= seval_to_reference(args[5], &arg5);
+            cobj->texSubres = *arg5;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXBufferTextureCopy* cobj = JSB_ALLOC(cocos2d::GFXBufferTextureCopy);
-        cobj->buffOffset = arg0;
-        cobj->buffStride = arg1;
-        cobj->buffTexHeight = arg2;
-        cobj->texOffset = *arg3;
-        cobj->texExtent = *arg4;
-        cobj->texSubres = *arg5;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -1723,31 +1773,43 @@ static bool js_gfx_GFXViewport_constructor(se::State& s)
     }
     else if(argc == 6)
     {
+        cocos2d::GFXViewport* cobj = JSB_ALLOC(cocos2d::GFXViewport);
         int arg0 = 0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
+        if (!args[0].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (int)tmp; } while(false);
+            cobj->left = arg0;
+        }
         int arg1 = 0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (int)tmp; } while(false);
+        if (!args[1].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (int)tmp; } while(false);
+            cobj->top = arg1;
+        }
         unsigned int arg2 = 0;
-        ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+        if (!args[2].isUndefined()) {
+            ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+            cobj->width = arg2;
+        }
         unsigned int arg3 = 0;
-        ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+        if (!args[3].isUndefined()) {
+            ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+            cobj->height = arg3;
+        }
         float arg4 = 0;
-        ok &= seval_to_float(args[4], &arg4);
+        if (!args[4].isUndefined()) {
+            ok &= seval_to_float(args[4], &arg4);
+            cobj->minDepth = arg4;
+        }
         float arg5 = 0;
-        ok &= seval_to_float(args[5], &arg5);
+        if (!args[5].isUndefined()) {
+            ok &= seval_to_float(args[5], &arg5);
+            cobj->maxDepth = arg5;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXViewport* cobj = JSB_ALLOC(cocos2d::GFXViewport);
-        cobj->left = arg0;
-        cobj->top = arg1;
-        cobj->width = arg2;
-        cobj->height = arg3;
-        cobj->minDepth = arg4;
-        cobj->maxDepth = arg5;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -1970,25 +2032,33 @@ static bool js_gfx_GFXColor_constructor(se::State& s)
     }
     else if(argc == 4)
     {
+        cocos2d::GFXColor* cobj = JSB_ALLOC(cocos2d::GFXColor);
         float arg0 = 0;
-        ok &= seval_to_float(args[0], &arg0);
+        if (!args[0].isUndefined()) {
+            ok &= seval_to_float(args[0], &arg0);
+            cobj->r = arg0;
+        }
         float arg1 = 0;
-        ok &= seval_to_float(args[1], &arg1);
+        if (!args[1].isUndefined()) {
+            ok &= seval_to_float(args[1], &arg1);
+            cobj->g = arg1;
+        }
         float arg2 = 0;
-        ok &= seval_to_float(args[2], &arg2);
+        if (!args[2].isUndefined()) {
+            ok &= seval_to_float(args[2], &arg2);
+            cobj->b = arg2;
+        }
         float arg3 = 0;
-        ok &= seval_to_float(args[3], &arg3);
+        if (!args[3].isUndefined()) {
+            ok &= seval_to_float(args[3], &arg3);
+            cobj->a = arg3;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXColor* cobj = JSB_ALLOC(cocos2d::GFXColor);
-        cobj->r = arg0;
-        cobj->g = arg1;
-        cobj->b = arg2;
-        cobj->a = arg3;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -2277,31 +2347,43 @@ static bool js_gfx_GFXDeviceInfo_constructor(se::State& s)
     }
     else if(argc == 6)
     {
+        cocos2d::GFXDeviceInfo* cobj = JSB_ALLOC(cocos2d::GFXDeviceInfo);
         intptr_t arg0 = 0;
-        ok &= seval_to_intptr_t(args[0], &arg0);
+        if (!args[0].isUndefined()) {
+            ok &= seval_to_intptr_t(args[0], &arg0);
+            cobj->windowHandle = arg0;
+        }
         unsigned int arg1 = 0;
-        ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+        if (!args[1].isUndefined()) {
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            cobj->width = arg1;
+        }
         unsigned int arg2 = 0;
-        ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+        if (!args[2].isUndefined()) {
+            ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+            cobj->height = arg2;
+        }
         unsigned int arg3 = 0;
-        ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+        if (!args[3].isUndefined()) {
+            ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+            cobj->nativeWidth = arg3;
+        }
         unsigned int arg4 = 0;
-        ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
+        if (!args[4].isUndefined()) {
+            ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
+            cobj->nativeHeight = arg4;
+        }
         cocos2d::GFXContext* arg5 = nullptr;
-        ok &= seval_to_native_ptr(args[5], &arg5);
+        if (!args[5].isUndefined()) {
+            ok &= seval_to_native_ptr(args[5], &arg5);
+            cobj->sharedCtx = arg5;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXDeviceInfo* cobj = JSB_ALLOC(cocos2d::GFXDeviceInfo);
-        cobj->windowHandle = arg0;
-        cobj->width = arg1;
-        cobj->height = arg2;
-        cobj->nativeWidth = arg3;
-        cobj->nativeHeight = arg4;
-        cobj->sharedCtx = arg5;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -2762,46 +2844,68 @@ static bool js_gfx_GFXWindowInfo_constructor(se::State& s)
     }
     else if(argc == 11)
     {
+        cocos2d::GFXWindowInfo* cobj = JSB_ALLOC(cocos2d::GFXWindowInfo);
         cocos2d::String arg0;
-        arg0 = args[0].toStringForce().c_str();
+        if (!args[0].isUndefined()) {
+            arg0 = args[0].toStringForce().c_str();
+            cobj->title = arg0;
+        }
         int arg1 = 0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (int)tmp; } while(false);
+        if (!args[1].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (int)tmp; } while(false);
+            cobj->left = arg1;
+        }
         int arg2 = 0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (int)tmp; } while(false);
+        if (!args[2].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (int)tmp; } while(false);
+            cobj->top = arg2;
+        }
         unsigned int arg3 = 0;
-        ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+        if (!args[3].isUndefined()) {
+            ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+            cobj->width = arg3;
+        }
         unsigned int arg4 = 0;
-        ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
+        if (!args[4].isUndefined()) {
+            ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
+            cobj->height = arg4;
+        }
         cocos2d::GFXFormat arg5;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[5], &tmp); arg5 = (cocos2d::GFXFormat)tmp; } while(false);
+        if (!args[5].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[5], &tmp); arg5 = (cocos2d::GFXFormat)tmp; } while(false);
+            cobj->colorFmt = arg5;
+        }
         cocos2d::GFXFormat arg6;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[6], &tmp); arg6 = (cocos2d::GFXFormat)tmp; } while(false);
+        if (!args[6].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[6], &tmp); arg6 = (cocos2d::GFXFormat)tmp; } while(false);
+            cobj->depthStencilFmt = arg6;
+        }
         bool arg7;
-        ok &= seval_to_boolean(args[7], &arg7);
+        if (!args[7].isUndefined()) {
+            ok &= seval_to_boolean(args[7], &arg7);
+            cobj->isOffscreen = arg7;
+        }
         bool arg8;
-        ok &= seval_to_boolean(args[8], &arg8);
+        if (!args[8].isUndefined()) {
+            ok &= seval_to_boolean(args[8], &arg8);
+            cobj->isFullscreen = arg8;
+        }
         cocos2d::GFXVsyncMode arg9;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[9], &tmp); arg9 = (cocos2d::GFXVsyncMode)tmp; } while(false);
+        if (!args[9].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[9], &tmp); arg9 = (cocos2d::GFXVsyncMode)tmp; } while(false);
+            cobj->vsyncMode = arg9;
+        }
         intptr_t arg10 = 0;
-        ok &= seval_to_intptr_t(args[10], &arg10);
+        if (!args[10].isUndefined()) {
+            ok &= seval_to_intptr_t(args[10], &arg10);
+            cobj->windowHandle = arg10;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXWindowInfo* cobj = JSB_ALLOC(cocos2d::GFXWindowInfo);
-        cobj->title = arg0;
-        cobj->left = arg1;
-        cobj->top = arg2;
-        cobj->width = arg3;
-        cobj->height = arg4;
-        cobj->colorFmt = arg5;
-        cobj->depthStencilFmt = arg6;
-        cobj->isOffscreen = arg7;
-        cobj->isFullscreen = arg8;
-        cobj->vsyncMode = arg9;
-        cobj->windowHandle = arg10;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -2995,22 +3099,28 @@ static bool js_gfx_GFXContextInfo_constructor(se::State& s)
     }
     else if(argc == 3)
     {
+        cocos2d::GFXContextInfo* cobj = JSB_ALLOC(cocos2d::GFXContextInfo);
         intptr_t arg0 = 0;
-        ok &= seval_to_intptr_t(args[0], &arg0);
+        if (!args[0].isUndefined()) {
+            ok &= seval_to_intptr_t(args[0], &arg0);
+            cobj->windowHandle = arg0;
+        }
         cocos2d::GFXContext* arg1 = nullptr;
-        ok &= seval_to_native_ptr(args[1], &arg1);
+        if (!args[1].isUndefined()) {
+            ok &= seval_to_native_ptr(args[1], &arg1);
+            cobj->sharedCtx = arg1;
+        }
         cocos2d::GFXVsyncMode arg2;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXVsyncMode)tmp; } while(false);
+        if (!args[2].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXVsyncMode)tmp; } while(false);
+            cobj->vsyncMode = arg2;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXContextInfo* cobj = JSB_ALLOC(cocos2d::GFXContextInfo);
-        cobj->windowHandle = arg0;
-        cobj->sharedCtx = arg1;
-        cobj->vsyncMode = arg2;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -3264,28 +3374,38 @@ static bool js_gfx_GFXBufferInfo_constructor(se::State& s)
     }
     else if(argc == 5)
     {
+        cocos2d::GFXBufferInfo* cobj = JSB_ALLOC(cocos2d::GFXBufferInfo);
         cocos2d::GFXBufferUsageBit arg0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXBufferUsageBit)tmp; } while(false);
+        if (!args[0].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXBufferUsageBit)tmp; } while(false);
+            cobj->usage = arg0;
+        }
         cocos2d::GFXMemoryUsageBit arg1;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXMemoryUsageBit)tmp; } while(false);
+        if (!args[1].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXMemoryUsageBit)tmp; } while(false);
+            cobj->memUsage = arg1;
+        }
         unsigned int arg2 = 0;
-        ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+        if (!args[2].isUndefined()) {
+            ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+            cobj->stride = arg2;
+        }
         unsigned int arg3 = 0;
-        ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+        if (!args[3].isUndefined()) {
+            ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+            cobj->size = arg3;
+        }
         cocos2d::GFXBufferFlagBit arg4;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cocos2d::GFXBufferFlagBit)tmp; } while(false);
+        if (!args[4].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cocos2d::GFXBufferFlagBit)tmp; } while(false);
+            cobj->flags = arg4;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXBufferInfo* cobj = JSB_ALLOC(cocos2d::GFXBufferInfo);
-        cobj->usage = arg0;
-        cobj->memUsage = arg1;
-        cobj->stride = arg2;
-        cobj->size = arg3;
-        cobj->flags = arg4;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -3609,34 +3729,48 @@ static bool js_gfx_GFXDrawInfo_constructor(se::State& s)
     }
     else if(argc == 7)
     {
+        cocos2d::GFXDrawInfo* cobj = JSB_ALLOC(cocos2d::GFXDrawInfo);
         unsigned int arg0 = 0;
-        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+        if (!args[0].isUndefined()) {
+            ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+            cobj->vertexCount = arg0;
+        }
         unsigned int arg1 = 0;
-        ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+        if (!args[1].isUndefined()) {
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            cobj->firstVertex = arg1;
+        }
         unsigned int arg2 = 0;
-        ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+        if (!args[2].isUndefined()) {
+            ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+            cobj->indexCount = arg2;
+        }
         unsigned int arg3 = 0;
-        ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+        if (!args[3].isUndefined()) {
+            ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+            cobj->firstIndex = arg3;
+        }
         unsigned int arg4 = 0;
-        ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
+        if (!args[4].isUndefined()) {
+            ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
+            cobj->vertexOffset = arg4;
+        }
         unsigned int arg5 = 0;
-        ok &= seval_to_uint32(args[5], (uint32_t*)&arg5);
+        if (!args[5].isUndefined()) {
+            ok &= seval_to_uint32(args[5], (uint32_t*)&arg5);
+            cobj->instanceCount = arg5;
+        }
         unsigned int arg6 = 0;
-        ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
+        if (!args[6].isUndefined()) {
+            ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
+            cobj->firstInstance = arg6;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXDrawInfo* cobj = JSB_ALLOC(cocos2d::GFXDrawInfo);
-        cobj->vertexCount = arg0;
-        cobj->firstVertex = arg1;
-        cobj->indexCount = arg2;
-        cobj->firstIndex = arg3;
-        cobj->vertexOffset = arg4;
-        cobj->instanceCount = arg5;
-        cobj->firstInstance = arg6;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -3735,16 +3869,18 @@ static bool js_gfx_GFXIndirectBuffer_constructor(se::State& s)
     }
     else if(argc == 1)
     {
+        cocos2d::GFXIndirectBuffer* cobj = JSB_ALLOC(cocos2d::GFXIndirectBuffer);
         std::vector<cocos2d::GFXDrawInfo> arg0;
-        ok &= seval_to_std_vector(args[0], &arg0);
+        if (!args[0].isUndefined()) {
+            ok &= seval_to_std_vector(args[0], &arg0);
+            cobj->draws = arg0;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXIndirectBuffer* cobj = JSB_ALLOC(cocos2d::GFXIndirectBuffer);
-        cobj->draws = arg0;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -4166,43 +4302,63 @@ static bool js_gfx_GFXTextureInfo_constructor(se::State& s)
     }
     else if(argc == 10)
     {
+        cocos2d::GFXTextureInfo* cobj = JSB_ALLOC(cocos2d::GFXTextureInfo);
         cocos2d::GFXTextureType arg0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXTextureType)tmp; } while(false);
+        if (!args[0].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXTextureType)tmp; } while(false);
+            cobj->type = arg0;
+        }
         cocos2d::GFXTextureUsageBit arg1;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXTextureUsageBit)tmp; } while(false);
+        if (!args[1].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXTextureUsageBit)tmp; } while(false);
+            cobj->usage = arg1;
+        }
         cocos2d::GFXFormat arg2;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXFormat)tmp; } while(false);
+        if (!args[2].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXFormat)tmp; } while(false);
+            cobj->format = arg2;
+        }
         unsigned int arg3 = 0;
-        ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+        if (!args[3].isUndefined()) {
+            ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+            cobj->width = arg3;
+        }
         unsigned int arg4 = 0;
-        ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
+        if (!args[4].isUndefined()) {
+            ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
+            cobj->height = arg4;
+        }
         unsigned int arg5 = 0;
-        ok &= seval_to_uint32(args[5], (uint32_t*)&arg5);
+        if (!args[5].isUndefined()) {
+            ok &= seval_to_uint32(args[5], (uint32_t*)&arg5);
+            cobj->depth = arg5;
+        }
         unsigned int arg6 = 0;
-        ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
+        if (!args[6].isUndefined()) {
+            ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
+            cobj->arrayLayer = arg6;
+        }
         unsigned int arg7 = 0;
-        ok &= seval_to_uint32(args[7], (uint32_t*)&arg7);
+        if (!args[7].isUndefined()) {
+            ok &= seval_to_uint32(args[7], (uint32_t*)&arg7);
+            cobj->mipLevel = arg7;
+        }
         cocos2d::GFXSampleCount arg8;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[8], &tmp); arg8 = (cocos2d::GFXSampleCount)tmp; } while(false);
+        if (!args[8].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[8], &tmp); arg8 = (cocos2d::GFXSampleCount)tmp; } while(false);
+            cobj->samples = arg8;
+        }
         cocos2d::GFXTextureFlagBit arg9;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[9], &tmp); arg9 = (cocos2d::GFXTextureFlagBit)tmp; } while(false);
+        if (!args[9].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[9], &tmp); arg9 = (cocos2d::GFXTextureFlagBit)tmp; } while(false);
+            cobj->flags = arg9;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXTextureInfo* cobj = JSB_ALLOC(cocos2d::GFXTextureInfo);
-        cobj->type = arg0;
-        cobj->usage = arg1;
-        cobj->format = arg2;
-        cobj->width = arg3;
-        cobj->height = arg4;
-        cobj->depth = arg5;
-        cobj->arrayLayer = arg6;
-        cobj->mipLevel = arg7;
-        cobj->samples = arg8;
-        cobj->flags = arg9;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -4531,34 +4687,48 @@ static bool js_gfx_GFXTextureViewInfo_constructor(se::State& s)
     }
     else if(argc == 7)
     {
+        cocos2d::GFXTextureViewInfo* cobj = JSB_ALLOC(cocos2d::GFXTextureViewInfo);
         cocos2d::GFXTexture* arg0 = nullptr;
-        ok &= seval_to_native_ptr(args[0], &arg0);
+        if (!args[0].isUndefined()) {
+            ok &= seval_to_native_ptr(args[0], &arg0);
+            cobj->texture = arg0;
+        }
         cocos2d::GFXTextureViewType arg1;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXTextureViewType)tmp; } while(false);
+        if (!args[1].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXTextureViewType)tmp; } while(false);
+            cobj->type = arg1;
+        }
         cocos2d::GFXFormat arg2;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXFormat)tmp; } while(false);
+        if (!args[2].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXFormat)tmp; } while(false);
+            cobj->format = arg2;
+        }
         unsigned int arg3 = 0;
-        ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+        if (!args[3].isUndefined()) {
+            ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+            cobj->baseLevel = arg3;
+        }
         unsigned int arg4 = 0;
-        ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
+        if (!args[4].isUndefined()) {
+            ok &= seval_to_uint32(args[4], (uint32_t*)&arg4);
+            cobj->levelCount = arg4;
+        }
         unsigned int arg5 = 0;
-        ok &= seval_to_uint32(args[5], (uint32_t*)&arg5);
+        if (!args[5].isUndefined()) {
+            ok &= seval_to_uint32(args[5], (uint32_t*)&arg5);
+            cobj->baseLayer = arg5;
+        }
         unsigned int arg6 = 0;
-        ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
+        if (!args[6].isUndefined()) {
+            ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
+            cobj->layerCount = arg6;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXTextureViewInfo* cobj = JSB_ALLOC(cocos2d::GFXTextureViewInfo);
-        cobj->texture = arg0;
-        cobj->type = arg1;
-        cobj->format = arg2;
-        cobj->baseLevel = arg3;
-        cobj->levelCount = arg4;
-        cobj->baseLayer = arg5;
-        cobj->layerCount = arg6;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -5088,52 +5258,78 @@ static bool js_gfx_GFXSamplerInfo_constructor(se::State& s)
     }
     else if(argc == 13)
     {
+        cocos2d::GFXSamplerInfo* cobj = JSB_ALLOC(cocos2d::GFXSamplerInfo);
         cocos2d::String arg0;
-        arg0 = args[0].toStringForce().c_str();
+        if (!args[0].isUndefined()) {
+            arg0 = args[0].toStringForce().c_str();
+            cobj->name = arg0;
+        }
         cocos2d::GFXFilter arg1;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXFilter)tmp; } while(false);
+        if (!args[1].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXFilter)tmp; } while(false);
+            cobj->minFilter = arg1;
+        }
         cocos2d::GFXFilter arg2;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXFilter)tmp; } while(false);
+        if (!args[2].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXFilter)tmp; } while(false);
+            cobj->magFilter = arg2;
+        }
         cocos2d::GFXFilter arg3;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cocos2d::GFXFilter)tmp; } while(false);
+        if (!args[3].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cocos2d::GFXFilter)tmp; } while(false);
+            cobj->mipFilter = arg3;
+        }
         cocos2d::GFXAddress arg4;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cocos2d::GFXAddress)tmp; } while(false);
+        if (!args[4].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cocos2d::GFXAddress)tmp; } while(false);
+            cobj->addressU = arg4;
+        }
         cocos2d::GFXAddress arg5;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[5], &tmp); arg5 = (cocos2d::GFXAddress)tmp; } while(false);
+        if (!args[5].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[5], &tmp); arg5 = (cocos2d::GFXAddress)tmp; } while(false);
+            cobj->addressV = arg5;
+        }
         cocos2d::GFXAddress arg6;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[6], &tmp); arg6 = (cocos2d::GFXAddress)tmp; } while(false);
+        if (!args[6].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[6], &tmp); arg6 = (cocos2d::GFXAddress)tmp; } while(false);
+            cobj->addressW = arg6;
+        }
         unsigned int arg7 = 0;
-        ok &= seval_to_uint32(args[7], (uint32_t*)&arg7);
+        if (!args[7].isUndefined()) {
+            ok &= seval_to_uint32(args[7], (uint32_t*)&arg7);
+            cobj->maxAnisotropy = arg7;
+        }
         cocos2d::GFXComparisonFunc arg8;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[8], &tmp); arg8 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
+        if (!args[8].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[8], &tmp); arg8 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
+            cobj->cmpFunc = arg8;
+        }
         cocos2d::GFXColor* arg9 = nullptr;
-        ok &= seval_to_reference(args[9], &arg9);
+        if (!args[9].isUndefined()) {
+            ok &= seval_to_reference(args[9], &arg9);
+            cobj->borderColor = *arg9;
+        }
         unsigned int arg10 = 0;
-        ok &= seval_to_uint32(args[10], (uint32_t*)&arg10);
+        if (!args[10].isUndefined()) {
+            ok &= seval_to_uint32(args[10], (uint32_t*)&arg10);
+            cobj->minLOD = arg10;
+        }
         unsigned int arg11 = 0;
-        ok &= seval_to_uint32(args[11], (uint32_t*)&arg11);
+        if (!args[11].isUndefined()) {
+            ok &= seval_to_uint32(args[11], (uint32_t*)&arg11);
+            cobj->maxLOD = arg11;
+        }
         float arg12 = 0;
-        ok &= seval_to_float(args[12], &arg12);
+        if (!args[12].isUndefined()) {
+            ok &= seval_to_float(args[12], &arg12);
+            cobj->mipLODBias = arg12;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXSamplerInfo* cobj = JSB_ALLOC(cocos2d::GFXSamplerInfo);
-        cobj->name = arg0;
-        cobj->minFilter = arg1;
-        cobj->magFilter = arg2;
-        cobj->mipFilter = arg3;
-        cobj->addressU = arg4;
-        cobj->addressV = arg5;
-        cobj->addressW = arg6;
-        cobj->maxAnisotropy = arg7;
-        cobj->cmpFunc = arg8;
-        cobj->borderColor = *arg9;
-        cobj->minLOD = arg10;
-        cobj->maxLOD = arg11;
-        cobj->mipLODBias = arg12;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -5295,19 +5491,23 @@ static bool js_gfx_GFXShaderMacro_constructor(se::State& s)
     }
     else if(argc == 2)
     {
+        cocos2d::GFXShaderMacro* cobj = JSB_ALLOC(cocos2d::GFXShaderMacro);
         cocos2d::String arg0;
-        arg0 = args[0].toStringForce().c_str();
+        if (!args[0].isUndefined()) {
+            arg0 = args[0].toStringForce().c_str();
+            cobj->macro = arg0;
+        }
         cocos2d::String arg1;
-        arg1 = args[1].toStringForce().c_str();
+        if (!args[1].isUndefined()) {
+            arg1 = args[1].toStringForce().c_str();
+            cobj->value = arg1;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXShaderMacro* cobj = JSB_ALLOC(cocos2d::GFXShaderMacro);
-        cobj->macro = arg0;
-        cobj->value = arg1;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -5492,22 +5692,28 @@ static bool js_gfx_GFXUniform_constructor(se::State& s)
     }
     else if(argc == 3)
     {
+        cocos2d::GFXUniform* cobj = JSB_ALLOC(cocos2d::GFXUniform);
         cocos2d::String arg0;
-        arg0 = args[0].toStringForce().c_str();
+        if (!args[0].isUndefined()) {
+            arg0 = args[0].toStringForce().c_str();
+            cobj->name = arg0;
+        }
         cocos2d::GFXType arg1;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXType)tmp; } while(false);
+        if (!args[1].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXType)tmp; } while(false);
+            cobj->type = arg1;
+        }
         unsigned int arg2 = 0;
-        ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+        if (!args[2].isUndefined()) {
+            ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+            cobj->count = arg2;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXUniform* cobj = JSB_ALLOC(cocos2d::GFXUniform);
-        cobj->name = arg0;
-        cobj->type = arg1;
-        cobj->count = arg2;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -5693,22 +5899,28 @@ static bool js_gfx_GFXUniformBlock_constructor(se::State& s)
     }
     else if(argc == 3)
     {
+        cocos2d::GFXUniformBlock* cobj = JSB_ALLOC(cocos2d::GFXUniformBlock);
         unsigned int arg0 = 0;
-        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+        if (!args[0].isUndefined()) {
+            ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+            cobj->binding = arg0;
+        }
         cocos2d::String arg1;
-        arg1 = args[1].toStringForce().c_str();
+        if (!args[1].isUndefined()) {
+            arg1 = args[1].toStringForce().c_str();
+            cobj->name = arg1;
+        }
         std::vector<cocos2d::GFXUniform> arg2;
-        ok &= seval_to_std_vector(args[2], &arg2);
+        if (!args[2].isUndefined()) {
+            ok &= seval_to_std_vector(args[2], &arg2);
+            cobj->uniforms = arg2;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXUniformBlock* cobj = JSB_ALLOC(cocos2d::GFXUniformBlock);
-        cobj->binding = arg0;
-        cobj->name = arg1;
-        cobj->uniforms = arg2;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -5928,25 +6140,33 @@ static bool js_gfx_GFXUniformSampler_constructor(se::State& s)
     }
     else if(argc == 4)
     {
+        cocos2d::GFXUniformSampler* cobj = JSB_ALLOC(cocos2d::GFXUniformSampler);
         unsigned int arg0 = 0;
-        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+        if (!args[0].isUndefined()) {
+            ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+            cobj->binding = arg0;
+        }
         cocos2d::String arg1;
-        arg1 = args[1].toStringForce().c_str();
+        if (!args[1].isUndefined()) {
+            arg1 = args[1].toStringForce().c_str();
+            cobj->name = arg1;
+        }
         cocos2d::GFXType arg2;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXType)tmp; } while(false);
+        if (!args[2].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXType)tmp; } while(false);
+            cobj->type = arg2;
+        }
         unsigned int arg3 = 0;
-        ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+        if (!args[3].isUndefined()) {
+            ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+            cobj->count = arg3;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXUniformSampler* cobj = JSB_ALLOC(cocos2d::GFXUniformSampler);
-        cobj->binding = arg0;
-        cobj->name = arg1;
-        cobj->type = arg2;
-        cobj->count = arg3;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -6133,22 +6353,28 @@ static bool js_gfx_GFXShaderStage_constructor(se::State& s)
     }
     else if(argc == 3)
     {
+        cocos2d::GFXShaderStage* cobj = JSB_ALLOC(cocos2d::GFXShaderStage);
         cocos2d::GFXShaderType arg0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+        if (!args[0].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+            cobj->type = arg0;
+        }
         cocos2d::String arg1;
-        arg1 = args[1].toStringForce().c_str();
+        if (!args[1].isUndefined()) {
+            arg1 = args[1].toStringForce().c_str();
+            cobj->source = arg1;
+        }
         std::vector<cocos2d::GFXShaderMacro> arg2;
-        ok &= seval_to_std_vector(args[2], &arg2);
+        if (!args[2].isUndefined()) {
+            ok &= seval_to_std_vector(args[2], &arg2);
+            cobj->macros = arg2;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXShaderStage* cobj = JSB_ALLOC(cocos2d::GFXShaderStage);
-        cobj->type = arg0;
-        cobj->source = arg1;
-        cobj->macros = arg2;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -6368,25 +6594,33 @@ static bool js_gfx_GFXShaderInfo_constructor(se::State& s)
     }
     else if(argc == 4)
     {
+        cocos2d::GFXShaderInfo* cobj = JSB_ALLOC(cocos2d::GFXShaderInfo);
         cocos2d::String arg0;
-        arg0 = args[0].toStringForce().c_str();
+        if (!args[0].isUndefined()) {
+            arg0 = args[0].toStringForce().c_str();
+            cobj->name = arg0;
+        }
         std::vector<cocos2d::GFXShaderStage> arg1;
-        ok &= seval_to_std_vector(args[1], &arg1);
+        if (!args[1].isUndefined()) {
+            ok &= seval_to_std_vector(args[1], &arg1);
+            cobj->stages = arg1;
+        }
         std::vector<cocos2d::GFXUniformBlock> arg2;
-        ok &= seval_to_std_vector(args[2], &arg2);
+        if (!args[2].isUndefined()) {
+            ok &= seval_to_std_vector(args[2], &arg2);
+            cobj->blocks = arg2;
+        }
         std::vector<cocos2d::GFXUniformSampler> arg3;
-        ok &= seval_to_std_vector(args[3], &arg3);
+        if (!args[3].isUndefined()) {
+            ok &= seval_to_std_vector(args[3], &arg3);
+            cobj->samplers = arg3;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXShaderInfo* cobj = JSB_ALLOC(cocos2d::GFXShaderInfo);
-        cobj->name = arg0;
-        cobj->stages = arg1;
-        cobj->blocks = arg2;
-        cobj->samplers = arg3;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -6641,28 +6875,38 @@ static bool js_gfx_GFXAttribute_constructor(se::State& s)
     }
     else if(argc == 5)
     {
+        cocos2d::GFXAttribute* cobj = JSB_ALLOC(cocos2d::GFXAttribute);
         cocos2d::String arg0;
-        arg0 = args[0].toStringForce().c_str();
+        if (!args[0].isUndefined()) {
+            arg0 = args[0].toStringForce().c_str();
+            cobj->name = arg0;
+        }
         cocos2d::GFXFormat arg1;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXFormat)tmp; } while(false);
+        if (!args[1].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXFormat)tmp; } while(false);
+            cobj->format = arg1;
+        }
         bool arg2;
-        ok &= seval_to_boolean(args[2], &arg2);
+        if (!args[2].isUndefined()) {
+            ok &= seval_to_boolean(args[2], &arg2);
+            cobj->isNormalized = arg2;
+        }
         unsigned int arg3 = 0;
-        ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+        if (!args[3].isUndefined()) {
+            ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+            cobj->stream = arg3;
+        }
         bool arg4;
-        ok &= seval_to_boolean(args[4], &arg4);
+        if (!args[4].isUndefined()) {
+            ok &= seval_to_boolean(args[4], &arg4);
+            cobj->isInstanced = arg4;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXAttribute* cobj = JSB_ALLOC(cocos2d::GFXAttribute);
-        cobj->name = arg0;
-        cobj->format = arg1;
-        cobj->isNormalized = arg2;
-        cobj->stream = arg3;
-        cobj->isInstanced = arg4;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -6884,25 +7128,33 @@ static bool js_gfx_GFXInputAssemblerInfo_constructor(se::State& s)
     }
     else if(argc == 4)
     {
+        cocos2d::GFXInputAssemblerInfo* cobj = JSB_ALLOC(cocos2d::GFXInputAssemblerInfo);
         std::vector<cocos2d::GFXAttribute> arg0;
-        ok &= seval_to_std_vector(args[0], &arg0);
+        if (!args[0].isUndefined()) {
+            ok &= seval_to_std_vector(args[0], &arg0);
+            cobj->attributes = arg0;
+        }
         std::vector<cocos2d::GFXBuffer *> arg1;
-        ok &= seval_to_std_vector(args[1], &arg1);
+        if (!args[1].isUndefined()) {
+            ok &= seval_to_std_vector(args[1], &arg1);
+            cobj->vertexBuffers = arg1;
+        }
         cocos2d::GFXBuffer* arg2 = nullptr;
-        ok &= seval_to_native_ptr(args[2], &arg2);
+        if (!args[2].isUndefined()) {
+            ok &= seval_to_native_ptr(args[2], &arg2);
+            cobj->indexBuffer = arg2;
+        }
         cocos2d::GFXBuffer* arg3 = nullptr;
-        ok &= seval_to_native_ptr(args[3], &arg3);
+        if (!args[3].isUndefined()) {
+            ok &= seval_to_native_ptr(args[3], &arg3);
+            cobj->indirectBuffer = arg3;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXInputAssemblerInfo* cobj = JSB_ALLOC(cocos2d::GFXInputAssemblerInfo);
-        cobj->attributes = arg0;
-        cobj->vertexBuffers = arg1;
-        cobj->indexBuffer = arg2;
-        cobj->indirectBuffer = arg3;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -7191,31 +7443,43 @@ static bool js_gfx_GFXColorAttachment_constructor(se::State& s)
     }
     else if(argc == 6)
     {
+        cocos2d::GFXColorAttachment* cobj = JSB_ALLOC(cocos2d::GFXColorAttachment);
         cocos2d::GFXFormat arg0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXFormat)tmp; } while(false);
+        if (!args[0].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXFormat)tmp; } while(false);
+            cobj->format = arg0;
+        }
         cocos2d::GFXLoadOp arg1;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXLoadOp)tmp; } while(false);
+        if (!args[1].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXLoadOp)tmp; } while(false);
+            cobj->loadOp = arg1;
+        }
         cocos2d::GFXStoreOp arg2;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXStoreOp)tmp; } while(false);
+        if (!args[2].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXStoreOp)tmp; } while(false);
+            cobj->storeOp = arg2;
+        }
         unsigned int arg3 = 0;
-        ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+        if (!args[3].isUndefined()) {
+            ok &= seval_to_uint32(args[3], (uint32_t*)&arg3);
+            cobj->sampleCount = arg3;
+        }
         cocos2d::GFXTextureLayout arg4;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cocos2d::GFXTextureLayout)tmp; } while(false);
+        if (!args[4].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cocos2d::GFXTextureLayout)tmp; } while(false);
+            cobj->beginLayout = arg4;
+        }
         cocos2d::GFXTextureLayout arg5;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[5], &tmp); arg5 = (cocos2d::GFXTextureLayout)tmp; } while(false);
+        if (!args[5].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[5], &tmp); arg5 = (cocos2d::GFXTextureLayout)tmp; } while(false);
+            cobj->endLayout = arg5;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXColorAttachment* cobj = JSB_ALLOC(cocos2d::GFXColorAttachment);
-        cobj->format = arg0;
-        cobj->loadOp = arg1;
-        cobj->storeOp = arg2;
-        cobj->sampleCount = arg3;
-        cobj->beginLayout = arg4;
-        cobj->endLayout = arg5;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -7574,37 +7838,53 @@ static bool js_gfx_GFXDepthStencilAttachment_constructor(se::State& s)
     }
     else if(argc == 8)
     {
+        cocos2d::GFXDepthStencilAttachment* cobj = JSB_ALLOC(cocos2d::GFXDepthStencilAttachment);
         cocos2d::GFXFormat arg0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXFormat)tmp; } while(false);
+        if (!args[0].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXFormat)tmp; } while(false);
+            cobj->format = arg0;
+        }
         cocos2d::GFXLoadOp arg1;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXLoadOp)tmp; } while(false);
+        if (!args[1].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXLoadOp)tmp; } while(false);
+            cobj->depthLoadOp = arg1;
+        }
         cocos2d::GFXStoreOp arg2;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXStoreOp)tmp; } while(false);
+        if (!args[2].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXStoreOp)tmp; } while(false);
+            cobj->depthStoreOp = arg2;
+        }
         cocos2d::GFXLoadOp arg3;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cocos2d::GFXLoadOp)tmp; } while(false);
+        if (!args[3].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cocos2d::GFXLoadOp)tmp; } while(false);
+            cobj->stencilLoadOp = arg3;
+        }
         cocos2d::GFXStoreOp arg4;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cocos2d::GFXStoreOp)tmp; } while(false);
+        if (!args[4].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cocos2d::GFXStoreOp)tmp; } while(false);
+            cobj->stencilStoreOp = arg4;
+        }
         unsigned int arg5 = 0;
-        ok &= seval_to_uint32(args[5], (uint32_t*)&arg5);
+        if (!args[5].isUndefined()) {
+            ok &= seval_to_uint32(args[5], (uint32_t*)&arg5);
+            cobj->sampleCount = arg5;
+        }
         cocos2d::GFXTextureLayout arg6;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[6], &tmp); arg6 = (cocos2d::GFXTextureLayout)tmp; } while(false);
+        if (!args[6].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[6], &tmp); arg6 = (cocos2d::GFXTextureLayout)tmp; } while(false);
+            cobj->beginLayout = arg6;
+        }
         cocos2d::GFXTextureLayout arg7;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[7], &tmp); arg7 = (cocos2d::GFXTextureLayout)tmp; } while(false);
+        if (!args[7].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[7], &tmp); arg7 = (cocos2d::GFXTextureLayout)tmp; } while(false);
+            cobj->endLayout = arg7;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXDepthStencilAttachment* cobj = JSB_ALLOC(cocos2d::GFXDepthStencilAttachment);
-        cobj->format = arg0;
-        cobj->depthLoadOp = arg1;
-        cobj->depthStoreOp = arg2;
-        cobj->stencilLoadOp = arg3;
-        cobj->stencilStoreOp = arg4;
-        cobj->sampleCount = arg5;
-        cobj->beginLayout = arg6;
-        cobj->endLayout = arg7;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -7795,22 +8075,28 @@ static bool js_gfx_GFXRenderPassInfo_constructor(se::State& s)
     }
     else if(argc == 3)
     {
+        cocos2d::GFXRenderPassInfo* cobj = JSB_ALLOC(cocos2d::GFXRenderPassInfo);
         std::vector<cocos2d::GFXColorAttachment> arg0;
-        ok &= seval_to_std_vector(args[0], &arg0);
+        if (!args[0].isUndefined()) {
+            ok &= seval_to_std_vector(args[0], &arg0);
+            cobj->colorAttachments = arg0;
+        }
         cocos2d::GFXDepthStencilAttachment* arg1 = nullptr;
-        ok &= seval_to_reference(args[1], &arg1);
+        if (!args[1].isUndefined()) {
+            ok &= seval_to_reference(args[1], &arg1);
+            cobj->depthStencilAttachment = *arg1;
+        }
         std::vector<cocos2d::GFXSubPass> arg2;
-        ok &= seval_to_std_vector(args[2], &arg2);
+        if (!args[2].isUndefined()) {
+            ok &= seval_to_std_vector(args[2], &arg2);
+            cobj->subPasses = arg2;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXRenderPassInfo* cobj = JSB_ALLOC(cocos2d::GFXRenderPassInfo);
-        cobj->colorAttachments = arg0;
-        cobj->depthStencilAttachment = *arg1;
-        cobj->subPasses = arg2;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -8030,25 +8316,33 @@ static bool js_gfx_GFXFramebufferInfo_constructor(se::State& s)
     }
     else if(argc == 4)
     {
+        cocos2d::GFXFramebufferInfo* cobj = JSB_ALLOC(cocos2d::GFXFramebufferInfo);
         cocos2d::GFXRenderPass* arg0 = nullptr;
-        ok &= seval_to_native_ptr(args[0], &arg0);
+        if (!args[0].isUndefined()) {
+            ok &= seval_to_native_ptr(args[0], &arg0);
+            cobj->renderPass = arg0;
+        }
         std::vector<cocos2d::GFXTextureView *> arg1;
-        ok &= seval_to_std_vector(args[1], &arg1);
+        if (!args[1].isUndefined()) {
+            ok &= seval_to_std_vector(args[1], &arg1);
+            cobj->colorViews = arg1;
+        }
         cocos2d::GFXTextureView* arg2 = nullptr;
-        ok &= seval_to_native_ptr(args[2], &arg2);
+        if (!args[2].isUndefined()) {
+            ok &= seval_to_native_ptr(args[2], &arg2);
+            cobj->depthStencilView = arg2;
+        }
         bool arg3;
-        ok &= seval_to_boolean(args[3], &arg3);
+        if (!args[3].isUndefined()) {
+            ok &= seval_to_boolean(args[3], &arg3);
+            cobj->isOffscreen = arg3;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXFramebufferInfo* cobj = JSB_ALLOC(cocos2d::GFXFramebufferInfo);
-        cobj->renderPass = arg0;
-        cobj->colorViews = arg1;
-        cobj->depthStencilView = arg2;
-        cobj->isOffscreen = arg3;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -8235,22 +8529,28 @@ static bool js_gfx_GFXBinding_constructor(se::State& s)
     }
     else if(argc == 3)
     {
+        cocos2d::GFXBinding* cobj = JSB_ALLOC(cocos2d::GFXBinding);
         unsigned int arg0 = 0;
-        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+        if (!args[0].isUndefined()) {
+            ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+            cobj->binding = arg0;
+        }
         cocos2d::GFXBindingType arg1;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXBindingType)tmp; } while(false);
+        if (!args[1].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXBindingType)tmp; } while(false);
+            cobj->type = arg1;
+        }
         cocos2d::String arg2;
-        arg2 = args[2].toStringForce().c_str();
+        if (!args[2].isUndefined()) {
+            arg2 = args[2].toStringForce().c_str();
+            cobj->name = arg2;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXBinding* cobj = JSB_ALLOC(cocos2d::GFXBinding);
-        cobj->binding = arg0;
-        cobj->type = arg1;
-        cobj->name = arg2;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -8345,16 +8645,18 @@ static bool js_gfx_GFXBindingLayoutInfo_constructor(se::State& s)
     }
     else if(argc == 1)
     {
+        cocos2d::GFXBindingLayoutInfo* cobj = JSB_ALLOC(cocos2d::GFXBindingLayoutInfo);
         std::vector<cocos2d::GFXBinding> arg0;
-        ok &= seval_to_std_vector(args[0], &arg0);
+        if (!args[0].isUndefined()) {
+            ok &= seval_to_std_vector(args[0], &arg0);
+            cobj->bindings = arg0;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXBindingLayoutInfo* cobj = JSB_ALLOC(cocos2d::GFXBindingLayoutInfo);
-        cobj->bindings = arg0;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -8640,31 +8942,43 @@ static bool js_gfx_GFXBindingUnit_constructor(se::State& s)
     }
     else if(argc == 6)
     {
+        cocos2d::GFXBindingUnit* cobj = JSB_ALLOC(cocos2d::GFXBindingUnit);
         unsigned int arg0 = 0;
-        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+        if (!args[0].isUndefined()) {
+            ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+            cobj->binding = arg0;
+        }
         cocos2d::GFXBindingType arg1;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXBindingType)tmp; } while(false);
+        if (!args[1].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXBindingType)tmp; } while(false);
+            cobj->type = arg1;
+        }
         cocos2d::String arg2;
-        arg2 = args[2].toStringForce().c_str();
+        if (!args[2].isUndefined()) {
+            arg2 = args[2].toStringForce().c_str();
+            cobj->name = arg2;
+        }
         cocos2d::GFXBuffer* arg3 = nullptr;
-        ok &= seval_to_native_ptr(args[3], &arg3);
+        if (!args[3].isUndefined()) {
+            ok &= seval_to_native_ptr(args[3], &arg3);
+            cobj->buffer = arg3;
+        }
         cocos2d::GFXTextureView* arg4 = nullptr;
-        ok &= seval_to_native_ptr(args[4], &arg4);
+        if (!args[4].isUndefined()) {
+            ok &= seval_to_native_ptr(args[4], &arg4);
+            cobj->texView = arg4;
+        }
         cocos2d::GFXSampler* arg5 = nullptr;
-        ok &= seval_to_native_ptr(args[5], &arg5);
+        if (!args[5].isUndefined()) {
+            ok &= seval_to_native_ptr(args[5], &arg5);
+            cobj->sampler = arg5;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXBindingUnit* cobj = JSB_ALLOC(cocos2d::GFXBindingUnit);
-        cobj->binding = arg0;
-        cobj->type = arg1;
-        cobj->name = arg2;
-        cobj->buffer = arg3;
-        cobj->texView = arg4;
-        cobj->sampler = arg5;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -8853,22 +9167,28 @@ static bool js_gfx_GFXPushConstantRange_constructor(se::State& s)
     }
     else if(argc == 3)
     {
+        cocos2d::GFXPushConstantRange* cobj = JSB_ALLOC(cocos2d::GFXPushConstantRange);
         cocos2d::GFXShaderType arg0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+        if (!args[0].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXShaderType)tmp; } while(false);
+            cobj->shaderType = arg0;
+        }
         unsigned int arg1 = 0;
-        ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+        if (!args[1].isUndefined()) {
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            cobj->offset = arg1;
+        }
         unsigned int arg2 = 0;
-        ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+        if (!args[2].isUndefined()) {
+            ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+            cobj->count = arg2;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXPushConstantRange* cobj = JSB_ALLOC(cocos2d::GFXPushConstantRange);
-        cobj->shaderType = arg0;
-        cobj->offset = arg1;
-        cobj->count = arg2;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -9020,19 +9340,23 @@ static bool js_gfx_GFXPipelineLayoutInfo_constructor(se::State& s)
     }
     else if(argc == 2)
     {
+        cocos2d::GFXPipelineLayoutInfo* cobj = JSB_ALLOC(cocos2d::GFXPipelineLayoutInfo);
         std::vector<cocos2d::GFXPushConstantRange> arg0;
-        ok &= seval_to_std_vector(args[0], &arg0);
+        if (!args[0].isUndefined()) {
+            ok &= seval_to_std_vector(args[0], &arg0);
+            cobj->pushConstantsRanges = arg0;
+        }
         std::vector<cocos2d::GFXBindingLayout *> arg1;
-        ok &= seval_to_std_vector(args[1], &arg1);
+        if (!args[1].isUndefined()) {
+            ok &= seval_to_std_vector(args[1], &arg1);
+            cobj->layouts = arg1;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXPipelineLayoutInfo* cobj = JSB_ALLOC(cocos2d::GFXPipelineLayoutInfo);
-        cobj->pushConstantsRanges = arg0;
-        cobj->layouts = arg1;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -9126,16 +9450,18 @@ static bool js_gfx_GFXInputState_constructor(se::State& s)
     }
     else if(argc == 1)
     {
+        cocos2d::GFXInputState* cobj = JSB_ALLOC(cocos2d::GFXInputState);
         std::vector<cocos2d::GFXAttribute> arg0;
-        ok &= seval_to_std_vector(args[0], &arg0);
+        if (!args[0].isUndefined()) {
+            ok &= seval_to_std_vector(args[0], &arg0);
+            cobj->attributes = arg0;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXInputState* cobj = JSB_ALLOC(cocos2d::GFXInputState);
-        cobj->attributes = arg0;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -9591,46 +9917,68 @@ static bool js_gfx_GFXRasterizerState_constructor(se::State& s)
     }
     else if(argc == 11)
     {
+        cocos2d::GFXRasterizerState* cobj = JSB_ALLOC(cocos2d::GFXRasterizerState);
         bool arg0;
-        ok &= seval_to_boolean(args[0], &arg0);
+        if (!args[0].isUndefined()) {
+            ok &= seval_to_boolean(args[0], &arg0);
+            cobj->isDiscard = arg0;
+        }
         cocos2d::GFXPolygonMode arg1;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXPolygonMode)tmp; } while(false);
+        if (!args[1].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXPolygonMode)tmp; } while(false);
+            cobj->polygonMode = arg1;
+        }
         cocos2d::GFXShadeModel arg2;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXShadeModel)tmp; } while(false);
+        if (!args[2].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXShadeModel)tmp; } while(false);
+            cobj->shadeModel = arg2;
+        }
         cocos2d::GFXCullMode arg3;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cocos2d::GFXCullMode)tmp; } while(false);
+        if (!args[3].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cocos2d::GFXCullMode)tmp; } while(false);
+            cobj->cullMode = arg3;
+        }
         bool arg4;
-        ok &= seval_to_boolean(args[4], &arg4);
+        if (!args[4].isUndefined()) {
+            ok &= seval_to_boolean(args[4], &arg4);
+            cobj->isFrontFaceCCW = arg4;
+        }
         float arg5 = 0;
-        ok &= seval_to_float(args[5], &arg5);
+        if (!args[5].isUndefined()) {
+            ok &= seval_to_float(args[5], &arg5);
+            cobj->depthBias = arg5;
+        }
         float arg6 = 0;
-        ok &= seval_to_float(args[6], &arg6);
+        if (!args[6].isUndefined()) {
+            ok &= seval_to_float(args[6], &arg6);
+            cobj->depthBiasClamp = arg6;
+        }
         float arg7 = 0;
-        ok &= seval_to_float(args[7], &arg7);
+        if (!args[7].isUndefined()) {
+            ok &= seval_to_float(args[7], &arg7);
+            cobj->depthBiasSlop = arg7;
+        }
         bool arg8;
-        ok &= seval_to_boolean(args[8], &arg8);
+        if (!args[8].isUndefined()) {
+            ok &= seval_to_boolean(args[8], &arg8);
+            cobj->isDepthClip = arg8;
+        }
         bool arg9;
-        ok &= seval_to_boolean(args[9], &arg9);
+        if (!args[9].isUndefined()) {
+            ok &= seval_to_boolean(args[9], &arg9);
+            cobj->isMultisample = arg9;
+        }
         float arg10 = 0;
-        ok &= seval_to_float(args[10], &arg10);
+        if (!args[10].isUndefined()) {
+            ok &= seval_to_float(args[10], &arg10);
+            cobj->lineWidth = arg10;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXRasterizerState* cobj = JSB_ALLOC(cocos2d::GFXRasterizerState);
-        cobj->isDiscard = arg0;
-        cobj->polygonMode = arg1;
-        cobj->shadeModel = arg2;
-        cobj->cullMode = arg3;
-        cobj->isFrontFaceCCW = arg4;
-        cobj->depthBias = arg5;
-        cobj->depthBiasClamp = arg6;
-        cobj->depthBiasSlop = arg7;
-        cobj->isDepthClip = arg8;
-        cobj->isMultisample = arg9;
-        cobj->lineWidth = arg10;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -10368,70 +10716,108 @@ static bool js_gfx_GFXDepthStencilState_constructor(se::State& s)
     }
     else if(argc == 19)
     {
+        cocos2d::GFXDepthStencilState* cobj = JSB_ALLOC(cocos2d::GFXDepthStencilState);
         bool arg0;
-        ok &= seval_to_boolean(args[0], &arg0);
+        if (!args[0].isUndefined()) {
+            ok &= seval_to_boolean(args[0], &arg0);
+            cobj->depthTest = arg0;
+        }
         bool arg1;
-        ok &= seval_to_boolean(args[1], &arg1);
+        if (!args[1].isUndefined()) {
+            ok &= seval_to_boolean(args[1], &arg1);
+            cobj->depthWrite = arg1;
+        }
         cocos2d::GFXComparisonFunc arg2;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
+        if (!args[2].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
+            cobj->depthFunc = arg2;
+        }
         bool arg3;
-        ok &= seval_to_boolean(args[3], &arg3);
+        if (!args[3].isUndefined()) {
+            ok &= seval_to_boolean(args[3], &arg3);
+            cobj->stencilTestFront = arg3;
+        }
         cocos2d::GFXComparisonFunc arg4;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
+        if (!args[4].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
+            cobj->stencilFuncFront = arg4;
+        }
         unsigned int arg5 = 0;
-        ok &= seval_to_uint32(args[5], (uint32_t*)&arg5);
+        if (!args[5].isUndefined()) {
+            ok &= seval_to_uint32(args[5], (uint32_t*)&arg5);
+            cobj->stencilReadMaskFront = arg5;
+        }
         unsigned int arg6 = 0;
-        ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
+        if (!args[6].isUndefined()) {
+            ok &= seval_to_uint32(args[6], (uint32_t*)&arg6);
+            cobj->stencilWriteMaskFront = arg6;
+        }
         cocos2d::GFXStencilOp arg7;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[7], &tmp); arg7 = (cocos2d::GFXStencilOp)tmp; } while(false);
+        if (!args[7].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[7], &tmp); arg7 = (cocos2d::GFXStencilOp)tmp; } while(false);
+            cobj->stencilFailOpFront = arg7;
+        }
         cocos2d::GFXStencilOp arg8;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[8], &tmp); arg8 = (cocos2d::GFXStencilOp)tmp; } while(false);
+        if (!args[8].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[8], &tmp); arg8 = (cocos2d::GFXStencilOp)tmp; } while(false);
+            cobj->stencilZFailOpFront = arg8;
+        }
         cocos2d::GFXStencilOp arg9;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[9], &tmp); arg9 = (cocos2d::GFXStencilOp)tmp; } while(false);
+        if (!args[9].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[9], &tmp); arg9 = (cocos2d::GFXStencilOp)tmp; } while(false);
+            cobj->stencilPassOpFront = arg9;
+        }
         unsigned int arg10 = 0;
-        ok &= seval_to_uint32(args[10], (uint32_t*)&arg10);
+        if (!args[10].isUndefined()) {
+            ok &= seval_to_uint32(args[10], (uint32_t*)&arg10);
+            cobj->stencilRefFront = arg10;
+        }
         bool arg11;
-        ok &= seval_to_boolean(args[11], &arg11);
+        if (!args[11].isUndefined()) {
+            ok &= seval_to_boolean(args[11], &arg11);
+            cobj->stencilTestBack = arg11;
+        }
         cocos2d::GFXComparisonFunc arg12;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[12], &tmp); arg12 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
+        if (!args[12].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[12], &tmp); arg12 = (cocos2d::GFXComparisonFunc)tmp; } while(false);
+            cobj->stencilFuncBack = arg12;
+        }
         unsigned int arg13 = 0;
-        ok &= seval_to_uint32(args[13], (uint32_t*)&arg13);
+        if (!args[13].isUndefined()) {
+            ok &= seval_to_uint32(args[13], (uint32_t*)&arg13);
+            cobj->stencilReadMaskBack = arg13;
+        }
         unsigned int arg14 = 0;
-        ok &= seval_to_uint32(args[14], (uint32_t*)&arg14);
+        if (!args[14].isUndefined()) {
+            ok &= seval_to_uint32(args[14], (uint32_t*)&arg14);
+            cobj->stencilWriteMaskBack = arg14;
+        }
         cocos2d::GFXStencilOp arg15;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[15], &tmp); arg15 = (cocos2d::GFXStencilOp)tmp; } while(false);
+        if (!args[15].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[15], &tmp); arg15 = (cocos2d::GFXStencilOp)tmp; } while(false);
+            cobj->stencilFailOpBack = arg15;
+        }
         cocos2d::GFXStencilOp arg16;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[16], &tmp); arg16 = (cocos2d::GFXStencilOp)tmp; } while(false);
+        if (!args[16].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[16], &tmp); arg16 = (cocos2d::GFXStencilOp)tmp; } while(false);
+            cobj->stencilZFailOpBack = arg16;
+        }
         cocos2d::GFXStencilOp arg17;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[17], &tmp); arg17 = (cocos2d::GFXStencilOp)tmp; } while(false);
+        if (!args[17].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[17], &tmp); arg17 = (cocos2d::GFXStencilOp)tmp; } while(false);
+            cobj->stencilPassOpBack = arg17;
+        }
         unsigned int arg18 = 0;
-        ok &= seval_to_uint32(args[18], (uint32_t*)&arg18);
+        if (!args[18].isUndefined()) {
+            ok &= seval_to_uint32(args[18], (uint32_t*)&arg18);
+            cobj->stencilRefBack = arg18;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXDepthStencilState* cobj = JSB_ALLOC(cocos2d::GFXDepthStencilState);
-        cobj->depthTest = arg0;
-        cobj->depthWrite = arg1;
-        cobj->depthFunc = arg2;
-        cobj->stencilTestFront = arg3;
-        cobj->stencilFuncFront = arg4;
-        cobj->stencilReadMaskFront = arg5;
-        cobj->stencilWriteMaskFront = arg6;
-        cobj->stencilFailOpFront = arg7;
-        cobj->stencilZFailOpFront = arg8;
-        cobj->stencilPassOpFront = arg9;
-        cobj->stencilRefFront = arg10;
-        cobj->stencilTestBack = arg11;
-        cobj->stencilFuncBack = arg12;
-        cobj->stencilReadMaskBack = arg13;
-        cobj->stencilWriteMaskBack = arg14;
-        cobj->stencilFailOpBack = arg15;
-        cobj->stencilZFailOpBack = arg16;
-        cobj->stencilPassOpBack = arg17;
-        cobj->stencilRefBack = arg18;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -10803,37 +11189,53 @@ static bool js_gfx_GFXBlendTarget_constructor(se::State& s)
     }
     else if(argc == 8)
     {
+        cocos2d::GFXBlendTarget* cobj = JSB_ALLOC(cocos2d::GFXBlendTarget);
         bool arg0;
-        ok &= seval_to_boolean(args[0], &arg0);
+        if (!args[0].isUndefined()) {
+            ok &= seval_to_boolean(args[0], &arg0);
+            cobj->blend = arg0;
+        }
         cocos2d::GFXBlendFactor arg1;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXBlendFactor)tmp; } while(false);
+        if (!args[1].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXBlendFactor)tmp; } while(false);
+            cobj->blendSrc = arg1;
+        }
         cocos2d::GFXBlendFactor arg2;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXBlendFactor)tmp; } while(false);
+        if (!args[2].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[2], &tmp); arg2 = (cocos2d::GFXBlendFactor)tmp; } while(false);
+            cobj->blendDst = arg2;
+        }
         cocos2d::GFXBlendOp arg3;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cocos2d::GFXBlendOp)tmp; } while(false);
+        if (!args[3].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cocos2d::GFXBlendOp)tmp; } while(false);
+            cobj->blendEq = arg3;
+        }
         cocos2d::GFXBlendFactor arg4;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cocos2d::GFXBlendFactor)tmp; } while(false);
+        if (!args[4].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[4], &tmp); arg4 = (cocos2d::GFXBlendFactor)tmp; } while(false);
+            cobj->blendSrcAlpha = arg4;
+        }
         cocos2d::GFXBlendFactor arg5;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[5], &tmp); arg5 = (cocos2d::GFXBlendFactor)tmp; } while(false);
+        if (!args[5].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[5], &tmp); arg5 = (cocos2d::GFXBlendFactor)tmp; } while(false);
+            cobj->blendDstAlpha = arg5;
+        }
         cocos2d::GFXBlendOp arg6;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[6], &tmp); arg6 = (cocos2d::GFXBlendOp)tmp; } while(false);
+        if (!args[6].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[6], &tmp); arg6 = (cocos2d::GFXBlendOp)tmp; } while(false);
+            cobj->blendAlphaEq = arg6;
+        }
         cocos2d::GFXColorMask arg7;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[7], &tmp); arg7 = (cocos2d::GFXColorMask)tmp; } while(false);
+        if (!args[7].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[7], &tmp); arg7 = (cocos2d::GFXColorMask)tmp; } while(false);
+            cobj->blendColorMask = arg7;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXBlendTarget* cobj = JSB_ALLOC(cocos2d::GFXBlendTarget);
-        cobj->blend = arg0;
-        cobj->blendSrc = arg1;
-        cobj->blendDst = arg2;
-        cobj->blendEq = arg3;
-        cobj->blendSrcAlpha = arg4;
-        cobj->blendDstAlpha = arg5;
-        cobj->blendAlphaEq = arg6;
-        cobj->blendColorMask = arg7;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -11058,25 +11460,33 @@ static bool js_gfx_GFXBlendState_constructor(se::State& s)
     }
     else if(argc == 4)
     {
+        cocos2d::GFXBlendState* cobj = JSB_ALLOC(cocos2d::GFXBlendState);
         bool arg0;
-        ok &= seval_to_boolean(args[0], &arg0);
+        if (!args[0].isUndefined()) {
+            ok &= seval_to_boolean(args[0], &arg0);
+            cobj->isA2C = arg0;
+        }
         bool arg1;
-        ok &= seval_to_boolean(args[1], &arg1);
+        if (!args[1].isUndefined()) {
+            ok &= seval_to_boolean(args[1], &arg1);
+            cobj->isIndepend = arg1;
+        }
         cocos2d::GFXColor* arg2 = nullptr;
-        ok &= seval_to_reference(args[2], &arg2);
+        if (!args[2].isUndefined()) {
+            ok &= seval_to_reference(args[2], &arg2);
+            cobj->blendColor = *arg2;
+        }
         std::vector<cocos2d::GFXBlendTarget> arg3;
-        ok &= seval_to_std_vector(args[3], &arg3);
+        if (!args[3].isUndefined()) {
+            ok &= seval_to_std_vector(args[3], &arg3);
+            cobj->targets = arg3;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXBlendState* cobj = JSB_ALLOC(cocos2d::GFXBlendState);
-        cobj->isA2C = arg0;
-        cobj->isIndepend = arg1;
-        cobj->blendColor = *arg2;
-        cobj->targets = arg3;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -11467,40 +11877,58 @@ static bool js_gfx_GFXPipelineStateInfo_constructor(se::State& s)
     }
     else if(argc == 9)
     {
+        cocos2d::GFXPipelineStateInfo* cobj = JSB_ALLOC(cocos2d::GFXPipelineStateInfo);
         cocos2d::GFXPrimitiveMode arg0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXPrimitiveMode)tmp; } while(false);
+        if (!args[0].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXPrimitiveMode)tmp; } while(false);
+            cobj->primitive = arg0;
+        }
         cocos2d::GFXShader* arg1 = nullptr;
-        ok &= seval_to_native_ptr(args[1], &arg1);
+        if (!args[1].isUndefined()) {
+            ok &= seval_to_native_ptr(args[1], &arg1);
+            cobj->shader = arg1;
+        }
         cocos2d::GFXInputState* arg2 = nullptr;
-        ok &= seval_to_reference(args[2], &arg2);
+        if (!args[2].isUndefined()) {
+            ok &= seval_to_reference(args[2], &arg2);
+            cobj->inputState = *arg2;
+        }
         cocos2d::GFXRasterizerState* arg3 = nullptr;
-        ok &= seval_to_reference(args[3], &arg3);
+        if (!args[3].isUndefined()) {
+            ok &= seval_to_reference(args[3], &arg3);
+            cobj->rasterizerState = *arg3;
+        }
         cocos2d::GFXDepthStencilState* arg4 = nullptr;
-        ok &= seval_to_reference(args[4], &arg4);
+        if (!args[4].isUndefined()) {
+            ok &= seval_to_reference(args[4], &arg4);
+            cobj->depthStencilState = *arg4;
+        }
         cocos2d::GFXBlendState* arg5 = nullptr;
-        ok &= seval_to_reference(args[5], &arg5);
+        if (!args[5].isUndefined()) {
+            ok &= seval_to_reference(args[5], &arg5);
+            cobj->blendState = *arg5;
+        }
         std::vector<cocos2d::GFXDynamicState> arg6;
-        ok &= seval_to_std_vector(args[6], &arg6);
+        if (!args[6].isUndefined()) {
+            ok &= seval_to_std_vector(args[6], &arg6);
+            cobj->dynamicStates = arg6;
+        }
         cocos2d::GFXPipelineLayout* arg7 = nullptr;
-        ok &= seval_to_native_ptr(args[7], &arg7);
+        if (!args[7].isUndefined()) {
+            ok &= seval_to_native_ptr(args[7], &arg7);
+            cobj->layout = arg7;
+        }
         cocos2d::GFXRenderPass* arg8 = nullptr;
-        ok &= seval_to_native_ptr(args[8], &arg8);
+        if (!args[8].isUndefined()) {
+            ok &= seval_to_native_ptr(args[8], &arg8);
+            cobj->renderPass = arg8;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXPipelineStateInfo* cobj = JSB_ALLOC(cocos2d::GFXPipelineStateInfo);
-        cobj->primitive = arg0;
-        cobj->shader = arg1;
-        cobj->inputState = *arg2;
-        cobj->rasterizerState = *arg3;
-        cobj->depthStencilState = *arg4;
-        cobj->blendState = *arg5;
-        cobj->dynamicStates = arg6;
-        cobj->layout = arg7;
-        cobj->renderPass = arg8;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -11658,19 +12086,23 @@ static bool js_gfx_GFXCommandBufferInfo_constructor(se::State& s)
     }
     else if(argc == 2)
     {
+        cocos2d::GFXCommandBufferInfo* cobj = JSB_ALLOC(cocos2d::GFXCommandBufferInfo);
         cocos2d::GFXCommandAllocator* arg0 = nullptr;
-        ok &= seval_to_native_ptr(args[0], &arg0);
+        if (!args[0].isUndefined()) {
+            ok &= seval_to_native_ptr(args[0], &arg0);
+            cobj->allocator = arg0;
+        }
         cocos2d::GFXCommandBufferType arg1;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXCommandBufferType)tmp; } while(false);
+        if (!args[1].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[1], &tmp); arg1 = (cocos2d::GFXCommandBufferType)tmp; } while(false);
+            cobj->type = arg1;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXCommandBufferInfo* cobj = JSB_ALLOC(cocos2d::GFXCommandBufferInfo);
-        cobj->allocator = arg0;
-        cobj->type = arg1;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -11764,16 +12196,18 @@ static bool js_gfx_GFXQueueInfo_constructor(se::State& s)
     }
     else if(argc == 1)
     {
+        cocos2d::GFXQueueInfo* cobj = JSB_ALLOC(cocos2d::GFXQueueInfo);
         cocos2d::GFXQueueType arg0;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXQueueType)tmp; } while(false);
+        if (!args[0].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXQueueType)tmp; } while(false);
+            cobj->type = arg0;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXQueueInfo* cobj = JSB_ALLOC(cocos2d::GFXQueueInfo);
-        cobj->type = arg0;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -12127,37 +12561,53 @@ static bool js_gfx_GFXFormatInfo_constructor(se::State& s)
     }
     else if(argc == 8)
     {
+        cocos2d::GFXFormatInfo* cobj = JSB_ALLOC(cocos2d::GFXFormatInfo);
         cocos2d::String arg0;
-        arg0 = args[0].toStringForce().c_str();
+        if (!args[0].isUndefined()) {
+            arg0 = args[0].toStringForce().c_str();
+            cobj->name = arg0;
+        }
         unsigned int arg1 = 0;
-        ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+        if (!args[1].isUndefined()) {
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            cobj->size = arg1;
+        }
         unsigned int arg2 = 0;
-        ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+        if (!args[2].isUndefined()) {
+            ok &= seval_to_uint32(args[2], (uint32_t*)&arg2);
+            cobj->count = arg2;
+        }
         cocos2d::GFXFormatType arg3;
-        do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cocos2d::GFXFormatType)tmp; } while(false);
+        if (!args[3].isUndefined()) {
+            do { int32_t tmp = 0; ok &= seval_to_int32(args[3], &tmp); arg3 = (cocos2d::GFXFormatType)tmp; } while(false);
+            cobj->type = arg3;
+        }
         bool arg4;
-        ok &= seval_to_boolean(args[4], &arg4);
+        if (!args[4].isUndefined()) {
+            ok &= seval_to_boolean(args[4], &arg4);
+            cobj->hasAlpha = arg4;
+        }
         bool arg5;
-        ok &= seval_to_boolean(args[5], &arg5);
+        if (!args[5].isUndefined()) {
+            ok &= seval_to_boolean(args[5], &arg5);
+            cobj->hasDepth = arg5;
+        }
         bool arg6;
-        ok &= seval_to_boolean(args[6], &arg6);
+        if (!args[6].isUndefined()) {
+            ok &= seval_to_boolean(args[6], &arg6);
+            cobj->hasStencil = arg6;
+        }
         bool arg7;
-        ok &= seval_to_boolean(args[7], &arg7);
+        if (!args[7].isUndefined()) {
+            ok &= seval_to_boolean(args[7], &arg7);
+            cobj->isCompressed = arg7;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXFormatInfo* cobj = JSB_ALLOC(cocos2d::GFXFormatInfo);
-        cobj->name = arg0;
-        cobj->size = arg1;
-        cobj->count = arg2;
-        cobj->type = arg3;
-        cobj->hasAlpha = arg4;
-        cobj->hasDepth = arg5;
-        cobj->hasStencil = arg6;
-        cobj->isCompressed = arg7;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
@@ -12314,19 +12764,23 @@ static bool js_gfx_GFXMemoryStatus_constructor(se::State& s)
     }
     else if(argc == 2)
     {
+        cocos2d::GFXMemoryStatus* cobj = JSB_ALLOC(cocos2d::GFXMemoryStatus);
         unsigned int arg0 = 0;
-        ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+        if (!args[0].isUndefined()) {
+            ok &= seval_to_uint32(args[0], (uint32_t*)&arg0);
+            cobj->bufferSize = arg0;
+        }
         unsigned int arg1 = 0;
-        ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+        if (!args[1].isUndefined()) {
+            ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
+            cobj->textureSize = arg1;
+        }
 
         if(!ok) {
+            JSB_FREE(cobj);
             SE_REPORT_ERROR("Argument convertion error");
             return false;
         }
-
-        cocos2d::GFXMemoryStatus* cobj = JSB_ALLOC(cocos2d::GFXMemoryStatus);
-        cobj->bufferSize = arg0;
-        cobj->textureSize = arg1;
 
         s.thisObject()->setPrivateData(cobj);
         se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
