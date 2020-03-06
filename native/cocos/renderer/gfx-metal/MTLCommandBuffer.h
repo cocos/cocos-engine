@@ -20,7 +20,7 @@ public:
     virtual void destroy() override;
     virtual void begin() override;
     virtual void end() override;
-    virtual void beginRenderPass(GFXFramebuffer* fbo, const GFXRect& render_area, GFXClearFlags clear_flags, std::vector<GFXColor&> colors, float depth, int stencil) override;
+    virtual void beginRenderPass(GFXFramebuffer* fbo, const GFXRect& render_area, GFXClearFlags clear_flags, const std::vector<GFXColor>& colors, float depth, int stencil) override;
     virtual void endRenderPass() override;
     virtual void bindPipelineState(GFXPipelineState* pso) override;
     virtual void bindBindingLayout(GFXBindingLayout* layout) override;

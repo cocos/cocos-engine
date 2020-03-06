@@ -29,6 +29,7 @@ THE SOFTWARE.
 #include "base/CCScheduler.h"
 #include "base/CCAutoreleasePool.h"
 #include "scripting/js-bindings/event/EventDispatcher.h"
+#include "scripting/js-bindings/event/CustomEventTypes.h"
 #include "scripting/js-bindings/jswrapper/SeApi.h"
 #include "audio/include/AudioEngine.h"
 
@@ -47,6 +48,10 @@ namespace
                 g_height,
                 (intptr_t)[NSApplication sharedApplication].mainWindow.contentView);
         se->evalString(commandBuf);
+        
+        cocos2d::CustomEvent applicationReady;
+        applicationReady.name = EVENT_APPLICATION_READY;
+        cocos2d::EventDispatcher::dispatchCustomEvent(applicationReady);
         return true;
     }
 }

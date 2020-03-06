@@ -1176,7 +1176,7 @@ bool jsb_register_global_variables(se::Object* global)
     __jsbObj->defineFunction("openURL", _SE(JSB_openURL));
     __jsbObj->defineFunction("copyTextToClipboard", _SE(JSB_copyTextToClipboard));
 
-//    __jsbObj->defineFunction("setPreferredFramesPerSecond", _SE(JSB_setPreferredFramesPerSecond));
+   __jsbObj->defineFunction("setPreferredFramesPerSecond", _SE(JSB_setPreferredFramesPerSecond));
 //    __jsbObj->defineFunction("showInputBox", _SE(JSB_showInputBox));
 //    __jsbObj->defineFunction("hideInputBox", _SE(JSB_hideInputBox));
 //    __jsbObj->defineFunction("setCursorEnabled", _SE(JSB_setCursorEnabled));
