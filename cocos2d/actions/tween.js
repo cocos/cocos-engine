@@ -194,9 +194,9 @@ Tween.stopAllByTag = function (tag) {
     cc.director.getActionManager().removeActionByTag(tag);
 }
 /**
- * !#en Stop all tweens
+ * !#en Stop all tweens by target
  * !#zh 停止所有缓动
- * @method stopAll
+ * @method stopAllByTarget
  * @static
  * @param {Object} target
  */
