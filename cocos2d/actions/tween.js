@@ -193,6 +193,16 @@ Tween.stopAll = function () {
 Tween.stopAllByTag = function (tag) {
     cc.director.getActionManager().removeActionByTag(tag);
 }
+/**
+ * !#en Stop all tweens
+ * !#zh 停止所有缓动
+ * @method stopAll
+ * @static
+ * @param {Object} target
+ */
+Tween.stopAllByTarget = function (target) {
+    cc.director.getActionManager().removeAllActionsFromTarget(target);
+}
 
 /**
  * !#en
