@@ -696,6 +696,16 @@ gfxtextureviewinfo
 gfx.GFXWindow = {
 
 /**
+ * @method nativeHeight
+ * @return {unsigned int}
+ */
+nativeHeight : function (
+)
+{
+    return 0;
+},
+
+/**
  * @method depthStencilTexView
  * @return {cc.GFXTextureView}
  */
@@ -716,6 +726,26 @@ renderPass : function (
 },
 
 /**
+ * @method nativeWidth
+ * @return {unsigned int}
+ */
+nativeWidth : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method title
+ * @return {String}
+ */
+title : function (
+)
+{
+    return ;
+},
+
+/**
  * @method isOffscreen
  * @return {bool}
  */
@@ -723,6 +753,16 @@ isOffscreen : function (
 )
 {
     return false;
+},
+
+/**
+ * @method top
+ * @return {int}
+ */
+top : function (
+)
+{
+    return 0;
 },
 
 /**
@@ -746,6 +786,16 @@ height : function (
 },
 
 /**
+ * @method device
+ * @return {cc.GFXDevice}
+ */
+device : function (
+)
+{
+    return cc.GFXDevice;
+},
+
+/**
  * @method colorTexView
  * @return {cc.GFXTextureView}
  */
@@ -753,6 +803,26 @@ colorTexView : function (
 )
 {
     return cc.GFXTextureView;
+},
+
+/**
+ * @method depthStencilTexture
+ * @return {cc.GFXTexture}
+ */
+depthStencilTexture : function (
+)
+{
+    return cc.GFXTexture;
+},
+
+/**
+ * @method colorTexture
+ * @return {cc.GFXTexture}
+ */
+colorTexture : function (
+)
+{
+    return cc.GFXTexture;
 },
 
 /**
@@ -818,6 +888,16 @@ int
 },
 
 /**
+ * @method left
+ * @return {int}
+ */
+left : function (
+)
+{
+    return 0;
+},
+
+/**
  * @method GFXWindow
  * @constructor
  * @param {cc.GFXDevice} arg0
@@ -873,6 +953,16 @@ bufferView : function (
 )
 {
     return 0;
+},
+
+/**
+ * @method device
+ * @return {cc.GFXDevice}
+ */
+device : function (
+)
+{
+    return cc.GFXDevice;
 },
 
 /**
@@ -1164,6 +1254,16 @@ texture : function (
 },
 
 /**
+ * @method device
+ * @return {cc.GFXDevice}
+ */
+device : function (
+)
+{
+    return cc.GFXDevice;
+},
+
+/**
  * @method layerCount
  * @return {unsigned int}
  */
@@ -1232,10 +1332,120 @@ gfxdevice
 gfx.GFXSampler = {
 
 /**
+ * @method borderColor
+ * @return {cc.GFXColor}
+ */
+borderColor : function (
+)
+{
+    return cc.GFXColor;
+},
+
+/**
+ * @method mipFilter
+ * @return {cc.GFXFilter}
+ */
+mipFilter : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method minFilter
+ * @return {cc.GFXFilter}
+ */
+minFilter : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method name
+ * @return {String}
+ */
+name : function (
+)
+{
+    return ;
+},
+
+/**
+ * @method cmpFunc
+ * @return {cc.GFXComparisonFunc}
+ */
+cmpFunc : function (
+)
+{
+    return 0;
+},
+
+/**
  * @method maxLOD
  * @return {unsigned int}
  */
 maxLOD : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method magFilter
+ * @return {cc.GFXFilter}
+ */
+magFilter : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method addressU
+ * @return {cc.GFXAddress}
+ */
+addressU : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method addressV
+ * @return {cc.GFXAddress}
+ */
+addressV : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method addressW
+ * @return {cc.GFXAddress}
+ */
+addressW : function (
+)
+{
+    return 0;
+},
+
+/**
+ * @method device
+ * @return {cc.GFXDevice}
+ */
+device : function (
+)
+{
+    return cc.GFXDevice;
+},
+
+/**
+ * @method maxAnisotropy
+ * @return {unsigned int}
+ */
+maxAnisotropy : function (
 )
 {
     return 0;
@@ -1300,6 +1510,16 @@ gfxdevice
 gfx.GFXShader = {
 
 /**
+ * @method hash
+ * @return {unsigned int}
+ */
+hash : function (
+)
+{
+    return 0;
+},
+
+/**
  * @method name
  * @return {String}
  */
@@ -1307,6 +1527,36 @@ name : function (
 )
 {
     return ;
+},
+
+/**
+ * @method samplers
+ * @return {Array}
+ */
+samplers : function (
+)
+{
+    return new Array();
+},
+
+/**
+ * @method blocks
+ * @return {Array}
+ */
+blocks : function (
+)
+{
+    return new Array();
+},
+
+/**
+ * @method device
+ * @return {cc.GFXDevice}
+ */
+device : function (
+)
+{
+    return cc.GFXDevice;
 },
 
 /**
@@ -1330,13 +1580,13 @@ destroy : function (
 },
 
 /**
- * @method hash
- * @return {unsigned int}
+ * @method stages
+ * @return {Array}
  */
-hash : function (
+stages : function (
 )
 {
-    return 0;
+    return new Array();
 },
 
 /**
@@ -1478,6 +1728,16 @@ attributes : function (
 },
 
 /**
+ * @method device
+ * @return {cc.GFXDevice}
+ */
+device : function (
+)
+{
+    return cc.GFXDevice;
+},
+
+/**
  * @method setFirstVertex
  * @param {unsigned int} arg0
  */
@@ -1576,6 +1836,36 @@ gfxdevice
 gfx.GFXRenderPass = {
 
 /**
+ * @method colorAttachments
+ * @return {Array}
+ */
+colorAttachments : function (
+)
+{
+    return new Array();
+},
+
+/**
+ * @method subPasses
+ * @return {Array}
+ */
+subPasses : function (
+)
+{
+    return new Array();
+},
+
+/**
+ * @method device
+ * @return {cc.GFXDevice}
+ */
+device : function (
+)
+{
+    return cc.GFXDevice;
+},
+
+/**
  * @method initialize
  * @param {cc.GFXRenderPassInfo} arg0
  * @return {bool}
@@ -1593,6 +1883,16 @@ gfxrenderpassinfo
 destroy : function (
 )
 {
+},
+
+/**
+ * @method depthStencilAttachment
+ * @return {cc.GFXDepthStencilAttachment}
+ */
+depthStencilAttachment : function (
+)
+{
+    return cc.GFXDepthStencilAttachment;
 },
 
 /**
@@ -1631,6 +1931,16 @@ isOffscreen : function (
 )
 {
     return false;
+},
+
+/**
+ * @method device
+ * @return {cc.GFXDevice}
+ */
+device : function (
+)
+{
+    return cc.GFXDevice;
 },
 
 /**
@@ -1704,6 +2014,16 @@ gfxtextureview
 },
 
 /**
+ * @method bindingUnits
+ * @return {Array}
+ */
+bindingUnits : function (
+)
+{
+    return new Array();
+},
+
+/**
  * @method bindBuffer
  * @param {unsigned int} arg0
  * @param {cc.GFXBuffer} arg1
@@ -1733,6 +2053,16 @@ gfxsampler
 update : function (
 )
 {
+},
+
+/**
+ * @method device
+ * @return {cc.GFXDevice}
+ */
+device : function (
+)
+{
+    return cc.GFXDevice;
 },
 
 /**
@@ -1774,13 +2104,13 @@ gfxdevice
 gfx.GFXPipelineLayout = {
 
 /**
- * @method layouts
- * @return {Array}
+ * @method device
+ * @return {cc.GFXDevice}
  */
-layouts : function (
+device : function (
 )
 {
-    return new Array();
+    return cc.GFXDevice;
 },
 
 /**
@@ -1882,6 +2212,16 @@ inputState : function (
 },
 
 /**
+ * @method device
+ * @return {cc.GFXDevice}
+ */
+device : function (
+)
+{
+    return cc.GFXDevice;
+},
+
+/**
  * @method blendState
  * @return {cc.GFXBlendState}
  */
@@ -1945,6 +2285,54 @@ gfxdevice
 };
 
 /**
+ * @class GFXCommandAllocator
+ */
+gfx.GFXCommandAllocator = {
+
+/**
+ * @method initialize
+ * @param {cc.GFXCommandAllocatorInfo} arg0
+ * @return {bool}
+ */
+initialize : function (
+gfxcommandallocatorinfo 
+)
+{
+    return false;
+},
+
+/**
+ * @method destroy
+ */
+destroy : function (
+)
+{
+},
+
+/**
+ * @method device
+ * @return {cc.GFXDevice}
+ */
+device : function (
+)
+{
+    return cc.GFXDevice;
+},
+
+/**
+ * @method GFXCommandAllocator
+ * @constructor
+ * @param {cc.GFXDevice} arg0
+ */
+GFXCommandAllocator : function (
+gfxdevice 
+)
+{
+},
+
+};
+
+/**
  * @class GFXCommandBuffer
  */
 gfx.GFXCommandBuffer = {
@@ -1970,6 +2358,16 @@ gfxcolor
 },
 
 /**
+ * @method device
+ * @return {cc.GFXDevice}
+ */
+device : function (
+)
+{
+    return cc.GFXDevice;
+},
+
+/**
  * @method setDepthBound
  * @param {float} arg0
  * @param {float} arg1
@@ -1986,15 +2384,13 @@ float
  * @param {cc.GFXBuffer} arg0
  * @param {cc.GFXTexture} arg1
  * @param {cc.GFXTextureLayout} arg2
- * @param {cc.GFXBufferTextureCopy} arg3
- * @param {unsigned int} arg4
+ * @param {Array} arg3
  */
 copyBufferToTexture : function (
 gfxbuffer, 
 gfxtexture, 
 gfxtexturelayout, 
-gfxbuffertexturecopy, 
-int 
+array 
 )
 {
 },
@@ -2190,18 +2586,6 @@ gfxrect
 },
 
 /**
- * @method execute
- * @param {cc.GFXCommandBuffer} arg0
- * @param {unsigned int} arg1
- */
-execute : function (
-gfxcommandbuffer, 
-int 
-)
-{
-},
-
-/**
  * @method numTris
  * @return {unsigned int}
  */
@@ -2216,17 +2600,15 @@ numTris : function (
  * @param {cc.GFXFramebuffer} arg0
  * @param {cc.GFXRect} arg1
  * @param {cc.GFXClearFlagBit} arg2
- * @param {cc.GFXColor} arg3
- * @param {unsigned int} arg4
- * @param {float} arg5
- * @param {int} arg6
+ * @param {Array} arg3
+ * @param {float} arg4
+ * @param {int} arg5
  */
 beginRenderPass : function (
 gfxframebuffer, 
 gfxrect, 
 gfxclearflagbit, 
-gfxcolor, 
-int, 
+array, 
 float, 
 int 
 )
@@ -2253,14 +2635,22 @@ gfx.GFXQueue = {
 
 /**
  * @method submit
- * @param {cc.GFXCommandBuffer} arg0
- * @param {unsigned int} arg1
+ * @param {Array} arg0
  */
 submit : function (
-gfxcommandbuffer, 
-int 
+array 
 )
 {
+},
+
+/**
+ * @method device
+ * @return {cc.GFXDevice}
+ */
+device : function (
+)
+{
+    return cc.GFXDevice;
 },
 
 /**
