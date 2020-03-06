@@ -80,7 +80,6 @@ HtmlTextParser.prototype = {
             }
         }
 
-
         return this._resultObjectArray;
     },
 
