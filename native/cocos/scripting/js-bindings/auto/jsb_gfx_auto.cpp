@@ -11374,34 +11374,6 @@ static bool js_gfx_GFXBlendState_set_blendColor(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_GFXBlendState_set_blendColor)
 
-static bool js_gfx_GFXBlendState_get_targets(se::State& s)
-{
-    cocos2d::GFXBlendState* cobj = (cocos2d::GFXBlendState*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBlendState_get_targets : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= native_ptr_to_seval(cobj->targets, &jsret);
-    s.rval() = jsret;
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_GFXBlendState_get_targets)
-
-static bool js_gfx_GFXBlendState_set_targets(se::State& s)
-{
-    const auto& args = s.args();
-    cocos2d::GFXBlendState* cobj = (cocos2d::GFXBlendState*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXBlendState_set_targets : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    std::vector<cocos2d::GFXBlendTarget> arg0;
-    ok &= seval_to_std_vector(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXBlendState_set_targets : Error processing new value");
-    cobj->targets = arg0;
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_GFXBlendState_set_targets)
-
 SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXBlendState_finalize)
 
 static bool js_gfx_GFXBlendState_constructor(se::State& s)
@@ -11522,7 +11494,6 @@ bool js_register_gfx_GFXBlendState(se::Object* obj)
     cls->defineProperty("isA2C", _SE(js_gfx_GFXBlendState_get_isA2C), _SE(js_gfx_GFXBlendState_set_isA2C));
     cls->defineProperty("isIndepend", _SE(js_gfx_GFXBlendState_get_isIndepend), _SE(js_gfx_GFXBlendState_set_isIndepend));
     cls->defineProperty("blendColor", _SE(js_gfx_GFXBlendState_get_blendColor), _SE(js_gfx_GFXBlendState_set_blendColor));
-    cls->defineProperty("targets", _SE(js_gfx_GFXBlendState_get_targets), _SE(js_gfx_GFXBlendState_set_targets));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXBlendState_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXBlendState>(cls);
