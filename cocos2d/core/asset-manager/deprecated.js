@@ -270,7 +270,7 @@ var loader = {
         cc.assetManager.loadResDir(url, type, onProgress, function (err, assets) {
             var urls = [];
             if (!err) {
-                var infos = cc.assetManager.bundles.get(cc.AssetManager.BuiltinBundle.RESOURCES).config.getDirWithPath(url, type);
+                var infos = cc.assetManager.resources.config.getDirWithPath(url, type);
                 urls = infos.map(function (info) {
                     return info.path;
                 });
@@ -690,11 +690,11 @@ Object.defineProperties(cc.macro, {
      */
     DOWNLOAD_MAX_CONCURRENT: {
         get () {
-            return cc.assetManager.downloader.limitations[cc.AssetManager.LoadStrategy.NORMAL].maxConcurrent;
+            return cc.assetManager.downloader.maxConcurrent;
         },
 
         set (val) {
-            cc.assetManager.downloader.limitations[cc.AssetManager.LoadStrategy.NORMAL].maxConcurrent = val;
+            cc.assetManager.downloader.maxConcurrent = val;
         }
     }
 }); 
@@ -724,7 +724,7 @@ Object.assign(cc.director, {
      * @deprecated `cc.director._getSceneUuid` is deprecated now, please use `config.getSceneInfo` instead
      */
     _getSceneUuid (sceneName) {
-        cc.assetManager.bundles.get(cc.AssetManager.BuiltinBundle.MAIN).config.getSceneInfo(sceneName);
+        cc.assetManager.main.config.getSceneInfo(sceneName);
     }
 }); 
 
@@ -735,7 +735,7 @@ Object.defineProperties(cc.game, {
     _sceneInfos: {
         get () {
             var scenes = [];
-            cc.assetManager.bundles.get(cc.AssetManager.BuiltinBundle.MAIN).config.scenes.forEach(function (val) {
+            cc.assetManager.main.config.scenes.forEach(function (val) {
                 scenes.push(val);
             });
             return scenes;
