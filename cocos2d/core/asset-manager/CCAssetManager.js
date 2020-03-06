@@ -298,7 +298,7 @@ AssetManager.prototype = {
      * @type {Bundle}
      */
     get main () {
-        bundles.get(BuiltinBundle.MAIN);
+        return bundles.get(BuiltinBundle.MAIN);
     },
 
     /**
@@ -313,7 +313,7 @@ AssetManager.prototype = {
      * @type {Bundle}
      */
     get resources () {
-        bundles.get(BuiltinBundle.RESOURCES);
+        return bundles.get(BuiltinBundle.RESOURCES);
     },
 
     /**
@@ -328,7 +328,7 @@ AssetManager.prototype = {
      * @type {Bundle}
      */
     get internal () {
-        bundles.get(BuiltinBundle.INTERNAL);
+        return bundles.get(BuiltinBundle.INTERNAL);
     },
 
     /**
