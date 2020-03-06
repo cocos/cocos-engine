@@ -49,9 +49,6 @@ var emptyFunc = function () {};
 
 // getWorldPosition temp var
 var _gwpVec3 = new Vec3();
-var _guwpVec3 = new Vec3();
-var _grwpVec3 = new Vec3();
-var _gfwpVec3 = new Vec3();
 
 var _gwpQuat = new Quat();
 
@@ -79,6 +76,11 @@ var _gwrtQuatb = new Quat();
 // lookAt temp var
 var _laVec3 = new Vec3();
 var _laQuat = new Quat();
+
+//up、right、forward temp var
+var _uVec3 = new Vec3();
+var _rVec3 = new Vec3();
+var _fVec3 = new vec3();
 
 // _hitTest temp var
 var _htVec3a = new Vec3();
@@ -2998,36 +3000,36 @@ let NodeDefines = {
     },
 
     /**
-     * !#en Get the world coordinates of the nodes that are converted to the up direction.
-     * !#zh 获取转换到正上方向的节点世界坐标
+     * !#en Get the node vector of the nodes that are converted to the up direction.
+     * !#zh 获取转换到正上方的节点向量
      * 
-     * @method getUpWorldPosition
+     * @method up
      * @return {Vec3}
      */
-    getUpWorldPosition () {
-        return Vec3.transformQuat(_guwpVec3, Vec3.UP, this.getWorldPosition(new Quat()));
+    up () {
+        return Vec3.transformQuat(_uVec3, Vec3.UP, this.getWorldRotation(new Quat()));
     },
 
     /**
-     * !#en Get the world coordinates of the nodes that are converted to the right direction.
-     * !#zh 获取转换到正右方向的节点世界坐标
+     * !#en Get the node vector of the nodes that are converted to the right direction.
+     * !#zh 获取转换到正右方的节点向量
      * 
-     * @method getRightWorldPosition
+     * @method right
      * @return {Vec3}
      */
-    getRightWorldPosition () {
-        return Vec3.transformQuat(_guwpVec3, Vec3.RIGHT, this.getWorldPosition(new Quat()));
+    right () {
+        return Vec3.transformQuat(_rVec3, Vec3.RIGHT, this.getWorldRotation(new Quat()));
     },
 
     /**
-     * !#en Get the world coordinates of the nodes that are converted to the forward direction.
-     * !#zh 获取转换到正前方向的节点世界坐标
+     * !#en Get the node vector of the nodes that are converted to the forward direction.
+     * !#zh 获取转换到正前方的节点向量
      * 
-     * @method getForwardWorldPosition
+     * @method forward
      * @return {Vec3}
      */
-    getForwardWorldPosition () {
-        return Vec3.transformQuat(_guwpVec3, Vec3.FRONT, this.getWorldPosition(new Quat()));
+    forward () {
+        return Vec3.transformQuat(_fVec3, Vec3.FRONT, this.getWorldRotation(new Quat()));
     },
 
     /*
