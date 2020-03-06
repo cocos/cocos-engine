@@ -463,8 +463,6 @@ native_ptr_to_seval(T& v_ref, se::Value* ret, bool* isReturnCachedValue = nullpt
     if (iter == se::NativePtrToObjectMap::end())
     { // If we couldn't find native object in map, then the native object is created from native code. e.g. TMXLayer::getTileAt
         // CCLOGWARN("WARNING: non-Ref type: (%s) isn't catched!", typeid(*v).name());
-        CCLOGWARN("WARNING: non-Ref type: (%s) isn't catched!", typeid(*v).name());
-
         se::Class* cls = JSBClassType::findClass<DecayT>(v);
         assert(cls != nullptr);
         obj = se::Object::createObjectWithClass(cls);
