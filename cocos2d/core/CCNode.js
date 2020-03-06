@@ -3660,10 +3660,10 @@ let NodeDefines = {
 
             if (_children.length > 1) {
                 // insertion sort
-                var child, child2;
-                for (var i = 1, count = _children.length; i < count; i++) {
+                let child, child2;
+                for (let i = 1, count = _children.length; i < count; i++) {
                     child = _children[i];
-                    for (var j = i; j > 0 &&
+                    for (let j = i; j > 0 &&
                             (child2 = _children[j - 1])._localZOrder > child._localZOrder; j--) {
                         _children[j] = child2;
                     }
