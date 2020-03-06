@@ -20,7 +20,7 @@ class CC_GLES3_API GLES3CommandBuffer : public GFXCommandBuffer {
   
   void begin();
   void end();
-  void beginRenderPass(GFXFramebuffer* fbo, const GFXRect& render_area, GFXClearFlags clear_flags, GFXColor* colors, uint count, float depth, int stencil);
+  void beginRenderPass(GFXFramebuffer* fbo, const GFXRect& render_area, GFXClearFlags clear_flags, const std::vector<GFXColor>& colors, float depth, int stencil);
   void endRenderPass();
   void bindPipelineState(GFXPipelineState* pso);
   void bindBindingLayout(GFXBindingLayout* layout);
@@ -35,8 +35,8 @@ class CC_GLES3_API GLES3CommandBuffer : public GFXCommandBuffer {
   void setStencilCompareMask(GFXStencilFace face, int ref, uint mask);
   void draw(GFXInputAssembler* ia);
   void updateBuffer(GFXBuffer* buff, void* data, uint size, uint offset);
-  void copyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GFXTextureLayout layout, GFXBufferTextureCopy* regions, uint count);
-  void execute(GFXCommandBuffer** cmd_buffs, uint count);
+  void copyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GFXTextureLayout layout, const GFXBufferTextureCopyList& regions);
+  void execute(const std::vector<GFXCommandBuffer*>& cmd_buffs, uint32_t count);
   
  private:
   void BindStates();

@@ -20,7 +20,7 @@ public:
     virtual void destroy() override;
     virtual void begin() override;
     virtual void end() override;
-    virtual void beginRenderPass(GFXFramebuffer* fbo, const GFXRect& render_area, GFXClearFlags clear_flags, GFXColor* colors, uint count, float depth, int stencil) override;
+    virtual void beginRenderPass(GFXFramebuffer* fbo, const GFXRect& render_area, GFXClearFlags clear_flags, std::vector<GFXColor&> colors, float depth, int stencil) override;
     virtual void endRenderPass() override;
     virtual void bindPipelineState(GFXPipelineState* pso) override;
     virtual void bindBindingLayout(GFXBindingLayout* layout) override;
@@ -35,8 +35,8 @@ public:
     virtual void setStencilCompareMask(GFXStencilFace face, int ref, uint mask) override;
     virtual void draw(GFXInputAssembler* ia) override;
     virtual void updateBuffer(GFXBuffer* buff, void* data, uint size, uint offset = 0) override;
-    virtual void copyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GFXTextureLayout layout, GFXBufferTextureCopy* regions, uint count) override;
-    virtual void execute(GFXCommandBuffer** cmd_buffs, uint count) override;
+    virtual void copyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GFXTextureLayout layout, const GFXBufferTextureCopyList& regions) override;
+    virtual void execute(const std::vector<GFXCommandBuffer*>& cmd_buffs, uint32_t count) override;
     
     CC_INLINE const CCMTLCommandPackage* getCommandPackage() const { return _commandPackage; }
     

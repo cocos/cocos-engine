@@ -15,7 +15,7 @@ public:
   virtual void destroy() = 0;
   virtual void begin() = 0;
   virtual void end() = 0;
-  virtual void beginRenderPass(GFXFramebuffer* fbo, const GFXRect& render_area, GFXClearFlags clear_flags, GFXColor* colors, uint count, float depth, int stencil) = 0;
+  virtual void beginRenderPass(GFXFramebuffer* fbo, const GFXRect& render_area, GFXClearFlags clear_flags, const std::vector<GFXColor>& colors, float depth, int stencil) = 0;
   virtual void endRenderPass() = 0;
   virtual void bindPipelineState(GFXPipelineState* pso) = 0;
   virtual void bindBindingLayout(GFXBindingLayout* layout) = 0;
@@ -30,8 +30,8 @@ public:
   virtual void setStencilCompareMask(GFXStencilFace face, int ref, uint mask) = 0;
   virtual void draw(GFXInputAssembler* ia) = 0;
   virtual void updateBuffer(GFXBuffer* buff, void* data, uint size, uint offset = 0) = 0;
-  virtual void copyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GFXTextureLayout layout, GFXBufferTextureCopy* regions, uint count) = 0;
-  virtual void execute(GFXCommandBuffer** cmd_buffs, uint count) = 0;
+  virtual void copyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GFXTextureLayout layout, const GFXBufferTextureCopyList& regions) = 0;
+  virtual void execute(const std::vector<GFXCommandBuffer*>& cmd_buffs, uint32_t count) = 0;
   
   CC_INLINE GFXDevice* device() const { return _device; }
   CC_INLINE GFXCommandAllocator* allocator() const { return _allocator; }

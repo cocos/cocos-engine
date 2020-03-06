@@ -13,7 +13,7 @@ class CC_GLES2_API GLES2Queue : public GFXQueue {
  public:
   bool initialize(const GFXQueueInfo& info);
   void destroy();
-  void submit(GFXCommandBuffer** cmd_buffs, uint count);
+  void submit(const std::vector<GFXCommandBuffer*>& cmd_buffs);
   
     CC_INLINE bool isAsync() const { return _isAsync; }
   

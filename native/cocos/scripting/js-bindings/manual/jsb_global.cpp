@@ -1037,23 +1037,24 @@ static bool JSB_copyTextToClipboard(se::State& s)
 }
 SE_BIND_FUNC(JSB_copyTextToClipboard)
 
-//static bool JSB_setPreferredFramesPerSecond(se::State& s)
-//{
-//    const auto& args = s.args();
-//    size_t argc = args.size();
-//    CC_UNUSED bool ok = true;
-//    if (argc > 0) {
-//        int32_t fps;
-//        ok = seval_to_int32(args[0], &fps);
-//        SE_PRECONDITION2(ok, false, "fps is invalid!");
+static bool JSB_setPreferredFramesPerSecond(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc > 0) {
+        int32_t fps;
+        ok = seval_to_int32(args[0], &fps);
+        SE_PRECONDITION2(ok, false, "fps is invalid!");
+        cocos2d::log("EMPTY IMPLEMENTATION OF jsb.setPreferredFramesPerSecond");
 //        Application::getInstance()->setPreferredFramesPerSecond(fps);
-//        return true;
-//    }
-//
-//    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-//    return false;
-//}
-//SE_BIND_FUNC(JSB_setPreferredFramesPerSecond)
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(JSB_setPreferredFramesPerSecond)
 
 //static bool JSB_showInputBox(se::State& s)
 //{

@@ -63,7 +63,7 @@ void CCMTLCommandBuffer::end()
     _isInRenderPass = false;
 }
 
-void CCMTLCommandBuffer::beginRenderPass(GFXFramebuffer* fbo, const GFXRect& render_area, GFXClearFlags clear_flags, GFXColor* colors, uint count, float depth, int stencil)
+void CCMTLCommandBuffer::beginRenderPass(GFXFramebuffer* fbo, const GFXRect& render_area, GFXClearFlags clear_flags, const std::vector<GFXColor>& colors, float depth, int stencil)
 {
     _isInRenderPass = true;
     
@@ -73,7 +73,7 @@ void CCMTLCommandBuffer::beginRenderPass(GFXFramebuffer* fbo, const GFXRect& ren
     cmd->renderArea = render_area;
     cmd->clearStencil = stencil;
     cmd->clearDepth = depth;
-    for (uint i = 0; i < count; ++i)
+    for (uint i = 0; i < colors.size(); ++i)
         cmd->clearColors[i] = colors[i];
     
     _commandPackage->beginRenderPassCmds.push(cmd);
@@ -220,7 +220,7 @@ void CCMTLCommandBuffer::updateBuffer(GFXBuffer* buff, void* data, uint size, ui
     
 }
 
-void CCMTLCommandBuffer::copyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GFXTextureLayout layout, GFXBufferTextureCopy* regions, uint count)
+void CCMTLCommandBuffer::copyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GFXTextureLayout layout, const GFXBufferTextureCopyList& regions)
 {
     if ( (_type == GFXCommandBufferType::PRIMARY && _isInRenderPass) ||
          (_type == GFXCommandBufferType::SECONDARY) )
@@ -229,7 +229,7 @@ void CCMTLCommandBuffer::copyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GF
     }
 }
 
-void CCMTLCommandBuffer::execute(GFXCommandBuffer** cmd_buffs, uint count)
+void CCMTLCommandBuffer::execute(const std::vector<GFXCommandBuffer*>& cmd_buffs, uint32_t count)
 {
     
 }

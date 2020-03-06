@@ -58,15 +58,15 @@ void GLES3CommandBuffer::end() {
   _isInRenderPass = false;
 }
 
-void GLES3CommandBuffer::beginRenderPass(GFXFramebuffer* fbo, const GFXRect& render_area, GFXClearFlags clear_flags, GFXColor* colors, uint count, float depth, int stencil) {
+void GLES3CommandBuffer::beginRenderPass(GFXFramebuffer* fbo, const GFXRect& render_area, GFXClearFlags clear_flags, const std::vector<GFXColor>& colors, float depth, int stencil) {
   _isInRenderPass = true;
   
   GLES3CmdBeginRenderPass* cmd = _gles3Allocator->beginRenderPassCmdPool.alloc();
   cmd->gpuFBO = ((GLES3Framebuffer*)fbo)->gpuFBO();
   cmd->render_area = render_area;
   cmd->clear_flags = clear_flags;
-  cmd->num_clear_colors = count;
-  for (uint i = 0; i < count; ++i) {
+  cmd->num_clear_colors = (uint32_t)colors.size();
+  for (uint i = 0; i < colors.size(); ++i) {
     cmd->clear_colors[i] = colors[i];
   }
   cmd->clear_depth = depth;
@@ -235,7 +235,7 @@ void GLES3CommandBuffer::updateBuffer(GFXBuffer* buff, void* data, uint size, ui
   }
 }
 
-void GLES3CommandBuffer::copyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GFXTextureLayout layout, GFXBufferTextureCopy* regions, uint count) {
+void GLES3CommandBuffer::copyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GFXTextureLayout layout, const GFXBufferTextureCopyList& regions) {
   if ((_type == GFXCommandBufferType::PRIMARY && _isInRenderPass) ||
       (_type == GFXCommandBufferType::SECONDARY)) {
     GLES3GPUBuffer* gpuBuffer = ((GLES3Buffer*)src)->gpuBuffer();
@@ -245,8 +245,8 @@ void GLES3CommandBuffer::copyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GF
       cmd->gpuBuffer = gpuBuffer;
       cmd->gpuTexture = gpuTexture;
       cmd->dst_layout = layout;
-      cmd->regions.resize(count);
-      for (uint i = 0; i < count; ++i) {
+      cmd->regions.resize(regions.size());
+      for (uint i = 0; i < static_cast<uint>(regions.size()); ++i) {
         cmd->regions[i] = regions[i];
       }
       
@@ -258,34 +258,34 @@ void GLES3CommandBuffer::copyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GF
   }
 }
 
-void GLES3CommandBuffer::execute(GFXCommandBuffer** cmd_buffs, uint count) {
+void GLES3CommandBuffer::execute(const std::vector<GFXCommandBuffer*>& cmd_buffs, uint32_t count) {
   for (uint i = 0; i < count; ++i) {
     GLES3CommandBuffer* cmd_buff = (GLES3CommandBuffer*)cmd_buffs[i];
     
     for (uint j = 0; j < cmd_buff->_cmdPackage->beginRenderPassCmds.size(); ++j) {
       GLES3CmdBeginRenderPass* cmd = cmd_buff->_cmdPackage->beginRenderPassCmds[j];
       ++cmd->ref_count;
-      cmd_buff->_cmdPackage->beginRenderPassCmds.push(cmd);
+      _cmdPackage->beginRenderPassCmds.push(cmd);
     }
     for (uint j = 0; j < cmd_buff->_cmdPackage->bindStatesCmds.size(); ++j) {
       GLES3CmdBindStates* cmd = cmd_buff->_cmdPackage->bindStatesCmds[j];
       ++cmd->ref_count;
-      cmd_buff->_cmdPackage->bindStatesCmds.push(cmd);
+      _cmdPackage->bindStatesCmds.push(cmd);
     }
     for (uint j = 0; j < cmd_buff->_cmdPackage->drawCmds.size(); ++j) {
       GLES3CmdDraw* cmd = cmd_buff->_cmdPackage->drawCmds[j];
       ++cmd->ref_count;
-      cmd_buff->_cmdPackage->drawCmds.push(cmd);
+      _cmdPackage->drawCmds.push(cmd);
     }
     for (uint j = 0; j < cmd_buff->_cmdPackage->updateBufferCmds.size(); ++j) {
       GLES3CmdUpdateBuffer* cmd = cmd_buff->_cmdPackage->updateBufferCmds[j];
       ++cmd->ref_count;
-      cmd_buff->_cmdPackage->updateBufferCmds.push(cmd);
+      _cmdPackage->updateBufferCmds.push(cmd);
     }
     for (uint j = 0; j < cmd_buff->_cmdPackage->copyBufferToTextureCmds.size(); ++j) {
       GLES3CmdCopyBufferToTexture* cmd = cmd_buff->_cmdPackage->copyBufferToTextureCmds[j];
       ++cmd->ref_count;
-      cmd_buff->_cmdPackage->copyBufferToTextureCmds.push(cmd);
+      _cmdPackage->copyBufferToTextureCmds.push(cmd);
     }
     _cmdPackage->cmds.concat(cmd_buff->_cmdPackage->cmds);
     

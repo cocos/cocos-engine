@@ -21,8 +21,9 @@ bool GLES2Queue::initialize(const GFXQueueInfo &info) {
 void GLES2Queue::destroy() {
 }
 
-void GLES2Queue::submit(GFXCommandBuffer** cmd_buffs, uint count) {
+void GLES2Queue::submit(const std::vector<GFXCommandBuffer*>& cmd_buffs) {
   if (!_isAsync) {
+    uint count = static_cast<uint>(cmd_buffs.size());
     for (uint i = 0; i < count; ++i) {
       GLES2CommandBuffer* cmd_buff = (GLES2CommandBuffer*)cmd_buffs[i];
       GLES2CmdFuncExecuteCmds((GLES2Device*)_device, cmd_buff->_cmdPackage);
