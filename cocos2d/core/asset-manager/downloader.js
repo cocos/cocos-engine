@@ -166,6 +166,43 @@ var handleQueue = function (maxConcurrent, maxRequestsPerFrame) {
  * @class Downloader
  */
 var downloader = {
+
+    /**
+     * !#en 
+     * The maximum number of concurrent when downloading
+     * 
+     * !#zh
+     * 下载时的最大并发数
+     * 
+     * @property maxConcurrent
+     * @type {number}
+     */
+    get maxConcurrent () {
+        return this.limitations[LoadStrategy.NORMAL].maxConcurrent;
+    },
+
+    set maxConcurrent (val) {
+        this.limitations[LoadStrategy.NORMAL].maxConcurrent = val;
+    },
+
+    /**
+     * !#en 
+     * The maximum number of request can be launched per frame when downloading
+     * 
+     * !#zh
+     * 下载时每帧可以启动的最大请求数
+     * 
+     * @property maxRequestsPerFrame
+     * @type {number}
+     */
+    get maxRequestsPerFrame () {
+        return this.limitations[LoadStrategy.NORMAL].maxRequestsPerFrame;
+    },
+
+    set maxRequestsPerFrame (val) {
+        this.limitations[LoadStrategy.NORMAL].maxRequestsPerFrame = val;
+    },
+
     /**
      * !#en
      * Every loading strategy has corresponding limitation, if use this loading strategy, network request will be under its own limitation. One limitation has two conditions, the first is maxConcurrent, it indicates max number of request can work
