@@ -682,11 +682,11 @@ Object.defineProperties(cc.Asset.prototype, {
  */
 Object.defineProperties(cc.macro, {
     /**
-     * `cc.macro.DOWNLOAD_MAX_CONCURRENT` is deprecated now, please use {{#crossLink "Downloader/limitations:property"}}{{/crossLink}} instead
+     * `cc.macro.DOWNLOAD_MAX_CONCURRENT` is deprecated now, please use {{#crossLink "Downloader/maxConcurrent:property"}}{{/crossLink}} instead
      * 
      * @property DOWNLOAD_MAX_CONCURRENT
      * @type {Number}
-     * @deprecated `cc.macro.DOWNLOAD_MAX_CONCURRENT` is deprecated now, please use `cc.assetManager.downloader.limitations` instead
+     * @deprecated `cc.macro.DOWNLOAD_MAX_CONCURRENT` is deprecated now, please use `cc.assetManager.downloader.maxConcurrent` instead
      */
     DOWNLOAD_MAX_CONCURRENT: {
         get () {
