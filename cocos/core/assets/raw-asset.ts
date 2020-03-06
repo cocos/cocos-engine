@@ -48,6 +48,7 @@ export class RawAsset extends CCObject {
     /**
      * 内部使用。
      */
+    // @ts-ignore
     public _uuid: string;
 
     constructor (...args: ConstructorParameters<typeof CCObject>) {
