@@ -14,13 +14,13 @@ class CC_CORE_API GFXShader : public Object {
   virtual bool initialize(const GFXShaderInfo& info) = 0;
   virtual void destroy() = 0;
   
-  CC_INLINE GFXDevice* device() const { return _device; }
+  CC_INLINE GFXDevice* getDevice() const { return _device; }
   // Can not rename to `id` as JS code, because `id` is a keyword in objective-c.
-  CC_INLINE uint hash() const { return _hash; }
-  CC_INLINE const String& name() const { return _name; }
-  CC_INLINE const GFXShaderStageList& stages() const { return _stages; }
-  CC_INLINE const GFXUniformBlockList& blocks() const { return _blocks; }
-  CC_INLINE const GFXUniformSamplerList& samplers() const { return _samplers; }
+  CC_INLINE uint getHash() const { return _hash; }
+  CC_INLINE const String& getName() const { return _name; }
+  CC_INLINE const GFXShaderStageList& getStages() const { return _stages; }
+  CC_INLINE const GFXUniformBlockList& getBlocks() const { return _blocks; }
+  CC_INLINE const GFXUniformSamplerList& getSamplers() const { return _samplers; }
   
  protected:
   GFXDevice* _device = nullptr;

@@ -15,18 +15,18 @@ class CC_CORE_API GFXTexture : public Object {
   virtual void destroy() = 0;
   virtual void resize(uint width, uint height) = 0;
   
-  CC_INLINE GFXTextureType type() const { return _type; }
-  CC_INLINE GFXTextureUsage usage() const { return _usage; }
-  CC_INLINE GFXFormat format() const { return _format; }
-  CC_INLINE uint width() const { return _width; }
-  CC_INLINE uint height() const { return _height; }
-  CC_INLINE uint depth() const { return _depth; }
-  CC_INLINE uint arrayLayer() const { return _arrayLayer; }
-  CC_INLINE uint mipLevel() const { return _mipLevel; }
-  CC_INLINE uint size() const { return _size; }
-  CC_INLINE GFXSampleCount samples() const { return _samples; }
-  CC_INLINE GFXTextureFlags flags() const { return _flags; }
-  CC_INLINE uint8_t* buffer() const { return _buffer; }
+  CC_INLINE GFXTextureType getType() const { return _type; }
+  CC_INLINE GFXTextureUsage getUsage() const { return _usage; }
+  CC_INLINE GFXFormat getFormat() const { return _format; }
+  CC_INLINE uint getWidth() const { return _width; }
+  CC_INLINE uint getHeight() const { return _height; }
+  CC_INLINE uint getDepth() const { return _depth; }
+  CC_INLINE uint getArrayLayer() const { return _arrayLayer; }
+  CC_INLINE uint getMipLevel() const { return _mipLevel; }
+  CC_INLINE uint getSize() const { return _size; }
+  CC_INLINE GFXSampleCount getSamples() const { return _samples; }
+  CC_INLINE GFXTextureFlags getFlags() const { return _flags; }
+  CC_INLINE uint8_t* getBuffer() const { return _buffer; }
   
  protected:
   GFXDevice* _device = nullptr;

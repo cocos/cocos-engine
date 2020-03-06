@@ -42,7 +42,7 @@ bool GLES3Framebuffer::initialize(const GFXFramebufferInfo &info) {
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
   else
   {
-      _gpuFBO->glFramebuffer = static_cast<GLES3Context*>(_device->context())->getDefaultFramebuffer();
+      _gpuFBO->glFramebuffer = static_cast<GLES3Context*>(_device->getContext())->getDefaultFramebuffer();
   }
 #endif
 

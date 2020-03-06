@@ -84,7 +84,7 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage)
                 if (!cmdBeginRenderPass->frameBuffer->isOffscreen() )
                     mtlRenderPassDescriptor = mtkView.currentRenderPassDescriptor;
                 else
-                    mtlRenderPassDescriptor = static_cast<CCMTLRenderPass*>(cmdBeginRenderPass->frameBuffer->renderPass() )->getMTLRenderPassDescriptor();
+                    mtlRenderPassDescriptor = static_cast<CCMTLRenderPass*>(cmdBeginRenderPass->frameBuffer->getRenderPass() )->getMTLRenderPassDescriptor();
                 
                 if (cmdBeginRenderPass->clearFlags & GFXClearFlagBit::COLOR)
                     mtlRenderPassDescriptor.colorAttachments[0].clearColor = mu::toMTLClearColor(cmdBeginRenderPass->clearColors[0]);
@@ -163,13 +163,13 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage)
                         if (gpuInputAssembler->mtlIndexBuffer && cmd->drawInfo.indexCount >= 0)
                         {
                             uint8_t* offset = 0;
-                            offset += cmd->drawInfo.firstIndex * inputAssembler->indexBuffer()->stride();
+                            offset += cmd->drawInfo.firstIndex * inputAssembler->getIndexBuffer()->getStride();
                             if (cmd->drawInfo.instanceCount == 0)
                             {
                                 [encoder drawIndexedPrimitives:primitiveType
                                                     indexCount:cmd->drawInfo.indexCount
                                                      // TODO: remove static_cast<>.
-                                                     indexType:static_cast<CCMTLBuffer*>(inputAssembler->indexBuffer() )->getIndexType()
+                                                     indexType:static_cast<CCMTLBuffer*>(inputAssembler->getIndexBuffer() )->getIndexType()
                                                    indexBuffer:gpuInputAssembler->mtlIndexBuffer
                                              indexBufferOffset:0];
                             }

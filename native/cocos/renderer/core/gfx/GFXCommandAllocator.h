@@ -14,7 +14,7 @@ public:
   virtual bool initialize(const GFXCommandAllocatorInfo& info) = 0;
   virtual void destroy() = 0;
   
-  CC_INLINE GFXDevice* device() const { return _device; }
+  CC_INLINE GFXDevice* getDevice() const { return _device; }
   
 protected:
   GFXDevice* _device = nullptr;

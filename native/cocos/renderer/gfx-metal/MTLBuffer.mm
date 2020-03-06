@@ -40,7 +40,7 @@ bool CCMTLBuffer::initialize(const GFXBufferInfo& info)
     if ((_flags & GFXBufferFlagBit::BAKUP_BUFFER) && _size > 0)
     {
         _buffer = (uint8_t*)CC_MALLOC(_size);
-        _device->memoryStatus().bufferSize += _size;
+        _device->getMemoryStatus().bufferSize += _size;
     }
     
     switch (info.usage) {
@@ -62,7 +62,7 @@ bool CCMTLBuffer::initialize(const GFXBufferInfo& info)
                 CCASSERT(false, "CCMTLBuffer: failed to create memory for transfer buffer.");
                 return false;
             }
-            _device->memoryStatus().bufferSize += _size;
+            _device->getMemoryStatus().bufferSize += _size;
             break;
             
         case GFXBufferUsage::STORAGE:
@@ -80,7 +80,7 @@ bool CCMTLBuffer::initialize(const GFXBufferInfo& info)
         if (!_buffer)
             CCLOG("CCMTLBuffer: failed to create backup memory.");
         else
-            _device->memoryStatus().bufferSize += _size;
+            _device->getMemoryStatus().bufferSize += _size;
     }
     
     return true;
@@ -98,13 +98,13 @@ void CCMTLBuffer::destroy()
     {
         CC_FREE(_transferBuffer);
         _transferBuffer = nullptr;
-        _device->memoryStatus().bufferSize -= _size;
+        _device->getMemoryStatus().bufferSize -= _size;
     }
     
     if (_buffer)
     {
         CC_FREE(_buffer);
-        _device->memoryStatus().bufferSize -= _size;
+        _device->getMemoryStatus().bufferSize -= _size;
         _buffer = nullptr;
     }
 }

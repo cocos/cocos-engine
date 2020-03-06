@@ -14,10 +14,10 @@ class CC_CORE_API GFXRenderPass : public Object {
   virtual bool initialize(const GFXRenderPassInfo& info) = 0;
   virtual void destroy() = 0;
   
-  CC_INLINE GFXDevice* device() const { return _device; }
-  CC_INLINE const GFXColorAttachmentList& colorAttachments() const { return _colorAttachments; }
-  CC_INLINE const GFXDepthStencilAttachment& depthStencilAttachment() const { return _depthStencilAttachment; }
-  CC_INLINE const GFXSubPassList& subPasses() const { return _subPasses; }
+  CC_INLINE GFXDevice* getDevice() const { return _device; }
+  CC_INLINE const GFXColorAttachmentList& getColorAttachments() const { return _colorAttachments; }
+  CC_INLINE const GFXDepthStencilAttachment& getDepthStencilAttachment() const { return _depthStencilAttachment; }
+  CC_INLINE const GFXSubPassList& getSubPasses() const { return _subPasses; }
 
  protected:
   GFXDevice* _device = nullptr;

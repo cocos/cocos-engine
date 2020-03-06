@@ -14,18 +14,18 @@ class CC_CORE_API GFXInputAssembler : public Object {
   virtual bool initialize(const GFXInputAssemblerInfo& info) = 0;
   virtual void destroy() = 0;
   
-  CC_INLINE GFXDevice* device() const { return _device; }
-  CC_INLINE const GFXAttributeList& attributes() const { return _attributes; }
-  CC_INLINE const GFXBufferList& vertexBuffers() const { return _vertexBuffers; }
-  CC_INLINE GFXBuffer* indexBuffer() const { return _indexBuffer; }
-  CC_INLINE GFXBuffer* indirectBuffer() const { return _indirectBuffer; }
-  CC_INLINE uint vertexCount() const { return _vertexCount; }
-  CC_INLINE uint firstVertex() const { return _firstVertex; }
-  CC_INLINE uint indexCount() const { return _indexCount; }
-  CC_INLINE uint firstIndex() const { return _firstIndex; }
-  CC_INLINE uint vertexOffset() const { return _vertexOffset; }
-  CC_INLINE uint instanceCount() const { return _instanceCount; }
-  CC_INLINE uint firstInstance() const { return _firstInstance; }
+  CC_INLINE GFXDevice* getDevice() const { return _device; }
+  CC_INLINE const GFXAttributeList& getAttributes() const { return _attributes; }
+  CC_INLINE const GFXBufferList& getVertexBuffers() const { return _vertexBuffers; }
+  CC_INLINE GFXBuffer* getIndexBuffer() const { return _indexBuffer; }
+  CC_INLINE GFXBuffer* getIndirectBuffer() const { return _indirectBuffer; }
+  CC_INLINE uint getVertexCount() const { return _vertexCount; }
+  CC_INLINE uint getFirstVertex() const { return _firstVertex; }
+  CC_INLINE uint getIndexCount() const { return _indexCount; }
+  CC_INLINE uint getFirstIndex() const { return _firstIndex; }
+  CC_INLINE uint getVertexOffset() const { return _vertexOffset; }
+  CC_INLINE uint getInstanceCount() const { return _instanceCount; }
+  CC_INLINE uint getFirstInstance() const { return _firstInstance; }
   
   CC_INLINE void setVertexCount(uint count) { _vertexCount = count; }
   CC_INLINE void setFirstVertex(uint first) { _firstVertex = first; }

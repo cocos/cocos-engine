@@ -15,23 +15,23 @@ class CC_CORE_API GFXWindow : public Object {
   virtual void destroy() = 0;
   virtual void resize(uint width, uint height) = 0;
   
-  CC_INLINE GFXDevice* device() const { return _device; }
-  CC_INLINE const String& title() const { return _title; }
-  CC_INLINE int left() const { return _left; }
-  CC_INLINE int top() const { return _top; }
-  CC_INLINE uint width() const { return _width; }
-  CC_INLINE uint height() const { return _height; }
-  CC_INLINE uint nativeWidth() const { return _nativeWidth; }
-  CC_INLINE uint nativeHeight() const { return _nativeHeight; }
-  CC_INLINE GFXFormat colorFormat() const { return _colorFmt; }
-  CC_INLINE GFXFormat detphStencilFormat() const { return _depthStencilFmt; }
+  CC_INLINE GFXDevice* getDevice() const { return _device; }
+  CC_INLINE const String& getTitle() const { return _title; }
+  CC_INLINE int getLeft() const { return _left; }
+  CC_INLINE int getTop() const { return _top; }
+  CC_INLINE uint getWidth() const { return _width; }
+  CC_INLINE uint getHeight() const { return _height; }
+  CC_INLINE uint getNativeWidth() const { return _nativeWidth; }
+  CC_INLINE uint getNativeHeight() const { return _nativeHeight; }
+  CC_INLINE GFXFormat getColorFormat() const { return _colorFmt; }
+  CC_INLINE GFXFormat getDetphStencilFormat() const { return _depthStencilFmt; }
   CC_INLINE bool isOffscreen() const { return _isOffscreen; }
-  CC_INLINE GFXRenderPass* renderPass() const { return _renderPass; }
-  CC_INLINE GFXTexture* colorTexture() const { return _colorTex; }
-  CC_INLINE GFXTextureView* colorTexView() const { return _colorTexView; }
-  CC_INLINE GFXTexture* depthStencilTexture() const { return _depthStencilTex; }
-  CC_INLINE GFXTextureView* depthStencilTexView() const { return _depthStencilTexView; }
-  CC_INLINE GFXFramebuffer* framebuffer() const { return _framebuffer; }
+  CC_INLINE GFXRenderPass* getRenderPass() const { return _renderPass; }
+  CC_INLINE GFXTexture* getColorTexture() const { return _colorTex; }
+  CC_INLINE GFXTextureView* getColorTexView() const { return _colorTexView; }
+  CC_INLINE GFXTexture* getDepthStencilTexture() const { return _depthStencilTex; }
+  CC_INLINE GFXTextureView* getDepthStencilTexView() const { return _depthStencilTexView; }
+  CC_INLINE GFXFramebuffer* getFramebuffer() const { return _framebuffer; }
   
  protected:
   GFXDevice* _device = nullptr;

@@ -14,14 +14,14 @@ class CC_CORE_API GFXTextureView : public Object {
   virtual bool initialize(const GFXTextureViewInfo& info) = 0;
   virtual void destroy() = 0;
   
-  CC_INLINE GFXDevice* device() const { return _device; }
-  CC_INLINE GFXTexture* texture() const { return _texture; }
-  CC_INLINE GFXTextureViewType type() const { return _type; }
-  CC_INLINE GFXFormat format() const { return _format; }
-  CC_INLINE uint baseLevel() const { return _baseLevel; }
-  CC_INLINE uint levelCount() const { return _levelCount; }
-  CC_INLINE uint baseLayer() const { return _baseLayer; }
-  CC_INLINE uint layerCount() const { return _layerCount; }
+  CC_INLINE GFXDevice* getDevice() const { return _device; }
+  CC_INLINE GFXTexture* getTexture() const { return _texture; }
+  CC_INLINE GFXTextureViewType getType() const { return _type; }
+  CC_INLINE GFXFormat getFormat() const { return _format; }
+  CC_INLINE uint getBaseLevel() const { return _baseLevel; }
+  CC_INLINE uint getLevelCount() const { return _levelCount; }
+  CC_INLINE uint getBaseLayer() const { return _baseLayer; }
+  CC_INLINE uint getLayerCount() const { return _layerCount; }
   
  protected:
   GFXDevice* _device = nullptr;

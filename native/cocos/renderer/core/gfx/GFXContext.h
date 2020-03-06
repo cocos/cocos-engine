@@ -15,11 +15,11 @@ class CC_CORE_API GFXContext : public Object {
   virtual void destroy() = 0;
   virtual void present() = 0;
 
-  CC_INLINE GFXDevice* device() const { return _device; }
-  CC_INLINE GFXContext* sharedContext() const { return _sharedContext; }
-  CC_INLINE GFXVsyncMode vsyncMode() const { return _vsyncMode; }
-  CC_INLINE GFXFormat colorFormat() const { return _colorFmt; }
-  CC_INLINE GFXFormat detphStencilFormat() const { return _depthStencilFmt; }
+  CC_INLINE GFXDevice* getDevice() const { return _device; }
+  CC_INLINE GFXContext* getSharedContext() const { return _sharedContext; }
+  CC_INLINE GFXVsyncMode getVsyncMode() const { return _vsyncMode; }
+  CC_INLINE GFXFormat getColorFormat() const { return _colorFmt; }
+  CC_INLINE GFXFormat getDetphStencilFormat() const { return _depthStencilFmt; }
   
  protected:
   GFXDevice* _device = nullptr;

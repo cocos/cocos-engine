@@ -14,9 +14,9 @@ public:
   virtual bool initialize(const GFXPipelineLayoutInfo& info) = 0;
   virtual void destroy() = 0;
   
-  CC_INLINE GFXDevice* device() const { return _device; }
-  CC_INLINE const GFXPushConstantRangeList& pushConstantsRanges() const { return _pushConstantsRanges; }
-  CC_INLINE const GFXBindingLayoutList& layouts() const { return _layouts; }
+  CC_INLINE GFXDevice* getDevice() const { return _device; }
+  CC_INLINE const GFXPushConstantRangeList& getPushConstantsRanges() const { return _pushConstantsRanges; }
+  CC_INLINE const GFXBindingLayoutList& getLayouts() const { return _layouts; }
   
 protected:
   GFXDevice* _device = nullptr;

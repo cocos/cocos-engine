@@ -20,9 +20,9 @@ bool GLES2InputAssembler::initialize(const GFXInputAssemblerInfo &info) {
   _indirectBuffer = info.indirectBuffer;
   
   if (_indexBuffer) {
-    _indexCount = _indexBuffer->count();
+    _indexCount = _indexBuffer->getCount();
   } else if (_vertexBuffers.size()) {
-    _vertexCount = _vertexBuffers[0]->count();
+    _vertexCount = _vertexBuffers[0]->getCount();
   }
   
   _gpuInputAssembler = CC_NEW(GLES2GPUInputAssembler);

@@ -14,10 +14,10 @@ class CC_CORE_API GFXFramebuffer : public Object {
   virtual bool initialize(const GFXFramebufferInfo& info) = 0;
   virtual void destroy() = 0;
   
-  CC_INLINE GFXDevice* device() const { return _device; }
-  CC_INLINE GFXRenderPass* renderPass() const { return _renderPass; }
-  CC_INLINE const GFXTextureViewList& colorViews() const { return _colorViews; }
-  CC_INLINE GFXTextureView* depthStencilView() const { return _depthStencilView; }
+  CC_INLINE GFXDevice* getDevice() const { return _device; }
+  CC_INLINE GFXRenderPass* getRenderPass() const { return _renderPass; }
+  CC_INLINE const GFXTextureViewList& getColorViews() const { return _colorViews; }
+  CC_INLINE GFXTextureView* getDepthStencilView() const { return _depthStencilView; }
   CC_INLINE bool isOffscreen() const { return _isOffscreen; }
   
  protected:

@@ -15,8 +15,8 @@ public:
   virtual void destroy() = 0;
   virtual void submit(const std::vector<GFXCommandBuffer*>& cmd_buffs) = 0;
   
-  CC_INLINE GFXDevice* device() const { return _device; }
-  CC_INLINE GFXQueueType type() const { return _type; }
+  CC_INLINE GFXDevice* getDevice() const { return _device; }
+  CC_INLINE GFXQueueType getType() const { return _type; }
   
 protected:
   GFXDevice* _device = nullptr;

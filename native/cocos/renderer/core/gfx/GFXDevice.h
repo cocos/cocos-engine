@@ -32,20 +32,20 @@ class CC_CORE_API GFXDevice : public Object {
   virtual GFXPipelineLayout* createPipelineLayout(const GFXPipelineLayoutInfo& info) = 0;
   virtual void copyBuffersToTexture(const GFXDataArray& buffers, GFXTexture* dst, const GFXBufferTextureCopyList& regions) = 0;
 
-  CC_INLINE GFXAPI gfxAPI() const { return _api; }
-  CC_INLINE uint width() { return _width; }
-  CC_INLINE uint height() { return _height; }
-  CC_INLINE uint nativeWidth() { return _nativeWidth; }
-  CC_INLINE uint nativeHeight() { return _nativeHeight; }
-  CC_INLINE GFXMemoryStatus& memoryStatus() { return _memoryStatus; }
-  CC_INLINE GFXContext* context() const { return _context; }
-  CC_INLINE GFXWindow* mainWindow() const { return _window; }
-  CC_INLINE GFXQueue* queue() const { return _queue; }
-  CC_INLINE GFXCommandAllocator* commandAllocator() const { return _cmdAllocator; }
-  CC_INLINE const String& renderer() const { return _renderer; }
-  CC_INLINE const String& vendor() const { return _vendor; }
-  CC_INLINE uint numDrawCalls() const { return _numDrawCalls; }
-  CC_INLINE uint numTris() const { return _numTriangles; }
+  CC_INLINE GFXAPI getAPI() const { return _api; }
+  CC_INLINE uint getWidth() { return _width; }
+  CC_INLINE uint getHeight() { return _height; }
+  CC_INLINE uint getNativeWidth() { return _nativeWidth; }
+  CC_INLINE uint getNativeHeight() { return _nativeHeight; }
+  CC_INLINE GFXMemoryStatus& getMemoryStatus() { return _memoryStatus; }
+  CC_INLINE GFXContext* getContext() const { return _context; }
+  CC_INLINE GFXWindow* getMainWindow() const { return _window; }
+  CC_INLINE GFXQueue* getQueue() const { return _queue; }
+  CC_INLINE GFXCommandAllocator* getCommandAllocator() const { return _cmdAllocator; }
+  CC_INLINE const String& getRenderer() const { return _renderer; }
+  CC_INLINE const String& getVendor() const { return _vendor; }
+  CC_INLINE uint getNumDrawCalls() const { return _numDrawCalls; }
+  CC_INLINE uint getNumTris() const { return _numTriangles; }
   CC_INLINE bool hasFeature(GFXFeature feature) const { return _features[static_cast<uint8_t>(feature)]; }
   
  protected:

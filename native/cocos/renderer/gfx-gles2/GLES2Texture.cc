@@ -27,7 +27,7 @@ bool GLES2Texture::initialize(const GFXTextureInfo &info) {
   
   if (_flags & GFXTextureFlags::BAKUP_BUFFER) {
     _buffer = (uint8_t*)CC_MALLOC(_size);
-    _device->memoryStatus().textureSize += _size;
+    _device->getMemoryStatus().textureSize += _size;
   }
   
   _gpuTexture = CC_NEW(GLES2GPUTexture);
@@ -78,7 +78,7 @@ bool GLES2Texture::initialize(const GFXTextureInfo &info) {
   _gpuTexture->isPowerOf2 = math::IsPowerOfTwo(_width) && math::IsPowerOfTwo(_height);
   
   GLES2CmdFuncCreateTexture((GLES2Device*)_device, _gpuTexture);
-  _device->memoryStatus().textureSize += _size;
+  _device->getMemoryStatus().textureSize += _size;
   
   return true;
 }
@@ -86,14 +86,14 @@ bool GLES2Texture::initialize(const GFXTextureInfo &info) {
 void GLES2Texture::destroy() {
   if (_gpuTexture) {
     GLES2CmdFuncDestroyTexture((GLES2Device*)_device, _gpuTexture);
-    _device->memoryStatus().textureSize -= _size;
+    _device->getMemoryStatus().textureSize -= _size;
     CC_DELETE(_gpuTexture);
     _gpuTexture = nullptr;
   }
   
   if (_buffer) {
     CC_FREE(_buffer);
-    _device->memoryStatus().textureSize -= _size;
+    _device->getMemoryStatus().textureSize -= _size;
     _buffer = nullptr;
   }
 }
@@ -106,7 +106,7 @@ void GLES2Texture::resize(uint width, uint height) {
     _height = height;
     _size = size;
     
-    GFXMemoryStatus& status = _device->memoryStatus();
+    GFXMemoryStatus& status = _device->getMemoryStatus();
     _gpuTexture->width = _width;
     _gpuTexture->height = _height;
     _gpuTexture->size = _size;

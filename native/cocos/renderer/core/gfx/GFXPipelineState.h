@@ -14,16 +14,16 @@ public:
   virtual bool initialize(const GFXPipelineStateInfo& info) = 0;
   virtual void destroy() = 0;
   
-  CC_INLINE GFXDevice* device() const { return _device; }
-  CC_INLINE GFXShader* shader() const { return _shader; }
-  CC_INLINE GFXPrimitiveMode primitive() const { return _primitive; }
-  CC_INLINE const GFXInputState& inputState() const { return _inputState; }
-  CC_INLINE const GFXRasterizerState& rasterizerState() const { return _rasterizerState; }
-  CC_INLINE const GFXDepthStencilState& depthStencilState() const { return _depthStencilState; }
-  CC_INLINE const GFXBlendState& blendState() const { return _blendState; }
-  CC_INLINE const GFXDynamicStateList& dynamicStates() const { return _dynamicStates; }
-  CC_INLINE const GFXPipelineLayout* pipelineLayout() const { return _layout; }
-  CC_INLINE const GFXRenderPass* renderPass() const { return _renderPass; }
+  CC_INLINE GFXDevice* getDevice() const { return _device; }
+  CC_INLINE GFXShader* getShader() const { return _shader; }
+  CC_INLINE GFXPrimitiveMode getPrimitive() const { return _primitive; }
+  CC_INLINE const GFXInputState& getInputState() const { return _inputState; }
+  CC_INLINE const GFXRasterizerState& getRasterizerState() const { return _rasterizerState; }
+  CC_INLINE const GFXDepthStencilState& getDepthStencilState() const { return _depthStencilState; }
+  CC_INLINE const GFXBlendState& getBlendState() const { return _blendState; }
+  CC_INLINE const GFXDynamicStateList& getDynamicStates() const { return _dynamicStates; }
+  CC_INLINE const GFXPipelineLayout* getPipelineLayout() const { return _layout; }
+  CC_INLINE const GFXRenderPass* getRenderPass() const { return _renderPass; }
 
 protected:
   GFXDevice* _device = nullptr;

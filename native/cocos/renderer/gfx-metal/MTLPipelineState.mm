@@ -55,7 +55,7 @@ void CCMTLPipelineState::updateBindingBlocks(const GFXBindingLayout* bl)
     if (!bl)
         return;
     
-    for (const auto& bindingUnit : bl->bindingUnits() )
+    for (const auto& bindingUnit : bl->getBindingUnits() )
     {
         for (auto& block : _vertexUniformBlocks)
         {
@@ -250,7 +250,7 @@ void CCMTLPipelineState::setFormats(MTLRenderPipelineDescriptor* descriptor)
 {
     int i = 0;
     MTLPixelFormat mtlPixelFormat;
-    for (const auto& colorAttachment : _renderPass->colorAttachments())
+    for (const auto& colorAttachment : _renderPass->getColorAttachments())
     {
         mtlPixelFormat = mu::toMTLPixelFormat(colorAttachment.format);
         if (mtlPixelFormat != MTLPixelFormatInvalid)
@@ -259,11 +259,11 @@ void CCMTLPipelineState::setFormats(MTLRenderPipelineDescriptor* descriptor)
         ++i;
     }
     
-    mtlPixelFormat = mu::toMTLPixelFormat(_renderPass->depthStencilAttachment().format);
+    mtlPixelFormat = mu::toMTLPixelFormat(_renderPass->getDepthStencilAttachment().format);
     if (mtlPixelFormat != MTLPixelFormatInvalid)
         descriptor.depthAttachmentPixelFormat = mtlPixelFormat;
     
-    mtlPixelFormat = mu::toMTLPixelFormat(_renderPass->depthStencilAttachment().format);
+    mtlPixelFormat = mu::toMTLPixelFormat(_renderPass->getDepthStencilAttachment().format);
     if (mtlPixelFormat != MTLPixelFormatInvalid)
         descriptor.stencilAttachmentPixelFormat = mtlPixelFormat;
 }
@@ -375,7 +375,7 @@ std::tuple<uint,uint> CCMTLPipelineState::getBufferBinding(MTLArgument* argument
     for (MTLStructMember* member in argument.bufferStructType.members)
     {
         const char* memberName = [member.name UTF8String];
-        for (const auto& block : _shader->blocks() )
+        for (const auto& block : _shader->getBlocks() )
         {
             for (const auto& uniform : block.uniforms)
             {
@@ -394,9 +394,9 @@ void CCMTLPipelineState::bindTextureAndSampler(MTLArgument* argument, bool isVer
         return;
     
     const char* argumentName = [argument.name UTF8String];
-    for (auto bindingLayout : _layout->layouts() )
+    for (auto bindingLayout : _layout->getLayouts() )
     {
-        for (const auto& bindingUnit : bindingLayout->bindingUnits() )
+        for (const auto& bindingUnit : bindingLayout->getBindingUnits() )
         {
             if (bindingUnit.sampler)
             {
@@ -418,9 +418,9 @@ bool CCMTLPipelineState::matchSamplerName(const char* argumentName, const std::s
 
 void CCMTLPipelineState::bindTexture(MTLArgument* argument, uint originBinding, bool isVertex)
 {
-    for (auto bindingLayout : _layout->layouts() )
+    for (auto bindingLayout : _layout->getLayouts() )
     {
-        for (const auto& bindingUnit : bindingLayout->bindingUnits() )
+        for (const auto& bindingUnit : bindingLayout->getBindingUnits() )
         {
             if (bindingUnit.binding == originBinding)
             {
@@ -447,9 +447,9 @@ void CCMTLPipelineState::bindTexture(MTLArgument* argument, uint originBinding, 
 
 void CCMTLPipelineState::bindSamplerState(MTLArgument* argument, uint originBinding, bool isVertex)
 {
-    for (auto bindingLayout : _layout->layouts() )
+    for (auto bindingLayout : _layout->getLayouts() )
     {
-        for (const auto& bindingUnit : bindingLayout->bindingUnits() )
+        for (const auto& bindingUnit : bindingLayout->getBindingUnits() )
         {
             if (bindingUnit.sampler && bindingUnit.binding == originBinding)
             {

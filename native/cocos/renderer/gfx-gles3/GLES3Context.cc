@@ -192,8 +192,8 @@ bool GLES3Context::initialize(const GFXContextInfo &info) {
       return false;
     }
 
-    uint width = _device->width();
-    uint height = _device->height();
+    uint width = _device->getWidth();
+    uint height = _device->getHeight();
     ANativeWindow_setBuffersGeometry((ANativeWindow*)_windowHandle, width, height, n_fmt);
 #endif
 
@@ -256,8 +256,8 @@ bool GLES3Context::initialize(const GFXContextInfo &info) {
     _eglDisplay = sharedCtx->egl_display();
     _eglConfig = sharedCtx->egl_config();
     _eglSharedContext = sharedCtx->egl_shared_ctx();
-    _colorFmt = sharedCtx->colorFormat();
-    _depthStencilFmt = sharedCtx->detphStencilFormat();
+    _colorFmt = sharedCtx->getColorFormat();
+    _depthStencilFmt = sharedCtx->getDetphStencilFormat();
 
     EGLint pbuff_attribs[] =
     {
