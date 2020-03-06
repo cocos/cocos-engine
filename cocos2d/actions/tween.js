@@ -195,7 +195,7 @@ Tween.stopAllByTag = function (tag) {
 }
 /**
  * !#en Stop all tweens by target
- * !#zh 停止所有缓动
+ * !#zh 停止所有指定对象的缓动
  * @method stopAllByTarget
  * @static
  * @param {Object} target
