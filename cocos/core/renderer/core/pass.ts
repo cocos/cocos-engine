@@ -35,6 +35,7 @@ import { GFXBuffer, IGFXBufferInfo } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXDynamicState,
     GFXGetTypeSize, GFXMemoryUsageBit, GFXPrimitiveMode, GFXType } from '../../gfx/define';
 import { GFXDevice, GFXFeature } from '../../gfx/device';
+import { IGFXAttribute } from '../../gfx/input-assembler';
 import { GFXPipelineLayout, IGFXPipelineLayoutInfo } from '../../gfx/pipeline-layout';
 import { GFXBlendState, GFXBlendTarget, GFXDepthStencilState,
     GFXInputState, GFXPipelineState, GFXRasterizerState, IGFXPipelineStateInfo } from '../../gfx/pipeline-state';
@@ -114,7 +115,7 @@ const _plInfo: IGFXPipelineLayoutInfo = {
 const _psoInfo: IGFXPipelineStateInfo & IPSOHashInfo = {
     primitive: 0,
     shader: null!,
-    inputState: new GFXInputState(),
+    inputState: null!,
     rasterizerState: null!,
     depthStencilState: null!,
     blendState: null!,
@@ -199,6 +200,7 @@ export class Pass {
     protected _primitive: GFXPrimitiveMode = GFXPrimitiveMode.TRIANGLE_LIST;
     protected _stage: RenderPassStage = RenderPassStage.DEFAULT;
     protected _bindings: IGFXBinding[] = [];
+    protected _inputState: GFXInputState = new GFXInputState();
     protected _bs: GFXBlendState = new GFXBlendState();
     protected _dss: GFXDepthStencilState = new GFXDepthStencilState();
     protected _rs: GFXRasterizerState = new GFXRasterizerState();
@@ -428,6 +430,10 @@ export class Pass {
         // textures are reused
         this._samplers = {};
         this._textureViews = {};
+        if (this._instancedBuffer) {
+            this._instancedBuffer.destroy();
+            this._instancedBuffer = null;
+        }
         if (this._batchedBuffer) {
             this._batchedBuffer.destroy();
             this._batchedBuffer = null;
@@ -514,18 +520,14 @@ export class Pass {
      * @param defineOverrides shader 预处理宏定义重载
      */
     public tryCompile () {
-        if (this._defines.USE_BATCHING) { this.createBatchedBuffer(); }
-        if (this._defines.USE_INSTANCING) {
-            if (this._device.hasFeature(GFXFeature.INSTANCED_ARRAYS)) { this.createInstancedBuffer(); }
-            else { this._defines.USE_INSTANCING = false; }
-        }
         const pipeline = (cc.director.root as Root).pipeline;
         if (!pipeline) { return null; }
+        this._dynamicBatchingSync();
         this._renderPass = pipeline.getRenderPass(this._stage);
         if (!this._renderPass) { console.warn(`illegal pass stage.`); return false; }
         const res = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
         if (!res.shader) { console.warn(`create shader ${this._programName} failed`); return false; }
-        this._shader = res.shader; this._bindings = res.bindings;
+        this._shader = res.shader; this._bindings = res.bindings; this._inputState = res.inputState;
         return true;
     }
 
@@ -569,6 +571,7 @@ export class Pass {
         _plInfo.layouts = [bindingLayout];
         const pipelineLayout = this._device.createPipelineLayout(_plInfo);
         // create pipeline state
+        _psoInfo.inputState = res && res.inputState || this._inputState;
         _psoInfo.primitive = this._primitive;
         _psoInfo.shader = shader;
         _psoInfo.rasterizerState = this._rs;
@@ -596,34 +599,6 @@ export class Pass {
             const { bindingLayout: bl, pipelineLayout: pl, pipelineState: ps } = this._resources[idx];
             bl.destroy(); pl.destroy(); ps.destroy();
             this._resources.splice(idx, 1);
-        }
-    }
-
-    /**
-     * @zh
-     * 创建合批缓冲。
-     */
-    public createBatchedBuffer () {
-        if (!this._batchedBuffer) {
-            if (this._bs.targets[0].blend) {
-                console.error('Transparent pass(' + this.program + ') can\'t use dynamic batching!');
-            } else {
-                this._batchedBuffer = new BatchedBuffer(this);
-            }
-        }
-    }
-
-    /**
-     * @zh
-     * 创建 GPU instance 缓冲。
-     */
-    public createInstancedBuffer () {
-        if (!this._instancedBuffer) {
-            if (this._bs.targets[0].blend) {
-                console.error('Transparent pass(' + this.program + ') can\'t use instancing!');
-            } else {
-                this._instancedBuffer = new InstancedBuffer(this);
-            }
         }
     }
 
@@ -667,6 +642,30 @@ export class Pass {
         this.tryCompile();
     }
 
+    protected _dynamicBatchingSync () {
+        if (this._defines.USE_INSTANCING) {
+            if (this._bs.targets[0].blend || !this._device.hasFeature(GFXFeature.INSTANCED_ARRAYS)) {
+                this._defines.USE_INSTANCING = false;
+            } else if (!this._instancedBuffer) {
+                this._instancedBuffer = new InstancedBuffer(this);
+            }
+        } else if (this._defines.USE_BATCHING) {
+            if (this._bs.targets[0].blend) {
+                this._defines.USE_BATCHING = false;
+            } else if (!this._batchedBuffer) {
+                this._batchedBuffer = new BatchedBuffer(this);
+            }
+        }
+        if (!this._defines.USE_INSTANCING && this._instancedBuffer) {
+            this._instancedBuffer.destroy();
+            this._instancedBuffer = null;
+        }
+        if (!this._defines.USE_BATCHING && this._batchedBuffer) {
+            this._batchedBuffer.destroy();
+            this._batchedBuffer = null;
+        }
+    }
+
     protected _getShaderWithBuiltinMacroPatches (patches: IMacroPatch[]) {
         if (EDITOR) {
             for (let i = 0; i < patches.length; i++) {
@@ -694,6 +693,7 @@ export class Pass {
     get priority () { return this._priority; }
     get primitive () { return this._primitive; }
     get stage () { return this._stage; }
+    get inputState () { return this._inputState; }
     get rasterizerState () { return this._rs; }
     get depthStencilState () { return this._dss; }
     get blendState () { return this._bs; }

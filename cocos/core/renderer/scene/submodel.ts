@@ -9,24 +9,20 @@ import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { RenderPriority } from '../../pipeline/define';
 
 export class SubModel {
-    public psos: GFXPipelineState[] | null;
-    public priority: RenderPriority;
 
-    protected _subMeshObject: RenderingSubMesh | null;
-    protected _inputAssembler: GFXInputAssembler | null;
-    private _material: Material | null;
-    private _cmdBuffers: GFXCommandBuffer[];
+    public priority: RenderPriority = RenderPriority.DEFAULT;
+    protected _psos: GFXPipelineState[] | null = null;
+    protected _subMeshObject: RenderingSubMesh | null = null;
+    protected _material: Material | null = null;
+    protected _inputAssembler: GFXInputAssembler | null = null;
+    protected _cmdBuffers: GFXCommandBuffer[] = [];
 
-    get commandBuffers () {
-        return this._cmdBuffers;
+    set psos (val) {
+        this._psos = val;
     }
 
-    get passes () {
-        return this._material!.passes;
-    }
-
-    get inputAssembler () {
-        return this._inputAssembler;
+    get psos () {
+        return this._psos;
     }
 
     set subMeshData (sm) {
@@ -57,19 +53,21 @@ export class SubModel {
         return this._material;
     }
 
-    constructor () {
-        this.psos = null;
-        this.priority = RenderPriority.DEFAULT;
-        this._subMeshObject = null;
-        this._material = null;
-        this._cmdBuffers = new Array<GFXCommandBuffer>();
-        this._inputAssembler = null;
+    get passes () {
+        return this._material!.passes;
+    }
+
+    get inputAssembler () {
+        return this._inputAssembler;
+    }
+
+    get commandBuffers () {
+        return this._cmdBuffers;
     }
 
     public initialize (subMesh: RenderingSubMesh, mat: Material, psos: GFXPipelineState[]) {
         this.psos = psos;
         this.subMeshData = subMesh;
-
         this.material = mat;
     }
 
@@ -78,21 +76,19 @@ export class SubModel {
             this._inputAssembler.destroy();
         }
         for (let i = 0; i < this.passes.length; i++) {
-            this.passes[i].destroyPipelineState(this.psos![i]);
+            this.passes[i].destroyPipelineState(this._psos![i]);
         }
         for (const cmdBuffer of this._cmdBuffers) {
             cmdBuffer.destroy();
         }
-        this._cmdBuffers.splice(0);
+        this._cmdBuffers.length = 0;
         this._material = null;
     }
 
     public updateCommandBuffer () {
-        if (!this._material) {
-            return;
-        }
-        for (let i = 0; i < this._material!.passes.length; i++) {
-            if (EDITOR && this._subMeshObject && this._material!.passes[i].primitive !== this._subMeshObject.primitiveMode) {
+        if (!this._material) { return; }
+        for (let i = 0; i < this._material.passes.length; i++) {
+            if (EDITOR && this._subMeshObject && this._material.passes[i].primitive !== this._subMeshObject.primitiveMode) {
                 console.warn(`mesh primitive type doesn't match with pass settings`);
             }
             this.recordCommandBuffer(i);
@@ -106,8 +102,8 @@ export class SubModel {
     }
 
     protected recordCommandBuffer (index: number) {
-        const device = cc.director.root!.device as GFXDevice;
-        const pso = this.psos![index];
+        const device = cc.director.root.device as GFXDevice;
+        const pso = this._psos![index];
         if (this._cmdBuffers[index] == null) {
             const cmdBufferInfo = {
                 allocator: device.commandAllocator,

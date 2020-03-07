@@ -63,12 +63,12 @@ export class UIBatchModel extends Model {
 class UISubModel extends SubModel {
     constructor () {
         super();
-        this.psos = [];
+        this._psos = [];
     }
 
     public directInitialize (ia: GFXInputAssembler, mat: Material, pso: GFXPipelineState) {
         this._inputAssembler = ia;
-        this.psos![0] = pso;
+        this._psos![0] = pso;
         this.material = mat;
     }
 

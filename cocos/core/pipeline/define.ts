@@ -202,6 +202,7 @@ localBindingsDesc.set(UBOLocal.BLOCK.name, {
     type: GFXBindingType.UNIFORM_BUFFER,
     blockInfo: UBOLocal.BLOCK,
 });
+export const instMatWorld = 'a_matWorld0';
 
 export class UBOLocalBatched {
     public static BATCHING_COUNT: number = 10;
@@ -300,6 +301,7 @@ localBindingsDesc.set(UBOSkinningAnimation.BLOCK.name, {
     type: GFXBindingType.UNIFORM_BUFFER,
     blockInfo: UBOSkinningAnimation.BLOCK,
 });
+export const instJointsAnimInfo = 'a_jointsAnimInfo';
 export class UBOSkinning {
     public static JOINTS_OFFSET: number = 0;
     public static COUNT: number = UBOSkinning.JOINTS_OFFSET + JointUniformCapacity * 12;

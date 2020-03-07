@@ -34,6 +34,8 @@ import { BufferBlob } from '../3d/misc/buffer-blob';
 import { aabb } from '../geometry';
 import { GFXBuffer } from '../gfx/buffer';
 import {
+    DataStorage,
+    getStorageConstructor,
     GFXAttributeName,
     GFXBufferUsageBit,
     GFXFormat,
@@ -46,7 +48,6 @@ import { GFXDevice, GFXFeature } from '../gfx/device';
 import { IGFXAttribute } from '../gfx/input-assembler';
 import { warnID } from '../platform/debug';
 import sys from '../platform/sys';
-import { DataPoolManager } from '../renderer/data-pool-manager';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { Asset } from './asset';
 import { Skeleton } from './skeleton';
@@ -1031,7 +1032,7 @@ export class Mesh extends Asset {
      * 否则，创建足够大的缓冲区包含指定属性的所有数据，并为该缓冲区创建与属性类型对应的数组视图。
      */
     public readAttribute (primitiveIndex: number, attributeName: GFXAttributeName): Storage | null {
-        let result: Storage | null = null;
+        let result: DataStorage | null = null;
         this._accessAttribute(primitiveIndex, attributeName, (vertexBundle, iAttribute) => {
             const format = vertexBundle.attributes[iAttribute].format;
 
@@ -1040,7 +1041,7 @@ export class Mesh extends Asset {
                 vertexBundle.view.offset + getOffset(vertexBundle.attributes, iAttribute));
 
             const formatInfo = GFXFormatInfos[format];
-            const storageConstructor = getStorageConstructor(format);
+            const storageConstructor = getStorageConstructor(GFXFormatInfos[format]);
             const reader = getReader(inputView, format);
             if (!storageConstructor || !reader) {
                 return;
@@ -1205,39 +1206,6 @@ function getOffset (attributes: IGFXAttribute[], attributeIndex: number) {
         result += GFXFormatInfos[attribute.format].size;
     }
     return result;
-}
-
-type Storage = Uint8Array | Int8Array | Uint16Array | Int16Array | Uint32Array | Int32Array | Float32Array | Float64Array;
-
-type StorageConstructor = Constructor<Storage>;
-
-function getStorageConstructor (format: GFXFormat): StorageConstructor | null {
-    const info = GFXFormatInfos[format];
-    const stride = info.size / info.count;
-    switch (info.type) {
-        case GFXFormatType.UNORM:
-        case GFXFormatType.UINT: {
-            switch (stride) {
-                case 1: return Uint8Array;
-                case 2: return Uint16Array;
-                case 4: return Uint32Array;
-            }
-            break;
-        }
-        case GFXFormatType.SNORM:
-        case GFXFormatType.INT: {
-            switch (stride) {
-                case 1: return Int8Array;
-                case 2: return Int16Array;
-                case 4: return Int32Array;
-            }
-            break;
-        }
-        case GFXFormatType.FLOAT: {
-            return Float32Array;
-        }
-    }
-    return null;
 }
 
 const isLittleEndian = sys.isLittleEndian;

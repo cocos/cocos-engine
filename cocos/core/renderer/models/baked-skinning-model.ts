@@ -28,13 +28,14 @@
  */
 
 import { AnimationClip } from '../../animation/animation-clip';
+import { Material } from '../../assets/material';
 import { Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { Vec3 } from '../../math';
-import { UBOSkinningAnimation, UBOSkinningTexture, UniformJointsTexture } from '../../pipeline/define';
+import { instJointsAnimInfo, UBOSkinningAnimation, UBOSkinningTexture, UniformJointsTexture } from '../../pipeline/define';
 import { Node } from '../../scene-graph';
 import { Pass } from '../core/pass';
 import { samplerLib } from '../core/sampler-lib';
@@ -70,6 +71,7 @@ export class BakedSkinningModel extends Model {
     private _skeleton: Skeleton | null = null;
     private _mesh: Mesh | null = null;
     private _dataPoolManager: DataPoolManager;
+    private _instAnimInfoIdx = -1;
 
     constructor () {
         super();
@@ -98,7 +100,7 @@ export class BakedSkinningModel extends Model {
         this.transform = skinningRoot;
         const resMgr = this._dataPoolManager;
         this._jointsMedium.animInfo = resMgr.jointsAnimationInfo.getData(skinningRoot.uuid);
-        if (!this._jointsMedium.buffer) { // create buffer here so re-init after destroy could work
+        if (!this._jointsMedium.buffer) {
             this._jointsMedium.buffer = this._device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
@@ -124,7 +126,15 @@ export class BakedSkinningModel extends Model {
     public updateUBOs (stamp: number) {
         if (!super.updateUBOs(stamp)) { return false; }
         const info = this._jointsMedium.animInfo;
-        if (info.dirty) { info.buffer.update(info.data); info.dirty = false; }
+        if (info.dirty) {
+            const idx = this._instAnimInfoIdx;
+            if (idx >= 0) {
+                this.instancedAttributes.list[idx].view[1] = info.data[1];
+            } else {
+                info.buffer.update(info.data);
+            }
+            info.dirty = false;
+        }
         return true;
     }
 
@@ -159,6 +169,14 @@ export class BakedSkinningModel extends Model {
         jointsTextureInfo[0] = texture.handle.texture.width;
         jointsTextureInfo[1] = 1 / jointsTextureInfo[0];
         jointsTextureInfo[2] = texture.pixelOffset + 0.1; // guard against floor() underflow
+        const idx = this._instAnimInfoIdx;
+        if (idx >= 0) { // update instancing data too
+            const info = this._jointsMedium.animInfo;
+            const view = this.instancedAttributes.list[idx].view;
+            view[0] = info.data[0];
+            view[1] = info.data[1];
+            view[2] = texture.pixelOffset;
+        }
         if (buffer) { buffer.update(jointsTextureInfo); }
         const sampler = samplerLib.getSampler(this._device, jointsTextureSamplerHash);
         const tv = texture.handle.texView;
@@ -191,6 +209,7 @@ export class BakedSkinningModel extends Model {
             bindingLayout.bindTextureView(UniformJointsTexture.binding, texture.handle.texView);
             bindingLayout.bindSampler(UniformJointsTexture.binding, sampler);
         }
+        this._instAnimInfoIdx = this.getInstancedAttributeIndex(instJointsAnimInfo);
         return pso;
     }
 }

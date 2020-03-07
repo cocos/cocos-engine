@@ -82,20 +82,16 @@ export class PassInstance extends Pass {
         return res;
     }
 
-    public createBatchedBuffer () {
-        console.warn('pass instance have no batched buffer.');
-    }
-
-    public createInstancedBuffer () {
-        console.warn('pass instance have no instanced buffer.');
-    }
-
     public beginChangeStatesSilently () {
         this._dontNotify = true;
     }
 
     public endChangeStatesSilently () {
         this._dontNotify = false;
+    }
+
+    protected _dynamicBatchingSync () {
+        this._defines.USE_BATCHING = this._defines.USE_INSTANCING = false;
     }
 
     protected _onStateChange () {

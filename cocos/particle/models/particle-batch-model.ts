@@ -199,11 +199,6 @@ export default class ParticleBatchModel extends Model {
         return vBuffer;
     }
 
-    public setSubModelMaterial (idx: number, mat: Material | null) {
-        this.initLocalBindings(mat);
-        super.setSubModelMaterial(idx, mat);
-    }
-
     public addParticleVertexData (index: number, pvdata: any[]) {
         if (!this._mesh) {
             let offset: number = index * this._vertAttrsFloatCount;
