@@ -55,10 +55,11 @@ HtmlTextParser.prototype = {
 
             if (noTagBegin) {
                 tagBeginIndex = htmlString.indexOf('<', tagEndIndex + 1);
+                if (tagBeginIndex < startIndex) tagBeginIndex = -1;
                 tagEndIndex = htmlString.indexOf('>', tagBeginIndex + 1);
             }
 
-            if (tagBeginIndex < 0) {
+            if (tagBeginIndex < 0 || tagEndIndex < 0) {
                 this._stack.pop();
                 this._processResult(htmlString.substring(startIndex));
                 startIndex = length;
