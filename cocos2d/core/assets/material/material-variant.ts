@@ -46,6 +46,10 @@ export default class MaterialVariant extends Material {
         return MaterialPool.get(material, owner);
     }
 
+    get uuid () {
+        return this._material.uuid;
+    }
+
     get owner () {
         return this._owner;
     }
