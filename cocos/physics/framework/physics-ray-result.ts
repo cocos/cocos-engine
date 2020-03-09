@@ -33,7 +33,7 @@ export class PhysicsRayResult {
      * 击中的碰撞盒
      */
     get collider (): ColliderComponent {
-        return this._collidier!;
+        return this._collider!;
     }
 
     /**
@@ -47,7 +47,7 @@ export class PhysicsRayResult {
     private _hitPoint: Vec3 = new Vec3();
     private _hitNormal: Vec3 = new Vec3();
     private _distance: number = 0;
-    private _collidier: ColliderComponent | null = null;
+    private _collider: ColliderComponent | null = null;
 
     /**
      * @zh
@@ -57,7 +57,7 @@ export class PhysicsRayResult {
         Vec3.copy(this._hitPoint, hitPoint);
         Vec3.copy(this._hitNormal, hitNormal);
         this._distance = distance;
-        this._collidier = collider;
+        this._collider = collider;
     }
 
     /**
@@ -69,7 +69,7 @@ export class PhysicsRayResult {
         Vec3.copy(c._hitPoint, this._hitPoint);
         Vec3.copy(c._hitNormal, this._hitNormal);
         c._distance = this._distance;
-        c._collidier = this._collidier;
+        c._collider = this._collider;
         return c;
     }
 }
