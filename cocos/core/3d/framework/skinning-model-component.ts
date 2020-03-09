@@ -28,6 +28,7 @@
  */
 
 import { AnimationClip } from '../../animation/animation-clip';
+import { Material } from '../../assets';
 import { Skeleton } from '../../assets/skeleton';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
 import { BakedSkinningModel } from '../../renderer/models/baked-skinning-model';
@@ -112,9 +113,17 @@ export class SkinningModelComponent extends ModelComponent {
             this._models.length = 0;
             this._modelType = modelType;
             this._updateModels();
+            this._updateCastShadow();
             if (this.enabledInHierarchy) {
                 this._attachToScene();
             }
+        }
+    }
+
+    public setMaterial (material: Material | null, index: number) {
+        super.setMaterial(material, index);
+        if (this._modelType === SkinningModel) {
+            this.getMaterialInstance(index);
         }
     }
 
@@ -127,6 +136,17 @@ export class SkinningModelComponent extends ModelComponent {
         if (this.model) {
             this.model.bindSkeleton(this._skeleton, this._skinningRoot, this._mesh);
             if (this.model.uploadAnimation) { this.model.uploadAnimation(this._clip); }
+        }
+        // have to instantiate materials with multiple submodel references
+        if (this._modelType === SkinningModel) {
+            const meshCount = this._mesh ? this._mesh.subMeshCount : 0;
+            let last: Material | null = null;
+            for (let i = 0; i < meshCount; ++i) {
+                const cur = this.getRenderMaterial(i);
+                if (cur === last) {
+                    this.getMaterialInstance(i);
+                } else { last = cur; }
+            }
         }
     }
 }

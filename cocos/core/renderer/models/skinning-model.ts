@@ -27,7 +27,8 @@
  * @hidden
  */
 
-import { Mesh } from '../../assets/mesh';
+import { Material } from '../../assets/material';
+import { Mesh, RenderingSubMesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
@@ -36,7 +37,6 @@ import { Mat4, Vec3 } from '../../math';
 import { UBOSkinning } from '../../pipeline/define';
 import { Node } from '../../scene-graph/node';
 import { Pass } from '../core/pass';
-import { DataPoolManager } from '../data-pool-manager';
 import { Model, ModelType } from '../scene/model';
 import { uploadJointData } from './skeletal-animation-utils';
 
@@ -109,12 +109,27 @@ export function deleteTransform (node: Node) {
     }
 }
 
+function getRevelantBuffers (outIndices: number[], outBuffers: number[], jointMaps: number[][], targetJoint: number) {
+    for (let i = 0; i < jointMaps.length; i++) {
+        const idxMap = jointMaps[i];
+        let index = -1;
+        for (let j = 0; j < idxMap.length; j++) {
+            if (idxMap[j] === targetJoint) { index = j; break; }
+        }
+        if (index >= 0) {
+            outBuffers.push(i);
+            outIndices.push(index);
+        }
+    }
+}
+
 interface IJointInfo {
-    index: number;
     bound: aabb;
     target: Node;
     bindpose: Mat4;
     transform: IJointTransform;
+    buffers: number[];
+    indices: number[];
 }
 
 const v3_min = new Vec3();
@@ -134,10 +149,10 @@ export class SkinningModel extends Model {
 
     public uploadAnimation = null;
 
-    private _buffer: GFXBuffer | null = null;
-    private _data: Float32Array = new Float32Array(UBOSkinning.COUNT);
-
+    private _buffers: GFXBuffer[] = [];
+    private _datas: Float32Array[] = [];
     private _joints: IJointInfo[] = [];
+    private _bufferIndices: number[] | null = null;
 
     constructor () {
         super();
@@ -146,9 +161,11 @@ export class SkinningModel extends Model {
 
     public destroy () {
         this.bindSkeleton();
-        if (this._buffer) {
-            this._buffer.destroy();
-            this._buffer = null;
+        if (this._buffers.length) {
+            for (let i = 0; i < this._buffers.length; i++) {
+                this._buffers[i].destroy();
+            }
+            this._buffers.length = 0;
         }
         super.destroy();
     }
@@ -157,28 +174,24 @@ export class SkinningModel extends Model {
         for (let i = 0; i < this._joints.length; i++) {
             deleteTransform(this._joints[i].target);
         }
-        this._joints.length = 0;
+        this._bufferIndices = null; this._joints.length = 0;
         if (!skeleton || !skinningRoot || !mesh) { return; }
         this._transform = skinningRoot;
-        const dataPoolManager: DataPoolManager = cc.director.root.dataPoolManager;
-        const boneSpaceBounds = dataPoolManager.boneSpaceBoundsInfo.getData(mesh, skeleton);
-        let offset = -1; // offset to the first bone actually used in mesh
+        const boneSpaceBounds = mesh.getBoneSpaceBounds(skeleton);
+        const jointMaps = mesh.struct.jointMaps;
+        this._ensureEnoughBuffers(jointMaps && jointMaps.length || 1);
+        this._bufferIndices = mesh.jointBufferIndices;
         for (let index = 0; index < skeleton.joints.length; index++) {
             const bound = boneSpaceBounds[index];
             const target = skinningRoot.getChildByPath(skeleton.joints[index]);
             if (!bound || !target) { continue; }
-            if (offset < 0) { this._data[0] = offset = index; }
             const transform = getTransform(target, skinningRoot)!;
             const bindpose = skeleton.bindposes[index];
-            this._joints.push({ index: index - offset, bound, target, bindpose, transform });
-        }
-        if (!this._buffer) { // create buffer here so re-init after destroy could work
-            this._buffer = this._device.createBuffer({
-                usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: UBOSkinning.SIZE,
-                stride: UBOSkinning.SIZE,
-            });
+            const indices: number[] = [];
+            const buffers: number[] = [];
+            if (!jointMaps) { indices.push(index); buffers.push(0); }
+            else { getRevelantBuffers(indices, buffers, jointMaps, index); }
+            this._joints.push({ indices, buffers, bound, target, bindpose, transform });
         }
     }
 
@@ -209,22 +222,48 @@ export class SkinningModel extends Model {
     }
 
     public updateUBOs () {
-        if (!super.updateUBOs() || !this._buffer) { return false; }
+        if (!super.updateUBOs()) { return false; }
         for (let i = 0; i < this._joints.length; i++) {
-            const { index, transform, bindpose } = this._joints[i];
+            const { indices, buffers, transform, bindpose } = this._joints[i];
             Mat4.multiply(m4_1, transform.world, bindpose);
-            uploadJointData(this._data, index * 12 + 4, m4_1, i === 0);
+            for (let b = 0; b < buffers.length; b++) {
+                uploadJointData(this._datas[buffers[b]], indices[b] * 12, m4_1, i === 0);
+            }
         }
-        this._buffer.update(this._data);
+        for (let b = 0; b < this._buffers.length; b++) {
+            this._buffers[b].update(this._datas[b]);
+        }
         return true;
     }
 
-    protected createPipelineState (pass: Pass) {
-        const pso = super.createPipelineState(pass, patches);
+    public initSubModel (idx: number, subMeshData: RenderingSubMesh, mat: Material) {
+        const original = subMeshData.vertexBuffers;
+        subMeshData.vertexBuffers = subMeshData.jointMappedBuffers;
+        super.initSubModel(idx, subMeshData, mat);
+        subMeshData.vertexBuffers = original;
+    }
+
+    protected createPipelineState (pass: Pass, subModelIdx: number) {
+        const pso = super.createPipelineState(pass, subModelIdx, patches);
         const bindingLayout = pso.pipelineLayout.layouts[0];
-        if (this._buffer) {
-            bindingLayout.bindBuffer(UBOSkinning.BLOCK.binding, this._buffer);
-        }
+        const buffer = this._buffers[this._bufferIndices![subModelIdx]];
+        if (buffer) { bindingLayout.bindBuffer(UBOSkinning.BLOCK.binding, buffer); }
         return pso;
+    }
+
+    private _ensureEnoughBuffers (count: number) {
+        for (let i = 0; i < count; i++) {
+            if (!this._buffers[i]) {
+                this._buffers[i] = this._device.createBuffer({
+                    usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+                    memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                    size: UBOSkinning.SIZE,
+                    stride: UBOSkinning.SIZE,
+                });
+            }
+            if (!this._datas[i]) {
+                this._datas[i] = new Float32Array(UBOSkinning.COUNT);
+            }
+        }
     }
 }

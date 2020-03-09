@@ -61,13 +61,14 @@ export class Skybox extends Model {
             skybox_material = new MaterialInstance({ parent: mat });
         }
         if (!skybox_mesh) { skybox_mesh = createMesh(box({ width: 2, height: 2, length: 2 })); }
-        this.initSubModel(0, skybox_mesh.renderingMesh.getSubmesh(0), skybox_material);
+        this.initSubModel(0, skybox_mesh.renderingSubMeshes[0], skybox_material);
     }
 
     protected _updatePipeline () {
         const value = this._useIBL ? this._isRGBE ? 2 : 1 : 0;
         const pipeline = this._scene!.root.pipeline;
-        if (pipeline.macros.CC_USE_IBL === value) { return; }
+        const current = pipeline.macros.CC_USE_IBL || 0;
+        if (current === value) { return; }
         pipeline.macros.CC_USE_IBL = value;
         this._scene!.onGlobalPipelineStateChanged();
     }

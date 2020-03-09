@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 import { Material } from '../../assets/material';
-import { IRenderingSubmesh } from '../../assets/mesh';
+import { RenderingSubMesh } from '../../assets/mesh';
 import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBindingType, GFXBufferUsageBit, GFXGetTypeSize, GFXMemoryUsageBit } from '../../gfx/define';
@@ -281,7 +281,7 @@ export class Model {
         this._worldBounds = aabb.clone(this._modelBounds);
     }
 
-    public initSubModel (idx: number, subMeshData: IRenderingSubmesh, mat: Material) {
+    public initSubModel (idx: number, subMeshData: RenderingSubMesh, mat: Material) {
         this.initLocalBindings(mat);
         if (this._subModels[idx] == null) {
             this._subModels[idx] = _subMeshPool.alloc();
@@ -290,12 +290,12 @@ export class Model {
             this._subModels[idx].destroy();
             this.releasePSO(oldMat!);
         }
-        this.allocatePSO(mat);
+        this.allocatePSO(mat, idx);
         this._subModels[idx].initialize(subMeshData, mat, this._matPSORecord.get(mat)!);
         this._inited = true;
     }
 
-    public setSubModelMesh (idx: number, subMeshData: IRenderingSubmesh) {
+    public setSubModelMesh (idx: number, subMeshData: RenderingSubMesh) {
         if (this._subModels[idx] == null) {
             this._subModels[idx] = _subMeshPool.alloc();
         }
@@ -310,14 +310,14 @@ export class Model {
         if (this._subModels[idx].material === mat) {
             if (mat) {
                 this.destroyPipelineStates(mat, this._matPSORecord.get(mat)!);
-                this._matPSORecord.set(mat, this.createPipelineStates(mat));
+                this._matPSORecord.set(mat, this.createPipelineStates(mat, idx));
             }
         } else {
             if (this._subModels[idx].material) {
                 this.releasePSO(this._subModels[idx].material!);
             }
             if (mat) {
-                this.allocatePSO(mat);
+                this.allocatePSO(mat, idx);
             }
         }
         this._subModels[idx].psos = (mat ? this._matPSORecord.get(mat) || null : null);
@@ -325,19 +325,25 @@ export class Model {
     }
 
     public onGlobalPipelineStateChanged () {
-        for (const m of this._subModels) {
-            const mat = m.material!;
-            const psos = this._matPSORecord.get(mat)!;
-            for (let i = 0; i < mat.passes.length; i++) {
-                const pass = mat.passes[i];
+        const subModels = this._subModels;
+        this._matPSORecord.forEach((psos, mat) => {
+            let i = 0; for (; i < subModels.length; i++) {
+                if (subModels[i].material === mat) { break; }
+            }
+            if (i >= subModels.length) { return; }
+            for (let j = 0; j < mat.passes.length; j++) {
+                const pass = mat.passes[j];
+                pass.destroyPipelineState(psos[j]);
                 pass.beginChangeStatesSilently();
                 pass.tryCompile(); // force update shaders
                 pass.endChangeStatesSilently();
-                pass.destroyPipelineState(psos[i]);
-                psos[i] = this.createPipelineState(pass);
-                psos[i].pipelineLayout.layouts[0].update();
+                psos[j] = this.createPipelineState(pass, i);
+                psos[j].pipelineLayout.layouts[0].update();
             }
-            m.updateCommandBuffer();
+            psos.length = mat.passes.length;
+        });
+        for (let i = 0; i < subModels.length; i++) {
+            subModels[i].updateCommandBuffer();
         }
     }
 
@@ -350,12 +356,12 @@ export class Model {
         if (idx >= 0) { this._implantPSOs.splice(idx, 1); }
     }
 
-    protected createPipelineStates (mat: Material): GFXPipelineState[] {
+    protected createPipelineStates (mat: Material, subModelIdx: number): GFXPipelineState[] {
         const ret = new Array<GFXPipelineState>(mat.passes.length);
         for (let i = 0; i < ret.length; i++) {
             const pass = mat.passes[i];
             for (const cus of pass.customizations) { customizationManager.attach(cus, this); }
-            ret[i] = this.createPipelineState(pass);
+            ret[i] = this.createPipelineState(pass, subModelIdx);
         }
         return ret;
     }
@@ -368,7 +374,7 @@ export class Model {
         }
     }
 
-    protected createPipelineState (pass: Pass, patches?: IMacroPatch[]) {
+    protected createPipelineState (pass: Pass, subModelIdx: number, patches?: IMacroPatch[]) {
         const pso = pass.createPipelineState(patches)!;
         pso.pipelineLayout.layouts[0].bindBuffer(UBOLocal.BLOCK.binding, this._localBindings.get(UBOLocal.BLOCK.name)!.buffer!);
         if (this._localBindings.has(UBOForwardLight.BLOCK.name)) {
@@ -429,10 +435,10 @@ export class Model {
         }
     }
 
-    private allocatePSO (mat: Material) {
+    private allocatePSO (mat: Material, subModelIdx: number) {
         if (this._matRefCount.get(mat) == null) {
             this._matRefCount.set(mat, 1);
-            this._matPSORecord.set(mat, this.createPipelineStates(mat));
+            this._matPSORecord.set(mat, this.createPipelineStates(mat, subModelIdx));
         } else {
             this._matRefCount.set(mat, this._matRefCount.get(mat)! + 1);
         }

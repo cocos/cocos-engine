@@ -161,24 +161,27 @@ export class BakedSkinningModel extends Model {
         jointsTextureInfo[2] = texture.pixelOffset + 0.1; // guard against floor() underflow
         if (buffer) { buffer.update(jointsTextureInfo); }
         const sampler = samplerLib.getSampler(this._device, jointsTextureSamplerHash);
-        for (const submodel of this._subModels) {
-            if (!submodel.psos) { continue; }
-            for (const pso of submodel.psos) {
-                const bindingLayout = pso.pipelineLayout.layouts[0];
-                bindingLayout.bindTextureView(UniformJointsTexture.binding, texture.handle.texView);
+        const tv = texture.handle.texView;
+        const it = this._matPSORecord.values(); let res = it.next();
+        while (!res.done) {
+            const psos = res.value;
+            for (let i = 0; i < psos.length; i++) {
+                const bindingLayout = psos[i].pipelineLayout.layouts[0];
+                bindingLayout.bindTextureView(UniformJointsTexture.binding, tv);
                 bindingLayout.bindSampler(UniformJointsTexture.binding, sampler);
             }
+            res = it.next();
         }
-        for (const pso of this._implantPSOs) {
-            const bindingLayout = pso.pipelineLayout.layouts[0];
-            bindingLayout.bindTextureView(UniformJointsTexture.binding, texture.handle.texView);
+        for (let i = 0; i < this._implantPSOs.length; i++) {
+            const bindingLayout = this._implantPSOs[i].pipelineLayout.layouts[0];
+            bindingLayout.bindTextureView(UniformJointsTexture.binding, tv);
             bindingLayout.bindSampler(UniformJointsTexture.binding, sampler);
             bindingLayout.update();
         }
     }
 
-    protected createPipelineState (pass: Pass) {
-        const pso = super.createPipelineState(pass, patches);
+    protected createPipelineState (pass: Pass, subModelIdx: number) {
+        const pso = super.createPipelineState(pass, subModelIdx, patches);
         const { buffer, texture, animInfo } = this._jointsMedium;
         const bindingLayout = pso.pipelineLayout.layouts[0];
         bindingLayout.bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);
