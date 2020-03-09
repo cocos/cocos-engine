@@ -650,7 +650,7 @@ struct GFXWindowInfo {
 };
 
 struct GFXContextInfo {
-  intptr_t windowHandle = 0;
+  uintptr_t windowHandle = 0;
   GFXContext* sharedCtx = nullptr;
   GFXVsyncMode vsyncMode = GFXVsyncMode::OFF;
 };

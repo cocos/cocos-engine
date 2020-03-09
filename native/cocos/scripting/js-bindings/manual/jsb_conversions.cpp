@@ -412,12 +412,12 @@ bool seval_to_Uint8Array(const se::Value& v, uint8_t* ret)
     return true;
 }
 
-bool seval_to_intptr_t(const se::Value& v, intptr_t* ret)
+bool seval_to_uintptr_t(const se::Value& v, uintptr_t* ret)
 {
     assert(ret != nullptr);
     if (v.isNumber())
     {
-        *ret = v.toIntptr_t();
+        *ret = v.toUIntptr_t();
         return true;
     }
     *ret = 0UL;

@@ -37,6 +37,8 @@
 namespace
 {
     Game *game = nullptr;
+    struct cocos2d::TouchEvent touchEvent;
+    struct cocos2d::KeyboardEvent keyboardEvent;
 
     /**
      * Shared state for our app.
@@ -48,8 +50,6 @@ namespace
         int32_t width = 0;
         int32_t height = 0;
         bool initialized = false;
-        cocos2d::TouchEvent touchEvent；
-        cocos2d::KeyboardEvent keyboardEvent;
     };
 
     void engineHandleCmd(struct android_app* app, int32_t cmd)

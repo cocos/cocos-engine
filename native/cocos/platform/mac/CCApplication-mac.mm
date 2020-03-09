@@ -46,7 +46,7 @@ namespace
         sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d; window.windowHandler = 0x%" PRIxPTR ";",
                 g_width,
                 g_height,
-                (intptr_t)[NSApplication sharedApplication].mainWindow.contentView);
+                (uintptr_t)[NSApplication sharedApplication].mainWindow.contentView);
         se->evalString(commandBuf);
         
         cocos2d::CustomEvent applicationReady;

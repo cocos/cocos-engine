@@ -111,7 +111,7 @@ bool seval_to_std_vector_uint16(const se::Value& v, std::vector<uint16_t>* ret);
 bool seval_to_std_vector_float(const se::Value& v, std::vector<float>* ret);
 bool seval_to_std_vector_Vec2(const se::Value& v, std::vector<cocos2d::Vec2>* ret);
 bool seval_to_Uint8Array(const se::Value& v, uint8_t* ret);
-bool seval_to_intptr_t(const se::Value& v, intptr_t* ret);
+bool seval_to_uintptr_t(const se::Value& v, uintptr_t* ret);
 
 bool seval_to_std_map_string_string(const se::Value& v, std::map<std::string, std::string>* ret);
 bool seval_to_Data(const se::Value& v, cocos2d::Data* ret);

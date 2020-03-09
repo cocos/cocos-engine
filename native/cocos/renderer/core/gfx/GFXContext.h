@@ -23,7 +23,7 @@ class CC_CORE_API GFXContext : public Object {
   
  protected:
   GFXDevice* _device = nullptr;
-  intptr_t _windowHandle = 0;
+  uintptr_t _windowHandle = 0;
   GFXContext* _sharedContext = nullptr;
   GFXVsyncMode _vsyncMode = GFXVsyncMode::OFF;
   GFXFormat _colorFmt = GFXFormat::UNKNOWN;

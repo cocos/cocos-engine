@@ -44,7 +44,7 @@ namespace
         sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d; window.windowHandler = 0x%" PRIxPTR ";",
                 g_width,
                 g_height,
-                (intptr_t)(UIApplication.sharedApplication.delegate.window.rootViewController.view) );
+                (uintptr_t)(UIApplication.sharedApplication.delegate.window.rootViewController.view) );
         se->evalString(commandBuf);
         return true;
     }

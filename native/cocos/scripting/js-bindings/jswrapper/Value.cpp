@@ -467,9 +467,9 @@ namespace se {
         return static_cast<unsigned long>(toNumber());
     }
     
-    intptr_t Value::toIntptr_t() const
+    intptr_t Value::toUIntptr_t() const
     {
-        return static_cast<intptr_t>(toNumber());
+        return static_cast<uintptr_t>(toNumber());
     }
 
     float Value::toFloat() const

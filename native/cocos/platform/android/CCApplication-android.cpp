@@ -57,7 +57,7 @@ namespace
         sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d; window.windowHandler = 0x%" PRIxPTR ";",
                 g_width,
                 g_height,
-                (intptr_t)cocos2d::JniHelper::getAndroidApp()->window);
+                (uintptr_t)cocos2d::JniHelper::getAndroidApp()->window);
         se->evalString(commandBuf);
 
         return true;
