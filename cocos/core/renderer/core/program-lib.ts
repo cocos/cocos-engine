@@ -331,8 +331,8 @@ class ProgramLib {
         const blocks: IBlockInfoRT[] = [];
         const samplers: ISamplerInfoRT[] = [];
         const bindings: IGFXBinding[] = [];
-        const attributes: IGFXAttribute[] = [];
-        getShaderBindings(tmpl, defines, blocks, samplers, bindings, attributes);
+        const inputState = new GFXInputState();
+        getShaderBindings(tmpl, defines, blocks, samplers, bindings, inputState.attributes);
 
         const shader = device.createShader({
             name: getShaderInstanceName(name, macroArray),
@@ -342,7 +342,6 @@ class ProgramLib {
                 { type: GFXShaderType.FRAGMENT, source: prefix + src.frag },
             ],
         });
-        const inputState = new GFXInputState(); inputState.attributes = attributes;
         return this._cache[key] = { shader, bindings, inputState };
     }
 }

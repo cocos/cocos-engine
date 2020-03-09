@@ -134,22 +134,30 @@ const v3_max = new Vec3();
 const m4_1 = new Mat4();
 const ab_1 = new aabb();
 
+export interface IChunkContent {
+    skeleton: Skeleton;
+    clips: AnimationClip[];
+}
+export interface ICustomChunkRule {
+    textureLength: number;
+    contents: IChunkContent[];
+}
+
 export class JointsTexturePool {
 
     private _device: GFXDevice;
     private _pool: TextureBufferPool;
-    private _textureBuffers: Map<number, IJointsTextureHandle> = new Map(); // per skeleton per clip
+    private _textureBuffers = new Map<number, IJointsTextureHandle>(); // per skeleton per clip
     private _formatSize = 0;
+    private _chunkIdxMap = new Map<number, number>(); // hash -> chunkIdx
 
-    constructor (device: GFXDevice, maxChunks = 8) {
+    constructor (device: GFXDevice) {
         this._device = device;
         this._pool = new TextureBufferPool(device);
         const format = selectJointsMediumFormat(this._device);
         this._formatSize = GFXFormatInfos[format].size;
-        const scale = 16 / this._formatSize;
         this._pool.initialize({
             format,
-            maxChunks: maxChunks * scale,
             roundUpFn: roundUpTextureSize,
         });
     }
@@ -157,6 +165,21 @@ export class JointsTexturePool {
     public clear () {
         this._pool.destroy();
         this._textureBuffers.clear();
+    }
+
+    public registerCustomRules (rules: ICustomChunkRule[]) {
+        for (let i = 0; i < rules.length; i++) {
+            const rule = rules[i];
+            const chunkIdx = this._pool.createChunk(rule.textureLength);
+            for (let j = 0; j < rule.contents.length; j++) {
+                const content = rule.contents[i];
+                const skeletonHash = content.skeleton.hash;
+                this._chunkIdxMap.set(skeletonHash, chunkIdx); // include default pose too
+                for (let k = 0; k < content.clips.length; k++) {
+                    this._chunkIdxMap.set(skeletonHash ^ content.clips[k].hash, chunkIdx);
+                }
+            }
+        }
     }
 
     /**
@@ -173,7 +196,7 @@ export class JointsTexturePool {
         let textureBuffer: Float32Array = null!; let buildTexture = false;
         if (!texture) {
             const bufSize = joints.length * 12;
-            const handle = this._pool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT);
+            const handle = this._pool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT, this._chunkIdxMap.get(hash));
             if (!handle) { return texture; }
             texture = { pixelOffset: handle.start / this._formatSize, refCount: 1, bounds: new Map(),
                 skeletonHash: skeleton.hash, clipHash: 0, readyToBeDeleted: false, handle };
@@ -223,7 +246,7 @@ export class JointsTexturePool {
         let textureBuffer: Float32Array = null!; let buildTexture = false;
         if (!texture) {
             const bufSize = joints.length * 12 * frames;
-            const handle = this._pool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT);
+            const handle = this._pool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT, this._chunkIdxMap.get(hash));
             if (!handle) { return null; }
             texture = { pixelOffset: handle.start / this._formatSize, refCount: 1, bounds: new Map(),
                 skeletonHash: skeleton.hash, clipHash: clip.hash, readyToBeDeleted: false, handle };

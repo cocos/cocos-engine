@@ -5,7 +5,6 @@
 import { ccclass } from '../../data/class-decorator';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXClearFlag, GFXFilter, IGFXColor } from '../../gfx/define';
-import { ModelType } from '../../renderer/scene/model';
 import { Layers } from '../../scene-graph';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { RenderBatchedQueue } from '../render-batched-queue';
