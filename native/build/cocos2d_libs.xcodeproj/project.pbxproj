@@ -819,7 +819,6 @@
 		BA06A79A23583DFE007740C5 /* GLES2Sampler.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A71623583DFD007740C5 /* GLES2Sampler.h */; };
 		BA06A79C23583DFE007740C5 /* GLES2PipelineState.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A71723583DFD007740C5 /* GLES2PipelineState.h */; };
 		BA06A79E23583DFE007740C5 /* GLES2BindingLayout.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A71823583DFD007740C5 /* GLES2BindingLayout.cc */; };
-		BA06A7A223583DFE007740C5 /* gles2w.c in Sources */ = {isa = PBXBuildFile; fileRef = BA06A71A23583DFD007740C5 /* gles2w.c */; };
 		BA06A7A423583DFE007740C5 /* GLES2Commands.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A71B23583DFD007740C5 /* GLES2Commands.cc */; };
 		BA06A7A623583DFE007740C5 /* GLES2Queue.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A71C23583DFD007740C5 /* GLES2Queue.h */; };
 		BA06A7A823583DFE007740C5 /* GLES2PipelineLayout.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A71D23583DFD007740C5 /* GLES2PipelineLayout.cc */; };
@@ -1508,7 +1507,6 @@
 		BA06A71623583DFD007740C5 /* GLES2Sampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2Sampler.h; sourceTree = "<group>"; };
 		BA06A71723583DFD007740C5 /* GLES2PipelineState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2PipelineState.h; sourceTree = "<group>"; };
 		BA06A71823583DFD007740C5 /* GLES2BindingLayout.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2BindingLayout.cc; sourceTree = "<group>"; };
-		BA06A71A23583DFD007740C5 /* gles2w.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = gles2w.c; sourceTree = "<group>"; };
 		BA06A71B23583DFD007740C5 /* GLES2Commands.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2Commands.cc; sourceTree = "<group>"; };
 		BA06A71C23583DFD007740C5 /* GLES2Queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2Queue.h; sourceTree = "<group>"; };
 		BA06A71D23583DFD007740C5 /* GLES2PipelineLayout.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2PipelineLayout.cc; sourceTree = "<group>"; };
@@ -2536,7 +2534,6 @@
 				BA06A71623583DFD007740C5 /* GLES2Sampler.h */,
 				BA06A71723583DFD007740C5 /* GLES2PipelineState.h */,
 				BA06A71823583DFD007740C5 /* GLES2BindingLayout.cc */,
-				BA06A71A23583DFD007740C5 /* gles2w.c */,
 				BA06A71B23583DFD007740C5 /* GLES2Commands.cc */,
 				BA06A71C23583DFD007740C5 /* GLES2Queue.h */,
 				BA06A71D23583DFD007740C5 /* GLES2PipelineLayout.cc */,
@@ -3814,7 +3811,6 @@
 				1A52DB7A205BCDD000350EE3 /* ScriptEngine.cpp in Sources */,
 				BA06A7A423583DFE007740C5 /* GLES2Commands.cc in Sources */,
 				1A28FF741F20AFAB007A1D9D /* SRHash.m in Sources */,
-				BA06A7A223583DFE007740C5 /* gles2w.c in Sources */,
 				46FDDB70202ADDCE00931238 /* ZipUtils.cpp in Sources */,
 				50ABBD511925AB0000A911A9 /* Quaternion.cpp in Sources */,
 				BA06A77A23583DFE007740C5 /* GLES2InputAssembler.cc in Sources */,

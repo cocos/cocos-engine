@@ -35,17 +35,6 @@
 
 @implementation ViewController
 
-// Implement loadView to create a view hierarchy programmatically, without using a nib.
-- (void)loadView {
-    // Set EAGLView as view of RootViewController
-    self.view = [[View alloc] initWithFrame: [[UIScreen mainScreen] bounds]];
-}
-
-// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
-- (void)viewDidLoad {
-    [super viewDidLoad];
-}
-
 - (BOOL) shouldAutorotate {
     return YES;
 }

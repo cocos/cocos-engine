@@ -25,6 +25,7 @@
  ****************************************************************************/
 #import "AppDelegate.h"
 #import "ViewController.h"
+#import "View.h"
 
 #include "SDKWrapper.h"
 #include "Game.h"
@@ -46,6 +47,8 @@ Game* game = nullptr;
 
     // Should create view controller first, cocos2d::Application will use it.
     _viewController = [[ViewController alloc]init];
+    _viewController.view = [[View alloc] initWithFrame:bounds];
+    _viewController.view.contentScaleFactor = UIScreen.mainScreen.scale;
     [self.window setRootViewController:_viewController];
     
     // cocos2d application instance

@@ -32,6 +32,7 @@
 		469FFB1D2410AAAF00581BFC /* libGLESv2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 469FFB1B2410AAAF00581BFC /* libGLESv2.dylib */; };
 		469FFB1E2410AAAF00581BFC /* libEGL.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 469FFB1C2410AAAF00581BFC /* libEGL.dylib */; };
 		469FFB262411054700581BFC /* KeyCodeHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 469FFB242411054700581BFC /* KeyCodeHelper.cpp */; };
+		46A4DEFA2416429000BE0499 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 46A4DEF82416429000BE0499 /* LaunchScreen.storyboard */; };
 		46BFDFA723CC0F4100CC5F8E /* Game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46BFDFA623CC0F4100CC5F8E /* Game.cpp */; };
 		46BFDFA823CC0F4100CC5F8E /* Game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46BFDFA623CC0F4100CC5F8E /* Game.cpp */; };
 		46BFDFBA23CC10E800CC5F8E /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 46BFDFB423CC10E700CC5F8E /* ViewController.mm */; };
@@ -141,6 +142,7 @@
 		469FFB1C2410AAAF00581BFC /* libEGL.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libEGL.dylib; path = ../../../../../external/mac/libs/libEGL.dylib; sourceTree = "<group>"; };
 		469FFB242411054700581BFC /* KeyCodeHelper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KeyCodeHelper.cpp; sourceTree = "<group>"; };
 		469FFB252411054700581BFC /* KeyCodeHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyCodeHelper.h; sourceTree = "<group>"; };
+		46A4DEF92416429000BE0499 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = ios/Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		46BFDFA523CC0F4100CC5F8E /* Game.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Game.h; sourceTree = "<group>"; };
 		46BFDFA623CC0F4100CC5F8E /* Game.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Game.cpp; sourceTree = "<group>"; };
 		46BFDFB423CC10E700CC5F8E /* ViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ViewController.mm; path = ios/ViewController.mm; sourceTree = "<group>"; };
@@ -375,6 +377,7 @@
 		D45446CC156DE73F00887EB5 /* ios */ = {
 			isa = PBXGroup;
 			children = (
+				46A4DEF82416429000BE0499 /* LaunchScreen.storyboard */,
 				46BFDFB523CC10E700CC5F8E /* AppDelegate.h */,
 				46BFDFB623CC10E700CC5F8E /* AppDelegate.mm */,
 				46BFDFB823CC10E700CC5F8E /* View.h */,
@@ -513,6 +516,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				46A4DEFA2416429000BE0499 /* LaunchScreen.storyboard in Resources */,
 				4033CDBC20E4935100DAA37B /* jsb-adapter in Resources */,
 				1AFFCD7F1F7A5D5400628F2C /* Images.xcassets in Resources */,
 				1AFFCD7E1F7A5D5400628F2C /* LaunchScreenBackground.png in Resources */,
@@ -576,6 +580,14 @@
 			);
 			name = Localizable.strings;
 			path = ios;
+			sourceTree = "<group>";
+		};
+		46A4DEF82416429000BE0499 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				46A4DEF92416429000BE0499 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
