@@ -240,19 +240,18 @@ cc.removeSelf = function(isNeedCleanUp){
 };
 
 /*
- * Destroy self in the next frame.
+ * Create an action to destroy self.
  * @class DestroySelf
  * @extends ActionInstant
  *
  * @example
- * // example
  * var destroySelfAction = new cc.DestroySelf();
  */
 cc.DestroySelf = cc.Class({
     name: 'cc.DestroySelf',
     extends: cc.ActionInstant,
 
-    update (dt) {
+    update () {
         this.target.destroy();
     },
 
@@ -266,13 +265,12 @@ cc.DestroySelf = cc.Class({
 });
 
 /**
- * !#en Create a destroy self action.
+ * !#en Destroy self
  * !#zh 创建一个销毁自身的动作。
  * @method destroySelf
  * @return {ActionInstant}
  *
  * @example
- * // example
  * var destroySelfAction = cc.destroySelf();
  */
 cc.destroySelf = function () {
