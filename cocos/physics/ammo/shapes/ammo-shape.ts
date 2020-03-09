@@ -3,7 +3,7 @@ import { Vec3, Quat } from "../../../core/math";
 import { ColliderComponent, RigidBodyComponent, PhysicMaterial, PhysicsSystem } from "../../../../exports/physics-framework";
 import { AmmoWorld } from '../ammo-world';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
-import { cocos2AmmoVec3 } from '../ammo-util';
+import { cocos2AmmoVec3, ammoDeletePtr } from '../ammo-util';
 import { Node } from '../../../core';
 import { IBaseShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
@@ -112,11 +112,16 @@ export class AmmoShape implements IBaseShape {
         this._btCompound = null;
         (this._collider as any) = null;
 
-        Ammo.destroy(this._btShape);
         Ammo.destroy(this.transform);
         Ammo.destroy(this.pos);
         Ammo.destroy(this.quat);
         Ammo.destroy(this.scale);
+        Ammo.destroy(this._btShape);
+        ammoDeletePtr(this.pos, Ammo.btVector3);
+        ammoDeletePtr(this.quat, Ammo.btQuaternion);
+        ammoDeletePtr(this.scale, Ammo.btVector3);
+        ammoDeletePtr(this.transform, Ammo.btTransform);
+        ammoDeletePtr(this._btShape, Ammo.btCollisionShape);
         (this._btShape as any) = null;
         (this.transform as any) = null;
         (this.pos as any) = null;

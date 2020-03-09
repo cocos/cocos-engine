@@ -47,7 +47,7 @@ export class AmmoRigidBody implements IRigidBody {
         if (value) {
             m_rigidBodyFlag &= (~AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY);
         } else {
-            this._btBody.setGravity(cocos2AmmoVec3(new Ammo.btVector3(), Vec3.ZERO));
+            this._btBody.setGravity(cocos2AmmoVec3(this._btVec3_0, Vec3.ZERO));
             m_rigidBodyFlag |= AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY;
         }
         this._btBody.setFlags(m_rigidBodyFlag);
@@ -58,18 +58,18 @@ export class AmmoRigidBody implements IRigidBody {
         if (value) {
             /** TODO : should i reset angular velocity & torque ? */
 
-            this._btBody.setAngularFactor(cocos2AmmoVec3(new Ammo.btVector3(), Vec3.ZERO));
+            this._btBody.setAngularFactor(cocos2AmmoVec3(this._btVec3_0, Vec3.ZERO));
         } else {
-            this._btBody.setAngularFactor(cocos2AmmoVec3(new Ammo.btVector3(), this._rigidBody.angularFactor));
+            this._btBody.setAngularFactor(cocos2AmmoVec3(this._btVec3_0, this._rigidBody.angularFactor));
         }
     }
 
     set linearFactor (value: Vec3) {
-        this._btBody.setLinearFactor(cocos2AmmoVec3(new Ammo.btVector3(), value));
+        this._btBody.setLinearFactor(cocos2AmmoVec3(this._btVec3_0, value));
     }
 
     set angularFactor (value: Vec3) {
-        this._btBody.setAngularFactor(cocos2AmmoVec3(new Ammo.btVector3(), value));
+        this._btBody.setAngularFactor(cocos2AmmoVec3(this._btVec3_0, value));
     }
 
     /** state */
