@@ -39,6 +39,7 @@ let Audio = function (src) {
 
     this._src = src;
     this._element = null;
+    this._banRecycling = false;
     this.id = 0;
 
     this._volume = 1;
@@ -329,7 +330,7 @@ Audio.State = {
                 if (this._element instanceof WebAudioElement) {
                     this._element = null;
                 }
-                else {
+                else if (this._element) {
                     this._element.src = '';
                 }
                 this._state = Audio.State.INITIALZING;

@@ -35,6 +35,10 @@ let _url2id = {};
 let _audioPool = [];
 
 let recycleAudio = function (audio) {
+    // In case repeatly recycle audio when users call audio.stop when audio finish playing
+    if (audio._banRecycling) {
+        return;
+    }
     audio._finishCallback = null;
     audio.off('ended');
     audio.off('stop');
@@ -75,9 +79,11 @@ let getAudioFromPath = function (path) {
     };
 
     audio.on('ended', function () {
+        this._banRecycling = true;
         if (this._finishCallback) {
             this._finishCallback();
         }
+        this._banRecycling = false;
         callback.call(this);
     }, audio);
 
