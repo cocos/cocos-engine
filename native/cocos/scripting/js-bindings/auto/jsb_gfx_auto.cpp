@@ -2116,7 +2116,7 @@ static bool js_gfx_GFXDeviceInfo_get_windowHandle(se::State& s)
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    uintptr_t_to_seval(cobj->windowHandle, &jsret)";
+    uintptr_t_to_seval(cobj->windowHandle, &jsret);
     s.rval() = jsret;
     return true;
 }
@@ -2723,7 +2723,7 @@ static bool js_gfx_GFXWindowInfo_get_windowHandle(se::State& s)
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    uintptr_t_to_seval(cobj->windowHandle, &jsret)";
+    uintptr_t_to_seval(cobj->windowHandle, &jsret);
     s.rval() = jsret;
     return true;
 }
@@ -2970,7 +2970,7 @@ static bool js_gfx_GFXContextInfo_get_windowHandle(se::State& s)
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    uintptr_t_to_seval(cobj->windowHandle, &jsret)";
+    uintptr_t_to_seval(cobj->windowHandle, &jsret);
     s.rval() = jsret;
     return true;
 }
