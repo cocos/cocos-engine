@@ -30,7 +30,7 @@ import TrailModule from './renderer/trail';
 import { indexOf } from '../core/utils/array';
 
 const _world_mat = new Mat4();
-const _module_props = CC_EDITOR && [
+const _module_props = [
     "colorOverLifetimeModule",
     "shapeModule",
     "sizeOvertimeModule",
