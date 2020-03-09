@@ -1,4 +1,5 @@
 import { GFXFormat, GFXFormatInfos, GFXFormatType, IGFXFormatInfo } from '../../gfx/define';
+import sys from '../../platform/sys';
 
 const _typeMap = {
     [GFXFormatType.UNORM]: 'Uint',
@@ -22,7 +23,7 @@ export function writeBuffer (target: DataView, data: number[], format: GFXFormat
     const writer = 'set' + _getDataViewType(info);
     const componentBytesLength = info.size / info.count;
     const nSeg = Math.floor(data.length / info.count);
-    const isLittleEndian = cc.sys.isLittleEndian;
+    const isLittleEndian = sys.isLittleEndian;
 
     for (let iSeg = 0; iSeg < nSeg; ++iSeg) {
         const x = offset + stride * iSeg;
@@ -40,7 +41,7 @@ export function readBuffer (
     const reader = 'get' + _getDataViewType(info);
     const componentBytesLength = info.size / info.count;
     const nSeg = Math.floor(length / stride);
-    const isLittleEndian = cc.sys.isLittleEndian;
+    const isLittleEndian = sys.isLittleEndian;
 
     for (let iSeg = 0; iSeg < nSeg; ++iSeg) {
         const x = offset + stride * iSeg;
@@ -61,7 +62,7 @@ export function mapBuffer (
     const reader = 'get' + _getDataViewType(info);
     const componentBytesLength = info.size / info.count;
     const nSeg = Math.floor(length / stride);
-    const isLittleEndian = cc.sys.isLittleEndian;
+    const isLittleEndian = sys.isLittleEndian;
 
     for (let iSeg = 0; iSeg < nSeg; ++iSeg) {
         const x = offset + stride * iSeg;

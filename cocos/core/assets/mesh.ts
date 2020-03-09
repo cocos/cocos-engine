@@ -552,8 +552,8 @@ export class Mesh extends Asset {
      */
     public destroyRenderingMesh () {
         if (this._renderingSubMeshes) {
-            for (const submesh of this._renderingSubMeshes) {
-                submesh.destroy();
+            for (let i = 0; i < this._renderingSubMeshes.length; i++) {
+                this._renderingSubMeshes[i].destroy();
             }
             this._renderingSubMeshes = null;
             this._data = null;
