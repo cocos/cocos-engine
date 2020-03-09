@@ -93,7 +93,6 @@ function _renderNodes (nodeRow, nodeCol) {
     if (!nodesInfo || nodesInfo.count == 0) return;
     let nodesList = nodesInfo.list;
     let newIdx = 0, oldIdx = 0;
-
     // flush map render data
     _flush();
 
@@ -429,7 +428,7 @@ export default class TmxAssembler extends Assembler {
         // last flush
         if (_ia._count > 0) {
             _renderer.material = _renderData.material;
-            _renderer.node = layerNode;
+            _renderer.node = _comp.node;
             _renderer._flushIA(_renderData.ia);
         }
     }
