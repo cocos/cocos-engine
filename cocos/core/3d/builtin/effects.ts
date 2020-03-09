@@ -271,7 +271,7 @@ export default [
           { "name": "a_tangent", "type": 16, "count": 1, "defines": [], "format": 43, "location": 2 },
           { "name": "a_weights", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "format": 43, "location": 7 },
           { "name": "a_joints", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "format": 43, "location": 8 },
-          { "name": "a_jointsAnimInfo", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION", "USE_INSTANCING"], "format": 41, "isInstanced": true, "location": 9 },
+          { "name": "a_jointsAnimInfo", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION", "USE_INSTANCING"], "format": 44, "isInstanced": true, "location": 9 },
           { "name": "a_color", "type": 15, "count": 1, "defines": ["USE_VERTEX_COLOR"], "format": 32, "location": 10 },
           { "name": "a_texCoord", "type": 14, "count": 1, "defines": [], "format": 21, "location": 11 },
           { "name": "a_texCoord1", "type": 14, "count": 1, "defines": [], "format": 21, "location": 12 }
@@ -380,7 +380,7 @@ export default [
           { "name": "a_position", "type": 15, "count": 1, "defines": [], "format": 32, "location": 0 },
           { "name": "a_weights", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "format": 43, "location": 5 },
           { "name": "a_joints", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "format": 43, "location": 6 },
-          { "name": "a_jointsAnimInfo", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION", "USE_INSTANCING"], "format": 41, "isInstanced": true, "location": 7 },
+          { "name": "a_jointsAnimInfo", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION", "USE_INSTANCING"], "format": 44, "isInstanced": true, "location": 7 },
           { "name": "a_color", "type": 16, "count": 1, "defines": ["USE_VERTEX_COLOR"], "format": 43, "location": 8 },
           { "name": "a_texCoord", "type": 14, "count": 1, "defines": ["USE_TEXTURE"], "format": 21, "location": 9 }
         ]
@@ -427,7 +427,7 @@ export default [
           { "name": "a_position", "type": 15, "count": 1, "defines": [], "format": 32, "location": 0 },
           { "name": "a_weights", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "format": 43, "location": 5 },
           { "name": "a_joints", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "format": 43, "location": 6 },
-          { "name": "a_jointsAnimInfo", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION", "USE_INSTANCING"], "format": 41, "isInstanced": true, "location": 7 }
+          { "name": "a_jointsAnimInfo", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION", "USE_INSTANCING"], "format": 44, "isInstanced": true, "location": 7 }
         ]
       }
     ]

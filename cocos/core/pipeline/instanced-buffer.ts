@@ -4,7 +4,7 @@
 
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../gfx';
 import { GFXBuffer } from '../gfx/buffer';
-import { GFXInputAssembler } from '../gfx/input-assembler';
+import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { GFXPipelineState } from '../gfx/pipeline-state';
 import { IInstancedAttributeBlock, Pass } from '../renderer';
 import { SubModel } from '../renderer/scene/submodel';
@@ -72,12 +72,14 @@ export class InstancedBuffer {
 
         for (let i = 0; i < attrs.list.length; i++) {
             const attr = attrs.list[i];
-            attributes.push({
+            const newAttr: IGFXAttribute = {
                 name: attr.name,
                 format: attr.format,
                 stream: vertexBuffers.length,
                 isInstanced: true,
-            });
+            };
+            if (attr.isNormalized !== undefined) { newAttr.isNormalized = attr.isNormalized; }
+            attributes.push(newAttr);
         }
         data.set(attrs.buffer);
 

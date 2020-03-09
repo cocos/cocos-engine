@@ -3,7 +3,7 @@ import { Material } from '../../assets/material';
 import { RenderingSubMesh } from '../../assets/mesh';
 import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
-import { getStorageConstructor, GFXBufferUsageBit, GFXFormatInfos, GFXMemoryUsageBit, GFXFormat } from '../../gfx/define';
+import { getStorageConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { Mat4, Vec3 } from '../../math';
@@ -24,6 +24,7 @@ const _subMeshPool = new Pool(() => {
 export interface IInstancedAttribute {
     name: string;
     format: GFXFormat;
+    isNormalized?: boolean;
     view: ArrayBufferView;
 }
 export interface IInstancedAttributeBlock {
@@ -319,7 +320,8 @@ export class Model {
             const format = attribute.format;
             const info = GFXFormatInfos[format];
             const view = new (getStorageConstructor(info))(buffer, offset, info.count);
-            offset += info.size; attrs.list.push({ name: attribute.name, format, view });
+            const isNormalized = attribute.isNormalized;
+            offset += info.size; attrs.list.push({ name: attribute.name, format, isNormalized, view });
         }
     }
 

@@ -28,7 +28,6 @@
  */
 
 import { AnimationClip } from '../../animation/animation-clip';
-import { Material } from '../../assets/material';
 import { Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { aabb } from '../../geometry';
@@ -178,7 +177,6 @@ export class BakedSkinningModel extends Model {
             view[2] = texture.pixelOffset;
         }
         if (buffer) { buffer.update(jointsTextureInfo); }
-        const sampler = samplerLib.getSampler(this._device, jointsTextureSamplerHash);
         const tv = texture.handle.texView;
         const it = this._matPSORecord.values(); let res = it.next();
         while (!res.done) {
@@ -186,14 +184,12 @@ export class BakedSkinningModel extends Model {
             for (let i = 0; i < psos.length; i++) {
                 const bindingLayout = psos[i].pipelineLayout.layouts[0];
                 bindingLayout.bindTextureView(UniformJointsTexture.binding, tv);
-                bindingLayout.bindSampler(UniformJointsTexture.binding, sampler);
             }
             res = it.next();
         }
         for (let i = 0; i < this._implantPSOs.length; i++) {
             const bindingLayout = this._implantPSOs[i].pipelineLayout.layouts[0];
             bindingLayout.bindTextureView(UniformJointsTexture.binding, tv);
-            bindingLayout.bindSampler(UniformJointsTexture.binding, sampler);
             bindingLayout.update();
         }
     }

@@ -250,7 +250,7 @@ export class ModelComponent extends RenderableComponent {
         }
     }
 
-    private _isBatchingEnabled () {
+    protected _isBatchingEnabled () {
         for (let i = 0; i < this._materials.length; ++i) {
             const mat = this._materials[i];
             if (!mat) { continue; }

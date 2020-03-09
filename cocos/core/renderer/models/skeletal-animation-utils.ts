@@ -41,10 +41,10 @@ import { UBOSkinningAnimation } from '../../pipeline/define';
 import { Node } from '../../scene-graph';
 import { genSamplerHash } from '../core/sampler-lib';
 import { ITextureBufferHandle, TextureBufferPool } from '../core/texture-buffer-pool';
-import { DataPoolManager } from '../data-pool-manager';
 
 // change here and cc-skinning.chunk to use other skinning algorithms
 export const uploadJointData = uploadJointDataLBS;
+export const MINIMUM_JOINT_ANIMATION_TEXTURE_SIZE = 480; // have to be multiples of 12
 
 export function selectJointsMediumFormat (device: GFXDevice): GFXFormat {
     if (device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
@@ -104,9 +104,8 @@ function uploadJointDataDQS (out: Float32Array, base: number, mat: Mat4, firstBo
 }
 
 function roundUpTextureSize (targetLength: number, formatSize: number) {
-    const minSize = 480; // have to be multiples of 12
     const formatScale = 4 / Math.sqrt(formatSize);
-    return Math.ceil(Math.max(minSize * formatScale, targetLength) / 12) * 12;
+    return Math.ceil(Math.max(MINIMUM_JOINT_ANIMATION_TEXTURE_SIZE * formatScale, targetLength) / 12) * 12;
 }
 
 export const jointsTextureSamplerHash = genSamplerHash([

@@ -397,7 +397,7 @@ export class WebGLGFXDevice extends GFXDevice {
                         .getFeature('webgl.extensions.oes_vertex_array_object.revision') > 0 ) {
                     this._useVAO = true;
                 }
-            } else if ((sys.platform !== sys.WECHAT_GAME || sys.os !== sys.OS_IOS)) { this._useVAO = true; }
+            } else { this._useVAO = true; }
         }
 
         if ((sys.platform === sys.WECHAT_GAME && sys.os === sys.OS_ANDROID)) {
