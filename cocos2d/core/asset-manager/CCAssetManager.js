@@ -42,7 +42,7 @@ const Bundle = require('./bundle');
 const builtins = require('./builtins')
 const { parse, combine } = require('./urlTransformer');
 const { parseParameters, urlAppendTimestamp, asyncify } = require('./utilities');
-const { assets, files, parsed, pipeline, transformPipeline, fetchPipeline, initializePipeline, LoadStrategy, RequestType, bundles, BuiltinBundle } = require('./shared');
+const { assets, files, parsed, pipeline, transformPipeline, fetchPipeline, initializePipeline, LoadStrategy, RequestType, bundles, BuiltinBundleName } = require('./shared');
 /**
  * @module cc
  */
@@ -280,7 +280,7 @@ AssetManager.Config = Config;
 AssetManager.LoadStrategy = LoadStrategy;
 AssetManager.RequestType = RequestType;
 AssetManager.Bundle = Bundle;
-AssetManager.BuiltinBundle = BuiltinBundle;
+AssetManager.BuiltinBundleName = BuiltinBundleName;
 
 AssetManager.prototype = {
 
@@ -298,7 +298,7 @@ AssetManager.prototype = {
      * @type {Bundle}
      */
     get main () {
-        return bundles.get(BuiltinBundle.MAIN);
+        return bundles.get(BuiltinBundleName.MAIN);
     },
 
     /**
@@ -313,7 +313,7 @@ AssetManager.prototype = {
      * @type {Bundle}
      */
     get resources () {
-        return bundles.get(BuiltinBundle.RESOURCES);
+        return bundles.get(BuiltinBundleName.RESOURCES);
     },
 
     /**
@@ -328,7 +328,7 @@ AssetManager.prototype = {
      * @type {Bundle}
      */
     get internal () {
-        return bundles.get(BuiltinBundle.INTERNAL);
+        return bundles.get(BuiltinBundleName.INTERNAL);
     },
 
     /**

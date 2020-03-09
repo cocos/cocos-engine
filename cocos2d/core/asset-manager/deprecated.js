@@ -569,7 +569,7 @@ var AssetLibrary = {
         cc.assetManager.init(options);
         if (options.rawAssets) {
             var resources = new cc.AssetManager.Bundle();
-            resources.init({name: cc.AssetManager.BuiltinBundle.RESOURCES, importBase: options.importBase, nativeBase: options.nativeBase, paths: options.rawAssets.assets, uuids: Object.keys(options.rawAssets.assets)});
+            resources.init({name: cc.AssetManager.BuiltinBundleName.RESOURCES, importBase: options.importBase, nativeBase: options.nativeBase, paths: options.rawAssets.assets, uuids: Object.keys(options.rawAssets.assets)});
         }
     },
 
@@ -614,7 +614,7 @@ cc.url = {
      */
     raw (url) {
         if (url.startsWith('resources/')) {
-            return cc.assetManager.transform({'path': cc.path.changeExtname(url.substr(10)), bundle: cc.AssetManager.BuiltinBundle.RESOURCES, isNative: true, ext: cc.path.extname(url)});
+            return cc.assetManager.transform({'path': cc.path.changeExtname(url.substr(10)), bundle: cc.AssetManager.BuiltinBundleName.RESOURCES, isNative: true, ext: cc.path.extname(url)});
         }
         return '';
     }
