@@ -7,6 +7,7 @@ import enums from '../enums';
 let _tmp_mat4 = new Mat4();
 
 let _matView = new Mat4();
+let _matViewInv = new Mat4();
 let _matProj = new Mat4();
 let _matViewProj = new Mat4();
 let _matInvViewProj = new Mat4();
@@ -303,8 +304,8 @@ export default class Camera {
 
   _calcMatrices (width, height) {
     // view matrix
-    this._node.getWorldRT(_matView);
-    Mat4.invert(_matView, _matView);
+    this._node.getWorldRT(_matViewInv);
+    Mat4.invert(_matView, _matViewInv);
 
     // projection matrix
     let aspect = width / height;
@@ -363,6 +364,7 @@ export default class Camera {
 
     this._calcMatrices(width, height);
     Mat4.copy(out._matView, _matView);
+    Mat4.copy(out._matViewInv, _matViewInv);
     Mat4.copy(out._matProj, _matProj);
     Mat4.copy(out._matViewProj, _matViewProj);
     Mat4.copy(out._matInvViewProj, _matInvViewProj);
