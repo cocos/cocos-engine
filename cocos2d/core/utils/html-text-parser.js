@@ -144,11 +144,11 @@ HtmlTextParser.prototype = {
                     tagName = tagName.toLocaleLowerCase();
 
                     attribute = remainingArgument.substring(nextSpace).trim();
-                    if ( tagValue.endsWith( '\/' ) ) tagValue = tagValue.substring( 0, tagValue.length - 1 );
+                    if ( tagValue.endsWith( '\/' ) ) tagValue = tagValue.slice( 0, -1 );
                     if (tagName === "src") {
-                        if ( tagValue.indexOf('\'') === 0 || tagValue.indexOf('"') === 0 ) {
+                        if ( tagValue.charCodeAt("'") === 39 || tagValue.charCodeAt('"') === 34 ) {
                             isValidImageTag = true;
-                            tagValue = tagValue.substring( 1, tagValue.length - 1 );
+                            tagValue = tagValue.slice(1, -1);
                         }
                         obj.isImage = true;
                         obj.src = tagValue;
@@ -157,8 +157,8 @@ HtmlTextParser.prototype = {
                     } else if (tagName === "width") {
                         obj.imageWidth = parseInt(tagValue);
                     } else if (tagName === "align") {
-                        if ( tagValue.indexOf('\'') === 0 || tagValue.indexOf('"') === 0 ) {
-                            tagValue = tagValue.substring( 1, tagValue.length - 1 );
+                        if ( tagValue.charCodeAt("'") === 39 || tagValue.charCodeAt('"') === 34 ) {
+                            tagValue = tagValue.slice(1, -1);
                         }
                         obj.imageAlign = tagValue.toLocaleLowerCase();
                     } else if (tagName === "offset") {
