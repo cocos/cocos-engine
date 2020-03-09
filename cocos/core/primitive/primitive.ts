@@ -22,13 +22,18 @@ ccenum(PrimitiveType);
 
 @ccclass('cc.Primitive')
 export class Primitive extends Mesh {
-    @property({type: PrimitiveType})
+    @property({ type: PrimitiveType })
     public type: number = PrimitiveType.BOX;
     @property
     public info: Record<string, number> = {};
 
+    constructor (type = PrimitiveType.BOX) {
+        super();
+        this.type = type;
+    }
+
     public onLoaded () {
-        createMesh(primitives[PrimitiveType[this.type]](this.info), this);
+        createMesh(primitives[PrimitiveType[this.type].toLowerCase()](this.info), this);
     }
 }
 
