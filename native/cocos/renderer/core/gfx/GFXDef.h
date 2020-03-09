@@ -627,7 +627,7 @@ struct GFXColor {
 #pragma pack(pop)
 
 struct GFXDeviceInfo {
-  intptr_t windowHandle = 0;
+  uintptr_t windowHandle = 0;
   uint width = 0;
   uint height = 0;
   uint nativeWidth = 0;
@@ -646,7 +646,7 @@ struct GFXWindowInfo {
   bool isOffscreen = false;
   bool isFullscreen = false;
   GFXVsyncMode vsyncMode = GFXVsyncMode::OFF;
-  intptr_t windowHandle = 0;
+  uintptr_t windowHandle = 0;
 };
 
 struct GFXContextInfo {
