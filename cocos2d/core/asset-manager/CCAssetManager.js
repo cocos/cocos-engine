@@ -287,6 +287,51 @@ AssetManager.prototype = {
     constructor: AssetManager,
 
     /**
+     * !#en 
+     * The builtin 'main' bundle
+     * 
+     * !#zh
+     * 内置 main 包
+     * 
+     * @property main
+     * @readonly
+     * @type {Bundle}
+     */
+    get main () {
+        return bundles.get(BuiltinBundle.MAIN);
+    },
+
+    /**
+     * !#en 
+     * The builtin 'resources' bundle
+     * 
+     * !#zh
+     * 内置 resources 包
+     * 
+     * @property resources
+     * @readonly
+     * @type {Bundle}
+     */
+    get resources () {
+        return bundles.get(BuiltinBundle.RESOURCES);
+    },
+
+    /**
+     * !#en 
+     * The builtin 'internal' bundle
+     * 
+     * !#zh
+     * 内置 internal 包
+     * 
+     * @property internal
+     * @readonly
+     * @type {Bundle}
+     */
+    get internal () {
+        return bundles.get(BuiltinBundle.INTERNAL);
+    },
+
+    /**
      * !#en
      * Initialize assetManager with options
      * 
@@ -559,7 +604,7 @@ AssetManager.prototype = {
      * 加载脚本
      * 
      * @method loadScript
-     * @param {string} url - Url of the script
+     * @param {string|string[]} url - Url of the script
      * @param {Object} [options] - Some optional paramters
      * @param {boolean} [options.isAsync] - Indicate whether or not loading process should be async
      * @param {Function} [onComplete] - Callback when script loaded or failed
@@ -569,10 +614,13 @@ AssetManager.prototype = {
      * loadScript('http://localhost:8080/index.js', null, (err) => console.log(err));
      * 
      * @typescript
-     * loadScript(url: string, options?: Record<string, any>, onComplete?: (err: Error) => void): void;
+     * loadScript(url: string|string[], options?: Record<string, any>, onComplete?: (err: Error) => void): void;
      */
     loadScript (url, options, onComplete) {
-        downloader.downloadScript(urlAppendTimestamp(url), options, onComplete);
+        var { options, onComplete } = parseParameters(options, undefined, onComplete);
+        options.requestType = RequestType.URL;
+        options.priority = options.priority || 2;
+        this.load(url, options, onComplete);
     },
 
     /**
@@ -671,7 +719,7 @@ AssetManager.prototype = {
      * loadRes(paths: string|string[]|cc.AssetManager.Task, type?: typeof cc.Asset, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, resources: cc.Asset|cc.Asset[]) => void): cc.AssetManager.Task
      */
     loadRes (paths, type, onProgress, onComplete) {
-        return bundles.get(BuiltinBundle.RESOURCES).loadAsset(paths, type, onProgress, onComplete);
+        return this.resources.loadAsset(paths, type, onProgress, onComplete);
     },
 
     /**
@@ -705,7 +753,7 @@ AssetManager.prototype = {
      * preloadRes(paths: string|string[], type?: typeof cc.Asset, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, items: cc.AssetManager.RequestItem[]) => void): cc.AssetManager.Task
      */
     preloadRes (path, type, onProgress, onComplete) {
-        return bundles.get(BuiltinBundle.RESOURCES).preloadAsset(path, type, onProgress, onComplete);
+        return this.resources.preloadAsset(path, type, onProgress, onComplete);
     },
 
     /**
@@ -754,7 +802,7 @@ AssetManager.prototype = {
      * loadResDir(dir: string|cc.AssetManager.Task, type?: typeof cc.Asset, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, assets: cc.Asset|cc.Asset[]) => void): cc.AssetManager.Task
      */
     loadResDir (dir, type, onProgress, onComplete) {
-        return bundles.get(BuiltinBundle.RESOURCES).loadDir(dir, type, onProgress, onComplete);
+        return this.resources.loadDir(dir, type, onProgress, onComplete);
     },
 
     /**
@@ -797,7 +845,7 @@ AssetManager.prototype = {
      * preloadResDir(dir: string, type?: typeof cc.Asset, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, items: cc.AssetManager.RequestItem[]) => void): cc.AssetManager.Task
      */
     preloadResDir (dir, type, onProgress, onComplete) {
-        return bundles.get(BuiltinBundle.RESOURCES).preloadDir(dir, type, onProgress, onComplete);
+        return this.resources.preloadDir(dir, type, onProgress, onComplete);
     },
 
     /**
@@ -826,7 +874,7 @@ AssetManager.prototype = {
      * loadScene(sceneName: string|cc.AssetManager.Task, options?: Record<string, any>, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, scene: cc.Scene) => void): cc.AssetManager.Task
      */
     loadScene (sceneName, options, onProgress, onComplete) {
-        return bundles.get(BuiltinBundle.MAIN).loadScene(sceneName, options, onProgress, onComplete);
+        return this.main.loadScene(sceneName, options, onProgress, onComplete);
     },
 
     /**
@@ -857,7 +905,7 @@ AssetManager.prototype = {
      * preloadScene(sceneName: string, options?: Record<string, any>, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error) => void): cc.AssetManager.Task
      */
     preloadScene (sceneName, options, onProgress, onComplete) {
-        return bundles.get(BuiltinBundle.MAIN).preloadScene(sceneName, options, onProgress, onComplete);
+        return this.main.preloadScene(sceneName, options, onProgress, onComplete);
     },
 
     /**
@@ -879,7 +927,7 @@ AssetManager.prototype = {
      * getRes(path: string, type?: typeof cc.Asset): cc.Asset
      */
     getRes (path, type) {
-        return bundles.get(BuiltinBundle.RESOURCES).getAsset(path, type);
+        return this.resources.getAsset(path, type);
     },
 
     /**
@@ -934,7 +982,7 @@ AssetManager.prototype = {
      * releaseRes(path: string): void
      */
     releaseRes (path, type, force) {
-        bundles.get(BuiltinBundle.RESOURCES).releaseAsset(path, type, force);
+        this.resources.releaseAsset(path, type, force);
     },
 
     /**

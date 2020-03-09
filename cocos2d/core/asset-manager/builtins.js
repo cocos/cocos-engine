@@ -45,7 +45,7 @@ var builtins = {
     _loadBuiltins (name, cb) {
         let dirname = name  + 's';
         let builtin = this._assets.get(name);
-        return cc.assetManager.bundles.get(BuiltinBundle.INTERNAL).loadDir(dirname, null, null, (err, assets) => {
+        return cc.assetManager.internal.loadDir(dirname, null, null, (err, assets) => {
             if (err) {
                 cc.error(err);
             }
