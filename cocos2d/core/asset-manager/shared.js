@@ -158,9 +158,9 @@ var RequestType = {
  * !#zh
  * 内置 bundle
  * 
- * @enum BuiltinBundle
+ * @enum BuiltinBundleName
  */
-var BuiltinBundle = {
+var BuiltinBundleName = {
     /**
      * !#en
      * The builtin bundle corresponds to 'assets/resources'.
@@ -201,4 +201,4 @@ var BuiltinBundle = {
     MAIN: 'main'
 };
 
-module.exports = { assets, files, parsed, pipeline, fetchPipeline, initializePipeline, transformPipeline, LoadStrategy, RequestType, bundles, BuiltinBundle };
+module.exports = { assets, files, parsed, pipeline, fetchPipeline, initializePipeline, transformPipeline, LoadStrategy, RequestType, bundles, BuiltinBundleName };
