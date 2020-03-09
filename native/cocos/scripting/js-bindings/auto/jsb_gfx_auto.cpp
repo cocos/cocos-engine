@@ -2116,7 +2116,7 @@ static bool js_gfx_GFXDeviceInfo_get_windowHandle(se::State& s)
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= int32_to_seval((int)cobj->windowHandle, &jsret);
+    uintptr_t_to_seval(cobj->windowHandle, &jsret)";
     s.rval() = jsret;
     return true;
 }
@@ -2129,8 +2129,8 @@ static bool js_gfx_GFXDeviceInfo_set_windowHandle(se::State& s)
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXDeviceInfo_set_windowHandle : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    intptr_t arg0 = 0;
-    ok &= seval_to_intptr_t(args[0], &arg0);
+    uintptr_t arg0 = 0;
+    ok &= seval_to_uintptr_t(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXDeviceInfo_set_windowHandle : Error processing new value");
     cobj->windowHandle = arg0;
     return true;
@@ -2298,10 +2298,10 @@ static bool js_gfx_GFXDeviceInfo_constructor(se::State& s)
         se::Value field;
 
         cocos2d::GFXDeviceInfo* cobj = JSB_ALLOC(cocos2d::GFXDeviceInfo);
-        intptr_t arg0 = 0;
+        uintptr_t arg0 = 0;
         json->getProperty("windowHandle", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_intptr_t(field, &arg0);
+            ok &= seval_to_uintptr_t(field, &arg0);
             cobj->windowHandle = arg0;
         }
         unsigned int arg1 = 0;
@@ -2348,9 +2348,9 @@ static bool js_gfx_GFXDeviceInfo_constructor(se::State& s)
     else if(argc == 6)
     {
         cocos2d::GFXDeviceInfo* cobj = JSB_ALLOC(cocos2d::GFXDeviceInfo);
-        intptr_t arg0 = 0;
+        uintptr_t arg0 = 0;
         if (!args[0].isUndefined()) {
-            ok &= seval_to_intptr_t(args[0], &arg0);
+            ok &= seval_to_uintptr_t(args[0], &arg0);
             cobj->windowHandle = arg0;
         }
         unsigned int arg1 = 0;
@@ -2723,7 +2723,7 @@ static bool js_gfx_GFXWindowInfo_get_windowHandle(se::State& s)
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= int32_to_seval((int)cobj->windowHandle, &jsret);
+    uintptr_t_to_seval(cobj->windowHandle, &jsret)";
     s.rval() = jsret;
     return true;
 }
@@ -2736,8 +2736,8 @@ static bool js_gfx_GFXWindowInfo_set_windowHandle(se::State& s)
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindowInfo_set_windowHandle : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    intptr_t arg0 = 0;
-    ok &= seval_to_intptr_t(args[0], &arg0);
+    uintptr_t arg0 = 0;
+    ok &= seval_to_uintptr_t(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXWindowInfo_set_windowHandle : Error processing new value");
     cobj->windowHandle = arg0;
     return true;
@@ -2825,10 +2825,10 @@ static bool js_gfx_GFXWindowInfo_constructor(se::State& s)
             do { int32_t tmp = 0; ok &= seval_to_int32(field, &tmp); arg9 = (cocos2d::GFXVsyncMode)tmp; } while(false);
             cobj->vsyncMode = arg9;
         }
-        intptr_t arg10 = 0;
+        uintptr_t arg10 = 0;
         json->getProperty("windowHandle", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_intptr_t(field, &arg10);
+            ok &= seval_to_uintptr_t(field, &arg10);
             cobj->windowHandle = arg10;
         }
 
@@ -2895,9 +2895,9 @@ static bool js_gfx_GFXWindowInfo_constructor(se::State& s)
             do { int32_t tmp = 0; ok &= seval_to_int32(args[9], &tmp); arg9 = (cocos2d::GFXVsyncMode)tmp; } while(false);
             cobj->vsyncMode = arg9;
         }
-        intptr_t arg10 = 0;
+        uintptr_t arg10 = 0;
         if (!args[10].isUndefined()) {
-            ok &= seval_to_intptr_t(args[10], &arg10);
+            ok &= seval_to_uintptr_t(args[10], &arg10);
             cobj->windowHandle = arg10;
         }
 
@@ -2970,7 +2970,7 @@ static bool js_gfx_GFXContextInfo_get_windowHandle(se::State& s)
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= int32_to_seval((int)cobj->windowHandle, &jsret);
+    uintptr_t_to_seval(cobj->windowHandle, &jsret)";
     s.rval() = jsret;
     return true;
 }
@@ -2983,8 +2983,8 @@ static bool js_gfx_GFXContextInfo_set_windowHandle(se::State& s)
     SE_PRECONDITION2(cobj, false, "js_gfx_GFXContextInfo_set_windowHandle : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    intptr_t arg0 = 0;
-    ok &= seval_to_intptr_t(args[0], &arg0);
+    uintptr_t arg0 = 0;
+    ok &= seval_to_uintptr_t(args[0], &arg0);
     SE_PRECONDITION2(ok, false, "js_gfx_GFXContextInfo_set_windowHandle : Error processing new value");
     cobj->windowHandle = arg0;
     return true;
@@ -3068,10 +3068,10 @@ static bool js_gfx_GFXContextInfo_constructor(se::State& s)
         se::Value field;
 
         cocos2d::GFXContextInfo* cobj = JSB_ALLOC(cocos2d::GFXContextInfo);
-        intptr_t arg0 = 0;
+        uintptr_t arg0 = 0;
         json->getProperty("windowHandle", &field);
         if(!field.isUndefined()) {
-            ok &= seval_to_intptr_t(field, &arg0);
+            ok &= seval_to_uintptr_t(field, &arg0);
             cobj->windowHandle = arg0;
         }
         cocos2d::GFXContext* arg1 = nullptr;
@@ -3100,9 +3100,9 @@ static bool js_gfx_GFXContextInfo_constructor(se::State& s)
     else if(argc == 3)
     {
         cocos2d::GFXContextInfo* cobj = JSB_ALLOC(cocos2d::GFXContextInfo);
-        intptr_t arg0 = 0;
+        uintptr_t arg0 = 0;
         if (!args[0].isUndefined()) {
-            ok &= seval_to_intptr_t(args[0], &arg0);
+            ok &= seval_to_uintptr_t(args[0], &arg0);
             cobj->windowHandle = arg0;
         }
         cocos2d::GFXContext* arg1 = nullptr;
