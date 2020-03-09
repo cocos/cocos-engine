@@ -339,6 +339,12 @@ namespace se {
         reset(Type::Number);
         _u._number = (double)v;
     }
+    
+    void Value::setUIntptr_t(uintptr_t v)
+    {
+        reset(Type::Number);
+        _u._number = (double)v;
+    }
 
     void Value::setUlong(unsigned long v)
     {

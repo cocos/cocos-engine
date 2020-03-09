@@ -374,6 +374,7 @@ bool double_to_seval(double v, se::Value* ret);
 bool long_to_seval(long v, se::Value* ret);
 bool ulong_to_seval(unsigned long v, se::Value* ret);
 bool longlong_to_seval(long long v, se::Value* ret);
+bool uintptr_t_to_seval(uintptr_t v, se::Value* ret);
 bool ssize_to_seval(ssize_t v, se::Value* ret);
 bool size_to_seval(size_t v, se::Value* ret);
 bool std_string_to_seval(const std::string& v, se::Value* ret);

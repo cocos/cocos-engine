@@ -219,6 +219,12 @@ namespace se {
          *  @param[in] v The long value to be set.
          */
         void setLong(long v);
+         
+            /**
+             *  @brief Sets se::Value to a uintptr_t value.
+             *  @param[in] v The uintptr_t value to be set.
+             */
+        void setUIntptr_t(uintptr_t v);
 
         /**
          *  @brief Sets se::Value to a unsigned long value.

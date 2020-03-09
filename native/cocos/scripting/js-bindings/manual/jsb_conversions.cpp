@@ -968,6 +968,12 @@ bool longlong_to_seval(long long v, se::Value* ret)
     return true;
 }
 
+bool uintptr_t_to_seval(uintptr_t v, se::Value* ret)
+{
+    ret->setUIntptr_t(v);
+    return true;
+}
+
 bool ssize_to_seval(ssize_t v, se::Value* ret)
 {
     ret->setLong((long)v);

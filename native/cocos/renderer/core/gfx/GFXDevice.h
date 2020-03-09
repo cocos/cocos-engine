@@ -60,7 +60,7 @@ class CC_CORE_API GFXDevice : public Object {
   uint _nativeWidth = 0;
   uint _nativeHeight = 0;
   GFXMemoryStatus _memoryStatus;
-  intptr_t _windowHandle = 0;
+  uintptr_t _windowHandle = 0;
   GFXContext* _context = nullptr;
   GFXWindow* _window = nullptr;
   GFXQueue* _queue = nullptr;
