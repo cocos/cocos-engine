@@ -6,6 +6,8 @@ import { GFXPrimitiveMode } from '../gfx/define';
 import { IGeometry } from './define';
 
 /**
+ * @en
+ * Translate the geometry.
  * @zh
  * 平移几何体。
  * @param geometry 几何体信息。
@@ -38,6 +40,8 @@ export function translate (geometry: IGeometry, offset: { x?: number; y?: number
 }
 
 /**
+ * @en
+ * Scale the geometry.
  * @zh
  * 缩放几何体。
  * @param geometry 几何体信息。
@@ -71,6 +75,8 @@ export function scale (geometry: IGeometry, value: { x?: number; y?: number; z?:
 }
 
 /**
+ * @en
+ * Converts geometry to wireframe mode. Only geometry with triangle topology is supported.
  * @zh
  * 将几何体转换为线框模式，仅支持三角形拓扑的几何体。
  * @param geometry 几何体信息。

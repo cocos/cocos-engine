@@ -20,10 +20,29 @@ enum PrimitiveType {
 }
 ccenum(PrimitiveType);
 
+/**
+ * @en
+ * Basic primitive mesh, this can be generate some primitive mesh at runtime.
+ * @zh
+ * 基础图形网格，可以在运行时构建一些基础的网格。
+ */
 @ccclass('cc.Primitive')
 export class Primitive extends Mesh {
+    /**
+     * @en
+     * The type of the primitive mesh, set it before you call onLoaded.
+     * @zh
+     * 此基础图形网格的类型，请在 onLoaded 调用之前设置。
+     */
     @property({ type: PrimitiveType })
     public type: number = PrimitiveType.BOX;
+
+    /**
+     * @en
+     * The option for build the primitive mesh, set it before you call onLoaded.
+     * @zh
+     * 创建此基础图形网格的可选参数，请在 onLoaded 调用之前设置。
+     */
     @property
     public info: Record<string, number> = {};
 
@@ -32,6 +51,12 @@ export class Primitive extends Mesh {
         this.type = type;
     }
 
+    /**
+     * @en
+     * Construct the primitive mesh with `type` and `info`.
+     * @zh
+     * 根据`type`和`info`构建相应的网格。
+     */
     public onLoaded () {
         createMesh(primitives[PrimitiveType[this.type].toLowerCase()](this.info), this);
     }

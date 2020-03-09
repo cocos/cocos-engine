@@ -6,27 +6,32 @@ import { Vec3 } from '../math';
 import { IGeometry, IGeometryOptions } from './define';
 
 /**
+ * @en
+ * The definition of the parameter for building a cylinder.
  * @zh
  * 圆柱参数选项。
  */
 export interface ICylinderOptions extends IGeometryOptions {
-    radialSegments: number;
-    heightSegments: number;
-    capped: boolean;
-    arc: number;
+  radialSegments: number;
+  heightSegments: number;
+  capped: boolean;
+  arc: number;
 }
 
 const temp1 = new Vec3(0, 0, 0);
 const temp2 = new Vec3(0, 0, 0);
 
 /**
+ * @en
+ * Generate a cylinder with radiusTop radiusBottom 0.5, height 2 and centered at origin,
+ * but may be repositioned through `center` option.
  * @zh
  * 生成一个圆柱。
  * @param radiusTop 顶部半径。
  * @param radiusBottom 底部半径。
  * @param opts 圆柱参数选项。
  */
-export default function (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts: RecursivePartial<ICylinderOptions> = {}): IGeometry {
+export default function cylinder (radiusTop = 0.5, radiusBottom = 0.5, height = 2, opts: RecursivePartial<ICylinderOptions> = {}): IGeometry {
   const halfHeight = height * 0.5;
   const radialSegments = opts.radialSegments || 32;
   const heightSegments = opts.heightSegments || 1;

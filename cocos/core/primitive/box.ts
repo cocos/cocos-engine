@@ -6,6 +6,8 @@ import { Vec3 } from '../math';
 import { IGeometry, IGeometryOptions } from './define';
 
 /**
+ * @en
+ * The definition of the parameter for building a box.
  * @zh
  * 立方体参数选项。
  */
@@ -62,7 +64,7 @@ interface IBoxOptions extends RecursivePartial<IGeometryOptions> {
 /**
  * @en
  * This function generates a box with specified extents and centered at origin,
- * but may be repositioned through `center` option).
+ * but may be repositioned through `center` option.
  * @zh
  * 生成一个立方体，其大小是定义的范围且中心在原点。
  * @param options 参数选项。
