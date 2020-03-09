@@ -289,6 +289,14 @@ export abstract class GFXDevice {
     }
 
     /**
+     * @en Number of instances currently recorded.
+     * @zh 绘制 Instance 数量。
+     */
+    public get numInstances (): number {
+        return this._numInstances;
+    }
+
+    /**
      * @en Number of triangles currently recorded.
      * @zh 渲染三角形数量。
      */
@@ -349,6 +357,7 @@ export abstract class GFXDevice {
     protected _shaderIdGen: number = 0;
     protected _macros: Map<string, string> = new Map();
     protected _numDrawCalls: number = 0;
+    protected _numInstances: number = 0;
     protected _numTris: number = 0;
     protected _memoryStatus: IGFXMemoryStatus = {
         bufferSize: 0,

@@ -44,7 +44,7 @@ import { ITextureBufferHandle, TextureBufferPool } from '../core/texture-buffer-
 
 // change here and cc-skinning.chunk to use other skinning algorithms
 export const uploadJointData = uploadJointDataLBS;
-export const MINIMUM_JOINT_ANIMATION_TEXTURE_SIZE = 480; // have to be multiples of 12
+export const MINIMUM_JOINT_ANIMATION_TEXTURE_SIZE = CC_EDITOR ? 2040 : 480; // have to be multiples of 12
 
 export function selectJointsMediumFormat (device: GFXDevice): GFXFormat {
     if (device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
@@ -133,12 +133,13 @@ const v3_min = new Vec3();
 const v3_max = new Vec3();
 const m4_1 = new Mat4();
 const ab_1 = new aabb();
+const temp_mesh = new Mesh();
 
 export interface IChunkContent {
     skeleton: Skeleton;
     clips: AnimationClip[];
 }
-export interface ICustomChunkRule {
+export interface ICustomJointTextureLayout {
     textureLength: number;
     contents: IChunkContent[];
 }
@@ -167,16 +168,18 @@ export class JointsTexturePool {
         this._textureBuffers.clear();
     }
 
-    public registerCustomRules (rules: ICustomChunkRule[]) {
-        for (let i = 0; i < rules.length; i++) {
-            const rule = rules[i];
-            const chunkIdx = this._pool.createChunk(rule.textureLength);
-            for (let j = 0; j < rule.contents.length; j++) {
-                const content = rule.contents[i];
-                const skeletonHash = content.skeleton.hash;
-                this._chunkIdxMap.set(skeletonHash, chunkIdx); // include default pose too
+    public registerCustomTextureLayouts (layouts: ICustomJointTextureLayout[]) {
+        for (let i = 0; i < layouts.length; i++) {
+            const layout = layouts[i];
+            const chunkIdx = this._pool.createChunk(layout.textureLength);
+            for (let j = 0; j < layout.contents.length; j++) {
+                const content = layout.contents[i];
+                const skeleton = content.skeleton;
+                this._chunkIdxMap.set(skeleton.hash, chunkIdx); // include default pose too
                 for (let k = 0; k < content.clips.length; k++) {
-                    this._chunkIdxMap.set(skeletonHash ^ content.clips[k].hash, chunkIdx);
+                    const clip = content.clips[k];
+                    this._chunkIdxMap.set(skeleton.hash ^ clip.hash, chunkIdx);
+                    this.getSequencePoseTexture(skeleton, clip, temp_mesh);
                 }
             }
         }

@@ -635,6 +635,7 @@ export class WebGLGFXDevice extends GFXDevice {
         (this._cmdAllocator as WebGLGFXCommandAllocator).releaseCmds();
         const queue = (this._queue as WebGLGFXQueue);
         this._numDrawCalls = queue.numDrawCalls;
+        this._numInstances = queue.numInstances;
         this._numTris = queue.numTris;
         queue.clear();
     }
