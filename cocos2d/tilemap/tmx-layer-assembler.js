@@ -48,7 +48,7 @@ let _uvb = {x:0, y:0};
 let _uvc = {x:0, y:0};
 let _uvd = {x:0, y:0};
 
-let _renderData = null, _ia = null, _fillGrids = 0, _cullingMask = 0,
+let _renderData = null, _ia = null, _fillGrids = 0,
     _vfOffset = 0, _moveX = 0, _moveY = 0, _layerMat = null,
     _renderer = null, _renderDataList = null, _buffer = null, 
     _curMaterial = null, _comp = null, _vbuf = null, _uintbuf = null;
@@ -58,7 +58,7 @@ function _visitUserNode (userNode) {
     userNode._updateLocalMatrix();
     Mat4.mul(userNode._worldMatrix, _layerMat, userNode._matrix);
     userNode._renderFlag &= ~(RenderFlow.FLAG_TRANSFORM | RenderFlow.FLAG_BREAK_FLOW);
-    RenderFlow.visitRootNode(userNode, _cullingMask);
+    RenderFlow.visitRootNode(userNode);
     userNode._renderFlag |= RenderFlow.FLAG_BREAK_FLOW;
 }
 
@@ -69,7 +69,6 @@ function _flush () {
 
     _renderer.material = _renderData.material;
     _renderer.node = _comp.node;
-    _renderer.cullingMask = _cullingMask;
     _renderer._flushIA(_renderData.ia);
 
     let needSwitchBuffer = (_fillGrids >= MaxGridsLimit);
@@ -183,7 +182,6 @@ export default class TmxAssembler extends Assembler {
         comp._updateCulling();
 
         let layerNode = comp.node;
-        _cullingMask = layerNode._cullingMask;
         _moveX = comp._leftDownToCenterX;
         _moveY = comp._leftDownToCenterY;
         _layerMat = layerNode._worldMatrix;
@@ -260,7 +258,6 @@ export default class TmxAssembler extends Assembler {
                 if (renderData.ia._count > 0) {
                     renderer.material = renderData.material;
                     renderer.node = layerNode;
-                    renderer.cullingMask = _cullingMask;
                     renderer._flushIA(renderData.ia);
                 }
             }
@@ -433,7 +430,6 @@ export default class TmxAssembler extends Assembler {
         if (_ia._count > 0) {
             _renderer.material = _renderData.material;
             _renderer.node = layerNode;
-            _renderer.cullingMask = _cullingMask;
             _renderer._flushIA(_renderData.ia);
         }
     }

@@ -213,10 +213,11 @@ RenderFlow.validateRenderers = function () {
 };
 
 
-RenderFlow.visitRootNode = function (rootNode, cullingMask) {
+RenderFlow.visitRootNode = function (rootNode) {
     RenderFlow.validateRenderers();    
 
-    _cullingMask = rootNode.groupIndex === 0 && cullingMask ? cullingMask : (1 << rootNode.groupIndex);
+    let preCullingMask = _cullingMask;
+    _cullingMask = rootNode._cullingMask;
 
     if (rootNode._renderFlag & WORLD_TRANSFORM) {
         _batcher.worldMatDirty ++;
@@ -230,6 +231,8 @@ RenderFlow.visitRootNode = function (rootNode, cullingMask) {
     else {
         flows[rootNode._renderFlag]._func(rootNode);
     }
+
+    _cullingMask = preCullingMask;
 };
 
 RenderFlow.render = function (scene, dt) {
