@@ -3,6 +3,13 @@ import Enum  from '../../../platform/CCEnum';
 import { lerp } from '../../../value-types';
 import { AnimationCurve } from '../curve';
 
+const SerializeData = CC_EDITOR && [
+    [ "_mode", "constant", "multiplier" ],
+    [ "_mode", "curve", "multiplier" ],
+    [ "_mode", "curveMin", "curveMax", "multiplier" ],
+    [ "_mode", "constantMin", "constantMax", "multiplier"]
+];
+
 export const Mode = Enum({
     Constant: 0,
     Curve: 1,
@@ -117,31 +124,8 @@ export default class CurveRange {
         }
         return 0;
     }
-
-    _onBeforeSerialize (props: any): any {
-        const self = this;
-        let data = ["mode"];
-        switch (self.mode) {
-            case Mode.Constant:
-                data.push("constant");
-                break;
-            case Mode.Curve:
-                data.push("curve");
-                break;
-            case Mode.TwoConstants:
-                data.push("constantMin");
-                data.push("constantMax");
-                break;
-            case Mode.TwoCurves:
-                data.push("curveMin");
-                data.push("curveMax");
-                break;
-        }
-
-        data.push("multiplier");
-
-        return data;
-    }
 }
+
+Object.assign(CurveRange, { _onBeforeSerialize: CC_EDITOR && function(props){return SerializeData[this.mode];}});
 
 cc.CurveRange = CurveRange;

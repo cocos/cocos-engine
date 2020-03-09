@@ -46,7 +46,7 @@ const { ccclass, menu, property, executeInEditMode, executionOrder} = require('.
 const RenderComponent = require('../../components/CCRenderComponent');
 
 const _world_mat = new Mat4();
-const _module_props = [
+const _module_props = CC_EDITOR && [
     "colorOverLifetimeModule",
     "shapeModule",
     "sizeOvertimeModule",
@@ -867,21 +867,8 @@ export default class ParticleSystem3D extends RenderComponent {
         return this._time;
     }
 
-    public _onBeforeSerialize (props: any): any {
-        const self = this;
-        let data:Array<any> = [];
-        for (let p = 0; p < props.length; p++) {
-            let propName = props[p];
-            let prop = self[propName];
-
-            if (_module_props.indexOf(propName) !== -1 && !prop.enable) {
-                continue;
-            }
-
-            data.push(propName);
-        }
-
-        return data;
+    _onBeforeSerialize (props) {
+        return props.filter(p => !_module_props.includes(p) || this[p].enable);
     }
 }
 

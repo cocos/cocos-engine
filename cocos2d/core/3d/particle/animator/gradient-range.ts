@@ -12,6 +12,14 @@ const GRADIENT_RANGE_MODE_RANDOM_COLOR = 2;
 const GRADIENT_RANGE_MODE_GRADIENT = 3;
 const GRADIENT_RANGE_MODE_TWO_GRADIENT = 4;
 
+const SerializeData = CC_EDITOR && [
+    [ "_mode", "color" ],
+    [ "_mode", "gradient" ],
+    [ "_mode", "colorMin", "colorMax" ],
+    [ "_mode", "gradientMin", "gradientMax"],
+    [ "_mode", "gradient" ]
+];
+
 const Mode = Enum({
     Color: 0,
     Gradient: 1,
@@ -128,29 +136,11 @@ export default class GradientRange {
         }
     }
 
-    _onBeforeSerialize (props: any): any {
-        const self = this;
-        let data = ["_mode"];
-        switch (self._mode) {
-            case Mode.Color:
-                data.push("color");
-                break;
-            case Mode.TwoColors:
-                data.push("colorMin");
-                data.push("colorMax");
-                break;
-            case Mode.RandomColor:
-            case Mode.Gradient:
-                data.push("gradient");
-                break;
-            case Mode.TwoGradients:
-                data.push("gradientMin");
-                data.push("gradientMax");
-                break;
-        }
-
-        return data;
+    _onBeforeSerialize (props: any):any {
+        return SerializeData[this._mode];
     }
 }
+
+Object.assign(GradientRange, { _onBeforeSerialize: CC_EDITOR && function(props){return SerializeData[this._mode];}});
 
 cc.GradientRange = GradientRange;
