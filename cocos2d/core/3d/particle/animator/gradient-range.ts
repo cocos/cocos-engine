@@ -136,11 +136,9 @@ export default class GradientRange {
         }
     }
 
-    _onBeforeSerialize (props: any):any {
+    _onBeforeSerialize (props) {
         return SerializeData[this._mode];
     }
 }
-
-Object.assign(GradientRange, { _onBeforeSerialize: CC_EDITOR && function(props){return SerializeData[this._mode];}});
 
 cc.GradientRange = GradientRange;

@@ -124,8 +124,10 @@ export default class CurveRange {
         }
         return 0;
     }
-}
 
-Object.assign(CurveRange, { _onBeforeSerialize: CC_EDITOR && function(props){return SerializeData[this.mode];}});
+    _onBeforeSerialize (props) {
+        return SerializeData[this.mode];
+    }
+}
 
 cc.CurveRange = CurveRange;
