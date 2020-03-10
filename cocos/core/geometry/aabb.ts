@@ -21,9 +21,9 @@ const transform_extent_m4 = (out: Vec3, extent: Vec3, m4: Mat4) => {
 
 /**
  * @en
- * Basic Geometry: Axis-aligned bounding box.
+ * Basic Geometry: Axis-aligned bounding box, using center and half extents structure.
  * @zh
- * 基础几何  轴对齐包围盒。
+ * 基础几何  轴对齐包围盒，使用中心点和半长宽高的结构。
  */
 // tslint:disable-next-line: class-name
 export default class aabb {

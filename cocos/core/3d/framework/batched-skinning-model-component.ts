@@ -510,11 +510,6 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
                 pm.indexView.offset = newOffset;
                 newOffset += pm.indexView.length;
             }
-            if (pm.geometricInfo) {
-                newOffset = Math.ceil(newOffset / 4) * 4;
-                pm.geometricInfo.view.offset = newOffset;
-                newOffset += pm.geometricInfo.view.length;
-            }
         }
         // now, we ride!
         const src = mesh.data!; let oldOffset = 0;
@@ -550,17 +545,6 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
                 for (let j = 0; j < newPrimitive.indexView.count; j++) {
                     const srcIndices = src.subarray(oldOffset, oldOffset + oldStride);
                     newMeshData.set(srcIndices, newOffset);
-                    newOffset += newStride; oldOffset += oldStride;
-                }
-            }
-            if (oldPrimitive.geometricInfo && newPrimitive.geometricInfo) {
-                const oldStride = oldPrimitive.geometricInfo.view.stride;
-                const newStride = newPrimitive.geometricInfo.view.stride;
-                oldOffset = oldPrimitive.geometricInfo.view.offset;
-                newOffset = newPrimitive.geometricInfo.view.offset;
-                for (let j = 0; j < newPrimitive.geometricInfo.view.count; j++) {
-                    const srcPositions = src.subarray(oldOffset, oldOffset + oldStride);
-                    newMeshData.set(srcPositions, newOffset);
                     newOffset += newStride; oldOffset += oldStride;
                 }
             }

@@ -84,6 +84,11 @@ export interface IGeometricInfo {
      * 是否将图元按双面对待。
      */
     doubleSided?: boolean;
+
+    /**
+     * 此几何体的轴对齐包围盒。
+     */
+    boundingBox: { max: Vec3; min: Vec3; }
 }
 
 export interface IFlatBuffer {
@@ -124,7 +129,44 @@ export class RenderingSubMesh {
     /**
      * （用于射线检测的）几何信息。
      */
-    public geometricInfo?: IGeometricInfo;
+    get geometricInfo () {
+        if (this._geometricInfo) { return this._geometricInfo; }
+        if (this.mesh == undefined) { return { positions: new Float32Array(), indices: new Uint8Array(), boundingBox: { min: Vec3.ZERO, max: Vec3.ZERO } }; }
+        if (this.subMeshIdx == undefined) { return { positions: new Float32Array(), indices: new Uint8Array(), boundingBox: { min: Vec3.ZERO, max: Vec3.ZERO } }; }
+        const mesh = this.mesh!; const index = this.subMeshIdx!;
+        const positions = mesh.readAttribute(index, GFXAttributeName.ATTR_POSITION) as unknown as Float32Array;
+        const indices = mesh.readIndices(index) as Uint16Array;
+        const max = new Vec3();
+        const min = new Vec3();
+        const pAttri = this.attributes.find(element => element.name == cc.GFXAttributeName.ATTR_POSITION);
+        if (pAttri) {
+            const conut = GFXFormatInfos[pAttri.format].count;
+            if (conut == 2) {
+                max.set(positions[0], positions[1], 0);
+                min.set(positions[0], positions[1], 0);
+            } else {
+                max.set(positions[0], positions[1], positions[2]);
+                min.set(positions[0], positions[1], positions[2]);
+            }
+            for (let i = 0; i < positions.length; i += conut) {
+                if (conut == 2) {
+                    max.x = positions[i] > max.x ? positions[i] : max.x;
+                    max.y = positions[i + 1] > max.y ? positions[i + 1] : max.y;
+                    min.x = positions[i] < min.x ? positions[i] : min.x;
+                    min.y = positions[i + 1] < min.y ? positions[i + 1] : min.y;
+                } else {
+                    max.x = positions[i] > max.x ? positions[i] : max.x;
+                    max.y = positions[i + 1] > max.y ? positions[i + 1] : max.y;
+                    max.z = positions[i + 2] > max.z ? positions[i + 2] : max.z;
+                    min.x = positions[i] < min.x ? positions[i] : min.x;
+                    min.y = positions[i + 1] < min.y ? positions[i + 1] : min.y;
+                    min.z = positions[i + 2] < min.z ? positions[i + 2] : min.z;
+                }
+            }
+        }
+        this._geometricInfo = { positions, indices, boundingBox: { max, min } };
+        return this._geometricInfo;
+    }
 
     /**
      * 扁平化的顶点缓冲区。
@@ -224,6 +266,7 @@ export class RenderingSubMesh {
         stream: number;
         index: number;
     };
+    private _geometricInfo?: IGeometricInfo;
 
     constructor (vertexBuffers: GFXBuffer[], attributes: IGFXAttribute[], primitiveMode: GFXPrimitiveMode) {
         this.vertexBuffers = vertexBuffers;
@@ -351,13 +394,6 @@ export declare namespace Mesh {
          */
         jointMapIndex?: number;
 
-        /**
-         * （用于射线检测的）几何信息。
-         */
-        geometricInfo?: {
-            doubleSided?: boolean;
-            view: IBufferView;
-        };
     }
 
     /**
@@ -582,14 +618,14 @@ export class Mesh extends Asset {
             const subMesh = new RenderingSubMesh(vbReference, gfxAttributes, prim.primitiveMode);
             subMesh.mesh = this; subMesh.subMeshIdx = i; subMesh.indexBuffer = indexBuffer;
 
-            if (prim.geometricInfo) {
-                const info = prim.geometricInfo;
-                const positions = new Float32Array(buffer, info.view.offset, info.view.length / 4);
-                subMesh.geometricInfo = {
-                    indices: ib,
-                    positions,
-                };
-            }
+            // if (prim.geometricInfo) {
+            //     const info = prim.geometricInfo;
+            //     const positions = new Float32Array(buffer, info.view.offset, info.view.length / 4);
+            //     subMesh.geometricInfo = {
+            //         indices: ib,
+            //         positions,
+            //     };
+            // }
 
             submeshes.push(subMesh);
         }
@@ -767,7 +803,7 @@ export class Mesh extends Asset {
                     }
                 }
             }
-            this.reset({struct, data});
+            this.reset({ struct, data });
             this.initialize();
             return true;
         }
@@ -951,27 +987,6 @@ export class Mesh extends Asset {
                 bufferBlob.addBuffer(ib);
             }
 
-            if (prim.geometricInfo && dstPrim.geometricInfo) {
-                const geomBuffSize = prim.geometricInfo.view.length + dstPrim.geometricInfo.view.length;
-                const geomBuff = new ArrayBuffer(geomBuffSize);
-                const geomBuffView = new Uint8Array(geomBuff);
-                const srcView = new Uint8Array(this._data!.buffer, prim.geometricInfo.view.offset, prim.geometricInfo.view.length);
-                const dstView = new Uint8Array(mesh._data!.buffer, dstPrim.geometricInfo.view.offset, dstPrim.geometricInfo.view.length);
-                geomBuffView.set(srcView);
-                geomBuffView.set(dstView, srcView.length);
-
-                bufferBlob.setNextAlignment(4);
-                primitives[i].geometricInfo = {
-                    doubleSided: prim.geometricInfo.doubleSided,
-                    view: {
-                        offset: bufferBlob.getLength(),
-                        length: geomBuffView.length,
-                        count: prim.geometricInfo.view.count + dstPrim.geometricInfo.view.count,
-                        stride: prim.geometricInfo.view.stride,
-                    },
-                };
-                bufferBlob.addBuffer(geomBuff);
-            }
         }
 
         // Create mesh struct.
@@ -1361,3 +1376,5 @@ function getWriter (dataView: DataView, format: GFXFormat) {
 
     return null;
 }
+
+// function get

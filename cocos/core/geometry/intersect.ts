@@ -15,10 +15,9 @@ import plane from './plane';
 import ray from './ray';
 import sphere from './sphere';
 import triangle from './triangle';
-import { Mesh } from '../assets';
 import { GFXPrimitiveMode } from '../gfx';
 import { IBArray, RenderingSubMesh } from '../assets/mesh';
-import { IRaySubMeshOptions, ERaycastMode } from './spec';
+import { IRaySubMeshOptions, ERaycastMode, IRaySubMeshResult } from './spec';
 import { IVec3Like } from '../math/type-define';
 
 // tslint:disable:only-arrow-functions
@@ -321,19 +320,19 @@ const ray_capsule = (function () {
 
 /**
  * @en
- * ray-mesh intersect detect.
+ * ray-renderingSubMesh intersect detect.
  * @zh
- * 射线和三角网格的相交性检测。
+ * 射线和渲染三角网格的相交性检测。
  */
-const ray_submesh = (function () {
+const ray_renderingSubMesh = (function () {
     const tri = triangle.create();
-    const deOpt: IRaySubMeshOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.CLOSEST };
+    const deOpt: IRaySubMeshOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY };
+    const tr: IRaySubMeshResult = { distance: 0, vertexIndex0: 0, vertexIndex1: 0, vertexIndex2: 0 };
     let minDis = 0;
     const broadphase = (ray: ray, submesh: RenderingSubMesh) => {
-        // const min = submesh.geometricInfo!.minPosition;
-        // const max = submesh.geometricInfo!.maxPosition;
-        // return ray_aabb2(ray, min!, max!);
-        return 1;
+        const min = submesh.geometricInfo.boundingBox.min;
+        const max = submesh.geometricInfo.boundingBox.max;
+        return ray_aabb2(ray, min, max);
     }
     const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, ray: ray, opt: IRaySubMeshOptions) => {
         if (pm === GFXPrimitiveMode.TRIANGLE_LIST) {
@@ -348,8 +347,15 @@ const ray_submesh = (function () {
                 const dist = intersect.ray_triangle(ray, tri, opt.doubleSided);
                 if (dist == 0 || dist > opt.distance!) continue;
                 if (opt.mode == ERaycastMode.CLOSEST) {
-                    if (minDis < dist) continue;
-                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                    if (minDis > dist || minDis == 0) {
+                        minDis = dist;
+                        tr.distance = dist;
+                        tr.vertexIndex0 = i0;
+                        tr.vertexIndex1 = i1;
+                        tr.vertexIndex2 = i2;
+                        if (opt.result && j + 3 < cnt)
+                            opt.result.push({ distance: tr.distance, vertexIndex0: tr.vertexIndex0, vertexIndex1: tr.vertexIndex1, vertexIndex2: tr.vertexIndex2 });
+                    }
                 } else if (opt.mode == ERaycastMode.ALL) {
                     minDis = dist;
                     if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
@@ -413,7 +419,7 @@ const ray_submesh = (function () {
     return function (ray: ray, submesh: RenderingSubMesh, option?: IRaySubMeshOptions) {
         const opt = option == undefined ? deOpt : option;
         minDis = 0;
-        if (!submesh.geometricInfo) { }// TODO : 计算 geometricInfo
+        if (submesh.geometricInfo.positions.length == 0) return;
         if (broadphase(ray, submesh)) {
             const pm = submesh.primitiveMode;
             const { positions: vb, indices: ib } = submesh.geometricInfo!;
@@ -1306,7 +1312,7 @@ const intersect = {
     ray_plane,
     ray_triangle,
     ray_capsule,
-    ray_mesh: ray_submesh,
+    ray_renderingSubMesh,
 
     line_sphere,
     line_aabb,
