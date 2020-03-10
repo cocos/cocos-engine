@@ -149,7 +149,7 @@ Object.assign(WebEditBoxImpl.prototype, {
     },
 
     update () {
-        this._updateMatrix();
+        // do nothing...
     },
 
     setTabIndex (index) {
@@ -212,6 +212,7 @@ Object.assign(WebEditBoxImpl.prototype, {
     },
 
     _showDom () {
+        this._updateMatrix();
         this._updateMaxLength();
         this._updateInputType();
         this._updateStyleSheet();

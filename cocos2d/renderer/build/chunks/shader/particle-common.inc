@@ -26,13 +26,9 @@ void computeVertPos(inout vec4 pos, vec2 vertOffset, vec4 q, vec3 s
 ) {
 #if CC_USE_BILLBOARD
     vec3 viewSpaceVert = vec3(vertOffset.x * s.x, vertOffset.y * s.y, 0.);
-    vec3 camX = vec3(viewInv[0][0], viewInv[1][0], viewInv[2][0]);
-    vec3 camY = vec3(viewInv[0][1], viewInv[1][1], viewInv[2][1]);
-    vec3 camZ = vec3(viewInv[0][2], viewInv[1][2], viewInv[2][2]);
-
-    //vec3 camX = normalize(vec3(viewInv[0][0], viewInv[1][0], viewInv[2][0]));
-    //vec3 camY = normalize(vec3(viewInv[0][1], viewInv[1][1], viewInv[2][1]));
-    //vec3 camZ = normalize(vec3(viewInv[0][2], viewInv[1][2], viewInv[2][2]));
+    vec3 camX = normalize(vec3(viewInv[0][0], viewInv[1][0], viewInv[2][0]));
+    vec3 camY = normalize(vec3(viewInv[0][1], viewInv[1][1], viewInv[2][1]));
+    vec3 camZ = normalize(vec3(viewInv[0][2], viewInv[1][2], viewInv[2][2]));
     pos.xyz += rotateInLocalSpace(viewSpaceVert, camX, camY, camZ, q);
 #elif CC_USE_STRETCHED_BILLBOARD
     vec3 camRight = normalize(cross(pos.xyz - eye, velocity.xyz)) * s.x;
