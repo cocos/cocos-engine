@@ -540,9 +540,6 @@ export default class TrailModule {
     }
 
     _fillVertexBuffer (trailSeg, colorModifer, indexOffset, xTexCoord, trailEleIdx, indexSet) {
-        if(trailSeg.position.x !== 480) {
-            console.log("折线");
-        }
         this._vbF32[this.vbOffset++] = trailSeg.position.x;
         this._vbF32[this.vbOffset++] = trailSeg.position.y;
         this._vbF32[this.vbOffset++] = trailSeg.position.z;
