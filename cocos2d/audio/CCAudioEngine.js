@@ -36,7 +36,7 @@ let _audioPool = [];
 
 let recycleAudio = function (audio) {
     // In case repeatly recycle audio when users call audio.stop when audio finish playing
-    if (audio._banRecycling) {
+    if (!audio._shouldRecycleOnEnded) {
         return;
     }
     audio._finishCallback = null;
@@ -52,6 +52,7 @@ let recycleAudio = function (audio) {
             audio.destroy();
         }
     }
+    audio._shouldRecycleOnEnded = false;
 };
 
 let getAudioFromPath = function (path) {
@@ -79,11 +80,9 @@ let getAudioFromPath = function (path) {
     };
 
     audio.on('ended', function () {
-        this._banRecycling = true;
         if (this._finishCallback) {
             this._finishCallback();
         }
-        this._banRecycling = false;
         callback.call(this);
     }, audio);
 
@@ -169,6 +168,7 @@ var audioEngine = {
             audio.src = clip;
         }
 
+        audio._shouldRecycleOnEnded = true;
         audio.setLoop(loop || false);
         volume = handleVolume(volume);
         audio.setVolume(volume);

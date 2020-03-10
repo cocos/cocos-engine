@@ -37,9 +37,9 @@ let touchPlayList = [
 let Audio = function (src) {
     EventTarget.call(this);
 
+    this._shouldRecycleOnEnded = false;
     this._src = src;
     this._element = null;
-    this._banRecycling = false;
     this.id = 0;
 
     this._volume = 1;
