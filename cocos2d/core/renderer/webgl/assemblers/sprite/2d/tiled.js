@@ -112,6 +112,9 @@ export default class TiledAssembler extends Assembler2D {
         let yScale = node.height / (topHeight + bottomHeight) > 1 ? 1 : node.height / (topHeight + bottomHeight);
         let offsetWidth = 0, offsetHeight = 0;
         if (centerWidth > 0) {
+            /* Because the float numerical calculation in javascript is not accurate enough, 
+             * there is an expected result of 1.0, but the actual result is 1.000001.
+             */
             offsetWidth = Math.floor(this.sizableWidth * 1000) / 1000 % centerWidth === 0 ? centerWidth : this.sizableWidth % centerWidth;
         }
         else {
