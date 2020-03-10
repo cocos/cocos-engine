@@ -179,11 +179,12 @@ export class RenderingSubMesh {
         let jointFormat: GFXFormat;
         let jointOffset: number;
         const device: GFXDevice = cc.director.root.device;
-        for (const bundleIdx of prim.vertexBundelIndices) {
-            const bundle = struct.vertexBundles[bundleIdx];
+        for (let i = 0; i < prim.vertexBundelIndices.length; i++) {
+            const bundle = struct.vertexBundles[prim.vertexBundelIndices[i]];
             jointOffset = 0;
             jointFormat = GFXFormat.UNKNOWN;
-            for (const attr of bundle.attributes) {
+            for (let j = 0; j < bundle.attributes.length; j++) {
+                const attr = bundle.attributes[j];
                 if (attr.name === GFXAttributeName.ATTR_JOINTS) {
                     jointFormat = attr.format;
                     break;
@@ -205,7 +206,7 @@ export class RenderingSubMesh {
                 buffer.update(dataView.buffer); buffers.push(buffer);
                 this._jointMappedBufferCreated = true;
             } else {
-                for (const buffer of buffers) { buffer.destroy(); }
+                for (let j = 0; j < buffers.length; j++) { buffers[j].destroy(); }
                 this._jointMappedBufferCreated = false;
                 return this._jointMappedBuffers = this.vertexBuffers;
             }
@@ -1126,7 +1127,7 @@ export class Mesh extends Asset {
         }
         const stride = primitive.indexView.stride;
         const ctor = stride === 1 ? Uint8Array : (stride === 2 ? Uint16Array : Uint32Array);
-        return new ctor(this._data, primitive.indexView.offset, primitive.indexView.count);
+        return new ctor(this._data.buffer, primitive.indexView.offset, primitive.indexView.count);
     }
 
     /**

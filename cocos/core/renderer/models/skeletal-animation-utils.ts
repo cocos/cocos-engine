@@ -133,11 +133,10 @@ const v3_min = new Vec3();
 const v3_max = new Vec3();
 const m4_1 = new Mat4();
 const ab_1 = new aabb();
-const temp_mesh = new Mesh();
 
 export interface IChunkContent {
-    skeleton: Skeleton;
-    clips: AnimationClip[];
+    skeleton: number;
+    clips: number[];
 }
 export interface ICustomJointTextureLayout {
     textureLength: number;
@@ -150,17 +149,18 @@ export class JointsTexturePool {
     private _pool: TextureBufferPool;
     private _textureBuffers = new Map<number, IJointsTextureHandle>(); // per skeleton per clip
     private _formatSize = 0;
+
+    private _customPool: TextureBufferPool;
     private _chunkIdxMap = new Map<number, number>(); // hash -> chunkIdx
 
     constructor (device: GFXDevice) {
         this._device = device;
-        this._pool = new TextureBufferPool(device);
         const format = selectJointsMediumFormat(this._device);
         this._formatSize = GFXFormatInfos[format].size;
-        this._pool.initialize({
-            format,
-            roundUpFn: roundUpTextureSize,
-        });
+        this._pool = new TextureBufferPool(device);
+        this._pool.initialize({ format, roundUpFn: roundUpTextureSize });
+        this._customPool = new TextureBufferPool(device);
+        this._customPool.initialize({ format, roundUpFn: roundUpTextureSize });
     }
 
     public clear () {
@@ -171,15 +171,14 @@ export class JointsTexturePool {
     public registerCustomTextureLayouts (layouts: ICustomJointTextureLayout[]) {
         for (let i = 0; i < layouts.length; i++) {
             const layout = layouts[i];
-            const chunkIdx = this._pool.createChunk(layout.textureLength);
+            const chunkIdx = this._customPool.createChunk(layout.textureLength);
             for (let j = 0; j < layout.contents.length; j++) {
                 const content = layout.contents[i];
                 const skeleton = content.skeleton;
-                this._chunkIdxMap.set(skeleton.hash, chunkIdx); // include default pose too
+                this._chunkIdxMap.set(skeleton, chunkIdx); // include default pose too
                 for (let k = 0; k < content.clips.length; k++) {
                     const clip = content.clips[k];
-                    this._chunkIdxMap.set(skeleton.hash ^ clip.hash, chunkIdx);
-                    this.getSequencePoseTexture(skeleton, clip, temp_mesh);
+                    this._chunkIdxMap.set(skeleton ^ clip, chunkIdx);
                 }
             }
         }
@@ -199,7 +198,10 @@ export class JointsTexturePool {
         let textureBuffer: Float32Array = null!; let buildTexture = false;
         if (!texture) {
             const bufSize = joints.length * 12;
-            const handle = this._pool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT, this._chunkIdxMap.get(hash));
+            const customChunkIdx = this._chunkIdxMap.get(hash);
+            const handle = customChunkIdx !== undefined ?
+                this._customPool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT, customChunkIdx) :
+                this._pool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT);
             if (!handle) { return texture; }
             texture = { pixelOffset: handle.start / this._formatSize, refCount: 1, bounds: new Map(),
                 skeletonHash: skeleton.hash, clipHash: 0, readyToBeDeleted: false, handle };
@@ -249,7 +251,10 @@ export class JointsTexturePool {
         let textureBuffer: Float32Array = null!; let buildTexture = false;
         if (!texture) {
             const bufSize = joints.length * 12 * frames;
-            const handle = this._pool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT, this._chunkIdxMap.get(hash));
+            const customChunkIdx = this._chunkIdxMap.get(hash);
+            const handle = customChunkIdx !== undefined ?
+                this._customPool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT, customChunkIdx) :
+                this._pool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT);
             if (!handle) { return null; }
             texture = { pixelOffset: handle.start / this._formatSize, refCount: 1, bounds: new Map(),
                 skeletonHash: skeleton.hash, clipHash: clip.hash, readyToBeDeleted: false, handle };
