@@ -487,7 +487,7 @@ var Sprite = cc.Class({
         if (spriteFrame) {
             this._updateMaterial();
             let newTexture = spriteFrame.getTexture();
-            if (oldTexture === newTexture && newTexture.loaded) {
+            if (oldTexture === newTexture && (newTexture && newTexture.loaded)) {
                 this._applySpriteSize();
             }
             else {
