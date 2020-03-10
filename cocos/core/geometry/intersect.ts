@@ -3,7 +3,7 @@
  * @category geometry
  */
 
-import { EPSILON, Mat3, Vec3 } from '../math';
+import { EPSILON, Mat3, Vec3, Mat4 } from '../math';
 import aabb from './aabb';
 import { capsule } from './capsule';
 import * as distance from './distance';
@@ -16,9 +16,10 @@ import ray from './ray';
 import sphere from './sphere';
 import triangle from './triangle';
 import { GFXPrimitiveMode } from '../gfx';
-import { IBArray, RenderingSubMesh } from '../assets/mesh';
-import { IRaySubMeshOptions, ERaycastMode, IRaySubMeshResult } from './spec';
+import { IBArray, RenderingSubMesh, Mesh } from '../assets/mesh';
+import { IRaySubMeshOptions, ERaycastMode, IRaySubMeshResult, IRayMeshOptions, IRayModelOptions } from './spec';
 import { IVec3Like } from '../math/type-define';
+import { Model } from '../renderer';
 
 // tslint:disable:only-arrow-functions
 // tslint:disable:one-variable-per-declaration
@@ -418,7 +419,7 @@ const ray_renderingSubMesh = (function () {
     };
     return function (ray: ray, submesh: RenderingSubMesh, option?: IRaySubMeshOptions) {
         const opt = option == undefined ? deOpt : option;
-        minDis = 0;
+        if (!opt.doNotZeroMin) minDis = 0;
         if (submesh.geometricInfo.positions.length == 0) return;
         if (broadphase(ray, submesh)) {
             const pm = submesh.primitiveMode;
@@ -426,6 +427,71 @@ const ray_renderingSubMesh = (function () {
             narrowphase(vb, ib!, pm, ray, opt);
         }
         return minDis != 0;
+    }
+})();
+
+/**
+ * @en
+ * ray-mesh intersect detect.
+ * @zh
+ * 射线和网格资源的相交性检测。
+ */
+const ray_mesh = (function () {
+    const deOpt: IRayMeshOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY, doNotZeroMin: true };
+    return function (ray: ray, mesh: Mesh, option?: IRayMeshOptions) {
+        const opt = option == undefined ? deOpt : option;
+        const length = mesh.renderingSubMeshes.length;
+        let result = false;
+        const min = mesh.struct.minPosition;
+        const max = mesh.struct.maxPosition;
+        if (min && max && !ray_aabb2(ray, min, max)) return false;
+        for (let i = 0; i < length; i++) {
+            const sm = mesh.renderingSubMeshes[i];
+            if (ray_renderingSubMesh(ray, sm, opt)) {
+                result = true;
+                if (opt.subIndices) opt.subIndices.push(i);
+                if (opt.mode == ERaycastMode.ANY) {
+                    return true;
+                }
+            }
+        }
+        return result;
+    }
+})();
+
+/**
+ * @en
+ * ray-model intersect detect.
+ * @zh
+ * 射线和渲染模型的相交性检测。
+ */
+const ray_model = (function () {
+    const deOpt: IRayModelOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY, doNotZeroMin: true, doNotTransformRay: false };
+    const modelRay = new ray();
+    const m4 = new Mat4;
+    return function (r: ray, model: Model, option?: IRayModelOptions) {
+        const opt = option == undefined ? deOpt : option;
+        const length = model.subModelNum;
+        let result = false;
+        ray.copy(modelRay, r);
+        if (!opt.doNotTransformRay) {
+            Mat4.invert(m4, model.node.getWorldMatrix(m4));
+            Vec3.transformMat4(modelRay.o, r.o, m4);
+            Vec3.normalize(modelRay.d, Vec3.transformMat4Normal(modelRay.d, r.d, m4));
+        }
+        const box = model.modelBounds;
+        if (box && !ray_aabb(modelRay, box)) return false;
+        for (let i = 0; i < length; i++) {
+            const sm = model.getSubModel(i).subMeshData;
+            if (ray_renderingSubMesh(modelRay, sm, opt)) {
+                result = true;
+                if (opt.subIndices) opt.subIndices.push(i);
+                if (opt.mode == ERaycastMode.ANY) {
+                    return true;
+                }
+            }
+        }
+        return result;
     }
 })();
 
@@ -1312,7 +1378,10 @@ const intersect = {
     ray_plane,
     ray_triangle,
     ray_capsule,
+
     ray_renderingSubMesh,
+    ray_mesh,
+    ray_model,
 
     line_sphere,
     line_aabb,
