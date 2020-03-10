@@ -259,7 +259,9 @@ let SkinnedMeshRenderer = cc.Class({
                 material.define('CC_USE_JOINTS_TEXTRUE', true);
             }
             else {
-                material.setProperty('jointMatrices', this._jointsFloat32Data, undefined, true);
+                if (this._jointsFloat32Data) {
+                    material.setProperty('jointMatrices', this._jointsFloat32Data, undefined, true);
+                }
                 material.define('CC_USE_JOINTS_TEXTRUE', false);
             }
             material.define('CC_USE_SKINNING', true);
