@@ -3,7 +3,7 @@ import Enum  from '../../../platform/CCEnum';
 import { lerp } from '../../../value-types';
 import { AnimationCurve } from '../curve';
 
-const SerializeData = CC_EDITOR && [
+const SerializableTable = CC_EDITOR && [
     [ "_mode", "constant", "multiplier" ],
     [ "_mode", "curve", "multiplier" ],
     [ "_mode", "curveMin", "curveMax", "multiplier" ],
@@ -126,7 +126,7 @@ export default class CurveRange {
     }
 
     _onBeforeSerialize (props) {
-        return SerializeData[this.mode];
+        return SerializableTable[this.mode];
     }
 }
 

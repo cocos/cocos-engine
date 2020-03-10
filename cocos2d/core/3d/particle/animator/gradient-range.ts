@@ -12,7 +12,7 @@ const GRADIENT_RANGE_MODE_RANDOM_COLOR = 2;
 const GRADIENT_RANGE_MODE_GRADIENT = 3;
 const GRADIENT_RANGE_MODE_TWO_GRADIENT = 4;
 
-const SerializeData = CC_EDITOR && [
+const SerializableTable = CC_EDITOR && [
     [ "_mode", "color" ],
     [ "_mode", "gradient" ],
     [ "_mode", "colorMin", "colorMax" ],
@@ -137,7 +137,7 @@ export default class GradientRange {
     }
 
     _onBeforeSerialize (props) {
-        return SerializeData[this._mode];
+        return SerializableTable[this._mode];
     }
 }
 
