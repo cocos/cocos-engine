@@ -7,7 +7,7 @@ import { RenderableComponent } from '../core/3d/framework/renderable-component';
 import { Texture2D } from '../core/assets';
 import { Filter, PixelFormat, WrapMode } from '../core/assets/asset-enum';
 import { Material } from '../core/assets/material';
-import { IRenderingSubmesh } from '../core/assets/mesh';
+import { RenderingSubMesh } from '../core/assets/mesh';
 import { Component } from '../core/components';
 import { ccclass, disallowMultiple, executeInEditMode, menu, property } from '../core/data/class-decorator';
 import { director } from '../core/director';
@@ -97,7 +97,7 @@ export class TerrainVertex {
 
 export class TerrainRenderable extends RenderableComponent {
     public _model: Model | null = null;
-    public _meshData: IRenderingSubmesh | null = null;
+    public _meshData: RenderingSubMesh | null = null;
 
     public _brushMaterial: Material | null = null;
     public _currentMaterial: Material | null = null;
@@ -256,13 +256,8 @@ export class TerrainBlock {
             { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RG32F},
         ];
 
-        this._renderable._meshData = {
-            attributes: gfxAttributes,
-            vertexBuffers: [vertexBuffer],
-            indexBuffer: this._terrain.getSharedIndexBuffer() || undefined,
-            flatBuffers : [],
-            primitiveMode: GFXPrimitiveMode.TRIANGLE_LIST,
-        };
+        const subMesh = this._renderable._meshData = new RenderingSubMesh([vertexBuffer], gfxAttributes, GFXPrimitiveMode.TRIANGLE_LIST);
+        subMesh.indexBuffer = this._terrain.getSharedIndexBuffer() || undefined;
 
         this._renderable._model = (cc.director.root as Root).createModel(Model);
         this._renderable._model.initialize(this._node);
