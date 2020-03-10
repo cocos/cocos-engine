@@ -866,10 +866,8 @@ export default class ParticleSystem3D extends RenderComponent {
     get time () {
         return this._time;
     }
-
-    _onBeforeSerialize (props) {
-        return props.filter(p => !_module_props.includes(p) || this[p].enable);
-    }
 }
+
+CC_EDITOR && Object.assign(ParticleSystem3D.prototype, {_onBeforeSerialize: function(props){return props.filter(p => !_module_props.includes(p) || this[p].enable);}});
 
 cc.ParticleSystem3D = ParticleSystem3D;

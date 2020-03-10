@@ -124,10 +124,8 @@ export default class CurveRange {
         }
         return 0;
     }
-
-    _onBeforeSerialize (props) {
-        return SerializableTable[this.mode];
-    }
 }
+
+CC_EDITOR && Object.assign(CurveRange.prototype, {_onBeforeSerialize: function(props){return SerializableTable[this.mode];}});
 
 cc.CurveRange = CurveRange;
