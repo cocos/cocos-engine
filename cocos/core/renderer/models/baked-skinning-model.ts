@@ -174,7 +174,7 @@ export class BakedSkinningModel extends Model {
             const view = this.instancedAttributes.list[idx].view;
             view[0] = info.data[0];
             view[1] = info.data[1];
-            view[2] = texture.pixelOffset;
+            view[2] = jointsTextureInfo[2];
         }
         if (buffer) { buffer.update(jointsTextureInfo); }
         const tv = texture.handle.texView;
