@@ -137,6 +137,6 @@ export default class GradientRange {
     }
 }
 
-CC_EDITOR && Object.assign(GradientRange.prototype, {_onBeforeSerialize: function(props){return SerializableTable[this._mode];}});
+CC_EDITOR && (GradientRange.prototype._onBeforeSerialize = function(props){return SerializableTable[this._mode];});
 
 cc.GradientRange = GradientRange;
