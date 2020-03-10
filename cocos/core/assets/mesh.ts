@@ -170,6 +170,7 @@ export class RenderingSubMesh {
     get jointMappedBuffers () {
         if (this._jointMappedBuffers) { return this._jointMappedBuffers; }
         const buffers: GFXBuffer[] = this._jointMappedBuffers = [];
+        const indices: number[] = this._jointMappedBufferIndices = [];
         if (!this.mesh || this.subMeshIdx === undefined) { return this._jointMappedBuffers = this.vertexBuffers; }
         const struct = this.mesh.struct;
         const prim = struct.primitives[this.subMeshIdx];
@@ -203,12 +204,9 @@ export class RenderingSubMesh {
                     size: bundle.view.length,
                     stride: bundle.view.stride,
                 });
-                buffer.update(dataView.buffer); buffers.push(buffer);
-                this._jointMappedBufferCreated = true;
+                buffer.update(dataView.buffer); buffers.push(buffer); indices.push(i);
             } else {
-                for (let j = 0; j < buffers.length; j++) { buffers[j].destroy(); }
-                this._jointMappedBufferCreated = false;
-                return this._jointMappedBuffers = this.vertexBuffers;
+                buffers.push(this.vertexBuffers[prim.vertexBundelIndices[i]]);
             }
         }
         return buffers;
@@ -219,7 +217,7 @@ export class RenderingSubMesh {
 
     private _flatBuffers?: IFlatBuffer[];
     private _jointMappedBuffers?: GFXBuffer[];
-    private _jointMappedBufferCreated = false;
+    private _jointMappedBufferIndices?: number[];
 
     constructor (vertexBuffers: GFXBuffer[], attributes: IGFXAttribute[], primitiveMode: GFXPrimitiveMode) {
         this.vertexBuffers = vertexBuffers;
@@ -228,19 +226,20 @@ export class RenderingSubMesh {
     }
 
     public destroy () {
-        for (const buffer of this.vertexBuffers) {
-            buffer.destroy();
+        for (let i = 0; i < this.vertexBuffers.length; i++) {
+            this.vertexBuffers[i].destroy();
         }
         this.vertexBuffers.length = 0;
         if (this.indexBuffer) {
             this.indexBuffer.destroy();
         }
         this.indexBuffer = undefined;
-        if (this._jointMappedBuffers && this._jointMappedBufferCreated) {
-            for (const buffer of this._jointMappedBuffers) {
-                buffer.destroy();
+        if (this._jointMappedBuffers && this._jointMappedBufferIndices) {
+            for (let i = 0; i < this._jointMappedBufferIndices.length; i++) {
+                this._jointMappedBuffers[this._jointMappedBufferIndices[i]].destroy();
             }
             this._jointMappedBuffers = undefined;
+            this._jointMappedBufferIndices = undefined;
         }
     }
 }
