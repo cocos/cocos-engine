@@ -1360,17 +1360,6 @@ void GLES2CmdFuncExecuteCmds(GLES2Device* device, GLES2CmdPackage* cmd_package) 
         GLES2CmdBindStates* cmd = cmd_package->bindStatesCmds[cmd_idx];
         is_shader_changed = false;
           
-          if (cache->viewport.left != cmd->viewport.left ||
-              cache->viewport.top != cmd->viewport.top ||
-              cache->viewport.width != cmd->viewport.width ||
-              cache->viewport.height != cmd->viewport.height) {
-              glViewport(cmd->viewport.left, cmd->viewport.top, cmd->viewport.width, cmd->viewport.height);
-              cache->viewport.left = cmd->viewport.left;
-              cache->viewport.top = cmd->viewport.top;
-              cache->viewport.width = cmd->viewport.width;
-              cache->viewport.height = cmd->viewport.height;
-          }
-          
         if (cmd->gpuPipelineState) {
           gpuPipelineState = cmd->gpuPipelineState;
           glPrimitive = gpuPipelineState->glPrimitive;
@@ -1861,6 +1850,8 @@ void GLES2CmdFuncExecuteCmds(GLES2Device* device, GLES2CmdPackage* cmd_package) 
             }
           } // if
         }
+          
+        //TODO: implementation setting dynamic states.
         
         break;
       }
