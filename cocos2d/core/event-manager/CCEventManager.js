@@ -1054,7 +1054,7 @@ var eventManager = {
 
 
 js.get(cc, 'eventManager', function () {
-    cc.errorID(1405, 'cc.eventManager', 'cc.EventTarget or cc.systemEvent');
+    cc.warnID(1405, 'cc.eventManager', 'cc.EventTarget or cc.systemEvent');
     return eventManager;
 });
 

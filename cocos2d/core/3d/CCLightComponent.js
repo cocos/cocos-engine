@@ -100,6 +100,15 @@ const LightShadowType = Enum({
      * @type {Number}
      */
     NONE: 0,
+    // /**
+    //  * !#en Soft shadows
+    //  *
+    //  * !#zh 软阴影
+    //  * @property SOFT
+    //  * @readonly
+    //  * @type {Number}
+    //  */
+    // SOFT: 1,
     /**
      * !#en Hard shadows
      *
@@ -109,24 +118,6 @@ const LightShadowType = Enum({
      * @type {Number}
      */
     HARD: 2,
-    /**
-     * !#en Soft PCF 3x3 shadows
-     *
-     * !#zh PCF 3x3 软阴影
-     * @property SOFT_PCF3X3
-     * @readonly
-     * @type {Number}
-     */
-    SOFT_PCF3X3: 3,
-    /**
-     * !#en Soft PCF 5x5 shadows
-     *
-     * !#zh PCF 5x5 软阴影
-     * @property SOFT_PCF5X5
-     * @readonly
-     * @type {Number}
-     */
-    SOFT_PCF5X5: 4,
 });
 
 /**
@@ -173,6 +164,9 @@ export default class Light extends CCComponent {
 
     @property
     _shadowMaxDepth = 4096;
+
+    @property
+    _shadowDepthScale = 250;
 
     @property
     _shadowFrustumSize = 1024;
@@ -301,7 +295,14 @@ export default class Light extends CCComponent {
 
     set shadowType(val) {
         this._shadowType = val;
-        this._light.setShadowType(val);
+
+        let type = enums.SHADOW_NONE;
+        if (val === LightShadowType.HARD) {
+            type = enums.SHADOW_HARD;
+        } else if (val === LightShadowType.SOFT) {
+            type = enums.SHADOW_SOFT;
+        }
+        this._light.setShadowType(type);
     }
 
     /**
@@ -373,6 +374,23 @@ export default class Light extends CCComponent {
     }
 
     /**
+     * !#en The shadow depth scale
+     *
+     * !#zh 阴影深度比例
+     *
+     * @type {Number}
+     */
+    @property
+    get shadowDepthScale() {
+        return this._shadowDepthScale;
+    }
+
+    set shadowDepthScale(val) {
+        this._shadowDepthScale = val;
+        this._light.setShadowDepthScale(val);
+    }
+
+    /**
      * !#en The shadow frustum size
      *
      * !#zh 阴影截锥体大小
@@ -428,6 +446,7 @@ export default class Light extends CCComponent {
         this.shadowResolution = this._shadowResolution;
         this.shadowDarkness = this._shadowDarkness;
         this.shadowMaxDepth = this._shadowMaxDepth;
+        this.shadowDepthScale = this._shadowDepthScale;
         this.shadowFrustumSize = this._shadowFrustumSize;
         this.shadowBias = this._shadowBias;
     }

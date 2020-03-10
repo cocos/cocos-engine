@@ -150,7 +150,7 @@ var Canvas = cc.Class({
         }
 
         if (Canvas.instance) {
-            return cc.warnID(6700,
+            return cc.errorID(6700,
                 this.node.name, Canvas.instance.node.name);
         }
         Canvas.instance = this;

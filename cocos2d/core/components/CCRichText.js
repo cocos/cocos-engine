@@ -612,34 +612,31 @@ let RichText = cc.Class({
                 return true;
             }
             else {
-                let oldStyle = oldItem.style, newStyle = newItem.style;
-                if (oldStyle) {
-                    if (newStyle) {
-                        if (!oldStyle.outline !== !newStyle.outline) {
+                if (oldItem.style) {
+                    if (newItem.style) {
+                        if (!!newItem.style.outline !== !!oldItem.style.outline) {
                             return true;
                         }
-                        if (oldStyle.size !== newStyle.size
-                            || !oldStyle.italic !== !newStyle.italic
-                            || oldStyle.isImage !== newStyle.isImage) {
+                        if (oldItem.style.size !== newItem.style.size
+                            || oldItem.style.italic !== newItem.style.italic
+                            || oldItem.style.isImage !== newItem.style.isImage) {
                             return true;
                         }
-                        if (oldStyle.src !== newStyle.src ||
-                            oldStyle.imageAlign !== newStyle.imageAlign ||
-                            oldStyle.imageHeight !== newStyle.imageHeight ||
-                            oldStyle.imageWidth !== newStyle.imageWidth ||
-                            oldStyle.imageOffset !== newStyle.imageOffset) {
-                            return true;
+                        if (oldItem.style.isImage === newItem.style.isImage) {
+                            if (oldItem.style.src !== newItem.style.src) {
+                                return true;
+                            }
                         }
                     }
                     else {
-                        if (oldStyle.size || oldStyle.italic || oldStyle.isImage || oldStyle.outline) {
+                        if (oldItem.style.size || oldItem.style.italic || oldItem.style.isImage || oldItem.style.outline) {
                             return true;
                         }
                     }
                 }
                 else {
-                    if (newStyle) {
-                        if (newStyle.size || newStyle.italic || newStyle.isImage || newStyle.outline) {
+                    if (newItem.style) {
+                        if (newItem.style.size || newItem.style.italic || newItem.style.isImage || newItem.style.outline) {
                             return true;
                         }
                     }
@@ -925,7 +922,7 @@ let RichText = cc.Class({
         }
     },
 
-    // When string is null, it means that the text does not need to be updated.
+    // When string is null, it means that the text does not need to be updated. 
     _applyTextAttribute (labelNode, string, force) {
         let labelComponent = labelNode.getComponent(cc.Label);
         if (!labelComponent) {
@@ -953,7 +950,7 @@ let RichText = cc.Class({
         } else {
             labelComponent.fontFamily = this.fontFamily;
         }
-
+    
         labelComponent.useSystemFont = this._isSystemFontUsed;
         labelComponent.lineHeight = this.lineHeight;
         labelComponent.enableBold = textStyle && textStyle.bold;
