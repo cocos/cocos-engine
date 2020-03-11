@@ -10,38 +10,38 @@ import { IVec3Like } from '../../../core/math/type-define';
 export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
 
     set height (v: number) {
-        this.updateCapsuleProp(this.capsuleCollider.radius, v, this._collider.node.worldScale);
+        this.updateCapsuleProp(this.collider.radius, v, this._collider.node.worldScale);
     }
 
     set direction (v: number) {
-        this.btCapsule.setUpAxis(v);
+        this.shape.setUpAxis(v);
     }
 
     set radius (v: number) {
-        this.updateCapsuleProp(v, this.capsuleCollider.height, this._collider.node.worldScale);
+        this.updateCapsuleProp(v, this.collider.height, this._collider.node.worldScale);
     }
 
-    get btCapsule () {
+    get shape () {
         return this._btShape as Ammo.btCapsuleShape;
     }
 
-    get capsuleCollider () {
+    get collider () {
         return this._collider as CapsuleColliderComponent;
     }
 
-    constructor (radius: number, height: number) {
+    constructor () {
         super(AmmoBroadphaseNativeTypes.CAPSULE_SHAPE_PROXYTYPE);
         this._btShape = new Ammo.btCapsuleShape(0.5, 1);
     }
 
     onLoad () {
         super.onLoad();
-        this.radius = this.capsuleCollider.radius;
+        this.radius = this.collider.radius;
     }
 
     updateScale () {
         super.updateScale();
-        this.radius = this.capsuleCollider.radius;
+        this.radius = this.collider.radius;
     }
 
     /**
@@ -49,8 +49,8 @@ export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
      */
     updateCapsuleProp (radius: number, height: number, scale: IVec3Like) {
         const ws = scale;
-        const upAxis = this.btCapsule.getUpAxis();
-        const isd = this.btCapsule.getImplicitShapeDimensions();
+        const upAxis = this.shape.getUpAxis();
+        const isd = this.shape.getImplicitShapeDimensions();
         if (upAxis == 1) {
             const wh = height * Math.abs(ws.y);
             const wr = radius * absMax(ws.x, ws.z);
@@ -68,6 +68,6 @@ export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
             isd.setValue(wr, wr, halfH);
         }
         cocos2AmmoVec3(this.scale, Vec3.ONE);
-        this.btCapsule.setLocalScaling(this.scale);
+        this.shape.setLocalScaling(this.scale);
     }
 }

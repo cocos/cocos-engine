@@ -9,11 +9,11 @@ const v3_cannon0 = new CANNON.Vec3();
 
 export class CannonTrimeshShape extends CannonShape implements ITrimeshShape {
 
-    get meshCollider () {
+    get collider () {
         return this._collider as MeshColliderComponent;
     }
 
-    get trimesh () {
+    get shape () {
         return this._shape as CANNON.Trimesh;
     }
 
@@ -41,67 +41,33 @@ export class CannonTrimeshShape extends CannonShape implements ITrimeshShape {
     }
 
     onComponentSet () {
-        this.mesh = this.meshCollider.mesh;
+        this.mesh = this.collider.mesh;
     }
 
     onLoad () {
         super.onLoad();
-        this.mesh = this.meshCollider.mesh;
+        this.mesh = this.collider.mesh;
     }
 
     setScale (scale: Vec3) {
         super.setScale(scale);
         Vec3.copy(v3_cannon0, scale);
-        this.trimesh.setScale(v3_cannon0);
+        this.shape.setScale(v3_cannon0);
     }
 
     private updateInternalMesh (vertices: Float32Array, indices: Uint16Array) {
-
-        /**
-         * @property vertices
-         * @type {Array}
-         */
-        this.trimesh.vertices = new Float32Array(vertices);
-
-        /**
-         * Array of integers, indicating which vertices each triangle consists of. The length of this array is thus 3 times the number of triangles.
-         * @property indices
-         * @type {Array}
-         */
-        this.trimesh.indices = new Int16Array(indices);
-
-        /**
-         * The normals data.
-         * @property normals
-         * @type {Array}
-         */
-        this.trimesh.normals = new Float32Array(indices.length);
-
-        /**
-         * The local AABB of the mesh.
-         * @property aabb
-         * @type {Array}
-         */
-        this.trimesh.aabb = new CANNON.AABB();
-
-        /**
-         * References to vertex pairs, making up all unique edges in the trimesh.
-         * @property {array} edges
-         */
-        this.trimesh.edges = [];
-
-        /**
-         * The indexed triangles. Use .updateTree() to update it.
-         * @property {Octree} tree
-         */
-        this.trimesh.tree = new CANNON.Octree(new CANNON.AABB());
-
-        this.trimesh.updateEdges();
-        this.trimesh.updateNormals();
-        this.trimesh.updateAABB();
-        this.trimesh.updateBoundingSphereRadius();
-        this.trimesh.updateTree();
-        this.trimesh.setScale(this.trimesh.scale);
+        this.shape.vertices = new Float32Array(vertices);
+        this.shape.indices = new Int16Array(indices);
+        this.shape.normals = new Float32Array(indices.length);
+        this.shape.aabb = new CANNON.AABB();
+        this.shape.edges = [];
+        this.shape.tree = new CANNON.Octree(new CANNON.AABB());
+        this.shape.updateEdges();
+        this.shape.updateNormals();
+        this.shape.updateAABB();
+        this.shape.updateBoundingSphereRadius();
+        this.shape.updateTree();
+        this.shape.setScale(this.shape.scale);
         if (this._index >= 0) {
             commitShapeUpdates(this._body);
         }

@@ -9,11 +9,11 @@ import { AmmoConstant } from '../ammo-const';
 
 export class AmmoBvhTriangleMeshShape extends AmmoShape implements ITrimeshShape {
 
-    public get meshCollider () {
+    public get collider () {
         return this.collider as MeshColliderComponent;
     }
 
-    public get bvhTriangleMesh () {
+    public get shape () {
         return this._btShape as Ammo.btBvhTriangleMeshShape;
     }
 
@@ -95,30 +95,12 @@ export class AmmoBvhTriangleMeshShape extends AmmoShape implements ITrimeshShape
     }
 
     onComponentSet () {
-        this.mesh = this.meshCollider.mesh;
-
-        // // DEBUG
-        // if (this.meshCollider.mesh == null) {
-        //     this._btTriangleMesh = new Ammo.btTriangleMesh();
-        //     const geometry = buildPlaneGeometry();
-        //     const vb = geometry.vertices;
-        //     const ib = geometry.indices;
-        //     for (var i = 0, j = 0, l = vb.length; i < l; i++ , j += 3) {
-        //         var i0 = ib[j] * 3;
-        //         var i1 = ib[j + 1] * 3;
-        //         var i2 = ib[j + 2] * 3;
-        //         const v0 = new Ammo.btVector3(vb[i0], vb[i0 + 1], vb[i0 + 2]);
-        //         const v1 = new Ammo.btVector3(vb[i1], vb[i1 + 1], vb[i1 + 2]);
-        //         const v2 = new Ammo.btVector3(vb[i2], vb[i2 + 1], vb[i2 + 2]);
-        //         this._btTriangleMesh.addTriangle(v0, v1, v2);
-        //     }
-        //     this._btShape = new Ammo.btBvhTriangleMeshShape(this._btTriangleMesh, true, true);
-        // }
+        this.mesh = this.collider.mesh;
     }
 
     setCompound (compound: Ammo.btCompoundShape | null) {
         super.setCompound(compound);
-        this.bvhTriangleMesh.setUserIndex(this._index);
+        this.shape.setUserIndex(this._index);
     }
 
     updateScale () {
@@ -131,75 +113,4 @@ export class AmmoBvhTriangleMeshShape extends AmmoShape implements ITrimeshShape
         }
     }
 
-}
-
-/**
- * Debug
- */
-
-function buildPlaneGeometry (width = 10, height = 10, widthSegments = 12, heightSegments = 12) {
-
-    var width_half = width / 2;
-    var height_half = height / 2;
-
-    var gridX = Math.floor(widthSegments) || 1;
-    var gridY = Math.floor(heightSegments) || 1;
-
-    var gridX1 = gridX + 1;
-    var gridY1 = gridY + 1;
-
-    var segment_width = width / gridX;
-    var segment_height = height / gridY;
-
-    var ix: number, iy: number;
-
-    // buffers
-
-    var indices: number[] = [];
-    var vertices: number[] = [];
-    var normals: number[] = [];
-    var uvs: number[] = [];
-
-    // generate vertices, normals and uvs
-
-    for (iy = 0; iy < gridY1; iy++) {
-
-        var y = iy * segment_height - height_half;
-
-        for (ix = 0; ix < gridX1; ix++) {
-
-            var x = ix * segment_width - width_half;
-
-            vertices.push(x, - y, 0);
-
-            normals.push(0, 0, 1);
-
-            uvs.push(ix / gridX);
-            uvs.push(1 - (iy / gridY));
-
-        }
-
-    }
-
-    // indices
-
-    for (iy = 0; iy < gridY; iy++) {
-
-        for (ix = 0; ix < gridX; ix++) {
-
-            var a = ix + gridX1 * iy;
-            var b = ix + gridX1 * (iy + 1);
-            var c = (ix + 1) + gridX1 * (iy + 1);
-            var d = (ix + 1) + gridX1 * iy;
-
-            // faces
-
-            indices.push(a, b, d);
-            indices.push(b, c, d);
-
-        }
-
-    }
-
-    return { indices, vertices, normals, uvs };
 }

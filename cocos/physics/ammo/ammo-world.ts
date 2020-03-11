@@ -77,10 +77,6 @@ export class AmmoWorld implements IPhysicsWorld {
         const numManifolds = this._btDispatcher.getNumManifolds();
         for (let i = 0; i < numManifolds; i++) {
             const manifold = this._btDispatcher.getManifoldByIndexInternal(i);
-            const body0 = manifold.getBody0();
-            const body1 = manifold.getBody1();
-            const index0 = body0.getUserIndex();
-            const index1 = body1.getUserIndex();
             const numContacts = manifold.getNumContacts();
             for (let j = 0; j < numContacts; j++) {
                 const manifoldPoint: Ammo.btManifoldPoint = manifold.getContactPoint(j);
@@ -103,13 +99,6 @@ export class AmmoWorld implements IPhysicsWorld {
                     } else {
                         shape1 = (s1 as any).wrapped;
                     }
-
-                    // const key0 = 'KEY' + index0;
-                    // const key1 = 'KEY' + index1;
-                    // const shared0 = AmmoInstance.bodyAndGhosts[key0];
-                    // const shared1 = AmmoInstance.bodyAndGhosts[key1];
-                    // const shape0 = shared0.wrappedShapes[sIndex0];
-                    // const shape1 = shared1.wrappedShapes[sIndex1];
 
                     // current contact
                     var item = this.contactsDic.get(shape0.id, shape1.id) as any;
@@ -200,14 +189,12 @@ export class AmmoWorld implements IPhysicsWorld {
             const index = btObj.getUserIndex();
             const shared = AmmoInstance.bodyAndGhosts['KEY' + index];
             const shapeIndex = this.closeHitCB.m_shapePart;
-            // if (shared.wrappedShapes.length > shapeIndex) {
             const shape = shared.wrappedShapes[shapeIndex];
             ammo2CocosVec3(v3_0, this.closeHitCB.m_hitPointWorld);
             ammo2CocosVec3(v3_1, this.closeHitCB.m_hitNormalWorld);
             const distance = Vec3.distance(worldRay.o, v3_0);
             result._assign(v3_0, distance, shape.collider, v3_1);
             return true;
-            // }
         }
         return false;
     }
@@ -326,15 +313,9 @@ export class AmmoWorld implements IPhysicsWorld {
                 if (this.oldContactsDic.get(shape0.id, shape1.id) == null) {
                     this.oldContactsDic.set(shape0.id, shape1.id, data);
                 }
-
-                // shape0.sharedBody.syncSceneToPhysics();
-                // shape1.sharedBody.syncSceneToPhysics();
             }
         }
 
-        /** TODO: 待一致，此处 trigger 和 collsion 事件，
-         * 在碰撞盒子改变 isTrigger 后目前不会触发 exit 事件 
-         * */
         // is exit
         let oldDicL = this.oldContactsDic.getLength();
         while (oldDicL--) {
@@ -401,9 +382,6 @@ export class AmmoWorld implements IPhysicsWorld {
                             this.oldContactsDic.set(shape0.id, shape1.id, null);
                         }
                     }
-
-                    // shape0.sharedBody.syncSceneToPhysics();
-                    // shape1.sharedBody.syncSceneToPhysics();
                 }
             }
         }

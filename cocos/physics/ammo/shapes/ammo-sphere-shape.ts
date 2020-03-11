@@ -22,26 +22,26 @@ export class AmmoSphereShape extends AmmoShape implements ISphereShape {
         }
     }
 
-    public get btSphere () {
+    public get shape () {
         return this._btShape as Ammo.btSphereShape;
     }
 
-    public get sphereCollider () {
+    public get collider () {
         return this._collider as SphereColliderComponent;
     }
 
-    constructor (radius: number) {
+    constructor () {
         super(AmmoBroadphaseNativeTypes.SPHERE_SHAPE_PROXYTYPE);
         this._btShape = new Ammo.btSphereShape(0.5);
     }
 
     onLoad () {
         super.onLoad();
-        this.radius = this.sphereCollider.radius;
+        this.radius = this.collider.radius;
     }
 
     updateScale () {
         super.updateScale();
-        this.radius = this.sphereCollider.radius;
+        this.radius = this.collider.radius;
     }
 }

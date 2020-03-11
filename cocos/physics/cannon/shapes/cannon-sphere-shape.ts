@@ -8,11 +8,11 @@ import { SphereColliderComponent } from '../../../../exports/physics-framework';
 
 export class CannonSphereShape extends CannonShape implements ISphereShape {
 
-    get sphereCollider () {
+    get collider () {
         return this.collider as SphereColliderComponent;
     }
 
-    get sphere () {
+    get shape () {
         return this._shape as CANNON.Sphere;
     }
 
@@ -22,8 +22,8 @@ export class CannonSphereShape extends CannonShape implements ISphereShape {
 
     set radius (v: number) {
         const max = maxComponent(this.collider.node.worldScale);
-        this.sphere.radius = v * Math.abs(max);
-        this.sphere.updateBoundingSphereRadius();
+        this.shape.radius = v * Math.abs(max);
+        this.shape.updateBoundingSphereRadius();
         if (this._index != -1) {
             commitShapeUpdates(this._body);
         }
@@ -39,12 +39,12 @@ export class CannonSphereShape extends CannonShape implements ISphereShape {
 
     onLoad () {
         super.onLoad();
-        this.radius = this.sphereCollider.radius;
+        this.radius = this.collider.radius;
     }
 
     setScale (scale: Vec3): void {
         super.setScale(scale);
-        this.radius = this.sphereCollider.radius;
+        this.radius = this.collider.radius;
     }
 
 }

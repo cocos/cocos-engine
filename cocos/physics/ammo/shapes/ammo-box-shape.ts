@@ -20,17 +20,17 @@ export class AmmoBoxShape extends AmmoShape implements IBoxShape {
         }
     }
 
-    get boxShape () {
+    get shape () {
         return this._btShape as Ammo.btBoxShape;
     }
 
-    get boxCollider () {
+    get collider () {
         return this._collider as BoxColliderComponent;
     }
 
     readonly halfExt: Ammo.btVector3;
 
-    constructor (size: Vec3) {
+    constructor () {
         super(AmmoBroadphaseNativeTypes.BOX_SHAPE_PROXYTYPE);
         this.halfExt = new Ammo.btVector3(0.5, 0.5, 0.5);
         this._btShape = new Ammo.btBoxShape(this.halfExt);
@@ -38,7 +38,7 @@ export class AmmoBoxShape extends AmmoShape implements IBoxShape {
 
     onLoad () {
         super.onLoad();
-        this.size = this.boxCollider.size;
+        this.size = this.collider.size;
     }
 
     onDestroy () {
@@ -49,7 +49,7 @@ export class AmmoBoxShape extends AmmoShape implements IBoxShape {
 
     updateScale () {
         super.updateScale();
-        this.size = this.boxCollider.size;
+        this.size = this.collider.size;
     }
 
 }

@@ -4,7 +4,10 @@
 
 import { PhysicsSystem } from "./physics-system";
 import { replaceProperty } from "../../core";
-import { BoxColliderComponent, SphereColliderComponent, CapsuleColliderComponent, RigidBodyComponent } from ".";
+import { BoxColliderComponent } from "./components/collider/box-collider-component";
+import { SphereColliderComponent } from "./components/collider/sphere-collider-component";
+import { CapsuleColliderComponent } from "./components/collider/capsule-collider-component";
+import { RigidBodyComponent } from "./components/rigid-body-component";
 
 replaceProperty(PhysicsSystem, 'PhysicsSystem', [
     {

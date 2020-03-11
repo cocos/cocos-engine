@@ -8,11 +8,11 @@ import { BoxColliderComponent } from '../../../../exports/physics-framework';
 
 export class CannonBoxShape extends CannonShape implements IBoxShape {
 
-    public get boxCollider () {
+    public get collider () {
         return this.collider as BoxColliderComponent;
     }
 
-    public get box () {
+    public get shape () {
         return this._shape as CANNON.Box;
     }
 
@@ -25,8 +25,8 @@ export class CannonBoxShape extends CannonShape implements IBoxShape {
 
     set size (v: IVec3Like) {
         Vec3.multiplyScalar(this.halfExtent, v, 0.5);
-        Vec3.multiply(this.box.halfExtents, this.halfExtent, this.collider.node.worldScale);
-        this.box.updateConvexPolyhedronRepresentation();
+        Vec3.multiply(this.shape.halfExtents, this.halfExtent, this.collider.node.worldScale);
+        this.shape.updateConvexPolyhedronRepresentation();
         if (this._index != -1) {
             commitShapeUpdates(this._body);
         }
@@ -34,11 +34,11 @@ export class CannonBoxShape extends CannonShape implements IBoxShape {
 
     onLoad () {
         super.onLoad();
-        this.size = this.boxCollider.size;
+        this.size = this.collider.size;
     }
 
     setScale (scale: Vec3): void {
         super.setScale(scale);
-        this.size = this.boxCollider.size;
+        this.size = this.collider.size;
     }
 }
