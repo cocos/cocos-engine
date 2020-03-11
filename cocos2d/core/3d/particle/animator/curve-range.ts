@@ -17,6 +17,11 @@ export const Mode = Enum({
     TwoConstants: 3,
 });
 
+/**
+ * !#en The curve range of target value.
+ * !#zh 目标值的曲线范围
+ * @class CurveRange
+ */
 @ccclass('cc.CurveRange')
 export default class CurveRange {
     static Mode = Mode;

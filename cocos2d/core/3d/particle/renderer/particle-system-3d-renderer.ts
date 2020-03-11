@@ -29,6 +29,7 @@ const CC_USE_STRETCHED_BILLBOARD = 'CC_USE_STRETCHED_BILLBOARD';
 const CC_USE_HORIZONTAL_BILLBOARD = 'CC_USE_HORIZONTAL_BILLBOARD';
 const CC_USE_VERTICAL_BILLBOARD = 'CC_USE_VERTICAL_BILLBOARD';
 const CC_USE_MESH = 'CC_USE_MESH';
+//const CC_DRAW_WIRE_FRAME = 'CC_DRAW_WIRE_FRAME'; // <wireframe debug>
 
 
 var vfmtNormal = new gfx.VertexFormat([
@@ -88,6 +89,7 @@ export default class ParticleSystem3DAssembler extends Assembler {
 
         this._trailDefines = {
             CC_USE_WORLD_SPACE: true,
+            //CC_DRAW_WIRE_FRAME: true,   // <wireframe debug>
         };
     }
 
@@ -401,6 +403,8 @@ export default class ParticleSystem3DAssembler extends Assembler {
             } else {
                 mat.define(CC_USE_WORLD_SPACE, false);
             }
+
+            //mat.define(CC_DRAW_WIRE_FRAME, true); // <wireframe debug>
 
             this._particleSystem.trailModule._updateMaterial();
         }
