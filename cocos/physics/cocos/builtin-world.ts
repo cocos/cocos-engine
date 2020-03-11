@@ -202,8 +202,8 @@ export class BuiltInWorld implements IPhysicsWorld {
             }
         }
 
-        this._collisionMatrixPrev.matrix = this._collisionMatrix.matrix.slice();
-        this._collisionMatrix.reset();
+        this._collisionMatrixPrev.matrix = this._collisionMatrix.matrix;
+        this._collisionMatrix.matrix = [];
 
     }
 

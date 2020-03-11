@@ -49,7 +49,7 @@ export class ArrayCollisionMatrix {
      * @method reset
      */
     public reset () {
-        for (let i = 0, l = this.matrix.length; i !== l; i++) {
+        for (let i in this.matrix) {
             this.matrix[i] = 0;
         }
     }
