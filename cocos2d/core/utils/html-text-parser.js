@@ -79,7 +79,6 @@ HtmlTextParser.prototype = {
                     this._addToStack(tagStr);
                 }
                 startIndex = tagEndIndex + 1;
-                
             }
         }
 
