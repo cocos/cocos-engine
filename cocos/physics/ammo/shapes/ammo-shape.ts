@@ -85,7 +85,7 @@ export class AmmoShape implements IBaseShape {
         this.scale = new Ammo.btVector3(1, 1, 1);
     }
 
-    __preload (com: ColliderComponent) {
+    initialize (com: ColliderComponent) {
         this._collider = com;
         this._isBinding = true;
         this.onComponentSet();

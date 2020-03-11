@@ -13,6 +13,8 @@ export interface IRigidBody extends ILifecycle, IGroupMask {
     readonly isSleepy: boolean;
     readonly isSleeping: boolean;
 
+    initialize (v: RigidBodyComponent): void;
+
     setMass: (v: number) => void;
     setLinearDamping: (v: number) => void;
     setAngularDamping: (v: number) => void;

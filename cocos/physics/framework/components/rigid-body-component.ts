@@ -286,7 +286,7 @@ export class RigidBodyComponent extends Component {
 
     protected __preload () {
         if (!EDITOR && !PHYSICS_BUILTIN) {
-            this._body.__preload!(this);
+            this._body.initialize(this);
         }
     }
 

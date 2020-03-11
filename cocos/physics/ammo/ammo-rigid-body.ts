@@ -120,7 +120,7 @@ export class AmmoRigidBody implements IRigidBody {
 
     /** LIFECYCLE */
 
-    __preload (com: RigidBodyComponent) {
+    initialize (com: RigidBodyComponent) {
         this._rigidBody = com;
         this._sharedBody = (PhysicsSystem.instance.physicsWorld as AmmoWorld).getSharedBody(this._rigidBody.node as Node, this);
         this._sharedBody.reference = true;

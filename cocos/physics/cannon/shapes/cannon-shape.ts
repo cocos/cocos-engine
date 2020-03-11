@@ -76,7 +76,7 @@ export class CannonShape implements IBaseShape {
 
     /** LIFECYCLE */
 
-    __preload (comp: ColliderComponent) {
+    initialize (comp: ColliderComponent) {
         this._collider = comp;
         this._isBinding = true;
         this.onComponentSet();

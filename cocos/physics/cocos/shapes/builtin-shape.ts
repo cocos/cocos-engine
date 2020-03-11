@@ -42,7 +42,7 @@ export class BuiltinShape extends BuiltinObject implements IBaseShape {
     protected _localShape!: IBuiltinShape;
     protected _worldShape!: IBuiltinShape;
 
-    __preload (comp: ColliderComponent) {
+    initialize (comp: ColliderComponent) {
         this._collider = comp;
         this._sharedBody = (PhysicsSystem.instance.physicsWorld as BuiltInWorld).getSharedBody(this._collider.node as Node);
         this._sharedBody.reference = true;

@@ -297,7 +297,7 @@ export class ColliderComponent extends Component implements IEventTarget {
 
     protected __preload () {
         if (!EDITOR) {
-            this._shape.__preload!(this);
+            this._shape.initialize(this);
         }
     }
 
