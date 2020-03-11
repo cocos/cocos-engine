@@ -7,72 +7,11 @@ import { AmmoCollisionFlags, AmmoRigidBodyFlags, AmmoCollisionObjectStates } fro
 import { IRigidBody } from '../spec/i-rigid-body';
 import { ERigidBodyType } from '../framework/physics-enum';
 import { AmmoSharedBody } from './ammo-shared-body';
+import { IVec3Like } from '../../core/math/type-define';
 
 const v3_0 = new Vec3();
 
 export class AmmoRigidBody implements IRigidBody {
-
-    /** property */
-    set mass (value: number) {
-        // See https://studiofreya.com/game-maker/bullet-physics/bullet-physics-how-to-change-body-mass/
-        const localInertia = this._sharedBody.bodyStruct.localInertia;
-        localInertia.setValue(1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
-        if (this._btCompoundShape.getNumChildShapes() > 0) {
-            this._btCompoundShape.calculateLocalInertia(this._rigidBody.mass, localInertia);
-        }
-        this._btBody.setMassProps(value, localInertia);
-        this._sharedBody.updateByReAdd();
-    }
-
-    set linearDamping (value: number) {
-        this._btBody.setDamping(this._rigidBody.linearDamping, this._rigidBody.angularDamping);
-    }
-
-    set angularDamping (value: number) {
-        this._btBody.setDamping(this._rigidBody.linearDamping, this._rigidBody.angularDamping);
-    }
-
-    set isKinematic (value: boolean) {
-        let m_collisionFlags = this._btBody.getCollisionFlags();
-        if (value) {
-            m_collisionFlags |= AmmoCollisionFlags.CF_KINEMATIC_OBJECT;
-        } else {
-            m_collisionFlags &= (~AmmoCollisionFlags.CF_KINEMATIC_OBJECT);
-        }
-        this._btBody.setCollisionFlags(m_collisionFlags);
-    }
-
-    set useGravity (value: boolean) {
-        let m_rigidBodyFlag = this._btBody.getFlags()
-        if (value) {
-            m_rigidBodyFlag &= (~AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY);
-        } else {
-            this._btBody.setGravity(cocos2AmmoVec3(this._btVec3_0, Vec3.ZERO));
-            m_rigidBodyFlag |= AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY;
-        }
-        this._btBody.setFlags(m_rigidBodyFlag);
-        this._sharedBody.updateByReAdd();
-    }
-
-    set fixedRotation (value: boolean) {
-        if (value) {
-            /** TODO : should i reset angular velocity & torque ? */
-
-            this._btBody.setAngularFactor(cocos2AmmoVec3(this._btVec3_0, Vec3.ZERO));
-        } else {
-            this._btBody.setAngularFactor(cocos2AmmoVec3(this._btVec3_0, this._rigidBody.angularFactor));
-        }
-    }
-
-    set linearFactor (value: Vec3) {
-        this._btBody.setLinearFactor(cocos2AmmoVec3(this._btVec3_0, value));
-    }
-
-    set angularFactor (value: Vec3) {
-        this._btBody.setAngularFactor(cocos2AmmoVec3(this._btVec3_0, value));
-    }
-
-    /** state */
 
     get isAwake (): boolean {
         const state = this._btBody.getActivationState();
@@ -90,12 +29,66 @@ export class AmmoRigidBody implements IRigidBody {
         return state == AmmoCollisionObjectStates.ISLAND_SLEEPING;
     }
 
-    get allowSleep (): boolean {
-        const state = this._btBody.getActivationState();
-        return state == AmmoCollisionObjectStates.DISABLE_DEACTIVATION;
+    setMass (value: number) {
+        // See https://studiofreya.com/game-maker/bullet-physics/bullet-physics-how-to-change-body-mass/
+        const localInertia = this._sharedBody.bodyStruct.localInertia;
+        localInertia.setValue(1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
+        if (this._btCompoundShape.getNumChildShapes() > 0) {
+            this._btCompoundShape.calculateLocalInertia(this._rigidBody.mass, localInertia);
+        }
+        this._btBody.setMassProps(value, localInertia);
+        this._sharedBody.updateByReAdd();
     }
 
-    set allowSleep (v: boolean) {
+    setLinearDamping (value: number) {
+        this._btBody.setDamping(this._rigidBody.linearDamping, this._rigidBody.angularDamping);
+    }
+
+    setAngularDamping (value: number) {
+        this._btBody.setDamping(this._rigidBody.linearDamping, this._rigidBody.angularDamping);
+    }
+
+    setIsKinematic (value: boolean) {
+        let m_collisionFlags = this._btBody.getCollisionFlags();
+        if (value) {
+            m_collisionFlags |= AmmoCollisionFlags.CF_KINEMATIC_OBJECT;
+        } else {
+            m_collisionFlags &= (~AmmoCollisionFlags.CF_KINEMATIC_OBJECT);
+        }
+        this._btBody.setCollisionFlags(m_collisionFlags);
+    }
+
+    setUseGravity (value: boolean) {
+        let m_rigidBodyFlag = this._btBody.getFlags()
+        if (value) {
+            m_rigidBodyFlag &= (~AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY);
+        } else {
+            this._btBody.setGravity(cocos2AmmoVec3(this._btVec3_0, Vec3.ZERO));
+            m_rigidBodyFlag |= AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY;
+        }
+        this._btBody.setFlags(m_rigidBodyFlag);
+        this._sharedBody.updateByReAdd();
+    }
+
+    setFixedRotation (value: boolean) {
+        if (value) {
+            /** TODO : should i reset angular velocity & torque ? */
+
+            this._btBody.setAngularFactor(cocos2AmmoVec3(this._btVec3_0, Vec3.ZERO));
+        } else {
+            this._btBody.setAngularFactor(cocos2AmmoVec3(this._btVec3_0, this._rigidBody.angularFactor));
+        }
+    }
+
+    setLinearFactor (value: IVec3Like) {
+        this._btBody.setLinearFactor(cocos2AmmoVec3(this._btVec3_0, value));
+    }
+
+    setAngularFactor (value: IVec3Like) {
+        this._btBody.setAngularFactor(cocos2AmmoVec3(this._btVec3_0, value));
+    }
+
+    setAllowSleep (v: boolean) {
         if (v) {
             const state = this._btBody.getActivationState();
             if (state == AmmoCollisionObjectStates.DISABLE_DEACTIVATION) {
@@ -135,15 +128,15 @@ export class AmmoRigidBody implements IRigidBody {
 
     onEnable () {
         this._isEnabled = true;
-        this.mass = this._rigidBody.mass;
-        this.allowSleep = this._rigidBody.allowSleep;
-        this.linearDamping = this._rigidBody.linearDamping;
-        this.angularDamping = this._rigidBody.angularDamping;
-        this.isKinematic = this._rigidBody.isKinematic;
-        this.fixedRotation = this._rigidBody.fixedRotation;
-        this.linearFactor = this._rigidBody.linearFactor;
-        this.angularFactor = this._rigidBody.angularFactor;
-        this.useGravity = this._rigidBody.useGravity;
+        this.setMass(this._rigidBody.mass);
+        this.setAllowSleep(this._rigidBody.allowSleep);
+        this.setLinearDamping(this._rigidBody.linearDamping);
+        this.setAngularDamping(this._rigidBody.angularDamping);
+        this.setIsKinematic(this._rigidBody.isKinematic);
+        this.setFixedRotation(this._rigidBody.fixedRotation);
+        this.setLinearFactor(this._rigidBody.linearFactor);
+        this.setAngularFactor(this._rigidBody.angularFactor);
+        this.setUseGravity(this._rigidBody.useGravity);
         this._sharedBody.bodyEnabled = true;
     }
 

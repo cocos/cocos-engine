@@ -36,17 +36,19 @@ export function createCapsuleShape (radius = 0.5, height = 2, dir = 1): ICapsule
         return new CapsuleShape(radius, height, dir) as ICapsuleShape;
     } else {
         warn('[Physics]: Currently cannon.js unsupport capsule collider');
-        /** apater */
+        const func = () => { };
         return {
-            radius: radius, height: height, direction: dir,
-            material: null,
-            isTrigger: false,
-            center: new Vec3(),
-            __preload: () => { },
-            onLoad: () => { },
-            onEnable: () => { },
-            onDisable: () => { },
-            onDestroy: () => { }
+            setRadius: func,
+            setHeight: func,
+            setDirection: func,
+            setMaterial: func,
+            setIsTrigger: func,
+            setCenter: func,
+            __preload: func,
+            onLoad: func,
+            onEnable: func,
+            onDisable: func,
+            onDestroy: func
         } as any
     }
 }
@@ -57,17 +59,17 @@ export function createTrimeshShape (): ITrimeshShape {
         return new TrimeshShape() as ITrimeshShape;
     } else {
         warn('[Physics]: Currently builtin unsupport mesh collider');
-        /** apater */
+        const func = () => { };
         return {
-            mesh: null,
-            material: null,
-            isTrigger: false,
-            center: new Vec3(),
-            __preload: () => { },
-            onLoad: () => { },
-            onEnable: () => { },
-            onDisable: () => { },
-            onDestroy: () => { }
+            setMesh: func,
+            setMaterial: func,
+            setIsTrigger: func,
+            setCenter: func,
+            __preload: func,
+            onLoad: func,
+            onEnable: func,
+            onDisable: func,
+            onDestroy: func
         } as any
     }
 }

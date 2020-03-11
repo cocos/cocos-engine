@@ -8,20 +8,20 @@ import { IVec3Like } from "../../core/math/type-define";
 import { RigidBodyComponent } from '../framework/components/rigid-body-component';
 
 export interface IRigidBody extends ILifecycle, IGroupMask {
-    rigidBody: RigidBodyComponent;
-
-    mass: number;
-    linearDamping: number;
-    angularDamping: number;
-    isKinematic: boolean;
-    useGravity: boolean;
-    fixedRotation: boolean;
-    linearFactor: IVec3Like;
-    angularFactor: IVec3Like;
-    allowSleep: boolean;
+    readonly rigidBody: RigidBodyComponent;
     readonly isAwake: boolean;
     readonly isSleepy: boolean;
     readonly isSleeping: boolean;
+
+    setMass: (v: number) => void;
+    setLinearDamping: (v: number) => void;
+    setAngularDamping: (v: number) => void;
+    setIsKinematic: (v: boolean) => void;
+    setUseGravity: (v: boolean) => void;
+    setFixedRotation: (v: boolean) => void;
+    setLinearFactor: (v: IVec3Like) => void;
+    setAngularFactor: (v: IVec3Like) => void;
+    setAllowSleep: (v: boolean) => void;
 
     wakeUp (): void;
     sleep (): void;
