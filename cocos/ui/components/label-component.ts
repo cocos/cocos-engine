@@ -38,6 +38,7 @@ import { LetterRenderTexture } from '../assembler/label/letter-font';
 import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
 import { warnID } from '../../core/platform/debug';
 import sys from '../../core/platform/sys';
+import { EDITOR } from 'internal:constants';
 
 /**
  * @en Enum for horizontal text alignment.
@@ -428,7 +429,7 @@ export class LabelComponent extends UIRenderComponent {
         // if delete the font, we should change isSystemFontUsed to true
         this._isSystemFontUsed = !value;
 
-        if (CC_EDITOR && value) {
+        if (EDITOR && value) {
             this._userDefinedFont = value;
         }
 
@@ -473,7 +474,7 @@ export class LabelComponent extends UIRenderComponent {
         this.destroyRenderData();
         this._renderData = null;
 
-        if (CC_EDITOR) {
+        if (EDITOR) {
             if (!value && this._isSystemFontUsed && this._userDefinedFont) {
                 this.font = this._userDefinedFont;
                 this.spacingX = this._spacingX;
@@ -691,7 +692,7 @@ export class LabelComponent extends UIRenderComponent {
 
     constructor () {
         super();
-        if (CC_EDITOR) {
+        if (EDITOR) {
             this._userDefinedFont = null;
         }
 

@@ -13,6 +13,7 @@
       "experimentalDecorators": true,
       "types": [
         "./@types/globals",
+        "./@types/consts",
         "./@types/editor-extends",
         "./@types/wx",
         "./@types/webGL.extras", 

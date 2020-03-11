@@ -7,6 +7,7 @@ import { GFXInputAssembler } from '../../gfx/input-assembler';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { RenderPriority } from '../../pipeline/define';
 import { Pass } from '../core/pass';
+import { EDITOR } from 'internal:constants';
 
 export class SubModel {
     protected _subMeshObject: RenderingSubMesh | null;
@@ -99,7 +100,7 @@ export class SubModel {
             return;
         }
         for (let i = 0; i < this._material!.passes.length; i++) {
-            if (CC_EDITOR && this._subMeshObject && this._material!.passes[i].primitive !== this._subMeshObject.primitiveMode) {
+            if (EDITOR && this._subMeshObject && this._material!.passes[i].primitive !== this._subMeshObject.primitiveMode) {
                 console.warn(`mesh primitive type doesn't match with pass settings`);
             }
             this.recordCommandBuffer(i);

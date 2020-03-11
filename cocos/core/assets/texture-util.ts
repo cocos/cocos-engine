@@ -31,6 +31,7 @@
 import { assertID, error } from '../platform/debug';
 import { loader } from '../load-pipeline/CCLoader';
 import { ImageAsset, ImageSource } from './image-asset';
+import { DEBUG } from 'internal:constants';
 
 export type LoadImageCallback<T> = (
     this: T | undefined,
@@ -125,7 +126,7 @@ export function postLoadImage (imageAsset: ImageAsset, callback?: Function) {
         skips: imageAsset.isCompressed ? undefined : ['Loader'],
     }, (err, image) => {
         if (image) {
-            if (CC_DEBUG && image instanceof ImageAsset) {
+            if (DEBUG && image instanceof ImageAsset) {
                 return error('internal error: loader handle pipe must be skipped');
             }
             if (!imageAsset.loaded) {

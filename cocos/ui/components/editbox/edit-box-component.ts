@@ -43,6 +43,7 @@ import { EditBoxImpl } from './edit-box-impl';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import sys from '../../../core/platform/sys';
+import { EDITOR } from 'internal:constants';
 
 const LEFT_PADDING = 2;
 
@@ -527,7 +528,7 @@ export class EditBoxComponent extends Component {
     }
 
     public onEnable () {
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             this._registerEvent();
         }
         if (this._impl) {
@@ -542,7 +543,7 @@ export class EditBoxComponent extends Component {
     }
 
     public onDisable () {
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             this._unregisterEvent();
         }
         if (this._impl) {

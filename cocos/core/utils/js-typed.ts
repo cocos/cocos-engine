@@ -1,6 +1,7 @@
 import { warnID } from '../platform/debug';
 
 import IDGenerator from './id-generator';
+import { EDITOR, DEV, TEST } from 'internal:constants';
 const tempCIDGenerator = new IDGenerator('TmpCId.');
 
 /**
@@ -188,13 +189,13 @@ export function obsolete (object: any, obsoleted: string, newExpr: string, writa
     const oldProp = extractPropName.exec(obsoleted)![0];
     const newProp = extractPropName.exec(newExpr)![0];
     function getter (this: any) {
-        if (CC_DEV) {
+        if (DEV) {
             warnID(5400, obsoleted, newExpr);
         }
         return this[newProp];
     }
     function setter (this: any, value_: any) {
-        if (CC_DEV) {
+        if (DEV) {
             warnID(5401, obsoleted, newExpr);
         }
         this[newProp] = value_;
@@ -347,7 +348,7 @@ export function mixin (object?: any, ...sources: any[]) {
  * @return The result class.
  */
 export function extend (cls: Function, base: Function) {
-    if (CC_DEV) {
+    if (DEV) {
         if (!base) {
             cc.errorID(5404);
             return;
@@ -390,7 +391,7 @@ export function isChildClassOf (subclass: Function, superclass: Function) {
             return false;
         }
         if (typeof superclass !== 'function') {
-            if (CC_DEV) {
+            if (DEV) {
                 warnID(3625, superclass);
             }
             return false;
@@ -448,7 +449,7 @@ export function _setClassId (id, constructor) {
         const registered = table[id];
         if (registered && registered !== constructor) {
             let error = 'A Class already exists with the same ' + key + ' : "' + id + '".';
-            if (CC_TEST) {
+            if (TEST) {
                 error += ' (This may be caused by error of unit test.) \
 If you dont need serialization, you can set class id to "". You can also call \
 cc.js.unregisterClass to remove the id of unused class';
@@ -477,7 +478,7 @@ function doSetClassName (id, constructor) {
         const registered = table[id];
         if (registered && registered !== constructor) {
             let error = 'A Class already exists with the same ' + key + ' : "' + id + '".';
-            if (CC_TEST) {
+            if (TEST) {
                 error += ' (This may be caused by error of unit test.) \
 If you dont need serialization, you can set class id to "". You can also call \
 cc.js.unregisterClass to remove the id of unused class';
@@ -568,7 +569,7 @@ export function _getClassId (obj, allowTempId?: Boolean) {
     let res;
     if (typeof obj === 'function' && obj.prototype.hasOwnProperty('__cid__')) {
         res = obj.prototype.__cid__;
-        if (!allowTempId && (CC_DEV || CC_EDITOR) && isTempClassId(res)) {
+        if (!allowTempId && (DEV || EDITOR) && isTempClassId(res)) {
             return '';
         }
         return res;
@@ -577,7 +578,7 @@ export function _getClassId (obj, allowTempId?: Boolean) {
         const prototype = obj.constructor.prototype;
         if (prototype && prototype.hasOwnProperty('__cid__')) {
             res = obj.__cid__;
-            if (!allowTempId && (CC_DEV || CC_EDITOR) && isTempClassId(res)) {
+            if (!allowTempId && (DEV || EDITOR) && isTempClassId(res)) {
                 return '';
             }
             return res;

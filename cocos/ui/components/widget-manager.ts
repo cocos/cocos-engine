@@ -40,6 +40,7 @@ import { Node } from '../../core/scene-graph/node';
 import { array } from '../../core/utils/js';
 import { AlignFlags, AlignMode, computeInverseTransForTarget, getReadonlyNodeSize, WidgetComponent } from './widget-component';
 import { UITransformComponent } from '../../core/components';
+import { EDITOR, DEV } from 'internal:constants';
 
 const _tempPos = new Vec3();
 const _defaultAnchor = new Vec2();
@@ -69,7 +70,7 @@ function align (node: Node, widget: WidgetComponent) {
     const targetAnchor = isScene ? _defaultAnchor : target.getAnchorPoint();
 
     // @ts-ignore
-    const isRoot = !CC_EDITOR && isScene;
+    const isRoot = !EDITOR && isScene;
     node.getPosition(_tempPos);
     let x = _tempPos.x;
     let y = _tempPos.y;
@@ -203,12 +204,12 @@ function visitNode (node: any) {
     const widget = node.getComponent(WidgetComponent);
     if (widget) {
         // @ts-ignore
-        if (CC_DEV) {
+        if (DEV) {
             widget._validateTargetInDEV();
         }
         align(node, widget);
         // @ts-ignore
-        if ((!CC_EDITOR || widgetManager.animationState!.animatedSinceLastFrame) && widget.alignMode !== AlignMode.ALWAYS) {
+        if ((!EDITOR || widgetManager.animationState!.animatedSinceLastFrame) && widget.alignMode !== AlignMode.ALWAYS) {
             widget.enabled = false;
         } else {
             if (cc.isValid(node, true)) {
@@ -226,7 +227,7 @@ function visitNode (node: any) {
     }
 }
 
-// if (CC_EDITOR) {
+// if (EDITOR) {
 //     const animationState = {
 //         previewing: false,
 //         time: 0,
@@ -236,7 +237,7 @@ function visitNode (node: any) {
 
 function refreshScene () {
     // check animation editor
-    // if (CC_EDITOR && !Editor.isBuilder) {
+    // if (EDITOR && !Editor.isBuilder) {
         // var AnimUtils = Editor.require('scene://utils/animation');
         // var EditMode = Editor.require('scene://edit-mode');
         // if (AnimUtils && EditMode) {
@@ -281,7 +282,7 @@ function refreshScene () {
             let widget: WidgetComponent | null = null;
             const iterator = widgetManager._activeWidgetsIterator;
             // var AnimUtils;
-            // if (CC_EDITOR &&
+            // if (EDITOR &&
             //     (AnimUtils = Editor.require('scene://utils/animation')) &&
             //     AnimUtils.Cache.animation) {
             //     var editingNode = cc.engine.getInstanceById(AnimUtils.Cache.rNode);
@@ -318,7 +319,7 @@ function refreshScene () {
     }
 
     // check animation editor
-    if (CC_EDITOR) {
+    if (EDITOR) {
         widgetManager.animationState!.animatedSinceLastFrame = false;
     }
 }
@@ -346,7 +347,7 @@ export const widgetManager = cc._widgetManager = {
     _nodesOrderDirty: false,
     _activeWidgetsIterator: new array.MutableForwardIterator(activeWidgets),
     // hack
-    animationState: CC_EDITOR ? {
+    animationState: EDITOR ? {
         previewing: false,
         time: 0,
         animatedSinceLastFrame: false,
@@ -355,7 +356,7 @@ export const widgetManager = cc._widgetManager = {
     init (director) {
         director.on(Director.EVENT_AFTER_UPDATE, refreshScene);
 
-        if (CC_EDITOR /*&& cc.engine*/) {
+        if (EDITOR /*&& cc.engine*/) {
 
             // cc.engien extends eventTarget
             // cc.engine.on('design-resolution-changed', this.onResized.bind(this));

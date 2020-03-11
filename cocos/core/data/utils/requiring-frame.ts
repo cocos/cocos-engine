@@ -24,6 +24,8 @@
  THE SOFTWARE.
 */
 
+import { EDITOR } from 'internal:constants';
+
 /**
  *
  */
@@ -70,7 +72,7 @@ cc._RF = {
     peek,
 };
 
-if (CC_EDITOR) {
+if (EDITOR) {
     cc._RF.reset = () => {
         requiringFrames = [];
     };

@@ -43,6 +43,7 @@ import { Node } from '../../scene-graph/node';
 import { Enum } from '../../value-types';
 import { Component } from '../component';
 import { UITransformComponent } from './ui-transform-component';
+import { EDITOR } from 'internal:constants';
 
 const _worldPos = new Vec3();
 
@@ -254,7 +255,7 @@ export class CanvasComponent extends Component {
     public __preload () {
         const cameraNode = new Node('UICamera_' + this.node.name);
         cameraNode.setPosition(0, 0, 1000);
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             this._camera = director.root!.createCamera();
             this._camera.initialize({
                 name: 'ui_' + this.node.name,
@@ -276,7 +277,7 @@ export class CanvasComponent extends Component {
             }
         }
 
-        if (CC_EDITOR) {
+        if (EDITOR) {
             director.on(Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
         }
 
@@ -306,7 +307,7 @@ export class CanvasComponent extends Component {
             director.root!.destroyCamera(this._camera);
         }
 
-        if (CC_EDITOR) {
+        if (EDITOR) {
             director.off(Director.EVENT_AFTER_UPDATE, this.alignWithScreen, this);
         }
 
@@ -332,7 +333,7 @@ export class CanvasComponent extends Component {
         let designSize;
         this.node.getPosition(this._pos);
         const visibleSize = visibleRect;
-        if (CC_EDITOR) {
+        if (EDITOR) {
             // nodeSize = designSize = cc.engine.getDesignResolutionSize();
             nodeSize = designSize = view.getDesignResolutionSize();
             Vec3.set(_worldPos, designSize.width * 0.5, designSize.height * 0.5, 1);

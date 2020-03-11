@@ -27,6 +27,7 @@
  // tslint:disable
 
 import { getClassName, getset } from './js';
+import { EDITOR, DEV } from 'internal:constants';
 
 export const BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;
 
@@ -59,7 +60,7 @@ export function propertyDefine (ctor, sameNameGetSets, diffNameGetSets) {
         }
         else {
             const getterFunc = np[getter];
-            if (CC_DEV && !getterFunc) {
+            if (DEV && !getterFunc) {
                 const clsName = (cc.Class._isCCClass(ctor) && getClassName(ctor)) ||
                     ctor.name ||
                     '(anonymous class)';
@@ -154,7 +155,7 @@ export function isDomNode (obj) {
 }
 
 export function callInNextTick (callback, p1?:any, p2?:any) {
-    if (CC_EDITOR) {
+    if (EDITOR) {
         if (callback) {
             // @ts-ignore
             process.nextTick(function () {
@@ -171,7 +172,7 @@ export function callInNextTick (callback, p1?:any, p2?:any) {
     }
 }
 
-// use anonymous function here to ensure it will not being hoisted without CC_EDITOR
+// use anonymous function here to ensure it will not being hoisted without EDITOR
 export function tryCatchFunctor_EDITOR (funcName, forwardArgs?, afterCall?, bindArg?) {
     // @ts-ignore
     function call_FUNC_InTryCatch (_R_ARGS_) {
@@ -212,7 +213,7 @@ export function cloneable_DEV (obj) {
         ((obj.constructor && obj.constructor.prototype.hasOwnProperty('clone')) || obj.hasOwnProperty('clone'));
 }
 
-// if (CC_TEST) {
+// if (TEST) {
 //     // editor mocks using in unit tests
 //     if (typeof Editor === 'undefined') {
 //         window.Editor = {

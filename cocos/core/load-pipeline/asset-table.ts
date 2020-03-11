@@ -34,6 +34,7 @@ import { errorID } from '../platform/debug';
 import { extname } from '../utils/path';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { SpriteAtlas } from '../assets/sprite-atlas';
+import { DEBUG } from 'internal:constants';
 
 class Entry {
     public uuid:string;
@@ -78,7 +79,7 @@ export class AssetTable {
                         }
                     }
                     // not found
-                    if (CC_DEBUG && isChildClassOf(type, SpriteFrame)) {
+                    if (DEBUG && isChildClassOf(type, SpriteFrame)) {
                         for (let i = 0; i < item.length; i++) {
                             let entry = item[i];
                             if (isChildClassOf(entry.type, SpriteAtlas)) {
@@ -96,7 +97,7 @@ export class AssetTable {
             else if (!type || isChildClassOf(item.type, type)) {
                 return item.uuid;
             }
-            else if (CC_DEBUG && isChildClassOf(type, SpriteFrame) && isChildClassOf(item.type, SpriteAtlas)) {
+            else if (DEBUG && isChildClassOf(type, SpriteFrame) && isChildClassOf(item.type, SpriteAtlas)) {
                 // not support sprite frame in atlas
                 errorID(4932, path);
             }
@@ -124,7 +125,7 @@ export class AssetTable {
                                 out_urls.push(p);
                             }
                         }
-                        else if (CC_DEBUG && entry.type === SpriteAtlas) {
+                        else if (DEBUG && entry.type === SpriteAtlas) {
                             _foundAtlasUrl = p;
                         }
                     }
@@ -136,13 +137,13 @@ export class AssetTable {
                             out_urls.push(p);
                         }
                     }
-                    else if (CC_DEBUG && item.type === SpriteAtlas) {
+                    else if (DEBUG && item.type === SpriteAtlas) {
                         _foundAtlasUrl = p;
                     }
                 }
             }
         }
-        if (CC_DEBUG && uuids.length === 0 && _foundAtlasUrl && isChildClassOf(type, SpriteFrame)) {
+        if (DEBUG && uuids.length === 0 && _foundAtlasUrl && isChildClassOf(type, SpriteFrame)) {
             // not support sprite frame in atlas
             errorID(4932, _foundAtlasUrl);
         }

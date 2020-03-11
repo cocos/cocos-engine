@@ -37,6 +37,7 @@ import { Layers } from '../../scene-graph';
 import { Node } from '../../scene-graph/node';
 import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
+import { TEST } from 'internal:constants';
 
 interface IProfilerState {
     frame: ICounterOption;
@@ -118,7 +119,7 @@ export class Profiler {
     private _uvOffset: Vec4[] = [];
 
     constructor () {
-        if (!CC_TEST) {
+        if (!TEST) {
             this._canvas = document.createElement('canvas');
             this._ctx = this._canvas.getContext('2d')!;
             this._region = new GFXBufferTextureCopy();

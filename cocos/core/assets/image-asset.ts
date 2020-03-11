@@ -32,6 +32,7 @@ import {ccclass, property} from '../data/class-decorator';
 import { GFXDevice, GFXFeature } from '../gfx/device';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
+import { EDITOR, MINIGAME } from 'internal:constants';
 
 /**
  * 内存图像源。
@@ -160,7 +161,7 @@ export class ImageAsset extends Asset {
             _compressed: false,
         };
 
-        if (CC_EDITOR) {
+        if (EDITOR) {
             this._exportedExts = null;
         }
 
@@ -181,7 +182,7 @@ export class ImageAsset extends Asset {
             this._onDataComplete();
         } else {
             this._nativeData = data;
-            if (CC_MINIGAME || (data as any).complete || data instanceof HTMLCanvasElement) { // todo need adatper
+            if (MINIGAME || (data as any).complete || data instanceof HTMLCanvasElement) { // todo need adatper
                 this._onDataComplete();
             } else {
                 this.loaded = false;

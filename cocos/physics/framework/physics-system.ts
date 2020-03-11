@@ -10,7 +10,8 @@ import { System } from '../../core/components';
 import { PhysicMaterial } from './assets/physic-material';
 import { Layers, RecyclePool } from '../../core';
 import { ray } from '../../core/geometry';
-import { PhysicsRayResult } from './physics-ray-result'
+import { PhysicsRayResult } from './physics-ray-result';
+import { EDITOR, PHYSICS_BUILTIN, DEBUG, PHYSICS_CANNON, PHYSICS_AMMO } from 'internal:constants';
 
 /**
  * @zh
@@ -38,7 +39,7 @@ export class PhysicsSystem extends System {
     }
     set allowSleep (v: boolean) {
         this._allowSleep = v;
-        if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
+        if (!EDITOR && !PHYSICS_BUILTIN) {
             this.physicsWorld.allowSleep = this._allowSleep;
         }
     }
@@ -101,7 +102,7 @@ export class PhysicsSystem extends System {
     }
     set gravity (gravity: Vec3) {
         this._gravity.set(gravity);
-        if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
+        if (!EDITOR && !PHYSICS_BUILTIN) {
             this.physicsWorld.gravity = gravity;
         }
     }
@@ -129,7 +130,7 @@ export class PhysicsSystem extends System {
 
     private static readonly _instance: PhysicsSystem;
     static get instance () {
-        if (CC_DEBUG && checkPhysicsModule(PhysicsSystem._instance)) { return null as any; }
+        if (DEBUG && checkPhysicsModule(PhysicsSystem._instance)) { return null as any; }
         return PhysicsSystem._instance;
     }
 
@@ -165,7 +166,7 @@ export class PhysicsSystem extends System {
     private constructor () {
         super();
         this.physicsWorld = createPhysicsWorld();
-        if (!CC_PHYSICS_BUILTIN) {
+        if (!PHYSICS_BUILTIN) {
             this.gravity = this._gravity;
             this.allowSleep = this._allowSleep;
             this._material = new PhysicMaterial();
@@ -182,7 +183,7 @@ export class PhysicsSystem extends System {
      * @param deltaTime 与上一次执行相差的时间，目前为每帧消耗时间
      */
     postUpdate (deltaTime: number) {
-        if (CC_EDITOR && !this._executeInEditMode) {
+        if (EDITOR && !this._executeInEditMode) {
             return;
         }
         if (!this._enable) {
@@ -238,13 +239,13 @@ export class PhysicsSystem extends System {
     }
 
     private _updateMaterial () {
-        if (!CC_PHYSICS_BUILTIN) {
+        if (!PHYSICS_BUILTIN) {
             this.physicsWorld.defaultMaterial = this._material;
         }
     }
 }
 
-if (CC_PHYSICS_BUILTIN || CC_PHYSICS_CANNON || CC_PHYSICS_AMMO) {
+if (PHYSICS_BUILTIN || PHYSICS_CANNON || PHYSICS_AMMO) {
     director.on(Director.EVENT_INIT, function () {
         const sys = new cc.PhysicsSystem();
         cc.PhysicsSystem._instance = sys;

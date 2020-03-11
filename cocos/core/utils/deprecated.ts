@@ -57,7 +57,7 @@ let markAsWarningLog: (n: string, dp: string, f: Function, id: number) => void;
 
 let removePropertyLog: (n: string, dp: string, f: Function, id: number) => void;
 
-// if (CC_DEBUG) {
+// if (DEBUG) {
 
 interface IMeessageItem {
     id: Readonly<number>;

@@ -42,6 +42,7 @@ import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Root } from '../../root';
 import { Layers, Node, Scene } from '../../scene-graph';
 import { Enum } from '../../value-types';
+import { EDITOR } from 'internal:constants';
 
 const _temp_vec3_1 = new Vec3();
 
@@ -363,7 +364,7 @@ export class CameraComponent extends Component {
         this._updateTargetTexture();
 
         if (!value && this._camera){
-            this._camera.changeTargetWindow(CC_EDITOR ? cc.director.root.tempWindow : null);
+            this._camera.changeTargetWindow(EDITOR ? cc.director.root.tempWindow : null);
             this._camera.isWindowSize = true;
         }
     }

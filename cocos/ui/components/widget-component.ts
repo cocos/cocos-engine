@@ -40,6 +40,7 @@ import { Scene } from '../../core/scene-graph';
 import { Node } from '../../core/scene-graph/node';
 import { ccenum } from '../../core/value-types/enum';
 import { TransformBit } from '../../core/scene-graph/node-enum';
+import { EDITOR, DEV } from 'internal:constants';
 
 const _zeroVec3 = new Vec3();
 
@@ -47,7 +48,7 @@ const _zeroVec3 = new Vec3();
 export function getReadonlyNodeSize (parent: Node) {
     if (parent instanceof Scene) {
         // @ts-ignore
-        if (CC_EDITOR) {
+        if (EDITOR) {
             // const canvasComp = parent.getComponentInChildren(CanvasComponent);
             if (!View.instance) {
                 throw new Error('cc.view uninitiated');
@@ -228,7 +229,7 @@ export class WidgetComponent extends Component {
         this._unregisterTargetEvents();
         this._target = value;
         this._registerTargetEvents();
-        if (CC_EDITOR /*&& !cc.engine._isPlaying*/ && this.node.parent) {
+        if (EDITOR /*&& !cc.engine._isPlaying*/ && this.node.parent) {
             // adjust the offsets to keep the size and position unchanged after target changed
             cc._widgetManager.updateOffsetsToStayPut(this);
         }
@@ -787,7 +788,7 @@ export class WidgetComponent extends Component {
     }
 
     public _validateTargetInDEV () {
-        if (!CC_DEV) {
+        if (!DEV) {
             return;
         }
 
@@ -825,7 +826,7 @@ export class WidgetComponent extends Component {
     }
 
     public _adjustWidgetToAllowMovingInEditor (eventType: TransformBit) {
-        if (/*!CC_EDITOR ||*/ !(eventType & TransformBit.POSITION)) {
+        if (/*!EDITOR ||*/ !(eventType & TransformBit.POSITION)) {
             return;
         }
 
@@ -878,7 +879,7 @@ export class WidgetComponent extends Component {
     }
 
     public _adjustWidgetToAllowResizingInEditor () {
-        // if (!CC_EDITOR) {
+        // if (!EDITOR) {
         //     return;
         // }
 
@@ -1027,7 +1028,7 @@ export class WidgetComponent extends Component {
                     // become stretch
                     this._originalWidth = this.node.width!;
                     // test check conflict
-                    if (CC_EDITOR /*&& !cc.engine.isPlaying*/) {
+                    if (EDITOR /*&& !cc.engine.isPlaying*/) {
                         // TODO:
                         // _Scene.DetectConflict.checkConflict_Widget(this);
                     }
@@ -1038,14 +1039,14 @@ export class WidgetComponent extends Component {
                     // become stretch
                     this._originalHeight = this.node.height!;
                     // test check conflict
-                    if (CC_EDITOR /*&& !cc.engine.isPlaying*/) {
+                    if (EDITOR /*&& !cc.engine.isPlaying*/) {
                         // TODO:
                         // _Scene.DetectConflict.checkConflict_Widget(this);
                     }
                 }
             }
 
-            if (CC_EDITOR && this.node.parent) {
+            if (EDITOR && this.node.parent) {
                 // adjust the offsets to keep the size and position unchanged after alignment changed
                 cc._widgetManager.updateOffsetsToStayPut(this, flag);
             }

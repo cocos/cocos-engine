@@ -14,6 +14,7 @@ import { PhysicMaterial } from '../../assets/physic-material';
 import { PhysicsSystem } from '../../physics-system';
 import { Component, error } from '../../../../core';
 import { IBaseShape } from '../../../spec/i-physics-shape';
+import { EDITOR, PHYSICS_BUILTIN } from 'internal:constants';
 
 /**
  * @zh
@@ -41,7 +42,7 @@ export class ColliderComponent extends Component implements IEventTarget {
     }
 
     public set sharedMaterial (value) {
-        if (CC_EDITOR) {
+        if (EDITOR) {
             this._material = value;
         } else {
             this.material = value;
@@ -49,7 +50,7 @@ export class ColliderComponent extends Component implements IEventTarget {
     }
 
     public get material () {
-        if (!CC_PHYSICS_BUILTIN) {
+        if (!PHYSICS_BUILTIN) {
             if (this._isSharedMaterial && this._material != null) {
                 this._material.off('physics_material_update', this._updateMaterial, this);
                 this._material = this._material.clone();
@@ -61,8 +62,8 @@ export class ColliderComponent extends Component implements IEventTarget {
     }
 
     public set material (value) {
-        if (!CC_EDITOR) {
-            if (!CC_PHYSICS_BUILTIN) {
+        if (!EDITOR) {
+            if (!PHYSICS_BUILTIN) {
                 if (value != null && this._material != null) {
                     if (this._material._uuid != value._uuid) {
                         this._material.off('physics_material_update', this._updateMaterial, this);
@@ -100,7 +101,7 @@ export class ColliderComponent extends Component implements IEventTarget {
 
     public set isTrigger (value) {
         this._isTrigger = value;
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             this._shape.isTrigger = this._isTrigger;
         }
     }
@@ -122,7 +123,7 @@ export class ColliderComponent extends Component implements IEventTarget {
 
     public set center (value: Vec3) {
         Vec3.copy(this._center, value);
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             this._shape.center = this._center;
         }
     }
@@ -295,14 +296,14 @@ export class ColliderComponent extends Component implements IEventTarget {
     /// COMPONENT LIFECYCLE ///
 
     protected __preload () {
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             this._shape.__preload!(this);
         }
     }
 
     protected onLoad () {
-        if (!CC_EDITOR) {
-            if (!CC_PHYSICS_BUILTIN) {
+        if (!EDITOR) {
+            if (!PHYSICS_BUILTIN) {
                 this.sharedMaterial = this._material == null ? PhysicsSystem.instance.defaultMaterial : this._material;
             }
             this._shape.onLoad!();
@@ -311,25 +312,25 @@ export class ColliderComponent extends Component implements IEventTarget {
     }
 
     protected onEnable () {
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             this._shape.onEnable!();
         }
     }
 
     protected onDisable () {
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             this._shape.onDisable!();
         }
     }
 
     protected onDestroy () {
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             this._shape.onDestroy!();
         }
     }
 
     private _updateMaterial () {
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             this._shape.material = this._material;
         }
     }

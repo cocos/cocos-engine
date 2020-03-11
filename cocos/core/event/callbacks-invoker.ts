@@ -30,6 +30,7 @@
 
 import { Pool } from '../memop';
 import { array, createMap } from '../utils/js';
+import { TEST } from 'internal:constants';
 const fastRemoveAt = array.fastRemoveAt;
 
 function empty (){}
@@ -340,6 +341,6 @@ export class CallbacksInvoker {
     }
 }
 
-if (CC_TEST) {
+if (TEST) {
     cc._Test.CallbacksInvoker = CallbacksInvoker;
 }

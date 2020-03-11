@@ -28,6 +28,7 @@
 
  // @ts-ignore
 import debugInfos from '../../../DebugInfos';
+import { EDITOR, JSB, DEV, DEBUG } from 'internal:constants';
 const ERROR_MAP_URL = 'https://github.com/cocos-creator/engine/blob/3d/EngineErrorMap.md';
 
 // The html element displays log in web page (DebugMode.INFO_FOR_WEB_PAGE)
@@ -174,19 +175,19 @@ export function _resetDebugSetting (mode: DebugMode) {
             console.warn = console.log;
         }
 
-        if (CC_EDITOR || console.error.bind) {
+        if (EDITOR || console.error.bind) {
             // use bind to avoid pollute call stacks
             ccError = console.error.bind(console);
         }
         else {
-            ccError = CC_JSB ? console.error : (message?: any, ...optionalParams: any[]) => {
+            ccError = JSB ? console.error : (message?: any, ...optionalParams: any[]) => {
                 return console.error.apply(console, [message, ...optionalParams]);
             };
         }
         ccAssert = (condition: any, message?: any, ...optionalParams: any[]) => {
             if (!condition) {
                 const errorText = formatString(message, ...optionalParams);
-                if (CC_DEV) {
+                if (DEV) {
                     // tslint:disable:no-debugger
                     debugger;
                 }
@@ -198,7 +199,7 @@ export function _resetDebugSetting (mode: DebugMode) {
     }
 
     if (mode !== DebugMode.ERROR) {
-        if (CC_EDITOR) {
+        if (EDITOR) {
             ccWarn = console.warn.bind(console);
         }
         else if (console.warn.bind) {
@@ -206,17 +207,17 @@ export function _resetDebugSetting (mode: DebugMode) {
             ccWarn = console.warn.bind(console);
         }
         else {
-            ccWarn = CC_JSB ? console.warn : (message?: any, ...optionalParams: any[]) => {
+            ccWarn = JSB ? console.warn : (message?: any, ...optionalParams: any[]) => {
                 return console.warn.apply(console, [message, ...optionalParams]);
             };
         }
     }
 
-    if (CC_EDITOR) {
+    if (EDITOR) {
         ccLog = console.log.bind(console);
     }
     else if (mode === DebugMode.INFO) {
-        if (CC_JSB) {
+        if (JSB) {
             // @ts-ignore
             if (scriptEngineType === 'JavaScriptCore') {
                 // console.log has to use `console` as its context for iOS 8~9. Therefore, apply it.
@@ -240,13 +241,13 @@ export function _resetDebugSetting (mode: DebugMode) {
 }
 
 export function _throw (error_: any) {
-    if (CC_EDITOR) {
+    if (EDITOR) {
         // @ts-ignore
         return error(error_);
     } else {
         const stack = error_.stack;
         if (stack) {
-            error(CC_JSB ? (error_ + '\n' + stack) : stack);
+            error(JSB ? (error_ + '\n' + stack) : stack);
         }
         else {
             error(error_);
@@ -256,11 +257,11 @@ export function _throw (error_: any) {
 
 function getTypedFormatter (type: 'Log' | 'Warning' | 'Error' | 'Assert') {
     return (id: number, ...args: any[]) => {
-        const msg = CC_DEBUG ? (debugInfos[id] || 'unknown id') : `${type} ${id}, please go to ${ERROR_MAP_URL}#${id} to see details.`;
+        const msg = DEBUG ? (debugInfos[id] || 'unknown id') : `${type} ${id}, please go to ${ERROR_MAP_URL}#${id} to see details.`;
         if (args.length === 0) {
             return msg;
         }
-        return CC_DEBUG ? formatString(msg, ...args) : msg + ' Arguments: ' + args.join(', ');
+        return DEBUG ? formatString(msg, ...args) : msg + ' Arguments: ' + args.join(', ');
     };
 }
 

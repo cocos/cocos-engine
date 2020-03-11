@@ -35,7 +35,7 @@ export class CanvasPool {
 // export function packToDynamicAtlas(comp, frame) {
 //     // TODO: Material API design and export from editor could affect the material activation process
 //     // need to update the logic here
-//     if (frame && !CC_TEST) {
+//     if (frame && !TEST) {
 //         if (!frame._original && dynamicAtlasManager) {
 //             let packedFrame = dynamicAtlasManager.insertSpriteFrame(frame);
 //             if (packedFrame) {

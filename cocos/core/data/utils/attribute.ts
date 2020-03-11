@@ -30,12 +30,13 @@
 import { errorID, log, warnID } from '../../platform/debug';
 import { extend, formatStr, get, getClassName, isChildClassOf, value } from '../../utils/js';
 import { isPlainEmptyObj_DEV } from '../../utils/misc';
+import { EDITOR, DEV, SUPPORT_JIT } from 'internal:constants';
 
 export const DELIMETER = '$_$';
 
 export function createAttrsSingle (owner: Object, ownerConstructor: Function, superAttrs?: any) {
     let AttrsCtor;
-    if (CC_DEV && CC_SUPPORT_JIT) {
+    if (DEV && SUPPORT_JIT) {
         let ctorName = ownerConstructor.name;
         if (owner === ownerConstructor) {
             ctorName += '_ATTRS';
@@ -128,7 +129,7 @@ export function attr (constructor: any, propertyName: string, newAttributes?: Ob
                 }
             }
         }
-        else if (CC_DEV) {
+        else if (DEV) {
             errorID(3629);
         }
     }
@@ -206,7 +207,7 @@ export const CCFloat = new PrimitiveType('Float', 0.0);
 cc.Float = CCFloat;
 cc.CCFloat = CCFloat;
 
-if (CC_EDITOR) {
+if (EDITOR) {
     get(cc, 'Number', function () {
         warnID(3603);
         return CCFloat;

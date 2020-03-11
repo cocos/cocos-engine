@@ -44,6 +44,7 @@ import { WebGLStateCache } from './webgl-state-cache';
 import { WebGLGFXTexture } from './webgl-texture';
 import { WebGLGFXTextureView } from './webgl-texture-view';
 import { WebGLGFXWindow } from './webgl-window';
+import { ALIPAY, RUNTIME_BASED } from 'internal:constants';
 
 export class WebGLGFXDevice extends GFXDevice {
 
@@ -257,7 +258,7 @@ export class WebGLGFXDevice extends GFXDevice {
         this._depthBits = gl.getParameter(gl.DEPTH_BITS);
         this._stencilBits = gl.getParameter(gl.STENCIL_BITS);
 
-        if (CC_ALIPAY) {
+        if (ALIPAY) {
             this._depthBits = 24;
         }
 
@@ -318,7 +319,7 @@ export class WebGLGFXDevice extends GFXDevice {
         this._OES_element_index_uint = this.getExtension('OES_element_index_uint');
         this._ANGLE_instanced_arrays = this.getExtension('ANGLE_instanced_arrays');
 
-        if (CC_ALIPAY) {
+        if (ALIPAY) {
             this._WEBGL_depth_texture = { UNSIGNED_INT_24_8_WEBGL: 0x84FA };
         }
 
@@ -382,7 +383,7 @@ export class WebGLGFXDevice extends GFXDevice {
         this._features[GFXFeature.MSAA] = false;
 
         if (this._OES_vertex_array_object) {
-            if (CC_RUNTIME_BASED) {
+            if (RUNTIME_BASED) {
                 // @ts-ignore
                 if (typeof loadRuntime === 'function' && typeof loadRuntime().getFeature === 'function' && loadRuntime()
                         .getFeature('webgl.extensions.oes_vertex_array_object.revision') > 0 ) {

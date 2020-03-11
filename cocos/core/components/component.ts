@@ -39,6 +39,7 @@ import { RenderScene } from '../renderer/scene/render-scene';
 import { Rect } from '../math';
 import * as RF from '../data/utils/requiring-frame';
 import { Node } from '../scene-graph';
+import { EDITOR, TEST, DEV } from 'internal:constants';
 
 const idGenerator = new IDGenerator('Comp');
 // @ts-ignore
@@ -104,7 +105,7 @@ class Component extends CCObject {
     @property({
         displayName: 'Script',
         type: Script,
-        tooltip: CC_DEV ? 'i18n:INSPECTOR.component.script' : undefined,
+        tooltip: DEV ? 'i18n:INSPECTOR.component.script' : undefined,
     })
     get __scriptAsset () { return null; }
 
@@ -356,7 +357,7 @@ class Component extends CCObject {
     // OVERRIDE
 
     public destroy () {
-        if (CC_EDITOR) {
+        if (EDITOR) {
             // @ts-ignore
             const depend = this.node._getDependComponent(this);
             if (depend) {
@@ -384,7 +385,7 @@ class Component extends CCObject {
         eventTargets.length = 0;
 
         //
-        if (CC_EDITOR && !CC_TEST) {
+        if (EDITOR && !TEST) {
             // @ts-ignore
             _Scene.AssetsWatcher.stop(this);
         }
@@ -684,7 +685,7 @@ Component._requireComponent = null;
 // @ts-ignore
 Component._executionOrder = 0;
 
-if (CC_EDITOR || CC_TEST) {
+if (EDITOR || TEST) {
 
     // INHERITABLE STATIC MEMBERS
     // @ts-ignore
@@ -718,7 +719,7 @@ value(Component, '_registerEditorProps', function (cls, props) {
     if (order && typeof order === 'number') {
         cls._executionOrder = order;
     }
-    if (CC_EDITOR || CC_TEST) {
+    if (EDITOR || TEST) {
         const name = getClassName(cls);
         for (const key in props) {
             const val = props[key];
@@ -754,7 +755,7 @@ value(Component, '_registerEditorProps', function (cls, props) {
                         menu = 'i18n:menu.custom_script/' + menu;
                     }
 
-                    CC_EDITOR && EditorExtends.Component.addMenu(cls, menu, props.menuPriority);
+                    EDITOR && EditorExtends.Component.addMenu(cls, menu, props.menuPriority);
                     break;
 
                 case 'disallowMultiple':

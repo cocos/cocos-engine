@@ -39,8 +39,10 @@ gulp.task('build-debug-infos', async () => {
 });
 
 gulp.task('build-code', gulp.series('build-debug-infos', () => {
+    const cli = require.resolve('@cocos/build-engine/dist/cli');
     return cp.spawn('node', [
-        './rollup/out/build-engine-cli.js',
+        cli,
+        `--engine=${__dirname}`,
         '--sourcemap',
         '--buildmode=universal',
         '--platform=HTML5',
@@ -54,8 +56,10 @@ gulp.task('build-code', gulp.series('build-debug-infos', () => {
 }));
 
 gulp.task('build-code-minified', gulp.series('build-debug-infos', () => {
+    const cli = require.resolve('@cocos/build-engine/dist/cli');
     return cp.spawn('node', [
-        './rollup/out/build-engine-cli.js',
+        cli,
+        `--engine=${__dirname}`,
         '--compress',
         '--sourcemap',
         '--buildmode=universal',

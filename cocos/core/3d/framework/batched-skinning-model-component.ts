@@ -41,6 +41,7 @@ import { IGFXAttribute } from '../../gfx/input-assembler';
 import { Mat4, Vec2, Vec3 } from '../../math';
 import { mapBuffer, readBuffer, writeBuffer } from '../misc/buffer';
 import { SkinningModelComponent } from './skinning-model-component';
+import { EDITOR } from 'internal:constants';
 
 const repeat = (n: number) => n - Math.floor(n);
 const batch_id: IGFXAttribute = { name: GFXAttributeName.ATTR_BATCH_ID, format: GFXFormat.R32F, isNormalized: false };
@@ -264,7 +265,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
                 const path = partial.joints[i];
                 const idx = joints.findIndex((p) => p === path);
                 if (idx >= 0) {
-                    if (CC_EDITOR) { // consistency check
+                    if (EDITOR) { // consistency check
                         Mat4.multiply(m4_1, partial.bindposes[i], m4_local);
                         if (!m4_1.equals(bindposes[idx])) {
                             console.warn(`${this.node.name}: Inconsistent bindpose at ${joints[idx]} in unit ${u}, artifacts may present`);
