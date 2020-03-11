@@ -22,7 +22,7 @@ const temp2 = new Vec3(0, 0, 0);
 
 /**
  * Generate a capsule with radiusTop radiusBottom 0.5, height 2, centered at origin,
- * but may be repositioned through `center` option).
+ * but may be repositioned through the `center` option.
  * @zh
  * 生成一个胶囊体。
  * @param radiusTop 顶部半径。

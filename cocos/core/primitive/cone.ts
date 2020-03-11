@@ -10,7 +10,7 @@ type IConeOptions = ICylinderOptions;
 /**
  * @en
  * Generate a cone with radius 0.5, height 1, centered at origin,
- * but may be repositioned through `center` option.
+ * but may be repositioned through the `center` option.
  * @zh
  * 生成一个圆锥。
  * @param radius 圆锥半径。

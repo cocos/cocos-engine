@@ -24,7 +24,7 @@ const temp2 = new Vec3(0, 0, 0);
 /**
  * @en
  * Generate a cylinder with radiusTop radiusBottom 0.5, height 2 and centered at origin,
- * but may be repositioned through `center` option.
+ * but may be repositioned through the `center` option.
  * @zh
  * 生成一个圆柱。
  * @param radiusTop 顶部半径。
