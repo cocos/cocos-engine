@@ -13,6 +13,8 @@ class CC_CORE_API GFXInputAssembler : public Object {
  public:
   virtual bool initialize(const GFXInputAssemblerInfo& info) = 0;
   virtual void destroy() = 0;
+    
+  void extractDrawInfo(GFXDrawInfo& drawInfo) const;
   
   CC_INLINE GFXDevice* getDevice() const { return _device; }
   CC_INLINE const GFXAttributeList& getAttributes() const { return _attributes; }

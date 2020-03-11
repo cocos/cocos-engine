@@ -603,6 +603,72 @@ static bool js_gfx_GFXCommandBuffer_execute(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_GFXCommandBuffer_execute)
 
+static bool js_gfx_GFXInputAssembler_getVertexBuffers(se::State& s)
+{
+    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_getVertexBuffers : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    bool ok = true;
+    if (argc == 0) {
+        const std::vector<cocos2d::GFXBuffer *>& result = cobj->getVertexBuffers();
+        se::Object* vertexBufferArray = se::Object::createArrayObject(result.size() );
+        int i = 0;
+        se::Value vertexBufferValue;
+        for (const auto& buffer : result)
+        {
+            ok &= native_ptr_to_seval(buffer, &vertexBufferValue);
+            vertexBufferArray->setArrayElement(i, vertexBufferValue);
+            ++i;
+        }
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_getVertexBuffers : Error processing arguments");
+        s.rval().setObject(vertexBufferArray);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_GFXInputAssembler_getVertexBuffers)
+
+static bool js_gfx_GFXInputAssembler_extractDrawInfo(se::State& s)
+{
+    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_extractDrawInfo : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 1) {
+        cocos2d::GFXDrawInfo nativeDrawInfo;
+        cobj->extractDrawInfo(nativeDrawInfo);
+        
+        se::Object* drawInfo = args[0].toObject();
+        se::Value attrValue(nativeDrawInfo.vertexCount);
+        drawInfo->setProperty("vertexCount", attrValue);
+        
+        attrValue.setUint32(nativeDrawInfo.firstVertex);
+        drawInfo->setProperty("firstVertex", attrValue);
+        
+        attrValue.setUint32(nativeDrawInfo.indexCount);
+        drawInfo->setProperty("indexCount", attrValue);
+        
+        attrValue.setUint32(nativeDrawInfo.firstIndex);
+        drawInfo->setProperty("firstIndex", attrValue);
+        
+        attrValue.setUint32(nativeDrawInfo.vertexOffset);
+        drawInfo->setProperty("vertexOffset", attrValue);
+        
+        attrValue.setUint32(nativeDrawInfo.instanceCount);
+        drawInfo->setProperty("instanceCount", attrValue);
+        
+        attrValue.setUint32(nativeDrawInfo.firstInstance);
+        drawInfo->setProperty("firstInstance", attrValue);
+
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GFXInputAssembler_extractDrawInfo)
+
 bool register_all_gfx_manual(se::Object* obj)
 {
     __jsb_cocos2d_GLES2Device_proto->defineFunction("copyBuffersToTexture", _SE(js_gfx_GLES2Device_copyBuffersToTexture));
@@ -615,6 +681,9 @@ bool register_all_gfx_manual(se::Object* obj)
     __jsb_cocos2d_GFXBlendState_proto->defineProperty("targets", _SE(js_gfx_GFXBlendState_get_targets), _SE(js_gfx_GFXBlendState_set_targets));
     
     __jsb_cocos2d_GFXCommandBuffer_proto->defineFunction("execute", _SE(js_gfx_GFXCommandBuffer_execute));
+
+    __jsb_cocos2d_GFXInputAssembler_proto->defineProperty("vertexBuffers", _SE(js_gfx_GFXInputAssembler_getVertexBuffers), nullptr);
+    __jsb_cocos2d_GFXInputAssembler_proto->defineFunction("extractDrawInfo", _SE(js_gfx_GFXInputAssembler_extractDrawInfo));
     
     js_register_gfx_GFXSubPass(obj);
     return true;
