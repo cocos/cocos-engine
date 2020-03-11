@@ -844,11 +844,7 @@ export function GFXGetTypeSize (type: GFXType): number {
     return _type2size[type] || 0;
 }
 
-export type DataStorage = Uint8Array | Int8Array | Uint16Array | Int16Array | Uint32Array | Int32Array | Float32Array | Float64Array;
-
-export type DataStorageConstructor = Constructor<DataStorage>;
-
-export function getStorageConstructor (info: IGFXFormatInfo): DataStorageConstructor {
+export function getTypedArrayConstructor (info: IGFXFormatInfo): TypedArrayConstructor {
     const stride = info.size / info.count;
     switch (info.type) {
         case GFXFormatType.UNORM:

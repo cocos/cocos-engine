@@ -92,7 +92,7 @@ export class BatchedBuffer {
                     const mergeCount = batch.mergeCount;
                     if (vbIdxBuf[start] !== mergeCount || vbIdxBuf[end - 1] !== mergeCount) {
                         for (let j = start; j < end; j++) {
-                            vbIdxBuf[j] = mergeCount;
+                            vbIdxBuf[j] = mergeCount + 0.1; // guard against underflow
                         }
                     }
 

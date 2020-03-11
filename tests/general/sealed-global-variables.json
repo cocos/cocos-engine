@@ -129,7 +129,7 @@
         "cc.GFXFormatSize",
         "cc.GFXFormatSurfaceSize",
         "cc.GFXGetTypeSize",
-        "cc.getStorageConstructor",
+        "cc.getTypedArrayConstructor",
         "cc.programLib",
         "cc.EffectAsset",
         "cc.Material",

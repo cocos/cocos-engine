@@ -149,6 +149,17 @@ export class ModelComponent extends RenderableComponent {
         }
     }
 
+    public setInstancedAttribute (name: string, value: ArrayLike<number>) {
+        if (!this.model) { return; }
+        const list = this.model.instancedAttributes.list;
+        for (let i = 0; i < list.length; i++) {
+            if (list[i].name === name) {
+                (list[i].view as TypedArray).set(value);
+                break;
+            }
+        }
+    }
+
     protected _updateModels () {
         if (!this.enabledInHierarchy || !this._mesh) {
             return;

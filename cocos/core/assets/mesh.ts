@@ -34,8 +34,7 @@ import { BufferBlob } from '../3d/misc/buffer-blob';
 import { aabb } from '../geometry';
 import { GFXBuffer } from '../gfx/buffer';
 import {
-    DataStorage,
-    getStorageConstructor,
+    getTypedArrayConstructor,
     GFXAttributeName,
     GFXBufferUsageBit,
     GFXFormat,
@@ -1032,7 +1031,7 @@ export class Mesh extends Asset {
      * 否则，创建足够大的缓冲区包含指定属性的所有数据，并为该缓冲区创建与属性类型对应的数组视图。
      */
     public readAttribute (primitiveIndex: number, attributeName: GFXAttributeName): Storage | null {
-        let result: DataStorage | null = null;
+        let result: TypedArray | null = null;
         this._accessAttribute(primitiveIndex, attributeName, (vertexBundle, iAttribute) => {
             const format = vertexBundle.attributes[iAttribute].format;
 
@@ -1041,7 +1040,7 @@ export class Mesh extends Asset {
                 vertexBundle.view.offset + getOffset(vertexBundle.attributes, iAttribute));
 
             const formatInfo = GFXFormatInfos[format];
-            const storageConstructor = getStorageConstructor(GFXFormatInfos[format]);
+            const storageConstructor = getTypedArrayConstructor(GFXFormatInfos[format]);
             const reader = getReader(inputView, format);
             if (!storageConstructor || !reader) {
                 return;

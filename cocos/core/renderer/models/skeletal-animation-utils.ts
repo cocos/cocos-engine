@@ -27,6 +27,7 @@
  * @hidden
  */
 
+import { EDITOR } from 'internal:constants';
 import { AnimationClip } from '../../animation/animation-clip';
 import { SkelAnimDataHub } from '../../animation/skeletal-animation-data-hub';
 import { getWorldTransformUntilRoot } from '../../animation/transform-utils';
@@ -44,7 +45,7 @@ import { ITextureBufferHandle, TextureBufferPool } from '../core/texture-buffer-
 
 // change here and cc-skinning.chunk to use other skinning algorithms
 export const uploadJointData = uploadJointDataLBS;
-export const MINIMUM_JOINT_ANIMATION_TEXTURE_SIZE = CC_EDITOR ? 2040 : 480; // have to be multiples of 12
+export const MINIMUM_JOINT_ANIMATION_TEXTURE_SIZE = EDITOR ? 2040 : 480; // have to be multiples of 12
 
 export function selectJointsMediumFormat (device: GFXDevice): GFXFormat {
     if (device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {

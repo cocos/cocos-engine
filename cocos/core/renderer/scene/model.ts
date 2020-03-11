@@ -3,7 +3,7 @@ import { Material } from '../../assets/material';
 import { RenderingSubMesh } from '../../assets/mesh';
 import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
-import { getStorageConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit } from '../../gfx/define';
+import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { Mat4, Vec3 } from '../../math';
@@ -319,7 +319,7 @@ export class Model {
             if (!attribute.isInstanced) { continue; }
             const format = attribute.format;
             const info = GFXFormatInfos[format];
-            const view = new (getStorageConstructor(info))(buffer, offset, info.count);
+            const view = new (getTypedArrayConstructor(info))(buffer, offset, info.count);
             const isNormalized = attribute.isNormalized;
             offset += info.size; attrs.list.push({ name: attribute.name, format, isNormalized, view });
         }
