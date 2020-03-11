@@ -62,7 +62,7 @@ export class MeshColliderComponent extends ColliderComponent {
 
     constructor () {
         super();
-        if (!EDITOR) {
+        if (!EDITOR && !TEST) {
             this._shape = createTrimeshShape();
         }
     }

@@ -1,6 +1,6 @@
 import Ammo from '@cocos/ammo';
 import { AmmoShape } from "./ammo-shape";
-import { Mesh, GFXPrimitiveMode, warn } from "../../../core";
+import { Mesh, GFXPrimitiveMode, warn, warnID } from "../../../core";
 import { MeshColliderComponent } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
@@ -22,7 +22,7 @@ export class AmmoBvhTriangleMeshShape extends AmmoShape implements ITrimeshShape
 
         if (this._btShape != null && this._btShape != AmmoConstant.instance.emptyShape) {
             // TODO: change the mesh after initialization
-            warn('[Physics][Ammo]: Currently, changing the mesh is not supported if the initialization is complete');
+            warnID(9620);
         } else {
 
             const mesh = v;

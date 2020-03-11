@@ -7,7 +7,7 @@ import { BoxShape, PhysicsWorld, RigidBody, SphereShape, CapsuleShape, TrimeshSh
 import { IRigidBody } from '../spec/i-rigid-body';
 import { IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape } from '../spec/i-physics-shape';
 import { IPhysicsWorld } from '../spec/i-physics-world';
-import { warn, error } from '../../core';
+import { errorID, warnID } from '../../core';
 import { EDITOR, DEBUG, PHYSICS_BUILTIN, PHYSICS_AMMO, TEST, PHYSICS_CANNON } from 'internal:constants';
 
 export function createPhysicsWorld (): IPhysicsWorld {
@@ -35,7 +35,7 @@ export function createCapsuleShape (radius = 0.5, height = 2, dir = 1): ICapsule
         if (DEBUG && checkPhysicsModule(CapsuleShape)) { return null as any; }
         return new CapsuleShape(radius, height, dir) as ICapsuleShape;
     } else {
-        warn('[Physics]: Currently cannon.js unsupport capsule collider');
+        warnID(9610);
         const func = () => { };
         return {
             setRadius: func,
@@ -44,7 +44,7 @@ export function createCapsuleShape (radius = 0.5, height = 2, dir = 1): ICapsule
             setMaterial: func,
             setIsTrigger: func,
             setCenter: func,
-            __preload: func,
+            initialize: func,
             onLoad: func,
             onEnable: func,
             onDisable: func,
@@ -58,14 +58,14 @@ export function createTrimeshShape (): ITrimeshShape {
         if (DEBUG && checkPhysicsModule(TrimeshShape)) { return null as any; }
         return new TrimeshShape() as ITrimeshShape;
     } else {
-        warn('[Physics]: Currently builtin unsupport mesh collider');
+        warnID(9611);
         const func = () => { };
         return {
             setMesh: func,
             setMaterial: func,
             setIsTrigger: func,
             setCenter: func,
-            __preload: func,
+            initialize: func,
             onLoad: func,
             onEnable: func,
             onDisable: func,
@@ -76,7 +76,7 @@ export function createTrimeshShape (): ITrimeshShape {
 
 export function checkPhysicsModule (obj: any) {
     if (DEBUG && !TEST && !EDITOR && obj == null) {
-        error("[Physics]: Please check to see if physics modules are included.");
+        errorID(9600);
         return true;
     }
     return false;
