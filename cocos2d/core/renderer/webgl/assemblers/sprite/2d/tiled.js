@@ -108,8 +108,8 @@ export default class TiledAssembler extends Assembler2D {
         x.length = y.length = 0;
         let leftWidth = frame.insetLeft, rightWidth = frame.insetRight, centerWidth = rect.width - leftWidth - rightWidth,
             topHeight = frame.insetTop, bottomHeight = frame.insetBottom, centerHeight = rect.height - topHeight - bottomHeight;
-        let xScale = node.width / (leftWidth + rightWidth) > 1 ? 1 : node.width / (leftWidth + rightWidth);
-        let yScale = node.height / (topHeight + bottomHeight) > 1 ? 1 : node.height / (topHeight + bottomHeight);
+        let xScale = (node.width / (leftWidth + rightWidth)) > 1 ? 1 : (node.width / (leftWidth + rightWidth));
+        let yScale = (node.height / (topHeight + bottomHeight)) > 1 ? 1 : (node.height / (topHeight + bottomHeight));
         let offsetWidth = 0, offsetHeight = 0;
         if (centerWidth > 0) {
             /*
