@@ -1,6 +1,6 @@
 
 import { PHYSICS_CANNON } from 'internal:constants';
-import { instantiate } from '../framework/pphysics-selector';
+import { instantiate } from '../framework/physics-selector';
 import { CannonRigidBody } from './cannon-rigid-body';
 import { CannonWorld } from './cannon-world';
 import { CannonBoxShape } from './shapes/cannon-box-shape';
