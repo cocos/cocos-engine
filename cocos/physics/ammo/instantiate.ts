@@ -1,5 +1,5 @@
 import { PHYSICS_AMMO } from 'internal:constants';
-import { instantiate } from '../framework/Physics-selector';
+import { instantiate } from '../framework/pphysics-selector';
 import { AmmoRigidBody } from './ammo-rigid-body';
 import { AmmoWorld } from '../ammo/ammo-world';
 import { AmmoBoxShape } from '../ammo/shapes/ammo-box-shape';

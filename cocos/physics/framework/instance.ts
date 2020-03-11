@@ -3,7 +3,7 @@
  */
 
 import { Vec3 } from '../../core/math';
-import { BoxShape, PhysicsWorld, RigidBody, SphereShape, CapsuleShape, TrimeshShape } from './Physics-selector';
+import { BoxShape, PhysicsWorld, RigidBody, SphereShape, CapsuleShape, TrimeshShape } from './pphysics-selector';
 import { IRigidBody } from '../spec/i-rigid-body';
 import { IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape } from '../spec/i-physics-shape';
 import { IPhysicsWorld } from '../spec/i-physics-world';
@@ -17,7 +17,7 @@ export function createPhysicsWorld (): IPhysicsWorld {
 
 export function createRigidBody (): IRigidBody {
     if (DEBUG && checkPhysicsModule(RigidBody)) { return null as any; }
-    return new RigidBody!() as IRigidBody;
+    return new RigidBody() as IRigidBody;
 }
 
 export function createBoxShape (size: Vec3): IBoxShape {

@@ -1,17 +1,13 @@
 /**
  * @hidden
  */
-import { IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape } from './../spec/i-physics-shape';
-import { IRigidBody } from '../spec/i-rigid-body';
-import { IPhysicsWorld } from '../spec/i-physics-world';
+export let PhysicsWorld: any;
+export let RigidBody: any;
 
-export let PhysicsWorld: IPhysicsWorld;
-export let RigidBody: IRigidBody;
-
-export let BoxShape: IBoxShape;
-export let SphereShape: ISphereShape;
-export let CapsuleShape: ICapsuleShape;
-export let TrimeshShape: ITrimeshShape;
+export let BoxShape: any;
+export let SphereShape: any;
+export let CapsuleShape: any;
+export let TrimeshShape: any;
 
 export interface IPhysicsWrapperObject {
     world: any,
