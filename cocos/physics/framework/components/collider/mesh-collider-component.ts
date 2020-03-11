@@ -35,7 +35,7 @@ export class MeshColliderComponent extends ColliderComponent {
 
     set mesh (value) {
         this._mesh = value;
-        if (!CC_EDITOR) this.trimeshShape.mesh = this._mesh;
+        if (!CC_EDITOR) this.shape.mesh = this._mesh;
     }
 
     // @property
@@ -47,7 +47,7 @@ export class MeshColliderComponent extends ColliderComponent {
     //     this._convex = value;
     // }
 
-    get trimeshShape (): ITrimeshShape {
+    get shape () {
         return this._shape as ITrimeshShape;
     }
 

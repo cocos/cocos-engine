@@ -234,7 +234,7 @@ export class RigidBodyComponent extends Component {
         return false;
     }
 
-    public get rigidBody () {
+    public get body () {
         return this._body;
     }
 

@@ -59,7 +59,7 @@ export class CapsuleColliderComponent extends ColliderComponent {
         }
 
         if (!EDITOR && !TEST) {
-            this.capsuleShape.radius = this._radius;
+            this.shape.radius = this._radius;
         }
     }
 
@@ -81,7 +81,7 @@ export class CapsuleColliderComponent extends ColliderComponent {
 
         this._height = value;
         if (!EDITOR && !TEST) {
-            this.capsuleShape.height = this._height;
+            this.shape.height = this._height;
         }
     }
 
@@ -94,7 +94,7 @@ export class CapsuleColliderComponent extends ColliderComponent {
         this._direction = value;
     }
 
-    public get capsuleShape (): ICapsuleShape {
+    public get shape () {
         return this._shape as ICapsuleShape;
     }
 

@@ -35,7 +35,7 @@ export class BoxColliderComponent extends ColliderComponent {
      */
     @property({
         type: Vec3,
-        tooltip:'盒的大小，即长、宽、高'
+        tooltip: '盒的大小，即长、宽、高'
     })
     public get size () {
         return this._size;
@@ -44,11 +44,11 @@ export class BoxColliderComponent extends ColliderComponent {
     public set size (value) {
         Vec3.copy(this._size, value);
         if (!EDITOR && !TEST) {
-            this.boxShape.size = this._size;
+            this.shape.size = this._size;
         }
     }
 
-    public get boxShape (): IBoxShape {
+    public get shape () {
         return this._shape as IBoxShape;
     }
 
