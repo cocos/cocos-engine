@@ -39,6 +39,9 @@ import { RenderTexture } from './render-texture';
 import { Texture2D } from './texture-2d';
 import { TextureBase } from './texture-base';
 import { EDITOR } from 'internal:constants';
+import { Filter } from './asset-enum';
+import { GFXSampler } from '../gfx';
+import { samplerLib } from '../../core/renderer/core/sampler-lib';
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;
@@ -71,6 +74,9 @@ interface ISpriteFramesSerializeData{
     rotated: boolean;
     capInsets: number[];
     vertices: IVertices;
+    // hack for sampler
+    minFilter: number;
+    magFilter: number;
 }
 
 interface ISpriteFrameOriginal {
@@ -353,16 +359,18 @@ export class SpriteFrame extends Asset {
         }
     }
 
+    // Todo:change or remove
     get texture () {
-        if (!this._texture) {
-            // @ts-ignore
-            this._texture = this._image && !(window.Editor && Editor.isBuilder) ? this._image._texture : new Texture2D();
-            this._texture.on('load', this._textureLoaded, this);
-        }
+        // if (!this._texture) {
+        //     // @ts-ignore
+        //     this._texture = this._image && !(window.Editor && Editor.isBuilder) ? this._image._texture : new Texture2D();
+        //     this._texture.on('load', this._textureLoaded, this);
+        // }
 
         return this._texture;
     }
 
+    // Todo:change or remove
     set texture (value){
         if (!value){
             console.warn(`Error Texture in ${this.name}`);
@@ -391,17 +399,21 @@ export class SpriteFrame extends Asset {
         return this._texture.height;
     }
 
-    set _imageSource (value: ImageAsset) {
-        this._image = value;
-        // const tex = this._texture as Texture2D;
-        // @ts-ignore
-        if (window.Editor && Editor.isBuilder) {
-            return;
-        }
-        this._texture = value._texture;
-        this._texture.on('load', this._textureLoaded, this);
-        this._calculateUV();
-    }
+    // Todo:change or remove
+    // set _imageSource (value: ImageAsset) {
+    //     this._image = value;
+    //     // const tex = this._texture as Texture2D;
+    //     // @ts-ignore
+    //     if (window.Editor && Editor.isBuilder) {
+    //         return;
+    //     }
+    //     this._texture = value._texture;
+    //     // hack for sampler
+    //     this._texture.setFilters(this._minFilter, this._magFilter);
+
+    //     this._texture.on('load', this._textureLoaded, this);
+    //     this._calculateUV();
+    // }
 
     public vertices: IVertices | null = null;
 
@@ -411,7 +423,8 @@ export class SpriteFrame extends Asset {
      */
     public uv: number[] = [];
     public uvHash: number = 0;
-    public _image: ImageAsset | null = null;
+    // Todo:change or remove
+    // public _image: ImageAsset | null = null;
 
     /**
      * @zh
@@ -434,9 +447,17 @@ export class SpriteFrame extends Asset {
 
     protected _atlasUuid: string = '';
     // @ts-ignore
+    // Todo:change or remove
     protected _texture: TextureBase;
 
     protected _flipUv = false;
+
+    // hack for sampler
+    protected _minFilter: number = Filter.LINEAR;
+
+    protected _magFilter: number = Filter.LINEAR;
+
+    protected _sampler: GFXSampler | null = null;
 
     constructor () {
         super();
@@ -582,6 +603,12 @@ export class SpriteFrame extends Asset {
         return this._texture.getGFXTextureView();
     }
 
+    public getGFXSamplerInSprite (){
+        const hash = this._texture.getSamplerHash();
+        const sam = samplerLib.getSampler(cc.game._gfxDevice, hash);
+        return sam;
+    }
+
     /**
      * 重置 SpriteFrame 数据。
      * @param info SpriteFrame 初始化数据。
@@ -607,7 +634,7 @@ export class SpriteFrame extends Asset {
                 }
                 this._texture = info.texture;
                 this.checkRect(this._texture);
-                this._texture.on('load', this._textureLoaded, this);
+                // this._texture.on('load', this._textureLoaded, this);
             }
 
             if (info.originalSize) {
@@ -699,6 +726,21 @@ export class SpriteFrame extends Asset {
             this._texture.off('load');
         }
         return super.destroy();
+    }
+
+    // hack for sampler
+    public setFilter (minFilter: string, magFilter: string) {
+        if (minFilter === "nearest") {
+            this._minFilter = Filter.NEAREST;
+        } else {
+            this._minFilter = Filter.LINEAR;
+        }
+        if (magFilter === "nearest") {
+            this._magFilter = Filter.NEAREST;
+        } else {
+            this._magFilter = Filter.LINEAR;
+        }
+
     }
 
     /*
@@ -871,7 +913,7 @@ export class SpriteFrame extends Asset {
         }
 
         const serialize = {
-            image: this._image ? exporting ? EditorExtends.UuidUtils.compressUuid(this._image._uuid, true) : this._image._uuid : undefined,
+            // image: this._image ? exporting ? EditorExtends.UuidUtils.compressUuid(this._image._uuid, true) : this._image._uuid : undefined,
             name: this._name,
             atlas: exporting ? undefined : this._atlasUuid,  // strip from json if exporting
             rect,
@@ -880,6 +922,9 @@ export class SpriteFrame extends Asset {
             rotated: this._rotated,
             capInsets: this._capInsets,
             vertices,
+            // hack for sampler
+            minFilter: this._minFilter,
+            magFilter: this._magFilter,
         };
 
         // 为 underfined 的数据则不在序列化文件里显示
@@ -913,7 +958,7 @@ export class SpriteFrame extends Asset {
             this._capInsets[INSET_BOTTOM] = capInsets[INSET_BOTTOM];
         }
 
-        handle.result.push(this, '_imageSource', data.image);
+        // handle.result.push(this, '_imageSource', data.image);
 
         if (EDITOR) {
             this._atlasUuid = data.atlas ? data.atlas : '';
@@ -925,6 +970,12 @@ export class SpriteFrame extends Asset {
             this.vertices.nu = [];
             this.vertices.nv = [];
         }
+
+        // hack for sampler
+        const minFilter = data.minFilter;
+        if (minFilter) { this._minFilter = minFilter; }
+        const magFilter = data.magFilter;
+        if (magFilter) { this._magFilter = magFilter; }
     }
 
     protected _textureLoaded () {

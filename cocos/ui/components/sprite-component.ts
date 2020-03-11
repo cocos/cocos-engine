@@ -562,8 +562,9 @@ export class SpriteComponent extends UIRenderComponent {
         this.spriteFrame = sprite;
     }
 
-    protected _render(render: UI) {
-        render.commitComp(this, this._spriteFrame!.getGFXTextureView(), this._assembler!);
+    protected _render (render: UI) {
+        render.commitComp(this, this._spriteFrame!.getGFXTextureView(), this._assembler!, this._spriteFrame!.getGFXSamplerInSprite());
+        //render.commitComp(this, this._spriteFrame!.getGFXTextureView(), this._assembler!);
     }
 
     protected _canRender () {
