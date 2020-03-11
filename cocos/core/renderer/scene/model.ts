@@ -323,6 +323,7 @@ export class Model {
             const isNormalized = attribute.isNormalized;
             offset += info.size; attrs.list.push({ name: attribute.name, format, isNormalized, view });
         }
+        if (pass.instancedBuffer) { pass.instancedBuffer.destroy(); } // instancing IA changed
     }
 
     protected getInstancedAttributeIndex (name: string) {

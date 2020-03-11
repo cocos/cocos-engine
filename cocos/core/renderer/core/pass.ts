@@ -605,10 +605,10 @@ export class Pass {
     public beginChangeStatesSilently () {}
     public endChangeStatesSilently () {}
 
-    protected _doInit (info: IPassInfoFull) {
+    protected _doInit (info: IPassInfoFull, copyDefines = false) {
         this._idxInTech = info.idxInTech;
         this._programName = info.program;
-        this._defines = info.defines;
+        this._defines = copyDefines ? Object.assign({}, info.defines) : info.defines;
         this._shaderInfo = programLib.getTemplate(info.program);
         this._properties = info.properties || this._properties;
         // pipeline state
