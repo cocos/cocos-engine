@@ -46,6 +46,17 @@ const { ccclass, menu, property, executeInEditMode, executionOrder} = require('.
 const RenderComponent = require('../../components/CCRenderComponent');
 
 const _world_mat = new Mat4();
+const _module_props = CC_EDITOR && [
+    "colorOverLifetimeModule",
+    "shapeModule",
+    "sizeOvertimeModule",
+    "velocityOvertimeModule",
+    "forceOvertimeModule",
+    "limitVelocityOvertimeModule",
+    "rotationOvertimeModule",
+    "textureAnimationModule",
+    "trailModule"
+]
 
 /**
  * !#en The ParticleSystem3D Component.
@@ -856,5 +867,7 @@ export default class ParticleSystem3D extends RenderComponent {
         return this._time;
     }
 }
+
+CC_EDITOR && (ParticleSystem3D.prototype._onBeforeSerialize = function(props){return props.filter(p => !_module_props.includes(p) || this[p].enable);});
 
 cc.ParticleSystem3D = ParticleSystem3D;
