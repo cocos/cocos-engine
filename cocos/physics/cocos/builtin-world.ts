@@ -32,17 +32,18 @@ export class BuiltInWorld implements IPhysicsWorld {
     set allowSleep (v: boolean) { }
     set defaultMaterial (v: PhysicMaterial) { }
 
-    readonly shapeArr: BuiltinShape[] = [];
+    shapeArr: BuiltinShape[] = [];
     readonly bodies: BuiltinSharedBody[] = [];
 
-    private _shapeArrOld: BuiltinShape[] = [];
+    private _shapeArrPrev: BuiltinShape[] = [];
     private _collisionMatrix: ArrayCollisionMatrix = new ArrayCollisionMatrix();
     private _collisionMatrixPrev: ArrayCollisionMatrix = new ArrayCollisionMatrix();
 
     step (deltaTime: number): void {
-
         // store and reset collsion array
-        this._shapeArrOld = this.shapeArr.slice();
+        const tmp = this._shapeArrPrev;
+        this._shapeArrPrev = this.shapeArr;
+        this.shapeArr = tmp;
         this.shapeArr.length = 0;
 
         // sync scene to physics
@@ -175,9 +176,9 @@ export class BuiltInWorld implements IPhysicsWorld {
             }
         }
 
-        for (let i = 0; i < this._shapeArrOld.length; i += 2) {
-            shapeA = this._shapeArrOld[i];
-            shapeB = this._shapeArrOld[i + 1];
+        for (let i = 0; i < this._shapeArrPrev.length; i += 2) {
+            shapeA = this._shapeArrPrev[i];
+            shapeB = this._shapeArrPrev[i + 1];
 
             if (this._collisionMatrixPrev.get(shapeA.id, shapeB.id)) {
                 if (!this._collisionMatrix.get(shapeA.id, shapeB.id)) {
@@ -202,9 +203,10 @@ export class BuiltInWorld implements IPhysicsWorld {
             }
         }
 
+        const temp = this._collisionMatrixPrev.matrix;
         this._collisionMatrixPrev.matrix = this._collisionMatrix.matrix;
-        this._collisionMatrix.matrix = [];
-
+        this._collisionMatrix.matrix = temp;
+        this._collisionMatrix.reset();
     }
 
 }
