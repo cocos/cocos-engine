@@ -22,17 +22,17 @@ export class CannonTrimeshShape extends CannonShape implements ITrimeshShape {
 
         const mesh = v;
         if (this._shape != null) {
-            if (mesh) {
-                const vertices = mesh.renderingMesh.subMeshes[0].geometricInfo!.positions;
-                const indices = mesh.renderingMesh.subMeshes[0].geometricInfo!.indices as Uint16Array;
+            if (mesh && mesh.renderingSubMeshes.length > 0) {
+                const vertices = mesh.renderingSubMeshes[0].geometricInfo!.positions;
+                const indices = mesh.renderingSubMeshes[0].geometricInfo!.indices as Uint16Array;
                 this.updateInternalMesh(vertices, indices);
             } else {
                 this.updateInternalMesh(new Float32Array(), new Uint16Array());
             }
         } else {
-            if (mesh) {
-                const vertices = mesh.renderingMesh.subMeshes[0].geometricInfo!.positions;
-                const indices = mesh.renderingMesh.subMeshes[0].geometricInfo!.indices as Uint16Array;
+            if (mesh && mesh.renderingSubMeshes.length > 0) {
+                const vertices = mesh.renderingSubMeshes[0].geometricInfo!.positions;
+                const indices = mesh.renderingSubMeshes[0].geometricInfo!.indices as Uint16Array;
                 this._shape = new CANNON.Trimesh(vertices, indices);
             } else {
                 this._shape = new CANNON.Trimesh(new Float32Array(), new Uint16Array());

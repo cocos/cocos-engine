@@ -9,7 +9,7 @@ import { BoxColliderComponent } from '../../../../exports/physics-framework';
 export class CannonBoxShape extends CannonShape implements IBoxShape {
 
     public get collider () {
-        return this.collider as BoxColliderComponent;
+        return this._collider as BoxColliderComponent;
     }
 
     public get shape () {

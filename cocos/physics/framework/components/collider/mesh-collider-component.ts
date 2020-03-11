@@ -13,6 +13,7 @@ import { ColliderComponent } from './collider-component';
 import { createTrimeshShape } from '../../instance';
 import { Mesh } from '../../../../core';
 import { ITrimeshShape } from '../../../spec/i-physics-shape';
+import { EDITOR } from 'internal:constants';
 
 /**
  * @zh
@@ -35,7 +36,7 @@ export class MeshColliderComponent extends ColliderComponent {
 
     set mesh (value) {
         this._mesh = value;
-        if (!CC_EDITOR) this.shape.mesh = this._mesh;
+        if (!EDITOR) this.shape.mesh = this._mesh;
     }
 
     // @property
@@ -61,7 +62,7 @@ export class MeshColliderComponent extends ColliderComponent {
 
     constructor () {
         super();
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             this._shape = createTrimeshShape();
         }
     }
