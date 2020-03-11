@@ -22,11 +22,13 @@ import triangle from './triangle';
 // tslint:disable:no-shadowed-variable
 
 /**
- * ray-plane intersect<br/>
+ * @en
+ * ray-plane intersect detect.
+ * @zh
  * 射线与平面的相交性检测。
  * @param {ray} ray 射线
  * @param {plane} plane 平面
- * @return {number} 0 或 非 0
+ * @return {number} 0 或 非0
  */
 const ray_plane = (function () {
     const pt = new Vec3(0, 0, 0);
@@ -43,12 +45,14 @@ const ray_plane = (function () {
 
 // based on http://fileadmin.cs.lth.se/cs/Personal/Tomas_Akenine-Moller/raytri/
 /**
- * ray-triangle intersect<br/>
+ * @en
+ * ray-triangle intersect detect.
+ * @zh
  * 射线与三角形的相交性检测。
  * @param {ray} ray 射线
  * @param {triangle} triangle 三角形
  * @param {boolean} doubleSided 三角形是否为双面
- * @return {number} 0 或 非 0
+ * @return {number} 0 或 非0
  */
 const ray_triangle = (function () {
     const ab = new Vec3(0, 0, 0);
@@ -81,11 +85,13 @@ const ray_triangle = (function () {
 })();
 
 /**
- * ray-sphere intersect<br/>
+ * @en
+ * ray-sphere intersect detect.
+ * @zh
  * 射线和球的相交性检测。
  * @param {ray} ray 射线
  * @param {sphere} sphere 球
- * @return {number} 0 或 非 0
+ * @return {number} 0 或 非0
  */
 const ray_sphere = (function () {
     const e = new Vec3(0, 0, 0);
@@ -110,11 +116,13 @@ const ray_sphere = (function () {
 })();
 
 /**
- * ray-aabb intersect<br/>
+ * @en
+ * ray-aabb intersect detect.
+ * @zh
  * 射线和轴对齐包围盒的相交性检测。
  * @param {ray} ray 射线
  * @param {aabb} aabb 轴对齐包围盒
- * @return {number} 0 或 非 0
+ * @return {number} 0 或 非0
  */
 const ray_aabb = (function () {
     const min = new Vec3();
@@ -138,11 +146,13 @@ const ray_aabb = (function () {
 })();
 
 /**
- * ray-obb intersect<br/>
+ * @en
+ * ray-obb intersect detect.
+ * @zh
  * 射线和方向包围盒的相交性检测。
  * @param {ray} ray 射线
  * @param {obb} obb 方向包围盒
- * @return {number} 0 或 非 0
+ * @return {number} 0 或 非0
  */
 const ray_obb = (function () {
     let center = new Vec3();
@@ -213,6 +223,15 @@ const ray_obb = (function () {
     };
 })();
 
+/**
+ * @en
+ * ray-capsule intersect detect.
+ * @zh
+ * 射线和胶囊体的相交性检测。
+ * @param {ray} ray 射线
+ * @param {capsule} capsule 胶囊体
+ * @return {number} 0 或 非0
+ */
 const ray_capsule = (function () {
     const v3_0 = new Vec3();
     const v3_1 = new Vec3();
@@ -292,11 +311,13 @@ const ray_capsule = (function () {
 })();
 
 /**
- * line-plane intersect<br/>
+ * @en
+ * line-plane intersect detect.
+ * @zh
  * 线段与平面的相交性检测。
  * @param {line} line 线段
  * @param {plane} plane 平面
- * @return {number} 0 或 非 0
+ * @return {number} 0 或 非0
  */
 const line_plane = (function () {
     const ab = new Vec3(0, 0, 0);
@@ -310,12 +331,14 @@ const line_plane = (function () {
 })();
 
 /**
- * line-triangle intersect<br/>
+ * @en
+ * line-triangle intersect detect.
+ * @zh
  * 线段与三角形的相交性检测。
  * @param {line} line 线段
  * @param {triangle} triangle 三角形
  * @param {Vec3} outPt 可选，相交点
- * @return {number} 0 或 非 0
+ * @return {number} 0 或 非0
  */
 const line_triangle = (function () {
     const ab = new Vec3(0, 0, 0);
@@ -374,11 +397,13 @@ const line_triangle = (function () {
 
 const r_t = new ray();
 /**
+ * @en
+ * line-aabb intersect detect.
  * @zh
  * 线段与轴对齐包围盒的相交性检测
  * @param line 线段
  * @param aabb 轴对齐包围盒
- * @return {number} 0 或 非 0
+ * @return {number} 0 或 非0
  */
 function line_aabb (line: line, aabb: aabb): number {
     r_t.o.set(line.s);
@@ -394,11 +419,13 @@ function line_aabb (line: line, aabb: aabb): number {
 }
 
 /**
+ * @en
+ * line-obb intersect detect.
  * @zh
  * 线段与方向包围盒的相交性检测
  * @param line 线段
  * @param obb 方向包围盒
- * @return {number} 0 或 非 0
+ * @return {number} 0 或 非0
  */
 function line_obb (line: line, obb: obb): number {
     r_t.o.set(line.s);
@@ -414,11 +441,13 @@ function line_obb (line: line, obb: obb): number {
 }
 
 /**
+ * @en
+ * line-sphere intersect detect.
  * @zh
  * 线段与球的相交性检测
  * @param line 线段
  * @param sphere 球
- * @return {number} 0 或 非 0
+ * @return {number} 0 或 非0
  */
 function line_sphere (line: line, sphere: sphere): number {
     r_t.o.set(line.s);
@@ -434,11 +463,13 @@ function line_sphere (line: line, sphere: sphere): number {
 }
 
 /**
- * aabb-aabb intersect<br/>
+ * @en
+ * aabb-aabb intersect detect.
+ * @zh
  * 轴对齐包围盒和轴对齐包围盒的相交性检测。
  * @param {aabb} aabb1 轴对齐包围盒1
  * @param {aabb} aabb2 轴对齐包围盒2
- * @return {number} 0 或 非 0
+ * @return {number} 0 或 非0
  */
 const aabb_aabb = (function () {
     const aMin = new Vec3();
@@ -521,11 +552,13 @@ function getInterval (vertices: any[] | Vec3[], axis: Vec3) {
 }
 
 /**
- * aabb-obb intersect<br/>
+ * @en
+ * aabb-obb intersect detect.
+ * @zh
  * 轴对齐包围盒和方向包围盒的相交性检测。
  * @param {aabb} aabb 轴对齐包围盒
  * @param {obb} obb 方向包围盒
- * @return {number} 0 或 非 0
+ * @return {number} 0 或 非0
  */
 const aabb_obb = (function () {
     const test = new Array(15);
@@ -572,7 +605,9 @@ const aabb_obb = (function () {
 })();
 
 /**
- * aabb-plane intersect<br/>
+ * @en
+ * aabb-plane intersect detect.
+ * @zh
  * 轴对齐包围盒和平面的相交性检测。
  * @param {aabb} aabb 轴对齐包围盒
  * @param {plane} plane 平面
@@ -589,11 +624,13 @@ const aabb_plane = function (aabb: aabb, plane: plane): number {
 };
 
 /**
- * aabb-frustum intersect, faster but has false positive corner cases<br/>
+ * @en
+ * aabb-frustum intersect detect, faster but has false positive corner cases.
+ * @zh
  * 轴对齐包围盒和锥台相交性检测，速度快，但有错误情况。
  * @param {aabb} aabb 轴对齐包围盒
  * @param {frustum} frustum 锥台
- * @return {number} 0 或 非 0
+ * @return {number} 0 或 非0
  */
 const aabb_frustum = function (aabb: aabb, frustum: frustum): number {
     for (let i = 0; i < frustum.planes.length; i++) {
@@ -607,7 +644,9 @@ const aabb_frustum = function (aabb: aabb, frustum: frustum): number {
 
 // https://cesium.com/blog/2017/02/02/tighter-frustum-culling-and-why-you-may-want-to-disregard-it/
 /**
- * aabb-frustum intersect, handles most of the false positives correctly<br/>
+ * @en
+ * aabb-frustum intersect, handles most of the false positives correctly.
+ * @zh
  * 轴对齐包围盒和锥台相交性检测，正确处理大多数错误情况。
  * @param {aabb} aabb 轴对齐包围盒
  * @param {frustum} frustum 锥台
@@ -657,7 +696,9 @@ const aabb_frustum_accurate = (function () {
 })();
 
 /**
- * obb-point intersect<br/>
+ * @en
+ * obb contains the point.
+ * @zh
  * 方向包围盒和点的相交性检测。
  * @param {obb} obb 方向包围盒
  * @param {Vec3} point 点
@@ -674,7 +715,9 @@ const obb_point = (function () {
 })();
 
 /**
- * obb-plane intersect<br/>
+ * @en
+ * obb-plane intersect detect.
+ * @zh
  * 方向包围盒和平面的相交性检测。
  * @param {obb} obb 方向包围盒
  * @param {plane} plane 平面
@@ -698,11 +741,13 @@ const obb_plane = (function () {
 })();
 
 /**
- * obb-frustum intersect, faster but has false positive corner cases<br/>
+ * @en
+ * obb-frustum intersect, faster but has false positive corner cases.
+ * @zh
  * 方向包围盒和锥台相交性检测，速度快，但有错误情况。
  * @param {obb} obb 方向包围盒
  * @param {frustum} frustum 锥台
- * @return {number} 0 或 非 0
+ * @return {number} 0 或 非0
  */
 const obb_frustum = function (obb: obb, frustum: frustum): number {
     for (let i = 0; i < frustum.planes.length; i++) {
@@ -716,11 +761,13 @@ const obb_frustum = function (obb: obb, frustum: frustum): number {
 
 // https://cesium.com/blog/2017/02/02/tighter-frustum-culling-and-why-you-may-want-to-disregard-it/
 /**
- * obb-frustum intersect, handles most of the false positives correctly<br/>
+ * @en
+ * obb-frustum intersect, handles most of the false positives correctly.
+ * @zh
  * 方向包围盒和锥台相交性检测，正确处理大多数错误情况。
  * @param {obb} obb 方向包围盒
  * @param {frustum} frustum 锥台
- * @return {number} 0 或 非 0
+ * @return {number} 0 或 非0
  */
 const obb_frustum_accurate = (function () {
     const tmp = new Array(8);
@@ -772,11 +819,13 @@ const obb_frustum_accurate = (function () {
 })();
 
 /**
- * obb-obb intersect<br/>
+ * @en
+ * obb-obb intersect detect.
+ * @zh
  * 方向包围盒和方向包围盒的相交性检测。
  * @param {obb} obb1 方向包围盒1
  * @param {obb} obb2 方向包围盒2
- * @return {number} 0 或 非 0
+ * @return {number} 0 或 非0
  */
 const obb_obb = (function () {
     const test = new Array(15);
@@ -823,7 +872,10 @@ const obb_obb = (function () {
 // tslint:disable-next-line: max-line-length
 // https://github.com/diku-dk/bvh-tvcg18/blob/1fd3348c17bc8cf3da0b4ae60fdb8f2aa90a6ff0/FOUNDATION/GEOMETRY/GEOMETRY/include/overlap/geometry_overlap_obb_capsule.h
 /**
- * 方向包围盒和胶囊体的重叠检测
+ * @en
+ * obb-capsule intersect detect.
+ * @zh
+ * 方向包围盒和胶囊体的相交性检测。
  * @param obb 方向包围盒
  * @param capsule 胶囊体
  */
@@ -884,9 +936,10 @@ const obb_capsule = (function () {
 })();
 
 /**
- * sphere-plane intersect, not necessarily faster than obb-plane<br/>
- * due to the length calculation of the plane normal to factor out<br/>
- * the unnomalized plane distance<br/>
+ * @en
+ * sphere-plane intersect, not necessarily faster than obb-plane,due to the length calculation of the 
+ * plane normal to factor out the unnomalized plane distance.
+ * @zh
  * 球与平面的相交性检测。
  * @param {sphere} sphere 球
  * @param {plane} plane 平面
@@ -901,11 +954,13 @@ const sphere_plane = function (sphere: sphere, plane: plane): number {
 };
 
 /**
- * sphere-frustum intersect, faster but has false positive corner cases<br/>
+ * @en
+ * sphere-frustum intersect, faster but has false positive corner cases.
+ * @zh
  * 球和锥台的相交性检测，速度快，但有错误情况。
  * @param {sphere} sphere 球
  * @param {frustum} frustum 锥台
- * @return {number} 0 或 非 0
+ * @return {number} 0 或 非0
  */
 const sphere_frustum = function (sphere: sphere, frustum: frustum): number {
     for (let i = 0; i < frustum.planes.length; i++) {
@@ -919,11 +974,13 @@ const sphere_frustum = function (sphere: sphere, frustum: frustum): number {
 
 // https://stackoverflow.com/questions/20912692/view-frustum-culling-corner-cases
 /**
- * sphere-frustum intersect, handles the false positives correctly<br/>
+ * @en
+ * sphere-frustum intersect, handles the false positives correctly.
+ * @zh
  * 球和锥台的相交性检测，正确处理大多数错误情况。
  * @param {sphere} sphere 球
  * @param {frustum} frustum 锥台
- * @return {number} 0 或 非 0
+ * @return {number} 0 或 非0
  */
 const sphere_frustum_accurate = (function () {
     const pt = new Vec3(0, 0, 0), map = [1, -1, 1, -1, 1, -1];
@@ -950,7 +1007,9 @@ const sphere_frustum_accurate = (function () {
 })();
 
 /**
- * sphere-sphere intersect<br/>
+ * @en
+ * sphere-sphere intersect detect.
+ * @zh
  * 球和球的相交性检测。
  * @param {sphere} sphere0 球0
  * @param {sphere} sphere1 球1
@@ -962,7 +1021,9 @@ const sphere_sphere = function (sphere0: sphere, sphere1: sphere): boolean {
 };
 
 /**
- * sphere-aabb intersect<br/>
+ * @en
+ * sphere-aabb intersect detect.
+ * @zh
  * 球和轴对齐包围盒的相交性检测。
  * @param {sphere} sphere 球
  * @param {aabb} aabb 轴对齐包围盒
@@ -977,7 +1038,9 @@ const sphere_aabb = (function () {
 })();
 
 /**
- * sphere-obb intersect<br/>
+ * @en
+ * sphere-obb intersect detect.
+ * @zh
  * 球和方向包围盒的相交性检测。
  * @param {sphere} sphere 球
  * @param {obb} obb 方向包围盒
@@ -991,6 +1054,12 @@ const sphere_obb = (function () {
     };
 })();
 
+/**
+ * @en
+ * sphere-capsule intersect detect.
+ * @zh
+ * 球和胶囊体的相交性检测。
+ */
 const sphere_capsule = (function () {
     const v3_0 = new Vec3();
     const v3_1 = new Vec3();
@@ -1017,6 +1086,12 @@ const sphere_capsule = (function () {
 })();
 
 // http://www.geomalgorithms.com/a07-_distance.html
+/**
+ * @en
+ * capsule-capsule intersect detect.
+ * @zh
+ * 胶囊体和胶囊体的相交性检测。
+ */
 const capsule_capsule = (function () {
     const v3_0 = new Vec3();
     const v3_1 = new Vec3();
@@ -1071,7 +1146,7 @@ const capsule_capsule = (function () {
             }
             else if (-d > a) {
                 sN = sD;
- }
+            }
             else {
                 sN = -d;
                 sD = a;
@@ -1085,7 +1160,7 @@ const capsule_capsule = (function () {
             }
             else if ((-d + b) > a) {
                 sN = sD;
- }
+            }
             else {
                 sN = (-d + b);
                 sD = a;
@@ -1105,6 +1180,12 @@ const capsule_capsule = (function () {
     };
 })();
 
+/**
+ * @en
+ * Algorithm of intersect detect for basic geometry.
+ * @zh
+ * 基础几何的相交性检测算法。
+ */
 const intersect = {
     ray_sphere,
     ray_aabb,

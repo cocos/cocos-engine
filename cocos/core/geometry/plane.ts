@@ -11,6 +11,8 @@ const temp_mat = cc.mat4();
 const temp_vec4 = cc.v4();
 
 /**
+ * @en
+ * Basic Geometry: plane.
  * @zh
  * 基础几何 plane。
  */
@@ -138,20 +140,37 @@ export default class plane {
     }
 
     /**
+     * @en
+     * The normal of the plane.
      * @zh
      * 法线向量。
      */
     public n: Vec3;
 
     /**
+     * @en
+     * The distance from the origin to the plane.
      * @zh
      * 原点到平面的距离。
      */
     public d: number;
 
-    private _type: number;
+    /**
+     * @en
+     * Gets the type of the shape.
+     * @zh
+     * 获取形状的类型。
+     */
+    get type () {
+        return this._type;
+    }
+
+    protected readonly _type: number;
 
     /**
+     * @en
+     * Construct a plane.
+     * @zh
      * 构造一个平面。
      * @param nx 法向分量的 x 部分。
      * @param ny 法向分量的 y 部分。
@@ -165,6 +184,8 @@ export default class plane {
     }
 
     /**
+     * @en
+     * transform this plane.
      * @zh
      * 变换一个平面。
      * @param mat

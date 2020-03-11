@@ -118,28 +118,38 @@ export function pt_point_obb (out: Vec3, point: Vec3, obb_: obb): Vec3 {
     return out;
 }
 
-export function pt_point_line (out: Vec3, point: Vec3, start: Vec3, end: Vec3) {
-    Vec3.subtract(X, start, end);
+/**
+ * @en
+ * Calculate the nearest point on the line to the given point.
+ * @zh
+ * 计算给定点距离直线上最近的一点。
+ * @param out 最近点
+ * @param point 给定点
+ * @param linePointA 线上的某点 A
+ * @param linePointB 线上的某点 B
+ */
+export function pt_point_line (out: Vec3, point: Vec3, linePointA: Vec3, linePointB: Vec3) {
+    Vec3.subtract(X, linePointA, linePointB);
     const dir = X;
     const dirSquaredLength = Vec3.lengthSqr(dir);
 
     if (dirSquaredLength == 0) {
         // The point is at the segment start.
-        Vec3.copy(out, start);
+        Vec3.copy(out, linePointA);
     } else {
         // Calculate the projection of the point onto the line extending through the segment.
-        Vec3.subtract(X, point, start);
+        Vec3.subtract(X, point, linePointA);
         const t = Vec3.dot(X, dir) / dirSquaredLength;
 
         if (t < 0) {
             // The point projects beyond the segment start.
-            Vec3.copy(out, start);
+            Vec3.copy(out, linePointA);
         } else if (t > 1) {
             // The point projects beyond the segment end.
-            Vec3.copy(out, end);
+            Vec3.copy(out, linePointB);
         } else {
             // The point projects between the start and end of the segment.
-            Vec3.scaleAndAdd(out, start, dir, t);
+            Vec3.scaleAndAdd(out, linePointA, dir, t);
         }
     }
 }

@@ -7,32 +7,63 @@ import enums from "./enums";
 import { IVec3Like, IQuatLike } from "../math/type-define";
 
 /**
+ * @en
+ * Basic Geometry: capsule.
  * @zh
- * 基础几何，胶囊体
+ * 基础几何，胶囊体。
  */
 export class capsule {
 
-    protected _type: number;
+    /**
+     * @en
+     * Gets the type of the shape.
+     * @zh
+     * 获取形状的类型。
+     */
+    get type () {
+        return this._type;
+    }
+
+    protected readonly _type: number;
 
     /**
+     * @en
+     * Capsule sphere radius.
      * @zh
-     * 胶囊体球部半径
+     * 胶囊体球部半径。
      */
     radius: number;
 
     /**
+     * @en
+     * The distance between the center point of the capsule and the center of the sphere.
      * @zh
-     * 胶囊体中心点和球部圆心的距离
+     * 胶囊体中心点和球部圆心的距离。
      */
     halfHeight: number;
 
     /**
+     * @en
+     * Local orientation of capsule [0,1,2] => [x,y,z].
      * @zh
-     * 胶囊体的朝向，映射关系 [0,1,2] => [x,y,z]
+     * 胶囊体的本地朝向，映射关系 [0,1,2] => [x,y,z]。
      */
     axis: number;
 
+    /**
+     * @en
+     * The origin of the capsule.
+     * @zh
+     * 胶囊体的原点。
+     */
     readonly center: Vec3;
+
+    /**
+     * @en
+     * The rotation of the capsule.
+     * @zh
+     * 胶囊体的旋转。
+     */
     readonly rotation: Quat;
 
     /** cache, local center of ellipse */
@@ -53,6 +84,12 @@ export class capsule {
         this.updateCache();
     }
 
+    /**
+     * @en
+     * Transform this capsule.
+     * @zh
+     * 变换此胶囊体。
+     */
     transform (m: Mat4, pos: IVec3Like, rot: IQuatLike, scale: IVec3Like, out: capsule) {
         const ws = scale;
         const s = absMaxComponent(ws as Vec3);
