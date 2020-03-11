@@ -34,6 +34,7 @@ import * as misc from '../utils/misc';
 import CCClass from './class';
 import * as Attr from './utils/attribute';
 import MissingScript from '../components/missing-script';
+import { EDITOR, TEST, DEV, JSB, PREVIEW, SUPPORT_JIT } from 'internal:constants';
 
 // HELPERS
 
@@ -75,7 +76,7 @@ class Details {
         // TODO - DELME since 2.0
         this._stillUseUrl = js.createMap(true);
 
-        if (CC_EDITOR || CC_TEST) {
+        if (EDITOR || TEST) {
             this.assignAssetsBy = (getter) => {
                 // ignore this._stillUseUrl
                 for (let i = 0, len = this.uuidList.length; i < len; i++) {
@@ -150,7 +151,7 @@ function _dereference (self) {
     let i;
     let propName;
     let id;
-    if (CC_EDITOR && onDereferenced) {
+    if (EDITOR && onDereferenced) {
         for (i = 0; i < idList.length; i++) {
             propName = idPropList[i];
             id = idList[i];
@@ -183,14 +184,14 @@ function compileObjectTypeJit (sources, defaultValue, accessorToSet, propNameLit
         sources.push('if(prop){');
         sources.push('s._deserializeObjField(o,prop,' +
                              propNameLiteralToSet +
-                             ((CC_EDITOR || CC_TEST) ? ',t&&o,' : ',null,') +
+                             ((EDITOR || TEST) ? ',t&&o,' : ',null,') +
                              !!stillUseUrl +
                          ');');
         sources.push('}else o' + accessorToSet + '=null;');
     }
 }
 
-const compileDeserialize = CC_SUPPORT_JIT ? (self, klass) => {
+const compileDeserialize = SUPPORT_JIT ? (self, klass) => {
     const TYPE = Attr.DELIMETER + 'type';
     const EDITOR_ONLY = Attr.DELIMETER + 'editorOnly';
     const DEFAULT = Attr.DELIMETER + 'default';
@@ -208,7 +209,7 @@ const compileDeserialize = CC_SUPPORT_JIT ? (self, klass) => {
     // tslint:disable-next-line: prefer-for-of
     for (let p = 0; p < props.length; p++) {
         const propName = props[p];
-        if ((CC_PREVIEW || (CC_EDITOR && self._ignoreEditorOnly)) && attrs[propName + EDITOR_ONLY]) {
+        if ((PREVIEW || (EDITOR && self._ignoreEditorOnly)) && attrs[propName + EDITOR_ONLY]) {
             continue;   // skip editor only if in preview
         }
 
@@ -235,7 +236,7 @@ const compileDeserialize = CC_SUPPORT_JIT ? (self, klass) => {
         }
 
         sources.push('prop=d' + accessorToGet + ';');
-        sources.push(`if(typeof ${CC_JSB ? '(prop)' : 'prop'}!=="undefined"){`);
+        sources.push(`if(typeof ${JSB ? '(prop)' : 'prop'}!=="undefined"){`);
 
         const stillUseUrl = attrs[propName + SAVE_URL_AS_ASSET];
         // function undefined object(null) string boolean number
@@ -264,7 +265,7 @@ const compileDeserialize = CC_SUPPORT_JIT ? (self, klass) => {
             }
         }
         else {
-            sources.push(`if(typeof ${CC_JSB ? '(prop)' : 'prop'}!=="object"){` +
+            sources.push(`if(typeof ${JSB ? '(prop)' : 'prop'}!=="object"){` +
                              'o' + accessorToSet + '=prop;' +
                          '}else{');
             compileObjectTypeJit(sources, defaultValue, accessorToSet, propNameLiteralToSet, false, stillUseUrl);
@@ -273,7 +274,7 @@ const compileDeserialize = CC_SUPPORT_JIT ? (self, klass) => {
         sources.push('}');
     }
     if (cc.js.isChildClassOf(klass, cc._BaseNode) || cc.js.isChildClassOf(klass, cc.Component)) {
-        if (CC_PREVIEW || (CC_EDITOR && self._ignoreEditorOnly)) {
+        if (PREVIEW || (EDITOR && self._ignoreEditorOnly)) {
             const mayUsedInPersistRoot = js.isChildClassOf(klass, cc.Node);
             if (mayUsedInPersistRoot) {
                 sources.push('d._id&&(o._id=d._id);');
@@ -394,7 +395,7 @@ const compileDeserialize = CC_SUPPORT_JIT ? (self, klass) => {
                             o,
                             prop,
                             propName,
-                            (CC_EDITOR || CC_TEST) ? (t && o) : null,
+                            (EDITOR || TEST) ? (t && o) : null,
                             advancedPropsUseUrl[i],
                         );
                     }
@@ -439,14 +440,14 @@ function _deserializeFireClass (self, obj, serialized, klass, target) {
     }
     else {
         deserialize = compileDeserialize(self, klass);
-        // if (CC_TEST && !isPhantomJS) {
+        // if (TEST && !isPhantomJS) {
         //     log(deserialize);
         // }
         js.value(klass, '__deserialize__', deserialize, true);
     }
     deserialize(self, obj, serialized, klass, target);
     // if preview or build worker
-    if (CC_PREVIEW || (CC_EDITOR && self._ignoreEditorOnly)) {
+    if (PREVIEW || (EDITOR && self._ignoreEditorOnly)) {
         if (klass === cc._PrefabInfo && !obj.sync) {
             unlinkUnusedPrefab(self, serialized, obj);
         }
@@ -503,7 +504,7 @@ class _Deserializer {
         this.deserializedList = [];
         this.deserializedData = null;
         this._classFinder = classFinder;
-        if (CC_DEV) {
+        if (DEV) {
             this._target = target;
             this._ignoreEditorOnly = ignoreEditorOnly;
         }
@@ -520,7 +521,7 @@ class _Deserializer {
             // deserialize
             for (let i = 0; i < refCount; i++) {
                 if (jsonArray[i]) {
-                    if (CC_EDITOR || CC_TEST) {
+                    if (EDITOR || TEST) {
                         const mainTarget = (i === 0 && this._target);
                         this.deserializedList[i] = this._deserializeObject(jsonArray[i], false, mainTarget, this.deserializedList, '' + i);
                     }
@@ -540,7 +541,7 @@ class _Deserializer {
         }
         else {
             this.deserializedList.length = 1;
-            if (CC_EDITOR || CC_TEST) {
+            if (EDITOR || TEST) {
                 this.deserializedData = jsonObj ? this._deserializeObject(jsonObj, false, this._target, this.deserializedList, '0') : null;
             }
             else {
@@ -596,7 +597,7 @@ class _Deserializer {
             const self = this;
             // @ts-ignore
             function deserializeByType () {
-                if ((CC_EDITOR || CC_TEST) && target) {
+                if ((EDITOR || TEST) && target) {
                     // use target
                     if ( !(target instanceof klass) ) {
                         warnID(5300, js.getClassName(target), klass);
@@ -633,7 +634,7 @@ class _Deserializer {
                 }
             }
 
-            if (CC_EDITOR && cc.js.isChildClassOf(klass, cc.Component)) {
+            if (EDITOR && cc.js.isChildClassOf(klass, cc.Component)) {
                 checkDeserializeByType();
             }
             else {
@@ -644,14 +645,14 @@ class _Deserializer {
 
             // embedded primitive javascript object
 
-            obj = ((CC_EDITOR || CC_TEST) && target) || {};
+            obj = ((EDITOR || TEST) && target) || {};
             this._deserializePrimitiveObject(obj, serialized);
         }
         else {
 
             // Array
 
-            if ((CC_EDITOR || CC_TEST) && target) {
+            if ((EDITOR || TEST) && target) {
                 target.length = serialized.length;
                 obj = target;
             }
@@ -662,7 +663,7 @@ class _Deserializer {
             for (let i = 0; i < serialized.length; i++) {
                 prop = serialized[i];
                 if (typeof prop === 'object' && prop) {
-                    if (CC_EDITOR || CC_TEST) {
+                    if (EDITOR || TEST) {
                         this._deserializeObjField(obj, prop, '' + i, target && obj, _stillUseUrl);
                     }
                     else {
@@ -695,7 +696,7 @@ class _Deserializer {
                 this.result.push(obj, propName, uuid, _stillUseUrl);
             }
             else {
-                if (CC_EDITOR || CC_TEST) {
+                if (EDITOR || TEST) {
                     obj[propName] = this._deserializeObject(jsonObj, _stillUseUrl, target && target[propName], obj, propName);
                 }
                 else {
@@ -728,7 +729,7 @@ class _Deserializer {
                 }
                 else {
                     if (prop) {
-                        if (CC_EDITOR || CC_TEST) {
+                        if (EDITOR || TEST) {
                             self._deserializeObjField(instance, prop, propName, self._target && instance);
                         }
                         else {
@@ -784,7 +785,7 @@ class _Deserializer {
             if (typeof value !== 'object') {
                 instance[propName] = value;
             } else if (value) {
-                if (CC_EDITOR || CC_TEST) {
+                if (EDITOR || TEST) {
                     this._deserializeObjField(instance, value, propName, this._target && instance);
                 } else {
                     this._deserializeObjField(instance, value, propName);
@@ -802,7 +803,7 @@ _Deserializer.pool = new js.Pool((obj: any) => {
     obj.deserializedList.length = 0;
     obj.deserializedData = null;
     obj._classFinder = null;
-    if (CC_DEV) {
+    if (DEV) {
         obj._target = null;
     }
     obj._idList.length = 0;
@@ -816,7 +817,7 @@ _Deserializer.pool.get = function (result, target, classFinder, customEnv, ignor
         cache.result = result;
         cache.customEnv = customEnv;
         cache._classFinder = classFinder;
-        if (CC_DEV) {
+        if (DEV) {
             cache._target = target;
             cache._ignoreEditorOnly = ignoreEditorOnly;
         }
@@ -849,7 +850,7 @@ function deserialize (data, details, options) {
     const classFinder = options.classFinder || js._getClassById;
     // 启用 createAssetRefs 后，如果有 url 属性则会被统一强制设置为 { uuid: 'xxx' }，必须后面再特殊处理
     const createAssetRefs = options.createAssetRefs || cc.sys.platform === cc.sys.EDITOR_CORE;
-    const target = (CC_EDITOR || CC_TEST) && options.target;
+    const target = (EDITOR || TEST) && options.target;
     const customEnv = options.customEnv;
     const ignoreEditorOnly = options.ignoreEditorOnly;
     
@@ -885,7 +886,7 @@ function deserialize (data, details, options) {
 }
 (deserialize as any).Details = Details;
 deserialize.reportMissingClass = (id) => {
-    if (CC_EDITOR && EditorExtends.UuidUtils.isUuid(id)) {
+    if (EDITOR && EditorExtends.UuidUtils.isUuid(id)) {
         id = EditorExtends.UuidUtils.decompressUuid(id);
         warnID(5301, id);
     }

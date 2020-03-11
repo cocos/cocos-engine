@@ -43,6 +43,7 @@ import Loader from './loader';
 import { LoadingItems } from './loading-items';
 import { Pipeline } from './pipeline';
 import ReleasedAssetChecker from './released-asset-checker';
+import { DEBUG, EDITOR, DEV } from 'internal:constants';
 
 const assetTables = Object.create(null);
 assetTables.assets = new AssetTable();
@@ -190,13 +191,13 @@ export class CCLoader extends Pipeline {
         // assets to release automatically
         this._autoReleaseSetting = createMap(true);
 
-        if (CC_DEBUG) {
+        if (DEBUG) {
             this._releasedAssetChecker_DEBUG = new ReleasedAssetChecker();
         }
     }
 
     public init (director) {
-        if (CC_DEBUG) {
+        if (DEBUG) {
             const self = this;
             director.on(cc.Director.EVENT_AFTER_UPDATE, () => {
                 self._releasedAssetChecker_DEBUG.checkCouldRelease(self._cache);
@@ -289,7 +290,7 @@ export class CCLoader extends Pipeline {
      * @param {Function} completeCallback - 当所有资源加载完毕后调用的回调函数
      */
     public load (resources, progressCallback, completeCallback?) {
-        if (CC_DEV && !resources) {
+        if (DEV && !resources) {
             return cc.error('[cc.loader.load] resources must be non-nil.');
         }
 
@@ -814,7 +815,7 @@ export class CCLoader extends Pipeline {
                     }
                     asset.destroy();
                 }
-                if (CC_DEBUG && removed) {
+                if (DEBUG && removed) {
                     this._releasedAssetChecker_DEBUG.setReleased(item, id);
                 }
             }
@@ -933,7 +934,7 @@ export class CCLoader extends Pipeline {
         if (key) {
             this._autoReleaseSetting[key] = !!autoRelease;
         }
-        else if (CC_DEV) {
+        else if (DEV) {
             cc.warnID(4902);
         }
     }
@@ -981,7 +982,7 @@ export class CCLoader extends Pipeline {
                 this._autoReleaseSetting[depend] = autoRelease;
             }
         }
-        else if (CC_DEV) {
+        else if (DEV) {
             cc.warnID(4902);
         }
     }
@@ -1015,7 +1016,7 @@ export class CCLoader extends Pipeline {
     public _getResUuid (url, type, mount, quiet) {
         mount = mount || 'assets';
         let uuid = '';
-        if (CC_EDITOR) {
+        if (EDITOR) {
             const info = EditorExtends.Asset.getAssetInfoFromUrl(`db://${mount}/resources/${url}`);
             uuid = info ? info.uuid : '';
         }
@@ -1176,7 +1177,7 @@ export class CCLoader extends Pipeline {
 
 export const loader = cc.loader = new CCLoader();
 
-if (CC_EDITOR) {
+if (EDITOR) {
     cc.loader.refreshUrl = function (uuid, oldUrl, newUrl) {
         let item = this._cache[uuid];
         if (item) {

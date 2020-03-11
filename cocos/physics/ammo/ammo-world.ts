@@ -16,6 +16,8 @@ import { AmmoCollisionFilterGroups } from './ammo-enum';
 
 const contactsPool = [] as any;
 const v3_0 = new Vec3();
+const v3_1 = new Vec3();
+
 export class AmmoWorld implements IPhysicsWorld {
 
     set allowSleep (v: boolean) { };
@@ -133,7 +135,11 @@ export class AmmoWorld implements IPhysicsWorld {
         this.allHitsCB.m_shapeParts.clear();
         this.allHitsCB.m_hitFractions.clear();
         this.allHitsCB.m_collisionObjects.clear();
-
+        // TODO: typing
+        const hp = (this.allHitsCB.m_hitPointWorld as any);
+        const hn = (this.allHitsCB.m_hitNormalWorld as any);
+        hp.clear();
+        hn.clear();
         this._world.rayTest(from, to, this.allHitsCB);
         if (this.allHitsCB.hasHit()) {
             for (let i = 0, n = this.allHitsCB.m_collisionObjects.size(); i < n; i++) {
@@ -143,13 +149,11 @@ export class AmmoWorld implements IPhysicsWorld {
                 const shared = AmmoInstance.bodyAndGhosts['KEY' + index];
                 // if (shared.wrappedShapes.length > shapeIndex) {
                 const shape = shared.wrappedShapes[shapeIndex];
-                const hitFraction = this.allHitsCB.m_hitFractions.at(i);
-                v3_0.x = from.x() + hitFraction * (to.x() - from.x());
-                v3_0.y = from.y() + hitFraction * (to.y() - from.y());
-                v3_0.z = from.z() + hitFraction * (to.z() - from.z());
+                ammo2CocosVec3(v3_0, hp.at(i));
+                ammo2CocosVec3(v3_1, hn.at(i));
                 const distance = Vec3.distance(worldRay.o, v3_0);
                 const r = pool.add();
-                r._assign(v3_0, distance, shape.collider);
+                r._assign(v3_0, distance, shape.collider, v3_1);
                 results.push(r);
                 // }
             }
@@ -181,8 +185,9 @@ export class AmmoWorld implements IPhysicsWorld {
             // if (shared.wrappedShapes.length > shapeIndex) {
             const shape = shared.wrappedShapes[shapeIndex];
             ammo2CocosVec3(v3_0, this.closeHitCB.m_hitPointWorld);
+            ammo2CocosVec3(v3_1, this.closeHitCB.m_hitNormalWorld);
             const distance = Vec3.distance(worldRay.o, v3_0);
-            result._assign(v3_0, distance, shape.collider);
+            result._assign(v3_0, distance, shape.collider, v3_1);
             return true;
             // }
         }

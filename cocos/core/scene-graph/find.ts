@@ -29,6 +29,7 @@
 
 import { warnID } from '../platform/debug';
 import { Node } from './node';
+import { DEV } from 'internal:constants';
 
 /**
  * Finds a node by hierarchy path, the path is case-sensitive.
@@ -40,16 +41,16 @@ export function find (path: string, referenceNode?: Node): Node | null {
     if (!referenceNode) {
         const scene = cc.director.getScene();
         if (!scene) {
-            if (CC_DEV) {
+            if (DEV) {
                 warnID(5601);
             }
             return null;
-        } else if (CC_DEV && !scene.isValid) {
+        } else if (DEV && !scene.isValid) {
             warnID(5602);
             return null;
         }
         referenceNode = scene;
-    } else if (CC_DEV && !referenceNode.isValid) {
+    } else if (DEV && !referenceNode.isValid) {
         warnID(5603);
         return null;
     }

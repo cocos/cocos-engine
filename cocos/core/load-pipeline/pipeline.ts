@@ -30,6 +30,7 @@
 
 import {createMap} from '../utils/js';
 import { LoadingItems, IItem } from './loading-items';
+import { EDITOR } from 'internal:constants';
 const ItemState = LoadingItems.ItemState;
 
 export interface IPipe {
@@ -390,7 +391,7 @@ export class Pipeline {
         let removed = this._cache[id];
         if (removed && removed.complete) {
             delete this._cache[id];
-            if (CC_EDITOR) {
+            if (EDITOR) {
                 let references = removed.references;
                 if (references) {
                     let dependListener = cc.AssetLibrary.dependListener;

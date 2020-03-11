@@ -35,6 +35,7 @@ import { Mat4, Rect, Size, Vec2, Vec3 } from '../../math';
 import { aabb } from '../../geometry';
 import { CanvasComponent } from './canvas-component';
 import { Node } from '../../scene-graph';
+import { EDITOR } from 'internal:constants';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
@@ -77,12 +78,12 @@ export class UITransformComponent extends Component {
         }
 
         let clone: Size;
-        if (CC_EDITOR) {
+        if (EDITOR) {
             clone = new Size(this._contentSize);
         }
 
         this._contentSize.set(value);
-        if (CC_EDITOR) {
+        if (EDITOR) {
             // @ts-ignore
             this.node.emit(SystemEventType.SIZE_CHANGED, clone);
         } else {
@@ -101,12 +102,12 @@ export class UITransformComponent extends Component {
         }
 
         let clone: Size;
-        if (CC_EDITOR) {
+        if (EDITOR) {
             clone = new Size(this._contentSize);
         }
 
         this._contentSize.width = value;
-        if (CC_EDITOR) {
+        if (EDITOR) {
             // @ts-ignore
             this.node.emit(SystemEventType.SIZE_CHANGED, clone);
         } else {
@@ -124,12 +125,12 @@ export class UITransformComponent extends Component {
         }
 
         let clone: Size;
-        if (CC_EDITOR) {
+        if (EDITOR) {
             clone = new Size(this._contentSize);
         }
 
         this._contentSize.height = value;
-        if (CC_EDITOR) {
+        if (EDITOR) {
             // @ts-ignore
             this.node.emit(SystemEventType.SIZE_CHANGED, clone);
         } else {
@@ -288,7 +289,7 @@ export class UITransformComponent extends Component {
                 return;
             }
 
-            if (CC_EDITOR) {
+            if (EDITOR) {
                 clone = new Size(this._contentSize);
             }
 
@@ -299,7 +300,7 @@ export class UITransformComponent extends Component {
                 return;
             }
 
-            if (CC_EDITOR) {
+            if (EDITOR) {
                 clone = new Size(this._contentSize);
             }
 
@@ -307,7 +308,7 @@ export class UITransformComponent extends Component {
             locContentSize.height = height;
         }
 
-        if (CC_EDITOR) {
+        if (EDITOR) {
             // @ts-ignore
             this.node.emit(SystemEventType.SIZE_CHANGED, clone);
         } else {

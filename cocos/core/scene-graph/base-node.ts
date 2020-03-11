@@ -38,6 +38,7 @@ import IdGenerator from '../utils/id-generator';
 import * as js from '../utils/js';
 import { baseNodePolyfill } from './base-node-dev';
 import { NodeEventProcessor } from './node-event-processor';
+import { DEV, DEBUG, EDITOR } from 'internal:constants';
 
 /**
  *
@@ -140,7 +141,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         return this._name;
     }
     set name (value) {
-        if (CC_DEV && value.indexOf('/') !== -1) {
+        if (DEV && value.indexOf('/') !== -1) {
             errorID(1632);
             return;
         }
@@ -387,7 +388,7 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     protected _siblingIndex: number = 0;
 
-    protected _registerIfAttached = !CC_EDITOR ? undefined : function (this: BaseNode, register) {
+    protected _registerIfAttached = !EDITOR ? undefined : function (this: BaseNode, register) {
         if (EditorExtends.Node && EditorExtends.Component) {
             if (register) {
                 EditorExtends.Node.add(this._id, this);
@@ -468,7 +469,7 @@ export class BaseNode extends CCObject implements ISchedulable {
             return;
         }
         const oldParent = this._parent;
-        if (CC_DEBUG && oldParent &&
+        if (DEBUG && oldParent &&
             // Change parent when old parent desactivating or activating
             (oldParent._objFlags & ChangingState)) {
             errorID(3821);
@@ -485,7 +486,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         }
 
         if (value) {
-            if (CC_DEBUG && (value._objFlags & Deactivating)) {
+            if (DEBUG && (value._objFlags & Deactivating)) {
                 errorID(3821);
             }
             value._children.push(this);
@@ -497,7 +498,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         if (oldParent) {
             if (!(oldParent._objFlags & Destroying)) {
                 const removeAt = oldParent._children.indexOf(this);
-                if (CC_DEV && removeAt < 0) {
+                if (DEV && removeAt < 0) {
                     return errorID(1633);
                 }
                 oldParent._children.splice(removeAt, 1);
@@ -590,7 +591,7 @@ export class BaseNode extends CCObject implements ISchedulable {
 
     public addChild (child: this): void {
 
-        if (CC_DEV && !(child instanceof cc._BaseNode)) {
+        if (DEV && !(child instanceof cc._BaseNode)) {
             return errorID(1634, cc.js.getClassName(child));
         }
         cc.assertID(child, 1606);
@@ -1000,7 +1001,7 @@ export class BaseNode extends CCObject implements ISchedulable {
     public addComponent (className: string): Component | null;
 
     public addComponent (typeOrClassName: string | Function) {
-        if (CC_EDITOR && (this._objFlags & Destroying)) {
+        if (EDITOR && (this._objFlags & Destroying)) {
             cc.error('isDestroying');
             return null;
         }
@@ -1036,7 +1037,7 @@ export class BaseNode extends CCObject implements ISchedulable {
             return null;
         }
 
-        if (CC_EDITOR && constructor._disallowMultiple) {
+        if (EDITOR && constructor._disallowMultiple) {
             if (!this._checkMultipleComp!(constructor)) {
                 return null;
             }
@@ -1055,7 +1056,7 @@ export class BaseNode extends CCObject implements ISchedulable {
 
         //// check conflict
         //
-        // if (CC_EDITOR && !_Scene.DetectConflict.beforeAddComponent(this, constructor)) {
+        // if (EDITOR && !_Scene.DetectConflict.beforeAddComponent(this, constructor)) {
         //    return null;
         // }
 
@@ -1064,7 +1065,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         const component = new constructor();
         component.node = this;
         this._components.push(component);
-        if (CC_EDITOR && EditorExtends.Node && EditorExtends.Component) {
+        if (EDITOR && EditorExtends.Node && EditorExtends.Component) {
             const node = EditorExtends.Node.getNode(this._id);
             if (node) {
                 EditorExtends.Component.add(component._id, component);
@@ -1220,7 +1221,7 @@ export class BaseNode extends CCObject implements ISchedulable {
             const i = this._components.indexOf(component);
             if (i !== -1) {
                 this._components.splice(i, 1);
-                if (CC_EDITOR && EditorExtends.Component) {
+                if (EDITOR && EditorExtends.Component) {
                     EditorExtends.Component.remove(component._id);
                 }
             }
@@ -1278,7 +1279,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         }
 
         const thisPrefabInfo = this._prefab;
-        if (CC_EDITOR && thisPrefabInfo) {
+        if (EDITOR && thisPrefabInfo) {
             if (this !== thisPrefabInfo.root) {}
         }
         const syncing = thisPrefabInfo && this === thisPrefabInfo.root && thisPrefabInfo.sync;
@@ -1286,7 +1287,7 @@ export class BaseNode extends CCObject implements ISchedulable {
             // if (thisPrefabInfo._synced) {
             //    return clone;
             // }
-        } else if (CC_EDITOR && cc.engine._isPlaying) {
+        } else if (EDITOR && cc.engine._isPlaying) {
             cloned._name += ' (Clone)';
         }
 
@@ -1301,12 +1302,12 @@ export class BaseNode extends CCObject implements ISchedulable {
         const newParent = this._parent;
         if (this._persistNode && !(newParent instanceof cc.Scene)) {
             cc.game.removePersistRootNode(this);
-            if (CC_EDITOR) {
+            if (EDITOR) {
                 warnID(1623);
             }
         }
 
-        if (CC_EDITOR) {
+        if (EDITOR) {
             const scene = cc.director.getScene() as this | null;
             const inCurrentSceneBefore = oldParent && oldParent.isChildOf(scene);
             const inCurrentSceneNow = newParent && newParent.isChildOf(scene);
@@ -1335,7 +1336,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         // detach self and children from editor
         const parent = this._parent;
         const destroyByParent: boolean = (!!parent) && ((parent._objFlags & Destroying) !== 0);
-        if (!destroyByParent && CC_EDITOR) {
+        if (!destroyByParent && EDITOR) {
             this._registerIfAttached!(false);
         }
 

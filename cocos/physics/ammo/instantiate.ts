@@ -4,8 +4,9 @@ import { AmmoWorld } from '../ammo/ammo-world';
 import { AmmoBoxShape } from '../ammo/shapes/ammo-box-shape';
 import { AmmoSphereShape } from '../ammo/shapes/ammo-sphere-shape';
 import { AmmoCapsuleShape } from '../ammo/shapes/ammo-capsule-shape';
+import { PHYSICS_AMMO } from 'internal:constants';
 
-if (CC_PHYSICS_AMMO) {
+if (PHYSICS_AMMO) {
     instantiate(
         AmmoBoxShape,
         AmmoSphereShape,

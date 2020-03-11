@@ -4,6 +4,7 @@
 
 import { System, Director, director } from "../core";
 import { ActionManager } from "./actions/action-manager";
+import { EDITOR } from 'internal:constants';
 
 export class TweenSystem extends System {
     static readonly ID = 'tween';
@@ -17,7 +18,7 @@ export class TweenSystem extends System {
     private readonly actionMgr = new ActionManager();
 
     postUpdate (dt: number) {
-        if (!CC_EDITOR || this._executeInEditMode) {
+        if (!EDITOR || this._executeInEditMode) {
             this.actionMgr.update(dt);
         }
     }

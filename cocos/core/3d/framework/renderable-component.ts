@@ -9,6 +9,7 @@ import { ccclass, property } from '../../data/class-decorator';
 import { IMaterialInstanceInfo, MaterialInstance } from '../../renderer/core/material-instance';
 import { Model } from '../../renderer/scene/model';
 import { Layers } from '../../scene-graph/layers';
+import { EDITOR } from 'internal:constants';
 
 const _matInsInfo: IMaterialInstanceInfo = {
     parent: null!,
@@ -42,7 +43,7 @@ export class RenderableComponent extends Component {
     })
     get sharedMaterials () {
         // if we don't create an array copy, the editor will modify the original array directly.
-        return CC_EDITOR && this._materials.slice() || this._materials;
+        return EDITOR && this._materials.slice() || this._materials;
     }
 
     set sharedMaterials (val) {

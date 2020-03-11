@@ -16,6 +16,7 @@ import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { ComponentPath, HierarchyPath, TargetPath } from './target-path';
 import { WrapMode as AnimationWrapMode } from './types';
 import { IValueProxyFactory } from './value-proxy';
+import { EDITOR } from 'internal:constants';
 
 export interface IObjectCurveData {
     [propertyName: string]: IPropertyCurveData;
@@ -353,7 +354,7 @@ export class AnimationClip extends Asset {
     }
 
     protected _createRuntimeEvents () {
-        if (CC_EDITOR) {
+        if (EDITOR) {
             return;
         }
 

@@ -36,6 +36,7 @@ import { ccenum } from '../../core/value-types/enum';
 import { clamp } from '../../core/math/utils';
 import { UI } from '../../core/renderer/ui/ui';
 import { UIRenderComponent, InstanceMaterialType } from '../../core/components/ui-base/ui-render-component';
+import { EDITOR } from 'internal:constants';
 
 /**
  * @en
@@ -224,7 +225,7 @@ export class SpriteComponent extends UIRenderComponent {
         // render & update render data flag will be triggered while applying new sprite frame
         this.markForUpdateRenderData(false);
         this._applySpriteFrame(lastSprite);
-        if (CC_EDITOR) {
+        if (EDITOR) {
             // @ts-ignore
             this.node.emit(EventType.SPRITE_FRAME_CHANGED, this);
         }
@@ -494,7 +495,7 @@ export class SpriteComponent extends UIRenderComponent {
             super.__preload();
         }
 
-        if (CC_EDITOR) {
+        if (EDITOR) {
             this._resized();
             this.node.on(SystemEventType.SIZE_CHANGED, this._resized, this);
         }
@@ -533,7 +534,7 @@ export class SpriteComponent extends UIRenderComponent {
     public onDestroy () {
         super.onDestroy();
         this.destroyRenderData();
-        if (CC_EDITOR) {
+        if (EDITOR) {
             this.node.off(SystemEventType.SIZE_CHANGED, this._resized, this);
         }
 
@@ -622,7 +623,7 @@ export class SpriteComponent extends UIRenderComponent {
     }
 
     private _resized () {
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             return;
         }
 
@@ -684,7 +685,7 @@ export class SpriteComponent extends UIRenderComponent {
     }
 /*
     private _applyAtlas (spriteFrame: SpriteFrame | null) {
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             return;
         }
         // Set atlas
@@ -752,7 +753,7 @@ export class SpriteComponent extends UIRenderComponent {
             }
         }
 /*
-        if (CC_EDITOR) {
+        if (EDITOR) {
             // Set atlas
             this._applyAtlas(spriteFrame);
         }

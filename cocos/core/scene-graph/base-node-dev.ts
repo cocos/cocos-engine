@@ -29,12 +29,13 @@
 
 import { CCObject } from '../data/object';
 import * as js from '../utils/js';
+import { EDITOR, DEV, TEST } from 'internal:constants';
 
 // @ts-ignore
 const Destroying = CCObject.Flags.Destroying;
 
 export function baseNodePolyfill (BaseNode) {
-    if (CC_EDITOR) {
+    if (EDITOR) {
         BaseNode.prototype._checkMultipleComp = function (ctor) {
             const existing = this.getComponent(ctor._disallowMultiple);
             if (existing) {
@@ -89,7 +90,7 @@ export function baseNodePolyfill (BaseNode) {
 
             comp.node = this;
             this._components.splice(index, 0, comp);
-            if ((CC_EDITOR || CC_TEST) && cc.engine && (this._id in cc.engine.attachedObjsForEditor)) {
+            if ((EDITOR || TEST) && cc.engine && (this._id in cc.engine.attachedObjsForEditor)) {
                 cc.engine.attachedObjsForEditor[comp._id] = comp;
             }
             if (this._activeInHierarchy) {
@@ -137,7 +138,7 @@ export function baseNodePolyfill (BaseNode) {
         BaseNode.prototype._onRestoreBase = BaseNode.prototype.onRestore;
     }
 
-    if (CC_EDITOR || CC_TEST) {
+    if (EDITOR || TEST) {
         BaseNode.prototype._registerIfAttached = function (register) {
             const attachedObjsForEditor = cc.engine.attachedObjsForEditor;
             if (register) {
@@ -167,7 +168,7 @@ export function baseNodePolyfill (BaseNode) {
         };
     }
 
-    if (CC_DEV) {
+    if (DEV) {
         // promote debug info
         js.get(BaseNode.prototype, ' INFO ', function () {
             let path = '';

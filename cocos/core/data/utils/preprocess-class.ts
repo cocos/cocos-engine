@@ -27,6 +27,7 @@
 import { error, errorID, warn, warnID } from '../../platform/debug';
 import * as js from '../../utils/js';
 import { PrimitiveType } from './attribute';
+import { DEV, EDITOR, TEST } from 'internal:constants';
 
 // 增加预处理属性这个步骤的目的是降低 CCClass 的实现难度，将比较稳定的通用逻辑和一些需求比较灵活的属性需求分隔开。
 
@@ -40,7 +41,7 @@ const SerializableAttrs = {
     formerlySerializedAs: {},
 };
 
-const TYPO_TO_CORRECT_DEV = CC_DEV && {
+const TYPO_TO_CORRECT_DEV = DEV && {
     extend: 'extends',
     property: 'properties',
     static: 'statics',
@@ -52,7 +53,7 @@ const TYPO_TO_CORRECT_DEV = CC_DEV && {
  */
 function parseNotify (val, propName, notify, properties) {
     if (val.get || val.set) {
-        if (CC_DEV) {
+        if (DEV) {
             warnID(5500);
         }
         return;
@@ -85,7 +86,7 @@ function parseNotify (val, propName, notify, properties) {
             }
         }
     }
-    else if (CC_DEV) {
+    else if (DEV) {
         warnID(5501);
     }
 }
@@ -98,11 +99,11 @@ function checkUrl (val, className, propName, url) {
         if (url.length > 0) {
             url = url[0];
         }
-        else if (CC_EDITOR) {
+        else if (EDITOR) {
             return errorID(5502, className, propName);
         }
     }
-    if (CC_EDITOR) {
+    if (EDITOR) {
         if (url == null) {
             return warnID(5503, className, propName);
         }
@@ -147,7 +148,7 @@ function checkUrl (val, className, propName, url) {
  */
 function parseType (val, type, className, propName) {
     if (Array.isArray(type)) {
-        if ((CC_EDITOR || CC_TEST) && 'default' in val) {
+        if ((EDITOR || TEST) && 'default' in val) {
             if (!cc.Class.isArray(val.default)) {
                 warnID(5507, className, propName);
             }
@@ -164,7 +165,7 @@ function parseType (val, type, className, propName) {
             return errorID(5508, className, propName);
         }
     }
-    if (CC_EDITOR || CC_TEST) {
+    if (EDITOR || TEST) {
         if (typeof type === 'function') {
             if (cc.RawAsset.isRawAssetType(type)) {
                 warnID(5509, className, propName, js.getClassName(type));
@@ -204,7 +205,7 @@ function parseType (val, type, className, propName) {
 }
 
 function postCheckType (val, type, className, propName) {
-    if (CC_EDITOR && typeof type === 'function') {
+    if (EDITOR && typeof type === 'function') {
         if (cc.Class._isCCClass(type) && val.serializable !== false && !js._getClassId(type, false)) {
             warnID(5512, className, propName, className, propName);
         }
@@ -212,7 +213,7 @@ function postCheckType (val, type, className, propName) {
 }
 
 function getBaseClassWherePropertyDefined_DEV (propName, cls) {
-    if (CC_DEV) {
+    if (DEV) {
         let res;
         for (; cls && cls.__props__ && cls.__props__.indexOf(propName) !== -1; cls = cls.$super) {
             res = cls;
@@ -274,7 +275,7 @@ export function preprocessAttrs (properties, className, cls, es6) {
             val = properties[propName] = fullForm;
         }
         if (val) {
-            if (CC_EDITOR) {
+            if (EDITOR) {
                 if ('default' in val) {
                     if (val.get) {
                         errorID(5513, className, propName);
@@ -294,14 +295,14 @@ export function preprocessAttrs (properties, className, cls, es6) {
                     }
                 }
             }
-            if (CC_DEV && !val.override && cls.__props__.indexOf(propName) !== -1) {
+            if (DEV && !val.override && cls.__props__.indexOf(propName) !== -1) {
                 // check override
                 const baseClass = js.getClassName(getBaseClassWherePropertyDefined_DEV(propName, cls));
                 warnID(5517, className, propName, baseClass, propName);
             }
             const notify = val.notify;
             if (notify) {
-                if (CC_DEV && es6) {
+                if (DEV && es6) {
                     error('not yet support notify attribute for ES6 Classes');
                 }
                 else {
@@ -342,17 +343,17 @@ export function doValidateMethodWithProps_DEV (func, funcName, className, cls, b
 }
 
 export function validateMethodWithProps (func, funcName, className, cls, base) {
-    if (CC_DEV && funcName === 'constructor') {
+    if (DEV && funcName === 'constructor') {
         errorID(3643, className);
         return false;
     }
     if (typeof func === 'function' || func === null) {
-        if (CC_DEV) {
+        if (DEV) {
             doValidateMethodWithProps_DEV(func, funcName, className, cls, base);
         }
     }
     else {
-        if (CC_DEV) {
+        if (DEV) {
             if (func === false && base && base.prototype) {
                 // check override
                 const overrided = base.prototype[funcName];

@@ -13,6 +13,7 @@ import { Vec3 } from '../../../../core/math';
 import { createBoxShape } from '../../instance';
 import { ColliderComponent } from './collider-component';
 import { IBoxShape } from '../../../spec/i-physics-shape';
+import { EDITOR, TEST } from 'internal:constants';
 
 /**
  * @zh
@@ -42,7 +43,7 @@ export class BoxColliderComponent extends ColliderComponent {
 
     public set size (value) {
         Vec3.copy(this._size, value);
-        if (!CC_EDITOR && !CC_TEST) {
+        if (!EDITOR && !TEST) {
             this.boxShape.size = this._size;
         }
     }
@@ -58,7 +59,7 @@ export class BoxColliderComponent extends ColliderComponent {
 
     constructor () {
         super();
-        if (!CC_EDITOR && !CC_TEST) {
+        if (!EDITOR && !TEST) {
             this._shape = createBoxShape(this._size);
         }
     }
