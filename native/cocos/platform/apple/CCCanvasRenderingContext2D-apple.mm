@@ -373,8 +373,8 @@ enum class CanvasTextBaseline {
     [_tokenAttributesDict setObject:[NSColor colorWithRed:_strokeStyle[0]
                                                     green:_strokeStyle[1]
                                                      blue:_strokeStyle[2]
-                                                    alpha:_strokeStyle[3]
-                          forKey:NSStrokeColorAttributeName] ];
+                                                    alpha:_strokeStyle[3]]
+                             forKey:NSStrokeColorAttributeName];
 
     [self saveContext];
 
