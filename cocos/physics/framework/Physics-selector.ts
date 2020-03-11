@@ -1,47 +1,32 @@
 /**
  * @hidden
  */
+import { IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape } from './../spec/i-physics-shape';
+import { IRigidBody } from '../spec/i-rigid-body';
+import { IPhysicsWorld } from '../spec/i-physics-world';
 
-// Cannon
-import { CannonRigidBody } from '../cannon/cannon-rigid-body';
-import { CannonWorld } from '../cannon/cannon-world';
-import { CannonBoxShape } from '../cannon/shapes/cannon-box-shape';
-import { CannonSphereShape } from '../cannon/shapes/cannon-sphere-shape';
-import { CannonTrimeshShape } from '../cannon/shapes/cannon-trimesh-shape';
+export let PhysicsWorld: IPhysicsWorld;
+export let RigidBody: IRigidBody;
 
-// built-in
-import { BuiltInWorld } from '../cocos/builtin-world';
-import { BuiltinBoxShape } from '../cocos/shapes/builtin-box-shape';
-import { BuiltinSphereShape } from '../cocos/shapes/builtin-sphere-shape';
-import { BuiltinCapsuleShape } from '../cocos/shapes/builtin-capsule-shape';
+export let BoxShape: IBoxShape;
+export let SphereShape: ISphereShape;
+export let CapsuleShape: ICapsuleShape;
+export let TrimeshShape: ITrimeshShape;
 
-// Ammo
-import { AmmoRigidBody } from '../ammo/ammo-rigid-body';
-import { AmmoWorld } from '../ammo/ammo-world';
-import { AmmoBoxShape } from '../ammo/shapes/ammo-box-shape';
-import { AmmoSphereShape } from '../ammo/shapes/ammo-sphere-shape';
-import { AmmoCapsuleShape } from '../ammo/shapes/ammo-capsule-shape';
-import { AmmoBvhTriangleMeshShape } from '../ammo/shapes/ammo-bvh-triangle-mesh-shape';
+export interface IPhysicsWrapperObject {
+    world: any,
+    body?: any,
+    box: any,
+    sphere: any,
+    capsule?: any,
+    trimesh?: any,
+}
 
-export let BoxShape: typeof CannonBoxShape | typeof BuiltinBoxShape | typeof AmmoBoxShape;
-export let SphereShape: typeof CannonSphereShape | typeof BuiltinSphereShape | typeof AmmoSphereShape;
-export let RigidBody: typeof CannonRigidBody | null | typeof AmmoRigidBody;
-export let PhysicsWorld: typeof CannonWorld | typeof BuiltInWorld | typeof AmmoWorld;
-export let CapsuleShape: typeof BuiltinCapsuleShape | typeof AmmoCapsuleShape;
-export let TrimeshShape: typeof CannonTrimeshShape | typeof AmmoBvhTriangleMeshShape;
-
-export function instantiate (
-    boxShape: typeof BoxShape,
-    sphereShape: typeof SphereShape,
-    body: typeof RigidBody,
-    world: typeof PhysicsWorld,
-    capsuleShape?: typeof CapsuleShape,
-    trimeshShape?: typeof TrimeshShape
-) {
-    BoxShape = boxShape;
-    SphereShape = sphereShape;
-    RigidBody = body;
-    PhysicsWorld = world;
-    if (capsuleShape) { CapsuleShape = capsuleShape; }
-    if (trimeshShape) { TrimeshShape = trimeshShape; }
+export function instantiate (obj: IPhysicsWrapperObject) {
+    BoxShape = obj.box;
+    SphereShape = obj.sphere;
+    RigidBody = obj.body;
+    PhysicsWorld = obj.world;
+    if (obj.capsule) { CapsuleShape = obj.capsule; }
+    if (obj.trimesh) { TrimeshShape = obj.trimesh; }
 }

@@ -8,12 +8,11 @@ import { CannonSphereShape } from './shapes/cannon-sphere-shape';
 import { CannonTrimeshShape } from './shapes/cannon-trimesh-shape';
 
 if (PHYSICS_CANNON) {
-    instantiate(
-        CannonBoxShape,
-        CannonSphereShape,
-        CannonRigidBody,
-        CannonWorld,
-        undefined,
-        CannonTrimeshShape
-    );
+    instantiate({
+        box: CannonBoxShape,
+        sphere: CannonSphereShape,
+        body: CannonRigidBody,
+        world: CannonWorld,
+        trimesh: CannonTrimeshShape
+    });
 }

@@ -8,12 +8,12 @@ import { AmmoCapsuleShape } from '../ammo/shapes/ammo-capsule-shape';
 import { AmmoBvhTriangleMeshShape } from '../ammo/shapes/ammo-bvh-triangle-mesh-shape';
 
 if (PHYSICS_AMMO) {
-    instantiate(
-        AmmoBoxShape,
-        AmmoSphereShape,
-        AmmoRigidBody,
-        AmmoWorld,
-        AmmoCapsuleShape,
-        AmmoBvhTriangleMeshShape
-    );
+    instantiate({
+        box: AmmoBoxShape,
+        sphere: AmmoSphereShape,
+        body: AmmoRigidBody,
+        world: AmmoWorld,
+        capsule: AmmoCapsuleShape,
+        trimesh: AmmoBvhTriangleMeshShape
+    });
 }

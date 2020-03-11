@@ -11,10 +11,11 @@ import { PHYSICS_BUILTIN } from 'internal:constants';
 
 if (PHYSICS_BUILTIN) {
     instantiate(
-        BuiltinBoxShape,
-        BuiltinSphereShape,
-        null,
-        BuiltInWorld,
-        BuiltinCapsuleShape
+        {
+            box: BuiltinBoxShape,
+            sphere: BuiltinSphereShape,
+            world: BuiltInWorld,
+            capsule: BuiltinCapsuleShape
+        }
     );
 }
