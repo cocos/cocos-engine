@@ -33,7 +33,7 @@ export class CannonShape implements IBaseShape {
 
     get sharedBody (): CannonSharedBody { return this._sharedBody; }
 
-    set material (mat: PhysicMaterial) {
+    setMaterial (mat: PhysicMaterial | null) {
         if (mat == null) {
             (this._shape!.material as unknown) = null;
         } else {
@@ -47,14 +47,14 @@ export class CannonShape implements IBaseShape {
         }
     }
 
-    set isTrigger (v: boolean) {
+    setIsTrigger (v: boolean) {
         this._shape.collisionResponse = !v;
         if (this._index >= 0) {
             this._body.updateHasTrigger();
         }
     }
 
-    set center (v: IVec3Like) {
+    setCenter (v: IVec3Like) {
         const lpos = this._offset as IVec3Like;
         Vec3.copy(lpos, v);
         Vec3.multiply(lpos, lpos, this._collider.node.worldScale);
@@ -90,8 +90,8 @@ export class CannonShape implements IBaseShape {
     onComponentSet () { }
 
     onLoad () {
-        this.center = this._collider.center;
-        this.isTrigger = this._collider.isTrigger;
+        this.setCenter(this._collider.center);
+        this.setIsTrigger(this._collider.isTrigger);
     }
 
     onEnable () {
@@ -157,7 +157,7 @@ export class CannonShape implements IBaseShape {
      * @param scale 
      */
     setScale (scale: IVec3Like) {
-        this.center = this._collider.center;
+        this.setCenter(this._collider.center);
     }
 
     setIndex (index: number) {
@@ -178,14 +178,6 @@ export class CannonShape implements IBaseShape {
             TriggerEventObject.selfCollider = self.collider;
             TriggerEventObject.otherCollider = other ? other.collider : null;
             this._collider.emit(TriggerEventObject.type, TriggerEventObject);
-
-            // if (self.collider.node.hasChangedFlags) {
-            //     self.sharedBody.syncSceneToPhysics();
-            // }
-
-            // if (other.collider.node.hasChangedFlags) {
-            //     other.sharedBody.syncSceneToPhysics();
-            // }
         }
     }
 }

@@ -13,8 +13,8 @@ const v3_0 = new Vec3();
 
 export class AmmoShape implements IBaseShape {
 
-    set material (v: PhysicMaterial) {
-        if (!this._isTrigger && this._isEnabled) {
+    setMaterial (v: PhysicMaterial | null) {
+        if (!this._isTrigger && this._isEnabled && v) {
             if (this._btCompound) {
                 const rollingFriction = 0.1;
                 this._btCompound.setMaterial(this._index, v.friction, v.restitution, rollingFriction);
@@ -25,7 +25,7 @@ export class AmmoShape implements IBaseShape {
         }
     }
 
-    set center (v: IVec3Like) {
+    setCenter (v: IVec3Like) {
         Vec3.copy(v3_0, v);
         v3_0.multiply(this._collider.node.worldScale);
         cocos2AmmoVec3(this.transform.getOrigin(), v3_0);
@@ -34,7 +34,7 @@ export class AmmoShape implements IBaseShape {
         }
     }
 
-    set isTrigger (v: boolean) {
+    setIsTrigger (v: boolean) {
         if (this._isTrigger == v)
             return;
 
@@ -98,15 +98,15 @@ export class AmmoShape implements IBaseShape {
     onComponentSet () { }
 
     onLoad () {
-        this.center = this._collider.center;
-        this.isTrigger = this._collider.isTrigger;
+        this.setCenter(this._collider.center);
+        this.setIsTrigger(this._collider.isTrigger);
     }
 
     onEnable () {
         this._isEnabled = true;
         this._sharedBody.addShape(this, this._isTrigger);
 
-        this.material = this.collider.sharedMaterial!;
+        this.setMaterial(this.collider.sharedMaterial);
     }
 
     onDisable () {
@@ -188,7 +188,7 @@ export class AmmoShape implements IBaseShape {
     }
 
     updateScale () {
-        this.center = this._collider.center;
+        this.setCenter(this._collider.center);
     }
 
     /**DEBUG */

@@ -28,9 +28,9 @@ const TriggerEventObject = {
  * not a full physical simulator
  */
 export class BuiltInWorld implements IPhysicsWorld {
-    set gravity (v: IVec3Like) { }
-    set allowSleep (v: boolean) { }
-    set defaultMaterial (v: PhysicMaterial) { }
+    setGravity (v: IVec3Like) { }
+    setAllowSleep (v: boolean) { }
+    setDefaultMaterial (v: PhysicMaterial) { }
 
     shapeArr: BuiltinShape[] = [];
     readonly bodies: BuiltinSharedBody[] = [];

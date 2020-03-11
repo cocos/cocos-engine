@@ -23,7 +23,7 @@ export class CannonBoxShape extends CannonShape implements IBoxShape {
         this._shape = new CANNON.Box(this.halfExtent.clone());
     }
 
-    set size (v: IVec3Like) {
+    setSize (v: IVec3Like) {
         Vec3.multiplyScalar(this.halfExtent, v, 0.5);
         Vec3.multiply(this.shape.halfExtents, this.halfExtent, this.collider.node.worldScale);
         this.shape.updateConvexPolyhedronRepresentation();
@@ -34,11 +34,11 @@ export class CannonBoxShape extends CannonShape implements IBoxShape {
 
     onLoad () {
         super.onLoad();
-        this.size = this.collider.size;
+        this.setSize(this.collider.size);
     }
 
     setScale (scale: Vec3): void {
         super.setScale(scale);
-        this.size = this.collider.size;
+        this.setSize(this.collider.size);
     }
 }

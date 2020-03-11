@@ -48,18 +48,8 @@ export class CapsuleColliderComponent extends ColliderComponent {
         if (value < 0) value = 0;
 
         this._radius = value;
-
-        /** Recalculated height */
-        const doubleR = this._radius * 2
-        if (this._height < doubleR) {
-            this._height = doubleR;
-            // if (!EDITOR) {
-            //     this.capsuleShape.height = this._height;
-            // }
-        }
-
         if (!EDITOR && !TEST) {
-            this.shape.radius = this._radius;
+            this.shape.setRadius(value);
         }
     }
 
@@ -75,13 +65,11 @@ export class CapsuleColliderComponent extends ColliderComponent {
     }
 
     public set height (value) {
-        if (value < this._radius * 2) {
-            value = this._radius * 2
-        }
+        if (value < this._radius * 2) { value = this._radius * 2 }
 
         this._height = value;
         if (!EDITOR && !TEST) {
-            this.shape.height = this._height;
+            this.shape.setHeight(value);
         }
     }
 
@@ -92,6 +80,9 @@ export class CapsuleColliderComponent extends ColliderComponent {
 
     public set direction (value: ECapsuleDirection) {
         this._direction = value;
+        if (!EDITOR && !TEST) {
+            this.shape.setDirection(value);
+        }
     }
 
     public get shape () {

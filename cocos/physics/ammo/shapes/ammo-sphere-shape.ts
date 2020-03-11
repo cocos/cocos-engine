@@ -10,7 +10,7 @@ const v3_0 = new Vec3();
 
 export class AmmoSphereShape extends AmmoShape implements ISphereShape {
 
-    public set radius (radius: number) {
+    setRadius (radius: number) {
         const ws = this._collider.node.worldScale;
         const max_sp = Math.abs(Math.max(Math.max(ws.x, ws.y), ws.z));
         v3_0.set(radius, radius, radius);
@@ -22,11 +22,11 @@ export class AmmoSphereShape extends AmmoShape implements ISphereShape {
         }
     }
 
-    public get shape () {
+    get shape () {
         return this._btShape as Ammo.btSphereShape;
     }
 
-    public get collider () {
+    get collider () {
         return this._collider as SphereColliderComponent;
     }
 
@@ -37,11 +37,11 @@ export class AmmoSphereShape extends AmmoShape implements ISphereShape {
 
     onLoad () {
         super.onLoad();
-        this.radius = this.collider.radius;
+        this.setRadius(this.collider.radius);
     }
 
     updateScale () {
         super.updateScale();
-        this.radius = this.collider.radius;
+        this.setRadius(this.collider.radius);
     }
 }

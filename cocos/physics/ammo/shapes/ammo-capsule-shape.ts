@@ -9,15 +9,15 @@ import { IVec3Like } from '../../../core/math/type-define';
 
 export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
 
-    set height (v: number) {
+    setHeight (v: number) {
         this.updateCapsuleProp(this.collider.radius, v, this._collider.node.worldScale);
     }
 
-    set direction (v: number) {
+    setDirection (v: number) {
         this.shape.setUpAxis(v);
     }
 
-    set radius (v: number) {
+    setRadius (v: number) {
         this.updateCapsuleProp(v, this.collider.height, this._collider.node.worldScale);
     }
 
@@ -36,12 +36,12 @@ export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
 
     onLoad () {
         super.onLoad();
-        this.radius = this.collider.radius;
+        this.setRadius(this.collider.radius);
     }
 
     updateScale () {
         super.updateScale();
-        this.radius = this.collider.radius;
+        this.setRadius(this.collider.radius);
     }
 
     /**

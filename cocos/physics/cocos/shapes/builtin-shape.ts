@@ -9,11 +9,11 @@ import { BuiltInWorld } from '../builtin-world';
 import { Node } from '../../../core';
 
 export class BuiltinShape extends BuiltinObject implements IBaseShape {
-    set material (v: PhysicMaterial) { }
-    set isTrigger (v: boolean) { }
+    setMaterial (v: PhysicMaterial | null) { }
+    setIsTrigger (v: boolean) { }
     get attachedRigidBody (): RigidBodyComponent | null { return null; }
 
-    set center (v: IVec3Like) {
+    setCenter (v: IVec3Like) {
         Vec3.copy(this._localShape.center, v);
     }
 
@@ -49,7 +49,7 @@ export class BuiltinShape extends BuiltinObject implements IBaseShape {
     }
 
     onLoad () {
-        this.center = this._collider.center;
+        this.setCenter(this._collider.center);
     }
 
     onEnable () {

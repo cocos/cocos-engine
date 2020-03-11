@@ -5,12 +5,13 @@ import { BoxColliderComponent } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { IBoxShape } from '../../spec/i-physics-shape';
+import { IVec3Like } from '../../../core/math/type-define';
 
 const v3_0 = new Vec3();
 
 export class AmmoBoxShape extends AmmoShape implements IBoxShape {
 
-    set size (size: Vec3) {
+    setSize (size: IVec3Like) {
         Vec3.copy(v3_0, size);
         Vec3.multiply(v3_0, v3_0, this._collider.node.worldScale);
         cocos2AmmoVec3(this.scale, v3_0);
@@ -38,7 +39,7 @@ export class AmmoBoxShape extends AmmoShape implements IBoxShape {
 
     onLoad () {
         super.onLoad();
-        this.size = this.collider.size;
+        this.setSize(this.collider.size);
     }
 
     onDestroy () {
@@ -49,7 +50,7 @@ export class AmmoBoxShape extends AmmoShape implements IBoxShape {
 
     updateScale () {
         super.updateScale();
-        this.size = this.collider.size;
+        this.setSize(this.collider.size);
     }
 
 }

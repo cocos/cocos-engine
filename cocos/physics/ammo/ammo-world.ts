@@ -13,6 +13,7 @@ import { PhysicsRayResult, PhysicMaterial } from '../framework';
 import { Node, RecyclePool } from '../../core';
 import { AmmoInstance } from './ammo-instance';
 import { AmmoCollisionFilterGroups } from './ammo-enum';
+import { IVec3Like } from '../../core/math/type-define';
 
 const contactsPool = [] as any;
 const v3_0 = new Vec3();
@@ -20,10 +21,10 @@ const v3_1 = new Vec3();
 
 export class AmmoWorld implements IPhysicsWorld {
 
-    set allowSleep (v: boolean) { };
-    set defaultMaterial (v: PhysicMaterial) { };
+    setAllowSleep (v: boolean) { };
+    setDefaultMaterial (v: PhysicMaterial) { };
 
-    set gravity (gravity: Vec3) {
+    setGravity (gravity: IVec3Like) {
         cocos2AmmoVec3(this._btGravity, gravity);
         this._world.setGravity(this._btGravity);
     }

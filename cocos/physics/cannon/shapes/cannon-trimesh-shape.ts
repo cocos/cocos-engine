@@ -17,7 +17,7 @@ export class CannonTrimeshShape extends CannonShape implements ITrimeshShape {
         return this._shape as CANNON.Trimesh;
     }
 
-    set mesh (v: Mesh | null) {
+    setMesh (v: Mesh | null) {
         if (!this._isBinding) return;
 
         const mesh = v;
@@ -41,12 +41,12 @@ export class CannonTrimeshShape extends CannonShape implements ITrimeshShape {
     }
 
     onComponentSet () {
-        this.mesh = this.collider.mesh;
+        this.setMesh(this.collider.mesh);
     }
 
     onLoad () {
         super.onLoad();
-        this.mesh = this.collider.mesh;
+        this.setMesh(this.collider.mesh);
     }
 
     setScale (scale: Vec3) {

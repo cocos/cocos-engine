@@ -6,6 +6,7 @@ import { IVec3Like } from "../../core/math/type-define";
 import { PhysicsRayResult } from '../framework/physics-ray-result';
 import { ray } from '../../core/geometry';
 import { RecyclePool } from '../../core';
+import { PhysicMaterial } from "../framework";
 
 export interface IRaycastOptions {
     mask: number;
@@ -31,7 +32,7 @@ export interface ICollisionDetect {
     raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, resultes: PhysicsRayResult[]): boolean
 }
 export interface IPhysicsWorld extends ICollisionDetect {
-    gravity: IVec3Like;
-    allowSleep: boolean;
-    defaultMaterial: any;
+    setGravity: (v: IVec3Like) => void;
+    setAllowSleep: (v: boolean) => void;
+    setDefaultMaterial: (v: PhysicMaterial) => void;
 }

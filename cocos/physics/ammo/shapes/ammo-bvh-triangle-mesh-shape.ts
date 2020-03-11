@@ -17,7 +17,7 @@ export class AmmoBvhTriangleMeshShape extends AmmoShape implements ITrimeshShape
         return this._btShape as Ammo.btBvhTriangleMeshShape;
     }
 
-    set mesh (v: Mesh | null) {
+    setMesh (v: Mesh | null) {
         if (!this._isBinding) return;
 
         if (this._btShape != null && this._btShape != AmmoConstant.instance.emptyShape) {
@@ -96,7 +96,7 @@ export class AmmoBvhTriangleMeshShape extends AmmoShape implements ITrimeshShape
     }
 
     onComponentSet () {
-        this.mesh = this.collider.mesh;
+        this.setMesh(this.collider.mesh);
     }
 
     setCompound (compound: Ammo.btCompoundShape | null) {

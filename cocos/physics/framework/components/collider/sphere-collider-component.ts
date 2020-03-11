@@ -42,7 +42,7 @@ export class SphereColliderComponent extends ColliderComponent {
     public set radius (value) {
         this._radius = value;
         if (!EDITOR && !TEST) {
-            this.shape.radius = this._radius;
+            this.shape.setRadius(this._radius);
         }
     }
 

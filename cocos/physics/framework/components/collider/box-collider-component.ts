@@ -44,7 +44,7 @@ export class BoxColliderComponent extends ColliderComponent {
     public set size (value) {
         Vec3.copy(this._size, value);
         if (!EDITOR && !TEST) {
-            this.shape.size = this._size;
+            this.shape.setSize(this._size);
         }
     }
 
