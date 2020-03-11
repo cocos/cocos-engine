@@ -133,7 +133,7 @@ export default class TiledAssembler extends Assembler2D {
                 x[i] = - appx;
             }
             else if (i > 0 && i < col) {
-                if (i <= 2) {
+                if (i === 1) {
                     x[i] = leftWidth * xScale + Math.min(centerWidth, this.sizableWidth) - appx;
                 }
                 else {
@@ -159,7 +159,7 @@ export default class TiledAssembler extends Assembler2D {
                 y[i] = - appy;
             }
             else if (i > 0 && i < row) {
-                if (i <= 2) {
+                if (i === 1) {
                     y[i] = bottomHeight * yScale + Math.min(centerHeight, this.sizableHeight) - appy;
                 }
                 else {
