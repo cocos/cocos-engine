@@ -94,7 +94,7 @@ export class BuiltInWorld implements IPhysicsWorld {
                     tmp_d = distance;
                     Vec3.normalize(hitPoint, worldRay.d)
                     Vec3.scaleAndAdd(hitPoint, worldRay.o, hitPoint, distance);
-                    out._assign(hitPoint, distance, shape.collider);
+                    out._assign(hitPoint, distance, shape.collider, Vec3.ZERO);
                 }
             }
         }
@@ -118,7 +118,7 @@ export class BuiltInWorld implements IPhysicsWorld {
                 } else {
                     const r = pool.add();
                     worldRay.computeHit(hitPoint, distance);
-                    r._assign(hitPoint, distance, shape.collider);
+                    r._assign(hitPoint, distance, shape.collider, Vec3.ZERO);
                     results.push(r);
                 }
             }
