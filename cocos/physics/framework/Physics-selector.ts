@@ -7,6 +7,7 @@ import { CannonRigidBody } from '../cannon/cannon-rigid-body';
 import { CannonWorld } from '../cannon/cannon-world';
 import { CannonBoxShape } from '../cannon/shapes/cannon-box-shape';
 import { CannonSphereShape } from '../cannon/shapes/cannon-sphere-shape';
+import { CannonTrimeshShape } from '../cannon/shapes/cannon-trimesh-shape';
 
 // built-in
 import { BuiltInWorld } from '../cocos/builtin-world';
@@ -20,25 +21,27 @@ import { AmmoWorld } from '../ammo/ammo-world';
 import { AmmoBoxShape } from '../ammo/shapes/ammo-box-shape';
 import { AmmoSphereShape } from '../ammo/shapes/ammo-sphere-shape';
 import { AmmoCapsuleShape } from '../ammo/shapes/ammo-capsule-shape';
+import { AmmoBvhTriangleMeshShape } from '../ammo/shapes/ammo-bvh-triangle-mesh-shape';
 
 export let BoxShape: typeof CannonBoxShape | typeof BuiltinBoxShape | typeof AmmoBoxShape;
 export let SphereShape: typeof CannonSphereShape | typeof BuiltinSphereShape | typeof AmmoSphereShape;
 export let RigidBody: typeof CannonRigidBody | null | typeof AmmoRigidBody;
 export let PhysicsWorld: typeof CannonWorld | typeof BuiltInWorld | typeof AmmoWorld;
 export let CapsuleShape: typeof BuiltinCapsuleShape | typeof AmmoCapsuleShape;
+export let TrimeshShape: typeof CannonTrimeshShape | typeof AmmoBvhTriangleMeshShape;
 
 export function instantiate (
     boxShape: typeof BoxShape,
     sphereShape: typeof SphereShape,
     body: typeof RigidBody,
     world: typeof PhysicsWorld,
-    capsuleShape?: typeof CapsuleShape
+    capsuleShape?: typeof CapsuleShape,
+    trimeshShape?: typeof TrimeshShape
 ) {
     BoxShape = boxShape;
     SphereShape = sphereShape;
     RigidBody = body;
     PhysicsWorld = world;
-    if (capsuleShape) {
-        CapsuleShape = capsuleShape;
-    }
+    if (capsuleShape) { CapsuleShape = capsuleShape; }
+    if (trimeshShape) { TrimeshShape = trimeshShape; }
 }
