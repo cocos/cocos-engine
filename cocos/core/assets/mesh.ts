@@ -282,7 +282,7 @@ export class RenderingSubMesh {
     private _allocVertexIdBuffer (device: GFXDevice) {
         const vertexCount = (this.vertexBuffers.length === 0 || this.vertexBuffers[0].stride === 0) ?
             0 :
-            // TODO: This depends how stride of a vertex buffer is defined; Consider padding problem.
+            // TODO: This depends on how stride of a vertex buffer is defined; Consider padding problem.
             this.vertexBuffers[0].size / this.vertexBuffers[0].stride;
         const vertexIds = new Float32Array(vertexCount);
         for (let iVertex = 0; iVertex < vertexCount; ++iVertex) {
