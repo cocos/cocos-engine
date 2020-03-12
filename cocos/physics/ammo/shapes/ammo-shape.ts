@@ -61,6 +61,7 @@ export class AmmoShape implements IBaseShape {
 
     protected _index: number = -1;
     protected _isEnabled = false;
+    protected _isBinding = false;
     protected _isTrigger = false;
     protected _sharedBody!: AmmoSharedBody;
     protected _btShape!: Ammo.btCollisionShape;
@@ -86,9 +87,9 @@ export class AmmoShape implements IBaseShape {
 
     __preload (com: ColliderComponent) {
         this._collider = com;
+        this._isBinding = true;
         this.onComponentSet();
-        const shape = Ammo.castObject(this._btShape, Ammo.btCollisionShape);
-        shape.wrapped = this;
+        this.setWrapper();
         this._sharedBody = (PhysicsSystem.instance.physicsWorld as AmmoWorld).getSharedBody(this._collider.node as Node);
         this._sharedBody.reference = true;
     }
@@ -179,6 +180,11 @@ export class AmmoShape implements IBaseShape {
             this._index = compound.getNumChildShapes() - 1;
         }
         this._btCompound = compound;
+    }
+
+    setWrapper () {
+        const shape = Ammo.castObject(this._btShape, Ammo.btCollisionShape);
+        shape.wrapped = this;
     }
 
     updateScale () {

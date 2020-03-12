@@ -1,10 +1,11 @@
 import Ammo from '@cocos/ammo';
 import { AmmoShape } from "./ammo-shape";
-import { Vec3, Mesh, GFXPrimitiveMode } from "../../../core";
+import { Mesh, GFXPrimitiveMode, warn } from "../../../core";
 import { MeshColliderComponent } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { ITrimeshShape } from '../../spec/i-physics-shape';
+import { AmmoConstant } from '../ammo-const';
 
 export class AmmoBvhTriangleMeshShape extends AmmoShape implements ITrimeshShape {
 
@@ -17,54 +18,96 @@ export class AmmoBvhTriangleMeshShape extends AmmoShape implements ITrimeshShape
     }
 
     set mesh (v: Mesh | null) {
-        //todo: dynamic change mesh
+        if (!this._isBinding) return;
+
+        if (this._btShape != null && this._btShape != AmmoConstant.instance.emptyShape) {
+            //todo: change the mesh after initialization
+            warn('[Physics][Ammo]: Currently, changing the mesh is not supported if the initialization is complete');
+        } else {
+
+            const mesh = v;
+            if (mesh) {
+                this._btTriangleMesh = new Ammo.btTriangleMesh();
+                const primitiveMode = mesh.renderingMesh.subMeshes[0].primitiveMode;
+                const geoInfo = mesh.renderingMesh.subMeshes[0].geometricInfo!;
+                const vb = geoInfo.positions;
+                const ib = geoInfo.indices as any;
+                if (primitiveMode == GFXPrimitiveMode.TRIANGLE_LIST) {
+                    const cnt = ib.length;
+                    for (let j = 0; j < cnt; j += 3) {
+                        var i0 = ib[j] * 3;
+                        var i1 = ib[j + 1] * 3;
+                        var i2 = ib[j + 2] * 3;
+                        const v0 = new Ammo.btVector3(vb[i0], vb[i0 + 1], vb[i0 + 2]);
+                        const v1 = new Ammo.btVector3(vb[i1], vb[i1 + 1], vb[i1 + 2]);
+                        const v2 = new Ammo.btVector3(vb[i2], vb[i2 + 1], vb[i2 + 2]);
+                        this._btTriangleMesh.addTriangle(v0, v1, v2);
+                    }
+                } else if (primitiveMode == GFXPrimitiveMode.TRIANGLE_STRIP) {
+                    const cnt = ib.length - 2;
+                    let rev = 0;
+                    for (let j = 0; j < cnt; j += 1) {
+                        const i0 = ib[j - rev] * 3;
+                        const i1 = ib[j + rev + 1] * 3;
+                        const i2 = ib[j + 2] * 3;
+                        const v0 = new Ammo.btVector3(vb[i0], vb[i0 + 1], vb[i0 + 2]);
+                        const v1 = new Ammo.btVector3(vb[i1], vb[i1 + 1], vb[i1 + 2]);
+                        const v2 = new Ammo.btVector3(vb[i2], vb[i2 + 1], vb[i2 + 2]);
+                        this._btTriangleMesh.addTriangle(v0, v1, v2);
+                    }
+
+                } else if (primitiveMode == GFXPrimitiveMode.TRIANGLE_FAN) {
+                    const cnt = ib.length - 1;
+                    const i0 = ib[0] * 3;
+                    const v0 = new Ammo.btVector3(vb[i0], vb[i0 + 1], vb[i0 + 2]);
+                    for (let j = 1; j < cnt; j += 1) {
+                        const i1 = ib[j] * 3;
+                        const i2 = ib[j + 1] * 3;
+                        const v1 = new Ammo.btVector3(vb[i1], vb[i1 + 1], vb[i1 + 2]);
+                        const v2 = new Ammo.btVector3(vb[i2], vb[i2 + 1], vb[i2 + 2]);
+                        this._btTriangleMesh.addTriangle(v0, v1, v2);
+                    }
+
+                }
+                this._btShape = new Ammo.btBvhTriangleMeshShape(this._btTriangleMesh, true, true);
+                cocos2AmmoVec3(this.scale, this._collider.node.worldScale);
+                this._btShape.setLocalScaling(this.scale);
+
+                this.setWrapper();
+                this.setCompound(this._btCompound);
+            } else {
+                this._btShape = AmmoConstant.instance.emptyShape;
+            }
+
+        }
     }
 
-    private _btTriangleMesh = new Ammo.btTriangleMesh();
+    private _btTriangleMesh!: Ammo.btTriangleMesh;
 
     constructor () {
         super(AmmoBroadphaseNativeTypes.TRIANGLE_MESH_SHAPE_PROXYTYPE);
     }
 
     onComponentSet () {
-        const mesh = this.meshCollider.mesh;
-        if (mesh) {
-            const primitiveMode = mesh.renderingMesh.subMeshes[0].primitiveMode;
-            const geoInfo = mesh.renderingMesh.subMeshes[0].geometricInfo!;
-            const vertices = geoInfo.positions;
-            const indices = geoInfo.indices as any;
-            const cnt = indices.length;
-            if (primitiveMode == GFXPrimitiveMode.TRIANGLE_LIST) {
-                for (let j = 0; j < cnt; j += 3) {
-                    var i0 = indices[j] * 3;
-                    var i1 = indices[j + 1] * 3;
-                    var i2 = indices[j + 2] * 3;
-                    const v0 = new Ammo.btVector3(vertices[i0], vertices[i0 + 1], vertices[i0 + 2]);
-                    const v1 = new Ammo.btVector3(vertices[i1], vertices[i1 + 1], vertices[i1 + 2]);
-                    const v2 = new Ammo.btVector3(vertices[i2], vertices[i2 + 1], vertices[i2 + 2]);
-                    this._btTriangleMesh.addTriangle(v0, v1, v2);
-                }
-            } else if (primitiveMode == GFXPrimitiveMode.TRIANGLE_STRIP) {
+        this.mesh = this.meshCollider.mesh;
 
-            } else if (primitiveMode == GFXPrimitiveMode.TRIANGLE_FAN) {
-
-            }
-            this._btShape = new Ammo.btBvhTriangleMeshShape(this._btTriangleMesh, true, true);
-        } else {
-            const geometry = buildPlaneGeometry();
-            const vertices = geometry.vertices;
-            const indices = geometry.indices;
-            for (var i = 0, j = 0, l = vertices.length; i < l; i++ , j += 3) {
-                var i0 = indices[j] * 3;
-                var i1 = indices[j + 1] * 3;
-                var i2 = indices[j + 2] * 3;
-                const v0 = new Ammo.btVector3(vertices[i0], vertices[i0 + 1], vertices[i0 + 2]);
-                const v1 = new Ammo.btVector3(vertices[i1], vertices[i1 + 1], vertices[i1 + 2]);
-                const v2 = new Ammo.btVector3(vertices[i2], vertices[i2 + 1], vertices[i2 + 2]);
-                this._btTriangleMesh.addTriangle(v0, v1, v2);
-            }
-            this._btShape = new Ammo.btBvhTriangleMeshShape(this._btTriangleMesh, true, true);
-        }
+        // // DEBUG
+        // if (this.meshCollider.mesh == null) {
+        //     this._btTriangleMesh = new Ammo.btTriangleMesh();
+        //     const geometry = buildPlaneGeometry();
+        //     const vb = geometry.vertices;
+        //     const ib = geometry.indices;
+        //     for (var i = 0, j = 0, l = vb.length; i < l; i++ , j += 3) {
+        //         var i0 = ib[j] * 3;
+        //         var i1 = ib[j + 1] * 3;
+        //         var i2 = ib[j + 2] * 3;
+        //         const v0 = new Ammo.btVector3(vb[i0], vb[i0 + 1], vb[i0 + 2]);
+        //         const v1 = new Ammo.btVector3(vb[i1], vb[i1 + 1], vb[i1 + 2]);
+        //         const v2 = new Ammo.btVector3(vb[i2], vb[i2 + 1], vb[i2 + 2]);
+        //         this._btTriangleMesh.addTriangle(v0, v1, v2);
+        //     }
+        //     this._btShape = new Ammo.btBvhTriangleMeshShape(this._btTriangleMesh, true, true);
+        // }
     }
 
     setCompound (compound: Ammo.btCompoundShape | null) {
@@ -85,10 +128,6 @@ export class AmmoBvhTriangleMeshShape extends AmmoShape implements ITrimeshShape
 
 /**
  * Debug
- * @param width 
- * @param height 
- * @param widthSegments 
- * @param heightSegments 
  */
 
 function buildPlaneGeometry (width = 10, height = 10, widthSegments = 12, heightSegments = 12) {

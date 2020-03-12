@@ -19,3 +19,12 @@ export const CollisionEventObject = {
     otherCollider: null as unknown as ColliderComponent,
     contacts: [] as IContactEquation[],
 };
+
+export class AmmoConstant {
+    private static _instance: AmmoConstant;
+    static get instance () {
+        if (AmmoConstant._instance == null) AmmoConstant._instance = new AmmoConstant;
+        return AmmoConstant._instance;
+    }
+    emptyShape = new Ammo.btEmptyShape();
+}

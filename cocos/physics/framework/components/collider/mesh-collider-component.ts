@@ -12,6 +12,7 @@ import {
 import { ColliderComponent } from './collider-component';
 import { createTrimeshShape } from '../../instance';
 import { Mesh } from '../../../../core';
+import { ITrimeshShape } from '../../../spec/i-physics-shape';
 
 /**
  * @zh
@@ -19,7 +20,7 @@ import { Mesh } from '../../../../core';
  */
 @ccclass('cc.MeshColliderComponent')
 @executionOrder(98)
-@menu('Physics/MeshColliderComponent')
+@menu('Physics/MeshCollider')
 @executeInEditMode
 export class MeshColliderComponent extends ColliderComponent {
 
@@ -28,22 +29,27 @@ export class MeshColliderComponent extends ColliderComponent {
     @property({
         type: Mesh,
     })
-    public get mesh () {
+    get mesh () {
         return this._mesh;
     }
 
-    public set mesh (value) {
+    set mesh (value) {
         this._mesh = value;
+        if (!CC_EDITOR) this.trimeshShape.mesh = this._mesh;
     }
 
     // @property
-    // public get convex () {
+    // get convex () {
     //     return this._convex;
     // }
 
-    // public set convex (value) {
+    // set convex (value) {
     //     this._convex = value;
     // }
+
+    get trimeshShape (): ITrimeshShape {
+        return this._shape as ITrimeshShape;
+    }
 
     /// PRIVATE PROPERTY ///
 
