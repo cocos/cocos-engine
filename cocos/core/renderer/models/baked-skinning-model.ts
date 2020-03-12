@@ -34,7 +34,7 @@ import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { Vec3 } from '../../math';
-import { instJointsAnimInfo, UBOSkinningAnimation, UBOSkinningTexture, UniformJointsTexture } from '../../pipeline/define';
+import { INST_JOINT_ANIM_INFO, UBOSkinningAnimation, UBOSkinningTexture, UniformJointsTexture } from '../../pipeline/define';
 import { Node } from '../../scene-graph';
 import { Pass } from '../core/pass';
 import { samplerLib } from '../core/sampler-lib';
@@ -205,7 +205,7 @@ export class BakedSkinningModel extends Model {
             bindingLayout.bindTextureView(UniformJointsTexture.binding, texture.handle.texView);
             bindingLayout.bindSampler(UniformJointsTexture.binding, sampler);
         }
-        this._instAnimInfoIdx = this.getInstancedAttributeIndex(instJointsAnimInfo);
+        this._instAnimInfoIdx = this.getInstancedAttributeIndex(INST_JOINT_ANIM_INFO);
         return pso;
     }
 }

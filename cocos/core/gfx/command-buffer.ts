@@ -74,8 +74,8 @@ export abstract class GFXCommandBuffer extends GFXObject {
     }
 
     /**
-     * @en Number of draw calls currently recorded.
-     * @zh 绘制调用次数。
+     * @en Number of instances currently recorded.
+     * @zh 绘制 Instance 数量。
      */
     public get numInstances (): number {
         return this._numInstances;

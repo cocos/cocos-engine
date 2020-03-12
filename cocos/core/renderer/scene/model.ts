@@ -8,7 +8,7 @@ import { GFXDevice } from '../../gfx/device';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { Mat4, Vec3 } from '../../math';
 import { Pool } from '../../memop';
-import { instMatWorld, UBOForwardLight, UBOLocal } from '../../pipeline/define';
+import { INST_MAT_WORLD, UBOForwardLight, UBOLocal } from '../../pipeline/define';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
 import { IMacroPatch, Pass } from '../core/pass';
@@ -297,7 +297,7 @@ export class Model {
         if (this._localBuffer) { bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer); }
         if (this._lightBuffer) { bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, this._lightBuffer); }
         this.updateInstancedAttributeList(pso, pass, subModelIdx);
-        this._instMatWorldIdx = this.getInstancedAttributeIndex(instMatWorld);
+        this._instMatWorldIdx = this.getInstancedAttributeIndex(INST_MAT_WORLD);
         this._transformUpdated = true;
         return pso;
     }
