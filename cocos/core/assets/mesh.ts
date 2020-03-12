@@ -618,15 +618,6 @@ export class Mesh extends Asset {
             const subMesh = new RenderingSubMesh(vbReference, gfxAttributes, prim.primitiveMode);
             subMesh.mesh = this; subMesh.subMeshIdx = i; subMesh.indexBuffer = indexBuffer;
 
-            // if (prim.geometricInfo) {
-            //     const info = prim.geometricInfo;
-            //     const positions = new Float32Array(buffer, info.view.offset, info.view.length / 4);
-            //     subMesh.geometricInfo = {
-            //         indices: ib,
-            //         positions,
-            //     };
-            // }
-
             submeshes.push(subMesh);
         }
 
