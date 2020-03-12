@@ -21,7 +21,7 @@ export class AmmoBvhTriangleMeshShape extends AmmoShape implements ITrimeshShape
         if (!this._isBinding) return;
 
         if (this._btShape != null && this._btShape != AmmoConstant.instance.emptyShape) {
-            //todo: change the mesh after initialization
+            // TODO: change the mesh after initialization
             warn('[Physics][Ammo]: Currently, changing the mesh is not supported if the initialization is complete');
         } else {
 
@@ -71,12 +71,14 @@ export class AmmoBvhTriangleMeshShape extends AmmoShape implements ITrimeshShape
 
                     }
                     this._btShape = new Ammo.btBvhTriangleMeshShape(this._btTriangleMesh, true, true);
+                    // this._btShape = new Ammo.btGImpactMeshShape(this._btTriangleMesh);
+                    // (this._btShape as Ammo.btGImpactMeshShape).updateBound();
                     cocos2AmmoVec3(this.scale, this._collider.node.worldScale);
                     this._btShape.setLocalScaling(this.scale);
 
                     this.setWrapper();
                     this.setCompound(this._btCompound);
-                }else{
+                } else {
                     // TODO: 
                 }
             } else {
@@ -123,6 +125,7 @@ export class AmmoBvhTriangleMeshShape extends AmmoShape implements ITrimeshShape
         super.updateScale();
         cocos2AmmoVec3(this.scale, this._collider.node.worldScale);
         this._btShape.setLocalScaling(this.scale);
+        // if (this._btShape != AmmoConstant.instance.emptyShape) (this._btShape as Ammo.btGImpactMeshShape).updateBound();
         if (this._btCompound) {
             this._btCompound.updateChildTransform(this.index, this.transform, true);
         }
