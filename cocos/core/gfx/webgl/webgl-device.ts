@@ -353,6 +353,14 @@ export class WebGLGFXDevice extends GFXDevice {
             this._features[GFXFeature.FORMAT_D24S8] = true;
         }
 
+        if (this._OES_element_index_uint) {
+            this._features[GFXFeature.ELEMENT_INDEX_UINT] = true;
+        }
+
+        if (this._ANGLE_instanced_arrays) {
+            this._features[GFXFeature.INSTANCED_ARRAYS] = true;
+        }
+
         let compressedFormat: string = '';
 
         if (this._WEBGL_compressed_texture_etc1) {
@@ -389,15 +397,11 @@ export class WebGLGFXDevice extends GFXDevice {
                         .getFeature('webgl.extensions.oes_vertex_array_object.revision') > 0 ) {
                     this._useVAO = true;
                 }
-            } else if ((sys.platform !== sys.WECHAT_GAME || sys.os !== sys.OS_IOS)) { this._useVAO = true; }
+            } else { this._useVAO = true; }
         }
 
         if ((sys.platform === sys.WECHAT_GAME && sys.os === sys.OS_ANDROID)) {
             gl.detachShader = () => {}; // Android WeChat may throw errors on detach shader
-        }
-
-        if (this._OES_element_index_uint) {
-            this._features[GFXFeature.ELEMENT_INDEX_UINT] = true;
         }
 
         console.info('RENDERER: ' + this._renderer);
@@ -631,6 +635,7 @@ export class WebGLGFXDevice extends GFXDevice {
         (this._cmdAllocator as WebGLGFXCommandAllocator).releaseCmds();
         const queue = (this._queue as WebGLGFXQueue);
         this._numDrawCalls = queue.numDrawCalls;
+        this._numInstances = queue.numInstances;
         this._numTris = queue.numTris;
         queue.clear();
     }

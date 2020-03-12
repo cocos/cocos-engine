@@ -5,7 +5,7 @@
 import { GFXWindow } from '../gfx/window';
 import { Camera } from '../renderer/scene/camera';
 import { Root } from '../root';
-import { CameraDefaultMask } from './define';
+import { CAMERA_DEFAULT_MASK } from './define';
 import { RenderFlowType } from './pipeline-serialization';
 import { RenderFlow } from './render-flow';
 
@@ -145,7 +145,7 @@ export class RenderView {
      * @zh
      * 可见性。
      */
-    private _visibility: number = CameraDefaultMask;
+    private _visibility: number = CAMERA_DEFAULT_MASK;
 
     /**
      * @zh

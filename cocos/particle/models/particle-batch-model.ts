@@ -55,7 +55,7 @@ export default class ParticleBatchModel extends Model {
     constructor () {
         super();
 
-        this._type = ModelType.PARTICLE_BATCH;
+        this.type = ModelType.PARTICLE_BATCH;
         this._capacity = 0;
         this._vertAttrs = null;
         this._vertSize = 0;
@@ -197,11 +197,6 @@ export default class ParticleBatchModel extends Model {
         this._subMeshData.indirectBuffer = this._iaInfoBuffer;
         this.setSubModelMesh(0, this._subMeshData);
         return vBuffer;
-    }
-
-    public setSubModelMaterial (idx: number, mat: Material | null) {
-        this.initLocalBindings(mat);
-        super.setSubModelMaterial(idx, mat);
     }
 
     public addParticleVertexData (index: number, pvdata: any[]) {

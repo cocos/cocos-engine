@@ -36,7 +36,7 @@ export class LineModel extends Model {
 
     constructor () {
         super();
-        this._type = ModelType.LINE;
+        this.type = ModelType.LINE;
         this._capacity = 100;
         this._iaInfo = {
             drawInfos: [{

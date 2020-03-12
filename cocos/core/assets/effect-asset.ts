@@ -30,6 +30,7 @@
 import { ccclass, property } from '../../core/data/class-decorator';
 import { Root } from '../../core/root';
 import { GFXDynamicState, GFXPrimitiveMode } from '../gfx/define';
+import { IGFXAttribute } from '../gfx/input-assembler';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../gfx/pipeline-state';
 import { GFXUniformBlock, GFXUniformSampler } from '../gfx/shader';
 import { RenderPassStage } from '../pipeline/define';
@@ -68,11 +69,12 @@ export interface ITechniqueInfo {
 
 export interface IBlockInfo extends GFXUniformBlock {
     defines: string[];
-    defaultValue?: ArrayBuffer;
 }
 export interface ISamplerInfo extends GFXUniformSampler {
     defines: string[];
-    defaultValue?: string;
+}
+export interface IAttributeInfo extends IGFXAttribute {
+    defines: string[];
 }
 export interface IDefineInfo {
     name: string;
@@ -98,6 +100,7 @@ export interface IShaderInfo {
     defines: IDefineInfo[];
     blocks: IBlockInfo[];
     samplers: ISamplerInfo[];
+    attributes: IAttributeInfo[];
 }
 export interface IPreCompileInfo {
     [name: string]: boolean[] | number[] | string[];

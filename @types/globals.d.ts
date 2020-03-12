@@ -79,6 +79,10 @@ declare type RecursivePartial<T> = {
         T[P] extends ReadonlyArray<infer V> ? ReadonlyArray<RecursivePartial<V>> : RecursivePartial<T[P]>;
 };
 
+declare type TypedArray = Uint8Array | Int8Array | Uint16Array | Int16Array | Uint32Array | Int32Array | Float32Array | Float64Array;
+
+declare type TypedArrayConstructor = Constructor<TypedArray>;
+
 declare interface IWritableArrayLike<T> {
     readonly length: number;
     [index: number]: T;

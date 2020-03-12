@@ -46,8 +46,7 @@ export class PassInstance extends Pass {
         super(parent.device);
         this._parent = parent;
         this._owner = owner;
-        this._doInit(this._parent);
-        this._defines = Object.assign({}, parent.defines); // defines may change now
+        this._doInit(this._parent, true); // defines may change now
         for (const u of this._shaderInfo.blocks) {
             if (isBuiltinBinding(u.binding)) { continue; }
             const block = this._blocks[u.binding];
@@ -57,8 +56,8 @@ export class PassInstance extends Pass {
         }
         for (const u of this._shaderInfo.samplers) {
             if (isBuiltinBinding(u.binding)) { continue; }
-            this._textureViews[u.binding] = (this._parent as PassInstance)._textureViews[u.binding]; // TS2446
-            this._samplers[u.binding] = (this._parent as PassInstance)._samplers[u.binding]; // TS2446
+            this._textureViews[u.binding] = (this._parent as PassInstance)._textureViews[u.binding];
+            this._samplers[u.binding] = (this._parent as PassInstance)._samplers[u.binding];
         }
     }
 
@@ -82,16 +81,16 @@ export class PassInstance extends Pass {
         return res;
     }
 
-    public createBatchedBuffer () {
-        console.warn('pass instance have no batched buffer.');
-    }
-
     public beginChangeStatesSilently () {
         this._dontNotify = true;
     }
 
     public endChangeStatesSilently () {
         this._dontNotify = false;
+    }
+
+    protected _dynamicBatchingSync () {
+        this._defines.USE_BATCHING = this._defines.USE_INSTANCING = false;
     }
 
     protected _onStateChange () {

@@ -843,3 +843,31 @@ const _type2size = [
 export function GFXGetTypeSize (type: GFXType): number {
     return _type2size[type] || 0;
 }
+
+export function getTypedArrayConstructor (info: IGFXFormatInfo): TypedArrayConstructor {
+    const stride = info.size / info.count;
+    switch (info.type) {
+        case GFXFormatType.UNORM:
+        case GFXFormatType.UINT: {
+            switch (stride) {
+                case 1: return Uint8Array;
+                case 2: return Uint16Array;
+                case 4: return Uint32Array;
+            }
+            break;
+        }
+        case GFXFormatType.SNORM:
+        case GFXFormatType.INT: {
+            switch (stride) {
+                case 1: return Int8Array;
+                case 2: return Int16Array;
+                case 4: return Int32Array;
+            }
+            break;
+        }
+        case GFXFormatType.FLOAT: {
+            return Float32Array;
+        }
+    }
+    return Float32Array;
+}

@@ -35,7 +35,7 @@ import { ray } from '../../geometry';
 import { GFXClearFlag } from '../../gfx/define';
 import { GFXWindow } from '../../gfx/window';
 import { Color, Rect, toRadian, Vec3 } from '../../math';
-import { CameraDefaultMask } from '../../pipeline/define';
+import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
 import { view } from '../../platform/view';
 import { Camera } from '../../renderer';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
@@ -106,7 +106,7 @@ export class CameraComponent extends Component {
     @property
     protected _screenScale = 1;
     @property
-    protected _visibility = CameraDefaultMask;
+    protected _visibility = CAMERA_DEFAULT_MASK;
     @property
     protected _targetTexture: RenderTexture | null = null;
 

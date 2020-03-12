@@ -2,7 +2,7 @@ import { frustum, ray } from '../../geometry';
 import { GFXClearFlag, IGFXColor } from '../../gfx/define';
 import { GFXWindow } from '../../gfx/window';
 import { lerp, Mat4, Rect, toRadian, Vec3 } from '../../math';
-import { CameraDefaultMask } from '../../pipeline/define';
+import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
 import { RenderView } from '../../pipeline/render-view';
 import { Node } from '../../scene-graph';
 import { RenderScene } from './render-scene';
@@ -116,7 +116,7 @@ export class Camera {
     private _position: Vec3 = new Vec3();
     private _node: Node | null = null;
     private _view: RenderView | null = null;
-    private _visibility = CameraDefaultMask;
+    private _visibility = CAMERA_DEFAULT_MASK;
     private _priority: number = 0;
     private _aperture: CameraAperture = CameraAperture.F16_0;
     private _apertureValue: number;

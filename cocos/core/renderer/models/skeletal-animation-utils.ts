@@ -27,6 +27,7 @@
  * @hidden
  */
 
+import { EDITOR } from 'internal:constants';
 import { AnimationClip } from '../../animation/animation-clip';
 import { SkelAnimDataHub } from '../../animation/skeletal-animation-data-hub';
 import { getWorldTransformUntilRoot } from '../../animation/transform-utils';
@@ -41,10 +42,10 @@ import { UBOSkinningAnimation } from '../../pipeline/define';
 import { Node } from '../../scene-graph';
 import { genSamplerHash } from '../core/sampler-lib';
 import { ITextureBufferHandle, TextureBufferPool } from '../core/texture-buffer-pool';
-import { DataPoolManager } from '../data-pool-manager';
 
 // change here and cc-skinning.chunk to use other skinning algorithms
 export const uploadJointData = uploadJointDataLBS;
+export const MINIMUM_JOINT_ANIMATION_TEXTURE_SIZE = EDITOR ? 2040 : 480; // have to be multiples of 12
 
 export function selectJointsMediumFormat (device: GFXDevice): GFXFormat {
     if (device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
@@ -104,9 +105,8 @@ function uploadJointDataDQS (out: Float32Array, base: number, mat: Mat4, firstBo
 }
 
 function roundUpTextureSize (targetLength: number, formatSize: number) {
-    const minSize = 480; // have to be multiples of 12
     const formatScale = 4 / Math.sqrt(formatSize);
-    return Math.ceil(Math.max(minSize * formatScale, targetLength) / 12) * 12;
+    return Math.ceil(Math.max(MINIMUM_JOINT_ANIMATION_TEXTURE_SIZE * formatScale, targetLength) / 12) * 12;
 }
 
 export const jointsTextureSamplerHash = genSamplerHash([
@@ -135,29 +135,54 @@ const v3_max = new Vec3();
 const m4_1 = new Mat4();
 const ab_1 = new aabb();
 
+export interface IChunkContent {
+    skeleton: number;
+    clips: number[];
+}
+export interface ICustomJointTextureLayout {
+    textureLength: number;
+    contents: IChunkContent[];
+}
+
 export class JointsTexturePool {
 
     private _device: GFXDevice;
     private _pool: TextureBufferPool;
-    private _textureBuffers: Map<number, IJointsTextureHandle> = new Map(); // per skeleton per clip
+    private _textureBuffers = new Map<number, IJointsTextureHandle>(); // per skeleton per clip
     private _formatSize = 0;
 
-    constructor (device: GFXDevice, maxChunks = 8) {
+    private _customPool: TextureBufferPool;
+    private _chunkIdxMap = new Map<number, number>(); // hash -> chunkIdx
+
+    constructor (device: GFXDevice) {
         this._device = device;
-        this._pool = new TextureBufferPool(device);
         const format = selectJointsMediumFormat(this._device);
         this._formatSize = GFXFormatInfos[format].size;
-        const scale = 16 / this._formatSize;
-        this._pool.initialize({
-            format,
-            maxChunks: maxChunks * scale,
-            roundUpFn: roundUpTextureSize,
-        });
+        this._pool = new TextureBufferPool(device);
+        this._pool.initialize({ format, roundUpFn: roundUpTextureSize });
+        this._customPool = new TextureBufferPool(device);
+        this._customPool.initialize({ format, roundUpFn: roundUpTextureSize });
     }
 
     public clear () {
         this._pool.destroy();
         this._textureBuffers.clear();
+    }
+
+    public registerCustomTextureLayouts (layouts: ICustomJointTextureLayout[]) {
+        for (let i = 0; i < layouts.length; i++) {
+            const layout = layouts[i];
+            const chunkIdx = this._customPool.createChunk(layout.textureLength);
+            for (let j = 0; j < layout.contents.length; j++) {
+                const content = layout.contents[i];
+                const skeleton = content.skeleton;
+                this._chunkIdxMap.set(skeleton, chunkIdx); // include default pose too
+                for (let k = 0; k < content.clips.length; k++) {
+                    const clip = content.clips[k];
+                    this._chunkIdxMap.set(skeleton ^ clip, chunkIdx);
+                }
+            }
+        }
     }
 
     /**
@@ -174,7 +199,10 @@ export class JointsTexturePool {
         let textureBuffer: Float32Array = null!; let buildTexture = false;
         if (!texture) {
             const bufSize = joints.length * 12;
-            const handle = this._pool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT);
+            const customChunkIdx = this._chunkIdxMap.get(hash);
+            const handle = customChunkIdx !== undefined ?
+                this._customPool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT, customChunkIdx) :
+                this._pool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT);
             if (!handle) { return texture; }
             texture = { pixelOffset: handle.start / this._formatSize, refCount: 1, bounds: new Map(),
                 skeletonHash: skeleton.hash, clipHash: 0, readyToBeDeleted: false, handle };
@@ -224,7 +252,10 @@ export class JointsTexturePool {
         let textureBuffer: Float32Array = null!; let buildTexture = false;
         if (!texture) {
             const bufSize = joints.length * 12 * frames;
-            const handle = this._pool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT);
+            const customChunkIdx = this._chunkIdxMap.get(hash);
+            const handle = customChunkIdx !== undefined ?
+                this._customPool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT, customChunkIdx) :
+                this._pool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT);
             if (!handle) { return null; }
             texture = { pixelOffset: handle.start / this._formatSize, refCount: 1, bounds: new Map(),
                 skeletonHash: skeleton.hash, clipHash: clip.hash, readyToBeDeleted: false, handle };

@@ -149,6 +149,17 @@ export class ModelComponent extends RenderableComponent {
         }
     }
 
+    public setInstancedAttribute (name: string, value: ArrayLike<number>) {
+        if (!this.model) { return; }
+        const list = this.model.instancedAttributes.list;
+        for (let i = 0; i < list.length; i++) {
+            if (list[i].name === name) {
+                (list[i].view as TypedArray).set(value);
+                break;
+            }
+        }
+    }
+
     protected _updateModels () {
         if (!this.enabledInHierarchy || !this._mesh) {
             return;
@@ -250,13 +261,13 @@ export class ModelComponent extends RenderableComponent {
         }
     }
 
-    private _isBatchingEnabled () {
+    protected _isBatchingEnabled () {
         for (let i = 0; i < this._materials.length; ++i) {
             const mat = this._materials[i];
             if (!mat) { continue; }
             for (let p = 0; p < mat.passes.length; ++p) {
                 const pass = mat.passes[p];
-                if (pass.batchedBuffer) { return true; }
+                if (pass.instancedBuffer || pass.batchedBuffer) { return true; }
             }
         }
         return false;

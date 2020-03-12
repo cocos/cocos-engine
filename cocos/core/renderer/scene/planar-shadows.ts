@@ -153,7 +153,7 @@ export class PlanarShadows {
         this._globalBindings.buffer!.update(this.data);
     }
 
-    public updateCommandBuffers (frstm: frustum) {
+    public updateCommandBuffers (frstm: frustum, stamp: number) {
         this._cmdBuffs.clear();
         if (!this._scene.mainLight) { return; }
         const models = this._scene.models;
@@ -166,7 +166,7 @@ export class PlanarShadows {
             }
             let data = this._record.get(model);
             if (!data) { data = this.createShadowData(model); this._record.set(model, data); }
-            if (!model.UBOUpdated) { model.updateUBOs(); } // for those outside the frustum
+            if (model.updateStamp !== stamp) { model.updateUBOs(stamp); } // for those outside the frustum
             this.cmdBuffs.push(data.cmdBuffer);
         }
     }
@@ -178,8 +178,7 @@ export class PlanarShadows {
         const psos: GFXPipelineState[] = [];
         cmdBuffer.begin();
         for (let i = 0; i < model.subModelNum; i++) {
-            const ia = model.getSubModel(i).inputAssembler;
-            if (!ia) { continue; }
+            const ia = model.getSubModel(i).inputAssembler!;
             // @ts-ignore TS2445
             const pso = model.createPipelineState(this._material.passes[0], i);
             model.insertImplantPSO(pso); // add back to model to sync binding layouts

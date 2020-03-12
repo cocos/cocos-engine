@@ -31,6 +31,8 @@ import { IBlockInfo, IBuiltinInfo, IDefineInfo, ISamplerInfo, IShaderInfo } from
 import { IGFXBinding } from '../../gfx/binding-layout';
 import { GFXBindingType, GFXGetTypeSize, GFXShaderType } from '../../gfx/define';
 import { GFXAPI, GFXDevice } from '../../gfx/device';
+import { IGFXAttribute } from '../../gfx/input-assembler';
+import { GFXInputState } from '../../gfx/pipeline-state';
 import { GFXShader, GFXUniformBlock } from '../../gfx/shader';
 import { IInternalBindingDesc, localBindingsDesc } from '../../pipeline/define';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
@@ -148,8 +150,9 @@ function dependencyCheck (dependencies: string[], defines: IDefineMap) {
     return true;
 }
 function getShaderBindings (
-        tmpl: IProgramInfo, defines: IDefineMap, outBlocks: IBlockInfoRT[], outSamplers: ISamplerInfoRT[], bindings: IGFXBinding[]) {
-    const { blocks, samplers } = tmpl;
+        tmpl: IProgramInfo, defines: IDefineMap, outBlocks: IBlockInfoRT[], outSamplers: ISamplerInfoRT[],
+        bindings: IGFXBinding[], outAttributes: IGFXAttribute[]) {
+    const { blocks, samplers, attributes } = tmpl;
     for (let i = 0; i < blocks.length; i++) {
         const block = blocks[i];
         if (!dependencyCheck(block.defines, defines)) { continue; }
@@ -162,11 +165,17 @@ function getShaderBindings (
         outSamplers.push(sampler);
         bindings.push(sampler);
     }
+    for (let i = 0; i < attributes.length; i++) {
+        const attribute = attributes[i];
+        if (!dependencyCheck(attribute.defines, defines)) { continue; }
+        outAttributes.push(attribute);
+    }
 }
 
 export interface IShaderResources {
     shader: GFXShader;
     bindings: IGFXBinding[];
+    inputState: GFXInputState;
 }
 
 /**
@@ -210,7 +219,6 @@ class ProgramLib {
         if (offset > 31) { tmpl.uber = true; }
         tmpl.blocks.forEach((b) => {
             b.bindingType = GFXBindingType.UNIFORM_BUFFER; b.size = getSize(b);
-            if (b.defaultValue) { b.defaultValue = Float32Array.from(b.defaultValue as unknown as number[]); }
         });
         tmpl.samplers.forEach((s) => s.bindingType = GFXBindingType.SAMPLER);
         tmpl.handleMap = genHandles(tmpl);
@@ -323,7 +331,8 @@ class ProgramLib {
         const blocks: IBlockInfoRT[] = [];
         const samplers: ISamplerInfoRT[] = [];
         const bindings: IGFXBinding[] = [];
-        getShaderBindings(tmpl, defines, blocks, samplers, bindings);
+        const inputState = new GFXInputState();
+        getShaderBindings(tmpl, defines, blocks, samplers, bindings, inputState.attributes);
 
         const shader = device.createShader({
             name: getShaderInstanceName(name, macroArray),
@@ -333,7 +342,7 @@ class ProgramLib {
                 { type: GFXShaderType.FRAGMENT, source: prefix + src.frag },
             ],
         });
-        return this._cache[key] = { shader, bindings };
+        return this._cache[key] = { shader, bindings, inputState };
     }
 }
 

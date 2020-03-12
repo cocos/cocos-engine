@@ -2,7 +2,7 @@
  * @category pipeline
  */
 
-export { RenderPassStage, JointUniformCapacity } from './define';
+export { RenderPassStage, JOINT_UNIFORM_CAPACITY as JointUniformCapacity } from './define';
 
 export { RenderPipeline } from './render-pipeline';
 export { RenderFlow } from './render-flow';

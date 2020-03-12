@@ -611,10 +611,10 @@ export abstract class RenderPipeline {
         }
 
         const models = scene.models;
+        const stamp = cc.director.getTotalFrames();
+
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
-
-            model._resetUBOUpdateFlag();
 
             // filter model by view visibility
             if (model.enabled) {
@@ -622,21 +622,21 @@ export abstract class RenderPipeline {
                 if (vis) {
                     if ((model.node && (view.visibility === model.node.layer)) ||
                         view.visibility === model.visFlags) {
-                        model.updateTransform();
-                        model.updateUBOs();
+                        model.updateTransform(stamp);
+                        model.updateUBOs(stamp);
                         this.addVisibleModel(model, camera);
                     }
                 } else {
                     if (model.node && ((view.visibility & model.node.layer) === model.node.layer) ||
                         (view.visibility & model.visFlags)) {
-                        model.updateTransform();
+                        model.updateTransform(stamp);
 
                         // frustum culling
                         if (model.worldBounds && !intersect.aabb_frustum(model.worldBounds, camera.frustum)) {
                             continue;
                         }
 
-                        model.updateUBOs();
+                        model.updateUBOs(stamp);
                         this.addVisibleModel(model, camera);
                     }
                 }
@@ -644,7 +644,7 @@ export abstract class RenderPipeline {
         }
 
         if (planarShadows.enabled) {
-            planarShadows.updateCommandBuffers(camera.frustum);
+            planarShadows.updateCommandBuffers(camera.frustum, stamp);
         }
     }
 

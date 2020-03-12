@@ -29,11 +29,12 @@
 
 import { ccclass, property } from '../../core/data/class-decorator';
 import { Mat4, Quat, Vec3 } from '../../core/math';
+import { mapBuffer } from '../3d/misc/buffer';
 import { BufferBlob } from '../3d/misc/buffer-blob';
-import { mapBuffer } from '../3d/misc/utils';
 import { aabb } from '../geometry';
 import { GFXBuffer } from '../gfx/buffer';
 import {
+    getTypedArrayConstructor,
     GFXAttributeName,
     GFXBufferUsageBit,
     GFXFormat,
@@ -46,7 +47,6 @@ import { GFXDevice, GFXFeature } from '../gfx/device';
 import { IGFXAttribute } from '../gfx/input-assembler';
 import { warnID } from '../platform/debug';
 import sys from '../platform/sys';
-import { DataPoolManager } from '../renderer/data-pool-manager';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { Asset } from './asset';
 import { Skeleton } from './skeleton';
@@ -169,6 +169,7 @@ export class RenderingSubMesh {
     get jointMappedBuffers () {
         if (this._jointMappedBuffers) { return this._jointMappedBuffers; }
         const buffers: GFXBuffer[] = this._jointMappedBuffers = [];
+        const indices: number[] = this._jointMappedBufferIndices = [];
         if (!this.mesh || this.subMeshIdx === undefined) { return this._jointMappedBuffers = this.vertexBuffers; }
         const struct = this.mesh.struct;
         const prim = struct.primitives[this.subMeshIdx];
@@ -178,11 +179,12 @@ export class RenderingSubMesh {
         let jointFormat: GFXFormat;
         let jointOffset: number;
         const device: GFXDevice = cc.director.root.device;
-        for (const bundleIdx of prim.vertexBundelIndices) {
-            const bundle = struct.vertexBundles[bundleIdx];
+        for (let i = 0; i < prim.vertexBundelIndices.length; i++) {
+            const bundle = struct.vertexBundles[prim.vertexBundelIndices[i]];
             jointOffset = 0;
             jointFormat = GFXFormat.UNKNOWN;
-            for (const attr of bundle.attributes) {
+            for (let j = 0; j < bundle.attributes.length; j++) {
+                const attr = bundle.attributes[j];
                 if (attr.name === GFXAttributeName.ATTR_JOINTS) {
                     jointFormat = attr.format;
                     break;
@@ -201,12 +203,9 @@ export class RenderingSubMesh {
                     size: bundle.view.length,
                     stride: bundle.view.stride,
                 });
-                buffer.update(dataView.buffer); buffers.push(buffer);
-                this._jointMappedBufferCreated = true;
+                buffer.update(dataView.buffer); buffers.push(buffer); indices.push(i);
             } else {
-                for (const buffer of buffers) { buffer.destroy(); }
-                this._jointMappedBufferCreated = false;
-                return this._jointMappedBuffers = this.vertexBuffers;
+                buffers.push(this.vertexBuffers[prim.vertexBundelIndices[i]]);
             }
         }
         return buffers;
@@ -217,7 +216,7 @@ export class RenderingSubMesh {
 
     private _flatBuffers?: IFlatBuffer[];
     private _jointMappedBuffers?: GFXBuffer[];
-    private _jointMappedBufferCreated = false;
+    private _jointMappedBufferIndices?: number[];
 
     constructor (vertexBuffers: GFXBuffer[], attributes: IGFXAttribute[], primitiveMode: GFXPrimitiveMode) {
         this.vertexBuffers = vertexBuffers;
@@ -226,19 +225,20 @@ export class RenderingSubMesh {
     }
 
     public destroy () {
-        for (const buffer of this.vertexBuffers) {
-            buffer.destroy();
+        for (let i = 0; i < this.vertexBuffers.length; i++) {
+            this.vertexBuffers[i].destroy();
         }
         this.vertexBuffers.length = 0;
         if (this.indexBuffer) {
             this.indexBuffer.destroy();
         }
         this.indexBuffer = undefined;
-        if (this._jointMappedBuffers && this._jointMappedBufferCreated) {
-            for (const buffer of this._jointMappedBuffers) {
-                buffer.destroy();
+        if (this._jointMappedBuffers && this._jointMappedBufferIndices) {
+            for (let i = 0; i < this._jointMappedBufferIndices.length; i++) {
+                this._jointMappedBuffers[this._jointMappedBufferIndices[i]].destroy();
             }
             this._jointMappedBuffers = undefined;
+            this._jointMappedBufferIndices = undefined;
         }
     }
 }
@@ -1031,7 +1031,7 @@ export class Mesh extends Asset {
      * 否则，创建足够大的缓冲区包含指定属性的所有数据，并为该缓冲区创建与属性类型对应的数组视图。
      */
     public readAttribute (primitiveIndex: number, attributeName: GFXAttributeName): Storage | null {
-        let result: Storage | null = null;
+        let result: TypedArray | null = null;
         this._accessAttribute(primitiveIndex, attributeName, (vertexBundle, iAttribute) => {
             const format = vertexBundle.attributes[iAttribute].format;
 
@@ -1040,7 +1040,7 @@ export class Mesh extends Asset {
                 vertexBundle.view.offset + getOffset(vertexBundle.attributes, iAttribute));
 
             const formatInfo = GFXFormatInfos[format];
-            const storageConstructor = getStorageConstructor(format);
+            const storageConstructor = getTypedArrayConstructor(GFXFormatInfos[format]);
             const reader = getReader(inputView, format);
             if (!storageConstructor || !reader) {
                 return;
@@ -1125,7 +1125,7 @@ export class Mesh extends Asset {
         }
         const stride = primitive.indexView.stride;
         const ctor = stride === 1 ? Uint8Array : (stride === 2 ? Uint16Array : Uint32Array);
-        return new ctor(this._data, primitive.indexView.offset, primitive.indexView.count);
+        return new ctor(this._data.buffer, primitive.indexView.offset, primitive.indexView.count);
     }
 
     /**
@@ -1205,39 +1205,6 @@ function getOffset (attributes: IGFXAttribute[], attributeIndex: number) {
         result += GFXFormatInfos[attribute.format].size;
     }
     return result;
-}
-
-type Storage = Uint8Array | Int8Array | Uint16Array | Int16Array | Uint32Array | Int32Array | Float32Array | Float64Array;
-
-type StorageConstructor = Constructor<Storage>;
-
-function getStorageConstructor (format: GFXFormat): StorageConstructor | null {
-    const info = GFXFormatInfos[format];
-    const stride = info.size / info.count;
-    switch (info.type) {
-        case GFXFormatType.UNORM:
-        case GFXFormatType.UINT: {
-            switch (stride) {
-                case 1: return Uint8Array;
-                case 2: return Uint16Array;
-                case 4: return Uint32Array;
-            }
-            break;
-        }
-        case GFXFormatType.SNORM:
-        case GFXFormatType.INT: {
-            switch (stride) {
-                case 1: return Int8Array;
-                case 2: return Int16Array;
-                case 4: return Int32Array;
-            }
-            break;
-        }
-        case GFXFormatType.FLOAT: {
-            return Float32Array;
-        }
-    }
-    return null;
 }
 
 const isLittleEndian = sys.isLittleEndian;

@@ -156,7 +156,7 @@ export class SkinningModel extends Model {
 
     constructor () {
         super();
-        this._type = ModelType.SKINNING;
+        this.type = ModelType.SKINNING;
     }
 
     public destroy () {
@@ -176,7 +176,7 @@ export class SkinningModel extends Model {
         }
         this._bufferIndices = null; this._joints.length = 0;
         if (!skeleton || !skinningRoot || !mesh) { return; }
-        this._transform = skinningRoot;
+        this.transform = skinningRoot;
         const boneSpaceBounds = mesh.getBoneSpaceBounds(skeleton);
         const jointMaps = mesh.struct.jointMaps;
         this._ensureEnoughBuffers(jointMaps && jointMaps.length || 1);
@@ -195,15 +195,14 @@ export class SkinningModel extends Model {
         }
     }
 
-    public updateTransform () {
-        const root = this._transform!;
+    public updateTransform (stamp: number) {
+        const root = this.transform!;
         // @ts-ignore TS2445
         if (root.hasChangedFlags || root._dirtyFlags) {
             root.updateWorldTransform();
             this._transformUpdated = true;
         }
         // update bounds
-        const stamp = cc.director.getTotalFrames();
         Vec3.set(v3_min,  Infinity,  Infinity,  Infinity);
         Vec3.set(v3_max, -Infinity, -Infinity, -Infinity);
         for (let i = 0; i < this._joints.length; i++) {
@@ -221,8 +220,8 @@ export class SkinningModel extends Model {
         }
     }
 
-    public updateUBOs () {
-        if (!super.updateUBOs()) { return false; }
+    public updateUBOs (stamp: number) {
+        if (!super.updateUBOs(stamp)) { return false; }
         for (let i = 0; i < this._joints.length; i++) {
             const { indices, buffers, transform, bindpose } = this._joints[i];
             Mat4.multiply(m4_1, transform.world, bindpose);

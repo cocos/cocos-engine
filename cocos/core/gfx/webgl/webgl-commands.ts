@@ -2230,10 +2230,10 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                 if (cmd2.gpuInputAssembler && gpuShader &&
                     (isShaderChanged || gpuInputAssembler !== cmd2.gpuInputAssembler)) {
                     gpuInputAssembler = cmd2.gpuInputAssembler;
+                    const ia = device.ANGLE_instanced_arrays;
 
                     if (device.useVAO) {
                         const vao = device.OES_vertex_array_object!;
-                        const ia = device.ANGLE_instanced_arrays;
 
                         // check vao
                         let glVAO = gpuInputAssembler.glVAOs.get(gpuShader.glProgram!);
@@ -2328,6 +2328,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                     cache.glCurrentAttribLocs[glLoc] = true;
 
                                     gl.vertexAttribPointer(glLoc, glAttrib.count, glAttrib.glType, glAttrib.isNormalized, glAttrib.stride, attribOffset);
+                                    if (ia) { ia.vertexAttribDivisorANGLE(glLoc, glAttrib.isInstanced ? 1 : 0); }
                                 }
                             }
                         } // for
