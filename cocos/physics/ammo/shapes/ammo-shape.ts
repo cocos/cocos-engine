@@ -86,9 +86,15 @@ export class AmmoShape implements IBaseShape {
 
     __preload (com: ColliderComponent) {
         this._collider = com;
+        this.onComponentSet();
+        const shape = Ammo.castObject(this._btShape, Ammo.btCollisionShape);
+        shape.wrapped = this;
         this._sharedBody = (PhysicsSystem.instance.physicsWorld as AmmoWorld).getSharedBody(this._collider.node as Node);
         this._sharedBody.reference = true;
     }
+
+    // virtual
+    onComponentSet () { }
 
     onLoad () {
         this.center = this._collider.center;
@@ -111,7 +117,8 @@ export class AmmoShape implements IBaseShape {
         this._sharedBody.reference = false;
         this._btCompound = null;
         (this._collider as any) = null;
-
+        const shape = Ammo.castObject(this._btShape, Ammo.btCollisionShape);
+        shape.wrapped = null;
         Ammo.destroy(this.transform);
         Ammo.destroy(this.pos);
         Ammo.destroy(this.quat);

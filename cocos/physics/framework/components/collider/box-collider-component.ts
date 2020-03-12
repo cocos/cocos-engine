@@ -21,7 +21,7 @@ import { EDITOR, TEST } from 'internal:constants';
  */
 @ccclass('cc.BoxColliderComponent')
 @executionOrder(98)
-@menu('Components/BoxCollider')
+@menu('Physics/BoxCollider')
 @executeInEditMode
 export class BoxColliderComponent extends ColliderComponent {
 

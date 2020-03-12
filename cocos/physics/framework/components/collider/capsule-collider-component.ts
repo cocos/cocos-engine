@@ -28,7 +28,7 @@ Enum(ECapsuleDirection);
  */
 @ccclass('cc.CapsuleColliderComponent')
 @executionOrder(98)
-@menu('Components/CapsuleCollider')
+@menu('Physics/CapsuleCollider')
 @executeInEditMode
 export class CapsuleColliderComponent extends ColliderComponent {
     /// PUBLIC PROPERTY GETTER\SETTER ///

@@ -20,7 +20,7 @@ import { EDITOR, TEST } from 'internal:constants';
  */
 @ccclass('cc.SphereColliderComponent')
 @executionOrder(98)
-@menu('Components/SphereCollider')
+@menu('Physics/SphereCollider')
 @executeInEditMode
 export class SphereColliderComponent extends ColliderComponent {
 

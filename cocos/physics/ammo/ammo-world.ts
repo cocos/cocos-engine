@@ -86,12 +86,30 @@ export class AmmoWorld implements IPhysicsWorld {
                 const manifoldPoint: Ammo.btManifoldPoint = manifold.getContactPoint(j);
                 const d = manifoldPoint.getDistance();
                 if (d <= 0.0001) {
-                    const key0 = 'KEY' + index0;
-                    const key1 = 'KEY' + index1;
-                    const shared0 = AmmoInstance.bodyAndGhosts[key0];
-                    const shared1 = AmmoInstance.bodyAndGhosts[key1];
-                    const shape0 = shared0.wrappedShapes[manifoldPoint.m_index0];
-                    const shape1 = shared1.wrappedShapes[manifoldPoint.m_index1];
+                    const s0 = manifoldPoint.getShape0();
+                    const s1 = manifoldPoint.getShape1();
+                    let shape0: any;
+                    let shape1: any;
+                    if (s0.isCompound()) {
+                        const com = Ammo.castObject(s0, Ammo.btCompoundShape) as Ammo.btCompoundShape;
+                        shape0 = (com.getChildShape(manifoldPoint.m_index0) as any).wrapped;
+                    } else {
+                        shape0 = (s0 as any).wrapped;
+                    }
+
+                    if (s1.isCompound()) {
+                        const com = Ammo.castObject(s1, Ammo.btCompoundShape) as Ammo.btCompoundShape;
+                        shape1 = (com.getChildShape(manifoldPoint.m_index1) as any).wrapped;
+                    } else {
+                        shape1 = (s1 as any).wrapped;
+                    }
+
+                    // const key0 = 'KEY' + index0;
+                    // const key1 = 'KEY' + index1;
+                    // const shared0 = AmmoInstance.bodyAndGhosts[key0];
+                    // const shared1 = AmmoInstance.bodyAndGhosts[key1];
+                    // const shape0 = shared0.wrappedShapes[sIndex0];
+                    // const shape1 = shared1.wrappedShapes[sIndex1];
 
                     // current contact
                     var item = this.contactsDic.get(shape0.id, shape1.id) as any;

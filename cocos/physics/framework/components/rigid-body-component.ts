@@ -24,7 +24,7 @@ import { EDITOR, PHYSICS_BUILTIN } from 'internal:constants';
  */
 @ccclass('cc.RigidBodyComponent')
 @executionOrder(99)
-@menu('Components/RigidBody')
+@menu('Physics/RigidBody')
 @executeInEditMode
 @disallowMultiple
 export class RigidBodyComponent extends Component {
