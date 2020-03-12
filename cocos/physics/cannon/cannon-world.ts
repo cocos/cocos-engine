@@ -11,7 +11,7 @@ import { PhysicMaterial, PhysicsRayResult } from '../framework';
 import { IVec3Like } from '../../core/math/type-define';
 export class CannonWorld implements IPhysicsWorld {
 
-    get world () {
+    get impl () {
         return this._world;
     }
 

@@ -31,7 +31,7 @@ export class BuiltInWorld implements IPhysicsWorld {
     setGravity (v: IVec3Like) { }
     setAllowSleep (v: boolean) { }
     setDefaultMaterial (v: PhysicMaterial) { }
-
+    get impl () { return this; }
     shapeArr: BuiltinShape[] = [];
     readonly bodies: BuiltinSharedBody[] = [];
 

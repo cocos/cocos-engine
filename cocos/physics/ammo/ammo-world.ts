@@ -26,14 +26,14 @@ export class AmmoWorld implements IPhysicsWorld {
 
     setGravity (gravity: IVec3Like) {
         cocos2AmmoVec3(this._btGravity, gravity);
-        this._world.setGravity(this._btGravity);
+        this._btWorld.setGravity(this._btGravity);
     }
 
-    get world () {
-        return this._world;
+    get impl () {
+        return this._btWorld;
     }
 
-    private readonly _world: Ammo.btDiscreteDynamicsWorld;
+    private readonly _btWorld: Ammo.btDiscreteDynamicsWorld;
     private readonly _btBroadphase: Ammo.btDbvtBroadphase;
     private readonly _btSolver: Ammo.btSequentialImpulseConstraintSolver;
     private readonly _btDispatcher: Ammo.btCollisionDispatcher;
@@ -54,9 +54,9 @@ export class AmmoWorld implements IPhysicsWorld {
         this._btDispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration);
         this._btBroadphase = new Ammo.btDbvtBroadphase();
         this._btSolver = new Ammo.btSequentialImpulseConstraintSolver();
-        this._world = new Ammo.btDiscreteDynamicsWorld(this._btDispatcher, this._btBroadphase, this._btSolver, collisionConfiguration);
+        this._btWorld = new Ammo.btDiscreteDynamicsWorld(this._btDispatcher, this._btBroadphase, this._btSolver, collisionConfiguration);
         this._btGravity = new Ammo.btVector3(0, -10, 0);
-        this._world.setGravity(this._btGravity);
+        this._btWorld.setGravity(this._btGravity);
     }
 
     step (timeStep: number, fixTimeStep?: number, maxSubStep?: number) {
@@ -69,7 +69,7 @@ export class AmmoWorld implements IPhysicsWorld {
             this.bodies[i].syncSceneToPhysics();
         }
 
-        this._world.stepSimulation(timeStep, maxSubStep, fixTimeStep);
+        this._btWorld.stepSimulation(timeStep, maxSubStep, fixTimeStep);
 
         for (let i = 0; i < this.bodies.length; i++) {
             this.bodies[i].syncPhysicsToScene();
@@ -148,7 +148,7 @@ export class AmmoWorld implements IPhysicsWorld {
         const hn = (this.allHitsCB.m_hitNormalWorld as any);
         hp.clear();
         hn.clear();
-        this._world.rayTest(from, to, this.allHitsCB);
+        this._btWorld.rayTest(from, to, this.allHitsCB);
         if (this.allHitsCB.hasHit()) {
             for (let i = 0, n = this.allHitsCB.m_collisionObjects.size(); i < n; i++) {
                 const shapeIndex = this.allHitsCB.m_shapeParts.at(i);
@@ -184,7 +184,7 @@ export class AmmoWorld implements IPhysicsWorld {
         this.closeHitCB.m_closestHitFraction = 1;
         (this.closeHitCB.m_collisionObject as any) = null;
 
-        this._world.rayTest(from, to, this.closeHitCB);
+        this._btWorld.rayTest(from, to, this.closeHitCB);
         if (this.closeHitCB.hasHit()) {
             const btObj = this.closeHitCB.m_collisionObject;
             const index = btObj.getUserIndex();
@@ -209,10 +209,10 @@ export class AmmoWorld implements IPhysicsWorld {
         if (i < 0) {
             this.bodies.push(sharedBody);
             if (sharedBody.body.isStaticObject()) {
-                this._world.addCollisionObject(sharedBody.body, sharedBody.collisionFilterGroup, sharedBody.collisionFilterMask);
+                this._btWorld.addCollisionObject(sharedBody.body, sharedBody.collisionFilterGroup, sharedBody.collisionFilterMask);
             }
             else {
-                this._world.addRigidBody(sharedBody.body, sharedBody.collisionFilterGroup, sharedBody.collisionFilterMask);
+                this._btWorld.addRigidBody(sharedBody.body, sharedBody.collisionFilterGroup, sharedBody.collisionFilterMask);
             }
         }
     }
@@ -222,9 +222,9 @@ export class AmmoWorld implements IPhysicsWorld {
         if (i >= 0) {
             this.bodies.splice(i, 1);
             if (sharedBody.body.isStaticObject()) {
-                this._world.removeCollisionObject(sharedBody.body);
+                this._btWorld.removeCollisionObject(sharedBody.body);
             } else {
-                this._world.removeRigidBody(sharedBody.body);
+                this._btWorld.removeRigidBody(sharedBody.body);
             }
         }
     }
@@ -233,7 +233,7 @@ export class AmmoWorld implements IPhysicsWorld {
         const i = this.ghosts.indexOf(sharedBody);
         if (i < 0) {
             this.ghosts.push(sharedBody);
-            this._world.addCollisionObject(sharedBody.ghost, sharedBody.collisionFilterGroup, sharedBody.collisionFilterMask);
+            this._btWorld.addCollisionObject(sharedBody.ghost, sharedBody.collisionFilterGroup, sharedBody.collisionFilterMask);
         }
     }
 
@@ -241,7 +241,7 @@ export class AmmoWorld implements IPhysicsWorld {
         const i = this.ghosts.indexOf(sharedBody);
         if (i >= 0) {
             this.ghosts.splice(i, 1);
-            this._world.removeCollisionObject(sharedBody.ghost);
+            this._btWorld.removeCollisionObject(sharedBody.ghost);
         }
     }
 

@@ -85,7 +85,7 @@ export class CannonSharedBody {
     private constructor (node: Node, wrappedWorld: CannonWorld) {
         this.wrappedWorld = wrappedWorld;
         this.node = node;
-        this.body.material = this.wrappedWorld.world.defaultMaterial;
+        this.body.material = this.wrappedWorld.impl.defaultMaterial;
         this.body.addEventListener('collide', this.onCollidedListener);
     }
 
