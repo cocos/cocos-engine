@@ -251,7 +251,7 @@ export class RenderingSubMesh {
 
     /**
      * Adds a vertex attribute input called 'a_vertexId' into this sub-mesh.
-     * This is useful if you want simulate `gl_VertexId` in WebGL context prior to 2.0.
+     * This is useful if you want to simulate `gl_VertexId` in WebGL context prior to 2.0.
      * Once you call this function, the vertex attribute is permanently added.
      * Subsequent calls to this function take no effect.
      * @param device Device used to create related rendering resources.
