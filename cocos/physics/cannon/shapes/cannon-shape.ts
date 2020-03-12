@@ -72,11 +72,13 @@ export class CannonShape implements IBaseShape {
     protected _sharedBody!: CannonSharedBody;
     protected get _body (): CANNON.Body { return this._sharedBody.body; }
     protected onTriggerListener = this.onTrigger.bind(this);
+    protected _isBinding = false;
 
     /** LIFECYCLE */
 
     __preload (comp: ColliderComponent) {
         this._collider = comp;
+        this._isBinding = true;
         this.onComponentSet();
         setWrap(this._shape, this);
         this._shape.addEventListener('triggered', this.onTriggerListener);
