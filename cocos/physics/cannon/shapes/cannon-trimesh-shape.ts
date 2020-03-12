@@ -16,11 +16,19 @@ export class CannonTrimeshShape extends CannonShape implements ITrimeshShape {
 
     constructor () {
         super();
-        this._shape = new CANNON.Trimesh();
     }
 
     set mesh (v: Mesh | null) {
 
+    }
+
+    onComponentSet () {
+        const mesh = this.meshCollider.mesh;
+        if (mesh) {
+            const vertices = mesh.renderingMesh.subMeshes[0].geometricInfo!.positions;
+            const indices = mesh.renderingMesh.subMeshes[0].geometricInfo!.indices as Uint16Array;
+            this._shape = new CANNON.Trimesh(vertices, indices);
+        }
     }
 
     onLoad () {

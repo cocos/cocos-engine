@@ -77,11 +77,15 @@ export class CannonShape implements IBaseShape {
 
     __preload (comp: ColliderComponent) {
         this._collider = comp;
+        this.onComponentSet();
         setWrap(this._shape, this);
         this._shape.addEventListener('triggered', this.onTriggerListener);
         this._sharedBody = (PhysicsSystem.instance.physicsWorld as CannonWorld).getSharedBody(this._collider.node as Node);
         this._sharedBody.reference = true;
     }
+
+    // virtual
+    onComponentSet () { }
 
     onLoad () {
         this.center = this._collider.center;
