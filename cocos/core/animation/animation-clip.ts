@@ -3,6 +3,7 @@
  * @category animation
  */
 
+import { EDITOR } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { ccclass, property } from '../data/class-decorator';
@@ -16,7 +17,6 @@ import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { ComponentPath, HierarchyPath, TargetPath } from './target-path';
 import { WrapMode as AnimationWrapMode } from './types';
 import { IValueProxyFactory } from './value-proxy';
-import { EDITOR } from 'internal:constants';
 
 export interface IObjectCurveData {
     [propertyName: string]: IPropertyCurveData;
