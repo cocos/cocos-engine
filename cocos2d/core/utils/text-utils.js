@@ -170,6 +170,15 @@ var textUtils = {
         return width;
     },
 
+    // in case substring of emoj
+    _safeSubstring (targetString, startIndex, endIndex) {
+        targetString = targetString.substring(startIndex, endIndex);
+        if (this.label_firstEmoji.test(targetString)) {
+            targetString = targetString.slice(1);
+        }
+        return targetString;
+    },
+
     fragmentText: function (stringToken, allWidth, maxWidth, measureText) {
         //check the first character
         var wrappedWords = [];
@@ -183,7 +192,7 @@ var textUtils = {
         while (allWidth > maxWidth && text.length > 1) {
 
             var fuzzyLen = text.length * ( maxWidth / allWidth ) | 0;
-            var tmpText = text.substring(fuzzyLen);
+            var tmpText = this._safeSubstring(text, fuzzyLen);
             var width = allWidth - measureText(tmpText);
             var sLine = tmpText;
             var pushNum = 0;
@@ -195,7 +204,7 @@ var textUtils = {
             while (width > maxWidth && checkWhile++ < checkCount) {
                 fuzzyLen *= maxWidth / width;
                 fuzzyLen = fuzzyLen | 0;
-                tmpText = text.substring(fuzzyLen);
+                tmpText = this._safeSubstring(text, fuzzyLen);
                 width = allWidth - measureText(tmpText);
             }
 
@@ -210,17 +219,20 @@ var textUtils = {
                 }
 
                 fuzzyLen = fuzzyLen + pushNum;
-                tmpText = text.substring(fuzzyLen);
+                tmpText = this._safeSubstring(text, fuzzyLen);
+                if (this.label_firstEmoji.test(tmpText)) {
+                    tmpText = tmpText.slice(1);
+                }
                 width = allWidth - measureText(tmpText);
             }
 
             fuzzyLen -= pushNum;
             if (fuzzyLen === 0) {
                 fuzzyLen = 1;
-                sLine = sLine.substring(1);
+                sLine = this._safeSubstring(sLine, 1);
             }
 
-            var sText = text.substring(0, 0 + fuzzyLen), result;
+            var sText = this._safeSubstring(text, 0, fuzzyLen), result;
 
             //symbol in the first
             if (this.label_wrapinspection) {
@@ -229,8 +241,8 @@ var textUtils = {
                     fuzzyLen -= result ? result[0].length : 0;
                     if (fuzzyLen === 0) fuzzyLen = 1;
 
-                    sLine = text.substring(fuzzyLen);
-                    sText = text.substring(0, 0 + fuzzyLen);
+                    sLine = this._safeSubstring(text, fuzzyLen);
+                    sText = this._safeSubstring(text, 0, fuzzyLen);
                 }
             }
 
@@ -240,8 +252,8 @@ var textUtils = {
                 result = this.label_lastEmoji.exec(sText);
                 if (result && sText !== result[0]) {
                     fuzzyLen -= result[0].length;
-                    sLine = text.substring(fuzzyLen);
-                    sText = text.substring(0, 0 + fuzzyLen);
+                    sLine = this._safeSubstring(text, fuzzyLen);
+                    sText = this._safeSubstring(text, 0, fuzzyLen);
                 }
             }
 
@@ -250,8 +262,8 @@ var textUtils = {
                 result = this.label_lastEnglish.exec(sText);
                 if (result && sText !== result[0]) {
                     fuzzyLen -= result[0].length;
-                    sLine = text.substring(fuzzyLen);
-                    sText = text.substring(0, 0 + fuzzyLen);
+                    sLine = this._safeSubstring(text, fuzzyLen);
+                    sText = this._safeSubstring(text, 0, fuzzyLen);
                 }
             }
 
