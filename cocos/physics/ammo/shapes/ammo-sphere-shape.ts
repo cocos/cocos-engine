@@ -22,7 +22,7 @@ export class AmmoSphereShape extends AmmoShape implements ISphereShape {
         }
     }
 
-    get shape () {
+    get impl () {
         return this._btShape as Ammo.btSphereShape;
     }
 

@@ -13,7 +13,7 @@ export class AmmoBvhTriangleMeshShape extends AmmoShape implements ITrimeshShape
         return this._collider as MeshColliderComponent;
     }
 
-    public get shape () {
+    public get impl () {
         return this._btShape as Ammo.btBvhTriangleMeshShape;
     }
 
@@ -101,7 +101,7 @@ export class AmmoBvhTriangleMeshShape extends AmmoShape implements ITrimeshShape
 
     setCompound (compound: Ammo.btCompoundShape | null) {
         super.setCompound(compound);
-        this.shape.setUserIndex(this._index);
+        this.impl.setUserIndex(this._index);
     }
 
     updateScale () {

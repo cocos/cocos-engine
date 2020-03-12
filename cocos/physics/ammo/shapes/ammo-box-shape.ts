@@ -21,7 +21,7 @@ export class AmmoBoxShape extends AmmoShape implements IBoxShape {
         }
     }
 
-    get shape () {
+    get impl () {
         return this._btShape as Ammo.btBoxShape;
     }
 

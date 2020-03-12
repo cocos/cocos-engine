@@ -13,7 +13,7 @@ export class CannonTrimeshShape extends CannonShape implements ITrimeshShape {
         return this._collider as MeshColliderComponent;
     }
 
-    get shape () {
+    get impl () {
         return this._shape as CANNON.Trimesh;
     }
 
@@ -52,22 +52,22 @@ export class CannonTrimeshShape extends CannonShape implements ITrimeshShape {
     setScale (scale: Vec3) {
         super.setScale(scale);
         Vec3.copy(v3_cannon0, scale);
-        this.shape.setScale(v3_cannon0);
+        this.impl.setScale(v3_cannon0);
     }
 
     private updateInternalMesh (vertices: Float32Array, indices: Uint16Array) {
-        this.shape.vertices = new Float32Array(vertices);
-        this.shape.indices = new Int16Array(indices);
-        this.shape.normals = new Float32Array(indices.length);
-        this.shape.aabb = new CANNON.AABB();
-        this.shape.edges = [];
-        this.shape.tree = new CANNON.Octree(new CANNON.AABB());
-        this.shape.updateEdges();
-        this.shape.updateNormals();
-        this.shape.updateAABB();
-        this.shape.updateBoundingSphereRadius();
-        this.shape.updateTree();
-        this.shape.setScale(this.shape.scale);
+        this.impl.vertices = new Float32Array(vertices);
+        this.impl.indices = new Int16Array(indices);
+        this.impl.normals = new Float32Array(indices.length);
+        this.impl.aabb = new CANNON.AABB();
+        this.impl.edges = [];
+        this.impl.tree = new CANNON.Octree(new CANNON.AABB());
+        this.impl.updateEdges();
+        this.impl.updateNormals();
+        this.impl.updateAABB();
+        this.impl.updateBoundingSphereRadius();
+        this.impl.updateTree();
+        this.impl.setScale(this.impl.scale);
         if (this._index >= 0) {
             commitShapeUpdates(this._body);
         }

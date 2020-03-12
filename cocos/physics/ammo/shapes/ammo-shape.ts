@@ -50,7 +50,7 @@ export class AmmoShape implements IBaseShape {
         return null;
     }
 
-    get shape () { return this._btShape!; }
+    get impl () { return this._btShape!; }
     get collider (): ColliderComponent { return this._collider; }
     get sharedBody (): AmmoSharedBody { return this._sharedBody; }
     get index () { return this._index; }
@@ -210,7 +210,7 @@ export class AmmoShape implements IBaseShape {
         n.worldPosition = new Vec3(origin.x(), origin.y(), origin.z());
         let rotation = AmmoShape._debugTransform.getRotation();
         n.worldRotation = new Quat(rotation.x(), rotation.y(), rotation.z(), rotation.w());
-        let scale = this.shape.getLocalScaling();
+        let scale = this.impl.getLocalScaling();
         n.scale = new Vec3(scale.x(), scale.y(), scale.z());
     }
 }

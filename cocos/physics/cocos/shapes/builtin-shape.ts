@@ -18,10 +18,14 @@ export class BuiltinShape extends BuiltinObject implements IBaseShape {
     }
 
     get localShape () {
-        return this._worldShape;
+        return this._localShape;
     }
 
     get worldShape () {
+        return this._worldShape;
+    }
+
+    get impl () {
         return this._worldShape;
     }
 

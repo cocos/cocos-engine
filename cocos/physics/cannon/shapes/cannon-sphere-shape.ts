@@ -12,14 +12,14 @@ export class CannonSphereShape extends CannonShape implements ISphereShape {
         return this._collider as SphereColliderComponent;
     }
 
-    get shape () {
+    get impl () {
         return this._shape as CANNON.Sphere;
     }
 
     setRadius (v: number) {
         const max = maxComponent(this.collider.node.worldScale);
-        this.shape.radius = v * Math.abs(max);
-        this.shape.updateBoundingSphereRadius();
+        this.impl.radius = v * Math.abs(max);
+        this.impl.updateBoundingSphereRadius();
         if (this._index != -1) {
             commitShapeUpdates(this._body);
         }

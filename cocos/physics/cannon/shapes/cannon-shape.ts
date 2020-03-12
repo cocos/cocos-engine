@@ -22,7 +22,7 @@ export class CannonShape implements IBaseShape {
 
     static readonly idToMaterial = {};
 
-    get shape () { return this._shape!; }
+    get impl () { return this._shape!; }
 
     get collider () { return this._collider; }
 

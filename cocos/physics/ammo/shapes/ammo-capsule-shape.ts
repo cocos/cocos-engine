@@ -14,14 +14,14 @@ export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
     }
 
     setDirection (v: number) {
-        this.shape.setUpAxis(v);
+        this.impl.setUpAxis(v);
     }
 
     setRadius (v: number) {
         this.updateCapsuleProp(v, this.collider.height, this._collider.node.worldScale);
     }
 
-    get shape () {
+    get impl () {
         return this._btShape as Ammo.btCapsuleShape;
     }
 
@@ -49,8 +49,8 @@ export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
      */
     updateCapsuleProp (radius: number, height: number, scale: IVec3Like) {
         const ws = scale;
-        const upAxis = this.shape.getUpAxis();
-        const isd = this.shape.getImplicitShapeDimensions();
+        const upAxis = this.impl.getUpAxis();
+        const isd = this.impl.getImplicitShapeDimensions();
         if (upAxis == 1) {
             const wh = height * Math.abs(ws.y);
             const wr = radius * absMax(ws.x, ws.z);
@@ -68,6 +68,6 @@ export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
             isd.setValue(wr, wr, halfH);
         }
         cocos2AmmoVec3(this.scale, Vec3.ONE);
-        this.shape.setLocalScaling(this.scale);
+        this.impl.setLocalScaling(this.scale);
     }
 }

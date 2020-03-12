@@ -12,7 +12,7 @@ export class CannonBoxShape extends CannonShape implements IBoxShape {
         return this._collider as BoxColliderComponent;
     }
 
-    public get shape () {
+    public get impl () {
         return this._shape as CANNON.Box;
     }
 
@@ -25,8 +25,8 @@ export class CannonBoxShape extends CannonShape implements IBoxShape {
 
     setSize (v: IVec3Like) {
         Vec3.multiplyScalar(this.halfExtent, v, 0.5);
-        Vec3.multiply(this.shape.halfExtents, this.halfExtent, this.collider.node.worldScale);
-        this.shape.updateConvexPolyhedronRepresentation();
+        Vec3.multiply(this.impl.halfExtents, this.halfExtent, this.collider.node.worldScale);
+        this.impl.updateConvexPolyhedronRepresentation();
         if (this._index != -1) {
             commitShapeUpdates(this._body);
         }

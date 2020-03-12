@@ -9,6 +9,7 @@ import { ColliderComponent, RigidBodyComponent, PhysicMaterial } from '../../../
 import { Mesh } from '../../core';
 
 export interface IBaseShape extends ILifecycle, IGroupMask {
+    readonly impl: any;
     readonly collider: ColliderComponent;
     readonly attachedRigidBody: RigidBodyComponent | null;
     initialize (v: ColliderComponent): void;

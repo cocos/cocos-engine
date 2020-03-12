@@ -8,6 +8,7 @@ import { IVec3Like } from "../../core/math/type-define";
 import { RigidBodyComponent } from '../framework/components/rigid-body-component';
 
 export interface IRigidBody extends ILifecycle, IGroupMask {
+    readonly impl: any;
     readonly rigidBody: RigidBodyComponent;
     readonly isAwake: boolean;
     readonly isSleepy: boolean;
