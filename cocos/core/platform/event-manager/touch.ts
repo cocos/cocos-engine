@@ -41,9 +41,18 @@ const _vec2 = new Vec2();
  * @param {Number} id
  */
 export class Touch {
-    public _point: Vec2 = new Vec2();
-    public _prevPoint: Vec2 = new Vec2();
-    public _lastModified = 0;
+    /**
+     * @zh 不建议用户直接使用。
+     */
+    public point: Vec2 = new Vec2();
+    /**
+     * @zh 不建议用户直接使用。
+     */
+    public prevPoint: Vec2 = new Vec2();
+    /**
+     * @zh 不建议用户直接使用。
+     */
+    public lastModified = 0;
     private _id: number | null = null;
     private _startPoint: Vec2 = new Vec2();
     private _startPointCaptured: boolean = false;
@@ -61,7 +70,7 @@ export class Touch {
             out = new Vec2();
         }
 
-        out.set(this._point.x, this._point.y);
+        out.set(this.point.x, this.point.y);
         return out;
     }
 
@@ -70,7 +79,7 @@ export class Touch {
      * @zh 获取当前触点 X 轴位置。
      */
     public getLocationX () {
-        return this._point.x;
+        return this.point.x;
     }
 
     /**
@@ -78,7 +87,7 @@ export class Touch {
      * @zh 获取当前触点 Y 轴位置。
      */
     public getLocationY () {
-        return this._point.y;
+        return this.point.y;
     }
 
     /**
@@ -90,7 +99,7 @@ export class Touch {
             out = new Vec2();
         }
 
-        out.set(this._point.x, this._point.y);
+        out.set(this.point.x, this.point.y);
         cc.view._convertPointWithScale(out);
         return out;
     }
@@ -101,7 +110,7 @@ export class Touch {
      */
     public getUILocationX () {
         const viewport = cc.view.getViewportRect();
-        return (this._point.x - viewport.x) / cc.view.getScaleX();
+        return (this.point.x - viewport.x) / cc.view.getScaleX();
     }
 
     /**
@@ -110,7 +119,7 @@ export class Touch {
      */
     public getUILocationY () {
         const viewport = cc.view.getViewportRect();
-        return (this._point.y - viewport.y) / cc.view.getScaleY();
+        return (this.point.y - viewport.y) / cc.view.getScaleY();
     }
 
     /**
@@ -122,7 +131,7 @@ export class Touch {
             out = new Vec2();
         }
 
-        out.set(this._prevPoint.x, this._prevPoint.y);
+        out.set(this.prevPoint.x, this.prevPoint.y);
         return out;
     }
 
@@ -135,7 +144,7 @@ export class Touch {
             out = new Vec2();
         }
 
-        out.set(this._prevPoint.x, this._prevPoint.y);
+        out.set(this.prevPoint.x, this.prevPoint.y);
         cc.view._convertPointWithScale(out);
         return out;
     }
@@ -176,8 +185,8 @@ export class Touch {
             out = new Vec2();
         }
 
-        out.set(this._point);
-        out.subtract(this._prevPoint);
+        out.set(this.point);
+        out.subtract(this.prevPoint);
         return out;
     }
 
@@ -190,8 +199,8 @@ export class Touch {
             out = new Vec2();
         }
 
-        _vec2.set(this._point);
-        _vec2.subtract(this._prevPoint);
+        _vec2.set(this.point);
+        _vec2.subtract(this.prevPoint);
         out.set(cc.view.getScaleX(), cc.view.getScaleY());
         Vec2.divide(out, _vec2, out);
         return out;
@@ -206,7 +215,7 @@ export class Touch {
             out = new Vec2();
         }
 
-        out.set(this._point.x, cc.view._designResolutionSize.height - this._point.y);
+        out.set(this.point.x, cc.view._designResolutionSize.height - this.point.y);
         return out;
     }
 
@@ -219,7 +228,7 @@ export class Touch {
             out = new Vec2();
         }
 
-        out.set(this._prevPoint.x, cc.view._designResolutionSize.height - this._prevPoint.y);
+        out.set(this.prevPoint.x, cc.view._designResolutionSize.height - this.prevPoint.y);
         return out;
     }
 
@@ -249,39 +258,51 @@ export class Touch {
      * @zh 设置触摸相关的信息。用于监控触摸事件。
      */
     public setTouchInfo (id: number | null = null, x?: number, y?: number) {
-        this._prevPoint = this._point;
-        this._point = new Vec2(x || 0, y || 0);
+        this.prevPoint = this.point;
+        this.point = new Vec2(x || 0, y || 0);
         this._id = id;
         if (!this._startPointCaptured) {
-            this._startPoint = new Vec2(this._point);
+            this._startPoint = new Vec2(this.point);
             // cc.view._convertPointWithScale(this._startPoint);
             this._startPointCaptured = true;
         }
     }
 
-    public _setPoint (point: Vec2): void;
+    public setPoint (point: Vec2): void;
 
-    public _setPoint (x: number, y: number): void;
+    public setPoint (x: number, y: number): void;
 
-    public _setPoint (x: number | Vec2, y?: number) {
+    /**
+     * @zh 设置屏幕触点信息。
+     * NOTE：不建议用户调用。
+     * @param x 当前屏幕横向触摸点
+     * @param y 当前屏幕纵向触摸点
+     */
+    public setPoint (x: number | Vec2, y?: number) {
         if (typeof x === 'object') {
-            this._point.x = x.x;
-            this._point.y = x.y;
+            this.point.x = x.x;
+            this.point.y = x.y;
         } else {
-            this._point.x = x || 0;
-            this._point.y = y || 0;
+            this.point.x = x || 0;
+            this.point.y = y || 0;
         }
     }
 
-    public _setPrevPoint (point: Vec2): void;
+    public setPrevPoint (point: Vec2): void;
 
-    public _setPrevPoint (x: number, y: number): void;
+    public setPrevPoint (x: number, y: number): void;
 
-    public _setPrevPoint (x: number | Vec2, y?: number) {
+    /**
+     * @zh 设置上一次屏幕触点信息。
+     * NOTE：不建议用户调用。
+     * @param x 上一次屏幕横向触摸点
+     * @param y 上一次屏幕纵向触摸点
+     */
+    public setPrevPoint (x: number | Vec2, y?: number) {
         if (typeof x === 'object') {
-            this._prevPoint = new Vec2(x.x, x.y);
+            this.prevPoint = new Vec2(x.x, x.y);
         } else {
-            this._prevPoint = new Vec2(x || 0, y || 0);
+            this.prevPoint = new Vec2(x || 0, y || 0);
         }
     }
 }

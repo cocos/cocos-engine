@@ -182,7 +182,7 @@ export class UIStaticBatchComponent extends UIRenderComponent {
             render.currStaticRoot = null;
             this._dirty = false;
             this._init = true;
-            this.node._static = true;
+            this.node.isStatic = true;
 
             this._meshBuffer!.uploadData();
         }
@@ -203,7 +203,7 @@ export class UIStaticBatchComponent extends UIRenderComponent {
             return;
         }
 
-        this.node._static = false;
+        this.node.isStatic = false;
         this._dirty = true;
         this._init = false;
 

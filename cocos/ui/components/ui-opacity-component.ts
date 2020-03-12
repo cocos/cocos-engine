@@ -37,17 +37,17 @@ export class UIOpacityComponent extends Component {
         }
 
         this._opacity = value;
-        this.node._uiProps.opacity = value / 255;
+        this.node.uiProps.opacity = value / 255;
     }
 
     @property
     protected _opacity = 255;
 
     public onEnable () {
-        this.node._uiProps.opacity = this._opacity / 255;
+        this.node.uiProps.opacity = this._opacity / 255;
     }
 
     public onDisable (){
-        this.node._uiProps.opacity = 1;
+        this.node.uiProps.opacity = 1;
     }
 }

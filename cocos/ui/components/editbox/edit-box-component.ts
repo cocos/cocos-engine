@@ -695,7 +695,7 @@ export class EditBoxComponent extends Component {
         }
 
         // update
-        const transformComp = this._textLabel!.node._uiProps.uiTransformComp;
+        const transformComp = this._textLabel!.node.uiProps.uiTransformComp;
         transformComp!.setAnchorPoint(0, 1);
         textLabel!.overflow = LabelComponent.Overflow.CLAMP;
         if (this._inputMode === InputMode.ANY) {
@@ -727,7 +727,7 @@ export class EditBoxComponent extends Component {
         }
 
         // update
-        const transform = this._placeholderLabel!.node._uiProps.uiTransformComp;
+        const transform = this._placeholderLabel!.node.uiProps.uiTransformComp;
         transform!.setAnchorPoint(0, 1);
         placeholderLabel!.overflow = LabelComponent.Overflow.CLAMP;
         if (this._inputMode === InputMode.ANY) {
@@ -745,7 +745,7 @@ export class EditBoxComponent extends Component {
         const size = this.node.getContentSize();
 
         if (this._background) {
-            this._background.node._uiProps.uiTransformComp!.anchorPoint = this.node._uiProps.uiTransformComp!.anchorPoint;
+            this._background.node.uiProps.uiTransformComp!.anchorPoint = this.node.uiProps.uiTransformComp!.anchorPoint;
             this._background.node.setContentSize(size);
         }
 

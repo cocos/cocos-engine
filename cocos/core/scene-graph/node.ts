@@ -27,7 +27,6 @@
  * @category scene-graph
  */
 
-import { UIComponent, UITransformComponent } from '../components/ui-base';
 import { ccclass, property } from '../data/class-decorator';
 import { Mat3, Mat4, Quat, Size, Vec2, Vec3 } from '../math';
 import { SystemEventType } from '../platform/event-manager/event-enum';
@@ -89,9 +88,14 @@ export class Node extends BaseNode {
         return obj instanceof Node && (obj.constructor === Node || !(obj instanceof cc.Scene));
     }
 
-    // UI 部分的脏数据
-    public _uiProps = new NodeUIProperties(this);
-    public _static = false;
+    /**
+     * @zh UI 部分的脏数据。不建议直接调用
+     */
+    public uiProps = new NodeUIProperties(this);
+    /**
+     * @zh 脏数据。目前不建议直接调用
+     */
+    public isStatic = false;
 
     // world transform, don't access this directly
     protected _pos = new Vec3();
@@ -272,31 +276,31 @@ export class Node extends BaseNode {
     // ===============================
 
     get width () {
-        return this._uiProps.uiTransformComp!.width;
+        return this.uiProps.uiTransformComp!.width;
     }
     set width (value: number) {
-        this._uiProps.uiTransformComp!.width = value;
+        this.uiProps.uiTransformComp!.width = value;
     }
 
     get height () {
-        return this._uiProps.uiTransformComp!.height;
+        return this.uiProps.uiTransformComp!.height;
     }
     set height (value: number) {
-        this._uiProps.uiTransformComp!.height = value;
+        this.uiProps.uiTransformComp!.height = value;
     }
 
     get anchorX () {
-        return this._uiProps.uiTransformComp!.anchorX;
+        return this.uiProps.uiTransformComp!.anchorX;
     }
     set anchorX (value) {
-        this._uiProps.uiTransformComp!.anchorX = value;
+        this.uiProps.uiTransformComp!.anchorX = value;
     }
 
     get anchorY () {
-        return this._uiProps.uiTransformComp!.anchorY;
+        return this.uiProps.uiTransformComp!.anchorY;
     }
     set anchorY (value: number) {
-        this._uiProps.uiTransformComp!.anchorY = value;
+        this.uiProps.uiTransformComp!.anchorY = value;
     }
 
     // ===============================
@@ -924,12 +928,12 @@ export class Node extends BaseNode {
         if (!out) {
             out = new Vec2();
         }
-        out.set(this._uiProps.uiTransformComp!.anchorPoint);
+        out.set(this.uiProps.uiTransformComp!.anchorPoint);
         return out;
     }
 
     public setAnchorPoint (point: Vec2 | number, y?: number) {
-        this._uiProps.uiTransformComp!.setAnchorPoint(point, y);
+        this.uiProps.uiTransformComp!.setAnchorPoint(point, y);
     }
 
     public getContentSize (out?: Size): Size {
@@ -937,12 +941,12 @@ export class Node extends BaseNode {
             out = new Size();
         }
 
-        out.set(this._uiProps.uiTransformComp!.contentSize);
+        out.set(this.uiProps.uiTransformComp!.contentSize);
         return out;
     }
 
     public setContentSize (size: Size | number, height?: number) {
-        this._uiProps.uiTransformComp!.setContentSize(size, height);
+        this.uiProps.uiTransformComp!.setContentSize(size, height);
     }
 
     public pauseSystemEvents (recursive: boolean): void {

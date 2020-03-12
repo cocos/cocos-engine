@@ -65,7 +65,7 @@ export class UITransformComponent extends Component {
      */
     @property({
         displayOrder: 0,
-        tooltip:'内容尺寸',
+        tooltip: '内容尺寸',
     })
     // @constget
     get contentSize (): Readonly<Size> {
@@ -147,7 +147,7 @@ export class UITransformComponent extends Component {
      */
     @property({
         displayOrder: 1,
-        tooltip:'锚点位置',
+        tooltip: '锚点位置',
     })
     // @constget
     get anchorPoint (): Readonly<Vec2> {
@@ -198,7 +198,7 @@ export class UITransformComponent extends Component {
      * 渲染先后顺序，按照广度渲染排列，按同级节点下进行一次排列。
      */
     @property({
-        tooltip: '渲染排序优先级'
+        tooltip: '渲染排序优先级',
     })
     get priority() {
         return this._priority;
@@ -209,7 +209,7 @@ export class UITransformComponent extends Component {
             return;
         }
 
-        if (this._canvas && this._canvas.node === this.node) {
+        if (this.canvas && this.canvas.node === this.node) {
             cc.warn(9200);
             return;
         }
@@ -226,16 +226,19 @@ export class UITransformComponent extends Component {
      * 查找被渲染相机。
      */
     get visibility () {
-        if (!this._canvas) {
+        if (!this.canvas) {
             return -1;
         }
 
-        return this._canvas.visibility;
+        return this.canvas.visibility;
     }
 
     public static EventType = SystemEventType;
 
-    public _canvas: CanvasComponent | null = null;
+    /**
+     * @zh 不建议用户直接调用。
+     */
+    public canvas: CanvasComponent | null = null;
 
     @property
     protected _contentSize = new Size(100, 100);
@@ -243,7 +246,7 @@ export class UITransformComponent extends Component {
     protected _anchorPoint = new Vec2(0.5, 0.5);
 
     public __preload () {
-        this.node._uiProps.uiTransformComp = this;
+        this.node.uiProps.uiTransformComp = this;
     }
 
     public onEnable(){
@@ -256,11 +259,11 @@ export class UITransformComponent extends Component {
 
     public onDisable(){
         this.node.off(SystemEventType.PARENT_CHANGED, this._parentChanged, this);
-        this._canvas = null;
+        this.canvas = null;
     }
 
     public onDestroy () {
-        this.node._uiProps.uiTransformComp = null;
+        this.node.uiProps.uiTransformComp = null;
     }
 
     /**
@@ -378,7 +381,7 @@ export class UITransformComponent extends Component {
         const cameraPt = _vec2a;
         const testPt = _vec2b;
 
-        const canvas = this._canvas;
+        const canvas = this.canvas;
         if (!canvas) {
             return;
         }
@@ -602,7 +605,7 @@ export class UITransformComponent extends Component {
             if (parent) {
                 const canvasComp = parent.getComponent('cc.CanvasComponent') as CanvasComponent;
                 if (canvasComp) {
-                    this._canvas = canvasComp;
+                    this.canvas = canvasComp;
                     break;
                 }
             }
@@ -613,7 +616,7 @@ export class UITransformComponent extends Component {
     }
 
     protected _parentChanged(node: Node) {
-        if (this._canvas && this._canvas.node === this.node) {
+        if (this.canvas && this.canvas.node === this.node) {
             return;
         }
 
@@ -624,8 +627,8 @@ export class UITransformComponent extends Component {
         const siblings = this.node.parent && this.node.parent.children as Mutable<Node[]>;
         if (siblings) {
             siblings.sort((a, b) => {
-                const aComp = a._uiProps.uiTransformComp;
-                const bComp = b._uiProps.uiTransformComp;
+                const aComp = a.uiProps.uiTransformComp;
+                const bComp = b.uiProps.uiTransformComp;
                 const ca = aComp ? aComp.priority : 0;
                 const cb = bComp ? bComp.priority : 0;
                 const diff = ca - cb;

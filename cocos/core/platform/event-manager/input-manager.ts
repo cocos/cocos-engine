@@ -134,10 +134,10 @@ class InputManager {
                     continue;
                 }
                 // curTouch = this._touches[unusedIndex] = touch;
-                const curTouch = new Touch(touch._point.x, touch._point.y, touch.getID());
+                const curTouch = new Touch(touch.point.x, touch.point.y, touch.getID());
                 this._touches[unusedIndex] = curTouch;
-                curTouch._lastModified = now;
-                curTouch._setPrevPoint(touch._prevPoint);
+                curTouch.lastModified = now;
+                curTouch.setPrevPoint(touch.prevPoint);
                 locTouchIntDict[touchID] = unusedIndex;
                 handleTouches.push(curTouch);
             }
@@ -166,9 +166,9 @@ class InputManager {
                 continue;
             }
             if (locTouches[index]) {
-                locTouches[index]._setPoint(touch._point);
-                locTouches[index]._setPrevPoint(touch._prevPoint);
-                locTouches[index]._lastModified = now;
+                locTouches[index].setPoint(touch.point);
+                locTouches[index].setPrevPoint(touch.prevPoint);
+                locTouches[index].lastModified = now;
                 handleTouches.push(locTouches[index]);
             }
         }
@@ -218,8 +218,8 @@ class InputManager {
                 continue;
             }
             if (locTouches[index]) {
-                locTouches[index]._setPoint(touch._point);
-                locTouches[index]._setPrevPoint(touch._prevPoint);
+                locTouches[index].setPoint(touch.point);
+                locTouches[index].setPrevPoint(touch.prevPoint);
                 handleTouches.push(locTouches[index]);
                 this._removeUsedIndexBit(index);
                 delete locTouchesIntDict[touchID];
@@ -315,7 +315,7 @@ class InputManager {
             location.y = locPreTouch.y - event.movementY;
         }
         const touch = new Touch(location.x,  location.y, 0);
-        touch._setPrevPoint(locPreTouch.x, locPreTouch.y);
+        touch.setPrevPoint(locPreTouch.x, locPreTouch.y);
         locPreTouch.x = location.x;
         locPreTouch.y = location.y;
         return touch;
@@ -374,11 +374,11 @@ class InputManager {
                 touch = new Touch(location.x, location.y, changedTouch.identifier);
                 // use Touch Pool
                 this.getPreTouch(touch).getLocation(_preLocation);
-                touch._setPrevPoint(_preLocation.x, _preLocation.y);
+                touch.setPrevPoint(_preLocation.x, _preLocation.y);
                 this.setPreTouch(touch);
             } else {
                 touch = new Touch(location.x, location.y);
-                touch._setPrevPoint(locPreTouch.x, locPreTouch.y);
+                touch.setPrevPoint(locPreTouch.x, locPreTouch.y);
             }
             locPreTouch.x = location.x;
             locPreTouch.y = location.y;
@@ -535,7 +535,7 @@ class InputManager {
                 return i;
             } else {
                 const touch = this._touches[i];
-                if (now - touch._lastModified > TOUCH_TIMEOUT) {
+                if (now - touch.lastModified > TOUCH_TIMEOUT) {
                     this._removeUsedIndexBit(i);
                     const touchID = touch.getID();
                     if (touchID !== null) {

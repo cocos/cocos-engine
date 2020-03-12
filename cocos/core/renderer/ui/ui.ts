@@ -530,9 +530,9 @@ export class UI {
         const len = node.children.length;
 
         const parentOpacity = this._parentOpacity;
-        this._parentOpacity *= node._uiProps.opacity;
+        this._parentOpacity *= node.uiProps.opacity;
         this._preprocess(node);
-        if (len > 0 && !node._static) {
+        if (len > 0 && !node.isStatic) {
             const children = node.children;
             for (let i = 0; i < children.length; ++i) {
                 const child = children[i];
@@ -560,20 +560,20 @@ export class UI {
     }
 
     private _preprocess (c: Node) {
-        if (!c._uiProps.uiTransformComp) {
+        if (!c.uiProps.uiTransformComp) {
             return;
         }
 
         // parent changed can flush child visibility
-        c._uiProps.uiTransformComp._canvas = this._currCanvas;
-        const render = c._uiProps.uiComp;
+        c.uiProps.uiTransformComp.canvas = this._currCanvas;
+        const render = c.uiProps.uiComp;
         if (render && render.enabledInHierarchy) {
             render.updateAssembler(this);
         }
     }
 
     private _postprocess (c: Node) {
-        const render = c._uiProps.uiComp;
+        const render = c.uiProps.uiComp;
         if (render && render.enabledInHierarchy) {
             render.postUpdateAssembler(this);
         }

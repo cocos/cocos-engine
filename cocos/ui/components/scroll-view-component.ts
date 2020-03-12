@@ -728,8 +728,8 @@ export class ScrollViewComponent extends ViewGroupComponent {
      * @return - 最大可滚动偏移量。
      */
     public getMaxScrollOffset () {
-        const scrollSize = this.node._uiProps.uiTransformComp!.contentSize;
-        const contentSize = this._content!._uiProps.uiTransformComp!.contentSize;
+        const scrollSize = this.node.uiProps.uiTransformComp!.contentSize;
+        const contentSize = this._content!.uiProps.uiTransformComp!.contentSize;
         let horizontalMaximizeOffset = contentSize.width - scrollSize.width;
         let verticalMaximizeOffset = contentSize.height - scrollSize.height;
         horizontalMaximizeOffset = horizontalMaximizeOffset >= 0 ? horizontalMaximizeOffset : 0;
@@ -1084,7 +1084,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
             if (layout && layout.enabledInHierarchy) {
                 layout.updateLayout();
             }
-            const viewSize = this.view!._uiProps.uiTransformComp!.contentSize;
+            const viewSize = this.view!.uiProps.uiTransformComp!.contentSize;
 
             const anchorX = viewSize.width * this.view!.anchorX;
             const anchorY = viewSize.height * this.view!.anchorY;
@@ -1145,8 +1145,8 @@ export class ScrollViewComponent extends ViewGroupComponent {
 
         const targetDelta = new Vec3(deltaMove);
         targetDelta.normalize();
-        const contentSize = this._content!._uiProps.uiTransformComp!.contentSize;
-        const scrollViewSize = this.node._uiProps.uiTransformComp!.contentSize;
+        const contentSize = this._content!.uiProps.uiTransformComp!.contentSize;
+        const scrollViewSize = this.node.uiProps.uiTransformComp!.contentSize;
 
         const totalMoveWidth = (contentSize.width - scrollViewSize.width);
         const totalMoveHeight = (contentSize.height - scrollViewSize.height);
@@ -1411,7 +1411,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
     }
 
     protected _getLocalAxisAlignDelta (touch: Touch){
-        const uiTransformComp = this.node._uiProps.uiTransformComp;
+        const uiTransformComp = this.node.uiProps.uiTransformComp;
         const vec = new Vec3();
 
         if (uiTransformComp) {
@@ -1502,8 +1502,8 @@ export class ScrollViewComponent extends ViewGroupComponent {
     }
 
     protected _clampDelta (delta: Vec3) {
-        const contentSize = this._content!._uiProps.uiTransformComp!.contentSize;
-        const scrollViewSize = this.node._uiProps.uiTransformComp!.contentSize;
+        const contentSize = this._content!.uiProps.uiTransformComp!.contentSize;
+        const scrollViewSize = this.node.uiProps.uiTransformComp!.contentSize;
         if (contentSize.width < scrollViewSize.width) {
             delta.x = 0;
         }
@@ -1678,8 +1678,8 @@ export class ScrollViewComponent extends ViewGroupComponent {
 
         anchor.clampf(new Vec2(0, 0), new Vec2(1, 1));
 
-        const scrollSize = this.node._uiProps.uiTransformComp!.contentSize;
-        const contentSize = this._content!._uiProps.uiTransformComp!.contentSize;
+        const scrollSize = this.node.uiProps.uiTransformComp!.contentSize;
+        const contentSize = this._content!.uiProps.uiTransformComp!.contentSize;
         let bottomDelta = this._getContentBottomBoundary() - this._bottomBoundary;
         bottomDelta = -bottomDelta;
 
@@ -1702,7 +1702,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
     }
 
     protected _moveContentToTopLeft (scrollViewSize: Size) {
-        const contentSize = this._content!._uiProps.uiTransformComp!.contentSize;
+        const contentSize = this._content!.uiProps.uiTransformComp!.contentSize;
 
         let bottomDelta = this._getContentBottomBoundary() - this._bottomBoundary;
         bottomDelta = -bottomDelta;

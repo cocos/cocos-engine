@@ -959,7 +959,7 @@ export class WidgetComponent extends Component {
 
     protected _autoChangedValue (flag: AlignFlags, isAbs: boolean){
         const current = (this._alignFlags & flag) > 0;
-        if (!current || !this.node.parent || !this.node.parent._uiProps.uiTransformComp){
+        if (!current || !this.node.parent || !this.node.parent.uiProps.uiTransformComp){
             return;
         }
 

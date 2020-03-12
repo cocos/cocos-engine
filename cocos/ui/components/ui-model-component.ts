@@ -61,7 +61,7 @@ export class UIModelComponent extends UIComponent {
     private _modelComponent: RenderableComponent | null = null;
 
     public onLoad () {
-        if(!this.node._uiProps.uiTransformComp){
+        if(!this.node.uiProps.uiTransformComp){
             this.node.addComponent('cc.UITransformComponent');
         }
 

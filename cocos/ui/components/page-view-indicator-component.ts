@@ -224,18 +224,18 @@ export class PageViewIndicatorComponent extends Component {
     if (idx >= indicators.length) { return; }
     for (let i = 0; i < indicators.length; ++i) {
       const node = indicators[i];
-      if (!node._uiProps.uiComp) {
+      if (!node.uiProps.uiComp) {
         continue;
       }
 
-      const uiComp = node._uiProps.uiComp as UIRenderComponent;
+      const uiComp = node.uiProps.uiComp as UIRenderComponent;
       _color.set(uiComp.color);
       _color.a = 255 / 2;
       uiComp.color = _color;
     }
 
-    if (indicators[idx]._uiProps.uiComp) {
-      const comp = indicators[idx]._uiProps.uiComp as UIRenderComponent;
+    if (indicators[idx].uiProps.uiComp) {
+      const comp = indicators[idx].uiProps.uiComp as UIRenderComponent;
       _color.set(comp.color);
       _color.a = 255;
       comp.color = _color;

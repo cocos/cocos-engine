@@ -213,7 +213,7 @@ export class SliderComponent extends Component {
     }
 
     protected _onHandleDragStart (event?: EventTouch) {
-        if (!event || !this._handle || !this._handle.node._uiProps.uiTransformComp) {
+        if (!event || !this._handle || !this._handle.node.uiProps.uiTransformComp) {
             return;
         }
 
@@ -221,7 +221,7 @@ export class SliderComponent extends Component {
         this._touchHandle = true;
         const touhPos = event.touch!.getUILocation();
         Vec3.set(this._touchPos, touhPos.x, touhPos.y, 0);
-        this._handle.node._uiProps.uiTransformComp.convertToNodeSpaceAR(this._touchPos, this._offset);
+        this._handle.node.uiProps.uiTransformComp.convertToNodeSpaceAR(this._touchPos, this._offset);
 
         event.propagationStopped = true;
     }
@@ -282,7 +282,7 @@ export class SliderComponent extends Component {
 
         const touchPos = touch.getUILocation();
         Vec3.set(this._touchPos, touchPos.x, touchPos.y, 0);
-        const localTouchPos = this.node._uiProps.uiTransformComp!.convertToNodeSpaceAR(this._touchPos, _tempPos);
+        const localTouchPos = this.node.uiProps.uiTransformComp!.convertToNodeSpaceAR(this._touchPos, _tempPos);
         if (this.direction === Direction.Horizontal) {
             this.progress = clamp01(0.5 + (localTouchPos.x - this._offset.x) / this.node.width!);
         } else {
