@@ -208,6 +208,9 @@ export class RenderingSubMesh {
                 buffers.push(this.vertexBuffers[prim.vertexBundelIndices[i]]);
             }
         }
+        if (this._vertexIdChannel) {
+            buffers.push(this._allocVertexIdBuffer(device));
+        }
         return buffers;
     }
 
@@ -217,6 +220,10 @@ export class RenderingSubMesh {
     private _flatBuffers?: IFlatBuffer[];
     private _jointMappedBuffers?: GFXBuffer[];
     private _jointMappedBufferIndices?: number[];
+    private _vertexIdChannel?: {
+        stream: number;
+        index: number;
+    };
 
     constructor (vertexBuffers: GFXBuffer[], attributes: IGFXAttribute[], primitiveMode: GFXPrimitiveMode) {
         this.vertexBuffers = vertexBuffers;
@@ -240,6 +247,57 @@ export class RenderingSubMesh {
             this._jointMappedBuffers = undefined;
             this._jointMappedBufferIndices = undefined;
         }
+    }
+
+    /**
+     * Adds a vertex attribute input called 'a_vertexId' into this sub-mesh.
+     * This is useful if you want to simulate `gl_VertexId` in WebGL context prior to 2.0.
+     * Once you call this function, the vertex attribute is permanently added.
+     * Subsequent calls to this function take no effect.
+     * @param device Device used to create related rendering resources.
+     */
+    public enableVertexIdChannel (device: GFXDevice) {
+        if (this._vertexIdChannel) {
+            return;
+        }
+
+        const streamIndex = this.vertexBuffers.length;
+        const attributeIndex = this.attributes.length;
+
+        const vertexIdBuffer = this._allocVertexIdBuffer(device);
+        this.vertexBuffers.push(vertexIdBuffer);
+        this.attributes.push({
+            name: 'a_vertexId',
+            format: GFXFormat.R32F,
+            stream: streamIndex,
+            isNormalized: false,
+        });
+
+        this._vertexIdChannel = {
+            stream: streamIndex,
+            index: attributeIndex,
+        };
+    }
+
+    private _allocVertexIdBuffer (device: GFXDevice) {
+        const vertexCount = (this.vertexBuffers.length === 0 || this.vertexBuffers[0].stride === 0) ?
+            0 :
+            // TODO: This depends on how stride of a vertex buffer is defined; Consider padding problem.
+            this.vertexBuffers[0].size / this.vertexBuffers[0].stride;
+        const vertexIds = new Float32Array(vertexCount);
+        for (let iVertex = 0; iVertex < vertexCount; ++iVertex) {
+            vertexIds[iVertex] = iVertex;
+        }
+
+        const vertexIdBuffer = device.createBuffer({
+            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: vertexIds.byteLength,
+            stride: vertexIds.BYTES_PER_ELEMENT,
+        });
+        vertexIdBuffer.update(vertexIds);
+
+        return vertexIdBuffer;
     }
 }
 
