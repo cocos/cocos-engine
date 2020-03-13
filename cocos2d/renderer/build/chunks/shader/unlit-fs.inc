@@ -28,7 +28,7 @@ void main () {
   vec4 color = diffuseColor;
 
   #if CC_USE_TEXTURE
-    CCTexture2D(diffuseTexture, v_uv0, color);
+    CCTexture(diffuseTexture, v_uv0, color);
   #endif
 
   #if CC_USE_ATTRIBUTE_COLOR
