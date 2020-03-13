@@ -95,7 +95,7 @@ static bool js_gfx_GLES2Device_copyTexImagesToTexture(se::State& s)
                     CC_UNUSED size_t dataLength = 0;
                     cocos2d::Data bufferData;
                     ok &= seval_to_Data(value, &bufferData);
-                    arg0.datas[i] = bufferData.getBytes();
+                    arg0.datas[i] = bufferData.takeBuffer();
                 }
             }
         }
