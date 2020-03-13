@@ -22,7 +22,7 @@ test('Basic Test', function() {
               'Invalid tag begin.');
 
     var testInvalidStr3 = ">x hello world";
-    deepEqual(parser.parse(testInvalidStr2),
+    deepEqual(parser.parse(testInvalidStr3),
             [{text: ">x hello world"}],
             'Invalid tag begin.');
 
