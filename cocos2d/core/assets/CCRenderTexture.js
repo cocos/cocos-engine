@@ -78,7 +78,7 @@ let RenderTexture = cc.Class({
      * @param {Number} y 
      */
     drawTextureAt (texture, x, y) {
-        if (!texture._image) return;
+        if (!texture._image || texture._image.width === 0) return;
 
         this._texture.updateSubImage({
             x, y,
