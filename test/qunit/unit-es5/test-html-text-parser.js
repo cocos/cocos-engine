@@ -41,20 +41,25 @@ test('Basic Test', function() {
               [{text: "hello world"}],
               "Empty tags are emitted.");
 
-    var testInvalidStr7 = "<>hello world";
+    var testInvalidStr7 = "<>";
     deepEqual(parser.parse(testInvalidStr7),
-            [{text: "<>hello world"}],
-            "Empty tags are emitted.");
+            [{text:"<>"}],
+            "No Html string should be equal to original.");
 
-    var testInvalidStr8 = "<>>>hello world";
+    var testInvalidStr8 = "<>>";
     deepEqual(parser.parse(testInvalidStr8),
-            [{text: "<>>>hello world"}],
-            "Empty tags are emitted.");
+            [{text:"<>"}, {text:">"}],
+            "No Html string should be equal to original.");
 
-    var testInvalidStr9 = "<<<>hello world";
+    var testInvalidStr9 = "<<>";
     deepEqual(parser.parse(testInvalidStr9),
-            [{text: "<<<>hello world"}],
-            "Empty tags are emitted.");
+            [{text:"<<>"}],
+            "No Html string should be equal to original.");
+    
+    var testInvalidStr10 = "<null><></null>";
+    deepEqual(parser.parse(testInvalidStr10),
+            [{text:"<>", style:{}}],
+            "The content value no have any style");
 });
 
 
