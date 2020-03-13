@@ -1995,7 +1995,7 @@ The UI has not been initialized
 
 ### 9620
 
-[Physics][Ammo]: Currently, changing the mesh is not supported if the initialization is complete
+[Physics][Ammo]: changing the mesh is not supported after the initialization is completed
 
 ### 10001
 

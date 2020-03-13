@@ -62,7 +62,7 @@ export class CannonRigidBody implements IRigidBody {
         }
     }
 
-    setFixedRotation (value: boolean) {
+    fixRotation (value: boolean) {
 
         if (this.impl.isSleeping()) {
             this.impl.wakeUp();
@@ -80,7 +80,7 @@ export class CannonRigidBody implements IRigidBody {
         this.impl.angularDamping = value;
     }
 
-    setUseGravity (value: boolean) {
+    useGravity (value: boolean) {
 
         if (this.impl.isSleeping()) {
             this.impl.wakeUp();
@@ -147,9 +147,9 @@ export class CannonRigidBody implements IRigidBody {
         this.setAllowSleep(this._rigidBody.allowSleep);
         this.setLinearDamping(this._rigidBody.linearDamping);
         this.setAngularDamping(this._rigidBody.angularDamping);
-        this.setUseGravity(this._rigidBody.useGravity);
+        this.useGravity(this._rigidBody.useGravity);
         this.setIsKinematic(this._rigidBody.isKinematic);
-        this.setFixedRotation(this._rigidBody.fixedRotation);
+        this.fixRotation(this._rigidBody.fixedRotation);
         this.setLinearFactor(this._rigidBody.linearFactor);
         this.setAngularFactor(this._rigidBody.angularFactor);
         this._sharedBody.enabled = true;

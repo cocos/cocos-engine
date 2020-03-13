@@ -47,7 +47,7 @@ export class CannonShape implements IBaseShape {
         }
     }
 
-    setIsTrigger (v: boolean) {
+    setAsTrigger (v: boolean) {
         this._shape.collisionResponse = !v;
         if (this._index >= 0) {
             this._body.updateHasTrigger();
@@ -91,7 +91,7 @@ export class CannonShape implements IBaseShape {
 
     onLoad () {
         this.setCenter(this._collider.center);
-        this.setIsTrigger(this._collider.isTrigger);
+        this.setAsTrigger(this._collider.isTrigger);
     }
 
     onEnable () {

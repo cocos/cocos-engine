@@ -20,8 +20,8 @@ export interface IRigidBody extends ILifecycle, IGroupMask {
     setLinearDamping: (v: number) => void;
     setAngularDamping: (v: number) => void;
     setIsKinematic: (v: boolean) => void;
-    setUseGravity: (v: boolean) => void;
-    setFixedRotation: (v: boolean) => void;
+    useGravity: (v: boolean) => void;
+    fixRotation: (v: boolean) => void;
     setLinearFactor: (v: IVec3Like) => void;
     setAngularFactor: (v: IVec3Like) => void;
     setAllowSleep: (v: boolean) => void;

@@ -25,9 +25,9 @@ export class CannonTrimeshShape extends CannonShape implements ITrimeshShape {
             if (mesh && mesh.renderingSubMeshes.length > 0) {
                 const vertices = mesh.renderingSubMeshes[0].geometricInfo!.positions;
                 const indices = mesh.renderingSubMeshes[0].geometricInfo!.indices as Uint16Array;
-                this.updateInternalMesh(vertices, indices);
+                this._updateInternalMesh(vertices, indices);
             } else {
-                this.updateInternalMesh(new Float32Array(), new Uint16Array());
+                this._updateInternalMesh(new Float32Array(), new Uint16Array());
             }
         } else {
             if (mesh && mesh.renderingSubMeshes.length > 0) {
@@ -55,7 +55,7 @@ export class CannonTrimeshShape extends CannonShape implements ITrimeshShape {
         this.impl.setScale(v3_cannon0);
     }
 
-    private updateInternalMesh (vertices: Float32Array, indices: Uint16Array) {
+    private _updateInternalMesh (vertices: Float32Array, indices: Uint16Array) {
         this.impl.vertices = new Float32Array(vertices);
         this.impl.indices = new Int16Array(indices);
         this.impl.normals = new Float32Array(indices.length);

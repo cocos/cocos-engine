@@ -34,7 +34,7 @@ export class AmmoShape implements IBaseShape {
         }
     }
 
-    setIsTrigger (v: boolean) {
+    setAsTrigger (v: boolean) {
         if (this._isTrigger == v)
             return;
 
@@ -99,7 +99,7 @@ export class AmmoShape implements IBaseShape {
 
     onLoad () {
         this.setCenter(this._collider.center);
-        this.setIsTrigger(this._collider.isTrigger);
+        this.setAsTrigger(this._collider.isTrigger);
     }
 
     onEnable () {

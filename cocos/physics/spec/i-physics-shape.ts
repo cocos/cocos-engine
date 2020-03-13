@@ -14,7 +14,7 @@ export interface IBaseShape extends ILifecycle, IGroupMask {
     readonly attachedRigidBody: RigidBodyComponent | null;
     initialize (v: ColliderComponent): void;
     setMaterial: (v: PhysicMaterial | null) => void;
-    setIsTrigger: (v: boolean) => void;
+    setAsTrigger: (v: boolean) => void;
     setCenter: (v: IVec3Like) => void;
 }
 

@@ -8,9 +8,9 @@ import { IVec3Like } from '../../../core/math/type-define';
 import { BuiltInWorld } from '../builtin-world';
 import { Node } from '../../../core';
 
-export class BuiltinShape extends BuiltinObject implements IBaseShape {
+export class BuiltinShape implements IBaseShape {
     setMaterial (v: PhysicMaterial | null) { }
-    setIsTrigger (v: boolean) { }
+    setAsTrigger (v: boolean) { }
     get attachedRigidBody (): RigidBodyComponent | null { return null; }
 
     setCenter (v: IVec3Like) {
@@ -75,6 +75,40 @@ export class BuiltinShape extends BuiltinObject implements IBaseShape {
 
     transform (m: Mat4, pos: Vec3, rot: Quat, scale: Vec3) {
         this._localShape.transform(m, pos, rot, scale, this._worldShape);
+    }
+
+    /** group */
+    public getGroup (): number {
+        return this._sharedBody.getGroup();
+    }
+
+    public setGroup (v: number): void {
+        this._sharedBody.setGroup(v);
+    }
+
+    public addGroup (v: number): void {
+        this._sharedBody.addGroup(v);
+    }
+
+    public removeGroup (v: number): void {
+        this._sharedBody.removeGroup(v);
+    }
+
+    /** mask */
+    public getMask (): number {
+        return this._sharedBody.getMask();
+    }
+
+    public setMask (v: number): void {
+        this._sharedBody.setMask(v);
+    }
+
+    public addMask (v: number): void {
+        this._sharedBody.addMask(v);
+    }
+
+    public removeMask (v: number): void {
+        this._sharedBody.removeMask(v);
     }
 
 }

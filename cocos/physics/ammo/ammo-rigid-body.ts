@@ -58,7 +58,7 @@ export class AmmoRigidBody implements IRigidBody {
         this.impl.setCollisionFlags(m_collisionFlags);
     }
 
-    setUseGravity (value: boolean) {
+    useGravity (value: boolean) {
         let m_rigidBodyFlag = this.impl.getFlags()
         if (value) {
             m_rigidBodyFlag &= (~AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY);
@@ -70,7 +70,7 @@ export class AmmoRigidBody implements IRigidBody {
         this._sharedBody.updateByReAdd();
     }
 
-    setFixedRotation (value: boolean) {
+    fixRotation (value: boolean) {
         if (value) {
             /** TODO : should i reset angular velocity & torque ? */
 
@@ -133,10 +133,10 @@ export class AmmoRigidBody implements IRigidBody {
         this.setLinearDamping(this._rigidBody.linearDamping);
         this.setAngularDamping(this._rigidBody.angularDamping);
         this.setIsKinematic(this._rigidBody.isKinematic);
-        this.setFixedRotation(this._rigidBody.fixedRotation);
+        this.fixRotation(this._rigidBody.fixedRotation);
         this.setLinearFactor(this._rigidBody.linearFactor);
         this.setAngularFactor(this._rigidBody.angularFactor);
-        this.setUseGravity(this._rigidBody.useGravity);
+        this.useGravity(this._rigidBody.useGravity);
         this._sharedBody.bodyEnabled = true;
     }
 

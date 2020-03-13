@@ -102,7 +102,7 @@ export class ColliderComponent extends Component implements IEventTarget {
     public set isTrigger (value) {
         this._isTrigger = value;
         if (!EDITOR) {
-            this._shape.setIsTrigger(this._isTrigger);
+            this._shape.setAsTrigger(this._isTrigger);
         }
     }
 

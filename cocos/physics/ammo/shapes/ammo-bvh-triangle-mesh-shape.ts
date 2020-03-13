@@ -20,7 +20,7 @@ export class AmmoBvhTriangleMeshShape extends AmmoShape implements ITrimeshShape
     setMesh (v: Mesh | null) {
         if (!this._isBinding) return;
 
-        if (this._btShape != null && this._btShape != AmmoConstant.instance.emptyShape) {
+        if (this._btShape != null && this._btShape != AmmoConstant.instance.EMPTY_SHAPE) {
             // TODO: change the mesh after initialization
             warnID(9620);
         } else {
@@ -83,7 +83,7 @@ export class AmmoBvhTriangleMeshShape extends AmmoShape implements ITrimeshShape
                 this.setWrapper();
                 this.setCompound(this._btCompound);
             } else {
-                this._btShape = AmmoConstant.instance.emptyShape;
+                this._btShape = AmmoConstant.instance.EMPTY_SHAPE;
             }
 
         }

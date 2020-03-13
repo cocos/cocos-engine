@@ -20,5 +20,5 @@ export class AmmoConstant {
         if (AmmoConstant._instance == null) AmmoConstant._instance = new AmmoConstant;
         return AmmoConstant._instance;
     }
-    emptyShape = new Ammo.btEmptyShape();
+    readonly EMPTY_SHAPE = new Ammo.btEmptyShape();
 }

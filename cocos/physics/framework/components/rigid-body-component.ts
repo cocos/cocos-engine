@@ -140,7 +140,7 @@ export class RigidBodyComponent extends Component {
     public set useGravity (value) {
         this._useGravity = value;
         if (!EDITOR && !PHYSICS_BUILTIN) {
-            this._body.setUseGravity(value);
+            this._body.useGravity(value);
         }
     }
 
@@ -159,7 +159,7 @@ export class RigidBodyComponent extends Component {
     public set fixedRotation (value) {
         this._fixedRotation = value;
         if (!EDITOR && !PHYSICS_BUILTIN) {
-            this._body.setFixedRotation(value);
+            this._body.fixRotation(value);
         }
     }
 
