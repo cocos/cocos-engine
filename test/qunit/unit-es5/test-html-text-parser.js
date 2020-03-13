@@ -8,13 +8,13 @@ test('Basic Test', function() {
 
     var testStr1 = "hello world";
     deepEqual(parser.parse(testStr1),
-                [{text: "hello world"}],
-                'No Html string should be equal to original.');
+              [{text: "hello world"}],
+              'No Html string should be equal to original.');
 
     var testInvalidStr1 = "<x>hello world</x>";
     deepEqual(parser.parse(testInvalidStr1),
-                [{text: "hello world", style: {}}],
-                'Invalid tags');
+              [{text: "hello world", style: {}}],
+              'Invalid tags');
     
     var testInvalidStr2 = "<x hello world";
     deepEqual(parser.parse(testInvalidStr2),
@@ -23,18 +23,18 @@ test('Basic Test', function() {
 
     var testInvalidStr3 = ">x hello world";
     deepEqual(parser.parse(testInvalidStr3),
-            [{text: ">x hello world"}],
-            'Invalid tag begin.');
+              [{text: ">x hello world"}],
+              'Invalid tag begin.');
 
     var testInvalidStr4 = "</b>hello world";
     deepEqual(parser.parse(testInvalidStr4),
               [{text: "hello world"}],
-               "invalid tags end.");
+              "invalid tags end.");
 
     var testInvalidStr5 = "</>hello world";
     deepEqual(parser.parse(testInvalidStr5),
               [{text: "hello world"}],
-             "Empty tags are emitted.");
+              "Empty tags are emitted.");
 
     var testInvalidStr6 = "<b>hello world";
     deepEqual(parser.parse(testInvalidStr6),
@@ -43,23 +43,23 @@ test('Basic Test', function() {
 
     var testInvalidStr7 = "<>";
     deepEqual(parser.parse(testInvalidStr7),
-            [{text:"<>"}],
-            "No Html string should be equal to original.");
+              [{text:"<>"}],
+              "No Html string should be equal to original.");
 
     var testInvalidStr8 = "<>>";
     deepEqual(parser.parse(testInvalidStr8),
-            [{text:"<>"}, {text:">"}],
-            "No Html string should be equal to original.");
+              [{text:"<>"}, {text:">"}],
+              "No Html string should be equal to original.");
 
     var testInvalidStr9 = "<<>";
     deepEqual(parser.parse(testInvalidStr9),
-            [{text:"<<>"}],
-            "No Html string should be equal to original.");
+              [{text:"<<>"}],
+              "No Html string should be equal to original.");
     
     var testInvalidStr10 = "<null><></null>";
     deepEqual(parser.parse(testInvalidStr10),
-            [{text:"<>", style:{}}],
-            "The content value no have any style");
+              [{text:"<>", style:{}}],
+              "The content value no have any style");
 });
 
 
