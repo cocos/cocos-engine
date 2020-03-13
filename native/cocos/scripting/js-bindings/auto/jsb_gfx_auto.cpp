@@ -15509,24 +15509,6 @@ static bool js_gfx_GFXInputAssembler_getIndirectBuffer(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_GFXInputAssembler_getIndirectBuffer)
 
-static bool js_gfx_GFXInputAssembler_getVertexBuffers(se::State& s)
-{
-    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_getVertexBuffers : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        const std::vector<cocos2d::GFXBuffer *>& result = cobj->getVertexBuffers();
-        ok &= native_ptr_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_getVertexBuffers : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_GFXInputAssembler_getVertexBuffers)
-
 static bool js_gfx_GFXInputAssembler_initialize(se::State& s)
 {
     cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
@@ -15728,7 +15710,7 @@ bool js_register_gfx_GFXInputAssembler(se::Object* obj)
     auto cls = se::Class::create("GFXInputAssembler", obj, nullptr, _SE(js_gfx_GFXInputAssembler_constructor));
 
     cls->defineProperty("instanceCount", _SE(js_gfx_GFXInputAssembler_getInstanceCount), _SE(js_gfx_GFXInputAssembler_setInstanceCount));
-    cls->defineProperty("vertexBuffers", _SE(js_gfx_GFXInputAssembler_getVertexBuffers), nullptr);
+    cls->defineProperty("vertexBuffers", _SE(getVertexBuffers), nullptr);
     cls->defineProperty("firstInstance", _SE(js_gfx_GFXInputAssembler_getFirstInstance), _SE(js_gfx_GFXInputAssembler_setFirstInstance));
     cls->defineProperty("vertexOffset", _SE(js_gfx_GFXInputAssembler_getVertexOffset), _SE(js_gfx_GFXInputAssembler_setVertexOffset));
     cls->defineProperty("vertexCount", _SE(js_gfx_GFXInputAssembler_getVertexCount), _SE(js_gfx_GFXInputAssembler_setVertexCount));
