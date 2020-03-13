@@ -11,31 +11,50 @@ test('Basic Test', function() {
                 [{text: "hello world"}],
                 'No Html string should be equal to original.');
 
-    var testInvalidStr2 = "<x hello world";
-    deepEqual(parser.parse(testInvalidStr2),
-              [{text: "x hello world"}],
-              'Invalid tag begin.');
-
     var testInvalidStr1 = "<x>hello world</x>";
     deepEqual(parser.parse(testInvalidStr1),
-              [{text: "hello world", style: {}}],
+                [{text: "hello world", style: {}}],
                 'Invalid tags');
+    
+    var testInvalidStr2 = "<x hello world";
+    deepEqual(parser.parse(testInvalidStr2),
+              [{text: "<x hello world"}],
+              'Invalid tag begin.');
 
+    var testInvalidStr3 = ">x hello world";
+    deepEqual(parser.parse(testInvalidStr2),
+            [{text: ">x hello world"}],
+            'Invalid tag begin.');
 
-    var testInvalidStr3 = "</b>hello world";
-    deepEqual(parser.parse(testInvalidStr3),
+    var testInvalidStr4 = "</b>hello world";
+    deepEqual(parser.parse(testInvalidStr4),
               [{text: "hello world"}],
                "invalid tags end.");
 
-    var testInvalidStr4 = "</>hello world";
-    deepEqual(parser.parse(testInvalidStr4),
+    var testInvalidStr5 = "</>hello world";
+    deepEqual(parser.parse(testInvalidStr5),
               [{text: "hello world"}],
              "Empty tags are emitted.");
 
-    var testInvalidStr5 = "<b>hello world";
-    deepEqual(parser.parse(testInvalidStr5),
+    var testInvalidStr6 = "<b>hello world";
+    deepEqual(parser.parse(testInvalidStr6),
               [{text: "hello world"}],
               "Empty tags are emitted.");
+
+    var testInvalidStr7 = "<>hello world";
+    deepEqual(parser.parse(testInvalidStr7),
+            [{text: "<>hello world"}],
+            "Empty tags are emitted.");
+
+    var testInvalidStr8 = "<>>>hello world";
+    deepEqual(parser.parse(testInvalidStr8),
+            [{text: "<>>>hello world"}],
+            "Empty tags are emitted.");
+
+    var testInvalidStr9 = "<<<>hello world";
+    deepEqual(parser.parse(testInvalidStr9),
+            [{text: "<<<>hello world"}],
+            "Empty tags are emitted.");
 });
 
 
