@@ -1,3 +1,6 @@
+import { bezier } from '../animation/bezier';
+
+let _tweenID = 0;
 
 let TweenAction = cc.Class({
     name: 'cc.TweenAction',
@@ -164,7 +167,7 @@ let SetAction = cc.Class({
  *   .to(1, {scale: 2, position: cc.v3(100, 100, 100)})
  *   .call(() => { console.log('This is a callback'); })
  *   .by(1, {scale: 3, position: cc.v3(200, 200, 200)}, {easing: 'sineOutIn'})
- *   .run(cc.find('Canvas/cocos'));
+ *   .start(cc.find('Canvas/cocos'));
  */
 function Tween (target) {
     this._actions = [];
@@ -215,15 +218,26 @@ Tween.prototype.target = function (target) {
  * @return {Tween}
  */
 Tween.prototype.start = function () {
-    if (!this._target) {
+    let target = this._target;
+    if (!target) {
         cc.warn('Please set target to tween first');
         return this;
     }
+    if (target instanceof cc.Object && !target.isValid) {
+        return;
+    }
+
     if (this._finalAction) {
         cc.director.getActionManager().removeAction(this._finalAction);
     }
     this._finalAction = this._union();
-    cc.director.getActionManager().addAction(this._finalAction, this._target, false);
+
+    if (target._id === undefined) {
+        target._id = ++_tweenID;
+    }
+
+    cc.director.getActionManager().addAction(this._finalAction, target, false);
+
     return this;
 };
 
@@ -285,6 +299,177 @@ Tween.prototype._union = function () {
 
     return actions;
 };
+
+Object.assign(Tween.prototype, {
+    /**
+     * !#en Sets target's position property according to the bezier curve.
+     * !#zh 按照贝塞尔路径设置目标的 position 属性。
+     * @method bezierTo
+     * @param {number} duration 
+     * @param {[cc.Vec2, cc.Vec2, cc.Vec2]} controls 
+     * @return {Tween}
+     */
+    bezierTo (duration, controls) {
+        let c0x = controls[0].x, c0y = controls[0].y,
+            c1x = controls[1].x, c1y = controls[1].y;
+        opts = opts || Object.create(null);
+        opts.progress = function (start, end, current, t) {
+            current.x = bezier(start.x, c0x, c1x, end.x, t);
+            current.y = bezier(start.y, c0y, c1y, end.y, t);
+            return current;
+        }
+        return this.to(duration, { position: controls[2] }, opts);
+    },
+
+    /**
+     * !#en Sets target's position property according to the bezier curve.
+     * !#zh 按照贝塞尔路径设置目标的 position 属性。
+     * @method bezierBy
+     * @param {number} duration 
+     * @param {[cc.Vec2, cc.Vec2, cc.Vec2]} controls
+     * @return {Tween} 
+     */
+    bezierBy (duration, controls, opts) {
+        let c0x = controls[0].x, c0y = controls[0].y,
+            c1x = controls[1].x, c1y = controls[1].y;
+        opts = opts || Object.create(null);
+        opts.progress = function (start, end, current, t) {
+            let sx = start.x, sy = start.y;
+            current.x = bezier(sx, c0x + sx, c1x + sx, end.x, t);
+            current.y = bezier(sy, c0y + sy, c1y + sy, end.y, t);
+            return current;
+        }
+        return this.by(duration, { position: controls[2] }, opts);
+    },
+
+    /**
+     * !#en Flips target's scaleX
+     * !#zh 翻转目标的 scaleX 属性
+     * @method flipX
+     * @return {Tween}
+     */
+    flipX () {
+        return this.call(() => { this._target.scaleX *= -1; }, this);
+    },
+    /**
+     * !#en Flips target's scaleY
+     * !#zh 翻转目标的 scaleY 属性
+     * @method flipY
+     * @return {Tween}
+     */
+    flipY () {
+        return this.call(() => { this._target.scaleY *= -1; }, this);
+    },
+
+    /**
+     * !#en Blinks target by set target's opacity property
+     * !#zh 通过设置目标的 opacity 属性达到闪烁效果
+     * @method blink
+     * @param {number} duration 
+     * @param {number} times 
+     * @param {Object} [opts] 
+     * @param {Function} [opts.progress]
+     * @param {Function|String} [opts.easing]
+     * @return {Tween}
+     */
+    blink (duration, times, opts) {
+        var slice = 1.0 / times;
+        opts = opts || Object.create(null);
+        opts.progress = function (start, end, current, t) {
+            if (t >= 1) {
+                return start;
+            }
+            else {
+                var m = t % slice;
+                return (m > (slice / 2)) ? 255 : 0;
+            }
+        };
+        return this.to(duration, { opacity: 1 }, opts);
+    },
+
+    /**
+     * !#en Fade target's opacity property to the value.
+     * !#zh 修改目标的 opacity 属性到指定值。
+     * @method fadeTo
+     * @param {number} duration 
+     * @param {number} opacity 
+     * @param {Object} [opts] 
+     * @param {Function} [opts.progress]
+     * @param {Function|String} [opts.easing]
+     * @return {Tween}
+     */
+    fadeTo (duration, opacity, opts) {
+        return this.to(duration, { opacity }, opts);
+    },
+    /**
+     * !#en Fade target's opacity property to the value.
+     * !#zh 修改目标的 opacity 属性到指定值。
+     * @method fadeBy
+     * @param {number} duration 
+     * @param {number} opacity
+     * @param {Object} [opts] 
+     * @param {Function} [opts.progress]
+     * @param {Function|String} [opts.easing]
+     * @return {Tween}
+     */
+    fadeBy (duration, opacity, opts) {
+        return this.by(duration, { opacity }, opts);
+    },
+    /**
+     * !#en Fade target's opacity property to 255.
+     * !#zh 修改目标的 opacity 属性到 255。
+     * @method fadeIn
+     * @param {number} duration 
+     * @param {Object} [opts] 
+     * @param {Function} [opts.progress]
+     * @param {Function|String} [opts.easing]
+     * @return {Tween}
+     */
+    fadeIn (duration, opts) {
+        return this.to(duration, { opacity: 255 }, opts);
+    },
+    /**
+     * !#en Fade target's opacity property to 0.
+     * !#zh 修改目标的 opacity 属性到 0。
+     * @method fadeOut
+     * @param {number} duration 
+     * @param {Object} [opts] 
+     * @param {Function} [opts.progress]
+     * @param {Function|String} [opts.easing]
+     * @return {Tween}
+     */
+    fadeOut (duration, opts) {
+        return this.to(duration, { opacity: 0 }, opts);
+    },
+    /**
+     * !#en Fade target's color property to the value.
+     * !#zh 修改目标的 color 属性到指定值。
+     * @method tintTo
+     * @param {number} duration 
+     * @param {Color} color
+     * @param {Object} [opts] 
+     * @param {Function} [opts.progress]
+     * @param {Function|String} [opts.easing]
+     * @return {Tween}
+     */
+    tintTo (duration, color, opts) {
+        return this.to(duration, { color }, opts);
+    },
+    /**
+     * !#en Fade target's color property to the value.
+     * !#zh 修改目标的 color 属性到指定值。
+     * @method tintBy
+     * @param {number} duration 
+     * @param {Color} color
+     * @param {Object} [opts] 
+     * @param {Function} [opts.progress]
+     * @param {Function|String} [opts.easing]
+     * @return {Tween}
+     */
+    tintBy (duration, color, opts) {
+        return this.by(duration, { color }, opts);
+    }
+})
 
 let tmp_args = [];
 
@@ -471,7 +656,7 @@ let keys = Object.keys(actions);
 for (let i = 0; i < keys.length; i++) {
     let key = keys[i];
     Tween.prototype[key] = function () {
-        let action = actions[key].apply(actions, arguments);
+        let action = actions[key].apply(this, arguments);
         this._actions.push(action);
         return this;
     };
