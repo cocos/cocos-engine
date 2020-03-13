@@ -71,3 +71,26 @@ export class ComponentPath implements ICustomTargetPath {
         return result;
     }
 }
+
+/**
+ * Evaluate a path from specified root.
+ * @param root The root object.
+ * @param path The path.
+ */
+export function evaluatePath(root: any, ...path: TargetPath[]) {
+    let result = root;
+    for (const segment of path) {
+        if (isPropertyPath(segment)) {
+            if (!(segment in result)) {
+                error(`Target object has no property "${segment}"`);
+            }
+            result = result[segment];
+        } else {
+            result = segment.get(result);
+        }
+        if (result === null) {
+            break;
+        }
+    }
+    return result;
+}

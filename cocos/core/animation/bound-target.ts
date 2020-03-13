@@ -4,7 +4,7 @@
 
 import { Color, Vec2, Vec3, Vec4 } from '../math';
 import { IValueProxy, IValueProxyFactory } from './value-proxy';
-import { isPropertyPath, PropertyPath, TargetPath } from './target-path';
+import { isPropertyPath, PropertyPath, TargetPath, evaluatePath } from './target-path';
 import { error } from '../platform/debug';
 
 export interface IBoundTarget {
@@ -27,42 +27,29 @@ export function createBoundTarget (target: any, modifiers: TargetPath[], valueAd
         isProxy: true;
         proxy: IValueProxy;
     };
-    let assignmentModifier: PropertyPath | undefined;
-    for (let iModifier = 0; iModifier < modifiers.length; ++iModifier) {
-        const modifier = modifiers[iModifier];
-        if (isPropertyPath(modifier)) {
-            if (iModifier !== modifiers.length - 1 || valueAdapter) {
-                if (modifier in target) {
-                    target = target[modifier];
-                } else {
-                    error(`Target object has no property "${modifier}"`);
-                    return null;
-                }
-            } else {
-                assignmentModifier = modifier;
-            }
-        } else {
-            target = modifier.get(target);
-            if (target === null) {
-                return null;
-            }
+    const lastPath = modifiers[modifiers.length - 1];
+    if (modifiers.length !== 0 && isPropertyPath(lastPath)) {
+        const resultTarget = evaluatePath(target, ...modifiers.slice(0, modifiers.length - 1));
+        if (resultTarget === null) {
+            return null;
         }
-    }
-
-    if (assignmentModifier !== undefined) {
         ap = {
             isProxy: false,
-            object: target,
-            property: assignmentModifier,
+            object: resultTarget,
+            property: lastPath,
         };
-    } else if (valueAdapter) {
+    } else if (!valueAdapter) {
+        error(`Empty animation curve.`);
+        return null;
+    } else {
+        const resultTarget = evaluatePath(target, ...modifiers);
+        if (resultTarget === null) {
+            return null;
+        }
         ap = {
             isProxy: true,
-            proxy: valueAdapter.forTarget(target),
+            proxy: valueAdapter.forTarget(resultTarget),
         };
-    } else {
-        error(`Bad animation curve.`);
-        return null;
     }
 
     return {

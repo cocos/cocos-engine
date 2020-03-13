@@ -9,7 +9,7 @@ import { errorID } from '../platform/debug';
 import { Node } from '../scene-graph';
 import { Scheduler } from '../scheduler';
 import { MutableForwardIterator, remove } from '../utils/array';
-import { AnimationBlendState } from './animation-blend-state';
+import { BlendState } from './skeletal-animation-blending';
 import { AnimationState } from './animation-state';
 import { CrossFade } from './cross-fade';
 
@@ -23,7 +23,7 @@ export class AnimationManager extends System {
     public static ID = 'animation';
     private _anims = new MutableForwardIterator<AnimationState>([]);
     private _delayEvents: Array<{target: Node; func: string; args: any[]; }> = [];
-    private _blendState: AnimationBlendState = new AnimationBlendState();
+    private _blendState: BlendState = new BlendState();
     private _crossFades: CrossFade[] = [];
 
     public addCrossFade (crossFade: CrossFade) {
@@ -38,7 +38,6 @@ export class AnimationManager extends System {
         for (const crossFade of this._crossFades) {
             crossFade.update(dt);
         }
-        this._blendState.clear();
         const iterator = this._anims;
         const array = iterator.array;
         for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
@@ -64,7 +63,6 @@ export class AnimationManager extends System {
     public addAnimation (anim: AnimationState) {
         const index = this._anims.array.indexOf(anim);
         if (index === -1) {
-            anim.attachToBlendState(this._blendState);
             this._anims.push(anim);
         }
     }
@@ -72,7 +70,6 @@ export class AnimationManager extends System {
     public removeAnimation (anim: AnimationState) {
         const index = this._anims.array.indexOf(anim);
         if (index >= 0) {
-            anim.detachFromBlendState(this._blendState);
             this._anims.fastRemoveAt(index);
         } else {
             errorID(3907);
