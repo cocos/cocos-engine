@@ -964,10 +964,8 @@ export class View extends EventTarget {
 
     private _initFrameSize () {
         const locFrameSize = this._frameSize;
-        const cssWidth = __BrowserGetter.availWidth(cc.game.frame);
-        const cssHeight = __BrowserGetter.availHeight(cc.game.frame);
-        const w = (CC_JSB) ? cssWidth * this._devicePixelRatio : cssWidth;
-        const h = (CC_JSB) ? cssHeight * this._devicePixelRatio : cssHeight;
+        const w = __BrowserGetter.availWidth(cc.game.frame);
+        const h = __BrowserGetter.availHeight(cc.game.frame);
         const isLandscape: Boolean = w >= h;
 
         if (CC_EDITOR || !cc.sys.isMobile ||
@@ -1272,9 +1270,7 @@ class ContentStrategy {
         public apply (_view) {
             const frameH = _view._frameSize.height;
             const containerStyle = cc.game.container.style;
-            const cssWidth = (CC_JSB) ? _view._frameSize.width / _view._devicePixelRatio : _view._frameSize.width;
-            const cssHeight = (CC_JSB) ? _view._frameSize.height / _view._devicePixelRatio : _view._frameSize.height;
-            this._setupContainer(_view, cssWidth, cssHeight);
+            this._setupContainer(_view, _view._frameSize.width, _view._frameSize.height);
             // Setup container's margin and padding
             if (_view._isRotated) {
                 containerStyle.margin = '0 0 0 ' + frameH + 'px';
