@@ -83,8 +83,10 @@ export function evaluatePath(root: any, ...path: TargetPath[]) {
         if (isPropertyPath(segment)) {
             if (!(segment in result)) {
                 error(`Target object has no property "${segment}"`);
+                return null;
+            } else {
+                result = result[segment];
             }
-            result = result[segment];
         } else {
             result = segment.get(result);
         }

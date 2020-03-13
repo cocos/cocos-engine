@@ -327,7 +327,7 @@ export class AnimationState extends Playable {
         if (this._curveLoaded) { return; }
         this._curveLoaded = true;
         this._samplerSharedGroups.length = 0;
-        this._blendState = cc.director.getAnimationManager().blendState;
+        this._blendState = cc.director.getAnimationManager()?.blendState ?? null;
         this._blendStateWriters.length = 0;
         this._targetNode = root;
         const clip = this._clip;
