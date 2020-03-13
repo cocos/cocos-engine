@@ -220,9 +220,6 @@ var textUtils = {
 
                 fuzzyLen = fuzzyLen + pushNum;
                 tmpText = this._safeSubstring(text, fuzzyLen);
-                if (this.label_firstEmoji.test(tmpText)) {
-                    tmpText = tmpText.slice(1);
-                }
                 width = allWidth - measureText(tmpText);
             }
 
