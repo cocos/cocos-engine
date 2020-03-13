@@ -575,8 +575,8 @@ export class Game extends EventTarget {
             this._initEvents();
         }
 
-        if (!JSB && !EDITOR && !PREVIEW && cc.internal.SplashScreenWebgl && this.canvas) {
-            cc.internal.SplashScreenWebgl.instance.main(this.canvas);
+        if (!EDITOR && !PREVIEW && cc.internal.SplashScreen) {
+            cc.internal.SplashScreen.instance.main(this._gfxDevice);
         }
 
         cc.director.root.dataPoolManager.jointTexturePool.registerCustomTextureLayouts(config.customJointTextureLayouts);
@@ -607,7 +607,7 @@ export class Game extends EventTarget {
             inputManager.registerSystemEvent(game.canvas);
         }
 
-        const splashScreen = cc.internal.SplashScreenWebgl && cc.internal.SplashScreenWebgl.instance;
+        const splashScreen = cc.internal.SplashScreen && cc.internal.SplashScreen.instance;
         let useSplash = (!EDITOR && !PREVIEW && splashScreen);
         useSplash && splashScreen.setOnFinish(() => {
             this.onStart && this.onStart();

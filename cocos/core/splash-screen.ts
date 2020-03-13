@@ -84,6 +84,10 @@ export class SplashScreen {
     private screenHeight!: number;
 
     public main (device: GFXDevice) {
+        if (device == null) {
+            return console.error("GFX DEVICE IS NULL.");
+        }
+
         if (window._CCSettings && window._CCSettings.splashScreen) {
             this.setting = window._CCSettings.splashScreen;
             (this.setting.totalTime as number) = this.setting.totalTime != null ? this.setting.totalTime : 3000;
@@ -110,16 +114,13 @@ export class SplashScreen {
             this._directCall = true;
             return;
         } else {
+            this.device = device;
             cc.game.once(cc.Game.EVENT_GAME_INITED, () => {
                 cc.director._lateUpdate = performance.now();
             }, cc.director);
 
-            // this.program = effects.find(function (element) {
-            //     return element.name == 'util/splash-image';
-            // });
-
             this.program = {
-                name: 'util/splash-image',
+                name: 'util/splash-screen',
                 techniques: [
                     {
                         passes: [{
@@ -171,7 +172,6 @@ export class SplashScreen {
             this.cancelAnimate = false;
             this.startTime = -1;
             this.clearColors = [this.setting.clearColor];
-            this.device = device;
             this.screenWidth = this.device.width;
             this.screenHeight = this.device.height;
 
@@ -208,6 +208,28 @@ export class SplashScreen {
         if (this.setting.displayWatermark) {
             this.initText();
         }
+        const cmdBuff = this.cmdBuff;
+        const framebuffer = this.framebuffer;
+        const renderArea = this.renderArea;
+
+        cmdBuff.begin();
+        cmdBuff.beginRenderPass(framebuffer, renderArea,
+            GFXClearFlag.ALL, this.clearColors, 1.0, 0);
+
+        cmdBuff.bindPipelineState(this.pso);
+        cmdBuff.bindBindingLayout(this.pso.pipelineLayout.layouts[0]);
+        cmdBuff.bindInputAssembler(this.assmebler);
+        cmdBuff.draw(this.assmebler);
+
+        if (this.setting.displayWatermark && this.textPSO && this.textAssmebler) {
+            cmdBuff.bindPipelineState(this.textPSO);
+            cmdBuff.bindBindingLayout(this.textPSO.pipelineLayout.layouts[0]);
+            cmdBuff.bindInputAssembler(this.textAssmebler);
+            cmdBuff.draw(this.textAssmebler);
+        }
+
+        cmdBuff.endRenderPass();
+        cmdBuff.end();
 
         const animate = (time: number) => {
             if (this.cancelAnimate) {
@@ -250,28 +272,6 @@ export class SplashScreen {
     private frame (time: number) {
         const device = this.device;
         const cmdBuff = this.cmdBuff;
-        const framebuffer = this.framebuffer;
-        const renderArea = this.renderArea;
-
-        cmdBuff.begin();
-        cmdBuff.beginRenderPass(framebuffer, renderArea,
-            GFXClearFlag.ALL, this.clearColors, 1.0, 0);
-
-        cmdBuff.bindPipelineState(this.pso);
-        cmdBuff.bindBindingLayout(this.pso.pipelineLayout.layouts[0]);
-        cmdBuff.bindInputAssembler(this.assmebler);
-        cmdBuff.draw(this.assmebler);
-
-        if (this.setting.displayWatermark && this.textPSO && this.textAssmebler) {
-            cmdBuff.bindPipelineState(this.textPSO);
-            cmdBuff.bindBindingLayout(this.textPSO.pipelineLayout.layouts[0]);
-            cmdBuff.bindInputAssembler(this.textAssmebler);
-            cmdBuff.draw(this.textAssmebler);
-        }
-
-        cmdBuff.endRenderPass();
-        cmdBuff.end();
-
         device.queue.submit([cmdBuff]);
         device.present();
     }
@@ -434,9 +434,9 @@ export class SplashScreen {
         let n = 0;
         verts[n++] = w; verts[n++] = h; verts[n++] = 0.0; verts[n++] = 1.0;
         verts[n++] = -w; verts[n++] = h; verts[n++] = 1.0; verts[n++] = 1.0;
-        verts[n++] = w; verts[n++] = -h; verts[n++] = 0.0; verts[n++] = 0.0;
-        verts[n++] = -w; verts[n++] = -h; verts[n++] = 1.0; verts[n++] = 0.0;
-
+        verts[n++] = w; verts[n++] = -h; verts[n++] = 0.0; verts[n++] = 0;
+        verts[n++] = -w; verts[n++] = -h; verts[n++] = 1.0; verts[n++] = 0;
+        if (cc.sys.isBrowser) { verts[11] = 0.005; verts[15] = 0.005; }
         // translate to center
         for (let i = 0; i < verts.length; i += 4) {
             verts[i] = verts[i] + this.screenWidth / 2;
