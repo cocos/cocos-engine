@@ -776,7 +776,7 @@ cc.Scheduler.prototype = {
      * You should NEVER call this method, unless you know what you are doing.
      * !#zh
      * 取消所有对象的所有定时器，包括系统定时器。<br/>
-     * 不用调用此函数，除非你确定你在做什么。
+     * 不要调用此函数，除非你确定你在做什么。
      * @method unscheduleAll
      */
     unscheduleAll: function(){
