@@ -8,13 +8,14 @@ import { RecyclePool, Node } from '../../core';
 import { CannonSharedBody } from './cannon-shared-body';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { PhysicMaterial, PhysicsRayResult } from '../framework';
+import { IVec3Like } from '../../core/math/type-define';
 export class CannonWorld implements IPhysicsWorld {
 
-    get world () {
+    get impl () {
         return this._world;
     }
 
-    set defaultMaterial (mat: PhysicMaterial) {
+    setDefaultMaterial (mat: PhysicMaterial) {
         this._world.defaultMaterial.friction = mat.friction;
         this._world.defaultMaterial.restitution = mat.restitution;
         if (CannonShape.idToMaterial[mat._uuid] != null) {
@@ -22,11 +23,11 @@ export class CannonWorld implements IPhysicsWorld {
         }
     }
 
-    set allowSleep (v: boolean) {
+    setAllowSleep (v: boolean) {
         this._world.allowSleep = v;
     }
 
-    set gravity (gravity: Vec3) {
+    setGravity (gravity: IVec3Like) {
         Vec3.copy(this._world.gravity, gravity);
     }
 

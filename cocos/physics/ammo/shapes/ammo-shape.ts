@@ -13,8 +13,8 @@ const v3_0 = new Vec3();
 
 export class AmmoShape implements IBaseShape {
 
-    set material (v: PhysicMaterial) {
-        if (!this._isTrigger && this._isEnabled) {
+    setMaterial (v: PhysicMaterial | null) {
+        if (!this._isTrigger && this._isEnabled && v) {
             if (this._btCompound) {
                 const rollingFriction = 0.1;
                 this._btCompound.setMaterial(this._index, v.friction, v.restitution, rollingFriction);
@@ -25,7 +25,7 @@ export class AmmoShape implements IBaseShape {
         }
     }
 
-    set center (v: IVec3Like) {
+    setCenter (v: IVec3Like) {
         Vec3.copy(v3_0, v);
         v3_0.multiply(this._collider.node.worldScale);
         cocos2AmmoVec3(this.transform.getOrigin(), v3_0);
@@ -34,7 +34,7 @@ export class AmmoShape implements IBaseShape {
         }
     }
 
-    set isTrigger (v: boolean) {
+    setAsTrigger (v: boolean) {
         if (this._isTrigger == v)
             return;
 
@@ -50,7 +50,7 @@ export class AmmoShape implements IBaseShape {
         return null;
     }
 
-    get shape () { return this._btShape!; }
+    get impl () { return this._btShape!; }
     get collider (): ColliderComponent { return this._collider; }
     get sharedBody (): AmmoSharedBody { return this._sharedBody; }
     get index () { return this._index; }
@@ -61,6 +61,7 @@ export class AmmoShape implements IBaseShape {
 
     protected _index: number = -1;
     protected _isEnabled = false;
+    protected _isBinding = false;
     protected _isTrigger = false;
     protected _sharedBody!: AmmoSharedBody;
     protected _btShape!: Ammo.btCollisionShape;
@@ -84,22 +85,28 @@ export class AmmoShape implements IBaseShape {
         this.scale = new Ammo.btVector3(1, 1, 1);
     }
 
-    __preload (com: ColliderComponent) {
+    initialize (com: ColliderComponent) {
         this._collider = com;
+        this._isBinding = true;
+        this.onComponentSet();
+        this.setWrapper();
         this._sharedBody = (PhysicsSystem.instance.physicsWorld as AmmoWorld).getSharedBody(this._collider.node as Node);
         this._sharedBody.reference = true;
     }
 
+    // virtual
+    onComponentSet () { }
+
     onLoad () {
-        this.center = this._collider.center;
-        this.isTrigger = this._collider.isTrigger;
+        this.setCenter(this._collider.center);
+        this.setAsTrigger(this._collider.isTrigger);
     }
 
     onEnable () {
         this._isEnabled = true;
         this._sharedBody.addShape(this, this._isTrigger);
 
-        this.material = this.collider.sharedMaterial!;
+        this.setMaterial(this.collider.sharedMaterial);
     }
 
     onDisable () {
@@ -111,7 +118,8 @@ export class AmmoShape implements IBaseShape {
         this._sharedBody.reference = false;
         this._btCompound = null;
         (this._collider as any) = null;
-
+        const shape = Ammo.castObject(this._btShape, Ammo.btCollisionShape);
+        shape.wrapped = null;
         Ammo.destroy(this.transform);
         Ammo.destroy(this.pos);
         Ammo.destroy(this.quat);
@@ -174,8 +182,13 @@ export class AmmoShape implements IBaseShape {
         this._btCompound = compound;
     }
 
+    setWrapper () {
+        const shape = Ammo.castObject(this._btShape, Ammo.btCollisionShape);
+        shape.wrapped = this;
+    }
+
     updateScale () {
-        this.center = this._collider.center;
+        this.setCenter(this._collider.center);
     }
 
     /**DEBUG */
@@ -197,7 +210,7 @@ export class AmmoShape implements IBaseShape {
         n.worldPosition = new Vec3(origin.x(), origin.y(), origin.z());
         let rotation = AmmoShape._debugTransform.getRotation();
         n.worldRotation = new Quat(rotation.x(), rotation.y(), rotation.z(), rotation.w());
-        let scale = this.shape.getLocalScaling();
+        let scale = this.impl.getLocalScaling();
         n.scale = new Vec3(scale.x(), scale.y(), scale.z());
     }
 }

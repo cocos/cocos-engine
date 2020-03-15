@@ -3,12 +3,12 @@
  */
 
 import { Vec3 } from '../../core/math';
-import { BoxShape, PhysicsWorld, RigidBody, SphereShape, CapsuleShape } from './Physics-selector';
+import { BoxShape, PhysicsWorld, RigidBody, SphereShape, CapsuleShape, TrimeshShape } from './physics-selector';
 import { IRigidBody } from '../spec/i-rigid-body';
-import { IBoxShape, ISphereShape, ICapsuleShape } from '../spec/i-physics-shape';
+import { IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape } from '../spec/i-physics-shape';
 import { IPhysicsWorld } from '../spec/i-physics-world';
-import { warn, error } from '../../core';
-import { EDITOR, DEBUG, PHYSICS_BUILTIN, PHYSICS_AMMO, TEST } from 'internal:constants';
+import { errorID, warnID } from '../../core';
+import { EDITOR, DEBUG, PHYSICS_BUILTIN, PHYSICS_AMMO, TEST, PHYSICS_CANNON } from 'internal:constants';
 
 export function createPhysicsWorld (): IPhysicsWorld {
     if (DEBUG && checkPhysicsModule(PhysicsWorld)) { return null as any; }
@@ -17,7 +17,7 @@ export function createPhysicsWorld (): IPhysicsWorld {
 
 export function createRigidBody (): IRigidBody {
     if (DEBUG && checkPhysicsModule(RigidBody)) { return null as any; }
-    return new RigidBody!() as IRigidBody;
+    return new RigidBody() as IRigidBody;
 }
 
 export function createBoxShape (size: Vec3): IBoxShape {
@@ -35,25 +35,48 @@ export function createCapsuleShape (radius = 0.5, height = 2, dir = 1): ICapsule
         if (DEBUG && checkPhysicsModule(CapsuleShape)) { return null as any; }
         return new CapsuleShape(radius, height, dir) as ICapsuleShape;
     } else {
-        warn('[v1.0.3][Physics]: Currently cannon.js unsupport capsule collider');
-        /** apater */
+        warnID(9610);
+        const func = () => { };
         return {
-            radius: radius, height: height, direction: dir,
-            material: null,
-            isTrigger: false,
-            center: new Vec3(),
-            __preload: () => { },
-            onLoad: () => { },
-            onEnable: () => { },
-            onDisable: () => { },
-            onDestroy: () => { }
+            setRadius: func,
+            setHeight: func,
+            setDirection: func,
+            setMaterial: func,
+            setIsTrigger: func,
+            setCenter: func,
+            initialize: func,
+            onLoad: func,
+            onEnable: func,
+            onDisable: func,
+            onDestroy: func
+        } as any
+    }
+}
+
+export function createTrimeshShape (): ITrimeshShape {
+    if (PHYSICS_CANNON || PHYSICS_AMMO) {
+        if (DEBUG && checkPhysicsModule(TrimeshShape)) { return null as any; }
+        return new TrimeshShape() as ITrimeshShape;
+    } else {
+        warnID(9611);
+        const func = () => { };
+        return {
+            setMesh: func,
+            setMaterial: func,
+            setIsTrigger: func,
+            setCenter: func,
+            initialize: func,
+            onLoad: func,
+            onEnable: func,
+            onDisable: func,
+            onDestroy: func
         } as any
     }
 }
 
 export function checkPhysicsModule (obj: any) {
     if (DEBUG && !TEST && !EDITOR && obj == null) {
-        error("[Physics]: Please check to see if physics modules are included.");
+        errorID(9600);
         return true;
     }
     return false;

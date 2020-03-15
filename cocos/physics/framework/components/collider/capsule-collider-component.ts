@@ -28,7 +28,7 @@ Enum(ECapsuleDirection);
  */
 @ccclass('cc.CapsuleColliderComponent')
 @executionOrder(98)
-@menu('Components/CapsuleCollider')
+@menu('Physics/CapsuleCollider')
 @executeInEditMode
 export class CapsuleColliderComponent extends ColliderComponent {
     /// PUBLIC PROPERTY GETTER\SETTER ///
@@ -48,18 +48,8 @@ export class CapsuleColliderComponent extends ColliderComponent {
         if (value < 0) value = 0;
 
         this._radius = value;
-
-        /** Recalculated height */
-        const doubleR = this._radius * 2
-        if (this._height < doubleR) {
-            this._height = doubleR;
-            // if (!EDITOR) {
-            //     this.capsuleShape.height = this._height;
-            // }
-        }
-
         if (!EDITOR && !TEST) {
-            this.capsuleShape.radius = this._radius;
+            this.shape.setRadius(value);
         }
     }
 
@@ -75,13 +65,11 @@ export class CapsuleColliderComponent extends ColliderComponent {
     }
 
     public set height (value) {
-        if (value < this._radius * 2) {
-            value = this._radius * 2
-        }
+        if (value < this._radius * 2) { value = this._radius * 2 }
 
         this._height = value;
         if (!EDITOR && !TEST) {
-            this.capsuleShape.height = this._height;
+            this.shape.setHeight(value);
         }
     }
 
@@ -92,9 +80,12 @@ export class CapsuleColliderComponent extends ColliderComponent {
 
     public set direction (value: ECapsuleDirection) {
         this._direction = value;
+        if (!EDITOR && !TEST) {
+            this.shape.setDirection(value);
+        }
     }
 
-    public get capsuleShape (): ICapsuleShape {
+    public get shape () {
         return this._shape as ICapsuleShape;
     }
 

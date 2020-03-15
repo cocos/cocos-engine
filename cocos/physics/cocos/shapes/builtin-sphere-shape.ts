@@ -6,7 +6,7 @@ import { SphereColliderComponent } from '../../../../exports/physics-framework';
 
 export class BuiltinSphereShape extends BuiltinShape implements ISphereShape {
 
-    set radius (radius: number) {
+    setRadius (radius: number) {
         this.localSphere.radius = radius;
         const s = maxComponent(this.collider.node.worldScale);
         this.worldSphere.radius = this.localSphere.radius * s;
@@ -20,8 +20,8 @@ export class BuiltinSphereShape extends BuiltinShape implements ISphereShape {
         return this._worldShape as sphere;
     }
 
-    get sphereCollider () {
-        return this.collider as SphereColliderComponent;
+    get collider () {
+        return this._collider as SphereColliderComponent;
     }
 
     constructor (radius: number) {
@@ -32,7 +32,7 @@ export class BuiltinSphereShape extends BuiltinShape implements ISphereShape {
 
     onLoad () {
         super.onLoad();
-        this.radius = this.sphereCollider.radius;
+        this.setRadius(this.collider.radius);
     }
 
 }

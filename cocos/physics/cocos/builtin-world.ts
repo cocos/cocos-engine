@@ -28,10 +28,10 @@ const TriggerEventObject = {
  * not a full physical simulator
  */
 export class BuiltInWorld implements IPhysicsWorld {
-    set gravity (v: IVec3Like) { }
-    set allowSleep (v: boolean) { }
-    set defaultMaterial (v: PhysicMaterial) { }
-
+    setGravity (v: IVec3Like) { }
+    setAllowSleep (v: boolean) { }
+    setDefaultMaterial (v: PhysicMaterial) { }
+    get impl () { return this; }
     shapeArr: BuiltinShape[] = [];
     readonly bodies: BuiltinSharedBody[] = [];
 
@@ -81,11 +81,9 @@ export class BuiltInWorld implements IPhysicsWorld {
         const mask = options.mask!;
         for (let i = 0; i < this.bodies.length; i++) {
             const body = this.bodies[i] as BuiltinSharedBody;
+            if (!(body.collisionFilterGroup & mask)) continue;
             for (let i = 0; i < body.shapes.length; i++) {
                 const shape = body.shapes[i];
-                if (!(shape.collisionFilterGroup & mask)) {
-                    continue;
-                }
                 const distance = intersect.resolve(worldRay, shape.worldShape);
                 if (distance == 0 || distance > max_d) {
                     continue;
@@ -107,11 +105,9 @@ export class BuiltInWorld implements IPhysicsWorld {
         const mask = options.mask!;
         for (let i = 0; i < this.bodies.length; i++) {
             const body = this.bodies[i] as BuiltinSharedBody;
+            if (!(body.collisionFilterGroup & mask)) continue;
             for (let i = 0; i < body.shapes.length; i++) {
                 const shape = body.shapes[i];
-                if (!(shape.collisionFilterGroup & mask)) {
-                    continue;
-                }
                 const distance = intersect.resolve(worldRay, shape.worldShape);
                 if (distance == 0 || distance > max_d) {
                     continue;
