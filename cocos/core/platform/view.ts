@@ -155,6 +155,7 @@ export class View extends EventTarget {
     private _rpNoBorder: ResolutionPolicy;
     private _rpFixedHeight: ResolutionPolicy;
     private _rpFixedWidth: ResolutionPolicy;
+    private _maxPixelRatio: number;
 
     constructor () {
         super();
@@ -179,6 +180,11 @@ export class View extends EventTarget {
         this._autoFullScreen = false;
         // The device's pixel ratio (for retina displays)
         this._devicePixelRatio = 1;
+        if (CC_JSB) {
+            this._maxPixelRatio = 4;
+        } else {
+            this._maxPixelRatio = 2;
+        }
         // Retina disabled by default
         this._retinaEnabled = false;
         // Custom callback for resize event
@@ -454,7 +460,7 @@ export class View extends EventTarget {
     public setCanvasSize (width, height) {
         const canvas = cc.game.canvas;
         const container = cc.game.container;
-
+        this._devicePixelRatio = window.devicePixelRatio;
         canvas.width = width * this._devicePixelRatio;
         canvas.height = height * this._devicePixelRatio;
 
@@ -1153,7 +1159,7 @@ class ContainerStrategy {
         // Setup pixel ratio for retina display
         let devicePixelRatio = _view._devicePixelRatio = 1;
         if (_view.isRetinaEnabled()) {
-            devicePixelRatio = _view._devicePixelRatio = Math.min(2, window.devicePixelRatio || 1);
+            devicePixelRatio = _view._devicePixelRatio = Math.min(_view._maxPixelRatio, window.devicePixelRatio || 1);
         }
         // Setup canvas
         locCanvas.width = w * devicePixelRatio;
