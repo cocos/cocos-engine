@@ -10,20 +10,21 @@ import { IGeometryOptions } from './define';
  * 环面参数选项。
  */
 interface ITorusOptions extends IGeometryOptions {
-    radialSegments: number;
-    tubularSegments: number;
-    arc: number;
+  radialSegments: number;
+  tubularSegments: number;
+  arc: number;
 }
 
 /**
+ * @en
+ * Generate a torus with raidus 0.4, tube 0.1 and centered at origin.
  * @zh
  * 生成一个环面。
  * @param radius 环面半径。
  * @param tube 管形大小。
  * @param opts 参数选项。
- *
  */
-export default function (radius = 0.4, tube = 0.1, opts: RecursivePartial<ITorusOptions> = {}) {
+export default function torus (radius = 0.4, tube = 0.1, opts: RecursivePartial<ITorusOptions> = {}) {
   const radialSegments = opts.radialSegments || 32;
   const tubularSegments = opts.tubularSegments || 32;
   const arc = opts.arc || 2.0 * Math.PI;
