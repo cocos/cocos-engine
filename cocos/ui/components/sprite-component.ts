@@ -563,8 +563,8 @@ export class SpriteComponent extends UIRenderComponent {
     }
 
     protected _render (render: UI) {
-        render.commitComp(this, this._spriteFrame!.getGFXTextureView(), this._assembler!, this._spriteFrame!.getGFXSamplerInSprite());
-        //render.commitComp(this, this._spriteFrame!.getGFXTextureView(), this._assembler!);
+        render.commitComp(this, this._spriteFrame!.getGFXTextureView(), this._assembler!, this._spriteFrame!.texture.getGFXSampler());
+        // render.commitComp(this, this._spriteFrame!.getGFXTextureView(), this._assembler!);
     }
 
     protected _canRender () {
@@ -668,7 +668,7 @@ export class SpriteComponent extends UIRenderComponent {
                 if (material) {
                     // const matTexture = material.getProperty('mainTexture');
                     // if (matTexture !== spriteFrame) {
-                    material.setProperty('mainTexture', spriteFrame);
+                    material.setProperty('mainTexture', spriteFrame.texture);
                     this.markForUpdateRenderData();
                     // }
                 }
