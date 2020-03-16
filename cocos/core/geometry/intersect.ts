@@ -321,11 +321,11 @@ const ray_capsule = (function () {
 
 /**
  * @en
- * ray-renderingSubMesh intersect detect.
+ * ray-subMesh intersect detect.
  * @zh
- * 射线和渲染三角网格的相交性检测。
+ * 射线和子三角网格的相交性检测。
  */
-const ray_renderingSubMesh = (function () {
+const ray_subMesh = (function () {
     const tri = triangle.create();
     const deOpt: IRaySubMeshOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY };
     const tr: IRaySubMeshResult = { distance: 0, vertexIndex0: 0, vertexIndex1: 0, vertexIndex2: 0 };
@@ -434,7 +434,7 @@ const ray_renderingSubMesh = (function () {
  * @en
  * ray-mesh intersect detect.
  * @zh
- * 射线和网格资源的相交性检测。
+ * 射线和三角网格资源的相交性检测。
  */
 const ray_mesh = (function () {
     const deOpt: IRayMeshOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY, doNotZeroMin: true };
@@ -447,7 +447,7 @@ const ray_mesh = (function () {
         if (min && max && !ray_aabb2(ray, min, max)) return false;
         for (let i = 0; i < length; i++) {
             const sm = mesh.renderingSubMeshes[i];
-            if (ray_renderingSubMesh(ray, sm, opt)) {
+            if (ray_subMesh(ray, sm, opt)) {
                 result = true;
                 if (opt.subIndices) opt.subIndices.push(i);
                 if (opt.mode == ERaycastMode.ANY) {
@@ -483,7 +483,7 @@ const ray_model = (function () {
         if (box && !ray_aabb(modelRay, box)) return false;
         for (let i = 0; i < length; i++) {
             const sm = model.getSubModel(i).subMeshData;
-            if (ray_renderingSubMesh(modelRay, sm, opt)) {
+            if (ray_subMesh(modelRay, sm, opt)) {
                 result = true;
                 if (opt.subIndices) opt.subIndices.push(i);
                 if (opt.mode == ERaycastMode.ANY) {
@@ -1379,7 +1379,7 @@ const intersect = {
     ray_triangle,
     ray_capsule,
 
-    ray_renderingSubMesh,
+    ray_subMesh,
     ray_mesh,
     ray_model,
 
