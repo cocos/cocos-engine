@@ -43,6 +43,13 @@ export const PhotometricTerm = Enum({
     LUMINANCE: 1,
 });
 
+export enum LightBakeType {
+    NONE,
+    BAKE_ONLY,
+    BAKE_ABLE,
+}
+Enum(LightBakeType);
+
 @ccclass('cc.LightComponent')
 export class LightComponent extends Component {
     public static Type = LightType;
@@ -54,10 +61,29 @@ export class LightComponent extends Component {
     protected _useColorTemperature = false;
     @property
     protected _colorTemperature = 6550;
+    @property
+    protected _bakeType = LightBakeType.NONE;
 
     protected _type = LightType.UNKNOWN;
     protected _lightType: typeof Light;
     protected _light: Light | null = null;
+
+     /**
+      * @en
+      * Bake type.
+      * @zh
+      * 烘培类型。
+      */
+    @property({
+        type: LightBakeType,
+    })
+    get bakeType () {
+        return this._bakeType;
+    }
+
+    set bakeType (val) {
+        this._bakeType = val;
+    }
 
     /**
      * @en
