@@ -1200,6 +1200,10 @@ let NodeDefines = {
                 Trs.fromEuler(this._trs, v);
                 this.setLocalDirty(LocalDirtyFlag.ALL_ROTATION);
                 !CC_NATIVERENDERER && (this._renderFlag |= RenderFlow.FLAG_TRANSFORM);
+
+                if (this._eventMask & ROTATION_ON) {
+                    this.emit(EventType.ROTATION_CHANGED);
+                }
             }
         },
         
