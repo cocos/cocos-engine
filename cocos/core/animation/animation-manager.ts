@@ -22,7 +22,7 @@ export class AnimationManager extends System {
 
     public static ID = 'animation';
     private _anims = new MutableForwardIterator<AnimationState>([]);
-    private _delayEvents: Array<{target: Node; func: string; args: any[]; }> = [];
+    private _delayEvents: Array<{target: Node; func: string; args: any[]}> = [];
     private _blendState: AnimationBlendState = new AnimationBlendState();
     private _crossFades: CrossFade[] = [];
 
