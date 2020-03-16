@@ -181,7 +181,7 @@ export class View extends EventTarget {
         this._autoFullScreen = false;
         // The device's pixel ratio (for retina displays)
         this._devicePixelRatio = 1;
-        if (CC_JSB) {
+        if (JSB) {
             this._maxPixelRatio = 4;
         } else {
             this._maxPixelRatio = 2;
