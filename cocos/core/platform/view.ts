@@ -940,7 +940,7 @@ export class View extends EventTarget {
         else {
             _view._initFrameSize();
         }
-        
+
         if (!JSB && !_view._orientationChanging && _view._isRotated === prevRotated && _view._frameSize.width === prevFrameW && _view._frameSize.height === prevFrameH) {
             return;
         }
@@ -1273,7 +1273,7 @@ class ContentStrategy {
         public apply (_view) {
             const frameH = _view._frameSize.height;
             const containerStyle = cc.game.container.style;
-            this._setupContainer(_view, view._frameSize.width, _view._frameSize.height);
+            this._setupContainer(_view, _view._frameSize.width, _view._frameSize.height);
             // Setup container's margin and padding
             if (_view._isRotated) {
                 containerStyle.margin = '0 0 0 ' + frameH + 'px';
