@@ -5,7 +5,7 @@
 
 NS_CC_BEGIN
 
-class CC_CORE_API GFXWindow : public Object {
+class CC_CORE_API GFXWindow : public GFXObject {
  public:
   GFXWindow(GFXDevice* device);
   virtual ~GFXWindow();

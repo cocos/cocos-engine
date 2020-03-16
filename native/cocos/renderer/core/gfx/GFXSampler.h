@@ -5,7 +5,7 @@
 
 NS_CC_BEGIN
 
-class CC_CORE_API GFXSampler : public Object {
+class CC_CORE_API GFXSampler : public GFXObject {
  public:
   GFXSampler(GFXDevice* device);
   virtual ~GFXSampler();

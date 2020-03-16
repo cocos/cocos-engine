@@ -17,6 +17,7 @@ bool GLES2PipelineLayout::initialize(const GFXPipelineLayoutInfo &info) {
   _pushConstantsRanges = info.pushConstantsRanges;
   
   _gpuPipelineLayout = CC_NEW(GLES2GPUPipelineLayout);
+    _status = GFXStatus::SUCCESS;
   return true;
 }
 
@@ -25,6 +26,8 @@ void GLES2PipelineLayout::destroy() {
     CC_DELETE(_gpuPipelineLayout);
     _gpuPipelineLayout = nullptr;
   }
+    
+    _status = GFXStatus::UNREADY;
 }
 
 NS_CC_END

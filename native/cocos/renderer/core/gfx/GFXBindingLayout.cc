@@ -4,7 +4,8 @@
 NS_CC_BEGIN
 
 GFXBindingLayout::GFXBindingLayout(GFXDevice* device)
-    : _device(device) {
+: GFXObject(GFXObjectType::BINDING_LAYOUT)
+, _device(device) {
 }
 
 GFXBindingLayout::~GFXBindingLayout() {

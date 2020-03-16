@@ -28,6 +28,31 @@ class GFXContext;
 #define GFX_INVALID_BINDING ((uint8_t)-1)
 #define GFX_INVALID_HANDLE ((uint)-1)
 
+enum class GFXObjectType : uint8_t {
+    UNKNOWN,
+    BUFFER,
+    TEXTURE,
+    TEXTURE_VIEW,
+    RENDER_PASS,
+    FRAMEBUFFER,
+    SAMPLER,
+    SHADER,
+    PIPELINE_LAYOUT,
+    PIPELINE_STATE,
+    BINDING_LAYOUT,
+    INPUT_ASSEMBLER,
+    COMMAND_ALLOCATOR,
+    COMMAND_BUFFER,
+    QUEUE,
+    WINDOW,
+};
+
+enum class GFXStatus : uint8_t {
+    UNREADY,
+    FAILED,
+    SUCCESS,
+};
+
 enum class GFXAPI : uint8_t {
   UNKNOWN,
   GL,

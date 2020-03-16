@@ -28,6 +28,7 @@ bool CCMTLQueue::initialize(const GFXQueueInfo &info)
     MTKView* mtkView = (MTKView*)((CCMTLDevice*)_device)->getMTKView();
     _metalQueue = [mtkView.device newCommandQueue];
     _type = info.type;
+    _status = GFXStatus::SUCCESS;
     
     return _metalQueue != nil;
 }
@@ -39,6 +40,8 @@ void CCMTLQueue::destroy()
         [_metalQueue release];
         _metalQueue = nil;
     }
+    
+    _status = GFXStatus::UNREADY;
 }
 
 void CCMTLQueue::submit(const std::vector<GFXCommandBuffer*>& cmd_buffs)

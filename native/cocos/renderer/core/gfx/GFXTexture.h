@@ -5,7 +5,7 @@
 
 NS_CC_BEGIN
 
-class CC_CORE_API GFXTexture : public Object {
+class CC_CORE_API GFXTexture : public GFXObject {
  public:
   GFXTexture(GFXDevice* device);
   virtual ~GFXTexture();

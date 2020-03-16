@@ -92,6 +92,7 @@ bool CCMTLTexture::initialize(const GFXTextureInfo& info)
     if (_mtlTexture)
         _device->getMemoryStatus().textureSize += _size;
     
+    _status = GFXStatus::SUCCESS;
     return _mtlTexture != nil;
 }
 
@@ -109,10 +110,13 @@ void CCMTLTexture::destroy()
         [_mtlTexture release];
         _mtlTexture = nil;
     }
+    
+    _status = GFXStatus::UNREADY;
 }
 
 void CCMTLTexture::resize(uint width, uint height)
 {
+    _status = GFXStatus::UNREADY;
     //TODO
 }
 

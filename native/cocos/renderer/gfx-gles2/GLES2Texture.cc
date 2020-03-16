@@ -79,6 +79,7 @@ bool GLES2Texture::initialize(const GFXTextureInfo &info) {
   
   GLES2CmdFuncCreateTexture((GLES2Device*)_device, _gpuTexture);
   _device->getMemoryStatus().textureSize += _size;
+    _status = GFXStatus::SUCCESS;
   
   return true;
 }
@@ -96,6 +97,8 @@ void GLES2Texture::destroy() {
     _device->getMemoryStatus().textureSize -= _size;
     _buffer = nullptr;
   }
+    
+    _status = GFXStatus::UNREADY;
 }
 
 void GLES2Texture::resize(uint width, uint height) {
@@ -123,6 +126,8 @@ void GLES2Texture::resize(uint width, uint height) {
       status.bufferSize += _size;
     }
   }
+    
+    _status = GFXStatus::UNREADY;
 }
 
 NS_CC_END

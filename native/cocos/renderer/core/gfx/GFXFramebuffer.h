@@ -5,7 +5,7 @@
 
 NS_CC_BEGIN
 
-class CC_CORE_API GFXFramebuffer : public Object {
+class CC_CORE_API GFXFramebuffer : public GFXObject {
  public:
   GFXFramebuffer(GFXDevice* device);
   virtual ~GFXFramebuffer();

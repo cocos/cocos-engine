@@ -52,6 +52,8 @@ bool GLES2PipelineState::initialize(const GFXPipelineStateInfo &info) {
   _gpuPipelineState->dynamicStates = _dynamicStates;
   _gpuPipelineState->gpuLayout = ((GLES2PipelineLayout*)_layout)->gpuPipelineLayout();
   _gpuPipelineState->gpuRenderPass = ((GLES2RenderPass*)_renderPass)->gpuRenderPass();
+    
+    _status = GFXStatus::SUCCESS;
   
   return true;
 }
@@ -61,6 +63,8 @@ void GLES2PipelineState::destroy() {
     CC_DELETE(_gpuPipelineState);
     _gpuPipelineState = nullptr;
   }
+    
+    _status = GFXStatus::UNREADY;
 }
 
 NS_CC_END

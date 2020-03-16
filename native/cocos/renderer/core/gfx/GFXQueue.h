@@ -5,7 +5,7 @@
 
 NS_CC_BEGIN
 
-class CC_CORE_API GFXQueue : public Object {
+class CC_CORE_API GFXQueue : public GFXObject {
  public:
   GFXQueue(GFXDevice* device);
   virtual ~GFXQueue();

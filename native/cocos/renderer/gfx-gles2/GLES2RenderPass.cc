@@ -19,6 +19,8 @@ bool GLES2RenderPass::initialize(const GFXRenderPassInfo &info) {
   _gpuRenderPass = CC_NEW(GLES2GPURenderPass);
   _gpuRenderPass->colorAttachments = _colorAttachments;
   _gpuRenderPass->depthStencilAttachment = _depthStencilAttachment;
+    
+    _status = GFXStatus::SUCCESS;
   
   return true;
 }
@@ -28,6 +30,8 @@ void GLES2RenderPass::destroy() {
     CC_DELETE(_gpuRenderPass);
     _gpuRenderPass = nullptr;
   }
+    
+    _status = GFXStatus::UNREADY;
 }
 
 NS_CC_END

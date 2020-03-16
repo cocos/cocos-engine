@@ -29,6 +29,8 @@ bool CCMTLRenderPass::initialize(const GFXRenderPassInfo& info)
     _mtlRenderPassDescriptor.stencilAttachment.loadAction = mu::toMTLLoadAction(_depthStencilAttachment.depthLoadOp);
     _mtlRenderPassDescriptor.stencilAttachment.storeAction = mu::toMTLStoreAction(_depthStencilAttachment.depthStoreOp);
     
+    _status = GFXStatus::SUCCESS;
+    
     return true;
 }
 
@@ -39,6 +41,8 @@ void CCMTLRenderPass::destroy()
         [_mtlRenderPassDescriptor release];
         _mtlRenderPassDescriptor = nil;
     }
+    
+    _status = GFXStatus::UNREADY;
 }
 
 void CCMTLRenderPass::setColorAttachment(GFXTextureView* textureView)

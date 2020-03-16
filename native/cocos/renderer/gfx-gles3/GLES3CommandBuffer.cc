@@ -28,6 +28,7 @@ bool GLES3CommandBuffer::initialize(const GFXCommandBufferInfo& info) {
   _type = info.type;
 
   _cmdPackage = CC_NEW(GLES3CmdPackage);
+    _status = GFXStatus::SUCCESS;
   
   return true;
 }
@@ -38,6 +39,7 @@ void GLES3CommandBuffer::destroy() {
     _gles3Allocator = nullptr;
   }
   _allocator = nullptr;
+    _status = GFXStatus::UNREADY;
 
   CC_SAFE_DELETE(_cmdPackage);
 }

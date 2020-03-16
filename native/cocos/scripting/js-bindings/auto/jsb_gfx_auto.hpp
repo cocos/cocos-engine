@@ -267,6 +267,13 @@ extern se::Class* __jsb_cocos2d_GFXMemoryStatus_class;
 bool js_register_cocos2d_GFXMemoryStatus(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
+extern se::Object* __jsb_cocos2d_GFXObject_proto;
+extern se::Class* __jsb_cocos2d_GFXObject_class;
+
+bool js_register_cocos2d_GFXObject(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+SE_DECLARE_FUNC(js_gfx_GFXObject_GFXObject);
+
 extern se::Object* __jsb_cocos2d_GFXDevice_proto;
 extern se::Class* __jsb_cocos2d_GFXDevice_class;
 

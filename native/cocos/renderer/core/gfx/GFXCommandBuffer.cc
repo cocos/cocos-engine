@@ -4,7 +4,8 @@
 NS_CC_BEGIN
 
 GFXCommandBuffer::GFXCommandBuffer(GFXDevice* device)
-: _device(device)
+: GFXObject(GFXObjectType::COMMAND_BUFFER)
+, _device(device)
 {
 }
 

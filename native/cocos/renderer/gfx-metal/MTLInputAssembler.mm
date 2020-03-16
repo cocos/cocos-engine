@@ -33,12 +33,15 @@ bool CCMTLInputAssembler::initialize(const GFXInputAssemblerInfo& info)
     for (const auto& vertexBuffer : info.vertexBuffers)
         _GPUInputAssembler->mtlVertexBufers.push_back(static_cast<CCMTLBuffer*>(vertexBuffer)->getMTLBuffer() );
     
+    _status = GFXStatus::SUCCESS;
+    
     return true;
 }
 
 void CCMTLInputAssembler::destroy()
 {
     CC_SAFE_DELETE(_GPUInputAssembler);
+    _status = GFXStatus::UNREADY;
 }
 
 void CCMTLInputAssembler::extractDrawInfo(CCMTLCmdDraw* cmd) const

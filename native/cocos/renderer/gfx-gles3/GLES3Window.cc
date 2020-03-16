@@ -103,6 +103,8 @@ bool GLES3Window::initialize(const GFXWindowInfo &info) {
   fboInfo.depthStencilView = _depthStencilTexView;
   fboInfo.isOffscreen = _isOffscreen;
   _framebuffer = _device->createFramebuffer(fboInfo);
+    
+    _status = GFXStatus::SUCCESS;
 
   return true;
 }
@@ -114,6 +116,7 @@ void GLES3Window::destroy() {
   CC_SAFE_DESTROY(_depthStencilTexView);
   CC_SAFE_DESTROY(_depthStencilTex);
   CC_SAFE_DESTROY(_framebuffer);
+    _status = GFXStatus::UNREADY;
 }
 
 void GLES3Window::resize(uint width, uint height) {

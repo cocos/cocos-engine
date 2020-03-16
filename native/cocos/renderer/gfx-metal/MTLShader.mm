@@ -24,6 +24,8 @@ bool CCMTLShader::initialize(const GFXShaderInfo& info)
             return false;
         }
     }
+    
+    _status = GFXStatus::SUCCESS;
         
     return true;
 }
@@ -41,6 +43,8 @@ void CCMTLShader::destroy()
         [_fragmentMTLFunction release];
         _fragmentMTLFunction = nil;
     }
+    
+    _status = GFXStatus::UNREADY;
 }
 
 bool CCMTLShader::createMTLFunction(const GFXShaderStage& stage)

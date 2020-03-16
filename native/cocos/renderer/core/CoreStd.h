@@ -37,5 +37,6 @@
 #include "math/CCCoreMath.h"
 #include "kernel/Log.h"
 #include "kernel/Object.h"
+#include "gfx/GFXObject.h"
 
 #endif // CC_CORE_CORE_STD_H_

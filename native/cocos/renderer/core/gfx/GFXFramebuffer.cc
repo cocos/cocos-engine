@@ -4,7 +4,8 @@
 NS_CC_BEGIN
 
 GFXFramebuffer::GFXFramebuffer(GFXDevice* device)
-: _device(device)
+: GFXObject(GFXObjectType::FRAMEBUFFER)
+, _device(device)
 {
 }
 

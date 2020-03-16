@@ -21,12 +21,13 @@ bool CCMTLBindingLayout::initialize(const GFXBindingLayoutInfo& info)
         }
     }
     
+    _status = GFXStatus::SUCCESS;
     return true;
 }
 
 void CCMTLBindingLayout::destroy()
 {
-    
+    _status = GFXStatus::UNREADY;
 }
 
 void CCMTLBindingLayout::update()

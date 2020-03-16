@@ -4,7 +4,8 @@
 NS_CC_BEGIN
 
 GFXSampler::GFXSampler(GFXDevice* device)
-: _device(device)
+: GFXObject(GFXObjectType::SAMPLER)
+, _device(device)
 {
     _borderColor.r = 0.0f;
     _borderColor.g = 0.0f;

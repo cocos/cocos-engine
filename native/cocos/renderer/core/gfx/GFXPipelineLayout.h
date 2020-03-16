@@ -5,7 +5,7 @@
 
 NS_CC_BEGIN
 
-class CC_CORE_API GFXPipelineLayout : public Object {
+class CC_CORE_API GFXPipelineLayout : public GFXObject {
  public:
   GFXPipelineLayout(GFXDevice* device);
   virtual ~GFXPipelineLayout();

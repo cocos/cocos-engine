@@ -4,7 +4,8 @@
 NS_CC_BEGIN
 
 GFXPipelineState::GFXPipelineState(GFXDevice* device)
-: _device(device)
+: GFXObject(GFXObjectType::PIPELINE_STATE)
+, _device(device)
 {
 }
 

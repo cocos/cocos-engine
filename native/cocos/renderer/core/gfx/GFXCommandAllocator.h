@@ -5,7 +5,7 @@
 
 NS_CC_BEGIN
 
-class CC_CORE_API GFXCommandAllocator : public Object {
+class CC_CORE_API GFXCommandAllocator : public GFXObject {
  public:
   GFXCommandAllocator(GFXDevice* device);
   virtual ~GFXCommandAllocator();

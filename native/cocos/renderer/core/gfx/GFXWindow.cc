@@ -4,7 +4,8 @@
 NS_CC_BEGIN
 
 GFXWindow::GFXWindow(GFXDevice* device)
-: _device(device)
+: GFXObject(GFXObjectType::WINDOW)
+, _device(device)
 {
 }
 

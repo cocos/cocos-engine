@@ -4,7 +4,8 @@
 NS_CC_BEGIN
 
 GFXShader::GFXShader(GFXDevice* device)
-: _device(device)
+: GFXObject(GFXObjectType::SHADER)
+, _device(device)
 {
 }
 

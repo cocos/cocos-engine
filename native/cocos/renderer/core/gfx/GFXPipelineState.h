@@ -5,7 +5,7 @@
 
 NS_CC_BEGIN
 
-class CC_CORE_API GFXPipelineState : public Object {
+class CC_CORE_API GFXPipelineState : public GFXObject {
  public:
   GFXPipelineState(GFXDevice* device);
   virtual ~GFXPipelineState();

@@ -5,7 +5,7 @@
 
 NS_CC_BEGIN
 
-class CC_CORE_API GFXRenderPass : public Object {
+class CC_CORE_API GFXRenderPass : public GFXObject {
  public:
   GFXRenderPass(GFXDevice* device);
   virtual ~GFXRenderPass();

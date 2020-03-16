@@ -45,6 +45,7 @@ bool GLES2Framebuffer::initialize(const GFXFramebufferInfo &info) {
         _gpuFBO->glFramebuffer = static_cast<GLES2Context*>(_device->getContext())->getDefaultFramebuffer();
     }
 #endif
+    _status = GFXStatus::SUCCESS;
   return true;
 }
 
@@ -55,6 +56,7 @@ void GLES2Framebuffer::destroy() {
       CC_DELETE(_gpuFBO);
       _gpuFBO = nullptr;
   }
+    _status = GFXStatus::UNREADY;
 }
 
 NS_CC_END

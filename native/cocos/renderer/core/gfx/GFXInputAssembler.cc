@@ -4,7 +4,8 @@
 NS_CC_BEGIN
 
 GFXInputAssembler::GFXInputAssembler(GFXDevice* device)
-: _device(device)
+: GFXObject(GFXObjectType::INPUT_ASSEMBLER)
+, _device(device)
 {
 }
 

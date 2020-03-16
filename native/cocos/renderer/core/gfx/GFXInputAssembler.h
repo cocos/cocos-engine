@@ -5,7 +5,7 @@
 
 NS_CC_BEGIN
 
-class CC_CORE_API GFXInputAssembler : public Object {
+class CC_CORE_API GFXInputAssembler : public GFXObject {
  public:
   GFXInputAssembler(GFXDevice* device);
   virtual ~GFXInputAssembler();

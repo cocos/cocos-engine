@@ -28,6 +28,8 @@ bool GLES3TextureView::initialize(const GFXTextureViewInfo &info) {
   _gpuTexView->format = _format;
   _gpuTexView->baseLevel = info.baseLevel;
   _gpuTexView->levelCount = info.levelCount;
+    
+    _status = GFXStatus::SUCCESS;
   
   return true;
 }
@@ -38,6 +40,7 @@ void GLES3TextureView::destroy() {
     _gpuTexView = nullptr;
   }
   _texture = nullptr;
+    _status = GFXStatus::UNREADY;
 }
 
 NS_CC_END

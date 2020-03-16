@@ -36,6 +36,8 @@ bool GLES3BindingLayout::initialize(const GFXBindingLayoutInfo &info) {
     gpuBinding.type = bindingUnit.type;
     gpuBinding.name = bindingUnit.name;
   }
+    
+    _status = GFXStatus::SUCCESS;
   
   return true;
 }
@@ -45,6 +47,8 @@ void GLES3BindingLayout::destroy() {
     CC_DELETE(_gpuBindingLayout);
     _gpuBindingLayout = nullptr;
   }
+    
+    _status = GFXStatus::UNREADY;
 }
 
 void GLES3BindingLayout::update() {

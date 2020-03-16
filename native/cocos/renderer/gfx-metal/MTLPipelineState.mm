@@ -30,6 +30,8 @@ bool CCMTLPipelineState::initialize(const GFXPipelineStateInfo& info)
     _layout = info.layout;
     _renderPass = info.renderPass;
     
+    _status = GFXStatus::SUCCESS;
+    
     return createGPUPipelineState();
 }
 
@@ -48,6 +50,7 @@ void CCMTLPipelineState::destroy()
     }
     
     CC_SAFE_DELETE(_GPUPipelieState);
+    _status = GFXStatus::UNREADY;
 }
 
 void CCMTLPipelineState::updateBindingBlocks(const GFXBindingLayout* bl)

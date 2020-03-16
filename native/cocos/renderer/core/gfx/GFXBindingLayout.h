@@ -5,7 +5,7 @@
 
 NS_CC_BEGIN
 
-class CC_CORE_API GFXBindingLayout : public Object {
+class CC_CORE_API GFXBindingLayout : public GFXObject {
  public:
   GFXBindingLayout(GFXDevice* device);
   virtual ~GFXBindingLayout();

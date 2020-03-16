@@ -14,11 +14,13 @@ GLES2Queue::~GLES2Queue() {
 
 bool GLES2Queue::initialize(const GFXQueueInfo &info) {
   _type = info.type;
-  
+    _status = GFXStatus::SUCCESS;
+    
   return true;
 }
 
 void GLES2Queue::destroy() {
+    _status = GFXStatus::UNREADY;
 }
 
 void GLES2Queue::submit(const std::vector<GFXCommandBuffer*>& cmd_buffs) {

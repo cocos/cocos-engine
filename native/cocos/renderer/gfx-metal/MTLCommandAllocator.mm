@@ -9,12 +9,13 @@ CCMTLCommandAllocator::~CCMTLCommandAllocator() { destroy(); }
 
 bool CCMTLCommandAllocator::initialize(const GFXCommandAllocatorInfo& info)
 {
+    _status = GFXStatus::SUCCESS;
     return true;
 }
 
 void CCMTLCommandAllocator::destroy()
 {
-    
+    _status = GFXStatus::UNREADY;
 }
 
 void CCMTLCommandAllocator::clearCommands(CCMTLCommandPackage* commandPackage)

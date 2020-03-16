@@ -35,6 +35,8 @@ bool GLES2Sampler::initialize(const GFXSamplerInfo &info) {
   _gpuSampler->addressW = _addressW;
   _gpuSampler->minLOD = _minLOD;
   _gpuSampler->maxLOD = _maxLOD;
+    
+    _status = GFXStatus::SUCCESS;
   
   GLES2CmdFuncCreateSampler((GLES2Device*)_device, _gpuSampler);
   
@@ -47,6 +49,7 @@ void GLES2Sampler::destroy() {
     CC_DELETE(_gpuSampler);
     _gpuSampler = nullptr;
   }
+    _status = GFXStatus::UNREADY;
 }
 
 NS_CC_END

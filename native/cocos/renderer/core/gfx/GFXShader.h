@@ -5,7 +5,7 @@
 
 NS_CC_BEGIN
 
-class CC_CORE_API GFXShader : public Object {
+class CC_CORE_API GFXShader : public GFXObject {
  public:
   GFXShader(GFXDevice* device);
   virtual ~GFXShader();

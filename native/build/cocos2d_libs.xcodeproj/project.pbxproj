@@ -353,6 +353,10 @@
 		469FFB06240E5A4000581BFC /* libEGL.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 469FFB04240E5A4000581BFC /* libEGL.dylib */; };
 		469FFB13240E655400581BFC /* libGLESv2.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 469FFB11240E655300581BFC /* libGLESv2.dylib */; };
 		469FFB14240E655400581BFC /* libEGL.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 469FFB12240E655300581BFC /* libEGL.dylib */; };
+		46ACCBFC241F27A70096CC35 /* GFXObject.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCBFA241F27A70096CC35 /* GFXObject.cc */; };
+		46ACCBFD241F27A70096CC35 /* GFXObject.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCBFA241F27A70096CC35 /* GFXObject.cc */; };
+		46ACCBFE241F27A70096CC35 /* GFXObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCBFB241F27A70096CC35 /* GFXObject.h */; };
+		46ACCBFF241F27A70096CC35 /* GFXObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCBFB241F27A70096CC35 /* GFXObject.h */; };
 		46AE3FDD2092F3A600F3A228 /* inspector_socket_server.h in Headers */ = {isa = PBXBuildFile; fileRef = 46AE3FC52092F3A600F3A228 /* inspector_socket_server.h */; };
 		46AE3FDE2092F3A600F3A228 /* inspector_socket_server.h in Headers */ = {isa = PBXBuildFile; fileRef = 46AE3FC52092F3A600F3A228 /* inspector_socket_server.h */; };
 		46AE3FDF2092F3A600F3A228 /* env.h in Headers */ = {isa = PBXBuildFile; fileRef = 46AE3FC62092F3A600F3A228 /* env.h */; };
@@ -1145,6 +1149,8 @@
 		469FFB04240E5A4000581BFC /* libEGL.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libEGL.dylib; path = ../external/mac/libs/libEGL.dylib; sourceTree = "<group>"; };
 		469FFB11240E655300581BFC /* libGLESv2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLESv2.dylib; path = ../external/mac/libs/libGLESv2.dylib; sourceTree = "<group>"; };
 		469FFB12240E655300581BFC /* libEGL.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libEGL.dylib; path = ../external/mac/libs/libEGL.dylib; sourceTree = "<group>"; };
+		46ACCBFA241F27A70096CC35 /* GFXObject.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GFXObject.cc; sourceTree = "<group>"; };
+		46ACCBFB241F27A70096CC35 /* GFXObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GFXObject.h; sourceTree = "<group>"; };
 		46AE3FC52092F3A600F3A228 /* inspector_socket_server.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = inspector_socket_server.h; sourceTree = "<group>"; };
 		46AE3FC62092F3A600F3A228 /* env.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = env.h; sourceTree = "<group>"; };
 		46AE3FC72092F3A600F3A228 /* node.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = node.cc; sourceTree = "<group>"; };
@@ -2309,6 +2315,8 @@
 				BA06A66723583DBD007740C5 /* GFXCommandAllocator.cc */,
 				BA06A66823583DBD007740C5 /* GFXContext.cc */,
 				BA06A66923583DBD007740C5 /* GFXPipelineState.cc */,
+				46ACCBFA241F27A70096CC35 /* GFXObject.cc */,
+				46ACCBFB241F27A70096CC35 /* GFXObject.h */,
 			);
 			path = gfx;
 			sourceTree = "<group>";
@@ -2794,6 +2802,7 @@
 				ED3057831BEC76C90083C3ED /* unzip.h in Headers */,
 				BA06A6EA23583DBD007740C5 /* Assertion.h in Headers */,
 				BA06A6B823583DBD007740C5 /* GFXWindow.h in Headers */,
+				46ACCBFE241F27A70096CC35 /* GFXObject.h in Headers */,
 				469FFAF9240E55E900581BFC /* GLES2Queue.h in Headers */,
 				469FFAE6240E55A700581BFC /* GLES2Texture.h in Headers */,
 				1A28FF511F20AFAB007A1D9D /* SRIOConsumer.h in Headers */,
@@ -3025,6 +3034,7 @@
 				4617866E2052609B008256E1 /* jsb_cocos2dx_network_auto.hpp in Headers */,
 				BA06A68923583DBD007740C5 /* JeAlloc.h in Headers */,
 				1A28FF6A1F20AFAB007A1D9D /* SRConstants.h in Headers */,
+				46ACCBFF241F27A70096CC35 /* GFXObject.h in Headers */,
 				BA06A69B23583DBD007740C5 /* CoreStd.h in Headers */,
 				50ABBFFE1926664800A911A9 /* CCFileUtils-apple.h in Headers */,
 				46FDDBEA202ADDCE00931238 /* CCAutoreleasePool.h in Headers */,
@@ -3394,6 +3404,7 @@
 				BAC32B47236C28C600F3D55F /* tommyhashlin.c in Sources */,
 				469FFAF6240E55DC00581BFC /* GLES2BindingLayout.cc in Sources */,
 				BA06A6DE23583DBD007740C5 /* GFXQueue.cc in Sources */,
+				46ACCBFC241F27A70096CC35 /* GFXObject.cc in Sources */,
 				4617862F20522469008256E1 /* HttpClient-apple.mm in Sources */,
 				4617862B20522469008256E1 /* WebSocket-apple.mm in Sources */,
 				469FFAE1240E559300581BFC /* GLES2Texture.cc in Sources */,
@@ -3540,6 +3551,7 @@
 				BA06A6BF23583DBD007740C5 /* GFXDevice.cc in Sources */,
 				BA06A6D323583DBD007740C5 /* GFXSampler.cc in Sources */,
 				BA06A7D623583DFE007740C5 /* GLES3TextureView.cc in Sources */,
+				46ACCBFD241F27A70096CC35 /* GFXObject.cc in Sources */,
 				46FDDB7C202ADDCE00931238 /* CCRef.cpp in Sources */,
 				4DCEC126233236D60020F8E3 /* etc2.cpp in Sources */,
 				BAC32B46236C28C600F3D55F /* tommyarrayof.c in Sources */,

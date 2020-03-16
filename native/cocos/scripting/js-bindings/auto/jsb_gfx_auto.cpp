@@ -12797,6 +12797,95 @@ bool js_register_gfx_GFXMemoryStatus(se::Object* obj)
     return true;
 }
 
+se::Object* __jsb_cocos2d_GFXObject_proto = nullptr;
+se::Class* __jsb_cocos2d_GFXObject_class = nullptr;
+
+static bool js_gfx_GFXObject_getType(se::State& s)
+{
+    cocos2d::GFXObject* cobj = (cocos2d::GFXObject*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXObject_getType : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = (int)cobj->getType();
+        ok &= int32_to_seval((int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXObject_getType : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_GFXObject_getType)
+
+static bool js_gfx_GFXObject_getStatus(se::State& s)
+{
+    cocos2d::GFXObject* cobj = (cocos2d::GFXObject*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXObject_getStatus : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = (int)cobj->getStatus();
+        ok &= int32_to_seval((int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXObject_getStatus : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_GFXObject_getStatus)
+
+SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXObject_finalize)
+
+static bool js_gfx_GFXObject_constructor(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    cocos2d::GFXObjectType arg0;
+    do { int32_t tmp = 0; ok &= seval_to_int32(args[0], &tmp); arg0 = (cocos2d::GFXObjectType)tmp; } while(false);
+    SE_PRECONDITION2(ok, false, "js_gfx_GFXObject_constructor : Error processing arguments");
+    cocos2d::GFXObject* cobj = JSB_ALLOC(cocos2d::GFXObject, arg0);
+    s.thisObject()->setPrivateData(cobj);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_gfx_GFXObject_constructor, __jsb_cocos2d_GFXObject_class, js_cocos2d_GFXObject_finalize)
+
+
+
+
+static bool js_cocos2d_GFXObject_finalize(se::State& s)
+{
+    CCLOGINFO("jsbindings: finalizing JS object %p (cocos2d::GFXObject)", s.nativeThisObject());
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(s.nativeThisObject());
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        cocos2d::GFXObject* cobj = (cocos2d::GFXObject*)s.nativeThisObject();
+        JSB_FREE(cobj);
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXObject_finalize)
+
+bool js_register_gfx_GFXObject(se::Object* obj)
+{
+    auto cls = se::Class::create("GFXObject", obj, nullptr, _SE(js_gfx_GFXObject_constructor));
+
+    cls->defineProperty("status", _SE(js_gfx_GFXObject_getStatus), nullptr);
+    cls->defineProperty("gfxType", _SE(js_gfx_GFXObject_getType), nullptr);
+    cls->defineFinalizeFunction(_SE(js_cocos2d_GFXObject_finalize));
+    cls->install();
+    JSBClassType::registerClass<cocos2d::GFXObject>(cls);
+
+    __jsb_cocos2d_GFXObject_proto = cls->getProto();
+    __jsb_cocos2d_GFXObject_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+
 se::Object* __jsb_cocos2d_GFXDevice_proto = nullptr;
 se::Class* __jsb_cocos2d_GFXDevice_class = nullptr;
 
@@ -17661,6 +17750,7 @@ bool register_all_gfx(se::Object* obj)
     js_register_gfx_GFXBlendState(ns);
     js_register_gfx_GFXBufferTextureCopy(ns);
     js_register_gfx_GFXUniform(ns);
+    js_register_gfx_GFXObject(ns);
     js_register_gfx_GFXTextureViewInfo(ns);
     js_register_gfx_GFXWindowInfo(ns);
     js_register_gfx_GFXBuffer(ns);

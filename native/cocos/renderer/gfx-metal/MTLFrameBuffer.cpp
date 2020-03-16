@@ -12,13 +12,14 @@ bool CCMTLFrameBuffer::initialize(const GFXFramebufferInfo& info)
     _colorViews = info.colorViews;
     _depthStencilView = info.depthStencilView;
     _isOffscreen = info.isOffscreen;
+    _status = GFXStatus::SUCCESS;
     
     return true;
 }
 
 void CCMTLFrameBuffer::destroy()
 {
-    
+    _status = GFXStatus::UNREADY;
 }
 
 NS_CC_END

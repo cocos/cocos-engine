@@ -44,6 +44,8 @@ bool CCMTLSampler::initialize(const GFXSamplerInfo& info)
     
     [descriptor release];
     
+    _status = GFXStatus::SUCCESS;
+    
     return _mtlSamplerState != nil;
 }
 
@@ -54,6 +56,8 @@ void CCMTLSampler::destroy()
         [_mtlSamplerState release];
         _mtlSamplerState = nil;
     }
+    
+    _status = GFXStatus::UNREADY;
 }
 
 NS_CC_END

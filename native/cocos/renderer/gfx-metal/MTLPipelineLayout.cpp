@@ -10,13 +10,14 @@ bool CCMTLPipelineLayout::initialize(const GFXPipelineLayoutInfo& info)
 {
     _layouts = info.layouts;
     _pushConstantsRanges = info.pushConstantsRanges;
+    _status = GFXStatus::SUCCESS;
     
     return true;
 }
 
 void CCMTLPipelineLayout::destroy()
 {
-    
+    _status = GFXStatus::UNREADY;
 }
 
 NS_CC_END

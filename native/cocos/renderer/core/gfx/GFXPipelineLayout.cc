@@ -4,7 +4,8 @@
 NS_CC_BEGIN
 
 GFXPipelineLayout::GFXPipelineLayout(GFXDevice* device)
-    : _device(device) {
+: GFXObject(GFXObjectType::PIPELINE_LAYOUT)
+, _device(device) {
 }
 
 GFXPipelineLayout::~GFXPipelineLayout() {

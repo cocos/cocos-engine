@@ -28,6 +28,8 @@ bool CCMTLTextureView::initialize(const GFXTextureViewInfo& info)
                                                      levels:levels
                                                      slices:slics];
     
+    _status = GFXStatus::SUCCESS;
+    
     return _mtlTexture != nil;
 }
 
@@ -38,6 +40,7 @@ void CCMTLTextureView::destroy()
         [_mtlTexture release];
         _mtlTexture = nil;
     }
+    _status = GFXStatus::UNREADY;
 }
 
 NS_CC_END

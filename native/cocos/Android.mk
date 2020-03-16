@@ -101,6 +101,7 @@ LOCAL_STATIC_LIBRARIES += cocos_extension_static
 ifeq ($(USE_GFX_RENDERER),1)
 LOCAL_SRC_FILES += \
 renderer/core/CoreStd.cc \
+renderer/core/gfx/GFXObject.cc \
 renderer/core/gfx/GFXBindingLayout.cc \
 renderer/core/gfx/GFXDevice.cc \
 renderer/core/gfx/GFXRenderPass.cc \
