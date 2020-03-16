@@ -137,8 +137,8 @@ var textUtils = {
     label_lastWordRex : /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]+|\S)$/,
     label_lastEnglish : /[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]+$/,
     label_firstEnglish : /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]/,
-    label_firstEmoji : /^[\uD83C\uDF00-\uDFFF\uDC00-\uDE4F]/,
-    label_lastEmoji : /([\uDF00-\uDFFF\uDC00-\uDE4F]+|\S)$/,
+    label_startsWithEmoji : /^[\uD83C\uDF00-\uDFFF\uDC00-\uDE4F]/,
+    label_endsWithEmoji : /([\uDF00-\uDFFF\uDC00-\uDE4F]+|\S)$/,
     label_wrapinspection : true,
 
     __CHINESE_REG: /^[\u4E00-\u9FFF\u3400-\u4DFF]+$/,
@@ -173,10 +173,10 @@ var textUtils = {
     // in case substring of emoj
     _safeSubstring (targetString, startIndex, endIndex) {
         targetString = targetString.substring(startIndex, endIndex);
-        if (this.label_firstEmoji.test(targetString)) {
+        if (this.label_startsWithEmoji.test(targetString)) {
             targetString = targetString.slice(1);
         }
-        if (endIndex !== undefined && this.label_lastEmoji.test(targetString)) {
+        if (endIndex !== undefined && this.label_endsWithEmoji.test(targetString)) {
             targetString = targetString.slice(0, -1);
         }
         return targetString;
@@ -248,8 +248,8 @@ var textUtils = {
 
             // To judge whether a Emoji words are truncated
             // todo Some Emoji are not well adapted, such as 🚗 and 🇨🇳
-            if (this.label_firstEmoji.test(sLine)) {
-                result = this.label_lastEmoji.exec(sText);
+            if (this.label_startsWithEmoji.test(sLine)) {
+                result = this.label_endsWithEmoji.exec(sText);
                 if (result && sText !== result[0]) {
                     fuzzyLen -= result[0].length;
                     sLine = this._safeSubstring(text, fuzzyLen);
