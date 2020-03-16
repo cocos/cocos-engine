@@ -144,7 +144,7 @@ replaceProperty = (owner: object, ownerName: string, properties: IReplacement[])
 
 removePropertyLog = function (n: string, dp: string, f: Function, id: number, s?: string) {
     let item = messageMap.get(id);
-    const ss = s === undefined ? '' : s;
+    const ss = s === undefined ? '' : '(' + s + ')';
     if (item && item.logTimes > item.count) {
         f("'%s' has been removed. " + ss, `${n}.${dp}`);
         item.count++;
@@ -171,7 +171,7 @@ removeProperty = (owner: object, ownerName: string, properties: IRemoveItem[]) =
 
 markAsWarningLog = function (n: string, dp: string, f: Function, id: number, s?: string) {
     let item = messageMap.get(id);
-    const ss = s === undefined ? '' : s;
+    const ss = s === undefined ? '' : '(' + s + ')';
     if (item && item.logTimes > item.count) {
         f("'%s' is deprecated. " + ss, `${n}.${dp}`);
         item.count++;
