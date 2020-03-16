@@ -310,6 +310,8 @@
         "cocos/renderer/core/gfx/GFXFramebuffer.h", 
         "cocos/renderer/core/gfx/GFXInputAssembler.cc", 
         "cocos/renderer/core/gfx/GFXInputAssembler.h", 
+        "cocos/renderer/core/gfx/GFXObject.cc", 
+        "cocos/renderer/core/gfx/GFXObject.h", 
         "cocos/renderer/core/gfx/GFXPipelineLayout.cc", 
         "cocos/renderer/core/gfx/GFXPipelineLayout.h", 
         "cocos/renderer/core/gfx/GFXPipelineState.cc", 
