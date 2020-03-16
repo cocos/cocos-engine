@@ -15,6 +15,9 @@ import plane from './plane';
 import ray from './ray';
 import sphere from './sphere';
 import triangle from './triangle';
+import { Mesh } from '../assets';
+import { GFXPrimitiveMode } from '../gfx';
+import { IBArray } from '../assets/mesh';
 
 // tslint:disable:only-arrow-functions
 // tslint:disable:one-variable-per-declaration
@@ -308,6 +311,67 @@ const ray_capsule = (function () {
         }
 
     };
+})();
+
+/**
+ * @en
+ * ray-mesh intersect detect.
+ * @zh
+ * 射线和网格的相交性检测。
+ */
+const ray_mesh = (function () {
+    const tri = triangle.create();
+    const modelRay = ray.create();
+    let narrowDis = Infinity;
+    const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, sides = true, distance = Infinity) => {
+        if (pm === GFXPrimitiveMode.TRIANGLE_LIST) {
+            const cnt = ib.length;
+            for (let j = 0; j < cnt; j += 3) {
+                const i0 = ib[j] * 3;
+                const i1 = ib[j + 1] * 3;
+                const i2 = ib[j + 2] * 3;
+                Vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
+                Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
+                Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
+                const dist = intersect.ray_triangle(modelRay, tri, sides);
+                if (dist <= 0 || dist >= narrowDis) { continue; }
+                narrowDis = dist;
+            }
+        } else if (pm === GFXPrimitiveMode.TRIANGLE_STRIP) {
+            const cnt = ib.length - 2;
+            let rev = 0;
+            for (let j = 0; j < cnt; j += 1) {
+                const i0 = ib[j - rev] * 3;
+                const i1 = ib[j + rev + 1] * 3;
+                const i2 = ib[j + 2] * 3;
+                Vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
+                Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
+                Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
+                rev = ~rev;
+                const dist = intersect.ray_triangle(modelRay, tri, sides);
+                if (dist <= 0 || dist >= narrowDis) { continue; }
+                narrowDis = dist;
+            }
+        } else if (pm === GFXPrimitiveMode.TRIANGLE_FAN) {
+            const cnt = ib.length - 1;
+            const i0 = ib[0] * 3;
+            Vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
+            for (let j = 1; j < cnt; j += 1) {
+                const i1 = ib[j] * 3;
+                const i2 = ib[j + 1] * 3;
+                Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
+                Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
+                const dist = intersect.ray_triangle(modelRay, tri, sides);
+                if (dist <= 0 || dist >= narrowDis) { continue; }
+                narrowDis = dist;
+            }
+        }
+    };
+
+    return function (r: ray, mesh: Mesh, sides = true, distance = Infinity) {
+        
+        
+    }
 })();
 
 /**
