@@ -135,6 +135,7 @@ export class View extends EventTarget {
     public _originalDesignResolutionSize: Size;
 
     private _frameSize: Size;
+    private _prevCanvasSize: Size;
     private _scaleX: number;
     private _scaleY: number;
     private _viewportRect: Rect;
@@ -166,6 +167,7 @@ export class View extends EventTarget {
 
         // Size of parent node that contains cc.game.container and cc.game.canvas
         this._frameSize = new Size(0, 0);
+        this._prevCanvasSize = new Size(0, 0);
 
         // resolution size, it is the size appropriate for the app resources.
         this._designResolutionSize = new Size(0, 0);
@@ -460,7 +462,8 @@ export class View extends EventTarget {
     public setCanvasSize (width, height) {
         const canvas = cc.game.canvas;
         const container = cc.game.container;
-
+        this._prevCanvasSize.width = cc.game.frame.width * this._devicePixelRatio;
+        this._prevCanvasSize.height = cc.game.frame.height * this._devicePixelRatio;
         this._devicePixelRatio = window.devicePixelRatio;
 
         canvas.width = width * this._devicePixelRatio;
@@ -925,8 +928,6 @@ export class View extends EventTarget {
         const _view = cc.view;
 
         // Check frame size changed or not
-        const prevFrameW = _view._frameSize.width;
-        const prevFrameH = _view._frameSize.height;
         const prevRotated = _view._isRotated;
         if (cc.sys.isMobile) {
             const containerStyle = cc.game.container.style;
@@ -940,7 +941,10 @@ export class View extends EventTarget {
         else {
             _view._initFrameSize();
         }
-        if (!_view._orientationChanging && _view._isRotated === prevRotated && _view._frameSize.width === prevFrameW && _view._frameSize.height === prevFrameH) {
+
+        const curCanvasW = _view._frameSize.width * _view._devicePixelRatio;
+        const curCanvasH = _view._frameSize.height * _view._devicePixelRatio;
+        if (!_view._orientationChanging && _view._isRotated === prevRotated && _view._prevCanvasSize.width === curCanvasW && _view._prevCanvasSize.height === curCanvasH) {
             return;
         }
 
@@ -966,10 +970,8 @@ export class View extends EventTarget {
 
     private _initFrameSize () {
         const locFrameSize = this._frameSize;
-        const cssWidth = __BrowserGetter.availWidth(cc.game.frame);
-        const cssHeight = __BrowserGetter.availHeight(cc.game.frame);
-        const w = (CC_JSB) ? cssWidth * this._devicePixelRatio : cssWidth;
-        const h = (CC_JSB) ? cssHeight * this._devicePixelRatio : cssHeight;
+        const w = __BrowserGetter.availWidth(cc.game.frame);
+        const h = __BrowserGetter.availHeight(cc.game.frame);
         const isLandscape: Boolean = w >= h;
 
         if (CC_EDITOR || !cc.sys.isMobile ||
@@ -1274,9 +1276,7 @@ class ContentStrategy {
         public apply (_view) {
             const frameH = _view._frameSize.height;
             const containerStyle = cc.game.container.style;
-            const cssWidth = (CC_JSB) ? _view._frameSize.width / _view._devicePixelRatio : _view._frameSize.width;
-            const cssHeight = (CC_JSB) ? _view._frameSize.height / _view._devicePixelRatio : _view._frameSize.height;
-            this._setupContainer(_view, cssWidth, cssHeight);
+            this._setupContainer(_view, view._frameSize.width, _view._frameSize.height);
             // Setup container's margin and padding
             if (_view._isRotated) {
                 containerStyle.margin = '0 0 0 ' + frameH + 'px';

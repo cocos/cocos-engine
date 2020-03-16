@@ -790,63 +790,60 @@ export class Game extends EventTarget {
 
         // TODO: adapter for editor & preview
         let localCanvas: HTMLCanvasElement;
-        if (CC_EDITOR || CC_PREVIEW) {
+        if (CC_JSB) {
+            let localContainer: HTMLElement;
+            this.container = localContainer = document.createElement<'div'>('div');
+            this.frame = this.frame = document.documentElement;
+            if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
+                localCanvas = window.sharedCanvas || wx.getSharedCanvas();
+            }
+            else if (CC_JSB) {
+                localCanvas = window.__canvas;
+            }
+            else {
+                localCanvas = window.canvas;
+            }
+            this.canvas = localCanvas;
+        } else if (CC_EDITOR || CC_PREVIEW) {
             const el = this.config.id;
             let width: any;
             let height: any;
             let localContainer: HTMLElement;
+            const element = !el ? null : ((el instanceof HTMLElement) ? el : (document.querySelector(el) || document.querySelector('#' + el)));
+            if (!element) {
+                throw new Error(debug.getError(200));
+            }
 
-            if (CC_JSB) {
+            if (element.tagName === 'CANVAS') {
+                width = (element as HTMLCanvasElement).width;
+                height = (element as HTMLCanvasElement).height;
+
+                // it is already a canvas, we wrap it around with a div
+                this.canvas = localCanvas = (element as HTMLCanvasElement);
                 this.container = localContainer = document.createElement<'div'>('div');
-                this.frame = localContainer.parentNode === document.body ? document.documentElement : localContainer.parentNode;
-                if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-                    localCanvas = window.sharedCanvas || wx.getSharedCanvas();
+                if (localCanvas && localCanvas.parentNode) {
+                    localCanvas.parentNode.insertBefore(localContainer, localCanvas);
                 }
-                else if (CC_JSB) {
-                    localCanvas = window.__canvas;
+            } else {
+                // we must make a new canvas and place into this element
+                if (element.tagName !== 'DIV') {
+                    debug.warnID(3819);
                 }
-                else {
-                    localCanvas = window.canvas;
-                }
-                this.canvas = localCanvas;
+                width = element.clientWidth;
+                height = element.clientHeight;
+
+                this.canvas = localCanvas = document.createElement('canvas');
+                this.container = localContainer = document.createElement<'div'>('div');
+                element.appendChild(localContainer);
             }
-            else {
-                const element = !el ? null : ((el instanceof HTMLElement) ? el : (document.querySelector(el) || document.querySelector('#' + el)));
-                if (!element) {
-                    throw new Error(debug.getError(200));
-                }
+            localContainer.setAttribute('id', 'Cocos3dGameContainer');
+            localContainer.appendChild(localCanvas!);
+            this.frame = (localContainer.parentNode === document.body) ? document.documentElement : localContainer.parentNode;
 
-                if (element.tagName === 'CANVAS') {
-                    width = (element as HTMLCanvasElement).width;
-                    height = (element as HTMLCanvasElement).height;
-
-                    // it is already a canvas, we wrap it around with a div
-                    this.canvas = localCanvas = (element as HTMLCanvasElement);
-                    this.container = localContainer = document.createElement<'div'>('div');
-                    if (localCanvas && localCanvas.parentNode) {
-                        localCanvas.parentNode.insertBefore(localContainer, localCanvas);
-                    }
-                } else {
-                    // we must make a new canvas and place into this element
-                    if (element.tagName !== 'DIV') {
-                        debug.warnID(3819);
-                    }
-                    width = element.clientWidth;
-                    height = element.clientHeight;
-
-                    this.canvas = localCanvas = document.createElement('canvas');
-                    this.container = localContainer = document.createElement<'div'>('div');
-                    element.appendChild(localContainer);
-                }
-                localContainer.setAttribute('id', 'Cocos3dGameContainer');
-                localContainer.appendChild(localCanvas!);
-                this.frame = (localContainer.parentNode === document.body) ? document.documentElement : localContainer.parentNode;
-
-                addClass(localCanvas!, 'gameCanvas');
-                localCanvas.setAttribute('width', width || '480');
-                localCanvas.setAttribute('height', height || '320');
-                localCanvas.setAttribute('tabindex', '99');
-            }
+            addClass(localCanvas!, 'gameCanvas');
+            localCanvas.setAttribute('width', width || '480');
+            localCanvas.setAttribute('height', height || '320');
+            localCanvas.setAttribute('tabindex', '99');
         } else {
             this.canvas = (this.config as any).adapter.canvas;
             this.frame = (this.config as any).adapter.frame;
@@ -878,8 +875,8 @@ export class Game extends EventTarget {
                 canvasElm: localCanvas,
                 debug: true,
                 devicePixelRatio: window.devicePixelRatio,
-                nativeWidth: Math.floor(screen.width * cc.view._devicePixelRatio),
-                nativeHeight: Math.floor(screen.height * cc.view._devicePixelRatio),
+                nativeWidth: Math.floor(screen.width * window.devicePixelRatio),
+                nativeHeight: Math.floor(screen.height * window.devicePixelRatio),
             };
             // fallback if WebGL2 is actually unavailable (usually due to driver issues)
             if (!this._gfxDevice!.initialize(opts) && useWebGL2) {
