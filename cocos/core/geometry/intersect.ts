@@ -18,6 +18,8 @@ import triangle from './triangle';
 import { Mesh } from '../assets';
 import { GFXPrimitiveMode } from '../gfx';
 import { IBArray } from '../assets/mesh';
+import { IRayMeshOptions, ERaycastMode } from './spec';
+import { IVec3Like } from '../math/type-define';
 
 // tslint:disable:only-arrow-functions
 // tslint:disable:one-variable-per-declaration
@@ -131,22 +133,26 @@ const ray_aabb = (function () {
     const min = new Vec3();
     const max = new Vec3();
     return function (ray: ray, aabb: aabb): number {
-        const o = ray.o, d = ray.d;
-        const ix = 1 / d.x, iy = 1 / d.y, iz = 1 / d.z;
         Vec3.subtract(min, aabb.center, aabb.halfExtents);
         Vec3.add(max, aabb.center, aabb.halfExtents);
-        const t1 = (min.x - o.x) * ix;
-        const t2 = (max.x - o.x) * ix;
-        const t3 = (min.y - o.y) * iy;
-        const t4 = (max.y - o.y) * iy;
-        const t5 = (min.z - o.z) * iz;
-        const t6 = (max.z - o.z) * iz;
-        const tmin = Math.max(Math.max(Math.min(t1, t2), Math.min(t3, t4)), Math.min(t5, t6));
-        const tmax = Math.min(Math.min(Math.max(t1, t2), Math.max(t3, t4)), Math.max(t5, t6));
-        if (tmax < 0 || tmin > tmax) { return 0; }
-        return tmin > 0 ? tmin : tmax; // ray origin inside aabb
+        return ray_aabb2(ray, min, max);
     };
 })();
+
+function ray_aabb2 (ray: ray, min: IVec3Like, max: IVec3Like) {
+    const o = ray.o, d = ray.d;
+    const ix = 1 / d.x, iy = 1 / d.y, iz = 1 / d.z;
+    const t1 = (min.x - o.x) * ix;
+    const t2 = (max.x - o.x) * ix;
+    const t3 = (min.y - o.y) * iy;
+    const t4 = (max.y - o.y) * iy;
+    const t5 = (min.z - o.z) * iz;
+    const t6 = (max.z - o.z) * iz;
+    const tmin = Math.max(Math.max(Math.min(t1, t2), Math.min(t3, t4)), Math.min(t5, t6));
+    const tmax = Math.min(Math.min(Math.max(t1, t2), Math.max(t3, t4)), Math.max(t5, t6));
+    if (tmax < 0 || tmin > tmax) { return 0; }
+    return tmin > 0 ? tmin : tmax; // ray origin inside aabb
+}
 
 /**
  * @en
@@ -317,13 +323,21 @@ const ray_capsule = (function () {
  * @en
  * ray-mesh intersect detect.
  * @zh
- * 射线和网格的相交性检测。
+ * 射线和三角网格的相交性检测。
  */
 const ray_mesh = (function () {
     const tri = triangle.create();
-    const modelRay = ray.create();
-    let narrowDis = Infinity;
-    const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, sides = true, distance = Infinity) => {
+    const deOpt: IRayMeshOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.CLOSEST };
+    let minDis = 0;
+    const broadphase = (ray: ray, mesh: Mesh) => {
+        const min = mesh.minPosition;
+        const max = mesh.maxPosition;
+        if (min && max) {
+            return ray_aabb2(ray, min, max);
+        }
+        return 1;
+    }
+    const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, ray: ray, subMeshIndex: number, opt: IRayMeshOptions) => {
         if (pm === GFXPrimitiveMode.TRIANGLE_LIST) {
             const cnt = ib.length;
             for (let j = 0; j < cnt; j += 3) {
@@ -333,9 +347,19 @@ const ray_mesh = (function () {
                 Vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
                 Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
                 Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
-                const dist = intersect.ray_triangle(modelRay, tri, sides);
-                if (dist <= 0 || dist >= narrowDis) { continue; }
-                narrowDis = dist;
+                const dist = intersect.ray_triangle(ray, tri, opt.doubleSided);
+                if (dist == 0 || dist > opt.distance!) continue;
+                if (opt.mode == ERaycastMode.CLOSEST) {
+                    if (minDis < dist) continue;
+                    if (opt.result) opt.result.push({ distance: dist, subMeshIndex, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                } else if (opt.mode == ERaycastMode.ALL) {
+                    minDis = dist;
+                    if (opt.result) opt.result.push({ distance: dist, subMeshIndex, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                } else {
+                    minDis = dist;
+                    if (opt.result) opt.result.push({ distance: dist, subMeshIndex, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                    return minDis;
+                }
             }
         } else if (pm === GFXPrimitiveMode.TRIANGLE_STRIP) {
             const cnt = ib.length - 2;
@@ -348,9 +372,19 @@ const ray_mesh = (function () {
                 Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
                 Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
                 rev = ~rev;
-                const dist = intersect.ray_triangle(modelRay, tri, sides);
-                if (dist <= 0 || dist >= narrowDis) { continue; }
-                narrowDis = dist;
+                const dist = intersect.ray_triangle(ray, tri, opt.doubleSided);
+                if (dist == 0 || dist > opt.distance!) continue;
+                if (opt.mode == ERaycastMode.CLOSEST) {
+                    if (minDis < dist) continue;
+                    if (opt.result) opt.result.push({ distance: dist, subMeshIndex, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                } else if (opt.mode == ERaycastMode.ALL) {
+                    minDis = dist;
+                    if (opt.result) opt.result.push({ distance: dist, subMeshIndex, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                } else {
+                    minDis = dist;
+                    if (opt.result) opt.result.push({ distance: dist, subMeshIndex, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                    return minDis;
+                }
             }
         } else if (pm === GFXPrimitiveMode.TRIANGLE_FAN) {
             const cnt = ib.length - 1;
@@ -361,16 +395,40 @@ const ray_mesh = (function () {
                 const i2 = ib[j + 1] * 3;
                 Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
                 Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
-                const dist = intersect.ray_triangle(modelRay, tri, sides);
-                if (dist <= 0 || dist >= narrowDis) { continue; }
-                narrowDis = dist;
+                const dist = intersect.ray_triangle(ray, tri, opt.doubleSided);
+                if (dist == 0 || dist > opt.distance!) continue;
+                if (opt.mode == ERaycastMode.CLOSEST) {
+                    if (minDis < dist) continue;
+                    if (opt.result) opt.result.push({ distance: dist, subMeshIndex, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                } else if (opt.mode == ERaycastMode.ALL) {
+                    minDis = dist;
+                    if (opt.result) opt.result.push({ distance: dist, subMeshIndex, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                } else {
+                    minDis = dist;
+                    if (opt.result) opt.result.push({ distance: dist, subMeshIndex, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                    return minDis;
+                }
             }
         }
+        return minDis;
     };
-
-    return function (r: ray, mesh: Mesh, sides = true, distance = Infinity) {
-        
-        
+    return function (ray: ray, mesh: Mesh, option?: IRayMeshOptions) {
+        const opt = option == undefined ? deOpt : option;
+        const rm = mesh.renderingMesh;
+        const count = mesh.renderingMesh.subMeshCount
+        minDis = 0;
+        if (broadphase(ray, mesh)) {
+            for (let i = 0; i < count; ++i) {
+                const subMesh = rm.getSubmesh(i);
+                if (subMesh && subMesh.geometricInfo) {
+                    const pm = subMesh.primitiveMode;
+                    const { positions: vb, indices: ib } = subMesh.geometricInfo;
+                    const dis = narrowphase(vb, ib!, pm, ray, i, opt);
+                    if (dis != 0 && opt.mode == ERaycastMode.ANY) return true;
+                }
+            }
+        }
+        return minDis != 0;
     }
 })();
 
@@ -1257,6 +1315,7 @@ const intersect = {
     ray_plane,
     ray_triangle,
     ray_capsule,
+    ray_mesh,
 
     line_sphere,
     line_aabb,
