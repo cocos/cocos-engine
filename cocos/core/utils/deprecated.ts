@@ -12,37 +12,41 @@ export function setDefaultLogTimes (times: number): void {
     }
 };
 
-export interface IWrapOptions {
-    oldTarget: Function | {};
-    oldPrefix: string;
-    pairs: string[][];
-    newTarget?: Function | {};
-    newPrefix?: string;
-    custom?: Function;
-    compatible?: boolean;
-}
-
-
-interface IDeprecatedItem {
+interface IReplacement {
+    /**废弃属性的名称 */
     name: string;
-    logTimes?: number; // use default if absent
-}
-
-interface IReplacement extends IDeprecatedItem {
-    newName?: string; // use original if absent
-    target?: object; // use original if absent
-    targetName?: string; // use original if absent
-    customFunction?: Function; // use default if absent
+    /**警告的次数 */
+    logTimes?: number;
+    /**替换属性的名称 */
+    newName?: string;
+    /**废弃属性的所属对象 */
+    target?: object;
+    /**废弃属性的所属对象的名称 */
+    targetName?: string;
+    /**自定义替换属性（函数）*/
+    customFunction?: Function;
+    /**自定义替换属性的 setter */
     customSetter?: (v: any) => void;
+    /**自定义替换属性的 getter */
     customGetter?: () => any;
 }
 
-interface IRemoveItem extends IDeprecatedItem {
-    // custom?: Function; //use default if absent
+interface IRemoveItem {
+    /**废弃属性的名称 */
+    name: string;
+    /**警告的次数 */
+    logTimes?: number;
+    /**额外建议 */
+    suggest?: string;
 }
 
-interface IMarkItem extends IDeprecatedItem {
-    // custom?: Function; //use default if absent
+interface IMarkItem {
+    /**废弃属性的名称 */
+    name: string;
+    /**警告的次数 */
+    logTimes?: number;
+    /**额外建议 */
+    suggest?: string;
 }
 
 export let replaceProperty: (owner: object, ownerName: string, properties: IReplacement[]) => void;
@@ -53,9 +57,9 @@ export let markAsWarning: (owner: object, ownerName: string, properties: IMarkIt
 
 let replacePropertyLog: (n: string, dp: string, n2: string, newp: string, f: Function, id: number) => void;
 
-let markAsWarningLog: (n: string, dp: string, f: Function, id: number) => void;
+let markAsWarningLog: (n: string, dp: string, f: Function, id: number, s?: string) => void;
 
-let removePropertyLog: (n: string, dp: string, f: Function, id: number) => void;
+let removePropertyLog: (n: string, dp: string, f: Function, id: number, s?: string) => void;
 
 // if (DEBUG) {
 
@@ -76,7 +80,7 @@ replacePropertyLog = function (n: string, dp: string, n2: string, newp: string, 
     }
 };
 
-replaceProperty = (owner: object, ownerName: string, properties: IReplacement[]) => {    
+replaceProperty = (owner: object, ownerName: string, properties: IReplacement[]) => {
     if (owner == null) return;
 
     properties.forEach(function (item: IReplacement) {
@@ -154,15 +158,16 @@ replaceProperty = (owner: object, ownerName: string, properties: IReplacement[])
 
 };
 
-removePropertyLog = function (n: string, dp: string, f: Function, id: number) {
+removePropertyLog = function (n: string, dp: string, f: Function, id: number, s?: string) {
     let item = messageMap.get(id);
+    const ss = s === undefined ? '' : s;
     if (item && item.logTimes > item.count) {
-        f("'%s' has been removed.", `${n}.${dp}`);
+        f("'%s' has been removed. " + ss, `${n}.${dp}`);
         item.count++;
     }
 };
 
-removeProperty = (owner: object, ownerName: string, properties: IRemoveItem[]) => {    
+removeProperty = (owner: object, ownerName: string, properties: IRemoveItem[]) => {
     if (owner == null) return;
 
     properties.forEach(function (item: IRemoveItem) {
@@ -172,32 +177,33 @@ removeProperty = (owner: object, ownerName: string, properties: IRemoveItem[]) =
 
         Object.defineProperty(owner, item.name, {
             get: function (this) {
-                return removePropertyLog(ownerName, item.name, error, id);
+                return removePropertyLog(ownerName, item.name, error, id, item.suggest);
             },
             set: function (this) {
-                removePropertyLog(ownerName, item.name, error, id);
+                removePropertyLog(ownerName, item.name, error, id, item.suggest);
             }
         });
     });
 };
 
-markAsWarningLog = function (n: string, dp: string, f: Function, id: number) {
+markAsWarningLog = function (n: string, dp: string, f: Function, id: number, s?: string) {
     let item = messageMap.get(id);
+    const ss = s === undefined ? '' : s;
     if (item && item.logTimes > item.count) {
-        f("'%s' is deprecated.", `${n}.${dp}`);
+        f("'%s' is deprecated. " + ss, `${n}.${dp}`);
         item.count++;
     }
 };
 
-markAsWarning = (owner: object, ownerName: string, properties: IMarkItem[]) => {    
+markAsWarning = (owner: object, ownerName: string, properties: IMarkItem[]) => {
     if (owner == null) return;
 
-    let _defaultGetSet = function (o: {}, p: string, d: PropertyDescriptor, n: string, dp: string, f: Function, id: number) {
+    let _defaultGetSet = function (d: PropertyDescriptor, n: string, dp: string, f: Function, id: number, s?: string) {
         if (d.get) {
             let oldGet = d.get();
             /* eslint-disable-next-line */
             d.get = function (this) {
-                markAsWarningLog(n, dp, f, id);
+                markAsWarningLog(n, dp, f, id, s);
                 return oldGet.call(this);
             };
         }
@@ -205,7 +211,7 @@ markAsWarning = (owner: object, ownerName: string, properties: IMarkItem[]) => {
         if (d.set) {
             let oldSet = Object.create(d.set);
             d.set = function (this, v: any) {
-                markAsWarningLog(n, dp, f, id);
+                markAsWarningLog(n, dp, f, id, s);
                 oldSet.call(this, v);
             };
         }
@@ -225,19 +231,16 @@ markAsWarning = (owner: object, ownerName: string, properties: IMarkItem[]) => {
 
         if (descriptor.value != null) {
             if (typeof descriptor.value == 'function') {
-                /* eslint-disable-next-line */
                 let oldValue = descriptor!.value;
-                /* eslint-disable-next-line */
                 owner[deprecatedProp] = function (this) {
-                    markAsWarningLog(ownerName, deprecatedProp, warn, id);
-                    /* eslint-disable-next-line */
+                    markAsWarningLog(ownerName, deprecatedProp, warn, id, item.suggest);
                     return oldValue.call(this);
                 };
             } else {
-                _defaultGetSet(owner, deprecatedProp, descriptor, ownerName, deprecatedProp, warn, id);
+                _defaultGetSet(descriptor, ownerName, deprecatedProp, warn, id, item.suggest);
             }
         } else {
-            _defaultGetSet(owner, deprecatedProp, descriptor, ownerName, deprecatedProp, warn, id);
+            _defaultGetSet(descriptor, ownerName, deprecatedProp, warn, id, item.suggest);
         }
     });
 };
