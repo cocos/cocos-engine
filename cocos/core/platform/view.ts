@@ -940,9 +940,7 @@ export class View extends EventTarget {
         else {
             _view._initFrameSize();
         }
-
-        const curCanvasW = _view._frameSize.width * _view._devicePixelRatio;
-        const curCanvasH = _view._frameSize.height * _view._devicePixelRatio;
+        
         if (!JSB && !_view._orientationChanging && _view._isRotated === prevRotated && _view._frameSize.width === prevFrameW && _view._frameSize.height === prevFrameH) {
             return;
         }
