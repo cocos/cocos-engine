@@ -176,6 +176,9 @@ var textUtils = {
         if (this.label_firstEmoji.test(targetString)) {
             targetString = targetString.slice(1);
         }
+        if (endIndex !== undefined && this.label_lastEmoji.test(targetString)) {
+            targetString = targetString.slice(0, -1);
+        }
         return targetString;
     },
 
