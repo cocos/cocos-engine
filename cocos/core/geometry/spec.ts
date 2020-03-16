@@ -4,17 +4,16 @@ export enum ERaycastMode {
     CLOSEST,
 }
 
-export interface IRayMeshResult {
+export interface IRaySubMeshResult {
     distance: number;
-    subMeshIndex: number;
     vertexIndex0: number;
     vertexIndex1: number;
     vertexIndex2: number;
 }
 
-export interface IRayMeshOptions {
+export interface IRaySubMeshOptions {
     distance?: number;
     doubleSided?: boolean;
     mode?: ERaycastMode;
-    result?: IRayMeshResult[];
+    result?: IRaySubMeshResult[];
 }

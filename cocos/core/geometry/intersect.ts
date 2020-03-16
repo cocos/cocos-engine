@@ -17,8 +17,8 @@ import sphere from './sphere';
 import triangle from './triangle';
 import { Mesh } from '../assets';
 import { GFXPrimitiveMode } from '../gfx';
-import { IBArray } from '../assets/mesh';
-import { IRayMeshOptions, ERaycastMode } from './spec';
+import { IBArray, RenderingSubMesh } from '../assets/mesh';
+import { IRaySubMeshOptions, ERaycastMode } from './spec';
 import { IVec3Like } from '../math/type-define';
 
 // tslint:disable:only-arrow-functions
@@ -325,19 +325,17 @@ const ray_capsule = (function () {
  * @zh
  * 射线和三角网格的相交性检测。
  */
-const ray_mesh = (function () {
+const ray_submesh = (function () {
     const tri = triangle.create();
-    const deOpt: IRayMeshOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.CLOSEST };
+    const deOpt: IRaySubMeshOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.CLOSEST };
     let minDis = 0;
-    const broadphase = (ray: ray, mesh: Mesh) => {
-        const min = mesh.minPosition;
-        const max = mesh.maxPosition;
-        if (min && max) {
-            return ray_aabb2(ray, min, max);
-        }
+    const broadphase = (ray: ray, submesh: RenderingSubMesh) => {
+        // const min = submesh.geometricInfo!.minPosition;
+        // const max = submesh.geometricInfo!.maxPosition;
+        // return ray_aabb2(ray, min!, max!);
         return 1;
     }
-    const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, ray: ray, subMeshIndex: number, opt: IRayMeshOptions) => {
+    const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, ray: ray, opt: IRaySubMeshOptions) => {
         if (pm === GFXPrimitiveMode.TRIANGLE_LIST) {
             const cnt = ib.length;
             for (let j = 0; j < cnt; j += 3) {
@@ -351,13 +349,13 @@ const ray_mesh = (function () {
                 if (dist == 0 || dist > opt.distance!) continue;
                 if (opt.mode == ERaycastMode.CLOSEST) {
                     if (minDis < dist) continue;
-                    if (opt.result) opt.result.push({ distance: dist, subMeshIndex, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
                 } else if (opt.mode == ERaycastMode.ALL) {
                     minDis = dist;
-                    if (opt.result) opt.result.push({ distance: dist, subMeshIndex, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
                 } else {
                     minDis = dist;
-                    if (opt.result) opt.result.push({ distance: dist, subMeshIndex, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
                     return minDis;
                 }
             }
@@ -376,13 +374,13 @@ const ray_mesh = (function () {
                 if (dist == 0 || dist > opt.distance!) continue;
                 if (opt.mode == ERaycastMode.CLOSEST) {
                     if (minDis < dist) continue;
-                    if (opt.result) opt.result.push({ distance: dist, subMeshIndex, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
                 } else if (opt.mode == ERaycastMode.ALL) {
                     minDis = dist;
-                    if (opt.result) opt.result.push({ distance: dist, subMeshIndex, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
                 } else {
                     minDis = dist;
-                    if (opt.result) opt.result.push({ distance: dist, subMeshIndex, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
                     return minDis;
                 }
             }
@@ -399,34 +397,27 @@ const ray_mesh = (function () {
                 if (dist == 0 || dist > opt.distance!) continue;
                 if (opt.mode == ERaycastMode.CLOSEST) {
                     if (minDis < dist) continue;
-                    if (opt.result) opt.result.push({ distance: dist, subMeshIndex, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
                 } else if (opt.mode == ERaycastMode.ALL) {
                     minDis = dist;
-                    if (opt.result) opt.result.push({ distance: dist, subMeshIndex, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
                 } else {
                     minDis = dist;
-                    if (opt.result) opt.result.push({ distance: dist, subMeshIndex, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
                     return minDis;
                 }
             }
         }
         return minDis;
     };
-    return function (ray: ray, mesh: Mesh, option?: IRayMeshOptions) {
+    return function (ray: ray, submesh: RenderingSubMesh, option?: IRaySubMeshOptions) {
         const opt = option == undefined ? deOpt : option;
-        const rm = mesh.renderingMesh;
-        const count = mesh.renderingMesh.subMeshCount
         minDis = 0;
-        if (broadphase(ray, mesh)) {
-            for (let i = 0; i < count; ++i) {
-                const subMesh = rm.getSubmesh(i);
-                if (subMesh && subMesh.geometricInfo) {
-                    const pm = subMesh.primitiveMode;
-                    const { positions: vb, indices: ib } = subMesh.geometricInfo;
-                    const dis = narrowphase(vb, ib!, pm, ray, i, opt);
-                    if (dis != 0 && opt.mode == ERaycastMode.ANY) return true;
-                }
-            }
+        if (!submesh.geometricInfo) { }// TODO : 计算 geometricInfo
+        if (broadphase(ray, submesh)) {
+            const pm = submesh.primitiveMode;
+            const { positions: vb, indices: ib } = submesh.geometricInfo!;
+            narrowphase(vb, ib!, pm, ray, opt);
         }
         return minDis != 0;
     }
@@ -1315,7 +1306,7 @@ const intersect = {
     ray_plane,
     ray_triangle,
     ray_capsule,
-    ray_mesh,
+    ray_mesh: ray_submesh,
 
     line_sphere,
     line_aabb,
