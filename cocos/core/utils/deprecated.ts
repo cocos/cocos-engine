@@ -93,24 +93,15 @@ replaceProperty = (owner: object, ownerName: string, properties: IReplacement[])
         let targetName = item.targetName != null ? item.targetName : ownerName;
 
         if (item.customFunction != null) {
-            /* eslint-disable-next-line */
-            owner[item.name] = function (this: any, ...args: any) {
+            owner[item.name] = function (this: any) {
                 replacePropertyLog(ownerName, item.name, targetName, newName, warn, id);
-                /* eslint-disable-next-line */
-                return item.customFunction!.call(this,
-                    args[0], args[1], args[2],
-                    args[3], args[4], args[5],
-                    args[6], args[7], args[8],
-                    args[9], args[10], args[11]);
+                return item.customFunction!.call(this, ...arguments);
             };
         } else if (item.customSetter != null || item.customGetter != null) {
             let hasSetter = item.customSetter != null;
             let hasGetter = item.customGetter != null;
-
             if (hasSetter && hasGetter) {
-
                 Object.defineProperty(owner, item.name, {
-                    /* eslint-disable-next-line */
                     get: function (this) {
                         replacePropertyLog(ownerName, item.name, targetName, newName, warn, id);
                         return item.customGetter!.call(this);
@@ -120,30 +111,23 @@ replaceProperty = (owner: object, ownerName: string, properties: IReplacement[])
                         item.customSetter!.call(this, v);
                     }
                 });
-
             } else if (hasSetter) {
-
                 Object.defineProperty(owner, item.name, {
                     set: function (this, v: any) {
                         replacePropertyLog(ownerName, item.name, targetName, newName, warn, id);
                         item.customSetter!.call(this, v);
                     }
                 });
-
             } else if (hasGetter) {
-
                 Object.defineProperty(owner, item.name, {
-                    /* eslint-disable-next-line */
                     get: function (this) {
                         replacePropertyLog(ownerName, item.name, targetName, newName, warn, id);
                         return item.customGetter!.call(this);
                     }
                 });
-
             }
         } else {
             Object.defineProperty(owner, item.name, {
-                /* eslint-disable-next-line */
                 get: function (this) {
                     replacePropertyLog(ownerName, item.name, targetName, newName, warn, id);
                     return target[newName];
@@ -171,7 +155,6 @@ removeProperty = (owner: object, ownerName: string, properties: IRemoveItem[]) =
     if (owner == null) return;
 
     properties.forEach(function (item: IRemoveItem) {
-
         let id = messageID++;
         messageMap.set(id, { id: id, count: 0, logTimes: item.logTimes !== undefined ? item.logTimes : defaultLogTimes, });
 
@@ -198,43 +181,37 @@ markAsWarningLog = function (n: string, dp: string, f: Function, id: number, s?:
 markAsWarning = (owner: object, ownerName: string, properties: IMarkItem[]) => {
     if (owner == null) return;
 
-    let _defaultGetSet = function (d: PropertyDescriptor, n: string, dp: string, f: Function, id: number, s?: string) {
+    const _defaultGetSet = function (d: PropertyDescriptor, n: string, dp: string, f: Function, id: number, s?: string) {
         if (d.get) {
-            let oldGet = d.get();
-            /* eslint-disable-next-line */
+            const oldGet = d.get();
             d.get = function (this) {
                 markAsWarningLog(n, dp, f, id, s);
                 return oldGet.call(this);
             };
         }
-
         if (d.set) {
-            let oldSet = Object.create(d.set);
+            const oldSet = Object.create(d.set);
             d.set = function (this, v: any) {
                 markAsWarningLog(n, dp, f, id, s);
                 oldSet.call(this, v);
             };
         }
-
     };
 
     properties.forEach(function (item: IMarkItem) {
-        let deprecatedProp = item.name;
-        let descriptor = Object.getOwnPropertyDescriptor(owner, deprecatedProp);
+        const deprecatedProp = item.name;
+        const descriptor = Object.getOwnPropertyDescriptor(owner, deprecatedProp);
+        if (!descriptor) { return; }
 
-        if (!descriptor) {
-            return;
-        }
-
-        let id = messageID++;
+        const id = messageID++;
         messageMap.set(id, { id: id, count: 0, logTimes: item.logTimes !== undefined ? item.logTimes : defaultLogTimes, });
 
         if (descriptor.value != null) {
             if (typeof descriptor.value == 'function') {
-                let oldValue = descriptor!.value;
+                const oldValue = descriptor.value as Function;
                 owner[deprecatedProp] = function (this) {
                     markAsWarningLog(ownerName, deprecatedProp, warn, id, item.suggest);
-                    return oldValue.call(this);
+                    return oldValue.call(this, ...arguments);
                 };
             } else {
                 _defaultGetSet(descriptor, ownerName, deprecatedProp, warn, id, item.suggest);
