@@ -39,6 +39,7 @@ import { ViewGroupComponent } from './view-group-component';
 import { Node } from '../../core/scene-graph/node';
 import { director, Director } from '../../core/director';
 import { TransformBit } from '../../core/scene-graph/node-enum';
+import { EDITOR } from 'internal:constants';
 
 const NUMBER_OF_GATHERED_TOUCHES_FOR_MOVE_SPEED = 5;
 const OUT_OF_BOUNDARY_BREAKING_FACTOR = 0.05;
@@ -918,7 +919,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
     }
 
     public onEnable () {
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             this._registerEvent();
             if (this.content) {
                 this.content.on(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);
@@ -941,7 +942,7 @@ export class ScrollViewComponent extends ViewGroupComponent {
     }
 
     public onDisable () {
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             this._unregisterEvent();
             if (this.content) {
                 this.content.off(Node.EventType.SIZE_CHANGED, this._calculateBoundary, this);

@@ -251,6 +251,7 @@ export class WebGL2GFXDevice extends GFXDevice {
         this._features[GFXFeature.FORMAT_ETC2] = true;
         this._features[GFXFeature.MSAA] = true;
         this._features[GFXFeature.ELEMENT_INDEX_UINT] = true;
+        this._features[GFXFeature.INSTANCED_ARRAYS] = true;
 
         if (this._EXT_color_buffer_float) {
             this._features[GFXFeature.COLOR_FLOAT] = true;
@@ -526,6 +527,7 @@ export class WebGL2GFXDevice extends GFXDevice {
         (this._cmdAllocator as WebGL2GFXCommandAllocator).releaseCmds();
         const queue = (this._queue as WebGL2GFXQueue);
         this._numDrawCalls = queue.numDrawCalls;
+        this._numInstances = queue.numInstances;
         this._numTris = queue.numTris;
         queue.clear();
     }

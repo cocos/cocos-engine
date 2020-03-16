@@ -14,6 +14,7 @@ import {
 import { Component } from '../../../core/components/component';
 import { RigidBodyComponent } from './rigid-body-component';
 import { Vec3 } from '../../../core/math/vec3';
+import { PHYSICS_BUILTIN } from 'internal:constants';
 
 /**
  * @zh
@@ -22,7 +23,7 @@ import { Vec3 } from '../../../core/math/vec3';
 @ccclass('cc.ConstantForce')
 @executionOrder(98)
 @requireComponent(RigidBodyComponent)
-@menu('Components/ConstantForce')
+@menu('Physics/ConstantForce')
 @disallowMultiple
 @executeInEditMode
 export class ConstantForce extends Component {
@@ -120,7 +121,7 @@ export class ConstantForce extends Component {
     }
 
     public onLoad () {
-        if (!CC_PHYSICS_BUILTIN) {
+        if (!PHYSICS_BUILTIN) {
             this._rigidbody = this.node.getComponent(RigidBodyComponent);
             this._maskUpdate(this._force, 1);
             this._maskUpdate(this._localForce, 2);
@@ -130,7 +131,7 @@ export class ConstantForce extends Component {
     }
 
     public lateUpdate (dt: number) {
-        if (!CC_PHYSICS_BUILTIN) {
+        if (!PHYSICS_BUILTIN) {
             if (this._rigidbody != null && this._mask != 0) {
 
                 if (this._mask & 1) {

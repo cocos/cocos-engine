@@ -28,6 +28,7 @@
  */
 
 import { AnimationClip } from '../../animation/animation-clip';
+import { Material } from '../../assets';
 import { Skeleton } from '../../assets/skeleton';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
 import { BakedSkinningModel } from '../../renderer/models/baked-skinning-model';
@@ -111,10 +112,37 @@ export class SkinningModelComponent extends ModelComponent {
             this._model = null;
             this._models.length = 0;
             this._modelType = modelType;
+            const meshCount = this._mesh ? this._mesh.subMeshCount : 0;
+            // have to instantiate materials with multiple submodel references
+            if (this._modelType === SkinningModel) {
+                let last: Material | null = null;
+                for (let i = 0; i < meshCount; ++i) {
+                    const cur = this.getRenderMaterial(i);
+                    if (cur === last) {
+                        this.getMaterialInstance(i);
+                    } else { last = cur; }
+                }
+            } else { // or assign the original material back if instancing is enabled
+                for (let i = 0; i < meshCount; ++i) {
+                    const cur = this.getRenderMaterial(i);
+                    if (cur && cur.parent && cur.parent.passes[0].instancedBuffer) {
+                        this._materialInstances[i]!.destroy();
+                        this._materialInstances[i] = null;
+                    }
+                }
+            }
             this._updateModels();
+            this._updateCastShadow();
             if (this.enabledInHierarchy) {
                 this._attachToScene();
             }
+        }
+    }
+
+    public setMaterial (material: Material | null, index: number) {
+        super.setMaterial(material, index);
+        if (this._modelType === SkinningModel) {
+            this.getMaterialInstance(index);
         }
     }
 

@@ -85,7 +85,7 @@ export class CannonSharedBody {
     private constructor (node: Node, wrappedWorld: CannonWorld) {
         this.wrappedWorld = wrappedWorld;
         this.node = node;
-        this.body.material = this.wrappedWorld.world.defaultMaterial;
+        this.body.material = this.wrappedWorld.impl.defaultMaterial;
         this.body.addEventListener('collide', this.onCollidedListener);
     }
 
@@ -93,7 +93,7 @@ export class CannonSharedBody {
         const index = this.shapes.indexOf(v);
         if (index < 0) {
             const index = this.body.shapes.length;
-            this.body.addShape(v.shape);
+            this.body.addShape(v.impl);
             this.shapes.push(v);
 
             v.setIndex(index);
@@ -107,7 +107,7 @@ export class CannonSharedBody {
         const index = this.shapes.indexOf(v);
         if (index >= 0) {
             this.shapes.splice(index, 1);
-            this.body.removeShape(v.shape);
+            this.body.removeShape(v.impl);
 
             v.setIndex(-1);
         }

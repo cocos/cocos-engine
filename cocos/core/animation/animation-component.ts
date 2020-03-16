@@ -39,6 +39,7 @@ import { ccenum } from '../value-types/enum';
 import { AnimationClip } from './animation-clip';
 import { AnimationState } from './animation-state';
 import { CrossFade } from './cross-fade';
+import { EDITOR, TEST } from 'internal:constants';
 
 /**
  * @en The event type supported by Animation
@@ -194,7 +195,7 @@ export class AnimationComponent extends Component implements IEventTarget {
     }
 
     public start () {
-        if (!CC_EDITOR && this.playOnLoad && this._defaultClip) {
+        if (!EDITOR && this.playOnLoad && this._defaultClip) {
             this.crossFade(this._defaultClip.name, 0);
         }
     }
@@ -351,7 +352,7 @@ export class AnimationComponent extends Component implements IEventTarget {
         if (clip === this._defaultClip) {
             if (force) { this._defaultClip = null; }
             else {
-                if (!CC_TEST) { warnID(3902); }
+                if (!TEST) { warnID(3902); }
                 return;
             }
         }
@@ -359,7 +360,7 @@ export class AnimationComponent extends Component implements IEventTarget {
         if (state && state.isPlaying) {
             if (force) { state.stop(); }
             else {
-                if (!CC_TEST) { warnID(3903); }
+                if (!TEST) { warnID(3903); }
                 return;
             }
         }

@@ -34,7 +34,7 @@ import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { Vec3 } from '../../math';
-import { UBOSkinningAnimation, UBOSkinningTexture, UniformJointsTexture } from '../../pipeline/define';
+import { INST_JOINT_ANIM_INFO, UBOSkinningAnimation, UBOSkinningTexture, UniformJointsTexture } from '../../pipeline/define';
 import { Node } from '../../scene-graph';
 import { Pass } from '../core/pass';
 import { samplerLib } from '../core/sampler-lib';
@@ -70,10 +70,11 @@ export class BakedSkinningModel extends Model {
     private _skeleton: Skeleton | null = null;
     private _mesh: Mesh | null = null;
     private _dataPoolManager: DataPoolManager;
+    private _instAnimInfoIdx = -1;
 
     constructor () {
         super();
-        this._type = ModelType.BAKED_SKINNING;
+        this.type = ModelType.BAKED_SKINNING;
         this._dataPoolManager = cc.director.root.dataPoolManager;
         const jointsTextureInfo = new Float32Array(4);
         const animInfo = this._dataPoolManager.jointsAnimationInfo.getData();
@@ -95,10 +96,10 @@ export class BakedSkinningModel extends Model {
         this._skeleton = skeleton;
         this._mesh = mesh;
         if (!skeleton || !skinningRoot || !mesh) { return; }
-        this._transform = skinningRoot;
+        this.transform = skinningRoot;
         const resMgr = this._dataPoolManager;
         this._jointsMedium.animInfo = resMgr.jointsAnimationInfo.getData(skinningRoot.uuid);
-        if (!this._jointsMedium.buffer) { // create buffer here so re-init after destroy could work
+        if (!this._jointsMedium.buffer) {
             this._jointsMedium.buffer = this._device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
@@ -108,12 +109,12 @@ export class BakedSkinningModel extends Model {
         }
     }
 
-    public updateTransform () {
-        super.updateTransform();
+    public updateTransform (stamp: number) {
+        super.updateTransform(stamp);
         if (!this.uploadedAnim) { return; }
         const { animInfo, boundsInfo } = this._jointsMedium;
         const skelBound = boundsInfo![animInfo.data[1]];
-        const node = this._transform;
+        const node = this.transform;
         if (this._worldBounds && skelBound) {
             // @ts-ignore TS2339
             skelBound.transform(node._mat, node._pos, node._rot, node._scale, this._worldBounds);
@@ -121,10 +122,16 @@ export class BakedSkinningModel extends Model {
     }
 
     // update fid buffer only when visible
-    public updateUBOs () {
-        if (!super.updateUBOs()) { return false; }
+    public updateUBOs (stamp: number) {
+        if (!super.updateUBOs(stamp)) { return false; }
         const info = this._jointsMedium.animInfo;
-        if (info.dirty) { info.buffer.update(info.data); info.dirty = false; }
+        const idx = this._instAnimInfoIdx;
+        if (idx >= 0) {
+            this.instancedAttributes.list[idx].view[1] = info.data[1];
+        } else if (info.dirty) {
+            info.buffer.update(info.data);
+            info.dirty = false;
+        }
         return true;
     }
 
@@ -143,7 +150,7 @@ export class BakedSkinningModel extends Model {
             this._jointsMedium.boundsInfo = texture && texture.bounds.get(this._mesh.hash)!;
             this._modelBounds = null; // don't calc bounds again in Model
         } else {
-            texture = resMgr.jointsTexturePool.getDefaultPoseTexture(this._skeleton, this._mesh, this._transform!);
+            texture = resMgr.jointsTexturePool.getDefaultPoseTexture(this._skeleton, this._mesh, this.transform!);
             this._jointsMedium.boundsInfo = null;
             this._modelBounds = texture && texture.bounds.get(this._mesh.hash)![0];
         }
@@ -159,26 +166,34 @@ export class BakedSkinningModel extends Model {
         jointsTextureInfo[0] = texture.handle.texture.width;
         jointsTextureInfo[1] = 1 / jointsTextureInfo[0];
         jointsTextureInfo[2] = texture.pixelOffset + 0.1; // guard against floor() underflow
-        if (buffer) { buffer.update(jointsTextureInfo); }
-        const sampler = samplerLib.getSampler(this._device, jointsTextureSamplerHash);
-        for (const submodel of this._subModels) {
-            if (!submodel.psos) { continue; }
-            for (const pso of submodel.psos) {
-                const bindingLayout = pso.pipelineLayout.layouts[0];
-                bindingLayout.bindTextureView(UniformJointsTexture.binding, texture.handle.texView);
-                bindingLayout.bindSampler(UniformJointsTexture.binding, sampler);
-            }
+        const idx = this._instAnimInfoIdx;
+        if (idx >= 0) { // update instancing data too
+            const info = this._jointsMedium.animInfo;
+            const view = this.instancedAttributes.list[idx].view;
+            view[0] = info.data[0];
+            view[1] = info.data[1];
+            view[2] = jointsTextureInfo[2];
         }
-        for (const pso of this._implantPSOs) {
-            const bindingLayout = pso.pipelineLayout.layouts[0];
-            bindingLayout.bindTextureView(UniformJointsTexture.binding, texture.handle.texView);
-            bindingLayout.bindSampler(UniformJointsTexture.binding, sampler);
+        if (buffer) { buffer.update(jointsTextureInfo); }
+        const tv = texture.handle.texView;
+        const it = this._matPSORecord.values(); let res = it.next();
+        while (!res.done) {
+            const psos = res.value;
+            for (let i = 0; i < psos.length; i++) {
+                const bindingLayout = psos[i].pipelineLayout.layouts[0];
+                bindingLayout.bindTextureView(UniformJointsTexture.binding, tv);
+            }
+            res = it.next();
+        }
+        for (let i = 0; i < this._implantPSOs.length; i++) {
+            const bindingLayout = this._implantPSOs[i].pipelineLayout.layouts[0];
+            bindingLayout.bindTextureView(UniformJointsTexture.binding, tv);
             bindingLayout.update();
         }
     }
 
-    protected createPipelineState (pass: Pass) {
-        const pso = super.createPipelineState(pass, patches);
+    protected createPipelineState (pass: Pass, subModelIdx: number) {
+        const pso = super.createPipelineState(pass, subModelIdx, patches);
         const { buffer, texture, animInfo } = this._jointsMedium;
         const bindingLayout = pso.pipelineLayout.layouts[0];
         bindingLayout.bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);
@@ -188,6 +203,7 @@ export class BakedSkinningModel extends Model {
             bindingLayout.bindTextureView(UniformJointsTexture.binding, texture.handle.texView);
             bindingLayout.bindSampler(UniformJointsTexture.binding, sampler);
         }
+        this._instAnimInfoIdx = this.getInstancedAttributeIndex(INST_JOINT_ANIM_INFO);
         return pso;
     }
 }

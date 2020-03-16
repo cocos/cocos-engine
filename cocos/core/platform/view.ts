@@ -34,6 +34,7 @@ import { EventTarget } from '../event/event-target';
 import '../game';
 import { Rect, Size } from '../math';
 import visibleRect from './visible-rect';
+import { EDITOR, MINIGAME, WECHAT, JSB } from 'internal:constants';
 
 class BrowserGetter {
 
@@ -46,7 +47,7 @@ class BrowserGetter {
     public adaptationType: any = cc.sys.browserType;
 
     public init () {
-        if (!CC_MINIGAME) {
+        if (!MINIGAME) {
             this.html = document.getElementsByTagName('html')[0];
         }
     }
@@ -76,7 +77,7 @@ if (cc.sys.os === cc.sys.OS_IOS) { // All browsers are WebView
     __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_SAFARI;
 }
 
-if (CC_WECHAT) {
+if (WECHAT) {
     __BrowserGetter.adaptationType = cc.sys.BROWSER_TYPE_WECHAT_GAME;
 }
 
@@ -736,7 +737,7 @@ export class View extends EventTarget {
      * @param {ResolutionPolicy|Number} resolutionPolicy The resolution policy desired
      */
     public setRealPixelResolution (width, height, resolutionPolicy) {
-        if (!CC_JSB && !CC_MINIGAME) {
+        if (!JSB && !MINIGAME) {
             // Set viewport's width
             this._setViewportMeta({width}, true);
 
@@ -974,7 +975,7 @@ export class View extends EventTarget {
         const h = __BrowserGetter.availHeight(cc.game.frame);
         const isLandscape: Boolean = w >= h;
 
-        if (CC_EDITOR || !cc.sys.isMobile ||
+        if (EDITOR || !cc.sys.isMobile ||
             (isLandscape && this._orientation & cc.macro.ORIENTATION_LANDSCAPE) ||
             (!isLandscape && this._orientation & cc.macro.ORIENTATION_PORTRAIT)) {
             locFrameSize.width = w;
@@ -1058,7 +1059,7 @@ export class View extends EventTarget {
     }
 
     private _adjustViewportMeta () {
-        if (this._isAdjustViewport && !CC_JSB && !CC_MINIGAME) {
+        if (this._isAdjustViewport && !JSB && !MINIGAME) {
             this._setViewportMeta(__BrowserGetter.meta, false);
             this._isAdjustViewport = false;
         }
@@ -1314,7 +1315,7 @@ class ContentStrategy {
             containerH = frameH - 2 * offy;
 
             this._setupContainer(_view, containerW, containerH);
-            if (!CC_EDITOR) {
+            if (!EDITOR) {
                 // Setup container's margin and padding
                 if (_view._isRotated) {
                     containerStyle.margin = '0 0 0 ' + frameH + 'px';

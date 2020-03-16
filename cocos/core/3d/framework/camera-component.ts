@@ -35,13 +35,14 @@ import { ray } from '../../geometry';
 import { GFXClearFlag } from '../../gfx/define';
 import { GFXWindow } from '../../gfx/window';
 import { Color, Rect, toRadian, Vec3 } from '../../math';
-import { CameraDefaultMask } from '../../pipeline/define';
+import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
 import { view } from '../../platform/view';
 import { Camera } from '../../renderer';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Root } from '../../root';
 import { Layers, Node, Scene } from '../../scene-graph';
 import { Enum } from '../../value-types';
+import { EDITOR } from 'internal:constants';
 
 const _temp_vec3_1 = new Vec3();
 
@@ -105,7 +106,7 @@ export class CameraComponent extends Component {
     @property
     protected _screenScale = 1;
     @property
-    protected _visibility = CameraDefaultMask;
+    protected _visibility = CAMERA_DEFAULT_MASK;
     @property
     protected _targetTexture: RenderTexture | null = null;
 
@@ -363,7 +364,7 @@ export class CameraComponent extends Component {
         this._updateTargetTexture();
 
         if (!value && this._camera){
-            this._camera.changeTargetWindow(CC_EDITOR ? cc.director.root.tempWindow : null);
+            this._camera.changeTargetWindow(EDITOR ? cc.director.root.tempWindow : null);
             this._camera.isWindowSize = true;
         }
     }

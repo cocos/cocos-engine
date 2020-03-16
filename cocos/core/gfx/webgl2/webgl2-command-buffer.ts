@@ -118,6 +118,7 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
         this._curStencilWriteMask = null;
         this._curStencilCompareMask = null;
         this._numDrawCalls = 0;
+        this._numInstances = 0;
         this._numTris = 0;
     }
 
@@ -348,6 +349,7 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
             this.cmdPackage.cmds.push(WebGL2Cmd.DRAW);
 
             ++this._numDrawCalls;
+            this._numInstances += inputAssembler.instanceCount;
             const indexCount = inputAssembler.indexCount || inputAssembler.vertexCount;
             if (this._curGPUPipelineState) {
                 const glPrimitive = this._curGPUPipelineState.glPrimitive;
@@ -427,42 +429,43 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
     public execute (cmdBuffs: GFXCommandBuffer[], count: number) {
 
         for (let i = 0; i < count; ++i) {
-            const webGLCmdBuff = cmdBuffs[i] as WebGL2GFXCommandBuffer;
+            const webGL2CmdBuff = cmdBuffs[i] as WebGL2GFXCommandBuffer;
 
-            for (let c = 0; c < webGLCmdBuff.cmdPackage.beginRenderPassCmds.length; ++c) {
-                const cmd = webGLCmdBuff.cmdPackage.beginRenderPassCmds.array[c];
+            for (let c = 0; c < webGL2CmdBuff.cmdPackage.beginRenderPassCmds.length; ++c) {
+                const cmd = webGL2CmdBuff.cmdPackage.beginRenderPassCmds.array[c];
                 ++cmd.refCount;
                 this.cmdPackage.beginRenderPassCmds.push(cmd);
             }
 
-            for (let c = 0; c < webGLCmdBuff.cmdPackage.bindStatesCmds.length; ++c) {
-                const cmd = webGLCmdBuff.cmdPackage.bindStatesCmds.array[c];
+            for (let c = 0; c < webGL2CmdBuff.cmdPackage.bindStatesCmds.length; ++c) {
+                const cmd = webGL2CmdBuff.cmdPackage.bindStatesCmds.array[c];
                 ++cmd.refCount;
                 this.cmdPackage.bindStatesCmds.push(cmd);
             }
 
-            for (let c = 0; c < webGLCmdBuff.cmdPackage.drawCmds.length; ++c) {
-                const cmd = webGLCmdBuff.cmdPackage.drawCmds.array[c];
+            for (let c = 0; c < webGL2CmdBuff.cmdPackage.drawCmds.length; ++c) {
+                const cmd = webGL2CmdBuff.cmdPackage.drawCmds.array[c];
                 ++cmd.refCount;
                 this.cmdPackage.drawCmds.push(cmd);
             }
 
-            for (let c = 0; c < webGLCmdBuff.cmdPackage.updateBufferCmds.length; ++c) {
-                const cmd = webGLCmdBuff.cmdPackage.updateBufferCmds.array[c];
+            for (let c = 0; c < webGL2CmdBuff.cmdPackage.updateBufferCmds.length; ++c) {
+                const cmd = webGL2CmdBuff.cmdPackage.updateBufferCmds.array[c];
                 ++cmd.refCount;
                 this.cmdPackage.updateBufferCmds.push(cmd);
             }
 
-            for (let c = 0; c < webGLCmdBuff.cmdPackage.copyBufferToTextureCmds.length; ++c) {
-                const cmd = webGLCmdBuff.cmdPackage.copyBufferToTextureCmds.array[c];
+            for (let c = 0; c < webGL2CmdBuff.cmdPackage.copyBufferToTextureCmds.length; ++c) {
+                const cmd = webGL2CmdBuff.cmdPackage.copyBufferToTextureCmds.array[c];
                 ++cmd.refCount;
                 this.cmdPackage.copyBufferToTextureCmds.push(cmd);
             }
 
-            this.cmdPackage.cmds.concat(webGLCmdBuff.cmdPackage.cmds.array);
+            this.cmdPackage.cmds.concat(webGL2CmdBuff.cmdPackage.cmds.array);
 
-            this._numDrawCalls += webGLCmdBuff._numDrawCalls;
-            this._numTris += webGLCmdBuff._numTris;
+            this._numDrawCalls += webGL2CmdBuff._numDrawCalls;
+            this._numInstances += webGL2CmdBuff._numInstances;
+            this._numTris += webGL2CmdBuff._numTris;
         }
     }
 

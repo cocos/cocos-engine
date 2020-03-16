@@ -33,11 +33,12 @@ import { AnimationBlendState, PropertyBlendState } from './animation-blend-state
 import { AnimationClip, IRuntimeCurve } from './animation-clip';
 import { AnimationComponent } from './animation-component';
 import { AnimCurve, RatioSampler } from './animation-curve';
-import { additive3D, additiveQuat, BlendFunction } from './blending';
-import { createBoundTarget, createBufferedTarget, IBufferedTarget, IBoundTarget } from './bound-target';
+import { BlendFunction, additive3D, additiveQuat } from './blending';
+import { IBoundTarget, IBufferedTarget, createBoundTarget, createBufferedTarget } from './bound-target';
 import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
 import { error } from '../platform/debug';
+import { EDITOR } from 'internal:constants';
 
 enum PropertySpecialization {
     NodePosition,
@@ -160,10 +161,10 @@ interface ISamplerSharedGroup {
     sampler: RatioSampler | null;
     curves: ICurveInstance[];
     samplerResultCache: {
-        from: number,
-        fromRatio: number,
-        to: number,
-        toRatio: number,
+        from: number;
+        fromRatio: number;
+        to: number;
+        toRatio: number;
     };
 }
 
@@ -238,7 +239,7 @@ export class AnimationState extends Playable {
     set wrapMode (value: WrapMode) {
         this._wrapMode = value;
 
-        if (CC_EDITOR) { return; }
+        if (EDITOR) { return; }
 
         // dynamic change wrapMode will need reset time to 0
         this.time = 0;
@@ -510,7 +511,7 @@ export class AnimationState extends Playable {
         this._currentFramePlayed = false;
         this.time = time || 0;
 
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             this._lastWrapInfoEvent = null;
             this._ignoreIndex = InvalidIndex;
 
@@ -631,7 +632,7 @@ export class AnimationState extends Playable {
     public sample () {
         const info = this.getWrappedInfo(this.time, this._wrappedInfo);
         this._sampleCurves(info.ratio);
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             this._sampleEvents(info);
         }
         return info;
@@ -669,7 +670,7 @@ export class AnimationState extends Playable {
         const ratio = time / duration;
         this._sampleCurves(ratio);
 
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             if (this._clip.hasEvents()) {
                 this._sampleEvents(this.getWrappedInfo(this.time, this._wrappedInfo));
             }
@@ -778,7 +779,10 @@ export class AnimationState extends Playable {
                 const curveInstance = samplerSharedGroup.curves[iCurveInstance];
                 curveInstance.applySample(ratio, index, lerpRequired, samplerResultCache, this.weight);
                 if (curveInstance.commonTargetIndex !== undefined) {
-                    this._commonTargetStatuses[curveInstance.commonTargetIndex]!.changed = true;
+                    const commonTargetStatus = this._commonTargetStatuses[curveInstance.commonTargetIndex];
+                    if (commonTargetStatus) {
+                        commonTargetStatus.changed = true;
+                    }
                 }
             }
         }

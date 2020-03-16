@@ -4,7 +4,7 @@
  */
 
 import { Material } from '../../core/assets/material';
-import { IRenderingSubmesh } from '../../core/assets/mesh';
+import { RenderingSubMesh } from '../../core/assets/mesh';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { director } from '../../core/director';
 import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gfx/buffer';
@@ -305,7 +305,7 @@ export default class TrailModule {
     private _trailModel: Model | null = null;
     private _iaInfo: IGFXIndirectBuffer;
     private _iaInfoBuffer: GFXBuffer | null = null;
-    private _subMeshData: IRenderingSubmesh | null = null;
+    private _subMeshData: RenderingSubMesh | null = null;
     private _vertAttrs: IGFXAttribute[];
     private _vbF32: Float32Array | null = null;
     private _vbUint32: Uint32Array | null = null;
@@ -433,6 +433,8 @@ export default class TrailModule {
         if (!trail) {
             trail = this._trailSegments.alloc();
             this._particleTrail.set(p, trail);
+            // Avoid position and trail are one frame apart at the end of the particle animation.
+            return;
         }
         let lastSeg = trail.getElement(trail.end - 1);
         if (this._needTransform) {
@@ -606,14 +608,9 @@ export default class TrailModule {
         this._iaInfo.drawInfos[0].indexCount = this._trailNum * 6;
         this._iaInfoBuffer.update(this._iaInfo);
 
-        this._subMeshData = {
-            vertexBuffers: [vertexBuffer],
-            indexBuffer,
-            indirectBuffer: this._iaInfoBuffer,
-            attributes: this._vertAttrs!,
-            primitiveMode: GFXPrimitiveMode.TRIANGLE_LIST,
-            flatBuffers: [],
-        };
+        this._subMeshData = new RenderingSubMesh([vertexBuffer], this._vertAttrs!, GFXPrimitiveMode.TRIANGLE_LIST);
+        this._subMeshData.indexBuffer = indexBuffer;
+        this._subMeshData.indirectBuffer = this._iaInfoBuffer;
 
         this._trailModel = cc.director.root.createModel(Model);
         this._trailModel!.initialize(this._particleSystem.node);

@@ -149,6 +149,17 @@ export class ModelComponent extends RenderableComponent {
         }
     }
 
+    public setInstancedAttribute (name: string, value: ArrayLike<number>) {
+        if (!this.model) { return; }
+        const list = this.model.instancedAttributes.list;
+        for (let i = 0; i < list.length; i++) {
+            if (list[i].name === name) {
+                (list[i].view as TypedArray).set(value);
+                break;
+            }
+        }
+    }
+
     protected _updateModels () {
         if (!this.enabledInHierarchy || !this._mesh) {
             return;
@@ -192,14 +203,13 @@ export class ModelComponent extends RenderableComponent {
     protected _updateModelParams () {
         if (!this._mesh || !this._model) { return; }
         this.node.hasChangedFlags = this._model.transform.hasChangedFlags = TransformBit.POSITION;
-        const batching = this._model.isDynamicBatching = this._isBatchingEnabled();
-        if (batching) { this._mesh.createFlatBuffers(); }
+        this._model.isDynamicBatching = this._isBatchingEnabled();
         const meshCount = this._mesh ? this._mesh.subMeshCount : 0;
-        for (let i = 0; i < meshCount; ++i) {
-            const material = this.getRenderMaterial(i);
-            const renderingMesh = this._mesh.renderingMesh;
-            if (renderingMesh) {
-                const subMeshData = renderingMesh.getSubmesh(i);
+        const renderingMesh = this._mesh.renderingSubMeshes;
+        if (renderingMesh) {
+            for (let i = 0; i < meshCount; ++i) {
+                const material = this.getRenderMaterial(i);
+                const subMeshData = renderingMesh[i];
                 if (subMeshData) {
                     this._model.initSubModel(i, subMeshData, material || this._getBuiltinMaterial());
                 }
@@ -216,8 +226,7 @@ export class ModelComponent extends RenderableComponent {
 
     protected _onRebuildPSO (idx: number, material: Material) {
         if (!this._model || !this._model.inited) { return; }
-        const batching = this._model.isDynamicBatching = this._isBatchingEnabled();
-        if (batching && this._mesh) { this._mesh.createFlatBuffers(); }
+        this._model.isDynamicBatching = this._isBatchingEnabled();
         this._model.setSubModelMaterial(idx, material);
     }
 
@@ -241,7 +250,7 @@ export class ModelComponent extends RenderableComponent {
         this._model.visFlags = val;
     }
 
-    private _updateCastShadow () {
+    protected _updateCastShadow () {
         if (!this._model) { return; }
         if (this._shadowCastingMode === ModelShadowCastingMode.OFF) {
             this._model.castShadow = false;
@@ -252,13 +261,13 @@ export class ModelComponent extends RenderableComponent {
         }
     }
 
-    private _isBatchingEnabled () {
+    protected _isBatchingEnabled () {
         for (let i = 0; i < this._materials.length; ++i) {
             const mat = this._materials[i];
             if (!mat) { continue; }
             for (let p = 0; p < mat.passes.length; ++p) {
                 const pass = mat.passes[p];
-                if (pass.batchedBuffer) { return true; }
+                if (pass.instancedBuffer || pass.batchedBuffer) { return true; }
             }
         }
         return false;

@@ -30,12 +30,14 @@
 import { ccclass, property } from '../../core/data/class-decorator';
 import { Root } from '../../core/root';
 import { GFXDynamicState, GFXPrimitiveMode } from '../gfx/define';
+import { IGFXAttribute } from '../gfx/input-assembler';
 import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../gfx/pipeline-state';
 import { GFXUniformBlock, GFXUniformSampler } from '../gfx/shader';
 import { RenderPassStage } from '../pipeline/define';
 import { IDefineMap } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
 import { Asset } from './asset';
+import { EDITOR } from 'internal:constants';
 
 export interface IPropertyInfo {
     type: number; // auto-extracted from shader
@@ -67,11 +69,12 @@ export interface ITechniqueInfo {
 
 export interface IBlockInfo extends GFXUniformBlock {
     defines: string[];
-    defaultValue?: ArrayBuffer;
 }
 export interface ISamplerInfo extends GFXUniformSampler {
     defines: string[];
-    defaultValue?: string;
+}
+export interface IAttributeInfo extends IGFXAttribute {
+    defines: string[];
 }
 export interface IDefineInfo {
     name: string;
@@ -97,6 +100,7 @@ export interface IShaderInfo {
     defines: IDefineInfo[];
     blocks: IBlockInfo[];
     samplers: ISamplerInfo[];
+    attributes: IAttributeInfo[];
 }
 export interface IPreCompileInfo {
     [name: string]: boolean[] | number[] | string[];
@@ -179,7 +183,7 @@ export class EffectAsset extends Asset {
      */
     public onLoaded () {
         this.shaders.forEach((s) => programLib.define(s));
-        if (!CC_EDITOR) { cc.game.once(cc.Game.EVENT_ENGINE_INITED, this._precompile, this); }
+        if (!EDITOR) { cc.game.once(cc.Game.EVENT_ENGINE_INITED, this._precompile, this); }
         EffectAsset.register(this);
     }
 

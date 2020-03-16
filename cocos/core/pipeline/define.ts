@@ -202,6 +202,7 @@ localBindingsDesc.set(UBOLocal.BLOCK.name, {
     type: GFXBindingType.UNIFORM_BUFFER,
     blockInfo: UBOLocal.BLOCK,
 });
+export const INST_MAT_WORLD = 'a_matWorld0';
 
 export class UBOLocalBatched {
     public static BATCHING_COUNT: number = 10;
@@ -264,7 +265,7 @@ localBindingsDesc.set(UBOForwardLight.BLOCK.name, {
 // Skinning models with number of bones more than this capacity will be automatically switched to texture skinning.
 // But still, you can tweak this for your own need by changing the number below
 // and the JOINT_UNIFORM_CAPACITY macro in cc-skinning shader header.
-export const JointUniformCapacity = 30;
+export const JOINT_UNIFORM_CAPACITY = 30;
 
 /**
  * @zh
@@ -300,14 +301,15 @@ localBindingsDesc.set(UBOSkinningAnimation.BLOCK.name, {
     type: GFXBindingType.UNIFORM_BUFFER,
     blockInfo: UBOSkinningAnimation.BLOCK,
 });
+export const INST_JOINT_ANIM_INFO = 'a_jointsAnimInfo';
 export class UBOSkinning {
     public static JOINTS_OFFSET: number = 0;
-    public static COUNT: number = UBOSkinning.JOINTS_OFFSET + JointUniformCapacity * 12 + 4;
+    public static COUNT: number = UBOSkinning.JOINTS_OFFSET + JOINT_UNIFORM_CAPACITY * 12;
     public static SIZE: number = UBOSkinning.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
         binding: UniformBinding.UBO_SKINNING_TEXTURE, name: 'CCSkinning', members: [
-            { name: 'cc_joints', type: GFXType.FLOAT4, count: JointUniformCapacity * 3 + 1 },
+            { name: 'cc_joints', type: GFXType.FLOAT4, count: JOINT_UNIFORM_CAPACITY * 3 },
         ],
     };
 }
@@ -340,9 +342,9 @@ export interface IInternalBindingInst extends IInternalBindingDesc {
     textureView?: GFXTextureView;
 }
 
-export const CameraDefaultMask = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
+export const CAMERA_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
     Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
 
-export const CameraEditorMask = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.PROFILER]);
+export const CAMERA_EDITOR_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.PROFILER]);
 
-export const ModelAlwaysMask = Layers.Enum.ALL;
+export const MODEL_ALWAYS_MASK = Layers.Enum.ALL;

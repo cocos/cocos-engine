@@ -1,3 +1,10 @@
+
+jest.mock(
+    'internal:constants',
+    () => jest.requireActual('../cocos/core/default-constants'),
+    { virtual: true, },
+);
+
 jest.mock('../cocos/core/platform/debug', () => {
     const result = {
         __esModule: true, // Use it when dealing with esModules

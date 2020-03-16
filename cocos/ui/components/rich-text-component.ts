@@ -43,6 +43,7 @@ import { UIRenderComponent } from '../../core/components/ui-base/ui-render-compo
 import { UITransformComponent } from '../../core/components/ui-base/ui-transform-component';
 import { assert, warnID } from '../../core/platform/debug';
 import { loader } from '../../core/load-pipeline';
+import { EDITOR, DEV } from 'internal:constants';
 
 const _htmlTextParser = new HtmlTextParser();
 const RichTextChildName = 'RICHTEXT_CHILD';
@@ -75,10 +76,10 @@ function debounce (func: Function, wait: number, immediate?: boolean) {
  * 富文本池。<br/>
  */
 const pool = new Pool((labelSeg: ILabelSegment) => {
-    if (CC_EDITOR) {
+    if (EDITOR) {
         return false;
     }
-    if (CC_DEV) {
+    if (DEV) {
         assert(!labelSeg.node.parent, 'Recycling node\'s parent should be null!');
     }
     if (!cc.isValid(labelSeg.node)) {
@@ -403,7 +404,7 @@ export class RichTextComponent extends UIComponent {
 
     constructor () {
         super();
-        if (CC_EDITOR) {
+        if (EDITOR) {
             this._updateRichTextStatus = debounce(this._updateRichText, 200);
         }
         else {
@@ -434,7 +435,7 @@ export class RichTextComponent extends UIComponent {
     }
 
     public onRestore () {
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             return;
         }
 

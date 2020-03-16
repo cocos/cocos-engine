@@ -13,6 +13,7 @@ import { Vec3 } from '../../../../core/math';
 import { createBoxShape } from '../../instance';
 import { ColliderComponent } from './collider-component';
 import { IBoxShape } from '../../../spec/i-physics-shape';
+import { EDITOR, TEST } from 'internal:constants';
 
 /**
  * @zh
@@ -20,7 +21,7 @@ import { IBoxShape } from '../../../spec/i-physics-shape';
  */
 @ccclass('cc.BoxColliderComponent')
 @executionOrder(98)
-@menu('Components/BoxCollider')
+@menu('Physics/BoxCollider')
 @executeInEditMode
 export class BoxColliderComponent extends ColliderComponent {
 
@@ -34,7 +35,7 @@ export class BoxColliderComponent extends ColliderComponent {
      */
     @property({
         type: Vec3,
-        tooltip:'盒的大小，即长、宽、高'
+        tooltip: '盒的大小，即长、宽、高'
     })
     public get size () {
         return this._size;
@@ -42,12 +43,12 @@ export class BoxColliderComponent extends ColliderComponent {
 
     public set size (value) {
         Vec3.copy(this._size, value);
-        if (!CC_EDITOR && !CC_TEST) {
-            this.boxShape.size = this._size;
+        if (!EDITOR && !TEST) {
+            this.shape.setSize(this._size);
         }
     }
 
-    public get boxShape (): IBoxShape {
+    public get shape () {
         return this._shape as IBoxShape;
     }
 
@@ -58,7 +59,7 @@ export class BoxColliderComponent extends ColliderComponent {
 
     constructor () {
         super();
-        if (!CC_EDITOR && !CC_TEST) {
+        if (!EDITOR && !TEST) {
             this._shape = createBoxShape(this._size);
         }
     }

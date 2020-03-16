@@ -60,6 +60,7 @@ import {
     _idToClass,
     _nameToClass,
 } from './js-typed';
+import { EDITOR } from 'internal:constants';
 
 export * from './js-typed';
 export {default as IDGenerator} from './id-generator';
@@ -103,7 +104,7 @@ export const js = {
  */
 cc.js = js;
 
-if (CC_EDITOR) {
+if (EDITOR) {
     cc.js.getset(cc.js, '_registeredClassIds', () => {
             const dump = {};
             for (const id in _idToClass) {

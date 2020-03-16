@@ -18,19 +18,13 @@ const transform_extent_m3 = (out: Vec3, extent: Vec3, m3: Mat3) => {
 };
 
 /**
+ * @en
+ * Basic Geometry: directional bounding box.
  * @zh
  * 基础几何  方向包围盒。
  */
 // tslint:disable-next-line:class-name
 export default class obb {
-
-    /**
-     * @zh
-     * 获取形状的类型。
-     */
-    get type () {
-        return this._type;
-    }
 
     /**
      * @en
@@ -166,7 +160,18 @@ export default class obb {
      */
     public orientation: Mat3;
 
-    protected _type: number;
+    /**
+     * @en
+     * Gets the type of the shape.
+     * @zh
+     * 获取形状的类型。
+     */
+    get type () {
+        return this._type;
+    }
+
+    protected readonly _type: number;
+
 
     constructor (cx = 0, cy = 0, cz = 0,
                  hw = 1, hh = 1, hl = 1,

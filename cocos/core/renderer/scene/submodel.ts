@@ -1,34 +1,73 @@
+import { EDITOR } from 'internal:constants';
 import { Material } from '../../assets/material';
-import { IRenderingSubmesh } from '../../assets/mesh';
+import { RenderingSubMesh } from '../../assets/mesh';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXCommandBufferType, GFXStatus } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXInputAssembler } from '../../gfx/input-assembler';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { RenderPriority } from '../../pipeline/define';
-import { Pass } from '../core/pass';
 
 export class SubModel {
-    protected _subMeshObject: IRenderingSubmesh | null;
-    protected _inputAssembler: GFXInputAssembler | null;
-    private _material: Material | null;
-    private _cmdBuffers: GFXCommandBuffer[];
-    private _psos: GFXPipelineState[] | null;
-    private _priority: RenderPriority;
 
-    constructor () {
-        this._subMeshObject = null;
-        this._material = null;
-        this._cmdBuffers = new Array<GFXCommandBuffer>();
-        this._psos = null;
-        this._inputAssembler = null;
-        this._priority = RenderPriority.DEFAULT;
+    public priority: RenderPriority = RenderPriority.DEFAULT;
+    protected _psos: GFXPipelineState[] | null = null;
+    protected _subMeshObject: RenderingSubMesh | null = null;
+    protected _material: Material | null = null;
+    protected _inputAssembler: GFXInputAssembler | null = null;
+    protected _cmdBuffers: GFXCommandBuffer[] = [];
+
+    set psos (val) {
+        this._psos = val;
     }
 
-    public initialize (subMesh: IRenderingSubmesh, mat: Material, psos: GFXPipelineState[]) {
-        this._psos = psos;
-        this.subMeshData = subMesh;
+    get psos () {
+        return this._psos;
+    }
 
+    set subMeshData (sm) {
+        if (this._inputAssembler) {
+            this._inputAssembler.destroy();
+        }
+        this._subMeshObject = sm;
+        if (this._inputAssembler) {
+            this._inputAssembler.initialize(sm);
+        } else {
+            this._inputAssembler = (cc.director.root.device as GFXDevice).createInputAssembler(sm);
+        }
+    }
+
+    get subMeshData () {
+        return this._subMeshObject!;
+    }
+
+    set material (material) {
+        this._material = material;
+        if (material == null) {
+            return;
+        }
+        this.updateCommandBuffer();
+    }
+
+    get material () {
+        return this._material;
+    }
+
+    get passes () {
+        return this._material!.passes;
+    }
+
+    get inputAssembler () {
+        return this._inputAssembler;
+    }
+
+    get commandBuffers () {
+        return this._cmdBuffers;
+    }
+
+    public initialize (subMesh: RenderingSubMesh, mat: Material, psos: GFXPipelineState[]) {
+        this.psos = psos;
+        this.subMeshData = subMesh;
         this.material = mat;
     }
 
@@ -42,64 +81,14 @@ export class SubModel {
         for (const cmdBuffer of this._cmdBuffers) {
             cmdBuffer.destroy();
         }
-        this._cmdBuffers.splice(0);
+        this._cmdBuffers.length = 0;
         this._material = null;
     }
 
-    set priority (val: RenderPriority) {
-        this._priority = val;
-    }
-
-    get priority () {
-        return this._priority;
-    }
-
-    set subMeshData (sm: IRenderingSubmesh) {
-        if (this._inputAssembler) {
-            this._inputAssembler.destroy();
-        }
-        this._subMeshObject = sm;
-        if (this._inputAssembler) {
-            this._inputAssembler.initialize(sm);
-        } else {
-            this._inputAssembler = (cc.director.root!.device as GFXDevice).createInputAssembler(sm);
-        }
-    }
-
-    get subMeshData () {
-        return this._subMeshObject!;
-    }
-
-    get psos (): GFXPipelineState[] | null {
-        return this._psos;
-    }
-
-    set psos (val: GFXPipelineState[] | null) {
-        this._psos = val;
-    }
-
-    set material (material: Material | null) {
-        this._material = material;
-        if (material == null) {
-            return;
-        }
-        this.updateCommandBuffer();
-    }
-
-    get material (): Material | null {
-        return this._material;
-    }
-
-    get inputAssembler (): GFXInputAssembler | null {
-        return this._inputAssembler;
-    }
-
     public updateCommandBuffer () {
-        if (!this._material) {
-            return;
-        }
-        for (let i = 0; i < this._material!.passes.length; i++) {
-            if (CC_EDITOR && this._subMeshObject && this._material!.passes[i].primitive !== this._subMeshObject.primitiveMode) {
+        if (!this._material) { return; }
+        for (let i = 0; i < this._material.passes.length; i++) {
+            if (EDITOR && this._subMeshObject && this._material.passes[i].primitive !== this._subMeshObject.primitiveMode) {
                 console.warn(`mesh primitive type doesn't match with pass settings`);
             }
             this.recordCommandBuffer(i);
@@ -113,7 +102,7 @@ export class SubModel {
     }
 
     protected recordCommandBuffer (index: number) {
-        const device = cc.director.root!.device as GFXDevice;
+        const device = cc.director.root.device as GFXDevice;
         const pso = this._psos![index];
         if (this._cmdBuffers[index] == null) {
             const cmdBufferInfo = {
@@ -136,13 +125,5 @@ export class SubModel {
         cmdBuff.bindInputAssembler(inputAssembler);
         cmdBuff.draw(inputAssembler);
         cmdBuff.end();
-    }
-
-    get passes (): Pass[] {
-        return this._material!.passes;
-    }
-
-    get commandBuffers (): GFXCommandBuffer[] {
-        return this._cmdBuffers;
     }
 }

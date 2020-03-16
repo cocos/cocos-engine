@@ -3,6 +3,7 @@
  * @category animation
  */
 
+import { EDITOR } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { ccclass, property } from '../data/class-decorator';
@@ -353,7 +354,7 @@ export class AnimationClip extends Asset {
     }
 
     protected _createRuntimeEvents () {
-        if (CC_EDITOR) {
+        if (EDITOR) {
             return;
         }
 

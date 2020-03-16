@@ -29,6 +29,7 @@
  */
 
 import { value } from '../utils/js';
+import { EDITOR, TEST, DEV } from 'internal:constants';
 
 /**
  * @en
@@ -70,7 +71,7 @@ export function Enum<T> (obj: T): T {
         }
         const reverseKey: string = '' + val;
         if (key !== reverseKey) {
-            if ((CC_EDITOR || CC_TEST) && reverseKey in obj && obj[reverseKey] !== key) {
+            if ((EDITOR || TEST) && reverseKey in obj && obj[reverseKey] !== key) {
                 cc.errorID(7100, reverseKey);
                 continue;
             }
@@ -105,7 +106,7 @@ Enum.getList = (enumDef) => {
     return enums;
 };
 
-if (CC_DEV) {
+if (DEV) {
     // check key order in object literal
     const _TestEnum = Enum({
         ZERO: -1,

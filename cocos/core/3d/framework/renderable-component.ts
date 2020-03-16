@@ -3,6 +3,7 @@
  */
 
 // @ts-check
+import { EDITOR } from 'internal:constants';
 import { Material } from '../../assets/material';
 import { Component } from '../../components/component';
 import { ccclass, property } from '../../data/class-decorator';
@@ -42,7 +43,7 @@ export class RenderableComponent extends Component {
     })
     get sharedMaterials () {
         // if we don't create an array copy, the editor will modify the original array directly.
-        return CC_EDITOR && this._materials.slice() || this._materials;
+        return EDITOR && this._materials.slice() || this._materials;
     }
 
     set sharedMaterials (val) {
@@ -116,9 +117,10 @@ export class RenderableComponent extends Component {
             console.error('Can\'t set a material instance to a sharedMaterial slot');
         }
         this._materials[index] = material;
-        if (this._materialInstances[index]) {
-            if (this._materialInstances[index]!.parent !== this._materials[index]) {
-                this._materialInstances[index]!.destroy();
+        const inst = this._materialInstances[index];
+        if (inst) {
+            if (inst.parent !== this._materials[index]) {
+                inst.destroy();
                 this._materialInstances[index] = null;
                 this._onMaterialModified(index, this._materials[index]);
             }

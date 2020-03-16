@@ -35,6 +35,7 @@ import { UIRenderComponent } from '../../../core/components/ui-base/ui-render-co
 import { logID, log } from '../../../core/platform/debug';
 import { view } from '../../../core/platform/view';
 import { Node } from '../../../core';
+import { EDITOR } from 'internal:constants';
 
 const _mat4_temp = new Mat4();
 
@@ -100,7 +101,7 @@ export class WebViewImpl {
     private _eventListeners: IFrameEventListener = { load: () => { }, error: () => { } };
 
     public createDomElementIfNeeded (w: number, h: number) {
-        // if (CC_EDITOR) {
+        // if (EDITOR) {
         //     this._div = document.createElement('div');
         //     this._div.style.background = 'rgba(255, 255, 255, 0.8)';
         //     this._div.style.color = 'rgb(51, 51, 51)';
@@ -147,7 +148,7 @@ export class WebViewImpl {
      * @param {String} url
      */
     public loadURL (url: string) {
-        if (CC_EDITOR) {
+        if (EDITOR) {
             if (this._div) {
                 this._div.innerText = url;
             }

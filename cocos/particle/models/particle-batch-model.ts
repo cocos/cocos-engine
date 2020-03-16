@@ -28,7 +28,7 @@
  */
 
 import { Material } from '../../core/assets/material';
-import { IRenderingSubmesh, Mesh } from '../../core/assets/mesh';
+import { Mesh, RenderingSubMesh } from '../../core/assets/mesh';
 import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormatInfos,
     GFXMemoryUsageBit, GFXPrimitiveMode, GFXStatus } from '../../core/gfx/define';
@@ -47,7 +47,7 @@ export default class ParticleBatchModel extends Model {
     private _vdataUint32: Uint32Array | null;
     private _iaInfo: IGFXIndirectBuffer;
     private _iaInfoBuffer: GFXBuffer;
-    private _subMeshData: IRenderingSubmesh | null;
+    private _subMeshData: RenderingSubMesh | null;
     private _mesh: Mesh | null;
     private _vertCount: number = 0;
     private _indexCount: number = 0;
@@ -55,7 +55,7 @@ export default class ParticleBatchModel extends Model {
     constructor () {
         super();
 
-        this._type = ModelType.PARTICLE_BATCH;
+        this.type = ModelType.PARTICLE_BATCH;
         this._capacity = 0;
         this._vertAttrs = null;
         this._vertSize = 0;
@@ -192,21 +192,11 @@ export default class ParticleBatchModel extends Model {
         }
         this._iaInfoBuffer.update(this._iaInfo);
 
-        this._subMeshData = {
-            vertexBuffers: [vertexBuffer],
-            indexBuffer,
-            indirectBuffer: this._iaInfoBuffer,
-            attributes: this._vertAttrs!,
-            primitiveMode: GFXPrimitiveMode.TRIANGLE_LIST,
-            flatBuffers: [],
-        };
+        this._subMeshData = new RenderingSubMesh([vertexBuffer], this._vertAttrs!, GFXPrimitiveMode.TRIANGLE_LIST);
+        this._subMeshData.indexBuffer = indexBuffer;
+        this._subMeshData.indirectBuffer = this._iaInfoBuffer;
         this.setSubModelMesh(0, this._subMeshData);
         return vBuffer;
-    }
-
-    public setSubModelMaterial (idx: number, mat: Material | null) {
-        this.initLocalBindings(mat);
-        super.setSubModelMaterial(idx, mat);
     }
 
     public addParticleVertexData (index: number, pvdata: any[]) {

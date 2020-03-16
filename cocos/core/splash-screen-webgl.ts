@@ -7,6 +7,7 @@ import { clamp01 } from "./math";
 import { easing } from "./animation";
 import { macro } from "./platform";
 import sys from "./platform/sys";
+import { COCOSPLAY } from 'internal:constants';
 
 type SplashEffectType = 'none' | 'Fade-InOut';
 
@@ -226,7 +227,7 @@ export class SplashScreenWebgl {
 
     private initMatrix () {
         // TODO: hack for cocosPlay cause on landscape canvas value is wrong
-        if (CC_COCOSPLAY && window._CCSettings.orientation === 'landscape' && this.gl.canvas.width < this.gl.canvas.height ) {
+        if (COCOSPLAY && window._CCSettings.orientation === 'landscape' && this.gl.canvas.width < this.gl.canvas.height ) {
             let width = this.gl.canvas.height;
             let height = this.gl.canvas.width;
             this.gl.canvas.width = width;
@@ -355,7 +356,7 @@ export class SplashScreenWebgl {
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
         // TODO: hack for cocosPlay cause on landscape canvas value is wrong
-        if (CC_COCOSPLAY && window._CCSettings.orientation === 'landscape' && this.gl.canvas.width < this.gl.canvas.height ) {
+        if (COCOSPLAY && window._CCSettings.orientation === 'landscape' && this.gl.canvas.width < this.gl.canvas.height ) {
             let width = this.gl.canvas.height;
             let height = this.gl.canvas.width;
             this.gl.canvas.width = width;

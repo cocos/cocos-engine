@@ -12,6 +12,7 @@ import {
 import { createSphereShape } from '../../instance';
 import { ColliderComponent } from './collider-component';
 import { ISphereShape } from '../../../spec/i-physics-shape';
+import { EDITOR, TEST } from 'internal:constants';
 
 /**
  * @zh
@@ -19,7 +20,7 @@ import { ISphereShape } from '../../../spec/i-physics-shape';
  */
 @ccclass('cc.SphereColliderComponent')
 @executionOrder(98)
-@menu('Components/SphereCollider')
+@menu('Physics/SphereCollider')
 @executeInEditMode
 export class SphereColliderComponent extends ColliderComponent {
 
@@ -40,12 +41,12 @@ export class SphereColliderComponent extends ColliderComponent {
 
     public set radius (value) {
         this._radius = value;
-        if (!CC_EDITOR && !CC_TEST) {
-            this.sphereShape.radius = this._radius;
+        if (!EDITOR && !TEST) {
+            this.shape.setRadius(this._radius);
         }
     }
 
-    public get sphereShape (): ISphereShape {
+    public get shape () {
         return this._shape as ISphereShape;
     }
 
@@ -56,7 +57,7 @@ export class SphereColliderComponent extends ColliderComponent {
 
     constructor () {
         super();
-        if (!CC_EDITOR && !CC_TEST) {
+        if (!EDITOR && !TEST) {
             this._shape = createSphereShape(this._radius);
         }
     }

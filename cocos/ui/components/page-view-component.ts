@@ -40,6 +40,7 @@ import { warnID } from '../../core/platform/debug';
 import { extendsEnum } from '../../core/data/utils/extends-enum';
 import { EventType as ScrollEventType } from './scroll-view-component';
 import { Node } from '../../core';
+import { EDITOR } from 'internal:constants';
 
 const _temp_vec2 = new Vec2();
 
@@ -339,14 +340,14 @@ export class PageViewComponent extends ScrollViewComponent {
 
     public onEnable() {
         super.onEnable();
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             this.node.on(PageViewComponent.EventType.SCROLL_ENG_WITH_THRESHOLD, this._dispatchPageTurningEvent, this);
         }
     }
 
     public onDisable() {
         super.onDisable();
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             this.node.off(PageViewComponent.EventType.SCROLL_ENG_WITH_THRESHOLD, this._dispatchPageTurningEvent, this);
         }
     }
@@ -567,7 +568,7 @@ export class PageViewComponent extends ScrollViewComponent {
         if (this._sizeMode !== SizeMode.Unified) {
             return;
         }
-        const locPages = CC_EDITOR ? this.content.children : this._pages;
+        const locPages = EDITOR ? this.content.children : this._pages;
         const selfSize = this.view.getContentSize();
         for (let i = 0, len = locPages.length; i < len; i++) {
             locPages[i].setContentSize(selfSize);

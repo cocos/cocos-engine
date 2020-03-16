@@ -26,6 +26,7 @@
  * @category model
  */
 
+import { EDITOR } from 'internal:constants';
 import { getWorldTransformUntilRoot } from '../../animation/transform-utils';
 import { Filter, PixelFormat } from '../../assets/asset-enum';
 import { Material } from '../../assets/material';
@@ -229,13 +230,13 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
             if (!pass.properties) { continue; }
             for (const prop of Object.keys(pass.properties)) {
                 if (pass.properties[prop].type >= GFXType.SAMPLER1D) { // samplers
-                    let tex: Texture2D = null!;
+                    let tex: Texture2D | null = null;
                     if (this.batchableTextureNames.find((n) => n === prop)) {
                         tex = this._textures[prop];
                         if (!tex) { tex = this.createTexture(prop); }
                         this.cookTextures(tex, prop, i);
                     } else {
-                        this.units.some((u) => tex = u.material && u.material.getProperty(prop, i));
+                        this.units.some((u) => tex = u.material && u.material.getProperty(prop, i) as Texture2D | null);
                     }
                     if (tex) { mat.setProperty(prop, tex, i); }
                 } else { // vectors
@@ -264,7 +265,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
                 const path = partial.joints[i];
                 const idx = joints.findIndex((p) => p === path);
                 if (idx >= 0) {
-                    if (CC_EDITOR) { // consistency check
+                    if (EDITOR) { // consistency check
                         Mat4.multiply(m4_1, partial.bindposes[i], m4_local);
                         if (!m4_1.equals(bindposes[idx])) {
                             console.warn(`${this.node.name}: Inconsistent bindpose at ${joints[idx]} in unit ${u}, artifacts may present`);
@@ -443,7 +444,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
         const texBufferRegions: GFXBufferTextureCopy[] = [];
         for (const unit of this.units) {
             if (!unit.material) { continue; }
-            const partial: Texture2D = unit.material.getProperty(prop, passIdx);
+            const partial = unit.material.getProperty(prop, passIdx) as Texture2D | null;
             if (partial && partial.image && partial.image.data) {
                 const region = new GFXBufferTextureCopy();
                 region.texOffset.x = unit.offset.x * this.atlasSize;
