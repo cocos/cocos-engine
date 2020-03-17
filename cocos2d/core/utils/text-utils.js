@@ -137,10 +137,8 @@ var textUtils = {
     label_lastWordRex : /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]+|\S)$/,
     label_lastEnglish : /[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]+$/,
     label_firstEnglish : /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]/,
-    label_firstEmoji : /^[\uD83C\uDF00-\uDFFF\uDC00-\uDE4F]/,
-    label_lastEmoji : /([\uDF00-\uDFFF\uDC00-\uDE4F]+|\S)$/,
     // The unicode standard will never assign a character from code point 0xD800 to 0xDFFF
-    // high surrogate (0xD800-0xDBFF) and low surrogate(0xDC00-0xDFFF) combines to a 4-byte character
+    // high surrogate (0xD800-0xDBFF) and low surrogate(0xDC00-0xDFFF) combines to a character on the Supplementary Multilingual Plane
     // reference: https://en.wikipedia.org/wiki/UTF-16
     label_startsWithLowSurrogate: /^[\uDC00-\uDFFF]/,
     label_endsWithHighSurrogate: /[\uD800-\uDBFF]$/,
@@ -175,7 +173,7 @@ var textUtils = {
         return width;
     },
 
-    // in case truncate a 4-byte character
+    // in case truncate a character on the Supplementary Multilingual Plane
     _safeSubstring (targetString, startIndex, endIndex) {
         let tmpString = targetString.substring(startIndex, endIndex);
         let newStartIndex = startIndex, newEndIndex = endIndex;
@@ -250,17 +248,6 @@ var textUtils = {
                     fuzzyLen -= result ? result[0].length : 0;
                     if (fuzzyLen === 0) fuzzyLen = 1;
 
-                    sLine = this._safeSubstring(text, fuzzyLen);
-                    sText = this._safeSubstring(text, 0, fuzzyLen);
-                }
-            }
-
-            // To judge whether a Emoji words are truncated
-            // todo Some Emoji are not well adapted, such as 🚗 and 🇨🇳
-            if (this.label_firstEmoji.test(sLine)) {
-                result = this.label_lastEmoji.exec(sText);
-                if (result && sText !== result[0]) {
-                    fuzzyLen -= result[0].length;
                     sLine = this._safeSubstring(text, fuzzyLen);
                     sText = this._safeSubstring(text, 0, fuzzyLen);
                 }
