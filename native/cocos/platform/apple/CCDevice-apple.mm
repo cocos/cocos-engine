@@ -33,7 +33,7 @@ int Device::getDevicePixelRatio()
 #if(CC_PLATFORM == CC_PLATFORM_MAC_IOS)
     return [[UIScreen mainScreen] scale];
 #else
-    return [[[NSApplication sharedApplication] keyWindow] backingScaleFactor];
+    return [[[[NSApplication sharedApplication] delegate] getWindow] backingScaleFactor];
 #endif
 }
 

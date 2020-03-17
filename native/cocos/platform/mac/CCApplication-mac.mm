@@ -42,7 +42,7 @@ namespace
         auto viewLogicalSize = Application::getInstance()->getViewLogicalSize();
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
         char commandBuf[200] = {0};
-        NSView* view = [[[NSApplication sharedApplication] windows] objectAtIndex:0].contentView;
+        NSView* view = [[[[NSApplication sharedApplication] delegate] getWindow] contentView];
         sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d; window.windowHandler = 0x%" PRIxPTR ";",
                 (int)(viewLogicalSize.x),
                 (int)(viewLogicalSize.y),
