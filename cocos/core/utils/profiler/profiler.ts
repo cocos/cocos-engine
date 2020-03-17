@@ -121,7 +121,6 @@ export class Profiler {
         if (!CC_TEST) {
             this._canvas = document.createElement('canvas');
             this._ctx = this._canvas.getContext('2d')!;
-            this._region = new GFXBufferTextureCopy();
             this._canvasArr.push(this._canvas);
         }
     }
