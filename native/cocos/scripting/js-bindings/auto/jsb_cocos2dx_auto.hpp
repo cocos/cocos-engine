@@ -57,11 +57,12 @@ extern se::Class* __jsb_cocos2d_Device_class;
 
 bool js_register_cocos2d_Device(se::Object* obj);
 bool register_all_engine(se::Object* obj);
-SE_DECLARE_FUNC(js_engine_Device_getNetworkType);
+SE_DECLARE_FUNC(js_engine_Device_getDevicePixelRatio);
 SE_DECLARE_FUNC(js_engine_Device_setAccelerometerEnabled);
 SE_DECLARE_FUNC(js_engine_Device_setAccelerometerInterval);
 SE_DECLARE_FUNC(js_engine_Device_vibrate);
 SE_DECLARE_FUNC(js_engine_Device_setKeepScreenOn);
+SE_DECLARE_FUNC(js_engine_Device_getNetworkType);
 SE_DECLARE_FUNC(js_engine_Device_getBatteryLevel);
 SE_DECLARE_FUNC(js_engine_Device_getDeviceRotation);
 SE_DECLARE_FUNC(js_engine_Device_getDPI);

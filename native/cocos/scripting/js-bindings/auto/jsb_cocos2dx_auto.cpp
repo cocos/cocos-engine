@@ -1000,21 +1000,21 @@ bool js_register_engine_FileUtils(se::Object* obj)
 se::Object* __jsb_cocos2d_Device_proto = nullptr;
 se::Class* __jsb_cocos2d_Device_class = nullptr;
 
-static bool js_engine_Device_getNetworkType(se::State& s)
+static bool js_engine_Device_getDevicePixelRatio(se::State& s)
 {
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cocos2d::Device::getNetworkType();
+        int result = cocos2d::Device::getDevicePixelRatio();
         ok &= int32_to_seval((int)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_engine_Device_getNetworkType : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_engine_Device_getDevicePixelRatio : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_engine_Device_getNetworkType)
+SE_BIND_FUNC(js_engine_Device_getDevicePixelRatio)
 
 static bool js_engine_Device_setAccelerometerEnabled(se::State& s)
 {
@@ -1083,6 +1083,22 @@ static bool js_engine_Device_setKeepScreenOn(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_engine_Device_setKeepScreenOn)
+
+static bool js_engine_Device_getNetworkType(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = (int)cocos2d::Device::getNetworkType();
+        ok &= int32_to_seval((int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_engine_Device_getNetworkType : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_engine_Device_getNetworkType)
 
 static bool js_engine_Device_getBatteryLevel(se::State& s)
 {
@@ -1171,11 +1187,12 @@ bool js_register_engine_Device(se::Object* obj)
 {
     auto cls = se::Class::create("Device", obj, nullptr, nullptr);
 
-    cls->defineStaticFunction("getNetworkType", _SE(js_engine_Device_getNetworkType));
+    cls->defineStaticFunction("getDevicePixelRatio", _SE(js_engine_Device_getDevicePixelRatio));
     cls->defineStaticFunction("setAccelerometerEnabled", _SE(js_engine_Device_setAccelerometerEnabled));
     cls->defineStaticFunction("setAccelerometerInterval", _SE(js_engine_Device_setAccelerometerInterval));
     cls->defineStaticFunction("vibrate", _SE(js_engine_Device_vibrate));
     cls->defineStaticFunction("setKeepScreenOn", _SE(js_engine_Device_setKeepScreenOn));
+    cls->defineStaticFunction("getNetworkType", _SE(js_engine_Device_getNetworkType));
     cls->defineStaticFunction("getBatteryLevel", _SE(js_engine_Device_getBatteryLevel));
     cls->defineStaticFunction("getDeviceRotation", _SE(js_engine_Device_getDeviceRotation));
     cls->defineStaticFunction("getDPI", _SE(js_engine_Device_getDPI));
