@@ -53,10 +53,6 @@ export interface IAnimationEventGroup {
 }
 
 export declare namespace AnimationClip {
-    export interface ICurveData {
-        [path: string]: INodeCurveData;
-    }
-
     export type PropertyCurveData = IPropertyCurveData;
 
     export interface ICurve {
@@ -170,13 +166,6 @@ export class AnimationClip extends Asset {
     @property
     private _stepness = 0;
 
-    /**
-     * @zh 动画的曲线数据。
-     * @deprecated 请转用 `this.curves`
-     */
-    @property
-    private curveDatas?: AnimationClip.ICurveData = {};
-
     @property
     private _curves: AnimationClip.ICurve[] = [];
 
@@ -275,7 +264,6 @@ export class AnimationClip extends Asset {
 
     public onLoaded () {
         this.frameRate = this.sample;
-        this._migrateCurveDatas();
         this._decodeCVTAs();
     }
 
@@ -284,17 +272,6 @@ export class AnimationClip extends Asset {
             this._createPropertyCurves();
         }
         return this._runtimeCurves!;
-    }
-
-    /**
-     * @zh 提交曲线数据的修改。<br/>
-     * 当你修改了 `this.curveDatas`、`this.keys` 或 `this.duration`时，<br/>
-     * 必须调用 `this.updateCurveDatas()` 使修改生效。
-     * @deprecated
-     */
-    public updateCurveDatas () {
-        this._migrateCurveDatas();
-        delete this._runtimeCurves;
     }
 
     /**
@@ -390,41 +367,6 @@ export class AnimationClip extends Asset {
         // for (const propertyCurve of this._propertyCurves) {
         //     propertyCurve.curve.stepfy(this._stepness);
         // }
-    }
-
-    private _migrateCurveDatas () {
-        if (!this.curveDatas) {
-            return;
-        }
-        for (const curveTargetPath of Object.keys(this.curveDatas)) {
-            const hierarchyPath = new HierarchyPath();
-            hierarchyPath.path = curveTargetPath;
-            const nodeData = this.curveDatas[curveTargetPath];
-            if (nodeData.props) {
-                for (const nodePropertyName of Object.keys(nodeData.props)) {
-                    const propertyCurveData = nodeData.props[nodePropertyName];
-                    this._curves.push({
-                        modifiers: [ hierarchyPath, nodePropertyName ],
-                        data: propertyCurveData,
-                    });
-                }
-            }
-            if (nodeData.comps) {
-                for (const componentName of Object.keys(nodeData.comps)) {
-                    const componentPath = new ComponentPath();
-                    componentPath.component = componentName;
-                    const componentData = nodeData.comps[componentName];
-                    for (const componentPropertyName of Object.keys(componentData)) {
-                        const propertyCurveData = componentData[componentPropertyName];
-                        this._curves.push({
-                            modifiers: [ hierarchyPath, componentPath, componentPropertyName ],
-                            data: propertyCurveData,
-                        });
-                    }
-                }
-            }
-        }
-        delete this.curveDatas;
     }
 
     private _decodeCVTAs () {
