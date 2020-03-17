@@ -137,8 +137,6 @@ var textUtils = {
     label_lastWordRex : /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]+|\S)$/,
     label_lastEnglish : /[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]+$/,
     label_firstEnglish : /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]/,
-    label_firstEmoji : /^[\uD83C\uDF00-\uDFFF\uDC00-\uDE4F]/,
-    label_lastEmoji : /([\uDF00-\uDFFF\uDC00-\uDE4F]+|\S)$/,
     label_wrapinspection : true,
 
     __CHINESE_REG: /^[\u4E00-\u9FFF\u3400-\u4DFF]+$/,
@@ -170,6 +168,23 @@ var textUtils = {
         return width;
     },
 
+    // for performance reasons, engine cannot support to decode hundreds of emoji, but we could work out their valid length
+    // emoji characters like 🌷,🎁,🚗,😜 and 👍 are represented by 2 JavaScript characters each
+    // this function returns their valid length 1
+    // some special combined characters like 🏳️‍🌈 which is combined with 4 characters
+    // this function returns its valid length 4
+    // and 🇨🇳returns valid length 2
+    _stringValidLength (str) {
+        return Array.from(str).length;
+    },
+
+    // this function should work with _stringValidLength
+    _safeSubstring (targetString, startIndex, endIndex) {
+        let stringArray = Array.from(targetString);
+        stringArray = stringArray.slice(startIndex, endIndex);
+        return stringArray.join('');
+    },
+
     fragmentText: function (stringToken, allWidth, maxWidth, measureText) {
         //check the first character
         var wrappedWords = [];
@@ -180,10 +195,10 @@ var textUtils = {
         }
 
         var text = stringToken;
-        while (allWidth > maxWidth && text.length > 1) {
+        while (allWidth > maxWidth && this._stringValidLength(text) > 1) {
 
-            var fuzzyLen = text.length * ( maxWidth / allWidth ) | 0;
-            var tmpText = text.substring(fuzzyLen);
+            var fuzzyLen = this._stringValidLength(text) * ( maxWidth / allWidth ) | 0;
+            var tmpText = this._safeSubstring(text, fuzzyLen);
             var width = allWidth - measureText(tmpText);
             var sLine = tmpText;
             var pushNum = 0;
@@ -195,7 +210,7 @@ var textUtils = {
             while (width > maxWidth && checkWhile++ < checkCount) {
                 fuzzyLen *= maxWidth / width;
                 fuzzyLen = fuzzyLen | 0;
-                tmpText = text.substring(fuzzyLen);
+                tmpText = this._safeSubstring(text, fuzzyLen);
                 width = allWidth - measureText(tmpText);
             }
 
@@ -205,43 +220,32 @@ var textUtils = {
             while (width <= maxWidth && checkWhile++ < checkCount) {
                 if (tmpText) {
                     var exec = this.label_wordRex.exec(tmpText);
-                    pushNum = exec ? exec[0].length : 1;
+                    pushNum = exec ? this._stringValidLength(exec[0]) : 1;
                     sLine = tmpText;
                 }
 
                 fuzzyLen = fuzzyLen + pushNum;
-                tmpText = text.substring(fuzzyLen);
+                tmpText = this._safeSubstring(text, fuzzyLen);
                 width = allWidth - measureText(tmpText);
             }
 
             fuzzyLen -= pushNum;
             if (fuzzyLen === 0) {
                 fuzzyLen = 1;
-                sLine = sLine.substring(1);
+                sLine = this._safeSubstring(sLine, 1);
             }
 
-            var sText = text.substring(0, 0 + fuzzyLen), result;
+            var sText = this._safeSubstring(text, 0, fuzzyLen), result;
 
             //symbol in the first
             if (this.label_wrapinspection) {
                 if (this.label_symbolRex.test(sLine || tmpText)) {
                     result = this.label_lastWordRex.exec(sText);
-                    fuzzyLen -= result ? result[0].length : 0;
+                    fuzzyLen -= result ? this._stringValidLength(result[0]) : 0;
                     if (fuzzyLen === 0) fuzzyLen = 1;
 
-                    sLine = text.substring(fuzzyLen);
-                    sText = text.substring(0, 0 + fuzzyLen);
-                }
-            }
-
-            // To judge whether a Emoji words are truncated
-            // todo Some Emoji are not well adapted, such as 🚗 and 🇨🇳
-            if (this.label_firstEmoji.test(sLine)) {
-                result = this.label_lastEmoji.exec(sText);
-                if (result && sText !== result[0]) {
-                    fuzzyLen -= result[0].length;
-                    sLine = text.substring(fuzzyLen);
-                    sText = text.substring(0, 0 + fuzzyLen);
+                    sLine = this._safeSubstring(text, fuzzyLen);
+                    sText = this._safeSubstring(text, 0, fuzzyLen);
                 }
             }
 
@@ -249,9 +253,9 @@ var textUtils = {
             if (this.label_firstEnglish.test(sLine)) {
                 result = this.label_lastEnglish.exec(sText);
                 if (result && sText !== result[0]) {
-                    fuzzyLen -= result[0].length;
-                    sLine = text.substring(fuzzyLen);
-                    sText = text.substring(0, 0 + fuzzyLen);
+                    fuzzyLen -= this._stringValidLength(result[0]);
+                    sLine = this._safeSubstring(text, fuzzyLen);
+                    sText = this._safeSubstring(text, 0, fuzzyLen);
                 }
             }
 
