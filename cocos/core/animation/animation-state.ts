@@ -38,7 +38,7 @@ import { WrapMode, WrapModeMask, WrappedInfo } from './types';
 import { error } from '../platform/debug';
 import { EDITOR } from 'internal:constants';
 import { HierarchyPath, TargetPath, evaluatePath } from './target-path';
-import { BlendState, createBlendStateWriter, IBlendStateWriter } from './skeletal-animation-blending';
+import { BlendStateBuffer, createBlendStateWriter, IBlendStateWriter } from './skeletal-animation-blending';
 
 enum PropertySpecialization {
     NodePosition,
@@ -310,7 +310,7 @@ export class AnimationState extends Playable {
     }> = [];
     protected _curveLoaded = false;
     protected _ignoreIndex = InvalidIndex;
-    private _blendState: BlendState | null = null;
+    private _blendStateBuffer: BlendStateBuffer | null = null;
     private _blendStateWriters: IBlendStateWriter[] = [];
 
     constructor (clip: AnimationClip, name = '') {
@@ -327,7 +327,7 @@ export class AnimationState extends Playable {
         if (this._curveLoaded) { return; }
         this._curveLoaded = true;
         this._samplerSharedGroups.length = 0;
-        this._blendState = cc.director.getAnimationManager()?.blendState ?? null;
+        this._blendStateBuffer = cc.director.getAnimationManager()?.blendState ?? null;
         this._blendStateWriters.length = 0;
         this._targetNode = root;
         const clip = this._clip;
@@ -378,14 +378,14 @@ export class AnimationState extends Playable {
             }
 
             let boundTarget: IBoundTarget | null = null;
-            if (!isSkeletonCurve(propertyCurve) || !this._blendState) {
+            if (!isSkeletonCurve(propertyCurve) || !this._blendStateBuffer) {
                 boundTarget = createBoundTarget(rootTarget, propertyCurve.modifiers, propertyCurve.valueAdapter);
             } else {
                 const targetNode = evaluatePath(rootTarget, ...propertyCurve.modifiers.slice(0, propertyCurve.modifiers.length - 1));
                 if (targetNode !== null && targetNode instanceof Node) {
                     const propertyName = propertyCurve.modifiers[propertyCurve.modifiers.length - 1] as 'position' | 'rotation' | 'scale';
                     const blendStateWriter = createBlendStateWriter(
-                        this._blendState,
+                        this._blendStateBuffer,
                         targetNode,
                         propertyName,
                         this,

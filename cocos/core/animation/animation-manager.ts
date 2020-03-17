@@ -9,7 +9,7 @@ import { errorID } from '../platform/debug';
 import { Node } from '../scene-graph';
 import { Scheduler } from '../scheduler';
 import { MutableForwardIterator, remove } from '../utils/array';
-import { BlendState } from './skeletal-animation-blending';
+import { BlendStateBuffer } from './skeletal-animation-blending';
 import { AnimationState } from './animation-state';
 import { CrossFade } from './cross-fade';
 
@@ -17,13 +17,13 @@ import { CrossFade } from './cross-fade';
 export class AnimationManager extends System {
 
     public get blendState () {
-        return this._blendState;
+        return this._blendStateBuffer;
     }
 
     public static ID = 'animation';
     private _anims = new MutableForwardIterator<AnimationState>([]);
     private _delayEvents: Array<{target: Node; func: string; args: any[]}> = [];
-    private _blendState: BlendState = new BlendState();
+    private _blendStateBuffer: BlendStateBuffer = new BlendStateBuffer();
     private _crossFades: CrossFade[] = [];
 
     public addCrossFade (crossFade: CrossFade) {
@@ -46,7 +46,7 @@ export class AnimationManager extends System {
                 anim.update(dt);
             }
         }
-        this._blendState.apply();
+        this._blendStateBuffer.apply();
 
         const events = this._delayEvents;
         for (let i = 0, l = events.length; i < l; i++) {

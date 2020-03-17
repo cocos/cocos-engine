@@ -3,7 +3,7 @@ import { Vec3, Quat } from '../math';
 import { Node } from '../scene-graph';
 import { IValueProxyFactory } from './value-proxy';
 
-export class BlendState {
+export class BlendStateBuffer {
     private _nodeBlendStates: Map<Node, NodeBlendState> = new Map();
 
     ref (node: Node, property: BlendingProperty) {
@@ -68,7 +68,7 @@ export type IBlendStateWriter = IValueProxyFactory & {
 }
 
 export function createBlendStateWriter<P extends BlendingProperty>(
-    blendState: BlendState,
+    blendState: BlendStateBuffer,
     node: Node,
     property: P,
     weightProxy: { weight: number; }
