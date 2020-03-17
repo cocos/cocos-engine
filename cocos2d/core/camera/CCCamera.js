@@ -770,11 +770,7 @@ let Camera = cc.Class({
         this.node.getWorldMatrix(_mat4_temp_1);
         this.beforeDraw();
 
-        if (!CC_JSB) {
-            renderer._forward.renderCamera(this._camera, renderer.scene);
-        } else {
-            RenderFlow.renderCamera(this._camera, root);
-        }
+        RenderFlow.renderCamera(this._camera, root);
     },
 
     _onAlignWithScreen () {
