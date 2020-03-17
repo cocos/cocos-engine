@@ -128,9 +128,6 @@ interface NodeBlendState {
 type BlendFunction<T> = (value: T, weight: number, propertyBlendState: PropertyBlendState<T>) => T;
 
 function additive3D (value: Vec3, weight: number, propertyBlendState: PropertyBlendState<Vec3>) {
-    if (!propertyBlendState.value) {
-        propertyBlendState.value = new Vec3();
-    }
     if (propertyBlendState.weight === 0) {
         Vec3.zero(propertyBlendState.value);
     }
@@ -143,9 +140,6 @@ function additive3D (value: Vec3, weight: number, propertyBlendState: PropertyBl
 }
 
 function additiveQuat (value: Quat, weight: number, propertyBlendState: PropertyBlendState<Quat>) {
-    if (!propertyBlendState.value) {
-        propertyBlendState.value = new Quat();
-    }
     if (propertyBlendState.weight === 0) {
         Quat.identity(propertyBlendState.value);
     }
