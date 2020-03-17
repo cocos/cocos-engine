@@ -110,6 +110,7 @@ namespace
         }
 
         cocos2d::EventDispatcher::dispatchTouchEvent(touchEvent);
+        touchEvent.touches.clear();
     }
 
     // key values in web, refer to http://docs.cocos.com/creator/api/en/enums/KEY.html

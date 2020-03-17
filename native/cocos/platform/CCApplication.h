@@ -32,6 +32,7 @@ THE SOFTWARE.
 #include "scripting/js-bindings/event/EventDispatcher.h"
 #include "base/CCScheduler.h"
 #include "base/CCAutoreleasePool.h"
+#include "math/Vec2.h"
 
 NS_CC_BEGIN
 /**
@@ -142,10 +143,6 @@ public:
      */
     void setCursorEnabled(bool value);
 
-    /** The value is (framebuffer size) / (window size), but on iOS, it is special, its value is 1.
-     */
-    float getScreenScale() const;
-
     /**
      @brief Get target platform.
      */
@@ -162,11 +159,15 @@ public:
 
     std::string getSystemVersion();
 
+    // return size in logical pixel unit.
+    inline const cocos2d::Vec2& getViewLogicalSize() const { return _viewLogicalSize; }
+
 private:
     static Application* _instance;
     static std::shared_ptr<Scheduler> _scheduler;
     void* _delegate = nullptr;
     int _fps = 60;
+    cocos2d::Vec2 _viewLogicalSize;
 };
 
 // end of platform group

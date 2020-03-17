@@ -47,16 +47,15 @@ extern "C" size_t __ctype_get_mb_cur_max(void)
 
 namespace
 {
-    int g_width = 0;
-    int g_height = 0;
     bool setCanvasCallback(se::Object* global)
     {
+        auto viewLogicalSize = Application::getInstance()->getViewLogicalSize();
         se::AutoHandleScope scope;
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
         char commandBuf[200] = {0};
         sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d; window.windowHandler = 0x%" PRIxPTR ";",
-                g_width,
-                g_height,
+                (int)(viewLogicalSize.x),
+                (int)(viewLogicalSize.y),
                 (uintptr_t)cocos2d::JniHelper::getAndroidApp()->window);
         se->evalString(commandBuf);
 
@@ -74,8 +73,8 @@ Application::Application(int width, int height)
 {
     Application::_instance = this;
     _scheduler = std::make_shared<Scheduler>();
-    g_width = width;
-    g_height = height;
+    _viewLogicalSize.x = width;
+    _viewLogicalSize.y = height;
 }
 
 Application::~Application()
@@ -228,11 +227,6 @@ Application::LanguageType Application::getCurrentLanguage() const
 Application::Platform Application::getPlatform() const
 {
     return Platform::ANDROIDOS;
-}
-
-float Application::getScreenScale() const
-{
-    return 1.f;
 }
 
 bool Application::openURL(const std::string &url)

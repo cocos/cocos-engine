@@ -75,6 +75,11 @@ public:
     static int getDPI();
 
     /**
+     * Get device pixel ratio.
+     */
+    static int getDevicePixelRatio();
+    
+    /**
      * To enable or disable accelerometer.
      */
     static void setAccelerometerEnabled(bool isEnabled);

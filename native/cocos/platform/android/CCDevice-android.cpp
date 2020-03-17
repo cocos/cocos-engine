@@ -222,6 +222,10 @@ cocos2d::Vec4 Device::getSafeAreaEdge()
     return cocos2d::Vec4();
 }
 
+int Device::getDevicePixelRatio()
+{
+    return 1;
+}
 NS_CC_END
 
 #endif // CC_PLATFORM == CC_PLATFORM_ANDROID

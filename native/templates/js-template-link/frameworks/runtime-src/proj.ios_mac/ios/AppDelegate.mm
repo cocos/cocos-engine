@@ -41,7 +41,6 @@ Game* game = nullptr;
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     [[SDKWrapper getInstance] application:application didFinishLaunchingWithOptions:launchOptions];
     // Add the view controller's view to the window and display.
-    float scale = [[UIScreen mainScreen] scale];
     CGRect bounds = [[UIScreen mainScreen] bounds];
     self.window = [[UIWindow alloc] initWithFrame: bounds];
 
@@ -52,7 +51,7 @@ Game* game = nullptr;
     [self.window setRootViewController:_viewController];
     
     // cocos2d application instance
-    game = new Game(bounds.size.width * scale, bounds.size.height * scale);
+    game = new Game(bounds.size.width, bounds.size.height);
     game->init();
     
     [self.window makeKeyAndVisible];

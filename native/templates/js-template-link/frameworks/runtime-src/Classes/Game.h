@@ -33,6 +33,9 @@
 class Game : public cocos2d::Application
 {
 public:
+    /**
+     * width and height in logical pixel unit
+     */
     Game(int width, int height);
     virtual bool init() override;
     virtual void onPause() override;

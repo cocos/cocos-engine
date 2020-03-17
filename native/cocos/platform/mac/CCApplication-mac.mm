@@ -37,15 +37,14 @@ NS_CC_BEGIN
 
 namespace
 {
-    int g_width = 0;
-    int g_height = 0;
     bool setCanvasCallback(se::Object* global)
     {
+        auto viewLogicalSize = Application::getInstance()->getViewLogicalSize();
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
         char commandBuf[200] = {0};
         sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d; window.windowHandler = 0x%" PRIxPTR ";",
-                g_width,
-                g_height,
+                (int)(viewLogicalSize.x),
+                (int)(viewLogicalSize.y),
                 (uintptr_t)[NSApplication sharedApplication].mainWindow.contentView);
         se->evalString(commandBuf);
         
@@ -64,12 +63,11 @@ std::shared_ptr<Scheduler> Application::_scheduler = nullptr;
 Application::Application(int width, int height)
 {
     Application::_instance = this;
-
-    g_width = width;
-    g_height = height;
-
+    
+    _viewLogicalSize.x = width;
+    _viewLogicalSize.y = height;
+    
     _scheduler = std::make_shared<Scheduler>();
-
     EventDispatcher::init();
     se::ScriptEngine::getInstance();
 }
@@ -165,11 +163,6 @@ Application::LanguageType Application::getCurrentLanguage() const
     if ([languageCode isEqualToString:@"ro"]) return LanguageType::ROMANIAN;
     if ([languageCode isEqualToString:@"bg"]) return LanguageType::BULGARIAN;
     return LanguageType::ENGLISH;
-}
-
-float Application::getScreenScale() const
-{
-    return 1.f;
 }
 
 bool Application::openURL(const std::string &url)

@@ -37,6 +37,7 @@ namespace
             });
         }
         cocos2d::EventDispatcher::dispatchTouchEvent(touchEvent);
+        touchEvent.touches.clear();
     }
 }
 

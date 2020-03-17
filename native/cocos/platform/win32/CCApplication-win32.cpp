@@ -356,11 +356,6 @@ void Application::setCursorEnabled(bool value)
     glfwSetInputMode(CAST_VIEW(_view)->getGLFWWindow(), GLFW_CURSOR, value ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
 }
 
-float Application::getScreenScale() const
-{
-    return CAST_VIEW(_view)->getScale();
-}
-
 GLint Application::getMainFBO() const
 {
     return CAST_VIEW(_view)->getMainFBO();

@@ -25,4 +25,16 @@
  ****************************************************************************/
 
 #include "platform/apple/CCDevice-apple.h"
+#include "platform/CCApplication.h"
+NS_CC_BEGIN
 
+int Device::getDevicePixelRatio()
+{
+#if(CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+    return [[UIScreen mainScreen] scale];
+#else
+    return [[[NSApplication sharedApplication] keyWindow] backingScaleFactor];
+#endif
+}
+
+NS_CC_END
