@@ -247,6 +247,18 @@ RenderFlow.render = function (scene, dt) {
     _forward.render(_batcher._renderScene, dt);
 };
 
+RenderFlow.renderCamera = function (camera, scene) {
+    _batcher.reset();
+    _batcher.walking = true;
+
+    RenderFlow.visitRootNode(scene);
+
+    _batcher.terminate();
+    _batcher.walking = false;
+
+    _forward.renderCamera(camera, _batcher._renderScene);
+};
+
 RenderFlow.init = function (batcher, forwardRenderer) {
     _batcher = batcher;
     _forward = forwardRenderer;
