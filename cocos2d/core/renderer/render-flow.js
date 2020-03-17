@@ -235,11 +235,11 @@ RenderFlow.visitRootNode = function (rootNode) {
     _cullingMask = preCullingMask;
 };
 
-RenderFlow.render = function (scene, dt) {
+RenderFlow.render = function (rootNode, dt) {
     _batcher.reset();
     _batcher.walking = true;
 
-    RenderFlow.visitRootNode(scene);
+    RenderFlow.visitRootNode(rootNode);
 
     _batcher.terminate();
     _batcher.walking = false;
@@ -247,11 +247,11 @@ RenderFlow.render = function (scene, dt) {
     _forward.render(_batcher._renderScene, dt);
 };
 
-RenderFlow.renderCamera = function (camera, scene) {
+RenderFlow.renderCamera = function (camera, rootNode) {
     _batcher.reset();
     _batcher.walking = true;
 
-    RenderFlow.visitRootNode(scene);
+    RenderFlow.visitRootNode(rootNode);
 
     _batcher.terminate();
     _batcher.walking = false;
