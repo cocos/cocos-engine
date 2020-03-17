@@ -55,7 +55,7 @@ var downloadAudio = function (url, options, onComplete) {
     }
 };
 
-var downloadAudio = formatSupport.length === 0 ? unsupported : (__audioSupport.WEB_AUDIO ? downloadAudio : downloadDomAudio);
+var downloadAudio = (!CC_EDITOR || !Editor.isMainProcess) ? (formatSupport.length === 0 ? unsupported : (__audioSupport.WEB_AUDIO ? downloadAudio : downloadDomAudio)) : null;
 
 var downloadImage = function (url, options, onComplete) {
     // if createImageBitmap is valid, we can transform blob to ImageBitmap. Otherwise, just use HTMLImageElement to load
@@ -372,14 +372,6 @@ var downloader = {
     init () {
         _downloading.clear();
         _queue.length = 0;
-        if (!CC_EDITOR || !Editor.isMainProcess) {
-            this.register({
-                '.mp3' : downloadAudio,
-                '.ogg' : downloadAudio,
-                '.wav' : downloadAudio,
-                '.m4a' : downloadAudio
-            });
-        }
     },
 
     /**
@@ -532,6 +524,12 @@ var downloaders = {
     '.image' : downloadImage,
     '.pvr': downloadArrayBuffer,
     '.pkm': downloadArrayBuffer,
+
+    // Audio
+    '.mp3' : downloadAudio,
+    '.ogg' : downloadAudio,
+    '.wav' : downloadAudio,
+    '.m4a' : downloadAudio,
 
     // Txt
     '.txt' : downloadText,
