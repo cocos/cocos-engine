@@ -139,6 +139,11 @@ var textUtils = {
     label_firstEnglish : /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]/,
     label_firstEmoji : /^[\uD83C\uDF00-\uDFFF\uDC00-\uDE4F]/,
     label_lastEmoji : /([\uDF00-\uDFFF\uDC00-\uDE4F]+|\S)$/,
+    // The unicode standard will never assign a character from code point 0xD800 to 0xDFFF
+    // high surrogate (0xD800-0xDBFF) and low surrogate(0xDC00-0xDFFF) combines to a 4-byte character
+    // reference: https://en.wikipedia.org/wiki/UTF-16
+    label_startsWithLowSurrogate: /^[\uDC00-\uDFFF]/,
+    label_endsWithHighSurrogate: /[\uD800-\uDBFF]$/,
     label_wrapinspection : true,
 
     __CHINESE_REG: /^[\u4E00-\u9FFF\u3400-\u4DFF]+$/,
@@ -170,6 +175,22 @@ var textUtils = {
         return width;
     },
 
+    // in case truncate a 4-byte character
+    _safeSubstring (targetString, startIndex, endIndex) {
+        let tmpString = targetString.substring(startIndex, endIndex);
+        let newStartIndex = startIndex, newEndIndex = endIndex;
+        if (this.label_startsWithLowSurrogate.test(tmpString)) {
+            newStartIndex--;
+        }
+        if (endIndex !== undefined && this.label_endsWithHighSurrogate.test(tmpString)) {
+            newEndIndex--;
+        }
+        if (newStartIndex !== startIndex || newEndIndex !== endIndex) {
+            return targetString.substring(newStartIndex, newEndIndex);
+        }
+        return tmpString;
+    },
+
     fragmentText: function (stringToken, allWidth, maxWidth, measureText) {
         //check the first character
         var wrappedWords = [];
@@ -183,7 +204,7 @@ var textUtils = {
         while (allWidth > maxWidth && text.length > 1) {
 
             var fuzzyLen = text.length * ( maxWidth / allWidth ) | 0;
-            var tmpText = text.substring(fuzzyLen);
+            var tmpText = this._safeSubstring(text, fuzzyLen);
             var width = allWidth - measureText(tmpText);
             var sLine = tmpText;
             var pushNum = 0;
@@ -195,7 +216,7 @@ var textUtils = {
             while (width > maxWidth && checkWhile++ < checkCount) {
                 fuzzyLen *= maxWidth / width;
                 fuzzyLen = fuzzyLen | 0;
-                tmpText = text.substring(fuzzyLen);
+                tmpText = this._safeSubstring(text, fuzzyLen);
                 width = allWidth - measureText(tmpText);
             }
 
@@ -210,17 +231,17 @@ var textUtils = {
                 }
 
                 fuzzyLen = fuzzyLen + pushNum;
-                tmpText = text.substring(fuzzyLen);
+                tmpText = this._safeSubstring(text, fuzzyLen);
                 width = allWidth - measureText(tmpText);
             }
 
             fuzzyLen -= pushNum;
             if (fuzzyLen === 0) {
                 fuzzyLen = 1;
-                sLine = sLine.substring(1);
+                sLine = this._safeSubstring(sLine, 1);
             }
 
-            var sText = text.substring(0, 0 + fuzzyLen), result;
+            var sText = this._safeSubstring(text, 0, fuzzyLen), result;
 
             //symbol in the first
             if (this.label_wrapinspection) {
@@ -229,8 +250,8 @@ var textUtils = {
                     fuzzyLen -= result ? result[0].length : 0;
                     if (fuzzyLen === 0) fuzzyLen = 1;
 
-                    sLine = text.substring(fuzzyLen);
-                    sText = text.substring(0, 0 + fuzzyLen);
+                    sLine = this._safeSubstring(text, fuzzyLen);
+                    sText = this._safeSubstring(text, 0, fuzzyLen);
                 }
             }
 
@@ -240,8 +261,8 @@ var textUtils = {
                 result = this.label_lastEmoji.exec(sText);
                 if (result && sText !== result[0]) {
                     fuzzyLen -= result[0].length;
-                    sLine = text.substring(fuzzyLen);
-                    sText = text.substring(0, 0 + fuzzyLen);
+                    sLine = this._safeSubstring(text, fuzzyLen);
+                    sText = this._safeSubstring(text, 0, fuzzyLen);
                 }
             }
 
@@ -250,8 +271,8 @@ var textUtils = {
                 result = this.label_lastEnglish.exec(sText);
                 if (result && sText !== result[0]) {
                     fuzzyLen -= result[0].length;
-                    sLine = text.substring(fuzzyLen);
-                    sText = text.substring(0, 0 + fuzzyLen);
+                    sLine = this._safeSubstring(text, fuzzyLen);
+                    sText = this._safeSubstring(text, 0, fuzzyLen);
                 }
             }
 
