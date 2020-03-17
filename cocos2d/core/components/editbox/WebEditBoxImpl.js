@@ -86,10 +86,7 @@ function WebEditBoxImpl () {
     this._w = 0;
     this._h = 0;
     // viewport cache
-    this._viewportRectX = 0;
-    this._viewportRectY = 0;
-    this._viewportRectWidth = 0;
-    this._viewportRectHeight = 0;
+    this._cacheViewportRect = cc.rect(0, 0, 0, 0);
 
     // inputType cache
     this._inputMode = null;
@@ -313,10 +310,7 @@ Object.assign(WebEditBoxImpl.prototype, {
             this._m04 === worldMatm[4] && this._m05 === worldMatm[5] &&
             this._m12 === worldMatm[12] && this._m13 === worldMatm[13] &&
             this._w === node._contentSize.width && this._h === node._contentSize.height &&
-            this._viewportRectX === localView._viewportRect.x &&
-            this._viewportRectY === localView._viewportRect.y &&
-            this._viewportRectWidth === localView._viewportRect.width && 
-            this._viewportRectHeight === localView._viewportRect.height) {
+            this._cacheViewportRect.equals(localView._viewportRect)) {
             return;
         }
 
@@ -330,10 +324,10 @@ Object.assign(WebEditBoxImpl.prototype, {
         this._w = node._contentSize.width;
         this._h = node._contentSize.height;
         // update viewport cache
-        this._viewportRectX = localView._viewportRect.x;
-        this._viewportRectY = localView._viewportRect.y;
-        this._viewportRectWidth = localView._viewportRect.width;
-        this._viewportRectHeight = localView._viewportRect.height;
+        this._cacheViewportRect.x = localView._viewportRect.x;
+        this._cacheViewportRect.y = localView._viewportRect.y;
+        this._cacheViewportRect.width = localView._viewportRect.width;
+        this._cacheViewportRect.height = localView._viewportRect.height;
 
         let scaleX = localView._scaleX, scaleY = localView._scaleY,
             viewport = localView._viewportRect,
