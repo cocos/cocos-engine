@@ -760,17 +760,17 @@ let Camera = cc.Class({
      * !#zh
      * 手动渲染摄像机。
      * @method render
-     * @param {Node} root 
+     * @param {Node} [rootNode] 
      */
-    render (root) {
-        root = root || cc.director.getScene();
-        if (!root) return null;
+    render (rootNode) {
+        rootNode = rootNode || cc.director.getScene();
+        if (!rootNode) return null;
 
         // force update node world matrix
         this.node.getWorldMatrix(_mat4_temp_1);
         this.beforeDraw();
 
-        RenderFlow.renderCamera(this._camera, root);
+        RenderFlow.renderCamera(this._camera, rootNode);
     },
 
     _onAlignWithScreen () {
