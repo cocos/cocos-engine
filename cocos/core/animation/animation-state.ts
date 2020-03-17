@@ -662,8 +662,8 @@ export class AnimationState extends Playable {
         this._delayTime = this._delay;
 
         cc.director.getAnimationManager().addAnimation(this);
-        for (const blendStateWriter of this._blendStateWriters) {
-            blendStateWriter.start();
+        for (let iBlendStateWriter = 0; iBlendStateWriter < this._blendStateWriters.length; ++iBlendStateWriter) {
+            this._blendStateWriters[iBlendStateWriter].start();
         }
 
         this.emit('play', this);
@@ -672,8 +672,8 @@ export class AnimationState extends Playable {
     protected onStop () {
         if (!this.isPaused) {
             cc.director.getAnimationManager().removeAnimation(this);
-            for (const blendStateWriter of this._blendStateWriters) {
-                blendStateWriter.stop();
+            for (let iBlendStateWriter = 0; iBlendStateWriter < this._blendStateWriters.length; ++iBlendStateWriter) {
+                this._blendStateWriters[iBlendStateWriter].stop();
             }
         }
 
