@@ -16,5 +16,6 @@ export { default as obb } from './obb';
 export { capsule } from './capsule';
 export { frustum } from './frustum';
 export { Keyframe, AnimationCurve } from './curve';
+export * from './spec';
 
 import './deprecated';
