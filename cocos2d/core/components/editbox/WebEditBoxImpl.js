@@ -324,10 +324,7 @@ Object.assign(WebEditBoxImpl.prototype, {
         this._w = node._contentSize.width;
         this._h = node._contentSize.height;
         // update viewport cache
-        this._cacheViewportRect.x = localView._viewportRect.x;
-        this._cacheViewportRect.y = localView._viewportRect.y;
-        this._cacheViewportRect.width = localView._viewportRect.width;
-        this._cacheViewportRect.height = localView._viewportRect.height;
+        this._cacheViewportRect.set(localView._viewportRect);
 
         let scaleX = localView._scaleX, scaleY = localView._scaleY,
             viewport = localView._viewportRect,
