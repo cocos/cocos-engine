@@ -46,7 +46,7 @@ export const PhotometricTerm = Enum({
 export enum LightBakeType {
     NONE,
     BAKE_ONLY,
-    BAKE_ABLE,
+    BAKEABLE,
 }
 Enum(LightBakeType);
 
