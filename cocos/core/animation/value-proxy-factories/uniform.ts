@@ -12,6 +12,7 @@ import { Pass } from '../../renderer/core/pass';
 import { getDefaultFromType } from '../../renderer/core/pass-utils';
 import { samplerLib } from '../../renderer/core/sampler-lib';
 import { IValueProxy, IValueProxyFactory } from '../value-proxy';
+import { warn } from '../../platform/debug';
 
 @ccclass('cc.animation.UniformProxyFactory')
 export class UniformProxyFactory implements IValueProxyFactory {
@@ -63,7 +64,7 @@ export class UniformProxyFactory implements IValueProxyFactory {
             const texName = prop && prop.value ? prop.value + '-texture' : getDefaultFromType(prop.type) as string;
             let dftTex = builtinResMgr.get<TextureBase>(texName);
             if (!dftTex) {
-                console.warn('illegal texture default value: ' + texName);
+                warn(`Illegal texture default value: ${texName}.`);
                 dftTex = builtinResMgr.get<TextureBase>('default-texture');
             }
             return {

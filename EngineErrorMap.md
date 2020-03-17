@@ -1981,6 +1981,22 @@ The current buffer beyond the limit in ui static component, please reduce the am
 
 The UI has not been initialized
 
+### 9600
+
+[Physics]: please check to see if physics modules are included
+
+### 9610
+
+[Physics]: cannon.js physics system doesn't support capsule collider
+
+### 9611
+
+[Physics]: builtin physics system doesn't support mesh collider
+
+### 9620
+
+[Physics][Ammo]: changing the mesh is not supported after the initialization is completed
+
 ### 10001
 
 The sub-mesh contains %d vertices, which beyonds the capability (%d vertices most) of renderer of your platform.

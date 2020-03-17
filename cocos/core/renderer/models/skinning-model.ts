@@ -27,6 +27,7 @@
  * @hidden
  */
 
+import { EDITOR } from 'internal:constants';
 import { Material } from '../../assets/material';
 import { Mesh, RenderingSubMesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
@@ -243,6 +244,9 @@ export class SkinningModel extends Model {
     }
 
     protected createPipelineState (pass: Pass, subModelIdx: number) {
+        if (EDITOR && pass.instancedBuffer) {
+            console.warn('real-time skeletal animation doesn\'t support instancing, expect rendering anomalies');
+        }
         const pso = super.createPipelineState(pass, subModelIdx, patches);
         const bindingLayout = pso.pipelineLayout.layouts[0];
         const buffer = this._buffers[this._bufferIndices![subModelIdx]];

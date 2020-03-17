@@ -1148,6 +1148,16 @@ export class Terrain extends Component {
         return this._sharedIndexBuffer;
     }
 
+    public _updateLightmap (blockId: number, tex: Texture2D|null, uoff: number, voff: number, uscale: number, vscale: number) {
+        this._blockInfos[blockId].lightMap = tex;
+        this._blockInfos[blockId].lightMapUOff = uoff;
+        this._blockInfos[blockId].lightMapVOff = voff;
+        this._blockInfos[blockId].lightMapUScale = uscale;
+        this._blockInfos[blockId].lightMapVScale = vscale;
+
+        this._blocks[blockId]._updateLightmap(tex, uoff, voff, uscale, vscale);
+    }
+
     public rayCheck (start: Vec3, dir: Vec3, step: number, worldspace: boolean = true) {
         const MAX_COUNT = 2000;
 

@@ -23,7 +23,7 @@ import { PHYSICS_BUILTIN } from 'internal:constants';
 @ccclass('cc.ConstantForce')
 @executionOrder(98)
 @requireComponent(RigidBodyComponent)
-@menu('Components/ConstantForce')
+@menu('Physics/ConstantForce')
 @disallowMultiple
 @executeInEditMode
 export class ConstantForce extends Component {

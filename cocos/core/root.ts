@@ -514,6 +514,7 @@ export class Root {
         if (c.scene) {
             c.scene.removeCamera(c);
         }
+        c.isWindowSize = true;
     }
 
     public createLight<T extends Light> (lClass: new () => T): T {

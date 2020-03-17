@@ -142,6 +142,7 @@ export class View extends EventTarget {
     private _visibleRect: Rect;
     private _autoFullScreen: boolean;
     private _devicePixelRatio: number;
+    private _maxPixelRatio: number;
     private _retinaEnabled: boolean;
     private _resizeCallback: null;
     private _resizing: boolean;
@@ -180,6 +181,11 @@ export class View extends EventTarget {
         this._autoFullScreen = false;
         // The device's pixel ratio (for retina displays)
         this._devicePixelRatio = 1;
+        if (JSB) {
+            this._maxPixelRatio = 4;
+        } else {
+            this._maxPixelRatio = 2;
+        }
         // Retina disabled by default
         this._retinaEnabled = false;
         // Custom callback for resize event
@@ -455,6 +461,7 @@ export class View extends EventTarget {
     public setCanvasSize (width, height) {
         const canvas = cc.game.canvas;
         const container = cc.game.container;
+        this._devicePixelRatio = window.devicePixelRatio;
 
         canvas.width = width * this._devicePixelRatio;
         canvas.height = height * this._devicePixelRatio;
@@ -933,7 +940,8 @@ export class View extends EventTarget {
         else {
             _view._initFrameSize();
         }
-        if (!_view._orientationChanging && _view._isRotated === prevRotated && _view._frameSize.width === prevFrameW && _view._frameSize.height === prevFrameH) {
+
+        if (!JSB && !_view._orientationChanging && _view._isRotated === prevRotated && _view._frameSize.width === prevFrameW && _view._frameSize.height === prevFrameH) {
             return;
         }
 
@@ -1154,7 +1162,7 @@ class ContainerStrategy {
         // Setup pixel ratio for retina display
         let devicePixelRatio = _view._devicePixelRatio = 1;
         if (_view.isRetinaEnabled()) {
-            devicePixelRatio = _view._devicePixelRatio = Math.min(2, window.devicePixelRatio || 1);
+            devicePixelRatio = _view._devicePixelRatio = Math.min(_view._maxPixelRatio, window.devicePixelRatio || 1);
         }
         // Setup canvas
         locCanvas.width = w * devicePixelRatio;

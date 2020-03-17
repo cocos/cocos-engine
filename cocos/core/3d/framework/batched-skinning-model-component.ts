@@ -26,6 +26,7 @@
  * @category model
  */
 
+import { EDITOR } from 'internal:constants';
 import { getWorldTransformUntilRoot } from '../../animation/transform-utils';
 import { Filter, PixelFormat } from '../../assets/asset-enum';
 import { Material } from '../../assets/material';
@@ -41,7 +42,6 @@ import { IGFXAttribute } from '../../gfx/input-assembler';
 import { Mat4, Vec2, Vec3 } from '../../math';
 import { mapBuffer, readBuffer, writeBuffer } from '../misc/buffer';
 import { SkinningModelComponent } from './skinning-model-component';
-import { EDITOR } from 'internal:constants';
 
 const repeat = (n: number) => n - Math.floor(n);
 const batch_id: IGFXAttribute = { name: GFXAttributeName.ATTR_BATCH_ID, format: GFXFormat.R32F, isNormalized: false };

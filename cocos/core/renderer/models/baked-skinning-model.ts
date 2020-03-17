@@ -125,13 +125,11 @@ export class BakedSkinningModel extends Model {
     public updateUBOs (stamp: number) {
         if (!super.updateUBOs(stamp)) { return false; }
         const info = this._jointsMedium.animInfo;
-        if (info.dirty) {
-            const idx = this._instAnimInfoIdx;
-            if (idx >= 0) {
-                this.instancedAttributes.list[idx].view[1] = info.data[1];
-            } else {
-                info.buffer.update(info.data);
-            }
+        const idx = this._instAnimInfoIdx;
+        if (idx >= 0) {
+            this.instancedAttributes.list[idx].view[1] = info.data[1];
+        } else if (info.dirty) {
+            info.buffer.update(info.data);
             info.dirty = false;
         }
         return true;
