@@ -42,12 +42,13 @@ namespace
         auto viewLogicalSize = Application::getInstance()->getViewLogicalSize();
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
         char commandBuf[200] = {0};
+        NSView* view = [[[NSApplication sharedApplication] windows] objectAtIndex:0].contentView;
         sprintf(commandBuf, "window.innerWidth = %d; window.innerHeight = %d; window.windowHandler = 0x%" PRIxPTR ";",
                 (int)(viewLogicalSize.x),
                 (int)(viewLogicalSize.y),
-                (uintptr_t)[NSApplication sharedApplication].mainWindow.contentView);
+                (uintptr_t)view);
         se->evalString(commandBuf);
-        
+                
         cocos2d::CustomEvent applicationReady;
         applicationReady.name = EVENT_APPLICATION_READY;
         cocos2d::EventDispatcher::dispatchCustomEvent(applicationReady);
