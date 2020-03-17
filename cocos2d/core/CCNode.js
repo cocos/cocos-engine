@@ -49,7 +49,6 @@ var emptyFunc = function () {};
 
 // getWorldPosition temp var
 var _gwpVec3 = new Vec3();
-
 var _gwpQuat = new Quat();
 
 // _invTransformPoint temp var
@@ -80,7 +79,7 @@ var _laQuat = new Quat();
 //up、right、forward temp var
 var _uVec3 = new Vec3();
 var _rVec3 = new Vec3();
-var _fVec3 = new vec3();
+var _fVec3 = new Vec3();
 
 // _hitTest temp var
 var _htVec3a = new Vec3();
@@ -878,6 +877,10 @@ let NodeDefines = {
     
         _is3DNode: false,
 
+        _up: undefined,
+        _right: undefined,
+        _front: undefined,
+
         // internal properties
         /**
          * !#en
@@ -1573,6 +1576,60 @@ let NodeDefines = {
             }, set (v) {
                 this._is3DNode = v;
                 this._update3DFunction();
+            }
+        },
+
+        /**
+         * !#en Returns a normalized vector representing the up direction (Y axis) of the node in world space.
+         * !#zh 获取节点正上方（y 轴）所在方向，返回值为世界坐标系下的归一化向量
+         * 
+         * @method up
+         * @return {Vec2|Vec3}
+         */
+        up: {
+            get () {
+                this._up = Vec3.transformQuat(_uVec3, Vec3.UP, this.getWorldRotation(new Quat()));
+                return this._up;
+            },
+            set () {
+                //TODO: This function can receive a value to set node‘s direction.
+                return null;
+            }
+        },
+
+        /**
+         * !#en Returns a normalized vector representing the right direction (-X axis) of the node in world space.
+         * !#zh 获取节点正右方（-x 轴）所在方向，返回值为世界坐标系下的归一化向量
+         * 
+         * @method right
+         * @return {Vec2|Vec3}
+         */
+        right: {
+            get () {
+                this._right = Vec3.transformQuat(_rVec3, Vec3.RIGHT, this.getWorldRotation(new Quat()));
+                return this._right;
+            },
+            set () {
+                //TODO: This function can receive a value to set node‘s direction.
+                return null;
+            }
+        },
+
+        /**
+         * !#en Returns a normalized vector representing the forward direction (Z axis) of the node in world space.
+         * !#zh 获取节点正前方（z 轴）所在方向，返回值为世界坐标系下的归一化向量
+         * 
+         * @method front
+         * @return {Vec2|Vec3}
+         */
+        front: {
+            get () {
+                this._front = Vec3.transformQuat(_fVec3, Vec3.FRONT, this.getWorldRotation(new Quat()));
+                return this._front;
+            },
+            set () {
+                //TODO: This function can receive a value to set node‘s direction.
+                return null;
             }
         },
     },
@@ -2997,39 +3054,6 @@ let NodeDefines = {
             curr = curr._parent;
         }
         return out;
-    },
-
-    /**
-     * !#en Get the node vector of the nodes that are converted to the up direction.
-     * !#zh 获取转换到正上方的节点向量
-     * 
-     * @method up
-     * @return {Vec3}
-     */
-    up () {
-        return Vec3.transformQuat(_uVec3, Vec3.UP, this.getWorldRotation(new Quat()));
-    },
-
-    /**
-     * !#en Get the node vector of the nodes that are converted to the right direction.
-     * !#zh 获取转换到正右方的节点向量
-     * 
-     * @method right
-     * @return {Vec3}
-     */
-    right () {
-        return Vec3.transformQuat(_rVec3, Vec3.RIGHT, this.getWorldRotation(new Quat()));
-    },
-
-    /**
-     * !#en Get the node vector of the nodes that are converted to the forward direction.
-     * !#zh 获取转换到正前方的节点向量
-     * 
-     * @method forward
-     * @return {Vec3}
-     */
-    forward () {
-        return Vec3.transformQuat(_fVec3, Vec3.FRONT, this.getWorldRotation(new Quat()));
     },
 
     /*
