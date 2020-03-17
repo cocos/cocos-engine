@@ -29,16 +29,16 @@
 
 import { EventArgumentsOf, EventCallbackOf } from '../event/defines';
 import { Node } from '../scene-graph/node';
-import { AnimationBlendState, PropertyBlendState } from './animation-blend-state';
 import { AnimationClip, IRuntimeCurve } from './animation-clip';
 import { AnimationComponent } from './animation-component';
 import { AnimCurve, RatioSampler } from './animation-curve';
-import { BlendFunction, additive3D, additiveQuat } from './blending';
-import { IBoundTarget, IBufferedTarget, createBoundTarget, createBufferedTarget } from './bound-target';
+import { createBoundTarget, createBufferedTarget, IBufferedTarget, IBoundTarget } from './bound-target';
 import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
 import { error } from '../platform/debug';
 import { EDITOR } from 'internal:constants';
+import { HierarchyPath, TargetPath, evaluatePath } from './target-path';
+import { BlendStateBuffer, createBlendStateWriter, IBlendStateWriter } from './skeletal-animation-blending';
 
 enum PropertySpecialization {
     NodePosition,
@@ -54,57 +54,18 @@ export class ICurveInstance {
     private _boundTarget: IBoundTarget;
     private _rootTarget: any;
     private _rootTargetProperty?: string;
-    private _isNodeTarget: boolean;
-    private _propertySpecialization: PropertySpecialization;
-    private _blendTarget: PropertyBlendState | null;
-    private _blendFunction: BlendFunction<any> | null;
     private _cached?: any[];
     private _curveDetail: Omit<IRuntimeCurve, 'sampler'>;
 
     constructor (
         runtimeCurve: Omit<IRuntimeCurve, 'sampler'>,
         target: any,
-        boundTarget: IBoundTarget,
-        blendTarget: PropertyBlendState | null = null) {
+        boundTarget: IBoundTarget) {
         this._curve = runtimeCurve.curve;
         this._curveDetail = runtimeCurve;
 
         this._boundTarget = boundTarget;
         this._rootTarget = target;
-        this._isNodeTarget = target instanceof Node;
-        this._propertySpecialization = PropertySpecialization.None;
-        this._blendFunction = null;
-        if (this._isNodeTarget && Array.isArray(runtimeCurve.modifiers) && runtimeCurve.modifiers.length === 1) {
-            switch (runtimeCurve.modifiers[0]) {
-                case 'position':
-                    this._propertySpecialization = PropertySpecialization.NodePosition;
-                    this._blendFunction = additive3D;
-                    break;
-                case 'rotation':
-                    this._propertySpecialization = PropertySpecialization.NodeRotation;
-                    this._blendFunction = additiveQuat;
-                    break;
-                case 'scale':
-                    this._propertySpecialization = PropertySpecialization.NodeScale;
-                    this._blendFunction = additive3D;
-                    break;
-            }
-        }
-        this._blendTarget = blendTarget;
-    }
-
-    public attachToBlendState (blendState: AnimationBlendState) {
-        if (this._rootTargetProperty) {
-            this._blendTarget = blendState.refPropertyBlendTarget(
-                this._rootTarget, this._rootTargetProperty);
-        }
-    }
-
-    public detachFromBlendState (blendState: AnimationBlendState) {
-        if (this._rootTargetProperty) {
-            this._blendTarget = null;
-            blendState.deRefPropertyBlendTarget(this._rootTarget, this._rootTargetProperty);
-        }
     }
 
     public applySample (ratio: number, index: number, lerpRequired: boolean, samplerResultCache, weight: number) {
@@ -126,25 +87,7 @@ export class ICurveInstance {
     }
 
     private _setValue (value: any, weight: number) {
-        if (!this._blendFunction || !this._blendTarget || this._blendTarget.refCount <= 1) {
-            switch (this._propertySpecialization) {
-                case PropertySpecialization.NodePosition:
-                    this._rootTarget.setPosition(value);
-                    break;
-                case PropertySpecialization.NodeRotation:
-                    this._rootTarget.setRotation(value);
-                    break;
-                case PropertySpecialization.NodeScale:
-                    this._rootTarget.setScale(value);
-                    break;
-                default:
-                    this._boundTarget.setValue(value);
-                    break;
-            }
-        } else {
-            this._blendTarget.value = this._blendFunction(value, weight, this._blendTarget);
-            this._blendTarget.weight += weight;
-        }
+        this._boundTarget.setValue(value);
     }
 
     get propertyName () { return this._rootTargetProperty || ''; }
@@ -367,6 +310,8 @@ export class AnimationState extends Playable {
     }> = [];
     protected _curveLoaded = false;
     protected _ignoreIndex = InvalidIndex;
+    private _blendStateBuffer: BlendStateBuffer | null = null;
+    private _blendStateWriters: IBlendStateWriter[] = [];
 
     constructor (clip: AnimationClip, name = '') {
         super();
@@ -382,6 +327,8 @@ export class AnimationState extends Playable {
         if (this._curveLoaded) { return; }
         this._curveLoaded = true;
         this._samplerSharedGroups.length = 0;
+        this._blendStateBuffer = cc.director.getAnimationManager()?.blendState ?? null;
+        this._blendStateWriters.length = 0;
         this._targetNode = root;
         const clip = this._clip;
 
@@ -430,7 +377,24 @@ export class AnimationState extends Playable {
                 rootTarget = commonTargetStatus.target.peek();
             }
 
-            const boundTarget = createBoundTarget(rootTarget, propertyCurve.modifiers, propertyCurve.valueAdapter);
+            let boundTarget: IBoundTarget | null = null;
+            if (!isSkeletonCurve(propertyCurve) || !this._blendStateBuffer) {
+                boundTarget = createBoundTarget(rootTarget, propertyCurve.modifiers, propertyCurve.valueAdapter);
+            } else {
+                const targetNode = evaluatePath(rootTarget, ...propertyCurve.modifiers.slice(0, propertyCurve.modifiers.length - 1));
+                if (targetNode !== null && targetNode instanceof Node) {
+                    const propertyName = propertyCurve.modifiers[propertyCurve.modifiers.length - 1] as 'position' | 'rotation' | 'scale';
+                    const blendStateWriter = createBlendStateWriter(
+                        this._blendStateBuffer,
+                        targetNode,
+                        propertyName,
+                        this,
+                    );
+                    this._blendStateWriters.push(blendStateWriter);
+                    boundTarget = createBoundTarget(rootTarget, [], blendStateWriter);
+                }
+            }
+
             if (boundTarget === null) {
                 // warn(`Failed to bind "${root.name}" to curve in clip ${clip.name}: ${err}`);
             } else {
@@ -689,22 +653,6 @@ export class AnimationState extends Playable {
         }
     }
 
-    public attachToBlendState (blendState: AnimationBlendState) {
-        for (const samplerSharedGroup of this._samplerSharedGroups) {
-            for (const curveInstance of samplerSharedGroup.curves) {
-                curveInstance.attachToBlendState(blendState);
-            }
-        }
-    }
-
-    public detachFromBlendState (blendState: AnimationBlendState) {
-        for (const samplerSharedGroup of this._samplerSharedGroups) {
-            for (const curveInstance of samplerSharedGroup.curves) {
-                curveInstance.detachFromBlendState(blendState);
-            }
-        }
-    }
-
     public cache (frames: number) {
     }
 
@@ -714,6 +662,9 @@ export class AnimationState extends Playable {
         this._delayTime = this._delay;
 
         cc.director.getAnimationManager().addAnimation(this);
+        for (let iBlendStateWriter = 0; iBlendStateWriter < this._blendStateWriters.length; ++iBlendStateWriter) {
+            this._blendStateWriters[iBlendStateWriter].start();
+        }
 
         this.emit('play', this);
     }
@@ -721,6 +672,9 @@ export class AnimationState extends Playable {
     protected onStop () {
         if (!this.isPaused) {
             cc.director.getAnimationManager().removeAnimation(this);
+            for (let iBlendStateWriter = 0; iBlendStateWriter < this._blendStateWriters.length; ++iBlendStateWriter) {
+                this._blendStateWriters[iBlendStateWriter].stop();
+            }
         }
 
         this.emit('stop', this);
@@ -894,6 +848,28 @@ export class AnimationState extends Playable {
                 }
             }
         }
+    }
+}
+
+function isSkeletonCurve (curve: IRuntimeCurve) {
+    let prs: string | undefined;
+    if (curve.modifiers.length === 1 && typeof curve.modifiers[0] === 'string') {
+        prs = curve.modifiers[0];
+    } else if (curve.modifiers.length > 1) {
+        for (let i = 0; i < curve.modifiers.length - 1; ++i) {
+            if (!(curve.modifiers[i] instanceof HierarchyPath)) {
+                return false;
+            }
+        }
+        prs = curve.modifiers[curve.modifiers.length - 1] as string;
+    }
+    switch (prs) {
+        case 'position':
+        case 'scale':
+        case 'rotation':
+            return true;
+        default:
+            return false;
     }
 }
 
