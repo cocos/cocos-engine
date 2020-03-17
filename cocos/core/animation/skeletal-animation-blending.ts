@@ -38,7 +38,7 @@ export class BlendState {
             return;
         }
         delete nodeBlendState.properties[property];
-        if (Object.keys(nodeBlendState.properties).length === 0) {
+        if (isEmptyNodeBlendState(nodeBlendState)) {
             this._nodeBlendStates.delete(node);
         }
     }
@@ -119,6 +119,13 @@ interface NodeBlendState {
         rotation?: PropertyBlendState<Quat>;
         scale?: PropertyBlendState<Vec3>;
     };
+}
+
+function isEmptyNodeBlendState (nodeBlendState: NodeBlendState) {
+    // Which is equal to `Object.keys(nodeBlendState.properties).length === 0`.
+    return !nodeBlendState.properties.position &&
+        !nodeBlendState.properties.rotation &&
+        !nodeBlendState.properties.scale;
 }
 
 /**
