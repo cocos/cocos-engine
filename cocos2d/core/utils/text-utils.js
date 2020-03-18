@@ -247,9 +247,14 @@ var textUtils = {
             }
 
             fuzzyLen -= pushNum;
+            // in case maxWidth cannot contain any characters, need at least one character per line
             if (fuzzyLen === 0) {
                 fuzzyLen = 1;
-                sLine = this._safeSubstring(sLine, 1);
+                sLine = this._safeSubstring(text, 1);
+            }
+            else if (fuzzyLen === 1 && this.highSurrogateRex.test(text[0])) {
+                fuzzyLen = 2;
+                sLine = this._safeSubstring(text, 2);
             }
 
             var sText = this._safeSubstring(text, 0, fuzzyLen), result;
