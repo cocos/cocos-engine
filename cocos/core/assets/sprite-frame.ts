@@ -367,6 +367,7 @@ export class SpriteFrame extends Asset {
             return;
         }
         this._texture = value;
+        this.reset({ texture: value }, true);
     }
 
     get atlasUuid () {
@@ -576,7 +577,6 @@ export class SpriteFrame extends Asset {
      * 重置 SpriteFrame 数据。
      * @param info SpriteFrame 初始化数据。
      */
-    // todo 接口是否移除
     public reset (info?: ISpriteFrameInitInfo, clearData = false) {
         let calUV = false;
         if (clearData){
@@ -640,7 +640,7 @@ export class SpriteFrame extends Asset {
             calUV = true;
         }
 
-        if (calUV){
+        if (calUV && this.texture){
             this._calculateUV();
         }
     }
@@ -682,7 +682,6 @@ export class SpriteFrame extends Asset {
     }
 
     public destroy (){
-        // TODO 依赖资源的处理
         return super.destroy();
     }
 
