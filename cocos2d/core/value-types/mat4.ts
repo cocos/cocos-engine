@@ -405,7 +405,7 @@ export default class Mat4 extends ValueType {
         if (a === out) {
             m[12] += v.x;
             m[13] += v.y;
-            m[14] += v.y;
+            m[14] += v.z;
         } else {
             m[0] = am[0]; m[1] = am[1]; m[2] = am[2]; m[3] = am[3];
             m[4] = am[4]; m[5] = am[5]; m[6] = am[6]; m[7] = am[7];
