@@ -272,7 +272,7 @@ let Mesh = cc.Class({
         let elNum = el.num;
         let verticesCount = isFlatMode ? ((values.length / elNum) | 0) : values.length;
         if (subData.vData.byteLength < verticesCount * el.stride) {
-            subData.vData = new Uint8Array(verticesCount * subData.vfm._bytes);
+            subData.setVData(new Uint8Array(verticesCount * subData.vfm._bytes));
         }
 
         let data;
