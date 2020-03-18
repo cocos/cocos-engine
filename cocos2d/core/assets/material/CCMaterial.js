@@ -159,7 +159,7 @@ let Material = cc.Class({
          * @static
          * @method createWithBuiltin
          * @param {string} effectName 
-         * @param {number} techniqueIndex 
+         * @param {number} [techniqueIndex] 
          * @return {Material}
          */
         createWithBuiltin (effectName, techniqueIndex = 0) {
@@ -242,8 +242,8 @@ let Material = cc.Class({
      * @method define
      * @param {string} name
      * @param {boolean|number} val
-     * @param {number} passIdx
-     * @param {boolean} force
+     * @param {number} [passIdx]
+     * @param {boolean} [force]
      */
     define (name, val, passIdx, force) {
         if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS) return;
@@ -259,7 +259,8 @@ let Material = cc.Class({
      * !#zh 获取材质的宏定义。
      * @method getDefine
      * @param {string} name 
-     * @param {number} passIdx 
+     * @param {number} [passIdx] 
+     * @return {boolean|number}
      */
     getDefine (name, passIdx) {
         if (typeof passIdx === 'string') {
