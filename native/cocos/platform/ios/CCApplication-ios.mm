@@ -180,4 +180,9 @@ std::string Application::getSystemVersion()
     return [systemVersion UTF8String];
 }
 
+void Application::setPreferredFramesPerSecond(int fps)
+{
+    _fps = fps;
+}
+
 NS_CC_END
