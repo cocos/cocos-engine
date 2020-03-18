@@ -1,7 +1,5 @@
 /****************************************************************************
-Copyright (c) 2010-2012 cocos2d-x.org
-Copyright (c) 2013-2016 Chukong Technologies Inc.
-Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+Copyright (c) 2020 cocos.com Xiamen Yaji Software Co., Ltd.
 
 http://www.cocos2d-x.org
 
@@ -23,55 +21,61 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-#ifndef __CCPLATFORMDEFINE_H__
-#define __CCPLATFORMDEFINE_H__
+#pragma once
 
 #include "platform/CCPlatformConfig.h"
+
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
 
-#ifdef __MINGW32__
-#include <string.h>
-#endif
+	#define WIN32_LEAN_AND_MEAN
+	#include <Windows.h>
 
-#if defined(CC_STATIC)
-    #define CC_DLL
+	#if _MSC_VER < 1800
+	#if !defined(isnan)
+	    #define isnan   _isnan
+	#endif
+	#endif
+
+	#include <math.h>
+	#include <string.h>
+	#include <stdarg.h>
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include <time.h>
+
+	#if _MSC_VER >= 1600
+	    #include <stdint.h>
+	#else
+	    #include "platform/win32/compat/stdint.h"
+	#endif
+
+	// Conflicted with ParticleSystem::PositionType::RELATIVE, so we need to undef it.
+	#ifdef RELATIVE
+	#undef RELATIVE
+	#endif
+
+	// Conflicted with CCBReader::SizeType::RELATIVE and CCBReader::ScaleType::RELATIVE, so we need to undef it.
+	#ifdef ABSOLUTE
+	#undef ABSOLUTE
+	#endif
+
+	// Conflicted with HttpRequest::Type::DELETE, so we need to undef it.
+	#ifdef DELETE
+	#undef DELETE
+	#endif
+
+	#undef min
+	#undef max
 #else
-#if defined(_USRDLL)
-    #define CC_DLL     __declspec(dllexport)
-#else         /* use a DLL library */
-    #define CC_DLL     __declspec(dllimport)
-#endif
-#endif
 
-#include <assert.h>
+	#include <float.h>
+	#include <math.h>
+	#include <string.h>
+	#include <stdarg.h>
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include <time.h>
+	#include <sys/time.h>
+	#include <stdint.h>
 
-#if CC_DISABLE_ASSERT > 0
-#define CC_ASSERT(cond)
-#else
-#define CC_ASSERT(cond)    assert(cond)
-#endif
-#define CC_UNUSED_PARAM(unusedparam) (void)unusedparam
-
-/* Define NULL pointer value */
-#ifndef NULL
-#ifdef __cplusplus
-#define NULL    0
-#else
-#define NULL    ((void *)0)
-#endif
-#endif
-
-#if _MSC_VER > 1800
-#pragma comment(lib,"libpng-2015.lib")
-#pragma comment(lib,"libjpeg-2015.lib")
-#pragma comment(lib,"libtiff-2015.lib")
-#else
-#pragma comment(lib,"libpng.lib")
-#pragma comment(lib,"libjpeg.lib")
-#pragma comment(lib,"libtiff.lib")
-#endif
-
-#endif //s CC_PLATFORM == CC_PLATFORM_WINDOWS
-
-#endif /* __CCPLATFORMDEFINE_H__*/
-
+#endif // CC_PLATFORM == CC_PLATFORM_WINDOWS

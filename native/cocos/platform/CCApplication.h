@@ -116,6 +116,11 @@ public:
     void setPreferredFramesPerSecond(int fps);
 
     /**
+     * @brief Get the preferred frame rate for main loop callback.
+     */
+    inline int getPreferredFramesPerSecond() const { return _fps; }
+
+    /**
      @brief Get current language config.
      @return Current language config.
      */

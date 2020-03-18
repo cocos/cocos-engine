@@ -1,9 +1,7 @@
 /****************************************************************************
-Copyright (c) 2010-2012 cocos2d-x.org
-Copyright (c) 2013-2016 Chukong Technologies Inc.
-Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+http://www.cocos.com
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,55 +21,52 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
-#ifndef __CCPLATFORMDEFINE_H__
-#define __CCPLATFORMDEFINE_H__
 
-#include "platform/CCPlatformConfig.h"
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+#pragma once
 
-#ifdef __MINGW32__
-#include <string.h>
-#endif
 
-#if defined(CC_STATIC)
-    #define CC_DLL
-#else
-#if defined(_USRDLL)
-    #define CC_DLL     __declspec(dllexport)
-#else         /* use a DLL library */
-    #define CC_DLL     __declspec(dllimport)
-#endif
-#endif
-
+#include "base/ccMacros.h"
+#include "platform/CCStdC.h"
+#include <Windows.h>
+#include <string>
+#include <array>
 #include <assert.h>
 
-#if CC_DISABLE_ASSERT > 0
-#define CC_ASSERT(cond)
-#else
-#define CC_ASSERT(cond)    assert(cond)
-#endif
-#define CC_UNUSED_PARAM(unusedparam) (void)unusedparam
+// SDL headers
+#include "sdl2/SDL_main.h"
+#include "sdl2/SDL.h"
+#include "sdl2/SDL_syswm.h"
+#include "sdl2/SDL_opengl.h"
 
-/* Define NULL pointer value */
-#ifndef NULL
-#ifdef __cplusplus
-#define NULL    0
-#else
-#define NULL    ((void *)0)
-#endif
-#endif
+#include "scripting/js-bindings/event/EventDispatcher.h"
 
-#if _MSC_VER > 1800
-#pragma comment(lib,"libpng-2015.lib")
-#pragma comment(lib,"libjpeg-2015.lib")
-#pragma comment(lib,"libtiff-2015.lib")
-#else
-#pragma comment(lib,"libpng.lib")
-#pragma comment(lib,"libjpeg.lib")
-#pragma comment(lib,"libtiff.lib")
-#endif
+class Game;
 
-#endif //s CC_PLATFORM == CC_PLATFORM_WINDOWS
+class View {
+public:
+    View(const std::string &title, int width, int height);
+    virtual ~View();
+    
+    bool init();
 
-#endif /* __CCPLATFORMDEFINE_H__*/
+    bool pollEvent( bool* quit, Game *);
+
+    std::array<int, 2> getViewSize() const { return std::array<int, 2>{_width, _height}; }
+
+    HWND getWindowHandler();
+
+    void swapbuffer() { SDL_GL_SwapWindow(_window); }
+    
+    void setCursorEnabeld(bool);
+
+private:
+    std::string _title;
+    int _width = 0;
+    int _height = 0;
+    bool _inited = false;
+
+    SDL_Window* _window = nullptr;
+    SDL_Event sdlEvent;
+
+};
 

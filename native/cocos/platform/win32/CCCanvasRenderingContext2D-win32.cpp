@@ -1,14 +1,17 @@
 #include "platform/CCCanvasRenderingContext2D.h"
-#include "base/ccTypes.h"
+#include <stdint.h>
 #include "base/csscolorparser.hpp"
-
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/manual/jsb_platform.h"
-
 #include "platform/CCFileUtils.h"
 #include <regex>
+#include <array>
+#include <Windows.h>
 
-using namespace cocos2d;
+typedef std::array<float, 2> Point;
+typedef std::array<float, 2> Vec2;
+typedef std::array<float, 2> Size;
+typedef std::array<float, 4> Color4F;
 
 enum class CanvasTextAlign {
     LEFT,
@@ -154,10 +157,10 @@ public:
         uint8_t* buffer = _imageData.getBytes();
         if (buffer)
         {
-            uint8_t r = _fillStyle.r * 255.0f;
-            uint8_t g = _fillStyle.g * 255.0f;
-            uint8_t b = _fillStyle.b * 255.0f;
-            uint8_t a = _fillStyle.a * 255.0f;
+            uint8_t r = _fillStyle[0] * 255.0f;
+            uint8_t g = _fillStyle[1] * 255.0f;
+            uint8_t b = _fillStyle[2] * 255.0f;
+            uint8_t a = _fillStyle[3] * 255.0f;
             fillRectWithColor(buffer, (uint32_t)_bufferWidth, (uint32_t)_bufferHeight, (uint32_t)x, (uint32_t)y, (uint32_t)w, (uint32_t)h, r, g, b, a);
         }
     }
@@ -168,9 +171,9 @@ public:
             return;
 
         SIZE textSize = { 0, 0 };
-        Point offsetPoint = _convertDrawPoint(Point(x, y), text);
+        Point offsetPoint = _convertDrawPoint(Point{ x, y }, text);
 
-        _drawText(text, (int)offsetPoint.x, (int)offsetPoint.y);
+        _drawText(text, (int)offsetPoint[0], (int)offsetPoint[1]);
         _fillTextureData();
 
     }
@@ -182,17 +185,17 @@ public:
         // REFINE
     }
 
-    cocos2d::Size measureText(const std::string& text)
+    Size measureText(const std::string& text)
     {
         if (text.empty())
-            return Size(0.0f, 0.0f);
+            return std::array<float, 2> {0.0f, 0.0f};
 
         int bufferLen = 0;
         wchar_t * pwszBuffer = _utf8ToUtf16(text, &bufferLen);
-        SIZE size = _sizeWithText(pwszBuffer, bufferLen);
+        Size size = _sizeWithText(pwszBuffer, bufferLen);
         //SE_LOGD("CanvasRenderingContext2DImpl::measureText: %s, %d, %d\n", text.c_str(), size.cx, size.cy);
         CC_SAFE_DELETE_ARRAY(pwszBuffer);
-        return Size(size.cx, size.cy);
+        return size;
     }
 
     void updateFont(const std::string& fontName, float fontSize, bool bold = false)
@@ -296,18 +299,12 @@ public:
 
     void setFillStyle(float r, float g, float b, float a)
     {
-        _fillStyle.r = r;
-        _fillStyle.g = g;
-        _fillStyle.b = b;
-        _fillStyle.a = a;
+        _fillStyle = { r, g, b, a };
     }
 
     void setStrokeStyle(float r, float g, float b, float a)
     {
-        _strokeStyle.r = r;
-        _strokeStyle.g = g;
-        _strokeStyle.b = b;
-        _strokeStyle.a = a;
+        _strokeStyle = { r, g, b, a };
     }
 
     void setLineWidth(float lineWidth)
@@ -315,7 +312,7 @@ public:
         _lineWidth = lineWidth;
     }
 
-    const Data& getDataRef() const
+    const cocos2d::Data& getDataRef() const
     {
         return _imageData;
     }
@@ -324,7 +321,7 @@ public:
     HBITMAP _bmp;
 private:
 
-    Data _imageData;
+    cocos2d::Data _imageData;
     HFONT   _font;
     HWND    _wnd;
     HPEN _hpen;
@@ -337,11 +334,11 @@ private:
 
     std::string _fontName;
     int _fontSize;
-    SIZE _textSize;
+    Size _textSize;
     CanvasTextAlign _textAlign;
     CanvasTextBaseline _textBaseLine;
-    cocos2d::Color4F _fillStyle;
-    cocos2d::Color4F _strokeStyle;
+    Color4F _fillStyle;
+    Color4F _strokeStyle;
 
     TEXTMETRIC _tm;
 
@@ -407,14 +404,14 @@ private:
             int bufferLen = 0;
             pwszBuffer = _utf8ToUtf16(text, &bufferLen);
 
-            SIZE newSize = _sizeWithText(pwszBuffer, bufferLen);
+            Size newSize = _sizeWithText(pwszBuffer, bufferLen);
 
             _textSize = newSize;
 
             RECT rcText = { 0 };
 
-            rcText.right = newSize.cx;
-            rcText.bottom = newSize.cy;
+            rcText.right = newSize[0];
+            rcText.bottom = newSize[1];
 
             LONG offsetX = x;
             LONG offsetY = y;
@@ -436,9 +433,9 @@ private:
         return nRet;
     }
 
-    SIZE _sizeWithText(const wchar_t * pszText, int nLen)
+    Size _sizeWithText(const wchar_t * pszText, int nLen)
     {
-        SIZE tRet = { 0 };
+        Size tRet{ 0, 0 };
         do
         {
             CC_BREAK_IF(!pszText || nLen <= 0);
@@ -449,8 +446,8 @@ private:
             // measure text size
             DrawTextW(_DC, pszText, nLen, &rc, dwCalcFmt);
 
-            tRet.cx = rc.right;
-            tRet.cy = rc.bottom;
+            tRet[0] = rc.right;
+            tRet[1] = rc.bottom;
         } while (0);
 
         return tRet;
@@ -501,9 +498,9 @@ private:
             GetDIBits(_DC, _bmp, 0, _bufferHeight, dataBuf,
                       (LPBITMAPINFO)&bi, DIB_RGB_COLORS);
 
-            uint8_t r = _fillStyle.r * 255;
-            uint8_t g = _fillStyle.g * 255;
-            uint8_t b = _fillStyle.b * 255;
+            uint8_t r = _fillStyle[0] * 255;
+            uint8_t g = _fillStyle[1] * 255;
+            uint8_t b = _fillStyle[2] * 255;
             COLORREF textColor = (b << 16 | g << 8 | r) & 0x00ffffff;
             COLORREF * pPixel = nullptr;
             COLORREF * pImage = nullptr;
@@ -519,42 +516,39 @@ private:
                     // so the red value is equal to alpha value. And we should keep this value
                     // as it includes anti-atlas information.
                     uint8_t alpha = GetRValue(clr);
-
                     val = (alpha << 24) | textColor;
-
                     ++pPixel;
                     ++pImage;
                 }
             }
-
             free(dataBuf);
         } while (0);
     }
 
-    Point _convertDrawPoint(Point point, std::string text) {
+    std::array<float,2> _convertDrawPoint(Point point, std::string text) {
         Size textSize = measureText(text);
         if (_textAlign == CanvasTextAlign::CENTER)
         {
-            point.x -= textSize.width / 2.0f;
+            point[0] -= textSize[0] / 2.0f;
         }
         else if (_textAlign == CanvasTextAlign::RIGHT)
         {
-            point.x -= textSize.width;
+            point[0] -= textSize[0];
         }
 
         if (_textBaseLine == CanvasTextBaseline::TOP)
         {
             // DrawText default
             GetTextMetrics(_DC, &_tm);
-            point.y += -_tm.tmInternalLeading;
+            point[1] += -_tm.tmInternalLeading;
         }
         else if (_textBaseLine == CanvasTextBaseline::MIDDLE)
         {
-            point.y += -textSize.height / 2.0f;
+            point[1] += -textSize[1] / 2.0f;
         }
         else if (_textBaseLine == CanvasTextBaseline::BOTTOM)
         {
-            point.y += -textSize.height;
+            point[1] += -textSize[1];
         }
 
         return point;
@@ -651,7 +645,8 @@ void CanvasRenderingContext2D::strokeText(const std::string& text, float x, floa
 cocos2d::Size CanvasRenderingContext2D::measureText(const std::string& text)
 {
     //SE_LOGD("CanvasRenderingContext2D::measureText: %s\n", text.c_str());
-    return _impl->measureText(text);
+    auto s =_impl->measureText(text);
+    return cocos2d::Size(s[0], s[1]);
 }
 
 CanvasGradient* CanvasRenderingContext2D::createLinearGradient(float x0, float y0, float x1, float y1)

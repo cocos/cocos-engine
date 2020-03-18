@@ -78,9 +78,6 @@ THE SOFTWARE.
 #include "platform/CCSAXParser.h"
 #include "platform/CCCanvasRenderingContext2D.h"
 
-#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-    #include "platform/win32/CCStdC-win32.h"
-#endif // CC_PLATFORM == CC_PLATFORM_WINDOWS
 
 NS_CC_BEGIN
 

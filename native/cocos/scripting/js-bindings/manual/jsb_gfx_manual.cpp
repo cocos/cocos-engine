@@ -5,6 +5,9 @@
 #include "scripting/js-bindings/auto/jsb_gfx_auto.hpp"
 #include "renderer/gfx-gles2/GFXGLES2.h"
 
+#include <fstream>
+#include <sstream>
+
 #define GFX_MAX_VERTEX_ATTRIBUTES 16
 #define GFX_MAX_TEXTURE_UNITS 16
 #define GFX_MAX_ATTACHMENTS 4

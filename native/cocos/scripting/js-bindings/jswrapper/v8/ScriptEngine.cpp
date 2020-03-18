@@ -90,7 +90,7 @@ namespace se {
                     funcName = *v8::String::Utf8Value(v8::Isolate::GetCurrent(), func);
                 }
 
-                stackStr += "[";
+                stackStr += " - [";
                 snprintf(tmp, sizeof(tmp), "%d", i);
                 stackStr += tmp;
                 stackStr += "]";

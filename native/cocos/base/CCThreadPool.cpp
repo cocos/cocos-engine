@@ -26,7 +26,7 @@
  ****************************************************************************/
 
 #include "base/CCThreadPool.h"
-
+#include "platform/CCStdC.h"
 
 #ifdef __ANDROID__
 #include <android/log.h>

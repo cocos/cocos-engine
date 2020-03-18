@@ -555,6 +555,7 @@ void GLES2CmdFuncResizeBuffer(GLES2Device* device, GLES2GPUBuffer* gpuBuffer) {
 }
 
 void GLES2CmdFuncUpdateBuffer(GLES2Device* device, GLES2GPUBuffer* gpuBuffer, void* buffer, uint offset, uint size) {
+  CCASSERT(buffer, "Buffer should not be nullptr");
   if (gpuBuffer->usage & GFXBufferUsageBit::UNIFORM) {
     memcpy(gpuBuffer->buffer + offset, buffer, size);
   } else if (gpuBuffer->usage & GFXBufferUsageBit::INDIRECT) {

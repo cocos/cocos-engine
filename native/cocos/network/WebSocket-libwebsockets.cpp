@@ -45,6 +45,7 @@
 #include "base/CCScheduler.h"
 #include "platform/CCFileUtils.h"
 #include "platform/CCApplication.h"
+#include "platform/CCStdC.h"
 
 #define NS_NETWORK_BEGIN namespace cocos2d { namespace network {
 #define NS_NETWORK_END }}

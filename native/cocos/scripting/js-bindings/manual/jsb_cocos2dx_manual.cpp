@@ -538,7 +538,7 @@ bool register_all_cocos2dx_manual(se::Object* obj)
 {
     register_plist_parser(obj);
     register_sys_localStorage(obj);
-//    register_device(obj);
+    //register_device(obj);
     register_canvas_context2d(obj);
     return true;
 }

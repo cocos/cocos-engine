@@ -28,6 +28,10 @@ THE SOFTWARE.
 #include <assert.h>
 #include "base/CCData.h"
 #include "base/ccConfig.h" // CC_USE_JPEG, CC_USE_WEBP
+#if CC_USE_JPEG
+#include "jpeg/jpeglib.h"
+#endif // CC_USE_JPEG
+
 #include "base/ccUtils.h"
 #include "renderer/core/Core.h"
 
@@ -58,9 +62,6 @@ extern "C"
 #include "png/png.h"
 #endif //CC_USE_PNG
 
-#if CC_USE_JPEG
-#include "jpeg/jpeglib.h"
-#endif // CC_USE_JPEG
 
 #include "base/etc1.h"
 #include "base/etc2.h"

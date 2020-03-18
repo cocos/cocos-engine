@@ -39,6 +39,8 @@ bool GLES2Buffer::initialize(const GFXBufferInfo& info) {
   GLES2CmdFuncCreateBuffer((GLES2Device*)_device, _gpuBuffer);
   _device->getMemoryStatus().bufferSize += _size;
   
+  _status = GFXStatus::SUCCESS;
+
   return true;
 }
 
@@ -55,6 +57,8 @@ void GLES2Buffer::destroy() {
     _device->getMemoryStatus().bufferSize -= _size;
     _buffer = nullptr;
   }
+
+  _status = GFXStatus::UNREADY;
 }
 
 void GLES2Buffer::resize(uint size) {
@@ -82,6 +86,8 @@ void GLES2Buffer::resize(uint size) {
 }
 
 void GLES2Buffer::update(void* buffer, uint offset, uint size) {
+  CCASSERT(size != 0, "Should not update buffer with 0 bytes of data");
+  CCASSERT(buffer, "Buffer should not be nullptr");
   if (_buffer) {
     memcpy(_buffer + offset, buffer, size);
   }

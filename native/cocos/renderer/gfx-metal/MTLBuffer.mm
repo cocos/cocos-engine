@@ -82,7 +82,7 @@ bool CCMTLBuffer::initialize(const GFXBufferInfo& info)
         else
             _device->getMemoryStatus().bufferSize += _size;
     }
-    
+    _status = GFXStatus::SUCCESS;
     return true;
 }
 
@@ -107,6 +107,7 @@ void CCMTLBuffer::destroy()
         _device->getMemoryStatus().bufferSize -= _size;
         _buffer = nullptr;
     }
+    _status = GFXStatus::UNREADY;
 }
 
 void CCMTLBuffer::resize(uint size)

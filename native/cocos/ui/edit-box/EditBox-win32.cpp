@@ -23,7 +23,6 @@
  ****************************************************************************/
 #include "EditBox.h"
 #include "platform/CCApplication.h"
-#include "platform/desktop/CCGLView-desktop.h"
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
 #include <windows.h>
@@ -37,21 +36,18 @@ NS_CC_BEGIN
  Global variables and functions.
 ************************************************************************/
 
+extern HWND cc_get_application_window();
+
+
 namespace
 {
     HWND g_hwndEditBox = nullptr;
     WNDPROC g_prevMainWindowProc = nullptr;
     se::Value g_textInputCallback;
 
-    HWND getCocosWindow()
+     int getCocosWindowHeight()
     {
-        auto glfwWindow = ((GLView*)Application::getInstance()->getView())->getGLFWWindow();
-        return glfwGetWin32Window(glfwWindow);
-    }
-
-    int getCocosWindowHeight()
-    {
-        HWND parent = getCocosWindow();
+        HWND parent = cc_get_application_window();
         RECT rect;
         GetClientRect(parent, &rect);
         return (rect.bottom - rect.top);
@@ -116,7 +112,7 @@ namespace
           case WM_LBUTTONDOWN:
               EditBox::complete();
               EditBox::hide();
-              SetFocus(getCocosWindow());
+              SetFocus(cc_get_application_window());
               break;
           case WM_COMMAND:
               if (EN_CHANGE == HIWORD(wParam))
@@ -139,7 +135,7 @@ void EditBox::show(const EditBox::ShowInfo& showInfo)
     int windowHeight = getCocosWindowHeight();
     if (! g_hwndEditBox)
     {
-        HWND parent = getCocosWindow();
+        HWND parent = cc_get_application_window();
         g_prevMainWindowProc = (WNDPROC)SetWindowLongPtr(parent, GWL_WNDPROC, (LONG_PTR)mainWindowProc);
 
         UINT32 flags = WS_CHILD | ES_LEFT | WS_TABSTOP | ES_AUTOHSCROLL;
@@ -197,7 +193,7 @@ void EditBox::hide()
     DestroyWindow(g_hwndEditBox);
     g_hwndEditBox = nullptr;
 
-    SetWindowLongPtr(getCocosWindow(), GWL_WNDPROC, (LONG_PTR)g_prevMainWindowProc);
+    SetWindowLongPtr(cc_get_application_window(), GWL_WNDPROC, (LONG_PTR)g_prevMainWindowProc);
 }
 
 void EditBox::complete()

@@ -1047,8 +1047,8 @@ static bool JSB_setPreferredFramesPerSecond(se::State& s)
         int32_t fps;
         ok = seval_to_int32(args[0], &fps);
         SE_PRECONDITION2(ok, false, "fps is invalid!");
-        cocos2d::log("EMPTY IMPLEMENTATION OF jsb.setPreferredFramesPerSecond");
-//        Application::getInstance()->setPreferredFramesPerSecond(fps);
+       // cocos2d::log("EMPTY IMPLEMENTATION OF jsb.setPreferredFramesPerSecond");
+        Application::getInstance()->setPreferredFramesPerSecond(fps);
         return true;
     }
 

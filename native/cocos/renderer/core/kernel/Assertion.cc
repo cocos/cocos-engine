@@ -3,6 +3,7 @@
 
 // Platform head file including
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
+#include <Windows.h>
 #	undef _T
 #	include <tchar.h>
 #define snprintf _snprintf_s

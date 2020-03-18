@@ -47,7 +47,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 #endif
 
     // create the application instance
-    AppDelegate app(960, 640);
+    AppDelegage app("Cocos3D Game", 960, 640);
     app.start();
 
 #ifdef USE_WIN32_CONSOLE

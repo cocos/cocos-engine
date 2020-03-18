@@ -76,7 +76,7 @@ public:
     void restore();
 
     // callback
-    using CanvasBufferUpdatedCallback = std::function<void(const Data&)>;
+    using CanvasBufferUpdatedCallback = std::function<void(const cocos2d::Data&) > ;
     void setCanvasBufferUpdatedCallback(const CanvasBufferUpdatedCallback& cb);
 
     // functions for properties

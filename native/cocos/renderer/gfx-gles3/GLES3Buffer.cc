@@ -38,7 +38,7 @@ bool GLES3Buffer::initialize(const GFXBufferInfo& info) {
   
   GLES3CmdFuncCreateBuffer((GLES3Device*)_device, _gpuBuffer);
   _device->getMemoryStatus().bufferSize += _size;
-  
+  _status = GFXStatus::SUCCESS;
   return true;
 }
 
@@ -55,6 +55,7 @@ void GLES3Buffer::destroy() {
     _device->getMemoryStatus().bufferSize -= _size;
     _buffer = nullptr;
   }
+  _status = GFXStatus::UNREADY;
 }
 
 void GLES3Buffer::resize(uint size) {

@@ -13639,24 +13639,6 @@ static bool js_gfx_GFXWindow_getDepthStencilTexture(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_GFXWindow_getDepthStencilTexture)
 
-static bool js_gfx_GFXWindow_getFramebuffer(se::State& s)
-{
-    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_getFramebuffer : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXFramebuffer* result = cobj->getFramebuffer();
-        ok &= native_ptr_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_getFramebuffer : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_GFXWindow_getFramebuffer)
-
 static bool js_gfx_GFXWindow_getLeft(se::State& s)
 {
     cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
@@ -13819,6 +13801,24 @@ static bool js_gfx_GFXWindow_isOffscreen(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_GFXWindow_isOffscreen)
 
+static bool js_gfx_GFXWindow_getFramebuffer(se::State& s)
+{
+    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_getFramebuffer : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cocos2d::GFXFramebuffer* result = cobj->getFramebuffer();
+        ok &= native_ptr_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_getFramebuffer : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_GFXWindow_getFramebuffer)
+
 static bool js_gfx_GFXWindow_getTitle(se::State& s)
 {
     cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
@@ -13978,6 +13978,7 @@ SE_BIND_CTOR(js_gfx_GFXWindow_constructor, __jsb_cocos2d_GFXWindow_class, js_coc
 
 
 
+extern se::Object* __jsb_cocos2d_GFXObject_proto;
 
 static bool js_cocos2d_GFXWindow_finalize(se::State& s)
 {
@@ -13995,7 +13996,7 @@ SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXWindow_finalize)
 
 bool js_register_gfx_GFXWindow(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXWindow", obj, nullptr, _SE(js_gfx_GFXWindow_constructor));
+    auto cls = se::Class::create("GFXWindow", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXWindow_constructor));
 
     cls->defineProperty("nativeHeight", _SE(js_gfx_GFXWindow_getNativeHeight), nullptr);
     cls->defineProperty("depthStencilTexView", _SE(js_gfx_GFXWindow_getDepthStencilTexView), nullptr);
@@ -14242,6 +14243,7 @@ SE_BIND_CTOR(js_gfx_GFXBuffer_constructor, __jsb_cocos2d_GFXBuffer_class, js_coc
 
 
 
+extern se::Object* __jsb_cocos2d_GFXObject_proto;
 
 static bool js_cocos2d_GFXBuffer_finalize(se::State& s)
 {
@@ -14259,7 +14261,7 @@ SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXBuffer_finalize)
 
 bool js_register_gfx_GFXBuffer(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXBuffer", obj, nullptr, _SE(js_gfx_GFXBuffer_constructor));
+    auto cls = se::Class::create("GFXBuffer", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXBuffer_constructor));
 
     cls->defineProperty("count", _SE(js_gfx_GFXBuffer_getCount), nullptr);
     cls->defineProperty("memUsage", _SE(js_gfx_GFXBuffer_getMemUsage), nullptr);
@@ -14571,6 +14573,7 @@ SE_BIND_CTOR(js_gfx_GFXTexture_constructor, __jsb_cocos2d_GFXTexture_class, js_c
 
 
 
+extern se::Object* __jsb_cocos2d_GFXObject_proto;
 
 static bool js_cocos2d_GFXTexture_finalize(se::State& s)
 {
@@ -14588,7 +14591,7 @@ SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXTexture_finalize)
 
 bool js_register_gfx_GFXTexture(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXTexture", obj, nullptr, _SE(js_gfx_GFXTexture_constructor));
+    auto cls = se::Class::create("GFXTexture", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXTexture_constructor));
 
     cls->defineProperty("arrayLayer", _SE(js_gfx_GFXTexture_getArrayLayer), nullptr);
     cls->defineProperty("format", _SE(js_gfx_GFXTexture_getFormat), nullptr);
@@ -14811,6 +14814,7 @@ SE_BIND_CTOR(js_gfx_GFXTextureView_constructor, __jsb_cocos2d_GFXTextureView_cla
 
 
 
+extern se::Object* __jsb_cocos2d_GFXObject_proto;
 
 static bool js_cocos2d_GFXTextureView_finalize(se::State& s)
 {
@@ -14828,7 +14832,7 @@ SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXTextureView_finalize)
 
 bool js_register_gfx_GFXTextureView(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXTextureView", obj, nullptr, _SE(js_gfx_GFXTextureView_constructor));
+    auto cls = se::Class::create("GFXTextureView", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXTextureView_constructor));
 
     cls->defineProperty("baseLevel", _SE(js_gfx_GFXTextureView_getBaseLevel), nullptr);
     cls->defineProperty("format", _SE(js_gfx_GFXTextureView_getFormat), nullptr);
@@ -15154,6 +15158,7 @@ SE_BIND_CTOR(js_gfx_GFXSampler_constructor, __jsb_cocos2d_GFXSampler_class, js_c
 
 
 
+extern se::Object* __jsb_cocos2d_GFXObject_proto;
 
 static bool js_cocos2d_GFXSampler_finalize(se::State& s)
 {
@@ -15171,7 +15176,7 @@ SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXSampler_finalize)
 
 bool js_register_gfx_GFXSampler(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXSampler", obj, nullptr, _SE(js_gfx_GFXSampler_constructor));
+    auto cls = se::Class::create("GFXSampler", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXSampler_constructor));
 
     cls->defineProperty("borderColor", _SE(js_gfx_GFXSampler_getBorderColor), nullptr);
     cls->defineProperty("mipFilter", _SE(js_gfx_GFXSampler_getMipFilter), nullptr);
@@ -15359,6 +15364,7 @@ SE_BIND_CTOR(js_gfx_GFXShader_constructor, __jsb_cocos2d_GFXShader_class, js_coc
 
 
 
+extern se::Object* __jsb_cocos2d_GFXObject_proto;
 
 static bool js_cocos2d_GFXShader_finalize(se::State& s)
 {
@@ -15376,7 +15382,7 @@ SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXShader_finalize)
 
 bool js_register_gfx_GFXShader(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXShader", obj, nullptr, _SE(js_gfx_GFXShader_constructor));
+    auto cls = se::Class::create("GFXShader", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXShader_constructor));
 
     cls->defineProperty("blocks", _SE(js_gfx_GFXShader_getBlocks), nullptr);
     cls->defineProperty("name", _SE(js_gfx_GFXShader_getName), nullptr);
@@ -15779,6 +15785,7 @@ SE_BIND_CTOR(js_gfx_GFXInputAssembler_constructor, __jsb_cocos2d_GFXInputAssembl
 
 
 
+extern se::Object* __jsb_cocos2d_GFXObject_proto;
 
 static bool js_cocos2d_GFXInputAssembler_finalize(se::State& s)
 {
@@ -15796,7 +15803,7 @@ SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXInputAssembler_finalize)
 
 bool js_register_gfx_GFXInputAssembler(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXInputAssembler", obj, nullptr, _SE(js_gfx_GFXInputAssembler_constructor));
+    auto cls = se::Class::create("GFXInputAssembler", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXInputAssembler_constructor));
 
     cls->defineProperty("instanceCount", _SE(js_gfx_GFXInputAssembler_getInstanceCount), _SE(js_gfx_GFXInputAssembler_setInstanceCount));
     cls->defineProperty("firstInstance", _SE(js_gfx_GFXInputAssembler_getFirstInstance), _SE(js_gfx_GFXInputAssembler_setFirstInstance));
@@ -15945,6 +15952,7 @@ SE_BIND_CTOR(js_gfx_GFXRenderPass_constructor, __jsb_cocos2d_GFXRenderPass_class
 
 
 
+extern se::Object* __jsb_cocos2d_GFXObject_proto;
 
 static bool js_cocos2d_GFXRenderPass_finalize(se::State& s)
 {
@@ -15962,7 +15970,7 @@ SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXRenderPass_finalize)
 
 bool js_register_gfx_GFXRenderPass(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXRenderPass", obj, nullptr, _SE(js_gfx_GFXRenderPass_constructor));
+    auto cls = se::Class::create("GFXRenderPass", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXRenderPass_constructor));
 
     cls->defineProperty("device", _SE(js_gfx_GFXRenderPass_getDevice), nullptr);
     cls->defineProperty("colorAttachments", _SE(js_gfx_GFXRenderPass_getColorAttachments), nullptr);
@@ -16122,6 +16130,7 @@ SE_BIND_CTOR(js_gfx_GFXFramebuffer_constructor, __jsb_cocos2d_GFXFramebuffer_cla
 
 
 
+extern se::Object* __jsb_cocos2d_GFXObject_proto;
 
 static bool js_cocos2d_GFXFramebuffer_finalize(se::State& s)
 {
@@ -16139,7 +16148,7 @@ SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXFramebuffer_finalize)
 
 bool js_register_gfx_GFXFramebuffer(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXFramebuffer", obj, nullptr, _SE(js_gfx_GFXFramebuffer_constructor));
+    auto cls = se::Class::create("GFXFramebuffer", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXFramebuffer_constructor));
 
     cls->defineFunction("getDepthStencilView", _SE(js_gfx_GFXFramebuffer_getDepthStencilView));
     cls->defineFunction("isOffscreen", _SE(js_gfx_GFXFramebuffer_isOffscreen));
@@ -16324,6 +16333,7 @@ SE_BIND_CTOR(js_gfx_GFXBindingLayout_constructor, __jsb_cocos2d_GFXBindingLayout
 
 
 
+extern se::Object* __jsb_cocos2d_GFXObject_proto;
 
 static bool js_cocos2d_GFXBindingLayout_finalize(se::State& s)
 {
@@ -16341,7 +16351,7 @@ SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXBindingLayout_finalize)
 
 bool js_register_gfx_GFXBindingLayout(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXBindingLayout", obj, nullptr, _SE(js_gfx_GFXBindingLayout_constructor));
+    auto cls = se::Class::create("GFXBindingLayout", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXBindingLayout_constructor));
 
     cls->defineProperty("device", _SE(js_gfx_GFXBindingLayout_getDevice), nullptr);
     cls->defineProperty("bindingUnits", _SE(js_gfx_GFXBindingLayout_getBindingUnits), nullptr);
@@ -16467,6 +16477,7 @@ SE_BIND_CTOR(js_gfx_GFXPipelineLayout_constructor, __jsb_cocos2d_GFXPipelineLayo
 
 
 
+extern se::Object* __jsb_cocos2d_GFXObject_proto;
 
 static bool js_cocos2d_GFXPipelineLayout_finalize(se::State& s)
 {
@@ -16484,7 +16495,7 @@ SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXPipelineLayout_finalize)
 
 bool js_register_gfx_GFXPipelineLayout(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXPipelineLayout", obj, nullptr, _SE(js_gfx_GFXPipelineLayout_constructor));
+    auto cls = se::Class::create("GFXPipelineLayout", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXPipelineLayout_constructor));
 
     cls->defineProperty("device", _SE(js_gfx_GFXPipelineLayout_getDevice), nullptr);
     cls->defineFunction("getLayouts", _SE(js_gfx_GFXPipelineLayout_getLayouts));
@@ -16733,6 +16744,7 @@ SE_BIND_CTOR(js_gfx_GFXPipelineState_constructor, __jsb_cocos2d_GFXPipelineState
 
 
 
+extern se::Object* __jsb_cocos2d_GFXObject_proto;
 
 static bool js_cocos2d_GFXPipelineState_finalize(se::State& s)
 {
@@ -16750,7 +16762,7 @@ SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXPipelineState_finalize)
 
 bool js_register_gfx_GFXPipelineState(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXPipelineState", obj, nullptr, _SE(js_gfx_GFXPipelineState_constructor));
+    auto cls = se::Class::create("GFXPipelineState", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXPipelineState_constructor));
 
     cls->defineProperty("primitive", _SE(js_gfx_GFXPipelineState_getPrimitive), nullptr);
     cls->defineProperty("rasterizerState", _SE(js_gfx_GFXPipelineState_getRasterizerState), nullptr);
@@ -16844,6 +16856,7 @@ SE_BIND_CTOR(js_gfx_GFXCommandAllocator_constructor, __jsb_cocos2d_GFXCommandAll
 
 
 
+extern se::Object* __jsb_cocos2d_GFXObject_proto;
 
 static bool js_cocos2d_GFXCommandAllocator_finalize(se::State& s)
 {
@@ -16861,7 +16874,7 @@ SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXCommandAllocator_finalize)
 
 bool js_register_gfx_GFXCommandAllocator(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXCommandAllocator", obj, nullptr, _SE(js_gfx_GFXCommandAllocator_constructor));
+    auto cls = se::Class::create("GFXCommandAllocator", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXCommandAllocator_constructor));
 
     cls->defineFunction("initialize", _SE(js_gfx_GFXCommandAllocator_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_GFXCommandAllocator_destroy));
@@ -17393,6 +17406,7 @@ SE_BIND_CTOR(js_gfx_GFXCommandBuffer_constructor, __jsb_cocos2d_GFXCommandBuffer
 
 
 
+extern se::Object* __jsb_cocos2d_GFXObject_proto;
 
 static bool js_cocos2d_GFXCommandBuffer_finalize(se::State& s)
 {
@@ -17410,7 +17424,7 @@ SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXCommandBuffer_finalize)
 
 bool js_register_gfx_GFXCommandBuffer(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXCommandBuffer", obj, nullptr, _SE(js_gfx_GFXCommandBuffer_constructor));
+    auto cls = se::Class::create("GFXCommandBuffer", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXCommandBuffer_constructor));
 
     cls->defineProperty("device", _SE(js_gfx_GFXCommandBuffer_getDevice), nullptr);
     cls->defineProperty("numDrawCalls", _SE(js_gfx_GFXCommandBuffer_getNumDrawCalls), nullptr);
@@ -17554,6 +17568,7 @@ SE_BIND_CTOR(js_gfx_GFXQueue_constructor, __jsb_cocos2d_GFXQueue_class, js_cocos
 
 
 
+extern se::Object* __jsb_cocos2d_GFXObject_proto;
 
 static bool js_cocos2d_GFXQueue_finalize(se::State& s)
 {
@@ -17571,7 +17586,7 @@ SE_BIND_FINALIZE_FUNC(js_cocos2d_GFXQueue_finalize)
 
 bool js_register_gfx_GFXQueue(se::Object* obj)
 {
-    auto cls = se::Class::create("GFXQueue", obj, nullptr, _SE(js_gfx_GFXQueue_constructor));
+    auto cls = se::Class::create("GFXQueue", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXQueue_constructor));
 
     cls->defineProperty("device", _SE(js_gfx_GFXQueue_getDevice), nullptr);
     cls->defineProperty("type", _SE(js_gfx_GFXQueue_getType), nullptr);
@@ -17768,7 +17783,7 @@ bool register_all_gfx(se::Object* obj)
     js_register_gfx_GFXInputAssembler(ns);
     js_register_gfx_GFXContextInfo(ns);
     js_register_gfx_GFXShader(ns);
-    js_register_gfx_GFXDeviceInfo(ns);
+    js_register_gfx_GFXShaderStage(ns);
     js_register_gfx_GFXTextureView(ns);
     js_register_gfx_GFXPipelineLayout(ns);
     js_register_gfx_GFXFramebufferInfo(ns);
@@ -17777,7 +17792,7 @@ bool register_all_gfx(se::Object* obj)
     js_register_gfx_GFXRasterizerState(ns);
     js_register_gfx_GFXTextureInfo(ns);
     js_register_gfx_GFXQueueInfo(ns);
-    js_register_gfx_GFXShaderStage(ns);
+    js_register_gfx_GFXDeviceInfo(ns);
     js_register_gfx_GFXShaderInfo(ns);
     js_register_gfx_GFXOffset(ns);
     js_register_gfx_GFXPushConstantRange(ns);

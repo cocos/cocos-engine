@@ -31,6 +31,7 @@
 #include <curl/curl.h>
 #include "platform/CCFileUtils.h"
 #include "platform/CCApplication.h"
+#include "platform/CCStdC.h"
 
 NS_CC_BEGIN
 

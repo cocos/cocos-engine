@@ -29,11 +29,11 @@
 
 #include "base/ccMacros.h"
 #include "base/CCRef.h"
+#include "platform/CCStdC.h"
 
 #include <string>
 #include <vector>
 #include <algorithm>
-
 #ifndef OBJC_CLASS
 #ifdef __OBJC__
 #define OBJC_CLASS(name) @class name
