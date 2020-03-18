@@ -62,6 +62,10 @@ namespace
     _game->init();
 }
 
+- (NSWindow*)getWindow
+{
+    return _window;
+}
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
     // Insert code here to tear down your application
