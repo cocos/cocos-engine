@@ -1576,18 +1576,24 @@ void GLES3CmdFuncExecuteCmds(GLES3Device* device, GLES3CmdPackage* cmd_package) 
         if (cache->dss.stencilFuncFront != gpuPipelineState->dss.stencilFuncFront ||
             cache->dss.stencilRefFront != gpuPipelineState->dss.stencilRefFront ||
             cache->dss.stencilReadMaskFront != gpuPipelineState->dss.stencilReadMaskFront) {
-          glStencilFuncSeparate(GL_FRONT,
+            glStencilFuncSeparate(GL_FRONT,
                                 GLES3_CMP_FUNCS[(int)gpuPipelineState->dss.stencilFuncFront],
                                 gpuPipelineState->dss.stencilRefFront,
                                 gpuPipelineState->dss.stencilReadMaskFront);
+            cache->dss.stencilFuncFront = gpuPipelineState->dss.stencilFuncFront;
+            cache->dss.stencilRefFront = gpuPipelineState->dss.stencilRefFront;
+            cache->dss.stencilReadMaskFront = gpuPipelineState->dss.stencilReadMaskFront;
         }
         if (cache->dss.stencilFailOpFront != gpuPipelineState->dss.stencilFailOpFront ||
             cache->dss.stencilZFailOpFront != gpuPipelineState->dss.stencilZFailOpFront ||
             cache->dss.stencilPassOpFront != gpuPipelineState->dss.stencilPassOpFront) {
-          glStencilOpSeparate(GL_FRONT,
+            glStencilOpSeparate(GL_FRONT,
                               GLES3_STENCIL_OPS[(int)gpuPipelineState->dss.stencilFailOpFront],
                               GLES3_STENCIL_OPS[(int)gpuPipelineState->dss.stencilZFailOpFront],
                               GLES3_STENCIL_OPS[(int)gpuPipelineState->dss.stencilPassOpFront]);
+            cache->dss.stencilFailOpFront = gpuPipelineState->dss.stencilFailOpFront;
+            cache->dss.stencilZFailOpFront = gpuPipelineState->dss.stencilZFailOpFront;
+            cache->dss.stencilPassOpFront = gpuPipelineState->dss.stencilPassOpFront;
         }
         if (cache->dss.stencilWriteMaskFront != gpuPipelineState->dss.stencilWriteMaskFront) {
           glStencilMaskSeparate(GL_FRONT, gpuPipelineState->dss.stencilWriteMaskFront);
@@ -1598,18 +1604,24 @@ void GLES3CmdFuncExecuteCmds(GLES3Device* device, GLES3CmdPackage* cmd_package) 
         if (cache->dss.stencilFuncBack != gpuPipelineState->dss.stencilFuncBack ||
             cache->dss.stencilRefBack != gpuPipelineState->dss.stencilRefBack ||
             cache->dss.stencilReadMaskBack != gpuPipelineState->dss.stencilReadMaskBack) {
-          glStencilFuncSeparate(GL_BACK,
+            glStencilFuncSeparate(GL_BACK,
                                 GLES3_CMP_FUNCS[(int)gpuPipelineState->dss.stencilFuncBack],
                                 gpuPipelineState->dss.stencilRefBack,
                                 gpuPipelineState->dss.stencilReadMaskBack);
+            cache->dss.stencilFuncBack = gpuPipelineState->dss.stencilFuncBack;
+            cache->dss.stencilRefBack = gpuPipelineState->dss.stencilRefBack;
+            cache->dss.stencilReadMaskBack = gpuPipelineState->dss.stencilReadMaskBack;
         }
         if (cache->dss.stencilFailOpBack != gpuPipelineState->dss.stencilFailOpBack ||
             cache->dss.stencilZFailOpBack != gpuPipelineState->dss.stencilZFailOpBack ||
             cache->dss.stencilPassOpBack != gpuPipelineState->dss.stencilPassOpBack) {
-          glStencilOpSeparate(GL_BACK,
+            glStencilOpSeparate(GL_BACK,
                               GLES3_STENCIL_OPS[(int)gpuPipelineState->dss.stencilFailOpBack],
                               GLES3_STENCIL_OPS[(int)gpuPipelineState->dss.stencilZFailOpBack],
                               GLES3_STENCIL_OPS[(int)gpuPipelineState->dss.stencilPassOpBack]);
+            cache->dss.stencilFailOpBack = gpuPipelineState->dss.stencilFailOpBack;
+            cache->dss.stencilZFailOpBack = gpuPipelineState->dss.stencilZFailOpBack;
+            cache->dss.stencilPassOpBack = gpuPipelineState->dss.stencilPassOpBack;
         }
         if (cache->dss.stencilWriteMaskBack != gpuPipelineState->dss.stencilWriteMaskBack) {
           glStencilMaskSeparate(GL_BACK, gpuPipelineState->dss.stencilWriteMaskBack);
