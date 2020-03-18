@@ -20,6 +20,7 @@ class CC_GLES3_API GLES3Queue : public GFXQueue {
  private:
   bool _isAsync = false;
   uint _numDrawCalls = 0;
+  uint _numInstances = 0;
   uint _numTriangles = 0;
 };
 

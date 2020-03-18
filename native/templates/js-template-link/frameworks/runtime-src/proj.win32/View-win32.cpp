@@ -96,9 +96,11 @@ bool View::pollEvent(bool * quit, Game *game)
         case SDL_WINDOWEVENT_HIDDEN:
             game->onPause();
             break;
-        default: 
+        case SDL_WINDOWEVENT_ENTER:
+            SDL_CaptureMouse(SDL_TRUE);
             break;
         }
+        break;
     }
     case SDL_MOUSEBUTTONDOWN:
     {
@@ -106,7 +108,7 @@ bool View::pollEvent(bool * quit, Game *game)
         mouse.type = MouseEvent::Type::DOWN;
         mouse.x = event.x;
         mouse.y = event.y;
-        mouse.button = event.button;
+        mouse.button = event.button - 1;
         cocos2d::EventDispatcher::dispatchMouseEvent(mouse);
         break;
     }
@@ -116,7 +118,7 @@ bool View::pollEvent(bool * quit, Game *game)
         mouse.type = MouseEvent::Type::UP;
         mouse.x = event.x;
         mouse.y = event.y;
-        mouse.button = event.button;
+        mouse.button = event.button - 1;
         cocos2d::EventDispatcher::dispatchMouseEvent(mouse);
         break;
     }
@@ -193,8 +195,6 @@ bool View::pollEvent(bool * quit, Game *game)
         break;
     }
 
-
-
     return true;
 }
 
@@ -209,7 +209,5 @@ HWND View::getWindowHandler()
 
 void View::setCursorEnabeld(bool enable)
 {
-    if (enable) {
-        SDL_RaiseWindow(_window);
-    }
+    SDL_SetRelativeMouseMode(enable ? SDL_FALSE : SDL_TRUE);
 }

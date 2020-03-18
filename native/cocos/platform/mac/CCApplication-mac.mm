@@ -131,6 +131,7 @@ void Application::setDisplayStats(bool isShow)
 
 void Application::setCursorEnabled(bool value)
 {
+    // TODO
 }
 
 Application::LanguageType Application::getCurrentLanguage() const

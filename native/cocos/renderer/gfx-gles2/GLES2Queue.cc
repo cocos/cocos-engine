@@ -30,6 +30,7 @@ void GLES2Queue::submit(const std::vector<GFXCommandBuffer*>& cmd_buffs) {
       GLES2CommandBuffer* cmd_buff = (GLES2CommandBuffer*)cmd_buffs[i];
       GLES2CmdFuncExecuteCmds((GLES2Device*)_device, cmd_buff->_cmdPackage);
       _numDrawCalls += cmd_buff->_numDrawCalls;
+      _numInstances += cmd_buff->_numInstances;
       _numTriangles += cmd_buff->_numTriangles;
     }
   }

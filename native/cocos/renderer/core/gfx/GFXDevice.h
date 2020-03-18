@@ -45,6 +45,7 @@ class CC_CORE_API GFXDevice : public Object {
   CC_INLINE const String& getRenderer() const { return _renderer; }
   CC_INLINE const String& getVendor() const { return _vendor; }
   CC_INLINE uint getNumDrawCalls() const { return _numDrawCalls; }
+  CC_INLINE uint getNumInstances() const { return _numInstances; }
   CC_INLINE uint getNumTris() const { return _numTriangles; }
   CC_INLINE bool hasFeature(GFXFeature feature) const { return _features[static_cast<uint8_t>(feature)]; }
   
@@ -66,6 +67,7 @@ class CC_CORE_API GFXDevice : public Object {
   GFXQueue* _queue = nullptr;
   GFXCommandAllocator* _cmdAllocator = nullptr;
   uint _numDrawCalls = 0;
+  uint _numInstances = 0;
   uint _numTriangles = 0;
 };
 

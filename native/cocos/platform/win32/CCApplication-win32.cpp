@@ -38,11 +38,11 @@ THE SOFTWARE.
 #include "base/CCAutoreleasePool.h"
 #include "audio/include/AudioEngine.h"
 
-
+extern "C" {
+  void cc_set_cursor_enabled(bool enabled);
+}
 
 NS_CC_BEGIN
-
-
 
 Application* Application::_instance = nullptr;
 std::shared_ptr<Scheduler> Application::_scheduler = nullptr;
@@ -176,7 +176,7 @@ bool Application::isDisplayStats()
 {
     se::AutoHandleScope hs;
     se::Value ret;
-    char commandBuf[100] = "cc.debug.isDisplayStats();";
+    char commandBuf[100] = "cc.profiler.isShowingStats();";
     se::ScriptEngine::getInstance()->evalString(commandBuf, 100, &ret);
     return ret.toBoolean();
 }
@@ -185,13 +185,13 @@ void Application::setDisplayStats(bool isShow)
 {
     se::AutoHandleScope hs;
     char commandBuf[100] = {0};
-    sprintf(commandBuf, "cc.debug.setDisplayStats(%s);", isShow ? "true" : "false");
+    sprintf(commandBuf, isShow ? "cc.profiler.showStats();"  : "cc.profiler.hideStats();");
     se::ScriptEngine::getInstance()->evalString(commandBuf);
 }
 
 void Application::setCursorEnabled(bool value)
 {
-    //glfwSetInputMode(CAST_VIEW(_view)->getGLFWWindow(), GLFW_CURSOR, value ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+    cc_set_cursor_enabled(value);
 }
 
 Application::Platform Application::getPlatform() const

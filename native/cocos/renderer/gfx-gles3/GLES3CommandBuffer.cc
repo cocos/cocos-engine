@@ -50,6 +50,7 @@ void GLES3CommandBuffer::begin() {
   _curGPUBlendLayout = nullptr;
   _curGPUInputAssember = nullptr;
   _numDrawCalls = 0;
+  _numInstances = 0;
   _numTriangles = 0;
 }
 
@@ -194,6 +195,7 @@ void GLES3CommandBuffer::draw(GFXInputAssembler* ia) {
     _cmdPackage->cmds.push(GFXCmdType::DRAW);
     
     ++_numDrawCalls;
+    _numInstances += ia->getInstanceCount();
     if(_curGPUPipelineState) {
       switch (_curGPUPipelineState->glPrimitive) {
         case GL_TRIANGLES: {
@@ -288,6 +290,7 @@ void GLES3CommandBuffer::execute(const std::vector<GFXCommandBuffer*>& cmd_buffs
     _cmdPackage->cmds.concat(cmd_buff->_cmdPackage->cmds);
     
     _numDrawCalls += cmd_buff->getNumDrawCalls();
+    _numInstances += cmd_buff->getNumInstances();
     _numTriangles += cmd_buff->getNumTris();
   }
 }

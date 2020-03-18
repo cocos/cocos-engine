@@ -72,6 +72,9 @@ extern "C" {
     HWND cc_get_application_window() {
         return gView.lock()->getWindowHandler();
     }
+    void cc_set_cursor_enabled(bool enabled) {
+      gView.lock()->setCursorEnabeld(enabled);
+    }
 }
 
 

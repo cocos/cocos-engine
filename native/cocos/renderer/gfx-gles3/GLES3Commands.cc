@@ -537,30 +537,34 @@ void GLES3CmdFuncCreateBuffer(GLES3Device* device, GLES3GPUBuffer* gpuBuffer) {
   }
 }
 
-void GLES3CmdFuncDestroyBuffer(GLES3Device* device, GLES3GPUBuffer* gpuBuffer)
-{
-    if (gpuBuffer->glBuffer)
-    {
-        auto* ubo = device->stateCache->glBindUBOs;
-        for(auto i =0; i < GFX_MAX_BUFFER_BINDINGS; i++)
-        {
-            if(ubo[i] == gpuBuffer->glBuffer && gpuBuffer->glTarget == GL_UNIFORM_BUFFER)
-            {
-                ubo[i] = 0;
-                device->stateCache->glUniformBuffer = 0;
-                break;
-            }
+void GLES3CmdFuncDestroyBuffer(GLES3Device* device, GLES3GPUBuffer* gpuBuffer) {
+    if (gpuBuffer->glBuffer) {
+      if (gpuBuffer->usage & GFXBufferUsageBit::VERTEX) {
+        if (device->stateCache->glArrayBuffer == gpuBuffer->glBuffer) {
+          glBindBuffer(GL_ARRAY_BUFFER, 0);
+          device->stateCache->glArrayBuffer = 0;
         }
-        if(gpuBuffer->glTarget == GL_ARRAY_BUFFER)
-            device->stateCache->glArrayBuffer = 0;
-        else if (gpuBuffer->glTarget == GL_ELEMENT_ARRAY_BUFFER)
-            device->stateCache->glElementArrayBuffer = 0;
-        
-        glDeleteBuffers(1, &gpuBuffer->glBuffer);
-        gpuBuffer->glBuffer = 0;
-        
+      } else if (gpuBuffer->usage & GFXBufferUsageBit::INDEX) {
+        if (device->stateCache->glElementArrayBuffer == gpuBuffer->glBuffer) {
+          glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+          device->stateCache->glElementArrayBuffer = 0;
+        }
+      } else if (gpuBuffer->usage & GFXBufferUsageBit::UNIFORM) {
+        auto* ubo = device->stateCache->glBindUBOs;
+        for(auto i = 0; i < GFX_MAX_BUFFER_BINDINGS; i++) {
+          if(ubo[i] == gpuBuffer->glBuffer) {
+            glBindBufferBase(GL_UNIFORM_BUFFER, i, 0);
+            device->stateCache->glUniformBuffer = 0; ubo[i] = 0;
+          }
+        }
+        if (device->stateCache->glUniformBuffer == gpuBuffer->glBuffer) {
+          glBindBuffer(GL_UNIFORM_BUFFER, 0);
+          device->stateCache->glUniformBuffer = 0;
+        }
+      }
+      glDeleteBuffers(1, &gpuBuffer->glBuffer);
+      gpuBuffer->glBuffer = 0;
     }
-    
     CC_SAFE_FREE(gpuBuffer->buffer);
 }
 
@@ -675,7 +679,7 @@ void GLES3CmdFuncUpdateBuffer(GLES3Device* device, GLES3GPUBuffer* gpuBuffer, vo
         break;
       }
       default:
-            CCASSERT(false, "Unsupported GFXBufferType, update buffer failed.");
+        CCASSERT(false, "Unsupported GFXBufferType, update buffer failed.");
         break;
     }
   }
@@ -759,9 +763,22 @@ void GLES3CmdFuncCreateTexture(GLES3Device* device, GLES3GPUTexture* gpuTexture)
 
 void GLES3CmdFuncDestroyTexture(GLES3Device* device, GLES3GPUTexture* gpuTexture) {
   if (gpuTexture->glTexture) {
+    GLuint& glTexture = device->stateCache->glTextures[device->stateCache->texUint];
+    if (glTexture == gpuTexture->glTexture) {
+      switch (gpuTexture->viewType) {
+        case GFXTextureViewType::TV2D: {
+          glBindTexture(GL_TEXTURE_2D, 0);
+          break;
+        }
+        case GFXTextureViewType::CUBE: {
+          glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+          break;
+        }
+      }
+      glTexture = 0;
+    }
     glDeleteTextures(1, &gpuTexture->glTexture);
     gpuTexture->glTexture = 0;
-      device->stateCache->glTextures[device->stateCache->texUint] = 0;
   }
 }
 
@@ -775,10 +792,10 @@ void GLES3CmdFuncResizeTexture(GLES3Device* device, GLES3GPUTexture* gpuTexture)
       gpuTexture->viewType = GFXTextureViewType::TV2D;
       gpuTexture->glTarget = GL_TEXTURE_2D;
       if (gpuTexture->size > 0) {
-        GLuint glTexture = device->stateCache->glTextures[device->stateCache->texUint];
+        GLuint& glTexture = device->stateCache->glTextures[device->stateCache->texUint];
         if (gpuTexture->glTexture != glTexture) {
-          glBindTexture(GL_TEXTURE_2D, glTexture);
-          gpuTexture->glTexture = glTexture;
+          glBindTexture(GL_TEXTURE_2D, gpuTexture->glTexture);
+          glTexture = gpuTexture->glTexture;
         }
         uint w = gpuTexture->width;
         uint h = gpuTexture->height;
@@ -803,10 +820,10 @@ void GLES3CmdFuncResizeTexture(GLES3Device* device, GLES3GPUTexture* gpuTexture)
       gpuTexture->viewType = GFXTextureViewType::CUBE;
       gpuTexture->glTarget = GL_TEXTURE_CUBE_MAP;
       if (gpuTexture->size > 0) {
-        GLuint glTexture = device->stateCache->glTextures[device->stateCache->texUint];
+        GLuint& glTexture = device->stateCache->glTextures[device->stateCache->texUint];
         if (gpuTexture->glTexture != glTexture) {
-          glBindTexture(GL_TEXTURE_CUBE_MAP, glTexture);
-          gpuTexture->glTexture = glTexture;
+          glBindTexture(GL_TEXTURE_CUBE_MAP, gpuTexture->glTexture);
+          glTexture = gpuTexture->glTexture;
         }
         if (!GFX_FORMAT_INFOS[(int)gpuTexture->format].isCompressed) {
           for (uint f = 0; f < 6; ++f) {
@@ -879,9 +896,14 @@ void GLES3CmdFuncCreateSampler(GLES3Device* device, GLES3GPUSampler* gpuSampler)
 
 void GLES3CmdFuncDestroySampler(GLES3Device* device, GLES3GPUSampler* gpuSampler) {
   if (gpuSampler->gl_sampler) {
+    uint unit = device->stateCache->texUint;
+    GLuint& glSampler = device->stateCache->glSamplers[unit];
+    if (glSampler == gpuSampler->gl_sampler) {
+      glBindSampler(unit, 0);
+      glSampler = 0;
+    }
     glDeleteSamplers(1, &gpuSampler->gl_sampler);
     gpuSampler->gl_sampler = 0;
-      device->stateCache->glSamplers[device->stateCache->texUint] = 0;
   }
 }
 
@@ -1149,6 +1171,10 @@ void GLES3CmdFuncCreateShader(GLES3Device* device, GLES3GPUShader* gpuShader) {
 
 void GLES3CmdFuncDestroyShader(GLES3Device* device, GLES3GPUShader* gpuShader) {
   if (gpuShader->glProgram) {
+    if (device->stateCache->glProgram == gpuShader->glProgram) {
+      glUseProgram(0);
+      device->stateCache->glProgram = 0;
+    }
     glDeleteProgram(gpuShader->glProgram);
     gpuShader->glProgram = 0;
   }
@@ -1195,10 +1221,13 @@ void GLES3CmdFuncCreateInputAssembler(GLES3Device* device, GLES3GPUInputAssemble
 
 void GLES3CmdFuncDestroyInputAssembler(GLES3Device* device, GLES3GPUInputAssembler* gpuInputAssembler) {
   for (auto it = gpuInputAssembler->glVAOs.begin(); it != gpuInputAssembler->glVAOs.end(); ++it) {
+    if (device->stateCache->glVAO == it->second) {
+      glBindVertexArray(0);
+      device->stateCache->glVAO = 0;
+    }
     glDeleteVertexArrays(1, &it->second);
   }
   gpuInputAssembler->glVAOs.clear();
-    device->stateCache->glVAO = 0;
 }
 
 void GLES3CmdFuncCreateFramebuffer(GLES3Device* device, GLES3GPUFramebuffer* gpuFBO) {
@@ -1256,9 +1285,12 @@ void GLES3CmdFuncCreateFramebuffer(GLES3Device* device, GLES3GPUFramebuffer* gpu
 
 void GLES3CmdFuncDestroyFramebuffer(GLES3Device* device, GLES3GPUFramebuffer* gpuFBO) {
   if (gpuFBO->glFramebuffer) {
+    if (device->stateCache->glFramebuffer == gpuFBO->glFramebuffer) {
+      glBindFramebuffer(GL_FRAMEBUFFER, 0);
+      device->stateCache->glFramebuffer = 0;
+    }
     glDeleteFramebuffers(1, &gpuFBO->glFramebuffer);
     gpuFBO->glFramebuffer = 0;
-      device->stateCache->glFramebuffer = 0;
   }
 }
 
@@ -1635,6 +1667,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device* device, GLES3CmdPackage* cmd_package) 
           } else {
             glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE);
           }
+          cache->bs.isA2C = gpuPipelineState->bs.isA2C;
         }
         if (cache->bs.blendColor.r != gpuPipelineState->bs.blendColor.r ||
             cache->bs.blendColor.g != gpuPipelineState->bs.blendColor.g ||
@@ -1746,57 +1779,13 @@ void GLES3CmdFuncExecuteCmds(GLES3Device* device, GLES3CmdPackage* cmd_package) 
             (is_shader_changed || gpuInputAssembler != cmd->gpuInputAssembler)) {
           gpuInputAssembler = cmd->gpuInputAssembler;
           if (device->useVAO()) {
-            const auto it = gpuInputAssembler->glVAOs.find(gpuPipelineState->gpuShader->glProgram);
-            if (it != gpuInputAssembler->glVAOs.end()) {
-              GLuint glVAO = it->second;
-              if (!glVAO) {
-                glGenVertexArrays(1, &glVAO);
-                gpuInputAssembler->glVAOs.insert(std::make_pair(gpuPipelineState->gpuShader->glProgram, glVAO));
-                glBindVertexArray(glVAO);
-                glBindBuffer(GL_ARRAY_BUFFER, 0);
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-                
-                for (size_t j = 0; j < gpuPipelineState->gpuShader->glInputs.size(); ++j) {
-                  const GLES3GPUInput& gpuInput = gpuPipelineState->gpuShader->glInputs[j];
-                  for (size_t a = 0; a < gpuInputAssembler->attributes.size(); ++a) {
-                    const GLES3GPUAttribute& gpuAttribute = gpuInputAssembler->glAttribs[a];
-                    if (gpuAttribute.name == gpuInput.name) {
-                      glBindBuffer(GL_ARRAY_BUFFER, gpuAttribute.glBuffer);
-                      
-                      for (uint c = 0; c < gpuAttribute.componentCount; ++c) {
-                        GLint glLoc = gpuInput.glLoc + c;
-                        uint attrib_offset = gpuAttribute.offset + gpuAttribute.size * c;
-                        glEnableVertexAttribArray(glLoc);
-                        
-                        cache->glEnabledAttribLocs[glLoc] = true;
-                        glVertexAttribPointer(glLoc, gpuAttribute.count, gpuAttribute.glType, gpuAttribute.isNormalized, gpuAttribute.stride, BUFFER_OFFSET(attrib_offset));
-                        glVertexAttribDivisor(glLoc, gpuAttribute.isInstanced ? 1 : 0);
-                      }
-                      break;
-                    }
-                  } // for
-                } // for
-                
-                if (gpuInputAssembler->gpuIndexBuffer) {
-                  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gpuInputAssembler->gpuIndexBuffer->glBuffer);
-                }
-                
-                glBindVertexArray(0);
-                glBindBuffer(GL_ARRAY_BUFFER, 0);
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-                cache->glVAO = 0;
-                cache->glArrayBuffer = 0;
-                cache->glElementArrayBuffer = 0;
-              }
-              
-              if (cache->glVAO != glVAO) {
-                glBindVertexArray(glVAO);
-                cache->glVAO = glVAO;
-              }
-            } else {
-              for (uint a = 0; a < GFX_MAX_VERTEX_ATTRIBUTES; ++a) {
-                cache->glCurrentAttribLocs[a] = false;
-              }
+            GLuint glVAO = gpuInputAssembler->glVAOs[gpuPipelineState->gpuShader->glProgram];
+            if (!glVAO) {
+              glGenVertexArrays(1, &glVAO);
+              gpuInputAssembler->glVAOs[gpuPipelineState->gpuShader->glProgram] = glVAO;
+              glBindVertexArray(glVAO);
+              glBindBuffer(GL_ARRAY_BUFFER, 0);
+              glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
               for (size_t j = 0; j < gpuPipelineState->gpuShader->glInputs.size(); ++j) {
                 const GLES3GPUInput& gpuInput = gpuPipelineState->gpuShader->glInputs[j];
@@ -1809,7 +1798,7 @@ void GLES3CmdFuncExecuteCmds(GLES3Device* device, GLES3CmdPackage* cmd_package) 
                       GLint glLoc = gpuInput.glLoc + c;
                       uint attrib_offset = gpuAttribute.offset + gpuAttribute.size * c;
                       glEnableVertexAttribArray(glLoc);
-                      cache->glCurrentAttribLocs[glLoc] = true;
+
                       cache->glEnabledAttribLocs[glLoc] = true;
                       glVertexAttribPointer(glLoc, gpuAttribute.count, gpuAttribute.glType, gpuAttribute.isNormalized, gpuAttribute.stride, BUFFER_OFFSET(attrib_offset));
                       glVertexAttribDivisor(glLoc, gpuAttribute.isInstanced ? 1 : 0);
@@ -1820,17 +1809,61 @@ void GLES3CmdFuncExecuteCmds(GLES3Device* device, GLES3CmdPackage* cmd_package) 
               } // for
 
               if (gpuInputAssembler->gpuIndexBuffer) {
-                if (cache->glElementArrayBuffer != gpuInputAssembler->gpuIndexBuffer->glBuffer) {
-                  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gpuInputAssembler->gpuIndexBuffer->glBuffer);
-                  cache->glElementArrayBuffer = gpuInputAssembler->gpuIndexBuffer->glBuffer;
-                }
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gpuInputAssembler->gpuIndexBuffer->glBuffer);
               }
 
-              for (uint a = 0; a < GFX_MAX_VERTEX_ATTRIBUTES; ++a) {
-                if (cache->glEnabledAttribLocs[a] != cache->glCurrentAttribLocs[a]) {
-                  glDisableVertexAttribArray(a);
-                  cache->glEnabledAttribLocs[a] = false;
+              glBindVertexArray(0);
+              glBindBuffer(GL_ARRAY_BUFFER, 0);
+              glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+              cache->glVAO = 0;
+              cache->glArrayBuffer = 0;
+              cache->glElementArrayBuffer = 0;
+            }
+
+            if (cache->glVAO != glVAO) {
+              glBindVertexArray(glVAO);
+              cache->glVAO = glVAO;
+            }
+          } else {
+            for (uint a = 0; a < GFX_MAX_VERTEX_ATTRIBUTES; ++a) {
+              cache->glCurrentAttribLocs[a] = false;
+            }
+
+            for (size_t j = 0; j < gpuPipelineState->gpuShader->glInputs.size(); ++j) {
+              const GLES3GPUInput& gpuInput = gpuPipelineState->gpuShader->glInputs[j];
+              for (size_t a = 0; a < gpuInputAssembler->attributes.size(); ++a) {
+                const GLES3GPUAttribute& gpuAttribute = gpuInputAssembler->glAttribs[a];
+                if (gpuAttribute.name == gpuInput.name) {
+                  if (cache->glArrayBuffer != gpuAttribute.glBuffer) {
+                    glBindBuffer(GL_ARRAY_BUFFER, gpuAttribute.glBuffer);
+                    cache->glArrayBuffer = gpuAttribute.glBuffer;
+                  }
+
+                  for (uint c = 0; c < gpuAttribute.componentCount; ++c) {
+                    GLint glLoc = gpuInput.glLoc + c;
+                    uint attrib_offset = gpuAttribute.offset + gpuAttribute.size * c;
+                    glEnableVertexAttribArray(glLoc);
+                    cache->glCurrentAttribLocs[glLoc] = true;
+                    cache->glEnabledAttribLocs[glLoc] = true;
+                    glVertexAttribPointer(glLoc, gpuAttribute.count, gpuAttribute.glType, gpuAttribute.isNormalized, gpuAttribute.stride, BUFFER_OFFSET(attrib_offset));
+                    glVertexAttribDivisor(glLoc, gpuAttribute.isInstanced ? 1 : 0);
+                  }
+                  break;
                 }
+              } // for
+            } // for
+
+            if (gpuInputAssembler->gpuIndexBuffer) {
+              if (cache->glElementArrayBuffer != gpuInputAssembler->gpuIndexBuffer->glBuffer) {
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gpuInputAssembler->gpuIndexBuffer->glBuffer);
+                cache->glElementArrayBuffer = gpuInputAssembler->gpuIndexBuffer->glBuffer;
+              }
+            }
+
+            for (uint a = 0; a < GFX_MAX_VERTEX_ATTRIBUTES; ++a) {
+              if (cache->glEnabledAttribLocs[a] != cache->glCurrentAttribLocs[a]) {
+                glDisableVertexAttribArray(a);
+                cache->glEnabledAttribLocs[a] = false;
               }
             }
           } // if
@@ -1900,10 +1933,10 @@ void GLES3CmdFuncExecuteCmds(GLES3Device* device, GLES3CmdPackage* cmd_package) 
 }
 
 void GLES3CmdFuncCopyBuffersToTexture(GLES3Device* device, uint8_t* const* buffers, GLES3GPUTexture* gpuTexture, const GFXBufferTextureCopyList& regions) {
-  GLuint glTexture = device->stateCache->glTextures[device->stateCache->texUint];
+  GLuint& glTexture = device->stateCache->glTextures[device->stateCache->texUint];
   if (glTexture != gpuTexture->glTexture) {
     glBindTexture(gpuTexture->glTarget, gpuTexture->glTexture);
-    device->stateCache->glTextures[device->stateCache->texUint] = glTexture;
+    glTexture = gpuTexture->glTexture;
   }
 
   bool isCompressed = GFX_FORMAT_INFOS[(int)gpuTexture->format].isCompressed;
