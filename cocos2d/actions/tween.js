@@ -161,7 +161,6 @@ let SetAction = cc.Class({
  *  - 支持与 cc.Action 混用
  *  - 支持设置 {{#crossLink "Easing"}}{{/crossLink}} 或者 progress 函数
  * @class Tween
- * @param {Object} [target]
  * @example
  * cc.tween(node)
  *   .to(1, {scale: 2, position: cc.v3(100, 100, 100)})
@@ -176,6 +175,10 @@ function Tween (target) {
     this._tag = cc.Action.TAG_INVALID;
 }
 
+/**
+ * @method constructor
+ * @param {Object} [target]
+ */
 
 /**
  * !#en Stop all tweens
@@ -350,19 +353,21 @@ Object.assign(Tween.prototype, {
      * !#zh 按照贝塞尔路径设置目标的 position 属性。
      * @method bezierTo
      * @param {number} duration 
-     * @param {[cc.Vec2, cc.Vec2, cc.Vec2]} controls 
+     * @param {cc.Vec2} c1
+     * @param {cc.Vec2} c2
+     * @param {cc.Vec2} to
      * @return {Tween}
      */
-    bezierTo (duration, controls) {
-        let c0x = controls[0].x, c0y = controls[0].y,
-            c1x = controls[1].x, c1y = controls[1].y;
+    bezierTo (duration, c1, c2, to, opts) {
+        let c0x = c1.x, c0y = c1.y,
+            c1x = c2.x, c1y = c2.y;
         opts = opts || Object.create(null);
         opts.progress = function (start, end, current, t) {
             current.x = bezier(start.x, c0x, c1x, end.x, t);
             current.y = bezier(start.y, c0y, c1y, end.y, t);
             return current;
         }
-        return this.to(duration, { position: controls[2] }, opts);
+        return this.to(duration, { position: to }, opts);
     },
 
     /**
@@ -370,12 +375,14 @@ Object.assign(Tween.prototype, {
      * !#zh 按照贝塞尔路径设置目标的 position 属性。
      * @method bezierBy
      * @param {number} duration 
-     * @param {[cc.Vec2, cc.Vec2, cc.Vec2]} controls
+     * @param {cc.Vec2} c1
+     * @param {cc.Vec2} c2
+     * @param {cc.Vec2} to
      * @return {Tween} 
      */
-    bezierBy (duration, controls, opts) {
-        let c0x = controls[0].x, c0y = controls[0].y,
-            c1x = controls[1].x, c1y = controls[1].y;
+    bezierBy (duration, c1, c2, to, opts) {
+        let c0x = c1.x, c0y = c1.y,
+            c1x = c2.x, c1y = c2.y;
         opts = opts || Object.create(null);
         opts.progress = function (start, end, current, t) {
             let sx = start.x, sy = start.y;
@@ -383,7 +390,7 @@ Object.assign(Tween.prototype, {
             current.y = bezier(sy, c0y + sy, c1y + sy, end.y, t);
             return current;
         }
-        return this.by(duration, { position: controls[2] }, opts);
+        return this.by(duration, { position: to }, opts);
     },
 
     /**
@@ -430,89 +437,6 @@ Object.assign(Tween.prototype, {
         };
         return this.to(duration, { opacity: 1 }, opts);
     },
-
-    /**
-     * !#en Fade target's opacity property to the value.
-     * !#zh 修改目标的 opacity 属性到指定值。
-     * @method fadeTo
-     * @param {number} duration 
-     * @param {number} opacity 
-     * @param {Object} [opts] 
-     * @param {Function} [opts.progress]
-     * @param {Function|String} [opts.easing]
-     * @return {Tween}
-     */
-    fadeTo (duration, opacity, opts) {
-        return this.to(duration, { opacity }, opts);
-    },
-    /**
-     * !#en Fade target's opacity property to the value.
-     * !#zh 修改目标的 opacity 属性到指定值。
-     * @method fadeBy
-     * @param {number} duration 
-     * @param {number} opacity
-     * @param {Object} [opts] 
-     * @param {Function} [opts.progress]
-     * @param {Function|String} [opts.easing]
-     * @return {Tween}
-     */
-    fadeBy (duration, opacity, opts) {
-        return this.by(duration, { opacity }, opts);
-    },
-    /**
-     * !#en Fade target's opacity property to 255.
-     * !#zh 修改目标的 opacity 属性到 255。
-     * @method fadeIn
-     * @param {number} duration 
-     * @param {Object} [opts] 
-     * @param {Function} [opts.progress]
-     * @param {Function|String} [opts.easing]
-     * @return {Tween}
-     */
-    fadeIn (duration, opts) {
-        return this.to(duration, { opacity: 255 }, opts);
-    },
-    /**
-     * !#en Fade target's opacity property to 0.
-     * !#zh 修改目标的 opacity 属性到 0。
-     * @method fadeOut
-     * @param {number} duration 
-     * @param {Object} [opts] 
-     * @param {Function} [opts.progress]
-     * @param {Function|String} [opts.easing]
-     * @return {Tween}
-     */
-    fadeOut (duration, opts) {
-        return this.to(duration, { opacity: 0 }, opts);
-    },
-    /**
-     * !#en Fade target's color property to the value.
-     * !#zh 修改目标的 color 属性到指定值。
-     * @method tintTo
-     * @param {number} duration 
-     * @param {Color} color
-     * @param {Object} [opts] 
-     * @param {Function} [opts.progress]
-     * @param {Function|String} [opts.easing]
-     * @return {Tween}
-     */
-    tintTo (duration, color, opts) {
-        return this.to(duration, { color }, opts);
-    },
-    /**
-     * !#en Fade target's color property to the value.
-     * !#zh 修改目标的 color 属性到指定值。
-     * @method tintBy
-     * @param {number} duration 
-     * @param {Color} color
-     * @param {Object} [opts] 
-     * @param {Function} [opts.progress]
-     * @param {Function|String} [opts.easing]
-     * @return {Tween}
-     */
-    tintBy (duration, color, opts) {
-        return this.by(duration, { color }, opts);
-    }
 })
 
 let tmp_args = [];
@@ -544,6 +468,8 @@ let actions = {
      * @param {Function} [opts.progress]
      * @param {Function|String} [opts.easing]
      * @return {Tween}
+     * @typescript
+     * to <OPTS extends Partial<{progress: Function, easing: Function}>> (duration: number, props: ConstructorType<T>, opts?: OPTS) : Tween
      */
     to (duration, props, opts) {
         opts = opts || Object.create(null);
@@ -563,6 +489,8 @@ let actions = {
      * @param {Function} [opts.progress]
      * @param {Function|String} [opts.easing]
      * @return {Tween}
+     * @typescript
+     * by <OPTS extends Partial<{progress: Function, easing: Function}>> (duration: number, props: ConstructorType<T>, opts?: OPTS) : Tween
      */
     by (duration, props, opts) {
         opts = opts || Object.create(null);
@@ -578,6 +506,8 @@ let actions = {
      * @method set
      * @param {Object} props
      * @return {Tween}
+     * @typescript
+     * set (props: ConstructorType<T>) : Tween
      */
     set (props) {
         return new SetAction(props);
@@ -744,6 +674,8 @@ for (let i = 0; i < keys.length; i++) {
  * @method tween
  * @param {Object} [target] - the target to animate
  * @return {Tween}
+ * @typescript
+ * tween<T> (target?: Object) : Tween<T>
  */
 cc.tween = function (target) {
     return new Tween(target);
