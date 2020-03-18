@@ -75,7 +75,7 @@ export class BatchedBuffer {
                         vbSize = (vbCount + batch.vbCount) * flatBuff.stride;
                         if (vbSize > batchVB.size) {
                             batchVB.resize(vbSize);
-                            vbBuf = batch.vbDatas[j] = new Uint8Array(batchVB.bufferView!.buffer);
+                            vbBuf = batch.vbDatas[j] = new Uint8Array(vbSize);
                         }
                         vbBuf.set(flatBuff.buffer, batch.vbCount * flatBuff.stride);
                     }
@@ -83,7 +83,7 @@ export class BatchedBuffer {
                     vbIdxSize = (vbCount + batch.vbCount) * 4;
                     if (vbIdxSize > batch.vbIdx.size) {
                         batch.vbIdx.resize(vbIdxSize);
-                        batch.vbIdxData = new Float32Array(batch.vbIdx.bufferView!.buffer);
+                        batch.vbIdxData = new Float32Array(vbIdxSize / Float32Array.BYTES_PER_ELEMENT);
                     }
 
                     const start = batch.vbCount;
@@ -126,11 +126,10 @@ export class BatchedBuffer {
                 memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
                 size: flatBuff.count * flatBuff.stride,
                 stride: flatBuff.stride,
-                flags: GFXBufferFlagBit.BAKUP_BUFFER,
             });
             newVB.update(flatBuff.buffer.buffer);
             vbs.push(newVB);
-            vbDatas.push(new Uint8Array(newVB.bufferView!.buffer));
+            vbDatas.push(new Uint8Array(newVB.size));
             totalVBS.push(newVB);
         }
 
@@ -139,13 +138,11 @@ export class BatchedBuffer {
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
             size: vbCount * 4,
             stride: 4,
-            flags: GFXBufferFlagBit.BAKUP_BUFFER,
         });
-        const vbIndices = new Float32Array(vbCount);
-        vbIndices.fill(0);
-        vbIdx.update(vbIndices);
+        const vbIdxData = new Float32Array(vbCount);
+        vbIdxData.fill(0);
+        vbIdx.update(vbIdxData);
         totalVBS.push(vbIdx);
-        const vbIdxData = new Float32Array(vbIdx.bufferView!.buffer);
 
         const attributes = subModel.inputAssembler!.attributes;
         const attrs = new Array<IGFXAttribute>(attributes.length + 1);
