@@ -1,3 +1,6 @@
+import { bezier } from '../animation/bezier';
+
+let _tweenID = 0;
 
 let TweenAction = cc.Class({
     name: 'cc.TweenAction',
@@ -158,13 +161,12 @@ let SetAction = cc.Class({
  *  - 支持与 cc.Action 混用
  *  - 支持设置 {{#crossLink "Easing"}}{{/crossLink}} 或者 progress 函数
  * @class Tween
- * @param {Object} [target]
  * @example
  * cc.tween(node)
  *   .to(1, {scale: 2, position: cc.v3(100, 100, 100)})
  *   .call(() => { console.log('This is a callback'); })
  *   .by(1, {scale: 3, position: cc.v3(200, 200, 200)}, {easing: 'sineOutIn'})
- *   .run(cc.find('Canvas/cocos'));
+ *   .start(cc.find('Canvas/cocos'));
  */
 function Tween (target) {
     this._actions = [];
@@ -173,6 +175,10 @@ function Tween (target) {
     this._tag = cc.Action.TAG_INVALID;
 }
 
+/**
+ * @method constructor
+ * @param {Object} [target]
+ */
 
 /**
  * !#en Stop all tweens
@@ -247,16 +253,26 @@ Tween.prototype.target = function (target) {
  * @return {Tween}
  */
 Tween.prototype.start = function () {
-    if (!this._target) {
+    let target = this._target;
+    if (!target) {
         cc.warn('Please set target to tween first');
         return this;
     }
+    if (target instanceof cc.Object && !target.isValid) {
+        return;
+    }
+
     if (this._finalAction) {
         cc.director.getActionManager().removeAction(this._finalAction);
     }
     this._finalAction = this._union();
+
+    if (target._id === undefined) {
+        target._id = ++_tweenID;
+    }
+
     this._finalAction.setTag(this._tag);
-    cc.director.getActionManager().addAction(this._finalAction, this._target, false);
+    cc.director.getActionManager().addAction(this._finalAction, target, false);
     return this;
 };
 
@@ -331,6 +347,98 @@ Tween.prototype._union = function () {
     return actions;
 };
 
+Object.assign(Tween.prototype, {
+    /**
+     * !#en Sets target's position property according to the bezier curve.
+     * !#zh 按照贝塞尔路径设置目标的 position 属性。
+     * @method bezierTo
+     * @param {number} duration 
+     * @param {cc.Vec2} c1
+     * @param {cc.Vec2} c2
+     * @param {cc.Vec2} to
+     * @return {Tween}
+     */
+    bezierTo (duration, c1, c2, to, opts) {
+        let c0x = c1.x, c0y = c1.y,
+            c1x = c2.x, c1y = c2.y;
+        opts = opts || Object.create(null);
+        opts.progress = function (start, end, current, t) {
+            current.x = bezier(start.x, c0x, c1x, end.x, t);
+            current.y = bezier(start.y, c0y, c1y, end.y, t);
+            return current;
+        }
+        return this.to(duration, { position: to }, opts);
+    },
+
+    /**
+     * !#en Sets target's position property according to the bezier curve.
+     * !#zh 按照贝塞尔路径设置目标的 position 属性。
+     * @method bezierBy
+     * @param {number} duration 
+     * @param {cc.Vec2} c1
+     * @param {cc.Vec2} c2
+     * @param {cc.Vec2} to
+     * @return {Tween} 
+     */
+    bezierBy (duration, c1, c2, to, opts) {
+        let c0x = c1.x, c0y = c1.y,
+            c1x = c2.x, c1y = c2.y;
+        opts = opts || Object.create(null);
+        opts.progress = function (start, end, current, t) {
+            let sx = start.x, sy = start.y;
+            current.x = bezier(sx, c0x + sx, c1x + sx, end.x, t);
+            current.y = bezier(sy, c0y + sy, c1y + sy, end.y, t);
+            return current;
+        }
+        return this.by(duration, { position: to }, opts);
+    },
+
+    /**
+     * !#en Flips target's scaleX
+     * !#zh 翻转目标的 scaleX 属性
+     * @method flipX
+     * @return {Tween}
+     */
+    flipX () {
+        return this.call(() => { this._target.scaleX *= -1; }, this);
+    },
+    /**
+     * !#en Flips target's scaleY
+     * !#zh 翻转目标的 scaleY 属性
+     * @method flipY
+     * @return {Tween}
+     */
+    flipY () {
+        return this.call(() => { this._target.scaleY *= -1; }, this);
+    },
+
+    /**
+     * !#en Blinks target by set target's opacity property
+     * !#zh 通过设置目标的 opacity 属性达到闪烁效果
+     * @method blink
+     * @param {number} duration 
+     * @param {number} times 
+     * @param {Object} [opts] 
+     * @param {Function} [opts.progress]
+     * @param {Function|String} [opts.easing]
+     * @return {Tween}
+     */
+    blink (duration, times, opts) {
+        var slice = 1.0 / times;
+        opts = opts || Object.create(null);
+        opts.progress = function (start, end, current, t) {
+            if (t >= 1) {
+                return start;
+            }
+            else {
+                var m = t % slice;
+                return (m > (slice / 2)) ? 255 : 0;
+            }
+        };
+        return this.to(duration, { opacity: 1 }, opts);
+    },
+})
+
 let tmp_args = [];
 
 function wrapAction (action) {
@@ -360,6 +468,8 @@ let actions = {
      * @param {Function} [opts.progress]
      * @param {Function|String} [opts.easing]
      * @return {Tween}
+     * @typescript
+     * to <OPTS extends Partial<{progress: Function, easing: Function}>> (duration: number, props: ConstructorType<T>, opts?: OPTS) : Tween
      */
     to (duration, props, opts) {
         opts = opts || Object.create(null);
@@ -379,6 +489,8 @@ let actions = {
      * @param {Function} [opts.progress]
      * @param {Function|String} [opts.easing]
      * @return {Tween}
+     * @typescript
+     * by <OPTS extends Partial<{progress: Function, easing: Function}>> (duration: number, props: ConstructorType<T>, opts?: OPTS) : Tween
      */
     by (duration, props, opts) {
         opts = opts || Object.create(null);
@@ -394,6 +506,8 @@ let actions = {
      * @method set
      * @param {Object} props
      * @return {Tween}
+     * @typescript
+     * set (props: ConstructorType<T>) : Tween
      */
     set (props) {
         return new SetAction(props);
@@ -516,7 +630,7 @@ let keys = Object.keys(actions);
 for (let i = 0; i < keys.length; i++) {
     let key = keys[i];
     Tween.prototype[key] = function () {
-        let action = actions[key].apply(actions, arguments);
+        let action = actions[key].apply(this, arguments);
         this._actions.push(action);
         return this;
     };
@@ -560,6 +674,8 @@ for (let i = 0; i < keys.length; i++) {
  * @method tween
  * @param {Object} [target] - the target to animate
  * @return {Tween}
+ * @typescript
+ * tween<T> (target?: Object) : Tween<T>
  */
 cc.tween = function (target) {
     return new Tween(target);
