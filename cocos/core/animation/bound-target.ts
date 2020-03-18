@@ -28,7 +28,7 @@ export function createBoundTarget (target: any, modifiers: TargetPath[], valueAd
         proxy: IValueProxy;
     };
     const lastPath = modifiers[modifiers.length - 1];
-    if (modifiers.length !== 0 && isPropertyPath(lastPath)) {
+    if (modifiers.length !== 0 && isPropertyPath(lastPath) && !valueAdapter) {
         const resultTarget = evaluatePath(target, ...modifiers.slice(0, modifiers.length - 1));
         if (resultTarget === null) {
             return null;
