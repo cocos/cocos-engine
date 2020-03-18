@@ -181,6 +181,16 @@ let VideoPlayer = cc.Class({
             },
             get: function () {
                 if (this._impl) {
+                    // for used to make the current time of each platform consistent
+                    if (this._currentStatus === EventType.NONE ||
+                        this._currentStatus === EventType.STOPPED ||
+                        this._currentStatus === EventType.META_LOADED ||
+                        this._currentStatus === EventType.READY_TO_PLAY) {
+                        return 0;
+                    }
+                    else if (this._currentStatus === EventType.COMPLETED) {
+                        return this._impl.duration();
+                    }
                     return this._impl.currentTime();
                 }
                 return -1;
@@ -312,6 +322,7 @@ let VideoPlayer = cc.Class({
 
     ctor () {
         this._impl = new VideoPlayerImpl();
+        this._currentStatus = EventType.NONE;
     },
 
     _syncVolume () {
@@ -392,36 +403,43 @@ let VideoPlayer = cc.Class({
     },
 
     onReadyToPlay () {
+        this._currentStatus = EventType.READY_TO_PLAY;
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.READY_TO_PLAY);
         this.node.emit('ready-to-play', this);
     },
 
     onMetaLoaded () {
+        this._currentStatus = EventType.META_LOADED;
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.META_LOADED);
         this.node.emit('meta-loaded', this);
     },
 
     onClicked () {
+        this._currentStatus = EventType.CLICKED;
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.CLICKED);
         this.node.emit('clicked', this);
     },
 
     onPlaying () {
+        this._currentStatus = EventType.PLAYING;
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.PLAYING);
         this.node.emit('playing', this);
     },
 
     onPasued () {
+        this._currentStatus = EventType.PAUSED;
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.PAUSED);
         this.node.emit('paused', this);
     },
 
     onStopped () {
+        this._currentStatus = EventType.STOPPED;
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.STOPPED);
         this.node.emit('stopped', this);
     },
 
     onCompleted () {
+        this._currentStatus = EventType.COMPLETED;
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.COMPLETED);
         this.node.emit('completed', this);
     },
