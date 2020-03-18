@@ -182,7 +182,8 @@ let VideoPlayer = cc.Class({
             get: function () {
                 if (this._impl) {
                     // for used to make the current time of each platform consistent
-                    if (this._currentStatus === EventType.STOPPED ||
+                    if (this._currentStatus === EventType.NONE ||
+                        this._currentStatus === EventType.STOPPED ||
                         this._currentStatus === EventType.META_LOADED ||
                         this._currentStatus === EventType.READY_TO_PLAY) {
                         return 0;
