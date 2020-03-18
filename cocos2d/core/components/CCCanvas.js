@@ -89,7 +89,6 @@ var Canvas = cc.Class({
                 this._designResolution.width = value.width;
                 this._designResolution.height = value.height;
                 this.applySettings();
-                CC_EDITOR && this._fitDesignResolution();
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.canvas.design_resolution'
         },
@@ -136,7 +135,9 @@ var Canvas = cc.Class({
         }
     },
 
+    // fit canvas node to design resolution
     _fitDesignResolution: CC_EDITOR && function () {
+        // TODO: support paddings of locked widget
         var designSize = cc.engine.getDesignResolutionSize();
         this.node.setPosition(designSize.width * 0.5, designSize.height * 0.5);
         this.node.setContentSize(designSize);
@@ -154,13 +155,23 @@ var Canvas = cc.Class({
         }
         Canvas.instance = this;
 
+        // Align node to fit the screen
+        this.applySettings();
+
+        // Stretch to matched size during the scene initialization
+        let widget = this.getComponent(cc.Widget);
+        if (widget) {
+            widget.updateAlignment();
+        }
+        else if (CC_EDITOR) {
+            this._fitDesignResolution();
+        }
+
+        // Constantly align canvas node in edit mode
         if (CC_EDITOR) {
             cc.director.on(cc.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution, this);
             cc.engine.on('design-resolution-changed', this._fitDesignResolution, this);
         }
-
-        this.applySettings();
-        CC_EDITOR && this._fitDesignResolution();
 
         // Camera could be removed in canvas render mode
         let cameraNode = cc.find('Main Camera', this.node);

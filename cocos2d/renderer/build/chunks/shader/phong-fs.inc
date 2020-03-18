@@ -81,11 +81,12 @@ void surf (out PhongSurface s) {
 
   s.normal = v_worldNormal;
   #if USE_NORMAL_TEXTURE
-    vec3 nmmp = texture2D(normalTexture, v_uv0).xyz - vec3(0.5);
+    vec3 nmmp = texture(normalTexture, v_uv0).xyz - vec3(0.5);
     s.normal =
       nmmp.x * normalize(v_tangent) +
       nmmp.y * normalize(v_bitangent) +
       nmmp.z * normalize(s.normal);
+    s.normal = normalize(s.normal);
   #endif
 
   s.position = v_worldPos;

@@ -330,8 +330,10 @@ let Camera = cc.Class({
                 return this._backgroundColor;
             },
             set (value) {
-                this._backgroundColor = value;
-                this._updateBackgroundColor();
+                if (!this._backgroundColor.equals(value)) {
+                    this._backgroundColor.set(value);
+                    this._updateBackgroundColor();
+                }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.camera.backgroundColor',
         },

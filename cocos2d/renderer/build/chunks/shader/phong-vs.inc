@@ -50,7 +50,7 @@ void main () {
   #endif
 
   #if USE_NORMAL_TEXTURE
-    v_tangent = normalize((cc_matWorldIT * vec4(In.tangent.xyz, 0.0)).xyz);
+    v_tangent = normalize((cc_matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
     v_bitangent = cross(v_worldNormal, v_tangent) * In.tangent.w; // note the cross order
   #endif
 
