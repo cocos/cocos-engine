@@ -140,8 +140,8 @@ var textUtils = {
     // The unicode standard will never assign a character from code point 0xD800 to 0xDFFF
     // high surrogate (0xD800-0xDBFF) and low surrogate(0xDC00-0xDFFF) combines to a character on the Supplementary Multilingual Plane
     // reference: https://en.wikipedia.org/wiki/UTF-16
-    label_startsWithLowSurrogate: /^[\uDC00-\uDFFF]/,
-    label_endsWithHighSurrogate: /[\uD800-\uDBFF]$/,
+    highSurrogateRex: /[\uD800-\uDBFF]/,
+    lowSurrogateRex: /[\uDC00-\uDFFF]/,
     label_wrapinspection : true,
 
     __CHINESE_REG: /^[\u4E00-\u9FFF\u3400-\u4DFF]+$/,
@@ -174,19 +174,32 @@ var textUtils = {
     },
 
     // in case truncate a character on the Supplementary Multilingual Plane
+    // test case: a = '😉🚗'
+    // _safeSubstring(a, 1) === '😉🚗'
+    // _safeSubstring(a, 0, 1) === '😉'
+    // _safeSubstring(a, 0, 2) === '😉'
+    // _safeSubstring(a, 0, 3) === '😉'
+    // _safeSubstring(a, 0, 4) === '😉🚗'
+    // _safeSubstring(a, 1, 2) === _safeSubstring(a, 1, 3) === '😉'
+    // _safeSubstring(a, 2, 3) === _safeSubstring(a, 2, 4) === '🚗'
     _safeSubstring (targetString, startIndex, endIndex) {
-        let tmpString = targetString.substring(startIndex, endIndex);
         let newStartIndex = startIndex, newEndIndex = endIndex;
-        if (this.label_startsWithLowSurrogate.test(tmpString)) {
+        let startChar = targetString[startIndex];
+        if (this.lowSurrogateRex.test(startChar)) {
             newStartIndex--;
         }
-        if (endIndex !== undefined && this.label_endsWithHighSurrogate.test(tmpString)) {
-            newEndIndex--;
+        if (endIndex !== undefined) {
+            if (endIndex - 1 !== startIndex) {
+                let endChar = targetString[endIndex - 1];
+                if (this.highSurrogateRex.test(endChar)) {
+                    newEndIndex--;
+                }
+            }
+            else if (this.highSurrogateRex.test(startChar)) {
+                newEndIndex++;
+            }
         }
-        if (newStartIndex !== startIndex || newEndIndex !== endIndex) {
-            return targetString.substring(newStartIndex, newEndIndex);
-        }
-        return tmpString;
+        return targetString.substring(newStartIndex, newEndIndex);
     },
 
     fragmentText: function (stringToken, allWidth, maxWidth, measureText) {
