@@ -35,6 +35,8 @@ bool GLES2InputAssembler::initialize(const GFXInputAssemblerInfo &info) {
     if(info.indexBuffer)
         _gpuInputAssembler->gpuIndexBuffer = static_cast<GLES2Buffer*>(info.indexBuffer)->gpuBuffer();
   
+    if(info.indirectBuffer)
+        _gpuInputAssembler->gpuIndirectBuffer = static_cast<GLES2Buffer*>(info.indirectBuffer)->gpuBuffer();
   GLES2CmdFuncCreateInputAssembler((GLES2Device*)_device, _gpuInputAssembler);
     _status = GFXStatus::SUCCESS;
   

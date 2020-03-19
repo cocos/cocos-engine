@@ -703,7 +703,7 @@ struct GFXDrawInfo {
 typedef vector<GFXDrawInfo>::type GFXDrawInfoList;
 
 struct GFXIndirectBuffer {
-  GFXDrawInfoList draws;
+  GFXDrawInfoList drawInfos;
 };
 
 struct GFXTextureInfo {

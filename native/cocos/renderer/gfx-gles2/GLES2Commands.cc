@@ -465,7 +465,6 @@ void GLES2CmdFuncCreateBuffer(GLES2Device* device, GLES2GPUBuffer* gpuBuffer) {
     gpuBuffer->buffer = (uint8_t*)CC_MALLOC(gpuBuffer->size);
     gpuBuffer->glTarget = GL_NONE;
   } else if (gpuBuffer->usage & GFXBufferUsageBit::INDIRECT){
-    gpuBuffer->indirectBuff.draws.resize(gpuBuffer->count);
     gpuBuffer->glTarget = GL_NONE;
   } else if ((gpuBuffer->usage & GFXBufferUsageBit::TRANSFER_DST) ||
              (gpuBuffer->usage & GFXBufferUsageBit::TRANSFER_SRC)) {
@@ -542,7 +541,7 @@ void GLES2CmdFuncResizeBuffer(GLES2Device* device, GLES2GPUBuffer* gpuBuffer) {
     gpuBuffer->buffer = (uint8_t*)CC_MALLOC(gpuBuffer->size);
     gpuBuffer->glTarget = GL_NONE;
   } else if (gpuBuffer->usage & GFXBufferUsageBit::INDIRECT) {
-    gpuBuffer->indirectBuff.draws.resize(gpuBuffer->count);
+    gpuBuffer->indirects.resize(gpuBuffer->count);
     gpuBuffer->glTarget = GL_NONE;
   } else if ((gpuBuffer->usage & GFXBufferUsageBit::TRANSFER_DST) ||
              (gpuBuffer->usage & GFXBufferUsageBit::TRANSFER_SRC)) {
@@ -562,7 +561,12 @@ void GLES2CmdFuncUpdateBuffer(GLES2Device* device, GLES2GPUBuffer* gpuBuffer, vo
   if (gpuBuffer->usage & GFXBufferUsageBit::UNIFORM) {
     memcpy(gpuBuffer->buffer + offset, buffer, size);
   } else if (gpuBuffer->usage & GFXBufferUsageBit::INDIRECT) {
-    memcpy((uint8_t*)gpuBuffer->indirectBuff.draws.data() + offset, buffer, size);
+      auto count = size / sizeof(GFXDrawInfo);
+      if(gpuBuffer->indirects.size() < count)
+      {
+          gpuBuffer->indirects.resize(count);
+      }
+    memcpy((uint8_t*)gpuBuffer->indirects.data() + offset, buffer, size);
   } else if (gpuBuffer->usage & GFXBufferUsageBit::TRANSFER_SRC) {
       memcpy(gpuBuffer->buffer + offset, buffer, size);
   } else {
@@ -1924,8 +1928,8 @@ void GLES2CmdFuncExecuteCmds(GLES2Device* device, GLES2CmdPackage* cmd_package) 
               }
             }
           } else {
-            for (size_t j = 0; j < gpuInputAssembler->gpuIndirectBuffer->indirectBuff.draws.size(); ++j) {
-              GFXDrawInfo& draw = gpuInputAssembler->gpuIndirectBuffer->indirectBuff.draws[j];
+            for (size_t j = 0; j < gpuInputAssembler->gpuIndirectBuffer->indirects.size(); ++j) {
+              const GFXDrawInfo& draw = gpuInputAssembler->gpuIndirectBuffer->indirects[j];
               if (gpuInputAssembler->gpuIndexBuffer && draw.indexCount >= 0) {
                 uint8_t* offset = 0;
                 offset += draw.firstIndex * gpuInputAssembler->gpuIndexBuffer->stride;

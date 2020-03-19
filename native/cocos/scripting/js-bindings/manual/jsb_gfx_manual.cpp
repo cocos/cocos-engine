@@ -145,14 +145,14 @@ static bool js_gfx_GFXBuffer_update(se::State& s)
     
     if (argc == 1) {
         SE_PRECONDITION2(ok, false, "js_gfx_GFXBuffer_update : Error processing arguments");
-        cobj->update(arg0, 0, dataLength);
+        cobj->update(arg0, 0, static_cast<uint>(dataLength));
         return true;
     }
     if (argc == 2) {
         unsigned int arg1 = 0;
         ok &= seval_to_uint32(args[1], (uint32_t*)&arg1);
         SE_PRECONDITION2(ok, false, "js_gfx_GFXBuffer_update : Error processing arguments");
-        cobj->update(arg0, arg1, dataLength);
+        cobj->update(arg0, arg1, static_cast<uint>(dataLength));
         return true;
     }
     if (argc == 3) {

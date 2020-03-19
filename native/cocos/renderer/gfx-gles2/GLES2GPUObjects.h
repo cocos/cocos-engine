@@ -15,7 +15,7 @@ class GLES2GPUBuffer : public Object {
   GLenum glTarget = 0;
   GLuint glBuffer = 0;
   uint8_t* buffer = nullptr;
-  GFXIndirectBuffer indirectBuff;
+  GFXDrawInfoList indirects;
 };
 typedef vector<GLES2GPUBuffer*>::type GLES2GPUBufferList;
 
