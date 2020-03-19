@@ -180,7 +180,7 @@ export class Model {
             if (idx >= 0) {
                 const attrs = this.instancedAttributes!.list;
                 uploadMat4AsVec4x3(worldMatrix, attrs[idx].view, attrs[idx + 1].view, attrs[idx + 2].view);
-            } else if (!this.isDynamicBatching) {
+            } else {
                 Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
                 Mat4.inverseTranspose(m4_1, worldMatrix);
                 Mat4.toArray(this._localData, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
