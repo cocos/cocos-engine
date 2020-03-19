@@ -27,9 +27,6 @@ THE SOFTWARE.
 #include <algorithm>
 #include <mutex>
 #include "base/CCScheduler.h"
-#include "base/CCAutoreleasePool.h"
-#include "scripting/js-bindings/event/EventDispatcher.h"
-#include "scripting/js-bindings/event/CustomEventTypes.h"
 #include "scripting/js-bindings/jswrapper/SeApi.h"
 #include "audio/include/AudioEngine.h"
 
@@ -48,18 +45,12 @@ namespace
                 (int)(viewLogicalSize.y),
                 (uintptr_t)view);
         se->evalString(commandBuf);
-                
-        cocos2d::CustomEvent applicationReady;
-        applicationReady.name = EVENT_APPLICATION_READY;
-        cocos2d::EventDispatcher::dispatchCustomEvent(applicationReady);
         return true;
     }
 }
 
 Application* Application::_instance = nullptr;
 std::shared_ptr<Scheduler> Application::_scheduler = nullptr;
-
-#define CAST_VIEW(view)    ((GLView*)view)
 
 Application::Application(int width, int height)
 {

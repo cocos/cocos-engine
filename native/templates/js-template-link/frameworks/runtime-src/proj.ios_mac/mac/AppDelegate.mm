@@ -1,24 +1,7 @@
 #import "AppDelegate.h"
 #import "ViewController.h"
 #import "Game.h"
-#import "scripting/js-bindings/event/EventDispatcher.h"
-#import "scripting/js-bindings/event/CustomEventTypes.h"
 #include <string>
-
-namespace
-{
-    AppDelegate* app = nil;
-    void applicationReady(const cocos2d::CustomEvent& event)
-    {
-        if (event.name == EVENT_APPLICATION_READY)
-        {
-            [NSTimer scheduledTimerWithTimeInterval:(1.0 / 60)
-                                             target:app
-                                           selector:@selector(renderScene)
-                                           userInfo:nil repeats:YES];
-        }
-    }
-}
 
 @interface AppDelegate ()
 {
@@ -28,15 +11,6 @@ namespace
 @end
 
 @implementation AppDelegate
-
-- (instancetype)init
-{
-    self = [super init];
-    if (self) {
-        app = self;
-    }
-    return self;
-}
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     NSRect rect = NSMakeRect(200, 200, 960, 640);
@@ -55,11 +29,15 @@ namespace
     _window.contentViewController = viewController;
     _window.contentView = viewController.view;
     [_window makeKeyAndOrderFront:nil];
-    
-    cocos2d::EventDispatcher::addCustomEventListener(EVENT_APPLICATION_READY, applicationReady);
-    
+        
     _game = new Game(rect.size.width, rect.size.height);
     _game->init();
+    
+    [NSTimer scheduledTimerWithTimeInterval:(1.0 / 60)
+                                     target:self
+                                   selector:@selector(renderScene)
+                                   userInfo:nil
+                                    repeats:YES];
 }
 
 - (NSWindow*)getWindow
