@@ -3831,7 +3831,7 @@ static bool js_gfx_GFXIndirectBuffer_get_draws(se::State& s)
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= native_ptr_to_seval(cobj->draws, &jsret);
+    ok &= std_vector_to_seval(cobj->draws, &jsret);
     s.rval() = jsret;
     return true;
 }
@@ -5826,7 +5826,7 @@ static bool js_gfx_GFXUniformBlock_get_uniforms(se::State& s)
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= native_ptr_to_seval(cobj->uniforms, &jsret);
+    ok &= std_vector_to_seval(cobj->uniforms, &jsret);
     s.rval() = jsret;
     return true;
 }
@@ -6280,7 +6280,7 @@ static bool js_gfx_GFXShaderStage_get_macros(se::State& s)
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= native_ptr_to_seval(cobj->macros, &jsret);
+    ok &= std_vector_to_seval(cobj->macros, &jsret);
     s.rval() = jsret;
     return true;
 }
@@ -6459,7 +6459,7 @@ static bool js_gfx_GFXShaderInfo_get_stages(se::State& s)
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= native_ptr_to_seval(cobj->stages, &jsret);
+    ok &= std_vector_to_seval(cobj->stages, &jsret);
     s.rval() = jsret;
     return true;
 }
@@ -6487,7 +6487,7 @@ static bool js_gfx_GFXShaderInfo_get_blocks(se::State& s)
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= native_ptr_to_seval(cobj->blocks, &jsret);
+    ok &= std_vector_to_seval(cobj->blocks, &jsret);
     s.rval() = jsret;
     return true;
 }
@@ -6515,7 +6515,7 @@ static bool js_gfx_GFXShaderInfo_get_samplers(se::State& s)
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= native_ptr_to_seval(cobj->samplers, &jsret);
+    ok &= std_vector_to_seval(cobj->samplers, &jsret);
     s.rval() = jsret;
     return true;
 }
@@ -6965,7 +6965,7 @@ static bool js_gfx_GFXInputAssemblerInfo_get_attributes(se::State& s)
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= native_ptr_to_seval(cobj->attributes, &jsret);
+    ok &= std_vector_to_seval(cobj->attributes, &jsret);
     s.rval() = jsret;
     return true;
 }
@@ -6993,7 +6993,7 @@ static bool js_gfx_GFXInputAssemblerInfo_get_vertexBuffers(se::State& s)
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= native_ptr_to_seval(cobj->vertexBuffers, &jsret);
+    ok &= std_vector_to_seval(cobj->vertexBuffers, &jsret);
     s.rval() = jsret;
     return true;
 }
@@ -7946,7 +7946,7 @@ static bool js_gfx_GFXRenderPassInfo_get_colorAttachments(se::State& s)
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= native_ptr_to_seval(cobj->colorAttachments, &jsret);
+    ok &= std_vector_to_seval(cobj->colorAttachments, &jsret);
     s.rval() = jsret;
     return true;
 }
@@ -8002,7 +8002,7 @@ static bool js_gfx_GFXRenderPassInfo_get_subPasses(se::State& s)
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= native_ptr_to_seval(cobj->subPasses, &jsret);
+    ok &= std_vector_to_seval(cobj->subPasses, &jsret);
     s.rval() = jsret;
     return true;
 }
@@ -8181,7 +8181,7 @@ static bool js_gfx_GFXFramebufferInfo_get_colorViews(se::State& s)
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= native_ptr_to_seval(cobj->colorViews, &jsret);
+    ok &= std_vector_to_seval(cobj->colorViews, &jsret);
     s.rval() = jsret;
     return true;
 }
@@ -8607,7 +8607,7 @@ static bool js_gfx_GFXBindingLayoutInfo_get_bindings(se::State& s)
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= native_ptr_to_seval(cobj->bindings, &jsret);
+    ok &= std_vector_to_seval(cobj->bindings, &jsret);
     s.rval() = jsret;
     return true;
 }
@@ -9245,7 +9245,7 @@ static bool js_gfx_GFXPipelineLayoutInfo_get_pushConstantsRanges(se::State& s)
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= native_ptr_to_seval(cobj->pushConstantsRanges, &jsret);
+    ok &= std_vector_to_seval(cobj->pushConstantsRanges, &jsret);
     s.rval() = jsret;
     return true;
 }
@@ -9273,7 +9273,7 @@ static bool js_gfx_GFXPipelineLayoutInfo_get_layouts(se::State& s)
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= native_ptr_to_seval(cobj->layouts, &jsret);
+    ok &= std_vector_to_seval(cobj->layouts, &jsret);
     s.rval() = jsret;
     return true;
 }
@@ -9412,7 +9412,7 @@ static bool js_gfx_GFXInputState_get_attributes(se::State& s)
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= native_ptr_to_seval(cobj->attributes, &jsret);
+    ok &= std_vector_to_seval(cobj->attributes, &jsret);
     s.rval() = jsret;
     return true;
 }
@@ -11683,7 +11683,7 @@ static bool js_gfx_GFXPipelineStateInfo_get_dynamicStates(se::State& s)
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= native_ptr_to_seval(cobj->dynamicStates, &jsret);
+    ok &= std_vector_to_seval(cobj->dynamicStates, &jsret);
     s.rval() = jsret;
     return true;
 }
@@ -15236,7 +15236,7 @@ static bool js_gfx_GFXShader_getStages(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         const std::vector<cocos2d::GFXShaderStage>& result = cobj->getStages();
-        ok &= native_ptr_to_seval(result, &s.rval());
+        ok &= std_vector_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXShader_getStages : Error processing arguments");
         return true;
     }
@@ -15290,7 +15290,7 @@ static bool js_gfx_GFXShader_getSamplers(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         const std::vector<cocos2d::GFXUniformSampler>& result = cobj->getSamplers();
-        ok &= native_ptr_to_seval(result, &s.rval());
+        ok &= std_vector_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXShader_getSamplers : Error processing arguments");
         return true;
     }
@@ -15362,7 +15362,7 @@ static bool js_gfx_GFXShader_getBlocks(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         const std::vector<cocos2d::GFXUniformBlock>& result = cobj->getBlocks();
-        ok &= native_ptr_to_seval(result, &s.rval());
+        ok &= std_vector_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXShader_getBlocks : Error processing arguments");
         return true;
     }
@@ -15623,6 +15623,24 @@ static bool js_gfx_GFXInputAssembler_getIndirectBuffer(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_GFXInputAssembler_getIndirectBuffer)
 
+static bool js_gfx_GFXInputAssembler_getVertexBuffers(se::State& s)
+{
+    cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXInputAssembler_getVertexBuffers : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const std::vector<cocos2d::GFXBuffer *>& result = cobj->getVertexBuffers();
+        ok &= std_vector_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_getVertexBuffers : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_GFXInputAssembler_getVertexBuffers)
+
 static bool js_gfx_GFXInputAssembler_initialize(se::State& s)
 {
     cocos2d::GFXInputAssembler* cobj = (cocos2d::GFXInputAssembler*)s.nativeThisObject();
@@ -15709,7 +15727,7 @@ static bool js_gfx_GFXInputAssembler_getAttributes(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         const std::vector<cocos2d::GFXAttribute>& result = cobj->getAttributes();
-        ok &= native_ptr_to_seval(result, &s.rval());
+        ok &= std_vector_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXInputAssembler_getAttributes : Error processing arguments");
         return true;
     }
@@ -15825,6 +15843,7 @@ bool js_register_gfx_GFXInputAssembler(se::Object* obj)
     auto cls = se::Class::create("GFXInputAssembler", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXInputAssembler_constructor));
 
     cls->defineProperty("instanceCount", _SE(js_gfx_GFXInputAssembler_getInstanceCount), _SE(js_gfx_GFXInputAssembler_setInstanceCount));
+    cls->defineProperty("vertexBuffers", _SE(js_gfx_GFXInputAssembler_getVertexBuffers), nullptr);
     cls->defineProperty("firstInstance", _SE(js_gfx_GFXInputAssembler_getFirstInstance), _SE(js_gfx_GFXInputAssembler_setFirstInstance));
     cls->defineProperty("vertexOffset", _SE(js_gfx_GFXInputAssembler_getVertexOffset), _SE(js_gfx_GFXInputAssembler_setVertexOffset));
     cls->defineProperty("vertexCount", _SE(js_gfx_GFXInputAssembler_getVertexCount), _SE(js_gfx_GFXInputAssembler_setVertexCount));
@@ -15860,7 +15879,7 @@ static bool js_gfx_GFXRenderPass_getColorAttachments(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         const std::vector<cocos2d::GFXColorAttachment>& result = cobj->getColorAttachments();
-        ok &= native_ptr_to_seval(result, &s.rval());
+        ok &= std_vector_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXRenderPass_getColorAttachments : Error processing arguments");
         return true;
     }
@@ -15878,7 +15897,7 @@ static bool js_gfx_GFXRenderPass_getSubPasses(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         const std::vector<cocos2d::GFXSubPass>& result = cobj->getSubPasses();
-        ok &= native_ptr_to_seval(result, &s.rval());
+        ok &= std_vector_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXRenderPass_getSubPasses : Error processing arguments");
         return true;
     }
@@ -16056,7 +16075,7 @@ static bool js_gfx_GFXFramebuffer_getColorViews(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         const std::vector<cocos2d::GFXTextureView *>& result = cobj->getColorViews();
-        ok &= native_ptr_to_seval(result, &s.rval());
+        ok &= std_vector_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXFramebuffer_getColorViews : Error processing arguments");
         return true;
     }
@@ -16241,7 +16260,7 @@ static bool js_gfx_GFXBindingLayout_getBindingUnits(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         const std::vector<cocos2d::GFXBindingUnit>& result = cobj->getBindingUnits();
-        ok &= native_ptr_to_seval(result, &s.rval());
+        ok &= std_vector_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXBindingLayout_getBindingUnits : Error processing arguments");
         return true;
     }
@@ -16403,7 +16422,7 @@ static bool js_gfx_GFXPipelineLayout_getLayouts(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         const std::vector<cocos2d::GFXBindingLayout *>& result = cobj->getLayouts();
-        ok &= native_ptr_to_seval(result, &s.rval());
+        ok &= std_vector_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineLayout_getLayouts : Error processing arguments");
         return true;
     }
@@ -16475,7 +16494,7 @@ static bool js_gfx_GFXPipelineLayout_getPushConstantsRanges(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         const std::vector<cocos2d::GFXPushConstantRange>& result = cobj->getPushConstantsRanges();
-        ok &= native_ptr_to_seval(result, &s.rval());
+        ok &= std_vector_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineLayout_getPushConstantsRanges : Error processing arguments");
         return true;
     }
@@ -16742,7 +16761,7 @@ static bool js_gfx_GFXPipelineState_getDynamicStates(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 0) {
         const std::vector<cocos2d::GFXDynamicState>& result = cobj->getDynamicStates();
-        ok &= native_ptr_to_seval(result, &s.rval());
+        ok &= std_vector_to_seval(result, &s.rval());
         SE_PRECONDITION2(ok, false, "js_gfx_GFXPipelineState_getDynamicStates : Error processing arguments");
         return true;
     }
