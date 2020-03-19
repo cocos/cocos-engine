@@ -877,10 +877,6 @@ let NodeDefines = {
     
         _is3DNode: false,
 
-        _up: undefined,
-        _right: undefined,
-        _front: undefined,
-
         // internal properties
         /**
          * !#en
@@ -1581,55 +1577,43 @@ let NodeDefines = {
 
         /**
          * !#en Returns a normalized vector representing the up direction (Y axis) of the node in world space.
-         * !#zh 获取节点正上方（y 轴）所在方向，返回值为世界坐标系下的归一化向量
+         * !#zh 获取节点正上方（y 轴）面对的方向，返回值为世界坐标系下的归一化向量
          * 
          * @method up
          * @return {Vec2|Vec3}
          */
         up: {
             get () {
-                this._up = Vec3.transformQuat(_uVec3, Vec3.UP, this.getWorldRotation(new Quat()));
-                return this._up;
-            },
-            set () {
-                //TODO: This function can receive a value to set node‘s direction.
-                return null;
+                var _up = Vec3.transformQuat(_uVec3, Vec3.UP, this.getWorldRotation(new Quat()));
+                return _up;
             }
         },
 
         /**
          * !#en Returns a normalized vector representing the right direction (-X axis) of the node in world space.
-         * !#zh 获取节点正右方（-x 轴）所在方向，返回值为世界坐标系下的归一化向量
+         * !#zh 获取节点正右方（-x 轴）面对的方向，返回值为世界坐标系下的归一化向量
          * 
          * @method right
          * @return {Vec2|Vec3}
          */
         right: {
             get () {
-                this._right = Vec3.transformQuat(_rVec3, Vec3.RIGHT, this.getWorldRotation(new Quat()));
-                return this._right;
-            },
-            set () {
-                //TODO: This function can receive a value to set node‘s direction.
-                return null;
+                var _right = Vec3.transformQuat(_rVec3, Vec3.RIGHT, this.getWorldRotation(new Quat()));
+                return _right;
             }
         },
 
         /**
          * !#en Returns a normalized vector representing the forward direction (Z axis) of the node in world space.
-         * !#zh 获取节点正前方（z 轴）所在方向，返回值为世界坐标系下的归一化向量
+         * !#zh 获取节点正前方（z 轴）面对的方向，返回值为世界坐标系下的归一化向量
          * 
          * @method front
          * @return {Vec2|Vec3}
          */
-        front: {
+        forward: {
             get () {
-                this._front = Vec3.transformQuat(_fVec3, Vec3.FRONT, this.getWorldRotation(new Quat()));
-                return this._front;
-            },
-            set () {
-                //TODO: This function can receive a value to set node‘s direction.
-                return null;
+                var _forward = Vec3.transformQuat(_fVec3, Vec3.FORWARD, this.getWorldRotation(new Quat()));
+                return _forward;
             }
         },
     },
