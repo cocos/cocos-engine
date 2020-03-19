@@ -739,7 +739,7 @@ native_ptr_to_seval(T* vp, se::Class* cls, se::Value* ret, bool* isReturnCachedV
 }
 
 template<typename T>
-bool Vector_to_seval(const cocos2d::Vector<T*>& v, se::Value* ret)
+bool std_vector_to_seval(const std::vector<T>& v, se::Value* ret)
 {
     assert(ret != nullptr);
     bool ok = true;
@@ -749,7 +749,7 @@ bool Vector_to_seval(const cocos2d::Vector<T*>& v, se::Value* ret)
     se::Value tmp;
     for (const auto& e : v)
     {
-        native_ptr_to_seval<T>(e, &tmp);
+        native_ptr_to_seval(e, &tmp);
         obj->setArrayElement(i, tmp);
         ++i;
     }
