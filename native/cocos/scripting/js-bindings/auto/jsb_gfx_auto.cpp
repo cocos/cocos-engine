@@ -12889,6 +12889,24 @@ bool js_register_gfx_GFXObject(se::Object* obj)
 se::Object* __jsb_cocos2d_GFXDevice_proto = nullptr;
 se::Class* __jsb_cocos2d_GFXDevice_class = nullptr;
 
+static bool js_gfx_GFXDevice_getNumInstances(se::State& s)
+{
+    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getNumInstances : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getNumInstances();
+        ok &= uint32_to_seval((unsigned int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getNumInstances : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GFXDevice_getNumInstances)
+
 static bool js_gfx_GFXDevice_getCommandAllocator(se::State& s)
 {
     cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
@@ -13569,6 +13587,7 @@ bool js_register_gfx_GFXDevice(se::Object* obj)
     cls->defineProperty("context", _SE(js_gfx_GFXDevice_getContext), nullptr);
     cls->defineProperty("vendor", _SE(js_gfx_GFXDevice_getVendor), nullptr);
     cls->defineProperty("mainWindow", _SE(js_gfx_GFXDevice_getMainWindow), nullptr);
+    cls->defineFunction("getNumInstances", _SE(js_gfx_GFXDevice_getNumInstances));
     cls->defineFunction("hasFeature", _SE(js_gfx_GFXDevice_hasFeature));
     cls->defineFunction("createCommandAllocator", _SE(js_gfx_GFXDevice_createCommandAllocator));
     cls->defineFunction("getAPI", _SE(js_gfx_GFXDevice_getAPI));
@@ -17086,6 +17105,24 @@ static bool js_gfx_GFXCommandBuffer_setStencilWriteMask(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_GFXCommandBuffer_setStencilWriteMask)
 
+static bool js_gfx_GFXCommandBuffer_getNumInstances(se::State& s)
+{
+    cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXCommandBuffer_getNumInstances : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getNumInstances();
+        ok &= uint32_to_seval((unsigned int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXCommandBuffer_getNumInstances : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GFXCommandBuffer_getNumInstances)
+
 static bool js_gfx_GFXCommandBuffer_setStencilCompareMask(se::State& s)
 {
     cocos2d::GFXCommandBuffer* cobj = (cocos2d::GFXCommandBuffer*)s.nativeThisObject();
@@ -17439,6 +17476,7 @@ bool js_register_gfx_GFXCommandBuffer(se::Object* obj)
     cls->defineFunction("updateBuffer", _SE(js_gfx_GFXCommandBuffer_updateBuffer));
     cls->defineFunction("end", _SE(js_gfx_GFXCommandBuffer_end));
     cls->defineFunction("setStencilWriteMask", _SE(js_gfx_GFXCommandBuffer_setStencilWriteMask));
+    cls->defineFunction("getNumInstances", _SE(js_gfx_GFXCommandBuffer_getNumInstances));
     cls->defineFunction("setStencilCompareMask", _SE(js_gfx_GFXCommandBuffer_setStencilCompareMask));
     cls->defineFunction("bindInputAssembler", _SE(js_gfx_GFXCommandBuffer_bindInputAssembler));
     cls->defineFunction("bindPipelineState", _SE(js_gfx_GFXCommandBuffer_bindPipelineState));
