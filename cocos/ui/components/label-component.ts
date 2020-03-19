@@ -772,7 +772,7 @@ export class LabelComponent extends UIRenderComponent {
         if (font && font instanceof BitmapFont) {
             const spriteFrame = font.spriteFrame;
             // cannot be activated if texture not loaded yet
-            if (!spriteFrame || !spriteFrame.textureLoaded()) {
+            if (!spriteFrame || !spriteFrame.texture) {
                 return false;
             }
         }

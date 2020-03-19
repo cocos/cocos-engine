@@ -584,7 +584,7 @@ export class SpriteComponent extends UIRenderComponent {
         }
 
         const spriteFrame = this._spriteFrame;
-        if (!spriteFrame || !spriteFrame.textureLoaded()) {
+        if (!spriteFrame || !spriteFrame.texture) {
             return false;
         }
 
