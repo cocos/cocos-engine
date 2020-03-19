@@ -7,9 +7,10 @@ import { ccclass, property } from '../../core/data/class-decorator';
 import { pseudoRandom } from '../../core/math';
 import Particle from '../particle';
 import CurveRange from './curve-range';
+import { ModuleRandSeed } from '../enum';
 
 // tslint:disable: max-line-length
-const ROTATION_OVERTIME_RAND_OFFSET = 125292;
+const ROTATION_OVERTIME_RAND_OFFSET = ModuleRandSeed.ROTATION;
 
 @ccclass('cc.RotationOvertimeModule')
 export default class RotationOvertimeModule {

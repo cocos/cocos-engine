@@ -9,11 +9,12 @@ import { Space } from '../enum';
 import Particle from '../particle';
 import { calculateTransform } from '../particle-general-function';
 import CurveRange from './curve-range';
+import { ModuleRandSeed } from '../enum';
 
 // tslint:disable: max-line-length
-const VELOCITY_X_OVERTIME_RAND_OFFSET = 197866;
-const VELOCITY_Y_OVERTIME_RAND_OFFSET = 156497;
-const VELOCITY_Z_OVERTIME_RAND_OFFSET = 984136;
+const VELOCITY_X_OVERTIME_RAND_OFFSET = ModuleRandSeed.VELOCITY_X;
+const VELOCITY_Y_OVERTIME_RAND_OFFSET = ModuleRandSeed.VELOCITY_Y;
+const VELOCITY_Z_OVERTIME_RAND_OFFSET = ModuleRandSeed.VELOCITY_Z;
 
 const _temp_v3 = new Vec3();
 
@@ -105,7 +106,6 @@ export default class VelocityOvertimeModule {
         Vec3.add(p.ultimateVelocity, p.velocity, p.animatedVelocity);
         Vec3.multiplyScalar(p.ultimateVelocity, p.ultimateVelocity, this.speedModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed + VELOCITY_X_OVERTIME_RAND_OFFSET))!);
     }
-
 }
 
 // CCClass.fastDefine('cc.VelocityOvertimeModule', VelocityOvertimeModule, {

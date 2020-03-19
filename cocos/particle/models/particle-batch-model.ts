@@ -28,34 +28,46 @@
  */
 
 import { Material } from '../../core/assets/material';
-import { Mesh, RenderingSubMesh } from '../../core/assets/mesh';
+import { IRenderingSubmesh, Mesh } from '../../core/assets/mesh';
 import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormatInfos,
     GFXMemoryUsageBit, GFXPrimitiveMode, GFXStatus } from '../../core/gfx/define';
 import { IGFXAttribute } from '../../core/gfx/input-assembler';
 import { Color } from '../../core/math/color';
-import { Model, ModelType } from '../../core/renderer/scene/model';
+import { Model } from '../../core/renderer/scene/model';
+import Particle from '../particle';
+
+const _uvs = [
+    0, 0, // bottom-left
+    1, 0, // bottom-right
+    0, 1, // top-left
+    1, 1, // top-right
+];
 
 export default class ParticleBatchModel extends Model {
 
     private _capacity: number;
     private _vertAttrs: IGFXAttribute[] | null;
-    private _vertSize: number;
+    public _vertSize: number;
     private _vBuffer: ArrayBuffer | null;
-    private _vertAttrsFloatCount: number;
-    private _vdataF32: Float32Array | null;
-    private _vdataUint32: Uint32Array | null;
+    public _vertAttrsFloatCount: number;
+    public _vdataF32: Float32Array | null;
+    public _vdataUint32: Uint32Array | null;
     private _iaInfo: IGFXIndirectBuffer;
     private _iaInfoBuffer: GFXBuffer;
-    private _subMeshData: RenderingSubMesh | null;
+    private _subMeshData: IRenderingSubmesh | null;
     private _mesh: Mesh | null;
-    private _vertCount: number = 0;
+    public _vertCount: number = 0;
     private _indexCount: number = 0;
+
+    public get device () {
+        return this._device;
+    } 
 
     constructor () {
         super();
 
-        this.type = ModelType.PARTICLE_BATCH;
+        this._type = 'particle-batch';
         this._capacity = 0;
         this._vertAttrs = null;
         this._vertSize = 0;
@@ -192,11 +204,21 @@ export default class ParticleBatchModel extends Model {
         }
         this._iaInfoBuffer.update(this._iaInfo);
 
-        this._subMeshData = new RenderingSubMesh([vertexBuffer], this._vertAttrs!, GFXPrimitiveMode.TRIANGLE_LIST);
-        this._subMeshData.indexBuffer = indexBuffer;
-        this._subMeshData.indirectBuffer = this._iaInfoBuffer;
+        this._subMeshData = {
+            vertexBuffers: [vertexBuffer],
+            indexBuffer,
+            indirectBuffer: this._iaInfoBuffer,
+            attributes: this._vertAttrs!,
+            primitiveMode: GFXPrimitiveMode.TRIANGLE_LIST,
+            flatBuffers: [],
+        };
         this.setSubModelMesh(0, this._subMeshData);
         return vBuffer;
+    }
+
+    public setSubModelMaterial (idx: number, mat: Material | null) {
+        this.initLocalBindings(mat);
+        super.setSubModelMaterial(idx, mat);
     }
 
     public addParticleVertexData (index: number, pvdata: any[]) {
@@ -241,11 +263,45 @@ export default class ParticleBatchModel extends Model {
         }
     }
 
+    public addGPUParticleVertexData (p: Particle, num: number, time:number) {
+        let offset = num * this._vertAttrsFloatCount * this._vertCount;
+        for (let i = 0; i < this._vertCount; i++) {
+            let idx = offset;
+            this._vdataF32![idx++] = p.position.x;
+            this._vdataF32![idx++] = p.position.y;
+            this._vdataF32![idx++] = p.position.z;
+            this._vdataF32![idx++] = time;
+
+            this._vdataF32![idx++] = p.startSize.x;
+            this._vdataF32![idx++] = p.startSize.y;  
+            this._vdataF32![idx++] = p.startSize.z;
+            this._vdataF32![idx++] = _uvs[2 * i];
+
+            this._vdataF32![idx++] = p.rotation.x;
+            this._vdataF32![idx++] = p.rotation.y;
+            this._vdataF32![idx++] = p.rotation.z;
+            this._vdataF32![idx++] = _uvs[2 * i + 1];
+
+            this._vdataF32![idx++] = p.startColor.r / 255.0;
+            this._vdataF32![idx++] = p.startColor.g / 255.0;
+            this._vdataF32![idx++] = p.startColor.b / 255.0;
+            this._vdataF32![idx++] = p.startColor.a / 255.0;
+
+            this._vdataF32![idx++] = p.velocity.x;
+            this._vdataF32![idx++] = p.velocity.y;
+            this._vdataF32![idx++] = p.velocity.z;
+            this._vdataF32![idx++] = p.startLifetime;
+
+            this._vdataF32![idx++] = p.randomSeed;
+
+            offset += this._vertAttrsFloatCount;
+        }
+    }
+
     public updateIA (count: number) {
-        const ia = this.getSubModel(0).inputAssembler!;
-        ia.vertexBuffers[0].update(this._vdataF32!);
-        ia.indexCount = this._indexCount * count;
-        this._iaInfo.drawInfos[0] = ia;
+        this.getSubModel(0).inputAssembler!.vertexBuffers[0].update(this._vdataF32!);
+        this.getSubModel(0).inputAssembler!.indexCount = this._indexCount * count;
+        this.getSubModel(0).inputAssembler!.extractDrawInfo(this._iaInfo.drawInfos[0]);
         this._iaInfoBuffer.update(this._iaInfo);
     }
 

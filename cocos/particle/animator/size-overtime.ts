@@ -7,9 +7,10 @@ import { ccclass, property } from '../../core/data/class-decorator';
 import { pseudoRandom, Vec3 } from '../../core/math';
 import Particle from '../particle';
 import CurveRange from './curve-range';
+import { ModuleRandSeed } from '../enum';
 
 // tslint:disable: max-line-length
-const SIZE_OVERTIME_RAND_OFFSET = 39825;
+const SIZE_OVERTIME_RAND_OFFSET = ModuleRandSeed.SIZE;
 
 @ccclass('cc.SizeOvertimeModule')
 export default class SizeOvertimeModule {

@@ -166,3 +166,15 @@ export const TextureMode = Enum({
      */
     Repeat: 1,
 });
+
+export const ModuleRandSeed = {
+    LIMIT: 23541,    
+    SIZE: 39825,  
+    TEXTURE: 90794,  
+    COLOR: 91041,
+    FORCE: 212165,
+    ROTATION: 125292,
+    VELOCITY_X: 197866,
+    VELOCITY_Y: 156497,
+    VELOCITY_Z: 984136
+}

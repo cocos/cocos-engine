@@ -5,13 +5,13 @@
 
 import { ccclass, property } from '../../core/data/class-decorator';
 import { lerp, pseudoRandom, Vec3, Mat4, Quat } from '../../core/math';
-import { Space } from '../enum';
+import { Space, ModuleRandSeed } from '../enum';
 import Particle from '../particle';
 import CurveRange from './curve-range';
 import { calculateTransform } from '../particle-general-function';
 
 // tslint:disable: max-line-length
-const LIMIT_VELOCITY_RAND_OFFSET = 23541;
+const LIMIT_VELOCITY_RAND_OFFSET = ModuleRandSeed.LIMIT;
 
 const _temp_v3 = new Vec3();
 const _temp_v3_1 = new Vec3();

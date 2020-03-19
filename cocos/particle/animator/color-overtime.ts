@@ -7,10 +7,11 @@ import { ccclass, property } from '../../core/data/class-decorator';
 import { pseudoRandom } from '../../core/math';
 import Particle from '../particle';
 import GradientRange from './gradient-range';
+import { ModuleRandSeed } from '../enum';
 
 // tslint:disable: max-line-length
 
-const COLOR_OVERTIME_RAND_OFFSET = 91041;
+const COLOR_OVERTIME_RAND_OFFSET = ModuleRandSeed.COLOR;
 
 @ccclass('cc.ColorOvertimeModule')
 export default class ColorOvertimeModule {

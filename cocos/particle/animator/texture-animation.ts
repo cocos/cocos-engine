@@ -9,9 +9,10 @@ import { Enum } from '../../core/value-types';
 import Particle from '../particle';
 import { ParticleSystemComponent } from '../particle-system-component';
 import CurveRange from './curve-range';
+import { ModuleRandSeed } from '../enum';
 
 // tslint:disable: max-line-length
-const TEXTURE_ANIMATION_RAND_OFFSET = 90794;
+const TEXTURE_ANIMATION_RAND_OFFSET = ModuleRandSeed.TEXTURE;
 
 /**
  * 粒子贴图动画类型。

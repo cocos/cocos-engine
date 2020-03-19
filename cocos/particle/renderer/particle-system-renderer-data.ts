@@ -1,0 +1,185 @@
+import { Material, Mesh } from '../../core/assets';
+import { ccclass, property } from '../../core/data/class-decorator';
+import { RenderMode} from '../enum';
+import { IParticleSystemRenderer } from './particle-system-renderer-base';
+import ParticleSystemRendererCPU from './particle-system-renderer-cpu';
+import ParticleSystemRendererGPU from './particle-system-renderer-gpu';
+@ccclass('cc.ParticleSystemRenderer')
+export default class ParticleSystemRenderer {
+
+    /**
+     * @zh 设定粒子生成模式。
+     */
+    @property({
+        type: RenderMode,
+        displayOrder: 0,
+        tooltip: '设定粒子生成模式',
+    })
+    public get renderMode () {
+        return this._renderMode;
+    }
+
+    public set renderMode (val) {
+        if (this._renderMode === val) {
+            return;
+        }
+        this._renderMode = val;
+        this.processor!.updateRenderMode();
+    }
+
+    /**
+     * @zh 在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按速度大小进行拉伸。
+     */
+    @property({
+        displayOrder: 1,
+        tooltip: '在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按速度大小进行拉伸',
+    })
+    public get velocityScale () {
+        return this._velocityScale;
+    }
+
+    public set velocityScale (val) {
+        this._velocityScale = val;
+        this.processor!.updateMaterialParams();
+        // this._updateModel();
+    }
+
+    /**
+     * @zh 在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按粒子大小进行拉伸。
+     */
+    @property({
+        displayOrder: 2,
+        tooltip: '在粒子生成方式为 StrecthedBillboard 时,对粒子在运动方向上按粒子大小进行拉伸',
+    })
+    public get lengthScale () {
+        return this._lengthScale;
+    }
+
+    public set lengthScale (val) {
+        this._lengthScale = val;
+        this.processor!.updateMaterialParams();
+        // this._updateModel();
+    }
+
+    @property({
+        type: RenderMode,
+        displayOrder: 3,
+    })
+    private _renderMode = RenderMode.Billboard;
+
+    @property({
+        displayOrder: 4,
+    })
+    private _velocityScale = 1;
+
+    @property({
+        displayOrder: 5,
+    })
+    private _lengthScale = 1;
+
+    @property({
+        displayOrder: 6,
+    })
+    private _mesh: Mesh | null = null;
+
+    /**
+     * @zh 粒子发射的模型。
+     */
+    @property({
+        type: Mesh,
+        displayOrder: 7,
+        tooltip: '粒子发射的模型',
+    })
+    public get mesh () {
+        return this._mesh;
+    }
+
+    public set mesh (val) {
+        this._mesh = val;
+        this.processor!.setVertexAttributes();
+    }
+
+    /**
+     * @zh 粒子使用的材质。
+     */
+    @property({
+        type: Material,
+        displayOrder: 8,
+        tooltip: '粒子使用的材质',
+    })
+    public get particleMaterial () {
+        if (!this._particleSystem) {
+            return null;
+        }
+        return this._particleSystem.getMaterial(0);
+    }
+
+    public set particleMaterial (val) {
+        this._particleSystem.setMaterial(val, 0);
+    }
+
+    /**
+     * @zh 拖尾使用的材质。
+     */
+    @property({
+        type: Material,
+        displayOrder: 9,
+        tooltip: '拖尾使用的材质',
+    })
+    public get trailMaterial () {
+        if (!this._particleSystem) {
+            return null;
+        }
+        return this._particleSystem.getMaterial(1)!;
+    }
+
+    public set trailMaterial (val) {
+        this._particleSystem.setMaterial(val, 1);
+    }
+
+    @property
+    private _useGPU: Boolean = false;
+
+    @property({
+        type: Boolean,
+        displayOrder: 10,
+        tooltip:'是否启用GPU粒子',
+    })
+    public get useGPU () {
+        return this._useGPU;
+    }
+
+    public set useGPU (val) {
+        if (this._useGPU === val) {
+            return;
+        }
+
+        this._useGPU = val;
+        this._switchProcessor();
+    }
+
+    private _particleSystem: any = null;
+    
+    public processor: IParticleSystemRenderer | null = null;
+
+    constructor () {
+        this.processor = this._useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
+    }
+
+    onInit (ps: any) {
+        this._particleSystem = ps;
+        this.processor!.onInit(ps);
+    }
+
+    private _switchProcessor () {
+        if (this.processor) {
+            this.processor.detachFromScene();
+            this.processor.clear();
+            this.processor = null;
+        }
+        
+        this.processor = this._useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
+        this.processor.onInit(this._particleSystem);
+        this.processor.onEnable();
+    }
+}

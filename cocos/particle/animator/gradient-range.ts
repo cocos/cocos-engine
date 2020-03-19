@@ -8,6 +8,8 @@ import { Color } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import Gradient, { AlphaKey, ColorKey } from './gradient';
 import { EDITOR } from 'internal:constants';
+import { Texture2D } from '../../core';
+import { PixelFormat, Filter, WrapMode } from '../../core/assets/asset-enum';
 
 // tslint:disable: max-line-length
 
@@ -135,3 +137,54 @@ export default class GradientRange {
 //     gradientMin: null,
 //     gradientMax: null
 // });
+function evaluateGradient (gr: GradientRange, time: number, index: number) {
+    switch (gr.mode) {
+        case Mode.Color:
+            return gr.color;
+        case Mode.TwoColors:
+            return index === 0 ? gr.colorMin : gr.colorMax;
+        case Mode.RandomColor:
+            return gr.gradient.randomColor();
+        case Mode.Gradient:
+            return gr.gradient.evaluate(time);
+        case Mode.TwoGradients:
+            return index === 0 ? gr.gradientMin.evaluate(time) : gr.gradientMax.evaluate(time);
+        default:
+            return gr.color;
+    }
+}
+function evaluateHeight (gr: GradientRange) {
+    switch (gr.mode) {
+        case Mode.TwoColors:
+            return 2;
+        case Mode.TwoGradients:
+            return 2;
+        default:
+            return 1;
+    }
+}
+export function packGradientRange (samples: number, gr: GradientRange) {
+    let height = evaluateHeight(gr);
+    let data = new Uint8Array(samples * height * 4);
+    let interval = 1.0 / (samples - 1);
+    let offset = 0;
+
+    for (let h = 0; h < height; h++) {
+        for (let j = 0; j < samples; j++) {
+            let color = evaluateGradient(gr, interval * j, h);
+            data[offset] = color.r;
+            data[offset + 1] = color.g;
+            data[offset + 2] = color.b;
+            data[offset + 3] = color.a;
+            offset += 4;
+        }
+    }
+
+    let texture = new Texture2D();
+    texture.create(samples, height, PixelFormat.RGBA8888);
+    texture.setFilters(Filter.LINEAR, Filter.LINEAR);
+    texture.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
+    texture.uploadData(data);
+
+    return texture;
+}

@@ -25,7 +25,7 @@ import Burst from './burst';
 import ShapeModule from './emitter/shape-module';
 import { Space } from './enum';
 import { particleEmitZAxis } from './particle-general-function';
-import ParticleSystemRenderer from './renderer/particle-system-renderer';
+import ParticleSystemRenderer from './renderer/particle-system-renderer-data';
 import TrailModule from './renderer/trail';
 
 const _world_mat = new Mat4();
@@ -474,7 +474,7 @@ export class ParticleSystemComponent extends RenderableComponent {
 
     public onLoad () {
         // HACK, TODO
-        this.renderer!.onInit(this);
+        this.renderer.onInit(this);
         this.shapeModule.onInit(this);
         this.trailModule.onInit(this);
         this.textureAnimationModule.onInit(this);
@@ -485,11 +485,11 @@ export class ParticleSystemComponent extends RenderableComponent {
     }
 
     public _onMaterialModified (index: number, material: Material) {
-        this.renderer._onMaterialModified(index, material);
+        this.renderer.processor!.onMaterialModified(index, material);
     }
 
     public _onRebuildPSO (index: number, material: Material) {
-        this.renderer._onRebuildPSO(index, material);
+        this.renderer.processor!.onRebuildPSO(index, material);
     }
 
     public _collectModels (): Model[] {
@@ -502,14 +502,14 @@ export class ParticleSystemComponent extends RenderableComponent {
     }
 
     protected _attachToScene() {
-        this.renderer._attachToScene();
+        this.renderer.processor!.attachToScene();
         if (this.trailModule.enable) {
             this.trailModule._attachToScene();
         }
     }
 
     protected _detachFromScene() {
-        this.renderer._detachFromScene();
+        this.renderer.processor!.detachFromScene();
         if (this.trailModule.enable) {
             this.trailModule._detachFromScene();
         }
@@ -584,7 +584,7 @@ export class ParticleSystemComponent extends RenderableComponent {
      */
     public clear () {
         if (this.enabledInHierarchy) {
-            this.renderer!.clear();
+            this.renderer.processor!.clear();
             this.trailModule.clear();
         }
     }
@@ -593,7 +593,7 @@ export class ParticleSystemComponent extends RenderableComponent {
      * @zh 获取当前粒子数量
      */
     public getParticleCount () {
-        return this.renderer!.getParticleCount();
+        return this.renderer.processor!.getParticleCount();
     }
 
     /**
@@ -609,7 +609,7 @@ export class ParticleSystemComponent extends RenderableComponent {
 
     protected onDestroy () {
         // this._system.remove(this);
-        this.renderer.onDestroy();
+        this.renderer.processor!.onDestroy();
         this.trailModule.destroy();
     }
 
@@ -617,15 +617,13 @@ export class ParticleSystemComponent extends RenderableComponent {
         if (this.playOnAwake) {
             this.play();
         }
-        this.renderer.onEnable();
+        this.renderer.processor!.onEnable();
         this.trailModule.onEnable();
     }
-
     protected onDisable () {
-        this.renderer!.onDisable();
+        this.renderer!.processor!.onDisable();
         this.trailModule.onDisable();
     }
-
     protected update (dt) {
         const scaledDeltaTime = dt * this.simulationSpeed;
         if (this._isPlaying) {
@@ -635,12 +633,12 @@ export class ParticleSystemComponent extends RenderableComponent {
             this._emit(scaledDeltaTime);
 
             // simulation, update particles.
-            if (this.renderer!._updateParticles(scaledDeltaTime) === 0 && !this._isEmitting) {
+            if (this.renderer!.processor!.updateParticles(scaledDeltaTime) === 0 && !this._isEmitting) {
                 this.stop();
             }
 
             // update render data
-            this.renderer!._updateRenderData();
+            this.renderer!.processor!.updateRenderData();
 
             // update trail
             if (this.trailModule.enable) {
@@ -660,7 +658,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     private emit (count, dt) {
 
         for (let i = 0; i < count; ++i) {
-            const particle = this.renderer!._getFreeParticle();
+            const particle = this.renderer.processor!.getFreeParticle();
             if (particle === null) {
                 return;
             }
@@ -725,7 +723,7 @@ export class ParticleSystemComponent extends RenderableComponent {
 
             particle.randomSeed = randomRangeInt(0, 233280);
 
-            this.renderer!._setNewParticle(particle);
+            this.renderer!.processor!.setNewParticle(particle);
 
         } // end of particles forLoop.
     }
@@ -739,7 +737,7 @@ export class ParticleSystemComponent extends RenderableComponent {
         for (let i = 0; i < cnt; ++i) {
             this._time += dt;
             this._emit(dt);
-            this.renderer!._updateParticles(dt);
+            this.renderer!.processor!.updateParticles(dt);
         }
     }
 
