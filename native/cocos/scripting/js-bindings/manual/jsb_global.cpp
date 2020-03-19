@@ -32,6 +32,7 @@
 #include "network/HttpClient.h"
 #include "platform/CCApplication.h"
 #include "renderer/core/Core.h"
+#include "ui/edit-box/EditBox.h"
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
 #include "platform/android/jni/JniImp.h"
@@ -1057,99 +1058,98 @@ static bool JSB_setPreferredFramesPerSecond(se::State& s)
 }
 SE_BIND_FUNC(JSB_setPreferredFramesPerSecond)
 
-//static bool JSB_showInputBox(se::State& s)
-//{
-//    const auto& args = s.args();
-//    size_t argc = args.size();
-//    CC_UNUSED bool ok = true;
-//    if (argc == 1)
-//    {
-//        bool ok;
-//        se::Value tmp;
-//        const auto& obj = args[0].toObject();
-//
-//        cocos2d::EditBox::ShowInfo showInfo;
-//
-//        ok = obj->getProperty("defaultValue", &tmp);
-//        SE_PRECONDITION2(ok && tmp.isString(), false, "defaultValue is invalid!");
-//        showInfo.defaultValue = tmp.toString();
-//
-//
-//        ok = obj->getProperty("maxLength", &tmp);
-//        SE_PRECONDITION2(ok && tmp.isNumber(), false, "maxLength is invalid!");
-//        showInfo.maxLength = tmp.toInt32();
-//
-//        ok = obj->getProperty("multiple", &tmp);
-//        SE_PRECONDITION2(ok && tmp.isBoolean(), false, "multiple is invalid!");
-//        showInfo.isMultiline = tmp.toBoolean();
-//
-//        if (obj->getProperty("confirmHold", &tmp))
-//        {
-//            SE_PRECONDITION2(tmp.isBoolean(), false, "confirmHold is invalid!");
-//            if (! tmp.isUndefined())
-//                showInfo.confirmHold = tmp.toBoolean();
-//        }
-//
-//
-//        if (obj->getProperty("confirmType", &tmp))
-//        {
-//            SE_PRECONDITION2(tmp.isString(), false, "confirmType is invalid!");
-//            if (!tmp.isUndefined())
-//                showInfo.confirmType = tmp.toString();
-//        }
-//
-//        if (obj->getProperty("inputType", &tmp))
-//        {
-//            SE_PRECONDITION2(tmp.isString(), false, "inputType is invalid!");
-//            if (! tmp.isUndefined())
-//                showInfo.inputType = tmp.toString();
-//        }
-//
-//
-//        if (obj->getProperty("originX", &tmp))
-//        {
-//            SE_PRECONDITION2(tmp.isNumber(), false, "originX is invalid!");
-//            if (! tmp.isUndefined())
-//                showInfo.x = tmp.toInt32();
-//        }
-//
-//        if (obj->getProperty("originY", &tmp))
-//        {
-//            SE_PRECONDITION2(tmp.isNumber(), false, "originY is invalid!");
-//            if (! tmp.isUndefined())
-//                showInfo.y = tmp.toInt32();
-//        }
-//
-//        if (obj->getProperty("width", &tmp))
-//        {
-//            SE_PRECONDITION2(tmp.isNumber(), false, "width is invalid!");
-//            if (! tmp.isUndefined())
-//                showInfo.width = tmp.toInt32();
-//        }
-//
-//        if (obj->getProperty("height", &tmp))
-//        {
-//            SE_PRECONDITION2(tmp.isNumber(), false, "height is invalid!");
-//            if (! tmp.isUndefined())
-//                showInfo.height = tmp.toInt32();
-//        }
-//
-//        EditBox::show(showInfo);
-//
-//        return true;
-//    }
-//
-//    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-//    return false;
-//}
-//SE_BIND_FUNC(JSB_showInputBox);
+static bool JSB_showInputBox(se::State& s)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 1)
+    {
+        bool ok;
+        se::Value tmp;
+        const auto& obj = args[0].toObject();
 
-//static bool JSB_hideInputBox(se::State& s)
-//{
-//    EditBox::hide();
-//    return true;
-//}
-//SE_BIND_FUNC(JSB_hideInputBox)
+        cocos2d::EditBox::ShowInfo showInfo;
+
+        ok = obj->getProperty("defaultValue", &tmp);
+        SE_PRECONDITION2(ok && tmp.isString(), false, "defaultValue is invalid!");
+        showInfo.defaultValue = tmp.toString();
+
+
+        ok = obj->getProperty("maxLength", &tmp);
+        SE_PRECONDITION2(ok && tmp.isNumber(), false, "maxLength is invalid!");
+        showInfo.maxLength = tmp.toInt32();
+
+        ok = obj->getProperty("multiple", &tmp);
+        SE_PRECONDITION2(ok && tmp.isBoolean(), false, "multiple is invalid!");
+        showInfo.isMultiline = tmp.toBoolean();
+
+        if (obj->getProperty("confirmHold", &tmp))
+        {
+            SE_PRECONDITION2(tmp.isBoolean(), false, "confirmHold is invalid!");
+            if (! tmp.isUndefined())
+                showInfo.confirmHold = tmp.toBoolean();
+        }
+
+
+        if (obj->getProperty("confirmType", &tmp))
+        {
+            SE_PRECONDITION2(tmp.isString(), false, "confirmType is invalid!");
+            if (!tmp.isUndefined())
+                showInfo.confirmType = tmp.toString();
+        }
+
+        if (obj->getProperty("inputType", &tmp))
+        {
+            SE_PRECONDITION2(tmp.isString(), false, "inputType is invalid!");
+            if (! tmp.isUndefined())
+                showInfo.inputType = tmp.toString();
+        }
+
+
+        if (obj->getProperty("originX", &tmp))
+        {
+            SE_PRECONDITION2(tmp.isNumber(), false, "originX is invalid!");
+            if (! tmp.isUndefined())
+                showInfo.x = tmp.toInt32();
+        }
+
+        if (obj->getProperty("originY", &tmp))
+        {
+            SE_PRECONDITION2(tmp.isNumber(), false, "originY is invalid!");
+            if (! tmp.isUndefined())
+                showInfo.y = tmp.toInt32();
+        }
+
+        if (obj->getProperty("width", &tmp))
+        {
+            SE_PRECONDITION2(tmp.isNumber(), false, "width is invalid!");
+            if (! tmp.isUndefined())
+                showInfo.width = tmp.toInt32();
+        }
+
+        if (obj->getProperty("height", &tmp))
+        {
+            SE_PRECONDITION2(tmp.isNumber(), false, "height is invalid!");
+            if (! tmp.isUndefined())
+                showInfo.height = tmp.toInt32();
+        }
+
+        EditBox::show(showInfo);
+
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(JSB_showInputBox);
+
+static bool JSB_hideInputBox(se::State& s)
+{
+    EditBox::hide();
+    return true;
+}
+SE_BIND_FUNC(JSB_hideInputBox)
 
 bool jsb_register_global_variables(se::Object* global)
 {
@@ -1176,12 +1176,10 @@ bool jsb_register_global_variables(se::Object* global)
 //    __jsbObj->defineFunction("openDebugView", _SE(js_openDebugView));
     __jsbObj->defineFunction("openURL", _SE(JSB_openURL));
     __jsbObj->defineFunction("copyTextToClipboard", _SE(JSB_copyTextToClipboard));
-
    __jsbObj->defineFunction("setPreferredFramesPerSecond", _SE(JSB_setPreferredFramesPerSecond));
-//    __jsbObj->defineFunction("showInputBox", _SE(JSB_showInputBox));
-//    __jsbObj->defineFunction("hideInputBox", _SE(JSB_hideInputBox));
-   __jsbObj->defineFunction("setCursorEnabled", _SE(JSB_setCursorEnabled));
-
+    __jsbObj->defineFunction("showInputBox", _SE(JSB_showInputBox));
+    __jsbObj->defineFunction("hideInputBox", _SE(JSB_hideInputBox));
+    __jsbObj->defineFunction("setCursorEnabled", _SE(JSB_setCursorEnabled));
     global->defineFunction("__getPlatform", _SE(JSBCore_platform));
     global->defineFunction("__getOS", _SE(JSBCore_os));
     global->defineFunction("__getOSVersion", _SE(JSB_getOSVersion));

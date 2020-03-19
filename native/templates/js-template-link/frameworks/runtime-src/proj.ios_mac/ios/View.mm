@@ -69,16 +69,25 @@ namespace
 
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+    if (self.preventTouch)
+        return;
+
     _touchEvent.type = cocos2d::TouchEvent::Type::MOVED;
     dispatchEvents(_touchEvent, touches);
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+    if (self.preventTouch)
+        return;
+
     _touchEvent.type = cocos2d::TouchEvent::Type::ENDED;
     dispatchEvents(_touchEvent, touches);
 }
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
+    if (self.preventTouch)
+        return;
+
     _touchEvent.type = cocos2d::TouchEvent::Type::CANCELLED;
     dispatchEvents(_touchEvent, touches);
 }

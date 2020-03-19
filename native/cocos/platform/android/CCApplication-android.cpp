@@ -49,7 +49,7 @@ namespace
 {
     bool setCanvasCallback(se::Object* global)
     {
-        auto viewLogicalSize = Application::getInstance()->getViewLogicalSize();
+        auto viewLogicalSize = cocos2d::Application::getInstance()->getViewLogicalSize();
         se::AutoHandleScope scope;
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
         char commandBuf[200] = {0};

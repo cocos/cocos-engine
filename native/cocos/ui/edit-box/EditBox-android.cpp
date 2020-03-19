@@ -30,35 +30,13 @@
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
 
 #ifndef JCLS_EDITBOX
-#define JCLS_EDITBOX  "org/cocos2dx/lib/Cocos2dxEditBox"
+#define JCLS_EDITBOX  "org/cocos2dx/lib/Cocos2dxEditBoxActivity"
 #endif
 
 #ifndef ORG_EDITBOX_CLASS_NAME
-#define ORG_EDITBOX_CLASS_NAME org_cocos2dx_lib_Cocos2dxEditBox
+#define ORG_EDITBOX_CLASS_NAME org_cocos2dx_lib_Cocos2dxEditBoxActivity
 #endif
 #define JNI_EDITBOX(FUNC) JNI_METHOD1(ORG_EDITBOX_CLASS_NAME,FUNC)
-
-
-NS_CC_BEGIN
-
-void EditBox::show(const cocos2d::EditBox::ShowInfo& showInfo)
-{
-    JniHelper::callStaticVoidMethod(JCLS_EDITBOX,
-                                    "showNative",
-                                    showInfo.defaultValue,
-                                    showInfo.maxLength,
-                                    showInfo.isMultiline,
-                                    showInfo.confirmHold,
-                                    showInfo.confirmType,
-                                    showInfo.inputType);
-}
-
-void EditBox::hide()
-{
-    JniHelper::callStaticVoidMethod(JCLS_EDITBOX, "hideNative");
-}
-
-NS_CC_END
 
 namespace
 {
@@ -81,41 +59,77 @@ namespace
         }
     }
 
-    void callJSFunc(const std::string& type, const jstring& text)
+    void callJSFunc(const std::string& type, const std::string& text)
     {
         getTextInputCallback();
 
         se::AutoHandleScope scope;
         se::ValueArray args;
         args.push_back(se::Value(type));
-        args.push_back(se::Value(cocos2d::JniHelper::jstring2string(text)));
+        args.push_back(se::Value(text));
         textInputCallback.toObject()->call(args, nullptr);
     }
 }
+
+NS_CC_BEGIN
+
+bool EditBox::_isShown = false;
+
+void EditBox::show(const cocos2d::EditBox::ShowInfo& showInfo)
+{
+    JniHelper::callStaticVoidMethod(JCLS_EDITBOX,
+                                    "showNative",
+                                    showInfo.defaultValue,
+                                    showInfo.maxLength,
+                                    showInfo.isMultiline,
+                                    showInfo.confirmHold,
+                                    showInfo.confirmType,
+                                    showInfo.inputType);
+    _isShown = true;
+}
+
+void EditBox::hide()
+{
+    JniHelper::callStaticVoidMethod(JCLS_EDITBOX, "hideNative");
+    _isShown = false;
+}
+
+bool EditBox::complete()
+{
+    if (!_isShown)
+        return false;
+
+    EditBox::hide();
+
+    return true;
+}
+
+NS_CC_END
 
 extern "C" 
 {
     JNIEXPORT void JNICALL JNI_EDITBOX(onKeyboardInputNative)(JNIEnv* env, jclass, jstring text)
     {
-        auto func = [=]() {
-            callJSFunc("input", text);
-        };
-        cocos2d::Application::getInstance()->getScheduler()->performFunctionInCocosThread(func);
+        auto textStr = cocos2d::JniHelper::jstring2string(text);
+        cocos2d::Application::getInstance()->getScheduler()->performFunctionInCocosThread([textStr]() {
+            callJSFunc("input", textStr);
+        });
+
     }
 
     JNIEXPORT void JNICALL JNI_EDITBOX(onKeyboardCompleteNative)(JNIEnv* env, jclass, jstring text)
     {
-        auto func = [=]() {
-            callJSFunc("complete", text);
-        };
-        cocos2d::Application::getInstance()->getScheduler()->performFunctionInCocosThread(func);
+        auto textStr = cocos2d::JniHelper::jstring2string(text);
+        cocos2d::Application::getInstance()->getScheduler()->performFunctionInCocosThread([textStr]() {
+            callJSFunc("complete", textStr);
+        });
     }
 
     JNIEXPORT void JNICALL JNI_EDITBOX(onKeyboardConfirmNative)(JNIEnv* env, jclass, jstring text)
     {
-        auto func = [=]() {
-            callJSFunc("confirm", text);
-        };
-        cocos2d::Application::getInstance()->getScheduler()->performFunctionInCocosThread(func);
+        auto textStr = cocos2d::JniHelper::jstring2string(text);
+        cocos2d::Application::getInstance()->getScheduler()->performFunctionInCocosThread([textStr]() {
+            callJSFunc("confirm", textStr);
+        });
     }
 }

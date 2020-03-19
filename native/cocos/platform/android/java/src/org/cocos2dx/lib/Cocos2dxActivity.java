@@ -29,10 +29,7 @@ import android.app.NativeActivity;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
-import android.widget.RelativeLayout;
 import android.content.pm.PackageManager;
 import android.content.pm.ApplicationInfo;
 
@@ -46,13 +43,9 @@ public abstract class Cocos2dxActivity extends NativeActivity {
     // ===========================================================
     // Fields
     // ===========================================================
-    protected RelativeLayout mFrameLayout = null;
-    
-    private Cocos2dxHandler mHandler = null;
     private Cocos2dxVideoHelper mVideoHelper = null;
     private Cocos2dxWebViewHelper mWebViewHelper = null;
     private boolean hasFocus = false;
-    private Cocos2dxEditBox mEditBox = null;
     private boolean paused = true;
 
     // ===========================================================
@@ -63,19 +56,6 @@ public abstract class Cocos2dxActivity extends NativeActivity {
     // ===========================================================
     // Member methods
     // ===========================================================
-    public void init() {
-        ViewGroup.LayoutParams frameLayoutParams =
-                new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                                           ViewGroup.LayoutParams.MATCH_PARENT);
-        mFrameLayout = new RelativeLayout(this);
-        mFrameLayout.setLayoutParams(frameLayoutParams);
-
-        // Should create EditBox after adding SurfaceView, or EditBox will be hidden by SurfaceView.
-        mEditBox = new Cocos2dxEditBox(this, mFrameLayout);
-
-        // Set frame layout as the content view
-        setContentView(mFrameLayout);
-    }
 
     // ===========================================================
     // Override functions
@@ -104,24 +84,21 @@ public abstract class Cocos2dxActivity extends NativeActivity {
         // Load native library to enable invoke native API.
         onLoadNativeLibraries();
 
-        this.mHandler = new Cocos2dxHandler(this);
-        
         Cocos2dxHelper.init(this);
         CanvasRenderingContext2DImpl.init(this);
-        
-        this.init();
 
-        if (mVideoHelper == null) {
-            mVideoHelper = new Cocos2dxVideoHelper(this, mFrameLayout);
-        }
 
-        if(mWebViewHelper == null){
-            mWebViewHelper = new Cocos2dxWebViewHelper(mFrameLayout);
-        }
+        //TODO
+//        if (mVideoHelper == null) {
+//            mVideoHelper = new Cocos2dxVideoHelper(this, mFrameLayout);
+//        }
+//
+//        if(mWebViewHelper == null){
+//            mWebViewHelper = new Cocos2dxWebViewHelper(mFrameLayout);
+//        }
 
-        Window window = this.getWindow();
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
     }
 
     @Override
@@ -176,8 +153,4 @@ public abstract class Cocos2dxActivity extends NativeActivity {
             Utils.hideVirtualButton();
         }
     }
-
-    // ===========================================================
-    // Native methods
-    // ===========================================================
 }

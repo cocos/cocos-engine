@@ -50,7 +50,10 @@ public:
     
     // It is internally to send a complete message to JS.
     // Don't call it by yourself untile you know the effect.
-    static void complete();
+    static bool complete();
+        
+private:
+    static bool _isShown;
 };
 
 NS_CC_END

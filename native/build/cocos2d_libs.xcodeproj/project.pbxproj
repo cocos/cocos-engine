@@ -357,6 +357,9 @@
 		46ACCBFD241F27A70096CC35 /* GFXObject.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCBFA241F27A70096CC35 /* GFXObject.cc */; };
 		46ACCBFE241F27A70096CC35 /* GFXObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCBFB241F27A70096CC35 /* GFXObject.h */; };
 		46ACCBFF241F27A70096CC35 /* GFXObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCBFB241F27A70096CC35 /* GFXObject.h */; };
+		46ACCC05241F66150096CC35 /* EditBox.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC02241F66150096CC35 /* EditBox.h */; };
+		46ACCC07241F66150096CC35 /* EditBox-mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC04241F66150096CC35 /* EditBox-mac.mm */; };
+		46ACCC08241F661B0096CC35 /* EditBox-ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC03241F66150096CC35 /* EditBox-ios.mm */; };
 		46AE3FDD2092F3A600F3A228 /* inspector_socket_server.h in Headers */ = {isa = PBXBuildFile; fileRef = 46AE3FC52092F3A600F3A228 /* inspector_socket_server.h */; };
 		46AE3FDE2092F3A600F3A228 /* inspector_socket_server.h in Headers */ = {isa = PBXBuildFile; fileRef = 46AE3FC52092F3A600F3A228 /* inspector_socket_server.h */; };
 		46AE3FDF2092F3A600F3A228 /* env.h in Headers */ = {isa = PBXBuildFile; fileRef = 46AE3FC62092F3A600F3A228 /* env.h */; };
@@ -1151,6 +1154,9 @@
 		469FFB12240E655300581BFC /* libEGL.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libEGL.dylib; path = ../external/mac/libs/libEGL.dylib; sourceTree = "<group>"; };
 		46ACCBFA241F27A70096CC35 /* GFXObject.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GFXObject.cc; sourceTree = "<group>"; };
 		46ACCBFB241F27A70096CC35 /* GFXObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GFXObject.h; sourceTree = "<group>"; };
+		46ACCC02241F66150096CC35 /* EditBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EditBox.h; path = "../cocos/ui/edit-box/EditBox.h"; sourceTree = "<group>"; };
+		46ACCC03241F66150096CC35 /* EditBox-ios.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "EditBox-ios.mm"; path = "../cocos/ui/edit-box/EditBox-ios.mm"; sourceTree = "<group>"; };
+		46ACCC04241F66150096CC35 /* EditBox-mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "EditBox-mac.mm"; path = "../cocos/ui/edit-box/EditBox-mac.mm"; sourceTree = "<group>"; };
 		46AE3FC52092F3A600F3A228 /* inspector_socket_server.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = inspector_socket_server.h; sourceTree = "<group>"; };
 		46AE3FC62092F3A600F3A228 /* env.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = env.h; sourceTree = "<group>"; };
 		46AE3FC72092F3A600F3A228 /* node.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = node.cc; sourceTree = "<group>"; };
@@ -1617,6 +1623,7 @@
 		1551A334158F2AB200E66CFE = {
 			isa = PBXGroup;
 			children = (
+				46ACCC00241F65D80096CC35 /* ui */,
 				469FFB12240E655300581BFC /* libEGL.dylib */,
 				469FFB11240E655300581BFC /* libGLESv2.dylib */,
 				1AAAC877205CB6E9005321B9 /* audio */,
@@ -2027,6 +2034,24 @@
 			);
 			name = math;
 			path = ../cocos/math;
+			sourceTree = "<group>";
+		};
+		46ACCC00241F65D80096CC35 /* ui */ = {
+			isa = PBXGroup;
+			children = (
+				46ACCC01241F65E50096CC35 /* edit-box */,
+			);
+			name = ui;
+			sourceTree = "<group>";
+		};
+		46ACCC01241F65E50096CC35 /* edit-box */ = {
+			isa = PBXGroup;
+			children = (
+				46ACCC03241F66150096CC35 /* EditBox-ios.mm */,
+				46ACCC04241F66150096CC35 /* EditBox-mac.mm */,
+				46ACCC02241F66150096CC35 /* EditBox.h */,
+			);
+			name = "edit-box";
 			sourceTree = "<group>";
 		};
 		46AE3FC42092F3A600F3A228 /* debugger */ = {
@@ -2705,6 +2730,7 @@
 				46FDDBCF202ADDCE00931238 /* CCMap.h in Headers */,
 				1A52DB34205BCD9200350EE3 /* Object.hpp in Headers */,
 				46BFDFFE23CC573500CC5F8E /* MTLPipelineState.h in Headers */,
+				46ACCC05241F66150096CC35 /* EditBox.h in Headers */,
 				469304002046AE06004A3D6C /* jsb_global.h in Headers */,
 				BAC32B3B236C28C600F3D55F /* tommylist.h in Headers */,
 				46AE3FDD2092F3A600F3A228 /* inspector_socket_server.h in Headers */,
@@ -3486,6 +3512,7 @@
 				BAC32B5B236C28C600F3D55F /* tommyarray.c in Sources */,
 				BA21055C21009A2C00E19975 /* Manifest.cpp in Sources */,
 				1A28FF931F20AFAB007A1D9D /* NSURLRequest+SRWebSocket.m in Sources */,
+				46ACCC07241F66150096CC35 /* EditBox-mac.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3690,6 +3717,7 @@
 				BA06A7DE23583DFE007740C5 /* GLES3Std.cc in Sources */,
 				BA06A80A23583DFE007740C5 /* GLES3Queue.cc in Sources */,
 				4DC57D331F7B840E005B6546 /* xxtea.cpp in Sources */,
+				46ACCC08241F661B0096CC35 /* EditBox-ios.mm in Sources */,
 				1A29D77C2056667800168D9A /* csscolorparser.cpp in Sources */,
 				BA06A6E323583DBD007740C5 /* GFXContext.cc in Sources */,
 				BA06A67F23583DBD007740C5 /* JeAlloc.cc in Sources */,

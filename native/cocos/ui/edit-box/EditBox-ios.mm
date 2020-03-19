@@ -23,7 +23,6 @@
  ****************************************************************************/
 #include "EditBox.h"
 #include "platform/CCApplication.h"
-#include "platform/ios/CCEAGLView-ios.h"
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
 
@@ -259,7 +258,7 @@ namespace
 
     CGRect getSafeAreaRect()
     {
-        UIView* view = (UIView*)cocos2d::Application::getInstance()->getView();
+        UIView* view = UIApplication.sharedApplication.delegate.window.rootViewController.view;
         CGRect viewRect = view.frame;
 
         // safeAreaInsets is avaible since iOS 11.
@@ -287,7 +286,7 @@ namespace
             initTextField(rect, showInfo);
         
         UIView* textInput = getCurrentView();
-        UIView* view = (UIView*)cocos2d::Application::getInstance()->getView();
+        UIView* view = UIApplication.sharedApplication.delegate.window.rootViewController.view;
         [view addSubview:textInput];
         [textInput becomeFirstResponder];
     }
@@ -418,6 +417,8 @@ namespace
 
 NS_CC_BEGIN
 
+bool EditBox::_isShown = false;
+
 void EditBox::show(const cocos2d::EditBox::ShowInfo& showInfo)
 {
     // Should initialize them at first.
@@ -425,9 +426,10 @@ void EditBox::show(const cocos2d::EditBox::ShowInfo& showInfo)
     g_isMultiline = showInfo.isMultiline;
     g_confirmHold = showInfo.confirmHold;
     
-    [(CCEAGLView*)cocos2d::Application::getInstance()->getView() setPreventTouchEvent:true];
     addKeyboardEventLisnters();
     addTextInput(showInfo);
+    
+    _isShown = true;
 }
 
 void EditBox::hide()
@@ -441,14 +443,19 @@ void EditBox::hide()
         [view resignFirstResponder];
     }
     
-    [(CCEAGLView*)cocos2d::Application::getInstance()->getView() setPreventTouchEvent:false];
+    _isShown = false;
 }
 
-void EditBox::complete()
+bool EditBox::complete()
 {
+    if (!_isShown)
+        return false;
+    
     NSString* text = getCurrentText();
     callJSFunc("complete", [text UTF8String]);
     EditBox::hide();
+    
+    return true;
 }
 
 NS_CC_END

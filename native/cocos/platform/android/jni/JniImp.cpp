@@ -77,20 +77,6 @@ extern "C"
             g_SDKInt = env->GetStaticIntField(versionClass, sdkIntFieldID);
         }
     }
-
-    /*****************************************************
-     * Cocos2dxActivity native functions implementation.
-     *****************************************************/
-
-
-    /***********************************************************
-     * Cocos2dxHelper native functions implementation.
-     ***********************************************************/
-
-    JNIEXPORT void JNICALL JNI_HELPER(nativeSetApkPath)(JNIEnv* env, jobject thiz, jstring apkPath)
-    {
-        g_apkPath = JniHelper::jstring2string(apkPath);
-    }
 } // end of extern "C"
 
 /***********************************************************
@@ -99,7 +85,7 @@ extern "C"
 
 std::string getApkPathJNI() 
 {
-    return g_apkPath;
+    return JniHelper::callStaticStringMethod(JCLS_HELPER, "getAssetsPath");
 }
 
 std::string getPackageNameJNI() 

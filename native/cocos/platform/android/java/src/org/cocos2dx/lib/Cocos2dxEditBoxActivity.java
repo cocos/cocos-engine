@@ -34,6 +34,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.graphics.drawable.shapes.RoundRectShape;
+import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -52,19 +53,19 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.app.Activity;
+import android.content.Intent;
 
-public class Cocos2dxEditBox {
+public class Cocos2dxEditBoxActivity extends Activity {
 
     // a color of dark green, was used for confirm button background
     private static final int DARK_GREEN = Color.parseColor("#1fa014");
     private static final int DARK_GREEN_PRESS = Color.parseColor("#008e26");
 
-    private static Cocos2dxEditBox sThis = null;
+    private static Cocos2dxEditBoxActivity sThis = null;
     private Cocos2dxEditText mEditText = null;
     private Button mButton = null;
     private String mButtonTitle = null;
     private boolean mConfirmHold = true;
-    private Activity mActivity = null;
     private RelativeLayout mButtonLayout = null;
     private RelativeLayout.LayoutParams mButtonParams;
     private int mEditTextID = 1;
@@ -109,7 +110,7 @@ public class Cocos2dxEditBox {
                 @Override
                 public void afterTextChanged(Editable s) {
                     // Pass text to c++.
-                    Cocos2dxEditBox.this.onKeyboardInput(s.toString());
+                    Cocos2dxEditBoxActivity.this.onKeyboardInput(s.toString());
                 }
             };
             registKeyboardVisible();
@@ -164,19 +165,19 @@ public class Cocos2dxEditBox {
         private void setConfirmType(final String confirmType) {
             if (confirmType.contentEquals("done")) {
                 this.setImeOptions(EditorInfo.IME_ACTION_DONE | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-                mButtonTitle = mActivity.getResources().getString(R.string.done);
+                mButtonTitle = getResources().getString(R.string.done);
             } else if (confirmType.contentEquals("next")) {
                 this.setImeOptions(EditorInfo.IME_ACTION_NEXT | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-                mButtonTitle = mActivity.getResources().getString(R.string.next);
+                mButtonTitle = getResources().getString(R.string.next);
             } else if (confirmType.contentEquals("search")) {
                 this.setImeOptions(EditorInfo.IME_ACTION_SEARCH | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-                mButtonTitle = mActivity.getResources().getString(R.string.search);
+                mButtonTitle = getResources().getString(R.string.search);
             } else if (confirmType.contentEquals("go")) {
                 this.setImeOptions(EditorInfo.IME_ACTION_GO | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-                mButtonTitle = mActivity.getResources().getString(R.string.go);
+                mButtonTitle = getResources().getString(R.string.go);
             } else if (confirmType.contentEquals("send")) {
                 this.setImeOptions(EditorInfo.IME_ACTION_SEND | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-                mButtonTitle = mActivity.getResources().getString(R.string.send);
+                mButtonTitle = getResources().getString(R.string.send);
             } else{
                 mButtonTitle = null;
                 Log.e(TAG, "unknown confirm type " + confirmType);
@@ -208,7 +209,7 @@ public class Cocos2dxEditBox {
                 @Override
                 public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                     if (! mIsMultiLine) {
-                        Cocos2dxEditBox.this.hide();
+                        Cocos2dxEditBoxActivity.this.hide();
                     }
 
                     return false; // pass on to other listeners.
@@ -239,7 +240,7 @@ public class Cocos2dxEditBox {
                     } else {
                         if (keyboardVisible) {
                             keyboardVisible = false;
-                            Cocos2dxEditBox.this.hide();
+                            Cocos2dxEditBoxActivity.this.hide();
                         }
                     }
                 }
@@ -247,28 +248,42 @@ public class Cocos2dxEditBox {
         }
     }
 
-    public Cocos2dxEditBox(Activity context, RelativeLayout layout) {
-        Cocos2dxEditBox.sThis = this;
-        mActivity = context;
-        this.addItems(context, layout);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        Cocos2dxEditBoxActivity.sThis = this;
+
+        ViewGroup.LayoutParams frameLayoutParams =
+                new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT);
+        RelativeLayout frameLayout = new RelativeLayout(this);
+        frameLayout.setLayoutParams(frameLayoutParams);
+        setContentView(frameLayout);
+
+        this.addItems(frameLayout);
+
+        Bundle extras = getIntent().getExtras();
+        show(extras.getString("defaultValue"),
+                extras.getInt("maxLength"),
+                extras.getBoolean("isMultiline"),
+                extras.getBoolean("confirmHold"),
+                extras.getString("confirmType"),
+                extras.getString("inputType"));
     }
 
     /***************************************************************************************
      Public functions.
      **************************************************************************************/
 
-    // Invoked by surface view to send a complete message to CPP.
-    public static void complete() {
-        Cocos2dxEditBox.sThis.hide();
-    }
-
     /***************************************************************************************
      Private functions.
      **************************************************************************************/
-    private void addItems(Activity context, RelativeLayout layout) {
-        RelativeLayout myLayout = new RelativeLayout(context);
-        this.addEditText(context, myLayout);
-        this.addButton(context, myLayout);
+    private void addItems(RelativeLayout layout) {
+        RelativeLayout myLayout = new RelativeLayout(this);
+        this.addEditText(myLayout);
+        this.addButton(myLayout);
 
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -287,8 +302,8 @@ public class Cocos2dxEditBox {
 //        });
     }
 
-    private void addEditText(Activity context, RelativeLayout layout) {
-        mEditText = new Cocos2dxEditText(context);
+    private void addEditText(RelativeLayout layout) {
+        mEditText = new Cocos2dxEditText(this);
         mEditText.setVisibility(View.INVISIBLE);
         mEditText.setBackgroundColor(Color.WHITE);
         mEditText.setId(mEditTextID);
@@ -298,13 +313,12 @@ public class Cocos2dxEditBox {
         layout.addView(mEditText, editParams);
     }
 
-    private void addButton(Activity context, RelativeLayout layout) {
-        mButton = new Button(context);
+    private void addButton(RelativeLayout layout) {
+        mButton = new Button(this);
         mButtonParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         mButton.setTextColor(Color.WHITE);
         mButton.setBackground(getRoundRectShape());
         mButtonLayout = new RelativeLayout(GlobalObject.getActivity());
-        mButtonLayout.setVisibility(View.INVISIBLE);
         mButtonLayout.setBackgroundColor(Color.WHITE);
         RelativeLayout.LayoutParams buttonLayoutParams = new RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -318,10 +332,10 @@ public class Cocos2dxEditBox {
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Cocos2dxEditBox.this.onKeyboardConfirm(mEditText.getText().toString());
+                Cocos2dxEditBoxActivity.this.onKeyboardConfirm(mEditText.getText().toString());
 
-                if (!Cocos2dxEditBox.this.mConfirmHold)
-                    Cocos2dxEditBox.this.hide();
+                if (!Cocos2dxEditBoxActivity.this.mConfirmHold)
+                    Cocos2dxEditBoxActivity.this.hide();
             }
         });
     }
@@ -347,16 +361,11 @@ public class Cocos2dxEditBox {
 
     private void hide() {
         Utils.hideVirtualButton();
-        mEditText.hide();
-        mButtonLayout.setVisibility(View.INVISIBLE);
         this.closeKeyboard();
-
-        //TODO: minggo
-//        mActivity.getGLSurfaceView().requestFocus();
-//        mActivity.getGLSurfaceView().setStopHandleTouchAndKeyEvents(false);
+        finish();
     }
 
-    private void show(String defaultValue, int maxLength, boolean isMultiline, boolean confirmHold, String confirmType, String inputType) {
+    public void show(String defaultValue, int maxLength, boolean isMultiline, boolean confirmHold, String confirmType, String inputType) {
         mConfirmHold = confirmHold;
         mEditText.show(defaultValue, maxLength, isMultiline, confirmHold, confirmType, inputType);
         int editPaddingBottom = mEditText.getPaddingBottom();
@@ -373,20 +382,19 @@ public class Cocos2dxEditBox {
             mButtonParams.setMargins(0, buttonTextPadding, 2, 0);
             mButtonLayout.setVisibility(View.VISIBLE);
         }
-        //TODO:minggo
-//        mActivity.getGLSurfaceView().setStopHandleTouchAndKeyEvents(true);
+
         this.openKeyboard();
     }
 
     private void closeKeyboard() {
-        InputMethodManager imm = (InputMethodManager) Cocos2dxEditBox.this.mActivity.getSystemService(Cocos2dxEditBox.this.mActivity.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) getSystemService(this.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(mEditText.getWindowToken(), 0);
 
         this.onKeyboardComplete(mEditText.getText().toString());
     }
 
     private void openKeyboard() {
-        InputMethodManager imm = (InputMethodManager) Cocos2dxEditBox.this.mActivity.getSystemService(Cocos2dxEditBox.this.mActivity.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) getSystemService(this.INPUT_METHOD_SERVICE);
         imm.showSoftInput(mEditText, InputMethodManager.SHOW_IMPLICIT);
     }
 
@@ -395,22 +403,28 @@ public class Cocos2dxEditBox {
      **************************************************************************************/
 
     private static void showNative(String defaultValue, int maxLength, boolean isMultiline, boolean confirmHold, String confirmType, String inputType) {
-        if (null != Cocos2dxEditBox.sThis) {
-            Cocos2dxEditBox.sThis.mActivity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Cocos2dxEditBox.sThis.show(defaultValue, maxLength, isMultiline, confirmHold, confirmType, inputType);
-                }
-            });
-        }
+
+        GlobalObject.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Intent i = new Intent(GlobalObject.getActivity(), Cocos2dxEditBoxActivity.class);
+                i.putExtra("defaultValue", defaultValue);
+                i.putExtra("maxLength", maxLength);
+                i.putExtra("isMultiline", isMultiline);
+                i.putExtra("confirmHold", confirmHold);
+                i.putExtra("confirmType", confirmType);
+                i.putExtra("inputType", inputType);
+                GlobalObject.getActivity().startActivity(i);
+            }
+        });
     }
 
     private static void hideNative() {
-        if (null != Cocos2dxEditBox.sThis) {
-            Cocos2dxEditBox.sThis.mActivity.runOnUiThread(new Runnable() {
+        if (null != Cocos2dxEditBoxActivity.sThis) {
+            GlobalObject.getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Cocos2dxEditBox.sThis.hide();
+                    Cocos2dxEditBoxActivity.sThis.hide();
                 }
             });
         }
@@ -420,15 +434,15 @@ public class Cocos2dxEditBox {
      Native functions invoked by UI.
      **************************************************************************************/
     private void onKeyboardInput(String text) {
-        Cocos2dxEditBox.onKeyboardInputNative(text);
+        Cocos2dxEditBoxActivity.onKeyboardInputNative(text);
     }
 
     private void onKeyboardComplete(String text) {
-        Cocos2dxEditBox.onKeyboardCompleteNative(text);
+        Cocos2dxEditBoxActivity.onKeyboardCompleteNative(text);
     }
 
     private void onKeyboardConfirm(String text) {
-        Cocos2dxEditBox.onKeyboardConfirmNative(text);
+        Cocos2dxEditBoxActivity.onKeyboardConfirmNative(text);
     }
 
     private static native void onKeyboardInputNative(String text);
