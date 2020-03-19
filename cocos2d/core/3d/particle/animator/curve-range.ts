@@ -4,10 +4,10 @@ import { lerp } from '../../../value-types';
 import { AnimationCurve } from '../curve';
 
 const SerializableTable = CC_EDITOR && [
-    [ "_mode", "constant", "multiplier" ],
-    [ "_mode", "curve", "multiplier" ],
-    [ "_mode", "curveMin", "curveMax", "multiplier" ],
-    [ "_mode", "constantMin", "constantMax", "multiplier"]
+    [ "mode", "constant", "multiplier" ],
+    [ "mode", "curve", "multiplier" ],
+    [ "mode", "curveMin", "curveMax", "multiplier" ],
+    [ "mode", "constantMin", "constantMax", "multiplier"]
 ];
 
 export const Mode = Enum({
