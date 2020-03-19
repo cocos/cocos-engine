@@ -430,6 +430,14 @@ export class ParticleSystemComponent extends RenderableComponent {
     })
     public renderer: ParticleSystemRenderer = new ParticleSystemRenderer();
 
+    // serilized culling
+    @property({
+        type: Boolean,
+        displayOrder: 27,
+        tooltip:'是否剔除非 enable 的模块数据',
+    })
+    public isCulling: Boolean = true;
+
     /**
      * @ignore
      */
@@ -840,6 +848,6 @@ export class ParticleSystemComponent extends RenderableComponent {
     }
 
     public _onBeforeSerialize (props) {
-        return props.filter(p => !_module_props.includes(p) || this[p].enable);
+        return this.isCulling ? props.filter(p => !_module_props.includes(p) || this[p].enable) : props;
     }
 }

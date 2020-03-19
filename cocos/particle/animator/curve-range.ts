@@ -8,10 +8,10 @@ import { Enum } from '../../core/value-types';
 import { AnimationCurve } from '../../core/geometry';
 
 const SerializableTable = CC_EDITOR && [
-    [ "_mode", "constant", "multiplier" ],
-    [ "_mode", "curve", "multiplier" ],
-    [ "_mode", "curveMin", "curveMax", "multiplier" ],
-    [ "_mode", "constantMin", "constantMax", "multiplier"]
+    [ "mode", "constant", "multiplier" ],
+    [ "mode", "curve", "multiplier" ],
+    [ "mode", "curveMin", "curveMax", "multiplier" ],
+    [ "mode", "constantMin", "constantMax", "multiplier"]
 ];
 
 export const Mode = Enum({
