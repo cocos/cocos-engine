@@ -41,7 +41,7 @@ const packManager = require('./pack-manager');
 const Bundle = require('./bundle');
 const builtins = require('./builtins')
 const { parse, combine } = require('./urlTransformer');
-const { parseParameters, urlAppendTimestamp, asyncify } = require('./utilities');
+const { parseParameters, asyncify } = require('./utilities');
 const { assets, files, parsed, pipeline, transformPipeline, fetchPipeline, initializePipeline, LoadStrategy, RequestType, bundles, BuiltinBundleName } = require('./shared');
 /**
  * @module cc
