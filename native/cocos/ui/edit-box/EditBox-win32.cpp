@@ -30,14 +30,13 @@
 #include <codecvt>
 #include <stdlib.h>
 
+extern "C" HWND cc_get_application_window();
+
 NS_CC_BEGIN
 
 /*************************************************************************
  Global variables and functions.
 ************************************************************************/
-
-extern HWND cc_get_application_window();
-
 
 namespace
 {
@@ -196,9 +195,10 @@ void EditBox::hide()
     SetWindowLongPtr(cc_get_application_window(), GWL_WNDPROC, (LONG_PTR)g_prevMainWindowProc);
 }
 
-void EditBox::complete()
+bool EditBox::complete()
 {
     callJSFunc("complete", getText(g_hwndEditBox).c_str());
+    return true;
 }
 
 NS_CC_END
