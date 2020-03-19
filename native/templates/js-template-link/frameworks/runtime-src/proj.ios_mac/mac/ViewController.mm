@@ -6,11 +6,6 @@
 #import "KeyCodeHelper.h"
 #import "scripting/js-bindings/event/EventDispatcher.h"
 
-/** Can refer to these resources for the implementation.
- * https://github.com/glfw/glfw/blob/master/src/cocoa_window.m
- * https://github.com/cocos-creator/cocos2d-x-lite/blob/v2.4.0/cocos/platform/desktop/CCGLView-desktop.cpp
- */
-
 @implementation ViewController
 {
     NSView* _view;

@@ -134,6 +134,7 @@
 
 namespace
 {
+    // Refer to https://github.com/glfw/glfw/blob/master/src/cocoa_window.m.
     int keyCodes[0xff + 1] = { -1 };
     
     void init()
@@ -255,6 +256,7 @@ namespace
     }
 }
 
+// Refer to: https://github.com/cocos-creator/cocos2d-x-lite/blob/v2.4.0/cocos/platform/desktop/CCGLView-desktop.cpp.
 int translateKeycode(int keyCode)
 {
     std::once_flag flag;
