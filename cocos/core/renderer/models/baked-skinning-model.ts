@@ -33,6 +33,7 @@ import { Skeleton } from '../../assets/skeleton';
 import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
+import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { Vec3 } from '../../math';
 import { INST_JOINT_ANIM_INFO, UBOSkinningAnimation, UBOSkinningTexture, UniformJointsTexture } from '../../pipeline/define';
 import { Node } from '../../scene-graph';
@@ -129,7 +130,8 @@ export class BakedSkinningModel extends Model {
         if (idx >= 0) {
             const view = this.instancedAttributes.list[idx].view;
             view[0] = view[1] * info.data[0] + view[2];
-        } else if (info.dirty) {
+        }
+        if (info.dirty) {
             info.buffer.update(info.data);
             info.dirty = false;
         }
@@ -206,7 +208,11 @@ export class BakedSkinningModel extends Model {
             bindingLayout.bindTextureView(UniformJointsTexture.binding, texture.handle.texView);
             bindingLayout.bindSampler(UniformJointsTexture.binding, sampler);
         }
-        this._instAnimInfoIdx = this.getInstancedAttributeIndex(INST_JOINT_ANIM_INFO);
         return pso;
+    }
+
+    protected updateInstancedAttributeList (pso: GFXPipelineState, pass: Pass) {
+        super.updateInstancedAttributeList(pso, pass);
+        this._instAnimInfoIdx = this.getInstancedAttributeIndex(INST_JOINT_ANIM_INFO);
     }
 }
