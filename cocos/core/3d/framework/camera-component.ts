@@ -27,6 +27,7 @@
  * @category component/camera
  */
 
+import { EDITOR } from 'internal:constants';
 import { RenderTexture } from '../../assets/render-texture';
 import { UITransformComponent } from '../../components';
 import { Component } from '../../components/component';
@@ -42,7 +43,6 @@ import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Root } from '../../root';
 import { Layers, Node, Scene } from '../../scene-graph';
 import { Enum } from '../../value-types';
-import { EDITOR } from 'internal:constants';
 
 const _temp_vec3_1 = new Vec3();
 
@@ -94,7 +94,7 @@ export class CameraComponent extends Component {
     @property
     protected _far = 1000;
     @property
-    protected _color = new Color('#334C78');
+    protected _color = new Color('#333333');
     @property
     protected _depth = 1;
     @property

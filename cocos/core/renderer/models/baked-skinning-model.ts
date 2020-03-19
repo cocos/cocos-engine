@@ -113,7 +113,7 @@ export class BakedSkinningModel extends Model {
         super.updateTransform(stamp);
         if (!this.uploadedAnim) { return; }
         const { animInfo, boundsInfo } = this._jointsMedium;
-        const skelBound = boundsInfo![animInfo.data[1]];
+        const skelBound = boundsInfo![animInfo.data[0]];
         const node = this.transform;
         if (this._worldBounds && skelBound) {
             // @ts-ignore TS2339
@@ -127,7 +127,8 @@ export class BakedSkinningModel extends Model {
         const info = this._jointsMedium.animInfo;
         const idx = this._instAnimInfoIdx;
         if (idx >= 0) {
-            this.instancedAttributes.list[idx].view[1] = info.data[1];
+            const view = this.instancedAttributes.list[idx].view;
+            view[0] = view[1] * info.data[0] + view[2];
         } else if (info.dirty) {
             info.buffer.update(info.data);
             info.dirty = false;
@@ -164,15 +165,17 @@ export class BakedSkinningModel extends Model {
         if (!texture) { return; }
         const { buffer, jointsTextureInfo } = this._jointsMedium;
         jointsTextureInfo[0] = texture.handle.texture.width;
-        jointsTextureInfo[1] = 1 / jointsTextureInfo[0];
+        jointsTextureInfo[1] = this._skeleton!.joints.length;
         jointsTextureInfo[2] = texture.pixelOffset + 0.1; // guard against floor() underflow
+        jointsTextureInfo[3] = 1 / jointsTextureInfo[0];
         const idx = this._instAnimInfoIdx;
         if (idx >= 0) { // update instancing data too
             const info = this._jointsMedium.animInfo;
             const view = this.instancedAttributes.list[idx].view;
-            view[0] = info.data[0];
-            view[1] = info.data[1];
+            const pixelsPerJoint = this._dataPoolManager.jointsTexturePool.pixelsPerJoint;
+            view[1] = pixelsPerJoint * jointsTextureInfo[1];
             view[2] = jointsTextureInfo[2];
+            view[0] = view[1] * info.data[0] + view[2];
         }
         if (buffer) { buffer.update(jointsTextureInfo); }
         const tv = texture.handle.texView;

@@ -149,15 +149,21 @@ export class JointsTexturePool {
     private _device: GFXDevice;
     private _pool: TextureBufferPool;
     private _textureBuffers = new Map<number, IJointsTextureHandle>(); // per skeleton per clip
-    private _formatSize = 0;
+    private _formatSize: number;
+    private _pixelsPerJoint: number;
 
     private _customPool: TextureBufferPool;
     private _chunkIdxMap = new Map<number, number>(); // hash -> chunkIdx
+
+    get pixelsPerJoint () {
+        return this._pixelsPerJoint;
+    }
 
     constructor (device: GFXDevice) {
         this._device = device;
         const format = selectJointsMediumFormat(this._device);
         this._formatSize = GFXFormatInfos[format].size;
+        this._pixelsPerJoint = 48 / this._formatSize;
         this._pool = new TextureBufferPool(device);
         this._pool.initialize({ format, roundUpFn: roundUpTextureSize });
         this._customPool = new TextureBufferPool(device);
@@ -250,8 +256,9 @@ export class JointsTexturePool {
         const clipData = SkelAnimDataHub.getOrExtract(clip);
         const frames = clipData.info.frames;
         let textureBuffer: Float32Array = null!; let buildTexture = false;
+        const totalJoints = joints.length;
         if (!texture) {
-            const bufSize = joints.length * 12 * frames;
+            const bufSize = totalJoints * 12 * frames;
             const customChunkIdx = this._chunkIdxMap.get(hash);
             const handle = customChunkIdx !== undefined ?
                 this._customPool.alloc(bufSize * Float32Array.BYTES_PER_ELEMENT, customChunkIdx) :
@@ -268,15 +275,14 @@ export class JointsTexturePool {
         for (let fid = 0; fid < frames; fid++) {
             bounds.push(new aabb(Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity));
         }
-        for (let i = 0; i < joints.length; i++) {
-            const boneSpaceBound = boneSpaceBounds[i];
-            const nodeData = clipData.data[joints[i]];
-            if (!nodeData) { continue; } // don't skip null `boneSpaceBounds` here, or it becomes mesh-specific
-            const bindpose = bindposes[i];
-            const matrix = nodeData.worldMatrix.values as Mat4[];
-            for (let frame = 0; frame < frames; frame++) {
+        for (let frame = 0; frame < frames; frame++) {
+            const bound = bounds[frame];
+            for (let i = 0; i < totalJoints; i++) {
+                const nodeData = clipData.data[joints[i]];
+                if (!nodeData) { continue; } // don't skip null `boneSpaceBounds` here, or it becomes mesh-specific
+                const matrix = nodeData.worldMatrix.values as Mat4[];
                 const m = matrix[frame];
-                const bound = bounds[frame];
+                const boneSpaceBound = boneSpaceBounds[i];
                 if (boneSpaceBound) {
                     aabb.transform(ab_1, boneSpaceBound, m);
                     ab_1.getBoundary(v3_3, v3_4);
@@ -284,14 +290,12 @@ export class JointsTexturePool {
                     Vec3.max(bound.halfExtents, bound.halfExtents, v3_4);
                 }
                 if (buildTexture) {
+                    const bindpose = bindposes[i];
                     Mat4.multiply(m4_1, m, bindpose);
-                    uploadJointData(textureBuffer, 12 * (frames * i + frame), m4_1, i === 0);
+                    uploadJointData(textureBuffer, 12 * (totalJoints * frame + i), m4_1, i === 0);
                 }
             }
-        }
-        for (let frame = 0; frame < frames; frame++) {
-            const { center, halfExtents } = bounds[frame];
-            aabb.fromPoints(bounds[frame], center, halfExtents);
+            aabb.fromPoints(bound, bound.center, bound.halfExtents);
         }
         if (buildTexture) {
             this._pool.update(texture.handle, textureBuffer.buffer);
@@ -368,7 +372,7 @@ export class JointsAnimationInfo {
             size: UBOSkinningAnimation.SIZE,
             stride: UBOSkinningAnimation.SIZE,
         });
-        const data = new Float32Array([1, 0, 0, 0]);
+        const data = new Float32Array([0, 0, 0, 0]);
         buffer.update(data);
         const info = { buffer, data, dirty: false };
         this._pool.set(nodeID, info);
@@ -383,8 +387,7 @@ export class JointsAnimationInfo {
     }
 
     public switchClip (info: IAnimInfo, clip: AnimationClip | null) {
-        info.data[0] = clip ? SkelAnimDataHub.getOrExtract(clip).info.frames : 1;
-        info.data[1] = 0;
+        info.data[0] = 0;
         info.buffer.update(info.data);
         info.dirty = false;
         return info;
