@@ -3824,33 +3824,33 @@ bool js_register_gfx_GFXDrawInfo(se::Object* obj)
 se::Object* __jsb_cocos2d_GFXIndirectBuffer_proto = nullptr;
 se::Class* __jsb_cocos2d_GFXIndirectBuffer_class = nullptr;
 
-static bool js_gfx_GFXIndirectBuffer_get_draws(se::State& s)
+static bool js_gfx_GFXIndirectBuffer_get_drawInfos(se::State& s)
 {
     cocos2d::GFXIndirectBuffer* cobj = (cocos2d::GFXIndirectBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXIndirectBuffer_get_draws : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXIndirectBuffer_get_drawInfos : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= std_vector_to_seval(cobj->draws, &jsret);
+    ok &= std_vector_to_seval(cobj->drawInfos, &jsret);
     s.rval() = jsret;
     return true;
 }
-SE_BIND_PROP_GET(js_gfx_GFXIndirectBuffer_get_draws)
+SE_BIND_PROP_GET(js_gfx_GFXIndirectBuffer_get_drawInfos)
 
-static bool js_gfx_GFXIndirectBuffer_set_draws(se::State& s)
+static bool js_gfx_GFXIndirectBuffer_set_drawInfos(se::State& s)
 {
     const auto& args = s.args();
     cocos2d::GFXIndirectBuffer* cobj = (cocos2d::GFXIndirectBuffer*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXIndirectBuffer_set_draws : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXIndirectBuffer_set_drawInfos : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     std::vector<cocos2d::GFXDrawInfo> arg0;
     ok &= seval_to_std_vector(args[0], &arg0);
-    SE_PRECONDITION2(ok, false, "js_gfx_GFXIndirectBuffer_set_draws : Error processing new value");
-    cobj->draws = arg0;
+    SE_PRECONDITION2(ok, false, "js_gfx_GFXIndirectBuffer_set_drawInfos : Error processing new value");
+    cobj->drawInfos = arg0;
     return true;
 }
-SE_BIND_PROP_SET(js_gfx_GFXIndirectBuffer_set_draws)
+SE_BIND_PROP_SET(js_gfx_GFXIndirectBuffer_set_drawInfos)
 
 SE_DECLARE_FINALIZE_FUNC(js_cocos2d_GFXIndirectBuffer_finalize)
 
@@ -3873,7 +3873,7 @@ static bool js_gfx_GFXIndirectBuffer_constructor(se::State& s)
         std::vector<cocos2d::GFXDrawInfo> arg0;
         if (!args[0].isUndefined()) {
             ok &= seval_to_std_vector(args[0], &arg0);
-            cobj->draws = arg0;
+            cobj->drawInfos = arg0;
         }
 
         if(!ok) {
@@ -3913,7 +3913,7 @@ bool js_register_gfx_GFXIndirectBuffer(se::Object* obj)
 {
     auto cls = se::Class::create("GFXIndirectBuffer", obj, nullptr, _SE(js_gfx_GFXIndirectBuffer_constructor));
 
-    cls->defineProperty("draws", _SE(js_gfx_GFXIndirectBuffer_get_draws), _SE(js_gfx_GFXIndirectBuffer_set_draws));
+    cls->defineProperty("drawInfos", _SE(js_gfx_GFXIndirectBuffer_get_drawInfos), _SE(js_gfx_GFXIndirectBuffer_set_drawInfos));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXIndirectBuffer_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXIndirectBuffer>(cls);
