@@ -28,6 +28,7 @@
     ViewController* viewController = [[ViewController alloc] initWithSize: rect];
     _window.contentViewController = viewController;
     _window.contentView = viewController.view;
+    [_window.contentView setWantsBestResolutionOpenGLSurface:YES];
     [_window makeKeyAndOrderFront:nil];
         
     _game = new Game(rect.size.width, rect.size.height);
