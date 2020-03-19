@@ -1107,6 +1107,10 @@ Rect width exceeds maximum margin: %s
 
 Rect height exceeds maximum margin: %s
 
+### 3401
+
+Set texture with a url of image is not supported anymore. Please use cc.assetManager.loadRemoteTexture to load a texture first. 
+
 ### 3500
 
 0 priority is forbidden for fixed priority since it's used for scene graph based priority.
