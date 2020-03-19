@@ -116,6 +116,9 @@ Bundle.prototype = {
      * 
      * @typescript
      * load(requests: string | string[] | Record<string, any> | Record<string, any>[] | Task, options?: Record<string, any>, onProgress?: (finished: number, total: number, item: RequestItem) => void, onComplete?: (err: Error, data: any) => void): Task
+     * load(requests: string | string[] | Record<string, any> | Record<string, any>[] | Task, onProgress?: (finished: number, total: number, item: RequestItem) => void, onComplete?: (err: Error, data: any) => void): Task
+     * load(requests: string | string[] | Record<string, any> | Record<string, any>[] | Task, options?: Record<string, any>, onComplete?: (err: Error, data: any) => void): Task
+     * load(requests: string | string[] | Record<string, any> | Record<string, any>[] | Task, onComplete?: (err: Error, data: any) => void): Task
      */
     load (requests, options, onProgress, onComplete) {
         var { options, onProgress, onComplete } = parseParameters(options, onProgress, onComplete);
@@ -161,6 +164,9 @@ Bundle.prototype = {
      * 
      * @typescript
      * preload(requests: string | string[] | Record<string, any> | Record<string, any>[], options?: Record<string, any>, onProgress?: (finished: number, total: number, item: RequestItem) => void, onComplete?: (err: Error, items: RequestItem[]) => void): Task
+     * preload(requests: string | string[] | Record<string, any> | Record<string, any>[], onProgress?: (finished: number, total: number, item: RequestItem) => void, onComplete?: (err: Error, items: RequestItem[]) => void): Task
+     * preload(requests: string | string[] | Record<string, any> | Record<string, any>[], options?: Record<string, any>, onComplete?: (err: Error, items: RequestItem[]) => void): Task
+     * preload(requests: string | string[] | Record<string, any> | Record<string, any>[], onComplete?: (err: Error, items: RequestItem[]) => void): Task
      */
     preload (requests, options, onProgress, onComplete) {
         var { options, onProgress, onComplete } = parseParameters(options, onProgress, onComplete);
@@ -202,6 +208,9 @@ Bundle.prototype = {
      * 
      * @typescript
      * loadAsset(paths: string|string[]|Task, type?: typeof cc.Asset, onProgress?: (finish: number, total: number, item: RequestItem) => void, onComplete?: (error: Error, assets: cc.Asset|cc.Asset[]) => void): Task
+     * loadAsset(paths: string|string[]|Task, onProgress?: (finish: number, total: number, item: RequestItem) => void, onComplete?: (error: Error, assets: cc.Asset|cc.Asset[]) => void): Task
+     * loadAsset(paths: string|string[]|Task, type?: typeof cc.Asset, onComplete?: (error: Error, assets: cc.Asset|cc.Asset[]) => void): Task
+     * loadAsset(paths: string|string[]|Task, onComplete?: (error: Error, assets: cc.Asset|cc.Asset[]) => void): Task
      */
     loadAsset (paths, type, onProgress, onComplete) {
         var { type, onProgress, onComplete } = parseLoadResArgs(type, onProgress, onComplete);
@@ -230,6 +239,9 @@ Bundle.prototype = {
      * 
      * @typescript
      * preloadAsset(paths: string|string[], type?: typeof cc.Asset, onProgress?: (finish: number, total: number, item: RequestItem) => void, onComplete?: (error: Error, items: RequestItem[]) => void): Task
+     * preloadAsset(paths: string|string[], onProgress?: (finish: number, total: number, item: RequestItem) => void, onComplete?: (error: Error, items: RequestItem[]) => void): Task
+     * preloadAsset(paths: string|string[], type?: typeof cc.Asset, onComplete?: (error: Error, items: RequestItem[]) => void): Task
+     * preloadAsset(paths: string|string[], onComplete?: (error: Error, items: RequestItem[]) => void): Task
      */
     preloadAsset (paths, type, onProgress, onComplete) {
         var { type, onProgress, onComplete } = parseLoadResArgs(type, onProgress, onComplete);
@@ -261,6 +273,9 @@ Bundle.prototype = {
      *
      * @typescript
      * loadDir(dir: string|Task, type?: typeof cc.Asset, onProgress?: (finish: number, total: number, item: RequestItem) => void, onComplete?: (error: Error, assets: Asset[]|Asset) => void): Task
+     * loadDir(dir: string|Task, onProgress?: (finish: number, total: number, item: RequestItem) => void, onComplete?: (error: Error, assets: Asset[]|Asset) => void): Task
+     * loadDir(dir: string|Task, type?: typeof cc.Asset, onComplete?: (error: Error, assets: Asset[]|Asset) => void): Task
+     * loadDir(dir: string|Task, onComplete?: (error: Error, assets: Asset[]|Asset) => void): Task
      */
     loadDir (dir, type, onProgress, onComplete) {
         var { type, onProgress, onComplete } = parseLoadResArgs(type, onProgress, onComplete);
@@ -293,6 +308,9 @@ Bundle.prototype = {
      *                                             
      * @typescript
      * preloadDir(dir: string, type?: typeof cc.Asset, onProgress?: (finish: number, total: number, item: RequestItem) => void, onComplete?: (error: Error, items: RequestItem[]) => void): Task
+     * preloadDir(dir: string, onProgress?: (finish: number, total: number, item: RequestItem) => void, onComplete?: (error: Error, items: RequestItem[]) => void): Task
+     * preloadDir(dir: string, type?: typeof cc.Asset, onComplete?: (error: Error, items: RequestItem[]) => void): Task
+     * preloadDir(dir: string, onComplete?: (error: Error, items: RequestItem[]) => void): Task
      */
     preloadDir (dir, type, onProgress, onComplete) {
         var { type, onProgress, onComplete } = parseLoadResArgs(type, onProgress, onComplete);
@@ -324,6 +342,9 @@ Bundle.prototype = {
      * 
      * @typescript
      * loadScene(sceneName: string|Task, options?: Record<string, any>, onProgress?: (finish: number, total: number, item: RequestItem) => void, onComplete?: (error: Error, scene: cc.Scene) => void): Task
+     * loadScene(sceneName: string|Task, onProgress?: (finish: number, total: number, item: RequestItem) => void, onComplete?: (error: Error, scene: cc.Scene) => void): Task
+     * loadScene(sceneName: string|Task, options?: Record<string, any>, onComplete?: (error: Error, scene: cc.Scene) => void): Task
+     * loadScene(sceneName: string|Task, onComplete?: (error: Error, scene: cc.Scene) => void): Task
      */
     loadScene (sceneName, options, onProgress, onComplete) {
         var { options, onProgress, onComplete } = parseParameters(options, onProgress, onComplete);
@@ -385,6 +406,9 @@ Bundle.prototype = {
      * 
      * @typescript
      * preloadScene(sceneName: string, options?: Record<string, any>, onProgress?: (finish: number, total: number, item: RequestItem) => void, onComplete?: (error: Error) => void): Task
+     * preloadScene(sceneName: string, onProgress?: (finish: number, total: number, item: RequestItem) => void, onComplete?: (error: Error) => void): Task
+     * preloadScene(sceneName: string, options?: Record<string, any>, onComplete?: (error: Error) => void): Task
+     * preloadScene(sceneName: string, onComplete?: (error: Error) => void): Task
      */
     preloadScene (sceneName, options, onProgress, onComplete) {
         var { options, onProgress, onComplete } = parseParameters(options, onProgress, onComplete);
@@ -473,10 +497,10 @@ Bundle.prototype = {
 
     /**
      * !#en 
-     * Destroy this bundle. NOTE: asset will not be released automatically, you need to call {{#crossLink "Bundle/releaseAll:method"}}{{/crossLink}} manually before destroy it
+     * Destroy this bundle. NOTE: The asset whthin this bundle will not be released automatically, you can call {{#crossLink "Bundle/releaseAll:method"}}{{/crossLink}} manually before destroy it if you need
      * 
      * !#zh 
-     * 销毁此包, 注意：资源不会自动释放, 你需要在摧毁之前手动调用 {{#crossLink "Bundle/releaseAll:method"}}{{/crossLink}} 进行释放
+     * 销毁此包, 注意：这个包内的资源不会自动释放, 如果需要的话你可以在摧毁之前手动调用 {{#crossLink "Bundle/releaseAll:method"}}{{/crossLink}} 进行释放
      *
      * @method destroy
      * 

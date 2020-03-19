@@ -277,6 +277,7 @@ var downloader = {
      * 
      * @typescript
      * downloadDomImage(url: string, options?: Record<string, any> , onComplete?: (err: Error, img: HTMLImageElement) => void): HTMLImageElement
+     * downloadDomImage(url: string, onComplete?: (err: Error, img: HTMLImageElement) => void): HTMLImageElement
      */
     downloadDomImage: downloadDomImage,
 
@@ -300,6 +301,7 @@ var downloader = {
      * 
      * @typescript
      * downloadDomAudio(url: string, options?: Record<string, any>, onComplete?: (err: Error, audio: HTMLAudioElement) => void): HTMLAudioElement
+     * downloadDomAudio(url: string, onComplete?: (err: Error, audio: HTMLAudioElement) => void): HTMLAudioElement
      */
     downloadDomAudio: downloadDomAudio,
     
@@ -331,6 +333,9 @@ var downloader = {
      * 
      * @typescript
      * downloadFile(url: string, options?: Record<string, any>, onProgress?: (loaded: Number, total: Number) => void, onComplete?: (err: Error, response: any) => void): XMLHttpRequest
+     * downloadFile(url: string, onProgress?: (loaded: Number, total: Number) => void, onComplete?: (err: Error, response: any) => void): XMLHttpRequest
+     * downloadFile(url: string, options?: Record<string, any>, onComplete?: (err: Error, response: any) => void): XMLHttpRequest
+     * downloadFile(url: string, onComplete?: (err: Error, response: any) => void): XMLHttpRequest
      */
     downloadFile: downloadFile,
 
@@ -353,6 +358,7 @@ var downloader = {
      * 
      * @typescript
      * downloadScript(url: string, options?: Record<string, any>, onComplete?: (err: Error) => void): void;
+     * downloadScript(url: string, onComplete?: (err: Error) => void): void;
      */
     downloadScript: downloadScript,
 
