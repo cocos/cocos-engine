@@ -37,13 +37,82 @@ interface IFontLoadHandle {
 }
 
 let _canvasContext: CanvasRenderingContext2D|null = null;
-const _testString = "BES bswy:->@";
+// letter symbol number CJK
+const _testString = "BES bswy:->@123\u4E01\u3041\u1101";
 
 let _fontFaces = {};
 let _intervalId = -1;
 let _loadingFonts:Array<IFontLoadHandle> = [];
-// 60 seconds timeout
-let _timeout = 60000;
+// 3 seconds timeout
+let _timeout = 3000;
+
+let useNativeCheck = (function () {
+    let nativeCheck;
+    return function () {
+        if (!nativeCheck) {
+            if (!!window.FontFace) {
+                var match = /Gecko.*Firefox\/(\d+)/.exec(window.navigator.userAgent);
+                var safari10Match = /OS X.*Version\/10\..*Safari/.exec(window.navigator.userAgent) && /Apple/.exec(window.navigator.vendor);
+        
+                if (match) {
+                    nativeCheck = parseInt(match[1], 10) > 42;
+                } 
+                else if (safari10Match) {
+                    nativeCheck = false;
+                } 
+                else {
+                    nativeCheck = true;
+                }
+        
+            } else {
+                nativeCheck = false;
+            }
+        }
+        return nativeCheck;
+    }
+})();
+
+function nativeCheckFontLoaded (start, font, callback) {
+    var loader = new Promise(function (resolve, reject) {
+        var check = function () {
+            var now = Date.now();
+
+            if (now - start >= _timeout) {
+                reject();
+            } 
+            else {
+                // @ts-ignore
+                document.fonts.load('40px ' + font).then(function (fonts) {
+                    if (fonts.length >= 1) {
+                        resolve();
+                    } 
+                    else {
+                        setTimeout(check, 100);
+                    }
+                }, function () {
+                    reject();
+                });
+            }
+        };
+        check();
+    });
+  
+    let timeoutId;
+    let timer = new Promise(function (resolve, reject) {
+        timeoutId = setTimeout(reject, _timeout);
+    });
+  
+    Promise.race([timer, loader]).then(function () {
+        if (timeoutId) {
+            clearTimeout(timeoutId);
+            timeoutId = null;
+        }
+        callback(null, font);
+    }, function () {
+        cc.warnID(4933, font);
+        callback(null, font);
+    });
+}
 
 function _checkFontLoaded () {
     let allFontsLoaded = true;
@@ -126,19 +195,23 @@ export function loadFont (item, callback) {
     divStyle.top = "-100px";
     document.body.appendChild(preloadDiv);
 
-    // Save loading font
-    let fontLoadHandle:IFontLoadHandle = {
-        fontFamilyName,
-        refWidth,
-        callback,
-        startTime: Date.now()
+    if (useNativeCheck()) {
+        nativeCheckFontLoaded(Date.now(), fontFamilyName, callback);
     }
-    _loadingFonts.push(fontLoadHandle);
+    else {
+        // Save loading font
+        let fontLoadHandle:IFontLoadHandle = {
+            fontFamilyName,
+            refWidth,
+            callback,
+            startTime: Date.now()
+        }
+        _loadingFonts.push(fontLoadHandle);
+        if (_intervalId === -1) {
+            _intervalId = setInterval(_checkFontLoaded, 100);
+        }
+    }
     _fontFaces[fontFamilyName] = fontStyle;
-
-    if (_intervalId === -1) {
-        _intervalId = setInterval(_checkFontLoaded, 100);
-    }
 }
 
 export function _getFontFamily (fontHandle) {
