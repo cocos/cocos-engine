@@ -71,6 +71,7 @@ const defaultKFEnd = new Keyframe(1, 1, 0, 0);
 export class AnimationCurve {
     _keyFrames = new Array();
     @property({
+        default: [],
         type: [Keyframe],
     })
     get keyFrames()
