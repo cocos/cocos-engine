@@ -27,7 +27,7 @@ let DepthStencilFormat = cc.Enum({
     RB_FMT_S8: gfx.RB_FMT_S8,
     /**
      * !#en Only 16 bit depth buffer
-     * !#zh 只申请 16 位深度缓冲和 8 位模板缓冲
+     * !#zh 只申请 16 位深度缓冲
      * @property RB_FMT_D16
      * @readonly
      * @type {number}
