@@ -77,9 +77,8 @@ var _laVec3 = new Vec3();
 var _laQuat = new Quat();
 
 //up、right、forward temp var
-var _uVec3 = new Vec3();
-var _rVec3 = new Vec3();
-var _fVec3 = new Vec3();
+var _urfVec3 = new Vec3();
+var _urfQuat = new Quat();
 
 // _hitTest temp var
 var _htVec3a = new Vec3();
@@ -1584,8 +1583,8 @@ let NodeDefines = {
          */
         up: {
             get () {
-                var _up = Vec3.transformQuat(_uVec3, Vec3.UP, this.getWorldRotation(new Quat()));
-                return _up;
+                var _up = Vec3.transformQuat(_urfVec3, Vec3.UP, this.getWorldRotation(_urfQuat));
+                return _up.clone();
             }
         },
 
@@ -1598,8 +1597,8 @@ let NodeDefines = {
          */
         right: {
             get () {
-                var _right = Vec3.transformQuat(_rVec3, Vec3.RIGHT, this.getWorldRotation(new Quat()));
-                return _right;
+                var _right = Vec3.transformQuat(_urfVec3, Vec3.RIGHT, this.getWorldRotation(_urfQuat));
+                return _right.clone();
             }
         },
 
@@ -1612,8 +1611,8 @@ let NodeDefines = {
          */
         forward: {
             get () {
-                var _forward = Vec3.transformQuat(_fVec3, Vec3.FORWARD, this.getWorldRotation(new Quat()));
-                return _forward;
+                var _forward = Vec3.transformQuat(_urfVec3, Vec3.FORWARD, this.getWorldRotation(_urfQuat));
+                return _forward.clone();
             }
         },
     },
