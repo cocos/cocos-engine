@@ -65,7 +65,7 @@ enum SpriteType {
     /**
      * @en
      * The tiled type.
-
+     *
      * @zh  平铺类型
      */
     TILED =  2,
@@ -524,7 +524,7 @@ export class SpriteComponent extends UIRenderComponent {
 
     // onLoad() {}
 
-    public onEnable() {
+    public onEnable () {
         super.onEnable();
 
         // this._flushAssembler();
@@ -584,7 +584,7 @@ export class SpriteComponent extends UIRenderComponent {
         }
 
         const spriteFrame = this._spriteFrame;
-        if (!spriteFrame || !spriteFrame.texture) {
+        if (!spriteFrame || !spriteFrame.textureLoaded()) {
             return false;
         }
 
@@ -764,7 +764,7 @@ export class SpriteComponent extends UIRenderComponent {
     /**
      * 强制刷新 uv。
      */
-    private _markForUpdateUvDirty() {
+    private _markForUpdateUvDirty () {
         if (this._renderData) {
             this._renderData.uvDirty = true;
             this._renderDataFlag = true;

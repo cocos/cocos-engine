@@ -102,8 +102,6 @@ export class RenderTexture extends TextureBase {
 
     public onLoaded (){
         this._tryResetWindow();
-        this.loaded = true;
-        this.emit('load');
     }
 
     public _serialize (exporting?: any): any {
@@ -156,6 +154,8 @@ export class RenderTexture extends TextureBase {
         }
 
         this._window = cc.director.root!.createWindow(config);
+        this.loaded = true;
+        this.emit('load');
     }
 }
 

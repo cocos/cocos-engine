@@ -361,8 +361,8 @@ export class SpriteFrame extends Asset {
         return this._texture;
     }
 
-    set texture (value){
-        if (!value){
+    set texture (value) {
+        if (!value) {
             console.warn(`Error Texture in ${this.name}`);
             return;
         }
@@ -442,7 +442,7 @@ export class SpriteFrame extends Asset {
      * 返回是否已加载精灵帧。
      */
     public textureLoaded () {
-        return this.loaded;
+        return this.texture.loaded;
     }
 
     /**
@@ -565,11 +565,11 @@ export class SpriteFrame extends Asset {
         this.offset = offset;
     }
 
-    public getGFXTextureView (){
+    public getGFXTextureView () {
         return this._texture.getGFXTextureView();
     }
 
-    public getGFXSampler (){
+    public getGFXSampler () {
         return this._texture.getGFXSampler();
     }
 
@@ -579,7 +579,7 @@ export class SpriteFrame extends Asset {
      */
     public reset (info?: ISpriteFrameInitInfo, clearData = false) {
         let calUV = false;
-        if (clearData){
+        if (clearData) {
             this._originalSize.set(0, 0);
             this._rect.set(0, 0, 0 , 0);
             this._offset.set(0, 0);
@@ -640,7 +640,7 @@ export class SpriteFrame extends Asset {
             calUV = true;
         }
 
-        if (calUV && this.texture){
+        if (calUV && this.texture) {
             this._calculateUV();
         }
     }
@@ -681,7 +681,7 @@ export class SpriteFrame extends Asset {
         this.emit('load');
     }
 
-    public destroy (){
+    public destroy () {
         return super.destroy();
     }
 
@@ -855,7 +855,7 @@ export class SpriteFrame extends Asset {
         }
 
         let texture;
-        if(this._texture) {
+        if (this._texture) {
             texture = this._texture._uuid;
         }
 
@@ -902,7 +902,7 @@ export class SpriteFrame extends Asset {
             this._capInsets[INSET_BOTTOM] = capInsets[INSET_BOTTOM];
         }
 
-        if(data.texture){
+        if (data.texture) {
             handle.result.push(this, '_textureSource',data.texture);
         }
 
