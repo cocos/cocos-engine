@@ -551,6 +551,25 @@ static bool WebSocket_getExtensions(se::State& s)
 }
 SE_BIND_PROP_GET(WebSocket_getExtensions)
 
+#define WEBSOCKET_DEFINE_READONLY_INT_FIELD(full_name, value) \
+static bool full_name(se::State& s) \
+{ \
+    const auto& args = s.args(); \
+    int argc = (int)args.size(); \
+    if (argc == 0) \
+    { \
+        s.rval().setInt32(value); \
+        return true; \
+    } \
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 0", argc); \
+    return false; \
+} \
+SE_BIND_PROP_GET(full_name)
+
+WEBSOCKET_DEFINE_READONLY_INT_FIELD(Websocket_CONNECTING, (int)WebSocket::State::CONNECTING)
+WEBSOCKET_DEFINE_READONLY_INT_FIELD(Websocket_OPEN, (int)WebSocket::State::OPEN)
+WEBSOCKET_DEFINE_READONLY_INT_FIELD(Websocket_CLOSING, (int)WebSocket::State::CLOSING)
+WEBSOCKET_DEFINE_READONLY_INT_FIELD(Websocket_CLOSED, (int)WebSocket::State::CLOSED)
 
 bool register_all_websocket(se::Object* obj)
 {
@@ -562,15 +581,19 @@ bool register_all_websocket(se::Object* obj)
     cls->defineProperty("readyState", _SE(WebSocket_getReadyState), nullptr);
     cls->defineProperty("bufferedAmount", _SE(WebSocket_getBufferedAmount), nullptr);
     cls->defineProperty("extensions", _SE(WebSocket_getExtensions), nullptr);
+    cls->defineProperty("CONNECTING", _SE(Websocket_CONNECTING), nullptr);
+    cls->defineProperty("CLOSING", _SE(Websocket_CLOSING), nullptr);
+    cls->defineProperty("OPEN", _SE(Websocket_OPEN), nullptr);
+    cls->defineProperty("CLOSED", _SE(Websocket_CLOSED), nullptr);
 
     cls->install();
 
     se::Value tmp;
     obj->getProperty("WebSocket", &tmp);
-    tmp.toObject()->setProperty("CONNECTING", se::Value((int)WebSocket::State::CONNECTING));
-    tmp.toObject()->setProperty("OPEN", se::Value((int)WebSocket::State::OPEN));
-    tmp.toObject()->setProperty("CLOSING", se::Value((int)WebSocket::State::CLOSING));
-    tmp.toObject()->setProperty("CLOSED", se::Value((int)WebSocket::State::CLOSED));
+    tmp.toObject()->defineProperty("CONNECTING", _SE(Websocket_CONNECTING), nullptr);
+    tmp.toObject()->defineProperty("CLOSING", _SE(Websocket_CLOSING), nullptr);
+    tmp.toObject()->defineProperty("OPEN", _SE(Websocket_OPEN), nullptr);
+    tmp.toObject()->defineProperty("CLOSED", _SE(Websocket_CLOSED), nullptr);
 
     JSBClassType::registerClass<WebSocket>(cls);
 
