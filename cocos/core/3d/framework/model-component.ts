@@ -27,9 +27,11 @@
  * @category model
  */
 
+import { Texture2D } from '../../assets';
 import { Material } from '../../assets/material';
 import { Mesh } from '../../assets/mesh';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
+import { Vec4 } from '../../math';
 import { Model } from '../../renderer/scene/model';
 import { Root } from '../../root';
 import { TransformBit } from '../../scene-graph/node-enum';
@@ -55,6 +57,81 @@ const ModelShadowCastingMode = Enum({
 });
 
 /**
+ * @en model light map settings.
+ * @zh 模型光照图设置
+ */
+@ccclass('cc.ModelLightmapSettings')
+class ModelLightmapSettings {
+    @property({
+        visible: false,
+    })
+    public texture: Texture2D|null = null;
+    @property({
+        visible: false,
+    })
+    public uvParam: Vec4 = new Vec4();
+    @property
+    protected _bakeable: boolean = false;
+    @property
+    protected _castShadow: boolean = false;
+    @property
+    protected _recieveShadow: boolean = false;
+    @property
+    protected _lightmapSize: number = 64;
+
+    /**
+     * @en bakeable.
+     * @zh 是否可烘培。
+     */
+    @property
+    get bakeable () {
+        return this._bakeable;
+    }
+
+    set bakeable (val) {
+        this._bakeable = val;
+    }
+
+    /**
+     * @en cast shadow.
+     * @zh 是否投射阴影。
+     */
+    @property
+    get castShadow () {
+        return this._castShadow;
+    }
+
+    set castShadow (val) {
+        this._castShadow = val;
+    }
+
+    /**
+     * @en recieve shadow.
+     * @zh 是否接受阴影。
+     */
+    @property
+    get recieveShadow () {
+        return this._recieveShadow;
+    }
+
+    set recieveShadow (val) {
+        this._recieveShadow = val;
+    }
+
+    /**
+     * @en lightmap size.
+     * @zh 光照图大小
+     */
+    get lightmapSize () {
+        return this._lightmapSize;
+    }
+
+    set lightmapSize (val) {
+        this._lightmapSize = val;
+    }
+}
+
+/**
  * 模型组件。
  * @class ModelComponent
  */
@@ -65,6 +142,9 @@ const ModelShadowCastingMode = Enum({
 export class ModelComponent extends RenderableComponent {
 
     public static ShadowCastingMode = ModelShadowCastingMode;
+
+    @property
+    public lightmapSettings = new ModelLightmapSettings();
 
     @property
     protected _mesh: Mesh | null = null;
@@ -158,6 +238,15 @@ export class ModelComponent extends RenderableComponent {
                 break;
             }
         }
+    }
+
+    public _updateLightmap (lightmap: Texture2D|null, uoff: number, voff: number, uscale: number, vscale: number)
+    {
+        this.lightmapSettings.texture = lightmap;
+        this.lightmapSettings.uvParam.x = uoff;
+        this.lightmapSettings.uvParam.y = voff;
+        this.lightmapSettings.uvParam.z = uscale;
+        this.lightmapSettings.uvParam.w = vscale;
     }
 
     protected _updateModels () {
