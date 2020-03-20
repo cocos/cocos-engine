@@ -1166,14 +1166,11 @@ export class Terrain extends Component {
     }
 
     public _resetLightmap (enble: boolean) {
+        this._lightmapInfos.length = 0;
         if (enble) {
-            this._lightmapInfos = [];
             for (let i = 0; i < this._blockCount[0] * this._blockCount[1]; ++i) {
                 this._lightmapInfos.push(new TerrainBlockLightmapInfo());
             }
-        }
-        else {
-            this._lightmapInfos = [];
         }
     }
 
