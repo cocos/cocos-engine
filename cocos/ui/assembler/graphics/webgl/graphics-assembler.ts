@@ -213,6 +213,9 @@ export const graphicsAssembler: IAssembler = {
             }
         }
 
+        if(positions.length === 0 && uvs.length === 0 && colors.length === 0 || indices.length === 0)
+            return;
+
         const mesh = createMesh({
             primitiveMode,
             positions,
@@ -221,7 +224,7 @@ export const graphicsAssembler: IAssembler = {
             attributes: attrs,
             indices,
         }, undefined, { calculateBounds: false });
-
+        
         graphics.model!.initialize(graphics.node);
         graphics.model!.initSubModel(0, mesh.getSubMesh(0), graphics.material!);
         graphics.markForUpdateRenderData();
