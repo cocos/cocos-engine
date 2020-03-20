@@ -213,7 +213,7 @@ export class JointTexturePool {
             texture = { pixelOffset: handle.start / this._formatSize, refCount: 1, bounds: new Map(),
                 skeletonHash: skeleton.hash, clipHash: 0, readyToBeDeleted: false, handle };
             textureBuffer = new Float32Array(bufSize); buildTexture = true;
-        }
+        } else { texture.refCount++; }
         Vec3.set(v3_min,  Infinity,  Infinity,  Infinity);
         Vec3.set(v3_max, -Infinity, -Infinity, -Infinity);
         const boneSpaceBounds = mesh.getBoneSpaceBounds(skeleton);
@@ -267,7 +267,7 @@ export class JointTexturePool {
             texture = { pixelOffset: handle.start / this._formatSize, refCount: 1, bounds: new Map(),
                 skeletonHash: skeleton.hash, clipHash: clip.hash, readyToBeDeleted: false, handle };
             textureBuffer = new Float32Array(bufSize); buildTexture = true;
-        }
+        } else { texture.refCount++; }
         Vec3.set(v3_min,  Infinity,  Infinity,  Infinity);
         Vec3.set(v3_max, -Infinity, -Infinity, -Infinity);
         const boneSpaceBounds = mesh.getBoneSpaceBounds(skeleton);
