@@ -366,7 +366,6 @@ export class SpriteFrame extends Asset {
             console.warn(`Error Texture in ${this.name}`);
             return;
         }
-        this._texture = value;
         this.reset({ texture: value }, true);
     }
 
@@ -388,6 +387,7 @@ export class SpriteFrame extends Asset {
 
     set _textureSource (value: TextureBase) {
         this._texture = value;
+        this._texture.on('load', this._textureLoaded, this);
         this._calculateUV();
     }
 
@@ -597,8 +597,12 @@ export class SpriteFrame extends Asset {
                 this._rect.x = this._rect.y = 0;
                 this._rect.width = info.texture.width;
                 this._rect.height = info.texture.height;
+                if (this._texture) {
+                    this._texture.off('load');
+                }
                 this._texture = info.texture;
                 this.checkRect(this._texture);
+                this._texture.on('load', this._textureLoaded, this);
             }
 
             if (info.rect) {
@@ -682,6 +686,9 @@ export class SpriteFrame extends Asset {
     }
 
     public destroy () {
+        if (this._texture.isValid) {
+            this._texture.off('load');
+        }
         return super.destroy();
     }
 
@@ -915,6 +922,30 @@ export class SpriteFrame extends Asset {
             // initialize normal uv arrays
             this.vertices.nu = [];
             this.vertices.nv = [];
+        }
+    }
+
+    protected _textureLoaded () {
+        const tex = this._texture;
+        const config: ISpriteFrameInitInfo = {};
+        let isReset = false;
+        if (this._rect.width === 0 || this._rect.height === 0 || !this.checkRect(tex)) {
+            config.rect = new Rect(0, 0, tex.width, tex.height);
+            isReset = true;
+        }
+
+        // If original size is not set or rect check failed, we should reset the original size
+        if (this._originalSize.width === 0 ||
+            this._originalSize.height === 0 ||
+            isReset
+        ) {
+            config.originalSize = new Size(tex.width, tex.height);
+            isReset = true;
+        }
+
+        if (isReset) {
+            this.reset(config);
+            this.onLoaded();
         }
     }
 }

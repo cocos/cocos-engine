@@ -269,7 +269,7 @@ export class TextureBase extends Asset {
             if (this._gfxDevice) {
                 this._gfxSampler = samplerLib.getSampler(this._gfxDevice, this._samplerHash);
             } else {
-                console.error('Can`t getGFXSampler with out device!')
+                cc.errorID(9302);
             }
         }
         return this._gfxSampler;
