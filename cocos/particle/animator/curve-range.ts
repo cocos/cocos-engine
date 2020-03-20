@@ -7,6 +7,13 @@ import { lerp } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import { AnimationCurve } from '../../core/geometry';
 
+const SerializableTable = CC_EDITOR && [
+    [ "mode", "constant", "multiplier" ],
+    [ "mode", "curve", "multiplier" ],
+    [ "mode", "curveMin", "curveMax", "multiplier" ],
+    [ "mode", "constantMin", "constantMax", "multiplier"]
+];
+
 export const Mode = Enum({
     Constant: 0,
     Curve: 1,
@@ -104,6 +111,10 @@ export default class CurveRange  {
                 return this.multiplier;
         }
         return 0;
+    }
+
+    public _onBeforeSerialize (props) {
+        return SerializableTable[this.mode];
     }
 }
 
