@@ -2693,7 +2693,6 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
         case gl.TEXTURE_CUBE_MAP: {
             for (let k = 0; k < regions.length; k++) {
                 const region = regions[k];
-                n = 0;
                 const fcount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
                 for (f = region.texSubres.baseArrayLayer; f < fcount; ++f) {
                     w = region.texExtent.width;
