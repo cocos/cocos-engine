@@ -120,7 +120,8 @@ var eventManager = {
     _dirtyListeners: {},
     _inDispatch: 0,
     _isEnabled: false,
-    _currentTouch: {},
+    _currentTouch: null,
+    _currentTouchListener: null,
 
     _internalCustomListenerIDs:[],
 
@@ -489,7 +490,7 @@ var eventManager = {
         var isClaimed = false, removedIdx;
         var getCode = event.getEventCode(), EventTouch = cc.Event.EventTouch;
         if (getCode === EventTouch.BEGAN) {
-            if (!cc.macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch.touch) {
+            if (!cc.macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch) {
                 return false;
             }
 
@@ -497,15 +498,15 @@ var eventManager = {
                 isClaimed = listener.onTouchBegan(selTouch, event);
                 if (isClaimed && listener._registered) {
                     listener._claimedTouches.push(selTouch);
-                    eventManager._currentTouch.listener = listener;
-                    eventManager._currentTouch.touch = selTouch;
+                    eventManager._currentTouchListener = listener;
+                    eventManager._currentTouch = selTouch;
                 }
             }
         } else if (listener._claimedTouches.length > 0
             && ((removedIdx = listener._claimedTouches.indexOf(selTouch)) !== -1)) {
             isClaimed = true;
             
-            if (!cc.macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch.touch !== selTouch) {
+            if (!cc.macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch && eventManager._currentTouch !== selTouch) {
                 return false;
             }
 
@@ -808,12 +809,12 @@ var eventManager = {
             }
         }
 
-        this._currentTouch.listener === listener && this._clearCurTouch();
+        this._currentTouchListener === listener && this._clearCurTouch();
     },
 
     _clearCurTouch () {
-        eventManager._currentTouch.listener = null;
-        eventManager._currentTouch.touch = null;
+        this._currentTouchListener = null;
+        this._currentTouch = null;
     },
 
     _removeListenerInCallback: function(listeners, callback){
