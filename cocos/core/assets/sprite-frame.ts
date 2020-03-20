@@ -387,7 +387,7 @@ export class SpriteFrame extends Asset {
 
     set _textureSource (value: TextureBase) {
         this._texture = value;
-        this._texture.on('load', this._textureLoaded, this);
+        this._refreshTexture(value);
         this._calculateUV();
     }
 
@@ -589,20 +589,16 @@ export class SpriteFrame extends Asset {
         }
 
         if (info) {
-            if (info.originalSize) {
-                this._originalSize.set(info.originalSize);
-            }
-
             if (info.texture) {
                 this._rect.x = this._rect.y = 0;
                 this._rect.width = info.texture.width;
                 this._rect.height = info.texture.height;
-                if (this._texture) {
-                    this._texture.off('load');
-                }
-                this._texture = info.texture;
+                this._refreshTexture(info.texture);
                 this.checkRect(this._texture);
-                this._texture.on('load', this._textureLoaded, this);
+            }
+
+            if (info.originalSize) {
+                this._originalSize.set(info.originalSize);
             }
 
             if (info.rect) {
@@ -686,9 +682,6 @@ export class SpriteFrame extends Asset {
     }
 
     public destroy () {
-        if (this._texture.isValid) {
-            this._texture.off('load');
-        }
         return super.destroy();
     }
 
@@ -946,6 +939,16 @@ export class SpriteFrame extends Asset {
         if (isReset) {
             this.reset(config);
             this.onLoaded();
+        }
+    }
+
+    protected _refreshTexture (texture: TextureBase) {
+        this._texture = texture;
+        if(texture.loaded) {
+            this._textureLoaded();
+        }
+        else {
+            texture.once('load',this._textureLoaded,this);
         }
     }
 }
