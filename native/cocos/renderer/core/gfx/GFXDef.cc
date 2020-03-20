@@ -44,10 +44,10 @@ const GFXFormatInfo GFX_FORMAT_INFOS[] = {
   { "RGB32I", 12, 3, GFXFormatType::INT, false, false, false, false},
   
   { "RGBA8", 4, 4, GFXFormatType::UNORM, true, false, false, false},
+  { "BGRA8", 4, 4, GFXFormatType::UNORM, true, false, false, false},
   { "SRGB8_A8", 4, 4, GFXFormatType::UNORM, true, false, false, false},
   { "RGBA8SN", 4, 4, GFXFormatType::SNORM, true, false, false, false},
   { "RGBA8UI", 4, 4, GFXFormatType::UINT, true, false, false, false},
-  { "BGRA8UN", 4, 4, GFXFormatType::UNORM, true, false, false, false},
   { "RGBA8I", 4, 4, GFXFormatType::INT, true, false, false, false},
   { "RGBA16F", 8, 4, GFXFormatType::FLOAT, true, false, false, false},
   { "RGBA16UI", 8, 4, GFXFormatType::UINT, true, false, false, false},

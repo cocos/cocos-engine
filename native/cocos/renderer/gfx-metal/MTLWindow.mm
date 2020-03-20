@@ -26,11 +26,11 @@ bool CCMTLWindow::initialize(const GFXWindowInfo& info)
     GFXColorAttachment colorAttachment;
     
     // FIXME: use `_isOffscreen` to determine if it is the default window(created by device).
-    // As metal only supports GFXFormat::BGRA8UN for color attachment.
+    // As metal only supports GFXFormat::BGRA8 for color attachment.
     if (_isOffscreen)
         colorAttachment.format = info.colorFmt;
     else
-        colorAttachment.format = GFXFormat::BGRA8UN;
+        colorAttachment.format = GFXFormat::BGRA8;
     
     colorAttachment.loadOp = GFXLoadOp::CLEAR;
     colorAttachment.storeOp = GFXStoreOp::STORE;

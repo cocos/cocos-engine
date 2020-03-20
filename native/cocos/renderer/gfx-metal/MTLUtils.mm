@@ -114,7 +114,7 @@ namespace mu
             case GFXFormat::RGBA32F: return MTLPixelFormatRGBA32Float;
             case GFXFormat::RGBA32UI: return MTLPixelFormatRGBA32Uint;
             case GFXFormat::RGBA32I: return MTLPixelFormatRGBA32Sint;
-            case GFXFormat::BGRA8UN: return MTLPixelFormatBGRA8Unorm;
+            case GFXFormat::BGRA8: return MTLPixelFormatBGRA8Unorm;
                 
             // Should convert.
 //            case GFXFormat::R5G6B5: return MTLPixelFormatB5G6R5Unorm;

@@ -80,6 +80,8 @@ enum class GFXFeature : uint8_t {
   FORMAT_PVRTC,
   FORMAT_ASTC,
   MSAA,
+  ELEMENT_INDEX_UINT,
+  INSTANCED_ARRAYS,
   COUNT,
 };
 
@@ -126,10 +128,10 @@ enum class GFXFormat : uint {
   RGB32I,
   
   RGBA8,
+  BGRA8,
   SRGB8_A8,
   RGBA8SN,
   RGBA8UI,
-  BGRA8UN,
   RGBA8I,
   RGBA16F,
   RGBA16UI,

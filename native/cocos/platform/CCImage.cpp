@@ -182,7 +182,7 @@ namespace
 
     static const _pixel2_formathash::value_type v2_pixel_formathash_value[] =
     {
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::BGRA8888,        GFXFormat::BGRA8UN),
+        _pixel2_formathash::value_type(PVR2TexturePixelFormat::BGRA8888,        GFXFormat::BGRA8),
         _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGBA8888,        GFXFormat::RGBA8),
         _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGBA4444,        GFXFormat::RGBA4),
         _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGBA5551,        GFXFormat::RGB5A1),
@@ -203,7 +203,7 @@ namespace
     typedef const std::map<PVR3TexturePixelFormat, GFXFormat> _pixel3_formathash;
     static _pixel3_formathash::value_type v3_pixel_formathash_value[] =
     {
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::BGRA8888,    GFXFormat::BGRA8UN),
+        _pixel3_formathash::value_type(PVR3TexturePixelFormat::BGRA8888,    GFXFormat::BGRA8),
         _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGBA8888,    GFXFormat::RGBA8),
         _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGBA4444,    GFXFormat::RGBA4),
         _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGBA5551,    GFXFormat::RGB5A1),
@@ -1427,4 +1427,3 @@ void Image::setPVRImagesHavePremultipliedAlpha(bool haveAlphaPremultiplied)
 }
 
 NS_CC_END
-
