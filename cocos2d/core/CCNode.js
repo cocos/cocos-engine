@@ -1578,8 +1578,8 @@ let NodeDefines = {
          * !#en Returns a normalized vector representing the up direction (Y axis) of the node in world space.
          * !#zh 获取节点正上方（y 轴）面对的方向，返回值为世界坐标系下的归一化向量
          * 
-         * @method up
-         * @return {Vec2|Vec3}
+         * @property up
+         * @type {Vec3}
          */
         up: {
             get () {
@@ -1592,8 +1592,8 @@ let NodeDefines = {
          * !#en Returns a normalized vector representing the right direction (X axis) of the node in world space.
          * !#zh 获取节点正右方（x 轴）面对的方向，返回值为世界坐标系下的归一化向量
          * 
-         * @method right
-         * @return {Vec2|Vec3}
+         * @property right
+         * @type {Vec3}
          */
         right: {
             get () {
@@ -1606,8 +1606,8 @@ let NodeDefines = {
          * !#en Returns a normalized vector representing the forward direction (Z axis) of the node in world space.
          * !#zh 获取节点正前方（z 轴）面对的方向，返回值为世界坐标系下的归一化向量
          * 
-         * @method forward
-         * @return {Vec2|Vec3}
+         * @property forward
+         * @type {Vec3}
          */
         forward: {
             get () {
