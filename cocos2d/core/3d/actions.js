@@ -147,7 +147,7 @@ cc.Rotate3DBy = cc.Class({
                 deltaAngleZ = deltaAngleZ || 0;
             }
 
-            cc.Vec3.set(this._deltaAngle, deltaAngleX, deltaAngleY, deltaAngleZ);
+            Vec3.set(this._deltaAngle, deltaAngleX, deltaAngleY, deltaAngleZ);
             return true;
         }
         return false;
