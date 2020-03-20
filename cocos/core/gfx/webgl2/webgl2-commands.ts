@@ -13,7 +13,6 @@ import {
     GFXFormat,
     GFXFormatInfos,
     GFXFormatSize,
-    GFXFormatType,
     GFXLoadOp,
     GFXMemoryUsageBit,
     GFXSampleCount,
@@ -79,7 +78,7 @@ function CmpF32NotEuqal (a: number, b: number): boolean {
     return (c > 0.000001 || c < -0.000001);
 }
 
-function GFXFormatToWebGLType (format: GFXFormat, gl: WebGL2RenderingContext): GLenum {
+export function GFXFormatToWebGLType (format: GFXFormat, gl: WebGL2RenderingContext): GLenum {
     switch (format) {
         case GFXFormat.R8: return gl.UNSIGNED_BYTE;
         case GFXFormat.R8SN: return gl.BYTE;
@@ -182,7 +181,7 @@ function GFXFormatToWebGLType (format: GFXFormat, gl: WebGL2RenderingContext): G
     }
 }
 
-function GFXFormatToWebGLInternalFormat (format: GFXFormat, gl: WebGL2RenderingContext): GLenum {
+export function GFXFormatToWebGLInternalFormat (format: GFXFormat, gl: WebGL2RenderingContext): GLenum {
     switch (format) {
         case GFXFormat.A8: return gl.ALPHA;
         case GFXFormat.L8: return gl.LUMINANCE;
@@ -273,7 +272,7 @@ function GFXFormatToWebGLInternalFormat (format: GFXFormat, gl: WebGL2RenderingC
     }
 }
 
-function GFXFormatToWebGLFormat (format: GFXFormat, gl: WebGL2RenderingContext): GLenum {
+export function GFXFormatToWebGLFormat (format: GFXFormat, gl: WebGL2RenderingContext): GLenum {
     switch (format) {
         case GFXFormat.A8: return gl.ALPHA;
         case GFXFormat.L8: return gl.LUMINANCE;
