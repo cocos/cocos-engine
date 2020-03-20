@@ -498,6 +498,11 @@ AssetManager.prototype = {
      */
     loadNativeFile (asset, onComplete) {
         if (!(asset instanceof cc.Asset)) throw new Error('input is not asset');
+
+        if (asset._nativeAsset) {
+            return asyncify(onComplete)(null, asset._nativeAsset);
+        }
+        
         var depend = dependUtil.getNativeDep(asset._uuid);
         if (depend) {
             var bundle = null;
