@@ -8,8 +8,9 @@ import { Enum } from '../../core/value-types';
 import { AnimationCurve } from '../../core/geometry';
 import { Texture2D } from '../../core';
 import { PixelFormat, Filter, WrapMode } from '../../core/assets/asset-enum';
+import { EDITOR } from 'internal:constants';
 
-const SerializableTable = CC_EDITOR && [
+const SerializableTable = EDITOR && [
     [ "mode", "constant", "multiplier" ],
     [ "mode", "curve", "multiplier" ],
     [ "mode", "curveMin", "curveMax", "multiplier" ],
@@ -115,6 +116,9 @@ export default class CurveRange  {
         return 0;
     }
 
+    public _onBeforeSerialize (props) {
+        return SerializableTable[this.mode];
+    }
 }
 
 function evaluateCurve (cr: CurveRange, time: number, index: number) {
@@ -194,9 +198,6 @@ export function packCurveRangeN (samples:number, cr: CurveRange) {
     texture.uploadData(data);
 
     return texture;
-    public _onBeforeSerialize (props) {
-        return SerializableTable[this.mode];
-    }
 }
 
 export function packCurveRangeXYZ (samples: number, x: CurveRange, y: CurveRange, z: CurveRange) {

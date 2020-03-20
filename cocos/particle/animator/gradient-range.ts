@@ -12,17 +12,7 @@ import { Texture2D } from '../../core';
 import { PixelFormat, Filter, WrapMode } from '../../core/assets/asset-enum';
 
 // tslint:disable: max-line-length
-
-const GRADIENT_MODE_FIX = 0;
-const GRADIENT_MODE_BLEND = 1;
-
-const GRADIENT_RANGE_MODE_COLOR = 0;
-const GRADIENT_RANGE_MODE_TWO_COLOR = 1;
-const GRADIENT_RANGE_MODE_RANDOM_COLOR = 2;
-const GRADIENT_RANGE_MODE_GRADIENT = 3;
-const GRADIENT_RANGE_MODE_TWO_GRADIENT = 4;
-
-const SerializableTable = CC_EDITOR && [
+const SerializableTable = EDITOR && [
     [ "_mode", "color" ],
     [ "_mode", "gradient" ],
     [ "_mode", "colorMin", "colorMax" ],
