@@ -1981,6 +1981,10 @@ The current buffer beyond the limit in ui static component, please reduce the am
 
 The UI has not been initialized
 
+### 9302
+
+Can't getGFXSampler with out device
+
 ### 9600
 
 [Physics]: please check to see if physics modules are included
