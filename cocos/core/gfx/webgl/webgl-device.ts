@@ -31,7 +31,7 @@ import { WebGLGFXBindingLayout } from './webgl-binding-layout';
 import { WebGLGFXBuffer } from './webgl-buffer';
 import { WebGLGFXCommandAllocator } from './webgl-command-allocator';
 import { WebGLGFXCommandBuffer } from './webgl-command-buffer';
-import { WebGLCmdFuncCopyBuffersToTexture, WebGLCmdFuncCopyTexImagesToTexture } from './webgl-commands';
+import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGLCmdFuncCopyBuffersToTexture, WebGLCmdFuncCopyTexImagesToTexture } from './webgl-commands';
 import { WebGLGFXFramebuffer } from './webgl-framebuffer';
 import { WebGLGFXInputAssembler } from './webgl-input-assembler';
 import { WebGLGFXPipelineLayout } from './webgl-pipeline-layout';
@@ -661,6 +661,9 @@ export class WebGLGFXDevice extends GFXDevice {
 
         const gl = this._webGLRC!;
         const gpuFramebuffer = (srcFramebuffer as WebGLGFXFramebuffer).gpuFramebuffer;
+        const format = gpuFramebuffer.gpuColorViews[0].format;
+        const glFormat = GFXFormatToWebGLFormat(format, gl);
+        const glType = GFXFormatToWebGLType(format, gl);
 
         const curFBO = this.stateCache.glFramebuffer;
 
@@ -677,11 +680,10 @@ export class WebGLGFXDevice extends GFXDevice {
             const w = region.texExtent.width;
             const h = region.texExtent.height;
 
-            const memSize = GFXFormatSize(GFXFormat.RGBA8, w, h, 1);
+            const memSize = GFXFormatSize(format, w, h, 1);
             const data = view.subarray(buffOffset, buffOffset + memSize);
 
-            gl.readPixels(region.texOffset.x, region.texOffset.y, w, h,
-                gl.RGBA, gl.UNSIGNED_BYTE, data);
+            gl.readPixels(region.texOffset.x, region.texOffset.y, w, h, glFormat, glType, data);
         }
 
         if (this.stateCache.glFramebuffer !== curFBO) {
