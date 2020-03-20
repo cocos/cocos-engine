@@ -186,11 +186,20 @@ export class TerrainRenderable extends RenderableComponent {
 export class TerrainBlockInfo {
     @property
     public layers: number[] = [-1, -1, -1, -1];
-    public lightMap: Texture2D|null = null;
-    public lightMapUOff: number = 0;
-    public lightMapVOff: number = 0;
-    public lightMapUScale: number = 0;
-    public lightMapVScale: number = 0;
+}
+
+@ccclass('cc.TerrainBlockLightmapInfo')
+export class TerrainBlockLightmapInfo {
+    @property
+    public texture: Texture2D|null = null;
+    @property
+    public UOff: number = 0;
+    @property
+    public VOff: number = 0;
+    @property
+    public UScale: number = 0;
+    @property
+    public VScale: number = 0;
 }
 
 export class TerrainBlock {
@@ -201,12 +210,14 @@ export class TerrainBlock {
     private _index: number[] = [1, 1];
     // private _neighbor: TerrainBlock|null[] = [null, null, null, null];
     private _weightMap: Texture2D|null = null;
+    private _lightmapInfo: TerrainBlockLightmapInfo|null = null;
 
     constructor (t: Terrain, i: number, j: number) {
         this._terrain = t;
         this._info = t.getBlockInfo(i, j);
         this._index[0] = i;
         this._index[1] = j;
+        this._lightmapInfo = t._getLightmapInfo(i, j);
 
         this._node = new PrivateNode('');
         // @ts-ignore
@@ -394,11 +405,16 @@ export class TerrainBlock {
     }
 
     get lightmap () {
-        return this._info.lightMap;
+        return this._lightmapInfo ? this._lightmapInfo.texture : null;
     }
 
     get lightmapUVParam () {
-        return new Vec4(this._info.lightMapUOff, this._info.lightMapVOff, this._info.lightMapUScale, this._info.lightMapVScale);
+        if (this._lightmapInfo != null) {
+            return new Vec4(this._lightmapInfo.UOff, this._lightmapInfo.VOff, this._lightmapInfo.UScale, this._lightmapInfo.VScale);
+        }
+        else {
+            return new Vec4(0, 0, 0, 0);
+        }
     }
 
     public getTerrain () {
@@ -557,12 +573,8 @@ export class TerrainBlock {
         this._weightMap.uploadData(weightData);
     }
 
-    public _updateLightmap (tex: Texture2D|null, uoff: number, voff: number, uscale: number, vscale: number) {
-        this._info.lightMap = tex;
-        this._info.lightMapUOff = uoff;
-        this._info.lightMapVOff = voff;
-        this._info.lightMapUScale = uscale;
-        this._info.lightMapVScale = vscale;
+    public _updateLightmap (info: TerrainBlockLightmapInfo) {
+        this._lightmapInfo = info;
         this._invalidMaterial();
     }
 }
@@ -588,6 +600,11 @@ export class Terrain extends Component {
         visible: false,
     })
     protected _blockInfos: TerrainBlockInfo[] = [];
+
+    @property({
+        visible: false,
+    })
+    protected _lightmapInfos: TerrainBlockLightmapInfo[] = [];
 
     protected _tileSize: number = 1;
     protected _blockCount: number[] = [1, 1];
@@ -1148,14 +1165,27 @@ export class Terrain extends Component {
         return this._sharedIndexBuffer;
     }
 
-    public _updateLightmap (blockId: number, tex: Texture2D|null, uoff: number, voff: number, uscale: number, vscale: number) {
-        this._blockInfos[blockId].lightMap = tex;
-        this._blockInfos[blockId].lightMapUOff = uoff;
-        this._blockInfos[blockId].lightMapVOff = voff;
-        this._blockInfos[blockId].lightMapUScale = uscale;
-        this._blockInfos[blockId].lightMapVScale = vscale;
+    public _resetLightmap (enble: boolean) {
+        this._lightmapInfos.length = 0;
+        if (enble) {
+            for (let i = 0; i < this._blockCount[0] * this._blockCount[1]; ++i) {
+                this._lightmapInfos.push(new TerrainBlockLightmapInfo());
+            }
+        }
+    }
 
-        this._blocks[blockId]._updateLightmap(tex, uoff, voff, uscale, vscale);
+    public _updateLightmap (blockId: number, tex: Texture2D|null, uoff: number, voff: number, uscale: number, vscale: number) {
+        this._lightmapInfos[blockId].texture = tex;
+        this._lightmapInfos[blockId].UOff = uoff;
+        this._lightmapInfos[blockId].VOff = voff;
+        this._lightmapInfos[blockId].UScale = uscale;
+        this._lightmapInfos[blockId].VScale = vscale;
+        this._blocks[blockId]._updateLightmap(this._lightmapInfos[blockId]);
+    }
+
+    public _getLightmapInfo (i: number, j: number) {
+        const index = j * this._blockCount[0] + i;
+        return index < this._lightmapInfos.length ? this._lightmapInfos[index] : null;
     }
 
     public rayCheck (start: Vec3, dir: Vec3, step: number, worldspace: boolean = true) {

@@ -12,7 +12,6 @@ import {
     GFXFormat,
     GFXFormatInfos,
     GFXFormatSize,
-    GFXFormatType,
     GFXLoadOp,
     GFXMemoryUsageBit,
     GFXSampleCount,
@@ -45,7 +44,7 @@ function CmpF32NotEuqal (a: number, b: number): boolean {
     return (c > 0.000001 || c < -0.000001);
 }
 
-function GFXFormatToWebGLType (format: GFXFormat, gl: WebGLRenderingContext): GLenum {
+export function GFXFormatToWebGLType (format: GFXFormat, gl: WebGLRenderingContext): GLenum {
     switch (format) {
         case GFXFormat.R8: return gl.UNSIGNED_BYTE;
         case GFXFormat.R8SN: return gl.BYTE;
@@ -148,7 +147,7 @@ function GFXFormatToWebGLType (format: GFXFormat, gl: WebGLRenderingContext): GL
     }
 }
 
-function GFXFormatToWebGLInternalFormat (format: GFXFormat, gl: WebGLRenderingContext): GLenum {
+export function GFXFormatToWebGLInternalFormat (format: GFXFormat, gl: WebGLRenderingContext): GLenum {
     switch (format) {
         case GFXFormat.A8: return gl.ALPHA;
         case GFXFormat.L8: return gl.LUMINANCE;
@@ -192,7 +191,7 @@ function GFXFormatToWebGLInternalFormat (format: GFXFormat, gl: WebGLRenderingCo
     }
 }
 
-function GFXFormatToWebGLFormat (format: GFXFormat, gl: WebGLRenderingContext): GLenum {
+export function GFXFormatToWebGLFormat (format: GFXFormat, gl: WebGLRenderingContext): GLenum {
     switch (format) {
         case GFXFormat.A8: return gl.ALPHA;
         case GFXFormat.L8: return gl.LUMINANCE;
@@ -2698,7 +2697,6 @@ export function WebGLCmdFuncCopyBuffersToTexture (
         case gl.TEXTURE_CUBE_MAP: {
             for (let i = 0; i < regions.length; i++) {
                 const region = regions[i];
-                n = 0;
                 const fcount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
                 for (f = region.texSubres.baseArrayLayer; f < fcount; ++f) {
                     w = region.texExtent.width;

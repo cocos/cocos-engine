@@ -102,7 +102,7 @@ export class Camera {
     private _clearStencil: number = 0;
     private _clearDepth: number = 1.0;
     private _clearFlag: GFXClearFlag = GFXClearFlag.NONE;
-    private _clearColor: IGFXColor = { r: 0, g: 0, b: 0, a: 0 };
+    private _clearColor: IGFXColor = { r: 0.2, g: 0.2, b: 0.2, a: 1 };
     private _viewport: Rect = new Rect(0, 0, 1, 1);
     private _isProjDirty = true;
     private _matView: Mat4 = new Mat4();

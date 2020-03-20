@@ -4,9 +4,11 @@ import { GFXBuffer, IGFXBufferInfo } from '../buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from '../command-allocator';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
 import {
+    getTypedArrayConstructor,
     GFXBufferTextureCopy,
     GFXFilter,
     GFXFormat,
+    GFXFormatInfos,
     GFXFormatSize,
     GFXQueueType,
     GFXTextureFlagBit,
@@ -30,7 +32,10 @@ import { WebGL2GFXBindingLayout } from './webgl2-binding-layout';
 import { WebGL2GFXBuffer } from './webgl2-buffer';
 import { WebGL2GFXCommandAllocator } from './webgl2-command-allocator';
 import { WebGL2GFXCommandBuffer } from './webgl2-command-buffer';
-import { WebGL2CmdFuncBlitFramebuffer, WebGL2CmdFuncCopyBuffersToTexture, WebGL2CmdFuncCopyTexImagesToTexture } from './webgl2-commands';
+import {
+    GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGL2CmdFuncBlitFramebuffer,
+    WebGL2CmdFuncCopyBuffersToTexture, WebGL2CmdFuncCopyTexImagesToTexture,
+} from './webgl2-commands';
 import { WebGL2GFXFramebuffer } from './webgl2-framebuffer';
 import { WebGL2GFXInputAssembler } from './webgl2-input-assembler';
 import { WebGL2GFXPipelineLayout } from './webgl2-pipeline-layout';
@@ -559,6 +564,10 @@ export class WebGL2GFXDevice extends GFXDevice {
 
         const gl = this._webGL2RC!;
         const gpuFramebuffer = (srcFramebuffer as WebGL2GFXFramebuffer).gpuFramebuffer;
+        const format = gpuFramebuffer.gpuColorViews[0].format;
+        const glFormat = GFXFormatToWebGLFormat(format, gl);
+        const glType = GFXFormatToWebGLType(format, gl);
+        const ctor = getTypedArrayConstructor(GFXFormatInfos[format]);
 
         const curFBO = this.stateCache.glFramebuffer;
 
@@ -567,7 +576,7 @@ export class WebGL2GFXDevice extends GFXDevice {
             this.stateCache.glFramebuffer = gpuFramebuffer.glFramebuffer;
         }
 
-        const view = new Uint8Array(dstBuffer);
+        const view = new ctor(dstBuffer);
 
         for (const region of regions) {
             const buffOffset = region.buffOffset + region.buffTexHeight * region.buffStride;
@@ -575,11 +584,10 @@ export class WebGL2GFXDevice extends GFXDevice {
             const w = region.texExtent.width;
             const h = region.texExtent.height;
 
-            const memSize = GFXFormatSize(GFXFormat.RGBA8, w, h, 1);
+            const memSize = GFXFormatSize(format, w, h, 1);
             const data = view.subarray(buffOffset, buffOffset + memSize);
 
-            gl.readPixels(region.texOffset.x, region.texOffset.y, w, h,
-                gl.RGBA, gl.UNSIGNED_BYTE, data);
+            gl.readPixels(region.texOffset.x, region.texOffset.y, w, h, glFormat, glType, data);
         }
 
         if (this.stateCache.glFramebuffer !== curFBO) {

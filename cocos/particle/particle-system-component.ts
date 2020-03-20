@@ -28,8 +28,20 @@ import { particleEmitZAxis } from './particle-general-function';
 import ParticleSystemRenderer from './renderer/particle-system-renderer-data';
 import TrailModule from './renderer/trail';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
+import { indexOf } from '../core/utils/array';
 
 const _world_mat = new Mat4();
+const _module_props = [
+    "colorOverLifetimeModule",
+    "shapeModule",
+    "sizeOvertimeModule",
+    "velocityOvertimeModule",
+    "forceOvertimeModule",
+    "limitVelocityOvertimeModule",
+    "rotationOvertimeModule",
+    "textureAnimationModule",
+    "trailModule"
+]
 
 @ccclass('cc.ParticleSystemComponent')
 @menu('Components/ParticleSystem')
@@ -418,6 +430,14 @@ export class ParticleSystemComponent extends RenderableComponent {
         tooltip:'渲染模块',
     })
     public renderer: ParticleSystemRenderer = new ParticleSystemRenderer();
+
+    // serilized culling
+    @property({
+        type: Boolean,
+        displayOrder: 27,
+        tooltip:'是否剔除非 enable 的模块数据',
+    })
+    public isCulling: Boolean = true;
 
     /**
      * @ignore
@@ -835,5 +855,9 @@ export class ParticleSystemComponent extends RenderableComponent {
 
     get time () {
         return this._time;
+    }
+
+    public _onBeforeSerialize (props) {
+        return this.isCulling ? props.filter(p => !_module_props.includes(p) || this[p].enable) : props;
     }
 }

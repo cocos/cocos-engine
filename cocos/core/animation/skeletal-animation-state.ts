@@ -29,7 +29,7 @@
 
 import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
 import { Mat4, Quat, Vec3 } from '../math';
-import { IAnimInfo, JointsAnimationInfo } from '../renderer/models/skeletal-animation-utils';
+import { IAnimInfo, JointAnimationInfo } from '../renderer/models/skeletal-animation-utils';
 import { deleteTransform, getTransform, getWorldMatrix, IJointTransform } from '../renderer/models/skinning-model';
 import { Node } from '../scene-graph/node';
 import { AnimationClip, IRuntimeCurve } from './animation-clip';
@@ -61,14 +61,14 @@ export class SkeletalAnimationState extends AnimationState {
     protected _bakedDuration = 0;
     protected _animInfo: IAnimInfo | null = null;
     protected _sockets: ISocketData[] = [];
-    protected _animInfoMgr: JointsAnimationInfo;
+    protected _animInfoMgr: JointAnimationInfo;
     protected _comps: SkinningModelComponent[] = [];
     protected _parent: SkeletalAnimationComponent | null = null;
     protected _curvesInited = false;
 
     constructor (clip: AnimationClip, name = '') {
         super(clip, name);
-        this._animInfoMgr = cc.director.root.dataPoolManager.jointsAnimationInfo;
+        this._animInfoMgr = cc.director.root.dataPoolManager.jointAnimationInfo;
     }
 
     public initialize (root: Node) {
@@ -158,7 +158,7 @@ export class SkeletalAnimationState extends AnimationState {
         const info = this._animInfo!;
         const curFrame = (ratio * this._frames + 0.5) | 0;
         if (curFrame === info.data[1]) { return; }
-        info.data[1] = curFrame;
+        info.data[0] = curFrame;
         info.dirty = true;
         for (let i = 0; i < this._sockets.length; ++i) {
             const { target, frames } = this._sockets[i];

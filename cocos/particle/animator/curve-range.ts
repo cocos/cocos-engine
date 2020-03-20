@@ -9,6 +9,13 @@ import { AnimationCurve } from '../../core/geometry';
 import { Texture2D } from '../../core';
 import { PixelFormat, Filter, WrapMode } from '../../core/assets/asset-enum';
 
+const SerializableTable = CC_EDITOR && [
+    [ "mode", "constant", "multiplier" ],
+    [ "mode", "curve", "multiplier" ],
+    [ "mode", "curveMin", "curveMax", "multiplier" ],
+    [ "mode", "constantMin", "constantMax", "multiplier"]
+];
+
 export const Mode = Enum({
     Constant: 0,
     Curve: 1,
@@ -187,6 +194,9 @@ export function packCurveRangeN (samples:number, cr: CurveRange) {
     texture.uploadData(data);
 
     return texture;
+    public _onBeforeSerialize (props) {
+        return SerializableTable[this.mode];
+    }
 }
 
 export function packCurveRangeXYZ (samples: number, x: CurveRange, y: CurveRange, z: CurveRange) {

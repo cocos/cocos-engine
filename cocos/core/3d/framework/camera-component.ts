@@ -27,6 +27,7 @@
  * @category component/camera
  */
 
+import { EDITOR } from 'internal:constants';
 import { RenderTexture } from '../../assets/render-texture';
 import { UITransformComponent } from '../../components';
 import { Component } from '../../components/component';
@@ -42,7 +43,6 @@ import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Root } from '../../root';
 import { Layers, Node, Scene } from '../../scene-graph';
 import { Enum } from '../../value-types';
-import { EDITOR } from 'internal:constants';
 
 const _temp_vec3_1 = new Vec3();
 
@@ -94,7 +94,7 @@ export class CameraComponent extends Component {
     @property
     protected _far = 1000;
     @property
-    protected _color = new Color('#334C78');
+    protected _color = new Color('#333333');
     @property
     protected _depth = 1;
     @property
@@ -150,7 +150,7 @@ export class CameraComponent extends Component {
 
     set priority (val) {
         this._priority = val;
-        if (this._camera){
+        if (this._camera) {
             this._camera.priority = val;
         }
     }
@@ -227,17 +227,17 @@ export class CameraComponent extends Component {
         tooltip: 'i18n:camera.color',
     })
     // @constget
-    get color (): Readonly<Color>  {
+    get color (): Readonly<Color> {
         return this._color;
     }
 
     set color (val) {
         this._color.set(val);
         if (this._camera) {
-            this._camera.clearColor.r = val.x;
-            this._camera.clearColor.g = val.y;
-            this._camera.clearColor.b = val.z;
-            this._camera.clearColor.a = val.w;
+            this._camera.clearColor.r = this._color.x;
+            this._camera.clearColor.g = this._color.y;
+            this._camera.clearColor.b = this._color.z;
+            this._camera.clearColor.a = this._color.w;
         }
     }
 
@@ -353,8 +353,8 @@ export class CameraComponent extends Component {
         return this._targetTexture;
     }
 
-    set targetTexture (value){
-        if (this._targetTexture === value){
+    set targetTexture (value) {
+        if (this._targetTexture === value) {
             return;
         }
 
@@ -363,7 +363,7 @@ export class CameraComponent extends Component {
         this._chechTargetTextureEvent(old);
         this._updateTargetTexture();
 
-        if (!value && this._camera){
+        if (!value && this._camera) {
             this._camera.changeTargetWindow(EDITOR ? cc.director.root.tempWindow : null);
             this._camera.isWindowSize = true;
         }
@@ -447,7 +447,7 @@ export class CameraComponent extends Component {
      * uiNode.position = out;
      * ```
      */
-    public convertToUINode (wpos: Vec3, uiNode: Node, out?: Vec3){
+    public convertToUINode (wpos: Vec3, uiNode: Node, out?: Vec3) {
         if (!out) {
             out = new Vec3();
         }
@@ -525,7 +525,7 @@ export class CameraComponent extends Component {
 
     protected _chechTargetTextureEvent (old: RenderTexture | null) {
         const resizeFunc = (window: GFXWindow) => {
-            if (this._camera){
+            if (this._camera) {
                 this._camera.setFixedSize(window.width, window.height);
             }
         };
@@ -539,7 +539,7 @@ export class CameraComponent extends Component {
         }
     }
 
-    protected _updateTargetTexture (){
+    protected _updateTargetTexture () {
         if (!this._camera) {
             return;
         }
