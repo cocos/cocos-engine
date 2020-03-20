@@ -33,19 +33,20 @@ import { Skeleton } from '../../assets/skeleton';
 import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
+import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { Vec3 } from '../../math';
-import { INST_JOINT_ANIM_INFO, UBOSkinningAnimation, UBOSkinningTexture, UniformJointsTexture } from '../../pipeline/define';
+import { INST_JOINT_ANIM_INFO, UBOSkinningAnimation, UBOSkinningTexture, UniformJointTexture } from '../../pipeline/define';
 import { Node } from '../../scene-graph';
 import { Pass } from '../core/pass';
 import { samplerLib } from '../core/sampler-lib';
 import { DataPoolManager } from '../data-pool-manager';
 import { Model, ModelType } from '../scene/model';
-import { IAnimInfo, IJointsTextureHandle, jointsTextureSamplerHash } from './skeletal-animation-utils';
+import { IAnimInfo, IJointTextureHandle, jointTextureSamplerHash } from './skeletal-animation-utils';
 
 interface IJointsInfo {
     buffer: GFXBuffer | null;
-    jointsTextureInfo: Float32Array;
-    texture: IJointsTextureHandle | null;
+    jointTextureInfo: Float32Array;
+    texture: IJointTextureHandle | null;
     animInfo: IAnimInfo;
     boundsInfo: aabb[] | null;
 }
@@ -76,9 +77,9 @@ export class BakedSkinningModel extends Model {
         super();
         this.type = ModelType.BAKED_SKINNING;
         this._dataPoolManager = cc.director.root.dataPoolManager;
-        const jointsTextureInfo = new Float32Array(4);
-        const animInfo = this._dataPoolManager.jointsAnimationInfo.getData();
-        this._jointsMedium = { buffer: null, jointsTextureInfo, animInfo, texture: null, boundsInfo: null };
+        const jointTextureInfo = new Float32Array(4);
+        const animInfo = this._dataPoolManager.jointAnimationInfo.getData();
+        this._jointsMedium = { buffer: null, jointTextureInfo, animInfo, texture: null, boundsInfo: null };
     }
 
     public destroy () {
@@ -88,7 +89,7 @@ export class BakedSkinningModel extends Model {
             this._jointsMedium.buffer.destroy();
             this._jointsMedium.buffer = null;
         }
-        this._applyJointsTexture();
+        this._applyJointTexture();
         super.destroy();
     }
 
@@ -98,7 +99,7 @@ export class BakedSkinningModel extends Model {
         if (!skeleton || !skinningRoot || !mesh) { return; }
         this.transform = skinningRoot;
         const resMgr = this._dataPoolManager;
-        this._jointsMedium.animInfo = resMgr.jointsAnimationInfo.getData(skinningRoot.uuid);
+        this._jointsMedium.animInfo = resMgr.jointAnimationInfo.getData(skinningRoot.uuid);
         if (!this._jointsMedium.buffer) {
             this._jointsMedium.buffer = this._device.createBuffer({
                 usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
@@ -113,7 +114,7 @@ export class BakedSkinningModel extends Model {
         super.updateTransform(stamp);
         if (!this.uploadedAnim) { return; }
         const { animInfo, boundsInfo } = this._jointsMedium;
-        const skelBound = boundsInfo![animInfo.data[1]];
+        const skelBound = boundsInfo![animInfo.data[0]];
         const node = this.transform;
         if (this._worldBounds && skelBound) {
             // @ts-ignore TS2339
@@ -127,8 +128,10 @@ export class BakedSkinningModel extends Model {
         const info = this._jointsMedium.animInfo;
         const idx = this._instAnimInfoIdx;
         if (idx >= 0) {
-            this.instancedAttributes.list[idx].view[1] = info.data[1];
-        } else if (info.dirty) {
+            const view = this.instancedAttributes.list[idx].view;
+            view[0] = view[1] * info.data[0] + view[2];
+        }
+        if (info.dirty) {
             info.buffer.update(info.data);
             info.dirty = false;
         }
@@ -144,50 +147,52 @@ export class BakedSkinningModel extends Model {
         if (!this._skeleton || !this._mesh || this.uploadedAnim === anim) { return; }
         this.uploadedAnim = anim;
         const resMgr = this._dataPoolManager;
-        let texture: IJointsTextureHandle | null = null;
+        let texture: IJointTextureHandle | null = null;
         if (anim) {
-            texture = resMgr.jointsTexturePool.getSequencePoseTexture(this._skeleton, anim, this._mesh);
+            texture = resMgr.jointTexturePool.getSequencePoseTexture(this._skeleton, anim, this._mesh);
             this._jointsMedium.boundsInfo = texture && texture.bounds.get(this._mesh.hash)!;
             this._modelBounds = null; // don't calc bounds again in Model
         } else {
-            texture = resMgr.jointsTexturePool.getDefaultPoseTexture(this._skeleton, this._mesh, this.transform!);
+            texture = resMgr.jointTexturePool.getDefaultPoseTexture(this._skeleton, this._mesh, this.transform!);
             this._jointsMedium.boundsInfo = null;
             this._modelBounds = texture && texture.bounds.get(this._mesh.hash)![0];
         }
-        this._applyJointsTexture(texture);
+        this._applyJointTexture(texture);
     }
 
-    protected _applyJointsTexture (texture: IJointsTextureHandle | null = null) {
+    protected _applyJointTexture (texture: IJointTextureHandle | null = null) {
         const oldTex = this._jointsMedium.texture;
-        if (oldTex && oldTex !== texture) { this._dataPoolManager.jointsTexturePool.releaseHandle(oldTex); }
+        if (oldTex && oldTex !== texture) { this._dataPoolManager.jointTexturePool.releaseHandle(oldTex); }
         this._jointsMedium.texture = texture;
         if (!texture) { return; }
-        const { buffer, jointsTextureInfo } = this._jointsMedium;
-        jointsTextureInfo[0] = texture.handle.texture.width;
-        jointsTextureInfo[1] = 1 / jointsTextureInfo[0];
-        jointsTextureInfo[2] = texture.pixelOffset + 0.1; // guard against floor() underflow
+        const { buffer, jointTextureInfo: jointTextureInfo } = this._jointsMedium;
+        jointTextureInfo[0] = texture.handle.texture.width;
+        jointTextureInfo[1] = this._skeleton!.joints.length;
+        jointTextureInfo[2] = texture.pixelOffset + 0.1; // guard against floor() underflow
+        jointTextureInfo[3] = 1 / jointTextureInfo[0];
         const idx = this._instAnimInfoIdx;
         if (idx >= 0) { // update instancing data too
             const info = this._jointsMedium.animInfo;
             const view = this.instancedAttributes.list[idx].view;
-            view[0] = info.data[0];
-            view[1] = info.data[1];
-            view[2] = jointsTextureInfo[2];
+            const pixelsPerJoint = this._dataPoolManager.jointTexturePool.pixelsPerJoint;
+            view[1] = pixelsPerJoint * jointTextureInfo[1];
+            view[2] = jointTextureInfo[2];
+            view[0] = view[1] * info.data[0] + view[2];
         }
-        if (buffer) { buffer.update(jointsTextureInfo); }
+        if (buffer) { buffer.update(jointTextureInfo); }
         const tv = texture.handle.texView;
         const it = this._matPSORecord.values(); let res = it.next();
         while (!res.done) {
             const psos = res.value;
             for (let i = 0; i < psos.length; i++) {
                 const bindingLayout = psos[i].pipelineLayout.layouts[0];
-                bindingLayout.bindTextureView(UniformJointsTexture.binding, tv);
+                bindingLayout.bindTextureView(UniformJointTexture.binding, tv);
             }
             res = it.next();
         }
         for (let i = 0; i < this._implantPSOs.length; i++) {
             const bindingLayout = this._implantPSOs[i].pipelineLayout.layouts[0];
-            bindingLayout.bindTextureView(UniformJointsTexture.binding, tv);
+            bindingLayout.bindTextureView(UniformJointTexture.binding, tv);
             bindingLayout.update();
         }
     }
@@ -198,12 +203,16 @@ export class BakedSkinningModel extends Model {
         const bindingLayout = pso.pipelineLayout.layouts[0];
         bindingLayout.bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);
         bindingLayout.bindBuffer(UBOSkinningAnimation.BLOCK.binding, animInfo.buffer);
-        const sampler = samplerLib.getSampler(this._device, jointsTextureSamplerHash);
+        const sampler = samplerLib.getSampler(this._device, jointTextureSamplerHash);
         if (texture) {
-            bindingLayout.bindTextureView(UniformJointsTexture.binding, texture.handle.texView);
-            bindingLayout.bindSampler(UniformJointsTexture.binding, sampler);
+            bindingLayout.bindTextureView(UniformJointTexture.binding, texture.handle.texView);
+            bindingLayout.bindSampler(UniformJointTexture.binding, sampler);
         }
-        this._instAnimInfoIdx = this.getInstancedAttributeIndex(INST_JOINT_ANIM_INFO);
         return pso;
+    }
+
+    protected updateInstancedAttributeList (pso: GFXPipelineState, pass: Pass) {
+        super.updateInstancedAttributeList(pso, pass);
+        this._instAnimInfoIdx = this.getInstancedAttributeIndex(INST_JOINT_ANIM_INFO);
     }
 }

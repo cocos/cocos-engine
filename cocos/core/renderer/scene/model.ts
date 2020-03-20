@@ -180,12 +180,11 @@ export class Model {
             if (idx >= 0) {
                 const attrs = this.instancedAttributes!.list;
                 uploadMat4AsVec4x3(worldMatrix, attrs[idx].view, attrs[idx + 1].view, attrs[idx + 2].view);
-            } else if (!this.isDynamicBatching) {
-                Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
-                Mat4.inverseTranspose(m4_1, worldMatrix);
-                Mat4.toArray(this._localData, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
-                this._localBuffer!.update(this._localData);
             }
+            Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
+            Mat4.inverseTranspose(m4_1, worldMatrix);
+            Mat4.toArray(this._localData, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
+            this._localBuffer!.update(this._localData);
         }
         this._matPSORecord.forEach(this._updatePass, this);
         return true;
@@ -256,10 +255,12 @@ export class Model {
                 pass.beginChangeStatesSilently();
                 pass.tryCompile(); // force update shaders
                 pass.endChangeStatesSilently();
-                psos[j] = this.createPipelineState(pass, i);
-                psos[j].pipelineLayout.layouts[0].update();
             }
-            psos.length = mat.passes.length;
+            const newPSOs = this.createPipelineStates(mat, i);
+            psos.length = newPSOs.length;
+            for (let j = 0; j < newPSOs.length; j++) {
+                psos[i] = newPSOs[i];
+            }
         });
         for (let i = 0; i < subModels.length; i++) {
             subModels[i].updateCommandBuffer();
@@ -281,6 +282,7 @@ export class Model {
             const pass = mat.passes[i];
             ret[i] = this.createPipelineState(pass, subModelIdx);
         }
+        if (ret[0]) { this.updateInstancedAttributeList(ret[0], mat.passes[0]); }
         return ret;
     }
 
@@ -296,14 +298,11 @@ export class Model {
         const bindingLayout = pso.pipelineLayout.layouts[0];
         if (this._localBuffer) { bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer); }
         if (this._lightBuffer) { bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, this._lightBuffer); }
-        this.updateInstancedAttributeList(pso, pass, subModelIdx);
-        this._instMatWorldIdx = this.getInstancedAttributeIndex(INST_MAT_WORLD);
-        this._transformUpdated = true;
         return pso;
     }
 
-    protected updateInstancedAttributeList (pso: GFXPipelineState, pass: Pass, subModelIdx: number) {
-        // for now no submodel level instancing attributes
+    // for now no submodel level instancing attributes
+    protected updateInstancedAttributeList (pso: GFXPipelineState, pass: Pass) {
         const attributes = pso.inputState.attributes;
         let size = 0;
         for (let j = 0; j < attributes.length; j++) {
@@ -324,6 +323,8 @@ export class Model {
             offset += info.size; attrs.list.push({ name: attribute.name, format, isNormalized, view });
         }
         if (pass.instancedBuffer) { pass.instancedBuffer.destroy(); } // instancing IA changed
+        this._instMatWorldIdx = this.getInstancedAttributeIndex(INST_MAT_WORLD);
+        this._transformUpdated = true;
     }
 
     protected getInstancedAttributeIndex (name: string) {
