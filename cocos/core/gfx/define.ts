@@ -81,7 +81,7 @@ export enum GFXAttributeName {
 export enum GFXType {
     // assumptions about the order of this enum: (exploited by other parts of the engine)
     // * vectors always come before samplers
-    // * vectors with the same data type are always consecutive and in an ascending order component-wise
+    // * vectors with the same data type are always consecutive, in an component-wise ascending order
     // * unknown is always zero
     UNKNOWN,
     // vectors
@@ -167,10 +167,10 @@ export enum GFXFormat {
     RGB32I,
 
     RGBA8,
+    BGRA8,
     SRGB8_A8,
     RGBA8SN,
     RGBA8UI,
-    RGBA8UN,
     RGBA8I,
     RGBA16F,
     RGBA16UI,
@@ -650,10 +650,10 @@ export const GFXFormatInfos: IGFXFormatInfo[] = [
     { name: 'RGB32I', size: 12, count: 3, type: GFXFormatType.INT, hasAlpha: false, hasDepth: false, hasStencil: false, isCompressed: false },
 
     { name: 'RGBA8', size: 4, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
+    { name: 'BGRA8', size: 4, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
     { name: 'SRGB8_A8', size: 4, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
     { name: 'RGBA8SN', size: 4, count: 4, type: GFXFormatType.SNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
     { name: 'RGBA8UI', size: 4, count: 4, type: GFXFormatType.UINT, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
-    { name: 'BGRA8UN', size: 4, count: 4, type: GFXFormatType.UNORM, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
     { name: 'RGBA8I', size: 4, count: 4, type: GFXFormatType.INT, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
     { name: 'RGBA16F', size: 8, count: 4, type: GFXFormatType.FLOAT, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },
     { name: 'RGBA16UI', size: 8, count: 4, type: GFXFormatType.UINT, hasAlpha: true, hasDepth: false, hasStencil: false, isCompressed: false },

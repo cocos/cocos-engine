@@ -356,7 +356,7 @@ export function isDisplayStats (): boolean {
  * @zh 设置是否在左下角显示 FPS。
  */
 export function setDisplayStats (displayStats: boolean) {
-    if (!CC_JSB && cc.profiler) {
+    if (cc.profiler) {
         displayStats ? cc.profiler.showStats() : cc.profiler.hideStats();
         cc.game.config.showFPS = !!displayStats;
     }
