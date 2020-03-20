@@ -1589,8 +1589,8 @@ let NodeDefines = {
         },
 
         /**
-         * !#en Returns a normalized vector representing the right direction (-X axis) of the node in world space.
-         * !#zh 获取节点正右方（-x 轴）面对的方向，返回值为世界坐标系下的归一化向量
+         * !#en Returns a normalized vector representing the right direction (X axis) of the node in world space.
+         * !#zh 获取节点正右方（x 轴）面对的方向，返回值为世界坐标系下的归一化向量
          * 
          * @method right
          * @return {Vec2|Vec3}
