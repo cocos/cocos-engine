@@ -6,7 +6,7 @@
 import { ccclass, property } from '../../core/data/class-decorator';
 import { Mat4, pseudoRandom, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
-import Particle from '../particle';
+import Particle, { ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import { calculateTransform } from '../particle-general-function';
 import CurveRange from './curve-range';
 import { ModuleRandSeed } from '../enum';
@@ -19,15 +19,24 @@ const VELOCITY_Z_OVERTIME_RAND_OFFSET = ModuleRandSeed.VELOCITY_Z;
 const _temp_v3 = new Vec3();
 
 @ccclass('cc.VelocityOvertimeModule')
-export default class VelocityOvertimeModule {
-
+export default class VelocityOvertimeModule extends ParticleModuleBase {
+    @property
+    _enable: Boolean = false;
     /**
      * @zh 是否启用。
      */
     @property({
         displayOrder: 0,
     })
-    public enable = false;
+    public get enable () {
+        return this._enable;
+    }
+
+    public set enable (val) {
+        if (this._enable === val) return;
+        this._enable = val;
+        this.target!.enableModule(PARTICLE_MODULE_NAME.VELOCITY, val, this);
+    }
 
     /**
      * @zh X 轴方向上的速度分量。
@@ -87,6 +96,7 @@ export default class VelocityOvertimeModule {
     private needTransform: boolean;
 
     constructor () {
+        super();
         this.rotation = new Quat();
         this.speedModifier.constant = 1;
         this.needTransform = false;

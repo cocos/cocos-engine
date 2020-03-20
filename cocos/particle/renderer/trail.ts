@@ -162,7 +162,7 @@ export default class TrailModule {
         }
         if (val && !this._enable) {
             this._enable = val;
-            this._particleSystem.renderer._updateTrailMaterial();
+            this._particleSystem.processor.updateTrailMaterial();
         }
         this._enable = val;
         if (this._trailModel) {
@@ -224,7 +224,7 @@ export default class TrailModule {
     public set space (val) {
         this._space = val;
         if (this._particleSystem) {
-            this._particleSystem.renderer._updateTrailMaterial();
+            this._particleSystem.processor.updateTrailMaterial();
         }
     }
 
@@ -409,7 +409,7 @@ export default class TrailModule {
             if (mat) {
                 this._trailModel.setSubModelMaterial(0, mat);
             } else {
-                this._trailModel.setSubModelMaterial(0, this._particleSystem.renderer._defaultTrailMat);
+                this._trailModel.setSubModelMaterial(0, this._particleSystem.processor._defaultTrailMat);
             }
         }
     }

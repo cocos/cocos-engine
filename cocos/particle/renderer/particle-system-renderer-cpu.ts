@@ -6,7 +6,7 @@ import { RecyclePool } from '../../core/memop';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { IDefineMap } from '../../core/renderer/core/pass-utils';
 import { RenderMode, Space } from '../enum';
-import Particle from '../particle';
+import Particle, { IParticleModule, PARTICLE_MODULE_ORDER } from '../particle';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
 import { Component } from '../../core';
 
@@ -72,6 +72,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _attrs: any[];
     private _particles: RecyclePool | null = null;
     private _defaultTrailMat: Material | null = null;
+    private _updateList: Map<string, IParticleModule> = new Map<string, IParticleModule>();
+    private _animateList: Array<IParticleModule> = [];
 
     constructor (info: any) {
         super(info);
@@ -103,7 +105,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._setVertexAttrib();
         this._updateModel();
         this.updateMaterialParams();
-        this._updateTrailMaterial();
+        this.updateTrailMaterial();
     }
 
     public clear () {
@@ -124,7 +126,19 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         return this._particles!.add();
     }
 
+    public getDefaultTrailMaterial (): any {
+        return this._defaultTrailMat;
+    }
+
     public setNewParticle (p: Particle) {
+    }
+
+    public enableModule (name: string, val: Boolean, pm: IParticleModule) { 
+        if (val && pm.needUpdate) {
+            pm.needUpdate && (this._updateList[name] = pm);
+        } else {
+            delete this._updateList[name];
+        }
     }
 
     public updateParticles (dt: number) {
@@ -139,18 +153,15 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
         const mat: Material | null = this._particleSystem!.getMaterialInstance(0) || this._defaultMat;
         mat!.setProperty('scale', this._node_scale);
-        if (this._particleSystem!.velocityOvertimeModule.enable) {
-            this._particleSystem!.velocityOvertimeModule.update(this._particleSystem!._simulationSpace, _tempWorldTrans);
-        }
-        if (this._particleSystem!.limitVelocityOvertimeModule.enable) {
-            this._particleSystem!.limitVelocityOvertimeModule.update(this._particleSystem!._simulationSpace, _tempWorldTrans);
-        }
-        if (this._particleSystem!.forceOvertimeModule.enable) {
-            this._particleSystem!.forceOvertimeModule.update(this._particleSystem!._simulationSpace, _tempWorldTrans);
-        }
+
+        this._updateList.forEach((value: IParticleModule, key: string)=>{
+            value.update(this._particleSystem!._simulationSpace, _tempWorldTrans);
+        })
+
         if (this._particleSystem!.trailModule.enable) {
             this._particleSystem!.trailModule.update();
         }
+
         for (let i = 0; i < this._particles!.length; ++i) {
             const p = this._particles!.data[i];
             p.remainingLifetime -= dt;
@@ -167,6 +178,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
             // apply gravity.
             p.velocity.y -= this._particleSystem!.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
+
             if (this._particleSystem!.sizeOvertimeModule.enable) {
                 this._particleSystem!.sizeOvertimeModule.animate(p);
             }
@@ -257,7 +269,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             this._updateModel();
             this.updateMaterialParams();
         } else {
-            this._updateTrailMaterial();
+            this.updateTrailMaterial();
         }
     }
 
@@ -339,7 +351,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
-    private _updateTrailMaterial () {
+    public updateTrailMaterial () {
         if (this._particleSystem!.trailModule.enable) {
             if (this._particleSystem!.simulationSpace === Space.World || this._particleSystem!.trailModule.space === Space.World) {
                 this._trailDefines[CC_USE_WORLD_SPACE] = true;

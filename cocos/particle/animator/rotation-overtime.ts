@@ -5,7 +5,7 @@
 
 import { ccclass, property } from '../../core/data/class-decorator';
 import { pseudoRandom } from '../../core/math';
-import Particle from '../particle';
+import Particle, { ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
 import { ModuleRandSeed } from '../enum';
 
@@ -13,15 +13,24 @@ import { ModuleRandSeed } from '../enum';
 const ROTATION_OVERTIME_RAND_OFFSET = ModuleRandSeed.ROTATION;
 
 @ccclass('cc.RotationOvertimeModule')
-export default class RotationOvertimeModule {
-
+export default class RotationOvertimeModule extends ParticleModuleBase {
+    @property
+    _enable: Boolean = false;
     /**
      * @zh 是否启用。
      */
     @property({
         displayOrder: 0,
     })
-    public enable = false;
+    public get enable () {
+        return this._enable;
+    }
+
+    public set enable (val) {
+        if (this._enable === val) return;
+        this._enable = val;
+        this.target!.enableModule(PARTICLE_MODULE_NAME.ROTATION, val, this);
+    }
 
     @property
     private _separateAxes = false;
@@ -76,10 +85,6 @@ export default class RotationOvertimeModule {
         tooltip:'绕 Z 轴设定旋转',
     })
     public z = new CurveRange();
-
-    constructor () {
-
-    }
 
     public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;

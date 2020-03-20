@@ -24,7 +24,7 @@ export default class ParticleSystemRenderer {
             return;
         }
         this._renderMode = val;
-        this.processor!.updateRenderMode();
+        this._particleSystem.processor.updateRenderMode();
     }
 
     /**
@@ -40,7 +40,7 @@ export default class ParticleSystemRenderer {
 
     public set velocityScale (val) {
         this._velocityScale = val;
-        this.processor!.updateMaterialParams();
+        this._particleSystem.processor.updateMaterialParams();
         // this._updateModel();
     }
 
@@ -57,7 +57,7 @@ export default class ParticleSystemRenderer {
 
     public set lengthScale (val) {
         this._lengthScale = val;
-        this.processor!.updateMaterialParams();
+        this._particleSystem.processor.updateMaterialParams();
         // this._updateModel();
     }
 
@@ -96,7 +96,7 @@ export default class ParticleSystemRenderer {
 
     public set mesh (val) {
         this._mesh = val;
-        this.processor!.setVertexAttributes();
+        this._particleSystem.processor.setVertexAttributes();
     }
 
     /**
@@ -159,27 +159,26 @@ export default class ParticleSystemRenderer {
     }
 
     private _particleSystem: any = null;
-    
-    public processor: IParticleSystemRenderer | null = null;
 
     constructor () {
-        this.processor = this._useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
     }
 
     onInit (ps: any) {
         this._particleSystem = ps;
-        this.processor!.onInit(ps);
+        this._particleSystem.processor = this._useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
+        this._particleSystem.processor.onInit(ps);
     }
 
     private _switchProcessor () {
-        if (this.processor) {
-            this.processor.detachFromScene();
-            this.processor.clear();
-            this.processor = null;
+        if (this._particleSystem.processor) {
+            this._particleSystem.processor.detachFromScene();
+            this._particleSystem.processor.clear();
+            this._particleSystem.processor = null;
         }
         
-        this.processor = this._useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
-        this.processor.onInit(this._particleSystem);
-        this.processor.onEnable();
+        this._particleSystem.processor = this._useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
+        this._particleSystem.processor.onInit(this._particleSystem);
+        this._particleSystem.processor.onEnable();
+        this._particleSystem.bindModule();
     }
 }

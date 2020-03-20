@@ -5,24 +5,34 @@
 
 import { ccclass, property } from '../../core/data/class-decorator';
 import { pseudoRandom } from '../../core/math';
-import Particle from '../particle';
+import Particle, { PARTICLE_MODULE_NAME } from '../particle';
 import GradientRange from './gradient-range';
 import { ModuleRandSeed } from '../enum';
+import { ParticleModuleBase } from '../particle';
 
 // tslint:disable: max-line-length
 
 const COLOR_OVERTIME_RAND_OFFSET = ModuleRandSeed.COLOR;
 
 @ccclass('cc.ColorOvertimeModule')
-export default class ColorOvertimeModule {
-
+export default class ColorOvertimeModule extends ParticleModuleBase {
+    @property
+    _enable = false;
     /**
      * @zh 是否启用。
      */
     @property({
         displayOrder: 0,
     })
-    public enable = false;
+    public get enable () {
+        return this._enable;
+    }
+
+    public set enable (val) {
+        if (this._enable === val) return;
+        this._enable = val;
+        this.target!.enableModule(PARTICLE_MODULE_NAME.COLOR, val, this);
+    }
 
     /**
      * @zh 颜色随时间变化的参数，各个 key 之间线性差值变化。

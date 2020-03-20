@@ -6,7 +6,7 @@
 import { ccclass, property } from '../../core/data/class-decorator';
 import { lerp, pseudoRandom, Vec3, Mat4, Quat } from '../../core/math';
 import { Space, ModuleRandSeed } from '../enum';
-import Particle from '../particle';
+import Particle, { ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
 import { calculateTransform } from '../particle-general-function';
 
@@ -17,15 +17,25 @@ const _temp_v3 = new Vec3();
 const _temp_v3_1 = new Vec3();
 
 @ccclass('cc.LimitVelocityOvertimeModule')
-export default class LimitVelocityOvertimeModule {
+export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
 
+    @property
+    _enable: Boolean = false;
     /**
      * @zh 是否启用。
      */
     @property({
         displayOrder: 0,
     })
-    public enable = false;
+    public get enable () {
+        return this._enable;
+    }
+
+    public set enable (val) {
+        if (this._enable === val) return;
+        this._enable = val;
+        this.target!.enableModule(PARTICLE_MODULE_NAME.LIMIT, val, this);
+    }
 
     /**
      * @zh X 轴方向上的速度下限。
@@ -110,6 +120,7 @@ export default class LimitVelocityOvertimeModule {
     private needTransform: boolean;
 
     constructor () {
+        super();
         this.rotation = new Quat();
         this.needTransform = false;
     }

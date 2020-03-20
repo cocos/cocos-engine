@@ -5,7 +5,7 @@
 
 import { ccclass, property } from '../../core/data/class-decorator';
 import { pseudoRandom, Vec3 } from '../../core/math';
-import Particle from '../particle';
+import Particle, { ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
 import { ModuleRandSeed } from '../enum';
 
@@ -13,15 +13,24 @@ import { ModuleRandSeed } from '../enum';
 const SIZE_OVERTIME_RAND_OFFSET = ModuleRandSeed.SIZE;
 
 @ccclass('cc.SizeOvertimeModule')
-export default class SizeOvertimeModule {
-
+export default class SizeOvertimeModule extends ParticleModuleBase {
+    @property
+    _enable: Boolean = false;
     /**
      * @zh 是否启用。
      */
     @property({
         displayOrder: 0,
     })
-    public enable = false;
+    public get enable () {
+        return this._enable;
+    }
+
+    public set enable (val) {
+        if (this._enable === val) return;
+        this._enable = val;
+        this.target!.enableModule(PARTICLE_MODULE_NAME.SIZE, val, this);
+    }
 
     /**
      * @zh 决定是否在每个轴上独立控制粒子大小。

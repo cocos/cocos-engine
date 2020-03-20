@@ -2,7 +2,7 @@ import { Component, IGFXAttribute } from '../../core';
 import ParticleBatchModel from '../models/particle-batch-model';
 import ParticleSystemRenderer from './particle-system-renderer-data';
 import { Material } from '../../core/assets';
-import Particle from '../particle';
+import Particle, { IParticleModule } from '../particle';
 import { RenderMode } from '../enum';
 
 export interface IParticleSystemRenderer {
@@ -23,6 +23,9 @@ export interface IParticleSystemRenderer {
     setNewParticle (p: Particle): void;
     updateParticles (dt: number): number;
     updateRenderData (): void;
+    enableModule (name: string, val: Boolean, pm: IParticleModule): void;
+    updateTrailMaterial (): void;
+    getDefaultTrailMaterial (): any;
 }
 
 export abstract class ParticleSystemRendererBase implements IParticleSystemRenderer {
@@ -90,21 +93,17 @@ export abstract class ParticleSystemRendererBase implements IParticleSystemRende
         this._model!.setVertexAttributes(this._renderInfo!.renderMode === RenderMode.Mesh ? this._renderInfo!.mesh : null, this._vertAttrs);
     }
 
+    public updateTrailMaterial () {}
+    public getDefaultTrailMaterial () { return null; };
     public abstract getParticleCount () : number;
-
     public abstract getFreeParticle (): Particle | null;
-
     public abstract onMaterialModified (index: number, material: Material) : void;
-
     public abstract onRebuildPSO (index: number, material: Material) : void;
-
     public abstract updateRenderMode () : void;
-
     public abstract updateMaterialParams() : void;
-
     public abstract clear () : void;
-
     public abstract setNewParticle (p: Particle): void;
     public abstract updateParticles (dt: number): number;
     public abstract updateRenderData (): void;
+    public abstract enableModule (name: string, val: Boolean, pm: IParticleModule): void;
 }

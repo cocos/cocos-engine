@@ -9,6 +9,7 @@ import { Space } from '../enum';
 import { calculateTransform } from '../particle-general-function';
 import CurveRange from './curve-range';
 import { ModuleRandSeed } from '../enum';
+import { ParticleModuleBase, PARTICLE_MODULE_NAME} from '../particle';
 
 // tslint:disable: max-line-length
 const FORCE_OVERTIME_RAND_OFFSET = ModuleRandSeed.FORCE;
@@ -16,15 +17,24 @@ const FORCE_OVERTIME_RAND_OFFSET = ModuleRandSeed.FORCE;
 const _temp_v3 = new Vec3();
 
 @ccclass('cc.ForceOvertimeModule')
-export default class ForceOvertimeModule {
-
+export default class ForceOvertimeModule extends ParticleModuleBase {
+    @property
+    _enable: Boolean = false;
     /**
      * @zh 是否启用。
      */
     @property({
         displayOrder: 0,
     })
-    public enable = false;
+    public get enable () {
+        return this._enable;
+    }
+
+    public set enable (val) {
+        if (this._enable === val) return;
+        this._enable = val;
+        this.target!.enableModule(PARTICLE_MODULE_NAME.FORCE, val, this);
+    }
 
     /**
      * @zh X 轴方向上的加速度分量。
@@ -76,6 +86,7 @@ export default class ForceOvertimeModule {
     private needTransform: boolean;
 
     constructor () {
+        super();
         this.rotation = new Quat();
         this.needTransform = false;
     }
