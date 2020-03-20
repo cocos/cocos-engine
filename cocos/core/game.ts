@@ -868,7 +868,11 @@ export class Game extends EventTarget {
             // useWebGL2 = false;
             if (CC_JSB) {
                 // @ts-ignore
-                this._gfxDevice = new gfx.GLES2Device();
+                if (cc.sys.os === 'iOS') {
+                    this._gfxDevice = new gfx.GLES3Device();
+                } else {
+                    this._gfxDevice = new gfx.GLES2Device();
+                }
             }
             else if (useWebGL2 && cc.WebGL2GFXDevice) {
                 this._gfxDevice = new cc.WebGL2GFXDevice();
