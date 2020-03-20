@@ -239,9 +239,10 @@ class InputManager {
         }
 
         const docElem = document.documentElement;
-        let leftOffset = sys.os === sys.OS_IOS && sys.isBrowser ? window.screenLeft : window.pageXOffset;
+        const isIos = sys.os === sys.OS_IOS && sys.isBrowser;
+        let leftOffset = isIos ? window.screenLeft : window.pageXOffset;
         leftOffset -= docElem.clientLeft;
-        let topOffset = sys.os === sys.OS_IOS && sys.isBrowser ? window.screenTop : window.pageYOffset;
+        let topOffset = isIos ? window.screenTop : window.pageYOffset;
         topOffset -= docElem.clientTop;
         if (element.getBoundingClientRect) {
             const box = element.getBoundingClientRect();
@@ -740,8 +741,12 @@ class InputManager {
                 }
                 const pos = this.getHTMLElementPosition(element);
                 const body = document.body;
-                pos.left -= body.scrollLeft || 0;
-                pos.top -= body.scrollTop || 0;
+                const isIos = sys.os === sys.OS_IOS && sys.isBrowser;
+                if (!isIos) {
+                    pos.left -= body.scrollLeft || 0;
+                    pos.top -= body.scrollTop || 0;
+                }
+
                 touchesHandler(this.getTouchesByEvent(event, pos));
                 event.stopPropagation();
                 event.preventDefault();
