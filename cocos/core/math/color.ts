@@ -60,7 +60,7 @@ export class Color extends ValueType {
     /**
      * @zh 获得指定颜色的拷贝
      */
-    public static clone <Out extends IColorLike> (a: Out) {
+    public static clone<Out extends IColorLike> (a: Out) {
         const out = new Color();
         if (a._val) {
             out._val = a._val;
@@ -73,7 +73,7 @@ export class Color extends ValueType {
     /**
      * @zh 复制目标颜色
      */
-    public static copy <Out extends IColorLike> (out: Out, a: Out) {
+    public static copy<Out extends IColorLike> (out: Out, a: Out) {
         out.r = a.r;
         out.g = a.g;
         out.b = a.b;
@@ -84,7 +84,7 @@ export class Color extends ValueType {
     /**
      * @zh 设置颜色值
      */
-    public static set <Out extends IColorLike> (out: Out, r: number, g: number, b: number, a: number) {
+    public static set<Out extends IColorLike> (out: Out, r: number, g: number, b: number, a: number) {
         out.r = r;
         out.g = g;
         out.b = b;
@@ -95,7 +95,7 @@ export class Color extends ValueType {
     /**
      * @zh 从十六进制颜色字符串中读入颜色到 out 中
      */
-    public static fromHEX <Out extends IColorLike> (out: Out, hexString: string) {
+    public static fromHEX<Out extends IColorLike> (out: Out, hexString: string) {
         hexString = (hexString.indexOf('#') === 0) ? hexString.substring(1) : hexString;
         out.r = parseInt(hexString.substr(0, 2), 16) || 0;
         out.g = parseInt(hexString.substr(2, 2), 16) || 0;
@@ -108,7 +108,7 @@ export class Color extends ValueType {
     /**
      * @zh 逐通道颜色加法
      */
-    public static add <Out extends IColorLike> (out: Out, a: Out, b: Out) {
+    public static add<Out extends IColorLike> (out: Out, a: Out, b: Out) {
         out.r = a.r + b.r;
         out.g = a.g + b.g;
         out.b = a.b + b.b;
@@ -119,7 +119,7 @@ export class Color extends ValueType {
     /**
      * @zh 逐通道颜色减法
      */
-    public static subtract <Out extends IColorLike> (out: Out, a: Out, b: Out) {
+    public static subtract<Out extends IColorLike> (out: Out, a: Out, b: Out) {
         out.r = a.r - b.r;
         out.g = a.g - b.g;
         out.b = a.b - b.b;
@@ -130,7 +130,7 @@ export class Color extends ValueType {
     /**
      * @zh 逐通道颜色乘法
      */
-    public static multiply <Out extends IColorLike> (out: Out, a: Out, b: Out) {
+    public static multiply<Out extends IColorLike> (out: Out, a: Out, b: Out) {
         out.r = a.r * b.r;
         out.g = a.g * b.g;
         out.b = a.b * b.b;
@@ -141,7 +141,7 @@ export class Color extends ValueType {
     /**
      * @zh 逐通道颜色除法
      */
-    public static divide <Out extends IColorLike> (out: Out, a: Out, b: Out) {
+    public static divide<Out extends IColorLike> (out: Out, a: Out, b: Out) {
         out.r = a.r / b.r;
         out.g = a.g / b.g;
         out.b = a.b / b.b;
@@ -152,7 +152,7 @@ export class Color extends ValueType {
     /**
      * @zh 全通道统一缩放颜色
      */
-    public static scale <Out extends IColorLike> (out: Out, a: Out, b: number) {
+    public static scale<Out extends IColorLike> (out: Out, a: Out, b: number) {
         out.r = a.r * b;
         out.g = a.g * b;
         out.b = a.b * b;
@@ -163,7 +163,7 @@ export class Color extends ValueType {
     /**
      * @zh 逐通道颜色线性插值：A + t * (B - A)
      */
-    public static lerp <Out extends IColorLike> (out: Out, from: Out, to: Out, ratio: number) {
+    public static lerp<Out extends IColorLike> (out: Out, from: Out, to: Out, ratio: number) {
         _r = from.r;
         _g = from.g;
         _b = from.b;
@@ -180,7 +180,7 @@ export class Color extends ValueType {
      * @zh 颜色转数组
      * @param ofs 数组起始偏移量
      */
-    public static toArray <Out extends IWritableArrayLike<number>> (out: Out, a: IColorLike, ofs = 0) {
+    public static toArray<Out extends IWritableArrayLike<number>> (out: Out, a: IColorLike, ofs = 0) {
         const scale = (a instanceof Color || a.a > 1) ? 1 / 255 : 1;
         out[ofs + 0] = a.r * scale;
         out[ofs + 1] = a.g * scale;
@@ -193,7 +193,7 @@ export class Color extends ValueType {
      * @zh 数组转颜色
      * @param ofs 数组起始偏移量
      */
-    public static fromArray <Out extends IColorLike> (arr: IWritableArrayLike<number>, out: Out, ofs = 0) {
+    public static fromArray<Out extends IColorLike> (arr: IWritableArrayLike<number>, out: Out, ofs = 0) {
         out.r = arr[ofs + 0] * 255;
         out.g = arr[ofs + 1] * 255;
         out.b = arr[ofs + 2] * 255;
@@ -204,14 +204,14 @@ export class Color extends ValueType {
     /**
      * @zh 颜色等价判断
      */
-    public static strictEquals <Out extends IColorLike> (a: Out, b: Out) {
+    public static strictEquals<Out extends IColorLike> (a: Out, b: Out) {
         return a.r === b.r && a.g === b.g && a.b === b.b && a.a === b.a;
     }
 
     /**
      * @zh 排除浮点数误差的颜色近似等价判断
      */
-    public static equals <Out extends IColorLike> (a: Out, b: Out, epsilon = EPSILON) {
+    public static equals<Out extends IColorLike> (a: Out, b: Out, epsilon = EPSILON) {
         return (Math.abs(a.r - b.r) <= epsilon * Math.max(1.0, Math.abs(a.r), Math.abs(b.r)) &&
             Math.abs(a.g - b.g) <= epsilon * Math.max(1.0, Math.abs(a.g), Math.abs(b.g)) &&
             Math.abs(a.b - b.b) <= epsilon * Math.max(1.0, Math.abs(a.b), Math.abs(b.b)) &&
@@ -221,7 +221,7 @@ export class Color extends ValueType {
     /**
      * @zh 获取指定颜色的整型数据表示
      */
-    public static hex <Out extends IColorLike> (a: Out) {
+    public static hex<Out extends IColorLike> (a: Out) {
         return ((a.r * 255) << 24 | (a.g * 255) << 16 | (a.b * 255) << 8 | a.a * 255) >>> 0;
     }
 
@@ -311,19 +311,8 @@ export class Color extends ValueType {
         super();
         if (typeof r === 'string') {
             this.fromHEX(r);
-        }
-        else{
-            if (typeof r === 'object') {
-                g = r.g;
-                b = r.b;
-                a = r.a;
-                r = r.r;
-            }
-            r = r || 0;
-            g = g || 0;
-            b = b || 0;
-            a = typeof a === 'number' ? a : 255;
-            this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + r;
+        } else {
+            this.set(r as Color, g, b, a);
         }
     }
 
@@ -580,33 +569,33 @@ export class Color extends ValueType {
 
     /**
      * @zh 设置当前颜色使其与指定颜色相等。
-     * @param other 相比较的颜色。
-     * @returns 当前颜色。
-     */
-    public set (other: Color);
-
-    /**
-     * @zh 设置当前颜色使其与指定通道值相等。
-     * @param [r=0] 指定的 Red 通道。
+     * @param other 相比较的颜色。     
+     * @overload 重载
+     * @param [r=0] 指定的 Red 通道，[0-255]。
      * @param [g=0] 指定的 Green 通道。
      * @param [b=0] 指定的 Blue 通道。
-     * @param [a=255] 指定的 Alpha 通道。
+     * @param [a=255] 指定的 Alpha 通道。     
      * @returns 当前颜色。
      */
-    public set (r?: number, g?: number, b?: number, a?: number);
-
-    public set (r?: number|Color, g?: number, b?: number, a?: number ) {
+    public set (other: Color, g?: number, b?: number, a?: number): Color;
+    public set (r?: number | Color, g?: number, b?: number, a?: number) {
         if (typeof r === 'object') {
-            g = r.g;
-            b = r.b;
-            a = r.a;
-            r = r.r;
+            if (r._val != null) {
+                this._val = r._val;
+            } else {
+                g = r.g || 0;
+                b = r.b || 0;
+                a = typeof r.a === 'number' ? r.a : 255;
+                r = r.r || 0;
+                this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + r;
+            }
+        } else {
+            r = r || 0;
+            g = g || 0;
+            b = b || 0;
+            a = typeof a === 'number' ? a : 255;
+            this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + r;
         }
-        r = r || 0;
-        g = g || 0;
-        b = b || 0;
-        a = typeof a === 'number' ? a : 255;
-        this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + r;
         return this;
     }
 
@@ -644,14 +633,14 @@ export class Color extends ValueType {
     }
 }
 
-CCClass.fastDefine('cc.Color', Color, {r: 0, g: 0, b: 0, a: 255});
+CCClass.fastDefine('cc.Color', Color, { r: 0, g: 0, b: 0, a: 255 });
 cc.Color = Color;
 
 export function color (other: Color | string): Color;
 export function color (r?: number, g?: number, b?: number, a?: number): Color;
 
 export function color (r?: number | Color | string, g?: number, b?: number, a?: number) {
-        return new Color(r as any, g, b, a);
+    return new Color(r as any, g, b, a);
 }
 
 cc.color = color;
