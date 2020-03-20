@@ -386,7 +386,6 @@ export class SpriteFrame extends Asset {
     }
 
     set _textureSource (value: TextureBase) {
-        this._texture = value;
         this._refreshTexture(value);
         this._calculateUV();
     }
@@ -903,7 +902,7 @@ export class SpriteFrame extends Asset {
         }
 
         if (data.texture) {
-            handle.result.push(this, '_textureSource',data.texture);
+            handle.result.push(this, '_textureSource', data.texture);
         }
 
         if (EDITOR) {
@@ -944,11 +943,10 @@ export class SpriteFrame extends Asset {
 
     protected _refreshTexture (texture: TextureBase) {
         this._texture = texture;
-        if(texture.loaded) {
+        if (texture.loaded) {
             this._textureLoaded();
-        }
-        else {
-            texture.once('load',this._textureLoaded,this);
+        } else {
+            texture.once('load', this._textureLoaded, this);
         }
     }
 }
