@@ -121,6 +121,7 @@ var eventManager = {
     _inDispatch: 0,
     _isEnabled: false,
     _currentTouch: null,
+    _currentTouchListener: null,
 
     _internalCustomListenerIDs:[],
 
@@ -497,6 +498,7 @@ var eventManager = {
                 isClaimed = listener.onTouchBegan(selTouch, event);
                 if (isClaimed && listener._registered) {
                     listener._claimedTouches.push(selTouch);
+                    eventManager._currentTouchListener = listener;
                     eventManager._currentTouch = selTouch;
                 }
             }
@@ -515,13 +517,13 @@ var eventManager = {
                     listener.onTouchEnded(selTouch, event);
                 if (listener._registered)
                     listener._claimedTouches.splice(removedIdx, 1);
-                eventManager._currentTouch = null;
+                eventManager._clearCurTouch();
             } else if (getCode === EventTouch.CANCELLED) {
                 if (listener.onTouchCancelled)
                     listener.onTouchCancelled(selTouch, event);
                 if (listener._registered)
                     listener._claimedTouches.splice(removedIdx, 1);
-                eventManager._currentTouch = null;
+                eventManager._clearCurTouch();
             }
         }
 
@@ -806,6 +808,13 @@ var eventManager = {
                 }
             }
         }
+
+        this._currentTouchListener === listener && this._clearCurTouch();
+    },
+
+    _clearCurTouch () {
+        this._currentTouchListener = null;
+        this._currentTouch = null;
     },
 
     _removeListenerInCallback: function(listeners, callback){
