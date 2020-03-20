@@ -668,7 +668,7 @@ export class SpriteComponent extends UIRenderComponent {
                 if (material) {
                     // const matTexture = material.getProperty('mainTexture');
                     // if (matTexture !== spriteFrame) {
-                    material.setProperty('mainTexture', spriteFrame.texture);
+                    // material.setProperty('mainTexture', spriteFrame.texture);
                     this.markForUpdateRenderData();
                     // }
                 }
