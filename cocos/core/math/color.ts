@@ -583,10 +583,10 @@ export class Color extends ValueType {
             if (r._val != null) {
                 this._val = r._val;
             } else {
-                g = r.g == null ? 0 : r.g;
-                b = r.b == null ? 0 : r.b;
-                a = r.a == null ? 255 : r.a;
-                r = r.r == null ? 0 : r.r;
+                g = r.g || 0;
+                b = r.b || 0;
+                a = typeof r.a === 'number' ? r.a : 255;
+                r = r.r || 0;
                 this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + r;
             }
         } else {
