@@ -120,7 +120,7 @@ var eventManager = {
     _dirtyListeners: {},
     _inDispatch: 0,
     _isEnabled: false,
-    _currentTouch: null,
+    _currentTouch: {},
 
     _internalCustomListenerIDs:[],
 
@@ -489,7 +489,7 @@ var eventManager = {
         var isClaimed = false, removedIdx;
         var getCode = event.getEventCode(), EventTouch = cc.Event.EventTouch;
         if (getCode === EventTouch.BEGAN) {
-            if (!cc.macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch) {
+            if (!cc.macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch.touch) {
                 return false;
             }
 
@@ -497,14 +497,15 @@ var eventManager = {
                 isClaimed = listener.onTouchBegan(selTouch, event);
                 if (isClaimed && listener._registered) {
                     listener._claimedTouches.push(selTouch);
-                    eventManager._currentTouch = selTouch;
+                    eventManager._currentTouch.listener = listener;
+                    eventManager._currentTouch.touch = selTouch;
                 }
             }
         } else if (listener._claimedTouches.length > 0
             && ((removedIdx = listener._claimedTouches.indexOf(selTouch)) !== -1)) {
             isClaimed = true;
             
-            if (!cc.macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch && eventManager._currentTouch !== selTouch) {
+            if (!cc.macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch.touch !== selTouch) {
                 return false;
             }
 
@@ -515,13 +516,15 @@ var eventManager = {
                     listener.onTouchEnded(selTouch, event);
                 if (listener._registered)
                     listener._claimedTouches.splice(removedIdx, 1);
-                eventManager._currentTouch = null;
+                eventManager._currentTouch.listener = null;
+                eventManager._currentTouch.touch = null;
             } else if (getCode === EventTouch.CANCELLED) {
                 if (listener.onTouchCancelled)
                     listener.onTouchCancelled(selTouch, event);
                 if (listener._registered)
                     listener._claimedTouches.splice(removedIdx, 1);
-                eventManager._currentTouch = null;
+                eventManager._currentTouch.listener = null;
+                eventManager._currentTouch.touch = null;
             }
         }
 
@@ -805,6 +808,11 @@ var eventManager = {
                     break;
                 }
             }
+        }
+
+        if (eventManager._currentTouch.listener === listener) {
+            eventManager._currentTouch.listener = null;
+            eventManager._currentTouch.touch = null;
         }
     },
 
