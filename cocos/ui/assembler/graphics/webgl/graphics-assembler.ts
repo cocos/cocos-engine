@@ -221,7 +221,8 @@ export const graphicsAssembler: IAssembler = {
             attributes: attrs,
             indices,
         }, undefined, { calculateBounds: false });
-
+        if(mesh == null)
+            return;
         graphics.model!.initialize(graphics.node);
         graphics.model!.initSubModel(0, mesh.getSubMesh(0), graphics.material!);
         graphics.markForUpdateRenderData();

@@ -122,6 +122,9 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMes
         }
     }
 
+    if(vertCount == 0)
+        return null;
+
     // Use this to generate final merged buffer.
     const bufferBlob = new BufferBlob();
 
