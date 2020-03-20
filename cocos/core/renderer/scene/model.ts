@@ -282,7 +282,7 @@ export class Model {
             const pass = mat.passes[i];
             ret[i] = this.createPipelineState(pass, subModelIdx);
         }
-        this.updateInstancedAttributeList(ret[0], mat.passes[0]);
+        if (ret[0]) { this.updateInstancedAttributeList(ret[0], mat.passes[0]); }
         return ret;
     }
 

@@ -148,7 +148,7 @@ export class SkeletalAnimationComponent extends AnimationComponent {
 
     public onDestroy () {
         super.onDestroy();
-        (cc.director.root.dataPoolManager as DataPoolManager).jointsAnimationInfo.destroy(this.node.uuid);
+        (cc.director.root.dataPoolManager as DataPoolManager).jointAnimationInfo.destroy(this.node.uuid);
     }
 
     public start () {

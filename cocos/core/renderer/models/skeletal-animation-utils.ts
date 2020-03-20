@@ -45,7 +45,7 @@ import { ITextureBufferHandle, TextureBufferPool } from '../core/texture-buffer-
 
 // change here and cc-skinning.chunk to use other skinning algorithms
 export const uploadJointData = uploadJointDataLBS;
-export const MINIMUM_JOINT_ANIMATION_TEXTURE_SIZE = EDITOR ? 2040 : 480; // have to be multiples of 12
+export const MINIMUM_JOINT_TEXTURE_SIZE = EDITOR ? 2040 : 480; // have to be multiples of 12
 
 export function selectJointsMediumFormat (device: GFXDevice): GFXFormat {
     if (device.hasFeature(GFXFeature.TEXTURE_FLOAT)) {
@@ -106,10 +106,10 @@ function uploadJointDataDQS (out: Float32Array, base: number, mat: Mat4, firstBo
 
 function roundUpTextureSize (targetLength: number, formatSize: number) {
     const formatScale = 4 / Math.sqrt(formatSize);
-    return Math.ceil(Math.max(MINIMUM_JOINT_ANIMATION_TEXTURE_SIZE * formatScale, targetLength) / 12) * 12;
+    return Math.ceil(Math.max(MINIMUM_JOINT_TEXTURE_SIZE * formatScale, targetLength) / 12) * 12;
 }
 
-export const jointsTextureSamplerHash = genSamplerHash([
+export const jointTextureSamplerHash = genSamplerHash([
     GFXFilter.POINT,
     GFXFilter.POINT,
     GFXFilter.NONE,
@@ -118,7 +118,7 @@ export const jointsTextureSamplerHash = genSamplerHash([
     GFXAddress.CLAMP,
 ]);
 
-export interface IJointsTextureHandle {
+export interface IJointTextureHandle {
     pixelOffset: number;
     refCount: number;
     clipHash: number;
@@ -144,11 +144,11 @@ export interface ICustomJointTextureLayout {
     contents: IChunkContent[];
 }
 
-export class JointsTexturePool {
+export class JointTexturePool {
 
     private _device: GFXDevice;
     private _pool: TextureBufferPool;
-    private _textureBuffers = new Map<number, IJointsTextureHandle>(); // per skeleton per clip
+    private _textureBuffers = new Map<number, IJointTextureHandle>(); // per skeleton per clip
     private _formatSize: number;
     private _pixelsPerJoint: number;
 
@@ -199,7 +199,7 @@ export class JointsTexturePool {
      */
     public getDefaultPoseTexture (skeleton: Skeleton, mesh: Mesh, skinningRoot: Node) {
         const hash = skeleton.hash ^ 0; // may not equal to skeleton.hash
-        let texture: IJointsTextureHandle | null = this._textureBuffers.get(hash) || null;
+        let texture: IJointTextureHandle | null = this._textureBuffers.get(hash) || null;
         if (texture && texture.bounds.has(mesh.hash)) { texture.refCount++; return texture; }
         const { joints, bindposes } = skeleton;
         let textureBuffer: Float32Array = null!; let buildTexture = false;
@@ -250,7 +250,7 @@ export class JointsTexturePool {
      */
     public getSequencePoseTexture (skeleton: Skeleton, clip: AnimationClip, mesh: Mesh) {
         const hash = skeleton.hash ^ clip.hash;
-        let texture: IJointsTextureHandle | null = this._textureBuffers.get(hash) || null;
+        let texture: IJointTextureHandle | null = this._textureBuffers.get(hash) || null;
         if (texture && texture.bounds.has(mesh.hash)) { texture.refCount++; return texture; }
         const { joints, bindposes } = skeleton;
         const clipData = SkelAnimDataHub.getOrExtract(clip);
@@ -304,7 +304,7 @@ export class JointsTexturePool {
         return texture;
     }
 
-    public releaseHandle (handle: IJointsTextureHandle) {
+    public releaseHandle (handle: IJointTextureHandle) {
         if (handle.refCount > 0) { handle.refCount--; }
         if (!handle.refCount && handle.readyToBeDeleted) {
             this._pool.free(handle.handle);
@@ -355,7 +355,7 @@ export interface IAnimInfo {
     dirty: boolean;
 }
 
-export class JointsAnimationInfo {
+export class JointAnimationInfo {
     private _pool = new Map<string, IAnimInfo>(); // per node
     private _device: GFXDevice;
 
