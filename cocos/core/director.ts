@@ -309,7 +309,6 @@ export class Director extends EventTarget {
         });
 
         cc.game.once(Game.EVENT_RENDERER_INITED, this._initOnRendererInitialized, this);
-        cc.game.once(Game.EVENT_ENGINE_INITED, this._initOnEngineInitialized, this);
     }
 
     /**
@@ -1084,7 +1083,7 @@ export class Director extends EventTarget {
         this.emit(Director.EVENT_INIT);
     }
 
-    private _initOnEngineInitialized () {
+    private _init () {
         cc.loader.init(this);
         this._root = new Root(cc.game._gfxDevice);
         const rootInfo = {};

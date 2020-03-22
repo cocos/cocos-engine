@@ -137,7 +137,8 @@
     view.appendChild(canvas);
 
     // init engine
-    window.cc.game.run({ id: canvas.id }, () => {
+    window.cc.game.init({ id: canvas.id });
+    window.cc.game.run(() => {
       _load(exampleList.value);
       window.addEventListener('resize', () => {
         const bcr = view.getBoundingClientRect();

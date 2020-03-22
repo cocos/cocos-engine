@@ -30,26 +30,64 @@
 import { EventTarget } from './event/event-target';
 import { WebGLGFXDevice } from './gfx/webgl/webgl-device';
 import { WebGL2GFXDevice } from './gfx/webgl2/webgl2-device';
-import { ForwardPipeline } from './pipeline';
+import { ForwardPipeline, RenderPipeline } from './pipeline';
 import * as debug from './platform/debug';
 import sys from './platform/sys';
 import { JSB, RUNTIME_BASED, ALIPAY, EDITOR, PREVIEW } from 'internal:constants';
+import AssetLibrary from './assets/asset-library';
 
 /**
- * @en
- * The current game configuration, including:<br/>
- * 1. debugMode<br/>
- *      "debugMode"                  <br/>
- * <br/>
- * Please DO NOT modify this object directly, it won't have any effect.<br/>
  * @zh
- * 当前的游戏配置，包括：                                                                  <br/
- * 7. scenes                                                                         <br/>
- *      “scenes” 当前包中可用场景。                                                   <br/>
- * <br/>
- * 注意：请不要直接修改这个对象，它不会有任何效果。
- * @property config
+ * AssetLibrary 配置。
+ * @en
+ * AssetLibrary configuration.
  */
+export interface IAssetOptions {
+    /**
+     * @zh
+     * 导入 Library 的资源根目录（相对于构建目录）
+     * @en
+     * The root path (relative to the build destination folder) of the imported library assets
+     */
+    libraryPath: string;
+    /**
+     * @zh
+     * RawAssets 类资源的根目录前缀（相对于构建目录），
+     * 这个路径尾部和 "assets" 拼接后就是完整路径
+     * @en
+     * The prefix of the root path (relative to the build destination folder) of the raw assets,
+     * This will be joint with "assets" to form the complete path
+     */
+    rawAssetsBase: string;
+    /**
+     * @zh
+     * RawAssets 列表，从 Settings 中获取
+     * @en
+     * The list of raw assets, normally retrieved from Settings
+     */
+    rawAssets: object;
+    /**
+     * @zh
+     * 合并后的资源合集列表
+     * @en
+     * The list of asset packs
+     */
+    packedAssets?: object;
+    /**
+     * @zh
+     * 资源及其 md5 前缀关系
+     * @en
+     * The map of assets and their md5 prefix
+     */
+    md5AssetsMap?: object;
+    /**
+     * @zh
+     * 子包列表
+     * @en
+     * The list of sub packages
+     */
+    subPackages?: [];
+}
 
 /**
  * @zh
@@ -161,6 +199,11 @@ export interface IGameConfig {
      * Render pipeline resources
      */
     renderPipeline?: string;
+
+    /**
+     * Asset library initialization options
+     */
+    assetOptions?: IAssetOptions;
 }
 
 /**
@@ -281,11 +324,12 @@ export class Game extends EventTarget {
 
     /**
      * @en
-     * The current game configuration.
-     * Please DO NOT modify this object directly, it won't have any effect.
+     * The current game configuration, 
+     * please be noticed any modification directly on this object after the game initialization won't take effect.
      * @zh
-     * 当前的游戏配置。
+     * 当前的游戏配置
      * 注意：请不要直接修改这个对象，它不会有任何效果。
+     * @property config
      */
     public config: IGameConfig = {};
 
@@ -296,13 +340,21 @@ export class Game extends EventTarget {
      */
     public onStart: Function | null = null;
 
+    /**
+     * @en Indicates whether the engine has inited
+     * @zh 引擎是否以完成初始化
+     */
+    public get inited () {
+        return this._inited;
+    }
+
     public _persistRootNodes = {};
 
     // states
     public _paused: boolean = true; // whether the game is paused
     public _configLoaded: boolean = false; // whether config loaded
     public _isCloning: boolean = false;    // deserializing or instantiating
-    public _prepared: boolean = false; // whether the engine has prepared
+    public _inited: boolean = false; // whether the engine has inited
     public _rendererInitialized: boolean = false;
 
     public _gfxDevice: WebGL2GFXDevice | WebGLGFXDevice | null = null;
@@ -433,7 +485,6 @@ export class Game extends EventTarget {
      * @zh 退出游戏
      */
     public end () {
-
         if (this._gfxDevice) {
             this._gfxDevice.destroy();
             this._gfxDevice = null;
@@ -462,7 +513,7 @@ export class Game extends EventTarget {
      */
     public on (type: string, callback: Function, target?: object): any {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
-        if (this._prepared && type === Game.EVENT_ENGINE_INITED) {
+        if (this._inited && type === Game.EVENT_ENGINE_INITED) {
             callback.call(target);
         }
         else {
@@ -490,7 +541,7 @@ export class Game extends EventTarget {
     // @ts-ignore
     public once (type: string, callback: Function, target?: object) {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
-        if (this._prepared && type === Game.EVENT_ENGINE_INITED) {
+        if (this._inited && type === Game.EVENT_ENGINE_INITED) {
             callback.call(target);
         }
         else {
@@ -499,16 +550,83 @@ export class Game extends EventTarget {
     }
 
     /**
+     * @en Init game with configuration object.
+     * @zh 使用指定的配置初始化引擎。
+     * @param {Object} config - Pass configuration object
+     */
+    public init (config: IGameConfig) {
+        this._initConfig(config);
+        // Init AssetLibrary
+        if (this.config.assetOptions) {
+            AssetLibrary.init(this.config.assetOptions);
+        }
+
+        this._initEngine();
+
+        if (!EDITOR) {
+            this._initEvents();
+        }
+
+        if (!EDITOR && !PREVIEW && cc.internal.SplashScreenWebgl && this.canvas) {
+            cc.internal.SplashScreenWebgl.instance.main(this.canvas);
+        }
+        
+        return this._inited;
+    }
+
+    /**
      * @en Run game with configuration object and onStart function.
      * @zh 运行游戏，并且指定引擎配置和 onStart 的回调。
-     * @param {Object} config - Pass configuration object or onStart function
      * @param {Function} onStart - function to be executed after game initialized
      */
-    public run (config: any, onStart: Function | null) {
-        this._initConfig(config);
+    public run (onStart: Function | null, legacyOnStart?: Function | null) {
+        if (typeof onStart !== 'function' && legacyOnStart) {
+            let config: IGameConfig = this.onStart as IGameConfig;
+            this.init(config);
+            this.onStart = legacyOnStart;
+        }
+        else {
+            this.onStart = onStart;
+        }
 
-        this.onStart = onStart;
-        this.prepare(cc.game.onStart && cc.game.onStart.bind(cc.game));
+        this._setAnimFrame();
+        this._runMainLoop();
+
+        const splashScreen = cc.internal.SplashScreenWebgl && cc.internal.SplashScreenWebgl.instance;
+        let useSplash = (!EDITOR && !PREVIEW && splashScreen);
+        useSplash && splashScreen.setOnFinish(() => {
+            this.onStart && this.onStart();
+        });
+        // Load render pipeline if needed
+        let renderPipeline = this.config.renderPipeline;
+        if (renderPipeline) {
+            cc.loader.load({ uuid: renderPipeline }, (err, asset) => {
+                // failed load renderPipeline
+                if (err || !(asset instanceof RenderPipeline)) {
+                    console.warn(`Failed load renderpipeline: ${renderPipeline}, engine failed to initialize, all process stopped`);
+                    console.warn(err);
+                }
+                else {
+                    this.setRenderPipeline(asset);
+                }
+                this.emit(Game.EVENT_GAME_INITED);
+                if (useSplash) {
+                    splashScreen.loadFinish = true;
+                }
+                else {
+                    this.onStart && this.onStart();
+                }
+            });
+        }
+        else {
+            this.emit(Game.EVENT_GAME_INITED);
+            if (useSplash) {
+                splashScreen.loadFinish = true;
+            }
+            else {
+                this.onStart && this.onStart();
+            }
+        }
     }
 
     //  @ Persist root node section
@@ -570,67 +688,17 @@ export class Game extends EventTarget {
         return node._persistNode;
     }
 
-    /**
-     * @en Prepare game.
-     * @zh 准备引擎，请不要直接调用这个函数。
-     * @param {Function} cb
-     */
-    protected prepare (cb: Function | null) {
-        // Already prepared
-        if (this._prepared) {
-            if (cb) { cb(); }
-            return;
-        }
+    //  @Engine loading
 
-        const start = () => {
-            this._setAnimFrame();
-            this._runMainLoop();
-
-            this.emit(Game.EVENT_GAME_INITED);
-
-            if (cb) { cb(); }
-        };
-
-        // Init engine
-        this._initEngine(start);
-    }
-
-    //  @Game loading
-
-    private _initEngine (cb: Function | null) {
-        this._initRenderer();
-
-        if (!EDITOR) {
-            this._initEvents();
-        }
-
+    private _initEngine () {
+        this._initDevice();
+        cc.director._init();
+        this.setRenderPipeline();
+        
         // Log engine version
         console.log('Cocos Creator 3D v' + cc.ENGINE_VERSION);
         this.emit(Game.EVENT_ENGINE_INITED);
-        this._prepared = true;
-
-        // load renderpipeline
-        const config = this.config;
-        cc.loader.load({ uuid: config.renderPipeline }, (err, asset) => {
-            // failed load renderPipeline
-            if (err || !(asset instanceof cc.RenderPipeline)) {
-                console.error(`Failed load renderpipeline: ${config.renderPipeline}, engine failed to initialize, all process stoped`);
-                console.error(err);
-                this.setRenderPipeline(null);
-            } else {
-                this.setRenderPipeline(asset);
-            }
-
-            this._rendererInitialized = true;
-            this.emit(Game.EVENT_RENDERER_INITED);
-
-            if (!EDITOR && !PREVIEW && cc.internal.SplashScreenWebgl) {
-                cc.internal.SplashScreenWebgl.instance.setOnFinish(cb);
-                cc.internal.SplashScreenWebgl.instance.loadFinish = true;
-            } else if (cb) {
-                cb();
-            }
-        });
+        this._inited = true;
     }
 
     // @Methods
@@ -775,82 +843,32 @@ export class Game extends EventTarget {
         }
     }
 
-    private _initRenderer () {
+    private _initDevice () {
         // Avoid setup to be called twice.
         if (this._rendererInitialized) { return; }
 
-        // tslint:disable-next-line: no-shadowed-variable
-        function addClass (element: { className: string; }, name: string) {
-            const hasClass = (' ' + element.className + ' ').indexOf(' ' + name + ' ') > -1;
-            if (!hasClass) {
-                if (element.className) {
-                    element.className += ' ';
-                }
-                element.className += name;
-            }
-        }
-
         // TODO: adapter for editor & preview
-        let localCanvas: HTMLCanvasElement;
+        let canvas: HTMLCanvasElement;
         if (JSB) {
             let localContainer: HTMLElement;
             this.container = localContainer = document.createElement<'div'>('div');
             this.frame = document.documentElement;
             if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-                localCanvas = window.sharedCanvas || wx.getSharedCanvas();
+                canvas = window.sharedCanvas || wx.getSharedCanvas();
             }
             else if (JSB) {
-                localCanvas = window.__canvas;
+                canvas = window.__canvas;
             }
             else {
-                localCanvas = window.canvas;
+                canvas = window.canvas;
             }
-            this.canvas = localCanvas;
-        } else if (EDITOR || PREVIEW) {
-            const el = this.config.id;
-            let width: any;
-            let height: any;
-            let localContainer: HTMLElement;
-            const element = !el ? null : ((el instanceof HTMLElement) ? el : (document.querySelector(el) || document.querySelector('#' + el)));
-            if (!element) {
-                throw new Error(debug.getError(200));
-            }
-
-            if (element.tagName === 'CANVAS') {
-                width = (element as HTMLCanvasElement).width;
-                height = (element as HTMLCanvasElement).height;
-
-                // it is already a canvas, we wrap it around with a div
-                this.canvas = localCanvas = (element as HTMLCanvasElement);
-                this.container = localContainer = document.createElement<'div'>('div');
-                if (localCanvas && localCanvas.parentNode) {
-                    localCanvas.parentNode.insertBefore(localContainer, localCanvas);
-                }
-            } else {
-                // we must make a new canvas and place into this element
-                if (element.tagName !== 'DIV') {
-                    debug.warnID(3819);
-                }
-                width = element.clientWidth;
-                height = element.clientHeight;
-
-                this.canvas = localCanvas = document.createElement('canvas');
-                this.container = localContainer = document.createElement<'div'>('div');
-                element.appendChild(localContainer);
-            }
-            localContainer.setAttribute('id', 'Cocos3dGameContainer');
-            localContainer.appendChild(localCanvas!);
-            this.frame = (localContainer.parentNode === document.body) ? document.documentElement : localContainer.parentNode;
-
-            addClass(localCanvas!, 'gameCanvas');
-            localCanvas.setAttribute('width', width || '480');
-            localCanvas.setAttribute('height', height || '320');
-            localCanvas.setAttribute('tabindex', '99');
-        } else {
+            this.canvas = canvas;
+        } 
+        else {
             this.canvas = (this.config as any).adapter.canvas;
             this.frame = (this.config as any).adapter.frame;
             this.container = (this.config as any).adapter.container;
-            localCanvas = this.canvas as HTMLCanvasElement;
+            canvas = this.canvas as HTMLCanvasElement;
         }
 
         this._determineRenderType();
@@ -874,7 +892,7 @@ export class Game extends EventTarget {
             }
 
             const opts = {
-                canvasElm: localCanvas,
+                canvasElm: canvas,
                 debug: true,
                 devicePixelRatio: window.devicePixelRatio,
                 nativeWidth: Math.floor(screen.width * window.devicePixelRatio),
@@ -976,15 +994,17 @@ export class Game extends EventTarget {
         });
     }
 
-    private setRenderPipeline (rppl) {
-        // cc.director.root.setRenderPipeline(rppl.renderPipeline);
+    private setRenderPipeline (rppl?:RenderPipeline) {
         if (!rppl) {
             rppl = new ForwardPipeline();
             rppl.initialize(ForwardPipeline.initInfo);
         }
         if (!cc.director.root.setRenderPipeline(rppl)) {
-            this.setRenderPipeline(null);
+            this.setRenderPipeline();
         }
+
+        this._rendererInitialized = true;
+        this.emit(Game.EVENT_RENDERER_INITED);
     }
 }
 
