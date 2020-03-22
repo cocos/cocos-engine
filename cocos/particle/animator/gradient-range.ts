@@ -20,7 +20,7 @@ const GRADIENT_RANGE_MODE_RANDOM_COLOR = 2;
 const GRADIENT_RANGE_MODE_GRADIENT = 3;
 const GRADIENT_RANGE_MODE_TWO_GRADIENT = 4;
 
-const SerializableTable = CC_EDITOR && [
+const SerializableTable = EDITOR && [
     [ "_mode", "color" ],
     [ "_mode", "gradient" ],
     [ "_mode", "colorMin", "colorMax" ],
