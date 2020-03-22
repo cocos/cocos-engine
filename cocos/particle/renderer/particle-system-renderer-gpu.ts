@@ -11,11 +11,12 @@ import { RenderMode, Space } from '../enum';
 import Particle, { IParticleModule } from '../particle';
 import { packGradientRange } from '../animator/gradient-range';
 import { Pass } from '../../core/renderer';
-import { packCurveRangeXYZ, packCurveRangeZ, packCurveRangeXYZW, packCurveRangeN } from '../animator/curve-range';
+import { packCurveRangeXYZ, packCurveRangeZ, packCurveRangeXYZW, packCurveRangeN, packCurveRangeXY } from '../animator/curve-range';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
+import { Vec3 } from '@cocos/cannon';
 
 const _tempWorldTrans = new Mat4();
-const _tempWorldRot = new Vec4();
+const _tempVec4 = new Vec4();
 
 let _world_rot_uniform = new Float32Array(4);
 let _world_rot = new Quat();
@@ -51,6 +52,7 @@ const ROTATION_OVER_TIME_MODULE_ENABLE = 'ROTATION_OVER_TIME_MODULE_ENABLE';
 const SIZE_OVER_TIME_MODULE_ENABLE = 'SIZE_OVER_TIME_MODULE_ENABLE';
 const VELOCITY_OVER_TIME_MODULE_ENABLE = 'VELOCITY_OVER_TIME_MODULE_ENABLE';
 const FORCE_OVER_TIME_MODULE_ENABLE = 'FORCE_OVER_TIME_MODULE_ENABLE';
+const TEXTURE_ANIMATION_MODULE_ENABLE = 'TEXTURE_ANIMATION_MODULE_ENABLE';
 
 const _vert_attr_name = {
     POSITION_STARTTIME: 'a_position_starttime',
@@ -103,6 +105,10 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     private _velocityTexture: Texture2D | null = null;
     private _rotationTexture: Texture2D | null = null;
     private _sizeTexture: Texture2D | null = null;
+    private _animTexture: Texture2D | null = null;
+    private _uTimeHandle: number = 0;
+    private _uDetlaHandle: number = 0;
+    private _uRotHandle: number = 0;
 
     constructor (info: any) {
         super(info);
@@ -183,6 +189,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this._colorTexture && this._colorTexture.destroy();
         this._sizeTexture && this._sizeTexture.destroy();
         this._rotationTexture && this._rotationTexture.destroy();
+        this._animTexture && this._animTexture.destroy();
     }
 
     public enableModule (name: string, val: Boolean, pm: IParticleModule) {
@@ -240,18 +247,21 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         }
 
         let pass = mat.passes[0];
-        pass.setUniform(pass.getHandle("u_psTime")!, this._particleSystem._time);
-        pass.setUniform(pass.getHandle('u_detla')!, dt);
+        pass.setUniform(this._uTimeHandle, this._particleSystem._time);
+        pass.setUniform(this._uDetlaHandle, dt);
 
         this._particleSystem.node.getWorldRotation(_world_rot)
         Quat.toArray(_world_rot_uniform, _world_rot);
-        Vec4.fromArray(_tempWorldRot, _world_rot_uniform);
-        let handle = pass.getHandle("u_worldRot");
-        pass.setUniform(handle!, _tempWorldRot);
+        Vec4.fromArray(_tempVec4, _world_rot_uniform);
+        pass.setUniform(this._uRotHandle, _tempVec4);
     }
 
     public initShaderUniform (mat: Material) {
         let pass = mat.passes[0];
+
+        this._uTimeHandle = pass.getHandle("u_psTime")!;
+        this._uDetlaHandle = pass.getHandle("u_detla")!;
+        this._uRotHandle = pass.getHandle("u_worldRot")!;
 
         pass.setUniform(pass.getHandle("scale")!, this._node_scale);
         pass.setUniform(pass.getHandle("frameTile_velLenScale")!, this._frameTile_velLenScale);
@@ -333,6 +343,23 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
             pass.bindTextureView(binding, this._sizeTexture.getGFXTextureView()!);
             let modeHandle = pass.getHandle("u_size_mode");
             pass.setUniform(modeHandle!, this._sizeTexture.height);
+        }
+
+        // texture module
+        let textureModule = this._particleSystem.textureAnimationModule;
+        this._defines[TEXTURE_ANIMATION_MODULE_ENABLE] = textureModule.enable;
+        if (textureModule.enable) {
+            this._animTexture && this._animTexture.destroy();
+            this._animTexture = packCurveRangeXY(_sample_num, textureModule.startFrame, textureModule.frameOverTime);
+
+            let handle = pass.getHandle("texture_animation_tex0");
+            let binding = Pass.getBindingFromHandle(handle!);
+            pass.bindTextureView(binding, this._animTexture.getGFXTextureView()!);
+            let infoHandle = pass.getHandle("u_anim_info");
+            _tempVec4.x = this._animTexture.height;
+            _tempVec4.y = textureModule.numTilesX * textureModule.numTilesY;
+            _tempVec4.z = textureModule.cycleCount;
+            pass.setUniform(infoHandle!, _tempVec4);
         }
     }
 

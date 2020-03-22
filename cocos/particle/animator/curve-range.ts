@@ -200,6 +200,35 @@ export function packCurveRangeN (samples:number, cr: CurveRange) {
     return texture;
 }
 
+export function packCurveRangeXY (samples: number, x: CurveRange, y: CurveRange) {
+    let height = Math.max(evaluateHeight(x), evaluateHeight(y));
+    let data = new Float32Array(samples * height * 4);
+    let curves: CurveRange[] = [x, y];
+
+    let interval = 1.0 / (samples - 1);
+
+    for (let h = 0; h < height; h++) {
+        for (let i = 0; i < 2; i++) {
+            let cr = curves[i];
+            let sum = 0, average = 0;
+            for (let j = 0; j < samples; j++) {
+                let value = evaluateCurve(cr, interval * j, h);
+                sum += value;
+                average = sum / (j + 1);
+                data[j * 4 + i] = average;
+            }
+        }
+    }
+
+    let texture = new Texture2D();
+    texture.create(samples, height, PixelFormat.RGBA32F);
+    texture.setFilters(Filter.NEAREST, Filter.NEAREST);
+    texture.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
+    texture.uploadData(data);
+
+    return texture;
+}
+
 export function packCurveRangeXYZ (samples: number, x: CurveRange, y: CurveRange, z: CurveRange) {
     let height = Math.max(evaluateHeight(x), evaluateHeight(y), evaluateHeight(z));
     let data = new Float32Array(samples * height * 4);
