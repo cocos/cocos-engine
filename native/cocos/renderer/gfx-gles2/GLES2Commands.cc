@@ -1245,11 +1245,9 @@ void GLES2CmdFuncExecuteCmds(GLES2Device* device, GLES2CmdPackage* cmd_package) 
                       glColorMask(true, true, true, true);
                     }
                     
-                    if (!cmd->gpuFBO->isOffscreen) {
-                      const GFXColor& color = cmd->clear_colors[j];
-                      glClearColor(color.r, color.g, color.b, color.a);
-                      gl_clears |= GL_COLOR_BUFFER_BIT;
-                    }
+                    const GFXColor& color = cmd->clear_colors[j];
+                    glClearColor(color.r, color.g, color.b, color.a);
+                    gl_clears |= GL_COLOR_BUFFER_BIT;
                   }
                   break;
                 }
