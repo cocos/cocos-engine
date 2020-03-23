@@ -35,6 +35,7 @@ import * as debug from './platform/debug';
 import sys from './platform/sys';
 import { JSB, RUNTIME_BASED, ALIPAY, EDITOR, PREVIEW } from 'internal:constants';
 import AssetLibrary from './assets/asset-library';
+import { ICustomJointTextureLayout } from './renderer';
 
 /**
  * @zh
@@ -204,6 +205,11 @@ export interface IGameConfig {
      * Asset library initialization options
      */
     assetOptions?: IAssetOptions;
+
+    /**
+     * GPU instancing options
+     */
+    customJointTextureLayouts?: ICustomJointTextureLayout[];
 }
 
 /**
@@ -570,6 +576,8 @@ export class Game extends EventTarget {
         if (!EDITOR && !PREVIEW && cc.internal.SplashScreenWebgl && this.canvas) {
             cc.internal.SplashScreenWebgl.instance.main(this.canvas);
         }
+
+        cc.director.root.dataPoolManager.jointTexturePool.registerCustomTextureLayouts(config.customJointTextureLayouts);
         
         return this._inited;
     }
