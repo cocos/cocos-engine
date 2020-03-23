@@ -6,11 +6,12 @@
 #include <sstream>
 
 #include "platform/CCStdC.h"
+#include "platform/win32/View-win32.h"
 #include "scripting/js-bindings/jswrapper/SeApi.h"
 
 namespace
 {
-    std::weak_ptr<View> gView;
+    std::weak_ptr<cocos2d::View> gView;
     /**
     @brief  This function changes the PVRFrame show/hide setting in register.
     @param  bEnable If true show the PVRFrame window, otherwise hide.
@@ -68,19 +69,14 @@ namespace
     }
 }
 
-extern "C" {
-    HWND cc_get_application_window() {
-        return gView.lock()->getWindowHandler();
-    }
-    void cc_set_cursor_enabled(bool enabled) {
-      gView.lock()->setCursorEnabeld(enabled);
-    }
+//exported function
+std::shared_ptr<cocos2d::View> cc_get_application_view() {
+    return gView.lock();
 }
-
 
 AppDelegage::AppDelegage(const std::string &name, int width, int height) 
 {
-    _view = std::make_shared<View>(name, width, height);
+    _view = std::make_shared<cocos2d::View>(name, width, height);
     _game = std::make_shared<Game>(width, height);
 
     gView = _view;
@@ -89,6 +85,7 @@ AppDelegage::AppDelegage(const std::string &name, int width, int height)
 void AppDelegage::start()
 {
 
+    bool resume, pause;
     se::ScriptEngine::getInstance()->addRegisterCallback(setCanvasCallback);
 
     if(!_view->init()) return;
@@ -129,17 +126,18 @@ void AppDelegage::start()
     QueryPerformanceFrequency(&nFreq);
     se::ScriptEngine* se = se::ScriptEngine::getInstance();
 
-    //SDL_ShowWindow(_window);
-    
-    //TODO: should fix location
+   
     _game->onResume();
 
     while (!_quit)
     {
         desiredInterval = (LONGLONG)(1.0 / _game->getPreferredFramesPerSecond() * nFreq.QuadPart);
         
-        while (_view->pollEvent(&_quit, _game.get())) {
-        }
+        while (_view->pollEvent(&_quit, &resume, &pause)) {}
+
+        if(pause) _game->onPause();
+        if(resume) _game->onResume();
+
         QueryPerformanceCounter(&nNow);
         actualInterval = nNow.QuadPart - nLast.QuadPart;
         if (actualInterval >= desiredInterval)

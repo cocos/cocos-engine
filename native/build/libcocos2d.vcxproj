@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\cocos\platform\win32\View-win32.cpp" />
     <ClCompile Include="..\cocos\platform\win32\CCCanvasRenderingContext2D-win32.cpp" />
     <ClCompile Include="..\cocos\renderer\gfx-gles2\GLES2BindingLayout.cc" />
     <ClCompile Include="..\cocos\renderer\gfx-gles2\GLES2Buffer.cc" />
@@ -197,6 +198,7 @@
     <ClCompile Include="..\external\sources\xxtea\xxtea.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\cocos\platform\win32\View-win32.h" />
     <ClInclude Include="..\cocos\platform\CCStdC.h" />
     <ClInclude Include="..\cocos\renderer\gfx-gles2\GFXGLES2.h" />
     <ClInclude Include="..\cocos\renderer\gfx-gles2\GLES2BindingLayout.h" />

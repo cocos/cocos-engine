@@ -548,8 +548,11 @@
     <ClCompile Include="..\cocos\renderer\gfx-gles3\GLES3Window.cc">
       <Filter>renderer\gfx-gles3</Filter>
     </ClCompile>
-    <ClCompile Include="..\cocos\renderer\core\gfx\GFXObject.cc" >
+    <ClCompile Include="..\cocos\renderer\core\gfx\GFXObject.cc">
       <Filter>renderer\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\platform\win32\View-win32.cpp">
+      <Filter>platform\win32</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1250,8 +1253,11 @@
     <ClInclude Include="..\cocos\renderer\gfx-gles3\GLES3Window.h">
       <Filter>renderer\gfx-gles3</Filter>
     </ClInclude>
-    <ClInclude Include="..\cocos\renderer\core\gfx\GFXObject.h" >
+    <ClInclude Include="..\cocos\renderer\core\gfx\GFXObject.h">
       <Filter>renderer\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\platform\win32\View-win32.h">
+      <Filter>platform\win32</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

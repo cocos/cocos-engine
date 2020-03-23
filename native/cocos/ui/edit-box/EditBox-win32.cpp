@@ -23,14 +23,16 @@
  ****************************************************************************/
 #include "EditBox.h"
 #include "platform/CCApplication.h"
+#include "platform/win32/View-win32.h"
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
 #include <windows.h>
 #include <locale>
 #include <codecvt>
 #include <stdlib.h>
+#include <memory>
 
-extern "C" HWND cc_get_application_window();
+extern std::shared_ptr<cocos2d::View> cc_get_application_view();
 
 NS_CC_BEGIN
 
@@ -46,7 +48,7 @@ namespace
 
      int getCocosWindowHeight()
     {
-        HWND parent = cc_get_application_window();
+        HWND parent = cc_get_application_view()->getWindowHandler();
         RECT rect;
         GetClientRect(parent, &rect);
         return (rect.bottom - rect.top);
@@ -111,7 +113,7 @@ namespace
           case WM_LBUTTONDOWN:
               EditBox::complete();
               EditBox::hide();
-              SetFocus(cc_get_application_window());
+              SetFocus(cc_get_application_view()->getWindowHandler());
               break;
           case WM_COMMAND:
               if (EN_CHANGE == HIWORD(wParam))
@@ -134,7 +136,7 @@ void EditBox::show(const EditBox::ShowInfo& showInfo)
     int windowHeight = getCocosWindowHeight();
     if (! g_hwndEditBox)
     {
-        HWND parent = cc_get_application_window();
+        HWND parent = cc_get_application_view()->getWindowHandler();
         g_prevMainWindowProc = (WNDPROC)SetWindowLongPtr(parent, GWL_WNDPROC, (LONG_PTR)mainWindowProc);
 
         UINT32 flags = WS_CHILD | ES_LEFT | WS_TABSTOP | ES_AUTOHSCROLL;
@@ -192,7 +194,7 @@ void EditBox::hide()
     DestroyWindow(g_hwndEditBox);
     g_hwndEditBox = nullptr;
 
-    SetWindowLongPtr(cc_get_application_window(), GWL_WNDPROC, (LONG_PTR)g_prevMainWindowProc);
+    SetWindowLongPtr(cc_get_application_view()->getWindowHandler(), GWL_WNDPROC, (LONG_PTR)g_prevMainWindowProc);
 }
 
 bool EditBox::complete()

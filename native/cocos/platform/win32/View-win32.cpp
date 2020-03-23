@@ -23,7 +23,6 @@ THE SOFTWARE.
 ****************************************************************************/
 
 #include "View-win32.h"
-#include "Game.h"
 #include <unordered_map>
 
 
@@ -107,6 +106,12 @@ namespace {
     }
 }
 
+
+
+
+
+NS_CC_BEGIN
+
 View::View(const std::string & title, int width, int height) :
     _title(title), _width(width), _height(height)
 {
@@ -147,10 +152,12 @@ bool View::init()
     return true;
 }
 
-bool View::pollEvent(bool * quit, Game *game)
+bool View::pollEvent(bool * quit, bool *resume, bool *pause)
 {
     int cnt = SDL_PollEvent(&sdlEvent);
     if (cnt == 0) return false;
+    *resume = false;
+    *pause = false;
     cocos2d::TouchEvent  touch;
     cocos2d::MouseEvent mouse;
     cocos2d::KeyboardEvent  keyboard;
@@ -167,14 +174,14 @@ bool View::pollEvent(bool * quit, Game *game)
         switch (wevent.event) {
         case SDL_WINDOWEVENT_SHOWN:
         case SDL_WINDOWEVENT_RESTORED:
-            game->onResume();
+            *resume = true;
             break;
         case SDL_WINDOWEVENT_SIZE_CHANGED:
         case SDL_WINDOWEVENT_RESIZED:
             cocos2d::EventDispatcher::dispatchResizeEvent(wevent.data1, wevent.data2);
             break;
         case SDL_WINDOWEVENT_HIDDEN:
-            game->onPause();
+            *pause = true;
             break;
         case SDL_WINDOWEVENT_ENTER:
             SDL_CaptureMouse(SDL_TRUE);
@@ -255,7 +262,7 @@ bool View::pollEvent(bool * quit, Game *game)
         keyboard.altKeyActive = mode & KMOD_ALT;
         keyboard.ctrlKeyActive = mode & KMOD_CTRL;
         keyboard.shiftKeyActive = mode & KMOD_SHIFT;
-        CCLOG("==> key %d -> code %d", event.keysym.sym, keyboard.key);
+        //CCLOG("==> key %d -> code %d", event.keysym.sym, keyboard.key);
         cocos2d::EventDispatcher::dispatchKeyboardEvent(keyboard);
         break;
     }
@@ -292,3 +299,5 @@ void View::setCursorEnabeld(bool enable)
 {
     SDL_SetRelativeMouseMode(enable ? SDL_FALSE : SDL_TRUE);
 }
+
+NS_CC_END

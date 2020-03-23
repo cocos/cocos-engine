@@ -32,15 +32,14 @@ THE SOFTWARE.
 #include <shellapi.h>
 #include <MMSystem.h>
 #include "platform/CCFileUtils.h"
+#include "platform/win32/View-win32.h"
 #include "scripting/js-bindings/jswrapper/SeApi.h"
 #include "scripting/js-bindings/event/EventDispatcher.h"
 #include "base/CCScheduler.h"
 #include "base/CCAutoreleasePool.h"
 #include "audio/include/AudioEngine.h"
 
-extern "C" {
-  void cc_set_cursor_enabled(bool enabled);
-}
+extern std::shared_ptr<cocos2d::View> cc_get_application_view();
 
 NS_CC_BEGIN
 
@@ -191,7 +190,7 @@ void Application::setDisplayStats(bool isShow)
 
 void Application::setCursorEnabled(bool value)
 {
-    cc_set_cursor_enabled(value);
+    cc_get_application_view()->setCursorEnabeld(value);
 }
 
 Application::Platform Application::getPlatform() const

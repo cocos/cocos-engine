@@ -19,9 +19,6 @@
     <ClCompile Include="AppDelegate.cpp">
       <Filter>win32</Filter>
     </ClCompile>
-    <ClCompile Include="View-win32.cpp">
-      <Filter>win32</Filter>
-    </ClCompile>
     <ClCompile Include="..\Classes\Game.cpp">
       <Filter>Classes</Filter>
     </ClCompile>
@@ -37,9 +34,6 @@
       <Filter>win32</Filter>
     </ClInclude>
     <ClInclude Include="AppDelegate.h">
-      <Filter>win32</Filter>
-    </ClInclude>
-    <ClInclude Include="View-win32.h">
       <Filter>win32</Filter>
     </ClInclude>
     <ClInclude Include="resource.h" />

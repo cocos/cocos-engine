@@ -187,14 +187,12 @@ copy "$(ProjectDir)..\..\..\project.json" "$(OutDir)\" /Y</Command>
     <ClCompile Include="..\Classes\jsb_module_register.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="AppDelegate.cpp" />
-    <ClCompile Include="View-win32.cpp" />
     <ClCompile Include="..\Classes\Game.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h" />
     <ClInclude Include="..\Classes\Game.h" />
     <ClInclude Include="AppDelegate.h" />
-    <ClInclude Include="View-win32.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

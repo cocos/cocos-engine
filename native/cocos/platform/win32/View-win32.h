@@ -40,7 +40,9 @@ THE SOFTWARE.
 
 #include "scripting/js-bindings/event/EventDispatcher.h"
 
-class Game;
+
+
+NS_CC_BEGIN
 
 class View {
 public:
@@ -49,7 +51,7 @@ public:
     
     bool init();
 
-    bool pollEvent( bool* quit, Game *);
+    bool pollEvent( bool* quit, bool* resume, bool *pause);
 
     std::array<int, 2> getViewSize() const { return std::array<int, 2>{_width, _height}; }
 
@@ -70,3 +72,5 @@ private:
 
 };
 
+
+NS_CC_END
