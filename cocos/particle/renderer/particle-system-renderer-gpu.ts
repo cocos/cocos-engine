@@ -98,7 +98,6 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     protected _vertAttrs: IGFXAttribute[] = [];
     protected _defaultMat: Material | null = null;
     private _particleNum: number = 0;
-    private _vertIndexMap: any = null;
     private _tempParticle: any = null;
     private _colorTexture: Texture2D | null = null;
     private _forceTexture: Texture2D | null = null;
@@ -126,47 +125,13 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
 
         this._tempParticle = new Particle(null);
         this._particleNum = 0;
-        this._vertIndexMap = new Int8Array(Object.keys(ATTR_INDEX).length);
-        this._constructAttributeIndex();
-    }
-
-    public _constructAttributeIndex() {
-        let offset = 0;
-        for (let i = 0; i < _gpu_vert_attr.length; i++) {
-            switch (_gpu_vert_attr[i].name) {
-            case _vert_attr_name.POSITION_STARTTIME:
-                this._vertIndexMap[ATTR_INDEX.POS] = offset;
-                this._vertIndexMap[ATTR_INDEX.START_TIME] = offset + 3;
-                break;
-            case _vert_attr_name.VERT_SIZE_UV:
-                this._vertIndexMap[ATTR_INDEX.VERT_IDX] = offset;
-                this._vertIndexMap[ATTR_INDEX.SIZE] = offset + 2;
-                this._vertIndexMap[ATTR_INDEX.ANGLE] = offset + 3;
-                break;
-            case _vert_attr_name.VERT_ROTATION_UV:
-                this._vertIndexMap[ATTR_INDEX.VERT_IDX] = offset;
-                this._vertIndexMap[ATTR_INDEX.SIZE] = offset + 2;
-                this._vertIndexMap[ATTR_INDEX.ANGLE] = offset + 3;
-                break;
-            case _vert_attr_name.COLOR:
-                this._vertIndexMap[ATTR_INDEX.COLOR] = offset;
-                break;
-            case _vert_attr_name.DIR_LIFE:
-                this._vertIndexMap[ATTR_INDEX.DIR] = offset;
-                this._vertIndexMap[ATTR_INDEX.LIFE_TIME] = offset + 3;
-                break;
-            case _vert_attr_name.RANDOM_SEED:
-                this._vertIndexMap[ATTR_INDEX.RANDOM_SEED] = offset;
-                break;
-            }
-            offset += 4;
-        }
     }
 
     public onInit (ps: Component) {
         super.onInit(ps);
         this._setVertexAttrib();
         this._updateModel();
+        this._model!.constructAttributeIndex();
         this.updateMaterialParams();
     }
 
@@ -218,17 +183,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     }
 
     public updateParticles (dt: number) {
-        let pSize = this._model!._vertAttrsFloatCount * this._model!._vertCount;
-        for (let i = 0; i < this._particleNum; ++i) {
-            let pBaseIndex = i * pSize;
-            if (this._particleSystem._time - this._model!._vdataF32![pBaseIndex + this._vertIndexMap[ATTR_INDEX.START_TIME]] > this._model!._vdataF32![pBaseIndex + this._vertIndexMap[ATTR_INDEX.LIFE_TIME]]) {
-                let lastParticleBaseIndex = (this._particleNum - 1) * pSize;
-                this._model!._vdataF32!.copyWithin(pBaseIndex, lastParticleBaseIndex, lastParticleBaseIndex + pSize);
-                i--;
-                this._particleNum--;
-            }
-        }
-
+        this._particleNum = this._model!.updateGPUParticles(this._particleNum, this._particleSystem._time);
         this.updateShaderUniform(dt);
 
         return this._particleNum;

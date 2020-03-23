@@ -48,17 +48,19 @@ export default class ParticleBatchModel extends Model {
 
     private _capacity: number;
     private _vertAttrs: IGFXAttribute[] | null;
-    public _vertSize: number;
+    private _vertSize: number;
     private _vBuffer: ArrayBuffer | null;
-    public _vertAttrsFloatCount: number;
-    public _vdataF32: Float32Array | null;
-    public _vdataUint32: Uint32Array | null;
+    private _vertAttrsFloatCount: number;
+    private _vdataF32: Float32Array | null;
+    private _vdataUint32: Uint32Array | null;
     private _iaInfo: IGFXIndirectBuffer;
     private _iaInfoBuffer: GFXBuffer;
     private _subMeshData: RenderingSubMesh | null;
     private _mesh: Mesh | null;
-    public _vertCount: number = 0;
+    private _vertCount: number = 0;
     private _indexCount: number = 0;
+    private _startTimeOffset: number = 0;
+    private _lifeTimeOffset: number = 0;
 
     public get device () {
         return this._device;
@@ -292,6 +294,35 @@ export default class ParticleBatchModel extends Model {
 
             offset += this._vertAttrsFloatCount;
         }
+    }
+
+    public updateGPUParticles (num: number, time: number) {
+        let pSize = this._vertAttrsFloatCount * this._vertCount;
+        let pBaseIndex = 0, startTime = 0, lifeTime = 0, lastBaseIndex = 0;
+        for (let i = 0; i < num; ++i) {
+            pBaseIndex = i * pSize;
+            startTime = this._vdataF32![pBaseIndex + this._startTimeOffset];
+            lifeTime = this._vdataF32![pBaseIndex + this._lifeTimeOffset];
+            if (time - startTime > lifeTime) {
+                lastBaseIndex = -- num * pSize;
+                this._vdataF32!.copyWithin(pBaseIndex, lastBaseIndex, lastBaseIndex + pSize);
+                i--;
+            }
+        }
+
+        return num;
+    }
+
+    public constructAttributeIndex() {
+        if (!this._vertAttrs) {
+            return
+        }
+        let vIdx = this._vertAttrs!.findIndex((val) => val.name === 'a_position_starttime');
+        let vOffset = (this._vertAttrs![vIdx] as any).offset;
+        this._startTimeOffset = vOffset / 4 + 3;
+        vIdx = this._vertAttrs!.findIndex((val) => val.name === 'a_dir_life');
+        vOffset = (this._vertAttrs![vIdx] as any).offset;
+        this._lifeTimeOffset = vOffset / 4 + 3;
     }
 
     public updateIA (count: number) {
