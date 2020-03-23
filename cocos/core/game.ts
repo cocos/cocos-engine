@@ -35,6 +35,7 @@ import * as debug from './platform/debug';
 import sys from './platform/sys';
 import { JSB, RUNTIME_BASED, ALIPAY, EDITOR, PREVIEW } from 'internal:constants';
 import AssetLibrary from './assets/asset-library';
+import { ICustomJointTextureLayout } from './renderer';
 
 /**
  * @zh
@@ -87,15 +88,6 @@ export interface IAssetOptions {
      * The list of sub packages
      */
     subPackages?: [];
-}
-
-export interface IChunkContentOption {
-    skeleton: string;
-    clips: string[];
-}
-export interface ICustomJointTextureLayoutOption {
-    textureLength: number;
-    contents: IChunkContentOption[];
 }
 
 /**
@@ -217,7 +209,7 @@ export interface IGameConfig {
     /**
      * GPU instancing options
      */
-    customJointTextureLayouts?: ICustomJointTextureLayoutOption[];
+    customJointTextureLayouts?: ICustomJointTextureLayout[];
 }
 
 /**
