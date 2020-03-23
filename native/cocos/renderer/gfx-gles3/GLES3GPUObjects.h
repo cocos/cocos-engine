@@ -15,7 +15,7 @@ class GLES3GPUBuffer : public Object {
   GLenum glTarget = 0;
   GLuint glBuffer = 0;
   uint8_t* buffer = nullptr;
-  GFXDrawInfoList indirectBuff;
+  GFXDrawInfoList indirects;
 };
 typedef vector<GLES3GPUBuffer*>::type GLES3GPUBufferList;
 
