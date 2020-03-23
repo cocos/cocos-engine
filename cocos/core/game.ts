@@ -35,6 +35,9 @@ import * as debug from './platform/debug';
 import sys from './platform/sys';
 import { JSB, RUNTIME_BASED, ALIPAY, EDITOR, PREVIEW } from 'internal:constants';
 import AssetLibrary from './assets/asset-library';
+import { Skeleton } from './assets';
+import { AnimationClip } from './animation';
+import { ICustomJointTextureLayout } from './renderer';
 
 /**
  * @zh
@@ -87,6 +90,15 @@ export interface IAssetOptions {
      * The list of sub packages
      */
     subPackages?: [];
+}
+
+export interface IChunkContentOption {
+    skeleton: string;
+    clips: string[];
+}
+export interface ICustomJointTextureLayoutOption {
+    textureLength: number;
+    contents: IChunkContentOption[];
 }
 
 /**
@@ -204,6 +216,11 @@ export interface IGameConfig {
      * Asset library initialization options
      */
     assetOptions?: IAssetOptions;
+
+    /**
+     * GPU instancing options
+     */
+    customJointTextureLayouts?: ICustomJointTextureLayoutOption[];
 }
 
 /**
@@ -570,6 +587,8 @@ export class Game extends EventTarget {
         if (!EDITOR && !PREVIEW && cc.internal.SplashScreenWebgl && this.canvas) {
             cc.internal.SplashScreenWebgl.instance.main(this.canvas);
         }
+
+        this._initJointTextureLayouts(config.customJointTextureLayouts);
         
         return this._inited;
     }
@@ -777,6 +796,47 @@ export class Game extends EventTarget {
 
         this._intervalId = window.requestAnimationFrame(callback);
         this._paused = false;
+    }
+
+    private async _initJointTextureLayouts(array?: ICustomJointTextureLayoutOption[]) {
+        if (!array || array.length === 0) {
+            return;
+        }
+        const layouts = await Promise.all(array.map(async (layout: ICustomJointTextureLayoutOption) => {
+            return {
+                textureLength: 0,
+                contents: layout.contents ? await Promise.all(layout.contents.map(async (content) => {
+                    const skeleton = content.skeleton ? await new Promise((resolve, reject) => {
+                        cc.AssetLibrary.loadAsset(content.skeleton, (error, asset) => {
+                            if (error) {
+                                resolve(null);
+                            } else {
+                                resolve(asset);
+                            }
+                        });
+                    }) : null;
+                    const animations = await Promise.all(content.clips.map(async (clip) => {
+                        return await new Promise((resolve, reject) => {
+                            if (!clip) {
+                                return resolve(null);
+                            }
+                            cc.AssetLibrary.loadAsset(clip, (error, asset: AnimationClip) => {
+                                if (error) {
+                                    resolve(null);
+                                } else {
+                                    resolve(asset);
+                                }
+                            });
+                        });
+                    }));
+                    return {
+                        skeleton: skeleton as Skeleton,
+                        clips: animations as AnimationClip[],
+                    };
+                })) : [],
+            };
+        }));
+        cc.director.root.dataPoolManager.jointTexturePool.registerCustomTextureLayouts(layouts);
     }
 
     // @Game loading section
