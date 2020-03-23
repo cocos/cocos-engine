@@ -289,6 +289,8 @@
         "cocos/platform/win32/CCPlatformDefine-win32.h", 
         "cocos/platform/win32/CCUtils-win32.cpp", 
         "cocos/platform/win32/CCUtils-win32.h", 
+        "cocos/platform/win32/View-win32.cpp", 
+        "cocos/platform/win32/View-win32.h", 
         "cocos/platform/win32/compat/stdint.h", 
         "cocos/platform/win32/inet_pton_mingw.cpp", 
         "cocos/platform/win32/inet_pton_mingw.h", 
