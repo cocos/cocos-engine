@@ -1067,7 +1067,7 @@ Failed to skip prefab asset while deserializing PrefabInfo
 
 ### 5000
 
-object already destroyed
+You are trying to destroy a object twice or more.
 
 ### 5001
 

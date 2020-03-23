@@ -1,5 +1,5 @@
 import { CachedArray } from '../../memop/cached-array';
-import { errorID } from '../../platform';
+import { errorID, error } from '../../platform';
 import { GFXBufferSource, IGFXDrawInfo, IGFXIndirectBuffer } from '../buffer';
 import {
     GFXBindingType,
@@ -1529,7 +1529,9 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2GFXDevice, gpuShader: W
                 }
             }
 
-            if (blockBinding >= 0) {
+            if (blockBinding < 0) {
+                error(`Block '${blockName}' does not bound`);
+            } else {
                 // blockIdx = gl.getUniformBlockIndex(gpuShader.glProgram, blockName);
                 blockIdx = b;
                 blockSize = gl.getActiveUniformBlockParameter(gpuShader.glProgram, blockIdx, gl.UNIFORM_BLOCK_DATA_SIZE);
@@ -2187,8 +2189,9 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                 break;
                             }
                             case GFXBindingType.SAMPLER: {
-
-                                if (gpuBinding.gpuSampler) {
+                                if (!gpuBinding.gpuSampler) {
+                                    error(`Sampler binding point ${gpuBinding.binding} '${gpuBinding.name}' is not bounded`);
+                                } else {
 
                                     let glSampler: WebGL2GPUUniformSampler | null = null;
 
@@ -2231,8 +2234,6 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: W
                                             }
                                         }
                                     } // if
-                                } else {
-                                    console.error('Not found sampler on binding unit ' + gpuBinding.binding);
                                 }
 
                                 break;
