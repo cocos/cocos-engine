@@ -37,11 +37,12 @@ import { GFXPipelineState } from '../../gfx/pipeline-state';
 import { Vec3 } from '../../math';
 import { INST_JOINT_ANIM_INFO, UBOSkinningAnimation, UBOSkinningTexture, UniformJointTexture } from '../../pipeline/define';
 import { Node } from '../../scene-graph';
-import { Pass } from '../core/pass';
+import { Pass, IMacroPatch } from '../core/pass';
 import { samplerLib } from '../core/sampler-lib';
 import { DataPoolManager } from '../data-pool-manager';
 import { Model, ModelType } from '../scene/model';
 import { IAnimInfo, IJointTextureHandle, jointTextureSamplerHash } from './skeletal-animation-utils';
+import { MorphModel } from './morph-model';
 
 interface IJointsInfo {
     buffer: GFXBuffer | null;
@@ -51,7 +52,7 @@ interface IJointsInfo {
     boundsInfo: aabb[] | null;
 }
 
-const patches = [
+const myPatches = [
     { name: 'CC_USE_SKINNING', value: true },
     { name: 'CC_USE_BAKED_ANIMATION', value: true },
 ];
@@ -62,7 +63,7 @@ const patches = [
  * @zh
  * 预烘焙动画的蒙皮模型。
  */
-export class BakedSkinningModel extends Model {
+export class BakedSkinningModel extends MorphModel {
 
     public uploadedAnim: AnimationClip | null | undefined = undefined; // uninitialized
 
@@ -197,8 +198,8 @@ export class BakedSkinningModel extends Model {
         }
     }
 
-    protected createPipelineState (pass: Pass, subModelIdx: number) {
-        const pso = super.createPipelineState(pass, subModelIdx, patches);
+    protected createPipelineState (pass: Pass, subModelIdx: number, patches?: IMacroPatch[]) {
+        const pso = super.createPipelineState(pass, subModelIdx, patches?.concat(myPatches) ?? myPatches);
         const { buffer, texture, animInfo } = this._jointsMedium;
         const bindingLayout = pso.pipelineLayout.layouts[0];
         bindingLayout.bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);

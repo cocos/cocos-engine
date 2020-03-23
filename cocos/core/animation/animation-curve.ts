@@ -64,6 +64,11 @@ export interface IPropertyCurveData {
      * @default true
      */
     interpolate?: boolean;
+
+    /**
+     * For internal usage only.
+     */
+    _arrayLength?: number;
 }
 
 export class RatioSampler {
@@ -123,6 +128,8 @@ export class AnimCurve {
 
     private _duration: number;
 
+    private _array?: any[];
+
     constructor (propertyCurveData: Omit<IPropertyCurveData, 'keys'>, duration: number) {
         this._duration = duration;
 
@@ -165,6 +172,10 @@ export class AnimCurve {
         if (interpolate) {
             this._lerp = selectLerpFx(firstValue);
         }
+
+        if (propertyCurveData._arrayLength !== undefined) {
+            this._array = new Array(propertyCurveData._arrayLength);
+        }
     }
 
     public hasLerp () {
@@ -172,11 +183,18 @@ export class AnimCurve {
     }
 
     public valueAt (index: number) {
-        const value = this._values[index];
-        if (value && value.getNoLerp) {
-            return value.getNoLerp();
+        if (this._array === undefined) {
+            const value = this._values[index];
+            if (value && value.getNoLerp) {
+                return value.getNoLerp();
+            } else {
+                return value;
+            }
         } else {
-            return value;
+            for (let i = 0; i < this._array.length; ++i) {
+                this._array[i] = this._values[this._array.length * index + i];
+            }
+            return this._array;
         }
     }
 
@@ -188,12 +206,29 @@ export class AnimCurve {
             if (type) {
                 ratioBetweenFrames = computeRatioByType(ratioBetweenFrames, type);
             }
-            const fromVal = this._values[from];
-            const toVal = this._values[to];
-            const value = this._lerp(fromVal, toVal, ratioBetweenFrames, dRatio * this._duration);
-            return value;
+
+            if (this._array === undefined) {
+                const fromVal = this._values[from];
+                const toVal = this._values[to];
+                const value = this._lerp(fromVal, toVal, ratioBetweenFrames, dRatio * this._duration);
+                return value;
+            } else {
+                for (let i = 0; i < this._array.length; ++i) {
+                    const fromVal = this._values[this._array.length *  from + i];
+                    const toVal = this._values[this._array.length * to + i];
+                    this._array[i] = this._lerp(fromVal, toVal, ratioBetweenFrames, dRatio * this._duration);
+                }
+                return this._array;
+            }
         } else {
-            return this.valueAt(from);
+            if (this._array === undefined) {
+                return this.valueAt(from);
+            } else {
+                for (let i = 0; i < this._array.length; ++i) {
+                    this._array[i] = this._values[this._array.length *  from + i];
+                }
+                return this._array;
+            }
         }
     }
 
