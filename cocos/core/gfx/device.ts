@@ -24,6 +24,12 @@ ccenum(GFXFormat);
 
 export enum GFXAPI {
     UNKNOWN,
+    GL,
+    GLES2,
+    GLES3,
+    METAL,
+    VULKAN,
+    DX12,
     WEBGL,
     WEBGL2,
 }
