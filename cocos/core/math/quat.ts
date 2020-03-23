@@ -183,11 +183,12 @@ export class Quat extends ValueType {
 
         const bx = Math.sin(rad);
         const bw = Math.cos(rad);
+        const { x, y, z, w } = a;
 
-        out.x = a.x * bw + a.w * bx;
-        out.y = a.y * bw + a.z * bx;
-        out.z = a.z * bw - a.y * bx;
-        out.w = a.w * bw - a.x * bx;
+        out.x = x * bw + w * bx;
+        out.y = y * bw + z * bx;
+        out.z = z * bw - y * bx;
+        out.w = w * bw - x * bx;
         return out;
     }
 
@@ -200,11 +201,12 @@ export class Quat extends ValueType {
 
         const by = Math.sin(rad);
         const bw = Math.cos(rad);
+        const { x, y, z, w } = a;
 
-        out.x = a.x * bw - a.z * by;
-        out.y = a.y * bw + a.w * by;
-        out.z = a.z * bw + a.x * by;
-        out.w = a.w * bw - a.y * by;
+        out.x = x * bw - z * by;
+        out.y = y * bw + w * by;
+        out.z = z * bw + x * by;
+        out.w = w * bw - y * by;
         return out;
     }
 
@@ -217,11 +219,12 @@ export class Quat extends ValueType {
 
         const bz = Math.sin(rad);
         const bw = Math.cos(rad);
+        const { x, y, z, w } = a;
 
-        out.x = a.x * bw + a.y * bz;
-        out.y = a.y * bw - a.x * bz;
-        out.z = a.z * bw + a.w * bz;
-        out.w = a.w * bw - a.z * bz;
+        out.x = x * bw + y * bz;
+        out.y = y * bw - x * bz;
+        out.z = z * bw + w * bz;
+        out.w = w * bw - z * bz;
         return out;
     }
 
