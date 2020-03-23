@@ -6,8 +6,9 @@ import { ccclass, property } from '../../core/data/class-decorator';
 import { lerp } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import { AnimationCurve } from '../../core/geometry';
+import { EDITOR } from 'internal:constants';
 
-const SerializableTable = CC_EDITOR && [
+const SerializableTable = EDITOR && [
     [ "mode", "constant", "multiplier" ],
     [ "mode", "curve", "multiplier" ],
     [ "mode", "curveMin", "curveMax", "multiplier" ],
