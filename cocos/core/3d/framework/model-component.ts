@@ -33,11 +33,14 @@ import { Mesh } from '../../assets/mesh';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
 import { Vec4 } from '../../math';
 import { Model } from '../../renderer/scene/model';
+import { MorphModel } from '../../renderer/models/morph-model';
 import { Root } from '../../root';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { Enum } from '../../value-types';
 import { builtinResMgr } from '../builtin';
 import { RenderableComponent } from './renderable-component';
+import { MorphRenderingInstance } from '../../assets/morph';
+import { MaterialInstance } from '../../renderer/core/material-instance';
 
 /**
  * @en Shadow projection mode.
@@ -184,6 +187,10 @@ export class ModelComponent extends RenderableComponent {
     set mesh (val) {
         const old = this._mesh;
         this._mesh = val;
+        if (this._mesh) {
+            this._mesh.acquireRenderResources();
+        }
+        this._watchMorphInMesh();
         this._onMeshChanged(old);
         this._updateModels();
         if (this.enabledInHierarchy) {
@@ -195,15 +202,33 @@ export class ModelComponent extends RenderableComponent {
         return this._model;
     }
 
-    protected _modelType: typeof Model;
-    protected _model: Model | null = null;
+    @property
+    get enableMorph () {
+        return this._enableMorph;
+    }
+
+    set enableMorph (value) {
+        this._enableMorph = value;
+    }
+
+    protected _modelType: typeof MorphModel;
+    protected _model: MorphModel | null = null;
+
+    private _morphInstance: MorphRenderingInstance | null = null;
+
+    @property
+    private _enableMorph = true;
 
     constructor () {
         super();
-        this._modelType = Model;
+        this._modelType = MorphModel;
     }
 
     public onLoad () {
+        if (this._mesh) {
+            this._mesh.acquireRenderResources();
+        }
+        this._watchMorphInMesh();
         this._updateModels();
         this._updateCastShadow();
     }
@@ -226,6 +251,15 @@ export class ModelComponent extends RenderableComponent {
             cc.director.root.destroyModel(this._model);
             this._model = null;
             this._models.length = 0;
+        }
+        if (this._morphInstance) {
+            this._morphInstance.destroy();
+        }
+    }
+
+    public setWeights (weights: number[], subMeshIndex: number) {
+        if (this._morphInstance) {
+            this._morphInstance.setWeights(subMeshIndex, weights);
         }
     }
 
@@ -270,6 +304,9 @@ export class ModelComponent extends RenderableComponent {
         this._model.initialize(this.node);
         this._models.length = 0;
         this._models.push(this._model);
+        if (this._morphInstance) {
+            this._model.setMorphRendering(this._morphInstance);
+        }
     }
 
     protected _attachToScene () {
@@ -360,5 +397,52 @@ export class ModelComponent extends RenderableComponent {
             }
         }
         return false;
+    }
+
+    private _watchMorphInMesh () {
+        if (this._morphInstance) {
+            // TODO: release render resources.
+            this._morphInstance = null;
+        }
+
+        if (!this._enableMorph) {
+            return;
+        }
+
+        if (!this._mesh ||
+            !this._mesh.struct.morph ||
+            !this._mesh.morphRendering) {
+            return;
+        }
+
+        const { morph } = this._mesh.struct;
+        this._morphInstance = this._mesh.morphRendering.createInstance();
+        const nSubMeshes = this._mesh.struct.primitives.length;
+        for (let iSubMesh = 0; iSubMesh < nSubMeshes; ++iSubMesh) {
+            const subMeshMorph = morph.subMeshMorphs[iSubMesh];
+            if (!subMeshMorph) {
+                continue;
+            }
+            const initialWeights =
+                subMeshMorph.weights ||
+                (morph.weights && morph.weights.length === subMeshMorph.targets.length, morph.weights);
+            const weights = initialWeights ?
+                initialWeights.slice() :
+                new Array<number>(subMeshMorph.targets.length).fill(0);
+            this._morphInstance.setWeights(iSubMesh, weights);
+        }
+
+        this._model?.setMorphRendering(this._morphInstance);
+    }
+
+    private _syncMorphWeights (subMeshIndex: number) {
+        if (!this._morphInstance) {
+            return;
+        }
+        const subMeshMorphInstance = this._morphInstance[subMeshIndex];
+        if (!subMeshMorphInstance || !subMeshMorphInstance.renderResources) {
+            return;
+        }
+        subMeshMorphInstance.renderResources.setWeights(subMeshMorphInstance.weights);
     }
 }

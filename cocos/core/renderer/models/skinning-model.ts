@@ -37,9 +37,10 @@ import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { Mat4, Vec3 } from '../../math';
 import { UBOSkinning } from '../../pipeline/define';
 import { Node } from '../../scene-graph/node';
-import { Pass } from '../core/pass';
+import { Pass, IMacroPatch } from '../core/pass';
 import { Model, ModelType } from '../scene/model';
 import { uploadJointData } from './skeletal-animation-utils';
+import { MorphModel } from './morph-model';
 
 export interface IJointTransform {
     node: Node;
@@ -52,7 +53,7 @@ export interface IJointTransform {
 const stack: IJointTransform[] = [];
 const pool: Map<string, IJointTransform> = new Map();
 
-const patches = [
+const myPatches = [
     { name: 'CC_USE_SKINNING', value: true },
 ];
 
@@ -146,7 +147,7 @@ const ab_1 = new aabb();
  * @zh
  * 实时计算动画的蒙皮模型。
  */
-export class SkinningModel extends Model {
+export class SkinningModel extends MorphModel {
 
     public uploadAnimation = null;
 
@@ -243,11 +244,11 @@ export class SkinningModel extends Model {
         subMeshData.vertexBuffers = original;
     }
 
-    protected createPipelineState (pass: Pass, subModelIdx: number) {
+    protected createPipelineState (pass: Pass, subModelIdx: number, patches?: IMacroPatch[]) {
         if (EDITOR && pass.instancedBuffer) {
             console.warn('real-time skeletal animation doesn\'t support instancing, expect rendering anomalies');
         }
-        const pso = super.createPipelineState(pass, subModelIdx, patches);
+        const pso = super.createPipelineState(pass, subModelIdx, patches?.concat(myPatches) ?? myPatches);
         const bindingLayout = pso.pipelineLayout.layouts[0];
         const buffer = this._buffers[this._bufferIndices![subModelIdx]];
         if (buffer) { bindingLayout.bindBuffer(UBOSkinning.BLOCK.binding, buffer); }

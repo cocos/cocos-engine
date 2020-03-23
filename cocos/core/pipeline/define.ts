@@ -90,14 +90,20 @@ export enum UniformBinding {
     UBO_FORWARD_LIGHTS = MAX_BINDING_SUPPORTED - 4,
     UBO_SKINNING_ANIMATION = MAX_BINDING_SUPPORTED - 5,
     UBO_SKINNING_TEXTURE = MAX_BINDING_SUPPORTED - 6,
+    UBO_UI = MAX_BINDING_SUPPORTED - 7,
+    UBO_MORPH = MAX_BINDING_SUPPORTED - 8,
+    UBO_BUILTIN_BINDING_END = MAX_BINDING_SUPPORTED - 9,
 
     // samplers
     SAMPLER_JOINTS = MAX_BINDING_SUPPORTED + 1,
     SAMPLER_ENVIRONMENT = MAX_BINDING_SUPPORTED + 2,
+    SAMPLER_MORPH_POSITION = MAX_BINDING_SUPPORTED + 3,
+    SAMPLER_MORPH_NORMAL = MAX_BINDING_SUPPORTED + 4,
+    SAMPLER_MORPH_TANGENT = MAX_BINDING_SUPPORTED + 5,
 
     // rooms left for custom bindings
     // effect importer prepares bindings according to this
-    CUSTUM_UBO_BINDING_END_POINT = MAX_BINDING_SUPPORTED - 6,
+    CUSTUM_UBO_BINDING_END_POINT = UniformBinding.UBO_BUILTIN_BINDING_END,
     CUSTOM_SAMPLER_BINDING_START_POINT = MAX_BINDING_SUPPORTED + 6,
 }
 
@@ -327,6 +333,64 @@ export const UniformJointTexture: GFXUniformSampler = {
 localBindingsDesc.set(UniformJointTexture.name, {
     type: GFXBindingType.SAMPLER,
     samplerInfo: UniformJointTexture,
+});
+
+export class UBOMorph {
+    public static readonly MAX_MORPH_TARGET_COUNT = 60;
+
+    public static readonly OFFSET_OF_WEIGHTS = 0;
+
+    public static readonly OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH = 4 * UBOMorph.MAX_MORPH_TARGET_COUNT;
+
+    public static readonly OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT = UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH + 4;
+
+    public static readonly COUNT_BASE_4_BYTES = 4 * Math.ceil(UBOMorph.MAX_MORPH_TARGET_COUNT / 4) + 4;
+
+    public static readonly SIZE = UBOMorph.COUNT_BASE_4_BYTES * 4;
+
+    public static readonly BLOCK: GFXUniformBlock = {
+        binding: UniformBinding.UBO_MORPH, name: 'CCMorph', members: [
+            { name: 'cc_displacementWeights', type: GFXType.FLOAT4, count: UBOMorph.MAX_MORPH_TARGET_COUNT / 4, },
+            { name: 'cc_displacementTextureInfo', type: GFXType.FLOAT4, count: 1, },
+        ],
+    };
+}
+localBindingsDesc.set(UBOMorph.BLOCK.name, {
+    type: GFXBindingType.UNIFORM_BUFFER,
+    blockInfo: UBOMorph.BLOCK,
+});
+
+/**
+ * 位置形变纹理采样器。
+ */
+export const UniformPositionMorphTexture: Readonly<GFXUniformSampler> = {
+    binding: UniformBinding.SAMPLER_MORPH_POSITION, name: 'cc_PositionDisplacements', type: GFXType.SAMPLER2D, count: 1,
+};
+localBindingsDesc.set(UniformPositionMorphTexture.name, {
+    type: GFXBindingType.SAMPLER,
+    samplerInfo: UniformPositionMorphTexture,
+});
+
+/**
+ * 法线形变纹理采样器。
+ */
+export const UniformNormalMorphTexture: Readonly<GFXUniformSampler> = {
+    binding: UniformBinding.SAMPLER_MORPH_NORMAL, name: 'cc_NormalDisplacements', type: GFXType.SAMPLER2D, count: 1,
+};
+localBindingsDesc.set(UniformNormalMorphTexture.name, {
+    type: GFXBindingType.SAMPLER,
+    samplerInfo: UniformNormalMorphTexture,
+});
+
+/**
+ * 切线形变纹理采样器。
+ */
+export const UniformTangentMorphTexture: Readonly<GFXUniformSampler> = {
+    binding: UniformBinding.SAMPLER_MORPH_TANGENT, name: 'cc_TangentDisplacements', type: GFXType.SAMPLER2D, count: 1,
+};
+localBindingsDesc.set(UniformTangentMorphTexture.name, {
+    type: GFXBindingType.SAMPLER,
+    samplerInfo: UniformTangentMorphTexture,
 });
 
 export interface IInternalBindingDesc {
