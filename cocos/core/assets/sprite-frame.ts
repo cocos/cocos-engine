@@ -717,7 +717,7 @@ export class SpriteFrame extends Asset {
             for (let row = 0; row < 4; ++row) {
                 const rowD = temp_uvs[row];
                 for (let col = 0; col < 4; ++col) {
-                    const colD = temp_uvs[col];
+                    const colD = temp_uvs[3 - col];
                     uvSliced.push({
                         u: rowD.u,
                         v: colD.v,

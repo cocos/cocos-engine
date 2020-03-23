@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { GFXBufferTextureCopy, GFXFormat, GFXFormatInfos, GFXFormatType, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../../gfx/define';
+import { getTypedArrayConstructor, GFXBufferTextureCopy, GFXFormat, GFXFormatInfos, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXTexture } from '../../gfx/texture';
 import { GFXTextureView } from '../../gfx/texture-view';
@@ -57,7 +57,7 @@ export class TextureBufferPool {
     private _region1 = new GFXBufferTextureCopy();
     private _region2 = new GFXBufferTextureCopy();
     private _roundUpFn: ((targetSize: number, formatSize: number) => number) | null = null;
-    private _bufferViewCtor: Uint8ArrayConstructor | Float32ArrayConstructor = Uint8Array;
+    private _bufferViewCtor: TypedArrayConstructor = Uint8Array;
     private _channels = 4;
     private _alignment = 1;
 
@@ -70,7 +70,7 @@ export class TextureBufferPool {
         this._format = info.format;
         this._formatSize = formatInfo.size;
         this._channels = formatInfo.count;
-        this._bufferViewCtor = formatInfo.type === GFXFormatType.FLOAT ? Float32Array : Uint8Array;
+        this._bufferViewCtor = getTypedArrayConstructor(formatInfo);
         this._roundUpFn = info.roundUpFn || null;
         this._alignment = info.alignment || 1;
         if (info.inOrderFree) { this.alloc = this._McDonaldAlloc; }
