@@ -25,7 +25,7 @@
  ****************************************************************************/
 #import "AppDelegate.h"
 #import "ViewController.h"
-#import "View.h"
+#import "platform/ios/CCView.h"
 
 #include "SDKWrapper.h"
 #include "Game.h"

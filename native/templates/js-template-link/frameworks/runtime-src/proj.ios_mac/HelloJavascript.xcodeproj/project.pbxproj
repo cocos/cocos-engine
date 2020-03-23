@@ -31,13 +31,11 @@
 		469FFB172410A76800581BFC /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 469FFB162410A76700581BFC /* AppDelegate.mm */; };
 		469FFB1D2410AAAF00581BFC /* libGLESv2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 469FFB1B2410AAAF00581BFC /* libGLESv2.dylib */; };
 		469FFB1E2410AAAF00581BFC /* libEGL.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 469FFB1C2410AAAF00581BFC /* libEGL.dylib */; };
-		469FFB262411054700581BFC /* KeyCodeHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 469FFB242411054700581BFC /* KeyCodeHelper.cpp */; };
 		46A4DEFA2416429000BE0499 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 46A4DEF82416429000BE0499 /* LaunchScreen.storyboard */; };
 		46BFDFA723CC0F4100CC5F8E /* Game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46BFDFA623CC0F4100CC5F8E /* Game.cpp */; };
 		46BFDFA823CC0F4100CC5F8E /* Game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46BFDFA623CC0F4100CC5F8E /* Game.cpp */; };
 		46BFDFBA23CC10E800CC5F8E /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 46BFDFB423CC10E700CC5F8E /* ViewController.mm */; };
 		46BFDFBB23CC10E800CC5F8E /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 46BFDFB623CC10E700CC5F8E /* AppDelegate.mm */; };
-		46BFDFBC23CC10E800CC5F8E /* View.mm in Sources */ = {isa = PBXBuildFile; fileRef = 46BFDFB723CC10E700CC5F8E /* View.mm */; };
 		46BFE04823CD5EA300CC5F8E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 46BFE04023CD5E7A00CC5F8E /* main.m */; };
 		46BFE04923CD5EA700CC5F8E /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 46BFE03E23CD5E7A00CC5F8E /* ViewController.mm */; };
 		46BFE04E23CD5F3800CC5F8E /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 46BFE04C23CD5F3800CC5F8E /* Metal.framework */; };
@@ -140,16 +138,12 @@
 		469FFB162410A76700581BFC /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
 		469FFB1B2410AAAF00581BFC /* libGLESv2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLESv2.dylib; path = ../../../../../external/mac/libs/libGLESv2.dylib; sourceTree = "<group>"; };
 		469FFB1C2410AAAF00581BFC /* libEGL.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libEGL.dylib; path = ../../../../../external/mac/libs/libEGL.dylib; sourceTree = "<group>"; };
-		469FFB242411054700581BFC /* KeyCodeHelper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KeyCodeHelper.cpp; sourceTree = "<group>"; };
-		469FFB252411054700581BFC /* KeyCodeHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyCodeHelper.h; sourceTree = "<group>"; };
 		46A4DEF92416429000BE0499 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = ios/Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		46BFDFA523CC0F4100CC5F8E /* Game.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Game.h; sourceTree = "<group>"; };
 		46BFDFA623CC0F4100CC5F8E /* Game.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Game.cpp; sourceTree = "<group>"; };
 		46BFDFB423CC10E700CC5F8E /* ViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ViewController.mm; path = ios/ViewController.mm; sourceTree = "<group>"; };
 		46BFDFB523CC10E700CC5F8E /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = ios/AppDelegate.h; sourceTree = "<group>"; };
 		46BFDFB623CC10E700CC5F8E /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = ios/AppDelegate.mm; sourceTree = "<group>"; };
-		46BFDFB723CC10E700CC5F8E /* View.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = View.mm; path = ios/View.mm; sourceTree = "<group>"; };
-		46BFDFB823CC10E700CC5F8E /* View.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = View.h; path = ios/View.h; sourceTree = "<group>"; };
 		46BFDFB923CC10E800CC5F8E /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ViewController.h; path = ios/ViewController.h; sourceTree = "<group>"; };
 		46BFE03C23CD5E7900CC5F8E /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		46BFE03D23CD5E7A00CC5F8E /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -290,8 +284,6 @@
 		509D4ACA17EBB2BE00697056 /* mac */ = {
 			isa = PBXGroup;
 			children = (
-				469FFB242411054700581BFC /* KeyCodeHelper.cpp */,
-				469FFB252411054700581BFC /* KeyCodeHelper.h */,
 				469FFB162410A76700581BFC /* AppDelegate.mm */,
 				46BFE03D23CD5E7A00CC5F8E /* AppDelegate.h */,
 				46BFE04023CD5E7A00CC5F8E /* main.m */,
@@ -380,8 +372,6 @@
 				46A4DEF82416429000BE0499 /* LaunchScreen.storyboard */,
 				46BFDFB523CC10E700CC5F8E /* AppDelegate.h */,
 				46BFDFB623CC10E700CC5F8E /* AppDelegate.mm */,
-				46BFDFB823CC10E700CC5F8E /* View.h */,
-				46BFDFB723CC10E700CC5F8E /* View.mm */,
 				46BFDFB923CC10E800CC5F8E /* ViewController.h */,
 				46BFDFB423CC10E700CC5F8E /* ViewController.mm */,
 				051C018221E32AE400D4A347 /* UserConfigIOS.debug.xcconfig */,
@@ -539,7 +529,6 @@
 				46BFE04823CD5EA300CC5F8E /* main.m in Sources */,
 				469FFB172410A76800581BFC /* AppDelegate.mm in Sources */,
 				46BFDFA823CC0F4100CC5F8E /* Game.cpp in Sources */,
-				469FFB262411054700581BFC /* KeyCodeHelper.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -549,7 +538,6 @@
 			files = (
 				46BFDFBA23CC10E800CC5F8E /* ViewController.mm in Sources */,
 				509D4AC817EBB2AB00697056 /* main.m in Sources */,
-				46BFDFBC23CC10E800CC5F8E /* View.mm in Sources */,
 				22CC757121BA5B5C00FBF2F7 /* SDKWrapper.m in Sources */,
 				46BFDFBB23CC10E800CC5F8E /* AppDelegate.mm in Sources */,
 				46BFDFA723CC0F4100CC5F8E /* Game.cpp in Sources */,
