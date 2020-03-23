@@ -1,5 +1,5 @@
 import { CachedArray } from '../../memop/cached-array';
-import { errorID } from '../../platform/debug';
+import { errorID, error } from '../../platform/debug';
 import { GFXBufferSource, IGFXDrawInfo, IGFXIndirectBuffer } from '../buffer';
 import {
     GFXBindingType,
@@ -2113,8 +2113,9 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                 break;
                             }
                             case GFXBindingType.SAMPLER: {
-
-                                if (gpuBinding.gpuSampler) {
+                                if (!gpuBinding.gpuSampler) {
+                                    error(`Sampler binding point ${gpuBinding.binding} '${gpuBinding.name}' is not bounded`);
+                                } else  {
 
                                     let glSampler: WebGLGPUUniformSampler | null = null;
 
@@ -2216,8 +2217,6 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                             }
                                         }
                                     } // if
-                                } else {
-                                    console.error('Not found sampler on binding unit ' + gpuBinding.binding);
                                 }
 
                                 break;
