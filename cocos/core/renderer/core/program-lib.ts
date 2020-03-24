@@ -315,8 +315,11 @@ class ProgramLib {
 
         let src = tmpl.glsl3;
         switch (device.gfxAPI) {
+            case GFXAPI.GLES2:
+            case GFXAPI.WEBGL:  src = tmpl.glsl1; break;
+            case GFXAPI.GLES3:
             case GFXAPI.WEBGL2: src = tmpl.glsl3; break;
-            default:            src = tmpl.glsl1; break;
+            default:  console.error("Invalid GFX API!"); break;
         }
 
         const blocks: IBlockInfoRT[] = [];
