@@ -323,7 +323,7 @@ let SkeletonData = cc.Class({
     },
 
     destroy () {
-        SkeletonCache.removeSkeleton(this._uuid);
+        SkeletonCache && SkeletonCache.removeSkeleton(this._uuid);
         this._super();
     },
 });
