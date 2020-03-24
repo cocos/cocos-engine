@@ -554,7 +554,7 @@ var audioEngine = {
             if (state === Audio.State.PLAYING) {
                 this._breakCache.push(id);
                 var context = audio._element._context;
-                if (context instanceof window.webkitAudioContext) {
+                if (window.webkitAudioContext && context instanceof window.webkitAudioContext) {
                     audio._element._context.suspend();
                 }
                 else {
@@ -572,7 +572,7 @@ var audioEngine = {
             var audio = getAudioFromId(id);
             if (!audio) return;
             var context = audio._element._context;
-            if (context instanceof window.webkitAudioContext) {
+            if (window.webkitAudioContext && context instanceof window.webkitAudioContext) {
                 audio._element._context.resume();
             }
             else if (audio.resume) {
