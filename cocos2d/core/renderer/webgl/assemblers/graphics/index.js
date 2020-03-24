@@ -250,6 +250,8 @@ export default class GraphicsAssembler extends Assembler {
                 start = 1;
                 end = pointsLength - 1;
             }
+
+            p1 = p1 || p0;
     
             if (!loop) {
                 // Add cap
