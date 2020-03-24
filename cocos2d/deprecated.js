@@ -513,9 +513,11 @@ if (CC_DEBUG) {
     ], 'cc.dynamicAtlasManager')
 
     // light component
-    markAsRemovedInObject(cc.Light.prototype, [
-        'shadowDepthScale',
-    ], 'cc.Light.prototype');
+    if (cc.Light) {
+        markAsRemovedInObject(cc.Light.prototype, [
+            'shadowDepthScale',
+        ], 'cc.Light.prototype');
+    }
 
     // Value types
     provideClearError(cc, {
