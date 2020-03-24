@@ -33,7 +33,6 @@ import { WebGL2GFXDevice } from './gfx/webgl2/webgl2-device';
 import { ForwardPipeline } from './pipeline';
 import * as debug from './platform/debug';
 import sys from './platform/sys';
-import { GFXAPI } from './gfx';
 
 /**
  * @en
