@@ -12889,6 +12889,42 @@ bool js_register_gfx_GFXObject(se::Object* obj)
 se::Object* __jsb_cocos2d_GFXDevice_proto = nullptr;
 se::Class* __jsb_cocos2d_GFXDevice_class = nullptr;
 
+static bool js_gfx_GFXDevice_getMaxUniformBlockSize(se::State& s)
+{
+    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getMaxUniformBlockSize : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->getMaxUniformBlockSize();
+        ok &= int32_to_seval((int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getMaxUniformBlockSize : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_GFXDevice_getMaxUniformBlockSize)
+
+static bool js_gfx_GFXDevice_getMaxVertexTextureUnits(se::State& s)
+{
+    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getMaxVertexTextureUnits : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->getMaxVertexTextureUnits();
+        ok &= int32_to_seval((int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getMaxVertexTextureUnits : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_GFXDevice_getMaxVertexTextureUnits)
+
 static bool js_gfx_GFXDevice_getNumInstances(se::State& s)
 {
     cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
@@ -12906,6 +12942,42 @@ static bool js_gfx_GFXDevice_getNumInstances(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_gfx_GFXDevice_getNumInstances)
+
+static bool js_gfx_GFXDevice_getMaxVertexUniformVectors(se::State& s)
+{
+    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getMaxVertexUniformVectors : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->getMaxVertexUniformVectors();
+        ok &= int32_to_seval((int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getMaxVertexUniformVectors : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_GFXDevice_getMaxVertexUniformVectors)
+
+static bool js_gfx_GFXDevice_getGfxAPI(se::State& s)
+{
+    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getGfxAPI : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = (int)cobj->getGfxAPI();
+        ok &= int32_to_seval((int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getGfxAPI : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_GFXDevice_getGfxAPI)
 
 static bool js_gfx_GFXDevice_getCommandAllocator(se::State& s)
 {
@@ -12982,6 +13054,25 @@ static bool js_gfx_GFXDevice_getWidth(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_GFXDevice_getWidth)
 
+static bool js_gfx_GFXDevice_setReverseCW(se::State& s)
+{
+    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_setReverseCW : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        bool arg0;
+        ok &= seval_to_boolean(args[0], &arg0);
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_setReverseCW : Error processing arguments");
+        cobj->setReverseCW(arg0);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_PROP_SET(js_gfx_GFXDevice_setReverseCW)
+
 static bool js_gfx_GFXDevice_createCommandAllocator(se::State& s)
 {
     cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
@@ -13021,6 +13112,42 @@ static bool js_gfx_GFXDevice_getQueue(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_GFXDevice_getQueue)
 
+static bool js_gfx_GFXDevice_getMaxVertexAttributes(se::State& s)
+{
+    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getMaxVertexAttributes : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->getMaxVertexAttributes();
+        ok &= int32_to_seval((int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getMaxVertexAttributes : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_GFXDevice_getMaxVertexAttributes)
+
+static bool js_gfx_GFXDevice_getDepthStencilFormat(se::State& s)
+{
+    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getDepthStencilFormat : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = (int)cobj->getDepthStencilFormat();
+        ok &= int32_to_seval((int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getDepthStencilFormat : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GFXDevice_getDepthStencilFormat)
+
 static bool js_gfx_GFXDevice_getNumTris(se::State& s)
 {
     cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
@@ -13057,23 +13184,41 @@ static bool js_gfx_GFXDevice_getRenderer(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_GFXDevice_getRenderer)
 
-static bool js_gfx_GFXDevice_getAPI(se::State& s)
+static bool js_gfx_GFXDevice_getStencilBits(se::State& s)
 {
     cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getAPI : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getStencilBits : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cobj->getAPI();
+        int result = cobj->getStencilBits();
         ok &= int32_to_seval((int)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getAPI : Error processing arguments");
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getStencilBits : Error processing arguments");
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXDevice_getAPI)
+SE_BIND_PROP_GET(js_gfx_GFXDevice_getStencilBits)
+
+static bool js_gfx_GFXDevice_getDeviceName(se::State& s)
+{
+    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getDeviceName : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const cocos2d::String& result = cobj->getDeviceName();
+        s.rval().setString(result);
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getDeviceName : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_GFXDevice_getDeviceName)
 
 static bool js_gfx_GFXDevice_getVendor(se::State& s)
 {
@@ -13110,6 +13255,24 @@ static bool js_gfx_GFXDevice_getHeight(se::State& s)
     return false;
 }
 SE_BIND_PROP_GET(js_gfx_GFXDevice_getHeight)
+
+static bool js_gfx_GFXDevice_getMaxFragmentUniformVectors(se::State& s)
+{
+    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getMaxFragmentUniformVectors : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->getMaxFragmentUniformVectors();
+        ok &= int32_to_seval((int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getMaxFragmentUniformVectors : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_GFXDevice_getMaxFragmentUniformVectors)
 
 static bool js_gfx_GFXDevice_createPipelineState(se::State& s)
 {
@@ -13204,6 +13367,24 @@ static bool js_gfx_GFXDevice_destroy(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_GFXDevice_destroy)
 
+static bool js_gfx_GFXDevice_getColorFormat(se::State& s)
+{
+    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getColorFormat : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = (int)cobj->getColorFormat();
+        ok &= int32_to_seval((int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getColorFormat : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GFXDevice_getColorFormat)
+
 static bool js_gfx_GFXDevice_createFramebuffer(se::State& s)
 {
     cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
@@ -13224,6 +13405,24 @@ static bool js_gfx_GFXDevice_createFramebuffer(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_gfx_GFXDevice_createFramebuffer)
+
+static bool js_gfx_GFXDevice_getMaxTextureSize(se::State& s)
+{
+    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getMaxTextureSize : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->getMaxTextureSize();
+        ok &= int32_to_seval((int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getMaxTextureSize : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_GFXDevice_getMaxTextureSize)
 
 static bool js_gfx_GFXDevice_createRenderPass(se::State& s)
 {
@@ -13288,6 +13487,60 @@ static bool js_gfx_GFXDevice_createWindow(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_GFXDevice_createWindow)
 
+static bool js_gfx_GFXDevice_getMaxCubeMapTextureSize(se::State& s)
+{
+    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getMaxCubeMapTextureSize : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->getMaxCubeMapTextureSize();
+        ok &= int32_to_seval((int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getMaxCubeMapTextureSize : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_GFXDevice_getMaxCubeMapTextureSize)
+
+static bool js_gfx_GFXDevice_getShaderIdGen(se::State& s)
+{
+    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getShaderIdGen : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getShaderIdGen();
+        ok &= uint32_to_seval((unsigned int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getShaderIdGen : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_GFXDevice_getShaderIdGen)
+
+static bool js_gfx_GFXDevice_getMaxUniformBufferBindings(se::State& s)
+{
+    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getMaxUniformBufferBindings : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->getMaxUniformBufferBindings();
+        ok &= int32_to_seval((int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getMaxUniformBufferBindings : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_GFXDevice_getMaxUniformBufferBindings)
+
 static bool js_gfx_GFXDevice_createShader(se::State& s)
 {
     cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
@@ -13329,6 +13582,27 @@ static bool js_gfx_GFXDevice_createInputAssembler(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_gfx_GFXDevice_createInputAssembler)
+
+static bool js_gfx_GFXDevice_defineMacro(se::State& s)
+{
+    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_defineMacro : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        cocos2d::String arg0;
+        cocos2d::String arg1;
+        arg0 = args[0].toStringForce().c_str();
+        arg1 = args[1].toStringForce().c_str();
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_defineMacro : Error processing arguments");
+        cobj->defineMacro(arg0, arg1);
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GFXDevice_defineMacro)
 
 static bool js_gfx_GFXDevice_createSampler(se::State& s)
 {
@@ -13453,6 +13727,24 @@ static bool js_gfx_GFXDevice_createQueue(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_GFXDevice_createQueue)
 
+static bool js_gfx_GFXDevice_getDepthBits(se::State& s)
+{
+    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getDepthBits : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->getDepthBits();
+        ok &= int32_to_seval((int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getDepthBits : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_GFXDevice_getDepthBits)
+
 static bool js_gfx_GFXDevice_getMemoryStatus(se::State& s)
 {
     cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
@@ -13470,6 +13762,42 @@ static bool js_gfx_GFXDevice_getMemoryStatus(se::State& s)
     return false;
 }
 SE_BIND_PROP_GET(js_gfx_GFXDevice_getMemoryStatus)
+
+static bool js_gfx_GFXDevice_getMaxTextureUnits(se::State& s)
+{
+    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getMaxTextureUnits : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->getMaxTextureUnits();
+        ok &= int32_to_seval((int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getMaxTextureUnits : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_GFXDevice_getMaxTextureUnits)
+
+static bool js_gfx_GFXDevice_getReverseCW(se::State& s)
+{
+    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getReverseCW : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->getReverseCW();
+        ok &= boolean_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getReverseCW : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_GFXDevice_getReverseCW)
 
 static bool js_gfx_GFXDevice_getMainWindow(se::State& s)
 {
@@ -13574,34 +13902,51 @@ bool js_register_gfx_GFXDevice(se::Object* obj)
 {
     auto cls = se::Class::create("GFXDevice", obj, nullptr, nullptr);
 
-    cls->defineProperty("nativeHeight", _SE(js_gfx_GFXDevice_getNativeHeight), nullptr);
+    cls->defineProperty("deviceName", _SE(js_gfx_GFXDevice_getDeviceName), nullptr);
+    cls->defineProperty("maxTextureUnits", _SE(js_gfx_GFXDevice_getMaxTextureUnits), nullptr);
+    cls->defineProperty("height", _SE(js_gfx_GFXDevice_getHeight), nullptr);
+    cls->defineProperty("shaderIdGen", _SE(js_gfx_GFXDevice_getShaderIdGen), nullptr);
+    cls->defineProperty("renderer", _SE(js_gfx_GFXDevice_getRenderer), nullptr);
+    cls->defineProperty("maxUniformBufferBindings", _SE(js_gfx_GFXDevice_getMaxUniformBufferBindings), nullptr);
+    cls->defineProperty("vendor", _SE(js_gfx_GFXDevice_getVendor), nullptr);
+    cls->defineProperty("depthBits", _SE(js_gfx_GFXDevice_getDepthBits), nullptr);
+    cls->defineProperty("reverseCW", _SE(js_gfx_GFXDevice_getReverseCW), _SE(js_gfx_GFXDevice_setReverseCW));
+    cls->defineProperty("maxFragmentUniformVectors", _SE(js_gfx_GFXDevice_getMaxFragmentUniformVectors), nullptr);
+    cls->defineProperty("maxVertexAttributes", _SE(js_gfx_GFXDevice_getMaxVertexAttributes), nullptr);
+    cls->defineProperty("width", _SE(js_gfx_GFXDevice_getWidth), nullptr);
+    cls->defineProperty("commandAllocator", _SE(js_gfx_GFXDevice_getCommandAllocator), nullptr);
+    cls->defineProperty("maxVertexUniformVectors", _SE(js_gfx_GFXDevice_getMaxVertexUniformVectors), nullptr);
+    cls->defineProperty("maxCubeMapTextureSize", _SE(js_gfx_GFXDevice_getMaxCubeMapTextureSize), nullptr);
+    cls->defineProperty("maxVertexTextureUnits", _SE(js_gfx_GFXDevice_getMaxVertexTextureUnits), nullptr);
     cls->defineProperty("nativeWidth", _SE(js_gfx_GFXDevice_getNativeWidth), nullptr);
     cls->defineProperty("numDrawCalls", _SE(js_gfx_GFXDevice_getNumDrawCalls), nullptr);
     cls->defineProperty("memoryStatus", _SE(js_gfx_GFXDevice_getMemoryStatus), nullptr);
+    cls->defineProperty("gfxAPI", _SE(js_gfx_GFXDevice_getGfxAPI), nullptr);
+    cls->defineProperty("maxUniformBlockSize", _SE(js_gfx_GFXDevice_getMaxUniformBlockSize), nullptr);
+    cls->defineProperty("maxTextureSize", _SE(js_gfx_GFXDevice_getMaxTextureSize), nullptr);
+    cls->defineProperty("nativeHeight", _SE(js_gfx_GFXDevice_getNativeHeight), nullptr);
     cls->defineProperty("numTris", _SE(js_gfx_GFXDevice_getNumTris), nullptr);
-    cls->defineProperty("height", _SE(js_gfx_GFXDevice_getHeight), nullptr);
+    cls->defineProperty("stencilBits", _SE(js_gfx_GFXDevice_getStencilBits), nullptr);
     cls->defineProperty("queue", _SE(js_gfx_GFXDevice_getQueue), nullptr);
-    cls->defineProperty("width", _SE(js_gfx_GFXDevice_getWidth), nullptr);
-    cls->defineProperty("commandAllocator", _SE(js_gfx_GFXDevice_getCommandAllocator), nullptr);
-    cls->defineProperty("renderer", _SE(js_gfx_GFXDevice_getRenderer), nullptr);
     cls->defineProperty("context", _SE(js_gfx_GFXDevice_getContext), nullptr);
-    cls->defineProperty("vendor", _SE(js_gfx_GFXDevice_getVendor), nullptr);
     cls->defineProperty("mainWindow", _SE(js_gfx_GFXDevice_getMainWindow), nullptr);
     cls->defineFunction("getNumInstances", _SE(js_gfx_GFXDevice_getNumInstances));
     cls->defineFunction("hasFeature", _SE(js_gfx_GFXDevice_hasFeature));
     cls->defineFunction("createCommandAllocator", _SE(js_gfx_GFXDevice_createCommandAllocator));
-    cls->defineFunction("getAPI", _SE(js_gfx_GFXDevice_getAPI));
+    cls->defineFunction("getDepthStencilFormat", _SE(js_gfx_GFXDevice_getDepthStencilFormat));
     cls->defineFunction("createPipelineState", _SE(js_gfx_GFXDevice_createPipelineState));
     cls->defineFunction("createCommandBuffer", _SE(js_gfx_GFXDevice_createCommandBuffer));
     cls->defineFunction("present", _SE(js_gfx_GFXDevice_present));
     cls->defineFunction("createTexture", _SE(js_gfx_GFXDevice_createTexture));
     cls->defineFunction("destroy", _SE(js_gfx_GFXDevice_destroy));
+    cls->defineFunction("getColorFormat", _SE(js_gfx_GFXDevice_getColorFormat));
     cls->defineFunction("createFramebuffer", _SE(js_gfx_GFXDevice_createFramebuffer));
     cls->defineFunction("createRenderPass", _SE(js_gfx_GFXDevice_createRenderPass));
     cls->defineFunction("createPipelineLayout", _SE(js_gfx_GFXDevice_createPipelineLayout));
     cls->defineFunction("createWindow", _SE(js_gfx_GFXDevice_createWindow));
     cls->defineFunction("createShader", _SE(js_gfx_GFXDevice_createShader));
     cls->defineFunction("createInputAssembler", _SE(js_gfx_GFXDevice_createInputAssembler));
+    cls->defineFunction("defineMacro", _SE(js_gfx_GFXDevice_defineMacro));
     cls->defineFunction("createSampler", _SE(js_gfx_GFXDevice_createSampler));
     cls->defineFunction("createBuffer", _SE(js_gfx_GFXDevice_createBuffer));
     cls->defineFunction("initialize", _SE(js_gfx_GFXDevice_initialize));
@@ -13657,6 +14002,24 @@ static bool js_gfx_GFXWindow_getDepthStencilTexture(se::State& s)
     return false;
 }
 SE_BIND_PROP_GET(js_gfx_GFXWindow_getDepthStencilTexture)
+
+static bool js_gfx_GFXWindow_getDepthStencilFormat(se::State& s)
+{
+    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_getDepthStencilFormat : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = (int)cobj->getDepthStencilFormat();
+        ok &= int32_to_seval((int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_getDepthStencilFormat : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_GFXWindow_getDepthStencilFormat)
 
 static bool js_gfx_GFXWindow_getFramebuffer(se::State& s)
 {
@@ -13783,24 +14146,6 @@ static bool js_gfx_GFXWindow_getColorTexture(se::State& s)
     return false;
 }
 SE_BIND_PROP_GET(js_gfx_GFXWindow_getColorTexture)
-
-static bool js_gfx_GFXWindow_getDetphStencilFormat(se::State& s)
-{
-    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_getDetphStencilFormat : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        int result = (int)cobj->getDetphStencilFormat();
-        ok &= int32_to_seval((int)result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_getDetphStencilFormat : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_GFXWindow_getDetphStencilFormat)
 
 static bool js_gfx_GFXWindow_getWidth(se::State& s)
 {
@@ -14033,7 +14378,7 @@ bool js_register_gfx_GFXWindow(se::Object* obj)
     cls->defineProperty("colorFormat", _SE(js_gfx_GFXWindow_getColorFormat), nullptr);
     cls->defineProperty("colorTexture", _SE(js_gfx_GFXWindow_getColorTexture), nullptr);
     cls->defineProperty("left", _SE(js_gfx_GFXWindow_getLeft), nullptr);
-    cls->defineFunction("getDetphStencilFormat", _SE(js_gfx_GFXWindow_getDetphStencilFormat));
+    cls->defineFunction("getDepthStencilFormat", _SE(js_gfx_GFXWindow_getDepthStencilFormat));
     cls->defineFunction("initialize", _SE(js_gfx_GFXWindow_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_GFXWindow_destroy));
     cls->defineFunction("resize", _SE(js_gfx_GFXWindow_resize));
