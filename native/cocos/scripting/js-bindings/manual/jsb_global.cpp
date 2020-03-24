@@ -514,8 +514,7 @@ static bool JSBCore_os(se::State& s)
 #elif (CC_PLATFORM == CC_PLATFORM_LINUX)
     os.setString("Linux");
 #elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
-    os.setString("macOS");
-    os.setString("Unknown");
+    os.setString("OS X");
 #endif
 
     s.rval() = os;

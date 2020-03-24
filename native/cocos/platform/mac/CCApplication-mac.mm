@@ -122,7 +122,10 @@ void Application::setDisplayStats(bool isShow)
 
 void Application::setCursorEnabled(bool value)
 {
-    // TODO
+    if (value)
+        CGDisplayShowCursor(kCGDirectMainDisplay);
+    else
+        CGDisplayHideCursor(kCGDirectMainDisplay);
 }
 
 Application::LanguageType Application::getCurrentLanguage() const
