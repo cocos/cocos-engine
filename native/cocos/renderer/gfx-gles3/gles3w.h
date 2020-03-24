@@ -6,6 +6,8 @@
         #   include <OpenGLES/ES3/gl.h>
             // Prevent Apple's non-standard extension header from being included
         #   define __gl_es30ext_h_
+    #else
+        #    include<GLES3/gl3.h>
     #endif
 #else
     #   include <GLES3/gl3.h>

@@ -72,7 +72,7 @@ GLES3Context::GLES3Context(GFXDevice* device)
 GLES3Context::~GLES3Context() {
 }
 
-#if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_OSX)
 
 bool GLES3Context::initialize(const GFXContextInfo &info) {
   

@@ -4,15 +4,11 @@
 #include "scripting/js-bindings/jswrapper/SeApi.h"
 #include "scripting/js-bindings/auto/jsb_gfx_auto.hpp"
 #include "platform/CCPlatformConfig.h"
+#include "scripting/js-bindings/auto/jsb_gles3_auto.hpp"
+#include "renderer/gfx-gles3/GFXGLES3.h"
 
-// iOS only support GLES3
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-#define USE_GLES3
-#elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
 #define USE_GLES2
-#else
-#define USE_GLES2
-#define USE_GLES3
 #endif
 
 #ifdef USE_GLES2
@@ -20,10 +16,9 @@
 #include "renderer/gfx-gles2/GFXGLES2.h"
 #endif
 
-#ifdef USE_GLES3
-#include "scripting/js-bindings/auto/jsb_gles3_auto.hpp"
-#include "renderer/gfx-gles3/GFXGLES3.h"
-#endif
+
+
+
 
 #include <fstream>
 #include <sstream>
@@ -150,7 +145,6 @@ static bool js_gfx_GLES2Device_copyTexImagesToTexture(se::State& s)
 SE_BIND_FUNC(js_gfx_GLES2Device_copyTexImagesToTexture);
 #endif // USE_GLES2
 
-#ifdef USE_GLES3
 static bool js_gfx_GLES3Device_copyBuffersToTexture(se::State& s)
 {
     cocos2d::GLES3Device* cobj = (cocos2d::GLES3Device*)s.nativeThisObject();
@@ -166,7 +160,6 @@ static bool js_gfx_GLES3Device_copyTexImagesToTexture(se::State& s)
     return js_GFXDevice_copyTexImagesToTexture(s, cobj);
 }
 SE_BIND_FUNC(js_gfx_GLES3Device_copyTexImagesToTexture);
-#endif
 
 static bool js_gfx_GFXBuffer_update(se::State& s)
 {
@@ -716,11 +709,9 @@ bool register_all_gfx_manual(se::Object* obj)
     __jsb_cocos2d_GLES2Device_proto->defineFunction("copyTexImagesToTexture", _SE(js_gfx_GLES2Device_copyTexImagesToTexture));
 #endif // USE_GLES2
     
-#ifdef USE_GLES3
     register_all_gles3(obj);
     __jsb_cocos2d_GLES3Device_proto->defineFunction("copyBuffersToTexture", _SE(js_gfx_GLES3Device_copyBuffersToTexture));
     __jsb_cocos2d_GLES3Device_proto->defineFunction("copyTexImagesToTexture", _SE(js_gfx_GLES3Device_copyTexImagesToTexture));
-#endif // USE_GLES2
     
     return true;
 }
