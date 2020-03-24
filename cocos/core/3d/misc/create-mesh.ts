@@ -156,7 +156,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMes
     }
 
     // Create primitive.
-    const primitive: Mesh.ISubmesh = {
+    const primitive: Mesh.ISubMesh = {
         primitiveMode: geometry.primitiveMode || GFXPrimitiveMode.TRIANGLE_LIST,
         vertexBundelIndices: [0],
     };
