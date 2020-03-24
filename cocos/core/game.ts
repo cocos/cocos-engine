@@ -875,13 +875,13 @@ export class Game extends EventTarget {
 
             // useWebGL2 = false;
             if (CC_JSB) { 
-                if (cc.sys.os === 'iOS') {
+                if (cc.sys.os === sys.OS_IOS) {
                     // @ts-ignore
                     this._gfxDevice = new gfx.GLES3Device();
                     if (this._gfxDevice) {
                         this._gfxDevice.initialize(opts);
                     }
-                } else if(cc.sys.os === 'OS X' || cc.sys.os === 'Windows') {
+                } else if(cc.sys.os === sys.OS_OSX || cc.sys.os === sys.OS_WINDOWS) {
                     // @ts-ignore
                     this._gfxDevice = new gfx.GLES2Device();
                     if (this._gfxDevice) {
