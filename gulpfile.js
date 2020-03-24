@@ -62,6 +62,8 @@ gulp.task('build', gulp.parallel('build-code-minified', 'build-declarations'));
 
 gulp.task('code-check', () => {
     return cp.exec(`tsc --noEmit`, {
+        shell: true,
+        stdio: 'inherit',
         cwd: __dirname,
     });
 });

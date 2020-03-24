@@ -865,17 +865,6 @@ export class Game extends EventTarget {
                 useWebGL2 = false;
             }
 
-            // useWebGL2 = false;
-            if (CC_JSB) {
-                // @ts-ignore
-                this._gfxDevice = new gfx.GLES2Device();
-            }
-            else if (useWebGL2 && cc.WebGL2GFXDevice) {
-                this._gfxDevice = new cc.WebGL2GFXDevice();
-            } else if (cc.WebGLGFXDevice) {
-                this._gfxDevice = new cc.WebGLGFXDevice();
-            }
-
             const opts = {
                 canvasElm: localCanvas,
                 debug: true,
@@ -883,11 +872,56 @@ export class Game extends EventTarget {
                 nativeWidth: Math.floor(screen.width * window.devicePixelRatio),
                 nativeHeight: Math.floor(screen.height * window.devicePixelRatio),
             };
-            // fallback if WebGL2 is actually unavailable (usually due to driver issues)
-            if (!this._gfxDevice!.initialize(opts) && useWebGL2) {
-                this._gfxDevice = new cc.WebGLGFXDevice();
-                this._gfxDevice!.initialize(opts);
+
+            // useWebGL2 = false;
+            if (CC_JSB) { 
+                if (cc.sys.os === 'iOS') {
+                    // @ts-ignore
+                    this._gfxDevice = new gfx.GLES3Device();
+                    if (this._gfxDevice) {
+                        this._gfxDevice.initialize(opts);
+                    }
+                } else if(cc.sys.os === 'OS X' || cc.sys.os === 'Windows') {
+                    // @ts-ignore
+                    this._gfxDevice = new gfx.GLES2Device();
+                    if (this._gfxDevice) {
+                        this._gfxDevice.initialize(opts);
+                    }
+                } else {
+                    // Android
+                    // - check support GLES3 first
+                    // - if not, use GLES2
+                    
+                    // @ts-ignore
+                    this._gfxDevice = new gfx.GLES3Device();
+                    if (this._gfxDevice) {
+                        if (!this._gfxDevice.initialize(opts) ) {
+                            this._gfxDevice = null;
+                        }
+                    }
+
+                    if (!this._gfxDevice) {
+                        //@ts-ignore
+                        this._gfxDevice = new gfx.GLES2Device();
+                        if (this._gfxDevice) {
+                            this._gfxDevice.initialize(opts);
+                        }
+                    }
+                }
             }
+            else {
+                if (useWebGL2 && cc.WebGL2GFXDevice) {
+                    this._gfxDevice = new cc.WebGL2GFXDevice();
+                } else if (cc.WebGLGFXDevice) {
+                    this._gfxDevice = new cc.WebGLGFXDevice();
+                }
+    
+                // fallback if WebGL2 is actually unavailable (usually due to driver issues)
+                if (!this._gfxDevice!.initialize(opts) && useWebGL2) {
+                    this._gfxDevice = new cc.WebGLGFXDevice();
+                    this._gfxDevice!.initialize(opts);
+                }
+            }  
         }
 
         if (!this._gfxDevice) {
