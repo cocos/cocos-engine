@@ -376,7 +376,7 @@ export declare namespace Mesh {
     /**
      * 子网格。子网格由一系列相同类型的图元组成（例如点、线、面等）。
      */
-    export interface ISubmesh {
+    export interface ISubMesh {
         /**
          * 此子网格引用的顶点块，索引至网格的顶点块数组。
          */
@@ -412,7 +412,7 @@ export declare namespace Mesh {
         /**
          * 此网格的所有子网格。
          */
-        primitives: ISubmesh[];
+        primitives: ISubMesh[];
 
         /**
          * （各分量都）小于等于此网格任何顶点位置的最大位置。
@@ -564,7 +564,7 @@ export class Mesh extends Asset {
         const gfxDevice: GFXDevice = cc.director.root.device;
         const vertexBuffers = this._createVertexBuffers(gfxDevice, buffer);
         const indexBuffers: GFXBuffer[] = [];
-        const submeshes: RenderingSubMesh[] = [];
+        const subMeshes: RenderingSubMesh[] = [];
 
         for (let i = 0; i < this._struct.primitives.length; i++) {
             const prim = this._struct.primitives[i];
@@ -624,10 +624,10 @@ export class Mesh extends Asset {
             const subMesh = new RenderingSubMesh(vbReference, gfxAttributes, prim.primitiveMode);
             subMesh.mesh = this; subMesh.subMeshIdx = i; subMesh.indexBuffer = indexBuffer;
 
-            submeshes.push(subMesh);
+            subMeshes.push(subMesh);
         }
 
-        this._renderingSubMeshes = submeshes;
+        this._renderingSubMeshes = subMeshes;
         
         if (this._struct.morph) {
             this.morphRendering = createMorphRendering(this, gfxDevice);
@@ -912,7 +912,7 @@ export class Mesh extends Asset {
         let srcIBView: Uint8Array | Uint16Array | Uint32Array;
         let dstIBView: Uint8Array | Uint16Array | Uint32Array;
 
-        const primitives: Mesh.ISubmesh[] = new Array<Mesh.ISubmesh>(this._struct.primitives.length);
+        const primitives: Mesh.ISubMesh[] = new Array<Mesh.ISubMesh>(this._struct.primitives.length);
         for (let i = 0; i < this._struct.primitives.length; ++i) {
             const prim = this._struct.primitives[i];
             const dstPrim = mesh._struct.primitives[i];
