@@ -7,7 +7,9 @@
 
 NS_CC_BEGIN
 
-GLenum MapGLInternalFormat(GFXFormat format) {
+namespace
+{
+  GLenum MapGLInternalFormat(GFXFormat format) {
   switch (format) {
     case GFXFormat::A8: return GL_ALPHA;
     case GFXFormat::L8: return GL_LUMINANCE;
@@ -470,6 +472,7 @@ const GLenum GLES3_BLEND_FACTORS[] = {
   GL_CONSTANT_ALPHA,
   GL_ONE_MINUS_CONSTANT_ALPHA,
 };
+}
 
 void GLES3CmdFuncCreateBuffer(GLES3Device* device, GLES3GPUBuffer* gpuBuffer) {
   GLenum glUsage = (gpuBuffer->memUsage & GFXMemoryUsageBit::HOST ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW);

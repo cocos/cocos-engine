@@ -26,7 +26,7 @@
 #include <android_native_app_glue.h>
 #include <android/log.h>
 #include <unordered_map>
-#include "platform/android/CCFileUtils-android.h"
+#include "platform/android/jni/JniHelper.h"
 #include "platform/android/CCView.h"
 #include "Game.h"
 

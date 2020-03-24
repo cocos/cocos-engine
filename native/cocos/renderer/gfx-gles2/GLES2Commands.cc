@@ -7,6 +7,8 @@
 
 NS_CC_BEGIN
 
+namespace
+{
 GLenum MapGLInternalFormat(GFXFormat format) {
   switch (format) {
     case GFXFormat::A8: return GL_ALPHA;
@@ -423,6 +425,7 @@ const GLenum GLES2_BLEND_FACTORS[] = {
   GL_CONSTANT_ALPHA,
   GL_ONE_MINUS_CONSTANT_ALPHA,
 };
+}
 
 void GLES2CmdFuncCreateBuffer(GLES2Device* device, GLES2GPUBuffer* gpuBuffer) {
   GLenum glUsage = (gpuBuffer->memUsage & GFXMemoryUsageBit::HOST ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW);
