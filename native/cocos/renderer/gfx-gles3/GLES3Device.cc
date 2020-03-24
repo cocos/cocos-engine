@@ -30,7 +30,8 @@ GLES3Device::~GLES3Device()
 
 bool GLES3Device::initialize(const GFXDeviceInfo& info)
 {
-    _api = GFXAPI::GLES3;
+    _gfxAPI = GFXAPI::GLES3;
+    _deviceName = "GLES3";
     _width = info.width;
     _height = info.height;
     _nativeWidth = info.nativeWidth;
@@ -108,7 +109,7 @@ bool GLES3Device::initialize(const GFXDeviceInfo& info)
 
     GFXWindowInfo window_info;
     window_info.colorFmt = _context->getColorFormat();
-    window_info.depthStencilFmt = _context->getDetphStencilFormat();
+    window_info.depthStencilFmt = _context->getDepthStencilFormat();
     window_info.isOffscreen = false;
     _window = createWindow(window_info);
 
@@ -118,6 +119,17 @@ bool GLES3Device::initialize(const GFXDeviceInfo& info)
 
     GFXCommandAllocatorInfo cmd_alloc_info;
     _cmdAllocator = createCommandAllocator(cmd_alloc_info);
+
+    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &_maxVertexAttributes);
+    glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, &_maxVertexUniformVectors);
+    glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, &_maxFragmentUniformVectors);
+    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &_maxTextureUnits);
+    glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &_maxVertexTextureUnits);
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &_maxTextureSize);
+    glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &_maxCubeMapTextureSize);
+    glGetIntegerv(GL_DEPTH_BITS, &_depthBits);
+    glGetIntegerv(GL_STENCIL_BITS, &_stencilBits);
+    glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &_maxCubeMapTextureSize);
 
     return true;
 }

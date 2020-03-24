@@ -55,40 +55,18 @@ static CFURLRef g_es3BundleURL;
 
 static int open_libgl(void)
 {
-    CFStringRef frameworkPath = CFSTR("/System/Library/Frameworks/OpenGLES.framework");
-    NSString *sysVersion = [UIDevice currentDevice].systemVersion;
-    NSArray *sysVersionComponents = [sysVersion componentsSeparatedByString:@"."];
-	//BOOL isSimulator = ([[UIDevice currentDevice].model rangeOfString:@"Simulator"].location != NSNotFound);
-	
 #if TARGET_IPHONE_SIMULATOR
-	bool isSimulator = true;
+    CFStringRef frameworkPath = CFSTR("/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/OpenGLES.framework");
 #else
-	bool isSimulator = false;
+    CFStringRef frameworkPath = CFSTR("/System/Library/Frameworks/OpenGLES.framework");
 #endif
-	if(isSimulator)
-    {
-        // Ask where Xcode is installed
-        std::string xcodePath = "/Applications/Xcode.app/Contents/Developer\n";
-
-        // The result contains an end line character. Remove it.
-        size_t pos = xcodePath.find("\n");
-        xcodePath.erase(pos);
-
-        char tempPath[PATH_MAX];
-        sprintf(tempPath,
-                "%s/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator%s.%s.sdk/System/Library/Frameworks/OpenGLES.framework",
-                xcodePath.c_str(),
-                [[sysVersionComponents objectAtIndex:0] cStringUsingEncoding:NSUTF8StringEncoding],
-                [[sysVersionComponents objectAtIndex:1] cStringUsingEncoding:NSUTF8StringEncoding]);
-        frameworkPath = CFStringCreateWithCString(kCFAllocatorDefault, tempPath, kCFStringEncodingUTF8);
-    }
-
+    
     g_es3BundleURL = CFURLCreateWithFileSystemPath(kCFAllocatorDefault,
-                                              frameworkPath,
-                                              kCFURLPOSIXPathStyle, true);
-
+                                                   frameworkPath,
+                                                   kCFURLPOSIXPathStyle, true);
+    
     CFRelease(frameworkPath);
-
+    
     g_es3Bundle = CFBundleCreate(kCFAllocatorDefault, g_es3BundleURL);
     
     return (g_es3Bundle != NULL);
@@ -158,7 +136,8 @@ int gles3wInit(void)
 {
 	if (!open_libgl())
 	{
-		return 0;
+        NSLog(@"Failed to open libgl");
+        return 0;
 	}
 
     load_procs();

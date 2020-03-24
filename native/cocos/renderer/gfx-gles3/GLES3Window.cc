@@ -150,6 +150,7 @@ void GLES3Window::resize(uint width, uint height) {
       _framebuffer->destroy();
 
       GFXFramebufferInfo fboInfo;
+      fboInfo.isOffscreen = _isOffscreen;
       fboInfo.renderPass = _renderPass;
       fboInfo.colorViews.push_back(_colorTexView);
       fboInfo.depthStencilView = _depthStencilTexView;

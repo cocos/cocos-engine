@@ -257,7 +257,7 @@ bool GLES3Context::initialize(const GFXContextInfo &info) {
     _eglConfig = sharedCtx->egl_config();
     _eglSharedContext = sharedCtx->egl_shared_ctx();
     _colorFmt = sharedCtx->getColorFormat();
-    _depthStencilFmt = sharedCtx->getDetphStencilFormat();
+    _depthStencilFmt = sharedCtx->getDepthStencilFormat();
 
     EGLint pbuff_attribs[] =
     {

@@ -32,7 +32,8 @@ class CC_CORE_API GFXDevice : public Object {
   virtual GFXPipelineLayout* createPipelineLayout(const GFXPipelineLayoutInfo& info) = 0;
   virtual void copyBuffersToTexture(const GFXDataArray& buffers, GFXTexture* dst, const GFXBufferTextureCopyList& regions) = 0;
 
-  CC_INLINE GFXAPI getAPI() const { return _api; }
+  CC_INLINE GFXAPI getGfxAPI() const { return _gfxAPI; }
+  CC_INLINE const String& getDeviceName() const { return _deviceName; }
   CC_INLINE uint getWidth() { return _width; }
   CC_INLINE uint getHeight() { return _height; }
   CC_INLINE uint getNativeWidth() { return _nativeWidth; }
@@ -47,11 +48,28 @@ class CC_CORE_API GFXDevice : public Object {
   CC_INLINE uint getNumDrawCalls() const { return _numDrawCalls; }
   CC_INLINE uint getNumInstances() const { return _numInstances; }
   CC_INLINE uint getNumTris() const { return _numTriangles; }
+  CC_INLINE int getMaxVertexAttributes() const { return _maxVertexAttributes; }
+  CC_INLINE int getMaxVertexUniformVectors() const { return _maxVertexUniformVectors; }
+  CC_INLINE int getMaxFragmentUniformVectors() const { return _maxFragmentUniformVectors; }
+  CC_INLINE int getMaxTextureUnits() const { return _maxTextureUnits; }
+  CC_INLINE int getMaxVertexTextureUnits() const { return _maxVertexTextureUnits; }
+  CC_INLINE int getMaxUniformBufferBindings() const { return _maxUniformBufferBindings; }
+  CC_INLINE int getMaxUniformBlockSize() const { return _maxUniformBlockSize; }
+  CC_INLINE int getMaxTextureSize() const { return _maxTextureSize; }
+  CC_INLINE int getMaxCubeMapTextureSize() const { return _maxCubeMapTextureSize; }
+  CC_INLINE int getDepthBits() const { return _depthBits; }
+  CC_INLINE int getStencilBits() const { return _stencilBits; }
+  CC_INLINE uint getShaderIdGen() { return _shaderIdGen++; }
+  CC_INLINE bool getReverseCW() const { return _reverseCW; }
+  GFXFormat getColorFormat() const;
+  GFXFormat getDepthStencilFormat() const;
   CC_INLINE bool hasFeature(GFXFeature feature) const { return _features[static_cast<uint8_t>(feature)]; }
-  
+  CC_INLINE void defineMacro(const String& macro, const String& value) { _macros[macro] = value; }
+  CC_INLINE void setReverseCW(bool reverseCW) { _reverseCW = reverseCW; }
+ 
  protected:
-  GFXAPI _api = GFXAPI::UNKNOWN;
-  String _device_name;
+  GFXAPI _gfxAPI = GFXAPI::UNKNOWN;
+  String _deviceName;
   String _renderer;
   String _vendor;
   String _version;
@@ -69,6 +87,20 @@ class CC_CORE_API GFXDevice : public Object {
   uint _numDrawCalls = 0;
   uint _numInstances = 0;
   uint _numTriangles = 0;
+   int _maxVertexAttributes = -1;
+   int _maxVertexUniformVectors = -1;
+   int _maxFragmentUniformVectors = -1;
+   int _maxTextureUnits = -1;
+   int _maxVertexTextureUnits = -1;
+   int _maxUniformBufferBindings = GFX_MAX_BUFFER_BINDINGS;
+   int _maxUniformBlockSize = -1;
+   int _maxTextureSize = -1;
+   int _maxCubeMapTextureSize = -1;
+   int _depthBits = -1;
+   int _stencilBits = -1;
+   bool _reverseCW = false;
+   uint _shaderIdGen = 0;
+   std::unordered_map<String, String> _macros;
 };
 
 NS_CC_END

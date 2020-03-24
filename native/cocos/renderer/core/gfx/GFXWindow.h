@@ -24,7 +24,7 @@ class CC_CORE_API GFXWindow : public GFXObject {
   CC_INLINE uint getNativeWidth() const { return _nativeWidth; }
   CC_INLINE uint getNativeHeight() const { return _nativeHeight; }
   CC_INLINE GFXFormat getColorFormat() const { return _colorFmt; }
-  CC_INLINE GFXFormat getDetphStencilFormat() const { return _depthStencilFmt; }
+  CC_INLINE GFXFormat getDepthStencilFormat() const { return _depthStencilFmt; }
   CC_INLINE bool isOffscreen() const { return _isOffscreen; }
   CC_INLINE GFXRenderPass* getRenderPass() const { return _renderPass; }
   CC_INLINE GFXTexture* getColorTexture() const { return _colorTex; }

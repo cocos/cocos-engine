@@ -19,7 +19,7 @@ class CC_CORE_API GFXContext : public Object {
   CC_INLINE GFXContext* getSharedContext() const { return _sharedContext; }
   CC_INLINE GFXVsyncMode getVsyncMode() const { return _vsyncMode; }
   CC_INLINE GFXFormat getColorFormat() const { return _colorFmt; }
-  CC_INLINE GFXFormat getDetphStencilFormat() const { return _depthStencilFmt; }
+  CC_INLINE GFXFormat getDepthStencilFormat() const { return _depthStencilFmt; }
   
  protected:
   GFXDevice* _device = nullptr;

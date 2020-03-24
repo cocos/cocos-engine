@@ -1,6 +1,6 @@
 #include "CoreStd.h"
 #include "GFXDevice.h"
-
+#include "GFXContext.h"
 NS_CC_BEGIN
 
 GFXDevice::GFXDevice()
@@ -9,6 +9,16 @@ GFXDevice::GFXDevice()
 }
 
 GFXDevice::~GFXDevice() {
+}
+
+GFXFormat GFXDevice::getColorFormat() const
+{
+    return _context->getColorFormat();
+}
+
+GFXFormat GFXDevice::getDepthStencilFormat() const
+{
+    return _context->getDepthStencilFormat();
 }
 
 NS_CC_END

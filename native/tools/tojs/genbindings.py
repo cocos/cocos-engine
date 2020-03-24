@@ -151,6 +151,8 @@ def main():
                     'cocos2dx_extension.ini' : ('cocos2dx_extension', 'jsb_cocos2dx_extension_auto'),
                     'cocos2dx_network.ini' : ('cocos2dx_network', 'jsb_cocos2dx_network_auto'),
                     'gfx.ini': ('gfx', 'jsb_gfx_auto'),
+                    'gles2.ini': ('gles2', 'jsb_gles2_auto'),
+                    'gles3.ini': ('gles3', 'jsb_gles3_auto'),
                     }
         target = 'spidermonkey'
         generator_py = '%s/generator.py' % cxx_generator_root

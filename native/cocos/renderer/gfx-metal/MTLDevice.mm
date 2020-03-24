@@ -26,7 +26,8 @@ CCMTLDevice::~CCMTLDevice() {}
 
 bool CCMTLDevice::initialize(const GFXDeviceInfo& info)
 {
-    _api = GFXAPI::METAL;
+    _gfxAPI = GFXAPI::METAL;
+    _deviceName = "Metal";
     _width = info.width;
     _height = info.height;
     _nativeWidth = info.nativeWidth;

@@ -311,50 +311,6 @@
 		46930467204FE20F004A3D6C /* CCLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 46930464204FE20F004A3D6C /* CCLog.h */; };
 		46930468204FE20F004A3D6C /* CCLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46930465204FE20F004A3D6C /* CCLog.cpp */; };
 		46930469204FE20F004A3D6C /* CCLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46930465204FE20F004A3D6C /* CCLog.cpp */; };
-		469FFAD6240E555700581BFC /* GLES2Context.cc in Sources */ = {isa = PBXBuildFile; fileRef = EDAD7A5124039FE90014B660 /* GLES2Context.cc */; };
-		469FFAD7240E555E00581BFC /* gles2w.mm in Sources */ = {isa = PBXBuildFile; fileRef = BA06A6F923583DFD007740C5 /* gles2w.mm */; };
-		469FFAD8240E556200581BFC /* GLES2Device.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A6FD23583DFD007740C5 /* GLES2Device.cc */; };
-		469FFAD9240E556D00581BFC /* GLES2Context.h in Headers */ = {isa = PBXBuildFile; fileRef = EDAD7A4B24039A690014B660 /* GLES2Context.h */; };
-		469FFADA240E557100581BFC /* GLES2GPUObjects.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A6FA23583DFD007740C5 /* GLES2GPUObjects.h */; };
-		469FFADB240E557700581BFC /* GLES2CommandAllocator.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A6FB23583DFD007740C5 /* GLES2CommandAllocator.h */; };
-		469FFADC240E558200581BFC /* GLES2TextureView.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A6FC23583DFD007740C5 /* GLES2TextureView.h */; };
-		469FFADD240E558600581BFC /* GLES2PipelineLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A6FE23583DFD007740C5 /* GLES2PipelineLayout.h */; };
-		469FFADE240E558A00581BFC /* GFXGLES2.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A6FF23583DFD007740C5 /* GFXGLES2.h */; };
-		469FFADF240E558D00581BFC /* GLES2Commands.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A70023583DFD007740C5 /* GLES2Commands.h */; };
-		469FFAE0240E559000581BFC /* GLES2Window.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A70123583DFD007740C5 /* GLES2Window.h */; };
-		469FFAE1240E559300581BFC /* GLES2Texture.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A70323583DFD007740C5 /* GLES2Texture.cc */; };
-		469FFAE2240E559600581BFC /* GLES2Framebuffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A70423583DFD007740C5 /* GLES2Framebuffer.cc */; };
-		469FFAE3240E559E00581BFC /* GLES2RenderPass.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A70523583DFD007740C5 /* GLES2RenderPass.h */; };
-		469FFAE4240E55A100581BFC /* GLES2InputAssembler.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A70623583DFD007740C5 /* GLES2InputAssembler.cc */; };
-		469FFAE5240E55A400581BFC /* GLES2Sampler.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A70723583DFD007740C5 /* GLES2Sampler.cc */; };
-		469FFAE6240E55A700581BFC /* GLES2Texture.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A70823583DFD007740C5 /* GLES2Texture.h */; };
-		469FFAE7240E55AB00581BFC /* gles2w.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A70923583DFD007740C5 /* gles2w.h */; };
-		469FFAE8240E55AE00581BFC /* GLES2CommandAllocator.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A70A23583DFD007740C5 /* GLES2CommandAllocator.cc */; };
-		469FFAE9240E55B100581BFC /* GLES2Std.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A70B23583DFD007740C5 /* GLES2Std.cc */; };
-		469FFAEA240E55B400581BFC /* GLES2Window.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A70C23583DFD007740C5 /* GLES2Window.cc */; };
-		469FFAEB240E55B800581BFC /* GLES2Device.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A70D23583DFD007740C5 /* GLES2Device.h */; };
-		469FFAEC240E55BB00581BFC /* GLES2Shader.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A70E23583DFD007740C5 /* GLES2Shader.h */; };
-		469FFAED240E55BE00581BFC /* GLES2Shader.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A70F23583DFD007740C5 /* GLES2Shader.cc */; };
-		469FFAEE240E55C100581BFC /* GLES2CommandBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A71023583DFD007740C5 /* GLES2CommandBuffer.h */; };
-		469FFAEF240E55C500581BFC /* GLES2Framebuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A71123583DFD007740C5 /* GLES2Framebuffer.h */; };
-		469FFAF0240E55C800581BFC /* GLES2Queue.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A71223583DFD007740C5 /* GLES2Queue.cc */; };
-		469FFAF1240E55CB00581BFC /* GLES2StateCache.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A71323583DFD007740C5 /* GLES2StateCache.h */; };
-		469FFAF2240E55CF00581BFC /* GLES2PipelineState.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A71423583DFD007740C5 /* GLES2PipelineState.cc */; };
-		469FFAF3240E55D300581BFC /* GLES2RenderPass.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A71523583DFD007740C5 /* GLES2RenderPass.cc */; };
-		469FFAF4240E55D600581BFC /* GLES2Sampler.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A71623583DFD007740C5 /* GLES2Sampler.h */; };
-		469FFAF5240E55D900581BFC /* GLES2PipelineState.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A71723583DFD007740C5 /* GLES2PipelineState.h */; };
-		469FFAF6240E55DC00581BFC /* GLES2BindingLayout.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A71823583DFD007740C5 /* GLES2BindingLayout.cc */; };
-		469FFAF8240E55E400581BFC /* GLES2Commands.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A71B23583DFD007740C5 /* GLES2Commands.cc */; };
-		469FFAF9240E55E900581BFC /* GLES2Queue.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A71C23583DFD007740C5 /* GLES2Queue.h */; };
-		469FFAFA240E55EC00581BFC /* GLES2PipelineLayout.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A71D23583DFD007740C5 /* GLES2PipelineLayout.cc */; };
-		469FFAFB240E55EF00581BFC /* GLES2CommandPool.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A71E23583DFD007740C5 /* GLES2CommandPool.h */; };
-		469FFAFC240E55F300581BFC /* GLES2Std.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A71F23583DFD007740C5 /* GLES2Std.h */; };
-		469FFAFD240E55F600581BFC /* GLES2Buffer.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A72023583DFD007740C5 /* GLES2Buffer.h */; };
-		469FFAFE240E55F900581BFC /* GLES2BindingLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A72123583DFD007740C5 /* GLES2BindingLayout.h */; };
-		469FFAFF240E55FC00581BFC /* GLES2InputAssembler.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A72223583DFD007740C5 /* GLES2InputAssembler.h */; };
-		469FFB00240E55FF00581BFC /* GLES2Buffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A72323583DFD007740C5 /* GLES2Buffer.cc */; };
-		469FFB01240E560200581BFC /* GLES2TextureView.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A72423583DFD007740C5 /* GLES2TextureView.cc */; };
-		469FFB02240E560500581BFC /* GLES2CommandBuffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A72523583DFD007740C5 /* GLES2CommandBuffer.cc */; };
 		469FFB05240E5A4000581BFC /* libGLESv2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 469FFB03240E5A4000581BFC /* libGLESv2.dylib */; };
 		469FFB06240E5A4000581BFC /* libEGL.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 469FFB04240E5A4000581BFC /* libEGL.dylib */; };
 		469FFB13240E655400581BFC /* libGLESv2.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 469FFB11240E655300581BFC /* libGLESv2.dylib */; };
@@ -366,6 +322,97 @@
 		46ACCC05241F66150096CC35 /* EditBox.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC02241F66150096CC35 /* EditBox.h */; };
 		46ACCC07241F66150096CC35 /* EditBox-mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC04241F66150096CC35 /* EditBox-mac.mm */; };
 		46ACCC08241F661B0096CC35 /* EditBox-ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC03241F66150096CC35 /* EditBox-ios.mm */; };
+		46ACCC12242462B00096CC35 /* jsb_gles2_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC10242462B00096CC35 /* jsb_gles2_auto.cpp */; };
+		46ACCC13242462B00096CC35 /* jsb_gles2_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC11242462B00096CC35 /* jsb_gles2_auto.hpp */; };
+		46ACCC1A2424755F0096CC35 /* jsb_gles3_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC182424755F0096CC35 /* jsb_gles3_auto.hpp */; };
+		46ACCC1B2424755F0096CC35 /* jsb_gles3_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC192424755F0096CC35 /* jsb_gles3_auto.cpp */; };
+		46ACCC4B242475850096CC35 /* gles2w.mm in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC1D242475850096CC35 /* gles2w.mm */; };
+		46ACCC4C242475850096CC35 /* GLES2GPUObjects.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC1E242475850096CC35 /* GLES2GPUObjects.h */; };
+		46ACCC4E242475850096CC35 /* GLES2CommandAllocator.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC20242475850096CC35 /* GLES2CommandAllocator.h */; };
+		46ACCC4F242475850096CC35 /* GLES2TextureView.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC21242475850096CC35 /* GLES2TextureView.h */; };
+		46ACCC50242475850096CC35 /* GLES2Device.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC22242475850096CC35 /* GLES2Device.cc */; };
+		46ACCC51242475850096CC35 /* GLES2PipelineLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC23242475850096CC35 /* GLES2PipelineLayout.h */; };
+		46ACCC52242475850096CC35 /* GFXGLES2.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC24242475850096CC35 /* GFXGLES2.h */; };
+		46ACCC53242475850096CC35 /* GLES2Commands.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC26242475850096CC35 /* GLES2Commands.h */; };
+		46ACCC54242475850096CC35 /* GLES2Window.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC27242475850096CC35 /* GLES2Window.h */; };
+		46ACCC55242475850096CC35 /* GLES2Texture.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC28242475850096CC35 /* GLES2Texture.cc */; };
+		46ACCC56242475850096CC35 /* GLES2Framebuffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC29242475850096CC35 /* GLES2Framebuffer.cc */; };
+		46ACCC57242475850096CC35 /* GLES2RenderPass.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC2A242475850096CC35 /* GLES2RenderPass.h */; };
+		46ACCC58242475850096CC35 /* GLES2InputAssembler.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC2B242475850096CC35 /* GLES2InputAssembler.cc */; };
+		46ACCC59242475850096CC35 /* GLES2Sampler.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC2C242475850096CC35 /* GLES2Sampler.cc */; };
+		46ACCC5A242475850096CC35 /* GLES2Texture.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC2D242475850096CC35 /* GLES2Texture.h */; };
+		46ACCC5B242475850096CC35 /* gles2w.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC2E242475850096CC35 /* gles2w.h */; };
+		46ACCC5C242475850096CC35 /* GLES2CommandAllocator.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC2F242475850096CC35 /* GLES2CommandAllocator.cc */; };
+		46ACCC5D242475850096CC35 /* GLES2Std.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC30242475850096CC35 /* GLES2Std.cc */; };
+		46ACCC5E242475850096CC35 /* GLES2Window.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC31242475850096CC35 /* GLES2Window.cc */; };
+		46ACCC60242475850096CC35 /* GLES2Device.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC33242475850096CC35 /* GLES2Device.h */; };
+		46ACCC61242475850096CC35 /* GLES2Shader.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC34242475850096CC35 /* GLES2Shader.h */; };
+		46ACCC62242475850096CC35 /* GLES2Shader.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC35242475850096CC35 /* GLES2Shader.cc */; };
+		46ACCC63242475850096CC35 /* GLES2CommandBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC36242475850096CC35 /* GLES2CommandBuffer.h */; };
+		46ACCC64242475850096CC35 /* GLES2Framebuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC37242475850096CC35 /* GLES2Framebuffer.h */; };
+		46ACCC65242475850096CC35 /* GLES2Queue.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC38242475850096CC35 /* GLES2Queue.cc */; };
+		46ACCC66242475850096CC35 /* GLES2StateCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC39242475850096CC35 /* GLES2StateCache.h */; };
+		46ACCC67242475850096CC35 /* GLES2PipelineState.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC3A242475850096CC35 /* GLES2PipelineState.cc */; };
+		46ACCC68242475850096CC35 /* GLES2RenderPass.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC3B242475850096CC35 /* GLES2RenderPass.cc */; };
+		46ACCC69242475850096CC35 /* GLES2Sampler.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC3C242475850096CC35 /* GLES2Sampler.h */; };
+		46ACCC6A242475850096CC35 /* GLES2PipelineState.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC3D242475850096CC35 /* GLES2PipelineState.h */; };
+		46ACCC6B242475850096CC35 /* GLES2BindingLayout.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC3E242475850096CC35 /* GLES2BindingLayout.cc */; };
+		46ACCC6D242475850096CC35 /* GLES2Commands.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC40242475850096CC35 /* GLES2Commands.cc */; };
+		46ACCC6E242475850096CC35 /* GLES2Queue.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC41242475850096CC35 /* GLES2Queue.h */; };
+		46ACCC6F242475850096CC35 /* GLES2PipelineLayout.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC42242475850096CC35 /* GLES2PipelineLayout.cc */; };
+		46ACCC70242475850096CC35 /* GLES2Context.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC43242475850096CC35 /* GLES2Context.h */; };
+		46ACCC71242475850096CC35 /* GLES2Std.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC44242475850096CC35 /* GLES2Std.h */; };
+		46ACCC72242475850096CC35 /* GLES2Buffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC45242475850096CC35 /* GLES2Buffer.h */; };
+		46ACCC73242475850096CC35 /* GLES2BindingLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC46242475850096CC35 /* GLES2BindingLayout.h */; };
+		46ACCC74242475850096CC35 /* GLES2InputAssembler.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC47242475850096CC35 /* GLES2InputAssembler.h */; };
+		46ACCC75242475850096CC35 /* GLES2Buffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC48242475850096CC35 /* GLES2Buffer.cc */; };
+		46ACCC76242475850096CC35 /* GLES2TextureView.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC49242475850096CC35 /* GLES2TextureView.cc */; };
+		46ACCC77242475850096CC35 /* GLES2CommandBuffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC4A242475850096CC35 /* GLES2CommandBuffer.cc */; };
+		46ACCCA7242476130096CC35 /* GLES3Window.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC79242476130096CC35 /* GLES3Window.h */; };
+		46ACCCA8242476130096CC35 /* GLES3InputAssembler.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC7A242476130096CC35 /* GLES3InputAssembler.cc */; };
+		46ACCCA9242476130096CC35 /* GLES3Sampler.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC7B242476130096CC35 /* GLES3Sampler.cc */; };
+		46ACCCAA242476130096CC35 /* gles3w.mm in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC7C242476130096CC35 /* gles3w.mm */; };
+		46ACCCAB242476130096CC35 /* GLES3TextureView.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC7D242476130096CC35 /* GLES3TextureView.cc */; };
+		46ACCCAC242476130096CC35 /* GLES3Device.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC7E242476130096CC35 /* GLES3Device.cc */; };
+		46ACCCAD242476130096CC35 /* GLES3CommandAllocator.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC80242476130096CC35 /* GLES3CommandAllocator.h */; };
+		46ACCCAE242476130096CC35 /* GLES3Context.mm in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC81242476130096CC35 /* GLES3Context.mm */; };
+		46ACCCAF242476130096CC35 /* GLES3TextureView.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC82242476130096CC35 /* GLES3TextureView.h */; };
+		46ACCCB0242476130096CC35 /* GLES3Std.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC83242476130096CC35 /* GLES3Std.cc */; };
+		46ACCCB1242476130096CC35 /* GLES3StateCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC84242476130096CC35 /* GLES3StateCache.h */; };
+		46ACCCB2242476130096CC35 /* GLES3Shader.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC85242476130096CC35 /* GLES3Shader.h */; };
+		46ACCCB3242476130096CC35 /* GLES3Device.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC86242476130096CC35 /* GLES3Device.h */; };
+		46ACCCB4242476130096CC35 /* GLES3PipelineLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC87242476130096CC35 /* GLES3PipelineLayout.h */; };
+		46ACCCB5242476130096CC35 /* GLES3CommandBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC88242476130096CC35 /* GLES3CommandBuffer.h */; };
+		46ACCCB6242476130096CC35 /* GLES3Texture.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC89242476130096CC35 /* GLES3Texture.h */; };
+		46ACCCB8242476130096CC35 /* GLES3Queue.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC8B242476130096CC35 /* GLES3Queue.h */; };
+		46ACCCB9242476130096CC35 /* GLES3Commands.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC8C242476130096CC35 /* GLES3Commands.cc */; };
+		46ACCCBA242476130096CC35 /* gles3w.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC8D242476130096CC35 /* gles3w.h */; };
+		46ACCCBB242476130096CC35 /* GLES3Window.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC8E242476130096CC35 /* GLES3Window.cc */; };
+		46ACCCBC242476130096CC35 /* GLES3Commands.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC8F242476130096CC35 /* GLES3Commands.h */; };
+		46ACCCBD242476130096CC35 /* GLES3Texture.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC90242476130096CC35 /* GLES3Texture.cc */; };
+		46ACCCBE242476130096CC35 /* GLES3Shader.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC91242476130096CC35 /* GLES3Shader.cc */; };
+		46ACCCBF242476130096CC35 /* GLES3RenderPass.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC92242476130096CC35 /* GLES3RenderPass.h */; };
+		46ACCCC0242476130096CC35 /* GLES3InputAssembler.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC93242476130096CC35 /* GLES3InputAssembler.h */; };
+		46ACCCC1242476130096CC35 /* GLES3PipelineState.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC94242476130096CC35 /* GLES3PipelineState.h */; };
+		46ACCCC2242476130096CC35 /* GLES3CommandAllocator.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC95242476130096CC35 /* GLES3CommandAllocator.cc */; };
+		46ACCCC3242476130096CC35 /* GLES3PipelineLayout.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC96242476130096CC35 /* GLES3PipelineLayout.cc */; };
+		46ACCCC4242476130096CC35 /* GLES3CommandBuffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC97242476130096CC35 /* GLES3CommandBuffer.cc */; };
+		46ACCCC5242476130096CC35 /* GLES3Framebuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC98242476130096CC35 /* GLES3Framebuffer.h */; };
+		46ACCCC6242476130096CC35 /* GLES3Sampler.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC99242476130096CC35 /* GLES3Sampler.h */; };
+		46ACCCC7242476130096CC35 /* GLES3Queue.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC9A242476130096CC35 /* GLES3Queue.cc */; };
+		46ACCCC8242476130096CC35 /* GLES3RenderPass.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC9B242476130096CC35 /* GLES3RenderPass.cc */; };
+		46ACCCC9242476130096CC35 /* GLES3GPUObjects.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC9C242476130096CC35 /* GLES3GPUObjects.h */; };
+		46ACCCCA242476130096CC35 /* GLES3Framebuffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCC9D242476130096CC35 /* GLES3Framebuffer.cc */; };
+		46ACCCCB242476130096CC35 /* GLES3Context.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC9E242476130096CC35 /* GLES3Context.h */; };
+		46ACCCCC242476130096CC35 /* GLES3BindingLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCC9F242476130096CC35 /* GLES3BindingLayout.h */; };
+		46ACCCCD242476130096CC35 /* GLES3BindingLayout.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCCA0242476130096CC35 /* GLES3BindingLayout.cc */; };
+		46ACCCCE242476130096CC35 /* GLES3Std.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCCA1242476130096CC35 /* GLES3Std.h */; };
+		46ACCCCF242476130096CC35 /* GFXGLES3.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCCA2242476130096CC35 /* GFXGLES3.h */; };
+		46ACCCD0242476130096CC35 /* GLES3PipelineState.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCCA3242476130096CC35 /* GLES3PipelineState.cc */; };
+		46ACCCD1242476130096CC35 /* GLES3Buffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 46ACCCA4242476130096CC35 /* GLES3Buffer.h */; };
+		46ACCCD2242476130096CC35 /* GLES3Buffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCCA5242476130096CC35 /* GLES3Buffer.cc */; };
+		46ACCCD5242477400096CC35 /* GLES3Context.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCCD4242477400096CC35 /* GLES3Context.cc */; };
+		46ACCCDA2424A1610096CC35 /* GLES2Context.cc in Sources */ = {isa = PBXBuildFile; fileRef = 46ACCCD92424A1610096CC35 /* GLES2Context.cc */; };
 		46AE3FDD2092F3A600F3A228 /* inspector_socket_server.h in Headers */ = {isa = PBXBuildFile; fileRef = 46AE3FC52092F3A600F3A228 /* inspector_socket_server.h */; };
 		46AE3FDE2092F3A600F3A228 /* inspector_socket_server.h in Headers */ = {isa = PBXBuildFile; fileRef = 46AE3FC52092F3A600F3A228 /* inspector_socket_server.h */; };
 		46AE3FDF2092F3A600F3A228 /* env.h in Headers */ = {isa = PBXBuildFile; fileRef = 46AE3FC62092F3A600F3A228 /* env.h */; };
@@ -734,91 +781,6 @@
 		BA06A6F523583DBD007740C5 /* Log.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A67223583DBD007740C5 /* Log.cc */; };
 		BA06A6F623583DBD007740C5 /* TypeDef.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A67323583DBD007740C5 /* TypeDef.h */; };
 		BA06A6F723583DBD007740C5 /* TypeDef.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A67323583DBD007740C5 /* TypeDef.h */; };
-		BA06A76023583DFE007740C5 /* gles2w.mm in Sources */ = {isa = PBXBuildFile; fileRef = BA06A6F923583DFD007740C5 /* gles2w.mm */; };
-		BA06A76223583DFE007740C5 /* GLES2GPUObjects.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A6FA23583DFD007740C5 /* GLES2GPUObjects.h */; };
-		BA06A76423583DFE007740C5 /* GLES2CommandAllocator.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A6FB23583DFD007740C5 /* GLES2CommandAllocator.h */; };
-		BA06A76623583DFE007740C5 /* GLES2TextureView.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A6FC23583DFD007740C5 /* GLES2TextureView.h */; };
-		BA06A76823583DFE007740C5 /* GLES2Device.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A6FD23583DFD007740C5 /* GLES2Device.cc */; };
-		BA06A76A23583DFE007740C5 /* GLES2PipelineLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A6FE23583DFD007740C5 /* GLES2PipelineLayout.h */; };
-		BA06A76C23583DFE007740C5 /* GFXGLES2.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A6FF23583DFD007740C5 /* GFXGLES2.h */; };
-		BA06A76E23583DFE007740C5 /* GLES2Commands.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A70023583DFD007740C5 /* GLES2Commands.h */; };
-		BA06A77023583DFE007740C5 /* GLES2Window.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A70123583DFD007740C5 /* GLES2Window.h */; };
-		BA06A77423583DFE007740C5 /* GLES2Texture.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A70323583DFD007740C5 /* GLES2Texture.cc */; };
-		BA06A77623583DFE007740C5 /* GLES2Framebuffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A70423583DFD007740C5 /* GLES2Framebuffer.cc */; };
-		BA06A77823583DFE007740C5 /* GLES2RenderPass.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A70523583DFD007740C5 /* GLES2RenderPass.h */; };
-		BA06A77A23583DFE007740C5 /* GLES2InputAssembler.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A70623583DFD007740C5 /* GLES2InputAssembler.cc */; };
-		BA06A77C23583DFE007740C5 /* GLES2Sampler.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A70723583DFD007740C5 /* GLES2Sampler.cc */; };
-		BA06A77E23583DFE007740C5 /* GLES2Texture.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A70823583DFD007740C5 /* GLES2Texture.h */; };
-		BA06A78023583DFE007740C5 /* gles2w.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A70923583DFD007740C5 /* gles2w.h */; };
-		BA06A78223583DFE007740C5 /* GLES2CommandAllocator.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A70A23583DFD007740C5 /* GLES2CommandAllocator.cc */; };
-		BA06A78423583DFE007740C5 /* GLES2Std.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A70B23583DFD007740C5 /* GLES2Std.cc */; };
-		BA06A78623583DFE007740C5 /* GLES2Window.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A70C23583DFD007740C5 /* GLES2Window.cc */; };
-		BA06A78823583DFE007740C5 /* GLES2Device.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A70D23583DFD007740C5 /* GLES2Device.h */; };
-		BA06A78A23583DFE007740C5 /* GLES2Shader.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A70E23583DFD007740C5 /* GLES2Shader.h */; };
-		BA06A78C23583DFE007740C5 /* GLES2Shader.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A70F23583DFD007740C5 /* GLES2Shader.cc */; };
-		BA06A78E23583DFE007740C5 /* GLES2CommandBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A71023583DFD007740C5 /* GLES2CommandBuffer.h */; };
-		BA06A79023583DFE007740C5 /* GLES2Framebuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A71123583DFD007740C5 /* GLES2Framebuffer.h */; };
-		BA06A79223583DFE007740C5 /* GLES2Queue.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A71223583DFD007740C5 /* GLES2Queue.cc */; };
-		BA06A79423583DFE007740C5 /* GLES2StateCache.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A71323583DFD007740C5 /* GLES2StateCache.h */; };
-		BA06A79623583DFE007740C5 /* GLES2PipelineState.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A71423583DFD007740C5 /* GLES2PipelineState.cc */; };
-		BA06A79823583DFE007740C5 /* GLES2RenderPass.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A71523583DFD007740C5 /* GLES2RenderPass.cc */; };
-		BA06A79A23583DFE007740C5 /* GLES2Sampler.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A71623583DFD007740C5 /* GLES2Sampler.h */; };
-		BA06A79C23583DFE007740C5 /* GLES2PipelineState.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A71723583DFD007740C5 /* GLES2PipelineState.h */; };
-		BA06A79E23583DFE007740C5 /* GLES2BindingLayout.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A71823583DFD007740C5 /* GLES2BindingLayout.cc */; };
-		BA06A7A423583DFE007740C5 /* GLES2Commands.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A71B23583DFD007740C5 /* GLES2Commands.cc */; };
-		BA06A7A623583DFE007740C5 /* GLES2Queue.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A71C23583DFD007740C5 /* GLES2Queue.h */; };
-		BA06A7A823583DFE007740C5 /* GLES2PipelineLayout.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A71D23583DFD007740C5 /* GLES2PipelineLayout.cc */; };
-		BA06A7AA23583DFE007740C5 /* GLES2CommandPool.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A71E23583DFD007740C5 /* GLES2CommandPool.h */; };
-		BA06A7AC23583DFE007740C5 /* GLES2Std.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A71F23583DFD007740C5 /* GLES2Std.h */; };
-		BA06A7AE23583DFE007740C5 /* GLES2Buffer.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A72023583DFD007740C5 /* GLES2Buffer.h */; };
-		BA06A7B023583DFE007740C5 /* GLES2BindingLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A72123583DFD007740C5 /* GLES2BindingLayout.h */; };
-		BA06A7B223583DFE007740C5 /* GLES2InputAssembler.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A72223583DFD007740C5 /* GLES2InputAssembler.h */; };
-		BA06A7B423583DFE007740C5 /* GLES2Buffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A72323583DFD007740C5 /* GLES2Buffer.cc */; };
-		BA06A7B623583DFE007740C5 /* GLES2TextureView.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A72423583DFD007740C5 /* GLES2TextureView.cc */; };
-		BA06A7B823583DFE007740C5 /* GLES2CommandBuffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A72523583DFD007740C5 /* GLES2CommandBuffer.cc */; };
-		BA06A7CA23583DFE007740C5 /* GLES3Window.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A73223583DFD007740C5 /* GLES3Window.h */; };
-		BA06A7CE23583DFE007740C5 /* GLES3InputAssembler.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A73423583DFD007740C5 /* GLES3InputAssembler.cc */; };
-		BA06A7D023583DFE007740C5 /* GLES3Sampler.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A73523583DFD007740C5 /* GLES3Sampler.cc */; };
-		BA06A7D223583DFE007740C5 /* gles3w.mm in Sources */ = {isa = PBXBuildFile; fileRef = BA06A73623583DFD007740C5 /* gles3w.mm */; };
-		BA06A7D623583DFE007740C5 /* GLES3TextureView.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A73823583DFD007740C5 /* GLES3TextureView.cc */; };
-		BA06A7D823583DFE007740C5 /* GLES3Device.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A73923583DFD007740C5 /* GLES3Device.cc */; };
-		BA06A7DA23583DFE007740C5 /* GLES3CommandAllocator.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A73A23583DFD007740C5 /* GLES3CommandAllocator.h */; };
-		BA06A7DC23583DFE007740C5 /* GLES3TextureView.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A73B23583DFD007740C5 /* GLES3TextureView.h */; };
-		BA06A7DE23583DFE007740C5 /* GLES3Std.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A73C23583DFD007740C5 /* GLES3Std.cc */; };
-		BA06A7E023583DFE007740C5 /* GLES3StateCache.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A73D23583DFD007740C5 /* GLES3StateCache.h */; };
-		BA06A7E223583DFE007740C5 /* GLES3Shader.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A73E23583DFD007740C5 /* GLES3Shader.h */; };
-		BA06A7E423583DFE007740C5 /* GLES3Device.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A73F23583DFD007740C5 /* GLES3Device.h */; };
-		BA06A7E623583DFE007740C5 /* GLES3PipelineLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A74023583DFD007740C5 /* GLES3PipelineLayout.h */; };
-		BA06A7E823583DFE007740C5 /* GLES3CommandBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A74123583DFD007740C5 /* GLES3CommandBuffer.h */; };
-		BA06A7EA23583DFE007740C5 /* GLES3Texture.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A74223583DFD007740C5 /* GLES3Texture.h */; };
-		BA06A7EC23583DFE007740C5 /* GLES3Queue.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A74323583DFD007740C5 /* GLES3Queue.h */; };
-		BA06A7EE23583DFE007740C5 /* GLES3Commands.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A74423583DFD007740C5 /* GLES3Commands.cc */; };
-		BA06A7F023583DFE007740C5 /* gles3w.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A74523583DFD007740C5 /* gles3w.h */; };
-		BA06A7F223583DFE007740C5 /* GLES3Window.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A74623583DFD007740C5 /* GLES3Window.cc */; };
-		BA06A7F423583DFE007740C5 /* GLES3Commands.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A74723583DFD007740C5 /* GLES3Commands.h */; };
-		BA06A7F623583DFE007740C5 /* GLES3Texture.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A74823583DFD007740C5 /* GLES3Texture.cc */; };
-		BA06A7F823583DFE007740C5 /* GLES3Shader.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A74923583DFD007740C5 /* GLES3Shader.cc */; };
-		BA06A7FA23583DFE007740C5 /* GLES3RenderPass.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A74A23583DFD007740C5 /* GLES3RenderPass.h */; };
-		BA06A7FC23583DFE007740C5 /* GLES3InputAssembler.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A74B23583DFD007740C5 /* GLES3InputAssembler.h */; };
-		BA06A7FE23583DFE007740C5 /* GLES3PipelineState.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A74C23583DFD007740C5 /* GLES3PipelineState.h */; };
-		BA06A80023583DFE007740C5 /* GLES3CommandAllocator.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A74D23583DFD007740C5 /* GLES3CommandAllocator.cc */; };
-		BA06A80223583DFE007740C5 /* GLES3PipelineLayout.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A74E23583DFD007740C5 /* GLES3PipelineLayout.cc */; };
-		BA06A80423583DFE007740C5 /* GLES3CommandBuffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A74F23583DFD007740C5 /* GLES3CommandBuffer.cc */; };
-		BA06A80623583DFE007740C5 /* GLES3Framebuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A75023583DFD007740C5 /* GLES3Framebuffer.h */; };
-		BA06A80823583DFE007740C5 /* GLES3Sampler.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A75123583DFD007740C5 /* GLES3Sampler.h */; };
-		BA06A80A23583DFE007740C5 /* GLES3Queue.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A75223583DFD007740C5 /* GLES3Queue.cc */; };
-		BA06A80C23583DFE007740C5 /* GLES3RenderPass.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A75323583DFD007740C5 /* GLES3RenderPass.cc */; };
-		BA06A80E23583DFE007740C5 /* GLES3GPUObjects.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A75423583DFD007740C5 /* GLES3GPUObjects.h */; };
-		BA06A81023583DFE007740C5 /* GLES3Framebuffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A75523583DFD007740C5 /* GLES3Framebuffer.cc */; };
-		BA06A81223583DFE007740C5 /* GLES3BindingLayout.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A75623583DFD007740C5 /* GLES3BindingLayout.h */; };
-		BA06A81423583DFE007740C5 /* GLES3BindingLayout.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A75723583DFD007740C5 /* GLES3BindingLayout.cc */; };
-		BA06A81623583DFE007740C5 /* GLES3Std.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A75823583DFD007740C5 /* GLES3Std.h */; };
-		BA06A81823583DFE007740C5 /* GFXGLES3.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A75923583DFD007740C5 /* GFXGLES3.h */; };
-		BA06A81A23583DFE007740C5 /* GLES3PipelineState.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A75A23583DFD007740C5 /* GLES3PipelineState.cc */; };
-		BA06A81C23583DFE007740C5 /* GLES3Buffer.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A75B23583DFD007740C5 /* GLES3Buffer.h */; };
-		BA06A81E23583DFE007740C5 /* GLES3Buffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = BA06A75C23583DFD007740C5 /* GLES3Buffer.cc */; };
-		BA06A82023583DFE007740C5 /* gles3w.c in Sources */ = {isa = PBXBuildFile; fileRef = BA06A75D23583DFD007740C5 /* gles3w.c */; };
-		BA06A82223583DFE007740C5 /* GLES3CommandPool.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A75E23583DFD007740C5 /* GLES3CommandPool.h */; };
 		BA06A83D23584B92007740C5 /* gl3ext.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A82523584B92007740C5 /* gl3ext.h */; };
 		BA06A83F23584B92007740C5 /* gl3.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A82623584B92007740C5 /* gl3.h */; };
 		BA06A84123584B92007740C5 /* gl32.h in Headers */ = {isa = PBXBuildFile; fileRef = BA06A82723584B92007740C5 /* gl32.h */; };
@@ -964,12 +926,6 @@
 		EDAD7A4623FFDE040014B660 /* jsb_gfx_manual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EDAD7A4323FFDE040014B660 /* jsb_gfx_manual.cpp */; };
 		EDAD7A4723FFDE040014B660 /* jsb_gfx_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = EDAD7A4423FFDE040014B660 /* jsb_gfx_manual.hpp */; };
 		EDAD7A4823FFDE040014B660 /* jsb_gfx_manual.hpp in Headers */ = {isa = PBXBuildFile; fileRef = EDAD7A4423FFDE040014B660 /* jsb_gfx_manual.hpp */; };
-		EDAD7A4E24039A690014B660 /* GLES2Context.h in Headers */ = {isa = PBXBuildFile; fileRef = EDAD7A4B24039A690014B660 /* GLES2Context.h */; };
-		EDAD7A5224039FE90014B660 /* GLES2Context.cc in Sources */ = {isa = PBXBuildFile; fileRef = EDAD7A5124039FE90014B660 /* GLES2Context.cc */; };
-		EDAD7A5424039FFD0014B660 /* GLES2Context.mm in Sources */ = {isa = PBXBuildFile; fileRef = EDAD7A5324039FFD0014B660 /* GLES2Context.mm */; };
-		EDAD7A582403A3F70014B660 /* GLES3Context.cc in Sources */ = {isa = PBXBuildFile; fileRef = EDAD7A552403A3F70014B660 /* GLES3Context.cc */; };
-		EDAD7A592403A3F70014B660 /* GLES3Context.mm in Sources */ = {isa = PBXBuildFile; fileRef = EDAD7A562403A3F70014B660 /* GLES3Context.mm */; };
-		EDAD7A5A2403A3F70014B660 /* GLES3Context.h in Headers */ = {isa = PBXBuildFile; fileRef = EDAD7A572403A3F70014B660 /* GLES3Context.h */; };
 		EDE5DFF81C0D6B3F0014147A /* libwebsockets.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EDE5DFF71C0D6B3F0014147A /* libwebsockets.a */; };
 /* End PBXBuildFile section */
 
@@ -1169,6 +1125,99 @@
 		46ACCC02241F66150096CC35 /* EditBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EditBox.h; path = "../cocos/ui/edit-box/EditBox.h"; sourceTree = "<group>"; };
 		46ACCC03241F66150096CC35 /* EditBox-ios.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "EditBox-ios.mm"; path = "../cocos/ui/edit-box/EditBox-ios.mm"; sourceTree = "<group>"; };
 		46ACCC04241F66150096CC35 /* EditBox-mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "EditBox-mac.mm"; path = "../cocos/ui/edit-box/EditBox-mac.mm"; sourceTree = "<group>"; };
+		46ACCC10242462B00096CC35 /* jsb_gles2_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_gles2_auto.cpp; sourceTree = "<group>"; };
+		46ACCC11242462B00096CC35 /* jsb_gles2_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_gles2_auto.hpp; sourceTree = "<group>"; };
+		46ACCC182424755F0096CC35 /* jsb_gles3_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_gles3_auto.hpp; sourceTree = "<group>"; };
+		46ACCC192424755F0096CC35 /* jsb_gles3_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_gles3_auto.cpp; sourceTree = "<group>"; };
+		46ACCC1D242475850096CC35 /* gles2w.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = gles2w.mm; sourceTree = "<group>"; };
+		46ACCC1E242475850096CC35 /* GLES2GPUObjects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2GPUObjects.h; sourceTree = "<group>"; };
+		46ACCC20242475850096CC35 /* GLES2CommandAllocator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2CommandAllocator.h; sourceTree = "<group>"; };
+		46ACCC21242475850096CC35 /* GLES2TextureView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2TextureView.h; sourceTree = "<group>"; };
+		46ACCC22242475850096CC35 /* GLES2Device.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2Device.cc; sourceTree = "<group>"; };
+		46ACCC23242475850096CC35 /* GLES2PipelineLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2PipelineLayout.h; sourceTree = "<group>"; };
+		46ACCC24242475850096CC35 /* GFXGLES2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GFXGLES2.h; sourceTree = "<group>"; };
+		46ACCC25242475850096CC35 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
+		46ACCC26242475850096CC35 /* GLES2Commands.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2Commands.h; sourceTree = "<group>"; };
+		46ACCC27242475850096CC35 /* GLES2Window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2Window.h; sourceTree = "<group>"; };
+		46ACCC28242475850096CC35 /* GLES2Texture.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2Texture.cc; sourceTree = "<group>"; };
+		46ACCC29242475850096CC35 /* GLES2Framebuffer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2Framebuffer.cc; sourceTree = "<group>"; };
+		46ACCC2A242475850096CC35 /* GLES2RenderPass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2RenderPass.h; sourceTree = "<group>"; };
+		46ACCC2B242475850096CC35 /* GLES2InputAssembler.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2InputAssembler.cc; sourceTree = "<group>"; };
+		46ACCC2C242475850096CC35 /* GLES2Sampler.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2Sampler.cc; sourceTree = "<group>"; };
+		46ACCC2D242475850096CC35 /* GLES2Texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2Texture.h; sourceTree = "<group>"; };
+		46ACCC2E242475850096CC35 /* gles2w.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gles2w.h; sourceTree = "<group>"; };
+		46ACCC2F242475850096CC35 /* GLES2CommandAllocator.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2CommandAllocator.cc; sourceTree = "<group>"; };
+		46ACCC30242475850096CC35 /* GLES2Std.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2Std.cc; sourceTree = "<group>"; };
+		46ACCC31242475850096CC35 /* GLES2Window.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2Window.cc; sourceTree = "<group>"; };
+		46ACCC33242475850096CC35 /* GLES2Device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2Device.h; sourceTree = "<group>"; };
+		46ACCC34242475850096CC35 /* GLES2Shader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2Shader.h; sourceTree = "<group>"; };
+		46ACCC35242475850096CC35 /* GLES2Shader.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2Shader.cc; sourceTree = "<group>"; };
+		46ACCC36242475850096CC35 /* GLES2CommandBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2CommandBuffer.h; sourceTree = "<group>"; };
+		46ACCC37242475850096CC35 /* GLES2Framebuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2Framebuffer.h; sourceTree = "<group>"; };
+		46ACCC38242475850096CC35 /* GLES2Queue.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2Queue.cc; sourceTree = "<group>"; };
+		46ACCC39242475850096CC35 /* GLES2StateCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2StateCache.h; sourceTree = "<group>"; };
+		46ACCC3A242475850096CC35 /* GLES2PipelineState.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2PipelineState.cc; sourceTree = "<group>"; };
+		46ACCC3B242475850096CC35 /* GLES2RenderPass.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2RenderPass.cc; sourceTree = "<group>"; };
+		46ACCC3C242475850096CC35 /* GLES2Sampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2Sampler.h; sourceTree = "<group>"; };
+		46ACCC3D242475850096CC35 /* GLES2PipelineState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2PipelineState.h; sourceTree = "<group>"; };
+		46ACCC3E242475850096CC35 /* GLES2BindingLayout.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2BindingLayout.cc; sourceTree = "<group>"; };
+		46ACCC40242475850096CC35 /* GLES2Commands.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2Commands.cc; sourceTree = "<group>"; };
+		46ACCC41242475850096CC35 /* GLES2Queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2Queue.h; sourceTree = "<group>"; };
+		46ACCC42242475850096CC35 /* GLES2PipelineLayout.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2PipelineLayout.cc; sourceTree = "<group>"; };
+		46ACCC43242475850096CC35 /* GLES2Context.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2Context.h; sourceTree = "<group>"; };
+		46ACCC44242475850096CC35 /* GLES2Std.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2Std.h; sourceTree = "<group>"; };
+		46ACCC45242475850096CC35 /* GLES2Buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2Buffer.h; sourceTree = "<group>"; };
+		46ACCC46242475850096CC35 /* GLES2BindingLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2BindingLayout.h; sourceTree = "<group>"; };
+		46ACCC47242475850096CC35 /* GLES2InputAssembler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2InputAssembler.h; sourceTree = "<group>"; };
+		46ACCC48242475850096CC35 /* GLES2Buffer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2Buffer.cc; sourceTree = "<group>"; };
+		46ACCC49242475850096CC35 /* GLES2TextureView.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2TextureView.cc; sourceTree = "<group>"; };
+		46ACCC4A242475850096CC35 /* GLES2CommandBuffer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2CommandBuffer.cc; sourceTree = "<group>"; };
+		46ACCC79242476130096CC35 /* GLES3Window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3Window.h; sourceTree = "<group>"; };
+		46ACCC7A242476130096CC35 /* GLES3InputAssembler.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3InputAssembler.cc; sourceTree = "<group>"; };
+		46ACCC7B242476130096CC35 /* GLES3Sampler.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3Sampler.cc; sourceTree = "<group>"; };
+		46ACCC7C242476130096CC35 /* gles3w.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = gles3w.mm; sourceTree = "<group>"; };
+		46ACCC7D242476130096CC35 /* GLES3TextureView.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3TextureView.cc; sourceTree = "<group>"; };
+		46ACCC7E242476130096CC35 /* GLES3Device.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3Device.cc; sourceTree = "<group>"; };
+		46ACCC7F242476130096CC35 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
+		46ACCC80242476130096CC35 /* GLES3CommandAllocator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3CommandAllocator.h; sourceTree = "<group>"; };
+		46ACCC81242476130096CC35 /* GLES3Context.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GLES3Context.mm; sourceTree = "<group>"; };
+		46ACCC82242476130096CC35 /* GLES3TextureView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3TextureView.h; sourceTree = "<group>"; };
+		46ACCC83242476130096CC35 /* GLES3Std.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3Std.cc; sourceTree = "<group>"; };
+		46ACCC84242476130096CC35 /* GLES3StateCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3StateCache.h; sourceTree = "<group>"; };
+		46ACCC85242476130096CC35 /* GLES3Shader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3Shader.h; sourceTree = "<group>"; };
+		46ACCC86242476130096CC35 /* GLES3Device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3Device.h; sourceTree = "<group>"; };
+		46ACCC87242476130096CC35 /* GLES3PipelineLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3PipelineLayout.h; sourceTree = "<group>"; };
+		46ACCC88242476130096CC35 /* GLES3CommandBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3CommandBuffer.h; sourceTree = "<group>"; };
+		46ACCC89242476130096CC35 /* GLES3Texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3Texture.h; sourceTree = "<group>"; };
+		46ACCC8B242476130096CC35 /* GLES3Queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3Queue.h; sourceTree = "<group>"; };
+		46ACCC8C242476130096CC35 /* GLES3Commands.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3Commands.cc; sourceTree = "<group>"; };
+		46ACCC8D242476130096CC35 /* gles3w.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gles3w.h; sourceTree = "<group>"; };
+		46ACCC8E242476130096CC35 /* GLES3Window.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3Window.cc; sourceTree = "<group>"; };
+		46ACCC8F242476130096CC35 /* GLES3Commands.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3Commands.h; sourceTree = "<group>"; };
+		46ACCC90242476130096CC35 /* GLES3Texture.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3Texture.cc; sourceTree = "<group>"; };
+		46ACCC91242476130096CC35 /* GLES3Shader.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3Shader.cc; sourceTree = "<group>"; };
+		46ACCC92242476130096CC35 /* GLES3RenderPass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3RenderPass.h; sourceTree = "<group>"; };
+		46ACCC93242476130096CC35 /* GLES3InputAssembler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3InputAssembler.h; sourceTree = "<group>"; };
+		46ACCC94242476130096CC35 /* GLES3PipelineState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3PipelineState.h; sourceTree = "<group>"; };
+		46ACCC95242476130096CC35 /* GLES3CommandAllocator.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3CommandAllocator.cc; sourceTree = "<group>"; };
+		46ACCC96242476130096CC35 /* GLES3PipelineLayout.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3PipelineLayout.cc; sourceTree = "<group>"; };
+		46ACCC97242476130096CC35 /* GLES3CommandBuffer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3CommandBuffer.cc; sourceTree = "<group>"; };
+		46ACCC98242476130096CC35 /* GLES3Framebuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3Framebuffer.h; sourceTree = "<group>"; };
+		46ACCC99242476130096CC35 /* GLES3Sampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3Sampler.h; sourceTree = "<group>"; };
+		46ACCC9A242476130096CC35 /* GLES3Queue.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3Queue.cc; sourceTree = "<group>"; };
+		46ACCC9B242476130096CC35 /* GLES3RenderPass.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3RenderPass.cc; sourceTree = "<group>"; };
+		46ACCC9C242476130096CC35 /* GLES3GPUObjects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3GPUObjects.h; sourceTree = "<group>"; };
+		46ACCC9D242476130096CC35 /* GLES3Framebuffer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3Framebuffer.cc; sourceTree = "<group>"; };
+		46ACCC9E242476130096CC35 /* GLES3Context.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3Context.h; sourceTree = "<group>"; };
+		46ACCC9F242476130096CC35 /* GLES3BindingLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3BindingLayout.h; sourceTree = "<group>"; };
+		46ACCCA0242476130096CC35 /* GLES3BindingLayout.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3BindingLayout.cc; sourceTree = "<group>"; };
+		46ACCCA1242476130096CC35 /* GLES3Std.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3Std.h; sourceTree = "<group>"; };
+		46ACCCA2242476130096CC35 /* GFXGLES3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GFXGLES3.h; sourceTree = "<group>"; };
+		46ACCCA3242476130096CC35 /* GLES3PipelineState.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3PipelineState.cc; sourceTree = "<group>"; };
+		46ACCCA4242476130096CC35 /* GLES3Buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3Buffer.h; sourceTree = "<group>"; };
+		46ACCCA5242476130096CC35 /* GLES3Buffer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3Buffer.cc; sourceTree = "<group>"; };
+		46ACCCD4242477400096CC35 /* GLES3Context.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3Context.cc; sourceTree = "<group>"; };
+		46ACCCD92424A1610096CC35 /* GLES2Context.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2Context.cc; sourceTree = "<group>"; };
 		46AE3FC52092F3A600F3A228 /* inspector_socket_server.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = inspector_socket_server.h; sourceTree = "<group>"; };
 		46AE3FC62092F3A600F3A228 /* env.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = env.h; sourceTree = "<group>"; };
 		46AE3FC72092F3A600F3A228 /* node.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = node.cc; sourceTree = "<group>"; };
@@ -1394,91 +1443,6 @@
 		BA06A67123583DBD007740C5 /* Object.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; path = Object.h; sourceTree = "<group>"; };
 		BA06A67223583DBD007740C5 /* Log.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Log.cc; sourceTree = "<group>"; };
 		BA06A67323583DBD007740C5 /* TypeDef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TypeDef.h; sourceTree = "<group>"; };
-		BA06A6F923583DFD007740C5 /* gles2w.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = gles2w.mm; sourceTree = "<group>"; };
-		BA06A6FA23583DFD007740C5 /* GLES2GPUObjects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2GPUObjects.h; sourceTree = "<group>"; };
-		BA06A6FB23583DFD007740C5 /* GLES2CommandAllocator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2CommandAllocator.h; sourceTree = "<group>"; };
-		BA06A6FC23583DFD007740C5 /* GLES2TextureView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2TextureView.h; sourceTree = "<group>"; };
-		BA06A6FD23583DFD007740C5 /* GLES2Device.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2Device.cc; sourceTree = "<group>"; };
-		BA06A6FE23583DFD007740C5 /* GLES2PipelineLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2PipelineLayout.h; sourceTree = "<group>"; };
-		BA06A6FF23583DFD007740C5 /* GFXGLES2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GFXGLES2.h; sourceTree = "<group>"; };
-		BA06A70023583DFD007740C5 /* GLES2Commands.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2Commands.h; sourceTree = "<group>"; };
-		BA06A70123583DFD007740C5 /* GLES2Window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2Window.h; sourceTree = "<group>"; };
-		BA06A70323583DFD007740C5 /* GLES2Texture.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2Texture.cc; sourceTree = "<group>"; };
-		BA06A70423583DFD007740C5 /* GLES2Framebuffer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2Framebuffer.cc; sourceTree = "<group>"; };
-		BA06A70523583DFD007740C5 /* GLES2RenderPass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2RenderPass.h; sourceTree = "<group>"; };
-		BA06A70623583DFD007740C5 /* GLES2InputAssembler.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2InputAssembler.cc; sourceTree = "<group>"; };
-		BA06A70723583DFD007740C5 /* GLES2Sampler.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2Sampler.cc; sourceTree = "<group>"; };
-		BA06A70823583DFD007740C5 /* GLES2Texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2Texture.h; sourceTree = "<group>"; };
-		BA06A70923583DFD007740C5 /* gles2w.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gles2w.h; sourceTree = "<group>"; };
-		BA06A70A23583DFD007740C5 /* GLES2CommandAllocator.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2CommandAllocator.cc; sourceTree = "<group>"; };
-		BA06A70B23583DFD007740C5 /* GLES2Std.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2Std.cc; sourceTree = "<group>"; };
-		BA06A70C23583DFD007740C5 /* GLES2Window.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2Window.cc; sourceTree = "<group>"; };
-		BA06A70D23583DFD007740C5 /* GLES2Device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2Device.h; sourceTree = "<group>"; };
-		BA06A70E23583DFD007740C5 /* GLES2Shader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2Shader.h; sourceTree = "<group>"; };
-		BA06A70F23583DFD007740C5 /* GLES2Shader.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2Shader.cc; sourceTree = "<group>"; };
-		BA06A71023583DFD007740C5 /* GLES2CommandBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2CommandBuffer.h; sourceTree = "<group>"; };
-		BA06A71123583DFD007740C5 /* GLES2Framebuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2Framebuffer.h; sourceTree = "<group>"; };
-		BA06A71223583DFD007740C5 /* GLES2Queue.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2Queue.cc; sourceTree = "<group>"; };
-		BA06A71323583DFD007740C5 /* GLES2StateCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2StateCache.h; sourceTree = "<group>"; };
-		BA06A71423583DFD007740C5 /* GLES2PipelineState.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2PipelineState.cc; sourceTree = "<group>"; };
-		BA06A71523583DFD007740C5 /* GLES2RenderPass.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2RenderPass.cc; sourceTree = "<group>"; };
-		BA06A71623583DFD007740C5 /* GLES2Sampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2Sampler.h; sourceTree = "<group>"; };
-		BA06A71723583DFD007740C5 /* GLES2PipelineState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2PipelineState.h; sourceTree = "<group>"; };
-		BA06A71823583DFD007740C5 /* GLES2BindingLayout.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2BindingLayout.cc; sourceTree = "<group>"; };
-		BA06A71B23583DFD007740C5 /* GLES2Commands.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2Commands.cc; sourceTree = "<group>"; };
-		BA06A71C23583DFD007740C5 /* GLES2Queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2Queue.h; sourceTree = "<group>"; };
-		BA06A71D23583DFD007740C5 /* GLES2PipelineLayout.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2PipelineLayout.cc; sourceTree = "<group>"; };
-		BA06A71E23583DFD007740C5 /* GLES2CommandPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2CommandPool.h; sourceTree = "<group>"; };
-		BA06A71F23583DFD007740C5 /* GLES2Std.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2Std.h; sourceTree = "<group>"; };
-		BA06A72023583DFD007740C5 /* GLES2Buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2Buffer.h; sourceTree = "<group>"; };
-		BA06A72123583DFD007740C5 /* GLES2BindingLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2BindingLayout.h; sourceTree = "<group>"; };
-		BA06A72223583DFD007740C5 /* GLES2InputAssembler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2InputAssembler.h; sourceTree = "<group>"; };
-		BA06A72323583DFD007740C5 /* GLES2Buffer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2Buffer.cc; sourceTree = "<group>"; };
-		BA06A72423583DFD007740C5 /* GLES2TextureView.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2TextureView.cc; sourceTree = "<group>"; };
-		BA06A72523583DFD007740C5 /* GLES2CommandBuffer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2CommandBuffer.cc; sourceTree = "<group>"; };
-		BA06A73223583DFD007740C5 /* GLES3Window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3Window.h; sourceTree = "<group>"; };
-		BA06A73423583DFD007740C5 /* GLES3InputAssembler.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3InputAssembler.cc; sourceTree = "<group>"; };
-		BA06A73523583DFD007740C5 /* GLES3Sampler.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3Sampler.cc; sourceTree = "<group>"; };
-		BA06A73623583DFD007740C5 /* gles3w.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = gles3w.mm; sourceTree = "<group>"; };
-		BA06A73823583DFD007740C5 /* GLES3TextureView.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3TextureView.cc; sourceTree = "<group>"; };
-		BA06A73923583DFD007740C5 /* GLES3Device.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3Device.cc; sourceTree = "<group>"; };
-		BA06A73A23583DFD007740C5 /* GLES3CommandAllocator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3CommandAllocator.h; sourceTree = "<group>"; };
-		BA06A73B23583DFD007740C5 /* GLES3TextureView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3TextureView.h; sourceTree = "<group>"; };
-		BA06A73C23583DFD007740C5 /* GLES3Std.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3Std.cc; sourceTree = "<group>"; };
-		BA06A73D23583DFD007740C5 /* GLES3StateCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3StateCache.h; sourceTree = "<group>"; };
-		BA06A73E23583DFD007740C5 /* GLES3Shader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3Shader.h; sourceTree = "<group>"; };
-		BA06A73F23583DFD007740C5 /* GLES3Device.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3Device.h; sourceTree = "<group>"; };
-		BA06A74023583DFD007740C5 /* GLES3PipelineLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3PipelineLayout.h; sourceTree = "<group>"; };
-		BA06A74123583DFD007740C5 /* GLES3CommandBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3CommandBuffer.h; sourceTree = "<group>"; };
-		BA06A74223583DFD007740C5 /* GLES3Texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3Texture.h; sourceTree = "<group>"; };
-		BA06A74323583DFD007740C5 /* GLES3Queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3Queue.h; sourceTree = "<group>"; };
-		BA06A74423583DFD007740C5 /* GLES3Commands.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3Commands.cc; sourceTree = "<group>"; };
-		BA06A74523583DFD007740C5 /* gles3w.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gles3w.h; sourceTree = "<group>"; };
-		BA06A74623583DFD007740C5 /* GLES3Window.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3Window.cc; sourceTree = "<group>"; };
-		BA06A74723583DFD007740C5 /* GLES3Commands.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3Commands.h; sourceTree = "<group>"; };
-		BA06A74823583DFD007740C5 /* GLES3Texture.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3Texture.cc; sourceTree = "<group>"; };
-		BA06A74923583DFD007740C5 /* GLES3Shader.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; path = GLES3Shader.cc; sourceTree = "<group>"; };
-		BA06A74A23583DFD007740C5 /* GLES3RenderPass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3RenderPass.h; sourceTree = "<group>"; };
-		BA06A74B23583DFD007740C5 /* GLES3InputAssembler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3InputAssembler.h; sourceTree = "<group>"; };
-		BA06A74C23583DFD007740C5 /* GLES3PipelineState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3PipelineState.h; sourceTree = "<group>"; };
-		BA06A74D23583DFD007740C5 /* GLES3CommandAllocator.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3CommandAllocator.cc; sourceTree = "<group>"; };
-		BA06A74E23583DFD007740C5 /* GLES3PipelineLayout.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3PipelineLayout.cc; sourceTree = "<group>"; };
-		BA06A74F23583DFD007740C5 /* GLES3CommandBuffer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3CommandBuffer.cc; sourceTree = "<group>"; };
-		BA06A75023583DFD007740C5 /* GLES3Framebuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3Framebuffer.h; sourceTree = "<group>"; };
-		BA06A75123583DFD007740C5 /* GLES3Sampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3Sampler.h; sourceTree = "<group>"; };
-		BA06A75223583DFD007740C5 /* GLES3Queue.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3Queue.cc; sourceTree = "<group>"; };
-		BA06A75323583DFD007740C5 /* GLES3RenderPass.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3RenderPass.cc; sourceTree = "<group>"; };
-		BA06A75423583DFD007740C5 /* GLES3GPUObjects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3GPUObjects.h; sourceTree = "<group>"; };
-		BA06A75523583DFD007740C5 /* GLES3Framebuffer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3Framebuffer.cc; sourceTree = "<group>"; };
-		BA06A75623583DFD007740C5 /* GLES3BindingLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3BindingLayout.h; sourceTree = "<group>"; };
-		BA06A75723583DFD007740C5 /* GLES3BindingLayout.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3BindingLayout.cc; sourceTree = "<group>"; };
-		BA06A75823583DFD007740C5 /* GLES3Std.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3Std.h; sourceTree = "<group>"; };
-		BA06A75923583DFD007740C5 /* GFXGLES3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GFXGLES3.h; sourceTree = "<group>"; };
-		BA06A75A23583DFD007740C5 /* GLES3PipelineState.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3PipelineState.cc; sourceTree = "<group>"; };
-		BA06A75B23583DFD007740C5 /* GLES3Buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3Buffer.h; sourceTree = "<group>"; };
-		BA06A75C23583DFD007740C5 /* GLES3Buffer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3Buffer.cc; sourceTree = "<group>"; };
-		BA06A75D23583DFD007740C5 /* gles3w.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = gles3w.c; sourceTree = "<group>"; };
-		BA06A75E23583DFD007740C5 /* GLES3CommandPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3CommandPool.h; sourceTree = "<group>"; };
 		BA06A82523584B92007740C5 /* gl3ext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gl3ext.h; sourceTree = "<group>"; };
 		BA06A82623584B92007740C5 /* gl3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gl3.h; sourceTree = "<group>"; };
 		BA06A82723584B92007740C5 /* gl32.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gl32.h; sourceTree = "<group>"; };
@@ -1575,12 +1539,6 @@
 		EDAD7A3E23FFDDEC0014B660 /* jsb_gfx_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_gfx_auto.cpp; sourceTree = "<group>"; };
 		EDAD7A4323FFDE040014B660 /* jsb_gfx_manual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_gfx_manual.cpp; sourceTree = "<group>"; };
 		EDAD7A4423FFDE040014B660 /* jsb_gfx_manual.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_gfx_manual.hpp; sourceTree = "<group>"; };
-		EDAD7A4B24039A690014B660 /* GLES2Context.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES2Context.h; sourceTree = "<group>"; };
-		EDAD7A5124039FE90014B660 /* GLES2Context.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES2Context.cc; sourceTree = "<group>"; };
-		EDAD7A5324039FFD0014B660 /* GLES2Context.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GLES2Context.mm; sourceTree = "<group>"; };
-		EDAD7A552403A3F70014B660 /* GLES3Context.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLES3Context.cc; sourceTree = "<group>"; };
-		EDAD7A562403A3F70014B660 /* GLES3Context.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GLES3Context.mm; sourceTree = "<group>"; };
-		EDAD7A572403A3F70014B660 /* GLES3Context.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLES3Context.h; sourceTree = "<group>"; };
 		EDE5DFF71C0D6B3F0014147A /* libwebsockets.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libwebsockets.a; path = ../external/ios/libs/libwebsockets.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -1954,6 +1912,10 @@
 		469302512046AE05004A3D6C /* auto */ = {
 			isa = PBXGroup;
 			children = (
+				46ACCC192424755F0096CC35 /* jsb_gles3_auto.cpp */,
+				46ACCC182424755F0096CC35 /* jsb_gles3_auto.hpp */,
+				46ACCC10242462B00096CC35 /* jsb_gles2_auto.cpp */,
+				46ACCC11242462B00096CC35 /* jsb_gles2_auto.hpp */,
 				EDAD7A3E23FFDDEC0014B660 /* jsb_gfx_auto.cpp */,
 				EDAD7A3D23FFDDEB0014B660 /* jsb_gfx_auto.hpp */,
 				1AAAC871205CB647005321B9 /* jsb_cocos2dx_audioengine_auto.cpp */,
@@ -2066,6 +2028,109 @@
 			name = "edit-box";
 			sourceTree = "<group>";
 		};
+		46ACCC1C242475850096CC35 /* gfx-gles2 */ = {
+			isa = PBXGroup;
+			children = (
+				46ACCCD92424A1610096CC35 /* GLES2Context.cc */,
+				46ACCC1D242475850096CC35 /* gles2w.mm */,
+				46ACCC1E242475850096CC35 /* GLES2GPUObjects.h */,
+				46ACCC20242475850096CC35 /* GLES2CommandAllocator.h */,
+				46ACCC21242475850096CC35 /* GLES2TextureView.h */,
+				46ACCC22242475850096CC35 /* GLES2Device.cc */,
+				46ACCC23242475850096CC35 /* GLES2PipelineLayout.h */,
+				46ACCC24242475850096CC35 /* GFXGLES2.h */,
+				46ACCC25242475850096CC35 /* CMakeLists.txt */,
+				46ACCC26242475850096CC35 /* GLES2Commands.h */,
+				46ACCC27242475850096CC35 /* GLES2Window.h */,
+				46ACCC28242475850096CC35 /* GLES2Texture.cc */,
+				46ACCC29242475850096CC35 /* GLES2Framebuffer.cc */,
+				46ACCC2A242475850096CC35 /* GLES2RenderPass.h */,
+				46ACCC2B242475850096CC35 /* GLES2InputAssembler.cc */,
+				46ACCC2C242475850096CC35 /* GLES2Sampler.cc */,
+				46ACCC2D242475850096CC35 /* GLES2Texture.h */,
+				46ACCC2E242475850096CC35 /* gles2w.h */,
+				46ACCC2F242475850096CC35 /* GLES2CommandAllocator.cc */,
+				46ACCC30242475850096CC35 /* GLES2Std.cc */,
+				46ACCC31242475850096CC35 /* GLES2Window.cc */,
+				46ACCC33242475850096CC35 /* GLES2Device.h */,
+				46ACCC34242475850096CC35 /* GLES2Shader.h */,
+				46ACCC35242475850096CC35 /* GLES2Shader.cc */,
+				46ACCC36242475850096CC35 /* GLES2CommandBuffer.h */,
+				46ACCC37242475850096CC35 /* GLES2Framebuffer.h */,
+				46ACCC38242475850096CC35 /* GLES2Queue.cc */,
+				46ACCC39242475850096CC35 /* GLES2StateCache.h */,
+				46ACCC3A242475850096CC35 /* GLES2PipelineState.cc */,
+				46ACCC3B242475850096CC35 /* GLES2RenderPass.cc */,
+				46ACCC3C242475850096CC35 /* GLES2Sampler.h */,
+				46ACCC3D242475850096CC35 /* GLES2PipelineState.h */,
+				46ACCC3E242475850096CC35 /* GLES2BindingLayout.cc */,
+				46ACCC40242475850096CC35 /* GLES2Commands.cc */,
+				46ACCC41242475850096CC35 /* GLES2Queue.h */,
+				46ACCC42242475850096CC35 /* GLES2PipelineLayout.cc */,
+				46ACCC43242475850096CC35 /* GLES2Context.h */,
+				46ACCC44242475850096CC35 /* GLES2Std.h */,
+				46ACCC45242475850096CC35 /* GLES2Buffer.h */,
+				46ACCC46242475850096CC35 /* GLES2BindingLayout.h */,
+				46ACCC47242475850096CC35 /* GLES2InputAssembler.h */,
+				46ACCC48242475850096CC35 /* GLES2Buffer.cc */,
+				46ACCC49242475850096CC35 /* GLES2TextureView.cc */,
+				46ACCC4A242475850096CC35 /* GLES2CommandBuffer.cc */,
+			);
+			path = "gfx-gles2";
+			sourceTree = "<group>";
+		};
+		46ACCC78242476130096CC35 /* gfx-gles3 */ = {
+			isa = PBXGroup;
+			children = (
+				46ACCCD4242477400096CC35 /* GLES3Context.cc */,
+				46ACCC79242476130096CC35 /* GLES3Window.h */,
+				46ACCC7A242476130096CC35 /* GLES3InputAssembler.cc */,
+				46ACCC7B242476130096CC35 /* GLES3Sampler.cc */,
+				46ACCC7C242476130096CC35 /* gles3w.mm */,
+				46ACCC7D242476130096CC35 /* GLES3TextureView.cc */,
+				46ACCC7E242476130096CC35 /* GLES3Device.cc */,
+				46ACCC7F242476130096CC35 /* CMakeLists.txt */,
+				46ACCC80242476130096CC35 /* GLES3CommandAllocator.h */,
+				46ACCC81242476130096CC35 /* GLES3Context.mm */,
+				46ACCC82242476130096CC35 /* GLES3TextureView.h */,
+				46ACCC83242476130096CC35 /* GLES3Std.cc */,
+				46ACCC84242476130096CC35 /* GLES3StateCache.h */,
+				46ACCC85242476130096CC35 /* GLES3Shader.h */,
+				46ACCC86242476130096CC35 /* GLES3Device.h */,
+				46ACCC87242476130096CC35 /* GLES3PipelineLayout.h */,
+				46ACCC88242476130096CC35 /* GLES3CommandBuffer.h */,
+				46ACCC89242476130096CC35 /* GLES3Texture.h */,
+				46ACCC8B242476130096CC35 /* GLES3Queue.h */,
+				46ACCC8C242476130096CC35 /* GLES3Commands.cc */,
+				46ACCC8D242476130096CC35 /* gles3w.h */,
+				46ACCC8E242476130096CC35 /* GLES3Window.cc */,
+				46ACCC8F242476130096CC35 /* GLES3Commands.h */,
+				46ACCC90242476130096CC35 /* GLES3Texture.cc */,
+				46ACCC91242476130096CC35 /* GLES3Shader.cc */,
+				46ACCC92242476130096CC35 /* GLES3RenderPass.h */,
+				46ACCC93242476130096CC35 /* GLES3InputAssembler.h */,
+				46ACCC94242476130096CC35 /* GLES3PipelineState.h */,
+				46ACCC95242476130096CC35 /* GLES3CommandAllocator.cc */,
+				46ACCC96242476130096CC35 /* GLES3PipelineLayout.cc */,
+				46ACCC97242476130096CC35 /* GLES3CommandBuffer.cc */,
+				46ACCC98242476130096CC35 /* GLES3Framebuffer.h */,
+				46ACCC99242476130096CC35 /* GLES3Sampler.h */,
+				46ACCC9A242476130096CC35 /* GLES3Queue.cc */,
+				46ACCC9B242476130096CC35 /* GLES3RenderPass.cc */,
+				46ACCC9C242476130096CC35 /* GLES3GPUObjects.h */,
+				46ACCC9D242476130096CC35 /* GLES3Framebuffer.cc */,
+				46ACCC9E242476130096CC35 /* GLES3Context.h */,
+				46ACCC9F242476130096CC35 /* GLES3BindingLayout.h */,
+				46ACCCA0242476130096CC35 /* GLES3BindingLayout.cc */,
+				46ACCCA1242476130096CC35 /* GLES3Std.h */,
+				46ACCCA2242476130096CC35 /* GFXGLES3.h */,
+				46ACCCA3242476130096CC35 /* GLES3PipelineState.cc */,
+				46ACCCA4242476130096CC35 /* GLES3Buffer.h */,
+				46ACCCA5242476130096CC35 /* GLES3Buffer.cc */,
+			);
+			path = "gfx-gles3";
+			sourceTree = "<group>";
+		};
 		46AE3FC42092F3A600F3A228 /* debugger */ = {
 			isa = PBXGroup;
 			children = (
@@ -2100,9 +2165,9 @@
 		46FDDA2C202ACC6A00931238 /* renderer */ = {
 			isa = PBXGroup;
 			children = (
+				46ACCC78242476130096CC35 /* gfx-gles3 */,
+				46ACCC1C242475850096CC35 /* gfx-gles2 */,
 				BA06A62B23583DBD007740C5 /* core */,
-				BA06A6F823583DFD007740C5 /* gfx-gles2 */,
-				BA06A73123583DFD007740C5 /* gfx-gles3 */,
 				BA06A72C23583DFD007740C5 /* gfx-metal */,
 			);
 			name = renderer;
@@ -2379,58 +2444,6 @@
 			path = kernel;
 			sourceTree = "<group>";
 		};
-		BA06A6F823583DFD007740C5 /* gfx-gles2 */ = {
-			isa = PBXGroup;
-			children = (
-				EDAD7A5324039FFD0014B660 /* GLES2Context.mm */,
-				EDAD7A5124039FE90014B660 /* GLES2Context.cc */,
-				EDAD7A4B24039A690014B660 /* GLES2Context.h */,
-				BA06A6F923583DFD007740C5 /* gles2w.mm */,
-				BA06A6FA23583DFD007740C5 /* GLES2GPUObjects.h */,
-				BA06A6FB23583DFD007740C5 /* GLES2CommandAllocator.h */,
-				BA06A6FC23583DFD007740C5 /* GLES2TextureView.h */,
-				BA06A6FD23583DFD007740C5 /* GLES2Device.cc */,
-				BA06A6FE23583DFD007740C5 /* GLES2PipelineLayout.h */,
-				BA06A6FF23583DFD007740C5 /* GFXGLES2.h */,
-				BA06A70023583DFD007740C5 /* GLES2Commands.h */,
-				BA06A70123583DFD007740C5 /* GLES2Window.h */,
-				BA06A70323583DFD007740C5 /* GLES2Texture.cc */,
-				BA06A70423583DFD007740C5 /* GLES2Framebuffer.cc */,
-				BA06A70523583DFD007740C5 /* GLES2RenderPass.h */,
-				BA06A70623583DFD007740C5 /* GLES2InputAssembler.cc */,
-				BA06A70723583DFD007740C5 /* GLES2Sampler.cc */,
-				BA06A70823583DFD007740C5 /* GLES2Texture.h */,
-				BA06A70923583DFD007740C5 /* gles2w.h */,
-				BA06A70A23583DFD007740C5 /* GLES2CommandAllocator.cc */,
-				BA06A70B23583DFD007740C5 /* GLES2Std.cc */,
-				BA06A70C23583DFD007740C5 /* GLES2Window.cc */,
-				BA06A70D23583DFD007740C5 /* GLES2Device.h */,
-				BA06A70E23583DFD007740C5 /* GLES2Shader.h */,
-				BA06A70F23583DFD007740C5 /* GLES2Shader.cc */,
-				BA06A71023583DFD007740C5 /* GLES2CommandBuffer.h */,
-				BA06A71123583DFD007740C5 /* GLES2Framebuffer.h */,
-				BA06A71223583DFD007740C5 /* GLES2Queue.cc */,
-				BA06A71323583DFD007740C5 /* GLES2StateCache.h */,
-				BA06A71423583DFD007740C5 /* GLES2PipelineState.cc */,
-				BA06A71523583DFD007740C5 /* GLES2RenderPass.cc */,
-				BA06A71623583DFD007740C5 /* GLES2Sampler.h */,
-				BA06A71723583DFD007740C5 /* GLES2PipelineState.h */,
-				BA06A71823583DFD007740C5 /* GLES2BindingLayout.cc */,
-				BA06A71B23583DFD007740C5 /* GLES2Commands.cc */,
-				BA06A71C23583DFD007740C5 /* GLES2Queue.h */,
-				BA06A71D23583DFD007740C5 /* GLES2PipelineLayout.cc */,
-				BA06A71E23583DFD007740C5 /* GLES2CommandPool.h */,
-				BA06A71F23583DFD007740C5 /* GLES2Std.h */,
-				BA06A72023583DFD007740C5 /* GLES2Buffer.h */,
-				BA06A72123583DFD007740C5 /* GLES2BindingLayout.h */,
-				BA06A72223583DFD007740C5 /* GLES2InputAssembler.h */,
-				BA06A72323583DFD007740C5 /* GLES2Buffer.cc */,
-				BA06A72423583DFD007740C5 /* GLES2TextureView.cc */,
-				BA06A72523583DFD007740C5 /* GLES2CommandBuffer.cc */,
-			);
-			path = "gfx-gles2";
-			sourceTree = "<group>";
-		};
 		BA06A72C23583DFD007740C5 /* gfx-metal */ = {
 			isa = PBXGroup;
 			children = (
@@ -2478,59 +2491,6 @@
 				46BFDFD223CC573300CC5F8E /* MTLWindow.h */,
 			);
 			path = "gfx-metal";
-			sourceTree = "<group>";
-		};
-		BA06A73123583DFD007740C5 /* gfx-gles3 */ = {
-			isa = PBXGroup;
-			children = (
-				EDAD7A552403A3F70014B660 /* GLES3Context.cc */,
-				EDAD7A572403A3F70014B660 /* GLES3Context.h */,
-				EDAD7A562403A3F70014B660 /* GLES3Context.mm */,
-				BA06A73223583DFD007740C5 /* GLES3Window.h */,
-				BA06A73423583DFD007740C5 /* GLES3InputAssembler.cc */,
-				BA06A73523583DFD007740C5 /* GLES3Sampler.cc */,
-				BA06A73623583DFD007740C5 /* gles3w.mm */,
-				BA06A73823583DFD007740C5 /* GLES3TextureView.cc */,
-				BA06A73923583DFD007740C5 /* GLES3Device.cc */,
-				BA06A73A23583DFD007740C5 /* GLES3CommandAllocator.h */,
-				BA06A73B23583DFD007740C5 /* GLES3TextureView.h */,
-				BA06A73C23583DFD007740C5 /* GLES3Std.cc */,
-				BA06A73D23583DFD007740C5 /* GLES3StateCache.h */,
-				BA06A73E23583DFD007740C5 /* GLES3Shader.h */,
-				BA06A73F23583DFD007740C5 /* GLES3Device.h */,
-				BA06A74023583DFD007740C5 /* GLES3PipelineLayout.h */,
-				BA06A74123583DFD007740C5 /* GLES3CommandBuffer.h */,
-				BA06A74223583DFD007740C5 /* GLES3Texture.h */,
-				BA06A74323583DFD007740C5 /* GLES3Queue.h */,
-				BA06A74423583DFD007740C5 /* GLES3Commands.cc */,
-				BA06A74523583DFD007740C5 /* gles3w.h */,
-				BA06A74623583DFD007740C5 /* GLES3Window.cc */,
-				BA06A74723583DFD007740C5 /* GLES3Commands.h */,
-				BA06A74823583DFD007740C5 /* GLES3Texture.cc */,
-				BA06A74923583DFD007740C5 /* GLES3Shader.cc */,
-				BA06A74A23583DFD007740C5 /* GLES3RenderPass.h */,
-				BA06A74B23583DFD007740C5 /* GLES3InputAssembler.h */,
-				BA06A74C23583DFD007740C5 /* GLES3PipelineState.h */,
-				BA06A74D23583DFD007740C5 /* GLES3CommandAllocator.cc */,
-				BA06A74E23583DFD007740C5 /* GLES3PipelineLayout.cc */,
-				BA06A74F23583DFD007740C5 /* GLES3CommandBuffer.cc */,
-				BA06A75023583DFD007740C5 /* GLES3Framebuffer.h */,
-				BA06A75123583DFD007740C5 /* GLES3Sampler.h */,
-				BA06A75223583DFD007740C5 /* GLES3Queue.cc */,
-				BA06A75323583DFD007740C5 /* GLES3RenderPass.cc */,
-				BA06A75423583DFD007740C5 /* GLES3GPUObjects.h */,
-				BA06A75523583DFD007740C5 /* GLES3Framebuffer.cc */,
-				BA06A75623583DFD007740C5 /* GLES3BindingLayout.h */,
-				BA06A75723583DFD007740C5 /* GLES3BindingLayout.cc */,
-				BA06A75823583DFD007740C5 /* GLES3Std.h */,
-				BA06A75923583DFD007740C5 /* GFXGLES3.h */,
-				BA06A75A23583DFD007740C5 /* GLES3PipelineState.cc */,
-				BA06A75B23583DFD007740C5 /* GLES3Buffer.h */,
-				BA06A75C23583DFD007740C5 /* GLES3Buffer.cc */,
-				BA06A75D23583DFD007740C5 /* gles3w.c */,
-				BA06A75E23583DFD007740C5 /* GLES3CommandPool.h */,
-			);
-			path = "gfx-gles3";
 			sourceTree = "<group>";
 		};
 		BA06A82323584B92007740C5 /* khronos */ = {
@@ -2743,21 +2703,21 @@
 				1A28FF5D1F20AFAB007A1D9D /* SRProxyConnect.h in Headers */,
 				5091A7A319BFABA800AC8789 /* CCPlatformDefine.h in Headers */,
 				46AE3FDF2092F3A600F3A228 /* env.h in Headers */,
-				469FFADD240E558600581BFC /* GLES2PipelineLayout.h in Headers */,
 				46AE3FE72092F3A600F3A228 /* inspector_io.h in Headers */,
 				46FDDBCF202ADDCE00931238 /* CCMap.h in Headers */,
 				1A52DB34205BCD9200350EE3 /* Object.hpp in Headers */,
 				46BFDFFE23CC573500CC5F8E /* MTLPipelineState.h in Headers */,
 				46ACCC05241F66150096CC35 /* EditBox.h in Headers */,
+				46ACCC72242475850096CC35 /* GLES2Buffer.h in Headers */,
 				469304002046AE06004A3D6C /* jsb_global.h in Headers */,
 				BAC32B3B236C28C600F3D55F /* tommylist.h in Headers */,
+				46ACCC63242475850096CC35 /* GLES2CommandBuffer.h in Headers */,
 				46AE3FDD2092F3A600F3A228 /* inspector_socket_server.h in Headers */,
+				46ACCC73242475850096CC35 /* GLES2BindingLayout.h in Headers */,
 				4008729620CE20C2002EB77B /* jsb_cocos2dx_network_manual.h in Headers */,
 				BA06A6B623583DBD007740C5 /* GFXPipelineLayout.h in Headers */,
 				4617863720522469008256E1 /* HttpClient.h in Headers */,
-				469FFADC240E558200581BFC /* GLES2TextureView.h in Headers */,
 				50ABBD461925AB0000A911A9 /* CCVertex.h in Headers */,
-				469FFADB240E557700581BFC /* GLES2CommandAllocator.h in Headers */,
 				50ABBD3E1925AB0000A911A9 /* CCGeometry.h in Headers */,
 				BA06A85A23584B93007740C5 /* eglplatform.h in Headers */,
 				40CEAEB820CFDC47007A3281 /* CCReachability.h in Headers */,
@@ -2765,17 +2725,14 @@
 				BA06A6EE23583DBD007740C5 /* Log.h in Headers */,
 				469303822046AE05004A3D6C /* Value.hpp in Headers */,
 				BA39055A23B1BFD600CAFB49 /* CCCoreMath.h in Headers */,
-				469FFAEB240E55B800581BFC /* GLES2Device.h in Headers */,
 				4617863D20522469008256E1 /* HttpResponse.h in Headers */,
 				BAC32B6F236C28C600F3D55F /* tommytree.h in Headers */,
 				BA06A68223583DBD007740C5 /* MemTracker.h in Headers */,
-				469FFAF4240E55D600581BFC /* GLES2Sampler.h in Headers */,
 				BA06A68E23583DBD007740C5 /* NedPooling.h in Headers */,
 				1A29D7A320566CAC00168D9A /* CCCanvasRenderingContext2D.h in Headers */,
 				1A29D77D2056667800168D9A /* csscolorparser.hpp in Headers */,
 				4693038A2046AE05004A3D6C /* State.hpp in Headers */,
 				4617862320522469008256E1 /* CCIDownloaderImpl.h in Headers */,
-				469FFADE240E558A00581BFC /* GFXGLES2.h in Headers */,
 				46BFE01B23CC573500CC5F8E /* MTLTextureView.h in Headers */,
 				ED3057811BEC76C90083C3ED /* ioapi.h in Headers */,
 				469303642046AE05004A3D6C /* RefCounter.hpp in Headers */,
@@ -2800,19 +2757,17 @@
 				469303802046AE05004A3D6C /* config.hpp in Headers */,
 				1A28FF811F20AFAB007A1D9D /* SRRandom.h in Headers */,
 				50ABC0671926664800A911A9 /* CCPlatformDefine-mac.h in Headers */,
-				469FFAFF240E55FC00581BFC /* GLES2InputAssembler.h in Headers */,
 				469303922046AE05004A3D6C /* SeApi.h in Headers */,
+				46ACCC51242475850096CC35 /* GLES2PipelineLayout.h in Headers */,
 				461786532052301A008256E1 /* CCScheduler.h in Headers */,
-				469FFADA240E557100581BFC /* GLES2GPUObjects.h in Headers */,
 				46FDDB4D202ADDCE00931238 /* pvr.h in Headers */,
-				469FFAE0240E559000581BFC /* GLES2Window.h in Headers */,
+				46ACCC74242475850096CC35 /* GLES2InputAssembler.h in Headers */,
 				4617863920522469008256E1 /* CCDownloaderImpl-apple.h in Headers */,
 				BA06A6AC23583DBD007740C5 /* GFXTexture.h in Headers */,
 				BAC32B6D236C28C600F3D55F /* tommyhashlin.h in Headers */,
 				1A28FF551F20AFAB007A1D9D /* SRIOConsumerPool.h in Headers */,
 				BAC32B59236C28C600F3D55F /* tommyhashdyn.h in Headers */,
 				461786632052607E008256E1 /* jsb_socketio.hpp in Headers */,
-				469FFAF5240E55D900581BFC /* GLES2PipelineState.h in Headers */,
 				BAEA45551E279D5C00FA219F /* tinydir.h in Headers */,
 				4617864520522469008256E1 /* HttpAsynConnection-apple.h in Headers */,
 				46BFDFFB23CC573500CC5F8E /* MTLCommands.h in Headers */,
@@ -2820,24 +2775,26 @@
 				4617865D2052607E008256E1 /* jsb_xmlhttprequest.hpp in Headers */,
 				46FDDB53202ADDCE00931238 /* utlist.h in Headers */,
 				46FDDB5D202ADDCE00931238 /* ccMacros.h in Headers */,
+				46ACCC66242475850096CC35 /* GLES2StateCache.h in Headers */,
 				1A29D76B205665BE00168D9A /* jsb_cocos2dx_auto.hpp in Headers */,
 				1A52DB3D205BCD9200350EE3 /* SeApi.h in Headers */,
 				4DCEC129233238110020F8E3 /* etc2.h in Headers */,
 				BA06A85023584B92007740C5 /* glplatform.h in Headers */,
 				46BFE01823CC573500CC5F8E /* MTLBuffer.h in Headers */,
+				46ACCC4E242475850096CC35 /* GLES2CommandAllocator.h in Headers */,
+				46ACCC4F242475850096CC35 /* GLES2TextureView.h in Headers */,
 				EDAD7A3F23FFDDEC0014B660 /* jsb_gfx_auto.hpp in Headers */,
 				BA06A84E23584B92007740C5 /* glext.h in Headers */,
-				469FFAEE240E55C100581BFC /* GLES2CommandBuffer.h in Headers */,
 				46FDDC01202ADDCE00931238 /* ccCArray.h in Headers */,
 				469304102046AE06004A3D6C /* jsb_helper.hpp in Headers */,
 				BA06A6B223583DBD007740C5 /* GFXRenderPass.h in Headers */,
-				469FFAEC240E55BB00581BFC /* GLES2Shader.h in Headers */,
 				46BFE00723CC573500CC5F8E /* MTLBindingLayout.h in Headers */,
 				1A28FF591F20AFAB007A1D9D /* NSRunLoop+SRWebSocketPrivate.h in Headers */,
 				BAC32B4F236C28C600F3D55F /* tommyhash.h in Headers */,
 				46FDDB5B202ADDCE00931238 /* CCData.h in Headers */,
 				1A52DAF6205BB81400350EE3 /* CCThreadPool.h in Headers */,
 				BA06A6A023583DBD007740C5 /* GFXShader.h in Headers */,
+				46ACCC6A242475850096CC35 /* GLES2PipelineState.h in Headers */,
 				1AAAC8E9205CB6E9005321B9 /* AudioMacros.h in Headers */,
 				1AAAC8EF205CB6E9005321B9 /* AudioEngine-inl.h in Headers */,
 				46FDDB83202ADDCE00931238 /* ccRandom.h in Headers */,
@@ -2849,8 +2806,6 @@
 				BA06A6EA23583DBD007740C5 /* Assertion.h in Headers */,
 				BA06A6B823583DBD007740C5 /* GFXWindow.h in Headers */,
 				46ACCBFE241F27A70096CC35 /* GFXObject.h in Headers */,
-				469FFAF9240E55E900581BFC /* GLES2Queue.h in Headers */,
-				469FFAE6240E55A700581BFC /* GLES2Texture.h in Headers */,
 				1A28FF511F20AFAB007A1D9D /* SRIOConsumer.h in Headers */,
 				BA06A69C23583DBD007740C5 /* CoreDef.h in Headers */,
 				46BFDFFC23CC573500CC5F8E /* MTLWindow.h in Headers */,
@@ -2859,11 +2814,10 @@
 				46930466204FE20F004A3D6C /* CCLog.h in Headers */,
 				4617862720522469008256E1 /* WebSocket.h in Headers */,
 				46FDDC63202D502F00931238 /* CCApplication.h in Headers */,
-				469FFAD9240E556D00581BFC /* GLES2Context.h in Headers */,
 				46AE3FF32092F3A600F3A228 /* node.h in Headers */,
-				469FFAE7240E55AB00581BFC /* gles2w.h in Headers */,
 				50ABBD521925AB0000A911A9 /* Quaternion.h in Headers */,
 				BA06A6D023583DBD007740C5 /* GFXContext.h in Headers */,
+				46ACCC71242475850096CC35 /* GLES2Std.h in Headers */,
 				1A52DB2D205BCD9200350EE3 /* ObjectWrap.h in Headers */,
 				40CEAEB120CFC86D007A3281 /* CustomEventTypes.h in Headers */,
 				1A52DB23205BCD9200350EE3 /* Class.hpp in Headers */,
@@ -2882,24 +2836,29 @@
 				BAC32B4B236C28C600F3D55F /* tommyalloc.h in Headers */,
 				46AE3FFF2092F3A600F3A228 /* v8_inspector_protocol_json.h in Headers */,
 				1A28FF971F20AFAB007A1D9D /* SRSecurityPolicy.h in Headers */,
+				46ACCC5B242475850096CC35 /* gles2w.h in Headers */,
 				46BFE00A23CC573500CC5F8E /* MTLCommandAllocator.h in Headers */,
 				46BFE00023CC573500CC5F8E /* MTLInputAssembler.h in Headers */,
 				46BFDFF523CC573500CC5F8E /* MTLTexture.h in Headers */,
 				5027253A190BF1B900AAF4ED /* cocos2d.h in Headers */,
 				46AE3FE52092F3A600F3A228 /* base64.h in Headers */,
 				50ABBD421925AB0000A911A9 /* CCMathBase.h in Headers */,
+				46ACCC6E242475850096CC35 /* GLES2Queue.h in Headers */,
 				BAC32B65236C28C600F3D55F /* tommychain.h in Headers */,
 				469303862046AE05004A3D6C /* Object.hpp in Headers */,
 				1A29D788205666B200168D9A /* LocalStorage.h in Headers */,
 				50ABBD4E1925AB0000A911A9 /* MathUtil.h in Headers */,
 				BA06A85823584B93007740C5 /* eglext.h in Headers */,
 				46BFE00623CC573500CC5F8E /* MTLSampler.h in Headers */,
+				46ACCC69242475850096CC35 /* GLES2Sampler.h in Headers */,
 				1A52DB25205BCD9200350EE3 /* HelperMacros.h in Headers */,
 				BA06A69023583DBD007740C5 /* StringUtil.h in Headers */,
 				BA06A6BC23583DBD007740C5 /* GFXPipelineState.h in Headers */,
 				BAC32B5D236C28C600F3D55F /* tommyarrayblkof.h in Headers */,
+				46ACCC53242475850096CC35 /* GLES2Commands.h in Headers */,
 				46BFE01723CC573500CC5F8E /* MTLRenderPass.h in Headers */,
 				BA06A85223584B92007740C5 /* gl.h in Headers */,
+				46ACCC5A242475850096CC35 /* GLES2Texture.h in Headers */,
 				1A28FF911F20AFAB007A1D9D /* NSURLRequest+SRWebSocket.h in Headers */,
 				461786672052607E008256E1 /* jsb_websocket.hpp in Headers */,
 				50ABC01B1926664800A911A9 /* CCSAXParser.h in Headers */,
@@ -2916,23 +2875,21 @@
 				1A52DB45205BCD9200350EE3 /* Base.h in Headers */,
 				425D3FF322D86BEF00BCED11 /* Mat3.hpp in Headers */,
 				1A28FF6D1F20AFAB007A1D9D /* SRError.h in Headers */,
+				46ACCC4C242475850096CC35 /* GLES2GPUObjects.h in Headers */,
 				46AE3FE32092F3A600F3A228 /* inspector_agent.h in Headers */,
 				46AE3FEB2092F3A600F3A228 /* node_mutex.h in Headers */,
 				4617864320522469008256E1 /* HttpRequest.h in Headers */,
 				46BFE00C23CC573500CC5F8E /* MTLStd.h in Headers */,
 				BA06A67C23583DBD007740C5 /* MemDef.h in Headers */,
 				1A28FF651F20AFAB007A1D9D /* SRPinningSecurityPolicy.h in Headers */,
-				469FFAE3240E559E00581BFC /* GLES2RenderPass.h in Headers */,
-				469FFADF240E558D00581BFC /* GLES2Commands.h in Headers */,
 				BA06A6EC23583DBD007740C5 /* UTFString.h in Headers */,
 				BAC32B55236C28C600F3D55F /* tommy.h in Headers */,
 				46AE3FF72092F3A600F3A228 /* util-inl.h in Headers */,
 				1AAAC875205CB647005321B9 /* jsb_cocos2dx_audioengine_auto.hpp in Headers */,
-				469FFAEF240E55C500581BFC /* GLES2Framebuffer.h in Headers */,
-				469FFAFD240E55F600581BFC /* GLES2Buffer.h in Headers */,
 				1A28FF951F20AFAB007A1D9D /* SocketRocket.h in Headers */,
 				46AE40012092F3A600F3A228 /* SHA1.h in Headers */,
 				BAC32B63236C28C600F3D55F /* tommyarrayof.h in Headers */,
+				46ACCC64242475850096CC35 /* GLES2Framebuffer.h in Headers */,
 				46178670205262BC008256E1 /* jsb_conversions.hpp in Headers */,
 				50ABBD5A1925AB0000A911A9 /* Vec2.h in Headers */,
 				BA06A84C23584B92007740C5 /* egl.h in Headers */,
@@ -2948,16 +2905,15 @@
 				BA06A6C823583DBD007740C5 /* GFXInputAssembler.h in Headers */,
 				46BFE00423CC573500CC5F8E /* GFXMTL.h in Headers */,
 				BA06A6A823583DBD007740C5 /* GFXTextureView.h in Headers */,
+				46ACCC52242475850096CC35 /* GFXGLES2.h in Headers */,
 				4617866D2052609B008256E1 /* jsb_cocos2dx_network_auto.hpp in Headers */,
 				46BFDFFF23CC573500CC5F8E /* MTLDevice.h in Headers */,
 				50ABC00F1926664800A911A9 /* CCFileUtils.h in Headers */,
 				1A28FF4D1F20AFAB007A1D9D /* SRDelegateController.h in Headers */,
-				469FFAFB240E55EF00581BFC /* GLES2CommandPool.h in Headers */,
 				BA06A69A23583DBD007740C5 /* CoreStd.h in Headers */,
 				BAC32B6B236C28C600F3D55F /* tommyarrayblk.h in Headers */,
 				BA06A68C23583DBD007740C5 /* StdAlloc.h in Headers */,
 				46FDDB9F202ADDCE00931238 /* CCVector.h in Headers */,
-				469FFAFC240E55F300581BFC /* GLES2Std.h in Headers */,
 				50ABBD5E1925AB0000A911A9 /* Vec3.h in Headers */,
 				BA06A6D423583DBD007740C5 /* GFXFramebuffer.h in Headers */,
 				BA06A6E623583DBD007740C5 /* CachedArray.h in Headers */,
@@ -2972,19 +2928,22 @@
 				1A52DB42205BCD9200350EE3 /* Utils.hpp in Headers */,
 				46FDDB89202ADDCE00931238 /* CCRef.h in Headers */,
 				46FDDBE9202ADDCE00931238 /* CCAutoreleasePool.h in Headers */,
+				46ACCC54242475850096CC35 /* GLES2Window.h in Headers */,
+				46ACCC57242475850096CC35 /* GLES2RenderPass.h in Headers */,
+				46ACCC70242475850096CC35 /* GLES2Context.h in Headers */,
 				46FDDB4F202ADDCE00931238 /* CCValue.h in Headers */,
 				46AE3FFD2092F3A600F3A228 /* util.h in Headers */,
 				46FDDBB5202ADDCE00931238 /* uthash.h in Headers */,
 				1AAAC8DF205CB6E9005321B9 /* AudioDecoder.h in Headers */,
 				4617862520522469008256E1 /* CCDownloader.h in Headers */,
 				BAC32B51236C28C600F3D55F /* tommytrie.h in Headers */,
-				469FFAFE240E55F900581BFC /* GLES2BindingLayout.h in Headers */,
+				46ACCC61242475850096CC35 /* GLES2Shader.h in Headers */,
 				BA06A6D623583DBD007740C5 /* GFXBuffer.h in Headers */,
 				1A28FF7D1F20AFAB007A1D9D /* SRMutex.h in Headers */,
+				46ACCC60242475850096CC35 /* GLES2Device.h in Headers */,
 				BAC32B67236C28C600F3D55F /* tommyhashtbl.h in Headers */,
 				1A28FF711F20AFAB007A1D9D /* SRHash.h in Headers */,
 				50ABC0171926664800A911A9 /* CCImage.h in Headers */,
-				469FFAF1240E55CB00581BFC /* GLES2StateCache.h in Headers */,
 				BA06A6C023583DBD007740C5 /* GFXDef.h in Headers */,
 				BA06A68823583DBD007740C5 /* JeAlloc.h in Headers */,
 				BA06A85423584B92007740C5 /* khrplatform.h in Headers */,
@@ -2994,6 +2953,7 @@
 				BA06A85C23584B93007740C5 /* vulkan.h in Headers */,
 				46BFE01423CC573500CC5F8E /* MTLQueue.h in Headers */,
 				46AE3FED2092F3A600F3A228 /* http_parser.h in Headers */,
+				46ACCC13242462B00096CC35 /* jsb_gles2_auto.hpp in Headers */,
 				BA06A6F223583DBD007740C5 /* Object.h in Headers */,
 				4617864B20522469008256E1 /* HttpCookie.h in Headers */,
 			);
@@ -3005,10 +2965,9 @@
 			files = (
 				BA06A6D523583DBD007740C5 /* GFXFramebuffer.h in Headers */,
 				4617862A20522469008256E1 /* Uri.h in Headers */,
-				BA06A79023583DFE007740C5 /* GLES2Framebuffer.h in Headers */,
 				469303892046AE05004A3D6C /* HandleObject.hpp in Headers */,
+				46ACCCCB242476130096CC35 /* GLES3Context.h in Headers */,
 				503DD8EF1926736A00CD74DD /* CCPlatformDefine-ios.h in Headers */,
-				BA06A76E23583DFE007740C5 /* GLES2Commands.h in Headers */,
 				BA06A6AD23583DBD007740C5 /* GFXTexture.h in Headers */,
 				1A28FF921F20AFAB007A1D9D /* NSURLRequest+SRWebSocket.h in Headers */,
 				46FDDB5C202ADDCE00931238 /* CCData.h in Headers */,
@@ -3023,50 +2982,44 @@
 				BAC32B5A236C28C600F3D55F /* tommyhashdyn.h in Headers */,
 				425D3FF422D86BEF00BCED11 /* Mat3.hpp in Headers */,
 				BA06A85723584B92007740C5 /* egl.h in Headers */,
-				BA06A7FC23583DFE007740C5 /* GLES3InputAssembler.h in Headers */,
 				46FDDBA0202ADDCE00931238 /* CCVector.h in Headers */,
 				BAC32B70236C28C600F3D55F /* tommytree.h in Headers */,
 				46FDDB54202ADDCE00931238 /* utlist.h in Headers */,
 				46AE40022092F3A600F3A228 /* SHA1.h in Headers */,
-				BA06A7DC23583DFE007740C5 /* GLES3TextureView.h in Headers */,
 				469303932046AE05004A3D6C /* SeApi.h in Headers */,
 				BA06A6F723583DBD007740C5 /* TypeDef.h in Headers */,
 				1A29D76C205665BE00168D9A /* jsb_cocos2dx_auto.hpp in Headers */,
+				46ACCCC0242476130096CC35 /* GLES3InputAssembler.h in Headers */,
+				46ACCCC1242476130096CC35 /* GLES3PipelineState.h in Headers */,
 				46FDDBB8202ADDCE00931238 /* ccUtils.h in Headers */,
 				50643BE319BFCF1800EF68ED /* CCPlatformConfig.h in Headers */,
 				46FDDB4E202ADDCE00931238 /* pvr.h in Headers */,
 				46FDDBB6202ADDCE00931238 /* uthash.h in Headers */,
-				BA06A76623583DFE007740C5 /* GLES2TextureView.h in Headers */,
 				46FDDB5E202ADDCE00931238 /* ccMacros.h in Headers */,
 				294D7D9B1D0E93A2002CE7B7 /* CCDevice-apple.h in Headers */,
+				46ACCCAD242476130096CC35 /* GLES3CommandAllocator.h in Headers */,
 				46178650205224DA008256E1 /* CCDownloaderImpl-apple.h in Headers */,
 				46AE3FE62092F3A600F3A228 /* base64.h in Headers */,
 				BA06A84F23584B92007740C5 /* glext.h in Headers */,
 				46AE3FE82092F3A600F3A228 /* inspector_io.h in Headers */,
-				BA06A77E23583DFE007740C5 /* GLES2Texture.h in Headers */,
 				1AAAC8E0205CB6E9005321B9 /* AudioDecoder.h in Headers */,
 				1A28FF821F20AFAB007A1D9D /* SRRandom.h in Headers */,
 				50643BD619BFAEDA00EF68ED /* CCPlatformDefine.h in Headers */,
-				BA06A7E023583DFE007740C5 /* GLES3StateCache.h in Headers */,
 				50ABBD631925AB0000A911A9 /* Vec4.h in Headers */,
 				46AE3FDE2092F3A600F3A228 /* inspector_socket_server.h in Headers */,
-				BA06A78E23583DFE007740C5 /* GLES2CommandBuffer.h in Headers */,
 				46AE3FFE2092F3A600F3A228 /* util.h in Headers */,
-				BA06A7B223583DFE007740C5 /* GLES2InputAssembler.h in Headers */,
-				BA06A7FE23583DFE007740C5 /* GLES3PipelineState.h in Headers */,
 				BA06A6CF23583DBD007740C5 /* GFXCommandBuffer.h in Headers */,
+				46ACCCB6242476130096CC35 /* GLES3Texture.h in Headers */,
 				50ABC0101926664800A911A9 /* CCFileUtils.h in Headers */,
 				BAC32B42236C28C600F3D55F /* tommyarray.h in Headers */,
 				1A29D77E2056667800168D9A /* csscolorparser.hpp in Headers */,
+				46ACCCB4242476130096CC35 /* GLES3PipelineLayout.h in Headers */,
 				BAC32B5E236C28C600F3D55F /* tommyarrayblkof.h in Headers */,
-				BA06A81623583DFE007740C5 /* GLES3Std.h in Headers */,
 				46AE40062092F3A600F3A228 /* inspector_socket.h in Headers */,
-				BA06A7F423583DFE007740C5 /* GLES3Commands.h in Headers */,
 				469304112046AE06004A3D6C /* jsb_helper.hpp in Headers */,
 				1A52DAF7205BB81400350EE3 /* CCThreadPool.h in Headers */,
 				BA06A6BD23583DBD007740C5 /* GFXPipelineState.h in Headers */,
 				50ABBD5B1925AB0000A911A9 /* Vec2.h in Headers */,
-				BA06A76A23583DFE007740C5 /* GLES2PipelineLayout.h in Headers */,
 				BA06A68723583DBD007740C5 /* Memory.h in Headers */,
 				4008729720CE20C2002EB77B /* jsb_cocos2dx_network_manual.h in Headers */,
 				50ABBD411925AB0000A911A9 /* CCMath.h in Headers */,
@@ -3074,8 +3027,9 @@
 				461786682052607E008256E1 /* jsb_websocket.hpp in Headers */,
 				BAC32B68236C28C600F3D55F /* tommyhashtbl.h in Headers */,
 				4617865E2052607E008256E1 /* jsb_xmlhttprequest.hpp in Headers */,
-				BA06A76C23583DFE007740C5 /* GFXGLES2.h in Headers */,
 				50ABBD3F1925AB0000A911A9 /* CCGeometry.h in Headers */,
+				46ACCCBC242476130096CC35 /* GLES3Commands.h in Headers */,
+				46ACCCCC242476130096CC35 /* GLES3BindingLayout.h in Headers */,
 				BAC32B66236C28C600F3D55F /* tommychain.h in Headers */,
 				BA06A85523584B92007740C5 /* khrplatform.h in Headers */,
 				4617866E2052609B008256E1 /* jsb_cocos2dx_network_auto.hpp in Headers */,
@@ -3085,24 +3039,22 @@
 				BA06A69B23583DBD007740C5 /* CoreStd.h in Headers */,
 				50ABBFFE1926664800A911A9 /* CCFileUtils-apple.h in Headers */,
 				46FDDBEA202ADDCE00931238 /* CCAutoreleasePool.h in Headers */,
-				BA06A7AC23583DFE007740C5 /* GLES2Std.h in Headers */,
 				461786642052607E008256E1 /* jsb_socketio.hpp in Headers */,
-				BA06A7E223583DFE007740C5 /* GLES3Shader.h in Headers */,
 				46AE40002092F3A600F3A228 /* v8_inspector_protocol_json.h in Headers */,
 				1A28FF521F20AFAB007A1D9D /* SRIOConsumer.h in Headers */,
-				BA06A79423583DFE007740C5 /* GLES2StateCache.h in Headers */,
 				1A28FF981F20AFAB007A1D9D /* SRSecurityPolicy.h in Headers */,
 				BA06A67D23583DBD007740C5 /* MemDef.h in Headers */,
+				46ACCCB2242476130096CC35 /* GLES3Shader.h in Headers */,
 				BA06A83F23584B92007740C5 /* gl3.h in Headers */,
 				40CEAEB520CFDC23007A3281 /* CCReachability.h in Headers */,
 				4037F5CD2108751E001C205C /* CCAsyncTaskPool.h in Headers */,
 				BA06A6B723583DBD007740C5 /* GFXPipelineLayout.h in Headers */,
 				BA06A6EB23583DBD007740C5 /* Assertion.h in Headers */,
-				BA06A7CA23583DFE007740C5 /* GLES3Window.h in Headers */,
 				BA06A84923584B92007740C5 /* gl2.h in Headers */,
+				46ACCCC9242476130096CC35 /* GLES3GPUObjects.h in Headers */,
 				BA06A84D23584B92007740C5 /* egl.h in Headers */,
+				46ACCCBA242476130096CC35 /* gles3w.h in Headers */,
 				BA06A85923584B93007740C5 /* eglext.h in Headers */,
-				BA06A77823583DFE007740C5 /* GLES2RenderPass.h in Headers */,
 				BA06A6AF23583DBD007740C5 /* GFXBindingLayout.h in Headers */,
 				46930467204FE20F004A3D6C /* CCLog.h in Headers */,
 				1A28FF761F20AFAB007A1D9D /* SRHTTPConnectMessage.h in Headers */,
@@ -3111,12 +3063,10 @@
 				46FDDBBC202ADDCE00931238 /* CCRefPtr.h in Headers */,
 				46AE3FEC2092F3A600F3A228 /* node_mutex.h in Headers */,
 				4617864C20522469008256E1 /* HttpCookie.h in Headers */,
-				BA06A81823583DFE007740C5 /* GFXGLES3.h in Headers */,
 				469304012046AE06004A3D6C /* jsb_global.h in Headers */,
-				BA06A7EC23583DFE007740C5 /* GLES3Queue.h in Headers */,
 				46BFDFA023C8712600CC5F8E /* CCApplication.h in Headers */,
-				BA06A81223583DFE007740C5 /* GLES3BindingLayout.h in Headers */,
 				46AE3FF82092F3A600F3A228 /* util-inl.h in Headers */,
+				46ACCCCE242476130096CC35 /* GLES3Std.h in Headers */,
 				1A28FF621F20AFAB007A1D9D /* SRRunLoopThread.h in Headers */,
 				BA06A67523583DBD007740C5 /* Core.h in Headers */,
 				1A28FF7A1F20AFAB007A1D9D /* SRLog.h in Headers */,
@@ -3124,42 +3074,37 @@
 				46FDDC64202D502F00931238 /* CCApplication.h in Headers */,
 				469303912046AE05004A3D6C /* MappingUtils.hpp in Headers */,
 				EDAD7A4023FFDDEC0014B660 /* jsb_gfx_auto.hpp in Headers */,
-				BA06A80E23583DFE007740C5 /* GLES3GPUObjects.h in Headers */,
 				4617864420522469008256E1 /* HttpRequest.h in Headers */,
 				46AE3FEE2092F3A600F3A228 /* http_parser.h in Headers */,
-				BA06A79A23583DFE007740C5 /* GLES2Sampler.h in Headers */,
 				4693045B2046AE06004A3D6C /* EventDispatcher.h in Headers */,
-				BA06A76223583DFE007740C5 /* GLES2GPUObjects.h in Headers */,
 				BAC32B3C236C28C600F3D55F /* tommylist.h in Headers */,
-				BA06A7F023583DFE007740C5 /* gles3w.h in Headers */,
 				BA06A84723584B92007740C5 /* gl2ext.h in Headers */,
 				46FDDBCC202ADDCE00931238 /* ZipUtils.h in Headers */,
 				BA06A6EF23583DBD007740C5 /* Log.h in Headers */,
 				46FDDB50202ADDCE00931238 /* CCValue.h in Headers */,
 				1AAAC8EE205CB6E9005321B9 /* AudioCache.h in Headers */,
+				46ACCCC6242476130096CC35 /* GLES3Sampler.h in Headers */,
 				1A28FF721F20AFAB007A1D9D /* SRHash.h in Headers */,
 				50ABBD431925AB0000A911A9 /* CCMathBase.h in Headers */,
-				BA06A78A23583DFE007740C5 /* GLES2Shader.h in Headers */,
 				469303812046AE05004A3D6C /* config.hpp in Headers */,
-				BA06A7FA23583DFE007740C5 /* GLES3RenderPass.h in Headers */,
 				BA06A84B23584B92007740C5 /* gl2platform.h in Headers */,
 				1A28FF9C1F20AFAB007A1D9D /* SRWebSocket.h in Headers */,
 				BAEA45561E279D5C00FA219F /* tinydir.h in Headers */,
 				4693038B2046AE05004A3D6C /* State.hpp in Headers */,
 				BAC32B4C236C28C600F3D55F /* tommyalloc.h in Headers */,
+				46ACCCC5242476130096CC35 /* GLES3Framebuffer.h in Headers */,
 				461DCA5B20C7E4BA00B22827 /* JavaScriptObjCBridge.h in Headers */,
 				46FDDB8A202ADDCE00931238 /* CCRef.h in Headers */,
 				46FDDB6C202ADDCE00931238 /* base64.h in Headers */,
 				469303652046AE05004A3D6C /* RefCounter.hpp in Headers */,
 				BA06A6C923583DBD007740C5 /* GFXInputAssembler.h in Headers */,
 				BA06A6D123583DBD007740C5 /* GFXContext.h in Headers */,
+				46ACCCB1242476130096CC35 /* GLES3StateCache.h in Headers */,
 				BA06A6B123583DBD007740C5 /* GFXQueue.h in Headers */,
 				BA06A84323584B92007740C5 /* gl3platform.h in Headers */,
 				BA06A68523583DBD007740C5 /* StlAlloc.h in Headers */,
 				1AAAC8F4205CB6E9005321B9 /* AudioEngine.h in Headers */,
-				BA06A77023583DFE007740C5 /* GLES2Window.h in Headers */,
 				1A29D7A420566CAC00168D9A /* CCCanvasRenderingContext2D.h in Headers */,
-				BA06A7B023583DFE007740C5 /* GLES2BindingLayout.h in Headers */,
 				BA06A69123583DBD007740C5 /* StringUtil.h in Headers */,
 				469303872046AE05004A3D6C /* Object.hpp in Headers */,
 				1A28FF5E1F20AFAB007A1D9D /* SRProxyConnect.h in Headers */,
@@ -3167,82 +3112,73 @@
 				1A28FF4E1F20AFAB007A1D9D /* SRDelegateController.h in Headers */,
 				46FDDB6E202ADDCE00931238 /* etc1.h in Headers */,
 				1AAAC8E6205CB6E9005321B9 /* AudioPlayer.h in Headers */,
-				BA06A79C23583DFE007740C5 /* GLES2PipelineState.h in Headers */,
-				BA06A7AE23583DFE007740C5 /* GLES2Buffer.h in Headers */,
 				1A28FF8A1F20AFAB007A1D9D /* SRURLUtilities.h in Headers */,
 				BAC32B6E236C28C600F3D55F /* tommyhashlin.h in Headers */,
 				50ABBD4B1925AB0000A911A9 /* Mat4.h in Headers */,
-				BA06A7EA23583DFE007740C5 /* GLES3Texture.h in Headers */,
-				EDAD7A5A2403A3F70014B660 /* GLES3Context.h in Headers */,
 				50ABBD531925AB0000A911A9 /* Quaternion.h in Headers */,
-				BA06A7E623583DFE007740C5 /* GLES3PipelineLayout.h in Headers */,
+				46ACCC1A2424755F0096CC35 /* jsb_gles3_auto.hpp in Headers */,
 				BA39055B23B1BFD600CAFB49 /* CCCoreMath.h in Headers */,
 				4617863E20522469008256E1 /* HttpResponse.h in Headers */,
+				46ACCCD1242476130096CC35 /* GLES3Buffer.h in Headers */,
 				46BFDFC523CC137400CC5F8E /* CCDevice.h in Headers */,
-				BA06A78023583DFE007740C5 /* gles2w.h in Headers */,
 				461786542052301A008256E1 /* CCScheduler.h in Headers */,
 				50ABC0181926664800A911A9 /* CCImage.h in Headers */,
 				BA06A6ED23583DBD007740C5 /* UTFString.h in Headers */,
 				BA06A68323583DBD007740C5 /* MemTracker.h in Headers */,
 				BA06A6C123583DBD007740C5 /* GFXDef.h in Headers */,
 				BA06A6A523583DBD007740C5 /* GFXCommandAllocator.h in Headers */,
+				46ACCCA7242476130096CC35 /* GLES3Window.h in Headers */,
 				4617862420522469008256E1 /* CCIDownloaderImpl.h in Headers */,
 				5027253B190BF1B900AAF4ED /* cocos2d.h in Headers */,
 				BA06A6DB23583DBD007740C5 /* GFXSampler.h in Headers */,
-				BA06A80623583DFE007740C5 /* GLES3Framebuffer.h in Headers */,
+				46ACCCAF242476130096CC35 /* GLES3TextureView.h in Headers */,
 				1AAAC876205CB647005321B9 /* jsb_cocos2dx_audioengine_auto.hpp in Headers */,
 				BA06A84523584B92007740C5 /* gl31.h in Headers */,
 				BA06A6D723583DBD007740C5 /* GFXBuffer.h in Headers */,
-				EDAD7A4E24039A690014B660 /* GLES2Context.h in Headers */,
-				BA06A78823583DFE007740C5 /* GLES2Device.h in Headers */,
 				1A29D772205665D200168D9A /* jsb_cocos2dx_manual.hpp in Headers */,
 				1A29D789205666B200168D9A /* LocalStorage.h in Headers */,
 				BAC32B52236C28C600F3D55F /* tommytrie.h in Headers */,
 				BA06A6F323583DBD007740C5 /* Object.h in Headers */,
 				46AE3FE42092F3A600F3A228 /* inspector_agent.h in Headers */,
-				BA06A76423583DFE007740C5 /* GLES2CommandAllocator.h in Headers */,
 				50ABBD4F1925AB0000A911A9 /* MathUtil.h in Headers */,
-				BA06A82223583DFE007740C5 /* GLES3CommandPool.h in Headers */,
 				1A28FF561F20AFAB007A1D9D /* SRIOConsumerPool.h in Headers */,
-				BA06A7E823583DFE007740C5 /* GLES3CommandBuffer.h in Headers */,
 				1A28FF7E1F20AFAB007A1D9D /* SRMutex.h in Headers */,
 				403ACADD20CE542900BB433D /* jsb_module_register.hpp in Headers */,
 				46FDDB84202ADDCE00931238 /* ccRandom.h in Headers */,
 				1AAAC8EA205CB6E9005321B9 /* AudioMacros.h in Headers */,
-				BA06A7DA23583DFE007740C5 /* GLES3CommandAllocator.h in Headers */,
 				46AE400A2092F3A600F3A228 /* node_debug_options.h in Headers */,
 				4617862620522469008256E1 /* CCDownloader.h in Headers */,
 				4DCEC127233236D60020F8E3 /* etc2.h in Headers */,
 				46FDDBD2202ADDCE00931238 /* ccUTF8.h in Headers */,
+				46ACCCB3242476130096CC35 /* GLES3Device.h in Headers */,
 				BA06A85123584B92007740C5 /* glplatform.h in Headers */,
+				46ACCCB8242476130096CC35 /* GLES3Queue.h in Headers */,
 				BAC32B6C236C28C600F3D55F /* tommyarrayblk.h in Headers */,
 				50ABBD5F1925AB0000A911A9 /* Vec3.h in Headers */,
 				EDAD7A4823FFDE040014B660 /* jsb_gfx_manual.hpp in Headers */,
 				46FDDC02202ADDCE00931238 /* ccCArray.h in Headers */,
-				BA06A7A623583DFE007740C5 /* GLES2Queue.h in Headers */,
-				BA06A81C23583DFE007740C5 /* GLES3Buffer.h in Headers */,
 				BAC32B56236C28C600F3D55F /* tommy.h in Headers */,
 				BAC32B3A236C28C600F3D55F /* tommytrieinp.h in Headers */,
 				50ABBD471925AB0000A911A9 /* CCVertex.h in Headers */,
 				BA06A6E723583DBD007740C5 /* CachedArray.h in Headers */,
 				4617862820522469008256E1 /* WebSocket.h in Headers */,
+				46ACCCCF242476130096CC35 /* GFXGLES3.h in Headers */,
 				4617863220522469008256E1 /* SocketIO.h in Headers */,
 				1A28FF5C1F20AFAB007A1D9D /* NSURLRequest+SRWebSocketPrivate.h in Headers */,
 				BA06A85B23584B93007740C5 /* eglplatform.h in Headers */,
 				BA06A68F23583DBD007740C5 /* NedPooling.h in Headers */,
-				BA06A7E423583DFE007740C5 /* GLES3Device.h in Headers */,
 				1AAAC8F0205CB6E9005321B9 /* AudioEngine-inl.h in Headers */,
 				1A28FF6E1F20AFAB007A1D9D /* SRError.h in Headers */,
 				1AAAC8F6205CB6E9005321B9 /* Export.h in Headers */,
 				46FDDBC4202ADDCE00931238 /* ccConfig.h in Headers */,
-				BA06A80823583DFE007740C5 /* GLES3Sampler.h in Headers */,
 				46AE3FE02092F3A600F3A228 /* env.h in Headers */,
 				1A28FF661F20AFAB007A1D9D /* SRPinningSecurityPolicy.h in Headers */,
-				BA06A7AA23583DFE007740C5 /* GLES2CommandPool.h in Headers */,
 				BA06A6A923583DBD007740C5 /* GFXTextureView.h in Headers */,
 				46178671205262BC008256E1 /* jsb_conversions.hpp in Headers */,
+				46ACCCB5242476130096CC35 /* GLES3CommandBuffer.h in Headers */,
 				BA06A85323584B92007740C5 /* gl.h in Headers */,
 				BAC32B50236C28C600F3D55F /* tommyhash.h in Headers */,
+				46ACCCBF242476130096CC35 /* GLES3RenderPass.h in Headers */,
 				BA06A84123584B92007740C5 /* gl32.h in Headers */,
 				BA06A69D23583DBD007740C5 /* CoreDef.h in Headers */,
 				50ABC01C1926664800A911A9 /* CCSAXParser.h in Headers */,
@@ -3332,14 +3268,15 @@
 				4693038C2046AE05004A3D6C /* config.cpp in Sources */,
 				BAC32B5F236C28C600F3D55F /* tommytrieinp.c in Sources */,
 				1AAAC8E3205CB6E9005321B9 /* AudioDecoder.mm in Sources */,
+				46ACCC68242475850096CC35 /* GLES2RenderPass.cc in Sources */,
 				1A28FF7F1F20AFAB007A1D9D /* SRMutex.m in Sources */,
 				469303942046AE05004A3D6C /* RefCounter.cpp in Sources */,
 				469304262046AE06004A3D6C /* jsb_conversions.cpp in Sources */,
 				469304582046AE06004A3D6C /* EventDispatcher.cpp in Sources */,
 				1A52DAF8205BB81400350EE3 /* CCThreadPool.cpp in Sources */,
+				46ACCC6B242475850096CC35 /* GLES2BindingLayout.cc in Sources */,
 				46BFDFF923CC573500CC5F8E /* MTLFrameBuffer.cpp in Sources */,
 				BA06A68023583DBD007740C5 /* AllocatedObj.cc in Sources */,
-				469FFAE9240E55B100581BFC /* GLES2Std.cc in Sources */,
 				BA06A6E223583DBD007740C5 /* GFXContext.cc in Sources */,
 				BA06A6B423583DBD007740C5 /* GFXTextureView.cc in Sources */,
 				46AE3FFB2092F3A600F3A228 /* inspector_io.cc in Sources */,
@@ -3348,30 +3285,32 @@
 				4037F5CE2108751E001C205C /* CCAsyncTaskPool.cpp in Sources */,
 				BAC32B45236C28C600F3D55F /* tommyarrayof.c in Sources */,
 				46FDDB65202ADDCE00931238 /* ccRandom.cpp in Sources */,
-				469FFAE8240E55AE00581BFC /* GLES2CommandAllocator.cc in Sources */,
-				469FFAED240E55BE00581BFC /* GLES2Shader.cc in Sources */,
-				469FFB01240E560200581BFC /* GLES2TextureView.cc in Sources */,
 				46BFE00923CC573500CC5F8E /* MTLTexture.mm in Sources */,
 				50ABBD581925AB0000A911A9 /* Vec2.cpp in Sources */,
-				469FFAD6240E555700581BFC /* GLES2Context.cc in Sources */,
 				4626B1FF202D9BD800BE30B9 /* CCApplication-mac.mm in Sources */,
 				5027253C190BF1B900AAF4ED /* cocos2d.cpp in Sources */,
 				4649F62A24289F5100BEDA2A /* CCKeyCodeHelper.cpp in Sources */,
 				1AAAC8EB205CB6E9005321B9 /* AudioCache.mm in Sources */,
 				46AE3FF92092F3A600F3A228 /* inspector_socket.cc in Sources */,
+				46ACCC65242475850096CC35 /* GLES2Queue.cc in Sources */,
 				50ABBD501925AB0000A911A9 /* Quaternion.cpp in Sources */,
+				46ACCC50242475850096CC35 /* GLES2Device.cc in Sources */,
 				425D3FF122D86BEF00BCED11 /* Mat3.cpp in Sources */,
 				BA06A68A23583DBD007740C5 /* Memory.cc in Sources */,
+				46ACCC6D242475850096CC35 /* GLES2Commands.cc in Sources */,
 				ED30579A1BEC77B70083C3ED /* ConvertUTF.c in Sources */,
+				46ACCC76242475850096CC35 /* GLES2TextureView.cc in Sources */,
 				4617863320522469008256E1 /* Uri.cpp in Sources */,
 				46BFE00323CC573500CC5F8E /* MTLWindow.mm in Sources */,
+				46ACCC5E242475850096CC35 /* GLES2Window.cc in Sources */,
 				1A28FF6B1F20AFAB007A1D9D /* SRConstants.m in Sources */,
 				294D7D9C1D0E93A2002CE7B7 /* CCDevice-apple.mm in Sources */,
-				469FFAF0240E55C800581BFC /* GLES2Queue.cc in Sources */,
 				1A29D77B2056667800168D9A /* csscolorparser.cpp in Sources */,
 				BAC32B43236C28C600F3D55F /* tommy.c in Sources */,
 				EDAD7A4123FFDDEC0014B660 /* jsb_gfx_auto.cpp in Sources */,
 				46AE40072092F3A600F3A228 /* node_debug_options.cc in Sources */,
+				46ACCC56242475850096CC35 /* GLES2Framebuffer.cc in Sources */,
+				46ACCC55242475850096CC35 /* GLES2Texture.cc in Sources */,
 				469304122046AE06004A3D6C /* jsb_classtype.cpp in Sources */,
 				50ABBFFF1926664800A911A9 /* CCFileUtils-apple.mm in Sources */,
 				46BFE01523CC573500CC5F8E /* MTLCommands.mm in Sources */,
@@ -3380,6 +3319,7 @@
 				40CEAEB720CFDC45007A3281 /* CCReachability.cpp in Sources */,
 				1A52DB30205BCD9200350EE3 /* ScriptEngine.cpp in Sources */,
 				BAC32B61236C28C600F3D55F /* tommylist.c in Sources */,
+				46ACCC5C242475850096CC35 /* GLES2CommandAllocator.cc in Sources */,
 				4DC57D211F7A58B5005B6546 /* xxtea.cpp in Sources */,
 				46AE40032092F3A600F3A228 /* http_parser.c in Sources */,
 				BA06A6D823583DBD007740C5 /* GFXTexture.cc in Sources */,
@@ -3398,15 +3338,13 @@
 				4693042E2046AE06004A3D6C /* jsb_helper.cpp in Sources */,
 				BAC32B71236C28C600F3D55F /* tommytrie.c in Sources */,
 				BAC32B3D236C28C600F3D55F /* tommyarrayblkof.c in Sources */,
-				469FFAEA240E55B400581BFC /* GLES2Window.cc in Sources */,
+				46ACCC4B242475850096CC35 /* gles2w.mm in Sources */,
 				BA06A69E23583DBD007740C5 /* GFXShader.cc in Sources */,
 				46FDDBF9202ADDCE00931238 /* etc1.cpp in Sources */,
 				46BFE01323CC573500CC5F8E /* MTLCommandAllocator.mm in Sources */,
-				469FFB02240E560500581BFC /* GLES2CommandBuffer.cc in Sources */,
 				50ABBD4C1925AB0000A911A9 /* MathUtil.cpp in Sources */,
 				4693038E2046AE05004A3D6C /* Value.cpp in Sources */,
 				BA06A6CA23583DBD007740C5 /* GFXRenderPass.cc in Sources */,
-				469FFB00240E55FF00581BFC /* GLES2Buffer.cc in Sources */,
 				BA06A6BA23583DBD007740C5 /* GFXDef.cc in Sources */,
 				4649F62824289F5100BEDA2A /* CCView.mm in Sources */,
 				1ABAD24E20C29F3800BC71C0 /* CCCanvasRenderingContext2D-apple.mm in Sources */,
@@ -3423,68 +3361,64 @@
 				ED3057821BEC76C90083C3ED /* unzip.cpp in Sources */,
 				1A28FF8F1F20AFAB007A1D9D /* NSRunLoop+SRWebSocket.m in Sources */,
 				BA06A67E23583DBD007740C5 /* JeAlloc.cc in Sources */,
-				469FFAE5240E55A400581BFC /* GLES2Sampler.cc in Sources */,
 				ED3057801BEC76C90083C3ED /* ioapi.cpp in Sources */,
 				1A52DB26205BCD9200350EE3 /* Utils.cpp in Sources */,
-				469FFAF2240E55CF00581BFC /* GLES2PipelineState.cc in Sources */,
 				403ACADA20CE4EB000BB433D /* jsb_module_register.cpp in Sources */,
 				1A28FF671F20AFAB007A1D9D /* SRPinningSecurityPolicy.m in Sources */,
 				50ABC0191926664800A911A9 /* CCSAXParser.cpp in Sources */,
 				1A28FF571F20AFAB007A1D9D /* SRIOConsumerPool.m in Sources */,
 				46FDDB7B202ADDCE00931238 /* CCRef.cpp in Sources */,
+				46ACCC75242475850096CC35 /* GLES2Buffer.cc in Sources */,
 				1A28FF4F1F20AFAB007A1D9D /* SRDelegateController.m in Sources */,
+				46ACCC62242475850096CC35 /* GLES2Shader.cc in Sources */,
 				46FDDBFB202ADDCE00931238 /* ccCArray.cpp in Sources */,
 				1AAAC8E1205CB6E9005321B9 /* AudioPlayer.mm in Sources */,
 				46BFE00B23CC573500CC5F8E /* MTLQueue.mm in Sources */,
 				1A28FF631F20AFAB007A1D9D /* SRRunLoopThread.m in Sources */,
 				BA06A67A23583DBD007740C5 /* MemTracker.cc in Sources */,
 				50ABBD5C1925AB0000A911A9 /* Vec3.cpp in Sources */,
+				46ACCC12242462B00096CC35 /* jsb_gles2_auto.cpp in Sources */,
 				469303662046AE05004A3D6C /* HandleObject.cpp in Sources */,
 				BAC32B73236C28C600F3D55F /* tommyhash.c in Sources */,
-				469FFAD7240E555E00581BFC /* gles2w.mm in Sources */,
 				BAC32B3F236C28C600F3D55F /* tommyhashdyn.c in Sources */,
 				BAC32B4D236C28C600F3D55F /* tommyhashtbl.c in Sources */,
-				469FFAE4240E55A100581BFC /* GLES2InputAssembler.cc in Sources */,
 				1A28FF831F20AFAB007A1D9D /* SRRandom.m in Sources */,
 				46BFE00123CC573500CC5F8E /* MTLBindingLayout.cpp in Sources */,
 				50ABBD3C1925AB0000A911A9 /* CCGeometry.cpp in Sources */,
 				1A28FF771F20AFAB007A1D9D /* SRHTTPConnectMessage.m in Sources */,
 				46FDDB99202ADDCE00931238 /* ccUTF8.cpp in Sources */,
 				BAC32B47236C28C600F3D55F /* tommyhashlin.c in Sources */,
-				469FFAF6240E55DC00581BFC /* GLES2BindingLayout.cc in Sources */,
 				BA06A6DE23583DBD007740C5 /* GFXQueue.cc in Sources */,
 				46ACCBFC241F27A70096CC35 /* GFXObject.cc in Sources */,
+				46ACCC6F242475850096CC35 /* GLES2PipelineLayout.cc in Sources */,
 				4617862F20522469008256E1 /* HttpClient-apple.mm in Sources */,
 				4617862B20522469008256E1 /* WebSocket-apple.mm in Sources */,
-				469FFAE1240E559300581BFC /* GLES2Texture.cc in Sources */,
 				ED30579C1BEC77B70083C3ED /* ConvertUTFWrapper.cpp in Sources */,
 				46AE3FF12092F3A600F3A228 /* SHA1.cpp in Sources */,
 				BA06A6C623583DBD007740C5 /* GFXCommandBuffer.cc in Sources */,
 				1A28FF7B1F20AFAB007A1D9D /* SRLog.m in Sources */,
-				469FFAE2240E559600581BFC /* GLES2Framebuffer.cc in Sources */,
 				46BFE01923CC573500CC5F8E /* MTLSampler.mm in Sources */,
 				46AE3FE92092F3A600F3A228 /* inspector_socket_server.cc in Sources */,
 				1A28FF6F1F20AFAB007A1D9D /* SRError.m in Sources */,
 				BA06A6AA23583DBD007740C5 /* GFXPipelineLayout.cc in Sources */,
 				1A28FF531F20AFAB007A1D9D /* SRIOConsumer.m in Sources */,
-				469FFAF8240E55E400581BFC /* GLES2Commands.cc in Sources */,
 				1A29D784205666B200168D9A /* LocalStorage.cpp in Sources */,
 				BA06A6F423583DBD007740C5 /* Log.cc in Sources */,
+				46ACCC67242475850096CC35 /* GLES2PipelineState.cc in Sources */,
 				4617864920522469008256E1 /* CCDownloader.cpp in Sources */,
 				46AE3FE12092F3A600F3A228 /* node.cc in Sources */,
 				50ABBD481925AB0000A911A9 /* Mat4.cpp in Sources */,
+				46ACCC77242475850096CC35 /* GLES2CommandBuffer.cc in Sources */,
 				50ABBD441925AB0000A911A9 /* CCVertex.cpp in Sources */,
 				BAC32B53236C28C600F3D55F /* tommytree.c in Sources */,
-				469FFAF3240E55D300581BFC /* GLES2RenderPass.cc in Sources */,
 				BA06A6C223583DBD007740C5 /* GFXBuffer.cc in Sources */,
 				50ABC0631926664800A911A9 /* CCDevice-mac.mm in Sources */,
-				469FFAD8240E556200581BFC /* GLES2Device.cc in Sources */,
 				461786552052301A008256E1 /* CCScheduler.cpp in Sources */,
-				469FFAFA240E55EC00581BFC /* GLES2PipelineLayout.cc in Sources */,
 				BA06A6A623583DBD007740C5 /* GFXWindow.cc in Sources */,
 				46BFDFF723CC573500CC5F8E /* MTLCommandBuffer.mm in Sources */,
 				469303682046AE05004A3D6C /* State.cpp in Sources */,
 				46BFE00523CC573500CC5F8E /* MTLBuffer.mm in Sources */,
+				46ACCCDA2424A1610096CC35 /* GLES2Context.cc in Sources */,
 				BAC32B69236C28C600F3D55F /* tommyalloc.c in Sources */,
 				1A52DB882060B11800350EE3 /* jsb_platfrom_apple.mm in Sources */,
 				4617864720522469008256E1 /* CCDownloaderImpl-apple.mm in Sources */,
@@ -3494,7 +3428,9 @@
 				1AAAC8F1205CB6E9005321B9 /* AudioEngine.cpp in Sources */,
 				1A29D76F205665D200168D9A /* jsb_cocos2dx_manual.cpp in Sources */,
 				50ABC00D1926664800A911A9 /* CCFileUtils.cpp in Sources */,
+				46ACCC58242475850096CC35 /* GLES2InputAssembler.cc in Sources */,
 				46FDDBA3202ADDCE00931238 /* pvr.cpp in Sources */,
+				46ACCC5D242475850096CC35 /* GLES2Std.cc in Sources */,
 				46FDDBE3202ADDCE00931238 /* CCData.cpp in Sources */,
 				BA06A6E423583DBD007740C5 /* GFXPipelineState.cc in Sources */,
 				1A52DB3E205BCD9200350EE3 /* Class.cpp in Sources */,
@@ -3512,6 +3448,7 @@
 				BA06A6E023583DBD007740C5 /* GFXCommandAllocator.cc in Sources */,
 				BA06A6C423583DBD007740C5 /* GFXFramebuffer.cc in Sources */,
 				46FDDB6F202ADDCE00931238 /* ZipUtils.cpp in Sources */,
+				46ACCC59242475850096CC35 /* GLES2Sampler.cc in Sources */,
 				1A28FF871F20AFAB007A1D9D /* SRSIMDHelpers.m in Sources */,
 				BAC32B49236C28C600F3D55F /* tommyarrayblk.c in Sources */,
 				46BFDFF823CC573500CC5F8E /* MTLShader.mm in Sources */,
@@ -3543,19 +3480,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EDAD7A592403A3F70014B660 /* GLES3Context.mm in Sources */,
 				BA06A6F123583DBD007740C5 /* Assertion.cc in Sources */,
 				ED30578D1BEC77550083C3ED /* unzip.cpp in Sources */,
 				4617864820522469008256E1 /* CCDownloaderImpl-apple.mm in Sources */,
+				46ACCCBE242476130096CC35 /* GLES3Shader.cc in Sources */,
 				BA06A68123583DBD007740C5 /* AllocatedObj.cc in Sources */,
 				1A28FF601F20AFAB007A1D9D /* SRProxyConnect.m in Sources */,
 				1A28FF901F20AFAB007A1D9D /* NSRunLoop+SRWebSocket.m in Sources */,
 				BA06A69523583DBD007740C5 /* CoreStd.cc in Sources */,
-				BA06A80C23583DFE007740C5 /* GLES3RenderPass.cc in Sources */,
 				50ABC0161926664800A911A9 /* CCImage.cpp in Sources */,
-				BA06A79623583DFE007740C5 /* GLES2PipelineState.cc in Sources */,
-				BA06A79223583DFE007740C5 /* GLES2Queue.cc in Sources */,
-				BA06A7CE23583DFE007740C5 /* GLES3InputAssembler.cc in Sources */,
 				BAC32B74236C28C600F3D55F /* tommyhash.c in Sources */,
 				425D3FF222D86BEF00BCED11 /* Mat3.cpp in Sources */,
 				EDAD7A4623FFDE040014B660 /* jsb_gfx_manual.cpp in Sources */,
@@ -3564,10 +3497,9 @@
 				46FDDBA4202ADDCE00931238 /* pvr.cpp in Sources */,
 				50ABC01A1926664800A911A9 /* CCSAXParser.cpp in Sources */,
 				503DD8EE1926736A00CD74DD /* CCImage-ios.mm in Sources */,
-				BA06A7EE23583DFE007740C5 /* GLES3Commands.cc in Sources */,
+				46ACCCBB242476130096CC35 /* GLES3Window.cc in Sources */,
 				ED30578B1BEC774D0083C3ED /* ioapi_mem.cpp in Sources */,
 				1A28FF9A1F20AFAB007A1D9D /* SRSecurityPolicy.m in Sources */,
-				BA06A7D223583DFE007740C5 /* gles3w.mm in Sources */,
 				1A28FF581F20AFAB007A1D9D /* SRIOConsumerPool.m in Sources */,
 				BA06A69323583DBD007740C5 /* StringUtil.cc in Sources */,
 				46AE3FF22092F3A600F3A228 /* SHA1.cpp in Sources */,
@@ -3575,58 +3507,54 @@
 				ED30579E1BEC77BD0083C3ED /* ConvertUTFWrapper.cpp in Sources */,
 				1A28FF801F20AFAB007A1D9D /* SRMutex.m in Sources */,
 				46AE400C2092F3A600F3A228 /* env.cc in Sources */,
-				EDAD7A5424039FFD0014B660 /* GLES2Context.mm in Sources */,
 				ED3057C21BEC78A80083C3ED /* xxhash.c in Sources */,
 				4037F5CF2108751E001C205C /* CCAsyncTaskPool.cpp in Sources */,
+				46ACCCC2242476130096CC35 /* GLES3CommandAllocator.cc in Sources */,
 				ED30578C1BEC77510083C3ED /* ioapi.cpp in Sources */,
 				BAC32B60236C28C600F3D55F /* tommytrieinp.c in Sources */,
 				4617866C2052609B008256E1 /* jsb_cocos2dx_network_auto.cpp in Sources */,
-				BA06A7D823583DFE007740C5 /* GLES3Device.cc in Sources */,
-				BA06A78C23583DFE007740C5 /* GLES2Shader.cc in Sources */,
 				BA06A6C323583DBD007740C5 /* GFXBuffer.cc in Sources */,
 				BAC32B54236C28C600F3D55F /* tommytree.c in Sources */,
 				1AAAC8F2205CB6E9005321B9 /* AudioEngine.cpp in Sources */,
-				BA06A7F223583DFE007740C5 /* GLES3Window.cc in Sources */,
-				BA06A81E23583DFE007740C5 /* GLES3Buffer.cc in Sources */,
+				46ACCCC7242476130096CC35 /* GLES3Queue.cc in Sources */,
 				4693038D2046AE05004A3D6C /* config.cpp in Sources */,
-				BA06A78623583DFE007740C5 /* GLES2Window.cc in Sources */,
 				ED30578A1BEC77460083C3ED /* tinyxml2.cpp in Sources */,
 				1A29D76A205665BE00168D9A /* jsb_cocos2dx_auto.cpp in Sources */,
 				4649F62224289EBE00BEDA2A /* CCView.mm in Sources */,
 				BA06A6F523583DBD007740C5 /* Log.cc in Sources */,
 				46BFDFC223CC136500CC5F8E /* CCDevice-ios.mm in Sources */,
 				BAC32B4E236C28C600F3D55F /* tommyhashtbl.c in Sources */,
+				46ACCCA8242476130096CC35 /* GLES3InputAssembler.cc in Sources */,
 				46FDDBFC202ADDCE00931238 /* ccCArray.cpp in Sources */,
 				BA06A6CD23583DBD007740C5 /* GFXInputAssembler.cc in Sources */,
 				468A968322F43F5A005034BE /* Utils.cpp in Sources */,
+				46ACCCB9242476130096CC35 /* GLES3Commands.cc in Sources */,
 				BA06A6BF23583DBD007740C5 /* GFXDevice.cc in Sources */,
 				BA06A6D323583DBD007740C5 /* GFXSampler.cc in Sources */,
-				BA06A7D623583DFE007740C5 /* GLES3TextureView.cc in Sources */,
 				46ACCBFD241F27A70096CC35 /* GFXObject.cc in Sources */,
 				46FDDB7C202ADDCE00931238 /* CCRef.cpp in Sources */,
 				4DCEC126233236D60020F8E3 /* etc2.cpp in Sources */,
 				BAC32B46236C28C600F3D55F /* tommyarrayof.c in Sources */,
+				46ACCCCA242476130096CC35 /* GLES3Framebuffer.cc in Sources */,
+				46ACCCA9242476130096CC35 /* GLES3Sampler.cc in Sources */,
 				461DCA5920C7E4BA00B22827 /* JavaScriptObjCBridge.mm in Sources */,
-				BA06A81423583DFE007740C5 /* GLES3BindingLayout.cc in Sources */,
 				46FDDBFA202ADDCE00931238 /* etc1.cpp in Sources */,
 				50ABBD591925AB0000A911A9 /* Vec2.cpp in Sources */,
 				1A28FF681F20AFAB007A1D9D /* SRPinningSecurityPolicy.m in Sources */,
 				BA06A6B523583DBD007740C5 /* GFXTextureView.cc in Sources */,
 				BA06A6AB23583DBD007740C5 /* GFXPipelineLayout.cc in Sources */,
 				1A28FF9E1F20AFAB007A1D9D /* SRWebSocket.m in Sources */,
+				46ACCCAA242476130096CC35 /* gles3w.mm in Sources */,
 				403ACADC20CE542600BB433D /* jsb_module_register.cpp in Sources */,
-				BA06A7B423583DFE007740C5 /* GLES2Buffer.cc in Sources */,
 				46BFDFA123C8792400CC5F8E /* CCApplication-ios.mm in Sources */,
-				BA06A80023583DFE007740C5 /* GLES3CommandAllocator.cc in Sources */,
 				4693038F2046AE05004A3D6C /* Value.cpp in Sources */,
-				BA06A79E23583DFE007740C5 /* GLES2BindingLayout.cc in Sources */,
 				46FDDB8C202ADDCE00931238 /* CCAutoreleasePool.cpp in Sources */,
 				461786622052607E008256E1 /* jsb_socketio.cpp in Sources */,
 				BAC32B4A236C28C600F3D55F /* tommyarrayblk.c in Sources */,
 				461786562052301A008256E1 /* CCScheduler.cpp in Sources */,
-				BA06A7D023583DFE007740C5 /* GLES3Sampler.cc in Sources */,
 				50ABBD4D1925AB0000A911A9 /* MathUtil.cpp in Sources */,
 				46AE40082092F3A600F3A228 /* node_debug_options.cc in Sources */,
+				46ACCCAC242476130096CC35 /* GLES3Device.cc in Sources */,
 				1AAAC8E4205CB6E9005321B9 /* AudioDecoder.mm in Sources */,
 				46FDDB90202ADDCE00931238 /* ccUtils.cpp in Sources */,
 				50ABC00E1926664800A911A9 /* CCFileUtils.cpp in Sources */,
@@ -3635,17 +3563,18 @@
 				46AE3FF02092F3A600F3A228 /* inspector_agent.cc in Sources */,
 				BA06A6DD23583DBD007740C5 /* GFXBindingLayout.cc in Sources */,
 				1A52DAF9205BB81400350EE3 /* CCThreadPool.cpp in Sources */,
+				46ACCCD5242477400096CC35 /* GLES3Context.cc in Sources */,
 				4617864A20522469008256E1 /* CCDownloader.cpp in Sources */,
 				BAC32B44236C28C600F3D55F /* tommy.c in Sources */,
 				50ABBD611925AB0000A911A9 /* Vec4.cpp in Sources */,
 				46FDDB9A202ADDCE00931238 /* ccUTF8.cpp in Sources */,
 				469304092046AE06004A3D6C /* jsb_global.cpp in Sources */,
-				BA06A7A423583DFE007740C5 /* GLES2Commands.cc in Sources */,
 				1A28FF741F20AFAB007A1D9D /* SRHash.m in Sources */,
+				46ACCCBD242476130096CC35 /* GLES3Texture.cc in Sources */,
 				46FDDB70202ADDCE00931238 /* ZipUtils.cpp in Sources */,
 				50ABBD511925AB0000A911A9 /* Quaternion.cpp in Sources */,
-				BA06A77A23583DFE007740C5 /* GLES2InputAssembler.cc in Sources */,
 				46930469204FE20F004A3D6C /* CCLog.cpp in Sources */,
+				46ACCCCD242476130096CC35 /* GLES3BindingLayout.cc in Sources */,
 				BA06A6C723583DBD007740C5 /* GFXCommandBuffer.cc in Sources */,
 				BA06A6A723583DBD007740C5 /* GFXWindow.cc in Sources */,
 				1AAAC874205CB647005321B9 /* jsb_cocos2dx_audioengine_auto.cpp in Sources */,
@@ -3654,8 +3583,6 @@
 				469303672046AE05004A3D6C /* HandleObject.cpp in Sources */,
 				BA06A67723583DBD007740C5 /* NedPooling.cc in Sources */,
 				BA06A6E523583DBD007740C5 /* GFXPipelineState.cc in Sources */,
-				BA06A76023583DFE007740C5 /* gles2w.mm in Sources */,
-				BA06A7A823583DFE007740C5 /* GLES2PipelineLayout.cc in Sources */,
 				40CEAEB620CFDC28007A3281 /* CCReachability.cpp in Sources */,
 				468A967F22F43F4C005034BE /* Class.cpp in Sources */,
 				ED30579D1BEC77B90083C3ED /* ConvertUTF.c in Sources */,
@@ -3665,19 +3592,18 @@
 				BAC32B62236C28C600F3D55F /* tommylist.c in Sources */,
 				468A968222F43F55005034BE /* ScriptEngine.cpp in Sources */,
 				469304132046AE06004A3D6C /* jsb_classtype.cpp in Sources */,
-				BA06A76823583DFE007740C5 /* GLES2Device.cc in Sources */,
 				1A28FF941F20AFAB007A1D9D /* NSURLRequest+SRWebSocket.m in Sources */,
 				4693042F2046AE06004A3D6C /* jsb_helper.cpp in Sources */,
 				46FDDBFE202ADDCE00931238 /* CCValue.cpp in Sources */,
-				BA06A77C23583DFE007740C5 /* GLES2Sampler.cc in Sources */,
 				1A28FF7C1F20AFAB007A1D9D /* SRLog.m in Sources */,
 				1A28FF641F20AFAB007A1D9D /* SRRunLoopThread.m in Sources */,
 				BA06A6CB23583DBD007740C5 /* GFXRenderPass.cc in Sources */,
+				46ACCCC3242476130096CC35 /* GLES3PipelineLayout.cc in Sources */,
 				1A28FF6C1F20AFAB007A1D9D /* SRConstants.m in Sources */,
-				BA06A78423583DFE007740C5 /* GLES2Std.cc in Sources */,
+				46ACCCD2242476130096CC35 /* GLES3Buffer.cc in Sources */,
 				1AAAC8E8205CB6E9005321B9 /* AudioEngine-inl.mm in Sources */,
-				EDAD7A582403A3F70014B660 /* GLES3Context.cc in Sources */,
 				4617862220522469008256E1 /* HttpCookie.cpp in Sources */,
+				46ACCCC4242476130096CC35 /* GLES3CommandBuffer.cc in Sources */,
 				469304272046AE06004A3D6C /* jsb_conversions.cpp in Sources */,
 				BAC32B48236C28C600F3D55F /* tommyhashlin.c in Sources */,
 				46AE40042092F3A600F3A228 /* http_parser.c in Sources */,
@@ -3685,65 +3611,55 @@
 				4617863420522469008256E1 /* Uri.cpp in Sources */,
 				4008729520CE20C2002EB77B /* jsb_cocos2dx_network_manual.cpp in Sources */,
 				BA06A68B23583DBD007740C5 /* Memory.cc in Sources */,
+				46ACCCAE242476130096CC35 /* GLES3Context.mm in Sources */,
 				468A968122F43F53005034BE /* ObjectWrap.cpp in Sources */,
 				50ABBD3D1925AB0000A911A9 /* CCGeometry.cpp in Sources */,
 				1A28FF8C1F20AFAB007A1D9D /* SRURLUtilities.m in Sources */,
 				1A28FF541F20AFAB007A1D9D /* SRIOConsumer.m in Sources */,
-				BA06A81A23583DFE007740C5 /* GLES3PipelineState.cc in Sources */,
 				BAC32B72236C28C600F3D55F /* tommytrie.c in Sources */,
 				BA06A6C523583DBD007740C5 /* GFXFramebuffer.cc in Sources */,
-				BA06A81023583DFE007740C5 /* GLES3Framebuffer.cc in Sources */,
 				469303692046AE05004A3D6C /* State.cpp in Sources */,
-				BA06A78223583DFE007740C5 /* GLES2CommandAllocator.cc in Sources */,
-				BA06A7F823583DFE007740C5 /* GLES3Shader.cc in Sources */,
 				BAC32B40236C28C600F3D55F /* tommyhashdyn.c in Sources */,
 				5027253D190BF1B900AAF4ED /* cocos2d.cpp in Sources */,
-				BA06A80223583DFE007740C5 /* GLES3PipelineLayout.cc in Sources */,
 				1A28FF781F20AFAB007A1D9D /* SRHTTPConnectMessage.m in Sources */,
-				EDAD7A5224039FE90014B660 /* GLES2Context.cc in Sources */,
 				1A28FF881F20AFAB007A1D9D /* SRSIMDHelpers.m in Sources */,
 				50ABBD451925AB0000A911A9 /* CCVertex.cpp in Sources */,
 				BA06A6BB23583DBD007740C5 /* GFXDef.cc in Sources */,
 				294D7D9D1D0E93A2002CE7B7 /* CCDevice-apple.mm in Sources */,
 				4617864F205224D6008256E1 /* HttpAsynConnection-apple.m in Sources */,
-				BA06A82023583DFE007740C5 /* gles3w.c in Sources */,
 				BA39055923B1BFD600CAFB49 /* CCCoreMath.cc in Sources */,
 				BA21055921008B6600E19975 /* jsb_cocos2dx_extension_auto.cpp in Sources */,
-				BA06A77423583DFE007740C5 /* GLES2Texture.cc in Sources */,
-				BA06A80423583DFE007740C5 /* GLES3CommandBuffer.cc in Sources */,
+				46ACCC1B2424755F0096CC35 /* jsb_gles3_auto.cpp in Sources */,
 				EDAD7A4223FFDDEC0014B660 /* jsb_gfx_auto.cpp in Sources */,
+				46ACCCC8242476130096CC35 /* GLES3RenderPass.cc in Sources */,
 				BA06A6DF23583DBD007740C5 /* GFXQueue.cc in Sources */,
-				BA06A79823583DFE007740C5 /* GLES2RenderPass.cc in Sources */,
 				1A52DB8E2060DEF500350EE3 /* jsb_platfrom_apple.mm in Sources */,
 				1A29D785205666B200168D9A /* LocalStorage.cpp in Sources */,
 				46AE3FEA2092F3A600F3A228 /* inspector_socket_server.cc in Sources */,
 				4617861A20522469008256E1 /* SocketIO.cpp in Sources */,
 				46FDDB72202ADDCE00931238 /* base64.cpp in Sources */,
 				1ABAD24F20C29F3800BC71C0 /* CCCanvasRenderingContext2D-apple.mm in Sources */,
-				BA06A7B623583DFE007740C5 /* GLES2TextureView.cc in Sources */,
 				46AE3FFA2092F3A600F3A228 /* inspector_socket.cc in Sources */,
 				1AAAC8EC205CB6E9005321B9 /* AudioCache.mm in Sources */,
 				46FDDBE4202ADDCE00931238 /* CCData.cpp in Sources */,
 				469304592046AE06004A3D6C /* EventDispatcher.cpp in Sources */,
 				4617864E205224CF008256E1 /* HttpClient-apple.mm in Sources */,
-				BA06A7B823583DFE007740C5 /* GLES2CommandBuffer.cc in Sources */,
+				46ACCCD0242476130096CC35 /* GLES3PipelineState.cc in Sources */,
 				46FDDB66202ADDCE00931238 /* ccRandom.cpp in Sources */,
 				1A28FF841F20AFAB007A1D9D /* SRRandom.m in Sources */,
 				468A968022F43F4F005034BE /* Object.cpp in Sources */,
+				46ACCCB0242476130096CC35 /* GLES3Std.cc in Sources */,
 				469303952046AE05004A3D6C /* RefCounter.cpp in Sources */,
 				50ABBD5D1925AB0000A911A9 /* Vec3.cpp in Sources */,
-				BA06A7F623583DFE007740C5 /* GLES3Texture.cc in Sources */,
-				BA06A77623583DFE007740C5 /* GLES2Framebuffer.cc in Sources */,
 				46AE3FF62092F3A600F3A228 /* util.cc in Sources */,
 				BAC32B3E236C28C600F3D55F /* tommyarrayblkof.c in Sources */,
 				461786662052607E008256E1 /* jsb_websocket.cpp in Sources */,
 				50ABC0001926664800A911A9 /* CCFileUtils-apple.mm in Sources */,
-				BA06A7DE23583DFE007740C5 /* GLES3Std.cc in Sources */,
-				BA06A80A23583DFE007740C5 /* GLES3Queue.cc in Sources */,
 				4DC57D331F7B840E005B6546 /* xxtea.cpp in Sources */,
 				46ACCC08241F661B0096CC35 /* EditBox-ios.mm in Sources */,
 				1A29D77C2056667800168D9A /* csscolorparser.cpp in Sources */,
 				BA06A6E323583DBD007740C5 /* GFXContext.cc in Sources */,
+				46ACCCAB242476130096CC35 /* GLES3TextureView.cc in Sources */,
 				BA06A67F23583DBD007740C5 /* JeAlloc.cc in Sources */,
 				46AE3FFC2092F3A600F3A228 /* inspector_io.cc in Sources */,
 				1A28FF701F20AFAB007A1D9D /* SRError.m in Sources */,
