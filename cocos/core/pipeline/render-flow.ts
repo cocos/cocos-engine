@@ -151,7 +151,6 @@ export abstract class RenderFlow {
     public activate (pipeline: RenderPipeline) {
         this._device = pipeline.device;
         this._pipeline = pipeline;
-        (pipeline as any).activateFlow(this);
         this._activateStages();
     }
 
