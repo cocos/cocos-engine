@@ -36,6 +36,7 @@ import sys from './platform/sys';
 import { JSB, RUNTIME_BASED, ALIPAY, EDITOR, PREVIEW } from 'internal:constants';
 import AssetLibrary from './assets/asset-library';
 import { ICustomJointTextureLayout } from './renderer';
+import inputManager from './platform/event-manager/input-manager';
 
 /**
  * @zh
@@ -599,6 +600,11 @@ export class Game extends EventTarget {
 
         this._setAnimFrame();
         this._runMainLoop();
+
+        // register system events
+        if (!EDITOR && game.config.registerSystemEvent) {
+            inputManager.registerSystemEvent(game.canvas);
+        }
 
         const splashScreen = cc.internal.SplashScreenWebgl && cc.internal.SplashScreenWebgl.instance;
         let useSplash = (!EDITOR && !PREVIEW && splashScreen);
