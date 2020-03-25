@@ -355,8 +355,10 @@ export abstract class RenderPipeline {
         }
 
         for (let i = 0; i < this._flows.length; i++) {
-            if (this._flows[i].type === RenderFlowType.SCENE) {
-                this._flows[i].activate(this);
+            let flow = this._flows[i];
+            if (flow.type === RenderFlowType.SCENE) {
+                flow.activate(this);
+                this.activateFlow(flow);
             }
         }
         return true;
