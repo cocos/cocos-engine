@@ -12,15 +12,8 @@ import {
 import { createCapsuleShape } from '../../instance';
 import { ColliderComponent } from './collider-component';
 import { ICapsuleShape } from '../../../spec/i-physics-shape';
-import { Enum } from '../../../../core';
 import { EDITOR, TEST } from 'internal:constants';
-
-export enum ECapsuleDirection {
-    X_AXIS,
-    Y_AXIS,
-    Z_AXIS,
-}
-Enum(ECapsuleDirection);
+import { EAxisDirection } from '../../physics-enum';
 
 /**
  * @zh
@@ -73,12 +66,14 @@ export class CapsuleColliderComponent extends ColliderComponent {
         }
     }
 
-    @property({ type: ECapsuleDirection })
+    @property({ type: EAxisDirection })
     public get direction () {
         return this._direction;
     }
 
-    public set direction (value: ECapsuleDirection) {
+    public set direction (value: EAxisDirection) {
+        value = Math.floor(value);
+        if (value < EAxisDirection.X_AXIS || value > EAxisDirection.Z_AXIS) return;
         this._direction = value;
         if (!EDITOR && !TEST) {
             this.shape.setDirection(value);
@@ -98,7 +93,7 @@ export class CapsuleColliderComponent extends ColliderComponent {
     private _height = 2;
 
     @property
-    private _direction = ECapsuleDirection.Y_AXIS;
+    private _direction = EAxisDirection.Y_AXIS;
 
     constructor () {
         super();

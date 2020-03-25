@@ -54,7 +54,7 @@ export function createCapsuleShape (radius = 0.5, height = 2, dir = 1): ICapsule
 }
 
 export function createCylinderShape (radius = 0.5, height = 2, dir = 1): ICylinderShape {
-    if (PHYSICS_CANNON) {
+    if (PHYSICS_CANNON || PHYSICS_AMMO) {
         if (DEBUG && checkPhysicsModule(CylinderShape)) { return null as any; }
         return new CylinderShape(radius, height, dir) as ICylinderShape;
     } else {

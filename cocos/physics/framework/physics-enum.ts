@@ -1,5 +1,5 @@
 /**
- * @hidden
+ * @category physics
  */
 
 import { Enum } from "../../core";

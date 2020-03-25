@@ -38,8 +38,8 @@ export class CylinderColliderComponent extends ColliderComponent {
     }
 
     public set radius (value) {
+        if (this._radius == value) return;
         if (value < 0) value = 0;
-
         this._radius = value;
         if (!EDITOR && !TEST) {
             this.shape.setRadius(value);
@@ -58,8 +58,8 @@ export class CylinderColliderComponent extends ColliderComponent {
     }
 
     public set height (value) {
+        if (this._height == value) return;
         if (value < 0) value = 0;
-
         this._height = value;
         if (!EDITOR && !TEST) {
             this.shape.setHeight(value);
@@ -72,6 +72,8 @@ export class CylinderColliderComponent extends ColliderComponent {
     }
 
     public set direction (value: EAxisDirection) {
+        if (this._direction == value) return;
+        if (value < EAxisDirection.X_AXIS || value > EAxisDirection.Z_AXIS) return;
         this._direction = value;
         if (!EDITOR && !TEST) {
             this.shape.setDirection(value);
