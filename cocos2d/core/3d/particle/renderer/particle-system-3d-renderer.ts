@@ -389,6 +389,7 @@ export default class ParticleSystem3DAssembler extends Assembler {
     }
 
     _updateTrailMaterial () {
+        // Here need to create a material variant through the getter call.
         let mat = this._particleSystem.trailMaterial;
         if (this._particleSystem.trailModule.enable) {
             if (mat === null && this._defaultTrailMat === null) {
