@@ -140,6 +140,7 @@ class EventManager {
     private _isEnabled = false;
     private _internalCustomListenerIDs: string[] = [];
     private _currentTouch = null;
+    private _currentTouchListener: any = null;
 
     /**
      * @en Pauses all listeners which are associated the specified target.
@@ -949,13 +950,17 @@ class EventManager {
         // const EventTouch = cc.Event.EventTouch;
         if (getCode === EventTouch.BEGAN) {
             if (!cc.macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch) {
-                return false;
+                let node = eventManager._currentTouchListener!._node;
+                if (node && node.activeInHierarchy) {
+                    return false;
+                }
             }
             if (listener.onTouchBegan) {
                 isClaimed = listener.onTouchBegan(selTouch, event);
                 if (isClaimed && listener._isRegistered()) {
                     listener._claimedTouches.push(selTouch);
                     eventManager._currentTouch = selTouch;
+                    eventManager._currentTouchListener = listener;
                 }
             }
         } else if (listener._claimedTouches.length > 0) {
@@ -975,6 +980,7 @@ class EventManager {
                         listener._claimedTouches.splice(removedIdx, 1);
                     }
                     eventManager._currentTouch = null;
+                    eventManager._currentTouchListener = null;
                 } else if (getCode === EventTouch.CANCELLED) {
                     if (listener.onTouchCancelled) {
                         listener.onTouchCancelled(selTouch, event);
@@ -983,6 +989,7 @@ class EventManager {
                         listener._claimedTouches.splice(removedIdx, 1);
                     }
                     eventManager._currentTouch = null;
+                    eventManager._currentTouchListener = null;
                 }
             }
         }
