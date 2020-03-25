@@ -26,11 +26,7 @@ export function ammo2CocosQuat<T extends IQuatLike> (out: T, q: Ammo.btQuaternio
     return out;
 }
 
-export function ammoDeletePtr (obj: Ammo.Type, klass: Constructor<Ammo.Type>): void {
-    if ((klass as any).__cache__) {
-        delete (klass as any).__cache__[(obj as any).ptr];
-    } else {
-        delete (klass as any).c[(obj as any).a];
-    }
+export function ammoDeletePtr (obj: Ammo.Type, klass: Constructor<Ammo.Type>): void {    
+    delete (klass as any).hi[(obj as any).fi];
 }
 // TODO : Ammo['deletePtr'] = deletePtr;

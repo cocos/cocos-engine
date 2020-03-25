@@ -208,12 +208,7 @@ export class AmmoWorld implements IPhysicsWorld {
         const i = this.bodies.indexOf(sharedBody);
         if (i < 0) {
             this.bodies.push(sharedBody);
-            if (sharedBody.body.isStaticObject()) {
-                this._btWorld.addCollisionObject(sharedBody.body, sharedBody.collisionFilterGroup, sharedBody.collisionFilterMask);
-            }
-            else {
-                this._btWorld.addRigidBody(sharedBody.body, sharedBody.collisionFilterGroup, sharedBody.collisionFilterMask);
-            }
+            this._btWorld.addRigidBody(sharedBody.body, sharedBody.collisionFilterGroup, sharedBody.collisionFilterMask);
         }
     }
 
@@ -221,11 +216,7 @@ export class AmmoWorld implements IPhysicsWorld {
         const i = this.bodies.indexOf(sharedBody);
         if (i >= 0) {
             this.bodies.splice(i, 1);
-            if (sharedBody.body.isStaticObject()) {
-                this._btWorld.removeCollisionObject(sharedBody.body);
-            } else {
-                this._btWorld.removeRigidBody(sharedBody.body);
-            }
+            this._btWorld.removeRigidBody(sharedBody.body);
         }
     }
 
