@@ -982,7 +982,7 @@ export class Game extends EventTarget {
             win.addEventListener('focus', onShown);
         }
 
-        if (navigator.userAgent.indexOf('MicroMessenger') > -1) {
+        if (window.navigator.userAgent.indexOf('MicroMessenger') > -1) {
             win.onfocus = onShown;
         }
 
