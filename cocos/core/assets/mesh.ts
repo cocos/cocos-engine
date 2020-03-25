@@ -731,10 +731,6 @@ export class Mesh extends Asset {
         return bounds;
     }
 
-    public acquireRenderResources () {
-        this.initialize();
-    }
-
     /**
      * 合并指定的网格到此网格中。
      * @param mesh 合并的网格。
