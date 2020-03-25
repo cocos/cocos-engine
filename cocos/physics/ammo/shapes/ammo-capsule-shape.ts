@@ -10,7 +10,7 @@ import { IVec3Like } from '../../../core/math/type-define';
 export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
 
     setHeight (v: number) {
-        this.updateCapsuleProp(
+        this.updateProperties(
             this.collider.radius,
             this.collider.height,
             this.collider.direction,
@@ -22,7 +22,7 @@ export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
     }
 
     setDirection (v: number) {
-        this.updateCapsuleProp(
+        this.updateProperties(
             this.collider.radius,
             this.collider.height,
             this.collider.direction,
@@ -34,7 +34,7 @@ export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
     }
 
     setRadius (v: number) {
-        this.updateCapsuleProp(
+        this.updateProperties(
             this.collider.radius,
             this.collider.height,
             this.collider.direction,
@@ -63,12 +63,12 @@ export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
         this.setRadius(this.collider.radius);
     }
 
-    updateScale () {
-        super.updateScale();
+    setScale () {
+        super.setScale();
         this.setRadius(this.collider.radius);
     }
 
-    updateCapsuleProp (radius: number, height: number, direction: number, scale: IVec3Like) {
+    updateProperties (radius: number, height: number, direction: number, scale: IVec3Like) {
         const ws = scale;
         const upAxis = direction;
         if (upAxis == 1) {

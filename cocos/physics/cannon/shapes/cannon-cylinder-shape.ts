@@ -18,7 +18,7 @@ export class CannonCyliderShape extends CannonShape implements ICylinderShape {
     }
 
     setRadius (v: number) {
-        this._updateCylinderProp(
+        this.updateProperties(
             this.collider.radius,
             this.collider.height,
             18,
@@ -30,7 +30,7 @@ export class CannonCyliderShape extends CannonShape implements ICylinderShape {
     }
 
     setHeight (v: number) {
-        this._updateCylinderProp(
+        this.updateProperties(
             this.collider.radius,
             this.collider.height,
             18,
@@ -42,7 +42,7 @@ export class CannonCyliderShape extends CannonShape implements ICylinderShape {
     }
 
     setDirection (v: number) {
-        this._updateCylinderProp(
+        this.updateProperties(
             this.collider.radius,
             this.collider.height,
             18,
@@ -68,7 +68,7 @@ export class CannonCyliderShape extends CannonShape implements ICylinderShape {
         this.setRadius(this.collider.radius);
     }
 
-    private _updateCylinderProp (radius: number, height: number, numSegments: number, direction: number, scale: IVec3Like) {
+    updateProperties (radius: number, height: number, numSegments: number, direction: number, scale: IVec3Like) {
         let wh = height;
         let wr = radius;
         const cos = Math.cos;

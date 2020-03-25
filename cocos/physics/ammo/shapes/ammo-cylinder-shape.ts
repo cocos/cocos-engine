@@ -10,7 +10,7 @@ import { absMax } from '../../../core';
 export class AmmoCylinderShape extends AmmoShape implements ICylinderShape {
 
     setHeight (v: number) {
-        this.updateCylinderProp(
+        this.updateProperties(
             this.collider.radius,
             this.collider.height,
             this.collider.direction,
@@ -22,7 +22,7 @@ export class AmmoCylinderShape extends AmmoShape implements ICylinderShape {
     }
 
     setDirection (v: number) {
-        this.updateCylinderProp(
+        this.updateProperties(
             this.collider.radius,
             this.collider.height,
             this.collider.direction,
@@ -34,7 +34,7 @@ export class AmmoCylinderShape extends AmmoShape implements ICylinderShape {
     }
 
     setRadius (v: number) {
-        this.updateCylinderProp(
+        this.updateProperties(
             this.collider.radius,
             this.collider.height,
             this.collider.direction,
@@ -66,12 +66,12 @@ export class AmmoCylinderShape extends AmmoShape implements ICylinderShape {
         this.setRadius(this.collider.radius);
     }
 
-    updateScale () {
-        super.updateScale();
+    setScale () {
+        super.setScale();
         this.setRadius(this.collider.radius);
     }
 
-    updateCylinderProp (radius: number, height: number, direction: number, scale: IVec3Like) {
+    updateProperties (radius: number, height: number, direction: number, scale: IVec3Like) {
         const ws = scale;
         const upAxis = direction;
         if (upAxis == 1) {

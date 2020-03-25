@@ -187,7 +187,7 @@ export class AmmoShape implements IBaseShape {
         shape.wrapped = this;
     }
 
-    updateScale () {
+    setScale () {
         this.setCenter(this._collider.center);
     }
 
