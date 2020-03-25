@@ -28,11 +28,11 @@ export class CylinderColliderComponent extends ColliderComponent {
 
     /**
      * @en
-     * Get or set the radius of the sphere on the cylinder body, in local space.
+     * Get or set the radius of the circle on the cylinder body, in local space.
      * @zh
-     * 获取或设置圆柱体上的球半径。
+     * 获取或设置圆柱体上圆面半径。
      */
-    @property({ tooltip: '圆柱体上的球的半径' })
+    @property({ tooltip: '圆柱体上圆面的半径' })
     public get radius () {
         return this._radius;
     }
@@ -50,7 +50,7 @@ export class CylinderColliderComponent extends ColliderComponent {
      * @en
      * Get or set the cylinder body is at the corresponding axial height, in local space.
      * @zh
-     * 圆柱体在相应轴向的高度，最小值为两倍的 radius。
+     * 获取或设置圆柱体在相应轴向的高度。
      */
     @property({ tooltip: '圆柱体在相应轴向的高度' })
     public get height () {
@@ -58,7 +58,7 @@ export class CylinderColliderComponent extends ColliderComponent {
     }
 
     public set height (value) {
-        if (value < this._radius * 2) { value = this._radius * 2 }
+        if (value < 0) value = 0;
 
         this._height = value;
         if (!EDITOR && !TEST) {

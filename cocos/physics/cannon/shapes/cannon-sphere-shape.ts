@@ -25,12 +25,9 @@ export class CannonSphereShape extends CannonShape implements ISphereShape {
         }
     }
 
-    private _radius: number;
-
-    constructor (radius: number) {
+    constructor (radius = 0.5) {
         super();
-        this._radius = radius;
-        this._shape = new CANNON.Sphere(this._radius);
+        this._shape = new CANNON.Sphere(radius);
     }
 
     onLoad () {

@@ -23,6 +23,7 @@ export {
     SphereColliderComponent,
     CapsuleColliderComponent,
     MeshColliderComponent,
+    CylinderColliderComponent,
 
     RigidBodyComponent,
 
