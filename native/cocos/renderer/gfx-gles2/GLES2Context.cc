@@ -127,8 +127,7 @@ bool GLES2Context::initialize(const GFXContextInfo &info) {
 
     const EGLint attribs[] = {
       EGL_SURFACE_TYPE, EGL_WINDOW_BIT | EGL_PBUFFER_BIT,
-      //	EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
-      EGL_RENDERABLE_TYPE, EGL_OPENGL_ES3_BIT_KHR,
+      EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
       // EGL_BUFFER_SIZE, colorBuffSize,
       EGL_BLUE_SIZE, 8,
       EGL_GREEN_SIZE, 8,
@@ -374,7 +373,7 @@ bool GLES2Context::MakeCurrent() {
 #if defined(CC_GFX_DEBUG)
       glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_KHR);
       glDebugMessageControlKHR(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
-      glDebugMessageCallbackKHR(GLES3EGLDebugProc, NULL);
+      glDebugMessageCallbackKHR(GLES2EGLDebugProc, NULL);
 #endif
 
       //////////////////////////////////////////////////////////////////////////

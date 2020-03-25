@@ -554,6 +554,12 @@
     <ClCompile Include="..\cocos\platform\win32\View-win32.cpp">
       <Filter>platform\win32</Filter>
     </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_gles2_auto.cpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_gles3_auto.cpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\cocos\base\base64.h">
@@ -1258,6 +1264,12 @@
     </ClInclude>
     <ClInclude Include="..\cocos\platform\win32\View-win32.h">
       <Filter>platform\win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_gles2_auto.hpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_gles3_auto.hpp">
+      <Filter>js-bindings\auto</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

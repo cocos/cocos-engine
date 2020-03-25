@@ -54,6 +54,8 @@
     <ClCompile Include="..\cocos\renderer\gfx-gles3\gles3w.c" />
     <ClCompile Include="..\cocos\renderer\gfx-gles3\GLES3Window.cc" />
     <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_gfx_auto.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_gles2_auto.cpp" />
+    <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_gles3_auto.cpp" />
     <ClCompile Include="..\cocos\scripting\js-bindings\manual\jsb_gfx_manual.cpp" />
     <ClCompile Include="..\external\sources\tommyds\tommy.c" />
     <ClCompile Include="..\external\sources\tommyds\tommyalloc.c" />
@@ -247,6 +249,8 @@
     <ClInclude Include="..\cocos\renderer\gfx-gles3\gles3w.h" />
     <ClInclude Include="..\cocos\renderer\gfx-gles3\GLES3Window.h" />
     <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_gfx_auto.hpp" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_gles2_auto.hpp" />
+    <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_gles3_auto.hpp" />
     <ClInclude Include="..\cocos\scripting\js-bindings\manual\jsb_gfx_manual.hpp" />
     <ClInclude Include="..\external\sources\tommyds\tommy.h" />
     <ClInclude Include="..\external\sources\tommyds\tommyalloc.h" />

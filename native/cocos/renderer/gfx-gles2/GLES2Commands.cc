@@ -54,7 +54,7 @@ GLenum MapGLInternalFormat(GFXFormat format) {
     case GFXFormat::RGBA32I: return GL_RGBA;
     case GFXFormat::RGBA32UI: return GL_RGBA;
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-    case GFXFormat::RGBA32F: return GL_RGBA32F_EXT; // GLES2 driver issue
+    case GFXFormat::RGBA32F: return GL_RGBA32F_EXT; // driver issue
 #else
     case GFXFormat::RGBA32F: return GL_RGBA;
 #endif
