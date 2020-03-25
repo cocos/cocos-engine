@@ -6,6 +6,7 @@ import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
 import {
     getTypedArrayConstructor,
     GFXBufferTextureCopy,
+    GFXCommandBufferType,
     GFXFilter,
     GFXFormat,
     GFXFormatInfos,
@@ -40,6 +41,7 @@ import { WebGL2GFXFramebuffer } from './webgl2-framebuffer';
 import { WebGL2GFXInputAssembler } from './webgl2-input-assembler';
 import { WebGL2GFXPipelineLayout } from './webgl2-pipeline-layout';
 import { WebGL2GFXPipelineState } from './webgl2-pipeline-state';
+import { WebGL2GFXPrimaryCommandBuffer } from './webgl2-primary-command-buffer';
 import { WebGL2GFXQueue } from './webgl2-queue';
 import { WebGL2GFXRenderPass } from './webgl2-render-pass';
 import { WebGL2GFXSampler } from './webgl2-sampler';
@@ -511,7 +513,9 @@ export class WebGL2GFXDevice extends GFXDevice {
     }
 
     public createCommandBuffer (info: IGFXCommandBufferInfo): GFXCommandBuffer {
-        const cmdBuff = new WebGL2GFXCommandBuffer(this);
+        // const ctor = WebGL2GFXCommandBuffer; // opt to instant invocation
+        const ctor = info.type === GFXCommandBufferType.PRIMARY ? WebGL2GFXPrimaryCommandBuffer : WebGL2GFXCommandBuffer;
+        const cmdBuff = new ctor(this);
         cmdBuff.initialize(info);
         return cmdBuff;
     }
