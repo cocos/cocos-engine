@@ -90,10 +90,10 @@ export class CannonCyliderShape extends CannonShape implements ICylinderShape {
         const vertices: CANNON.Vec3[] = [];
         const indices: number[][] = [];
         const axes: CANNON.Vec3[] = [];
-        const bf = [0];
-        const tf = [1];
         const theta = Math.PI * 2 / N;
         if (direction == 1) {
+            const bf = [1];
+            const tf = [0];
             for (var i = 0; i < N; i++) {
                 const x = wr * cos(theta * i);
                 const z = wr * sin(theta * i);
@@ -120,6 +120,8 @@ export class CannonCyliderShape extends CannonShape implements ICylinderShape {
             indices.push(temp);
             axes.push(new CANNON.Vec3(0, 1, 0));
         } else if (direction == 2) {
+            const bf = [0];
+            const tf = [1];
             for (var i = 0; i < N; i++) {
                 const x = wr * cos(theta * i);
                 const y = wr * sin(theta * i);
@@ -146,6 +148,8 @@ export class CannonCyliderShape extends CannonShape implements ICylinderShape {
             indices.push(temp);
             axes.push(new CANNON.Vec3(0, 0, 1));
         } else {
+            const bf = [0];
+            const tf = [1];
             for (var i = 0; i < N; i++) {
                 const y = wr * cos(theta * i);
                 const z = wr * sin(theta * i);
@@ -153,11 +157,11 @@ export class CannonCyliderShape extends CannonShape implements ICylinderShape {
                 vertices.push(new CANNON.Vec3(-hH, y, z));
 
                 if (i < N - 1) {
-                    indices.push([2 * i + 2, 2 * i + 3, 2 * i + 1, 2 * i]);
-                    tf.push(2 * i + 2);
-                    bf.push(2 * i + 3);
+                    indices.push([2 * i, 2 * i + 1, 2 * i + 3, 2 * i + 2]);
+                    bf.push(2 * i + 2);
+                    tf.push(2 * i + 3);
                 } else {
-                    indices.push([0, 1, 2 * i + 1, 2 * i]);
+                    indices.push([2 * i, 2 * i + 1, 0, 1]);
                 }
 
                 if (N % 2 === 1 || i < N / 2) {
