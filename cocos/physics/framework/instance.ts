@@ -58,7 +58,7 @@ export function createCylinderShape (radius = 0.5, height = 2, dir = 1): ICylind
         if (DEBUG && checkPhysicsModule(CylinderShape)) { return null as any; }
         return new CylinderShape(radius, height, dir) as ICylinderShape;
     } else {
-        warnID(9610);
+        warnID(9612);
         const func = () => { };
         return {
             setRadius: func,
