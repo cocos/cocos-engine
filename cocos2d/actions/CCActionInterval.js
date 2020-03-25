@@ -997,7 +997,6 @@ cc.RotateBy = cc.Class({
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
         this._startAngle = target.angle;
-        this._deltaAngle *= -1;
     },
 
     update:function (dt) {
