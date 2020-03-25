@@ -1,8 +1,9 @@
 
 import { BuiltinShape } from './builtin-shape';
 import { ICapsuleShape } from '../../spec/i-physics-shape';
-import { ECapsuleDirection, CapsuleColliderComponent } from '../../framework/components/collider/capsule-collider-component';
+import { CapsuleColliderComponent } from '../../framework/components/collider/capsule-collider-component';
 import { capsule } from '../../../core/geometry';
+import { EAxisDirection } from '../../framework';
 
 export class BuiltinCapsuleShape extends BuiltinShape implements ICapsuleShape {
 
@@ -18,7 +19,7 @@ export class BuiltinCapsuleShape extends BuiltinShape implements ICapsuleShape {
         return this._collider as CapsuleColliderComponent;
     }
 
-    constructor (radius: number, height: number, direction = ECapsuleDirection.Y_AXIS) {
+    constructor (radius = 0.5, height = 2, direction = EAxisDirection.Y_AXIS) {
         super();
         const halfHeight = (height - radius * 2) / 2;
         const h = halfHeight < 0 ? 0 : halfHeight;
@@ -56,7 +57,7 @@ export class BuiltinCapsuleShape extends BuiltinShape implements ICapsuleShape {
         );
     }
 
-    setDirection (v: ECapsuleDirection) {
+    setDirection (v: EAxisDirection) {
         this.localCapsule.axis = v;
         this.localCapsule.updateCache();
 

@@ -1997,6 +1997,10 @@ Can't getGFXSampler with out device
 
 [Physics]: builtin physics system doesn't support mesh collider
 
+### 9612
+
+[Physics]: builtin physics system doesn't support cylinder collider
+
 ### 9620
 
 [Physics][Ammo]: changing the mesh is not supported after the initialization is completed
