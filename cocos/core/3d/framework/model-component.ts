@@ -40,7 +40,6 @@ import { Enum } from '../../value-types';
 import { builtinResMgr } from '../builtin';
 import { RenderableComponent } from './renderable-component';
 import { MorphRenderingInstance } from '../../assets/morph';
-import { MaterialInstance } from '../../renderer/core/material-instance';
 
 /**
  * @en Shadow projection mode.
@@ -187,9 +186,7 @@ export class ModelComponent extends RenderableComponent {
     set mesh (val) {
         const old = this._mesh;
         this._mesh = val;
-        if (this._mesh) {
-            this._mesh.acquireRenderResources();
-        }
+        this._mesh?.initialize();
         this._watchMorphInMesh();
         this._onMeshChanged(old);
         this._updateModels();
@@ -225,9 +222,7 @@ export class ModelComponent extends RenderableComponent {
     }
 
     public onLoad () {
-        if (this._mesh) {
-            this._mesh.acquireRenderResources();
-        }
+        this._mesh?.initialize();
         this._watchMorphInMesh();
         this._updateModels();
         this._updateCastShadow();
@@ -274,8 +269,7 @@ export class ModelComponent extends RenderableComponent {
         }
     }
 
-    public _updateLightmap (lightmap: Texture2D|null, uoff: number, voff: number, uscale: number, vscale: number)
-    {
+    public _updateLightmap (lightmap: Texture2D|null, uoff: number, voff: number, uscale: number, vscale: number) {
         this.lightmapSettings.texture = lightmap;
         this.lightmapSettings.uvParam.x = uoff;
         this.lightmapSettings.uvParam.y = voff;
@@ -401,7 +395,7 @@ export class ModelComponent extends RenderableComponent {
 
     private _watchMorphInMesh () {
         if (this._morphInstance) {
-            // TODO: release render resources.
+            this._morphInstance.destroy();
             this._morphInstance = null;
         }
 
