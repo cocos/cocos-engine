@@ -121,7 +121,8 @@ Audio.State = {
         if (this._nextTime !== 0) {
             this.setCurrentTime(this._nextTime);
         }
-        if (this.getState() === Audio.State.PLAYING) {
+        // need to skip forceUpdatingState when get state on load, because it's a hack operation
+        if (this.getState(false) === Audio.State.PLAYING) {
             this.play();
         }
         else {
@@ -271,10 +272,12 @@ Audio.State = {
         return this._element ? this._element.duration : 0;
     };
 
-    proto.getState = function () {
+    proto.getState = function (forceUpdating = true) {
         // HACK: in some browser, audio may not fire 'ended' event
         // so we need to force updating the Audio state
-        this._forceUpdatingState();
+        if (forceUpdating) {
+            this._forceUpdatingState();
+        }
         
         return this._state;
     };
