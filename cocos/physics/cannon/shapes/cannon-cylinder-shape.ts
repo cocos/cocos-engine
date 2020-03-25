@@ -21,7 +21,7 @@ export class CannonCyliderShape extends CannonShape implements ICylinderShape {
         this._updateCylinderProp(
             this.collider.radius,
             this.collider.height,
-            16,
+            18,
             this.collider.direction,
             this.collider.node.worldScale
         );
@@ -33,7 +33,7 @@ export class CannonCyliderShape extends CannonShape implements ICylinderShape {
         this._updateCylinderProp(
             this.collider.radius,
             this.collider.height,
-            16,
+            18,
             this.collider.direction,
             this.collider.node.worldScale
         );
@@ -45,7 +45,7 @@ export class CannonCyliderShape extends CannonShape implements ICylinderShape {
         this._updateCylinderProp(
             this.collider.radius,
             this.collider.height,
-            16,
+            18,
             this.collider.direction,
             this.collider.node.worldScale
         );
@@ -55,7 +55,7 @@ export class CannonCyliderShape extends CannonShape implements ICylinderShape {
 
     constructor (radius = 0.5, height = 2, direction = EAxisDirection.Y_AXIS) {
         super();
-        this._shape = new CANNON.Cylinder(radius, radius, height, 16);
+        this._shape = new CANNON.Cylinder(radius, radius, height, 18);
     }
 
     onLoad () {
@@ -90,8 +90,8 @@ export class CannonCyliderShape extends CannonShape implements ICylinderShape {
         const vertices: CANNON.Vec3[] = [];
         const indices: number[][] = [];
         const axes: CANNON.Vec3[] = [];
-        const tf = [0];
-        const bf = [1];
+        const bf = [0];
+        const tf = [1];
         const theta = Math.PI * 2 / N;
         if (direction == 1) {
             for (var i = 0; i < N; i++) {
@@ -127,11 +127,11 @@ export class CannonCyliderShape extends CannonShape implements ICylinderShape {
                 vertices.push(new CANNON.Vec3(x, y, -hH));
 
                 if (i < N - 1) {
-                    indices.push([2 * i + 2, 2 * i + 3, 2 * i + 1, 2 * i]);
-                    tf.push(2 * i + 2);
-                    bf.push(2 * i + 3);
+                    indices.push([2 * i, 2 * i + 1, 2 * i + 3, 2 * i + 2]);
+                    bf.push(2 * i + 2);
+                    tf.push(2 * i + 3);
                 } else {
-                    indices.push([0, 1, 2 * i + 0, 2 * i + 1]);
+                    indices.push([2 * i, 2 * i + 1, 0, 1]);
                 }
 
                 if (N % 2 === 1 || i < N / 2) {
