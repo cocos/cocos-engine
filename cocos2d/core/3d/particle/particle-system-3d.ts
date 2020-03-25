@@ -525,7 +525,7 @@ export default class ParticleSystem3D extends RenderComponent {
 
     set trailMaterial (val) {
         this.setMaterial(1, val);
-        this._onMaterialModified(0, val);
+        this._onMaterialModified(1, val);
     }
 
     _isPlaying;

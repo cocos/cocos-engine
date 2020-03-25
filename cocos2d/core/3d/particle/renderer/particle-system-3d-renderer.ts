@@ -335,7 +335,7 @@ export default class ParticleSystem3DAssembler extends Assembler {
             mat = MaterialVariant.create(mat, this._particleSystem);
         }
 
-        mat = this._particleSystem.setMaterial(0, mat);
+        mat = mat || this._defaultMat;
 
         if (this._particleSystem._simulationSpace === Space.World) {
             mat.define(CC_USE_WORLD_SPACE, true);
@@ -384,11 +384,13 @@ export default class ParticleSystem3DAssembler extends Assembler {
         }
 
         mat.setProperty('frameTile_velLenScale', this.frameTile_velLenScale);
+
+        this._particleSystem.setMaterial(0, mat);
     }
 
     _updateTrailMaterial () {
+        let mat = this._particleSystem.trailMaterial;
         if (this._particleSystem.trailModule.enable) {
-            let mat = this._particleSystem.trailMaterial;
             if (mat === null && this._defaultTrailMat === null) {
                 this._defaultTrailMat = MaterialVariant.createWithBuiltin('3d-trail', this);
             }
@@ -405,7 +407,6 @@ export default class ParticleSystem3DAssembler extends Assembler {
             }
 
             //mat.define(CC_DRAW_WIRE_FRAME, true); // <wireframe debug>
-
             this._particleSystem.trailModule._updateMaterial();
         }
     }
