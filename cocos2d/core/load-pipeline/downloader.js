@@ -126,6 +126,9 @@ function downloadUuid (item, callback) {
     return result || undefined;
 }
 
+function downloadVideo (item, callback) {
+    callback(null, item.url);
+}
 
 var defaultMap = {
     // JS
@@ -182,6 +185,15 @@ var defaultMap = {
     'bin' : downloadBinary,
     'dbbin' : downloadBinary,
     'skel': downloadBinary,
+
+    // Video
+    'mp4': downloadVideo,
+    'avi': downloadVideo,
+    'mov': downloadVideo,
+    'mpg': downloadVideo,
+    'mpeg': downloadVideo,
+    'rm': downloadVideo,
+    'rmvb': downloadVideo,
 
     'default' : downloadText
 };
