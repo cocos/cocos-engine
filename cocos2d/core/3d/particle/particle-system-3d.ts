@@ -47,15 +47,15 @@ const RenderComponent = require('../../components/CCRenderComponent');
 
 const _world_mat = new Mat4();
 const _module_props = CC_EDITOR && [
-    "colorOverLifetimeModule",
-    "shapeModule",
-    "sizeOvertimeModule",
-    "velocityOvertimeModule",
-    "forceOvertimeModule",
-    "limitVelocityOvertimeModule",
-    "rotationOvertimeModule",
-    "textureAnimationModule",
-    "trailModule"
+    "_colorOverLifetimeModule",
+    "_shapeModule",
+    "_sizeOvertimeModule",
+    "_velocityOvertimeModule",
+    "_forceOvertimeModule",
+    "_limitVelocityOvertimeModule",
+    "_rotationOvertimeModule",
+    "_textureAnimationModule",
+    "_trailModule"
 ]
 
 /**
@@ -304,7 +304,9 @@ export default class ParticleSystem3D extends RenderComponent {
         this._activateMaterial();
     }
 
+    @property
     // shpae module
+    _shapeModule = new ShapeModule();
     /**
      * !#en Particle emitter module
      * !#zh 粒子发射器模块
@@ -314,9 +316,17 @@ export default class ParticleSystem3D extends RenderComponent {
         type: ShapeModule,
         animatable: false
     })
-    shapeModule = new ShapeModule();
+    get shapeModule () {
+        return this._shapeModule;
+    }
+    set shapeModule (val) {
+        this._shapeModule = val;
+        this._shapeModule.onInit(this);
+    }
 
+    @property
     // color over lifetime module
+    _colorOverLifetimeModule = new ColorOverLifetimeModule();
     /**
      * !#en Color control module
      * !#zh 颜色控制模块
@@ -326,9 +336,16 @@ export default class ParticleSystem3D extends RenderComponent {
         type: ColorOverLifetimeModule,
         animatable: false
     })
-    colorOverLifetimeModule = new ColorOverLifetimeModule();
+    get colorOverLifetimeModule () {
+        return this._colorOverLifetimeModule;
+    }
+    set colorOverLifetimeModule (val) {
+        this._colorOverLifetimeModule = val;
+    }
 
+    @property
     // size over lifetime module
+    _sizeOvertimeModule = new SizeOvertimeModule();
     /**
      * !#en Particle size module
      * !#zh 粒子大小模块
@@ -338,8 +355,15 @@ export default class ParticleSystem3D extends RenderComponent {
         type: SizeOvertimeModule,
         animatable: false
     })
-    sizeOvertimeModule = new SizeOvertimeModule();
+    get sizeOvertimeModule () {
+        return this._sizeOvertimeModule;
+    }
+    set sizeOvertimeModule (val) {
+        this._sizeOvertimeModule = val;
+    }
 
+    @property
+    _velocityOvertimeModule = new VelocityOvertimeModule();
     /**
      * !#en Particle speed module
      * !#zh 粒子速度模块
@@ -349,8 +373,16 @@ export default class ParticleSystem3D extends RenderComponent {
         type: VelocityOvertimeModule,
         animatable: false
     })
-    velocityOvertimeModule = new VelocityOvertimeModule();
+    get velocityOvertimeModule () {
+        return this._velocityOvertimeModule;
+    }
 
+    set velocityOvertimeModule (val) {
+        this._velocityOvertimeModule = val;
+    }
+
+    @property
+    _forceOvertimeModule = new ForceOvertimeModule();
     /**
      * !#en Particle acceleration module
      * !#zh 粒子加速度模块
@@ -360,8 +392,15 @@ export default class ParticleSystem3D extends RenderComponent {
         type: ForceOvertimeModule,
         animatable: false
     })
-    forceOvertimeModule = new ForceOvertimeModule();
+    get forceOvertimeModule () {
+        return this._forceOvertimeModule;
+    }
+    set forceOvertimeModule (val) {
+        this._forceOvertimeModule = val;
+    }
 
+    @property
+    _limitVelocityOvertimeModule = new LimitVelocityOvertimeModule();
     /**
      * !#en Particle limit speed module (only CPU particles are supported)
      * !#zh 粒子限制速度模块（只支持 CPU 粒子）
@@ -371,8 +410,15 @@ export default class ParticleSystem3D extends RenderComponent {
         type: LimitVelocityOvertimeModule,
         animatable: false
     })
-    limitVelocityOvertimeModule = new LimitVelocityOvertimeModule();
+    get limitVelocityOvertimeModule () {
+        return this._limitVelocityOvertimeModule;
+    }
+    set limitVelocityOvertimeModule (val) {
+        this._limitVelocityOvertimeModule = val;
+    }
 
+    @property
+    _rotationOvertimeModule = new RotationOvertimeModule();
     /**
      * !#en Particle rotation module
      * !#zh 粒子旋转模块
@@ -382,8 +428,15 @@ export default class ParticleSystem3D extends RenderComponent {
         type: RotationOvertimeModule,
         animatable: false
     })
-    rotationOvertimeModule = new RotationOvertimeModule();
+    get rotationOvertimeModule () {
+        return this._rotationOvertimeModule;
+    }
+    set rotationOvertimeModule (val) {
+        this._rotationOvertimeModule = val;
+    }
 
+    @property
+    _textureAnimationModule = new TextureAnimationModule();
     /**
      * !#en Texture Animation Module
      * !#zh 贴图动画模块
@@ -393,8 +446,16 @@ export default class ParticleSystem3D extends RenderComponent {
         type: TextureAnimationModule,
         animatable: false
     })
-    textureAnimationModule = new TextureAnimationModule();
+    get textureAnimationModule () {
+        return this._textureAnimationModule;
+    }
+    set textureAnimationModule (val) {
+        this._textureAnimationModule = val;
+        this._textureAnimationModule.onInit(this);
+    }
 
+    @property
+    _trailModule = new TrailModule();
     /**
      * !#en Particle Trajectory Module
      * !#zh 粒子轨迹模块
@@ -404,7 +465,13 @@ export default class ParticleSystem3D extends RenderComponent {
         type: TrailModule,
         animatable: false
     })
-    trailModule = new TrailModule();
+    get trailModule () {
+        return this._trailModule;
+    }
+    set trailModule (val) {
+        this._trailModule = val;
+        this._trailModule.onInit(this);
+    }
 
     @property
     _renderMode = RenderMode.Billboard;
