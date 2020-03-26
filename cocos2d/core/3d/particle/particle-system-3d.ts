@@ -47,15 +47,15 @@ const RenderComponent = require('../../components/CCRenderComponent');
 
 const _world_mat = new Mat4();
 const _module_props = CC_EDITOR && [
-    "colorOverLifetimeModule",
-    "shapeModule",
-    "sizeOvertimeModule",
-    "velocityOvertimeModule",
-    "forceOvertimeModule",
-    "limitVelocityOvertimeModule",
-    "rotationOvertimeModule",
-    "textureAnimationModule",
-    "trailModule"
+    "_colorOverLifetimeModule",
+    "_shapeModule",
+    "_sizeOvertimeModule",
+    "_velocityOvertimeModule",
+    "_forceOvertimeModule",
+    "_limitVelocityOvertimeModule",
+    "_rotationOvertimeModule",
+    "_textureAnimationModule",
+    "_trailModule"
 ]
 
 /**
