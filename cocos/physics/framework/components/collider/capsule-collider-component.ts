@@ -4,6 +4,7 @@
 
 import {
     ccclass,
+    help,
     executeInEditMode,
     executionOrder,
     menu,
@@ -20,6 +21,7 @@ import { EAxisDirection } from '../../physics-enum';
  * 胶囊体碰撞器
  */
 @ccclass('cc.CapsuleColliderComponent')
+@help('i18n:cc.CapsuleColliderComponent')
 @executionOrder(98)
 @menu('Physics/CapsuleCollider')
 @executeInEditMode

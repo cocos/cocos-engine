@@ -30,7 +30,7 @@
 import { AnimationClip } from '../../animation/animation-clip';
 import { Material } from '../../assets';
 import { Skeleton } from '../../assets/skeleton';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
 import { BakedSkinningModel } from '../../renderer/models/baked-skinning-model';
 import { SkinningModel } from '../../renderer/models/skinning-model';
 import { Node } from '../../scene-graph/node';
@@ -41,6 +41,7 @@ import { ModelComponent } from './model-component';
  * @zh 蒙皮模型组件。
  */
 @ccclass('cc.SkinningModelComponent')
+@help('i18n:cc.SkinningModelComponent')
 @executionOrder(100)
 @executeInEditMode
 @menu('Components/SkinningModel')

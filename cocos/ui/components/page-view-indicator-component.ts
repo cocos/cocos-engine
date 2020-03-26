@@ -30,7 +30,7 @@
 
 import { SpriteFrame } from '../../core/assets';
 import { Component } from '../../core/components';
-import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { Color, Size } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { Node } from '../../core/scene-graph';
@@ -74,6 +74,7 @@ ccenum(Direction);
  * 页面视图每页标记组件
  */
 @ccclass('cc.PageViewIndicatorComponent')
+@help('i18n:cc.PageViewIndicatorComponent')
 @executionOrder(110)
 @menu('UI/PageViewIndicator')
 export class PageViewIndicatorComponent extends Component {

@@ -29,7 +29,7 @@
  */
 
 import { Font, SpriteAtlas, TTFFont } from '../../core/assets';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { EventTouch } from '../../core/platform';
 import { fragmentText, HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack, isUnicodeCJK, isUnicodeSpace } from '../../core/utils';
 import Pool from '../../core/utils/pool';
@@ -168,6 +168,7 @@ interface ILabelSegment {
  * 富文本组件。
  */
 @ccclass('cc.RichTextComponent')
+@help('i18n:cc.RichTextComponent')
 @executionOrder(110)
 @menu('UI/Render/RichText')
 @executeInEditMode

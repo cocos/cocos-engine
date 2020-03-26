@@ -30,7 +30,7 @@
 import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
 import { UI } from '../../core/renderer/ui/ui';
 import { MeshBuffer } from '../../core/renderer/ui/mesh-buffer';
-import { ccclass, menu, executionOrder, property } from '../../core/data/class-decorator';
+import { ccclass, help, menu, executionOrder, property } from '../../core/data/class-decorator';
 import { UIDrawBatch } from '../../core/renderer/ui/ui-draw-batch';
 import { director, Color, GFXBlendFactor, Material, warnID } from '../../core';
 import { vfmt } from '../../core/renderer/ui/ui-vertex-format';
@@ -52,6 +52,7 @@ import { vfmt } from '../../core/renderer/ui/ui-vertex-format';
  * 注意：子节点下不要放置 Mask，Graphics，以及 UI 模型或者粒子之类对象，否则会在启用完静态合批后跳过渲染。
  */
 @ccclass('cc.UIStaticBatchComponent')
+@help('i18n:cc.UIStaticBatchComponent')
 @menu('UI/Render/UIStaticBatch')
 @executionOrder(110)
 export class UIStaticBatchComponent extends UIRenderComponent {

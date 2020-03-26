@@ -29,7 +29,7 @@
  */
 
 import { EventHandler as ComponentEventHandler } from '../../core/components';
-import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { Event } from '../../core/event';
 import { EventMouse, EventTouch, Touch } from '../../core/platform';
 import { Size, Vec2, Vec3 } from '../../core/math';
@@ -202,6 +202,7 @@ export enum EventType {
  */
 
 @ccclass('cc.ScrollViewComponent')
+@help('i18n:cc.ScrollViewComponent')
 @executionOrder(110)
 @menu('UI/ScrollView')
 export class ScrollViewComponent extends ViewGroupComponent {
