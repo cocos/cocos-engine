@@ -93,15 +93,15 @@ var builtins = {
      * 通过特定的类型和名称获取内建资源
      * 
      * @method getBuiltin
-     * @param {string} type - The type of asset, such as `effect`
-     * @param {string} name - The name of asset, such as `phong`
+     * @param {string} [type] - The type of asset, such as `effect`
+     * @param {string} [name] - The name of asset, such as `phong`
      * @return {Asset|Cache} Builtin-assets
      * 
      * @example
      * cc.assetManaer.builtins.getBuiltin('effect', 'phone');
      * 
      * @typescript
-     * getBuiltin(type: string, name: string): cc.Asset | Cache
+     * getBuiltin(type?: string, name?: string): cc.Asset | Cache
      */
     getBuiltin (type, name) {
         if (arguments.length === 0) return this._assets;

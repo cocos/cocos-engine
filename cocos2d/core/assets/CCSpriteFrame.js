@@ -78,7 +78,6 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
                     if (this._texture !== texture) {
                         this._refreshTexture(texture);
                     }
-                    this._textureFilename = texture.nativeUrl;
                 }
             }
         },
@@ -213,8 +212,6 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         this._capInsets = [0, 0, 0, 0];
 
         this.uvSliced = [];
-
-        this._textureFilename = '';
 
         if (CC_EDITOR) {
             // Atlas asset uuid
@@ -449,21 +446,21 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
      * @return {SpriteFrame}
      */
     clone: function () {
-        return new SpriteFrame(this._texture || this._textureFilename, this._rect, this._rotated, this._offset, this._originalSize);
+        return new SpriteFrame(this._texture, this._rect, this._rotated, this._offset, this._originalSize);
     },
 
     /**
      * !#en Set SpriteFrame with Texture, rect, rotated, offset and originalSize.<br/>
      * !#zh 通过 Texture，rect，rotated，offset 和 originalSize 设置 SpriteFrame。
      * @method setTexture
-     * @param {String|Texture2D} textureOrTextureFile
+     * @param {Texture2D} texture
      * @param {Rect} [rect=null]
      * @param {Boolean} [rotated=false]
      * @param {Vec2} [offset=cc.v2(0,0)]
      * @param {Size} [originalSize=rect.size]
      * @return {Boolean}
      */
-    setTexture: function (textureOrTextureFile, rect, rotated, offset, originalSize) {
+    setTexture: function (texture, rect, rotated, offset, originalSize) {
         if (rect) {
             this._rect = rect;
         }
@@ -487,24 +484,15 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
         this._rotated = rotated || false;
 
-        // loading texture
-        let texture = textureOrTextureFile;
-        if (typeof texture === 'string' && texture) {
-            this._textureFilename = texture;
-            this._loadTexture();
+        if (typeof texture === 'string') {
+            cc.errorID(3401);
+            return;
         }
         if (texture instanceof cc.Texture2D && this._texture !== texture) {
             this._refreshTexture(texture);
         }
 
         return true;
-    },
-
-    _loadTexture: function () {
-        if (this._textureFilename) {
-            let texture = textureUtil.loadImage(this._textureFilename);
-            this._refreshTexture(texture);
-        }
     },
 
     /**
@@ -532,10 +520,6 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
                 this._refreshTexture(this._texture);
                 textureUtil.postLoadTexture(this._texture);
             }
-        }
-        else if (this._textureFilename) {
-            // load new texture
-            this._loadTexture();
         }
     },
 
@@ -769,12 +753,6 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         let texture = this._texture;
         if (texture) {
             uuid = texture._uuid;
-        }
-        if (!uuid) {
-            let url = this._textureFilename;
-            if (url) {
-                uuid = Editor.Utils.UuidCache.urlToUuid(url);
-            }
         }
         if (uuid && exporting) {
             uuid = Editor.Utils.UuidUtils.compressUuid(uuid, true);

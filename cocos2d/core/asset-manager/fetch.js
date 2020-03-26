@@ -33,7 +33,7 @@ function fetch (task, done) {
         task.progress = { finish: 0, total: task.input.length }; 
     }
 
-    var options = task.options, depends = [], progress = task.progress, total = progress.total;
+    let options = task.options, depends = [], progress = task.progress, total = progress.total;
     options.exclude = options.exclude || Object.create(null);
 
     task.output = [];
@@ -82,8 +82,8 @@ function fetch (task, done) {
                 onError: Task.prototype.recycle,
                 onComplete: function (err) {
                     if (!err) {
-                        subTask.recycle();
                         task.output.push.apply(task.output, this.output);
+                        subTask.recycle();
                     }
                     done(err);
                 },

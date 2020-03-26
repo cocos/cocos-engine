@@ -348,12 +348,6 @@ if (CC_DEBUG) {
         'getViewName'
     ], 'cc.view');
 
-    // Loader
-    markAsRemoved(cc.Pipeline, [
-        'flowInDeps',
-        'getItems'
-    ], 'cc.loader');
-
     // cc.PhysicsManager
     markAsRemoved(cc.PhysicsManager, [
         'attachDebugDrawToCamera',

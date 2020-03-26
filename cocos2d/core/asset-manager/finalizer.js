@@ -78,10 +78,36 @@ function visitNode (node, deps) {
     }
 }
 
+function checkCircularReference (asset, refs) {
+    var depends = dependUtil.getDeps(asset._uuid);
+    for (let i = 0, l = depends.length; i < l; i++) {
+        var dependAsset = assets.get(depends[i]);
+        if (dependAsset) {
+            if (!(dependAsset._uuid in refs)) { 
+                refs[dependAsset._uuid] = dependAsset._ref - 1;
+                if (refs[dependAsset._uuid] === 0) {
+                    checkCircularReference(dependAsset, refs);
+                }
+            }
+            else {
+                refs[dependAsset._uuid]--;
+            } 
+        }
+    }
+}
+
 var _lockedAsset = Object.create(null);
 var _persistNodeDeps = new Cache();
 var _toDelete = new Cache();
 var eventListener = false;
+
+function freeAssets () {
+    eventListener = false;
+    _toDelete.forEach(function (asset) {
+        finalizer._free(asset);
+    });
+    _toDelete.clear();
+}
 
 /**
  * !#en
@@ -234,6 +260,7 @@ var finalizer = {
     },
 
     _free (asset, force) {
+        _toDelete.remove(asset._uuid);
         if (!force) {
             if (!CC_NATIVERENDERER) {
                 var glTexture = null;
@@ -255,30 +282,14 @@ var finalizer = {
                 }
             }
 
-            if (asset._ref !== 0) {
+            if (asset._ref > 0) {
                 // check circular reference
                 var refs = Object.create(null);
                 refs[asset._uuid] = asset._ref;
 
-                (function checkCircularReference (asset, refs) {
-                    var depends = dependUtil.getDeps(asset._uuid);
-                    for (let i = 0, l = depends.length; i < l; i++) {
-                        var dependAsset = assets.get(depends[i]);
-                        if (dependAsset) {
-                            if (!(dependAsset._uuid in refs)) { 
-                                refs[dependAsset._uuid] = dependAsset._ref - 1;
-                                if (refs[dependAsset._uuid] === 0) {
-                                    checkCircularReference(dependAsset, refs);
-                                }
-                            }
-                            else {
-                                refs[dependAsset._uuid]--;
-                            } 
-                        }
-                    }
-                })(asset, refs);
+                checkCircularReference(asset, refs);
 
-                if (refs[asset._uuid] !== 0) return; 
+                if (refs[asset._uuid] > 0) return; 
             }
         }
     
@@ -320,13 +331,7 @@ var finalizer = {
             _toDelete.add(asset._uuid, asset);
             if (!eventListener) {
                 eventListener = true;
-                cc.director.once(cc.Director.EVENT_AFTER_DRAW, function () {
-                    eventListener = false;
-                    _toDelete.forEach(function (asset) {
-                        finalizer._free(asset);
-                    });
-                    _toDelete.clear();
-                });
+                cc.director.once(cc.Director.EVENT_AFTER_DRAW, freeAssets);
             }
         }
     }

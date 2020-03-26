@@ -41,7 +41,7 @@ const packManager = require('./pack-manager');
 const Bundle = require('./bundle');
 const builtins = require('./builtins')
 const { parse, combine } = require('./urlTransformer');
-const { parseParameters, urlAppendTimestamp, asyncify } = require('./utilities');
+const { parseParameters, asyncify } = require('./utilities');
 const { assets, files, parsed, pipeline, transformPipeline, fetchPipeline, initializePipeline, LoadStrategy, RequestType, bundles, BuiltinBundleName } = require('./shared');
 /**
  * @module cc
@@ -415,6 +415,9 @@ AssetManager.prototype = {
      * 
      * @typescript
      * load(requests: string | string[] | Record<string, any> | Record<string, any>[] | cc.AssetManager.Task, options?: Record<string, any>, onProgress?: (finished: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (err: Error, data: any) => void): cc.AssetManager.Task
+     * load(requests: string | string[] | Record<string, any> | Record<string, any>[] | cc.AssetManager.Task, options?: Record<string, any>, onComplete?: (err: Error, data: any) => void): cc.AssetManager.Task
+     * load(requests: string | string[] | Record<string, any> | Record<string, any>[] | cc.AssetManager.Task, onProgress?: (finished: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (err: Error, data: any) => void): cc.AssetManager.Task
+     * load(requests: string | string[] | Record<string, any> | Record<string, any>[] | cc.AssetManager.Task, onComplete?: (err: Error, data: any) => void): cc.AssetManager.Task
      */
     load (requests, options, onProgress, onComplete) {
         var { options, onProgress, onComplete } = parseParameters(options, onProgress, onComplete);
@@ -459,6 +462,9 @@ AssetManager.prototype = {
      * 
      * @typescript
      * preload(requests: string | string[] | Record<string, any> | Record<string, any>[], options?: Record<string, any>, onProgress?: (finished: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (err: Error, items: cc.AssetManager.RequestItem[]) => void): cc.AssetManager.Task
+     * preload(requests: string | string[] | Record<string, any> | Record<string, any>[], options?: Record<string, any>, onComplete?: (err: Error, items: cc.AssetManager.RequestItem[]) => void): cc.AssetManager.Task
+     * preload(requests: string | string[] | Record<string, any> | Record<string, any>[], onProgress?: (finished: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (err: Error, items: cc.AssetManager.RequestItem[]) => void): cc.AssetManager.Task
+     * preload(requests: string | string[] | Record<string, any> | Record<string, any>[], onComplete?: (err: Error, items: cc.AssetManager.RequestItem[]) => void): cc.AssetManager.Task
      */
     preload (requests, options, onProgress, onComplete) {
         var { options, onProgress, onComplete } = parseParameters(options, onProgress, onComplete);
@@ -492,6 +498,11 @@ AssetManager.prototype = {
      */
     loadNativeFile (asset, onComplete) {
         if (!(asset instanceof cc.Asset)) throw new Error('input is not asset');
+
+        if (asset._nativeAsset) {
+            return asyncify(onComplete)(null, asset._nativeAsset);
+        }
+        
         var depend = dependUtil.getNativeDep(asset._uuid);
         if (depend) {
             var bundle = null;
@@ -533,6 +544,7 @@ AssetManager.prototype = {
      * 
      * @typescript
      * loadRemoteTexture(url: string, options?: Record<string, any>, onComplete?: (err: Error, texture: cc.Texture2D) => void): cc.AssetManager.Task
+     * loadRemoteTexture(url: string, onComplete?: (err: Error, texture: cc.Texture2D) => void): cc.AssetManager.Task
      */
     loadRemoteTexture (url, options, onComplete) {
         var { options, onComplete } = parseParameters(options, undefined, onComplete);
@@ -575,6 +587,7 @@ AssetManager.prototype = {
      * 
      * @typescript
      * loadRemoteAudio(url: string, options?: Record<string, any>, onComplete?: (err: Error, audioClip: cc.AudioClip) => void): cc.AssetManager.Task
+     * loadRemoteAudio(url: string, onComplete?: (err: Error, audioClip: cc.AudioClip) => void): cc.AssetManager.Task
      */
     loadRemoteAudio (url, options, onComplete) {
         var { options, onComplete } = parseParameters(options, undefined, onComplete);
@@ -615,6 +628,7 @@ AssetManager.prototype = {
      * 
      * @typescript
      * loadScript(url: string|string[], options?: Record<string, any>, onComplete?: (err: Error) => void): void;
+     * loadScript(url: string|string[], onComplete?: (err: Error) => void): void;
      */
     loadScript (url, options, onComplete) {
         var { options, onComplete } = parseParameters(options, undefined, onComplete);
@@ -643,7 +657,7 @@ AssetManager.prototype = {
      * 
      * @typescript
      * loadBundle(root: string, options?: Record<string, any>, onComplete?: (err: Error, bundle: cc.AssetManager.Bundle) => void): void
-     *
+     * loadBundle(root: string, onComplete?: (err: Error, bundle: cc.AssetManager.Bundle) => void): void
      */
     loadBundle (root, options, onComplete) {
         if (!root) return;
@@ -717,6 +731,9 @@ AssetManager.prototype = {
      * 
      * @typescript
      * loadRes(paths: string|string[]|cc.AssetManager.Task, type?: typeof cc.Asset, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, resources: cc.Asset|cc.Asset[]) => void): cc.AssetManager.Task
+     * loadRes(paths: string|string[]|cc.AssetManager.Task, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, resources: cc.Asset|cc.Asset[]) => void): cc.AssetManager.Task
+     * loadRes(paths: string|string[]|cc.AssetManager.Task, type?: typeof cc.Asset, onComplete?: (error: Error, resources: cc.Asset|cc.Asset[]) => void): cc.AssetManager.Task
+     * loadRes(paths: string|string[]|cc.AssetManager.Task, onComplete?: (error: Error, resources: cc.Asset|cc.Asset[]) => void): cc.AssetManager.Task
      */
     loadRes (paths, type, onProgress, onComplete) {
         return this.resources.loadAsset(paths, type, onProgress, onComplete);
@@ -751,6 +768,9 @@ AssetManager.prototype = {
      * 
      * @typescript
      * preloadRes(paths: string|string[], type?: typeof cc.Asset, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, items: cc.AssetManager.RequestItem[]) => void): cc.AssetManager.Task
+     * preloadRes(paths: string|string[], type?: typeof cc.Asset, onComplete?: (error: Error, items: cc.AssetManager.RequestItem[]) => void): cc.AssetManager.Task
+     * preloadRes(paths: string|string[], onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, items: cc.AssetManager.RequestItem[]) => void): cc.AssetManager.Task
+     * preloadRes(paths: string|string[], onComplete?: (error: Error, items: cc.AssetManager.RequestItem[]) => void): cc.AssetManager.Task
      */
     preloadRes (path, type, onProgress, onComplete) {
         return this.resources.preloadAsset(path, type, onProgress, onComplete);
@@ -800,6 +820,9 @@ AssetManager.prototype = {
      *
      * @typescript
      * loadResDir(dir: string|cc.AssetManager.Task, type?: typeof cc.Asset, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, assets: cc.Asset|cc.Asset[]) => void): cc.AssetManager.Task
+     * loadResDir(dir: string|cc.AssetManager.Task, type?: typeof cc.Asset, onComplete?: (error: Error, assets: cc.Asset|cc.Asset[]) => void): cc.AssetManager.Task
+     * loadResDir(dir: string|cc.AssetManager.Task, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, assets: cc.Asset|cc.Asset[]) => void): cc.AssetManager.Task
+     * loadResDir(dir: string|cc.AssetManager.Task, onComplete?: (error: Error, assets: cc.Asset|cc.Asset[]) => void): cc.AssetManager.Task
      */
     loadResDir (dir, type, onProgress, onComplete) {
         return this.resources.loadDir(dir, type, onProgress, onComplete);
@@ -832,7 +855,7 @@ AssetManager.prototype = {
      *
      * @example
      *
-     * // load the texture (resources/imgs/cocos.png) and the corresponding sprite frame
+     * // preload the texture (resources/imgs/cocos.png) and the corresponding sprite frame
      * var task = cc.assetManager.preloadResDir('imgs/cocos', function (err) {
      *     if (err) {
      *         cc.error(err);
@@ -843,6 +866,9 @@ AssetManager.prototype = {
      *
      * @typescript
      * preloadResDir(dir: string, type?: typeof cc.Asset, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, items: cc.AssetManager.RequestItem[]) => void): cc.AssetManager.Task
+     * preloadResDir(dir: string, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, items: cc.AssetManager.RequestItem[]) => void): cc.AssetManager.Task
+     * preloadResDir(dir: string, type?: typeof cc.Asset, onComplete?: (error: Error, items: cc.AssetManager.RequestItem[]) => void): cc.AssetManager.Task
+     * preloadResDir(dir: string, onComplete?: (error: Error, items: cc.AssetManager.RequestItem[]) => void): cc.AssetManager.Task
      */
     preloadResDir (dir, type, onProgress, onComplete) {
         return this.resources.preloadDir(dir, type, onProgress, onComplete);
@@ -872,6 +898,9 @@ AssetManager.prototype = {
      * 
      * @typescript
      * loadScene(sceneName: string|cc.AssetManager.Task, options?: Record<string, any>, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, scene: cc.Scene) => void): cc.AssetManager.Task
+     * loadScene(sceneName: string|cc.AssetManager.Task, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, scene: cc.Scene) => void): cc.AssetManager.Task
+     * loadScene(sceneName: string|cc.AssetManager.Task, options?: Record<string, any>, onComplete?: (error: Error, scene: cc.Scene) => void): cc.AssetManager.Task
+     * loadScene(sceneName: string|cc.AssetManager.Task, onComplete?: (error: Error, scene: cc.Scene) => void): cc.AssetManager.Task
      */
     loadScene (sceneName, options, onProgress, onComplete) {
         return this.main.loadScene(sceneName, options, onProgress, onComplete);
@@ -903,6 +932,9 @@ AssetManager.prototype = {
      * 
      * @typescript
      * preloadScene(sceneName: string, options?: Record<string, any>, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error) => void): cc.AssetManager.Task
+     * preloadScene(sceneName: string, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error) => void): cc.AssetManager.Task
+     * preloadScene(sceneName: string, options?: Record<string, any>, onComplete?: (error: Error) => void): cc.AssetManager.Task
+     * preloadScene(sceneName: string, onComplete?: (error: Error) => void): cc.AssetManager.Task
      */
     preloadScene (sceneName, options, onProgress, onComplete) {
         return this.main.preloadScene(sceneName, options, onProgress, onComplete);
@@ -943,7 +975,7 @@ AssetManager.prototype = {
      * 释放资源, 这个方法不仅会从 assetManager 中删除资源的缓存引用，还会清理它的资源内容。
      * 比如说，当你释放一个 texture 资源，这个 texture 和它的 gl 贴图数据都会被释放。
      * 注意，这个函数可能会导致资源贴图或资源所依赖的贴图不可用，如果场景中存在节点仍然依赖同样的贴图，它们可能会变黑并报 GL 错误。
-     * 当 `force` 为 `true` 或者 `undefined` 时，引擎会尝试计算资源被引用的数量，如果数量为零，则资源会被释放。你也能将 `force` 置为true来强制释放这个资源
+     * 当 `force` 为 `false` 或者 `undefined` 时，引擎会尝试计算资源被引用的数量，如果数量为零，则资源会被释放。你也能将 `force` 置为true来强制释放这个资源
      *
      * @method release
      * @param {Asset} asset - The asset to be released
