@@ -907,7 +907,7 @@ export class Game extends EventTarget {
             };
 
             // useWebGL2 = false;
-            if (CC_JSB) { 
+            if (JSB) { 
                 if (cc.sys.os === sys.OS_ANDROID) {
                     // Android
                     // - check support GLES3 first

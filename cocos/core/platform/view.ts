@@ -157,7 +157,6 @@ export class View extends EventTarget {
     private _rpNoBorder: ResolutionPolicy;
     private _rpFixedHeight: ResolutionPolicy;
     private _rpFixedWidth: ResolutionPolicy;
-    private _maxPixelRatio: number;
 
     constructor () {
         super();
