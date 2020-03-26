@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { GFXBufferTextureCopy, GFXFormat, GFXFormatInfos, GFXFormatType, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../../gfx/define';
+import { getTypedArrayConstructor, GFXBufferTextureCopy, GFXFormat, GFXFormatInfos, GFXTextureType, GFXTextureUsageBit, GFXTextureViewType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXTexture } from '../../gfx/texture';
 import { GFXTextureView } from '../../gfx/texture-view';
@@ -36,9 +36,13 @@ export interface ITextureBufferHandle {
 
 export interface ITextureBufferPoolInfo {
     format: GFXFormat; // target texture format
-    maxChunks: number; // maximum number of textures to allocate until exception
     inOrderFree?: boolean; // will the handles be freed exactly in the order of their allocation?
+    alignment?: number; // the data alignment for each handle allocated, in bytes
     roundUpFn?: (size: number, formatSize: number) => number; // given a target size, how will the actual texture size round up?
+}
+
+function roundUp (n: number, alignment: number) {
+    return Math.ceil(n / alignment) * alignment;
 }
 
 export class TextureBufferPool {
@@ -53,25 +57,23 @@ export class TextureBufferPool {
     private _region1 = new GFXBufferTextureCopy();
     private _region2 = new GFXBufferTextureCopy();
     private _roundUpFn: ((targetSize: number, formatSize: number) => number) | null = null;
-    private _bufferViewCtor: Uint8ArrayConstructor | Float32ArrayConstructor = Uint8Array;
+    private _bufferViewCtor: TypedArrayConstructor = Uint8Array;
     private _channels = 4;
-    private _inOrderFree = false;
+    private _alignment = 1;
 
     public constructor (device: GFXDevice) {
         this._device = device;
     }
 
-    public initialize (info: ITextureBufferPoolInfo): boolean {
+    public initialize (info: ITextureBufferPoolInfo) {
         const formatInfo = GFXFormatInfos[info.format];
         this._format = info.format;
         this._formatSize = formatInfo.size;
         this._channels = formatInfo.count;
-        this._bufferViewCtor = formatInfo.type === GFXFormatType.FLOAT ? Float32Array : Uint8Array;
-        this._chunks = new Array(info.maxChunks);
+        this._bufferViewCtor = getTypedArrayConstructor(formatInfo);
         this._roundUpFn = info.roundUpFn || null;
-        this._inOrderFree = info.inOrderFree || false;
-
-        return true;
+        this._alignment = info.alignment || 1;
+        if (info.inOrderFree) { this.alloc = this._McDonaldAlloc; }
     }
 
     public destroy () {
@@ -80,112 +82,56 @@ export class TextureBufferPool {
             chunk.texView.destroy();
             chunk.texture.destroy();
         }
-        this._chunks.splice(0);
-        this._handles.splice(0);
+        this._chunks.length = 0;
+        this._handles.length = 0;
     }
 
-    public alloc (size: number): ITextureBufferHandle | null {
-        if (size === 0) {
-            return null;
+    public alloc (size: number, chunkIdx?: number) {
+        size = roundUp(size, this._alignment);
+
+        let index = -1;
+        let start = -1;
+        if (chunkIdx !== undefined) {
+            index = chunkIdx;
+            start = this._findAvailableSpace(size, index);
         }
 
-        for (let i = 0; i < this._chunkCount; ++i) {
-            const chunk = this._chunks[i];
-            let isFound = false;
-            let start = chunk.start;
-            if ((start + size) <= chunk.end) {
-                isFound = true;
-            } else if (!this._inOrderFree) {
-                start = 0; // try to find from head again
-                const handles = this._handles.filter((h) => h.chunkIdx === i).sort((a, b) => a.start - b.start);
-                for (let j = 0; j < handles.length; j++) {
-                    const handle = handles[j];
-                    if ((start + size) <= handle.start) {
-                        isFound = true;
-                        break;
-                    }
-                    start = handle.end;
-                }
-                if (!isFound && (start + size) <= chunk.size) {
-                    isFound = true;
-                }
-            } else if (start > chunk.end) { // [McDonald 12] Efficient Buffer Management
-                if ((start + size) <= chunk.size) {
-                    isFound = true;
-                } else if (size <= chunk.end) {
-                    // Try to find from head again.
-                    chunk.start = start = 0;
-                    isFound = true;
-                }
-            } else if (start === chunk.end) {
-                chunk.start = start = 0;
-                chunk.end = chunk.size;
-                if (size <= chunk.end) {
-                    isFound = true;
-                }
-            }
-
-            if (isFound) {
-                chunk.start += size;
-
-                const handle = {
-                    chunkIdx: i,
-                    start,
-                    end: start + size,
-                    texture: chunk.texture,
-                    texView: chunk.texView,
-                };
-
-                this._handles.push(handle);
-                return handle;
+        if (start < 0) {
+            for (let i = 0; i < this._chunkCount; ++i) {
+                index = i;
+                start = this._findAvailableSpace(size, index);
+                if (start >= 0) { break; }
             }
         }
 
-        // boundary checking
-        if (this._chunkCount >= this._chunks.length) {
-            console.error('TextureBufferPool: Reach max chunk count.');
-            return null;
+        if (start >= 0) {
+            const chunk = this._chunks[index];
+            chunk.start += size;
+            const handle: ITextureBufferHandle = {
+                chunkIdx: index,
+                start,
+                end: start + size,
+                texture: chunk.texture,
+                texView: chunk.texView,
+            };
+            this._handles.push(handle);
+            return handle;
         }
 
         // create a new one
         const targetSize = Math.sqrt(size / this._formatSize);
-        const texWidth = this._roundUpFn && this._roundUpFn(targetSize, this._formatSize) || Math.max(1024, nearestPOT(targetSize));
-        const texSize = texWidth * texWidth * this._formatSize;
+        const texLength = this._roundUpFn && this._roundUpFn(targetSize, this._formatSize) || Math.max(1024, nearestPOT(targetSize));
+        const newChunk = this._chunks[this.createChunk(texLength)];
 
-        console.info('TextureBufferPool: Allocate chunk ' + this._chunkCount + ', size: ' + texSize + ', format: ' + this._format);
-
-        const texture: GFXTexture = this._device.createTexture({
-            type: GFXTextureType.TEX2D,
-            usage: GFXTextureUsageBit.SAMPLED,
-            format: this._format,
-            width: texWidth,
-            height: texWidth,
-            mipLevel: 1,
-        });
-
-        const texView: GFXTextureView = this._device.createTextureView({
-            texture,
-            type: GFXTextureViewType.TV2D,
-            format: this._format,
-        });
-
-        const texHandle = {
+        newChunk.start += size;
+        const texHandle: ITextureBufferHandle = {
             chunkIdx: this._chunkCount,
             start: 0,
             end: size,
-            texture,
-            texView,
+            texture: newChunk.texture,
+            texView: newChunk.texView,
         };
         this._handles.push(texHandle);
-
-        this._chunks[this._chunkCount++] = {
-            texture,
-            texView,
-            size: texSize,
-            start: size,
-            end: texSize,
-        };
-
         return texHandle;
     }
 
@@ -197,6 +143,37 @@ export class TextureBufferPool {
                 return;
             }
         }
+    }
+
+    public createChunk (length: number) {
+        const texSize = length * length * this._formatSize;
+
+        console.info('TextureBufferPool: Allocate chunk ' + this._chunkCount + ', size: ' + texSize + ', format: ' + this._format);
+
+        const texture: GFXTexture = this._device.createTexture({
+            type: GFXTextureType.TEX2D,
+            usage: GFXTextureUsageBit.SAMPLED,
+            format: this._format,
+            width: length,
+            height: length,
+            mipLevel: 1,
+        });
+
+        const texView: GFXTextureView = this._device.createTextureView({
+            texture,
+            type: GFXTextureViewType.TV2D,
+            format: this._format,
+        });
+
+        const chunk: ITextureBuffer = {
+            texture,
+            texView,
+            size: texSize,
+            start: 0,
+            end: texSize,
+        };
+        this._chunks[this._chunkCount] = chunk;
+        return this._chunkCount++;
     }
 
     public update (handle: ITextureBufferHandle, buffer: ArrayBuffer) {
@@ -260,5 +237,85 @@ export class TextureBufferPool {
         }
 
         this._device.copyBuffersToTexture(buffers, handle.texture, regions);
+    }
+
+    private _findAvailableSpace (size: number, chunkIdx: number) {
+        const chunk = this._chunks[chunkIdx];
+        let isFound = false;
+        let start = chunk.start;
+        if ((start + size) <= chunk.size) {
+            isFound = true;
+        } else {
+            start = 0; // try to find from head again
+            const handles = this._handles.filter((h) => h.chunkIdx === chunkIdx).sort((a, b) => a.start - b.start);
+            for (let i = 0; i < handles.length; i++) {
+                const handle = handles[i];
+                if ((start + size) <= handle.start) {
+                    isFound = true;
+                    break;
+                }
+                start = handle.end;
+            }
+            if (!isFound && (start + size) <= chunk.size) {
+                isFound = true;
+            }
+        }
+        return isFound ? start : -1;
+    }
+
+    // [McDonald 12] Efficient Buffer Management
+    private _McDonaldAlloc (size: number) {
+        size = roundUp(size, this._alignment);
+
+        for (let i = 0; i < this._chunkCount; ++i) {
+            const chunk = this._chunks[i];
+            let isFound = false;
+            let start = chunk.start;
+            if ((start + size) <= chunk.end) {
+                isFound = true;
+            } else if (start > chunk.end) {
+                if ((start + size) <= chunk.size) {
+                    isFound = true;
+                } else if (size <= chunk.end) {
+                    // Try to find from head again.
+                    chunk.start = start = 0;
+                    isFound = true;
+                }
+            } else if (start === chunk.end) {
+                chunk.start = start = 0;
+                chunk.end = chunk.size;
+                if (size <= chunk.end) {
+                    isFound = true;
+                }
+            }
+            if (isFound) {
+                chunk.start += size;
+                const handle: ITextureBufferHandle = {
+                    chunkIdx: i,
+                    start,
+                    end: start + size,
+                    texture: chunk.texture,
+                    texView: chunk.texView,
+                };
+                this._handles.push(handle);
+                return handle;
+            }
+        }
+
+        // create a new one
+        const targetSize = Math.sqrt(size / this._formatSize);
+        const texLength = this._roundUpFn && this._roundUpFn(targetSize, this._formatSize) || Math.max(1024, nearestPOT(targetSize));
+        const newChunk = this._chunks[this.createChunk(texLength)];
+
+        newChunk.start += size;
+        const texHandle: ITextureBufferHandle = {
+            chunkIdx: this._chunkCount,
+            start: 0,
+            end: size,
+            texture: newChunk.texture,
+            texView: newChunk.texView,
+        };
+        this._handles.push(texHandle);
+        return texHandle;
     }
 }

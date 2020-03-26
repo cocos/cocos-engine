@@ -29,8 +29,10 @@ export class RenderBatchedQueue {
      * 清空渲染队列。
      */
     public clear () {
-        for (const batchedBuff of this.queue.values()) {
-            batchedBuff.clear();
+        const it = this.queue.values(); let res = it.next();
+        while (!res.done) {
+            res.value.clear();
+            res = it.next();
         }
         this.queue.clear();
     }
@@ -40,10 +42,11 @@ export class RenderBatchedQueue {
      * 记录命令缓冲。
      */
     public recordCommandBuffer (cmdBuff: GFXCommandBuffer) {
-        for (const batchedBuffer of this.queue.values()) {
+        const it = this.queue.values(); let res = it.next();
+        while (!res.done) {
             let boundPSO = false;
-            for (let b = 0; b < batchedBuffer.batches.length; ++b) {
-                const batch = batchedBuffer.batches[b];
+            for (let b = 0; b < res.value.batches.length; ++b) {
+                const batch = res.value.batches[b];
                 if (!batch.mergeCount) { continue; }
                 for (let v = 0; v < batch.vbs.length; ++v) {
                     batch.vbs[v].update(batch.vbDatas[v]);
@@ -55,6 +58,7 @@ export class RenderBatchedQueue {
                 cmdBuff.bindInputAssembler(batch.ia);
                 cmdBuff.draw(batch.ia);
             }
+            res = it.next();
         }
     }
 }

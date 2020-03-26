@@ -29,13 +29,16 @@
 
 import { EventArgumentsOf, EventCallbackOf } from '../event/defines';
 import { Node } from '../scene-graph/node';
-import { AnimationBlendState, PropertyBlendState } from './animation-blend-state';
 import { AnimationClip, IRuntimeCurve } from './animation-clip';
+import { AnimationComponent } from './animation-component';
 import { AnimCurve, RatioSampler } from './animation-curve';
-import { additive3D, additiveQuat, BlendFunction } from './blending';
-import { BoundTarget, BufferedTarget } from './bound-target';
+import { createBoundTarget, createBufferedTarget, IBufferedTarget, IBoundTarget } from './bound-target';
 import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
+import { error } from '../platform/debug';
+import { EDITOR } from 'internal:constants';
+import { HierarchyPath, TargetPath, evaluatePath } from './target-path';
+import { BlendStateBuffer, createBlendStateWriter, IBlendStateWriter } from './skeletal-animation-blending';
 
 enum PropertySpecialization {
     NodePosition,
@@ -48,64 +51,21 @@ export class ICurveInstance {
     public commonTargetIndex?: number;
 
     private _curve: AnimCurve;
-    private _boundTarget: BoundTarget;
+    private _boundTarget: IBoundTarget;
     private _rootTarget: any;
     private _rootTargetProperty?: string;
-    private _isNodeTarget: boolean;
-    private _propertySpecialization: PropertySpecialization;
-    private _blendTarget: PropertyBlendState | null;
-    private _blendFunction: BlendFunction<any> | null;
     private _cached?: any[];
     private _curveDetail: Omit<IRuntimeCurve, 'sampler'>;
 
     constructor (
         runtimeCurve: Omit<IRuntimeCurve, 'sampler'>,
         target: any,
-        blendTarget: PropertyBlendState | null = null) {
+        boundTarget: IBoundTarget) {
         this._curve = runtimeCurve.curve;
         this._curveDetail = runtimeCurve;
 
-        this._boundTarget = new BoundTarget(
-            target,
-            runtimeCurve.modifiers,
-            runtimeCurve.valueAdapter,
-        );
-
+        this._boundTarget = boundTarget;
         this._rootTarget = target;
-        this._isNodeTarget = target instanceof Node;
-        this._propertySpecialization = PropertySpecialization.None;
-        this._blendFunction = null;
-        if (this._isNodeTarget && Array.isArray(runtimeCurve.modifiers) && runtimeCurve.modifiers.length === 1) {
-            switch (runtimeCurve.modifiers[0]) {
-                case 'position':
-                    this._propertySpecialization = PropertySpecialization.NodePosition;
-                    this._blendFunction = additive3D;
-                    break;
-                case 'rotation':
-                    this._propertySpecialization = PropertySpecialization.NodeRotation;
-                    this._blendFunction = additiveQuat;
-                    break;
-                case 'scale':
-                    this._propertySpecialization = PropertySpecialization.NodeScale;
-                    this._blendFunction = additive3D;
-                    break;
-            }
-        }
-        this._blendTarget = blendTarget;
-    }
-
-    public attachToBlendState (blendState: AnimationBlendState) {
-        if (this._rootTargetProperty) {
-            this._blendTarget = blendState.refPropertyBlendTarget(
-                this._rootTarget, this._rootTargetProperty);
-        }
-    }
-
-    public detachFromBlendState (blendState: AnimationBlendState) {
-        if (this._rootTargetProperty) {
-            this._blendTarget = null;
-            blendState.deRefPropertyBlendTarget(this._rootTarget, this._rootTargetProperty);
-        }
     }
 
     public applySample (ratio: number, index: number, lerpRequired: boolean, samplerResultCache, weight: number) {
@@ -127,25 +87,7 @@ export class ICurveInstance {
     }
 
     private _setValue (value: any, weight: number) {
-        if (!this._blendFunction || !this._blendTarget || this._blendTarget.refCount <= 1) {
-            switch (this._propertySpecialization) {
-                case PropertySpecialization.NodePosition:
-                    this._rootTarget.setPosition(value);
-                    break;
-                case PropertySpecialization.NodeRotation:
-                    this._rootTarget.setRotation(value);
-                    break;
-                case PropertySpecialization.NodeScale:
-                    this._rootTarget.setScale(value);
-                    break;
-                default:
-                    this._boundTarget.setValue(value);
-                    break;
-            }
-        } else {
-            this._blendTarget.value = this._blendFunction(value, weight, this._blendTarget);
-            this._blendTarget.weight += weight;
-        }
+        this._boundTarget.setValue(value);
     }
 
     get propertyName () { return this._rootTargetProperty || ''; }
@@ -162,10 +104,10 @@ interface ISamplerSharedGroup {
     sampler: RatioSampler | null;
     curves: ICurveInstance[];
     samplerResultCache: {
-        from: number,
-        fromRatio: number,
-        to: number,
-        toRatio: number,
+        from: number;
+        fromRatio: number;
+        to: number;
+        toRatio: number;
     };
 }
 
@@ -240,7 +182,7 @@ export class AnimationState extends Playable {
     set wrapMode (value: WrapMode) {
         this._wrapMode = value;
 
-        if (CC_EDITOR) { return; }
+        if (EDITOR) { return; }
 
         // dynamic change wrapMode will need reset time to 0
         this.time = 0;
@@ -358,12 +300,18 @@ export class AnimationState extends Playable {
     protected _name: string;
     protected _lastIterations?: number;
     protected _samplerSharedGroups: ISamplerSharedGroup[] = [];
-    protected _commonTargetStatuses: Array<{
-        target: BufferedTarget;
+
+    /**
+     * May be `null` due to failed to initialize.
+     */
+    protected _commonTargetStatuses: Array<null | {
+        target: IBufferedTarget;
         changed: boolean;
     }> = [];
     protected _curveLoaded = false;
     protected _ignoreIndex = InvalidIndex;
+    private _blendStateBuffer: BlendStateBuffer | null = null;
+    private _blendStateWriters: IBlendStateWriter[] = [];
 
     constructor (clip: AnimationClip, name = '') {
         super();
@@ -379,6 +327,8 @@ export class AnimationState extends Playable {
         if (this._curveLoaded) { return; }
         this._curveLoaded = true;
         this._samplerSharedGroups.length = 0;
+        this._blendStateBuffer = cc.director.getAnimationManager()?.blendState ?? null;
+        this._blendStateWriters.length = 0;
         this._targetNode = root;
         const clip = this._clip;
 
@@ -394,10 +344,15 @@ export class AnimationState extends Playable {
         }
 
         this._commonTargetStatuses = clip.commonTargets.map((commonTarget, index) => {
-            return {
-                target: new BufferedTarget(root, commonTarget.modifiers, commonTarget.valueAdapter),
-                changed: false,
-            };
+            const target = createBufferedTarget(root, commonTarget.modifiers, commonTarget.valueAdapter);
+            if (target === null) {
+                return null;
+            } else {
+                return {
+                    target,
+                    changed: false,
+                };
+            }
         });
 
         if (!propertyCurves) {
@@ -411,17 +366,45 @@ export class AnimationState extends Playable {
                 this._samplerSharedGroups.push(samplerSharedGroup);
             }
 
-            try {
+            let rootTarget: any = undefined;
+            if (typeof propertyCurve.commonTarget === 'undefined') {
+                rootTarget = root;
+            } else {
+                const commonTargetStatus = this._commonTargetStatuses[propertyCurve.commonTarget];
+                if (!commonTargetStatus) {
+                    continue;
+                }
+                rootTarget = commonTargetStatus.target.peek();
+            }
+
+            let boundTarget: IBoundTarget | null = null;
+            if (!isSkeletonCurve(propertyCurve) || !this._blendStateBuffer) {
+                boundTarget = createBoundTarget(rootTarget, propertyCurve.modifiers, propertyCurve.valueAdapter);
+            } else {
+                const targetNode = evaluatePath(rootTarget, ...propertyCurve.modifiers.slice(0, propertyCurve.modifiers.length - 1));
+                if (targetNode !== null && targetNode instanceof Node) {
+                    const propertyName = propertyCurve.modifiers[propertyCurve.modifiers.length - 1] as 'position' | 'rotation' | 'scale';
+                    const blendStateWriter = createBlendStateWriter(
+                        this._blendStateBuffer,
+                        targetNode,
+                        propertyName,
+                        this,
+                    );
+                    this._blendStateWriters.push(blendStateWriter);
+                    boundTarget = createBoundTarget(rootTarget, [], blendStateWriter);
+                }
+            }
+
+            if (boundTarget === null) {
+                // warn(`Failed to bind "${root.name}" to curve in clip ${clip.name}: ${err}`);
+            } else {
                 const curveInstance = new ICurveInstance(
                     propertyCurve,
-                    (typeof propertyCurve.commonTarget === 'number') ?
-                        this._commonTargetStatuses[propertyCurve.commonTarget].target.peek() :
-                        root,
+                    rootTarget,
+                    boundTarget,
                 );
                 curveInstance.commonTargetIndex = propertyCurve.commonTarget;
                 samplerSharedGroup.curves.push(curveInstance);
-            } catch (err) {
-                // warn(`Failed to bind "${root.name}" to curve in clip ${clip.name}: ${err}`);
             }
         }
     }
@@ -492,7 +475,7 @@ export class AnimationState extends Playable {
         this._currentFramePlayed = false;
         this.time = time || 0;
 
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             this._lastWrapInfoEvent = null;
             this._ignoreIndex = InvalidIndex;
 
@@ -613,7 +596,7 @@ export class AnimationState extends Playable {
     public sample () {
         const info = this.getWrappedInfo(this.time, this._wrappedInfo);
         this._sampleCurves(info.ratio);
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             this._sampleEvents(info);
         }
         return info;
@@ -651,7 +634,7 @@ export class AnimationState extends Playable {
         const ratio = time / duration;
         this._sampleCurves(ratio);
 
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             if (this._clip.hasEvents()) {
                 this._sampleEvents(this.getWrappedInfo(this.time, this._wrappedInfo));
             }
@@ -670,22 +653,6 @@ export class AnimationState extends Playable {
         }
     }
 
-    public attachToBlendState (blendState: AnimationBlendState) {
-        for (const samplerSharedGroup of this._samplerSharedGroups) {
-            for (const curveInstance of samplerSharedGroup.curves) {
-                curveInstance.attachToBlendState(blendState);
-            }
-        }
-    }
-
-    public detachFromBlendState (blendState: AnimationBlendState) {
-        for (const samplerSharedGroup of this._samplerSharedGroups) {
-            for (const curveInstance of samplerSharedGroup.curves) {
-                curveInstance.detachFromBlendState(blendState);
-            }
-        }
-    }
-
     public cache (frames: number) {
     }
 
@@ -695,6 +662,9 @@ export class AnimationState extends Playable {
         this._delayTime = this._delay;
 
         cc.director.getAnimationManager().addAnimation(this);
+        for (let iBlendStateWriter = 0; iBlendStateWriter < this._blendStateWriters.length; ++iBlendStateWriter) {
+            this._blendStateWriters[iBlendStateWriter].start();
+        }
 
         this.emit('play', this);
     }
@@ -702,6 +672,9 @@ export class AnimationState extends Playable {
     protected onStop () {
         if (!this.isPaused) {
             cc.director.getAnimationManager().removeAnimation(this);
+            for (let iBlendStateWriter = 0; iBlendStateWriter < this._blendStateWriters.length; ++iBlendStateWriter) {
+                this._blendStateWriters[iBlendStateWriter].stop();
+            }
         }
 
         this.emit('stop', this);
@@ -720,9 +693,12 @@ export class AnimationState extends Playable {
     protected _sampleCurves (ratio: number) {
         // Before we sample, we pull values of common targets.
         for (let iCommonTarget = 0; iCommonTarget < this._commonTargetStatuses.length; ++iCommonTarget) {
-            const commonTarget = this._commonTargetStatuses[iCommonTarget];
-            commonTarget.target.pull();
-            commonTarget.changed = false;
+            const commonTargetStatus = this._commonTargetStatuses[iCommonTarget];
+            if (!commonTargetStatus) {
+                continue;
+            }
+            commonTargetStatus.target.pull();
+            commonTargetStatus.changed = false;
         }
 
         for (let iSamplerSharedGroup = 0, szSamplerSharedGroup = this._samplerSharedGroups.length;
@@ -757,7 +733,10 @@ export class AnimationState extends Playable {
                 const curveInstance = samplerSharedGroup.curves[iCurveInstance];
                 curveInstance.applySample(ratio, index, lerpRequired, samplerResultCache, this.weight);
                 if (curveInstance.commonTargetIndex !== undefined) {
-                    this._commonTargetStatuses[curveInstance.commonTargetIndex]!.changed = true;
+                    const commonTargetStatus = this._commonTargetStatuses[curveInstance.commonTargetIndex];
+                    if (commonTargetStatus) {
+                        commonTargetStatus.changed = true;
+                    }
                 }
             }
         }
@@ -765,6 +744,9 @@ export class AnimationState extends Playable {
         // After sample, we push values of common targets.
         for (let iCommonTarget = 0; iCommonTarget < this._commonTargetStatuses.length; ++iCommonTarget) {
             const commonTargetStatus = this._commonTargetStatuses[iCommonTarget];
+            if (!commonTargetStatus) {
+                continue;
+            }
             if (commonTargetStatus.changed) {
                 commonTargetStatus.target.push();
             }
@@ -866,6 +848,28 @@ export class AnimationState extends Playable {
                 }
             }
         }
+    }
+}
+
+function isSkeletonCurve (curve: IRuntimeCurve) {
+    let prs: string | undefined;
+    if (curve.modifiers.length === 1 && typeof curve.modifiers[0] === 'string') {
+        prs = curve.modifiers[0];
+    } else if (curve.modifiers.length > 1) {
+        for (let i = 0; i < curve.modifiers.length - 1; ++i) {
+            if (!(curve.modifiers[i] instanceof HierarchyPath)) {
+                return false;
+            }
+        }
+        prs = curve.modifiers[curve.modifiers.length - 1] as string;
+    }
+    switch (prs) {
+        case 'position':
+        case 'scale':
+        case 'rotation':
+            return true;
+        default:
+            return false;
     }
 }
 

@@ -1,37 +1,28 @@
 // Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 import { AnimationClip } from '../animation/animation-clip';
-import { Mesh, Skeleton } from '../assets';
+import { Skeleton } from '../assets';
 import { GFXDevice } from '../gfx/device';
-import { AnimatedBoundsInfo, JointsAnimationInfo, JointsTexturePool } from './models/skeletal-animation-utils';
+import { JointAnimationInfo, JointTexturePool } from './models/skeletal-animation-utils';
 
 export class DataPoolManager {
-    public jointsTexturePool: JointsTexturePool;
-    public jointsAnimationInfo: JointsAnimationInfo;
-    public animatedBoundsInfo: AnimatedBoundsInfo;
+    public jointTexturePool: JointTexturePool;
+    public jointAnimationInfo: JointAnimationInfo;
 
     constructor (device: GFXDevice) {
-        this.jointsTexturePool = new JointsTexturePool(device);
-        this.jointsAnimationInfo = new JointsAnimationInfo(device);
-        this.animatedBoundsInfo = new AnimatedBoundsInfo();
-    }
-
-    public releaseMesh (mesh: Mesh) {
-        this.animatedBoundsInfo.releaseMesh(mesh);
+        this.jointTexturePool = new JointTexturePool(device);
+        this.jointAnimationInfo = new JointAnimationInfo(device);
     }
 
     public releaseSkeleton (skeleton: Skeleton) {
-        this.jointsTexturePool.releaseSkeleton(skeleton);
-        this.animatedBoundsInfo.releaseSkeleton(skeleton);
+        this.jointTexturePool.releaseSkeleton(skeleton);
     }
 
     public releaseAnimationClip (clip: AnimationClip) {
-        this.jointsTexturePool.releaseAnimationClip(clip);
-        this.animatedBoundsInfo.releaseAnimationClip(clip);
+        this.jointTexturePool.releaseAnimationClip(clip);
     }
 
     public clear () {
-        this.jointsTexturePool.clear();
-        this.jointsAnimationInfo.clear();
-        this.animatedBoundsInfo.clear();
+        this.jointTexturePool.clear();
+        this.jointAnimationInfo.clear();
     }
 }

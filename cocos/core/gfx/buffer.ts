@@ -43,6 +43,10 @@ export interface IGFXBufferInfo {
     usage: GFXBufferUsage;
     memUsage: GFXMemoryUsage;
     size: number;
+
+    /**
+     * In bytes.
+     */
     stride?: number;
     flags?: GFXBufferFlags;
 }

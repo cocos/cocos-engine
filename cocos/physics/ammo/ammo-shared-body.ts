@@ -5,7 +5,7 @@ import { Node } from '../../core';
 import { AmmoWorld } from './ammo-world';
 import { AmmoRigidBody } from './ammo-rigid-body';
 import { AmmoShape } from './shapes/ammo-shape';
-import { cocos2AmmoVec3, cocos2AmmoQuat, ammo2CocosVec3, ammo2CocosQuat } from './ammo-util';
+import { cocos2AmmoVec3, cocos2AmmoQuat, ammo2CocosVec3, ammo2CocosQuat, ammoDeletePtr } from './ammo-util';
 import { AmmoCollisionFlags, AmmoCollisionObjectStates } from './ammo-enum';
 import { AmmoInstance } from './ammo-instance';
 import { IAmmoBodyStruct, IAmmoGhostStruct } from './ammo-interface';
@@ -237,7 +237,7 @@ export class AmmoSharedBody {
 
             if (this.node.hasChangedFlags & TransformBit.SCALE) {
                 for (let i = 0; i < this.bodyStruct.wrappedShapes.length; i++) {
-                    this.bodyStruct.wrappedShapes[i].updateScale();
+                    this.bodyStruct.wrappedShapes[i].setScale();
                 }
             }
         }
@@ -274,7 +274,7 @@ export class AmmoSharedBody {
 
             if (this.node.hasChangedFlags & TransformBit.SCALE) {
                 for (let i = 0; i < this.ghostStruct.wrappedShapes.length; i++) {
-                    this.ghostStruct.wrappedShapes[i].updateScale();
+                    this.ghostStruct.wrappedShapes[i].setScale();
                 }
             }
         }
@@ -286,7 +286,7 @@ export class AmmoSharedBody {
         cocos2AmmoQuat(this.bodyStruct.worldQuat, this.node.worldRotation);
         wt.setRotation(this.bodyStruct.worldQuat);
         for (let i = 0; i < this.bodyStruct.wrappedShapes.length; i++) {
-            this.bodyStruct.wrappedShapes[i].updateScale();
+            this.bodyStruct.wrappedShapes[i].setScale();
         }
         this.body.activate();
     }
@@ -297,7 +297,7 @@ export class AmmoSharedBody {
         cocos2AmmoQuat(this.ghostStruct.worldQuat, this.node.worldRotation);
         wt1.setRotation(this.ghostStruct.worldQuat);
         for (let i = 0; i < this.ghostStruct.wrappedShapes.length; i++) {
-            this.ghostStruct.wrappedShapes[i].updateScale();
+            this.ghostStruct.wrappedShapes[i].setScale();
         }
         this.ghost.activate();
     }
@@ -335,20 +335,31 @@ export class AmmoSharedBody {
         (this.wrappedWorld as any) = null;
 
         const bodyStruct = this.bodyStruct;
-        Ammo.destroy(bodyStruct.body);
+        // Ammo.destroy(bodyStruct.body);
         Ammo.destroy(bodyStruct.localInertia);
-        Ammo.destroy(bodyStruct.motionState);
-        Ammo.destroy(bodyStruct.rbInfo);
-        Ammo.destroy(bodyStruct.shape);
-        Ammo.destroy(bodyStruct.startTransform);
+        // Ammo.destroy(bodyStruct.motionState);
+        // Ammo.destroy(bodyStruct.rbInfo);
+        // Ammo.destroy(bodyStruct.shape);
+        // Ammo.destroy(bodyStruct.startTransform);
         Ammo.destroy(bodyStruct.worldQuat);
+        ammoDeletePtr(bodyStruct.motionState, Ammo.btDefaultMotionState);
+        ammoDeletePtr(bodyStruct.rbInfo, Ammo.btRigidBodyConstructionInfo);
+        ammoDeletePtr(bodyStruct.body, Ammo.btRigidBody);
+        ammoDeletePtr(bodyStruct.body, Ammo.btCollisionObject);
+        ammoDeletePtr(bodyStruct.shape, Ammo.btCompoundShape);
+        ammoDeletePtr(bodyStruct.startTransform, Ammo.btTransform);
+        ammoDeletePtr(bodyStruct.localInertia, Ammo.btVector3);
+        ammoDeletePtr(bodyStruct.worldQuat, Ammo.btQuaternion);
         const key0 = 'KEY' + bodyStruct.id;
         delete AmmoInstance.bodyStructs[key0];
 
         const ghostStruct = this.ghostStruct;
-        Ammo.destroy(ghostStruct.ghost);
-        Ammo.destroy(ghostStruct.shape);
+        // Ammo.destroy(ghostStruct.ghost);
+        // Ammo.destroy(ghostStruct.shape);
         Ammo.destroy(ghostStruct.worldQuat);
+        ammoDeletePtr(ghostStruct.ghost, Ammo.btCollisionObject);
+        ammoDeletePtr(ghostStruct.shape, Ammo.btCompoundShape);
+        ammoDeletePtr(ghostStruct.worldQuat, Ammo.btQuaternion);
         const key1 = 'KEY' + ghostStruct.id;
         delete AmmoInstance.bodyStructs[key1];
 

@@ -31,10 +31,11 @@ import { IBlockInfo, IBuiltinInfo, IDefineInfo, ISamplerInfo, IShaderInfo } from
 import { IGFXBinding } from '../../gfx/binding-layout';
 import { GFXBindingType, GFXGetTypeSize, GFXShaderType } from '../../gfx/define';
 import { GFXAPI, GFXDevice } from '../../gfx/device';
+import { IGFXAttribute } from '../../gfx/input-assembler';
+import { GFXInputState } from '../../gfx/pipeline-state';
 import { GFXShader, GFXUniformBlock } from '../../gfx/shader';
 import { IInternalBindingDesc, localBindingsDesc } from '../../pipeline/define';
 import { RenderPipeline } from '../../pipeline/render-pipeline';
-import { selectJointsMediumType } from '../models/skeletal-animation-utils';
 import { genHandle, IDefineMap } from './pass-utils';
 
 interface IDefineRecord extends IDefineInfo {
@@ -102,6 +103,7 @@ function insertBuiltinBindings (tmpl: IProgramInfo, source: Map<string, IInterna
             defines: b.defines,
             size: getSize(info.blockInfo!),
             bindingType: GFXBindingType.UNIFORM_BUFFER,
+            defaultValue: info.defaultValue as ArrayBuffer,
         }, info.blockInfo!);
         blocks.push(builtin);
     }
@@ -109,7 +111,7 @@ function insertBuiltinBindings (tmpl: IProgramInfo, source: Map<string, IInterna
     for (const s of target.samplers) {
         const info = source.get(s.name);
         if (!info || info.type !== GFXBindingType.SAMPLER) { console.warn(`builtin sampler '${s.name}' not available!`); continue; }
-        const builtin = Object.assign({ defines: s.defines, bindingType: GFXBindingType.SAMPLER }, info.samplerInfo);
+        const builtin = Object.assign({ defines: s.defines, bindingType: GFXBindingType.SAMPLER, defaultValue: info.defaultValue as string }, info.samplerInfo);
         samplers.push(builtin);
     }
 }
@@ -141,33 +143,39 @@ function genHandles (tmpl: IProgramInfo) {
 
 function dependencyCheck (dependencies: string[], defines: IDefineMap) {
     for (let i = 0; i < dependencies.length; i++) {
-        if (!defines[dependencies[i]]) { return false; }
+        const d = dependencies[i];
+        if (d[0] === '!') { if (defines[d.slice(1)]) { return false; } } // negative dependency
+        else if (!defines[d]) { return false; }
     }
     return true;
 }
 function getShaderBindings (
-        tmpl: IProgramInfo, defines: IDefineMap, outBlocks: IBlockInfoRT[], outSamplers: ISamplerInfoRT[], bindings: IGFXBinding[]) {
-    const { blocks, samplers } = tmpl;
-    let lastBinding = -1;
+        tmpl: IProgramInfo, defines: IDefineMap, outBlocks: IBlockInfoRT[], outSamplers: ISamplerInfoRT[],
+        bindings: IGFXBinding[], outAttributes: IGFXAttribute[]) {
+    const { blocks, samplers, attributes } = tmpl;
     for (let i = 0; i < blocks.length; i++) {
         const block = blocks[i];
-        if (block.binding === lastBinding || !dependencyCheck(block.defines, defines)) { continue; }
-        lastBinding = block.binding;
+        if (!dependencyCheck(block.defines, defines)) { continue; }
         outBlocks.push(block);
         bindings.push(block);
     }
     for (let i = 0; i < samplers.length; i++) {
         const sampler = samplers[i];
-        if (sampler.binding === lastBinding || !dependencyCheck(sampler.defines, defines)) { continue; }
-        lastBinding = sampler.binding;
+        if (!dependencyCheck(sampler.defines, defines)) { continue; }
         outSamplers.push(sampler);
         bindings.push(sampler);
+    }
+    for (let i = 0; i < attributes.length; i++) {
+        const attribute = attributes[i];
+        if (!dependencyCheck(attribute.defines, defines)) { continue; }
+        outAttributes.push(attribute);
     }
 }
 
 export interface IShaderResources {
     shader: GFXShader;
     bindings: IGFXBinding[];
+    inputState: GFXInputState;
 }
 
 /**
@@ -209,8 +217,10 @@ class ProgramLib {
             offset += cnt;
         }
         if (offset > 31) { tmpl.uber = true; }
-        tmpl.blocks.forEach((b) => (b.size = getSize(b), b.bindingType = GFXBindingType.UNIFORM_BUFFER));
-        tmpl.samplers.forEach((s) => (s.bindingType = GFXBindingType.SAMPLER));
+        tmpl.blocks.forEach((b) => {
+            b.bindingType = GFXBindingType.UNIFORM_BUFFER; b.size = getSize(b);
+        });
+        tmpl.samplers.forEach((s) => s.bindingType = GFXBindingType.SAMPLER);
         tmpl.handleMap = genHandles(tmpl);
         if (!tmpl.localsInited) { insertBuiltinBindings(tmpl, localBindingsDesc, 'locals'); tmpl.localsInited = true; }
         // store it
@@ -301,7 +311,6 @@ class ProgramLib {
      */
     public getGFXShader (device: GFXDevice, name: string, defines: IDefineMap, pipeline: RenderPipeline) {
         Object.assign(defines, pipeline.macros);
-        if (defines.USE_SKINNING) { defines.USE_SKINNING = selectJointsMediumType(device); }
         const key = this.getKey(name, defines);
         const res = this._cache[key];
         if (res) { return res; }
@@ -325,7 +334,8 @@ class ProgramLib {
         const blocks: IBlockInfoRT[] = [];
         const samplers: ISamplerInfoRT[] = [];
         const bindings: IGFXBinding[] = [];
-        getShaderBindings(tmpl, defines, blocks, samplers, bindings);
+        const inputState = new GFXInputState();
+        getShaderBindings(tmpl, defines, blocks, samplers, bindings, inputState.attributes);
 
         const shader = device.createShader({
             name: getShaderInstanceName(name, macroArray),
@@ -335,7 +345,7 @@ class ProgramLib {
                 { type: GFXShaderType.FRAGMENT, source: prefix + src.frag },
             ],
         });
-        return this._cache[key] = { shader, bindings };
+        return this._cache[key] = { shader, bindings, inputState };
     }
 }
 

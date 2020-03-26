@@ -11,13 +11,12 @@ import { PhysicMaterial } from './assets/physic-material';
 import { Layers, RecyclePool } from '../../core';
 import { ray } from '../../core/geometry';
 import { PhysicsRayResult } from './physics-ray-result';
-import { property, ccclass } from '../../core/data/class-decorator';
+import { EDITOR, PHYSICS_BUILTIN, DEBUG, PHYSICS_CANNON, PHYSICS_AMMO } from 'internal:constants';
 
 /**
  * @zh
  * 物理系统。
  */
-@ccclass("cc.PhysicsSystem")
 export class PhysicsSystem extends System {
 
     /**
@@ -40,8 +39,8 @@ export class PhysicsSystem extends System {
     }
     set allowSleep (v: boolean) {
         this._allowSleep = v;
-        if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
-            this.physicsWorld.allowSleep = this._allowSleep;
+        if (!EDITOR && !PHYSICS_BUILTIN) {
+            this.physicsWorld.setAllowSleep(v);
         }
     }
 
@@ -103,8 +102,8 @@ export class PhysicsSystem extends System {
     }
     set gravity (gravity: Vec3) {
         this._gravity.set(gravity);
-        if (!CC_EDITOR && !CC_PHYSICS_BUILTIN) {
-            this.physicsWorld.gravity = gravity;
+        if (!EDITOR && !PHYSICS_BUILTIN) {
+            this.physicsWorld.setGravity(gravity);
         }
     }
 
@@ -131,7 +130,7 @@ export class PhysicsSystem extends System {
 
     private static readonly _instance: PhysicsSystem;
     static get instance () {
-        if (CC_DEBUG && checkPhysicsModule(PhysicsSystem._instance)) { return null as any; }
+        if (DEBUG && checkPhysicsModule(PhysicsSystem._instance)) { return null as any; }
         return PhysicsSystem._instance;
     }
 
@@ -141,28 +140,17 @@ export class PhysicsSystem extends System {
     readonly raycastClosestResult = new PhysicsRayResult();
     readonly raycastResults: PhysicsRayResult[] = [];
 
-    @property
     private _enable = true;
-
-    @property
     private _allowSleep = true;
-
-    @property
     private readonly _gravity = new Vec3(0, -10, 0);
-
-    @property
     private _maxSubStep = 1;
-
-    @property
     private _deltaTime = 1.0 / 60.0;
-
-    @property
     private _useFixedTime = true;
 
     // private _frameRate = 60;
     // private _singleStep = false;
 
-    private readonly _material: PhysicMaterial | null = null;
+    private readonly _material!: PhysicMaterial;
 
     private readonly raycastOptions: IRaycastOptions = {
         'group': -1,
@@ -178,14 +166,14 @@ export class PhysicsSystem extends System {
     private constructor () {
         super();
         this.physicsWorld = createPhysicsWorld();
-        if (!CC_PHYSICS_BUILTIN) {
+        if (!PHYSICS_BUILTIN) {
             this.gravity = this._gravity;
             this.allowSleep = this._allowSleep;
             this._material = new PhysicMaterial();
             this._material.friction = 0.5;
             this._material.restitution = 0.0;
             this._material.on('physics_material_update', this._updateMaterial, this);
-            this.physicsWorld.defaultMaterial = this._material;
+            this.physicsWorld.setDefaultMaterial(this._material);
         }
     }
 
@@ -195,7 +183,7 @@ export class PhysicsSystem extends System {
      * @param deltaTime 与上一次执行相差的时间，目前为每帧消耗时间
      */
     postUpdate (deltaTime: number) {
-        if (CC_EDITOR && !this._executeInEditMode) {
+        if (EDITOR && !this._executeInEditMode) {
             return;
         }
         if (!this._enable) {
@@ -251,13 +239,13 @@ export class PhysicsSystem extends System {
     }
 
     private _updateMaterial () {
-        if (!CC_PHYSICS_BUILTIN) {
-            this.physicsWorld.defaultMaterial = this._material;
+        if (!PHYSICS_BUILTIN) {
+            this.physicsWorld.setDefaultMaterial(this._material);
         }
     }
 }
 
-if (CC_PHYSICS_BUILTIN || CC_PHYSICS_CANNON || CC_PHYSICS_AMMO) {
+if (PHYSICS_BUILTIN || PHYSICS_CANNON || PHYSICS_AMMO) {
     director.on(Director.EVENT_INIT, function () {
         const sys = new cc.PhysicsSystem();
         cc.PhysicsSystem._instance = sys;

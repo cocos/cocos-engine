@@ -33,6 +33,7 @@ import { warnID } from '../platform/debug';
 import { RenderScene } from '../renderer/scene/render-scene';
 import { BaseNode } from './base-node';
 import { SceneGlobals } from './scene-globals';
+import { EDITOR, TEST } from 'internal:constants';
 
 /**
  * @en
@@ -142,7 +143,7 @@ export class Scene extends BaseNode {
 
     protected _load () {
         if (!this._inited) {
-            if (CC_TEST) {
+            if (TEST) {
                 cc.assert(!this._activeInHierarchy, 'Should deactivate ActionManager and EventManager by default');
             }
             this._onBatchCreated();
@@ -154,7 +155,7 @@ export class Scene extends BaseNode {
 
     protected _activate (active: boolean) {
         active = (active !== false);
-        if (CC_EDITOR || CC_TEST) {
+        if (EDITOR || TEST) {
             // register all nodes to editor
             this._registerIfAttached!(active);
         }

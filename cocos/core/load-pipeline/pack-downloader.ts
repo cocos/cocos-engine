@@ -34,6 +34,7 @@ import { decompressJson } from './utils';
 import { errorID } from '../platform/debug';
 import { js } from '../utils';
 import { Texture2D } from '../assets/texture-2d';
+import { DEBUG, TEST } from 'internal:constants';
 
 // when more than one package contains the required asset,
 // choose to load from the package with the largest state value.
@@ -122,7 +123,7 @@ export function _doLoadNewPack (uuid, packUuid, packedJson) {
             packedJson = JSON.parse(packedJson);
         }
 
-        if (!CC_DEBUG && packedJson.keys && packedJson.data) {
+        if (!DEBUG && packedJson.keys && packedJson.data) {
             var keys = packedJson.keys;
             packedJson = packedJson.data;
             decompressJson(packedJson, keys);
@@ -191,7 +192,7 @@ export function load (item, callback) {
     }
     else {
         if (!unpackerData) {
-            if (!CC_TEST) {
+            if (!TEST) {
                 console.log('Create unpacker %s for %s', packUuid, uuid);
             }
             unpackerData = globalUnpackers[packUuid] = new UnpackerData();
@@ -203,7 +204,7 @@ export function load (item, callback) {
     return null;
 }
 
-if (CC_TEST) {
+if (TEST) {
     cc._Test.PackDownloader = {
         initPacks,
         _loadNewPack,

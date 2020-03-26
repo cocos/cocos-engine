@@ -14,6 +14,7 @@ import { PhysicMaterial } from '../../assets/physic-material';
 import { PhysicsSystem } from '../../physics-system';
 import { Component, error } from '../../../../core';
 import { IBaseShape } from '../../../spec/i-physics-shape';
+import { EDITOR, PHYSICS_BUILTIN } from 'internal:constants';
 
 /**
  * @zh
@@ -34,14 +35,14 @@ export class ColliderComponent extends Component implements IEventTarget {
         type: PhysicMaterial,
         displayName: 'Material',
         displayOrder: -1,
-        tooltip:'源材质',
+        tooltip: '源材质',
     })
     public get sharedMaterial () {
         return this._material;
     }
 
     public set sharedMaterial (value) {
-        if (CC_EDITOR) {
+        if (EDITOR) {
             this._material = value;
         } else {
             this.material = value;
@@ -49,7 +50,7 @@ export class ColliderComponent extends Component implements IEventTarget {
     }
 
     public get material () {
-        if (!CC_PHYSICS_BUILTIN) {
+        if (!PHYSICS_BUILTIN) {
             if (this._isSharedMaterial && this._material != null) {
                 this._material.off('physics_material_update', this._updateMaterial, this);
                 this._material = this._material.clone();
@@ -61,8 +62,8 @@ export class ColliderComponent extends Component implements IEventTarget {
     }
 
     public set material (value) {
-        if (!CC_EDITOR) {
-            if (!CC_PHYSICS_BUILTIN) {
+        if (!EDITOR) {
+            if (!PHYSICS_BUILTIN) {
                 if (value != null && this._material != null) {
                     if (this._material._uuid != value._uuid) {
                         this._material.off('physics_material_update', this._updateMaterial, this);
@@ -92,7 +93,7 @@ export class ColliderComponent extends Component implements IEventTarget {
      */
     @property({
         displayOrder: 0,
-        tooltip:'是否与其它碰撞器产生碰撞，并产生物理行为',
+        tooltip: '是否与其它碰撞器产生碰撞，并产生物理行为',
     })
     public get isTrigger () {
         return this._isTrigger;
@@ -100,8 +101,8 @@ export class ColliderComponent extends Component implements IEventTarget {
 
     public set isTrigger (value) {
         this._isTrigger = value;
-        if (!CC_EDITOR) {
-            this._shape.isTrigger = this._isTrigger;
+        if (!EDITOR) {
+            this._shape.setAsTrigger(this._isTrigger);
         }
     }
 
@@ -114,7 +115,7 @@ export class ColliderComponent extends Component implements IEventTarget {
     @property({
         type: Vec3,
         displayOrder: 1,
-        tooltip:'形状的中心点（与所在 Node 中心点的相对位置）',
+        tooltip: '形状的中心点（与所在 Node 中心点的相对位置）',
     })
     public get center () {
         return this._center;
@@ -122,8 +123,8 @@ export class ColliderComponent extends Component implements IEventTarget {
 
     public set center (value: Vec3) {
         Vec3.copy(this._center, value);
-        if (!CC_EDITOR) {
-            this._shape.center = this._center;
+        if (!EDITOR) {
+            this._shape.setCenter(this._center);
         }
     }
 
@@ -295,14 +296,14 @@ export class ColliderComponent extends Component implements IEventTarget {
     /// COMPONENT LIFECYCLE ///
 
     protected __preload () {
-        if (!CC_EDITOR) {
-            this._shape.__preload!(this);
+        if (!EDITOR) {
+            this._shape.initialize(this);
         }
     }
 
     protected onLoad () {
-        if (!CC_EDITOR) {
-            if (!CC_PHYSICS_BUILTIN) {
+        if (!EDITOR) {
+            if (!PHYSICS_BUILTIN) {
                 this.sharedMaterial = this._material == null ? PhysicsSystem.instance.defaultMaterial : this._material;
             }
             this._shape.onLoad!();
@@ -311,26 +312,26 @@ export class ColliderComponent extends Component implements IEventTarget {
     }
 
     protected onEnable () {
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             this._shape.onEnable!();
         }
     }
 
     protected onDisable () {
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             this._shape.onDisable!();
         }
     }
 
     protected onDestroy () {
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             this._shape.onDestroy!();
         }
     }
 
     private _updateMaterial () {
-        if (!CC_EDITOR) {
-            this._shape.material = this._material;
+        if (!EDITOR) {
+            this._shape.setMaterial(this._material);
         }
     }
 

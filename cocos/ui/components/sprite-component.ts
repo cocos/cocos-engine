@@ -36,27 +36,43 @@ import { ccenum } from '../../core/value-types/enum';
 import { clamp } from '../../core/math/utils';
 import { UI } from '../../core/renderer/ui/ui';
 import { UIRenderComponent, InstanceMaterialType } from '../../core/components/ui-base/ui-render-component';
+import { EDITOR } from 'internal:constants';
 
 /**
+ * @en
+ * Enum for sprite type.
+ *
  * @zh
  * Sprite 类型。
  */
 enum SpriteType {
     /**
+     * @en
+     * The simple type.
+     *
      * @zh
      * 普通类型。
      */
     SIMPLE = 0,
     /**
+     * @en
+     * The sliced type.
+     *
      * @zh
      * 切片（九宫格）类型。
      */
     SLICED = 1,
     /**
+     * @en
+     * The tiled type.
+     *
      * @zh  平铺类型
      */
     TILED =  2,
     /**
+     * @en
+     * The filled type.
+     *
      * @zh
      * 填充类型。
      */
@@ -72,21 +88,33 @@ enum SpriteType {
 ccenum(SpriteType);
 
 /**
+ * @en
+ * Enum for fill type.
+ *
  * @zh
  * 填充类型。
  */
 enum FillType {
     /**
+     * @en
+     * The horizontal fill.
+     *
      * @zh
      * 水平方向填充。
      */
     HORIZONTAL = 0,
     /**
+     * @en
+     * The vertical fill.
+     *
      * @zh
      * 垂直方向填充。
      */
     VERTICAL = 1,
     /**
+     * @en
+     * The radial fill.
+     *
      * @zh  径向填充
      */
     RADIAL = 2,
@@ -95,21 +123,33 @@ enum FillType {
 ccenum(FillType);
 
 /**
+ * @en
+ * Sprite Size can track trimmed size, raw size or none.
+ *
  * @zh
  * 精灵尺寸调整模式。
  */
 enum SizeMode {
     /**
+     * @en
+     * Use the customized node size.
+     *
      * @zh
      * 使用节点预设的尺寸。
      */
     CUSTOM = 0,
     /**
+     * @en
+     * Match the trimmed size of the sprite frame automatically.
+     *
      * @zh
      * 自动适配为精灵裁剪后的尺寸。
      */
     TRIMMED = 1,
     /**
+     * @en
+     * Match the raw size of the sprite frame automatically.
+     *
      * @zh
      * 自动适配为精灵原图尺寸。
      */
@@ -123,9 +163,11 @@ enum EventType {
 }
 
 /**
+ * @en
+ * Renders a sprite in the scene.
+ *
  * @zh
  * 渲染精灵组件。
- * 可通过 cc.SpriteComponent 获得该组件。
  */
 @ccclass('cc.SpriteComponent')
 @executionOrder(110)
@@ -133,6 +175,9 @@ enum EventType {
 export class SpriteComponent extends UIRenderComponent {
 
     /**
+     * @en
+     * The sprite atlas where the sprite is.
+     *
      * @zh
      * 精灵的图集。
      */
@@ -155,6 +200,9 @@ export class SpriteComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * The sprite frame of the sprite.
+     *
      * @zh
      * 精灵的精灵帧。
      */
@@ -177,13 +225,16 @@ export class SpriteComponent extends UIRenderComponent {
         // render & update render data flag will be triggered while applying new sprite frame
         this.markForUpdateRenderData(false);
         this._applySpriteFrame(lastSprite);
-        if (CC_EDITOR) {
+        if (EDITOR) {
             // @ts-ignore
             this.node.emit(EventType.SPRITE_FRAME_CHANGED, this);
         }
     }
 
     /**
+     * @en
+     * The sprite render type.
+     *
      * @zh
      * 精灵渲染类型。
      *
@@ -210,8 +261,11 @@ export class SpriteComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * The fill type, This will only have any effect if the "type" is set to “SpriteComponent.Type.FILLED”.
+     *
      * @zh
-     * 精灵填充类型，仅渲染类型设置为 cc.SpriteComponent.Type.FILLED 时有效。
+     * 精灵填充类型，仅渲染类型设置为 SpriteComponent.Type.FILLED 时有效。
      *
      * @example
      * ```typescript
@@ -242,8 +296,11 @@ export class SpriteComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * The fill Center, This will only have any effect if the "type" is set to “SpriteComponent.Type.FILLED”.
+     *
      * @zh
-     * 填充中心点，仅渲染类型设置为 cc.SpriteComponent.Type.FILLED 时有效。
+     * 填充中心点，仅渲染类型设置为 SpriteComponent.Type.FILLED 时有效。
      *
      * @example
      * ```typescript
@@ -265,8 +322,11 @@ export class SpriteComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * The fill Start, This will only have any effect if the "type" is set to “SpriteComponent.Type.FILLED”.
+     *
      * @zh
-     * 填充起始点，仅渲染类型设置为 cc.SpriteComponent.Type.FILLED 时有效。
+     * 填充起始点，仅渲染类型设置为 SpriteComponent.Type.FILLED 时有效。
      *
      * @example
      * ```typescript
@@ -291,8 +351,11 @@ export class SpriteComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * The fill Range, This will only have any effect if the "type" is set to “SpriteComponent.Type.FILLED”.
+     *
      * @zh
-     * 填充范围，仅渲染类型设置为 cc.SpriteComponent.Type.FILLED 时有效。
+     * 填充范围，仅渲染类型设置为 SpriteComponent.Type.FILLED 时有效。
      *
      * @example
      * ```typescript
@@ -316,7 +379,11 @@ export class SpriteComponent extends UIRenderComponent {
         }
     }
     /**
-     * @zh  是否使用裁剪模式。
+     * @en
+     * specify the frame is trimmed or not.
+     *
+     * @zh
+     * 是否使用裁剪模式。
      *
      * @example
      * ```typescript
@@ -361,7 +428,11 @@ export class SpriteComponent extends UIRenderComponent {
     }
 
     /**
-     * @zh  精灵尺寸调整模式。
+     * @en
+     * Specify the size tracing mode.
+     *
+     * @zh
+     * 精灵尺寸调整模式。
      *
      * @example
      * ```typescript
@@ -424,7 +495,7 @@ export class SpriteComponent extends UIRenderComponent {
             super.__preload();
         }
 
-        if (CC_EDITOR) {
+        if (EDITOR) {
             this._resized();
             this.node.on(SystemEventType.SIZE_CHANGED, this._resized, this);
         }
@@ -453,7 +524,7 @@ export class SpriteComponent extends UIRenderComponent {
 
     // onLoad() {}
 
-    public onEnable() {
+    public onEnable () {
         super.onEnable();
 
         // this._flushAssembler();
@@ -463,7 +534,7 @@ export class SpriteComponent extends UIRenderComponent {
     public onDestroy () {
         super.onDestroy();
         this.destroyRenderData();
-        if (CC_EDITOR) {
+        if (EDITOR) {
             this.node.off(SystemEventType.SIZE_CHANGED, this._resized, this);
         }
 
@@ -473,6 +544,10 @@ export class SpriteComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Quickly switch to other sprite frame in the sprite atlas.
+     * If there is no atlas, the switch fails.
+     *
      * @zh
      * 精灵图集内的精灵替换
      *
@@ -487,8 +562,9 @@ export class SpriteComponent extends UIRenderComponent {
         this.spriteFrame = sprite;
     }
 
-    protected _render(render: UI) {
-        render.commitComp(this, this._spriteFrame!.getGFXTextureView(), this._assembler!);
+    protected _render (render: UI) {
+        render.commitComp(this, this._spriteFrame!.getGFXTextureView(), this._assembler!, this._spriteFrame!.texture.getGFXSampler());
+        // render.commitComp(this, this._spriteFrame!.getGFXTextureView(), this._assembler!);
     }
 
     protected _canRender () {
@@ -548,7 +624,7 @@ export class SpriteComponent extends UIRenderComponent {
     }
 
     private _resized () {
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             return;
         }
 
@@ -592,7 +668,7 @@ export class SpriteComponent extends UIRenderComponent {
                 if (material) {
                     // const matTexture = material.getProperty('mainTexture');
                     // if (matTexture !== spriteFrame) {
-                    material.setProperty('mainTexture', spriteFrame);
+                    // material.setProperty('mainTexture', spriteFrame.texture);
                     this.markForUpdateRenderData();
                     // }
                 }
@@ -610,7 +686,7 @@ export class SpriteComponent extends UIRenderComponent {
     }
 /*
     private _applyAtlas (spriteFrame: SpriteFrame | null) {
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             return;
         }
         // Set atlas
@@ -678,7 +754,7 @@ export class SpriteComponent extends UIRenderComponent {
             }
         }
 /*
-        if (CC_EDITOR) {
+        if (EDITOR) {
             // Set atlas
             this._applyAtlas(spriteFrame);
         }
@@ -688,7 +764,7 @@ export class SpriteComponent extends UIRenderComponent {
     /**
      * 强制刷新 uv。
      */
-    private _markForUpdateUvDirty() {
+    private _markForUpdateUvDirty () {
         if (this._renderData) {
             this._renderData.uvDirty = true;
             this._renderDataFlag = true;

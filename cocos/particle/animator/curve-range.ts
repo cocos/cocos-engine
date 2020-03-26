@@ -6,6 +6,14 @@ import { ccclass, property } from '../../core/data/class-decorator';
 import { lerp } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import { AnimationCurve } from '../../core/geometry';
+import { EDITOR } from 'internal:constants';
+
+const SerializableTable = EDITOR && [
+    [ "mode", "constant", "multiplier" ],
+    [ "mode", "curve", "multiplier" ],
+    [ "mode", "curveMin", "curveMax", "multiplier" ],
+    [ "mode", "constantMin", "constantMax", "multiplier"]
+];
 
 export const Mode = Enum({
     Constant: 0,
@@ -104,6 +112,10 @@ export default class CurveRange  {
                 return this.multiplier;
         }
         return 0;
+    }
+
+    public _onBeforeSerialize (props) {
+        return SerializableTable[this.mode];
     }
 }
 

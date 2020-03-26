@@ -14,9 +14,10 @@ export function toCannonRaycastOptions (out: CANNON.IRaycastOptions, options: IR
 
 export function fillRaycastResult (result: PhysicsRayResult, cannonResult: CANNON.RaycastResult) {
     result._assign(
-        Vec3.copy(new Vec3(), cannonResult.hitPointWorld),
+        cannonResult.hitPointWorld,
         cannonResult.distance,
-        getWrap<IBaseShape>(cannonResult.shape).collider
+        getWrap<IBaseShape>(cannonResult.shape).collider,
+        cannonResult.hitNormalWorld
     );
 }
 

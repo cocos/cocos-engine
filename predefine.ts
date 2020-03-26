@@ -23,7 +23,26 @@
  THE SOFTWARE.
  */
 
-// MACROS
+import {
+    ALIPAY,
+    BAIDU,
+    BUILD,
+    COCOSPLAY,
+    DEBUG,
+    DEV,
+    EDITOR,
+    JSB,
+    MINIGAME,
+    PHYSICS_AMMO,
+    PHYSICS_BUILTIN,
+    PHYSICS_CANNON,
+    PREVIEW,
+    RUNTIME_BASED,
+    SUPPORT_JIT,
+    TEST,
+    WECHAT,
+    XIAOMI,
+} from 'internal:constants';
 
 /**
  * @hidden
@@ -88,48 +107,6 @@
  *
  * @module GLOBAL-MACROS
  */
-/**
- * @property {Boolean} CC_EDITOR - Running in the editor.
- */
-/**
- * @property {Boolean} CC_PREVIEW - Preview in browser or simulator.
- */
-/**
- * @property {Boolean} CC_DEV - Running in the editor or preview.
- */
-/**
- * @property {Boolean} CC_DEBUG - Running in the editor or preview, or build in debug mode.
- */
-/**
- * @property {Boolean} CC_BUILD - Running in published project.
- */
-/**
- * @property {Boolean} CC_JSB - Running in native platform (mobile app, desktop app, or simulator).
- */
-/**
- * @property {Boolean} CC_TEST - Running in the engine's unit test.
- */
-/**
- * @property {Boolean} CC_WECHAT - Running in the Wechat's mini game.
- */
-/**
- * @property {Boolean} CC_ALIPAY - Running in the alipay's mini game.
- */
-/**
- * @property {Boolean} CC_XIAOMI - Running in the xiaomi's quick game.
- */
-/**
- * @property {Boolean} CC_BAIDU - Running in the baidu's mini game.
- */
-/**
- * @property {Boolean} CC_COCOSPLAY - Running in the cocosplay.
- */
-/**
- * @property {Boolean} CC_MINIGAME - Running in mini game.
- */
-/**
- * @property {Boolean} CC_RUNTIME_BASED - Running in runtime environments.
- */
 
 // PREDEFINE
 
@@ -152,71 +129,30 @@ cc.internal = cc.internal || {};
 
 cc._global = _global;
 
-function defineMacro (name, defaultValue) {
-    // if "global_defs" not preprocessed by uglify, just declare them globally,
-    // this may happened in release version's preview page.
-    if (typeof _global[name] === 'undefined') {
-        _global[name] = defaultValue;
-    }
-}
-function defined (name) {
-    return typeof _global[name] === 'object';
-}
-
-// ensure CC_BUILD is defined
-// should not use window.CC_BUILD because we need get global_defs defined in uglify
-defineMacro('CC_BUILD', false);
-
-if (CC_BUILD) {
+if (BUILD) {
     // Supports dynamically access from external scripts such as adapters and debugger.
     // So macros should still defined in global even if inlined in engine.
-    _global.CC_BUILD = CC_BUILD;
-    _global.CC_TEST = CC_TEST;
-    _global.CC_EDITOR = CC_EDITOR;
-    _global.CC_PREVIEW = CC_PREVIEW;
-    _global.CC_DEV = CC_DEV;
-    _global.CC_DEBUG = CC_DEBUG;
-    _global.CC_JSB = CC_JSB;
-    _global.CC_WECHAT = CC_WECHAT;
-    _global.CC_ALIPAY = CC_ALIPAY;
-    _global.CC_XIAOMI = CC_XIAOMI;
-    _global.CC_BAIDU = CC_BAIDU;
-    _global.CC_COCOSPLAY = CC_COCOSPLAY;
-    _global.CC_MINIGAME = CC_MINIGAME;
-    _global.CC_RUNTIME_BASED = CC_RUNTIME_BASED;
-    _global.CC_SUPPORT_JIT = CC_SUPPORT_JIT;
-    _global.CC_PHYSICS_BUILTIN = CC_PHYSICS_BUILTIN;
-    _global.CC_PHYSICS_CANNON = CC_PHYSICS_CANNON;
-    _global.CC_PHYSICS_AMMO = CC_PHYSICS_AMMO;
-}
-else {
-    // Defauled value for editor
-    defineMacro('CC_TEST', defined('tap') || defined('QUnit'));
-    // @ts-ignore
-    defineMacro('CC_EDITOR', defined('Editor') && defined('process') && ('electron' in process.versions));
-    defineMacro('CC_PREVIEW', !CC_EDITOR);
-    defineMacro('CC_DEV', true);    // (CC_EDITOR && !CC_BUILD) || CC_PREVIEW || CC_TEST
-    defineMacro('CC_DEBUG', true);  // CC_DEV || Debug Build
-    defineMacro('CC_JSB', defined('jsb'));
-    defineMacro('CC_WECHAT', !!(defined('wx') && (wx.getSystemInfoSync || wx.getSharedCanvas)));
-    defineMacro('CC_MINIGAME', false);
-    defineMacro('CC_RUNTIME_BASED', false);
-    defineMacro('CC_ALIPAY', false);
-    defineMacro('CC_XIAOMI', false);
-    defineMacro('CC_BAIDU', false);
-    defineMacro('CC_COCOSPLAY', false);
-
-    // @ts-ignore
-    defineMacro('CC_RUNTIME', 'function' === typeof loadRuntime);
-    defineMacro('CC_SUPPORT_JIT', !(CC_MINIGAME || CC_RUNTIME_BASED));
-    defineMacro('CC_PHYSICS_BUILTIN', true);
-    defineMacro('CC_PHYSICS_CANNON', false);
-    defineMacro('CC_PHYSICS_AMMO', false);
+    _global.CC_BUILD = BUILD;
+    _global.CC_TEST = TEST;
+    _global.CC_EDITOR = EDITOR;
+    _global.CC_PREVIEW = PREVIEW;
+    _global.CC_DEV = DEV;
+    _global.CC_DEBUG = DEBUG;
+    _global.CC_JSB = JSB;
+    _global.CC_WECHAT = WECHAT;
+    _global.CC_ALIPAY = ALIPAY;
+    _global.CC_XIAOMI = XIAOMI;
+    _global.CC_BAIDU = BAIDU;
+    _global.CC_COCOSPLAY = COCOSPLAY;
+    _global.CC_MINIGAME = MINIGAME;
+    _global.CC_RUNTIME_BASED = RUNTIME_BASED;
+    _global.CC_SUPPORT_JIT = SUPPORT_JIT;
+    _global.CC_PHYSICS_BUILTIN = PHYSICS_BUILTIN;
+    _global.CC_PHYSICS_CANNON = PHYSICS_CANNON;
+    _global.CC_PHYSICS_AMMO = PHYSICS_AMMO;
 }
 
-//
-
-if (CC_DEV) {
+if (DEV) {
     /**
      * contains internal apis for unit tests
      * @expose
@@ -225,16 +161,11 @@ if (CC_DEV) {
 }
 
 /**
- * @module cc
- */
-
-/**
  * The current version of Cocos2d being used.<br/>
  * Please DO NOT remove this String, it is an important flag for bug tracking.<br/>
  * If you post a bug to forum, please attach this flag.
- * @property {String} ENGINE_VERSION
  */
-const engineVersion = '1.0.3';
+const engineVersion = '1.0.4';
 _global.CocosEngine = cc.ENGINE_VERSION = engineVersion;
 
 export default cc;
@@ -243,7 +174,7 @@ export default cc;
  * deprecated
  */
 // TODO: ALIPAY and runtime will redefine
-if (!(CC_RUNTIME_BASED || CC_ALIPAY)) {
+if (!(RUNTIME_BASED || ALIPAY)) {
     Object.defineProperty(_global, 'CC_PHYSICS_BUILT_IN', {
         get: () => {
             console.warn('CC_PHYSICS_BUILT_IN is deprecated, please using CC_PHYSICS_BUILTIN instead.');

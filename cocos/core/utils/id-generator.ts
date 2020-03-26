@@ -23,6 +23,8 @@
  THE SOFTWARE.
 */
 
+import { EDITOR } from 'internal:constants';
+
 const NonUuidMark = '.';
 
 /**
@@ -49,7 +51,7 @@ export default class IDGenerator {
     }
 
     public getNewId () {
-        if (CC_EDITOR && (this.prefix === 'Node.' || this.prefix === 'Comp.')) {
+        if (EDITOR && (this.prefix === 'Node.' || this.prefix === 'Comp.')) {
             return EditorExtends.UuidUtils.uuid() as string;
         }
         return this.prefix + (++this.id);

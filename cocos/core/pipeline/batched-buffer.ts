@@ -44,7 +44,7 @@ export class BatchedBuffer {
             batch.ia.destroy();
             batch.ubo.destroy();
         }
-        this.batches.splice(0);
+        this.batches.length = 0;
     }
 
     public merge (subModel: SubModel, ro: IRenderObject, pso: GFXPipelineState) {
@@ -92,7 +92,7 @@ export class BatchedBuffer {
                     const mergeCount = batch.mergeCount;
                     if (vbIdxBuf[start] !== mergeCount || vbIdxBuf[end - 1] !== mergeCount) {
                         for (let j = start; j < end; j++) {
-                            vbIdxBuf[j] = mergeCount;
+                            vbIdxBuf[j] = mergeCount + 0.1; // guard against underflow
                         }
                     }
 
@@ -118,7 +118,7 @@ export class BatchedBuffer {
         // Create a new batch
         const vbs: GFXBuffer[] = [];
         const vbDatas: Uint8Array[] = [];
-        const totalVBS: GFXBuffer[] = [];
+        const totalVBs: GFXBuffer[] = [];
         for (let i = 0; i < flatBuffers.length; ++i) {
             const flatBuff = flatBuffers[i];
             const newVB = device.createBuffer({
@@ -130,7 +130,7 @@ export class BatchedBuffer {
             newVB.update(flatBuff.buffer.buffer);
             vbs.push(newVB);
             vbDatas.push(new Uint8Array(newVB.size));
-            totalVBS.push(newVB);
+            totalVBs.push(newVB);
         }
 
         const vbIdx = device.createBuffer({
@@ -142,7 +142,7 @@ export class BatchedBuffer {
         const vbIdxData = new Float32Array(vbCount);
         vbIdxData.fill(0);
         vbIdx.update(vbIdxData);
-        totalVBS.push(vbIdx);
+        totalVBs.push(vbIdx);
 
         const attributes = subModel.inputAssembler!.attributes;
         const attrs = new Array<IGFXAttribute>(attributes.length + 1);
@@ -157,7 +157,7 @@ export class BatchedBuffer {
 
         const ia = device.createInputAssembler({
             attributes: attrs,
-            vertexBuffers: totalVBS,
+            vertexBuffers: totalVBs,
         });
 
         const ubo = this.pass.device.createBuffer({

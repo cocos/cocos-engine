@@ -3,6 +3,7 @@
  * @category animation
  */
 
+import { EDITOR } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { ccclass, property } from '../data/class-decorator';
@@ -12,10 +13,10 @@ import { DataPoolManager } from '../renderer/data-pool-manager';
 import binarySearchEpsilon from '../utils/binary-search';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { AnimCurve, IPropertyCurveData, RatioSampler } from './animation-curve';
-import { IValueProxyFactory } from './value-proxy';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
-import { ComponentPath, TargetPath, HierarchyPath } from './target-path';
+import { ComponentPath, HierarchyPath, TargetPath } from './target-path';
 import { WrapMode as AnimationWrapMode } from './types';
+import { IValueProxyFactory } from './value-proxy';
 
 export interface IObjectCurveData {
     [propertyName: string]: IPropertyCurveData;
@@ -52,10 +53,6 @@ export interface IAnimationEventGroup {
 }
 
 export declare namespace AnimationClip {
-    export interface ICurveData {
-        [path: string]: INodeCurveData;
-    }
-
     export type PropertyCurveData = IPropertyCurveData;
 
     export interface ICurve {
@@ -65,7 +62,7 @@ export declare namespace AnimationClip {
         data: PropertyCurveData;
     }
 
-    export interface CommonTarget {
+    export interface ICommonTarget {
         modifiers: TargetPath[];
         valueAdapter?: IValueProxyFactory;
     }
@@ -169,20 +166,15 @@ export class AnimationClip extends Asset {
     @property
     private _stepness = 0;
 
-    /**
-     * @zh 动画的曲线数据。
-     * @deprecated 请转用 `this.curves`
-     */
-    @property
-    private curveDatas?: AnimationClip.ICurveData = {};
-
     @property
     private _curves: AnimationClip.ICurve[] = [];
 
     @property
-    private _commonTargets: AnimationClip.CommonTarget[] = [];
+    private _commonTargets: AnimationClip.ICommonTarget[] = [];
 
+    @property
     private _hash = 0;
+
     private frameRate = 0;
     private _ratioSamplers: RatioSampler[] = [];
     private _runtimeCurves?: IRuntimeCurve[];
@@ -241,7 +233,8 @@ export class AnimationClip extends Asset {
     }
 
     get hash () {
-        if (!this._hash) { this._hash = murmurhash2_32_gc(JSON.stringify(this._curves), 666); }
+        // hashes should already be computed offline, but if not, make one
+        if (!this._hash) { this._hash = murmurhash2_32_gc(JSON.stringify(SkelAnimDataHub.getOrExtract(this).data), 666); }
         return this._hash;
     }
 
@@ -271,7 +264,6 @@ export class AnimationClip extends Asset {
 
     public onLoaded () {
         this.frameRate = this.sample;
-        this._migrateCurveDatas();
         this._decodeCVTAs();
     }
 
@@ -280,17 +272,6 @@ export class AnimationClip extends Asset {
             this._createPropertyCurves();
         }
         return this._runtimeCurves!;
-    }
-
-    /**
-     * @zh 提交曲线数据的修改。<br/>
-     * 当你修改了 `this.curveDatas`、`this.keys` 或 `this.duration`时，<br/>
-     * 必须调用 `this.updateCurveDatas()` 使修改生效。
-     * @deprecated
-     */
-    public updateCurveDatas () {
-        this._migrateCurveDatas();
-        delete this._runtimeCurves;
     }
 
     /**
@@ -350,7 +331,7 @@ export class AnimationClip extends Asset {
     }
 
     protected _createRuntimeEvents () {
-        if (CC_EDITOR) {
+        if (EDITOR) {
             return;
         }
 
@@ -386,41 +367,6 @@ export class AnimationClip extends Asset {
         // for (const propertyCurve of this._propertyCurves) {
         //     propertyCurve.curve.stepfy(this._stepness);
         // }
-    }
-
-    private _migrateCurveDatas () {
-        if (!this.curveDatas) {
-            return;
-        }
-        for (const curveTargetPath of Object.keys(this.curveDatas)) {
-            const hierarchyPath = new HierarchyPath();
-            hierarchyPath.path = curveTargetPath;
-            const nodeData = this.curveDatas[curveTargetPath];
-            if (nodeData.props) {
-                for (const nodePropertyName of Object.keys(nodeData.props)) {
-                    const propertyCurveData = nodeData.props[nodePropertyName];
-                    this._curves.push({
-                        modifiers: [ hierarchyPath, nodePropertyName ],
-                        data: propertyCurveData,
-                    });
-                }
-            }
-            if (nodeData.comps) {
-                for (const componentName of Object.keys(nodeData.comps)) {
-                    const componentPath = new ComponentPath();
-                    componentPath.component = componentName;
-                    const componentData = nodeData.comps[componentName];
-                    for (const componentPropertyName of Object.keys(componentData)) {
-                        const propertyCurveData = componentData[componentPropertyName];
-                        this._curves.push({
-                            modifiers: [ hierarchyPath, componentPath, componentPropertyName ],
-                            data: propertyCurveData,
-                        });
-                    }
-                }
-            }
-        }
-        delete this.curveDatas;
     }
 
     private _decodeCVTAs () {

@@ -25,6 +25,8 @@
  THE SOFTWARE.
  */
 
+import { EDITOR } from 'internal:constants';
+
 /**
  * @category loader
  */
@@ -37,7 +39,7 @@ class SAXParser {
     private _isSupportDOMParser;
     private _parser;
     constructor () {
-        if (!CC_EDITOR && window.DOMParser) {
+        if (!EDITOR && window.DOMParser) {
             this._isSupportDOMParser = true;
             this._parser = new DOMParser();
         } else {

@@ -15,10 +15,10 @@ export * from './core/pass-instance';
 
 export * from './models/skeletal-animation-utils';
 export * from './models/skinning-model';
+export * from './models/baked-skinning-model';
 
 export * from './scene/ambient';
 export * from './scene/camera';
-export * from './scene/customization-manager';
 export * from './scene/deprecated';
 export * from './scene/directional-light';
 export * from './scene/light';

@@ -35,15 +35,19 @@ import { SpriteComponent } from './sprite-component';
 import { ToggleContainerComponent } from './toggle-container-component';
 import { extendsEnum } from '../../core/data/utils/extends-enum';
 import { EventType as ButtonEventType } from './button-component';
+import { EDITOR } from 'internal:constants';
 
 enum EventType {
     TOGGLE = 'toggle',
 }
 
 /**
+ * @en
+ * The toggle component is a CheckBox, when it used together with a ToggleGroup,
+ * it could be treated as a RadioButton.
+ *
  * @zh
  * Toggle 是一个 CheckBox，当它和 ToggleGroup 一起使用的时候，可以变成 RadioButton。
- * 可通过 cc.ToggleComponent 获得该组件。
  */
 @ccclass('cc.ToggleComponent')
 @executionOrder(110)
@@ -52,6 +56,10 @@ enum EventType {
 export class ToggleComponent extends ButtonComponent {
 
     /**
+     * @en
+     * When this value is true, the check mark component will be enabled,
+     * otherwise the check mark component will be disabled.
+     *
      * @zh
      * 如果这个设置为 true，则 check mark 组件会处于 enabled 状态，否则处于 disabled 状态。
      */
@@ -72,6 +80,10 @@ export class ToggleComponent extends ButtonComponent {
     }
 
     /**
+     * @en
+     * The toggle group which the toggle belongs to, when it is null, the toggle is a CheckBox.
+     * Otherwise, the toggle is a RadioButton.
+     *
      * @zh
      * Toggle 所属的 ToggleGroup，这个属性是可选的。如果这个属性为 null，则 Toggle 是一个 CheckBox，否则，Toggle 是一个 RadioButton。
      */
@@ -98,6 +110,9 @@ export class ToggleComponent extends ButtonComponent {
     }
 
     /**
+     * @en
+     * The image used for the checkmark.
+     *
      * @zh
      * Toggle 处于选中状态时显示的图片。
      */
@@ -135,6 +150,9 @@ export class ToggleComponent extends ButtonComponent {
     public static EventType = extendsEnum(EventType, ButtonEventType);
 
     /**
+     * @en
+     * If Toggle is clicked, it will trigger event's handler.
+     *
      * @zh
      * Toggle 按钮的点击事件列表。
      */
@@ -152,7 +170,7 @@ export class ToggleComponent extends ButtonComponent {
 
     public onEnable () {
         super.onEnable();
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             this._registerToggleEvent();
         }
 
@@ -163,7 +181,7 @@ export class ToggleComponent extends ButtonComponent {
 
     public onDisable () {
         super.onDisable();
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             this._unregisterToggleEvent();
         }
         if (this._toggleGroup && this._toggleGroup.enabled) {
@@ -172,6 +190,9 @@ export class ToggleComponent extends ButtonComponent {
     }
 
     /**
+     * @en
+     * Toggle switch.
+     *
      * @zh
      * toggle 按钮切换。
      */
@@ -193,6 +214,9 @@ export class ToggleComponent extends ButtonComponent {
     }
 
     /**
+     * @en
+     * Make the toggle button checked.
+     *
      * @zh
      * 使 toggle 按钮处于选中状态。
      */
@@ -215,6 +239,9 @@ export class ToggleComponent extends ButtonComponent {
     }
 
     /**
+     * @en
+     * Make the toggle button unchecked.
+     *
      * @zh
      * 取消 toggle 按钮选中状态。
      */

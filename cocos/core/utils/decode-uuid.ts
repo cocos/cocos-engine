@@ -25,6 +25,7 @@
 */
 
 import { BASE64_VALUES } from './misc';
+import { TEST } from 'internal:constants';
 
 const HexChars = '0123456789abcdef'.split('');
 
@@ -67,6 +68,6 @@ export default function decodeUuid (base64: string) {
     return base64.replace(uuid, UuidTemplate.join(''));
 }
 
-if (CC_TEST) {
+if (TEST) {
     cc._Test.decodeUuid = decodeUuid;
 }

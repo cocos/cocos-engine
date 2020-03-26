@@ -11,6 +11,7 @@ import { error } from '../platform/debug';
 import { Filter } from './asset-enum';
 import { ImageAsset } from './image-asset';
 import { TextureBase } from './texture-base';
+import { DEV } from 'internal:constants';
 
 const _regions: GFXBufferTextureCopy[] = [{
     buffOffset: 0,
@@ -127,7 +128,7 @@ export class SimpleTexture extends TextureBase {
         region.texSubres.baseMipLevel = level;
         region.texSubres.baseArrayLayer = arrayIndex;
 
-        if (CC_DEV) {
+        if (DEV) {
             if (source instanceof HTMLElement) {
                 if (source.height > region.texExtent.height ||
                     source.width > region.texExtent.width) {

@@ -11,8 +11,10 @@
       "downlevelIteration": true,
       "esModuleInterop": true,
       "experimentalDecorators": true,
+      "isolatedModules": true,
       "types": [
         "./@types/globals",
+        "./@types/consts",
         "./@types/editor-extends",
         "./@types/wx",
         "./@types/webGL.extras", 

@@ -34,9 +34,11 @@ import { Color } from '../../core/math';
 import { LabelComponent } from './label-component';
 
 /**
+ * @en
+ * Outline effect used to change the display, only for system fonts or TTF fonts.
+ *
  * @zh
  * 描边效果组件,用于字体描边,只能用于系统字体。
- * 可通过 cc.LabelOutlineComponent 获得此组件
  *
  * @example
  * ```typescript
@@ -58,6 +60,9 @@ export class LabelOutlineComponent extends Component {
     protected _width = 1;
 
     /**
+     * @en
+     * Outline color.
+     *
      * @zh
      * 改变描边的颜色。
      *
@@ -84,6 +89,9 @@ export class LabelOutlineComponent extends Component {
     }
 
     /**
+     * @en
+     * Change the outline width.
+     *
      * @zh
      * 改变描边的宽度。
      *

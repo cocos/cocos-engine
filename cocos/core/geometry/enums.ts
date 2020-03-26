@@ -4,6 +4,9 @@
  */
 
 /**
+ * @en
+ * The enum type of basic geometry.
+ * @zh
  * 形状的类型值。
  */
 export default {

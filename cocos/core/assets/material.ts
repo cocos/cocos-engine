@@ -34,7 +34,7 @@ import { builtinResMgr } from '../3d/builtin/init';
 import { RenderableComponent } from '../3d/framework/renderable-component';
 import { GFXBindingType } from '../gfx/define';
 import { GFXTextureView } from '../gfx/texture-view';
-import { IDefineMap } from '../renderer';
+import { IDefineMap, MaterialProperty } from '../renderer';
 import { IPassInfoFull, Pass, PassOverrides } from '../renderer/core/pass';
 import { samplerLib } from '../renderer/core/sampler-lib';
 import { Asset } from './asset';
@@ -87,6 +87,8 @@ interface IMaterialInfo {
     states?: PassOverrides | PassOverrides[];
 }
 
+type MaterialPropertyFull = MaterialProperty | TextureBase | SpriteFrame | GFXTextureView | null;
+
 /**
  * @en
  * The material asset, specifies in details how a model is drawn on screen.
@@ -113,7 +115,7 @@ export class Material extends Asset {
     @property
     protected _states: PassOverrides[] = [];
     @property
-    protected _props: Array<Record<string, any>> = [];
+    protected _props: Array<Record<string, MaterialPropertyFull | MaterialPropertyFull[]>> = [];
 
     protected _passes: Pass[] = [];
     protected _hash = 0;
@@ -261,7 +263,7 @@ export class Material extends Asset {
      * @param val The target value.
      * @param passIdx The pass to apply to. Will apply to all passes if not specified.
      */
-    public setProperty (name: string, val: any, passIdx?: number) {
+    public setProperty (name: string, val: MaterialPropertyFull | MaterialPropertyFull[], passIdx?: number) {
         let success = false;
         if (passIdx === undefined) { // try set property for all applicable passes
             const passes = this._passes;
@@ -399,15 +401,17 @@ export class Material extends Asset {
         this._hash = Material.getHash(this);
     }
 
-    protected _uploadProperty (pass: Pass, name: string, val: any) {
+    protected _uploadProperty (pass: Pass, name: string, val: MaterialPropertyFull | MaterialPropertyFull[]) {
         const handle = pass.getHandle(name);
         if (handle === undefined) { return false; }
         const bindingType = Pass.getBindingTypeFromHandle(handle);
         if (bindingType === GFXBindingType.UNIFORM_BUFFER) {
             if (Array.isArray(val)) {
-                pass.setUniformArray(handle, val);
+                pass.setUniformArray(handle, val as MaterialProperty[]);
+            } else if (val !== null) {
+                pass.setUniform(handle, val as MaterialProperty);
             } else {
-                pass.setUniform(handle, val);
+                pass.resetUniform(name);
             }
         } else if (bindingType === GFXBindingType.SAMPLER) {
             const binding = Pass.getBindingFromHandle(handle);
@@ -423,6 +427,8 @@ export class Material extends Asset {
                 if (val instanceof TextureBase) {
                     pass.bindSampler(binding, samplerLib.getSampler(cc.director.root.device, val.getSamplerHash()));
                 }
+            } else if (!val) {
+                pass.resetTexture(name);
             }
         }
         return true;

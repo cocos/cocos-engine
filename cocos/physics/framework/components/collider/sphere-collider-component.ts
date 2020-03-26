@@ -12,6 +12,7 @@ import {
 import { createSphereShape } from '../../instance';
 import { ColliderComponent } from './collider-component';
 import { ISphereShape } from '../../../spec/i-physics-shape';
+import { EDITOR, TEST } from 'internal:constants';
 
 /**
  * @zh
@@ -19,7 +20,7 @@ import { ISphereShape } from '../../../spec/i-physics-shape';
  */
 @ccclass('cc.SphereColliderComponent')
 @executionOrder(98)
-@menu('Components/SphereCollider')
+@menu('Physics/SphereCollider')
 @executeInEditMode
 export class SphereColliderComponent extends ColliderComponent {
 
@@ -32,7 +33,7 @@ export class SphereColliderComponent extends ColliderComponent {
      * 获取或设置球的半径。
      */
     @property({
-        tooltip:'球的半径',
+        tooltip: '球的半径',
     })
     public get radius () {
         return this._radius;
@@ -40,12 +41,12 @@ export class SphereColliderComponent extends ColliderComponent {
 
     public set radius (value) {
         this._radius = value;
-        if (!CC_EDITOR) {
-            this.sphereShape.radius = this._radius;
+        if (!EDITOR && !TEST) {
+            this.shape.setRadius(this._radius);
         }
     }
 
-    public get sphereShape (): ISphereShape {
+    public get shape () {
         return this._shape as ISphereShape;
     }
 
@@ -56,7 +57,7 @@ export class SphereColliderComponent extends ColliderComponent {
 
     constructor () {
         super();
-        if (!CC_EDITOR) {
+        if (!EDITOR && !TEST) {
             this._shape = createSphereShape(this._radius);
         }
     }

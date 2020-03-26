@@ -31,6 +31,7 @@ import { CCObject } from '../data/object';
 import { array, Pool } from '../utils/js';
 import { tryCatchFunctor_EDITOR } from '../utils/misc';
 import ComponentScheduler from './component-scheduler';
+import { EDITOR, DEV, TEST, SUPPORT_JIT } from 'internal:constants';
 
 const MAX_POOL_SIZE = 4;
 
@@ -43,16 +44,16 @@ const IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
 // @ts-ignore
 const Deactivating = CCObject.Flags.Deactivating;
 
-const callPreloadInTryCatch = CC_EDITOR && tryCatchFunctor_EDITOR('__preload');
-const callOnLoadInTryCatch = CC_EDITOR && tryCatchFunctor_EDITOR('onLoad', null,
+const callPreloadInTryCatch = EDITOR && tryCatchFunctor_EDITOR('__preload');
+const callOnLoadInTryCatch = EDITOR && tryCatchFunctor_EDITOR('onLoad', null,
         'target._objFlags |= ' + IsOnLoadCalled + '; arg(target);', _onLoadInEditor);
-const callOnDestroyInTryCatch = CC_EDITOR && tryCatchFunctor_EDITOR('onDestroy');
-const callResetInTryCatch = CC_EDITOR && tryCatchFunctor_EDITOR('resetInEditor');
-const callOnFocusInTryCatch = CC_EDITOR && tryCatchFunctor_EDITOR('onFocusInEditor');
-const callOnLostFocusInTryCatch = CC_EDITOR && tryCatchFunctor_EDITOR('onLostFocusInEditor');
+const callOnDestroyInTryCatch = EDITOR && tryCatchFunctor_EDITOR('onDestroy');
+const callResetInTryCatch = EDITOR && tryCatchFunctor_EDITOR('resetInEditor');
+const callOnFocusInTryCatch = EDITOR && tryCatchFunctor_EDITOR('onFocusInEditor');
+const callOnLostFocusInTryCatch = EDITOR && tryCatchFunctor_EDITOR('onLostFocusInEditor');
 
-const callPreload = CC_SUPPORT_JIT ? 'c.__preload();' : (c) => { c.__preload(); };
-const callOnLoad = CC_SUPPORT_JIT ? ('c.onLoad();c._objFlags|=' + IsOnLoadCalled) : (c) => {
+const callPreload = SUPPORT_JIT ? 'c.__preload();' : (c) => { c.__preload(); };
+const callOnLoad = SUPPORT_JIT ? ('c.onLoad();c._objFlags|=' + IsOnLoadCalled) : (c) => {
     c.onLoad();
     c._objFlags |= IsOnLoadCalled;
 };
@@ -75,10 +76,10 @@ class UnsortedInvoker extends ComponentScheduler.LifeCycleInvoker {
 }
 
 const invokePreload = ComponentScheduler.createInvokeImpl(
-    CC_EDITOR ? callPreloadInTryCatch : callPreload,
+    EDITOR ? callPreloadInTryCatch : callPreload,
 );
 const invokeOnLoad = ComponentScheduler.createInvokeImpl(
-    CC_EDITOR ? callOnLoadInTryCatch : callOnLoad,
+    EDITOR ? callOnLoadInTryCatch : callOnLoad,
 );
 
 const activateTasksPool = new Pool(MAX_POOL_SIZE);
@@ -104,7 +105,7 @@ activateTasksPool.get = function getActivateTask () {
 };
 
 function _componentCorrupted (node, comp, index) {
-    if (CC_DEV) {
+    if (DEV) {
         cc.errorID(3817, node.name, index);
         console.log('Corrupted component value:', comp);
     }
@@ -131,7 +132,7 @@ function _onLoadInEditor (comp) {
             }
         }
     }
-    if ( !CC_TEST ) {
+    if ( !TEST ) {
         // @ts-ignore
         _Scene.AssetsWatcher.start(comp);
     }
@@ -268,7 +269,7 @@ export default class NodeActivator {
     }
 
     protected _deactivateNodeRecursively (node) {
-        if (CC_DEV) {
+        if (DEV) {
             cc.assert(!(node._objFlags & Deactivating), 'node should not deactivating');
             // ensures _activeInHierarchy is always changing when Deactivating flagged
             cc.assert(node._activeInHierarchy, 'node should not deactivated');
@@ -309,7 +310,7 @@ export default class NodeActivator {
     }
 }
 
-if (CC_EDITOR) {
+if (EDITOR) {
     NodeActivator.prototype.activateComp = (comp, preloadInvoker, onLoadInvoker, onEnableInvoker) => {
         if (cc.engine._isPlaying || comp.constructor._executeInEditMode) {
             if (!(comp._objFlags & IsPreloadStarted)) {

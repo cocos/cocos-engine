@@ -42,19 +42,23 @@ import { UIRenderComponent } from '../../core/components/ui-base/ui-render-compo
 const _color = new Color();
 
 /**
- * @en Enum for PageView Indicator direction
+ * @en Enum for PageView Indicator direction.
+ *
  * @zh 页面视图指示器的摆放方向
+ *
  * @enum PageViewIndicator.Direction
  */
 enum Direction {
   /**
    * @en The horizontal direction.
+   *
    * @zh 水平方向
    */
   HORIZONTAL = 0,
 
   /**
    * @en The vertical direction.
+   *
    * @zh 垂直方向
    */
   VERTICAL = 1,
@@ -63,16 +67,22 @@ enum Direction {
 ccenum(Direction);
 
 /**
- * @en The Page View Indicator Component
- * @zh 页面视图每页标记组件
+ * @en
+ * The Page View Indicator Component.
+ *
+ * @zh
+ * 页面视图每页标记组件
  */
 @ccclass('cc.PageViewIndicatorComponent')
 @executionOrder(110)
 @menu('UI/PageViewIndicator')
 export class PageViewIndicatorComponent extends Component {
   /**
-   * @en The spriteFrame for each element.
-   * @zh 每个页面标记显示的图片
+   * @en
+   * The spriteFrame for each element.
+   *
+   * @zh
+   * 每个页面标记显示的图片
    */
   @property({
     type: SpriteFrame,
@@ -91,8 +101,12 @@ export class PageViewIndicatorComponent extends Component {
   }
 
   /**
-   * @en The location direction of PageViewIndicator.
-   * @zh 页面标记摆放方向
+   * @en
+   * The location direction of PageViewIndicator.
+   *
+   * @zh
+   * 页面标记摆放方向
+   *
    * @param direction 摆放方向
    */
   @property({
@@ -112,8 +126,11 @@ export class PageViewIndicatorComponent extends Component {
   }
 
   /**
-   * @en The cellSize for each element.
-   * @zh 每个页面标记的大小
+   * @en
+   * The cellSize for each element.
+   *
+   * @zh
+   * 每个页面标记的大小
    */
   @property({
     type: Size,
@@ -134,8 +151,11 @@ export class PageViewIndicatorComponent extends Component {
   public static Direction = Direction;
 
   /**
-   * @en The distance between each element.
-   * @zh 每个页面标记之间的边距
+   * @en
+   * The distance between each element.
+   *
+   * @zh
+   * 每个页面标记之间的边距
    */
   @property({
     tooltip:'每个页面标记之间的边距',
@@ -156,8 +176,12 @@ export class PageViewIndicatorComponent extends Component {
   }
 
   /**
-   * @en Set Page View
-   * @zh 设置页面视图
+   * @en
+   * Set Page View.
+   *
+   * @zh
+   * 设置页面视图
+   *
    * @param target 页面视图对象
    */
   public setPageView (target: PageViewComponent) {

@@ -26,6 +26,7 @@
 
 import { ccclass, property } from '../data/class-decorator';
 import { Quat } from '../math';
+import { EDITOR, SUPPORT_JIT } from 'internal:constants';
 
 @ccclass('cc.PrefabInfo')
 export class PrefabInfo {
@@ -75,7 +76,7 @@ export default function syncWithPrefab (node) {
     _prefab._synced = true;
     //
     if (!_prefab.asset) {
-        if (CC_EDITOR) {
+        if (EDITOR) {
             // @ts-ignore
             // const NodeUtils = Editor.require('scene://utils/node');
             // // @ts-ignore
@@ -106,7 +107,7 @@ export default function syncWithPrefab (node) {
 
     // instantiate prefab
     cc.game._isCloning = true;
-    if (CC_SUPPORT_JIT) {
+    if (SUPPORT_JIT) {
         _prefab.asset._doInstantiate(node);
     }
     else {

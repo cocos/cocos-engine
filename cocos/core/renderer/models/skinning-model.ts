@@ -27,155 +27,247 @@
  * @hidden
  */
 
-import { AnimationClip } from '../../animation/animation-clip';
-import { Mesh } from '../../assets/mesh';
+import { EDITOR } from 'internal:constants';
+import { Material } from '../../assets/material';
+import { Mesh, RenderingSubMesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
 import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
-import { Vec3 } from '../../math';
-import { UBOSkinningAnimation, UBOSkinningTexture, UniformJointsTexture } from '../../pipeline/define';
-import { Node } from '../../scene-graph';
-import { Pass } from '../core/pass';
-import { samplerLib } from '../core/sampler-lib';
-import { DataPoolManager } from '../data-pool-manager';
-import { Model } from '../scene/model';
-import { IAnimInfo, IJointsTextureHandle, jointsTextureSamplerHash } from './skeletal-animation-utils';
+import { Mat4, Vec3 } from '../../math';
+import { UBOSkinning } from '../../pipeline/define';
+import { Node } from '../../scene-graph/node';
+import { Pass, IMacroPatch } from '../core/pass';
+import { Model, ModelType } from '../scene/model';
+import { uploadJointData } from './skeletal-animation-utils';
+import { MorphModel } from './morph-model';
 
-interface IJointsInfo {
-    buffer: GFXBuffer | null;
-    jointsTextureInfo: Float32Array;
-    texture: IJointsTextureHandle | null;
-    animInfo: IAnimInfo;
-    boundsInfo: aabb[] | null;
+export interface IJointTransform {
+    node: Node;
+    local: Mat4;
+    world: Mat4;
+    stamp: number;
+    parent: IJointTransform | null;
 }
+
+const stack: IJointTransform[] = [];
+const pool: Map<string, IJointTransform> = new Map();
+
+const myPatches = [
+    { name: 'CC_USE_SKINNING', value: true },
+];
+
+export function getWorldMatrix (transform: IJointTransform | null, stamp: number) {
+    let i = 0;
+    let res = Mat4.IDENTITY;
+    while (transform) {
+        if (transform.stamp === stamp || transform.stamp + 1 === stamp && !transform.node.hasChangedFlags) {
+            res = transform.world;
+            break;
+        }
+        transform.stamp = stamp;
+        stack[i++] = transform;
+        transform = transform.parent;
+    }
+    while (i > 0) {
+        transform = stack[--i];
+        const node = transform.node;
+        Mat4.fromRTS(transform.local, node.rotation, node.position, node.scale);
+        res = Mat4.multiply(transform.world, res, transform.local);
+    }
+    return res;
+}
+
+export function getTransform (node: Node, root: Node) {
+    let joint: IJointTransform | null = null;
+    let i = 0;
+    while (node !== root) {
+        const id = node.uuid;
+        if (pool.has(id)) {
+            joint = pool.get(id)!;
+            break;
+        } else { // TODO: object reuse
+            joint = { node, local: new Mat4(), world: new Mat4(), stamp: -1, parent: null };
+            pool.set(id, joint);
+        }
+        stack[i++] = joint;
+        node = node.parent!;
+        joint = null;
+    }
+    let child: IJointTransform;
+    while (i > 0) {
+        child = stack[--i];
+        child.parent = joint;
+        joint = child;
+    }
+    return joint;
+}
+
+export function deleteTransform (node: Node) {
+    let transform = pool.get(node.uuid) || null;
+    while (transform) {
+        pool.delete(transform.node.uuid);
+        transform = transform.parent;
+    }
+}
+
+function getRevelantBuffers (outIndices: number[], outBuffers: number[], jointMaps: number[][], targetJoint: number) {
+    for (let i = 0; i < jointMaps.length; i++) {
+        const idxMap = jointMaps[i];
+        let index = -1;
+        for (let j = 0; j < idxMap.length; j++) {
+            if (idxMap[j] === targetJoint) { index = j; break; }
+        }
+        if (index >= 0) {
+            outBuffers.push(i);
+            outIndices.push(index);
+        }
+    }
+}
+
+interface IJointInfo {
+    bound: aabb;
+    target: Node;
+    bindpose: Mat4;
+    transform: IJointTransform;
+    buffers: number[];
+    indices: number[];
+}
+
+const v3_min = new Vec3();
+const v3_max = new Vec3();
+const v3_1 = new Vec3();
+const v3_2 = new Vec3();
+const m4_1 = new Mat4();
+const ab_1 = new aabb();
 
 /**
  * @en
- * The skinning model that is using baked animation.
+ * The skinning model that is using real-time pose calculation.
  * @zh
- * 预烘焙动画的蒙皮模型。
+ * 实时计算动画的蒙皮模型。
  */
-export class SkinningModel extends Model {
+export class SkinningModel extends MorphModel {
 
-    public uploadedAnim: AnimationClip | null | undefined = undefined; // uninitialized
+    public uploadAnimation = null;
 
-    private _jointsMedium: IJointsInfo;
-    private _skeleton: Skeleton | null = null;
-    private _staticModelBounds: aabb | null = null;
-    private _mesh: Mesh | null = null;
-    private _dataPoolManager: DataPoolManager;
+    private _buffers: GFXBuffer[] = [];
+    private _datas: Float32Array[] = [];
+    private _joints: IJointInfo[] = [];
+    private _bufferIndices: number[] | null = null;
 
     constructor () {
         super();
-        this._type = 'skinning';
-        this._dataPoolManager = cc.director.root.dataPoolManager;
-        const jointsTextureInfo = new Float32Array(4);
-        const texture = this._dataPoolManager.jointsTexturePool.getDefaultJointsTexture();
-        const animInfo = this._dataPoolManager.jointsAnimationInfo.get();
-        this._jointsMedium = { buffer: null, jointsTextureInfo, texture, animInfo, boundsInfo: null };
+        this.type = ModelType.SKINNING;
     }
 
     public destroy () {
-        super.destroy();
-        if (this._jointsMedium.buffer) {
-            this._jointsMedium.buffer.destroy();
-            this._jointsMedium.buffer = null;
-            this.uploadedAnim = undefined; // uninitialized
+        this.bindSkeleton();
+        if (this._buffers.length) {
+            for (let i = 0; i < this._buffers.length; i++) {
+                this._buffers[i].destroy();
+            }
+            this._buffers.length = 0;
         }
+        super.destroy();
     }
 
     public bindSkeleton (skeleton: Skeleton | null = null, skinningRoot: Node | null = null, mesh: Mesh | null = null) {
-        this._skeleton = skeleton;
-        this._mesh = mesh;
+        for (let i = 0; i < this._joints.length; i++) {
+            deleteTransform(this._joints[i].target);
+        }
+        this._bufferIndices = null; this._joints.length = 0;
         if (!skeleton || !skinningRoot || !mesh) { return; }
-        this._transform = skinningRoot;
-        this._jointsMedium.animInfo = this._dataPoolManager.jointsAnimationInfo.get(skinningRoot.uuid);
-        if (!this._jointsMedium.buffer) { // create buffer here so re-init after destroy could work
-            this._jointsMedium.buffer = this._device.createBuffer({
-                usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: UBOSkinningTexture.SIZE,
-                stride: UBOSkinningTexture.SIZE,
-            });
+        this.transform = skinningRoot;
+        const boneSpaceBounds = mesh.getBoneSpaceBounds(skeleton);
+        const jointMaps = mesh.struct.jointMaps;
+        this._ensureEnoughBuffers(jointMaps && jointMaps.length || 1);
+        this._bufferIndices = mesh.jointBufferIndices;
+        for (let index = 0; index < skeleton.joints.length; index++) {
+            const bound = boneSpaceBounds[index];
+            const target = skinningRoot.getChildByPath(skeleton.joints[index]);
+            if (!bound || !target) { continue; }
+            const transform = getTransform(target, skinningRoot)!;
+            const bindpose = skeleton.bindposes[index];
+            const indices: number[] = [];
+            const buffers: number[] = [];
+            if (!jointMaps) { indices.push(index); buffers.push(0); }
+            else { getRevelantBuffers(indices, buffers, jointMaps, index); }
+            this._joints.push({ indices, buffers, bound, target, bindpose, transform });
         }
     }
 
-    public updateTransform () {
-        super.updateTransform();
-        if (!this.uploadedAnim) { return; }
-        const { animInfo, boundsInfo } = this._jointsMedium;
-        const skelBound = boundsInfo![animInfo!.data[1]];
-        const node = this._transform;
-        if (this._worldBounds && skelBound) {
-            // @ts-ignore TS2339
-            skelBound.transform(node._mat, node._pos, node._rot, node._scale, this._worldBounds);
+    public updateTransform (stamp: number) {
+        const root = this.transform!;
+        // @ts-ignore TS2445
+        if (root.hasChangedFlags || root._dirtyFlags) {
+            root.updateWorldTransform();
+            this._transformUpdated = true;
+        }
+        // update bounds
+        Vec3.set(v3_min,  Infinity,  Infinity,  Infinity);
+        Vec3.set(v3_max, -Infinity, -Infinity, -Infinity);
+        for (let i = 0; i < this._joints.length; i++) {
+            const { bound, transform } = this._joints[i];
+            const worldMatrix = getWorldMatrix(transform, stamp);
+            aabb.transform(ab_1, bound, worldMatrix);
+            ab_1.getBoundary(v3_1, v3_2);
+            Vec3.min(v3_min, v3_min, v3_1);
+            Vec3.max(v3_max, v3_max, v3_2);
+        }
+        if (this._modelBounds && this._worldBounds) {
+            aabb.fromPoints(this._modelBounds, v3_min, v3_max);
+            // @ts-ignore TS2445
+            this._modelBounds.transform(root._mat, root._pos, root._rot, root._scale, this._worldBounds);
         }
     }
 
-    // update fid buffer only when visible
-    public updateUBOs () {
-        if (!super.updateUBOs()) { return false; }
-        const info = this._jointsMedium.animInfo!;
-        if (info.dirty) { info.buffer.update(info.data); info.dirty = false; }
+    public updateUBOs (stamp: number) {
+        if (!super.updateUBOs(stamp)) { return false; }
+        for (let i = 0; i < this._joints.length; i++) {
+            const { indices, buffers, transform, bindpose } = this._joints[i];
+            Mat4.multiply(m4_1, transform.world, bindpose);
+            for (let b = 0; b < buffers.length; b++) {
+                uploadJointData(this._datas[buffers[b]], indices[b] * 12, m4_1, i === 0);
+            }
+        }
+        for (let b = 0; b < this._buffers.length; b++) {
+            this._buffers[b].update(this._datas[b]);
+        }
         return true;
     }
 
-    public createBoundingShape (minPos?: Vec3, maxPos?: Vec3) {
-        super.createBoundingShape(minPos, maxPos);
-        this._staticModelBounds = this._modelBounds && aabb.clone(this._modelBounds);
+    public initSubModel (idx: number, subMeshData: RenderingSubMesh, mat: Material) {
+        const original = subMeshData.vertexBuffers;
+        subMeshData.vertexBuffers = subMeshData.jointMappedBuffers;
+        super.initSubModel(idx, subMeshData, mat);
+        subMeshData.vertexBuffers = original;
     }
 
-    public uploadAnimation (anim: AnimationClip | null) {
-        if (!this._skeleton || !this._mesh || this.uploadedAnim === anim) { return; }
-        this.uploadedAnim = anim;
-        const resMgr = this._dataPoolManager;
-        const texture = anim ? resMgr.jointsTexturePool.getJointsTextureWithAnimation(this._skeleton, anim) :
-            resMgr.jointsTexturePool.getDefaultJointsTexture(this._skeleton);
-        resMgr.jointsAnimationInfo.switchClip(this._jointsMedium.animInfo!, anim);
-        this._applyJointsTexture(texture);
-        this._jointsMedium.boundsInfo = anim ? resMgr.animatedBoundsInfo.get(this._mesh, this._skeleton, anim) : null;
-        this._modelBounds = anim ? null : this._staticModelBounds; // don't calc bounds again in Model
+    protected createPipelineState (pass: Pass, subModelIdx: number, patches?: IMacroPatch[]) {
+        if (EDITOR && pass.instancedBuffer) {
+            console.warn('real-time skeletal animation doesn\'t support instancing, expect rendering anomalies');
+        }
+        const pso = super.createPipelineState(pass, subModelIdx, patches?.concat(myPatches) ?? myPatches);
+        const bindingLayout = pso.pipelineLayout.layouts[0];
+        const buffer = this._buffers[this._bufferIndices![subModelIdx]];
+        if (buffer) { bindingLayout.bindBuffer(UBOSkinning.BLOCK.binding, buffer); }
+        return pso;
     }
 
-    protected _applyJointsTexture (texture: IJointsTextureHandle | null) {
-        if (!texture) { return; }
-        const oldTex = this._jointsMedium.texture;
-        if (oldTex && oldTex !== texture) { this._dataPoolManager.jointsTexturePool.releaseHandle(oldTex); }
-        this._jointsMedium.texture = texture;
-        const { buffer, jointsTextureInfo } = this._jointsMedium;
-        jointsTextureInfo[0] = texture.handle.texture.width;
-        jointsTextureInfo[1] = 1 / jointsTextureInfo[0];
-        jointsTextureInfo[2] = texture.pixelOffset + 0.1; // guard against floor() underflow
-        if (buffer) { buffer.update(jointsTextureInfo); }
-        const sampler = samplerLib.getSampler(this._device, jointsTextureSamplerHash);
-        for (const submodel of this._subModels) {
-            if (!submodel.psos) { continue; }
-            for (const pso of submodel.psos) {
-                const bindingLayout = pso.pipelineLayout.layouts[0];
-                bindingLayout.bindTextureView(UniformJointsTexture.binding, texture.handle.texView);
-                bindingLayout.bindSampler(UniformJointsTexture.binding, sampler);
+    private _ensureEnoughBuffers (count: number) {
+        for (let i = 0; i < count; i++) {
+            if (!this._buffers[i]) {
+                this._buffers[i] = this._device.createBuffer({
+                    usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+                    memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                    size: UBOSkinning.SIZE,
+                    stride: UBOSkinning.SIZE,
+                });
+            }
+            if (!this._datas[i]) {
+                this._datas[i] = new Float32Array(UBOSkinning.COUNT);
             }
         }
-        for (const pso of this._implantPSOs) {
-            const bindingLayout = pso.pipelineLayout.layouts[0];
-            bindingLayout.bindTextureView(UniformJointsTexture.binding, texture.handle.texView);
-            bindingLayout.bindSampler(UniformJointsTexture.binding, sampler);
-            bindingLayout.update();
-        }
-    }
-
-    protected createPipelineState (pass: Pass) {
-        const pso = super.createPipelineState(pass);
-        const { buffer, texture, animInfo } = this._jointsMedium;
-        const bindingLayout = pso.pipelineLayout.layouts[0];
-        bindingLayout.bindBuffer(UBOSkinningTexture.BLOCK.binding, buffer!);
-        bindingLayout.bindBuffer(UBOSkinningAnimation.BLOCK.binding, animInfo!.buffer);
-        const sampler = samplerLib.getSampler(this._device, jointsTextureSamplerHash);
-        if (texture) {
-            bindingLayout.bindTextureView(UniformJointsTexture.binding, texture.handle.texView);
-            bindingLayout.bindSampler(UniformJointsTexture.binding, sampler);
-        }
-        return pso;
     }
 }

@@ -43,6 +43,7 @@ import { UIRenderComponent } from '../../core/components/ui-base/ui-render-compo
 import { UITransformComponent } from '../../core/components/ui-base/ui-transform-component';
 import { assert, warnID } from '../../core/platform/debug';
 import { loader } from '../../core/load-pipeline';
+import { EDITOR, DEV } from 'internal:constants';
 
 const _htmlTextParser = new HtmlTextParser();
 const RichTextChildName = 'RICHTEXT_CHILD';
@@ -75,10 +76,10 @@ function debounce (func: Function, wait: number, immediate?: boolean) {
  * 富文本池。<br/>
  */
 const pool = new Pool((labelSeg: ILabelSegment) => {
-    if (CC_EDITOR) {
+    if (EDITOR) {
         return false;
     }
-    if (CC_DEV) {
+    if (DEV) {
         assert(!labelSeg.node.parent, 'Recycling node\'s parent should be null!');
     }
     if (!cc.isValid(labelSeg.node)) {
@@ -160,9 +161,11 @@ interface ILabelSegment {
 }
 
 /**
+ * @en
+ * The RichText Component.
+ *
  * @zh
  * 富文本组件。
- * 可通过 cc.RichTextComponent 获得该组件。
  */
 @ccclass('cc.RichTextComponent')
 @executionOrder(110)
@@ -171,6 +174,9 @@ interface ILabelSegment {
 export class RichTextComponent extends UIComponent {
 
     /**
+     * @en
+     * Content string of RichText.
+     *
      * @zh
      * 富文本显示的文本内容。
      */
@@ -191,6 +197,9 @@ export class RichTextComponent extends UIComponent {
     }
 
     /**
+     * @en
+     * Horizontal Alignment of each line in RichText.
+     *
      * @zh
      * 文本内容的水平对齐方式。
      */
@@ -213,6 +222,9 @@ export class RichTextComponent extends UIComponent {
     }
 
     /**
+     * @en
+     * Font size of RichText.
+     *
      * @zh
      * 富文本字体大小。
      */
@@ -234,6 +246,9 @@ export class RichTextComponent extends UIComponent {
     }
 
     /**
+     * @en
+     * Custom System font of RichText.
+     *
      * @zh
      * 富文本定制字体。
      */
@@ -258,6 +273,9 @@ export class RichTextComponent extends UIComponent {
     }
 
     /**
+     * @en
+     * The maximize width of the RichText.
+     *
      * @zh
      * 富文本的最大宽度。
      */
@@ -279,6 +297,9 @@ export class RichTextComponent extends UIComponent {
     }
 
     /**
+     * @en
+     * Line Height of RichText.
+     *
      * @zh
      * 富文本行高。
      */
@@ -300,6 +321,9 @@ export class RichTextComponent extends UIComponent {
     }
 
     /**
+     * @en
+     * The image atlas for the img tag. For each src value in the img tag, there should be a valid spriteFrame in the image atlas.
+     *
      * @zh
      * 对于 img 标签里面的 src 属性名称，都需要在 imageAtlas 里面找到一个有效的 spriteFrame，否则 img tag 会判定为无效。
      */
@@ -322,6 +346,10 @@ export class RichTextComponent extends UIComponent {
     }
 
     /**
+     * @en
+     * Once checked, the RichText will block all input events (mouse and touch) within
+     * the bounding box of the node, preventing the input from penetrating into the underlying node.
+     *
      * @zh
      * 选中此选项后，RichText 将阻止节点边界框中的所有输入事件（鼠标和触摸），从而防止输入事件穿透到底层节点。
      */
@@ -376,7 +404,7 @@ export class RichTextComponent extends UIComponent {
 
     constructor () {
         super();
-        if (CC_EDITOR) {
+        if (EDITOR) {
             this._updateRichTextStatus = debounce(this._updateRichText, 200);
         }
         else {
@@ -407,7 +435,7 @@ export class RichTextComponent extends UIComponent {
     }
 
     public onRestore () {
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             return;
         }
 

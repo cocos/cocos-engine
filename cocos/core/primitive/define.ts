@@ -6,6 +6,8 @@ import { GFXPrimitiveMode } from '../gfx/define';
 import { IGFXAttribute } from '../gfx/input-assembler';
 
 /**
+ * @en
+ * The definition of the parameter for building a primitive geometry.
  * @zh
  * 几何体参数选项。
  */
@@ -28,6 +30,8 @@ export interface IGeometryOptions {
 }
 
 /**
+ * @en
+ * Apply the options to default.
  * @zh
  * 应用默认的几何参数选项。
  */
@@ -44,6 +48,8 @@ export function applyDefaultGeometryOptions<GeometryOptions = IGeometryOptions> 
 }
 
 /**
+ * @en
+ * The definition of the geometry, this struct can build a mesh.
  * @zh
  * 几何体信息。
  */

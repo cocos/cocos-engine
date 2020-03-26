@@ -6,11 +6,10 @@ import { Vec3 } from '../math';
 import { applyDefaultGeometryOptions, IGeometry, IGeometryOptions } from './define';
 
 /**
+ * @en
+ * The definition of the parameter for building a plane.
  * @zh
- * 生成一个圆锥。
- * @param radius 圆锥半径。
- * @param height 圆锥高度。
- * @param opts 圆锥参数选项。
+ * 平面参数选项。
  */
 interface IPlaneOptions extends RecursivePartial<IGeometryOptions> {
     /**
@@ -63,7 +62,7 @@ const c01 = new Vec3(0, 0, 0);
  * 生成一个平面，其位于XOZ平面，方向为Y轴正方向。
  * @param options 平面参数选项。
  */
-export default function (options?: IPlaneOptions): IGeometry {
+export default function plane (options?: IPlaneOptions): IGeometry {
     const normalizedOptions = applyDefaultPlaneOptions(options);
 
     const {

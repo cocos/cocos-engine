@@ -28,6 +28,7 @@
  */
 
 import { value } from '../utils/js';
+import { EDITOR, TEST } from 'internal:constants';
 
 export function BitMask<T> (obj: T): T {
     if ('__bitmask__' in obj) {
@@ -55,7 +56,7 @@ export function BitMask<T> (obj: T): T {
         }
         const reverseKey: string = '' + val;
         if (key !== reverseKey) {
-            if ((CC_EDITOR || CC_TEST) && reverseKey in obj && obj[reverseKey] !== key) {
+            if ((EDITOR || TEST) && reverseKey in obj && obj[reverseKey] !== key) {
                 cc.errorID(7100, reverseKey);
                 continue;
             }

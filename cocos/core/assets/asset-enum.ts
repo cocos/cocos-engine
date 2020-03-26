@@ -45,6 +45,13 @@ export enum PixelFormat {
     RGB888 = GFXFormat.RGB8,
     /**
      * @en
+     * 32-bit float texture: RGBA32F
+     * @zh
+     * 32位纹理：RGBA32F。
+     */
+    RGB32F = GFXFormat.RGB32F,
+    /**
+     * @en
      * 32-bit texture: RGBA8888
      * @zh
      * 32位纹理：RGBA8888。

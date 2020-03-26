@@ -218,10 +218,14 @@ export default class Downloader implements IPipe {
     private extMap:object;
     private _curConcurrent = 0;
     private _loadQueue:Array<IDownloadItem> = [];
-    private _subpackages = {};
+    private _subPackages = {};
 
     constructor (extMap?) {
         this.extMap = mixin(extMap, defaultMap);
+    }
+
+    setSubPackages (subPackages) {
+        this._subPackages = subPackages;
     }
 
     /**
@@ -294,7 +298,7 @@ export default class Downloader implements IPipe {
      * @param {Error} completeCallback.error - error information
      */
     loadSubpackage (name, completeCallback) {
-        let pac = this._subpackages[name];
+        let pac = this._subPackages[name];
         if (pac) {
             if (pac.loaded) {
                 if (completeCallback) completeCallback();

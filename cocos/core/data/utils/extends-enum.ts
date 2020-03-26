@@ -1,5 +1,6 @@
 
 import { errorID } from '../../platform/debug';
+import { DEV } from 'internal:constants';
 
 /**
  * @zh
@@ -31,7 +32,7 @@ export function extendsEnum<E0, E1, E2> (e0: E0, e1: E1, e2: E2): E0 & E1 & E2;
 export function extendsEnum<E0, E1, E2, E3> (e0: E0, e1: E1, e2: E2, e3: E3): E0 & E1 & E2 & E3;
 
 export function extendsEnum (...enums: any[]): any {
-    if (CC_DEV) {
+    if (DEV) {
         const kvs: PropertyKey[] = [];
         for (const e of enums) {
             for (const kv of Object.keys(e)) {

@@ -31,6 +31,7 @@ import {extname} from '../utils/path';
 import * as debug from '../platform/debug';
 import { Pipeline, IPipe } from './pipeline';
 import { LoadingItems } from './loading-items';
+import { EDITOR } from 'internal:constants';
 
 const ID = 'AssetLoader';
 let reusedArray:Array<any> = [];
@@ -71,7 +72,7 @@ export default class AssetLoader implements IPipe {
                         alias: item,
                         complete: true
                     };
-                    if (CC_EDITOR && this.pipeline) {
+                    if (EDITOR && this.pipeline) {
                         this.pipeline._cache[url] = reusedArray[0];
                     }
                     queue.append(reusedArray);

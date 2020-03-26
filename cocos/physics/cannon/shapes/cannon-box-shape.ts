@@ -8,25 +8,26 @@ import { BoxColliderComponent } from '../../../../exports/physics-framework';
 
 export class CannonBoxShape extends CannonShape implements IBoxShape {
 
-    public get boxCollider () {
-        return this.collider as BoxColliderComponent;
+    public get collider () {
+        return this._collider as BoxColliderComponent;
     }
 
-    public get box () {
+    public get impl () {
         return this._shape as CANNON.Box;
     }
 
-    readonly halfExtent: CANNON.Vec3 = new CANNON.Vec3();
-    constructor (size: Vec3) {
+    readonly HALF_EXTENT: CANNON.Vec3;
+    constructor (size?: Vec3) {
         super();
-        Vec3.multiplyScalar(this.halfExtent, size, 0.5);
-        this._shape = new CANNON.Box(this.halfExtent.clone());
+        this.HALF_EXTENT = new CANNON.Vec3(0.5, 0.5, 0.5);
+        if (size) Vec3.multiplyScalar(this.HALF_EXTENT, size, 0.5);
+        this._shape = new CANNON.Box(this.HALF_EXTENT.clone());
     }
 
-    set size (v: IVec3Like) {
-        Vec3.multiplyScalar(this.halfExtent, v, 0.5);
-        Vec3.multiply(this.box.halfExtents, this.halfExtent, this.collider.node.worldScale);
-        this.box.updateConvexPolyhedronRepresentation();
+    setSize (v: IVec3Like) {
+        Vec3.multiplyScalar(this.HALF_EXTENT, v, 0.5);
+        Vec3.multiply(this.impl.halfExtents, this.HALF_EXTENT, this.collider.node.worldScale);
+        this.impl.updateConvexPolyhedronRepresentation();
         if (this._index != -1) {
             commitShapeUpdates(this._body);
         }
@@ -34,11 +35,11 @@ export class CannonBoxShape extends CannonShape implements IBoxShape {
 
     onLoad () {
         super.onLoad();
-        this.size = this.boxCollider.size;
+        this.setSize(this.collider.size);
     }
 
     setScale (scale: Vec3): void {
         super.setScale(scale);
-        this.size = this.boxCollider.size;
+        this.setSize(this.collider.size);
     }
 }

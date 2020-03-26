@@ -7,6 +7,7 @@ import { ccclass, property } from '../../core/data/class-decorator';
 import { Color } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import Gradient, { AlphaKey, ColorKey } from './gradient';
+import { EDITOR } from 'internal:constants';
 
 // tslint:disable: max-line-length
 
@@ -18,6 +19,14 @@ const GRADIENT_RANGE_MODE_TWO_COLOR = 1;
 const GRADIENT_RANGE_MODE_RANDOM_COLOR = 2;
 const GRADIENT_RANGE_MODE_GRADIENT = 3;
 const GRADIENT_RANGE_MODE_TWO_GRADIENT = 4;
+
+const SerializableTable = EDITOR && [
+    [ "_mode", "color" ],
+    [ "_mode", "gradient" ],
+    [ "_mode", "colorMin", "colorMax" ],
+    [ "_mode", "gradientMin", "gradientMax"],
+    [ "_mode", "gradient" ]
+];
 
 const Mode = Enum({
     Color: 0,
@@ -41,7 +50,7 @@ export default class GradientRange {
     }
 
     set mode (m) {
-        if (CC_EDITOR) {
+        if (EDITOR) {
             if (m === Mode.RandomColor) {
                 if (this.gradient.colorKeys.length === 0) {
                     this.gradient.colorKeys.push(new ColorKey());
@@ -106,7 +115,7 @@ export default class GradientRange {
     private _color = Color.WHITE.clone();
 
     public evaluate (time: number, rndRatio: number) {
-        switch (this.mode) {
+        switch (this._mode) {
             case Mode.Color:
                 return this.color;
             case Mode.TwoColors:
@@ -122,6 +131,10 @@ export default class GradientRange {
             default:
                 return this.color;
         }
+    }
+
+    public _onBeforeSerialize (props: any): any {
+        return SerializableTable[this._mode];
     }
 }
 

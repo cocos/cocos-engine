@@ -1,8 +1,9 @@
 
 import { BuiltinShape } from './builtin-shape';
 import { ICapsuleShape } from '../../spec/i-physics-shape';
-import { ECapsuleDirection, CapsuleColliderComponent } from '../../framework/components/collider/capsule-collider-component';
+import { CapsuleColliderComponent } from '../../framework/components/collider/capsule-collider-component';
 import { capsule } from '../../../core/geometry';
+import { EAxisDirection } from '../../framework';
 
 export class BuiltinCapsuleShape extends BuiltinShape implements ICapsuleShape {
 
@@ -14,11 +15,11 @@ export class BuiltinCapsuleShape extends BuiltinShape implements ICapsuleShape {
         return this._worldShape as capsule;
     }
 
-    get capsuleCollider () {
-        return this.collider as CapsuleColliderComponent;
+    get collider () {
+        return this._collider as CapsuleColliderComponent;
     }
 
-    constructor (radius: number, height: number, direction = ECapsuleDirection.Y_AXIS) {
+    constructor (radius = 0.5, height = 2, direction = EAxisDirection.Y_AXIS) {
         super();
         const halfHeight = (height - radius * 2) / 2;
         const h = halfHeight < 0 ? 0 : halfHeight;
@@ -26,10 +27,10 @@ export class BuiltinCapsuleShape extends BuiltinShape implements ICapsuleShape {
         this._worldShape = new capsule(radius, h, direction);
     }
 
-    set radius (v: number) {
+    setRadius (v: number) {
         this.localCapsule.radius = v;
 
-        const halfTotalHeight = this.capsuleCollider.height / 2;
+        const halfTotalHeight = this.collider.height / 2;
         let halfHeight = halfTotalHeight - v;
         if (halfHeight < 0) halfHeight = 0;
         this.localCapsule.halfHeight = halfHeight;
@@ -43,8 +44,8 @@ export class BuiltinCapsuleShape extends BuiltinShape implements ICapsuleShape {
         );
     }
 
-    set height (v: number) {
-        const hf = v / 2 - this.capsuleCollider.radius;
+    setHeight (v: number) {
+        const hf = v / 2 - this.collider.radius;
         this.localCapsule.halfHeight = hf;
         this.localCapsule.updateCache();
 
@@ -56,7 +57,7 @@ export class BuiltinCapsuleShape extends BuiltinShape implements ICapsuleShape {
         );
     }
 
-    set direction (v: ECapsuleDirection) {
+    setDirection (v: EAxisDirection) {
         this.localCapsule.axis = v;
         this.localCapsule.updateCache();
 
@@ -73,7 +74,7 @@ export class BuiltinCapsuleShape extends BuiltinShape implements ICapsuleShape {
 
     onLoad () {
         super.onLoad();
-        this.radius = this.capsuleCollider.radius;
-        this.direction = this.capsuleCollider.direction;
+        this.setRadius(this.collider.radius);
+        this.setDirection(this.collider.direction);
     }
 }

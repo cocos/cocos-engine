@@ -32,6 +32,7 @@ import { EventHandler } from '../../../core/components/component-event-handler';
 import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { UIComponent } from '../../../core/components/ui-base/ui-component';
 import { WebViewEventType, WebViewImpl } from './webview-impl';
+import { EDITOR } from 'internal:constants';
 
 /**
  * @en WebView event type
@@ -116,8 +117,8 @@ export class WebviewComponent extends UIComponent {
 
     constructor (){
         super();
-        //  TODO: finished in CC_EDITOR
-        if (!CC_EDITOR){
+        //  TODO: finished in EDITOR
+        if (!EDITOR){
             this._impl = new WebViewImpl();
         }
     }
@@ -137,7 +138,7 @@ export class WebviewComponent extends UIComponent {
         impl.createDomElementIfNeeded(this.node.width, this.node.height);
         impl.loadURL(this._url);
         impl.setVisible(true);
-        // if (!CC_EDITOR) {
+        // if (!EDITOR) {
         impl.setEventListener(EventType.LOADED, this._onWebViewLoaded.bind(this));
         impl.setEventListener(EventType.LOADING, this._onWebViewLoading.bind(this));
         impl.setEventListener(EventType.ERROR, this._onWebViewLoadError.bind(this));
@@ -151,7 +152,7 @@ export class WebviewComponent extends UIComponent {
 
         const impl = this._impl;
         impl.setVisible(false);
-        // if (!CC_EDITOR) {
+        // if (!EDITOR) {
         impl.setEventListener(EventType.LOADED, emptyCallback);
         impl.setEventListener(EventType.LOADING, emptyCallback);
         impl.setEventListener(EventType.ERROR, emptyCallback);
@@ -166,7 +167,7 @@ export class WebviewComponent extends UIComponent {
     }
 
     public update (dt) {
-        if (CC_EDITOR){
+        if (EDITOR){
             return;
         }
 

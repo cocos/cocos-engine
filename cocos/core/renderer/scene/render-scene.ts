@@ -6,15 +6,15 @@ import { RecyclePool } from '../../memop';
 import { Root } from '../../root';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
-import { SkinningModel } from '../models/skinning-model';
 import { Ambient } from './ambient';
 import { Camera } from './camera';
 import { DirectionalLight } from './directional-light';
-import { Model } from './model';
+import { Model, ModelType } from './model';
 import { PlanarShadows } from './planar-shadows';
 import { Skybox } from './skybox';
 import { SphereLight } from './sphere-light';
 import { SpotLight } from './spot-light';
+import { PREVIEW } from 'internal:constants';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -226,7 +226,7 @@ export class RenderScene {
     public removeModel (model: Model) {
         for (let i = 0; i < this._models.length; ++i) {
             if (this._models[i] === model) {
-                this._planarShadows.destroyShadowModel(model);
+                this._planarShadows.destroyShadowData(model);
                 model.detachFromScene();
                 this._models.splice(i, 1);
                 return;
@@ -236,7 +236,7 @@ export class RenderScene {
 
     public removeModels () {
         for (const m of this._models) {
-            this._planarShadows.destroyShadowModel(m);
+            this._planarShadows.destroyShadowData(m);
             m.detachFromScene();
         }
         this._models.length = 0;
@@ -306,7 +306,7 @@ export class RenderScene {
             // broadphase
             let d = intersect.ray_aabb(worldRay, m.worldBounds);
             if (d <= 0 || d >= distance) { continue; }
-            if (!(m instanceof SkinningModel && m.uploadedAnim)) {
+            if (m.type === ModelType.DEFAULT) {
                 // transform ray back to model space
                 Mat4.invert(m4, transform.getWorldMatrix(m4));
                 Vec3.transformMat4(modelRay.o, worldRay.o, m4);
@@ -349,7 +349,7 @@ export class RenderScene {
      * @returns boolean , 射线是否有击中
      */
     public raycastSingleModel (worldRay: ray, model: Model, mask = Layers.Enum.DEFAULT, distance = Infinity): boolean {
-        if (CC_PREVIEW) {
+        if (PREVIEW) {
             if (model == null) { console.error(' 检测前请保证 model 不为 null '); }
         }
         pool.reset();
@@ -359,7 +359,7 @@ export class RenderScene {
         // broadphase
         let d = intersect.ray_aabb(worldRay, m.worldBounds);
         if (d <= 0 || d >= distance) { return false; }
-        if (!(m instanceof SkinningModel && m.uploadedAnim)) {
+        if (m.type === ModelType.DEFAULT) {
             // transform ray back to model space
             Mat4.invert(m4, transform.getWorldMatrix(m4));
             Vec3.transformMat4(modelRay.o, worldRay.o, m4);
@@ -416,7 +416,7 @@ export class RenderScene {
     }
 
     private _raycastUI2DNode (worldRay: ray, ui2dNode: Node, mask = Layers.Enum.UI_2D, distance = Infinity) {
-        if (CC_PREVIEW) {
+        if (PREVIEW) {
             if (ui2dNode == null) { console.error('make sure UINode is not null'); }
         }
         const uiTransfrom = ui2dNode._uiProps.uiTransformComp;

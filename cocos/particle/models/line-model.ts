@@ -2,12 +2,11 @@
  * @hidden
  */
 
-import { IRenderingSubmesh } from '../../core/assets/mesh';
+import { RenderingSubMesh } from '../../core/assets/mesh';
 import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
 import { Vec3 } from '../../core/math';
-import { Model } from '../../core/renderer/scene/model';
-import { RenderScene } from '../../core/renderer/scene/render-scene';
+import { Model, ModelType } from '../../core/renderer/scene/model';
 import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';
 
@@ -31,12 +30,13 @@ export class LineModel extends Model {
     private _vdataUint32: Uint32Array | null = null;
     private _iaInfo: IGFXIndirectBuffer;
     private _iaInfoBuffer: GFXBuffer;
-    private _subMeshData: IRenderingSubmesh | null = null;
+    private _subMeshData: RenderingSubMesh | null = null;
     private _vertCount: number = 0;
     private _indexCount: number = 0;
 
     constructor () {
         super();
+        this.type = ModelType.LINE;
         this._capacity = 100;
         this._iaInfo = {
             drawInfos: [{
@@ -114,14 +114,9 @@ export class LineModel extends Model {
         this._iaInfo.drawInfos[0].indexCount = (this._capacity - 1) * this._indexCount;
         this._iaInfoBuffer.update(this._iaInfo);
 
-        this._subMeshData = {
-            vertexBuffers: [vertexBuffer],
-            indexBuffer,
-            indirectBuffer: this._iaInfoBuffer,
-            attributes: _vertex_attrs,
-            primitiveMode: GFXPrimitiveMode.TRIANGLE_LIST,
-            flatBuffers: [],
-        };
+        this._subMeshData = new RenderingSubMesh([vertexBuffer], _vertex_attrs, GFXPrimitiveMode.TRIANGLE_LIST);
+        this._subMeshData.indexBuffer = indexBuffer;
+        this._subMeshData.indirectBuffer = this._iaInfoBuffer;
         this.setSubModelMesh(0, this._subMeshData);
         return vBuffer;
     }
@@ -208,9 +203,10 @@ export class LineModel extends Model {
     }
 
     public updateIA (count: number) {
-        this.getSubModel(0).inputAssembler!.vertexBuffers[0].update(this._vdataF32!);
-        this.getSubModel(0).inputAssembler!.indexCount = this._indexCount * count;
-        this.getSubModel(0).inputAssembler!.extractDrawInfo(this._iaInfo.drawInfos[0]);
+        const ia = this.getSubModel(0).inputAssembler!;
+        ia.vertexBuffers[0].update(this._vdataF32!);
+        ia.indexCount = this._indexCount * count;
+        this._iaInfo.drawInfos[0] = ia;
         this._iaInfoBuffer.update(this._iaInfo);
     }
 
