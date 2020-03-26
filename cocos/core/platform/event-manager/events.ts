@@ -29,7 +29,7 @@
  */
 
 import Event from '../../event/event';
-import { Vec2 } from '../../math';
+import { Vec2 } from '../../math/vec2';
 import { Touch } from './touch';
 
 /**
@@ -162,7 +162,7 @@ export class EventMouse extends Event {
 
     public movementY: number = 0;
 
-    public _eventType: number;
+    public eventType: number;
 
     private _button: number | null = 0;
 
@@ -182,9 +182,13 @@ export class EventMouse extends Event {
      * @param eventType - 鼠标时间类型 UP, DOWN, MOVE, CANCELED。
      * @param bubbles - 事件是否通过树结构冒泡。默认为 false。
      */
-    constructor (eventType: number, bubbles?: boolean) {
+    constructor (eventType: number, bubbles?: boolean, prevLoc?: Vec2) {
         super(Event.MOUSE, bubbles);
-        this._eventType = eventType;
+        this.eventType = eventType;
+        if (prevLoc) {
+            this._prevX = prevLoc.x;
+            this._prevY = prevLoc.y;
+        }
     }
 
     /**
@@ -280,11 +284,6 @@ export class EventMouse extends Event {
         Vec2.set(out, this._x, this._y);
         cc.view._convertPointWithScale(out);
         return out;
-    }
-
-    public _setPrevCursor (x: number, y: number) {
-        this._prevX = x;
-        this._prevY = y;
     }
 
     /**
@@ -520,9 +519,9 @@ export class EventTouch extends Event {
      */
     public touch: Touch | null = null;
 
-    public _eventCode: number = 0;
-
     public simulate = false;
+
+    private _eventCode: number;
 
     private _touches: Touch[];
 
@@ -530,9 +529,9 @@ export class EventTouch extends Event {
      * @param touches - touch 数组
      * @param bubbles - 事件是否通过树结构冒泡。默认为 false。
      */
-    constructor (touches?: Touch[], bubbles?: boolean) {
+    constructor (touches?: Touch[], bubbles?: boolean, eventCode?: number) {
         super(Event.TOUCH, bubbles);
-        this._eventCode = 0;
+        this._eventCode = eventCode || 0;
         this._touches = touches || [];
     }
 
@@ -556,14 +555,6 @@ export class EventTouch extends Event {
      */
     public getTouches () {
         return this._touches;
-    }
-
-    public _setEventCode (eventCode: number) {
-        this._eventCode = eventCode;
-    }
-
-    public _setTouches (touches: Touch[]) {
-        this._touches = touches;
     }
 
     /**
