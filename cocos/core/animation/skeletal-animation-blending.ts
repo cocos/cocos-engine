@@ -46,18 +46,22 @@ export class BlendStateBuffer {
     public apply () {
         this._nodeBlendStates.forEach((nodeBlendState, node) => {
             const { position, scale, rotation } = nodeBlendState.properties;
+            let t: Vec3 | undefined;
+            let s: Vec3 | undefined;
+            let r: Quat | undefined;
             if (position && position.weight !== 0) {
-                node.setPosition(position.value);
                 position.weight = 0;
+                t = position.value;
             }
             if (scale && scale.weight !== 0) {
-                node.setScale(scale.value);
                 scale.weight = 0;
+                s = scale.value;
             }
             if (rotation && rotation.weight !== 0) {
-                node.setRotation(rotation.value);
                 rotation.weight = 0;
+                r = rotation.value;
             }
+            node.setRTS(r, t, s);
         });
     }
 }
