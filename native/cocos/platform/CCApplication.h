@@ -26,6 +26,7 @@ THE SOFTWARE.
 
 #include <string>
 #include <memory>
+#include <thread>    // // std::this_thread::sleep_for
 #include "base/ccMacros.h"
 #include "platform/CCPlatformConfig.h"
 #include "platform/CCPlatformDefine.h"
@@ -33,6 +34,9 @@ THE SOFTWARE.
 #include "base/CCScheduler.h"
 #include "base/CCAutoreleasePool.h"
 #include "math/Vec2.h"
+
+#define NANOSECONDS_PER_SECOND 1000000000
+#define NANOSECONDS_60FPS 16666667L
 
 NS_CC_BEGIN
 /**
@@ -95,6 +99,16 @@ public:
         static std::chrono::steady_clock::time_point prevTime;
         static std::chrono::steady_clock::time_point now;
         static float dt = 0.f;
+        static long dtNS = NANOSECONDS_60FPS;
+
+        // iOS/macOS use its own fps limitation algorithm.
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_WINDOWS)
+        if (dtNS < _prefererredNanosecondsPerFrame) {
+            std::this_thread::sleep_for(
+                    std::chrono::nanoseconds(_prefererredNanosecondsPerFrame - dtNS));
+            dtNS = _prefererredNanosecondsPerFrame;
+        }
+#endif
 
         prevTime = std::chrono::steady_clock::now();
 
@@ -104,7 +118,8 @@ public:
         PoolManager::getInstance()->getCurrentPool()->clear();
 
         now = std::chrono::steady_clock::now();
-        dt = std::chrono::duration_cast<std::chrono::microseconds>(now - prevTime).count() / 1000000.f;
+        dtNS = dtNS * 0.1 + 0.9 * std::chrono::duration_cast<std::chrono::nanoseconds>(now - prevTime).count();
+        dt = (float)dtNS / NANOSECONDS_PER_SECOND;
     }
 
     inline std::shared_ptr<Scheduler> getScheduler() const { return _scheduler; }
@@ -170,8 +185,8 @@ public:
 private:
     static Application* _instance;
     static std::shared_ptr<Scheduler> _scheduler;
-    void* _delegate = nullptr;
     int _fps = 60;
+    long _prefererredNanosecondsPerFrame = NANOSECONDS_60FPS;
     cocos2d::Vec2 _viewLogicalSize;
 };
 

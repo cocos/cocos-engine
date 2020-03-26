@@ -52,6 +52,7 @@ namespace
             pointerID});
 
         cocos2d::EventDispatcher::dispatchTouchEvent(touchEvent);
+        touchEvent.touches.clear();
     }
 
     void dispatchTouchEvents(AInputEvent* event, cocos2d::TouchEvent& touchEvent) {

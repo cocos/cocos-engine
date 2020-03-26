@@ -33,12 +33,6 @@
         
     _game = new Game(rect.size.width, rect.size.height);
     _game->init();
-    
-    [NSTimer scheduledTimerWithTimeInterval:(1.0 / 60)
-                                     target:self
-                                   selector:@selector(renderScene)
-                                   userInfo:nil
-                                    repeats:YES];
 }
 
 - (NSWindow*)getWindow
@@ -47,18 +41,12 @@
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
-    // Insert code here to tear down your application
     delete _game;
     [_window release];
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication {
     return YES;
-}
-
-- (BOOL) renderScene {
-    _game->tick();
-    return true;
 }
 
 @end

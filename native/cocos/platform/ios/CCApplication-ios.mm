@@ -30,6 +30,60 @@
 #include "scripting/js-bindings/jswrapper/SeApi.h"
 #include "audio/include/AudioEngine.h"
 
+@interface MyTimer : NSObject
+{
+    cocos2d::Application* _app;
+    CADisplayLink* _displayLink;
+    int _fps;
+}
+- (instancetype)initWithApp:(cocos2d::Application*)app fps:(int)fps;
+- (void)start;
+- (void)changeFPS:(int)fps;
+- (void)pause;
+- (void)resume;
+@end
+
+@implementation MyTimer
+
+- (instancetype)initWithApp:(cocos2d::Application*)app fps:(int)fps
+{
+    if (self = [super init])
+    {
+        _fps = fps;
+        _app = app;
+        _displayLink = [NSClassFromString(@"CADisplayLink") displayLinkWithTarget:self selector:@selector(renderScene:)];
+        _displayLink.preferredFramesPerSecond = _fps;
+    }
+    return self;
+}
+
+- (void)start
+{
+    [_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+}
+
+- (void)pause
+{
+    [_displayLink invalidate];
+}
+
+- (void)resume
+{
+    [self start];
+}
+
+- (void)changeFPS:(int)fps
+{
+    _displayLink.preferredFramesPerSecond = fps;
+}
+
+- (void)renderScene:(id)sender
+{
+    _app->tick();
+}
+
+@end
+
 NS_CC_BEGIN
 
 namespace
@@ -49,6 +103,8 @@ namespace
         se->evalString(commandBuf);
         return true;
     }
+    
+    MyTimer* _timer;
 }
 
 Application* Application::_instance = nullptr;
@@ -61,6 +117,8 @@ Application::Application(int width, int height)
     EventDispatcher::init();
     _viewLogicalSize.x = width;
     _viewLogicalSize.y = height;
+    
+    _timer = [[MyTimer alloc] initWithApp:this fps:_fps];
 }
 
 Application::~Application()
@@ -73,6 +131,8 @@ Application::~Application()
     se::ScriptEngine::destroyInstance();
 
     Application::_instance = nullptr;
+    
+    [_timer release];
 }
 
 std::string Application::getCurrentLanguageCode() const
@@ -163,15 +223,19 @@ bool Application::init()
     se::ScriptEngine* se = se::ScriptEngine::getInstance();
     se->addRegisterCallback(setCanvasCallback);
     
+    [_timer start];
+    
     return true;
 }
 
 void Application::onPause()
 {
+    [_timer pause];
 }
 
 void Application::onResume()
 {
+    [_timer resume];
 }
 
 std::string Application::getSystemVersion()
@@ -183,6 +247,7 @@ std::string Application::getSystemVersion()
 void Application::setPreferredFramesPerSecond(int fps)
 {
     _fps = fps;
+    [_timer changeFPS:_fps];
 }
 
 NS_CC_END

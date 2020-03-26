@@ -55,10 +55,6 @@ Game* game = nullptr;
     game->init();
     
     [self.window makeKeyAndVisible];
-
-    CADisplayLink* displayLink = [NSClassFromString(@"CADisplayLink") displayLinkWithTarget:self selector:@selector(loop:)];
-    displayLink.preferredFramesPerSecond = 60;
-    [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
     
     return YES;
 }
@@ -101,11 +97,6 @@ Game* game = nullptr;
     delete game;
     game = nullptr;
 }
-
--(void)loop:(id)sender {
-    game->tick();
-}
-
 
 #pragma mark -
 #pragma mark Memory management

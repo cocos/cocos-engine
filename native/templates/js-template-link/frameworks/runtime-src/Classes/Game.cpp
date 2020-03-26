@@ -68,6 +68,8 @@ bool Game::init()
 
 void Game::onPause()
 {
+    cocos2d::Application::onPause();
+
     cocos2d::CustomEvent event;
     event.name = EVENT_COME_TO_BACKGROUND;
     cocos2d::EventDispatcher::dispatchCustomEvent(event);
@@ -76,6 +78,8 @@ void Game::onPause()
 
 void Game::onResume()
 {
+    cocos2d::Application::onResume();
+    
     cocos2d::CustomEvent event;
     event.name = EVENT_COME_TO_FOREGROUND;
     cocos2d::EventDispatcher::dispatchCustomEvent(event);

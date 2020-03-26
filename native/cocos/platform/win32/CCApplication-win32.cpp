@@ -83,7 +83,11 @@ bool Application::init()
 
 void Application::setPreferredFramesPerSecond(int fps)
 {
+    if (fps == 0)
+        return;
+
     _fps = fps;
+    _prefererredNanosecondsPerFrame = (long)(1.0 / _fps * NANOSECONDS_PER_SECOND);
 }
 
 Application::LanguageType Application::getCurrentLanguage() const

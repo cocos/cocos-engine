@@ -110,7 +110,11 @@ void Application::onResume()
 
 void Application::setPreferredFramesPerSecond(int fps)
 {
+    if (fps == 0)
+        return;
+
     _fps = fps;
+    _prefererredNanosecondsPerFrame = (long)(1.0 / _fps * NANOSECONDS_PER_SECOND);
 }
 
 std::string Application::getCurrentLanguageCode() const

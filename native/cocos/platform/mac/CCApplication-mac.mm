@@ -30,6 +30,66 @@ THE SOFTWARE.
 #include "scripting/js-bindings/jswrapper/SeApi.h"
 #include "audio/include/AudioEngine.h"
 
+@interface MyTimer : NSObject
+{
+    cocos2d::Application* _app;
+    NSTimer* _timer;
+    int _fps;
+}
+- (instancetype)initWithApp:(cocos2d::Application*)app fps:(int)fps;
+- (void)start;
+- (void)changeFPS:(int)fps;
+- (void)pause;
+- (void)resume;
+@end
+
+@implementation MyTimer
+
+- (instancetype)initWithApp:(cocos2d::Application*)app fps:(int)fps
+{
+    if (self = [super init])
+    {
+        _fps = fps;
+        _app = app;
+    }
+    return self;
+}
+
+- (void)start
+{
+    _timer = [NSTimer scheduledTimerWithTimeInterval:1.0f / _fps
+                                              target:self
+                                            selector:@selector(renderScene)
+                                            userInfo:nil
+                                             repeats:YES];
+}
+
+- (void)pause
+{
+    [_timer invalidate];
+}
+
+- (void)resume
+{
+    [self start];
+}
+
+- (void)changeFPS:(int)fps
+{
+    if (fps == _fps)
+        return;
+    
+    [self pause];
+    [self resume];
+}
+
+- (void)renderScene
+{
+    _app->tick();
+}
+
+@end
+
 NS_CC_BEGIN
 
 namespace
@@ -47,6 +107,8 @@ namespace
         se->evalString(commandBuf);
         return true;
     }
+    
+    MyTimer* _timer;
 }
 
 Application* Application::_instance = nullptr;
@@ -61,7 +123,8 @@ Application::Application(int width, int height)
     
     _scheduler = std::make_shared<Scheduler>();
     EventDispatcher::init();
-    se::ScriptEngine::getInstance();
+    
+    _timer = [[MyTimer alloc] initWithApp:this fps:_fps];
 }
 
 Application::~Application()
@@ -75,6 +138,8 @@ Application::~Application()
     se::ScriptEngine::destroyInstance();
 
     Application::_instance = nullptr;
+    
+    [_timer release];
 }
 
 bool Application::init()
@@ -82,12 +147,15 @@ bool Application::init()
     se::ScriptEngine* se = se::ScriptEngine::getInstance();
     se->addRegisterCallback(setCanvasCallback);
     
+    [_timer start];
+    
     return true;
 }
 
 void Application::setPreferredFramesPerSecond(int fps)
 {
     _fps = fps;
+    [_timer changeFPS:_fps];
 }
 
 Application::Platform Application::getPlatform() const
@@ -178,10 +246,12 @@ void Application::copyTextToClipboard(const std::string &text)
 
 void Application::onPause()
 {
+    [_timer pause];
 }
 
 void Application::onResume()
 {
+    [_timer resume];
 }
 
 std::string Application::getSystemVersion()
