@@ -29,7 +29,7 @@
  */
 
 import { BitmapFont, Font, ImageAsset, SpriteFrame, Texture2D } from '../../core/assets';
-import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { ccenum } from '../../core/value-types/enum';
 import { UI } from '../../core/renderer/ui/ui';
 import { FontAtlas } from '../assembler/label/bmfontUtils';
@@ -187,6 +187,7 @@ ccenum(CacheMode);
  * 文字标签组件。
  */
 @ccclass('cc.LabelComponent')
+@help('i18n:cc.LabelComponent')
 @executionOrder(110)
 @menu('UI/Render/Label')
 export class LabelComponent extends UIRenderComponent {

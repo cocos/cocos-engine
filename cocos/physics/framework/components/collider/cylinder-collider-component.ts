@@ -4,6 +4,7 @@
 
 import {
     ccclass,
+    help,
     executeInEditMode,
     executionOrder,
     menu,
@@ -20,6 +21,7 @@ import { EAxisDirection } from '../../physics-enum';
  * 圆柱体碰撞器
  */
 @ccclass('cc.CylinderColliderComponent')
+@help('i18n:cc.CylinderColliderComponent')
 @executionOrder(98)
 @menu('Physics/CylinderCollider')
 @executeInEditMode

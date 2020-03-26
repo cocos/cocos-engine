@@ -31,7 +31,7 @@
 import { RenderableComponent } from '../../core/3d/framework/renderable-component';
 import { Material } from '../../core/assets';
 import { UIComponent } from '../../core/components/ui-base/ui-component';
-import { ccclass, executionOrder, menu } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu } from '../../core/data/class-decorator';
 import { director } from '../../core/director';
 import { RenderPriority } from '../../core/pipeline/define';
 import { UI } from '../../core/renderer/ui/ui';
@@ -48,6 +48,7 @@ import { Model } from '../../core/renderer';
  * 当你在 UI 中放置模型或者粒子的时候，必须添加该组件才能渲染。该组件必须放置在带有 modelComponent 或者 particleComponent 组件的节点上。
  */
 @ccclass('cc.UIModelComponent')
+@help('i18n:cc.UIModelComponent')
 @executionOrder(110)
 @menu('UI/Model')
 export class UIModelComponent extends UIComponent {

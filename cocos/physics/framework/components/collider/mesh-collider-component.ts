@@ -4,6 +4,7 @@
 
 import {
     ccclass,
+    help,
     executeInEditMode,
     executionOrder,
     menu,
@@ -20,6 +21,7 @@ import { EDITOR, TEST } from 'internal:constants';
  * 三角网格碰撞器
  */
 @ccclass('cc.MeshColliderComponent')
+@help('i18n:cc.MeshColliderComponent')
 @executionOrder(98)
 @menu('Physics/MeshCollider')
 @executeInEditMode

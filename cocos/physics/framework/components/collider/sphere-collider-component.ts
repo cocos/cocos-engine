@@ -4,6 +4,7 @@
 
 import {
     ccclass,
+    help,
     executeInEditMode,
     executionOrder,
     menu,
@@ -19,6 +20,7 @@ import { EDITOR, TEST } from 'internal:constants';
  * 球碰撞器
  */
 @ccclass('cc.SphereColliderComponent')
+@help('i18n:cc.SphereColliderComponent')
 @executionOrder(98)
 @menu('Physics/SphereCollider')
 @executeInEditMode

@@ -33,7 +33,7 @@ import { Material } from '../../assets/material';
 import { Mesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
 import { Texture2D } from '../../assets/texture-2d';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
 import { CCString } from '../../data/utils/attribute';
 import { GFXAttributeName, GFXBufferTextureCopy, GFXFormatInfos } from '../../gfx/define';
 import { GFXFormat, GFXType } from '../../gfx/define';
@@ -129,6 +129,7 @@ const v3_1 = new Vec3();
  * @zh 蒙皮模型合批组件，用于合并绘制共享同一骨骼资源的所有蒙皮模型。
  */
 @ccclass('cc.BatchedSkinningModelComponent')
+@help('i18n:cc.BatchedSkinningModelComponent')
 @executionOrder(100)
 @executeInEditMode
 @menu('Components/BatchedSkinningModel')

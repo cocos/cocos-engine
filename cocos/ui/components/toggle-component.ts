@@ -29,7 +29,7 @@
  */
 
 import { EventHandler as ComponentEventHandler, UITransformComponent } from '../../core/components';
-import { ccclass, requireComponent, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { ccclass, help, requireComponent, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { ButtonComponent } from './button-component';
 import { SpriteComponent } from './sprite-component';
 import { ToggleContainerComponent } from './toggle-container-component';
@@ -50,6 +50,7 @@ enum EventType {
  * Toggle 是一个 CheckBox，当它和 ToggleGroup 一起使用的时候，可以变成 RadioButton。
  */
 @ccclass('cc.ToggleComponent')
+@help('i18n:cc.ToggleComponent')
 @executionOrder(110)
 @menu('UI/Toggle')
 @requireComponent(UITransformComponent)

@@ -30,7 +30,7 @@
 
 import { CameraComponent } from '../../3d/framework/camera-component';
 import { RenderTexture } from '../../assets/render-texture';
-import { ccclass, disallowMultiple, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../data/class-decorator';
+import { ccclass, help, disallowMultiple, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../data/class-decorator';
 import { director, Director } from '../../director';
 import { game } from '../../game';
 import { GFXClearFlag } from '../../gfx/define';
@@ -70,6 +70,7 @@ const RenderMode = Enum({
  * UI 的视距范围是 -999 ～ 1000.
  */
 @ccclass('cc.CanvasComponent')
+@help('i18n:cc.CanvasComponent')
 @executionOrder(100)
 @requireComponent(UITransformComponent)
 @menu('UI/Canvas')

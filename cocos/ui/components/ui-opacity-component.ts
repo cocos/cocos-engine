@@ -3,7 +3,7 @@
  */
 
 import { Component } from '../../core/components/component';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 
 /**
  * @en
@@ -15,6 +15,7 @@ import { ccclass, executeInEditMode, executionOrder, menu, property } from '../.
  * UI 透明度设置组件。可以通过该组件设置透明度来影响后续的渲染节点。已经带有渲染组件的节点可以直接修改 color 的 alpha 通道。
  */
 @ccclass('cc.UIOpacityComponent')
+@help('i18n:cc.UIOpacityComponent')
 @executionOrder(110)
 @menu('UI/UIOpacity')
 @executeInEditMode
