@@ -59,7 +59,12 @@ class ParticleAssembler extends Assembler {
     fillBuffers (comp, renderer) {
         if (!this._ia) return;
         
-        renderer.node = comp.node;
+        const PositionType = cc.ParticleSystem.PositionType;
+        if (comp.positionType === PositionType.RELATIVE) {
+            renderer.node = comp.node.parent;
+        } else {
+            renderer.node = comp.node;
+        }
         renderer.material = comp._materials[0];
         renderer._flushIA(this._ia);
     }
