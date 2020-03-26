@@ -56,11 +56,17 @@ async function searchDependFiles(tmxFile, tmxFileData, cb) {
         textures.push(imgPath);
 
         // Since it is possible to compress the texture at build time, meta file must save the original size of the texture when importing it
-        let metaData = await Sharp(imgPath).metadata();
-        textureSizes.push(cc.size(
-            metaData.width,
-            metaData.height
-        ));
+        if (Fs.existsSync(imgPath)) {
+          let metaData = await Sharp(imgPath).metadata();
+          textureSizes.push(cc.size(
+              metaData.width,
+              metaData.height
+          ));
+        } else {
+          // The image file does not exist
+          textureSizes.push(cc.size(0,0));
+          Editor.warn("Can not find image file %s", imgPath);
+        }
 
         let textureName = Path.relative(Path.dirname(sourcePath), imgPath);
         textureName = textureName.replace(/\\/g, '\/');

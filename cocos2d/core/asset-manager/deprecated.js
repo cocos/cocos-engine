@@ -291,7 +291,7 @@ const loader = {
         cc.assetManager.loadResDir(url, type, onProgress, function (err, assets) {
             var urls = [];
             if (!err) {
-                var infos = cc.assetManager.bundles.get(cc.AssetManager.BuiltinBundle.RESOURCES).config.getDirWithPath(url, type);
+                var infos = cc.assetManager.resources.config.getDirWithPath(url, type);
                 urls = infos.map(function (info) {
                     return info.path;
                 });
@@ -583,11 +583,11 @@ var AssetLibrary = {
         if (options.rawAssets) {
             var resources = new cc.AssetManager.Bundle();
             resources.init({
-                name: cc.AssetManager.BuiltinBundle.RESOURCES,
+                name: cc.AssetManager.BuiltinBundleName.RESOURCES,
                 importBase: options.importBase,
                 nativeBase: options.nativeBase,
                 paths: options.rawAssets.assets,
-                uuids: Object.keys(options.rawAssets.assets)
+                uuids: Object.keys(options.rawAssets.assets),
             });
         }
     },
@@ -636,12 +636,7 @@ cc.url = {
     raw (url) {
         cc.warnID(1400, 'cc.url.raw', 'cc.assetManager.loadRes');
         if (url.startsWith('resources/')) {
-            return cc.assetManager.transform({
-                'path': cc.path.changeExtname(url.substr(10)),
-                bundle: cc.AssetManager.BuiltinBundle.RESOURCES,
-                isNative: true,
-                ext: cc.path.extname(url)
-            });
+            return cc.assetManager.transform({'path': cc.path.changeExtname(url.substr(10)), bundle: cc.AssetManager.BuiltinBundle.RESOURCES, isNative: true, ext: cc.path.extname(url)});
         }
         return '';
     }
@@ -715,18 +710,22 @@ js.obsolete(cc.Asset.prototype, 'cc.Asset.url', 'nativeUrl');
  * @class macro
  * @static
  */
-/**
- * `cc.macro.DOWNLOAD_MAX_CONCURRENT` is deprecated, please use {{#crossLink "Downloader/limitations:property"}}{{/crossLink}} instead
- *
- * @property {Number} DOWNLOAD_MAX_CONCURRENT
- * @deprecated `cc.macro.DOWNLOAD_MAX_CONCURRENT` is deprecated, please use `cc.assetManager.downloader.limitations` instead
- */
-Object.defineProperty(cc.macro, 'DOWNLOAD_MAX_CONCURRENT', {
-    get () {
-        return cc.assetManager.downloader.limitations[cc.AssetManager.LoadStrategy.NORMAL].maxConcurrent;
-    },
-    set (val) {
-        cc.assetManager.downloader.limitations[cc.AssetManager.LoadStrategy.NORMAL].maxConcurrent = val;
+Object.defineProperties(cc.macro, {
+    /**
+     * `cc.macro.DOWNLOAD_MAX_CONCURRENT` is deprecated now, please use {{#crossLink "Downloader/limitations:property"}}{{/crossLink}} instead
+     * 
+     * @property DOWNLOAD_MAX_CONCURRENT
+     * @type {Number}
+     * @deprecated `cc.macro.DOWNLOAD_MAX_CONCURRENT` is deprecated now, please use `cc.assetManager.downloader.limitations` instead
+     */
+    DOWNLOAD_MAX_CONCURRENT: {
+        get () {
+            return cc.assetManager.downloader.limitations[cc.AssetManager.LoadStrategy.NORMAL].maxConcurrent;
+        },
+
+        set (val) {
+            cc.assetManager.downloader.limitations[cc.AssetManager.LoadStrategy.NORMAL].maxConcurrent = val;
+        }
     }
 });
 
@@ -755,13 +754,23 @@ Object.assign(cc.director, {
      * @deprecated `cc.director._getSceneUuid` is deprecated, please use `config.getSceneInfo` instead
      */
     _getSceneUuid (sceneName) {
-        // cc.warnID(1400, '_getSceneUuid', '`cc.assetManager.bundles.get(cc.AssetManager.BuiltinBundle.MAIN).config.getSceneInfo(sceneName)`');
         cc.assetManager.bundles.get(cc.AssetManager.BuiltinBundle.MAIN).config.getSceneInfo(sceneName);
     }
 });
 
-js.get(cc.game, '_sceneInfos', function () {
-    return cc.assetManager.bundles.get(cc.AssetManager.BuiltinBundle.MAIN).config.scenes.slice();
+Object.defineProperties(cc.game, {
+    /**
+     * @deprecated `cc.game._sceneInfos` is deprecated now, please use `config.scenes` instead
+     */
+    _sceneInfos: {
+        get () {
+            var scenes = [];
+            cc.assetManager.bundles.get(cc.AssetManager.BuiltinBundle.MAIN).config.scenes.forEach(function (val) {
+                scenes.push(val);
+            });
+            return scenes;
+        }
+    }
 });
 
 var parseParameters = utilities.parseParameters;

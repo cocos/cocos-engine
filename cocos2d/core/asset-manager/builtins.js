@@ -24,7 +24,7 @@
  ****************************************************************************/
 const Cache = require('./cache');
 const finalizer = require('./finalizer');
-const { BuiltinBundle } = require('./shared'); 
+const { BuiltinBundleName } = require('./shared'); 
 
 /**
  * @module cc.AssetManager
@@ -45,7 +45,7 @@ var builtins = {
     _loadBuiltins (name, cb) {
         let dirname = name  + 's';
         let builtin = this._assets.get(name);
-        return cc.assetManager.bundles.get(BuiltinBundle.INTERNAL).loadDir(dirname, null, null, (err, assets) => {
+        return cc.assetManager.internal.loadDir(dirname, null, null, (err, assets) => {
             if (err) {
                 cc.error(err);
             }
@@ -76,7 +76,7 @@ var builtins = {
      */
     init (cb) {
         this.clear();
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS || !cc.assetManager.bundles.has(BuiltinBundle.INTERNAL)) {
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS || !cc.assetManager.bundles.has(BuiltinBundleName.INTERNAL)) {
             return cb && cb();
         }
 

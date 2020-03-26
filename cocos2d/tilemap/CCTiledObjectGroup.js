@@ -188,6 +188,7 @@ let TiledObjectGroup = cc.Class({
                     textNode = new cc.Node();
                 }
 
+                textNode.active = object.visible;
                 textNode.anchorX = 0;
                 textNode.anchorY = 1;
                 textNode.angle = -object.rotation;
@@ -247,6 +248,7 @@ let TiledObjectGroup = cc.Class({
                     imgNode.anchorX = tileOffsetX / imgWidth;
                     imgNode.anchorY = tileOffsetY / imgHeight;
                 }
+                imgNode.active = object.visible;
                 imgNode.angle = -object.rotation;
                 imgNode.x = object.x - leftTopX;
                 imgNode.y = object.y - leftTopY;
