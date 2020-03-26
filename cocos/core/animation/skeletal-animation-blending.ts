@@ -6,7 +6,7 @@ import { IValueProxyFactory } from './value-proxy';
 export class BlendStateBuffer {
     private _nodeBlendStates: Map<Node, NodeBlendState> = new Map();
 
-    ref (node: Node, property: BlendingProperty) {
+    public ref (node: Node, property: BlendingProperty) {
         let nodeBlendState = this._nodeBlendStates.get(node);
         if (!nodeBlendState) {
             nodeBlendState = {  properties: {} };
@@ -24,7 +24,7 @@ export class BlendStateBuffer {
         return propertyBlendState;
     }
 
-    deRef (node: Node, property: BlendingProperty) {
+    public deRef (node: Node, property: BlendingProperty) {
         const nodeBlendState = this._nodeBlendStates.get(node);
         if (!nodeBlendState) {
             return;
@@ -43,7 +43,7 @@ export class BlendStateBuffer {
         }
     }
 
-    apply () {
+    public apply () {
         this._nodeBlendStates.forEach((nodeBlendState, node) => {
             const { position, scale, rotation } = nodeBlendState.properties;
             if (position && position.weight !== 0) {
@@ -65,23 +65,29 @@ export class BlendStateBuffer {
 export type IBlendStateWriter = IValueProxyFactory & {
     start: () => void;
     stop: () => void;
-}
+};
 
 export function createBlendStateWriter<P extends BlendingProperty>(
     blendState: BlendStateBuffer,
     node: Node,
     property: P,
-    weightProxy: { weight: number; }
+    weightProxy: { weight: number; },
+    /**
+     * True if this writer will write constant value each time.
+     */
+    constants: boolean,
     ): IBlendStateWriter {
     const blendFunction: BlendFunction<BlendingPropertyValue<P>> =
         (property === 'position' || property === 'scale') ?
             additive3D as any:
             additiveQuat as any;
     let propertyBlendState: PropertyBlendState<BlendingPropertyValue<P>> | null = null;
+    let isConstCacheValid = false;
     return {
         start : () => {
             if (!propertyBlendState) {
                 propertyBlendState = blendState.ref(node, property);
+                isConstCacheValid = false;
             }
         },
         stop: () => {
@@ -94,8 +100,20 @@ export function createBlendStateWriter<P extends BlendingProperty>(
             return {
                 set: (value: BlendingPropertyValue<P>) => {
                     if (propertyBlendState) {
+                        if (constants) {
+                            if (propertyBlendState.refCount !== 1) {
+                                // If there are multi writer for this property at this time,
+                                // we should invalidate the cache.
+                                isConstCacheValid = false;
+                            } else if (isConstCacheValid) {
+                                // Otherwise, we may keep to use the cache.
+                                // i.e we leave the weight to 0 to prevent the property from modifying.
+                                return;
+                            }
+                        }
                         blendFunction(value, weightProxy.weight, propertyBlendState);
                         propertyBlendState.weight += weightProxy.weight;
+                        isConstCacheValid = true;
                     }
                 },
             };
@@ -110,6 +128,10 @@ type BlendingPropertyValue<P extends BlendingProperty> = NonNullable<NodeBlendSt
 interface PropertyBlendState<T> {
     weight: number;
     value: T;
+
+    /**
+     * How many writer reference this property.
+     */
     refCount: number;
 }
 

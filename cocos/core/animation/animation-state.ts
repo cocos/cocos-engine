@@ -389,6 +389,7 @@ export class AnimationState extends Playable {
                         targetNode,
                         propertyName,
                         this,
+                        propertyCurve.curve.constant(),
                     );
                     this._blendStateWriters.push(blendStateWriter);
                     boundTarget = createBoundTarget(rootTarget, [], blendStateWriter);
