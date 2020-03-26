@@ -31,7 +31,7 @@ import { EDITOR } from 'internal:constants';
 import { RenderTexture } from '../../assets/render-texture';
 import { UITransformComponent } from '../../components';
 import { Component } from '../../components/component';
-import { ccclass, executeInEditMode, menu, property } from '../../data/class-decorator';
+import { ccclass, help, executeInEditMode, menu, property } from '../../data/class-decorator';
 import { ray } from '../../geometry';
 import { GFXClearFlag } from '../../gfx/define';
 import { GFXWindow } from '../../gfx/window';
@@ -75,6 +75,7 @@ const CameraClearFlag = Enum({
  * @zh 相机组件。
  */
 @ccclass('cc.CameraComponent')
+@help('i18n:cc.CameraComponent')
 @menu('Components/Camera')
 @executeInEditMode
 export class CameraComponent extends Component {

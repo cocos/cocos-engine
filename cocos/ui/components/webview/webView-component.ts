@@ -29,7 +29,7 @@
  */
 
 import { EventHandler } from '../../../core/components/component-event-handler';
-import { ccclass, executionOrder, menu, property } from '../../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, property } from '../../../core/data/class-decorator';
 import { UIComponent } from '../../../core/components/ui-base/ui-component';
 import { WebViewEventType, WebViewImpl } from './webview-impl';
 import { EDITOR } from 'internal:constants';
@@ -71,6 +71,7 @@ function emptyCallback () { }
  */
 
 @ccclass('cc.WebviewComponent')
+@help('i18n:cc.WebviewComponent')
 @menu('UI/WebView')
 @executionOrder(100)
 // @executeInEditMode

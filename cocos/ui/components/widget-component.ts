@@ -30,7 +30,7 @@
 
 import { Component} from '../../core/components';
 import { UITransformComponent } from '../../core/components/ui-base/ui-transform-component';
-import { ccclass, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../core/data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, property, requireComponent } from '../../core/data/class-decorator';
 import { Size, Vec3 } from '../../core/math';
 import { errorID } from '../../core/platform/debug';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
@@ -200,6 +200,7 @@ const LEFT_RIGHT = AlignFlags.LEFT | AlignFlags.RIGHT;
  * Widget 会自动调整当前节点的坐标和宽高，不过目前调整后的结果要到下一帧才能在脚本里获取到，除非你先手动调用 [[updateAlignment]]。
  */
 @ccclass('cc.WidgetComponent')
+@help('i18n:cc.WidgetComponent')
 @executionOrder(110)
 @menu('UI/Widget')
 @requireComponent(UITransformComponent)

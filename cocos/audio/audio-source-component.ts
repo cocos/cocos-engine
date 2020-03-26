@@ -28,7 +28,7 @@
  */
 
 import { Component } from '../core/components/component';
-import { ccclass, menu, property } from '../core/data/class-decorator';
+import { ccclass, help, menu, property } from '../core/data/class-decorator';
 import { clamp } from '../core/math';
 import { AudioClip } from './assets/clip';
 
@@ -40,6 +40,7 @@ import { AudioClip } from './assets/clip';
  * 音频组件，代表单个音源，提供播放、暂停、停止等基本功能。
  */
 @ccclass('cc.AudioSourceComponent')
+@help('i18n:cc.AudioSourceComponent')
 @menu('Components/AudioSource')
 export class AudioSourceComponent extends Component {
     @property(AudioClip)
