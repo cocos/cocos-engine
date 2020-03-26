@@ -489,7 +489,8 @@ Bundle.prototype = {
     releaseAll (force) {
         var self = this;
         assets.forEach(function (asset) {
-            if (self.config.getAssetInfo(asset.uuid)) {
+            let info = self.config.getAssetInfo(asset._uuid)
+            if (info && !info.redirect) {
                 finalizer.release(asset, force);
             }
         });
