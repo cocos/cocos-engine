@@ -2,6 +2,7 @@
 /bin
 /web.config
 .idea
+.history
 .DS_Store
 build
 aspnet_client

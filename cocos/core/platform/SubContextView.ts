@@ -28,7 +28,7 @@
  */
 
 import { Component } from '../components/component';
-import { property, ccclass, menu, executionOrder, requireComponent } from '../data/class-decorator';
+import { property, ccclass, help, menu, executionOrder, requireComponent } from '../data/class-decorator';
 import { view } from './view';
 import { SpriteComponent } from '../../ui/components/sprite-component';
 import { Node } from '../scene-graph';
@@ -59,6 +59,7 @@ import { Rect } from '../math';
  * 唯一需要注意的是，当子域节点的包围盒发生改变时，开发者需要使用 `updateSubContextViewport` 来手动更新子域视窗。
  */
 @ccclass('cc.SubContextView')
+@help('i18n:cc.SubContextView')
 @executionOrder(110)
 @requireComponent(UITransformComponent)
 @menu('Components/SubContextView')

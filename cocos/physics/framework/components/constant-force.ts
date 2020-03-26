@@ -4,6 +4,7 @@
 
 import {
     ccclass,
+    help,
     executeInEditMode,
     executionOrder,
     menu,
@@ -21,6 +22,7 @@ import { PHYSICS_BUILTIN } from 'internal:constants';
  * 在每帧对一个刚体施加持续的力，依赖 RigidBodyComponent 组件
  */
 @ccclass('cc.ConstantForce')
+@help('i18n:cc.ConstantForce')
 @executionOrder(98)
 @requireComponent(RigidBodyComponent)
 @menu('Physics/ConstantForce')

@@ -26,12 +26,13 @@
  * @category component/light
  */
 
-import { ccclass, executeInEditMode, menu, property } from '../../data/class-decorator';
+import { ccclass, help, executeInEditMode, menu, property } from '../../data/class-decorator';
 import { LightType, nt2lm } from '../../renderer/scene/light';
 import { SphereLight } from '../../renderer/scene/sphere-light';
 import { LightComponent, PhotometricTerm } from './light-component';
 
 @ccclass('cc.SphereLightComponent')
+@help('i18n:cc.SphereLightComponent')
 @menu('Light/SphereLight')
 @executeInEditMode
 export class SphereLightComponent extends LightComponent {
