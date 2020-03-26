@@ -484,7 +484,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
 
         this._rotated = rotated || false;
 
-        if (typeof texture === 'string' && texture) {
+        if (typeof texture === 'string') {
             cc.errorID(3401);
             return;
         }
