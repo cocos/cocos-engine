@@ -4,7 +4,7 @@
 
 import { MeshBuffer } from '../../../ui';
 import { Material } from '../../assets/material';
-import { GFXPipelineState, GFXTextureView } from '../../gfx';
+import { GFXPipelineState, GFXTextureView, GFXSampler } from '../../gfx';
 import { GFXBindingLayout } from '../../gfx/binding-layout';
 import { Node } from '../../scene-graph';
 import { Camera } from '../scene/camera';
@@ -17,6 +17,7 @@ export class UIDrawBatch {
     public model: Model | null = null;
     public material: Material | null = null;
     public texView: GFXTextureView | null = null;
+    public sampler: GFXSampler | null = null;
     public firstIdx: number = 0;
     public idxCount: number = 0;
     public pipelineState: GFXPipelineState | null = null;
@@ -44,6 +45,7 @@ export class UIDrawBatch {
         this.bufferBatch = null;
         this.material = null;
         this.texView = null;
+        this.sampler = null;
         this.firstIdx = 0;
         this.idxCount = 0;
         this.model = null;

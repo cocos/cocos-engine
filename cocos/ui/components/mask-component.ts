@@ -57,22 +57,30 @@ function _calculateCircle (center: Vec3, radius: Vec3, segments: number) {
     return _circlePoints;
 }
 /**
+ * @en The type for mask.
+ *
  * @zh 遮罩组件类型。
  */
 export enum MaskType {
     /**
+     * @en Rect mask.
+     *
      * @zh
      * 使用矩形作为遮罩。
      */
     RECT = 0,
 
     /**
+     * @en Ellipse Mask.
+     *
      * @zh
      * 使用椭圆作为遮罩。
      */
     ELLIPSE = 1,
 
     /**
+     * @en Ellipse Mask.
+     *
      * @zh
      * 使用图像模版作为遮罩。
      */
@@ -85,15 +93,20 @@ const SEGMENTS_MIN = 3;
 const SEGMENTS_MAX = 10000;
 
 /**
+ * @en
+ * The Mask Component.
+ *
  * @zh
  * 遮罩组件。
- * 可通过 cc.MaskComponent 获得该组件。
  */
 @ccclass('cc.MaskComponent')
 @executionOrder(110)
 @menu('UI/Render/Mask')
 export class MaskComponent extends UIRenderComponent {
     /**
+     * @en
+     * The mask type.
+     *
      * @zh
      * 遮罩类型。
      */
@@ -120,6 +133,9 @@ export class MaskComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * Reverse mask (Not supported Canvas Mode)
+     * .
      * @zh
      * 反向遮罩（不支持 Canvas 模式）。
      */
@@ -140,6 +156,9 @@ export class MaskComponent extends UIRenderComponent {
     }
 
     /**
+     * @en
+     * The segments for ellipse mask.
+     *
      * TODO: remove segments, not supported by graphics
      * @zh
      * 椭圆遮罩的曲线细分数。

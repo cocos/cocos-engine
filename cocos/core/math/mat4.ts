@@ -316,7 +316,7 @@ export class Mat4 extends ValueType {
         if (a === out) {
             out.m12 += v.x;
             out.m13 += v.y;
-            out.m14 += v.y;
+            out.m14 += v.z;
         } else {
             out.m00 = a.m00; out.m01 = a.m01; out.m02 = a.m02; out.m03 = a.m03;
             out.m04 = a.m04; out.m05 = a.m05; out.m06 = a.m06; out.m07 = a.m07;
@@ -1437,17 +1437,18 @@ export class Mat4 extends ValueType {
         m12 = 0, m13 = 0, m14 = 0, m15 = 1) {
         super();
         if (typeof m00 === 'object') {
-            this.m01 = m00.m01; this.m02 = m00.m02; this.m03 = m00.m03; this.m04 = m00.m04;
-            this.m05 = m00.m05; this.m06 = m00.m06; this.m07 = m00.m07; this.m08 = m00.m08;
-            this.m09 = m00.m09; this.m10 = m00.m10; this.m11 = m00.m11; this.m12 = m00.m12;
-            this.m13 = m00.m13; this.m14 = m00.m14; this.m15 = m00.m15; this.m00 = m00.m00;
+            this.m00 = m00.m00; this.m01 = m00.m01; this.m02 = m00.m02; this.m03 = m00.m03;
+            this.m04 = m00.m04; this.m05 = m00.m05; this.m06 = m00.m06; this.m07 = m00.m07;
+            this.m08 = m00.m08; this.m09 = m00.m09; this.m10 = m00.m10; this.m11 = m00.m11;
+            this.m12 = m00.m12; this.m13 = m00.m13; this.m14 = m00.m14; this.m15 = m00.m15;
         } else {
-            this.m01 = m01; this.m02 = m02; this.m03 = m03; this.m04 = m04;
-            this.m05 = m05; this.m06 = m06; this.m07 = m07; this.m08 = m08;
-            this.m09 = m09; this.m10 = m10; this.m11 = m11; this.m12 = m12;
-            this.m13 = m13; this.m14 = m14; this.m15 = m15; this.m00 = m00;
+            this.m00 = m00; this.m01 = m01; this.m02 = m02; this.m03 = m03;
+            this.m04 = m04; this.m05 = m05; this.m06 = m06; this.m07 = m07;
+            this.m08 = m08; this.m09 = m09; this.m10 = m10; this.m11 = m11;
+            this.m12 = m12; this.m13 = m13; this.m14 = m14; this.m15 = m15;
         }
     }
+
     /**
      * @zh 克隆当前矩阵。
      */

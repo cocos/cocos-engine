@@ -33,6 +33,8 @@ module.exports = {
         default_clip: 'When checking, the deault animation clip is automatically played.',
         clips: 'You can access and play animation clips via a script',
         play_on_load: 'Automatically play animation clip with the scene is loaded',
+        use_baked_animation: 'Whether to bake animations. Default to true,\nwhich substantially increases performance while making all animations completely fixed',
+        sockets: 'The joint sockets this animation component maintains.\nSockets have to be registered before attaching custom nodes to animated joints',
     },
     audio: {
         clip: 'The default AudioClip to be played for this audio source',

@@ -38,6 +38,7 @@ import { initPacks } from '../load-pipeline/pack-downloader';
 import { SubPackPipe } from '../load-pipeline/subpackage-pipe';
 import { Asset } from './asset';
 import * as debug from '../platform/debug';
+import { EDITOR, TEST, BUILD } from 'internal:constants';
 
 // tslint:disable: max-line-length
 
@@ -117,7 +118,7 @@ const AssetLibrary = {
             }
             else {
                 if (asset.constructor === cc.SceneAsset) {
-                    if (CC_EDITOR && !asset.scene) {
+                    if (EDITOR && !asset.scene) {
                         debug.error('Sorry, the scene data of "%s" is corrupted!', uuid);
                     }
                     else {
@@ -137,14 +138,14 @@ const AssetLibrary = {
      * 获取资源的 url。
      */
     getLibUrlNoExt (uuid, inRawAssetsDir?: boolean) {
-        if (CC_BUILD) {
+        if (BUILD) {
             uuid = decodeUuid(uuid);
         }
         const uuids = uuid.split('@').map((name) => {
             return encodeURIComponent(name);
         });
         uuid = uuids.join('@');
-        const base = (CC_BUILD && inRawAssetsDir) ? (_rawAssetsBase + 'assets/') : _libraryBase;
+        const base = (BUILD && inRawAssetsDir) ? (_rawAssetsBase + 'assets/') : _libraryBase;
         return base + uuid.slice(0, 2) + '/' + uuid;
     },
 
@@ -155,7 +156,7 @@ const AssetLibrary = {
      * @protected
      */
     _queryAssetInfoInEditor (uuid, callback) {
-        if (CC_EDITOR) {
+        if (EDITOR) {
             EditorExtends.Asset.queryAssetInfo(uuid, (error: Error, info: any) => {
                 if (error) {
                     const loadError: any = new Error('Can not get asset url by uuid "' + uuid + '", the asset may be deleted.');
@@ -216,7 +217,7 @@ const AssetLibrary = {
      * @param {Function} callback.ctorInEditor - the actual type of asset, used in editor only
      */
     queryAssetInfo (uuid, callback) {
-        if (CC_EDITOR && !CC_TEST) {
+        if (EDITOR && !TEST) {
             this._queryAssetInfoInEditor(uuid, callback);
         }
         else {
@@ -233,7 +234,7 @@ const AssetLibrary = {
      * @param url 资源地址。
      */
     parseUuidInEditor (url) {
-        if (CC_EDITOR) {
+        if (EDITOR) {
             let uuid = '';
             const isImported = url.startsWith(_libraryBase);
             if (isImported) {
@@ -283,7 +284,7 @@ const AssetLibrary = {
                     const key = cc.loader._getReferenceKey(randomUuid);
                     asset.scene.dependAssets = getDependsRecursively(key);
                 }
-                if (CC_EDITOR || isScene(asset)) {
+                if (EDITOR || isScene(asset)) {
                     const id = cc.loader._getReferenceKey(randomUuid);
                     cc.loader.removeItem(id);
                 }
@@ -323,7 +324,7 @@ const AssetLibrary = {
      * @param {String} [options.packedAssets] - packed assets (only used in runtime)
      */
     init (options) {
-        if (CC_EDITOR && _libraryBase) {
+        if (EDITOR && _libraryBase) {
             cc.errorID(6402);
             return;
         }
@@ -368,8 +369,10 @@ const AssetLibrary = {
             cc.loader.md5Pipe = md5Pipe;
         }
 
-        if (options.subpackages) {
-            const subPackPipe = new SubPackPipe(options.subpackages);
+        const subPackages = options.subpackages;
+        if (subPackages) {
+            cc.loader.downloader.setSubPackages(subPackages);
+            const subPackPipe = new SubPackPipe(subPackages);
             cc.loader.insertPipeAfter(cc.loader.assetLoader, subPackPipe);
             cc.loader.subPackPipe = subPackPipe;
         }
@@ -419,7 +422,7 @@ const AssetLibrary = {
 };
 
 // 暂时屏蔽，因为目前没有缓存任何asset
-// if (CC_DEV && Asset.prototype._onPreDestroy) {
+// if (DEV && Asset.prototype._onPreDestroy) {
 //    cc.error('_onPreDestroy of Asset has already defined');
 // }
 // Asset.prototype._onPreDestroy = function () {

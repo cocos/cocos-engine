@@ -45,6 +45,7 @@ import ComponentScheduler from './scene-graph/component-scheduler';
 import NodeActivator from './scene-graph/node-activator';
 import { Scheduler } from './scheduler';
 import { js } from './utils';
+import { DEBUG, EDITOR, BUILD } from 'internal:constants';
 
 // const ComponentScheduler = require('./component-scheduler');
 // const NodeActivator = require('./node-activator');
@@ -308,7 +309,6 @@ export class Director extends EventTarget {
         });
 
         cc.game.once(Game.EVENT_RENDERER_INITED, this._initOnRendererInitialized, this);
-        cc.game.once(Game.EVENT_ENGINE_INITED, this._initOnEngineInitialized, this);
     }
 
     /**
@@ -318,7 +318,7 @@ export class Director extends EventTarget {
         const now = performance.now();
 
         this._deltaTime = (now - this._lastUpdate) / 1000;
-        if (CC_DEBUG && (this._deltaTime > 1)) {
+        if (DEBUG && (this._deltaTime > 1)) {
             this._deltaTime = 1 / 60.0;
         }
 
@@ -447,7 +447,7 @@ export class Director extends EventTarget {
 
         // cc.renderer.clear();
 
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             if (cc.isValid(this._scene)) {
                 this._scene!.destroy();
             }
@@ -497,16 +497,16 @@ export class Director extends EventTarget {
         // Scene cannot be cached in loader, because it will be destroyed after switching.
         cc.loader.removeItem(uuid);
 
-        if (CC_BUILD && CC_DEBUG) {
+        if (BUILD && DEBUG) {
             console.time('InitScene');
         }
         // @ts-ignore
         scene._load();  // ensure scene initialized
-        if (CC_BUILD && CC_DEBUG) {
+        if (BUILD && DEBUG) {
             console.timeEnd('InitScene');
         }
         // Re-attach or replace persist nodes
-        if (CC_BUILD && CC_DEBUG) {
+        if (BUILD && DEBUG) {
             console.time('AttachPersist');
         }
         const persistNodeList = Object.keys(cc.game._persistRootNodes).map((x) => {
@@ -527,24 +527,24 @@ export class Director extends EventTarget {
                 node.parent = scene;
             }
         }
-        if (CC_BUILD && CC_DEBUG) {
+        if (BUILD && DEBUG) {
             console.timeEnd('AttachPersist');
         }
         const oldScene = this._scene;
-        if (!CC_EDITOR) {
+        if (!EDITOR) {
             // auto release assets
-            if (CC_BUILD && CC_DEBUG) {
+            if (BUILD && DEBUG) {
                 console.time('AutoRelease');
             }
             const autoReleaseAssets = oldScene && oldScene.autoReleaseAssets && oldScene.dependAssets;
             autoRelease(autoReleaseAssets, scene.dependAssets, persistNodeList);
-            if (CC_BUILD && CC_DEBUG) {
+            if (BUILD && DEBUG) {
                 console.timeEnd('AutoRelease');
             }
         }
 
         // unload scene
-        if (CC_BUILD && CC_DEBUG) {
+        if (BUILD && DEBUG) {
             console.time('Destroy');
         }
         if (cc.isValid(oldScene)) {
@@ -555,7 +555,7 @@ export class Director extends EventTarget {
 
         // purge destroyed nodes belongs to old scene
         CCObject._deferredDestroy();
-        if (CC_BUILD && CC_DEBUG) { console.timeEnd('Destroy'); }
+        if (BUILD && DEBUG) { console.timeEnd('Destroy'); }
 
         if (onBeforeLoadScene) {
             onBeforeLoadScene();
@@ -565,12 +565,12 @@ export class Director extends EventTarget {
         // Run an Entity Scene
         this._scene = scene;
 
-        if (CC_BUILD && CC_DEBUG) {
+        if (BUILD && DEBUG) {
             console.time('Activate');
         }
         // @ts-ignore
         scene._activate();
-        if (CC_BUILD && CC_DEBUG) {
+        if (BUILD && DEBUG) {
             console.timeEnd('Activate');
         }
         // start scene
@@ -759,10 +759,10 @@ export class Director extends EventTarget {
         let onUnloaded: Director.OnUnload | undefined;
         let doNotRun: boolean | undefined;
 
-        if (CC_EDITOR && typeof arg1 === 'boolean') {
+        if (EDITOR && typeof arg1 === 'boolean') {
             doNotRun = arg1;
             onUnloaded = arg2 as (Director.OnUnload | undefined);
-        } else if (CC_EDITOR && typeof arg2 === 'boolean') {
+        } else if (EDITOR && typeof arg2 === 'boolean') {
             doNotRun = arg2;
             onLaunched = arg1 as (Director.OnSceneLaunched | undefined);
         } else {
@@ -786,7 +786,7 @@ export class Director extends EventTarget {
                     const scene = sceneAsset.scene;
                     scene._id = sceneAsset._uuid;
                     scene._name = sceneAsset._name;
-                    if (CC_EDITOR) {
+                    if (EDITOR) {
                         if (!doNotRun) {
                             self.runSceneImmediate(scene, onUnloaded, onLaunched);
                         }
@@ -1083,7 +1083,7 @@ export class Director extends EventTarget {
         this.emit(Director.EVENT_INIT);
     }
 
-    private _initOnEngineInitialized () {
+    private _init () {
         cc.loader.init(this);
         this._root = new Root(cc.game._gfxDevice);
         const rootInfo = {};

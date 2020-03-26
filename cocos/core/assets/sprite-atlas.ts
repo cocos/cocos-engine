@@ -57,7 +57,7 @@ export class SpriteAtlas extends Asset {
 
     /**
      * @zh
-     * 获取精灵图集的贴图。
+     * 获取精灵图集的贴图。请注意，由于结构调整优化，在 v1.1 版本之前，此函数的返回值为 imageAsset，在 v1.1 版本之后修正为 texture，想要获取 imageAsset 可使用 getTexture().image 获取
      *
      * @returns - 精灵贴图。
      */
@@ -65,7 +65,7 @@ export class SpriteAtlas extends Asset {
         const keys = Object.keys(this.spriteFrames);
         if (keys.length > 0) {
             const spriteFrame = this.spriteFrames[keys[0]];
-            return spriteFrame && spriteFrame._image;
+            return spriteFrame && spriteFrame.texture;
         }
         else {
             return null;

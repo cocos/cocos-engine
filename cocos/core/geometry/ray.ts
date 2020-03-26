@@ -7,6 +7,8 @@ import enums from './enums';
 import { IVec3Like } from '../math/type-define';
 
 /**
+ * @en
+ * Basic Geometry: ray.
  * @zh
  * 基础几何 射线。
  */
@@ -103,20 +105,37 @@ export default class ray {
     }
 
     /**
+     * @en
+     * The origin of the ray.
      * @zh
      * 起点。
      */
     public o: Vec3;
 
     /**
+     * @en
+     * The direction of the ray.
      * @zh
      * 方向。
      */
     public d: Vec3;
 
-    private _type: number;
+    /**
+     * @en
+     * Gets the type of the shape.
+     * @zh
+     * 获取形状的类型。
+     */
+    get type () {
+        return this._type;
+    }
+
+    protected readonly _type: number;
 
     /**
+     * @en
+     * Construct a ray;
+     * @zh
      * 构造一条射线。
      * @param {number} ox 起点的 x 部分。
      * @param {number} oy 起点的 y 部分。
@@ -132,6 +151,14 @@ export default class ray {
         this.d = new Vec3(dx, dy, dz);
     }
 
+    /**
+     * @en
+     * Compute a point with the distance between the origin.
+     * @zh
+     * 根据给定距离计算出射线上的一点。
+     * @param out 射线上的另一点。
+     * @param distance 给定距离。
+     */
     public computeHit (out: IVec3Like, distance: number) {
         Vec3.normalize(out, this.d)
         Vec3.scaleAndAdd(out, this.o, out, distance);

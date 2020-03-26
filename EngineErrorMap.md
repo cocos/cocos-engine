@@ -1071,7 +1071,7 @@ Failed to skip prefab asset while deserializing PrefabInfo
 
 ### 5000
 
-object already destroyed
+You are trying to destroy a object twice or more.
 
 ### 5001
 
@@ -1984,6 +1984,30 @@ The current buffer beyond the limit in ui static component, please reduce the am
 ### 9301
 
 The UI has not been initialized
+
+### 9302
+
+Can't getGFXSampler with out device
+
+### 9600
+
+[Physics]: please check to see if physics modules are included
+
+### 9610
+
+[Physics]: cannon.js physics system doesn't support capsule collider
+
+### 9611
+
+[Physics]: builtin physics system doesn't support mesh collider
+
+### 9612
+
+[Physics]: builtin physics system doesn't support cylinder collider
+
+### 9620
+
+[Physics][Ammo]: changing the mesh is not supported after the initialization is completed
 
 ### 10001
 

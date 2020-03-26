@@ -1,4 +1,4 @@
-import { replaceProperty, removeProperty } from "../../utils";
+import { replaceProperty, removeProperty, markAsWarning } from "../../utils";
 import { RenderScene } from "./render-scene";
 import { Layers } from "../../scene-graph";
 
@@ -32,6 +32,17 @@ removeProperty(RenderScene.prototype, 'RenderScene.prototype', [
     {
         'name': 'raycastUINode',
     }
+]);
+
+markAsWarning(RenderScene.prototype, 'RenderScene.prototype', [
+    { 'name': 'raycastAll', 'suggest': 'using intersect in geometry' },
+    { 'name': 'raycastAllModels', 'suggest': 'using intersect in geometry' },
+    { 'name': 'raycastSingleModel', 'suggest': 'using intersect in geometry' },
+    { 'name': 'raycastAllCanvas', 'suggest': 'using intersect in geometry' },
+    { 'name': 'rayResultCanvas' },
+    { 'name': 'rayResultModels' },
+    { 'name': 'rayResultAll' },
+    { 'name': 'rayResultSingleModel' },
 ]);
 
 const CameraVisFlags = {};

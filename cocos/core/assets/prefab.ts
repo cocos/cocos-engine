@@ -33,6 +33,7 @@ import { compile } from '../data/instantiate-jit';
 import { obsolete } from '../utils/js';
 import { Enum } from '../value-types';
 import { Asset } from './asset';
+import { SUPPORT_JIT, ALIPAY, RUNTIME_BASED } from 'internal:constants';
 
 /**
  * Prefab 创建实例所用的优化策略，配合 [[optimizationPolicy]] 使用。
@@ -157,7 +158,7 @@ export default class Prefab extends Asset {
     private _instantiate () {
         let node;
         let useJit: Boolean = false;
-        if (CC_SUPPORT_JIT) {
+        if (SUPPORT_JIT) {
             if (this.optimizationPolicy === OptimizationPolicy.SINGLE_INSTANCE) {
                 useJit = false;
             }
@@ -188,7 +189,7 @@ export default class Prefab extends Asset {
 }
 
 cc.Prefab = Prefab;
-if (CC_ALIPAY || CC_RUNTIME_BASED) {
+if (ALIPAY || RUNTIME_BASED) {
     cc._Prefab = Prefab;
 } else {
     obsolete(cc, 'cc._Prefab', 'Prefab');

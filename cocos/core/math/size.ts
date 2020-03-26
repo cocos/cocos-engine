@@ -37,12 +37,8 @@ import { ISizeLike } from './type-define';
  */
 export class Size extends ValueType {
 
-    /**
-     * 创建宽和高都为 0 的尺寸并返回。
-     */
-    static get ZERO () {
-        return new Size(0.0, 0.0);
-    }
+    public static ZERO = Object.freeze(new Size(0, 0));
+    public static ONE = Object.freeze(new Size(1, 1));
 
     /**
      * 根据指定的插值比率，从当前尺寸到目标尺寸之间做插值。

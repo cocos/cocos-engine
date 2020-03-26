@@ -48,23 +48,35 @@ import { UIComponent } from './ui-component';
 ccenum(GFXBlendFactor);
 
 /**
+ * @en
+ * The shader property type of the material after instantiation.
+ *
  * @zh
  * 实例后的材质的着色器属性类型。
  */
 export enum InstanceMaterialType {
     /**
+     * @en
+     * The shader only has color properties.
+     *
      * @zh
      * 着色器只带颜色属性。
      */
     ADDCOLOR = 0,
 
     /**
+     * @en
+     * The shader has color and texture properties.
+     *
      * @zh
      * 着色器带颜色和贴图属性。
      */
     ADDCOLORANDTEXTURE = 1,
 
     /**
+     * @en
+     * The shader has color and texture properties and uses grayscale mode.
+     *
      * @zh
      * 着色器带颜色和贴图属性,并使用灰度模式。
      */
@@ -78,14 +90,19 @@ const _matInsInfo: IMaterialInstanceInfo = {
 };
 
 /**
+ * @en
+ * Base class for components which supports rendering features.
+ *
  * @zh
  * 所有支持渲染的 UI 组件的基类。
- * 可通过 cc.UIRenderComponent 获得该组件。
  */
 @ccclass('cc.UIRenderComponent')
 export class UIRenderComponent extends UIComponent {
 
     /**
+     * @en
+     * Specifies the blend mode for the original image, it will clone a new material object.
+     *
      * @zh
      * 指定原图的混合模式，这会克隆一个新的材质对象，注意这带来的。
      *
@@ -114,6 +131,9 @@ export class UIRenderComponent extends UIComponent {
     }
 
     /**
+     * @en
+     * Specifies the blend mode for the target image.
+     *
      * @zh
      * 指定目标的混合模式。
      *
@@ -142,6 +162,9 @@ export class UIRenderComponent extends UIComponent {
     }
 
     /**
+     * @en
+     * Render color.
+     *
      * @zh
      * 渲染颜色。
      *
@@ -281,6 +304,9 @@ export class UIRenderComponent extends UIComponent {
     }
 
     /**
+     * @en
+     * Marks the render data of the current component as modified so that the render data is recalculated.
+     *
      * @zh
      * 标记当前组件的渲染数据为已修改状态，这样渲染数据才会重新计算。
      *
@@ -301,6 +327,9 @@ export class UIRenderComponent extends UIComponent {
     }
 
     /**
+     * @en
+     * Request a new render data.
+     *
      * @zh
      * 请求渲染数据。
      *
@@ -313,6 +342,9 @@ export class UIRenderComponent extends UIComponent {
     }
 
     /**
+     * @en
+     * Destroy render data.
+     *
      * @zh
      * 渲染数据销毁。
      */
@@ -325,6 +357,7 @@ export class UIRenderComponent extends UIComponent {
         this._renderData = null;
     }
 
+    // Don't call it unless you know your purpose.
     public updateAssembler (render: UI) {
         super.updateAssembler(render);
         if (this._renderFlag){
@@ -333,6 +366,7 @@ export class UIRenderComponent extends UIComponent {
         }
     }
 
+    // Don't call it unless you know your purpose.
     public postUpdateAssembler (render: UI) {
         super.postUpdateAssembler(render);
         if (this._renderFlag) {
@@ -340,13 +374,10 @@ export class UIRenderComponent extends UIComponent {
         }
     }
 
-    // 开始提交渲染数据给中转站
     protected _render (render: UI) { }
 
-    // 开始提交渲染数据给中转站
     protected _postRender (render: UI) { }
 
-    // 像组装器更新渲染数据
     protected _checkAndUpdateRenderData (){
         if (this._renderDataFlag) {
             this._assembler!.updateRenderData!(this);

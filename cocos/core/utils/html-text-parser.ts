@@ -24,6 +24,8 @@
  THE SOFTWARE.
 */
 
+import { TEST } from 'internal:constants';
+
 /**
  *
  */
@@ -364,6 +366,6 @@ export class HtmlTextParser {
     }
 }
 
-if (CC_TEST) {
+if (TEST) {
     cc._Test.HtmlTextParser = HtmlTextParser;
 }

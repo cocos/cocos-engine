@@ -35,6 +35,7 @@ import { EventListener } from './event-listener';
 import eventManager from './event-manager';
 import inputManager from './input-manager';
 import { Touch } from './touch';
+import { EDITOR } from 'internal:constants';
 
 let keyboardListener: EventListener | null = null;
 let accelerationListener: EventListener | null = null;
@@ -77,7 +78,7 @@ export class SystemEvent extends EventTarget {
      * @param {Boolean} isEnable
      */
     public setAccelerometerEnabled (isEnable: boolean) {
-        if (CC_EDITOR) {
+        if (EDITOR) {
             return;
         }
         inputManager.setAccelerometerEnabled(isEnable);
@@ -94,7 +95,7 @@ export class SystemEvent extends EventTarget {
      * @param {Number} interval
      */
     public setAccelerometerInterval (interval: number) {
-        if (CC_EDITOR) {
+        if (EDITOR) {
             return;
         }
         inputManager.setAccelerometerInterval(interval);
@@ -116,7 +117,7 @@ export class SystemEvent extends EventTarget {
      * @param target - 接收事件目标。
      */
     public on (type: string, callback: Function, target?: Object) {
-        if (CC_EDITOR) {
+        if (EDITOR) {
             return;
         }
         super.on(type, callback, target);
@@ -226,7 +227,7 @@ export class SystemEvent extends EventTarget {
      * @param target - 回调接收对象。
      */
     public off (type: string, callback?: Function, target?: Object) {
-        if (CC_EDITOR) {
+        if (EDITOR) {
             return;
         }
         super.off(type, callback, target);

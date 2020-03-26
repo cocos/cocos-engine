@@ -54,6 +54,7 @@ import { IExposedAttributes } from './utils/attribute-defines';
 import { doValidateMethodWithProps_DEV, getFullFormOfProperty } from './utils/preprocess-class';
 import { CCString, CCInteger, CCFloat, CCBoolean, PrimitiveType } from './utils/attribute';
 import { error, errorID, warnID } from '../platform/debug';
+import { DEV } from 'internal:constants';
 
 // caches for class construction
 const CACHE_KEY = '__ccclassCache__';
@@ -80,7 +81,7 @@ function checkCtorArgument (decorate) {
 
 function _checkNormalArgument (validator_DEV, decorate, decoratorName) {
     return function (target) {
-        if (CC_DEV && validator_DEV(target, decoratorName) === false) {
+        if (DEV && validator_DEV(target, decoratorName) === false) {
             return function () {
                 return fNOP;
             };
@@ -91,7 +92,7 @@ function _checkNormalArgument (validator_DEV, decorate, decoratorName) {
     };
 }
 
-const checkCompArgument = _checkNormalArgument.bind(null, CC_DEV && function (arg, decoratorName) {
+const checkCompArgument = _checkNormalArgument.bind(null, DEV && function (arg, decoratorName) {
     if (!cc.Class._isCCClass(arg)) {
         error('The parameter for %s is missing.', decoratorName);
         return false;
@@ -99,7 +100,7 @@ const checkCompArgument = _checkNormalArgument.bind(null, CC_DEV && function (ar
 });
 
 function _argumentChecker (type) {
-    return _checkNormalArgument.bind(null, CC_DEV && function (arg, decoratorName) {
+    return _checkNormalArgument.bind(null, DEV && function (arg, decoratorName) {
         if (arg instanceof cc.Component || arg === undefined) {
             error('The parameter for %s is missing.', decoratorName);
             return false;
@@ -115,7 +116,7 @@ const checkNumberArgument = _argumentChecker('number');
 // var checkBooleanArgument = _argumentChecker('boolean');
 
 function getClassCache (ctor, decoratorName?) {
-    if (CC_DEV && cc.Class._isCCClass(ctor)) {
+    if (DEV && cc.Class._isCCClass(ctor)) {
         error('`@%s` should be used after @ccclass for class "%s"', decoratorName, js.getClassName(ctor));
         return null;
     }
@@ -148,7 +149,7 @@ function extractActualDefaultValues (ctor) {
         dummyObj = new ctor();
     }
     catch (e) {
-        if (CC_DEV) {
+        if (DEV) {
             warnID(3652, js.getClassName(ctor), e);
         }
         return {};
@@ -159,7 +160,7 @@ function extractActualDefaultValues (ctor) {
 function genProperty (ctor, properties, propName, options, desc, cache) {
     let fullOptions;
     if (options) {
-        fullOptions = CC_DEV ? getFullFormOfProperty(options, propName, js.getClassName(ctor)) :
+        fullOptions = DEV ? getFullFormOfProperty(options, propName, js.getClassName(ctor)) :
             getFullFormOfProperty(options);
         fullOptions = fullOptions || options;
     }
@@ -169,7 +170,7 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
     const isGetset = desc && (desc.get || desc.set);
     if (isGetset) {
         // typescript or babel
-        if (CC_DEV && options && (options.get || options.set)) {
+        if (DEV && options && (options.get || options.set)) {
             const errorProps = getSubDict(cache, 'errorProps');
             if (!errorProps[propName]) {
                 errorProps[propName] = true;
@@ -184,7 +185,7 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
         }
     }
     else {
-        if (CC_DEV && (prop.get || prop.set)) {
+        if (DEV && (prop.get || prop.set)) {
             // @property({
             //     get () { ... },
             //     set (...) { ... },
@@ -224,7 +225,7 @@ function genProperty (ctor, properties, propName, options, desc, cache) {
             }
         }
 
-        if (CC_DEV) {
+        if (DEV) {
             if (options && options.hasOwnProperty('default')) {
                 warnID(3653, propName, js.getClassName(ctor));
                 // prop.default = options.default;
@@ -291,7 +292,7 @@ export const ccclass = checkCtorArgument(function (ctor, name) {
     const res = cc.Class(proto);
 
     // validate methods
-    if (CC_DEV) {
+    if (DEV) {
         const propNames = Object.getOwnPropertyNames(ctor.prototype);
         for (let i = 0; i < propNames.length; ++i) {
             const prop = propNames[i];
@@ -398,7 +399,7 @@ function createDummyDecorator (argCheckFunc) {
  * }
  * ```
  */
-export const executeInEditMode = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'executeInEditMode', true);
+export const executeInEditMode = (DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'executeInEditMode', true);
 
 /**
  * 为声明为 CCClass 的组件添加依赖的其它组件。当组件添加到节点上时，如果依赖的组件不存在，引擎将会自动将依赖组件添加到同一个节点，防止脚本出错。该设置在运行时同样有效。
@@ -435,7 +436,7 @@ export const requireComponent = createEditorDecorator(checkCompArgument, 'requir
  * }
  * ```
  */
-export const menu = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'menu');
+export const menu = (DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'menu');
 
 /**
  * 设置脚本生命周期方法调用的优先级。优先级小于 0 的组件将会优先执行，优先级大于 0 的组件将会延后执行。优先级仅会影响 onLoad, onEnable, start, update 和 lateUpdate，而 onDisable 和 onDestroy 不受影响。
@@ -470,7 +471,7 @@ export const executionOrder = createEditorDecorator(checkNumberArgument, 'execut
  * }
  * ```
  */
-export const disallowMultiple = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'disallowMultiple');
+export const disallowMultiple = (DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'disallowMultiple');
 
 /**
  * 当指定了 "executeInEditMode" 以后，playOnFocus 可以在选中当前组件所在的节点时，提高编辑器的场景刷新频率到 60 FPS，否则场景就只会在必要的时候进行重绘。
@@ -488,7 +489,7 @@ export const disallowMultiple = (CC_DEV ? createEditorDecorator : createDummyDec
  * }
  * ```
  */
-export const playOnFocus = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'playOnFocus');
+export const playOnFocus = (DEV ? createEditorDecorator : createDummyDecorator)(checkCtorArgument, 'playOnFocus');
 
 /**
  * 自定义当前组件在 **属性检查器** 中渲染时所用的网页 url。
@@ -506,7 +507,7 @@ export const playOnFocus = (CC_DEV ? createEditorDecorator : createDummyDecorato
  * }
  * ```
  */
-export const inspector = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'inspector');
+export const inspector = (DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'inspector');
 
 /**
  * 自定义当前组件在编辑器中显示的图标 url。
@@ -525,7 +526,7 @@ export const inspector = (CC_DEV ? createEditorDecorator : createDummyDecorator)
  * }
  * ```
  */
-export const icon = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'icon');
+export const icon = (DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'icon');
 
 /**
  * 指定当前组件的帮助文档的 url，设置过后，在 **属性检查器** 中就会出现一个帮助图标，用户点击将打开指定的网页。
@@ -543,7 +544,7 @@ export const icon = (CC_DEV ? createEditorDecorator : createDummyDecorator)(chec
  * }
  * ```
  */
-export const help = (CC_DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'help');
+export const help = (DEV ? createEditorDecorator : createDummyDecorator)(checkStringArgument, 'help');
 
 // Other Decorators
 

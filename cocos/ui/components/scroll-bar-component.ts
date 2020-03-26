@@ -47,17 +47,26 @@ const defaultAnchor = new Vec2();
 const _tempColor = new Color();
 
 /**
+ * @en
+ * Enum for ScrollBar direction.
+ *
  * @zh
  * 滚动条方向。
  */
 enum Direction {
     /**
+     * @en
+     * Horizontal scroll.
+     *
      * @zh
      * 横向滚动。
      */
     HORIZONTAL = 0,
 
     /**
+     * @en
+     * Vertical scroll.
+     *
      * @zh
      * 纵向滚动。
      */
@@ -67,9 +76,11 @@ enum Direction {
 ccenum(Direction);
 
 /**
+ * @en
+ * The ScrollBar control allows the user to scroll an image or other view that is too large to see completely.
+ *
  * @zh
  * 滚动条组件。
- * 可通过 cc.ScrollBarComponent 获得该组件。
  */
 @ccclass('cc.ScrollBarComponent')
 @executionOrder(110)
@@ -77,6 +88,9 @@ ccenum(Direction);
 export class ScrollBarComponent extends Component {
 
     /**
+     * @en
+     * The "handle" part of the ScrollBar.
+     *
      * @zh
      * 作为当前滚动区域位置显示的滑块 Sprite。
      */
@@ -97,6 +111,9 @@ export class ScrollBarComponent extends Component {
     }
 
     /**
+     * @en
+     * The direction of scrolling.
+     *
      * @zh
      * ScrollBar 的滚动方向。
      */
@@ -118,6 +135,9 @@ export class ScrollBarComponent extends Component {
     }
 
     /**
+     * @en
+     * Whether enable auto hide or not.
+     *
      * @zh
      * 是否在没有滚动动作时自动隐藏 ScrollBar。
      */
@@ -140,6 +160,10 @@ export class ScrollBarComponent extends Component {
     }
 
     /**
+     * @en
+     * The time to hide ScrollBar when scroll finished.
+     * Note: This value is only useful when enableAutoHide is true.
+     *
      * @zh
      * 没有滚动动作后经过多久会自动隐藏。<br/>
      * 注意：只要当 “enableAutoHide” 为 true 时，才有效。
@@ -176,6 +200,9 @@ export class ScrollBarComponent extends Component {
     protected _autoHideRemainingTime = 0;
 
     /**
+     * @en
+     * Hide ScrollBar.
+     *
      * @zh
      * 滚动条隐藏。
      */
@@ -185,6 +212,9 @@ export class ScrollBarComponent extends Component {
     }
 
     /**
+     * @en
+     * Show ScrollBar.
+     *
      * @zh
      * 滚动条显示。
      */
@@ -194,6 +224,9 @@ export class ScrollBarComponent extends Component {
     }
 
     /**
+     * @en
+     * Reset the position of ScrollBar.
+     *
      * @zh
      * 重置滚动条位置。
      *

@@ -9,6 +9,7 @@ import { WebGLGFXDevice } from './webgl-device';
 export class WebGLGFXQueue extends GFXQueue {
 
     public numDrawCalls: number = 0;
+    public numInstances: number = 0;
     public numTris: number = 0;
 
     private _isAsync: boolean = false;
@@ -38,6 +39,7 @@ export class WebGLGFXQueue extends GFXQueue {
                 const cmdBuff = cmdBuffs[i];
                 WebGLCmdFuncExecuteCmds( this._device as WebGLGFXDevice, (cmdBuff as WebGLGFXCommandBuffer).cmdPackage);
                 this.numDrawCalls += cmdBuff.numDrawCalls;
+                this.numInstances += cmdBuff.numInstances;
                 this.numTris += cmdBuff.numTris;
             }
         }
@@ -45,6 +47,7 @@ export class WebGLGFXQueue extends GFXQueue {
 
     public clear () {
         this.numDrawCalls = 0;
+        this.numInstances = 0;
         this.numTris = 0;
     }
 }

@@ -37,18 +37,7 @@ import { Layers } from '../../scene-graph';
 import { Node } from '../../scene-graph/node';
 import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
-
-interface IProfilerState {
-    frame: ICounterOption;
-    fps: ICounterOption;
-    draws: ICounterOption;
-    tricount: ICounterOption;
-    logic: ICounterOption;
-    physics: ICounterOption;
-    render: ICounterOption;
-    textureMemory: ICounterOption;
-    bufferMemory: ICounterOption;
-}
+import { TEST } from 'internal:constants';
 
 const _characters = '0123456789. ';
 
@@ -66,10 +55,24 @@ const _string2offset = {
     '.': 10,
 };
 
+interface IProfilerState {
+    frame: ICounterOption;
+    fps: ICounterOption;
+    draws: ICounterOption;
+    instances: ICounterOption;
+    tricount: ICounterOption;
+    logic: ICounterOption;
+    physics: ICounterOption;
+    render: ICounterOption;
+    textureMemory: ICounterOption;
+    bufferMemory: ICounterOption;
+}
+
 const _profileInfo = {
     frame: { desc: 'Frame time (ms)', min: 0, max: 50, average: 500 },
     fps: { desc: 'Framerate (FPS)', below: 30, average: 500, isInteger: true },
     draws: { desc: 'Draw call', isInteger: true },
+    instances: { desc: 'Instance Count', isInteger: true },
     tricount: { desc: 'Triangle', isInteger: true },
     logic: { desc: 'Game Logic (ms)', min: 0, max: 50, average: 500, color: '#080' },
     physics: { desc: 'Physics (ms)', min: 0, max: 50, average: 500 },
@@ -118,7 +121,7 @@ export class Profiler {
     private _uvOffset: Vec4[] = [];
 
     constructor () {
-        if (!CC_TEST) {
+        if (!TEST) {
             this._canvas = document.createElement('canvas');
             this._ctx = this._canvas.getContext('2d')!;
             this._canvasArr.push(this._canvas);
@@ -147,7 +150,7 @@ export class Profiler {
 
     public showStats () {
         if (!this._showFPS) {
-            this.initDevice();
+            if (!this._device) { this._device = cc.director.root.device; }
             this.generateCanvas();
             this.generateStats();
             cc.game.once(cc.Game.EVENT_ENGINE_INITED, this.generateNode, this);
@@ -167,13 +170,6 @@ export class Profiler {
             this._canvasDone = true;
             this._statsDone = true;
         }
-    }
-
-    public initDevice (){
-        if (this._device) {
-            return;
-        }
-        this._device = cc.director.root!.device;
     }
 
     public generateCanvas () {
@@ -254,7 +250,7 @@ export class Profiler {
 
         this._stats = _profileInfo as IProfilerState;
         this._canvasArr[0] = this._canvas;
-        this.updateTexture();
+        this._device!.copyTexImagesToTexture(this._canvasArr, this._texture!, this._regionArr);
     }
 
     public generateNode () {
@@ -347,9 +343,9 @@ export class Profiler {
         }
 
         const now = performance.now();
-        this.getCounter('frame').end(now);
-        this.getCounter('frame').start(now);
-        this.getCounter('logic').start(now);
+        (this._stats.frame.counter as PerfCounter).end(now);
+        (this._stats.frame.counter as PerfCounter).start(now);
+        (this._stats.logic.counter as PerfCounter).start(now);
     }
 
     public afterUpdate () {
@@ -359,9 +355,9 @@ export class Profiler {
 
         const now = performance.now();
         if (cc.director.isPaused()) {
-            this.getCounter('frame').start(now);
+            (this._stats.frame.counter as PerfCounter).start(now);
         } else {
-            this.getCounter('logic').end(now);
+            (this._stats.logic.counter as PerfCounter).end(now);
         }
     }
 
@@ -371,7 +367,7 @@ export class Profiler {
         }
 
         const now = performance.now();
-        this.getCounter('physics').start(now);
+        (this._stats.physics.counter as PerfCounter).start(now);
     }
 
     public afterPhysics () {
@@ -380,7 +376,7 @@ export class Profiler {
         }
 
         const now = performance.now();
-        this.getCounter('physics').end(now);
+        (this._stats.physics.counter as PerfCounter).end(now);
     }
 
     public beforeDraw () {
@@ -389,7 +385,7 @@ export class Profiler {
         }
 
         const now = performance.now();
-        this.getCounter('render').start(now);
+        (this._stats.render.counter as PerfCounter).start(now);
     }
 
     public afterDraw () {
@@ -398,8 +394,8 @@ export class Profiler {
         }
         const now = performance.now();
 
-        this.getCounter('fps').frame(now);
-        this.getCounter('render').end(now);
+        (this._stats.fps.counter as PerfCounter).frame(now);
+        (this._stats.render.counter as PerfCounter).end(now);
 
         if (now - this.lastTime < 500) {
             return;
@@ -407,10 +403,11 @@ export class Profiler {
         this.lastTime = now;
 
         const device = this._device!;
-        this.getCounter('draws').value = device.numDrawCalls;
-        this.getCounter('bufferMemory').value = device.memoryStatus.bufferSize / (1024 * 1024);
-        this.getCounter('textureMemory').value = device.memoryStatus.textureSize / (1024 * 1024);
-        this.getCounter('tricount').value = device.numTris;
+        (this._stats.draws.counter as PerfCounter).value = device.numDrawCalls;
+        (this._stats.instances.counter as PerfCounter).value = device.numInstances;
+        (this._stats.bufferMemory.counter as PerfCounter).value = device.memoryStatus.bufferSize / (1024 * 1024);
+        (this._stats.textureMemory.counter as PerfCounter).value = device.memoryStatus.textureSize / (1024 * 1024);
+        (this._stats.tricount.counter as PerfCounter).value = device.numTris;
 
         let i = 0;
         const view = this.digitsData.view;
@@ -429,15 +426,6 @@ export class Profiler {
         }
 
         this.digitsData.dirty = true;
-    }
-
-    public getCounter (s: string) {
-        const stats = this._stats;
-        return stats![s].counter as PerfCounter;
-    }
-
-    public updateTexture () {
-        cc.director.root!.device.copyTexImagesToTexture(this._canvasArr, this._texture!, this._regionArr);
     }
 }
 

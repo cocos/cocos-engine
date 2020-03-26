@@ -2,8 +2,7 @@
  * @category pipeline
  */
 
-import { RenderPassStage } from './define';
-import './render-view';
+export { RenderPassStage, JOINT_UNIFORM_CAPACITY as JointUniformCapacity } from './define';
 
 export { RenderPipeline } from './render-pipeline';
 export { RenderFlow } from './render-flow';
@@ -15,5 +14,3 @@ export { ForwardFlow } from './forward/forward-flow';
 export { ForwardStage } from './forward/forward-stage';
 export { ToneMapFlow } from './ppfx/tonemap-flow';
 export { ToneMapStage } from './ppfx/tonemap-stage';
-
-cc.RenderPassStage = RenderPassStage; export { RenderPassStage };

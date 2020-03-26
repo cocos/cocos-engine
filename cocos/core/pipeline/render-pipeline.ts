@@ -355,8 +355,10 @@ export abstract class RenderPipeline {
         }
 
         for (let i = 0; i < this._flows.length; i++) {
-            if (this._flows[i].type === RenderFlowType.SCENE) {
-                this._flows[i].activate(this);
+            let flow = this._flows[i];
+            if (flow.type === RenderFlowType.SCENE) {
+                flow.activate(this);
+                this.activateFlow(flow);
             }
         }
         return true;
@@ -495,6 +497,7 @@ export abstract class RenderPipeline {
     public updateMacros () {
         programLib.destroyShaderByDefines(this._macros);
         this._macros.CC_USE_HDR = (this._isHDR);
+        this._macros.CC_SUPPORT_FLOAT_TEXTURE = this.device.hasFeature(GFXFeature.TEXTURE_FLOAT);
         for (let i = 0; i < this._root.scenes.length; i++) {
             this._root.scenes[i].onGlobalPipelineStateChanged();
         }
@@ -610,10 +613,10 @@ export abstract class RenderPipeline {
         }
 
         const models = scene.models;
+        const stamp = cc.director.getTotalFrames();
+
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
-
-            model._resetUBOUpdateFlag();
 
             // filter model by view visibility
             if (model.enabled) {
@@ -621,21 +624,21 @@ export abstract class RenderPipeline {
                 if (vis) {
                     if ((model.node && (view.visibility === model.node.layer)) ||
                         view.visibility === model.visFlags) {
-                        model.updateTransform();
-                        model.updateUBOs();
+                        model.updateTransform(stamp);
+                        model.updateUBOs(stamp);
                         this.addVisibleModel(model, camera);
                     }
                 } else {
                     if (model.node && ((view.visibility & model.node.layer) === model.node.layer) ||
                         (view.visibility & model.visFlags)) {
-                        model.updateTransform();
+                        model.updateTransform(stamp);
 
                         // frustum culling
                         if (model.worldBounds && !intersect.aabb_frustum(model.worldBounds, camera.frustum)) {
                             continue;
                         }
 
-                        model.updateUBOs();
+                        model.updateUBOs(stamp);
                         this.addVisibleModel(model, camera);
                     }
                 }
@@ -643,7 +646,7 @@ export abstract class RenderPipeline {
         }
 
         if (planarShadows.enabled) {
-            planarShadows.updateCommandBuffers(camera.frustum);
+            planarShadows.updateCommandBuffers(camera.frustum, stamp);
         }
     }
 

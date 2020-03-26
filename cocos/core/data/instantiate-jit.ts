@@ -35,6 +35,7 @@ import CCClass from './class';
 import { CCObject } from './object';
 import * as Attr from './utils/attribute';
 import {flattenCodeArray} from './utils/compiler';
+import { TEST } from 'internal:constants';
 
 // @ts-ignore
 const Destroyed = CCObject.Flags.Destroyed;
@@ -243,7 +244,7 @@ class Parser {
         // generate method and bind with objs
         this.result = Function('O', 'F', code)(this.objs, this.funcs);
 
-        // if (CC_TEST && !isPhantomJS) {
+        // if (TEST && !isPhantomJS) {
         //     console.log(code);
         // }
 
@@ -540,7 +541,7 @@ export function compile (node) {
     return parser.result;
 }
 
-if (CC_TEST) {
+if (TEST) {
     cc._Test.IntantiateJit = {
         equalsToDefault,
         compile,

@@ -2,7 +2,7 @@
 import { AnimCurve, RatioSampler, sampleAnimationCurve } from '../../cocos/core/animation/animation-curve';
 import { ComponentPath, TargetPath, HierarchyPath } from '../../cocos/core/animation/target-path';
 import { Node } from '../../cocos/core/scene-graph';
-import { BoundTarget } from '../../cocos/core/animation/bound-target';
+import { createBoundTarget } from '../../cocos/core/animation/bound-target';
 
 test('sample from animation curve', () => {
     const curve = new AnimCurve({
@@ -18,22 +18,9 @@ test('sample from animation curve', () => {
     expect(sampleAnimationCurve(curve, sampler, 1.0)).toBe(3);
 });
 
-test('Erroneous target path', () => {
-    const fx = (target: any, modifier: TargetPath | TargetPath[]) => {
-        return () => {
-            new BoundTarget(target, Array.isArray(modifier) ? modifier : [ modifier ]);
-        };
-    };
-
-    expect(fx(new Node("TestNode"), new ComponentPath('cc.ModelComponent'))).toThrow(
-        `Node "TestNode" has no component "cc.ModelComponent"`);
-
-    expect(fx(new Node("TestNode"), new HierarchyPath('/absent'))).toThrow(
-        `Node "TestNode" has no path "/absent"`);
-
-    expect(fx(Object.create(null), ['property', 0])).toThrow(
-        `Target object has no property "property"`);
-    
-    expect(fx([], [1, 0])).toThrow(
-        `Target object has no property "1"`);
+test('Erroneous target path', () => {;
+    expect(createBoundTarget(new Node("TestNode"), [new ComponentPath('cc.ModelComponent'), 'position'])).toBeNull();
+    expect(createBoundTarget(new Node("TestNode"), [new HierarchyPath('/absent'), 'position'])).toBeNull();
+    expect(createBoundTarget(Object.create(null), ['property', 0])).toBeNull();
+    expect(createBoundTarget([], [1, 0])).toBeNull();
 });

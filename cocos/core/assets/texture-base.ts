@@ -32,10 +32,11 @@
 import {ccclass, property} from '../data/class-decorator';
 import { GFXDevice } from '../gfx/device';
 import { GFXTextureView } from '../gfx/texture-view';
-import { genSamplerHash, SamplerInfoIndex } from '../renderer/core/sampler-lib';
+import { genSamplerHash, SamplerInfoIndex, samplerLib } from '../renderer/core/sampler-lib';
 import IDGenerator from '../utils/id-generator';
 import { Asset } from './asset';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
+import { GFXSampler } from '../gfx';
 
 const CHAR_CODE_1 = 49;    // '1'
 
@@ -108,6 +109,8 @@ export class TextureBase extends Asset {
     private _id: string;
     private _samplerInfo: Array<number | undefined> = [];
     private _samplerHash: number = 0;
+    private _gfxSampler: GFXSampler | null = null;
+    private _gfxDevice: GFXDevice | null = null;
 
     constructor (flipY: boolean = false) {
         super();
@@ -118,6 +121,7 @@ export class TextureBase extends Asset {
         this._id = idGenerator.getNewId();
 
         this.loaded = false;
+        this._gfxDevice = this._getGFXDevice();
     }
 
     /**
@@ -170,6 +174,10 @@ export class TextureBase extends Asset {
         }
 
         this._samplerHash = genSamplerHash(this._samplerInfo);
+        // for editor assetDB
+        if (this._gfxDevice) {
+            this._gfxSampler = samplerLib.getSampler(this._gfxDevice, this._samplerHash);
+        }
     }
 
     /**
@@ -183,6 +191,9 @@ export class TextureBase extends Asset {
         this._magFilter = magFilter;
         this._samplerInfo[SamplerInfoIndex.magFilter] = magFilter;
         this._samplerHash = genSamplerHash(this._samplerInfo);
+        if (this._gfxDevice) {
+            this._gfxSampler = samplerLib.getSampler(this._gfxDevice, this._samplerHash);
+        }
     }
 
     /**
@@ -194,6 +205,9 @@ export class TextureBase extends Asset {
         this._samplerInfo[SamplerInfoIndex.mipFilter] = mipFilter;
         this._samplerInfo[SamplerInfoIndex.maxLOD] = mipFilter === Filter.NONE ? 0 : 15; // WebGL2 on some platform need this
         this._samplerHash = genSamplerHash(this._samplerInfo);
+        if (this._gfxDevice) {
+            this._gfxSampler = samplerLib.getSampler(this._gfxDevice, this._samplerHash);
+        }
     }
 
     /**
@@ -220,6 +234,9 @@ export class TextureBase extends Asset {
         this._anisotropy = anisotropy;
         this._samplerInfo[SamplerInfoIndex.maxAnisotropy] = anisotropy;
         this._samplerHash = genSamplerHash(this._samplerInfo);
+        if (this._gfxDevice) {
+            this._gfxSampler = samplerLib.getSampler(this._gfxDevice, this._samplerHash);
+        }
     }
 
     /**
@@ -242,6 +259,20 @@ export class TextureBase extends Asset {
      */
     public getSamplerHash () {
         return this._samplerHash;
+    }
+
+    /**
+     * 获取此贴图底层的 GFX 采样信息。
+     */
+    public getGFXSampler () {
+        if (!this._gfxSampler) {
+            if (this._gfxDevice) {
+                this._gfxSampler = samplerLib.getSampler(this._gfxDevice, this._samplerHash);
+            } else {
+                cc.errorID(9302);
+            }
+        }
+        return this._gfxSampler;
     }
 
     // SERIALIZATION

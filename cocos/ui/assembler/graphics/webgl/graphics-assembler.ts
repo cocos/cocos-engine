@@ -27,20 +27,17 @@
  * @category ui-assembler
  */
 
-import { Color, Vec3 } from '../../../../core/math';
+import { createMesh } from '../../../../core/3d/misc/utils';
 import { GFXPrimitiveMode } from '../../../../core/gfx';
-import { Model } from '../../../../core/renderer';
+import { Color, Vec3 } from '../../../../core/math';
+import { IAssembler } from '../../../../core/renderer/ui/base';
 import { MeshRenderData } from '../../../../core/renderer/ui/render-data';
 import { UI } from '../../../../core/renderer/ui/ui';
-import { createMesh } from '../../../../core/3d/misc/utils';
-import { GraphicsComponent } from '../../../components';
 import { vfmt } from '../../../../core/renderer/ui/ui-vertex-format';
-import { IAssembler } from '../../../../core/renderer/ui/base';
+import { GraphicsComponent } from '../../../components';
 import { LineCap, LineJoin, PointFlags } from '../types';
 import { earcut as Earcut } from './earcut';
 import { Impl, Point } from './impl';
-import { director } from '../../../../core';
-import { RenderScene } from '../../../../core/renderer/scene/render-scene';
 
 const MAX_VERTEX = 65535;
 const MAX_INDICE = MAX_VERTEX * 2;
@@ -175,7 +172,7 @@ export const graphicsAssembler: IAssembler = {
         this.end(graphics);
     },
 
-    end(graphics: GraphicsComponent) {
+    end (graphics: GraphicsComponent) {
         if (graphics.model) {
             graphics.model.destroy();
         }
@@ -226,7 +223,7 @@ export const graphicsAssembler: IAssembler = {
         }, undefined, { calculateBounds: false });
         
         graphics.model!.initialize(graphics.node);
-        graphics.model!.initSubModel(0, mesh.getSubMesh(0), graphics.material!);
+        graphics.model!.initSubModel(0, mesh.renderingSubMeshes[0], graphics.material!);
         graphics.markForUpdateRenderData();
     },
 

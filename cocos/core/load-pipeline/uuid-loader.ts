@@ -33,6 +33,7 @@ import {_getClassById} from '../utils/js';
 import { getError } from '../platform/debug';
 import { LoadingItems } from './loading-items';
 import { decompressJson } from './utils';
+import { EDITOR, DEBUG, JSB } from 'internal:constants';
 
 export function isSceneObj (json) {
     let SCENE_ID = 'cc.Scene';
@@ -150,7 +151,7 @@ function loadDepends (pipeline, item, asset, depends, callback) {
 
             if (item.complete || item.content) {
                 if (item.error) {
-                    if (CC_EDITOR && item.error.errorCode === 'db.NOTFOUND') {
+                    if (EDITOR && item.error.errorCode === 'db.NOTFOUND') {
                         if (!missingAssetReporter) {
                             missingAssetReporter = new EditorExtends.MissingReporter.object(asset);
                         }
@@ -179,7 +180,7 @@ function loadDepends (pipeline, item, asset, depends, callback) {
         }
         // Emit dependency errors in runtime, but not in editor,
         // because editor need to open the scene / prefab to let user fix missing asset issues
-        if (CC_EDITOR && missingAssetReporter) {
+        if (EDITOR && missingAssetReporter) {
             missingAssetReporter.reportByOwner();
             callback(null, asset);
         }
@@ -191,7 +192,7 @@ function loadDepends (pipeline, item, asset, depends, callback) {
 
 // can deferred load raw assets in runtime
 function canDeferredLoad (asset, item, isScene) {
-    if (CC_EDITOR) {
+    if (EDITOR) {
         return false;
     }
     let res = item.deferredLoadRaw;
@@ -215,7 +216,7 @@ function canDeferredLoad (asset, item, isScene) {
 let MissingClass;
 
 export function loadUuid (item, callback) {
-    if (CC_EDITOR) {
+    if (EDITOR) {
         MissingClass = MissingClass || EditorExtends.MissingReporter.classInstance;
     }
 
@@ -223,7 +224,7 @@ export function loadUuid (item, callback) {
     if (typeof item.content === 'string') {
         try {
             json = JSON.parse(item.content);
-            if (!CC_DEBUG && json.keys && json.data) {
+            if (!DEBUG && json.keys && json.data) {
                 let keys = json.keys;
                 json = json.data;
                 decompressJson(json, keys);
@@ -247,7 +248,7 @@ export function loadUuid (item, callback) {
     let classFinder;
     let isScene = isSceneObj(json);
     if (isScene) {
-        if (CC_EDITOR) {
+        if (EDITOR) {
             MissingClass.hasMissingClass = false;
             classFinder = function (type, data, owner, propName) {
                 let res = MissingClass.classFinder(type, data, owner, propName);
@@ -286,13 +287,13 @@ export function loadUuid (item, callback) {
     catch (e) {
         cc.deserialize.Details.pool.put(tdInfo);
         console.error(e);
-        return new Error(`Failed to load asset ${item.id}, exception occurs during deserialization: ${CC_JSB ? (e + '\n' + e.stack) : e.stack}.`);
+        return new Error(`Failed to load asset ${item.id}, exception occurs during deserialization: ${JSB ? (e + '\n' + e.stack) : e.stack}.`);
         // return new Error(debug.getError(4925, item.id, err));
     }
 
     asset._uuid = item.uuid;
 
-    if (CC_EDITOR && isScene && MissingClass.hasMissingClass) {
+    if (EDITOR && isScene && MissingClass.hasMissingClass) {
         MissingClass.reportMissingClass(asset);
     }
 
@@ -309,7 +310,7 @@ export function loadUuid (item, callback) {
                 err = error;
             }
         }
-        if (CC_EDITOR && !isScene) {
+        if (EDITOR && !isScene) {
             let dependListener = cc.AssetLibrary.dependListener;
             let assetListener = cc.AssetLibrary.assetListener;
 

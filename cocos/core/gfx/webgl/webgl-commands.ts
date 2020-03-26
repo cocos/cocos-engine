@@ -1,5 +1,5 @@
 import { CachedArray } from '../../memop/cached-array';
-import { errorID } from '../../platform/debug';
+import { errorID, error } from '../../platform/debug';
 import { GFXBufferSource, IGFXDrawInfo, IGFXIndirectBuffer } from '../buffer';
 import {
     GFXBindingType,
@@ -12,7 +12,6 @@ import {
     GFXFormat,
     GFXFormatInfos,
     GFXFormatSize,
-    GFXFormatType,
     GFXLoadOp,
     GFXMemoryUsageBit,
     GFXSampleCount,
@@ -45,7 +44,7 @@ function CmpF32NotEuqal (a: number, b: number): boolean {
     return (c > 0.000001 || c < -0.000001);
 }
 
-function GFXFormatToWebGLType (format: GFXFormat, gl: WebGLRenderingContext): GLenum {
+export function GFXFormatToWebGLType (format: GFXFormat, gl: WebGLRenderingContext): GLenum {
     switch (format) {
         case GFXFormat.R8: return gl.UNSIGNED_BYTE;
         case GFXFormat.R8SN: return gl.BYTE;
@@ -148,7 +147,7 @@ function GFXFormatToWebGLType (format: GFXFormat, gl: WebGLRenderingContext): GL
     }
 }
 
-function GFXFormatToWebGLInternalFormat (format: GFXFormat, gl: WebGLRenderingContext): GLenum {
+export function GFXFormatToWebGLInternalFormat (format: GFXFormat, gl: WebGLRenderingContext): GLenum {
     switch (format) {
         case GFXFormat.A8: return gl.ALPHA;
         case GFXFormat.L8: return gl.LUMINANCE;
@@ -192,7 +191,7 @@ function GFXFormatToWebGLInternalFormat (format: GFXFormat, gl: WebGLRenderingCo
     }
 }
 
-function GFXFormatToWebGLFormat (format: GFXFormat, gl: WebGLRenderingContext): GLenum {
+export function GFXFormatToWebGLFormat (format: GFXFormat, gl: WebGLRenderingContext): GLenum {
     switch (format) {
         case GFXFormat.A8: return gl.ALPHA;
         case GFXFormat.L8: return gl.LUMINANCE;
@@ -2114,8 +2113,9 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                 break;
                             }
                             case GFXBindingType.SAMPLER: {
-
-                                if (gpuBinding.gpuSampler) {
+                                if (!gpuBinding.gpuSampler) {
+                                    error(`Sampler binding point ${gpuBinding.binding} '${gpuBinding.name}' is not bounded`);
+                                } else  {
 
                                     let glSampler: WebGLGPUUniformSampler | null = null;
 
@@ -2217,8 +2217,6 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                             }
                                         }
                                     } // if
-                                } else {
-                                    console.error('Not found sampler on binding unit ' + gpuBinding.binding);
                                 }
 
                                 break;
@@ -2230,10 +2228,10 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                 if (cmd2.gpuInputAssembler && gpuShader &&
                     (isShaderChanged || gpuInputAssembler !== cmd2.gpuInputAssembler)) {
                     gpuInputAssembler = cmd2.gpuInputAssembler;
+                    const ia = device.ANGLE_instanced_arrays;
 
                     if (device.useVAO) {
                         const vao = device.OES_vertex_array_object!;
-                        const ia = device.ANGLE_instanced_arrays;
 
                         // check vao
                         let glVAO = gpuInputAssembler.glVAOs.get(gpuShader.glProgram!);
@@ -2328,6 +2326,7 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                                     cache.glCurrentAttribLocs[glLoc] = true;
 
                                     gl.vertexAttribPointer(glLoc, glAttrib.count, glAttrib.glType, glAttrib.isNormalized, glAttrib.stride, attribOffset);
+                                    if (ia) { ia.vertexAttribDivisorANGLE(glLoc, glAttrib.isInstanced ? 1 : 0); }
                                 }
                             }
                         } // for
@@ -2697,7 +2696,6 @@ export function WebGLCmdFuncCopyBuffersToTexture (
         case gl.TEXTURE_CUBE_MAP: {
             for (let i = 0; i < regions.length; i++) {
                 const region = regions[i];
-                n = 0;
                 const fcount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
                 for (f = region.texSubres.baseArrayLayer; f < fcount; ++f) {
                     w = region.texExtent.width;

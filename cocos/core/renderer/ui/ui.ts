@@ -48,6 +48,7 @@ import { UIBatchModel } from './ui-batch-model';
 import { UIDrawBatch } from './ui-draw-batch';
 import { UIMaterial } from './ui-material';
 import * as UIVertexFormat from './ui-vertex-format';
+import { GFXSampler } from '../../gfx/sampler';
 
 /**
  * @zh
@@ -97,6 +98,7 @@ export class UI {
     private _emptyMaterial = new Material();
     private _currMaterial: Material = this._emptyMaterial;
     private _currTexView: GFXTextureView | null = null;
+    private _currSampler: GFXSampler | null = null;
     private _currCanvas: CanvasComponent | null = null;
     private _currMeshBuffer: MeshBuffer | null = null;
     private _currStaticRoot: UIStaticBatchComponent | null = null;
@@ -176,6 +178,9 @@ export class UI {
     }
 
     /**
+     * @en
+     * Add the managed CanvasComponent.
+     *
      * @zh
      * 添加屏幕组件管理。
      *
@@ -216,6 +221,9 @@ export class UI {
     }
 
     /**
+     * @en
+     * Get the CanvasComponent by number.
+     *
      * @zh
      * 通过屏幕编号获得屏幕组件。
      *
@@ -237,7 +245,7 @@ export class UI {
 
     /**
      * @zh
-     * 移除屏幕组件管理。
+     * Removes the CanvasComponent from the list.
      *
      * @param comp - 被移除的屏幕。
      */
@@ -325,6 +333,7 @@ export class UI {
                     const bindingLayout = batch.bindingLayout!;
                     // assumes sprite materials has only one sampler
                     bindingLayout.bindTextureView(UniformBinding.CUSTOM_SAMPLER_BINDING_START_POINT, batch.texView!);
+                    bindingLayout.bindSampler(UniformBinding.CUSTOM_SAMPLER_BINDING_START_POINT, batch.sampler!);
                     bindingLayout.update();
 
                     const ia = batch.bufferBatch!.ia!;
@@ -349,24 +358,31 @@ export class UI {
     }
 
     /**
+     * @en
+     * Render component data submission process of UI.
+     * The submitted vertex data is the UI for world coordinates.
+     * For example: The UI components except Graphics and UIModelComponent.
+     *
      * @zh
-     * UI 渲染组件数据提交流程（针对顶点数据都是世界坐标下的提交流程，例如：除 graphics 和 uimodel 的大部分 ui 组件）。
+     * UI 渲染组件数据提交流程（针对提交的顶点数据是世界坐标的提交流程，例如：除 graphics 和 uimodel 的大部分 ui 组件）。
      * 此处的数据最终会生成需要提交渲染的 model 数据。
      *
      * @param comp - 当前执行组件。
      * @param frame - 当前执行组件贴图。
      * @param assembler - 当前组件渲染数据组装器。
      */
-    public commitComp (comp: UIRenderComponent, frame: GFXTextureView | null = null, assembler: any) {
+    public commitComp (comp: UIRenderComponent, frame: GFXTextureView | null = null, assembler: any, sampler: GFXSampler | null = null) {
         const renderComp = comp;
         const texView = frame;
+        const samp = sampler;
 
         if (this._currMaterial.hash !== renderComp.material!.hash ||
-            this._currTexView !== texView
+            this._currTexView !== texView || this._currSampler !== samp
         ) {
             this.autoMergeBatches();
             this._currMaterial = renderComp.material!;
             this._currTexView = texView;
+            this._currSampler = samp;
         }
 
         if (assembler) {
@@ -376,6 +392,11 @@ export class UI {
     }
 
     /**
+     * @en
+     * Render component data submission process of UI.
+     * The submitted vertex data is the UI for local coordinates.
+     * For example: The UI components of Graphics and UIModelComponent.
+     *
      * @zh
      * UI 渲染组件数据提交流程（针对例如： graphics 和 uimodel 等数据量较为庞大的 ui 组件）。
      *
@@ -405,6 +426,7 @@ export class UI {
         curDrawBatch.bufferBatch = null;
         curDrawBatch.material = mat;
         curDrawBatch.texView = null;
+        curDrawBatch.sampler = null;
         curDrawBatch.firstIdx = 0;
         curDrawBatch.idxCount = 0;
 
@@ -414,18 +436,31 @@ export class UI {
         // reset current render state to null
         this._currMaterial = this._emptyMaterial;
         this._currTexView = null;
+        this._currSampler = null;
 
         this._batches.push(curDrawBatch);
     }
 
+    /**
+     * @en
+     * Submit separate render data.
+     * This data does not participate in the batch.
+     *
+     * @zh
+     * 提交独立渲染数据.
+     * @param comp 静态组件
+     */
     public commitStaticBatch (comp: UIStaticBatchComponent) {
         this._batches.concat(comp.drawBatchList);
         this.finishMergeBatches();
     }
 
     /**
+     * @en
+     * End a section of render data and submit according to the batch condition.
+     *
      * @zh
-     * UI 渲染数据合批
+     * 根据合批条件，结束一段渲染数据并提交。
      */
     public autoMergeBatches () {
         const mat = this._currMaterial;
@@ -445,6 +480,7 @@ export class UI {
         curDrawBatch.bufferBatch = buffer;
         curDrawBatch.material = mat;
         curDrawBatch.texView = this._currTexView!;
+        curDrawBatch.sampler = this._currSampler;
         curDrawBatch.firstIdx = indicsStart;
         curDrawBatch.idxCount = vCount;
 
@@ -459,8 +495,11 @@ export class UI {
     }
 
     /**
+     * @en
+     * Force changes to current batch data and merge
+     *
      * @zh
-     * 跳过默认合批操作，执行强制合批。
+     * 强行修改当前批次数据并合并。
      *
      * @param material - 当前批次的材质。
      * @param sprite - 当前批次的精灵帧。
@@ -471,6 +510,13 @@ export class UI {
         this.autoMergeBatches();
     }
 
+    /**
+     * @en
+     * Forced to merge the data of the previous batch to start a new batch.
+     *
+     * @zh
+     * 强制合并上一个批次的数据，开启新一轮合批。
+     */
     public finishMergeBatches () {
         this.autoMergeBatches();
         this._currMaterial = this._emptyMaterial;
@@ -563,6 +609,7 @@ export class UI {
         this._currMaterial = this._emptyMaterial;
         this._currCanvas = null;
         this._currTexView = null;
+        this._currSampler = null;
         this._meshBufferUseCount = 0;
         this._requireBufferBatch();
         StencilManager.sharedManager!.reset();

@@ -37,22 +37,34 @@ import { SpriteComponent } from './sprite-component';
 import { warn } from '../../core/platform/debug';
 
 /**
+ * @en
+ * Enum for ProgressBar mode.
+ *
  * @zh
  * 进度条模式。
  */
 enum Mode {
     /**
+     * @en
+     * The mode of horizontal.
+     *
      * @zh
      * 水平方向模式。
      */
     HORIZONTAL = 0,
 
     /**
+     * @en
+     * The mode of vertical.
+     *
      * @zh
      *  垂直方向模式。
      */
     VERTICAL = 1,
     /**
+     * @en
+     * The mode of fill.
+     *
      * @zh
      * 填充模式。
      */
@@ -62,9 +74,12 @@ enum Mode {
 Enum(Mode);
 
 /**
+ * @en
+ * Visual indicator of progress in some operation.
+ * Displays a bar to the user representing how far the operation has progressed.
+ *
  * @zh
  * 进度条组件，可用于显示加载资源时的进度。
- * 可通过 cc.ProgressBarComponent 获得该组件。
  *
  * @example
  * ```typescript
@@ -88,6 +103,9 @@ Enum(Mode);
 export class ProgressBarComponent extends Component {
 
     /**
+     * @en
+     * The targeted Sprite which will be changed progressively.
+     *
      * @zh
      * 用来显示进度条比例的 Sprite 对象。
      */
@@ -109,6 +127,9 @@ export class ProgressBarComponent extends Component {
     }
 
     /**
+     * @en
+     * The progress mode, there are two modes supported now: horizontal and vertical.
+     *
      * @zh
      * 进度条的模式。
      */
@@ -142,6 +163,9 @@ export class ProgressBarComponent extends Component {
     }
 
     /**
+     * @en
+     * The total width or height of the bar sprite.
+     *
      * @zh
      * 进度条实际的总长度。
      */
@@ -161,6 +185,9 @@ export class ProgressBarComponent extends Component {
     }
 
     /**
+     * @en
+     * The current progress of the bar sprite. The valid value is between 0-1.
+     *
      * @zh
      * 当前进度值，该数值的区间是 0-1 之间。
      */
@@ -183,6 +210,9 @@ export class ProgressBarComponent extends Component {
     }
 
     /**
+     * @en
+     * Whether reverse the progress direction of the bar sprite.
+     *
      * @zh
      * 进度条是否进行反方向变化。
      */

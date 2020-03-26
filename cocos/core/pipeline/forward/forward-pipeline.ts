@@ -118,12 +118,6 @@ export class ForwardPipeline extends RenderPipeline {
      * 销毁函数。
      */
     public destroy () {
-        const lightsUBO = this._globalBindings.get(UBOForwardLight.BLOCK.name);
-        if (lightsUBO) {
-            lightsUBO.buffer!.destroy();
-            this._globalBindings.delete(UBOForwardLight.BLOCK.name);
-        }
-
         this._destroy();
     }
 
@@ -150,7 +144,7 @@ export class ForwardPipeline extends RenderPipeline {
         for (let i = 0; i < this._renderObjects.length; i++) {
             this._uboLights.view.fill(0);
             const nextLightIndex = i + 1 < this._renderObjects.length ? this._lightIndexOffset[i + 1] : this._lightIndices.length;
-            if (!this._renderObjects[i].model.localBindings.get(UBOForwardLight.BLOCK.name)) {
+            if (!this._renderObjects[i].model.lightBuffer || this._renderObjects[i].model.isDynamicBatching) {
                 continue;
             }
             let sphereNum = 0;
@@ -225,7 +219,7 @@ export class ForwardPipeline extends RenderPipeline {
                     }
                 }
             }
-            this._renderObjects[i].model.localBindings.get(UBOForwardLight.BLOCK.name)!.buffer!.update(this._uboLights.view);
+            this._renderObjects[i].model.lightBuffer!.update(this._uboLights.view);
         }
 
     }
@@ -257,35 +251,15 @@ export class ForwardPipeline extends RenderPipeline {
             }
         }
 
-        this._lightIndexOffset.length = 0;
-        this._lightIndices.length = 0;
-        for (let i = 0; i < this._renderObjects.length; i++) {
-            this._lightIndexOffset[i] = this._lightIndices.length;
-            if (this._renderObjects[i].model.localBindings.get(UBOForwardLight.BLOCK.name)) {
-                this.cullLightPerModel(this._renderObjects[i].model);
+        this._lightIndexOffset.length = this._lightIndices.length = 0;
+        if (this._validLights.length) {
+            for (let i = 0; i < this._renderObjects.length; i++) {
+                this._lightIndexOffset[i] = this._lightIndices.length;
+                if (this._renderObjects[i].model.lightBuffer) {
+                    this.cullLightPerModel(this._renderObjects[i].model);
+                }
             }
         }
-    }
-
-    protected createUBOs (): boolean {
-        if (!this._globalBindings.get(UBOForwardLight.BLOCK.name)) {
-            const lightsUBO = this._root.device.createBuffer({
-                usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: UBOForwardLight.SIZE,
-            });
-
-            if (!lightsUBO) {
-                return false;
-            }
-
-            this._globalBindings.set(UBOForwardLight.BLOCK.name, {
-                type: GFXBindingType.UNIFORM_BUFFER,
-                blockInfo: UBOForwardLight.BLOCK,
-                buffer: lightsUBO,
-            });
-        }
-        return super.createUBOs();
     }
 
     /**

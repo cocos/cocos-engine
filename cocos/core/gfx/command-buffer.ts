@@ -74,6 +74,14 @@ export abstract class GFXCommandBuffer extends GFXObject {
     }
 
     /**
+     * @en Number of instances currently recorded.
+     * @zh 绘制 Instance 数量。
+     */
+    public get numInstances (): number {
+        return this._numInstances;
+    }
+
+    /**
      * @en Number of triangles currently recorded.
      * @zh 绘制三角形数量。
      */
@@ -88,6 +96,8 @@ export abstract class GFXCommandBuffer extends GFXObject {
     protected _type: GFXCommandBufferType = GFXCommandBufferType.PRIMARY;
 
     protected _numDrawCalls: number = 0;
+
+    protected _numInstances: number = 0;
 
     protected _numTris: number = 0;
 

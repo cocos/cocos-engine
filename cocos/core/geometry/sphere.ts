@@ -9,6 +9,8 @@ const _v3_tmp = new Vec3();
 function maxComponent (v: Vec3) { return Math.max(Math.max(v.x, v.y), v.z); }
 
 /**
+ * @en
+ * Basic Geometry: sphere.
  * @zh
  * 基础几何 轴对齐球。
  */
@@ -75,9 +77,10 @@ export default class sphere {
     }
 
     /**
-     * @en Set the components of a sphere to the given values
-     * @zh 将球体的属性设置为给定的值。
-     *
+     * @en
+     * Set the components of a sphere to the given values
+     * @zh 
+     * 将球体的属性设置为给定的值。
      * @param {sphere} out 接受操作的 sphere。
      * @param cx 形状的相对于原点的 X 坐标。
      * @param cy 形状的相对于原点的 Y 坐标。
@@ -96,20 +99,37 @@ export default class sphere {
     }
 
     /**
+     * @en
+     * The center of this sphere.
      * @zh
      * 本地坐标的中心点。
      */
     public center: Vec3;
 
     /**
+     * @en
+     * The radius of this sphere.
      * @zh
      * 半径。
      */
     public radius: number;
 
-    protected _type: number;
+    /**
+     * @en
+     * Gets the type of the shape.
+     * @zh
+     * 获取形状的类型。
+     */
+    get type () {
+        return this._type;
+    }
+
+    protected readonly _type: number;
 
     /**
+     * @en
+     * Construct a sphere.
+     * @zh
      * 构造一个球。
      * @param cx 该球的世界坐标的 X 坐标。
      * @param cy 该球的世界坐标的 Y 坐标。
@@ -123,6 +143,8 @@ export default class sphere {
     }
 
     /**
+     * @en
+     * Get a clone.
      * @zh
      * 获得克隆。
      */
@@ -131,6 +153,8 @@ export default class sphere {
     }
 
     /**
+     * @en
+     * Copy a sphere.
      * @zh
      * 拷贝对象。
      * @param a 拷贝的目标。
@@ -169,19 +193,23 @@ export default class sphere {
     }
 
     /**
+     * @en
+     * Translate and rotate this sphere.
      * @zh
      * 将 out 根据这个 sphere 的数据进行变换。
      * @param m 变换的矩阵。
      * @param rot 变换的旋转部分。
      * @param out 变换的目标。
      */
-    public translateAndRotate (m: Mat4, rot: Quat, out: sphere){
+    public translateAndRotate (m: Mat4, rot: Quat, out: sphere) {
         Vec3.transformMat4(out.center, this.center, m);
     }
 
     /**
+     * @en
+     * Scaling this sphere.
      * @zh
-     *  将 out 根据这个 sphere 的数据进行缩放。
+     * 将 out 根据这个 sphere 的数据进行缩放。
      * @param scale 缩放值。
      * @param out 缩放的目标。
      */

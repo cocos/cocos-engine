@@ -16,16 +16,38 @@ _v[5] = new Vec3(-1, 1, -1);
 _v[6] = new Vec3(-1, -1, -1);
 _v[7] = new Vec3(1, -1, -1);
 
+/**
+ * @en
+ * Basic Geometry: frustum.
+ * @zh
+ * 基础几何 截头锥体。
+ */
 // tslint:disable-next-line: class-name
 export class frustum {
 
     /**
-     * Set whether to use accurate intersection testing function on this frustum
+     * @en
+     * Set whether to use accurate intersection testing function on this frustum.
+     * @zh
+     * 设置是否在此截锥体上使用精确的相交测试函数。
      */
     set accurate (b: boolean) {
         this._type = b ? enums.SHAPE_FRUSTUM_ACCURATE : enums.SHAPE_FRUSTUM;
     }
 
+    /**
+     * @en
+     * Create a ortho frustum.
+     * @zh
+     * 创建一个正交视锥体。
+     * @param out 正交视锥体。
+     * @param width 正交视锥体的宽度。
+     * @param height 正交视锥体的高度。
+     * @param near 正交视锥体的近平面值。
+     * @param far 正交视锥体的远平面值。
+     * @param transform 正交视锥体的变换矩阵。
+     * @return {frustum} frustum.
+     */
     public static createOrtho = (() => {
         const _temp_v3 = new Vec3();
         return (out: frustum, width: number, height: number, near: number, far: number, transform: Mat4) => {
@@ -58,23 +80,31 @@ export class frustum {
     })();
 
     /**
-     * create a new frustum
-     *
-     * @return {frustum}
+     * @en
+     * create a new frustum.
+     * @zh
+     * 创建一个新的截锥体。
+     * @return {frustum} frustum.
      */
-    public static create () {
+    public static create (): frustum {
         return new frustum();
     }
 
     /**
-     * Clone a frustum
+     * @en
+     * Clone a frustum.
+     * @zh
+     * 克隆一个截锥体。
      */
     public static clone (f: frustum): frustum {
         return frustum.copy(new frustum(), f);
     }
 
     /**
-     * Copy the values from one frustum to another
+     * @en
+     * Copy the values from one frustum to another.
+     * @zh
+     * 从一个截锥体拷贝到另一个截锥体。
      */
     public static copy (out: frustum, f: frustum): frustum {
         out._type = f._type;
@@ -87,9 +117,20 @@ export class frustum {
         return out;
     }
 
+    /**
+     * @en
+     * Gets the type of the shape.
+     * @zh
+     * 获取形状的类型。
+     */
+    get type () {
+        return this._type;
+    }
+
+    protected _type: number;
+
     public planes: plane[];
     public vertices: Vec3[];
-    private _type: number;
 
     constructor () {
         this._type = enums.SHAPE_FRUSTUM;
@@ -104,9 +145,11 @@ export class frustum {
     }
 
     /**
+     * @en
      * Update the frustum information according to the given transform matrix.
      * Note that the resulting planes are not normalized under normal mode.
-     *
+     * @zh
+     * 根据给定的变换矩阵更新截锥体信息，注意得到的平面不是在标准模式下归一化的。
      * @param {Mat4} m the view-projection matrix
      * @param {Mat4} inv the inverse view-projection matrix
      */
@@ -149,6 +192,13 @@ export class frustum {
         }
     }
 
+    /**
+     * @en
+     * Transform this frustum.
+     * @zh
+     * 变换此截锥体。
+     * @param mat 变换矩阵。
+     */
     public transform (mat: Mat4) {
         if (this._type !== enums.SHAPE_FRUSTUM_ACCURATE) {
             return;
