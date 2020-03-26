@@ -282,7 +282,6 @@ function _getSharedOptions () {
     }
     _images.length = 0;
     _sharedOpts.images = _images;
-    _sharedOpts.flipY = false;
     return _sharedOpts;
 }
 
