@@ -282,7 +282,6 @@ function _getSharedOptions () {
     }
     _images.length = 0;
     _sharedOpts.images = _images;
-    _sharedOpts.flipY = false;
     return _sharedOpts;
 }
 
@@ -506,9 +505,7 @@ var Texture2D = cc.Class({
                 options.images.push(options.image);
             }
 
-            if (options.images && options.images.length > 0) {
-                this._texture.update(options);
-            }
+            this._texture && this._texture.update(options);
 
             this._hashDirty = true;
         }
