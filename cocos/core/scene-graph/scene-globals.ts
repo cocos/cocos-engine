@@ -194,7 +194,7 @@ export class FogInfo {
     @property
     protected _fogStart = 0.5;
     @property
-    protected _fogEnd = 5;
+    protected _fogEnd = 300;
     @property
     protected _fogAtten = 5;
     @property
@@ -235,8 +235,7 @@ export class FogInfo {
      * @en Global fog type
      */
     @property({
-        type: FogType,
-        tooltip: '全局雾类型',
+        type: FogType
     })
     get type () {
         return this._type;
@@ -253,7 +252,12 @@ export class FogInfo {
      */
     @property({
         type: CCFloat,
-        tooltip: '全局雾浓度',
+        range: [0, 1],
+        step: 0.01,
+        slide: true,
+        visible: function(this: FogInfo) {
+            return this._type !== FogType.LAYERED && this._type !== FogType.LINEAR;
+        }
     })
     get fogDensity () {
         return this._fogDensity;
@@ -270,8 +274,8 @@ export class FogInfo {
      */
     @property({
         type: CCFloat,
-        tooltip: '雾效起始位置',
-        visible: function (this: FogInfo){ 
+        step: 0.1,
+        visible: function(this: FogInfo) { 
             return this._type === FogType.LINEAR;
         }
     })
@@ -290,7 +294,7 @@ export class FogInfo {
      */
     @property({
         type: CCFloat,
-        tooltip: '雾效结束位置',
+        step: 0.1,
         visible: function (this: FogInfo){ 
             return this._type === FogType.LINEAR;
         }
@@ -310,7 +314,7 @@ export class FogInfo {
      */
     @property({
         type: CCFloat,
-        tooltip: '雾效衰减',
+        step: 0.1,
         visible: function (this: FogInfo){ 
             return this._type !== FogType.LINEAR;
         }
@@ -330,7 +334,7 @@ export class FogInfo {
      */
     @property({
         type: CCFloat,
-        tooltip: '雾效顶部范围',
+        step: 0.1,
         visible: function (this: FogInfo){ 
             return this._type === FogType.LAYERED;
         }
@@ -350,7 +354,7 @@ export class FogInfo {
      */
     @property({
         type: CCFloat,
-        tooltip: '雾效范围',
+        step: 0.1,
         visible: function (this: FogInfo){ 
             return this._type === FogType.LAYERED;
         }
