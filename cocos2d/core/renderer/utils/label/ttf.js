@@ -229,6 +229,8 @@ export default class TTFAssembler extends Assembler2D {
             }
         }
 
+        firstLinelabelY += textUtils.BASELINE_OFFSET * _fontSize;
+
         return cc.v2(labelX + _canvasPadding.x, firstLinelabelY + _canvasPadding.y);
     }
 

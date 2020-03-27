@@ -28,8 +28,9 @@ import js from '../platform/js'
 
 // Draw text the textBaseline ratio (Can adjust the appropriate baseline ratio based on the platform)
 let _BASELINE_RATIO = 0.26;
+let _BASELINE_OFFSET = 0;
 if (CC_RUNTIME) {
-    _BASELINE_RATIO = -0.05;
+    _BASELINE_OFFSET = _BASELINE_RATIO / 2;
 }
 
 const MAX_CACHE_SIZE = 100;
@@ -131,6 +132,7 @@ var textUtils = {
 
     BASELINE_RATIO: _BASELINE_RATIO,
     MIDDLE_RATIO: (_BASELINE_RATIO + 1) / 2 - _BASELINE_RATIO,
+    BASELINE_OFFSET: _BASELINE_OFFSET,
 
     label_wordRex : /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûа-яА-ЯЁё]+|\S)/,
     label_symbolRex : /^[!,.:;'}\]%\?>、‘“》？。，！]/,
