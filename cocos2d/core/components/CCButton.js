@@ -425,7 +425,6 @@ let Button = cc.Class({
     __preload () {
         this._applyTarget();
         this._resetState();
-        this._updateState();
     },
 
     _resetState () {
@@ -463,6 +462,8 @@ let Button = cc.Class({
         if (!CC_EDITOR) {
             this._registerNodeEvent();
         }
+
+        this._updateState();
     },
 
     onDisable () {
