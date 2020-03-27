@@ -35,7 +35,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     public set enable (val) {
         if (this._enable === val) return;
         this._enable = val;
-        this.target!.enableModule(PARTICLE_MODULE_NAME.VELOCITY, val, this);
+        this.target!.enableModule(this.name, val, this);
     }
 
     /**
@@ -100,13 +100,15 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
         this.rotation = new Quat();
         this.speedModifier.constant = 1;
         this.needTransform = false;
+        this.name = PARTICLE_MODULE_NAME.VELOCITY;
+        this.needUpdate = true;
     }
 
     public update (space: number, worldTransform: Mat4) {
         this.needTransform = calculateTransform(space, this.space, worldTransform, this.rotation);
     }
 
-    public animate (p: Particle) {
+    public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         const vel = Vec3.set(_temp_v3, this.x.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_X_OVERTIME_RAND_OFFSET))!, this.y.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_Y_OVERTIME_RAND_OFFSET))!, this.z.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_Z_OVERTIME_RAND_OFFSET))!);
         if (this.needTransform) {

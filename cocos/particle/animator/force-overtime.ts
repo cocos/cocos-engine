@@ -33,7 +33,7 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
     public set enable (val) {
         if (this._enable === val) return;
         this._enable = val;
-        this.target!.enableModule(PARTICLE_MODULE_NAME.FORCE, val, this);
+        this.target!.enableModule(this.name, val, this);
     }
 
     /**
@@ -89,6 +89,8 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
         super();
         this.rotation = new Quat();
         this.needTransform = false;
+        this.name = PARTICLE_MODULE_NAME.FORCE;
+        this.needUpdate = true;
     }
 
     public update (space, worldTransform) {
@@ -102,6 +104,7 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
             Vec3.transformQuat(force, force, this.rotation);
         }
         Vec3.scaleAndAdd(p.velocity, p.velocity, force, dt);
+        Vec3.copy(p.ultimateVelocity, p.velocity);
     }
 }
 

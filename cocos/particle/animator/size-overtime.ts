@@ -29,7 +29,7 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
     public set enable (val) {
         if (this._enable === val) return;
         this._enable = val;
-        this.target!.enableModule(PARTICLE_MODULE_NAME.SIZE, val, this);
+        this.target!.enableModule(this.name, val, this);
     }
 
     /**
@@ -81,7 +81,12 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
     })
     public z = new CurveRange();
 
-    public animate (particle: Particle) {
+    constructor () {
+        super();
+        this.name = PARTICLE_MODULE_NAME.SIZE;
+    }
+
+    public animate (particle: Particle, dt: number) {
         if (!this.separateAxes) {
             Vec3.multiplyScalar(particle.size, particle.startSize, this.size.evaluate(1 - particle.remainingLifetime / particle.startLifetime, pseudoRandom(particle.randomSeed + SIZE_OVERTIME_RAND_OFFSET))!);
         } else {

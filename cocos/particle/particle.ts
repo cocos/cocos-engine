@@ -60,20 +60,33 @@ export const PARTICLE_MODULE_NAME = {
     TEXTURE: 'textureModule'
 }
 
-export const PARTICLE_MODULE_ORDER = {
-    'sizeModule': 0,
-    'colorModule': 1,
-    'forceModule': 2,
-    'velocityModule': 3,
-    'limitModule': 4,
-    'rotationModule': 5,
-    'textureModule': 6
-}
+export const PARTICLE_MODULE_ORDER = [
+    'sizeModule',
+    'colorModule',
+    'forceModule',
+    'velocityModule',
+    'limitModule',
+    'rotationModule',
+    'textureModule'
+]
+
+export const PARTICLE_MODULE_PROPERTY = [
+    "colorOverLifetimeModule",
+    "shapeModule",
+    "sizeOvertimeModule",
+    "velocityOvertimeModule",
+    "forceOvertimeModule",
+    "limitVelocityOvertimeModule",
+    "rotationOvertimeModule",
+    "textureAnimationModule",
+    "trailModule"
+]
 
 export interface IParticleModule {
     target: IParticleSystemRenderer | null;
     needUpdate: Boolean;
     needAnimate: Boolean;
+    name: string;
     bindTarget (target: any): void;
     update (space: number, trans: Mat4): void;
     animate (p: Particle, dt: number): void;
@@ -83,6 +96,7 @@ export abstract class ParticleModuleBase implements IParticleModule{
     public target:IParticleSystemRenderer | null = null;
     public needUpdate: Boolean = false;
     public needAnimate: Boolean = true;
+    public name: string = "";
 
     constructor () {
     }

@@ -28,20 +28,9 @@ import { particleEmitZAxis } from './particle-general-function';
 import ParticleSystemRenderer from './renderer/particle-system-renderer-data';
 import TrailModule from './renderer/trail';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
-import { indexOf } from '../core/utils/array';
+import { PARTICLE_MODULE_PROPERTY } from './particle';
 
 const _world_mat = new Mat4();
-const _module_props = [
-    "colorOverLifetimeModule",
-    "shapeModule",
-    "sizeOvertimeModule",
-    "velocityOvertimeModule",
-    "forceOvertimeModule",
-    "limitVelocityOvertimeModule",
-    "rotationOvertimeModule",
-    "textureAnimationModule",
-    "trailModule"
-]
 
 @ccclass('cc.ParticleSystemComponent')
 @menu('Components/ParticleSystem')
@@ -858,6 +847,6 @@ export class ParticleSystemComponent extends RenderableComponent {
     }
 
     public _onBeforeSerialize (props) {
-        return this.enableCulling ? props.filter(p => !_module_props.includes(p) || this[p].enable) : props;
+        return this.enableCulling ? props.filter(p => !PARTICLE_MODULE_PROPERTY.includes(p) || this[p].enable) : props;
     }
 }

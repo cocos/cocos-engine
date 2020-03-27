@@ -76,7 +76,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
         if (this._enable === val) return;
         this._enable = val;
         this.target!.updateMaterialParams();
-        this.target!.enableModule(PARTICLE_MODULE_NAME.TEXTURE, val, this);
+        this.target!.enableModule(this.name, val, this);
     }
 
     @property({
@@ -234,11 +234,16 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     })
     public rowIndex = 0;
 
+    constructor () {
+        super();
+        this.name = PARTICLE_MODULE_NAME.TEXTURE;
+    }
+
     public init (p: Particle) {
         p.startRow = Math.floor(Math.random() * this.numTilesY);
     }
 
-    public animate (p: Particle) {
+    public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         const startFrame = this.startFrame.evaluate(normalizedTime, pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET))! / (this.numTilesX * this.numTilesY);
         if (this.animation === Animation.WholeSheet) {

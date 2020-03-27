@@ -34,7 +34,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     public set enable (val) {
         if (this._enable === val) return;
         this._enable = val;
-        this.target!.enableModule(PARTICLE_MODULE_NAME.LIMIT, val, this);
+        this.target!.enableModule(this.name, val, this);
     }
 
     /**
@@ -123,13 +123,15 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
         super();
         this.rotation = new Quat();
         this.needTransform = false;
+        this.name = PARTICLE_MODULE_NAME.LIMIT;
+        this.needUpdate = true;
     }
 
     public update (space: number, worldTransform: Mat4) {
         this.needTransform = calculateTransform(space, this.space, worldTransform, this.rotation);
     }
 
-    public animate (p: Particle) {
+    public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         const dampedVel = _temp_v3;
         if (this.separateAxes) {

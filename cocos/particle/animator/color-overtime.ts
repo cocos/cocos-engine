@@ -31,7 +31,7 @@ export default class ColorOvertimeModule extends ParticleModuleBase {
     public set enable (val) {
         if (this._enable === val) return;
         this._enable = val;
-        this.target!.enableModule(PARTICLE_MODULE_NAME.COLOR, val, this);
+        this.target!.enableModule(this.name, val, this);
     }
 
     /**
@@ -43,11 +43,14 @@ export default class ColorOvertimeModule extends ParticleModuleBase {
     })
     public color = new GradientRange();
 
+    constructor () {
+        super();
+        this.name = PARTICLE_MODULE_NAME.COLOR;
+    }
+
     public animate (particle: Particle) {
-        if (this.enable) {
-            particle.color.set(particle.startColor);
-            particle.color.multiply(this.color.evaluate(1.0 - particle.remainingLifetime / particle.startLifetime, pseudoRandom(particle.randomSeed + COLOR_OVERTIME_RAND_OFFSET)));
-        }
+        particle.color.set(particle.startColor);
+        particle.color.multiply(this.color.evaluate(1.0 - particle.remainingLifetime / particle.startLifetime, pseudoRandom(particle.randomSeed + COLOR_OVERTIME_RAND_OFFSET)));
     }
 }
 

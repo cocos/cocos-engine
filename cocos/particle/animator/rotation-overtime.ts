@@ -29,7 +29,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     public set enable (val) {
         if (this._enable === val) return;
         this._enable = val;
-        this.target!.enableModule(PARTICLE_MODULE_NAME.ROTATION, val, this);
+        this.target!.enableModule(this.name, val, this);
     }
 
     @property
@@ -85,6 +85,11 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
         tooltip:'绕 Z 轴设定旋转',
     })
     public z = new CurveRange();
+
+    constructor () {
+        super();
+        this.name = PARTICLE_MODULE_NAME.ROTATION;
+    }
 
     public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
