@@ -35,6 +35,7 @@ import { Ambient } from '../renderer/scene/ambient';
 import { PlanarShadows } from '../renderer/scene/planar-shadows';
 import { RenderScene } from '../renderer/scene/render-scene';
 import { Skybox } from '../renderer/scene/skybox';
+import { Fog, FogType } from '../renderer/scene/fog';
 import { Node } from './node';
 
 const _up = new Vec3(0, 1, 0);
@@ -176,6 +177,209 @@ export class SkyboxInfo {
 cc.SkyboxInfo = SkyboxInfo;
 
 /**
+ * @zh 全局雾相关信息
+ * @en Global fog info
+ */
+@ccclass('cc.FogInfo')
+export class FogInfo {
+    public static FogType = FogType;
+    @property
+    protected _type = FogType.LINEAR;
+    @property
+    protected _fogColor = new Color('#C8C8C8');
+    @property
+    protected _enabled = false;
+    @property
+    protected _fogDensity = 0.3;
+    @property
+    protected _fogStart = 0.5;
+    @property
+    protected _fogEnd = 5;
+    @property
+    protected _fogAtten = 5;
+    @property
+    protected _fogTop = 1.5;
+    @property
+    protected _fogRange = 1.2;
+    protected _resource: Fog | null = null;
+    /**
+     * @zh 是否启用全局雾效
+     * @en Enable global fog
+     */
+    @property({ type: CCBoolean })
+    set enabled (val: boolean) {
+        this._enabled = val;
+        if (this._resource) { this._resource.enabled = val; }
+    }
+    
+    get enabled () {
+        return this._enabled;
+    }
+    
+    /**
+     * @zh 全局雾颜色
+     * @en Global fog color
+     */
+    @property({ type: Color })
+    set fogColor (val: Color) {
+        this._fogColor.set(val);
+        if (this._resource) { Color.toArray(this._resource.fogColor, this.fogColor); }
+    }
+    
+    get fogColor () {
+        return this._fogColor;
+    }
+
+    /**
+     * @zh 全局雾类型
+     * @en Global fog type
+     */
+    @property({
+        type: FogType,
+        tooltip: '全局雾类型',
+    })
+    get type () {
+        return this._type;
+    }
+
+    set type (val) {
+        this._type = val;
+        if (this._resource) { this._resource.type = val; }
+    }
+
+    /**
+     * @zh 全局雾浓度
+     * @en Global fog density
+     */
+    @property({
+        type: CCFloat,
+        tooltip: '全局雾浓度',
+    })
+    get fogDensity () {
+        return this._fogDensity;
+    }
+
+    set fogDensity (val) {
+        this._fogDensity = val;
+        if (this._resource) { this._resource.fogDensity = val; }
+    }
+
+    /**
+     * @zh 雾效起始位置，只适用于线性雾
+     * @en Global fog start position, only for linear fog
+     */
+    @property({
+        type: CCFloat,
+        tooltip: '雾效起始位置',
+        visible: function (this: FogInfo){ 
+            return this._type === FogType.LINEAR;
+        }
+    })
+    get fogStart() {
+        return this._fogStart;
+    }
+
+    set fogStart(val) {
+        this._fogStart = val;
+        if (this._resource) { this._resource.fogStart = val; }
+    }
+
+    /**
+     * @zh 雾效结束位置，只适用于线性雾
+     * @en Global fog end position, only for linear fog
+     */
+    @property({
+        type: CCFloat,
+        tooltip: '雾效结束位置',
+        visible: function (this: FogInfo){ 
+            return this._type === FogType.LINEAR;
+        }
+    })
+    get fogEnd() {
+        return this._fogEnd;
+    }
+
+    set fogEnd(val) {
+        this._fogEnd = val;
+        if (this._resource) { this._resource.fogEnd = val; }
+    }
+
+    /**
+     * @zh 雾效衰减
+     * @en Global fog attenuation
+     */
+    @property({
+        type: CCFloat,
+        tooltip: '雾效衰减',
+        visible: function (this: FogInfo){ 
+            return this._type !== FogType.LINEAR;
+        }
+    })
+    get fogAtten() {
+        return this._fogAtten;
+    }
+
+    set fogAtten(val) {
+        this._fogAtten = val;
+        if (this._resource) { this._resource.fogAtten = val; }
+    }
+
+    /**
+     * @zh 雾效顶部范围，只适用于层级雾
+     * @en Global fog top range, only for layered fog
+     */
+    @property({
+        type: CCFloat,
+        tooltip: '雾效顶部范围',
+        visible: function (this: FogInfo){ 
+            return this._type === FogType.LAYERED;
+        }
+    })
+    get fogTop() {
+        return this._fogTop;
+    }
+
+    set fogTop(val) {
+        this._fogTop = val;
+        if (this._resource) { this._resource.fogTop = val; }
+    }
+
+    /**
+     * @zh 雾效范围，只适用于层级雾
+     * @en Global fog range, only for layered fog
+     */
+    @property({
+        type: CCFloat,
+        tooltip: '雾效范围',
+        visible: function (this: FogInfo){ 
+            return this._type === FogType.LAYERED;
+        }
+    })
+    get fogRange() {
+        return this._fogRange;
+    }
+
+    set fogRange(val) {
+        this._fogRange = val;
+        if (this._resource) { this._resource.fogRange = val; }
+    }
+
+    set renderScene (val: RenderScene) {
+        this._resource = val.fog;
+        this.enabled = this._enabled;
+        this.fogColor = this._fogColor;
+        this.type = this._type;
+        this.fogDensity = this._fogDensity;
+        this.fogStart = this._fogStart;
+        this.fogEnd = this._fogEnd;
+        this.fogAtten = this._fogAtten;
+        this.fogTop = this._fogTop;
+        this.fogRange = this._fogRange;
+    }
+}
+cc.FogInfo = FogInfo;
+
+/**
  * @zh 平面阴影相关信息
  */
 @ccclass('cc.PlanarShadowInfo')
@@ -271,7 +475,9 @@ export class SceneGlobals {
     public planarShadows = new PlanarShadowInfo();
     @property
     private _skybox = new SkyboxInfo();
-
+    @property
+    public fog = new FogInfo();
+    
     @property({ type: SkyboxInfo })
     get skybox () {
         return this._skybox;
@@ -285,6 +491,7 @@ export class SceneGlobals {
         this.ambient.renderScene = rs;
         this.skybox.renderScene = rs;
         this.planarShadows.renderScene = rs;
+        this.fog.renderScene = rs;
     }
 }
 cc.SceneGlobals = SceneGlobals;
