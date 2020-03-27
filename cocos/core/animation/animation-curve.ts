@@ -235,6 +235,13 @@ export class AnimCurve {
     public empty () {
         return this._values.length === 0;
     }
+
+    /**
+     * Returns if this curve only yields constants.
+     */
+    public constant () {
+        return this._values.length === 1;
+    }
 }
 cc.AnimCurve = AnimCurve;
 
