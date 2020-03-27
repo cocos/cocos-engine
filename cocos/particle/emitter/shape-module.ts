@@ -101,7 +101,7 @@ export default class ShapeModule {
     @property({
         displayOrder: 0,
     })
-    public enable = true;
+    public enable = false;
 
     /**
      * @zh 粒子发射器类型 [[ShapeType]]。
