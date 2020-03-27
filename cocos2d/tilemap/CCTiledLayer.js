@@ -449,8 +449,9 @@ let TiledLayer = cc.Class({
     _positionForIsoAt (x, y) {
         let offsetX = 0, offsetY = 0;
         let index = Math.floor(x) + Math.floor(y) * this._layerSize.width;
-        let gid = this._tiles[index];
-        if (gid) {
+        let gidAndFlags = this._tiles[index];
+        if (gidAndFlags) {
+            let gid = ((gidAndFlags & cc.TiledMap.TileFlag.FLIPPED_MASK) >>> 0);
             let tileset = this._texGrids[gid].tileset;
             let offset = tileset.tileOffset;
             offsetX = offset.x;
@@ -466,8 +467,9 @@ let TiledLayer = cc.Class({
     _positionForOrthoAt (x, y) {
         let offsetX = 0, offsetY = 0;
         let index = Math.floor(x) + Math.floor(y) * this._layerSize.width;
-        let gid = this._tiles[index];
-        if (gid) {
+        let gidAndFlags = this._tiles[index];
+        if (gidAndFlags) {
+            let gid = ((gidAndFlags & cc.TiledMap.TileFlag.FLIPPED_MASK) >>> 0);
             let tileset = this._texGrids[gid].tileset;
             let offset = tileset.tileOffset;
             offsetX = offset.x;
@@ -522,13 +524,13 @@ let TiledLayer = cc.Class({
      * 设置给定区域的 tile 的 gid (gid = tile 全局 id)，
      * @method setTilesGIDAt
      * @param {Array} gids an array contains gid
-     * @param {Number} beginRow begin row number
      * @param {Number} beginCol begin col number
+     * @param {Number} beginRow begin row number
      * @param {Number} totalCols count of column
      * @example
      * tiledLayer.setTilesGIDAt([1, 1, 1, 1], 10, 10, 2)
      */
-    setTilesGIDAt (gids, beginRow, beginCol, totalCols) {
+    setTilesGIDAt (gids, beginCol, beginRow, totalCols) {
         if (!gids || gids.length === 0 || totalCols <= 0) return;
         if (beginRow < 0) beginRow = 0;
         if (beginCol < 0) beginCol = 0;
@@ -537,8 +539,7 @@ let TiledLayer = cc.Class({
         for (let row = beginRow; ; row++) {
             for (let col = beginCol; col < endCol; col++) {
                 if (gidsIdx >= gids.length) return;
-                let gid = gids[gidsIdx];
-                this.setTileGIDAt(gid, col, row);
+                this._updateTileForGID(gids[gidsIdx], col, row);
                 gidsIdx++;
             }
         }
@@ -591,30 +592,28 @@ let TiledLayer = cc.Class({
         }
 
         flags = flags || 0;
-        let gidAndFlags = (gid | flags) >>> 0;
-        let index = pos.x + pos.y * this._layerSize.width;
-        let oldGIDAndFlags = this._tiles[index];
-        if (gidAndFlags === oldGIDAndFlags) return;
-        this._updateTileForGID(gidAndFlags, pos);
+        this._updateTileForGID( (gid | flags) >>> 0, pos.x, pos.y);
     },
 
-    _updateTileForGID (gidAndFlags, pos) {
-        const FLIPPED_MASK = cc.TiledMap.TileFlag.FLIPPED_MASK;
-        let gid = ((gidAndFlags & FLIPPED_MASK) >>> 0);
+    _updateTileForGID (gidAndFlags, x, y) {
+        let idx = 0 | (x + y * this._layerSize.width);
+        if (idx >= this._tiles.length) return;
+
+        let oldGIDAndFlags = this._tiles[idx];
+        if (gidAndFlags === oldGIDAndFlags) return;
+
+        let gid = ((gidAndFlags & cc.TiledMap.TileFlag.FLIPPED_MASK) >>> 0);
         let grid = this._texGrids[gid];
         let tilesetIdx = grid && grid.texId;
-
-        let idx = 0 | (pos.x + pos.y * this._layerSize.width);
-        if (idx < this._tiles.length) {
-            if (grid) {
-                this._tiles[idx] = gidAndFlags;
-                this._updateVertex(pos.y, pos.x);
-                this._buildMaterial(tilesetIdx);
-            } else {
-                this._tiles[idx] = 0;
-            }
-            this._cullingDirty = true;
+        
+        if (grid) {
+            this._tiles[idx] = gidAndFlags;
+            this._updateVertex(x, y);
+            this._buildMaterial(tilesetIdx);
+        } else {
+            this._tiles[idx] = 0;
         }
+        this._cullingDirty = true;
     },
 
     /**
@@ -848,7 +847,7 @@ let TiledLayer = cc.Class({
         return this._properties;
     },
 
-    _updateVertex (row, col) {
+    _updateVertex (col, row) {
         const TiledMap = cc.TiledMap;
         const TileFlag = TiledMap.TileFlag;
         const FLIPPED_MASK = TileFlag.FLIPPED_MASK;
@@ -1019,7 +1018,7 @@ let TiledLayer = cc.Class({
 
         for (let row = 0; row < rows; ++row) {
             for (let col = 0; col < cols; ++col) {
-                this._updateVertex(row, col);
+                this._updateVertex(col, row);
             }
         }
         this._verticesDirty = false;
