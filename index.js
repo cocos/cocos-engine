@@ -51,7 +51,6 @@ require('./polyfill/array');
 require('./polyfill/object');
 require('./polyfill/array-buffer');
 require('./polyfill/number');
-require('./polyfill/image-bitmap');
 if (!(CC_EDITOR && Editor.isMainProcess)) {
     require('./polyfill/typescript');
 }

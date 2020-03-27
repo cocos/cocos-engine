@@ -105,10 +105,11 @@ var PositionType = cc.Enum({
 
     /**
      * !#en
-     * Living particles are attached to the world but will follow the emitter repositioning.<br/>
-     * Use case: Attach an emitter to an sprite, and you want that the emitter follows the sprite.
+     * In the relative mode, the particle will move with the parent node, but not with the node where the particle is. 
+     * For example, the coffee in the cup is steaming. Then the steam moves (forward) with the train, rather than moves with the cup.
      * !#zh
-     * 相对模式，粒子会随父节点移动而移动，可用于制作移动角色身上的特效等等。（该选项在 Creator 中暂时不支持）
+     * 相对模式，粒子会跟随父节点移动，但不跟随粒子所在节点移动，例如在一列行进火车中，杯中的咖啡飘起雾气，
+     * 杯子移动，雾气整体并不会随着杯子移动，但从火车整体的角度来看，雾气整体会随着火车移动。
      * @property {Number} RELATIVE
      */
     RELATIVE: 1,

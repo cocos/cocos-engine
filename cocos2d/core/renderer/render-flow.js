@@ -216,7 +216,8 @@ RenderFlow.validateRenderers = function () {
 RenderFlow.visitRootNode = function (rootNode) {
     RenderFlow.validateRenderers();    
 
-    _cullingMask = 1 << rootNode.groupIndex;
+    let preCullingMask = _cullingMask;
+    _cullingMask = rootNode._cullingMask;
 
     if (rootNode._renderFlag & WORLD_TRANSFORM) {
         _batcher.worldMatDirty ++;
@@ -230,6 +231,8 @@ RenderFlow.visitRootNode = function (rootNode) {
     else {
         flows[rootNode._renderFlag]._func(rootNode);
     }
+
+    _cullingMask = preCullingMask;
 };
 
 RenderFlow.render = function (scene, dt) {

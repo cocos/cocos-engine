@@ -130,7 +130,7 @@ var js = require('../platform/js');
 var showed = false;
 js.get(cc, 'ToggleGroup', function () {
     if (!showed) {
-        cc.logID(1405, 'cc.ToggleGroup', 'cc.ToggleContainer');
+        cc.errorID(1405, 'cc.ToggleGroup', 'cc.ToggleContainer');
         showed = true;
     }
     return ToggleGroup;

@@ -496,7 +496,6 @@ cc.Director.prototype = {
      * @param {Scene} scene - The need run scene.
      * @param {Function} [onBeforeLoadScene] - The function invoked at the scene before loading.
      * @param {Function} [onLaunched] - The function invoked at the scene after launch.
-     * @private
      */
     runScene: function (scene, onBeforeLoadScene, onLaunched) {
         cc.assertID(scene, 1205);

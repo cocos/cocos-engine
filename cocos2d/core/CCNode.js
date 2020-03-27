@@ -1372,7 +1372,7 @@ let NodeDefines = {
                     this._opacity = value;
                     if (CC_JSB && CC_NATIVERENDERER) {
                         this._proxy.updateOpacity();
-                    };
+                    }
                     this._renderFlag |= RenderFlow.FLAG_OPACITY_COLOR;
                 }
             },
@@ -2698,7 +2698,7 @@ let NodeDefines = {
             return Trs.toScale(out, this._trs);
         }
         else {
-            cc.warnID(1400, 'cc.Node.getScale', 'cc.Node.scale or cc.Node.getScale(cc.Vec3)');
+            cc.errorID(1400, 'cc.Node.getScale', 'cc.Node.scale or cc.Node.getScale(cc.Vec3)');
             return this._trs[7];
         }
     },
@@ -3665,22 +3665,17 @@ let NodeDefines = {
 
             if (_children.length > 1) {
                 // insertion sort
-                var j, child;
-                for (let i = 1, len = _children.length; i < len; i++) {
+                let child, child2;
+                for (let i = 1, count = _children.length; i < count; i++) {
                     child = _children[i];
-                    j = i - 1;
-
-                    //continue moving element downwards while zOrder is smaller or when zOrder is the same but mutatedIndex is smaller
-                    while (j >= 0) {
-                        if (child._localZOrder < _children[j]._localZOrder) {
-                            _children[j + 1] = _children[j];
-                        } else {
-                            break;
-                        }
-                        j--;
+                    let j = i;
+                    for (; j > 0 &&
+                            (child2 = _children[j - 1])._localZOrder > child._localZOrder; j--) {
+                        _children[j] = child2;
                     }
-                    _children[j + 1] = child;
+                    _children[j] = child;
                 }
+
                 this.emit(EventType.CHILD_REORDER, this);
             }
             cc.director.__fastOff(cc.Director.EVENT_AFTER_UPDATE, this.sortAllChildren, this);

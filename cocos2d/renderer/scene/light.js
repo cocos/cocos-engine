@@ -82,7 +82,6 @@ export default class Light {
     this._shadowDarkness = 1;
     this._shadowMinDepth = 1;
     this._shadowMaxDepth = 1000;
-    this._shadowDepthScale = 50; // maybe need to change it if the distance between shadowMaxDepth and shadowMinDepth is small.
     this._frustumEdgeFalloff = 0; // used by directional and spot light.
     this._viewProjMatrix = cc.mat4();
     this._spotAngleScale = 1; // used for spot light.
@@ -333,22 +332,6 @@ export default class Light {
       return 1.0;
     }
     return this._shadowMaxDepth;
-  }
-
-  /**
-   * set the shadow depth scale of the light source
-   * @param {number} val light source shadow depth scale
-   */
-  setShadowDepthScale(val) {
-    this._shadowDepthScale = val;
-  }
-
-  /**
-   * get the shadow depth scale of the light source
-   * @returns {number} light source shadow depth scale
-   */
-  get shadowDepthScale() {
-    return this._shadowDepthScale;
   }
 
   /**

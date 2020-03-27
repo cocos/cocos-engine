@@ -31,7 +31,7 @@ function initializing (task, done) {
 
     // stage 1, deserialize and prepare
     forEach (input, function (item, cb) {
-        var { id, isNative, uuid, options, content, file, ext } = item;
+        let { id, isNative, uuid, options, content, file, ext } = item;
         if (content) {
             assetsMap[id] = content;
             cb();
@@ -51,7 +51,7 @@ function initializing (task, done) {
                 }
                 else {
                     assetsMap[id] = data;
-                    isNative && (item.content = data);
+                    isNative ? (item.content = data) : (data._uuid = uuid);
                 }
                 cb();
             });
@@ -73,7 +73,6 @@ function initializing (task, done) {
                 if (!item.content) {
                     var { cacheAsset } = item.options;
                     var asset = assetsMap[id];
-                    asset._uuid = uuid;
                     var deferredInit = asset.__depends__.length > 0;
                     var missingAsset = setProperties(uuid, asset, assetsMap);
                     if (!missingAsset) {

@@ -71,12 +71,14 @@ cc.Collider.Box = cc.Class({
         }
     },
 
-    resetInEditor: CC_EDITOR && function () {
-        var size = this.node.getContentSize();
-        if (size.width !== 0 && size.height !== 0) {
-            this.size = cc.size( size );
-            this.offset.x = (0.5 - this.node.anchorX) * size.width;
-            this.offset.y = (0.5 - this.node.anchorY) * size.height;
+    resetInEditor: CC_EDITOR && function (didResetToDefault) {
+        if (didResetToDefault) {
+            var size = this.node.getContentSize();
+            if (size.width !== 0 && size.height !== 0) {
+                this.size = cc.size( size );
+                this.offset.x = (0.5 - this.node.anchorX) * size.width;
+                this.offset.y = (0.5 - this.node.anchorY) * size.height;
+            }
         }
     }
 });

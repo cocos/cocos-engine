@@ -24,7 +24,7 @@
  ****************************************************************************/
 const Cache = require('./cache');
 const finalizer = require('./finalizer');
-const { BuiltinBundle } = require('./shared'); 
+const { BuiltinBundleName } = require('./shared'); 
 
 /**
  * @module cc.AssetManager
@@ -45,7 +45,7 @@ var builtins = {
     _loadBuiltins (name, cb) {
         let dirname = name  + 's';
         let builtin = this._assets.get(name);
-        return cc.assetManager.bundles.get(BuiltinBundle.INTERNAL).loadDir(dirname, null, null, (err, assets) => {
+        return cc.assetManager.internal.loadDir(dirname, null, null, (err, assets) => {
             if (err) {
                 cc.error(err);
             }
@@ -76,7 +76,7 @@ var builtins = {
      */
     init (cb) {
         this.clear();
-        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS || !cc.assetManager.bundles.has(BuiltinBundle.INTERNAL)) {
+        if (cc.game.renderType === cc.game.RENDER_TYPE_CANVAS || !cc.assetManager.bundles.has(BuiltinBundleName.INTERNAL)) {
             return cb && cb();
         }
 
@@ -93,15 +93,15 @@ var builtins = {
      * 通过特定的类型和名称获取内建资源
      * 
      * @method getBuiltin
-     * @param {string} type - The type of asset, such as `effect`
-     * @param {string} name - The name of asset, such as `phong`
+     * @param {string} [type] - The type of asset, such as `effect`
+     * @param {string} [name] - The name of asset, such as `phong`
      * @return {Asset|Cache} Builtin-assets
      * 
      * @example
      * cc.assetManaer.builtins.getBuiltin('effect', 'phone');
      * 
      * @typescript
-     * getBuiltin(type: string, name: string): cc.Asset | Cache
+     * getBuiltin(type?: string, name?: string): cc.Asset | Cache
      */
     getBuiltin (type, name) {
         if (arguments.length === 0) return this._assets;

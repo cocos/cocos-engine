@@ -71,6 +71,7 @@ var components = [
     require('./CCToggle'),
     require('./CCBlockInputEvents'),
     require('./CCMotionStreak'),
+    require('./CCSafeArea'),
     WXSubContextView,
     SwanSubContextView,
 ];

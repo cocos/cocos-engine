@@ -67,11 +67,13 @@ cc.Collider.Circle = cc.Class({
         }
     },
 
-    resetInEditor: CC_EDITOR && function () {
-        var size = this.node.getContentSize();
-        var radius = Math.max(size.width, size.height);
-        if (radius !== 0) {
-            this.radius = radius;
+    resetInEditor: CC_EDITOR && function (didResetToDefault) {
+        if (didResetToDefault) {
+            var size = this.node.getContentSize();
+            var radius = Math.max(size.width, size.height);
+            if (radius !== 0) {
+                this.radius = radius;
+            }
         }
     }
 });

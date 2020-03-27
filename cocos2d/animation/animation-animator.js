@@ -92,7 +92,7 @@ p.removeAnimation = function (anim) {
         }
     }
     else {
-        cc.errorID(3908);
+        cc.errorID(3907);
     }
 
     anim.animator = null;
