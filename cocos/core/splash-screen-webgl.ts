@@ -190,7 +190,7 @@ export class SplashScreenWebgl {
             }
 
             const textImage = this.textImage;
-            textImage.width = 300;
+            textImage.width = 330;
             textImage.height = 30;
             textImage.style.width = `${textImage.width}`;
             textImage.style.height = `${textImage.height}`;
@@ -200,7 +200,9 @@ export class SplashScreenWebgl {
             ctx.textBaseline = 'top';
             ctx.textAlign = 'left';
             ctx.fillStyle = '`#424242`';
-            ctx.fillText("Powered by Cocos Creator 3D", 30, 8);
+            const text = "Powered by Cocos Creator 3D";
+            const textMetrics = ctx.measureText(text);
+            ctx.fillText(text, (330 - textMetrics.width)/2, 6);
 
             this.logoImage.onload = this.init.bind(this);
             this.logoImage.src = this.setting.base64src;
