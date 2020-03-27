@@ -41,12 +41,16 @@ const _vec2 = new Vec2();
  * @param {Number} id
  */
 export class Touch {
-    public _point: Vec2 = new Vec2();
-    public _prevPoint: Vec2 = new Vec2();
-    public _lastModified = 0;
+    private _point: Vec2 = new Vec2();
+    private _prevPoint: Vec2 = new Vec2();
+    private _lastModified = 0;
     private _id: number | null = null;
     private _startPoint: Vec2 = new Vec2();
     private _startPointCaptured: boolean = false;
+
+    get lastModified () {
+        return this._lastModified;
+    }
 
     constructor (x: number, y: number, id: number | null = null) {
         this.setTouchInfo(id, x, y);
@@ -259,11 +263,11 @@ export class Touch {
         }
     }
 
-    public _setPoint (point: Vec2): void;
+    public setPoint (point: Vec2): void;
 
-    public _setPoint (x: number, y: number): void;
+    public setPoint (x: number, y: number): void;
 
-    public _setPoint (x: number | Vec2, y?: number) {
+    public setPoint (x: number | Vec2, y?: number) {
         if (typeof x === 'object') {
             this._point.x = x.x;
             this._point.y = x.y;
@@ -271,18 +275,20 @@ export class Touch {
             this._point.x = x || 0;
             this._point.y = y || 0;
         }
+        this._lastModified = cc.director.getCurrentTime();
     }
 
-    public _setPrevPoint (point: Vec2): void;
+    public setPrevPoint (point: Vec2): void;
 
-    public _setPrevPoint (x: number, y: number): void;
+    public setPrevPoint (x: number, y: number): void;
 
-    public _setPrevPoint (x: number | Vec2, y?: number) {
+    public setPrevPoint (x: number | Vec2, y?: number) {
         if (typeof x === 'object') {
             this._prevPoint = new Vec2(x.x, x.y);
         } else {
             this._prevPoint = new Vec2(x || 0, y || 0);
         }
+        this._lastModified = cc.director.getCurrentTime();
     }
 }
 
