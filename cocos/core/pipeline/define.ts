@@ -132,7 +132,10 @@ export class UBOGlobal {
     public static MAIN_LIT_COLOR_OFFSET: number = UBOGlobal.MAIN_LIT_DIR_OFFSET + 4;
     public static AMBIENT_SKY_OFFSET: number = UBOGlobal.MAIN_LIT_COLOR_OFFSET + 4;
     public static AMBIENT_GROUND_OFFSET: number = UBOGlobal.AMBIENT_SKY_OFFSET + 4;
-    public static COUNT: number = UBOGlobal.AMBIENT_GROUND_OFFSET + 4;
+    public static GLOBAL_FOG_COLOR_OFFSET: number = UBOGlobal.AMBIENT_GROUND_OFFSET + 4;
+    public static GLOBAL_FOG_BASE_OFFSET: number = UBOGlobal.GLOBAL_FOG_COLOR_OFFSET + 4;
+    public static GLOBAL_FOG_ADD_OFFSET: number = UBOGlobal.GLOBAL_FOG_BASE_OFFSET + 4;
+    public static COUNT: number = UBOGlobal.GLOBAL_FOG_ADD_OFFSET + 4;
     public static SIZE: number = UBOGlobal.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
@@ -153,6 +156,9 @@ export class UBOGlobal {
             { name: 'cc_mainLitColor', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_ambientSky', type: GFXType.FLOAT4, count: 1 },
             { name: 'cc_ambientGround', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_fogColor', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_fogBase', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_fogAdd', type: GFXType.FLOAT4, count: 1 }
         ],
     };
 
