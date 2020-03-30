@@ -26,7 +26,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
-    "@cocos/build-engine": "1.0.9",
+    "@cocos/build-engine": "2.0.0",
     "@types/fs-extra": "^5.0.4",
     "@types/jest": "^24.0.25",
     "@types/yargs": "^12.0.14",
