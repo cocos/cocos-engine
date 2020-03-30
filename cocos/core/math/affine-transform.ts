@@ -209,12 +209,12 @@ export class AffineTransform {
         out_br.y = xb + yd + ty;
     }
 
-    public a: number;
-    public b: number;
-    public c: number;
-    public d: number;
-    public tx: number;
-    public ty: number;
+    public declare a: number;
+    public declare b: number;
+    public declare c: number;
+    public declare d: number;
+    public declare tx: number;
+    public declare ty: number;
 
     /**
      * 构造二维放射变换矩阵。

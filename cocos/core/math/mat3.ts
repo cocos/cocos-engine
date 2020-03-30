@@ -615,47 +615,47 @@ export class Mat3 extends ValueType {
     /**
      * 矩阵第 0 列第 0 行的元素。
      */
-    public m00: number;
+    public declare m00: number;
 
     /**
      * 矩阵第 0 列第 1 行的元素。
      */
-    public m01: number;
+    public declare m01: number;
 
     /**
      * 矩阵第 0 列第 2 行的元素。
      */
-    public m02: number;
+    public declare m02: number;
 
     /**
      * 矩阵第 1 列第 0 行的元素。
      */
-    public m03: number;
+    public declare m03: number;
 
     /**
      * 矩阵第 1 列第 1 行的元素。
      */
-    public m04: number;
+    public declare m04: number;
 
     /**
      * 矩阵第 1 列第 2 行的元素。
      */
-    public m05: number;
+    public declare m05: number;
 
     /**
      * 矩阵第 2 列第 0 行的元素。
      */
-    public m06: number;
+    public declare m06: number;
 
     /**
      * 矩阵第 2 列第 1 行的元素。
      */
-    public m07: number;
+    public declare m07: number;
 
     /**
      * 矩阵第 2 列第 2 行的元素。
      */
-    public m08: number;
+    public declare m08: number;
 
     constructor (other: Mat3);
 

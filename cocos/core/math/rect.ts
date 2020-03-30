@@ -223,22 +223,22 @@ export class Rect extends ValueType {
     /**
      * 获取或设置矩形最小点的 x 坐标。
      */
-    public x: number;
+    public declare x: number;
 
     /**
      * 获取或设置矩形最小点的 y 坐标。
      */
-    public y: number;
+    public declare y: number;
 
     /**
      * 获取或设置矩形的宽度。
      */
-    public width: number;
+    public declare width: number;
 
     /**
      * 获取或设置矩形的高度。
      */
-    public height: number;
+    public declare height: number;
 
     /**
      * 构造与指定矩形相等的矩形。
