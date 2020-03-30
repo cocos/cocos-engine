@@ -35,11 +35,6 @@ import { Size } from './size';
 import { IRectLike, IVec2Like } from './type-define';
 import { Vec2 } from './vec2';
 
-let _x: number = 0.0;
-let _y: number = 0.0;
-let _w: number = 0.0;
-let _h: number = 0.0;
-
 /**
  * 轴对齐矩形。
  * 矩形内的所有点都大于等于矩形的最小点 (xMin, yMin) 并且小于等于矩形的最大点 (xMax, yMax)。
@@ -73,14 +68,14 @@ export class Rect extends ValueType {
      * @param ratio 插值比率，范围为 [0,1]。
      */
     public static lerp <Out extends IRectLike> (out: Out, from: Out, to: Out, ratio: number) {
-        _x = from.x;
-        _y = from.y;
-        _w = from.width;
-        _h = from.height;
-        out.x = _x + (to.x - _x) * ratio;
-        out.y = _y + (to.y - _y) * ratio;
-        out.width = _w + (to.width - _w) * ratio;
-        out.height = _h + (to.height - _h) * ratio;
+        const x = from.x;
+        const y = from.y;
+        const w = from.width;
+        const h = from.height;
+        out.x = x + (to.x - x) * ratio;
+        out.y = y + (to.y - y) * ratio;
+        out.width = w + (to.width - w) * ratio;
+        out.height = h + (to.height - h) * ratio;
 
         return out;
     }
@@ -115,18 +110,18 @@ export class Rect extends ValueType {
      * @param other 指定的另一个矩形。
      */
     public static union <Out extends IRectLike> (out: Out, one: Out, other: Out) {
-        _x = one.x;
-        _y = one.y;
-        _w = one.width;
-        _h = one.height;
+        const x = one.x;
+        const y = one.y;
+        const w = one.width;
+        const h = one.height;
         const bx = other.x;
         const by = other.y;
         const bw = other.width;
         const bh = other.height;
-        out.x = Math.min(_x, bx);
-        out.y = Math.min(_y, by);
-        out.width = Math.max(_x + _w, bx + bw) - out.x;
-        out.height = Math.max(_y + _h, by + bh) - out.y;
+        out.x = Math.min(x, bx);
+        out.y = Math.min(y, by);
+        out.width = Math.max(x + w, bx + bw) - out.x;
+        out.height = Math.max(y + h, by + bh) - out.y;
 
         return out;
     }
@@ -327,14 +322,14 @@ export class Rect extends ValueType {
      * @param ratio 插值比率，范围为 [0,1]。
      */
     public lerp (to: Rect, ratio: number) {
-        _x = this.x;
-        _y = this.y;
-        _w = this.width;
-        _h = this.height;
-        this.x = _x + (to.x - _x) * ratio;
-        this.y = _y + (to.y - _y) * ratio;
-        this.width = _w + (to.width - _w) * ratio;
-        this.height = _h + (to.height - _h) * ratio;
+        const x = this.x;
+        const y = this.y;
+        const w = this.width;
+        const h = this.height;
+        this.x = x + (to.x - x) * ratio;
+        this.y = y + (to.y - y) * ratio;
+        this.width = w + (to.width - w) * ratio;
+        this.height = h + (to.height - h) * ratio;
 
         return this;
     }
