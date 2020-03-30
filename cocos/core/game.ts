@@ -574,7 +574,7 @@ export class Game extends EventTarget {
             this._initEvents();
         }
 
-        if (!EDITOR && !PREVIEW && cc.internal.SplashScreenWebgl && this.canvas) {
+        if (!JSB && !EDITOR && !PREVIEW && cc.internal.SplashScreenWebgl && this.canvas) {
             cc.internal.SplashScreenWebgl.instance.main(this.canvas);
         }
 
@@ -867,15 +867,7 @@ export class Game extends EventTarget {
             let localContainer: HTMLElement;
             this.container = localContainer = document.createElement<'div'>('div');
             this.frame = document.documentElement;
-            if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-                canvas = window.sharedCanvas || wx.getSharedCanvas();
-            }
-            else if (JSB) {
-                canvas = window.__canvas;
-            }
-            else {
-                canvas = window.canvas;
-            }
+            canvas = window.__canvas;
             this.canvas = canvas;
         } 
         else {
