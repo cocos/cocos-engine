@@ -410,6 +410,13 @@ export class AnimationState extends Playable {
         }
     }
 
+    public destroy () {
+        for (let iBlendStateWriter = 0; iBlendStateWriter < this._blendStateWriters.length; ++iBlendStateWriter) {
+            this._blendStateWriters[iBlendStateWriter].destroy();
+        }
+        this._blendStateWriters.length = 0;
+    }
+
     public _emit (type, state) {
         if (this._target && this._target.isValid) {
             this._target.emit(type, type, state);
