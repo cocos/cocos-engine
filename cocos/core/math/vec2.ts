@@ -391,12 +391,12 @@ export class Vec2 extends ValueType {
     /**
      * x 分量。
      */
-    public x: number;
+    public declare x: number;
 
     /**
      * y 分量。
      */
-    public y: number;
+    public declare y: number;
 
     constructor (other: Vec2);
 

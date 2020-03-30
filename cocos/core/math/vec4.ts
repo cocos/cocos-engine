@@ -455,22 +455,22 @@ export class Vec4 extends ValueType {
     /**
      * x 分量。
      */
-    public x: number;
+    public declare x: number;
 
     /**
      * y 分量。
      */
-    public y: number;
+    public declare y: number;
 
     /**
      * z 分量。
      */
-    public z: number;
+    public declare z: number;
 
     /**
      * w 分量。
      */
-    public w: number;
+    public declare w: number;
 
     constructor (other: Vec4);
 

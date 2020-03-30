@@ -283,7 +283,7 @@ export class Color extends ValueType {
     get w () { return this.a * toFloat; }
     set w (value) { this.a = value * 255; }
 
-    public _val = 0;
+    public declare _val = 0;
 
     /**
      * 构造与指定颜色相等的颜色。
