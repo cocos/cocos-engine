@@ -55,9 +55,7 @@ export class CannonShape implements IBaseShape {
     }
 
     setCenter (v: IVec3Like) {
-        const lpos = this._offset as IVec3Like;
-        Vec3.copy(lpos, v);
-        Vec3.multiply(lpos, lpos, this._collider.node.worldScale);
+        this._setCenter(v);
         if (this._index >= 0) {
             commitShapeUpdates(this._body);
         }
@@ -157,7 +155,7 @@ export class CannonShape implements IBaseShape {
      * @param scale 
      */
     setScale (scale: IVec3Like) {
-        this.setCenter(this._collider.center);
+        this._setCenter(this._collider.center);
     }
 
     setIndex (index: number) {
@@ -167,6 +165,12 @@ export class CannonShape implements IBaseShape {
     setOffsetAndOrient (offset: CANNON.Vec3, Orient: CANNON.Quaternion) {
         this._offset = offset;
         this._orient = Orient;
+    }
+
+    private _setCenter (v: IVec3Like) {
+        const lpos = this._offset as IVec3Like;
+        Vec3.copy(lpos, v);
+        Vec3.multiply(lpos, lpos, this._collider.node.worldScale);
     }
 
     private onTrigger (event: CANNON.ITriggeredEvent) {
