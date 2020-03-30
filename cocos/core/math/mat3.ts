@@ -34,10 +34,6 @@ import { IMat3Like, IMat4Like, IQuatLike, IVec2Like, IVec3Like } from './type-de
 import { EPSILON } from './utils';
 import { Vec3 } from './vec3';
 
-let _a00: number = 0; let _a01: number = 0; let _a02: number = 0;
-let _a10: number = 0; let _a11: number = 0; let _a12: number = 0;
-let _a20: number = 0; let _a21: number = 0; let _a22: number = 0;
-
 /**
  * 表示三维（3x3）矩阵。
  */
@@ -110,15 +106,15 @@ export class Mat3 extends ValueType {
     public static transpose <Out extends IMat3Like> (out: Out, a: Out) {
         // If we are transposing ourselves we can skip a few steps but have to cache some values
         if (out === a) {
-            _a01 = a.m01;
-            _a02 = a.m02;
-            _a12 = a.m05;
+            const a01 = a.m01;
+            const a02 = a.m02;
+            const a12 = a.m05;
             out.m01 = a.m03;
             out.m02 = a.m06;
-            out.m03 = _a01;
+            out.m03 = a01;
             out.m05 = a.m07;
-            out.m06 = _a02;
-            out.m07 = _a12;
+            out.m06 = a02;
+            out.m07 = a12;
         } else {
             out.m00 = a.m00;
             out.m01 = a.m03;
@@ -138,16 +134,16 @@ export class Mat3 extends ValueType {
      * @zh 矩阵求逆，注意，在矩阵不可逆时，会返回一个全为 0 的矩阵。
      */
     public static invert <Out extends IMat3Like> (out: Out, a: Out) {
-        _a00 = a.m00; _a01 = a.m01; _a02 = a.m02;
-        _a10 = a.m03; _a11 = a.m04; _a12 = a.m05;
-        _a20 = a.m06; _a21 = a.m07; _a22 = a.m08;
+        const a00 = a.m00; const a01 = a.m01; const a02 = a.m02;
+        const a10 = a.m03; const a11 = a.m04; const a12 = a.m05;
+        const a20 = a.m06; const a21 = a.m07; const a22 = a.m08;
 
-        const b01 = _a22 * _a11 - _a12 * _a21;
-        const b11 = -_a22 * _a10 + _a12 * _a20;
-        const b21 = _a21 * _a10 - _a11 * _a20;
+        const b01 = a22 * a11 - a12 * a21;
+        const b11 = -a22 * a10 + a12 * a20;
+        const b21 = a21 * a10 - a11 * a20;
 
         // Calculate the determinant
-        let det = _a00 * b01 + _a01 * b11 + _a02 * b21;
+        let det = a00 * b01 + a01 * b11 + a02 * b21;
 
         if (det === 0) {
             out.m00 = 0; out.m01 = 0; out.m02 = 0;
@@ -158,14 +154,14 @@ export class Mat3 extends ValueType {
         det = 1.0 / det;
 
         out.m00 = b01 * det;
-        out.m01 = (-_a22 * _a01 + _a02 * _a21) * det;
-        out.m02 = (_a12 * _a01 - _a02 * _a11) * det;
+        out.m01 = (-a22 * a01 + a02 * a21) * det;
+        out.m02 = (a12 * a01 - a02 * a11) * det;
         out.m03 = b11 * det;
-        out.m04 = (_a22 * _a00 - _a02 * _a20) * det;
-        out.m05 = (-_a12 * _a00 + _a02 * _a10) * det;
+        out.m04 = (a22 * a00 - a02 * a20) * det;
+        out.m05 = (-a12 * a00 + a02 * a10) * det;
         out.m06 = b21 * det;
-        out.m07 = (-_a21 * _a00 + _a01 * _a20) * det;
-        out.m08 = (_a11 * _a00 - _a01 * _a10) * det;
+        out.m07 = (-a21 * a00 + a01 * a20) * det;
+        out.m08 = (a11 * a00 - a01 * a10) * det;
         return out;
     }
 
@@ -173,36 +169,36 @@ export class Mat3 extends ValueType {
      * @zh 矩阵行列式
      */
     public static determinant <Out extends IMat3Like> (a: Out) {
-        _a00 = a.m00; _a01 = a.m01; _a02 = a.m02;
-        _a10 = a.m03; _a11 = a.m04; _a12 = a.m05;
-        _a20 = a.m06; _a21 = a.m07; _a22 = a.m08;
+        const a00 = a.m00; const a01 = a.m01; const a02 = a.m02;
+        const a10 = a.m03; const a11 = a.m04; const a12 = a.m05;
+        const a20 = a.m06; const a21 = a.m07; const a22 = a.m08;
 
-        return _a00 * (_a22 * _a11 - _a12 * _a21) + _a01 * (-_a22 * _a10 + _a12 * _a20) + _a02 * (_a21 * _a10 - _a11 * _a20);
+        return a00 * (a22 * a11 - a12 * a21) + a01 * (-a22 * a10 + a12 * a20) + a02 * (a21 * a10 - a11 * a20);
     }
 
     /**
      * @zh 矩阵乘法
      */
     public static multiply <Out extends IMat3Like> (out: Out, a: Out, b: Out) {
-        _a00 = a.m00; _a01 = a.m01; _a02 = a.m02;
-        _a10 = a.m03; _a11 = a.m04; _a12 = a.m05;
-        _a20 = a.m06; _a21 = a.m07; _a22 = a.m08;
+        const a00 = a.m00; const a01 = a.m01; const a02 = a.m02;
+        const a10 = a.m03; const a11 = a.m04; const a12 = a.m05;
+        const a20 = a.m06; const a21 = a.m07; const a22 = a.m08;
 
         const b00 = b.m00, b01 = b.m01, b02 = b.m02;
         const b10 = b.m03, b11 = b.m04, b12 = b.m05;
         const b20 = b.m06, b21 = b.m07, b22 = b.m08;
 
-        out.m00 = b00 * _a00 + b01 * _a10 + b02 * _a20;
-        out.m01 = b00 * _a01 + b01 * _a11 + b02 * _a21;
-        out.m02 = b00 * _a02 + b01 * _a12 + b02 * _a22;
+        out.m00 = b00 * a00 + b01 * a10 + b02 * a20;
+        out.m01 = b00 * a01 + b01 * a11 + b02 * a21;
+        out.m02 = b00 * a02 + b01 * a12 + b02 * a22;
 
-        out.m03 = b10 * _a00 + b11 * _a10 + b12 * _a20;
-        out.m04 = b10 * _a01 + b11 * _a11 + b12 * _a21;
-        out.m05 = b10 * _a02 + b11 * _a12 + b12 * _a22;
+        out.m03 = b10 * a00 + b11 * a10 + b12 * a20;
+        out.m04 = b10 * a01 + b11 * a11 + b12 * a21;
+        out.m05 = b10 * a02 + b11 * a12 + b12 * a22;
 
-        out.m06 = b20 * _a00 + b21 * _a10 + b22 * _a20;
-        out.m07 = b20 * _a01 + b21 * _a11 + b22 * _a21;
-        out.m08 = b20 * _a02 + b21 * _a12 + b22 * _a22;
+        out.m06 = b20 * a00 + b21 * a10 + b22 * a20;
+        out.m07 = b20 * a01 + b21 * a11 + b22 * a21;
+        out.m08 = b20 * a02 + b21 * a12 + b22 * a22;
         return out;
     }
 
@@ -210,25 +206,25 @@ export class Mat3 extends ValueType {
      * @zh 取四阶矩阵的前三阶，与三阶矩阵相乘
      */
     public static multiplyMat4 <Out extends IMat3Like> (out: Out, a: Out, b: IMat4Like) {
-        _a00 = a.m00; _a01 = a.m01; _a02 = a.m02;
-        _a10 = a.m03; _a11 = a.m04; _a12 = a.m05;
-        _a20 = a.m06; _a21 = a.m07; _a22 = a.m08;
+        const a00 = a.m00; const a01 = a.m01; const a02 = a.m02;
+        const a10 = a.m03; const a11 = a.m04; const a12 = a.m05;
+        const a20 = a.m06; const a21 = a.m07; const a22 = a.m08;
 
         const b00 = b.m00, b01 = b.m01, b02 = b.m02;
         const b10 = b.m04, b11 = b.m05, b12 = b.m06;
         const b20 = b.m08, b21 = b.m09, b22 = b.m10;
 
-        out.m00 = b00 * _a00 + b01 * _a10 + b02 * _a20;
-        out.m01 = b00 * _a01 + b01 * _a11 + b02 * _a21;
-        out.m02 = b00 * _a02 + b01 * _a12 + b02 * _a22;
+        out.m00 = b00 * a00 + b01 * a10 + b02 * a20;
+        out.m01 = b00 * a01 + b01 * a11 + b02 * a21;
+        out.m02 = b00 * a02 + b01 * a12 + b02 * a22;
 
-        out.m03 = b10 * _a00 + b11 * _a10 + b12 * _a20;
-        out.m04 = b10 * _a01 + b11 * _a11 + b12 * _a21;
-        out.m05 = b10 * _a02 + b11 * _a12 + b12 * _a22;
+        out.m03 = b10 * a00 + b11 * a10 + b12 * a20;
+        out.m04 = b10 * a01 + b11 * a11 + b12 * a21;
+        out.m05 = b10 * a02 + b11 * a12 + b12 * a22;
 
-        out.m06 = b20 * _a00 + b21 * _a10 + b22 * _a20;
-        out.m07 = b20 * _a01 + b21 * _a11 + b22 * _a21;
-        out.m08 = b20 * _a02 + b21 * _a12 + b22 * _a22;
+        out.m06 = b20 * a00 + b21 * a10 + b22 * a20;
+        out.m07 = b20 * a01 + b21 * a11 + b22 * a21;
+        out.m08 = b20 * a02 + b21 * a12 + b22 * a22;
         return out;
     }
 
@@ -236,7 +232,7 @@ export class Mat3 extends ValueType {
      * @zh 在给定矩阵变换基础上加入变换
      * @deprecated 将在 1.2 移除，请转用 `Mat3.transform` 方法。
      */
-    public static transfrom<Out extends IMat3Like, VecLike extends IVec3Like>(out: Out, a: Out, v: VecLike) {
+    public static transfrom<Out extends IMat3Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
         Mat3.transform(out, a, v);
     }
 
@@ -244,22 +240,22 @@ export class Mat3 extends ValueType {
      * @zh 在给定矩阵变换基础上加入变换
      */
     public static transform <Out extends IMat3Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
-        _a00 = a.m00; _a01 = a.m01; _a02 = a.m02;
-        _a10 = a.m03; _a11 = a.m04; _a12 = a.m05;
-        _a20 = a.m06; _a21 = a.m07; _a22 = a.m08;
+        const a00 = a.m00; const a01 = a.m01; const a02 = a.m02;
+        const a10 = a.m03; const a11 = a.m04; const a12 = a.m05;
+        const a20 = a.m06; const a21 = a.m07; const a22 = a.m08;
         const x = v.x, y = v.y;
 
-        out.m00 = _a00;
-        out.m01 = _a01;
-        out.m02 = _a02;
+        out.m00 = a00;
+        out.m01 = a01;
+        out.m02 = a02;
 
-        out.m03 = _a10;
-        out.m04 = _a11;
-        out.m05 = _a12;
+        out.m03 = a10;
+        out.m04 = a11;
+        out.m05 = a12;
 
-        out.m06 = x * _a00 + y * _a10 + _a20;
-        out.m07 = x * _a01 + y * _a11 + _a21;
-        out.m08 = x * _a02 + y * _a12 + _a22;
+        out.m06 = x * a00 + y * a10 + a20;
+        out.m07 = x * a01 + y * a11 + a21;
+        out.m08 = x * a02 + y * a12 + a22;
         return out;
     }
 
@@ -288,24 +284,24 @@ export class Mat3 extends ValueType {
      * @param rad 旋转弧度
      */
     public static rotate <Out extends IMat3Like> (out: Out, a: Out, rad: number) {
-        _a00 = a.m00; _a01 = a.m01; _a02 = a.m02;
-        _a10 = a.m03; _a11 = a.m04; _a12 = a.m05;
-        _a20 = a.m06; _a21 = a.m07; _a22 = a.m08;
+        const a00 = a.m00; const a01 = a.m01; const a02 = a.m02;
+        const a10 = a.m03; const a11 = a.m04; const a12 = a.m05;
+        const a20 = a.m06; const a21 = a.m07; const a22 = a.m08;
 
         const s = Math.sin(rad);
         const c = Math.cos(rad);
 
-        out.m00 = c * _a00 + s * _a10;
-        out.m01 = c * _a01 + s * _a11;
-        out.m02 = c * _a02 + s * _a12;
+        out.m00 = c * a00 + s * a10;
+        out.m01 = c * a01 + s * a11;
+        out.m02 = c * a02 + s * a12;
 
-        out.m03 = c * _a10 - s * _a00;
-        out.m04 = c * _a11 - s * _a01;
-        out.m05 = c * _a12 - s * _a02;
+        out.m03 = c * a10 - s * a00;
+        out.m04 = c * a11 - s * a01;
+        out.m05 = c * a12 - s * a02;
 
-        out.m06 = _a20;
-        out.m07 = _a21;
-        out.m08 = _a22;
+        out.m06 = a20;
+        out.m07 = a21;
+        out.m08 = a22;
         return out;
     }
 
@@ -800,16 +796,16 @@ export class Mat3 extends ValueType {
      * @zh 计算当前矩阵的逆矩阵。注意，在矩阵不可逆时，会返回一个全为 0 的矩阵。
      */
     public invert () {
-        _a00 = this.m00; _a01 = this.m01; _a02 = this.m02;
-        _a10 = this.m03; _a11 = this.m04; _a12 = this.m05;
-        _a20 = this.m06; _a21 = this.m07; _a22 = this.m08;
+        const a00 = this.m00; const a01 = this.m01; const a02 = this.m02;
+        const a10 = this.m03; const a11 = this.m04; const a12 = this.m05;
+        const a20 = this.m06; const a21 = this.m07; const a22 = this.m08;
 
-        const b01 = _a22 * _a11 - _a12 * _a21;
-        const b11 = -_a22 * _a10 + _a12 * _a20;
-        const b21 = _a21 * _a10 - _a11 * _a20;
+        const b01 = a22 * a11 - a12 * a21;
+        const b11 = -a22 * a10 + a12 * a20;
+        const b21 = a21 * a10 - a11 * a20;
 
         // Calculate the determinant
-        let det = _a00 * b01 + _a01 * b11 + _a02 * b21;
+        let det = a00 * b01 + a01 * b11 + a02 * b21;
 
         if (det === 0) {
             this.set(0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -818,14 +814,14 @@ export class Mat3 extends ValueType {
         det = 1.0 / det;
 
         this.m00 = b01 * det;
-        this.m01 = (-_a22 * _a01 + _a02 * _a21) * det;
-        this.m02 = (_a12 * _a01 - _a02 * _a11) * det;
+        this.m01 = (-a22 * a01 + a02 * a21) * det;
+        this.m02 = (a12 * a01 - a02 * a11) * det;
         this.m03 = b11 * det;
-        this.m04 = (_a22 * _a00 - _a02 * _a20) * det;
-        this.m05 = (-_a12 * _a00 + _a02 * _a10) * det;
+        this.m04 = (a22 * a00 - a02 * a20) * det;
+        this.m05 = (-a12 * a00 + a02 * a10) * det;
         this.m06 = b21 * det;
-        this.m07 = (-_a21 * _a00 + _a01 * _a20) * det;
-        this.m08 = (_a11 * _a00 - _a01 * _a10) * det;
+        this.m07 = (-a21 * a00 + a01 * a20) * det;
+        this.m08 = (a11 * a00 - a01 * a10) * det;
         return this;
     }
 
@@ -834,11 +830,11 @@ export class Mat3 extends ValueType {
      * @return 当前矩阵的行列式。
      */
     public determinant (): number {
-        _a00 = this.m00; _a01 = this.m01; _a02 = this.m02;
-        _a10 = this.m03; _a11 = this.m04; _a12 = this.m05;
-        _a20 = this.m06; _a21 = this.m07; _a22 = this.m08;
+        const a00 = this.m00; const a01 = this.m01; const a02 = this.m02;
+        const a10 = this.m03; const a11 = this.m04; const a12 = this.m05;
+        const a20 = this.m06; const a21 = this.m07; const a22 = this.m08;
 
-        return _a00 * (_a22 * _a11 - _a12 * _a21) + _a01 * (-_a22 * _a10 + _a12 * _a20) + _a02 * (_a21 * _a10 - _a11 * _a20);
+        return a00 * (a22 * a11 - a12 * a21) + a01 * (-a22 * a10 + a12 * a20) + a02 * (a21 * a10 - a11 * a20);
     }
 
     /**
@@ -946,24 +942,24 @@ export class Mat3 extends ValueType {
      * @param rad 旋转角度（弧度制）
      */
     public rotate (rad: number) {
-        _a00 = this.m00; _a01 = this.m01; _a02 = this.m02;
-        _a10 = this.m03; _a11 = this.m04; _a12 = this.m05;
-        _a20 = this.m06; _a21 = this.m07; _a22 = this.m08;
+        const a00 = this.m00; const a01 = this.m01; const a02 = this.m02;
+        const a10 = this.m03; const a11 = this.m04; const a12 = this.m05;
+        const a20 = this.m06; const a21 = this.m07; const a22 = this.m08;
 
         const s = Math.sin(rad);
         const c = Math.cos(rad);
 
-        this.m00 = c * _a00 + s * _a10;
-        this.m01 = c * _a01 + s * _a11;
-        this.m02 = c * _a02 + s * _a12;
+        this.m00 = c * a00 + s * a10;
+        this.m01 = c * a01 + s * a11;
+        this.m02 = c * a02 + s * a12;
 
-        this.m03 = c * _a10 - s * _a00;
-        this.m04 = c * _a11 - s * _a01;
-        this.m05 = c * _a12 - s * _a02;
+        this.m03 = c * a10 - s * a00;
+        this.m04 = c * a11 - s * a01;
+        this.m05 = c * a12 - s * a02;
 
-        this.m06 = _a20;
-        this.m07 = _a21;
-        this.m08 = _a22;
+        this.m06 = a20;
+        this.m07 = a21;
+        this.m08 = a22;
         return this;
     }
 

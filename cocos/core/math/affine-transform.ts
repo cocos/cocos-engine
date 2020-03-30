@@ -34,13 +34,6 @@ import { Rect } from './rect';
 import { Size } from './size';
 import { Vec2 } from './vec2';
 
-let _a: number = 0.0;
-let _b: number = 0.0;
-let _c: number = 0.0;
-let _d: number = 0.0;
-let _tx: number = 0.0;
-let _ty: number = 0.0;
-
 /**
  * 二维仿射变换矩阵，描述了平移、缩放和缩放。
  */
@@ -70,18 +63,18 @@ export class AffineTransform {
      * @param t2 右矩阵。
      */
     public static concat (out: AffineTransform, t1: AffineTransform, t2: AffineTransform) {
-        _a = t1.a;
-        _b = t1.b;
-        _c = t1.c;
-        _d = t1.d;
-        _tx = t1.tx;
-        _ty = t1.ty;
-        out.a = _a * t2.a + _b * t2.c;
-        out.b = _a * t2.b + _b * t2.d;
-        out.c = _c * t2.a + _d * t2.c;
-        out.d = _c * t2.b + _d * t2.d;
-        out.tx = _tx * t2.a + _ty * t2.c + t2.tx;
-        out.ty = _tx * t2.b + _ty * t2.d + t2.ty;
+        const a = t1.a;
+        const b = t1.b;
+        const c = t1.c;
+        const d = t1.d;
+        const tx = t1.tx;
+        const ty = t1.ty;
+        out.a = a * t2.a + b * t2.c;
+        out.b = a * t2.b + b * t2.d;
+        out.c = c * t2.a + d * t2.c;
+        out.d = c * t2.b + d * t2.d;
+        out.tx = tx * t2.a + ty * t2.c + t2.tx;
+        out.ty = tx * t2.b + ty * t2.d + t2.ty;
     }
 
     /**
