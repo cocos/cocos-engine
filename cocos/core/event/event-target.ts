@@ -39,32 +39,49 @@ export interface ITargetImpl extends Object {
 }
 
 /**
- * @zh
- * 事件目标是事件触发时，分派的事件对象，Node 是最常见的事件目标，
- * 但是其他对象也可以是事件目标。
- * 可通过 cc.EventTarget 获得该对象。
+ * !#en
+ * EventTarget is an object to which an event is dispatched when something has occurred.
+ * Entity are the most common event targets, but other objects can be event targets too.
+ *
+ * Event targets are an important part of the Fireball event model.
+ * The event target serves as the focal point for how events flow through the scene graph.
+ * When an event such as a mouse click or a keypress occurs, Fireball dispatches an event object
+ * into the event flow from the root of the hierarchy. The event object then makes its way through
+ * the scene graph until it reaches the event target, at which point it begins its return trip through
+ * the scene graph. This round-trip journey to the event target is conceptually divided into three phases:
+ * - The capture phase comprises the journey from the root to the last node before the event target's node
+ * - The target phase comprises only the event target node
+ * - The bubbling phase comprises any subsequent nodes encountered on the return trip to the root of the tree
+ * See also: http://www.w3.org/TR/DOM-Level-3-Events/#event-flow
+ *
+ * Event targets can implement the following methods:
+ *  - _getCapturingTargets
+ *  - _getBubblingTargets
+ * 
+ * If a class cannot extend from EventTarget, it can consider implements IEventTarget interface.
+ *
+ * !#zh
+ * 事件目标是具有注册监听器、派发事件能力的类，Node 是最常见的事件目标，
+ * 但是其他类也可以继承自事件目标以获得管理监听器和派发事件的能力。
+ * 如果无法继承自 EventTarget，也可以考虑自实现 IEventTarget
  */
 export class EventTarget extends CallbacksInvoker {
     /**
+     * @en
+     * Register an callback of a specific event type on the EventTarget.
+     * This type of event should be triggered via `emit`.
      * @zh
      * 注册事件目标的特定事件类型回调。这种类型的事件应该被 `emit` 触发。
      *
-     * @param type - 一个监听事件类型的字符串.
-     * @param callback - 事件分派时将被调用的回调函数。如果该回调存在则不会重复添加.
-     * @param callback.arg1 回调的第一个参数
-     * @param callback.arg2 回调的第二个参数
-     * @param callback.arg3 回调的第三个参数
-     * @param callback.arg4 回调的第四个参数
-     * @param callback.arg5 回调的第五个参数
-     * @param target - 回调的目标。可以为空。
-     * @return - 返回监听回调函数自身。
-     *
+     * @param type - A string representing the event type to listen for.
+     * @param callback - The callback that will be invoked when the event is dispatched.
+     *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+     * @param target - The target (this object) to invoke the callback, can be null
+     * @return - Just returns the incoming callback so you can save the anonymous function easier.
      * @example
-     * ```typescript
      * eventTarget.on('fire', function () {
      *     cc.log("fire in the hole");
      * }, node);
-     * ```
      */
     public on (type: string, callback: Function, target?: Object) {
         if (!callback) {
@@ -88,15 +105,16 @@ export class EventTarget extends CallbacksInvoker {
     }
 
     /**
+     * @en
+     * Removes the listeners previously registered with the same type, callback, target and or useCapture,
+     * if only type is passed as parameter, all listeners registered with that type will be removed.
      * @zh
      * 删除之前用同类型，回调，目标或 useCapture 注册的事件监听器，如果只传递 type，将会删除 type 类型的所有事件监听器。
      *
-     * @param type - 一个监听事件类型的字符串。
-     * @param callback - 事件分派时将被调用的回调函数。
-     * @param target - 调用回调的目标。如果为空, 只有没有目标的事件会被移除。
-     *
+     * @param type - A string representing the event type being removed.
+     * @param callback - The callback to remove.
+     * @param target - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
      * @example
-     * ```typescript
      * // register fire eventListener
      * var callback = eventTarget.on('fire', function () {
      *     cc.log("fire in the hole");
@@ -105,7 +123,6 @@ export class EventTarget extends CallbacksInvoker {
      * eventTarget.off('fire', callback, target);
      * // remove all fire event listeners
      * eventTarget.off('fire');
-     * ```
      */
     public off (type: string, callback?: Function, target?: Object) {
         if (!callback) {
@@ -126,36 +143,34 @@ export class EventTarget extends CallbacksInvoker {
     }
 
     /**
-     * @zh
-     * 在当前 EventTarget 上删除指定目标（target 参数）注册的所有事件监听器。
+     * @en Removes all callbacks previously registered with the same target (passed as parameter).
+     * This is not for removing all listeners in the current event target,
+     * and this is not for removing all listeners the target parameter have registered.
+     * It's only for removing all listeners (callback and target couple) registered on the current event target by the target parameter.
+     * @zh 在当前 EventTarget 上删除指定目标（target 参数）注册的所有事件监听器。
      * 这个函数无法删除当前 EventTarget 的所有事件监听器，也无法删除 target 参数所注册的所有事件监听器。
      * 这个函数只能删除 target 参数在当前 EventTarget 上注册的所有事件监听器。
-     *
-     * @param target - 注销所有指定目标的监听
+     * @param target - The target to be searched for all related listeners
      */
     public targetOff (keyOrTarget?: string | Object) {
         this.removeAll(keyOrTarget);
     }
 
     /**
+     * @en
+     * Register an callback of a specific event type on the EventTarget,
+     * the callback will remove itself after the first time it is triggered.
      * @zh
      * 注册事件目标的特定事件类型回调，回调会在第一时间被触发后删除自身。
      *
-     * @param type - 一个监听事件类型的字符串。
-     * @param callback - 事件分派时将被调用的回调函数。如果该回调存在则不会重复添加。
-     * @param callback.arg1 回调的第一个参数。
-     * @param callback.arg2 第二个参数。
-     * @param callback.arg3 第三个参数。
-     * @param callback.arg4 第四个参数。
-     * @param callback.arg5 第五个参数。
-     * @param target - 调用回调的目标。可以为空。
-     *
+     * @param type - A string representing the event type to listen for.
+     * @param callback - The callback that will be invoked when the event is dispatched.
+     *                              The callback is ignored if it is a duplicate (the callbacks are unique).
+     * @param target - The target (this object) to invoke the callback, can be null
      * @example
-     * ```typescript
      * eventTarget.once('fire', function () {
      *     cc.log("this is the callback and will be invoked only once");
      * }, node);
-     * ```
      */
     public once (type: string, callback: Function, target?: Object) {
         if (!callback) {

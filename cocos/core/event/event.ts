@@ -34,8 +34,7 @@
  * Base class of all kinds of events.
  *
  * @zh
- * 包含事件相关信息的对象。
- * 可通过 cc.Event 获得该事件信息。
+ * 所有事件对象的基类，包含事件相关基本信息。
  */
 export default class Event {
     // Event types
@@ -208,7 +207,7 @@ export default class Event {
      * Reset the event for being stored in the object pool.
      *
      * @zh
-     * 重置对象池中存储的事件。
+     * 重置事件对象以便在对象池中存储。
      */
     public unuse () {
         this.type = Event.NO_TYPE;
@@ -221,10 +220,11 @@ export default class Event {
 
     /**
      * @en
-     * Reuse the event for being used again by the object pool.
-     *
+     * Reinitialize the event for being used again after retrieved from the object pool.
      * @zh
-     * 用于对象池再次使用的事件。
+     * 重新初始化让对象池中取出的事件可再次使用。
+     * @param type - The name of the event (case-sensitive), e.g. "click", "fire", or "submit"
+     * @param bubbles - A boolean indicating whether the event bubbles up through the tree or not
      */
     public reuse (type: string, bubbles?: boolean) {
         this.type = type;
@@ -261,12 +261,9 @@ export default class Event {
 
     /**
      * @en
-     * <p>
-     *     Gets current target of the event                                                            <br/>
-     *     note: It only be available when the event listener is associated with node.                <br/>
-     *          It returns 0 when the listener is associated with fixed priority.
-     * </p>
-     *
+     * Gets current target of the event                                                            <br/>
+     * note: It only be available when the event listener is associated with node.                <br/>
+     * It returns 0 when the listener is associated with fixed priority.
      * @zh
      * 获取当前目标节点
      * @returns - The target with which the event associates.
@@ -278,7 +275,6 @@ export default class Event {
     /**
      * @en
      * Gets the event type.
-     *
      * @zh
      * 获取事件类型。
      */
