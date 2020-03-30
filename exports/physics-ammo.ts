@@ -2,7 +2,7 @@
  * @hidden
  */
 
-// polyfill
+// polyfill for wechat
 if (window.atob == null) {
     window.atob = function (input) {
         var keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
