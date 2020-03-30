@@ -33,6 +33,7 @@ import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXCommandBufferType } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { IGFXAttribute } from '../../gfx/input-assembler';
+import { GFXSampler } from '../../gfx/sampler';
 import { GFXTextureView } from '../../gfx/texture-view';
 import { Pool, RecyclePool } from '../../memop';
 import { CachedArray } from '../../memop/cached-array';
@@ -48,7 +49,6 @@ import { UIBatchModel } from './ui-batch-model';
 import { UIDrawBatch } from './ui-draw-batch';
 import { UIMaterial } from './ui-material';
 import * as UIVertexFormat from './ui-vertex-format';
-import { GFXSampler } from '../../gfx/sampler';
 
 /**
  * @zh

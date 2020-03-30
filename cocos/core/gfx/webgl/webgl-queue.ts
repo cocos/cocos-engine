@@ -37,7 +37,7 @@ export class WebGLGFXQueue extends GFXQueue {
             const len = cmdBuffs.length;
             for (let i = 0; i < len; i++) {
                 const cmdBuff = cmdBuffs[i];
-                WebGLCmdFuncExecuteCmds( this._device as WebGLGFXDevice, (cmdBuff as WebGLGFXCommandBuffer).cmdPackage);
+                // WebGLCmdFuncExecuteCmds( this._device as WebGLGFXDevice, (cmdBuff as WebGLGFXCommandBuffer).cmdPackage); // opted out
                 this.numDrawCalls += cmdBuff.numDrawCalls;
                 this.numInstances += cmdBuff.numInstances;
                 this.numTris += cmdBuff.numTris;

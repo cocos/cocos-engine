@@ -62,24 +62,20 @@ export interface IWebGL2StencilCompareMask {
 export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
 
     public cmdPackage: WebGL2CmdPackage = new WebGL2CmdPackage();
-    private _webGLAllocator: WebGL2GFXCommandAllocator | null = null;
-    private _isInRenderPass: boolean = false;
-    private _curGPUPipelineState: WebGL2GPUPipelineState | null = null;
-    private _curGPUBindingLayout: WebGL2GPUBindingLayout | null = null;
-    private _curGPUInputAssembler: IWebGL2GPUInputAssembler | null = null;
-    private _curViewport: IGFXViewport | null = null;
-    private _curScissor: IGFXRect | null = null;
-    private _curLineWidth: number | null = null;
-    private _curDepthBias: IWebGL2DepthBias | null = null;
-    private _curBlendConstants: number[] = [];
-    private _curDepthBounds: IWebGL2DepthBounds | null = null;
-    private _curStencilWriteMask: IWebGL2StencilWriteMask | null = null;
-    private _curStencilCompareMask: IWebGL2StencilCompareMask | null = null;
-    private _isStateInvalied: boolean = false;
-
-    constructor (device: GFXDevice) {
-        super(device);
-    }
+    protected _webGLAllocator: WebGL2GFXCommandAllocator | null = null;
+    protected _isInRenderPass: boolean = false;
+    protected _curGPUPipelineState: WebGL2GPUPipelineState | null = null;
+    protected _curGPUBindingLayout: WebGL2GPUBindingLayout | null = null;
+    protected _curGPUInputAssembler: IWebGL2GPUInputAssembler | null = null;
+    protected _curViewport: IGFXViewport | null = null;
+    protected _curScissor: IGFXRect | null = null;
+    protected _curLineWidth: number | null = null;
+    protected _curDepthBias: IWebGL2DepthBias | null = null;
+    protected _curBlendConstants: number[] = [];
+    protected _curDepthBounds: IWebGL2DepthBounds | null = null;
+    protected _curStencilWriteMask: IWebGL2StencilWriteMask | null = null;
+    protected _curStencilCompareMask: IWebGL2StencilCompareMask | null = null;
+    protected _isStateInvalied: boolean = false;
 
     public initialize (info: IGFXCommandBufferInfo): boolean {
 
@@ -201,11 +197,6 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
                 this._curViewport.maxDepth = viewport.maxDepth;
                 this._isStateInvalied = true;
             }
-        }
-
-        if (this._curViewport !== viewport) {
-            this._curViewport = viewport;
-            this._isStateInvalied = true;
         }
     }
 
@@ -425,7 +416,6 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
         }
     }
 
-    // tslint:disable: max-line-length
     public execute (cmdBuffs: GFXCommandBuffer[], count: number) {
 
         for (let i = 0; i < count; ++i) {
@@ -473,7 +463,7 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
         return this._device as WebGL2GFXDevice;
     }
 
-    private bindStates () {
+    protected bindStates () {
         const bindStatesCmd = this._webGLAllocator!.bindStatesCmdPool.alloc(WebGL2CmdBindStates);
         bindStatesCmd.gpuPipelineState = this._curGPUPipelineState;
         bindStatesCmd.gpuBindingLayout = this._curGPUBindingLayout;
