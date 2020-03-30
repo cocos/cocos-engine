@@ -182,19 +182,27 @@ Audio.State = {
     proto.pause = function () {
         if (!this._element || this.getState() !== Audio.State.PLAYING) return;
         this._unbindEnded();
-        this._element.pause();
         this._state = Audio.State.PAUSED;
+        this._element.pause();
     };
 
     proto.resume = function () {
         if (!this._element || this.getState() !== Audio.State.PAUSED) return;
         this._bindEnded();
-        this._element.play();
+        //On the web-mobile platform of some ios systems, AudioScheduledSourceNode pauses and resumes audio failure after playing a video
+        //Use webkitAudioContext's resume methods to fix
+        if (window.webkitAudioContext && this._element._context instanceof window.webkitAudioContext) {
+            this._element._context.resume();
+        }
+        else {
+            this._element.play();
+        }
         this._state = Audio.State.PLAYING;
     };
 
     proto.stop = function () {
         if (!this._element) return;
+        this._state = Audio.State.STOPPED;
         this._element.pause();
         try {
             this._element.currentTime = 0;
@@ -208,7 +216,6 @@ Audio.State = {
         }
         this._unbindEnded();
         this.emit('stop');
-        this._state = Audio.State.STOPPED;
     };
 
     proto.setLoop = function (loop) {
@@ -464,10 +471,21 @@ let WebAudioElement = function (buffer, audio) {
         // If more than the duration of the audio, Need to take the remainder
         this.playedLength %= this._buffer.duration;
         let audio = this._currentSource;
-        this._currentSource = null;
         this._startTime = -1;
-        if (audio)
-            audio.stop(0);
+        if (this._audio._state === Audio.State.PAUSED) {
+            //On the web-mobile platform of some ios systems, AudioScheduledSourceNode pauses and resumes audio failure after playing a video
+            //Use webkitAudioContext's suspend methods to fix
+            if (window.webkitAudioContext && this._context instanceof window.webkitAudioContext) {
+                this._context.suspend();
+            }
+            else {
+                audio && audio.stop(0);
+            }
+        }
+        else {
+            this._currentSource = null;
+            audio && audio.stop(0);
+        }
     };
 
     Object.defineProperty(proto, 'paused', {
