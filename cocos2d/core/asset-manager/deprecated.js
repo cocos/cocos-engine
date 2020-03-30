@@ -636,7 +636,7 @@ cc.url = {
     raw (url) {
         cc.warnID(1400, 'cc.url.raw', 'cc.assetManager.loadRes');
         if (url.startsWith('resources/')) {
-            return cc.assetManager.transform({'path': cc.path.changeExtname(url.substr(10)), bundle: cc.AssetManager.BuiltinBundle.RESOURCES, isNative: true, ext: cc.path.extname(url)});
+            return cc.assetManager.transform({'path': cc.path.changeExtname(url.substr(10)), bundle: cc.AssetManager.BuiltinBundleName.RESOURCES, isNative: true, ext: cc.path.extname(url)});
         }
         return '';
     }
@@ -754,7 +754,7 @@ Object.assign(cc.director, {
      * @deprecated `cc.director._getSceneUuid` is deprecated, please use `config.getSceneInfo` instead
      */
     _getSceneUuid (sceneName) {
-        cc.assetManager.bundles.get(cc.AssetManager.BuiltinBundle.MAIN).config.getSceneInfo(sceneName);
+        cc.assetManager.bundles.get(cc.AssetManager.BuiltinBundleName.MAIN).config.getSceneInfo(sceneName);
     }
 });
 
@@ -765,7 +765,7 @@ Object.defineProperties(cc.game, {
     _sceneInfos: {
         get () {
             var scenes = [];
-            cc.assetManager.bundles.get(cc.AssetManager.BuiltinBundle.MAIN).config.scenes.forEach(function (val) {
+            cc.assetManager.bundles.get(cc.AssetManager.BuiltinBundleName.MAIN).config.scenes.forEach(function (val) {
                 scenes.push(val);
             });
             return scenes;
