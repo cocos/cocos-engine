@@ -199,19 +199,19 @@ function getTypeChecker (type, attrName) {
     return function (constructor, mainPropName) {
         var propInfo = '"' + js.getClassName(constructor) + '.' + mainPropName + '"';
         var mainPropAttrs = attr(constructor, mainPropName);
-        if (!mainPropAttrs.saveUrlAsAsset) {
-            var mainPropAttrsType = mainPropAttrs.type;
-            if (mainPropAttrsType === cc.Integer || mainPropAttrsType === cc.Float) {
-                mainPropAttrsType = 'Number';
-            }
-            else if (mainPropAttrsType === cc.String || mainPropAttrsType === cc.Boolean) {
-                mainPropAttrsType = '' + mainPropAttrsType;
-            }
-            if (mainPropAttrsType !== type) {
-                cc.warnID(3604, propInfo);
-                return;
-            }
+
+        var mainPropAttrsType = mainPropAttrs.type;
+        if (mainPropAttrsType === cc.Integer || mainPropAttrsType === cc.Float) {
+            mainPropAttrsType = 'Number';
         }
+        else if (mainPropAttrsType === cc.String || mainPropAttrsType === cc.Boolean) {
+            mainPropAttrsType = '' + mainPropAttrsType;
+        }
+        if (mainPropAttrsType !== type) {
+            cc.warnID(3604, propInfo);
+            return;
+        }
+
         if (!mainPropAttrs.hasOwnProperty('default')) {
             return;
         }
@@ -226,25 +226,21 @@ function getTypeChecker (type, attrName) {
         var defaultType = typeof defaultVal;
         var type_lowerCase = type.toLowerCase();
         if (defaultType === type_lowerCase) {
-            if (!mainPropAttrs.saveUrlAsAsset) {
-                if (type_lowerCase === 'object') {
-                    if (defaultVal && !(defaultVal instanceof mainPropAttrs.ctor)) {
-                        cc.warnID(3605, propInfo, js.getClassName(mainPropAttrs.ctor));
-                    }
-                    else {
-                        return;
-                    }
+            if (type_lowerCase === 'object') {
+                if (defaultVal && !(defaultVal instanceof mainPropAttrs.ctor)) {
+                    cc.warnID(3605, propInfo, js.getClassName(mainPropAttrs.ctor));
                 }
-                else if (type !== 'Number') {
-                    cc.warnID(3606, attrName, propInfo, type);
+                else {
+                    return;
                 }
+            }
+            else if (type !== 'Number') {
+                cc.warnID(3606, attrName, propInfo, type);
             }
         }
         else if (defaultType !== 'function') {
             if (type === cc.String && defaultVal == null) {
-                if (!js.isChildClassOf(mainPropAttrs.ctor, cc.RawAsset)) {
-                    cc.warnID(3607, propInfo);
-                }
+                cc.warnID(3607, propInfo);
             }
             else {
                 cc.warnID(3611, attrName, propInfo, defaultType);

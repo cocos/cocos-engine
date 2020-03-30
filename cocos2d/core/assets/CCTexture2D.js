@@ -671,7 +671,7 @@ var Texture2D = cc.Class({
     /**
      * !#en
      * Destory this texture and immediately release its video memory. (Inherit from cc.Object.destroy)<br>
-     * After destroy, this object is not usable any more.
+     * After destroy, this object is not usable anymore.
      * You can use cc.isValid(obj) to check whether the object is destroyed before accessing it.
      * !#zh
      * 销毁该贴图，并立即释放它对应的显存。（继承自 cc.Object.destroy）<br/>

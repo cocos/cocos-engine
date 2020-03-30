@@ -291,7 +291,7 @@ var deferredDestroyTimer = null;
  * !#en
  * Destroy this Object, and release all its own references to other objects.<br/>
  * Actual object destruction will delayed until before rendering.
- * From the next frame, this object is not usable any more.
+ * From the next frame, this object is not usable anymore.
  * You can use cc.isValid(obj) to check whether the object is destroyed before accessing it.
  * !#zh
  * 销毁该对象，并释放所有它对其它对象的引用。<br/>

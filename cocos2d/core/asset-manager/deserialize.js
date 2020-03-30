@@ -29,7 +29,7 @@ const MissingClass = CC_EDITOR && Editor.require('app://editor/page/scene-utils/
 require('../platform/deserialize');
 
 function deserialize (json, options) {
-    if (!json) return new Error('empty json');
+    if (!json) throw new Error('empty json');
     var classFinder, missingClass;
     var isScene = helper.isSceneObj(json);
     if (isScene) {
@@ -70,7 +70,7 @@ function deserialize (json, options) {
     }
     catch (e) {
         cc.deserialize.Details.pool.put(tdInfo);
-        return e;
+        throw e;
     }
 
     if (CC_EDITOR && missingClass) {

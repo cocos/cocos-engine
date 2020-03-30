@@ -444,13 +444,13 @@ var ComponentScheduler = cc.Class({
     },
 
     _scheduleImmediate (comp) {
-        if (comp.start && !(comp._objFlags & IsStartCalled)) {
+        if (typeof comp.start === 'function' && !(comp._objFlags & IsStartCalled)) {
             this.startInvoker.add(comp);
         }
-        if (comp.update) {
+        if (typeof comp.update === 'function') {
             this.updateInvoker.add(comp);
         }
-        if (comp.lateUpdate) {
+        if (typeof comp.lateUpdate === 'function') {
             this.lateUpdateInvoker.add(comp);
         }
     },
@@ -458,8 +458,7 @@ var ComponentScheduler = cc.Class({
     _deferredSchedule () {
         var comps = this.scheduleInNextFrame;
         for (var i = 0, len = comps.length; i < len; i++) {
-            var comp = comps[i];
-            this._scheduleImmediate(comp);
+            this._scheduleImmediate(comps[i]);
         }
         comps.length = 0;
     },

@@ -24,7 +24,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-var RawAsset = require('./CCRawAsset');
+var CCObject = require('../platform/CCObject');
 
 /**
  * !#en
@@ -45,12 +45,21 @@ var RawAsset = require('./CCRawAsset');
  * - cc.Object._deserialize<br/>
  *
  * @class Asset
- * @extends RawAsset
+ * @extends Object
  */
 cc.Asset = cc.Class({
-    name: 'cc.Asset', extends: RawAsset,
+    name: 'cc.Asset', extends: CCObject,
 
     ctor () {
+        /**
+         * @property {String} _uuid
+         * @private
+         */
+        // enumerable is false by default, to avoid uuid being assigned to empty string during destroy
+        Object.defineProperty(this, '_uuid', {
+            value: '',
+            writable: true,
+        });
         /**
          * !#en
          * Whether the asset is loaded or not
@@ -150,7 +159,7 @@ cc.Asset = cc.Class({
 
         /**
          * !#en Indicates whether its dependent raw assets can support deferred load if the owner scene (or prefab) is marked as `asyncLoadAssets`.
-         * !#zh 当场景或 Prefab 被标记为 `asyncLoadAssets`，禁止延迟加载该资源所依赖的其它 RawAsset。
+         * !#zh 当场景或 Prefab 被标记为 `asyncLoadAssets`，禁止延迟加载该资源所依赖的其它原始资源。
          *
          * @property {Boolean} preventDeferredLoadDependents
          * @default false

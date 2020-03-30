@@ -439,7 +439,7 @@ if (CC_DEBUG) {
     markFunctionWarning(cc.Material, {
         getInstantiatedBuiltinMaterial: 'cc.MaterialVariant.createWithBuiltin',
         getInstantiatedMaterial: 'cc.MaterialVariant.create'
-    })
+    });
 
     // cc.RenderComponent
     cc.js.getset(cc.RenderComponent.prototype, 'sharedMaterials', function () {

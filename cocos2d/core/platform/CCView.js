@@ -453,7 +453,7 @@ cc.js.mixin(View.prototype, {
      * !#zh 控制抗锯齿是否开启
      * @method enableAntiAlias
      * @param {Boolean} enabled - Enable or not anti-alias
-     * @deprecated cc.view.enableAntiAlias is deprecated now, please use cc.Texture2D.setFilters instead
+     * @deprecated cc.view.enableAntiAlias is deprecated, please use cc.Texture2D.setFilters instead
      * @since v2.3.0
      */
     enableAntiAlias: function (enabled) {
