@@ -336,7 +336,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     private _setVertexAttrib () {
         switch (this._renderInfo!.renderMode) {
             case RenderMode.StrecthedBillboard:
-                //this._vertAttrs = _vertex_attrs_stretch.slice();
+                this._vertAttrs = _gpu_vert_attr.slice();
                 break;
             case RenderMode.Mesh:
                 this._vertAttrs = _gpu_vert_attr_mesh.slice();
