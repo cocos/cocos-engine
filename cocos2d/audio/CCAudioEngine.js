@@ -549,17 +549,10 @@ var audioEngine = {
         this._breakCache = [];
         for (var id in _id2audio) {
             var audio = _id2audio[id];
-            if (!audio) return;
             var state = audio.getState();
             if (state === Audio.State.PLAYING) {
                 this._breakCache.push(id);
-                var context = audio._element._context;
-                if (context instanceof window.webkitAudioContext) {
-                    audio._element._context.suspend();
-                }
-                else {
-                    audio.pause();
-                }
+                audio.pause();
             }
         }
     },
@@ -570,14 +563,8 @@ var audioEngine = {
         while (this._breakCache.length > 0) {
             var id = this._breakCache.pop();
             var audio = getAudioFromId(id);
-            if (!audio) return;
-            var context = audio._element._context;
-            if (context instanceof window.webkitAudioContext) {
-                audio._element._context.resume();
-            }
-            else if (audio.resume) {
+            if (audio && audio.resume)
                 audio.resume();
-            }
         }
         this._breakCache = null;
     },
