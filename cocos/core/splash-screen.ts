@@ -19,7 +19,7 @@ import { GFXTexture } from './gfx/texture';
 import { GFXTextureView } from './gfx/texture-view';
 import { clamp01 } from './math/utils';
 
-export type SplashEffectType = 'none' | 'Fade-InOut';
+export type SplashEffectType = 'NONE' | 'FADE-INOUT';
 
 export interface ISplashSetting {
     readonly totalTime: number;
@@ -91,16 +91,16 @@ export class SplashScreen {
         if (window._CCSettings && window._CCSettings.splashScreen) {
             this.setting = window._CCSettings.splashScreen;
             (this.setting.totalTime as number) = this.setting.totalTime != null ? this.setting.totalTime : 3000;
-            (this.setting.base64src as string) = this.setting.base64src != null ? this.setting.base64src : '';
-            (this.setting.effect as SplashEffectType) = this.setting.effect != null ? this.setting.effect : 'Fade-InOut';
-            (this.setting.clearColor as IGFXColor) = this.setting.clearColor != null ? this.setting.clearColor : { r: 0.88, g: 0.88, b: 0.88, a: 1.0 };
+            (this.setting.base64src as string) = this.setting.base64src || '';
+            (this.setting.effect as SplashEffectType) = this.setting.effect || 'FADE-INOUT';
+            (this.setting.clearColor as IGFXColor) = this.setting.clearColor || { r: 0.88, g: 0.88, b: 0.88, a: 1.0 };
             (this.setting.displayRatio as number) = this.setting.displayRatio != null ? this.setting.displayRatio : 0.4;
             (this.setting.displayWatermark as boolean) = this.setting.displayWatermark != null ? this.setting.displayWatermark : true;
         } else {
             this.setting = {
                 totalTime: 3000,
                 base64src: '',
-                effect: 'Fade-InOut',
+                effect: 'FADE-INOUT',
                 clearColor: { r: 0.88, g: 0.88, b: 0.88, a: 1.0 },
                 displayRatio: 0.4,
                 displayWatermark: true
@@ -242,8 +242,9 @@ export class SplashScreen {
             const elapsedTime = time - this.startTime;
 
             /** update uniform */
-            const precent = clamp01(elapsedTime / this.setting.totalTime);
-            const u_p = easing.cubicOut(precent);
+            const PERCENT = clamp01(elapsedTime / this.setting.totalTime);
+            let u_p = easing.cubicOut(PERCENT);
+            if (this.setting.effect == 'NONE') u_p = 1.0;
             this.material.setProperty('u_precent', u_p);
             this.material.passes[0].update();
 
