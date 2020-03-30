@@ -34,14 +34,9 @@ import { ccclass } from '../data/class-decorator';
 import { Rect, Size, Vec2 } from '../math';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { Asset } from './asset';
-import { ImageAsset } from './image-asset';
 import { RenderTexture } from './render-texture';
-import { Texture2D } from './texture-2d';
 import { TextureBase } from './texture-base';
 import { EDITOR } from 'internal:constants';
-import { Filter } from './asset-enum';
-import { GFXSampler } from '../gfx';
-import { samplerLib } from '../../core/renderer/core/sampler-lib';
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;
@@ -366,6 +361,7 @@ export class SpriteFrame extends Asset {
             console.warn(`Error Texture in ${this.name}`);
             return;
         }
+
         this.reset({ texture: value }, true);
     }
 
@@ -386,8 +382,10 @@ export class SpriteFrame extends Asset {
     }
 
     set _textureSource (value: TextureBase) {
-        this._refreshTexture(value);
-        this._calculateUV();
+        if (value) {
+            this._refreshTexture(value);
+            this._calculateUV();
+        }
     }
 
     public vertices: IVertices | null = null;
@@ -441,7 +439,7 @@ export class SpriteFrame extends Asset {
      * 返回是否已加载精灵帧。
      */
     public textureLoaded () {
-        return this.texture.loaded;
+        return this.texture && this.texture.loaded;
     }
 
     /**
@@ -589,6 +587,7 @@ export class SpriteFrame extends Asset {
 
         if (info) {
             if (info.texture) {
+                this.loaded = false;
                 this._rect.x = this._rect.y = 0;
                 this._rect.width = info.texture.width;
                 this._rect.height = info.texture.height;
