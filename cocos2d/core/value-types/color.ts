@@ -356,9 +356,10 @@ export default class Color extends ValueType {
      * @static
      */
     static premultiplyAlpha (out, color) {
-        out.r = color.r * color.a / 255.0;
-        out.g = color.g * color.a / 255.0;
-        out.b = color.b * color.a / 255.0;
+        let alpha = color.a / 255.0;
+        out.r = color.r * alpha;
+        out.g = color.g * alpha;
+        out.b = color.b * alpha;
 
         out._fastSetA(color.a);
     
