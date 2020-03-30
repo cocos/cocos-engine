@@ -145,6 +145,7 @@ export class SplashScreen {
                         },
                         builtins: { globals: { blocks: [], samplers: [] }, locals: { blocks: [], samplers: [] } },
                         defines: [],
+                        attributes: [],
                         blocks: [
                             {
                                 name: 'splashFrag', defines: [], binding: 0, members: [
