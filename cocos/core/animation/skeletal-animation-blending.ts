@@ -69,6 +69,7 @@ export class BlendStateBuffer {
 export type IBlendStateWriter = IValueProxyFactory & {
     start: () => void;
     stop: () => void;
+    destroy: () => void;
 };
 
 export function createBlendStateWriter<P extends BlendingProperty>(
@@ -88,17 +89,20 @@ export function createBlendStateWriter<P extends BlendingProperty>(
     let propertyBlendState: PropertyBlendState<BlendingPropertyValue<P>> | null = null;
     let isConstCacheValid = false;
     return {
-        start : () => {
+        start : function () {
             if (!propertyBlendState) {
                 propertyBlendState = blendState.ref(node, property);
                 isConstCacheValid = false;
             }
         },
-        stop: () => {
+        stop: function () {
             if (propertyBlendState) {
                 blendState.deRef(node, property);
                 propertyBlendState = null;
             }
+        },
+        destroy: function () {
+            this.stop();
         },
         forTarget: (_) => {
             return {
