@@ -521,7 +521,7 @@ var eventManager = {
                 if (listener._registered)
                     listener._claimedTouches.splice(removedIdx, 1);
                 eventManager._clearCurTouch();
-            } else if (getCode === EventTouch.CANCELLED) {
+            } else if (getCode === EventTouch.CANCELED) {
                 if (listener.onTouchCancelled)
                     listener.onTouchCancelled(selTouch, event);
                 if (listener._registered)
@@ -593,7 +593,7 @@ var eventManager = {
             listener.onTouchesMoved(touches, event);
         else if (getCode === EventTouch.ENDED && listener.onTouchesEnded)
             listener.onTouchesEnded(touches, event);
-        else if (getCode === EventTouch.CANCELLED && listener.onTouchesCancelled)
+        else if (getCode === EventTouch.CANCELED && listener.onTouchesCancelled)
             listener.onTouchesCancelled(touches, event);
 
         // If the event was stopped, return directly.
