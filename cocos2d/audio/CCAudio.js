@@ -182,8 +182,8 @@ Audio.State = {
     proto.pause = function () {
         if (!this._element || this.getState() !== Audio.State.PLAYING) return;
         this._unbindEnded();
-        this._element.pause();
         this._state = Audio.State.PAUSED;
+        this._element.pause();
     };
 
     proto.resume = function () {
@@ -195,6 +195,7 @@ Audio.State = {
 
     proto.stop = function () {
         if (!this._element) return;
+        this._state = Audio.State.STOPPED;
         this._element.pause();
         try {
             this._element.currentTime = 0;
@@ -208,7 +209,6 @@ Audio.State = {
         }
         this._unbindEnded();
         this.emit('stop');
-        this._state = Audio.State.STOPPED;
     };
 
     proto.setLoop = function (loop) {
