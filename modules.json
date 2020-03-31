@@ -328,7 +328,7 @@
       "./cocos2d/core/renderer/webgl/assemblers/sprite/3d/sliced.js",
       "./cocos2d/core/renderer/webgl/assemblers/sprite/3d/tiled.js"
     ],
-    "dependencies": ["WebGL Renderer", "Geom Utils"]
+    "dependencies": ["Mesh", "WebGL Renderer", "Geom Utils"]
   },
   {
     "name": "3D Primitive",
