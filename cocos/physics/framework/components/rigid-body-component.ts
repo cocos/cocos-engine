@@ -5,6 +5,7 @@
 
 import {
     ccclass,
+    help,
     disallowMultiple,
     executeInEditMode,
     executionOrder,
@@ -23,6 +24,7 @@ import { EDITOR, PHYSICS_BUILTIN } from 'internal:constants';
  * 刚体组件。
  */
 @ccclass('cc.RigidBodyComponent')
+@help('i18n:cc.RigidBodyComponent')
 @executionOrder(99)
 @menu('Physics/RigidBody')
 @executeInEditMode

@@ -51,6 +51,8 @@ import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { Asset } from './asset';
 import { Skeleton } from './skeleton';
 import { postLoadMesh } from './utils/mesh-utils';
+import { Morph, createMorphRendering, MorphRendering } from './morph';
+import { js } from '../utils/js';
 
 function getIndexStrideCtor (stride: number) {
     switch (stride) {
@@ -360,6 +362,8 @@ export declare namespace Mesh {
     export interface IVertexBundle {
         /**
          * 所有顶点属性的实际数据块。
+         * 你必须使用 DataView 来读取数据。
+         * 因为不能保证所有属性的起始偏移都按 TypedArray 要求的字节对齐。
          */
         view: IBufferView;
 
@@ -372,7 +376,7 @@ export declare namespace Mesh {
     /**
      * 子网格。子网格由一系列相同类型的图元组成（例如点、线、面等）。
      */
-    export interface ISubmesh {
+    export interface ISubMesh {
         /**
          * 此子网格引用的顶点块，索引至网格的顶点块数组。
          */
@@ -408,7 +412,7 @@ export declare namespace Mesh {
         /**
          * 此网格的所有子网格。
          */
-        primitives: ISubmesh[];
+        primitives: ISubMesh[];
 
         /**
          * （各分量都）小于等于此网格任何顶点位置的最大位置。
@@ -425,6 +429,8 @@ export declare namespace Mesh {
          * 每个元素都对应一个原骨骼资源里的索引，按子模型 VB 内的实际索引排列。
          */
         jointMaps?: number[][];
+
+        morph?: Morph;
     }
 
     export interface ICreateInfo {
@@ -558,7 +564,7 @@ export class Mesh extends Asset {
         const gfxDevice: GFXDevice = cc.director.root.device;
         const vertexBuffers = this._createVertexBuffers(gfxDevice, buffer);
         const indexBuffers: GFXBuffer[] = [];
-        const submeshes: RenderingSubMesh[] = [];
+        const subMeshes: RenderingSubMesh[] = [];
 
         for (let i = 0; i < this._struct.primitives.length; i++) {
             const prim = this._struct.primitives[i];
@@ -618,10 +624,14 @@ export class Mesh extends Asset {
             const subMesh = new RenderingSubMesh(vbReference, gfxAttributes, prim.primitiveMode);
             subMesh.mesh = this; subMesh.subMeshIdx = i; subMesh.indexBuffer = indexBuffer;
 
-            submeshes.push(subMesh);
+            subMeshes.push(subMesh);
         }
 
-        this._renderingSubMeshes = submeshes;
+        this._renderingSubMeshes = subMeshes;
+        
+        if (this._struct.morph) {
+            this.morphRendering = createMorphRendering(this, gfxDevice);
+        }
     }
 
     /**
@@ -898,7 +908,7 @@ export class Mesh extends Asset {
         let srcIBView: Uint8Array | Uint16Array | Uint32Array;
         let dstIBView: Uint8Array | Uint16Array | Uint32Array;
 
-        const primitives: Mesh.ISubmesh[] = new Array<Mesh.ISubmesh>(this._struct.primitives.length);
+        const primitives: Mesh.ISubMesh[] = new Array<Mesh.ISubMesh>(this._struct.primitives.length);
         for (let i = 0; i < this._struct.primitives.length; ++i) {
             const prim = this._struct.primitives[i];
             const dstPrim = mesh._struct.primitives[i];
@@ -1259,6 +1269,8 @@ export class Mesh extends Asset {
             return vertexBuffer;
         });
     }
+
+    public morphRendering: MorphRendering | null = null;
 }
 cc.Mesh = Mesh;
 

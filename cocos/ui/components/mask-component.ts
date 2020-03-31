@@ -29,7 +29,7 @@
  */
 
 import { InstanceMaterialType, UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
-import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
 import { view } from '../../core/platform';
 import visibleRect from '../../core/platform/visible-rect';
@@ -100,6 +100,7 @@ const SEGMENTS_MAX = 10000;
  * 遮罩组件。
  */
 @ccclass('cc.MaskComponent')
+@help('i18n:cc.MaskComponent')
 @executionOrder(110)
 @menu('UI/Render/Mask')
 export class MaskComponent extends UIRenderComponent {

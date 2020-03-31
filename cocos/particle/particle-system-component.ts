@@ -8,7 +8,7 @@
 
 import { RenderableComponent } from '../core/3d/framework/renderable-component';
 import { Material } from '../core/assets/material';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../core/data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, property } from '../core/data/class-decorator';
 import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3 } from '../core/math';
 import { INT_MAX } from '../core/math/bits';
 import { Model } from '../core/renderer';
@@ -33,6 +33,7 @@ import { PARTICLE_MODULE_PROPERTY } from './particle';
 const _world_mat = new Mat4();
 
 @ccclass('cc.ParticleSystemComponent')
+@help('i18n:cc.ParticleSystemComponent')
 @menu('Components/ParticleSystem')
 @executionOrder(99)
 @executeInEditMode

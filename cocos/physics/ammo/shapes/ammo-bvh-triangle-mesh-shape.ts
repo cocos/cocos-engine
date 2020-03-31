@@ -104,8 +104,8 @@ export class AmmoBvhTriangleMeshShape extends AmmoShape implements ITrimeshShape
         this.impl.setUserIndex(this._index);
     }
 
-    updateScale () {
-        super.updateScale();
+    setScale () {
+        super.setScale();
         cocos2AmmoVec3(this.scale, this._collider.node.worldScale);
         this._btShape.setLocalScaling(this.scale);
         if (this._btCompound) {

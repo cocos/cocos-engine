@@ -40,7 +40,9 @@
         }],
 
         "@typescript-eslint/adjacent-overload-signatures": "off",
-        "@typescript-eslint/array-type": ["warn", "array-simple"],
+        "@typescript-eslint/array-type": ["warn", {
+            "default": "array-simple"
+        }],
         "@typescript-eslint/await-thenable": "off",
         "@typescript-eslint/ban-ts-ignore": "warn",
         "@typescript-eslint/ban-types": ["warn", {

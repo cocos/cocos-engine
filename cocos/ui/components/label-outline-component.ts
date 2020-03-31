@@ -29,7 +29,7 @@
  */
 
 import { Component } from '../../core/components/component';
-import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { Color } from '../../core/math';
 import { LabelComponent } from './label-component';
 
@@ -51,6 +51,7 @@ import { LabelComponent } from './label-component';
  * ```
  */
 @ccclass('cc.LabelOutlineComponent')
+@help('i18n:cc.LabelOutlineComponent')
 @executionOrder(110)
 @menu('UI/LabelOutline')
 export class LabelOutlineComponent extends Component {

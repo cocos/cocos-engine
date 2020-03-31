@@ -63,7 +63,6 @@ export interface IPassInfoFull extends IPassInfo {
 export type PassOverrides = RecursivePartial<IPassStates>;
 
 export interface IBlock {
-    buffer: ArrayBuffer;
     view: Float32Array;
     dirty: boolean;
 }
@@ -401,7 +400,7 @@ export class Pass {
         for (let i = 0; i < len; i++) {
             const block = this._blocks[i];
             if (block.dirty) {
-                this._buffers[i].update(block.buffer);
+                this._buffers[i].update(block.view);
                 block.dirty = false;
             }
         }
@@ -627,7 +626,7 @@ export class Pass {
             // non-builtin UBO data pools, note that the effect compiler
             // guarantees these bindings to be consecutive, starting from 0
             const buffer = new ArrayBuffer(size);
-            this._blocks[binding] = { buffer, dirty: false, view: new Float32Array(buffer) };
+            this._blocks[binding] = { view: new Float32Array(buffer), dirty: false };
         }
         // store handles
         const directHandleMap = this._handleMap = this._shaderInfo.handleMap;

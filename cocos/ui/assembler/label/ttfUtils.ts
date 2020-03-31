@@ -169,7 +169,7 @@ export const ttfUtils =  {
         if (outline && outline.enabled) {
             _isOutlined = true;
             _margin = _outlineWidth = outline.width;
-            _outlineColor = outline.color.clone();
+            _outlineColor.set(outline.color);
             // TODO: temporary solution, cascade opacity for outline color
             _outlineColor.a = _outlineColor.a * comp.color.a / 255.0;
         }

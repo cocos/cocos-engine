@@ -48,8 +48,8 @@ export class AmmoBoxShape extends AmmoShape implements IBoxShape {
         (this.halfExt as any) = null;
     }
 
-    updateScale () {
-        super.updateScale();
+    setScale () {
+        super.setScale();
         this.setSize(this.collider.size);
     }
 

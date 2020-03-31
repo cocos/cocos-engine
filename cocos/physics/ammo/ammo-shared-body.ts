@@ -237,7 +237,7 @@ export class AmmoSharedBody {
 
             if (this.node.hasChangedFlags & TransformBit.SCALE) {
                 for (let i = 0; i < this.bodyStruct.wrappedShapes.length; i++) {
-                    this.bodyStruct.wrappedShapes[i].updateScale();
+                    this.bodyStruct.wrappedShapes[i].setScale();
                 }
             }
         }
@@ -274,7 +274,7 @@ export class AmmoSharedBody {
 
             if (this.node.hasChangedFlags & TransformBit.SCALE) {
                 for (let i = 0; i < this.ghostStruct.wrappedShapes.length; i++) {
-                    this.ghostStruct.wrappedShapes[i].updateScale();
+                    this.ghostStruct.wrappedShapes[i].setScale();
                 }
             }
         }
@@ -286,7 +286,7 @@ export class AmmoSharedBody {
         cocos2AmmoQuat(this.bodyStruct.worldQuat, this.node.worldRotation);
         wt.setRotation(this.bodyStruct.worldQuat);
         for (let i = 0; i < this.bodyStruct.wrappedShapes.length; i++) {
-            this.bodyStruct.wrappedShapes[i].updateScale();
+            this.bodyStruct.wrappedShapes[i].setScale();
         }
         this.body.activate();
     }
@@ -297,7 +297,7 @@ export class AmmoSharedBody {
         cocos2AmmoQuat(this.ghostStruct.worldQuat, this.node.worldRotation);
         wt1.setRotation(this.ghostStruct.worldQuat);
         for (let i = 0; i < this.ghostStruct.wrappedShapes.length; i++) {
-            this.ghostStruct.wrappedShapes[i].updateScale();
+            this.ghostStruct.wrappedShapes[i].setScale();
         }
         this.ghost.activate();
     }

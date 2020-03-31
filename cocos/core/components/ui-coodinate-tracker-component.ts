@@ -30,7 +30,7 @@
 
 import { Component } from './component';
 import { EventHandler } from './component-event-handler';
-import { ccclass, property, menu, executionOrder } from '../data/class-decorator';
+import { ccclass, help, property, menu, executionOrder } from '../data/class-decorator';
 import { Node } from '../scene-graph';
 import { convertUtils } from '../utils';
 import { CameraComponent } from '../3d';
@@ -41,6 +41,7 @@ import { Vec3 } from '../math';
  * 主要提供映射后的转换世界坐标以及模拟透视相机远近比。
  */
 @ccclass('cc.UICoordinateTrackerComponent')
+@help('i18n:cc.UICoordinateTrackerComponent')
 @menu('Components/UICoordinateTracker')
 @executionOrder(110)
 export class UICoordinateTrackerComponent extends Component {

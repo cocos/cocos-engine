@@ -259,7 +259,7 @@ export class Model {
             const newPSOs = this.createPipelineStates(mat, i);
             psos.length = newPSOs.length;
             for (let j = 0; j < newPSOs.length; j++) {
-                psos[i] = newPSOs[i];
+                psos[j] = newPSOs[j];
             }
         });
         for (let i = 0; i < subModels.length; i++) {
@@ -277,8 +277,8 @@ export class Model {
     }
 
     protected createPipelineStates (mat: Material, subModelIdx: number): GFXPipelineState[] {
-        const ret = new Array<GFXPipelineState>(mat.passes.length);
-        for (let i = 0; i < ret.length; i++) {
+        const ret: GFXPipelineState[] = [];
+        for (let i = 0; i < mat.passes.length; i++) {
             const pass = mat.passes[i];
             ret[i] = this.createPipelineState(pass, subModelIdx);
         }

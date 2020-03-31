@@ -28,7 +28,7 @@
  */
 
 import { Component } from '../components/component';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, property } from '../data/class-decorator';
 import { Event, EventTarget } from '../event';
 import { CallbacksInvoker, ICallbackTable } from '../event/callbacks-invoker';
 import { applyMixins, IEventTarget } from '../event/event-target-factory';
@@ -90,6 +90,7 @@ ccenum(EventType);
  *  - finished : 动画播放完成时
  */
 @ccclass('cc.AnimationComponent')
+@help('i18n:cc.AnimationComponent')
 @executionOrder(99)
 @executeInEditMode
 @menu('Components/Animation')
@@ -210,9 +211,9 @@ export class AnimationComponent extends Component implements IEventTarget {
 
     public onDestroy () {
         this._crossFade.stop();
-        for (const name of Object.keys(this._nameToState)) {
+        for (const name in this._nameToState) {
             const state = this._nameToState[name];
-            state.stop();
+            state.destroy();
         }
         this._nameToState = createMap(true);
     }

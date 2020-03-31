@@ -143,11 +143,10 @@ let _maxLineWidth = 0;
 
 export const bmfontUtils = {
     updateRenderData (comp: LabelComponent) {
-        if (!comp.renderData) {
+        if (!comp.renderData || !comp.renderData.vertDirty) {
             return;
         }
 
-        if (!comp.renderData.vertDirty) { return; }
         if (_comp === comp) { return; }
 
         _comp = comp;

@@ -4,6 +4,7 @@
 
 import {
     ccclass,
+    help,
     executeInEditMode,
     executionOrder,
     menu,
@@ -20,6 +21,7 @@ import { EDITOR, TEST } from 'internal:constants';
  * 盒子碰撞器
  */
 @ccclass('cc.BoxColliderComponent')
+@help('i18n:cc.BoxColliderComponent')
 @executionOrder(98)
 @menu('Physics/BoxCollider')
 @executeInEditMode

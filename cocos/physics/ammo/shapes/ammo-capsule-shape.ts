@@ -10,15 +10,39 @@ import { IVec3Like } from '../../../core/math/type-define';
 export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
 
     setHeight (v: number) {
-        this.updateCapsuleProp(this.collider.radius, v, this._collider.node.worldScale);
+        this.updateProperties(
+            this.collider.radius,
+            this.collider.height,
+            this.collider.direction,
+            this._collider.node.worldScale
+        );
+        if (this._btCompound) {
+            this._btCompound.updateChildTransform(this.index, this.transform, true);
+        }
     }
 
     setDirection (v: number) {
-        this.impl.setUpAxis(v);
+        this.updateProperties(
+            this.collider.radius,
+            this.collider.height,
+            this.collider.direction,
+            this._collider.node.worldScale
+        );
+        if (this._btCompound) {
+            this._btCompound.updateChildTransform(this.index, this.transform, true);
+        }
     }
 
     setRadius (v: number) {
-        this.updateCapsuleProp(v, this.collider.height, this._collider.node.worldScale);
+        this.updateProperties(
+            this.collider.radius,
+            this.collider.height,
+            this.collider.direction,
+            this._collider.node.worldScale
+        );
+        if (this._btCompound) {
+            this._btCompound.updateChildTransform(this.index, this.transform, true);
+        }
     }
 
     get impl () {
@@ -39,35 +63,29 @@ export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
         this.setRadius(this.collider.radius);
     }
 
-    updateScale () {
-        super.updateScale();
+    setScale () {
+        super.setScale();
         this.setRadius(this.collider.radius);
     }
 
-    /**
-     * radius \ height \ scale
-     */
-    updateCapsuleProp (radius: number, height: number, scale: IVec3Like) {
+    updateProperties (radius: number, height: number, direction: number, scale: IVec3Like) {
         const ws = scale;
-        const upAxis = this.impl.getUpAxis();
-        const isd = this.impl.getImplicitShapeDimensions();
+        const upAxis = direction;
         if (upAxis == 1) {
             const wh = height * Math.abs(ws.y);
-            const wr = radius * absMax(ws.x, ws.z);
+            const wr = radius * Math.abs(absMax(ws.x, ws.z));
             const halfH = (wh - wr * 2) / 2;
-            isd.setValue(wr, halfH, wr);
+            this.impl.updateProp(wr, halfH, upAxis);
         } else if (upAxis == 0) {
             const wh = height * Math.abs(ws.x);
-            const wr = radius * absMax(ws.y, ws.z);
+            const wr = radius * Math.abs(absMax(ws.y, ws.z));
             const halfH = (wh - wr * 2) / 2;
-            isd.setValue(halfH, wr, wr);
+            this.impl.updateProp(wr, halfH, upAxis);
         } else {
             const wh = height * Math.abs(ws.z);
-            const wr = radius * absMax(ws.x, ws.y);
+            const wr = radius * Math.abs(absMax(ws.x, ws.y));
             const halfH = (wh - wr * 2) / 2;
-            isd.setValue(wr, wr, halfH);
+            this.impl.updateProp(wr, halfH, upAxis);
         }
-        cocos2AmmoVec3(this.scale, Vec3.ONE);
-        this.impl.setLocalScaling(this.scale);
     }
 }

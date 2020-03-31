@@ -389,6 +389,7 @@ export class AnimationState extends Playable {
                         targetNode,
                         propertyName,
                         this,
+                        propertyCurve.curve.constant(),
                     );
                     this._blendStateWriters.push(blendStateWriter);
                     boundTarget = createBoundTarget(rootTarget, [], blendStateWriter);
@@ -407,6 +408,13 @@ export class AnimationState extends Playable {
                 samplerSharedGroup.curves.push(curveInstance);
             }
         }
+    }
+
+    public destroy () {
+        for (let iBlendStateWriter = 0; iBlendStateWriter < this._blendStateWriters.length; ++iBlendStateWriter) {
+            this._blendStateWriters[iBlendStateWriter].destroy();
+        }
+        this._blendStateWriters.length = 0;
     }
 
     public _emit (type, state) {

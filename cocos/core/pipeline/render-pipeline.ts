@@ -355,8 +355,10 @@ export abstract class RenderPipeline {
         }
 
         for (let i = 0; i < this._flows.length; i++) {
-            if (this._flows[i].type === RenderFlowType.SCENE) {
-                this._flows[i].activate(this);
+            let flow = this._flows[i];
+            if (flow.type === RenderFlowType.SCENE) {
+                flow.activate(this);
+                this.activateFlow(flow);
             }
         }
         return true;
@@ -582,7 +584,7 @@ export abstract class RenderPipeline {
         this._uboGlobal.view.set(ambient.groundAlbedo, UBOGlobal.AMBIENT_GROUND_OFFSET);
 
         // update ubos
-        this._globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(this._uboGlobal.view.buffer);
+        this._globalBindings.get(UBOGlobal.BLOCK.name)!.buffer!.update(this._uboGlobal.view);
     }
 
     /**

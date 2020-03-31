@@ -3,9 +3,9 @@
  */
 
 import { Vec3 } from '../../core/math';
-import { BoxShape, PhysicsWorld, RigidBody, SphereShape, CapsuleShape, TrimeshShape } from './physics-selector';
+import { BoxShape, PhysicsWorld, RigidBody, SphereShape, CapsuleShape, TrimeshShape, CylinderShape } from './physics-selector';
 import { IRigidBody } from '../spec/i-rigid-body';
-import { IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape } from '../spec/i-physics-shape';
+import { IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape, ICylinderShape } from '../spec/i-physics-shape';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { errorID, warnID } from '../../core';
 import { EDITOR, DEBUG, PHYSICS_BUILTIN, PHYSICS_AMMO, TEST, PHYSICS_CANNON } from 'internal:constants';
@@ -36,6 +36,29 @@ export function createCapsuleShape (radius = 0.5, height = 2, dir = 1): ICapsule
         return new CapsuleShape(radius, height, dir) as ICapsuleShape;
     } else {
         warnID(9610);
+        const func = () => { };
+        return {
+            setRadius: func,
+            setHeight: func,
+            setDirection: func,
+            setMaterial: func,
+            setIsTrigger: func,
+            setCenter: func,
+            initialize: func,
+            onLoad: func,
+            onEnable: func,
+            onDisable: func,
+            onDestroy: func
+        } as any
+    }
+}
+
+export function createCylinderShape (radius = 0.5, height = 2, dir = 1): ICylinderShape {
+    if (PHYSICS_CANNON || PHYSICS_AMMO) {
+        if (DEBUG && checkPhysicsModule(CylinderShape)) { return null as any; }
+        return new CylinderShape(radius, height, dir) as ICylinderShape;
+    } else {
+        warnID(9612);
         const func = () => { };
         return {
             setRadius: func,

@@ -29,7 +29,7 @@
  */
 
 import { SpriteAtlas, SpriteFrame } from '../../core/assets';
-import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { Vec2 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
@@ -170,6 +170,7 @@ enum EventType {
  * 渲染精灵组件。
  */
 @ccclass('cc.SpriteComponent')
+@help('i18n:cc.SpriteComponent')
 @executionOrder(110)
 @menu('UI/Render/Sprite')
 export class SpriteComponent extends UIRenderComponent {

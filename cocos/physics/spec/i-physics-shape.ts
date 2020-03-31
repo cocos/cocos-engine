@@ -32,6 +32,12 @@ export interface ICapsuleShape extends IBaseShape {
     setDirection: (v: number) => void;
 }
 
+export interface ICylinderShape extends IBaseShape {
+    setRadius: (v: number) => void;
+    setHeight: (v: number) => void;
+    setDirection: (v: number) => void;
+}
+
 export interface ITrimeshShape extends IBaseShape {
     setMesh: (v: Mesh | null) => void;
 }
