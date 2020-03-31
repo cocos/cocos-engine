@@ -31,6 +31,7 @@ import { IParticleSystemRenderer } from './renderer/particle-system-renderer-bas
 import { PARTICLE_MODULE_PROPERTY } from './particle';
 
 const _world_mat = new Mat4();
+const _world_rol = new Quat();
 
 @ccclass('cc.ParticleSystemComponent')
 @help('i18n:cc.ParticleSystemComponent')
@@ -678,6 +679,12 @@ export class ParticleSystemComponent extends RenderableComponent {
     }
 
     private emit (count, dt) {
+        let delta = this._time / this.duration;
+
+        if (this._simulationSpace === Space.World) {
+            this.node.getWorldMatrix(_world_mat);
+            this.node.getWorldRotation(_world_rol);
+        }
 
         for (let i = 0; i < count; ++i) {
             const particle = this.processor!.getFreeParticle();
@@ -698,49 +705,40 @@ export class ParticleSystemComponent extends RenderableComponent {
                 this.textureAnimationModule.init(particle);
             }
 
-            Vec3.multiplyScalar(particle.velocity, particle.velocity, this.startSpeed.evaluate(this._time / this.duration, rand)!);
+            Vec3.multiplyScalar(particle.velocity, particle.velocity, this.startSpeed.evaluate(delta, rand)!);
 
-            switch (this._simulationSpace) {
-                case Space.Local:
-                    break;
-                case Space.World:
-                    this.node.getWorldMatrix(_world_mat);
-                    Vec3.transformMat4(particle.position, particle.position, _world_mat);
-                    const worldRot = new Quat();
-                    this.node.getWorldRotation(worldRot);
-                    Vec3.transformQuat(particle.velocity, particle.velocity, worldRot);
-                    break;
-                case Space.Custom:
-                    // TODO:
-                    break;
+            if (this._simulationSpace === Space.World) {
+                Vec3.transformMat4(particle.position, particle.position, _world_mat);
+                Vec3.transformQuat(particle.velocity, particle.velocity, _world_rol);
             }
+
             Vec3.copy(particle.ultimateVelocity, particle.velocity);
             // apply startRotation.
             if (this.startRotation3D) {
-                Vec3.set(particle.rotation, this.startRotationX.evaluate(this._time / this.duration, rand)!,
-                    this.startRotationY.evaluate(this._time / this.duration, rand)!,
-                    this.startRotationZ.evaluate(this._time / this.duration, rand)!);
+                Vec3.set(particle.rotation, this.startRotationX.evaluate(delta, rand)!,
+                    this.startRotationY.evaluate(delta, rand)!,
+                    this.startRotationZ.evaluate(delta, rand)!);
             } else {
-                Vec3.set(particle.rotation, 0, 0, this.startRotationZ.evaluate(this._time / this.duration, rand)!);
+                Vec3.set(particle.rotation, 0, 0, this.startRotationZ.evaluate(delta, rand)!);
             }
 
             // apply startSize.
             if (this.startSize3D) {
-                Vec3.set(particle.startSize, this.startSizeX.evaluate(this._time / this.duration, rand)!,
-                    this.startSizeY.evaluate(this._time / this.duration, rand)!,
-                    this.startSizeZ.evaluate(this._time / this.duration, rand)!);
+                Vec3.set(particle.startSize, this.startSizeX.evaluate(delta, rand)!,
+                    this.startSizeY.evaluate(delta, rand)!,
+                    this.startSizeZ.evaluate(delta, rand)!);
             } else {
-                Vec3.set(particle.startSize, this.startSizeX.evaluate(this._time / this.duration, rand)!, 1, 1);
+                Vec3.set(particle.startSize, this.startSizeX.evaluate(delta, rand)!, 1, 1);
                 particle.startSize.y = particle.startSize.x;
             }
             Vec3.copy(particle.size, particle.startSize);
 
             // apply startColor.
-            particle.startColor.set(this.startColor.evaluate(this._time / this.duration, rand));
+            particle.startColor.set(this.startColor.evaluate(delta, rand));
             particle.color.set(particle.startColor);
 
             // apply startLifetime.
-            particle.startLifetime = this.startLifetime.evaluate(this._time / this.duration, rand)! + dt;
+            particle.startLifetime = this.startLifetime.evaluate(delta, rand)! + dt;
             particle.remainingLifetime = particle.startLifetime;
 
             particle.randomSeed = randomRangeInt(0, 233280);

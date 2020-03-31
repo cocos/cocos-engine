@@ -106,7 +106,6 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     private _sizeTexture: Texture2D | null = null;
     private _animTexture: Texture2D | null = null;
     private _uTimeHandle: number = 0;
-    private _uDetlaHandle: number = 0;
     private _uRotHandle: number = 0;
 
     constructor (info: any) {
@@ -202,20 +201,18 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         }
 
         let pass = mat.passes[0];
-        pass.setUniform(this._uTimeHandle, this._particleSystem._time);
-        pass.setUniform(this._uDetlaHandle, dt);
+        _tempVec4.x = this._particleSystem._time;
+        _tempVec4.y = dt;
+        pass.setUniform(this._uTimeHandle, _tempVec4);
 
-        this._particleSystem.node.getWorldRotation(_world_rot)
-        Quat.toArray(_world_rot_uniform, _world_rot);
-        Vec4.fromArray(_tempVec4, _world_rot_uniform);
-        pass.setUniform(this._uRotHandle, _tempVec4);
+        this._particleSystem.node.getWorldRotation(_world_rot);
+        pass.setUniform(this._uRotHandle, _world_rot);
     }
 
     public initShaderUniform (mat: Material) {
         let pass = mat.passes[0];
 
-        this._uTimeHandle = pass.getHandle("u_psTime")!;
-        this._uDetlaHandle = pass.getHandle("u_detla")!;
+        this._uTimeHandle = pass.getHandle("u_timeDelta")!;
         this._uRotHandle = pass.getHandle("u_worldRot")!;
 
         pass.setUniform(pass.getHandle("scale")!, this._node_scale);
