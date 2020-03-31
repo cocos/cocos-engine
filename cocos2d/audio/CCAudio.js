@@ -466,10 +466,35 @@ let WebAudioElement = function (buffer, audio) {
         let audio = this._currentSource;
         this._currentSource = null;
         this._startTime = -1;
-        if (audio)
-            audio.stop(0);
+        // On the web-mobile platform of some ios systems, AudioScheduledSourceNode pauses and resumes audio failure after playing a video
+        if (window.webkitAudioContext && this._context instanceof window.webkitAudioContext) {
+            if (this._audio._state === Audio.State.PAUSED) {
+                // Use webkitAudioContext's suspend methods to fix
+                this._context.suspend();
+            }
+            else {
+                audio && audio.stop(0);
+                this._currentSource = null;
+                // Restore the playback ability of webkitAudioContext
+                this._context.resume();
+            }
+        }
+        else {
+            audio && audio.stop(0);
+            this._currentSource = null;
+        }
     };
 
+    proto.resume = function () {
+        // On the web-mobile platform of some ios systems, AudioScheduledSourceNode pauses and resumes audio failure after playing a video
+        if (window.webkitAudioContext && this._context instanceof window.webkitAudioContext) {
+            // Use webkitAudioContext's resume methods to fix
+            this._context.resume();
+        }
+        else {
+            this.play();
+        }
+    };
     Object.defineProperty(proto, 'paused', {
         get: function () {
             // If the current audio is a loop, paused is false
