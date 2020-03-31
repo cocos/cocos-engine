@@ -863,20 +863,12 @@ export class Game extends EventTarget {
 
         // TODO: adapter for editor & preview
         let canvas: HTMLCanvasElement;
-        if (JSB) {
-            let localContainer: HTMLElement;
-            this.container = localContainer = document.createElement<'div'>('div');
-            this.frame = document.documentElement;
-            canvas = window.__canvas;
-            this.canvas = canvas;
-        } 
-        else {
-            this.canvas = (this.config as any).adapter.canvas;
-            this.frame = (this.config as any).adapter.frame;
-            this.container = (this.config as any).adapter.container;
-            canvas = this.canvas as HTMLCanvasElement;
-        }
-
+        
+        this.canvas = (this.config as any).adapter.canvas;
+        this.frame = (this.config as any).adapter.frame;
+        this.container = (this.config as any).adapter.container;
+        canvas = this.canvas as HTMLCanvasElement;
+        
         this._determineRenderType();
 
         // WebGL context created successfully
