@@ -127,7 +127,7 @@ exports.test = function (callback) {
         throw e;
     }
     return Gulp.src('bin/qunit-runner.html')
-        .pipe(qunit({ timeout: 10 }))
+        .pipe(qunit({ timeout: 15 }))
         .on('end', callback);
 };
 
