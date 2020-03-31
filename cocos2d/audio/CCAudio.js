@@ -458,7 +458,7 @@ let WebAudioElement = function (buffer, audio) {
         }.bind(this, offset);
         // On the web-mobile platform of some ios systems, AudioScheduledSourceNode pauses and resumes audio failure after playing a video
         if (window.webkitAudioContext && this._context instanceof window.webkitAudioContext) {
-            if (this._audio._state === Audio.State.PAUSED) {
+            if (this._audio.getState() === Audio.State.PAUSED) {
                 // Use webkitAudioContext's resume methods to fix
                 this._context.resume();
             }
