@@ -7,7 +7,7 @@ import { clamp01 } from "./math";
 import { easing } from "./animation";
 import { macro } from "./platform";
 import sys from "./platform/sys";
-import { COCOSPLAY, XIAOMI } from 'internal:constants';
+import { COCOSPLAY, XIAOMI, JSB } from 'internal:constants';
 
 type SplashEffectType = 'none' | 'Fade-InOut';
 
@@ -210,6 +210,24 @@ export class SplashScreenWebgl {
     }
 
     private init () {
+        // adapt for native mac & ios
+        if (JSB) {
+            if (sys.os == cc.sys.OS_OSX || sys.os == cc.sys.OS_IOS) {
+                this.gl.canvas.width = screen.width * devicePixelRatio;
+                this.gl.canvas.height = screen.height * devicePixelRatio;
+            }
+        }
+
+        // TODO: hack for cocosPlay & XIAOMI cause on landscape canvas value is wrong
+        if (COCOSPLAY || XIAOMI) {
+            if (window._CCSettings.orientation === 'landscape' && this.gl.canvas.width < this.gl.canvas.height) {
+                let width = this.gl.canvas.height;
+                let height = this.gl.canvas.width;
+                this.gl.canvas.width = width;
+                this.gl.canvas.height = height;
+            }
+        }
+
         this.initMatrix();
         this.initProgram();
         this.initBuffer();
@@ -226,17 +244,6 @@ export class SplashScreenWebgl {
     }
 
     private initMatrix () {
-
-        // TODO: hack for cocosPlay & XIAOMI cause on landscape canvas value is wrong
-        if (COCOSPLAY || XIAOMI) {
-            if (window._CCSettings.orientation === 'landscape' && this.gl.canvas.width < this.gl.canvas.height) {
-                let width = this.gl.canvas.height;
-                let height = this.gl.canvas.width;
-                this.gl.canvas.width = width;
-                this.gl.canvas.height = height;
-            }
-        }
-
         const screenWidth = this.gl.canvas.width;
         const screenHeight = this.gl.canvas.height;
         const displayRatio = this.setting.displayRatio;
