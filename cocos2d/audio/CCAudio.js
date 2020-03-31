@@ -182,6 +182,7 @@ Audio.State = {
     proto.pause = function () {
         if (!this._element || this.getState() !== Audio.State.PLAYING) return;
         this._unbindEnded();
+        // Before calling the pause method, you need to set the state of the audio
         this._state = Audio.State.PAUSED;
         this._element.pause();
     };
@@ -189,12 +190,13 @@ Audio.State = {
     proto.resume = function () {
         if (!this._element || this.getState() !== Audio.State.PAUSED) return;
         this._bindEnded();
-        this._element.resume();
+        this._element.play();
         this._state = Audio.State.PLAYING;
     };
 
     proto.stop = function () {
         if (!this._element) return;
+        // Before calling the pause method, you need to set the state of the audio
         this._state = Audio.State.STOPPED;
         this._element.pause();
         try {
@@ -391,68 +393,82 @@ let WebAudioElement = function (buffer, audio) {
 
 (function (proto) {
     proto.play = function (offset) {
-        // If repeat play, you need to stop before an audio
-        if (this._currentSource && !this.paused) {
-            this._currentSource.onended = null;
-            this._currentSource.stop(0);
-            this.playedLength = 0;
-        }
-
-        let audio = this._context["createBufferSource"]();
-        audio.buffer = this._buffer;
-        audio["connect"](this._gainObj);
-        audio.loop = this._loop;
-
-        this._startTime = this._context.currentTime;
-        offset = offset || this.playedLength;
-        if (offset) {
-            this._startTime -= offset;
-        }
-        let duration = this._buffer.duration;
-
-        let startTime = offset;
-        let endTime;
-        if (this._loop) {
-            if (audio.start)
-                audio.start(0, startTime);
-            else if (audio["notoGrainOn"])
-                audio["noteGrainOn"](0, startTime);
-            else
-                audio["noteOn"](0, startTime);
-        } else {
-            endTime = duration - offset;
-            if (audio.start)
-                audio.start(0, startTime, endTime);
-            else if (audio["noteGrainOn"])
-                audio["noteGrainOn"](0, startTime, endTime);
-            else
-                audio["noteOn"](0, startTime, endTime);
-        }
-
-        this._currentSource = audio;
-
-        audio.onended = this._endCallback;
-
-        // If the current audio context time stamp is 0 and audio context state is suspended
-        // There may be a need to touch events before you can actually start playing audio
-        if ((!audio.context.state || audio.context.state === "suspended") && this._context.currentTime === 0) {
-            let self = this;
-            clearTimeout(this._currentTimer);
-            this._currentTimer = setTimeout(function () {
-                if (self._context.currentTime === 0) {
-                    touchPlayList.push({
-                        instance: self._audio,
-                        offset: offset,
-                        audio: self
-                    });
-                }
-            }, 10);
-        }
-        // HACK: fix mobile safari can't play
-        if (cc.sys.browserType === cc.sys.BROWSER_TYPE_SAFARI && cc.sys.isMobile) {
-            if (audio.context.state === 'interrupted') {
-                audio.context.resume();
+        var _play = function (offset) {
+            // If repeat play, you need to stop before an audio
+            if (this._currentSource && !this.paused) {
+                this._currentSource.onended = null;
+                this._currentSource.stop(0);
+                this.playedLength = 0;
             }
+
+            let audio = this._context["createBufferSource"]();
+            audio.buffer = this._buffer;
+            audio["connect"](this._gainObj);
+            audio.loop = this._loop;
+
+            this._startTime = this._context.currentTime;
+            offset = !isNaN(offset) ? offset : this.playedLength;
+            this._startTime -= offset;
+        let duration = this._buffer.duration;
+            let duration = this._buffer.duration;
+
+            let startTime = offset;
+            let endTime;
+            if (this._loop) {
+                if (audio.start)
+                    audio.start(0, startTime);
+                else if (audio["notoGrainOn"])
+                    audio["noteGrainOn"](0, startTime);
+                else
+                    audio["noteOn"](0, startTime);
+            } else {
+                endTime = duration - offset;
+                if (audio.start)
+                    audio.start(0, startTime, endTime);
+                else if (audio["noteGrainOn"])
+                    audio["noteGrainOn"](0, startTime, endTime);
+                else
+                    audio["noteOn"](0, startTime, endTime);
+            }
+
+            this._currentSource = audio;
+
+            audio.onended = this._endCallback;
+
+            // If the current audio context time stamp is 0 and audio context state is suspended
+            // There may be a need to touch events before you can actually start playing audio
+            if ((!audio.context.state || audio.context.state === "suspended") && this._context.currentTime === 0) {
+                let self = this;
+                clearTimeout(this._currentTimer);
+                this._currentTimer = setTimeout(function () {
+                    if (self._context.currentTime === 0) {
+                        touchPlayList.push({
+                            instance: self._audio,
+                            offset: offset,
+                            audio: self
+                        });
+                    }
+                }, 10);
+            }
+            // HACK: fix mobile safari can't play
+            if (cc.sys.browserType === cc.sys.BROWSER_TYPE_SAFARI && cc.sys.isMobile) {
+                if (audio.context.state === 'interrupted') {
+                    audio.context.resume();
+                }
+            }
+        }.bind(this, offset);
+        // On the web-mobile platform of some ios systems, AudioScheduledSourceNode pauses and resumes audio failure after playing a video
+        if (window.webkitAudioContext && this._context instanceof window.webkitAudioContext) {
+            if (this._audio._state === Audio.State.PAUSED) {
+                // Use webkitAudioContext's resume methods to fix
+                this._context.resume();
+            }
+            else {
+                _play(offset);
+            }
+        }
+        else {
+            _play(offset);
         }
     };
 
@@ -464,11 +480,10 @@ let WebAudioElement = function (buffer, audio) {
         // If more than the duration of the audio, Need to take the remainder
         this.playedLength %= this._buffer.duration;
         let audio = this._currentSource;
-        this._currentSource = null;
         this._startTime = -1;
         // On the web-mobile platform of some ios systems, AudioScheduledSourceNode pauses and resumes audio failure after playing a video
         if (window.webkitAudioContext && this._context instanceof window.webkitAudioContext) {
-            if (this._audio._state === Audio.State.PAUSED) {
+            if (this._audio.getState() === Audio.State.PAUSED) {
                 // Use webkitAudioContext's suspend methods to fix
                 this._context.suspend();
             }
@@ -485,16 +500,6 @@ let WebAudioElement = function (buffer, audio) {
         }
     };
 
-    proto.resume = function () {
-        // On the web-mobile platform of some ios systems, AudioScheduledSourceNode pauses and resumes audio failure after playing a video
-        if (window.webkitAudioContext && this._context instanceof window.webkitAudioContext) {
-            // Use webkitAudioContext's resume methods to fix
-            this._context.resume();
-        }
-        else {
-            this.play();
-        }
-    };
     Object.defineProperty(proto, 'paused', {
         get: function () {
             // If the current audio is a loop, paused is false
