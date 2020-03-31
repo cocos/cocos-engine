@@ -30,7 +30,7 @@
 import { AnimationClip } from '../../animation/animation-clip';
 import { Material } from '../../assets';
 import { Skeleton } from '../../assets/skeleton';
-import { ccclass, help, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
+import { ccclass, executeInEditMode, executionOrder, help, menu, property } from '../../data/class-decorator';
 import { BakedSkinningModel } from '../../renderer/models/baked-skinning-model';
 import { SkinningModel } from '../../renderer/models/skinning-model';
 import { Node } from '../../scene-graph/node';
