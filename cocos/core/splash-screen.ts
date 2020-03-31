@@ -18,8 +18,9 @@ import { GFXPipelineState } from './gfx/pipeline-state';
 import { GFXTexture } from './gfx/texture';
 import { GFXTextureView } from './gfx/texture-view';
 import { clamp01 } from './math/utils';
+import { COCOSPLAY, XIAOMI } from 'internal:constants';
 
-export type SplashEffectType = 'none' | 'Fade-InOut';
+export type SplashEffectType = 'NONE' | 'FADE-INOUT';
 
 export interface ISplashSetting {
     readonly totalTime: number;
@@ -84,19 +85,21 @@ export class SplashScreen {
     private screenHeight!: number;
 
     public main (device: GFXDevice) {
+        if (device == null) return console.error("GFX DEVICE IS NULL.");
+
         if (window._CCSettings && window._CCSettings.splashScreen) {
             this.setting = window._CCSettings.splashScreen;
             (this.setting.totalTime as number) = this.setting.totalTime != null ? this.setting.totalTime : 3000;
-            (this.setting.base64src as string) = this.setting.base64src != null ? this.setting.base64src : '';
-            (this.setting.effect as SplashEffectType) = this.setting.effect != null ? this.setting.effect : 'Fade-InOut';
-            (this.setting.clearColor as IGFXColor) = this.setting.clearColor != null ? this.setting.clearColor : { r: 0.88, g: 0.88, b: 0.88, a: 1.0 };
+            (this.setting.base64src as string) = this.setting.base64src || '';
+            (this.setting.effect as SplashEffectType) = this.setting.effect || 'FADE-INOUT';
+            (this.setting.clearColor as IGFXColor) = this.setting.clearColor || { r: 0.88, g: 0.88, b: 0.88, a: 1.0 };
             (this.setting.displayRatio as number) = this.setting.displayRatio != null ? this.setting.displayRatio : 0.4;
             (this.setting.displayWatermark as boolean) = this.setting.displayWatermark != null ? this.setting.displayWatermark : true;
         } else {
             this.setting = {
                 totalTime: 3000,
                 base64src: '',
-                effect: 'Fade-InOut',
+                effect: 'FADE-INOUT',
                 clearColor: { r: 0.88, g: 0.88, b: 0.88, a: 1.0 },
                 displayRatio: 0.4,
                 displayWatermark: true
@@ -110,16 +113,13 @@ export class SplashScreen {
             this._directCall = true;
             return;
         } else {
+            this.device = device;
             cc.game.once(cc.Game.EVENT_GAME_INITED, () => {
                 cc.director._lateUpdate = performance.now();
             }, cc.director);
 
-            // this.program = effects.find(function (element) {
-            //     return element.name == 'util/splash-image';
-            // });
-
             this.program = {
-                name: 'util/splash-image',
+                name: 'util/splash-screen',
                 techniques: [
                     {
                         passes: [{
@@ -146,6 +146,7 @@ export class SplashScreen {
                         },
                         builtins: { globals: { blocks: [], samplers: [] }, locals: { blocks: [], samplers: [] } },
                         defines: [],
+                        attributes: [],
                         blocks: [
                             {
                                 name: 'splashFrag', defines: [], binding: 0, members: [
@@ -171,7 +172,6 @@ export class SplashScreen {
             this.cancelAnimate = false;
             this.startTime = -1;
             this.clearColors = [this.setting.clearColor];
-            this.device = device;
             this.screenWidth = this.device.width;
             this.screenHeight = this.device.height;
 
@@ -201,6 +201,17 @@ export class SplashScreen {
     }
 
     private init () {
+        // TODO: hack for cocosPlay & XIAOMI cause on landscape canvas value is wrong
+        if (COCOSPLAY || XIAOMI) {
+            if (window._CCSettings.orientation === 'landscape' && this.device.width < this.device.height) {
+                let width = this.device.height;
+                let height = this.device.width;
+                this.device.resize(width, height);
+                this.screenWidth = this.device.width;
+                this.screenHeight = this.device.height;
+            }
+        }
+
         this.initCMD();
         this.initIA();
         this.initPSO();
@@ -208,47 +219,6 @@ export class SplashScreen {
         if (this.setting.displayWatermark) {
             this.initText();
         }
-
-        const animate = (time: number) => {
-            if (this.cancelAnimate) {
-                return;
-            }
-
-            if (this.startTime < 0) {
-                this.startTime = time;
-            }
-            const elapsedTime = time - this.startTime;
-
-            /** update uniform */
-            const precent = clamp01(elapsedTime / this.setting.totalTime);
-            const u_p = easing.cubicOut(precent);
-            this.material.setProperty('u_precent', u_p);
-            this.material.passes[0].update();
-
-            if (this.setting.displayWatermark && this.textMaterial) {
-                this.textMaterial.setProperty('u_precent', u_p);
-                this.textMaterial.passes[0].update();
-            }
-
-            this.frame(time);
-
-            if (elapsedTime > this.setting.totalTime) {
-                this.splashFinish = true;
-            }
-
-            requestAnimationFrame(animate);
-        };
-        this.handle = requestAnimationFrame(animate);
-    }
-
-    private hide () {
-        cancelAnimationFrame(this.handle);
-        this.cancelAnimate = true;
-        this.destoy();
-    }
-
-    private frame (time: number) {
-        const device = this.device;
         const cmdBuff = this.cmdBuff;
         const framebuffer = this.framebuffer;
         const renderArea = this.renderArea;
@@ -272,6 +242,59 @@ export class SplashScreen {
         cmdBuff.endRenderPass();
         cmdBuff.end();
 
+        const animate = (time: number) => {
+            if (this.cancelAnimate) {
+                return;
+            }
+
+            if (this.startTime < 0) {
+                this.startTime = time;
+            }
+            const elapsedTime = time - this.startTime;
+
+            /** update uniform */
+            const PERCENT = clamp01(elapsedTime / this.setting.totalTime);
+            let u_p = easing.cubicOut(PERCENT);
+            if (this.setting.effect == 'NONE') u_p = 1.0;
+            this.material.setProperty('u_precent', u_p);
+            this.material.passes[0].update(time);
+
+            if (this.setting.displayWatermark && this.textMaterial) {
+                this.textMaterial.setProperty('u_precent', u_p);
+                this.textMaterial.passes[0].update(time);
+            }
+
+            this.frame(time);
+
+            if (elapsedTime > this.setting.totalTime) {
+                this.splashFinish = true;
+            }
+
+            requestAnimationFrame(animate);
+        };
+        this.handle = requestAnimationFrame(animate);
+    }
+
+    private hide () {
+        cancelAnimationFrame(this.handle);
+        this.cancelAnimate = true;
+        this.destoy();
+    }
+
+    private frame (time: number) {
+        // TODO: hack for cocosPlay & XIAOMI cause on landscape canvas value is wrong
+        if (COCOSPLAY || XIAOMI) {
+            if (window._CCSettings.orientation === 'landscape' && this.device.width < this.device.height) {
+                let width = this.device.height;
+                let height = this.device.width;
+                this.device.resize(width, height);
+                this.screenWidth = this.device.width;
+                this.screenHeight = this.device.height;
+            }
+        }
+
+        const device = this.device;
+        const cmdBuff = this.cmdBuff;
         device.queue.submit([cmdBuff]);
         device.present();
     }
@@ -279,7 +302,7 @@ export class SplashScreen {
     private initText () {
         /** texure */
         this.textImg = document.createElement('canvas');
-        this.textImg.width = 300;
+        this.textImg.width = 330;
         this.textImg.height = 30;
         this.textImg.style.width = `${this.textImg.width}`;
         this.textImg.style.height = `${this.textImg.height}`;
@@ -289,7 +312,9 @@ export class SplashScreen {
         ctx.textBaseline = 'top';
         ctx.textAlign = 'left';
         ctx.fillStyle = '`#424242`';
-        ctx.fillText("Powered by Cocos Creator 3D", 30, 8);
+        const text = "Powered by Cocos Creator 3D";
+        const textMetrics = ctx.measureText(text);
+        ctx.fillText(text, (330 - textMetrics.width) / 2, 6);
 
         this.textRegion = new GFXBufferTextureCopy();
         this.textRegion.texExtent.width = this.textImg.width;
@@ -434,9 +459,9 @@ export class SplashScreen {
         let n = 0;
         verts[n++] = w; verts[n++] = h; verts[n++] = 0.0; verts[n++] = 1.0;
         verts[n++] = -w; verts[n++] = h; verts[n++] = 1.0; verts[n++] = 1.0;
-        verts[n++] = w; verts[n++] = -h; verts[n++] = 0.0; verts[n++] = 0.0;
-        verts[n++] = -w; verts[n++] = -h; verts[n++] = 1.0; verts[n++] = 0.0;
-
+        verts[n++] = w; verts[n++] = -h; verts[n++] = 0.0; verts[n++] = 0;
+        verts[n++] = -w; verts[n++] = -h; verts[n++] = 1.0; verts[n++] = 0;
+        if (cc.sys.isBrowser) { verts[11] = 0.005; verts[15] = 0.005; }
         // translate to center
         for (let i = 0; i < verts.length; i += 4) {
             verts[i] = verts[i] + this.screenWidth / 2;
