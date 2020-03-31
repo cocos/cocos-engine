@@ -144,6 +144,10 @@ export interface ICustomJointTextureLayout {
     contents: IChunkContent[];
 }
 
+// Have to use some big number to replace the actual 'Infinity'.
+// For Infinity - Infinity === NaN
+const Inf = Number.MAX_SAFE_INTEGER;
+
 export class JointTexturePool {
 
     private _device: GFXDevice;
@@ -180,7 +184,7 @@ export class JointTexturePool {
             const layout = layouts[i];
             const chunkIdx = this._customPool.createChunk(layout.textureLength);
             for (let j = 0; j < layout.contents.length; j++) {
-                const content = layout.contents[i];
+                const content = layout.contents[j];
                 const skeleton = content.skeleton;
                 this._chunkIdxMap.set(skeleton, chunkIdx); // include default pose too
                 for (let k = 0; k < content.clips.length; k++) {
@@ -214,8 +218,8 @@ export class JointTexturePool {
                 skeletonHash: skeleton.hash, clipHash: 0, readyToBeDeleted: false, handle };
             textureBuffer = new Float32Array(bufSize); buildTexture = true;
         } else { texture.refCount++; }
-        Vec3.set(v3_min,  Infinity,  Infinity,  Infinity);
-        Vec3.set(v3_max, -Infinity, -Infinity, -Infinity);
+        Vec3.set(v3_min,  Inf,  Inf,  Inf);
+        Vec3.set(v3_max, -Inf, -Inf, -Inf);
         const boneSpaceBounds = mesh.getBoneSpaceBounds(skeleton);
         for (let i = 0; i < joints.length; i++) {
             const node = skinningRoot.getChildByPath(joints[i]);
@@ -268,12 +272,10 @@ export class JointTexturePool {
                 skeletonHash: skeleton.hash, clipHash: clip.hash, readyToBeDeleted: false, handle };
             textureBuffer = new Float32Array(bufSize); buildTexture = true;
         } else { texture.refCount++; }
-        Vec3.set(v3_min,  Infinity,  Infinity,  Infinity);
-        Vec3.set(v3_max, -Infinity, -Infinity, -Infinity);
         const boneSpaceBounds = mesh.getBoneSpaceBounds(skeleton);
         const bounds: aabb[] = []; texture.bounds.set(mesh.hash, bounds);
         for (let fid = 0; fid < frames; fid++) {
-            bounds.push(new aabb(Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity));
+            bounds.push(new aabb(Inf, Inf, Inf, -Inf, -Inf, -Inf));
         }
         for (let frame = 0; frame < frames; frame++) {
             const bound = bounds[frame];
