@@ -189,7 +189,7 @@ Audio.State = {
     proto.resume = function () {
         if (!this._element || this.getState() !== Audio.State.PAUSED) return;
         this._bindEnded();
-        this._element.play();
+        this._element.resume();
         this._state = Audio.State.PLAYING;
     };
 
