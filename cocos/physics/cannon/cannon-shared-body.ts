@@ -9,6 +9,7 @@ import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Node } from '../../core';
 import { CollisionEventType } from '../framework/physics-interface';
 import { CannonRigidBody } from './cannon-rigid-body';
+import { commitShapeUpdates } from './cannon-util';
 
 const v3_0 = new Vec3();
 const quat_0 = new Quat();
@@ -63,9 +64,7 @@ export class CannonSharedBody {
             }
         } else {
             if (this.index >= 0) {
-                // TODO: 待查，组件的 enabledInHierarchy 为什么还是 true
                 const isRemove = (this.shapes.length == 0 && this.wrappedBody == null) ||
-                    (this.shapes.length == 0 && this.wrappedBody != null && !this.wrappedBody.rigidBody.enabledInHierarchy) ||
                     (this.shapes.length == 0 && this.wrappedBody != null && !this.wrappedBody.isEnabled)
 
                 if (isRemove) {
@@ -115,18 +114,15 @@ export class CannonSharedBody {
 
     syncSceneToPhysics () {
         if (this.node.hasChangedFlags) {
-
+            if (this.body.isSleeping()) this.body.wakeUp();
             Vec3.copy(this.body.position, this.node.worldPosition);
             Quat.copy(this.body.quaternion, this.node.worldRotation);
-
+            this.body.aabbNeedsUpdate = true;
             if (this.node.hasChangedFlags & TransformBit.SCALE) {
                 for (let i = 0; i < this.shapes.length; i++) {
                     this.shapes[i].setScale(this.node.worldScale);
                 }
-            }
-
-            if (this.body.isSleeping()) {
-                this.body.wakeUp();
+                commitShapeUpdates(this.body);
             }
         }
     }
