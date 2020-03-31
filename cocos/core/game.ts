@@ -37,6 +37,7 @@ import { JSB, RUNTIME_BASED, ALIPAY, EDITOR, PREVIEW } from 'internal:constants'
 import AssetLibrary from './assets/asset-library';
 import { ICustomJointTextureLayout } from './renderer';
 import inputManager from './platform/event-manager/input-manager';
+import { GFXDevice } from './gfx';
 
 /**
  * @zh
@@ -364,7 +365,7 @@ export class Game extends EventTarget {
     public _inited: boolean = false; // whether the engine has inited
     public _rendererInitialized: boolean = false;
 
-    public _gfxDevice: WebGL2GFXDevice | WebGLGFXDevice | null = null;
+    public _gfxDevice: GFXDevice | null = null;
 
     public _intervalId: number | null = null; // interval target of main
 
@@ -574,7 +575,7 @@ export class Game extends EventTarget {
             this._initEvents();
         }
 
-        if (!EDITOR && !PREVIEW && cc.internal.SplashScreenWebgl && this.canvas) {
+        if (!JSB && !EDITOR && !PREVIEW && cc.internal.SplashScreenWebgl && this.canvas) {
             cc.internal.SplashScreenWebgl.instance.main(this.canvas);
         }
 
@@ -863,94 +864,45 @@ export class Game extends EventTarget {
 
         // TODO: adapter for editor & preview
         let canvas: HTMLCanvasElement;
-        if (JSB) {
-            let localContainer: HTMLElement;
-            this.container = localContainer = document.createElement<'div'>('div');
-            this.frame = document.documentElement;
-            if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-                canvas = window.sharedCanvas || wx.getSharedCanvas();
-            }
-            else if (JSB) {
-                canvas = window.__canvas;
-            }
-            else {
-                canvas = window.canvas;
-            }
-            this.canvas = canvas;
-        } 
-        else {
-            this.canvas = (this.config as any).adapter.canvas;
-            this.frame = (this.config as any).adapter.frame;
-            this.container = (this.config as any).adapter.container;
-            canvas = this.canvas as HTMLCanvasElement;
-        }
-
+        
+        this.canvas = (this.config as any).adapter.canvas;
+        this.frame = (this.config as any).adapter.frame;
+        this.container = (this.config as any).adapter.container;
+        canvas = this.canvas as HTMLCanvasElement;
+        
         this._determineRenderType();
 
         // WebGL context created successfully
         if (this.renderType === Game.RENDER_TYPE_WEBGL) {
-            let useWebGL2 = (!!window.WebGL2RenderingContext);
-
-            const userAgent = window.navigator.userAgent.toLowerCase();
-            if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1
-                || sys.browserType === sys.BROWSER_TYPE_UC // UC browser implementation doesn't not conform to WebGL2 standard
-            ) {
-                useWebGL2 = false;
+            const ctors: Array<Constructor<GFXDevice>> = [];
+        
+            if (JSB) {
+                if (gfx.GLES3Device) { ctors.push(gfx.GLES3Device); }
+                if (gfx.GLES2Device) { ctors.push(gfx.GLES2Device); }
+            } else {
+                let useWebGL2 = (!!window.WebGL2RenderingContext);
+                const userAgent = window.navigator.userAgent.toLowerCase();
+                if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1
+                    || sys.browserType === sys.BROWSER_TYPE_UC // UC browser implementation doesn't not conform to WebGL2 standard
+                ) {
+                    useWebGL2 = false;
+                }
+                if (useWebGL2 && cc.WebGL2GFXDevice) { ctors.push(cc.WebGL2GFXDevice); }
+                if (cc.WebGLGFXDevice) { ctors.push(cc.WebGLGFXDevice); }
             }
-
+        
             const opts = {
-                canvasElm: canvas,
+                canvasElm: this.canvas!,
                 debug: true,
                 devicePixelRatio: window.devicePixelRatio,
                 nativeWidth: Math.floor(screen.width * window.devicePixelRatio),
                 nativeHeight: Math.floor(screen.height * window.devicePixelRatio),
             };
-
-            // useWebGL2 = false;
-            if (JSB) { 
-                if (cc.sys.os === sys.OS_ANDROID) {
-                    // Android
-                    // - check support GLES3 first
-                    // - if not, use GLES2
-                    
-                    // @ts-ignore
-                    this._gfxDevice = new gfx.GLES3Device();
-                    if (this._gfxDevice) {
-                        if (!this._gfxDevice.initialize(opts) ) {
-                            this._gfxDevice = null;
-                        }
-                    }
-
-                    if (!this._gfxDevice) {
-                        //@ts-ignore
-                        this._gfxDevice = new gfx.GLES2Device();
-                        if (this._gfxDevice) {
-                            this._gfxDevice.initialize(opts);
-                        }
-                    }
-                }
-                else {
-                    // @ts-ignore
-                    this._gfxDevice = new gfx.GLES3Device();
-                    if (this._gfxDevice) {
-                        this._gfxDevice.initialize(opts);
-                    }
-                } 
+            for (let i = 0; i < ctors.length; i++) {
+                this._gfxDevice = new ctors[i]();
+                if (this._gfxDevice!.initialize(opts)) { break; }
             }
-            else {
-                if (useWebGL2 && cc.WebGL2GFXDevice) {
-                    this._gfxDevice = new cc.WebGL2GFXDevice();
-                } else if (cc.WebGLGFXDevice) {
-                    this._gfxDevice = new cc.WebGLGFXDevice();
-                }
-    
-                // fallback if WebGL2 is actually unavailable (usually due to driver issues)
-                if (!this._gfxDevice!.initialize(opts) && useWebGL2) {
-                    this._gfxDevice = new cc.WebGLGFXDevice();
-                    this._gfxDevice!.initialize(opts);
-                }
-            }  
-        }
+        }        
 
         if (!this._gfxDevice) {
             // todo fix here for wechat game
