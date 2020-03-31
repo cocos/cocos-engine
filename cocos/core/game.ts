@@ -873,68 +873,35 @@ export class Game extends EventTarget {
 
         // WebGL context created successfully
         if (this.renderType === Game.RENDER_TYPE_WEBGL) {
-            let useWebGL2 = (!!window.WebGL2RenderingContext);
-
-            const userAgent = window.navigator.userAgent.toLowerCase();
-            if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1
-                || sys.browserType === sys.BROWSER_TYPE_UC // UC browser implementation doesn't not conform to WebGL2 standard
-            ) {
-                useWebGL2 = false;
+            const ctors: Array<Constructor<GFXDevice>> = [];
+        
+            if (JSB) {
+                if (gfx.GLES3Device) { ctors.push(gfx.GLES3Device); }
+                if (gfx.GLES2Device) { ctors.push(gfx.GLES2Device); }
+            } else {
+                let useWebGL2 = (!!window.WebGL2RenderingContext);
+                const userAgent = window.navigator.userAgent.toLowerCase();
+                if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1
+                    || sys.browserType === sys.BROWSER_TYPE_UC // UC browser implementation doesn't not conform to WebGL2 standard
+                ) {
+                    useWebGL2 = false;
+                }
+                if (useWebGL2 && cc.WebGL2GFXDevice) { ctors.push(cc.WebGL2GFXDevice); }
+                if (cc.WebGLGFXDevice) { ctors.push(cc.WebGLGFXDevice); }
             }
-
+        
             const opts = {
-                canvasElm: canvas,
+                canvasElm: this.canvas!,
                 debug: true,
                 devicePixelRatio: window.devicePixelRatio,
                 nativeWidth: Math.floor(screen.width * window.devicePixelRatio),
                 nativeHeight: Math.floor(screen.height * window.devicePixelRatio),
             };
-
-            // useWebGL2 = false;
-            if (JSB) { 
-                if (cc.sys.os === sys.OS_ANDROID) {
-                    // Android
-                    // - check support GLES3 first
-                    // - if not, use GLES2
-                    
-                    // @ts-ignore
-                    this._gfxDevice = new gfx.GLES3Device();
-                    if (this._gfxDevice) {
-                        if (!this._gfxDevice.initialize(opts) ) {
-                            this._gfxDevice = null;
-                        }
-                    }
-
-                    if (!this._gfxDevice) {
-                        //@ts-ignore
-                        this._gfxDevice = new gfx.GLES2Device();
-                        if (this._gfxDevice) {
-                            this._gfxDevice.initialize(opts);
-                        }
-                    }
-                }
-                else {
-                    // @ts-ignore
-                    this._gfxDevice = new gfx.GLES3Device();
-                    if (this._gfxDevice) {
-                        this._gfxDevice.initialize(opts);
-                    }
-                } 
+            for (let i = 0; i < ctors.length; i++) {
+                this._gfxDevice = new ctors[i]();
+                if (this._gfxDevice.initialize(opts)) { break; }
             }
-            else {
-                if (useWebGL2 && cc.WebGL2GFXDevice) {
-                    this._gfxDevice = new cc.WebGL2GFXDevice();
-                } else if (cc.WebGLGFXDevice) {
-                    this._gfxDevice = new cc.WebGLGFXDevice();
-                }
-    
-                // fallback if WebGL2 is actually unavailable (usually due to driver issues)
-                if (!this._gfxDevice!.initialize(opts) && useWebGL2) {
-                    this._gfxDevice = new cc.WebGLGFXDevice();
-                    this._gfxDevice!.initialize(opts);
-                }
-            }  
-        }
+        }        
 
         if (!this._gfxDevice) {
             // todo fix here for wechat game
