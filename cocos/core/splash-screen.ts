@@ -18,6 +18,7 @@ import { GFXPipelineState } from './gfx/pipeline-state';
 import { GFXTexture } from './gfx/texture';
 import { GFXTextureView } from './gfx/texture-view';
 import { clamp01 } from './math/utils';
+import { COCOSPLAY, XIAOMI } from 'internal:constants';
 
 export type SplashEffectType = 'NONE' | 'FADE-INOUT';
 
@@ -200,6 +201,17 @@ export class SplashScreen {
     }
 
     private init () {
+        // TODO: hack for cocosPlay & XIAOMI cause on landscape canvas value is wrong
+        if (COCOSPLAY || XIAOMI) {
+            if (window._CCSettings.orientation === 'landscape' && this.device.width < this.device.height) {
+                let width = this.device.height;
+                let height = this.device.width;
+                this.device.resize(width, height);
+                this.screenWidth = this.device.width;
+                this.screenHeight = this.device.height;
+            }
+        }
+
         this.initCMD();
         this.initIA();
         this.initPSO();
@@ -270,6 +282,17 @@ export class SplashScreen {
     }
 
     private frame (time: number) {
+        // TODO: hack for cocosPlay & XIAOMI cause on landscape canvas value is wrong
+        if (COCOSPLAY || XIAOMI) {
+            if (window._CCSettings.orientation === 'landscape' && this.device.width < this.device.height) {
+                let width = this.device.height;
+                let height = this.device.width;
+                this.device.resize(width, height);
+                this.screenWidth = this.device.width;
+                this.screenHeight = this.device.height;
+            }
+        }
+
         const device = this.device;
         const cmdBuff = this.cmdBuff;
         device.queue.submit([cmdBuff]);
