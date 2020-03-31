@@ -37,6 +37,7 @@ import { JSB, RUNTIME_BASED, ALIPAY, EDITOR, PREVIEW } from 'internal:constants'
 import AssetLibrary from './assets/asset-library';
 import { ICustomJointTextureLayout } from './renderer';
 import inputManager from './platform/event-manager/input-manager';
+import { GFXDevice } from './gfx';
 
 /**
  * @zh
@@ -364,7 +365,7 @@ export class Game extends EventTarget {
     public _inited: boolean = false; // whether the engine has inited
     public _rendererInitialized: boolean = false;
 
-    public _gfxDevice: WebGL2GFXDevice | WebGLGFXDevice | null = null;
+    public _gfxDevice: GFXDevice | null = null;
 
     public _intervalId: number | null = null; // interval target of main
 
@@ -899,7 +900,7 @@ export class Game extends EventTarget {
             };
             for (let i = 0; i < ctors.length; i++) {
                 this._gfxDevice = new ctors[i]();
-                if (this._gfxDevice.initialize(opts)) { break; }
+                if (this._gfxDevice!.initialize(opts)) { break; }
             }
         }        
 
