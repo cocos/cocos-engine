@@ -133,7 +133,7 @@ export default class Event {
 
     /**
      * @en
-     * Indicate whether the event bubbles up through the tree or not.
+     * Indicate whether the event bubbles up through the hierarchy or not.
      *
      * @zh
      * 表示该事件是否进行冒泡。

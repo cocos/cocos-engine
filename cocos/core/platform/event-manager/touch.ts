@@ -32,19 +32,14 @@ import { Vec2 } from '../../math';
 
 const _vec2 = new Vec2();
 /**
- * @en The touch event class
- * @zh 封装了触摸相关的信息。
- * @class Touch
- *
- * @param {Number} x
- * @param {Number} y
- * @param {Number} id
+ * @en The touch point class
+ * @zh 封装了触点相关的信息。
  */
 export class Touch {
     private _point: Vec2 = new Vec2();
     private _prevPoint: Vec2 = new Vec2();
     private _lastModified = 0;
-    private _id: number | null = null;
+    private _id: number = 0;
     private _startPoint: Vec2 = new Vec2();
     private _startPointCaptured: boolean = false;
 
@@ -52,13 +47,19 @@ export class Touch {
         return this._lastModified;
     }
 
-    constructor (x: number, y: number, id: number | null = null) {
+    /**
+     * @param x - x position of the touch point
+     * @param y - y position of the touch point
+     * @param id - The id of the touch point
+     */
+    constructor (x: number, y: number, id: number = 0) {
         this.setTouchInfo(id, x, y);
     }
 
     /**
      * @en Returns the current touch location in OpenGL coordinates.、
      * @zh 获取当前触点位置。
+     * @param out - Pass the out object to avoid object creation, very good practice
      */
     public getLocation (out?: Vec2) {
         if (!out){
@@ -86,8 +87,9 @@ export class Touch {
     }
 
     /**
-     * @en Returns the current touch location in OpenGL coordinates.、
-     * @zh 获取当前触点位置。
+     * @en Returns the current touch location in UI coordinates.、
+     * @zh 获取当前触点在 UI 坐标系中的位置。
+     * @param out - Pass the out object to avoid object creation, very good practice
      */
     public getUILocation (out?: Vec2) {
         if (!out) {
@@ -100,8 +102,8 @@ export class Touch {
     }
 
     /**
-     * @en Returns X axis location value.
-     * @zh 获取当前触点 X 轴位置。
+     * @en Returns X axis location value in UI coordinates.
+     * @zh 获取当前触点在 UI 坐标系中 X 轴位置。
      */
     public getUILocationX () {
         const viewport = cc.view.getViewportRect();
@@ -109,8 +111,8 @@ export class Touch {
     }
 
     /**
-     * @en Returns Y axis location value.
-     * @zh 获取当前触点 Y 轴位置。
+     * @en Returns Y axis location value in UI coordinates.
+     * @zh 获取当前触点在 UI 坐标系中 Y 轴位置。
      */
     public getUILocationY () {
         const viewport = cc.view.getViewportRect();
@@ -118,8 +120,9 @@ export class Touch {
     }
 
     /**
-     * @en Returns the previous touch location in OpenGL coordinates.
+     * @en Returns the previous touch location.
      * @zh 获取触点在上一次事件时的位置对象，对象包含 x 和 y 属性。
+     * @param out - Pass the out object to avoid object creation, very good practice
      */
     public getPreviousLocation (out?: Vec2) {
         if (!out) {
@@ -131,8 +134,9 @@ export class Touch {
     }
 
     /**
-     * @en Returns the previous touch location in OpenGL coordinates.
-     * @zh 获取触点在上一次事件时的位置对象，对象包含 x 和 y 属性。
+     * @en Returns the previous touch location in UI coordinates.
+     * @zh 获取触点在上一次事件时在 UI 坐标系中的位置对象，对象包含 x 和 y 属性。
+     * @param out - Pass the out object to avoid object creation, very good practice
      */
     public getUIPreviousLocation (out?: Vec2) {
         if (!out) {
@@ -145,8 +149,9 @@ export class Touch {
     }
 
     /**
-     * @en Returns the start touch location in OpenGL coordinates.
+     * @en Returns the start touch location.
      * @zh 获获取触点落下时的位置对象，对象包含 x 和 y 属性。
+     * @param out - Pass the out object to avoid object creation, very good practice
      */
     public getStartLocation (out?: Vec2) {
         if (!out) {
@@ -158,8 +163,9 @@ export class Touch {
     }
 
     /**
-     * @en Returns the start touch location in OpenGL coordinates.
-     * @zh 获获取触点落下时的位置对象，对象包含 x 和 y 属性。
+     * @en Returns the start touch location in UI coordinates.
+     * @zh 获获取触点落下时在 UI 坐标系中的位置对象，对象包含 x 和 y 属性。
+     * @param out - Pass the out object to avoid object creation, very good practice
      */
     public getUIStartLocation (out?: Vec2) {
         if (!out) {
@@ -172,8 +178,9 @@ export class Touch {
     }
 
     /**
-     * @en Returns the delta distance from the previous touche to the current one in screen coordinates.
+     * @en Returns the delta distance from the previous touche to the current one.
      * @zh 获取触点距离上一次事件移动的距离对象，对象包含 x 和 y 属性。
+     * @param out - Pass the out object to avoid object creation, very good practice
      */
     public getDelta (out?: Vec2) {
         if (!out){
@@ -186,8 +193,9 @@ export class Touch {
     }
 
     /**
-     * @en Returns the delta distance from the previous touche to the current one in screen coordinates.
-     * @zh 获取触点距离上一次事件移动的距离对象，对象包含 x 和 y 属性。
+     * @en Returns the delta distance from the previous touche to the current one in UI coordinates.
+     * @zh 获取触点距离上一次事件移动在 UI 坐标系中的距离对象，对象包含 x 和 y 属性。
+     * @param out - Pass the out object to avoid object creation, very good practice
      */
     public getUIDelta (out?: Vec2) {
         if (!out) {
@@ -204,6 +212,7 @@ export class Touch {
     /**
      * @en Returns the current touch location in screen coordinates.
      * @zh 获取当前事件在游戏窗口内的坐标位置对象，对象包含 x 和 y 属性。
+     * @param out - Pass the out object to avoid object creation, very good practice
      */
     public getLocationInView (out?: Vec2) {
         if (!out) {
@@ -217,6 +226,7 @@ export class Touch {
     /**
      * @en Returns the previous touch location in screen coordinates.
      * @zh 获取触点在上一次事件时在游戏窗口中的位置对象，对象包含 x 和 y 属性。
+     * @param out - Pass the out object to avoid object creation, very good practice
      */
     public getPreviousLocationInView (out?: Vec2) {
         if (!out) {
@@ -230,6 +240,7 @@ export class Touch {
     /**
      * @en Returns the start touch location in screen coordinates.
      * @zh 获取触点落下时在游戏窗口中的位置对象，对象包含 x 和 y 属性。
+     * @param out - Pass the out object to avoid object creation, very good practice
      */
     public getStartLocationInView (out?: Vec2) {
         if (!out) {
@@ -241,7 +252,7 @@ export class Touch {
     }
 
     /**
-     * @en Returns the id of cc.Touch.
+     * @en Returns the id of the touch point.
      * @zh 触点的标识 ID，可以用来在多点触摸中跟踪触点。
      */
     public getID () {
@@ -249,10 +260,13 @@ export class Touch {
     }
 
     /**
-     * @en Sets information to touch.
-     * @zh 设置触摸相关的信息。用于监控触摸事件。
+     * @en Resets touch point information.
+     * @zh 重置触点相关的信息。
+     * @param id - The id of the touch point
+     * @param x - x position of the touch point
+     * @param y - y position of the touch point
      */
-    public setTouchInfo (id: number | null = null, x?: number, y?: number) {
+    public setTouchInfo (id: number = 0, x?: number, y?: number) {
         this._prevPoint = this._point;
         this._point = new Vec2(x || 0, y || 0);
         this._id = id;
@@ -263,8 +277,19 @@ export class Touch {
         }
     }
 
+    /**
+     * @en Sets touch point location.
+     * @zh 设置触点位置。
+     * @param point - The location
+     */
     public setPoint (point: Vec2): void;
 
+    /**
+     * @en Sets touch point location.
+     * @zh 设置触点位置。
+     * @param x - x position
+     * @param y - y position
+     */
     public setPoint (x: number, y: number): void;
 
     public setPoint (x: number | Vec2, y?: number) {
@@ -278,8 +303,19 @@ export class Touch {
         this._lastModified = cc.director.getCurrentTime();
     }
 
+    /**
+     * @en Sets the location previously registered for the current touch.
+     * @zh 设置触点在前一次触发时收集的位置。
+     * @param point - The location
+     */
     public setPrevPoint (point: Vec2): void;
 
+    /**
+     * @en Sets the location previously registered for the current touch.
+     * @zh 设置触点在前一次触发时收集的位置。
+     * @param x - x position
+     * @param y - y position
+     */
     public setPrevPoint (x: number, y: number): void;
 
     public setPrevPoint (x: number | Vec2, y?: number) {

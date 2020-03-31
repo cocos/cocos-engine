@@ -651,7 +651,7 @@ class InputManager {
             listenDOMMouseEvent('mousemove', EventMouse.MOVE, (event, mouseEvent, location, pos) => {
                 this.handleTouchesMove([this.getTouchByXY(event, location.x, location.y, pos)]);
                 if (!this._mousePressed) {
-                    mouseEvent.setButton(null);
+                    mouseEvent.setButton(EventMouse.BUTTON_MISSING);
                 }
                 if (event.movementX !== undefined && event.movementY !== undefined) {
                     mouseEvent.movementX = event.movementX;
