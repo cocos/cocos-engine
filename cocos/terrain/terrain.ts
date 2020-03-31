@@ -813,10 +813,7 @@ export class Terrain extends Component {
     }
 
     public exportAsset () {
-        let asset = this._asset;
-        if (asset == null) {
-            asset = new TerrainAsset();
-        }
+        const asset = new TerrainAsset();
 
         asset.tileSize = this.tileSize;
         asset.blockCount = this.blockCount;
