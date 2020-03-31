@@ -409,7 +409,6 @@ let WebAudioElement = function (buffer, audio) {
             this._startTime = this._context.currentTime;
             offset = !isNaN(offset) ? offset : this.playedLength;
             this._startTime -= offset;
-        let duration = this._buffer.duration;
             let duration = this._buffer.duration;
 
             let startTime = offset;
