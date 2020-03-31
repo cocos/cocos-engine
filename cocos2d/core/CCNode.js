@@ -1744,7 +1744,7 @@ let NodeDefines = {
                     trs: new Float64Array(10),
                     localMat: new Float64Array(16),
                     worldMat: new Float64Array(16),
-                }
+                };
             } else {
                 this._spaceInfo = nodeMemPool.pop();            
             }
@@ -1758,7 +1758,7 @@ let NodeDefines = {
         this._localMatDirty = LocalDirtyFlag.ALL;
         this._worldMatDirty = true;
 
-        let trs = this._trs = this._spaceInfo.trs;
+        let trs = this._trs = spaceInfo.trs;
         trs[0] = 0; // position.x
         trs[1] = 0; // position.y
         trs[2] = 0; // position.z
