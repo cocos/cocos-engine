@@ -1,5 +1,5 @@
 import { CachedArray } from '../../memop/cached-array';
-import { errorID, error } from '../../platform';
+import { error, errorID } from '../../platform';
 import { GFXBufferSource, IGFXDrawInfo, IGFXIndirectBuffer } from '../buffer';
 import {
     GFXBindingType,
@@ -2578,6 +2578,8 @@ export function WebGL2CmdFuncDraw (device: WebGL2GFXDevice, drawInfo: IGFXDrawIn
 const cmdIds = new Array<number>(WebGL2Cmd.COUNT);
 export function WebGL2CmdFuncExecuteCmds (device: WebGL2GFXDevice, cmdPackage: WebGL2CmdPackage) {
     cmdIds.fill(0);
+    gfxStateCache.gpuShader = null;
+    gfxStateCache.gpuInputAssembler = null;
 
     for (let i = 0; i < cmdPackage.cmds.length; ++i) {
         const cmd = cmdPackage.cmds.array[i];
