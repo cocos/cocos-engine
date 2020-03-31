@@ -14,6 +14,7 @@ import { Pass } from '../../core/renderer';
 import { packCurveRangeXYZ, packCurveRangeZ, packCurveRangeXYZW, packCurveRangeN, packCurveRangeXY } from '../animator/curve-range';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
 import { Vec3 } from '@cocos/cannon';
+import { EDITOR } from 'internal:constants';
 
 const _tempWorldTrans = new Mat4();
 const _tempVec4 = new Vec4();
@@ -182,6 +183,22 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     }
 
     public updateParticles (dt: number) {
+        if (EDITOR) {
+            const mat: Material | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;
+
+            this._particleSystem.node.getWorldMatrix(_tempWorldTrans);
+            switch (this._particleSystem.scaleSpace) {
+                case Space.Local:
+                    this._particleSystem.node.getScale(this._node_scale);
+                    break;
+                case Space.World:
+                    this._particleSystem.node.getWorldScale(this._node_scale);
+                    break;
+            }
+
+            this.initShaderUniform(mat!);
+        }
+        
         this._particleNum = this._model!.updateGPUParticles(this._particleNum, this._particleSystem._time);
         this.updateShaderUniform(dt);
 
