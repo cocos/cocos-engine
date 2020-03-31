@@ -316,7 +316,6 @@
     "since": "2.1.0",
     "entries": [
       "./cocos2d/core/3d/index.js",
-      "./cocos2d/core/mesh/index.js",
 
       "./cocos2d/core/renderer/webgl/assemblers/label/3d/bmfont.js",
       "./cocos2d/core/renderer/webgl/assemblers/label/3d/letter.js",
@@ -329,7 +328,7 @@
       "./cocos2d/core/renderer/webgl/assemblers/sprite/3d/sliced.js",
       "./cocos2d/core/renderer/webgl/assemblers/sprite/3d/tiled.js"
     ],
-    "dependencies": ["Mesh", "WebGL Renderer", "Geom Utils"]
+    "dependencies": ["WebGL Renderer", "Geom Utils"]
   },
   {
     "name": "3D Primitive",
