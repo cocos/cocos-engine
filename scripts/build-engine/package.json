@@ -1,12 +1,13 @@
 {
   "name": "@cocos/build-engine",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "",
   "main": "dist/index.js",
   "dependencies": {
     "@babel/core": "^7.9.0",
+    "@babel/plugin-transform-classes": "^7.8.6",
     "@babel/plugin-transform-for-of": "^7.9.0",
-    "@babel/preset-env": "^7.9.0",
+    "@babel/preset-env": "^7.8.7",
     "@cocos/babel-preset-cc": "2.0.0",
     "@rollup/plugin-commonjs": "^11.0.2",
     "@rollup/plugin-json": "^4.0.2",
