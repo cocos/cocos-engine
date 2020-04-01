@@ -184,7 +184,7 @@ cc.js.mixin(View.prototype, {
         // need to handle resize event callback on the next tick
         let sys = cc.sys;
         if (sys.browserType === sys.BROWSER_TYPE_UC && sys.os === sys.OS_IOS) {
-            setTimeout(() => {
+            setTimeout(function () {
                 view._resizeEvent();
             }, 0)
             return;
