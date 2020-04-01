@@ -381,7 +381,7 @@ cc.macro = {
  * @property {Boolean} ROTATE_ACTION_CCW
  * @default false
  */
-_ROTATE_ACTION_CCW = false;
+let _ROTATE_ACTION_CCW = false;
 Object.defineProperty(cc.macro, 'ROTATE_ACTION_CCW', {
     get () {
         return _ROTATE_ACTION_CCW;
