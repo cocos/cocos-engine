@@ -222,7 +222,7 @@ let inputManager = {
         if (handleTouches.length > 0) {
             this._glView._convertTouchesWithScale(handleTouches);
             let touchEvent = new cc.Event.EventTouch(handleTouches);
-            touchEvent._eventCode = cc.Event.EventTouch.CANCELLED;
+            touchEvent._eventCode = cc.Event.EventTouch.CANCELED;
             eventManager.dispatchEvent(touchEvent);
         }
         this._preTouchPool.length = 0;
