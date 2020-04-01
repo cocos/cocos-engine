@@ -673,18 +673,18 @@ else {
     sys.language = currLanguage;
 
     // Get the os of system
-    let isAndroid = false, iOS = false, osVersion = '', osMainVersion = 0;
-    let uaResult = /android (\d+(?:\.\d+)+)/i.exec(ua) || /android (\d+(?:\.\d+)+)/i.exec(nav.platform);
+    let isAndroid = false, iOS = false, osVersion = '', osMajorVersion = 0;
+    let uaResult = /android\s*(\d+)/i.exec(ua) || /android\s*(\d+)/i.exec(nav.platform);
     if (uaResult) {
         isAndroid = true;
         osVersion = uaResult[1] || '';
-        osMainVersion = parseInt(osVersion) || 0;
+        osMajorVersion = parseInt(osVersion) || 0;
     }
     uaResult = /(iPad|iPhone|iPod).*OS ((\d+_?){2,3})/i.exec(ua);
     if (uaResult) {
         iOS = true;
         osVersion = uaResult[2] || '';
-        osMainVersion = parseInt(osVersion) || 0;
+        osMajorVersion = parseInt(osVersion) || 0;
     }
     // refer to https://github.com/cocos-creator/engine/pull/5542 , thanks for contribition from @krapnikkk
     // ipad OS 13 safari identifies itself as "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15) AppleWebKit/605.1.15 (KHTML, like Gecko)"
@@ -695,7 +695,7 @@ else {
     else if (/(iPhone|iPad|iPod)/.exec(nav.platform) || (nav.platform === 'MacIntel' && nav.maxTouchPoints && nav.maxTouchPoints > 1)) {
         iOS = true;
         osVersion = '';
-        osMainVersion = 0;
+        osMajorVersion = 0;
     }
 
     let osName = sys.OS_UNKNOWN;
@@ -720,7 +720,7 @@ else {
      * Indicate the running os main version
      * @property {Number} osMainVersion
      */
-    sys.osMainVersion = osMainVersion;
+    sys.osMainVersion = osMajorVersion;
 
     /**
      * Indicate the running browser type
