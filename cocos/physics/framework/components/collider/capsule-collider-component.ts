@@ -17,8 +17,10 @@ import { EDITOR, TEST } from 'internal:constants';
 import { EAxisDirection } from '../../physics-enum';
 
 /**
+ * @en
+ * Capsule collider component.
  * @zh
- * 胶囊体碰撞器
+ * 胶囊体碰撞器。
  */
 @ccclass('cc.CapsuleColliderComponent')
 @help('i18n:cc.CapsuleColliderComponent')

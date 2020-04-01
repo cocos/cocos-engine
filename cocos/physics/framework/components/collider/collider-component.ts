@@ -17,13 +17,17 @@ import { IBaseShape } from '../../../spec/i-physics-shape';
 import { EDITOR, PHYSICS_BUILTIN } from 'internal:constants';
 
 /**
+ * @en
+ * Base class of collider.
  * @zh
- * 碰撞器的基类
+ * 碰撞器的基类。
  */
 @ccclass('cc.ColliderComponent')
 export class ColliderComponent extends Component implements IEventTarget {
 
     /**
+     * @en
+     * Stores a list of callbacks to the registration event, not directly modified.
      * @zh
      * 存储注册事件的回调列表，请不要直接修改。
      */
@@ -99,7 +103,7 @@ export class ColliderComponent extends Component implements IEventTarget {
 
     /**
      * @en
-     * get or set the collider is trigger, this will be always trigger if using builtin.
+     * Gets or set the collider is trigger, this will be always trigger if using builtin.
      * @zh
      * 获取或设置碰撞器是否为触发器，若使用 builtin ，属性值无论真假 ，此碰撞器都为触发器。
      */
@@ -120,7 +124,7 @@ export class ColliderComponent extends Component implements IEventTarget {
 
     /**
      * @en
-     * get or set the center of the collider, in local space.
+     * Gets or set the center of the collider, in local space.
      * @zh
      * 获取或设置碰撞器的中心点。
      */
@@ -142,7 +146,7 @@ export class ColliderComponent extends Component implements IEventTarget {
 
     /**
      * @en
-     * get the collider attached rigidbody, this may be null
+     * Gets the collider attached rigidbody, this may be null
      * @zh
      * 获取碰撞器所绑定的刚体组件，可能为 null
      */
@@ -241,7 +245,7 @@ export class ColliderComponent extends Component implements IEventTarget {
 
     /**
      * @en
-     * Set the group value.
+     * Sets the group value.
      * @zh
      * 设置分组值。
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方

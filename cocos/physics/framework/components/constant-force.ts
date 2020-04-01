@@ -18,8 +18,10 @@ import { Vec3 } from '../../../core/math/vec3';
 import { PHYSICS_BUILTIN } from 'internal:constants';
 
 /**
+ * @en
+ * A tool component to help apply force to the rigid body at each frame.
  * @zh
- * 在每帧对一个刚体施加持续的力，依赖 RigidBodyComponent 组件
+ * 在每帧对一个刚体施加持续的力，依赖 RigidBodyComponent 组件。
  */
 @ccclass('cc.ConstantForce')
 @help('i18n:cc.ConstantForce')
@@ -48,9 +50,9 @@ export class ConstantForce extends Component {
 
     /**
      * @en
-     * Gets and sets forces in world coordinates.
+     * Gets or sets forces in world coordinates.
      * @zh
-     * 获取和设置世界坐标系下的力。
+     * 获取或设置世界坐标系下的力。
      */
     @property({
         displayOrder: 0,
@@ -67,9 +69,9 @@ export class ConstantForce extends Component {
 
     /**
      * @en
-     * Gets and sets the forces in the local coordinate system.
+     * Gets or sets the forces in the local coordinate system.
      * @zh
-     * 获取和设置本地坐标系下的力。
+     * 获取或设置本地坐标系下的力。
      */
     @property({
         displayOrder: 1,
@@ -86,9 +88,9 @@ export class ConstantForce extends Component {
 
     /**
      * @en
-     * Gets and sets the torsional force in world coordinates.
+     * Gets or sets the torsional force in world coordinates.
      * @zh
-     * 获取和设置世界坐标系下的扭转力。
+     * 获取或设置世界坐标系下的扭转力。
      */
     @property({
         displayOrder: 2,
@@ -105,9 +107,9 @@ export class ConstantForce extends Component {
 
     /**
      * @en
-     * Gets and sets the torsional force in the local coordinate system.
+     * Gets or sets the torsional force in the local coordinate system.
      * @zh
-     * 获取和设置本地坐标系下的扭转力。
+     * 获取或设置本地坐标系下的扭转力。
      */
     @property({
         displayOrder: 3,

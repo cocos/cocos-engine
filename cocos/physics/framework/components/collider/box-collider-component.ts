@@ -17,8 +17,10 @@ import { IBoxShape } from '../../../spec/i-physics-shape';
 import { EDITOR, TEST } from 'internal:constants';
 
 /**
+ * @en
+ * Box collider component.
  * @zh
- * 盒子碰撞器
+ * 盒子碰撞器。
  */
 @ccclass('cc.BoxColliderComponent')
 @help('i18n:cc.BoxColliderComponent')

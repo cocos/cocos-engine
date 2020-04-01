@@ -20,6 +20,8 @@ import { EDITOR, PHYSICS_BUILTIN } from 'internal:constants';
 
 
 /**
+ * @en
+ * Rigid body component.
  * @zh
  * 刚体组件。
  */
@@ -461,7 +463,7 @@ export class RigidBodyComponent extends Component {
 
     /**
      * @en
-     * Set the linear velocity.
+     * Sets the linear velocity.
      * @zh
      * 设置线性速度。
      * @param value 速度 Vec3
@@ -487,7 +489,7 @@ export class RigidBodyComponent extends Component {
 
     /**
      * @en
-     * Set the angular velocity.
+     * Sets the angular velocity.
      * @zh
      * 设置旋转速度。
      * @param value 速度 Vec3
@@ -502,7 +504,7 @@ export class RigidBodyComponent extends Component {
 
     /**
      * @en
-     * Set the group value.
+     * Sets the group value.
      * @zh
      * 设置分组值。
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
