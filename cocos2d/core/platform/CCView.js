@@ -541,7 +541,7 @@ cc.js.mixin(View.prototype, {
     },
 
     /*
-     * Not support on native.<brresizeWithBrowserSizeresizeWithBrowserSize/>
+     * Not support on native.<br/>
      * On web, it sets the size of the canvas.
      * !#zh 这个方法并不支持 native 平台，在 Web 平台下，可以用来设置 canvas 尺寸。
      * @method setCanvasSize
