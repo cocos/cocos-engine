@@ -922,7 +922,7 @@ cc.RotateTo = cc.Class({
         if (angle < -180) angle += 360;
 
         this._startAngle = startAngle;
-        this._angle = cc.macro.ROTATE_ACTION_CCW ? angle : -angle;
+        this._angle = cc.RotateTo._reverse ? angle : -angle;
     },
 
     reverse:function () {
