@@ -19,7 +19,7 @@ import { EDITOR, TEST } from 'internal:constants';
  * @en
  * Sphere collider component.
  * @zh
- * 球碰撞器.
+ * 球碰撞器。
  */
 @ccclass('cc.SphereColliderComponent')
 @help('i18n:cc.SphereColliderComponent')

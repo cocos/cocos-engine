@@ -20,12 +20,12 @@ import { EAxisDirection } from '../../physics-enum';
  * @en
  * Cylinder collider component.
  * @zh
- * 圆柱体碰撞器
+ * 圆柱体碰撞器。
  */
 @ccclass('cc.CylinderColliderComponent')
 @help('i18n:cc.CylinderColliderComponent')
 @executionOrder(98)
-@menu('Physics/CylinderCollider')
+@menu('Physics/CylinderCollider(beta)')
 @executeInEditMode
 export class CylinderColliderComponent extends ColliderComponent {
     /// PUBLIC PROPERTY GETTER\SETTER ///
