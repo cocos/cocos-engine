@@ -185,7 +185,7 @@ cc.js.mixin(View.prototype, {
         let sys = cc.sys;
         if (sys.browserType === sys.BROWSER_TYPE_UC && sys.os === sys.OS_IOS) {
             setTimeout(function () {
-                view._resizeEvent();
+                view._resizeEvent(forceOrEvent);
             }, 0)
             return;
         }
