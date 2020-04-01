@@ -66,13 +66,12 @@ function clamp (v, min, max) {
 
 
 let gfx = cc.gfx;
-let vfmtPosColorNormalWidth = new gfx.VertexFormat([
+let vfmtPosColorSdf = new gfx.VertexFormat([
     { name: gfx.ATTR_POSITION, type: gfx.ATTR_TYPE_FLOAT32, num: 2 },
     { name: gfx.ATTR_COLOR, type: gfx.ATTR_TYPE_UINT8, num: 4, normalize: true },
-    { name: 'a_width', type: gfx.ATTR_TYPE_FLOAT32, num: 2 },
+    { name: 'a_sdf', type: gfx.ATTR_TYPE_FLOAT32, num: 2 },
 ]);
-vfmtPosColorNormalWidth.name = 'vfmtPosColorNormalWidth';
-gfx.VertexFormat.XY_Color_Normal_Width = vfmtPosColorNormalWidth;
+vfmtPosColorSdf.name = 'vfmtPosColorSdf';
 
 export default class GraphicsAssembler extends Assembler {
     constructor (graphics) {
@@ -84,7 +83,11 @@ export default class GraphicsAssembler extends Assembler {
     }
 
     getVfmt () {
-        return vfmtPosColorNormalWidth;
+        return vfmtPosColorSdf;
+    }
+
+    getVfmtFloatCount () {
+        return 5;
     }
 
     requestBuffer () {
@@ -296,9 +299,10 @@ export default class GraphicsAssembler extends Assembler {
     
             if (loop) {
                 // Loop it
-                let vDataoOfset = offset * 5;
+                let floatCount = this.getVfmtFloatCount();
+                let vDataoOfset = offset * floatCount;
                 this._vset(vData[vDataoOfset],   vData[vDataoOfset+1], w);
-                this._vset(vData[vDataoOfset+5], vData[vDataoOfset+6], -w);
+                this._vset(vData[vDataoOfset+floatCount], vData[vDataoOfset+floatCount+1], -w);
             } else {
                 // Add cap
                 let dPos = p1.sub(p0);
@@ -366,8 +370,9 @@ export default class GraphicsAssembler extends Assembler {
     
             if (path.complex) {
                 let earcutData = [];
+                let floatCount = this.getVfmtFloatCount();
                 for (let j = offset, end = buffer.vertexStart; j < end; j++) {
-                    let vDataOffset = j * 3;
+                    let vDataOffset = j * floatCount;
                     earcutData.push(vData[vDataOffset]);
                     earcutData.push(vData[vDataOffset+1]);
                 }
@@ -671,7 +676,7 @@ export default class GraphicsAssembler extends Assembler {
     _vset (x, y, distance = 0) {
         let buffer = this._buffer;
         let meshbuffer = buffer.meshbuffer;
-        let dataOffset = buffer.vertexStart * 5;
+        let dataOffset = buffer.vertexStart * this.getVfmtFloatCount();
         let width = this._renderComp._lineWidth / 2;
 
         let vData = meshbuffer._vData;

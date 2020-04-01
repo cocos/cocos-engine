@@ -186,8 +186,14 @@ let Graphics = cc.Class({
     },
 
     _updateMaterial () {
-        // let material = this._materials[0];
-        // material && material.define('CC_USE_MODEL', true);
+        let material = this._materials[0];
+        if (!material) return;
+        if (material.getDefine('CC_USE_MODEL') !== undefined) {
+            material.define('CC_USE_MODEL', true);
+        }
+        if (material.getDefine('CC_SUPPORT_standard_derivatives') !== undefined && cc.sys.glExtension('OES_standard_derivatives')) {
+            material.define('CC_SUPPORT_standard_derivatives', true);
+        }
     },
 
     /**
