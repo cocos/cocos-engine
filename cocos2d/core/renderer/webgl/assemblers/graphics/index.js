@@ -28,7 +28,6 @@ import Assembler from '../../../assembler';
 import InputAssembler from '../../../../../renderer/core/input-assembler';
 
 const MeshBuffer = require('../../mesh-buffer');
-const vfmtPosColor = require('../../vertex-format').vfmtPosColor;
 const renderer = require('../../../index');
 
 const Graphics = require('../../../../graphics/graphics');
@@ -36,7 +35,7 @@ const PointFlags = require('../../../../graphics/types').PointFlags;
 const LineJoin = Graphics.LineJoin;
 const LineCap = Graphics.LineCap;
 const Earcut = require('./earcut');
-const Impl = require('./impl');
+require('./impl');
 
 const MAX_VERTEX = 65535;
 const MAX_INDICE = MAX_VERTEX * 2;
@@ -65,6 +64,16 @@ function clamp (v, min, max) {
     return v;
 }
 
+
+let gfx = cc.gfx;
+let vfmtPosColorNormalWidth = new gfx.VertexFormat([
+    { name: gfx.ATTR_POSITION, type: gfx.ATTR_TYPE_FLOAT32, num: 2 },
+    { name: gfx.ATTR_COLOR, type: gfx.ATTR_TYPE_UINT8, num: 4, normalize: true },
+    { name: 'a_width', type: gfx.ATTR_TYPE_FLOAT32, num: 2 },
+]);
+vfmtPosColorNormalWidth.name = 'vfmtPosColorNormalWidth';
+gfx.VertexFormat.XY_Color_Normal_Width = vfmtPosColorNormalWidth;
+
 export default class GraphicsAssembler extends Assembler {
     constructor (graphics) {
         super(graphics);
@@ -75,7 +84,7 @@ export default class GraphicsAssembler extends Assembler {
     }
 
     getVfmt () {
-        return vfmtPosColor;
+        return vfmtPosColorNormalWidth;
     }
 
     requestBuffer () {
@@ -84,7 +93,7 @@ export default class GraphicsAssembler extends Assembler {
             vertexStart: 0
         };
 
-        let meshbuffer = new MeshBuffer(renderer._handle, vfmtPosColor);
+        let meshbuffer = new MeshBuffer(renderer._handle, this.getVfmt());
         buffer.meshbuffer = meshbuffer;
 
         let ia = new InputAssembler(meshbuffer._vb, meshbuffer._ib);
@@ -277,8 +286,8 @@ export default class GraphicsAssembler extends Assembler {
                     this._bevelJoin(p0, p1, w, w);
                 }
                 else {
-                    this._vset(p1.x + p1.dmx * w, p1.y + p1.dmy * w);
-                    this._vset(p1.x - p1.dmx * w, p1.y - p1.dmy * w);
+                    this._vset(p1.x + p1.dmx * w, p1.y + p1.dmy * w, w);
+                    this._vset(p1.x - p1.dmx * w, p1.y - p1.dmy * w, -w);
                 }
     
                 p0 = p1;
@@ -287,9 +296,9 @@ export default class GraphicsAssembler extends Assembler {
     
             if (loop) {
                 // Loop it
-                let vDataoOfset = offset * 3;
-                this._vset(vData[vDataoOfset],   vData[vDataoOfset+1]);
-                this._vset(vData[vDataoOfset+3], vData[vDataoOfset+4]);
+                let vDataoOfset = offset * 5;
+                this._vset(vData[vDataoOfset],   vData[vDataoOfset+1], w);
+                this._vset(vData[vDataoOfset+5], vData[vDataoOfset+6], -w);
             } else {
                 // Add cap
                 let dPos = p1.sub(p0);
@@ -512,8 +521,8 @@ export default class GraphicsAssembler extends Assembler {
         let dlx = dy;
         let dly = -dx;
     
-        this._vset(px + dlx * w, py + dly * w);
-        this._vset(px - dlx * w, py - dly * w);
+        this._vset(px + dlx * w, py + dly * w, w);
+        this._vset(px - dlx * w, py - dly * w, -w);
     }
 
     _buttCapEnd (p, dx, dy, w, d) {
@@ -522,8 +531,8 @@ export default class GraphicsAssembler extends Assembler {
         let dlx = dy;
         let dly = -dx;
     
-        this._vset(px + dlx * w, py + dly * w);
-        this._vset(px - dlx * w, py - dly * w);
+        this._vset(px + dlx * w, py + dly * w, w);
+        this._vset(px - dlx * w, py - dly * w, -w);
     }
     
     _roundCapStart (p, dx, dy, w, ncap) {
@@ -536,11 +545,11 @@ export default class GraphicsAssembler extends Assembler {
             let a = i / (ncap - 1) * PI;
             let ax = cos(a) * w,
                 ay = sin(a) * w;
-            this._vset(px - dlx * ax - dx * ay, py - dly * ax - dy * ay);
-            this._vset(px, py);
+            this._vset(px - dlx * ax - dx * ay, py - dly * ax - dy * ay, w);
+            this._vset(px, py, 0);
         }
-        this._vset(px + dlx * w, py + dly * w);
-        this._vset(px - dlx * w, py - dly * w);
+        this._vset(px + dlx * w, py + dly * w, w);
+        this._vset(px - dlx * w, py - dly * w, -w);
     }
     
     _roundCapEnd (p, dx, dy, w, ncap) {
@@ -549,14 +558,14 @@ export default class GraphicsAssembler extends Assembler {
         let dlx = dy;
         let dly = -dx;
     
-        this._vset(px + dlx * w, py + dly * w);
-        this._vset(px - dlx * w, py - dly * w);
+        this._vset(px + dlx * w, py + dly * w, w);
+        this._vset(px - dlx * w, py - dly * w, -w);
         for (let i = 0; i < ncap; i++) {
             let a = i / (ncap - 1) * PI;
             let ax = cos(a) * w,
                 ay = sin(a) * w;
-            this._vset(px, py);
-            this._vset(px - dlx * ax + dx * ay, py - dly * ax + dy * ay);
+            this._vset(px, py, 0);
+            this._vset(px - dlx * ax + dx * ay, py - dly * ax + dy * ay, w);
         }
     }
     
@@ -580,8 +589,8 @@ export default class GraphicsAssembler extends Assembler {
             let a1 = atan2(-dly1, -dlx1);
             if (a1 > a0) a1 -= PI * 2;
     
-            this._vset(lx0, ly0);
-            this._vset(p1x - dlx0 * rw, p1.y - dly0 * rw);
+            this._vset(lx0, ly0, rw);
+            this._vset(p1x - dlx0 * rw, p1.y - dly0 * rw, -rw);
     
             let n = clamp(ceil((a0 - a1) / PI) * ncap, 2, ncap);
             for (let i = 0; i < n; i++) {
@@ -589,12 +598,12 @@ export default class GraphicsAssembler extends Assembler {
                 let a = a0 + u * (a1 - a0);
                 let rx = p1x + cos(a) * rw;
                 let ry = p1y + sin(a) * rw;
-                this._vset(p1x, p1y);
-                this._vset(rx, ry);
+                this._vset(p1x, p1y, 0);
+                this._vset(rx, ry, -rw);
             }
     
-            this._vset(lx1, ly1);
-            this._vset(p1x - dlx1 * rw, p1y - dly1 * rw);
+            this._vset(lx1, ly1, rw);
+            this._vset(p1x - dlx1 * rw, p1y - dly1 * rw, -rw);
         } else {
             let out = this._chooseBevel(p1.flags & PointFlags.PT_INNERBEVEL, p0, p1, -rw);
             let rx0 = out[0];
@@ -606,8 +615,8 @@ export default class GraphicsAssembler extends Assembler {
             let a1 = atan2(dly1, dlx1);
             if (a1 < a0) a1 += PI * 2;
     
-            this._vset(p1x + dlx0 * rw, p1y + dly0 * rw);
-            this._vset(rx0, ry0);
+            this._vset(p1x + dlx0 * rw, p1y + dly0 * rw, lw);
+            this._vset(rx0, ry0, -lw);
     
             let n = clamp(ceil((a1 - a0) / PI) * ncap, 2, ncap);
             for (let i = 0; i < n; i++) {
@@ -615,12 +624,12 @@ export default class GraphicsAssembler extends Assembler {
                 let a = a0 + u * (a1 - a0);
                 let lx = p1x + cos(a) * lw;
                 let ly = p1y + sin(a) * lw;
-                this._vset(lx, ly);
-                this._vset(p1x, p1y);
+                this._vset(lx, ly, lw);
+                this._vset(p1x, p1y, 0);
             }
     
-            this._vset(p1x + dlx1 * rw, p1y + dly1 * rw);
-            this._vset(rx1, ry1);
+            this._vset(p1x + dlx1 * rw, p1y + dly1 * rw, lw);
+            this._vset(rx1, ry1, -lw);
         }
     }
     
@@ -639,11 +648,11 @@ export default class GraphicsAssembler extends Assembler {
             lx1 = out[2];
             ly1 = out[3];
     
-            this._vset(lx0, ly0);
-            this._vset(p1.x - dlx0 * rw, p1.y - dly0 * rw);
+            this._vset(lx0, ly0, rw);
+            this._vset(p1.x - dlx0 * rw, p1.y - dly0 * rw, -rw);
     
-            this._vset(lx1, ly1);
-            this._vset(p1.x - dlx1 * rw, p1.y - dly1 * rw);
+            this._vset(lx1, ly1, rw);
+            this._vset(p1.x - dlx1 * rw, p1.y - dly1 * rw, -rw);
         } else {
             let out = this._chooseBevel(p1.flags & PointFlags.PT_INNERBEVEL, p0, p1, -rw);
             rx0 = out[0];
@@ -651,18 +660,19 @@ export default class GraphicsAssembler extends Assembler {
             rx1 = out[2];
             ry1 = out[3];
     
-            this._vset(p1.x + dlx0 * lw, p1.y + dly0 * lw);
-            this._vset(rx0, ry0);
+            this._vset(p1.x + dlx0 * lw, p1.y + dly0 * lw, lw);
+            this._vset(rx0, ry0, -lw);
     
-            this._vset(p1.x + dlx1 * lw, p1.y + dly1 * lw);
-            this._vset(rx1, ry1);
+            this._vset(p1.x + dlx1 * lw, p1.y + dly1 * lw, lw);
+            this._vset(rx1, ry1, -lw);
         }
     }
     
-    _vset (x, y) {
+    _vset (x, y, distance = 0) {
         let buffer = this._buffer;
         let meshbuffer = buffer.meshbuffer;
-        let dataOffset = buffer.vertexStart * 3;
+        let dataOffset = buffer.vertexStart * 5;
+        let width = this._renderComp._lineWidth / 2;
 
         let vData = meshbuffer._vData;
         let uintVData = meshbuffer._uintVData;
@@ -670,6 +680,8 @@ export default class GraphicsAssembler extends Assembler {
         vData[dataOffset] = x;
         vData[dataOffset+1] = y;
         uintVData[dataOffset+2] = this._curColor;
+        vData[dataOffset+3] = width;
+        vData[dataOffset+4] = distance;
 
         buffer.vertexStart ++;
         meshbuffer._dirty = true;

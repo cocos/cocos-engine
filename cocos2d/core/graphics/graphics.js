@@ -182,12 +182,12 @@ let Graphics = cc.Class({
     },
 
     _getDefaultMaterial () {
-        return Material.getBuiltinMaterial('2d-base');
+        return Material.getBuiltinMaterial('2d-graphics');
     },
 
     _updateMaterial () {
-        let material = this._materials[0];
-        material && material.define('CC_USE_MODEL', true);
+        // let material = this._materials[0];
+        // material && material.define('CC_USE_MODEL', true);
     },
 
     /**
