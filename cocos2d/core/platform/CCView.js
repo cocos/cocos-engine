@@ -180,6 +180,15 @@ cc.js.mixin(View.prototype, {
         } else {
             view = cc.view;
         }
+        // HACK: some browsers can't update window size immediately
+        // need to handle resize event callback on the next tick
+        let sys = cc.sys;
+        if (sys.browserType === sys.BROWSER_TYPE_UC && sys.os === sys.OS_IOS) {
+            setTimeout(function () {
+                view._resizeEvent(forceOrEvent);
+            }, 0)
+            return;
+        }
 
         // Check frame size changed or not
         var prevFrameW = view._frameSize.width, prevFrameH = view._frameSize.height, prevRotated = view._isRotated;
