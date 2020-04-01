@@ -180,6 +180,15 @@ cc.js.mixin(View.prototype, {
         } else {
             view = cc.view;
         }
+        // HACK: some browsers can't update window size immediately
+        // need to handle resize event callback on the next tick
+        let sys = cc.sys;
+        if (sys.browserType === sys.BROWSER_TYPE_UC && sys.os === sys.OS_IOS) {
+            setTimeout(() => {
+                view._resizeEvent();
+            }, 0)
+            return;
+        }
 
         // Check frame size changed or not
         var prevFrameW = view._frameSize.width, prevFrameH = view._frameSize.height, prevRotated = view._isRotated;
@@ -532,7 +541,7 @@ cc.js.mixin(View.prototype, {
     },
 
     /*
-     * Not support on native.<br/>
+     * Not support on native.<brresizeWithBrowserSizeresizeWithBrowserSize/>
      * On web, it sets the size of the canvas.
      * !#zh 这个方法并不支持 native 平台，在 Web 平台下，可以用来设置 canvas 尺寸。
      * @method setCanvasSize
