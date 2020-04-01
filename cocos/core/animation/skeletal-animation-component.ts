@@ -28,7 +28,7 @@
  */
 
 import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
-import { ccclass, help, executeInEditMode, executionOrder, menu, property } from '../data/class-decorator';
+import { ccclass, executeInEditMode, executionOrder, help, menu, property } from '../data/class-decorator';
 import { Mat4 } from '../math';
 import { DataPoolManager } from '../renderer/data-pool-manager';
 import { Node } from '../scene-graph/node';
