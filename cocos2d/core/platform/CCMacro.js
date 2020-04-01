@@ -383,6 +383,15 @@ cc.macro = {
     ENABLE_MULTI_TOUCH: true
 };
 
+_ROTATE_ACTION_CCW = false;
+Object.defineProperty(cc.macro, 'ROTATE_ACTION_CCW', {
+    get () {
+        return _ROTATE_ACTION_CCW;
+    },
+    set (value) {
+        cc.RotateTo._reverse = cc.RotateBy._reverse = _ROTATE_ACTION_CCW = value;
+    }
+});
 
 let SUPPORT_TEXTURE_FORMATS = ['.pkm', '.pvr', '.webp', '.jpg', '.jpeg', '.bmp', '.png'];
 
