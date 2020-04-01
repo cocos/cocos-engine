@@ -674,7 +674,7 @@ else {
 
     // Get the os of system
     let isAndroid = false, iOS = false, osVersion = '', osMajorVersion = 0;
-    let uaResult = /android\s*(\d+)/i.exec(ua) || /android\s*(\d+)/i.exec(nav.platform);
+    let uaResult = /android\s*(\d+(?:\.\d+)*)/i.exec(ua) || /android\s*(\d+(?:\.\d+)*)/i.exec(nav.platform);
     if (uaResult) {
         isAndroid = true;
         osVersion = uaResult[1] || '';
