@@ -229,7 +229,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
         for (let i = 0; i < tech.passes.length; i++) {
             const pass = tech.passes[i];
             if (!pass.properties) { continue; }
-            for (const prop of Object.keys(pass.properties)) {
+            for (const prop in pass.properties) {
                 if (pass.properties[prop].type >= GFXType.SAMPLER1D) { // samplers
                     let tex: Texture2D | null = null;
                     if (this.batchableTextureNames.find((n) => n === prop)) {

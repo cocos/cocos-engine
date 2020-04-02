@@ -906,9 +906,9 @@ export class Node extends BaseNode {
      * 一次性设置所有局部变换（平移、旋转、缩放）信息
      */
     public setRTS (rot?: Quat, pos?: Vec3, scale?: Vec3) {
-        if (rot) Quat.copy(this._lrot, rot);
-        if (pos) Vec3.copy(this._lpos, pos);
-        if (scale) Vec3.copy(this._lscale, scale);
+        if (rot) { Quat.copy(this._lrot, rot); }
+        if (pos) { Vec3.copy(this._lpos, pos); }
+        if (scale) { Vec3.copy(this._lscale, scale); }
         this.invalidateChildren(TransformBit.TRS);
         this._eulerDirty = true;
         if (this._eventMask & TRANSFORM_ON) {

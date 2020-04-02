@@ -642,15 +642,13 @@ export class Pass {
 
     protected _dynamicBatchingSync () {
         if (this._defines.USE_INSTANCING) {
-            if (this._bs.targets[0].blend || !this._device.hasFeature(GFXFeature.INSTANCED_ARRAYS)) {
+            if (!this._device.hasFeature(GFXFeature.INSTANCED_ARRAYS)) {
                 this._defines.USE_INSTANCING = false;
             } else if (!this._instancedBuffer) {
                 this._instancedBuffer = new InstancedBuffer(this);
             }
         } else if (this._defines.USE_BATCHING) {
-            if (this._bs.targets[0].blend) {
-                this._defines.USE_BATCHING = false;
-            } else if (!this._batchedBuffer) {
+            if (!this._batchedBuffer) {
                 this._batchedBuffer = new BatchedBuffer(this);
             }
         }

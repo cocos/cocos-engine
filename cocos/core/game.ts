@@ -34,9 +34,9 @@ import { WebGLGFXDevice } from './gfx/webgl/webgl-device';
 import { WebGL2GFXDevice } from './gfx/webgl2/webgl2-device';
 import { ForwardPipeline, RenderPipeline } from './pipeline';
 import * as debug from './platform/debug';
+import inputManager from './platform/event-manager/input-manager';
 import sys from './platform/sys';
 import { ICustomJointTextureLayout } from './renderer';
-import inputManager from './platform/event-manager/input-manager';
 
 /**
  * @zh
@@ -89,6 +89,11 @@ export interface IAssetOptions {
      * The list of sub packages
      */
     subPackages?: [];
+}
+
+interface ISceneInfo {
+    url: string;
+    uuid: string;
 }
 
 /**
@@ -175,7 +180,7 @@ export interface IGameConfig {
      * @en
      * Include available scenes in the current bundle.
      */
-    scenes?: string[];
+    scenes?: ISceneInfo[];
 
     /**
      * For internal use.
@@ -372,7 +377,7 @@ export class Game extends EventTarget {
     public _frameTime: number | null = null;
 
     // Scenes list
-    public _sceneInfos: string[] = [];
+    public _sceneInfos: ISceneInfo[] = [];
     public collisionMatrix = [];
     public groupList: any[] = [];
 
