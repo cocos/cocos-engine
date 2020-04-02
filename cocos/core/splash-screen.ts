@@ -76,11 +76,6 @@ export class SplashScreen {
     private textMaterial!: Material;
     private textPSO!: GFXPipelineState;
 
-    /** shader */
-    private program!: { name: string, techniques: any[], shaders: any[] };
-    private effect!: EffectAsset;
-
-    /** size */
     private screenWidth!: number;
     private screenHeight!: number;
 
@@ -117,56 +112,6 @@ export class SplashScreen {
             cc.game.once(cc.Game.EVENT_GAME_INITED, () => {
                 cc.director._lateUpdate = performance.now();
             }, cc.director);
-
-            this.program = {
-                name: 'util/splash-screen',
-                techniques: [
-                    {
-                        passes: [{
-                            blendState: { targets: [{ blend: true, blendSrc: 2, blendDst: 4, blendDstAlpha: 4 }] },
-                            program: 'util/splash-image|splash-vs:vert|splash-fs:frag',
-                            depthStencilState: { depthTest: true, depthWrite: false },
-                            properties: { mainTexture: { value: 'grey', type: 28 }, u_precent: { type: 13 } }
-                        }],
-                    },
-                ],
-                shaders: [
-                    {
-                        name: 'util/splash-image|splash-vs:vert|splash-fs:frag',
-                        hash: 2381344969,
-                        glsl3: {
-                            // tslint:disable: max-line-length
-                            vert: `\nprecision mediump float;\nin vec2 a_position;\nin vec2 a_texCoord;\nout vec2 v_uv;\nvec4 vert () {\n  vec4 pos = vec4(a_position, 0, 1);\n  v_uv = a_texCoord;\n  return pos;\n}\nvoid main() { gl_Position = vert(); }\n`,
-                            frag: `\nprecision mediump float;\nin vec2 v_uv;\nuniform sampler2D mainTexture;\nuniform splashFrag {\n  float u_precent;\n};\nvec4 frag () {\n  vec4 color = texture(mainTexture, v_uv);\n  float precent = clamp(u_precent, 0.0, 1.0);\n  color.xyz *= precent;\n  return color;\n}\nout vec4 cc_FragColor;\nvoid main() { cc_FragColor = frag(); }\n`,
-                        },
-                        glsl1: {
-                            vert: `\nprecision mediump float;\nattribute vec2 a_position;\nattribute vec2 a_texCoord;\nvarying vec2 v_uv;\nvec4 vert () {\n  vec4 pos = vec4(a_position, 0, 1);\n  v_uv = a_texCoord;\n  return pos;\n}\nvoid main() { gl_Position = vert(); }\n`,
-                            frag: `\nprecision mediump float;\nvarying vec2 v_uv;\nuniform sampler2D mainTexture;\nuniform float u_precent;\nvec4 frag () {\n  vec4 color = texture2D(mainTexture, v_uv);\n  float precent = clamp(u_precent, 0.0, 1.0);\n  color.xyz *= precent;\n  return color;\n}\nvoid main() { gl_FragColor = frag(); }\n`,
-                            // tslint:enable: max-line-length
-                        },
-                        builtins: { globals: { blocks: [], samplers: [] }, locals: { blocks: [], samplers: [] } },
-                        defines: [],
-                        attributes: [],
-                        blocks: [
-                            {
-                                name: 'splashFrag', defines: [], binding: 0, members: [
-                                    { name: 'u_precent', type: 13, count: 1 },
-                                ],
-                            },
-                        ],
-                        samplers: [
-                            { name: 'mainTexture', type: 28, count: 1, defines: [], binding: 30 },
-                        ],
-                        dependencies: {},
-                    },
-                ],
-            };
-
-            this.effect = new EffectAsset();
-            this.effect.name = this.program.name;
-            this.effect.techniques = this.program.techniques;
-            this.effect.shaders = this.program.shaders;
-            this.effect.onLoaded();
 
             this.callBack = null;
             this.cancelAnimate = false;
@@ -341,9 +286,7 @@ export class SplashScreen {
 
         /** PSO */
         this.textMaterial = new Material();
-        this.textMaterial.initialize({
-            effectAsset: this.effect,
-        });
+        this.textMaterial.initialize({ effectName: "util/splash-screen" });
 
         const pass = this.textMaterial.passes[0];
         const binding = pass.getBinding('mainTexture');
@@ -509,9 +452,7 @@ export class SplashScreen {
         const device = this.device as GFXDevice;
 
         this.material = new Material();
-        this.material.initialize({
-            effectAsset: this.effect,
-        });
+        this.material.initialize({ effectName: "util/splash-screen" });
 
         this.texture = device.createTexture({
             type: GFXTextureType.TEX2D,
@@ -550,10 +491,6 @@ export class SplashScreen {
         (this.framebuffer as any) = null;
         (this.renderArea as any) = null;
         (this.region as any) = null;
-        (this.program as any) = null;
-
-        this.effect.destroy();
-        (this.effect as any) = null;
 
         this.cmdBuff.destroy();
         (this.cmdBuff as any) = null;
