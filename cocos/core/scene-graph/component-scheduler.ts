@@ -43,21 +43,7 @@ const IsEditorOnEnableCalled = CCObject.Flags.IsEditorOnEnableCalled;
 
 const callerFunctor: any = EDITOR && tryCatchFunctor_EDITOR;
 const callOnEnableInTryCatch = EDITOR && callerFunctor('onEnable');
-const callStartInTryCatch = EDITOR && callerFunctor('start', null, 'target._objFlags |= ' + IsStartCalled);
-const callUpdateInTryCatch = EDITOR && callerFunctor('update', 'dt');
-const callLateUpdateInTryCatch = EDITOR && callerFunctor('lateUpdate', 'dt');
 const callOnDisableInTryCatch = EDITOR && callerFunctor('onDisable');
-
-const callStart = SUPPORT_JIT ? 'c.start();c._objFlags|=' + IsStartCalled : (c) => {
-    c.start();
-    c._objFlags |= IsStartCalled;
-};
-const callUpdate = SUPPORT_JIT ? 'c.update(dt)' : (c, dt) => {
-    c.update(dt);
-};
-const callLateUpdate = SUPPORT_JIT ? 'c.lateUpdate(dt)' : (c, dt) => {
-    c.lateUpdate(dt);
-};
 
 function sortedIndex (array, comp) {
     const order = comp.constructor._executionOrder;
@@ -110,7 +96,7 @@ function stableRemoveInactive (iterator, flagToClear) {
 }
 
 // This class contains some queues used to invoke life-cycle methods by script execution order
-class LifeCycleInvoker {
+export class LifeCycleInvoker {
     public static stableRemoveInactive = stableRemoveInactive;
 
     protected _zero: MutableForwardIterator<any>;
@@ -138,7 +124,7 @@ function compareOrder (a, b) {
 }
 
 // for onLoad: sort once all components registered, invoke once
-class OneOffInvoker extends LifeCycleInvoker {
+export class OneOffInvoker extends LifeCycleInvoker {
     public add (comp) {
         const order = comp.constructor._executionOrder;
         (order === 0 ? this._zero : (order < 0 ? this._neg : this._pos)).array.push(comp);
@@ -228,84 +214,127 @@ function enableInEditor (comp) {
     }
 }
 
-function createInvokeImpl (funcOrCode, useDt?) {
-    if (typeof funcOrCode === 'function') {
-        if (useDt) {
-            return (iterator, dt) => {
-                const array = iterator.array;
-                for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-                    const comp = array[iterator.i];
-                    funcOrCode(comp, dt);
-                }
-            };
-        }
-        else {
-            return (iterator) => {
-                const array = iterator.array;
-                for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-                    const comp = array[iterator.i];
-                    funcOrCode(comp);
-                }
-            };
-        }
-    }
-    else {
-        // function (it) {
-        //     let a = it.array;
-        //     for (it.i = 0; it.i < a.length; ++it.i) {
-        //         let comp = a[it.i];
-        //         // ...
-        //     }
-        // }
-        const body = 'var a=it.array;' +
-                   'for(it.i=0;it.i<a.length;++it.i){' +
-                   'var c=a[it.i];' +
-                   funcOrCode +
-                   '}';
-        if (useDt) {
-            return Function('it', 'dt', body);
-        }
-        else {
-            return Function('it', body);
-        }
-    }
+// return function to simply call each component with try catch protection
+export function createInvokeImplJit (code:string, useDt?, ensureFlag?) {
+    // function (it) {
+    //     let a = it.array;
+    //     for (it.i = 0; it.i < a.length; ++it.i) {
+    //         let c = a[it.i];
+    //         // ...
+    //     }
+    // }
+    const body = 'var a=it.array;' +
+                'for(it.i=0;it.i<a.length;++it.i){' +
+                'var c=a[it.i];' +
+                code +
+                '}';
+    let fastPath = useDt ? Function('it', 'dt', body) : Function('it', body);
+    let singleInvoke = Function('c', 'dt', code);
+    return createInvokeImpl(singleInvoke, fastPath, ensureFlag);
 }
-
-/**
- * The Manager for Component's life-cycle methods.
- */
-class ComponentScheduler {
-    public static LifeCycleInvoker = LifeCycleInvoker;
-    public static OneOffInvoker = OneOffInvoker;
-    public static createInvokeImpl = createInvokeImpl;
-    public static invokeOnEnable = EDITOR ? (iterator) => {
-        const compScheduler = cc.director._compScheduler;
-        const array = iterator.array;
-        for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-            const comp = array[iterator.i];
-            if (comp._enabled) {
-                callOnEnableInTryCatch(comp);
-                const deactivatedDuringOnEnable = !comp.node._activeInHierarchy;
-                if (!deactivatedDuringOnEnable) {
-                    compScheduler._onEnabled(comp);
-                }
-            }
+export function createInvokeImpl (singleInvoke, fastPath, ensureFlag?) {
+    return (iterator, dt) => {
+        try {
+            fastPath(iterator, dt);
         }
-    } : (iterator) => {
-        const compScheduler = cc.director._compScheduler;
-        const array = iterator.array;
-        for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-            const comp = array[iterator.i];
-            if (comp._enabled) {
-                comp.onEnable();
-                const deactivatedDuringOnEnable = !comp.node._activeInHierarchy;
-                if (!deactivatedDuringOnEnable) {
-                    compScheduler._onEnabled(comp);
+        catch (e) {
+            // slow path
+            cc._throw(e);
+            var array = iterator.array;
+            if (ensureFlag) {
+                array[iterator.i]._objFlags |= ensureFlag;
+            }
+            ++iterator.i;   // invoke next callback
+            for (; iterator.i < array.length; ++iterator.i) {
+                try {
+                    singleInvoke(array[iterator.i], dt);
+                }
+                catch (e) {
+                    cc._throw(e);
+                    if (ensureFlag) {
+                        array[iterator.i]._objFlags |= ensureFlag;
+                    }
                 }
             }
         }
     };
+}
 
+const invokeStart = SUPPORT_JIT ? createInvokeImplJit('c.start();c._objFlags|=' + IsStartCalled, false, IsStartCalled) :
+    createInvokeImpl(
+        function (c) {
+            c.start();
+            c._objFlags |= IsStartCalled;
+        },
+        function (iterator) {
+            var array = iterator.array;
+            for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+                let comp = array[iterator.i];
+                comp.start();
+                comp._objFlags |= IsStartCalled;
+            }
+        },
+        IsStartCalled
+    );
+
+const invokeUpdate = SUPPORT_JIT ? createInvokeImplJit('c.update(dt)', true) :
+    createInvokeImpl(
+        function (c, dt) {
+            c.update(dt);
+        },
+        function (iterator, dt) {
+            var array = iterator.array;
+            for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+                array[iterator.i].update(dt);
+            }
+        }
+    );
+
+const invokeLateUpdate = SUPPORT_JIT ? createInvokeImplJit('c.lateUpdate(dt)', true) :
+    createInvokeImpl(
+        function (c, dt) {
+            c.lateUpdate(dt);
+        },
+        function (iterator, dt) {
+            var array = iterator.array;
+            for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+                array[iterator.i].lateUpdate(dt);
+            }
+        }
+    );
+
+export const invokeOnEnable = EDITOR ? (iterator) => {
+    const compScheduler = cc.director._compScheduler;
+    const array = iterator.array;
+    for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+        const comp = array[iterator.i];
+        if (comp._enabled) {
+            callOnEnableInTryCatch(comp);
+            const deactivatedDuringOnEnable = !comp.node._activeInHierarchy;
+            if (!deactivatedDuringOnEnable) {
+                compScheduler._onEnabled(comp);
+            }
+        }
+    }
+} : (iterator) => {
+    const compScheduler = cc.director._compScheduler;
+    const array = iterator.array;
+    for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+        const comp = array[iterator.i];
+        if (comp._enabled) {
+            comp.onEnable();
+            const deactivatedDuringOnEnable = !comp.node._activeInHierarchy;
+            if (!deactivatedDuringOnEnable) {
+                compScheduler._onEnabled(comp);
+            }
+        }
+    }
+};
+
+/**
+ * The Manager for Component's life-cycle methods.
+ */
+export class ComponentScheduler {
     public startInvoker!: OneOffInvoker;
     public updateInvoker!: ReusableInvoker;
     public lateUpdateInvoker!: ReusableInvoker;
@@ -318,12 +347,9 @@ class ComponentScheduler {
 
     public unscheduleAll () {
         // invokers
-        this.startInvoker = new OneOffInvoker(createInvokeImpl(
-            EDITOR ? callStartInTryCatch : callStart));
-        this.updateInvoker = new ReusableInvoker(createInvokeImpl(
-            EDITOR ? callUpdateInTryCatch : callUpdate, true));
-        this.lateUpdateInvoker = new ReusableInvoker(createInvokeImpl(
-            EDITOR ? callLateUpdateInTryCatch : callLateUpdate, true));
+        this.startInvoker = new OneOffInvoker(invokeStart);
+        this.updateInvoker = new ReusableInvoker(invokeUpdate);
+        this.lateUpdateInvoker = new ReusableInvoker(invokeLateUpdate);
 
         // components deferred to next frame
         this.scheduleInNextFrame = [];
@@ -498,5 +524,3 @@ if (EDITOR) {
         }
     };
 }
-
-export default ComponentScheduler;
