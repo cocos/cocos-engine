@@ -1868,17 +1868,17 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                             cache.bs.isA2C = bs.isA2C;
                         }
 
-                        if ((cache.bs.blendColor[0] !== bs.blendColor[0]) ||
-                            (cache.bs.blendColor[1] !== bs.blendColor[1]) ||
-                            (cache.bs.blendColor[2] !== bs.blendColor[2]) ||
-                            (cache.bs.blendColor[3] !== bs.blendColor[3])) {
+                        if ((cache.bs.blendColor.r !== bs.blendColor.r) ||
+                            (cache.bs.blendColor.g !== bs.blendColor.g) ||
+                            (cache.bs.blendColor.b !== bs.blendColor.b) ||
+                            (cache.bs.blendColor.a !== bs.blendColor.a)) {
 
-                            gl.blendColor(bs.blendColor[0], bs.blendColor[1], bs.blendColor[2], bs.blendColor[3]);
+                            gl.blendColor(bs.blendColor.r, bs.blendColor.g, bs.blendColor.b, bs.blendColor.a);
 
-                            cache.bs.blendColor[0] = bs.blendColor[0];
-                            cache.bs.blendColor[1] = bs.blendColor[1];
-                            cache.bs.blendColor[2] = bs.blendColor[2];
-                            cache.bs.blendColor[3] = bs.blendColor[3];
+                            cache.bs.blendColor.r = bs.blendColor.r;
+                            cache.bs.blendColor.g = bs.blendColor.g;
+                            cache.bs.blendColor.b = bs.blendColor.b;
+                            cache.bs.blendColor.a = bs.blendColor.a;
                         }
 
                         const target0 = bs.targets[0];
@@ -2410,17 +2410,17 @@ export function WebGLCmdFuncExecuteCmds (device: WebGLGFXDevice, cmdPackage: Web
                             }
                             case GFXDynamicState.BLEND_CONSTANTS: {
                                 if (cmd2.blendConstants) {
-                                    if ((cache.bs.blendColor[0] !== cmd2.blendConstants[0]) ||
-                                        (cache.bs.blendColor[1] !== cmd2.blendConstants[1]) ||
-                                        (cache.bs.blendColor[2] !== cmd2.blendConstants[2]) ||
-                                        (cache.bs.blendColor[3] !== cmd2.blendConstants[3])) {
+                                    if ((cache.bs.blendColor.r !== cmd2.blendConstants[0]) ||
+                                        (cache.bs.blendColor.g !== cmd2.blendConstants[1]) ||
+                                        (cache.bs.blendColor.b !== cmd2.blendConstants[2]) ||
+                                        (cache.bs.blendColor.a !== cmd2.blendConstants[3])) {
 
                                         gl.blendColor(cmd2.blendConstants[0], cmd2.blendConstants[1], cmd2.blendConstants[2], cmd2.blendConstants[3]);
 
-                                        cache.bs.blendColor[0] = cmd2.blendConstants[0];
-                                        cache.bs.blendColor[1] = cmd2.blendConstants[1];
-                                        cache.bs.blendColor[2] = cmd2.blendConstants[2];
-                                        cache.bs.blendColor[3] = cmd2.blendConstants[3];
+                                        cache.bs.blendColor.r = cmd2.blendConstants[0];
+                                        cache.bs.blendColor.g = cmd2.blendConstants[1];
+                                        cache.bs.blendColor.b = cmd2.blendConstants[2];
+                                        cache.bs.blendColor.a = cmd2.blendConstants[3];
                                     }
                                 }
                                 break;
