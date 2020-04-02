@@ -3,7 +3,6 @@
  */
 
 import * as easing from './animation/easing';
-import { EffectAsset } from './assets/effect-asset';
 import { Material } from './assets/material';
 import { GFXBuffer } from './gfx/buffer';
 import { GFXCommandBuffer } from './gfx/command-buffer';
@@ -18,7 +17,8 @@ import { GFXPipelineState } from './gfx/pipeline-state';
 import { GFXTexture } from './gfx/texture';
 import { GFXTextureView } from './gfx/texture-view';
 import { clamp01 } from './math/utils';
-import { COCOSPLAY, XIAOMI } from 'internal:constants';
+import { COCOSPLAY, XIAOMI, JSB } from 'internal:constants';
+import sys from './platform/sys';
 
 export type SplashEffectType = 'NONE' | 'FADE-INOUT';
 
@@ -146,6 +146,17 @@ export class SplashScreen {
     }
 
     private init () {
+        // adapt for native mac & ios
+        if (JSB) {
+            if (sys.os == cc.sys.OS_OSX || sys.os == cc.sys.OS_IOS) {
+                const width = screen.width * devicePixelRatio;
+                const height = screen.height * devicePixelRatio;
+                this.device.resize(width, height);
+                this.screenWidth = this.device.width;
+                this.screenHeight = this.device.height;
+            }
+        }
+
         // TODO: hack for cocosPlay & XIAOMI cause on landscape canvas value is wrong
         if (COCOSPLAY || XIAOMI) {
             if (window._CCSettings.orientation === 'landscape' && this.device.width < this.device.height) {
@@ -164,28 +175,6 @@ export class SplashScreen {
         if (this.setting.displayWatermark) {
             this.initText();
         }
-        const cmdBuff = this.cmdBuff;
-        const framebuffer = this.framebuffer;
-        const renderArea = this.renderArea;
-
-        cmdBuff.begin();
-        cmdBuff.beginRenderPass(framebuffer, renderArea,
-            GFXClearFlag.ALL, this.clearColors, 1.0, 0);
-
-        cmdBuff.bindPipelineState(this.pso);
-        cmdBuff.bindBindingLayout(this.pso.pipelineLayout.layouts[0]);
-        cmdBuff.bindInputAssembler(this.assmebler);
-        cmdBuff.draw(this.assmebler);
-
-        if (this.setting.displayWatermark && this.textPSO && this.textAssmebler) {
-            cmdBuff.bindPipelineState(this.textPSO);
-            cmdBuff.bindBindingLayout(this.textPSO.pipelineLayout.layouts[0]);
-            cmdBuff.bindInputAssembler(this.textAssmebler);
-            cmdBuff.draw(this.textAssmebler);
-        }
-
-        cmdBuff.endRenderPass();
-        cmdBuff.end();
 
         const animate = (time: number) => {
             if (this.cancelAnimate) {
@@ -240,6 +229,27 @@ export class SplashScreen {
 
         const device = this.device;
         const cmdBuff = this.cmdBuff;
+        const framebuffer = this.framebuffer;
+        const renderArea = this.renderArea;
+
+        cmdBuff.begin();
+        cmdBuff.beginRenderPass(framebuffer, renderArea,
+            GFXClearFlag.ALL, this.clearColors, 1.0, 0);
+
+        cmdBuff.bindPipelineState(this.pso);
+        cmdBuff.bindBindingLayout(this.pso.pipelineLayout.layouts[0]);
+        cmdBuff.bindInputAssembler(this.assmebler);
+        cmdBuff.draw(this.assmebler);
+
+        if (this.setting.displayWatermark && this.textPSO && this.textAssmebler) {
+            cmdBuff.bindPipelineState(this.textPSO);
+            cmdBuff.bindBindingLayout(this.textPSO.pipelineLayout.layouts[0]);
+            cmdBuff.bindInputAssembler(this.textAssmebler);
+            cmdBuff.draw(this.textAssmebler);
+        }
+
+        cmdBuff.endRenderPass();
+        cmdBuff.end();
         device.queue.submit([cmdBuff]);
         device.present();
     }
