@@ -67,8 +67,6 @@ export class BlendStateBuffer {
 }
 
 export type IBlendStateWriter = IValueProxyFactory & {
-    start: () => void;
-    stop: () => void;
     destroy: () => void;
 };
 
@@ -76,53 +74,39 @@ export function createBlendStateWriter<P extends BlendingProperty>(
     blendState: BlendStateBuffer,
     node: Node,
     property: P,
-    weightProxy: { weight: number; },
+    weightProxy: { weight: number },
     /**
      * True if this writer will write constant value each time.
      */
     constants: boolean,
-    ): IBlendStateWriter {
+): IBlendStateWriter {
     const blendFunction: BlendFunction<BlendingPropertyValue<P>> =
         (property === 'position' || property === 'scale') ?
             additive3D as any:
             additiveQuat as any;
-    let propertyBlendState: PropertyBlendState<BlendingPropertyValue<P>> | null = null;
+    const propertyBlendState: PropertyBlendState<BlendingPropertyValue<P>> = blendState.ref(node, property);
     let isConstCacheValid = false;
     return {
-        start : function () {
-            if (!propertyBlendState) {
-                propertyBlendState = blendState.ref(node, property);
-                isConstCacheValid = false;
-            }
-        },
-        stop: function () {
-            if (propertyBlendState) {
-                blendState.deRef(node, property);
-                propertyBlendState = null;
-            }
-        },
         destroy: function () {
-            this.stop();
+            blendState.deRef(node, property);
         },
         forTarget: (_) => {
             return {
                 set: (value: BlendingPropertyValue<P>) => {
-                    if (propertyBlendState) {
-                        if (constants) {
-                            if (propertyBlendState.refCount !== 1) {
-                                // If there are multi writer for this property at this time,
-                                // we should invalidate the cache.
-                                isConstCacheValid = false;
-                            } else if (isConstCacheValid) {
-                                // Otherwise, we may keep to use the cache.
-                                // i.e we leave the weight to 0 to prevent the property from modifying.
-                                return;
-                            }
+                    if (constants) {
+                        if (propertyBlendState.refCount !== 1) {
+                            // If there are multi writer for this property at this time,
+                            // we should invalidate the cache.
+                            isConstCacheValid = false;
+                        } else if (isConstCacheValid) {
+                            // Otherwise, we may keep to use the cache.
+                            // i.e we leave the weight to 0 to prevent the property from modifying.
+                            return;
                         }
-                        blendFunction(value, weightProxy.weight, propertyBlendState);
-                        propertyBlendState.weight += weightProxy.weight;
-                        isConstCacheValid = true;
                     }
+                    blendFunction(value, weightProxy.weight, propertyBlendState);
+                    propertyBlendState.weight += weightProxy.weight;
+                    isConstCacheValid = true;
                 },
             };
         },
