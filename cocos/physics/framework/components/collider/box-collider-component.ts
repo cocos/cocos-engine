@@ -33,7 +33,7 @@ export class BoxColliderComponent extends ColliderComponent {
 
     /**
      * @en
-     * Gets or set the size of the box, in local space.
+     * Gets or sets the size of the box, in local space.
      * @zh
      * 获取或设置盒的大小。
      */

@@ -103,7 +103,7 @@ export class ColliderComponent extends Component implements IEventTarget {
 
     /**
      * @en
-     * Gets or set the collider is trigger, this will be always trigger if using builtin.
+     * Gets or sets the collider is trigger, this will be always trigger if using builtin.
      * @zh
      * 获取或设置碰撞器是否为触发器，若使用 builtin ，属性值无论真假 ，此碰撞器都为触发器。
      */
@@ -124,7 +124,7 @@ export class ColliderComponent extends Component implements IEventTarget {
 
     /**
      * @en
-     * Gets or set the center of the collider, in local space.
+     * Gets or sets the center of the collider, in local space.
      * @zh
      * 获取或设置碰撞器的中心点。
      */

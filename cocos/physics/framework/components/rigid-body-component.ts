@@ -346,7 +346,7 @@ export class RigidBodyComponent extends Component {
 
     /**
      * @en
-     * Apply force to a world point. This could for example be a point on the Body surface.
+     * Apply force to a world point. This could, for example, be a point on the Body surface.
      * @zh
      * 在世界空间中，相对于刚体的质心的某点上对刚体施加作用力。
      * @param force - 作用力
@@ -360,7 +360,7 @@ export class RigidBodyComponent extends Component {
 
     /**
      * @en
-     * Apply force to a local point. This could for example be a point on the Body surface.
+     * Apply force to a local point. This could, for example, be a point on the Body surface.
      * @zh
      * 在本地空间中，相对于刚体的质心的某点上对刚体施加作用力。
      * @param force - 作用力

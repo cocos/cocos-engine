@@ -30,7 +30,7 @@ export interface ITriggerEvent {
 
     /**
      * @en
-     * The aother collider component instance in the event.
+     * Trigger another collider in event.
      * @zh
      * 触发事件中的另一个碰撞器
      */
@@ -110,7 +110,7 @@ export interface ICollisionEvent {
 
     /**
      * @en
-     * The aother collider component instance in the event.
+     * Another collider in collision.
      * @zh
      * 碰撞中的另一个碰撞器。
      */

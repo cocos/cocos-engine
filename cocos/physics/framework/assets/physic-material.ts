@@ -20,7 +20,7 @@ export class PhysicMaterial extends Asset {
 
     /**
      * @en
-     * Gets all physical material instances.
+     * Gets all physics material instances.
      * @zh
      * 获取所有的物理材质实例。
      */
