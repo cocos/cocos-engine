@@ -83,6 +83,8 @@ export default class ForwardRenderer extends BaseRenderer {
   // direct render a single camera
   renderCamera (camera, scene) {
     this.reset();
+
+    this._updateLights(scene);
     
     const canvas = this._device._gl.canvas;
     let width = canvas.width;
@@ -91,7 +93,15 @@ export default class ForwardRenderer extends BaseRenderer {
     let view = this._requestView();
     camera.extractView(view, width, height);
     
-    this._render(view, scene);
+    // render by cameras
+    this._viewPools.sort((a, b) => {
+      return (a._priority - b._priority);
+    });
+
+    for (let i = 0; i < this._viewPools.length; ++i) {
+      let view = this._viewPools.data[i];
+      this._render(view, scene);
+    }
   }
 
   _updateLights (scene) {
