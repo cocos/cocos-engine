@@ -2,7 +2,7 @@
  * @hidden
  */
 
-import { instantiate } from '../framework/Physics-selector';
+import { instantiate } from '../framework/physics-selector';
 import { BuiltInWorld } from './builtin-world';
 import { BuiltinBoxShape } from './shapes/builtin-box-shape';
 import { BuiltinSphereShape } from './shapes/builtin-sphere-shape';
@@ -11,10 +11,11 @@ import { PHYSICS_BUILTIN } from 'internal:constants';
 
 if (PHYSICS_BUILTIN) {
     instantiate(
-        BuiltinBoxShape,
-        BuiltinSphereShape,
-        null,
-        BuiltInWorld,
-        BuiltinCapsuleShape
+        {
+            box: BuiltinBoxShape,
+            sphere: BuiltinSphereShape,
+            world: BuiltInWorld,
+            capsule: BuiltinCapsuleShape
+        }
     );
 }

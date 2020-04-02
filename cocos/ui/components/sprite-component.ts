@@ -65,7 +65,7 @@ enum SpriteType {
     /**
      * @en
      * The tiled type.
-
+     *
      * @zh  平铺类型
      */
     TILED =  2,
@@ -524,7 +524,7 @@ export class SpriteComponent extends UIRenderComponent {
 
     // onLoad() {}
 
-    public onEnable() {
+    public onEnable () {
         super.onEnable();
 
         // this._flushAssembler();
@@ -562,8 +562,9 @@ export class SpriteComponent extends UIRenderComponent {
         this.spriteFrame = sprite;
     }
 
-    protected _render(render: UI) {
-        render.commitComp(this, this._spriteFrame!.getGFXTextureView(), this._assembler!);
+    protected _render (render: UI) {
+        render.commitComp(this, this._spriteFrame!.getGFXTextureView(), this._assembler!, this._spriteFrame!.texture.getGFXSampler());
+        // render.commitComp(this, this._spriteFrame!.getGFXTextureView(), this._assembler!);
     }
 
     protected _canRender () {
@@ -667,7 +668,7 @@ export class SpriteComponent extends UIRenderComponent {
                 if (material) {
                     // const matTexture = material.getProperty('mainTexture');
                     // if (matTexture !== spriteFrame) {
-                    material.setProperty('mainTexture', spriteFrame);
+                    // material.setProperty('mainTexture', spriteFrame.texture);
                     this.markForUpdateRenderData();
                     // }
                 }
@@ -763,7 +764,7 @@ export class SpriteComponent extends UIRenderComponent {
     /**
      * 强制刷新 uv。
      */
-    private _markForUpdateUvDirty() {
+    private _markForUpdateUvDirty () {
         if (this._renderData) {
             this._renderData.uvDirty = true;
             this._renderDataFlag = true;

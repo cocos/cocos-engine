@@ -26,7 +26,8 @@
  * @category core
  */
 
- // @ts-ignore
+/* eslint-disable no-console */
+
 import debugInfos from '../../../DebugInfos';
 import { EDITOR, JSB, DEV, DEBUG } from 'internal:constants';
 const ERROR_MAP_URL = 'https://github.com/cocos-creator/engine/blob/3d/EngineErrorMap.md';
@@ -242,7 +243,6 @@ export function _resetDebugSetting (mode: DebugMode) {
 
 export function _throw (error_: any) {
     if (EDITOR) {
-        // @ts-ignore
         return error(error_);
     } else {
         const stack = error_.stack;
@@ -345,7 +345,7 @@ export function getError (errorId: any, ...param: any[]): string {
 }
 
 /**
- * @en Returns whether or not to display the FPS informations.
+ * @en Returns whether or not to display the FPS information.
  * @zh 是否显示 FPS 信息。
  */
 export function isDisplayStats (): boolean {

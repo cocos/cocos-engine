@@ -118,6 +118,7 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
         this._curStencilWriteMask = null;
         this._curStencilCompareMask = null;
         this._numDrawCalls = 0;
+        this._numInstances = 0;
         this._numTris = 0;
     }
 
@@ -349,6 +350,7 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
             this.cmdPackage.cmds.push(WebGLCmd.DRAW);
 
             ++this._numDrawCalls;
+            this._numInstances += inputAssembler.instanceCount;
             const indexCount = inputAssembler.indexCount || inputAssembler.vertexCount;
             if (this._curGPUPipelineState) {
                 const glPrimitive = this._curGPUPipelineState.glPrimitive;
@@ -468,6 +470,7 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
             this.cmdPackage.cmds.concat(webGLCmdBuff.cmdPackage.cmds.array);
 
             this._numDrawCalls += webGLCmdBuff._numDrawCalls;
+            this._numInstances += webGLCmdBuff._numInstances;
             this._numTris += webGLCmdBuff._numTris;
         }
     }

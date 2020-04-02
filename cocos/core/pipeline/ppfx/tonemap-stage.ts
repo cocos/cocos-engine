@@ -5,13 +5,12 @@
 import { ccclass } from '../../data/class-decorator';
 import { GFXBindingLayout } from '../../gfx/binding-layout';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
-import { GFXClearFlag, GFXCommandBufferType, IGFXColor } from '../../gfx/define';
+import { GFXClearFlag, GFXCommandBufferType } from '../../gfx/define';
 import { UBOGlobal } from '../define';
+import { RenderFlow } from '../render-flow';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
-import { RenderFlow } from '../render-flow';
 
-const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
 
 /**
@@ -25,8 +24,8 @@ export class ToneMapStage extends RenderStage {
     public static initInfo: IRenderStageInfo = {
         name: 'ToneMapStage',
         priority: 0,
-        framebuffer: 'window'
-    }
+        framebuffer: 'window',
+    };
 
     private _hTexSampler: number = 0;
     private _hBlendTexSampler: number = 0;
@@ -43,13 +42,6 @@ export class ToneMapStage extends RenderStage {
         this._createCmdBuffer();
 
         this.rebuild();
-    }
-
-    private _createCmdBuffer () {
-        this._cmdBuff = this._device!.createCommandBuffer({
-            allocator: this._device!.commandAllocator,
-            type: GFXCommandBufferType.PRIMARY,
-        });
     }
 
     public destroy () {
@@ -79,7 +71,7 @@ export class ToneMapStage extends RenderStage {
             this._pass.bindTextureView(this._hBlendTexSampler, this._pipeline!.getTextureView('smaaBlend')!);
         }
 
-        this._pass.update();
+        this._pass.update(cc.director.getTotalFrames());
         this._bindingLayout.update();
     }
 
@@ -108,5 +100,12 @@ export class ToneMapStage extends RenderStage {
         this._device!.queue.submit(bufs);
 
         // this._pipeline.swapFBOs();
+    }
+
+    private _createCmdBuffer () {
+        this._cmdBuff = this._device!.createCommandBuffer({
+            allocator: this._device!.commandAllocator,
+            type: GFXCommandBufferType.PRIMARY,
+        });
     }
 }

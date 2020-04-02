@@ -30,17 +30,17 @@ export function cullSpotLight (light: SpotLight, model: Model) {
 export const cullSceneWithDirectionalLight = (() => {
     const lightFrustum: frustum = new frustum();
     lightFrustum.accurate = true;
-    return (out: Model[], modelToCull: Model[], sceneCamera: Camera, light: DirectionalLight, near: number, far: number, nearBias: number) => {
+    return (out: Model[], modelToCull: Model[], sceneCamera: Camera, light: DirectionalLight, near: number, far: number, nearBias: number, stamp: number) => {
         calcDirectionalLightCullFrustum(lightFrustum, sceneCamera, light, near, far, nearBias);
         for (const m of modelToCull) {
             if (!m.enabled || !m.worldBounds) {
                 continue;
             }
-            m.updateTransform();
+            m.updateTransform(stamp);
             if (!intersect.aabb_frustum(m.worldBounds, lightFrustum)) {
                 continue;
             }
-            m.updateUBOs();
+            m.updateUBOs(stamp);
             out.push(m);
         }
     };

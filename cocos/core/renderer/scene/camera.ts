@@ -2,7 +2,7 @@ import { frustum, ray } from '../../geometry';
 import { GFXClearFlag, IGFXColor } from '../../gfx/define';
 import { GFXWindow } from '../../gfx/window';
 import { lerp, Mat4, Rect, toRadian, Vec3 } from '../../math';
-import { CameraDefaultMask } from '../../pipeline/define';
+import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
 import { RenderView } from '../../pipeline/render-view';
 import { Node } from '../../scene-graph';
 import { RenderScene } from './render-scene';
@@ -102,7 +102,7 @@ export class Camera {
     private _clearStencil: number = 0;
     private _clearDepth: number = 1.0;
     private _clearFlag: GFXClearFlag = GFXClearFlag.NONE;
-    private _clearColor: IGFXColor = { r: 0, g: 0, b: 0, a: 0 };
+    private _clearColor: IGFXColor = { r: 0.2, g: 0.2, b: 0.2, a: 1 };
     private _viewport: Rect = new Rect(0, 0, 1, 1);
     private _isProjDirty = true;
     private _matView: Mat4 = new Mat4();
@@ -116,7 +116,7 @@ export class Camera {
     private _position: Vec3 = new Vec3();
     private _node: Node | null = null;
     private _view: RenderView | null = null;
-    private _visibility = CameraDefaultMask;
+    private _visibility = CAMERA_DEFAULT_MASK;
     private _priority: number = 0;
     private _aperture: CameraAperture = CameraAperture.F16_0;
     private _apertureValue: number;

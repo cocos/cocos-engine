@@ -27,15 +27,19 @@
  * @category model
  */
 
+import { Texture2D } from '../../assets';
 import { Material } from '../../assets/material';
 import { Mesh } from '../../assets/mesh';
 import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
+import { Vec4 } from '../../math';
 import { Model } from '../../renderer/scene/model';
+import { MorphModel } from '../../renderer/models/morph-model';
 import { Root } from '../../root';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { Enum } from '../../value-types';
 import { builtinResMgr } from '../builtin';
 import { RenderableComponent } from './renderable-component';
+import { MorphRenderingInstance } from '../../assets/morph';
 
 /**
  * @en Shadow projection mode.
@@ -55,6 +59,81 @@ const ModelShadowCastingMode = Enum({
 });
 
 /**
+ * @en model light map settings.
+ * @zh 模型光照图设置
+ */
+@ccclass('cc.ModelLightmapSettings')
+class ModelLightmapSettings {
+    @property({
+        visible: false,
+    })
+    public texture: Texture2D|null = null;
+    @property({
+        visible: false,
+    })
+    public uvParam: Vec4 = new Vec4();
+    @property
+    protected _bakeable: boolean = false;
+    @property
+    protected _castShadow: boolean = false;
+    @property
+    protected _recieveShadow: boolean = false;
+    @property
+    protected _lightmapSize: number = 64;
+
+    /**
+     * @en bakeable.
+     * @zh 是否可烘培。
+     */
+    @property
+    get bakeable () {
+        return this._bakeable;
+    }
+
+    set bakeable (val) {
+        this._bakeable = val;
+    }
+
+    /**
+     * @en cast shadow.
+     * @zh 是否投射阴影。
+     */
+    @property
+    get castShadow () {
+        return this._castShadow;
+    }
+
+    set castShadow (val) {
+        this._castShadow = val;
+    }
+
+    /**
+     * @en recieve shadow.
+     * @zh 是否接受阴影。
+     */
+    @property
+    get recieveShadow () {
+        return this._recieveShadow;
+    }
+
+    set recieveShadow (val) {
+        this._recieveShadow = val;
+    }
+
+    /**
+     * @en lightmap size.
+     * @zh 光照图大小
+     */
+    get lightmapSize () {
+        return this._lightmapSize;
+    }
+
+    set lightmapSize (val) {
+        this._lightmapSize = val;
+    }
+}
+
+/**
  * 模型组件。
  * @class ModelComponent
  */
@@ -65,6 +144,9 @@ const ModelShadowCastingMode = Enum({
 export class ModelComponent extends RenderableComponent {
 
     public static ShadowCastingMode = ModelShadowCastingMode;
+
+    @property
+    public lightmapSettings = new ModelLightmapSettings();
 
     @property
     protected _mesh: Mesh | null = null;
@@ -104,6 +186,8 @@ export class ModelComponent extends RenderableComponent {
     set mesh (val) {
         const old = this._mesh;
         this._mesh = val;
+        this._mesh?.initialize();
+        this._watchMorphInMesh();
         this._onMeshChanged(old);
         this._updateModels();
         if (this.enabledInHierarchy) {
@@ -115,15 +199,31 @@ export class ModelComponent extends RenderableComponent {
         return this._model;
     }
 
-    protected _modelType: typeof Model;
-    protected _model: Model | null = null;
+    @property
+    get enableMorph () {
+        return this._enableMorph;
+    }
+
+    set enableMorph (value) {
+        this._enableMorph = value;
+    }
+
+    protected _modelType: typeof MorphModel;
+    protected _model: MorphModel | null = null;
+
+    private _morphInstance: MorphRenderingInstance | null = null;
+
+    @property
+    private _enableMorph = true;
 
     constructor () {
         super();
-        this._modelType = Model;
+        this._modelType = MorphModel;
     }
 
     public onLoad () {
+        this._mesh?.initialize();
+        this._watchMorphInMesh();
         this._updateModels();
         this._updateCastShadow();
     }
@@ -147,6 +247,34 @@ export class ModelComponent extends RenderableComponent {
             this._model = null;
             this._models.length = 0;
         }
+        if (this._morphInstance) {
+            this._morphInstance.destroy();
+        }
+    }
+
+    public setWeights (weights: number[], subMeshIndex: number) {
+        if (this._morphInstance) {
+            this._morphInstance.setWeights(subMeshIndex, weights);
+        }
+    }
+
+    public setInstancedAttribute (name: string, value: ArrayLike<number>) {
+        if (!this.model) { return; }
+        const list = this.model.instancedAttributes.list;
+        for (let i = 0; i < list.length; i++) {
+            if (list[i].name === name) {
+                (list[i].view as TypedArray).set(value);
+                break;
+            }
+        }
+    }
+
+    public _updateLightmap (lightmap: Texture2D|null, uoff: number, voff: number, uscale: number, vscale: number) {
+        this.lightmapSettings.texture = lightmap;
+        this.lightmapSettings.uvParam.x = uoff;
+        this.lightmapSettings.uvParam.y = voff;
+        this.lightmapSettings.uvParam.z = uscale;
+        this.lightmapSettings.uvParam.w = vscale;
     }
 
     protected _updateModels () {
@@ -170,6 +298,9 @@ export class ModelComponent extends RenderableComponent {
         this._model.initialize(this.node);
         this._models.length = 0;
         this._models.push(this._model);
+        if (this._morphInstance) {
+            this._model.setMorphRendering(this._morphInstance);
+        }
     }
 
     protected _attachToScene () {
@@ -250,15 +381,62 @@ export class ModelComponent extends RenderableComponent {
         }
     }
 
-    private _isBatchingEnabled () {
+    protected _isBatchingEnabled () {
         for (let i = 0; i < this._materials.length; ++i) {
             const mat = this._materials[i];
             if (!mat) { continue; }
             for (let p = 0; p < mat.passes.length; ++p) {
                 const pass = mat.passes[p];
-                if (pass.batchedBuffer) { return true; }
+                if (pass.instancedBuffer || pass.batchedBuffer) { return true; }
             }
         }
         return false;
+    }
+
+    private _watchMorphInMesh () {
+        if (this._morphInstance) {
+            this._morphInstance.destroy();
+            this._morphInstance = null;
+        }
+
+        if (!this._enableMorph) {
+            return;
+        }
+
+        if (!this._mesh ||
+            !this._mesh.struct.morph ||
+            !this._mesh.morphRendering) {
+            return;
+        }
+
+        const { morph } = this._mesh.struct;
+        this._morphInstance = this._mesh.morphRendering.createInstance();
+        const nSubMeshes = this._mesh.struct.primitives.length;
+        for (let iSubMesh = 0; iSubMesh < nSubMeshes; ++iSubMesh) {
+            const subMeshMorph = morph.subMeshMorphs[iSubMesh];
+            if (!subMeshMorph) {
+                continue;
+            }
+            const initialWeights =
+                subMeshMorph.weights ||
+                (morph.weights && morph.weights.length === subMeshMorph.targets.length, morph.weights);
+            const weights = initialWeights ?
+                initialWeights.slice() :
+                new Array<number>(subMeshMorph.targets.length).fill(0);
+            this._morphInstance.setWeights(iSubMesh, weights);
+        }
+
+        this._model?.setMorphRendering(this._morphInstance);
+    }
+
+    private _syncMorphWeights (subMeshIndex: number) {
+        if (!this._morphInstance) {
+            return;
+        }
+        const subMeshMorphInstance = this._morphInstance[subMeshIndex];
+        if (!subMeshMorphInstance || !subMeshMorphInstance.renderResources) {
+            return;
+        }
+        subMeshMorphInstance.renderResources.setWeights(subMeshMorphInstance.weights);
     }
 }

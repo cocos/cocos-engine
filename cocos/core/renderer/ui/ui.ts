@@ -48,6 +48,7 @@ import { UIBatchModel } from './ui-batch-model';
 import { UIDrawBatch } from './ui-draw-batch';
 import { UIMaterial } from './ui-material';
 import * as UIVertexFormat from './ui-vertex-format';
+import { GFXSampler } from '../../gfx/sampler';
 
 /**
  * @zh
@@ -97,6 +98,7 @@ export class UI {
     private _emptyMaterial = new Material();
     private _currMaterial: Material = this._emptyMaterial;
     private _currTexView: GFXTextureView | null = null;
+    private _currSampler: GFXSampler | null = null;
     private _currCanvas: CanvasComponent | null = null;
     private _currMeshBuffer: MeshBuffer | null = null;
     private _currStaticRoot: UIStaticBatchComponent | null = null;
@@ -331,6 +333,7 @@ export class UI {
                     const bindingLayout = batch.bindingLayout!;
                     // assumes sprite materials has only one sampler
                     bindingLayout.bindTextureView(UniformBinding.CUSTOM_SAMPLER_BINDING_START_POINT, batch.texView!);
+                    bindingLayout.bindSampler(UniformBinding.CUSTOM_SAMPLER_BINDING_START_POINT, batch.sampler!);
                     bindingLayout.update();
 
                     const ia = batch.bufferBatch!.ia!;
@@ -368,16 +371,18 @@ export class UI {
      * @param frame - 当前执行组件贴图。
      * @param assembler - 当前组件渲染数据组装器。
      */
-    public commitComp (comp: UIRenderComponent, frame: GFXTextureView | null = null, assembler: any) {
+    public commitComp (comp: UIRenderComponent, frame: GFXTextureView | null = null, assembler: any, sampler: GFXSampler | null = null) {
         const renderComp = comp;
         const texView = frame;
+        const samp = sampler;
 
         if (this._currMaterial.hash !== renderComp.material!.hash ||
-            this._currTexView !== texView
+            this._currTexView !== texView || this._currSampler !== samp
         ) {
             this.autoMergeBatches();
             this._currMaterial = renderComp.material!;
             this._currTexView = texView;
+            this._currSampler = samp;
         }
 
         if (assembler) {
@@ -421,6 +426,7 @@ export class UI {
         curDrawBatch.bufferBatch = null;
         curDrawBatch.material = mat;
         curDrawBatch.texView = null;
+        curDrawBatch.sampler = null;
         curDrawBatch.firstIdx = 0;
         curDrawBatch.idxCount = 0;
 
@@ -430,6 +436,7 @@ export class UI {
         // reset current render state to null
         this._currMaterial = this._emptyMaterial;
         this._currTexView = null;
+        this._currSampler = null;
 
         this._batches.push(curDrawBatch);
     }
@@ -473,6 +480,7 @@ export class UI {
         curDrawBatch.bufferBatch = buffer;
         curDrawBatch.material = mat;
         curDrawBatch.texView = this._currTexView!;
+        curDrawBatch.sampler = this._currSampler;
         curDrawBatch.firstIdx = indicsStart;
         curDrawBatch.idxCount = vCount;
 
@@ -601,6 +609,7 @@ export class UI {
         this._currMaterial = this._emptyMaterial;
         this._currCanvas = null;
         this._currTexView = null;
+        this._currSampler = null;
         this._meshBufferUseCount = 0;
         this._requireBufferBatch();
         StencilManager.sharedManager!.reset();

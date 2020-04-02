@@ -28,7 +28,7 @@
  */
 
 import { GFXBindingType, GFXType } from '../../gfx/define';
-import { Mat3, Mat4, Vec2, Vec3, Vec4 } from '../../math';
+import { Color, Mat3, Mat4, Vec2, Vec3, Vec4 } from '../../math';
 
 const btMask      = 0xf0000000; //  4 bits => 16 binding types
 const typeMask    = 0x0fc00000; //  6 bits => 64 types
@@ -42,6 +42,8 @@ export const getTypeFromHandle = (handle: number) => (handle & typeMask) >>> 22;
 export const getBindingFromHandle = (handle: number) => (handle & bindingMask) >>> 14;
 export const getOffsetFromHandle = (handle: number) => (handle & offsetMask);
 export const customizeType = (handle: number, type: GFXType) => (handle & ~typeMask) | ((type << 22) & typeMask);
+
+export type MaterialProperty = number | Vec2 | Vec3 | Vec4 | Color | Mat3 | Mat4;
 
 export const type2reader = {
     [GFXType.UNKNOWN]: (a: Float32Array, v: any, idx: number = 0) => console.warn('illegal uniform handle'),

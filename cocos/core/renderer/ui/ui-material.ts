@@ -66,7 +66,7 @@ export class UIMaterial {
         this._material.copy(info.material);
 
         this._pass = this._material.passes[0];
-        this._pass.update();
+        this._pass.update(0);
 
         this._psos = new Pool(() => {
             const pso = this._pass!.createPipelineState()!;

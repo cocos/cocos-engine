@@ -3,7 +3,7 @@
  * @category geometry
  */
 
-import { EPSILON, Mat3, Vec3 } from '../math';
+import { EPSILON, Mat3, Vec3, Mat4 } from '../math';
 import aabb from './aabb';
 import { capsule } from './capsule';
 import * as distance from './distance';
@@ -15,6 +15,11 @@ import plane from './plane';
 import ray from './ray';
 import sphere from './sphere';
 import triangle from './triangle';
+import { GFXPrimitiveMode } from '../gfx';
+import { IBArray, RenderingSubMesh, Mesh } from '../assets/mesh';
+import { IRaySubMeshOptions, ERaycastMode, IRaySubMeshResult, IRayMeshOptions, IRayModelOptions } from './spec';
+import { IVec3Like } from '../math/type-define';
+import { Model } from '../renderer';
 
 // tslint:disable:only-arrow-functions
 // tslint:disable:one-variable-per-declaration
@@ -128,22 +133,26 @@ const ray_aabb = (function () {
     const min = new Vec3();
     const max = new Vec3();
     return function (ray: ray, aabb: aabb): number {
-        const o = ray.o, d = ray.d;
-        const ix = 1 / d.x, iy = 1 / d.y, iz = 1 / d.z;
         Vec3.subtract(min, aabb.center, aabb.halfExtents);
         Vec3.add(max, aabb.center, aabb.halfExtents);
-        const t1 = (min.x - o.x) * ix;
-        const t2 = (max.x - o.x) * ix;
-        const t3 = (min.y - o.y) * iy;
-        const t4 = (max.y - o.y) * iy;
-        const t5 = (min.z - o.z) * iz;
-        const t6 = (max.z - o.z) * iz;
-        const tmin = Math.max(Math.max(Math.min(t1, t2), Math.min(t3, t4)), Math.min(t5, t6));
-        const tmax = Math.min(Math.min(Math.max(t1, t2), Math.max(t3, t4)), Math.max(t5, t6));
-        if (tmax < 0 || tmin > tmax) { return 0; }
-        return tmin > 0 ? tmin : tmax; // ray origin inside aabb
+        return ray_aabb2(ray, min, max);
     };
 })();
+
+function ray_aabb2 (ray: ray, min: IVec3Like, max: IVec3Like) {
+    const o = ray.o, d = ray.d;
+    const ix = 1 / d.x, iy = 1 / d.y, iz = 1 / d.z;
+    const t1 = (min.x - o.x) * ix;
+    const t2 = (max.x - o.x) * ix;
+    const t3 = (min.y - o.y) * iy;
+    const t4 = (max.y - o.y) * iy;
+    const t5 = (min.z - o.z) * iz;
+    const t6 = (max.z - o.z) * iz;
+    const tmin = Math.max(Math.max(Math.min(t1, t2), Math.min(t3, t4)), Math.min(t5, t6));
+    const tmax = Math.min(Math.min(Math.max(t1, t2), Math.max(t3, t4)), Math.max(t5, t6));
+    if (tmax < 0 || tmin > tmax) { return 0; }
+    return tmin > 0 ? tmin : tmax; // ray origin inside aabb
+}
 
 /**
  * @en
@@ -308,6 +317,182 @@ const ray_capsule = (function () {
         }
 
     };
+})();
+
+/**
+ * @en
+ * ray-subMesh intersect detect.
+ * @zh
+ * 射线和子三角网格的相交性检测。
+ */
+const ray_subMesh = (function () {
+    const tri = triangle.create();
+    const deOpt: IRaySubMeshOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY };
+    const tr: IRaySubMeshResult = { distance: 0, vertexIndex0: 0, vertexIndex1: 0, vertexIndex2: 0 };
+    let minDis = 0;
+    const broadphase = (ray: ray, submesh: RenderingSubMesh) => {
+        const min = submesh.geometricInfo.boundingBox.min;
+        const max = submesh.geometricInfo.boundingBox.max;
+        return ray_aabb2(ray, min, max);
+    }
+    const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, ray: ray, opt: IRaySubMeshOptions) => {
+        if (pm === GFXPrimitiveMode.TRIANGLE_LIST) {
+            const cnt = ib.length;
+            for (let j = 0; j < cnt; j += 3) {
+                const i0 = ib[j] * 3;
+                const i1 = ib[j + 1] * 3;
+                const i2 = ib[j + 2] * 3;
+                Vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
+                Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
+                Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
+                const dist = intersect.ray_triangle(ray, tri, opt.doubleSided);
+                if (dist == 0 || dist > opt.distance!) continue;
+                if (opt.mode == ERaycastMode.CLOSEST) {
+                    if (minDis > dist || minDis == 0) {
+                        minDis = dist;
+                        tr.distance = dist;
+                        tr.vertexIndex0 = i0;
+                        tr.vertexIndex1 = i1;
+                        tr.vertexIndex2 = i2;
+                        if (opt.result && j + 3 < cnt)
+                            opt.result.push({ distance: tr.distance, vertexIndex0: tr.vertexIndex0, vertexIndex1: tr.vertexIndex1, vertexIndex2: tr.vertexIndex2 });
+                    }
+                } else if (opt.mode == ERaycastMode.ALL) {
+                    minDis = dist;
+                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                } else {
+                    minDis = dist;
+                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                    return minDis;
+                }
+            }
+        } else if (pm === GFXPrimitiveMode.TRIANGLE_STRIP) {
+            const cnt = ib.length - 2;
+            let rev = 0;
+            for (let j = 0; j < cnt; j += 1) {
+                const i0 = ib[j - rev] * 3;
+                const i1 = ib[j + rev + 1] * 3;
+                const i2 = ib[j + 2] * 3;
+                Vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
+                Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
+                Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
+                rev = ~rev;
+                const dist = intersect.ray_triangle(ray, tri, opt.doubleSided);
+                if (dist == 0 || dist > opt.distance!) continue;
+                if (opt.mode == ERaycastMode.CLOSEST) {
+                    if (minDis < dist) continue;
+                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                } else if (opt.mode == ERaycastMode.ALL) {
+                    minDis = dist;
+                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                } else {
+                    minDis = dist;
+                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                    return minDis;
+                }
+            }
+        } else if (pm === GFXPrimitiveMode.TRIANGLE_FAN) {
+            const cnt = ib.length - 1;
+            const i0 = ib[0] * 3;
+            Vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
+            for (let j = 1; j < cnt; j += 1) {
+                const i1 = ib[j] * 3;
+                const i2 = ib[j + 1] * 3;
+                Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
+                Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
+                const dist = intersect.ray_triangle(ray, tri, opt.doubleSided);
+                if (dist == 0 || dist > opt.distance!) continue;
+                if (opt.mode == ERaycastMode.CLOSEST) {
+                    if (minDis < dist) continue;
+                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                } else if (opt.mode == ERaycastMode.ALL) {
+                    minDis = dist;
+                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                } else {
+                    minDis = dist;
+                    if (opt.result) opt.result.push({ distance: dist, vertexIndex0: i0, vertexIndex1: i1, vertexIndex2: i2 });
+                    return minDis;
+                }
+            }
+        }
+        return minDis;
+    };
+    return function (ray: ray, submesh: RenderingSubMesh, option?: IRaySubMeshOptions) {
+        const opt = option == undefined ? deOpt : option;
+        if (!opt.doNotZeroMin) minDis = 0;
+        if (submesh.geometricInfo.positions.length == 0) return;
+        if (broadphase(ray, submesh)) {
+            const pm = submesh.primitiveMode;
+            const { positions: vb, indices: ib } = submesh.geometricInfo!;
+            narrowphase(vb, ib!, pm, ray, opt);
+        }
+        return minDis != 0;
+    }
+})();
+
+/**
+ * @en
+ * ray-mesh intersect detect.
+ * @zh
+ * 射线和三角网格资源的相交性检测。
+ */
+const ray_mesh = (function () {
+    const deOpt: IRayMeshOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY, doNotZeroMin: true };
+    return function (ray: ray, mesh: Mesh, option?: IRayMeshOptions) {
+        const opt = option == undefined ? deOpt : option;
+        const length = mesh.renderingSubMeshes.length;
+        let result = false;
+        const min = mesh.struct.minPosition;
+        const max = mesh.struct.maxPosition;
+        if (min && max && !ray_aabb2(ray, min, max)) return false;
+        for (let i = 0; i < length; i++) {
+            const sm = mesh.renderingSubMeshes[i];
+            if (ray_subMesh(ray, sm, opt)) {
+                result = true;
+                if (opt.subIndices) opt.subIndices.push(i);
+                if (opt.mode == ERaycastMode.ANY) {
+                    return true;
+                }
+            }
+        }
+        return result;
+    }
+})();
+
+/**
+ * @en
+ * ray-model intersect detect.
+ * @zh
+ * 射线和渲染模型的相交性检测。
+ */
+const ray_model = (function () {
+    const deOpt: IRayModelOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY, doNotZeroMin: true, doNotTransformRay: false };
+    const modelRay = new ray();
+    const m4 = new Mat4;
+    return function (r: ray, model: Model, option?: IRayModelOptions) {
+        const opt = option == undefined ? deOpt : option;
+        const length = model.subModelNum;
+        let result = false;
+        ray.copy(modelRay, r);
+        if (!opt.doNotTransformRay) {
+            Mat4.invert(m4, model.node.getWorldMatrix(m4));
+            Vec3.transformMat4(modelRay.o, r.o, m4);
+            Vec3.normalize(modelRay.d, Vec3.transformMat4Normal(modelRay.d, r.d, m4));
+        }
+        const box = model.modelBounds;
+        if (box && !ray_aabb(modelRay, box)) return false;
+        for (let i = 0; i < length; i++) {
+            const sm = model.getSubModel(i).subMeshData;
+            if (ray_subMesh(modelRay, sm, opt)) {
+                result = true;
+                if (opt.subIndices) opt.subIndices.push(i);
+                if (opt.mode == ERaycastMode.ANY) {
+                    return true;
+                }
+            }
+        }
+        return result;
+    }
 })();
 
 /**
@@ -1193,6 +1378,10 @@ const intersect = {
     ray_plane,
     ray_triangle,
     ray_capsule,
+
+    ray_subMesh,
+    ray_mesh,
+    ray_model,
 
     line_sphere,
     line_aabb,

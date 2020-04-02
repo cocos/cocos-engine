@@ -9,65 +9,83 @@ import { IVec3Like } from '../../../core/math/type-define';
 
 export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
 
-    set height (v: number) {
-        this.updateCapsuleProp(this.capsuleCollider.radius, v, this._collider.node.worldScale);
+    setHeight (v: number) {
+        this.updateProperties(
+            this.collider.radius,
+            this.collider.height,
+            this.collider.direction,
+            this._collider.node.worldScale
+        );
+        if (this._btCompound) {
+            this._btCompound.updateChildTransform(this.index, this.transform, true);
+        }
     }
 
-    set direction (v: number) {
-        this.btCapsule.setUpAxis(v);
+    setDirection (v: number) {
+        this.updateProperties(
+            this.collider.radius,
+            this.collider.height,
+            this.collider.direction,
+            this._collider.node.worldScale
+        );
+        if (this._btCompound) {
+            this._btCompound.updateChildTransform(this.index, this.transform, true);
+        }
     }
 
-    set radius (v: number) {
-        this.updateCapsuleProp(v, this.capsuleCollider.height, this._collider.node.worldScale);
+    setRadius (v: number) {
+        this.updateProperties(
+            this.collider.radius,
+            this.collider.height,
+            this.collider.direction,
+            this._collider.node.worldScale
+        );
+        if (this._btCompound) {
+            this._btCompound.updateChildTransform(this.index, this.transform, true);
+        }
     }
 
-    get btCapsule () {
+    get impl () {
         return this._btShape as Ammo.btCapsuleShape;
     }
 
-    get capsuleCollider () {
+    get collider () {
         return this._collider as CapsuleColliderComponent;
     }
 
-    constructor (radius: number, height: number) {
+    constructor () {
         super(AmmoBroadphaseNativeTypes.CAPSULE_SHAPE_PROXYTYPE);
         this._btShape = new Ammo.btCapsuleShape(0.5, 1);
     }
 
     onLoad () {
         super.onLoad();
-        this.radius = this.capsuleCollider.radius;
+        this.setRadius(this.collider.radius);
     }
 
-    updateScale () {
-        super.updateScale();
-        this.radius = this.capsuleCollider.radius;
+    setScale () {
+        super.setScale();
+        this.setRadius(this.collider.radius);
     }
 
-    /**
-     * radius \ height \ scale
-     */
-    updateCapsuleProp (radius: number, height: number, scale: IVec3Like) {
+    updateProperties (radius: number, height: number, direction: number, scale: IVec3Like) {
         const ws = scale;
-        const upAxis = this.btCapsule.getUpAxis();
-        const isd = this.btCapsule.getImplicitShapeDimensions();
+        const upAxis = direction;
         if (upAxis == 1) {
             const wh = height * Math.abs(ws.y);
-            const wr = radius * absMax(ws.x, ws.z);
+            const wr = radius * Math.abs(absMax(ws.x, ws.z));
             const halfH = (wh - wr * 2) / 2;
-            isd.setValue(wr, halfH, wr);
+            this.impl.updateProp(wr, halfH, upAxis);
         } else if (upAxis == 0) {
             const wh = height * Math.abs(ws.x);
-            const wr = radius * absMax(ws.y, ws.z);
+            const wr = radius * Math.abs(absMax(ws.y, ws.z));
             const halfH = (wh - wr * 2) / 2;
-            isd.setValue(halfH, wr, wr);
+            this.impl.updateProp(wr, halfH, upAxis);
         } else {
             const wh = height * Math.abs(ws.z);
-            const wr = radius * absMax(ws.x, ws.y);
+            const wr = radius * Math.abs(absMax(ws.x, ws.y));
             const halfH = (wh - wr * 2) / 2;
-            isd.setValue(wr, wr, halfH);
+            this.impl.updateProp(wr, halfH, upAxis);
         }
-        cocos2AmmoVec3(this.scale, Vec3.ONE);
-        this.btCapsule.setLocalScaling(this.scale);
     }
 }

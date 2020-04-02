@@ -90,14 +90,20 @@ export enum UniformBinding {
     UBO_FORWARD_LIGHTS = MAX_BINDING_SUPPORTED - 4,
     UBO_SKINNING_ANIMATION = MAX_BINDING_SUPPORTED - 5,
     UBO_SKINNING_TEXTURE = MAX_BINDING_SUPPORTED - 6,
+    UBO_UI = MAX_BINDING_SUPPORTED - 7,
+    UBO_MORPH = MAX_BINDING_SUPPORTED - 8,
+    UBO_BUILTIN_BINDING_END = MAX_BINDING_SUPPORTED - 9,
 
     // samplers
     SAMPLER_JOINTS = MAX_BINDING_SUPPORTED + 1,
     SAMPLER_ENVIRONMENT = MAX_BINDING_SUPPORTED + 2,
+    SAMPLER_MORPH_POSITION = MAX_BINDING_SUPPORTED + 3,
+    SAMPLER_MORPH_NORMAL = MAX_BINDING_SUPPORTED + 4,
+    SAMPLER_MORPH_TANGENT = MAX_BINDING_SUPPORTED + 5,
 
     // rooms left for custom bindings
     // effect importer prepares bindings according to this
-    CUSTUM_UBO_BINDING_END_POINT = MAX_BINDING_SUPPORTED - 6,
+    CUSTUM_UBO_BINDING_END_POINT = UniformBinding.UBO_BUILTIN_BINDING_END,
     CUSTOM_SAMPLER_BINDING_START_POINT = MAX_BINDING_SUPPORTED + 6,
 }
 
@@ -202,6 +208,7 @@ localBindingsDesc.set(UBOLocal.BLOCK.name, {
     type: GFXBindingType.UNIFORM_BUFFER,
     blockInfo: UBOLocal.BLOCK,
 });
+export const INST_MAT_WORLD = 'a_matWorld0';
 
 export class UBOLocalBatched {
     public static BATCHING_COUNT: number = 10;
@@ -264,7 +271,7 @@ localBindingsDesc.set(UBOForwardLight.BLOCK.name, {
 // Skinning models with number of bones more than this capacity will be automatically switched to texture skinning.
 // But still, you can tweak this for your own need by changing the number below
 // and the JOINT_UNIFORM_CAPACITY macro in cc-skinning shader header.
-export const JointUniformCapacity = 30;
+export const JOINT_UNIFORM_CAPACITY = 30;
 
 /**
  * @zh
@@ -277,7 +284,7 @@ export class UBOSkinningTexture {
 
     public static BLOCK: GFXUniformBlock = {
         binding: UniformBinding.UBO_SKINNING_TEXTURE, name: 'CCSkinningTexture', members: [
-            { name: 'cc_jointsTextureInfo', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_jointTextureInfo', type: GFXType.FLOAT4, count: 1 },
         ],
     };
 }
@@ -292,7 +299,7 @@ export class UBOSkinningAnimation {
 
     public static BLOCK: GFXUniformBlock = {
         binding: UniformBinding.UBO_SKINNING_ANIMATION, name: 'CCSkinningAnimation', members: [
-            { name: 'cc_jointsAnimInfo', type: GFXType.FLOAT4, count: 1 },
+            { name: 'cc_jointAnimInfo', type: GFXType.FLOAT4, count: 1 },
         ],
     };
 }
@@ -300,14 +307,15 @@ localBindingsDesc.set(UBOSkinningAnimation.BLOCK.name, {
     type: GFXBindingType.UNIFORM_BUFFER,
     blockInfo: UBOSkinningAnimation.BLOCK,
 });
+export const INST_JOINT_ANIM_INFO = 'a_jointAnimInfo';
 export class UBOSkinning {
     public static JOINTS_OFFSET: number = 0;
-    public static COUNT: number = UBOSkinning.JOINTS_OFFSET + JointUniformCapacity * 12;
+    public static COUNT: number = UBOSkinning.JOINTS_OFFSET + JOINT_UNIFORM_CAPACITY * 12;
     public static SIZE: number = UBOSkinning.COUNT * 4;
 
     public static BLOCK: GFXUniformBlock = {
         binding: UniformBinding.UBO_SKINNING_TEXTURE, name: 'CCSkinning', members: [
-            { name: 'cc_joints', type: GFXType.FLOAT4, count: JointUniformCapacity * 3 },
+            { name: 'cc_joints', type: GFXType.FLOAT4, count: JOINT_UNIFORM_CAPACITY * 3 },
         ],
     };
 }
@@ -319,12 +327,70 @@ localBindingsDesc.set(UBOSkinning.BLOCK.name, {
 /**
  * 骨骼纹理采样器。
  */
-export const UniformJointsTexture: GFXUniformSampler = {
-    binding: UniformBinding.SAMPLER_JOINTS, name: 'cc_jointsTexture', type: GFXType.SAMPLER2D, count: 1,
+export const UniformJointTexture: GFXUniformSampler = {
+    binding: UniformBinding.SAMPLER_JOINTS, name: 'cc_jointTexture', type: GFXType.SAMPLER2D, count: 1,
 };
-localBindingsDesc.set(UniformJointsTexture.name, {
+localBindingsDesc.set(UniformJointTexture.name, {
     type: GFXBindingType.SAMPLER,
-    samplerInfo: UniformJointsTexture,
+    samplerInfo: UniformJointTexture,
+});
+
+export class UBOMorph {
+    public static readonly MAX_MORPH_TARGET_COUNT = 60;
+
+    public static readonly OFFSET_OF_WEIGHTS = 0;
+
+    public static readonly OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH = 4 * UBOMorph.MAX_MORPH_TARGET_COUNT;
+
+    public static readonly OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT = UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH + 4;
+
+    public static readonly COUNT_BASE_4_BYTES = 4 * Math.ceil(UBOMorph.MAX_MORPH_TARGET_COUNT / 4) + 4;
+
+    public static readonly SIZE = UBOMorph.COUNT_BASE_4_BYTES * 4;
+
+    public static readonly BLOCK: GFXUniformBlock = {
+        binding: UniformBinding.UBO_MORPH, name: 'CCMorph', members: [
+            { name: 'cc_displacementWeights', type: GFXType.FLOAT4, count: UBOMorph.MAX_MORPH_TARGET_COUNT / 4, },
+            { name: 'cc_displacementTextureInfo', type: GFXType.FLOAT4, count: 1, },
+        ],
+    };
+}
+localBindingsDesc.set(UBOMorph.BLOCK.name, {
+    type: GFXBindingType.UNIFORM_BUFFER,
+    blockInfo: UBOMorph.BLOCK,
+});
+
+/**
+ * 位置形变纹理采样器。
+ */
+export const UniformPositionMorphTexture: Readonly<GFXUniformSampler> = {
+    binding: UniformBinding.SAMPLER_MORPH_POSITION, name: 'cc_PositionDisplacements', type: GFXType.SAMPLER2D, count: 1,
+};
+localBindingsDesc.set(UniformPositionMorphTexture.name, {
+    type: GFXBindingType.SAMPLER,
+    samplerInfo: UniformPositionMorphTexture,
+});
+
+/**
+ * 法线形变纹理采样器。
+ */
+export const UniformNormalMorphTexture: Readonly<GFXUniformSampler> = {
+    binding: UniformBinding.SAMPLER_MORPH_NORMAL, name: 'cc_NormalDisplacements', type: GFXType.SAMPLER2D, count: 1,
+};
+localBindingsDesc.set(UniformNormalMorphTexture.name, {
+    type: GFXBindingType.SAMPLER,
+    samplerInfo: UniformNormalMorphTexture,
+});
+
+/**
+ * 切线形变纹理采样器。
+ */
+export const UniformTangentMorphTexture: Readonly<GFXUniformSampler> = {
+    binding: UniformBinding.SAMPLER_MORPH_TANGENT, name: 'cc_TangentDisplacements', type: GFXType.SAMPLER2D, count: 1,
+};
+localBindingsDesc.set(UniformTangentMorphTexture.name, {
+    type: GFXBindingType.SAMPLER,
+    samplerInfo: UniformTangentMorphTexture,
 });
 
 export interface IInternalBindingDesc {
@@ -340,9 +406,9 @@ export interface IInternalBindingInst extends IInternalBindingDesc {
     textureView?: GFXTextureView;
 }
 
-export const CameraDefaultMask = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
+export const CAMERA_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
     Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
 
-export const CameraEditorMask = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.PROFILER]);
+export const CAMERA_EDITOR_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.PROFILER]);
 
-export const ModelAlwaysMask = Layers.Enum.ALL;
+export const MODEL_ALWAYS_MASK = Layers.Enum.ALL;

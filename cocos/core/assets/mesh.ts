@@ -29,11 +29,12 @@
 
 import { ccclass, property } from '../../core/data/class-decorator';
 import { Mat4, Quat, Vec3 } from '../../core/math';
+import { mapBuffer } from '../3d/misc/buffer';
 import { BufferBlob } from '../3d/misc/buffer-blob';
-import { mapBuffer } from '../3d/misc/utils';
 import { aabb } from '../geometry';
 import { GFXBuffer } from '../gfx/buffer';
 import {
+    getTypedArrayConstructor,
     GFXAttributeName,
     GFXBufferUsageBit,
     GFXFormat,
@@ -46,11 +47,12 @@ import { GFXDevice, GFXFeature } from '../gfx/device';
 import { IGFXAttribute } from '../gfx/input-assembler';
 import { warnID } from '../platform/debug';
 import sys from '../platform/sys';
-import { DataPoolManager } from '../renderer/data-pool-manager';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { Asset } from './asset';
 import { Skeleton } from './skeleton';
 import { postLoadMesh } from './utils/mesh-utils';
+import { Morph, createMorphRendering, MorphRendering } from './morph';
+import { js } from '../utils/js';
 
 function getIndexStrideCtor (stride: number) {
     switch (stride) {
@@ -84,6 +86,11 @@ export interface IGeometricInfo {
      * 是否将图元按双面对待。
      */
     doubleSided?: boolean;
+
+    /**
+     * 此几何体的轴对齐包围盒。
+     */
+    boundingBox: { max: Vec3; min: Vec3; }
 }
 
 export interface IFlatBuffer {
@@ -124,7 +131,44 @@ export class RenderingSubMesh {
     /**
      * （用于射线检测的）几何信息。
      */
-    public geometricInfo?: IGeometricInfo;
+    get geometricInfo () {
+        if (this._geometricInfo) { return this._geometricInfo; }
+        if (this.mesh == undefined) { return { positions: new Float32Array(), indices: new Uint8Array(), boundingBox: { min: Vec3.ZERO, max: Vec3.ZERO } }; }
+        if (this.subMeshIdx == undefined) { return { positions: new Float32Array(), indices: new Uint8Array(), boundingBox: { min: Vec3.ZERO, max: Vec3.ZERO } }; }
+        const mesh = this.mesh!; const index = this.subMeshIdx!;
+        const positions = mesh.readAttribute(index, GFXAttributeName.ATTR_POSITION) as unknown as Float32Array;
+        const indices = mesh.readIndices(index) as Uint16Array;
+        const max = new Vec3();
+        const min = new Vec3();
+        const pAttri = this.attributes.find(element => element.name == cc.GFXAttributeName.ATTR_POSITION);
+        if (pAttri) {
+            const conut = GFXFormatInfos[pAttri.format].count;
+            if (conut == 2) {
+                max.set(positions[0], positions[1], 0);
+                min.set(positions[0], positions[1], 0);
+            } else {
+                max.set(positions[0], positions[1], positions[2]);
+                min.set(positions[0], positions[1], positions[2]);
+            }
+            for (let i = 0; i < positions.length; i += conut) {
+                if (conut == 2) {
+                    max.x = positions[i] > max.x ? positions[i] : max.x;
+                    max.y = positions[i + 1] > max.y ? positions[i + 1] : max.y;
+                    min.x = positions[i] < min.x ? positions[i] : min.x;
+                    min.y = positions[i + 1] < min.y ? positions[i + 1] : min.y;
+                } else {
+                    max.x = positions[i] > max.x ? positions[i] : max.x;
+                    max.y = positions[i + 1] > max.y ? positions[i + 1] : max.y;
+                    max.z = positions[i + 2] > max.z ? positions[i + 2] : max.z;
+                    min.x = positions[i] < min.x ? positions[i] : min.x;
+                    min.y = positions[i + 1] < min.y ? positions[i + 1] : min.y;
+                    min.z = positions[i + 2] < min.z ? positions[i + 2] : min.z;
+                }
+            }
+        }
+        this._geometricInfo = { positions, indices, boundingBox: { max, min } };
+        return this._geometricInfo;
+    }
 
     /**
      * 扁平化的顶点缓冲区。
@@ -169,6 +213,7 @@ export class RenderingSubMesh {
     get jointMappedBuffers () {
         if (this._jointMappedBuffers) { return this._jointMappedBuffers; }
         const buffers: GFXBuffer[] = this._jointMappedBuffers = [];
+        const indices: number[] = this._jointMappedBufferIndices = [];
         if (!this.mesh || this.subMeshIdx === undefined) { return this._jointMappedBuffers = this.vertexBuffers; }
         const struct = this.mesh.struct;
         const prim = struct.primitives[this.subMeshIdx];
@@ -178,11 +223,12 @@ export class RenderingSubMesh {
         let jointFormat: GFXFormat;
         let jointOffset: number;
         const device: GFXDevice = cc.director.root.device;
-        for (const bundleIdx of prim.vertexBundelIndices) {
-            const bundle = struct.vertexBundles[bundleIdx];
+        for (let i = 0; i < prim.vertexBundelIndices.length; i++) {
+            const bundle = struct.vertexBundles[prim.vertexBundelIndices[i]];
             jointOffset = 0;
             jointFormat = GFXFormat.UNKNOWN;
-            for (const attr of bundle.attributes) {
+            for (let j = 0; j < bundle.attributes.length; j++) {
+                const attr = bundle.attributes[j];
                 if (attr.name === GFXAttributeName.ATTR_JOINTS) {
                     jointFormat = attr.format;
                     break;
@@ -201,13 +247,13 @@ export class RenderingSubMesh {
                     size: bundle.view.length,
                     stride: bundle.view.stride,
                 });
-                buffer.update(dataView.buffer); buffers.push(buffer);
-                this._jointMappedBufferCreated = true;
+                buffer.update(dataView.buffer); buffers.push(buffer); indices.push(i);
             } else {
-                for (const buffer of buffers) { buffer.destroy(); }
-                this._jointMappedBufferCreated = false;
-                return this._jointMappedBuffers = this.vertexBuffers;
+                buffers.push(this.vertexBuffers[prim.vertexBundelIndices[i]]);
             }
+        }
+        if (this._vertexIdChannel) {
+            buffers.push(this._allocVertexIdBuffer(device));
         }
         return buffers;
     }
@@ -217,7 +263,12 @@ export class RenderingSubMesh {
 
     private _flatBuffers?: IFlatBuffer[];
     private _jointMappedBuffers?: GFXBuffer[];
-    private _jointMappedBufferCreated = false;
+    private _jointMappedBufferIndices?: number[];
+    private _vertexIdChannel?: {
+        stream: number;
+        index: number;
+    };
+    private _geometricInfo?: IGeometricInfo;
 
     constructor (vertexBuffers: GFXBuffer[], attributes: IGFXAttribute[], primitiveMode: GFXPrimitiveMode) {
         this.vertexBuffers = vertexBuffers;
@@ -226,20 +277,72 @@ export class RenderingSubMesh {
     }
 
     public destroy () {
-        for (const buffer of this.vertexBuffers) {
-            buffer.destroy();
+        for (let i = 0; i < this.vertexBuffers.length; i++) {
+            this.vertexBuffers[i].destroy();
         }
         this.vertexBuffers.length = 0;
         if (this.indexBuffer) {
             this.indexBuffer.destroy();
         }
         this.indexBuffer = undefined;
-        if (this._jointMappedBuffers && this._jointMappedBufferCreated) {
-            for (const buffer of this._jointMappedBuffers) {
-                buffer.destroy();
+        if (this._jointMappedBuffers && this._jointMappedBufferIndices) {
+            for (let i = 0; i < this._jointMappedBufferIndices.length; i++) {
+                this._jointMappedBuffers[this._jointMappedBufferIndices[i]].destroy();
             }
             this._jointMappedBuffers = undefined;
+            this._jointMappedBufferIndices = undefined;
         }
+    }
+
+    /**
+     * Adds a vertex attribute input called 'a_vertexId' into this sub-mesh.
+     * This is useful if you want to simulate `gl_VertexId` in WebGL context prior to 2.0.
+     * Once you call this function, the vertex attribute is permanently added.
+     * Subsequent calls to this function take no effect.
+     * @param device Device used to create related rendering resources.
+     */
+    public enableVertexIdChannel (device: GFXDevice) {
+        if (this._vertexIdChannel) {
+            return;
+        }
+
+        const streamIndex = this.vertexBuffers.length;
+        const attributeIndex = this.attributes.length;
+
+        const vertexIdBuffer = this._allocVertexIdBuffer(device);
+        this.vertexBuffers.push(vertexIdBuffer);
+        this.attributes.push({
+            name: 'a_vertexId',
+            format: GFXFormat.R32F,
+            stream: streamIndex,
+            isNormalized: false,
+        });
+
+        this._vertexIdChannel = {
+            stream: streamIndex,
+            index: attributeIndex,
+        };
+    }
+
+    private _allocVertexIdBuffer (device: GFXDevice) {
+        const vertexCount = (this.vertexBuffers.length === 0 || this.vertexBuffers[0].stride === 0) ?
+            0 :
+            // TODO: This depends on how stride of a vertex buffer is defined; Consider padding problem.
+            this.vertexBuffers[0].size / this.vertexBuffers[0].stride;
+        const vertexIds = new Float32Array(vertexCount);
+        for (let iVertex = 0; iVertex < vertexCount; ++iVertex) {
+            vertexIds[iVertex] = iVertex;
+        }
+
+        const vertexIdBuffer = device.createBuffer({
+            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
+            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+            size: vertexIds.byteLength,
+            stride: vertexIds.BYTES_PER_ELEMENT,
+        });
+        vertexIdBuffer.update(vertexIds);
+
+        return vertexIdBuffer;
     }
 }
 
@@ -259,6 +362,8 @@ export declare namespace Mesh {
     export interface IVertexBundle {
         /**
          * 所有顶点属性的实际数据块。
+         * 你必须使用 DataView 来读取数据。
+         * 因为不能保证所有属性的起始偏移都按 TypedArray 要求的字节对齐。
          */
         view: IBufferView;
 
@@ -271,7 +376,7 @@ export declare namespace Mesh {
     /**
      * 子网格。子网格由一系列相同类型的图元组成（例如点、线、面等）。
      */
-    export interface ISubmesh {
+    export interface ISubMesh {
         /**
          * 此子网格引用的顶点块，索引至网格的顶点块数组。
          */
@@ -293,13 +398,6 @@ export declare namespace Mesh {
          */
         jointMapIndex?: number;
 
-        /**
-         * （用于射线检测的）几何信息。
-         */
-        geometricInfo?: {
-            doubleSided?: boolean;
-            view: IBufferView;
-        };
     }
 
     /**
@@ -314,7 +412,7 @@ export declare namespace Mesh {
         /**
          * 此网格的所有子网格。
          */
-        primitives: ISubmesh[];
+        primitives: ISubMesh[];
 
         /**
          * （各分量都）小于等于此网格任何顶点位置的最大位置。
@@ -331,6 +429,8 @@ export declare namespace Mesh {
          * 每个元素都对应一个原骨骼资源里的索引，按子模型 VB 内的实际索引排列。
          */
         jointMaps?: number[][];
+
+        morph?: Morph;
     }
 
     export interface ICreateInfo {
@@ -464,7 +564,7 @@ export class Mesh extends Asset {
         const gfxDevice: GFXDevice = cc.director.root.device;
         const vertexBuffers = this._createVertexBuffers(gfxDevice, buffer);
         const indexBuffers: GFXBuffer[] = [];
-        const submeshes: RenderingSubMesh[] = [];
+        const subMeshes: RenderingSubMesh[] = [];
 
         for (let i = 0; i < this._struct.primitives.length; i++) {
             const prim = this._struct.primitives[i];
@@ -524,19 +624,14 @@ export class Mesh extends Asset {
             const subMesh = new RenderingSubMesh(vbReference, gfxAttributes, prim.primitiveMode);
             subMesh.mesh = this; subMesh.subMeshIdx = i; subMesh.indexBuffer = indexBuffer;
 
-            if (prim.geometricInfo) {
-                const info = prim.geometricInfo;
-                const positions = new Float32Array(buffer, info.view.offset, info.view.length / 4);
-                subMesh.geometricInfo = {
-                    indices: ib,
-                    positions,
-                };
-            }
-
-            submeshes.push(subMesh);
+            subMeshes.push(subMesh);
         }
 
-        this._renderingSubMeshes = submeshes;
+        this._renderingSubMeshes = subMeshes;
+        
+        if (this._struct.morph) {
+            this.morphRendering = createMorphRendering(this, gfxDevice);
+        }
     }
 
     /**
@@ -709,7 +804,7 @@ export class Mesh extends Asset {
                     }
                 }
             }
-            this.reset({struct, data});
+            this.reset({ struct, data });
             this.initialize();
             return true;
         }
@@ -813,7 +908,7 @@ export class Mesh extends Asset {
         let srcIBView: Uint8Array | Uint16Array | Uint32Array;
         let dstIBView: Uint8Array | Uint16Array | Uint32Array;
 
-        const primitives: Mesh.ISubmesh[] = new Array<Mesh.ISubmesh>(this._struct.primitives.length);
+        const primitives: Mesh.ISubMesh[] = new Array<Mesh.ISubMesh>(this._struct.primitives.length);
         for (let i = 0; i < this._struct.primitives.length; ++i) {
             const prim = this._struct.primitives[i];
             const dstPrim = mesh._struct.primitives[i];
@@ -893,27 +988,6 @@ export class Mesh extends Asset {
                 bufferBlob.addBuffer(ib);
             }
 
-            if (prim.geometricInfo && dstPrim.geometricInfo) {
-                const geomBuffSize = prim.geometricInfo.view.length + dstPrim.geometricInfo.view.length;
-                const geomBuff = new ArrayBuffer(geomBuffSize);
-                const geomBuffView = new Uint8Array(geomBuff);
-                const srcView = new Uint8Array(this._data!.buffer, prim.geometricInfo.view.offset, prim.geometricInfo.view.length);
-                const dstView = new Uint8Array(mesh._data!.buffer, dstPrim.geometricInfo.view.offset, dstPrim.geometricInfo.view.length);
-                geomBuffView.set(srcView);
-                geomBuffView.set(dstView, srcView.length);
-
-                bufferBlob.setNextAlignment(4);
-                primitives[i].geometricInfo = {
-                    doubleSided: prim.geometricInfo.doubleSided,
-                    view: {
-                        offset: bufferBlob.getLength(),
-                        length: geomBuffView.length,
-                        count: prim.geometricInfo.view.count + dstPrim.geometricInfo.view.count,
-                        stride: prim.geometricInfo.view.stride,
-                    },
-                };
-                bufferBlob.addBuffer(geomBuff);
-            }
         }
 
         // Create mesh struct.
@@ -1031,7 +1105,7 @@ export class Mesh extends Asset {
      * 否则，创建足够大的缓冲区包含指定属性的所有数据，并为该缓冲区创建与属性类型对应的数组视图。
      */
     public readAttribute (primitiveIndex: number, attributeName: GFXAttributeName): Storage | null {
-        let result: Storage | null = null;
+        let result: TypedArray | null = null;
         this._accessAttribute(primitiveIndex, attributeName, (vertexBundle, iAttribute) => {
             const format = vertexBundle.attributes[iAttribute].format;
 
@@ -1040,7 +1114,7 @@ export class Mesh extends Asset {
                 vertexBundle.view.offset + getOffset(vertexBundle.attributes, iAttribute));
 
             const formatInfo = GFXFormatInfos[format];
-            const storageConstructor = getStorageConstructor(format);
+            const storageConstructor = getTypedArrayConstructor(GFXFormatInfos[format]);
             const reader = getReader(inputView, format);
             if (!storageConstructor || !reader) {
                 return;
@@ -1125,7 +1199,7 @@ export class Mesh extends Asset {
         }
         const stride = primitive.indexView.stride;
         const ctor = stride === 1 ? Uint8Array : (stride === 2 ? Uint16Array : Uint32Array);
-        return new ctor(this._data, primitive.indexView.offset, primitive.indexView.count);
+        return new ctor(this._data.buffer, primitive.indexView.offset, primitive.indexView.count);
     }
 
     /**
@@ -1195,6 +1269,8 @@ export class Mesh extends Asset {
             return vertexBuffer;
         });
     }
+
+    public morphRendering: MorphRendering | null = null;
 }
 cc.Mesh = Mesh;
 
@@ -1205,39 +1281,6 @@ function getOffset (attributes: IGFXAttribute[], attributeIndex: number) {
         result += GFXFormatInfos[attribute.format].size;
     }
     return result;
-}
-
-type Storage = Uint8Array | Int8Array | Uint16Array | Int16Array | Uint32Array | Int32Array | Float32Array | Float64Array;
-
-type StorageConstructor = Constructor<Storage>;
-
-function getStorageConstructor (format: GFXFormat): StorageConstructor | null {
-    const info = GFXFormatInfos[format];
-    const stride = info.size / info.count;
-    switch (info.type) {
-        case GFXFormatType.UNORM:
-        case GFXFormatType.UINT: {
-            switch (stride) {
-                case 1: return Uint8Array;
-                case 2: return Uint16Array;
-                case 4: return Uint32Array;
-            }
-            break;
-        }
-        case GFXFormatType.SNORM:
-        case GFXFormatType.INT: {
-            switch (stride) {
-                case 1: return Int8Array;
-                case 2: return Int16Array;
-                case 4: return Int32Array;
-            }
-            break;
-        }
-        case GFXFormatType.FLOAT: {
-            return Float32Array;
-        }
-    }
-    return null;
 }
 
 const isLittleEndian = sys.isLittleEndian;
@@ -1336,3 +1379,5 @@ function getWriter (dataView: DataView, format: GFXFormat) {
 
     return null;
 }
+
+// function get

@@ -24,7 +24,7 @@ import { EDITOR, PHYSICS_BUILTIN } from 'internal:constants';
  */
 @ccclass('cc.RigidBodyComponent')
 @executionOrder(99)
-@menu('Components/RigidBody')
+@menu('Physics/RigidBody')
 @executeInEditMode
 @disallowMultiple
 export class RigidBodyComponent extends Component {
@@ -45,7 +45,7 @@ export class RigidBodyComponent extends Component {
     public set allowSleep (v: boolean) {
         this._allowSleep = v;
         if (!EDITOR && !PHYSICS_BUILTIN) {
-            this._body.allowSleep = v;
+            this._body.setAllowSleep(v);
         }
     }
 
@@ -55,7 +55,7 @@ export class RigidBodyComponent extends Component {
      */
     @property({
         displayOrder: 0,
-        tooltip:'刚体的质量',
+        tooltip: '刚体的质量',
     })
     public get mass () {
         return this._mass;
@@ -64,7 +64,7 @@ export class RigidBodyComponent extends Component {
     public set mass (value) {
         this._mass = value;
         if (!EDITOR && !PHYSICS_BUILTIN) {
-            this._body.mass = value;
+            this._body.setMass(value);
         }
     }
 
@@ -74,7 +74,7 @@ export class RigidBodyComponent extends Component {
      */
     @property({
         displayOrder: 1,
-        tooltip:'线性阻尼',
+        tooltip: '线性阻尼',
     })
     public get linearDamping () {
         return this._linearDamping;
@@ -83,7 +83,7 @@ export class RigidBodyComponent extends Component {
     public set linearDamping (value) {
         this._linearDamping = value;
         if (!EDITOR && !PHYSICS_BUILTIN) {
-            this._body.linearDamping = value;
+            this._body.setLinearDamping(value);
         }
     }
 
@@ -93,7 +93,7 @@ export class RigidBodyComponent extends Component {
      */
     @property({
         displayOrder: 2,
-        tooltip:'旋转阻尼',
+        tooltip: '旋转阻尼',
     })
     public get angularDamping () {
         return this._angularDamping;
@@ -102,7 +102,7 @@ export class RigidBodyComponent extends Component {
     public set angularDamping (value) {
         this._angularDamping = value;
         if (!EDITOR && !PHYSICS_BUILTIN) {
-            this._body.angularDamping = value;
+            this._body.setAngularDamping(value);
         }
     }
 
@@ -112,7 +112,7 @@ export class RigidBodyComponent extends Component {
      */
     @property({
         displayOrder: 3,
-        tooltip:'刚体是否由物理系统控制运动',
+        tooltip: '刚体是否由物理系统控制运动',
     })
     public get isKinematic () {
         return this._isKinematic;
@@ -121,7 +121,7 @@ export class RigidBodyComponent extends Component {
     public set isKinematic (value) {
         this._isKinematic = value;
         if (!EDITOR && !PHYSICS_BUILTIN) {
-            this._body.isKinematic = value;
+            this._body.setIsKinematic(value);
         }
     }
 
@@ -131,7 +131,7 @@ export class RigidBodyComponent extends Component {
      */
     @property({
         displayOrder: 4,
-        tooltip:'刚体是否使用重力',
+        tooltip: '刚体是否使用重力',
     })
     public get useGravity () {
         return this._useGravity;
@@ -140,7 +140,7 @@ export class RigidBodyComponent extends Component {
     public set useGravity (value) {
         this._useGravity = value;
         if (!EDITOR && !PHYSICS_BUILTIN) {
-            this._body.useGravity = value;
+            this._body.useGravity(value);
         }
     }
 
@@ -150,7 +150,7 @@ export class RigidBodyComponent extends Component {
      */
     @property({
         displayOrder: 5,
-        tooltip:'刚体是否固定旋转',
+        tooltip: '刚体是否固定旋转',
     })
     public get fixedRotation () {
         return this._fixedRotation;
@@ -159,7 +159,7 @@ export class RigidBodyComponent extends Component {
     public set fixedRotation (value) {
         this._fixedRotation = value;
         if (!EDITOR && !PHYSICS_BUILTIN) {
-            this._body.fixedRotation = value;
+            this._body.fixRotation(value);
         }
     }
 
@@ -169,7 +169,7 @@ export class RigidBodyComponent extends Component {
      */
     @property({
         displayOrder: 6,
-        tooltip:'线性速度的因子，可以用来控制每个轴方向上的速度的缩放',
+        tooltip: '线性速度的因子，可以用来控制每个轴方向上的速度的缩放',
     })
     public get linearFactor () {
         return this._linearFactor;
@@ -178,7 +178,7 @@ export class RigidBodyComponent extends Component {
     public set linearFactor (value: Vec3) {
         Vec3.copy(this._linearFactor, value);
         if (!EDITOR && !PHYSICS_BUILTIN) {
-            this._body.linearFactor = this._linearFactor;
+            this._body.setLinearFactor(this._linearFactor);
         }
     }
 
@@ -188,7 +188,7 @@ export class RigidBodyComponent extends Component {
      */
     @property({
         displayOrder: 7,
-        tooltip:'旋转速度的因子，可以用来控制每个轴方向上的旋转速度的缩放',
+        tooltip: '旋转速度的因子，可以用来控制每个轴方向上的旋转速度的缩放',
     })
     public get angularFactor () {
         return this._angularFactor;
@@ -197,7 +197,7 @@ export class RigidBodyComponent extends Component {
     public set angularFactor (value: Vec3) {
         Vec3.copy(this._angularFactor, value);
         if (!EDITOR && !PHYSICS_BUILTIN) {
-            this._body.angularFactor = this._angularFactor;
+            this._body.setAngularFactor(this._angularFactor);
         }
     }
 
@@ -234,7 +234,7 @@ export class RigidBodyComponent extends Component {
         return false;
     }
 
-    public get rigidBody () {
+    public get body () {
         return this._body;
     }
 
@@ -286,7 +286,7 @@ export class RigidBodyComponent extends Component {
 
     protected __preload () {
         if (!EDITOR && !PHYSICS_BUILTIN) {
-            this._body.__preload!(this);
+            this._body.initialize(this);
         }
     }
 

@@ -1,3 +1,4 @@
+import { ALIPAY, RUNTIME_BASED } from 'internal:constants';
 import { macro } from '../../platform';
 import sys from '../../platform/sys';
 import { GFXBindingLayout, IGFXBindingLayoutInfo } from '../binding-layout';
@@ -5,9 +6,11 @@ import { GFXBuffer, IGFXBufferInfo } from '../buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from '../command-allocator';
 import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
 import {
+    getTypedArrayConstructor,
     GFXBufferTextureCopy,
     GFXFilter,
     GFXFormat,
+    GFXFormatInfos,
     GFXFormatSize,
     GFXQueueType,
     GFXTextureFlagBit,
@@ -31,7 +34,7 @@ import { WebGLGFXBindingLayout } from './webgl-binding-layout';
 import { WebGLGFXBuffer } from './webgl-buffer';
 import { WebGLGFXCommandAllocator } from './webgl-command-allocator';
 import { WebGLGFXCommandBuffer } from './webgl-command-buffer';
-import { WebGLCmdFuncCopyBuffersToTexture, WebGLCmdFuncCopyTexImagesToTexture } from './webgl-commands';
+import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGLCmdFuncCopyBuffersToTexture, WebGLCmdFuncCopyTexImagesToTexture } from './webgl-commands';
 import { WebGLGFXFramebuffer } from './webgl-framebuffer';
 import { WebGLGFXInputAssembler } from './webgl-input-assembler';
 import { WebGLGFXPipelineLayout } from './webgl-pipeline-layout';
@@ -44,7 +47,6 @@ import { WebGLStateCache } from './webgl-state-cache';
 import { WebGLGFXTexture } from './webgl-texture';
 import { WebGLGFXTextureView } from './webgl-texture-view';
 import { WebGLGFXWindow } from './webgl-window';
-import { ALIPAY, RUNTIME_BASED } from 'internal:constants';
 
 export class WebGLGFXDevice extends GFXDevice {
 
@@ -353,6 +355,14 @@ export class WebGLGFXDevice extends GFXDevice {
             this._features[GFXFeature.FORMAT_D24S8] = true;
         }
 
+        if (this._OES_element_index_uint) {
+            this._features[GFXFeature.ELEMENT_INDEX_UINT] = true;
+        }
+
+        if (this._ANGLE_instanced_arrays) {
+            this._features[GFXFeature.INSTANCED_ARRAYS] = true;
+        }
+
         let compressedFormat: string = '';
 
         if (this._WEBGL_compressed_texture_etc1) {
@@ -389,15 +399,11 @@ export class WebGLGFXDevice extends GFXDevice {
                         .getFeature('webgl.extensions.oes_vertex_array_object.revision') > 0 ) {
                     this._useVAO = true;
                 }
-            } else if ((sys.platform !== sys.WECHAT_GAME || sys.os !== sys.OS_IOS)) { this._useVAO = true; }
+            } else { this._useVAO = true; }
         }
 
         if ((sys.platform === sys.WECHAT_GAME && sys.os === sys.OS_ANDROID)) {
             gl.detachShader = () => {}; // Android WeChat may throw errors on detach shader
-        }
-
-        if (this._OES_element_index_uint) {
-            this._features[GFXFeature.ELEMENT_INDEX_UINT] = true;
         }
 
         console.info('RENDERER: ' + this._renderer);
@@ -631,6 +637,7 @@ export class WebGLGFXDevice extends GFXDevice {
         (this._cmdAllocator as WebGLGFXCommandAllocator).releaseCmds();
         const queue = (this._queue as WebGLGFXQueue);
         this._numDrawCalls = queue.numDrawCalls;
+        this._numInstances = queue.numInstances;
         this._numTris = queue.numTris;
         queue.clear();
     }
@@ -662,6 +669,10 @@ export class WebGLGFXDevice extends GFXDevice {
 
         const gl = this._webGLRC!;
         const gpuFramebuffer = (srcFramebuffer as WebGLGFXFramebuffer).gpuFramebuffer;
+        const format = gpuFramebuffer.gpuColorViews[0].format;
+        const glFormat = GFXFormatToWebGLFormat(format, gl);
+        const glType = GFXFormatToWebGLType(format, gl);
+        const ctor = getTypedArrayConstructor(GFXFormatInfos[format]);
 
         const curFBO = this.stateCache.glFramebuffer;
 
@@ -670,7 +681,7 @@ export class WebGLGFXDevice extends GFXDevice {
             this.stateCache.glFramebuffer = gpuFramebuffer.glFramebuffer;
         }
 
-        const view = new Uint8Array(dstBuffer);
+        const view = new ctor(dstBuffer);
 
         for (const region of regions) {
             const buffOffset = region.buffOffset + region.buffTexHeight * region.buffStride;
@@ -678,11 +689,10 @@ export class WebGLGFXDevice extends GFXDevice {
             const w = region.texExtent.width;
             const h = region.texExtent.height;
 
-            const memSize = GFXFormatSize(GFXFormat.RGBA8, w, h, 1);
+            const memSize = GFXFormatSize(format, w, h, 1);
             const data = view.subarray(buffOffset, buffOffset + memSize);
 
-            gl.readPixels(region.texOffset.x, region.texOffset.y, w, h,
-                gl.RGBA, gl.UNSIGNED_BYTE, data);
+            gl.readPixels(region.texOffset.x, region.texOffset.y, w, h, glFormat, glType, data);
         }
 
         if (this.stateCache.glFramebuffer !== curFBO) {

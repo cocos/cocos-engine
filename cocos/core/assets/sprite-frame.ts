@@ -39,6 +39,9 @@ import { RenderTexture } from './render-texture';
 import { Texture2D } from './texture-2d';
 import { TextureBase } from './texture-base';
 import { EDITOR } from 'internal:constants';
+import { Filter } from './asset-enum';
+import { GFXSampler } from '../gfx';
+import { samplerLib } from '../../core/renderer/core/sampler-lib';
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;
@@ -71,6 +74,7 @@ interface ISpriteFramesSerializeData{
     rotated: boolean;
     capInsets: number[];
     vertices: IVertices;
+    texture: string;
 }
 
 interface ISpriteFrameOriginal {
@@ -354,25 +358,15 @@ export class SpriteFrame extends Asset {
     }
 
     get texture () {
-        if (!this._texture) {
-            // @ts-ignore
-            this._texture = this._image && !(window.Editor && Editor.isBuilder) ? this._image._texture : new Texture2D();
-            this._texture.on('load', this._textureLoaded, this);
-        }
-
         return this._texture;
     }
 
-    set texture (value){
-        if (!value){
+    set texture (value) {
+        if (!value) {
             console.warn(`Error Texture in ${this.name}`);
             return;
         }
-
         this.reset({ texture: value }, true);
-        if (this._texture instanceof RenderTexture){
-            this.onLoaded();
-        }
     }
 
     get atlasUuid () {
@@ -391,15 +385,8 @@ export class SpriteFrame extends Asset {
         return this._texture.height;
     }
 
-    set _imageSource (value: ImageAsset) {
-        this._image = value;
-        // const tex = this._texture as Texture2D;
-        // @ts-ignore
-        if (window.Editor && Editor.isBuilder) {
-            return;
-        }
-        this._texture = value._texture;
-        this._texture.on('load', this._textureLoaded, this);
+    set _textureSource (value: TextureBase) {
+        this._refreshTexture(value);
         this._calculateUV();
     }
 
@@ -411,7 +398,6 @@ export class SpriteFrame extends Asset {
      */
     public uv: number[] = [];
     public uvHash: number = 0;
-    public _image: ImageAsset | null = null;
 
     /**
      * @zh
@@ -455,7 +441,7 @@ export class SpriteFrame extends Asset {
      * 返回是否已加载精灵帧。
      */
     public textureLoaded () {
-        return this.loaded;
+        return this.texture.loaded;
     }
 
     /**
@@ -578,8 +564,12 @@ export class SpriteFrame extends Asset {
         this.offset = offset;
     }
 
-    public getGFXTextureView (){
+    public getGFXTextureView () {
         return this._texture.getGFXTextureView();
+    }
+
+    public getGFXSampler () {
+        return this._texture.getGFXSampler();
     }
 
     /**
@@ -588,7 +578,7 @@ export class SpriteFrame extends Asset {
      */
     public reset (info?: ISpriteFrameInitInfo, clearData = false) {
         let calUV = false;
-        if (clearData){
+        if (clearData) {
             this._originalSize.set(0, 0);
             this._rect.set(0, 0, 0 , 0);
             this._offset.set(0, 0);
@@ -602,12 +592,8 @@ export class SpriteFrame extends Asset {
                 this._rect.x = this._rect.y = 0;
                 this._rect.width = info.texture.width;
                 this._rect.height = info.texture.height;
-                if (this._texture){
-                    this._texture.off('load');
-                }
-                this._texture = info.texture;
+                this._refreshTexture(info.texture);
                 this.checkRect(this._texture);
-                this._texture.on('load', this._textureLoaded, this);
             }
 
             if (info.originalSize) {
@@ -653,7 +639,7 @@ export class SpriteFrame extends Asset {
             calUV = true;
         }
 
-        if (calUV){
+        if (calUV && this.texture) {
             this._calculateUV();
         }
     }
@@ -694,10 +680,7 @@ export class SpriteFrame extends Asset {
         this.emit('load');
     }
 
-    public destroy (){
-        if (this._texture){
-            this._texture.off('load');
-        }
+    public destroy () {
         return super.destroy();
     }
 
@@ -734,7 +717,7 @@ export class SpriteFrame extends Asset {
             for (let row = 0; row < 4; ++row) {
                 const rowD = temp_uvs[row];
                 for (let col = 0; col < 4; ++col) {
-                    const colD = temp_uvs[col];
+                    const colD = temp_uvs[3 - col];
                     uvSliced.push({
                         u: rowD.u,
                         v: colD.v,
@@ -870,8 +853,12 @@ export class SpriteFrame extends Asset {
             };
         }
 
+        let texture;
+        if (this._texture) {
+            texture = this._texture._uuid;
+        }
+
         const serialize = {
-            image: this._image ? exporting ? EditorExtends.UuidUtils.compressUuid(this._image._uuid, true) : this._image._uuid : undefined,
             name: this._name,
             atlas: exporting ? undefined : this._atlasUuid,  // strip from json if exporting
             rect,
@@ -880,6 +867,7 @@ export class SpriteFrame extends Asset {
             rotated: this._rotated,
             capInsets: this._capInsets,
             vertices,
+            texture,
         };
 
         // 为 underfined 的数据则不在序列化文件里显示
@@ -913,7 +901,9 @@ export class SpriteFrame extends Asset {
             this._capInsets[INSET_BOTTOM] = capInsets[INSET_BOTTOM];
         }
 
-        handle.result.push(this, '_imageSource', data.image);
+        if (data.texture) {
+            handle.result.push(this, '_textureSource', data.texture);
+        }
 
         if (EDITOR) {
             this._atlasUuid = data.atlas ? data.atlas : '';
@@ -948,6 +938,15 @@ export class SpriteFrame extends Asset {
         if (isReset) {
             this.reset(config);
             this.onLoaded();
+        }
+    }
+
+    protected _refreshTexture (texture: TextureBase) {
+        this._texture = texture;
+        if (texture.loaded) {
+            this._textureLoaded();
+        } else {
+            texture.once('load', this._textureLoaded, this);
         }
     }
 }

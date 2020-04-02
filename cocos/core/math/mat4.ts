@@ -316,7 +316,7 @@ export class Mat4 extends ValueType {
         if (a === out) {
             out.m12 += v.x;
             out.m13 += v.y;
-            out.m14 += v.y;
+            out.m14 += v.z;
         } else {
             out.m00 = a.m00; out.m01 = a.m01; out.m02 = a.m02; out.m03 = a.m03;
             out.m04 = a.m04; out.m05 = a.m05; out.m06 = a.m06; out.m07 = a.m07;

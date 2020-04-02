@@ -3,17 +3,15 @@ import { Material } from '../../assets/material';
 import { RenderingSubMesh } from '../../assets/mesh';
 import { aabb } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
-import { GFXBindingType, GFXBufferUsageBit, GFXGetTypeSize, GFXMemoryUsageBit } from '../../gfx/define';
+import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit } from '../../gfx/define';
 import { GFXDevice } from '../../gfx/device';
 import { GFXPipelineState } from '../../gfx/pipeline-state';
-import { GFXUniformBlock } from '../../gfx/shader';
 import { Mat4, Vec3 } from '../../math';
 import { Pool } from '../../memop';
-import { IInternalBindingInst, UBOForwardLight, UBOLocal } from '../../pipeline/define';
+import { INST_MAT_WORLD, UBOForwardLight, UBOLocal } from '../../pipeline/define';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
 import { IMacroPatch, Pass } from '../core/pass';
-import { customizationManager } from './customization-manager';
 import { RenderScene } from './render-scene';
 import { SubModel } from './submodel';
 
@@ -23,15 +21,16 @@ const _subMeshPool = new Pool(() => {
     return new SubModel();
 }, 32);
 
-function getUniformBlockSize (block: GFXUniformBlock): number {
-    let size = 0;
-    for (const mem of block.members) {
-        size += GFXGetTypeSize(mem.type) * mem.count;
-    }
-    return size;
+export interface IInstancedAttribute {
+    name: string;
+    format: GFXFormat;
+    isNormalized?: boolean;
+    view: ArrayBufferView;
 }
-
-let MODEL_ID = 0;
+export interface IInstancedAttributeBlock {
+    buffer: Uint8Array;
+    list: IInstancedAttribute[];
+}
 
 export enum ModelType {
     DEFAULT,
@@ -42,26 +41,16 @@ export enum ModelType {
     LINE,
 }
 
+function uploadMat4AsVec4x3 (mat: Mat4, v1: ArrayBufferView, v2: ArrayBufferView, v3: ArrayBufferView) {
+    v1[0] = mat.m00; v1[1] = mat.m01; v1[2] = mat.m02; v1[3] = mat.m12;
+    v2[0] = mat.m04; v2[1] = mat.m05; v2[2] = mat.m06; v2[3] = mat.m13;
+    v3[0] = mat.m08; v3[1] = mat.m09; v3[2] = mat.m10; v3[3] = mat.m14;
+}
+
 /**
  * A representation of a model
  */
 export class Model {
-
-    set scene (scene: RenderScene) {
-        this._scene = scene;
-    }
-
-    get scene () {
-        return this._scene!;
-    }
-
-    get id () {
-        return this._id;
-    }
-
-    get type () {
-        return this._type;
-    }
 
     get subModels () {
         return this._subModels;
@@ -75,109 +64,51 @@ export class Model {
         return this._inited;
     }
 
-    set enabled (val) {
-        this._enabled = val;
-    }
-
-    get enabled () {
-        return this._enabled;
-    }
-
-    get node () {
-        return this._node!;
-    }
-
-    set node (node) {
-        this._node = node;
-    }
-
-    get transform () {
-        return this._transform!;
-    }
-
-    set transform (transform) {
-        this._transform = transform;
-    }
-
     get worldBounds () {
         return this._worldBounds;
     }
+
     get modelBounds () {
         return this._modelBounds;
     }
 
-    get visFlags () {
-        return this._visFlags;
+    get lightBuffer () {
+        return this._lightBuffer;
     }
 
-    set visFlags (id: number) {
-        this._visFlags = id;
+    get localBuffer () {
+        return this._localBuffer;
     }
 
-    /**
-     * Set the user key
-     * @param {number} key
-     */
-    set userKey (key: number) {
-        this._userKey = key;
+    get updateStamp () {
+        return this._updateStamp;
     }
 
-    get uboLocal () {
-        return this._uboLocal;
-    }
+    public type = ModelType.DEFAULT;
+    public scene: RenderScene | null = null;
+    public node: Node = null!;
+    public transform: Node = null!;
+    public enabled: boolean = true;
+    public visFlags = Layers.Enum.NONE;
+    public castShadow = false;
+    public isDynamicBatching = false;
+    public instancedAttributes: IInstancedAttributeBlock = { buffer: null!, list: [] };
 
-    get localUBO () {
-        return this._localUBO;
-    }
-
-    get localBindings () {
-        return this._localBindings;
-    }
-
-    get castShadow (): boolean {
-        return this._castShadow;
-    }
-
-    set castShadow (val: boolean) {
-        this._castShadow = val;
-    }
-
-    get isDynamicBatching () {
-        return this._isDynamicBatching;
-    }
-
-    set isDynamicBatching (val: boolean) {
-        this._isDynamicBatching = val;
-    }
-
-    get UBOUpdated () {
-        return this._uboUpdated;
-    }
-
-    protected _type = ModelType.DEFAULT;
     protected _device: GFXDevice;
-    protected _scene: RenderScene | null = null;
-    protected _node: Node | null = null;
-    protected _transform: Node | null = null;
-    protected _id: number = MODEL_ID++;
-    protected _enabled: boolean = true;
-    protected _visFlags = Layers.Enum.NONE;
-    protected _cameraID = -1;
-    protected _userKey = -1;
     protected _worldBounds: aabb | null = null;
     protected _modelBounds: aabb | null = null;
     protected _subModels: SubModel[] = [];
     protected _implantPSOs: GFXPipelineState[] = [];
     protected _matPSORecord = new Map<Material, GFXPipelineState[]>();
     protected _matRefCount = new Map<Material, number>();
-    protected _uboLocal = new UBOLocal();
-    protected _localUBO: GFXBuffer | null = null;
-    protected _localBindings = new Map<string, IInternalBindingInst>();
+    protected _localData = new Float32Array(UBOLocal.COUNT);
+    protected _localBuffer: GFXBuffer | null = null;
+    protected _lightBuffer: GFXBuffer | null = null;
     protected _inited = false;
-    protected _uboUpdated = false;
-    protected _castShadow = false;
-    protected _isDynamicBatching = false;
+    protected _updateStamp = -1;
     protected _transformUpdated = true;
+
+    private _instMatWorldIdx = -1;
 
     /**
      * Setup a default empty model
@@ -187,7 +118,7 @@ export class Model {
     }
 
     public initialize (node: Node) {
-        this._transform = this._node = node;
+        this.transform = this.node = node;
     }
 
     public destroy () {
@@ -195,18 +126,13 @@ export class Model {
             subModel.destroy();
             _subMeshPool.free(subModel);
         }
-        const lbIter = this._localBindings.values();
-        let lbResult = lbIter.next();
-        while (!lbResult.done) {
-            const localBinding = lbResult.value;
-            if (localBinding.buffer) {
-                localBinding.buffer.destroy();
-                localBinding.buffer = undefined;
-            }
-            lbResult = lbIter.next();
+        if (this._localBuffer) {
+            this._localBuffer.destroy();
+            this._localBuffer = null;
         }
-        if (this._localBindings.has(UBOForwardLight.BLOCK.name)) {
-            this._localBindings.delete(UBOForwardLight.BLOCK.name);
+        if (this._lightBuffer) {
+            this._lightBuffer.destroy();
+            this._lightBuffer = null;
         }
         this._worldBounds = null;
         this._modelBounds = null;
@@ -215,23 +141,23 @@ export class Model {
         this._matRefCount.clear();
         this._inited = false;
         this._transformUpdated = true;
-        this._isDynamicBatching = false;
+        this.isDynamicBatching = false;
     }
 
     public attachToScene (scene: RenderScene) {
-        this._scene = scene;
+        this.scene = scene;
     }
 
     public detachFromScene () {
-        this._scene = null;
+        this.scene = null;
     }
 
     public getSubModel (idx: number) {
         return this._subModels[idx];
     }
 
-    public updateTransform () {
-        const node = this._transform!;
+    public updateTransform (stamp: number) {
+        const node = this.transform!;
         // @ts-ignore TS2445
         if (node.hasChangedFlags || node._dirtyFlags) {
             node.updateWorldTransform();
@@ -243,37 +169,31 @@ export class Model {
         }
     }
 
-    public _resetUBOUpdateFlag () {
-        this._uboUpdated = false;
-    }
-
-    public updateUBOs () {
-        if (this._uboUpdated) {
-            return false;
-        }
-        this._uboUpdated = true;
-        if (this._transformUpdated && !this._isDynamicBatching) {
-            // @ts-ignore
-            const worldMatrix = this._transform._mat;
-            Mat4.toArray(this._uboLocal.view, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
-            Mat4.inverseTranspose(m4_1, worldMatrix);
-            Mat4.toArray(this._uboLocal.view, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
-
-            const commonLocal = this._localBindings.get(UBOLocal.BLOCK.name);
-            if (commonLocal && commonLocal.buffer) {
-                commonLocal.buffer!.update(this._uboLocal.view);
-            }
+    public updateUBOs (stamp: number) {
+        if (this._updateStamp === stamp) { return false; }
+        this._updateStamp = stamp;
+        if (this._transformUpdated) {
             this._transformUpdated = false;
+            // @ts-ignore
+            const worldMatrix = this.transform._mat;
+            const idx = this._instMatWorldIdx;
+            if (idx >= 0) {
+                const attrs = this.instancedAttributes!.list;
+                uploadMat4AsVec4x3(worldMatrix, attrs[idx].view, attrs[idx + 1].view, attrs[idx + 2].view);
+            }
+            Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
+            Mat4.inverseTranspose(m4_1, worldMatrix);
+            Mat4.toArray(this._localData, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
+            this._localBuffer!.update(this._localData);
         }
-
         this._matPSORecord.forEach(this._updatePass, this);
         return true;
     }
 
     /**
      * Create the bounding shape of this model
-     * @param {vec3} minPos the min position of the model
-     * @param {vec3} maxPos the max position of the model
+     * @param minPos the min position of the model
+     * @param maxPos the max position of the model
      */
     public createBoundingShape (minPos?: Vec3, maxPos?: Vec3) {
         if (!minPos || !maxPos) { return; }
@@ -303,10 +223,8 @@ export class Model {
     }
 
     public setSubModelMaterial (idx: number, mat: Material | null) {
-        if (this._subModels[idx] == null) {
-            return;
-        }
         this.initLocalBindings(mat);
+        if (!this._subModels[idx]) { return; }
         if (this._subModels[idx].material === mat) {
             if (mat) {
                 this.destroyPipelineStates(mat, this._matPSORecord.get(mat)!);
@@ -337,10 +255,12 @@ export class Model {
                 pass.beginChangeStatesSilently();
                 pass.tryCompile(); // force update shaders
                 pass.endChangeStatesSilently();
-                psos[j] = this.createPipelineState(pass, i);
-                psos[j].pipelineLayout.layouts[0].update();
             }
-            psos.length = mat.passes.length;
+            const newPSOs = this.createPipelineStates(mat, i);
+            psos.length = newPSOs.length;
+            for (let j = 0; j < newPSOs.length; j++) {
+                psos[i] = newPSOs[i];
+            }
         });
         for (let i = 0; i < subModels.length; i++) {
             subModels[i].updateCommandBuffer();
@@ -360,9 +280,9 @@ export class Model {
         const ret = new Array<GFXPipelineState>(mat.passes.length);
         for (let i = 0; i < ret.length; i++) {
             const pass = mat.passes[i];
-            for (const cus of pass.customizations) { customizationManager.attach(cus, this); }
             ret[i] = this.createPipelineState(pass, subModelIdx);
         }
+        if (ret[0]) { this.updateInstancedAttributeList(ret[0], mat.passes[0]); }
         return ret;
     }
 
@@ -370,26 +290,61 @@ export class Model {
         for (let i = 0; i < mat.passes.length; i++) {
             const pass = mat.passes[i];
             pass.destroyPipelineState(pso[i]);
-            for (const cus of pass.customizations) { customizationManager.detach(cus, this); }
         }
     }
 
     protected createPipelineState (pass: Pass, subModelIdx: number, patches?: IMacroPatch[]) {
         const pso = pass.createPipelineState(patches)!;
-        pso.pipelineLayout.layouts[0].bindBuffer(UBOLocal.BLOCK.binding, this._localBindings.get(UBOLocal.BLOCK.name)!.buffer!);
-        if (this._localBindings.has(UBOForwardLight.BLOCK.name)) {
-            pso.pipelineLayout.layouts[0].bindBuffer(UBOForwardLight.BLOCK.binding, this._localBindings.get(UBOForwardLight.BLOCK.name)!.buffer!);
-        }
+        const bindingLayout = pso.pipelineLayout.layouts[0];
+        if (this._localBuffer) { bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer); }
+        if (this._lightBuffer) { bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, this._lightBuffer); }
         return pso;
     }
 
-    protected onSetLocalBindings (mat: Material) {
-        if (!this._localBindings.has(UBOLocal.BLOCK.name)) {
-            this._localBindings.set(UBOLocal.BLOCK.name, {
-                type: GFXBindingType.UNIFORM_BUFFER,
-                blockInfo: UBOLocal.BLOCK,
+    // for now no submodel level instancing attributes
+    protected updateInstancedAttributeList (pso: GFXPipelineState, pass: Pass) {
+        const attributes = pso.inputState.attributes;
+        let size = 0;
+        for (let j = 0; j < attributes.length; j++) {
+            const attribute = attributes[j];
+            if (!attribute.isInstanced) { continue; }
+            size += GFXFormatInfos[attribute.format].size;
+        }
+        const attrs = this.instancedAttributes;
+        attrs.buffer = new Uint8Array(size); attrs.list.length = 0;
+        let offset = 0; const buffer = attrs.buffer.buffer;
+        for (let j = 0; j < attributes.length; j++) {
+            const attribute = attributes[j];
+            if (!attribute.isInstanced) { continue; }
+            const format = attribute.format;
+            const info = GFXFormatInfos[format];
+            const view = new (getTypedArrayConstructor(info))(buffer, offset, info.count);
+            const isNormalized = attribute.isNormalized;
+            offset += info.size; attrs.list.push({ name: attribute.name, format, isNormalized, view });
+        }
+        if (pass.instancedBuffer) { pass.instancedBuffer.destroy(); } // instancing IA changed
+        this._instMatWorldIdx = this.getInstancedAttributeIndex(INST_MAT_WORLD);
+        this._transformUpdated = true;
+    }
+
+    protected getInstancedAttributeIndex (name: string) {
+        const list = this.instancedAttributes.list;
+        for (let i = 0; i < list.length; i++) {
+            if (list[i].name === name) { return i; }
+        }
+        return -1;
+    }
+
+    protected initLocalBindings (mat: Material | null) {
+        if (!this._localBuffer) {
+            this._localBuffer = this._device.createBuffer({
+                usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                size: UBOLocal.SIZE,
+                stride: UBOLocal.SIZE,
             });
         }
+        if (!mat) { return; }
         let hasForwardLight = false;
         for (const p of mat.passes) {
             if (p.bindings.find((b) => b.name === UBOForwardLight.BLOCK.name)) {
@@ -397,38 +352,19 @@ export class Model {
                 break;
             }
         }
-        if (hasForwardLight && cc.director.root!.pipeline.name === 'ForwardPipeline') {
-            if (!this._localBindings.has(UBOForwardLight.BLOCK.name)) {
-                this._localBindings.set(UBOForwardLight.BLOCK.name, {
-                    type: GFXBindingType.UNIFORM_BUFFER,
-                    blockInfo: UBOForwardLight.BLOCK,
-                });
-            }
-        }
-    }
-
-    protected initLocalBindings (mat: Material | null) {
-        if (mat) {
-            this.onSetLocalBindings(mat);
-            const lbIter = this._localBindings.values();
-            let lbResult = lbIter.next();
-            while (!lbResult.done) {
-                const localBinding = lbResult.value;
-                if (!localBinding.buffer) {
-                    localBinding.buffer = this._device.createBuffer({
-                        usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-                        memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                        size: getUniformBlockSize(localBinding.blockInfo!),
-                    });
-                }
-                lbResult = lbIter.next();
-            }
+        if (hasForwardLight && !this._lightBuffer) {
+            this._lightBuffer = this._device.createBuffer({
+                usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                size: UBOForwardLight.SIZE,
+                stride: UBOForwardLight.SIZE,
+            });
         }
     }
 
     private _updatePass (psos: GFXPipelineState[], mat: Material) {
         for (let i = 0; i < mat.passes.length; i++) {
-            mat.passes[i].update();
+            mat.passes[i].update(this._updateStamp);
         }
         for (let i = 0; i < psos.length; i++) {
             psos[i].pipelineLayout.layouts[0].update();

@@ -71,3 +71,29 @@ export class ComponentPath implements ICustomTargetPath {
         return result;
     }
 }
+
+/**
+ * Evaluate a sequence of paths, in order, from specified root.
+ * @param root The root object.
+ * @param path The path sequence.
+ */
+export function evaluatePath (root: any, ...paths: TargetPath[]) {
+    let result = root;
+    for (let iPath = 0; iPath < paths.length; ++iPath) {
+        const path = paths[iPath];
+        if (isPropertyPath(path)) {
+            if (!(path in result)) {
+                error(`Target object has no property "${path}"`);
+                return null;
+            } else {
+                result = result[path];
+            }
+        } else {
+            result = path.get(result);
+        }
+        if (result === null) {
+            break;
+        }
+    }
+    return result;
+}

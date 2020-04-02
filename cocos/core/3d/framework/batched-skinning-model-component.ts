@@ -26,6 +26,7 @@
  * @category model
  */
 
+import { EDITOR } from 'internal:constants';
 import { getWorldTransformUntilRoot } from '../../animation/transform-utils';
 import { Filter, PixelFormat } from '../../assets/asset-enum';
 import { Material } from '../../assets/material';
@@ -41,7 +42,6 @@ import { IGFXAttribute } from '../../gfx/input-assembler';
 import { Mat4, Vec2, Vec3 } from '../../math';
 import { mapBuffer, readBuffer, writeBuffer } from '../misc/buffer';
 import { SkinningModelComponent } from './skinning-model-component';
-import { EDITOR } from 'internal:constants';
 
 const repeat = (n: number) => n - Math.floor(n);
 const batch_id: IGFXAttribute = { name: GFXAttributeName.ATTR_BATCH_ID, format: GFXFormat.R32F, isNormalized: false };
@@ -230,13 +230,13 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
             if (!pass.properties) { continue; }
             for (const prop of Object.keys(pass.properties)) {
                 if (pass.properties[prop].type >= GFXType.SAMPLER1D) { // samplers
-                    let tex: Texture2D = null!;
+                    let tex: Texture2D | null = null;
                     if (this.batchableTextureNames.find((n) => n === prop)) {
                         tex = this._textures[prop];
                         if (!tex) { tex = this.createTexture(prop); }
                         this.cookTextures(tex, prop, i);
                     } else {
-                        this.units.some((u) => tex = u.material && u.material.getProperty(prop, i));
+                        this.units.some((u) => tex = u.material && u.material.getProperty(prop, i) as Texture2D | null);
                     }
                     if (tex) { mat.setProperty(prop, tex, i); }
                 } else { // vectors
@@ -444,7 +444,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
         const texBufferRegions: GFXBufferTextureCopy[] = [];
         for (const unit of this.units) {
             if (!unit.material) { continue; }
-            const partial: Texture2D = unit.material.getProperty(prop, passIdx);
+            const partial = unit.material.getProperty(prop, passIdx) as Texture2D | null;
             if (partial && partial.image && partial.image.data) {
                 const region = new GFXBufferTextureCopy();
                 region.texOffset.x = unit.offset.x * this.atlasSize;
@@ -510,11 +510,6 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
                 pm.indexView.offset = newOffset;
                 newOffset += pm.indexView.length;
             }
-            if (pm.geometricInfo) {
-                newOffset = Math.ceil(newOffset / 4) * 4;
-                pm.geometricInfo.view.offset = newOffset;
-                newOffset += pm.geometricInfo.view.length;
-            }
         }
         // now, we ride!
         const src = mesh.data!; let oldOffset = 0;
@@ -550,17 +545,6 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
                 for (let j = 0; j < newPrimitive.indexView.count; j++) {
                     const srcIndices = src.subarray(oldOffset, oldOffset + oldStride);
                     newMeshData.set(srcIndices, newOffset);
-                    newOffset += newStride; oldOffset += oldStride;
-                }
-            }
-            if (oldPrimitive.geometricInfo && newPrimitive.geometricInfo) {
-                const oldStride = oldPrimitive.geometricInfo.view.stride;
-                const newStride = newPrimitive.geometricInfo.view.stride;
-                oldOffset = oldPrimitive.geometricInfo.view.offset;
-                newOffset = newPrimitive.geometricInfo.view.offset;
-                for (let j = 0; j < newPrimitive.geometricInfo.view.count; j++) {
-                    const srcPositions = src.subarray(oldOffset, oldOffset + oldStride);
-                    newMeshData.set(srcPositions, newOffset);
                     newOffset += newStride; oldOffset += oldStride;
                 }
             }

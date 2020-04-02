@@ -86,16 +86,8 @@ export class BuiltinSharedBody extends BuiltinObject {
     intersects (body: BuiltinSharedBody) {
         for (let i = 0; i < this.shapes.length; i++) {
             const shapeA = this.shapes[i];
-
             for (let j = 0; j < body.shapes.length; j++) {
                 const shapeB = body.shapes[j];
-
-                // first, Check collision filter masks
-                if ((shapeA.collisionFilterGroup & shapeB.collisionFilterMask) === 0 ||
-                    (shapeB.collisionFilterGroup & shapeA.collisionFilterMask) === 0) {
-                    continue;
-                }
-
                 if (intersect.resolve(shapeA.worldShape, shapeB.worldShape)) {
                     this.world.shapeArr.push(shapeA);
                     this.world.shapeArr.push(shapeB);

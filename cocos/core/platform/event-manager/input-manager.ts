@@ -822,13 +822,6 @@ class InputManager {
 
 const inputManager = new InputManager();
 
-game.once(Game.EVENT_ENGINE_INITED, () => {
-    // register system events
-    if (!EDITOR && game.config.registerSystemEvent) {
-        inputManager.registerSystemEvent(game.canvas);
-    }
-});
-
 export default inputManager;
 
 cc.internal.inputManager = inputManager;

@@ -27,6 +27,7 @@
  * @hidden
  */
 
+import { EDITOR } from 'internal:constants';
 import { Material } from '../../assets/material';
 import { Mesh, RenderingSubMesh } from '../../assets/mesh';
 import { Skeleton } from '../../assets/skeleton';
@@ -36,9 +37,10 @@ import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { Mat4, Vec3 } from '../../math';
 import { UBOSkinning } from '../../pipeline/define';
 import { Node } from '../../scene-graph/node';
-import { Pass } from '../core/pass';
+import { Pass, IMacroPatch } from '../core/pass';
 import { Model, ModelType } from '../scene/model';
 import { uploadJointData } from './skeletal-animation-utils';
+import { MorphModel } from './morph-model';
 
 export interface IJointTransform {
     node: Node;
@@ -51,7 +53,7 @@ export interface IJointTransform {
 const stack: IJointTransform[] = [];
 const pool: Map<string, IJointTransform> = new Map();
 
-const patches = [
+const myPatches = [
     { name: 'CC_USE_SKINNING', value: true },
 ];
 
@@ -145,7 +147,7 @@ const ab_1 = new aabb();
  * @zh
  * 实时计算动画的蒙皮模型。
  */
-export class SkinningModel extends Model {
+export class SkinningModel extends MorphModel {
 
     public uploadAnimation = null;
 
@@ -156,7 +158,7 @@ export class SkinningModel extends Model {
 
     constructor () {
         super();
-        this._type = ModelType.SKINNING;
+        this.type = ModelType.SKINNING;
     }
 
     public destroy () {
@@ -176,7 +178,7 @@ export class SkinningModel extends Model {
         }
         this._bufferIndices = null; this._joints.length = 0;
         if (!skeleton || !skinningRoot || !mesh) { return; }
-        this._transform = skinningRoot;
+        this.transform = skinningRoot;
         const boneSpaceBounds = mesh.getBoneSpaceBounds(skeleton);
         const jointMaps = mesh.struct.jointMaps;
         this._ensureEnoughBuffers(jointMaps && jointMaps.length || 1);
@@ -195,15 +197,14 @@ export class SkinningModel extends Model {
         }
     }
 
-    public updateTransform () {
-        const root = this._transform!;
+    public updateTransform (stamp: number) {
+        const root = this.transform!;
         // @ts-ignore TS2445
         if (root.hasChangedFlags || root._dirtyFlags) {
             root.updateWorldTransform();
             this._transformUpdated = true;
         }
         // update bounds
-        const stamp = cc.director.getTotalFrames();
         Vec3.set(v3_min,  Infinity,  Infinity,  Infinity);
         Vec3.set(v3_max, -Infinity, -Infinity, -Infinity);
         for (let i = 0; i < this._joints.length; i++) {
@@ -221,8 +222,8 @@ export class SkinningModel extends Model {
         }
     }
 
-    public updateUBOs () {
-        if (!super.updateUBOs()) { return false; }
+    public updateUBOs (stamp: number) {
+        if (!super.updateUBOs(stamp)) { return false; }
         for (let i = 0; i < this._joints.length; i++) {
             const { indices, buffers, transform, bindpose } = this._joints[i];
             Mat4.multiply(m4_1, transform.world, bindpose);
@@ -243,8 +244,11 @@ export class SkinningModel extends Model {
         subMeshData.vertexBuffers = original;
     }
 
-    protected createPipelineState (pass: Pass, subModelIdx: number) {
-        const pso = super.createPipelineState(pass, subModelIdx, patches);
+    protected createPipelineState (pass: Pass, subModelIdx: number, patches?: IMacroPatch[]) {
+        if (EDITOR && pass.instancedBuffer) {
+            console.warn('real-time skeletal animation doesn\'t support instancing, expect rendering anomalies');
+        }
+        const pso = super.createPipelineState(pass, subModelIdx, patches?.concat(myPatches) ?? myPatches);
         const bindingLayout = pso.pipelineLayout.layouts[0];
         const buffer = this._buffers[this._bufferIndices![subModelIdx]];
         if (buffer) { bindingLayout.bindBuffer(UBOSkinning.BLOCK.binding, buffer); }

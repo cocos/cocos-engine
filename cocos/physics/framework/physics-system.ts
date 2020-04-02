@@ -40,7 +40,7 @@ export class PhysicsSystem extends System {
     set allowSleep (v: boolean) {
         this._allowSleep = v;
         if (!EDITOR && !PHYSICS_BUILTIN) {
-            this.physicsWorld.allowSleep = this._allowSleep;
+            this.physicsWorld.setAllowSleep(v);
         }
     }
 
@@ -103,7 +103,7 @@ export class PhysicsSystem extends System {
     set gravity (gravity: Vec3) {
         this._gravity.set(gravity);
         if (!EDITOR && !PHYSICS_BUILTIN) {
-            this.physicsWorld.gravity = gravity;
+            this.physicsWorld.setGravity(gravity);
         }
     }
 
@@ -150,7 +150,7 @@ export class PhysicsSystem extends System {
     // private _frameRate = 60;
     // private _singleStep = false;
 
-    private readonly _material: PhysicMaterial | null = null;
+    private readonly _material!: PhysicMaterial;
 
     private readonly raycastOptions: IRaycastOptions = {
         'group': -1,
@@ -173,7 +173,7 @@ export class PhysicsSystem extends System {
             this._material.friction = 0.5;
             this._material.restitution = 0.0;
             this._material.on('physics_material_update', this._updateMaterial, this);
-            this.physicsWorld.defaultMaterial = this._material;
+            this.physicsWorld.setDefaultMaterial(this._material);
         }
     }
 
@@ -240,7 +240,7 @@ export class PhysicsSystem extends System {
 
     private _updateMaterial () {
         if (!PHYSICS_BUILTIN) {
-            this.physicsWorld.defaultMaterial = this._material;
+            this.physicsWorld.setDefaultMaterial(this._material);
         }
     }
 }

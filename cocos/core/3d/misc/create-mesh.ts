@@ -156,25 +156,10 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: createMes
     }
 
     // Create primitive.
-    const primitive: Mesh.ISubmesh = {
+    const primitive: Mesh.ISubMesh = {
         primitiveMode: geometry.primitiveMode || GFXPrimitiveMode.TRIANGLE_LIST,
         vertexBundelIndices: [0],
     };
-    // geometric info for raycasting
-    if (primitive.primitiveMode >= GFXPrimitiveMode.TRIANGLE_LIST) {
-        const geomInfo = Float32Array.from(geometry.positions);
-        bufferBlob.setNextAlignment(4);
-        primitive.geometricInfo = {
-            doubleSided: geometry.doubleSided,
-            view: {
-                offset: bufferBlob.getLength(),
-                length: geomInfo.byteLength,
-                count: geometry.positions.length / 4,
-                stride: 4,
-            },
-        };
-        bufferBlob.addBuffer(geomInfo.buffer);
-    }
 
     if (indexBuffer) {
         bufferBlob.setNextAlignment(idxStride);

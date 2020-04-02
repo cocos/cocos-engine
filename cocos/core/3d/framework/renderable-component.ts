@@ -3,13 +3,13 @@
  */
 
 // @ts-check
+import { EDITOR } from 'internal:constants';
 import { Material } from '../../assets/material';
 import { Component } from '../../components/component';
 import { ccclass, property } from '../../data/class-decorator';
 import { IMaterialInstanceInfo, MaterialInstance } from '../../renderer/core/material-instance';
 import { Model } from '../../renderer/scene/model';
 import { Layers } from '../../scene-graph/layers';
-import { EDITOR } from 'internal:constants';
 
 const _matInsInfo: IMaterialInstanceInfo = {
     parent: null!,
@@ -117,9 +117,10 @@ export class RenderableComponent extends Component {
             console.error('Can\'t set a material instance to a sharedMaterial slot');
         }
         this._materials[index] = material;
-        if (this._materialInstances[index]) {
-            if (this._materialInstances[index]!.parent !== this._materials[index]) {
-                this._materialInstances[index]!.destroy();
+        const inst = this._materialInstances[index];
+        if (inst) {
+            if (inst.parent !== this._materials[index]) {
+                inst.destroy();
                 this._materialInstances[index] = null;
                 this._onMaterialModified(index, this._materials[index]);
             }
