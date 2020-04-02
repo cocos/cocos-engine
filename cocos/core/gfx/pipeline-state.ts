@@ -136,7 +136,7 @@ export class GFXBlendTarget {
 export class GFXBlendState {
     public isA2C: boolean = false;
     public isIndepend: boolean = false;
-    public blendColor: IGFXColor[] = [{ r: 0, g: 0, b: 0, a: 0 }];
+    public blendColor: IGFXColor = { r: 0, g: 0, b: 0, a: 0 };
     public targets: GFXBlendTarget[] = [new GFXBlendTarget()];
 }
 
