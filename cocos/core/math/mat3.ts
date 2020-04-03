@@ -35,7 +35,8 @@ import { EPSILON } from './utils';
 import { Vec3 } from './vec3';
 
 /**
- * 表示三维（3x3）矩阵。
+ * @en Mathematical 3x3 matrix.
+ * @zh 表示三维（3x3）矩阵。
  */
 // tslint:disable:one-variable-per-declaration
 export class Mat3 extends ValueType {
@@ -43,6 +44,7 @@ export class Mat3 extends ValueType {
     public static IDENTITY = Object.freeze(new Mat3());
 
     /**
+     * @en Clone a matrix.
      * @zh 获得指定矩阵的拷贝
      */
     public static clone <Out extends IMat3Like> (a: Out) {
@@ -54,6 +56,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Copy content of a matrix into another.
      * @zh 复制目标矩阵
      */
     public static copy <Out extends IMat3Like> (out: Out, a: Out) {
@@ -70,6 +73,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Sets the elements of a matrix to the given values.
      * @zh 设置矩阵值
      */
     public static set <Out extends IMat3Like>  (
@@ -85,6 +89,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en return an identity matrix.
      * @zh 将目标赋值为单位矩阵
      */
     public static identity <Out extends IMat3Like> (out: Out) {
@@ -101,6 +106,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Transposes a matrix.
      * @zh 转置矩阵
      */
     public static transpose <Out extends IMat3Like> (out: Out, a: Out) {
@@ -131,6 +137,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Inverts a matrix.When matrix is not invertible will return a matrix of all zeros.
      * @zh 矩阵求逆，注意，在矩阵不可逆时，会返回一个全为 0 的矩阵。
      */
     public static invert <Out extends IMat3Like> (out: Out, a: Out) {
@@ -166,6 +173,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Calculates the determinant of a matrix.
      * @zh 矩阵行列式
      */
     public static determinant <Out extends IMat3Like> (a: Out) {
@@ -177,6 +185,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Multiply two matrices explicitly.
      * @zh 矩阵乘法
      */
     public static multiply <Out extends IMat3Like> (out: Out, a: Out, b: Out) {
@@ -203,6 +212,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Take the first third order of the fourth order matrix and multiply by the third order matrix
      * @zh 取四阶矩阵的前三阶，与三阶矩阵相乘
      */
     public static multiplyMat4 <Out extends IMat3Like> (out: Out, a: Out, b: IMat4Like) {
@@ -229,6 +239,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Multiply a matrix with a translation matrix given by a translation offset.
      * @zh 在给定矩阵变换基础上加入变换
      * @deprecated 将在 1.2 移除，请转用 `Mat3.transform` 方法。
      */
@@ -237,6 +248,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Multiply a matrix with a translation matrix given by a translation offset.
      * @zh 在给定矩阵变换基础上加入变换
      */
     public static transform <Out extends IMat3Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
@@ -260,6 +272,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Multiply a matrix with a scale matrix given by a scale vector.
      * @zh 在给定矩阵变换基础上加入新缩放变换
      */
     public static scale <Out extends IMat3Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
@@ -280,6 +293,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Rotates a matrix by the given angle.
      * @zh 在给定矩阵变换基础上加入新旋转变换
      * @param rad 旋转弧度
      */
@@ -306,6 +320,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Copies the upper-left 3x3 values of a 4x4 matrix into a 3x3 matrix.
      * @zh 取四阶矩阵的前三阶
      */
     public static fromMat4 <Out extends IMat3Like> (out: Out, a: IMat4Like) {
@@ -322,6 +337,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Calculates a 3x3 matrix from view direction and up direction.
      * @zh 根据视口前方向和上方向计算矩阵
      * @param view 视口面向的前方向，必须归一化
      * @param up 视口的上方向，必须归一化，默认为 (0, 1, 0)
@@ -352,6 +368,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Creates a matrix from a translation offset.
      * @zh 计算位移矩阵
      */
     public static fromTranslation <Out extends IMat3Like, VecLike extends IVec2Like> (out: Out, v: VecLike) {
@@ -368,6 +385,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Creates a matrix from a scale vector.
      * @zh 计算缩放矩阵
      */
     public static fromScaling <Out extends IMat3Like, VecLike extends IVec2Like> (out: Out, v: VecLike) {
@@ -386,6 +404,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Creates a matrix from a given angle.
      * @zh 计算旋转矩阵
      */
     public static fromRotation <Out extends IMat3Like> (out: Out, rad: number) {
@@ -406,6 +425,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Calculates a 3x3 matrix from the given quaternion.
      * @zh 根据四元数旋转信息计算矩阵
      */
     public static fromQuat <Out extends IMat3Like> (out: Out, q: IQuatLike) {
@@ -440,6 +460,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en calculation the upper-left 3x3 values of a 4x4 matrix inverse transpose matrix
      * @zh 计算指定四维矩阵的逆转置三维矩阵
      */
     public static inverseTransposeMat4 <Out extends IMat3Like> (out: Out, a: IMat4Like) {
@@ -485,6 +506,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Matrix transpose array
      * @zh 矩阵转数组
      * @param ofs 数组内的起始偏移量
      */
@@ -502,6 +524,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Transfer matrix array
      * @zh 数组转矩阵
      * @param ofs 数组起始偏移量
      */
@@ -519,6 +542,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Adds two matrices.
      * @zh 逐元素矩阵加法
      */
     public static add <Out extends IMat3Like> (out: Out, a: Out, b: Out) {
@@ -535,6 +559,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Subtracts matrix b from matrix a.
      * @zh 逐元素矩阵减法
      */
     public static subtract <Out extends IMat3Like> (out: Out, a: Out, b: Out) {
@@ -551,6 +576,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Multiply each element of a matrix by a scalar number.
      * @zh 矩阵标量乘法
      */
     public static multiplyScalar <Out extends IMat3Like> (out: Out, a: Out, b: number) {
@@ -567,6 +593,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Adds two matrices after multiplying each element of the second operand by a scalar number.
      * @zh 逐元素矩阵标量乘加: A + B * scale
      */
     public static multiplyScalarAndAdd <Out extends IMat3Like> (out: Out, a: Out, b: Out, scale: number) {
@@ -583,6 +610,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Returns whether the specified matrices are equal.
      * @zh 矩阵等价判断
      */
     public static strictEquals <Out extends IMat3Like> (a: Out, b: Out) {
@@ -592,6 +620,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Returns whether the specified matrices are approximately equal.
      * @zh 排除浮点数误差的矩阵近似等价判断
      */
     public static equals <Out extends IMat3Like> (a: Out, b: Out, epsilon = EPSILON) {
@@ -609,47 +638,56 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * 矩阵第 0 列第 0 行的元素。
+     * @en Value assigned to element at column 0 row 0.
+     * @zh 矩阵第 0 列第 0 行的元素。
      */
     public declare m00: number;
 
     /**
-     * 矩阵第 0 列第 1 行的元素。
+     * @en Value assigned to element at column 0 row 1.
+     * @zh 矩阵第 0 列第 1 行的元素。
      */
     public declare m01: number;
 
     /**
-     * 矩阵第 0 列第 2 行的元素。
+     * @en Value assigned to element at column 0 row 2.
+     * @zh 矩阵第 0 列第 2 行的元素。
      */
     public declare m02: number;
 
     /**
-     * 矩阵第 1 列第 0 行的元素。
+     * @en Value assigned to element at column 1 row 0.
+     * @zh 矩阵第 1 列第 0 行的元素。
      */
     public declare m03: number;
 
     /**
-     * 矩阵第 1 列第 1 行的元素。
+     * @en Value assigned to element at column 1 row 1.
+     * @zh 矩阵第 1 列第 1 行的元素。
      */
     public declare m04: number;
 
     /**
-     * 矩阵第 1 列第 2 行的元素。
+     * @en Value assigned to element at column 1 row 2.
+     * @zh 矩阵第 1 列第 2 行的元素。
      */
     public declare m05: number;
 
     /**
-     * 矩阵第 2 列第 0 行的元素。
+     * @en Value assigned to element at column 2 row 0.
+     * @zh 矩阵第 2 列第 0 行的元素。
      */
     public declare m06: number;
 
     /**
-     * 矩阵第 2 列第 1 行的元素。
+     * @en Value assigned to element at column 2 row 1.
+     * @zh 矩阵第 2 列第 1 行的元素。
      */
     public declare m07: number;
 
     /**
-     * 矩阵第 2 列第 2 行的元素。
+     * @en Value assigned to element at column 2 row 2.
+     * @zh 矩阵第 2 列第 2 行的元素。
      */
     public declare m08: number;
 
@@ -677,6 +715,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Clone a new matrix from the current matrix.
      * @zh 克隆当前矩阵。
      */
     public clone () {
@@ -688,6 +727,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Sets the matrix with another one's value.
      * @zh 设置当前矩阵使其与指定矩阵相等。
      * @param other 相比较的矩阵。
      * @return this
@@ -695,7 +735,8 @@ export class Mat3 extends ValueType {
     public set (other: Mat3);
 
     /**
-     * 设置当前矩阵指定元素值。
+     * @en Set the matrix with value.
+     * @zh 设置当前矩阵指定元素值。
      * @return this
      */
     public set (m00?: number, m01?: number, m02?: number,
@@ -718,6 +759,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Returns whether the specified matrices are approximately equal.
      * @zh 判断当前矩阵是否在误差范围内与指定矩阵相等。
      * @param other 相比较的矩阵。
      * @param epsilon 允许的误差，应为非负数。
@@ -738,6 +780,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Returns whether the specified matrices are equal.
      * @zh 判断当前矩阵是否与指定矩阵相等。
      * @param other 相比较的矩阵。
      * @return 两矩阵的各元素都分别相等时返回 `true`；否则返回 `false`。
@@ -749,7 +792,8 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * 返回当前矩阵的字符串表示。
+     * @en Returns a string representation of a matrix.
+     * @zh 返回当前矩阵的字符串表示。
      * @return 当前矩阵的字符串表示。
      */
     public toString () {
@@ -762,7 +806,8 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * 将当前矩阵设为单位矩阵。
+     * @en set the current matrix to an identity matrix.
+     * @zh 将当前矩阵设为单位矩阵。
      * @return `this`
      */
     public identity () {
@@ -779,6 +824,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Transposes the current matrix.
      * @zh 计算当前矩阵的转置矩阵。
      */
     public transpose () {
@@ -793,6 +839,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Inverts the current matrix. When matrix is not invertible will return a matrix of all zeros.
      * @zh 计算当前矩阵的逆矩阵。注意，在矩阵不可逆时，会返回一个全为 0 的矩阵。
      */
     public invert () {
@@ -826,7 +873,8 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * 计算当前矩阵的行列式。
+     * @en Calculates the determinant of the current matrix.
+     * @zh 计算当前矩阵的行列式。
      * @return 当前矩阵的行列式。
      */
     public determinant (): number {
@@ -838,6 +886,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Adds the current matrix and another matrix to the current matrix.
      * @zh 矩阵加法。将当前矩阵与指定矩阵的相加，结果返回给当前矩阵。
      * @param mat 相加的矩阵
      */
@@ -855,6 +904,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Subtracts another matrix from the current matrix.
      * @zh 计算矩阵减法。将当前矩阵减去指定矩阵的结果赋值给当前矩阵。
      * @param mat 减数矩阵。
      */
@@ -872,6 +922,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Multiply the current matrix with another matrix.
      * @zh 矩阵乘法。将当前矩阵左乘指定矩阵的结果赋值给当前矩阵。
      * @param mat 指定的矩阵。
      */
@@ -899,6 +950,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Multiply each element of the current matrix by a scalar number.
      * @zh 矩阵数乘。将当前矩阵与指定标量的数乘结果赋值给当前矩阵。
      * @param scalar 指定的标量。
      */
@@ -916,6 +968,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Multiply the current matrix with a scale matrix given by a scale vector.
      * @zh 将当前矩阵左乘缩放矩阵的结果赋值给当前矩阵，缩放矩阵由各个轴的缩放给出。
      * @param vec 各个轴的缩放。
      */
@@ -937,6 +990,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Rotates the current matrix by the given angle.
      * @zh 将当前矩阵左乘旋转矩阵的结果赋值给当前矩阵，旋转矩阵由旋转轴和旋转角度给出。
      * @param mat 矩阵
      * @param rad 旋转角度（弧度制）
@@ -964,6 +1018,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Calculates the current matrix from the given quaternion.
      * @zh 重置当前矩阵的值，使其表示指定四元数表示的旋转变换。
      * @param q 四元数表示的旋转变换。
      * @returns this

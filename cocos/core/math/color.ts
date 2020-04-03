@@ -36,6 +36,8 @@ import { clamp, EPSILON } from './utils';
 const toFloat = 1 / 255;
 
 /**
+ * @en Representation of RGBA colors.<br/>
+ * Each color component is a floating point value with a range from 0 to 255.<br/>
  * @zh 通过 Red、Green、Blue 颜色通道表示颜色，并通过 Alpha 通道表示不透明度。<br/>
  * 每个通道都为取值范围 [0, 255] 的整数。<br/>
  */
@@ -53,6 +55,7 @@ export class Color extends ValueType {
     public static YELLOW = Object.freeze(new Color(255, 255, 0, 255));
 
     /**
+     * @en Copy content of a color into another.
      * @zh 获得指定颜色的拷贝
      */
     public static clone<Out extends IColorLike> (a: Out) {
@@ -66,6 +69,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Clone a color.
      * @zh 复制目标颜色
      */
     public static copy<Out extends IColorLike> (out: Out, a: Out) {
@@ -77,6 +81,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Set the components of a color to the given values.
      * @zh 设置颜色值
      */
     public static set<Out extends IColorLike> (out: Out, r: number, g: number, b: number, a: number) {
@@ -88,6 +93,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Converts the hexadecimal formal color into rgb formal.
      * @zh 从十六进制颜色字符串中读入颜色到 out 中
      */
     public static fromHEX<Out extends IColorLike> (out: Out, hexString: string) {
@@ -101,6 +107,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Add components of two colors, respectively.
      * @zh 逐通道颜色加法
      */
     public static add<Out extends IColorLike> (out: Out, a: Out, b: Out) {
@@ -112,6 +119,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Subtract components of color b from components of color a, respectively.
      * @zh 逐通道颜色减法
      */
     public static subtract<Out extends IColorLike> (out: Out, a: Out, b: Out) {
@@ -123,6 +131,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Multiply components of two colors, respectively.
      * @zh 逐通道颜色乘法
      */
     public static multiply<Out extends IColorLike> (out: Out, a: Out, b: Out) {
@@ -134,6 +143,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Divide components of color a by components of color b, respectively.
      * @zh 逐通道颜色除法
      */
     public static divide<Out extends IColorLike> (out: Out, a: Out, b: Out) {
@@ -145,6 +155,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Scales a color by a number.
      * @zh 全通道统一缩放颜色
      */
     public static scale<Out extends IColorLike> (out: Out, a: Out, b: number) {
@@ -156,6 +167,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Performs a linear interpolation between two colors.
      * @zh 逐通道颜色线性插值：A + t * (B - A)
      */
     public static lerp<Out extends IColorLike> (out: Out, from: Out, to: Out, ratio: number) {
@@ -172,6 +184,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Turn an array of colors
      * @zh 颜色转数组
      * @param ofs 数组起始偏移量
      */
@@ -185,6 +198,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en An array of colors turn
      * @zh 数组转颜色
      * @param ofs 数组起始偏移量
      */
@@ -197,6 +211,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Analyzing the equivalent color
      * @zh 颜色等价判断
      */
     public static strictEquals<Out extends IColorLike> (a: Out, b: Out) {
@@ -204,6 +219,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Negative floating point error is approximately equivalent to determining a color
      * @zh 排除浮点数误差的颜色近似等价判断
      */
     public static equals<Out extends IColorLike> (a: Out, b: Out, epsilon = EPSILON) {
@@ -214,6 +230,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en convert Color to value.
      * @zh 获取指定颜色的整型数据表示
      */
     public static hex<Out extends IColorLike> (a: Out) {
@@ -221,6 +238,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Get or set red channel value.
      * @zh 获取或设置当前颜色的 Red 通道。
      */
     get r () {
@@ -233,6 +251,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Get or set green channel value.
      * @zh 获取或设置当前颜色的 Green 通道。
      */
     get g () {
@@ -245,6 +264,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Get or set blue channel value.
      * @zh 获取或设置当前颜色的 Blue 通道。
      */
     get b () {
@@ -256,8 +276,8 @@ export class Color extends ValueType {
         this._val = ((this._val & 0xff00ffff) | (blue << 16)) >>> 0;
     }
 
-    /**
-     * @zh 获取或设置当前颜色的 Alpha 通道。
+    /**@en Get or set alpha channel value.
+     * @zh 获取或设置当前颜色的透明度通道。
      */
     get a () {
         return (this._val & 0xff000000) >>> 24;
@@ -281,12 +301,14 @@ export class Color extends ValueType {
     public _val = 0;
 
     /**
-     * 构造与指定颜色相等的颜色。
+     * @en constructor a color from the specified color.
+     * @zh 构造与指定颜色相等的颜色。
      * @param other 指定的颜色。
      */
     constructor (other: Color);
 
     /**
+     * @en constructor a color from the hexString.
      * @zh 用十六进制颜色字符串中构造颜色。
      * @param hexString 十六进制颜色字符串。
      */
@@ -294,6 +316,7 @@ export class Color extends ValueType {
     constructor (hexString: string);
 
     /**
+     * @en constructor a color by the channel value.
      * @zh 构造具有指定通道的颜色。
      * @param [r=0] 指定的 Red 通道。
      * @param [g=0] 指定的 Green 通道。
@@ -312,6 +335,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Clone a new color from the current color.
      * @zh 克隆当前颜色。
      */
     public clone () {
@@ -321,6 +345,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Analyzing the equivalent color
      * @zh 判断当前颜色是否与指定颜色相等。
      * @param other 相比较的颜色。
      * @returns 两颜色的各通道都相等时返回 `true`；否则返回 `false`。
@@ -330,6 +355,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Calculate linear interpolation result between this color and another one with given ratio。
      * @zh 根据指定的插值比率，从当前颜色到目标颜色之间做插值。
      * @param to 目标颜色。
      * @param ratio 插值比率，范围为 [0,1]。
@@ -348,6 +374,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Transform to string with color informations
      * @zh 返回当前颜色的字符串表示。
      * @returns 当前颜色的字符串表示。
      */
@@ -360,6 +387,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Convert color to css format.
      * @zh 将当前颜色转换为 CSS 格式。
      * @param opt 格式选项。
      * @returns 当前颜色的 CSS 格式。
@@ -384,6 +412,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en en Read hex string and store color data into the current color object, the hex string must be formated as rgba or rgb.
      * @zh 从十六进制颜色字符串中读入当前颜色。<br/>
      * 十六进制颜色字符串应该以可选的 "#" 开头，紧跟最多 8 个代表十六进制数字的字符；<br/>
      * 每两个连续字符代表的数值依次作为 Red、Green、Blue 和 Alpha 通道；<br/>
@@ -402,6 +431,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en convert Color to HEX color string.
      * @zh 转换当前颜色为十六进制颜色字符串。
      * @param fmt 格式选项。
      * - `'#rrggbbaa'` 获取Red、Green、Blue、Alpha通道的十六进制值（**两位**，高位补 0）并依次连接；
@@ -439,6 +469,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Convert to rgb value.
      * @zh 将当前颜色转换为 RGB 整数值。
      * @returns RGB 整数值。从最低有效位开始，每8位分别是 Red、Green、Blue 通道的值。
      * @example
@@ -452,6 +483,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Read HSV model color and convert to RGB color.
      * @zh 从 HSV 颜色中读入当前颜色。
      * @param h H 通道。
      * @param s S 通道。
@@ -529,6 +561,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Transform to HSV model color.
      * @zh 转换当前颜色为 HSV 颜色。
      * @returns HSV 颜色。成员 `h`、`s`、`v` 分别代表 HSV 颜色的 H、S、V 通道。
      * @example
@@ -563,6 +596,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Set the color.
      * @zh 设置当前颜色使其与指定颜色相等。
      * @param other 相比较的颜色。
      * @overload 重载
@@ -595,6 +629,7 @@ export class Color extends ValueType {
     }
 
     /**
+     * @en Multiplies the current color by the specified color.
      * @zh 将当前颜色乘以与指定颜色
      * @param other 指定的颜色。
      */

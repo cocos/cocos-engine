@@ -33,7 +33,8 @@ import { ValueType } from '../value-types/value-type';
 import { ISizeLike } from './type-define';
 
 /**
- * 二维尺寸。
+ * @en Size
+ * @zh 二维尺寸。
  */
 export class Size extends ValueType {
 
@@ -41,7 +42,8 @@ export class Size extends ValueType {
     public static ONE = Object.freeze(new Size(1, 1));
 
     /**
-     * 根据指定的插值比率，从当前尺寸到目标尺寸之间做插值。
+     * @en Calculate the interpolation result between this size and another one with given ratio
+     * @zh 根据指定的插值比率，从当前尺寸到目标尺寸之间做插值。
      * @param out 本方法将插值结果赋值给此参数
      * @param from 起始尺寸。
      * @param to 目标尺寸。
@@ -61,23 +63,27 @@ export class Size extends ValueType {
     get y () { return this.height; }
 
     /**
-     * 宽度。
+     * @en width
+     * @zh 宽度
      */
     public declare width: number;
 
     /**
-     * 高度。
+     * @en height
+     * @zh 高度
      */
     public declare height: number;
 
     /**
-     * 构造与指定尺寸相等的尺寸。
+     * @en Constructor a size from another one.
+     * @zh 构造与指定尺寸相等的尺寸。
      * @param other 相比较的尺寸。
      */
     constructor (other: Size);
 
     /**
-     * 构造具有指定宽度和高度的尺寸。
+     * @en Constructor a size with specified values.
+     * @zh 构造具有指定宽度和高度的尺寸。
      * @param [width=0] 指定的宽度。
      * @param [height=0] 指定的高度。
      */
@@ -95,21 +101,24 @@ export class Size extends ValueType {
     }
 
     /**
-     * 克隆当前尺寸。
+     * @en clone the current Size.
+     * @zh 克隆当前尺寸。
      */
     public clone () {
         return new Size(this.width, this.height);
     }
 
     /**
-     * 设置当前尺寸使其与指定的尺寸相等。
+     * @en Set values with another Size.
+     * @zh 设置当前尺寸使其与指定的尺寸相等。
      * @param other 相比较的尺寸。
      * @returns `this`
      */
     public set (other: Size);
 
     /**
-     * 设置当前尺寸的具体参数。
+     * @en Set the value of each component of the current Size.
+     * @zh 设置当前尺寸的具体参数。
      * @param width 要设置的 width 值
      * @param height 要设置的 height 值
      * @returns `this`
@@ -128,7 +137,8 @@ export class Size extends ValueType {
     }
 
     /**
-     * 判断当前尺寸是否与指定尺寸的相等。
+     * @en Check whether the current Size equals another one.
+     * @zh 判断当前尺寸是否与指定尺寸的相等。
      * @param other 相比较的尺寸。
      * @returns 两尺寸的宽和高都分别相等时返回 `true`；否则返回 `false`。
      */
@@ -138,7 +148,8 @@ export class Size extends ValueType {
     }
 
     /**
-     * 根据指定的插值比率，从当前尺寸到目标尺寸之间做插值。
+     * @en Calculate the interpolation result between this size and another one with given ratio
+     * @zh 根据指定的插值比率，从当前尺寸到目标尺寸之间做插值。
      * @param to 目标尺寸。
      * @param ratio 插值比率，范围为 [0,1]。
      */
@@ -149,7 +160,8 @@ export class Size extends ValueType {
     }
 
     /**
-     * 返回当前尺寸的字符串表示。
+     * @en Output size informations to string
+     * @zh 返回当前尺寸的字符串表示。
      * @returns 当前尺寸的字符串表示。
      */
     public toString () {
@@ -160,14 +172,16 @@ export class Size extends ValueType {
 CCClass.fastDefine('cc.Size', Size, { width: 0, height: 0 });
 
 /**
- * 等价于 `new Size(other)`。
+ * @en new a Size object.
+ * @zh 等价于 `new Size(other)`。
  * @param other 相比较的尺寸。
  * @returns `new Size(other)`
  */
 export function size (other: Size): Size;
 
 /**
- * 等价于 `new Size(x, y)`。
+ * @en new a Size object.
+ * @zh 等价于 `new Size(x, y)`。
  * @param [x=0] 指定的宽度。
  * @param [y=0] 指定的高度。
  * @returns `new Size(x, y)`

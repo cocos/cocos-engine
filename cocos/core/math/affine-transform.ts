@@ -35,18 +35,21 @@ import { Size } from './size';
 import { Vec2 } from './vec2';
 
 /**
- * 二维仿射变换矩阵，描述了平移、缩放和缩放。
+ * @en AffineTransform class represent an affine transform matrix. It's composed basically by translation, rotation, scale transformations.
+ * @zh 二维仿射变换矩阵，描述了平移、缩放和缩放。
  */
 export class AffineTransform {
     /**
-     * 创建单位二维仿射变换矩阵，它不进行任何变换。
+     * @en Create a identity transformation matrix.
+     * @zh 创建单位二维仿射变换矩阵，它不进行任何变换。
      */
     public static identity () {
         return new AffineTransform();
     }
 
     /**
-     * 克隆指定的二维仿射变换矩阵。
+     * @en Clone a AffineTransform object from the specified transform.
+     * @zh 克隆指定的二维仿射变换矩阵。
      * @param affineTransform 指定的二维仿射变换矩阵。
      */
     public static clone (affineTransform: AffineTransform) {
@@ -57,7 +60,8 @@ export class AffineTransform {
     }
 
     /**
-     * 将两个矩阵相乘的结果赋值给出口矩阵。
+     * @en Concatenate a transform matrix to another.The results are reflected in the out affine transform.
+     * @zh 将两个矩阵相乘的结果赋值给出口矩阵。
      * @param out 出口矩阵。
      * @param t1 左矩阵。
      * @param t2 右矩阵。
@@ -78,7 +82,8 @@ export class AffineTransform {
     }
 
     /**
-     * 将矩阵求逆的结果赋值给出口矩阵。
+     * @en Get the invert transform of an AffineTransform object.
+     * @zh 将矩阵求逆的结果赋值给出口矩阵。
      * @param out 出口矩阵。
      * @param t 求逆的矩阵。
      */
@@ -93,7 +98,8 @@ export class AffineTransform {
     }
 
     /**
-     * 将四维矩阵转换为二维仿射变换矩阵并赋值给出口矩阵。
+     * @en Get an AffineTransform object from a given matrix 4x4.
+     * @zh 将四维矩阵转换为二维仿射变换矩阵并赋值给出口矩阵。
      * @param out 出口矩阵。
      * @param mat 四维矩阵。
      */
@@ -107,7 +113,8 @@ export class AffineTransform {
     }
 
     /**
-     * 应用二维仿射变换矩阵到二维向量上，并将结果赋值给出口向量。
+     * @en Apply the affine transformation on a 2D vectors.
+     * @zh 应用二维仿射变换矩阵到二维向量上，并将结果赋值给出口向量。
      * @param out 出口向量。
      * @param point 应用变换的向量。
      * @param t 二维仿射变换矩阵。
@@ -115,7 +122,8 @@ export class AffineTransform {
     public static transformVec2 (out: Vec2, point: Vec2, t: AffineTransform);
 
     /**
-     * 应用二维仿射变换矩阵到二维向量上，并将结果赋值给出口向量。
+     * @en Apply the affine transformation on a 2D vectors.
+     * @zh 应用二维仿射变换矩阵到二维向量上，并将结果赋值给出口向量。
      * @param out 出口向量。
      * @param x 应用变换的向量的 x 分量。
      * @param y 应用变换的向量的 y 分量。
@@ -139,7 +147,8 @@ export class AffineTransform {
     }
 
     /**
-     * 应用二维仿射变换矩阵到二维尺寸上，并将结果赋值给出口尺寸。
+     * @en Apply the affine transformation on a size.
+     * @zh 应用二维仿射变换矩阵到二维尺寸上，并将结果赋值给出口尺寸。
      * @param out 出口尺寸。
      * @param size 应用变换的尺寸。
      * @param t 二维仿射变换矩阵。
@@ -150,7 +159,8 @@ export class AffineTransform {
     }
 
     /**
-     * 应用二维仿射变换矩阵到矩形上，并将结果赋值给出口矩形。
+     * @en Apply the affine transformation on a rect.
+     * @zh 应用二维仿射变换矩阵到矩形上，并将结果赋值给出口矩形。
      * @param out 出口矩形。
      * @param rect 应用变换的矩形。
      * @param t 二维仿射变换矩阵。
@@ -180,7 +190,9 @@ export class AffineTransform {
     }
 
     /**
-     * 应用二维仿射变换矩阵到矩形上, 并转换为有向包围盒。
+     * @en Apply the affine transformation on a rect, and truns to an Oriented Bounding Box.
+     * This function is memory free, you should create the output vectors by yourself and manage their memory.
+     * @zh 应用二维仿射变换矩阵到矩形上, 并转换为有向包围盒。
      * 这个函数不创建任何内存，你需要先创建包围盒的四个 Vector 对象用来存储结果，并作为前四个参数传入函数。
      */
     public static transformObb (out_bl: Vec2, out_tl: Vec2, out_tr: Vec2, out_br: Vec2, rect: Rect, anAffineTransform: AffineTransform) {
@@ -210,7 +222,8 @@ export class AffineTransform {
     public declare ty: number;
 
     /**
-     * 构造二维放射变换矩阵。
+     * @en constructor a AffineTransform object.
+     * @zh 构造二维放射变换矩阵。
      * @param a a 元素。
      * @param b b 元素。
      * @param c c 元素。
