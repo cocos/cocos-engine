@@ -74,6 +74,7 @@ export class SubModel {
     public destroy () {
         if (this._inputAssembler) {
             this._inputAssembler.destroy();
+            this._inputAssembler = null;
         }
         for (let i = 0; i < this.passes.length; i++) {
             this.passes[i].destroyPipelineState(this._psos![i]);
@@ -83,6 +84,10 @@ export class SubModel {
         }
         this._cmdBuffers.length = 0;
         this._material = null;
+        if (this._subMeshObject) {
+            this._subMeshObject.destroy();
+            this._subMeshObject = null;
+        }
     }
 
     public updateCommandBuffer () {

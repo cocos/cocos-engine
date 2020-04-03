@@ -380,6 +380,7 @@ export default class TrailModule {
     }
 
     public destroy () {
+        this.destroySubMeshData();
         if (this._trailModel) {
             cc.director.root.destroyModel(this._trailModel);
             this._trailModel = null;
@@ -685,6 +686,13 @@ export default class TrailModule {
             currElement.direction = 1 - prevElement.direction;
         } else {
             currElement.direction = prevElement.direction;
+        }
+    }
+
+    private destroySubMeshData () {
+        if (this._subMeshData) {
+            this._subMeshData.destroy();
+            this._subMeshData = null;
         }
     }
 

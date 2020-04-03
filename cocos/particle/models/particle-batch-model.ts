@@ -112,9 +112,7 @@ export default class ParticleBatchModel extends Model {
     }
 
     public _createSubMeshData (): ArrayBuffer {
-        if (this._subMeshData) {
-            this.destroySubMeshData();
-        }
+        this.destroySubMeshData()
         this._vertCount = 4;
         this._indexCount = 6;
         if (this._mesh) {
@@ -257,11 +255,8 @@ export default class ParticleBatchModel extends Model {
         super.destroy();
         this._vBuffer = null;
         this._vdataF32 = null;
-        if (this._subMeshData) {
-            this.destroySubMeshData();
-        }
+        this.destroySubMeshData();
         this._iaInfoBuffer.destroy();
-        this._subMeshData = null;
     }
 
     private _recreateBuffer () {
@@ -272,9 +267,9 @@ export default class ParticleBatchModel extends Model {
     }
 
     private destroySubMeshData () {
-        for (const vb of this._subMeshData!.vertexBuffers) {
-            vb.destroy();
+        if (this._subMeshData) {
+            this._subMeshData.destroy();
+            this._subMeshData = null;
         }
-        this._subMeshData!.indexBuffer!.destroy();
     }
 }
