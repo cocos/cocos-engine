@@ -170,24 +170,21 @@ export class Model {
     }
 
     public updateUBOs (stamp: number) {
-        if (this._updateStamp === stamp) { return false; }
-        this._updateStamp = stamp;
-        if (this._transformUpdated) {
-            this._transformUpdated = false;
-            // @ts-ignore
-            const worldMatrix = this.transform._mat;
-            const idx = this._instMatWorldIdx;
-            if (idx >= 0) {
-                const attrs = this.instancedAttributes!.list;
-                uploadMat4AsVec4x3(worldMatrix, attrs[idx].view, attrs[idx + 1].view, attrs[idx + 2].view);
-            }
-            Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
-            Mat4.inverseTranspose(m4_1, worldMatrix);
-            Mat4.toArray(this._localData, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
-            this._localBuffer!.update(this._localData);
-        }
         this._matPSORecord.forEach(this._updatePass, this);
-        return true;
+        this._updateStamp = stamp;
+        if (!this._transformUpdated) { return; }
+        this._transformUpdated = false;
+        // @ts-ignore
+        const worldMatrix = this.transform._mat;
+        const idx = this._instMatWorldIdx;
+        if (idx >= 0) {
+            const attrs = this.instancedAttributes!.list;
+            uploadMat4AsVec4x3(worldMatrix, attrs[idx].view, attrs[idx + 1].view, attrs[idx + 2].view);
+        }
+        Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
+        Mat4.inverseTranspose(m4_1, worldMatrix);
+        Mat4.toArray(this._localData, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
+        this._localBuffer!.update(this._localData);
     }
 
     /**
@@ -364,7 +361,7 @@ export class Model {
 
     private _updatePass (psos: GFXPipelineState[], mat: Material) {
         for (let i = 0; i < mat.passes.length; i++) {
-            mat.passes[i].update(this._updateStamp);
+            mat.passes[i].update();
         }
         for (let i = 0; i < psos.length; i++) {
             psos[i].pipelineLayout.layouts[0].update();

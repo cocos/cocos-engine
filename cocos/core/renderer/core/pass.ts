@@ -218,7 +218,6 @@ export class Pass {
     // for dynamic batching
     protected _batchedBuffer: BatchedBuffer | null = null;
     protected _instancedBuffer: InstancedBuffer | null = null;
-    protected _updateStamp = -1;
 
     public constructor (device: GFXDevice) {
         this._device = device;
@@ -393,9 +392,7 @@ export class Pass {
      * @zh
      * 更新当前 Uniform 数据。
      */
-    public update (stamp: number) {
-        if (this._updateStamp === stamp) { return; }
-        this._updateStamp = stamp;
+    public update () {
         const len = this._blocks.length;
         for (let i = 0; i < len; i++) {
             const block = this._blocks[i];

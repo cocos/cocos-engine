@@ -71,7 +71,7 @@ export class ToneMapStage extends RenderStage {
             this._pass.bindTextureView(this._hBlendTexSampler, this._pipeline!.getTextureView('smaaBlend')!);
         }
 
-        this._pass.update(cc.director.getTotalFrames());
+        this._pass.update();
         this._bindingLayout.update();
     }
 
