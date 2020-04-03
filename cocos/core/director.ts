@@ -47,9 +47,6 @@ import { Scheduler } from './scheduler';
 import { js } from './utils';
 import { DEBUG, EDITOR, BUILD } from 'internal:constants';
 
-// const ComponentScheduler = require('./component-scheduler');
-// const NodeActivator = require('./node-activator');
-
 // ----------------------------------------------------------------------------------------------------------------------
 
 /**

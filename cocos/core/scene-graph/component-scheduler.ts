@@ -338,8 +338,9 @@ export class ComponentScheduler {
     public startInvoker!: OneOffInvoker;
     public updateInvoker!: ReusableInvoker;
     public lateUpdateInvoker!: ReusableInvoker;
-    public scheduleInNextFrame!: any[];
-    protected _updating!: boolean;
+    // components deferred to schedule
+    private _deferredComps: any[] = [];
+    private _updating!: boolean;
 
     constructor () {
         this.unscheduleAll();
@@ -351,9 +352,6 @@ export class ComponentScheduler {
         this.updateInvoker = new ReusableInvoker(invokeUpdate);
         this.lateUpdateInvoker = new ReusableInvoker(invokeLateUpdate);
 
-        // components deferred to next frame
-        this.scheduleInNextFrame = [];
-
         // during a loop
         this._updating = false;
     }
@@ -364,7 +362,7 @@ export class ComponentScheduler {
 
         // schedule
         if (this._updating) {
-            this.scheduleInNextFrame.push(comp);
+            this._deferredComps.push(comp);
         }
         else {
             this._scheduleImmediate(comp);
@@ -376,9 +374,9 @@ export class ComponentScheduler {
         comp._objFlags &= ~IsOnEnableCalled;
 
         // cancel schedule task
-        const index = this.scheduleInNextFrame.indexOf(comp);
+        const index = this._deferredComps.indexOf(comp);
         if (index >= 0) {
-            fastRemoveAt(this.scheduleInNextFrame, index);
+            fastRemoveAt(this._deferredComps, index);
             return;
         }
 
@@ -427,12 +425,10 @@ export class ComponentScheduler {
         // Start of this frame
         this._updating = true;
 
-        if (this.scheduleInNextFrame.length > 0) {
-            this._deferredSchedule();
-        }
-
         // call start
         this.startInvoker.invoke();
+        // Start components of new activated nodes during start
+        this._startForNewComps();
         // if (PREVIEW) {
         //     try {
         //         this.startInvoker.invoke();
@@ -459,29 +455,40 @@ export class ComponentScheduler {
 
         // End of this frame
         this._updating = false;
+
+        // Start components of new activated nodes during update and lateUpdate
+        // They will be running in the next frame
+        this._startForNewComps();
     }
 
-    protected _scheduleImmediate (comp) {
-        if (comp.start && !(comp._objFlags & IsStartCalled)) {
+    // Call new registered start schedule immediately since last time start phase calling in this frame
+    // See cocos-creator/2d-tasks/issues/256
+    private _startForNewComps () {
+        if (this._deferredComps.length > 0) {
+            this._deferredSchedule();
+            this.startInvoker.invoke();
+        }
+    }
+
+    private _scheduleImmediate (comp) {
+        if (typeof comp.start === 'function' && !(comp._objFlags & IsStartCalled)) {
             this.startInvoker.add(comp);
         }
-        if (comp.update) {
+        if (typeof comp.update === 'function') {
             this.updateInvoker.add(comp);
         }
-        if (comp.lateUpdate) {
+        if (typeof comp.lateUpdate === 'function') {
             this.lateUpdateInvoker.add(comp);
         }
     }
 
-    protected _deferredSchedule () {
-        const comps = this.scheduleInNextFrame;
+    private _deferredSchedule () {
+        const comps = this._deferredComps;
         for (let i = 0, len = comps.length; i < len; i++) {
-            const comp = comps[i];
-            this._scheduleImmediate(comp);
+            this._scheduleImmediate(comps[i]);
         }
         comps.length = 0;
     }
-
 }
 
 if (EDITOR) {

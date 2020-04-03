@@ -30,7 +30,7 @@
 import { CCObject } from '../data/object';
 import { array, Pool } from '../utils/js';
 import { tryCatchFunctor_EDITOR } from '../utils/misc';
-import { ComponentScheduler, invokeOnEnable, createInvokeImpl, createInvokeImplJit, OneOffInvoker, LifeCycleInvoker } from './component-scheduler';
+import { invokeOnEnable, createInvokeImpl, createInvokeImplJit, OneOffInvoker, LifeCycleInvoker } from './component-scheduler';
 import { EDITOR, DEV, TEST, SUPPORT_JIT } from 'internal:constants';
 
 const MAX_POOL_SIZE = 4;
