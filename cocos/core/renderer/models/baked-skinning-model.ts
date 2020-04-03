@@ -125,7 +125,7 @@ export class BakedSkinningModel extends MorphModel {
 
     // update fid buffer only when visible
     public updateUBOs (stamp: number) {
-        if (!super.updateUBOs(stamp)) { return false; }
+        super.updateUBOs(stamp);
         const info = this._jointsMedium.animInfo;
         const idx = this._instAnimInfoIdx;
         if (idx >= 0) {
