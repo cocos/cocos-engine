@@ -232,13 +232,10 @@ let RenderComponent = cc.Class({
     },
 
     _updateColor () {
-        let color = null;
-        if (this.srcBlendFactor === cc.macro.BlendFactor.ONE) {
-            Color.premultiplyAlpha(_temp_color, this.node._color);
-            color = _temp_color._val;
-        }
-
         if (this._assembler.updateColor) {
+            let premultiply = this.srcBlendFactor === cc.macro.BlendFactor.ONE;
+            premultiply && Color.premultiplyAlpha(_temp_color, this.node._color);
+            let color = premultiply ? _temp_color._val : null;
             this._assembler.updateColor(this, color);
         }
     },
