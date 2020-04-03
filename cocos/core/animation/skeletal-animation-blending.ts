@@ -86,6 +86,7 @@ export function createBlendStateWriter<P extends BlendingProperty>(
             additiveQuat as any;
     const propertyBlendState: PropertyBlendState<BlendingPropertyValue<P>> = blendState.ref(node, property);
     let isConstCacheValid = false;
+    let lastWeight = -1;
     return {
         destroy: function () {
             blendState.deRef(node, property);
@@ -93,9 +94,12 @@ export function createBlendStateWriter<P extends BlendingProperty>(
         forTarget: (_) => {
             return {
                 set: (value: BlendingPropertyValue<P>) => {
+                    const weight = weightProxy.weight;
                     if (constants) {
-                        if (propertyBlendState.refCount !== 1) {
+                        if (weight !== 1 ||
+                            weight !== lastWeight) {
                             // If there are multi writer for this property at this time,
+                            // or if the weight has been changed since last write, 
                             // we should invalidate the cache.
                             isConstCacheValid = false;
                         } else if (isConstCacheValid) {
@@ -104,9 +108,10 @@ export function createBlendStateWriter<P extends BlendingProperty>(
                             return;
                         }
                     }
-                    blendFunction(value, weightProxy.weight, propertyBlendState);
-                    propertyBlendState.weight += weightProxy.weight;
+                    blendFunction(value, weight, propertyBlendState);
+                    propertyBlendState.weight += weight;
                     isConstCacheValid = true;
+                    lastWeight = weight;
                 },
             };
         },
