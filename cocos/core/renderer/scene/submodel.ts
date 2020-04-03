@@ -84,10 +84,6 @@ export class SubModel {
         }
         this._cmdBuffers.length = 0;
         this._material = null;
-        if (this._subMeshObject) {
-            this._subMeshObject.destroy();
-            this._subMeshObject = null;
-        }
     }
 
     public updateCommandBuffer () {
