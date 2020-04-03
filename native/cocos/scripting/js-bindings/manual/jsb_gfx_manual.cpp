@@ -516,12 +516,12 @@ bool js_register_gfx_GFXSubPass(se::Object* obj)
 {
     auto cls = se::Class::create("GFXSubPass", obj, nullptr, _SE(js_gfx_GFXSubPass_constructor));
 
-    cls->defineProperty("bindPoint", _SE(js_gfx_GFXSubPass_get_bind_point), _SE(js_gfx_GFXSubPass_set_bind_point));
-    cls->defineProperty("inputs", _SE(js_gfx_GFXSubPass_get_inputs), _SE(js_gfx_GFXSubPass_set_inputs));
-    cls->defineProperty("colors", _SE(js_gfx_GFXSubPass_get_colors), _SE(js_gfx_GFXSubPass_set_colors));
-    cls->defineProperty("resolves", _SE(js_gfx_GFXSubPass_get_resolves), _SE(js_gfx_GFXSubPass_set_resolves));
-    cls->defineProperty("depthStencil", _SE(js_gfx_GFXSubPass_get_depth_stencil), _SE(js_gfx_GFXSubPass_set_depth_stencil));
-    cls->defineProperty("preserves", _SE(js_gfx_GFXSubPass_get_preserves), _SE(js_gfx_GFXSubPass_set_preserves));
+    cls->defineProperty("__bindPoint", _SE(js_gfx_GFXSubPass_get_bind_point), _SE(js_gfx_GFXSubPass_set_bind_point));
+    cls->defineProperty("__inputs", _SE(js_gfx_GFXSubPass_get_inputs), _SE(js_gfx_GFXSubPass_set_inputs));
+    cls->defineProperty("__colors", _SE(js_gfx_GFXSubPass_get_colors), _SE(js_gfx_GFXSubPass_set_colors));
+    cls->defineProperty("__resolves", _SE(js_gfx_GFXSubPass_get_resolves), _SE(js_gfx_GFXSubPass_set_resolves));
+    cls->defineProperty("__depthStencil", _SE(js_gfx_GFXSubPass_get_depth_stencil), _SE(js_gfx_GFXSubPass_set_depth_stencil));
+    cls->defineProperty("__preserves", _SE(js_gfx_GFXSubPass_get_preserves), _SE(js_gfx_GFXSubPass_set_preserves));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXSubPass_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXSubPass>(cls);
@@ -693,9 +693,9 @@ bool register_all_gfx_manual(se::Object* obj)
 {    
     __jsb_cocos2d_GFXBuffer_proto->defineFunction("update", _SE(js_gfx_GFXBuffer_update));
     
-    __jsb_cocos2d_GFXPipelineLayout_proto->defineProperty("layouts", _SE(js_gfx_GFXPipelineLayout_get_layouts), nullptr);
+    __jsb_cocos2d_GFXPipelineLayout_proto->defineProperty("__layouts", _SE(js_gfx_GFXPipelineLayout_get_layouts), nullptr);
     
-    __jsb_cocos2d_GFXBlendState_proto->defineProperty("targets", _SE(js_gfx_GFXBlendState_get_targets), _SE(js_gfx_GFXBlendState_set_targets));
+    __jsb_cocos2d_GFXBlendState_proto->defineProperty("__targets", _SE(js_gfx_GFXBlendState_get_targets), _SE(js_gfx_GFXBlendState_set_targets));
     
     __jsb_cocos2d_GFXCommandBuffer_proto->defineFunction("execute", _SE(js_gfx_GFXCommandBuffer_execute));
 
