@@ -54,6 +54,7 @@ let _color = null;
 let _fontFamily = '';
 let _overflow = Overflow.NONE;
 let _isWrapText = false;
+let _premultiply = false;
 
 // outline
 let _outlineComp = null;
@@ -172,6 +173,7 @@ export default class TTFAssembler extends Assembler2D {
         _enableBold = comp.enableBold;
         _enableItalic = comp.enableItalic;
         _enableUnderline = comp.enableUnderline;
+        _premultiply = comp.srcBlendFactor === cc.macro.BlendFactor.ONE;
 
         if (_overflow === Overflow.NONE) {
             _isWrapText = false;
@@ -259,18 +261,21 @@ export default class TTFAssembler extends Assembler2D {
     _updateTexture () {
         _context.clearRect(0, 0, _canvas.width, _canvas.height);
         //Add a white background to avoid black edges.
-        //TODO: it is best to add alphaTest to filter out the background color.
-        let _fillColor = _outlineComp ? _outlineColor : _color;
-        _context.fillStyle = `rgba(${_fillColor.r}, ${_fillColor.g}, ${_fillColor.b}, ${_invisibleAlpha})`;
-        _context.fillRect(0, 0, _canvas.width, _canvas.height);
+        if (!_premultiply) {
+            //TODO: it is best to add alphaTest to filter out the background color.
+            let _fillColor = _outlineComp ? _outlineColor : _color;
+            _context.fillStyle = `rgba(${_fillColor.r}, ${_fillColor.g}, ${_fillColor.b}, ${_invisibleAlpha})`;
+            _context.fillRect(0, 0, _canvas.width, _canvas.height);
+            _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, 1)`;
+        } else {
+            _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_color.a / 255.0})`;
+        }
         _context.font = _fontDesc;
-
-        let startPosition = this._calculateFillTextStartPosition();
-        let lineHeight = this._getLineHeight();
         //use round for line join to avoid sharp intersect point
         _context.lineJoin = 'round';
-        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, 1)`;
-
+        let startPosition = this._calculateFillTextStartPosition();
+        let lineHeight = this._getLineHeight();
+        
         let isMultiple = _splitedStrings.length > 1;
 
         //do real rendering

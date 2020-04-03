@@ -28,6 +28,7 @@ const macro = require('../platform/CCMacro');
 const RenderComponent = require('./CCRenderComponent');
 const Material = require('../assets/material/CCMaterial');
 const LabelFrame = require('../renderer/utils/label/label-frame');
+const BlendFunc = require('../utils/blend-func');
 
 /**
  * !#en Enum for text alignment.
@@ -165,6 +166,7 @@ const UNDERLINE_FLAG = 1 << 2;
 let Label = cc.Class({
     name: 'cc.Label',
     extends: RenderComponent,
+    mixins: [BlendFunc],
 
     ctor () {
         if (CC_EDITOR) {
@@ -729,6 +731,10 @@ let Label = cc.Class({
             if (this.cacheMode !== CacheMode.CHAR) {
                 this._frame._resetDynamicAtlasFrame();
                 this._frame._refreshTexture(this._ttfTexture);
+
+                if (this._srcBlendFactor === cc.macro.BlendFactor.ONE) {
+                    this._ttfTexture.setPremultiplyAlpha(true);
+                }
             }
             
             this._updateMaterial();
@@ -746,6 +752,8 @@ let Label = cc.Class({
         if (!this._frame) return;
         let material = this.getMaterial(0);
         material && material.setProperty('texture', this._frame._texture);
+
+        BlendFunc.prototype._updateMaterial.call(this);
     },
 
     _forceUpdateRenderData () {
