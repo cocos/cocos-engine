@@ -35,7 +35,8 @@ import { IMat3Like, IMat4Like, IQuatLike, IVec3Like } from './type-define';
 import { clamp, EPSILON, random } from './utils';
 
 /**
- * 三维向量。
+ * @en Representation of 3D vectors and points.
+ * @zh 三维向量。
  */
 export class Vec3 extends ValueType {
 
@@ -50,6 +51,7 @@ export class Vec3 extends ValueType {
     public static NEG_ONE = Object.freeze(new Vec3(-1, -1, -1));
 
     /**
+     * @en return a Vec3 object with x = 0, y = 0, z = 0.
      * @zh 将目标赋值为零向量
      */
     public static zero<Out extends IVec3Like> (out: Out) {
@@ -60,6 +62,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Obtaining copy vectors designated
      * @zh 获得指定向量的拷贝
      */
     public static clone <Out extends IVec3Like> (a: Out) {
@@ -67,6 +70,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Copy the target vector
      * @zh 复制目标向量
      */
     public static copy<Out extends IVec3Like, Vec3Like extends IVec3Like> (out: Out, a: Vec3Like) {
@@ -77,6 +81,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Set to value
      * @zh 设置向量值
      */
     public static set<Out extends IVec3Like> (out: Out, x: number, y: number, z: number) {
@@ -87,6 +92,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Element-wise vector addition
      * @zh 逐元素向量加法
      */
     public static add<Out extends IVec3Like> (out: Out, a: IVec3Like, b: IVec3Like) {
@@ -97,6 +103,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Element-wise vector subtraction
      * @zh 逐元素向量减法
      */
     public static subtract<Out extends IVec3Like> (out: Out, a: IVec3Like, b: IVec3Like) {
@@ -107,6 +114,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Element-wise vector multiplication
      * @zh 逐元素向量乘法 (分量积)
      */
     public static multiply<Out extends IVec3Like> (out: Out, a: IVec3Like, b: IVec3Like) {
@@ -117,6 +125,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Element-wise vector division
      * @zh 逐元素向量除法
      */
     public static divide<Out extends IVec3Like> (out: Out, a: IVec3Like, b: IVec3Like) {
@@ -127,6 +136,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Rounding up by elements of the vector
      * @zh 逐元素向量向上取整
      */
     public static ceil<Out extends IVec3Like> (out: Out, a: IVec3Like) {
@@ -137,6 +147,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Element vector by rounding down
      * @zh 逐元素向量向下取整
      */
     public static floor<Out extends IVec3Like> (out: Out, a: IVec3Like) {
@@ -147,6 +158,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en The minimum by-element vector
      * @zh 逐元素向量最小值
      */
     public static min<Out extends IVec3Like> (out: Out, a: IVec3Like, b: IVec3Like) {
@@ -157,6 +169,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en The maximum value of the element-wise vector
      * @zh 逐元素向量最大值
      */
     public static max<Out extends IVec3Like> (out: Out, a: IVec3Like, b: IVec3Like) {
@@ -167,6 +180,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Element-wise vector of rounding to whole
      * @zh 逐元素向量四舍五入取整
      */
     public static round<Out extends IVec3Like> (out: Out, a: IVec3Like) {
@@ -177,6 +191,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Vector scalar multiplication
      * @zh 向量标量乘法
      */
     public static multiplyScalar<Out extends IVec3Like, Vec3Like extends IVec3Like > (out: Out, a: Vec3Like, b: number) {
@@ -187,6 +202,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Element-wise vector multiply add: A + B * scale
      * @zh 逐元素向量乘加: A + B * scale
      */
     public static scaleAndAdd<Out extends IVec3Like> (out: Out, a: IVec3Like, b: IVec3Like, scale: number) {
@@ -197,6 +213,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Seeking two vectors Euclidean distance
      * @zh 求两向量的欧氏距离
      */
     public static distance (a: IVec3Like, b: IVec3Like) {
@@ -207,6 +224,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Euclidean distance squared seeking two vectors
      * @zh 求两向量的欧氏距离平方
      */
     public static squaredDistance (a: IVec3Like, b: IVec3Like) {
@@ -217,6 +235,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Seeking vector length
      * @zh 求向量长度
      */
     public static len (a: IVec3Like) {
@@ -227,6 +246,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Seeking squared vector length
      * @zh 求向量长度平方
      */
     public static lengthSqr (a: IVec3Like) {
@@ -237,6 +257,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en By taking the negative elements of the vector
      * @zh 逐元素向量取负
      */
     public static negate<Out extends IVec3Like> (out: Out, a: IVec3Like) {
@@ -247,6 +268,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Element vector by taking the inverse, return near 0 Infinity
      * @zh 逐元素向量取倒数，接近 0 时返回 Infinity
      */
     public static invert<Out extends IVec3Like> (out: Out, a: IVec3Like) {
@@ -257,6 +279,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Element vector by taking the inverse, return 0 near 0
      * @zh 逐元素向量取倒数，接近 0 时返回 0
      */
     public static invertSafe<Out extends IVec3Like> (out: Out, a: IVec3Like) {
@@ -286,6 +309,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Normalized vector
      * @zh 归一化向量
      */
     public static normalize<Out extends IVec3Like> (out: Out, a: IVec3Like) {
@@ -304,6 +328,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Vector dot product (scalar product)
      * @zh 向量点积（数量积）
      */
     public static dot <Out extends IVec3Like> (a: Out, b: IVec3Like) {
@@ -311,6 +336,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Vector cross product (vector product)
      * @zh 向量叉积（向量积）
      */
     public static cross<Out extends IVec3Like> (out: Out, a: IVec3Like, b: IVec3Like) {
@@ -323,6 +349,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * !#en Vector element by element linear interpolation: A + t * (B - A)
      * @zh 逐元素向量线性插值： A + t * (B - A)
      */
     public static lerp<Out extends IVec3Like> (out: Out, a: IVec3Like, b: IVec3Like, t: number) {
@@ -333,6 +360,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Generates a uniformly distributed random vectors on the unit sphere
      * @zh 生成一个在单位球体上均匀分布的随机向量
      * @param scale 生成的向量长度
      */
@@ -350,6 +378,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en vector and matrix multiplication, the default vectors fourth one.
      * @zh 向量与四维矩阵乘法，默认向量第四位为 1。
      */
     public static transformMat4 <Out extends IVec3Like> (out: Out, a: IVec3Like, m: IMat4Like) {
@@ -365,6 +394,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en vector and matrix multiplication, vector fourth default is 0.
      * @zh 向量与四维矩阵乘法，默认向量第四位为 0。
      */
     public static transformMat4Normal<Out extends IVec3Like> (out: Out, a: IVec3Like, m: IMat4Like) {
@@ -380,6 +410,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Dimensional vector matrix multiplication
      * @zh 向量与三维矩阵乘法
      */
     public static transformMat3<Out extends IVec3Like> (out: Out, a: IVec3Like, m: IMat3Like) {
@@ -393,6 +424,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Affine transformation vector
      * @zh 向量仿射变换
      */
     public static transformAffine<Out extends IVec3Like> (out: Out, v: IVec3Like, m: IMat4Like) {
@@ -406,6 +438,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Vector quaternion multiplication
      * @zh 向量四元数乘法
      */
     public static transformQuat<Out extends IVec3Like> (out: Out, a: IVec3Like, q: IQuatLike) {
@@ -425,6 +458,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en To scale -> rotation -> transformation vector sequence translation
      * @zh 以缩放 -> 旋转 -> 平移顺序变换向量
      */
     public static transformRTS<Out extends IVec3Like> (out: Out, a: IVec3Like, r: IQuatLike, t: IVec3Like, s: IVec3Like) {
@@ -442,6 +476,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Translational -> rotation -> Zoom inverse transformation vector sequence
      * @zh 以平移 -> 旋转 -> 缩放顺序逆变换向量
      */
     public static transformInverseRTS<Out extends IVec3Like> (out: Out, a: IVec3Like, r: IQuatLike, t: IVec3Like, s: IVec3Like) {
@@ -459,6 +494,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * !#en Rotation vector specified angle about the X axis
      * @zh 绕 X 轴旋转向量指定弧度
      * @param v 待旋转向量
      * @param o 旋转中心
@@ -486,6 +522,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * !#en Rotation vector specified angle around the Y axis
      * @zh 绕 Y 轴旋转向量指定弧度
      * @param v 待旋转向量
      * @param o 旋转中心
@@ -513,6 +550,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * !#en Around the Z axis specified angle vector
      * @zh 绕 Z 轴旋转向量指定弧度
      * @param v 待旋转向量
      * @param o 旋转中心
@@ -540,6 +578,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Vector transfer array
      * @zh 向量转数组
      * @param ofs 数组起始偏移量
      */
@@ -552,6 +591,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Array steering amount
      * @zh 数组转向量
      * @param ofs 数组起始偏移量
      */
@@ -563,6 +603,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Equivalent vectors Analyzing
      * @zh 向量等价判断
      */
     public static strictEquals (a: IVec3Like, b: IVec3Like) {
@@ -570,6 +611,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Negative error vector floating point approximately equivalent Analyzing
      * @zh 排除浮点数误差的向量近似等价判断
      */
     public static equals (a: IVec3Like, b: IVec3Like, epsilon = EPSILON) {
@@ -586,6 +628,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * !#en Radian angle between two vectors seek
      * @zh 求两向量夹角弧度
      */
     public static angle (a: IVec3Like, b: IVec3Like) {
@@ -602,6 +645,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * !#en Calculating a projection vector in the specified plane
      * @zh 计算向量在指定平面上的投影
      * @param a 待投影向量
      * @param n 指定平面的法线
@@ -611,6 +655,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * !#en Projection vector calculated in the vector designated
      * @zh 计算向量在指定向量上的投影
      * @param a 待投影向量
      * @param n 目标向量
@@ -625,17 +670,20 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * x 分量。
+     * @en x component.
+     * @zh x 分量。
      */
     public declare x: number;
 
     /**
-     * y 分量。
+     * @en y component.
+     * @zh y 分量。
      */
     public declare y: number;
 
     /**
-     * z 分量。
+     * @en z component.
+     * @zh z 分量。
      */
     public declare z: number;
 
@@ -657,6 +705,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * !#en clone a Vec3 value
      * @zh 克隆当前向量。
      */
     public clone () {
@@ -664,6 +713,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * !#en Set the current vector value with the given vector.
      * @zh 设置当前向量使其与指定向量相等。
      * @param other 相比较的向量。
      * @returns `this`
@@ -671,6 +721,7 @@ export class Vec3 extends ValueType {
     public set (other: Vec3);
 
     /**
+     * @en Set the value of each component of the current vector.
      * @zh 设置当前向量的具体分量值。
      * @param x 要设置的 x 分量的值
      * @param y 要设置的 y 分量的值
@@ -693,6 +744,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Check whether the vector equals another one.
      * @zh 判断当前向量是否在误差范围内与指定向量相等。
      * @param other 相比较的向量。
      * @param epsilon 允许的误差，应为非负数。
@@ -710,6 +762,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * !#en Check whether the vector equals another one
      * @zh 判断当前向量是否在误差范围内与指定分量的向量相等。
      * @param x 相比较的向量的 x 分量。
      * @param y 相比较的向量的 y 分量。

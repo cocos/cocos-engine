@@ -377,8 +377,8 @@ export class Vec4 extends ValueType {
     }
 
     /**
-     * @en Vector matrix multiplication
-     * @zh 向量矩阵乘法
+     * @en Transforms the vec4 with a mat4. 4th vector component is implicitly '1'
+     * @zh 向量与四维矩阵乘法，默认向量第四位为 1。
      */
     public static transformMat4 <Out extends IVec4Like, MatLike extends IMat4Like> (out: Out, a: Out, m: MatLike) {
         const x = a.x;
@@ -580,6 +580,7 @@ export class Vec4 extends ValueType {
     }
 
     /**
+     * @en Check whether the vector equals another one
      * @zh 判断当前向量是否在误差范围内与指定分量的向量相等。
      * @param x 相比较的向量的 x 分量。
      * @param y 相比较的向量的 y 分量。
