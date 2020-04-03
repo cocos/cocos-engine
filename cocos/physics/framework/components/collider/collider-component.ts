@@ -61,7 +61,7 @@ export class ColliderComponent extends Component implements IEventTarget {
 
     /**
      * @en
-     * Gets or sets the physical material for this collider, which in Shared state will generate a new instance.
+     * Gets or sets the physics material for this collider, which in Shared state will generate a new instance.
      * @zh
      * 获取或设置此碰撞器的物理材质，共享状态下获取将会生成新的实例。
      */
