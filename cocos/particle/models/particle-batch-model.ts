@@ -112,7 +112,7 @@ export default class ParticleBatchModel extends Model {
     }
 
     public _createSubMeshData (): ArrayBuffer {
-        this.destroySubMeshData()
+        this.destroySubMeshData();
         this._vertCount = 4;
         this._indexCount = 6;
         if (this._mesh) {
