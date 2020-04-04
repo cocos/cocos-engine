@@ -510,7 +510,8 @@ var ComponentScheduler = cc.Class({
         this._updating = false;
 
         // Start components of new activated nodes during update and lateUpdate
-        // They will be running in the next frame
+        // The start callback will be invoked immediately,
+        // update and lateUpdate callback will be running in the next frame
         this._startForNewComps();
     },
 });
