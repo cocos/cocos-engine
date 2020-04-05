@@ -79,6 +79,13 @@ export class CrossFade extends Playable {
      * @param duration 切换时间。
      */
     public crossFade (state: AnimationState | null, duration: number) {
+        if (this._managedStates.length === 0) {
+            // If we are cross fade from a "initial" pose,
+            // we do not use the duration.
+            // It's meaning-less and may get a bad visual effect.
+            duration = 0;
+        }
+
         if (duration === 0) {
             this.clear();
         }
