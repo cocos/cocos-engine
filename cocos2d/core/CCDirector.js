@@ -859,9 +859,6 @@ cc.Director.prototype = {
                 // Late update for components
                 this._compScheduler.lateUpdatePhase(this._deltaTime);
 
-                // After life-cycle executed
-                this._compScheduler.clearup();
-
                 // User can use this event to do things after update
                 this.emit(cc.Director.EVENT_AFTER_UPDATE);
                 
