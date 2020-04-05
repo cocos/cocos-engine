@@ -17,20 +17,22 @@ import { EDITOR, TEST } from 'internal:constants';
 import { EAxisDirection } from '../../physics-enum';
 
 /**
+ * @en
+ * Cylinder collider component.
  * @zh
- * 圆柱体碰撞器
+ * 圆柱体碰撞器。
  */
 @ccclass('cc.CylinderColliderComponent')
 @help('i18n:cc.CylinderColliderComponent')
 @executionOrder(98)
-@menu('Physics/CylinderCollider')
+@menu('Physics/CylinderCollider(beta)')
 @executeInEditMode
 export class CylinderColliderComponent extends ColliderComponent {
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
     /**
      * @en
-     * Get or set the radius of the circle on the cylinder body, in local space.
+     * Gets or sets the radius of the circle on the cylinder body, in local space.
      * @zh
      * 获取或设置圆柱体上圆面半径。
      */
@@ -50,7 +52,7 @@ export class CylinderColliderComponent extends ColliderComponent {
 
     /**
      * @en
-     * Get or set the cylinder body is at the corresponding axial height, in local space.
+     * Gets or sets the cylinder body is at the corresponding axial height, in local space.
      * @zh
      * 获取或设置圆柱体在相应轴向的高度。
      */
@@ -68,6 +70,12 @@ export class CylinderColliderComponent extends ColliderComponent {
         }
     }
 
+    /**
+     * @en
+     * Gets or sets the cylinder direction, in local space.
+     * @zh
+     * 获取或设置在圆柱体本地空间上的方向。
+     */
     @property({ type: EAxisDirection })
     public get direction () {
         return this._direction;

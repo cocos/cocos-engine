@@ -16,8 +16,10 @@ import { ISphereShape } from '../../../spec/i-physics-shape';
 import { EDITOR, TEST } from 'internal:constants';
 
 /**
+ * @en
+ * Sphere collider component.
  * @zh
- * 球碰撞器
+ * 球碰撞器。
  */
 @ccclass('cc.SphereColliderComponent')
 @help('i18n:cc.SphereColliderComponent')
@@ -30,7 +32,7 @@ export class SphereColliderComponent extends ColliderComponent {
 
     /**
      * @en
-     * Get or set the radius of the sphere.
+     * Gets or sets the radius of the sphere.
      * @zh
      * 获取或设置球的半径。
      */
@@ -48,6 +50,12 @@ export class SphereColliderComponent extends ColliderComponent {
         }
     }
 
+    /**
+     * @en
+     * Gets the wrapper object, through which the lowlevel instance can be accessed.
+     * @zh
+     * 获取封装对象，通过此对象可以访问到底层实例。
+     */
     public get shape () {
         return this._shape as ISphereShape;
     }

@@ -17,8 +17,10 @@ import { IBoxShape } from '../../../spec/i-physics-shape';
 import { EDITOR, TEST } from 'internal:constants';
 
 /**
+ * @en
+ * Box collider component.
  * @zh
- * 盒子碰撞器
+ * 盒子碰撞器。
  */
 @ccclass('cc.BoxColliderComponent')
 @help('i18n:cc.BoxColliderComponent')
@@ -31,7 +33,7 @@ export class BoxColliderComponent extends ColliderComponent {
 
     /**
      * @en
-     * Get or set the size of the box, in local space.
+     * Gets or sets the size of the box, in local space.
      * @zh
      * 获取或设置盒的大小。
      */
@@ -50,6 +52,12 @@ export class BoxColliderComponent extends ColliderComponent {
         }
     }
 
+    /**
+     * @en
+     * Gets the wrapper object, through which the lowlevel instance can be accessed.
+     * @zh
+     * 获取封装对象，通过此对象可以访问到底层实例。
+     */
     public get shape () {
         return this._shape as IBoxShape;
     }
