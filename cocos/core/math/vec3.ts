@@ -349,7 +349,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * !#en Vector element by element linear interpolation: A + t * (B - A)
+     * @en Vector element by element linear interpolation: A + t * (B - A)
      * @zh 逐元素向量线性插值： A + t * (B - A)
      */
     public static lerp<Out extends IVec3Like> (out: Out, a: IVec3Like, b: IVec3Like, t: number) {
@@ -494,7 +494,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * !#en Rotation vector specified angle about the X axis
+     * @en Rotation vector specified angle about the X axis
      * @zh 绕 X 轴旋转向量指定弧度
      * @param v 待旋转向量
      * @param o 旋转中心
@@ -522,7 +522,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * !#en Rotation vector specified angle around the Y axis
+     * @en Rotation vector specified angle around the Y axis
      * @zh 绕 Y 轴旋转向量指定弧度
      * @param v 待旋转向量
      * @param o 旋转中心
@@ -550,7 +550,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * !#en Around the Z axis specified angle vector
+     * @en Around the Z axis specified angle vector
      * @zh 绕 Z 轴旋转向量指定弧度
      * @param v 待旋转向量
      * @param o 旋转中心
@@ -628,7 +628,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * !#en Radian angle between two vectors seek
+     * @en Radian angle between two vectors seek
      * @zh 求两向量夹角弧度
      */
     public static angle (a: IVec3Like, b: IVec3Like) {
@@ -645,7 +645,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * !#en Calculating a projection vector in the specified plane
+     * @en Calculating a projection vector in the specified plane
      * @zh 计算向量在指定平面上的投影
      * @param a 待投影向量
      * @param n 指定平面的法线
@@ -655,7 +655,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * !#en Projection vector calculated in the vector designated
+     * @en Projection vector calculated in the vector designated
      * @zh 计算向量在指定向量上的投影
      * @param a 待投影向量
      * @param n 目标向量
@@ -705,7 +705,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * !#en clone a Vec3 value
+     * @en clone a Vec3 value
      * @zh 克隆当前向量。
      */
     public clone () {
@@ -713,7 +713,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * !#en Set the current vector value with the given vector.
+     * @en Set the current vector value with the given vector.
      * @zh 设置当前向量使其与指定向量相等。
      * @param other 相比较的向量。
      * @returns `this`
@@ -762,7 +762,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
-     * !#en Check whether the vector equals another one
+     * @en Check whether the vector equals another one
      * @zh 判断当前向量是否在误差范围内与指定分量的向量相等。
      * @param x 相比较的向量的 x 分量。
      * @param y 相比较的向量的 y 分量。
@@ -782,6 +782,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Check whether the vector equals another one.
      * @zh 判断当前向量是否与指定向量相等。
      * @param other 相比较的向量。
      * @returns 两向量的各分量都分别相等时返回 `true`；否则返回 `false`。
@@ -791,6 +792,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Check whether strict equals other Vec3.
      * @zh 判断当前向量是否与指定分量的向量相等。
      * @param x 指定向量的 x 分量。
      * @param y 指定向量的 y 分量。
@@ -802,6 +804,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Transform to string with vector informations.
      * @zh 返回当前向量的字符串表示。
      * @returns 当前向量的字符串表示。
      */
@@ -810,6 +813,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Calculate linear interpolation result between this vector and another one with given ratio.
      * @zh 根据指定的插值比率，从当前向量到目标向量之间做插值。
      * @param to 目标向量。
      * @param ratio 插值比率，范围为 [0,1]。
@@ -822,6 +826,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Adds this vector and returns this.
      * @zh 向量加法。将当前向量与指定向量的相加
      * @param other 指定的向量。
      */
@@ -833,6 +838,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Adds this vector and returns this.
      * @zh 向量加法。将当前向量与指定分量的向量相加
      * @param x 指定的向量的 x 分量。
      * @param y 指定的向量的 y 分量。
@@ -846,6 +852,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Subtracts one vector from this, and returns this.
      * @zh 向量减法。将当前向量减去指定向量的结果。
      * @param other 减数向量。
      */
@@ -857,6 +864,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Subtracts one vector from this, and returns this.
      * @zh 向量减法。将当前向量减去指定分量的向量
      * @param x 指定的向量的 x 分量。
      * @param y 指定的向量的 y 分量。
@@ -870,6 +878,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Multiplies this by a number.
      * @zh 向量数乘。将当前向量数乘指定标量
      * @param scalar 标量乘数。
      */
@@ -882,6 +891,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Multiplies two vectors, and returns this.
      * @zh 向量乘法。将当前向量乘以与指定向量的结果赋值给当前向量。
      * @param other 指定的向量。
      */
@@ -894,6 +904,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Multiplies two vectors, and returns this.
      * @zh 向量乘法。将当前向量与指定分量的向量相乘的结果赋值给当前向量。
      * @param x 指定的向量的 x 分量。
      * @param y 指定的向量的 y 分量。
@@ -907,6 +918,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Divides by a number, and returns this.
      * @zh 向量逐元素相除。将当前向量与指定分量的向量相除的结果赋值给当前向量。
      * @param other 指定的向量
      */
@@ -918,6 +930,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Divides this vectors element by element, and return this.
      * @zh 向量逐元素相除。将当前向量与指定分量的向量相除的结果赋值给当前向量。
      * @param x 指定的向量的 x 分量。
      * @param y 指定的向量的 y 分量。
@@ -931,6 +944,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Negates the components.
      * @zh 将当前向量的各个分量取反
      */
     public negative () {
@@ -941,6 +955,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Clamp the vector between minInclusive and maxInclusive.
      * @zh 设置当前向量的值，使其各个分量都处于指定的范围内。
      * @param minInclusive 每个分量都代表了对应分量允许的最小值。
      * @param maxInclusive 每个分量都代表了对应分量允许的最大值。
@@ -954,6 +969,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Dot product.
      * @zh 向量点乘。
      * @param other 指定的向量。
      * @returns 当前向量与指定向量点乘的结果。
@@ -963,6 +979,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Cross product.
      * @zh 向量叉乘。将当前向量左叉乘指定向量
      * @param other 指定的向量。
      */
@@ -977,6 +994,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Returns the length of this vector.
      * @zh 计算向量的长度（模）。
      * @returns 向量的长度（模）。
      */
@@ -985,6 +1003,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Returns the squared length of this vector.
      * @zh 计算向量长度（模）的平方。
      * @returns 向量长度（模）的平方。
      */
@@ -993,6 +1012,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Make the length of this vector to 1.
      * @zh 将当前向量归一化
      */
     public normalize () {
@@ -1011,6 +1031,7 @@ export class Vec3 extends ValueType {
     }
 
     /**
+     * @en Transforms the vec4 with a mat4. 4th vector component is implicitly '1'
      * @zh 将当前向量视为 w 分量为 1 的四维向量，应用四维矩阵变换到当前矩阵
      * @param matrix 变换矩阵。
      */
