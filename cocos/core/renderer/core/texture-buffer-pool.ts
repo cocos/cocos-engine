@@ -125,7 +125,7 @@ export class TextureBufferPool {
 
         newChunk.start += size;
         const texHandle: ITextureBufferHandle = {
-            chunkIdx: this._chunkCount,
+            chunkIdx: this._chunkCount - 1,
             start: 0,
             end: size,
             texture: newChunk.texture,
