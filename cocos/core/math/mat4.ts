@@ -994,16 +994,16 @@ export class Mat4 extends ValueType {
      * @param near 近平面距离
      * @param far 远平面距离
      */
-    public static perspective <Out extends IMat4Like> (out: Out, fovy: number, aspect: number, near: number, far: number) {
-        const f = 1.0 / Math.tan(fovy / 2);
+    public static perspective <Out extends IMat4Like> (out: Out, fov: number, aspect: number, near: number, far: number, isFOVY = true) {
+        const f = 1.0 / Math.tan(fov / 2);
         const nf = 1 / (near - far);
 
-        out.m00 = f / aspect;
+        out.m00 = isFOVY ? f / aspect : f;
         out.m01 = 0;
         out.m02 = 0;
         out.m03 = 0;
         out.m04 = 0;
-        out.m05 = f;
+        out.m05 = isFOVY ? f : f * aspect;
         out.m06 = 0;
         out.m07 = 0;
         out.m08 = 0;

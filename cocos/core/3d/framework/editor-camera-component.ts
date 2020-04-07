@@ -116,7 +116,7 @@ export class EditorCameraComponent extends CameraComponent {
         }
     }
 
-    public onDisable() {
+    public onDisable () {
         super.onDisable();
         if (this._uiEditorCamera) {
             cc.director.root!.ui.renderScene.removeCamera(this._uiEditorCamera);

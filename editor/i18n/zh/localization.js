@@ -105,6 +105,7 @@ module.exports = {
     camera: {
         projection: '相机的投影类型',
         priority: '相机的优先级顺序，只能在编辑器中设置，动态设置无效',
+        fov_axis: '相机的视角轴',
         fov: '相机的视角大小',
         ortho_height: '正交模式下的相机视角大小',
         near: '相机的近平面',

@@ -103,6 +103,7 @@ module.exports = {
     camera: {
         projection: 'Projection type of the camera',
         priority: 'Render priority of the camera, should be statically set in editor.\nYou cannot dynamically change this property at runtime.',
+        fov_axis: 'Axis of the field of view of the camera',
         fov: 'Field of view of the camera',
         ortho_height: 'Viewport height in orthographic mode',
         near: 'Near clipping distance of the camera',

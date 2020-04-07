@@ -39,7 +39,7 @@ import { Color, Rect, toRadian, Vec3 } from '../../math';
 import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
 import { view } from '../../platform/view';
 import { Camera } from '../../renderer';
-import { SKYBOX_FLAG } from '../../renderer/scene/camera';
+import { SKYBOX_FLAG, CameraProjection, CameraFOVAxis } from '../../renderer/scene/camera';
 import { Root } from '../../root';
 import { Layers, Node, Scene } from '../../scene-graph';
 import { Enum } from '../../value-types';
@@ -50,20 +50,10 @@ const _temp_vec3_1 = new Vec3();
  * @en The projection type.
  * @zh 投影类型。
  */
-const ProjectionType = Enum({
-    /**
-     * @en Orthographic camera.
-     * @zh 正交相机。
-     */
-    ORTHO: 0,
-    /**
-     * @en Projective camera.
-     * @zh 透视相机。
-     */
-    PERSPECTIVE: 1,
-});
+const ProjectionType = Enum(CameraProjection);
+const FOVAxis = Enum(CameraFOVAxis);
 
-const CameraClearFlag = Enum({
+const ClearFlag = Enum({
     SKYBOX: SKYBOX_FLAG | GFXClearFlag.DEPTH_STENCIL,
     SOLID_COLOR: GFXClearFlag.ALL,
     DEPTH_ONLY: GFXClearFlag.DEPTH_STENCIL,
@@ -80,7 +70,8 @@ const CameraClearFlag = Enum({
 @executeInEditMode
 export class CameraComponent extends Component {
     public static ProjectionType = ProjectionType;
-    public static CameraClearFlag = CameraClearFlag;
+    public static FOVAxis = FOVAxis;
+    public static ClearFlag = ClearFlag;
 
     @property
     protected _projection = ProjectionType.PERSPECTIVE;
@@ -88,6 +79,8 @@ export class CameraComponent extends Component {
     protected _priority = 0;
     @property
     protected _fov = 45;
+    @property
+    protected _fovAxis = FOVAxis.VERTICAL;
     @property
     protected _orthoHeight = 10;
     @property
@@ -101,7 +94,7 @@ export class CameraComponent extends Component {
     @property
     protected _stencil = 0;
     @property
-    protected _clearFlags = CameraClearFlag.SOLID_COLOR;
+    protected _clearFlags = ClearFlag.SOLID_COLOR;
     @property
     protected _rect = new Rect(0, 0, 1, 1);
     @property
@@ -154,6 +147,23 @@ export class CameraComponent extends Component {
         if (this._camera) {
             this._camera.priority = val;
         }
+    }
+
+    /**
+     * @en Axis of the field of view of the camera.
+     * @zh 相机的视角轴。
+     */
+    @property({
+        type: FOVAxis,
+        tooltip: 'i18n:camera.fov_axis',
+    })
+    get fovAxis () {
+        return this._fovAxis;
+    }
+
+    set fovAxis (val) {
+        this._fovAxis = val;
+        if (this._camera) { this._camera.fovAxis = val; }
     }
 
     /**
@@ -279,7 +289,7 @@ export class CameraComponent extends Component {
      * @zh 相机的缓冲清除标志位，指定帧缓冲的哪部分要每帧清除。
      */
     @property({
-        type: CameraClearFlag,
+        type: ClearFlag,
         tooltip: 'i18n:camera.clear_flags',
     })
     get clearFlags () {
@@ -482,6 +492,7 @@ export class CameraComponent extends Component {
 
         if (this._camera) {
             this._camera.viewport = this._rect;
+            this._camera.fovAxis = this._fovAxis;
             this._camera.fov = toRadian(this._fov);
             this._camera.orthoHeight = this._orthoHeight;
             this._camera.nearClip = this._near;
