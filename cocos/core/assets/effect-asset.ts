@@ -94,6 +94,7 @@ export interface IBuiltinInfo {
 export interface IShaderInfo {
     name: string;
     hash: number;
+    glsl4: { vert: string, frag: string };
     glsl3: { vert: string, frag: string };
     glsl1: { vert: string, frag: string };
     builtins: { globals: IBuiltinInfo, locals: IBuiltinInfo };

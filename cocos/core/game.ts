@@ -877,6 +877,7 @@ export class Game extends EventTarget {
             const ctors: Array<Constructor<GFXDevice>> = [];
         
             if (JSB) {
+                if (gfx.CCMTLDevice) {ctors.push(gfx.CCMTLDevice); }
                 if (gfx.GLES3Device) { ctors.push(gfx.GLES3Device); }
                 if (gfx.GLES2Device) { ctors.push(gfx.GLES2Device); }
             } else {
