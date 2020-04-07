@@ -325,9 +325,10 @@ class ProgramLib {
         let src = tmpl.glsl3;
         switch (device.gfxAPI) {
             case GFXAPI.GLES2:
-            case GFXAPI.WEBGL:  src = tmpl.glsl1; break;
+            case GFXAPI.WEBGL: src = tmpl.glsl1; break;
             case GFXAPI.GLES3:
             case GFXAPI.WEBGL2: src = tmpl.glsl3; break;
+            case GFXAPI.METAL: src = tmpl.glsl4; break;
             default:  console.error("Invalid GFX API!"); break;
         }
 
