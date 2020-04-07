@@ -22,7 +22,7 @@ export class RenderableComponent extends Component {
     @property({
         type: [Material],
     })
-    protected _materials: Array<Material | null> = [];
+    protected _materials: (Material | null)[] = [];
 
     @property
     protected _visFlags = Layers.Enum.NONE;
@@ -89,7 +89,7 @@ export class RenderableComponent extends Component {
         }
     }
 
-    protected _materialInstances: Array<MaterialInstance | null> = [];
+    protected _materialInstances: (MaterialInstance | null)[] = [];
     protected _models: Model[] = [];
 
     get sharedMaterial () {
