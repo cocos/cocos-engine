@@ -7,6 +7,11 @@ import { RenderView } from '../../pipeline/render-view';
 import { Node } from '../../scene-graph';
 import { RenderScene } from './render-scene';
 
+export enum CameraFOVAxis {
+    VERTICAL,
+    HORIZONTAL,
+}
+
 export enum CameraProjection {
     ORTHO,
     PERSPECTIVE,
@@ -86,24 +91,27 @@ export const SKYBOX_FLAG = GFXClearFlag.STENCIL << 1;
 
 export class Camera {
 
+    public node: Node | null = null;
+    public isWindowSize: boolean = true;
+    public screenScale: number;
+    public viewport: Rect = new Rect(0, 0, 1, 1);
+    public clearStencil: number = 0;
+    public clearDepth: number = 1.0;
+    public clearFlag: GFXClearFlag = GFXClearFlag.NONE;
+
     private _scene: RenderScene | null = null;
     private _name: string | null = null;
     private _enabled: boolean = false;
     private _proj: CameraProjection = -1;
-    private _isWindowSize: boolean = true;
     private _width: number;
     private _height: number;
-    private _screenScale: number;
     private _aspect: number;
     private _orthoHeight: number = 10.0;
+    private _fovAxis = CameraFOVAxis.VERTICAL;
     private _fov: number = toRadian(45);
     private _nearClip: number = 1.0;
     private _farClip: number = 1000.0;
-    private _clearStencil: number = 0;
-    private _clearDepth: number = 1.0;
-    private _clearFlag: GFXClearFlag = GFXClearFlag.NONE;
     private _clearColor: IGFXColor = { r: 0.2, g: 0.2, b: 0.2, a: 1 };
-    private _viewport: Rect = new Rect(0, 0, 1, 1);
     private _isProjDirty = true;
     private _matView: Mat4 = new Mat4();
     private _matViewInv: Mat4 | null = null;
@@ -114,7 +122,6 @@ export class Camera {
     private _frustum: frustum = new frustum();
     private _forward: Vec3 = new Vec3();
     private _position: Vec3 = new Vec3();
-    private _node: Node | null = null;
     private _view: RenderView | null = null;
     private _visibility = CAMERA_DEFAULT_MASK;
     private _priority: number = 0;
@@ -133,12 +140,12 @@ export class Camera {
         this._isoValue = ISOS[this._iso];
         this.updateExposure();
 
-        this._aspect = this._width = this._height = this._screenScale = 1;
+        this._aspect = this._width = this._height = this.screenScale = 1;
     }
 
     public initialize (info: ICameraInfo) {
         this._name = info.name;
-        this._node = info.node;
+        this.node = info.node;
         this._proj = info.projection;
         this._priority = info.priority || 0;
 
@@ -184,25 +191,25 @@ export class Camera {
         this._width = width;
         this._height = height;
         this._aspect = this._width / this._height;
-        this._isWindowSize = false;
+        this.isWindowSize = false;
     }
 
     public update (forceUpdate = false) { // for lazy eval situations like the in-editor preview
-        if (this._node) {
+        if (this.node) {
             // view matrix
-            if (this._node.hasChangedFlags || forceUpdate) {
+            if (this.node.hasChangedFlags || forceUpdate) {
                 Mat4.invert(this._matView, this.node.worldMatrix);
 
                 this._forward.x = -this._matView.m02;
                 this._forward.y = -this._matView.m06;
                 this._forward.z = -this._matView.m10;
-                this._node.getWorldPosition(this._position);
+                this.node.getWorldPosition(this._position);
             }
 
             // projection matrix
             if (this._isProjDirty) {
                 if (this._proj === CameraProjection.PERSPECTIVE) {
-                    Mat4.perspective(this._matProj, this._fov, this._aspect, this._nearClip, this._farClip);
+                    Mat4.perspective(this._matProj, this._fov, this._aspect, this._nearClip, this._farClip, this._fovAxis === CameraFOVAxis.VERTICAL);
                 } else {
                     const x = this._orthoHeight * this._aspect;
                     const y = this._orthoHeight;
@@ -212,7 +219,7 @@ export class Camera {
             }
 
             // view-projection
-            if (this._node.hasChangedFlags || this._isProjDirty || forceUpdate) {
+            if (this.node.hasChangedFlags || this._isProjDirty || forceUpdate) {
                 Mat4.multiply(this._matViewProj, this._matProj, this._matView);
                 Mat4.invert(this._matViewProjInv, this._matViewProj);
                 this._frustum.update(this._matViewProj, this._matViewProjInv);
@@ -223,7 +230,7 @@ export class Camera {
     }
 
     public getSplitFrustum (out: frustum, nearClip: number, farClip: number) {
-        if (!this._node) {
+        if (!this.node) {
             return;
         }
 
@@ -235,7 +242,7 @@ export class Camera {
 
         // projection matrix
         if (this._proj === CameraProjection.PERSPECTIVE) {
-            Mat4.perspective(_tempMat1, this._fov, this._aspect, nearClip, farClip);
+            Mat4.perspective(_tempMat1, this._fov, this._aspect, nearClip, farClip, this._fovAxis === CameraFOVAxis.VERTICAL);
         } else {
             const x = this._orthoHeight * this._aspect;
             const y = this._orthoHeight;
@@ -246,14 +253,6 @@ export class Camera {
         Mat4.multiply(_tempMat2, _tempMat1, this._matView);
         Mat4.invert(_tempMat1, _tempMat2);
         out.update(_tempMat2, _tempMat1);
-    }
-
-    set screenScale (val) {
-        this._screenScale = val;
-    }
-
-    get screenScale () {
-        return this._screenScale;
     }
 
     set enabled (val) {
@@ -269,22 +268,6 @@ export class Camera {
 
     get view (): RenderView {
         return this._view!;
-    }
-
-    set node (val) {
-        this._node = val;
-    }
-
-    get node () {
-        return this._node!;
-    }
-
-    get isWindowSize (): boolean {
-        return this._isWindowSize;
-    }
-
-    set isWindowSize (value) {
-        this._isWindowSize = value;
     }
 
     set orthoHeight (val) {
@@ -305,12 +288,16 @@ export class Camera {
         return this._proj;
     }
 
-    set viewport (v: Rect) {
-        this._viewport = v;
+    set fovAxis (axis) {
+        if (axis === this._fovAxis) { return; }
+        this._fovAxis = axis;
+        if (axis === CameraFOVAxis.VERTICAL) { this._fov *= this._aspect; }
+        else { this._fov /= this._aspect; }
+        this._isProjDirty = true;
     }
 
-    get viewport (): Rect {
-        return this._viewport;
+    get fovAxis () {
+        return this._fovAxis;
     }
 
     set fov (fov) {
@@ -351,30 +338,6 @@ export class Camera {
         return this._clearColor;
     }
 
-    set clearDepth (val) {
-        this._clearDepth = val;
-    }
-
-    get clearDepth () {
-        return this._clearDepth;
-    }
-
-    set clearStencil (val) {
-        this._clearStencil = val;
-    }
-
-    get clearStencil () {
-        return this._clearStencil;
-    }
-
-    set clearFlag (val) {
-        this._clearFlag = val;
-    }
-
-    get clearFlag () {
-        return this._clearFlag;
-    }
-
     get scene () {
         return this._scene;
     }
@@ -408,7 +371,7 @@ export class Camera {
     }
 
     get matViewInv () {
-        return this._matViewInv || this._node!.worldMatrix;
+        return this._matViewInv || this.node!.worldMatrix;
     }
 
     set matProj (val) {
@@ -560,10 +523,10 @@ export class Camera {
      * transform a screen position to a world space ray
      */
     public screenPointToRay (out: ray, x: number, y: number): ray {
-        const cx = this._viewport.x * this._width;
-        const cy = this._viewport.y * this._height;
-        const cw = this._viewport.width * this._width;
-        const ch = this._viewport.height * this._height;
+        const cx = this.viewport.x * this._width;
+        const cy = this.viewport.y * this._height;
+        const cw = this.viewport.width * this._width;
+        const ch = this.viewport.height * this._height;
 
         // far plane intersection
         Vec3.set(v_a, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, 1);
@@ -571,7 +534,7 @@ export class Camera {
 
         if (this._proj === CameraProjection.PERSPECTIVE) {
             // camera origin
-            if (this._node) { this._node.getWorldPosition(v_b); }
+            if (this.node) { this.node.getWorldPosition(v_b); }
         } else {
             // near plane intersection
             Vec3.set(v_b, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, -1);
@@ -585,10 +548,10 @@ export class Camera {
      * transform a screen position to world space
      */
     public screenToWorld (out: Vec3, screenPos: Vec3): Vec3 {
-        const cx = this._viewport.x * this._width;
-        const cy = this._viewport.y * this._height;
-        const cw = this._viewport.width * this._width;
-        const ch = this._viewport.height * this._height;
+        const cx = this.viewport.x * this._width;
+        const cy = this.viewport.y * this._height;
+        const cw = this.viewport.width * this._width;
+        const ch = this.viewport.height * this._height;
 
         if (this._proj === CameraProjection.PERSPECTIVE) {
             // calculate screen pos in far clip plane
@@ -602,7 +565,7 @@ export class Camera {
             Vec3.transformMat4(out, out, this._matViewProjInv);
 
             // lerp to depth z
-            if (this._node) { this._node.getWorldPosition(v_a); }
+            if (this.node) { this.node.getWorldPosition(v_a); }
 
             Vec3.lerp(out, v_a, out, lerp(this._nearClip / this._farClip, 1, screenPos.z));
         } else {
@@ -623,10 +586,10 @@ export class Camera {
      * transform a world space position to screen space
      */
     public worldToScreen (out: Vec3, worldPos: Vec3): Vec3 {
-        const cx = this._viewport.x * this._width;
-        const cy = this._viewport.y * this._height;
-        const cw = this._viewport.width * this._width;
-        const ch = this._viewport.height * this._height;
+        const cx = this.viewport.x * this._width;
+        const cy = this.viewport.y * this._height;
+        const cw = this.viewport.width * this._width;
+        const ch = this.viewport.height * this._height;
 
         Vec3.transformMat4(out, worldPos, this.matViewProj);
         out.x = cx + (out.x + 1) * 0.5 * cw;
