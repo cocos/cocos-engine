@@ -720,6 +720,7 @@ export class AnimationState extends Playable {
                         samplerResultCache.fromRatio = sampler.ratios[samplerResultCache.from];
                         samplerResultCache.to = index;
                         samplerResultCache.toRatio = sampler.ratios[samplerResultCache.to];
+                        index = samplerResultCache.from;
                     }
                 }
             }

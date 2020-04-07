@@ -131,7 +131,6 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     }
     set useBakedAnimation (val) {
         this._useBakedAnimation = val;
-        this.stop();
         const comps = this.node.getComponentsInChildren(SkinningModelComponent);
         for (let i = 0; i < comps.length; ++i) {
             const comp = comps[i];
