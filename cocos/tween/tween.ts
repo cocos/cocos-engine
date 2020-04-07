@@ -61,7 +61,7 @@ export class Tween {
      * @en
      * Sets tween target.
      * @zh
-     * 设置 tween 的 targ。et
+     * 设置 tween 的 target。
      * @method target
      * @param {Object} target
      * @return {Tween}
