@@ -153,6 +153,7 @@ def main():
                     'gfx.ini': ('gfx', 'jsb_gfx_auto'),
                     'gles2.ini': ('gles2', 'jsb_gles2_auto'),
                     'gles3.ini': ('gles3', 'jsb_gles3_auto'),
+                    'mtl.ini': ('metal', 'jsb_mtl_auto'),
                     }
         target = 'spidermonkey'
         generator_py = '%s/generator.py' % cxx_generator_root

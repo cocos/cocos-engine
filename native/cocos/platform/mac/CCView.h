@@ -23,6 +23,15 @@
  ****************************************************************************/
 #import <AppKit/NSView.h>
 
+#ifdef USE_METAL
+#import <MetalKit/MetalKit.h>
+#endif
+
+#ifdef USE_METAL
+@interface View : MTKView <MTKViewDelegate>
+@property(nonatomic, assign) id<MTLCommandBuffer> mtlCommmandBuffer;
+#else
 @interface View : NSView
+#endif
 
 @end

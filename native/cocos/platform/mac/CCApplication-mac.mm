@@ -107,8 +107,10 @@ namespace
         se->evalString(commandBuf);
         return true;
     }
-    
+
+#ifndef USE_METAL
     MyTimer* _timer;
+#endif
 }
 
 Application* Application::_instance = nullptr;
@@ -123,8 +125,10 @@ Application::Application(int width, int height)
     
     _scheduler = std::make_shared<Scheduler>();
     EventDispatcher::init();
-    
+
+#ifndef USE_METAL
     _timer = [[MyTimer alloc] initWithApp:this fps:_fps];
+#endif
 }
 
 Application::~Application()
@@ -138,16 +142,20 @@ Application::~Application()
     se::ScriptEngine::destroyInstance();
 
     Application::_instance = nullptr;
-    
+  
+#ifndef USE_METAL
     [_timer release];
+#endif
 }
 
 bool Application::init()
 {
     se::ScriptEngine* se = se::ScriptEngine::getInstance();
     se->addRegisterCallback(setCanvasCallback);
-    
+
+#ifndef USE_METAL
     [_timer start];
+#endif
     
     return true;
 }
@@ -155,7 +163,10 @@ bool Application::init()
 void Application::setPreferredFramesPerSecond(int fps)
 {
     _fps = fps;
+    
+#ifndef USE_METAL
     [_timer changeFPS:_fps];
+#endif
 }
 
 Application::Platform Application::getPlatform() const
@@ -246,12 +257,16 @@ void Application::copyTextToClipboard(const std::string &text)
 
 void Application::onPause()
 {
+#ifndef USE_METAL
     [_timer pause];
+#endif
 }
 
 void Application::onResume()
 {
+#ifndef USE_METAL
     [_timer resume];
+#endif
 }
 
 std::string Application::getSystemVersion()

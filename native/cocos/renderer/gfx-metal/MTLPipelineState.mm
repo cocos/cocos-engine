@@ -141,7 +141,7 @@ bool CCMTLPipelineState::createGPUPipelineState()
     _GPUPipelieState->fragmentTextureList = &_fragmentTextures;
     _GPUPipelieState->vertexSampleStateList = &_vertexSamplerStates;
     _GPUPipelieState->fragmentSampleStateList = &_fragmentSamplerStates;
-    
+        
     return true;
 }
 
@@ -224,17 +224,36 @@ bool CCMTLPipelineState::createMTLRenderPipelineState()
 void CCMTLPipelineState::setVertexDescriptor(MTLRenderPipelineDescriptor* descriptor)
 {
     // attributes
-    int i = 0;
+
+    auto mtlAttributes = static_cast<CCMTLShader*>(_shader)->getVertMTLFunction().vertexAttributes;
+    if (mtlAttributes == nil)
+        return;
+    
     uint stride = 0;
-    for (const auto& attrib : _inputState.attributes)
+    bool matched = false;
+    for (MTLVertexAttribute* attrib in mtlAttributes)
     {
-        descriptor.vertexDescriptor.attributes[i].format = mu::toMTLVertexFormat(attrib.format);
-        descriptor.vertexDescriptor.attributes[i].offset = stride;
-        //FIXME: because translated metal shader binds argument buffers from 0. So bind vertex buffer to max buffer index: 30.
-        descriptor.vertexDescriptor.attributes[i].bufferIndex = 30;
-        
-        stride += GFX_FORMAT_INFOS[(int)attrib.format].size;
-        ++i;
+        auto attributeIndex = attrib.attributeIndex;
+        matched = false;
+        for (const auto& inputAttrib : _inputState.attributes)
+        {
+            if (inputAttrib.name.compare([attrib.name UTF8String]) == 0)
+            {
+                descriptor.vertexDescriptor.attributes[attributeIndex].format = mu::toMTLVertexFormat(inputAttrib.format);
+                descriptor.vertexDescriptor.attributes[attributeIndex].offset = stride;
+                //FIXME: because translated metal shader binds argument buffers from 0. So bind vertex buffer to max buffer index: 30.
+                descriptor.vertexDescriptor.attributes[attributeIndex].bufferIndex = 30;
+                
+                stride += GFX_FORMAT_INFOS[(int)inputAttrib.format].size;
+                matched = true;
+                break;
+            }
+        }
+        if (!matched)
+        {
+            CC_LOG_ERROR("Attribute %s is missing.", [attrib.name UTF8String]);
+            assert(false);
+        }
     }
     
     // layouts
@@ -310,7 +329,7 @@ bool CCMTLPipelineState::createMTLRenderPipeline(MTLRenderPipelineDescriptor* de
                                                                         error:&nsError];
     if (!_mtlRenderPipelineState)
     {
-        CC_LOG_ERROR("Failed to create MTLRenderPipelineState: %s", [nsError.localizedFailureReason UTF8String]);
+        CC_LOG_ERROR("Failed to create MTLRenderPipelineState: %s", [nsError.localizedDescription UTF8String]);
         return false;;
     }
     

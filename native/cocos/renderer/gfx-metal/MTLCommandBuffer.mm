@@ -232,9 +232,47 @@ void CCMTLCommandBuffer::copyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GF
     }
 }
 
-void CCMTLCommandBuffer::execute(const std::vector<GFXCommandBuffer*>& cmd_buffs, uint32_t count)
+void CCMTLCommandBuffer::execute(const std::vector<GFXCommandBuffer*>& commandBuffs, uint32_t count)
 {
-    
+    for (uint i = 0; i < count; ++i)
+    {
+        auto commandBuffer = static_cast<CCMTLCommandBuffer*>(commandBuffs[i]);
+        for (uint j = 0; j < commandBuffer->_commandPackage->beginRenderPassCmds.size(); ++j)
+        {
+            CCMTLCmdBeginRenderPass* cmd = commandBuffer->_commandPackage->beginRenderPassCmds[j];
+            ++cmd->ref_count;
+            _commandPackage->beginRenderPassCmds.push(cmd);
+        }
+        for (uint j  = 0; j < commandBuffer->_commandPackage->bindStatesCmds.size(); ++j)
+        {
+            CCMTLCmdBindStates* cmd = commandBuffer->_commandPackage->bindStatesCmds[j];
+            ++cmd->ref_count;
+            _commandPackage->bindStatesCmds.push(cmd);
+        }
+        for (uint j = 0; j < commandBuffer->_commandPackage->drawCmds.size(); ++j)
+        {
+            CCMTLCmdDraw* cmd = commandBuffer->_commandPackage->drawCmds[j];
+            ++cmd->ref_count;
+            _commandPackage->drawCmds.push(cmd);
+        }
+        for (uint j = 0; j < commandBuffer->_commandPackage->updateBufferCmds.size(); ++j)
+        {
+            CCMTLCmdUpdateBuffer* cmd = commandBuffer->_commandPackage->updateBufferCmds[j];
+            ++cmd->ref_count;
+            _commandPackage->updateBufferCmds.push(cmd);
+        }
+        for (uint j = 0; j < commandBuffer->_commandPackage->copyBufferToTextureCmds.size(); ++j)
+        {
+            CCMTLCmdCopyBufferToTexture* cmd = commandBuffer->_commandPackage->copyBufferToTextureCmds[j];
+            ++cmd->ref_count;
+            _commandPackage->copyBufferToTextureCmds.push(cmd);
+        }
+        _commandPackage->commandTypes.concat(commandBuffer->_commandPackage->commandTypes);
+        
+        _numDrawCalls += commandBuffer->_numDrawCalls;
+        _numInstances += commandBuffer->_numInstances;
+        _numTriangles += commandBuffer->_numTriangles;
+    }
 }
 
 void CCMTLCommandBuffer::bindStates()

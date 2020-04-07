@@ -1,7 +1,6 @@
 #include "MTLStd.h"
 #include "MTLBuffer.h"
 #include "MTLDevice.h"
-
 #import <Metal/Metal.h>
 
 NS_CC_BEGIN
@@ -34,54 +33,63 @@ bool CCMTLBuffer::initialize(const GFXBufferInfo& info)
     _count = _size / _stride;
     _flags = info.flags;
     
-    if (_size == 4)
-        _indexType = MTLIndexTypeUInt32;
+    if (_usage & GFXBufferUsage::INDEX)
+    {
+        switch (_stride) {
+            case 4: _indexType = MTLIndexTypeUInt32; break;
+            case 2: _indexType = MTLIndexTypeUInt16; break;
+            default:
+                CC_LOG_ERROR("Illegal index buffer stride.");
+                break;
+        }
+    }
     
     if ((_flags & GFXBufferFlagBit::BAKUP_BUFFER) && _size > 0)
     {
         _buffer = (uint8_t*)CC_MALLOC(_size);
-        _device->getMemoryStatus().bufferSize += _size;
+        if (_buffer)
+            _device->getMemoryStatus().bufferSize += _size;
+        else
+            CCLOG("Failed to create backup buffer.");
     }
     
-    switch (info.usage) {
-        case GFXBufferUsage::VERTEX:
-        case GFXBufferUsage::INDEX:
-        case GFXBufferUsage::UNIFORM:
-            _mtlBuffer = [id<MTLDevice>(((CCMTLDevice*)_device)->getMTLDevice() ) newBufferWithLength:_size options:toMTLResourseOption(info.memUsage)];
+    if (_usage & GFXBufferUsage::VERTEX ||
+        _usage & GFXBufferUsage::INDEX ||
+        _usage & GFXBufferUsage::UNIFORM)
+    {
+        _mtlResourceOptions = toMTLResourseOption(info.memUsage);
+        if (_size > 0)
+        {
+            _mtlBuffer = [id<MTLDevice>(((CCMTLDevice*)_device)->getMTLDevice() ) newBufferWithLength:_size
+                                                                                              options:_mtlResourceOptions];
             if (_mtlBuffer == nil)
             {
                 CCASSERT(false, "Failed to create MTLBuffer.");
                 return false;
             }
-            break;
-        case GFXBufferUsage::TRANSFER_DST:
-        case GFXBufferUsage::TRANSFER_SRC:
-            _transferBuffer = (uint8_t*)CC_MALLOC(_size);
-            if (!_transferBuffer)
-            {
-                CCASSERT(false, "CCMTLBuffer: failed to create memory for transfer buffer.");
-                return false;
-            }
-            _device->getMemoryStatus().bufferSize += _size;
-            break;
-            
-        case GFXBufferUsage::STORAGE:
-        case GFXBufferUsage::INDIRECT:
-            //TODO
-            break;
-        default:
-            CCASSERT(false, "CCMTLBuffer: unsurpported GFXBuffer type.");
+        }
+    }
+    else if (_usage & GFXBufferUsageBit::INDIRECT)
+    {
+        // do nothing
+    }
+    else if (_usage & GFXBufferUsageBit::TRANSFER_DST ||
+             _usage & GFXBufferUsageBit::TRANSFER_SRC)
+    {
+        _transferBuffer = (uint8_t*)CC_MALLOC(_size);
+        if (!_transferBuffer)
+        {
+            CCASSERT(false, "CCMTLBuffer: failed to create memory for transfer buffer.");
             return false;
+        }
+        _device->getMemoryStatus().bufferSize += _size;
+    }
+    else
+    {
+        CCASSERT(false, "Unsupported GFXBufferType, create buffer failed.");
+        return false;
     }
     
-    if (info.flags == GFXBufferFlagBit::BAKUP_BUFFER)
-    {
-        _buffer = (uint8_t*)CC_MALLOC(_size);
-        if (!_buffer)
-            CCLOG("CCMTLBuffer: failed to create backup memory.");
-        else
-            _device->getMemoryStatus().bufferSize += _size;
-    }
     _status = GFXStatus::SUCCESS;
     return true;
 }
@@ -112,7 +120,51 @@ void CCMTLBuffer::destroy()
 
 void CCMTLBuffer::resize(uint size)
 {
-    //TODO
+    if (_size == size)
+        return;
+    
+    if (_usage & GFXBufferUsage::VERTEX ||
+        _usage & GFXBufferUsage::INDEX ||
+        _usage & GFXBufferUsage::UNIFORM)
+    {
+        if (_mtlBuffer) [_mtlBuffer release];
+        
+        _mtlBuffer = [id<MTLDevice>(((CCMTLDevice*)_device)->getMTLDevice() ) newBufferWithLength:size
+                                                                                          options:_mtlResourceOptions];
+        if (!_mtlBuffer)
+        {
+            CC_LOG_ERROR("Failed to resize buffer for metal buffer.");
+            return;
+        }
+    }
+    
+    const uint oldSize = _size;
+    _size = size;
+    _count = _size / _stride;
+    resizeBuffer(&_transferBuffer, _size, oldSize);
+    resizeBuffer(&_buffer, _size, oldSize);
+}
+
+void CCMTLBuffer::resizeBuffer(uint8_t** buffer, uint size, uint oldSize)
+{
+    if (!buffer)
+        return;
+    
+    GFXMemoryStatus& status = _device->getMemoryStatus();
+    const uint8_t* oldBuff = *buffer;
+    *buffer = (uint8_t*)CC_MALLOC(_size);
+    if (*buffer)
+    {
+        memcpy(*buffer, oldBuff, oldSize);
+        status.bufferSize += _size;
+    }
+    else
+    {
+        CC_LOG_ERROR("Failed to resize buffer.");
+    }
+    
+    CC_FREE(oldBuff);
+    status.bufferSize -= oldSize;
 }
 
 void CCMTLBuffer::update(void* buffer, uint offset, uint size)

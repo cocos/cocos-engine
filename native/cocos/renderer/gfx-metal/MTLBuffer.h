@@ -21,9 +21,12 @@ public:
     CC_INLINE MTLIndexType getIndexType() const { return _indexType; }
     
 private:
+    void resizeBuffer(uint8_t**, uint, uint);
+    
     id<MTLBuffer> _mtlBuffer = nullptr;
     uint8_t* _transferBuffer = nullptr;
     MTLIndexType _indexType = MTLIndexTypeUInt16;
+    MTLResourceOptions _mtlResourceOptions = MTLResourceStorageModePrivate;
 };
 
 NS_CC_END

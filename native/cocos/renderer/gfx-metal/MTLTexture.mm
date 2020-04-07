@@ -72,10 +72,10 @@ bool CCMTLTexture::initialize(const GFXTextureInfo& info)
                                                                                          height:_height
                                                                                       mipmapped:_flags & GFXTextureFlags::GEN_MIPMAP];
     descriptor.usage = mu::toMTLTextureUsage(_usage);
-    descriptor.textureType = mu::toMTLTextureType(_type, _arrayLayer, _flags & GFXTextureFlags::CUBEMAP);
+    descriptor.textureType = mu::toMTLTextureType(_type, _arrayLayer, _flags);
     descriptor.sampleCount = mu::toMTLSampleCount(_samples);
     descriptor.mipmapLevelCount = _mipLevel;
-    descriptor.arrayLength = _arrayLayer;
+    descriptor.arrayLength = _flags & GFXTextureFlagBit::CUBEMAP ? 1 : _arrayLayer;
     
     //FIXME: should change to MTLStorageModeManaged if texture usage is GFXTextureFlags::BAKUP_BUFFER?
     if (_usage & GFXTextureUsage::COLOR_ATTACHMENT ||
@@ -133,7 +133,7 @@ void CCMTLTexture::update(uint8_t* const* data, const GFXBufferTextureCopy& regi
     MTLRegion mtlRegion =
     {
         {(uint)region.texOffset.x, (uint)region.texOffset.y, (uint)region.texOffset.z},
-        {region.texExtent.width, region.texExtent.height, region.texExtent.depth}
+        {region.texExtent.width, region.texExtent.height, region.texExtent.depth == 0 ? 1 : region.texExtent.depth}
     };
     
     [_mtlTexture replaceRegion:mtlRegion

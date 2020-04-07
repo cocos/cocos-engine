@@ -10,9 +10,11 @@
 #include "MTLGPUObjects.h"
 #include "MTLInputAssembler.h"
 #include "MTLBuffer.h"
+#include "MTLShader.h"
+#include "platform/mac/CCView.h"
 
 #import <Metal/MTLDevice.h>
-#import <MetalKit/MTKView.h>
+#import <MetalKit/MetalKit.h>
 
 NS_CC_BEGIN
 
@@ -25,36 +27,31 @@ CCMTLQueue::~CCMTLQueue()
 
 bool CCMTLQueue::initialize(const GFXQueueInfo &info)
 {
-    MTKView* mtkView = (MTKView*)((CCMTLDevice*)_device)->getMTKView();
-    _metalQueue = [mtkView.device newCommandQueue];
     _type = info.type;
     _status = GFXStatus::SUCCESS;
     
-    return _metalQueue != nil;
+    return true;
 }
 
 void CCMTLQueue::destroy()
 {
-    if (_metalQueue)
-    {
-        [_metalQueue release];
-        _metalQueue = nil;
-    }
-    
     _status = GFXStatus::UNREADY;
 }
 
 void CCMTLQueue::submit(const std::vector<GFXCommandBuffer*>& cmd_buffs)
 {
-    NSAutoreleasePool* autoReleasePool = [[NSAutoreleasePool alloc] init];
+    // Should remove USE_METAL aftr switch to use metal.
+#ifdef USE_METAL
     uint count = static_cast<uint>(cmd_buffs.size());
+    View* mtkView = (View*)((CCMTLDevice*)_device)->getMTKView();
+
+    id<MTLCommandBuffer> mtlCommandBuffer = mtkView.mtlCommmandBuffer;
     for (uint i = 0; i < count; ++i)
-        executeCommands(static_cast<CCMTLCommandBuffer*>(cmd_buffs[i])->getCommandPackage() );
-    
-    [autoReleasePool release];
+        executeCommands(static_cast<CCMTLCommandBuffer*>(cmd_buffs[i])->getCommandPackage(), mtlCommandBuffer);
+#endif
 }
 
-void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage)
+void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<MTLCommandBuffer> mtlCommandBuffer)
 {
     static uint commandIndices[(int)GFXCmdType::COUNT] = {0};
     
@@ -64,8 +61,6 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage)
     
     memset(commandIndices, 0, sizeof(commandIndices));
     
-    id<MTLCommandBuffer> mtlCommandBuffer = [_metalQueue commandBuffer];
-    [mtlCommandBuffer enqueue];
     id<MTLRenderCommandEncoder> encoder;
     MTKView* mtkView = (MTKView*)((CCMTLDevice*)_device)->getMTKView();
     GFXCmdType commandType;
@@ -90,11 +85,28 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage)
                     mtlRenderPassDescriptor = static_cast<CCMTLRenderPass*>(cmdBeginRenderPass->frameBuffer->getRenderPass() )->getMTLRenderPassDescriptor();
                 
                 if (cmdBeginRenderPass->clearFlags & GFXClearFlagBit::COLOR)
+                {
                     mtlRenderPassDescriptor.colorAttachments[0].clearColor = mu::toMTLClearColor(cmdBeginRenderPass->clearColors[0]);
+                    mtlRenderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
+                }
+                else
+                    mtlRenderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionLoad;
+                
                 if (cmdBeginRenderPass->clearFlags & GFXClearFlagBit::DEPTH)
+                {
                     mtlRenderPassDescriptor.depthAttachment.clearDepth = cmdBeginRenderPass->clearDepth;
+                    mtlRenderPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
+                }
+                else
+                    mtlRenderPassDescriptor.depthAttachment.loadAction = MTLLoadActionLoad;
+                
                 if (cmdBeginRenderPass->clearFlags & GFXClearFlagBit::STENCIL)
+                {
                     mtlRenderPassDescriptor.stencilAttachment.clearStencil = cmdBeginRenderPass->clearStencil;
+                    mtlRenderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionClear;
+                }
+                else
+                    mtlRenderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionLoad;
                 
                 encoder = [mtlCommandBuffer renderCommandEncoderWithDescriptor:mtlRenderPassDescriptor];
                 
@@ -210,9 +222,6 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage)
                 break;
         }
     }
-    
-    [mtlCommandBuffer presentDrawable:mtkView.currentDrawable];
-    [mtlCommandBuffer commit];
 }
 
 NS_CC_END

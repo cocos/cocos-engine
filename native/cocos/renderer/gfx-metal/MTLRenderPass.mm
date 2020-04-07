@@ -45,21 +45,21 @@ void CCMTLRenderPass::destroy()
     _status = GFXStatus::UNREADY;
 }
 
-void CCMTLRenderPass::setColorAttachment(GFXTextureView* textureView)
+void CCMTLRenderPass::setColorAttachment(id<MTLTexture> texture)
 {
     if (! _mtlRenderPassDescriptor)
         return;
     
-    _mtlRenderPassDescriptor.colorAttachments[0].texture = static_cast<CCMTLTextureView*>(textureView)->getMTLTexture();
+    _mtlRenderPassDescriptor.colorAttachments[0].texture = texture;
 }
 
-void CCMTLRenderPass::setDepthStencilAttachment(GFXTextureView* textureView)
+void CCMTLRenderPass::setDepthStencilAttachment(id<MTLTexture> texture)
 {
     if (! _mtlRenderPassDescriptor)
         return;
     
-    _mtlRenderPassDescriptor.depthAttachment.texture = static_cast<CCMTLTextureView*>(textureView)->getMTLTexture();
-    _mtlRenderPassDescriptor.stencilAttachment.texture = static_cast<CCMTLTextureView*>(textureView)->getMTLTexture();
+    _mtlRenderPassDescriptor.depthAttachment.texture = texture;
+    _mtlRenderPassDescriptor.stencilAttachment.texture = texture;
 }
 
 NS_CC_END

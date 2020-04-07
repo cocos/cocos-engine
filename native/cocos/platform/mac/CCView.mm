@@ -26,18 +26,41 @@
 #import <AppKit/NSEvent.h>
 #import "CCKeyCodeHelper.h"
 #import "scripting/js-bindings/event/EventDispatcher.h"
+#include "platform/CCApplication.h"
 
 @implementation View {
     cocos2d::MouseEvent _mouseEvent;
     cocos2d::KeyboardEvent _keyboardEvent;
+#ifdef USE_METAL
+    id<MTLCommandQueue> _mtlCommandQueue;
+#endif
 }
 
 - (instancetype)initWithFrame:(NSRect)frameRect {
     if (self = [super initWithFrame:frameRect]) {
         [self.window makeFirstResponder:self];
+#ifdef USE_METAL
+        self.device = MTLCreateSystemDefaultDevice();
+        self.depthStencilPixelFormat = MTLPixelFormatDepth24Unorm_Stencil8;
+        _mtlCommandQueue = [self.device newCommandQueue];
+        self.delegate = self;
+#endif
     }
     return self;
 }
+
+#ifdef USE_METAL
+- (void)drawInMTKView:(MTKView *)view {
+    self.mtlCommmandBuffer = [_mtlCommandQueue commandBuffer];
+    [self.mtlCommmandBuffer enqueue];
+    cocos2d::Application::getInstance()->tick();
+    [self.mtlCommmandBuffer presentDrawable:self.currentDrawable];
+    [self.mtlCommmandBuffer commit];
+}
+
+- (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size {
+}
+#endif
 
 - (void)keyDown:(NSEvent *)event {
     _keyboardEvent.key = translateKeycode(event.keyCode);

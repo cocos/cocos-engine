@@ -1,7 +1,7 @@
 #pragma once
 
 #include <tuple>
-
+#include <string>
 #import <Metal/MTLRenderPass.h>
 #import <Metal/MTLVertexDescriptor.h>
 #import <Metal/MTLRenderPipeline.h>
@@ -33,13 +33,14 @@ namespace mu
     MTLStencilOperation toMTLStencilOperation(GFXStencilOp);
     MTLPrimitiveType toMTLPrimitiveType(GFXPrimitiveMode);
     MTLTextureUsage toMTLTextureUsage(GFXTextureUsage);
-    MTLTextureType toMTLTextureType(GFXTextureType type, uint arrayLength, bool isCube);
+    MTLTextureType toMTLTextureType(GFXTextureType type, uint arrayLength, GFXTextureFlags flags);
     MTLTextureType toMTLTextureType(GFXTextureViewType type);
     NSUInteger toMTLSampleCount(GFXSampleCount);
     MTLSamplerAddressMode toMTLSamplerAddressMode(GFXAddress);
     MTLSamplerBorderColor toMTLSamplerBorderColor(const GFXColor&);
     MTLSamplerMinMagFilter toMTLSamplerMinMagFilter(GFXFilter);
     MTLSamplerMipFilter toMTLSamplerMipFilter(GFXFilter);
+    std::string compileGLSLShader2Mtl(const std::string& src, bool isVertexShader);
 }
 
 NS_CC_END

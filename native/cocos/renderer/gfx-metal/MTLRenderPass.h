@@ -2,6 +2,7 @@
 
 #import <Metal/MTLRenderPass.h>
 #import <Metal/MTLPixelFormat.h>
+#import <Metal/MTLTexture.h>
 
 NS_CC_BEGIN
 
@@ -16,8 +17,8 @@ public:
     virtual bool initialize(const GFXRenderPassInfo& info) override;
     virtual void destroy() override;
     
-    void setColorAttachment(GFXTextureView* textureView);
-    void setDepthStencilAttachment(GFXTextureView* textureView);
+    void setColorAttachment(id<MTLTexture> texture);
+    void setDepthStencilAttachment(id<MTLTexture> texture);
     
     CC_INLINE MTLRenderPassDescriptor* getMTLRenderPassDescriptor() const { return _mtlRenderPassDescriptor; }
     

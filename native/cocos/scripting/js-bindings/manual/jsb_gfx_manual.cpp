@@ -16,9 +16,10 @@
 #include "renderer/gfx-gles2/GFXGLES2.h"
 #endif
 
-
-
-
+#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#include "scripting/js-bindings/auto/jsb_mtl_auto.hpp"
+#include "renderer/gfx-metal/GFXMTL.h"
+#endif
 
 #include <fstream>
 #include <sstream>
@@ -139,11 +140,29 @@ SE_BIND_FUNC(js_gfx_GLES2Device_copyBuffersToTexture)
 static bool js_gfx_GLES2Device_copyTexImagesToTexture(se::State& s)
 {
     cocos2d::GLES2Device* cobj = (cocos2d::GLES2Device*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Device_copyBuffersToTexture : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES2Device_copyTexImagesToTexture : Invalid Native Object");
     return js_GFXDevice_copyTexImagesToTexture(s, cobj);
 }
 SE_BIND_FUNC(js_gfx_GLES2Device_copyTexImagesToTexture);
 #endif // USE_GLES2
+
+#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+static bool js_gfx_CCMTLDevice_copyBuffersToTexture(se::State& s)
+{
+    cocos2d::CCMTLDevice* cobj = (cocos2d::CCMTLDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_CCMTLDevice_copyBuffersToTexture : Invalid Native Object");
+    return js_GFXDevice_copyBuffersToTexture(s, cobj);
+}
+SE_BIND_FUNC(js_gfx_CCMTLDevice_copyBuffersToTexture)
+
+static bool js_gfx_CCMTLDevice_copyTexImagesToTexture(se::State& s)
+{
+    cocos2d::CCMTLDevice* cobj = (cocos2d::CCMTLDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_CCMTLDevice_copyTexImagesToTexture : Invalid Native Object");
+    return js_GFXDevice_copyTexImagesToTexture(s, cobj);
+}
+SE_BIND_FUNC(js_gfx_CCMTLDevice_copyTexImagesToTexture);
+#endif // #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
 
 static bool js_gfx_GLES3Device_copyBuffersToTexture(se::State& s)
 {
@@ -156,7 +175,7 @@ SE_BIND_FUNC(js_gfx_GLES3Device_copyBuffersToTexture)
 static bool js_gfx_GLES3Device_copyTexImagesToTexture(se::State& s)
 {
     cocos2d::GLES3Device* cobj = (cocos2d::GLES3Device*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GLES3Device_copyBuffersToTexture : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_GLES3Device_copyTexImagesToTexture : Invalid Native Object");
     return js_GFXDevice_copyTexImagesToTexture(s, cobj);
 }
 SE_BIND_FUNC(js_gfx_GLES3Device_copyTexImagesToTexture);
@@ -712,6 +731,12 @@ bool register_all_gfx_manual(se::Object* obj)
     register_all_gles3(obj);
     __jsb_cocos2d_GLES3Device_proto->defineFunction("copyBuffersToTexture", _SE(js_gfx_GLES3Device_copyBuffersToTexture));
     __jsb_cocos2d_GLES3Device_proto->defineFunction("copyTexImagesToTexture", _SE(js_gfx_GLES3Device_copyTexImagesToTexture));
+    
+#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+    register_all_mtl(obj);
+    __jsb_cocos2d_CCMTLDevice_proto->defineFunction("copyBuffersToTexture", _SE(js_gfx_CCMTLDevice_copyBuffersToTexture));
+    __jsb_cocos2d_CCMTLDevice_proto->defineFunction("copyTexImagesToTexture", _SE(js_gfx_CCMTLDevice_copyTexImagesToTexture));
+#endif
     
     return true;
 }

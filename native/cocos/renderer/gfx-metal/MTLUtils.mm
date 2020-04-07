@@ -1,5 +1,8 @@
 #include "MTLStd.h"
 #include "MTLUtils.h"
+#include "shaderc/shaderc.hpp"
+#include "shaderc/spvc.hpp"
+#include <vector>
 
 NS_CC_BEGIN
 
@@ -26,6 +29,8 @@ namespace mu
     
     MTLClearColor toMTLClearColor(const GFXColor& clearColor)
     {
+        MTLClearColor mtlColor;
+        mtlColor = MTLClearColorMake(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
         return MTLClearColorMake(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     }
     
@@ -324,32 +329,25 @@ namespace mu
         return ret;
     }
     
-    MTLTextureType toMTLTextureType(GFXTextureType type, uint arrayLength, bool isCube)
+    MTLTextureType toMTLTextureType(GFXTextureType type, uint arrayLength, GFXTextureFlags flags)
     {
-        bool isArray = arrayLength > 1;
-        switch (type) {
-            case GFXTextureType::TEX1D: return isArray ?
-                                               MTLTextureType1DArray :
-                                               MTLTextureType1D;
-            case GFXTextureType::TEX2D:
-            {
-                if (isArray)
-                {
-                    if (isCube)
-                        return MTLTextureTypeCube;
-                    else
-                        return MTLTextureType2DArray;
-                }
+        switch(type) {
+            case GFXTextureType::TEX1D:
+                if (arrayLength <= 1)
+                    return MTLTextureType1D;
                 else
+                    return MTLTextureType1DArray;
+            case GFXTextureType::TEX2D:
+                if (arrayLength <= 1)
                     return MTLTextureType2D;
-            }
+                else if (flags & GFXTextureFlagBit::CUBEMAP)
+                    return MTLTextureTypeCube;
+                else
+                    return MTLTextureType2DArray;
             case GFXTextureType::TEX3D:
-            {
-                if (isArray)
-                    CC_LOG_ERROR("GFXTextureType::TEX3D can not be array. Transfer to GFXTextureType::TEX3D.");
-                
                 return MTLTextureType3D;
-            }
+            default:
+                return MTLTextureType2D;
         }
     }
     
@@ -421,6 +419,49 @@ namespace mu
             case GFXFilter::POINT:
                 return MTLSamplerMipFilterNearest;
         }
+    }
+    
+    std::string compileGLSLShader2Mtl(const std::string& src, bool isVertexShader)
+    {
+#if USE_METAL
+        std::string shader("#version 310 es\n");
+        shader.append(src);
+        shaderc::Compiler glslCompiler;
+        shaderc_shader_kind shaderKind = isVertexShader ? shaderc_shader_kind::shaderc_vertex_shader
+        : shaderc_shader_kind::shaderc_fragment_shader;
+        shaderc::SpvCompilationResult module = glslCompiler.CompileGlslToSpv(shader, shaderKind, "");
+        if (module.GetCompilationStatus() != shaderc_compilation_status_success)
+        {
+            CC_LOG_ERROR("Failed to compile GLSL shader to spv. %s", module.GetErrorMessage().c_str() );
+            CC_LOG_ERROR("%s", src.c_str());
+            return "";
+        }
+        
+        std::vector<uint32_t> spivSource = {module.cbegin(), module.cend()};
+        shaderc_spvc::Context context;
+        shaderc_spvc::CompileOptions options;
+        options.SetMSLPlatform(shaderc_spvc_msl_platform_macos);
+        auto status = context.InitializeForMsl(spivSource.data(), spivSource.size(), options);
+        if (status != shaderc_spvc_status_success)
+        {
+            CC_LOG_ERROR("Failed to initialize shaderc_spvc::Context.");
+            return "";
+        }
+        
+        shaderc_spvc::CompilationResult result;
+        status = context.CompileShader(&result);
+        if (status != shaderc_spvc_status_success)
+        {
+            CC_LOG_ERROR("Failed to compile spv to mtl");
+            return "";
+        }
+        
+        std::string output;
+        result.GetStringOutput(&output);
+        return output;
+#else
+        return src;
+#endif
     }
 }
 

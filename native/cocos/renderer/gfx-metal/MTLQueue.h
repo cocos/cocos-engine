@@ -17,10 +17,7 @@ public:
     virtual void submit(const std::vector<GFXCommandBuffer*>& cmd_buffs) override;
     
 private:
-    CC_INLINE void executeCommands(const CCMTLCommandPackage*);
-    
-private:
-    id<MTLCommandQueue> _metalQueue = nil;
+    CC_INLINE void executeCommands(const CCMTLCommandPackage*, id<MTLCommandBuffer> mtlCommandBuffer);
 };
 
 NS_CC_END

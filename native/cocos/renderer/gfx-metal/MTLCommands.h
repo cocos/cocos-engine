@@ -65,6 +65,19 @@ public:
     
 };
 
+class CCMTLCmdUpdateBuffer : public GFXCmd {
+public:
+    uint8_t* buffer = nullptr;
+    uint size = 0;
+    uint offset = 0;
+    
+    CCMTLCmdUpdateBuffer() : GFXCmd(GFXCmdType::UPDATE_BUFFER) {}
+    
+    void clear() {
+        buffer = nullptr;
+    }
+};
+
 class CCMTLCommandPackage : public Object
 {
 public:
@@ -72,7 +85,8 @@ public:
     CachedArray<CCMTLCmdBeginRenderPass*> beginRenderPassCmds;
     CachedArray<CCMTLCmdBindStates*> bindStatesCmds;
     CachedArray<CCMTLCmdDraw*> drawCmds;
-    //TODO: support other commands
+    CachedArray<CCMTLCmdUpdateBuffer*> updateBufferCmds;
+    CachedArray<CCMTLCmdCopyBufferToTexture*> copyBufferToTextureCmds;
 };
 
 NS_CC_END

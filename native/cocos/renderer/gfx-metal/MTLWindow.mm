@@ -1,6 +1,8 @@
 #include "MTLStd.h"
 #include "MTLWindow.h"
 #include "MTLRenderPass.h"
+#include "MTLTextureView.h"
+#include "MTLDevice.h"
 
 NS_CC_BEGIN
 
@@ -26,13 +28,13 @@ bool CCMTLWindow::initialize(const GFXWindowInfo& info)
     GFXColorAttachment colorAttachment;
     
     // FIXME: use `_isOffscreen` to determine if it is the default window(created by device).
-    // As metal only supports GFXFormat::BGRA8 for color attachment.
+    // Main window uses MTKView, its color attchment pixel format is BGRA.
     if (_isOffscreen)
         colorAttachment.format = info.colorFmt;
     else
         colorAttachment.format = GFXFormat::BGRA8;
     
-    colorAttachment.loadOp = GFXLoadOp::CLEAR;
+    colorAttachment.loadOp = GFXLoadOp::LOAD;
     colorAttachment.storeOp = GFXStoreOp::STORE;
     colorAttachment.sampleCount = 1;
     colorAttachment.beginLayout = GFXTextureLayout::COLOR_ATTACHMENT_OPTIMAL;
@@ -75,7 +77,11 @@ bool CCMTLWindow::initialize(const GFXWindowInfo& info)
             colorTexViewInfo.layerCount = 1;
             _colorTexView = _device->createTextureView(colorTexViewInfo);
             
-            static_cast<CCMTLRenderPass*>(_renderPass)->setColorAttachment(_colorTexView);
+            if (_colorTexView)
+            {
+                id<MTLTexture> mtlTexture = static_cast<CCMTLTextureView*>(_colorTexView)->getMTLTexture();
+                static_cast<CCMTLRenderPass*>(_renderPass)->setDepthStencilAttachment(mtlTexture);
+            }
         }
         if (_depthStencilFmt != GFXFormat::UNKNOWN) {
             GFXTextureInfo depthStecnilTexInfo;
@@ -98,8 +104,11 @@ bool CCMTLWindow::initialize(const GFXWindowInfo& info)
             depthStecnilTexViewInfo.baseLayer = 0;
             depthStecnilTexViewInfo.layerCount = 1;
             _depthStencilTexView = _device->createTextureView(depthStecnilTexViewInfo);
-            
-            static_cast<CCMTLRenderPass*>(_renderPass)->setDepthStencilAttachment(_depthStencilTexView);
+            if (_depthStencilTexView)
+            {
+                id<MTLTexture> mtlTexture = static_cast<CCMTLTextureView*>(_depthStencilTexView)->getMTLTexture();
+                static_cast<CCMTLRenderPass*>(_renderPass)->setDepthStencilAttachment(mtlTexture);
+            }
         }
     }
 

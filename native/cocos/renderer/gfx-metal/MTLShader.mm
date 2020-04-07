@@ -1,7 +1,7 @@
 #include "MTLStd.h"
 #include "MTLShader.h"
 #include "MTLDevice.h"
-
+#include "MTLUtils.h"
 #import <Metal/MTLDevice.h>
 
 NS_CC_BEGIN
@@ -49,16 +49,17 @@ void CCMTLShader::destroy()
 
 bool CCMTLShader::createMTLFunction(const GFXShaderStage& stage)
 {
+    bool isVertexShader = stage.type == GFXShaderType::VERTEX;
     id<MTLDevice> mtlDevice = id<MTLDevice>(((CCMTLDevice*)_device)->getMTLDevice());
-    
-    NSString* shader = [NSString stringWithUTF8String:stage.source.c_str()];
+    auto mtlShader = mu::compileGLSLShader2Mtl(stage.source, isVertexShader);
+    NSString* shader = [NSString stringWithUTF8String:mtlShader.c_str()];
     NSError* error;
     id<MTLLibrary> library = [mtlDevice newLibraryWithSource:shader
                                                      options:nil
                                                        error:&error];
     if (!library)
     {
-        CC_LOG_ERROR("Can not compile %s shader: %s", stage.type == GFXShaderType::VERTEX ? "vertex" : "fragment",
+        CC_LOG_ERROR("Can not compile %s shader: %s", isVertexShader ? "vertex" : "fragment",
                                                       [error.localizedFailureReason UTF8String]);
         CC_LOG_ERROR("%s", stage.source.c_str());
         return false;
@@ -86,6 +87,19 @@ bool CCMTLShader::createMTLFunction(const GFXShaderStage& stage)
     }
     
     [library release];
+    
+#ifdef DEBUG_SHADER
+    if (isVertexShader)
+    {
+        _vertGlslShader = stage.source;
+        _vertMtlShader = mtlShader;
+    }
+    else
+    {
+        _fragGlslShader = stage.source;
+        _fragMtlShader = mtlShader;
+    }
+#endif
     
     return true;
 }
