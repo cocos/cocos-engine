@@ -312,6 +312,7 @@ export class AnimationState extends Playable {
     protected _ignoreIndex = InvalidIndex;
     private _blendStateBuffer: BlendStateBuffer | null = null;
     private _blendStateWriters: IBlendStateWriter[] = [];
+    private _isBlendStateWriterInitialized = false;
 
     constructor (clip: AnimationClip, name = '') {
         super();
@@ -846,6 +847,11 @@ export class AnimationState extends Playable {
     }
 
     private _onReplayOrResume () {
+        if (!this._isBlendStateWriterInitialized) {
+            for (let iBlendStateWriter = 0; iBlendStateWriter < this._blendStateWriters.length; ++iBlendStateWriter) {
+                this._blendStateWriters[iBlendStateWriter].initialize();
+            }
+        }
         cc.director.getAnimationManager().addAnimation(this);
     }
 
@@ -858,6 +864,7 @@ export class AnimationState extends Playable {
             this._blendStateWriters[iBlendStateWriter].destroy();
         }
         this._blendStateWriters.length = 0;
+        this._isBlendStateWriterInitialized = false;
     }
 }
 
