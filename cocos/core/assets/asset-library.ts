@@ -369,7 +369,7 @@ const AssetLibrary = {
             cc.loader.md5Pipe = md5Pipe;
         }
 
-        const subPackages = options.subpackages;
+        const subPackages = options.subPackages;
         if (subPackages) {
             cc.loader.downloader.setSubPackages(subPackages);
             const subPackPipe = new SubPackPipe(subPackages);
