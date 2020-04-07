@@ -851,6 +851,7 @@ export class AnimationState extends Playable {
             for (let iBlendStateWriter = 0; iBlendStateWriter < this._blendStateWriters.length; ++iBlendStateWriter) {
                 this._blendStateWriters[iBlendStateWriter].initialize();
             }
+            this._isBlendStateWriterInitialized = true;
         }
         cc.director.getAnimationManager().addAnimation(this);
     }
