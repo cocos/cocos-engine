@@ -9,10 +9,10 @@ import { IVec3Like } from '../../../core/math/type-define';
 
 export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
 
-    setHeight (v: number) {
+    setCylinderHeight (v: number) {
         this.updateProperties(
             this.collider.radius,
-            this.collider.height,
+            this.collider.cylinderHeight,
             this.collider.direction,
             this._collider.node.worldScale
         );
@@ -24,7 +24,7 @@ export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
     setDirection (v: number) {
         this.updateProperties(
             this.collider.radius,
-            this.collider.height,
+            this.collider.cylinderHeight,
             this.collider.direction,
             this._collider.node.worldScale
         );
@@ -36,7 +36,7 @@ export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
     setRadius (v: number) {
         this.updateProperties(
             this.collider.radius,
-            this.collider.height,
+            this.collider.cylinderHeight,
             this.collider.direction,
             this._collider.node.worldScale
         );
@@ -72,19 +72,16 @@ export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
         const ws = scale;
         const upAxis = direction;
         if (upAxis == 1) {
-            const wh = height * Math.abs(ws.y);
             const wr = radius * Math.abs(absMax(ws.x, ws.z));
-            const halfH = (wh - wr * 2) / 2;
+            const halfH = height / 2 * Math.abs(ws.y);
             this.impl.updateProp(wr, halfH, upAxis);
         } else if (upAxis == 0) {
-            const wh = height * Math.abs(ws.x);
             const wr = radius * Math.abs(absMax(ws.y, ws.z));
-            const halfH = (wh - wr * 2) / 2;
+            const halfH = height / 2 * Math.abs(ws.x);
             this.impl.updateProp(wr, halfH, upAxis);
         } else {
-            const wh = height * Math.abs(ws.z);
             const wr = radius * Math.abs(absMax(ws.x, ws.y));
-            const halfH = (wh - wr * 2) / 2;
+            const halfH = height / 2 * Math.abs(ws.z);
             this.impl.updateProp(wr, halfH, upAxis);
         }
     }

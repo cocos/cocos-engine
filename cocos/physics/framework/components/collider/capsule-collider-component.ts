@@ -15,6 +15,7 @@ import { ColliderComponent } from './collider-component';
 import { ICapsuleShape } from '../../../spec/i-physics-shape';
 import { EDITOR, TEST } from 'internal:constants';
 import { EAxisDirection } from '../../physics-enum';
+import { absMax } from '../../../../core';
 
 /**
  * @en
@@ -34,16 +35,15 @@ export class CapsuleColliderComponent extends ColliderComponent {
      * @en
      * Gets or sets the radius of the sphere on the capsule body, in local space.
      * @zh
-     * 获取或设置胶囊体上的球半径。
+     * 获取或设置胶囊体在本地坐标系下的球半径。
      */
-    @property({ tooltip: '胶囊体上的球的半径' })
+    @property({ tooltip: '本地坐标系下胶囊体上的球的半径' })
     public get radius () {
         return this._radius;
     }
 
     public set radius (value) {
         if (value < 0) value = 0;
-
         this._radius = value;
         if (!EDITOR && !TEST) {
             this.shape.setRadius(value);
@@ -52,21 +52,20 @@ export class CapsuleColliderComponent extends ColliderComponent {
 
     /**
      * @en
-     * Gets or sets the capsule body is at the corresponding axial height, in local space.
+     * Gets or sets the cylinder on the capsule body is at the corresponding axial height, in local space.
      * @zh
-     * 胶囊体在相应轴向的高度，最小值为两倍的 radius。
+     * 获取或设置在本地坐标系下的胶囊体上圆柱体的高度。
      */
-    @property({ tooltip: '胶囊体在相应轴向的高度' })
-    public get height () {
-        return this._height;
+    @property({ tooltip: '本地坐标系下胶囊体上的圆柱体的高度' })
+    public get cylinderHeight () {
+        return this._cylinderHeight;
     }
 
-    public set height (value) {
-        if (value < this._radius * 2) { value = this._radius * 2 }
-
-        this._height = value;
+    public set cylinderHeight (value) {
+        if (value < 0) value = 0;
+        this._cylinderHeight = value;
         if (!EDITOR && !TEST) {
-            this.shape.setHeight(value);
+            this.shape.setCylinderHeight(value);
         }
     }
 
@@ -74,9 +73,9 @@ export class CapsuleColliderComponent extends ColliderComponent {
      * @en
      * Gets or sets the capsule direction, in local space.
      * @zh
-     * 获取或设置在胶囊体本地空间上的方向。
+     * 获取或设置在本地坐标系下胶囊体的方向。
      */
-    @property({ type: EAxisDirection })
+    @property({ type: EAxisDirection, tooltip: "本地坐标系下胶囊体的朝向" })
     public get direction () {
         return this._direction;
     }
@@ -88,6 +87,32 @@ export class CapsuleColliderComponent extends ColliderComponent {
         if (!EDITOR && !TEST) {
             this.shape.setDirection(value);
         }
+    }
+
+    /**
+     * @en
+     * Gets or sets the capsule height, in local space, with the minimum value being the diameter of the sphere.
+     * @zh
+     * 获取或设置在本地坐标系下胶囊体的高度，最小值为球的直径。
+     */
+    public get height () {
+        return this._radius * 2 + this._cylinderHeight;
+    }
+
+    public set height (value) {
+        let ch = value - this._radius * 2;
+        if (ch < 0) ch = 0;
+        this.cylinderHeight = ch;
+    }
+
+    /**
+     * @en
+     * Gets the capsule body is at the corresponding axial height, in world space.
+     * @zh
+     * 获取胶囊体在世界坐标系下相应胶囊体朝向上的高度，只读属性。
+     */
+    public get worldHeight () {
+        return this._radius * 2 * this._getRadiusScale() + this._cylinderHeight * this._getHeightScale();
     }
 
     /**
@@ -106,7 +131,7 @@ export class CapsuleColliderComponent extends ColliderComponent {
     private _radius = 0.5;
 
     @property
-    private _height = 2;
+    private _cylinderHeight = 1;
 
     @property
     private _direction = EAxisDirection.Y_AXIS;
@@ -116,5 +141,27 @@ export class CapsuleColliderComponent extends ColliderComponent {
         if (!EDITOR && !TEST) {
             this._shape = createCapsuleShape();
         }
+    }
+
+    private _getRadiusScale () {
+        if (this.node == null) return 1;
+        const ws = this.node.worldScale;
+        if (this._direction == EAxisDirection.Y_AXIS)
+            return Math.abs(absMax(ws.x, ws.z));
+        else if (this._direction == EAxisDirection.X_AXIS)
+            return Math.abs(absMax(ws.y, ws.z));
+        else
+            return Math.abs(absMax(ws.x, ws.y));
+    }
+
+    private _getHeightScale () {
+        if (this.node == null) return 1;
+        const ws = this.node.worldScale;
+        if (this._direction == EAxisDirection.Y_AXIS)
+            return Math.abs(ws.y);
+        else if (this._direction == EAxisDirection.X_AXIS)
+            return Math.abs(ws.x);
+        else
+            return Math.abs(ws.z);
     }
 }
