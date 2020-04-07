@@ -6,7 +6,7 @@ import { RecyclePool } from '../../core/memop';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { IDefineMap } from '../../core/renderer/core/pass-utils';
 import { RenderMode, Space } from '../enum';
-import Particle, { IParticleModule, PARTICLE_MODULE_ORDER } from '../particle';
+import { Particle, IParticleModule, PARTICLE_MODULE_ORDER } from '../particle';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
 import { Component } from '../../core';
 
@@ -14,14 +14,14 @@ const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
 
 const _anim_module = [
-    "colorOverLifetimeModule",
-    "sizeOvertimeModule",
-    "velocityOvertimeModule",
-    "forceOvertimeModule",
-    "limitVelocityOvertimeModule",
-    "rotationOvertimeModule",
-    "textureAnimationModule"
-]
+    'colorOverLifetimeModule',
+    'sizeOvertimeModule',
+    'velocityOvertimeModule',
+    'forceOvertimeModule',
+    'limitVelocityOvertimeModule',
+    'rotationOvertimeModule',
+    'textureAnimationModule'
+];
 
 const _uvs = [
     0, 0, // bottom-left
@@ -84,7 +84,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _defaultTrailMat: Material | null = null;
     private _updateList: Map<string, IParticleModule> = new Map<string, IParticleModule>();
     private _animateList: Map<string, IParticleModule> = new Map<string, IParticleModule>();
-    private _runAnimateList: Array<IParticleModule> = new Array<IParticleModule>();
+    private _runAnimateList: IParticleModule[] = new Array<IParticleModule>();
     private _fillDataFunc: any = null;
 
     constructor (info: any) {
@@ -124,6 +124,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
     public clear () {
         this._particles!.reset();
+        this._particleSystem!.trailModule.clear();
         this.updateRenderData();
     }
 
@@ -150,35 +151,48 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
     private _initModuleList () {
         _anim_module.forEach(val => {
-            let pm = this._particleSystem[val]
+            const pm = this._particleSystem[val];
             if (pm.enable) {
-                pm.needUpdate && (this._updateList[pm.name] = pm);
-                pm.needAnimate && (this._animateList[pm.name] = pm);
+                if (pm.needUpdate) {
+                    this._updateList[pm.name] = pm;
+                }
+
+                if (pm.needAnimate) {
+                    this._animateList[pm.name] = pm;
+                }
             }
-        })
+        });
 
         // reorder
         this._runAnimateList.length = 0;
         for (let i = 0, len = PARTICLE_MODULE_ORDER.length; i < len; i++) {
-            let p = this._animateList[PARTICLE_MODULE_ORDER[i]];
-            p && this._runAnimateList.push(p);
+            const p = this._animateList[PARTICLE_MODULE_ORDER[i]];
+            if (p) {
+                this._runAnimateList.push(p);
+            }
         }
     }
 
-    public enableModule (name: string, val: Boolean, pm: IParticleModule) { 
+    public enableModule (name: string, val: Boolean, pm: IParticleModule) {
         if (val) {
-            pm.needUpdate && (this._updateList[name] = pm);
-            pm.needAnimate && (this._animateList[name] = pm);
+            if (pm.needUpdate) {
+                this._updateList[pm.name] = pm;
+            }
+
+            if (pm.needAnimate) {
+                this._animateList[pm.name] = pm;
+            }
         } else {
             delete this._animateList[name];
             delete this._updateList[name];
         }
-        
         // reorder
         this._runAnimateList.length = 0;
         for (let i = 0, len = PARTICLE_MODULE_ORDER.length; i < len; i++) {
-            let p = this._animateList[PARTICLE_MODULE_ORDER[i]];
-            p && this._runAnimateList.push(p);
+            const p = this._animateList[PARTICLE_MODULE_ORDER[i]];
+            if (p) {
+                this._runAnimateList.push(p);
+            }
         }
     }
 
@@ -197,7 +211,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
         this._updateList.forEach((value: IParticleModule, key: string)=>{
             value.update(this._particleSystem!._simulationSpace, _tempWorldTrans);
-        })
+        });
 
         if (this._particleSystem!.trailModule.enable) {
             this._particleSystem!.trailModule.update();
@@ -224,7 +238,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
             this._runAnimateList.forEach(value =>{
                 value.animate(p, dt);
-            })
+            });
 
             Vec3.scaleAndAdd(p.position, p.position, p.ultimateVelocity, dt); // apply velocity.
             if (this._particleSystem!.trailModule.enable) {
@@ -284,7 +298,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     }
 
     private _fillMeshData (p: Particle, idx: number, fi: number) {
-        let attrNum = 0, i = idx / 4;
+        const i = idx / 4;
+        let attrNum = 0;
         this._attrs[attrNum++] = p.position;
         _tempAttribUV.z = fi;
         this._attrs[attrNum++] = _tempAttribUV;
@@ -347,35 +362,37 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             return;
         }
 
-        let shareMaterial = this._particleSystem!.sharedMaterial;
+        const ps = this._particleSystem;
+        const shareMaterial = ps.sharedMaterial;
         if (shareMaterial != null) {
-            let effectName = shareMaterial._effectAsset._name;
+            const effectName = shareMaterial._effectAsset._name;
             // reset material
             if (effectName.indexOf('particle') === -1 || effectName.indexOf('particle-gpu') !== -1) {
-                this._particleSystem!.setMaterial(null, 0);
+                ps.setMaterial(null, 0);
             }
         }
 
-        if (this._particleSystem!.sharedMaterial == null && this._defaultMat == null) {
+        if (ps.sharedMaterial == null && this._defaultMat == null) {
             _matInsInfo.parent = builtinResMgr.get<Material>('default-particle-material');
             _matInsInfo.owner = this._particleSystem;
             _matInsInfo.subModelIdx = 0;
             this._defaultMat = new MaterialInstance(_matInsInfo);
         }
-        const mat: Material | null = this._particleSystem!.getMaterialInstance(0) || this._defaultMat;
-        if (this._particleSystem!._simulationSpace === Space.World) {
+        const mat: Material = ps.getMaterialInstance(0) || this._defaultMat;
+        if (ps._simulationSpace === Space.World) {
             this._defines[CC_USE_WORLD_SPACE] = true;
         } else {
             this._defines[CC_USE_WORLD_SPACE] = false;
         }
 
-        let renderMode = this._renderInfo!.renderMode;
+        const renderMode = this._renderInfo!.renderMode;
+        const vlenScale = this._frameTile_velLenScale;
         if (renderMode === RenderMode.Billboard) {
             this._defines[CC_RENDER_MODE] = RENDER_MODE_BILLBOARD;
         } else if (renderMode === RenderMode.StrecthedBillboard) {
             this._defines[CC_RENDER_MODE] = RENDER_MODE_STRETCHED_BILLBOARD;
-            this._frameTile_velLenScale.z = this._renderInfo!.velocityScale;
-            this._frameTile_velLenScale.w = this._renderInfo!.lengthScale;
+            vlenScale.z = this._renderInfo!.velocityScale;
+            vlenScale.w = this._renderInfo!.lengthScale;
         } else if (renderMode === RenderMode.HorizontalBillboard) {
             this._defines[CC_RENDER_MODE] = RENDER_MODE_HORIZONTAL_BILLBOARD;
         } else if (renderMode === RenderMode.VerticalBillboard) {
@@ -386,26 +403,30 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             console.warn(`particle system renderMode ${renderMode} not support.`);
         }
 
-        if (this._particleSystem!.textureAnimationModule.enable) {
-            Vec2.set(this._frameTile_velLenScale, this._particleSystem!.textureAnimationModule.numTilesX, this._particleSystem!.textureAnimationModule.numTilesY);
-            mat!.setProperty('frameTile_velLenScale', this._frameTile_velLenScale);
+        if (ps.textureAnimationModule.enable) {
+            Vec2.set(vlenScale, ps.textureAnimationModule.numTilesX, ps.textureAnimationModule.numTilesY);
+            mat.setProperty('frameTile_velLenScale', vlenScale);
         } else {
-            mat!.setProperty('frameTile_velLenScale', this._frameTile_velLenScale);
+            mat.setProperty('frameTile_velLenScale', vlenScale);
         }
-        mat!.recompileShaders(this._defines);
+        mat.recompileShaders(this._defines);
         if (this._model) {
             this._model.setSubModelMaterial(0, mat);
         }
     }
 
     public updateTrailMaterial () {
-        if (this._particleSystem!.trailModule.enable) {
-            if (this._particleSystem!.simulationSpace === Space.World || this._particleSystem!.trailModule.space === Space.World) {
+        if (!this._particleSystem) {
+            return;
+        }
+        const ps = this._particleSystem;
+        if (ps.trailModule.enable) {
+            if (ps.simulationSpace === Space.World || ps.trailModule.space === Space.World) {
                 this._trailDefines[CC_USE_WORLD_SPACE] = true;
             } else {
                 this._trailDefines[CC_USE_WORLD_SPACE] = false;
             }
-            let mat = this._particleSystem!.getMaterialInstance(1);
+            let mat = ps.getMaterialInstance(1);
             if (mat === null && this._defaultTrailMat === null) {
                 _matInsInfo.parent = builtinResMgr.get<Material>('default-trail-material');
                 _matInsInfo.owner = this._particleSystem;
@@ -414,7 +435,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             }
             mat = mat || this._defaultTrailMat;
             mat!.recompileShaders(this._trailDefines);
-            this._particleSystem!.trailModule._updateMaterial();
+            ps.trailModule._updateMaterial();
         }
     }
 }

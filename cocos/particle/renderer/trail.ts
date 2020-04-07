@@ -17,7 +17,7 @@ import { Model } from '../../core/renderer';
 import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';
 import { Space, TextureMode, TrailMode } from '../enum';
-import Particle from '../particle';
+import { Particle } from '../particle';
 
 // tslint:disable: max-line-length
 const PRE_TRIANGLE_INDEX = 1;

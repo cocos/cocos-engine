@@ -13,11 +13,11 @@ import { PixelFormat, Filter, WrapMode } from '../../core/assets/asset-enum';
 
 // tslint:disable: max-line-length
 const SerializableTable = EDITOR && [
-    [ "_mode", "color" ],
-    [ "_mode", "gradient" ],
-    [ "_mode", "colorMin", "colorMax" ],
-    [ "_mode", "gradientMin", "gradientMax"],
-    [ "_mode", "gradient" ]
+    [ '_mode', 'color' ],
+    [ '_mode', 'gradient' ],
+    [ '_mode', 'colorMin', 'colorMax' ],
+    [ '_mode', 'gradientMin', 'gradientMax'],
+    [ '_mode', 'gradient' ]
 ];
 
 const Mode = Enum({
@@ -166,14 +166,14 @@ function evaluateHeight (gr: GradientRange) {
     }
 }
 export function packGradientRange (samples: number, gr: GradientRange) {
-    let height = evaluateHeight(gr);
-    let data = new Uint8Array(samples * height * 4);
-    let interval = 1.0 / (samples - 1);
+    const height = evaluateHeight(gr);
+    const data = new Uint8Array(samples * height * 4);
+    const interval = 1.0 / (samples - 1);
     let offset = 0;
 
     for (let h = 0; h < height; h++) {
         for (let j = 0; j < samples; j++) {
-            let color = evaluateGradient(gr, interval * j, h);
+            const color = evaluateGradient(gr, interval * j, h);
             data[offset] = color.r;
             data[offset + 1] = color.g;
             data[offset + 2] = color.b;
@@ -182,7 +182,7 @@ export function packGradientRange (samples: number, gr: GradientRange) {
         }
     }
 
-    let texture = new Texture2D();
+    const texture = new Texture2D();
     texture.create(samples, height, PixelFormat.RGBA8888);
     texture.setFilters(Filter.LINEAR, Filter.LINEAR);
     texture.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);

@@ -6,7 +6,7 @@
 import { ccclass, property } from '../../core/data/class-decorator';
 import { lerp, pseudoRandom, Vec3, Mat4, Quat } from '../../core/math';
 import { Space, ModuleRandSeed } from '../enum';
-import Particle, { ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
+import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
 import { calculateTransform } from '../particle-general-function';
 
@@ -34,7 +34,8 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     public set enable (val) {
         if (this._enable === val) return;
         this._enable = val;
-        this.target!.enableModule(this.name, val, this);
+        if (!this.target) return;
+        this.target.enableModule(this.name, val, this);
     }
 
     /**
@@ -111,11 +112,9 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
 
     // TODO:functions related to drag are temporarily not supported
     public drag = null;
-
     public multiplyDragByParticleSize = false;
-
     public multiplyDragByParticleVelocity = false;
-    
+    public name = PARTICLE_MODULE_NAME.LIMIT;
     private rotation: Quat;
     private needTransform: boolean;
 
@@ -123,7 +122,6 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
         super();
         this.rotation = new Quat();
         this.needTransform = false;
-        this.name = PARTICLE_MODULE_NAME.LIMIT;
         this.needUpdate = true;
     }
 

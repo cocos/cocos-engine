@@ -6,7 +6,7 @@
 import { ccclass, property } from '../../core/data/class-decorator';
 import { lerp, pseudoRandom, repeat } from '../../core/math';
 import { Enum } from '../../core/value-types';
-import Particle, { ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
+import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import { ParticleSystemComponent } from '../particle-system-component';
 import CurveRange from './curve-range';
 import { ModuleRandSeed } from '../enum';
@@ -75,8 +75,9 @@ export default class TextureAnimationModule extends ParticleModuleBase {
     set enable (val) {
         if (this._enable === val) return;
         this._enable = val;
-        this.target!.updateMaterialParams();
-        this.target!.enableModule(this.name, val, this);
+        if (!this.target) return;
+        this.target.updateMaterialParams();
+        this.target.enableModule(this.name, val, this);
     }
 
     @property({
@@ -233,11 +234,7 @@ export default class TextureAnimationModule extends ParticleModuleBase {
         tooltip:'从动画贴图中选择特定行以生成动画。\n此选项仅在动画播放方式为 SingleRow 时且禁用 randomRow 时可用'
     })
     public rowIndex = 0;
-
-    constructor () {
-        super();
-        this.name = PARTICLE_MODULE_NAME.TEXTURE;
-    }
+    public name = PARTICLE_MODULE_NAME.TEXTURE;
 
     public init (p: Particle) {
         p.startRow = Math.floor(Math.random() * this.numTilesY);

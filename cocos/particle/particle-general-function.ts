@@ -110,6 +110,8 @@ export function randomSortArray (arr: any[]) {
 
 export function randomSign () {
     let sgn = randomRange(-1, 1);
-    sgn === 0 ? sgn++ : sgn;
+    if (sgn === 0) {
+        sgn++;
+    }
     return sign(sgn);
 }

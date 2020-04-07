@@ -5,7 +5,7 @@
 
 import { ccclass, property } from '../../core/data/class-decorator';
 import { pseudoRandom } from '../../core/math';
-import Particle, { ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
+import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
 import { ModuleRandSeed } from '../enum';
 
@@ -29,7 +29,8 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     public set enable (val) {
         if (this._enable === val) return;
         this._enable = val;
-        this.target!.enableModule(this.name, val, this);
+        if (!this.target) return;
+        this.target.enableModule(this.name, val, this);
     }
 
     @property
@@ -86,10 +87,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     })
     public z = new CurveRange();
 
-    constructor () {
-        super();
-        this.name = PARTICLE_MODULE_NAME.ROTATION;
-    }
+    public name = PARTICLE_MODULE_NAME.ROTATION;
 
     public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;

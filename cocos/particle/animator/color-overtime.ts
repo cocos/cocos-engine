@@ -5,7 +5,7 @@
 
 import { ccclass, property } from '../../core/data/class-decorator';
 import { pseudoRandom } from '../../core/math';
-import Particle, { PARTICLE_MODULE_NAME } from '../particle';
+import { Particle, PARTICLE_MODULE_NAME } from '../particle';
 import GradientRange from './gradient-range';
 import { ModuleRandSeed } from '../enum';
 import { ParticleModuleBase } from '../particle';
@@ -31,7 +31,8 @@ export default class ColorOvertimeModule extends ParticleModuleBase {
     public set enable (val) {
         if (this._enable === val) return;
         this._enable = val;
-        this.target!.enableModule(this.name, val, this);
+        if (!this.target) return;
+        this.target.enableModule(this.name, val, this);
     }
 
     /**
@@ -42,11 +43,7 @@ export default class ColorOvertimeModule extends ParticleModuleBase {
         displayOrder: 1,
     })
     public color = new GradientRange();
-
-    constructor () {
-        super();
-        this.name = PARTICLE_MODULE_NAME.COLOR;
-    }
+    public name = PARTICLE_MODULE_NAME.COLOR;
 
     public animate (particle: Particle) {
         particle.color.set(particle.startColor);

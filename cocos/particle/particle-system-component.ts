@@ -514,14 +514,14 @@ export class ParticleSystemComponent extends RenderableComponent {
         return this._models;
     }
 
-    protected _attachToScene() {
+    protected _attachToScene () {
         this.processor!.attachToScene();
         if (this.trailModule.enable) {
             this.trailModule._attachToScene();
         }
     }
 
-    protected _detachFromScene() {
+    protected _detachFromScene () {
         this.processor!.detachFromScene();
         if (this.trailModule.enable) {
             this.trailModule._detachFromScene();
@@ -679,7 +679,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     }
 
     private emit (count, dt) {
-        let delta = this._time / this.duration;
+        const delta = this._time / this.duration;
 
         if (this._simulationSpace === Space.World) {
             this.node.getWorldMatrix(_world_mat);

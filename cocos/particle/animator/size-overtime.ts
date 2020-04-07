@@ -5,7 +5,7 @@
 
 import { ccclass, property } from '../../core/data/class-decorator';
 import { pseudoRandom, Vec3 } from '../../core/math';
-import Particle, { ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
+import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
 import { ModuleRandSeed } from '../enum';
 
@@ -29,7 +29,8 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
     public set enable (val) {
         if (this._enable === val) return;
         this._enable = val;
-        this.target!.enableModule(this.name, val, this);
+        if (!this.target) return;
+        this.target.enableModule(this.name, val, this);
     }
 
     /**
@@ -81,10 +82,7 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
     })
     public z = new CurveRange();
 
-    constructor () {
-        super();
-        this.name = PARTICLE_MODULE_NAME.SIZE;
-    }
+    public name = PARTICLE_MODULE_NAME.SIZE;
 
     public animate (particle: Particle, dt: number) {
         if (!this.separateAxes) {

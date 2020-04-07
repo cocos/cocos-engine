@@ -6,7 +6,7 @@ import { Color, Vec3, Mat4 } from '../core/math';
 import { ParticleSystemComponent } from './particle-system-component';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
 
-export default class Particle {
+export class Particle {
     public particleSystem: ParticleSystemComponent;
     public position: Vec3;
     public velocity: Vec3;
@@ -58,7 +58,7 @@ export const PARTICLE_MODULE_NAME = {
     SIZE: 'sizeModule',
     VELOCITY: 'velocityModule',
     TEXTURE: 'textureModule'
-}
+};
 
 export const PARTICLE_MODULE_ORDER = [
     'sizeModule',
@@ -68,19 +68,19 @@ export const PARTICLE_MODULE_ORDER = [
     'limitModule',
     'rotationModule',
     'textureModule'
-]
+];
 
 export const PARTICLE_MODULE_PROPERTY = [
-    "colorOverLifetimeModule",
-    "shapeModule",
-    "sizeOvertimeModule",
-    "velocityOvertimeModule",
-    "forceOvertimeModule",
-    "limitVelocityOvertimeModule",
-    "rotationOvertimeModule",
-    "textureAnimationModule",
-    "trailModule"
-]
+    'colorOverLifetimeModule',
+    'shapeModule',
+    'sizeOvertimeModule',
+    'velocityOvertimeModule',
+    'forceOvertimeModule',
+    'limitVelocityOvertimeModule',
+    'rotationOvertimeModule',
+    'textureAnimationModule',
+    'trailModule'
+];
 
 export interface IParticleModule {
     target: IParticleSystemRenderer | null;
@@ -89,22 +89,19 @@ export interface IParticleModule {
     name: string;
     bindTarget (target: any): void;
     update (space: number, trans: Mat4): void;
-    animate (p: Particle, dt: number): void;
+    animate (p: Particle, dt?: number): void;
 }
 
 export abstract class ParticleModuleBase implements IParticleModule{
     public target:IParticleSystemRenderer | null = null;
     public needUpdate: Boolean = false;
     public needAnimate: Boolean = true;
-    public name: string = "";
-
-    constructor () {
-    }
 
     public bindTarget (target: IParticleSystemRenderer) {
         this.target = target;
     }
 
-    public update (space: number, trans: Mat4) {};
-    public abstract animate (p: Particle, dt: number): void;
+    public update (space: number, trans: Mat4) {}
+    public abstract name: string;
+    public abstract animate (p: Particle, dt?: number): void;
 }

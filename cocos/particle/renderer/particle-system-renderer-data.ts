@@ -1,7 +1,6 @@
 import { Material, Mesh } from '../../core/assets';
 import { ccclass, property } from '../../core/data/class-decorator';
 import { RenderMode} from '../enum';
-import { IParticleSystemRenderer } from './particle-system-renderer-base';
 import ParticleSystemRendererCPU from './particle-system-renderer-cpu';
 import ParticleSystemRendererGPU from './particle-system-renderer-gpu';
 @ccclass('cc.ParticleSystemRenderer')
@@ -160,9 +159,6 @@ export default class ParticleSystemRenderer {
 
     private _particleSystem: any = null;
 
-    constructor () {
-    }
-
     onInit (ps: any) {
         this._particleSystem = ps;
         this._particleSystem.processor = this._useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
@@ -175,7 +171,6 @@ export default class ParticleSystemRenderer {
             this._particleSystem.processor.clear();
             this._particleSystem.processor = null;
         }
-        
         this._particleSystem.processor = this._useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
         this._particleSystem.processor.onInit(this._particleSystem);
         this._particleSystem.processor.onEnable();

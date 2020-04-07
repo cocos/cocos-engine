@@ -35,7 +35,7 @@ import { GFXAttributeName, GFXBufferUsageBit, GFXFormatInfos,
 import { IGFXAttribute } from '../../core/gfx/input-assembler';
 import { Color } from '../../core/math/color';
 import { Model, ModelType } from '../../core/renderer/scene/model';
-import Particle from '../particle';
+import { Particle } from '../particle';
 
 const _uvs = [
     0, 0, // bottom-left
@@ -62,15 +62,10 @@ export default class ParticleBatchModel extends Model {
     private _startTimeOffset: number = 0;
     private _lifeTimeOffset: number = 0;
 
-    public get device () {
-        return this._device;
-    } 
-
     constructor () {
         super();
 
         this.type = ModelType.PARTICLE_BATCH;
-        
         this._capacity = 0;
         this._vertAttrs = null;
         this._vertSize = 0;
@@ -271,7 +266,7 @@ export default class ParticleBatchModel extends Model {
             this._vdataF32![idx++] = time;
 
             this._vdataF32![idx++] = p.startSize.x;
-            this._vdataF32![idx++] = p.startSize.y;  
+            this._vdataF32![idx++] = p.startSize.y;
             this._vdataF32![idx++] = p.startSize.z;
             this._vdataF32![idx++] = _uvs[2 * i];
 
@@ -297,8 +292,11 @@ export default class ParticleBatchModel extends Model {
     }
 
     public updateGPUParticles (num: number, time: number) {
-        let pSize = this._vertAttrsFloatCount * this._vertCount;
-        let pBaseIndex = 0, startTime = 0, lifeTime = 0, lastBaseIndex = 0;
+        const pSize = this._vertAttrsFloatCount * this._vertCount;
+        let pBaseIndex = 0;
+        let startTime = 0;
+        let lifeTime = 0;
+        let lastBaseIndex = 0;
         for (let i = 0; i < num; ++i) {
             pBaseIndex = i * pSize;
             startTime = this._vdataF32![pBaseIndex + this._startTimeOffset];
@@ -313,9 +311,9 @@ export default class ParticleBatchModel extends Model {
         return num;
     }
 
-    public constructAttributeIndex() {
+    public constructAttributeIndex () {
         if (!this._vertAttrs) {
-            return
+            return;
         }
         let vIdx = this._vertAttrs!.findIndex((val) => val.name === 'a_position_starttime');
         let vOffset = (this._vertAttrs![vIdx] as any).offset;

@@ -11,10 +11,10 @@ import { PixelFormat, Filter, WrapMode } from '../../core/assets/asset-enum';
 import { EDITOR } from 'internal:constants';
 
 const SerializableTable = EDITOR && [
-    [ "mode", "constant", "multiplier" ],
-    [ "mode", "curve", "multiplier" ],
-    [ "mode", "curveMin", "curveMax", "multiplier" ],
-    [ "mode", "constantMin", "constantMax", "multiplier"]
+    [ 'mode', 'constant', 'multiplier' ],
+    [ 'mode', 'curve', 'multiplier' ],
+    [ 'mode', 'curveMin', 'curveMax', 'multiplier' ],
+    [ 'mode', 'constantMin', 'constantMax', 'multiplier']
 ];
 
 export const Mode = Enum({
@@ -147,41 +147,47 @@ function evaluateHeight (cr: CurveRange) {
     }
 }
 
-export function packCurveRangeZ (samples:number, cr: CurveRange) {
-    let height = evaluateHeight(cr);
-    let data = new Float32Array(samples * height * 4);
-    let interval = 1.0 / (samples - 1);
-    let sum = 0, average = 0, offset = 0;
-
-    for (let h = 0; h < height; h++) {
-        sum = 0;
-        for (let j = 0; j < samples; j++) {
-            let value = evaluateCurve(cr, interval * j, h);
-            sum += value;
-            average = sum / (j + 1);
-            data[offset + 2] = average;
-            offset += 4;
-        }
-    }
-    
-    let texture = new Texture2D();
-    texture.create(samples, height, PixelFormat.RGBA32F);
+function packTexture (data, width, height) {
+    const texture = new Texture2D();
+    texture.create(width, height, PixelFormat.RGBA32F);
     texture.setFilters(Filter.NEAREST, Filter.NEAREST);
     texture.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
     texture.uploadData(data);
 
     return texture;
 }
-export function packCurveRangeN (samples:number, cr: CurveRange) {
-    let height = evaluateHeight(cr);
-    let data = new Float32Array(samples * height * 4);
-    let interval = 1.0 / (samples - 1);
-    let sum = 0, average = 0, offset = 0;
-    
+
+export function packCurveRangeZ (samples:number, cr: CurveRange) {
+    const height = evaluateHeight(cr);
+    const data = new Float32Array(samples * height * 4);
+    const interval = 1.0 / (samples - 1);
+    let sum = 0;
+    let average = 0;
+    let offset = 0;
+
     for (let h = 0; h < height; h++) {
         sum = 0;
         for (let j = 0; j < samples; j++) {
-            let value = evaluateCurve(cr, interval * j, h);
+            const value = evaluateCurve(cr, interval * j, h);
+            sum += value;
+            average = sum / (j + 1);
+            data[offset + 2] = average;
+            offset += 4;
+        }
+    }
+    return packTexture(data, samples, height);
+}
+export function packCurveRangeN (samples:number, cr: CurveRange) {
+    const height = evaluateHeight(cr);
+    const data = new Float32Array(samples * height * 4);
+    const interval = 1.0 / (samples - 1);
+    let sum = 0;
+    let average = 0;
+    let offset = 0;
+    for (let h = 0; h < height; h++) {
+        sum = 0;
+        for (let j = 0; j < samples; j++) {
+            const value = evaluateCurve(cr, interval * j, h);
             sum += value;
             average = sum / (j + 1);
             data[offset] = average;
@@ -190,101 +196,71 @@ export function packCurveRangeN (samples:number, cr: CurveRange) {
             offset += 4;
         }
     }
-    
-    let texture = new Texture2D();
-    texture.create(samples, height, PixelFormat.RGBA32F);
-    texture.setFilters(Filter.NEAREST, Filter.NEAREST);
-    texture.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
-    texture.uploadData(data);
-
-    return texture;
+    return packTexture(data, samples, height);
 }
 
 export function packCurveRangeXY (samples: number, x: CurveRange, y: CurveRange) {
-    let height = Math.max(evaluateHeight(x), evaluateHeight(y));
-    let data = new Float32Array(samples * height * 4);
-    let curves: CurveRange[] = [x, y];
-
-    let interval = 1.0 / (samples - 1);
+    const height = Math.max(evaluateHeight(x), evaluateHeight(y));
+    const data = new Float32Array(samples * height * 4);
+    const curves: CurveRange[] = [x, y];
+    const interval = 1.0 / (samples - 1);
 
     for (let h = 0; h < height; h++) {
         for (let i = 0; i < 2; i++) {
-            let cr = curves[i];
-            let sum = 0, average = 0;
+            const cr = curves[i];
+            let sum = 0;
+            let average = 0;
             for (let j = 0; j < samples; j++) {
-                let value = evaluateCurve(cr, interval * j, h);
+                const value = evaluateCurve(cr, interval * j, h);
                 sum += value;
                 average = sum / (j + 1);
                 data[j * 4 + i] = average;
             }
         }
     }
-
-    let texture = new Texture2D();
-    texture.create(samples, height, PixelFormat.RGBA32F);
-    texture.setFilters(Filter.NEAREST, Filter.NEAREST);
-    texture.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
-    texture.uploadData(data);
-
-    return texture;
+    return packTexture(data, samples, height);
 }
 
 export function packCurveRangeXYZ (samples: number, x: CurveRange, y: CurveRange, z: CurveRange) {
-    let height = Math.max(evaluateHeight(x), evaluateHeight(y), evaluateHeight(z));
-    let data = new Float32Array(samples * height * 4);
-    let curves: CurveRange[] = [x, y, z];
-
-    let interval = 1.0 / (samples - 1);
+    const height = Math.max(evaluateHeight(x), evaluateHeight(y), evaluateHeight(z));
+    const data = new Float32Array(samples * height * 4);
+    const curves: CurveRange[] = [x, y, z];
+    const interval = 1.0 / (samples - 1);
 
     for (let h = 0; h < height; h++) {
         for (let i = 0; i < 3; i++) {
-            let cr = curves[i];
-            let sum = 0, average = 0;
+            const cr = curves[i];
+            let sum = 0;
+            let average = 0;
             for (let j = 0; j < samples; j++) {
-                let value = evaluateCurve(cr, interval * j, h);
+                const value = evaluateCurve(cr, interval * j, h);
                 sum += value;
                 average = sum / (j + 1);
                 data[j * 4 + i] = average;
             }
         }
     }
-
-    let texture = new Texture2D();
-    texture.create(samples, height, PixelFormat.RGBA32F);
-    texture.setFilters(Filter.NEAREST, Filter.NEAREST);
-    texture.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
-    texture.uploadData(data);
-
-    return texture;
+    return packTexture(data, samples, height);
 }
 
 export function packCurveRangeXYZW (samples: number, x: CurveRange, y: CurveRange, z: CurveRange, w: CurveRange) {
-    let height = Math.max(evaluateHeight(x), evaluateHeight(y), evaluateHeight(z), evaluateHeight(w));
-    let data = new Float32Array(samples * height * 4);
-    let curves: CurveRange[] = [x, y, z, w];
-
-    let interval = 1.0 / (samples - 1);
+    const height = Math.max(evaluateHeight(x), evaluateHeight(y), evaluateHeight(z), evaluateHeight(w));
+    const data = new Float32Array(samples * height * 4);
+    const curves: CurveRange[] = [x, y, z, w];
+    const interval = 1.0 / (samples - 1);
 
     for (let h = 0; h < height; h++) {
         for (let i = 0; i < 4; i++) {
-            let cr = curves[i];
-            let sum = 0, average = 0;
+            const cr = curves[i];
+            let sum = 0;
+            let average = 0;
             for (let j = 0; j < samples; j++) {
-                let value = evaluateCurve(cr, interval * j, h);
+                const value = evaluateCurve(cr, interval * j, h);
                 sum += value;
                 average = sum / (j + 1);
                 data[j * 4 + i] = average;
             }
         }
     }
-
-    let texture = new Texture2D();
-    texture.create(samples, height, PixelFormat.RGBA32F);
-    texture.setFilters(Filter.NEAREST, Filter.NEAREST);
-    texture.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
-    texture.uploadData(data);
-
-    return texture;
+    return packTexture(data, samples, height);
 }
-
-

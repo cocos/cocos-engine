@@ -6,7 +6,7 @@
 import { ccclass, property } from '../../core/data/class-decorator';
 import { Mat4, pseudoRandom, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
-import Particle, { ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
+import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import { calculateTransform } from '../particle-general-function';
 import CurveRange from './curve-range';
 import { ModuleRandSeed } from '../enum';
@@ -35,7 +35,8 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     public set enable (val) {
         if (this._enable === val) return;
         this._enable = val;
-        this.target!.enableModule(this.name, val, this);
+        if (!this.target) return;
+        this.target.enableModule(this.name, val, this);
     }
 
     /**
@@ -94,13 +95,13 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
 
     private rotation: Quat;
     private needTransform: boolean;
+    public name = PARTICLE_MODULE_NAME.VELOCITY;
 
     constructor () {
         super();
         this.rotation = new Quat();
         this.speedModifier.constant = 1;
         this.needTransform = false;
-        this.name = PARTICLE_MODULE_NAME.VELOCITY;
         this.needUpdate = true;
     }
 
