@@ -20,8 +20,11 @@ export class BatchingUtility {
     /**
      * Collect all the models under `staticModelRoot`,
      * merge them statically into one,
-     * and attach it to a new ModelComponent on `batchedRoot`.
+     * attach it to a new ModelComponent on `batchedRoot`,
+     * and disable the `staticModelRoot` node.
      * The world transform of each model is guaranteed to be preserved.
+     *
+     * For a more fine-grained controll over the process, use `Mesh.merge` directly.
      * @param staticModelRoot root of all the static models to be batched
      * @param batchedRoot the target output node
      */
@@ -54,6 +57,7 @@ export class BatchingUtility {
         const batchedModelComponent = batchedRoot.addComponent(ModelComponent)!;
         batchedModelComponent.mesh = batchedMesh;
         batchedModelComponent.sharedMaterials = modelComponents[0].sharedMaterials;
+        staticModelRoot.active = false;
         return true;
     }
 }
