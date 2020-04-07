@@ -49,24 +49,31 @@ export class BlendStateBuffer {
             let t: Vec3 | undefined;
             let s: Vec3 | undefined;
             let r: Quat | undefined;
+            let anyChanged = false;
             if (position && position.weight !== 0) {
                 position.weight = 0;
                 t = position.value;
+                anyChanged = true;
             }
             if (scale && scale.weight !== 0) {
                 scale.weight = 0;
                 s = scale.value;
+                anyChanged = true;
             }
             if (rotation && rotation.weight !== 0) {
                 rotation.weight = 0;
                 r = rotation.value;
+                anyChanged = true;
             }
-            node.setRTS(r, t, s);
+            if (anyChanged) {
+                node.setRTS(r, t, s);
+            }
         });
     }
 }
 
 export type IBlendStateWriter = IValueProxyFactory & {
+    initialize: () => void;
     destroy: () => void;
 };
 
@@ -84,16 +91,27 @@ export function createBlendStateWriter<P extends BlendingProperty>(
         (property === 'position' || property === 'scale') ?
             additive3D as any:
             additiveQuat as any;
-    const propertyBlendState: PropertyBlendState<BlendingPropertyValue<P>> = blendState.ref(node, property);
+    let propertyBlendState: PropertyBlendState<BlendingPropertyValue<P>> | null = null;
     let isConstCacheValid = false;
     let lastWeight = -1;
     return {
+        initialize: function () {
+            if (!propertyBlendState) {
+                propertyBlendState = blendState.ref(node, property);
+            }
+        },
         destroy: function () {
-            blendState.deRef(node, property);
+            if (propertyBlendState) {
+                blendState.deRef(node, property);
+                propertyBlendState = null;
+            }
         },
         forTarget: (_) => {
             return {
                 set: (value: BlendingPropertyValue<P>) => {
+                    if (!propertyBlendState) {
+                        return;
+                    }
                     const weight = weightProxy.weight;
                     if (constants) {
                         if (weight !== 1 ||
