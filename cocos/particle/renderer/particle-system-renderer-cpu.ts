@@ -86,6 +86,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _animateList: Map<string, IParticleModule> = new Map<string, IParticleModule>();
     private _runAnimateList: IParticleModule[] = new Array<IParticleModule>();
     private _fillDataFunc: any = null;
+    private _uScaleHandle: number = 0;
+    private _uLenHandle: number = 0;
 
     constructor (info: any) {
         super(info);
@@ -197,24 +199,29 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     }
 
     public updateParticles (dt: number) {
-        this._particleSystem!.node.getWorldMatrix(_tempWorldTrans);
-        switch (this._particleSystem!.scaleSpace) {
+        const ps = this._particleSystem;
+        if (!ps) {
+            return this._particles!.length;
+        }
+        ps.node.getWorldMatrix(_tempWorldTrans);
+        switch (ps.scaleSpace) {
             case Space.Local:
-                this._particleSystem!.node.getScale(this._node_scale);
+                ps.node.getScale(this._node_scale);
                 break;
             case Space.World:
-                this._particleSystem!.node.getWorldScale(this._node_scale);
+                ps.node.getWorldScale(this._node_scale);
                 break;
         }
-        const mat: Material | null = this._particleSystem!.getMaterialInstance(0) || this._defaultMat;
-        mat!.setProperty('scale', this._node_scale);
+        const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;
+        const pass = mat!.passes[0];
+        pass.setUniform(this._uScaleHandle, this._node_scale);
 
         this._updateList.forEach((value: IParticleModule, key: string)=>{
-            value.update(this._particleSystem!._simulationSpace, _tempWorldTrans);
+            value.update(ps._simulationSpace, _tempWorldTrans);
         });
 
-        if (this._particleSystem!.trailModule.enable) {
-            this._particleSystem!.trailModule.update();
+        if (ps.trailModule.enable) {
+            ps.trailModule.update();
         }
 
         for (let i = 0; i < this._particles!.length; ++i) {
@@ -223,8 +230,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             Vec3.set(p.animatedVelocity, 0, 0, 0);
 
             if (p.remainingLifetime < 0.0) {
-                if (this._particleSystem!.trailModule.enable) {
-                    this._particleSystem!.trailModule.removeParticle(p);
+                if (ps.trailModule.enable) {
+                    ps.trailModule.removeParticle(p);
                 }
                 this._particles!.removeAt(i);
                 --i;
@@ -232,7 +239,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             }
 
             // apply gravity.
-            p.velocity.y -= this._particleSystem!.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
+            p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
 
             Vec3.copy(p.ultimateVelocity, p.velocity);
 
@@ -241,8 +248,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             });
 
             Vec3.scaleAndAdd(p.position, p.position, p.ultimateVelocity, dt); // apply velocity.
-            if (this._particleSystem!.trailModule.enable) {
-                this._particleSystem!.trailModule.animate(p, dt);
+            if (ps.trailModule.enable) {
+                ps.trailModule.animate(p, dt);
             }
         }
         return this._particles!.length;
@@ -385,6 +392,10 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             this._defines[CC_USE_WORLD_SPACE] = false;
         }
 
+        const pass = mat.passes[0];
+        this._uScaleHandle = pass.getHandle('scale')!;
+        this._uLenHandle = pass.getHandle('frameTile_velLenScale')!;
+
         const renderMode = this._renderInfo!.renderMode;
         const vlenScale = this._frameTile_velLenScale;
         if (renderMode === RenderMode.Billboard) {
@@ -405,9 +416,9 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
         if (ps.textureAnimationModule.enable) {
             Vec2.set(vlenScale, ps.textureAnimationModule.numTilesX, ps.textureAnimationModule.numTilesY);
-            mat.setProperty('frameTile_velLenScale', vlenScale);
+            pass.setUniform(this._uLenHandle, vlenScale);
         } else {
-            mat.setProperty('frameTile_velLenScale', vlenScale);
+            pass.setUniform(this._uLenHandle, vlenScale);
         }
         mat.recompileShaders(this._defines);
         if (this._model) {
