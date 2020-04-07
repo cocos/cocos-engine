@@ -49,19 +49,25 @@ export class BlendStateBuffer {
             let t: Vec3 | undefined;
             let s: Vec3 | undefined;
             let r: Quat | undefined;
+            let anyChanged = false;
             if (position && position.weight !== 0) {
                 position.weight = 0;
                 t = position.value;
+                anyChanged = true;
             }
             if (scale && scale.weight !== 0) {
                 scale.weight = 0;
                 s = scale.value;
+                anyChanged = true;
             }
             if (rotation && rotation.weight !== 0) {
                 rotation.weight = 0;
                 r = rotation.value;
+                anyChanged = true;
             }
-            node.setRTS(r, t, s);
+            if (anyChanged) {
+                node.setRTS(r, t, s);
+            }
         });
     }
 }
