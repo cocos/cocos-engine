@@ -297,10 +297,7 @@ export class Camera {
     }
 
     set fovAxis (axis) {
-        if (axis === this._fovAxis) { return; }
         this._fovAxis = axis;
-        if (axis === CameraFOVAxis.VERTICAL) { this._fov *= this._aspect; }
-        else { this._fov /= this._aspect; }
         this._isProjDirty = true;
     }
 

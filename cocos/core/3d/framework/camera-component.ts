@@ -162,8 +162,13 @@ export class CameraComponent extends Component {
     }
 
     set fovAxis (val) {
+        if (val === this._fovAxis) { return; }
         this._fovAxis = val;
-        if (this._camera) { this._camera.fovAxis = val; }
+        if (this._camera) {
+            this._camera.fovAxis = val;
+            if (val === CameraFOVAxis.VERTICAL) { this.fov = this._fov * this._camera.aspect; }
+            else { this.fov = this._fov / this._camera.aspect; }
+        }
     }
 
     /**
