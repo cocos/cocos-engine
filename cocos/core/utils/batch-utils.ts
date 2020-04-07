@@ -18,10 +18,9 @@ function checkMaterialisSame (comp1: ModelComponent, comp2: ModelComponent): boo
 
 export class BatchingUtility {
     /**
-     * Collect all the models under `staticModelRoot`,
-     * merge them statically into one,
-     * attach it to a new ModelComponent on `batchedRoot`,
-     * and disable the `staticModelRoot` node.
+     * Collect the ModelComponents under `staticModelRoot`,
+     * merge all the meshes statically into one (while disabling each component),
+     * and attach it to a new ModelComponent on `batchedRoot`.
      * The world transform of each model is guaranteed to be preserved.
      *
      * For a more fine-grained controll over the process, use `Mesh.merge` directly.
@@ -50,14 +49,15 @@ export class BatchingUtility {
         staticModelRoot.getWorldMatrix(rootWorldMatInv);
         Mat4.invert(rootWorldMatInv, rootWorldMatInv);
         for (let i = 0; i < modelComponents.length; i++) {
-            modelComponents[i].node.getWorldMatrix(worldMat);
+            const comp = modelComponents[i];
+            comp.node.getWorldMatrix(worldMat);
             Mat4.multiply(worldMat, rootWorldMatInv, worldMat);
             batchedMesh.merge(modelComponents[i].mesh!, worldMat);
+            comp.enabled = false;
         }
         const batchedModelComponent = batchedRoot.addComponent(ModelComponent)!;
         batchedModelComponent.mesh = batchedMesh;
         batchedModelComponent.sharedMaterials = modelComponents[0].sharedMaterials;
-        staticModelRoot.active = false;
         return true;
     }
 }
