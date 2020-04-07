@@ -135,7 +135,7 @@ export class SkeletalAnimationState extends AnimationState {
                 animPath = animPath.substring(0, idx);
                 source = sourceData[animPath];
                 animNode = animNode.parent!;
-                if (idx < 0) { continue; }
+                if (idx < 0) { break; }
             }
             // create animation data
             const socketData: ISocketData = {

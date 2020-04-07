@@ -318,7 +318,8 @@ export class JointTexturePool {
     public releaseHandle (handle: IJointTextureHandle) {
         if (handle.refCount > 0) { handle.refCount--; }
         if (!handle.refCount && handle.readyToBeDeleted) {
-            this._pool.free(handle.handle);
+            const customChunkIdx = this._chunkIdxMap.get(handle.skeletonHash ^ handle.clipHash);
+            (customChunkIdx !== undefined ? this._customPool : this._pool).free(handle.handle);
             this._textureBuffers.delete(handle.skeletonHash ^ handle.clipHash);
         }
     }
