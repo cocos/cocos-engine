@@ -836,9 +836,16 @@ export class SpriteFrame extends Asset {
         const offset = this._offset;
         const originalSize = this._originalSize;
         let uuid = this._uuid;
+        let texture;
+        if (this._texture) {
+            texture = this._texture._uuid;
+        }
 
         if (uuid && exporting) {
             uuid = EditorExtends.UuidUtils.compressUuid(uuid, true);
+        }
+        if (texture && exporting) {
+            texture = EditorExtends.UuidUtils.compressUuid(texture, true);
         }
 
         let vertices;
@@ -850,11 +857,6 @@ export class SpriteFrame extends Asset {
                 u: this.vertices.u,
                 v: this.vertices.v,
             };
-        }
-
-        let texture;
-        if (this._texture) {
-            texture = this._texture._uuid;
         }
 
         const serialize = {
