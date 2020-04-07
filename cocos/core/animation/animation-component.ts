@@ -198,7 +198,7 @@ export class AnimationComponent extends Component implements IEventTarget {
 
     public onLoad () {
         this.clips = this._clips;
-        for (const stateName of Object.keys(this._nameToState)) {
+        for (const stateName in this._nameToState) {
             const state = this._nameToState[stateName];
             state.initialize(this.node);
         }
