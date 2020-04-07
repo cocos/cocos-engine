@@ -91,7 +91,6 @@ export const SKYBOX_FLAG = GFXClearFlag.STENCIL << 1;
 
 export class Camera {
 
-    public node: Node | null = null;
     public isWindowSize: boolean = true;
     public screenScale: number;
     public viewport: Rect = new Rect(0, 0, 1, 1);
@@ -100,6 +99,7 @@ export class Camera {
     public clearFlag: GFXClearFlag = GFXClearFlag.NONE;
 
     private _scene: RenderScene | null = null;
+    private _node: Node | null = null;
     private _name: string | null = null;
     private _enabled: boolean = false;
     private _proj: CameraProjection = -1;
@@ -145,7 +145,7 @@ export class Camera {
 
     public initialize (info: ICameraInfo) {
         this._name = info.name;
-        this.node = info.node;
+        this._node = info.node;
         this._proj = info.projection;
         this._priority = info.priority || 0;
 
@@ -195,15 +195,15 @@ export class Camera {
     }
 
     public update (forceUpdate = false) { // for lazy eval situations like the in-editor preview
-        if (this.node) {
+        if (this._node) {
             // view matrix
-            if (this.node.hasChangedFlags || forceUpdate) {
-                Mat4.invert(this._matView, this.node.worldMatrix);
+            if (this._node.hasChangedFlags || forceUpdate) {
+                Mat4.invert(this._matView, this._node.worldMatrix);
 
                 this._forward.x = -this._matView.m02;
                 this._forward.y = -this._matView.m06;
                 this._forward.z = -this._matView.m10;
-                this.node.getWorldPosition(this._position);
+                this._node.getWorldPosition(this._position);
             }
 
             // projection matrix
@@ -219,7 +219,7 @@ export class Camera {
             }
 
             // view-projection
-            if (this.node.hasChangedFlags || this._isProjDirty || forceUpdate) {
+            if (this._node.hasChangedFlags || this._isProjDirty || forceUpdate) {
                 Mat4.multiply(this._matViewProj, this._matProj, this._matView);
                 Mat4.invert(this._matViewProjInv, this._matViewProj);
                 this._frustum.update(this._matViewProj, this._matViewProjInv);
@@ -230,7 +230,7 @@ export class Camera {
     }
 
     public getSplitFrustum (out: frustum, nearClip: number, farClip: number) {
-        if (!this.node) {
+        if (!this._node) {
             return;
         }
 
@@ -238,7 +238,7 @@ export class Camera {
         farClip = Math.min(farClip, this._farClip);
 
         // view matrix
-        Mat4.invert(this._matView,  this.node.worldMatrix);
+        Mat4.invert(this._matView,  this._node.worldMatrix);
 
         // projection matrix
         if (this._proj === CameraProjection.PERSPECTIVE) {
@@ -253,6 +253,14 @@ export class Camera {
         Mat4.multiply(_tempMat2, _tempMat1, this._matView);
         Mat4.invert(_tempMat1, _tempMat2);
         out.update(_tempMat2, _tempMat1);
+    }
+
+    set node (val: Node) {
+        this._node = val;
+    }
+
+    get node () {
+        return this._node!;
     }
 
     set enabled (val) {
@@ -371,7 +379,7 @@ export class Camera {
     }
 
     get matViewInv () {
-        return this._matViewInv || this.node!.worldMatrix;
+        return this._matViewInv || this._node!.worldMatrix;
     }
 
     set matProj (val) {
@@ -534,7 +542,7 @@ export class Camera {
 
         if (this._proj === CameraProjection.PERSPECTIVE) {
             // camera origin
-            if (this.node) { this.node.getWorldPosition(v_b); }
+            if (this._node) { this._node.getWorldPosition(v_b); }
         } else {
             // near plane intersection
             Vec3.set(v_b, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, -1);
@@ -565,7 +573,7 @@ export class Camera {
             Vec3.transformMat4(out, out, this._matViewProjInv);
 
             // lerp to depth z
-            if (this.node) { this.node.getWorldPosition(v_a); }
+            if (this._node) { this._node.getWorldPosition(v_a); }
 
             Vec3.lerp(out, v_a, out, lerp(this._nearClip / this._farClip, 1, screenPos.z));
         } else {

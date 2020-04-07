@@ -492,6 +492,7 @@ export class CameraComponent extends Component {
 
         if (this._camera) {
             this._camera.viewport = this._rect;
+            this._camera.fovAxis = this._fovAxis;
             this._camera.fov = toRadian(this._fov);
             this._camera.orthoHeight = this._orthoHeight;
             this._camera.nearClip = this._near;

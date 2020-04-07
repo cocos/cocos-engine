@@ -15,7 +15,7 @@ removeProperty(ModelComponent.prototype, 'ModelComponent.prototype', [
     },
 ]);
 
-replaceProperty(CameraComponent.prototype, 'CameraComponent.prototype', [
+replaceProperty(CameraComponent, 'CameraComponent', [
     {
         name: 'CameraClearFlag',
         newName: 'ClearFlag'
