@@ -28,13 +28,21 @@
  */
 
 import { Material } from '../../core/assets/material';
-import { Mesh, RenderingSubMesh } from '../../core/assets/mesh';
+import { RenderingSubMesh, Mesh } from '../../core/assets/mesh';
 import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gfx/buffer';
 import { GFXAttributeName, GFXBufferUsageBit, GFXFormatInfos,
     GFXMemoryUsageBit, GFXPrimitiveMode, GFXStatus } from '../../core/gfx/define';
 import { IGFXAttribute } from '../../core/gfx/input-assembler';
 import { Color } from '../../core/math/color';
 import { Model, ModelType } from '../../core/renderer/scene/model';
+import { Particle } from '../particle';
+
+const _uvs = [
+    0, 0, // bottom-left
+    1, 0, // bottom-right
+    0, 1, // top-left
+    1, 1, // top-right
+];
 
 export default class ParticleBatchModel extends Model {
 
@@ -51,6 +59,8 @@ export default class ParticleBatchModel extends Model {
     private _mesh: Mesh | null;
     private _vertCount: number = 0;
     private _indexCount: number = 0;
+    private _startTimeOffset: number = 0;
+    private _lifeTimeOffset: number = 0;
 
     constructor () {
         super();
@@ -169,7 +179,7 @@ export default class ParticleBatchModel extends Model {
             }
         }
 
-        const indexBuffer = this._device.createBuffer({
+        const indexBuffer: GFXBuffer = this._device.createBuffer({
             usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
             size: this._capacity * this._indexCount * Uint16Array.BYTES_PER_ELEMENT,
@@ -193,8 +203,13 @@ export default class ParticleBatchModel extends Model {
         this._subMeshData = new RenderingSubMesh([vertexBuffer], this._vertAttrs!, GFXPrimitiveMode.TRIANGLE_LIST);
         this._subMeshData.indexBuffer = indexBuffer;
         this._subMeshData.indirectBuffer = this._iaInfoBuffer;
-        this.setSubModelMesh(0, this._subMeshData);
+        this.setSubModelMesh(0, this._subMeshData!);
         return vBuffer;
+    }
+
+    public setSubModelMaterial (idx: number, mat: Material | null) {
+        this.initLocalBindings(mat);
+        super.setSubModelMaterial(idx, mat);
     }
 
     public addParticleVertexData (index: number, pvdata: any[]) {
@@ -237,6 +252,73 @@ export default class ParticleBatchModel extends Model {
                 this._vdataUint32![offset++] = pvdata[4]; // color
             }
         }
+    }
+
+    public addGPUParticleVertexData (p: Particle, num: number, time:number) {
+        let offset = num * this._vertAttrsFloatCount * this._vertCount;
+        for (let i = 0; i < this._vertCount; i++) {
+            let idx = offset;
+            this._vdataF32![idx++] = p.position.x;
+            this._vdataF32![idx++] = p.position.y;
+            this._vdataF32![idx++] = p.position.z;
+            this._vdataF32![idx++] = time;
+
+            this._vdataF32![idx++] = p.startSize.x;
+            this._vdataF32![idx++] = p.startSize.y;
+            this._vdataF32![idx++] = p.startSize.z;
+            this._vdataF32![idx++] = _uvs[2 * i];
+
+            this._vdataF32![idx++] = p.rotation.x;
+            this._vdataF32![idx++] = p.rotation.y;
+            this._vdataF32![idx++] = p.rotation.z;
+            this._vdataF32![idx++] = _uvs[2 * i + 1];
+
+            this._vdataF32![idx++] = p.startColor.r / 255.0;
+            this._vdataF32![idx++] = p.startColor.g / 255.0;
+            this._vdataF32![idx++] = p.startColor.b / 255.0;
+            this._vdataF32![idx++] = p.startColor.a / 255.0;
+
+            this._vdataF32![idx++] = p.velocity.x;
+            this._vdataF32![idx++] = p.velocity.y;
+            this._vdataF32![idx++] = p.velocity.z;
+            this._vdataF32![idx++] = p.startLifetime;
+
+            this._vdataF32![idx++] = p.randomSeed;
+
+            offset += this._vertAttrsFloatCount;
+        }
+    }
+
+    public updateGPUParticles (num: number, time: number) {
+        const pSize = this._vertAttrsFloatCount * this._vertCount;
+        let pBaseIndex = 0;
+        let startTime = 0;
+        let lifeTime = 0;
+        let lastBaseIndex = 0;
+        for (let i = 0; i < num; ++i) {
+            pBaseIndex = i * pSize;
+            startTime = this._vdataF32![pBaseIndex + this._startTimeOffset];
+            lifeTime = this._vdataF32![pBaseIndex + this._lifeTimeOffset];
+            if (time - startTime > lifeTime) {
+                lastBaseIndex = -- num * pSize;
+                this._vdataF32!.copyWithin(pBaseIndex, lastBaseIndex, lastBaseIndex + pSize);
+                i--;
+            }
+        }
+
+        return num;
+    }
+
+    public constructAttributeIndex () {
+        if (!this._vertAttrs) {
+            return;
+        }
+        let vIdx = this._vertAttrs!.findIndex((val) => val.name === 'a_position_starttime');
+        let vOffset = (this._vertAttrs![vIdx] as any).offset;
+        this._startTimeOffset = vOffset / 4 + 3;
+        vIdx = this._vertAttrs!.findIndex((val) => val.name === 'a_dir_life');
+        vOffset = (this._vertAttrs![vIdx] as any).offset;
+        this._lifeTimeOffset = vOffset / 4 + 3;
     }
 
     public updateIA (count: number) {

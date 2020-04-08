@@ -8,22 +8,34 @@ import { pseudoRandom, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
 import { calculateTransform } from '../particle-general-function';
 import CurveRange from './curve-range';
+import { ModuleRandSeed } from '../enum';
+import { ParticleModuleBase, PARTICLE_MODULE_NAME} from '../particle';
 
 // tslint:disable: max-line-length
-const FORCE_OVERTIME_RAND_OFFSET = 212165;
+const FORCE_OVERTIME_RAND_OFFSET = ModuleRandSeed.FORCE;
 
 const _temp_v3 = new Vec3();
 
 @ccclass('cc.ForceOvertimeModule')
-export default class ForceOvertimeModule {
-
+export default class ForceOvertimeModule extends ParticleModuleBase {
+    @property
+    _enable: Boolean = false;
     /**
      * @zh 是否启用。
      */
     @property({
         displayOrder: 0,
     })
-    public enable = false;
+    public get enable () {
+        return this._enable;
+    }
+
+    public set enable (val) {
+        if (this._enable === val) return;
+        this._enable = val;
+        if (!this.target) return;
+        this.target.enableModule(this.name, val, this);
+    }
 
     /**
      * @zh X 轴方向上的加速度分量。
@@ -73,10 +85,13 @@ export default class ForceOvertimeModule {
 
     private rotation: Quat;
     private needTransform: boolean;
+    public name = PARTICLE_MODULE_NAME.FORCE;
 
     constructor () {
+        super();
         this.rotation = new Quat();
         this.needTransform = false;
+        this.needUpdate = true;
     }
 
     public update (space, worldTransform) {
@@ -90,6 +105,7 @@ export default class ForceOvertimeModule {
             Vec3.transformQuat(force, force, this.rotation);
         }
         Vec3.scaleAndAdd(p.velocity, p.velocity, force, dt);
+        Vec3.copy(p.ultimateVelocity, p.velocity);
     }
 }
 

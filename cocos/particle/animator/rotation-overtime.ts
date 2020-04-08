@@ -5,22 +5,33 @@
 
 import { ccclass, property } from '../../core/data/class-decorator';
 import { pseudoRandom } from '../../core/math';
-import Particle from '../particle';
+import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
+import { ModuleRandSeed } from '../enum';
 
 // tslint:disable: max-line-length
-const ROTATION_OVERTIME_RAND_OFFSET = 125292;
+const ROTATION_OVERTIME_RAND_OFFSET = ModuleRandSeed.ROTATION;
 
 @ccclass('cc.RotationOvertimeModule')
-export default class RotationOvertimeModule {
-
+export default class RotationOvertimeModule extends ParticleModuleBase {
+    @property
+    _enable: Boolean = false;
     /**
      * @zh 是否启用。
      */
     @property({
         displayOrder: 0,
     })
-    public enable = false;
+    public get enable () {
+        return this._enable;
+    }
+
+    public set enable (val) {
+        if (this._enable === val) return;
+        this._enable = val;
+        if (!this.target) return;
+        this.target.enableModule(this.name, val, this);
+    }
 
     @property
     private _separateAxes = false;
@@ -76,9 +87,7 @@ export default class RotationOvertimeModule {
     })
     public z = new CurveRange();
 
-    constructor () {
-
-    }
+    public name = PARTICLE_MODULE_NAME.ROTATION;
 
     public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
