@@ -211,7 +211,7 @@ var BuiltinBundleName = {
      * @readonly
      * @type {String}
      */
-    START_SCENE: 'startScene',
+    START_SCENE: 'start-scene',
 };
 
 module.exports = { assets, files, parsed, pipeline, fetchPipeline, initializePipeline, transformPipeline, LoadStrategy, RequestType, bundles, BuiltinBundleName };
