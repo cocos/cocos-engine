@@ -14,7 +14,6 @@
 #include "platform/mac/CCView.h"
 
 #import <Metal/MTLDevice.h>
-#import <MetalKit/MetalKit.h>
 
 NS_CC_BEGIN
 
@@ -29,6 +28,8 @@ bool CCMTLQueue::initialize(const GFXQueueInfo &info)
 {
     _type = info.type;
     _status = GFXStatus::SUCCESS;
+    _frameBoundarySemaphore = dispatch_semaphore_create(1);
+    _mtkView = (MTKView*)((CCMTLDevice*)_device)->getMTKView();
     
     return true;
 }
@@ -42,12 +43,24 @@ void CCMTLQueue::submit(const std::vector<GFXCommandBuffer*>& cmd_buffs)
 {
     // Should remove USE_METAL aftr switch to use metal.
 #ifdef USE_METAL
+//    dispatch_semaphore_wait(_frameBoundarySemaphore, DISPATCH_TIME_FOREVER);
+    
     uint count = static_cast<uint>(cmd_buffs.size());
-    View* mtkView = (View*)((CCMTLDevice*)_device)->getMTKView();
-
-    id<MTLCommandBuffer> mtlCommandBuffer = mtkView.mtlCommmandBuffer;
+    id<MTLCommandBuffer> mtlCommandBuffer = [static_cast<View*>(_mtkView).mtlCommandQueue commandBuffer];
+    [mtlCommandBuffer enqueue];
+    
     for (uint i = 0; i < count; ++i)
         executeCommands(static_cast<CCMTLCommandBuffer*>(cmd_buffs[i])->getCommandPackage(), mtlCommandBuffer);
+    
+//    [mtlCommandBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
+//        // GPU work is complete
+//        // Signal the semaphore to start the CPU work
+//        dispatch_semaphore_signal(_frameBoundarySemaphore);
+//    }];
+    [mtlCommandBuffer commit];
+    
+    //FIXME: use semaphore can not work, don't know why.
+    [mtlCommandBuffer waitUntilCompleted];
 #endif
 }
 
@@ -62,7 +75,6 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
     memset(commandIndices, 0, sizeof(commandIndices));
     
     id<MTLRenderCommandEncoder> encoder;
-    MTKView* mtkView = (MTKView*)((CCMTLDevice*)_device)->getMTKView();
     GFXCmdType commandType;
     CCMTLCmdBeginRenderPass* cmdBeginRenderPass = nullptr;
     CCMTLGPUPipelineState* gpuPipelineState = nullptr;
@@ -80,10 +92,10 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                 
                 MTLRenderPassDescriptor* mtlRenderPassDescriptor;
                 if (!cmdBeginRenderPass->frameBuffer->isOffscreen() )
-                    mtlRenderPassDescriptor = mtkView.currentRenderPassDescriptor;
+                    mtlRenderPassDescriptor = _mtkView.currentRenderPassDescriptor;
                 else
                     mtlRenderPassDescriptor = static_cast<CCMTLRenderPass*>(cmdBeginRenderPass->frameBuffer->getRenderPass() )->getMTLRenderPassDescriptor();
-                
+                                
                 if (cmdBeginRenderPass->clearFlags & GFXClearFlagBit::COLOR)
                 {
                     mtlRenderPassDescriptor.colorAttachments[0].clearColor = mu::toMTLClearColor(cmdBeginRenderPass->clearColors[0]);

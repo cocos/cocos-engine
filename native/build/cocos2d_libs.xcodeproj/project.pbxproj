@@ -3769,6 +3769,7 @@
 					"$(inherited)",
 					CC_KEYBOARD_SUPPORT,
 					_USRDLL,
+					USE_METAL,
 				);
 				HEADER_SEARCH_PATHS = "";
 				LD_DYLIB_INSTALL_NAME = "";
@@ -3804,6 +3805,7 @@
 					"$(inherited)",
 					CC_KEYBOARD_SUPPORT,
 					_USRDLL,
+					USE_METAL,
 				);
 				HEADER_SEARCH_PATHS = "";
 				LD_DYLIB_INSTALL_NAME = "";

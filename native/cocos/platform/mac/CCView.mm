@@ -32,7 +32,7 @@
     cocos2d::MouseEvent _mouseEvent;
     cocos2d::KeyboardEvent _keyboardEvent;
 #ifdef USE_METAL
-    id<MTLCommandQueue> _mtlCommandQueue;
+    dispatch_semaphore_t _frameBoundarySemaphore;
 #endif
 }
 
@@ -42,8 +42,9 @@
 #ifdef USE_METAL
         self.device = MTLCreateSystemDefaultDevice();
         self.depthStencilPixelFormat = MTLPixelFormatDepth24Unorm_Stencil8;
-        _mtlCommandQueue = [self.device newCommandQueue];
+        self.mtlCommandQueue = [self.device newCommandQueue];
         self.delegate = self;
+        _frameBoundarySemaphore = dispatch_semaphore_create(1);
 #endif
     }
     return self;
@@ -51,11 +52,8 @@
 
 #ifdef USE_METAL
 - (void)drawInMTKView:(MTKView *)view {
-    self.mtlCommmandBuffer = [_mtlCommandQueue commandBuffer];
-    [self.mtlCommmandBuffer enqueue];
     cocos2d::Application::getInstance()->tick();
-    [self.mtlCommmandBuffer presentDrawable:self.currentDrawable];
-    [self.mtlCommmandBuffer commit];
+    [self.currentDrawable present];
 }
 
 - (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size {

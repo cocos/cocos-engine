@@ -200,6 +200,7 @@ void CCMTLCommandBuffer::draw(GFXInputAssembler* ia)
         _commandPackage->commandTypes.push(GFXCmdType::DRAW);
         
         ++_numDrawCalls;
+        _numInstances += ia->getInstanceCount();
         if (_currentGPUPipelineState)
         {
             switch (_currentGPUPipelineState->primitiveType) {

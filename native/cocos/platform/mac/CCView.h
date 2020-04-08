@@ -29,7 +29,7 @@
 
 #ifdef USE_METAL
 @interface View : MTKView <MTKViewDelegate>
-@property(nonatomic, assign) id<MTLCommandBuffer> mtlCommmandBuffer;
+@property(nonatomic, assign) id<MTLCommandQueue> mtlCommandQueue;
 #else
 @interface View : NSView
 #endif

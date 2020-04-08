@@ -1,6 +1,7 @@
 #pragma once
 
 #import <Metal/MTLCommandQueue.h>
+#import <MetalKit/MTKView.h>
 
 NS_CC_BEGIN
 
@@ -18,7 +19,10 @@ public:
     
 private:
     CC_INLINE void executeCommands(const CCMTLCommandPackage*, id<MTLCommandBuffer> mtlCommandBuffer);
+    
+private:
+    MTKView* _mtkView = nil;
+    dispatch_semaphore_t _frameBoundarySemaphore;
 };
 
 NS_CC_END
-
