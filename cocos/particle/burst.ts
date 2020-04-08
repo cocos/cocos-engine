@@ -28,13 +28,18 @@ export default class Burst {
     /**
      * @zh 发射粒子的最小数量。
      */
-    @property
+    @property({
+        visible: false
+    })
     public minCount: number = 30;
 
     /**
      * @zh 发射粒子的最大数量。
      */
     @property
+    @property({
+        visible: false
+    })
     public maxCount: number = 30;
 
     @property

@@ -168,6 +168,8 @@ export default class TrailModule {
         if (this._trailModel) {
             this._trailModel.enabled = val;
         }
+
+        val ? this._attachToScene() : this._detachFromScene();
     }
 
     @property
@@ -234,6 +236,7 @@ export default class TrailModule {
     @property({
         displayOrder: 7,
         tooltip: '拖尾是否跟随粒子一起消失',
+        visible: false,
     })
     public existWithParticles = true;
 
