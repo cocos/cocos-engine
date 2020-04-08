@@ -317,13 +317,7 @@ export abstract class RenderPipeline {
      */
     public initialize (info: IRenderPipelineInfo) {
 
-        if (info.enablePostProcess !== undefined) {
-            this._usePostProcess = info.enablePostProcess;
-        } else {
-            // We disable post process now, post process will be enabled in furture.
-            this._usePostProcess = false;
-        }
-
+        this._usePostProcess = (info.enablePostProcess !== undefined ? info.enablePostProcess : false);
         this._isHDR = (info.enableHDR !== undefined ? info.enableHDR : false);
 
         // Config Anti-Aliasing
@@ -355,7 +349,7 @@ export abstract class RenderPipeline {
         }
 
         for (let i = 0; i < this._flows.length; i++) {
-            let flow = this._flows[i];
+            const flow = this._flows[i];
             if (flow.type === RenderFlowType.SCENE) {
                 flow.activate(this);
                 this.activateFlow(flow);
@@ -659,7 +653,6 @@ export abstract class RenderPipeline {
                 this._isHDRSupported = true;
             }
 
-            // this._isHDRSupported = false;
             this._fboCount = 1;
 
             if (this._useMSAA) {
@@ -686,7 +679,6 @@ export abstract class RenderPipeline {
                 }
             }
 
-            this._isHDR = false;
         }
 
         if (!this._isHDR) {

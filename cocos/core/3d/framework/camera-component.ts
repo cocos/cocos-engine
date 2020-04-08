@@ -39,7 +39,7 @@ import { Color, Rect, toRadian, Vec3 } from '../../math';
 import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
 import { view } from '../../platform/view';
 import { Camera } from '../../renderer';
-import { SKYBOX_FLAG, CameraProjection, CameraFOVAxis } from '../../renderer/scene/camera';
+import { SKYBOX_FLAG, CameraProjection, CameraFOVAxis, CameraAperture, CameraISO, CameraShutter } from '../../renderer/scene/camera';
 import { Root } from '../../root';
 import { Layers, Node, Scene } from '../../scene-graph';
 import { Enum } from '../../value-types';
@@ -52,6 +52,9 @@ const _temp_vec3_1 = new Vec3();
  */
 const ProjectionType = Enum(CameraProjection);
 const FOVAxis = Enum(CameraFOVAxis);
+const Aperture = Enum(CameraAperture);
+const Shutter = Enum(CameraShutter);
+const ISO = Enum(CameraISO);
 
 const ClearFlag = Enum({
     SKYBOX: SKYBOX_FLAG | GFXClearFlag.DEPTH_STENCIL,
@@ -72,6 +75,9 @@ export class CameraComponent extends Component {
     public static ProjectionType = ProjectionType;
     public static FOVAxis = FOVAxis;
     public static ClearFlag = ClearFlag;
+    public static Aperture = Aperture;
+    public static Shutter = Shutter;
+    public static ISO = ISO;
 
     @property
     protected _projection = ProjectionType.PERSPECTIVE;
@@ -97,6 +103,12 @@ export class CameraComponent extends Component {
     protected _clearFlags = ClearFlag.SOLID_COLOR;
     @property
     protected _rect = new Rect(0, 0, 1, 1);
+    @property
+    protected _aperture = Aperture.F16_0;
+    @property
+    protected _shutter = Shutter.D125;
+    @property
+    protected _iso = ISO.ISO100;
     @property
     protected _screenScale = 1;
     @property
@@ -323,6 +335,57 @@ export class CameraComponent extends Component {
     }
 
     /**
+     * @en Camera aperture.
+     * @zh 相机光圈。
+     */
+    @property({
+        type: Aperture,
+        tooltip: 'i18n:camera.aperture',
+    })
+    get aperture () {
+        return this._aperture;
+    }
+
+    set aperture (val) {
+        this._aperture = val;
+        if (this._camera) { this._camera.aperture = val; }
+    }
+
+    /**
+     * @en Camera shutter.
+     * @zh 相机快门。
+     */
+    @property({
+        type: Shutter,
+        tooltip: 'i18n:camera.shutter',
+    })
+    get shutter () {
+        return this._shutter;
+    }
+
+    set shutter (val) {
+        this._shutter = val;
+        if (this._camera) { this._camera.shutter = val; }
+    }
+
+    /**
+     * @en Camera ISO.
+     * @zh 相机感光度。
+     */
+    @property({
+        type: ISO,
+        tooltip: 'i18n:camera.ISO',
+    })
+    get iso () {
+        return this._iso;
+    }
+
+    set iso (val) {
+        this._iso = val;
+        if (this._camera) { this._camera.iso = val; }
+    }
+
+    /**
      * @en Scale of the internal buffer size,
      * set to 1 to keep the same with the canvas size.
      * @zh 相机内部缓冲尺寸的缩放值, 1 为与 canvas 尺寸相同。
@@ -511,6 +574,9 @@ export class CameraComponent extends Component {
             this._camera.clearStencil = this._stencil;
             this._camera.clearFlag = this._clearFlags;
             this._camera.visibility = this._visibility;
+            this._camera.aperture = this._aperture;
+            this._camera.shutter = this._shutter;
+            this._camera.iso = this._iso;
         }
 
         this._updateTargetTexture();
