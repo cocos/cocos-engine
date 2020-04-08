@@ -54,9 +54,9 @@ export class ParticleSystemComponent extends RenderableComponent {
     public set capacity (val) {
         this._capacity = val;
         // @ts-ignore
-        if (this.renderer && this.renderer._model) {
+        if (this.renderer && this.processor._model) {
             // @ts-ignore
-            this.renderer._model.setCapacity(this._capacity);
+            this.processor._model.setCapacity(this._capacity);
         }
     }
 
@@ -507,7 +507,7 @@ export class ParticleSystemComponent extends RenderableComponent {
 
     public _collectModels (): Model[] {
         this._models.length = 0;
-        this._models.push((this.renderer as any)._model);
+        this._models.push((this.processor as any)._model);
         if (this.trailModule.enable && (this.trailModule as any)._trailModel) {
             this._models.push((this.trailModule as any)._trailModel);
         }
@@ -672,9 +672,9 @@ export class ParticleSystemComponent extends RenderableComponent {
 
     protected _onVisiblityChange (val) {
         // @ts-ignore
-        if (this.renderer._model) {
+        if (this.processor._model) {
             // @ts-ignore
-            this.renderer._model.visFlags = val;
+            this.processor._model.visFlags = val;
         }
     }
 

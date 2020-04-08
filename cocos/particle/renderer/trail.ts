@@ -157,6 +157,9 @@ export default class TrailModule {
     }
 
     public set enable (val) {
+        if (val === this._enable && this._trailModel) {
+            return;
+        }
         if (val && !this._trailModel) {
             this._createModel();
         }
@@ -168,6 +171,8 @@ export default class TrailModule {
         if (this._trailModel) {
             this._trailModel.enabled = val;
         }
+
+        val ? this.onEnable() : this.onDisable();
     }
 
     @property
@@ -234,6 +239,7 @@ export default class TrailModule {
     @property({
         displayOrder: 7,
         tooltip: '拖尾是否跟随粒子一起消失',
+        visible: false,
     })
     public existWithParticles = true;
 
@@ -361,6 +367,7 @@ export default class TrailModule {
     }
 
     public onDisable () {
+        this._particleTrail.clear();
         this._detachFromScene();
     }
 
