@@ -93,6 +93,10 @@ var downloadText = function (url, options, onComplete) {
     downloadFile(url, options, options.onProgress, onComplete);
 };
 
+var downloadVideo = function (url, options, onComplete) {
+    onComplete(null, url);
+};
+
 var _downloading = new Cache();
 var _queue = [];
 var _queueDirty = false;
@@ -573,6 +577,15 @@ var downloaders = {
     '.woff' : loadFont,
     '.svg' : loadFont,
     '.ttc' : loadFont,
+
+    // Video
+    '.mp4': downloadVideo,
+    '.avi': downloadVideo,
+    '.mov': downloadVideo,
+    '.mpg': downloadVideo,
+    '.mpeg': downloadVideo,
+    '.rm': downloadVideo,
+    '.rmvb': downloadVideo,
 
     // Binary
     '.binary' : downloadArrayBuffer,

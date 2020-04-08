@@ -1,5 +1,5 @@
 import { ccclass, property } from '../../../platform/CCClassDecorator';
-import { lerp, pseudoRandom, Vec3 } from '../../../value-types';
+import { lerp, pseudoRandom, Vec3, Quat } from '../../../value-types';
 import { Space } from '../enum';
 import CurveRange from './curve-range';
 
@@ -7,6 +7,7 @@ import CurveRange from './curve-range';
 const LIMIT_VELOCITY_RAND_OFFSET = 23541;
 
 const _temp_v3 = cc.v3();
+const _temp_v3_1 = cc.v3();
 
 function dampenBeyondLimit (vel, limit, dampen) {
     const sgn = Math.sign(vel);
@@ -17,6 +18,11 @@ function dampenBeyondLimit (vel, limit, dampen) {
     return abs * sgn;
 }
 
+/**
+ * !#en The limit velocity module of 3d particle.
+ * !#zh 3D 粒子的限速模块
+ * @class LimitVelocityOvertimeModule
+ */
 @ccclass('cc.LimitVelocityOvertimeModule')
 export default class LimitVelocityOvertimeModule {
 
@@ -105,17 +111,32 @@ export default class LimitVelocityOvertimeModule {
 
     multiplyDragByParticleVelocity = false;
 
+    private rotation = null;
+    private needTransform = false;
+
     constructor () {
+        this.rotation = new Quat();
+        this.needTransform = false;
+    }
+
+    update (space: number, worldTransform: Mat4) {
+        this.needTransform = calculateTransform(space, this.space, worldTransform, this.rotation);
     }
 
     animate (p) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         const dampedVel = _temp_v3;
         if (this.separateAxes) {
+            Vec3.set(_temp_v3_1, this.limitX.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!,
+            this.limitY.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!,
+            this.limitZ.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!);
+            if (this.needTransform) {
+                Vec3.transformQuat(_temp_v3_1, _temp_v3_1, this.rotation);
+            }
             Vec3.set(dampedVel,
-                dampenBeyondLimit(p.ultimateVelocity.x, this.limitX.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET)), this.dampen),
-                dampenBeyondLimit(p.ultimateVelocity.y, this.limitY.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET)), this.dampen),
-                dampenBeyondLimit(p.ultimateVelocity.z, this.limitZ.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET)), this.dampen));
+                dampenBeyondLimit(p.ultimateVelocity.x, _temp_v3_1.x, this.dampen),
+                dampenBeyondLimit(p.ultimateVelocity.y, _temp_v3_1.y, this.dampen),
+                dampenBeyondLimit(p.ultimateVelocity.z, _temp_v3_1.z, this.dampen));
         }
         else {
             Vec3.normalize(dampedVel, p.ultimateVelocity);

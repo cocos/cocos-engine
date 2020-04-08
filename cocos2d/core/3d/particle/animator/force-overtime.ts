@@ -9,6 +9,11 @@ const FORCE_OVERTIME_RAND_OFFSET = 212165;
 
 const _temp_v3 = cc.v3();
 
+/**
+ * !#en The force over time module of 3d particle.
+ * !#zh 3D 粒子的加速度模块
+ * @class ForceOvertimeModule
+ */
 @ccclass('cc.ForceOvertimeModule')
 export default class ForceOvertimeModule {
 

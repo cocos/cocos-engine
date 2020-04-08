@@ -301,7 +301,7 @@ function ctor () {
     this.lateUpdateInvoker = new ReusableInvoker(invokeLateUpdate);
 
     // components deferred to next frame
-    this.scheduleInNextFrame = [];
+    this._deferredComps = [];
 
     // during a loop
     this._updating = false;
@@ -349,7 +349,7 @@ var ComponentScheduler = cc.Class({
 
         // schedule
         if (this._updating) {
-            this.scheduleInNextFrame.push(comp);
+            this._deferredComps.push(comp);
         }
         else {
             this._scheduleImmediate(comp);
@@ -361,9 +361,9 @@ var ComponentScheduler = cc.Class({
         comp._objFlags &= ~IsOnEnableCalled;
 
         // cancel schedule task
-        var index = this.scheduleInNextFrame.indexOf(comp);
+        var index = this._deferredComps.indexOf(comp);
         if (index >= 0) {
-            jsArray.fastRemoveAt(this.scheduleInNextFrame, index);
+            jsArray.fastRemoveAt(this._deferredComps, index);
             return;
         }
 
@@ -456,7 +456,7 @@ var ComponentScheduler = cc.Class({
     },
 
     _deferredSchedule () {
-        var comps = this.scheduleInNextFrame;
+        var comps = this._deferredComps;
         for (var i = 0, len = comps.length; i < len; i++) {
             this._scheduleImmediate(comps[i]);
         }
@@ -465,8 +465,8 @@ var ComponentScheduler = cc.Class({
 
     // Call new registered start schedule immediately since last time start phase calling in this frame
     // See cocos-creator/2d-tasks/issues/256
-    _earlyStartForNewComps () {
-        if (this.scheduleInNextFrame.length > 0) {
+    _startForNewComps () {
+        if (this._deferredComps.length > 0) {
             this._deferredSchedule();
             this.startInvoker.invoke();
         }
@@ -476,16 +476,11 @@ var ComponentScheduler = cc.Class({
         // Start of this frame
         this._updating = true;
 
-        if (this.scheduleInNextFrame.length > 0) {
-            this._deferredSchedule();
-        }
-
         // call start
         this.startInvoker.invoke();
 
-        // As is often the case, _deferredSchedule should clear scheduleInNextFrame,
-        // once not cleared, it indicates that there is a node activated during start
-        this._earlyStartForNewComps();
+        // Start components of new activated nodes during start
+        this._startForNewComps();
 
         // if (CC_PREVIEW) {
         //     try {
@@ -513,10 +508,11 @@ var ComponentScheduler = cc.Class({
 
         // End of this frame
         this._updating = false;
-    },
 
-    clearup () {
-        this._earlyStartForNewComps();
+        // Start components of new activated nodes during update and lateUpdate
+        // The start callback will be invoked immediately,
+        // update and lateUpdate callback will be running in the next frame
+        this._startForNewComps();
     },
 });
 

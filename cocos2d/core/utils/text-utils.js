@@ -28,8 +28,9 @@ import js from '../platform/js'
 
 // Draw text the textBaseline ratio (Can adjust the appropriate baseline ratio based on the platform)
 let _BASELINE_RATIO = 0.26;
+let _BASELINE_OFFSET = 0;
 if (CC_RUNTIME) {
-    _BASELINE_RATIO = -0.05;
+    _BASELINE_OFFSET = _BASELINE_RATIO / 2;
 }
 
 const MAX_CACHE_SIZE = 100;
@@ -131,14 +132,18 @@ var textUtils = {
 
     BASELINE_RATIO: _BASELINE_RATIO,
     MIDDLE_RATIO: (_BASELINE_RATIO + 1) / 2 - _BASELINE_RATIO,
+    BASELINE_OFFSET: _BASELINE_OFFSET,
 
     label_wordRex : /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûа-яА-ЯЁё]+|\S)/,
     label_symbolRex : /^[!,.:;'}\]%\?>、‘“》？。，！]/,
     label_lastWordRex : /([a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]+|\S)$/,
     label_lastEnglish : /[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]+$/,
     label_firstEnglish : /^[a-zA-Z0-9ÄÖÜäöüßéèçàùêâîôûаíìÍÌïÁÀáàÉÈÒÓòóŐőÙÚŰúűñÑæÆœŒÃÂãÔõěščřžýáíéóúůťďňĚŠČŘŽÁÍÉÓÚŤżźśóńłęćąŻŹŚÓŃŁĘĆĄ-яА-ЯЁё]/,
-    label_firstEmoji : /^[\uD83C\uDF00-\uDFFF\uDC00-\uDE4F]/,
-    label_lastEmoji : /([\uDF00-\uDFFF\uDC00-\uDE4F]+|\S)$/,
+    // The unicode standard will never assign a character from code point 0xD800 to 0xDFFF
+    // high surrogate (0xD800-0xDBFF) and low surrogate(0xDC00-0xDFFF) combines to a character on the Supplementary Multilingual Plane
+    // reference: https://en.wikipedia.org/wiki/UTF-16
+    highSurrogateRex: /[\uD800-\uDBFF]/,
+    lowSurrogateRex: /[\uDC00-\uDFFF]/,
     label_wrapinspection : true,
 
     __CHINESE_REG: /^[\u4E00-\u9FFF\u3400-\u4DFF]+$/,
@@ -170,6 +175,35 @@ var textUtils = {
         return width;
     },
 
+    // in case truncate a character on the Supplementary Multilingual Plane
+    // test case: a = '😉🚗'
+    // _safeSubstring(a, 1) === '😉🚗'
+    // _safeSubstring(a, 0, 1) === '😉'
+    // _safeSubstring(a, 0, 2) === '😉'
+    // _safeSubstring(a, 0, 3) === '😉'
+    // _safeSubstring(a, 0, 4) === '😉🚗'
+    // _safeSubstring(a, 1, 2) === _safeSubstring(a, 1, 3) === '😉'
+    // _safeSubstring(a, 2, 3) === _safeSubstring(a, 2, 4) === '🚗'
+    _safeSubstring (targetString, startIndex, endIndex) {
+        let newStartIndex = startIndex, newEndIndex = endIndex;
+        let startChar = targetString[startIndex];
+        if (this.lowSurrogateRex.test(startChar)) {
+            newStartIndex--;
+        }
+        if (endIndex !== undefined) {
+            if (endIndex - 1 !== startIndex) {
+                let endChar = targetString[endIndex - 1];
+                if (this.highSurrogateRex.test(endChar)) {
+                    newEndIndex--;
+                }
+            }
+            else if (this.highSurrogateRex.test(startChar)) {
+                newEndIndex++;
+            }
+        }
+        return targetString.substring(newStartIndex, newEndIndex);
+    },
+
     fragmentText: function (stringToken, allWidth, maxWidth, measureText) {
         //check the first character
         var wrappedWords = [];
@@ -183,7 +217,7 @@ var textUtils = {
         while (allWidth > maxWidth && text.length > 1) {
 
             var fuzzyLen = text.length * ( maxWidth / allWidth ) | 0;
-            var tmpText = text.substring(fuzzyLen);
+            var tmpText = this._safeSubstring(text, fuzzyLen);
             var width = allWidth - measureText(tmpText);
             var sLine = tmpText;
             var pushNum = 0;
@@ -195,7 +229,7 @@ var textUtils = {
             while (width > maxWidth && checkWhile++ < checkCount) {
                 fuzzyLen *= maxWidth / width;
                 fuzzyLen = fuzzyLen | 0;
-                tmpText = text.substring(fuzzyLen);
+                tmpText = this._safeSubstring(text, fuzzyLen);
                 width = allWidth - measureText(tmpText);
             }
 
@@ -210,17 +244,22 @@ var textUtils = {
                 }
 
                 fuzzyLen = fuzzyLen + pushNum;
-                tmpText = text.substring(fuzzyLen);
+                tmpText = this._safeSubstring(text, fuzzyLen);
                 width = allWidth - measureText(tmpText);
             }
 
             fuzzyLen -= pushNum;
+            // in case maxWidth cannot contain any characters, need at least one character per line
             if (fuzzyLen === 0) {
                 fuzzyLen = 1;
-                sLine = sLine.substring(1);
+                sLine = this._safeSubstring(text, 1);
+            }
+            else if (fuzzyLen === 1 && this.highSurrogateRex.test(text[0])) {
+                fuzzyLen = 2;
+                sLine = this._safeSubstring(text, 2);
             }
 
-            var sText = text.substring(0, 0 + fuzzyLen), result;
+            var sText = this._safeSubstring(text, 0, fuzzyLen), result;
 
             //symbol in the first
             if (this.label_wrapinspection) {
@@ -229,19 +268,8 @@ var textUtils = {
                     fuzzyLen -= result ? result[0].length : 0;
                     if (fuzzyLen === 0) fuzzyLen = 1;
 
-                    sLine = text.substring(fuzzyLen);
-                    sText = text.substring(0, 0 + fuzzyLen);
-                }
-            }
-
-            // To judge whether a Emoji words are truncated
-            // todo Some Emoji are not well adapted, such as 🚗 and 🇨🇳
-            if (this.label_firstEmoji.test(sLine)) {
-                result = this.label_lastEmoji.exec(sText);
-                if (result && sText !== result[0]) {
-                    fuzzyLen -= result[0].length;
-                    sLine = text.substring(fuzzyLen);
-                    sText = text.substring(0, 0 + fuzzyLen);
+                    sLine = this._safeSubstring(text, fuzzyLen);
+                    sText = this._safeSubstring(text, 0, fuzzyLen);
                 }
             }
 
@@ -250,8 +278,8 @@ var textUtils = {
                 result = this.label_lastEnglish.exec(sText);
                 if (result && sText !== result[0]) {
                     fuzzyLen -= result[0].length;
-                    sLine = text.substring(fuzzyLen);
-                    sText = text.substring(0, 0 + fuzzyLen);
+                    sLine = this._safeSubstring(text, fuzzyLen);
+                    sText = this._safeSubstring(text, 0, fuzzyLen);
                 }
             }
 

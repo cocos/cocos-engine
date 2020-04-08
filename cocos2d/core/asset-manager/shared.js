@@ -197,7 +197,20 @@ var BuiltinBundleName = {
      * @readonly
      * @type {String}
      */
-    MAIN: 'main'
+    MAIN: 'main',
+
+    /**
+     * !#en
+     * The builtin bundle, exists when Start Scene asset bundle is checked on the project building panel
+     * 
+     * !#zh
+     * 内置 bundle, 如果构建面板开启了首场景分包，则会有 START_SCENE bundle
+     * 
+     * @property START_SCENE
+     * @readonly
+     * @type {String}
+     */
+    START_SCENE: 'start-scene',
 };
 
 module.exports = { assets, files, parsed, pipeline, fetchPipeline, transformPipeline, LoadStrategy, RequestType, bundles, BuiltinBundleName };

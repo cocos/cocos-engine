@@ -27,6 +27,11 @@ function integrateKeyframeTwice (coef) {
     return coef;
 }
 
+/**
+ * !#en The optimized curve.
+ * !#zh 优化曲线
+ * @class OptimizedCurve
+ */
 export class OptimizedCurve {
     optimizedKeys = [];
     integral = [];

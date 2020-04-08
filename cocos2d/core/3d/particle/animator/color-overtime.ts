@@ -4,6 +4,11 @@ import GradientRange from './gradient-range';
 
 const COLOR_OVERTIME_RAND_OFFSET = 91041;
 
+/**
+ * !#en The color over time module of 3d particle.
+ * !#zh 3D 粒子颜色变化模块
+ * @class ColorOvertimeModule
+ */
 @ccclass('cc.ColorOvertimeModule')
 export default class ColorOvertimeModule {
 

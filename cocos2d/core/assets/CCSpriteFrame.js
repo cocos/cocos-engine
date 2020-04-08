@@ -754,6 +754,12 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
         if (texture) {
             uuid = texture._uuid;
         }
+        if (!uuid) {
+            let url = this._textureFilename;
+            if (url) {
+                uuid = Editor.Utils.UuidCache.urlToUuid(url);
+            }
+        }
         if (uuid && exporting) {
             uuid = Editor.Utils.UuidUtils.compressUuid(uuid, true);
         }

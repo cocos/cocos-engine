@@ -81,6 +81,7 @@ let RenderComponent = cc.Class({
     _resetAssembler () {
         Assembler.init(this);
         this._updateColor();
+        this.setVertsDirty();
     },
 
     __preload () {

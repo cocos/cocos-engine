@@ -86,7 +86,7 @@ function Pipeline (name, funcs) {
         }
     }
 
-};
+}
 
 Pipeline.prototype = {
 
@@ -149,7 +149,6 @@ Pipeline.prototype = {
      * insert(func: (task: Task, callback?: (err: Error) => void) => void, index: number): Pipeline
      */
     insert (func, index) {
-
         if (typeof func !== 'function' || index > this.pipes.length) {
             cc.warnID(4921);
             return;
