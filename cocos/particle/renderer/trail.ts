@@ -157,6 +157,9 @@ export default class TrailModule {
     }
 
     public set enable (val) {
+        if (val === this._enable && this._trailModel) {
+            return;
+        }
         if (val && !this._trailModel) {
             this._createModel();
         }
@@ -169,7 +172,7 @@ export default class TrailModule {
             this._trailModel.enabled = val;
         }
 
-        val ? this._attachToScene() : this._detachFromScene();
+        val ? this.onEnable() : this.onDisable();
     }
 
     @property
@@ -364,6 +367,7 @@ export default class TrailModule {
     }
 
     public onDisable () {
+        this._particleTrail.clear();
         this._detachFromScene();
     }
 
