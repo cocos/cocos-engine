@@ -87,7 +87,7 @@ const invokePreload = SUPPORT_JIT ? createInvokeImplJit('c.__preload();') :
             }
         }
     );
-const invokeOnLoad = SUPPORT_JIT ? createInvokeImpl('c.onLoad();c._objFlags|=' + IsOnLoadCalled, false, IsOnLoadCalled) :
+const invokeOnLoad = SUPPORT_JIT ? createInvokeImplJit('c.onLoad();c._objFlags|=' + IsOnLoadCalled, false, IsOnLoadCalled) :
     createInvokeImpl(
         function (c) {
             c.onLoad();

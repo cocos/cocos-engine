@@ -868,29 +868,9 @@ export class Game extends EventTarget {
         // Avoid setup to be called twice.
         if (this._rendererInitialized) { return; }
 
-        // TODO: adapter for editor & preview
-        let canvas: HTMLCanvasElement;
-        if (JSB) {
-            let localContainer: HTMLElement;
-            this.container = localContainer = document.createElement<'div'>('div');
-            this.frame = document.documentElement;
-            if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-                canvas = window.sharedCanvas || wx.getSharedCanvas();
-            }
-            else if (JSB) {
-                canvas = window.__canvas;
-            }
-            else {
-                canvas = window.canvas;
-            }
-            this.canvas = canvas;
-        }
-        else {
-            this.canvas = (this.config as any).adapter.canvas;
-            this.frame = (this.config as any).adapter.frame;
-            this.container = (this.config as any).adapter.container;
-            canvas = this.canvas as HTMLCanvasElement;
-        }
+        this.canvas = (this.config as any).adapter.canvas;
+        this.frame = (this.config as any).adapter.frame;
+        this.container = (this.config as any).adapter.container;
 
         this._determineRenderType();
 
@@ -913,7 +893,7 @@ export class Game extends EventTarget {
             }
 
             const opts = {
-                canvasElm: canvas,
+                canvasElm: this.canvas as HTMLCanvasElement,
                 debug: true,
                 devicePixelRatio: window.devicePixelRatio,
                 nativeWidth: Math.floor(screen.width * window.devicePixelRatio),
