@@ -518,7 +518,7 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
             if (!this._texture.loaded) {
                 // load exists texture
                 this._refreshTexture(this._texture);
-                textureUtil.postLoadTexture(this._texture);
+                cc.assetManager.postLoadNative(this._texture);
             }
         }
     },

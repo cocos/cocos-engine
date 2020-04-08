@@ -525,7 +525,7 @@ cc.Director.prototype = {
             return false;
         }
         var bundle = cc.assetManager.bundles.find(function (bundle) {
-            return bundle.config.getSceneInfo(sceneName);
+            return bundle.getSceneInfo(sceneName);
         });
         if (bundle) {
             this.emit(cc.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);

@@ -24,13 +24,15 @@
  ****************************************************************************/
 const packManager = require('./pack-manager');
 const Task = require('./task');
-const {getDepends, clear, forEach} = require('./utilities');
-const {assets, fetchPipeline} = require('./shared');
+const { getDepends, clear, forEach } = require('./utilities');
+const { assets, fetchPipeline } = require('./shared');
 
 function fetch (task, done) {
 
+    let firstTask = false;
     if (!task.progress) {
         task.progress = { finish: 0, total: task.input.length }; 
+        firstTask = true;
     }
 
     let options = task.options, depends = [], progress = task.progress, total = progress.total;
@@ -85,14 +87,23 @@ function fetch (task, done) {
                         task.output.push.apply(task.output, this.output);
                         subTask.recycle();
                     }
+                    if (firstTask) decreaseRef(task);
                     done(err);
                 },
             });
             fetchPipeline.async(subTask);
             return;
         }
+        if (firstTask) decreaseRef(task);
         done();
     });
+}
+
+function decreaseRef (task) {
+    let output = task.output;
+    for (let i = 0, l = output.length; i < l; i++) {
+        output[i].content && output[i].content.removeRef();
+    }
 }
 
 function handle (item, task, content, file, loadDepends, depends, last, done) {

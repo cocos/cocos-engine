@@ -47,7 +47,7 @@ var unsupported = function (url, options, onComplete) {
 
 var downloadAudio = function (url, options, onComplete) {
     // web audio need to download file as arrayBuffer
-    if (options.loadMode === cc.AudioClip.LoadMode.WEB_AUDIO) {
+    if (options.audioLoadMode === cc.AudioClip.LoadMode.WEB_AUDIO) {
         downloadArrayBuffer(url, options, onComplete);
     }
     else {
@@ -231,6 +231,19 @@ var downloader = {
      * @type {Number}
      */
     maxRetryCount: 3,
+
+    /**
+     * !#en 
+     * Whether or not append time stamp to all url 
+     * 
+     * !#zh
+     * 是否对所有 url 添加时间戳
+     * 
+     * @property appendTimeStamp
+     * @type {boolean}
+     * @default false
+     */
+    appendTimeStamp: false,
 
     /**
      * !#en

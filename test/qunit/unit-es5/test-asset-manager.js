@@ -45,7 +45,7 @@
             json2,
         ];
 
-        cc.assetManager.load(resources, { requestType: cc.AssetManager.RequestType.URL}, function (finish, total, item) {
+        cc.assetManager.loadAny(resources, { requestType: cc.AssetManager.RequestType.URL}, function (finish, total, item) {
             if (item.uuid === image1) {
                 ok(item.content instanceof Image, 'image url\'s result should be Image');
             }
@@ -73,7 +73,7 @@
     asyncTest('Load single file', function () {
         var image1 = assetDir + '/button.png';
 
-        cc.assetManager.load({ url: image1 }, function (completedCount, totalCount, item) {
+        cc.assetManager.loadAny({ url: image1 }, function (completedCount, totalCount, item) {
             if (item.uuid === image1) {
                 ok(item.content instanceof Image, 'image url\'s result should be Image');
             }
@@ -112,7 +112,7 @@
             }
         }).enable();
 
-        cc.assetManager.load(resources, { requestType: cc.AssetManager.RequestType.URL }, progressCallback, function (error, assets) {
+        cc.assetManager.loadAny(resources, { requestType: cc.AssetManager.RequestType.URL }, progressCallback, function (error, assets) {
             ok(assets.length === 2, 'be able to load all resources');
             ok(assets[0] instanceof Image, 'the single result should be Image');
             strictEqual(assets[1], 'Thonburi_LABEL', 'should give correct js object as result of JSON');
@@ -125,8 +125,8 @@
     asyncTest('Loading texture with query', function () {
         var image1 = assetDir + '/button.png?url=http://.../1';
         var image2 = assetDir + '/button.png?url=http://.../2';
-        cc.assetManager.load({url: image1, ext: '.png' }, function (error, image1) {
-            cc.assetManager.load({url: image2, ext: '.png' }, function (error, image2) {
+        cc.assetManager.loadAny({url: image1, ext: '.png' }, function (error, image1) {
+            cc.assetManager.loadAny({url: image2, ext: '.png' }, function (error, image2) {
                 ok(image1 instanceof Image, 'image1 url\'s result should be Image');
                 ok(image2 instanceof Image, 'image2 url\'s result should be Image');
                 ok(image1 !== image2, 'should split cache if query is different');
@@ -150,7 +150,7 @@
             ok(false, 'time out!');
             start();
         }, 2000);
-        cc.assetManager.load(grossiniSprite_uuid, function (err, asset) {
+        cc.assetManager.loadAny(grossiniSprite_uuid, function (err, asset) {
             if (err) {
                 ok(false, err.message);
                 return start();
@@ -169,7 +169,7 @@
             ok(false, 'time out!');
             start();
         }, 200);
-        cc.assetManager.load(selfReferenced_uuid, function (err, asset) {
+        cc.assetManager.loadAny(selfReferenced_uuid, function (err, asset) {
             if (err) {
                 ok(false, err.message);
                 return start();
@@ -187,7 +187,7 @@
             ok(false, 'time out!');
             start();
         }, 200);
-        cc.assetManager.load(circleReferenced_uuid, function (err, asset) {
+        cc.assetManager.loadAny(circleReferenced_uuid, function (err, asset) {
             if (err) {
                 ok(false, err.message);
                 return start();

@@ -111,7 +111,7 @@ var utils = {
     },
 
     urlAppendTimestamp (url) {
-        if (cc.assetManager.appendTimeStamp && typeof url === 'string') {
+        if (cc.assetManager.downloader.appendTimeStamp && typeof url === 'string') {
             if (/\?/.test(url))
                 return url + '&_t=' + (new Date() - 0);
             else

@@ -308,16 +308,7 @@ Audio.State = {
                             self._onLoaded();
                         }
                     });
-                    cc.assetManager.loadNativeFile(clip,
-                        function (err, audioNativeAsset) {
-                            if (err) {
-                                cc.error(err);
-                                return;
-                            }
-                            if (!clip.loaded) {
-                                clip._nativeAsset = audioNativeAsset;
-                            }
-                        });
+                    cc.assetManager.postLoadNative(clip);
                 }
             }
             else {

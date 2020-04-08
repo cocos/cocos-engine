@@ -39,12 +39,12 @@ const md5Pipe = {
     transformURL (url) {
         url = url.replace(/.*[/\\][0-9a-fA-F]{2}[/\\]([0-9a-fA-F-]{8,})/, function (match, uuid) {
             var bundle = cc.assetManager.bundles.find(function (bundle) {
-                return bundle.config.getAssetInfo(uuid);
+                return bundle.getAssetInfo(uuid);
             });
             let hashValue = '';
             if (bundle) {
-                var info = bundle.config.getAssetInfo(uuid);
-                if (url.startsWith(bundle.config.base + bundle.config.nativeBase)) {
+                var info = bundle.getAssetInfo(uuid);
+                if (url.startsWith(bundle.base + bundle._config.nativeBase)) {
                     hashValue = info.nativeVer;
                 }
                 else {
@@ -73,9 +73,6 @@ const loader = {
     onProgress: null,
     _autoReleaseSetting: Object.create(null),
 
-    /**
-     * @deprecated `cc.loader._cache` is deprecated, please use `cc.assetManager.assets` instead
-     */
     get _cache () {
         return cc.assetManager.assets._map;
     },
@@ -83,7 +80,7 @@ const loader = {
     /**
      * `cc.loader.load` is deprecated, please use {{#crossLink "AssetManager/load:method"}}{{/crossLink}} instead
      *
-     * @deprecated `cc.loader.load` is deprecated, please use `cc.assetManager.load` instead
+     * @deprecated `cc.loader.load` is deprecated, please use `cc.assetManager.loadAny` instead
      *
      * @method load
      * @param {String|String[]|Object} resources - Url list in an array
@@ -123,7 +120,7 @@ const loader = {
         }
         var images = [];
         var audios = [];
-        cc.assetManager.load(resources, null, (finish, total, item) => {
+        cc.assetManager.loadAny(resources, null, (finish, total, item) => {
             if (item.content) {
                 if (ImageFmts.includes(item.ext)) {
                     images.push(item.content);
@@ -144,14 +141,14 @@ const loader = {
                         var url = resources[i].url;
                         if (images.includes(asset)) {
                             asset = new cc.Texture2D();
-                            asset._setRawAsset(url, false);
+                            asset._nativeUrl = url;
                             asset._nativeAsset = item;
                             native[i] = asset;
                             asset._uuid = url;
                         }
                         else if (audios.includes(asset)) {
                             asset = new cc.AudioClip();
-                            asset._setRawAsset(url, false);
+                            asset._nativeUrl = url;
                             asset._nativeAsset = item;
                             native[i] = asset;
                             asset._uuid = url;
@@ -291,7 +288,7 @@ const loader = {
         cc.assetManager.loadResDir(url, type, onProgress, function (err, assets) {
             var urls = [];
             if (!err) {
-                var infos = cc.assetManager.resources.config.getDirWithPath(url, type);
+                var infos = cc.assetManager.resources.getDirWithPath(url, type);
                 urls = infos.map(function (info) {
                     return info.path;
                 });
@@ -593,10 +590,10 @@ var AssetLibrary = {
     },
 
     /**
-     * @deprecated `cc.AssetLibrary` is deprecated, please use `cc.assetManager.load` instead
+     * @deprecated `cc.AssetLibrary` is deprecated, please use `cc.assetManager.loadAny` instead
      */
     loadAsset (uuid, onComplete) {
-        cc.assetManager.load(uuid, onComplete);
+        cc.assetManager.loadAny(uuid, onComplete);
     },
 
     getLibUrlNoExt () {
@@ -750,22 +747,16 @@ Object.assign(cc.director, {
         cc.assetManager.preloadScene(sceneName, null, onProgress, onLoaded);
     },
 
-    /**
-     * @deprecated `cc.director._getSceneUuid` is deprecated, please use `config.getSceneInfo` instead
-     */
     _getSceneUuid (sceneName) {
-        cc.assetManager.bundles.get(cc.AssetManager.BuiltinBundleName.MAIN).config.getSceneInfo(sceneName);
+        cc.assetManager.main.getSceneInfo(sceneName);
     }
 });
 
 Object.defineProperties(cc.game, {
-    /**
-     * @deprecated `cc.game._sceneInfos` is deprecated now, please use `config.scenes` instead
-     */
     _sceneInfos: {
         get () {
             var scenes = [];
-            cc.assetManager.bundles.get(cc.AssetManager.BuiltinBundleName.MAIN).config.scenes.forEach(function (val) {
+            cc.assetManager.main._config.scenes.forEach(function (val) {
                 scenes.push(val);
             });
             return scenes;

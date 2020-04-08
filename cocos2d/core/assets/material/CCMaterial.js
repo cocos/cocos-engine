@@ -215,7 +215,7 @@ let Material = cc.Class({
 
             if (!val.loaded) {
                 val.once('load', loaded, this);
-                textureUtil.postLoadTexture(val);
+                cc.assetManager.postLoadNative(val);
                 return;
             }
         }

@@ -31,7 +31,6 @@ var parsed = new Cache();
 var bundles = new Cache();
 var pipeline = new Pipeline('normal load', []);
 var fetchPipeline = new Pipeline('fetch', []);
-var initializePipeline = new Pipeline('initialize', []);
 var transformPipeline = new Pipeline('transform url', []);
 
 /**
@@ -201,4 +200,4 @@ var BuiltinBundleName = {
     MAIN: 'main'
 };
 
-module.exports = { assets, files, parsed, pipeline, fetchPipeline, initializePipeline, transformPipeline, LoadStrategy, RequestType, bundles, BuiltinBundleName };
+module.exports = { assets, files, parsed, pipeline, fetchPipeline, transformPipeline, LoadStrategy, RequestType, bundles, BuiltinBundleName };

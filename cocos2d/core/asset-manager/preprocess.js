@@ -42,7 +42,7 @@ function preprocess (task, done) {
             case 'ext' :
             case 'type':
             case 'name':
-            case 'loadMode':
+            case 'audioLoadMode':
             case 'bundle':
                 subOptions[op] = options[op];
                 break;
