@@ -26,7 +26,7 @@ export default class MaterialVariant extends Material {
     /**
      * @method createWithBuiltin
      * @param {Material.BUILTIN_NAME} materialName 
-     * @param {RenderComponent} owner 
+     * @param {RenderComponent} [owner] 
      * @typescript
      * static createWithBuiltin (materialName, owner: cc.RenderComponent): MaterialVariant | null
      */
@@ -37,13 +37,17 @@ export default class MaterialVariant extends Material {
     /**
      * @method create
      * @param {Material} material 
-     * @param {RenderComponent} owner 
+     * @param {RenderComponent} [owner] 
      * @typescript
      * static create (material: Material, owner: cc.RenderComponent): MaterialVariant | null
      */
     static create (material: Material, owner: cc.RenderComponent): MaterialVariant | null {
         if (!material) return null;
         return MaterialPool.get(material, owner);
+    }
+
+    get uuid () {
+        return this._material.uuid;
     }
 
     get owner () {

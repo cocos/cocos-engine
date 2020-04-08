@@ -5,6 +5,11 @@ import CurveRange from './curve-range';
 // tslint:disable: max-line-length
 const ROTATION_OVERTIME_RAND_OFFSET = 125292;
 
+/**
+ * !#en The rotation module of 3d particle.
+ * !#zh 3D 粒子的旋转模块
+ * @class RotationOvertimeModule
+ */
 @ccclass('cc.RotationOvertimeModule')
 export default class RotationOvertimeModule {
 

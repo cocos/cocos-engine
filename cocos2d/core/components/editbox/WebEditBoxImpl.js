@@ -85,6 +85,8 @@ function WebEditBoxImpl () {
     this._m13 = 0;
     this._w = 0;
     this._h = 0;
+    // viewport cache
+    this._cacheViewportRect = cc.rect(0, 0, 0, 0);
 
     // inputType cache
     this._inputMode = null;
@@ -302,12 +304,13 @@ Object.assign(WebEditBoxImpl.prototype, {
         node.getWorldMatrix(this._worldMat);
         let worldMat = this._worldMat;
         let worldMatm = worldMat.m;
-
+        let localView = cc.view;
         // check whether need to update
         if (this._m00 === worldMatm[0] && this._m01 === worldMatm[1] &&
             this._m04 === worldMatm[4] && this._m05 === worldMatm[5] &&
             this._m12 === worldMatm[12] && this._m13 === worldMatm[13] &&
-            this._w === node._contentSize.width && this._h === node._contentSize.height) {
+            this._w === node._contentSize.width && this._h === node._contentSize.height &&
+            this._cacheViewportRect.equals(localView._viewportRect)) {
             return;
         }
 
@@ -320,10 +323,12 @@ Object.assign(WebEditBoxImpl.prototype, {
         this._m13 = worldMatm[13];
         this._w = node._contentSize.width;
         this._h = node._contentSize.height;
+        // update viewport cache
+        this._cacheViewportRect.set(localView._viewportRect);
 
-        let scaleX = cc.view._scaleX, scaleY = cc.view._scaleY,
-            viewport = cc.view._viewportRect,
-            dpr = cc.view._devicePixelRatio;
+        let scaleX = localView._scaleX, scaleY = localView._scaleY,
+            viewport = localView._viewportRect,
+            dpr = localView._devicePixelRatio;
 
         _vec3.x = -node._anchorPoint.x * this._w;
         _vec3.y = -node._anchorPoint.y * this._h;
@@ -669,6 +674,10 @@ Object.assign(WebEditBoxImpl.prototype, {
             impl._delegate.editBoxEditingDidEnded();
         };
 
+        cbs.onResize = function () {
+            impl._updateMatrix();
+        };
+
 
         elem.addEventListener('compositionstart', cbs.compositionStart);
         elem.addEventListener('compositionend', cbs.compositionEnd);
@@ -676,6 +685,10 @@ Object.assign(WebEditBoxImpl.prototype, {
         elem.addEventListener('keydown', cbs.onKeydown);
         elem.addEventListener('blur', cbs.onBlur);
         elem.addEventListener('touchstart', cbs.onClick);
+
+        // editBox is editing, need to update matrix when window resized or orientation changed
+        window.addEventListener('resize', cbs.onResize);
+        window.addEventListener('orientationchange', cbs.onResize);
     },
 
     _removeEventListeners () {
@@ -688,6 +701,9 @@ Object.assign(WebEditBoxImpl.prototype, {
         elem.removeEventListener('keydown', cbs.onKeydown);
         elem.removeEventListener('blur', cbs.onBlur);
         elem.removeEventListener('touchstart', cbs.onClick);
+
+        window.removeEventListener('resize', cbs.onResize);
+        window.removeEventListener('orientationchange', cbs.onResize);
         
         cbs.compositionStart = null;
         cbs.compositionEnd = null;
@@ -695,6 +711,7 @@ Object.assign(WebEditBoxImpl.prototype, {
         cbs.onKeydown = null;
         cbs.onBlur = null;
         cbs.onClick = null;
+        cbs.onResize = null;
     },
 });
 

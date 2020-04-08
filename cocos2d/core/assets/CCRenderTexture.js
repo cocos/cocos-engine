@@ -4,6 +4,38 @@ const Texture2D = require('./CCTexture2D');
 import gfx from '../../renderer/gfx';
 
 /**
+ * !#en The depth buffer and stencil buffer format for RenderTexture.
+ * !#zh RenderTexture 的深度缓冲以及模板缓冲格式。
+ * @enum RenderTexture.DepthStencilFormat
+ */
+let DepthStencilFormat = cc.Enum({
+    /**
+     * !#en 24 bit depth buffer and 8 bit stencil buffer
+     * !#zh 24 位深度缓冲和 8 位模板缓冲
+     * @property RB_FMT_D24S8
+     * @readonly
+     * @type {number}
+     */
+    RB_FMT_D24S8: gfx.RB_FMT_D24S8,
+    /**
+     * !#en Only 8 bit stencil buffer
+     * !#zh 只申请 8 位模板缓冲
+     * @property RB_FMT_S8
+     * @readonly
+     * @type {number}
+     */
+    RB_FMT_S8: gfx.RB_FMT_S8,
+    /**
+     * !#en Only 16 bit depth buffer
+     * !#zh 只申请 16 位深度缓冲
+     * @property RB_FMT_D16
+     * @readonly
+     * @type {number}
+     */
+    RB_FMT_D16: gfx.RB_FMT_D16
+})
+
+/**
  * Render textures are textures that can be rendered to.
  * @class RenderTexture
  * @extends Texture2D
@@ -11,6 +43,10 @@ import gfx from '../../renderer/gfx';
 let RenderTexture = cc.Class({
     name: 'cc.RenderTexture',
     extends: Texture2D,
+
+    statics: {
+        DepthStencilFormat
+    },
 
     ctor () {
         this._framebuffer = null;
@@ -78,7 +114,7 @@ let RenderTexture = cc.Class({
      * @param {Number} y 
      */
     drawTextureAt (texture, x, y) {
-        if (!texture._image) return;
+        if (!texture._image || texture._image.width === 0) return;
 
         this._texture.updateSubImage({
             x, y,

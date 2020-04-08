@@ -38,6 +38,7 @@ export default class View {
 
     // matrix
     this._matView = cc.mat4();
+    this._matViewInv = cc.mat4();
     this._matProj = cc.mat4();
     this._matViewProj = cc.mat4();
     this._matInvViewProj = cc.mat4();

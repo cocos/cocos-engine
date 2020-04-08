@@ -3,6 +3,13 @@ import Enum  from '../../../platform/CCEnum';
 import { lerp } from '../../../value-types';
 import { AnimationCurve } from '../curve';
 
+const SerializableTable = CC_EDITOR && [
+    [ "mode", "constant", "multiplier" ],
+    [ "mode", "curve", "multiplier" ],
+    [ "mode", "curveMin", "curveMax", "multiplier" ],
+    [ "mode", "constantMin", "constantMax", "multiplier"]
+];
+
 export const Mode = Enum({
     Constant: 0,
     Curve: 1,
@@ -10,6 +17,11 @@ export const Mode = Enum({
     TwoConstants: 3,
 });
 
+/**
+ * !#en The curve range of target value.
+ * !#zh 目标值的曲线范围
+ * @class CurveRange
+ */
 @ccclass('cc.CurveRange')
 export default class CurveRange {
     static Mode = Mode;
@@ -118,5 +130,7 @@ export default class CurveRange {
         return 0;
     }
 }
+
+CC_EDITOR && (CurveRange.prototype._onBeforeSerialize = function(props){return SerializableTable[this.mode];});
 
 cc.CurveRange = CurveRange;

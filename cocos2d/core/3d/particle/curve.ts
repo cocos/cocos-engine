@@ -61,23 +61,19 @@ const defaultKFStart = new Keyframe(0, 1, 0, 0);
 const defaultKFEnd = new Keyframe(1, 1, 0, 0);
 
 
+/**
+ * !#en The animation curve of 3d particle.
+ * !#zh 3D 粒子动画曲线
+ * @class AnimationCurve
+ */
 @ccclass('cc.AnimationCurve')
 
 export class AnimationCurve {
-    _keyFrames = new Array();
     @property({
         default: [],
         type: [Keyframe],
     })
-    get keyFrames()
-    {
-        return this._keyFrames;
-    };
-
-    set keyFrames(val)
-    {
-        this._keyFrames = val;
-    }
+    keyFrames = new Array();
     
     @property({
         type: cc.Enum(WrapMode),

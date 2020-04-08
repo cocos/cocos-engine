@@ -228,7 +228,7 @@ let EditBox = cc.Class({
             get () {
                 // if (!CC_EDITOR) cc.warnID(1400, 'editBox.fontSize', 'editBox.textLabel.fontSize');
                 if (!this.textLabel) {
-                    return null;
+                    return 0;
                 }
                 return this.textLabel.fontSize;
             },
@@ -256,7 +256,7 @@ let EditBox = cc.Class({
             get () {
                 // if (!CC_EDITOR) cc.warnID(1400, 'editBox.lineHeight', 'editBox.textLabel.lineHeight');
                 if (!this.textLabel) {
-                    return null;
+                    return 0;
                 }
                 return this.textLabel.lineHeight;
             },
@@ -284,7 +284,7 @@ let EditBox = cc.Class({
             get () {
                 // if (!CC_EDITOR) cc.warnID(1400, 'editBox.fontColor', 'editBox.textLabel.node.color');
                 if (!this.textLabel) {
-                    return null;
+                    return cc.Color.BLACK;
                 }
                 return this.textLabel.node.color;
             },
@@ -336,7 +336,7 @@ let EditBox = cc.Class({
             get () {
                 // if (!CC_EDITOR) cc.warnID(1400, 'editBox.placeholderFontSize', 'editBox.placeholderLabel.fontSize');
                 if (!this.placeholderLabel) {
-                    return null;
+                    return 0;
                 }
                 return this.placeholderLabel.fontSize;
             },
@@ -364,7 +364,7 @@ let EditBox = cc.Class({
             get () {
                 // if (!CC_EDITOR) cc.warnID(1400, 'editBox.placeholderFontColor', 'editBox.placeholderLabel.node.color');
                 if (!this.placeholderLabel) {
-                    return null;
+                    return cc.Color.BLACK;
                 }
                 return this.placeholderLabel.node.color;
             },
