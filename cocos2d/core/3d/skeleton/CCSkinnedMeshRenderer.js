@@ -192,17 +192,12 @@ let SkinnedMeshRenderer = cc.Class({
         if (!this._skeleton) return;
 
         let jointCount = this._joints.length;
-        let materials = this._materials;
 
         let inited = false;
         if (jointCount <= cc.sys.getMaxJointMatrixSize()) {
             inited = true;
 
             this._jointsData = this._jointsFloat32Data = new Float32Array(jointCount * 16);
-            for (let i = 0; i < materials.length; i++) {
-                materials[i].setProperty('jointMatrices', this._jointsFloat32Data, undefined, true);
-                materials[i].define('CC_USE_JOINTS_TEXTRUE', false);
-            }
         }
 
         if (!inited) {
@@ -245,18 +240,31 @@ let SkinnedMeshRenderer = cc.Class({
                 height: texture.height, 
                 images:[]
             };
-            
-            for (let i = 0; i < materials.length; i++) {
-                materials[i].setProperty('jointsTexture', texture);
-                materials[i].setProperty('jointsTextureSize', new Float32Array([width, height]));
-                
-                materials[i].define('CC_JOINTS_TEXTURE_FLOAT32', SUPPORT_FLOAT_TEXTURE);
-                materials[i].define('CC_USE_JOINTS_TEXTRUE', true);
-            }
         }
 
+        this._updateMaterial();
+    },
+
+    _updateMaterial () {
+        MeshRenderer.prototype._updateMaterial.call(this);
+
+        let materials = this.getMaterials();
         for (let i = 0; i < materials.length; i++) {
-            materials[i].define('CC_USE_SKINNING', true);
+            let material = materials[i];
+            if (this._jointsTexture) {
+                material.setProperty('jointsTexture', this._jointsTexture);
+                material.setProperty('jointsTextureSize', new Float32Array([this._jointsTexture.width, this._jointsTexture.height]));
+                
+                material.define('CC_JOINTS_TEXTURE_FLOAT32', !!cc.sys.glExtension('OES_texture_float'));
+                material.define('CC_USE_JOINTS_TEXTRUE', true);
+            }
+            else {
+                if (this._jointsFloat32Data) {
+                    material.setProperty('jointMatrices', this._jointsFloat32Data, undefined, true);
+                }
+                material.define('CC_USE_JOINTS_TEXTRUE', false);
+            }
+            material.define('CC_USE_SKINNING', true);
         }
     },
 

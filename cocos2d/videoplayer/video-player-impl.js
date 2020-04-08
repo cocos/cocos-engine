@@ -520,6 +520,7 @@ let VideoPlayerImpl = cc.Class({
 });
 
 VideoPlayerImpl.EventType = {
+    NONE: -1,
     PLAYING: 0,
     PAUSED: 1,
     STOPPED: 2,

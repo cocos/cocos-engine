@@ -29,6 +29,7 @@ const CC_USE_STRETCHED_BILLBOARD = 'CC_USE_STRETCHED_BILLBOARD';
 const CC_USE_HORIZONTAL_BILLBOARD = 'CC_USE_HORIZONTAL_BILLBOARD';
 const CC_USE_VERTICAL_BILLBOARD = 'CC_USE_VERTICAL_BILLBOARD';
 const CC_USE_MESH = 'CC_USE_MESH';
+//const CC_DRAW_WIRE_FRAME = 'CC_DRAW_WIRE_FRAME'; // <wireframe debug>
 
 
 var vfmtNormal = new gfx.VertexFormat([
@@ -88,6 +89,7 @@ export default class ParticleSystem3DAssembler extends Assembler {
 
         this._trailDefines = {
             CC_USE_WORLD_SPACE: true,
+            //CC_DRAW_WIRE_FRAME: true,   // <wireframe debug>
         };
     }
 
@@ -333,7 +335,7 @@ export default class ParticleSystem3DAssembler extends Assembler {
             mat = MaterialVariant.create(mat, this._particleSystem);
         }
 
-        mat = this._particleSystem.setMaterial(0, mat);
+        mat = mat || this._defaultMat;
 
         if (this._particleSystem._simulationSpace === Space.World) {
             mat.define(CC_USE_WORLD_SPACE, true);
@@ -382,11 +384,14 @@ export default class ParticleSystem3DAssembler extends Assembler {
         }
 
         mat.setProperty('frameTile_velLenScale', this.frameTile_velLenScale);
+
+        this._particleSystem.setMaterial(0, mat);
     }
 
     _updateTrailMaterial () {
+        // Here need to create a material variant through the getter call.
+        let mat = this._particleSystem.trailMaterial;
         if (this._particleSystem.trailModule.enable) {
-            let mat = this._particleSystem.trailMaterial;
             if (mat === null && this._defaultTrailMat === null) {
                 this._defaultTrailMat = MaterialVariant.createWithBuiltin('3d-trail', this);
             }
@@ -402,6 +407,7 @@ export default class ParticleSystem3DAssembler extends Assembler {
                 mat.define(CC_USE_WORLD_SPACE, false);
             }
 
+            //mat.define(CC_DRAW_WIRE_FRAME, true); // <wireframe debug>
             this._particleSystem.trailModule._updateMaterial();
         }
     }

@@ -352,18 +352,6 @@ cc.macro = {
 
     /**
      * !#en
-     * Set cc.RotateTo/cc.RotateBy rotate direction.
-     * If need set rotate positive direction to counterclockwise, please change setting to: `cc.macro.ROTATE_ACTION_CCW = true;`
-     * !#zh
-     * 设置 cc.RotateTo/cc.RotateBy 的旋转方向。
-     * 如果需要设置旋转的正方向为逆时针方向，请设置选项为：`cc.macro.ROTATE_ACTION_CCW = true;`
-     * @property {Boolean} ROTATE_ACTION_CCW
-     * @default false
-     */
-    ROTATE_ACTION_CCW: false,
-
-    /**
-     * !#en
      * Whether to enable multi-touch.
      * !#zh
      * 是否开启多点触摸
@@ -373,6 +361,13 @@ cc.macro = {
     ENABLE_MULTI_TOUCH: true
 };
 
+Object.defineProperty(cc.macro, 'ROTATE_ACTION_CCW', {
+    set (value) {
+        if (cc.RotateTo && cc.RotateBy) {
+            cc.RotateTo._reverse = cc.RotateBy._reverse = value;
+        }
+    }
+});
 
 let SUPPORT_TEXTURE_FORMATS = ['.pkm', '.pvr', '.webp', '.jpg', '.jpeg', '.bmp', '.png'];
 

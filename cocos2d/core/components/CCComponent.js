@@ -31,6 +31,8 @@ var idGenerater = new (require('../platform/id-generater'))('Comp');
 var IsOnEnableCalled = CCObject.Flags.IsOnEnableCalled;
 var IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
 
+var ActionManagerExist = !!cc.ActionManager;
+
 /**
  * !#en
  * Base class for everything attached to Node(Entity).<br/>
@@ -498,6 +500,10 @@ var Component = cc.Class({
     },
 
     _onPreDestroy () {
+        if (ActionManagerExist) {
+            cc.director.getActionManager().removeAllActionsFromTarget(this);
+        }
+
         // Schedules
         this.unscheduleAllCallbacks();
 

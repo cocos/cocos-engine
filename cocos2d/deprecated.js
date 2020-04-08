@@ -506,8 +506,8 @@ if (CC_DEBUG) {
         'minFrameSize'
     ], 'cc.dynamicAtlasManager')
 
+    // light component
     if (cc.Light) {
-        // light component
         markAsRemovedInObject(cc.Light.prototype, [
             'shadowDepthScale',
         ], 'cc.Light.prototype');

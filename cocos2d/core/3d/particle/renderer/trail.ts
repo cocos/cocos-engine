@@ -7,8 +7,6 @@ import GradientRange from '../animator/gradient-range';
 import { Space, TextureMode, TrailMode } from '../enum';
 import MapUtils from '../utils';
 
-const renderer = require('../../../renderer');
-
 // tslint:disable: max-line-length
 const PRE_TRIANGLE_INDEX = 1;
 const NEXT_TRIANGLE_INDEX = 1 << 2;
@@ -20,6 +18,9 @@ const _temp_xform = cc.mat4();
 const _temp_Vec3 = cc.v3();
 const _temp_Vec3_1 = cc.v3();
 const _temp_color = cc.color();
+
+// var barycentric = [1, 0, 0, 0, 1, 0, 0, 0, 1]; // <wireframe debug>
+// var _bcIdx = 0;
 
 
 class ITrailElement {
@@ -46,6 +47,7 @@ class TrailSegment {
                 lifetime: 0,
                 width: 0,
                 velocity: cc.v3(),
+                direction: 0,
                 color: cc.color(),
             });
         }
@@ -79,6 +81,7 @@ class TrailSegment {
                 lifetime: 0,
                 width: 0,
                 velocity: cc.v3(),
+                direction: 0,
                 color: cc.color(),
             });
             this.start++;
@@ -117,6 +120,11 @@ class TrailSegment {
     }
 }
 
+/**
+ * !#en The trail module of 3d particle.
+ * !#zh 3D 粒子拖尾模块
+ * @class TrailModule
+ */
 @ccclass('cc.TrailModule')
 export default class TrailModule {
 
@@ -294,6 +302,7 @@ export default class TrailModule {
         this._gfxVFmt = new gfx.VertexFormat([
             { name: gfx.ATTR_POSITION, type: gfx.ATTR_TYPE_FLOAT32, num: 3},
             { name: gfx.ATTR_TEX_COORD, type: gfx.ATTR_TYPE_FLOAT32, num: 4},
+            //{ name: gfx.ATTR_TEX_COORD2, type: gfx.ATTR_TYPE_FLOAT32, num: 3 }, // <wireframe debug>
             { name: gfx.ATTR_TEX_COORD1, type: gfx.ATTR_TYPE_FLOAT32, num: 3},
             { name: gfx.ATTR_COLOR, type: gfx.ATTR_TYPE_UINT8, num: 4, normalize: true },
         ]);
@@ -388,6 +397,7 @@ export default class TrailModule {
         if (!trail) {
             trail = this._trailSegments.alloc();
             this._particleTrail.set(p, trail);
+            return;
         }
         let lastSeg = trail.getElement(trail.end - 1);
         if (this._needTransform) {
@@ -462,7 +472,7 @@ export default class TrailModule {
         this.vbOffset = 0;
         this.ibOffset = 0;
         
-        for (const p of Array.from(this._particleTrail.keys())) {
+        for (const p of this._particleTrail.keys()) {
             const trailSeg = this._particleTrail.get(p);
             if (trailSeg.start === -1) {
                 continue;
@@ -500,20 +510,24 @@ export default class TrailModule {
                 const lastThirdTrail = trailSeg.getElement(trailSeg.end - 2);
                 Vec3.subtract(_temp_Vec3, lastThirdTrail.position, lastSecondTrail.position);
                 Vec3.subtract(_temp_Vec3_1, _temp_trailEle.position, lastSecondTrail.position);
+                Vec3.normalize(_temp_Vec3, _temp_Vec3);
+                Vec3.normalize(_temp_Vec3_1, _temp_Vec3_1);
                 Vec3.subtract(lastSecondTrail.velocity, _temp_Vec3_1, _temp_Vec3);
                 Vec3.normalize(lastSecondTrail.velocity, lastSecondTrail.velocity);
                 this._checkDirectionReverse(lastSecondTrail, lastThirdTrail);
-                this._vbF32[this.vbOffset - this._vertSize / 4 - 4] = lastSecondTrail.velocity.x;
-                this._vbF32[this.vbOffset - this._vertSize / 4 - 3] = lastSecondTrail.velocity.y;
-                this._vbF32[this.vbOffset - this._vertSize / 4 - 2] = lastSecondTrail.velocity.z;
-                this._vbF32[this.vbOffset - 4] = lastSecondTrail.velocity.x;
-                this._vbF32[this.vbOffset - 3] = lastSecondTrail.velocity.y;
-                this._vbF32[this.vbOffset - 2] = lastSecondTrail.velocity.z;
+                this.vbOffset -= this._vertSize / 4 * 2;
+                this.ibOffset -= 6;
+                //_bcIdx = (_bcIdx - 6 + 9) % 9;  // <wireframe debug>
+                this._fillVertexBuffer(lastSecondTrail, this.colorOverTrail.evaluate(textCoordSeg, 1), indexOffset, textCoordSeg, trailNum - 1, PRE_TRIANGLE_INDEX | NEXT_TRIANGLE_INDEX);
                 Vec3.subtract(_temp_trailEle.velocity, _temp_trailEle.position, lastSecondTrail.position);
                 Vec3.normalize(_temp_trailEle.velocity, _temp_trailEle.velocity);
                 this._checkDirectionReverse(_temp_trailEle, lastSecondTrail);
             }
-            _temp_trailEle.width = p.size.x;
+            if (this.widthFromParticle) {
+                _temp_trailEle.width = p.size.x * this.widthRatio.evaluate(0, 1);
+            } else {
+                _temp_trailEle.width = this.widthRatio.evaluate(0, 1);
+            }
             _temp_trailEle.color = p.color;
 
             if (Vec3.equals(_temp_trailEle.velocity, cc.Vec3.ZERO)) {
@@ -533,6 +547,10 @@ export default class TrailModule {
         this._vbF32[this.vbOffset++] = trailSeg.width;
         this._vbF32[this.vbOffset++] = xTexCoord;
         this._vbF32[this.vbOffset++] = 0;
+        // this._vbF32[this.vbOffset++] = barycentric[_bcIdx++];  // <wireframe debug>
+        // this._vbF32[this.vbOffset++] = barycentric[_bcIdx++];
+        // this._vbF32[this.vbOffset++] = barycentric[_bcIdx++];
+        // _bcIdx %= 9;
         this._vbF32[this.vbOffset++] = trailSeg.velocity.x;
         this._vbF32[this.vbOffset++] = trailSeg.velocity.y;
         this._vbF32[this.vbOffset++] = trailSeg.velocity.z;
@@ -546,6 +564,10 @@ export default class TrailModule {
         this._vbF32[this.vbOffset++] = trailSeg.width;
         this._vbF32[this.vbOffset++] = xTexCoord;
         this._vbF32[this.vbOffset++] = 1;
+        // this._vbF32[this.vbOffset++] = barycentric[_bcIdx++];  // <wireframe debug>
+        // this._vbF32[this.vbOffset++] = barycentric[_bcIdx++];
+        // this._vbF32[this.vbOffset++] = barycentric[_bcIdx++];
+        // _bcIdx %= 9;
         this._vbF32[this.vbOffset++] = trailSeg.velocity.x;
         this._vbF32[this.vbOffset++] = trailSeg.velocity.y;
         this._vbF32[this.vbOffset++] = trailSeg.velocity.z;
