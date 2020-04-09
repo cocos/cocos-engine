@@ -71,24 +71,27 @@ export class BatchedBuffer {
                     for (let j = 0; j < batch.vbs.length; ++j) {
                         const flatBuff = flatBuffers[j];
                         const batchVB = batch.vbs[j];
-                        let vbBuf = batch.vbDatas[j];
+                        const vbBuf = batch.vbDatas[j];
                         vbSize = (vbCount + batch.vbCount) * flatBuff.stride;
                         if (vbSize > batchVB.size) {
                             batchVB.resize(vbSize);
-                            vbBuf = batch.vbDatas[j] = new Uint8Array(vbSize);
+                            batch.vbDatas[j] = new Uint8Array(vbSize);
+                            batch.vbDatas[j].set(vbBuf);
                         }
-                        vbBuf.set(flatBuff.buffer, batch.vbCount * flatBuff.stride);
+                        batch.vbDatas[j].set(flatBuff.buffer, batch.vbCount * flatBuff.stride);
                     }
 
+                    let vbIdxBuf = batch.vbIdxData;
                     vbIdxSize = (vbCount + batch.vbCount) * 4;
                     if (vbIdxSize > batch.vbIdx.size) {
                         batch.vbIdx.resize(vbIdxSize);
                         batch.vbIdxData = new Float32Array(vbIdxSize / Float32Array.BYTES_PER_ELEMENT);
+                        batch.vbIdxData.set(vbIdxBuf);
+                        vbIdxBuf = batch.vbIdxData;
                     }
 
                     const start = batch.vbCount;
                     const end = start + vbCount;
-                    const vbIdxBuf = batch.vbIdxData;
                     const mergeCount = batch.mergeCount;
                     if (vbIdxBuf[start] !== mergeCount || vbIdxBuf[end - 1] !== mergeCount) {
                         for (let j = start; j < end; j++) {
