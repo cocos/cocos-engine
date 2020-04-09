@@ -76,7 +76,7 @@ bool GLES2Device::initialize(const GFXDeviceInfo& info)
 
     _useVAO = checkExtension("GL_OES_depth_texture");
     _useDrawInstanced = checkExtension("draw_instanced_");
-    _useInstancedArrays = checkExtension("instanced_arrays");
+    _useInstancedArrays = _features[(int)GFXFeature::INSTANCED_ARRAYS] = checkExtension("instanced_arrays");
     _useDiscardFramebuffer = checkExtension("discard_framebuffer");
 
     String compressed_fmts;

@@ -279,7 +279,6 @@ extern se::Class* __jsb_cocos2d_GFXDevice_class;
 
 bool js_register_cocos2d_GFXDevice(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
-SE_DECLARE_FUNC(js_gfx_GFXDevice_getNumInstances);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_hasFeature);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_createCommandAllocator);
 SE_DECLARE_FUNC(js_gfx_GFXDevice_getDepthStencilFormat);
@@ -451,7 +450,6 @@ SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_setLineWidth);
 SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_updateBuffer);
 SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_end);
 SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_setStencilWriteMask);
-SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_getNumInstances);
 SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_setStencilCompareMask);
 SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_bindInputAssembler);
 SE_DECLARE_FUNC(js_gfx_GFXCommandBuffer_bindPipelineState);

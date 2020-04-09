@@ -59,6 +59,7 @@ bool GLES3Device::initialize(const GFXDeviceInfo& info)
     _features[(int)GFXFeature::FORMAT_R11G11B10F] = true;
     _features[(int)GFXFeature::FORMAT_D24S8] = true;
     _features[(int)GFXFeature::MSAA] = true;
+    _features[(int)GFXFeature::INSTANCED_ARRAYS] = true;
 
     if (checkExtension("color_buffer_float"))
         _features[(int)GFXFeature::COLOR_FLOAT] = true;

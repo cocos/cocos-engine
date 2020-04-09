@@ -12941,7 +12941,7 @@ static bool js_gfx_GFXDevice_getNumInstances(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXDevice_getNumInstances)
+SE_BIND_PROP_GET(js_gfx_GFXDevice_getNumInstances)
 
 static bool js_gfx_GFXDevice_getMaxVertexUniformVectors(se::State& s)
 {
@@ -13903,6 +13903,7 @@ bool js_register_gfx_GFXDevice(se::Object* obj)
     auto cls = se::Class::create("GFXDevice", obj, nullptr, nullptr);
 
     cls->defineProperty("__deviceName", _SE(js_gfx_GFXDevice_getDeviceName), nullptr);
+    cls->defineProperty("__numInstances", _SE(js_gfx_GFXDevice_getNumInstances), nullptr);
     cls->defineProperty("__maxTextureUnits", _SE(js_gfx_GFXDevice_getMaxTextureUnits), nullptr);
     cls->defineProperty("__height", _SE(js_gfx_GFXDevice_getHeight), nullptr);
     cls->defineProperty("__shaderIdGen", _SE(js_gfx_GFXDevice_getShaderIdGen), nullptr);
@@ -13930,7 +13931,6 @@ bool js_register_gfx_GFXDevice(se::Object* obj)
     cls->defineProperty("__queue", _SE(js_gfx_GFXDevice_getQueue), nullptr);
     cls->defineProperty("__context", _SE(js_gfx_GFXDevice_getContext), nullptr);
     cls->defineProperty("__mainWindow", _SE(js_gfx_GFXDevice_getMainWindow), nullptr);
-    cls->defineFunction("getNumInstances", _SE(js_gfx_GFXDevice_getNumInstances));
     cls->defineFunction("hasFeature", _SE(js_gfx_GFXDevice_hasFeature));
     cls->defineFunction("createCommandAllocator", _SE(js_gfx_GFXDevice_createCommandAllocator));
     cls->defineFunction("getDepthStencilFormat", _SE(js_gfx_GFXDevice_getDepthStencilFormat));
@@ -14020,24 +14020,6 @@ static bool js_gfx_GFXWindow_getDepthStencilFormat(se::State& s)
     return false;
 }
 SE_BIND_FUNC(js_gfx_GFXWindow_getDepthStencilFormat)
-
-static bool js_gfx_GFXWindow_getFramebuffer(se::State& s)
-{
-    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
-    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_getFramebuffer : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        cocos2d::GFXFramebuffer* result = cobj->getFramebuffer();
-        ok &= native_ptr_to_seval(result, &s.rval());
-        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_getFramebuffer : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_PROP_GET(js_gfx_GFXWindow_getFramebuffer)
 
 static bool js_gfx_GFXWindow_getLeft(se::State& s)
 {
@@ -14182,6 +14164,24 @@ static bool js_gfx_GFXWindow_isOffscreen(se::State& s)
     return false;
 }
 SE_BIND_PROP_GET(js_gfx_GFXWindow_isOffscreen)
+
+static bool js_gfx_GFXWindow_getFramebuffer(se::State& s)
+{
+    cocos2d::GFXWindow* cobj = (cocos2d::GFXWindow*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXWindow_getFramebuffer : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cocos2d::GFXFramebuffer* result = cobj->getFramebuffer();
+        ok &= native_ptr_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXWindow_getFramebuffer : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_GFXWindow_getFramebuffer)
 
 static bool js_gfx_GFXWindow_getTitle(se::State& s)
 {
@@ -17485,7 +17485,7 @@ static bool js_gfx_GFXCommandBuffer_getNumInstances(se::State& s)
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
     return false;
 }
-SE_BIND_FUNC(js_gfx_GFXCommandBuffer_getNumInstances)
+SE_BIND_PROP_GET(js_gfx_GFXCommandBuffer_getNumInstances)
 
 static bool js_gfx_GFXCommandBuffer_setStencilCompareMask(se::State& s)
 {
@@ -17827,10 +17827,11 @@ bool js_register_gfx_GFXCommandBuffer(se::Object* obj)
 {
     auto cls = se::Class::create("GFXCommandBuffer", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXCommandBuffer_constructor));
 
-    cls->defineProperty("__device", _SE(js_gfx_GFXCommandBuffer_getDevice), nullptr);
+    cls->defineProperty("__numInstances", _SE(js_gfx_GFXCommandBuffer_getNumInstances), nullptr);
     cls->defineProperty("__numDrawCalls", _SE(js_gfx_GFXCommandBuffer_getNumDrawCalls), nullptr);
-    cls->defineProperty("__type", _SE(js_gfx_GFXCommandBuffer_getType), nullptr);
     cls->defineProperty("__numTris", _SE(js_gfx_GFXCommandBuffer_getNumTris), nullptr);
+    cls->defineProperty("__device", _SE(js_gfx_GFXCommandBuffer_getDevice), nullptr);
+    cls->defineProperty("__type", _SE(js_gfx_GFXCommandBuffer_getType), nullptr);
     cls->defineProperty("__allocator", _SE(js_gfx_GFXCommandBuffer_getAllocator), nullptr);
     cls->defineFunction("draw", _SE(js_gfx_GFXCommandBuffer_draw));
     cls->defineFunction("setBlendConstants", _SE(js_gfx_GFXCommandBuffer_setBlendConstants));
@@ -17840,7 +17841,6 @@ bool js_register_gfx_GFXCommandBuffer(se::Object* obj)
     cls->defineFunction("updateBuffer", _SE(js_gfx_GFXCommandBuffer_updateBuffer));
     cls->defineFunction("end", _SE(js_gfx_GFXCommandBuffer_end));
     cls->defineFunction("setStencilWriteMask", _SE(js_gfx_GFXCommandBuffer_setStencilWriteMask));
-    cls->defineFunction("getNumInstances", _SE(js_gfx_GFXCommandBuffer_getNumInstances));
     cls->defineFunction("setStencilCompareMask", _SE(js_gfx_GFXCommandBuffer_setStencilCompareMask));
     cls->defineFunction("bindInputAssembler", _SE(js_gfx_GFXCommandBuffer_bindInputAssembler));
     cls->defineFunction("bindPipelineState", _SE(js_gfx_GFXCommandBuffer_bindPipelineState));
@@ -18040,7 +18040,7 @@ bool register_all_gfx(se::Object* obj)
     js_register_gfx_GFXInputAssembler(ns);
     js_register_gfx_GFXContextInfo(ns);
     js_register_gfx_GFXShader(ns);
-    js_register_gfx_GFXDeviceInfo(ns);
+    js_register_gfx_GFXShaderStage(ns);
     js_register_gfx_GFXTextureView(ns);
     js_register_gfx_GFXPipelineLayout(ns);
     js_register_gfx_GFXFramebufferInfo(ns);
@@ -18049,7 +18049,7 @@ bool register_all_gfx(se::Object* obj)
     js_register_gfx_GFXRasterizerState(ns);
     js_register_gfx_GFXTextureInfo(ns);
     js_register_gfx_GFXQueueInfo(ns);
-    js_register_gfx_GFXShaderStage(ns);
+    js_register_gfx_GFXDeviceInfo(ns);
     js_register_gfx_GFXShaderInfo(ns);
     js_register_gfx_GFXOffset(ns);
     js_register_gfx_GFXPushConstantRange(ns);
