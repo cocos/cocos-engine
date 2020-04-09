@@ -38,8 +38,11 @@ gulp.task('build-debug-infos', async () => {
     return await Promise.resolve(require('./gulp/tasks/buildDebugInfos')());
 });
 
-gulp.task('build-code', gulp.series('build-debug-infos', () => {
+gulp.task('build-code', gulp.series('build-debug-infos', async () => {
     const cli = require.resolve('@cocos/build-engine/dist/cli');
+    const out = ps.join('bin', 'dev');
+    await fs.ensureDir(out);
+    await fs.emptyDir(out);
     return cp.spawn('node', [
         cli,
         `--engine=${__dirname}`,
@@ -47,7 +50,7 @@ gulp.task('build-code', gulp.series('build-debug-infos', () => {
         '--buildmode=universal',
         '--platform=HTML5',
         '--physics=cannon',
-        '--destination=./bin/dev/cc.js',
+        `--out=${out}`,
     ], {
         shell: true,
         stdio: 'inherit',
@@ -55,8 +58,11 @@ gulp.task('build-code', gulp.series('build-debug-infos', () => {
     });
 }));
 
-gulp.task('build-code-minified', gulp.series('build-debug-infos', () => {
+gulp.task('build-code-minified', gulp.series('build-debug-infos', async () => {
     const cli = require.resolve('@cocos/build-engine/dist/cli');
+    const out = ps.join('bin', 'dev-minified');
+    await fs.ensureDir(out);
+    await fs.emptyDir(out);
     return cp.spawn('node', [
         cli,
         `--engine=${__dirname}`,
@@ -65,7 +71,7 @@ gulp.task('build-code-minified', gulp.series('build-debug-infos', () => {
         '--buildmode=universal',
         '--platform=HTML5',
         '--physics=cannon',
-        '--destination=./bin/dev/cc.min.js',
+        `--out=${out}`,
     ], {
         shell: true,
         stdio: 'inherit',

@@ -46,8 +46,12 @@ async function main() {
     yargs.option('destination', {
         type: 'string',
         alias: 'd',
+        description: '(Removal) Output path. Note, this argument has been removal since V3.0.',
+    });
+    yargs.option('out', {
+        type: 'string',
+        alias: 'o',
         demandOption: true,
-        description: 'Output path.',
     });
     yargs.option('excludes', {
         type: 'array',
@@ -87,7 +91,7 @@ async function main() {
         engine: yargs.argv.engine as string,
         moduleEntries: yargs.argv._ as (string[] | undefined),
         compress: yargs.argv.compress as (boolean | undefined),
-        outputPath: yargs.argv.destination as string,
+        out: yargs.argv.out as string,
         sourceMap,
         flags,
         progress: yargs.argv.progress as (boolean | undefined),
@@ -103,6 +107,7 @@ async function main() {
         options.platform = parsePlatform(yargs.argv.platform as unknown as string);
     }
 
+    await fs.ensureDir(options.out);
     await build(options);
 }
 

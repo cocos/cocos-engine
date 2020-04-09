@@ -45,9 +45,9 @@ namespace build {
         moduleEntries?: string[];
 
         /**
-         * 指定输出路径。
+         * 输出目录。
          */
-        outputPath: string;
+        out: string;
 
         /**
          * 输出模块格式。
@@ -230,6 +230,8 @@ async function _doBuild (options: build.Options & { buildTimeConstants: BuildTim
         }
     });
 
+    const importMap: any = { imports: {} };
+
     const rollupBuild = await rollup.rollup({
         input: moduleEntries,
         plugins: rollupPlugins,
@@ -250,13 +252,21 @@ async function _doBuild (options: build.Options & { buildTimeConstants: BuildTim
         await fs.writeFile(incrementalFile, JSON.stringify(watchFiles, undefined, 2));
     }
 
+    const outFileRelative = ['cc.js'];
     await rollupBuild.write({
         format,
         sourcemap: options.sourceMap,
         sourcemapFile: options.sourceMapFile,
         name: (format === 'iife' ? 'ccm' : undefined),
-        file: options.outputPath,
+        file: ps.join(options.out, ...outFileRelative),
     });
+
+    importMap.imports['cc'] = `./${outFileRelative.join('/')}`;
+
+    // Output import map
+    const importMapOutFile = ps.join(options.out, 'import-map.json');
+    await fs.ensureDir(ps.dirname(importMapOutFile));
+    await fs.writeJSON(importMapOutFile, importMap, { spaces: 2, });
 }
 
 export async function isSourceChanged(incrementalFile: string) {
