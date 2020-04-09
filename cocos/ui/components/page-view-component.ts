@@ -28,7 +28,7 @@
  */
 
 import { EventHandler as ComponentEventHandler } from '../../core/components';
-import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { EventTouch, SystemEventType } from '../../core/platform';
 import { Vec2, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
@@ -101,6 +101,7 @@ enum EventType {
  * 页面视图组件
  */
 @ccclass('cc.PageViewComponent')
+@help('i18n:cc.PageViewComponent')
 @executionOrder(110)
 @menu('UI/PageView')
 // @ts-ignore

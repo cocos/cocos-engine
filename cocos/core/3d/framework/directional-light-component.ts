@@ -27,12 +27,13 @@
  * @category component/light
  */
 
-import { ccclass, executeInEditMode, menu, property } from '../../data/class-decorator';
+import { ccclass, help, executeInEditMode, menu, property } from '../../data/class-decorator';
 import { DirectionalLight } from '../../renderer/scene/directional-light';
 import { LightType } from '../../renderer/scene/light';
 import { LightComponent } from './light-component';
 
 @ccclass('cc.DirectionalLightComponent')
+@help('i18n:cc.DirectionalLightComponent')
 @menu('Light/DirectionalLight')
 @executeInEditMode
 export class DirectionalLightComponent extends LightComponent {

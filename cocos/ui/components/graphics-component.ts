@@ -31,7 +31,7 @@
 import { builtinResMgr } from '../../core/3d/builtin';
 import { RenderableComponent } from '../../core/3d/framework/renderable-component';
 import { InstanceMaterialType, UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
-import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { director } from '../../core/director';
 import { Color } from '../../core/math';
 import { IMaterialInstanceInfo, MaterialInstance, Model } from '../../core/renderer';
@@ -54,6 +54,7 @@ const _matInsInfo: IMaterialInstanceInfo = {
  * 自定义图形类
  */
 @ccclass('cc.GraphicsComponent')
+@help('i18n:cc.GraphicsComponent')
 @executionOrder(110)
 @menu('UI/Render/Graphics')
 export class GraphicsComponent extends UIRenderComponent {

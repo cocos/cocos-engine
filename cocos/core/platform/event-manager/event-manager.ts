@@ -37,11 +37,8 @@ import { Node } from '../../scene-graph';
 const ListenerID = EventListener.ListenerID;
 
 function checkUINode (node) {
-    while (node) {
-        if (node.getComponent('cc.CanvasComponent')) {
-            return true;
-        }
-        node = node.parent;
+    if(node && node.getComponent('cc.UITransformComponent')) {
+        return true;
     }
     return false;
 }

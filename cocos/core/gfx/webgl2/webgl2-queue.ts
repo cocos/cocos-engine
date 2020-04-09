@@ -35,7 +35,7 @@ export class WebGL2GFXQueue extends GFXQueue {
         if (!this._isAsync) {
             for (let i = 0; i < cmdBuffs.length; i++) {
                 const cmdBuff = cmdBuffs[i] as WebGL2GFXCommandBuffer;
-                WebGL2CmdFuncExecuteCmds(this._device as WebGL2GFXDevice, cmdBuff.cmdPackage);
+                // WebGL2CmdFuncExecuteCmds(this._device as WebGL2GFXDevice, cmdBuff.cmdPackage); // opted out
                 this.numDrawCalls += cmdBuff.numDrawCalls;
                 this.numInstances += cmdBuff.numInstances;
                 this.numTris += cmdBuff.numTris;

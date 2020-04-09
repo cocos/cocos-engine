@@ -312,6 +312,7 @@ export class AnimationState extends Playable {
     protected _ignoreIndex = InvalidIndex;
     private _blendStateBuffer: BlendStateBuffer | null = null;
     private _blendStateWriters: IBlendStateWriter[] = [];
+    private _isBlendStateWriterInitialized = false;
 
     constructor (clip: AnimationClip, name = '') {
         super();
@@ -326,9 +327,9 @@ export class AnimationState extends Playable {
     public initialize (root: Node, propertyCurves?: readonly IRuntimeCurve[]) {
         if (this._curveLoaded) { return; }
         this._curveLoaded = true;
+        this._destroyBlendStateWriters();
         this._samplerSharedGroups.length = 0;
         this._blendStateBuffer = cc.director.getAnimationManager()?.blendState ?? null;
-        this._blendStateWriters.length = 0;
         this._targetNode = root;
         const clip = this._clip;
 
@@ -389,6 +390,7 @@ export class AnimationState extends Playable {
                         targetNode,
                         propertyName,
                         this,
+                        propertyCurve.curve.constant(),
                     );
                     this._blendStateWriters.push(blendStateWriter);
                     boundTarget = createBoundTarget(rootTarget, [], blendStateWriter);
@@ -407,6 +409,10 @@ export class AnimationState extends Playable {
                 samplerSharedGroup.curves.push(curveInstance);
             }
         }
+    }
+
+    public destroy () {
+        this._destroyBlendStateWriters();
     }
 
     public _emit (type, state) {
@@ -657,36 +663,26 @@ export class AnimationState extends Playable {
     }
 
     protected onPlay () {
-        // replay
         this.setTime(0);
         this._delayTime = this._delay;
-
-        cc.director.getAnimationManager().addAnimation(this);
-        for (let iBlendStateWriter = 0; iBlendStateWriter < this._blendStateWriters.length; ++iBlendStateWriter) {
-            this._blendStateWriters[iBlendStateWriter].start();
-        }
-
+        this._onReplayOrResume();
         this.emit('play', this);
     }
 
     protected onStop () {
         if (!this.isPaused) {
-            cc.director.getAnimationManager().removeAnimation(this);
-            for (let iBlendStateWriter = 0; iBlendStateWriter < this._blendStateWriters.length; ++iBlendStateWriter) {
-                this._blendStateWriters[iBlendStateWriter].stop();
-            }
+            this._onPauseOrStop();
         }
-
         this.emit('stop', this);
     }
 
     protected onResume () {
-        cc.director.getAnimationManager().addAnimation(this);
+        this._onReplayOrResume();
         this.emit('resume', this);
     }
 
     protected onPause () {
-        cc.director.getAnimationManager().removeAnimation(this);
+        this._onPauseOrStop();
         this.emit('pause', this);
     }
 
@@ -724,6 +720,7 @@ export class AnimationState extends Playable {
                         samplerResultCache.fromRatio = sampler.ratios[samplerResultCache.from];
                         samplerResultCache.to = index;
                         samplerResultCache.toRatio = sampler.ratios[samplerResultCache.to];
+                        index = samplerResultCache.from;
                     }
                 }
             }
@@ -848,6 +845,28 @@ export class AnimationState extends Playable {
                 }
             }
         }
+    }
+
+    private _onReplayOrResume () {
+        if (!this._isBlendStateWriterInitialized) {
+            for (let iBlendStateWriter = 0; iBlendStateWriter < this._blendStateWriters.length; ++iBlendStateWriter) {
+                this._blendStateWriters[iBlendStateWriter].initialize();
+            }
+            this._isBlendStateWriterInitialized = true;
+        }
+        cc.director.getAnimationManager().addAnimation(this);
+    }
+
+    private _onPauseOrStop () {
+        cc.director.getAnimationManager().removeAnimation(this);
+    }
+
+    private _destroyBlendStateWriters () {
+        for (let iBlendStateWriter = 0; iBlendStateWriter < this._blendStateWriters.length; ++iBlendStateWriter) {
+            this._blendStateWriters[iBlendStateWriter].destroy();
+        }
+        this._blendStateWriters.length = 0;
+        this._isBlendStateWriterInitialized = false;
     }
 }
 

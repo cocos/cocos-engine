@@ -31,7 +31,7 @@
 
 import { SpriteFrame } from '../../core/assets';
 import { Component, EventHandler as ComponentEventHandler, UITransformComponent } from '../../core/components';
-import { ccclass, executionOrder, menu, property, requireComponent } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, property, requireComponent } from '../../core/data/class-decorator';
 import { EventMouse, EventTouch, SystemEventType } from '../../core/platform';
 import { Color, Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
@@ -142,6 +142,7 @@ export enum EventType {
  * ```
  */
 @ccclass('cc.ButtonComponent')
+@help('i18n:cc.ButtonComponent')
 @executionOrder(110)
 @menu('UI/Button')
 @requireComponent(UITransformComponent)

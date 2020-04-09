@@ -173,26 +173,14 @@ export function callInNextTick (callback, p1?:any, p2?:any) {
 }
 
 // use anonymous function here to ensure it will not being hoisted without EDITOR
-export function tryCatchFunctor_EDITOR (funcName, forwardArgs?, afterCall?, bindArg?) {
-    // @ts-ignore
-    function call_FUNC_InTryCatch (_R_ARGS_) {
-        try {
-            // @ts-ignore
-            target._FUNC_(_U_ARGS_);
-        }
-        catch (e) {
-            cc._throw(e);
-        }
-        // @ts-ignore
-        _AFTER_CALL_;
-    }
-    // use evaled code to generate named function
-    return Function('arg', 'return ' + call_FUNC_InTryCatch
-        .toString()
-        .replace(/_FUNC_/g, funcName)
-        .replace('_R_ARGS_', 'target' + (forwardArgs ? ', ' + forwardArgs : ''))
-        .replace('_U_ARGS_', forwardArgs || '')
-        .replace('_AFTER_CALL_', afterCall || ''))(bindArg);
+export function tryCatchFunctor_EDITOR (funcName) {
+    return Function('target',
+        'try {\n' +
+        '  target.' + funcName + '();\n' +
+        '}\n' +
+        'catch (e) {\n' +
+        '  cc._throw(e);\n' +
+        '}');
 }
 
 export function isPlainEmptyObj_DEV (obj) {
