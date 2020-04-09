@@ -41,9 +41,9 @@ export class CannonShape implements IBaseShape {
                 CannonShape.idToMaterial[mat._uuid] = new CANNON.Material(mat._uuid);
             }
 
-            this._shape!.material = CannonShape.idToMaterial[mat._uuid];
-            this._shape!.material.friction = mat.friction;
-            this._shape!.material.restitution = mat.restitution;
+            this._shape.material = CannonShape.idToMaterial[mat._uuid];
+            this._shape.material.friction = mat.friction;
+            this._shape.material.restitution = mat.restitution;
         }
     }
 
@@ -79,15 +79,16 @@ export class CannonShape implements IBaseShape {
         this._isBinding = true;
         this.onComponentSet();
         setWrap(this._shape, this);
-        this._shape.addEventListener('triggered', this.onTriggerListener);
+        this._shape.addEventListener('cc-trigger', this.onTriggerListener);
         this._sharedBody = (PhysicsSystem.instance.physicsWorld as CannonWorld).getSharedBody(this._collider.node as Node);
         this._sharedBody.reference = true;
     }
 
     // virtual
-    onComponentSet () { }
+    protected onComponentSet () { }
 
     onLoad () {
+        this.setMaterial(this._collider.sharedMaterial);
         this.setCenter(this._collider.center);
         this.setAsTrigger(this._collider.isTrigger);
     }
@@ -167,7 +168,7 @@ export class CannonShape implements IBaseShape {
         this._orient = Orient;
     }
 
-    private _setCenter (v: IVec3Like) {
+    protected _setCenter (v: IVec3Like) {
         const lpos = this._offset as IVec3Like;
         Vec3.copy(lpos, v);
         Vec3.multiply(lpos, lpos, this._collider.node.worldScale);

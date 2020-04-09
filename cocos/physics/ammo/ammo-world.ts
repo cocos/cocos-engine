@@ -60,66 +60,15 @@ export class AmmoWorld implements IPhysicsWorld {
     }
 
     step (timeStep: number, fixTimeStep?: number, maxSubStep?: number) {
-
-        for (let i = 0; i < this.ghosts.length; i++) {
-            this.ghosts[i].syncSceneToGhost();
-        }
-
-        for (let i = 0; i < this.bodies.length; i++) {
-            this.bodies[i].syncSceneToPhysics();
-        }
-
+        if (this.bodies.length == 0 && this.ghosts.length == 0) return;
         this._btWorld.stepSimulation(timeStep, maxSubStep, fixTimeStep);
 
         for (let i = 0; i < this.bodies.length; i++) {
             this.bodies[i].syncPhysicsToScene();
         }
+    }
 
-        const numManifolds = this._btDispatcher.getNumManifolds();
-        for (let i = 0; i < numManifolds; i++) {
-            const manifold = this._btDispatcher.getManifoldByIndexInternal(i);
-            const numContacts = manifold.getNumContacts();
-            for (let j = 0; j < numContacts; j++) {
-                const manifoldPoint: Ammo.btManifoldPoint = manifold.getContactPoint(j);
-                const d = manifoldPoint.getDistance();
-                if (d <= 0.0001) {
-                    const s0 = manifoldPoint.getShape0();
-                    const s1 = manifoldPoint.getShape1();
-                    let shape0: any;
-                    let shape1: any;
-                    if (s0.isCompound()) {
-                        const com = Ammo.castObject(s0, Ammo.btCompoundShape) as Ammo.btCompoundShape;
-                        shape0 = (com.getChildShape(manifoldPoint.m_index0) as any).wrapped;
-                    } else {
-                        shape0 = (s0 as any).wrapped;
-                    }
-
-                    if (s1.isCompound()) {
-                        const com = Ammo.castObject(s1, Ammo.btCompoundShape) as Ammo.btCompoundShape;
-                        shape1 = (com.getChildShape(manifoldPoint.m_index1) as any).wrapped;
-                    } else {
-                        shape1 = (s1 as any).wrapped;
-                    }
-
-                    // current contact
-                    var item = this.contactsDic.get(shape0.id, shape1.id) as any;
-                    if (item == null) {
-                        item = this.contactsDic.set(shape0.id, shape1.id,
-                            {
-                                shape0: shape0,
-                                shape1: shape1,
-                                contacts: []
-                            }
-                        );
-                    }
-                    item.contacts.push(manifoldPoint);
-                }
-            }
-        }
-
-        this.emitEvents();
-
-        // sync scene to physics again
+    syncSceneToPhysics (): void {
         for (let i = 0; i < this.ghosts.length; i++) {
             this.ghosts[i].syncSceneToGhost();
         }
@@ -127,7 +76,6 @@ export class AmmoWorld implements IPhysicsWorld {
         for (let i = 0; i < this.bodies.length; i++) {
             this.bodies[i].syncSceneToPhysics();
         }
-
     }
 
     raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
@@ -237,6 +185,48 @@ export class AmmoWorld implements IPhysicsWorld {
     }
 
     emitEvents () {
+        const numManifolds = this._btDispatcher.getNumManifolds();
+        for (let i = 0; i < numManifolds; i++) {
+            const manifold = this._btDispatcher.getManifoldByIndexInternal(i);
+            const numContacts = manifold.getNumContacts();
+            for (let j = 0; j < numContacts; j++) {
+                const manifoldPoint: Ammo.btManifoldPoint = manifold.getContactPoint(j);
+                const d = manifoldPoint.getDistance();
+                if (d <= 0.0001) {
+                    const s0 = manifoldPoint.getShape0();
+                    const s1 = manifoldPoint.getShape1();
+                    let shape0: any;
+                    let shape1: any;
+                    if (s0.isCompound()) {
+                        const com = Ammo.castObject(s0, Ammo.btCompoundShape) as Ammo.btCompoundShape;
+                        shape0 = (com.getChildShape(manifoldPoint.m_index0) as any).wrapped;
+                    } else {
+                        shape0 = (s0 as any).wrapped;
+                    }
+
+                    if (s1.isCompound()) {
+                        const com = Ammo.castObject(s1, Ammo.btCompoundShape) as Ammo.btCompoundShape;
+                        shape1 = (com.getChildShape(manifoldPoint.m_index1) as any).wrapped;
+                    } else {
+                        shape1 = (s1 as any).wrapped;
+                    }
+
+                    // current contact
+                    var item = this.contactsDic.get(shape0.id, shape1.id) as any;
+                    if (item == null) {
+                        item = this.contactsDic.set(shape0.id, shape1.id,
+                            {
+                                shape0: shape0,
+                                shape1: shape1,
+                                contacts: []
+                            }
+                        );
+                    }
+                    item.contacts.push(manifoldPoint);
+                }
+            }
+        }
+
         // is enter or stay
         let dicL = this.contactsDic.getLength();
         while (dicL--) {
