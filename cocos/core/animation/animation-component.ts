@@ -168,7 +168,12 @@ export class AnimationComponent extends Component implements IEventTarget {
     public static EventType = EventType;
 
     /**
+     * @zh
      * 是否在动画组件开始运行时自动播放默认动画剪辑。
+     * 注意，若在组件开始运行前调用了 `crossFade` 或 `play()`，此字段将不会生效。
+     * @en
+     * Whether the default clip should get into playing when this components starts.
+     * Note, this field takes no effect if `crossFade()` or `play()` has been called before this component starts.
      */
     @property({
         tooltip: '是否在动画组件开始运行时自动播放默认动画剪辑',
@@ -188,13 +193,9 @@ export class AnimationComponent extends Component implements IEventTarget {
     protected _defaultClip: AnimationClip | null = null;
 
     /**
-     * Should the default clip get into playing when this component starts.
-     * In normal, this value is equal to `playOnLoad`.
-     * However, if `crossFade()` or `play()` is called before this component starts,
-     * this field would be set to `false`, regardless of whether `playOnLoad` is set,
-     * even the two playing method fail.
+     * Whether if `crossFade()` or `play()` has been called before this component starts.
      */
-    private _playOnStart = false;
+    private _hasBeenPlayed = false;
 
     public onLoad () {
         this.clips = this._clips;
@@ -202,11 +203,10 @@ export class AnimationComponent extends Component implements IEventTarget {
             const state = this._nameToState[stateName];
             state.initialize(this.node);
         }
-        this._playOnStart = this.playOnLoad;
     }
 
     public start () {
-        if (!EDITOR && this._playOnStart && this._defaultClip) {
+        if (!EDITOR && (this.playOnLoad && !this._hasBeenPlayed) && this._defaultClip) {
             this.crossFade(this._defaultClip.name, 0);
         }
     }
@@ -233,7 +233,7 @@ export class AnimationComponent extends Component implements IEventTarget {
      * @param [name] 目标动画状态的名称；若未指定，使用默认动画剪辑的名称。
      */
     public play (name?: string) {
-        this._playOnStart = false;
+        this._hasBeenPlayed = true;
         if (!name) {
             if (!this._defaultClip) {
                 return;
@@ -250,7 +250,7 @@ export class AnimationComponent extends Component implements IEventTarget {
      * @param duration 切换周期，单位为秒。
      */
     public crossFade (name: string, duration = 0.3) {
-        this._playOnStart = false;
+        this._hasBeenPlayed = true;
         const state = this._nameToState[name];
         if (state) {
             this._crossFade.play();
