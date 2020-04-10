@@ -29,7 +29,7 @@
 
 import { SpriteFrame, Texture2D } from '../../../core/assets';
 import { Component } from '../../../core/components/component';
-import { fragmentText, safeMeasureText, js } from '../../../core/utils';
+import { fragmentText, safeMeasureText, js, BASELINE_RATIO } from '../../../core/utils';
 import { Color, Size, Vec2 } from '../../../core/math';
 import { HorizontalTextAlignment, LabelComponent, LabelOutlineComponent, VerticalTextAlignment } from '../../components';
 import { CanvasPool, ISharedLabelData } from './font-utils';
@@ -196,7 +196,7 @@ export const ttfUtils =  {
         }
 
         if (_vAlign === VerticalTextAlignment.TOP) {
-            firstLinelabelY = 0;
+            firstLinelabelY = _fontSize * (BASELINE_RATIO / 2);
         }
         else if (_vAlign === VerticalTextAlignment.CENTER) {
             firstLinelabelY = _canvasSize.height / 2 - lineHeight * (lineCount - 1) / 2;
@@ -296,7 +296,7 @@ export const ttfUtils =  {
         const paragraphedStrings = _string.split('\n');
 
         if (_overflow === Overflow.RESIZE_HEIGHT) {
-            _canvasSize.height = _splitedStrings.length * this._getLineHeight();
+            _canvasSize.height = (_splitedStrings.length + BASELINE_RATIO) * this._getLineHeight();
         }
         else if (_overflow === Overflow.NONE) {
             _splitedStrings = paragraphedStrings;
@@ -306,7 +306,7 @@ export const ttfUtils =  {
                 const paraLength = safeMeasureText(_context, para);
                 canvasSizeX = canvasSizeX > paraLength ? canvasSizeX : paraLength;
             }
-            canvasSizeY = _splitedStrings.length * this._getLineHeight();
+            canvasSizeY = (_splitedStrings.length + BASELINE_RATIO) * this._getLineHeight();
 
             _canvasSize.width = parseFloat(canvasSizeX.toFixed(2)) + 2 * _margin;
             _canvasSize.height = parseFloat(canvasSizeY.toFixed(2));
