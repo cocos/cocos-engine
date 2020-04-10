@@ -137,10 +137,9 @@ export default class ParticleSystemRenderer {
     }
 
     @property
-    private _useGPU: Boolean = false;
+    private _useGPU: boolean = false;
 
     @property({
-        type: Boolean,
         displayOrder: 10,
         tooltip:'是否启用GPU粒子',
     })
