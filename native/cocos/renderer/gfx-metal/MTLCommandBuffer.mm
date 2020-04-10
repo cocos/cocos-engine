@@ -62,7 +62,6 @@ void CCMTLCommandBuffer::begin()
 
 void CCMTLCommandBuffer::end()
 {
-    if (_isStateInValid) bindStates();
     _isInRenderPass = false;
 }
 
@@ -87,32 +86,14 @@ void CCMTLCommandBuffer::endRenderPass()
 {
     _isInRenderPass = false;
     _commandPackage->commandTypes.push(GFXCmdType::END_RENDER_PASS);
-    
-    // In metal, every render pass will create a new encoder, so should bind state again.
-    _isStateInValid = true;
-    _currentGPUPipelineState = nullptr;
-    _currentPipelineState = nullptr;
-    _currentInputAssembler = nullptr;
-    _currentBindingLayout = nullptr;
-    _isViewportDirty = false;
-    _isScissorDirty = false;
 }
 
 void CCMTLCommandBuffer::bindPipelineState(GFXPipelineState* pso)
 {
-    if (pso)
-    {
-        _currentPipelineState = static_cast<CCMTLPipelineState*>(pso);
-        if (_currentPipelineState)
-            _currentGPUPipelineState = _currentPipelineState->getGPUPipelineState();
-    }
-    else
-    {
-        _currentPipelineState = nullptr;
-        _currentGPUPipelineState = nullptr;
-    }
+    _isPipelineStateDirty = pso != _currentPipelineState;
+    _isStateInValid = _isPipelineStateDirty;
     
-    _isStateInValid = true;
+    _currentPipelineState = static_cast<CCMTLPipelineState*>(pso);
 }
 
 void CCMTLCommandBuffer::bindBindingLayout(GFXBindingLayout* layout)
@@ -201,9 +182,10 @@ void CCMTLCommandBuffer::draw(GFXInputAssembler* ia)
         
         ++_numDrawCalls;
         _numInstances += ia->getInstanceCount();
-        if (_currentGPUPipelineState)
+        
+        if (_currentPipelineState)
         {
-            switch (_currentGPUPipelineState->primitiveType) {
+            switch (_currentPipelineState->getGPUPipelineState()->primitiveType) {
                 case MTLPrimitiveTypeTriangle:
                     _numTriangles += ia->getIndexCount() / 3 * std::max(ia->getIndexCount(), 1U);
                     break;
@@ -280,20 +262,28 @@ void CCMTLCommandBuffer::bindStates()
 {
     auto commandBindState = _MTLCommandAllocator->_bindStatesCmdPool.alloc();
     commandBindState->inputAssembler = _currentInputAssembler;
-    commandBindState->gpuPipelineState = _currentGPUPipelineState;
+
     commandBindState->depthBias = *_currentDepthBias;
     
     if ( (commandBindState->viewportDirty = _isViewportDirty) )
         commandBindState->viewport = mu::toMTLViewport(_currentViewport);
+    
     if ( (commandBindState->scissorDirty = _isScissorDirty) )
         commandBindState->scissorRect = mu::toMTLScissorRect(_currentScissor);
-    if (_currentPipelineState)
+    
+    if ( (commandBindState->pipelineStateDirty = _isPipelineStateDirty) && _currentPipelineState)
+    {
         _currentPipelineState->updateBindingBlocks(_currentBindingLayout);
+        commandBindState->gpuPipelineState = _currentPipelineState->getGPUPipelineState();
+    }
     
     _commandPackage->bindStatesCmds.push(commandBindState);
     _commandPackage->commandTypes.push(GFXCmdType::BIND_STATES);
     
     _isStateInValid = false;
+    _isViewportDirty = false;
+    _isPipelineStateDirty = false;
+    _isScissorDirty = false;
 }
 
 NS_CC_END

@@ -49,8 +49,8 @@ private:
     bool _isInRenderPass = false;
     bool _isStateInValid = false;
     
-    CCMTLGPUPipelineState* _currentGPUPipelineState = nullptr;
     CCMTLPipelineState* _currentPipelineState = nullptr;
+    bool _isPipelineStateDirty = false;
     CCMTLInputAssembler* _currentInputAssembler = nullptr;
     CCMTLBindingLayout* _currentBindingLayout = nullptr;
     bool _isViewportDirty = false;

@@ -39,11 +39,12 @@ class CCMTLCmdBindStates : public GFXCmd
 public:
     CCMTLGPUPipelineState* gpuPipelineState = nullptr;
     CCMTLInputAssembler* inputAssembler = nullptr;
-    bool viewportDirty = false;
-    bool scissorDirty = false;
     MTLViewport viewport;
     MTLScissorRect scissorRect;
     CCMTLDepthBias depthBias;
+    bool viewportDirty = false;
+    bool scissorDirty = false;
+    bool pipelineStateDirty = false;
     
     CCMTLCmdBindStates() : GFXCmd(GFXCmdType::BIND_STATES) {}
     

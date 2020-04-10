@@ -79,7 +79,8 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
     CCMTLCmdBeginRenderPass* cmdBeginRenderPass = nullptr;
     CCMTLGPUPipelineState* gpuPipelineState = nullptr;
     CCMTLInputAssembler* inputAssembler = nullptr;
-    CCMTLGPUInputAssembler* gpuInputAssembler = nullptr;
+    id<MTLBuffer> mtlIndexBuffer = nil;
+    id<MTLBuffer> mtlIndirectBuffer = nil;
     MTLPrimitiveType primitiveType;
     
     for (uint i = 0; i < commandSize; ++i) {
@@ -104,6 +105,9 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                 else
                     mtlRenderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionLoad;
                 
+                mtlRenderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+
+                
                 if (cmdBeginRenderPass->clearFlags & GFXClearFlagBit::DEPTH)
                 {
                     mtlRenderPassDescriptor.depthAttachment.clearDepth = cmdBeginRenderPass->clearDepth;
@@ -112,6 +116,8 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                 else
                     mtlRenderPassDescriptor.depthAttachment.loadAction = MTLLoadActionLoad;
                 
+                mtlRenderPassDescriptor.depthAttachment.storeAction = MTLStoreActionStore;
+                
                 if (cmdBeginRenderPass->clearFlags & GFXClearFlagBit::STENCIL)
                 {
                     mtlRenderPassDescriptor.stencilAttachment.clearStencil = cmdBeginRenderPass->clearStencil;
@@ -119,6 +125,8 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                 }
                 else
                     mtlRenderPassDescriptor.stencilAttachment.loadAction = MTLLoadActionLoad;
+                
+                mtlRenderPassDescriptor.stencilAttachment.storeAction = MTLStoreActionStore;
                 
                 encoder = [mtlCommandBuffer renderCommandEncoderWithDescriptor:mtlRenderPassDescriptor];
                 
@@ -130,7 +138,7 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                 
             case GFXCmdType::BIND_STATES: {
                 auto cmd = commandPackage->bindStatesCmds[cmdIdx++];
-                if (cmd->gpuPipelineState)
+                if (cmd->pipelineStateDirty && cmd->gpuPipelineState)
                 {
                     gpuPipelineState = cmd->gpuPipelineState;
                     
@@ -172,8 +180,14 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                 inputAssembler = cmd->inputAssembler;
                 if (inputAssembler)
                 {
-                    gpuInputAssembler = inputAssembler->getGPUInputAssembler();
-                    [encoder setVertexBuffer:gpuInputAssembler->mtlVertexBufers[0]
+                    if (inputAssembler->_indexBuffer)
+                        mtlIndexBuffer = static_cast<CCMTLBuffer*>(inputAssembler->_indexBuffer)->getMTLBuffer();
+                    
+                    if (inputAssembler->_indirectBuffer)
+                        mtlIndirectBuffer = static_cast<CCMTLBuffer*>(inputAssembler->_indirectBuffer)->getMTLBuffer();
+                    
+                    id<MTLBuffer> vertexBuffer = static_cast<CCMTLBuffer*>(inputAssembler->_vertexBuffers[0])->getMTLBuffer();
+                    [encoder setVertexBuffer:vertexBuffer
                                       offset:0
                                      atIndex:30];
                 }
@@ -185,9 +199,9 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                 CCMTLCmdDraw* cmd = commandPackage->drawCmds[cmdIdx++];
                 if (inputAssembler && gpuPipelineState)
                 {
-                    if (!gpuInputAssembler->mtlIndirectBuffer)
+                    if (!mtlIndirectBuffer)
                     {
-                        if (gpuInputAssembler->mtlIndexBuffer && cmd->drawInfo.indexCount >= 0)
+                        if (mtlIndexBuffer && cmd->drawInfo.indexCount >= 0)
                         {
                             uint8_t* offset = 0;
                             offset += cmd->drawInfo.firstIndex * inputAssembler->getIndexBuffer()->getStride();
@@ -197,12 +211,12 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                                                     indexCount:cmd->drawInfo.indexCount
                                                      // TODO: remove static_cast<>.
                                                      indexType:static_cast<CCMTLBuffer*>(inputAssembler->getIndexBuffer() )->getIndexType()
-                                                   indexBuffer:gpuInputAssembler->mtlIndexBuffer
+                                                   indexBuffer:mtlIndexBuffer
                                              indexBufferOffset:0];
                             }
                             else
                             {
-                                
+                                assert(false);
                             }
                         }
                         else
@@ -225,6 +239,7 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                     else
                     {
                         //TODO: handle indirect buffers.
+                        assert(false);
                     }
                 }
                 break;

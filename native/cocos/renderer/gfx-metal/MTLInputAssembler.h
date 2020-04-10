@@ -7,6 +7,7 @@ class CCMTLGPUInputAssembler;
 
 class CCMTLInputAssembler : public GFXInputAssembler
 {
+    friend class CCMTLQueue;
 public:
     CCMTLInputAssembler(GFXDevice* device);
     ~CCMTLInputAssembler();
