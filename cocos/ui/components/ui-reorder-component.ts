@@ -27,7 +27,7 @@
  * @category ui
  */
 
-import { ccclass, disallowMultiple, executeInEditMode, executionOrder, menu } from '../../core/data/class-decorator';
+import { ccclass, help, disallowMultiple, executeInEditMode, executionOrder, menu } from '../../core/data/class-decorator';
 import { UIComponent } from '../../core/components/ui-base/ui-component';
 
 /**
@@ -36,6 +36,7 @@ import { UIComponent } from '../../core/components/ui-base/ui-component';
  * @deprecated 会在 1.2 的版本移除
  */
 @ccclass('cc.UIReorderComponent')
+@help('i18n:cc.UIReorderComponent')
 @menu('UI/Reorder')
 @executionOrder(110)
 @disallowMultiple

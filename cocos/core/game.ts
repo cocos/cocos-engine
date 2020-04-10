@@ -27,16 +27,16 @@
  * @category core
  */
 
+import { ALIPAY, EDITOR, JSB, PREVIEW, RUNTIME_BASED } from 'internal:constants';
+import AssetLibrary from './assets/asset-library';
 import { EventTarget } from './event/event-target';
 import { WebGLGFXDevice } from './gfx/webgl/webgl-device';
 import { WebGL2GFXDevice } from './gfx/webgl2/webgl2-device';
 import { ForwardPipeline, RenderPipeline } from './pipeline';
 import * as debug from './platform/debug';
-import sys from './platform/sys';
-import { JSB, RUNTIME_BASED, ALIPAY, EDITOR, PREVIEW } from 'internal:constants';
-import AssetLibrary from './assets/asset-library';
-import { ICustomJointTextureLayout } from './renderer';
 import inputManager from './platform/event-manager/input-manager';
+import sys from './platform/sys';
+import { ICustomJointTextureLayout } from './renderer';
 
 /**
  * @zh
@@ -89,6 +89,11 @@ export interface IAssetOptions {
      * The list of sub packages
      */
     subPackages?: [];
+}
+
+interface ISceneInfo {
+    url: string;
+    uuid: string;
 }
 
 /**
@@ -175,7 +180,7 @@ export interface IGameConfig {
      * @en
      * Include available scenes in the current bundle.
      */
-    scenes?: string[];
+    scenes?: ISceneInfo[];
 
     /**
      * For internal use.
@@ -331,7 +336,7 @@ export class Game extends EventTarget {
 
     /**
      * @en
-     * The current game configuration, 
+     * The current game configuration,
      * please be noticed any modification directly on this object after the game initialization won't take effect.
      * @zh
      * 当前的游戏配置
@@ -372,7 +377,7 @@ export class Game extends EventTarget {
     public _frameTime: number | null = null;
 
     // Scenes list
-    public _sceneInfos: string[] = [];
+    public _sceneInfos: ISceneInfo[] = [];
     public collisionMatrix = [];
     public groupList: any[] = [];
 
@@ -579,7 +584,7 @@ export class Game extends EventTarget {
         }
 
         cc.director.root.dataPoolManager.jointTexturePool.registerCustomTextureLayouts(config.customJointTextureLayouts);
-        
+
         return this._inited;
     }
 
@@ -590,7 +595,7 @@ export class Game extends EventTarget {
      */
     public run (onStart: Function | null, legacyOnStart?: Function | null) {
         if (typeof onStart !== 'function' && legacyOnStart) {
-            let config: IGameConfig = this.onStart as IGameConfig;
+            const config: IGameConfig = this.onStart as IGameConfig;
             this.init(config);
             this.onStart = legacyOnStart;
         }
@@ -607,12 +612,14 @@ export class Game extends EventTarget {
         }
 
         const splashScreen = cc.internal.SplashScreenWebgl && cc.internal.SplashScreenWebgl.instance;
-        let useSplash = (!EDITOR && !PREVIEW && splashScreen);
-        useSplash && splashScreen.setOnFinish(() => {
-            this.onStart && this.onStart();
-        });
+        const useSplash = (!EDITOR && !PREVIEW && splashScreen);
+        if (useSplash) {
+            splashScreen.setOnFinish(() => {
+                if (this.onStart) { this.onStart(); }
+            });
+        }
         // Load render pipeline if needed
-        let renderPipeline = this.config.renderPipeline;
+        const renderPipeline = this.config.renderPipeline;
         if (renderPipeline) {
             cc.loader.load({ uuid: renderPipeline }, (err, asset) => {
                 // failed load renderPipeline
@@ -628,7 +635,7 @@ export class Game extends EventTarget {
                     splashScreen.loadFinish = true;
                 }
                 else {
-                    this.onStart && this.onStart();
+                    if (this.onStart) { this.onStart(); }
                 }
             });
         }
@@ -638,7 +645,7 @@ export class Game extends EventTarget {
                 splashScreen.loadFinish = true;
             }
             else {
-                this.onStart && this.onStart();
+                if (this.onStart) { this.onStart(); }
             }
         }
     }
@@ -708,7 +715,7 @@ export class Game extends EventTarget {
         this._initDevice();
         cc.director._init();
         this.setRenderPipeline();
-        
+
         // Log engine version
         console.log('Cocos Creator 3D v' + cc.ENGINE_VERSION);
         this.emit(Game.EVENT_ENGINE_INITED);
@@ -861,29 +868,9 @@ export class Game extends EventTarget {
         // Avoid setup to be called twice.
         if (this._rendererInitialized) { return; }
 
-        // TODO: adapter for editor & preview
-        let canvas: HTMLCanvasElement;
-        if (JSB) {
-            let localContainer: HTMLElement;
-            this.container = localContainer = document.createElement<'div'>('div');
-            this.frame = document.documentElement;
-            if (cc.sys.browserType === cc.sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
-                canvas = window.sharedCanvas || wx.getSharedCanvas();
-            }
-            else if (JSB) {
-                canvas = window.__canvas;
-            }
-            else {
-                canvas = window.canvas;
-            }
-            this.canvas = canvas;
-        } 
-        else {
-            this.canvas = (this.config as any).adapter.canvas;
-            this.frame = (this.config as any).adapter.frame;
-            this.container = (this.config as any).adapter.container;
-            canvas = this.canvas as HTMLCanvasElement;
-        }
+        this.canvas = (this.config as any).adapter.canvas;
+        this.frame = (this.config as any).adapter.frame;
+        this.container = (this.config as any).adapter.container;
 
         this._determineRenderType();
 
@@ -893,7 +880,7 @@ export class Game extends EventTarget {
 
             const userAgent = window.navigator.userAgent.toLowerCase();
             if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1
-                || sys.browserType === sys.BROWSER_TYPE_UC // UC browser implementation doesn't not conform to WebGL2 standard
+                || sys.browserType === sys.BROWSER_TYPE_UC // UC browser implementation doesn't conform to WebGL2 standard
             ) {
                 useWebGL2 = false;
             }
@@ -906,7 +893,7 @@ export class Game extends EventTarget {
             }
 
             const opts = {
-                canvasElm: canvas,
+                canvasElm: this.canvas as HTMLCanvasElement,
                 debug: true,
                 devicePixelRatio: window.devicePixelRatio,
                 nativeWidth: Math.floor(screen.width * window.devicePixelRatio),
@@ -1008,7 +995,7 @@ export class Game extends EventTarget {
         });
     }
 
-    private setRenderPipeline (rppl?:RenderPipeline) {
+    private setRenderPipeline (rppl?: RenderPipeline) {
         if (!rppl) {
             rppl = new ForwardPipeline();
             rppl.initialize(ForwardPipeline.initInfo);

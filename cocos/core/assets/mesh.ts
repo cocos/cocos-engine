@@ -283,14 +283,18 @@ export class RenderingSubMesh {
         this.vertexBuffers.length = 0;
         if (this.indexBuffer) {
             this.indexBuffer.destroy();
+            this.indexBuffer = undefined;
         }
-        this.indexBuffer = undefined;
         if (this._jointMappedBuffers && this._jointMappedBufferIndices) {
             for (let i = 0; i < this._jointMappedBufferIndices.length; i++) {
                 this._jointMappedBuffers[this._jointMappedBufferIndices[i]].destroy();
             }
             this._jointMappedBuffers = undefined;
             this._jointMappedBufferIndices = undefined;
+        }
+        if (this.indirectBuffer) {
+            this.indirectBuffer.destroy();
+            this.indirectBuffer = undefined;
         }
     }
 

@@ -6,12 +6,13 @@
 import { ccclass, property } from '../../core/data/class-decorator';
 import { lerp, pseudoRandom, repeat } from '../../core/math';
 import { Enum } from '../../core/value-types';
-import Particle from '../particle';
+import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import { ParticleSystemComponent } from '../particle-system-component';
 import CurveRange from './curve-range';
+import { ModuleRandSeed } from '../enum';
 
 // tslint:disable: max-line-length
-const TEXTURE_ANIMATION_RAND_OFFSET = 90794;
+const TEXTURE_ANIMATION_RAND_OFFSET = ModuleRandSeed.TEXTURE;
 
 /**
  * 粒子贴图动画类型。
@@ -46,7 +47,7 @@ const Animation = Enum({
 });
 
 @ccclass('cc.TextureAnimationModule')
-export default class TextureAnimationModule {
+export default class TextureAnimationModule extends ParticleModuleBase {
 
     @property
     private _enable = false;
@@ -72,10 +73,11 @@ export default class TextureAnimationModule {
     }
 
     set enable (val) {
+        if (this._enable === val) return;
         this._enable = val;
-        if (this.ps) {
-            (this.ps.renderer as any)._updateMaterialParams();
-        }
+        if (!this.target) return;
+        this.target.updateMaterialParams();
+        this.target.enableModule(this.name, val, this);
     }
 
     @property({
@@ -116,9 +118,7 @@ export default class TextureAnimationModule {
     set numTilesX (val) {
         if (this._numTilesX !== val) {
             this._numTilesX = val;
-            if (this.ps) {
-                (this.ps.renderer as any)._updateMaterialParams();
-            }
+            this.target!.updateMaterialParams();
         }
     }
 
@@ -136,9 +136,7 @@ export default class TextureAnimationModule {
     set numTilesY (val) {
         if (this._numTilesY !== val) {
             this._numTilesY = val;
-            if (this.ps) {
-                (this.ps.renderer as any)._updateMaterialParams();
-            }
+            this.target!.updateMaterialParams();
         }
     }
 
@@ -236,18 +234,13 @@ export default class TextureAnimationModule {
         tooltip:'从动画贴图中选择特定行以生成动画。\n此选项仅在动画播放方式为 SingleRow 时且禁用 randomRow 时可用'
     })
     public rowIndex = 0;
-
-    private ps: ParticleSystemComponent | null = null;
-
-    public onInit (ps: ParticleSystemComponent) {
-        this.ps = ps;
-    }
+    public name = PARTICLE_MODULE_NAME.TEXTURE;
 
     public init (p: Particle) {
         p.startRow = Math.floor(Math.random() * this.numTilesY);
     }
 
-    public animate (p: Particle) {
+    public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         const startFrame = this.startFrame.evaluate(normalizedTime, pseudoRandom(p.randomSeed + TEXTURE_ANIMATION_RAND_OFFSET))! / (this.numTilesX * this.numTilesY);
         if (this.animation === Animation.WholeSheet) {
@@ -269,19 +262,3 @@ export default class TextureAnimationModule {
         }
     }
 }
-
-// CCClass.fastDefine('cc.TextureAnimationModule', TextureAnimationModule, {
-//     _enable: false,
-//     _mode: Mode.Grid,
-//     numTilesX: 0,
-//     numTilesY: 0,
-//     animation: Animation.WholeSheet,
-//     frameOverTime: new CurveRange(),
-//     startFrame: new CurveRange(),
-//     cycleCount: 0,
-//     _flipU: 0,
-//     _flipV: 0,
-//     _uvChannelMask: -1,
-//     randomRow: false,
-//     rowIndex: 0
-// });

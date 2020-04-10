@@ -41,14 +41,11 @@ import { Color, size, v2, Vec2 } from './math';
 import eventManager from './platform/event-manager/event-manager';
 import { Root } from './root';
 import { Node, Scene } from './scene-graph';
-import ComponentScheduler from './scene-graph/component-scheduler';
+import { ComponentScheduler } from './scene-graph/component-scheduler';
 import NodeActivator from './scene-graph/node-activator';
 import { Scheduler } from './scheduler';
 import { js } from './utils';
 import { DEBUG, EDITOR, BUILD } from 'internal:constants';
-
-// const ComponentScheduler = require('./component-scheduler');
-// const NodeActivator = require('./node-activator');
 
 // ----------------------------------------------------------------------------------------------------------------------
 

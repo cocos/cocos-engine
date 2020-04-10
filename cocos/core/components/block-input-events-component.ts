@@ -39,7 +39,7 @@
  * 该组件没有任何 API 接口，直接添加到场景即可生效。
  */
 
-import { ccclass, menu } from '../data/class-decorator';
+import { ccclass, help, menu } from '../data/class-decorator';
 import { Component } from './component';
 import { Event } from '../event';
 import { SystemEventType } from '../platform/event-manager/event-enum';
@@ -53,6 +53,7 @@ function stopPropagation(event: Event) {
 }
 
 @ccclass('cc.BlockInputEventsComponent')
+@help('i18n:cc.BlockInputEventsComponent')
 @menu('Components/BlockInputEvents')
 export class BlockInputEventsComponent extends Component {
   onEnable() {

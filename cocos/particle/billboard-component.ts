@@ -7,12 +7,13 @@ import { builtinResMgr } from '../core/3d/builtin';
 import { createMesh } from '../core/3d/misc/utils';
 import { Material, Mesh, Texture2D } from '../core/assets';
 import { Component } from '../core/components/component';
-import { ccclass, executeInEditMode, menu, property } from '../core/data/class-decorator';
+import { ccclass, help, executeInEditMode, menu, property } from '../core/data/class-decorator';
 import { GFXAttributeName, GFXFormat, GFXPrimitiveMode } from '../core/gfx';
 import { Color, toDegree, toRadian, Vec4 } from '../core/math';
 import { Model } from '../core/renderer/scene/model';
 
 @ccclass('cc.BillboardComponent')
+@help('i18n:cc.BillboardComponent')
 @menu('Components/Billboard')
 @executeInEditMode
 export class BillboardComponent extends Component {

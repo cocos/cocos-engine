@@ -29,7 +29,7 @@
  */
 
 import { Component, EventHandler as ComponentEventHandler } from '../../core/components';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { ToggleComponent} from './toggle-component';
 
 /**
@@ -44,6 +44,7 @@ import { ToggleComponent} from './toggle-component';
  */
 
 @ccclass('cc.ToggleContainerComponent')
+@help('i18n:cc.ToggleContainerComponent')
 @executionOrder(110)
 @menu('UI/ToggleContainer')
 @executeInEditMode

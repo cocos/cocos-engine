@@ -6,27 +6,38 @@
 import { ccclass, property } from '../../core/data/class-decorator';
 import { Mat4, pseudoRandom, Quat, Vec3 } from '../../core/math';
 import { Space } from '../enum';
-import Particle from '../particle';
+import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import { calculateTransform } from '../particle-general-function';
 import CurveRange from './curve-range';
+import { ModuleRandSeed } from '../enum';
 
 // tslint:disable: max-line-length
-const VELOCITY_X_OVERTIME_RAND_OFFSET = 197866;
-const VELOCITY_Y_OVERTIME_RAND_OFFSET = 156497;
-const VELOCITY_Z_OVERTIME_RAND_OFFSET = 984136;
+const VELOCITY_X_OVERTIME_RAND_OFFSET = ModuleRandSeed.VELOCITY_X;
+const VELOCITY_Y_OVERTIME_RAND_OFFSET = ModuleRandSeed.VELOCITY_Y;
+const VELOCITY_Z_OVERTIME_RAND_OFFSET = ModuleRandSeed.VELOCITY_Z;
 
 const _temp_v3 = new Vec3();
 
 @ccclass('cc.VelocityOvertimeModule')
-export default class VelocityOvertimeModule {
-
+export default class VelocityOvertimeModule extends ParticleModuleBase {
+    @property
+    _enable: Boolean = false;
     /**
      * @zh 是否启用。
      */
     @property({
         displayOrder: 0,
     })
-    public enable = false;
+    public get enable () {
+        return this._enable;
+    }
+
+    public set enable (val) {
+        if (this._enable === val) return;
+        this._enable = val;
+        if (!this.target) return;
+        this.target.enableModule(this.name, val, this);
+    }
 
     /**
      * @zh X 轴方向上的速度分量。
@@ -84,18 +95,21 @@ export default class VelocityOvertimeModule {
 
     private rotation: Quat;
     private needTransform: boolean;
+    public name = PARTICLE_MODULE_NAME.VELOCITY;
 
     constructor () {
+        super();
         this.rotation = new Quat();
         this.speedModifier.constant = 1;
         this.needTransform = false;
+        this.needUpdate = true;
     }
 
     public update (space: number, worldTransform: Mat4) {
         this.needTransform = calculateTransform(space, this.space, worldTransform, this.rotation);
     }
 
-    public animate (p: Particle) {
+    public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         const vel = Vec3.set(_temp_v3, this.x.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_X_OVERTIME_RAND_OFFSET))!, this.y.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_Y_OVERTIME_RAND_OFFSET))!, this.z.evaluate(normalizedTime, pseudoRandom(p.randomSeed ^ VELOCITY_Z_OVERTIME_RAND_OFFSET))!);
         if (this.needTransform) {
@@ -105,7 +119,6 @@ export default class VelocityOvertimeModule {
         Vec3.add(p.ultimateVelocity, p.velocity, p.animatedVelocity);
         Vec3.multiplyScalar(p.ultimateVelocity, p.ultimateVelocity, this.speedModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed + VELOCITY_X_OVERTIME_RAND_OFFSET))!);
     }
-
 }
 
 // CCClass.fastDefine('cc.VelocityOvertimeModule', VelocityOvertimeModule, {

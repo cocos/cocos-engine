@@ -125,7 +125,7 @@ export class BakedSkinningModel extends MorphModel {
 
     // update fid buffer only when visible
     public updateUBOs (stamp: number) {
-        if (!super.updateUBOs(stamp)) { return false; }
+        super.updateUBOs(stamp);
         const info = this._jointsMedium.animInfo;
         const idx = this._instAnimInfoIdx;
         if (idx >= 0) {
@@ -150,7 +150,7 @@ export class BakedSkinningModel extends MorphModel {
         const resMgr = this._dataPoolManager;
         let texture: IJointTextureHandle | null = null;
         if (anim) {
-            texture = resMgr.jointTexturePool.getSequencePoseTexture(this._skeleton, anim, this._mesh);
+            texture = resMgr.jointTexturePool.getSequencePoseTexture(this._skeleton, anim, this._mesh, this.transform!);
             this._jointsMedium.boundsInfo = texture && texture.bounds.get(this._mesh.hash)!;
             this._modelBounds = null; // don't calc bounds again in Model
         } else {

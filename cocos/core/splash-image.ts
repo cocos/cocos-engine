@@ -279,7 +279,7 @@ export class SplashScreen {
     private initText () {
         /** texure */
         this.textImg = document.createElement('canvas');
-        this.textImg.width = 300;
+        this.textImg.width = 330;
         this.textImg.height = 30;
         this.textImg.style.width = `${this.textImg.width}`;
         this.textImg.style.height = `${this.textImg.height}`;
@@ -289,7 +289,9 @@ export class SplashScreen {
         ctx.textBaseline = 'top';
         ctx.textAlign = 'left';
         ctx.fillStyle = '`#424242`';
-        ctx.fillText("Powered by Cocos Creator 3D", 30, 8);
+        const text = "Powered by Cocos Creator 3D";
+        const textMetrics = ctx.measureText(text);
+        ctx.fillText(text, (330 - textMetrics.width)/2, 6);
 
         this.textRegion = new GFXBufferTextureCopy();
         this.textRegion.texExtent.width = this.textImg.width;

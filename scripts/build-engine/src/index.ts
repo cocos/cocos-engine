@@ -170,7 +170,9 @@ async function _doBuild (options: build.Options & { buildTimeConstants: BuildTim
             ],
             presets: [
                 babelPresetEnv,
-                babelPresetCc,
+                [babelPresetCc, {
+                    allowDeclareFields: true,
+                } as babelPresetCc.Options],
             ],
         }),
 

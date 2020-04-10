@@ -148,7 +148,7 @@ export const TrailMode = Enum({
      * 带模式<bg>。
      * 根据其生命周期创建连接每个粒子的轨迹带。
      */
-    Ribbon: 1,
+    // Ribbon: 1,
 });
 
 /**
@@ -164,5 +164,17 @@ export const TextureMode = Enum({
     /**
      * 重复填充纹理。
      */
-    Repeat: 1,
+    // Repeat: 1,
 });
+
+export const ModuleRandSeed = {
+    LIMIT: 23541,
+    SIZE: 39825,
+    TEXTURE: 90794,
+    COLOR: 91041,
+    FORCE: 212165,
+    ROTATION: 125292,
+    VELOCITY_X: 197866,
+    VELOCITY_Y: 156497,
+    VELOCITY_Z: 984136
+}

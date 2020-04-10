@@ -62,24 +62,20 @@ export interface IWebGLStencilCompareMask {
 export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
 
     public cmdPackage: WebGLCmdPackage = new WebGLCmdPackage();
-    private _webGLAllocator: WebGLGFXCommandAllocator | null = null;
-    private _isInRenderPass: boolean = false;
-    private _curGPUPipelineState: WebGLGPUPipelineState | null = null;
-    private _curGPUBindingLayout: WebGLGPUBindingLayout | null = null;
-    private _curGPUInputAssembler: IWebGLGPUInputAssembler | null = null;
-    private _curViewport: IGFXViewport | null = null;
-    private _curScissor: IGFXRect | null = null;
-    private _curLineWidth: number | null = null;
-    private _curDepthBias: IWebGLDepthBias | null = null;
-    private _curBlendConstants: number[] = [];
-    private _curDepthBounds: IWebGLDepthBounds | null = null;
-    private _curStencilWriteMask: IWebGLStencilWriteMask | null = null;
-    private _curStencilCompareMask: IWebGLStencilCompareMask | null = null;
-    private _isStateInvalied: boolean = false;
-
-    constructor (device: GFXDevice) {
-        super(device);
-    }
+    protected _webGLAllocator: WebGLGFXCommandAllocator | null = null;
+    protected _isInRenderPass: boolean = false;
+    protected _curGPUPipelineState: WebGLGPUPipelineState | null = null;
+    protected _curGPUBindingLayout: WebGLGPUBindingLayout | null = null;
+    protected _curGPUInputAssembler: IWebGLGPUInputAssembler | null = null;
+    protected _curViewport: IGFXViewport | null = null;
+    protected _curScissor: IGFXRect | null = null;
+    protected _curLineWidth: number | null = null;
+    protected _curDepthBias: IWebGLDepthBias | null = null;
+    protected _curBlendConstants: number[] = [];
+    protected _curDepthBounds: IWebGLDepthBounds | null = null;
+    protected _curStencilWriteMask: IWebGLStencilWriteMask | null = null;
+    protected _curStencilCompareMask: IWebGLStencilCompareMask | null = null;
+    protected _isStateInvalied: boolean = false;
 
     public initialize (info: IGFXCommandBufferInfo): boolean {
 
@@ -202,11 +198,6 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
                 this._curViewport.maxDepth = viewport.maxDepth;
                 this._isStateInvalied = true;
             }
-        }
-
-        if (this._curViewport !== viewport) {
-            this._curViewport = viewport;
-            this._isStateInvalied = true;
         }
     }
 
@@ -479,7 +470,7 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
         return this._device as WebGLGFXDevice;
     }
 
-    private bindStates () {
+    protected bindStates () {
         const bindStatesCmd = this._webGLAllocator!.bindStatesCmdPool.alloc(WebGLCmdBindStates);
 
         if (bindStatesCmd) {

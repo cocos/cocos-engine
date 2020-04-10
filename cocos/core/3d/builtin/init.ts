@@ -174,6 +174,12 @@ class BuiltinResMgr {
         defaultParticleMtl.initialize({ effectName: 'builtin-particle' });
         resources[defaultParticleMtl._uuid] = defaultParticleMtl;
 
+        // default particle gpu material
+        const defaultParticleGPUMtl = new cc.Material();
+        defaultParticleGPUMtl._uuid = 'default-particle-gpu-material';
+        defaultParticleGPUMtl.initialize({ effectName: 'builtin-particle-gpu' });
+        resources[defaultParticleGPUMtl._uuid] = defaultParticleGPUMtl;
+
         // default particle material
         const defaultTrailMtl = new cc.Material();
         defaultTrailMtl._uuid = 'default-trail-material';

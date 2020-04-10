@@ -95,13 +95,21 @@ export default class ShapeModule {
         this._angle = toRadian(val);
     }
 
+    @property
+    private _enable = false;
     /**
      * @zh 是否启用。
      */
     @property({
         displayOrder: 0,
     })
-    public enable = true;
+    public get enable () {
+        return this._enable;
+    }
+
+    public set enable (val) {
+        this._enable = val;
+    }
 
     /**
      * @zh 粒子发射器类型 [[ShapeType]]。

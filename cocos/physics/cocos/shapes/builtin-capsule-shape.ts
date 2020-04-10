@@ -29,13 +29,6 @@ export class BuiltinCapsuleShape extends BuiltinShape implements ICapsuleShape {
 
     setRadius (v: number) {
         this.localCapsule.radius = v;
-
-        const halfTotalHeight = this.collider.height / 2;
-        let halfHeight = halfTotalHeight - v;
-        if (halfHeight < 0) halfHeight = 0;
-        this.localCapsule.halfHeight = halfHeight;
-        this.localCapsule.updateCache();
-
         this.transform(
             this._sharedBody.node.worldMatrix,
             this._sharedBody.node.worldPosition,
@@ -44,9 +37,8 @@ export class BuiltinCapsuleShape extends BuiltinShape implements ICapsuleShape {
         );
     }
 
-    setHeight (v: number) {
-        const hf = v / 2 - this.collider.radius;
-        this.localCapsule.halfHeight = hf;
+    setCylinderHeight (v: number) {
+        this.localCapsule.halfHeight = v / 2;
         this.localCapsule.updateCache();
 
         this.transform(
