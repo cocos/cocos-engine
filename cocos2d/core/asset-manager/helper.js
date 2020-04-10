@@ -113,7 +113,7 @@ var helper = {
             options.bundle = bundle.name;
         }
 
-        return cc.assetManager.transform(uuid, options);
+        return cc.assetManager._transform(uuid, options);
     },
 
     /**

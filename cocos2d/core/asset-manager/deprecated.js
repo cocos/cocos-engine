@@ -288,7 +288,7 @@ const loader = {
         cc.assetManager.loadResDir(url, type, onProgress, function (err, assets) {
             var urls = [];
             if (!err) {
-                var infos = cc.assetManager.resources.getDirWithPath(url, type);
+                var infos = cc.resources.getDirWithPath(url, type);
                 urls = infos.map(function (info) {
                     return info.path;
                 });
@@ -298,21 +298,18 @@ const loader = {
     },
 
     /**
-     * `cc.loader.getRes` is deprecated, please use {{#crossLink "AssetManager/getRes:method"}}{{/crossLink}} instead
+     * `cc.loader.getRes` is deprecated, please use {{#crossLink "Bundle/get:method"}}{{/crossLink}} instead
      *
      * @method getRes
      * @param {String} url
      * @param {Function} [type] - Only asset of type will be returned if this argument is supplied.
      * @returns {*}
-     * @deprecated `cc.loader.getRes` is deprecated, please use `cc.assetManager.getRes` instead
+     * @deprecated `cc.loader.getRes` is deprecated, please use `cc.resources.get` instead
      */
     getRes (url, type) {
-        return cc.assetManager.assets.has(url) ? cc.assetManager.assets.get(url) : cc.assetManager.getRes(url, type);
+        return cc.assetManager.assets.has(url) ? cc.assetManager.assets.get(url) : cc.resources.get(url, type);
     },
 
-    /**
-     * @deprecated `cc.loader.getResCount` is deprecated , please use `cc.assetManager.assets.count` instead
-     */
     getResCount () {
         return cc.assetManager.assets.count;
     },
@@ -425,35 +422,35 @@ const loader = {
     },
 
     /**
-     * `cc.loader.release` is deprecated, please use {{#crossLink "AssetManager/release:method"}}{{/crossLink}} instead
+     * `cc.loader.release` is deprecated, please use {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}} instead
      *
      * @method release
      * @param {Asset|String|Array} asset
-     * @deprecated `cc.loader.release` is deprecated, please use `cc.assetManager.release` instead
+     * @deprecated `cc.loader.release` is deprecated, please use `cc.assetManager.releaseAsset` instead
      */
     release (asset) {
         if (Array.isArray(asset)) {
             for (let i = 0; i < asset.length; i++) {
                 var key = asset[i];
                 if (typeof key === 'string') key = cc.assetManager.assets.get(key);
-                cc.assetManager.release(key, true);
+                cc.assetManager.releaseAsset(key, true);
             }
         }
         else if (asset) {
             if (typeof asset === 'string') asset = cc.assetManager.assets.get(asset);
-            cc.assetManager.release(asset, true);
+            cc.assetManager.releaseAsset(asset, true);
         }
     },
 
     /**
-     * `cc.loader.releaseAsset` is deprecated, please use {{#crossLink "AssetManager/release:method"}}{{/crossLink}} instead
+     * `cc.loader.releaseAsset` is deprecated, please use {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}} instead
      *
-     * @deprecated `cc.loader.releaseAsset` is deprecated, please use `cc.assetManager.release` instead
+     * @deprecated `cc.loader.releaseAsset` is deprecated, please use `cc.assetManager.releaseAsset` instead
      * @method releaseAsset
      * @param {Asset} asset
      */
     releaseAsset (asset) {
-        cc.assetManager.release(asset, true);
+        cc.assetManager.releaseAsset(asset, true);
     },
 
     /**
@@ -476,7 +473,7 @@ const loader = {
      */
     releaseResDir () {
         if (CC_DEBUG) {
-            cc.error('cc.loader.releaseResDir was removed, please use cc.assetManager.release instead');
+            cc.error('cc.loader.releaseResDir was removed, please use cc.assetManager.releaseAsset instead');
         }
     },
 
@@ -487,7 +484,7 @@ const loader = {
      * @method releaseAll
      */
     releaseAll () {
-        cc.assetManager.releaseAll(true);
+        cc.assetManager.releaseAll();
         cc.assetManager.assets.clear();
     },
 
@@ -633,7 +630,7 @@ cc.url = {
     raw (url) {
         cc.warnID(1400, 'cc.url.raw', 'cc.assetManager.loadRes');
         if (url.startsWith('resources/')) {
-            return cc.assetManager.transform({'path': cc.path.changeExtname(url.substr(10)), bundle: cc.AssetManager.BuiltinBundleName.RESOURCES, isNative: true, ext: cc.path.extname(url)});
+            return cc.assetManager._transform({'path': cc.path.changeExtname(url.substr(10)), bundle: cc.AssetManager.BuiltinBundleName.RESOURCES, isNative: true, ext: cc.path.extname(url)});
         }
         return '';
     }
@@ -726,27 +723,7 @@ Object.defineProperties(cc.macro, {
     }
 });
 
-/**
- * @class Director
- */
 Object.assign(cc.director, {
-    /**
-     * `cc.director.preloadScene` is deprecated, please use {{#crossLink "AssetManager/preloadScene:method"}}{{/crossLink}} instead
-     *
-     * @deprecated `cc.director.preloadScene` is deprecated, please use `cc.assetManager.preloadScene` instead
-     * @method preloadScene
-     * @param {String} sceneName - The name of the scene to preload.
-     * @param {Function} [onProgress] - callback, will be called when the load progression change.
-     * @param {Number} onProgress.completedCount - The number of the items that are already completed
-     * @param {Number} onProgress.totalCount - The total number of the items
-     * @param {Object} onProgress.item - The latest item which flow out the pipeline
-     * @param {Function} [onLoaded] - callback, will be called after scene loaded.
-     * @param {Error} onLoaded.error - null or the error object.
-     */
-    preloadScene (sceneName, onProgress, onLoaded) {
-        cc.assetManager.preloadScene(sceneName, null, onProgress, onLoaded);
-    },
-
     _getSceneUuid (sceneName) {
         cc.assetManager.main.getSceneInfo(sceneName);
     }

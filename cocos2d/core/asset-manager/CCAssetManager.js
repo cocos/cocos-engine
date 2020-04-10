@@ -116,10 +116,10 @@ function AssetManager () {
 
     /**
      * !#en 
-     * The collection of asset which is already loaded, you can remove cache with {{#crossLink "AssetManager/release:method"}}{{/crossLink}}
+     * The collection of asset which is already loaded, you can remove cache with {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}}
      * 
      * !#zh
-     * 已加载资源的集合， 你能通过 {{#crossLink "AssetManager/release:method"}}{{/crossLink}} 来移除缓存
+     * 已加载资源的集合， 你能通过 {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}} 来移除缓存
      * 
      * @property assets
      * @type {Cache}
@@ -336,6 +336,30 @@ AssetManager.prototype = {
     },
 
     /**
+     * !#en 
+     * Get the bundle which has been loaded
+     * 
+     * !#zh
+     * 获取已加载的分包
+     * 
+     * @method getBundle
+     * @param {String} name - The name of bundle 
+     * @return {Bundle} - The loaded bundle
+     * 
+     * @example
+     * // ${project}/assets/test1
+     * cc.assetManager.getBundle('test1');
+     * 
+     * cc.assetManager.getBundle('resources');
+     * 
+     * @typescript
+     * getBundle (name: string): cc.AssetManager.Bundle
+     */
+    getBundle (name) {
+        return bundles.get(name);
+    },
+
+    /**
      * !#en
      * General interface used to load assets with a progression callback and a complete callback. You can achieve almost all effect you want with combination of `requests` and `options`.
      * It is highly recommended that you use more simple API, such as `loadRes`, `loadResDir` etc. Every custom parameter in `options` will be distribute to each of `requests`. 
@@ -448,6 +472,7 @@ AssetManager.prototype = {
      * 
      * @method postLoadNative
      * @param {Asset} asset - The asset
+     * @param {Object} [options] - Some optional parameters
      * @param {Function} [onComplete] - Callback invoked when finish loading
      * @param {Error} onComplete.err - The error occured in loading process.
      * 
@@ -455,10 +480,12 @@ AssetManager.prototype = {
      * cc.assetManager.postLoadNative(texture, (err) => console.log(err));
      * 
      * @typescript
+     * postLoadNative(asset: cc.Asset, options?: Record<string, any>, onComplete?: (err: Error) => void): void
      * postLoadNative(asset: cc.Asset, onComplete?: (err: Error) => void): void
      */
-    postLoadNative (asset, onComplete) {
+    postLoadNative (asset, options, onComplete) {
         if (!(asset instanceof cc.Asset)) throw new Error('input is not asset');
+        var { options, onComplete } = parseParameters(options, undefined, onComplete);
 
         if (asset.loaded || !asset._native || asset._nativeAsset) {
             return asyncify(onComplete)(null);
@@ -466,21 +493,16 @@ AssetManager.prototype = {
 
         var depend = dependUtil.getNativeDep(asset._uuid);
         if (depend) {
-            var bundle = null;
-            if (bundles.has(depend.bundle)) {
-                bundle = bundles.get(depend.bundle);
-            }
-            else {
-                bundle = bundles.find(function (bundle) {
+            if (!bundles.has(depend.bundle)) {
+                var bundle = bundles.find(function (bundle) {
                     return bundle.getAssetInfo(asset._uuid);
                 });
+                if (bundle) {
+                    depend.bundle = bundle.name;
+                }
             }
             
-            if (bundle) {
-                depend.bundle = bundle.name;
-            }
-
-            this.loadAny(depend, function (err, native) {
+            this.loadAny(depend, options, function (err, native) {
                 if (!err) {
                     asset._nativeAsset = native;
                 }
@@ -624,378 +646,67 @@ AssetManager.prototype = {
 
     /**
      * !#en
-     * Load resources from the "resources" folder inside the "assets" folder of your project.<br>
-     * <br>
-     * Note: All asset paths in Creator use forward slashes, paths using backslashes will not work.
-     * 
-     * !#zh
-     * 加载 `resources` 目录下的资源，注意：所有资源路径应该使用斜杠，反斜杠将停止工作
-     *
-     * @method loadRes
-     * @param {String|String[]} paths - Paths of the target resource.The path is relative to the "resources" folder, extensions must be omitted.
-     * @param {Function} [type] - Only asset of type will be loaded if this argument is supplied.
-     * @param {Function} [onProgress] - Callback invoked when progression change.
-     * @param {Number} onProgress.finish - The number of the items that are already completed.
-     * @param {Number} onProgress.total - The total number of the items.
-     * @param {RequestItem} onProgress.item - The finished request item.
-     * @param {Function} [onComplete] - Callback invoked when the resource loaded.
-     * @param {Error} onComplete.error - The error info or null if loaded successfully.
-     * @param {Asset|Asset[]} onComplete.resources - The loaded resources.
-     *
-     * @example
-     * // load the prefab (project/assets/resources/misc/character/cocos) from resources folder
-     * cc.assetManager.loadRes('misc/character/cocos', (err, prefab) => console.log(err));
-     *
-     * // load the sprite frame of (project/assets/resources/imgs/cocos.png) from resources folder
-     * cc.assetManager.loadRes('imgs/cocos', cc.SpriteFrame, null, (err, spriteFrame) => console.log(err));
-     * 
-     * @typescript
-     * loadRes(paths: string|string[], type?: typeof cc.Asset, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, resources: cc.Asset|cc.Asset[]) => void): void
-     * loadRes(paths: string|string[], onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, resources: cc.Asset|cc.Asset[]) => void): void
-     * loadRes(paths: string|string[], type?: typeof cc.Asset, onComplete?: (error: Error, resources: cc.Asset|cc.Asset[]) => void): void
-     * loadRes(paths: string|string[], onComplete?: (error: Error, resources: cc.Asset|cc.Asset[]) => void): void
-     */
-    loadRes (paths, type, onProgress, onComplete) {
-        this.resources.load(paths, type, onProgress, onComplete);
-    },
-
-    /**
-     * !#en
-     * Preload resources from the "resources" folder inside the "assets" folder of your project.<br>
-     * Everything are like loadRes
-     * 
-     * !#zh
-     * 预加载 `resources` 目录下的资源，其他都和 `loadRes` 相同
-     *
-     * @method preloadRes
-     * @param {String|String[]} paths - Paths of the target resource.The path is relative to the "resources" folder, extensions must be omitted.
-     * @param {Function} [type] - Only asset of type will be loaded if this argument is supplied.
-     * @param {Function} [onProgress] - Callback invoked when progression change.
-     * @param {Number} onProgress.finish - The number of the items that are already completed.
-     * @param {Number} onProgress.total - The total number of the items.
-     * @param {RequestItem} onProgress.item - The finished request item.
-     * @param {Function} [onComplete] - Callback invoked when the resource loaded.
-     * @param {Error} onComplete.error - The error info or null if loaded successfully.
-     * @param {RequestItem[]} onComplete.items - The preloaded items.
-     * @return {Task} preloading task
-     *
-     * @example
-     * // preload the prefab (project/assets/resources/misc/character/cocos) from resources folder
-     * cc.assetManager.preloadRes('misc/character/cocos', (err) => console.log(err));
-     *
-     * // preload the sprite frame of (project/assets/resources/imgs/cocos.png) from resources folder
-     * cc.assetManager.preloadRes('imgs/cocos', cc.SpriteFrame, null, (err) => console.log(err));
-     * 
-     * @typescript
-     * preloadRes(paths: string|string[], type?: typeof cc.Asset, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, items: cc.AssetManager.RequestItem[]) => void): cc.AssetManager.Task
-     * preloadRes(paths: string|string[], type?: typeof cc.Asset, onComplete?: (error: Error, items: cc.AssetManager.RequestItem[]) => void): cc.AssetManager.Task
-     * preloadRes(paths: string|string[], onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, items: cc.AssetManager.RequestItem[]) => void): cc.AssetManager.Task
-     * preloadRes(paths: string|string[], onComplete?: (error: Error, items: cc.AssetManager.RequestItem[]) => void): cc.AssetManager.Task
-     */
-    preloadRes (path, type, onProgress, onComplete) {
-        return this.resources.preload(path, type, onProgress, onComplete);
-    },
-
-    /**
-     * !#en
-     * Load all assets in a folder inside the "assets/resources" folder of your project.<br>
-     * <br>
-     * Note: All asset paths in Creator use forward slashes, paths using backslashes will not work.
-     * 
-     * !#zh
-     * 加载目标文件夹中的所有资源, 注意：路径中只能使用斜杠，反斜杠将停止工作
-     *
-     * @method loadResDir
-     * @param {string} dir - path of the target folder.
-     *                       The path is relative to the "resources" folder, extensions must be omitted.
-     * @param {Function} [type] - Only asset of type will be loaded if this argument is supplied.
-     * @param {Function} [onProgress] - Callback invoked when progression change.
-     * @param {Number} onProgress.finish - The number of the items that are already completed.
-     * @param {Number} onProgress.total - The total number of the items.
-     * @param {Object} onProgress.item - The latest request item
-     * @param {Function} [onComplete] - A callback which is called when all assets have been loaded, or an error occurs.
-     * @param {Error} onComplete.error - If one of the asset failed, the complete callback is immediately called
-     *                                         with the error. If all assets are loaded successfully, error will be null.
-     * @param {Asset[]|Asset} onComplete.assets - An array of all loaded assets.
-     * @returns {Task} loading task
-     *                                             
-     *
-     * @example
-     *
-     * // load the texture (resources/imgs/cocos.png) and the corresponding sprite frame
-     * cc.assetManager.loadResDir('imgs/cocos', function (err, assets) {
-     *     if (err) {
-     *         cc.error(err);
-     *         return;
-     *     }
-     *     var texture = assets[0];
-     *     var spriteFrame = assets[1];
-     * });
-     *
-     * // load all textures in "resources/imgs/"
-     * cc.assetManager.loadResDir('imgs', cc.Texture2D, null, function (err, textures) {
-     *     var texture1 = textures[0];
-     *     var texture2 = textures[1];
-     * });
-     *
-     * @typescript
-     * loadResDir(dir: string, type?: typeof cc.Asset, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, assets: cc.Asset|cc.Asset[]) => void): cc.AssetManager.Task
-     * loadResDir(dir: string, type?: typeof cc.Asset, onComplete?: (error: Error, assets: cc.Asset|cc.Asset[]) => void): cc.AssetManager.Task
-     * loadResDir(dir: string, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, assets: cc.Asset|cc.Asset[]) => void): cc.AssetManager.Task
-     * loadResDir(dir: string, onComplete?: (error: Error, assets: cc.Asset|cc.Asset[]) => void): cc.AssetManager.Task
-     */
-    loadResDir (dir, type, onProgress, onComplete) {
-        return this.resources.loadDir(dir, type, onProgress, onComplete);
-    },
-
-    /**
-     * !#en
-     * Preload all assets in a folder inside the "assets/resources" folder of your project.<br>
-     * <br>
-     * Everything are like `loadResDir`
-     * 
-     * !#zh
-     * 预加载目标文件夹中的所有资源, 其他和 `loadResDir` 一样
-     *
-     * @method preloadResDir
-     * @param {string} dir - path of the target folder.
-     *                       The path is relative to the "resources" folder, extensions must be omitted.
-     * @param {Function} [type] - Only asset of type will be preloaded if this argument is supplied.
-     * @param {Function} [onProgress] - Callback invoked when progression change.
-     * @param {Number} onProgress.finish - The number of the items that are already completed.
-     * @param {Number} onProgress.total - The total number of the items.
-     * @param {Object} onProgress.item - The latest request item
-     * @param {Function} [onComplete] - A callback which is called when all assets have been loaded, or an error occurs.
-     * @param {Error} onComplete.error - If one of the asset failed, the complete callback is immediately called
-     *                                         with the error. If all assets are preloaded successfully, error will be null.
-     * @param {RequestItem[]} onComplete.items - An array of all preloaded items.
-     * 
-     * @returns {Task} preloading task
-     *                                             
-     *
-     * @example
-     *
-     * // preload the texture (resources/imgs/cocos.png) and the corresponding sprite frame
-     * cc.assetManager.preloadResDir('imgs/cocos', function (err) {
-     *     if (err) {
-     *         cc.error(err);
-     *         return;
-     *     }
-     *     cc.assetManager.loadResDir('imgs/cocos');
-     * });
-     *
-     * @typescript
-     * preloadResDir(dir: string, type?: typeof cc.Asset, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, items: cc.AssetManager.RequestItem[]) => void): cc.AssetManager.Task
-     * preloadResDir(dir: string, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, items: cc.AssetManager.RequestItem[]) => void): cc.AssetManager.Task
-     * preloadResDir(dir: string, type?: typeof cc.Asset, onComplete?: (error: Error, items: cc.AssetManager.RequestItem[]) => void): cc.AssetManager.Task
-     * preloadResDir(dir: string, onComplete?: (error: Error, items: cc.AssetManager.RequestItem[]) => void): cc.AssetManager.Task
-     */
-    preloadResDir (dir, type, onProgress, onComplete) {
-        return this.resources.preloadDir(dir, type, onProgress, onComplete);
-    },
-
-    /**
-     * !#en 
-     * Loads the scene by its name.
-     * 
-     * !#zh 
-     * 通过场景名称进行加载场景。
-     *
-     * @method loadScene
-     * @param {String} sceneName - The name of the scene to load.
-     * @param {Object} [options] - Some optional parameters
-     * @param {Function} [onProgress] - Callback invoked when progression change.
-     * @param {Number} onProgress.finish - The number of the items that are already completed.
-     * @param {Number} onProgress.total - The total number of the items.
-     * @param {Object} onProgress.item - The latest request item
-     * @param {Function} [onComplete] - callback, will be called after scene launched.
-     * @param {Error} onComplete.err - The occurred error, null indicetes success
-     * @param {Scene} onComplete.scene - The scene
-     * @return {Task} loading task
-     * 
-     * @example
-     * cc.assetManager.loadScene('first', (err, scene) => cc.director.runScene(scene));
-     * 
-     * @typescript
-     * loadScene(sceneName: string, options?: Record<string, any>, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, scene: cc.Scene) => void): cc.AssetManager.Task
-     * loadScene(sceneName: string, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error, scene: cc.Scene) => void): cc.AssetManager.Task
-     * loadScene(sceneName: string, options?: Record<string, any>, onComplete?: (error: Error, scene: cc.Scene) => void): cc.AssetManager.Task
-     * loadScene(sceneName: string, onComplete?: (error: Error, scene: cc.Scene) => void): cc.AssetManager.Task
-     */
-    loadScene (sceneName, options, onProgress, onComplete) {
-        var bundle = this.bundles.find(function (bundle) {
-            return bundle.getSceneInfo(sceneName);
-        });
-        if (bundle) {
-            return bundle.loadScene(sceneName, options, onProgress, onComplete);
-        }
-        else {
-            cc.errorID(1209, sceneName);
-            return null;
-        }
-    },
-
-    /**
-     * !#en
-     * Preloads the scene to reduces loading time. You can call this method at any time you want.
-     * After calling this method, you still need to finish loading by `cc.assetManager.loadScene` or `cc.director.loadScene`.
-     * You don't have to wait for preloading callback before calling `cc.assetManager.loadScene`
-     * 
-     * !#zh 
-     * 预加载场景，你可以在任何时候调用这个方法。
-     * 调用完后，你仍然需要通过 `cc.assetManager.loadScene` 或 `cc.director.loadScene` 来完成加载，你不必等待预加载完成再调用 `cc.assetManager.loadScene`
-     *
-     * @method preloadScene
-     * @param {String} sceneName - The name of the scene to preload.
-     * @param {Object} [options] - Some optional parameters
-     * @param {Function} [onProgress] - callback, will be called when the load progression change.
-     * @param {Number} onProgress.finish - The number of the items that are already completed
-     * @param {Number} onProgress.total - The total number of the items
-     * @param {RequestItem} onProgress.item The latest request item
-     * @param {Function} [onComplete] - callback, will be called after scene loaded.
-     * @param {Error} onComplete.error - null or the error object.
-     * @return {Task} The preloading task
-     * 
-     * @example
-     * cc.assetManager.preloadScene('first', (err) => cc.assetManager.loadScene('first'));
-     * 
-     * @typescript
-     * preloadScene(sceneName: string, options?: Record<string, any>, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error) => void): cc.AssetManager.Task
-     * preloadScene(sceneName: string, onProgress?: (finish: number, total: number, item: cc.AssetManager.RequestItem) => void, onComplete?: (error: Error) => void): cc.AssetManager.Task
-     * preloadScene(sceneName: string, options?: Record<string, any>, onComplete?: (error: Error) => void): cc.AssetManager.Task
-     * preloadScene(sceneName: string, onComplete?: (error: Error) => void): cc.AssetManager.Task
-     */
-    preloadScene (sceneName, options, onProgress, onComplete) {
-        var bundle = this.bundles.find(function (bundle) {
-            return bundle.getSceneInfo(sceneName);
-        });
-        if (bundle) {
-            return bundle.preloadScene(sceneName, options, onProgress, onComplete);
-        }
-        else {
-            cc.errorID(1209, sceneName);
-            return null;
-        }
-    },
-
-    /**
-     * !#en
-     * Get resource data by path and type. <br>
-     * After you load resources with {{#crossLink "AssetManager/loadRes:method"}}{{/crossLink}} or {{#crossLink "AssetManager/loadResDir:method"}}{{/crossLink}},
-     * you can acquire them by passing the path to this API.
-     * 
-     * !#zh
-     * 通过路径与类型获取资源。在你使用 {{#crossLink "AssetManager/loadRes:method"}}{{/crossLink}} 或者 {{#crossLink "AssetManager/loadResDir:method"}}{{/crossLink}} 之后，
-     * 你能通过传路径通过这个 API 获取到这些资源。
-     * 
-     * @method getRes
-     * @param {String} path - The path of resource
-     * @param {Function} [type] - Only asset of type will be returned if this argument is supplied.
-     * @returns {Asset}
-     * 
-     * @typescript
-     * getRes(path: string, type?: typeof cc.Asset): cc.Asset
-     */
-    getRes (path, type) {
-        return this.resources.getAsset(path, type);
-    },
-
-    /**
-     * !#en
-     * Release the content of an asset.
+     * Release asset and it's dependencies.
      * This method will not only remove the cache of the asset in assetManager, but also clean up its content.
      * For example, if you release a texture, the texture asset and its gl texture data will be freed up.
      * Notice, this method may cause the texture to be unusable, if there are still other nodes use the same texture, they may turn to black and report gl errors.
-     * When `force` is `false` or `undefined`, engine will try to compute the number of this asset's reference, if the count is zero, it will be released. You can also
-     * set `force` to true to release this asset forcely
      * 
      * !#zh
-     * 释放资源, 这个方法不仅会从 assetManager 中删除资源的缓存引用，还会清理它的资源内容。
+     * 释放资源以及其依赖资源, 这个方法不仅会从 assetManager 中删除资源的缓存引用，还会清理它的资源内容。
      * 比如说，当你释放一个 texture 资源，这个 texture 和它的 gl 贴图数据都会被释放。
      * 注意，这个函数可能会导致资源贴图或资源所依赖的贴图不可用，如果场景中存在节点仍然依赖同样的贴图，它们可能会变黑并报 GL 错误。
-     * 当 `force` 为 `false` 或者 `undefined` 时，引擎会尝试计算资源被引用的数量，如果数量为零，则资源会被释放。你也能将 `force` 置为true来强制释放这个资源
      *
-     * @method release
+     * @method releaseAsset
      * @param {Asset} asset - The asset to be released
-     * @param {boolean} [force] - Indicates whether or not release this asset forcely
      * 
      * @example
      * // release a texture which is no longer need
-     * cc.assetManager.release(texture);
+     * cc.assetManager.releaseAsset(texture);
      *
      * @typescript
-     * release(asset: cc.Asset, force?: boolean): void
+     * releaseAsset(asset: cc.Asset): void
      */
-    release (asset, force) {
-        finalizer.release(asset, force);
+    releaseAsset (asset) {
+        finalizer.release(asset, true);
     },
 
     /**
      * !#en 
-     * Release the asset loaded by {{#crossLink "AssetManager/loadRes:method"}}{{/crossLink}} or {{#crossLink "AssetManager/loadResDir:method"}}{{/crossLink}}. 
-     * Refer to {{#crossLink "AssetManager/release:method"}}{{/crossLink}} for detailed informations.
+     * Release all unused assets. Refer to {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}} for detailed informations.
      * 
      * !#zh 
-     * 释放通过 {{#crossLink "AssetManager/loadRes:method"}}{{/crossLink}} 加载的资源。详细信息请参考 {{#crossLink "AssetManager/release:method"}}{{/crossLink}}
+     * 释放所有没有用到的资源。详细信息请参考 {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}}
      *
-     * @method releaseRes
-     * @param {String} path - The path of resource
-     * @param {Function} [type] - Only asset of type will be released if this argument is supplied.
-     * @param {boolean} [force] - Indicates whether or not release this asset forcely
-     * 
-     * @example
-     * // release a texture which is no longer need
-     * cc.assetManager.releaseRes('misc/character/cocos');
-     *
-     * @typescript
-     * releaseRes(path: string, type: typeof cc.Asset, force?: boolean): void
-     * releaseRes(path: string): void
-     */
-    releaseRes (path, type, force) {
-        this.resources.releaseAsset(path, type, force);
-    },
-
-    /**
-     * !#en 
-     * Release all assets. Refer to {{#crossLink "AssetManager/release:method"}}{{/crossLink}} for detailed informations.
-     * 
-     * !#zh 
-     * 释放所有资源。详细信息请参考 {{#crossLink "AssetManager/release:method"}}{{/crossLink}}
-     *
-     * @method releaseAll
-     * @param {boolean} [force] - Indicates whether or not release this asset forcely
+     * @method releaseUnusedAssets
      * 
      * @typescript
-     * releaseAll(force?: boolean): void
+     * releaseUnusedAssets(): void
      */
-    releaseAll (force) {
+    releaseUnusedAssets () {
         assets.forEach(function (asset) {
-            finalizer.release(asset, force);
+            finalizer.release(asset, false);
         });
     },
 
     /**
-     * !#en
-     * General interface used to transform url.
-     * The parameter of transform is just likes `cc.assetManager.loadAny`, the difference is `cc.assetManager.transform` will only parse requset but not load any asset. 
+     * !#en 
+     * Release all assets. Refer to {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}} for detailed informations.
      * 
-     * !#zh
-     * 通用转换 URL 接口，`transform` 的参数和 `loadAny` 几乎一样，区别在于 `cc.assetManager.transform` 只会解析请求，不会去加载任何资源
-     * 
-     * @method transform
-     * @param {string|string[]|Object|Object[]} input - The request you want to transfrom
-     * @param {Object} [options] - Optional parameters
-     * @param {RequestType} [options.requestType] - Indicates that which type the requests is
-     * @param {string} [options.bundle] - Indicates in which bundle
-     * @returns {string|string[]} urls - Transformed urls
-     * 
-     * @example
-     * var urls = cc.assetManager.transform({ uuid: '0cbZa5Y71CTZAccaIFluuZ'});
+     * !#zh 
+     * 释放所有资源。详细信息请参考 {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}}
+     *
+     * @method releaseAll
      * 
      * @typescript
-     * transform(input: string | string[] | Record<string, any> | Record<string, any>[], options?: Record<string, any>): string|string[]
+     * releaseAll(): void
      */
-    transform (input, options) {
+    releaseAll () {
+        assets.forEach(function (asset) {
+            finalizer.release(asset, true);
+        });
+    },
+
+    _transform (input, options) {
         var subTask = Task.create({input, options});
         var urls = [];
         try {
@@ -1027,6 +738,18 @@ cc.AssetManager = AssetManager;
  * @type {AssetManager}
  */
 cc.assetManager = new AssetManager();
+
+Object.defineProperty(cc, 'resources', {
+    /**
+     * @property resources
+     * @readonly
+     * @type {AssetManager.Bundle}
+     */
+    get () {
+        return bundles.get(BuiltinBundleName.RESOURCES);
+    }
+});
+
 
 module.exports = cc.assetManager;
 

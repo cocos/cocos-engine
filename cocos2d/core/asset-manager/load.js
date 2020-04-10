@@ -183,7 +183,7 @@ function loadDepends (task, asset, done, init) {
         onError: Task.prototype.recycle, 
         progress, 
         onComplete: function (err) {
-            asset.removeRef && asset.removeRef();
+            asset.decRef && asset.decRef(false);
             asset.__asyncLoadAssets__ = asyncLoadAssets;
             repeatItem.finish = true;
             repeatItem.err = err;

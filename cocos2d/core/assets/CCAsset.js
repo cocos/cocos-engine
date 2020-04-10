@@ -266,18 +266,19 @@ cc.Asset = cc.Class({
 
     /**
      * !#zh
-     * 减少资源的引用
+     * 减少资源的引用并尝试自动释放
      * 
      * !#en
      * Reduce references of asset
      * 
-     * @method removeRef
+     * @method decRef
      * 
      * @typescript
-     * removeRef(): void
+     * decRef(): void
      */
-    removeRef () {
+    decRef (autoRelease) {
         this._ref--;
+        autoRelease !== false && cc.assetManager.finalizer.release(false);
     }
 });
 

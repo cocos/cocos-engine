@@ -9,7 +9,7 @@ test('reference', function () {
     strictEqual(tex._ref, 0, 'should equal to 0');
     tex.addRef();
     strictEqual(tex._ref, 1, 'should equal to 1');
-    tex.removeRef();
+    tex.decRef(false);
     strictEqual(tex._ref, 0, 'should equal to 0');
 });
 
@@ -22,7 +22,7 @@ test('release', function () {
     cc.assetManager.finalizer._free(tex, false);
     strictEqual(cc.assetManager.assets.count, 1, 'should equal to 1');
     ok(cc.isValid(tex, true), 'tex should be valid');
-    cc.assetManager.release(tex, true);
+    cc.assetManager.releaseAsset(tex, true);
     strictEqual(cc.assetManager.assets.count, 0, 'should equal to 0');
     ok(!cc.isValid(tex, true), 'tex should be released');
 });
@@ -108,7 +108,7 @@ test('AutoRelease', function () {
     strictEqual(texB._ref, 1, 'should equal to 1');
     strictEqual(texC._ref, 1, 'should equal to 1');
     cc.assetManager.finalizer.release = originalRelease;
-    cc.assetManager.releaseAll(true);
+    cc.assetManager.releaseAll();
 });
 
 test('autoRelease_polyfill', function () {

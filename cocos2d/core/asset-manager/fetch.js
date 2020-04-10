@@ -102,7 +102,7 @@ function fetch (task, done) {
 function decreaseRef (task) {
     let output = task.output;
     for (let i = 0, l = output.length; i < l; i++) {
-        output[i].content && output[i].content.removeRef();
+        output[i].content && output[i].content.decRef(false);
     }
 }
 

@@ -154,7 +154,7 @@ var finalizer = {
             for (let i = 0, l = deps.length; i < l; i++) {
                 var dependAsset = assets.get(deps[i]);
                 if (dependAsset) {
-                    dependAsset.removeRef();
+                    dependAsset.decRef();
                 }
             }
             _persistNodeDeps.remove(node.uuid);
@@ -185,16 +185,14 @@ var finalizer = {
             var childs = dependUtil.getDeps(oldScene._id);
             for (let i = 0, l = childs.length; i < l; i++) {
                 let asset = assets.get(childs[i]);
-                asset && asset.removeRef();
-                if (CC_TEST || oldScene.autoReleaseAssets) this.release(asset);
+                asset && asset.decRef(CC_TEST || oldScene.autoReleaseAssets);
             }
             var dependencies = dependUtil._depends.get(oldScene._id);
             if (dependencies && dependencies.persistDeps) {
                 var persistDeps = dependencies.persistDeps;
                 for (let i = 0, l = persistDeps.length; i < l; i++) {
                     let asset = assets.get(persistDeps[i]);
-                    asset && asset.removeRef();
-                    if (CC_TEST || oldScene.autoReleaseAssets) this.release(asset);
+                    asset && asset.decRef(CC_TEST || oldScene.autoReleaseAssets);
                 }
             }
             dependUtil.remove(oldScene._id);
@@ -261,6 +259,8 @@ var finalizer = {
 
     _free (asset, force) {
         _toDelete.remove(asset._uuid);
+        if (finalizer.isLocked(asset)) return;
+
         if (!force) {
             if (!CC_NATIVERENDERER) {
                 var glTexture = null;
@@ -299,7 +299,7 @@ var finalizer = {
         for (let i = 0, l = depends.length; i < l; i++) {
             var dependAsset = assets.get(depends[i]);
             if (dependAsset) {
-                dependAsset.removeRef();
+                dependAsset.decRef(false);
                 finalizer._free(dependAsset, force);
             }
         }
@@ -323,7 +323,6 @@ var finalizer = {
      */
     release (asset, force) {
         if (!(asset instanceof cc.Asset)) return;
-        if (finalizer.isLocked(asset)) return;
         if (force) {
             finalizer._free(asset, force);
         }

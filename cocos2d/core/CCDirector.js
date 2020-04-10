@@ -344,7 +344,7 @@ cc.Director.prototype = {
      * @deprecated since v2.0
      */
     purgeCachedData: function () {
-        cc.assetManager.releaseAll(true);
+        cc.assetManager.releaseAll();
     },
 
     /**
@@ -374,7 +374,7 @@ cc.Director.prototype = {
         cc.game.pause();
 
         // Clear all caches
-        cc.assetManager.releaseAll(true);
+        cc.assetManager.releaseAll();
     },
 
     /**
@@ -415,12 +415,14 @@ cc.Director.prototype = {
      * The new scene will be launched immediately.
      * !#zh 立刻切换指定场景。
      * @method runSceneImmediate
-     * @param {Scene} scene - The need run scene.
+     * @param {Scene|SceneAsset} scene - The need run scene.
      * @param {Function} [onBeforeLoadScene] - The function invoked at the scene before loading.
      * @param {Function} [onLaunched] - The function invoked at the scene after launch.
      */
     runSceneImmediate: function (scene, onBeforeLoadScene, onLaunched) {
-        cc.assertID(scene instanceof cc.Scene, 1216);
+        cc.assertID(scene instanceof cc.Scene || scene instanceof cc.SceneAsset, 1216);
+
+        if (scene instanceof cc.SceneAsset) scene = scene.scene;
 
         CC_BUILD && CC_DEBUG && console.time('InitScene');
         scene._load();  // ensure scene initialized
@@ -493,14 +495,15 @@ cc.Director.prototype = {
      * The new scene will be launched at the end of the current frame.
      * !#zh 运行指定场景。
      * @method runScene
-     * @param {Scene} scene - The need run scene.
+     * @param {Scene|SceneAsset} scene - The need run scene.
      * @param {Function} [onBeforeLoadScene] - The function invoked at the scene before loading.
      * @param {Function} [onLaunched] - The function invoked at the scene after launch.
      */
     runScene: function (scene, onBeforeLoadScene, onLaunched) {
         cc.assertID(scene, 1205);
-        cc.assertID(scene instanceof cc.Scene, 1216);
+        cc.assertID(scene instanceof cc.Scene || scene instanceof cc.SceneAsset, 1216);
 
+        if (scene instanceof cc.SceneAsset) scene = scene.scene;
         // ensure scene initialized
         scene._load();
 
@@ -550,6 +553,38 @@ cc.Director.prototype = {
         else {
             cc.errorID(1209, sceneName);
             return false;
+        }
+    },
+
+     /**
+     * !#en
+     * Preloads the scene to reduces loading time. You can call this method at any time you want.
+     * After calling this method, you still need to launch the scene by `cc.director.loadScene`.
+     * It will be totally fine to call `cc.director.loadScene` at any time even if the preloading is not
+     * yet finished, the scene will be launched after loaded automatically.
+     * !#zh 预加载场景，你可以在任何时候调用这个方法。
+     * 调用完后，你仍然需要通过 `cc.director.loadScene` 来启动场景，因为这个方法不会执行场景加载操作。
+     * 就算预加载还没完成，你也可以直接调用 `cc.director.loadScene`，加载完成后场景就会启动。
+     *
+     * @method preloadScene
+     * @param {String} sceneName - The name of the scene to preload.
+     * @param {Function} [onProgress] - callback, will be called when the load progression change.
+     * @param {Number} onProgress.completedCount - The number of the items that are already completed
+     * @param {Number} onProgress.totalCount - The total number of the items
+     * @param {Object} onProgress.item - The latest item which flow out the pipeline
+     * @param {Function} [onLoaded] - callback, will be called after scene loaded.
+     * @param {Error} onLoaded.error - null or the error object.
+     */
+    preloadScene (sceneName, onProgress, onLoaded) {
+        var bundle = cc.assetManager.bundles.find(function (bundle) {
+            return bundle.getSceneInfo(sceneName);
+        });
+        if (bundle) {
+            return bundle.preloadScene(sceneName, options, onProgress, onLoaded);
+        }
+        else {
+            cc.errorID(1209, sceneName);
+            return null;
         }
     },
 
