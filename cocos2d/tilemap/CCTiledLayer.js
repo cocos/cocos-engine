@@ -567,7 +567,8 @@ let TiledLayer = cc.Class({
     },
 
     _updateTileForGID (gid, pos) {
-        if (gid !== 0 && !this._texGrids[gid]) {
+        let ugid = gid & cc.TiledMap.TileFlag.FLIPPED_MASK;
+        if (ugid !== 0 && !this._texGrids[ugid]) {
             return;
         }
 
