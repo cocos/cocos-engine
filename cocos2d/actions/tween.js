@@ -675,7 +675,7 @@ for (let i = 0; i < keys.length; i++) {
  * @param {Object} [target] - the target to animate
  * @return {Tween}
  * @typescript
- * tween<T> (target?: Object) : Tween<T>
+ * tween<T> (target?: T) : Tween<T>
  */
 cc.tween = function (target) {
     return new Tween(target);
