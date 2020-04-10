@@ -1,6 +1,5 @@
-import { GFXBuffer, GFXBufferSource, IGFXBufferInfo, IGFXIndirectBuffer } from '../buffer';
-import { GFXBufferFlagBit, GFXBufferUsageBit, GFXStatus } from '../define';
-import { GFXDevice } from '../device';
+import { GFXBuffer, GFXBufferSource, IGFXBufferInfo } from '../buffer';
+import { GFXBufferUsageBit } from '../define';
 import {
     WebGLCmdFuncCreateBuffer,
     WebGLCmdFuncDestroyBuffer,
@@ -18,31 +17,11 @@ export class WebGLGFXBuffer extends GFXBuffer {
 
     private _gpuBuffer: WebGLGPUBuffer | null = null;
     private _uniformBuffer: Uint8Array | null = null;
-    private _indirectBuffer: IGFXIndirectBuffer | null = null;
 
-    constructor (device: GFXDevice) {
-        super(device);
-    }
+    protected _initialize (info: IGFXBufferInfo): boolean {
 
-    public initialize (info: IGFXBufferInfo): boolean {
-
-        this._usage = info.usage;
-        this._memUsage = info.memUsage;
-        this._size = info.size;
-        this._stride = Math.max(info.stride || this._size, 1);
-        this._count = this._size / this._stride;
-        this._flags = (info.flags !== undefined ? info.flags : GFXBufferFlagBit.NONE);
-
-        if (this._usage & GFXBufferUsageBit.INDIRECT) {
-            this._indirectBuffer = { drawInfos: [] };
-        } else {
-            if ((this._usage & GFXBufferUsageBit.UNIFORM) && this._size > 0) {
-                this._uniformBuffer = new Uint8Array(this._size);
-            }
-        }
-
-        if (this._flags & GFXBufferFlagBit.BAKUP_BUFFER) {
-            this._bufferView = new Uint8Array(this._size);
+        if ((this._usage & GFXBufferUsageBit.UNIFORM) && this._size > 0) {
+            this._uniformBuffer = new Uint8Array(this._size);
         }
 
         this._gpuBuffer = {
@@ -65,13 +44,10 @@ export class WebGLGFXBuffer extends GFXBuffer {
 
         WebGLCmdFuncCreateBuffer(this._device as WebGLGFXDevice, this._gpuBuffer);
 
-        this._device.memoryStatus.bufferSize += this._size;
-        this._status = GFXStatus.SUCCESS;
-
         return true;
     }
 
-    public destroy () {
+    protected _destroy () {
         if (this._gpuBuffer) {
             WebGLCmdFuncDestroyBuffer(this._device as WebGLGFXDevice, this._gpuBuffer);
             this._device.memoryStatus.bufferSize -= this._size;
@@ -79,48 +55,30 @@ export class WebGLGFXBuffer extends GFXBuffer {
         }
 
         this._bufferView = null;
-        this._status = GFXStatus.UNREADY;
     }
 
-    public resize (size: number) {
-        const oldSize = this._size;
-        this._size = size;
-        this._count = this._size / this._stride;
-
+    protected _resize (size: number) {
         if (this._uniformBuffer) {
-            this._uniformBuffer = new Uint8Array(this._size);
-        }
-
-        if (this._bufferView && oldSize !== size) {
-            const oldView = this._bufferView;
-            this._bufferView = new Uint8Array(this._size);
-            this._bufferView.set(oldView);
-            if (this._gpuBuffer) {
-                this._gpuBuffer.buffer = this._bufferView;
-            }
+            this._uniformBuffer = new Uint8Array(size);
         }
 
         if (this._gpuBuffer) {
             if (this._uniformBuffer) {
                 this._gpuBuffer.buffer = this._uniformBuffer;
+            } else if (this._bufferView) {
+                this._gpuBuffer.buffer = this._bufferView;
             }
 
-            this._gpuBuffer.size = this._size;
-            if (this._size > 0) {
+            this._gpuBuffer.size = size;
+            if (size > 0) {
                 WebGLCmdFuncResizeBuffer(this._device as WebGLGFXDevice, this._gpuBuffer);
-                this._device.memoryStatus.bufferSize -= oldSize;
-                this._device.memoryStatus.bufferSize += this._size;
-                if (this._bufferView) {
-                    this._device.memoryStatus.bufferSize -= oldSize;
-                    this._device.memoryStatus.bufferSize += this._size;
-                }
             }
         }
     }
 
     public update (buffer: GFXBufferSource, offset?: number, size?: number) {
 
-        let buffSize;
+        let buffSize: number;
         if (size !== undefined) {
             buffSize = size;
         } else if (this._usage & GFXBufferUsageBit.INDIRECT) {

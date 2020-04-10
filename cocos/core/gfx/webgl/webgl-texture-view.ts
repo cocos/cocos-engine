@@ -1,5 +1,3 @@
-import { GFXStatus } from '../define';
-import { GFXDevice } from '../device';
 import { GFXTextureView, IGFXTextureViewInfo } from '../texture-view';
 import { WebGLGPUTextureView } from './webgl-gpu-objects';
 import { WebGLGFXTexture } from './webgl-texture';
@@ -12,31 +10,7 @@ export class WebGLGFXTextureView extends GFXTextureView {
 
     private _gpuTextureView: WebGLGPUTextureView | null = null;
 
-    constructor (device: GFXDevice) {
-        super(device);
-    }
-
-    public initialize (info: IGFXTextureViewInfo): boolean {
-
-        this._texture = info.texture;
-        this._type = info.type;
-        this._format = info.format;
-
-        if (info.baseLevel !== undefined) {
-            this._baseLevel = info.baseLevel;
-        }
-
-        if (info.levelCount !== undefined) {
-            this._levelCount = info.levelCount;
-        }
-
-        if (info.baseLayer !== undefined) {
-            this._baseLayer = info.baseLayer;
-        }
-
-        if (info.layerCount !== undefined) {
-            this._layerCount = info.layerCount;
-        }
+    protected _initialize (info: IGFXTextureViewInfo): boolean {
 
         this._gpuTextureView = {
             gpuTexture: (info.texture as WebGLGFXTexture).gpuTexture,
@@ -46,14 +20,10 @@ export class WebGLGFXTextureView extends GFXTextureView {
             levelCount: info.levelCount ? info.levelCount : 1,
         };
 
-        this._status = GFXStatus.SUCCESS;
-
         return true;
     }
 
-    public destroy () {
+    protected _destroy () {
         this._gpuTextureView = null;
-        this._texture = null;
-        this._status = GFXStatus.UNREADY;
     }
 }

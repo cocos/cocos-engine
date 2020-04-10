@@ -2,7 +2,7 @@
  * @category gfx
  */
 
-import { GFXFormat, GFXObject, GFXObjectType, GFXTextureViewType } from './define';
+import { GFXFormat, GFXObject, GFXObjectType, GFXTextureViewType, GFXStatus } from './define';
 import { GFXDevice } from './device';
 import { GFXTexture } from './texture';
 
@@ -99,7 +99,40 @@ export abstract class GFXTextureView extends GFXObject {
         this._device = device;
     }
 
-    public abstract initialize (info: IGFXTextureViewInfo): boolean;
+    public initialize (info: IGFXTextureViewInfo) {
+        this._texture = info.texture;
+        this._type = info.type;
+        this._format = info.format;
+        this._format = info.format;
 
-    public abstract destroy (): void;
+        if (info.baseLevel !== undefined) {
+            this._baseLevel = info.baseLevel;
+        }
+
+        if (info.levelCount !== undefined) {
+            this._levelCount = info.levelCount;
+        }
+
+        if (info.baseLayer !== undefined) {
+            this._baseLayer = info.baseLayer;
+        }
+
+        if (info.layerCount !== undefined) {
+            this._layerCount = info.layerCount;
+        }
+
+        if (this._initialize(info)) { this._status = GFXStatus.SUCCESS; return true; }
+        else { this._status = GFXStatus.FAILED; return false; }
+    }
+
+    public destroy () {
+        if (this._status !== GFXStatus.SUCCESS) { return; }
+        this._texture = null;
+        this._destroy();
+        this._status = GFXStatus.UNREADY;
+    }
+
+    protected abstract _initialize (info: IGFXTextureViewInfo): boolean;
+
+    protected abstract _destroy (): void;
 }

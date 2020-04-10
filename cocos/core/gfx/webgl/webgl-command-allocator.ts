@@ -1,6 +1,5 @@
 import { CachedArray } from '../../memop/cached-array';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from '../command-allocator';
-import { GFXStatus } from '../define';
 import { GFXDevice } from '../device';
 import {
     WebGLCmdBeginRenderPass,
@@ -14,7 +13,7 @@ import {
 
 export class WebGLGFXCommandPool<T extends WebGLCmdObject> {
 
-    private _frees: Array<T|null>;
+    private _frees: (T|null)[];
     private _freeIdx: number = 0;
     private _freeCmds: CachedArray<T>;
 
@@ -99,13 +98,11 @@ export class WebGLGFXCommandAllocator extends GFXCommandAllocator {
         this.copyBufferToTextureCmdPool = new WebGLGFXCommandPool(WebGLCmdCopyBufferToTexture, 1);
     }
 
-    public initialize (info: IGFXCommandAllocatorInfo): boolean {
-        this._status = GFXStatus.SUCCESS;
+    protected _initialize (info: IGFXCommandAllocatorInfo): boolean {
         return true;
     }
 
-    public destroy () {
-        this._status = GFXStatus.UNREADY;
+    protected _destroy () {
     }
 
     public clearCmds (cmdPackage: WebGLCmdPackage) {

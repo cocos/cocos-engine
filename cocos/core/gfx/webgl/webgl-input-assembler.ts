@@ -1,8 +1,6 @@
-import { GFXStatus } from '../define';
-import { GFXDevice } from '../device';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../input-assembler';
 import { WebGLGFXBuffer } from './webgl-buffer';
-import { WebGLCmdDraw, WebGLCmdFuncCreateInputAssember, WebGLCmdFuncDestroyInputAssembler } from './webgl-commands';
+import { WebGLCmdFuncCreateInputAssember, WebGLCmdFuncDestroyInputAssembler } from './webgl-commands';
 import { WebGLGFXDevice } from './webgl-device';
 import { IWebGLGPUInputAssembler, WebGLGPUBuffer } from './webgl-gpu-objects';
 
@@ -14,29 +12,7 @@ export class WebGLGFXInputAssembler extends GFXInputAssembler {
 
     private _gpuInputAssembler: IWebGLGPUInputAssembler | null = null;
 
-    constructor (device: GFXDevice) {
-        super(device);
-    }
-
-    public initialize (info: IGFXInputAssemblerInfo): boolean {
-
-        if (info.vertexBuffers.length === 0) {
-            console.error('GFXInputAssemblerInfo.vertexBuffers is null.');
-            return false;
-        }
-
-        this._attributes = info.attributes;
-        this._vertexBuffers = info.vertexBuffers;
-
-        if (info.indexBuffer !== undefined) {
-            this._indexBuffer = info.indexBuffer;
-            this._indexCount = this._indexBuffer.size / this._indexBuffer.stride;
-        } else {
-            const vertBuff = this._vertexBuffers[0];
-            this._vertexCount = vertBuff.size / vertBuff.stride;
-        }
-
-        this._indirectBuffer = info.indirectBuffer || null;
+    protected _initialize (info: IGFXInputAssemblerInfo): boolean {
 
         const gpuVertexBuffers: WebGLGPUBuffer[] = new Array<WebGLGPUBuffer>(info.vertexBuffers.length);
         for (let i = 0; i < info.vertexBuffers.length; ++i) {
@@ -80,27 +56,14 @@ export class WebGLGFXInputAssembler extends GFXInputAssembler {
 
         WebGLCmdFuncCreateInputAssember(this._device as WebGLGFXDevice, this._gpuInputAssembler);
 
-        this._status = GFXStatus.SUCCESS;
-
         return true;
     }
 
-    public destroy () {
+    protected _destroy () {
         const webglDev = this._device as WebGLGFXDevice;
         if (this._gpuInputAssembler && webglDev.useVAO) {
             WebGLCmdFuncDestroyInputAssembler(webglDev, this._gpuInputAssembler);
         }
         this._gpuInputAssembler = null;
-        this._status = GFXStatus.UNREADY;
-    }
-
-    public extractCmdDraw (cmd: WebGLCmdDraw) {
-        cmd.drawInfo.vertexCount = this._vertexCount;
-        cmd.drawInfo.firstVertex = this._firstVertex;
-        cmd.drawInfo.indexCount = this._indexCount;
-        cmd.drawInfo.firstIndex = this._firstIndex;
-        cmd.drawInfo.vertexOffset = this._vertexOffset;
-        cmd.drawInfo.instanceCount = this._instanceCount;
-        cmd.drawInfo.firstInstance = this._firstInstance;
     }
 }

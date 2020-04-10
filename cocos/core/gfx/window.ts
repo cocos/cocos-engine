@@ -2,7 +2,7 @@
  * @category gfx
  */
 
-import { GFXFormat, GFXObject, GFXObjectType } from './define';
+import { GFXFormat, GFXObject, GFXObjectType, GFXStatus } from './define';
 import { GFXDevice } from './device';
 import { GFXFramebuffer } from './framebuffer';
 import { GFXRenderPass } from './render-pass';
@@ -121,9 +121,54 @@ export abstract class GFXWindow extends GFXObject {
         this._device = device;
     }
 
-    public abstract initialize (info: IGFXWindowInfo): boolean;
+    public initialize (info: IGFXWindowInfo) {
+        if (info.title !== undefined) {
+            this._title = info.title;
+        }
 
-    public abstract destroy (): void;
+        if (info.left !== undefined) {
+            this._left = info.left;
+        }
+
+        if (info.top !== undefined) {
+            this._top = info.top;
+        }
+
+        if (info.isOffscreen !== undefined) {
+            this._isOffscreen = info.isOffscreen;
+        }
+
+        this._width = info.width;
+        this._height = info.height;
+        this._nativeWidth = this._width;
+        this._nativeHeight = this._height;
+        this._colorFmt = info.colorFmt;
+        this._depthStencilFmt = info.depthStencilFmt;
+
+        if (this._initialize(info)) { this._status = GFXStatus.SUCCESS; return true; }
+        else { this._status = GFXStatus.FAILED; return false; }
+    }
+
+    public destroy () {
+        if (this._status !== GFXStatus.SUCCESS) { return; }
+        this._destroy();
+        this._status = GFXStatus.UNREADY;
+    }
+
+    public resize (width: number, height: number) {
+        this._width = width;
+        this._height = height;
+        this._resize(width, height);
+        if (width > this._nativeWidth ||
+            height > this._nativeHeight) {
+            this._nativeWidth = width;
+            this._nativeHeight = height;
+        }
+    }
+
+    protected abstract _initialize (info: IGFXWindowInfo): boolean;
+
+    protected abstract _destroy (): void;
 
     /**
      * @en Resize window.
@@ -131,5 +176,5 @@ export abstract class GFXWindow extends GFXObject {
      * @param width The new width.
      * @param height The new height.
      */
-    public abstract resize (width: number, height: number): void;
+    protected abstract _resize (width: number, height: number): void;
 }

@@ -2,7 +2,7 @@
  * @category gfx
  */
 
-import { GFXAddress, GFXComparisonFunc, GFXFilter, GFXObject, GFXObjectType, IGFXColor } from './define';
+import { GFXAddress, GFXComparisonFunc, GFXFilter, GFXObject, GFXObjectType, IGFXColor, GFXStatus } from './define';
 import { GFXDevice } from './device';
 
 export interface IGFXSamplerInfo {
@@ -81,9 +81,73 @@ export abstract class GFXSampler extends GFXObject {
     constructor (device: GFXDevice) {
         super(GFXObjectType.SAMPLER);
         this._device = device;
+        this._state = new GFXSamplerState();
     }
 
-    public abstract initialize (info: IGFXSamplerInfo): boolean;
+    public initialize (info: IGFXSamplerInfo) {
+        if (info.name !== undefined) {
+            this._state.name = info.name;
+        }
 
-    public abstract destroy (): void;
+        if (info.minFilter !== undefined) {
+            this._state.minFilter = info.minFilter;
+        }
+
+        if (info.magFilter !== undefined) {
+            this._state.magFilter = info.magFilter;
+        }
+
+        if (info.mipFilter !== undefined) {
+            this._state.mipFilter = info.mipFilter;
+        }
+
+        if (info.addressU !== undefined) {
+            this._state.addressU = info.addressU;
+        }
+
+        if (info.addressV !== undefined) {
+            this._state.addressV = info.addressV;
+        }
+
+        if (info.addressW !== undefined) {
+            this._state.addressW = info.addressW;
+        }
+
+        if (info.maxAnisotropy !== undefined) {
+            this._state.maxAnisotropy = info.maxAnisotropy;
+        }
+
+        if (info.cmpFunc !== undefined) {
+            this._state.cmpFunc = info.cmpFunc;
+        }
+
+        if (info.borderColor !== undefined) {
+            this._state.borderColor = info.borderColor;
+        }
+
+        if (info.minLOD !== undefined) {
+            this._state.minLOD = info.minLOD;
+        }
+
+        if (info.maxLOD !== undefined) {
+            this._state.maxLOD = info.maxLOD;
+        }
+
+        if (info.mipLODBias !== undefined) {
+            this._state.mipLODBias = info.mipLODBias;
+        }
+
+        if (this._initialize(info)) { this._status = GFXStatus.SUCCESS; return true; }
+        else { this._status = GFXStatus.FAILED; return false; }
+    }
+
+    public destroy () {
+        if (this._status !== GFXStatus.SUCCESS) { return; }
+        this._destroy();
+        this._status = GFXStatus.UNREADY;
+    }
+
+    protected abstract _initialize (info: IGFXSamplerInfo): boolean;
+
+    protected abstract _destroy (): void;
 }

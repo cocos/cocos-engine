@@ -3,7 +3,7 @@
  */
 
 import { GFXBuffer } from './buffer';
-import { GFXFormat, GFXObject, GFXObjectType } from './define';
+import { GFXFormat, GFXObject, GFXObjectType, GFXStatus } from './define';
 import { GFXDevice } from './device';
 
 export interface IGFXAttribute {
@@ -182,9 +182,38 @@ export abstract class GFXInputAssembler extends GFXObject {
         this._device = device;
     }
 
-    public abstract initialize (info: IGFXInputAssemblerInfo): boolean;
+    public initialize (info: IGFXInputAssemblerInfo) {
 
-    public abstract destroy (): void;
+        if (info.vertexBuffers.length === 0) {
+            console.error('GFXInputAssemblerInfo.vertexBuffers is null.');
+            return false;
+        }
+
+        this._attributes = info.attributes;
+        this._vertexBuffers = info.vertexBuffers;
+
+        if (info.indexBuffer !== undefined) {
+            this._indexBuffer = info.indexBuffer;
+            this._indexCount = this._indexBuffer.size / this._indexBuffer.stride;
+        } else {
+            const vertBuff = this._vertexBuffers[0];
+            this._vertexCount = vertBuff.size / vertBuff.stride;
+        }
+
+        this._indirectBuffer = info.indirectBuffer || null;
+
+        if (this._initialize(info)) { this._status = GFXStatus.SUCCESS; return true; }
+        else { this._status = GFXStatus.FAILED; return false; }
+    }
+
+    public destroy () {
+        if (this._status !== GFXStatus.SUCCESS) { return; }
+        this._destroy();
+        this._status = GFXStatus.UNREADY;
+    }
+
+    protected abstract _initialize (info: IGFXInputAssemblerInfo): boolean;
+    protected abstract _destroy (): void;
 
     /**
      * @en Get the specified vertex buffer.

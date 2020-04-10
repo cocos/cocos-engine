@@ -1,6 +1,5 @@
-import { GFXBindingLayout, GFXBindingUnit, IGFXBindingLayoutInfo } from '../binding-layout';
-import { GFXBindingType, GFXStatus } from '../define';
-import { GFXDevice } from '../device';
+import { GFXBindingLayout, IGFXBindingLayoutInfo } from '../binding-layout';
+import { GFXBindingType } from '../define';
 import { WebGL2GFXBuffer } from './webgl2-buffer';
 import { WebGL2GPUBinding, WebGL2GPUBindingLayout } from './webgl2-gpu-objects';
 import { WebGL2GFXSampler } from './webgl2-sampler';
@@ -14,24 +13,7 @@ export class WebGL2GFXBindingLayout extends GFXBindingLayout {
 
     private _gpuBindingLayout: WebGL2GPUBindingLayout | null = null;
 
-    constructor (device: GFXDevice) {
-        super(device);
-    }
-
-    public initialize (info: IGFXBindingLayoutInfo): boolean {
-
-        this._bindingUnits = new Array<GFXBindingUnit>(info.bindings.length);
-        for (let i = 0; i < info.bindings.length; ++i) {
-            const binding = info.bindings[i];
-            this._bindingUnits[i] = {
-                binding: binding.binding,
-                type: binding.bindingType,
-                name: binding.name,
-                buffer: null,
-                texView: null,
-                sampler: null,
-            };
-        }
+    protected _initialize (info: IGFXBindingLayoutInfo): boolean {
 
         this._gpuBindingLayout = {
             gpuBindings: new Array<WebGL2GPUBinding>(info.bindings.length),
@@ -49,14 +31,11 @@ export class WebGL2GFXBindingLayout extends GFXBindingLayout {
             };
         }
 
-        this._status = GFXStatus.SUCCESS;
-
         return true;
     }
 
-    public destroy () {
+    protected _destroy () {
         this._gpuBindingLayout = null;
-        this._status = GFXStatus.UNREADY;
     }
 
     public update () {

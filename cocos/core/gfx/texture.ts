@@ -12,6 +12,8 @@ import {
     GFXTextureType,
     GFXTextureUsage,
     GFXTextureUsageBit,
+    GFXStatus,
+    GFXFormatSurfaceSize,
 } from './define';
 import { GFXDevice } from './device';
 
@@ -26,6 +28,10 @@ export interface IGFXTextureInfo {
     mipLevel?: number;
     samples?: GFXSampleCount;
     flags?: GFXTextureFlags;
+}
+
+function IsPowerOf2 (x: number): boolean{
+    return x > 0 && (x & (x - 1)) === 0;
 }
 
 /**
@@ -163,9 +169,74 @@ export abstract class GFXTexture extends GFXObject {
         this._device = device;
     }
 
-    public abstract initialize (info: IGFXTextureInfo): boolean;
+    public initialize (info: IGFXTextureInfo) {
+        this._type = info.type;
+        this._usage = info.usage;
+        this._format = info.format;
+        this._width = info.width;
+        this._height = info.height;
 
-    public abstract destroy (): void;
+        if (info.depth !== undefined) {
+            this._depth = info.depth;
+        }
+
+        if (info.arrayLayer !== undefined) {
+            this._arrayLayer = info.arrayLayer;
+        }
+
+        if (info.mipLevel !== undefined) {
+            this._mipLevel = info.mipLevel;
+        }
+
+        if (info.samples !== undefined) {
+            this._samples = info.samples;
+        }
+
+        if (info.flags !== undefined) {
+            this._flags = info.flags;
+        }
+
+        this._isPowerOf2 = IsPowerOf2(this._width) && IsPowerOf2(this._height);
+
+        this._size = GFXFormatSurfaceSize(this._format, this.width, this.height,
+            this.depth, this.mipLevel) * this._arrayLayer;
+
+        if (this._flags & GFXTextureFlagBit.BAKUP_BUFFER) {
+            this._buffer = new ArrayBuffer(this._size);
+        }
+
+        if (this._initialize(info)) {
+            this._device.memoryStatus.textureSize += this._size;
+            this._status = GFXStatus.SUCCESS;
+            return true;
+        } else {
+            this._status = GFXStatus.FAILED;
+            return false;
+        }
+    }
+
+    public destroy () {
+        if (this._status !== GFXStatus.SUCCESS) { return; }
+        this._buffer = null;
+        this._destroy();
+        this._device.memoryStatus.textureSize -= this._size;
+        this._status = GFXStatus.UNREADY;
+    }
+
+    public resize (width: number, height: number) {
+        const oldSize = this._size;
+        this._width = width;
+        this._height = height;
+        this._size = GFXFormatSurfaceSize(this._format, this.width, this.height,
+            this.depth, this.mipLevel) * this._arrayLayer;
+        this._resize(width, height);
+        this._device.memoryStatus.textureSize -= oldSize;
+        this._device.memoryStatus.textureSize += this._size;
+    }
+
+    protected abstract _initialize (info: IGFXTextureInfo): boolean;
+
+    protected abstract _destroy (): void;
 
     /**
      * @en Resize texture.
@@ -173,5 +244,5 @@ export abstract class GFXTexture extends GFXObject {
      * @param width The new width.
      * @param height The new height.
      */
-    public abstract resize (width: number, height: number): void;
+    protected abstract _resize (width: number, height: number): void;
 }

@@ -15,16 +15,7 @@ export class WebGL2GFXFramebuffer extends GFXFramebuffer {
 
     private _gpuFramebuffer: WebGL2GPUFramebuffer | null = null;
 
-    constructor (device: GFXDevice) {
-        super(device);
-    }
-
-    public initialize (info: IGFXFramebufferInfo): boolean {
-
-        this._renderPass = info.renderPass;
-        this._colorViews = info.colorViews || [];
-        this._depthStencilView = info.depthStencilView || null;
-        this._isOffscreen = info.isOffscreen !== undefined ? info.isOffscreen : true;
+    protected _initialize (info: IGFXFramebufferInfo): boolean {
 
         if (this._isOffscreen) {
 
@@ -64,11 +55,10 @@ export class WebGL2GFXFramebuffer extends GFXFramebuffer {
         return true;
     }
 
-    public destroy () {
+    protected _destroy () {
         if (this._isOffscreen && this._gpuFramebuffer) {
             WebGL2CmdFuncDestroyFramebuffer(this._device as WebGL2GFXDevice, this._gpuFramebuffer);
         }
         this._gpuFramebuffer = null;
-        this._status = GFXStatus.UNREADY;
     }
 }

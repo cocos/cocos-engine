@@ -1,5 +1,3 @@
-import { GFXStatus } from '../define';
-import { GFXDevice } from '../device';
 import { GFXShader, IGFXShaderInfo } from '../shader';
 import { WebGL2CmdFuncCreateShader, WebGL2CmdFuncDestroyShader } from './webgl2-commands';
 import { WebGL2GFXDevice } from './webgl2-device';
@@ -13,22 +11,7 @@ export class WebGL2GFXShader extends GFXShader {
 
     private _gpuShader: WebGL2GPUShader | null = null;
 
-    constructor (device: GFXDevice) {
-        super(device);
-    }
-
-    public initialize (info: IGFXShaderInfo): boolean {
-
-        this._name = info.name;
-        this._stages = info.stages;
-
-        if (info.blocks !== undefined) {
-            this._blocks = info.blocks;
-        }
-
-        if (info.samplers !== undefined) {
-            this._samplers = info.samplers;
-        }
+    protected _initialize (info: IGFXShaderInfo): boolean {
 
         this._gpuShader = {
             name: info.name ? info.name : '',
@@ -55,16 +38,13 @@ export class WebGL2GFXShader extends GFXShader {
 
         WebGL2CmdFuncCreateShader(this._device as WebGL2GFXDevice, this._gpuShader);
 
-        this._status = GFXStatus.SUCCESS;
-
         return true;
     }
 
-    public destroy () {
+    protected _destroy () {
         if (this._gpuShader) {
             WebGL2CmdFuncDestroyShader(this._device as WebGL2GFXDevice, this._gpuShader);
             this._gpuShader = null;
         }
-        this._status = GFXStatus.UNREADY;
     }
 }

@@ -3,7 +3,7 @@
  */
 
 import { GFXBindingLayout } from './binding-layout';
-import { GFXObject, GFXObjectType, GFXShaderType } from './define';
+import { GFXObject, GFXObjectType, GFXShaderType, GFXStatus } from './define';
 import { GFXDevice } from './device';
 
 export interface IGFXPushConstantRange {
@@ -38,7 +38,22 @@ export abstract class GFXPipelineLayout extends GFXObject {
         this._device = device;
     }
 
-    public abstract initialize (info: IGFXPipelineLayoutInfo): boolean;
+    public initialize (info: IGFXPipelineLayoutInfo) {
 
-    public abstract destroy (): void;
+        this._layouts = info.layouts;
+        this._pushConstantsRanges = info.pushConstantsRanges || [];
+
+        if (this._initialize(info)) { this._status = GFXStatus.SUCCESS; return true; }
+        else { this._status = GFXStatus.FAILED; return false; }
+    }
+
+    public destroy () {
+        if (this._status !== GFXStatus.SUCCESS) { return; }
+        this._destroy();
+        this._status = GFXStatus.UNREADY;
+    }
+
+    protected abstract _initialize (info: IGFXPipelineLayoutInfo): boolean;
+
+    protected abstract _destroy (): void;
 }

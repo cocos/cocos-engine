@@ -1,5 +1,3 @@
-import { GFXStatus } from '../define';
-import { GFXDevice } from '../device';
 import { GFXPipelineState, IGFXPipelineStateInfo } from '../pipeline-state';
 import { WebGLGPUPipelineState } from './webgl-gpu-objects';
 import { WebGLGFXPipelineLayout } from './webgl-pipeline-layout';
@@ -31,23 +29,7 @@ export class WebGLGFXPipelineState extends GFXPipelineState {
 
     private _gpuPipelineState: WebGLGPUPipelineState | null = null;
 
-    constructor (device: GFXDevice) {
-        super(device);
-    }
-
-    public initialize (info: IGFXPipelineStateInfo): boolean {
-
-        this._primitive = info.primitive;
-        this._shader = info.shader;
-        this._is = info.inputState;
-        this._rs = info.rasterizerState;
-        this._dss = info.depthStencilState;
-        this._bs = info.blendState;
-        this._dynamicStates = info.dynamicStates || [];
-        this._hash = info.hash;
-
-        this._layout = info.layout;
-        this._renderPass = info.renderPass;
+    protected _initialize (info: IGFXPipelineStateInfo): boolean {
 
         this._gpuPipelineState = {
             glPrimitive: WebGLPrimitives[info.primitive],
@@ -60,13 +42,10 @@ export class WebGLGFXPipelineState extends GFXPipelineState {
             gpuRenderPass: (info.renderPass as WebGLGFXRenderPass).gpuRenderPass,
         };
 
-        this._status = GFXStatus.SUCCESS;
-
         return true;
     }
 
-    public destroy () {
+    protected _destroy () {
         this._gpuPipelineState = null;
-        this._status = GFXStatus.UNREADY;
     }
 }

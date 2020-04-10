@@ -2,7 +2,7 @@
  * @category gfx
  */
 
-import { GFXObject, GFXObjectType } from './define';
+import { GFXObject, GFXObjectType, GFXStatus } from './define';
 import { GFXDevice } from './device';
 import { GFXRenderPass } from './render-pass';
 import { GFXTextureView } from './texture-view';
@@ -67,7 +67,22 @@ export abstract class GFXFramebuffer extends GFXObject {
         this._device = device;
     }
 
-    public abstract initialize (info: IGFXFramebufferInfo): boolean;
+    public initialize (info: IGFXFramebufferInfo) {
+        this._renderPass = info.renderPass;
+        this._colorViews = info.colorViews || [];
+        this._depthStencilView = info.depthStencilView || null;
+        this._isOffscreen = info.isOffscreen !== undefined ? info.isOffscreen : true;
+        if (this._initialize(info)) { this._status = GFXStatus.SUCCESS; return true; }
+        else { this._status = GFXStatus.FAILED; return false; }
+    }
 
-    public abstract destroy (): void;
+    public destroy () {
+        if (this._status !== GFXStatus.SUCCESS) { return; }
+        this._destroy();
+        this._status = GFXStatus.UNREADY;
+    }
+
+    protected abstract _initialize (info: IGFXFramebufferInfo): boolean;
+
+    protected abstract _destroy (): void;
 }

@@ -3,7 +3,7 @@
  */
 
 import { GFXCommandBuffer } from './command-buffer';
-import { GFXObject, GFXObjectType, GFXQueueType } from './define';
+import { GFXObject, GFXObjectType, GFXQueueType, GFXStatus } from './define';
 import { GFXDevice } from './device';
 
 export interface IGFXQueueInfo {
@@ -33,9 +33,21 @@ export abstract class GFXQueue extends GFXObject {
         this._device = device;
     }
 
-    public abstract initialize (info: IGFXQueueInfo): boolean;
+    public initialize (info: IGFXQueueInfo) {
+        this._type = info.type;
+        if (this._initialize(info)) { this._status = GFXStatus.SUCCESS; return true; }
+        else { this._status = GFXStatus.FAILED; return false; }
+    }
 
-    public abstract destroy (): void;
+    public destroy () {
+        if (this._status !== GFXStatus.SUCCESS) { return; }
+        this._destroy();
+        this._status = GFXStatus.UNREADY;
+    }
+
+    protected abstract _initialize (info: IGFXQueueInfo): boolean;
+
+    protected abstract _destroy (): void;
 
     /**
      * @en Submit command buffers.

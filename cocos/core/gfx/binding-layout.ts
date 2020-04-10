@@ -3,7 +3,7 @@
  */
 
 import { GFXBuffer } from './buffer';
-import { GFXBindingType, GFXObject, GFXObjectType } from './define';
+import { GFXBindingType, GFXObject, GFXObjectType, GFXStatus } from './define';
 import { GFXDevice } from './device';
 import { GFXSampler } from './sampler';
 import { GFXTextureView } from './texture-view';
@@ -44,11 +44,36 @@ export abstract class GFXBindingLayout extends GFXObject {
         this._device = device;
     }
 
-    public abstract initialize (info: IGFXBindingLayoutInfo): boolean;
+    public initialize (info: IGFXBindingLayoutInfo) {
+        this._bindingUnits = new Array<GFXBindingUnit>(info.bindings.length);
 
-    public abstract destroy (): void;
+        for (let i = 0; i < info.bindings.length; ++i) {
+            const binding = info.bindings[i];
+            this._bindingUnits[i] = {
+                binding: binding.binding,
+                type: binding.bindingType,
+                name: binding.name,
+                buffer: null,
+                texView: null,
+                sampler: null,
+            };
+        }
 
-    public abstract update (): void;
+        if (this._initialize(info)) { this._status = GFXStatus.SUCCESS; return true; }
+        else { this._status = GFXStatus.FAILED; return false; }
+    }
+
+    public destroy () {
+        if (this._status !== GFXStatus.SUCCESS) { return; }
+        this._destroy();
+        this._status = GFXStatus.UNREADY;
+    }
+
+    public abstract update (): void; // leave all the work to subclasses directly for these hot functions
+
+    protected abstract _initialize (info: IGFXBindingLayoutInfo): boolean;
+
+    protected abstract _destroy (): void;
 
     /**
      * @en Bind buffer to the specified binding unit.

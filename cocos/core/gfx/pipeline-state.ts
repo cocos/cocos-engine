@@ -15,6 +15,7 @@ import {
     GFXPrimitiveMode,
     GFXShadeModel,
     GFXStencilOp,
+    GFXStatus,
 } from './define';
 import { GFXDevice } from './device';
 import { IGFXAttribute } from './input-assembler';
@@ -273,7 +274,30 @@ export abstract class GFXPipelineState extends GFXObject {
         this._device = device;
     }
 
-    public abstract initialize (info: IGFXPipelineStateInfo): boolean;
+    public initialize (info: IGFXPipelineStateInfo) {
+        this._primitive = info.primitive;
+        this._shader = info.shader;
+        this._is = info.inputState;
+        this._rs = info.rasterizerState;
+        this._dss = info.depthStencilState;
+        this._bs = info.blendState;
+        this._dynamicStates = info.dynamicStates || [];
+        this._hash = info.hash;
 
-    public abstract destroy (): void;
+        this._layout = info.layout;
+        this._renderPass = info.renderPass;
+
+        if (this._initialize(info)) { this._status = GFXStatus.SUCCESS; return true; }
+        else { this._status = GFXStatus.FAILED; return false; }
+    }
+
+    public destroy () {
+        if (this._status !== GFXStatus.SUCCESS) { return; }
+        this._destroy();
+        this._status = GFXStatus.UNREADY;
+    }
+
+    protected abstract _initialize (info: IGFXPipelineStateInfo): boolean;
+
+    protected abstract _destroy (): void;
 }

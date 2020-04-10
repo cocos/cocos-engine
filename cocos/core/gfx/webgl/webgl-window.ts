@@ -1,7 +1,6 @@
 import {
     GFXFormat,
     GFXLoadOp,
-    GFXStatus,
     GFXStoreOp,
     GFXTextureFlagBit,
     GFXTextureLayout,
@@ -9,40 +8,12 @@ import {
     GFXTextureUsageBit,
     GFXTextureViewType,
 } from '../define';
-import { GFXDevice } from '../device';
 import { GFXTextureView } from '../texture-view';
 import { GFXWindow, IGFXWindowInfo } from '../window';
 
 export class WebGLGFXWindow extends GFXWindow {
 
-    constructor (device: GFXDevice) {
-        super(device);
-    }
-
-    public initialize (info: IGFXWindowInfo): boolean {
-
-        if (info.title !== undefined) {
-            this._title = info.title;
-        }
-
-        if (info.left !== undefined) {
-            this._left = info.left;
-        }
-
-        if (info.top !== undefined) {
-            this._top = info.top;
-        }
-
-        if (info.isOffscreen !== undefined) {
-            this._isOffscreen = info.isOffscreen;
-        }
-
-        this._width = info.width;
-        this._height = info.height;
-        this._nativeWidth = this._width;
-        this._nativeHeight = this._height;
-        this._colorFmt = info.colorFmt;
-        this._depthStencilFmt = info.depthStencilFmt;
+    protected _initialize (info: IGFXWindowInfo): boolean {
 
         this._renderPass = this._device.createRenderPass({
             colorAttachments: [{
@@ -124,12 +95,10 @@ export class WebGLGFXWindow extends GFXWindow {
             isOffscreen: this._isOffscreen,
         });
 
-        this._status = GFXStatus.SUCCESS;
-
         return true;
     }
 
-    public destroy () {
+    protected _destroy () {
         if (this._depthStencilTexView) {
             this._depthStencilTexView.destroy();
             this._depthStencilTexView = null;
@@ -159,17 +128,11 @@ export class WebGLGFXWindow extends GFXWindow {
             this._renderPass.destroy();
             this._renderPass = null;
         }
-
-        this._status = GFXStatus.UNREADY;
     }
 
-    public resize (width: number, height: number) {
-        this._width = width;
-        this._height = height;
+    protected _resize (width: number, height: number) {
         if (width > this._nativeWidth ||
             height > this._nativeHeight) {
-            this._nativeWidth = width;
-            this._nativeHeight = height;
 
             if (this._depthStencilTex) {
                 this._depthStencilTex.resize(width, height);
