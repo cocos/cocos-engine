@@ -134,16 +134,16 @@ function createFlow (flag, next) {
     flow._next = next || EMPTY_FLOW;
 
     switch (flag) {
-        case DONOTHING: 
+        case DONOTHING:
             flow._func = flow._doNothing;
             break;
         case BREAK_FLOW:
             flow._func = flow._doNothing;
             break;
-        case LOCAL_TRANSFORM: 
+        case LOCAL_TRANSFORM:
             flow._func = flow._localTransform;
             break;
-        case WORLD_TRANSFORM: 
+        case WORLD_TRANSFORM:
             flow._func = flow._worldTransform;
             break;
         case OPACITY:
@@ -155,13 +155,13 @@ function createFlow (flag, next) {
         case UPDATE_RENDER_DATA:
             flow._func = flow._updateRenderData;
             break;
-        case RENDER: 
+        case RENDER:
             flow._func = flow._render;
             break;
-        case CHILDREN: 
+        case CHILDREN:
             flow._func = flow._children;
             break;
-        case POST_RENDER: 
+        case POST_RENDER:
             flow._func = flow._postRender;
             break;
     }
@@ -180,7 +180,7 @@ function getFlow (flag) {
     return flow;
 }
 
-// 
+//
 function init (node) {
     let flag = node._renderFlag;
     let r = flows[flag] = getFlow(flag);
@@ -214,7 +214,7 @@ RenderFlow.validateRenderers = function () {
 
 
 RenderFlow.visitRootNode = function (rootNode) {
-    RenderFlow.validateRenderers();    
+    RenderFlow.validateRenderers();
 
     _cullingMask = 1 << rootNode.groupIndex;
 
@@ -232,16 +232,28 @@ RenderFlow.visitRootNode = function (rootNode) {
     }
 };
 
-RenderFlow.render = function (scene, dt) {
+RenderFlow.render = function (rootNode, dt) {
     _batcher.reset();
     _batcher.walking = true;
 
-    RenderFlow.visitRootNode(scene);
+    RenderFlow.visitRootNode(rootNode);
 
     _batcher.terminate();
     _batcher.walking = false;
 
     _forward.render(_batcher._renderScene, dt);
+};
+
+RenderFlow.renderCamera = function (camera, rootNode) {
+    _batcher.reset();
+    _batcher.walking = true;
+
+    RenderFlow.visitRootNode(rootNode);
+
+    _batcher.terminate();
+    _batcher.walking = false;
+
+    _forward.renderCamera(camera, _batcher._renderScene);
 };
 
 RenderFlow.init = function (batcher, forwardRenderer) {
