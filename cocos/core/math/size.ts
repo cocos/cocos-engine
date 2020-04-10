@@ -101,7 +101,7 @@ export class Size extends ValueType {
     }
 
     /**
-     * @en clone the current Size.
+     * @en clone the current `Size`.
      * @zh 克隆当前尺寸。
      */
     public clone () {
@@ -109,7 +109,7 @@ export class Size extends ValueType {
     }
 
     /**
-     * @en Set values with another Size.
+     * @en Set values with another `Size`.
      * @zh 设置当前尺寸使其与指定的尺寸相等。
      * @param other 相比较的尺寸。
      * @returns `this`
@@ -117,7 +117,7 @@ export class Size extends ValueType {
     public set (other: Size);
 
     /**
-     * @en Set the value of each component of the current Size.
+     * @en Set the value of each component of the current `Size`.
      * @zh 设置当前尺寸的具体参数。
      * @param width 要设置的 width 值
      * @param height 要设置的 height 值
@@ -137,7 +137,7 @@ export class Size extends ValueType {
     }
 
     /**
-     * @en Check whether the current Size equals another one.
+     * @en Check whether the current `Size` equals another one.
      * @zh 判断当前尺寸是否与指定尺寸的相等。
      * @param other 相比较的尺寸。
      * @returns 两尺寸的宽和高都分别相等时返回 `true`；否则返回 `false`。
@@ -172,7 +172,7 @@ export class Size extends ValueType {
 CCClass.fastDefine('cc.Size', Size, { width: 0, height: 0 });
 
 /**
- * @en new a Size object.
+ * @en Constructs a `Size` object.
  * @zh 等价于 `new Size(other)`。
  * @param other 相比较的尺寸。
  * @returns `new Size(other)`
@@ -180,7 +180,7 @@ CCClass.fastDefine('cc.Size', Size, { width: 0, height: 0 });
 export function size (other: Size): Size;
 
 /**
- * @en new a Size object.
+ * @en Constructs a `Size` object.
  * @zh 等价于 `new Size(x, y)`。
  * @param [x=0] 指定的宽度。
  * @param [y=0] 指定的高度。
