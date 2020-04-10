@@ -424,11 +424,10 @@ export class ParticleSystemComponent extends RenderableComponent {
 
     // serilized culling
     @property({
-        type: Boolean,
         displayOrder: 27,
         tooltip:'是否剔除非 enable 的模块数据',
     })
-    public enableCulling: Boolean = false;
+    public enableCulling: boolean = false;
 
     /**
      * @ignore
