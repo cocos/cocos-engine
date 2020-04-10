@@ -10,6 +10,7 @@ import {
     WebGLCmdPackage,
     WebGLCmdUpdateBuffer,
 } from './webgl-commands';
+import { GFXStatus } from '../define';
 
 export class WebGLGFXCommandPool<T extends WebGLCmdObject> {
 
@@ -98,11 +99,13 @@ export class WebGLGFXCommandAllocator extends GFXCommandAllocator {
         this.copyBufferToTextureCmdPool = new WebGLGFXCommandPool(WebGLCmdCopyBufferToTexture, 1);
     }
 
-    protected _initialize (info: IGFXCommandAllocatorInfo): boolean {
+    public initialize (info: IGFXCommandAllocatorInfo): boolean {
+        this._status = GFXStatus.SUCCESS;
         return true;
     }
 
-    protected _destroy () {
+    public destroy () {
+        this._status = GFXStatus.UNREADY;
     }
 
     public clearCmds (cmdPackage: WebGLCmdPackage) {

@@ -3,7 +3,7 @@
  */
 
 import { GFXBuffer } from './buffer';
-import { GFXFormat, GFXObject, GFXObjectType, GFXStatus } from './define';
+import { GFXFormat, GFXObject, GFXObjectType } from './define';
 import { GFXDevice } from './device';
 
 export interface IGFXAttribute {
@@ -31,7 +31,7 @@ export abstract class GFXInputAssembler extends GFXObject {
      * @en Get current vertex buffers.
      * @zh 顶点缓冲数组。
      */
-    public get vertexBuffers (): GFXBuffer[] {
+    get vertexBuffers (): GFXBuffer[] {
         return this._vertexBuffers;
     }
 
@@ -39,7 +39,7 @@ export abstract class GFXInputAssembler extends GFXObject {
      * @en Get current index buffer.
      * @zh 索引缓冲。
      */
-    public get indexBuffer (): GFXBuffer | null {
+    get indexBuffer (): GFXBuffer | null {
         return this._indexBuffer;
     }
 
@@ -47,7 +47,7 @@ export abstract class GFXInputAssembler extends GFXObject {
      * @en Get current attributes.
      * @zh 顶点属性数组。
      */
-    public get attributes (): IGFXAttribute[] {
+    get attributes (): IGFXAttribute[] {
         return this._attributes;
     }
 
@@ -55,11 +55,11 @@ export abstract class GFXInputAssembler extends GFXObject {
      * @en Get current vertex count.
      * @zh 顶点数量。
      */
-    public get vertexCount (): number {
+    get vertexCount (): number {
         return this._vertexCount;
     }
 
-    public set vertexCount (count: number) {
+    set vertexCount (count: number) {
         this._vertexCount = count;
     }
 
@@ -67,11 +67,11 @@ export abstract class GFXInputAssembler extends GFXObject {
      * @en Get starting vertex.
      * @zh 起始顶点。
      */
-    public get firstVertex (): number {
+    get firstVertex (): number {
         return this._firstVertex;
     }
 
-    public set firstVertex (first: number) {
+    set firstVertex (first: number) {
         this._firstVertex = first;
     }
 
@@ -79,11 +79,11 @@ export abstract class GFXInputAssembler extends GFXObject {
      * @en Get current index count.
      * @zh 索引数量。
      */
-    public get indexCount (): number {
+    get indexCount (): number {
         return this._indexCount;
     }
 
-    public set indexCount (count: number) {
+    set indexCount (count: number) {
         this._indexCount = count;
     }
 
@@ -91,11 +91,11 @@ export abstract class GFXInputAssembler extends GFXObject {
      * @en Get starting index.
      * @zh 起始索引。
      */
-    public get firstIndex (): number {
+    get firstIndex (): number {
         return this._firstIndex;
     }
 
-    public set firstIndex (first: number) {
+    set firstIndex (first: number) {
         this._firstIndex = first;
     }
 
@@ -103,11 +103,11 @@ export abstract class GFXInputAssembler extends GFXObject {
      * @en Get current vertex offset.
      * @zh 顶点偏移量。
      */
-    public get vertexOffset (): number {
+    get vertexOffset (): number {
         return this._vertexOffset;
     }
 
-    public set vertexOffset (offset: number) {
+    set vertexOffset (offset: number) {
         this._vertexOffset = offset;
     }
 
@@ -115,11 +115,11 @@ export abstract class GFXInputAssembler extends GFXObject {
      * @en Get current instance count.
      * @zh 实例数量。
      */
-    public get instanceCount (): number {
+    get instanceCount (): number {
         return this._instanceCount;
     }
 
-    public set instanceCount (count: number) {
+    set instanceCount (count: number) {
         this._instanceCount = count;
     }
 
@@ -127,11 +127,11 @@ export abstract class GFXInputAssembler extends GFXObject {
      * @en Get starting instance.
      * @zh 起始实例。
      */
-    public get firstInstance (): number {
+    get firstInstance (): number {
         return this._firstInstance;
     }
 
-    public set firstInstance (first: number) {
+    set firstInstance (first: number) {
         this._firstInstance = first;
     }
 
@@ -139,7 +139,7 @@ export abstract class GFXInputAssembler extends GFXObject {
      * @en Is the assembler an indirect command?
      * @zh 是否间接绘制。
      */
-    public get isIndirect (): boolean {
+    get isIndirect (): boolean {
         return this._isIndirect;
     }
 
@@ -147,7 +147,7 @@ export abstract class GFXInputAssembler extends GFXObject {
      * @en Get the indirect buffer, if present.
      * @zh 间接绘制缓冲。
      */
-    public get indirectBuffer (): GFXBuffer | null {
+    get indirectBuffer (): GFXBuffer | null {
         return this._indirectBuffer;
     }
 
@@ -182,38 +182,8 @@ export abstract class GFXInputAssembler extends GFXObject {
         this._device = device;
     }
 
-    public initialize (info: IGFXInputAssemblerInfo) {
-
-        if (info.vertexBuffers.length === 0) {
-            console.error('GFXInputAssemblerInfo.vertexBuffers is null.');
-            return false;
-        }
-
-        this._attributes = info.attributes;
-        this._vertexBuffers = info.vertexBuffers;
-
-        if (info.indexBuffer !== undefined) {
-            this._indexBuffer = info.indexBuffer;
-            this._indexCount = this._indexBuffer.size / this._indexBuffer.stride;
-        } else {
-            const vertBuff = this._vertexBuffers[0];
-            this._vertexCount = vertBuff.size / vertBuff.stride;
-        }
-
-        this._indirectBuffer = info.indirectBuffer || null;
-
-        if (this._initialize(info)) { this._status = GFXStatus.SUCCESS; return true; }
-        else { this._status = GFXStatus.FAILED; return false; }
-    }
-
-    public destroy () {
-        if (this._status !== GFXStatus.SUCCESS) { return; }
-        this._destroy();
-        this._status = GFXStatus.UNREADY;
-    }
-
-    protected abstract _initialize (info: IGFXInputAssemblerInfo): boolean;
-    protected abstract _destroy (): void;
+    public abstract initialize (info: IGFXInputAssemblerInfo): boolean;
+    public abstract destroy (): void;
 
     /**
      * @en Get the specified vertex buffer.

@@ -2,16 +2,28 @@ import { GFXShader, IGFXShaderInfo } from '../shader';
 import { WebGLCmdFuncCreateShader, WebGLCmdFuncDestroyShader } from './webgl-commands';
 import { WebGLGFXDevice } from './webgl-device';
 import { WebGLGPUShader, WebGLGPUShaderStage } from './webgl-gpu-objects';
+import { GFXStatus } from '../define';
 
 export class WebGLGFXShader extends GFXShader {
 
-    public get gpuShader (): WebGLGPUShader {
+    get gpuShader (): WebGLGPUShader {
         return  this._gpuShader!;
     }
 
     private _gpuShader: WebGLGPUShader | null = null;
 
-    protected _initialize (info: IGFXShaderInfo): boolean {
+    public initialize (info: IGFXShaderInfo): boolean {
+
+        this._name = info.name;
+        this._stages = info.stages;
+
+        if (info.blocks !== undefined) {
+            this._blocks = info.blocks;
+        }
+
+        if (info.samplers !== undefined) {
+            this._samplers = info.samplers;
+        }
 
         this._gpuShader = {
             name: info.name ? info.name : '',
@@ -38,13 +50,16 @@ export class WebGLGFXShader extends GFXShader {
 
         WebGLCmdFuncCreateShader(this._device as WebGLGFXDevice, this._gpuShader);
 
+        this._status = GFXStatus.SUCCESS;
+
         return true;
     }
 
-    protected _destroy () {
+    public destroy () {
         if (this._gpuShader) {
             WebGLCmdFuncDestroyShader(this._device as WebGLGFXDevice, this._gpuShader);
             this._gpuShader = null;
         }
+        this._status = GFXStatus.UNREADY;
     }
 }

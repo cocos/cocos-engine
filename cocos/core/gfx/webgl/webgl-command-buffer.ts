@@ -77,18 +77,25 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
     protected _curStencilCompareMask: IWebGLStencilCompareMask | null = null;
     protected _isStateInvalied: boolean = false;
 
-    protected _initialize (info: IGFXCommandBufferInfo): boolean {
+    public initialize (info: IGFXCommandBufferInfo): boolean {
+
+        this._allocator = info.allocator;
+        this._type = info.type;
 
         this._webGLAllocator = this._allocator as WebGLGFXCommandAllocator;
+
+        this._status = GFXStatus.SUCCESS;
 
         return true;
     }
 
-    protected _destroy () {
+    public destroy () {
         if (this._webGLAllocator) {
             this._webGLAllocator.clearCmds(this.cmdPackage);
             this._webGLAllocator = null;
         }
+        this._allocator = null;
+        this._status = GFXStatus.UNREADY;
     }
 
     public begin () {

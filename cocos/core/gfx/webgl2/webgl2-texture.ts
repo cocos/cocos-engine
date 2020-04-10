@@ -1,18 +1,53 @@
-import { GFXTextureFlagBit, GFXTextureType, GFXTextureViewType } from '../define';
-import { GFXTexture, IGFXTextureInfo } from '../texture';
+import { GFXTextureFlagBit, GFXTextureType, GFXTextureViewType, GFXStatus, GFXFormatSurfaceSize } from '../define';
+import { GFXTexture, IGFXTextureInfo, IsPowerOf2 } from '../texture';
 import { WebGL2CmdFuncCreateTexture, WebGL2CmdFuncDestroyTexture, WebGL2CmdFuncResizeTexture } from './webgl2-commands';
 import { WebGL2GFXDevice } from './webgl2-device';
 import { WebGL2GPUTexture } from './webgl2-gpu-objects';
 
 export class WebGL2GFXTexture extends GFXTexture {
 
-    public get gpuTexture (): WebGL2GPUTexture {
+    get gpuTexture (): WebGL2GPUTexture {
         return  this._gpuTexture!;
     }
 
     private _gpuTexture: WebGL2GPUTexture | null = null;
 
-    protected _initialize (info: IGFXTextureInfo): boolean {
+    public initialize (info: IGFXTextureInfo): boolean {
+
+        this._type = info.type;
+        this._usage = info.usage;
+        this._format = info.format;
+        this._width = info.width;
+        this._height = info.height;
+
+        if (info.depth !== undefined) {
+            this._depth = info.depth;
+        }
+
+        if (info.arrayLayer !== undefined) {
+            this._arrayLayer = info.arrayLayer;
+        }
+
+        if (info.mipLevel !== undefined) {
+            this._mipLevel = info.mipLevel;
+        }
+
+        if (info.samples !== undefined) {
+            this._samples = info.samples;
+        }
+
+        if (info.flags !== undefined) {
+            this._flags = info.flags;
+        }
+
+        this._isPowerOf2 = IsPowerOf2(this._width) && IsPowerOf2(this._height);
+
+        this._size = GFXFormatSurfaceSize(this._format, this.width, this.height,
+            this.depth, this.mipLevel) * this._arrayLayer;
+
+        if (this._flags & GFXTextureFlagBit.BAKUP_BUFFER) {
+            this._buffer = new ArrayBuffer(this._size);
+        }
 
         let viewType: GFXTextureViewType;
         switch (info.type) {
@@ -85,22 +120,37 @@ export class WebGL2GFXTexture extends GFXTexture {
 
         WebGL2CmdFuncCreateTexture(this._device as WebGL2GFXDevice, this._gpuTexture);
 
+        this._device.memoryStatus.textureSize += this._size;
+        this._status = GFXStatus.SUCCESS;
+
         return true;
     }
 
-    protected _destroy () {
+    public destroy () {
         if (this._gpuTexture) {
             WebGL2CmdFuncDestroyTexture(this._device as WebGL2GFXDevice, this._gpuTexture);
+            this._device.memoryStatus.textureSize -= this._size;
             this._gpuTexture = null;
         }
+        this._buffer = null;
+        this._status = GFXStatus.UNREADY;
     }
 
-    protected _resize (width: number, height: number) {
+    public resize (width: number, height: number) {
+
+        const oldSize = this._size;
+        this._width = width;
+        this._height = height;
+        this._size = GFXFormatSurfaceSize(this._format, this.width, this.height,
+            this.depth, this.mipLevel) * this._arrayLayer;
+
         if (this._gpuTexture) {
             this._gpuTexture.width = width;
             this._gpuTexture.height = height;
             this._gpuTexture.size = this._size;
             WebGL2CmdFuncResizeTexture(this._device as WebGL2GFXDevice, this._gpuTexture);
+            this._device.memoryStatus.textureSize -= oldSize;
+            this._device.memoryStatus.textureSize += this._size;
         }
     }
 }

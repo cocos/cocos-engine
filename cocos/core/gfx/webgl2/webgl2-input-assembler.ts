@@ -3,6 +3,7 @@ import { WebGL2GFXBuffer } from './webgl2-buffer';
 import { WebGL2CmdFuncCreateInputAssember, WebGL2CmdFuncDestroyInputAssembler } from './webgl2-commands';
 import { WebGL2GFXDevice } from './webgl2-device';
 import { IWebGL2GPUInputAssembler, WebGL2GPUBuffer } from './webgl2-gpu-objects';
+import { GFXStatus } from '../define';
 
 export class WebGL2GFXInputAssembler extends GFXInputAssembler {
 
@@ -12,7 +13,25 @@ export class WebGL2GFXInputAssembler extends GFXInputAssembler {
 
     private _gpuInputAssembler: IWebGL2GPUInputAssembler | null = null;
 
-    public _initialize (info: IGFXInputAssemblerInfo): boolean {
+    public initialize (info: IGFXInputAssemblerInfo): boolean {
+
+        if (info.vertexBuffers.length === 0) {
+            console.error('GFXInputAssemblerInfo.vertexBuffers is null.');
+            return false;
+        }
+
+        this._attributes = info.attributes;
+        this._vertexBuffers = info.vertexBuffers;
+
+        if (info.indexBuffer !== undefined) {
+            this._indexBuffer = info.indexBuffer;
+            this._indexCount = this._indexBuffer.size / this._indexBuffer.stride;
+        } else {
+            const vertBuff = this._vertexBuffers[0];
+            this._vertexCount = vertBuff.size / vertBuff.stride;
+        }
+
+        this._indirectBuffer = info.indirectBuffer || null;
 
         const gpuVertexBuffers: WebGL2GPUBuffer[] = new Array<WebGL2GPUBuffer>(info.vertexBuffers.length);
         for (let i = 0; i < info.vertexBuffers.length; ++i) {
@@ -56,14 +75,17 @@ export class WebGL2GFXInputAssembler extends GFXInputAssembler {
 
         WebGL2CmdFuncCreateInputAssember(this._device as WebGL2GFXDevice, this._gpuInputAssembler);
 
+        this._status = GFXStatus.SUCCESS;
+
         return true;
     }
 
-    public _destroy () {
+    public destroy () {
         const webgl2Dev = this._device as WebGL2GFXDevice;
         if (this._gpuInputAssembler && webgl2Dev.useVAO) {
             WebGL2CmdFuncDestroyInputAssembler(webgl2Dev, this._gpuInputAssembler);
         }
         this._gpuInputAssembler = null;
+        this._status = GFXStatus.UNREADY;
     }
 }

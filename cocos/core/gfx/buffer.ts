@@ -12,7 +12,6 @@ import {
     GFXObject,
     GFXObjectType,
     GFXType,
-    GFXStatus,
 } from './define';
 import { GFXDevice } from './device';
 
@@ -125,63 +124,16 @@ export abstract class GFXBuffer extends GFXObject {
         this._device = device;
     }
 
-    public initialize (info: IGFXBufferInfo) {
-        this._usage = info.usage;
-        this._memUsage = info.memUsage;
-        this._size = info.size;
-        this._stride = Math.max(info.stride || this._size, 1);
-        this._count = this._size / this._stride;
-        this._flags = (info.flags !== undefined ? info.flags : GFXBufferFlagBit.NONE);
+    public abstract initialize (info: IGFXBufferInfo): boolean;
 
-        if (this._usage & GFXBufferUsageBit.INDIRECT) {
-            this._indirectBuffer = { drawInfos: [] };
-        }
-
-        if (this._flags & GFXBufferFlagBit.BAKUP_BUFFER) {
-            this._bufferView = new Uint8Array(this._size);
-            this._device.memoryStatus.bufferSize += this._size;
-        }
-
-        if (this._initialize(info)) {
-            this._device.memoryStatus.bufferSize += this._size;
-            this._status = GFXStatus.SUCCESS;
-            return true;
-        } else {
-            this._status = GFXStatus.FAILED;
-            return false;
-        }
-    }
-
-    public destroy () {
-        if (this._status !== GFXStatus.SUCCESS) { return; }
-        this._destroy();
-        this._status = GFXStatus.UNREADY;
-    }
+    public abstract destroy (): void;
 
     /**
      * @en Resize the buffer.
      * @zh 重置缓冲大小。
      * @param size The new buffer size.
      */
-    public resize (size: number) {
-        const oldSize = this._size;
-        if (oldSize === size || this._status !== GFXStatus.SUCCESS) { return; }
-
-        this._size = size;
-        this._count = this._size / this._stride;
-
-        if (this._bufferView) {
-            const oldView = this._bufferView;
-            this._bufferView = new Uint8Array(this._size);
-            this._bufferView.set(oldView);
-            this._device.memoryStatus.bufferSize -= oldSize;
-            this._device.memoryStatus.bufferSize += size;
-        }
-
-        this._resize(size);
-        this._device.memoryStatus.bufferSize -= oldSize;
-        this._device.memoryStatus.bufferSize += size;
-    }
+    public abstract resize (size: number): void;
 
     /**
      * @en Update the buffer data.
@@ -190,11 +142,5 @@ export abstract class GFXBuffer extends GFXObject {
      * @param offset Offset into the buffer.
      * @param size Size of the data to be updated.
      */
-    public abstract update (buffer: GFXBufferSource, offset?: number, size?: number): void; // leave all the work to subclasses directly for these hot functions
-
-    protected abstract _initialize (info: IGFXBufferInfo): boolean;
-
-    protected abstract _destroy (): void;
-
-    protected abstract _resize (size: number): void;
+    public abstract update (buffer: GFXBufferSource, offset?: number, size?: number): void;
 }

@@ -3,6 +3,7 @@ import { WebGL2GPUPipelineState } from './webgl2-gpu-objects';
 import { WebGL2GFXPipelineLayout } from './webgl2-pipeline-layout';
 import { WebGL2GFXRenderPass } from './webgl2-render-pass';
 import { WebGL2GFXShader } from './webgl2-shader';
+import { GFXStatus } from '../define';
 
 const WebGLPrimitives: GLenum[] = [
     0x0000, // WebGLRenderingContext.POINTS,
@@ -23,13 +24,25 @@ const WebGLPrimitives: GLenum[] = [
 
 export class WebGL2GFXPipelineState extends GFXPipelineState {
 
-    public get gpuPipelineState (): WebGL2GPUPipelineState {
+    get gpuPipelineState (): WebGL2GPUPipelineState {
         return  this._gpuPipelineState!;
     }
 
     private _gpuPipelineState: WebGL2GPUPipelineState | null = null;
 
-    protected _initialize (info: IGFXPipelineStateInfo): boolean {
+    public initialize (info: IGFXPipelineStateInfo): boolean {
+
+        this._primitive = info.primitive;
+        this._shader = info.shader;
+        this._is = info.inputState;
+        this._rs = info.rasterizerState;
+        this._dss = info.depthStencilState;
+        this._bs = info.blendState;
+        this._dynamicStates = info.dynamicStates || [];
+        this._hash = info.hash;
+
+        this._layout = info.layout;
+        this._renderPass = info.renderPass;
 
         this._gpuPipelineState = {
             glPrimitive: WebGLPrimitives[info.primitive],
@@ -42,11 +55,13 @@ export class WebGL2GFXPipelineState extends GFXPipelineState {
             gpuRenderPass: (info.renderPass as WebGL2GFXRenderPass).gpuRenderPass,
         };
 
+        this._status = GFXStatus.SUCCESS;
 
         return true;
     }
 
-    protected _destroy () {
+    public destroy () {
         this._gpuPipelineState = null;
+        this._status = GFXStatus.UNREADY;
     }
 }

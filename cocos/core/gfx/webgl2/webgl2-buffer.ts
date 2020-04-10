@@ -1,6 +1,5 @@
-import { GFXBuffer, GFXBufferSource, IGFXBufferInfo, IGFXIndirectBuffer } from '../buffer';
+import { GFXBuffer, GFXBufferSource, IGFXBufferInfo } from '../buffer';
 import { GFXBufferFlagBit, GFXBufferUsageBit, GFXStatus } from '../define';
-import { GFXDevice } from '../device';
 import {
     WebGL2CmdFuncCreateBuffer,
     WebGL2CmdFuncDestroyBuffer,
@@ -12,20 +11,36 @@ import { WebGL2GPUBuffer } from './webgl2-gpu-objects';
 
 export class WebGL2GFXBuffer extends GFXBuffer {
 
-    public get gpuBuffer (): WebGL2GPUBuffer {
+    get gpuBuffer (): WebGL2GPUBuffer {
         return  this._gpuBuffer!;
     }
 
     private _gpuBuffer: WebGL2GPUBuffer | null = null;
 
-    protected _initialize (info: IGFXBufferInfo): boolean {
+    public initialize (info: IGFXBufferInfo): boolean {
+
+        this._usage = info.usage;
+        this._memUsage = info.memUsage;
+        this._size = info.size;
+        this._stride = Math.max(info.stride || this._size, 1);
+        this._count = this._size / this._stride;
+        this._flags = (info.flags !== undefined ? info.flags : GFXBufferFlagBit.NONE);
+
+        if (this._usage & GFXBufferUsageBit.INDIRECT) {
+            this._indirectBuffer = { drawInfos: [] };
+        }
+
+        if (this._flags & GFXBufferFlagBit.BAKUP_BUFFER) {
+            this._bufferView = new Uint8Array(this._size);
+            this._device.memoryStatus.bufferSize += this._size;
+        }
 
         this._gpuBuffer = {
             usage: info.usage,
             memUsage: info.memUsage,
             size: info.size,
             stride: this._stride,
-            buffer: null,
+            buffer: this._bufferView,
             vf32: null,
             indirects: [],
             glTarget: 0,
@@ -38,10 +53,13 @@ export class WebGL2GFXBuffer extends GFXBuffer {
 
         WebGL2CmdFuncCreateBuffer(this._device as WebGL2GFXDevice, this._gpuBuffer);
 
+        this._device.memoryStatus.bufferSize += this._size;
+        this._status = GFXStatus.SUCCESS;
+
         return true;
     }
 
-    protected _destroy () {
+    public destroy () {
         if (this._gpuBuffer) {
             WebGL2CmdFuncDestroyBuffer(this._device as WebGL2GFXDevice, this._gpuBuffer);
             this._device.memoryStatus.bufferSize -= this._size;
@@ -49,9 +67,24 @@ export class WebGL2GFXBuffer extends GFXBuffer {
         }
 
         this._bufferView = null;
+        this._status = GFXStatus.UNREADY;
     }
 
-    protected _resize (size: number) {
+    public resize (size: number) {
+        const oldSize = this._size;
+        if (oldSize === size) { return; }
+
+        this._size = size;
+        this._count = this._size / this._stride;
+
+        if (this._bufferView) {
+            const oldView = this._bufferView;
+            this._bufferView = new Uint8Array(this._size);
+            this._bufferView.set(oldView);
+            this._device.memoryStatus.bufferSize -= oldSize;
+            this._device.memoryStatus.bufferSize += size;
+        }
+
         if (this._gpuBuffer) {
             if (this._bufferView) {
                 this._gpuBuffer.buffer = this._bufferView;
@@ -60,6 +93,8 @@ export class WebGL2GFXBuffer extends GFXBuffer {
             this._gpuBuffer.size = size;
             if (size > 0) {
                 WebGL2CmdFuncResizeBuffer(this._device as WebGL2GFXDevice, this._gpuBuffer);
+                this._device.memoryStatus.bufferSize -= oldSize;
+                this._device.memoryStatus.bufferSize += size;
             }
         }
     }

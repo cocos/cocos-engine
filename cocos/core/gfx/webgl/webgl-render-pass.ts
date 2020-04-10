@@ -1,5 +1,6 @@
 import { GFXRenderPass, IGFXRenderPassInfo } from '../render-pass';
 import { WebGLGPURenderPass } from './webgl-gpu-objects';
+import { GFXStatus } from '../define';
 
 export class WebGLGFXRenderPass extends GFXRenderPass {
 
@@ -9,17 +10,23 @@ export class WebGLGFXRenderPass extends GFXRenderPass {
 
     private _gpuRenderPass: WebGLGPURenderPass | null = null;
 
-    protected _initialize (info: IGFXRenderPassInfo): boolean {
+    public initialize (info: IGFXRenderPassInfo): boolean {
+
+        this._colorInfos = info.colorAttachments || [];
+        this._depthStencilInfo = info.depthStencilAttachment || null;
 
         this._gpuRenderPass = {
             colorAttachments: this._colorInfos,
             depthStencilAttachment: this._depthStencilInfo,
         };
 
+        this._status = GFXStatus.SUCCESS;
+
         return true;
     }
 
-    protected _destroy () {
+    public destroy () {
         this._gpuRenderPass = null;
+        this._status = GFXStatus.UNREADY;
     }
 }

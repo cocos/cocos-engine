@@ -10,7 +10,6 @@ import {
     GFXPipelineBindPoint,
     GFXStoreOp,
     GFXTextureLayout,
-    GFXStatus,
 } from './define';
 import { GFXDevice } from './device';
 
@@ -76,20 +75,7 @@ export abstract class GFXRenderPass extends GFXObject {
         this._device = device;
     }
 
-    public initialize (info: IGFXRenderPassInfo) {
-        this._colorInfos = info.colorAttachments || [];
-        this._depthStencilInfo = info.depthStencilAttachment || null;
-        if (this._initialize(info)) { this._status = GFXStatus.SUCCESS; return true; }
-        else { this._status = GFXStatus.FAILED; return false; }
-    }
+    public abstract initialize (info: IGFXRenderPassInfo): boolean;
 
-    public destroy () {
-        if (this._status !== GFXStatus.SUCCESS) { return; }
-        this._destroy();
-        this._status = GFXStatus.UNREADY;
-    }
-
-    protected abstract _initialize (info: IGFXRenderPassInfo): boolean;
-
-    protected abstract _destroy (): void;
+    public abstract destroy (): void;
 }

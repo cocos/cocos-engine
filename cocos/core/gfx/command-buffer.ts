@@ -16,7 +16,6 @@ import {
     IGFXColor,
     IGFXRect,
     IGFXViewport,
-    GFXStatus,
 } from './define';
 import { GFXDevice } from './device';
 import { GFXFramebuffer } from './framebuffer';
@@ -107,29 +106,9 @@ export abstract class GFXCommandBuffer extends GFXObject {
         this._device = device;
     }
 
-    public initialize (info: IGFXCommandBufferInfo) {
-        if (!info.allocator) {
-            this._status = GFXStatus.FAILED;
-            return false;
-        }
+    public abstract initialize (info: IGFXCommandBufferInfo): boolean;
 
-        this._allocator = info.allocator;
-        this._type = info.type;
-
-        if (this._initialize(info)) { this._status = GFXStatus.SUCCESS; return true; }
-        else { this._status = GFXStatus.FAILED; return false; }
-    }
-
-    public destroy () {
-        if (this._status !== GFXStatus.SUCCESS) { return; }
-        this._allocator = null;
-        this._destroy();
-        this._status = GFXStatus.UNREADY;
-    }
-
-    protected abstract _initialize (info: IGFXCommandBufferInfo): boolean;
-
-    protected abstract _destroy (): void;
+    public abstract destroy (): void;
 
     /**
      * @en Begin recording commands.

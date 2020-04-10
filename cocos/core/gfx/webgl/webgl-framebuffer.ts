@@ -1,5 +1,4 @@
 import { GFXStatus } from '../define';
-import { GFXDevice } from '../device';
 import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
 import { WebGLCmdFuncCreateFramebuffer, WebGLCmdFuncDestroyFramebuffer } from './webgl-commands';
 import { WebGLGFXDevice } from './webgl-device';
@@ -9,13 +8,18 @@ import { WebGLGFXTextureView } from './webgl-texture-view';
 
 export class WebGLGFXFramebuffer extends GFXFramebuffer {
 
-    public get gpuFramebuffer (): WebGLGPUFramebuffer {
+    get gpuFramebuffer (): WebGLGPUFramebuffer {
         return  this._gpuFramebuffer!;
     }
 
     private _gpuFramebuffer: WebGLGPUFramebuffer | null = null;
 
-    protected _initialize (info: IGFXFramebufferInfo): boolean {
+    public initialize (info: IGFXFramebufferInfo): boolean {
+
+        this._renderPass = info.renderPass;
+        this._colorViews = info.colorViews || [];
+        this._depthStencilView = info.depthStencilView || null;
+        this._isOffscreen = info.isOffscreen !== undefined ? info.isOffscreen : true;
 
         if (this._isOffscreen) {
 
@@ -50,13 +54,16 @@ export class WebGLGFXFramebuffer extends GFXFramebuffer {
             };
         }
 
+        this._status = GFXStatus.SUCCESS;
+
         return true;
     }
 
-    protected _destroy () {
+    public destroy () {
         if (this._isOffscreen && this._gpuFramebuffer) {
             WebGLCmdFuncDestroyFramebuffer(this._device as WebGLGFXDevice, this._gpuFramebuffer);
         }
         this._gpuFramebuffer = null;
+        this._status = GFXStatus.UNREADY;
     }
 }

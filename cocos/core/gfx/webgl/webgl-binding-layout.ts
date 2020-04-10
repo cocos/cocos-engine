@@ -1,5 +1,5 @@
-import { GFXBindingLayout, IGFXBindingLayoutInfo } from '../binding-layout';
-import { GFXBindingType } from '../define';
+import { GFXBindingLayout, IGFXBindingLayoutInfo, GFXBindingUnit } from '../binding-layout';
+import { GFXBindingType, GFXStatus } from '../define';
 import { WebGLGFXBuffer } from './webgl-buffer';
 import { WebGLGPUBinding, WebGLGPUBindingLayout } from './webgl-gpu-objects';
 import { WebGLGFXSampler } from './webgl-sampler';
@@ -7,13 +7,27 @@ import { WebGLGFXTextureView } from './webgl-texture-view';
 
 export class WebGLGFXBindingLayout extends GFXBindingLayout {
 
-    public get gpuBindingLayout (): WebGLGPUBindingLayout {
-        return  this._gpuBindingLayout as WebGLGPUBindingLayout;
+    get gpuBindingLayout (): WebGLGPUBindingLayout {
+        return this._gpuBindingLayout as WebGLGPUBindingLayout;
     }
 
     private _gpuBindingLayout: WebGLGPUBindingLayout | null = null;
 
-    protected _initialize (info: IGFXBindingLayoutInfo): boolean {
+    public initialize (info: IGFXBindingLayoutInfo): boolean {
+
+        this._bindingUnits = new Array<GFXBindingUnit>(info.bindings.length);
+
+        for (let i = 0; i < info.bindings.length; ++i) {
+            const binding = info.bindings[i];
+            this._bindingUnits[i] = {
+                binding: binding.binding,
+                type: binding.bindingType,
+                name: binding.name,
+                buffer: null,
+                texView: null,
+                sampler: null,
+            };
+        }
 
         this._gpuBindingLayout = {
             gpuBindings: new Array<WebGLGPUBinding>(info.bindings.length),
@@ -31,11 +45,14 @@ export class WebGLGFXBindingLayout extends GFXBindingLayout {
             };
         }
 
+        this._status = GFXStatus.SUCCESS;
+
         return true;
     }
 
-    protected _destroy () {
+    public destroy () {
         this._gpuBindingLayout = null;
+        this._status = GFXStatus.UNREADY;
     }
 
     public update () {

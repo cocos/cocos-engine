@@ -1,6 +1,7 @@
 import { GFXCommandBuffer } from '../command-buffer';
 import { GFXQueue, IGFXQueueInfo } from '../queue';
 import { WebGL2GFXCommandBuffer } from './webgl2-command-buffer';
+import { GFXStatus } from '../define';
 
 export class WebGL2GFXQueue extends GFXQueue {
 
@@ -10,12 +11,17 @@ export class WebGL2GFXQueue extends GFXQueue {
 
     private _isAsync: boolean = false;
 
-    protected _initialize (info: IGFXQueueInfo): boolean {
+    public initialize (info: IGFXQueueInfo): boolean {
+
+        this._type = info.type;
+
+        this._status = GFXStatus.SUCCESS;
 
         return true;
     }
 
-    protected _destroy () {
+    public destroy () {
+        this._status = GFXStatus.UNREADY;
     }
 
     public submit (cmdBuffs: GFXCommandBuffer[], fence?) {

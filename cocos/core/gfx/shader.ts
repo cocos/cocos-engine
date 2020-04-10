@@ -2,7 +2,7 @@
  * @category gfx
  */
 
-import { GFXObject, GFXObjectType, GFXShaderType, GFXType, GFXStatus } from './define';
+import { GFXObject, GFXObjectType, GFXShaderType, GFXType } from './define';
 import { GFXDevice } from './device';
 
 export interface IGFXShaderMacro {
@@ -99,29 +99,7 @@ export abstract class GFXShader extends GFXObject {
         this._id = device.genShaderId();
     }
 
-    public initialize (info: IGFXShaderInfo) {
-        this._name = info.name;
-        this._stages = info.stages;
+    public abstract initialize (info: IGFXShaderInfo): boolean;
 
-        if (info.blocks !== undefined) {
-            this._blocks = info.blocks;
-        }
-
-        if (info.samplers !== undefined) {
-            this._samplers = info.samplers;
-        }
-
-        if (this._initialize(info)) { this._status = GFXStatus.SUCCESS; return true; }
-        else { this._status = GFXStatus.FAILED; return false; }
-    }
-
-    public destroy () {
-        if (this._status !== GFXStatus.SUCCESS) { return; }
-        this._destroy();
-        this._status = GFXStatus.UNREADY;
-    }
-
-    protected abstract _initialize (info: IGFXShaderInfo): boolean;
-
-    protected abstract _destroy (): void;
+    public abstract destroy (): void;
 }

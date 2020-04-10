@@ -1,4 +1,4 @@
-import { GFXFilter } from '../define';
+import { GFXFilter, GFXStatus } from '../define';
 import { GFXSampler, IGFXSamplerInfo } from '../sampler';
 import { WebGLGPUSampler } from './webgl-gpu-objects';
 
@@ -17,7 +17,59 @@ export class WebGLGFXSampler extends GFXSampler {
 
     private _gpuSampler: WebGLGPUSampler | null = null;
 
-    protected _initialize (info: IGFXSamplerInfo): boolean {
+    public initialize (info: IGFXSamplerInfo): boolean {
+
+        if (info.name !== undefined) {
+            this._state.name = info.name;
+        }
+
+        if (info.minFilter !== undefined) {
+            this._state.minFilter = info.minFilter;
+        }
+
+        if (info.magFilter !== undefined) {
+            this._state.magFilter = info.magFilter;
+        }
+
+        if (info.mipFilter !== undefined) {
+            this._state.mipFilter = info.mipFilter;
+        }
+
+        if (info.addressU !== undefined) {
+            this._state.addressU = info.addressU;
+        }
+
+        if (info.addressV !== undefined) {
+            this._state.addressV = info.addressV;
+        }
+
+        if (info.addressW !== undefined) {
+            this._state.addressW = info.addressW;
+        }
+
+        if (info.maxAnisotropy !== undefined) {
+            this._state.maxAnisotropy = info.maxAnisotropy;
+        }
+
+        if (info.cmpFunc !== undefined) {
+            this._state.cmpFunc = info.cmpFunc;
+        }
+
+        if (info.borderColor !== undefined) {
+            this._state.borderColor = info.borderColor;
+        }
+
+        if (info.minLOD !== undefined) {
+            this._state.minLOD = info.minLOD;
+        }
+
+        if (info.maxLOD !== undefined) {
+            this._state.maxLOD = info.maxLOD;
+        }
+
+        if (info.mipLODBias !== undefined) {
+            this._state.mipLODBias = info.mipLODBias;
+        }
 
         let glMinFilter = 0;
         let glMagFilter = 0;
@@ -62,10 +114,13 @@ export class WebGLGFXSampler extends GFXSampler {
             glWrapR,
         };
 
+        this._status = GFXStatus.SUCCESS;
+
         return true;
     }
 
-    protected _destroy () {
+    public destroy () {
         this._gpuSampler = null;
+        this._status = GFXStatus.UNREADY;
     }
 }
