@@ -9,6 +9,7 @@ class CCMTLCommandPackage;
 
 class CCMTLQueue : public GFXQueue
 {
+    friend class CCMTLDevice;
 public:
     CCMTLQueue(GFXDevice* device);
     ~CCMTLQueue();
@@ -23,6 +24,10 @@ private:
 private:
     MTKView* _mtkView = nil;
     dispatch_semaphore_t _frameBoundarySemaphore;
+    bool _isAsync = false;
+    uint _numDrawCalls = 0;
+    uint _numInstances = 0;
+    uint _numTriangles = 0;
 };
 
 NS_CC_END

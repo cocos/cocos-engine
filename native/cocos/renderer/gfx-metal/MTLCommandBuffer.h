@@ -12,6 +12,7 @@ class CCMTLBindingLayout;
 
 class CCMTLCommandBuffer : public GFXCommandBuffer
 {
+    friend class CCMTLQueue;
 public:
     CCMTLCommandBuffer(GFXDevice* device);
     ~CCMTLCommandBuffer();

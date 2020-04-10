@@ -69,7 +69,18 @@ void CCMTLDevice::resize(uint width, uint height)
 
 void CCMTLDevice::present()
 {
+    ((CCMTLCommandAllocator*)_cmdAllocator)->releaseCmds();
+    CCMTLQueue* queue = (CCMTLQueue*)_queue;
+    _numDrawCalls = queue->_numDrawCalls;
+    _numInstances = queue->_numInstances;
+    _numTriangles = queue->_numTriangles;
     
+    [((MTKView*)_mtkView).currentDrawable present];
+    
+    // Clear queue stats
+    queue->_numDrawCalls = 0;
+    queue->_numInstances = 0;
+    queue->_numTriangles = 0;
 }
 
 GFXWindow* CCMTLDevice::createWindow(const GFXWindowInfo& info)

@@ -30,7 +30,11 @@ void CCMTLCommandAllocator::clearCommands(CCMTLCommandPackage* commandPackage)
     if (commandPackage->drawCmds.size() )
         _drawCmdPool.freeCmds(commandPackage->drawCmds);
     
-    //TODO: free other commands.
+    if (commandPackage->updateBufferCmds.size() )
+        _updateBufferCmdPool.freeCmds(commandPackage->updateBufferCmds);
+    
+    if (commandPackage->copyBufferToTextureCmds.size() )
+        _copyBufferToTextureCmdPool.freeCmds(commandPackage->copyBufferToTextureCmds);
     
     commandPackage->commandTypes.clear();
 }

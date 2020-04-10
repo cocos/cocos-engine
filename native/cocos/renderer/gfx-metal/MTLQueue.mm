@@ -50,7 +50,13 @@ void CCMTLQueue::submit(const std::vector<GFXCommandBuffer*>& cmd_buffs)
     [mtlCommandBuffer enqueue];
     
     for (uint i = 0; i < count; ++i)
-        executeCommands(static_cast<CCMTLCommandBuffer*>(cmd_buffs[i])->getCommandPackage(), mtlCommandBuffer);
+    {
+        CCMTLCommandBuffer* commandBuff = static_cast<CCMTLCommandBuffer*>(cmd_buffs[i]);
+        executeCommands(commandBuff->getCommandPackage(), mtlCommandBuffer);
+        _numDrawCalls += commandBuff->_numDrawCalls;
+        _numInstances += commandBuff->_numInstances;
+        _numTriangles += commandBuff->_numTriangles;
+    }
     
 //    [mtlCommandBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
 //        // GPU work is complete

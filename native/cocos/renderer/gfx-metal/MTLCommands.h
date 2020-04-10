@@ -62,7 +62,8 @@ public:
 class CCMTLCmdCopyBufferToTexture : public GFXCmd
 {
 public:
-    
+    CCMTLCmdCopyBufferToTexture(): GFXCmd(GFXCmdType::COPY_BUFFER_TO_TEXTURE) {}
+    virtual void clear() override {}
 };
 
 class CCMTLCmdUpdateBuffer : public GFXCmd {
