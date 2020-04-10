@@ -541,6 +541,8 @@ let TiledLayer = cc.Class({
             pos = posOrX;
             flags = flagsOrY;
         }
+        
+        let ugid = gid & cc.TiledMap.TileFlag.FLIPPED_MASK;
 
         pos.x = Math.floor(pos.x);
         pos.y = Math.floor(pos.y);
@@ -551,7 +553,7 @@ let TiledLayer = cc.Class({
             cc.logID(7238);
             return;
         }
-        if (gid !== 0 && gid < this._tilesets[0].firstGid) {
+        if (ugid !== 0 && ugid < this._tilesets[0].firstGid) {
             cc.logID(7239, gid);
             return;
         }
