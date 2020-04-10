@@ -138,7 +138,7 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                 
             case GFXCmdType::BIND_STATES: {
                 auto cmd = commandPackage->bindStatesCmds[cmdIdx++];
-                if (cmd->pipelineStateDirty && cmd->gpuPipelineState)
+                if (cmd->gpuPipelineState)
                 {
                     gpuPipelineState = cmd->gpuPipelineState;
                     

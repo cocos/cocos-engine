@@ -44,7 +44,6 @@ public:
     CCMTLDepthBias depthBias;
     bool viewportDirty = false;
     bool scissorDirty = false;
-    bool pipelineStateDirty = false;
     
     CCMTLCmdBindStates() : GFXCmd(GFXCmdType::BIND_STATES) {}
     

@@ -50,7 +50,7 @@ private:
     bool _isStateInValid = false;
     
     CCMTLPipelineState* _currentPipelineState = nullptr;
-    bool _isPipelineStateDirty = false;
+    bool _needToRebindPipelineState = false;
     CCMTLInputAssembler* _currentInputAssembler = nullptr;
     CCMTLBindingLayout* _currentBindingLayout = nullptr;
     bool _isViewportDirty = false;
