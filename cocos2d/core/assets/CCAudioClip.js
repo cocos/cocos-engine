@@ -45,6 +45,7 @@ var AudioClip = cc.Class({
     mixins: [EventTarget],
 
     ctor () {
+        this._loading = false;
         this.loaded = false;
 
         // the web audio buffer or <audio> element
@@ -108,6 +109,28 @@ var AudioClip = cc.Class({
 
         _parseNativeDepFromJson (json) {
             return { audioLoadMode: json.loadMode,  ext: cc.path.extname(json._native), __isNative__: true };
+        }
+    },
+
+    _ensureLoaded (onComplete) {
+        if (this.loaded) {
+            return onComplete && onComplete();
+        }
+        else {
+            if (onComplete) {
+                this.once('load', onComplete);
+            }
+            if (!this._loading) {
+                this._loading = true;
+                let self = this;
+                cc.assetManager.loadNativeFile(this, function (err, audioNativeAsset) {
+                    self._loading = false;
+                    if (err) {
+                        return cc.error(err);
+                    }
+                    self._nativeAsset = audioNativeAsset;
+                });
+            }
         }
     },
 
