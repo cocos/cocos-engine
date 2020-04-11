@@ -144,35 +144,17 @@ var audioEngine = {
      * });
      */
     play: function (clip, loop, volume) {
-        var path = clip;
-        var audio;
-        if (typeof clip === 'string') {
-            // backward compatibility since 1.10
-            cc.warnID(8401, 'cc.audioEngine', 'cc.AudioClip', 'AudioClip', 'cc.AudioClip', 'audio');
-            path = clip;
-            // load clip
-            audio = getAudioFromPath(path);
-            AudioClip._loadByUrl(path, function (err, clip) {
-                if (clip) {
-                    audio.src = clip;
-                }
-            });
+        if (!(clip instanceof AudioClip)) {
+            return cc.error('Wrong type of AudioClip.');
         }
-        else {
-            if (!clip) {
-                return;
-            }
-            path = clip.nativeUrl;
-            audio = getAudioFromPath(path);
-            audio.src = clip;
-        }
-
+        let path = clip.nativeUrl;
+        let audio = getAudioFromPath(path);
+        audio.src = clip;
         audio._shouldRecycleOnEnded = true;
         audio.setLoop(loop || false);
         volume = handleVolume(volume);
         audio.setVolume(volume);
         audio.play();
-
         return audio.id;
     },
 
@@ -436,7 +418,7 @@ var audioEngine = {
     setMaxAudioInstance: function (num) {
         if (CC_DEBUG) {
             cc.warn('Since v2.4.0, maxAudioInstance has become a read only property.\n'
-            + 'audioEngine.setMaxAudioInstance() methord will be removed in the future');
+            + 'audioEngine.setMaxAudioInstance() method will be removed in the future');
         }
     },
 
