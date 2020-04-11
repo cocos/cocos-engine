@@ -185,7 +185,7 @@ export default class Color extends ValueType {
      * Set the components of a color to the given values.
      * @method set
      * @typescript
-     * set (out: Color, r = 255, g = 255, b = 255, a = 255): Color
+     * set (out: Color, r?: number, g?: number, b?: number, a?: number): Color
      * @static
      */
     static set (out: Color, r = 255, g = 255, b = 255, a = 255): Color {
@@ -315,7 +315,7 @@ export default class Color extends ValueType {
      * !#en Turn an array of colors
      * @method toArray
      * @typescript
-     * toArray <Out extends IWritableArrayLike<number>> (out: Out, a: IColorLike, ofs = 0)
+     * toArray <Out extends IWritableArrayLike<number>> (out: Out, a: IColorLike, ofs?: number): Out
      * @param ofs 数组起始偏移量
      * @static
      */
@@ -333,7 +333,7 @@ export default class Color extends ValueType {
      * !#en An array of colors turn
      * @method fromArray
      * @typescript
-     * fromArray <Out extends IColorLike> (arr: IWritableArrayLike<number>, out: Out, ofs = 0)
+     * fromArray <Out extends IColorLike> (arr: IWritableArrayLike<number>, out: Out, ofs?: number): Out
      * @param ofs 数组起始偏移量
      * @static
      */
@@ -795,7 +795,7 @@ export default class Color extends ValueType {
      * @method set
      * @typescript
      * set (color: Color): Color
-     * @param {Color} color 
+     * @param {Color} color
      */
     set (color: Color): this {
         if (color._val) {
