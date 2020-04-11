@@ -126,7 +126,6 @@ var audioEngine = {
 
     AudioState: Audio.State,
 
-    _maxWebAudioSize: 2097152, // 2048kb * 1024
     _maxAudioInstance: 24,
 
     _id2audio: _id2audio,
@@ -144,7 +143,7 @@ var audioEngine = {
      *     var audioID = cc.audioEngine.play(clip, false, 0.5);
      * });
      */
-    play: function (clip, loop, volume/*, profile*/) {
+    play: function (clip, loop, volume) {
         var path = clip;
         var audio;
         if (typeof clip === 'string') {
@@ -432,9 +431,13 @@ var audioEngine = {
      * @param {Number} num - a number of instances to be created from within an audio
      * @example
      * cc.audioEngine.setMaxAudioInstance(20);
+     * @deprecated since v2.4.0
      */
     setMaxAudioInstance: function (num) {
-        this._maxAudioInstance = num;
+        if (CC_DEBUG) {
+            cc.warn('Since v2.4.0, maxAudioInstance has become a read only property.\n'
+            + 'audioEngine.setMaxAudioInstance() methord will be removed in the future');
+        }
     },
 
     /**
@@ -444,6 +447,7 @@ var audioEngine = {
      * @return {Number} a - number of instances to be created from within an audio
      * @example
      * cc.audioEngine.getMaxAudioInstance();
+     * @deprecated since v2.4.0
      */
     getMaxAudioInstance: function () {
         return this._maxAudioInstance;
@@ -505,49 +509,6 @@ var audioEngine = {
         }
         _id2audio = js.createMap(true);
         _url2id = {};
-    },
-
-    /**
-     * !#en Gets an audio profile by name.
-     *
-     * @param profileName A name of audio profile.
-     * @return The audio profile.
-     */
-    getProfile: function (profileName) {},
-
-    /**
-     * !#en Preload audio file.
-     * !#zh 预加载一个音频
-     * @method preload
-     * @param {String} filePath - The file path of an audio.
-     * @param {Function} [callback] - The callback of an audio.
-     * @example
-     * cc.audioEngine.preload(path);
-     * @deprecated `cc.audioEngine.preload` is deprecated, use `cc.resources.load(path, cc.AudioClip)` instead please.
-     */
-    preload: function (filePath, callback) {
-        if (CC_DEBUG) {
-            cc.warn('`cc.audioEngine.preload` is deprecated, use `cc.resources.load(path, cc.AudioClip)` instead please.');
-        }
-
-        cc.resources.load(filePath, cc.AudioClip, null, callback && function (error) {
-            if (!error) {
-                callback();
-            }
-        });
-    },
-
-    /**
-     * !#en Set a size, the unit is KB. Over this size is directly resolved into DOM nodes.
-     * !#zh 设置一个以 KB 为单位的尺寸，大于这个尺寸的音频在加载的时候会强制使用 dom 方式加载
-     * @method setMaxWebAudioSize
-     * @param {Number} kb - The file path of an audio.
-     * @example
-     * cc.audioEngine.setMaxWebAudioSize(300);
-     */
-    // Because webAudio takes up too much memory，So allow users to manually choose
-    setMaxWebAudioSize: function (kb) {
-        this._maxWebAudioSize = kb * 1024;
     },
 
     _breakCache: null,
@@ -826,5 +787,19 @@ var audioEngine = {
         }
     }
 };
+
+
+/**
+ * !#en the max number of audio instances that can be played at the same time
+ * !#zh 获取最多可以同时播放的音频实例数
+ * @property {number} maxAudioInstance
+ */
+Object.defineProperty(audioEngine, 'maxAudioInstance', {
+    get () {
+        return audioEngine._maxAudioInstance;
+    },
+    enumerable: true,
+    configurable: true,
+});
 
 module.exports = cc.audioEngine = audioEngine;
