@@ -151,7 +151,7 @@ export class View extends EventTarget {
     private _orientation: any;
     private _isAdjustViewport: boolean;
     private _antiAliasEnabled: boolean;
-    private _resolutionPolicy: any;
+    private _resolutionPolicy: ResolutionPolicy;
     private _rpExactFit: ResolutionPolicy;
     private _rpShowAll: ResolutionPolicy;
     private _rpNoBorder: ResolutionPolicy;
@@ -199,12 +199,12 @@ export class View extends EventTarget {
         this._antiAliasEnabled = false;
 
         // Setup system default resolution policies
-        this._resolutionPolicy = null;
         this._rpExactFit = new ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.EXACT_FIT);
         this._rpShowAll = new ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.SHOW_ALL);
         this._rpNoBorder = new ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.NO_BORDER);
         this._rpFixedHeight = new ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.FIXED_HEIGHT);
         this._rpFixedWidth = new ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.FIXED_WIDTH);
+        this._resolutionPolicy = this._rpShowAll;
 
         cc.game.once(cc.Game.EVENT_ENGINE_INITED, this.init, this);
     }
@@ -933,6 +933,11 @@ export class View extends EventTarget {
  * @event design-resolution-changed
  */
 
+interface AdaptResult {
+    scale: number[];
+    viewport?: null | Rect;
+}
+
 /** 
  * ContainerStrategy class is the root strategy class of container's scale strategy,
  * it controls the behavior of how to scale the cc.game.container and cc.game.canvas object
@@ -1024,7 +1029,7 @@ class ContentStrategy {
     public static FIXED_WIDTH: any;
 
     public name = 'ContentStrategy';
-    private _result: { scale: number[]; viewport: null | Rect; };
+    private _result: AdaptResult;
     constructor () {
         this._result = {
             scale: [1, 1],
@@ -1047,7 +1052,7 @@ class ContentStrategy {
      * @zh 调用策略方法
      * @return The result scale and viewport rect
      */
-    public apply (_view: View, designedResolution: Size) {
+    public apply (_view: View, designedResolution: Size): AdaptResult {
         return {scale: [1, 1]};
     }
 
@@ -1059,7 +1064,7 @@ class ContentStrategy {
     public postApply (_view: View) {
     }
 
-    public _buildResult (containerW, containerH, contentW, contentH, scaleX, scaleY) {
+    public _buildResult (containerW, containerH, contentW, contentH, scaleX, scaleY): AdaptResult {
         // Makes content fit better the canvas
         if ( Math.abs(containerW - contentW) < 2 ) {
             contentW = containerW;
@@ -1164,7 +1169,7 @@ class ContentStrategy {
 // Content scale strategys
     class ExactFit extends ContentStrategy {
         public name = 'ExactFit';
-        public apply (_view, designedResolution) {
+        public apply (_view: View, designedResolution: Size) {
             const containerW = cc.game.canvas.width;
             const containerH = cc.game.canvas.height;
             const scaleX = containerW / designedResolution.width;
