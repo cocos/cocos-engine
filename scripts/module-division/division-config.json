@@ -72,14 +72,14 @@
             "default": true
         },
         {
-            "text": "tween.js Adapter",
-            "description": "Integrate tween.js in Creator 3D.",
+            "text": "Tween",
+            "description": "Tween support.",
             "entry": "tween",
             "default": true
         },
         {
             "text": "Terrain",
-            "description": "Integrate tween.js in Creator 3D.",
+            "description": "Terrain support",
             "entry": "terrain",
             "default": true
         }
