@@ -36,8 +36,8 @@ import { ForwardPipeline, RenderPipeline } from './pipeline';
 import * as debug from './platform/debug';
 import inputManager from './platform/event-manager/input-manager';
 import sys from './platform/sys';
+import { macro } from './platform/macro';
 import { ICustomJointTextureLayout } from './renderer';
-import { macro } from './platform';
 
 /**
  * @zh
