@@ -37,6 +37,7 @@ import * as debug from './platform/debug';
 import inputManager from './platform/event-manager/input-manager';
 import sys from './platform/sys';
 import { ICustomJointTextureLayout } from './renderer';
+import { macro } from './platform';
 
 /**
  * @zh
@@ -895,6 +896,7 @@ export class Game extends EventTarget {
             const opts = {
                 canvasElm: this.canvas as HTMLCanvasElement,
                 debug: true,
+                isAntialias: EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
                 devicePixelRatio: window.devicePixelRatio,
                 nativeWidth: Math.floor(screen.width * window.devicePixelRatio),
                 nativeHeight: Math.floor(screen.height * window.devicePixelRatio),
