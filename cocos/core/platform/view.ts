@@ -32,7 +32,7 @@
 import '../data/class';
 import { EventTarget } from '../event/event-target';
 import '../game';
-import { Rect, Size } from '../math';
+import { Rect, Size, Vec2 } from '../math';
 import visibleRect from './visible-rect';
 import { EDITOR, MINIGAME, WECHAT, JSB } from 'internal:constants';
 
@@ -112,21 +112,21 @@ switch (__BrowserGetter.adaptationType) {
         break;
 }
 
-let _scissorRect: Rect | null = null;
-
 /**
- * cc.view is the singleton object which represents the game window.<br/>
+ * @en View represents the game window.<br/>
  * It's main task include: <br/>
- *  - Apply the design resolution policy<br/>
+ *  - Apply the design resolution policy to the UI Canvas<br/>
  *  - Provide interaction with the window, like resize event on web, retina display support, etc...<br/>
- *  - Manage the game view port which can be different with the window<br/>
- *  - Manage the content scale and translation<br/>
+ *  - Manage the scale and translation of canvas related to the frame on Web<br/>
  * <br/>
- * Since the cc.view is a singleton, you don't need to call any constructor or create functions,<br/>
+ * With view as its singleton initialized by the engine, you don't need to call any constructor or create functions,<br/>
  * the standard way to use it is by calling:<br/>
- *  - cc.view.methodName(); <br/>
- *
- * @class View
+ *  - view.methodName(); <br/>
+ * @zh View 代表游戏窗口视图，它的核心功能包括：
+ *  - 对所有 UI Canvas 进行设计分辨率适配。
+ *  - 提供窗口视图的交互，比如监听 resize 事件，控制 retina 屏幕适配，等等。
+ *  - 控制 Canvas 节点相对于外层 DOM 节点的缩放和偏移。
+ * 引擎会自动初始化它的单例对象 view，所以你不需要实例化任何 View，只需要直接使用 `view.methodName();`
  */
 export class View extends EventTarget {
 
@@ -144,7 +144,7 @@ export class View extends EventTarget {
     private _devicePixelRatio: number;
     private _maxPixelRatio: number;
     private _retinaEnabled: boolean;
-    private _resizeCallback: null;
+    private _resizeCallback: Function | null;
     private _resizing: boolean;
     private _orientationChanging: boolean;
     private _isRotated: boolean;
@@ -235,38 +235,13 @@ export class View extends EventTarget {
 
     /**
      * @en
-     * Sets view's target-densitydpi for android mobile browser. it can be set to:           <br/>
-     *   1. macro.DENSITYDPI_DEVICE, value is "device-dpi"                                      <br/>
-     *   2. macro.DENSITYDPI_HIGH, value is "high-dpi"  (default value)                         <br/>
-     *   3. macro.DENSITYDPI_MEDIUM, value is "medium-dpi" (browser's default value)            <br/>
-     *   4. macro.DENSITYDPI_LOW, value is "low-dpi"                                            <br/>
-     *   5. Custom value, e.g: "480"                                                         <br/>
-     * @zh 设置目标内容的每英寸像素点密度。
-     *
-     * @method setTargetDensityDPI
-     * @param {String} densityDPI
-     * @deprecated since v2.0
-     */
-
-    /**
-     * @en
-     * Returns the current target-densitydpi value of cc.view.
-     * @zh 获取目标内容的每英寸像素点密度。
-     * @method getTargetDensityDPI
-     * @returns {String}
-     * @deprecated since v2.0
-     */
-
-    /**
-     * @en
      * Sets whether resize canvas automatically when browser's size changed.<br/>
      * Useful only on web.
      * @zh 设置当发现浏览器的尺寸改变时，是否自动调整 canvas 尺寸大小。
      * 仅在 Web 模式下有效。
-     * @method resizeWithBrowserSize
-     * @param {Boolean} enabled - Whether enable automatic resize with browser's resize event
+     * @param enabled - Whether enable automatic resize with browser's resize event
      */
-    public resizeWithBrowserSize (enabled) {
+    public resizeWithBrowserSize (enabled: boolean) {
         if (enabled) {
             // enable
             if (!this._resizeWithBrowserSize) {
@@ -294,10 +269,9 @@ export class View extends EventTarget {
      * 这个回调函数会在应用适配模式之前被调用，
      * 因此你可以在这个回调函数内添加任意附加改变，
      * 仅在 Web 平台下有效。
-     * @method setResizeCallback
-     * @param {Function|Null} callback - The callback function
+     * @param callback - The callback function
      */
-    public setResizeCallback (callback) {
+    public setResizeCallback (callback: Function | null) {
         if (typeof callback === 'function' || callback == null) {
             this._resizeCallback = callback;
         }
@@ -314,10 +288,9 @@ export class View extends EventTarget {
      * 当设置为横版或竖版，并且屏幕的宽高比例不匹配时，
      * cc.view 会自动用 CSS 旋转游戏场景的 canvas，
      * 这个方法不会对 native 部分产生任何影响，对于 native 而言，你需要在应用设置中的设置排版。
-     * @method setOrientation
-     * @param {Number} orientation - Possible values: macro.ORIENTATION_LANDSCAPE | macro.ORIENTATION_PORTRAIT | macro.ORIENTATION_AUTO
+     * @param orientation - Possible values: macro.ORIENTATION_LANDSCAPE | macro.ORIENTATION_PORTRAIT | macro.ORIENTATION_AUTO
      */
-    public setOrientation (orientation) {
+    public setOrientation (orientation: number) {
         orientation = orientation & cc.macro.ORIENTATION_AUTO;
         if (orientation && this._orientation !== orientation) {
             this._orientation = orientation;
@@ -334,10 +307,9 @@ export class View extends EventTarget {
      * 默认设置为启动，我们强烈建议你不要将它设置为关闭。
      * 即使当它启动时，你仍然能够设置你的 viewport meta，它不会被覆盖。
      * 仅在 Web 模式下有效
-     * @method adjustViewportMeta
-     * @param {Boolean} enabled - Enable automatic modification to "viewport" meta
+     * @param enabled - Enable automatic modification to "viewport" meta
      */
-    public adjustViewportMeta (enabled) {
+    public adjustViewportMeta (enabled: boolean) {
         this._isAdjustViewport = enabled;
     }
 
@@ -349,10 +321,9 @@ export class View extends EventTarget {
      * @zh 对于 Apple 这种支持 Retina 显示的设备上默认进行优化而其他类型设备默认不进行优化，
      * 它仅会在你调用 setDesignResolutionPolicy 方法时有影响。
      * 仅在 Web 模式下有效。
-     * @method enableRetina
-     * @param {Boolean} enabled - Enable or disable retina display
+     * @param enabled - Enable or disable retina display
      */
-    public enableRetina (enabled) {
+    public enableRetina (enabled: boolean) {
         this._retinaEnabled = !!enabled;
     }
 
@@ -362,20 +333,17 @@ export class View extends EventTarget {
      * Only useful on web
      * @zh 检查是否对 Retina 显示设备进行优化。
      * 仅在 Web 模式下有效。
-     * @method isRetinaEnabled
-     * @return {Boolean}
      */
-    public isRetinaEnabled () {
+    public isRetinaEnabled (): boolean {
         return this._retinaEnabled;
     }
 
     /**
      * @en Whether to Enable on anti-alias
      * @zh 控制抗锯齿是否开启
-     * @method enableAntiAlias
-     * @param {Boolean} enabled - Enable or not anti-alias
+     * @param enabled - Enable or not anti-alias
      */
-    public enableAntiAlias (enabled) {
+    public enableAntiAlias (enabled: boolean) {
         if (this._antiAliasEnabled === enabled) {
             return;
         }
@@ -407,10 +375,8 @@ export class View extends EventTarget {
     /**
      * @en Returns whether the current enable on anti-alias
      * @zh 返回当前是否抗锯齿
-     * @method isAntiAliasEnabled
-     * @return {Boolean}
      */
-    public isAntiAliasEnabled () {
+    public isAntiAliasEnabled (): boolean {
         return this._antiAliasEnabled;
     }
     /**
@@ -420,10 +386,9 @@ export class View extends EventTarget {
      * Only useful on web
      * @zh 启动时，移动端游戏会在移动端自动尝试进入全屏模式。
      * 你能够传入 true 为参数去启动它，用 false 参数来关闭它。
-     * @method enableAutoFullScreen
-     * @param {Boolean} enabled - Enable or disable auto full screen on mobile devices
+     * @param enabled - Enable or disable auto full screen on mobile devices
      */
-    public enableAutoFullScreen (enabled) {
+    public enableAutoFullScreen (enabled: boolean) {
         if (enabled &&
             enabled !== this._autoFullScreen &&
             cc.sys.isMobile &&
@@ -443,10 +408,9 @@ export class View extends EventTarget {
      * Only useful on web
      * @zh 检查自动进入全屏模式是否启动。
      * 仅在 Web 模式下有效。
-     * @method isAutoFullScreenEnabled
-     * @return {Boolean} Auto full screen enabled or not
+     * @return Auto full screen enabled or not
      */
-    public isAutoFullScreenEnabled () {
+    public isAutoFullScreenEnabled (): boolean {
         return this._autoFullScreen;
     }
 
@@ -454,11 +418,11 @@ export class View extends EventTarget {
      * Not support on native.<br/>
      * On web, it sets the size of the canvas.
      * @zh 这个方法并不支持 native 平台，在 Web 平台下，可以用来设置 canvas 尺寸。
-     * @method setCanvasSize
+     * @private
      * @param {Number} width
      * @param {Number} height
      */
-    public setCanvasSize (width, height) {
+    public setCanvasSize (width: number, height: number) {
         const canvas = cc.game.canvas;
         const container = cc.game.container;
         this._devicePixelRatio = window.devicePixelRatio;
@@ -486,11 +450,9 @@ export class View extends EventTarget {
      * @zh 返回视图中 canvas 的尺寸。
      * 在 native 平台下，它返回全屏视图下屏幕的尺寸。
      * 在 Web 平台下，它返回 canvas 元素尺寸。
-     * @method getCanvasSize
-     * @return {Size}
      */
-    public getCanvasSize () {
-        return cc.size(cc.game.canvas.width, cc.game.canvas.height);
+    public getCanvasSize (): Size {
+        return new Size(cc.game.canvas.width, cc.game.canvas.height);
     }
 
     /**
@@ -501,24 +463,20 @@ export class View extends EventTarget {
      * @zh 返回视图中边框尺寸。
      * 在 native 平台下，它返回全屏视图下屏幕的尺寸。
      * 在 web 平台下，它返回 canvas 元素的外层 DOM 元素尺寸。
-     * @method getFrameSize
-     * @return {Size}
      */
-    public getFrameSize () {
-        return cc.size(this._frameSize.width, this._frameSize.height);
+    public getFrameSize (): Size {
+        return new Size(this._frameSize.width, this._frameSize.height);
     }
 
     /**
-     * @en
-     * On native, it sets the frame size of view.<br/>
+     * @en On native, it sets the frame size of view.<br/>
      * On web, it sets the size of the canvas's outer DOM element.
      * @zh 在 native 平台下，设置视图框架尺寸。
      * 在 web 平台下，设置 canvas 外层 DOM 元素尺寸。
-     * @method setFrameSize
      * @param {Number} width
      * @param {Number} height
      */
-    public setFrameSize (width, height) {
+    public setFrameSize (width: number, height: number) {
         this._frameSize.width = width;
         this._frameSize.height = height;
         cc.frame.style.width = width + 'px';
@@ -527,72 +485,54 @@ export class View extends EventTarget {
     }
 
     /**
-     * @en
-     * Returns the visible area size of the view port.
+     * @en Returns the visible area size of the view port.
      * @zh 返回视图窗口可见区域尺寸。
-     * @method getVisibleSize
-     * @return {Size}
      */
-    public getVisibleSize () {
-        return cc.size(this._visibleRect.width, this._visibleRect.height);
+    public getVisibleSize (): Size {
+        return new Size(this._visibleRect.width, this._visibleRect.height);
     }
 
     /**
-     * @en
-     * Returns the visible area size of the view port.
+     * @en Returns the visible area size of the view port.
      * @zh 返回视图窗口可见区域像素尺寸。
-     * @method getVisibleSizeInPixel
-     * @return {Size}
      */
-    public getVisibleSizeInPixel () {
-        return cc.size( this._visibleRect.width * this._scaleX,
+    public getVisibleSizeInPixel (): Size {
+        return new Size( this._visibleRect.width * this._scaleX,
                         this._visibleRect.height * this._scaleY );
     }
 
     /**
-     * @en
-     * Returns the visible origin of the view port.
+     * @en Returns the visible origin of the view port.
      * @zh 返回视图窗口可见区域原点。
-     * @method getVisibleOrigin
-     * @return {Vec2}
      */
-    public getVisibleOrigin () {
-        return cc.v2(this._visibleRect.x, this._visibleRect.y);
+    public getVisibleOrigin (): Vec2 {
+        return new Vec2(this._visibleRect.x, this._visibleRect.y);
     }
 
     /**
-     * @en
-     * Returns the visible origin of the view port.
+     * @en Returns the visible origin of the view port.
      * @zh 返回视图窗口可见区域像素原点。
-     * @method getVisibleOriginInPixel
-     * @return {Vec2}
      */
-    public getVisibleOriginInPixel () {
-        return cc.v2(this._visibleRect.x * this._scaleX,
+    public getVisibleOriginInPixel (): Vec2 {
+        return new Vec2(this._visibleRect.x * this._scaleX,
                     this._visibleRect.y * this._scaleY);
     }
 
     /**
-     * @en
-     * Returns the current resolution policy
+     * @en Returns the current resolution policy
      * @zh 返回当前分辨率方案
-     * @see ResolutionPolicy
-     * @method getResolutionPolicy
-     * @return {ResolutionPolicy}
+     * @see {{ResolutionPolicy}}
      */
-    public getResolutionPolicy () {
+    public getResolutionPolicy (): ResolutionPolicy {
         return this._resolutionPolicy;
     }
 
     /**
-     * @en
-     * Sets the current resolution policy
+     * @en Sets the current resolution policy
      * @zh 设置当前分辨率模式
-     * @see ResolutionPolicy
-     * @method setResolutionPolicy
-     * @param {ResolutionPolicy|Number} resolutionPolicy
+     * @see {{ResolutionPolicy}}
      */
-    public setResolutionPolicy (resolutionPolicy) {
+    public setResolutionPolicy (resolutionPolicy: ResolutionPolicy|number) {
         const _t = this;
         if (resolutionPolicy instanceof ResolutionPolicy) {
             _t._resolutionPolicy = resolutionPolicy;
@@ -620,8 +560,7 @@ export class View extends EventTarget {
 
     // tslint:disable: max-line-length
     /**
-     * @en
-     * Sets the resolution policy with designed view size in points.<br/>
+     * @en Sets the resolution policy with designed view size in points.<br/>
      * The resolution policy include: <br/>
      * [1] ResolutionExactFit       Fill screen by stretch-to-fit: if the design resolution ratio of width to height is different from the screen resolution ratio, your game view will be stretched.<br/>
      * [2] ResolutionNoBorder       Full screen without black border: if the design resolution ratio of width to height is different from the screen resolution ratio, two areas of your game view will be cut.<br/>
@@ -630,12 +569,11 @@ export class View extends EventTarget {
      * [5] ResolutionFixedWidth     Scale the content's width to screen's width and proportionally scale its height<br/>
      * [ResolutionPolicy]        [Web only feature] Custom resolution policy, constructed by ResolutionPolicy<br/>
      * @zh 通过设置设计分辨率和匹配模式来进行游戏画面的屏幕适配。
-     * @method setDesignResolutionSize
-     * @param {Number} width Design resolution width.
-     * @param {Number} height Design resolution height.
-     * @param {ResolutionPolicy|Number} resolutionPolicy The resolution policy desired
+     * @param width Design resolution width.
+     * @param height Design resolution height.
+     * @param resolutionPolicy The resolution policy desired
      */
-    public setDesignResolutionSize (width, height, resolutionPolicy) {
+    public setDesignResolutionSize (width: number, height: number, resolutionPolicy: ResolutionPolicy|number) {
         // Defensive code
         if ( !(width > 0 || height > 0) ){
             cc.logID(2200);
@@ -703,21 +641,17 @@ export class View extends EventTarget {
     }
 
     /**
-     * @en
-     * Returns the designed size for the view.
+     * @en Returns the designed size for the view.
      * Default resolution size is the same as 'getFrameSize'.
      * @zh 返回视图的设计分辨率。
      * 默认下分辨率尺寸同 `getFrameSize` 方法相同
-     * @method getDesignResolutionSize
-     * @return {Size}
      */
-    public getDesignResolutionSize () {
-        return cc.size(this._designResolutionSize.width, this._designResolutionSize.height);
+    public getDesignResolutionSize (): Size {
+        return new Size(this._designResolutionSize.width, this._designResolutionSize.height);
     }
 
     /**
-     * @en
-     * Sets the container to desired pixel resolution and fit the game content to it.
+     * @en Sets the container to desired pixel resolution and fit the game content to it.
      * This function is very useful for adaptation in mobile browsers.
      * In some HD android devices, the resolution is very high, but its browser performance may not be very good.
      * In this case, enabling retina display is very costy and not suggested, and if retina is disabled, the image may be blurry.
@@ -727,12 +661,11 @@ export class View extends EventTarget {
      *     2. Set body width to the exact pixel resolution
      *     3. The resolution policy will be reset with designed view size in points.
      * @zh 设置容器（container）需要的像素分辨率并且适配相应分辨率的游戏内容。
-     * @method setRealPixelResolution
-     * @param {Number} width Design resolution width.
-     * @param {Number} height Design resolution height.
-     * @param {ResolutionPolicy|Number} resolutionPolicy The resolution policy desired
+     * @param width Design resolution width.
+     * @param height Design resolution height.
+     * @param resolutionPolicy The resolution policy desired
      */
-    public setRealPixelResolution (width, height, resolutionPolicy) {
+    public setRealPixelResolution (width: number, height: number, resolutionPolicy: ResolutionPolicy|number) {
         if (!JSB && !MINIGAME) {
             // Set viewport's width
             this._setViewportMeta({width}, true);
@@ -749,152 +682,47 @@ export class View extends EventTarget {
     }
 
     /**
-     * @en
-     * Sets view port rectangle with points.
-     * @zh 用设计分辨率下的点尺寸来设置视窗。
-     * @method setViewportInPoints
-     * @deprecated since v2.0
-     * @param {Number} x
-     * @param {Number} y
-     * @param {Number} w width
-     * @param {Number} h height
-     */
-    public setViewportInPoints (x, y, w, h) {
-        const locScaleX = this._scaleX;
-        const locScaleY = this._scaleY;
-        cc.game._renderContext.viewport((x * locScaleX + this._viewportRect.x),
-            (y * locScaleY + this._viewportRect.y),
-            (w * locScaleX),
-            (h * locScaleY));
-    }
-
-    /**
-     * @en
-     * Sets Scissor rectangle with points.
-     * @zh 用设计分辨率下的点的尺寸来设置 scissor 剪裁区域。
-     * @method setScissorInPoints
-     * @deprecated since v2.0
-     * @param {Number} x
-     * @param {Number} y
-     * @param {Number} w
-     * @param {Number} h
-     */
-    public setScissorInPoints (x, y, w, h) {
-        const scaleX = this._scaleX;
-        const scaleY = this._scaleY;
-        const sx = Math.ceil(x * scaleX + this._viewportRect.x);
-        const sy = Math.ceil(y * scaleY + this._viewportRect.y);
-        const sw = Math.ceil(w * scaleX);
-        const sh = Math.ceil(h * scaleY);
-        const gl = cc.game._renderContext;
-
-        if (!_scissorRect) {
-            const boxArr = gl.getParameter(gl.SCISSOR_BOX);
-            _scissorRect = new Rect(boxArr[0], boxArr[1], boxArr[2], boxArr[3]);
-        }
-
-        if (_scissorRect.x !== sx || _scissorRect.y !== sy || _scissorRect.width !== sw || _scissorRect.height !== sh) {
-            _scissorRect.x = sx;
-            _scissorRect.y = sy;
-            _scissorRect.width = sw;
-            _scissorRect.height = sh;
-            gl.scissor(sx, sy, sw, sh);
-        }
-    }
-
-    /**
-     * @en
-     * Returns whether GL_SCISSOR_TEST is enable
-     * @zh 检查 scissor 是否生效。
-     * @method isScissorEnabled
-     * @deprecated since v2.0
-     * @return {Boolean}
-     */
-    public isScissorEnabled () {
-        const gl = cc.game._renderContext;
-        return gl.isEnabled(gl.SCISSOR_TEST);
-    }
-
-    /**
-     * @en
-     * Returns the current scissor rectangle
-     * @zh 返回当前的 scissor 剪裁区域。
-     * @method getScissorRect
-     * @deprecated since v2.0
-     * @return {Rect}
-     */
-    public getScissorRect () {
-        const gl = cc.game._renderContext;
-        if (!_scissorRect) {
-            const boxArr = gl.getParameter(gl.SCISSOR_BOX);
-            _scissorRect = new Rect(boxArr[0], boxArr[1], boxArr[2], boxArr[3]);
-        }
-        const scaleXFactor = 1 / this._scaleX;
-        const scaleYFactor = 1 / this._scaleY;
-        return new Rect(
-            (_scissorRect.x - this._viewportRect.x) * scaleXFactor,
-            (_scissorRect.y - this._viewportRect.y) * scaleYFactor,
-            _scissorRect.width * scaleXFactor,
-            _scissorRect.height * scaleYFactor,
-        );
-    }
-
-    /**
-     * @en
-     * Returns the view port rectangle.
+     * @en Returns the view port rectangle.
      * @zh 返回视窗剪裁区域。
-     * @method getViewportRect
-     * @return {Rect}
      */
-    public getViewportRect () {
+    public getViewportRect (): Rect {
         return this._viewportRect;
     }
 
     /**
-     * @en
-     * Returns scale factor of the horizontal direction (X axis).
+     * @en Returns scale factor of the horizontal direction (X axis).
      * @zh 返回横轴的缩放比，这个缩放比是将画布像素分辨率放到设计分辨率的比例。
-     * @method getScaleX
-     * @return {Number}
      */
-    public getScaleX () {
+    public getScaleX (): number {
         return this._scaleX;
     }
 
     /**
-     * @en
-     * Returns scale factor of the vertical direction (Y axis).
+     * @en Returns scale factor of the vertical direction (Y axis).
      * @zh 返回纵轴的缩放比，这个缩放比是将画布像素分辨率缩放到设计分辨率的比例。
-     * @method getScaleY
-     * @return {Number}
      */
-    public getScaleY () {
+    public getScaleY (): number {
         return this._scaleY;
     }
 
     /**
-     * @en
-     * Returns device pixel ratio for retina display.
+     * @en Returns device pixel ratio for retina display.
      * @zh 返回设备或浏览器像素比例。
-     * @method getDevicePixelRatio
-     * @return {Number}
      */
-    public getDevicePixelRatio () {
+    public getDevicePixelRatio (): number {
         return this._devicePixelRatio;
     }
 
     /**
-     * @en
-     * Returns the real location in view for a translation based on a related position
+     * @en Returns the real location in view for a translation based on a related position
      * @zh 将屏幕坐标转换为游戏视图下的坐标。
-     * @method convertToLocationInView
-     * @param {Number} tx - The X axis translation
-     * @param {Number} ty - The Y axis translation
-     * @param {Object} relatedPos - The related position object including "left", "top", "width", "height" informations
-     * @return {Vec2}
+     * @param tx - The X axis translation
+     * @param ty - The Y axis translation
+     * @param relatedPos - The related position object including "left", "top", "width", "height" informations
+     * @param out - The out object to save the conversion result
      */
-    public convertToLocationInView (tx, ty, relatedPos, out) {
-        const result = out || cc.v2();
+    public convertToLocationInView (tx: number, ty: number, relatedPos: any, out: Vec2): Vec2 {
+        const result = out || new Vec2();
         const x = this._devicePixelRatio * (tx - relatedPos.left);
         const y = this._devicePixelRatio * (relatedPos.top + relatedPos.height - ty);
         if (this._isRotated) {
@@ -914,7 +742,7 @@ export class View extends EventTarget {
     //     in_out_point.y = (_t._devicePixelRatio * (relatedPos.top + relatedPos.height - in_out_point.y) - viewport.y) / _t._scaleY;
     // }
 
-    public _convertPointWithScale (point) {
+    private _convertPointWithScale (point) {
         const viewport = this._viewportRect;
         point.x = (point.x - viewport.x) / this._scaleX;
         point.y = (point.y - viewport.y) / this._scaleY;
@@ -1103,10 +931,11 @@ export class View extends EventTarget {
  * !zh
  * 当设计分辨率改变时发送。
  * @event design-resolution-changed
- * <p>cc.game.containerStrategy class is the root strategy class of container's scale strategy,
- * it controls the behavior of how to scale the cc.game.container and cc.game.canvas object</p>
- *
- * @class ContainerStrategy
+ */
+
+/** 
+ * ContainerStrategy class is the root strategy class of container's scale strategy,
+ * it controls the behavior of how to scale the cc.game.container and cc.game.canvas object
  */
 class ContainerStrategy {
     public static EQUAL_TO_FRAME: any;
@@ -1115,34 +944,29 @@ class ContainerStrategy {
     public name: string = 'ContainerStrategy';
 
     /**
-     * @en
-     * Manipulation before appling the strategy
+     * @en Manipulation before appling the strategy
      * @zh 在应用策略之前的操作
-     * @method preApply
-     * @param {View} view - The target view
+     * @param view - The target view
      */
-    public preApply (_view) {
+    public preApply (_view: View) {
     }
 
     /**
-     * @en
-     * Function to apply this strategy
+     * @en Function to apply this strategy
      * @zh 策略应用方法
-     * @method apply
-     * @param {View} view
-     * @param {Size} designedResolution
+     * @param view
+     * @param designedResolution
      */
-    public apply (_view, designedResolution) {
+    public apply (_view: View, designedResolution: Size) {
     }
 
     /**
      * @en
      * Manipulation after applying the strategy
      * @zh 策略调用之后的操作
-     * @method postApply
-     * @param {View} view  The target view
+     * @param view  The target view
      */
-    public postApply (_view) {
+    public postApply (_view: View) {
 
     }
 
@@ -1187,8 +1011,8 @@ class ContainerStrategy {
 }
 
 /**
- * <p>ContentStrategy class is the root strategy class of content's scale strategy,
- * it controls the behavior of how to scale the scene and setup the viewport for the game</p>
+ * ContentStrategy class is the root strategy class of content's scale strategy,
+ * it controls the behavior of how to scale the scene and setup the viewport for the game
  *
  * @class ContentStrategy
  */
@@ -1209,13 +1033,11 @@ class ContentStrategy {
     }
 
     /**
-     * @en
-     * Manipulation before applying the strategy
+     * @en Manipulation before applying the strategy
      * @zh 策略应用前的操作
-     * @method preApply
-     * @param {View} view - The target view
+     * @param view - The target view
      */
-    public preApply (_view) {
+    public preApply (_view: View) {
     }
 
     /**
@@ -1223,23 +1045,18 @@ class ContentStrategy {
      * The return value is {scale: [scaleX, scaleY], viewport: {new Rect}},
      * The target view can then apply these value to itself, it's preferred not to modify directly its private variables
      * @zh 调用策略方法
-     * @method apply
-     * @param {View} view
-     * @param {Size} designedResolution
-     * @return {Object} scaleAndViewportRect
+     * @return The result scale and viewport rect
      */
-    public apply (_view, designedResolution) {
+    public apply (_view: View, designedResolution: Size) {
         return {scale: [1, 1]};
     }
 
     /**
-     * @en
-     * Manipulation after applying the strategy
+     * @en Manipulation after applying the strategy
      * @zh 策略调用之后的操作
-     * @method postApply
-     * @param {View} view - The target view
+     * @param view - The target view
      */
-    public postApply (_view) {
+    public postApply (_view: View) {
     }
 
     public _buildResult (containerW, containerH, contentW, contentH, scaleX, scaleY) {
@@ -1262,7 +1079,6 @@ class ContentStrategy {
 }
 
 (() => {
-
 // Container scale strategys
     /**
      * @class EqualToFrame
@@ -1440,25 +1256,45 @@ class ContentStrategy {
 })();
 
 /**
- * <p>ResolutionPolicy class is the root strategy class of scale strategy,
+ * ResolutionPolicy class is the root strategy class of scale strategy,
  * its main task is to maintain the compatibility with Cocos2d-x</p>
- *
- * @class ResolutionPolicy
- */
-/**
- * @method constructor
- * @param {ContainerStrategy} containerStg The container strategy
- * @param {ContentStrategy} contentStg The content strategy
  */
 export class ResolutionPolicy {
-    public static EXACT_FIT: number;
-    public static SHOW_ALL: number;
-    public static NO_BORDER: number;
-    public static FIXED_HEIGHT: number;
-    public static FIXED_WIDTH: number;
-    public static UNKNOWN: number;
-    public static ContainerStrategy: typeof ContainerStrategy;
-    public static ContentStrategy: typeof ContentStrategy;
+    /**
+     * The entire application is visible in the specified area without trying to preserve the original aspect ratio.<br/>
+     * Distortion can occur, and the application may appear stretched or compressed.
+     */
+    public static EXACT_FIT: number = 0;
+    /**
+     * The entire application fills the specified area, without distortion but possibly with some cropping,<br/>
+     * while maintaining the original aspect ratio of the application.
+     */
+    public static NO_BORDER: number = 1;
+    /**
+     * The entire application is visible in the specified area without distortion while maintaining the original<br/>
+     * aspect ratio of the application. Borders can appear on two sides of the application.
+     */
+    public static SHOW_ALL: number = 2;
+    /**
+     * The application takes the height of the design resolution size and modifies the width of the internal<br/>
+     * canvas so that it fits the aspect ratio of the device<br/>
+     * no distortion will occur however you must make sure your application works on different<br/>
+     * aspect ratios
+     */
+    public static FIXED_HEIGHT: number = 3;
+    /**
+     * The application takes the width of the design resolution size and modifies the height of the internal<br/>
+     * canvas so that it fits the aspect ratio of the device<br/>
+     * no distortion will occur however you must make sure your application works on different<br/>
+     * aspect ratios
+     */
+    public static FIXED_WIDTH: number = 4;
+    /**
+     * Unknown policy
+     */
+    public static UNKNOWN: number = 5;
+    public static ContainerStrategy: typeof ContainerStrategy = ContainerStrategy;
+    public static ContentStrategy: typeof ContentStrategy = ContentStrategy;
 
     public name = 'ResolutionPolicy';
 
@@ -1467,10 +1303,10 @@ export class ResolutionPolicy {
 
     /**
      * Constructor of ResolutionPolicy
-     * @param {ContainerStrategy} containerStg
-     * @param {ContentStrategy} contentStg
+     * @param containerStg
+     * @param contentStg
      */
-    constructor (containerStg, contentStg) {
+    constructor (containerStg: ContainerStrategy, contentStg: ContentStrategy) {
         this._containerStrategy = null;
         this._contentStrategy = null;
         this.setContainerStrategy(containerStg);
@@ -1484,10 +1320,9 @@ export class ResolutionPolicy {
     /**
      * @en Manipulation before applying the resolution policy
      * @zh 策略应用前的操作
-     * @method preApply
-     * @param {View} _view The target view
+     * @param _view The target view
      */
-    public preApply (_view) {
+    public preApply (_view: View) {
         this._containerStrategy!.preApply(_view);
         this._contentStrategy!.preApply(_view);
     }
@@ -1497,12 +1332,11 @@ export class ResolutionPolicy {
      * The return value is {scale: [scaleX, scaleY], viewport: {new Rect}},
      * The target view can then apply these value to itself, it's preferred not to modify directly its private variables
      * @zh 调用策略方法
-     * @method apply
-     * @param {View} _view - The target view
-     * @param {Size} designedResolution - The user defined design resolution
-     * @return {Object} An object contains the scale X/Y values and the viewport rect
+     * @param _view - The target view
+     * @param designedResolution - The user defined design resolution
+     * @return An object contains the scale X/Y values and the viewport rect
      */
-    public apply (_view, designedResolution) {
+    public apply (_view: View, designedResolution: Size) {
         this._containerStrategy!.apply(_view, designedResolution);
         return this._contentStrategy!.apply(_view, designedResolution);
     }
@@ -1510,100 +1344,35 @@ export class ResolutionPolicy {
     /**
      * @en Manipulation after appyling the strategy
      * @zh 策略应用之后的操作
-     * @method postApply
-     * @param {View} _view - The target view
+     * @param _view - The target view
      */
-    public postApply (_view) {
+    public postApply (_view: View) {
         this._containerStrategy!.postApply(_view);
         this._contentStrategy!.postApply(_view);
     }
 
     /**
-     * @en
-     * Setup the container's scale strategy
+     * @en Setup the container's scale strategy
      * @zh 设置容器的适配策略
-     * @method setContainerStrategy
-     * @param {ContainerStrategy} containerStg
+     * @param containerStg The container strategy
      */
-    public setContainerStrategy (containerStg) {
+    public setContainerStrategy (containerStg: ContainerStrategy) {
         if (containerStg instanceof ContainerStrategy) {
             this._containerStrategy = containerStg;
         }
     }
 
     /**
-     * @en
-     * Setup the content's scale strategy
+     * @en Setup the content's scale strategy
      * @zh 设置内容的适配策略
-     * @method setContentStrategy
-     * @param {ContentStrategy} contentStg
+     * @param contentStg The content strategy
      */
-    public setContentStrategy (contentStg) {
+    public setContentStrategy (contentStg: ContentStrategy) {
         if (contentStg instanceof ContentStrategy) {
             this._contentStrategy = contentStg;
         }
     }
 }
-
-/**
- * The entire application is visible in the specified area without trying to preserve the original aspect ratio.<br/>
- * Distortion can occur, and the application may appear stretched or compressed.
- * @property {Number} EXACT_FIT
- * @readonly
- * @static
- */
-ResolutionPolicy.EXACT_FIT = 0;
-
-/**
- * The entire application fills the specified area, without distortion but possibly with some cropping,<br/>
- * while maintaining the original aspect ratio of the application.
- * @property {Number} NO_BORDER
- * @readonly
- * @static
- */
-ResolutionPolicy.NO_BORDER = 1;
-
-/**
- * The entire application is visible in the specified area without distortion while maintaining the original<br/>
- * aspect ratio of the application. Borders can appear on two sides of the application.
- * @property {Number} SHOW_ALL
- * @readonly
- * @static
- */
-ResolutionPolicy.SHOW_ALL = 2;
-
-/**
- * The application takes the height of the design resolution size and modifies the width of the internal<br/>
- * canvas so that it fits the aspect ratio of the device<br/>
- * no distortion will occur however you must make sure your application works on different<br/>
- * aspect ratios
- * @property {Number} FIXED_HEIGHT
- * @readonly
- * @static
- */
-ResolutionPolicy.FIXED_HEIGHT = 3;
-
-/**
- * The application takes the width of the design resolution size and modifies the height of the internal<br/>
- * canvas so that it fits the aspect ratio of the device<br/>
- * no distortion will occur however you must make sure your application works on different<br/>
- * aspect ratios
- * @property {Number} FIXED_WIDTH
- * @readonly
- * @static
- */
-ResolutionPolicy.FIXED_WIDTH = 4;
-
-/**
- * Unknow policy
- * @property {Number} UNKNOWN
- * @readonly
- * @static
- */
-ResolutionPolicy.UNKNOWN = 5;
-
-ResolutionPolicy.ContainerStrategy = ContainerStrategy;
-ResolutionPolicy.ContentStrategy = ContentStrategy;
 cc.ResolutionPolicy = ResolutionPolicy;
 
 /**
@@ -1611,13 +1380,13 @@ cc.ResolutionPolicy = ResolutionPolicy;
  */
 
 /**
- * @en cc.view is the shared view object.
- * @zh cc.view 是全局的视图对象。
+ * @en view is the shared view object.
+ * @zh view 是全局的视图对象。
  */
 export const view = View.instance = cc.view = new View();
 
 /**
- * @en cc.winSize is the alias object for the size of the current game window.
- * @zh cc.winSize 为当前的游戏窗口的大小。
+ * @en winSize is the alias object for the size of the current game window.
+ * @zh winSize 为当前的游戏窗口的大小。
  */
-cc.winSize = cc.v2();
+cc.winSize = new Vec2();
