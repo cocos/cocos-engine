@@ -40,9 +40,9 @@ export class Tween {
 
     /**
      * @en
-     * Insert an action or tween to this sequence
+     * Insert an action or tween to this sequence.
      * @zh
-     * 插入一个 tween 到队列中
+     * 插入一个 tween 到队列中。
      * @method then 
      * @param {Tween} other
      * @return {Tween}
@@ -59,9 +59,9 @@ export class Tween {
 
     /**
      * @en
-     * Set tween target
+     * Sets tween target.
      * @zh
-     * 设置 tween 的 target
+     * 设置 tween 的 targ。et
      * @method target
      * @param {Object} target
      * @return {Tween}
@@ -81,9 +81,9 @@ export class Tween {
 
     /**
      * @en
-     * Start this tween
+     * Start this tween.
      * @zh
-     * 运行当前 tween
+     * 运行当前 tween。
      * @method start
      * @return {Tween}
      */
@@ -102,9 +102,9 @@ export class Tween {
 
     /**
      * @en
-     * Stop this tween
+     * Stop this tween.
      * @zh
-     * 停止当前 tween
+     * 停止当前 tween。
      * @method stop
      * @return {Tween}
      */
@@ -117,9 +117,9 @@ export class Tween {
 
     /**
      * @en
-     * Clone a tween
+     * Clone a tween.
      * @zh
-     * 克隆当前 tween
+     * 克隆当前 tween。
      * @method clone
      * @param {Object} [target]
      * @return {Tween}
@@ -146,9 +146,9 @@ export class Tween {
 
     /**
      * @en
-     * Add an action which calculate with absolute value
+     * Add an action which calculate with absolute value.
      * @zh
-     * 添加一个对属性进行绝对值计算的 action
+     * 添加一个对属性进行绝对值计算的 action。
      * @method to
      * @param {number} duration 缓动时间，单位为秒
      * @param {Object} props 缓动的属性列表
@@ -167,9 +167,9 @@ export class Tween {
 
     /**
      * @en
-     * Add an action which calculate with relative value
+     * Add an action which calculate with relative value.
      * @zh
-     * 添加一个对属性进行相对值计算的 action
+     * 添加一个对属性进行相对值计算的 action。
      * @method by
      * @param {number} duration 缓动时间，单位为秒
      * @param {Object} props 缓动的属性列表
@@ -188,9 +188,9 @@ export class Tween {
 
     /**
      * @en
-     * Directly set target properties
+     * Directly set target properties.
      * @zh
-     * 直接设置 target 的属性
+     * 直接设置 target 的属性。
      * @method set
      * @param {Object} props
      * @return {Tween}
@@ -203,9 +203,9 @@ export class Tween {
 
     /**
      * @en
-     * Add an delay action
+     * Add an delay action.
      * @zh
-     * 添加一个延时 action
+     * 添加一个延时 action。
      * @method delay
      * @param {number} duration 
      * @return {Tween}
@@ -218,9 +218,9 @@ export class Tween {
 
     /**
      * @en
-     * Add an callback action
+     * Add an callback action.
      * @zh
-     * 添加一个回调 action
+     * 添加一个回调 action。
      * @method call
      * @param {Function} callback
      * @return {Tween}
@@ -233,9 +233,9 @@ export class Tween {
 
     /**
      * @en
-     * Add an sequence action
+     * Add an sequence action.
      * @zh
-     * 添加一个队列 action
+     * 添加一个队列 action。
      * @method sequence
      * @param {Tween} action
      * @param {Tween} ...actions
@@ -249,9 +249,9 @@ export class Tween {
 
     /**
      * @en
-     * Add an parallel action
+     * Add an parallel action.
      * @zh
-     * 添加一个并行 action
+     * 添加一个并行 action。
      * @method parallel
      * @param {Tween} action
      * @param {Tween} ...actions
@@ -265,7 +265,7 @@ export class Tween {
 
     /**
      * @en
-     * Add an repeat action. 
+     * Add an repeat action.
      * This action will integrate before actions to a sequence action as their parameters.
      * @zh
      * 添加一个重复 action，这个 action 会将前一个动作作为他的参数。
@@ -295,7 +295,7 @@ export class Tween {
 
     /**
      * @en
-     * Add an repeat forever action
+     * Add an repeat forever action.
      * This action will integrate before actions to a sequence action as their parameters.
      * @zh
      * 添加一个永久重复 action，这个 action 会将前一个动作作为他的参数。
