@@ -126,9 +126,9 @@ function evaluateCurve (cr: CurveRange, time: number, index: number) {
         case Mode.Constant:
             return cr.constant;
         case Mode.Curve:
-            return cr.curve.evaluate(time);
+            return cr.curve.evaluate(time) * cr.multiplier;
         case Mode.TwoCurves:
-            return index === 0 ? cr.curveMin.evaluate(time) : cr.curveMax.evaluate(time);
+            return index === 0 ? cr.curveMin.evaluate(time) * cr.multiplier : cr.curveMax.evaluate(time) * cr.multiplier;
         case Mode.TwoConstants:
             return index === 0 ? cr.constantMin : cr.constantMax;
         default:
