@@ -1,6 +1,5 @@
-import { GFXBindingLayout, GFXBindingUnit, IGFXBindingLayoutInfo } from '../binding-layout';
+import { GFXBindingLayout, IGFXBindingLayoutInfo, GFXBindingUnit } from '../binding-layout';
 import { GFXBindingType, GFXStatus } from '../define';
-import { GFXDevice } from '../device';
 import { WebGLGFXBuffer } from './webgl-buffer';
 import { WebGLGPUBinding, WebGLGPUBindingLayout } from './webgl-gpu-objects';
 import { WebGLGFXSampler } from './webgl-sampler';
@@ -8,19 +7,16 @@ import { WebGLGFXTextureView } from './webgl-texture-view';
 
 export class WebGLGFXBindingLayout extends GFXBindingLayout {
 
-    public get gpuBindingLayout (): WebGLGPUBindingLayout {
-        return  this._gpuBindingLayout as WebGLGPUBindingLayout;
+    get gpuBindingLayout (): WebGLGPUBindingLayout {
+        return this._gpuBindingLayout as WebGLGPUBindingLayout;
     }
 
     private _gpuBindingLayout: WebGLGPUBindingLayout | null = null;
 
-    constructor (device: GFXDevice) {
-        super(device);
-    }
-
     public initialize (info: IGFXBindingLayoutInfo): boolean {
 
         this._bindingUnits = new Array<GFXBindingUnit>(info.bindings.length);
+
         for (let i = 0; i < info.bindings.length; ++i) {
             const binding = info.bindings[i];
             this._bindingUnits[i] = {

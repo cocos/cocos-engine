@@ -1,9 +1,8 @@
-import { GFXStatus } from '../define';
-import { GFXDevice } from '../device';
-import { GFXSampler, GFXSamplerState, IGFXSamplerInfo } from '../sampler';
+import { GFXSampler, IGFXSamplerInfo } from '../sampler';
 import { WebGL2CmdFuncCreateSampler, WebGL2CmdFuncDestroySampler } from './webgl2-commands';
 import { WebGL2GFXDevice } from './webgl2-device';
 import { WebGL2GPUSampler } from './webgl2-gpu-objects';
+import { GFXStatus } from '../define';
 
 export class WebGL2GFXSampler extends GFXSampler {
 
@@ -12,12 +11,6 @@ export class WebGL2GFXSampler extends GFXSampler {
     }
 
     private _gpuSampler: WebGL2GPUSampler | null = null;
-
-    constructor (device: GFXDevice) {
-        super(device);
-
-        this._state = new GFXSamplerState();
-    }
 
     public initialize (info: IGFXSamplerInfo): boolean {
 

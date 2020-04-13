@@ -23,7 +23,7 @@ export abstract class GFXPipelineLayout extends GFXObject {
      * @en Get current binding layouts.
      * @zh GFX 绑定布局数组。
      */
-    public get layouts (): GFXBindingLayout[] {
+    get layouts (): GFXBindingLayout[] {
         return this._layouts;
     }
 
