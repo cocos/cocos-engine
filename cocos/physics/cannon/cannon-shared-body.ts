@@ -42,7 +42,7 @@ export class CannonSharedBody {
 
     readonly node: Node;
     readonly wrappedWorld: CannonWorld;
-    readonly body: CANNON.Body = new CANNON.Body();
+    readonly body: CANNON.Body;
     readonly shapes: CannonShape[] = [];
     wrappedBody: CannonRigidBody | null = null;
 
@@ -84,8 +84,9 @@ export class CannonSharedBody {
     private constructor (node: Node, wrappedWorld: CannonWorld) {
         this.wrappedWorld = wrappedWorld;
         this.node = node;
+        this.body = new CANNON.Body();
         this.body.material = this.wrappedWorld.impl.defaultMaterial;
-        this.body.addEventListener('collide', this.onCollidedListener);
+        this.body.addEventListener('cc-collide', this.onCollidedListener);
     }
 
     addShape (v: CannonShape) {
@@ -139,14 +140,13 @@ export class CannonSharedBody {
     syncInitial () {
         Vec3.copy(this.body.position, this.node.worldPosition);
         Quat.copy(this.body.quaternion, this.node.worldRotation);
-
+        this.body.aabbNeedsUpdate = true;
         for (let i = 0; i < this.shapes.length; i++) {
             this.shapes[i].setScale(this.node.worldScale);
         }
+        commitShapeUpdates(this.body);
 
-        if (this.body.isSleeping()) {
-            this.body.wakeUp();
-        }
+        if (this.body.isSleeping()) this.body.wakeUp();
     }
 
     private destroy () {
@@ -192,14 +192,6 @@ export class CannonSharedBody {
             for (i = 0; i < this.shapes.length; i++) {
                 const shape = this.shapes[i];
                 shape.collider.emit(CollisionEventObject.type, CollisionEventObject);
-
-                // if (self.collider.node.hasChangedFlags) {
-                //     self.sharedBody.syncSceneToPhysics();
-                // }
-
-                // if (other.collider.node.hasChangedFlags) {
-                //     other.sharedBody.syncSceneToPhysics();
-                // }
             }
         }
     }

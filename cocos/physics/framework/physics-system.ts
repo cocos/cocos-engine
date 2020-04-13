@@ -31,6 +31,7 @@ export class PhysicsSystem extends System {
         return this._enable;
     }
     set enable (value: boolean) {
+        if (!value) this._timeReset = true;
         this._enable = value;
     }
 
@@ -110,11 +111,11 @@ export class PhysicsSystem extends System {
 
     /**
      * @en
-     * Gets the global default physical material. Note that builtin is null.
+     * Gets the global default physical material.
      * @zh
-     * 获取全局的默认物理材质，注意：builtin 时为 null。
+     * 获取全局的默认物理材质。
      */
-    get defaultMaterial (): PhysicMaterial | null {
+    get defaultMaterial (): PhysicMaterial {
         return this._material;
     }
 
@@ -156,7 +157,7 @@ export class PhysicsSystem extends System {
      * @zh
      * 获取物理系统实例。
      */
-    static get instance () {
+    static get instance (): PhysicsSystem {
         if (DEBUG && checkPhysicsModule(PhysicsSystem._instance)) { return null as any; }
         return PhysicsSystem._instance;
     }
@@ -169,10 +170,8 @@ export class PhysicsSystem extends System {
     private _maxSubStep = 1;
     private _deltaTime = 1.0 / 60.0;
     private _useFixedTime = true;
-
-    // private _frameRate = 60;
-    // private _singleStep = false;
-
+    private _timeSinceLastUpdate = 0;
+    private _timeReset = true;
     private readonly _material!: PhysicMaterial;
 
     private readonly raycastOptions: IRaycastOptions = {
@@ -189,20 +188,18 @@ export class PhysicsSystem extends System {
     private constructor () {
         super();
         this.physicsWorld = createPhysicsWorld();
-        if (!PHYSICS_BUILTIN) {
-            this.gravity = this._gravity;
-            this.allowSleep = this._allowSleep;
-            this._material = new PhysicMaterial();
-            this._material.friction = 0.5;
-            this._material.restitution = 0.0;
-            this._material.on('physics_material_update', this._updateMaterial, this);
-            this.physicsWorld.setDefaultMaterial(this._material);
-        }
+        this.gravity = this._gravity;
+        this.allowSleep = this._allowSleep;
+        this._material = new PhysicMaterial();
+        this._material.friction = 0.5;
+        this._material.restitution = 0.1;
+        this._material.on('physics_material_update', this._updateMaterial, this);
+        this.physicsWorld.setDefaultMaterial(this._material);
     }
 
     /**
      * @en
-     * Perform a simulation of the physical system, which will now be performed automatically on each frame.
+     * Perform a simulation of the physics system, which will now be performed automatically on each frame.
      * @zh
      * 执行一次物理系统的模拟，目前将在每帧自动执行一次。
      * @param deltaTime 与上一次执行相差的时间，目前为每帧消耗时间
@@ -211,18 +208,21 @@ export class PhysicsSystem extends System {
         if (EDITOR && !this._executeInEditMode) {
             return;
         }
+
         if (!this._enable) {
+            this.physicsWorld.syncSceneToPhysics();
             return;
         }
 
+        this._timeSinceLastUpdate = this._timeReset ? 0 : deltaTime;
+        this.physicsWorld.emitEvents();
         director.emit(Director.EVENT_BEFORE_PHYSICS);
-
+        this.physicsWorld.syncSceneToPhysics();
         if (this._useFixedTime) {
             this.physicsWorld.step(this._deltaTime);
         } else {
-            this.physicsWorld.step(this._deltaTime, deltaTime, this._maxSubStep);
+            this.physicsWorld.step(this._deltaTime, this._timeSinceLastUpdate, this._maxSubStep);
         }
-
         director.emit(Director.EVENT_AFTER_PHYSICS);
     }
 
