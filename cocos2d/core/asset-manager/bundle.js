@@ -537,7 +537,7 @@ Bundle.prototype = {
      * release(path: string): void
      */
     release (path, type) {
-        finalizer.release(this.get(path, type), true);
+        finalizer.tryRelease(this.get(path, type), true);
     },
 
     /**
@@ -561,7 +561,7 @@ Bundle.prototype = {
         assets.forEach(function (asset) {
             let info = self.getAssetInfo(asset._uuid);
             if (info && !info.redirect) {
-                finalizer.release(asset, false);
+                finalizer.tryRelease(asset);
             }
         });
     },
@@ -587,7 +587,7 @@ Bundle.prototype = {
         assets.forEach(function (asset) {
             let info = self.getAssetInfo(asset._uuid);
             if (info && !info.redirect) {
-                finalizer.release(asset, true);
+                finalizer.tryRelease(asset, true);
             }
         });
     },

@@ -278,7 +278,7 @@ cc.Asset = cc.Class({
      */
     decRef (autoRelease) {
         this._ref--;
-        autoRelease !== false && cc.assetManager.finalizer.release(false);
+        autoRelease !== false && cc.assetManager.finalizer.tryRelease(this);
     }
 });
 

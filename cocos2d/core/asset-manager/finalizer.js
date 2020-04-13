@@ -300,7 +300,7 @@ var finalizer = {
             var dependAsset = assets.get(depends[i]);
             if (dependAsset) {
                 dependAsset.decRef(false);
-                finalizer._free(dependAsset, force);
+                finalizer._free(dependAsset, false);
             }
         }
         asset.destroy();
@@ -309,19 +309,19 @@ var finalizer = {
 
     /**
      * !#en
-     * Refer to {{#crossLink "AssetManager/release:method"}}{{/crossLink}} for detailed informations
+     * Try to release the asset. If the reference number of asset equals 0 or 'force' is true, the asset will be released finally.
      * 
      * !#zh
-     * 详细信息请参考 {{#crossLink "AssetManager/release:method"}}{{/crossLink}}
+     * 尝试释放资源，如果资源的引用计数等于 0 或者 `force` 为 true，这个资源最终将被释放。
      * 
-     * @method release
+     * @method tryRelease
      * @param {Asset} asset - The asset to be released
      * @param {boolean} [force] - Indicates whether or not release this asset forcely
      *
      * @typescript
-     * release(asset: cc.Asset, force?: boolean): void
+     * tryRelease(asset: cc.Asset, force?: boolean): void
      */
-    release (asset, force) {
+    tryRelease (asset, force) {
         if (!(asset instanceof cc.Asset)) return;
         if (force) {
             finalizer._free(asset, force);

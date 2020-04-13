@@ -125,7 +125,7 @@ var builtins = {
         this._assets.forEach(function (assets) {
             assets.forEach(function (asset) {
                 finalizer.unlock(asset);
-                finalizer.release(asset, true);
+                finalizer.tryRelease(asset, true);
             });
             assets.clear();
         })

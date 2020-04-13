@@ -667,7 +667,7 @@ AssetManager.prototype = {
      * releaseAsset(asset: cc.Asset): void
      */
     releaseAsset (asset) {
-        finalizer.release(asset, true);
+        finalizer.tryRelease(asset, true);
     },
 
     /**
@@ -684,7 +684,7 @@ AssetManager.prototype = {
      */
     releaseUnusedAssets () {
         assets.forEach(function (asset) {
-            finalizer.release(asset, false);
+            finalizer.tryRelease(asset);
         });
     },
 
@@ -702,7 +702,7 @@ AssetManager.prototype = {
      */
     releaseAll () {
         assets.forEach(function (asset) {
-            finalizer.release(asset, true);
+            finalizer.tryRelease(asset, true);
         });
     },
 

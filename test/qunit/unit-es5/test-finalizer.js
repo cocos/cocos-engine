@@ -70,16 +70,16 @@ test('lock', function () {
     texA._uuid = 'AAA';
     cc.assetManager.assets.add('AAA', texA);
     cc.assetManager.finalizer.lock(texA);
-    cc.assetManager.finalizer.release(texA, true);
+    cc.assetManager.finalizer.tryRelease(texA, true);
     strictEqual(cc.assetManager.assets.count, 1, 'should equal to 1');
     cc.assetManager.finalizer.unlock(texA);
-    cc.assetManager.finalizer.release(texA, true);
+    cc.assetManager.finalizer.tryRelease(texA, true);
     strictEqual(cc.assetManager.assets.count, 0, 'should equal to 0');
 });
 
 test('AutoRelease', function () {
-    var originalRelease = cc.assetManager.finalizer.release;
-    cc.assetManager.finalizer.release = cc.assetManager.finalizer._free;
+    var originalRelease = cc.assetManager.finalizer.tryRelease;
+    cc.assetManager.finalizer.tryRelease = cc.assetManager.finalizer._free;
     var scene1 = new cc.Scene();
     scene1._id = 'scene 1';
     var scene2 = new cc.Scene();
@@ -107,13 +107,13 @@ test('AutoRelease', function () {
     strictEqual(cc.assetManager.assets.count, 2, 'should equal to 2');
     strictEqual(texB._ref, 1, 'should equal to 1');
     strictEqual(texC._ref, 1, 'should equal to 1');
-    cc.assetManager.finalizer.release = originalRelease;
+    cc.assetManager.finalizer.tryRelease = originalRelease;
     cc.assetManager.releaseAll();
 });
 
 test('autoRelease_polyfill', function () {
-    var originalRelease = cc.assetManager.finalizer.release;
-    cc.assetManager.finalizer.release = cc.assetManager.finalizer._free;
+    var originalRelease = cc.assetManager.finalizer.tryRelease;
+    cc.assetManager.finalizer.tryRelease = cc.assetManager.finalizer._free;
     var scene1 = new cc.Scene();
     scene1._id = 'scene 1';
     var scene2 = new cc.Scene();
@@ -125,12 +125,12 @@ test('autoRelease_polyfill', function () {
     strictEqual(cc.assetManager.assets.count, 1, 'should equal to 1');
     cc.assetManager.finalizer._autoRelease(scene1, scene2, []);
     strictEqual(cc.assetManager.assets.count, 0, 'should equal to 0');
-    cc.assetManager.finalizer.release = originalRelease;
+    cc.assetManager.finalizer.tryRelease = originalRelease;
 });
 
 test('persistNode', function () {
-    var originalRelease = cc.assetManager.finalizer.release;
-    cc.assetManager.finalizer.release = cc.assetManager.finalizer._free;
+    var originalRelease = cc.assetManager.finalizer.tryRelease;
+    cc.assetManager.finalizer.tryRelease = cc.assetManager.finalizer._free;
     var scene1 = new cc.Scene();
     scene1._id = 'scene 1';
     var scene2 = new cc.Scene();
@@ -158,6 +158,6 @@ test('persistNode', function () {
     strictEqual(sp._ref, 1, 'should equal to 1');
     cc.assetManager.finalizer._autoRelease(scene2, scene3, []);
     strictEqual(cc.assetManager.assets.count, 0, 'should equal to 0');
-    cc.assetManager.finalizer.release = originalRelease;
+    cc.assetManager.finalizer.tryRelease = originalRelease;
 });
 

@@ -757,7 +757,7 @@ finalizer._autoRelease = function () {
         let key = keys[i];
         if (releaseSettings[key] === true) {
             var asset = cc.assetManager.assets.get(key);
-            asset && finalizer.release(asset);
+            asset && finalizer.tryRelease(asset);
         }
     }
 };
