@@ -210,7 +210,8 @@ export class PhysicsSystem extends System {
         }
 
         if (!this._enable) {
-            return this.physicsWorld.syncSceneToPhysics();
+            this.physicsWorld.syncSceneToPhysics();
+            return;
         }
 
         this._timeSinceLastUpdate = this._timeReset ? 0 : deltaTime;
