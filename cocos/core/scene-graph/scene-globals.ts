@@ -381,7 +381,6 @@ export class FogInfo {
         this.fogRange = this._fogRange;
     }
 }
-cc.FogInfo = FogInfo;
 
 /**
  * @zh 平面阴影相关信息
