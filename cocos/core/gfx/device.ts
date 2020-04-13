@@ -330,6 +330,22 @@ export abstract class GFXDevice {
         this._reverseCW = val;
     }
 
+    /**
+     * @en The minimum Z value in clip space for the device.
+     * @zh 当前设备剪裁空间的最小 z 值。
+     */
+    get minClipZ () {
+        return this._minClipZ;
+    }
+
+    /**
+     * @en The sign to apply to the Y axis of projection matrices, positive value for pointing upwards.
+     * @zh 投影矩阵的 y 轴符号，正值为向上。
+     */
+    get projectionSignY () {
+        return this._projectionSignY;
+    }
+
     protected _canvas: HTMLCanvasElement | null = null;
     protected _canvas2D: HTMLCanvasElement | null = null;
     protected _gfxAPI: GFXAPI = GFXAPI.UNKNOWN;
@@ -369,6 +385,8 @@ export abstract class GFXDevice {
         bufferSize: 0,
         textureSize: 0,
     };
+    protected _minClipZ = -1;
+    protected _projectionSignY = 1;
 
     public abstract initialize (info: IGFXDeviceInfo): boolean;
 
