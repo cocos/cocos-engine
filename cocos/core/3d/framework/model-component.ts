@@ -30,7 +30,7 @@
 import { Texture2D } from '../../assets';
 import { Material } from '../../assets/material';
 import { Mesh } from '../../assets/mesh';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, property } from '../../data/class-decorator';
 import { Vec4 } from '../../math';
 import { Model } from '../../renderer/scene/model';
 import { MorphModel } from '../../renderer/models/morph-model';
@@ -138,6 +138,7 @@ class ModelLightmapSettings {
  * @class ModelComponent
  */
 @ccclass('cc.ModelComponent')
+@help('i18n:cc.ModelComponent')
 @executionOrder(100)
 @menu('Components/Model')
 @executeInEditMode

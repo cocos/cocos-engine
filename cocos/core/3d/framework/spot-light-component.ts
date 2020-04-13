@@ -27,13 +27,14 @@
  * @category component/light
  */
 
-import { ccclass, executeInEditMode, menu, property } from '../../data/class-decorator';
+import { ccclass, help, executeInEditMode, menu, property } from '../../data/class-decorator';
 import { toRadian } from '../../math';
 import { LightType, nt2lm } from '../../renderer/scene/light';
 import { SpotLight } from '../../renderer/scene/spot-light';
 import { LightComponent, PhotometricTerm } from './light-component';
 
 @ccclass('cc.SpotLightComponent')
+@help('i18n:cc.SpotLightComponent')
 @menu('Light/SpotLight')
 @executeInEditMode
 export class SpotLightComponent extends LightComponent {

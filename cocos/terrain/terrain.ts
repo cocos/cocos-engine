@@ -813,10 +813,7 @@ export class Terrain extends Component {
     }
 
     public exportAsset () {
-        let asset = this._asset;
-        if (asset == null) {
-            asset = new TerrainAsset();
-        }
+        const asset = new TerrainAsset();
 
         asset.tileSize = this.tileSize;
         asset.blockCount = this.blockCount;
@@ -973,8 +970,8 @@ export class Terrain extends Component {
     }
 
     public getHeightAt (x: number, y: number) {
-        const fx = x / this.vertexCount[0];
-        const fy = y / this.vertexCount[1];
+        const fx = x / this.tileSize;
+        const fy = y / this.tileSize;
 
         let ix0 = Math.floor(fx);
         let iz0 = Math.floor(fy);
@@ -1033,8 +1030,8 @@ export class Terrain extends Component {
     }
 
     public getNormalAt (x: number, y: number) {
-        const fx = x / this.vertexCount[0];
-        const fy = y / this.vertexCount[1];
+        const fx = x / this.tileSize;
+        const fy = y / this.tileSize;
 
         let ix0 = Math.floor(fx);
         let iz0 = Math.floor(fy);
@@ -1104,8 +1101,8 @@ export class Terrain extends Component {
     }
 
     public getWeightAt (x: number, y: number) {
-        const fx = x / this.vertexCount[0];
-        const fy = y / this.vertexCount[1];
+        const fx = x / this.tileSize;
+        const fy = y / this.tileSize;
 
         let ix0 = Math.floor(fx);
         let iz0 = Math.floor(fy);

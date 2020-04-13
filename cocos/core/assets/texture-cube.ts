@@ -279,14 +279,14 @@ cc.TextureCube = TextureCube;
 
 interface ITextureCubeSerializeData {
     base: string;
-    mipmaps: Array<{
+    mipmaps: {
         front: string;
         back: string;
         left: string;
         right: string;
         top: string;
         bottom: string;
-    }>;
+    }[];
 }
 
 /**

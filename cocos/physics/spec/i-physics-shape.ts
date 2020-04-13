@@ -28,7 +28,7 @@ export interface ISphereShape extends IBaseShape {
 
 export interface ICapsuleShape extends IBaseShape {
     setRadius: (v: number) => void;
-    setHeight: (v: number) => void;
+    setCylinderHeight: (v: number) => void;
     setDirection: (v: number) => void;
 }
 

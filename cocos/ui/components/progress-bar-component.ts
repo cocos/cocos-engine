@@ -29,7 +29,7 @@
  */
 
 import { Component} from '../../core/components';
-import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { Size, Vec2, Vec3 } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import { clamp01 } from '../../core/math/utils';
@@ -97,6 +97,7 @@ Enum(Mode);
  * ```
  */
 @ccclass('cc.ProgressBarComponent')
+@help('i18n:cc.ProgressBarComponent')
 @executionOrder(110)
 @menu('UI/ProgressBar')
 // @executeInEditMode

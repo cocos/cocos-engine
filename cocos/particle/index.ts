@@ -6,6 +6,7 @@ import { BillboardComponent } from './billboard-component';
 import { LineComponent } from './line-component';
 import { ParticleSystemComponent } from './particle-system-component';
 import { ParticleUtils } from './particle-utils';
+import './deprecated';
 
 export {
     BillboardComponent,

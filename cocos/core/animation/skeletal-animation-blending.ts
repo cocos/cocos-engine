@@ -6,7 +6,7 @@ import { IValueProxyFactory } from './value-proxy';
 export class BlendStateBuffer {
     private _nodeBlendStates: Map<Node, NodeBlendState> = new Map();
 
-    ref (node: Node, property: BlendingProperty) {
+    public ref (node: Node, property: BlendingProperty) {
         let nodeBlendState = this._nodeBlendStates.get(node);
         if (!nodeBlendState) {
             nodeBlendState = {  properties: {} };
@@ -24,7 +24,7 @@ export class BlendStateBuffer {
         return propertyBlendState;
     }
 
-    deRef (node: Node, property: BlendingProperty) {
+    public deRef (node: Node, property: BlendingProperty) {
         const nodeBlendState = this._nodeBlendStates.get(node);
         if (!nodeBlendState) {
             return;
@@ -43,48 +43,64 @@ export class BlendStateBuffer {
         }
     }
 
-    apply () {
+    public apply () {
         this._nodeBlendStates.forEach((nodeBlendState, node) => {
             const { position, scale, rotation } = nodeBlendState.properties;
+            let t: Vec3 | undefined;
+            let s: Vec3 | undefined;
+            let r: Quat | undefined;
+            let anyChanged = false;
             if (position && position.weight !== 0) {
-                node.setPosition(position.value);
                 position.weight = 0;
+                t = position.value;
+                anyChanged = true;
             }
             if (scale && scale.weight !== 0) {
-                node.setScale(scale.value);
                 scale.weight = 0;
+                s = scale.value;
+                anyChanged = true;
             }
             if (rotation && rotation.weight !== 0) {
-                node.setRotation(rotation.value);
                 rotation.weight = 0;
+                r = rotation.value;
+                anyChanged = true;
+            }
+            if (anyChanged) {
+                node.setRTS(r, t, s);
             }
         });
     }
 }
 
 export type IBlendStateWriter = IValueProxyFactory & {
-    start: () => void;
-    stop: () => void;
-}
+    initialize: () => void;
+    destroy: () => void;
+};
 
 export function createBlendStateWriter<P extends BlendingProperty>(
     blendState: BlendStateBuffer,
     node: Node,
     property: P,
-    weightProxy: { weight: number; }
-    ): IBlendStateWriter {
+    weightProxy: { weight: number },
+    /**
+     * True if this writer will write constant value each time.
+     */
+    constants: boolean,
+): IBlendStateWriter {
     const blendFunction: BlendFunction<BlendingPropertyValue<P>> =
         (property === 'position' || property === 'scale') ?
             additive3D as any:
             additiveQuat as any;
     let propertyBlendState: PropertyBlendState<BlendingPropertyValue<P>> | null = null;
+    let isConstCacheValid = false;
+    let lastWeight = -1;
     return {
-        start : () => {
+        initialize: function () {
             if (!propertyBlendState) {
                 propertyBlendState = blendState.ref(node, property);
             }
         },
-        stop: () => {
+        destroy: function () {
             if (propertyBlendState) {
                 blendState.deRef(node, property);
                 propertyBlendState = null;
@@ -93,10 +109,27 @@ export function createBlendStateWriter<P extends BlendingProperty>(
         forTarget: (_) => {
             return {
                 set: (value: BlendingPropertyValue<P>) => {
-                    if (propertyBlendState) {
-                        blendFunction(value, weightProxy.weight, propertyBlendState);
-                        propertyBlendState.weight += weightProxy.weight;
+                    if (!propertyBlendState) {
+                        return;
                     }
+                    const weight = weightProxy.weight;
+                    if (constants) {
+                        if (weight !== 1 ||
+                            weight !== lastWeight) {
+                            // If there are multi writer for this property at this time,
+                            // or if the weight has been changed since last write, 
+                            // we should invalidate the cache.
+                            isConstCacheValid = false;
+                        } else if (isConstCacheValid) {
+                            // Otherwise, we may keep to use the cache.
+                            // i.e we leave the weight to 0 to prevent the property from modifying.
+                            return;
+                        }
+                    }
+                    blendFunction(value, weight, propertyBlendState);
+                    propertyBlendState.weight += weight;
+                    isConstCacheValid = true;
+                    lastWeight = weight;
                 },
             };
         },
@@ -110,6 +143,10 @@ type BlendingPropertyValue<P extends BlendingProperty> = NonNullable<NodeBlendSt
 interface PropertyBlendState<T> {
     weight: number;
     value: T;
+
+    /**
+     * How many writer reference this property.
+     */
     refCount: number;
 }
 

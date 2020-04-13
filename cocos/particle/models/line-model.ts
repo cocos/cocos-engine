@@ -211,9 +211,9 @@ export class LineModel extends Model {
     }
 
     private destroySubMeshData () {
-        for (const vb of this._subMeshData!.vertexBuffers) {
-            vb.destroy();
+        if (this._subMeshData) {
+            this._subMeshData.destroy();
+            this._subMeshData = null;
         }
-        this._subMeshData!.indexBuffer!.destroy();
     }
 }

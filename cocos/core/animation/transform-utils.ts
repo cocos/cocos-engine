@@ -49,4 +49,5 @@ export function getWorldTransformUntilRoot (target: Node, root: Node, outMatrix:
         Mat4.multiply(outMatrix, m4_1, outMatrix);
         target = target.parent!;
     }
+    return outMatrix;
 }

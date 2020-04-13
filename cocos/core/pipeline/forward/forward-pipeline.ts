@@ -5,7 +5,6 @@
 import { ccclass } from '../../data/class-decorator';
 import { intersect, sphere } from '../../geometry';
 import { GFXBuffer } from '../../gfx/buffer';
-import { GFXBindingType, GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 import { Vec3 } from '../../math';
 import { Light, Model } from '../../renderer';
 import { DirectionalLight } from '../../renderer/scene/directional-light';
@@ -14,11 +13,12 @@ import { SphereLight } from '../../renderer/scene/sphere-light';
 import { SpotLight } from '../../renderer/scene/spot-light';
 import { Root } from '../../root';
 import { cullDirectionalLight, cullSphereLight, cullSpotLight } from '../culling';
-import { PIPELINE_FLOW_TONEMAP, UBOForwardLight } from '../define';
+import { UBOForwardLight } from '../define';
 import { IRenderPipelineInfo, RenderPipeline } from '../render-pipeline';
 import { RenderView } from '../render-view';
 import { UIFlow } from '../ui/ui-flow';
 import { ForwardFlow } from './forward-flow';
+import { ToneMapFlow } from '../ppfx/tonemap-flow';
 
 const _vec4Array = new Float32Array(4);
 const _sphere = sphere.create(0, 0, 0, 1);
@@ -102,7 +102,10 @@ export class ForwardPipeline extends RenderPipeline {
                 });
                 */
             }
-            this.getFlow(PIPELINE_FLOW_TONEMAP)!.activate(this);
+            const tonemapFlow = new ToneMapFlow();
+            tonemapFlow.initialize(ForwardFlow.initInfo);
+            this._flows.push(tonemapFlow);
+            tonemapFlow.activate(this);
         }
 
         const uiFlow = new UIFlow();

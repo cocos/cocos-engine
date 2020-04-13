@@ -354,7 +354,7 @@ export class Mouse extends EventListener {
 
     public _callback (event: EventMouse) {
         const eventType = cc.Event.EventMouse;
-        switch (event._eventType) {
+        switch (event.eventType) {
             case eventType.DOWN:
                 if (this.onMouseDown) {
                     this.onMouseDown(event);

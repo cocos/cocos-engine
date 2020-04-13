@@ -144,6 +144,10 @@ export interface ICustomJointTextureLayout {
     contents: IChunkContent[];
 }
 
+// Have to use some big number to replace the actual 'Infinity'.
+// For (Infinity - Infinity) evaluates to NaN
+const Inf = Number.MAX_SAFE_INTEGER;
+
 export class JointTexturePool {
 
     private _device: GFXDevice;
@@ -180,7 +184,7 @@ export class JointTexturePool {
             const layout = layouts[i];
             const chunkIdx = this._customPool.createChunk(layout.textureLength);
             for (let j = 0; j < layout.contents.length; j++) {
-                const content = layout.contents[i];
+                const content = layout.contents[j];
                 const skeleton = content.skeleton;
                 this._chunkIdxMap.set(skeleton, chunkIdx); // include default pose too
                 for (let k = 0; k < content.clips.length; k++) {
@@ -214,13 +218,16 @@ export class JointTexturePool {
                 skeletonHash: skeleton.hash, clipHash: 0, readyToBeDeleted: false, handle };
             textureBuffer = new Float32Array(bufSize); buildTexture = true;
         } else { texture.refCount++; }
-        Vec3.set(v3_min,  Infinity,  Infinity,  Infinity);
-        Vec3.set(v3_max, -Infinity, -Infinity, -Infinity);
+        Vec3.set(v3_min,  Inf,  Inf,  Inf);
+        Vec3.set(v3_max, -Inf, -Inf, -Inf);
         const boneSpaceBounds = mesh.getBoneSpaceBounds(skeleton);
         for (let i = 0; i < joints.length; i++) {
             const node = skinningRoot.getChildByPath(joints[i]);
             const bound = boneSpaceBounds[i];
-            if (!node) { continue; } // don't skip null `bound` here, or it becomes mesh-specific
+            if (!node) { // don't skip null `bound` here, or it becomes mesh-specific
+                if (buildTexture) { uploadJointData(textureBuffer, 12 * i, Mat4.IDENTITY, i === 0); }
+                continue;
+            }
             getWorldTransformUntilRoot(node, skinningRoot, m4_1);
             if (bound) {
                 aabb.transform(ab_1, bound, m4_1);
@@ -248,7 +255,7 @@ export class JointTexturePool {
      * @zh
      * 获取指定动画片段的骨骼贴图。
      */
-    public getSequencePoseTexture (skeleton: Skeleton, clip: AnimationClip, mesh: Mesh) {
+    public getSequencePoseTexture (skeleton: Skeleton, clip: AnimationClip, mesh: Mesh, skinningRoot: Node) {
         const hash = skeleton.hash ^ clip.hash;
         let texture: IJointTextureHandle | null = this._textureBuffers.get(hash) || null;
         if (texture && texture.bounds.has(mesh.hash)) { texture.refCount++; return texture; }
@@ -268,18 +275,22 @@ export class JointTexturePool {
                 skeletonHash: skeleton.hash, clipHash: clip.hash, readyToBeDeleted: false, handle };
             textureBuffer = new Float32Array(bufSize); buildTexture = true;
         } else { texture.refCount++; }
-        Vec3.set(v3_min,  Infinity,  Infinity,  Infinity);
-        Vec3.set(v3_max, -Infinity, -Infinity, -Infinity);
         const boneSpaceBounds = mesh.getBoneSpaceBounds(skeleton);
         const bounds: aabb[] = []; texture.bounds.set(mesh.hash, bounds);
         for (let fid = 0; fid < frames; fid++) {
-            bounds.push(new aabb(Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity));
+            bounds.push(new aabb(Inf, Inf, Inf, -Inf, -Inf, -Inf));
         }
+        let offset = 0;
         for (let frame = 0; frame < frames; frame++) {
             const bound = bounds[frame];
-            for (let i = 0; i < totalJoints; i++) {
+            for (let i = 0; i < totalJoints; i++, offset += 12) {
                 const nodeData = clipData.data[joints[i]];
-                if (!nodeData) { continue; } // don't skip null `boneSpaceBounds` here, or it becomes mesh-specific
+                if (!nodeData) { // don't skip null `boneSpaceBounds` here, or it becomes mesh-specific
+                    const node = skinningRoot.getChildByPath(joints[i]); // fallback to default pose
+                    const mat = node ? getWorldTransformUntilRoot(node, skinningRoot, m4_1) : Mat4.IDENTITY;
+                    if (buildTexture) { uploadJointData(textureBuffer, offset, mat, i === 0); }
+                    continue;
+                }
                 const matrix = nodeData.worldMatrix.values as Mat4[];
                 const m = matrix[frame];
                 const boneSpaceBound = boneSpaceBounds[i];
@@ -292,7 +303,7 @@ export class JointTexturePool {
                 if (buildTexture) {
                     const bindpose = bindposes[i];
                     Mat4.multiply(m4_1, m, bindpose);
-                    uploadJointData(textureBuffer, 12 * (totalJoints * frame + i), m4_1, i === 0);
+                    uploadJointData(textureBuffer, offset, m4_1, i === 0);
                 }
             }
             aabb.fromPoints(bound, bound.center, bound.halfExtents);
@@ -307,7 +318,8 @@ export class JointTexturePool {
     public releaseHandle (handle: IJointTextureHandle) {
         if (handle.refCount > 0) { handle.refCount--; }
         if (!handle.refCount && handle.readyToBeDeleted) {
-            this._pool.free(handle.handle);
+            const customChunkIdx = this._chunkIdxMap.get(handle.skeletonHash ^ handle.clipHash);
+            (customChunkIdx !== undefined ? this._customPool : this._pool).free(handle.handle);
             this._textureBuffers.delete(handle.skeletonHash ^ handle.clipHash);
         }
     }

@@ -5,27 +5,38 @@
 
 import { ccclass, property } from '../../core/data/class-decorator';
 import { lerp, pseudoRandom, Vec3, Mat4, Quat } from '../../core/math';
-import { Space } from '../enum';
-import Particle from '../particle';
+import { Space, ModuleRandSeed } from '../enum';
+import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
 import { calculateTransform } from '../particle-general-function';
 
 // tslint:disable: max-line-length
-const LIMIT_VELOCITY_RAND_OFFSET = 23541;
+const LIMIT_VELOCITY_RAND_OFFSET = ModuleRandSeed.LIMIT;
 
 const _temp_v3 = new Vec3();
 const _temp_v3_1 = new Vec3();
 
 @ccclass('cc.LimitVelocityOvertimeModule')
-export default class LimitVelocityOvertimeModule {
+export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
 
+    @property
+    _enable: Boolean = false;
     /**
      * @zh 是否启用。
      */
     @property({
         displayOrder: 0,
     })
-    public enable = false;
+    public get enable () {
+        return this._enable;
+    }
+
+    public set enable (val) {
+        if (this._enable === val) return;
+        this._enable = val;
+        if (!this.target) return;
+        this.target.enableModule(this.name, val, this);
+    }
 
     /**
      * @zh X 轴方向上的速度下限。
@@ -101,24 +112,24 @@ export default class LimitVelocityOvertimeModule {
 
     // TODO:functions related to drag are temporarily not supported
     public drag = null;
-
     public multiplyDragByParticleSize = false;
-
     public multiplyDragByParticleVelocity = false;
-    
+    public name = PARTICLE_MODULE_NAME.LIMIT;
     private rotation: Quat;
     private needTransform: boolean;
 
     constructor () {
+        super();
         this.rotation = new Quat();
         this.needTransform = false;
+        this.needUpdate = true;
     }
 
     public update (space: number, worldTransform: Mat4) {
         this.needTransform = calculateTransform(space, this.space, worldTransform, this.rotation);
     }
 
-    public animate (p: Particle) {
+    public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         const dampedVel = _temp_v3;
         if (this.separateAxes) {

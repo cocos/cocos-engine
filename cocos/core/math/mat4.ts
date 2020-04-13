@@ -35,11 +35,6 @@ import { IMat4Like, IVec3Like } from './type-define';
 import { EPSILON } from './utils';
 import { Vec3 } from './vec3';
 
-let _a00: number = 0; let _a01: number = 0; let _a02: number = 0; let _a03: number = 0;
-let _a10: number = 0; let _a11: number = 0; let _a12: number = 0; let _a13: number = 0;
-let _a20: number = 0; let _a21: number = 0; let _a22: number = 0; let _a23: number = 0;
-let _a30: number = 0; let _a31: number = 0; let _a32: number = 0; let _a33: number = 0;
-
 /**
  * 表示四维（4x4）矩阵。
  */
@@ -168,23 +163,23 @@ export class Mat4 extends ValueType {
      */
     public static invert <Out extends IMat4Like> (out: Out, a: Out) {
 
-        _a00 = a.m00; _a01 = a.m01; _a02 = a.m02; _a03 = a.m03;
-        _a10 = a.m04; _a11 = a.m05; _a12 = a.m06; _a13 = a.m07;
-        _a20 = a.m08; _a21 = a.m09; _a22 = a.m10; _a23 = a.m11;
-        _a30 = a.m12; _a31 = a.m13; _a32 = a.m14; _a33 = a.m15;
+        const a00 = a.m00; const a01 = a.m01; const a02 = a.m02; const a03 = a.m03;
+        const a10 = a.m04; const a11 = a.m05; const a12 = a.m06; const a13 = a.m07;
+        const a20 = a.m08; const a21 = a.m09; const a22 = a.m10; const a23 = a.m11;
+        const a30 = a.m12; const a31 = a.m13; const a32 = a.m14; const a33 = a.m15;
 
-        const b00 = _a00 * _a11 - _a01 * _a10;
-        const b01 = _a00 * _a12 - _a02 * _a10;
-        const b02 = _a00 * _a13 - _a03 * _a10;
-        const b03 = _a01 * _a12 - _a02 * _a11;
-        const b04 = _a01 * _a13 - _a03 * _a11;
-        const b05 = _a02 * _a13 - _a03 * _a12;
-        const b06 = _a20 * _a31 - _a21 * _a30;
-        const b07 = _a20 * _a32 - _a22 * _a30;
-        const b08 = _a20 * _a33 - _a23 * _a30;
-        const b09 = _a21 * _a32 - _a22 * _a31;
-        const b10 = _a21 * _a33 - _a23 * _a31;
-        const b11 = _a22 * _a33 - _a23 * _a32;
+        const b00 = a00 * a11 - a01 * a10;
+        const b01 = a00 * a12 - a02 * a10;
+        const b02 = a00 * a13 - a03 * a10;
+        const b03 = a01 * a12 - a02 * a11;
+        const b04 = a01 * a13 - a03 * a11;
+        const b05 = a02 * a13 - a03 * a12;
+        const b06 = a20 * a31 - a21 * a30;
+        const b07 = a20 * a32 - a22 * a30;
+        const b08 = a20 * a33 - a23 * a30;
+        const b09 = a21 * a32 - a22 * a31;
+        const b10 = a21 * a33 - a23 * a31;
+        const b11 = a22 * a33 - a23 * a32;
 
         // Calculate the determinant
         let det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
@@ -198,22 +193,22 @@ export class Mat4 extends ValueType {
         }
         det = 1.0 / det;
 
-        out.m00 = (_a11 * b11 - _a12 * b10 + _a13 * b09) * det;
-        out.m01 = (_a02 * b10 - _a01 * b11 - _a03 * b09) * det;
-        out.m02 = (_a31 * b05 - _a32 * b04 + _a33 * b03) * det;
-        out.m03 = (_a22 * b04 - _a21 * b05 - _a23 * b03) * det;
-        out.m04 = (_a12 * b08 - _a10 * b11 - _a13 * b07) * det;
-        out.m05 = (_a00 * b11 - _a02 * b08 + _a03 * b07) * det;
-        out.m06 = (_a32 * b02 - _a30 * b05 - _a33 * b01) * det;
-        out.m07 = (_a20 * b05 - _a22 * b02 + _a23 * b01) * det;
-        out.m08 = (_a10 * b10 - _a11 * b08 + _a13 * b06) * det;
-        out.m09 = (_a01 * b08 - _a00 * b10 - _a03 * b06) * det;
-        out.m10 = (_a30 * b04 - _a31 * b02 + _a33 * b00) * det;
-        out.m11 = (_a21 * b02 - _a20 * b04 - _a23 * b00) * det;
-        out.m12 = (_a11 * b07 - _a10 * b09 - _a12 * b06) * det;
-        out.m13 = (_a00 * b09 - _a01 * b07 + _a02 * b06) * det;
-        out.m14 = (_a31 * b01 - _a30 * b03 - _a32 * b00) * det;
-        out.m15 = (_a20 * b03 - _a21 * b01 + _a22 * b00) * det;
+        out.m00 = (a11 * b11 - a12 * b10 + a13 * b09) * det;
+        out.m01 = (a02 * b10 - a01 * b11 - a03 * b09) * det;
+        out.m02 = (a31 * b05 - a32 * b04 + a33 * b03) * det;
+        out.m03 = (a22 * b04 - a21 * b05 - a23 * b03) * det;
+        out.m04 = (a12 * b08 - a10 * b11 - a13 * b07) * det;
+        out.m05 = (a00 * b11 - a02 * b08 + a03 * b07) * det;
+        out.m06 = (a32 * b02 - a30 * b05 - a33 * b01) * det;
+        out.m07 = (a20 * b05 - a22 * b02 + a23 * b01) * det;
+        out.m08 = (a10 * b10 - a11 * b08 + a13 * b06) * det;
+        out.m09 = (a01 * b08 - a00 * b10 - a03 * b06) * det;
+        out.m10 = (a30 * b04 - a31 * b02 + a33 * b00) * det;
+        out.m11 = (a21 * b02 - a20 * b04 - a23 * b00) * det;
+        out.m12 = (a11 * b07 - a10 * b09 - a12 * b06) * det;
+        out.m13 = (a00 * b09 - a01 * b07 + a02 * b06) * det;
+        out.m14 = (a31 * b01 - a30 * b03 - a32 * b00) * det;
+        out.m15 = (a20 * b03 - a21 * b01 + a22 * b00) * det;
 
         return out;
     }
@@ -222,23 +217,23 @@ export class Mat4 extends ValueType {
      * @zh 矩阵行列式
      */
     public static determinant <Out extends IMat4Like> (a: Out): number {
-        _a00 = a.m00; _a01 = a.m01; _a02 = a.m02; _a03 = a.m03;
-        _a10 = a.m04; _a11 = a.m05; _a12 = a.m06; _a13 = a.m07;
-        _a20 = a.m08; _a21 = a.m09; _a22 = a.m10; _a23 = a.m11;
-        _a30 = a.m12; _a31 = a.m13; _a32 = a.m14; _a33 = a.m15;
+        const a00 = a.m00; const a01 = a.m01; const a02 = a.m02; const a03 = a.m03;
+        const a10 = a.m04; const a11 = a.m05; const a12 = a.m06; const a13 = a.m07;
+        const a20 = a.m08; const a21 = a.m09; const a22 = a.m10; const a23 = a.m11;
+        const a30 = a.m12; const a31 = a.m13; const a32 = a.m14; const a33 = a.m15;
 
-        const b00 = _a00 * _a11 - _a01 * _a10;
-        const b01 = _a00 * _a12 - _a02 * _a10;
-        const b02 = _a00 * _a13 - _a03 * _a10;
-        const b03 = _a01 * _a12 - _a02 * _a11;
-        const b04 = _a01 * _a13 - _a03 * _a11;
-        const b05 = _a02 * _a13 - _a03 * _a12;
-        const b06 = _a20 * _a31 - _a21 * _a30;
-        const b07 = _a20 * _a32 - _a22 * _a30;
-        const b08 = _a20 * _a33 - _a23 * _a30;
-        const b09 = _a21 * _a32 - _a22 * _a31;
-        const b10 = _a21 * _a33 - _a23 * _a31;
-        const b11 = _a22 * _a33 - _a23 * _a32;
+        const b00 = a00 * a11 - a01 * a10;
+        const b01 = a00 * a12 - a02 * a10;
+        const b02 = a00 * a13 - a03 * a10;
+        const b03 = a01 * a12 - a02 * a11;
+        const b04 = a01 * a13 - a03 * a11;
+        const b05 = a02 * a13 - a03 * a12;
+        const b06 = a20 * a31 - a21 * a30;
+        const b07 = a20 * a32 - a22 * a30;
+        const b08 = a20 * a33 - a23 * a30;
+        const b09 = a21 * a32 - a22 * a31;
+        const b10 = a21 * a33 - a23 * a31;
+        const b11 = a22 * a33 - a23 * a32;
 
         // Calculate the determinant
         return b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
@@ -248,35 +243,35 @@ export class Mat4 extends ValueType {
      * @zh 矩阵乘法
      */
     public static multiply <Out extends IMat4Like> (out: Out, a: Out, b: Out) {
-        _a00 = a.m00; _a01 = a.m01; _a02 = a.m02; _a03 = a.m03;
-        _a10 = a.m04; _a11 = a.m05; _a12 = a.m06; _a13 = a.m07;
-        _a20 = a.m08; _a21 = a.m09; _a22 = a.m10; _a23 = a.m11;
-        _a30 = a.m12; _a31 = a.m13; _a32 = a.m14; _a33 = a.m15;
+        const a00 = a.m00; const a01 = a.m01; const a02 = a.m02; const a03 = a.m03;
+        const a10 = a.m04; const a11 = a.m05; const a12 = a.m06; const a13 = a.m07;
+        const a20 = a.m08; const a21 = a.m09; const a22 = a.m10; const a23 = a.m11;
+        const a30 = a.m12; const a31 = a.m13; const a32 = a.m14; const a33 = a.m15;
 
         // Cache only the current line of the second matrix
         let b0 = b.m00, b1 = b.m01, b2 = b.m02, b3 = b.m03;
-        out.m00 = b0 * _a00 + b1 * _a10 + b2 * _a20 + b3 * _a30;
-        out.m01 = b0 * _a01 + b1 * _a11 + b2 * _a21 + b3 * _a31;
-        out.m02 = b0 * _a02 + b1 * _a12 + b2 * _a22 + b3 * _a32;
-        out.m03 = b0 * _a03 + b1 * _a13 + b2 * _a23 + b3 * _a33;
+        out.m00 = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+        out.m01 = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+        out.m02 = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+        out.m03 = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
 
         b0 = b.m04; b1 = b.m05; b2 = b.m06; b3 = b.m07;
-        out.m04 = b0 * _a00 + b1 * _a10 + b2 * _a20 + b3 * _a30;
-        out.m05 = b0 * _a01 + b1 * _a11 + b2 * _a21 + b3 * _a31;
-        out.m06 = b0 * _a02 + b1 * _a12 + b2 * _a22 + b3 * _a32;
-        out.m07 = b0 * _a03 + b1 * _a13 + b2 * _a23 + b3 * _a33;
+        out.m04 = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+        out.m05 = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+        out.m06 = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+        out.m07 = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
 
         b0 = b.m08; b1 = b.m09; b2 = b.m10; b3 = b.m11;
-        out.m08 = b0 * _a00 + b1 * _a10 + b2 * _a20 + b3 * _a30;
-        out.m09 = b0 * _a01 + b1 * _a11 + b2 * _a21 + b3 * _a31;
-        out.m10 = b0 * _a02 + b1 * _a12 + b2 * _a22 + b3 * _a32;
-        out.m11 = b0 * _a03 + b1 * _a13 + b2 * _a23 + b3 * _a33;
+        out.m08 = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+        out.m09 = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+        out.m10 = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+        out.m11 = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
 
         b0 = b.m12; b1 = b.m13; b2 = b.m14; b3 = b.m15;
-        out.m12 = b0 * _a00 + b1 * _a10 + b2 * _a20 + b3 * _a30;
-        out.m13 = b0 * _a01 + b1 * _a11 + b2 * _a21 + b3 * _a31;
-        out.m14 = b0 * _a02 + b1 * _a12 + b2 * _a22 + b3 * _a32;
-        out.m15 = b0 * _a03 + b1 * _a13 + b2 * _a23 + b3 * _a33;
+        out.m12 = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+        out.m13 = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+        out.m14 = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+        out.m15 = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
         return out;
     }
 
@@ -291,19 +286,19 @@ export class Mat4 extends ValueType {
             out.m14 = a.m02 * x + a.m06 * y + a.m10 * z + a.m14;
             out.m15 = a.m03 * x + a.m07 * y + a.m11 * z + a.m15;
         } else {
-            _a00 = a.m00; _a01 = a.m01; _a02 = a.m02; _a03 = a.m03;
-            _a10 = a.m04; _a11 = a.m05; _a12 = a.m06; _a13 = a.m07;
-            _a20 = a.m08; _a21 = a.m09; _a22 = a.m10; _a23 = a.m11;
-            _a30 = a.m12; _a31 = a.m13; _a32 = a.m14; _a33 = a.m15;
+            const a00 = a.m00; const a01 = a.m01; const a02 = a.m02; const a03 = a.m03;
+            const a10 = a.m04; const a11 = a.m05; const a12 = a.m06; const a13 = a.m07;
+            const a20 = a.m08; const a21 = a.m09; const a22 = a.m10; const a23 = a.m11;
+            const a30 = a.m12; const a31 = a.m13; const a32 = a.m14; const a33 = a.m15;
 
-            out.m00 = _a00; out.m01 = _a01; out.m02 = _a02; out.m03 = _a03;
-            out.m04 = _a10; out.m05 = _a11; out.m06 = _a12; out.m07 = _a13;
-            out.m08 = _a20; out.m09 = _a21; out.m10 = _a22; out.m11 = _a23;
+            out.m00 = a00; out.m01 = a01; out.m02 = a02; out.m03 = a03;
+            out.m04 = a10; out.m05 = a11; out.m06 = a12; out.m07 = a13;
+            out.m08 = a20; out.m09 = a21; out.m10 = a22; out.m11 = a23;
 
-            out.m12 = _a00 * x + _a10 * y + _a20 * z + a.m12;
-            out.m13 = _a01 * x + _a11 * y + _a21 * z + a.m13;
-            out.m14 = _a02 * x + _a12 * y + _a22 * z + a.m14;
-            out.m15 = _a03 * x + _a13 * y + _a23 * z + a.m15;
+            out.m12 = a00 * x + a10 * y + a20 * z + a.m12;
+            out.m13 = a01 * x + a11 * y + a21 * z + a.m13;
+            out.m14 = a02 * x + a12 * y + a22 * z + a.m14;
+            out.m15 = a03 * x + a13 * y + a23 * z + a.m15;
         }
         return out;
     }
@@ -376,9 +371,9 @@ export class Mat4 extends ValueType {
         const c = Math.cos(rad);
         const t = 1 - c;
 
-        _a00 = a.m00; _a01 = a.m01; _a02 = a.m02; _a03 = a.m03;
-        _a10 = a.m04; _a11 = a.m05; _a12 = a.m06; _a13 = a.m07;
-        _a20 = a.m08; _a21 = a.m09; _a22 = a.m10; _a23 = a.m11;
+        const a00 = a.m00; const a01 = a.m01; const a02 = a.m02; const a03 = a.m03;
+        const a10 = a.m04; const a11 = a.m05; const a12 = a.m06; const a13 = a.m07;
+        const a20 = a.m08; const a21 = a.m09; const a22 = a.m10; const a23 = a.m11;
 
         // Construct the elements of the rotation matrix
         const b00 = x * x * t + c, b01 = y * x * t + z * s, b02 = z * x * t - y * s;
@@ -386,18 +381,18 @@ export class Mat4 extends ValueType {
         const b20 = x * z * t + y * s, b21 = y * z * t - x * s, b22 = z * z * t + c;
 
         // Perform rotation-specific matrix multiplication
-        out.m00 = _a00 * b00 + _a10 * b01 + _a20 * b02;
-        out.m01 = _a01 * b00 + _a11 * b01 + _a21 * b02;
-        out.m02 = _a02 * b00 + _a12 * b01 + _a22 * b02;
-        out.m03 = _a03 * b00 + _a13 * b01 + _a23 * b02;
-        out.m04 = _a00 * b10 + _a10 * b11 + _a20 * b12;
-        out.m05 = _a01 * b10 + _a11 * b11 + _a21 * b12;
-        out.m06 = _a02 * b10 + _a12 * b11 + _a22 * b12;
-        out.m07 = _a03 * b10 + _a13 * b11 + _a23 * b12;
-        out.m08 = _a00 * b20 + _a10 * b21 + _a20 * b22;
-        out.m09 = _a01 * b20 + _a11 * b21 + _a21 * b22;
-        out.m10 = _a02 * b20 + _a12 * b21 + _a22 * b22;
-        out.m11 = _a03 * b20 + _a13 * b21 + _a23 * b22;
+        out.m00 = a00 * b00 + a10 * b01 + a20 * b02;
+        out.m01 = a01 * b00 + a11 * b01 + a21 * b02;
+        out.m02 = a02 * b00 + a12 * b01 + a22 * b02;
+        out.m03 = a03 * b00 + a13 * b01 + a23 * b02;
+        out.m04 = a00 * b10 + a10 * b11 + a20 * b12;
+        out.m05 = a01 * b10 + a11 * b11 + a21 * b12;
+        out.m06 = a02 * b10 + a12 * b11 + a22 * b12;
+        out.m07 = a03 * b10 + a13 * b11 + a23 * b12;
+        out.m08 = a00 * b20 + a10 * b21 + a20 * b22;
+        out.m09 = a01 * b20 + a11 * b21 + a21 * b22;
+        out.m10 = a02 * b20 + a12 * b21 + a22 * b22;
+        out.m11 = a03 * b20 + a13 * b21 + a23 * b22;
 
         // If the source and destination differ, copy the unchanged last row
         if (a !== out) {
@@ -999,16 +994,16 @@ export class Mat4 extends ValueType {
      * @param near 近平面距离
      * @param far 远平面距离
      */
-    public static perspective <Out extends IMat4Like> (out: Out, fovy: number, aspect: number, near: number, far: number) {
-        const f = 1.0 / Math.tan(fovy / 2);
+    public static perspective <Out extends IMat4Like> (out: Out, fov: number, aspect: number, near: number, far: number, isFOVY = true) {
+        const f = 1.0 / Math.tan(fov / 2);
         const nf = 1 / (near - far);
 
-        out.m00 = f / aspect;
+        out.m00 = isFOVY ? f / aspect : f;
         out.m01 = 0;
         out.m02 = 0;
         out.m03 = 0;
         out.m04 = 0;
-        out.m05 = f;
+        out.m05 = isFOVY ? f : f * aspect;
         out.m06 = 0;
         out.m07 = 0;
         out.m08 = 0;
@@ -1117,23 +1112,23 @@ export class Mat4 extends ValueType {
      */
     public static inverseTranspose <Out extends IMat4Like> (out: Out, a: Out) {
 
-        _a00 = a.m00; _a01 = a.m01; _a02 = a.m02; _a03 = a.m03;
-        _a10 = a.m04; _a11 = a.m05; _a12 = a.m06; _a13 = a.m07;
-        _a20 = a.m08; _a21 = a.m09; _a22 = a.m10; _a23 = a.m11;
-        _a30 = a.m12; _a31 = a.m13; _a32 = a.m14; _a33 = a.m15;
+        const a00 = a.m00; const a01 = a.m01; const a02 = a.m02; const a03 = a.m03;
+        const a10 = a.m04; const a11 = a.m05; const a12 = a.m06; const a13 = a.m07;
+        const a20 = a.m08; const a21 = a.m09; const a22 = a.m10; const a23 = a.m11;
+        const a30 = a.m12; const a31 = a.m13; const a32 = a.m14; const a33 = a.m15;
 
-        const b00 = _a00 * _a11 - _a01 * _a10;
-        const b01 = _a00 * _a12 - _a02 * _a10;
-        const b02 = _a00 * _a13 - _a03 * _a10;
-        const b03 = _a01 * _a12 - _a02 * _a11;
-        const b04 = _a01 * _a13 - _a03 * _a11;
-        const b05 = _a02 * _a13 - _a03 * _a12;
-        const b06 = _a20 * _a31 - _a21 * _a30;
-        const b07 = _a20 * _a32 - _a22 * _a30;
-        const b08 = _a20 * _a33 - _a23 * _a30;
-        const b09 = _a21 * _a32 - _a22 * _a31;
-        const b10 = _a21 * _a33 - _a23 * _a31;
-        const b11 = _a22 * _a33 - _a23 * _a32;
+        const b00 = a00 * a11 - a01 * a10;
+        const b01 = a00 * a12 - a02 * a10;
+        const b02 = a00 * a13 - a03 * a10;
+        const b03 = a01 * a12 - a02 * a11;
+        const b04 = a01 * a13 - a03 * a11;
+        const b05 = a02 * a13 - a03 * a12;
+        const b06 = a20 * a31 - a21 * a30;
+        const b07 = a20 * a32 - a22 * a30;
+        const b08 = a20 * a33 - a23 * a30;
+        const b09 = a21 * a32 - a22 * a31;
+        const b10 = a21 * a33 - a23 * a31;
+        const b11 = a22 * a33 - a23 * a32;
 
         // Calculate the determinant
         let det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
@@ -1143,19 +1138,19 @@ export class Mat4 extends ValueType {
         }
         det = 1.0 / det;
 
-        out.m00 = (_a11 * b11 - _a12 * b10 + _a13 * b09) * det;
-        out.m01 = (_a12 * b08 - _a10 * b11 - _a13 * b07) * det;
-        out.m02 = (_a10 * b10 - _a11 * b08 + _a13 * b06) * det;
+        out.m00 = (a11 * b11 - a12 * b10 + a13 * b09) * det;
+        out.m01 = (a12 * b08 - a10 * b11 - a13 * b07) * det;
+        out.m02 = (a10 * b10 - a11 * b08 + a13 * b06) * det;
         out.m03 = 0;
 
-        out.m04 = (_a02 * b10 - _a01 * b11 - _a03 * b09) * det;
-        out.m05 = (_a00 * b11 - _a02 * b08 + _a03 * b07) * det;
-        out.m06 = (_a01 * b08 - _a00 * b10 - _a03 * b06) * det;
+        out.m04 = (a02 * b10 - a01 * b11 - a03 * b09) * det;
+        out.m05 = (a00 * b11 - a02 * b08 + a03 * b07) * det;
+        out.m06 = (a01 * b08 - a00 * b10 - a03 * b06) * det;
         out.m07 = 0;
 
-        out.m08 = (_a31 * b05 - _a32 * b04 + _a33 * b03) * det;
-        out.m09 = (_a32 * b02 - _a30 * b05 - _a33 * b01) * det;
-        out.m10 = (_a30 * b04 - _a31 * b02 + _a33 * b00) * det;
+        out.m08 = (a31 * b05 - a32 * b04 + a33 * b03) * det;
+        out.m09 = (a32 * b02 - a30 * b05 - a33 * b01) * det;
+        out.m10 = (a30 * b04 - a31 * b02 + a33 * b00) * det;
         out.m11 = 0;
 
         out.m12 = 0;
@@ -1596,23 +1591,23 @@ export class Mat4 extends ValueType {
      * @zh 计算当前矩阵的逆矩阵。注意，在矩阵不可逆时，会返回一个全为 0 的矩阵。
      */
     public invert () {
-        _a00 = this.m00; _a01 = this.m01; _a02 = this.m02; _a03 = this.m03;
-        _a10 = this.m04; _a11 = this.m05; _a12 = this.m06; _a13 = this.m07;
-        _a20 = this.m08; _a21 = this.m09; _a22 = this.m10; _a23 = this.m11;
-        _a30 = this.m12; _a31 = this.m13; _a32 = this.m14; _a33 = this.m15;
+        const a00 = this.m00; const a01 = this.m01; const a02 = this.m02; const a03 = this.m03;
+        const a10 = this.m04; const a11 = this.m05; const a12 = this.m06; const a13 = this.m07;
+        const a20 = this.m08; const a21 = this.m09; const a22 = this.m10; const a23 = this.m11;
+        const a30 = this.m12; const a31 = this.m13; const a32 = this.m14; const a33 = this.m15;
 
-        const b00 = _a00 * _a11 - _a01 * _a10;
-        const b01 = _a00 * _a12 - _a02 * _a10;
-        const b02 = _a00 * _a13 - _a03 * _a10;
-        const b03 = _a01 * _a12 - _a02 * _a11;
-        const b04 = _a01 * _a13 - _a03 * _a11;
-        const b05 = _a02 * _a13 - _a03 * _a12;
-        const b06 = _a20 * _a31 - _a21 * _a30;
-        const b07 = _a20 * _a32 - _a22 * _a30;
-        const b08 = _a20 * _a33 - _a23 * _a30;
-        const b09 = _a21 * _a32 - _a22 * _a31;
-        const b10 = _a21 * _a33 - _a23 * _a31;
-        const b11 = _a22 * _a33 - _a23 * _a32;
+        const b00 = a00 * a11 - a01 * a10;
+        const b01 = a00 * a12 - a02 * a10;
+        const b02 = a00 * a13 - a03 * a10;
+        const b03 = a01 * a12 - a02 * a11;
+        const b04 = a01 * a13 - a03 * a11;
+        const b05 = a02 * a13 - a03 * a12;
+        const b06 = a20 * a31 - a21 * a30;
+        const b07 = a20 * a32 - a22 * a30;
+        const b08 = a20 * a33 - a23 * a30;
+        const b09 = a21 * a32 - a22 * a31;
+        const b10 = a21 * a33 - a23 * a31;
+        const b11 = a22 * a33 - a23 * a32;
 
         // Calculate the determinant
         let det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
@@ -1623,22 +1618,22 @@ export class Mat4 extends ValueType {
         }
         det = 1.0 / det;
 
-        this.m00 = (_a11 * b11 - _a12 * b10 + _a13 * b09) * det;
-        this.m01 = (_a02 * b10 - _a01 * b11 - _a03 * b09) * det;
-        this.m02 = (_a31 * b05 - _a32 * b04 + _a33 * b03) * det;
-        this.m03 = (_a22 * b04 - _a21 * b05 - _a23 * b03) * det;
-        this.m04 = (_a12 * b08 - _a10 * b11 - _a13 * b07) * det;
-        this.m05 = (_a00 * b11 - _a02 * b08 + _a03 * b07) * det;
-        this.m06 = (_a32 * b02 - _a30 * b05 - _a33 * b01) * det;
-        this.m07 = (_a20 * b05 - _a22 * b02 + _a23 * b01) * det;
-        this.m08 = (_a10 * b10 - _a11 * b08 + _a13 * b06) * det;
-        this.m09 = (_a01 * b08 - _a00 * b10 - _a03 * b06) * det;
-        this.m10 = (_a30 * b04 - _a31 * b02 + _a33 * b00) * det;
-        this.m11 = (_a21 * b02 - _a20 * b04 - _a23 * b00) * det;
-        this.m12 = (_a11 * b07 - _a10 * b09 - _a12 * b06) * det;
-        this.m13 = (_a00 * b09 - _a01 * b07 + _a02 * b06) * det;
-        this.m14 = (_a31 * b01 - _a30 * b03 - _a32 * b00) * det;
-        this.m15 = (_a20 * b03 - _a21 * b01 + _a22 * b00) * det;
+        this.m00 = (a11 * b11 - a12 * b10 + a13 * b09) * det;
+        this.m01 = (a02 * b10 - a01 * b11 - a03 * b09) * det;
+        this.m02 = (a31 * b05 - a32 * b04 + a33 * b03) * det;
+        this.m03 = (a22 * b04 - a21 * b05 - a23 * b03) * det;
+        this.m04 = (a12 * b08 - a10 * b11 - a13 * b07) * det;
+        this.m05 = (a00 * b11 - a02 * b08 + a03 * b07) * det;
+        this.m06 = (a32 * b02 - a30 * b05 - a33 * b01) * det;
+        this.m07 = (a20 * b05 - a22 * b02 + a23 * b01) * det;
+        this.m08 = (a10 * b10 - a11 * b08 + a13 * b06) * det;
+        this.m09 = (a01 * b08 - a00 * b10 - a03 * b06) * det;
+        this.m10 = (a30 * b04 - a31 * b02 + a33 * b00) * det;
+        this.m11 = (a21 * b02 - a20 * b04 - a23 * b00) * det;
+        this.m12 = (a11 * b07 - a10 * b09 - a12 * b06) * det;
+        this.m13 = (a00 * b09 - a01 * b07 + a02 * b06) * det;
+        this.m14 = (a31 * b01 - a30 * b03 - a32 * b00) * det;
+        this.m15 = (a20 * b03 - a21 * b01 + a22 * b00) * det;
 
         return this;
     }
@@ -1648,23 +1643,23 @@ export class Mat4 extends ValueType {
      * @return 当前矩阵的行列式。
      */
     public determinant (): number {
-        _a00 = this.m00; _a01 = this.m01; _a02 = this.m02; _a03 = this.m03;
-        _a10 = this.m04; _a11 = this.m05; _a12 = this.m06; _a13 = this.m07;
-        _a20 = this.m08; _a21 = this.m09; _a22 = this.m10; _a23 = this.m11;
-        _a30 = this.m12; _a31 = this.m13; _a32 = this.m14; _a33 = this.m15;
+        const a00 = this.m00; const a01 = this.m01; const a02 = this.m02; const a03 = this.m03;
+        const a10 = this.m04; const a11 = this.m05; const a12 = this.m06; const a13 = this.m07;
+        const a20 = this.m08; const a21 = this.m09; const a22 = this.m10; const a23 = this.m11;
+        const a30 = this.m12; const a31 = this.m13; const a32 = this.m14; const a33 = this.m15;
 
-        const b00 = _a00 * _a11 - _a01 * _a10;
-        const b01 = _a00 * _a12 - _a02 * _a10;
-        const b02 = _a00 * _a13 - _a03 * _a10;
-        const b03 = _a01 * _a12 - _a02 * _a11;
-        const b04 = _a01 * _a13 - _a03 * _a11;
-        const b05 = _a02 * _a13 - _a03 * _a12;
-        const b06 = _a20 * _a31 - _a21 * _a30;
-        const b07 = _a20 * _a32 - _a22 * _a30;
-        const b08 = _a20 * _a33 - _a23 * _a30;
-        const b09 = _a21 * _a32 - _a22 * _a31;
-        const b10 = _a21 * _a33 - _a23 * _a31;
-        const b11 = _a22 * _a33 - _a23 * _a32;
+        const b00 = a00 * a11 - a01 * a10;
+        const b01 = a00 * a12 - a02 * a10;
+        const b02 = a00 * a13 - a03 * a10;
+        const b03 = a01 * a12 - a02 * a11;
+        const b04 = a01 * a13 - a03 * a11;
+        const b05 = a02 * a13 - a03 * a12;
+        const b06 = a20 * a31 - a21 * a30;
+        const b07 = a20 * a32 - a22 * a30;
+        const b08 = a20 * a33 - a23 * a30;
+        const b09 = a21 * a32 - a22 * a31;
+        const b10 = a21 * a33 - a23 * a31;
+        const b11 = a22 * a33 - a23 * a32;
 
         // Calculate the determinant
         return b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
@@ -1723,35 +1718,35 @@ export class Mat4 extends ValueType {
      * @param mat 指定的矩阵。
      */
     public multiply (mat: Mat4) {
-        _a00 = this.m00; _a01 = this.m01; _a02 = this.m02; _a03 = this.m03;
-        _a10 = this.m04; _a11 = this.m05; _a12 = this.m06; _a13 = this.m07;
-        _a20 = this.m08; _a21 = this.m09; _a22 = this.m10; _a23 = this.m11;
-        _a30 = this.m12; _a31 = this.m13; _a32 = this.m14; _a33 = this.m15;
+        const a00 = this.m00; const a01 = this.m01; const a02 = this.m02; const a03 = this.m03;
+        const a10 = this.m04; const a11 = this.m05; const a12 = this.m06; const a13 = this.m07;
+        const a20 = this.m08; const a21 = this.m09; const a22 = this.m10; const a23 = this.m11;
+        const a30 = this.m12; const a31 = this.m13; const a32 = this.m14; const a33 = this.m15;
 
         // Cache only the current line of the second matrix
         let b0 = mat.m00, b1 = mat.m01, b2 = mat.m02, b3 = mat.m03;
-        this.m00 = b0 * _a00 + b1 * _a10 + b2 * _a20 + b3 * _a30;
-        this.m01 = b0 * _a01 + b1 * _a11 + b2 * _a21 + b3 * _a31;
-        this.m02 = b0 * _a02 + b1 * _a12 + b2 * _a22 + b3 * _a32;
-        this.m03 = b0 * _a03 + b1 * _a13 + b2 * _a23 + b3 * _a33;
+        this.m00 = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+        this.m01 = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+        this.m02 = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+        this.m03 = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
 
         b0 = mat.m04; b1 = mat.m05; b2 = mat.m06; b3 = mat.m07;
-        this.m04 = b0 * _a00 + b1 * _a10 + b2 * _a20 + b3 * _a30;
-        this.m05 = b0 * _a01 + b1 * _a11 + b2 * _a21 + b3 * _a31;
-        this.m06 = b0 * _a02 + b1 * _a12 + b2 * _a22 + b3 * _a32;
-        this.m07 = b0 * _a03 + b1 * _a13 + b2 * _a23 + b3 * _a33;
+        this.m04 = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+        this.m05 = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+        this.m06 = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+        this.m07 = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
 
         b0 = mat.m08; b1 = mat.m09; b2 = mat.m10; b3 = mat.m11;
-        this.m08 = b0 * _a00 + b1 * _a10 + b2 * _a20 + b3 * _a30;
-        this.m09 = b0 * _a01 + b1 * _a11 + b2 * _a21 + b3 * _a31;
-        this.m10 = b0 * _a02 + b1 * _a12 + b2 * _a22 + b3 * _a32;
-        this.m11 = b0 * _a03 + b1 * _a13 + b2 * _a23 + b3 * _a33;
+        this.m08 = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+        this.m09 = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+        this.m10 = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+        this.m11 = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
 
         b0 = mat.m12; b1 = mat.m13; b2 = mat.m14; b3 = mat.m15;
-        this.m12 = b0 * _a00 + b1 * _a10 + b2 * _a20 + b3 * _a30;
-        this.m13 = b0 * _a01 + b1 * _a11 + b2 * _a21 + b3 * _a31;
-        this.m14 = b0 * _a02 + b1 * _a12 + b2 * _a22 + b3 * _a32;
-        this.m15 = b0 * _a03 + b1 * _a13 + b2 * _a23 + b3 * _a33;
+        this.m12 = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30;
+        this.m13 = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31;
+        this.m14 = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
+        this.m15 = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
         return this;
     }
 
@@ -1840,9 +1835,9 @@ export class Mat4 extends ValueType {
         const c = Math.cos(rad);
         const t = 1 - c;
 
-        _a00 = this.m00; _a01 = this.m01; _a02 = this.m02; _a03 = this.m03;
-        _a10 = this.m04; _a11 = this.m05; _a12 = this.m06; _a13 = this.m07;
-        _a20 = this.m08; _a21 = this.m09; _a22 = this.m10; _a23 = this.m11;
+        const a00 = this.m00; const a01 = this.m01; const a02 = this.m02; const a03 = this.m03;
+        const a10 = this.m04; const a11 = this.m05; const a12 = this.m06; const a13 = this.m07;
+        const a20 = this.m08; const a21 = this.m09; const a22 = this.m10; const a23 = this.m11;
 
         // Construct the elements of the rotation matrix
         const b00 = x * x * t + c, b01 = y * x * t + z * s, b02 = z * x * t - y * s;
@@ -1850,18 +1845,18 @@ export class Mat4 extends ValueType {
         const b20 = x * z * t + y * s, b21 = y * z * t - x * s, b22 = z * z * t + c;
 
         // Perform rotation-specific matrix multiplication
-        this.m00 = _a00 * b00 + _a10 * b01 + _a20 * b02;
-        this.m01 = _a01 * b00 + _a11 * b01 + _a21 * b02;
-        this.m02 = _a02 * b00 + _a12 * b01 + _a22 * b02;
-        this.m03 = _a03 * b00 + _a13 * b01 + _a23 * b02;
-        this.m04 = _a00 * b10 + _a10 * b11 + _a20 * b12;
-        this.m05 = _a01 * b10 + _a11 * b11 + _a21 * b12;
-        this.m06 = _a02 * b10 + _a12 * b11 + _a22 * b12;
-        this.m07 = _a03 * b10 + _a13 * b11 + _a23 * b12;
-        this.m08 = _a00 * b20 + _a10 * b21 + _a20 * b22;
-        this.m09 = _a01 * b20 + _a11 * b21 + _a21 * b22;
-        this.m10 = _a02 * b20 + _a12 * b21 + _a22 * b22;
-        this.m11 = _a03 * b20 + _a13 * b21 + _a23 * b22;
+        this.m00 = a00 * b00 + a10 * b01 + a20 * b02;
+        this.m01 = a01 * b00 + a11 * b01 + a21 * b02;
+        this.m02 = a02 * b00 + a12 * b01 + a22 * b02;
+        this.m03 = a03 * b00 + a13 * b01 + a23 * b02;
+        this.m04 = a00 * b10 + a10 * b11 + a20 * b12;
+        this.m05 = a01 * b10 + a11 * b11 + a21 * b12;
+        this.m06 = a02 * b10 + a12 * b11 + a22 * b12;
+        this.m07 = a03 * b10 + a13 * b11 + a23 * b12;
+        this.m08 = a00 * b20 + a10 * b21 + a20 * b22;
+        this.m09 = a01 * b20 + a11 * b21 + a21 * b22;
+        this.m10 = a02 * b20 + a12 * b21 + a22 * b22;
+        this.m11 = a03 * b20 + a13 * b21 + a23 * b22;
 
         return this;
     }

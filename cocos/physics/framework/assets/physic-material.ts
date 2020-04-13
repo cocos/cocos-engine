@@ -9,23 +9,28 @@ import { Asset } from '../../../core/assets/asset';
 import { ccclass, property } from '../../../core/data/class-decorator';
 import { math } from '../../../core';
 
+/**
+ * @en
+ * Physics materials.
+ * @zh
+ * 物理材质。
+ */
 @ccclass('cc.PhysicMaterial')
 export class PhysicMaterial extends Asset {
 
-    public static allMaterials: PhysicMaterial[] = [];
-
-    private static _idCounter: number = 0;
-
-    @property
-    private _friction = 0.1;
-
-    @property
-    private _restitution = 0.1;
+    /**
+     * @en
+     * Gets all physics material instances.
+     * @zh
+     * 获取所有的物理材质实例。
+     */
+    static allMaterials: PhysicMaterial[] = [];
 
     /**
+     * @en
      * Friction for this material.
-     * If non-negative, it will be used instead of the friction given by ContactMaterials.
-     * If there's no matching ContactMaterial, the value from .defaultContactMaterial in the World will be used.
+     * @zh
+     * 此材质的摩擦系数。
      */
     @property
     get friction () {
@@ -40,9 +45,10 @@ export class PhysicMaterial extends Asset {
     }
 
     /**
+     * @en
      * Restitution for this material.
-     * If non-negative, it will be used instead of the restitution given by ContactMaterials.
-     * If there's no matching ContactMaterial, the value from .defaultContactMaterial in the World will be used
+     * @zh
+     * 此材质的回弹系数。
      */
     @property
     get restitution () {
@@ -56,6 +62,14 @@ export class PhysicMaterial extends Asset {
         }
     }
 
+    private static _idCounter: number = 0;
+
+    @property
+    private _friction = 0.1;
+
+    @property
+    private _restitution = 0.1;
+
     constructor () {
         super();
         PhysicMaterial.allMaterials.push(this);
@@ -64,6 +78,12 @@ export class PhysicMaterial extends Asset {
         }
     }
 
+    /**
+     * @en
+     * clone.
+     * @zh
+     * 克隆。
+     */
     public clone () {
         let c = new PhysicMaterial();
         c._friction = this._friction;
@@ -71,6 +91,13 @@ export class PhysicMaterial extends Asset {
         return c;
     }
 
+    /**
+     * @en
+     * destroy.
+     * @zh
+     * 销毁。
+     * @return 是否成功
+     */
     public destroy (): boolean {
         if (super.destroy()) {
             let idx = PhysicMaterial.allMaterials.indexOf(this);

@@ -234,8 +234,10 @@ export class AnimationClip extends Asset {
 
     get hash () {
         // hashes should already be computed offline, but if not, make one
-        if (!this._hash) { this._hash = murmurhash2_32_gc(JSON.stringify(SkelAnimDataHub.getOrExtract(this).data), 666); }
-        return this._hash;
+        if (this._hash) { return this._hash; }
+        const data = this._nativeAsset;
+        const buffer = new Uint8Array(ArrayBuffer.isView(data) ? data.buffer : data);
+        return this._hash = murmurhash2_32_gc(buffer, 666);
     }
 
     get curves () {
