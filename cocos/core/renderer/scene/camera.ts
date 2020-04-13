@@ -6,6 +6,7 @@ import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
 import { RenderView } from '../../pipeline/render-view';
 import { Node } from '../../scene-graph';
 import { RenderScene } from './render-scene';
+import { GFXDevice } from '../../gfx';
 
 export enum CameraFOVAxis {
     VERTICAL,
@@ -98,6 +99,7 @@ export class Camera {
     public clearDepth: number = 1.0;
     public clearFlag: GFXClearFlag = GFXClearFlag.NONE;
 
+    private _device: GFXDevice;
     private _scene: RenderScene | null = null;
     private _node: Node | null = null;
     private _name: string | null = null;
@@ -134,7 +136,8 @@ export class Camera {
     private _ec: number = 0.0;
     private _exposure: number = 0.0;
 
-    constructor () {
+    constructor (device: GFXDevice) {
+        this._device = device;
         this._apertureValue = FSTOPS[this._aperture];
         this._shutterValue = SHUTTERS[this._shutter];
         this._isoValue = ISOS[this._iso];
@@ -209,11 +212,13 @@ export class Camera {
             // projection matrix
             if (this._isProjDirty) {
                 if (this._proj === CameraProjection.PERSPECTIVE) {
-                    Mat4.perspective(this._matProj, this._fov, this._aspect, this._nearClip, this._farClip, this._fovAxis === CameraFOVAxis.VERTICAL);
+                    Mat4.perspective(this._matProj, this._fov, this._aspect, this._nearClip, this._farClip,
+                        this._fovAxis === CameraFOVAxis.VERTICAL, this._device.minClipZ, this._device.projectionSignY);
                 } else {
                     const x = this._orthoHeight * this._aspect;
                     const y = this._orthoHeight;
-                    Mat4.ortho(this._matProj, -x, x, -y, y, this._nearClip, this._farClip);
+                    Mat4.ortho(this._matProj, -x, x, -y, y, this._nearClip, this._farClip,
+                        this._device.minClipZ, this._device.projectionSignY);
                 }
                 Mat4.invert(this._matProjInv, this._matProj);
             }
@@ -242,11 +247,13 @@ export class Camera {
 
         // projection matrix
         if (this._proj === CameraProjection.PERSPECTIVE) {
-            Mat4.perspective(_tempMat1, this._fov, this._aspect, nearClip, farClip, this._fovAxis === CameraFOVAxis.VERTICAL);
+            Mat4.perspective(_tempMat1, this._fov, this._aspect, nearClip, farClip,
+                this._fovAxis === CameraFOVAxis.VERTICAL, this._device.minClipZ, this._device.projectionSignY);
         } else {
             const x = this._orthoHeight * this._aspect;
             const y = this._orthoHeight;
-            Mat4.ortho(_tempMat1, -x, x, -y, y, nearClip, farClip);
+            Mat4.ortho(_tempMat1, -x, x, -y, y, nearClip, farClip,
+                this._device.minClipZ, this._device.projectionSignY);
         }
 
         // view-projection
