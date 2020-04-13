@@ -521,7 +521,7 @@ class InputManager {
 
     private _getUnUsedIndex () {
         let temp = this._indexBitsUsed;
-        const now = cc.sys.now();
+        const now = cc.director.getCurrentTime();
 
         for (let i = 0; i < this._maxTouches; i++) {
             if (!(temp & 0x00000001)) {
