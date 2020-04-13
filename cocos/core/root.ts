@@ -213,7 +213,7 @@ export class Root {
         RenderScene.registerCreateFunc(this);
         RenderView.registerCreateFunc(this);
 
-        this._cameraPool = new Pool(() => new Camera(), 4);
+        this._cameraPool = new Pool(() => new Camera(this._device), 4);
     }
 
     /**
