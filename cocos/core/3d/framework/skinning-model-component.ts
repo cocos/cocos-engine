@@ -35,6 +35,7 @@ import { BakedSkinningModel } from '../../renderer/models/baked-skinning-model';
 import { SkinningModel } from '../../renderer/models/skinning-model';
 import { Node } from '../../scene-graph/node';
 import { ModelComponent } from './model-component';
+import { SkeletalAnimationComponent } from '../../animation/skeletal-animation-component';
 
 /**
  * @en The Skinning Model Component.
@@ -87,6 +88,7 @@ export class SkinningModelComponent extends ModelComponent {
     set skinningRoot (value) {
         if (value === this._skinningRoot) { return; }
         this._skinningRoot = value;
+        this._updateModelType();
         this._update();
     }
 
@@ -99,6 +101,11 @@ export class SkinningModelComponent extends ModelComponent {
         this._modelType = BakedSkinningModel;
     }
 
+    public onLoad () {
+        this._updateModelType();
+        super.onLoad();
+    }
+
     public uploadAnimation (clip: AnimationClip | null) {
         this._clip = clip;
         if (this.model && this.model.uploadAnimation) {
@@ -108,30 +115,34 @@ export class SkinningModelComponent extends ModelComponent {
 
     public setUseBakedAnimation (val = true) {
         const modelType = val ? BakedSkinningModel : SkinningModel;
-        if (this._model && modelType !== this._modelType) {
+        if (this._modelType === modelType) { return; }
+        this._modelType = modelType;
+        const modelCreated = !!this._model;
+        if (modelCreated) {
             cc.director.root.destroyModel(this._model);
             this._model = null;
             this._models.length = 0;
-            this._modelType = modelType;
-            const meshCount = this._mesh ? this._mesh.subMeshCount : 0;
-            // have to instantiate materials with multiple submodel references
-            if (this._modelType === SkinningModel) {
-                let last: Material | null = null;
-                for (let i = 0; i < meshCount; ++i) {
-                    const cur = this.getRenderMaterial(i);
-                    if (cur === last) {
-                        this.getMaterialInstance(i);
-                    } else { last = cur; }
-                }
-            } else { // or assign the original material back if instancing is enabled
-                for (let i = 0; i < meshCount; ++i) {
-                    const cur = this.getRenderMaterial(i);
-                    if (cur && cur.parent && cur.parent.passes[0].instancedBuffer) {
-                        this._materialInstances[i]!.destroy();
-                        this._materialInstances[i] = null;
-                    }
+        }
+        const meshCount = this._mesh ? this._mesh.subMeshCount : 0;
+        // have to instantiate materials with multiple submodel references
+        if (this._modelType === SkinningModel) {
+            let last: Material | null = null;
+            for (let i = 0; i < meshCount; ++i) {
+                const cur = this.getRenderMaterial(i);
+                if (cur === last) {
+                    this.getMaterialInstance(i);
+                } else { last = cur; }
+            }
+        } else { // or assign the original material back if instancing is enabled
+            for (let i = 0; i < meshCount; ++i) {
+                const cur = this.getRenderMaterial(i);
+                if (cur && cur.parent && cur.parent.passes[0].instancedBuffer) {
+                    this._materialInstances[i]!.destroy();
+                    this._materialInstances[i] = null;
                 }
             }
+        }
+        if (modelCreated) {
             this._updateModels();
             this._updateCastShadow();
             if (this.enabledInHierarchy) {
@@ -150,6 +161,12 @@ export class SkinningModelComponent extends ModelComponent {
     protected _updateModelParams () {
         this._update(); // should bind skeleton before super create pso
         super._updateModelParams();
+    }
+
+    private _updateModelType () {
+        if (!this._skinningRoot) { return; }
+        const comp = this._skinningRoot.getComponent('cc.SkeletalAnimationComponent') as SkeletalAnimationComponent;
+        if (comp) { this.setUseBakedAnimation(comp.useBakedAnimation); }
     }
 
     private _update () {
