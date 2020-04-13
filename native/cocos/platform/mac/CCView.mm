@@ -53,6 +53,7 @@
 #ifdef USE_METAL
 - (void)drawInMTKView:(MTKView *)view {
     cocos2d::Application::getInstance()->tick();
+    [self.currentDrawable present];
 }
 
 - (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size {

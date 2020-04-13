@@ -90,14 +90,12 @@ void CCMTLCommandBuffer::endRenderPass()
 
 void CCMTLCommandBuffer::bindPipelineState(GFXPipelineState* pso)
 {
-    _needToRebindPipelineState = pso != _currentPipelineState;
     _isStateInValid = true;
     _currentPipelineState = static_cast<CCMTLPipelineState*>(pso);
 }
 
 void CCMTLCommandBuffer::bindBindingLayout(GFXBindingLayout* layout)
 {
-    _needToRebindPipelineState = _currentBindingLayout != layout;
     _currentBindingLayout = static_cast<CCMTLBindingLayout*>(layout);
     _isStateInValid = true;
 }
@@ -273,9 +271,7 @@ void CCMTLCommandBuffer::bindStates()
     
     if (_currentPipelineState)
     {
-        if (_needToRebindPipelineState)
-            _currentPipelineState->updateBindingBlocks(_currentBindingLayout);
-        
+        _currentPipelineState->updateBindingBlocks(_currentBindingLayout);
         commandBindState->gpuPipelineState = _currentPipelineState->getGPUPipelineState();
     }
     
@@ -284,7 +280,6 @@ void CCMTLCommandBuffer::bindStates()
     
     _isStateInValid = false;
     _isViewportDirty = false;
-    _needToRebindPipelineState = false;
     _isScissorDirty = false;
 }
 

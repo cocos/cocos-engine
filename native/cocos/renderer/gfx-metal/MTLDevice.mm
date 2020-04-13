@@ -74,9 +74,7 @@ void CCMTLDevice::present()
     _numDrawCalls = queue->_numDrawCalls;
     _numInstances = queue->_numInstances;
     _numTriangles = queue->_numTriangles;
-    
-    [((MTKView*)_mtkView).currentDrawable present];
-    
+        
     // Clear queue stats
     queue->_numDrawCalls = 0;
     queue->_numInstances = 0;

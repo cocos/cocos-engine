@@ -209,7 +209,7 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                     {
                         if (mtlIndexBuffer && cmd->drawInfo.indexCount >= 0)
                         {
-                            uint8_t* offset = 0;
+                            uint8_t offset = 0;
                             offset += cmd->drawInfo.firstIndex * inputAssembler->getIndexBuffer()->getStride();
                             if (cmd->drawInfo.instanceCount == 0)
                             {
@@ -218,7 +218,7 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                                                      // TODO: remove static_cast<>.
                                                      indexType:static_cast<CCMTLBuffer*>(inputAssembler->getIndexBuffer() )->getIndexType()
                                                    indexBuffer:mtlIndexBuffer
-                                             indexBufferOffset:0];
+                                             indexBufferOffset:offset];
                             }
                             else
                             {
