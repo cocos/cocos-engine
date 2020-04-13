@@ -60,4 +60,21 @@ export class BatchingUtility {
         batchedModelComponent.sharedMaterials = modelComponents[0].sharedMaterials;
         return true;
     }
+
+    /**
+     * Undoes everything `batchStaticModel` did.
+     *
+     * @param staticModelRoot root of all the static models to be batched
+     * @param batchedRoot the target output node
+     */
+    public static unbatchStaticModel (staticModelRoot: Node, batchedRoot: Node) {
+        const modelComponents = staticModelRoot.getComponentsInChildren(ModelComponent);
+        for (let i = 0; i < modelComponents.length; i++) {
+            const comp = modelComponents[i];
+            comp.enabled = true;
+        }
+        const batchedModelComponent = batchedRoot.getComponent(ModelComponent);
+        if (batchedModelComponent) { batchedModelComponent.destroy(); }
+        return true;
+    }
 }
