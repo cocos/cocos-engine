@@ -5,6 +5,7 @@
 import { replaceProperty } from './utils/deprecated';
 import * as math from './math';
 import { Scheduler } from './scheduler';
+import { CameraComponent } from './3d';
 
 // VMATH
 
@@ -175,3 +176,18 @@ replaceProperty(Scheduler.prototype, 'Scheduler.prototype', [
         targetName: 'Scheduler'
     }
 ]);
+
+replaceProperty(CameraComponent.prototype, 'CameraComponent.prototype', [
+    {
+        name: 'color',
+        newName: 'clearColor',
+    },
+    {
+        name: 'depth',
+        newName: 'clearDepth',
+    },
+    {
+        name: 'stencil',
+        newName: 'clearStencil',
+    },
+])

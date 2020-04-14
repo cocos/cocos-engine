@@ -130,11 +130,11 @@ replaceProperty = (owner: object, ownerName: string, properties: IReplacement[])
             Object.defineProperty(owner, item.name, {
                 get (this) {
                     replacePropertyLog(ownerName, item.name, targetName, newName, warn, id);
-                    return target[newName];
+                    return this[newName];
                 },
                 set (this, v: any) {
                     replacePropertyLog(ownerName, item.name, targetName, newName, warn, id);
-                    target[newName] = v;
+                    this[newName] = v;
                 }
             });
         }
