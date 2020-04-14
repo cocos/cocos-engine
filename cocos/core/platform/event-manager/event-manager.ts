@@ -947,8 +947,8 @@ class EventManager {
         // const EventTouch = cc.Event.EventTouch;
         if (getCode === EventTouch.BEGAN) {
             if (!cc.macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch) {
-                let node = eventManager._currentTouchListener!._node;
-                if (node && node.activeInHierarchy) {
+                const node = eventManager._currentTouchListener!._node;
+                if (!node || node.activeInHierarchy) {
                     return false;
                 }
             }
