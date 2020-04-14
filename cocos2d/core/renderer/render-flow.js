@@ -254,6 +254,18 @@ RenderFlow.init = function (batcher, forwardRenderer) {
     }
 };
 
+RenderFlow.renderCamera = function (camera, rootNode) {
+    _batcher.reset();
+    _batcher.walking = true;
+
+    RenderFlow.visitRootNode(rootNode);
+
+    _batcher.terminate();
+    _batcher.walking = false;
+
+    _forward.renderCamera(camera, _batcher._renderScene);
+};
+
 RenderFlow.getBachther = function () {
     return _batcher;
 };
