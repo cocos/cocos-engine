@@ -54,7 +54,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     public set capacity (val) {
         this._capacity = val;
         // @ts-ignore
-        if (this.renderer && this.processor._model) {
+        if (this.processor && this.processor._model) {
             // @ts-ignore
             this.processor._model.setCapacity(this._capacity);
         }
@@ -239,8 +239,10 @@ export class ParticleSystemComponent extends RenderableComponent {
     set simulationSpace (val) {
         if (val !== this._simulationSpace) {
             this._simulationSpace = val;
-            (this.renderer as any)._updateMaterialParams();
-            (this.renderer as any)._updateTrailMaterial();
+            if (this.processor) {
+                this.processor.updateMaterialParams();
+                this.processor.updateTrailMaterial();
+            }
         }
     }
 
