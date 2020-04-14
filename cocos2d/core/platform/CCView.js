@@ -57,20 +57,6 @@ if (cc.sys.os === cc.sys.OS_IOS) // All browsers are WebView
 
 switch (__BrowserGetter.adaptationType) {
     case cc.sys.BROWSER_TYPE_SAFARI:
-        __BrowserGetter.meta["minimal-ui"] = "true";
-        __BrowserGetter.availWidth = cc.sys.isMobile ? function (frame){
-            // bug fix for navigation bar on Safari
-            return window.innerWidth;
-        } : function (frame) {
-            return frame.clientWidth;
-        }
-        __BrowserGetter.availHeight = cc.sys.isMobile ? function (frame){
-            // bug fix for navigation bar on Safari
-            return window.innerHeight;
-        } : function (frame) {
-            return frame.clientHeight;
-        }
-        break;
     case cc.sys.BROWSER_TYPE_SOUGOU:
     case cc.sys.BROWSER_TYPE_UC:
         __BrowserGetter.meta["minimal-ui"] = "true";
@@ -967,8 +953,8 @@ cc.js.mixin(View.prototype, {
      */
     convertToLocationInView: function (tx, ty, relatedPos, out) {
         let result = out || cc.v2();
-        let posLeft = relatedPos.adjustedLeft ? relatedPos.adjustedLeft : relatedPos.left;
-        let posTop = relatedPos.adjustedTop ? relatedPos.adjustedTop : relatedPos.top;
+        let posLeft = relatedPos.adjustedLeft !== undefined ? relatedPos.adjustedLeft : relatedPos.left;
+        let posTop = relatedPos.adjustedTop !== undefined ? relatedPos.adjustedTop : relatedPos.top;
         let x = this._devicePixelRatio * (tx - posLeft);
         let y = this._devicePixelRatio * (posTop + relatedPos.height - ty);
         if (this._isRotated) {
