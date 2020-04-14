@@ -92,7 +92,7 @@ export enum UniformBinding {
     UBO_SKINNING_TEXTURE = MAX_BINDING_SUPPORTED - 6,
     UBO_UI = MAX_BINDING_SUPPORTED - 7,
     UBO_MORPH = MAX_BINDING_SUPPORTED - 8,
-    UBO_BUILTIN_BINDING_END = MAX_BINDING_SUPPORTED - 9,
+    CUSTUM_UBO_BINDING_END_POINT = MAX_BINDING_SUPPORTED - 9, // rooms left for custom bindings, effect importer prepares bindings according to this
 
     // samplers
     SAMPLER_JOINTS = MAX_BINDING_SUPPORTED + 1,
@@ -100,11 +100,7 @@ export enum UniformBinding {
     SAMPLER_MORPH_POSITION = MAX_BINDING_SUPPORTED + 3,
     SAMPLER_MORPH_NORMAL = MAX_BINDING_SUPPORTED + 4,
     SAMPLER_MORPH_TANGENT = MAX_BINDING_SUPPORTED + 5,
-
-    // rooms left for custom bindings
-    // effect importer prepares bindings according to this
-    CUSTUM_UBO_BINDING_END_POINT = UniformBinding.UBO_BUILTIN_BINDING_END,
-    CUSTOM_SAMPLER_BINDING_START_POINT = MAX_BINDING_SUPPORTED + 6,
+    CUSTOM_SAMPLER_BINDING_START_POINT = MAX_BINDING_SUPPORTED + 6, // rooms left for custom bindings, effect importer prepares bindings according to this
 }
 
 export const isBuiltinBinding = (binding: number) =>
