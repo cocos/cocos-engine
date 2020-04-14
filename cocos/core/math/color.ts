@@ -155,7 +155,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @en Scales a color by a number.
+     * @en Multiply all channels in a color with the given scale factor
      * @zh 全通道统一缩放颜色
      */
     public static scale<Out extends IColorLike> (out: Out, a: Out, b: number) {
@@ -184,7 +184,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @en Turn an array of colors
+     * @en Convert a color object to a RGBA array
      * @zh 颜色转数组
      * @param ofs 数组起始偏移量
      */
@@ -198,7 +198,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @en An array of colors turn
+     * @en Sets the given color with RGBA values in an array
      * @zh 数组转颜色
      * @param ofs 数组起始偏移量
      */
@@ -211,7 +211,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @en Analyzing the equivalent color
+     * @en Check whether the two given colors are identical
      * @zh 颜色等价判断
      */
     public static strictEquals<Out extends IColorLike> (a: Out, b: Out) {
@@ -219,7 +219,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @en Negative floating point error is approximately equivalent to determining a color
+     * @en Check whether the two given colors are approximately equivalent. Difference of each channel is smaller that the epsilon.
      * @zh 排除浮点数误差的颜色近似等价判断
      */
     public static equals<Out extends IColorLike> (a: Out, b: Out, epsilon = EPSILON) {
@@ -230,7 +230,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @en convert Color to value.
+     * @en Convert the given color to a hex color value.
      * @zh 获取指定颜色的整型数据表示
      */
     public static hex<Out extends IColorLike> (a: Out) {
@@ -301,14 +301,14 @@ export class Color extends ValueType {
     public _val = 0;
 
     /**
-     * @en constructor a color from the specified color.
+     * @en Construct a same color from the given color
      * @zh 构造与指定颜色相等的颜色。
      * @param other 指定的颜色。
      */
     constructor (other: Color);
 
     /**
-     * @en constructor a color from the hexString.
+     * @en Construct a color form the hex color string
      * @zh 用十六进制颜色字符串中构造颜色。
      * @param hexString 十六进制颜色字符串。
      */
@@ -316,7 +316,7 @@ export class Color extends ValueType {
     constructor (hexString: string);
 
     /**
-     * @en constructor a color by the channel value.
+     * @en Construct a color
      * @zh 构造具有指定通道的颜色。
      * @param [r=0] 指定的 Red 通道。
      * @param [g=0] 指定的 Green 通道。
@@ -345,7 +345,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @en Analyzing the equivalent color
+     * @en Check whether the current color is identical with the given color
      * @zh 判断当前颜色是否与指定颜色相等。
      * @param other 相比较的颜色。
      * @returns 两颜色的各通道都相等时返回 `true`；否则返回 `false`。
@@ -374,7 +374,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @en Transform to string with color informations
+     * @en Convert to string with color informations
      * @zh 返回当前颜色的字符串表示。
      * @returns 当前颜色的字符串表示。
      */

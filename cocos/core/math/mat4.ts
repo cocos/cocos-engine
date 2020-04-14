@@ -165,7 +165,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @en Inverts a matrix.When matrix is not invertible will return a matrix of all zeros.
+     * @en Inverts a matrix. When matrix is not invertible a matrix of all zeros will be returned.
      * @zh 矩阵求逆，注意，在矩阵不可逆时，会返回一个全为 0 的矩阵。
      */
     public static invert <Out extends IMat4Like> (out: Out, a: Out) {
@@ -1197,7 +1197,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @en Matrix transpose array
+     * @en Transform a matrix object to a flat array
      * @zh 矩阵转数组
      * @param ofs 数组内的起始偏移量
      */
@@ -1222,7 +1222,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @en Transfer matrix array
+     * @en Generates or sets a matrix with a flat array
      * @zh 数组转矩阵
      * @param ofs 数组起始偏移量
      */
@@ -1655,7 +1655,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @en Inverts the current matrix. When matrix is not invertible will return a matrix of all zeros.
+     * @en Inverts the current matrix. When matrix is not invertible a matrix of all zeros will be returned.
      * @zh 计算当前矩阵的逆矩阵。注意，在矩阵不可逆时，会返回一个全为 0 的矩阵。
      */
     public invert () {

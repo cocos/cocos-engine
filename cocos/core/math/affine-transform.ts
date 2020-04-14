@@ -113,7 +113,7 @@ export class AffineTransform {
     }
 
     /**
-     * @en Apply the `AffineTransform` on a 2D vectors.
+     * @en Apply the `AffineTransform` on a 2D vector.
      * @zh 应用二维仿射变换矩阵到二维向量上，并将结果赋值给出口向量。
      * @param out 出口向量。
      * @param point 应用变换的向量。
@@ -122,7 +122,7 @@ export class AffineTransform {
     public static transformVec2 (out: Vec2, point: Vec2, t: AffineTransform);
 
     /**
-     * @en Apply the `AffineTransform` on a 2D vectors.
+     * @en Apply the `AffineTransform` on a 2D vector.
      * @zh 应用二维仿射变换矩阵到二维向量上，并将结果赋值给出口向量。
      * @param out 出口向量。
      * @param x 应用变换的向量的 x 分量。
