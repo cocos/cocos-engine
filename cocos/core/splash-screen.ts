@@ -111,7 +111,12 @@ export class SplashScreen {
             return;
         } else {
             cc.view.enableRetina(true);
-            cc.view.setDesignResolutionSize(960, 640, 4);
+            const designRes = window._CCSettings.designResolution;
+            if (designRes) {
+                cc.view.setDesignResolutionSize(designRes.width, designRes.height, designRes.policy);
+            } else {
+                cc.view.setDesignResolutionSize(960, 640, 4);
+            }
             this.device = device;
             cc.game.once(cc.Game.EVENT_GAME_INITED, () => {
                 cc.director._lateUpdate = performance.now();
