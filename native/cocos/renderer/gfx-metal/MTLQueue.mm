@@ -11,6 +11,7 @@
 #include "MTLInputAssembler.h"
 #include "MTLBuffer.h"
 #include "MTLShader.h"
+#include "MTLPipelineState.h"
 #include "platform/mac/CCView.h"
 
 #import <Metal/MTLDevice.h>
@@ -144,9 +145,11 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                 
             case GFXCmdType::BIND_STATES: {
                 auto cmd = commandPackage->bindStatesCmds[cmdIdx++];
-                if (cmd->gpuPipelineState)
+                //TODO coulsonwang, update when bindingLayout is dirty
+                cmd->pipelineState->updateBindingBlocks(cmd->bindingLayout);
+                if (cmd->pipelineState->getGPUPipelineState())
                 {
-                    gpuPipelineState = cmd->gpuPipelineState;
+                    gpuPipelineState = cmd->pipelineState->getGPUPipelineState();
                     
                     [encoder setCullMode:gpuPipelineState->cullMode];
                     [encoder setFrontFacingWinding:gpuPipelineState->winding];

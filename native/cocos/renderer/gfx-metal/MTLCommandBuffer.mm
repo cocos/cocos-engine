@@ -269,11 +269,8 @@ void CCMTLCommandBuffer::bindStates()
     if ( (commandBindState->scissorDirty = _isScissorDirty) )
         commandBindState->scissorRect = mu::toMTLScissorRect(_currentScissor);
     
-    if (_currentPipelineState)
-    {
-        _currentPipelineState->updateBindingBlocks(_currentBindingLayout);
-        commandBindState->gpuPipelineState = _currentPipelineState->getGPUPipelineState();
-    }
+    commandBindState->pipelineState = _currentPipelineState;
+    commandBindState->bindingLayout = _currentBindingLayout;
     
     _commandPackage->bindStatesCmds.push(commandBindState);
     _commandPackage->commandTypes.push(GFXCmdType::BIND_STATES);
