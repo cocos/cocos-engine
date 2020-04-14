@@ -5,6 +5,7 @@ NS_CC_BEGIN
 class CCMTLCommandPackage;
 class CCMTLCommandAllocator;
 struct CCMTLDepthBias;
+struct CCMTLDepthBounds;
 struct CCMTLGPUPipelineState;
 class CCMTLInputAssembler;
 class CCMTLPipelineState;
@@ -59,6 +60,8 @@ private:
     GFXRect _currentScissor;
     // Just don't want to include "Commands.h", because "Commands.h" includes Objective-C codes.
     CCMTLDepthBias* _currentDepthBias = nullptr;
+    CCMTLDepthBounds* _currentDepthBounds = nullptr;
+    GFXColor _currentBlendConstants;
 };
 
 NS_CC_END

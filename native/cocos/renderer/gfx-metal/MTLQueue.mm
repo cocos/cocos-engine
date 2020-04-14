@@ -184,6 +184,9 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                 
                 if (cmd->viewportDirty) [encoder setViewport:cmd->viewport];
                 if (cmd->scissorDirty) [encoder setScissorRect:cmd->scissorRect];
+                [encoder setDepthBias:cmd->depthBias.depthBias
+                           slopeScale:cmd->depthBias.slopeScale
+                                clamp:cmd->depthBias.clamp];
                 
                 // bind vertex buffer
                 inputAssembler = cmd->inputAssembler;
