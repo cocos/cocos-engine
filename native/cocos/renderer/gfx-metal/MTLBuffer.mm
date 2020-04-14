@@ -147,16 +147,16 @@ void CCMTLBuffer::resize(uint size)
 
 void CCMTLBuffer::resizeBuffer(uint8_t** buffer, uint size, uint oldSize)
 {
-    if (!buffer)
+    if (!(*buffer) )
         return;
     
     GFXMemoryStatus& status = _device->getMemoryStatus();
     const uint8_t* oldBuff = *buffer;
-    *buffer = (uint8_t*)CC_MALLOC(_size);
+    *buffer = (uint8_t*)CC_MALLOC(size);
     if (*buffer)
     {
-        memcpy(*buffer, oldBuff, oldSize);
-        status.bufferSize += _size;
+        memcpy(*buffer, oldBuff, std::min(oldSize, size) );
+        status.bufferSize += size;
     }
     else
     {
