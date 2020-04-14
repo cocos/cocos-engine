@@ -10,6 +10,7 @@
 #import <Cocoa/Cocoa.h>
 #else
 #import <CoreText/CoreText.h>
+#import <UIKit/UIKit.h>
 
 #define NSBezierPath UIBezierPath
 #define NSFont UIFont

@@ -26,8 +26,7 @@
 #include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
 #include "cocos/scripting/js-bindings/manual/jsb_global.h"
 
-#import <UIKit/UITextField.h>
-#import <UIKit/UITextView.h>
+#import <UIKit/UIKit.h>
 
 #define TEXT_LINE_HEIGHT  40
 #define TEXT_VIEW_MAX_LINE_SHOWN    3

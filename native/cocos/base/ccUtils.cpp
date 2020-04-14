@@ -37,24 +37,6 @@ THE SOFTWARE.
 
 NS_CC_BEGIN
 
-namespace
-{
-#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-#include "platform/CCStdC.h"
-    int gettimeofday(struct timeval * val, void *)
-    {
-        if (val)
-        {
-            LARGE_INTEGER liTime, liFreq;
-            QueryPerformanceFrequency(&liFreq);
-            QueryPerformanceCounter(&liTime);
-            val->tv_sec = (long)(liTime.QuadPart / liFreq.QuadPart);
-            val->tv_usec = (long)(liTime.QuadPart * 1000000.0 / liFreq.QuadPart - val->tv_sec * 1000000.0);
-        }
-        return 0;
-    }
-#endif
-}
 
 namespace utils
 {
@@ -80,20 +62,6 @@ double atof(const char* str)
     return ::atof(buf);
 }
 
-double gettime()
-{
-    struct timeval tv;
-    gettimeofday(&tv, nullptr);
-
-    return (double)tv.tv_sec + (double)tv.tv_usec/1000000;
-}
-
-long long getTimeInMilliseconds()
-{
-    struct timeval tv;
-    gettimeofday (&tv, nullptr);
-    return (long long)tv.tv_sec * 1000 + tv.tv_usec / 1000;
-}
 
 int nextPOT(int x)
 {

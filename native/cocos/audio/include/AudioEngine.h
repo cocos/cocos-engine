@@ -36,6 +36,7 @@
 #include <list>
 #include <string>
 #include <unordered_map>
+#include <chrono>
 
 #ifdef ERROR
 #undef ERROR
@@ -327,10 +328,9 @@ protected:
 
         std::list<int> audioIDs;
 
-        double lastPlayTime;
+        std::chrono::steady_clock::time_point lastPlayTime;
 
         ProfileHelper()
-            : lastPlayTime(0.0)
         {
 
         }

@@ -244,8 +244,9 @@ int AudioEngine::play2d(const std::string& filePath, bool loop, float volume, co
                  break;
              }
              if (profileHelper->profile.minDelay > TIME_DELAY_PRECISION) {
-                 auto currTime = utils::gettime();
-                 if (profileHelper->lastPlayTime > TIME_DELAY_PRECISION && currTime - profileHelper->lastPlayTime <= profileHelper->profile.minDelay) {
+                 auto currTime = std::chrono::high_resolution_clock::now();
+                 auto delay =(float)std::chrono::duration_cast<std::chrono::microseconds>(currTime - profileHelper->lastPlayTime).count() / 1000000.0;
+                 if (profileHelper->lastPlayTime.time_since_epoch().count() != 0 && delay <= profileHelper->profile.minDelay) {
                      log("Fail to play %s cause by limited minimum delay",filePath.c_str());
                      break;
                  }
@@ -271,7 +272,7 @@ int AudioEngine::play2d(const std::string& filePath, bool loop, float volume, co
             audioRef.filePath = &it->first;
 
             if (profileHelper) {
-                profileHelper->lastPlayTime = utils::gettime();
+                profileHelper->lastPlayTime = std::chrono::high_resolution_clock::now();
                 profileHelper->audioIDs.push_back(ret);
             }
             audioRef.profileHelper = profileHelper;

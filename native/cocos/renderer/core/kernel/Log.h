@@ -1,6 +1,8 @@
 #ifndef CC_CORE_KERNEL_LOG_H_
 #define CC_CORE_KERNEL_LOG_H_
 
+#include <string>
+
 NS_CC_BEGIN
 
 enum class LogType: uint8_t {

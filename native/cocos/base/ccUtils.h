@@ -35,13 +35,7 @@ Misc free functions
 
 NS_CC_BEGIN
 
-namespace
-{
-#if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-#include <winsock.h>
-    extern "C" int gettimeofday(struct timeval * val, void *);
-#endif
-}
+
 /*
 utils::nextPOT function is licensed under the same license that is used in Texture2D.m.
 */
@@ -68,17 +62,6 @@ namespace utils
      */
     CC_DLL double  atof(const char* str);
 
-    /** Get current exact time, accurate to nanoseconds.
-     * @return Returns the time in seconds since the Epoch.
-     */
-    CC_DLL double  gettime();
-
-    /**
-     * Get current time in milliseconds, accurate to nanoseconds
-     *
-     * @return  Returns the time in milliseconds since the Epoch.
-     */
-    CC_DLL long long  getTimeInMilliseconds();
 }
 
 NS_CC_END

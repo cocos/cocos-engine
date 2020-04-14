@@ -27,6 +27,8 @@
 
 #include "base/CCThreadPool.h"
 #include "platform/CCStdC.h"
+#include <memory>
+#include <chrono>
 
 #ifdef __ANDROID__
 #include <android/log.h>
@@ -35,6 +37,8 @@
 #else
 #define LOGD(...) printf(__VA_ARGS__)
 #endif
+
+#define TIME_MINUS(now, prev) (std::chrono::duration_cast<std::chrono::milliseconds>((now) - (prev)).count() / 1000.0f)
 
 namespace cocos2d {
 
@@ -125,7 +129,7 @@ int ThreadPool::getIdleThreadNum() const
 
 void ThreadPool::init()
 {
-    gettimeofday(&_lastShrinkTime, nullptr);
+    _lastShrinkTime = std::chrono::high_resolution_clock::now();
 
     _maxThreadNum = std::max(_minThreadNum, _maxThreadNum);
 
@@ -156,8 +160,7 @@ bool ThreadPool::tryShrinkPool()
 {
     LOGD("shrink pool, _idleThreadNum = %d \n", getIdleThreadNum());
 
-    struct timeval before;
-    gettimeofday(&before, nullptr);
+    auto before = std::chrono::high_resolution_clock::now();
 
     std::vector<int> threadIDsToJoin;
     int maxThreadNumToJoin = std::min(_initedThreadNum - _minThreadNum, _shrinkStep);
@@ -194,10 +197,9 @@ bool ThreadPool::tryShrinkPool()
         --_initedThreadNum;
     }
 
-    struct timeval after;
-    gettimeofday(&after, nullptr);
+    auto after = std::chrono::high_resolution_clock::now();
 
-    float seconds = (after.tv_sec - before.tv_sec) + (after.tv_usec - before.tv_usec) / 1000000.0f;
+    float seconds = TIME_MINUS(after, before);
 
     LOGD("shrink %d threads, waste: %f seconds\n", (int) threadIDsToJoin.size(), seconds);
 
@@ -209,8 +211,7 @@ bool ThreadPool::tryShrinkPool()
 
 void ThreadPool::stretchPool(int count)
 {
-    struct timeval before;
-    gettimeofday(&before, nullptr);
+    auto before = std::chrono::high_resolution_clock::now();
 
     int oldThreadCount = _initedThreadNum;
     int newThreadCount = 0;
@@ -233,11 +234,8 @@ void ThreadPool::stretchPool(int count)
 
     if (newThreadCount > 0)
     {
-        struct timeval after;
-        gettimeofday(&after, nullptr);
-
-        float seconds =
-                (after.tv_sec - before.tv_sec) + (after.tv_usec - before.tv_usec) / 1000000.0f;
+        auto after = std::chrono::high_resolution_clock::now();
+        float seconds = TIME_MINUS(after, before);
 
         LOGD("stretch pool from %d to %d, waste %f seconds\n", oldThreadCount, _initedThreadNum,
              seconds);
@@ -257,11 +255,8 @@ void ThreadPool::pushTask(const std::function<void(int)>& runnable,
         {
             if (_taskQueue.empty())
             {
-                struct timeval now;
-                gettimeofday(&now, nullptr);
-
-                float seconds = (now.tv_sec - _lastShrinkTime.tv_sec) +
-                                (now.tv_usec - _lastShrinkTime.tv_usec) / 1000000.0f;
+                auto now = std::chrono::high_resolution_clock::now();
+                float seconds = TIME_MINUS(now, _lastShrinkTime);
                 if (seconds > _shrinkInterval)
                 {
                     tryShrinkPool();
@@ -357,7 +352,7 @@ void ThreadPool::setFixedSize(bool isFixedSize)
 void ThreadPool::setShrinkInterval(int seconds)
 {
     if (seconds >= 0)
-        _shrinkInterval = seconds;
+        _shrinkInterval = (float)seconds;
 }
 
 void ThreadPool::setShrinkStep(int step)

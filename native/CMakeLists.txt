@@ -1,0 +1,1006 @@
+
+
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    set(WINDOWS TRUE)
+    set(PLATFORM_FOLDER win32)
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Android")
+    set(PLATFORM_FOLDER android)    
+    set(ANDROID TRUE)
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(APPLE TRUE)
+    set(MACOSX TRUE)
+    set(PLATFORM_FOLDER mac)
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "iOS")
+    set(APPLE TRUE)
+    set(IOS TRUE)
+    set(PLATFORM_FOLDER ios)
+else()
+    message(FATAL_ERROR "Unsupported platform, CMake will exit")
+    return()
+endif()
+
+# generators that are capable of organizing into a hierarchy of folders
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+# simplify generator condition, please use them everywhere
+if(CMAKE_GENERATOR STREQUAL Xcode)
+    set(XCODE TRUE)
+elseif(CMAKE_GENERATOR MATCHES Visual)
+    set(VS TRUE)
+endif()
+
+
+# set c++ standard
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+################################# options ############################################
+
+if(ANDROID) 
+    set(CC_USE_GLES3 ON)
+    set(CC_USE_GLES2 ON)
+else()
+    set(CC_USE_GLES2 OFF)
+    set(CC_USE_GLES3 ON)
+endif()
+
+
+################################# external source code ################################
+
+
+include(${CMAKE_CURRENT_LIST_DIR}/external/CMakeLists.txt)
+
+################################# engine source code ##################################
+
+set(CWD ${CMAKE_CURRENT_LIST_DIR})
+set(COCOS2D_SOURCE_LIST)
+
+macro(cocos_source_files)
+    set(list_var "${ARGN}")
+    foreach(src IN LISTS list_var)
+        set(fp "${CWD}/${src}")
+        if(EXISTS ${fp})
+            list(APPEND COCOS2D_SOURCE_LIST "${CWD}/${src}")
+        else()
+            message(FATAL_ERROR "Cocos souce file not exists: ${src} in ${CWD}")
+        endif()
+    endforeach()
+endmacro()
+
+
+cocos_source_files(
+    cocos/cocos2d.h
+    cocos/cocos2d.cpp
+)
+
+##### audio
+cocos_source_files(
+    cocos/audio/AudioEngine.cpp
+    cocos/audio/include/AudioEngine.h
+    cocos/audio/include/Export.h
+)
+if(WINDOWS)
+    cocos_source_files(
+        cocos/audio/win32/AudioCache.cpp
+        cocos/audio/win32/AudioCache.h
+        cocos/audio/win32/AudioDecoder.cpp
+        cocos/audio/win32/AudioDecoder.h
+        cocos/audio/win32/AudioDecoderManager.cpp
+        cocos/audio/win32/AudioDecoderManager.h
+        cocos/audio/win32/AudioDecoderMp3.cpp
+        cocos/audio/win32/AudioDecoderMp3.h
+        cocos/audio/win32/AudioDecoderOgg.cpp
+        cocos/audio/win32/AudioDecoderOgg.h
+        cocos/audio/win32/AudioEngine-win32.cpp
+        cocos/audio/win32/AudioEngine-win32.h
+        cocos/audio/win32/AudioMacros.h
+        cocos/audio/win32/AudioPlayer.cpp
+        cocos/audio/win32/AudioPlayer.h
+    )
+elseif(ANDROID)
+    cocos_source_files(
+        cocos/audio/android/AssetFd.cpp
+        cocos/audio/android/AssetFd.h
+        cocos/audio/android/audio.h
+        cocos/audio/android/AudioBufferProvider.h
+        cocos/audio/android/AudioDecoder.cpp
+        cocos/audio/android/AudioDecoder.h
+        cocos/audio/android/AudioDecoderMp3.cpp
+        cocos/audio/android/AudioDecoderMp3.h
+        cocos/audio/android/AudioDecoderOgg.cpp
+        cocos/audio/android/AudioDecoderOgg.h
+        cocos/audio/android/AudioDecoderProvider.cpp
+        cocos/audio/android/AudioDecoderProvider.h
+        cocos/audio/android/AudioDecoderSLES.cpp
+        cocos/audio/android/AudioDecoderSLES.h
+        cocos/audio/android/AudioDecoderWav.cpp
+        cocos/audio/android/AudioDecoderWav.h
+        cocos/audio/android/AudioEngine-inl.cpp
+        cocos/audio/android/AudioEngine-inl.h
+        cocos/audio/android/AudioMixer.cpp
+        cocos/audio/android/AudioMixer.h
+        cocos/audio/android/AudioMixerController.cpp
+        cocos/audio/android/AudioMixerController.h
+        cocos/audio/android/AudioMixerOps.h
+        cocos/audio/android/AudioPlayerProvider.cpp
+        cocos/audio/android/AudioPlayerProvider.h
+        cocos/audio/android/AudioResampler.cpp
+        cocos/audio/android/AudioResampler.h
+        cocos/audio/android/AudioResamplerCubic.cpp
+        cocos/audio/android/AudioResamplerCubic.h
+        cocos/audio/android/AudioResamplerPublic.h
+        cocos/audio/android/audio_utils/format.c
+        cocos/audio/android/audio_utils/include/audio_utils/format.h
+        cocos/audio/android/audio_utils/include/audio_utils/minifloat.h
+        cocos/audio/android/audio_utils/include/audio_utils/primitives.h
+        cocos/audio/android/audio_utils/minifloat.cpp
+        cocos/audio/android/audio_utils/primitives.c
+        cocos/audio/android/audio_utils/private/private.h
+        cocos/audio/android/cutils/bitops.h
+        cocos/audio/android/cutils/log.h
+        cocos/audio/android/IAudioPlayer.h
+        cocos/audio/android/ICallerThreadUtils.h
+        cocos/audio/android/IVolumeProvider.h
+        cocos/audio/android/mp3reader.cpp
+        cocos/audio/android/mp3reader.h
+        cocos/audio/android/OpenSLHelper.h
+        cocos/audio/android/PcmAudioPlayer.cpp
+        cocos/audio/android/PcmAudioPlayer.h
+        cocos/audio/android/PcmAudioService.cpp
+        cocos/audio/android/PcmAudioService.h
+        cocos/audio/android/PcmBufferProvider.cpp
+        cocos/audio/android/PcmBufferProvider.h
+        cocos/audio/android/PcmData.cpp
+        cocos/audio/android/PcmData.h
+        cocos/audio/android/tinysndfile.cpp
+        cocos/audio/android/tinysndfile.h
+        cocos/audio/android/Track.cpp
+        cocos/audio/android/Track.h
+        cocos/audio/android/UrlAudioPlayer.cpp
+        cocos/audio/android/UrlAudioPlayer.h
+        cocos/audio/android/utils/Compat.h
+        cocos/audio/android/utils/Errors.h
+        cocos/audio/android/utils/Utils.cpp
+        cocos/audio/android/utils/Utils.h
+    )
+elseif(APPLE)
+    cocos_source_files(
+        cocos/audio/apple/AudioDecoder.h
+        cocos/audio/apple/AudioPlayer.mm
+        cocos/audio/apple/AudioDecoder.mm
+        cocos/audio/apple/AudioPlayer.h
+        cocos/audio/apple/AudioEngine-inl.mm
+        cocos/audio/apple/AudioMacros.h
+        cocos/audio/apple/AudioCache.mm
+        cocos/audio/apple/AudioCache.h
+        cocos/audio/apple/AudioEngine-inl.h
+    )
+endif()
+
+
+##### base
+cocos_source_files(
+    cocos/base/base64.cpp
+    cocos/base/base64.h
+    cocos/base/CCAutoreleasePool.cpp
+    cocos/base/CCAutoreleasePool.h
+    cocos/base/ccCArray.cpp
+    cocos/base/ccCArray.h
+    cocos/base/ccConfig.h
+    cocos/base/CCData.cpp
+    cocos/base/CCData.h
+    cocos/base/CCLog.cpp
+    cocos/base/CCLog.h
+    cocos/base/ccMacros.h
+    cocos/base/CCMap.h
+    cocos/base/ccRandom.cpp
+    cocos/base/ccRandom.h
+    cocos/base/CCRef.cpp
+    cocos/base/CCRef.h
+    cocos/base/CCRefPtr.h
+    #cocos/base/CCRenderTexture.cpp
+    #cocos/base/CCRenderTexture.h
+    cocos/base/CCScheduler.cpp
+    cocos/base/CCScheduler.h
+    cocos/base/CCThreadPool.cpp
+    cocos/base/CCThreadPool.h
+    cocos/base/ccUTF8.cpp
+    cocos/base/ccUTF8.h
+    cocos/base/ccUtils.cpp
+    cocos/base/ccUtils.h
+    cocos/base/CCValue.cpp
+    cocos/base/CCValue.h
+    cocos/base/CCVector.h
+    cocos/base/csscolorparser.cpp
+    cocos/base/csscolorparser.hpp
+    cocos/base/etc1.cpp
+    cocos/base/etc1.h
+    cocos/base/etc2.cpp
+    cocos/base/etc2.h
+    cocos/base/pvr.cpp
+    cocos/base/pvr.h
+    cocos/base/uthash.h
+    cocos/base/utlist.h
+    cocos/base/ZipUtils.cpp
+    cocos/base/ZipUtils.h
+)
+
+##### math
+cocos_source_files(
+    cocos/math/CCGeometry.cpp
+    cocos/math/CCGeometry.h
+    cocos/math/CCMath.h
+    cocos/math/CCMathBase.h
+    cocos/math/CCVertex.cpp
+    cocos/math/CCVertex.h
+    cocos/math/Mat3.cpp
+    cocos/math/Mat3.hpp
+    cocos/math/Mat4.cpp
+    cocos/math/Mat4.h
+    cocos/math/Mat4.inl
+    cocos/math/MathUtil.cpp
+    cocos/math/MathUtil.h
+    cocos/math/MathUtil.inl
+    cocos/math/MathUtilNeon.inl
+    cocos/math/MathUtilNeon64.inl
+    cocos/math/MathUtilSSE.inl
+    cocos/math/Quaternion.cpp
+    cocos/math/Quaternion.h
+    cocos/math/Quaternion.inl
+    cocos/math/Vec2.cpp
+    cocos/math/Vec2.h
+    cocos/math/Vec2.inl
+    cocos/math/Vec3.cpp
+    cocos/math/Vec3.h
+    cocos/math/Vec3.inl
+    cocos/math/Vec4.cpp
+    cocos/math/Vec4.h
+    cocos/math/Vec4.inl
+)
+
+##### network
+cocos_source_files(
+    cocos/network/CCDownloader.cpp
+    cocos/network/CCDownloader.h
+    cocos/network/CCIDownloaderImpl.h
+    cocos/network/HttpClient.h
+    cocos/network/HttpCookie.cpp
+    cocos/network/HttpCookie.h
+    cocos/network/HttpRequest.h
+    cocos/network/HttpResponse.h
+    cocos/network/SocketIO.cpp
+    cocos/network/SocketIO.h
+    cocos/network/Uri.cpp
+    cocos/network/Uri.h
+    cocos/network/WebSocket.h
+    )
+
+if(APPLE)
+    cocos_source_files(
+        cocos/network/CCDownloaderImpl-apple.h
+        cocos/network/CCDownloaderImpl-apple.mm
+        cocos/network/HttpAsynConnection-apple.h
+        cocos/network/HttpAsynConnection-apple.m
+        cocos/network/HttpClient-apple.mm
+        cocos/network/WebSocket-apple.mm
+        cocos/network/WebSocket-apple.mm
+    )
+    set_source_files_properties(${CWD}/cocos/network/WebSocket-apple.mm PROPERTIES
+        COMPILE_FLAGS -fobjc-arc
+    )
+endif()
+
+if(ANDROID)
+    cocos_source_files(
+        cocos/network/CCDownloader-android.cpp
+        cocos/network/CCDownloader-android.h
+        cocos/network/HttpClient-android.cpp
+    )
+endif()
+
+if(NOT APPLE)
+    cocos_source_files(
+        cocos/network/WebSocket-libwebsockets.cpp
+    )
+endif()
+
+if(WINDOWS)
+    cocos_source_files(
+        cocos/network/CCDownloader-curl.cpp
+        cocos/network/CCDownloader-curl.h
+    )
+endif()
+
+if(WINDOWS OR MACOSX)
+    cocos_source_files(
+        cocos/network/HttpClient.cpp
+    )
+endif()
+
+
+##### platform
+cocos_source_files(
+    cocos/platform/CCApplication.h
+    cocos/platform/CCCanvasRenderingContext2D.h
+    cocos/platform/CCDevice.h
+    cocos/platform/CCFileUtils.cpp
+    cocos/platform/CCFileUtils.h
+    cocos/platform/CCImage.cpp
+    cocos/platform/CCImage.h
+    cocos/platform/CCPlatformConfig.h
+    cocos/platform/CCPlatformDefine.h
+    cocos/platform/CCSAXParser.cpp
+    cocos/platform/CCSAXParser.h
+    cocos/platform/CCStdC.h
+)
+if(WINDOWS)
+    cocos_source_files(
+        cocos/platform/win32/CCApplication-win32.cpp
+        cocos/platform/win32/CCCanvasRenderingContext2D-win32.cpp
+        cocos/platform/win32/CCDevice-win32.cpp
+        cocos/platform/win32/CCFileUtils-win32.cpp
+        cocos/platform/win32/CCFileUtils-win32.h
+        cocos/platform/win32/CCPlatformDefine-win32.h
+        cocos/platform/win32/CCUtils-win32.cpp
+        cocos/platform/win32/CCUtils-win32.h
+        cocos/platform/win32/View-win32.cpp
+        cocos/platform/win32/View-win32.h
+        cocos/platform/win32/compat
+        cocos/platform/win32/compat/stdint.h
+        cocos/platform/win32/inet_pton_mingw.cpp
+        cocos/platform/win32/inet_pton_mingw.h
+    )
+elseif(ANDROID)
+    cocos_source_files(
+        cocos/platform/android/CCApplication-android.cpp
+        cocos/platform/android/CCCanvasRenderingContext2D-android.cpp
+        cocos/platform/android/CCDevice-android.cpp
+        cocos/platform/android/CCFileUtils-android.cpp
+        cocos/platform/android/CCFileUtils-android.h
+        cocos/platform/android/CCPlatformDefine-android.h
+        cocos/platform/android/CCView.cpp
+        cocos/platform/android/CCView.h
+        cocos/platform/android/jni/JniHelper.cpp
+        cocos/platform/android/jni/JniHelper.h
+        cocos/platform/android/jni/JniImp.cpp
+        cocos/platform/android/jni/JniImp.h
+    )
+elseif(APPLE)
+    cocos_source_files(
+        cocos/platform/apple/CCFileUtils-apple.h
+        cocos/platform/apple/CCDevice-apple.mm
+        cocos/platform/apple/CCFileUtils-apple.mm
+        cocos/platform/apple/CCCanvasRenderingContext2D-apple.mm
+        cocos/platform/apple/CCDevice-apple.h   
+    )
+    #bad struct
+    cocos_source_files(
+        cocos/platform/ios/CCReachability.h
+        cocos/platform/ios/CCReachability.cpp
+    )
+    if(MACOSX)
+        cocos_source_files(
+            cocos/platform/mac/CCView.h
+            cocos/platform/mac/CCKeyCodeHelper.h
+            cocos/platform/mac/CCView.mm
+            cocos/platform/mac/CCModuleConfigMac.debug.xcconfig
+            cocos/platform/mac/cocos2d-prefix.pch
+            cocos/platform/mac/CCPlatformDefine-mac.h
+            cocos/platform/mac/CCDevice-mac.mm
+            cocos/platform/mac/CCApplication-mac.mm
+            cocos/platform/mac/CCModuleConfigMac.release.xcconfig
+            cocos/platform/mac/CCKeyCodeHelper.cpp
+        )
+    elseif(IOS)
+        cocos_source_files(
+            cocos/platform/ios/CCView.h
+            cocos/platform/ios/CCView.mm
+            cocos/platform/ios/CCApplication-ios.mm
+            cocos/platform/ios/cocos2d-prefix.pch
+            cocos/platform/ios/CCDevice-ios.mm
+            cocos/platform/ios/CCPlatformDefine-ios.h
+            cocos/platform/ios/CCImage-ios.mm
+        )
+    endif()
+endif()
+
+##### renderer
+cocos_source_files(
+    cocos/renderer/core/Core.h
+    cocos/renderer/core/CoreDef.h
+    cocos/renderer/core/CoreStd.cc
+    cocos/renderer/core/CoreStd.h
+    cocos/renderer/core/gfx/GFXObject.h
+    cocos/renderer/core/gfx/GFXObject.cc
+    cocos/renderer/core/gfx/GFXBindingLayout.cc
+    cocos/renderer/core/gfx/GFXBindingLayout.h
+    cocos/renderer/core/gfx/GFXBuffer.cc
+    cocos/renderer/core/gfx/GFXBuffer.h
+    cocos/renderer/core/gfx/GFXCommand.h
+    cocos/renderer/core/gfx/GFXCommandAllocator.cc
+    cocos/renderer/core/gfx/GFXCommandAllocator.h
+    cocos/renderer/core/gfx/GFXCommandBuffer.cc
+    cocos/renderer/core/gfx/GFXCommandBuffer.h
+    cocos/renderer/core/gfx/GFXCommandPool.h
+    cocos/renderer/core/gfx/GFXContext.cc
+    cocos/renderer/core/gfx/GFXContext.h
+    cocos/renderer/core/gfx/GFXDef.cc
+    cocos/renderer/core/gfx/GFXDef.h
+    cocos/renderer/core/gfx/GFXDevice.cc
+    cocos/renderer/core/gfx/GFXDevice.h
+    cocos/renderer/core/gfx/GFXFramebuffer.cc
+    cocos/renderer/core/gfx/GFXFramebuffer.h
+    cocos/renderer/core/gfx/GFXInputAssembler.cc
+    cocos/renderer/core/gfx/GFXInputAssembler.h
+    cocos/renderer/core/gfx/GFXPipelineLayout.cc
+    cocos/renderer/core/gfx/GFXPipelineLayout.h
+    cocos/renderer/core/gfx/GFXPipelineState.cc
+    cocos/renderer/core/gfx/GFXPipelineState.h
+    cocos/renderer/core/gfx/GFXQueue.cc
+    cocos/renderer/core/gfx/GFXQueue.h
+    cocos/renderer/core/gfx/GFXRenderPass.cc
+    cocos/renderer/core/gfx/GFXRenderPass.h
+    cocos/renderer/core/gfx/GFXSampler.cc
+    cocos/renderer/core/gfx/GFXSampler.h
+    cocos/renderer/core/gfx/GFXShader.cc
+    cocos/renderer/core/gfx/GFXShader.h
+    cocos/renderer/core/gfx/GFXTexture.cc
+    cocos/renderer/core/gfx/GFXTexture.h
+    cocos/renderer/core/gfx/GFXTextureView.cc
+    cocos/renderer/core/gfx/GFXTextureView.h
+    cocos/renderer/core/gfx/GFXWindow.cc
+    cocos/renderer/core/gfx/GFXWindow.h
+    cocos/renderer/core/kernel/Assertion.cc
+    cocos/renderer/core/kernel/Assertion.h
+    cocos/renderer/core/kernel/CachedArray.h
+    cocos/renderer/core/kernel/Log.cc
+    cocos/renderer/core/kernel/Log.h
+    cocos/renderer/core/kernel/Object.h
+    cocos/renderer/core/kernel/UTFString.cc
+    cocos/renderer/core/kernel/UTFString.h
+    cocos/renderer/core/math/CCCoreMath.cc
+    cocos/renderer/core/math/CCCoreMath.h
+    cocos/renderer/core/memory/AllocatedObj.cc
+    cocos/renderer/core/memory/AllocatedObj.h
+    cocos/renderer/core/memory/JeAlloc.cc
+    cocos/renderer/core/memory/JeAlloc.h
+    cocos/renderer/core/memory/MemDef.h
+    cocos/renderer/core/memory/Memory.cc
+    cocos/renderer/core/memory/Memory.h
+    cocos/renderer/core/memory/MemTracker.cc
+    cocos/renderer/core/memory/MemTracker.h
+    cocos/renderer/core/memory/NedPooling.cc
+    cocos/renderer/core/memory/NedPooling.h
+    cocos/renderer/core/memory/StdAlloc.h
+    cocos/renderer/core/memory/StlAlloc.h
+    cocos/renderer/core/TypeDef.h
+    cocos/renderer/core/util/StringUtil.cc
+    cocos/renderer/core/util/StringUtil.h
+)
+
+if(CC_USE_GLES2)
+    cocos_source_files(
+        cocos/renderer/gfx-gles2/GFXGLES2.h
+        cocos/renderer/gfx-gles2/GLES2BindingLayout.cc
+        cocos/renderer/gfx-gles2/GLES2BindingLayout.h
+        cocos/renderer/gfx-gles2/GLES2Buffer.cc
+        cocos/renderer/gfx-gles2/GLES2Buffer.h
+        cocos/renderer/gfx-gles2/GLES2CommandAllocator.cc
+        cocos/renderer/gfx-gles2/GLES2CommandAllocator.h
+        cocos/renderer/gfx-gles2/GLES2CommandBuffer.cc
+        cocos/renderer/gfx-gles2/GLES2CommandBuffer.h
+        cocos/renderer/gfx-gles2/GLES2Commands.cc
+        cocos/renderer/gfx-gles2/GLES2Commands.h
+        cocos/renderer/gfx-gles2/GLES2Context.h
+        cocos/renderer/gfx-gles2/GLES2Device.cc
+        cocos/renderer/gfx-gles2/GLES2Device.h
+        cocos/renderer/gfx-gles2/GLES2Framebuffer.cc
+        cocos/renderer/gfx-gles2/GLES2Framebuffer.h
+        cocos/renderer/gfx-gles2/GLES2GPUObjects.h
+        cocos/renderer/gfx-gles2/GLES2InputAssembler.cc
+        cocos/renderer/gfx-gles2/GLES2InputAssembler.h
+        cocos/renderer/gfx-gles2/GLES2PipelineLayout.cc
+        cocos/renderer/gfx-gles2/GLES2PipelineLayout.h
+        cocos/renderer/gfx-gles2/GLES2PipelineState.cc
+        cocos/renderer/gfx-gles2/GLES2PipelineState.h
+        cocos/renderer/gfx-gles2/GLES2Queue.cc
+        cocos/renderer/gfx-gles2/GLES2Queue.h
+        cocos/renderer/gfx-gles2/GLES2RenderPass.cc
+        cocos/renderer/gfx-gles2/GLES2RenderPass.h
+        cocos/renderer/gfx-gles2/GLES2Sampler.cc
+        cocos/renderer/gfx-gles2/GLES2Sampler.h
+        cocos/renderer/gfx-gles2/GLES2Shader.cc
+        cocos/renderer/gfx-gles2/GLES2Shader.h
+        cocos/renderer/gfx-gles2/GLES2StateCache.h
+        cocos/renderer/gfx-gles2/GLES2Std.cc
+        cocos/renderer/gfx-gles2/GLES2Std.h
+        cocos/renderer/gfx-gles2/GLES2Texture.cc
+        cocos/renderer/gfx-gles2/GLES2Texture.h
+        cocos/renderer/gfx-gles2/GLES2TextureView.cc
+        cocos/renderer/gfx-gles2/GLES2TextureView.h
+        cocos/renderer/gfx-gles2/gles2w.h
+        cocos/renderer/gfx-gles2/GLES2Window.cc
+        cocos/renderer/gfx-gles2/GLES2Window.h
+    )
+
+    if(APPLE) 
+        cocos_source_files(
+            cocos/renderer/gfx-gles2/GLES2Context.mm
+            cocos/renderer/gfx-gles2/gles2w.mm
+        )
+    else()
+        cocos_source_files(
+            cocos/renderer/gfx-gles2/GLES2Context.cc
+            cocos/renderer/gfx-gles2/gles2w.c
+        )
+    endif()
+
+endif()
+
+if(CC_USE_GLES3)
+    cocos_source_files(
+        cocos/renderer/gfx-gles3/GFXGLES3.h
+        cocos/renderer/gfx-gles3/GLES3BindingLayout.cc
+        cocos/renderer/gfx-gles3/GLES3BindingLayout.h
+        cocos/renderer/gfx-gles3/GLES3Buffer.cc
+        cocos/renderer/gfx-gles3/GLES3Buffer.h
+        cocos/renderer/gfx-gles3/GLES3CommandAllocator.cc
+        cocos/renderer/gfx-gles3/GLES3CommandAllocator.h
+        cocos/renderer/gfx-gles3/GLES3CommandBuffer.cc
+        cocos/renderer/gfx-gles3/GLES3CommandBuffer.h
+        cocos/renderer/gfx-gles3/GLES3Commands.cc
+        cocos/renderer/gfx-gles3/GLES3Commands.h
+        cocos/renderer/gfx-gles3/GLES3Context.cc
+        cocos/renderer/gfx-gles3/GLES3Context.h
+        cocos/renderer/gfx-gles3/GLES3Device.cc
+        cocos/renderer/gfx-gles3/GLES3Device.h
+        cocos/renderer/gfx-gles3/GLES3Framebuffer.cc
+        cocos/renderer/gfx-gles3/GLES3Framebuffer.h
+        cocos/renderer/gfx-gles3/GLES3GPUObjects.h
+        cocos/renderer/gfx-gles3/GLES3InputAssembler.cc
+        cocos/renderer/gfx-gles3/GLES3InputAssembler.h
+        cocos/renderer/gfx-gles3/GLES3PipelineLayout.cc
+        cocos/renderer/gfx-gles3/GLES3PipelineLayout.h
+        cocos/renderer/gfx-gles3/GLES3PipelineState.cc
+        cocos/renderer/gfx-gles3/GLES3PipelineState.h
+        cocos/renderer/gfx-gles3/GLES3Queue.cc
+        cocos/renderer/gfx-gles3/GLES3Queue.h
+        cocos/renderer/gfx-gles3/GLES3RenderPass.cc
+        cocos/renderer/gfx-gles3/GLES3RenderPass.h
+        cocos/renderer/gfx-gles3/GLES3Sampler.cc
+        cocos/renderer/gfx-gles3/GLES3Sampler.h
+        cocos/renderer/gfx-gles3/GLES3Shader.cc
+        cocos/renderer/gfx-gles3/GLES3Shader.h
+        cocos/renderer/gfx-gles3/GLES3StateCache.h
+        cocos/renderer/gfx-gles3/GLES3Std.cc
+        cocos/renderer/gfx-gles3/GLES3Std.h
+        cocos/renderer/gfx-gles3/GLES3Texture.cc
+        cocos/renderer/gfx-gles3/GLES3Texture.h
+        cocos/renderer/gfx-gles3/GLES3TextureView.cc
+        cocos/renderer/gfx-gles3/GLES3TextureView.h
+        cocos/renderer/gfx-gles3/gles3w.h
+        cocos/renderer/gfx-gles3/GLES3Window.cc
+        cocos/renderer/gfx-gles3/GLES3Window.h
+    )
+    if(APPLE) 
+        cocos_source_files(
+            cocos/renderer/gfx-gles3/gles3w.mm
+        )
+    else()
+        cocos_source_files(
+            cocos/renderer/gfx-gles3/gles3w.c
+        )
+    endif()
+    if(IOS)
+        cocos_source_files(
+            cocos/renderer/gfx-gles3/GLES3Context.mm
+        )
+    endif()
+endif()
+
+##### script bindings
+######## auto
+cocos_source_files(
+    cocos/scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.cpp
+    cocos/scripting/js-bindings/auto/jsb_cocos2dx_audioengine_auto.hpp
+    cocos/scripting/js-bindings/auto/jsb_cocos2dx_auto.cpp
+    cocos/scripting/js-bindings/auto/jsb_cocos2dx_auto.hpp
+    cocos/scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.cpp
+    cocos/scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.hpp
+    cocos/scripting/js-bindings/auto/jsb_cocos2dx_network_auto.cpp
+    cocos/scripting/js-bindings/auto/jsb_cocos2dx_network_auto.hpp
+    cocos/scripting/js-bindings/auto/jsb_gfx_auto.cpp
+    cocos/scripting/js-bindings/auto/jsb_gfx_auto.hpp
+    cocos/scripting/js-bindings/auto/jsb_video_auto.cpp
+    cocos/scripting/js-bindings/auto/jsb_video_auto.hpp
+    cocos/scripting/js-bindings/auto/jsb_webview_auto.cpp
+    cocos/scripting/js-bindings/auto/jsb_webview_auto.hpp
+)
+######## manual
+cocos_source_files(
+    cocos/scripting/js-bindings/manual/jsb_classtype.cpp
+    cocos/scripting/js-bindings/manual/jsb_classtype.hpp
+    #cocos/scripting/js-bindings/manual/jsb_cocos2dx_extension_manual.cpp
+    #cocos/scripting/js-bindings/manual/jsb_cocos2dx_extension_manual.hpp
+    cocos/scripting/js-bindings/manual/jsb_cocos2dx_manual.cpp
+    cocos/scripting/js-bindings/manual/jsb_cocos2dx_manual.hpp
+    cocos/scripting/js-bindings/manual/jsb_cocos2dx_network_manual.cpp
+    cocos/scripting/js-bindings/manual/jsb_cocos2dx_network_manual.h
+    cocos/scripting/js-bindings/manual/jsb_conversions.cpp
+    cocos/scripting/js-bindings/manual/jsb_conversions.hpp
+    cocos/scripting/js-bindings/manual/jsb_gfx_manual.cpp
+    cocos/scripting/js-bindings/manual/jsb_gfx_manual.hpp
+    cocos/scripting/js-bindings/manual/jsb_global.cpp
+    cocos/scripting/js-bindings/manual/jsb_global.h
+    cocos/scripting/js-bindings/manual/jsb_helper.cpp
+    cocos/scripting/js-bindings/manual/jsb_helper.hpp
+    # cocos/scripting/js-bindings/manual/jsb_module_register.cpp
+    cocos/scripting/js-bindings/manual/jsb_module_register.hpp
+    cocos/scripting/js-bindings/manual/jsb_platform.h
+    cocos/scripting/js-bindings/manual/jsb_socketio.cpp
+    cocos/scripting/js-bindings/manual/jsb_socketio.hpp
+    cocos/scripting/js-bindings/manual/jsb_websocket.cpp
+    cocos/scripting/js-bindings/manual/jsb_websocket.hpp
+    cocos/scripting/js-bindings/manual/jsb_xmlhttprequest.cpp
+    cocos/scripting/js-bindings/manual/jsb_xmlhttprequest.hpp
+)
+
+if(ANDROID)
+    cocos_source_files(
+        cocos/scripting/js-bindings/manual/jsb_platform_android.cpp
+        cocos/scripting/js-bindings/manual/JavaScriptJavaBridge.cpp
+        cocos/scripting/js-bindings/manual/JavaScriptJavaBridge.h
+    )
+elseif(APPLE)
+    cocos_source_files(
+        cocos/scripting/js-bindings/manual/jsb_platfrom_apple.mm    
+        cocos/scripting/js-bindings/manual/JavaScriptObjCBridge.h
+        cocos/scripting/js-bindings/manual/JavaScriptObjCBridge.mm
+    )
+elseif(WIN32)
+    cocos_source_files(
+        cocos/scripting/js-bindings/manual/jsb_platfrom_win32.cpp
+    )
+endif()
+
+if(CC_USE_GLES2)
+    cocos_source_files(
+        cocos/scripting/js-bindings/auto/jsb_gles2_auto.hpp
+        cocos/scripting/js-bindings/auto/jsb_gles2_auto.cpp
+    )
+endif()
+if(CC_USE_GLES3)
+    cocos_source_files(
+        cocos/scripting/js-bindings/auto/jsb_gles3_auto.hpp
+        cocos/scripting/js-bindings/auto/jsb_gles3_auto.cpp
+    )
+endif()
+
+if(USE_SE_V8)
+    cocos_source_files(
+        cocos/scripting/js-bindings/jswrapper/v8/Base.h
+        cocos/scripting/js-bindings/jswrapper/v8/Class.cpp
+        cocos/scripting/js-bindings/jswrapper/v8/Class.hpp
+        cocos/scripting/js-bindings/jswrapper/v8/HelperMacros.h
+        cocos/scripting/js-bindings/jswrapper/v8/Object.cpp
+        cocos/scripting/js-bindings/jswrapper/v8/Object.hpp
+        cocos/scripting/js-bindings/jswrapper/v8/ObjectWrap.cpp
+        cocos/scripting/js-bindings/jswrapper/v8/ObjectWrap.h
+        cocos/scripting/js-bindings/jswrapper/v8/ScriptEngine.cpp
+        cocos/scripting/js-bindings/jswrapper/v8/ScriptEngine.hpp
+        cocos/scripting/js-bindings/jswrapper/v8/SeApi.h
+        cocos/scripting/js-bindings/jswrapper/v8/Utils.cpp
+        cocos/scripting/js-bindings/jswrapper/v8/Utils.hpp
+    )
+    if(USE_V8_DEBUGGER)
+    cocos_source_files(
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/base64.h
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/env.cc
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/env.h
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/http_parser.c
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/http_parser.h
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/inspector_agent.cc
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/inspector_agent.h
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/inspector_io.cc
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/inspector_io.h
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/inspector_socket.cc
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/inspector_socket.h
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/inspector_socket_server.cc
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/inspector_socket_server.h
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/node.cc
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/node.h
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/node_debug_options.cc
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/node_debug_options.h
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/node_mutex.h
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/SHA1.cpp
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/SHA1.h
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/util-inl.h
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/util.cc
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/util.h
+        cocos/scripting/js-bindings/jswrapper/v8/debugger/v8_inspector_protocol_json.h
+    )
+    endif()
+endif()
+
+if(USE_SE_JSC)
+    cocos_source_files(
+        cocos/scripting/js-bindings/jswrapper/jsc/Class.hpp
+        cocos/scripting/js-bindings/jswrapper/jsc/EJConvert.h
+        cocos/scripting/js-bindings/jswrapper/jsc/HelperMacros.h
+        cocos/scripting/js-bindings/jswrapper/jsc/Utils.cpp
+        cocos/scripting/js-bindings/jswrapper/jsc/EJConvertTypedArray.h
+        cocos/scripting/js-bindings/jswrapper/jsc/PlatformUtils.h
+        cocos/scripting/js-bindings/jswrapper/jsc/EJConvertTypedArray.m
+        cocos/scripting/js-bindings/jswrapper/jsc/EJConvert.m
+        cocos/scripting/js-bindings/jswrapper/jsc/Object.hpp
+        cocos/scripting/js-bindings/jswrapper/jsc/Object.mm
+        cocos/scripting/js-bindings/jswrapper/jsc/ScriptEngine.hpp
+        cocos/scripting/js-bindings/jswrapper/jsc/ScriptEngine.mm
+        cocos/scripting/js-bindings/jswrapper/jsc/PlatformUtils.mm
+        cocos/scripting/js-bindings/jswrapper/jsc/SeApi.h
+        cocos/scripting/js-bindings/jswrapper/jsc/Class.cpp
+        cocos/scripting/js-bindings/jswrapper/jsc/Utils.hpp
+        cocos/scripting/js-bindings/jswrapper/jsc/Base.h
+    )
+endif()
+
+cocos_source_files(
+    cocos/scripting/js-bindings/jswrapper/config.cpp
+    cocos/scripting/js-bindings/jswrapper/config.hpp
+    cocos/scripting/js-bindings/jswrapper/HandleObject.cpp
+    cocos/scripting/js-bindings/jswrapper/HandleObject.hpp
+    cocos/scripting/js-bindings/jswrapper/MappingUtils.cpp
+    cocos/scripting/js-bindings/jswrapper/MappingUtils.hpp
+    cocos/scripting/js-bindings/jswrapper/Object.hpp
+    cocos/scripting/js-bindings/jswrapper/RefCounter.cpp
+    cocos/scripting/js-bindings/jswrapper/RefCounter.hpp
+    cocos/scripting/js-bindings/jswrapper/SeApi.h
+    cocos/scripting/js-bindings/jswrapper/State.cpp
+    cocos/scripting/js-bindings/jswrapper/State.hpp
+    cocos/scripting/js-bindings/jswrapper/Value.cpp
+    cocos/scripting/js-bindings/jswrapper/Value.hpp
+)
+
+cocos_source_files(
+    cocos/scripting/js-bindings/event/CustomEventTypes.h 
+    cocos/scripting/js-bindings/event/EventDispatcher.cpp
+    cocos/scripting/js-bindings/event/EventDispatcher.h
+)
+
+#### storage
+cocos_source_files(
+    cocos/storage/local-storage/LocalStorage.cpp
+    cocos/storage/local-storage/LocalStorage.h
+)
+
+if(ANDROID)
+    cocos_source_files(
+        cocos/storage/local-storage/LocalStorage-android.cpp
+    )
+endif()
+
+#### ui
+cocos_source_files(
+    cocos/ui/edit-box/EditBox.h
+)
+
+if(ANDROID OR IOS) 
+    if(USE_WEBVIEW)
+        cocos_source_files(
+            cocos/ui/videoplayer/VideoPlayer.h
+        )
+    endif()
+    if(USE_VIDEOPLAYER)
+        cocos_source_files(
+            cocos/ui/webview/WebView-inl.h
+            cocos/ui/webview/WebView.h
+        )
+    endif()
+endif()
+
+if(ANDROID)
+    cocos_source_files(
+        cocos/ui/edit-box/EditBox-android.cpp
+    )
+    if(USE_VIDEOPLAYER)
+        cocos_source_files(
+            cocos/ui/videoplayer/VideoPlayer-android.cpp
+        )
+    endif()
+    if(USE_WEBVIEW)
+        cocos_source_files(
+            cocos/ui/webview/WebViewImpl-android.cpp
+            cocos/ui/webview/WebViewImpl-android.h
+        )
+    endif()
+elseif(MACOSX)
+    cocos_source_files(
+        cocos/ui/edit-box/EditBox-mac.mm
+    )
+elseif(IOS)
+    cocos_source_files(
+        cocos/ui/edit-box/EditBox-ios.mm
+    )
+    if(USE_VIDEOPLAYER)
+        cocos_source_files(
+            cocos/ui/videoplayer/VideoPlayer-ios.mm
+        )
+    endif()
+    if(USE_WEBVIEW)
+        cocos_source_files(
+            cocos/ui/webview/WebViewImpl-ios.h
+            cocos/ui/webview/WebViewImpl-ios.mm
+        )
+    endif()
+elseif(WIN32)
+    cocos_source_files(
+        cocos/ui/edit-box/EditBox-win32.cpp
+    )
+endif()
+
+##### extensions
+
+cocos_source_files(
+    extensions/assets-manager/AssetsManagerEx.cpp
+    extensions/assets-manager/AssetsManagerEx.h
+    extensions/assets-manager/CCAsyncTaskPool.cpp
+    extensions/assets-manager/CCAsyncTaskPool.h
+    extensions/assets-manager/CCEventAssetsManagerEx.cpp
+    extensions/assets-manager/CCEventAssetsManagerEx.h
+    extensions/assets-manager/Manifest.cpp
+    extensions/assets-manager/Manifest.h
+    extensions/cocos-ext.h
+    extensions/ExtensionExport.h
+    extensions/ExtensionMacros.h
+)
+
+list(APPEND COCOS2D_SOURCE_LIST ${CC_EXTERNAL_SROUCES})
+
+add_library(cocos2d ${COCOS2D_SOURCE_LIST})
+
+# setup default flags
+target_compile_definitions(cocos2d PUBLIC 
+    $<$<NOT:$<BOOL:${USE_VIDEO}>>:USE_VIDEO=0>
+    $<$<NOT:$<BOOL:${USE_WEBVIEW}>>:USE_WEB_VIEW=0>
+    $<$<NOT:$<BOOL:${USE_AUDIO}>>:USE_AUDIO=0>
+    $<$<NOT:$<BOOL:${USE_SOCKET}>>:USE_SOCKET=0>
+    $<$<NOT:$<BOOL:${USE_TIFF}>>:CC_USE_TIFF=0>
+    $<$<NOT:$<BOOL:${USE_V8_DEBUGGER}>>:USE_V8_DEBUGGER=0>
+    $<$<BOOL:${USE_SE_JSC}>:SCRIPT_ENGINE_TYPE=3>
+    $<$<CONFIG:Debug>:COCOS2D_DEBUG=1>
+)
+
+
+
+target_include_directories(cocos2d PUBLIC 
+    ${CC_EXTERNAL_INCLUDES}
+    ${CWD}
+    ${CWD}/cocos
+    ${CWD}/cocos/renderer
+    ${CWD}/cocos/platform
+    ${CWD}/cocos/renderer/core
+    ${CWD}/external/sources/khronos
+    $<$<BOOL:USE_SE_JSC>:${CWD}/cocos/scripting/js-bindings/jswrapper>
+)
+
+if(WIN32)
+    target_link_libraries(cocos2d PUBLIC
+        ws2_32 userenv psapi winmm Version Iphlpapi opengl32
+        ${CC_EXTERNAL_LIBS}
+    )
+
+    target_compile_definitions(cocos2d PUBLIC
+        CC_STATIC 
+        WIN32
+        _WIN32
+        _WINDOWS
+        UNICODE
+        _UNICODE
+        _CRT_SECURE_NO_WARNINGS
+        _SCL_SECURE_NO_WARNINGS
+        _USRLIBSIMSTATIC
+        SE_ENABLE_INSPECTOR
+    )
+
+endif()
+
+if(ANDROID)
+    find_library(LIB_EGL NAMES EGL)
+    find_library(LIB_GLESv2 NAMES GLESv2)
+    target_link_libraries(cocos2d PUBLIC
+        android
+        log
+        OpenSLES
+        ${LIB_EGL}
+        ${LIB_GLESv2}
+        GLESv2
+        ${CC_EXTERNAL_LIBS}
+    )
+endif()
+
+if(APPLE) 
+
+    target_compile_options(cocos2d PRIVATE 
+        -Wno-objc-method-access
+    )
+
+    target_include_directories(cocos2d PUBLIC
+        ${CWD}/cocos/platform/ios
+    )
+    find_library(ICONV_LIBRARY iconv)
+    find_library(AUDIOTOOLBOX_LIBRARY AudioToolBox)
+    find_library(FOUNDATION_LIBRARY Foundation)
+    find_library(OPENAL_LIBRARY OpenAL)
+    find_library(GAMECONTROLLER_LIBRARY GameController)
+    find_library(METAL_LIBRARY Metal)
+    find_library(METALLIT_LIBRARY MetalKit)
+    find_library(SQLITE3_LIBRARY SQLite3)
+    find_library(SECURITY_LIBRARY Security)
+    find_library(SystemConfiguration_LIBRARY SystemConfiguration)
+    target_link_libraries(cocos2d PUBLIC
+        ${ICONV_LIBRARY}
+        ${AUDIOTOOLBOX_LIBRARY}
+        ${FOUNDATION_LIBRARY}
+        ${OPENAL_LIBRARY}
+        ${GAMECONTROLLER_LIBRARY}
+        ${METAL_LIBRARY}
+        ${METALLIT_LIBRARY}
+        ${SQLITE3_LIBRARY}
+        ${SECURITY_LIBRARY}
+        ${SystemConfiguration_LIBRARY}
+        ${CC_EXTERNAL_LIBS}
+    )
+    if(MACOSX)
+        find_library(OPENGL_LIBRARY OpenGL)
+        find_library(APPKIT_LIBRARY AppKit)
+        target_link_libraries(cocos2d PUBLIC
+            ${OPENGL_LIBRARY}
+            ${APPKIT_LIBRARY}
+        )
+        target_compile_definitions(cocos2d PUBLIC 
+            CC_KEYBOARD_SUPPORT
+            )
+    elseif(IOS)
+        find_library(QUARTZCORE_LIBRARY QuartzCore)
+        find_library(UIKIT_LIBRARY UIKit)
+        find_library(CORE_MOTION_LIBRARY CoreMotion)
+        find_library(CFNETWORK_LIBRARY CFNetwork)
+        find_library(CORE_MEDIA_LIBRARY CoreMedia)
+        find_library(CORE_TEXT_LIBRARY CoreText)
+        find_library(CORE_GRAPHICS_LIBRARY CoreGraphics)
+        find_library(AV_FOUNDATION_LIBRARY AVFoundation)
+        find_library(ZLIB_LIBRARY z)
+        find_library(OPENGLES_LIBRARY OpenGLES)
+        find_library(JAVASCRIPTCORE_LIBRARY JavaScriptCore)
+        target_link_libraries(cocos2d PUBLIC
+            ${QUARTZCORE_LIBRARY}
+            ${UIKIT_LIBRARY}
+            ${CFNETWORK_LIBRARY}
+            ${ZLIB_LIBRARY}
+            ${CORE_GRAPHICS_LIBRARY}
+            ${AV_FOUNDATION_LIBRARY}
+            ${CORE_TEXT_LIBRARY}
+            ${CORE_MOTION_LIBRARY}
+            ${OPENGLES_LIBRARY}
+            ${JAVASCRIPTCORE_LIBRARY}
+        )
+        set_property(TARGET cocos2d PROPERTY XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET ${TARGET_IOS_VERSION})
+        set_property(TARGET cocos2d PROPERTY XCODE_ATTRIBUTE_ENABLE_BITCODE "NO")
+        set_property(TARGET cocos2d PROPERTY XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH "YES")
+    endif()
+
+endif()
+
+source_group(TREE ${CWD} PREFIX "Source Files" FILES ${COCOS2D_SOURCE_LIST})
+
+
+if(MSVC)
+    file(GLOB_RECURSE WIN32_DLLS 
+        ${CWD}/external/win32/libs/*.dll 
+        ${CWD}/external/win32/libs/Debug/*.dll
+    )
+    target_compile_options(cocos2d PUBLIC /MP)
+endif()

@@ -1,11 +1,38 @@
 language: cpp
-os:
-- linux
+
+matrix: 
+  include:
+    - os: windows
+      env: 
+        - BUILD_TARGET=windows_cmake
+      language: cpp
+    - os: osx
+      env:
+        - BUILD_TARGET=macosx_cmake
+      language: cpp
+      osx_image: xcode10.3
+      sudo: required
+    - os: osx
+      env:
+        - BUILD_TARGET=ios_cmake
+      language: cpp
+      osx_image: xcode10.3
+      sudo: required
+    - os: linux
+      dist: xenial
+      sudo: required
+      env: 
+        - BUILD_TARGET=android_cmake
+      language: cpp
+
+node_js:
+  - "7"
+jdk:
+  - oraclejdk8  
 script:
-- tools/travis-scripts/run-script.sh
-sudo: required
+  - tools/travis-scripts/run-script.sh
 before_install:
-- tools/travis-scripts/before-install.sh
+  - tools/travis-scripts/before-install.sh
 
 # blocklist
 # branches:

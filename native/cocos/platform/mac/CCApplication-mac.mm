@@ -30,6 +30,8 @@ THE SOFTWARE.
 #include "scripting/js-bindings/jswrapper/SeApi.h"
 #include "audio/include/AudioEngine.h"
 
+#import <AppKit/AppKit.h>
+
 @interface MyTimer : NSObject
 {
     cocos2d::Application* _app;

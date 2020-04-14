@@ -30,7 +30,9 @@
 #define SCRIPT_ENGINE_JSC            3
 //#define SCRIPT_ENGINE_CHAKRACORE     4
 
+#ifndef SCRIPT_ENGINE_TYPE
 #define SCRIPT_ENGINE_TYPE           SCRIPT_ENGINE_V8
+#endif
 
 
 #ifndef USE_V8_DEBUGGER

@@ -137,6 +137,9 @@ namespace {
                 g_sensor->motionValue.accelerationZ = event.acceleration.z;
             }
         }
+        // return 1 to continue receiving callbacks
+        // or 0 to have this file descriptor and callback unregistered from the looper
+        return 1;
     }
 }
 

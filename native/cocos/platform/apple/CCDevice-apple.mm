@@ -26,21 +26,29 @@
 
 #include "platform/apple/CCDevice-apple.h"
 #include "platform/CCApplication.h"
+
+#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+#import <AppKit/AppKit.h>
+#endif
+#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+#import <UIKit/UIKit.h>
+#endif
+
+
 NS_CC_BEGIN
 
 int Device::getDevicePixelRatio()
 {
-#if(CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-    return [[UIScreen mainScreen] scale];
-#else
-    
 #if USE_METAL
     return 1;
 #else
-    return [[[[NSApplication sharedApplication] delegate] getWindow] backingScaleFactor];
+#   if(CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+        return [[UIScreen mainScreen] scale];
+#   else
+        return [[[[NSApplication sharedApplication] delegate] getWindow] backingScaleFactor];
+#   endif 
 #endif //USE_METAL
-    
-#endif
 }
+
 
 NS_CC_END

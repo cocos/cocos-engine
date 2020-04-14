@@ -22,16 +22,18 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
+
+
 #include "CCImage.h"
 #include <string>
 #include <ctype.h>
 #include <assert.h>
-#include "base/CCData.h"
 #include "base/ccConfig.h" // CC_USE_JPEG, CC_USE_WEBP
 #if CC_USE_JPEG
 #include "jpeg/jpeglib.h"
 #endif // CC_USE_JPEG
 
+#include "base/CCData.h"
 #include "base/ccUtils.h"
 #include "renderer/core/Core.h"
 
@@ -61,6 +63,7 @@ extern "C"
 #if CC_USE_PNG
 #include "png/png.h"
 #endif //CC_USE_PNG
+
 
 
 #include "base/etc1.h"
