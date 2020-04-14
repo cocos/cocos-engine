@@ -101,9 +101,8 @@ export class SkinningModelComponent extends ModelComponent {
         this._modelType = BakedSkinningModel;
     }
 
-    public onLoad () {
+    public __preload () {
         this._updateModelType();
-        super.onLoad();
     }
 
     public uploadAnimation (clip: AnimationClip | null) {
