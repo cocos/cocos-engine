@@ -54,25 +54,25 @@ export class EditorCameraComponent extends CameraComponent {
         }
     }
 
-    set color (val) {
+    set clearColor (val) {
         // @ts-ignore
-        super.color = val;
+        super.clearColor = val;
         if (this._uiEditorCamera) {
             this._uiEditorCamera.clearColor = val;
         }
     }
 
-    set depth (val) {
+    set clearDepth (val) {
         // @ts-ignore
-        super.depth = val;
+        super.clearDepth = val;
         if (this._uiEditorCamera) {
             this._uiEditorCamera.clearDepth = val;
         }
     }
 
-    set stencil (val) {
+    set clearStencil (val) {
         // @ts-ignore
-        super.stencil = val;
+        super.clearStencil = val;
         if (this._uiEditorCamera) {
             this._uiEditorCamera.clearStencil = val;
         }
