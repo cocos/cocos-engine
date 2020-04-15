@@ -633,7 +633,7 @@ function initSys () {
      * Is native ? This is set to be true in jsb auto.
      * @property {Boolean} isNative
      */
-    sys.isNative = CC_JSB || CC_RUNTIME;
+    sys.isNative = CC_JSB;
 
 
     /**
