@@ -74,7 +74,8 @@ namespace mu
     GFXFormat convertGFXPixelFormat(GFXFormat format)
     {
         switch (format) {
-            case GFXFormat::RGB8: return GFXFormat::RGBA8;
+            case GFXFormat::RGB8:   return GFXFormat::RGBA8;
+            case GFXFormat::RGB32F: return GFXFormat::RGBA32F;
             default: return format;
         }
     }
@@ -463,6 +464,52 @@ namespace mu
         return src;
 #endif
     }
-}
+
+    uint8_t* convertRGB8ToRGBA8(uint8_t* source, uint length)
+    {
+        uint finalLength = length * 4;
+        uint8* out = (uint8*)CC_MALLOC(finalLength);
+        if (!out)
+        {
+            CC_LOG_WARNING("Failed to alloc memory in convertRGB8ToRGBA8().");
+            return source;
+        }
+        
+        uint8_t* src = source;
+        uint8_t* dst = out;
+        for (uint i = 0; i < length; ++i)
+        {
+            *dst++ = *src++;
+            *dst++ = *src++;
+            *dst++ = *src++;
+            *dst++ = 255;
+        }
+        
+        return out;
+    }
+
+    uint8_t* convertRGB32FToRGBA32F(uint8_t* source, uint length)
+    {
+        uint finalLength = length * sizeof(float) * 4;
+        uint8* out = (uint8*)CC_MALLOC(finalLength);
+        if (!out)
+        {
+            CC_LOG_WARNING("Failed to alloc memory in convertRGB32FToRGBA32F().");
+            return source;
+        }
+        
+        float* src = reinterpret_cast<float*>(source);
+        float* dst = reinterpret_cast<float*>(out);
+        for (uint i = 0; i < length; ++i)
+        {
+            *dst++ = *src++;
+            *dst++ = *src++;
+            *dst++ = *src++;
+            *dst++ = 1.0f;
+        }
+        
+        return out;
+    }
+} //namespace mu
 
 NS_CC_END

@@ -41,6 +41,8 @@ namespace mu
     MTLSamplerMinMagFilter toMTLSamplerMinMagFilter(GFXFilter);
     MTLSamplerMipFilter toMTLSamplerMipFilter(GFXFilter);
     std::string compileGLSLShader2Mtl(const std::string& src, bool isVertexShader);
+    uint8_t* convertRGB8ToRGBA8(uint8_t* source, uint length);
+    uint8_t* convertRGB32FToRGBA32F(uint8_t* source, uint length);
 }
 
 NS_CC_END

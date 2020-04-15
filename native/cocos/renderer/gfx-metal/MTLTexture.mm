@@ -7,33 +7,11 @@ NS_CC_BEGIN
 
 namespace
 {
-    uint8_t* convertRGB8ToRGBA8(uint8_t* source, uint length)
-    {
-        uint finalLength = length * 4;
-        uint8* out = (uint8*)CC_MALLOC(finalLength);
-        if (!out)
-        {
-            CC_LOG_WARNING("Failed to alloc memory in convertRGB8ToRGBA8().");
-            return source;
-        }
-        
-        uint8_t* src = source;
-        uint8_t* dst = out;
-        for (uint i = 0; i < length; ++i)
-        {
-            *dst++ = *src++;
-            *dst++ = *src++;
-            *dst++ = *src++;
-            *dst++ = 255;
-        }
-        
-        return out;
-    }
-    
     uint8_t* convertData(uint8_t* source, uint length, GFXFormat type)
     {
         switch (type) {
-            case GFXFormat::RGB8: return convertRGB8ToRGBA8(source, length);
+            case GFXFormat::RGB8:   return mu::convertRGB8ToRGBA8(source, length);
+            case GFXFormat::RGB32F: return mu::convertRGB32FToRGBA32F(source, length);
             default: return source;
         }
     }
