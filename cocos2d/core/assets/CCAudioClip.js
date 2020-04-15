@@ -123,12 +123,8 @@ var AudioClip = cc.Class({
             if (!this._loading) {
                 this._loading = true;
                 let self = this;
-                cc.assetManager.loadNativeFile(this, function (err, audioNativeAsset) {
+                cc.assetManager.postLoadNative(this, function (err) {
                     self._loading = false;
-                    if (err) {
-                        return cc.error(err);
-                    }
-                    self._nativeAsset = audioNativeAsset;
                 });
             }
         }
