@@ -203,9 +203,9 @@ bool js_register_gfx_GFXOffset(se::Object* obj)
 {
     auto cls = se::Class::create("GFXOffset", obj, nullptr, _SE(js_gfx_GFXOffset_constructor));
 
-    cls->defineProperty("__x", _SE(js_gfx_GFXOffset_get_x), _SE(js_gfx_GFXOffset_set_x));
-    cls->defineProperty("__y", _SE(js_gfx_GFXOffset_get_y), _SE(js_gfx_GFXOffset_set_y));
-    cls->defineProperty("__z", _SE(js_gfx_GFXOffset_get_z), _SE(js_gfx_GFXOffset_set_z));
+    cls->defineProperty("x", _SE(js_gfx_GFXOffset_get_x), _SE(js_gfx_GFXOffset_set_x));
+    cls->defineProperty("y", _SE(js_gfx_GFXOffset_get_y), _SE(js_gfx_GFXOffset_set_y));
+    cls->defineProperty("z", _SE(js_gfx_GFXOffset_get_z), _SE(js_gfx_GFXOffset_set_z));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXOffset_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXOffset>(cls);
@@ -449,10 +449,10 @@ bool js_register_gfx_GFXRect(se::Object* obj)
 {
     auto cls = se::Class::create("GFXRect", obj, nullptr, _SE(js_gfx_GFXRect_constructor));
 
-    cls->defineProperty("__x", _SE(js_gfx_GFXRect_get_x), _SE(js_gfx_GFXRect_set_x));
-    cls->defineProperty("__y", _SE(js_gfx_GFXRect_get_y), _SE(js_gfx_GFXRect_set_y));
-    cls->defineProperty("__width", _SE(js_gfx_GFXRect_get_width), _SE(js_gfx_GFXRect_set_width));
-    cls->defineProperty("__height", _SE(js_gfx_GFXRect_get_height), _SE(js_gfx_GFXRect_set_height));
+    cls->defineProperty("x", _SE(js_gfx_GFXRect_get_x), _SE(js_gfx_GFXRect_set_x));
+    cls->defineProperty("y", _SE(js_gfx_GFXRect_get_y), _SE(js_gfx_GFXRect_set_y));
+    cls->defineProperty("width", _SE(js_gfx_GFXRect_get_width), _SE(js_gfx_GFXRect_set_width));
+    cls->defineProperty("height", _SE(js_gfx_GFXRect_get_height), _SE(js_gfx_GFXRect_set_height));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXRect_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXRect>(cls);
@@ -657,9 +657,9 @@ bool js_register_gfx_GFXExtent(se::Object* obj)
 {
     auto cls = se::Class::create("GFXExtent", obj, nullptr, _SE(js_gfx_GFXExtent_constructor));
 
-    cls->defineProperty("__width", _SE(js_gfx_GFXExtent_get_width), _SE(js_gfx_GFXExtent_set_width));
-    cls->defineProperty("__height", _SE(js_gfx_GFXExtent_get_height), _SE(js_gfx_GFXExtent_set_height));
-    cls->defineProperty("__depth", _SE(js_gfx_GFXExtent_get_depth), _SE(js_gfx_GFXExtent_set_depth));
+    cls->defineProperty("width", _SE(js_gfx_GFXExtent_get_width), _SE(js_gfx_GFXExtent_set_width));
+    cls->defineProperty("height", _SE(js_gfx_GFXExtent_get_height), _SE(js_gfx_GFXExtent_set_height));
+    cls->defineProperty("depth", _SE(js_gfx_GFXExtent_get_depth), _SE(js_gfx_GFXExtent_set_depth));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXExtent_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXExtent>(cls);
@@ -903,10 +903,10 @@ bool js_register_gfx_GFXTextureSubres(se::Object* obj)
 {
     auto cls = se::Class::create("GFXTextureSubres", obj, nullptr, _SE(js_gfx_GFXTextureSubres_constructor));
 
-    cls->defineProperty("__baseMipLevel", _SE(js_gfx_GFXTextureSubres_get_baseMipLevel), _SE(js_gfx_GFXTextureSubres_set_baseMipLevel));
-    cls->defineProperty("__levelCount", _SE(js_gfx_GFXTextureSubres_get_levelCount), _SE(js_gfx_GFXTextureSubres_set_levelCount));
-    cls->defineProperty("__baseArrayLayer", _SE(js_gfx_GFXTextureSubres_get_baseArrayLayer), _SE(js_gfx_GFXTextureSubres_set_baseArrayLayer));
-    cls->defineProperty("__layerCount", _SE(js_gfx_GFXTextureSubres_get_layerCount), _SE(js_gfx_GFXTextureSubres_set_layerCount));
+    cls->defineProperty("baseMipLevel", _SE(js_gfx_GFXTextureSubres_get_baseMipLevel), _SE(js_gfx_GFXTextureSubres_set_baseMipLevel));
+    cls->defineProperty("levelCount", _SE(js_gfx_GFXTextureSubres_get_levelCount), _SE(js_gfx_GFXTextureSubres_set_levelCount));
+    cls->defineProperty("baseArrayLayer", _SE(js_gfx_GFXTextureSubres_get_baseArrayLayer), _SE(js_gfx_GFXTextureSubres_set_baseArrayLayer));
+    cls->defineProperty("layerCount", _SE(js_gfx_GFXTextureSubres_get_layerCount), _SE(js_gfx_GFXTextureSubres_set_layerCount));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXTextureSubres_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXTextureSubres>(cls);
@@ -1189,11 +1189,11 @@ bool js_register_gfx_GFXTextureCopy(se::Object* obj)
 {
     auto cls = se::Class::create("GFXTextureCopy", obj, nullptr, _SE(js_gfx_GFXTextureCopy_constructor));
 
-    cls->defineProperty("__srcSubres", _SE(js_gfx_GFXTextureCopy_get_srcSubres), _SE(js_gfx_GFXTextureCopy_set_srcSubres));
-    cls->defineProperty("__srcOffset", _SE(js_gfx_GFXTextureCopy_get_srcOffset), _SE(js_gfx_GFXTextureCopy_set_srcOffset));
-    cls->defineProperty("__dstSubres", _SE(js_gfx_GFXTextureCopy_get_dstSubres), _SE(js_gfx_GFXTextureCopy_set_dstSubres));
-    cls->defineProperty("__dstOffset", _SE(js_gfx_GFXTextureCopy_get_dstOffset), _SE(js_gfx_GFXTextureCopy_set_dstOffset));
-    cls->defineProperty("__extent", _SE(js_gfx_GFXTextureCopy_get_extent), _SE(js_gfx_GFXTextureCopy_set_extent));
+    cls->defineProperty("srcSubres", _SE(js_gfx_GFXTextureCopy_get_srcSubres), _SE(js_gfx_GFXTextureCopy_set_srcSubres));
+    cls->defineProperty("srcOffset", _SE(js_gfx_GFXTextureCopy_get_srcOffset), _SE(js_gfx_GFXTextureCopy_set_srcOffset));
+    cls->defineProperty("dstSubres", _SE(js_gfx_GFXTextureCopy_get_dstSubres), _SE(js_gfx_GFXTextureCopy_set_dstSubres));
+    cls->defineProperty("dstOffset", _SE(js_gfx_GFXTextureCopy_get_dstOffset), _SE(js_gfx_GFXTextureCopy_set_dstOffset));
+    cls->defineProperty("extent", _SE(js_gfx_GFXTextureCopy_get_extent), _SE(js_gfx_GFXTextureCopy_set_extent));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXTextureCopy_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXTextureCopy>(cls);
@@ -1515,12 +1515,12 @@ bool js_register_gfx_GFXBufferTextureCopy(se::Object* obj)
 {
     auto cls = se::Class::create("GFXBufferTextureCopy", obj, nullptr, _SE(js_gfx_GFXBufferTextureCopy_constructor));
 
-    cls->defineProperty("__buffOffset", _SE(js_gfx_GFXBufferTextureCopy_get_buffOffset), _SE(js_gfx_GFXBufferTextureCopy_set_buffOffset));
-    cls->defineProperty("__buffStride", _SE(js_gfx_GFXBufferTextureCopy_get_buffStride), _SE(js_gfx_GFXBufferTextureCopy_set_buffStride));
-    cls->defineProperty("__buffTexHeight", _SE(js_gfx_GFXBufferTextureCopy_get_buffTexHeight), _SE(js_gfx_GFXBufferTextureCopy_set_buffTexHeight));
-    cls->defineProperty("__texOffset", _SE(js_gfx_GFXBufferTextureCopy_get_texOffset), _SE(js_gfx_GFXBufferTextureCopy_set_texOffset));
-    cls->defineProperty("__texExtent", _SE(js_gfx_GFXBufferTextureCopy_get_texExtent), _SE(js_gfx_GFXBufferTextureCopy_set_texExtent));
-    cls->defineProperty("__texSubres", _SE(js_gfx_GFXBufferTextureCopy_get_texSubres), _SE(js_gfx_GFXBufferTextureCopy_set_texSubres));
+    cls->defineProperty("buffOffset", _SE(js_gfx_GFXBufferTextureCopy_get_buffOffset), _SE(js_gfx_GFXBufferTextureCopy_set_buffOffset));
+    cls->defineProperty("buffStride", _SE(js_gfx_GFXBufferTextureCopy_get_buffStride), _SE(js_gfx_GFXBufferTextureCopy_set_buffStride));
+    cls->defineProperty("buffTexHeight", _SE(js_gfx_GFXBufferTextureCopy_get_buffTexHeight), _SE(js_gfx_GFXBufferTextureCopy_set_buffTexHeight));
+    cls->defineProperty("texOffset", _SE(js_gfx_GFXBufferTextureCopy_get_texOffset), _SE(js_gfx_GFXBufferTextureCopy_set_texOffset));
+    cls->defineProperty("texExtent", _SE(js_gfx_GFXBufferTextureCopy_get_texExtent), _SE(js_gfx_GFXBufferTextureCopy_set_texExtent));
+    cls->defineProperty("texSubres", _SE(js_gfx_GFXBufferTextureCopy_get_texSubres), _SE(js_gfx_GFXBufferTextureCopy_set_texSubres));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXBufferTextureCopy_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXBufferTextureCopy>(cls);
@@ -1842,12 +1842,12 @@ bool js_register_gfx_GFXViewport(se::Object* obj)
 {
     auto cls = se::Class::create("GFXViewport", obj, nullptr, _SE(js_gfx_GFXViewport_constructor));
 
-    cls->defineProperty("__left", _SE(js_gfx_GFXViewport_get_left), _SE(js_gfx_GFXViewport_set_left));
-    cls->defineProperty("__top", _SE(js_gfx_GFXViewport_get_top), _SE(js_gfx_GFXViewport_set_top));
-    cls->defineProperty("__width", _SE(js_gfx_GFXViewport_get_width), _SE(js_gfx_GFXViewport_set_width));
-    cls->defineProperty("__height", _SE(js_gfx_GFXViewport_get_height), _SE(js_gfx_GFXViewport_set_height));
-    cls->defineProperty("__minDepth", _SE(js_gfx_GFXViewport_get_minDepth), _SE(js_gfx_GFXViewport_set_minDepth));
-    cls->defineProperty("__maxDepth", _SE(js_gfx_GFXViewport_get_maxDepth), _SE(js_gfx_GFXViewport_set_maxDepth));
+    cls->defineProperty("left", _SE(js_gfx_GFXViewport_get_left), _SE(js_gfx_GFXViewport_set_left));
+    cls->defineProperty("top", _SE(js_gfx_GFXViewport_get_top), _SE(js_gfx_GFXViewport_set_top));
+    cls->defineProperty("width", _SE(js_gfx_GFXViewport_get_width), _SE(js_gfx_GFXViewport_set_width));
+    cls->defineProperty("height", _SE(js_gfx_GFXViewport_get_height), _SE(js_gfx_GFXViewport_set_height));
+    cls->defineProperty("minDepth", _SE(js_gfx_GFXViewport_get_minDepth), _SE(js_gfx_GFXViewport_set_minDepth));
+    cls->defineProperty("maxDepth", _SE(js_gfx_GFXViewport_get_maxDepth), _SE(js_gfx_GFXViewport_set_maxDepth));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXViewport_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXViewport>(cls);
@@ -2091,10 +2091,10 @@ bool js_register_gfx_GFXColor(se::Object* obj)
 {
     auto cls = se::Class::create("GFXColor", obj, nullptr, _SE(js_gfx_GFXColor_constructor));
 
-    cls->defineProperty("__r", _SE(js_gfx_GFXColor_get_r), _SE(js_gfx_GFXColor_set_r));
-    cls->defineProperty("__g", _SE(js_gfx_GFXColor_get_g), _SE(js_gfx_GFXColor_set_g));
-    cls->defineProperty("__b", _SE(js_gfx_GFXColor_get_b), _SE(js_gfx_GFXColor_set_b));
-    cls->defineProperty("__a", _SE(js_gfx_GFXColor_get_a), _SE(js_gfx_GFXColor_set_a));
+    cls->defineProperty("r", _SE(js_gfx_GFXColor_get_r), _SE(js_gfx_GFXColor_set_r));
+    cls->defineProperty("g", _SE(js_gfx_GFXColor_get_g), _SE(js_gfx_GFXColor_set_g));
+    cls->defineProperty("b", _SE(js_gfx_GFXColor_get_b), _SE(js_gfx_GFXColor_set_b));
+    cls->defineProperty("a", _SE(js_gfx_GFXColor_get_a), _SE(js_gfx_GFXColor_set_a));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXColor_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXColor>(cls);
@@ -2416,12 +2416,12 @@ bool js_register_gfx_GFXDeviceInfo(se::Object* obj)
 {
     auto cls = se::Class::create("GFXDeviceInfo", obj, nullptr, _SE(js_gfx_GFXDeviceInfo_constructor));
 
-    cls->defineProperty("__windowHandle", _SE(js_gfx_GFXDeviceInfo_get_windowHandle), _SE(js_gfx_GFXDeviceInfo_set_windowHandle));
-    cls->defineProperty("__width", _SE(js_gfx_GFXDeviceInfo_get_width), _SE(js_gfx_GFXDeviceInfo_set_width));
-    cls->defineProperty("__height", _SE(js_gfx_GFXDeviceInfo_get_height), _SE(js_gfx_GFXDeviceInfo_set_height));
-    cls->defineProperty("__nativeWidth", _SE(js_gfx_GFXDeviceInfo_get_nativeWidth), _SE(js_gfx_GFXDeviceInfo_set_nativeWidth));
-    cls->defineProperty("__nativeHeight", _SE(js_gfx_GFXDeviceInfo_get_nativeHeight), _SE(js_gfx_GFXDeviceInfo_set_nativeHeight));
-    cls->defineProperty("__sharedCtx", _SE(js_gfx_GFXDeviceInfo_get_sharedCtx), _SE(js_gfx_GFXDeviceInfo_set_sharedCtx));
+    cls->defineProperty("windowHandle", _SE(js_gfx_GFXDeviceInfo_get_windowHandle), _SE(js_gfx_GFXDeviceInfo_set_windowHandle));
+    cls->defineProperty("width", _SE(js_gfx_GFXDeviceInfo_get_width), _SE(js_gfx_GFXDeviceInfo_set_width));
+    cls->defineProperty("height", _SE(js_gfx_GFXDeviceInfo_get_height), _SE(js_gfx_GFXDeviceInfo_set_height));
+    cls->defineProperty("nativeWidth", _SE(js_gfx_GFXDeviceInfo_get_nativeWidth), _SE(js_gfx_GFXDeviceInfo_set_nativeWidth));
+    cls->defineProperty("nativeHeight", _SE(js_gfx_GFXDeviceInfo_get_nativeHeight), _SE(js_gfx_GFXDeviceInfo_set_nativeHeight));
+    cls->defineProperty("sharedCtx", _SE(js_gfx_GFXDeviceInfo_get_sharedCtx), _SE(js_gfx_GFXDeviceInfo_set_sharedCtx));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXDeviceInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXDeviceInfo>(cls);
@@ -2938,17 +2938,17 @@ bool js_register_gfx_GFXWindowInfo(se::Object* obj)
 {
     auto cls = se::Class::create("GFXWindowInfo", obj, nullptr, _SE(js_gfx_GFXWindowInfo_constructor));
 
-    cls->defineProperty("__title", _SE(js_gfx_GFXWindowInfo_get_title), _SE(js_gfx_GFXWindowInfo_set_title));
-    cls->defineProperty("__left", _SE(js_gfx_GFXWindowInfo_get_left), _SE(js_gfx_GFXWindowInfo_set_left));
-    cls->defineProperty("__top", _SE(js_gfx_GFXWindowInfo_get_top), _SE(js_gfx_GFXWindowInfo_set_top));
-    cls->defineProperty("__width", _SE(js_gfx_GFXWindowInfo_get_width), _SE(js_gfx_GFXWindowInfo_set_width));
-    cls->defineProperty("__height", _SE(js_gfx_GFXWindowInfo_get_height), _SE(js_gfx_GFXWindowInfo_set_height));
-    cls->defineProperty("__colorFmt", _SE(js_gfx_GFXWindowInfo_get_colorFmt), _SE(js_gfx_GFXWindowInfo_set_colorFmt));
-    cls->defineProperty("__depthStencilFmt", _SE(js_gfx_GFXWindowInfo_get_depthStencilFmt), _SE(js_gfx_GFXWindowInfo_set_depthStencilFmt));
-    cls->defineProperty("__isOffscreen", _SE(js_gfx_GFXWindowInfo_get_isOffscreen), _SE(js_gfx_GFXWindowInfo_set_isOffscreen));
-    cls->defineProperty("__isFullscreen", _SE(js_gfx_GFXWindowInfo_get_isFullscreen), _SE(js_gfx_GFXWindowInfo_set_isFullscreen));
-    cls->defineProperty("__vsyncMode", _SE(js_gfx_GFXWindowInfo_get_vsyncMode), _SE(js_gfx_GFXWindowInfo_set_vsyncMode));
-    cls->defineProperty("__windowHandle", _SE(js_gfx_GFXWindowInfo_get_windowHandle), _SE(js_gfx_GFXWindowInfo_set_windowHandle));
+    cls->defineProperty("title", _SE(js_gfx_GFXWindowInfo_get_title), _SE(js_gfx_GFXWindowInfo_set_title));
+    cls->defineProperty("left", _SE(js_gfx_GFXWindowInfo_get_left), _SE(js_gfx_GFXWindowInfo_set_left));
+    cls->defineProperty("top", _SE(js_gfx_GFXWindowInfo_get_top), _SE(js_gfx_GFXWindowInfo_set_top));
+    cls->defineProperty("width", _SE(js_gfx_GFXWindowInfo_get_width), _SE(js_gfx_GFXWindowInfo_set_width));
+    cls->defineProperty("height", _SE(js_gfx_GFXWindowInfo_get_height), _SE(js_gfx_GFXWindowInfo_set_height));
+    cls->defineProperty("colorFmt", _SE(js_gfx_GFXWindowInfo_get_colorFmt), _SE(js_gfx_GFXWindowInfo_set_colorFmt));
+    cls->defineProperty("depthStencilFmt", _SE(js_gfx_GFXWindowInfo_get_depthStencilFmt), _SE(js_gfx_GFXWindowInfo_set_depthStencilFmt));
+    cls->defineProperty("isOffscreen", _SE(js_gfx_GFXWindowInfo_get_isOffscreen), _SE(js_gfx_GFXWindowInfo_set_isOffscreen));
+    cls->defineProperty("isFullscreen", _SE(js_gfx_GFXWindowInfo_get_isFullscreen), _SE(js_gfx_GFXWindowInfo_set_isFullscreen));
+    cls->defineProperty("vsyncMode", _SE(js_gfx_GFXWindowInfo_get_vsyncMode), _SE(js_gfx_GFXWindowInfo_set_vsyncMode));
+    cls->defineProperty("windowHandle", _SE(js_gfx_GFXWindowInfo_get_windowHandle), _SE(js_gfx_GFXWindowInfo_set_windowHandle));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXWindowInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXWindowInfo>(cls);
@@ -3153,9 +3153,9 @@ bool js_register_gfx_GFXContextInfo(se::Object* obj)
 {
     auto cls = se::Class::create("GFXContextInfo", obj, nullptr, _SE(js_gfx_GFXContextInfo_constructor));
 
-    cls->defineProperty("__windowHandle", _SE(js_gfx_GFXContextInfo_get_windowHandle), _SE(js_gfx_GFXContextInfo_set_windowHandle));
-    cls->defineProperty("__sharedCtx", _SE(js_gfx_GFXContextInfo_get_sharedCtx), _SE(js_gfx_GFXContextInfo_set_sharedCtx));
-    cls->defineProperty("__vsyncMode", _SE(js_gfx_GFXContextInfo_get_vsyncMode), _SE(js_gfx_GFXContextInfo_set_vsyncMode));
+    cls->defineProperty("windowHandle", _SE(js_gfx_GFXContextInfo_get_windowHandle), _SE(js_gfx_GFXContextInfo_set_windowHandle));
+    cls->defineProperty("sharedCtx", _SE(js_gfx_GFXContextInfo_get_sharedCtx), _SE(js_gfx_GFXContextInfo_set_sharedCtx));
+    cls->defineProperty("vsyncMode", _SE(js_gfx_GFXContextInfo_get_vsyncMode), _SE(js_gfx_GFXContextInfo_set_vsyncMode));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXContextInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXContextInfo>(cls);
@@ -3438,11 +3438,11 @@ bool js_register_gfx_GFXBufferInfo(se::Object* obj)
 {
     auto cls = se::Class::create("GFXBufferInfo", obj, nullptr, _SE(js_gfx_GFXBufferInfo_constructor));
 
-    cls->defineProperty("__usage", _SE(js_gfx_GFXBufferInfo_get_usage), _SE(js_gfx_GFXBufferInfo_set_usage));
-    cls->defineProperty("__memUsage", _SE(js_gfx_GFXBufferInfo_get_memUsage), _SE(js_gfx_GFXBufferInfo_set_memUsage));
-    cls->defineProperty("__stride", _SE(js_gfx_GFXBufferInfo_get_stride), _SE(js_gfx_GFXBufferInfo_set_stride));
-    cls->defineProperty("__size", _SE(js_gfx_GFXBufferInfo_get_size), _SE(js_gfx_GFXBufferInfo_set_size));
-    cls->defineProperty("__flags", _SE(js_gfx_GFXBufferInfo_get_flags), _SE(js_gfx_GFXBufferInfo_set_flags));
+    cls->defineProperty("usage", _SE(js_gfx_GFXBufferInfo_get_usage), _SE(js_gfx_GFXBufferInfo_set_usage));
+    cls->defineProperty("memUsage", _SE(js_gfx_GFXBufferInfo_get_memUsage), _SE(js_gfx_GFXBufferInfo_set_memUsage));
+    cls->defineProperty("stride", _SE(js_gfx_GFXBufferInfo_get_stride), _SE(js_gfx_GFXBufferInfo_set_stride));
+    cls->defineProperty("size", _SE(js_gfx_GFXBufferInfo_get_size), _SE(js_gfx_GFXBufferInfo_set_size));
+    cls->defineProperty("flags", _SE(js_gfx_GFXBufferInfo_get_flags), _SE(js_gfx_GFXBufferInfo_set_flags));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXBufferInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXBufferInfo>(cls);
@@ -3803,13 +3803,13 @@ bool js_register_gfx_GFXDrawInfo(se::Object* obj)
 {
     auto cls = se::Class::create("GFXDrawInfo", obj, nullptr, _SE(js_gfx_GFXDrawInfo_constructor));
 
-    cls->defineProperty("__vertexCount", _SE(js_gfx_GFXDrawInfo_get_vertexCount), _SE(js_gfx_GFXDrawInfo_set_vertexCount));
-    cls->defineProperty("__firstVertex", _SE(js_gfx_GFXDrawInfo_get_firstVertex), _SE(js_gfx_GFXDrawInfo_set_firstVertex));
-    cls->defineProperty("__indexCount", _SE(js_gfx_GFXDrawInfo_get_indexCount), _SE(js_gfx_GFXDrawInfo_set_indexCount));
-    cls->defineProperty("__firstIndex", _SE(js_gfx_GFXDrawInfo_get_firstIndex), _SE(js_gfx_GFXDrawInfo_set_firstIndex));
-    cls->defineProperty("__vertexOffset", _SE(js_gfx_GFXDrawInfo_get_vertexOffset), _SE(js_gfx_GFXDrawInfo_set_vertexOffset));
-    cls->defineProperty("__instanceCount", _SE(js_gfx_GFXDrawInfo_get_instanceCount), _SE(js_gfx_GFXDrawInfo_set_instanceCount));
-    cls->defineProperty("__firstInstance", _SE(js_gfx_GFXDrawInfo_get_firstInstance), _SE(js_gfx_GFXDrawInfo_set_firstInstance));
+    cls->defineProperty("vertexCount", _SE(js_gfx_GFXDrawInfo_get_vertexCount), _SE(js_gfx_GFXDrawInfo_set_vertexCount));
+    cls->defineProperty("firstVertex", _SE(js_gfx_GFXDrawInfo_get_firstVertex), _SE(js_gfx_GFXDrawInfo_set_firstVertex));
+    cls->defineProperty("indexCount", _SE(js_gfx_GFXDrawInfo_get_indexCount), _SE(js_gfx_GFXDrawInfo_set_indexCount));
+    cls->defineProperty("firstIndex", _SE(js_gfx_GFXDrawInfo_get_firstIndex), _SE(js_gfx_GFXDrawInfo_set_firstIndex));
+    cls->defineProperty("vertexOffset", _SE(js_gfx_GFXDrawInfo_get_vertexOffset), _SE(js_gfx_GFXDrawInfo_set_vertexOffset));
+    cls->defineProperty("instanceCount", _SE(js_gfx_GFXDrawInfo_get_instanceCount), _SE(js_gfx_GFXDrawInfo_set_instanceCount));
+    cls->defineProperty("firstInstance", _SE(js_gfx_GFXDrawInfo_get_firstInstance), _SE(js_gfx_GFXDrawInfo_set_firstInstance));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXDrawInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXDrawInfo>(cls);
@@ -3913,7 +3913,7 @@ bool js_register_gfx_GFXIndirectBuffer(se::Object* obj)
 {
     auto cls = se::Class::create("GFXIndirectBuffer", obj, nullptr, _SE(js_gfx_GFXIndirectBuffer_constructor));
 
-    cls->defineProperty("__drawInfos", _SE(js_gfx_GFXIndirectBuffer_get_drawInfos), _SE(js_gfx_GFXIndirectBuffer_set_drawInfos));
+    cls->defineProperty("drawInfos", _SE(js_gfx_GFXIndirectBuffer_get_drawInfos), _SE(js_gfx_GFXIndirectBuffer_set_drawInfos));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXIndirectBuffer_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXIndirectBuffer>(cls);
@@ -4391,16 +4391,16 @@ bool js_register_gfx_GFXTextureInfo(se::Object* obj)
 {
     auto cls = se::Class::create("GFXTextureInfo", obj, nullptr, _SE(js_gfx_GFXTextureInfo_constructor));
 
-    cls->defineProperty("__type", _SE(js_gfx_GFXTextureInfo_get_type), _SE(js_gfx_GFXTextureInfo_set_type));
-    cls->defineProperty("__usage", _SE(js_gfx_GFXTextureInfo_get_usage), _SE(js_gfx_GFXTextureInfo_set_usage));
-    cls->defineProperty("__format", _SE(js_gfx_GFXTextureInfo_get_format), _SE(js_gfx_GFXTextureInfo_set_format));
-    cls->defineProperty("__width", _SE(js_gfx_GFXTextureInfo_get_width), _SE(js_gfx_GFXTextureInfo_set_width));
-    cls->defineProperty("__height", _SE(js_gfx_GFXTextureInfo_get_height), _SE(js_gfx_GFXTextureInfo_set_height));
-    cls->defineProperty("__depth", _SE(js_gfx_GFXTextureInfo_get_depth), _SE(js_gfx_GFXTextureInfo_set_depth));
-    cls->defineProperty("__arrayLayer", _SE(js_gfx_GFXTextureInfo_get_arrayLayer), _SE(js_gfx_GFXTextureInfo_set_arrayLayer));
-    cls->defineProperty("__mipLevel", _SE(js_gfx_GFXTextureInfo_get_mipLevel), _SE(js_gfx_GFXTextureInfo_set_mipLevel));
-    cls->defineProperty("__samples", _SE(js_gfx_GFXTextureInfo_get_samples), _SE(js_gfx_GFXTextureInfo_set_samples));
-    cls->defineProperty("__flags", _SE(js_gfx_GFXTextureInfo_get_flags), _SE(js_gfx_GFXTextureInfo_set_flags));
+    cls->defineProperty("type", _SE(js_gfx_GFXTextureInfo_get_type), _SE(js_gfx_GFXTextureInfo_set_type));
+    cls->defineProperty("usage", _SE(js_gfx_GFXTextureInfo_get_usage), _SE(js_gfx_GFXTextureInfo_set_usage));
+    cls->defineProperty("format", _SE(js_gfx_GFXTextureInfo_get_format), _SE(js_gfx_GFXTextureInfo_set_format));
+    cls->defineProperty("width", _SE(js_gfx_GFXTextureInfo_get_width), _SE(js_gfx_GFXTextureInfo_set_width));
+    cls->defineProperty("height", _SE(js_gfx_GFXTextureInfo_get_height), _SE(js_gfx_GFXTextureInfo_set_height));
+    cls->defineProperty("depth", _SE(js_gfx_GFXTextureInfo_get_depth), _SE(js_gfx_GFXTextureInfo_set_depth));
+    cls->defineProperty("arrayLayer", _SE(js_gfx_GFXTextureInfo_get_arrayLayer), _SE(js_gfx_GFXTextureInfo_set_arrayLayer));
+    cls->defineProperty("mipLevel", _SE(js_gfx_GFXTextureInfo_get_mipLevel), _SE(js_gfx_GFXTextureInfo_set_mipLevel));
+    cls->defineProperty("samples", _SE(js_gfx_GFXTextureInfo_get_samples), _SE(js_gfx_GFXTextureInfo_set_samples));
+    cls->defineProperty("flags", _SE(js_gfx_GFXTextureInfo_get_flags), _SE(js_gfx_GFXTextureInfo_set_flags));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXTextureInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXTextureInfo>(cls);
@@ -4761,13 +4761,13 @@ bool js_register_gfx_GFXTextureViewInfo(se::Object* obj)
 {
     auto cls = se::Class::create("GFXTextureViewInfo", obj, nullptr, _SE(js_gfx_GFXTextureViewInfo_constructor));
 
-    cls->defineProperty("__texture", _SE(js_gfx_GFXTextureViewInfo_get_texture), _SE(js_gfx_GFXTextureViewInfo_set_texture));
-    cls->defineProperty("__type", _SE(js_gfx_GFXTextureViewInfo_get_type), _SE(js_gfx_GFXTextureViewInfo_set_type));
-    cls->defineProperty("__format", _SE(js_gfx_GFXTextureViewInfo_get_format), _SE(js_gfx_GFXTextureViewInfo_set_format));
-    cls->defineProperty("__baseLevel", _SE(js_gfx_GFXTextureViewInfo_get_baseLevel), _SE(js_gfx_GFXTextureViewInfo_set_baseLevel));
-    cls->defineProperty("__levelCount", _SE(js_gfx_GFXTextureViewInfo_get_levelCount), _SE(js_gfx_GFXTextureViewInfo_set_levelCount));
-    cls->defineProperty("__baseLayer", _SE(js_gfx_GFXTextureViewInfo_get_baseLayer), _SE(js_gfx_GFXTextureViewInfo_set_baseLayer));
-    cls->defineProperty("__layerCount", _SE(js_gfx_GFXTextureViewInfo_get_layerCount), _SE(js_gfx_GFXTextureViewInfo_set_layerCount));
+    cls->defineProperty("texture", _SE(js_gfx_GFXTextureViewInfo_get_texture), _SE(js_gfx_GFXTextureViewInfo_set_texture));
+    cls->defineProperty("type", _SE(js_gfx_GFXTextureViewInfo_get_type), _SE(js_gfx_GFXTextureViewInfo_set_type));
+    cls->defineProperty("format", _SE(js_gfx_GFXTextureViewInfo_get_format), _SE(js_gfx_GFXTextureViewInfo_set_format));
+    cls->defineProperty("baseLevel", _SE(js_gfx_GFXTextureViewInfo_get_baseLevel), _SE(js_gfx_GFXTextureViewInfo_set_baseLevel));
+    cls->defineProperty("levelCount", _SE(js_gfx_GFXTextureViewInfo_get_levelCount), _SE(js_gfx_GFXTextureViewInfo_set_levelCount));
+    cls->defineProperty("baseLayer", _SE(js_gfx_GFXTextureViewInfo_get_baseLayer), _SE(js_gfx_GFXTextureViewInfo_set_baseLayer));
+    cls->defineProperty("layerCount", _SE(js_gfx_GFXTextureViewInfo_get_layerCount), _SE(js_gfx_GFXTextureViewInfo_set_layerCount));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXTextureViewInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXTextureViewInfo>(cls);
@@ -5362,19 +5362,19 @@ bool js_register_gfx_GFXSamplerInfo(se::Object* obj)
 {
     auto cls = se::Class::create("GFXSamplerInfo", obj, nullptr, _SE(js_gfx_GFXSamplerInfo_constructor));
 
-    cls->defineProperty("__name", _SE(js_gfx_GFXSamplerInfo_get_name), _SE(js_gfx_GFXSamplerInfo_set_name));
-    cls->defineProperty("__minFilter", _SE(js_gfx_GFXSamplerInfo_get_minFilter), _SE(js_gfx_GFXSamplerInfo_set_minFilter));
-    cls->defineProperty("__magFilter", _SE(js_gfx_GFXSamplerInfo_get_magFilter), _SE(js_gfx_GFXSamplerInfo_set_magFilter));
-    cls->defineProperty("__mipFilter", _SE(js_gfx_GFXSamplerInfo_get_mipFilter), _SE(js_gfx_GFXSamplerInfo_set_mipFilter));
-    cls->defineProperty("__addressU", _SE(js_gfx_GFXSamplerInfo_get_addressU), _SE(js_gfx_GFXSamplerInfo_set_addressU));
-    cls->defineProperty("__addressV", _SE(js_gfx_GFXSamplerInfo_get_addressV), _SE(js_gfx_GFXSamplerInfo_set_addressV));
-    cls->defineProperty("__addressW", _SE(js_gfx_GFXSamplerInfo_get_addressW), _SE(js_gfx_GFXSamplerInfo_set_addressW));
-    cls->defineProperty("__maxAnisotropy", _SE(js_gfx_GFXSamplerInfo_get_maxAnisotropy), _SE(js_gfx_GFXSamplerInfo_set_maxAnisotropy));
-    cls->defineProperty("__cmpFunc", _SE(js_gfx_GFXSamplerInfo_get_cmpFunc), _SE(js_gfx_GFXSamplerInfo_set_cmpFunc));
-    cls->defineProperty("__borderColor", _SE(js_gfx_GFXSamplerInfo_get_borderColor), _SE(js_gfx_GFXSamplerInfo_set_borderColor));
-    cls->defineProperty("__minLOD", _SE(js_gfx_GFXSamplerInfo_get_minLOD), _SE(js_gfx_GFXSamplerInfo_set_minLOD));
-    cls->defineProperty("__maxLOD", _SE(js_gfx_GFXSamplerInfo_get_maxLOD), _SE(js_gfx_GFXSamplerInfo_set_maxLOD));
-    cls->defineProperty("__mipLODBias", _SE(js_gfx_GFXSamplerInfo_get_mipLODBias), _SE(js_gfx_GFXSamplerInfo_set_mipLODBias));
+    cls->defineProperty("name", _SE(js_gfx_GFXSamplerInfo_get_name), _SE(js_gfx_GFXSamplerInfo_set_name));
+    cls->defineProperty("minFilter", _SE(js_gfx_GFXSamplerInfo_get_minFilter), _SE(js_gfx_GFXSamplerInfo_set_minFilter));
+    cls->defineProperty("magFilter", _SE(js_gfx_GFXSamplerInfo_get_magFilter), _SE(js_gfx_GFXSamplerInfo_set_magFilter));
+    cls->defineProperty("mipFilter", _SE(js_gfx_GFXSamplerInfo_get_mipFilter), _SE(js_gfx_GFXSamplerInfo_set_mipFilter));
+    cls->defineProperty("addressU", _SE(js_gfx_GFXSamplerInfo_get_addressU), _SE(js_gfx_GFXSamplerInfo_set_addressU));
+    cls->defineProperty("addressV", _SE(js_gfx_GFXSamplerInfo_get_addressV), _SE(js_gfx_GFXSamplerInfo_set_addressV));
+    cls->defineProperty("addressW", _SE(js_gfx_GFXSamplerInfo_get_addressW), _SE(js_gfx_GFXSamplerInfo_set_addressW));
+    cls->defineProperty("maxAnisotropy", _SE(js_gfx_GFXSamplerInfo_get_maxAnisotropy), _SE(js_gfx_GFXSamplerInfo_set_maxAnisotropy));
+    cls->defineProperty("cmpFunc", _SE(js_gfx_GFXSamplerInfo_get_cmpFunc), _SE(js_gfx_GFXSamplerInfo_set_cmpFunc));
+    cls->defineProperty("borderColor", _SE(js_gfx_GFXSamplerInfo_get_borderColor), _SE(js_gfx_GFXSamplerInfo_set_borderColor));
+    cls->defineProperty("minLOD", _SE(js_gfx_GFXSamplerInfo_get_minLOD), _SE(js_gfx_GFXSamplerInfo_set_minLOD));
+    cls->defineProperty("maxLOD", _SE(js_gfx_GFXSamplerInfo_get_maxLOD), _SE(js_gfx_GFXSamplerInfo_set_maxLOD));
+    cls->defineProperty("mipLODBias", _SE(js_gfx_GFXSamplerInfo_get_mipLODBias), _SE(js_gfx_GFXSamplerInfo_set_mipLODBias));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXSamplerInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXSamplerInfo>(cls);
@@ -5540,8 +5540,8 @@ bool js_register_gfx_GFXShaderMacro(se::Object* obj)
 {
     auto cls = se::Class::create("GFXShaderMacro", obj, nullptr, _SE(js_gfx_GFXShaderMacro_constructor));
 
-    cls->defineProperty("__macro", _SE(js_gfx_GFXShaderMacro_get_macro), _SE(js_gfx_GFXShaderMacro_set_macro));
-    cls->defineProperty("__value", _SE(js_gfx_GFXShaderMacro_get_value), _SE(js_gfx_GFXShaderMacro_set_value));
+    cls->defineProperty("macro", _SE(js_gfx_GFXShaderMacro_get_macro), _SE(js_gfx_GFXShaderMacro_set_macro));
+    cls->defineProperty("value", _SE(js_gfx_GFXShaderMacro_get_value), _SE(js_gfx_GFXShaderMacro_set_value));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXShaderMacro_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXShaderMacro>(cls);
@@ -5746,9 +5746,9 @@ bool js_register_gfx_GFXUniform(se::Object* obj)
 {
     auto cls = se::Class::create("GFXUniform", obj, nullptr, _SE(js_gfx_GFXUniform_constructor));
 
-    cls->defineProperty("__name", _SE(js_gfx_GFXUniform_get_name), _SE(js_gfx_GFXUniform_set_name));
-    cls->defineProperty("__type", _SE(js_gfx_GFXUniform_get_type), _SE(js_gfx_GFXUniform_set_type));
-    cls->defineProperty("__count", _SE(js_gfx_GFXUniform_get_count), _SE(js_gfx_GFXUniform_set_count));
+    cls->defineProperty("name", _SE(js_gfx_GFXUniform_get_name), _SE(js_gfx_GFXUniform_set_name));
+    cls->defineProperty("type", _SE(js_gfx_GFXUniform_get_type), _SE(js_gfx_GFXUniform_set_type));
+    cls->defineProperty("count", _SE(js_gfx_GFXUniform_get_count), _SE(js_gfx_GFXUniform_set_count));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXUniform_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXUniform>(cls);
@@ -5953,9 +5953,9 @@ bool js_register_gfx_GFXUniformBlock(se::Object* obj)
 {
     auto cls = se::Class::create("GFXUniformBlock", obj, nullptr, _SE(js_gfx_GFXUniformBlock_constructor));
 
-    cls->defineProperty("__binding", _SE(js_gfx_GFXUniformBlock_get_binding), _SE(js_gfx_GFXUniformBlock_set_binding));
-    cls->defineProperty("__name", _SE(js_gfx_GFXUniformBlock_get_name), _SE(js_gfx_GFXUniformBlock_set_name));
-    cls->defineProperty("__uniforms", _SE(js_gfx_GFXUniformBlock_get_uniforms), _SE(js_gfx_GFXUniformBlock_set_uniforms));
+    cls->defineProperty("binding", _SE(js_gfx_GFXUniformBlock_get_binding), _SE(js_gfx_GFXUniformBlock_set_binding));
+    cls->defineProperty("name", _SE(js_gfx_GFXUniformBlock_get_name), _SE(js_gfx_GFXUniformBlock_set_name));
+    cls->defineProperty("uniforms", _SE(js_gfx_GFXUniformBlock_get_uniforms), _SE(js_gfx_GFXUniformBlock_set_uniforms));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXUniformBlock_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXUniformBlock>(cls);
@@ -6199,10 +6199,10 @@ bool js_register_gfx_GFXUniformSampler(se::Object* obj)
 {
     auto cls = se::Class::create("GFXUniformSampler", obj, nullptr, _SE(js_gfx_GFXUniformSampler_constructor));
 
-    cls->defineProperty("__binding", _SE(js_gfx_GFXUniformSampler_get_binding), _SE(js_gfx_GFXUniformSampler_set_binding));
-    cls->defineProperty("__name", _SE(js_gfx_GFXUniformSampler_get_name), _SE(js_gfx_GFXUniformSampler_set_name));
-    cls->defineProperty("__type", _SE(js_gfx_GFXUniformSampler_get_type), _SE(js_gfx_GFXUniformSampler_set_type));
-    cls->defineProperty("__count", _SE(js_gfx_GFXUniformSampler_get_count), _SE(js_gfx_GFXUniformSampler_set_count));
+    cls->defineProperty("binding", _SE(js_gfx_GFXUniformSampler_get_binding), _SE(js_gfx_GFXUniformSampler_set_binding));
+    cls->defineProperty("name", _SE(js_gfx_GFXUniformSampler_get_name), _SE(js_gfx_GFXUniformSampler_set_name));
+    cls->defineProperty("type", _SE(js_gfx_GFXUniformSampler_get_type), _SE(js_gfx_GFXUniformSampler_set_type));
+    cls->defineProperty("count", _SE(js_gfx_GFXUniformSampler_get_count), _SE(js_gfx_GFXUniformSampler_set_count));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXUniformSampler_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXUniformSampler>(cls);
@@ -6407,9 +6407,9 @@ bool js_register_gfx_GFXShaderStage(se::Object* obj)
 {
     auto cls = se::Class::create("GFXShaderStage", obj, nullptr, _SE(js_gfx_GFXShaderStage_constructor));
 
-    cls->defineProperty("__type", _SE(js_gfx_GFXShaderStage_get_type), _SE(js_gfx_GFXShaderStage_set_type));
-    cls->defineProperty("__source", _SE(js_gfx_GFXShaderStage_get_source), _SE(js_gfx_GFXShaderStage_set_source));
-    cls->defineProperty("__macros", _SE(js_gfx_GFXShaderStage_get_macros), _SE(js_gfx_GFXShaderStage_set_macros));
+    cls->defineProperty("type", _SE(js_gfx_GFXShaderStage_get_type), _SE(js_gfx_GFXShaderStage_set_type));
+    cls->defineProperty("source", _SE(js_gfx_GFXShaderStage_get_source), _SE(js_gfx_GFXShaderStage_set_source));
+    cls->defineProperty("macros", _SE(js_gfx_GFXShaderStage_get_macros), _SE(js_gfx_GFXShaderStage_set_macros));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXShaderStage_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXShaderStage>(cls);
@@ -6653,10 +6653,10 @@ bool js_register_gfx_GFXShaderInfo(se::Object* obj)
 {
     auto cls = se::Class::create("GFXShaderInfo", obj, nullptr, _SE(js_gfx_GFXShaderInfo_constructor));
 
-    cls->defineProperty("__name", _SE(js_gfx_GFXShaderInfo_get_name), _SE(js_gfx_GFXShaderInfo_set_name));
-    cls->defineProperty("__stages", _SE(js_gfx_GFXShaderInfo_get_stages), _SE(js_gfx_GFXShaderInfo_set_stages));
-    cls->defineProperty("__blocks", _SE(js_gfx_GFXShaderInfo_get_blocks), _SE(js_gfx_GFXShaderInfo_set_blocks));
-    cls->defineProperty("__samplers", _SE(js_gfx_GFXShaderInfo_get_samplers), _SE(js_gfx_GFXShaderInfo_set_samplers));
+    cls->defineProperty("name", _SE(js_gfx_GFXShaderInfo_get_name), _SE(js_gfx_GFXShaderInfo_set_name));
+    cls->defineProperty("stages", _SE(js_gfx_GFXShaderInfo_get_stages), _SE(js_gfx_GFXShaderInfo_set_stages));
+    cls->defineProperty("blocks", _SE(js_gfx_GFXShaderInfo_get_blocks), _SE(js_gfx_GFXShaderInfo_set_blocks));
+    cls->defineProperty("samplers", _SE(js_gfx_GFXShaderInfo_get_samplers), _SE(js_gfx_GFXShaderInfo_set_samplers));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXShaderInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXShaderInfo>(cls);
@@ -6939,11 +6939,11 @@ bool js_register_gfx_GFXAttribute(se::Object* obj)
 {
     auto cls = se::Class::create("GFXAttribute", obj, nullptr, _SE(js_gfx_GFXAttribute_constructor));
 
-    cls->defineProperty("__name", _SE(js_gfx_GFXAttribute_get_name), _SE(js_gfx_GFXAttribute_set_name));
-    cls->defineProperty("__format", _SE(js_gfx_GFXAttribute_get_format), _SE(js_gfx_GFXAttribute_set_format));
-    cls->defineProperty("__isNormalized", _SE(js_gfx_GFXAttribute_get_isNormalized), _SE(js_gfx_GFXAttribute_set_isNormalized));
-    cls->defineProperty("__stream", _SE(js_gfx_GFXAttribute_get_stream), _SE(js_gfx_GFXAttribute_set_stream));
-    cls->defineProperty("__isInstanced", _SE(js_gfx_GFXAttribute_get_isInstanced), _SE(js_gfx_GFXAttribute_set_isInstanced));
+    cls->defineProperty("name", _SE(js_gfx_GFXAttribute_get_name), _SE(js_gfx_GFXAttribute_set_name));
+    cls->defineProperty("format", _SE(js_gfx_GFXAttribute_get_format), _SE(js_gfx_GFXAttribute_set_format));
+    cls->defineProperty("isNormalized", _SE(js_gfx_GFXAttribute_get_isNormalized), _SE(js_gfx_GFXAttribute_set_isNormalized));
+    cls->defineProperty("stream", _SE(js_gfx_GFXAttribute_get_stream), _SE(js_gfx_GFXAttribute_set_stream));
+    cls->defineProperty("isInstanced", _SE(js_gfx_GFXAttribute_get_isInstanced), _SE(js_gfx_GFXAttribute_set_isInstanced));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXAttribute_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXAttribute>(cls);
@@ -7187,10 +7187,10 @@ bool js_register_gfx_GFXInputAssemblerInfo(se::Object* obj)
 {
     auto cls = se::Class::create("GFXInputAssemblerInfo", obj, nullptr, _SE(js_gfx_GFXInputAssemblerInfo_constructor));
 
-    cls->defineProperty("__attributes", _SE(js_gfx_GFXInputAssemblerInfo_get_attributes), _SE(js_gfx_GFXInputAssemblerInfo_set_attributes));
-    cls->defineProperty("__vertexBuffers", _SE(js_gfx_GFXInputAssemblerInfo_get_vertexBuffers), _SE(js_gfx_GFXInputAssemblerInfo_set_vertexBuffers));
-    cls->defineProperty("__indexBuffer", _SE(js_gfx_GFXInputAssemblerInfo_get_indexBuffer), _SE(js_gfx_GFXInputAssemblerInfo_set_indexBuffer));
-    cls->defineProperty("__indirectBuffer", _SE(js_gfx_GFXInputAssemblerInfo_get_indirectBuffer), _SE(js_gfx_GFXInputAssemblerInfo_set_indirectBuffer));
+    cls->defineProperty("attributes", _SE(js_gfx_GFXInputAssemblerInfo_get_attributes), _SE(js_gfx_GFXInputAssemblerInfo_set_attributes));
+    cls->defineProperty("vertexBuffers", _SE(js_gfx_GFXInputAssemblerInfo_get_vertexBuffers), _SE(js_gfx_GFXInputAssemblerInfo_set_vertexBuffers));
+    cls->defineProperty("indexBuffer", _SE(js_gfx_GFXInputAssemblerInfo_get_indexBuffer), _SE(js_gfx_GFXInputAssemblerInfo_set_indexBuffer));
+    cls->defineProperty("indirectBuffer", _SE(js_gfx_GFXInputAssemblerInfo_get_indirectBuffer), _SE(js_gfx_GFXInputAssemblerInfo_set_indirectBuffer));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXInputAssemblerInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXInputAssemblerInfo>(cls);
@@ -7512,12 +7512,12 @@ bool js_register_gfx_GFXColorAttachment(se::Object* obj)
 {
     auto cls = se::Class::create("GFXColorAttachment", obj, nullptr, _SE(js_gfx_GFXColorAttachment_constructor));
 
-    cls->defineProperty("__format", _SE(js_gfx_GFXColorAttachment_get_format), _SE(js_gfx_GFXColorAttachment_set_format));
-    cls->defineProperty("__loadOp", _SE(js_gfx_GFXColorAttachment_get_loadOp), _SE(js_gfx_GFXColorAttachment_set_loadOp));
-    cls->defineProperty("__storeOp", _SE(js_gfx_GFXColorAttachment_get_storeOp), _SE(js_gfx_GFXColorAttachment_set_storeOp));
-    cls->defineProperty("__sampleCount", _SE(js_gfx_GFXColorAttachment_get_sampleCount), _SE(js_gfx_GFXColorAttachment_set_sampleCount));
-    cls->defineProperty("__beginLayout", _SE(js_gfx_GFXColorAttachment_get_beginLayout), _SE(js_gfx_GFXColorAttachment_set_beginLayout));
-    cls->defineProperty("__endLayout", _SE(js_gfx_GFXColorAttachment_get_endLayout), _SE(js_gfx_GFXColorAttachment_set_endLayout));
+    cls->defineProperty("format", _SE(js_gfx_GFXColorAttachment_get_format), _SE(js_gfx_GFXColorAttachment_set_format));
+    cls->defineProperty("loadOp", _SE(js_gfx_GFXColorAttachment_get_loadOp), _SE(js_gfx_GFXColorAttachment_set_loadOp));
+    cls->defineProperty("storeOp", _SE(js_gfx_GFXColorAttachment_get_storeOp), _SE(js_gfx_GFXColorAttachment_set_storeOp));
+    cls->defineProperty("sampleCount", _SE(js_gfx_GFXColorAttachment_get_sampleCount), _SE(js_gfx_GFXColorAttachment_set_sampleCount));
+    cls->defineProperty("beginLayout", _SE(js_gfx_GFXColorAttachment_get_beginLayout), _SE(js_gfx_GFXColorAttachment_set_beginLayout));
+    cls->defineProperty("endLayout", _SE(js_gfx_GFXColorAttachment_get_endLayout), _SE(js_gfx_GFXColorAttachment_set_endLayout));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXColorAttachment_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXColorAttachment>(cls);
@@ -7917,14 +7917,14 @@ bool js_register_gfx_GFXDepthStencilAttachment(se::Object* obj)
 {
     auto cls = se::Class::create("GFXDepthStencilAttachment", obj, nullptr, _SE(js_gfx_GFXDepthStencilAttachment_constructor));
 
-    cls->defineProperty("__format", _SE(js_gfx_GFXDepthStencilAttachment_get_format), _SE(js_gfx_GFXDepthStencilAttachment_set_format));
-    cls->defineProperty("__depthLoadOp", _SE(js_gfx_GFXDepthStencilAttachment_get_depthLoadOp), _SE(js_gfx_GFXDepthStencilAttachment_set_depthLoadOp));
-    cls->defineProperty("__depthStoreOp", _SE(js_gfx_GFXDepthStencilAttachment_get_depthStoreOp), _SE(js_gfx_GFXDepthStencilAttachment_set_depthStoreOp));
-    cls->defineProperty("__stencilLoadOp", _SE(js_gfx_GFXDepthStencilAttachment_get_stencilLoadOp), _SE(js_gfx_GFXDepthStencilAttachment_set_stencilLoadOp));
-    cls->defineProperty("__stencilStoreOp", _SE(js_gfx_GFXDepthStencilAttachment_get_stencilStoreOp), _SE(js_gfx_GFXDepthStencilAttachment_set_stencilStoreOp));
-    cls->defineProperty("__sampleCount", _SE(js_gfx_GFXDepthStencilAttachment_get_sampleCount), _SE(js_gfx_GFXDepthStencilAttachment_set_sampleCount));
-    cls->defineProperty("__beginLayout", _SE(js_gfx_GFXDepthStencilAttachment_get_beginLayout), _SE(js_gfx_GFXDepthStencilAttachment_set_beginLayout));
-    cls->defineProperty("__endLayout", _SE(js_gfx_GFXDepthStencilAttachment_get_endLayout), _SE(js_gfx_GFXDepthStencilAttachment_set_endLayout));
+    cls->defineProperty("format", _SE(js_gfx_GFXDepthStencilAttachment_get_format), _SE(js_gfx_GFXDepthStencilAttachment_set_format));
+    cls->defineProperty("depthLoadOp", _SE(js_gfx_GFXDepthStencilAttachment_get_depthLoadOp), _SE(js_gfx_GFXDepthStencilAttachment_set_depthLoadOp));
+    cls->defineProperty("depthStoreOp", _SE(js_gfx_GFXDepthStencilAttachment_get_depthStoreOp), _SE(js_gfx_GFXDepthStencilAttachment_set_depthStoreOp));
+    cls->defineProperty("stencilLoadOp", _SE(js_gfx_GFXDepthStencilAttachment_get_stencilLoadOp), _SE(js_gfx_GFXDepthStencilAttachment_set_stencilLoadOp));
+    cls->defineProperty("stencilStoreOp", _SE(js_gfx_GFXDepthStencilAttachment_get_stencilStoreOp), _SE(js_gfx_GFXDepthStencilAttachment_set_stencilStoreOp));
+    cls->defineProperty("sampleCount", _SE(js_gfx_GFXDepthStencilAttachment_get_sampleCount), _SE(js_gfx_GFXDepthStencilAttachment_set_sampleCount));
+    cls->defineProperty("beginLayout", _SE(js_gfx_GFXDepthStencilAttachment_get_beginLayout), _SE(js_gfx_GFXDepthStencilAttachment_set_beginLayout));
+    cls->defineProperty("endLayout", _SE(js_gfx_GFXDepthStencilAttachment_get_endLayout), _SE(js_gfx_GFXDepthStencilAttachment_set_endLayout));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXDepthStencilAttachment_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXDepthStencilAttachment>(cls);
@@ -8129,9 +8129,9 @@ bool js_register_gfx_GFXRenderPassInfo(se::Object* obj)
 {
     auto cls = se::Class::create("GFXRenderPassInfo", obj, nullptr, _SE(js_gfx_GFXRenderPassInfo_constructor));
 
-    cls->defineProperty("__colorAttachments", _SE(js_gfx_GFXRenderPassInfo_get_colorAttachments), _SE(js_gfx_GFXRenderPassInfo_set_colorAttachments));
-    cls->defineProperty("__depthStencilAttachment", _SE(js_gfx_GFXRenderPassInfo_get_depthStencilAttachment), _SE(js_gfx_GFXRenderPassInfo_set_depthStencilAttachment));
-    cls->defineProperty("__subPasses", _SE(js_gfx_GFXRenderPassInfo_get_subPasses), _SE(js_gfx_GFXRenderPassInfo_set_subPasses));
+    cls->defineProperty("colorAttachments", _SE(js_gfx_GFXRenderPassInfo_get_colorAttachments), _SE(js_gfx_GFXRenderPassInfo_set_colorAttachments));
+    cls->defineProperty("depthStencilAttachment", _SE(js_gfx_GFXRenderPassInfo_get_depthStencilAttachment), _SE(js_gfx_GFXRenderPassInfo_set_depthStencilAttachment));
+    cls->defineProperty("subPasses", _SE(js_gfx_GFXRenderPassInfo_get_subPasses), _SE(js_gfx_GFXRenderPassInfo_set_subPasses));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXRenderPassInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXRenderPassInfo>(cls);
@@ -8375,10 +8375,10 @@ bool js_register_gfx_GFXFramebufferInfo(se::Object* obj)
 {
     auto cls = se::Class::create("GFXFramebufferInfo", obj, nullptr, _SE(js_gfx_GFXFramebufferInfo_constructor));
 
-    cls->defineProperty("__renderPass", _SE(js_gfx_GFXFramebufferInfo_get_renderPass), _SE(js_gfx_GFXFramebufferInfo_set_renderPass));
-    cls->defineProperty("__colorViews", _SE(js_gfx_GFXFramebufferInfo_get_colorViews), _SE(js_gfx_GFXFramebufferInfo_set_colorViews));
-    cls->defineProperty("__depthStencilView", _SE(js_gfx_GFXFramebufferInfo_get_depthStencilView), _SE(js_gfx_GFXFramebufferInfo_set_depthStencilView));
-    cls->defineProperty("__isOffscreen", _SE(js_gfx_GFXFramebufferInfo_get_isOffscreen), _SE(js_gfx_GFXFramebufferInfo_set_isOffscreen));
+    cls->defineProperty("renderPass", _SE(js_gfx_GFXFramebufferInfo_get_renderPass), _SE(js_gfx_GFXFramebufferInfo_set_renderPass));
+    cls->defineProperty("colorViews", _SE(js_gfx_GFXFramebufferInfo_get_colorViews), _SE(js_gfx_GFXFramebufferInfo_set_colorViews));
+    cls->defineProperty("depthStencilView", _SE(js_gfx_GFXFramebufferInfo_get_depthStencilView), _SE(js_gfx_GFXFramebufferInfo_set_depthStencilView));
+    cls->defineProperty("isOffscreen", _SE(js_gfx_GFXFramebufferInfo_get_isOffscreen), _SE(js_gfx_GFXFramebufferInfo_set_isOffscreen));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXFramebufferInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXFramebufferInfo>(cls);
@@ -8583,9 +8583,9 @@ bool js_register_gfx_GFXBinding(se::Object* obj)
 {
     auto cls = se::Class::create("GFXBinding", obj, nullptr, _SE(js_gfx_GFXBinding_constructor));
 
-    cls->defineProperty("__binding", _SE(js_gfx_GFXBinding_get_binding), _SE(js_gfx_GFXBinding_set_binding));
-    cls->defineProperty("__type", _SE(js_gfx_GFXBinding_get_type), _SE(js_gfx_GFXBinding_set_type));
-    cls->defineProperty("__name", _SE(js_gfx_GFXBinding_get_name), _SE(js_gfx_GFXBinding_set_name));
+    cls->defineProperty("binding", _SE(js_gfx_GFXBinding_get_binding), _SE(js_gfx_GFXBinding_set_binding));
+    cls->defineProperty("type", _SE(js_gfx_GFXBinding_get_type), _SE(js_gfx_GFXBinding_set_type));
+    cls->defineProperty("name", _SE(js_gfx_GFXBinding_get_name), _SE(js_gfx_GFXBinding_set_name));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXBinding_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXBinding>(cls);
@@ -8689,7 +8689,7 @@ bool js_register_gfx_GFXBindingLayoutInfo(se::Object* obj)
 {
     auto cls = se::Class::create("GFXBindingLayoutInfo", obj, nullptr, _SE(js_gfx_GFXBindingLayoutInfo_constructor));
 
-    cls->defineProperty("__bindings", _SE(js_gfx_GFXBindingLayoutInfo_get_bindings), _SE(js_gfx_GFXBindingLayoutInfo_set_bindings));
+    cls->defineProperty("bindings", _SE(js_gfx_GFXBindingLayoutInfo_get_bindings), _SE(js_gfx_GFXBindingLayoutInfo_set_bindings));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXBindingLayoutInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXBindingLayoutInfo>(cls);
@@ -9011,12 +9011,12 @@ bool js_register_gfx_GFXBindingUnit(se::Object* obj)
 {
     auto cls = se::Class::create("GFXBindingUnit", obj, nullptr, _SE(js_gfx_GFXBindingUnit_constructor));
 
-    cls->defineProperty("__binding", _SE(js_gfx_GFXBindingUnit_get_binding), _SE(js_gfx_GFXBindingUnit_set_binding));
-    cls->defineProperty("__type", _SE(js_gfx_GFXBindingUnit_get_type), _SE(js_gfx_GFXBindingUnit_set_type));
-    cls->defineProperty("__name", _SE(js_gfx_GFXBindingUnit_get_name), _SE(js_gfx_GFXBindingUnit_set_name));
-    cls->defineProperty("__buffer", _SE(js_gfx_GFXBindingUnit_get_buffer), _SE(js_gfx_GFXBindingUnit_set_buffer));
-    cls->defineProperty("__texView", _SE(js_gfx_GFXBindingUnit_get_texView), _SE(js_gfx_GFXBindingUnit_set_texView));
-    cls->defineProperty("__sampler", _SE(js_gfx_GFXBindingUnit_get_sampler), _SE(js_gfx_GFXBindingUnit_set_sampler));
+    cls->defineProperty("binding", _SE(js_gfx_GFXBindingUnit_get_binding), _SE(js_gfx_GFXBindingUnit_set_binding));
+    cls->defineProperty("type", _SE(js_gfx_GFXBindingUnit_get_type), _SE(js_gfx_GFXBindingUnit_set_type));
+    cls->defineProperty("name", _SE(js_gfx_GFXBindingUnit_get_name), _SE(js_gfx_GFXBindingUnit_set_name));
+    cls->defineProperty("buffer", _SE(js_gfx_GFXBindingUnit_get_buffer), _SE(js_gfx_GFXBindingUnit_set_buffer));
+    cls->defineProperty("texView", _SE(js_gfx_GFXBindingUnit_get_texView), _SE(js_gfx_GFXBindingUnit_set_texView));
+    cls->defineProperty("sampler", _SE(js_gfx_GFXBindingUnit_get_sampler), _SE(js_gfx_GFXBindingUnit_set_sampler));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXBindingUnit_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXBindingUnit>(cls);
@@ -9221,9 +9221,9 @@ bool js_register_gfx_GFXPushConstantRange(se::Object* obj)
 {
     auto cls = se::Class::create("GFXPushConstantRange", obj, nullptr, _SE(js_gfx_GFXPushConstantRange_constructor));
 
-    cls->defineProperty("__shaderType", _SE(js_gfx_GFXPushConstantRange_get_shaderType), _SE(js_gfx_GFXPushConstantRange_set_shaderType));
-    cls->defineProperty("__offset", _SE(js_gfx_GFXPushConstantRange_get_offset), _SE(js_gfx_GFXPushConstantRange_set_offset));
-    cls->defineProperty("__count", _SE(js_gfx_GFXPushConstantRange_get_count), _SE(js_gfx_GFXPushConstantRange_set_count));
+    cls->defineProperty("shaderType", _SE(js_gfx_GFXPushConstantRange_get_shaderType), _SE(js_gfx_GFXPushConstantRange_set_shaderType));
+    cls->defineProperty("offset", _SE(js_gfx_GFXPushConstantRange_get_offset), _SE(js_gfx_GFXPushConstantRange_set_offset));
+    cls->defineProperty("count", _SE(js_gfx_GFXPushConstantRange_get_count), _SE(js_gfx_GFXPushConstantRange_set_count));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXPushConstantRange_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXPushConstantRange>(cls);
@@ -9389,8 +9389,8 @@ bool js_register_gfx_GFXPipelineLayoutInfo(se::Object* obj)
 {
     auto cls = se::Class::create("GFXPipelineLayoutInfo", obj, nullptr, _SE(js_gfx_GFXPipelineLayoutInfo_constructor));
 
-    cls->defineProperty("__pushConstantsRanges", _SE(js_gfx_GFXPipelineLayoutInfo_get_pushConstantsRanges), _SE(js_gfx_GFXPipelineLayoutInfo_set_pushConstantsRanges));
-    cls->defineProperty("__layouts", _SE(js_gfx_GFXPipelineLayoutInfo_get_layouts), _SE(js_gfx_GFXPipelineLayoutInfo_set_layouts));
+    cls->defineProperty("pushConstantsRanges", _SE(js_gfx_GFXPipelineLayoutInfo_get_pushConstantsRanges), _SE(js_gfx_GFXPipelineLayoutInfo_set_pushConstantsRanges));
+    cls->defineProperty("layouts", _SE(js_gfx_GFXPipelineLayoutInfo_get_layouts), _SE(js_gfx_GFXPipelineLayoutInfo_set_layouts));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXPipelineLayoutInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXPipelineLayoutInfo>(cls);
@@ -9494,7 +9494,7 @@ bool js_register_gfx_GFXInputState(se::Object* obj)
 {
     auto cls = se::Class::create("GFXInputState", obj, nullptr, _SE(js_gfx_GFXInputState_constructor));
 
-    cls->defineProperty("__attributes", _SE(js_gfx_GFXInputState_get_attributes), _SE(js_gfx_GFXInputState_set_attributes));
+    cls->defineProperty("attributes", _SE(js_gfx_GFXInputState_get_attributes), _SE(js_gfx_GFXInputState_set_attributes));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXInputState_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXInputState>(cls);
@@ -10011,17 +10011,17 @@ bool js_register_gfx_GFXRasterizerState(se::Object* obj)
 {
     auto cls = se::Class::create("GFXRasterizerState", obj, nullptr, _SE(js_gfx_GFXRasterizerState_constructor));
 
-    cls->defineProperty("__isDiscard", _SE(js_gfx_GFXRasterizerState_get_isDiscard), _SE(js_gfx_GFXRasterizerState_set_isDiscard));
-    cls->defineProperty("__polygonMode", _SE(js_gfx_GFXRasterizerState_get_polygonMode), _SE(js_gfx_GFXRasterizerState_set_polygonMode));
-    cls->defineProperty("__shadeModel", _SE(js_gfx_GFXRasterizerState_get_shadeModel), _SE(js_gfx_GFXRasterizerState_set_shadeModel));
-    cls->defineProperty("__cullMode", _SE(js_gfx_GFXRasterizerState_get_cullMode), _SE(js_gfx_GFXRasterizerState_set_cullMode));
-    cls->defineProperty("__isFrontFaceCCW", _SE(js_gfx_GFXRasterizerState_get_isFrontFaceCCW), _SE(js_gfx_GFXRasterizerState_set_isFrontFaceCCW));
-    cls->defineProperty("__depthBias", _SE(js_gfx_GFXRasterizerState_get_depthBias), _SE(js_gfx_GFXRasterizerState_set_depthBias));
-    cls->defineProperty("__depthBiasClamp", _SE(js_gfx_GFXRasterizerState_get_depthBiasClamp), _SE(js_gfx_GFXRasterizerState_set_depthBiasClamp));
-    cls->defineProperty("__depthBiasSlop", _SE(js_gfx_GFXRasterizerState_get_depthBiasSlop), _SE(js_gfx_GFXRasterizerState_set_depthBiasSlop));
-    cls->defineProperty("__isDepthClip", _SE(js_gfx_GFXRasterizerState_get_isDepthClip), _SE(js_gfx_GFXRasterizerState_set_isDepthClip));
-    cls->defineProperty("__isMultisample", _SE(js_gfx_GFXRasterizerState_get_isMultisample), _SE(js_gfx_GFXRasterizerState_set_isMultisample));
-    cls->defineProperty("__lineWidth", _SE(js_gfx_GFXRasterizerState_get_lineWidth), _SE(js_gfx_GFXRasterizerState_set_lineWidth));
+    cls->defineProperty("isDiscard", _SE(js_gfx_GFXRasterizerState_get_isDiscard), _SE(js_gfx_GFXRasterizerState_set_isDiscard));
+    cls->defineProperty("polygonMode", _SE(js_gfx_GFXRasterizerState_get_polygonMode), _SE(js_gfx_GFXRasterizerState_set_polygonMode));
+    cls->defineProperty("shadeModel", _SE(js_gfx_GFXRasterizerState_get_shadeModel), _SE(js_gfx_GFXRasterizerState_set_shadeModel));
+    cls->defineProperty("cullMode", _SE(js_gfx_GFXRasterizerState_get_cullMode), _SE(js_gfx_GFXRasterizerState_set_cullMode));
+    cls->defineProperty("isFrontFaceCCW", _SE(js_gfx_GFXRasterizerState_get_isFrontFaceCCW), _SE(js_gfx_GFXRasterizerState_set_isFrontFaceCCW));
+    cls->defineProperty("depthBias", _SE(js_gfx_GFXRasterizerState_get_depthBias), _SE(js_gfx_GFXRasterizerState_set_depthBias));
+    cls->defineProperty("depthBiasClamp", _SE(js_gfx_GFXRasterizerState_get_depthBiasClamp), _SE(js_gfx_GFXRasterizerState_set_depthBiasClamp));
+    cls->defineProperty("depthBiasSlop", _SE(js_gfx_GFXRasterizerState_get_depthBiasSlop), _SE(js_gfx_GFXRasterizerState_set_depthBiasSlop));
+    cls->defineProperty("isDepthClip", _SE(js_gfx_GFXRasterizerState_get_isDepthClip), _SE(js_gfx_GFXRasterizerState_set_isDepthClip));
+    cls->defineProperty("isMultisample", _SE(js_gfx_GFXRasterizerState_get_isMultisample), _SE(js_gfx_GFXRasterizerState_set_isMultisample));
+    cls->defineProperty("lineWidth", _SE(js_gfx_GFXRasterizerState_get_lineWidth), _SE(js_gfx_GFXRasterizerState_set_lineWidth));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXRasterizerState_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXRasterizerState>(cls);
@@ -10850,25 +10850,25 @@ bool js_register_gfx_GFXDepthStencilState(se::Object* obj)
 {
     auto cls = se::Class::create("GFXDepthStencilState", obj, nullptr, _SE(js_gfx_GFXDepthStencilState_constructor));
 
-    cls->defineProperty("__depthTest", _SE(js_gfx_GFXDepthStencilState_get_depthTest), _SE(js_gfx_GFXDepthStencilState_set_depthTest));
-    cls->defineProperty("__depthWrite", _SE(js_gfx_GFXDepthStencilState_get_depthWrite), _SE(js_gfx_GFXDepthStencilState_set_depthWrite));
-    cls->defineProperty("__depthFunc", _SE(js_gfx_GFXDepthStencilState_get_depthFunc), _SE(js_gfx_GFXDepthStencilState_set_depthFunc));
-    cls->defineProperty("__stencilTestFront", _SE(js_gfx_GFXDepthStencilState_get_stencilTestFront), _SE(js_gfx_GFXDepthStencilState_set_stencilTestFront));
-    cls->defineProperty("__stencilFuncFront", _SE(js_gfx_GFXDepthStencilState_get_stencilFuncFront), _SE(js_gfx_GFXDepthStencilState_set_stencilFuncFront));
-    cls->defineProperty("__stencilReadMaskFront", _SE(js_gfx_GFXDepthStencilState_get_stencilReadMaskFront), _SE(js_gfx_GFXDepthStencilState_set_stencilReadMaskFront));
-    cls->defineProperty("__stencilWriteMaskFront", _SE(js_gfx_GFXDepthStencilState_get_stencilWriteMaskFront), _SE(js_gfx_GFXDepthStencilState_set_stencilWriteMaskFront));
-    cls->defineProperty("__stencilFailOpFront", _SE(js_gfx_GFXDepthStencilState_get_stencilFailOpFront), _SE(js_gfx_GFXDepthStencilState_set_stencilFailOpFront));
-    cls->defineProperty("__stencilZFailOpFront", _SE(js_gfx_GFXDepthStencilState_get_stencilZFailOpFront), _SE(js_gfx_GFXDepthStencilState_set_stencilZFailOpFront));
-    cls->defineProperty("__stencilPassOpFront", _SE(js_gfx_GFXDepthStencilState_get_stencilPassOpFront), _SE(js_gfx_GFXDepthStencilState_set_stencilPassOpFront));
-    cls->defineProperty("__stencilRefFront", _SE(js_gfx_GFXDepthStencilState_get_stencilRefFront), _SE(js_gfx_GFXDepthStencilState_set_stencilRefFront));
-    cls->defineProperty("__stencilTestBack", _SE(js_gfx_GFXDepthStencilState_get_stencilTestBack), _SE(js_gfx_GFXDepthStencilState_set_stencilTestBack));
-    cls->defineProperty("__stencilFuncBack", _SE(js_gfx_GFXDepthStencilState_get_stencilFuncBack), _SE(js_gfx_GFXDepthStencilState_set_stencilFuncBack));
-    cls->defineProperty("__stencilReadMaskBack", _SE(js_gfx_GFXDepthStencilState_get_stencilReadMaskBack), _SE(js_gfx_GFXDepthStencilState_set_stencilReadMaskBack));
-    cls->defineProperty("__stencilWriteMaskBack", _SE(js_gfx_GFXDepthStencilState_get_stencilWriteMaskBack), _SE(js_gfx_GFXDepthStencilState_set_stencilWriteMaskBack));
-    cls->defineProperty("__stencilFailOpBack", _SE(js_gfx_GFXDepthStencilState_get_stencilFailOpBack), _SE(js_gfx_GFXDepthStencilState_set_stencilFailOpBack));
-    cls->defineProperty("__stencilZFailOpBack", _SE(js_gfx_GFXDepthStencilState_get_stencilZFailOpBack), _SE(js_gfx_GFXDepthStencilState_set_stencilZFailOpBack));
-    cls->defineProperty("__stencilPassOpBack", _SE(js_gfx_GFXDepthStencilState_get_stencilPassOpBack), _SE(js_gfx_GFXDepthStencilState_set_stencilPassOpBack));
-    cls->defineProperty("__stencilRefBack", _SE(js_gfx_GFXDepthStencilState_get_stencilRefBack), _SE(js_gfx_GFXDepthStencilState_set_stencilRefBack));
+    cls->defineProperty("depthTest", _SE(js_gfx_GFXDepthStencilState_get_depthTest), _SE(js_gfx_GFXDepthStencilState_set_depthTest));
+    cls->defineProperty("depthWrite", _SE(js_gfx_GFXDepthStencilState_get_depthWrite), _SE(js_gfx_GFXDepthStencilState_set_depthWrite));
+    cls->defineProperty("depthFunc", _SE(js_gfx_GFXDepthStencilState_get_depthFunc), _SE(js_gfx_GFXDepthStencilState_set_depthFunc));
+    cls->defineProperty("stencilTestFront", _SE(js_gfx_GFXDepthStencilState_get_stencilTestFront), _SE(js_gfx_GFXDepthStencilState_set_stencilTestFront));
+    cls->defineProperty("stencilFuncFront", _SE(js_gfx_GFXDepthStencilState_get_stencilFuncFront), _SE(js_gfx_GFXDepthStencilState_set_stencilFuncFront));
+    cls->defineProperty("stencilReadMaskFront", _SE(js_gfx_GFXDepthStencilState_get_stencilReadMaskFront), _SE(js_gfx_GFXDepthStencilState_set_stencilReadMaskFront));
+    cls->defineProperty("stencilWriteMaskFront", _SE(js_gfx_GFXDepthStencilState_get_stencilWriteMaskFront), _SE(js_gfx_GFXDepthStencilState_set_stencilWriteMaskFront));
+    cls->defineProperty("stencilFailOpFront", _SE(js_gfx_GFXDepthStencilState_get_stencilFailOpFront), _SE(js_gfx_GFXDepthStencilState_set_stencilFailOpFront));
+    cls->defineProperty("stencilZFailOpFront", _SE(js_gfx_GFXDepthStencilState_get_stencilZFailOpFront), _SE(js_gfx_GFXDepthStencilState_set_stencilZFailOpFront));
+    cls->defineProperty("stencilPassOpFront", _SE(js_gfx_GFXDepthStencilState_get_stencilPassOpFront), _SE(js_gfx_GFXDepthStencilState_set_stencilPassOpFront));
+    cls->defineProperty("stencilRefFront", _SE(js_gfx_GFXDepthStencilState_get_stencilRefFront), _SE(js_gfx_GFXDepthStencilState_set_stencilRefFront));
+    cls->defineProperty("stencilTestBack", _SE(js_gfx_GFXDepthStencilState_get_stencilTestBack), _SE(js_gfx_GFXDepthStencilState_set_stencilTestBack));
+    cls->defineProperty("stencilFuncBack", _SE(js_gfx_GFXDepthStencilState_get_stencilFuncBack), _SE(js_gfx_GFXDepthStencilState_set_stencilFuncBack));
+    cls->defineProperty("stencilReadMaskBack", _SE(js_gfx_GFXDepthStencilState_get_stencilReadMaskBack), _SE(js_gfx_GFXDepthStencilState_set_stencilReadMaskBack));
+    cls->defineProperty("stencilWriteMaskBack", _SE(js_gfx_GFXDepthStencilState_get_stencilWriteMaskBack), _SE(js_gfx_GFXDepthStencilState_set_stencilWriteMaskBack));
+    cls->defineProperty("stencilFailOpBack", _SE(js_gfx_GFXDepthStencilState_get_stencilFailOpBack), _SE(js_gfx_GFXDepthStencilState_set_stencilFailOpBack));
+    cls->defineProperty("stencilZFailOpBack", _SE(js_gfx_GFXDepthStencilState_get_stencilZFailOpBack), _SE(js_gfx_GFXDepthStencilState_set_stencilZFailOpBack));
+    cls->defineProperty("stencilPassOpBack", _SE(js_gfx_GFXDepthStencilState_get_stencilPassOpBack), _SE(js_gfx_GFXDepthStencilState_set_stencilPassOpBack));
+    cls->defineProperty("stencilRefBack", _SE(js_gfx_GFXDepthStencilState_get_stencilRefBack), _SE(js_gfx_GFXDepthStencilState_set_stencilRefBack));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXDepthStencilState_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXDepthStencilState>(cls);
@@ -11268,14 +11268,14 @@ bool js_register_gfx_GFXBlendTarget(se::Object* obj)
 {
     auto cls = se::Class::create("GFXBlendTarget", obj, nullptr, _SE(js_gfx_GFXBlendTarget_constructor));
 
-    cls->defineProperty("__blend", _SE(js_gfx_GFXBlendTarget_get_blend), _SE(js_gfx_GFXBlendTarget_set_blend));
-    cls->defineProperty("__blendSrc", _SE(js_gfx_GFXBlendTarget_get_blendSrc), _SE(js_gfx_GFXBlendTarget_set_blendSrc));
-    cls->defineProperty("__blendDst", _SE(js_gfx_GFXBlendTarget_get_blendDst), _SE(js_gfx_GFXBlendTarget_set_blendDst));
-    cls->defineProperty("__blendEq", _SE(js_gfx_GFXBlendTarget_get_blendEq), _SE(js_gfx_GFXBlendTarget_set_blendEq));
-    cls->defineProperty("__blendSrcAlpha", _SE(js_gfx_GFXBlendTarget_get_blendSrcAlpha), _SE(js_gfx_GFXBlendTarget_set_blendSrcAlpha));
-    cls->defineProperty("__blendDstAlpha", _SE(js_gfx_GFXBlendTarget_get_blendDstAlpha), _SE(js_gfx_GFXBlendTarget_set_blendDstAlpha));
-    cls->defineProperty("__blendAlphaEq", _SE(js_gfx_GFXBlendTarget_get_blendAlphaEq), _SE(js_gfx_GFXBlendTarget_set_blendAlphaEq));
-    cls->defineProperty("__blendColorMask", _SE(js_gfx_GFXBlendTarget_get_blendColorMask), _SE(js_gfx_GFXBlendTarget_set_blendColorMask));
+    cls->defineProperty("blend", _SE(js_gfx_GFXBlendTarget_get_blend), _SE(js_gfx_GFXBlendTarget_set_blend));
+    cls->defineProperty("blendSrc", _SE(js_gfx_GFXBlendTarget_get_blendSrc), _SE(js_gfx_GFXBlendTarget_set_blendSrc));
+    cls->defineProperty("blendDst", _SE(js_gfx_GFXBlendTarget_get_blendDst), _SE(js_gfx_GFXBlendTarget_set_blendDst));
+    cls->defineProperty("blendEq", _SE(js_gfx_GFXBlendTarget_get_blendEq), _SE(js_gfx_GFXBlendTarget_set_blendEq));
+    cls->defineProperty("blendSrcAlpha", _SE(js_gfx_GFXBlendTarget_get_blendSrcAlpha), _SE(js_gfx_GFXBlendTarget_set_blendSrcAlpha));
+    cls->defineProperty("blendDstAlpha", _SE(js_gfx_GFXBlendTarget_get_blendDstAlpha), _SE(js_gfx_GFXBlendTarget_set_blendDstAlpha));
+    cls->defineProperty("blendAlphaEq", _SE(js_gfx_GFXBlendTarget_get_blendAlphaEq), _SE(js_gfx_GFXBlendTarget_set_blendAlphaEq));
+    cls->defineProperty("blendColorMask", _SE(js_gfx_GFXBlendTarget_get_blendColorMask), _SE(js_gfx_GFXBlendTarget_set_blendColorMask));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXBlendTarget_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXBlendTarget>(cls);
@@ -11491,9 +11491,9 @@ bool js_register_gfx_GFXBlendState(se::Object* obj)
 {
     auto cls = se::Class::create("GFXBlendState", obj, nullptr, _SE(js_gfx_GFXBlendState_constructor));
 
-    cls->defineProperty("__isA2C", _SE(js_gfx_GFXBlendState_get_isA2C), _SE(js_gfx_GFXBlendState_set_isA2C));
-    cls->defineProperty("__isIndepend", _SE(js_gfx_GFXBlendState_get_isIndepend), _SE(js_gfx_GFXBlendState_set_isIndepend));
-    cls->defineProperty("__blendColor", _SE(js_gfx_GFXBlendState_get_blendColor), _SE(js_gfx_GFXBlendState_set_blendColor));
+    cls->defineProperty("isA2C", _SE(js_gfx_GFXBlendState_get_isA2C), _SE(js_gfx_GFXBlendState_set_isA2C));
+    cls->defineProperty("isIndepend", _SE(js_gfx_GFXBlendState_get_isIndepend), _SE(js_gfx_GFXBlendState_set_isIndepend));
+    cls->defineProperty("blendColor", _SE(js_gfx_GFXBlendState_get_blendColor), _SE(js_gfx_GFXBlendState_set_blendColor));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXBlendState_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXBlendState>(cls);
@@ -11932,15 +11932,15 @@ bool js_register_gfx_GFXPipelineStateInfo(se::Object* obj)
 {
     auto cls = se::Class::create("GFXPipelineStateInfo", obj, nullptr, _SE(js_gfx_GFXPipelineStateInfo_constructor));
 
-    cls->defineProperty("__primitive", _SE(js_gfx_GFXPipelineStateInfo_get_primitive), _SE(js_gfx_GFXPipelineStateInfo_set_primitive));
-    cls->defineProperty("__shader", _SE(js_gfx_GFXPipelineStateInfo_get_shader), _SE(js_gfx_GFXPipelineStateInfo_set_shader));
-    cls->defineProperty("__inputState", _SE(js_gfx_GFXPipelineStateInfo_get_inputState), _SE(js_gfx_GFXPipelineStateInfo_set_inputState));
-    cls->defineProperty("__rasterizerState", _SE(js_gfx_GFXPipelineStateInfo_get_rasterizerState), _SE(js_gfx_GFXPipelineStateInfo_set_rasterizerState));
-    cls->defineProperty("__depthStencilState", _SE(js_gfx_GFXPipelineStateInfo_get_depthStencilState), _SE(js_gfx_GFXPipelineStateInfo_set_depthStencilState));
-    cls->defineProperty("__blendState", _SE(js_gfx_GFXPipelineStateInfo_get_blendState), _SE(js_gfx_GFXPipelineStateInfo_set_blendState));
-    cls->defineProperty("__dynamicStates", _SE(js_gfx_GFXPipelineStateInfo_get_dynamicStates), _SE(js_gfx_GFXPipelineStateInfo_set_dynamicStates));
-    cls->defineProperty("__layout", _SE(js_gfx_GFXPipelineStateInfo_get_layout), _SE(js_gfx_GFXPipelineStateInfo_set_layout));
-    cls->defineProperty("__renderPass", _SE(js_gfx_GFXPipelineStateInfo_get_renderPass), _SE(js_gfx_GFXPipelineStateInfo_set_renderPass));
+    cls->defineProperty("primitive", _SE(js_gfx_GFXPipelineStateInfo_get_primitive), _SE(js_gfx_GFXPipelineStateInfo_set_primitive));
+    cls->defineProperty("shader", _SE(js_gfx_GFXPipelineStateInfo_get_shader), _SE(js_gfx_GFXPipelineStateInfo_set_shader));
+    cls->defineProperty("inputState", _SE(js_gfx_GFXPipelineStateInfo_get_inputState), _SE(js_gfx_GFXPipelineStateInfo_set_inputState));
+    cls->defineProperty("rasterizerState", _SE(js_gfx_GFXPipelineStateInfo_get_rasterizerState), _SE(js_gfx_GFXPipelineStateInfo_set_rasterizerState));
+    cls->defineProperty("depthStencilState", _SE(js_gfx_GFXPipelineStateInfo_get_depthStencilState), _SE(js_gfx_GFXPipelineStateInfo_set_depthStencilState));
+    cls->defineProperty("blendState", _SE(js_gfx_GFXPipelineStateInfo_get_blendState), _SE(js_gfx_GFXPipelineStateInfo_set_blendState));
+    cls->defineProperty("dynamicStates", _SE(js_gfx_GFXPipelineStateInfo_get_dynamicStates), _SE(js_gfx_GFXPipelineStateInfo_set_dynamicStates));
+    cls->defineProperty("layout", _SE(js_gfx_GFXPipelineStateInfo_get_layout), _SE(js_gfx_GFXPipelineStateInfo_set_layout));
+    cls->defineProperty("renderPass", _SE(js_gfx_GFXPipelineStateInfo_get_renderPass), _SE(js_gfx_GFXPipelineStateInfo_set_renderPass));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXPipelineStateInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXPipelineStateInfo>(cls);
@@ -12106,8 +12106,8 @@ bool js_register_gfx_GFXCommandBufferInfo(se::Object* obj)
 {
     auto cls = se::Class::create("GFXCommandBufferInfo", obj, nullptr, _SE(js_gfx_GFXCommandBufferInfo_constructor));
 
-    cls->defineProperty("__allocator", _SE(js_gfx_GFXCommandBufferInfo_get_allocator), _SE(js_gfx_GFXCommandBufferInfo_set_allocator));
-    cls->defineProperty("__type", _SE(js_gfx_GFXCommandBufferInfo_get_type), _SE(js_gfx_GFXCommandBufferInfo_set_type));
+    cls->defineProperty("allocator", _SE(js_gfx_GFXCommandBufferInfo_get_allocator), _SE(js_gfx_GFXCommandBufferInfo_set_allocator));
+    cls->defineProperty("type", _SE(js_gfx_GFXCommandBufferInfo_get_type), _SE(js_gfx_GFXCommandBufferInfo_set_type));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXCommandBufferInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXCommandBufferInfo>(cls);
@@ -12211,7 +12211,7 @@ bool js_register_gfx_GFXQueueInfo(se::Object* obj)
 {
     auto cls = se::Class::create("GFXQueueInfo", obj, nullptr, _SE(js_gfx_GFXQueueInfo_constructor));
 
-    cls->defineProperty("__type", _SE(js_gfx_GFXQueueInfo_get_type), _SE(js_gfx_GFXQueueInfo_set_type));
+    cls->defineProperty("type", _SE(js_gfx_GFXQueueInfo_get_type), _SE(js_gfx_GFXQueueInfo_set_type));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXQueueInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXQueueInfo>(cls);
@@ -12611,14 +12611,14 @@ bool js_register_gfx_GFXFormatInfo(se::Object* obj)
 {
     auto cls = se::Class::create("GFXFormatInfo", obj, nullptr, _SE(js_gfx_GFXFormatInfo_constructor));
 
-    cls->defineProperty("__name", _SE(js_gfx_GFXFormatInfo_get_name), _SE(js_gfx_GFXFormatInfo_set_name));
-    cls->defineProperty("__size", _SE(js_gfx_GFXFormatInfo_get_size), _SE(js_gfx_GFXFormatInfo_set_size));
-    cls->defineProperty("__count", _SE(js_gfx_GFXFormatInfo_get_count), _SE(js_gfx_GFXFormatInfo_set_count));
-    cls->defineProperty("__type", _SE(js_gfx_GFXFormatInfo_get_type), _SE(js_gfx_GFXFormatInfo_set_type));
-    cls->defineProperty("__hasAlpha", _SE(js_gfx_GFXFormatInfo_get_hasAlpha), _SE(js_gfx_GFXFormatInfo_set_hasAlpha));
-    cls->defineProperty("__hasDepth", _SE(js_gfx_GFXFormatInfo_get_hasDepth), _SE(js_gfx_GFXFormatInfo_set_hasDepth));
-    cls->defineProperty("__hasStencil", _SE(js_gfx_GFXFormatInfo_get_hasStencil), _SE(js_gfx_GFXFormatInfo_set_hasStencil));
-    cls->defineProperty("__isCompressed", _SE(js_gfx_GFXFormatInfo_get_isCompressed), _SE(js_gfx_GFXFormatInfo_set_isCompressed));
+    cls->defineProperty("name", _SE(js_gfx_GFXFormatInfo_get_name), _SE(js_gfx_GFXFormatInfo_set_name));
+    cls->defineProperty("size", _SE(js_gfx_GFXFormatInfo_get_size), _SE(js_gfx_GFXFormatInfo_set_size));
+    cls->defineProperty("count", _SE(js_gfx_GFXFormatInfo_get_count), _SE(js_gfx_GFXFormatInfo_set_count));
+    cls->defineProperty("type", _SE(js_gfx_GFXFormatInfo_get_type), _SE(js_gfx_GFXFormatInfo_set_type));
+    cls->defineProperty("hasAlpha", _SE(js_gfx_GFXFormatInfo_get_hasAlpha), _SE(js_gfx_GFXFormatInfo_set_hasAlpha));
+    cls->defineProperty("hasDepth", _SE(js_gfx_GFXFormatInfo_get_hasDepth), _SE(js_gfx_GFXFormatInfo_set_hasDepth));
+    cls->defineProperty("hasStencil", _SE(js_gfx_GFXFormatInfo_get_hasStencil), _SE(js_gfx_GFXFormatInfo_set_hasStencil));
+    cls->defineProperty("isCompressed", _SE(js_gfx_GFXFormatInfo_get_isCompressed), _SE(js_gfx_GFXFormatInfo_set_isCompressed));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXFormatInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXFormatInfo>(cls);
@@ -12784,8 +12784,8 @@ bool js_register_gfx_GFXMemoryStatus(se::Object* obj)
 {
     auto cls = se::Class::create("GFXMemoryStatus", obj, nullptr, _SE(js_gfx_GFXMemoryStatus_constructor));
 
-    cls->defineProperty("__bufferSize", _SE(js_gfx_GFXMemoryStatus_get_bufferSize), _SE(js_gfx_GFXMemoryStatus_set_bufferSize));
-    cls->defineProperty("__textureSize", _SE(js_gfx_GFXMemoryStatus_get_textureSize), _SE(js_gfx_GFXMemoryStatus_set_textureSize));
+    cls->defineProperty("bufferSize", _SE(js_gfx_GFXMemoryStatus_get_bufferSize), _SE(js_gfx_GFXMemoryStatus_set_bufferSize));
+    cls->defineProperty("textureSize", _SE(js_gfx_GFXMemoryStatus_get_textureSize), _SE(js_gfx_GFXMemoryStatus_set_textureSize));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXMemoryStatus_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXMemoryStatus>(cls);
@@ -12873,8 +12873,8 @@ bool js_register_gfx_GFXObject(se::Object* obj)
 {
     auto cls = se::Class::create("GFXObject", obj, nullptr, _SE(js_gfx_GFXObject_constructor));
 
-    cls->defineProperty("__status", _SE(js_gfx_GFXObject_getStatus), nullptr);
-    cls->defineProperty("__gfxType", _SE(js_gfx_GFXObject_getType), nullptr);
+    cls->defineProperty("status", _SE(js_gfx_GFXObject_getStatus), nullptr);
+    cls->defineProperty("gfxType", _SE(js_gfx_GFXObject_getType), nullptr);
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXObject_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::GFXObject>(cls);
@@ -13902,35 +13902,35 @@ bool js_register_gfx_GFXDevice(se::Object* obj)
 {
     auto cls = se::Class::create("GFXDevice", obj, nullptr, nullptr);
 
-    cls->defineProperty("__deviceName", _SE(js_gfx_GFXDevice_getDeviceName), nullptr);
-    cls->defineProperty("__numInstances", _SE(js_gfx_GFXDevice_getNumInstances), nullptr);
-    cls->defineProperty("__maxTextureUnits", _SE(js_gfx_GFXDevice_getMaxTextureUnits), nullptr);
-    cls->defineProperty("__height", _SE(js_gfx_GFXDevice_getHeight), nullptr);
-    cls->defineProperty("__shaderIdGen", _SE(js_gfx_GFXDevice_getShaderIdGen), nullptr);
-    cls->defineProperty("__renderer", _SE(js_gfx_GFXDevice_getRenderer), nullptr);
-    cls->defineProperty("__maxUniformBufferBindings", _SE(js_gfx_GFXDevice_getMaxUniformBufferBindings), nullptr);
-    cls->defineProperty("__vendor", _SE(js_gfx_GFXDevice_getVendor), nullptr);
-    cls->defineProperty("__depthBits", _SE(js_gfx_GFXDevice_getDepthBits), nullptr);
-    cls->defineProperty("__reverseCW", _SE(js_gfx_GFXDevice_getReverseCW), _SE(js_gfx_GFXDevice_setReverseCW));
-    cls->defineProperty("__maxFragmentUniformVectors", _SE(js_gfx_GFXDevice_getMaxFragmentUniformVectors), nullptr);
-    cls->defineProperty("__maxVertexAttributes", _SE(js_gfx_GFXDevice_getMaxVertexAttributes), nullptr);
-    cls->defineProperty("__width", _SE(js_gfx_GFXDevice_getWidth), nullptr);
-    cls->defineProperty("__commandAllocator", _SE(js_gfx_GFXDevice_getCommandAllocator), nullptr);
-    cls->defineProperty("__maxVertexUniformVectors", _SE(js_gfx_GFXDevice_getMaxVertexUniformVectors), nullptr);
-    cls->defineProperty("__maxCubeMapTextureSize", _SE(js_gfx_GFXDevice_getMaxCubeMapTextureSize), nullptr);
-    cls->defineProperty("__maxVertexTextureUnits", _SE(js_gfx_GFXDevice_getMaxVertexTextureUnits), nullptr);
-    cls->defineProperty("__nativeWidth", _SE(js_gfx_GFXDevice_getNativeWidth), nullptr);
-    cls->defineProperty("__numDrawCalls", _SE(js_gfx_GFXDevice_getNumDrawCalls), nullptr);
-    cls->defineProperty("__memoryStatus", _SE(js_gfx_GFXDevice_getMemoryStatus), nullptr);
-    cls->defineProperty("__gfxAPI", _SE(js_gfx_GFXDevice_getGfxAPI), nullptr);
-    cls->defineProperty("__maxUniformBlockSize", _SE(js_gfx_GFXDevice_getMaxUniformBlockSize), nullptr);
-    cls->defineProperty("__maxTextureSize", _SE(js_gfx_GFXDevice_getMaxTextureSize), nullptr);
-    cls->defineProperty("__nativeHeight", _SE(js_gfx_GFXDevice_getNativeHeight), nullptr);
-    cls->defineProperty("__numTris", _SE(js_gfx_GFXDevice_getNumTris), nullptr);
-    cls->defineProperty("__stencilBits", _SE(js_gfx_GFXDevice_getStencilBits), nullptr);
-    cls->defineProperty("__queue", _SE(js_gfx_GFXDevice_getQueue), nullptr);
-    cls->defineProperty("__context", _SE(js_gfx_GFXDevice_getContext), nullptr);
-    cls->defineProperty("__mainWindow", _SE(js_gfx_GFXDevice_getMainWindow), nullptr);
+    cls->defineProperty("deviceName", _SE(js_gfx_GFXDevice_getDeviceName), nullptr);
+    cls->defineProperty("numInstances", _SE(js_gfx_GFXDevice_getNumInstances), nullptr);
+    cls->defineProperty("maxTextureUnits", _SE(js_gfx_GFXDevice_getMaxTextureUnits), nullptr);
+    cls->defineProperty("height", _SE(js_gfx_GFXDevice_getHeight), nullptr);
+    cls->defineProperty("shaderIdGen", _SE(js_gfx_GFXDevice_getShaderIdGen), nullptr);
+    cls->defineProperty("renderer", _SE(js_gfx_GFXDevice_getRenderer), nullptr);
+    cls->defineProperty("maxUniformBufferBindings", _SE(js_gfx_GFXDevice_getMaxUniformBufferBindings), nullptr);
+    cls->defineProperty("vendor", _SE(js_gfx_GFXDevice_getVendor), nullptr);
+    cls->defineProperty("depthBits", _SE(js_gfx_GFXDevice_getDepthBits), nullptr);
+    cls->defineProperty("reverseCW", _SE(js_gfx_GFXDevice_getReverseCW), _SE(js_gfx_GFXDevice_setReverseCW));
+    cls->defineProperty("maxFragmentUniformVectors", _SE(js_gfx_GFXDevice_getMaxFragmentUniformVectors), nullptr);
+    cls->defineProperty("maxVertexAttributes", _SE(js_gfx_GFXDevice_getMaxVertexAttributes), nullptr);
+    cls->defineProperty("width", _SE(js_gfx_GFXDevice_getWidth), nullptr);
+    cls->defineProperty("commandAllocator", _SE(js_gfx_GFXDevice_getCommandAllocator), nullptr);
+    cls->defineProperty("maxVertexUniformVectors", _SE(js_gfx_GFXDevice_getMaxVertexUniformVectors), nullptr);
+    cls->defineProperty("maxCubeMapTextureSize", _SE(js_gfx_GFXDevice_getMaxCubeMapTextureSize), nullptr);
+    cls->defineProperty("maxVertexTextureUnits", _SE(js_gfx_GFXDevice_getMaxVertexTextureUnits), nullptr);
+    cls->defineProperty("nativeWidth", _SE(js_gfx_GFXDevice_getNativeWidth), nullptr);
+    cls->defineProperty("numDrawCalls", _SE(js_gfx_GFXDevice_getNumDrawCalls), nullptr);
+    cls->defineProperty("memoryStatus", _SE(js_gfx_GFXDevice_getMemoryStatus), nullptr);
+    cls->defineProperty("gfxAPI", _SE(js_gfx_GFXDevice_getGfxAPI), nullptr);
+    cls->defineProperty("maxUniformBlockSize", _SE(js_gfx_GFXDevice_getMaxUniformBlockSize), nullptr);
+    cls->defineProperty("maxTextureSize", _SE(js_gfx_GFXDevice_getMaxTextureSize), nullptr);
+    cls->defineProperty("nativeHeight", _SE(js_gfx_GFXDevice_getNativeHeight), nullptr);
+    cls->defineProperty("numTris", _SE(js_gfx_GFXDevice_getNumTris), nullptr);
+    cls->defineProperty("stencilBits", _SE(js_gfx_GFXDevice_getStencilBits), nullptr);
+    cls->defineProperty("queue", _SE(js_gfx_GFXDevice_getQueue), nullptr);
+    cls->defineProperty("context", _SE(js_gfx_GFXDevice_getContext), nullptr);
+    cls->defineProperty("mainWindow", _SE(js_gfx_GFXDevice_getMainWindow), nullptr);
     cls->defineFunction("hasFeature", _SE(js_gfx_GFXDevice_hasFeature));
     cls->defineFunction("createCommandAllocator", _SE(js_gfx_GFXDevice_createCommandAllocator));
     cls->defineFunction("getDepthStencilFormat", _SE(js_gfx_GFXDevice_getDepthStencilFormat));
@@ -14362,22 +14362,22 @@ bool js_register_gfx_GFXWindow(se::Object* obj)
 {
     auto cls = se::Class::create("GFXWindow", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXWindow_constructor));
 
-    cls->defineProperty("__nativeHeight", _SE(js_gfx_GFXWindow_getNativeHeight), nullptr);
-    cls->defineProperty("__depthStencilTexView", _SE(js_gfx_GFXWindow_getDepthStencilTexView), nullptr);
-    cls->defineProperty("__nativeWidth", _SE(js_gfx_GFXWindow_getNativeWidth), nullptr);
-    cls->defineProperty("__title", _SE(js_gfx_GFXWindow_getTitle), nullptr);
-    cls->defineProperty("__isOffscreen", _SE(js_gfx_GFXWindow_isOffscreen), nullptr);
-    cls->defineProperty("__top", _SE(js_gfx_GFXWindow_getTop), nullptr);
-    cls->defineProperty("__height", _SE(js_gfx_GFXWindow_getHeight), nullptr);
-    cls->defineProperty("__width", _SE(js_gfx_GFXWindow_getWidth), nullptr);
-    cls->defineProperty("__colorTexView", _SE(js_gfx_GFXWindow_getColorTexView), nullptr);
-    cls->defineProperty("__depthStencilTexture", _SE(js_gfx_GFXWindow_getDepthStencilTexture), nullptr);
-    cls->defineProperty("__device", _SE(js_gfx_GFXWindow_getDevice), nullptr);
-    cls->defineProperty("__renderPass", _SE(js_gfx_GFXWindow_getRenderPass), nullptr);
-    cls->defineProperty("__framebuffer", _SE(js_gfx_GFXWindow_getFramebuffer), nullptr);
-    cls->defineProperty("__colorFormat", _SE(js_gfx_GFXWindow_getColorFormat), nullptr);
-    cls->defineProperty("__colorTexture", _SE(js_gfx_GFXWindow_getColorTexture), nullptr);
-    cls->defineProperty("__left", _SE(js_gfx_GFXWindow_getLeft), nullptr);
+    cls->defineProperty("nativeHeight", _SE(js_gfx_GFXWindow_getNativeHeight), nullptr);
+    cls->defineProperty("depthStencilTexView", _SE(js_gfx_GFXWindow_getDepthStencilTexView), nullptr);
+    cls->defineProperty("nativeWidth", _SE(js_gfx_GFXWindow_getNativeWidth), nullptr);
+    cls->defineProperty("title", _SE(js_gfx_GFXWindow_getTitle), nullptr);
+    cls->defineProperty("isOffscreen", _SE(js_gfx_GFXWindow_isOffscreen), nullptr);
+    cls->defineProperty("top", _SE(js_gfx_GFXWindow_getTop), nullptr);
+    cls->defineProperty("height", _SE(js_gfx_GFXWindow_getHeight), nullptr);
+    cls->defineProperty("width", _SE(js_gfx_GFXWindow_getWidth), nullptr);
+    cls->defineProperty("colorTexView", _SE(js_gfx_GFXWindow_getColorTexView), nullptr);
+    cls->defineProperty("depthStencilTexture", _SE(js_gfx_GFXWindow_getDepthStencilTexture), nullptr);
+    cls->defineProperty("device", _SE(js_gfx_GFXWindow_getDevice), nullptr);
+    cls->defineProperty("renderPass", _SE(js_gfx_GFXWindow_getRenderPass), nullptr);
+    cls->defineProperty("framebuffer", _SE(js_gfx_GFXWindow_getFramebuffer), nullptr);
+    cls->defineProperty("colorFormat", _SE(js_gfx_GFXWindow_getColorFormat), nullptr);
+    cls->defineProperty("colorTexture", _SE(js_gfx_GFXWindow_getColorTexture), nullptr);
+    cls->defineProperty("left", _SE(js_gfx_GFXWindow_getLeft), nullptr);
     cls->defineFunction("getDepthStencilFormat", _SE(js_gfx_GFXWindow_getDepthStencilFormat));
     cls->defineFunction("initialize", _SE(js_gfx_GFXWindow_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_GFXWindow_destroy));
@@ -14627,14 +14627,14 @@ bool js_register_gfx_GFXBuffer(se::Object* obj)
 {
     auto cls = se::Class::create("GFXBuffer", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXBuffer_constructor));
 
-    cls->defineProperty("__count", _SE(js_gfx_GFXBuffer_getCount), nullptr);
-    cls->defineProperty("__memUsage", _SE(js_gfx_GFXBuffer_getMemUsage), nullptr);
-    cls->defineProperty("__stride", _SE(js_gfx_GFXBuffer_getStride), nullptr);
-    cls->defineProperty("__bufferView", _SE(js_gfx_GFXBuffer_getBufferView), nullptr);
-    cls->defineProperty("__usage", _SE(js_gfx_GFXBuffer_getUsage), nullptr);
-    cls->defineProperty("__flags", _SE(js_gfx_GFXBuffer_getFlags), nullptr);
-    cls->defineProperty("__device", _SE(js_gfx_GFXBuffer_getDevice), nullptr);
-    cls->defineProperty("__size", _SE(js_gfx_GFXBuffer_getSize), nullptr);
+    cls->defineProperty("count", _SE(js_gfx_GFXBuffer_getCount), nullptr);
+    cls->defineProperty("memUsage", _SE(js_gfx_GFXBuffer_getMemUsage), nullptr);
+    cls->defineProperty("stride", _SE(js_gfx_GFXBuffer_getStride), nullptr);
+    cls->defineProperty("bufferView", _SE(js_gfx_GFXBuffer_getBufferView), nullptr);
+    cls->defineProperty("usage", _SE(js_gfx_GFXBuffer_getUsage), nullptr);
+    cls->defineProperty("flags", _SE(js_gfx_GFXBuffer_getFlags), nullptr);
+    cls->defineProperty("device", _SE(js_gfx_GFXBuffer_getDevice), nullptr);
+    cls->defineProperty("size", _SE(js_gfx_GFXBuffer_getSize), nullptr);
     cls->defineFunction("initialize", _SE(js_gfx_GFXBuffer_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_GFXBuffer_destroy));
     cls->defineFunction("resize", _SE(js_gfx_GFXBuffer_resize));
@@ -14957,18 +14957,18 @@ bool js_register_gfx_GFXTexture(se::Object* obj)
 {
     auto cls = se::Class::create("GFXTexture", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXTexture_constructor));
 
-    cls->defineProperty("__arrayLayer", _SE(js_gfx_GFXTexture_getArrayLayer), nullptr);
-    cls->defineProperty("__format", _SE(js_gfx_GFXTexture_getFormat), nullptr);
-    cls->defineProperty("__buffer", _SE(js_gfx_GFXTexture_getBuffer), nullptr);
-    cls->defineProperty("__mipLevel", _SE(js_gfx_GFXTexture_getMipLevel), nullptr);
-    cls->defineProperty("__height", _SE(js_gfx_GFXTexture_getHeight), nullptr);
-    cls->defineProperty("__width", _SE(js_gfx_GFXTexture_getWidth), nullptr);
-    cls->defineProperty("__depth", _SE(js_gfx_GFXTexture_getDepth), nullptr);
-    cls->defineProperty("__flags", _SE(js_gfx_GFXTexture_getFlags), nullptr);
-    cls->defineProperty("__samples", _SE(js_gfx_GFXTexture_getSamples), nullptr);
-    cls->defineProperty("__usage", _SE(js_gfx_GFXTexture_getUsage), nullptr);
-    cls->defineProperty("__type", _SE(js_gfx_GFXTexture_getType), nullptr);
-    cls->defineProperty("__size", _SE(js_gfx_GFXTexture_getSize), nullptr);
+    cls->defineProperty("arrayLayer", _SE(js_gfx_GFXTexture_getArrayLayer), nullptr);
+    cls->defineProperty("format", _SE(js_gfx_GFXTexture_getFormat), nullptr);
+    cls->defineProperty("buffer", _SE(js_gfx_GFXTexture_getBuffer), nullptr);
+    cls->defineProperty("mipLevel", _SE(js_gfx_GFXTexture_getMipLevel), nullptr);
+    cls->defineProperty("height", _SE(js_gfx_GFXTexture_getHeight), nullptr);
+    cls->defineProperty("width", _SE(js_gfx_GFXTexture_getWidth), nullptr);
+    cls->defineProperty("depth", _SE(js_gfx_GFXTexture_getDepth), nullptr);
+    cls->defineProperty("flags", _SE(js_gfx_GFXTexture_getFlags), nullptr);
+    cls->defineProperty("samples", _SE(js_gfx_GFXTexture_getSamples), nullptr);
+    cls->defineProperty("usage", _SE(js_gfx_GFXTexture_getUsage), nullptr);
+    cls->defineProperty("type", _SE(js_gfx_GFXTexture_getType), nullptr);
+    cls->defineProperty("size", _SE(js_gfx_GFXTexture_getSize), nullptr);
     cls->defineFunction("initialize", _SE(js_gfx_GFXTexture_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_GFXTexture_destroy));
     cls->defineFunction("resize", _SE(js_gfx_GFXTexture_resize));
@@ -15198,14 +15198,14 @@ bool js_register_gfx_GFXTextureView(se::Object* obj)
 {
     auto cls = se::Class::create("GFXTextureView", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXTextureView_constructor));
 
-    cls->defineProperty("__baseLevel", _SE(js_gfx_GFXTextureView_getBaseLevel), nullptr);
-    cls->defineProperty("__format", _SE(js_gfx_GFXTextureView_getFormat), nullptr);
-    cls->defineProperty("__levelCount", _SE(js_gfx_GFXTextureView_getLevelCount), nullptr);
-    cls->defineProperty("__texture", _SE(js_gfx_GFXTextureView_getTexture), nullptr);
-    cls->defineProperty("__layerCount", _SE(js_gfx_GFXTextureView_getLayerCount), nullptr);
-    cls->defineProperty("__device", _SE(js_gfx_GFXTextureView_getDevice), nullptr);
-    cls->defineProperty("__baseLayer", _SE(js_gfx_GFXTextureView_getBaseLayer), nullptr);
-    cls->defineProperty("__type", _SE(js_gfx_GFXTextureView_getType), nullptr);
+    cls->defineProperty("baseLevel", _SE(js_gfx_GFXTextureView_getBaseLevel), nullptr);
+    cls->defineProperty("format", _SE(js_gfx_GFXTextureView_getFormat), nullptr);
+    cls->defineProperty("levelCount", _SE(js_gfx_GFXTextureView_getLevelCount), nullptr);
+    cls->defineProperty("texture", _SE(js_gfx_GFXTextureView_getTexture), nullptr);
+    cls->defineProperty("layerCount", _SE(js_gfx_GFXTextureView_getLayerCount), nullptr);
+    cls->defineProperty("device", _SE(js_gfx_GFXTextureView_getDevice), nullptr);
+    cls->defineProperty("baseLayer", _SE(js_gfx_GFXTextureView_getBaseLayer), nullptr);
+    cls->defineProperty("type", _SE(js_gfx_GFXTextureView_getType), nullptr);
     cls->defineFunction("initialize", _SE(js_gfx_GFXTextureView_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_GFXTextureView_destroy));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXTextureView_finalize));
@@ -15542,20 +15542,20 @@ bool js_register_gfx_GFXSampler(se::Object* obj)
 {
     auto cls = se::Class::create("GFXSampler", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXSampler_constructor));
 
-    cls->defineProperty("__borderColor", _SE(js_gfx_GFXSampler_getBorderColor), nullptr);
-    cls->defineProperty("__mipFilter", _SE(js_gfx_GFXSampler_getMipFilter), nullptr);
-    cls->defineProperty("__minFilter", _SE(js_gfx_GFXSampler_getMinFilter), nullptr);
-    cls->defineProperty("__name", _SE(js_gfx_GFXSampler_getName), nullptr);
-    cls->defineProperty("__maxLOD", _SE(js_gfx_GFXSampler_getMaxLOD), nullptr);
-    cls->defineProperty("__magFilter", _SE(js_gfx_GFXSampler_getMagFilter), nullptr);
-    cls->defineProperty("__addressU", _SE(js_gfx_GFXSampler_getAddressU), nullptr);
-    cls->defineProperty("__addressV", _SE(js_gfx_GFXSampler_getAddressV), nullptr);
-    cls->defineProperty("__addressW", _SE(js_gfx_GFXSampler_getAddressW), nullptr);
-    cls->defineProperty("__cmpFunc", _SE(js_gfx_GFXSampler_getCmpFunc), nullptr);
-    cls->defineProperty("__maxAnisotropy", _SE(js_gfx_GFXSampler_getMaxAnisotropy), nullptr);
-    cls->defineProperty("__mipLODBias", _SE(js_gfx_GFXSampler_getMipLODBias), nullptr);
-    cls->defineProperty("__device", _SE(js_gfx_GFXSampler_getDevice), nullptr);
-    cls->defineProperty("__minLOD", _SE(js_gfx_GFXSampler_getMinLOD), nullptr);
+    cls->defineProperty("borderColor", _SE(js_gfx_GFXSampler_getBorderColor), nullptr);
+    cls->defineProperty("mipFilter", _SE(js_gfx_GFXSampler_getMipFilter), nullptr);
+    cls->defineProperty("minFilter", _SE(js_gfx_GFXSampler_getMinFilter), nullptr);
+    cls->defineProperty("name", _SE(js_gfx_GFXSampler_getName), nullptr);
+    cls->defineProperty("maxLOD", _SE(js_gfx_GFXSampler_getMaxLOD), nullptr);
+    cls->defineProperty("magFilter", _SE(js_gfx_GFXSampler_getMagFilter), nullptr);
+    cls->defineProperty("addressU", _SE(js_gfx_GFXSampler_getAddressU), nullptr);
+    cls->defineProperty("addressV", _SE(js_gfx_GFXSampler_getAddressV), nullptr);
+    cls->defineProperty("addressW", _SE(js_gfx_GFXSampler_getAddressW), nullptr);
+    cls->defineProperty("cmpFunc", _SE(js_gfx_GFXSampler_getCmpFunc), nullptr);
+    cls->defineProperty("maxAnisotropy", _SE(js_gfx_GFXSampler_getMaxAnisotropy), nullptr);
+    cls->defineProperty("mipLODBias", _SE(js_gfx_GFXSampler_getMipLODBias), nullptr);
+    cls->defineProperty("device", _SE(js_gfx_GFXSampler_getDevice), nullptr);
+    cls->defineProperty("minLOD", _SE(js_gfx_GFXSampler_getMinLOD), nullptr);
     cls->defineFunction("initialize", _SE(js_gfx_GFXSampler_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_GFXSampler_destroy));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXSampler_finalize));
@@ -15748,12 +15748,12 @@ bool js_register_gfx_GFXShader(se::Object* obj)
 {
     auto cls = se::Class::create("GFXShader", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXShader_constructor));
 
-    cls->defineProperty("__blocks", _SE(js_gfx_GFXShader_getBlocks), nullptr);
-    cls->defineProperty("__name", _SE(js_gfx_GFXShader_getName), nullptr);
-    cls->defineProperty("__samplers", _SE(js_gfx_GFXShader_getSamplers), nullptr);
-    cls->defineProperty("__device", _SE(js_gfx_GFXShader_getDevice), nullptr);
-    cls->defineProperty("__hash", _SE(js_gfx_GFXShader_getHash), nullptr);
-    cls->defineProperty("__stages", _SE(js_gfx_GFXShader_getStages), nullptr);
+    cls->defineProperty("blocks", _SE(js_gfx_GFXShader_getBlocks), nullptr);
+    cls->defineProperty("name", _SE(js_gfx_GFXShader_getName), nullptr);
+    cls->defineProperty("samplers", _SE(js_gfx_GFXShader_getSamplers), nullptr);
+    cls->defineProperty("device", _SE(js_gfx_GFXShader_getDevice), nullptr);
+    cls->defineProperty("hash", _SE(js_gfx_GFXShader_getHash), nullptr);
+    cls->defineProperty("stages", _SE(js_gfx_GFXShader_getStages), nullptr);
     cls->defineFunction("initialize", _SE(js_gfx_GFXShader_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_GFXShader_destroy));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXShader_finalize));
@@ -16187,18 +16187,18 @@ bool js_register_gfx_GFXInputAssembler(se::Object* obj)
 {
     auto cls = se::Class::create("GFXInputAssembler", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXInputAssembler_constructor));
 
-    cls->defineProperty("__instanceCount", _SE(js_gfx_GFXInputAssembler_getInstanceCount), _SE(js_gfx_GFXInputAssembler_setInstanceCount));
-    cls->defineProperty("__vertexBuffers", _SE(js_gfx_GFXInputAssembler_getVertexBuffers), nullptr);
-    cls->defineProperty("__firstInstance", _SE(js_gfx_GFXInputAssembler_getFirstInstance), _SE(js_gfx_GFXInputAssembler_setFirstInstance));
-    cls->defineProperty("__vertexOffset", _SE(js_gfx_GFXInputAssembler_getVertexOffset), _SE(js_gfx_GFXInputAssembler_setVertexOffset));
-    cls->defineProperty("__vertexCount", _SE(js_gfx_GFXInputAssembler_getVertexCount), _SE(js_gfx_GFXInputAssembler_setVertexCount));
-    cls->defineProperty("__indexBuffer", _SE(js_gfx_GFXInputAssembler_getIndexBuffer), nullptr);
-    cls->defineProperty("__device", _SE(js_gfx_GFXInputAssembler_getDevice), nullptr);
-    cls->defineProperty("__attributes", _SE(js_gfx_GFXInputAssembler_getAttributes), nullptr);
-    cls->defineProperty("__indexCount", _SE(js_gfx_GFXInputAssembler_getIndexCount), _SE(js_gfx_GFXInputAssembler_setIndexCount));
-    cls->defineProperty("__firstIndex", _SE(js_gfx_GFXInputAssembler_getFirstIndex), _SE(js_gfx_GFXInputAssembler_setFirstIndex));
-    cls->defineProperty("__indirectBuffer", _SE(js_gfx_GFXInputAssembler_getIndirectBuffer), nullptr);
-    cls->defineProperty("__firstVertex", _SE(js_gfx_GFXInputAssembler_getFirstVertex), _SE(js_gfx_GFXInputAssembler_setFirstVertex));
+    cls->defineProperty("instanceCount", _SE(js_gfx_GFXInputAssembler_getInstanceCount), _SE(js_gfx_GFXInputAssembler_setInstanceCount));
+    cls->defineProperty("vertexBuffers", _SE(js_gfx_GFXInputAssembler_getVertexBuffers), nullptr);
+    cls->defineProperty("firstInstance", _SE(js_gfx_GFXInputAssembler_getFirstInstance), _SE(js_gfx_GFXInputAssembler_setFirstInstance));
+    cls->defineProperty("vertexOffset", _SE(js_gfx_GFXInputAssembler_getVertexOffset), _SE(js_gfx_GFXInputAssembler_setVertexOffset));
+    cls->defineProperty("vertexCount", _SE(js_gfx_GFXInputAssembler_getVertexCount), _SE(js_gfx_GFXInputAssembler_setVertexCount));
+    cls->defineProperty("indexBuffer", _SE(js_gfx_GFXInputAssembler_getIndexBuffer), nullptr);
+    cls->defineProperty("device", _SE(js_gfx_GFXInputAssembler_getDevice), nullptr);
+    cls->defineProperty("attributes", _SE(js_gfx_GFXInputAssembler_getAttributes), nullptr);
+    cls->defineProperty("indexCount", _SE(js_gfx_GFXInputAssembler_getIndexCount), _SE(js_gfx_GFXInputAssembler_setIndexCount));
+    cls->defineProperty("firstIndex", _SE(js_gfx_GFXInputAssembler_getFirstIndex), _SE(js_gfx_GFXInputAssembler_setFirstIndex));
+    cls->defineProperty("indirectBuffer", _SE(js_gfx_GFXInputAssembler_getIndirectBuffer), nullptr);
+    cls->defineProperty("firstVertex", _SE(js_gfx_GFXInputAssembler_getFirstVertex), _SE(js_gfx_GFXInputAssembler_setFirstVertex));
     cls->defineFunction("destroy", _SE(js_gfx_GFXInputAssembler_destroy));
     cls->defineFunction("initialize", _SE(js_gfx_GFXInputAssembler_initialize));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXInputAssembler_finalize));
@@ -16355,10 +16355,10 @@ bool js_register_gfx_GFXRenderPass(se::Object* obj)
 {
     auto cls = se::Class::create("GFXRenderPass", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXRenderPass_constructor));
 
-    cls->defineProperty("__device", _SE(js_gfx_GFXRenderPass_getDevice), nullptr);
-    cls->defineProperty("__colorAttachments", _SE(js_gfx_GFXRenderPass_getColorAttachments), nullptr);
-    cls->defineProperty("__depthStencilAttachment", _SE(js_gfx_GFXRenderPass_getDepthStencilAttachment), nullptr);
-    cls->defineProperty("__subPasses", _SE(js_gfx_GFXRenderPass_getSubPasses), nullptr);
+    cls->defineProperty("device", _SE(js_gfx_GFXRenderPass_getDevice), nullptr);
+    cls->defineProperty("colorAttachments", _SE(js_gfx_GFXRenderPass_getColorAttachments), nullptr);
+    cls->defineProperty("depthStencilAttachment", _SE(js_gfx_GFXRenderPass_getDepthStencilAttachment), nullptr);
+    cls->defineProperty("subPasses", _SE(js_gfx_GFXRenderPass_getSubPasses), nullptr);
     cls->defineFunction("initialize", _SE(js_gfx_GFXRenderPass_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_GFXRenderPass_destroy));
     cls->defineFinalizeFunction(_SE(js_cocos2d_GFXRenderPass_finalize));
@@ -16736,8 +16736,8 @@ bool js_register_gfx_GFXBindingLayout(se::Object* obj)
 {
     auto cls = se::Class::create("GFXBindingLayout", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXBindingLayout_constructor));
 
-    cls->defineProperty("__device", _SE(js_gfx_GFXBindingLayout_getDevice), nullptr);
-    cls->defineProperty("__bindingUnits", _SE(js_gfx_GFXBindingLayout_getBindingUnits), nullptr);
+    cls->defineProperty("device", _SE(js_gfx_GFXBindingLayout_getDevice), nullptr);
+    cls->defineProperty("bindingUnits", _SE(js_gfx_GFXBindingLayout_getBindingUnits), nullptr);
     cls->defineFunction("bindTextureView", _SE(js_gfx_GFXBindingLayout_bindTextureView));
     cls->defineFunction("bindBuffer", _SE(js_gfx_GFXBindingLayout_bindBuffer));
     cls->defineFunction("bindSampler", _SE(js_gfx_GFXBindingLayout_bindSampler));
@@ -16880,7 +16880,7 @@ bool js_register_gfx_GFXPipelineLayout(se::Object* obj)
 {
     auto cls = se::Class::create("GFXPipelineLayout", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXPipelineLayout_constructor));
 
-    cls->defineProperty("__device", _SE(js_gfx_GFXPipelineLayout_getDevice), nullptr);
+    cls->defineProperty("device", _SE(js_gfx_GFXPipelineLayout_getDevice), nullptr);
     cls->defineFunction("getLayouts", _SE(js_gfx_GFXPipelineLayout_getLayouts));
     cls->defineFunction("initialize", _SE(js_gfx_GFXPipelineLayout_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_GFXPipelineLayout_destroy));
@@ -17147,15 +17147,15 @@ bool js_register_gfx_GFXPipelineState(se::Object* obj)
 {
     auto cls = se::Class::create("GFXPipelineState", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXPipelineState_constructor));
 
-    cls->defineProperty("__primitive", _SE(js_gfx_GFXPipelineState_getPrimitive), nullptr);
-    cls->defineProperty("__rasterizerState", _SE(js_gfx_GFXPipelineState_getRasterizerState), nullptr);
-    cls->defineProperty("__shader", _SE(js_gfx_GFXPipelineState_getShader), nullptr);
-    cls->defineProperty("__blendState", _SE(js_gfx_GFXPipelineState_getBlendState), nullptr);
-    cls->defineProperty("__pipelineLayout", _SE(js_gfx_GFXPipelineState_getPipelineLayout), nullptr);
-    cls->defineProperty("__renderPass", _SE(js_gfx_GFXPipelineState_getRenderPass), nullptr);
-    cls->defineProperty("__device", _SE(js_gfx_GFXPipelineState_getDevice), nullptr);
-    cls->defineProperty("__inputState", _SE(js_gfx_GFXPipelineState_getInputState), nullptr);
-    cls->defineProperty("__depthStencilState", _SE(js_gfx_GFXPipelineState_getDepthStencilState), nullptr);
+    cls->defineProperty("primitive", _SE(js_gfx_GFXPipelineState_getPrimitive), nullptr);
+    cls->defineProperty("rasterizerState", _SE(js_gfx_GFXPipelineState_getRasterizerState), nullptr);
+    cls->defineProperty("shader", _SE(js_gfx_GFXPipelineState_getShader), nullptr);
+    cls->defineProperty("blendState", _SE(js_gfx_GFXPipelineState_getBlendState), nullptr);
+    cls->defineProperty("pipelineLayout", _SE(js_gfx_GFXPipelineState_getPipelineLayout), nullptr);
+    cls->defineProperty("renderPass", _SE(js_gfx_GFXPipelineState_getRenderPass), nullptr);
+    cls->defineProperty("device", _SE(js_gfx_GFXPipelineState_getDevice), nullptr);
+    cls->defineProperty("inputState", _SE(js_gfx_GFXPipelineState_getInputState), nullptr);
+    cls->defineProperty("depthStencilState", _SE(js_gfx_GFXPipelineState_getDepthStencilState), nullptr);
     cls->defineFunction("initialize", _SE(js_gfx_GFXPipelineState_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_GFXPipelineState_destroy));
     cls->defineFunction("getDynamicStates", _SE(js_gfx_GFXPipelineState_getDynamicStates));
@@ -17827,12 +17827,12 @@ bool js_register_gfx_GFXCommandBuffer(se::Object* obj)
 {
     auto cls = se::Class::create("GFXCommandBuffer", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXCommandBuffer_constructor));
 
-    cls->defineProperty("__numInstances", _SE(js_gfx_GFXCommandBuffer_getNumInstances), nullptr);
-    cls->defineProperty("__numDrawCalls", _SE(js_gfx_GFXCommandBuffer_getNumDrawCalls), nullptr);
-    cls->defineProperty("__numTris", _SE(js_gfx_GFXCommandBuffer_getNumTris), nullptr);
-    cls->defineProperty("__device", _SE(js_gfx_GFXCommandBuffer_getDevice), nullptr);
-    cls->defineProperty("__type", _SE(js_gfx_GFXCommandBuffer_getType), nullptr);
-    cls->defineProperty("__allocator", _SE(js_gfx_GFXCommandBuffer_getAllocator), nullptr);
+    cls->defineProperty("numInstances", _SE(js_gfx_GFXCommandBuffer_getNumInstances), nullptr);
+    cls->defineProperty("numDrawCalls", _SE(js_gfx_GFXCommandBuffer_getNumDrawCalls), nullptr);
+    cls->defineProperty("numTris", _SE(js_gfx_GFXCommandBuffer_getNumTris), nullptr);
+    cls->defineProperty("device", _SE(js_gfx_GFXCommandBuffer_getDevice), nullptr);
+    cls->defineProperty("type", _SE(js_gfx_GFXCommandBuffer_getType), nullptr);
+    cls->defineProperty("allocator", _SE(js_gfx_GFXCommandBuffer_getAllocator), nullptr);
     cls->defineFunction("draw", _SE(js_gfx_GFXCommandBuffer_draw));
     cls->defineFunction("setBlendConstants", _SE(js_gfx_GFXCommandBuffer_setBlendConstants));
     cls->defineFunction("setDepthBound", _SE(js_gfx_GFXCommandBuffer_setDepthBound));
@@ -17990,8 +17990,8 @@ bool js_register_gfx_GFXQueue(se::Object* obj)
 {
     auto cls = se::Class::create("GFXQueue", obj, __jsb_cocos2d_GFXObject_proto, _SE(js_gfx_GFXQueue_constructor));
 
-    cls->defineProperty("__device", _SE(js_gfx_GFXQueue_getDevice), nullptr);
-    cls->defineProperty("__type", _SE(js_gfx_GFXQueue_getType), nullptr);
+    cls->defineProperty("device", _SE(js_gfx_GFXQueue_getDevice), nullptr);
+    cls->defineProperty("type", _SE(js_gfx_GFXQueue_getType), nullptr);
     cls->defineFunction("submit", _SE(js_gfx_GFXQueue_submit));
     cls->defineFunction("initialize", _SE(js_gfx_GFXQueue_initialize));
     cls->defineFunction("destroy", _SE(js_gfx_GFXQueue_destroy));

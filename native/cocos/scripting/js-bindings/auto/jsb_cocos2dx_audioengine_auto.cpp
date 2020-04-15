@@ -130,9 +130,9 @@ bool js_register_audioengine_AudioProfile(se::Object* obj)
 {
     auto cls = se::Class::create("AudioProfile", obj, nullptr, _SE(js_audioengine_AudioProfile_constructor));
 
-    cls->defineProperty("__name", _SE(js_audioengine_AudioProfile_get_name), _SE(js_audioengine_AudioProfile_set_name));
-    cls->defineProperty("__maxInstances", _SE(js_audioengine_AudioProfile_get_maxInstances), _SE(js_audioengine_AudioProfile_set_maxInstances));
-    cls->defineProperty("__minDelay", _SE(js_audioengine_AudioProfile_get_minDelay), _SE(js_audioengine_AudioProfile_set_minDelay));
+    cls->defineProperty("name", _SE(js_audioengine_AudioProfile_get_name), _SE(js_audioengine_AudioProfile_set_name));
+    cls->defineProperty("maxInstances", _SE(js_audioengine_AudioProfile_get_maxInstances), _SE(js_audioengine_AudioProfile_set_maxInstances));
+    cls->defineProperty("minDelay", _SE(js_audioengine_AudioProfile_get_minDelay), _SE(js_audioengine_AudioProfile_set_minDelay));
     cls->defineFinalizeFunction(_SE(js_cocos2d_AudioProfile_finalize));
     cls->install();
     JSBClassType::registerClass<cocos2d::AudioProfile>(cls);
