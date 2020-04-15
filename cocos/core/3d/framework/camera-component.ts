@@ -43,6 +43,7 @@ import { SKYBOX_FLAG, CameraProjection, CameraFOVAxis, CameraAperture, CameraISO
 import { Root } from '../../root';
 import { Layers, Node, Scene } from '../../scene-graph';
 import { Enum } from '../../value-types';
+import { TransformBit } from '../../scene-graph/node-enum';
 
 const _temp_vec3_1 = new Vec3();
 
@@ -488,6 +489,7 @@ export class CameraComponent extends Component {
     }
 
     public onEnable () {
+        this.node.hasChangedFlags = TransformBit.POSITION; // trigger camera matrix update
         if (this._camera) {
             this._attachToScene();
             return;
