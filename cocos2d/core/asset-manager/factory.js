@@ -87,7 +87,7 @@ const factory = {
 
     register (type, handler) {
         if (typeof type === 'object') {
-            js.mixin(producers, type);
+            cc.js.mixin(producers, type);
         }
         else {
             producers[type] = handler;
