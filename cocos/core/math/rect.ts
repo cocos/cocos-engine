@@ -198,11 +198,11 @@ export class Rect extends ValueType {
     }
 
     /**
-     * @en The X and Y position of the rectangle.
+     * @en Returns a new {{Vec2}} object representing the position of the rectangle
      * @zh 获取或设置矩形的 x 和 y 坐标。
      */
     get origin () {
-        return new cc.Vec2(this.x, this.y);
+        return new Vec2(this.x, this.y);
     }
 
     set origin (value) {
@@ -211,7 +211,7 @@ export class Rect extends ValueType {
     }
 
     /**
-     * @en Width and height of the rectangle.
+     * @en Returns a new {{Size}} object represents the width and height of the rectangle
      * @zh 获取或设置矩形的尺寸。
      */
     get size () {
@@ -254,14 +254,14 @@ export class Rect extends ValueType {
     public declare height: number;
 
     /**
-     * @en Constructor a Rect from another one.
+     * @en Constructs a Rect from another one.
      * @zh 构造与指定矩形相等的矩形。
      * @param other 相比较的矩形。
      */
     constructor (other: Rect);
 
     /**
-     * @en Constructor a Rect with specified values.
+     * @en Constructs a Rect with specified values.
      * @zh 构造具有指定的最小值和尺寸的矩形。
      * @param x 矩形在 x 轴上的最小值。
      * @param y 矩形在 y 轴上的最小值。
@@ -450,7 +450,7 @@ CCClass.fastDefine('cc.Rect', Rect, { x: 0, y: 0, width: 0, height: 0 });
 cc.Rect = Rect;
 
 /**
- * @en The convenience method to create a new Rect.
+ * @en The convenient method to create a new Rect.
  * @zh 构造与指定矩形相等的矩形。等价于 `new Rect(rect)`。
  * @param rect 相比较的矩形。
  * @returns `new Rect(rect)`
@@ -458,7 +458,7 @@ cc.Rect = Rect;
 export function rect (rect: Rect): Rect;
 
 /**
- * @en The convenience method to create a new Rect.
+ * @en The convenient method to create a new Rect.
  * @zh 构造具有指定的最小值和尺寸的矩形，等价于`new Rect(x, y, width, height)`。
  * @param x 矩形在 x 轴上的最小值。
  * @param y 矩形在 y 轴上的最小值。

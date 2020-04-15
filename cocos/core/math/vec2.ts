@@ -49,7 +49,7 @@ export class Vec2 extends ValueType {
     public static UNIT_Y = Object.freeze(new Vec2(0, 1));
 
     /**
-     * @en Obtaining copy vectors designated
+     * @en Obtains a clone of the given vector object
      * @zh 获得指定向量的拷贝
      */
     public static clone <Out extends IVec2Like> (a: Out) {
@@ -67,7 +67,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Set to value
+     * @en Sets the out vector with the given x and y values
      * @zh 设置向量值
      */
     public static set <Out extends IVec2Like> (out: Out, x: number, y: number) {
@@ -117,7 +117,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Rounding up by elements of the vector
+     * @en Rounds up by elements of the vector
      * @zh 逐元素向量向上取整
      */
     public static ceil <Out extends IVec2Like> (out: Out, a: Out) {
@@ -137,7 +137,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en The minimum by-element vector
+     * @en The minimum value of all elements in the vector
      * @zh 逐元素向量最小值
      */
     public static min <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
@@ -147,7 +147,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en The maximum value of the element-wise vector
+     * @en The maximum value of all elements in the vector
      * @zh 逐元素向量最大值
      */
     public static max <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
@@ -157,7 +157,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Element-wise vector of rounding to whole
+     * @en Rounds all elements in the vector to integer
      * @zh 逐元素向量四舍五入取整
      */
     public static round <Out extends IVec2Like> (out: Out, a: Out) {
@@ -177,7 +177,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Element-wise vector multiply add: A + B * scale
+     * @en Element-wise multiplication and addition with the equation: a + b * scale
      * @zh 逐元素向量乘加: A + B * scale
      */
     public static scaleAndAdd <Out extends IVec2Like> (out: Out, a: Out, b: Out, scale: number) {
@@ -187,7 +187,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Seeking two vectors Euclidean distance
+     * @en Calculates the euclidean distance of two vectors
      * @zh 求两向量的欧氏距离
      */
     public static distance <Out extends IVec2Like> (a: Out, b: Out) {
@@ -197,7 +197,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Euclidean distance squared seeking two vectors
+     * @en Calculates the squared euclidean distance of two vectors
      * @zh 求两向量的欧氏距离平方
      */
     public static squaredDistance <Out extends IVec2Like> (a: Out, b: Out) {
@@ -207,7 +207,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Seeking vector length
+     * @en Calculates the length of the vector
      * @zh 求向量长度
      */
     public static len <Out extends IVec2Like> (a: Out) {
@@ -217,7 +217,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Seeking squared vector length
+     * @en Calculates the squared length of the vector
      * @zh 求向量长度平方
      */
     public static lengthSqr <Out extends IVec2Like> (a: Out) {
@@ -227,7 +227,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en By taking the negative elements of the vector
+     * @en Sets each element to its negative value
      * @zh 逐元素向量取负
      */
     public static negate <Out extends IVec2Like> (out: Out, a: Out) {
@@ -237,7 +237,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Element vector by taking the inverse, return near 0 Infinity
+     * @en Sets each element to its inverse value, zero value will become Infinity
      * @zh 逐元素向量取倒数，接近 0 时返回 Infinity
      */
     public static inverse <Out extends IVec2Like> (out: Out, a: Out) {
@@ -247,7 +247,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Element vector by taking the inverse, return 0 near 0
+     * @en Sets each element to its inverse value, zero value will remain zero
      * @zh 逐元素向量取倒数，接近 0 时返回 0
      */
     public static inverseSafe <Out extends IVec2Like> (out: Out, a: Out) {
@@ -270,7 +270,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Normalized vector
+     * @en Sets the normalized vector to the out vector
      * @zh 归一化向量
      */
     public static normalize <Out extends IVec2Like, Vec2Like extends IVec2Like> (out: Out, a: Vec2Like) {
@@ -286,7 +286,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Vector dot product (scalar product)
+     * @en Calculates the dot product of the vector
      * @zh 向量点积（数量积）
      */
     public static dot <Out extends IVec2Like> (a: Out, b: Out) {
@@ -294,7 +294,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Vector cross product (vector product)
+     * @en Calculates the cross product of the vector
      * @zh 向量叉积（向量积），注意二维向量的叉积为与 Z 轴平行的三维向量
      */
     public static cross <Out extends IVec2Like> (out: Vec3, a: Out, b: Out) {
@@ -304,7 +304,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Vector element by element linear interpolation: A + t * (B - A)
+     * @en Calculates the linear interpolation between two vectors with a given ratio
      * @zh 逐元素向量线性插值： A + t * (B - A)
      */
     public static lerp <Out extends IVec2Like> (out: Out, a: Out, b: Out, t: number) {
@@ -316,7 +316,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Generates a uniformly distributed random vectors on the unit sphere
+     * @en Generates a uniformly distributed random vector points from center to the surface of the unit sphere
      * @zh 生成一个在单位圆上均匀分布的随机向量
      * @param scale 生成的向量长度
      */
@@ -329,7 +329,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en vector and matrix multiplication, the default vectors third one.
+     * @en Vector and third order matrix multiplication, will complete the vector with a third value as one
      * @zh 向量与三维矩阵乘法，默认向量第三位为 1。
      */
     public static transformMat3 <Out extends IVec2Like, MatLike extends IMat3Like> (out: Out, a: Out, m: IMat3Like) {
@@ -341,7 +341,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en vector and matrix multiplication, vector third default is 0, vector fourth default is 1.
+     * @en Vector and third order matrix multiplication, will complete the vector with a third and a fourth element as one
      * @zh 向量与四维矩阵乘法，默认向量第三位为 0，第四位为 1。
      */
     public static transformMat4 <Out extends IVec2Like, MatLike extends IMat4Like> (out: Out, a: Out, m: IMat4Like) {
@@ -353,7 +353,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Transform to string with vector informations.
+     * @en Gets the string representation of the given vector
      * @zh 返回向量的字符串表示
      */
     public static str <Out extends IVec2Like> (a: Out) {
@@ -361,7 +361,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Vector transfer array
+     * @en Converts the given vector to an array
      * @zh 向量转数组
      * @param ofs 数组起始偏移量
      */
@@ -372,7 +372,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Array steering amount
+     * @en Converts the given array to a vector
      * @zh 数组转向量
      * @param ofs 数组起始偏移量
      */
@@ -383,7 +383,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Equivalent vectors Analyzing
+     * @en Check the equality of the two given vectors
      * @zh 向量等价判断
      */
     public static strictEquals <Out extends IVec2Like> (a: Out, b: Out) {
@@ -391,7 +391,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Negative error vector floating point approximately equivalent Analyzing
+     * @en Check whether the two given vectors are approximately equivalent
      * @zh 排除浮点数误差的向量近似等价判断
      */
     public static equals <Out extends IVec2Like> (a: Out, b: Out,  epsilon = EPSILON) {
@@ -404,7 +404,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Radian angle between two vectors seek
+     * @en Calculates the radian angle between two vectors
      * @zh 求两向量夹角弧度
      */
     public static angle <Out extends IVec2Like> (a: Out, b: Out) {
@@ -448,7 +448,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en clone a Vec3 value
+     * @en clone a Vec2 value
      * @zh 克隆当前向量。
      */
     public clone () {
@@ -484,7 +484,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Check whether the vector equals another one.
+     * @en Check whether the vector approximately equals another one.
      * @zh 判断当前向量是否在误差范围内与指定向量相等。
      * @param other 相比较的向量。
      * @param epsilon 允许的误差，应为非负数。
@@ -500,7 +500,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Check whether the vector equals another one
+     * @en Check whether the vector approximately equals another one.
      * @zh 判断当前向量是否在误差范围内与指定分量的向量相等。
      * @param x 相比较的向量的 x 分量。
      * @param y 相比较的向量的 y 分量。
@@ -517,7 +517,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Check whether strict equals other Vec2.
+     * @en Check whether the current vector strictly equals another Vec2.
      * @zh 判断当前向量是否与指定向量相等。
      * @param other 相比较的向量。
      * @return 两向量的各分量都分别相等时返回 `true`；否则返回 `false`。
@@ -527,7 +527,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Check whether strict equals other Vec2.
+     * @en Check whether the current vector strictly equals another Vec2.
      * @zh 判断当前向量是否与指定分量的向量相等。
      * @param x 指定向量的 x 分量。
      * @param y 指定向量的 y 分量。
@@ -574,7 +574,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Adds this vector and returns this.
+     * @en Adds the current vector with another one and return this
      * @zh 向量加法。将当前向量与指定向量的相加
      * @param other 指定的向量。
      */
@@ -585,7 +585,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Adds this vector and returns this.
+     * @en Adds the current vector with another one and return this
      * @zh 向量加法。将当前向量与指定分量的向量相加
      * @param x 指定的向量的 x 分量。
      * @param y 指定的向量的 y 分量。
@@ -620,7 +620,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Multiplies this by a number.
+     * @en Multiplies the current vector with a number, and returns this.
      * @zh 向量数乘。将当前向量数乘指定标量
      * @param scalar 标量乘数。
      */
@@ -632,7 +632,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Multiplies two vectors, and returns this.
+     * @en Multiplies the current vector with another one and return this
      * @zh 向量乘法。将当前向量乘以与指定向量的结果赋值给当前向量。
      * @param other 指定的向量。
      */
@@ -667,7 +667,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Divides this vectors element by element, and return this.
+     * @en Element-wisely divides this vector with another one, and return this.
      * @zh 向量逐元素相除。将当前向量与指定分量的向量相除的结果赋值给当前向量。
      * @param x 指定的向量的 x 分量。
      * @param y 指定的向量的 y 分量。
@@ -679,7 +679,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Negates the components.
+     * @en Sets each component of this vector with its negative value
      * @zh 将当前向量的各个分量取反
      */
     public negative () {
@@ -689,7 +689,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Dot product.
+     * @en Calculates the dot product with another vector
      * @zh 向量点乘。
      * @param other 指定的向量。
      * @return 当前向量与指定向量点乘的结果。
@@ -699,7 +699,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Cross product.
+     * @en Calculates the cross product with another vector.
      * @zh 向量叉乘。
      * @param other 指定的向量。
      * @return `out`
@@ -727,7 +727,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Make the length of this vector to 1.
+     * @en Normalize the current vector.
      * @zh 将当前向量归一化。
      */
     public normalize () {
@@ -743,7 +743,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Radian angle between two vectors seek
+     * @en Calculates radian angle between two vectors
      * @zh 获取当前向量和指定向量之间的角度。
      * @param other 指定的向量。
      * @return 当前向量和指定向量之间的角度（弧度制）；若当前向量和指定向量中存在零向量，将返回 0。
@@ -776,7 +776,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en rotate
+     * @en Rotates the current vector by an angle in radian value
      * @zh 将当前向量的旋转
      * @param radians 旋转角度（弧度制）。
      */
@@ -792,7 +792,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Projection vector calculated in the vector designated
+     * @en Projects the current vector on another one
      * @zh 计算当前向量在指定向量上的投影向量。
      * @param other 指定的向量。
      */

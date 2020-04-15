@@ -33,7 +33,7 @@ import { ValueType } from '../value-types/value-type';
 import { ISizeLike } from './type-define';
 
 /**
- * @en Size
+ * @en Two dimensional size type representing the width and height.
  * @zh 二维尺寸。
  */
 export class Size extends ValueType {
@@ -62,16 +62,8 @@ export class Size extends ValueType {
     set y (val) { this.height = val; }
     get y () { return this.height; }
 
-    /**
-     * @en width
-     * @zh 宽度
-     */
     public declare width: number;
 
-    /**
-     * @en height
-     * @zh 高度
-     */
     public declare height: number;
 
     /**
