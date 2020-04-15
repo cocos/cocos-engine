@@ -151,6 +151,13 @@ export class SplashScreenWebgl {
             this._directCall = true;
             return;
         } else {
+            cc.view.enableRetina(true);            
+            const designRes = window._CCSettings.designResolution;
+            if (designRes) {
+                cc.view.setDesignResolutionSize(designRes.width, designRes.height, designRes.policy);
+            } else {
+                cc.view.setDesignResolutionSize(960, 640, 4);
+            }
 
             let useWebGL2 = (!!window.WebGL2RenderingContext);
             const userAgent = window.navigator.userAgent.toLowerCase();
