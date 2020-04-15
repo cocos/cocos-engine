@@ -859,10 +859,10 @@ export default class Quat extends ValueType {
         super();
 
         if (x && typeof x === 'object') {
-            this.z = x.z;
-            this.y = x.y;
-            this.w = x.w;
             this.x = x.x;
+            this.y = x.y;
+            this.z = x.z;
+            this.w = x.w;
         }
         else {
             this.x = x as number;
