@@ -36,6 +36,7 @@ import { CanvasPool, ISharedLabelData } from './font-utils';
 import { LetterRenderTexture } from './letter-font';
 import { loader } from '../../../core/load-pipeline';
 import { logID } from '../../../core/platform/debug';
+import { RUNTIME_BASED, MINIGAME } from 'internal:constants';
 
 const Overflow = LabelComponent.Overflow;
 const WHITE = Color.WHITE.clone();
@@ -197,6 +198,9 @@ export const ttfUtils =  {
 
         if (_vAlign === VerticalTextAlignment.TOP) {
             firstLinelabelY = _fontSize * (BASELINE_RATIO / 2);
+            if (RUNTIME_BASED || MINIGAME) {
+                firstLinelabelY = 0;
+            }
         }
         else if (_vAlign === VerticalTextAlignment.CENTER) {
             firstLinelabelY = _canvasSize.height / 2 - lineHeight * (lineCount - 1) / 2;
