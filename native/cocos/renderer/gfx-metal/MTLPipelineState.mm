@@ -420,13 +420,10 @@ void CCMTLPipelineState::bindTextureAndSampler(MTLArgument* argument, bool isVer
     {
         for (const auto& bindingUnit : bindingLayout->getBindingUnits() )
         {
-            if (bindingUnit.sampler)
-            {
-                if (bindingUnit.name.compare(argumentName) == 0)
-                    bindTexture(argument, bindingUnit.binding, isVertex);
-                if (CCMTLPipelineState::matchSamplerName(argumentName, bindingUnit.name) )
-                    bindSamplerState(argument, bindingUnit.binding, isVertex);
-            }
+            if (bindingUnit.name.compare(argumentName) == 0)
+                bindTexture(argument, bindingUnit.binding, isVertex);
+            if (CCMTLPipelineState::matchSamplerName(argumentName, bindingUnit.name) )
+                bindSamplerState(argument, bindingUnit.binding, isVertex);
         }
     }
 }
@@ -473,19 +470,19 @@ void CCMTLPipelineState::bindSamplerState(MTLArgument* argument, uint originBind
     {
         for (const auto& bindingUnit : bindingLayout->getBindingUnits() )
         {
-            if (bindingUnit.sampler && bindingUnit.binding == originBinding)
+            if (bindingUnit.binding == originBinding)
             {
                 if (isVertex)
                 {
                     _vertexSamplerStates.push_back({(uint)argument.index,
                                                     originBinding,
-                                                    static_cast<CCMTLSampler*>(bindingUnit.sampler)->getMTLSamplerState()});
+                                                    bindingUnit.sampler ? static_cast<CCMTLSampler*>(bindingUnit.sampler)->getMTLSamplerState() : nullptr});
                 }
                 else
                 {
                     _fragmentSamplerStates.push_back({(uint)argument.index,
                                                       originBinding,
-                                                      static_cast<CCMTLSampler*>(bindingUnit.sampler)->getMTLSamplerState()});
+                                                      bindingUnit.sampler ? static_cast<CCMTLSampler*>(bindingUnit.sampler)->getMTLSamplerState() : nullptr});
                 }
             }
         }
