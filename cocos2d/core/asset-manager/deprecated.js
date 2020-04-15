@@ -485,6 +485,7 @@ const loader = {
      */
     releaseAll () {
         cc.assetManager.releaseAll();
+        cc.assetManager.assets.clear();
     },
 
     /**
