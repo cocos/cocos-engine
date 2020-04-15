@@ -50,6 +50,11 @@ function build_android()
     sed -i "s@\${COCOS_X_ROOT}@$COCOS2DX_ROOT@g" app/build.gradle
     sed -i "s@\${COCOS_X_ROOT}@$COCOS2DX_ROOT@g" settings.gradle
     sed -i "s/^RELEASE_/#RELEASE_/g" gradle.properties
+
+    #echo "Compile Android - ndk-build ..."
+    #./gradlew assembleDebug --quiet
+    
+    echo "Compile Android - cmake ..."
     echo "PROP_USE_CMAKE = true" >> gradle.properties 
     echo "ANDORID_NDK ${ANDROID_NDK} or ${ANDROID_NDK_HOME}" 
     ./gradlew assembleDebug --quiet
@@ -85,32 +90,51 @@ function mac_download_cmake()
 
 function build_macosx()
 {
-    
+    NUM_OF_CORES=`getconf _NPROCESSORS_ONLN`
+
+    echo "Compile build/cocos2d_libs.xcodeproj ..."
+    cd $COCOS2DX_ROOT/build
+    xcodebuild -project cocos2d_libs.xcodeproj -target "libcocos2d Mac" -jobs $NUM_OF_CORES -quiet build 
+
     echo "Compiling MacOSX ... "
     cd  $COCOS2DX_ROOT/templates/js-template-link/frameworks/runtime-src
     mkdir build-mac 
     cd build-mac
     cmake .. -GXcode -DCOCOS_X_ROOT=$COCOS2DX_ROOT
-    cmake --build . --config Release -- -quiet
+    cmake --build . --config Release -- -quiet -jobs $NUM_OF_CORES
     echo "Compile MacOSX Done!"
 }
 
 function build_ios()
 {
-    
+    NUM_OF_CORES=`getconf _NPROCESSORS_ONLN`
+
+    echo "Compile build/cocos2d_libs.xcodeproj ..."
+    cd $COCOS2DX_ROOT/build
+    xcodebuild -project cocos2d_libs.xcodeproj -target "libcocos2d iOS" -jobs $NUM_OF_CORES -quiet build 
+
     echo "Compiling iOS ... "
     cd  $COCOS2DX_ROOT/templates/js-template-link/frameworks/runtime-src
     mkdir build-ios 
     cd build-ios
     cmake .. -GXcode -DCOCOS_X_ROOT=$COCOS2DX_ROOT -DCMAKE_SYSTEM_NAME=iOS \
         -DCMAKE_OSX_SYSROOT=iphonesimulator \
-        -DCMAKE_CXX_FLAGS="-DSCRIPT_ENGINE_TYPE=3"
-    cmake --build . --config Debug -- -quiet
+        -DUSE_SE_JSC=ON
+    cmake --build . --config Debug -- -quiet -jobs $NUM_OF_CORES
     echo "Compile iOS Done!"
 }
 
 function build_windows()
 {
+    echo "Compile build/libcocos2d.vcxproj ..."
+
+    if ! [ -x "$(command -v MSBuild)" ]; then
+        echo 'Error: MSBuild is not located!' 
+    else
+        cd $COCOS2DX_ROOT/build
+        MSBuild /nologo /t:Build libcocos2d.vcxproj
+    fi
+
     echo "Compiling Win32 ... "
     cd  $COCOS2DX_ROOT/templates/js-template-link/frameworks/runtime-src
     mkdir build-win32 
@@ -135,7 +159,7 @@ function run_compile()
 
     if [ "$BUILD_TARGET" == "ios_cmake" ]; then
         mac_download_cmake
-        build_macosx
+        build_ios
     fi
 
     if [ "$BUILD_TARGET" == "windows_cmake" ]; then

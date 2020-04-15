@@ -39,14 +39,23 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 ################################# options ############################################
 
+set(CC_USE_METAL OFF)
+set(CC_USE_GLES3 ON)
+set(CC_USE_GLES2 OFF)
+
 if(ANDROID) 
-    set(CC_USE_GLES3 ON)
     set(CC_USE_GLES2 ON)
 else()
-    set(CC_USE_GLES2 OFF)
-    set(CC_USE_GLES3 ON)
+    if(MACOSX)
+        set(CC_USE_METAL ON)
+        set(CC_USE_GLES3 OFF)
+    endif()
 endif()
 
+if(USE_SE_JSC)
+    set(USE_SE_V8 OFF)
+    set(USE_V8_DEBUGGER OFF)
+endif()
 
 ################################# external source code ################################
 
@@ -601,6 +610,53 @@ if(CC_USE_GLES3)
     endif()
 endif()
 
+
+if(CC_USE_METAL)
+    cocos_source_files(
+        cocos/renderer/gfx-metal/GFXMTL.h
+        cocos/renderer/gfx-metal/MTLBindingLayout.cpp
+        cocos/renderer/gfx-metal/MTLBindingLayout.h
+        cocos/renderer/gfx-metal/MTLBuffer.h
+        cocos/renderer/gfx-metal/MTLBuffer.mm
+        cocos/renderer/gfx-metal/MTLCommandAllocator.h
+        cocos/renderer/gfx-metal/MTLCommandAllocator.mm
+        cocos/renderer/gfx-metal/MTLCommandBuffer.h
+        cocos/renderer/gfx-metal/MTLCommandBuffer.mm
+        cocos/renderer/gfx-metal/MTLCommands.h
+        cocos/renderer/gfx-metal/MTLCommands.mm
+        cocos/renderer/gfx-metal/MTLDevice.h
+        cocos/renderer/gfx-metal/MTLDevice.mm
+        cocos/renderer/gfx-metal/MTLFrameBuffer.cpp
+        cocos/renderer/gfx-metal/MTLFrameBuffer.h
+        cocos/renderer/gfx-metal/MTLGPUObjects.h
+        cocos/renderer/gfx-metal/MTLInputAssembler.h
+        cocos/renderer/gfx-metal/MTLInputAssembler.mm
+        cocos/renderer/gfx-metal/MTLPipelineLayout.cpp
+        cocos/renderer/gfx-metal/MTLPipelineLayout.h
+        cocos/renderer/gfx-metal/MTLPipelineState.h
+        cocos/renderer/gfx-metal/MTLPipelineState.mm
+        cocos/renderer/gfx-metal/MTLQueue.h
+        cocos/renderer/gfx-metal/MTLQueue.mm
+        cocos/renderer/gfx-metal/MTLRenderPass.h
+        cocos/renderer/gfx-metal/MTLRenderPass.mm
+        cocos/renderer/gfx-metal/MTLSampler.h
+        cocos/renderer/gfx-metal/MTLSampler.mm
+        cocos/renderer/gfx-metal/MTLShader.h
+        cocos/renderer/gfx-metal/MTLShader.mm
+        cocos/renderer/gfx-metal/MTLStateCache.h
+        cocos/renderer/gfx-metal/MTLStd.cpp
+        cocos/renderer/gfx-metal/MTLStd.h
+        cocos/renderer/gfx-metal/MTLTexture.h
+        cocos/renderer/gfx-metal/MTLTexture.mm
+        cocos/renderer/gfx-metal/MTLTextureView.h
+        cocos/renderer/gfx-metal/MTLTextureView.mm
+        cocos/renderer/gfx-metal/MTLUtils.h
+        cocos/renderer/gfx-metal/MTLUtils.mm
+        cocos/renderer/gfx-metal/MTLWindow.h
+        cocos/renderer/gfx-metal/MTLWindow.mm
+    )
+endif()
+
 ##### script bindings
 ######## auto
 cocos_source_files(
@@ -619,6 +675,7 @@ cocos_source_files(
     cocos/scripting/js-bindings/auto/jsb_webview_auto.cpp
     cocos/scripting/js-bindings/auto/jsb_webview_auto.hpp
 )
+
 ######## manual
 cocos_source_files(
     cocos/scripting/js-bindings/manual/jsb_classtype.cpp
@@ -672,10 +729,18 @@ if(CC_USE_GLES2)
         cocos/scripting/js-bindings/auto/jsb_gles2_auto.cpp
     )
 endif()
+
 if(CC_USE_GLES3)
     cocos_source_files(
         cocos/scripting/js-bindings/auto/jsb_gles3_auto.hpp
         cocos/scripting/js-bindings/auto/jsb_gles3_auto.cpp
+    )
+endif()
+
+if(CC_USE_METAL)
+    cocos_source_files(
+        cocos/scripting/js-bindings/auto/jsb_mtl_auto.hpp
+        cocos/scripting/js-bindings/auto/jsb_mtl_auto.cpp
     )
 endif()
 
