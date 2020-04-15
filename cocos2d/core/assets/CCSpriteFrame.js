@@ -53,7 +53,7 @@ let temp_uvs = [{u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}, {u: 0, v: 0}];
  * // load a cc.SpriteFrame with image path (Recommend)
  * var self = this;
  * var url = "test assets/PurpleMonster";
- * cc.assetManager.loadRes(url, cc.SpriteFrame, null, function (err, spriteFrame) {
+ * cc.resources.load(url, cc.SpriteFrame, null, function (err, spriteFrame) {
  *  var node = new cc.Node("New Sprite");
  *  var sprite = node.addComponent(cc.Sprite);
  *  sprite.spriteFrame = spriteFrame;

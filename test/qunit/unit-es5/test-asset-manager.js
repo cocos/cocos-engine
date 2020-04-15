@@ -137,7 +137,7 @@
 
     asyncTest('Loading remote image', function () {
         var image = assetDir + '/button.png';
-        cc.assetManager.loadRemoteTexture(image, function (error, texture) {
+        cc.assetManager.loadRemote(image, function (error, texture) {
             ok(texture instanceof cc.Texture2D, 'should be texture');
             ok(texture._nativeAsset instanceof Image, 'should be Image');
             ok(texture._ref === 0, 'reference should be 0');
@@ -202,7 +202,7 @@
     });
 
     asyncTest('matching rules - 1', function () {
-        cc.assetManager.loadRes('grossini', TestSprite, function (err, sprite) {
+        cc.resources.load('grossini', TestSprite, function (err, sprite) {
             ok(sprite._uuid === '1232218' || sprite._uuid === '123200', 'loadRes - checking uuid');
             if (sprite._uuid === '123200') {
                 ok(sprite._ref === 1, 'reference should be 1');
@@ -212,7 +212,7 @@
                 ok(sprite._ref === 0, 'reference should be 0');
                 ok(sprite.texture._ref === 1, 'reference should be 1');
             }
-            cc.assetManager.loadResDir('grossini', TestSprite, function (err, array) {
+            cc.resources.loadDir('grossini', TestSprite, function (err, array) {
                 strictEqual(array.length, 3, 'loadResDir - checking count');
                 ['123200', '1232218', '123201'].forEach(function (uuid) {
                     ok(array.some(function (item) {
@@ -228,7 +228,7 @@
         //cc.loader.loadRes('grossini/grossini.png', function (err, texture) {
         //    ok(!texture, 'could not load texture with file extname');
 
-            cc.assetManager.loadRes('grossini/grossini', function (err, texture) {
+            cc.resources.load('grossini/grossini', function (err, texture) {
                 ok(texture instanceof cc.Texture2D, 'should be able to load texture without file extname');
                 ok(texture._ref === 0, 'should be able to load texture without file extname');
                 start();
@@ -237,10 +237,10 @@
     });
 
     asyncTest('load single by type', function () {
-        cc.assetManager.loadRes('grossini', TestSprite, function (err, sprite) {
+        cc.resources.load('grossini', TestSprite, function (err, sprite) {
             ok(sprite instanceof TestSprite, 'should be able to load asset by type');
 
-            cc.assetManager.loadRes('grossini', cc.Texture2D, function (err, texture) {
+            cc.resources.load('grossini', cc.Texture2D, function (err, texture) {
                 ok(texture instanceof cc.Texture2D, 'should be able to load asset by type');
                 start();
             });
@@ -248,7 +248,7 @@
     });
 
     asyncTest('load main asset and sub asset by loadResDir', function () {
-        cc.assetManager.loadResDir('grossini', function (err, results) {
+        cc.resources.loadDir('grossini', function (err, results) {
             ok(Array.isArray(results), 'result should be an array');
             ['123200', '1232218', '123201', '0000000', '0000001'].forEach(function (uuid) {
                 ok(results.some(function (item) {
@@ -260,7 +260,7 @@
     });
 
     asyncTest('loadResDir by type', function () {
-        cc.assetManager.loadResDir('grossini', TestSprite, function (err, results) {
+        cc.resources.loadDir('grossini', TestSprite, function (err, results) {
             ok(Array.isArray(results), 'result should be an array');
             var sprite = results[0];
             ok(sprite instanceof TestSprite, 'should be able to load test sprite');
@@ -270,7 +270,7 @@
     });
 
     asyncTest('load all resources by loadResDir', function () {
-        cc.assetManager.loadResDir('', function (err, results) {
+        cc.resources.loadDir('', function (err, results) {
             ok(Array.isArray(results), 'result should be an array');
             strictEqual(results.length, 5, 'should load ' + 5 + ' assets');
 
@@ -279,10 +279,10 @@
     });
 
     asyncTest('url dict of loadResDir', function () {
-        cc.assetManager.loadResDir('', cc.Texture2D, function (err, results) {
+        cc.resources.loadDir('', cc.Texture2D, function (err, results) {
             strictEqual(results.length, 2, 'url dict should contains the same count with array');
 
-            cc.assetManager.loadRes('grossini', cc.Texture2D, function (err, result) {
+            cc.resources.load('grossini', cc.Texture2D, function (err, result) {
                 strictEqual(result, results[0], 'url is correct');
                 start();
             });
@@ -294,7 +294,7 @@
             'grossini/grossini',
             'grossini'
         ];
-        cc.assetManager.loadRes(urls, TestSprite, function (err, results) {
+        cc.resources.load(urls, TestSprite, function (err, results) {
             ok(Array.isArray(results), 'result should be an array');
             var expectCount = urls.length;
             strictEqual(results.length, expectCount, 'should load ' + expectCount + ' assets');
@@ -306,7 +306,7 @@
     asyncTest('cc.loader.onProgress', function () {
         cc.loader.onProgress = new Callback(function (completedCount, totalCount, item) {
         }).enable();
-        cc.assetManager.loadResDir('', cc.Texture2D, function (err, results) {
+        cc.resources.loadDir('', cc.Texture2D, function (err, results) {
             ok(cc.loader.onProgress.calledCount > 0, 'should call more than 0 times progress callback');
             cc.loader.onProgress = null;
             start();

@@ -199,7 +199,7 @@ const loader = {
     /**
      * `cc.loader.loadRes` is deprecated, please use {{#crossLink "AssetManager/loadRes:method"}}{{/crossLink}}  instead
      *
-     * @deprecated `cc.loader.loadRes` is deprecated, please use `cc.assetManager.loadRes`  instead
+     * @deprecated `cc.loader.loadRes` is deprecated, please use `cc.resources.load`  instead
      * @method loadRes
      * @param {String} url - Url of the target resource.
      *                       The url is relative to the "resources" folder, extensions must be omitted.
@@ -222,13 +222,13 @@ const loader = {
      */
     loadRes (url, type, progressCallback, completeCallback) {
         var { type, onProgress, onComplete } = this._parseLoadResArgs(type, progressCallback, completeCallback);
-        cc.assetManager.loadRes(url, type, onProgress, onComplete);
+        cc.resources.load(url, type, onProgress, onComplete);
     },
 
     /**
      * `cc.loader.loadResArray` is deprecated, please use {{#crossLink "AssetManager/loadRes:method"}}{{/crossLink}} instead
      *
-     * @deprecated `cc.loader.loadResArray` is deprecated, please use `cc.assetManager.loadRes` instead
+     * @deprecated `cc.loader.loadResArray` is deprecated, please use `cc.resources.load` instead
      * @method loadResArray
      * @param {String[]} urls - Array of URLs of the target resource.
      *                          The url is relative to the "resources" folder, extensions must be omitted.
@@ -253,13 +253,13 @@ const loader = {
      */
     loadResArray (urls, type, progressCallback, completeCallback) {
         var { type, onProgress, onComplete } = this._parseLoadResArgs(type, progressCallback, completeCallback);
-        cc.assetManager.loadRes(urls, type, onProgress, onComplete);
+        cc.resources.load(urls, type, onProgress, onComplete);
     },
 
     /**
      * `cc.loader.loadResDir` is deprecated, please use {{#crossLink "AssetManager/loadResDir:method"}}{{/crossLink}} instead
      *
-     * @deprecated `cc.loader.loadResDir` is deprecated, please use `cc.assetManager.loadResDir` instead
+     * @deprecated `cc.loader.loadResDir` is deprecated, please use `cc.resources.loadDir` instead
      * @method loadResDir
      * @param {String} url - Url of the target folder.
      *                       The url is relative to the "resources" folder, extensions must be omitted.
@@ -285,7 +285,7 @@ const loader = {
      */
     loadResDir (url, type, progressCallback, completeCallback) {
         var { type, onProgress, onComplete } = this._parseLoadResArgs(type, progressCallback, completeCallback);
-        cc.assetManager.loadResDir(url, type, onProgress, function (err, assets) {
+        cc.resources.loadDir(url, type, onProgress, function (err, assets) {
             var urls = [];
             if (!err) {
                 var infos = cc.resources.getDirWithPath(url, type);
@@ -619,15 +619,15 @@ cc.url = {
     },
 
     /**
-     * `cc.url.raw` is deprecated, please use `cc.assetManager.loadRes` directly, or use `Asset.nativeUrl` instead.
+     * `cc.url.raw` is deprecated, please use `cc.resources.load` directly, or use `Asset.nativeUrl` instead.
      *
-     * @deprecated `cc.url.raw` is deprecated, please use `cc.assetManager.loadRes` directly, or use `Asset.nativeUrl` instead.
+     * @deprecated `cc.url.raw` is deprecated, please use `cc.resources.load` directly, or use `Asset.nativeUrl` instead.
      * @method raw
      * @param {String} url
      * @return {String}
      */
     raw (url) {
-        cc.warnID(1400, 'cc.url.raw', 'cc.assetManager.loadRes');
+        cc.warnID(1400, 'cc.url.raw', 'cc.resources.load');
         if (url.startsWith('resources/')) {
             return cc.assetManager._transform({'path': cc.path.changeExtname(url.substr(10)), bundle: cc.AssetManager.BuiltinBundleName.RESOURCES, isNative: true, ext: cc.path.extname(url)});
         }
