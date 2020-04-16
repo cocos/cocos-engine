@@ -27,7 +27,7 @@ export class CrossFade extends Playable {
     }
 
     public update (deltaTime: number) {
-        if (!this.isPlaying || this.isPaused) {
+        if (this.isMotionless) {
             return;
         }
 
@@ -70,6 +70,14 @@ export class CrossFade extends Playable {
                 }
             }
             this._fadings.splice(deadFadingBegin);
+        }
+
+        if (this._managedStates.length !== 0) {
+            this._managedStates.forEach((state) => {
+                if (state.state?.isMotionless) {
+                    state.state.sample();
+                }
+            });
         }
     }
 

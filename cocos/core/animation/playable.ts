@@ -23,6 +23,15 @@ export class Playable {
     get isPaused () {
         return this._isPaused;
     }
+
+    /**
+     * @en Is paused or stopped?
+     * @zh 是否已被暂停或停止。
+     */
+    get isMotionless () {
+        return !this.isPlaying || this.isPaused;
+    }
+
     private _isPlaying = false;
     private _isPaused = false;
     private _stepOnce = false;
