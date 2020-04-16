@@ -35,6 +35,7 @@ import { sys } from '../sys';
 import eventManager from './event-manager';
 import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './events';
 import { Touch } from './touch';
+import { JSB, RUNTIME_BASED } from 'internal:constants';
 
 const TOUCH_TIMEOUT = macro.TOUCH_TIMEOUT;
 
@@ -441,6 +442,11 @@ class InputManager {
             this._accelCurTime = 0;
             scheduler.unscheduleUpdate(this);
         }
+
+        if (JSB || RUNTIME_BASED) {
+            // @ts-ignore
+            jsb.device.setMotionEnabled(isEnable);
+        }
     }
 
     public didAccelerate (eventData: DeviceMotionEvent | DeviceOrientationEvent) {
@@ -517,6 +523,11 @@ class InputManager {
     public setAccelerometerInterval (interval) {
         if (this._accelInterval !== interval) {
             this._accelInterval = interval;
+
+            if (JSB || RUNTIME_BASED) {
+                // @ts-ignore
+                jsb.device.setMotionInterval(interval);
+            }
         }
     }
 
