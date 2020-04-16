@@ -31,7 +31,7 @@
 import { Vec2 } from '../../math/index';
 import { rect } from '../../math/rect';
 import { macro } from '../macro';
-import sys from '../sys';
+import { sys } from '../sys';
 import eventManager from './event-manager';
 import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './events';
 import { Touch } from './touch';

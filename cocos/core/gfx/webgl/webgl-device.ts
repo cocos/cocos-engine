@@ -1,6 +1,6 @@
 import { ALIPAY, RUNTIME_BASED } from 'internal:constants';
 import { macro } from '../../platform';
-import sys from '../../platform/sys';
+import { sys } from '../../platform/sys';
 import { GFXBindingLayout, IGFXBindingLayoutInfo } from '../binding-layout';
 import { GFXBuffer, IGFXBufferInfo } from '../buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from '../command-allocator';

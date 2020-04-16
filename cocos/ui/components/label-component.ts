@@ -37,7 +37,7 @@ import { CanvasPool, ISharedLabelData } from '../assembler/label/font-utils';
 import { LetterRenderTexture } from '../assembler/label/letter-font';
 import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
 import { warnID } from '../../core/platform/debug';
-import sys from '../../core/platform/sys';
+import { sys } from '../../core/platform/sys';
 import { EDITOR } from 'internal:constants';
 
 /**

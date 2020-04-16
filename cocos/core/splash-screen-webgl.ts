@@ -6,7 +6,7 @@ import { IGFXColor } from "./gfx";
 import { clamp01 } from "./math";
 import { easing } from "./animation";
 import { macro } from "./platform";
-import sys from "./platform/sys";
+import { sys } from "./platform/sys";
 import { COCOSPLAY, XIAOMI, JSB } from 'internal:constants';
 
 type SplashEffectType = 'none' | 'Fade-InOut';

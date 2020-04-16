@@ -58,7 +58,7 @@ enum NetworkType {
  * @zh 一系列系统相关环境变量
  * @main
  */
-const sys: { [x: string]: any; } = {
+export const sys: { [x: string]: any; } = {
     /**
      * @en
      * Network type enumeration
@@ -1110,4 +1110,3 @@ else {
 }
 
 cc.sys = sys;
-export default sys;

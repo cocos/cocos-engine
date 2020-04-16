@@ -1,5 +1,5 @@
 import { GFXFormat, GFXFormatInfos, GFXFormatType, IGFXFormatInfo } from '../../gfx/define';
-import sys from '../../platform/sys';
+import { sys } from '../../platform/sys';
 
 const _typeMap = {
     [GFXFormatType.UNORM]: 'Uint',
