@@ -36,10 +36,12 @@ var ActionManagerExist = !!cc.ActionManager;
 /**
  * !#en
  * Base class for everything attached to Node(Entity).<br/>
+ * <br/>
  * NOTE: Not allowed to use construction parameters for Component's subclasses,
  * because Component is created by the engine.
  * !#zh
  * 所有附加到节点的基类。<br/>
+ * <br/>
  * 注意：不允许使用组件的子类构造参数，因为组件是由引擎创建的。
  *
  * @class Component
@@ -201,7 +203,7 @@ var Component = cc.Class({
 
         /**
          * !#en Returns a value which used to indicate the onLoad get called or not.
-         * !#zh 返回一个值用来判断 onLoad 是否被调用过，不等于 0 时调用，等于 0 时未调用。
+         * !#zh 返回一个值用来判断 onLoad 是否被调用过，不等于 0 时调用过，等于 0 时未调用。
          * @property _isOnLoadCalled
          * @type {Number}
          * @readOnly

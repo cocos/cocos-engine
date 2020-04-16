@@ -126,7 +126,7 @@ cc.Asset = cc.Class({
          * This property can be used to access additional details or functionality releated to the asset.
          * This property will be initialized by the loader if `_native` is available.
          * !#zh
-         * 此资源的基础资源（如果有）。
+         * 此资源依赖的底层原生资源（如果有的话）。
          * 此属性可用于访问与资源相关的其他详细信息或功能。
          * 如果 `_native` 可用，则此属性将由加载器初始化。
          * @property {Object} _nativeAsset
