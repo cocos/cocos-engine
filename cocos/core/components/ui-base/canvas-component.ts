@@ -36,7 +36,7 @@ import { game } from '../../game';
 import { GFXClearFlag } from '../../gfx/define';
 import { GFXWindow } from '../../gfx/window';
 import { Color, Vec3, Rect } from '../../math';
-import { ResolutionPolicy, view } from '../../platform/view';
+import { view } from '../../platform/view';
 import visibleRect from '../../platform/visible-rect';
 import { Camera } from '../../renderer';
 import { Node } from '../../scene-graph/node';
@@ -343,7 +343,7 @@ export class CanvasComponent extends Component {
             designSize = view.getDesignResolutionSize();
             const policy = view.getResolutionPolicy();
             // const clipTopRight = !this.fitHeight && !this.fitWidth;
-            const clipTopRight = policy === ResolutionPolicy.NO_BORDER;
+            const clipTopRight = policy === cc.view._rpNoBorder;
             let offsetX = 0;
             let offsetY = 0;
             if (clipTopRight) {

@@ -6,6 +6,7 @@ import { replaceProperty } from './utils/deprecated';
 import * as math from './math';
 import { Scheduler } from './scheduler';
 import { CameraComponent } from './3d';
+import { EventTouch } from './platform';
 
 // VMATH
 
@@ -177,6 +178,8 @@ replaceProperty(Scheduler.prototype, 'Scheduler.prototype', [
     }
 ]);
 
+// Camera
+
 replaceProperty(CameraComponent.prototype, 'CameraComponent.prototype', [
     {
         name: 'color',
@@ -190,4 +193,15 @@ replaceProperty(CameraComponent.prototype, 'CameraComponent.prototype', [
         name: 'stencil',
         newName: 'clearStencil',
     },
-])
+]);
+
+// Events
+
+replaceProperty(EventTouch.prototype, 'EventTouch.prototype', [
+    {
+        name: 'getUILocationInView',
+        newName: 'getLocationInView',
+        target: EventTouch,
+        targetName: 'EventTouch'
+    }
+]);

@@ -4,8 +4,8 @@
 import { ccenum } from '../../value-types/enum';
 
 /**
- * @zh
- * 一般用于系统事件或者节点事件的事件枚举
+ * @en The event type supported by SystemEvent and Node events
+ * @zh SystemEvent 支持的事件类型以及节点事件类型
  */
 export enum SystemEventType {
     /**
@@ -136,8 +136,8 @@ export enum SystemEventType {
     TRANSFORM_CHANGED = 'transform-changed',
 
     /**
-     * @en The event type for press the devicemotion event, you can use its value directly: 'devicemotion'.
-     * @zh
+     * @en The event type for notifying the host scene has been changed for a persist node.
+     * @zh 当场景常驻节点的场景发生改变时触发的事件，一般在切换场景过程中触发。
      */
     SCENE_CHANGED_FOR_PERSISTS = 'scene-changed-for-persists',
 
@@ -160,40 +160,39 @@ export enum SystemEventType {
      * if the event callback have heavy logic it may have great performance impact, try to avoid such scenario.
      *
      * @zh
-     * 当节点锚点改变时触发的事件。
+     * 当节点的 UITransform 锚点改变时触发的事件。
      * 性能警告：这个事件会在每次对应的属性被修改时触发，如果事件回调损耗较高，有可能对性能有很大的负面影响，请尽量避免这种情况。
+     * @deprecated
      */
     ANCHOR_CHANGED = 'anchor-changed',
 
     /**
      * @en
-     * The event type for add children.
+     * The event type for adding a new child node to the target node.
      *
      * @zh
-     * 节点子类添加。
+     * 给目标节点添加子节点时触发的事件。
      */
     CHILD_ADDED = 'child-added',
 
     /**
      * @en
-     * The event type for removed children.
+     * The event type for removing a child node from the target node.
      *
      * @zh
-     * 节点子类移除。
+     * 给目标节点移除子节点时触发的事件。
      */
     CHILD_REMOVED = 'child-removed',
 
     /**
-     * @en
-     * @zh
-     * 父节点改变时触发的事件。
+     * @en The event type for changing the parent of the target node
+     * @zh 目标节点的父节点改变时触发的事件。
      */
     PARENT_CHANGED = 'parent-changed',
     
     /**
-     * @en
-     * @zh
-     * 节点销毁时触发的事件。
+     * @en The event type for destroying the target node
+     * @zh 目标节点被销毁时触发的事件。
      */
     NODE_DESTROYED = 'node-destroyed',
 }

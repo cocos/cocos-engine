@@ -46,13 +46,12 @@ import {
 import { GFXDevice, GFXFeature } from '../gfx/device';
 import { IGFXAttribute } from '../gfx/input-assembler';
 import { warnID } from '../platform/debug';
-import sys from '../platform/sys';
+import { sys } from '../platform/sys';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { Asset } from './asset';
 import { Skeleton } from './skeleton';
 import { postLoadMesh } from './utils/mesh-utils';
 import { Morph, createMorphRendering, MorphRendering } from './morph';
-import { js } from '../utils/js';
 
 function getIndexStrideCtor (stride: number) {
     switch (stride) {
