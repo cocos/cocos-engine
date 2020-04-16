@@ -91,6 +91,7 @@ replaceProperty = (owner: object, ownerName: string, properties: IReplacement[])
         const target = item.target != null ? item.target : owner;
         const newName = item.newName != null ? item.newName : item.name;
         const targetName = item.targetName != null ? item.targetName : ownerName;
+        const sameTarget = target == owner;
 
         if (item.customFunction != null) {
             owner[item.name] = function (this: any) {
@@ -130,11 +131,15 @@ replaceProperty = (owner: object, ownerName: string, properties: IReplacement[])
             Object.defineProperty(owner, item.name, {
                 get (this) {
                     replacePropertyLog(ownerName, item.name, targetName, newName, warn, id);
-                    return this[newName];
+                    return sameTarget ? this[newName] : target[newName];
                 },
                 set (this, v: any) {
                     replacePropertyLog(ownerName, item.name, targetName, newName, warn, id);
-                    this[newName] = v;
+                    if (sameTarget) {
+                        this[newName] = v;
+                    } else {
+                        target[newName] = v;
+                    }
                 }
             });
         }
