@@ -73,17 +73,9 @@ gulp build --max-old-space-size=8192
 
 #### Prerequisite
 
-- Install [express](http://expressjs.com/):
- 
-  ```bash
-  npm install express
-  ```
+- Install [express](http://expressjs.com/): `npm install express`.
 
-- Install gulp-qunit:
-
-  ```bash
-  npm install gulp-qunit
-  ```
+- Install gulp-qunit: `npm install gulp-qunit`.
 
 #### Unit Test
 
