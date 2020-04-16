@@ -80,6 +80,7 @@ class Acceleration {
         this.timestamp = timestamp;
     }
 }
+cc.internal.Acceleration = Acceleration;
 
 /**
  *  This class manages all events of input. include: touch, mouse, accelerometer, keyboard
