@@ -7,8 +7,8 @@ import { getError } from '../platform/debug';
 export class Playable {
 
     /**
-     * @en Is playing or paused in play mode?
-     * @zh 当前是否正在播放。
+     * @en Whether if this `Playable` is in playing.
+     * @zh 该 `Playable` 是否正在播放状态。
      * @default false
      */
     get isPlaying () {
@@ -16,8 +16,8 @@ export class Playable {
     }
 
     /**
-     * @en Is currently paused? This can be true even if in edit mode(isPlaying == false).
-     * @zh 当前是否正在暂停。
+     * @en Whether if this `Playable` has been paused. This can be true even if in edit mode(isPlaying == false).
+     * @zh 该 `Playable` 是否已被暂停。
      * @default false
      */
     get isPaused () {
@@ -25,8 +25,8 @@ export class Playable {
     }
 
     /**
-     * @en Is paused or stopped?
-     * @zh 是否已被暂停或停止。
+     * @en Whether if this `Playable` has been paused or stopped.
+     * @zh 该 `Playable` 是否已被暂停或停止。
      */
     get isMotionless () {
         return !this.isPlaying || this.isPaused;

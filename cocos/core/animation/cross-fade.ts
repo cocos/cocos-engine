@@ -72,12 +72,11 @@ export class CrossFade extends Playable {
             this._fadings.splice(deadFadingBegin);
         }
 
-        if (this._managedStates.length !== 0) {
-            this._managedStates.forEach((state) => {
-                if (state.state?.isMotionless) {
-                    state.state.sample();
-                }
-            });
+        for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
+            const state = this._managedStates[iManagedState].state;
+            if (state && state.isMotionless) {
+                state.sample();
+            }
         }
     }
 
