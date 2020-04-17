@@ -953,8 +953,8 @@ cc.js.mixin(View.prototype, {
      */
     convertToLocationInView: function (tx, ty, relatedPos, out) {
         let result = out || cc.v2();
-        let posLeft = relatedPos.adjustedLeft !== undefined ? relatedPos.adjustedLeft : relatedPos.left;
-        let posTop = relatedPos.adjustedTop !== undefined ? relatedPos.adjustedTop : relatedPos.top;
+        let posLeft = relatedPos.adjustedLeft ? relatedPos.adjustedLeft : relatedPos.left;
+        let posTop = relatedPos.adjustedTop ? relatedPos.adjustedTop : relatedPos.top;
         let x = this._devicePixelRatio * (tx - posLeft);
         let y = this._devicePixelRatio * (posTop + relatedPos.height - ty);
         if (this._isRotated) {
