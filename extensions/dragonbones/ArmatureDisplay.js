@@ -64,7 +64,7 @@ let AnimationCacheMode = cc.Enum({
      * !#zh 私有缓存模式。
      * @property {Number} PRIVATE_CACHE
      */
-    PRIVATE_CACHE: 2 
+    PRIVATE_CACHE: 2
 });
 
 function setEnumAttr (obj, propName, enumDef) {
@@ -97,11 +97,11 @@ let ArmatureDisplay = cc.Class({
         menu: 'i18n:MAIN_MENU.component.renderers/DragonBones',
         inspector: 'packages://inspector/inspectors/comps/skeleton2d.js',
     },
-    
+
     statics: {
         AnimationCacheMode: AnimationCacheMode,
     },
-    
+
     properties: {
         _factory: {
             default: null,
@@ -184,7 +184,7 @@ let ArmatureDisplay = cc.Class({
                 if (this._armature && !this.isAnimationCached()) {
                     this._factory._dragonBones.clock.add(this._armature);
                 }
-                
+
             },
             visible: false
         },
@@ -306,7 +306,7 @@ let ArmatureDisplay = cc.Class({
             notify () {
                 if (this._armature && !this.isAnimationCached()) {
                     this._armature.animation.timeScale = this.timeScale;
-                }  
+                }
             },
             tooltip: CC_DEV && 'i18n:COMPONENT.dragon_bones.time_scale'
         },
@@ -341,7 +341,7 @@ let ArmatureDisplay = cc.Class({
             default: false,
             tooltip: CC_DEV && 'i18n:COMPONENT.skeleton.premultipliedAlpha'
         },
-        
+
         /**
          * !#en Indicates whether open debug bones.
          * !#zh 是否显示 bone 的 debug 信息。
@@ -465,7 +465,7 @@ let ArmatureDisplay = cc.Class({
     _init () {
         if (this._inited) return;
         this._inited = true;
-        
+
         this._resetAssembler();
         this._activateMaterial();
         this._parseDragonAtlasAsset();
@@ -484,7 +484,7 @@ let ArmatureDisplay = cc.Class({
     /**
      * !#en
      * The key of dragonbones cache data, which is regard as 'dragonbonesName', when you want to change dragonbones cloth.
-     * !#zh 
+     * !#zh
      * 缓存龙骨数据的key值，换装的时会使用到该值，作为dragonbonesName使用
      * @method getArmatureKey
      * @return {String}
@@ -501,10 +501,10 @@ let ArmatureDisplay = cc.Class({
      * !#en
      * It's best to set cache mode before set property 'dragonAsset', or will waste some cpu time.
      * If set the mode in editor, then no need to worry about order problem.
-     * !#zh 
+     * !#zh
      * 若想切换渲染模式，最好在设置'dragonAsset'之前，先设置好渲染模式，否则有运行时开销。
      * 若在编辑中设置渲染模式，则无需担心设置次序的问题。
-     * 
+     *
      * @method setAnimationCacheMode
      * @param {AnimationCacheMode} cacheMode
      * @example
@@ -514,9 +514,13 @@ let ArmatureDisplay = cc.Class({
         if (this._preCacheMode !== cacheMode) {
             this._cacheMode = cacheMode;
             this._buildArmature();
+
+            if (this._armature && !this.isAnimationCached()) {
+                this._factory._dragonBones.clock.add(this._armature);
+            }
         }
     },
-    
+
     /**
      * !#en Whether in cached mode.
      * !#zh 当前是否处于缓存模式。
@@ -562,7 +566,7 @@ let ArmatureDisplay = cc.Class({
         if (!frameCache.isInited()) {
             return;
         }
-        
+
         let frames = frameCache.frames;
         if (!this._playing) {
             if (frameCache.isInvalid()) {
@@ -638,7 +642,7 @@ let ArmatureDisplay = cc.Class({
                 let debugDraw = debugDrawNode.addComponent(Graphics);
                 debugDraw.lineWidth = 1;
                 debugDraw.strokeColor = cc.color(255, 0, 0, 255);
-                
+
                 this._debugDraw = debugDraw;
             }
 
@@ -691,9 +695,9 @@ let ArmatureDisplay = cc.Class({
             if (!this._armature) {
                 // Cache fail,swith to REALTIME cache mode.
                 this._cacheMode = AnimationCacheMode.REALTIME;
-            } 
-        } 
-        
+            }
+        }
+
         this._preCacheMode = this._cacheMode;
         if (CC_EDITOR || this._cacheMode === AnimationCacheMode.REALTIME) {
             this._displayProxy = this._factory.buildArmatureDisplay(this.armatureName, this._armatureKey, "", atlasUUID);
@@ -703,7 +707,7 @@ let ArmatureDisplay = cc.Class({
             this._armature = this._displayProxy._armature;
             this._armature.animation.timeScale = this.timeScale;
             // If change mode or armature, armature must insert into clock.
-            this._factory._dragonBones.clock.add(this._armature);
+            // this._factory._dragonBones.clock.add(this._armature);
         }
 
         if (this._cacheMode !== AnimationCacheMode.REALTIME && this.debugBones) {
@@ -781,7 +785,7 @@ let ArmatureDisplay = cc.Class({
      * -1 means use the value of the config file.
      * 0 means play the animation for ever.
      * >0 means repeat times.
-     * !#zh 
+     * !#zh
      * 播放指定的动画.
      * animName 指定播放动画的名称。
      * playTimes 指定播放动画的次数。
@@ -794,7 +798,7 @@ let ArmatureDisplay = cc.Class({
      * @return {dragonBones.AnimationState}
      */
     playAnimation (animName, playTimes) {
-        
+
         this.playTimes = (playTimes === undefined) ? -1 : playTimes;
         this.animationName = animName;
 
@@ -823,7 +827,7 @@ let ArmatureDisplay = cc.Class({
 
     /**
      * !#en
-     * Updating an animation cache to calculate all frame data in the animation is a cost in 
+     * Updating an animation cache to calculate all frame data in the animation is a cost in
      * performance due to calculating all data in a single frame.
      * To update the cache, use the invalidAnimationCache method with high performance.
      * !#zh
