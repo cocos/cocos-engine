@@ -44,7 +44,7 @@ export class Mat3 extends ValueType {
     public static IDENTITY = Object.freeze(new Mat3());
 
     /**
-     * @en Clone a matrix.
+     * @en Clone a matrix and save the results to out matrix
      * @zh 获得指定矩阵的拷贝
      */
     public static clone <Out extends IMat3Like> (a: Out) {
@@ -56,7 +56,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @en Copy content of a matrix into another.
+     * @en Copy content of a matrix into another and save the results to out matrix
      * @zh 复制目标矩阵
      */
     public static copy <Out extends IMat3Like> (out: Out, a: Out) {
@@ -73,7 +73,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @en Sets the elements of a matrix to the given values.
+     * @en Sets the elements of a matrix to the given values and save the results to out matrix
      * @zh 设置矩阵值
      */
     public static set <Out extends IMat3Like>  (
@@ -106,7 +106,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @en Transposes a matrix.
+     * @en Transposes a matrix and save the results to out matrix
      * @zh 转置矩阵
      */
     public static transpose <Out extends IMat3Like> (out: Out, a: Out) {
@@ -173,7 +173,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @en Calculates the determinant of a matrix.
+     * @en Calculates the determinant of a matrix and save the results to out matrix
      * @zh 矩阵行列式
      */
     public static determinant <Out extends IMat3Like> (a: Out) {
@@ -185,7 +185,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @en Multiply two matrices explicitly.
+     * @en Multiply two matrices explicitly and save the results to out matrix
      * @zh 矩阵乘法
      */
     public static multiply <Out extends IMat3Like> (out: Out, a: Out, b: Out) {
@@ -272,7 +272,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @en Multiply a matrix with a scale matrix given by a scale vector.
+     * @en Multiply a matrix with a scale matrix given by a scale vector and save the results to out matrix
      * @zh 在给定矩阵变换基础上加入新缩放变换
      */
     public static scale <Out extends IMat3Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
@@ -293,7 +293,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @en Rotates the transform by the given angle and save the results into a matrix
+     * @en Rotates the transform by the given angle and save the results into the out matrix
      * @zh 在给定矩阵变换基础上加入新旋转变换
      * @param rad 旋转弧度
      */
@@ -337,7 +337,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @en Sets a third order matrix with view direction and up direction
+     * @en Sets a third order matrix with view direction and up direction. Then save the results to out matrix
      * @zh 根据视口前方向和上方向计算矩阵
      * @param view 视口面向的前方向，必须归一化
      * @param up 视口的上方向，必须归一化，默认为 (0, 1, 0)
@@ -368,7 +368,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @en Sets the given matrix with a translation vector
+     * @en Sets the given matrix with a translation vector and save the results to out matrix
      * @zh 计算位移矩阵
      */
     public static fromTranslation <Out extends IMat3Like, VecLike extends IVec2Like> (out: Out, v: VecLike) {
@@ -385,7 +385,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @en Sets the given matrix with a scale vector.
+     * @en Sets the given matrix with a scale vector and save the results to out matrix
      * @zh 计算缩放矩阵
      */
     public static fromScaling <Out extends IMat3Like, VecLike extends IVec2Like> (out: Out, v: VecLike) {
@@ -404,7 +404,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @en Sets the given matrix with a given angle.
+     * @en Sets the given matrix with a given angle and save the results to out matrix
      * @zh 计算旋转矩阵
      */
     public static fromRotation <Out extends IMat3Like> (out: Out, rad: number) {
@@ -425,7 +425,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @en Sets the given matrix with the given quaternion.
+     * @en Sets the given matrix with the given quaternion and save the results to out matrix
      * @zh 根据四元数旋转信息计算矩阵
      */
     public static fromQuat <Out extends IMat3Like> (out: Out, q: IQuatLike) {
@@ -542,7 +542,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @en Adds two matrices.
+     * @en Adds two matrices and save the results to out matrix
      * @zh 逐元素矩阵加法
      */
     public static add <Out extends IMat3Like> (out: Out, a: Out, b: Out) {
@@ -576,7 +576,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @en Multiply each element of a matrix by a scalar number.
+     * @en Multiply each element of a matrix by a scalar number and save the results to out matrix
      * @zh 矩阵标量乘法
      */
     public static multiplyScalar <Out extends IMat3Like> (out: Out, a: Out, b: number) {
@@ -593,7 +593,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @en Adds two matrices after multiplying each element of the second operand by a scalar number.
+     * @en Adds two matrices after multiplying each element of the second operand by a scalar number. And save the results to out matrix.
      * @zh 逐元素矩阵标量乘加: A + B * scale
      */
     public static multiplyScalarAndAdd <Out extends IMat3Like> (out: Out, a: Out, b: Out, scale: number) {

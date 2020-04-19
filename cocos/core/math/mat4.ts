@@ -45,7 +45,7 @@ export class Mat4 extends ValueType {
     public static IDENTITY = Object.freeze(new Mat4());
 
     /**
-     * @en Clone a matrix.
+     * @en Clone a matrix and save the results to out matrix
      * @zh 获得指定矩阵的拷贝
      */
     public static clone <Out extends IMat4Like> (a: Out) {
@@ -58,7 +58,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @en Copy content of a matrix into another.
+     * @en Copy content of a matrix into another and save the results to out matrix
      * @zh 复制目标矩阵
      */
     public static copy <Out extends IMat4Like> (out: Out, a: Out) {
@@ -82,7 +82,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @en Sets the elements of a matrix to the given values.
+     * @en Sets the elements of a matrix to the given values and save the results to out matrix
      * @zh 设置矩阵值
      */
     public static set <Out extends IMat4Like>  (
@@ -124,7 +124,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @en Transposes a matrix.
+     * @en Transposes a matrix and save the results to out matrix
      * @zh 转置矩阵
      */
     public static transpose <Out extends IMat4Like> (out: Out, a: Out) {
@@ -221,7 +221,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @en Calculates the determinant of a matrix.
+     * @en Calculates the determinant of a matrix and save the results to out matrix
      * @zh 矩阵行列式
      */
     public static determinant <Out extends IMat4Like> (a: Out): number {
@@ -248,7 +248,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @en Multiply two matrices explicitly.
+     * @en Multiply two matrices explicitly Calculates the determinant of a matrix and save the results to out matrix
      * @zh 矩阵乘法
      */
     public static multiply <Out extends IMat4Like> (out: Out, a: Out, b: Out) {
@@ -285,7 +285,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @en Multiply a matrix with a translation matrix given by a translation offset.
+     * @en Multiply a matrix with a translation vector given by a translation offset.
      * @zh 在给定矩阵变换基础上加入变换
      */
     public static transform <Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
@@ -336,7 +336,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @en Multiply a matrix with a scale matrix given by a scale vector.
+     * @en Multiply a matrix with a scale matrix given by a scale vector and save the results into the out matrix
      * @zh 在给定矩阵变换基础上加入新缩放变换
      */
     public static scale <Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
@@ -361,7 +361,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @en Rotates a matrix by the given angle.
+     * @en Rotates the transform by the given angle and save the results into the out matrix
      * @zh 在给定矩阵变换基础上加入新旋转变换
      * @param rad 旋转角度
      * @param axis 旋转轴
@@ -543,7 +543,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @en Creates a matrix from a translation offset.
+     * @en Sets the given matrix with a translation vector and save the results to out matrix
      * @zh 计算位移矩阵
      */
     public static fromTranslation <Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, v: VecLike) {
@@ -567,7 +567,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @en Creates a matrix from a scale vector.
+     * @en Sets the given matrix with a scale vector and save the results to out matrix
      * @zh 计算缩放矩阵
      */
     public static fromScaling <Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, v: VecLike) {
@@ -591,7 +591,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @en Creates a matrix from a given angle.
+     * @en Sets the given matrix with a given angle and save the results to out matrix
      * @zh 计算旋转矩阵
      */
     public static fromRotation <Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, rad: number, axis: VecLike) {
@@ -659,7 +659,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @en Calculating rotation matrix about the Y axisy
+     * @en Calculating rotation matrix about the Y axis
      * @zh 计算绕 Y 轴的旋转矩阵
      */
     public static fromYRotation <Out extends IMat4Like> (out: Out, rad: number) {
@@ -890,7 +890,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @en en According to the specified rotation, displacement, and scale conversion matrix calculation information center, order S-> R-> T applications
+     * @en According to the specified rotation, displacement, and scale conversion matrix calculation information center, order S-> R-> T applications
      * @zh 根据指定的旋转、位移、缩放及变换中心信息计算矩阵，以 S->R->T 的顺序应用
      * @param q 旋转值
      * @param v 位移值
@@ -942,7 +942,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @en The rotation matrix calculation information specified
+     * @en Sets the given matrix with the given quaternion and save the results to out matrix
      * @zh 根据指定的旋转信息计算矩阵
      */
     public static fromQuat <Out extends IMat4Like> (out: Out, q: Quat) {
@@ -1142,7 +1142,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @en Reversal matrix calculation
+     * @en Reversal matrix calculation and save the results to out matrix
      * @zh 计算逆转置矩阵
      */
     public static inverseTranspose <Out extends IMat4Like> (out: Out, a: Out) {
@@ -1247,7 +1247,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @en Adds two matrices.
+     * @en Adds two matrices and save the results to out matrix
      * @zh 逐元素矩阵加法
      */
     public static add <Out extends IMat4Like> (out: Out, a: Out, b: Out) {
@@ -1271,7 +1271,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @en Subtracts matrix b from matrix a.
+     * @en Subtracts matrix b from matrix a and save the results to out matrix
      * @zh 逐元素矩阵减法
      */
     public static subtract <Out extends IMat4Like> (out: Out, a: Out, b: Out) {
@@ -1295,7 +1295,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @en Multiply each element of a matrix by a scalar number.
+     * @en Multiply each element of a matrix by a scalar number and save the results to out matrix
      * @zh 矩阵标量乘法
      */
     public static multiplyScalar <Out extends IMat4Like> (out: Out, a: Out, b: number) {
@@ -1319,7 +1319,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @en Adds two matrices after multiplying each element of the second operand by a scalar number.
+     * @en Adds two matrices after multiplying each element of the second operand by a scalar number. And save the results to out matrix.
      * @zh 逐元素矩阵标量乘加: A + B * scale
      */
     public static multiplyScalarAndAdd <Out extends IMat4Like> (out: Out, a: Out, b: Out, scale: number) {
@@ -1381,97 +1381,97 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @en Value assigned to element at column 0 row 0.
+     * @en Value at column 0 row 0 of the matrix.
      * @zh 矩阵第 0 列第 0 行的元素。
      */
     public m00: number;
 
     /**
-     * @en Value assigned to element at column 0 row 1.
+     * @en Value at column 0 row 1 of the matrix.
      * @zh 矩阵第 0 列第 1 行的元素。
      */
     public m01: number;
 
     /**
-     * @en Value assigned to element at column 0 row 2.
+     * @en Value at column 0 row 2 of the matrix.
      * @zh 矩阵第 0 列第 2 行的元素。
      */
     public m02: number;
 
     /**
-     * @en Value assigned to element at column 0 row 3.
+     * @en Value at column 0 row 3 of the matrix.
      * @zh 矩阵第 0 列第 3 行的元素。
      */
     public m03: number;
 
     /**
-     * @en Value assigned to element at column 1 row 0.
+     * @en Value at column 1 row 0 of the matrix.
      * @zh 矩阵第 1 列第 0 行的元素。
      */
     public m04: number;
 
     /**
-     * @en Value assigned to element at column 1 row 1.
+     * @en Value at column 1 row 1 of the matrix.
      * @zh 矩阵第 1 列第 1 行的元素。
      */
     public m05: number;
 
     /**
-     * @en Value assigned to element at column 1 row 2.
+     * @en Value at column 1 row 2 of the matrix.
      * @zh 矩阵第 1 列第 2 行的元素。
      */
     public m06: number;
 
     /**
-     * @en Value assigned to element at column 1 row 3.
+     * @en Value at column 1 row 3 of the matrix.
      * @zh 矩阵第 1 列第 3 行的元素。
      */
     public m07: number;
 
     /**
-     * @en Value assigned to element at column 2 row 0.
+     * @en Value at column 2 row 0 of the matrix.
      * @zh 矩阵第 2 列第 0 行的元素。
      */
     public m08: number;
 
     /**
-     * @en Value assigned to element at column 2 row 1.
+     * @en Value at column 2 row 1 of the matrix.
      * @zh 矩阵第 2 列第 1 行的元素。
      */
     public m09: number;
 
     /**
-     * @en Value assigned to element at column 2 row 2.
+     * @en Value at column 2 row 2 of the matrix.
      * @zh 矩阵第 2 列第 2 行的元素。
      */
     public m10: number;
 
     /**
-     * @en Value assigned to element at column 2 row 3.
+     * @en Value at column 2 row 3 of the matrix.
      * @zh 矩阵第 2 列第 3 行的元素。
      */
     public m11: number;
 
     /**
-     * @en Value assigned to element at column 3 row 0.
+     * @en Value at column 3 row 0 of the matrix.
      * @zh 矩阵第 3 列第 0 行的元素。
      */
     public m12: number;
 
     /**
-     * @en Value assigned to element at column 3 row 1.
+     * @en Value at column 3 row 1 of the matrix.
      * @zh 矩阵第 3 列第 1 行的元素。
      */
     public m13: number;
 
     /**
-     * @en Value assigned to element at column 3 row 2.
+     * @en Value at column 3 row 2 of the matrix.
      * @zh 矩阵第 3 列第 2 行的元素。
      */
     public m14: number;
 
     /**
-     * @en Value assigned to element at column 3 row 3.
+     * @en Value at column 3 row 3 of the matrix.
      * @zh 矩阵第 3 列第 3 行的元素。
      */
     public m15: number;
@@ -1525,7 +1525,7 @@ export class Mat4 extends ValueType {
     public set (other: Mat4);
 
     /**
-     * @en Set the matrix with value.
+     * @en Set the matrix with values of all elements
      * @zh 设置当前矩阵指定元素值。
      * @return this
      */
@@ -2059,7 +2059,7 @@ export class Mat4 extends ValueType {
     }
 
     /**
-     * @en Calculates the current matrix from the given quaternion.
+     * @en Resets the current matrix from the given quaternion.
      * @zh 重置当前矩阵的值，使其表示指定四元数表示的旋转变换。
      * @param q 四元数表示的旋转变换。
      * @return `this`

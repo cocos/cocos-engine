@@ -49,7 +49,7 @@ export class Vec2 extends ValueType {
     public static UNIT_Y = Object.freeze(new Vec2(0, 1));
 
     /**
-     * @en Obtains a clone of the given vector object
+     * @en Obtains a clone of the given vector object and save the results to out vector object
      * @zh 获得指定向量的拷贝
      */
     public static clone <Out extends IVec2Like> (a: Out) {
@@ -57,7 +57,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Copy the target vector
+     * @en Copy the target vector and save the results to out vector object
      * @zh 复制目标向量
      */
     public static copy <Out extends IVec2Like> (out: Out, a: Out) {
@@ -77,7 +77,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Element-wise vector addition
+     * @en Element-wise vector addition and save the results to out vector object
      * @zh 逐元素向量加法
      */
     public static add <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
@@ -87,7 +87,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Element-wise vector subtraction
+     * @en Element-wise vector subtraction and save the results to out vector object
      * @zh 逐元素向量减法
      */
     public static subtract <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
@@ -97,7 +97,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Element-wise vector multiplication
+     * @en Element-wise vector multiplication and save the results to out vector object
      * @zh 逐元素向量乘法
      */
     public static multiply <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
@@ -107,7 +107,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Element-wise vector division
+     * @en Element-wise vector division and save the results to out vector object
      * @zh 逐元素向量除法
      */
     public static divide <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
@@ -117,7 +117,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Rounds up by elements of the vector
+     * @en Rounds up by elements of the vector and save the results to out vector object
      * @zh 逐元素向量向上取整
      */
     public static ceil <Out extends IVec2Like> (out: Out, a: Out) {
@@ -127,7 +127,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Element vector by rounding down
+     * @en Element vector by rounding down and save the results to out vector object
      * @zh 逐元素向量向下取整
      */
     public static floor <Out extends IVec2Like> (out: Out, a: Out) {
@@ -137,7 +137,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en The minimum value of all elements in the vector
+     * @en The minimum value of all elements in the vector and save the results to out vector object
      * @zh 逐元素向量最小值
      */
     public static min <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
@@ -147,7 +147,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en The maximum value of all elements in the vector
+     * @en The maximum value of all elements in the vector and save the results to out vector object
      * @zh 逐元素向量最大值
      */
     public static max <Out extends IVec2Like> (out: Out, a: Out, b: Out) {
@@ -157,7 +157,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Rounds all elements in the vector to integer
+     * @en Rounds all elements in the vector to integer and save the results to out vector object
      * @zh 逐元素向量四舍五入取整
      */
     public static round <Out extends IVec2Like> (out: Out, a: Out) {
@@ -167,7 +167,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Vector scalar multiplication
+     * @en Vector scalar multiplication and save the results to out vector object
      * @zh 向量标量乘法
      */
     public static multiplyScalar <Out extends IVec2Like> (out: Out, a: Out, b: number) {
@@ -644,7 +644,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Multiplies two vectors, and returns this.
+     * @en Multiplies the current vector with another one and return this
      * @zh 向量乘法。将当前向量与指定分量的向量相乘的结果赋值给当前向量。
      * @param x 指定的向量的 x 分量。
      * @param y 指定的向量的 y 分量。
@@ -656,7 +656,7 @@ export class Vec2 extends ValueType {
     }
 
     /**
-     * @en Divides by a number, and returns this.
+     * @en Element-wisely divides this vector with another one, and return this.
      * @zh 向量逐元素相除。将当前向量与指定分量的向量相除的结果赋值给当前向量。
      * @param other 指定的向量
      */

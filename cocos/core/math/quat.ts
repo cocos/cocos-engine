@@ -43,7 +43,7 @@ export class Quat extends ValueType {
     public static IDENTITY = Object.freeze(new Quat());
 
     /**
-     * @en Obtain a copy of the given quaternion
+     * @en Obtain a copy of the given quaternion and save the results to out quaternion
      * @zh 获得指定四元数的拷贝
      */
     public static clone <Out extends IQuatLike> (a: Out) {
@@ -140,7 +140,7 @@ export class Quat extends ValueType {
     }
 
     /**
-     * @en Quaternion multiplication
+     * @en Quaternion multiplication and save the results to out quaternion
      * @zh 四元数乘法
      */
     public static multiply <Out extends IQuatLike, QuatLike_1 extends IQuatLike, QuatLike_2 extends IQuatLike> (out: Out, a: QuatLike_1, b: QuatLike_2) {
@@ -156,7 +156,7 @@ export class Quat extends ValueType {
     }
 
     /**
-     * @en Quaternion scalar multiplication
+     * @en Quaternion scalar multiplication and save the results to out quaternion
      * @zh 四元数标量乘法
      */
     public static multiplyScalar <Out extends IQuatLike> (out: Out, a: Out, b: number) {
@@ -605,7 +605,7 @@ export class Quat extends ValueType {
     }
 
     /**
-     * @en Quaternion rotation array
+     * @en Converts quaternion to an array
      * @zh 四元数转数组
      * @param ofs 数组内的起始偏移量
      */

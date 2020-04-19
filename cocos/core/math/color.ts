@@ -55,7 +55,7 @@ export class Color extends ValueType {
     public static YELLOW = Object.freeze(new Color(255, 255, 0, 255));
 
     /**
-     * @en Copy content of a color into another.
+     * @en Copy content of a color into another and save the results to out color.
      * @zh 获得指定颜色的拷贝
      */
     public static clone<Out extends IColorLike> (a: Out) {
@@ -69,7 +69,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @en Clone a color.
+     * @en Clone a color and save the results to out color.
      * @zh 复制目标颜色
      */
     public static copy<Out extends IColorLike> (out: Out, a: Out) {
@@ -81,7 +81,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @en Set the components of a color to the given values.
+     * @en Set the components of a color to the given values and save the results to out color.
      * @zh 设置颜色值
      */
     public static set<Out extends IColorLike> (out: Out, r: number, g: number, b: number, a: number) {
@@ -93,7 +93,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @en Converts the hexadecimal formal color into rgb formal.
+     * @en Converts the hexadecimal formal color into rgb formal and save the results to out color.
      * @zh 从十六进制颜色字符串中读入颜色到 out 中
      */
     public static fromHEX<Out extends IColorLike> (out: Out, hexString: string) {
@@ -107,7 +107,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @en Add components of two colors, respectively.
+     * @en Add components of two colors, respectively. And save the results to out color.
      * @zh 逐通道颜色加法
      */
     public static add<Out extends IColorLike> (out: Out, a: Out, b: Out) {
@@ -119,7 +119,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @en Subtract components of color b from components of color a, respectively.
+     * @en Subtract components of color b from components of color a, respectively. And save the results to out color.
      * @zh 逐通道颜色减法
      */
     public static subtract<Out extends IColorLike> (out: Out, a: Out, b: Out) {
@@ -131,7 +131,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @en Multiply components of two colors, respectively.
+     * @en Multiply components of two colors, respectively. And save the results to out color.
      * @zh 逐通道颜色乘法
      */
     public static multiply<Out extends IColorLike> (out: Out, a: Out, b: Out) {
@@ -143,7 +143,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @en Divide components of color a by components of color b, respectively.
+     * @en Divide components of color a by components of color b, respectively. And save the results to out color.
      * @zh 逐通道颜色除法
      */
     public static divide<Out extends IColorLike> (out: Out, a: Out, b: Out) {
@@ -155,7 +155,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @en Multiply all channels in a color with the given scale factor
+     * @en Multiply all channels in a color with the given scale factor, and save the results to out color.
      * @zh 全通道统一缩放颜色
      */
     public static scale<Out extends IColorLike> (out: Out, a: Out, b: number) {
@@ -184,7 +184,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @en Convert a color object to a RGBA array
+     * @en Convert a color object to a RGBA array, and save the results to out color.
      * @zh 颜色转数组
      * @param ofs 数组起始偏移量
      */
@@ -198,7 +198,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @en Sets the given color with RGBA values in an array
+     * @en Sets the given color with RGBA values in an array, and save the results to out color.
      * @zh 数组转颜色
      * @param ofs 数组起始偏移量
      */
@@ -230,7 +230,7 @@ export class Color extends ValueType {
     }
 
     /**
-     * @en Convert the given color to a hex color value.
+     * @en Convert the given color to a hex color value. And save the results to out color.
      * @zh 获取指定颜色的整型数据表示
      */
     public static hex<Out extends IColorLike> (a: Out) {
