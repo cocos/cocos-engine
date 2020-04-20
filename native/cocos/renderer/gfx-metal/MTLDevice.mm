@@ -50,6 +50,8 @@ bool CCMTLDevice::initialize(const GFXDeviceInfo& info)
     GFXCommandAllocatorInfo cmd_alloc_info;
     _cmdAllocator = createCommandAllocator(cmd_alloc_info);
     
+    _minClipZ = 0;
+    
     _depthBits = 24;
     _stencilBits = 8;
     //TODO: other information

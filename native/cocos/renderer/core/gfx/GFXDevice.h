@@ -66,41 +66,45 @@ class CC_CORE_API GFXDevice : public Object {
   CC_INLINE bool hasFeature(GFXFeature feature) const { return _features[static_cast<uint8_t>(feature)]; }
   CC_INLINE void defineMacro(const String& macro, const String& value) { _macros[macro] = value; }
   CC_INLINE void setReverseCW(bool reverseCW) { _reverseCW = reverseCW; }
+    CC_INLINE float getMinClipZ() const { return _minClipZ; }
+    CC_INLINE int getProjectionSignY() const { return _projectionSignY; }
  
- protected:
-  GFXAPI _gfxAPI = GFXAPI::UNKNOWN;
-  String _deviceName;
-  String _renderer;
-  String _vendor;
-  String _version;
-  bool _features[static_cast<uint8_t>(GFXFeature::COUNT)];
-  uint _width = 0;
-  uint _height = 0;
-  uint _nativeWidth = 0;
-  uint _nativeHeight = 0;
-  GFXMemoryStatus _memoryStatus;
-  uintptr_t _windowHandle = 0;
-  GFXContext* _context = nullptr;
-  GFXWindow* _window = nullptr;
-  GFXQueue* _queue = nullptr;
-  GFXCommandAllocator* _cmdAllocator = nullptr;
-  uint _numDrawCalls = 0;
-  uint _numInstances = 0;
-  uint _numTriangles = 0;
-   int _maxVertexAttributes = -1;
-   int _maxVertexUniformVectors = -1;
-   int _maxFragmentUniformVectors = -1;
-   int _maxTextureUnits = -1;
-   int _maxVertexTextureUnits = -1;
-   int _maxUniformBufferBindings = GFX_MAX_BUFFER_BINDINGS;
-   int _maxUniformBlockSize = -1;
-   int _maxTextureSize = -1;
-   int _maxCubeMapTextureSize = -1;
-   int _depthBits = -1;
-   int _stencilBits = -1;
-   bool _reverseCW = false;
-   uint _shaderIdGen = 0;
-   std::unordered_map<String, String> _macros;
+protected:
+    GFXAPI _gfxAPI = GFXAPI::UNKNOWN;
+    String _deviceName;
+    String _renderer;
+    String _vendor;
+    String _version;
+    bool _features[static_cast<uint8_t>(GFXFeature::COUNT)];
+    uint _width = 0;
+    uint _height = 0;
+    uint _nativeWidth = 0;
+    uint _nativeHeight = 0;
+    GFXMemoryStatus _memoryStatus;
+    uintptr_t _windowHandle = 0;
+    GFXContext* _context = nullptr;
+    GFXWindow* _window = nullptr;
+    GFXQueue* _queue = nullptr;
+    GFXCommandAllocator* _cmdAllocator = nullptr;
+    uint _numDrawCalls = 0;
+    uint _numInstances = 0;
+    uint _numTriangles = 0;
+    int _maxVertexAttributes = -1;
+    int _maxVertexUniformVectors = -1;
+    int _maxFragmentUniformVectors = -1;
+    int _maxTextureUnits = -1;
+    int _maxVertexTextureUnits = -1;
+    int _maxUniformBufferBindings = GFX_MAX_BUFFER_BINDINGS;
+    int _maxUniformBlockSize = -1;
+    int _maxTextureSize = -1;
+    int _maxCubeMapTextureSize = -1;
+    int _depthBits = -1;
+    int _stencilBits = -1;
+    bool _reverseCW = false;
+    uint _shaderIdGen = 0;
+    std::unordered_map<String, String> _macros;
+    float _minClipZ = -1;
+    int _projectionSignY = 1;
 };
 
 NS_CC_END
