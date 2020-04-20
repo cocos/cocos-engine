@@ -198,10 +198,15 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                     if (inputAssembler->_indirectBuffer)
                         mtlIndirectBuffer = static_cast<CCMTLBuffer*>(inputAssembler->_indirectBuffer)->getMTLBuffer();
                     
-                    id<MTLBuffer> vertexBuffer = static_cast<CCMTLBuffer*>(inputAssembler->_vertexBuffers[0])->getMTLBuffer();
-                    [encoder setVertexBuffer:vertexBuffer
-                                      offset:0
-                                     atIndex:30];
+                    for(const auto& bindingInfo : gpuPipelineState->vertexBufferBindingInfo)
+                    {
+                        auto index = std::get<0>(bindingInfo);
+                        auto stream = std::get<1>(bindingInfo);
+                        id<MTLBuffer> vertexBuffer = static_cast<CCMTLBuffer*>(inputAssembler->_vertexBuffers[stream])->getMTLBuffer();
+                        [encoder setVertexBuffer:vertexBuffer
+                                          offset:0
+                                         atIndex:index];
+                    }
                 }
                 
                 break;
@@ -228,7 +233,12 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                             }
                             else
                             {
-                                assert(false);
+                                [encoder drawIndexedPrimitives:primitiveType
+                                       indexCount:cmd->drawInfo.indexCount
+                                        indexType:static_cast<CCMTLBuffer*>(inputAssembler->getIndexBuffer() )->getIndexType()
+                                      indexBuffer:mtlIndexBuffer
+                                indexBufferOffset:offset
+                                    instanceCount:cmd->drawInfo.instanceCount];
                             }
                         }
                         else
