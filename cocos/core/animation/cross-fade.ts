@@ -51,7 +51,7 @@ export class CrossFade extends Playable {
             if (fading.target.state) {
                 fading.target.state.weight += weight;
             }
-            if (relativeWeight === 1.0) {
+            if (fading.easeTime >= fading.easeDuration) {
                 deadFadingBegin = iFading + 1;
                 fading.easeTime = fading.easeDuration;
                 break;
