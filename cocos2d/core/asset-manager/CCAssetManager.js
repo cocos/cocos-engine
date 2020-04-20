@@ -690,7 +690,7 @@ AssetManager.prototype = {
             }
         });
 
-        var js = ver ?  `${root}/index.${ver}.js`: `${root}/index.js`;
+        let js = this._getScriptPath(root, ver);
         this.loadScript(js, options, function (err) {
             if (err) cc.warn(err);
             count++;
@@ -699,6 +699,10 @@ AssetManager.prototype = {
             }
         });
         
+    },
+
+    _getScriptPath (bundleRoot, bundleVersion) {
+        return ver ? `${bundleRoot}/index.${bundleVersion}.js` : `${bundleRoot}/index.js`;
     },
 
     /**
