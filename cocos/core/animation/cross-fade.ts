@@ -103,6 +103,8 @@ export class CrossFade extends Playable {
                 state.play();
             }
             this._managedStates.push(target);
+        } else if (target.state?.isMotionless) {
+            target.state.play();
         }
         ++target.reference;
         this._fadings.unshift({
