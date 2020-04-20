@@ -526,7 +526,9 @@ class InputManager {
 
             if (JSB || RUNTIME_BASED) {
                 // @ts-ignore
-                jsb.device.setMotionInterval(interval);
+                if (jsb.device && jsb.device.setMotionInterval) {
+                    jsb.device.setMotionInterval(interval);
+                }
             }
         }
     }
