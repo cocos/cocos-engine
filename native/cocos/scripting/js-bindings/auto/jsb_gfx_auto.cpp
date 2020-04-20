@@ -13202,6 +13202,24 @@ static bool js_gfx_GFXDevice_getStencilBits(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_GFXDevice_getStencilBits)
 
+static bool js_gfx_GFXDevice_getProjectionSignY(se::State& s)
+{
+    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getProjectionSignY : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int result = cobj->getProjectionSignY();
+        ok &= int32_to_seval((int)result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getProjectionSignY : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_GFXDevice_getProjectionSignY)
+
 static bool js_gfx_GFXDevice_getDeviceName(se::State& s)
 {
     cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
@@ -13745,6 +13763,24 @@ static bool js_gfx_GFXDevice_getDepthBits(se::State& s)
 }
 SE_BIND_PROP_GET(js_gfx_GFXDevice_getDepthBits)
 
+static bool js_gfx_GFXDevice_getMinClipZ(se::State& s)
+{
+    cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
+    SE_PRECONDITION2(cobj, false, "js_gfx_GFXDevice_getMinClipZ : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        float result = cobj->getMinClipZ();
+        ok &= float_to_seval(result, &s.rval());
+        SE_PRECONDITION2(ok, false, "js_gfx_GFXDevice_getMinClipZ : Error processing arguments");
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_gfx_GFXDevice_getMinClipZ)
+
 static bool js_gfx_GFXDevice_getMemoryStatus(se::State& s)
 {
     cocos2d::GFXDevice* cobj = (cocos2d::GFXDevice*)s.nativeThisObject();
@@ -13905,6 +13941,7 @@ bool js_register_gfx_GFXDevice(se::Object* obj)
     cls->defineProperty("deviceName", _SE(js_gfx_GFXDevice_getDeviceName), nullptr);
     cls->defineProperty("numInstances", _SE(js_gfx_GFXDevice_getNumInstances), nullptr);
     cls->defineProperty("maxTextureUnits", _SE(js_gfx_GFXDevice_getMaxTextureUnits), nullptr);
+    cls->defineProperty("projectionSignY", _SE(js_gfx_GFXDevice_getProjectionSignY), nullptr);
     cls->defineProperty("height", _SE(js_gfx_GFXDevice_getHeight), nullptr);
     cls->defineProperty("shaderIdGen", _SE(js_gfx_GFXDevice_getShaderIdGen), nullptr);
     cls->defineProperty("renderer", _SE(js_gfx_GFXDevice_getRenderer), nullptr);
@@ -13924,6 +13961,7 @@ bool js_register_gfx_GFXDevice(se::Object* obj)
     cls->defineProperty("memoryStatus", _SE(js_gfx_GFXDevice_getMemoryStatus), nullptr);
     cls->defineProperty("gfxAPI", _SE(js_gfx_GFXDevice_getGfxAPI), nullptr);
     cls->defineProperty("maxUniformBlockSize", _SE(js_gfx_GFXDevice_getMaxUniformBlockSize), nullptr);
+    cls->defineProperty("minClipZ", _SE(js_gfx_GFXDevice_getMinClipZ), nullptr);
     cls->defineProperty("maxTextureSize", _SE(js_gfx_GFXDevice_getMaxTextureSize), nullptr);
     cls->defineProperty("nativeHeight", _SE(js_gfx_GFXDevice_getNativeHeight), nullptr);
     cls->defineProperty("numTris", _SE(js_gfx_GFXDevice_getNumTris), nullptr);
