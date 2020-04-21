@@ -235,7 +235,7 @@ Audio.State = {
     };
 
     proto.getDuration = function () {
-        return this._element ? this._element.duration : 0;
+        return this._src ? this._src.duration : 0;
     };
 
     proto.getState = function (forceUpdating = true) {

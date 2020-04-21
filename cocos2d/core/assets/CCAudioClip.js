@@ -53,6 +53,13 @@ var AudioClip = cc.Class({
     },
 
     properties: {
+        /**
+         * !#en Get the audio clip duration
+         * !#zh 获取音频剪辑的长度
+         * @property duration
+         * @type {Number}
+         */
+        duration: 0,
         loadMode: {
             default: LoadMode.WEB_AUDIO,
             type: LoadMode
