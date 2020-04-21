@@ -149,7 +149,7 @@ export class PhysicsSystem extends System {
      * @zh
      * 获取此系统的ID。
      */
-    static readonly ID: 'physics';
+    static readonly ID = 'PHYSICS';
 
     /**
      * @en

@@ -20,7 +20,7 @@ export class TweenSystem extends System {
      * @zh
      * 此系统的 ID 标记。
      */
-    static readonly ID = 'tween';
+    static readonly ID = 'TWEEN';
 
     /**
      * @en
