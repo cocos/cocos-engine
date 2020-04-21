@@ -15,7 +15,7 @@ import { EDITOR, PHYSICS_BUILTIN, DEBUG, PHYSICS_CANNON, PHYSICS_AMMO } from 'in
 
 /**
  * @en
- * physics system.
+ * Physics system.
  * @zh
  * 物理系统。
  */
