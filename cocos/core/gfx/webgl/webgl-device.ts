@@ -327,6 +327,10 @@ export class WebGLGFXDevice extends GFXDevice {
             this._WEBGL_depth_texture = { UNSIGNED_INT_24_8_WEBGL: 0x84FA };
         }
 
+        if (sys.browserType === sys.BROWSER_TYPE_UC) {
+            this._ANGLE_instanced_arrays = null; // UC browser implementation doesn't work
+        }
+
         this._features.fill(false);
 
         if (this._WEBGL_color_buffer_float) {
