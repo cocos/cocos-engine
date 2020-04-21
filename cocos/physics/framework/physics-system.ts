@@ -15,7 +15,7 @@ import { EDITOR, PHYSICS_BUILTIN, DEBUG, PHYSICS_CANNON, PHYSICS_AMMO } from 'in
 
 /**
  * @en
- * physics system.
+ * Physics system.
  * @zh
  * 物理系统。
  */
@@ -149,7 +149,7 @@ export class PhysicsSystem extends System {
      * @zh
      * 获取此系统的ID。
      */
-    static readonly ID: 'physics';
+    static readonly ID = 'PHYSICS';
 
     /**
      * @en
