@@ -457,6 +457,10 @@ export default class SpineAssembler extends Assembler {
 
             this.fillVertices(skeletonColor, attachmentColor, slotColor, clipper, slot);
     
+            // reset buffer pointer, because clipper maybe realloc a new buffer in file Vertices function.
+            vbuf = _buffer._vData,
+            ibuf = _buffer._iData;
+
             if (_indexCount > 0) {
                 for (let ii = _indexOffset, nn = _indexOffset + _indexCount; ii < nn; ii++) {
                     ibuf[ii] += _vertexOffset;
