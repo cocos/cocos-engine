@@ -126,10 +126,8 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @en
-     * Render priority of the camera, should be statically set in editor.<br>
-     * You cannot dynamically change this property at runtime.
-     * @zh 相机的优先级顺序，只能在编辑器中设置，动态设置无效。
+     * @en Render priority of the camera, in ascending-order.
+     * @zh 相机的渲染优先级，值越小越优先渲染。
      */
     @property({
         tooltip: 'i18n:camera.priority',
@@ -147,9 +145,8 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @en Visibility mask of the camera, based on what layer the target node is in,
-     * to filter out the models that don't need to render for this camera.
-     * @zh 相机可见性掩码，对应模型所在节点的 layer 信息，用于过滤相机不需要渲染的物体。
+     * @en Visibility mask, declaring a set of node layers that will be visible to this camera.
+     * @zh 可见性掩码，声明在当前相机中可见的节点层级集合。
      */
     @property({
         type: Layers.BitMask,
@@ -261,8 +258,8 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @en Axis of the field of view of the camera.
-     * @zh 相机的视角轴。
+     * @en The axis on which the FOV would be fixed regardless of screen aspect changes.
+     * @zh 指定视角的固定轴向，在此轴上不会跟随屏幕长宽比例变化。
      */
     @property({
         type: FOVAxis,
@@ -302,7 +299,7 @@ export class CameraComponent extends Component {
 
     /**
      * @en Viewport height in orthographic mode.
-     * @zh 正交模式下的相机视角大小。
+     * @zh 正交模式下的相机视角高度。
      */
     @property({
         tooltip: 'i18n:camera.ortho_height',
@@ -318,8 +315,8 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @en Near clipping distance of the camera.
-     * @zh 相机的近平面。
+     * @en Near clipping distance of the camera, should be as large as possible within acceptable range.
+     * @zh 相机的近裁剪距离，应在可接受范围内尽量取最大。
      */
     @property({
         tooltip: 'i18n:camera.near',
@@ -335,8 +332,8 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @en Far clipping distance of the camera.
-     * @zh 相机的远平面。
+     * @en Far clipping distance of the camera, should be as small as possible within acceptable range.
+     * @zh 相机的远裁剪距离，应在可接受范围内尽量取最小。
      */
     @property({
         tooltip: 'i18n:camera.far',
@@ -352,30 +349,13 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @en Screen viewport of the camera wrt. the sceen size.
-     * @zh 相机相对屏幕的 viewport。
-     */
-    @property({
-        tooltip: 'i18n:camera.rect',
-        displayOrder: 12,
-    })
-    get rect () {
-        return this._rect;
-    }
-
-    set rect (val) {
-        this._rect = val;
-        if (this._camera) { this._camera.viewport = val; }
-    }
-
-    /**
-     * @en Camera aperture.
-     * @zh 相机光圈。
+     * @en Camera aperture, controls the exposure parameter.
+     * @zh 相机光圈，影响相机的曝光参数。
      */
     @property({
         type: Aperture,
         tooltip: 'i18n:camera.aperture',
-        displayOrder: 13,
+        displayOrder: 12,
     })
     get aperture () {
         return this._aperture;
@@ -387,13 +367,13 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @en Camera shutter.
-     * @zh 相机快门。
+     * @en Camera shutter, controls the exposure parameter.
+     * @zh 相机快门，影响相机的曝光参数。
      */
     @property({
         type: Shutter,
         tooltip: 'i18n:camera.shutter',
-        displayOrder: 14,
+        displayOrder: 13,
     })
     get shutter () {
         return this._shutter;
@@ -405,13 +385,13 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @en Camera ISO.
-     * @zh 相机感光度。
+     * @en Camera ISO, controls the exposure parameter.
+     * @zh 相机感光度，影响相机的曝光参数。
      */
     @property({
         type: ISO,
         tooltip: 'i18n:camera.ISO',
-        displayOrder: 15,
+        displayOrder: 14,
     })
     get iso () {
         return this._iso;
@@ -423,8 +403,25 @@ export class CameraComponent extends Component {
     }
 
     /**
-     * @en Output render texture of the camera. Output directly to screen if not specified.
-     * @zh 相机的输出 RenderTexture，如未指定会直接输出到主屏幕。
+     * @en Screen viewport of the camera wrt. the sceen size.
+     * @zh 此相机最终渲染到屏幕上的视口位置和大小。
+     */
+    @property({
+        tooltip: 'i18n:camera.rect',
+        displayOrder: 15,
+    })
+    get rect () {
+        return this._rect;
+    }
+
+    set rect (val) {
+        this._rect = val;
+        if (this._camera) { this._camera.viewport = val; }
+    }
+
+    /**
+     * @en Output render texture of the camera. Default to null, which outputs directly to screen.
+     * @zh 指定此相机的渲染输出目标贴图，默认为空，直接渲染到屏幕。
      */
     @property({
         type: RenderTexture,
