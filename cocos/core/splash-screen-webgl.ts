@@ -7,7 +7,7 @@ import { clamp01 } from "./math";
 import { easing } from "./animation";
 import { macro } from "./platform";
 import { sys } from "./platform/sys";
-import { COCOSPLAY, XIAOMI, JSB } from 'internal:constants';
+import { COCOSPLAY, XIAOMI, JSB, ALIPAY } from 'internal:constants';
 
 type SplashEffectType = 'none' | 'Fade-InOut';
 
@@ -151,7 +151,7 @@ export class SplashScreenWebgl {
             this._directCall = true;
             return;
         } else {
-            cc.view.enableRetina(true);            
+            cc.view.enableRetina(true);
             const designRes = window._CCSettings.designResolution;
             if (designRes) {
                 cc.view.setDesignResolutionSize(designRes.width, designRes.height, designRes.policy);
@@ -235,6 +235,14 @@ export class SplashScreenWebgl {
                 this.gl.canvas.width = width;
                 this.gl.canvas.height = height;
             }
+        }
+
+        // adapt for alipay, adjust the canvas size
+        if (ALIPAY) {
+            const w = screen.width;
+            this.gl.canvas.width = w;
+            const h = screen.height;
+            this.gl.canvas.height = h;
         }
 
         this.initMatrix();
