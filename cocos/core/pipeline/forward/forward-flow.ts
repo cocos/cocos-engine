@@ -8,6 +8,8 @@ import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { RenderView } from '../render-view';
 import { ForwardFlowPriority } from './enum';
 import { ForwardStage } from './forward-stage';
+import { ForwardPipeline } from './forward-pipeline';
+
 
 /**
  * @zh
@@ -25,13 +27,14 @@ export class ForwardFlow extends RenderFlow {
      * 构造函数。
      * @param pipeline 渲染管线。
      */
-    constructor () {
+    constructor (forwardpipeline: ForwardPipeline) {
         super();
+        this._rootPipeline = forwardpipeline;
     }
 
     public initialize (info: IRenderFlowInfo) {
         super.initialize(info);
-        const forwardStage = new ForwardStage();
+        const forwardStage = new ForwardStage(this);
         forwardStage.initialize(ForwardStage.initInfo);
         this._stages.push(forwardStage);
     }
@@ -61,4 +64,11 @@ export class ForwardFlow extends RenderFlow {
      */
     public rebuild () {
     }
+
+    public getPipeline()
+    {
+        return this._rootPipeline;
+    }
+
+    private _rootPipeline:ForwardPipeline;
 }

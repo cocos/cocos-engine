@@ -2,7 +2,7 @@
  * @category pipeline.forward
  */
 
-import { ccclass } from '../../data/class-decorator';
+import { ccclass, boolean } from '../../data/class-decorator';
 import { GFXCommandBuffer } from '../../gfx/command-buffer';
 import { GFXClearFlag, GFXFilter, IGFXColor } from '../../gfx/define';
 import { Layers } from '../../scene-graph';
@@ -13,6 +13,10 @@ import { RenderInstancedQueue } from '../render-instanced-queue';
 import { IRenderStageInfo, RenderQueueSortMode, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { ForwardStagePriority } from './enum';
+import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
+import { IRenderPass } from '../define';
+import {getPhaseID} from '../pass-phase'
+import { ForwardFlow } from './forward-flow';
 
 const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
@@ -43,13 +47,15 @@ export class ForwardStage extends RenderStage {
 
     private _opaqueBatchedQueue: RenderBatchedQueue;
     private _opaqueInstancedQueue: RenderInstancedQueue;
+    private _lightBatchedQueue: RenderQueue[] = [];
 
     /**
      * 构造函数。
      * @param flow 渲染阶段。
      */
-    constructor () {
+    constructor (forwardFlow: ForwardFlow) {
         super();
+        this._rootFlow = forwardFlow;
         this._opaqueBatchedQueue = new RenderBatchedQueue();
         this._opaqueInstancedQueue = new RenderInstancedQueue();
     }
@@ -96,9 +102,21 @@ export class ForwardStage extends RenderStage {
         this._opaqueInstancedQueue.clear();
         this._opaqueBatchedQueue.clear();
         this._renderQueues.forEach(this.renderQueueClearFunc);
+        this._lightBatchedQueue.forEach(this.lightBatchedQueueClearFunc);
+
+        for (let l = 0; l < this.getFlow().getPipeline().getValidLights().length; ++l) {
+            let sortFunc: (a: IRenderPass, b: IRenderPass) => number = opaqueCompareFn;
+            this._lightBatchedQueue[l] = new RenderQueue({
+                isTransparent: false,
+                phases: getPhaseID("forward-add"),
+                sortFunc,
+            });
+        }               
 
         const renderObjects = this._pipeline.renderObjects;
         for (let i = 0; i < renderObjects.length; ++i) {
+            const nextLightIndex = i + 1 < renderObjects.length ? this.getFlow().getPipeline().getLightIndexOffset()[i + 1] : 
+            this.getFlow().getPipeline().getLightIndices().length;
             const ro = renderObjects[i];
             if (ro.model.isDynamicBatching) {
                 const subModels = ro.model.subModels;
@@ -126,6 +144,11 @@ export class ForwardStage extends RenderStage {
                     for (let p = 0; p < ro.model.getSubModel(m).passes.length; p++) {
                         for (let k = 0; k < this._renderQueues.length; k++) {
                             this._renderQueues[k].insertRenderPass(ro, m, p);
+                        }
+
+                        //Organization light-batched-queues
+                        for (let l = this.getFlow().getPipeline().getLightIndexOffset()[i]; l < nextLightIndex; l++) {
+                            this._lightBatchedQueue[this.getFlow().getPipeline().getLightIndices()[l]].insertRenderPass(ro, m, p);
                         }
                     }
                 }
@@ -180,6 +203,11 @@ export class ForwardStage extends RenderStage {
         this._opaqueInstancedQueue.recordCommandBuffer(cmdBuff);
         this._opaqueBatchedQueue.recordCommandBuffer(cmdBuff);
 
+        // commit light-batched-queues
+        for (let l = 0; l < this._lightBatchedQueue.length; ++l) {
+            cmdBuff.execute(this._lightBatchedQueue[l].cmdBuffs.array, this._lightBatchedQueue[l].cmdBuffCount);
+        }        
+
         if (camera.visibility & Layers.BitMask.DEFAULT) {
             cmdBuff.execute(planarShadow.cmdBuffs.array, planarShadow.cmdBuffCount);
         }
@@ -200,4 +228,15 @@ export class ForwardStage extends RenderStage {
                 GFXFilter.POINT);
         }
     }
+
+    protected lightBatchedQueueClearFunc (rq: RenderQueue) {
+        rq.clear();
+    }
+
+    public getFlow()
+    {
+        return this._rootFlow;
+    }
+
+    private _rootFlow: ForwardFlow;
 }
