@@ -83,7 +83,7 @@ export class ForwardPipeline extends RenderPipeline {
 
     public initialize (info: IRenderPipelineInfo) {
         super.initialize(info);
-        const forwardFlow = new ForwardFlow();
+        const forwardFlow = new ForwardFlow(this);
         forwardFlow.initialize(ForwardFlow.initInfo);
         this._flows.push(forwardFlow);
     }
@@ -300,5 +300,29 @@ export class ForwardPipeline extends RenderPipeline {
 
     private sortLight (a: number, b: number) {
         return _tempLightDist[a] - _tempLightDist[b];
+    }
+
+    /**
+     * @zh
+     * 获取参与渲染的灯光。
+     */
+    public getValidLights() {
+        return this._validLights
+    }
+
+    /**
+     * @zh
+     * 获取灯光索引偏移量数组。
+     */
+    public getLightIndexOffset() {
+        return this._lightIndexOffset;
+    }
+
+    /**
+     * @zh
+     * 获取灯光索引数组。
+     */
+    public getLightIndices() {
+        return this._lightIndices;
     }
 }
