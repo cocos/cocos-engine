@@ -620,7 +620,7 @@ var Component = cc.Class({
 
 Component._requireComponent = null;
 Component._executionOrder = 0;
-Component._disallowMultiple = null;
+
 
 if (CC_EDITOR || CC_TEST) {
 
@@ -648,6 +648,7 @@ if (CC_EDITOR || CC_TEST) {
         });
     };
 }
+if (CC_EDITOR && CC_PREVIEW) Component._disallowMultiple = null;
 
 // We make this non-enumerable, to prevent inherited by sub classes.
 js.value(Component, '_registerEditorProps', function (cls, props) {
