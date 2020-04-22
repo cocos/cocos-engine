@@ -58,7 +58,6 @@ var Component = cc.Class({
         this._id = Editor.Utils.UuidUtils.uuid();
 
         /**
-         * !#en
          * Register all related EventTargets,
          * all event callbacks will be removed in `_onPreDestroy`.
          * !#zh
@@ -621,6 +620,7 @@ var Component = cc.Class({
 
 Component._requireComponent = null;
 Component._executionOrder = 0;
+Component._disallowMultiple = null;
 
 if (CC_EDITOR || CC_TEST) {
 
@@ -628,7 +628,6 @@ if (CC_EDITOR || CC_TEST) {
 
     Component._executeInEditMode = false;
     Component._playOnFocus = false;
-    Component._disallowMultiple = null;
     Component._help = '';
 
     // NON-INHERITED STATIC MEMBERS
@@ -693,10 +692,6 @@ js.value(Component, '_registerEditorProps', function (cls, props) {
                     Component._addMenuItem(cls, val, props.menuPriority);
                     break;
 
-                case 'disallowMultiple':
-                    cls._disallowMultiple = cls;
-                    break;
-
                 case 'requireComponent':
                 case 'executionOrder':
                     // skip here
@@ -711,6 +706,9 @@ js.value(Component, '_registerEditorProps', function (cls, props) {
                     break;
             }
         }
+    }
+    if ((CC_EDITOR || CC_PREVIEW) && 'disallowMultiple' in props) {
+        cls._disallowMultiple = cls;
     }
 });
 
