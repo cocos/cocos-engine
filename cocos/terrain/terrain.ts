@@ -587,22 +587,26 @@ export class Terrain extends Component {
     @property({
         type: TerrainAsset,
         visible: false,
+        animatable: false,
     })
     protected __asset: TerrainAsset|null = null;
 
     @property({
         type: TerrainLayer,
         visible: true,
+        animatable: false,
     })
     protected _layers: Array<TerrainLayer|null> = [];
 
     @property({
         visible: false,
+        animatable: false,
     })
     protected _blockInfos: TerrainBlockInfo[] = [];
 
     @property({
         visible: false,
+        animatable: false,
     })
     protected _lightmapInfos: TerrainBlockLightmapInfo[] = [];
 
