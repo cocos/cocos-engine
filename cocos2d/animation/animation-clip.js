@@ -237,8 +237,11 @@ var AnimationClip = cc.Class({
             else if (firstValue instanceof cc.Quat) {
                 curve._lerp = DynamicAnimCurve.prototype._lerpQuat;
             }
-            else if (firstValue instanceof cc.Vec2 || firstValue instanceof cc.Vec3) {
-                curve._lerp = DynamicAnimCurve.prototype._lerpVector;
+            else if (firstValue instanceof cc.Vec2) {
+                curve._lerp = DynamicAnimCurve.prototype._lerpVector2;
+            }
+            else if (firstValue instanceof cc.Vec3) {
+                curve._lerp = DynamicAnimCurve.prototype._lerpVector3;
             }
             else if (firstValue.lerp) {
                 curve._lerp = DynamicAnimCurve.prototype._lerpObject;
