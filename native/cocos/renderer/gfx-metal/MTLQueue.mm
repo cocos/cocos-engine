@@ -87,7 +87,6 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
     CCMTLGPUPipelineState* gpuPipelineState = nullptr;
     CCMTLInputAssembler* inputAssembler = nullptr;
     id<MTLBuffer> mtlIndexBuffer = nil;
-    id<MTLBuffer> mtlIndirectBuffer = nil;
     MTLPrimitiveType primitiveType;
     
     for (uint i = 0; i < commandSize; ++i) {
@@ -195,9 +194,6 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                     if (inputAssembler->_indexBuffer)
                         mtlIndexBuffer = static_cast<CCMTLBuffer*>(inputAssembler->_indexBuffer)->getMTLBuffer();
                     
-                    if (inputAssembler->_indirectBuffer)
-                        mtlIndirectBuffer = static_cast<CCMTLBuffer*>(inputAssembler->_indirectBuffer)->getMTLBuffer();
-                    
                     for(const auto& bindingInfo : gpuPipelineState->vertexBufferBindingInfo)
                     {
                         auto index = std::get<0>(bindingInfo);
@@ -216,7 +212,8 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                 CCMTLCmdDraw* cmd = commandPackage->drawCmds[cmdIdx++];
                 if (inputAssembler && gpuPipelineState)
                 {
-                    if (!mtlIndirectBuffer)
+                    auto indirectBuffer = inputAssembler->getIndirectBuffer();
+                    if (!indirectBuffer)
                     {
                         if (mtlIndexBuffer && cmd->drawInfo.indexCount >= 0)
                         {
@@ -260,8 +257,50 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                     }
                     else
                     {
-                        //TODO: handle indirect buffers.
-                        assert(false);
+                        auto indirects = static_cast<CCMTLBuffer*>(indirectBuffer)->getIndirects();
+                        for(size_t j = 0; j < indirects.size(); j++)
+                        {
+                            const auto& draw = indirects[j];
+                            if(mtlIndexBuffer && draw.indexCount)
+                            {
+                                NSUInteger offset = 0;
+                                offset += draw.firstIndex * inputAssembler->getIndexBuffer()->getStride();
+                                if (cmd->drawInfo.instanceCount == 0)
+                                {
+                                    [encoder drawIndexedPrimitives:primitiveType
+                                                        indexCount:draw.indexCount
+                                                         // TODO: remove static_cast<>.
+                                                         indexType:static_cast<CCMTLBuffer*>(inputAssembler->getIndexBuffer() )->getIndexType()
+                                                       indexBuffer:mtlIndexBuffer
+                                                 indexBufferOffset:offset];
+                                }
+                                else
+                                {
+                                    [encoder drawIndexedPrimitives:primitiveType
+                                           indexCount:draw.indexCount
+                                            indexType:static_cast<CCMTLBuffer*>(inputAssembler->getIndexBuffer() )->getIndexType()
+                                          indexBuffer:mtlIndexBuffer
+                                    indexBufferOffset:offset
+                                        instanceCount:draw.instanceCount];
+                                }
+                            }
+                            else
+                            {
+                                if (draw.instanceCount == 0)
+                                {
+                                    [encoder drawPrimitives:primitiveType
+                                                vertexStart:draw.firstIndex
+                                                vertexCount:draw.vertexCount];
+                                }
+                                else
+                                {
+                                    [encoder drawPrimitives:primitiveType
+                                                vertexStart:draw.firstIndex
+                                                vertexCount:draw.vertexCount
+                                              instanceCount:draw.instanceCount];
+                                }
+                            }
+                        }
                     }
                 }
                 break;

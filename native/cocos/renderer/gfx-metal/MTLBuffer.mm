@@ -71,7 +71,7 @@ bool CCMTLBuffer::initialize(const GFXBufferInfo& info)
     }
     else if (_usage & GFXBufferUsageBit::INDIRECT)
     {
-        // do nothing
+        _indirects.resize(_count);
     }
     else if (_usage & GFXBufferUsageBit::TRANSFER_DST ||
              _usage & GFXBufferUsageBit::TRANSFER_SRC)
@@ -143,6 +143,7 @@ void CCMTLBuffer::resize(uint size)
     _count = _size / _stride;
     resizeBuffer(&_transferBuffer, _size, oldSize);
     resizeBuffer(&_buffer, _size, oldSize);
+    _indirects.resize(_count);
 }
 
 void CCMTLBuffer::resizeBuffer(uint8_t** buffer, uint size, uint oldSize)
@@ -178,6 +179,9 @@ void CCMTLBuffer::update(void* buffer, uint offset, uint size)
         memcpy(_transferBuffer + offset, buffer, size);
     if (_buffer)
         memcpy(_buffer + offset, buffer, size);
+    
+    if(_usage & GFXBufferUsageBit::INDIRECT)
+        memcpy((uint8_t*)_indirects.data() + offset, buffer, size);
 }
 
 NS_CC_END

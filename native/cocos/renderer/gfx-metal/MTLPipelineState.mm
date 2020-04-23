@@ -242,7 +242,7 @@ void CCMTLPipelineState::setVertexDescriptor(MTLRenderPipelineDescriptor* descri
         {
             if (inputAttrib.name.compare([attrib.name UTF8String]) == 0)
             {
-                descriptor.vertexDescriptor.attributes[attributeIndex].format = mu::toMTLVertexFormat(inputAttrib.format);
+                descriptor.vertexDescriptor.attributes[attributeIndex].format = mu::toMTLVertexFormat(inputAttrib.format, inputAttrib.isNormalized);
                 descriptor.vertexDescriptor.attributes[attributeIndex].offset = streamOffsets[inputAttrib.stream];
                 //FIXME: because translated metal shader binds argument buffers from 0. So bind vertex buffer to max buffer index: 30.
                 auto bufferIndex = DEFAULT_VERTEX_BUFFER_INDEX - inputAttrib.stream;

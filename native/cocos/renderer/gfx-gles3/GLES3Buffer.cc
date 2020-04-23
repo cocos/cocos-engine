@@ -32,7 +32,12 @@ bool GLES3Buffer::initialize(const GFXBufferInfo& info) {
   _gpuBuffer->stride = _stride;
   _gpuBuffer->count = _count;
   
-  if (!(_usage & GFXBufferUsageBit::INDIRECT)) {
+  if (_usage & GFXBufferUsageBit::INDIRECT) 
+  {
+    _gpuBuffer->indirects.resize(_count);
+  }
+  else 
+  {
     _gpuBuffer->buffer = _buffer;
   }
   

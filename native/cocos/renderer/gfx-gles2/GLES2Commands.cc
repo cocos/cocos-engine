@@ -568,11 +568,6 @@ void GLES2CmdFuncUpdateBuffer(GLES2Device* device, GLES2GPUBuffer* gpuBuffer, vo
   if (gpuBuffer->usage & GFXBufferUsageBit::UNIFORM) {
     memcpy(gpuBuffer->buffer + offset, buffer, size);
   } else if (gpuBuffer->usage & GFXBufferUsageBit::INDIRECT) {
-      auto count = size / sizeof(GFXDrawInfo);
-      if(gpuBuffer->indirects.size() < count)
-      {
-          gpuBuffer->indirects.resize(count);
-      }
     memcpy((uint8_t*)gpuBuffer->indirects.data() + offset, buffer, size);
   } else if (gpuBuffer->usage & GFXBufferUsageBit::TRANSFER_SRC) {
       memcpy(gpuBuffer->buffer + offset, buffer, size);
@@ -1942,15 +1937,15 @@ void GLES2CmdFuncExecuteCmds(GLES2Device* device, GLES2CmdPackage* cmd_package) 
                   glDrawElements(glPrimitive, draw.indexCount, gpuInputAssembler->glIndexType, offset);
                 } else {
                   if (device->useDrawInstanced()) {
-                    glDrawElementsInstancedEXT(glPrimitive, draw.indexCount, gpuInputAssembler->glIndexType, offset, cmd->draw_info.instanceCount);
+                    glDrawElementsInstancedEXT(glPrimitive, draw.indexCount, gpuInputAssembler->glIndexType, offset, draw.instanceCount);
                   }
                 }
               } else {
-                if (cmd->draw_info.instanceCount == 0) {
+                if (draw.instanceCount == 0) {
                   glDrawArrays(glPrimitive, draw.firstIndex, draw.vertexCount);
                 } else {
                   if (device->useDrawInstanced()) {
-                    glDrawArraysInstancedEXT(glPrimitive, draw.firstIndex, draw.vertexCount, cmd->draw_info.instanceCount);
+                    glDrawArraysInstancedEXT(glPrimitive, draw.firstIndex, draw.vertexCount, draw.instanceCount);
                   }
                 }
               }

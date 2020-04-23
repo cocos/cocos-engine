@@ -34,35 +34,68 @@ namespace mu
         return MTLClearColorMake(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     }
     
-    MTLVertexFormat toMTLVertexFormat(GFXFormat format)
+    MTLVertexFormat toMTLVertexFormat(GFXFormat format, bool isNormalized)
     {
         switch (format) {
             case GFXFormat::R32F: return MTLVertexFormatFloat;
             case GFXFormat::R32I: return MTLVertexFormatInt;
             case GFXFormat::R32UI: return MTLVertexFormatUInt;
-            case GFXFormat::RG8: return MTLVertexFormatUChar2;
-            case GFXFormat::RG8I: return MTLVertexFormatChar2;
+            case GFXFormat::RG8: return isNormalized ? MTLVertexFormatUChar2Normalized : MTLVertexFormatUChar2;
+            case GFXFormat::RG8I: return isNormalized ? MTLVertexFormatChar2Normalized : MTLVertexFormatChar2;
             case GFXFormat::RG16F: return MTLVertexFormatHalf2;
-            case GFXFormat::RG16I: return MTLVertexFormatUShort2;
+            case GFXFormat::RG16UI: return isNormalized ? MTLVertexFormatUShort2Normalized : MTLVertexFormatUShort2;
+            case GFXFormat::RG16I: return isNormalized ? MTLVertexFormatShort2Normalized : MTLVertexFormatShort2;
             case GFXFormat::RG32I: return MTLVertexFormatInt2;
             case GFXFormat::RG32UI: return MTLVertexFormatUInt2;
             case GFXFormat::RG32F: return MTLVertexFormatFloat2;
-            case GFXFormat::RGB8: return MTLVertexFormatUChar3;
-            case GFXFormat::RGB8I: return MTLVertexFormatChar3;
-            case GFXFormat::RGB16I: return MTLVertexFormatShort3;
-            case GFXFormat::RGB16UI: return MTLVertexFormatUShort3;
+            case GFXFormat::RGB8: return isNormalized ? MTLVertexFormatUChar3Normalized : MTLVertexFormatUChar3;
+            case GFXFormat::RGB8I: return isNormalized ? MTLVertexFormatChar3Normalized : MTLVertexFormatChar3;
+            case GFXFormat::RGB16I: return isNormalized ? MTLVertexFormatShort3Normalized : MTLVertexFormatShort3;
+            case GFXFormat::RGB16UI: return isNormalized ? MTLVertexFormatUShort3Normalized : MTLVertexFormatUShort3;
             case GFXFormat::RGB16F: return MTLVertexFormatHalf3;
             case GFXFormat::RGB32I: return MTLVertexFormatInt3;
             case GFXFormat::RGB32UI: return MTLVertexFormatUInt3;
             case GFXFormat::RGB32F: return MTLVertexFormatFloat3;
-            case GFXFormat::RGBA8: return MTLVertexFormatUChar4;
-            case GFXFormat::RGBA8I: return MTLVertexFormatChar4;
-            case GFXFormat::RGBA16I: return MTLVertexFormatShort4;
-            case GFXFormat::RGBA16UI: return MTLVertexFormatUShort4;
+            case GFXFormat::RGBA8: return isNormalized ? MTLVertexFormatUChar4Normalized : MTLVertexFormatUChar4;
+            case GFXFormat::RGBA8I: return isNormalized ? MTLVertexFormatChar4Normalized : MTLVertexFormatChar4;
+            case GFXFormat::RGBA16I: return isNormalized ? MTLVertexFormatShort4Normalized : MTLVertexFormatShort4;
+            case GFXFormat::RGBA16UI: return isNormalized ? MTLVertexFormatUShort4Normalized : MTLVertexFormatUShort4;
             case GFXFormat::RGBA16F: return MTLVertexFormatHalf4;
             case GFXFormat::RGBA32I: return MTLVertexFormatInt4;
             case GFXFormat::RGBA32UI: return MTLVertexFormatUInt4;
             case GFXFormat::RGBA32F: return MTLVertexFormatFloat4;
+            case GFXFormat::RGB10A2: return isNormalized ? MTLVertexFormatInt1010102Normalized : MTLVertexFormatInvalid;
+            case GFXFormat::RGB10A2UI: return isNormalized ? MTLVertexFormatUInt1010102Normalized : MTLVertexFormatInvalid;
+            case GFXFormat::BGRA8:
+            {
+                #if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+                    if(@available(iOS 11.0, *))
+                    {
+                        if(isNormalized)
+                        {
+                            return MTLVertexFormatUChar4Normalized_BGRA;
+                        }
+                        else
+                        {
+                            CC_LOG_ERROR("Invalid metal vertex format %u", format);
+                            return MTLVertexFormatInvalid;
+                        }
+                    }
+                #else
+                    if(@available(macOS 10.13, *))
+                    {
+                        if(isNormalized)
+                        {
+                            return MTLVertexFormatUChar4Normalized_BGRA;
+                        }
+                        else
+                        {
+                            CC_LOG_ERROR("Invalid metal vertex format %u", format);
+                            return MTLVertexFormatInvalid;
+                        }
+                    }
+                #endif
+            }
             default:
             {
                 CC_LOG_ERROR("Invalid vertex format %u", format);

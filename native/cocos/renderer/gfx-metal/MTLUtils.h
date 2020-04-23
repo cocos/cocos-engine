@@ -16,7 +16,7 @@ namespace mu
     MTLLoadAction toMTLLoadAction(GFXLoadOp op);
     MTLStoreAction toMTLStoreAction(GFXStoreOp op);
     MTLClearColor toMTLClearColor(const GFXColor& clearColor);
-    MTLVertexFormat toMTLVertexFormat(GFXFormat);
+    MTLVertexFormat toMTLVertexFormat(GFXFormat, bool);
     MTLPixelFormat toMTLPixelFormat(GFXFormat);
     // Because some pixel format is not supported on metal, so need to convert to supported pixel format.
     GFXFormat convertGFXPixelFormat(GFXFormat);
