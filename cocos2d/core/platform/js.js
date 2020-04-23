@@ -799,9 +799,7 @@ function appendObjectsAt (array, addObjs, index) {
 }
 
 /**
- * Exact same function as Array.prototype.indexOf.<br>
- * HACK: ugliy hack for Baidu mobile browser compatibility, stupid Baidu guys modify Array.prototype.indexOf for all pages loaded, their version changes strict comparison to non-strict comparison, it also ignores the second parameter of the original API, and this will cause event handler enter infinite loop.<br>
- * Baidu developers, if you ever see this documentation, here is the standard: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf, Seriously!
+ * Exact same function as Array.prototype.indexOf.
  *
  * @method indexOf
  * @param {any} searchElement - Element to locate in the array.
