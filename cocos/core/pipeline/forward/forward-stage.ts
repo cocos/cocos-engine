@@ -15,8 +15,8 @@ import { RenderView } from '../render-view';
 import { ForwardStagePriority } from './enum';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
 import { IRenderPass } from '../define';
-import {getPhaseID} from '../pass-phase'
-import { ForwardFlow } from './forward-flow';
+import { getPhaseID } from '../pass-phase'
+import { Light } from '../../renderer';
 
 const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
@@ -47,15 +47,14 @@ export class ForwardStage extends RenderStage {
 
     private _opaqueBatchedQueue: RenderBatchedQueue;
     private _opaqueInstancedQueue: RenderInstancedQueue;
-    private _lightBatchedQueue: RenderQueue[] = [];
+    private _lightBatchedQueues: RenderQueue[] = [];
 
     /**
      * 构造函数。
      * @param flow 渲染阶段。
      */
-    constructor (forwardFlow: ForwardFlow) {
+    constructor () {
         super();
-        this._rootFlow = forwardFlow;
         this._opaqueBatchedQueue = new RenderBatchedQueue();
         this._opaqueInstancedQueue = new RenderInstancedQueue();
     }
@@ -63,6 +62,16 @@ export class ForwardStage extends RenderStage {
     public activate (flow: RenderFlow) {
         super.activate(flow);
         this.createCmdBuffer();
+
+        const validLights: Light[] = this.flow.pipeline.getValidLights();
+        for (let l = 0; l < validLights.length; ++l) {
+            let sortFunc: (a: IRenderPass, b: IRenderPass) => number = opaqueCompareFn;
+            this._lightBatchedQueues[l] = new RenderQueue({
+                isTransparent: false,
+                phases: getPhaseID("forward-add"),
+                sortFunc,
+            });
+        }
     }
 
     /**
@@ -102,21 +111,13 @@ export class ForwardStage extends RenderStage {
         this._opaqueInstancedQueue.clear();
         this._opaqueBatchedQueue.clear();
         this._renderQueues.forEach(this.renderQueueClearFunc);
-        this._lightBatchedQueue.forEach(this.lightBatchedQueueClearFunc);
-
-        for (let l = 0; l < this.getFlow().getPipeline().getValidLights().length; ++l) {
-            let sortFunc: (a: IRenderPass, b: IRenderPass) => number = opaqueCompareFn;
-            this._lightBatchedQueue[l] = new RenderQueue({
-                isTransparent: false,
-                phases: getPhaseID("forward-add"),
-                sortFunc,
-            });
-        }               
+        this._lightBatchedQueues.forEach(this.lightBatchedQueueClearFunc);            
 
         const renderObjects = this._pipeline.renderObjects;
+        const lightIndexOffset: number[] = this.flow.pipeline.getLightIndexOffsets();
+        const lightIndices: number[] = this.flow.pipeline.getLightIndices();
         for (let i = 0; i < renderObjects.length; ++i) {
-            const nextLightIndex = i + 1 < renderObjects.length ? this.getFlow().getPipeline().getLightIndexOffset()[i + 1] : 
-            this.getFlow().getPipeline().getLightIndices().length;
+            const nextLightIndex = i + 1 < renderObjects.length ? lightIndexOffset[i + 1] : lightIndices.length;
             const ro = renderObjects[i];
             if (ro.model.isDynamicBatching) {
                 const subModels = ro.model.subModels;
@@ -146,9 +147,9 @@ export class ForwardStage extends RenderStage {
                             this._renderQueues[k].insertRenderPass(ro, m, p);
                         }
 
-                        //Organization light-batched-queues
-                        for (let l = this.getFlow().getPipeline().getLightIndexOffset()[i]; l < nextLightIndex; l++) {
-                            this._lightBatchedQueue[this.getFlow().getPipeline().getLightIndices()[l]].insertRenderPass(ro, m, p);
+                        // Organize light-batched-queues
+                        for (let l = lightIndexOffset[i]; l < nextLightIndex; l++) {
+                            this._lightBatchedQueues[lightIndices[l]].insertRenderPass(ro, m, p);
                         }
                     }
                 }
@@ -203,9 +204,9 @@ export class ForwardStage extends RenderStage {
         this._opaqueInstancedQueue.recordCommandBuffer(cmdBuff);
         this._opaqueBatchedQueue.recordCommandBuffer(cmdBuff);
 
-        // commit light-batched-queues
-        for (let l = 0; l < this._lightBatchedQueue.length; ++l) {
-            cmdBuff.execute(this._lightBatchedQueue[l].cmdBuffs.array, this._lightBatchedQueue[l].cmdBuffCount);
+        // Commit light-batched-queues
+        for (let l = 0; l < this._lightBatchedQueues.length; ++l) {
+            cmdBuff.execute(this._lightBatchedQueues[l].cmdBuffs.array, this._lightBatchedQueues[l].cmdBuffCount);
         }        
 
         if (camera.visibility & Layers.BitMask.DEFAULT) {
@@ -232,11 +233,4 @@ export class ForwardStage extends RenderStage {
     protected lightBatchedQueueClearFunc (rq: RenderQueue) {
         rq.clear();
     }
-
-    public getFlow()
-    {
-        return this._rootFlow;
-    }
-
-    private _rootFlow: ForwardFlow;
 }
