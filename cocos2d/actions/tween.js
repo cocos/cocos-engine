@@ -161,13 +161,13 @@ let SetAction = cc.Class({
  *  - 支持与 cc.Action 混用
  *  - 支持设置 {{#crossLink "Easing"}}{{/crossLink}} 或者 progress 函数
  * @class Tween
- * @typescript Tween<T = any>
  * @example
  * cc.tween(node)
  *   .to(1, {scale: 2, position: cc.v3(100, 100, 100)})
  *   .call(() => { console.log('This is a callback'); })
  *   .by(1, {scale: 3, position: cc.v3(200, 200, 200)}, {easing: 'sineOutIn'})
  *   .start(cc.find('Canvas/cocos'));
+ * @typescript Tween<T = any>
  */
 function Tween (target) {
     this._actions = [];
