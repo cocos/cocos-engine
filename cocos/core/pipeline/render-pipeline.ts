@@ -19,7 +19,7 @@ import { GFXRenderPass } from '../gfx/render-pass';
 import { GFXTexture } from '../gfx/texture';
 import { GFXTextureView } from '../gfx/texture-view';
 import { Mat4, Vec3, Vec4 } from '../math';
-import { Camera, Model } from '../renderer';
+import { Camera, Model, Light } from '../renderer';
 import { IDefineMap } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
 import { SKYBOX_FLAG } from '../renderer/scene/camera';
@@ -1061,5 +1061,23 @@ export abstract class RenderPipeline {
             return format;
         }
     }
+
+    /**
+     * @zh
+     * 获取参与渲染的灯光。
+     */
+    public abstract getValidLights () : Light[];
+
+    /**
+     * @zh
+     * 获取灯光索引偏移量数组。
+     */
+    public abstract getLightIndexOffsets () : number[];
+
+    /**
+     * @zh
+     * 获取灯光索引数组。
+     */
+    public abstract getLightIndices () : number[];
 }
 cc.RenderPipeline = RenderPipeline;
