@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 const Config = require('./config');
-const finalizer = require('./finalizer');
+const releaseManager = require('./releaseManager');
 const { parseParameters, parseLoadResArgs } = require('./utilities');
 const { RequestType, assets, bundles } = require('./shared');
 
@@ -247,7 +247,7 @@ Bundle.prototype = {
      */
     load (paths, type, onProgress, onComplete) {
         var { type, onProgress, onComplete } = parseLoadResArgs(type, onProgress, onComplete);
-        cc.assetManager.loadAny(paths, { requestType: RequestType.PATH, type: type, bundle: this.name }, onProgress, onComplete);
+        cc.assetManager.loadAny(paths, { __requestType__: RequestType.PATH, type: type, bundle: this.name }, onProgress, onComplete);
     },
 
     /**
@@ -297,7 +297,7 @@ Bundle.prototype = {
      */
     preload (paths, type, onProgress, onComplete) {
         var { type, onProgress, onComplete } = parseLoadResArgs(type, onProgress, onComplete);
-        cc.assetManager.preloadAny(paths, { requestType: RequestType.PATH, type: type, bundle: this.name }, onProgress, onComplete);
+        cc.assetManager.preloadAny(paths, { __requestType__: RequestType.PATH, type: type, bundle: this.name }, onProgress, onComplete);
     },
 
     /**
@@ -346,7 +346,7 @@ Bundle.prototype = {
      */
     loadDir (dir, type, onProgress, onComplete) {
         var { type, onProgress, onComplete } = parseLoadResArgs(type, onProgress, onComplete);
-        cc.assetManager.loadAny(dir, {requestType: RequestType.DIR, type: type, bundle: this.name}, onProgress, onComplete);
+        cc.assetManager.loadAny(dir, { __requestType__: RequestType.DIR, type: type, bundle: this.name }, onProgress, onComplete);
     },
 
     /**
@@ -396,7 +396,7 @@ Bundle.prototype = {
      */
     preloadDir (dir, type, onProgress, onComplete) {
         var { type, onProgress, onComplete } = parseLoadResArgs(type, onProgress, onComplete);
-        cc.assetManager.preloadAny(dir, { requestType: RequestType.DIR, type: type, bundle: this.name }, onProgress, onComplete);
+        cc.assetManager.preloadAny(dir, { __requestType__: RequestType.DIR, type: type, bundle: this.name }, onProgress, onComplete);
     },
 
     /**
@@ -433,7 +433,7 @@ Bundle.prototype = {
         options.bundle = this.name;
         return cc.assetManager.loadAny({ 'scene': sceneName }, options, onProgress, function (err, sceneAsset) {
             if (err) {
-                cc.error(err);
+                cc.error(err.message, err.stack);
                 onComplete && onComplete(err);
             }
             else if (sceneAsset instanceof cc.SceneAsset) {
@@ -537,7 +537,7 @@ Bundle.prototype = {
      * release(path: string): void
      */
     release (path, type) {
-        finalizer.tryRelease(this.get(path, type), true);
+        releaseManager.tryRelease(this.get(path, type), true);
     },
 
     /**
@@ -561,7 +561,7 @@ Bundle.prototype = {
         assets.forEach(function (asset) {
             let info = self.getAssetInfo(asset._uuid);
             if (info && !info.redirect) {
-                finalizer.tryRelease(asset);
+                releaseManager.tryRelease(asset);
             }
         });
     },
@@ -587,7 +587,7 @@ Bundle.prototype = {
         assets.forEach(function (asset) {
             let info = self.getAssetInfo(asset._uuid);
             if (info && !info.redirect) {
-                finalizer.tryRelease(asset, true);
+                releaseManager.tryRelease(asset, true);
             }
         });
     },

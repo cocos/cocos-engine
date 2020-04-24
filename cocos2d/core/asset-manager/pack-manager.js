@@ -100,18 +100,6 @@ var packManager = {
         onComplete && onComplete(err, out);
     },
 
-    /**
-     * !#en
-     * Initialize
-     * 
-     * !#zh
-     * 初始化 packManager
-     * 
-     * @method init
-     * 
-     * @typescript
-     * init(): void
-     */
     init () {
         _loading.clear();
     },

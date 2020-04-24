@@ -79,7 +79,7 @@ var AudioClip = cc.Class({
 
         _nativeDep: {
             get () {
-                return { uuid: this._uuid, audioLoadMode: this.loadMode, ext: cc.path.extname(this._native), isNative: true };
+                return { uuid: this._uuid, audioLoadMode: this.loadMode, ext: cc.path.extname(this._native), __isNative__: true };
             },
             override: true
         }
@@ -107,7 +107,7 @@ var AudioClip = cc.Class({
         },
 
         _parseNativeDepFromJson (json) {
-            return { audioLoadMode: json.loadMode,  ext: cc.path.extname(json._native), isNative: true };
+            return { audioLoadMode: json.loadMode,  ext: cc.path.extname(json._native), __isNative__: true };
         }
     },
 

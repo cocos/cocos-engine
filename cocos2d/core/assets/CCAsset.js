@@ -100,7 +100,7 @@ cc.Asset = cc.Class({
                         }
                         else {
                             // imported in an independent dir
-                            this._nativeUrl = cc.assetManager.utils.getUrlWithUuid(this._uuid, {_native: name, ext: cc.path.extname(name), isNative: true});
+                            this._nativeUrl = cc.assetManager.utils.getUrlWithUuid(this._uuid, {__nativeName__: name, ext: cc.path.extname(name), isNative: true});
                         }
                     }
                 }
@@ -137,7 +137,7 @@ cc.Asset = cc.Class({
         _nativeDep: {
             get () {
                 if (this._native) {
-                    return {isNative: true, uuid: this._uuid, ext: this._native};
+                    return {__isNative__: true, uuid: this._uuid, ext: this._native};
                 }
             }
         }
@@ -184,7 +184,7 @@ cc.Asset = cc.Class({
         },
 
         _parseNativeDepFromJson (json) {
-            if (json._native) return {isNative: true, ext: json._native};
+            if (json._native) return { __isNative__: true, ext: json._native};
             return null;
         }
 
@@ -250,6 +250,20 @@ cc.Asset = cc.Class({
 
     /**
      * !#zh
+     * 引用的数量
+     * 
+     * !#en
+     * The number of reference
+     * 
+     * @property refCount
+     * @type {Number}
+     */
+    get refCount () {
+        return this._ref;
+    },
+
+    /**
+     * !#zh
      * 增加资源的引用
      * 
      * !#en
@@ -278,7 +292,7 @@ cc.Asset = cc.Class({
      */
     decRef (autoRelease) {
         this._ref--;
-        autoRelease !== false && cc.assetManager.finalizer.tryRelease(this);
+        autoRelease !== false && cc.assetManager._releaseManager.tryRelease(this);
     }
 });
 

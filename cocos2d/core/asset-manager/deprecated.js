@@ -27,7 +27,7 @@ const js = require('../platform/js');
 require('../CCDirector');
 const utilities = require('./utilities');
 const { getDepsRecursively } = require('./depend-util');
-const finalizer = require('./finalizer');
+const releaseManager = require('./releaseManager');
 const downloader = require('./downloader');
 
 const ImageFmts = ['.png', '.jpg', '.bmp', '.jpeg', '.gif', '.ico', '.tiff', '.webp', '.image', '.pvr', '.pkm'];
@@ -104,7 +104,7 @@ const loader = {
         for (var i = 0; i < resources.length; i++) {
             var item = resources[i];
             if (typeof item === 'string') {
-                resources[i] = { url: item, isNative: true, isCrossOrigin: true };
+                resources[i] = { url: item, __isNative__: true, isCrossOrigin: true };
             }
             else {
                 if (item.type) {
@@ -113,7 +113,7 @@ const loader = {
                 }
 
                 if (item.url) {
-                    item.isNative = true;
+                    item.__isNative__ = true;
                     item.isCrossOrigin = true;
                 }
             }
@@ -501,9 +501,9 @@ const loader = {
     },
 
     /**
-     * `cc.loader.setAutoRelease` is deprecated, if you want to lock some asset, please use {{#crossLink "Finalizer/lock:method"}}{{/crossLink}} instead
+     * `cc.loader.setAutoRelease` is deprecated, if you want to prevent some asset from auto releasing, please use {{#crossLink "Asset/addRef:method"}}{{/crossLink}} instead
      *
-     * @deprecated `cc.loader.setAutoRelease` is deprecated, if you want to lock some asset, please use `cc.assetManager.finalizer.lock` instead
+     * @deprecated `cc.loader.setAutoRelease` is deprecated, if you want to prevent some asset from auto releasing, please use `cc.Asset.addRef` instead
      * @method setAutoRelease
      * @param {Asset|String} assetOrUrlOrUuid - asset object or the raw asset's url or uuid
      * @param {Boolean} autoRelease - indicates whether should release automatically
@@ -514,12 +514,12 @@ const loader = {
     },
 
     /**
-     * `cc.loader.setAutoReleaseRecursively` is deprecated, if you want to lock some asset, please use {{#crossLink "Finalizer/lock:method"}}{{/crossLink}} instead
+     * `cc.loader.setAutoReleaseRecursively` is deprecated, if you want to prevent some asset from auto releasing, please use {{#crossLink "Asset/addRef:method"}}{{/crossLink}} instead
      *
      * @method setAutoReleaseRecursively
      * @param {Asset|String} assetOrUrlOrUuid - asset object or the raw asset's url or uuid
      * @param {Boolean} autoRelease - indicates whether should release automatically
-     * @deprecated `cc.loader.setAutoReleaseRecursively` is deprecated, if you want to lock some asset, please use `cc.assetManager.finalizer.lock` instead
+     * @deprecated `cc.loader.setAutoReleaseRecursively` is deprecated, if you want to prevent some asset from auto releasing, please use `cc.Asset.addRef` instead
      */
     setAutoReleaseRecursively (asset, autoRelease) {
         if (typeof asset === 'object') asset = asset._uuid;
@@ -630,7 +630,7 @@ cc.url = {
     raw (url) {
         cc.warnID(1400, 'cc.url.raw', 'cc.resources.load');
         if (url.startsWith('resources/')) {
-            return cc.assetManager._transform({'path': cc.path.changeExtname(url.substr(10)), bundle: cc.AssetManager.BuiltinBundleName.RESOURCES, isNative: true, ext: cc.path.extname(url)});
+            return cc.assetManager._transform({'path': cc.path.changeExtname(url.substr(10)), bundle: cc.AssetManager.BuiltinBundleName.RESOURCES, __isNative__: true, ext: cc.path.extname(url)});
         }
         return '';
     }
@@ -706,19 +706,19 @@ js.obsolete(cc.Asset.prototype, 'cc.Asset.url', 'nativeUrl');
  */
 Object.defineProperties(cc.macro, {
     /**
-     * `cc.macro.DOWNLOAD_MAX_CONCURRENT` is deprecated now, please use {{#crossLink "Downloader/limitations:property"}}{{/crossLink}} instead
+     * `cc.macro.DOWNLOAD_MAX_CONCURRENT` is deprecated now, please use {{#crossLink "Downloader/maxConcurrent:property"}}{{/crossLink}} instead
      * 
      * @property DOWNLOAD_MAX_CONCURRENT
      * @type {Number}
-     * @deprecated `cc.macro.DOWNLOAD_MAX_CONCURRENT` is deprecated now, please use `cc.assetManager.downloader.limitations` instead
+     * @deprecated `cc.macro.DOWNLOAD_MAX_CONCURRENT` is deprecated now, please use `cc.assetManager.downloader.maxConcurrent` instead
      */
     DOWNLOAD_MAX_CONCURRENT: {
         get () {
-            return cc.assetManager.downloader.limitations[cc.AssetManager.LoadStrategy.NORMAL].maxConcurrent;
+            return cc.assetManager.downloader.maxConcurrent;
         },
 
         set (val) {
-            cc.assetManager.downloader.limitations[cc.AssetManager.LoadStrategy.NORMAL].maxConcurrent = val;
+            cc.assetManager.downloader.maxConcurrent = val;
         }
     }
 });
@@ -748,8 +748,8 @@ utilities.parseParameters = function (options, onProgress, onComplete) {
     return result;
 };
 
-var autoRelease = finalizer._autoRelease;
-finalizer._autoRelease = function () {
+var autoRelease = releaseManager._autoRelease;
+releaseManager._autoRelease = function () {
     autoRelease.apply(this, arguments);
     var releaseSettings = loader._autoReleaseSetting;
     var keys = Object.keys(releaseSettings);
@@ -757,7 +757,7 @@ finalizer._autoRelease = function () {
         let key = keys[i];
         if (releaseSettings[key] === true) {
             var asset = cc.assetManager.assets.get(key);
-            asset && finalizer.tryRelease(asset);
+            asset && releaseManager.tryRelease(asset);
         }
     }
 };

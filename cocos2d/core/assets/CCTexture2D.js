@@ -304,8 +304,8 @@ var Texture2D = cc.Class({
                 return this._image;
             },
             set (data) {
-                if (data.data) {
-                    this.initWithData(data.data, this._format, data.width, data.height);
+                if (data._data) {
+                    this.initWithData(data._data, this._format, data.width, data.height);
                 }
                 else {
                     this.initWithElement(data);
@@ -364,7 +364,7 @@ var Texture2D = cc.Class({
         
         _nativeDep: {
             get () {
-                return {isNative: true, uuid: this._uuid, ext: this._native};
+                return {__isNative__: true, uuid: this._uuid, ext: this._native};
             },
             override: true
         }
@@ -389,7 +389,7 @@ var Texture2D = cc.Class({
                 ext = result.bestExt || result.defaultExt;
             }
 
-            return { isNative: true, ext };
+            return { __isNative__: true, ext };
         },
 
         _parseExt (extIdStr, defaultFormat) {
@@ -944,7 +944,7 @@ var Texture2D = cc.Class({
         return asset;
     },
 
-    _deserialize: function (data) {
+    _deserialize: function (data, handle) {
         let fields = data.split(',');
         // decode extname
         let extIdStr = fields[0];

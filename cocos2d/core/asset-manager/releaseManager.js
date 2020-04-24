@@ -22,9 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-/**
- * @module cc.AssetManager
- */
 const dependUtil = require('./depend-util');
 const Cache = require('./cache');
 require('../assets/CCAsset');
@@ -84,7 +81,7 @@ function checkCircularReference (asset, refs) {
         var dependAsset = assets.get(depends[i]);
         if (dependAsset) {
             if (!(dependAsset._uuid in refs)) { 
-                refs[dependAsset._uuid] = dependAsset._ref - 1;
+                refs[dependAsset._uuid] = dependAsset.refCount - 1;
                 if (refs[dependAsset._uuid] === 0) {
                     checkCircularReference(dependAsset, refs);
                 }
@@ -96,7 +93,6 @@ function checkCircularReference (asset, refs) {
     }
 }
 
-var _lockedAsset = Object.create(null);
 var _persistNodeDeps = new Cache();
 var _toDelete = new Cache();
 var eventListener = false;
@@ -104,33 +100,12 @@ var eventListener = false;
 function freeAssets () {
     eventListener = false;
     _toDelete.forEach(function (asset) {
-        finalizer._free(asset);
+        releaseManager._free(asset);
     });
     _toDelete.clear();
 }
 
-/**
- * !#en
- * Control resource release, it's a singleton, all member can be accessed with cc.assetManager.finalizer
- * 
- * !#zh
- * 控制资源释放，这是一个单例，所有成员能通过 `cc.assetManager.finalizer` 访问
- * 
- * @class Finalizer
- */
-var finalizer = {
-    /**
-     * !#en
-     * Initialize
-     * 
-     * !#zh
-     * 初始化
-     * 
-     * @method init
-     * 
-     * @typescript
-     * init(): void
-     */
+var releaseManager = {
     init () {
         _persistNodeDeps.clear();
         _toDelete.clear();
@@ -199,67 +174,8 @@ var finalizer = {
         }
     },
 
-    /**
-     * !#en
-     * Lock this asset, it can not be released unless unlock it
-     * 
-     * !#zh
-     * 锁上此资源，除非解锁，否则此资源不能被释放
-     * 
-     * @method lock
-     * @param {Asset} asset - The asset to be locked
-     * 
-     * @typescript
-     * lock(asset: cc.Asset): void
-     */
-    lock (asset) {
-        if (asset instanceof cc.Asset) {
-            _lockedAsset[asset._uuid] = true;
-        }
-    },
-
-    /**
-     * !#en
-     * Unlock this asset, so it can be released normally
-     * 
-     * !#zh
-     * 解锁此资源，此资源能被正常释放
-     * 
-     * @method unlock
-     * @param {Asset} asset - The asset to be unlocked
-     * 
-     * @typescript
-     * unlock(asset: cc.Asset): void
-     */
-    unlock (asset) {
-        if (asset instanceof cc.Asset) {
-            delete _lockedAsset[asset._uuid];
-        }
-    },
-
-    /**
-     * !#en
-     * Indicates whether or not this asset is locked
-     * 
-     * !#zh
-     * 表明此资源是否被加锁
-     * 
-     * @method isLocked
-     * @param {Asset} asset - The asset
-     * 
-     * @typescript
-     * isLocked(asset: cc.Asset): boolean
-     */
-    isLocked (asset) {
-        if (asset instanceof cc.Asset) {
-            return asset._uuid in _lockedAsset;
-        }
-        return null;
-    },
-
     _free (asset, force) {
         _toDelete.remove(asset._uuid);
-        if (finalizer.isLocked(asset)) return;
 
         if (!force) {
             if (!CC_NATIVERENDERER) {
@@ -282,10 +198,10 @@ var finalizer = {
                 }
             }
 
-            if (asset._ref > 0) {
+            if (asset.refCount > 0) {
                 // check circular reference
                 var refs = Object.create(null);
-                refs[asset._uuid] = asset._ref;
+                refs[asset._uuid] = asset.refCount;
 
                 checkCircularReference(asset, refs);
 
@@ -300,31 +216,17 @@ var finalizer = {
             var dependAsset = assets.get(depends[i]);
             if (dependAsset) {
                 dependAsset.decRef(false);
-                finalizer._free(dependAsset, false);
+                releaseManager._free(dependAsset, false);
             }
         }
         asset.destroy();
         dependUtil.remove(asset._uuid);
     },
 
-    /**
-     * !#en
-     * Try to release the asset. If the reference number of asset equals 0 or 'force' is true, the asset will be released finally.
-     * 
-     * !#zh
-     * 尝试释放资源，如果资源的引用计数等于 0 或者 `force` 为 true，这个资源最终将被释放。
-     * 
-     * @method tryRelease
-     * @param {Asset} asset - The asset to be released
-     * @param {boolean} [force] - Indicates whether or not release this asset forcely
-     *
-     * @typescript
-     * tryRelease(asset: cc.Asset, force?: boolean): void
-     */
     tryRelease (asset, force) {
         if (!(asset instanceof cc.Asset)) return;
         if (force) {
-            finalizer._free(asset, force);
+            releaseManager._free(asset, force);
         }
         else {
             _toDelete.add(asset._uuid, asset);
@@ -336,5 +238,4 @@ var finalizer = {
     }
 };
 
-
-module.exports = finalizer;
+module.exports = releaseManager;

@@ -36,7 +36,7 @@ function fetch (task, done) {
     }
 
     let options = task.options, depends = [], progress = task.progress, total = progress.total;
-    options.exclude = options.exclude || Object.create(null);
+    options.__exclude__ = options.__exclude__ || Object.create(null);
 
     task.output = [];
 
@@ -108,7 +108,7 @@ function decreaseRef (task) {
 
 function handle (item, task, content, file, loadDepends, depends, last, done) {
 
-    var exclude = task.options.exclude;
+    var exclude = task.options.__exclude__;
     var progress = task.progress;
 
     item.content = content;

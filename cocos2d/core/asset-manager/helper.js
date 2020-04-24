@@ -105,6 +105,7 @@ var helper = {
      */
     getUrlWithUuid: function (uuid, options) {
         options = options || Object.create(null);
+        options.__isNative__ = options.isNative;
         var bundle = bundles.find(function (bundle) {
             return bundle.getAssetInfo(uuid);
         });

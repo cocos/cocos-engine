@@ -452,7 +452,7 @@ cc.Director.prototype = {
         if (!CC_EDITOR) {
             // auto release assets
             CC_BUILD && CC_DEBUG && console.time('AutoRelease');
-            cc.assetManager.finalizer._autoRelease(oldScene, scene, persistNodeList);
+            cc.assetManager._releaseManager._autoRelease(oldScene, scene, persistNodeList);
             CC_BUILD && CC_DEBUG && console.timeEnd('AutoRelease');
         }
 

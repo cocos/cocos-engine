@@ -45,7 +45,7 @@
             json2,
         ];
 
-        cc.assetManager.loadAny(resources, { requestType: cc.AssetManager.RequestType.URL}, function (finish, total, item) {
+        cc.assetManager.loadAny(resources, { __requestType__: 'url'}, function (finish, total, item) {
             if (item.uuid === image1) {
                 ok(item.content instanceof Image, 'image url\'s result should be Image');
             }
@@ -112,7 +112,7 @@
             }
         }).enable();
 
-        cc.assetManager.loadAny(resources, { requestType: cc.AssetManager.RequestType.URL }, progressCallback, function (error, assets) {
+        cc.assetManager.loadAny(resources, { __requestType__: 'url' }, progressCallback, function (error, assets) {
             ok(assets.length === 2, 'be able to load all resources');
             ok(assets[0] instanceof Image, 'the single result should be Image');
             strictEqual(assets[1], 'Thonburi_LABEL', 'should give correct js object as result of JSON');
@@ -140,7 +140,7 @@
         cc.assetManager.loadRemote(image, function (error, texture) {
             ok(texture instanceof cc.Texture2D, 'should be texture');
             ok(texture._nativeAsset instanceof Image, 'should be Image');
-            ok(texture._ref === 0, 'reference should be 0');
+            ok(texture.refCount === 0, 'reference should be 0');
             start();
         });
     });
@@ -157,8 +157,8 @@
             }
             clearTimeout(timerId);
             ok(asset.texture, 'can load depends asset');
-            ok(asset.texture._ref === 1, 'should be 1');
-            ok(asset._ref === 0, 'should be 1');
+            ok(asset.texture.refCount === 1, 'should be 1');
+            ok(asset.refCount === 0, 'should be 1');
             strictEqual(asset.texture.height, 123, 'can get height');
             start();
         });
@@ -177,7 +177,7 @@
             clearTimeout(timerId);
             
             ok(asset.texture === asset, 'asset could reference to itself');
-            ok(asset._ref === 1, 'should be 1');
+            ok(asset.refCount === 1, 'should be 1');
             start();
         });
     });
@@ -194,8 +194,8 @@
             }
             clearTimeout(timerId);
             ok(asset.dependency, 'can load circle referenced asset');
-            ok(asset.dependency._ref === 1, 'should be 1');
-            ok(asset._ref === 1, 'should be 1');
+            ok(asset.dependency.refCount === 1, 'should be 1');
+            ok(asset.refCount === 1, 'should be 1');
             strictEqual(asset.dependency.dependency, asset, 'circle referenced asset should have dependency which equal to self');
             start();
         });
@@ -205,12 +205,12 @@
         cc.resources.load('grossini', TestSprite, function (err, sprite) {
             ok(sprite._uuid === '1232218' || sprite._uuid === '123200', 'loadRes - checking uuid');
             if (sprite._uuid === '123200') {
-                ok(sprite._ref === 1, 'reference should be 1');
-                ok(sprite.texture._ref === 1, 'reference should be 1');
+                ok(sprite.refCount === 1, 'reference should be 1');
+                ok(sprite.texture.refCount === 1, 'reference should be 1');
             }
             else {
-                ok(sprite._ref === 0, 'reference should be 0');
-                ok(sprite.texture._ref === 1, 'reference should be 1');
+                ok(sprite.refCount === 0, 'reference should be 0');
+                ok(sprite.texture.refCount === 1, 'reference should be 1');
             }
             cc.resources.loadDir('grossini', TestSprite, function (err, array) {
                 strictEqual(array.length, 3, 'loadResDir - checking count');
@@ -230,7 +230,7 @@
 
             cc.resources.load('grossini/grossini', function (err, texture) {
                 ok(texture instanceof cc.Texture2D, 'should be able to load texture without file extname');
-                ok(texture._ref === 0, 'should be able to load texture without file extname');
+                ok(texture.refCount === 0, 'should be able to load texture without file extname');
                 start();
             });
         //});

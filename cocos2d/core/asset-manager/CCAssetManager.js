@@ -27,7 +27,7 @@ const preprocess = require('./preprocess');
 const fetch = require('./fetch');
 const Cache = require('./cache');
 const helper = require('./helper');
-const finalizer = require('./finalizer');
+const releaseManager = require('./releaseManager');
 const dependUtil = require('./depend-util');
 const load = require('./load');
 const Pipeline = require('./pipeline');
@@ -41,7 +41,7 @@ const builtins = require('./builtins');
 const factory = require('./factory');
 const { parse, combine } = require('./urlTransformer');
 const { parseParameters, asyncify } = require('./utilities');
-const { assets, files, parsed, pipeline, transformPipeline, fetchPipeline, LoadStrategy, RequestType, bundles, BuiltinBundleName } = require('./shared');
+const { assets, files, parsed, pipeline, transformPipeline, fetchPipeline, RequestType, bundles, BuiltinBundleName } = require('./shared');
 
 
 /**
@@ -111,6 +111,8 @@ function AssetManager () {
      * 
      * @property bundles
      * @type {Cache}
+     * @typescript
+     * bundles: AssetManager.Cache<AssetManager.Bundle>
      */
     this.bundles = bundles;
 
@@ -123,6 +125,8 @@ function AssetManager () {
      * 
      * @property assets
      * @type {Cache}
+     * @typescript
+     * assets: AssetManager.Cache<cc.Asset>
      */
     this.assets = assets;
     
@@ -133,8 +137,6 @@ function AssetManager () {
     this.generalImportBase = '';
 
     this.generalNativeBase = '';
-
-    this.bundleVers = null;
 
     /**
      * !#en 
@@ -148,17 +150,7 @@ function AssetManager () {
      */
     this.dependUtil = dependUtil;
 
-    /**
-     * !#en 
-     * Manage the releasing of all asset
-     * 
-     * !#zh
-     * 管理所有资源的释放
-     * 
-     * @property finalizer
-     * @type {Finalizer}
-     */
-    this.finalizer = finalizer;
+    this._releaseManager = releaseManager;
 
     /**
      * !#en 
@@ -246,14 +238,54 @@ function AssetManager () {
 
     this.factory = factory;
 
+    /**
+     * !#en 
+     * The preset of options
+     * 
+     * !#zh
+     * 可选参数的预设集
+     * 
+     * @property presets
+     * @type {Record<string, Record<string, any>>}
+     */
+    this.presets = {
+        'normal': {
+            priority: 0,
+        },
+
+        'preload': {
+            maxConcurrent: 2, 
+            maxRequestsPerFrame: 2,
+            priority: -1,
+        },
+
+        'scene': {
+            maxConcurrent: 8, 
+            maxRequestsPerFrame: 8,
+            priority: 1,
+        },
+
+        'bundle': {
+            maxConcurrent: 8, 
+            maxRequestsPerFrame: 8,
+            priority: 2,
+        },
+
+        'remote': {
+            maxRetryCount: 4
+        },
+
+        'script': {
+            priority: 2
+        }
+    }
+
 }
 
 AssetManager.Pipeline = Pipeline;
 AssetManager.Task = Task;
 AssetManager.Cache = Cache;
 AssetManager.RequestItem = RequestItem;
-AssetManager.LoadStrategy = LoadStrategy;
-AssetManager.RequestType = RequestType;
 AssetManager.Bundle = Bundle;
 AssetManager.BuiltinBundleName = BuiltinBundleName;
 
@@ -323,14 +355,13 @@ AssetManager.prototype = {
         options = options || Object.create(null);
         this._files.clear();
         this._parsed.clear();
+        this._releaseManager.init();
         this.assets.clear();
         this.bundles.clear();
         this.packManager.init();
-        this.downloader.init();
+        this.downloader.init(options.bundleVers);
         this.parser.init();
-        this.finalizer.init();
         this.dependUtil.init();
-        this.bundleVers = options.bundleVers || Object.create(null);
         this.generalImportBase = options.importBase;
         this.generalNativeBase = options.nativeBase;
     },
@@ -367,8 +398,8 @@ AssetManager.prototype = {
      * Every custom parameter in `requests` will be tranfered to handler of `downloader` and `parser` as `options`. 
      * You can register you own handler downloader or parser to collect these custom parameters for some effect.
      * 
-     * Reserved Keyword: [`uuid`, `url`, `path`, `dir`, `scene`, `requestType`, `type`, `isNative`, `priority`, `loadStrategy`, `audioLoadMode`, `name`, `ext`, `bundle`, `exclude`, `onProgress`,
-     * `maxRetryCount`, `ver`, `isCrossOrigin`, `responseType`, `withCredentials`, `mimeType`, `timeout`, `header`, `reload` , `asyncLoadAssets`, `cacheAsset`, `saveFile`],
+     * Reserved Keyword: [`uuid`, `url`, `path`, `dir`, `scene`, `type`, `priority`, `preset`, `audioLoadMode`, `ext`, `bundle`, `onFileProgress`, `maxConcurrent`, `maxRequestsPerFrame`
+     * `maxRetryCount`, `version`, `isCrossOrigin`, `responseType`, `withCredentials`, `mimeType`, `timeout`, `header`, `reload`, `cacheAsset`, `cacheEnabled`],
      * Please DO NOT use these words as custom options!
      * 
      * !#zh
@@ -377,8 +408,8 @@ AssetManager.prototype = {
      * 依赖资源，则 `options` 中的参数会继续向依赖项中分发。request中的自定义参数都会以 `options` 形式传入加载流程中的 `downloader`, `parser` 的方法中, 你可以
      * 扩展 `downloader`, `parser` 收集参数完成想实现的效果。
      * 
-     * 保留关键字: [`uuid`, `url`, `path`, `dir`, `scene`, `requestType`, `type`, `isNative`, `priority`, `loadStrategy`, `audioLoadMode`, `name`, `ext`, `bundle`, `exclude`, `onProgress`,
-     * `maxRetryCount`, `ver`, `isCrossOrigin`, `responseType`, `withCredentials`, `mimeType`, `timeout`, `header`, `reload` , `asyncLoadAssets`, `cacheAsset`, `saveFile`],
+     * 保留关键字: [`uuid`, `url`, `path`, `dir`, `scene`, `type`, `priority`, `preset`, `audioLoadMode`, `ext`, `bundle`, `onFileProgress`, `maxConcurrent`, `maxRequestsPerFrame`
+     * `maxRetryCount`, `version`, `isCrossOrigin`, `responseType`, `withCredentials`, `mimeType`, `timeout`, `header`, `reload`, `cacheAsset`, `cacheEnabled`],
      * 请不要使用这些字段为自定义参数!
      * 
      * @method loadAny
@@ -417,6 +448,7 @@ AssetManager.prototype = {
     loadAny (requests, options, onProgress, onComplete) {
         var { options, onProgress, onComplete } = parseParameters(options, onProgress, onComplete);
         
+        options.preset = options.preset || 'normal';
         let task = new Task({input: requests, onProgress, onComplete: asyncify(onComplete), options});
         pipeline.async(task);
         return task;
@@ -456,8 +488,7 @@ AssetManager.prototype = {
     preloadAny (requests, options, onProgress, onComplete) {
         var { options, onProgress, onComplete } = parseParameters(options, onProgress, onComplete);
     
-        options.loadStrategy = LoadStrategy.PRELOAD;
-        options.priority = -1;
+        options.preset = options.preset || 'preload';
         var task = new Task({input: requests, onProgress, onComplete: asyncify(onComplete), options});
         fetchPipeline.async(task);
         return task;
@@ -507,7 +538,7 @@ AssetManager.prototype = {
                     asset._nativeAsset = native;
                 }
                 else {
-                    cc.error(err);
+                    cc.error(err.message, err.stack);
                 }
                 onComplete && onComplete(err);
             });
@@ -541,9 +572,11 @@ AssetManager.prototype = {
     loadRemote (url, options, onComplete) {
         var { options, onComplete } = parseParameters(options, undefined, onComplete);
 
-        options.isNative = true;
+        options.__isNative__ = true;
+        options.preset = options.preset || 'remote';
         this.loadAny({url}, options, null, function (err, data) {
             if (err) {
+                cc.error(err.message, err.stack);
                 onComplete && onComplete(err, null);
             }
             else {
@@ -575,8 +608,8 @@ AssetManager.prototype = {
      */
     loadScript (url, options, onComplete) {
         var { options, onComplete } = parseParameters(options, undefined, onComplete);
-        options.requestType = RequestType.URL;
-        options.priority = options.priority || 2;
+        options.__requestType__ = RequestType.URL;
+        options.preset = options.preset || 'script';
         this.loadAny(url, options, onComplete);
     },
 
@@ -590,7 +623,7 @@ AssetManager.prototype = {
      * @method loadBundle
      * @param {string} root - The root path of bundle
      * @param {Object} [options] - Some optional paramter, same like downloader.downloadFile
-     * @param {string} [options.ver] - The version of this bundle, you can check config.json in this bundle
+     * @param {string} [options.version] - The version of this bundle, you can check config.json in this bundle
      * @param {Function} [onComplete] - Callback when bundle loaded or failed
      * @param {Error} onComplete.err - The occurred error, null indicetes success
      * @param {Bundle} onComplete.bundle - The loaded bundle
@@ -604,44 +637,20 @@ AssetManager.prototype = {
      */
     loadBundle (root, options, onComplete) {
         if (!root) return;
+
         var { options, onComplete } = parseParameters(options, undefined, onComplete);
-        
+
         if (root.endsWith('/')) root = root.substr(0, root.length - 1);
+
         let bundleName = cc.path.basename(root);
 
         if (this.bundles.has(bundleName)) {
-            return asyncify(onComplete)(null, this.bundles.get(bundleName));
+            return asyncify(onComplete)(null, this.getBundle(bundleName));
         }
 
-        options.priority = options.priority || 2;
-        var ver = options.ver || this.bundleVers[bundleName];
-        var config = ver ?  `${root}/config.${ver}.json`: `${root}/config.json`;
-        var bundle = null;
-        var count = 0;
-        downloader.download(root, config, '.json', options, function (err, response) {
-            if (err) {
-                cc.error(err);
-                onComplete && onComplete(err);
-                return;
-            }
-            bundle = new Bundle();
-            response.base = root + '/';
-            bundle.init(response);
-            count++;
-            if (count === 2) {
-                onComplete && onComplete(null, bundle);
-            }
-        });
-
-        var js = ver ?  `${root}/index.${ver}.js`: `${root}/index.js`;
-        this.loadScript(js, options, function (err) {
-            if (err) cc.warn(err);
-            count++;
-            if (count === 2) {
-                onComplete && onComplete(null, bundle);
-            }
-        });
-        
+        options.preset = options.preset || 'bundle';
+        options.ext = 'bundle';
+        this.loadRemote(root, options, onComplete);
     },
 
     /**
@@ -667,7 +676,7 @@ AssetManager.prototype = {
      * releaseAsset(asset: cc.Asset): void
      */
     releaseAsset (asset) {
-        finalizer.tryRelease(asset, true);
+        releaseManager.tryRelease(asset, true);
     },
 
     /**
@@ -684,7 +693,7 @@ AssetManager.prototype = {
      */
     releaseUnusedAssets () {
         assets.forEach(function (asset) {
-            finalizer.tryRelease(asset);
+            releaseManager.tryRelease(asset);
         });
     },
 
@@ -702,7 +711,7 @@ AssetManager.prototype = {
      */
     releaseAll () {
         assets.forEach(function (asset) {
-            finalizer.tryRelease(asset, true);
+            releaseManager.tryRelease(asset, true);
         });
     },
 
@@ -722,7 +731,7 @@ AssetManager.prototype = {
             for (var i = 0, l = subTask.output.length; i < l; i++) {
                 subTask.output[i].recycle();
             }
-            cc.error(e);
+            cc.error(e.message, e.stack);
         }
         subTask.recycle();
         return urls.length > 1 ? urls : urls[0];

@@ -37,17 +37,17 @@ function preprocess (task, done) {
             case RequestType.SCENE:
             case RequestType.URL : break;
             // only need these attributes to transform url
-            case 'requestType':
-            case 'isNative':
+            case '__requestType__':
+            case '__isNative__':
             case 'ext' :
             case 'type':
-            case 'name':
+            case '__nativeName__':
             case 'audioLoadMode':
             case 'bundle':
                 subOptions[op] = options[op];
                 break;
             // other settings, left to next pipe
-            case 'exclude':
+            case '__exclude__':
                 leftOptions[op] = options[op];
                 break;
             default: 

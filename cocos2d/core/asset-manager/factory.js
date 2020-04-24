@@ -22,6 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+const Bundle = require('./bundle');
 
 function createTexture (id, data, options, onComplete) {
     let out = null, err = null;
@@ -42,21 +43,21 @@ function createAudioClip (id, data, options, onComplete) {
     out._uuid = id;
     out._nativeUrl = id;
     out._nativeAsset = data;
-    onComplete && onComplete(err, out);
+    onComplete && onComplete(null, out);
 }
 
 function createJsonAsset (id, data, options, onComplete) {
     let out = new cc.JsonAsset();
     out._uuid = id;
     out.json = data;
-    onComplete && onComplete(err, out);
+    onComplete && onComplete(null, out);
 }
 
 function createTextAsset (id, data, options, onComplete) {
     let out = new cc.TextAsset();
     out._uuid = id;
     out.text = data;
-    onComplete && onComplete(err, out);
+    onComplete && onComplete(null, out);
 }
 
 function createFont (id, data, options, onComplete) {
@@ -64,7 +65,7 @@ function createFont (id, data, options, onComplete) {
     out._uuid = id;
     out._nativeUrl = id;
     out._nativeAsset = data;
-    onComplete && onComplete(err, out);
+    onComplete && onComplete(null, out);
 }
 
 function createBufferAsset (id, data, options, onComplete) {
@@ -72,7 +73,7 @@ function createBufferAsset (id, data, options, onComplete) {
     out._uuid = id;
     out._nativeUrl = id;
     out._nativeAsset = data;
-    onComplete && onComplete(err, out);
+    onComplete && onComplete(null, out);
 }
 
 function createAsset (id, data, options, onComplete) {
@@ -80,7 +81,14 @@ function createAsset (id, data, options, onComplete) {
     out._uuid = id;
     out._nativeUrl = id;
     out._nativeAsset = data;
-    onComplete && onComplete(err, out);
+    onComplete && onComplete(null, out);
+}
+
+function createBundle (id, data, options, onComplete) {
+    let bundle = new Bundle();
+    data.base = id + '/';
+    bundle.init(data);
+    onComplete && onComplete(null, bundle);
 }
 
 const factory = {
@@ -147,6 +155,8 @@ const producers = {
     '.bin': createBufferAsset,
     '.dbbin': createBufferAsset,
     '.skel': createBufferAsset,
+
+    'bundle': createBundle,
 
     'default': createAsset
 

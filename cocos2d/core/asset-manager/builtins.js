@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 const Cache = require('./cache');
-const finalizer = require('./finalizer');
+const releaseManager = require('./releaseManager');
 const { BuiltinBundleName } = require('./shared'); 
 
 /**
@@ -47,12 +47,12 @@ var builtins = {
         let builtin = this._assets.get(name);
         return cc.assetManager.internal.loadDir(dirname, null, null, (err, assets) => {
             if (err) {
-                cc.error(err);
+                cc.error(err.message, err.stack);
             }
             else {
                 for (let i = 0; i < assets.length; i++) {
                     var asset = assets[i];
-                    finalizer.lock(asset);
+                    asset.addRef();
                     builtin.add(asset.name, asset);
                 }
             }
@@ -101,7 +101,7 @@ var builtins = {
      * cc.assetManaer.builtins.getBuiltin('effect', 'phone');
      * 
      * @typescript
-     * getBuiltin(type?: string, name?: string): cc.Asset | Cache
+     * getBuiltin(type?: string, name?: string): cc.Asset | Cache<cc.Asset>
      */
     getBuiltin (type, name) {
         if (arguments.length === 0) return this._assets;
@@ -124,8 +124,7 @@ var builtins = {
     clear () {
         this._assets.forEach(function (assets) {
             assets.forEach(function (asset) {
-                finalizer.unlock(asset);
-                finalizer.tryRelease(asset, true);
+                releaseManager.tryRelease(asset, true);
             });
             assets.clear();
         })
