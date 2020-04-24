@@ -13,10 +13,13 @@ import { RenderInstancedQueue } from '../render-instanced-queue';
 import { IRenderStageInfo, RenderQueueSortMode, RenderStage } from '../render-stage';
 import { RenderView } from '../render-view';
 import { ForwardStagePriority } from './enum';
-import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
+import { opaqueCompareFn, RenderQueue } from '../render-queue';
 import { IRenderPass } from '../define';
 import { getPhaseID } from '../pass-phase'
 import { Light } from '../../renderer';
+import { UBOForwardLight } from '../../pipeline/define';
+import { GFXBuffer } from '../../gfx';
+import { GFXPipelineState } from '../../gfx/pipeline-state';
 
 const colors: IGFXColor[] = [ { r: 0, g: 0, b: 0, a: 1 } ];
 const bufs: GFXCommandBuffer[] = [];
@@ -48,6 +51,7 @@ export class ForwardStage extends RenderStage {
     private _opaqueBatchedQueue: RenderBatchedQueue;
     private _opaqueInstancedQueue: RenderInstancedQueue;
     private _lightBatchedQueues: RenderQueue[] = [];
+    private _lightModelPSO: Array<Array<Array<GFXPipelineState | null>>>;
 
     /**
      * 构造函数。
@@ -57,6 +61,7 @@ export class ForwardStage extends RenderStage {
         super();
         this._opaqueBatchedQueue = new RenderBatchedQueue();
         this._opaqueInstancedQueue = new RenderInstancedQueue();
+        this._lightModelPSO = new Array<Array<Array<GFXPipelineState>>>();
     }
 
     public activate (flow: RenderFlow) {
@@ -83,6 +88,18 @@ export class ForwardStage extends RenderStage {
             this._cmdBuff.destroy();
             this._cmdBuff = null;
         }
+
+        for (let i = 0; i < this._lightModelPSO.length; ++i) {
+            for (let j = 0; j < this._lightModelPSO[i].length; ++j) {
+                for (let k = 0; k < this._lightModelPSO[i][j].length; ++k){
+                    this._lightModelPSO[i][j][k]!.destroy;
+                    this._lightModelPSO[i][j][k] = null;
+                }
+                this._lightModelPSO[i][j].length = 0;
+            }
+            this._lightModelPSO[i].length = 0;
+        }
+        this._lightModelPSO.length = 0;
     }
 
     /**
@@ -116,6 +133,7 @@ export class ForwardStage extends RenderStage {
         const renderObjects = this._pipeline.renderObjects;
         const lightIndexOffset: number[] = this.flow.pipeline.getLightIndexOffsets();
         const lightIndices: number[] = this.flow.pipeline.getLightIndices();
+        const lightBuffers: GFXBuffer[] = this.flow.pipeline.getLightBuffers();
         for (let i = 0; i < renderObjects.length; ++i) {
             const nextLightIndex = i + 1 < renderObjects.length ? lightIndexOffset[i + 1] : lightIndices.length;
             const ro = renderObjects[i];
@@ -143,13 +161,28 @@ export class ForwardStage extends RenderStage {
             } else {
                 for (let m = 0; m < ro.model.subModelNum; m++) {
                     for (let p = 0; p < ro.model.getSubModel(m).passes.length; p++) {
+                        const pass = ro.model.getSubModel(m).passes[p];
                         for (let k = 0; k < this._renderQueues.length; k++) {
                             this._renderQueues[k].insertRenderPass(ro, m, p);
                         }
-
+                                               
                         // Organize light-batched-queues
                         for (let l = lightIndexOffset[i]; l < nextLightIndex; l++) {
-                            this._lightBatchedQueues[lightIndices[l]].insertRenderPass(ro, m, p);
+                            const lightbuffer = lightBuffers[lightIndices[l]];                      
+                            if(pass.phase == getPhaseID("forward-add")){
+                                if(this._lightModelPSO[i][m][l]){
+                                    const pso = this._lightModelPSO[i][m][l];
+                                    const bindingLayout = pso!.pipelineLayout.layouts[0];
+                                    if (lightbuffer) { bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightbuffer); }
+                                    this._lightBatchedQueues[lightIndices[l]].insertRenderPass(ro, m, p);
+                                }else{
+                                    const pso = ro.model.createPipelineState(pass, m);
+                                    this._lightModelPSO[i][m][l] = pso;
+                                    const bindingLayout = pso.pipelineLayout.layouts[0];
+                                    if (lightbuffer) { bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightbuffer); }
+                                    this._lightBatchedQueues[lightIndices[l]].insertRenderPass(ro, m, p);
+                                }                               
+                            }                                                       
                         }
                     }
                 }
