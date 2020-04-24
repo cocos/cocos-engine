@@ -103,6 +103,7 @@ Audio.State = {
 
     proto._onLoaded = function () {
         this._createElement();
+        this._state = Audio.State.INITIALZING;
         this.setVolume(1);
         this.setLoop(false);
     };
@@ -126,7 +127,7 @@ Audio.State = {
         this._src && this._src._ensureLoaded(function () {
             // marked as playing so it will playOnLoad
             self._state = Audio.State.PLAYING;
-            // IDEA: why?
+            // TODO: move to audio event listeners
             self._bindEnded();
             self._element.play();
             self._touchToPlay();
@@ -181,9 +182,7 @@ Audio.State = {
         let self = this;
         this._src && this._src._ensureLoaded(function () {
             self._element.pause();
-            try {
-                self._element.currentTime = 0;
-            } catch (error) {}
+            self._element.currentTime = 0;
             // remove touchPlayList
             for (let i = 0; i < touchPlayList.length; i++) {
                 if (touchPlayList[i].instance === self) {
