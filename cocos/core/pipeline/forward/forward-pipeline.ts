@@ -19,6 +19,9 @@ import { RenderView } from '../render-view';
 import { UIFlow } from '../ui/ui-flow';
 import { ForwardFlow } from './forward-flow';
 import { ToneMapFlow } from '../ppfx/tonemap-flow';
+import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit } from '../../gfx/define';
+import { GFXDevice } from '../../gfx/device';
+import { GFXPipelineState } from '../../gfx/pipeline-state';
 
 const _vec4Array = new Float32Array(4);
 const _sphere = sphere.create(0, 0, 0, 1);
@@ -44,7 +47,7 @@ export class ForwardPipeline extends RenderPipeline {
      * @zh
      * 全部光源的UBO结构描述。
      */
-    protected _uboLights: UBOForwardLight = new UBOForwardLight();
+    protected _uboLight: UBOForwardLight = new UBOForwardLight();
 
     /**
      * @zh
@@ -71,6 +74,12 @@ export class ForwardPipeline extends RenderPipeline {
     private _lightIndices: number[];
 
     /**
+     * @zh
+     * 灯光GFXbuffer数组。
+     */
+    private _lightBuffers: GFXBuffer[] = [];
+    
+    /**
      * 构造函数。
      * @param root Root类实例。
      */
@@ -79,6 +88,7 @@ export class ForwardPipeline extends RenderPipeline {
         this._validLights = [];
         this._lightIndexOffset = [];
         this._lightIndices = [];
+        this._lightBuffers = [];
     }
 
     public initialize (info: IRenderPipelineInfo) {
@@ -86,6 +96,18 @@ export class ForwardPipeline extends RenderPipeline {
         const forwardFlow = new ForwardFlow();
         forwardFlow.initialize(ForwardFlow.initInfo);
         this._flows.push(forwardFlow);
+
+        // Create light-GFXbuffers
+        for(let l = 0; l < this._validLights.length; ++l)
+        {
+            let lightBuffer : GFXBuffer = this._device.createBuffer({
+                usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                size: UBOForwardLight.SIZE,
+                stride: UBOForwardLight.SIZE,
+            });
+            this._lightBuffers?.push(lightBuffer);
+        }            
     }
 
     public activate (root: Root): boolean {
@@ -144,87 +166,85 @@ export class ForwardPipeline extends RenderPipeline {
 
         const exposure = view.camera.exposure;
 
-        for (let i = 0; i < this._renderObjects.length; i++) {
-            this._uboLights.view.fill(0);
-            const nextLightIndex = i + 1 < this._renderObjects.length ? this._lightIndexOffset[i + 1] : this._lightIndices.length;
-            if (!this._renderObjects[i].model.lightBuffer || this._renderObjects[i].model.isDynamicBatching) {
-                continue;
+        // Keep LightGFXBuffer.length and ValidLights.length consistent
+        if(this._validLights.length > this._lightBuffers.length)
+        {
+            for(let l = 0; l < this._validLights.length - this._lightBuffers.length; ++l)
+            {
+                let lightBuffer : GFXBuffer = this._device.createBuffer({
+                    usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
+                    memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
+                    size: UBOForwardLight.SIZE,
+                    stride: UBOForwardLight.SIZE,
+                });
+                this._lightBuffers?.push(lightBuffer);
             }
-            let sphereNum = 0;
-            let spotNum = 0;
-            for (let l = this._lightIndexOffset[i]; l < nextLightIndex; l++) {
-                const light = this._validLights[this._lightIndices[l]];
-                if (light) {
-                    switch (light.type) {
-                        case LightType.SPHERE:
-                            if (sphereNum >= UBOForwardLight.MAX_SPHERE_LIGHTS) {
-                                continue;
-                            }
-
-                            const sphereLit = light as SphereLight;
-                            Vec3.toArray(_vec4Array, sphereLit.position);
-                            this._uboLights.view.set(_vec4Array, UBOForwardLight.SPHERE_LIGHT_POS_OFFSET + sphereNum * 4);
-
-                            _vec4Array[0] = sphereLit.size;
-                            _vec4Array[1] = sphereLit.range;
-                            _vec4Array[2] = 0.0;
-                            this._uboLights.view.set(_vec4Array, UBOForwardLight.SPHERE_LIGHT_SIZE_RANGE_OFFSET + sphereNum * 4);
-
-                            Vec3.toArray(_vec4Array, light.color);
-                            if (light.useColorTemperature) {
-                                const tempRGB = light.colorTemperatureRGB;
-                                _vec4Array[0] *= tempRGB.x;
-                                _vec4Array[1] *= tempRGB.y;
-                                _vec4Array[2] *= tempRGB.z;
-                            }
-                            if (this._isHDR) {
-                                _vec4Array[3] = sphereLit.luminance * this._fpScale * this._lightMeterScale;
-                            } else {
-                                _vec4Array[3] = sphereLit.luminance * exposure * this._lightMeterScale;
-                            }
-                            this._uboLights.view.set(_vec4Array, UBOForwardLight.SPHERE_LIGHT_COLOR_OFFSET + sphereNum * 4);
-                            sphereNum++;
-                            break;
-                        case LightType.SPOT:
-                            if (spotNum >= UBOForwardLight.MAX_SPOT_LIGHTS) {
-                                continue;
-                            }
-
-                            const spotLit = light as SpotLight;
-
-                            Vec3.toArray(_vec4Array, spotLit.position);
-                            _vec4Array[3] = spotLit.size;
-                            this._uboLights.view.set(_vec4Array, UBOForwardLight.SPOT_LIGHT_POS_OFFSET + spotNum * 4);
-
-                            _vec4Array[0] = spotLit.size;
-                            _vec4Array[1] = spotLit.range;
-                            _vec4Array[2] = spotLit.spotAngle;
-                            this._uboLights.view.set(_vec4Array, UBOForwardLight.SPOT_LIGHT_SIZE_RANGE_ANGLE_OFFSET + spotNum * 4);
-
-                            Vec3.toArray(_vec4Array, spotLit.direction);
-                            this._uboLights.view.set(_vec4Array, UBOForwardLight.SPOT_LIGHT_DIR_OFFSET + spotNum * 4);
-
-                            Vec3.toArray(_vec4Array, light.color);
-                            if (light.useColorTemperature) {
-                                const tempRGB = light.colorTemperatureRGB;
-                                _vec4Array[0] *= tempRGB.x;
-                                _vec4Array[1] *= tempRGB.y;
-                                _vec4Array[2] *= tempRGB.z;
-                            }
-                            if (this._isHDR) {
-                                _vec4Array[3] = spotLit.luminance * this._fpScale * this._lightMeterScale;
-                            } else {
-                                _vec4Array[3] = spotLit.luminance * exposure * this._lightMeterScale;
-                            }
-                            this._uboLights.view.set(_vec4Array, UBOForwardLight.SPOT_LIGHT_COLOR_OFFSET + spotNum * 4);
-                            spotNum++;
-                            break;
-                    }
-                }
-            }
-            this._renderObjects[i].model.lightBuffer!.update(this._uboLights.view);
         }
 
+        // Fill UBOForwardLight, And update LightGFXBuffer[light_index]
+        for(let l = 0; l < this._validLights.length; ++l)
+        {
+            this._uboLight.view.fill(0);
+            const light = this._validLights[l];
+            if (light) {
+                switch (light.type){
+                    case LightType.SPHERE:
+                        const sphereLit = light as SphereLight;
+                        Vec3.toArray(_vec4Array, sphereLit.position);
+                        this._uboLight.view.set(_vec4Array, UBOForwardLight.LIGHT_POS_OFFSET);
+
+                        _vec4Array[0] = sphereLit.size;
+                        _vec4Array[1] = sphereLit.range;
+                        _vec4Array[2] = 0.0;
+                        this._uboLight.view.set(_vec4Array, UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
+
+                        Vec3.toArray(_vec4Array, light.color);
+                        if (light.useColorTemperature) {
+                            const tempRGB = light.colorTemperatureRGB;
+                            _vec4Array[0] *= tempRGB.x;
+                            _vec4Array[1] *= tempRGB.y;
+                            _vec4Array[2] *= tempRGB.z;
+                        }
+                        if (this._isHDR) {
+                            _vec4Array[3] = sphereLit.luminance * this._fpScale * this._lightMeterScale;
+                        } else {
+                            _vec4Array[3] = sphereLit.luminance * exposure * this._lightMeterScale;
+                        }
+                        this._uboLight.view.set(_vec4Array, UBOForwardLight.LIGHT_COLOR_OFFSET);
+                    break;
+                    case LightType.SPOT:
+                        const spotLit = light as SpotLight;
+
+                        Vec3.toArray(_vec4Array, spotLit.position);
+                        _vec4Array[3] = spotLit.size;
+                        this._uboLight.view.set(_vec4Array, UBOForwardLight.LIGHT_POS_OFFSET);
+
+                        _vec4Array[0] = spotLit.size;
+                        _vec4Array[1] = spotLit.range;
+                        _vec4Array[2] = spotLit.spotAngle;
+                        this._uboLight.view.set(_vec4Array, UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
+
+                        Vec3.toArray(_vec4Array, spotLit.direction);
+                        this._uboLight.view.set(_vec4Array, UBOForwardLight.LIGHT_DIR_OFFSET);
+
+                        Vec3.toArray(_vec4Array, light.color);
+                        if (light.useColorTemperature) {
+                            const tempRGB = light.colorTemperatureRGB;
+                            _vec4Array[0] *= tempRGB.x;
+                            _vec4Array[1] *= tempRGB.y;
+                            _vec4Array[2] *= tempRGB.z;
+                        }
+                        if (this._isHDR) {
+                            _vec4Array[3] = spotLit.luminance * this._fpScale * this._lightMeterScale;
+                        } else {
+                            _vec4Array[3] = spotLit.luminance * exposure * this._lightMeterScale;
+                        }
+                        this._uboLight.view.set(_vec4Array, UBOForwardLight.LIGHT_COLOR_OFFSET);
+                    break;   
+                }
+            }
+            this._lightBuffers[l]!.update(this._uboLight.view);
+        }       
     }
 
     /**
@@ -258,9 +278,7 @@ export class ForwardPipeline extends RenderPipeline {
         if (this._validLights.length) {
             for (let i = 0; i < this._renderObjects.length; i++) {
                 this._lightIndexOffset[i] = this._lightIndices.length;
-                if (this._renderObjects[i].model.lightBuffer) {
-                    this.cullLightPerModel(this._renderObjects[i].model);
-                }
+                this.cullLightPerModel(this._renderObjects[i].model);
             }
         }
     }
@@ -324,5 +342,14 @@ export class ForwardPipeline extends RenderPipeline {
      */
     public getLightIndices () {
         return this._lightIndices;
+    }
+
+    /**
+     * @zh
+     * 灯光GFXbuffer数组。
+     */
+    public getLightBuffers()
+    {
+        return this._lightBuffers;
     }
 }

@@ -1079,5 +1079,11 @@ export abstract class RenderPipeline {
      * 获取灯光索引数组。
      */
     public abstract getLightIndices () : number[];
+
+    /**
+     * @zh
+     * 灯光GFXbuffer数组。
+     */
+    public abstract getLightBuffers() : GFXBuffer[];
 }
 cc.RenderPipeline = RenderPipeline;
