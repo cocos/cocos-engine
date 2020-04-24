@@ -282,7 +282,7 @@ export class Model {
         }
     }
 
-    public createPipelineState (pass: Pass, subModelIdx: number, patches?: IMacroPatch[]) {
+    protected createPipelineState (pass: Pass, subModelIdx: number, patches?: IMacroPatch[]) {
         const pso = pass.createPipelineState(patches)!;
         const bindingLayout = pso.pipelineLayout.layouts[0];
         if (this._localBuffer) { bindingLayout.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer); }
