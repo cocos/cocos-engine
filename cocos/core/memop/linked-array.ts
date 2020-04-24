@@ -15,6 +15,7 @@ interface INode {
 type NodeAllocator = () => INode;
 
 /**
+ * @en Linked list, that can automatically assign objects.
  * @zh 链表，可以自动分配对象。
  */
 export default class LinkedArray<T = {}> {
@@ -25,7 +26,6 @@ export default class LinkedArray<T = {}> {
     private _pool: Pool<INode>;
 
     /**
-     * 构造函数。
      * @param fn 对象构建函数。
      * @param size 内置元素个数。
      */
@@ -39,6 +39,7 @@ export default class LinkedArray<T = {}> {
     }
 
     /**
+     * @en Get the head of the linked list.
      * @zh 获取链表头。
      */
     get head () {
@@ -46,6 +47,7 @@ export default class LinkedArray<T = {}> {
     }
 
     /**
+     * @en Get the tail of the linked list.
      * @zh 获取链表尾。
      */
     get tail () {
@@ -53,6 +55,7 @@ export default class LinkedArray<T = {}> {
     }
 
     /**
+     * @en Number of object in the linked list.
      * @zh 链表结点个数。
      */
     get length () {
@@ -60,6 +63,7 @@ export default class LinkedArray<T = {}> {
     }
 
     /**
+     * @en Add an element to the end of the linked list.
      * @zh 在链表尾添加一个元素。
      */
     public add () {
@@ -78,6 +82,7 @@ export default class LinkedArray<T = {}> {
     }
 
     /**
+     * @en Remove an element in the linked list.
      * @zh 删除链表中的一个结点。
      * @param node 要删除的结点。
      */
@@ -101,6 +106,8 @@ export default class LinkedArray<T = {}> {
     }
 
     /**
+     * @en
+     * Traversal the entire linked list.
      * @zh
      * 遍历整个链表。
      * @param fn 遍历函数。

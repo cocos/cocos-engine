@@ -5,6 +5,7 @@
  */
 
 /**
+ * @en Object pool.
  * @zh 对象池。
  */
 export class Pool<T> {
@@ -14,7 +15,6 @@ export class Pool<T> {
     private _frees: T[];
 
     /**
-     * 构造函数。
      * @param fn 元素构造函数。
      * @param size 初始大小。
      */
@@ -29,6 +29,7 @@ export class Pool<T> {
     }
 
     /**
+     * @en Take an object in the object pool.
      * @zh 从对象池中取出一个对象。
      */
     public alloc (): T {
@@ -45,6 +46,7 @@ export class Pool<T> {
     }
 
     /**
+     * @en Put an object back into the object pool.
      * @zh 将一个对象放回对象池中。
      * @param obj 释放的对象。
      */
@@ -54,7 +56,8 @@ export class Pool<T> {
     }
 
     /**
-     * 清除对象池。
+     * @en Clears the object pool.
+     * @zh 清除对象池。
      * @param fn 清除回调，对每个释放的对象调用一次。
      */
     public clear (fn: (obj: T) => void) {

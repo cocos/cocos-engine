@@ -40,6 +40,7 @@ function _free (buf) {
 
 export default {
     /**
+     * @en Assign an Int8Array.
      * @zh 分配一个Int8Array。
      * @param n 数组长度。
      */
@@ -53,6 +54,7 @@ export default {
     },
 
     /**
+     * @en Assign a Uint8Array.
      * @zh 分配一个Uint8Array。
      * @param n 数组长度。
      */
@@ -66,6 +68,7 @@ export default {
     },
 
     /**
+     * @en Assign an Int16Array.
      * @zh 分配一个Int16Array。
      * @param n 数组长度。
      */
@@ -79,6 +82,7 @@ export default {
     },
 
     /**
+     * @en Assign a Uint16Array.
      * @zh 分配一个Uint16Array。
      * @param n 数组长度。
      */
@@ -92,6 +96,7 @@ export default {
     },
 
     /**
+     * @en Assign an Int32Array.
      * @zh 分配一个Int32Array。
      * @param n 数组长度。
      */
@@ -105,6 +110,7 @@ export default {
     },
 
     /**
+     * @en Assign a Uint32Array.
      * @zh 分配一个Uint32Array。
      * @param n 数组长度。
      */
@@ -118,6 +124,7 @@ export default {
     },
 
     /**
+     * @en Assign a Float32Array.
      * @zh 分配一个Float32Array。
      * @param n 数组长度。
      */
@@ -131,6 +138,7 @@ export default {
     },
 
     /**
+     * @en Assign a Float64Array.
      * @zh 分配一个Float64Array。
      * @param n 数组长度。
      */
@@ -153,7 +161,8 @@ export default {
     // },
 
     /**
-     * 释放一个TypeArray。
+     * @en release a TypeArray.
+     * @zh 释放一个TypeArray。
      * @param array 释放的数组。
      */
     free (array) {
@@ -161,6 +170,7 @@ export default {
     },
 
     /**
+     * @en Reset TypeArray pool.
      * @zh 重置TypeArray池。
      */
     reset () {

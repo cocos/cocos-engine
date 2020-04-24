@@ -1,8 +1,9 @@
 /**
- * @hidden
+ * @category memop
  */
 
 /**
+ * @en CircularPool
  * @zh 循环列表。
  */
 export default class CircularPool<T = {}> {
@@ -10,7 +11,6 @@ export default class CircularPool<T = {}> {
     private _data: T[];
 
     /**
-     * 构造函数。
      * @param fn 创建对象函数。
      * @param size 列表长度。
      */
@@ -24,6 +24,7 @@ export default class CircularPool<T = {}> {
     }
 
     /**
+     * @en Request an object from the end and start at the beginning when out of range.
      * @zh 从尾部请求一个对象，超过长度则从头开始。
      */
     public request () {

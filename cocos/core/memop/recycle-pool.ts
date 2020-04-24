@@ -4,6 +4,7 @@
  */
 
 /**
+ * @en Recycle object pool.
  * @zh 循环对象池。
  */
 export class RecyclePool<T = any> {
@@ -12,7 +13,6 @@ export class RecyclePool<T = any> {
     private _data: T[];
 
     /**
-     * 构造函数。
      * @param fn 对象构造函数。
      * @param size 初始大小。
      */
@@ -26,6 +26,7 @@ export class RecyclePool<T = any> {
     }
 
     /**
+     * @en The length of the object pool.
      * @zh 对象池大小。
      */
     get length () {
@@ -33,6 +34,7 @@ export class RecyclePool<T = any> {
     }
 
     /**
+     * @en Object pool arrays.
      * @zh 对象池数组。
      */
     get data () {
@@ -40,6 +42,7 @@ export class RecyclePool<T = any> {
     }
 
     /**
+     * @en Clears the object pool.
      * @zh 清空对象池。
      */
     public reset () {
@@ -47,6 +50,7 @@ export class RecyclePool<T = any> {
     }
 
     /**
+     * @en Resize the object pool.
      * @zh 设置对象池大小。
      * @param size 对象池大小。
      */
@@ -59,6 +63,7 @@ export class RecyclePool<T = any> {
     }
 
     /**
+     * @en Take an object in the object pool.
      * @zh 从对象池中取出一个对象。
      */
     public add () {
@@ -70,6 +75,7 @@ export class RecyclePool<T = any> {
     }
 
     /**
+     * @en Release an element of the object pool.
      * @zh 释放对象池中的一个元素。
      * @param idx 释放对象的索引。
      */

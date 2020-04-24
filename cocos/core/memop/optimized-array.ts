@@ -4,6 +4,7 @@
  */
 
 /**
+ * @en Optimized Array
  * @zh 可变长数组。
  */
 export class OptimizedArray<T = {}> {
@@ -11,7 +12,7 @@ export class OptimizedArray<T = {}> {
     private _data: Array<T | undefined>;
 
     /**
-     * 构造函数，指定数组起始大小。
+     * @zh 构造函数，指定数组起始大小。
      * @en Initialize this array with specified capacity.
      * @param {Number} [size] The size.
      */
@@ -101,6 +102,7 @@ type Allocator<T> = () => T;
 type Deallocator<T> = (value: T) => void;
 
 /**
+ * @en Optimized Value Array
  * @zh 自动分配内存的数组。
  */
 export class OptimizedValueArray<T = {}> {
@@ -110,7 +112,6 @@ export class OptimizedValueArray<T = {}> {
     private _dtor;
 
     /**
-     * 构造函数，指定数组元素的构造函数，析构函数，和数组大小。
      * @param {any} ctor The constructor to create the value.
      * @param {Number} [size] The size.
      */
@@ -142,7 +143,7 @@ export class OptimizedValueArray<T = {}> {
 
     /**
      * @zh 获取已分配数组长度。
-     * Capacity of this array.
+     * @en Capacity of this array.
      */
     get capacity () {
         return this._data.length;
@@ -186,6 +187,7 @@ export class OptimizedValueArray<T = {}> {
     }
 
     /**
+     * @en Delete an element within an interval.
      * @zh 删除一段区间内的元素。
      * @param from 起始索引。
      * @param number 删除元素的个数。
@@ -215,6 +217,7 @@ export class OptimizedValueArray<T = {}> {
     }
 
     /**
+     * @en Traverse the entire array
      * @zh 遍历数组。
      * @param fx 遍历函数。
      */
@@ -225,6 +228,7 @@ export class OptimizedValueArray<T = {}> {
     }
 
     /**
+     * @en Map the array to another array and return the new array.
      * @zh 将数组映射为另一个数组，返回新数组。
      * @param fx 映射函数。
      */
