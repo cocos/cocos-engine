@@ -28,7 +28,10 @@ const fastRemove = cc.js.array.fastRemove;
 const equals = cc.math.equals;
 
 /**
+ * !#en
  * Physics material.
+ * !#zh
+ * 物理材质。
  * @class PhysicsMaterial
  * @extends Asset
  */
@@ -46,9 +49,10 @@ export class PhysicsMaterial extends cc.Asset {
     private _restitution = 0.1;
 
     /**
+     * !#en
      * Friction for this material.
-     * If non-negative, it will be used instead of the friction given by ContactMaterials.
-     * If there's no matching ContactMaterial, the value from .defaultContactMaterial in the World will be used.
+     * !#zh
+     * 物理材质的摩擦力。
      * @property {number} friction
      */
     @property
@@ -64,9 +68,10 @@ export class PhysicsMaterial extends cc.Asset {
     }
 
     /**
+     * !#en
      * Restitution for this material.
-     * If non-negative, it will be used instead of the restitution given by ContactMaterials.
-     * If there's no matching ContactMaterial, the value from .defaultContactMaterial in the World will be used
+     * !#zh
+     * 物理材质的弹力。
      * @property {number} restitution
      */
     @property

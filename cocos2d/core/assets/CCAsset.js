@@ -62,9 +62,9 @@ cc.Asset = cc.Class({
         });
         /**
          * !#en
-         * Whether the asset is loaded or not
+         * Whether the asset is loaded or not.
          * !#zh
-         * 该资源是否已经成功加载
+         * 该资源是否已经成功加载。
          *
          * @property loaded
          * @type {Boolean}
@@ -110,7 +110,10 @@ cc.Asset = cc.Class({
         },
 
         /**
+         * !#en
          * Serializable url for native asset.
+         * !#zh
+         * 保存原生资源的 URL。
          * @property {String} _native
          * @default undefined
          * @private
@@ -118,9 +121,14 @@ cc.Asset = cc.Class({
         _native: "",
 
         /**
+         * !#en
          * The underlying native asset of this asset if one is available.
          * This property can be used to access additional details or functionality releated to the asset.
          * This property will be initialized by the loader if `_native` is available.
+         * !#zh
+         * 此资源依赖的底层原生资源（如果有的话）。
+         * 此属性可用于访问与资源相关的其他详细信息或功能。
+         * 如果 `_native` 可用，则此属性将由加载器初始化。
          * @property {Object} _nativeAsset
          * @default null
          * @private
@@ -145,7 +153,10 @@ cc.Asset = cc.Class({
 
     statics: {
         /**
-         * 应 AssetDB 要求提供这个方法
+         * !#en
+         * Provide this method at the request of AssetDB.
+         * !#zh
+         * 应 AssetDB 要求提供这个方法。
          *
          * @method deserialize
          * @param {String} data
@@ -191,12 +202,18 @@ cc.Asset = cc.Class({
     },
 
     /**
+     * !#en
      * Returns the asset's url.
-     *
+
      * The `Asset` object overrides the `toString()` method of the `Object` object.
-     * For `Asset` objects, the toString() method returns a string representation of the object.
-     * JavaScript calls the toString() method automatically when an asset is to be represented as a text value or when a texture is referred to in a string concatenation.
-     *
+     * For `Asset` objects, the `toString()` method returns a string representation of the object.
+     * JavaScript calls the `toString()` method automatically when an asset is to be represented as a text value or when a texture is referred to in a string concatenation.
+     * !#zh
+     * 返回资源的 URL。
+     * 
+     * Asset 对象将会重写 Object 对象的 `toString()` 方法。
+     * 对于 Asset 对象，`toString()` 方法返回该对象的字符串表示形式。
+     * 当资源要表示为文本值时或在字符串连接时引用时，JavaScript 会自动调用 `toString()` 方法。
      * @method toString
      * @return {String}
      */
@@ -205,7 +222,10 @@ cc.Asset = cc.Class({
     },
 
     /**
-     * 应 AssetDB 要求提供这个方法
+     * !#en
+     * Provide this method at the request of AssetDB.
+     * !#zh
+     * 应 AssetDB 要求提供这个方法。
      *
      * @method serialize
      * @return {String}
@@ -231,7 +251,11 @@ cc.Asset = cc.Class({
     createNode: null,
 
     /**
+     * !#en
      * Set native file name for this asset.
+     * !#zh
+     * 为此资源设置原生文件名。
+     * 
      * @seealso nativeUrl
      *
      * @method _setRawAsset
@@ -279,13 +303,13 @@ cc.Asset = cc.Class({
     },
 
     /**
-     * !#zh
-     * 减少资源的引用并尝试自动释放
-     * 
      * !#en
-     * Reduce references of asset
+     * Reduce references of asset.
      * 
-     * @method decRef
+     * !#zh
+     * 减少资源的引用。
+     * 
+     * @method removeRef
      * 
      * @typescript
      * decRef(): void

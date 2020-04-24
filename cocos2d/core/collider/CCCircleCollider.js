@@ -41,6 +41,7 @@ cc.Collider.Circle = cc.Class({
          * @type {Vec2}
          */
         offset: {
+            tooltip: CC_DEV && 'i18n:COMPONENT.physics.physics_collider.offset',
             get: function () {
                 return this._offset;
             },

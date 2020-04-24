@@ -179,6 +179,7 @@ var parser = {
                     width: width,
                     height: height,
                 };
+                
             }
             catch (e) {
                 err = e;
