@@ -35,7 +35,8 @@ import { WebGL2GFXDevice } from './gfx/webgl2/webgl2-device';
 import { ForwardPipeline, RenderPipeline } from './pipeline';
 import * as debug from './platform/debug';
 import inputManager from './platform/event-manager/input-manager';
-import sys from './platform/sys';
+import { sys } from './platform/sys';
+import { macro } from './platform/macro';
 import { ICustomJointTextureLayout } from './renderer';
 
 /**
@@ -895,6 +896,7 @@ export class Game extends EventTarget {
             const opts = {
                 canvasElm: this.canvas as HTMLCanvasElement,
                 debug: true,
+                isAntialias: EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
                 devicePixelRatio: window.devicePixelRatio,
                 nativeWidth: Math.floor(screen.width * window.devicePixelRatio),
                 nativeHeight: Math.floor(screen.height * window.devicePixelRatio),

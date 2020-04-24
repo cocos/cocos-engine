@@ -399,12 +399,12 @@ export class BaseNode extends CCObject implements ISchedulable {
                 }
             }
             else {
-                EditorExtends.Node.remove(this._id);
-
                 for (let i = 0; i < this._components.length; i++) {
                     const comp = this._components[i];
                     EditorExtends.Component.remove(comp._id);
                 }
+
+                EditorExtends.Node.remove(this._id);
             }
         }
 

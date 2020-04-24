@@ -41,7 +41,7 @@ import { LabelComponent } from '../label-component';
 import { EditBoxComponent} from './edit-box-component';
 import { tabIndexUtil } from './tabIndexUtil';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
-import sys from '../../../core/platform/sys';
+import { sys } from '../../../core/platform/sys';
 import visibleRect from '../../../core/platform/visible-rect';
 import { Node } from '../../../core';
 import { EditBoxImplBase } from './edit-box-impl-base';

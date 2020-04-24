@@ -41,6 +41,8 @@ import { SpriteComponent } from './sprite-component';
 import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
 import { EDITOR } from 'internal:constants';
 
+const _tempColor = new Color();
+
 /**
  * @en Enum for transition type.
  *
@@ -617,7 +619,8 @@ export class ButtonComponent extends Component {
         }
 
         if (this._transition === Transition.COLOR) {
-            Color.lerp(renderComp.color, this._fromColor, this._toColor, ratio);
+            Color.lerp(_tempColor, this._fromColor, this._toColor, ratio);
+            renderComp.color = _tempColor;
         } else if (this.transition === Transition.SCALE) {
             target.getScale(this._targetScale);
             this._targetScale.x = lerp(this._fromScale.x, this._toScale.x, ratio);

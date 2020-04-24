@@ -510,11 +510,11 @@ export class PageViewComponent extends ScrollViewComponent {
      * @param idx index of page.
      * @param timeInSecond scrolling time.
      */
-    public scrollToPage(idx: number, timeInSecond = 0) {
+    public scrollToPage(idx: number, timeInSecond = 0.3) {
         if (idx < 0 || idx >= this._pages.length) {
             return;
         }
-        timeInSecond = timeInSecond !== undefined ? timeInSecond : 0.3;
+
         this._curPageIdx = idx;
         this.scrollToOffset(this._moveOffsetValue(idx), timeInSecond, true);
         if (this.indicator) {

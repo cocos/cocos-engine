@@ -1,6 +1,5 @@
 import { CachedArray } from '../../memop/cached-array';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from '../command-allocator';
-import { GFXStatus } from '../define';
 import { GFXDevice } from '../device';
 import {
     WebGLCmdBeginRenderPass,
@@ -11,10 +10,11 @@ import {
     WebGLCmdPackage,
     WebGLCmdUpdateBuffer,
 } from './webgl-commands';
+import { GFXStatus } from '../define';
 
 export class WebGLGFXCommandPool<T extends WebGLCmdObject> {
 
-    private _frees: Array<T|null>;
+    private _frees: (T|null)[];
     private _freeIdx: number = 0;
     private _freeCmds: CachedArray<T>;
 

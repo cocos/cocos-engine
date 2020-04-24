@@ -1,7 +1,6 @@
-
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -26,7 +25,7 @@
 */
 
 /**
- * @category event
+ * @hidden
  */
 
 import { EventKeyboard, EventAcceleration, EventMouse } from './events';
@@ -44,20 +43,14 @@ export interface IListenerMask {
 }
 
 /**
- * <p><br/>
- *     The base class of event listener.                                                                        <br/>
- *     If you need custom listener which with different callback, you need to inherit this class.               <br/>
- *     For instance, you could refer to EventListenerAcceleration, EventListenerKeyboard,                       <br/>
- *      EventListenerTouchOneByOne, EventListenerCustom.<br/>
- * </p><br/>
- * 封装用户的事件处理逻辑。<br/>
+ * @en The base class of event listener.                                                                        <br/>
+ * If you need custom listener which with different callback, you need to inherit this class.               <br/>
+ * For instance, you could refer to EventListenerAcceleration, EventListenerKeyboard,                       <br/>
+ * EventListenerTouchOneByOne, EventListenerCustom.<br/>
+ * @zh 封装用户的事件处理逻辑
  * 注意：这是一个抽象类，开发者不应该直接实例化这个类，请参考 [[create]] 。
  */
 export class EventListener {
-
-    public get onEvent () {
-        return this._onEvent;
-    }
     /**
      * @en The type code of unknown event listener.<br/>
      * @zh 未知的事件监听器类型
@@ -114,7 +107,7 @@ export class EventListener {
      * You can also pass custom parameters in the configuration object,<br/>
      * all custom parameters will be polyfilled into the event listener object and can be accessed in handlers.<br/>
      * @zh 通过指定不同的 Event 对象来设置想要创建的事件监听器。
-     * @param {Object} argObj a json object
+     * @param argObj a json object
      */
     public static create (argObj: IEventListenerCreateInfo): EventListener {
         cc.assertID(argObj && argObj.event, 1900);
@@ -177,6 +170,10 @@ export class EventListener {
 
     // Whether the listener is enabled
     private _isEnabled = true;     // Whether the listener is enabled
+
+    public get onEvent () {
+        return this._onEvent;
+    }
 
     constructor (type: number, listenerID: string, callback: ((...args: any[]) => any) | null) {
         this._onEvent = callback;

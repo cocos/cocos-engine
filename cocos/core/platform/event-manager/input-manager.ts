@@ -31,10 +31,11 @@
 import { Vec2 } from '../../math/index';
 import { rect } from '../../math/rect';
 import { macro } from '../macro';
-import sys from '../sys';
+import { sys } from '../sys';
 import eventManager from './event-manager';
 import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './events';
 import { Touch } from './touch';
+import { JSB, RUNTIME_BASED } from 'internal:constants';
 
 const TOUCH_TIMEOUT = macro.TOUCH_TIMEOUT;
 
@@ -80,6 +81,7 @@ class Acceleration {
         this.timestamp = timestamp;
     }
 }
+cc.internal.Acceleration = Acceleration;
 
 /**
  *  This class manages all events of input. include: touch, mouse, accelerometer, keyboard
@@ -440,6 +442,11 @@ class InputManager {
             this._accelCurTime = 0;
             scheduler.unscheduleUpdate(this);
         }
+
+        if (JSB || RUNTIME_BASED) {
+            // @ts-ignore
+            jsb.device.setMotionEnabled(isEnable);
+        }
     }
 
     public didAccelerate (eventData: DeviceMotionEvent | DeviceOrientationEvent) {
@@ -516,12 +523,19 @@ class InputManager {
     public setAccelerometerInterval (interval) {
         if (this._accelInterval !== interval) {
             this._accelInterval = interval;
+
+            if (JSB || RUNTIME_BASED) {
+                // @ts-ignore
+                if (jsb.device && jsb.device.setMotionInterval) {
+                    jsb.device.setMotionInterval(interval);
+                }
+            }
         }
     }
 
     private _getUnUsedIndex () {
         let temp = this._indexBitsUsed;
-        const now = cc.sys.now();
+        const now = cc.director.getCurrentTime();
 
         for (let i = 0; i < this._maxTouches; i++) {
             if (!(temp & 0x00000001)) {
@@ -651,7 +665,7 @@ class InputManager {
             listenDOMMouseEvent('mousemove', EventMouse.MOVE, (event, mouseEvent, location, pos) => {
                 this.handleTouchesMove([this.getTouchByXY(event, location.x, location.y, pos)]);
                 if (!this._mousePressed) {
-                    mouseEvent.setButton(null);
+                    mouseEvent.setButton(EventMouse.BUTTON_MISSING);
                 }
                 if (event.movementX !== undefined && event.movementY !== undefined) {
                     mouseEvent.movementX = event.movementX;

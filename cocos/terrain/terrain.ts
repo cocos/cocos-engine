@@ -632,7 +632,6 @@ export class Terrain extends Component {
     @property({
         type: TerrainAsset,
         visible: true,
-        serializable: false,
     })
     public set _asset (value: TerrainAsset|null) {
         if (this.__asset !== value) {

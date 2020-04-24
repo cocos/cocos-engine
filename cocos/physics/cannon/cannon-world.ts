@@ -43,27 +43,33 @@ export class CannonWorld implements IPhysicsWorld {
     constructor () {
         this._world = new CANNON.World();
         this._world.broadphase = new CANNON.NaiveBroadphase();
+        this._world.solver.iterations = 10;
+        (this._world.solver as any).tolerance = 0.0001;
+        this._world.defaultContactMaterial.contactEquationStiffness = 1000000;
+        this._world.defaultContactMaterial.frictionEquationStiffness = 1000000;
+        this._world.defaultContactMaterial.contactEquationRelaxation = 3;
+        this._world.defaultContactMaterial.frictionEquationRelaxation = 3;
+
     }
 
-    step (deltaTime: number, timeSinceLastCalled?: number, maxSubStep?: number) {
-        // sync scene to physics
+    emitEvents (): void {
+        this._world.emitTriggeredEvents();
+        this._world.emitCollisionEvents();
+    }
+
+    syncSceneToPhysics (): void {
         for (let i = 0; i < this.bodies.length; i++) {
             this.bodies[i].syncSceneToPhysics();
         }
+    }
 
+    step (deltaTime: number, timeSinceLastCalled?: number, maxSubStep?: number) {
+        if (this.bodies.length == 0) return;
         this._world.step(deltaTime, timeSinceLastCalled, maxSubStep);
 
         // sync physics to scene
         for (let i = 0; i < this.bodies.length; i++) {
             this.bodies[i].syncPhysicsToScene();
-        }
-
-        this._world.emitTriggeredEvents();
-        this._world.emitCollisionEvents();
-
-        // sync scene to physics again
-        for (let i = 0; i < this.bodies.length; i++) {
-            this.bodies[i].syncSceneToPhysics();
         }
     }
 
@@ -132,5 +138,5 @@ const raycastOpt: CANNON.IRaycastOptions = {
     'checkCollisionResponse': false,
     'collisionFilterGroup': -1,
     'collisionFilterMask': -1,
-    'skipBackFaces': false
+    'skipBackFaces': true
 }

@@ -289,17 +289,19 @@ export default class ParticleBatchModel extends Model {
         }
     }
 
-    public updateGPUParticles (num: number, time: number) {
+    public updateGPUParticles (num: number, time: number, dt: number) {
         const pSize = this._vertAttrsFloatCount * this._vertCount;
         let pBaseIndex = 0;
         let startTime = 0;
         let lifeTime = 0;
         let lastBaseIndex = 0;
+        let interval = 0;
         for (let i = 0; i < num; ++i) {
             pBaseIndex = i * pSize;
             startTime = this._vdataF32![pBaseIndex + this._startTimeOffset];
             lifeTime = this._vdataF32![pBaseIndex + this._lifeTimeOffset];
-            if (time - startTime > lifeTime) {
+            interval = time - startTime;
+            if (lifeTime - interval < dt) {
                 lastBaseIndex = -- num * pSize;
                 this._vdataF32!.copyWithin(pBaseIndex, lastBaseIndex, lastBaseIndex + pSize);
                 i--;

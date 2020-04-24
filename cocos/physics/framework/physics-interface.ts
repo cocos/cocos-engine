@@ -51,7 +51,7 @@ export type TriggerEventType = 'onTriggerEnter' | 'onTriggerStay' | 'onTriggerEx
  * @zh
  * 触发事件的回调函数签名定义。
  */
-export type TriggerCallback = (event: ITriggerEvent) => void;
+export type TriggerCallback = (event?: ITriggerEvent) => void;
 
 /**
  * @en
@@ -139,4 +139,4 @@ export type CollisionEventType = 'onCollisionEnter' | 'onCollisionStay' | 'onCol
  * @zh
  * 碰撞事件的回调函数签名定义。
  */
-export type CollisionCallback = (event: ICollisionEvent) => void;
+export type CollisionCallback = (event?: ICollisionEvent) => void;
