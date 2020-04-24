@@ -84,6 +84,7 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
 
         packManager.load(item, task.options, function (err, data) {
             if (err) {
+                cc.error(err.message, err.stack);
                 if (cc.assetManager.force) {
                     err = null;
                 } else {
@@ -104,6 +105,7 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
         if (item.isNative) {
             parser.parse(id, file, item.ext, options, function (err, asset) {
                 if (err) {
+                    cc.error(err.message, err.stack);
                     if (!cc.assetManager.force) {
                         item.recycle();
                         return done(err);
@@ -148,6 +150,7 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                 else {
                     parser.parse(id, file, 'import', options, function (err, asset) {
                         if (err) {
+                            cc.error(err.message, err.stack);
                             if (!cc.assetManager.force) {
                                 item.recycle();
                                 return done(err);
@@ -205,7 +208,7 @@ function loadDepends (task, asset, done, init) {
                                 asset.onLoad && asset.onLoad();
                             }
                             catch (e) {
-                                cc.warn(e);
+                                cc.error(e.message, e.stack);
                             }
                         }
                     }
@@ -217,7 +220,7 @@ function loadDepends (task, asset, done, init) {
                             asset.onLoad && asset.onLoad();
                         }
                         catch (e) {
-                            cc.warn(e);
+                            cc.error(e.message, e.stack);
                         }
                     }
                     files.remove(id);

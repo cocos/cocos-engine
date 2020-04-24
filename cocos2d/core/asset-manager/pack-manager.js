@@ -222,6 +222,9 @@ var packManager = {
 
                     downloader.download(pack.uuid, url, pack.ext, item.options, function (err, data) {
                         files.remove(pack.uuid);
+                        if (err) {
+                            cc.error(err.message, err.stack);
+                        }
                         // unpack package
                         packManager.unpack(pack.packs, data, pack.ext, item.options, function (err, result) {
                             if (!err) {

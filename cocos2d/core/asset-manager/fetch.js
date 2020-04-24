@@ -51,6 +51,7 @@ function fetch (task, done) {
 
         packManager.load(item, task.options, function (err, data) {
             if (err) {
+                cc.error(err.message, err.stack);
                 if (!task.isFinish) {
                     if (!cc.assetManager.force) {
                         done(err);
@@ -119,6 +120,7 @@ function handle (item, task, content, file, loadDepends, depends, last, done) {
         exclude[item.uuid] = true;
         var err = getDepends(item.uuid, file, exclude, depends, true, false, item.config);
         if (err) {
+            cc.error(err.message, err.stack);
             if (!cc.assetManager.force) {
                 return done(err);
             }
