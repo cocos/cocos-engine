@@ -111,6 +111,22 @@ cc.Asset = cc.Class({
 
         /**
          * !#en
+         * The number of reference
+         * 
+         * !#zh
+         * 引用的数量
+         * 
+         * @property refCount
+         * @type {Number}
+         */
+        refCount: {
+            get () {
+                return this._ref;
+            }
+        },
+
+        /**
+         * !#en
          * Serializable url for native asset.
          * !#zh
          * 保存原生资源的 URL。
@@ -270,20 +286,6 @@ cc.Asset = cc.Class({
         else {
             this._native = '/' + filename;  // simply use '/' to tag location where is not in the library
         }
-    },
-
-    /**
-     * !#en
-     * The number of reference
-     * 
-     * !#zh
-     * 引用的数量
-     * 
-     * @property refCount
-     * @type {Number}
-     */
-    get refCount () {
-        return this._ref;
     },
 
     /**
