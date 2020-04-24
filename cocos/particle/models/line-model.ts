@@ -53,7 +53,7 @@ export class LineModel extends Model {
             usage: GFXBufferUsageBit.INDIRECT,
             memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
             size: GFX_DRAW_INFO_SIZE,
-            stride: 1,
+            stride: GFX_DRAW_INFO_SIZE,
         });
     }
 
