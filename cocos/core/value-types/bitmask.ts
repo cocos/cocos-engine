@@ -30,6 +30,14 @@
 import { value } from '../utils/js';
 import { EDITOR, TEST } from 'internal:constants';
 
+/**
+ * @en
+ * Define an BitMask type.
+ * @zh
+ * 定义一个位掩码类型。
+ * @param obj a JavaScript literal object containing BitMask names and values
+ * @return the defined BitMask type
+ */
 export function BitMask<T> (obj: T): T {
     if ('__bitmask__' in obj) {
         return obj;
