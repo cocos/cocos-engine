@@ -96,6 +96,16 @@ export function error (message?: any, ...optionalParams: any[]) {
     return ccError(message, ...optionalParams);
 }
 
+/**
+ * @en
+ * Assert the condition and output error messages if the condition is not true.
+ * @zh
+ * 对检查测试条件进行检查，如果条件不为 true 则输出错误消息
+ * @param value - The condition to check on
+ * @param message - A JavaScript string containing zero or more substitution strings.
+ * @param optionalParams - JavaScript objects with which to replace substitution strings within msg.
+ * This gives you additional control over the format of the output.
+ */
 export function assert (value: any, message?: string, ...optionalParams: any[]) {
     return ccAssert(value, message, ...optionalParams);
 }
@@ -345,16 +355,16 @@ export function getError (errorId: any, ...param: any[]): string {
 }
 
 /**
- * @en Returns whether or not to display the FPS information.
- * @zh 是否显示 FPS 信息。
+ * @en Returns whether or not to display the FPS and debug information.
+ * @zh 是否显示 FPS 信息和部分调试信息。
  */
 export function isDisplayStats (): boolean {
     return cc.profiler ? cc.profiler.isShowingStats() : false;
 }
 
 /**
- * @en Sets whether display the FPS on the bottom-left corner.
- * @zh 设置是否在左下角显示 FPS。
+ * @en Sets whether display the FPS and debug informations on the bottom-left corner.
+ * @zh 设置是否在左下角显示 FPS 和部分调试。
  */
 export function setDisplayStats (displayStats: boolean) {
     if (cc.profiler) {

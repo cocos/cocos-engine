@@ -418,9 +418,7 @@ export class ModelComponent extends RenderableComponent {
             if (!subMeshMorph) {
                 continue;
             }
-            const initialWeights =
-                subMeshMorph.weights ||
-                (morph.weights && morph.weights.length === subMeshMorph.targets.length, morph.weights);
+            const initialWeights = subMeshMorph.weights || morph.weights;
             const weights = initialWeights ?
                 initialWeights.slice() :
                 new Array<number>(subMeshMorph.targets.length).fill(0);

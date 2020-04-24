@@ -1,6 +1,6 @@
 import { ALIPAY, RUNTIME_BASED } from 'internal:constants';
 import { macro } from '../../platform';
-import sys from '../../platform/sys';
+import { sys } from '../../platform/sys';
 import { GFXBindingLayout, IGFXBindingLayoutInfo } from '../binding-layout';
 import { GFXBuffer, IGFXBufferInfo } from '../buffer';
 import { GFXCommandAllocator, IGFXCommandAllocatorInfo } from '../command-allocator';
@@ -325,6 +325,10 @@ export class WebGLGFXDevice extends GFXDevice {
 
         if (ALIPAY) {
             this._WEBGL_depth_texture = { UNSIGNED_INT_24_8_WEBGL: 0x84FA };
+        }
+
+        if (sys.browserType === sys.BROWSER_TYPE_UC) {
+            this._ANGLE_instanced_arrays = null; // UC browser implementation doesn't work
         }
 
         this._features.fill(false);

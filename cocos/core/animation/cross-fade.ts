@@ -27,7 +27,7 @@ export class CrossFade extends Playable {
     }
 
     public update (deltaTime: number) {
-        if (!this.isPlaying || this.isPaused) {
+        if (this.isMotionless) {
             return;
         }
 
@@ -71,6 +71,13 @@ export class CrossFade extends Playable {
             }
             this._fadings.splice(deadFadingBegin);
         }
+
+        for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
+            const state = this._managedStates[iManagedState].state;
+            if (state && state.isMotionless) {
+                state.sample();
+            }
+        }
     }
 
     /**
@@ -96,6 +103,8 @@ export class CrossFade extends Playable {
                 state.play();
             }
             this._managedStates.push(target);
+        } else if (target.state?.isMotionless) {
+            target.state.play();
         }
         ++target.reference;
         this._fadings.unshift({

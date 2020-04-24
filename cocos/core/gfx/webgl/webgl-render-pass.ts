@@ -1,8 +1,6 @@
-import { GFXStatus } from '../define';
-import { GFXDevice } from '../device';
 import { GFXRenderPass, IGFXRenderPassInfo } from '../render-pass';
-import { WebGLGFXDevice } from './webgl-device';
 import { WebGLGPURenderPass } from './webgl-gpu-objects';
+import { GFXStatus } from '../define';
 
 export class WebGLGFXRenderPass extends GFXRenderPass {
 
@@ -11,10 +9,6 @@ export class WebGLGFXRenderPass extends GFXRenderPass {
     }
 
     private _gpuRenderPass: WebGLGPURenderPass | null = null;
-
-    constructor (device: GFXDevice) {
-        super(device);
-    }
 
     public initialize (info: IGFXRenderPassInfo): boolean {
 

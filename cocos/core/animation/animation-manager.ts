@@ -42,7 +42,7 @@ export class AnimationManager extends System {
         const array = iterator.array;
         for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
             const anim = array[iterator.i];
-            if (anim.isPlaying && !anim.isPaused) {
+            if (!anim.isMotionless) {
                 anim.update(dt);
             }
         }

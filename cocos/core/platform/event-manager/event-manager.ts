@@ -34,6 +34,7 @@ import { Event } from '../../event';
 import { EventTouch } from './events';
 import { EventListener, TouchOneByOne } from './event-listener';
 import { Node } from '../../scene-graph';
+import { macro } from '../macro';
 const ListenerID = EventListener.ListenerID;
 
 function checkUINode (node) {
@@ -946,9 +947,9 @@ class EventManager {
         const getCode = event.getEventCode();
         // const EventTouch = cc.Event.EventTouch;
         if (getCode === EventTouch.BEGAN) {
-            if (!cc.macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch) {
-                let node = eventManager._currentTouchListener!._node;
-                if (node && node.activeInHierarchy) {
+            if (!macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch) {
+                const node = eventManager._currentTouchListener!._node;
+                if (!node || node.activeInHierarchy) {
                     return false;
                 }
             }
@@ -964,7 +965,7 @@ class EventManager {
             removedIdx = listener._claimedTouches.indexOf(selTouch);
             if (removedIdx !== -1) {
                 isClaimed = true;
-                if (!cc.macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch && eventManager._currentTouch !== selTouch) {
+                if (!macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch && eventManager._currentTouch !== selTouch) {
                     return false;
                 }
                 if (getCode === EventTouch.MOVED && listener.onTouchMoved) {

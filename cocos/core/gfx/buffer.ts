@@ -117,6 +117,7 @@ export abstract class GFXBuffer extends GFXObject {
     protected _count: number = 0;
     protected _flags: GFXBufferFlags = GFXBufferFlagBit.NONE;
     protected _bufferView: Uint8Array | null = null;
+    protected _indirectBuffer: IGFXIndirectBuffer | null = null;
 
     constructor (device: GFXDevice) {
         super(GFXObjectType.BUFFER);

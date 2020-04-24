@@ -67,6 +67,9 @@ export class ImageAsset extends Asset {
     }
 
     set _nativeAsset (value: ImageSource) {
+        if (!(value instanceof HTMLElement)) {
+            value.format = this._format;
+        }
         this.reset(value);
     }
 

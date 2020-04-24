@@ -26,7 +26,7 @@ export abstract class GFXTextureView extends GFXObject {
      * @en Get current texture.
      * @zh GFX 纹理。
      */
-    public get texture (): GFXTexture {
+    get texture (): GFXTexture {
         return  this._texture as GFXTexture;
     }
 
@@ -34,7 +34,7 @@ export abstract class GFXTextureView extends GFXObject {
      * @en Get current viewing type.
      * @zh 纹理视图类型。
      */
-    public get type (): GFXTextureViewType {
+    get type (): GFXTextureViewType {
         return this._type;
     }
 
@@ -42,7 +42,7 @@ export abstract class GFXTextureView extends GFXObject {
      * @en Get current format.
      * @zh 纹理视图格式。
      */
-    public get format (): GFXFormat {
+    get format (): GFXFormat {
         return this._format;
     }
 
@@ -50,7 +50,7 @@ export abstract class GFXTextureView extends GFXObject {
      * @en Get base level.
      * @zh 纹理视图基础层级。
      */
-    public get baseLevel (): number {
+    get baseLevel (): number {
         return this._baseLevel;
     }
 
@@ -58,7 +58,7 @@ export abstract class GFXTextureView extends GFXObject {
      * @en Get level count.
      * @zh 纹理视图层级数量。
      */
-    public get levelCount (): number {
+    get levelCount (): number {
         return this._levelCount;
     }
 
@@ -66,7 +66,7 @@ export abstract class GFXTextureView extends GFXObject {
      * @en Get base layer.
      * @zh 纹理视图基础图层。
      */
-    public get baseLayer (): number {
+    get baseLayer (): number {
         return this._baseLayer;
     }
 
@@ -74,7 +74,7 @@ export abstract class GFXTextureView extends GFXObject {
      * @en Get layer count.
      * @zh 纹理视图图层数量。
      */
-    public get layerCount (): number {
+    get layerCount (): number {
         return this._layerCount;
     }
 

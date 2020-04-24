@@ -268,7 +268,7 @@ export class RigidBodyComponent extends Component {
      * @zh
      * 获取封装对象，通过此对象可以访问到底层实例。
      */
-    public get rigidBody () {
+    public get body () {
         return this._body;
     }
 
