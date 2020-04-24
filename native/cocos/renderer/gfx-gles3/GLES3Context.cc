@@ -4,6 +4,8 @@
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
 #include "android/native_window.h"
+#include "scripting/js-bindings/event/EventDispatcher.h"
+#include "scripting/js-bindings/event/CustomEventTypes.h"
 #endif
 
 // #define CC_GFX_DEBUG
@@ -317,6 +319,36 @@ bool GLES3Context::initialize(const GFXContextInfo &info) {
   if (!MakeCurrent()) {
     return false;
   }
+
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+  EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [=](const CustomEvent&) -> void {
+      if (_eglSurface != EGL_NO_SURFACE) {
+          eglDestroySurface(_eglDisplay, _eglSurface);
+          _eglSurface = EGL_NO_SURFACE;
+      }
+  });
+
+    EventDispatcher::addCustomEventListener(EVENT_RECREATE_WINDOW, [=](const CustomEvent& event) -> void {
+        _windowHandle = (uintptr_t)event.args->ptrVal;
+
+        EGLint n_fmt;
+        if (eglGetConfigAttrib(_eglDisplay, _eglConfig, EGL_NATIVE_VISUAL_ID, &n_fmt) == EGL_FALSE) {
+            CC_LOG_ERROR("Getting configuration attributes failed.");
+            return;
+        }
+        uint width = _device->getWidth();
+        uint height = _device->getHeight();
+        ANativeWindow_setBuffersGeometry((ANativeWindow*)_windowHandle, width, height, n_fmt);
+
+        _eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, (EGLNativeWindowType)_windowHandle, NULL);
+        if (_eglSurface == EGL_NO_SURFACE) {
+            CC_LOG_ERROR("Recreate window surface failed.");
+            return;
+        }
+
+        MakeCurrent();
+    });
+#endif
 
   return true;
 }

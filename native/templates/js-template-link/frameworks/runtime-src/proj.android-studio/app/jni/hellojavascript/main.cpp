@@ -42,9 +42,7 @@ namespace
  */
     struct SavedState {
         struct android_app* app = nullptr;
-
         int animating = 0;
-        bool initialized = false;
     };
 }
 
@@ -54,31 +52,19 @@ void handle_cmd(struct android_app* app, int32_t cmd)
     switch (cmd)
     {
         case APP_CMD_INIT_WINDOW:
-            if (state->app->window)
+            if (state->app->window && !game)
             {
                 auto width = ANativeWindow_getWidth(app->window);
                 auto height = ANativeWindow_getHeight(app->window);
                 game = new Game(width, height);
                 game->init();
-                state->initialized = true;
             }
             break;
-        case APP_CMD_TERM_WINDOW:
-            state->animating = false;
+        case APP_CMD_LOST_FOCUS:
+            state->animating = 0;
             break;
         case APP_CMD_GAINED_FOCUS:
-            state->animating = true;
-            break;
-        case APP_CMD_LOST_FOCUS:
-            state->animating = false;
-            break;
-        case APP_CMD_PAUSE:
-            if (state->initialized)
-                cocos2d::Application::getInstance()->onPause();
-            break;
-        case APP_CMD_RESUME:
-            if (state->initialized)
-                cocos2d::Application::getInstance()->onResume();
+            state->animating = 1;
             break;
         default:
             break;
@@ -94,8 +80,8 @@ void android_main(struct android_app* state) {
     state->onAppCmd = handle_cmd;
     state->onInputEvent = cocos2d::View::engineHandleInput;
     savedState.app = state;
-
     cocos2d::JniHelper::setAndroidApp(state);
+
     while (1)
     {
         // Read all pending events.

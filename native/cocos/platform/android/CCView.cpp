@@ -26,6 +26,8 @@ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 #include "CCView.h"
 #include <android_native_app_glue.h>
 #include "scripting/js-bindings/event/EventDispatcher.h"
+#include "scripting/js-bindings/event/CustomEventTypes.h"
+#include "platform/CCApplication.h"
 
 namespace
 {
@@ -74,7 +76,35 @@ NS_CC_BEGIN
 
 void View::engineHandleCmd(struct android_app* app, int32_t cmd)
 {
+    static bool isWindowInitiliased = false;
 	// Handle CMD here if needed.
+	switch (cmd) {
+	    case APP_CMD_INIT_WINDOW:
+	        if (!isWindowInitiliased) {
+	            isWindowInitiliased = true;
+	            return;
+	        } else {
+                cocos2d::CustomEvent event;
+                event.name = EVENT_RECREATE_WINDOW;
+                event.args->ptrVal = app->window;
+                cocos2d::EventDispatcher::dispatchCustomEvent(event);
+	        }
+	        break;
+	    case APP_CMD_TERM_WINDOW: {
+            cocos2d::CustomEvent event;
+            event.name = EVENT_DESTROY_WINDOW;
+            cocos2d::EventDispatcher::dispatchCustomEvent(event);
+        }
+	        break;
+	    case APP_CMD_RESUME:
+	        if (Application::getInstance())
+	            Application::getInstance()->onResume();
+	        break;
+	    case APP_CMD_PAUSE:
+            if (Application::getInstance())
+                Application::getInstance()->onPause();
+	        break;
+	}
 }
 
 /**
