@@ -304,8 +304,8 @@ var Texture2D = cc.Class({
                 return this._image;
             },
             set (data) {
-                if (data.data) {
-                    this.initWithData(data.data, this._format, data.width, data.height);
+                if (data._data) {
+                    this.initWithData(data._data, this._format, data.width, data.height);
                 }
                 else {
                     this.initWithElement(data);
@@ -959,7 +959,7 @@ var Texture2D = cc.Class({
         return asset;
     },
 
-    _deserialize: function (data) {
+    _deserialize: function (data, handle) {
         let fields = data.split(',');
         // decode extname
         let extIdStr = fields[0];
