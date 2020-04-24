@@ -176,6 +176,7 @@ export class ForwardStage extends RenderStage {
                                     if (lightbuffer) { bindingLayout.bindBuffer(UBOForwardLight.BLOCK.binding, lightbuffer); }
                                     this._lightBatchedQueues[lightIndices[l]].insertRenderPass(ro, m, p);
                                 }else{
+                                    // @ts-ignore
                                     const pso = ro.model.createPipelineState(pass, m);
                                     this._lightModelPSO[i][m][l] = pso;
                                     const bindingLayout = pso.pipelineLayout.layouts[0];
