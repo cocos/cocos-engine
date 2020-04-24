@@ -273,11 +273,11 @@ cc.Asset = cc.Class({
     },
 
     /**
-     * !#zh
-     * 引用的数量
-     * 
      * !#en
      * The number of reference
+     * 
+     * !#zh
+     * 引用的数量
      * 
      * @property refCount
      * @type {Number}
@@ -287,11 +287,11 @@ cc.Asset = cc.Class({
     },
 
     /**
-     * !#zh
-     * 增加资源的引用
-     * 
      * !#en
      * Add references of asset
+     * 
+     * !#zh
+     * 增加资源的引用
      * 
      * @method addRef
      * 
@@ -304,12 +304,12 @@ cc.Asset = cc.Class({
 
     /**
      * !#en
-     * Reduce references of asset.
+     * Reduce references of asset and it will be auto released when refCount equals 0.
      * 
      * !#zh
-     * 减少资源的引用。
+     * 减少资源的引用并尝试进行自动释放。
      * 
-     * @method removeRef
+     * @method decRef
      * 
      * @typescript
      * decRef(): void
