@@ -63,7 +63,7 @@ const objsToClearTmpVar: any = [];   // used to reset _iN$t variable
  * node.parent = scene;
  * ```
  */
-function instantiate (original, internal_force?) {
+function instantiate (original, internal_force?): Node | null {
     if (!internal_force) {
         if (typeof original !== 'object' || Array.isArray(original)) {
             if (DEV) {

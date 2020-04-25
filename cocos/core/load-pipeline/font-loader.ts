@@ -24,7 +24,7 @@
  */
 
 /**
- * @category loader
+ * @hidden
  */
 
 import {safeMeasureText} from '../utils/text-utils';

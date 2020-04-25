@@ -24,7 +24,7 @@
  THE SOFTWARE.
  */
 /**
- * @category loader
+ * @hidden
  */
 
 import {pushToMap} from '../utils/misc';
@@ -56,17 +56,17 @@ function isMatchByWord (path, test) {
 /*
  * @en AssetTable is used to find asset's uuid by url.
  * @zh AssetTable 用于查找资源的 uuid 和 url。
- * @class AssetTable
- *
  */
-
 export class AssetTable {
     private _pathToUuid:Map<string, Entry> | Map<string, Array<Entry>>;
     constructor () {
         this._pathToUuid = createMap(true);
     }
 
-    getUuid (path, type) {
+    /**
+     * Retrieve the asset uuid with the asset path and type
+     */
+    getUuid (path:string, type:Function) {
         path = url.normalize(path);
         let item = this._pathToUuid[path];
         if (item) {
@@ -105,7 +105,10 @@ export class AssetTable {
         return '';
     }
 
-    getUuidArray (path, type, out_urls) {
+    /**
+     * Retrieve an uuid array with the asset path and type
+     */
+    getUuidArray (path:string, type:Function, out_urls:string[]) {
         path = url.normalize(path);
         if (path[path.length - 1] === '/') {
             path = path.slice(0, -1);
@@ -161,16 +164,15 @@ export class AssetTable {
     // }
 
     /**
-     * @en TODO
-     * @zh 以路径为 key，uuid 为值添加到表中。
-     * @method add
-     * @param {String} path - the path to load, should NOT include filename extensions.
-     * @param {String} uuid
-     * @param {Function} type
-     * @param {Boolean} isMainAsset
+     * @en Add an asset entry with path as key and asset uuid & type as value to the table
+     * @zh 以路径为 key，uuid 和资源类型为值添加到表中。
+     * @param path - the path of the asset, should NOT include filename extensions.
+     * @param uuid - The uuid of the asset
+     * @param type - Constructor of the asset
+     * @param isMainAsset
      * @private
      */
-    add (path, uuid, type, isMainAsset) {
+    add (path:string, uuid:string, type:Function, isMainAsset:boolean) {
         // remove extname
         // (can not use path.slice because length of extname maybe 0)
         isMainAsset && (path = path.substring(0, path.length - extname(path).length));

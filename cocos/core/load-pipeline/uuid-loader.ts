@@ -25,7 +25,7 @@
  */
 
 /**
- * @category loader
+ * @hidden
  */
 
 import * as js from '../utils/js';
@@ -168,12 +168,7 @@ function loadDepends (pipeline, item, asset, depends, callback) {
             else {
                 // item was removed from cache, but ready in pipeline actually
                 let queue = LoadingItems.getQueue(item);
-                // Hack to get a better behavior
-                let list = queue._callbackTable[dependSrc];
-                if (list) {
-                    list.unshift(loadCallback, loadCallbackCtx);
-                }
-                else {
+                if (queue) {
                     queue.addListener(dependSrc, loadCallback, loadCallbackCtx);
                 }
             }

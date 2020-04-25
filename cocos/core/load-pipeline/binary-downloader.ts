@@ -24,7 +24,7 @@
  THE SOFTWARE.
  */
 /**
- * @category loader
+ * @hidden
  */
 
 export default function downloadBinary (item, callback) {
