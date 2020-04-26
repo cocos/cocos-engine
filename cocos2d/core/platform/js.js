@@ -832,7 +832,6 @@ js.array = {
     removeArray,
     appendObjectsAt,
     copy,
-    indexOf,
     MutableForwardIterator: require('../utils/mutable-forward-iterator')
 };
 
