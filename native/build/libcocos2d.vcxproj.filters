@@ -497,6 +497,69 @@
     <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_gles3_auto.cpp">
       <Filter>js-bindings\auto</Filter>
     </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-gles2\GLES2BindingLayout.cc">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-gles2\GLES2Buffer.cc">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-gles2\GLES2CommandAllocator.cc">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-gles2\GLES2CommandBuffer.cc">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-gles2\GLES2Commands.cc">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-gles2\GLES2Context.cc">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-gles2\GLES2Device.cc">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-gles2\GLES2Framebuffer.cc">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-gles2\GLES2InputAssembler.cc">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-gles2\GLES2PipelineLayout.cc">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-gles2\GLES2PipelineState.cc">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-gles2\GLES2Queue.cc">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-gles2\GLES2RenderPass.cc">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-gles2\GLES2Sampler.cc">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-gles2\GLES2Shader.cc">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-gles2\GLES2Std.cc">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-gles2\GLES2Texture.cc">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-gles2\GLES2TextureView.cc">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-gles2\gles2w.c">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\renderer\gfx-gles2\GLES2Window.cc">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cocos\scripting\js-bindings\auto\jsb_gles2_auto.cpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\cocos\base\base64.h">
@@ -1136,6 +1199,78 @@
     <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_gles3_auto.hpp">
       <Filter>js-bindings\auto</Filter>
     </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-gles2\GFXGLES2.h">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-gles2\GLES2BindingLayout.h">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-gles2\GLES2Buffer.h">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-gles2\GLES2CommandAllocator.h">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-gles2\GLES2CommandBuffer.h">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-gles2\GLES2Commands.h">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-gles2\GLES2Context.h">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-gles2\GLES2Device.h">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-gles2\GLES2Framebuffer.h">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-gles2\GLES2GPUObjects.h">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-gles2\GLES2InputAssembler.h">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-gles2\GLES2PipelineLayout.h">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-gles2\GLES2PipelineState.h">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-gles2\GLES2Queue.h">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-gles2\GLES2RenderPass.h">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-gles2\GLES2Sampler.h">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-gles2\GLES2Shader.h">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-gles2\GLES2StateCache.h">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-gles2\GLES2Std.h">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-gles2\GLES2Texture.h">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-gles2\GLES2TextureView.h">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-gles2\gles2w.h">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\renderer\gfx-gles2\GLES2Window.h">
+      <Filter>renderer\gfx-gles2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cocos\scripting\js-bindings\auto\jsb_gles2_auto.hpp">
+      <Filter>js-bindings\auto</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="base">
@@ -1245,6 +1380,9 @@
     </Filter>
     <Filter Include="renderer\gfx-gles3">
       <UniqueIdentifier>{a0c99b2b-6723-462e-a73f-a2ce5e5550e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="renderer\gfx-gles2">
+      <UniqueIdentifier>{6cd7b083-875a-4f76-8de5-e7c3f7baba1d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -87,7 +87,7 @@ bool GLES3Window::initialize(const GFXWindowInfo &info) {
       GFXTextureViewInfo depthStecnilTexViewInfo;
       depthStecnilTexViewInfo.texture = _depthStencilTex;
       depthStecnilTexViewInfo.type = GFXTextureViewType::TV2D;
-      depthStecnilTexViewInfo.format = _colorFmt;
+      depthStecnilTexViewInfo.format = _depthStencilFmt;
       depthStecnilTexViewInfo.baseLevel = 0;
       depthStecnilTexViewInfo.levelCount = 1;
       depthStecnilTexViewInfo.baseLayer = 0;

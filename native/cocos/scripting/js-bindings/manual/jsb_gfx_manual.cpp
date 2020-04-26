@@ -7,7 +7,7 @@
 #include "scripting/js-bindings/auto/jsb_gles3_auto.hpp"
 #include "renderer/gfx-gles3/GFXGLES3.h"
 
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_WINDOWS)
 #define USE_GLES2
 #endif
 

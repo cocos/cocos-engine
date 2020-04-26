@@ -146,7 +146,9 @@ void GLES3Device::destroy()
 
 void GLES3Device::resize(uint width, uint height)
 {
-  
+    _width = width;
+    _height = height;
+    _window->resize(width, height);
 }
 
 void GLES3Device::present()

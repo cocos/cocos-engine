@@ -73,9 +73,8 @@ bool GLES2Device::initialize(const GFXDeviceInfo& info)
     if (checkExtension("texture_half_float_linear"))
         _features[(int)GFXFeature::TEXTURE_HALF_FLOAT_LINEAR] = true;
     
-
-    _useVAO = checkExtension("GL_OES_depth_texture");
-    _useDrawInstanced = checkExtension("draw_instanced_");
+    _useVAO = checkExtension("vertex_array_object");
+    _useDrawInstanced = checkExtension("draw_instanced");
     _useInstancedArrays = _features[(int)GFXFeature::INSTANCED_ARRAYS] = checkExtension("instanced_arrays");
     _useDiscardFramebuffer = checkExtension("discard_framebuffer");
 
