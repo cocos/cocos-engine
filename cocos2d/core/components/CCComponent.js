@@ -57,7 +57,8 @@ var Component = cc.Class({
         }
         this._id = Editor.Utils.UuidUtils.uuid();
 
-        /**
+        /*** 
+         * !#en
          * Register all related EventTargets,
          * all event callbacks will be removed in `_onPreDestroy`.
          * !#zh
@@ -620,7 +621,7 @@ var Component = cc.Class({
 
 Component._requireComponent = null;
 Component._executionOrder = 0;
-
+if (CC_EDITOR && CC_PREVIEW) Component._disallowMultiple = null;
 
 if (CC_EDITOR || CC_TEST) {
 
@@ -648,7 +649,6 @@ if (CC_EDITOR || CC_TEST) {
         });
     };
 }
-if (CC_EDITOR && CC_PREVIEW) Component._disallowMultiple = null;
 
 // We make this non-enumerable, to prevent inherited by sub classes.
 js.value(Component, '_registerEditorProps', function (cls, props) {
@@ -659,6 +659,9 @@ js.value(Component, '_registerEditorProps', function (cls, props) {
     var order = props.executionOrder;
     if (order && typeof order === 'number') {
         cls._executionOrder = order;
+    }
+    if ((CC_EDITOR || CC_PREVIEW) && 'disallowMultiple' in props) {
+        cls._disallowMultiple = cls;
     }
     if (CC_EDITOR || CC_TEST) {
         var name = cc.js.getClassName(cls);
@@ -707,9 +710,6 @@ js.value(Component, '_registerEditorProps', function (cls, props) {
                     break;
             }
         }
-    }
-    if ((CC_EDITOR || CC_PREVIEW) && 'disallowMultiple' in props) {
-        cls._disallowMultiple = cls;
     }
 });
 
