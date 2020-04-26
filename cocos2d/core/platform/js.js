@@ -799,16 +799,6 @@ function appendObjectsAt (array, addObjs, index) {
 }
 
 /**
- * Exact same function as Array.prototype.indexOf.
- *
- * @method indexOf
- * @param {any} searchElement - Element to locate in the array.
- * @param {Number} [fromIndex=0] - The index to start the search at
- * @return {Number} - the first index at which a given element can be found in the array, or -1 if it is not present.
- */
-var indexOf = Array.prototype.indexOf;
-
-/**
  * Determines whether the array contains a specific value.
  * @method contains
  * @param {any[]} array
