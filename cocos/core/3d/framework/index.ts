@@ -31,7 +31,6 @@
 import { BatchedSkinningModelComponent, SkinningModelUnit } from './batched-skinning-model-component';
 import { CameraComponent } from './camera-component';
 import { DirectionalLightComponent } from './directional-light-component';
-import { EditorCameraComponent } from './editor-camera-component';
 import { LightComponent } from './light-component';
 import { ModelComponent } from './model-component';
 import { RenderableComponent } from './renderable-component';
@@ -56,7 +55,6 @@ export {
 
 // cc.AnimationComponent = AnimationComponent;
 cc.CameraComponent = CameraComponent;
-cc.EditorComponent = EditorCameraComponent;
 cc.RenderableComponent = RenderableComponent;
 cc.ModelComponent = ModelComponent;
 cc.SkinningModelComponent = SkinningModelComponent;
