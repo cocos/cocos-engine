@@ -32,6 +32,7 @@
 #include "Utils.hpp"
 #include "../State.hpp"
 #include "../MappingUtils.hpp"
+#include "platform/CCFileUtils.h"
 
 #if SE_ENABLE_INSPECTOR
 #include "debugger/inspector_agent.h"
@@ -633,6 +634,14 @@ namespace se {
             sourceUrl = sourceUrl.substr(prefixPos + prefixKey.length());
         }
 
+
+#if CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_WINDOWS
+        if(strncmp("(no filename)", sourceUrl.c_str(), sizeof("(no filename)") )!= 0)
+        {
+            sourceUrl = cocos2d::FileUtils::getInstance()->fullPathForFilename(sourceUrl);
+        }
+#endif
+        
         // It is needed, or will crash if invoked from non C++ context, such as invoked from objective-c context(for example, handler of UIKit).
         v8::HandleScope handle_scope(_isolate);
 
