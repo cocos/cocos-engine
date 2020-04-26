@@ -30,7 +30,7 @@ export abstract class GFXWindow extends GFXObject {
      * @en Get window width.
      * @zh 窗口宽度。
      */
-    public get width (): number {
+    get width (): number {
         return this._width;
     }
 
@@ -38,7 +38,7 @@ export abstract class GFXWindow extends GFXObject {
      * @en Get window height.
      * @zh 窗口高度。
      */
-    public get height (): number {
+    get height (): number {
         return this._height;
     }
 
@@ -46,7 +46,7 @@ export abstract class GFXWindow extends GFXObject {
      * @en Get window color format.
      * @zh 窗口颜色格式。
      */
-    public get colorFormat (): GFXFormat {
+    get colorFormat (): GFXFormat {
         return this._colorFmt;
     }
 
@@ -54,7 +54,7 @@ export abstract class GFXWindow extends GFXObject {
      * @en Get window depth stencil format.
      * @zh 窗口深度模板格式。
      */
-    public get detphStencilFormat (): GFXFormat {
+    get detphStencilFormat (): GFXFormat {
         return this._depthStencilFmt;
     }
 
@@ -62,7 +62,7 @@ export abstract class GFXWindow extends GFXObject {
      * @en Is this window offscreen?
      * @zh 是否是离屏的。
      */
-    public get isOffscreen (): boolean {
+    get isOffscreen (): boolean {
         return this._isOffscreen;
     }
 
@@ -70,7 +70,7 @@ export abstract class GFXWindow extends GFXObject {
      * @en Get the render pass of this window.
      * @zh GFX 渲染过程。
      */
-    public get renderPass (): GFXRenderPass {
+    get renderPass (): GFXRenderPass {
         return this._renderPass!;
     }
 
@@ -78,7 +78,7 @@ export abstract class GFXWindow extends GFXObject {
      * @en Get color texture view of this window.
      * @zh 颜色纹理视图。
      */
-    public get colorTexView (): GFXTextureView | null {
+    get colorTexView (): GFXTextureView | null {
         return this._colorTexView;
     }
 
@@ -86,7 +86,7 @@ export abstract class GFXWindow extends GFXObject {
      * @en Get depth stencil texture view of this window.
      * @zh 深度模板纹理视图。
      */
-    public get depthStencilTexView (): GFXTextureView | null {
+    get depthStencilTexView (): GFXTextureView | null {
         return this._depthStencilTexView;
     }
 
@@ -94,7 +94,7 @@ export abstract class GFXWindow extends GFXObject {
      * @en Get window frame buffer.
      * @zh GFX帧缓冲。
      */
-    public get framebuffer (): GFXFramebuffer {
+    get framebuffer (): GFXFramebuffer {
         return this._framebuffer!;
     }
 

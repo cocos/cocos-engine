@@ -1,21 +1,16 @@
-import { GFXStatus } from '../define';
-import { GFXDevice } from '../device';
 import { GFXShader, IGFXShaderInfo } from '../shader';
 import { WebGLCmdFuncCreateShader, WebGLCmdFuncDestroyShader } from './webgl-commands';
 import { WebGLGFXDevice } from './webgl-device';
 import { WebGLGPUShader, WebGLGPUShaderStage } from './webgl-gpu-objects';
+import { GFXStatus } from '../define';
 
 export class WebGLGFXShader extends GFXShader {
 
-    public get gpuShader (): WebGLGPUShader {
+    get gpuShader (): WebGLGPUShader {
         return  this._gpuShader!;
     }
 
     private _gpuShader: WebGLGPUShader | null = null;
-
-    constructor (device: GFXDevice) {
-        super(device);
-    }
 
     public initialize (info: IGFXShaderInfo): boolean {
 

@@ -28,7 +28,7 @@
  */
 
 import { clamp } from '../../core/math/utils';
-import sys from '../../core/platform/sys';
+import { sys } from '../../core/platform/sys';
 import { AudioPlayer, IAudioInfo, PlayingState } from './player';
 
 const audioSupport = sys.__audioSupport;

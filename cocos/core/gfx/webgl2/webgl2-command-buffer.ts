@@ -79,13 +79,11 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
 
     public initialize (info: IGFXCommandBufferInfo): boolean {
 
-        if (!info.allocator) {
-            return false;
-        }
-
         this._allocator = info.allocator;
-        this._webGLAllocator = this._allocator as WebGL2GFXCommandAllocator;
         this._type = info.type;
+
+        this._webGLAllocator = this._allocator as WebGL2GFXCommandAllocator;
+
         this._status = GFXStatus.SUCCESS;
 
         return true;
@@ -94,9 +92,9 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
     public destroy () {
         if (this._webGLAllocator) {
             this._webGLAllocator.clearCmds(this.cmdPackage);
-            this._allocator = null;
             this._webGLAllocator = null;
         }
+        this._allocator = null;
         this._status = GFXStatus.UNREADY;
     }
 
@@ -332,9 +330,16 @@ export class WebGL2GFXCommandBuffer extends GFXCommandBuffer {
                 this.bindStates();
             }
 
-            const cmd = ( this._allocator as WebGL2GFXCommandAllocator).
+            const cmd = (this._allocator as WebGL2GFXCommandAllocator).
                         drawCmdPool.alloc(WebGL2CmdDraw);
-            (inputAssembler as WebGL2GFXInputAssembler).extractCmdDraw(cmd);
+            // cmd.drawInfo = inputAssembler;
+            cmd.drawInfo.vertexCount = inputAssembler.vertexCount;
+            cmd.drawInfo.firstVertex = inputAssembler.firstVertex;
+            cmd.drawInfo.indexCount = inputAssembler.indexCount;
+            cmd.drawInfo.firstIndex = inputAssembler.firstIndex;
+            cmd.drawInfo.vertexOffset = inputAssembler.vertexOffset;
+            cmd.drawInfo.instanceCount = inputAssembler.instanceCount;
+            cmd.drawInfo.firstInstance = inputAssembler.firstInstance;
             this.cmdPackage.drawCmds.push(cmd);
 
             this.cmdPackage.cmds.push(WebGL2Cmd.DRAW);

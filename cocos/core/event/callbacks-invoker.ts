@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -51,16 +51,20 @@ const callbackInfoPool = new Pool(() => {
     return new CallbackInfo();
 }, 32);
 
+/**
+ * @zh 事件监听器列表的简单封装。
+ * @en A simple list of event callbacks
+ */
 export class CallbackList {
     public callbackInfos: Array<CallbackInfo | null> = [];
     public isInvoking = false;
     public containCanceled = false;
 
     /**
-     * @zh
-     * 从列表中移除与指定目标相同回调函数的事件。
+     * @zh 从列表中移除与指定目标相同回调函数的事件。
+     * @en Remove the event listeners with the given callback from the list
      *
-     * @param cb - 指定回调函数
+     * @param cb - The callback to be removed
      */
     public removeByCallback (cb: Function) {
         for (let i = 0; i < this.callbackInfos.length; ++i) {
@@ -73,10 +77,9 @@ export class CallbackList {
         }
     }
     /**
-     * @zh
-     * 从列表中移除与指定目标相同调用者的事件。
-     *
-     * @param target - 指定调用者
+     * @zh 从列表中移除与指定目标相同调用者的事件。
+     * @en Remove the event listeners with the given target from the list
+     * @param target
      */
     public removeByTarget (target: Object) {
         for (let i = 0; i < this.callbackInfos.length; ++i) {
@@ -90,10 +93,9 @@ export class CallbackList {
     }
 
     /**
-     * @zh
-     * 移除指定编号事件。
-     *
-     * @param index - 指定编号。
+     * @zh 移除指定编号事件。
+     * @en Remove the event listener at the given index
+     * @param index
      */
     public cancel (index: number) {
         const info = this.callbackInfos[index];
@@ -105,8 +107,8 @@ export class CallbackList {
     }
 
     /**
-     * @zh
-     * 注销所有事件。
+     * @zh 注销所有事件。
+     * @en Cancel all event listeners
      */
     public cancelAll () {
         for (let i = 0; i < this.callbackInfos.length; i++) {
@@ -120,8 +122,8 @@ export class CallbackList {
     }
 
     /**
-     * @zh
-     * 取消所有回调。（在移除过程中会更加紧凑的排列数组）
+     * @zh 立即删除所有取消的回调。（在移除过程中会更加紧凑的排列数组）
+     * @en Delete all canceled callbacks and compact array
      */
     public purgeCanceled () {
         for (let i = this.callbackInfos.length - 1; i >= 0; --i) {
@@ -134,8 +136,8 @@ export class CallbackList {
     }
 
     /**
-     * @zh
-     * 清除并重置所有数据。
+     * @zh 清除并重置所有数据。
+     * @en Clear all data
      */
     public clear () {
         this.cancelAll();
@@ -155,21 +157,21 @@ export interface ICallbackTable {
 }
 
 /**
- * @zh
- * CallbacksInvoker 用来根据 Key 管理事件监听器列表并调用回调方法。
- * @class CallbacksInvoker
+ * @zh CallbacksInvoker 用来根据事件名（Key）管理事件监听器列表并调用回调方法。
+ * @en CallbacksInvoker is used to manager and invoke event listeners with different event keys, 
+ * each key is mapped to a CallbackList.
  */
 export class CallbacksInvoker {
     public _callbackTable: ICallbackTable = createMap(true);
 
     /**
-     * @zh
-     * 事件添加管理
+     * @zh 向一个事件名注册一个新的事件监听器，包含回调函数和调用者
+     * @en Register an event listener to a given event key with callback and target.
      *
-     * @param key - 一个监听事件类型的字符串。
-     * @param callback - 事件分派时将被调用的回调函数。
-     * @param arget - 调用回调的目标。可以为空。
-     * @param once - 是否只调用一次。
+     * @param key - Event type
+     * @param callback - Callback function when event triggered
+     * @param target - Callback callee
+     * @param once - Whether invoke the callback only once (and remove it)
      */
     public on (key: string, callback: Function, target?: Object, once?: boolean) {
         let list = this._callbackTable[key];
@@ -182,13 +184,11 @@ export class CallbacksInvoker {
     }
 
     /**
-     * @zh
-     * 检查指定事件是否已注册回调。
-     *
-     * @param key - 一个监听事件类型的字符串。
-     * @param callback - 事件分派时将被调用的回调函数。
-     * @param target - 调用回调的目标。
-     * @return - 指定事件是否已注册回调。
+     * @zh 检查指定事件是否已注册回调。
+     * @en Checks whether there is correspond event listener registered on the given event
+     * @param key - Event type
+     * @param callback - Callback function when event triggered
+     * @param target - Callback callee
      */
     public hasEventListener (key: string, callback?: Function, target: Object | null = null) {
         const list = this._callbackTable[key];
@@ -222,10 +222,9 @@ export class CallbacksInvoker {
     }
 
     /**
-     * @zh
-     * 移除在特定事件类型中注册的所有回调或在某个目标中注册的所有回调。
-     *
-     * @param keyOrTarget - 要删除的事件键或要删除的目标。
+     * @zh 移除在特定事件类型中注册的所有回调或在某个目标中注册的所有回调。
+     * @en Removes all callbacks registered in a certain event type or all callbacks registered with a certain target
+     * @param keyOrTarget - The event type or target with which the listeners will be removed
      */
     public removeAll (keyOrTarget?: string | Object) {
         if (typeof keyOrTarget === 'string') {
@@ -263,12 +262,11 @@ export class CallbacksInvoker {
     }
 
     /**
-     * @zh
-     * 删除之前与同类型，回调，目标注册的回调。
-     *
-     * @param key - 一个监听事件类型的字符串。
-     * @param callback - 移除指定注册回调。如果没有给，则删除全部同事件类型的监听。
-     * @param target - 调用回调的目标。
+     * @zh 删除以指定事件，回调函数，目标注册的回调。
+     * @en Remove event listeners registered with the given event key, callback and target
+     * @param key - Event type
+     * @param callback - The callback function of the event listener, if absent all event listeners for the given type will be removed
+     * @param target - The callback callee of the event listener
      */
     public off (key: string, callback?: Function, target?: Object) {
         const list = this._callbackTable[key];
@@ -296,15 +294,10 @@ export class CallbacksInvoker {
     }
 
     /**
-     * @zh
-     * 事件派发
-     *
-     * @param key - 一个监听事件类型的字符串
-     * @param p1 - 派发的第一个参数。
-     * @param p2 - 派发的第二个参数。
-     * @param p3 - 派发的第三个参数。
-     * @param p4 - 派发的第四个参数。
-     * @param p5 - 派发的第五个参数。
+     * @zh 派发一个指定事件，并传递需要的参数
+     * @en Trigger an event directly with the event name and necessary arguments.
+     * @param key - event type
+     * @param args - Arguments when the event triggered
      */
     public emit (key: string, ...args: any[]) {
         const list: CallbackList = this._callbackTable[key]!;

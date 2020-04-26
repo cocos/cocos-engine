@@ -42,7 +42,7 @@ import { SpriteComponent } from '../sprite-component';
 import { EditBoxImpl } from './edit-box-impl';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
-import sys from '../../../core/platform/sys';
+import { sys } from '../../../core/platform/sys';
 import { EDITOR } from 'internal:constants';
 
 const LEFT_PADDING = 2;

@@ -158,7 +158,6 @@ export class SubContextView extends Component {
     /**
      * @en Reset open data context size and viewport
      * @zh 重置开放数据域的尺寸和视窗
-     * @method reset
      */
     public reset () {
         if (this._context) {

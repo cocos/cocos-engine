@@ -24,7 +24,6 @@ export class AmmoBvhTriangleMeshShape extends AmmoShape implements ITrimeshShape
             // TODO: change the mesh after initialization
             warnID(9620);
         } else {
-
             const mesh = v;
             if (mesh && mesh.renderingSubMeshes.length > 0) {
                 this._btTriangleMesh = new Ammo.btTriangleMesh();
@@ -85,7 +84,6 @@ export class AmmoBvhTriangleMeshShape extends AmmoShape implements ITrimeshShape
             } else {
                 this._btShape = AmmoConstant.instance.EMPTY_SHAPE;
             }
-
         }
     }
 

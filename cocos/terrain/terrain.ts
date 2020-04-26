@@ -587,22 +587,26 @@ export class Terrain extends Component {
     @property({
         type: TerrainAsset,
         visible: false,
+        animatable: false,
     })
     protected __asset: TerrainAsset|null = null;
 
     @property({
         type: TerrainLayer,
         visible: true,
+        animatable: false,
     })
     protected _layers: Array<TerrainLayer|null> = [];
 
     @property({
         visible: false,
+        animatable: false,
     })
     protected _blockInfos: TerrainBlockInfo[] = [];
 
     @property({
         visible: false,
+        animatable: false,
     })
     protected _lightmapInfos: TerrainBlockLightmapInfo[] = [];
 
@@ -628,7 +632,6 @@ export class Terrain extends Component {
     @property({
         type: TerrainAsset,
         visible: true,
-        serializable: false,
     })
     public set _asset (value: TerrainAsset|null) {
         if (this.__asset !== value) {
@@ -732,8 +735,8 @@ export class Terrain extends Component {
         const h = Math.min(this._blockCount[1], info.blockCount[1]);
         for (let j = 0; j < h; ++j) {
             for (let i = 0; i < w; ++i) {
-                const index0 = j * info.vertexCount[0] + i;
-                const index1 = j * this.vertexCount[0] + i;
+                const index0 = j * info.blockCount[0] + i;
+                const index1 = j * this.blockCount[0] + i;
 
                 blockInfos[index0] = this._blockInfos[index1];
             }
@@ -1506,21 +1509,21 @@ export class Terrain extends Component {
                 const uoff = i * oldWeightMapSize;
                 const voff = j * oldWeightMapSize;
 
-                for (let v = 0; v < this._weightMapSize; ++v) {
-                    for (let u = 0; u < this._weightMapSize; ++u) {
+                for (let v = 0; v < info.weightMapSize; ++v) {
+                    for (let u = 0; u < info.weightMapSize; ++u) {
                         // tslint:disable-next-line: no-shadowed-variable
                         let w: Vec4;
                         if (info.weightMapSize === oldWeightMapSize) {
                             w = getOldWeight(u + uoff, v + voff, this._weights);
                         }
                         else {
-                            const x = u / (this._weightMapSize - 1) * (oldWeightMapSize - 1);
-                            const y = v / (this._weightMapSize - 1) * (oldWeightMapSize - 1);
+                            const x = u / (info.weightMapSize - 1) * (oldWeightMapSize - 1);
+                            const y = v / (info.weightMapSize - 1) * (oldWeightMapSize - 1);
                             w = sampleOldWeight(x, y, uoff, voff, this._weights);
                         }
 
-                        const du = i * this._weightMapSize + u;
-                        const dv = j * this._weightMapSize + v;
+                        const du = i * info.weightMapSize + u;
+                        const dv = j * info.weightMapSize + v;
                         const index = dv * weightMapComplexityU + du;
 
                         weights[index * 4 + 0] = w.x * 255;

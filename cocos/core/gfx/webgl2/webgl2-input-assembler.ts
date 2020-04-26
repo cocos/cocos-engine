@@ -1,10 +1,9 @@
-import { GFXStatus } from '../define';
-import { GFXDevice } from '../device';
 import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../input-assembler';
 import { WebGL2GFXBuffer } from './webgl2-buffer';
-import { WebGL2CmdDraw, WebGL2CmdFuncCreateInputAssember, WebGL2CmdFuncDestroyInputAssembler } from './webgl2-commands';
+import { WebGL2CmdFuncCreateInputAssember, WebGL2CmdFuncDestroyInputAssembler } from './webgl2-commands';
 import { WebGL2GFXDevice } from './webgl2-device';
 import { IWebGL2GPUInputAssembler, WebGL2GPUBuffer } from './webgl2-gpu-objects';
+import { GFXStatus } from '../define';
 
 export class WebGL2GFXInputAssembler extends GFXInputAssembler {
 
@@ -13,10 +12,6 @@ export class WebGL2GFXInputAssembler extends GFXInputAssembler {
     }
 
     private _gpuInputAssembler: IWebGL2GPUInputAssembler | null = null;
-
-    constructor (device: GFXDevice) {
-        super(device);
-    }
 
     public initialize (info: IGFXInputAssemblerInfo): boolean {
 
@@ -92,15 +87,5 @@ export class WebGL2GFXInputAssembler extends GFXInputAssembler {
         }
         this._gpuInputAssembler = null;
         this._status = GFXStatus.UNREADY;
-    }
-
-    public extractCmdDraw (cmd: WebGL2CmdDraw) {
-        cmd.drawInfo.vertexCount = this._vertexCount;
-        cmd.drawInfo.firstVertex = this._firstVertex;
-        cmd.drawInfo.indexCount = this._indexCount;
-        cmd.drawInfo.firstIndex = this._firstIndex;
-        cmd.drawInfo.vertexOffset = this._vertexOffset;
-        cmd.drawInfo.instanceCount = this._instanceCount;
-        cmd.drawInfo.firstInstance = this._firstInstance;
     }
 }
