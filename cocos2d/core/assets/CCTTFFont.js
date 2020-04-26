@@ -55,7 +55,7 @@ var TTFFont = cc.Class({
 
         _nativeDep: {
             get () {
-                return { uuid: this._uuid, _native: this._native,  ext: cc.path.extname(this._native), __isNative__: true };
+                return { uuid: this._uuid, __nativeName__: this._native,  ext: cc.path.extname(this._native), __isNative__: true };
             },
             override: true
         }
@@ -67,7 +67,7 @@ var TTFFont = cc.Class({
         },
 
         _parseNativeDepFromJson (json) {
-            return { _native: json._native,  ext: cc.path.extname(json._native), __isNative__: true };
+            return { __nativeName__: json._native,  ext: cc.path.extname(json._native), __isNative__: true };
         }
     }
 });

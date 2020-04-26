@@ -429,7 +429,7 @@ Bundle.prototype = {
     loadScene (sceneName, options, onProgress, onComplete) {
         var { options, onProgress, onComplete } = parseParameters(options, onProgress, onComplete);
     
-        options.priority = options.priority !== undefined ? options.priority : 1;
+        options.preset = options.preset || 'scene';
         options.bundle = this.name;
         return cc.assetManager.loadAny({ 'scene': sceneName }, options, onProgress, function (err, sceneAsset) {
             if (err) {

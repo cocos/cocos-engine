@@ -87,8 +87,6 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                 cc.error(err.message, err.stack);
                 if (cc.assetManager.force) {
                     err = null;
-                } else {
-                    item.recycle();
                 }
                 data = null;
             }
@@ -107,7 +105,6 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                 if (err) {
                     cc.error(err.message, err.stack);
                     if (!cc.assetManager.force) {
-                        item.recycle();
                         return done(err);
                     }
                 }
@@ -152,7 +149,6 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                         if (err) {
                             cc.error(err.message, err.stack);
                             if (!cc.assetManager.force) {
-                                item.recycle();
                                 return done(err);
                             }
                         }

@@ -272,7 +272,8 @@ function AssetManager () {
         },
 
         'remote': {
-            maxRetryCount: 4
+            maxRetryCount: 4,
+            isCrossOrigin: true,
         },
 
         'script': {
@@ -451,7 +452,6 @@ AssetManager.prototype = {
         options.preset = options.preset || 'normal';
         let task = new Task({input: requests, onProgress, onComplete: asyncify(onComplete), options});
         pipeline.async(task);
-        return task;
     },
 
     /**
@@ -491,7 +491,6 @@ AssetManager.prototype = {
         options.preset = options.preset || 'preload';
         var task = new Task({input: requests, onProgress, onComplete: asyncify(onComplete), options});
         fetchPipeline.async(task);
-        return task;
     },
 
     /**

@@ -47,7 +47,7 @@ var unsupported = function (url, options, onComplete) {
 
 var downloadAudio = function (url, options, onComplete) {
     // web audio need to download file as arrayBuffer
-    if (options.audioLoadMode === cc.AudioClip.LoadMode.WEB_AUDIO) {
+    if (options.audioLoadMode !== cc.AudioClip.LoadMode.DOM_AUDIO) {
         downloadArrayBuffer(url, options, onComplete);
     }
     else {
