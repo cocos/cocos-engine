@@ -104,7 +104,7 @@ export class SkinningModelUnit {
     }
 
     /**
-     * @en Convevient setter, copying all necessary information from target skinning model component.
+     * @en Convenient setter, copying all necessary information from target skinning model component.
      * @zh 复制目标 SkinningModelComponent 的所有属性到本单元，方便快速配置。
      */
     @property({ type: SkinningModelComponent })
@@ -504,7 +504,7 @@ export class BatchedSkinningModelComponent extends SkinningModelComponent {
 
     private _createUnitMesh (unitIdx: number, mesh: Mesh) {
         // add batch ID to this temp mesh
-        // first, update bookkeepping
+        // first, update bookkeeping
         let uvOffset = 0;
         let uvFormat = GFXFormat.UNKNOWN;
         let bundleIdx = 0;
