@@ -2008,3 +2008,7 @@ Can't getGFXSampler with out device
 ### 10001
 
 The sub-mesh contains %d vertices, which beyonds the capability (%d vertices most) of renderer of your platform.
+
+### 10002
+
+Sub-mesh may include at most %d morph targets, but you specified %d.
