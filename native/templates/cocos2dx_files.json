@@ -240,7 +240,6 @@
         "cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxJavascriptJavaBridge.java", 
         "cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxLocalStorage.java", 
         "cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxReflectionHelper.java", 
-        "cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxTypefaces.java", 
         "cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxVideoHelper.java", 
         "cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxVideoView.java", 
         "cocos/platform/android/java/src/org/cocos2dx/lib/Cocos2dxWebView.java", 
