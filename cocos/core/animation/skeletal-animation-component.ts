@@ -77,7 +77,7 @@ function collectRecursively (node: Node, prefix = '', out: string[] = []) {
 
 /**
  * @en
- * Skeletal animaiton component, offers the following features on top of [[AnimationComponent]]:
+ * Skeletal animation component, offers the following features on top of [[AnimationComponent]]:
  * * Choice between baked animation and real-time calculation, to leverage efficiency and expressiveness.
  * * Joint socket system: Create any socket node directly under the animation component root node,
  *   find your target joint and register both to the socket list, so that the socket node would be in-sync with the joint.
