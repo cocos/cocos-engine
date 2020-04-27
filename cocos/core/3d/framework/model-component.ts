@@ -40,6 +40,7 @@ import { Enum } from '../../value-types';
 import { builtinResMgr } from '../builtin';
 import { RenderableComponent } from './renderable-component';
 import { MorphRenderingInstance } from '../../assets/morph';
+import { assertIsTrue } from '../../data/utils/asserts';
 
 /**
  * @en Shadow projection mode.
@@ -200,7 +201,11 @@ export class ModelComponent extends RenderableComponent {
         return this._model;
     }
 
-    @property
+    @property({
+        visible: function (this: ModelComponent) {
+            return !!(this.mesh && this.mesh.struct.morph);
+        },
+    })
     get enableMorph () {
         return this._enableMorph;
     }
@@ -209,8 +214,9 @@ export class ModelComponent extends RenderableComponent {
         this._enableMorph = value;
     }
 
-    protected _modelType: typeof MorphModel;
-    protected _model: MorphModel | null = null;
+    protected _modelType: typeof Model;
+
+    protected _model: Model | null = null;
 
     private _morphInstance: MorphRenderingInstance | null = null;
 
@@ -219,7 +225,7 @@ export class ModelComponent extends RenderableComponent {
 
     constructor () {
         super();
-        this._modelType = MorphModel;
+        this._modelType = Model;
     }
 
     public onLoad () {
@@ -294,12 +300,21 @@ export class ModelComponent extends RenderableComponent {
     }
 
     protected _createModel () {
-        this._model = (cc.director.root as Root).createModel(this._modelType);
+        const preferMorphOverPlain = !!this._morphInstance;
+        // Note we only change to use `MorphModel` if
+        // we are required to render morph and the `this._modelType` is exactly the basic `Model`.
+        // We do this since the `this._modelType` might be changed in classes derived from `ModelComponent`.
+        // We shall not overwrite it.
+        // Please notice that we do not enforce that
+        // derived classes should use a morph-able model type(i.e. model type derived from `MorphModel`).
+        // So we should take care of the edge case.
+        const modelType = (preferMorphOverPlain && this._modelType === Model) ? MorphModel : this._modelType;
+        this._model = (cc.director.root as Root).createModel(modelType);
         this._model.visFlags = this.visibility;
         this._model.initialize(this.node);
         this._models.length = 0;
         this._models.push(this._model);
-        if (this._morphInstance) {
+        if (this._morphInstance && this._model instanceof MorphModel) {
             this._model.setMorphRendering(this._morphInstance);
         }
     }
@@ -309,10 +324,10 @@ export class ModelComponent extends RenderableComponent {
             return;
         }
         const scene = this._getRenderScene();
-        if (this._model!.scene != null) {
+        if (this._model.scene != null) {
             this._detachFromScene();
         }
-        scene.addModel(this._model!);
+        scene.addModel(this._model);
     }
 
     protected _detachFromScene () {
@@ -375,10 +390,12 @@ export class ModelComponent extends RenderableComponent {
         if (!this._model) { return; }
         if (this._shadowCastingMode === ModelShadowCastingMode.OFF) {
             this._model.castShadow = false;
-        } else if (this._shadowCastingMode === ModelShadowCastingMode.ON) {
-            this._model.castShadow = true;
         } else {
-            console.warn(`ShadowCastingMode ${this._shadowCastingMode} is not supported.`);
+            assertIsTrue(
+                this._shadowCastingMode === ModelShadowCastingMode.ON,
+                `ShadowCastingMode ${this._shadowCastingMode} is not supported.`,
+            );
+            this._model.castShadow = true;
         }
     }
 
@@ -425,7 +442,9 @@ export class ModelComponent extends RenderableComponent {
             this._morphInstance.setWeights(iSubMesh, weights);
         }
 
-        this._model?.setMorphRendering(this._morphInstance);
+        if (this._model && this._model instanceof MorphModel) {
+            this._model.setMorphRendering(this._morphInstance);
+        }
     }
 
     private _syncMorphWeights (subMeshIndex: number) {
