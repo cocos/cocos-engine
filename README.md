@@ -73,67 +73,67 @@ gulp build --max-old-space-size=8192
 
 #### Prerequisite
 
- - Install [express](http://expressjs.com/): `npm install express`
- - Install gulp-qunit: `npm install gulp-qunit`
+- Install [express](http://expressjs.com/): `npm install express`.
+- Install gulp-qunit: `npm install gulp-qunit`.
 
 #### Unit Test
 
-##### Test in CLI
+- Test in CLI
 
-```bash
-npm test
-```
+  ```bash
+  npm test
+  ```
 
-##### Test in browser
+- Test in browser
 
-1. Build for testing. <br>
+  1. Build for testing.
 
-    ```bash
-    gulp build-test
-    ```
+      ```bash
+      gulp build-test
+      ```
 
-2. Start express in cloned project folder.
+  2. Start express in cloned project folder.
 
-    ```
-    node test/qunit/server.js
-    ```
+      ```bash
+      node test/qunit/server.js
+      ```
 
-3. Open [http://localhost:8511/bin/qunit-runner.html](http://localhost:8511/bin/qunit-runner.html) in your browser.
+  3. Open [http://localhost:8511/bin/qunit-runner.html](http://localhost:8511/bin/qunit-runner.html) in your browser.
 
 ### DebugInfos
 
 View [EngineErrorMap.md](https://github.com/cocos-creator/engine/blob/master/EngineErrorMap.md)  
 All the debug infos are defined in file EngineErrorMap.md.  
-The file DebugInfos.json will be generated based on EngineErrorMap.md, when run gulp build* command.
+The file DebugInfos.json will be generated based on EngineErrorMap.md, when run `gulp build` command.
 
 For details below:
 
 1. Define log in EngineErrorMap.md 
 
-    example
+    example:
+
     ```
     ### 1001  
       
-    cocos2d: removeAction: Target not found
-          
+    cocos2d: removeAction: Target not found  
     ```
 
-2. Define deprecated log in EngineErrorMap.md 
+2. Define deprecated log in EngineErrorMap.md  
    The log should be marked as DEPRECATED when then logId is no longer referenced in the project.
 
-    example
+    example:
+
     ```
     ### 1000
       
     <!-- DEPRECATED -->
     cc.ActionManager.addAction(): action must be non-null  
-    
     ```
 
 ## Useful links
 
-* [Official site](http://cocos2d-x.org/creator)
-* [Download](http://cocos2d-x.org/download)
-* [Documentation](https://docs.cocos2d-x.org/creator/manual/en/)
-* [API References](https://docs.cocos2d-x.org/creator/api/en/)
+* [Official site](https://www.cocos.com/products#CocosCreator)
+* [Download](https://www.cocos.com/creator)
+* [Documentation](https://docs.cocos.com/creator/manual/)
+* [API References](https://docs.cocos.com/creator/api/)
 * [Forum](https://discuss.cocos2d-x.org/c/creator)
