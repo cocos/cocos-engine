@@ -392,6 +392,24 @@ AssetManager.prototype = {
     },
 
     /**
+     * !#en 
+     * Remove this bundle. NOTE: The asset whthin this bundle will not be released automatically, you can call {{#crossLink "Bundle/releaseAll:method"}}{{/crossLink}} manually before remove it if you need
+     * 
+     * !#zh 
+     * 移除此包, 注意：这个包内的资源不会自动释放, 如果需要的话你可以在摧毁之前手动调用 {{#crossLink "Bundle/releaseAll:method"}}{{/crossLink}} 进行释放
+     *
+     * @method removeBundle
+     * @param {Bundle} bundle - The bundle to be removed 
+     * 
+     * @typescript
+     * removeBundle(bundle: cc.AssetManager.Bundle): void
+     */
+    removeBundle (bundle) {
+        bundle._destroy();
+        bundles.remove(bundle.name);
+    },
+
+    /**
      * !#en
      * General interface used to load assets with a progression callback and a complete callback. You can achieve almost all effect you want with combination of `requests` and `options`.
      * It is highly recommended that you use more simple API, such as `loadRes`, `loadResDir` etc. Every custom parameter in `options` will be distribute to each of `requests`. 

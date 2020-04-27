@@ -592,21 +592,8 @@ Bundle.prototype = {
         });
     },
 
-    /**
-     * !#en 
-     * Destroy this bundle. NOTE: The asset whthin this bundle will not be released automatically, you can call {{#crossLink "Bundle/releaseAll:method"}}{{/crossLink}} manually before destroy it if you need
-     * 
-     * !#zh 
-     * 销毁此包, 注意：这个包内的资源不会自动释放, 如果需要的话你可以在摧毁之前手动调用 {{#crossLink "Bundle/releaseAll:method"}}{{/crossLink}} 进行释放
-     *
-     * @method destroy
-     * 
-     * @typescript
-     * destroy(): void
-     */
-    destroy () {
+    _destroy () {
         this._config.destroy();
-        bundles.remove(this.name);
     }
 
 };
