@@ -37,18 +37,57 @@ bool CCMTLTexture::initialize(const GFXTextureInfo& info)
     if (_flags & GFXTextureFlags::BAKUP_BUFFER)
     {
         _buffer = (uint8_t*)CC_MALLOC(_size);
+        if(!_buffer)
+        {
+            _status = GFXStatus::FAILED;
+            CC_LOG_ERROR("CCMTLTexture: CC_MALLOC backup buffer failed.");
+            return false;
+        }
         _device->getMemoryStatus().textureSize += _size;
     }
     
+    if (!createMTLTexture())
+    {
+        _status = GFXStatus::FAILED;
+        CC_LOG_ERROR("CCMTLTexture: create MTLTexture failed.");
+        return false;
+    }
+    
+    _device->getMemoryStatus().textureSize += _size;
+    _status = GFXStatus::SUCCESS;
+    return true;
+}
+
+bool CCMTLTexture::createMTLTexture()
+{
     _convertedFormat = mu::convertGFXPixelFormat(_format);
     MTLPixelFormat mtlFormat = mu::toMTLPixelFormat(_convertedFormat);
     if (mtlFormat == MTLPixelFormatInvalid)
         return false;
     
-    MTLTextureDescriptor* descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:mtlFormat
-                                                                                          width:_width
-                                                                                         height:_height
-                                                                                      mipmapped:_flags & GFXTextureFlags::GEN_MIPMAP];
+    MTLTextureDescriptor* descriptor = nullptr;
+    auto mtlTextureType = mu::toMTLTextureType(_type, _arrayLayer, _flags);
+    switch (mtlTextureType) {
+        case MTLTextureType2D:
+        case MTLTextureType2DArray:
+            descriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:mtlFormat
+                                                                            width:_width
+                                                                           height:_height
+                                                                        mipmapped:_flags & GFXTextureFlags::GEN_MIPMAP];
+            break;
+        case MTLTextureTypeCube:
+            descriptor = [MTLTextureDescriptor textureCubeDescriptorWithPixelFormat:mtlFormat
+                                                                               size:_width
+                                                                          mipmapped:_flags & GFXTextureFlags::GEN_MIPMAP];
+            break;
+        default:
+            CCASSERT(false, "Unsupported MTLTextureType, create MTLTextureDescriptor failed.");
+            break;
+    }
+    
+    if(descriptor == nullptr)
+        return false;
+    
     descriptor.usage = mu::toMTLTextureUsage(_usage);
     descriptor.textureType = mu::toMTLTextureType(_type, _arrayLayer, _flags);
     descriptor.sampleCount = mu::toMTLSampleCount(_samples);
@@ -67,10 +106,6 @@ bool CCMTLTexture::initialize(const GFXTextureInfo& info)
     id<MTLDevice> mtlDevice = id<MTLDevice>(static_cast<CCMTLDevice*>(_device)->getMTLDevice() );
     _mtlTexture = [mtlDevice newTextureWithDescriptor:descriptor];
     
-    if (_mtlTexture)
-        _device->getMemoryStatus().textureSize += _size;
-    
-    _status = GFXStatus::SUCCESS;
     return _mtlTexture != nil;
 }
 
@@ -94,33 +129,120 @@ void CCMTLTexture::destroy()
 
 void CCMTLTexture::resize(uint width, uint height)
 {
-    _status = GFXStatus::UNREADY;
-    //TODO
+    if(_width == width && _height == height)
+        return;
+    
+    auto oldSize = _size;
+    auto oldWidth = _width;
+    auto oldHeight = _height;
+    id<MTLTexture> oldMTLTexture = _mtlTexture;
+    
+    _width = width;
+    _height = height;
+    _size = GFXFormatSize(_format, _width, _height, _depth);
+    if(!createMTLTexture())
+    {
+        _status = GFXStatus::FAILED;
+        _width = oldWidth;
+        _height = oldHeight;
+        _size = oldSize;
+        _mtlTexture = oldMTLTexture;
+        CC_LOG_ERROR("CCMTLTexture: create MTLTexture failed when try to resize the texture.");
+        return;
+    }
+    
+    if(oldMTLTexture)
+    {
+        [oldMTLTexture release];
+    }
+    
+    _device->getMemoryStatus().textureSize -= oldSize;
+    if (_flags & GFXTextureFlags::BAKUP_BUFFER)
+    {
+        const uint8_t* oldBuffer = _buffer;
+        uint8_t* buffer = (uint8_t*)CC_MALLOC(_size);
+        if(!buffer)
+        {
+            _status = GFXStatus::FAILED;
+            CC_LOG_ERROR("CCMTLTexture: CC_MALLOC backup buffer failed when try to resize the texture.");
+            return;
+        }
+        CC_FREE(oldBuffer);
+        _buffer = buffer;
+        _device->getMemoryStatus().textureSize -= oldSize;
+        _device->getMemoryStatus().textureSize += _size;
+    }
+    
+    _device->getMemoryStatus().textureSize += _size;
+    _status = GFXStatus::SUCCESS;
 }
 
-//TODO coulsonwang: data is an array of memorys that may store mipmaps.
-void CCMTLTexture::update(uint8_t* const* data, const GFXBufferTextureCopy& region)
+void CCMTLTexture::update(uint8_t* const* datas, const GFXBufferTextureCopyList& regions)
 {
     if (!_mtlTexture)
         return;
-    int n = 0;
-    uint8_t* convertedData = convertData(data[n],
-                                         region.texExtent.width * region.texExtent.height,
-                                         _format);
-    
-    MTLRegion mtlRegion =
-    {
-        {(uint)region.texOffset.x, (uint)region.texOffset.y, (uint)region.texOffset.z},
-        {region.texExtent.width, region.texExtent.height, region.texExtent.depth == 0 ? 1 : region.texExtent.depth}
-    };
-    
-    [_mtlTexture replaceRegion:mtlRegion
-                   mipmapLevel:region.texSubres.baseMipLevel
-                     withBytes:convertedData
-                   bytesPerRow:GFX_FORMAT_INFOS[(uint)_convertedFormat].size * region.texExtent.width];
-    
-    if (convertedData != data[n])
-        CC_FREE(convertedData);
+
+    uint n = 0;
+    uint w = 0;
+    uint h = 0;
+    auto mtlTextureType = mu::toMTLTextureType(_type, _arrayLayer, _flags);
+    switch (mtlTextureType) {
+        case MTLTextureType2D:
+            for (size_t i = 0; i < regions.size(); i++) {
+                const auto& region = regions[i];
+                w = region.texExtent.width;
+                h = region.texExtent.height;
+                auto level = region.texSubres.baseMipLevel;
+                auto levelCount = level + region.texSubres.levelCount;
+                for (; level <  levelCount ; level++) {
+                    w = w >> level;
+                    h = h >> level;
+                    uint8_t* buffer = region.buffOffset + region.buffTexHeight * region.buffStride + datas[n];
+                    uint8_t* convertedData = convertData(buffer, w * h, _format);
+                    MTLRegion mtlRegion = { {(uint)region.texOffset.x, (uint)region.texOffset.y, (uint)region.texOffset.z}, {w, h, 1} };
+                    [_mtlTexture replaceRegion:mtlRegion
+                                   mipmapLevel:level
+                                     withBytes:convertedData
+                                   bytesPerRow:GFX_FORMAT_INFOS[(uint)_convertedFormat].size * w];
+                    if (convertedData != datas[n])
+                        CC_FREE(convertedData);
+                    n++;
+                }
+            }
+            break;
+        case MTLTextureType2DArray:
+        case MTLTextureTypeCube:
+            for (size_t i = 0; i < regions.size(); i++) {
+                const auto& region = regions[i];
+                auto layer = region.texSubres.baseArrayLayer;
+                auto layerCount = layer + region.texSubres.layerCount;
+                for (; layer < layerCount; layer++) {
+                    w = region.texExtent.width;
+                    h = region.texExtent.height;
+                    auto level = region.texSubres.baseMipLevel;
+                    auto levelCount = level + region.texSubres.levelCount;
+                    for (; level < levelCount; level++) {
+                        w = w >> level;
+                        h = w >> level;
+                        uint8_t* buffer = region.buffOffset + region.buffTexHeight * region.buffStride + datas[n];
+                        uint8_t* convertedData = convertData(buffer, w * h, _format);
+                        MTLRegion mtlRegion = { {(uint)region.texOffset.x, (uint)region.texOffset.y, (uint)region.texOffset.z}, {w, h, 1} };
+                        [_mtlTexture replaceRegion:mtlRegion
+                                       mipmapLevel:level
+                                             slice:layer
+                                         withBytes:convertedData
+                                       bytesPerRow:GFX_FORMAT_INFOS[(uint)_convertedFormat].size * w
+                                     bytesPerImage:0];
+                        if (convertedData != datas[n++])
+                            CC_FREE(convertedData);
+                    }
+                }
+            }
+            break;
+        default:
+            CCASSERT(false, "Unsupported MTLTextureType, metal texture update failed.");
+            break;
+    }
 }
 
 NS_CC_END

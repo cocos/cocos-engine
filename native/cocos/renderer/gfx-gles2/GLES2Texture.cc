@@ -27,10 +27,22 @@ bool GLES2Texture::initialize(const GFXTextureInfo &info) {
   
   if (_flags & GFXTextureFlags::BAKUP_BUFFER) {
     _buffer = (uint8_t*)CC_MALLOC(_size);
+    if(!_buffer)
+    {
+      _status = GFXStatus::FAILED;
+      CC_LOG_ERROR("GLES2Texture: CC_MALLOC backup buffer failed.");
+      return false;
+    }
     _device->getMemoryStatus().textureSize += _size;
   }
   
   _gpuTexture = CC_NEW(GLES2GPUTexture);
+  if(!_gpuTexture)
+  {
+    _status = GFXStatus::FAILED;
+    CC_LOG_ERROR("GLES2Texture: CC_NEW GLES2GPUTexture failed.");
+    return false;
+  }
   _gpuTexture->type = _type;
   
   switch (_type) {
@@ -78,9 +90,8 @@ bool GLES2Texture::initialize(const GFXTextureInfo &info) {
   _gpuTexture->isPowerOf2 = math::IsPowerOfTwo(_width) && math::IsPowerOfTwo(_height);
   
   GLES2CmdFuncCreateTexture((GLES2Device*)_device, _gpuTexture);
-  _device->getMemoryStatus().textureSize += _size;
-    _status = GFXStatus::SUCCESS;
-  
+  _device->getMemoryStatus().textureSize += _size;  
+  _status = GFXStatus::SUCCESS;
   return true;
 }
 
@@ -104,7 +115,7 @@ void GLES2Texture::destroy() {
 void GLES2Texture::resize(uint width, uint height) {
   uint size = GFXFormatSize(_format, width, height, _depth);
   if (_size != size) {
-    const uint old_size = _size;
+    const uint oldSize = _size;
     _width = width;
     _height = height;
     _size = size;
@@ -114,20 +125,26 @@ void GLES2Texture::resize(uint width, uint height) {
     _gpuTexture->height = _height;
     _gpuTexture->size = _size;
     GLES2CmdFuncResizeTexture((GLES2Device*)_device, _gpuTexture);
-    status.bufferSize -= old_size;
+    status.bufferSize -= oldSize;
     status.bufferSize += _size;
     
     if (_buffer) {
-      const uint8_t* old_buff = _buffer;
-      _buffer = (uint8_t*)CC_MALLOC(_size);
-      memcpy(_buffer, old_buff, old_size);
-      CC_FREE(_buffer);
-      status.bufferSize -= old_size;
+      const uint8_t* oldBuffer = _buffer;
+      uint8_t* buffer = (uint8_t*)CC_MALLOC(_size);
+      if(!buffer)
+      {
+        _status = GFXStatus::FAILED;
+        CC_LOG_ERROR("GLES2Texture: CC_MALLOC backup buffer failed when resize the texture.");
+        return;
+      }
+      memcpy(buffer, oldBuffer, std::min(oldSize, size));
+      _buffer = buffer;
+      CC_FREE(oldBuffer);
+      status.bufferSize -= oldSize;
       status.bufferSize += _size;
     }
+    _status = GFXStatus::SUCCESS;
   }
-    
-    _status = GFXStatus::UNREADY;
 }
 
 NS_CC_END

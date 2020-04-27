@@ -27,10 +27,22 @@ bool GLES3Texture::initialize(const GFXTextureInfo &info) {
   
   if (_flags & GFXTextureFlags::BAKUP_BUFFER) {
     _buffer = (uint8_t*)CC_MALLOC(_size);
+    if(!_buffer)
+    {
+      _status = GFXStatus::FAILED;
+      CC_LOG_ERROR("GLES3Texture: CC_MALLOC backup buffer failed.");
+      return false;
+    }
     _device->getMemoryStatus().textureSize += _size;
   }
   
   _gpuTexture = CC_NEW(GLES3GPUTexture);
+  if(!_gpuTexture)
+  {
+    _status = GFXStatus::FAILED;
+    CC_LOG_ERROR("GLES3Texture: CC_NEW GLES3GPUTexture failed.");
+    return false;
+  }
   _gpuTexture->type = _type;
   
   switch (_type) {
@@ -104,7 +116,7 @@ void GLES3Texture::destroy() {
 void GLES3Texture::resize(uint width, uint height) {
   uint size = GFXFormatSize(_format, width, height, _depth);
   if (_size != size) {
-    const uint old_size = _size;
+    const uint oldSize = _size;
     _width = width;
     _height = height;
     _size = size;
@@ -114,20 +126,26 @@ void GLES3Texture::resize(uint width, uint height) {
     _gpuTexture->height = _height;
     _gpuTexture->size = _size;
     GLES3CmdFuncResizeTexture((GLES3Device*)_device, _gpuTexture);
-    status.bufferSize -= old_size;
+    status.bufferSize -= oldSize;
     status.bufferSize += _size;
     
     if (_buffer) {
-      const uint8_t* old_buff = _buffer;
-      _buffer = (uint8_t*)CC_MALLOC(_size);
-      memcpy(_buffer, old_buff, old_size);
-      CC_FREE(_buffer);
-      status.bufferSize -= old_size;
+      const uint8_t* oldBuffer = _buffer;
+      uint8_t* buffer = (uint8_t*)CC_MALLOC(_size);
+      if(!buffer)
+      {
+        _status = GFXStatus::FAILED;
+        CC_LOG_ERROR("GLES3Texture: CC_MALLOC backup buffer failed when resize the texture.");
+        return;
+      }
+      memcpy(buffer, oldBuffer, std::min(oldSize, size));
+      _buffer = buffer;
+      CC_FREE(oldBuffer);
+      status.bufferSize -= oldSize;
       status.bufferSize += _size;
     }
+    _status = GFXStatus::SUCCESS;
   }
-    
-    _status = GFXStatus::UNREADY;
 }
 
 NS_CC_END
