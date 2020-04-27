@@ -43,19 +43,8 @@ public abstract class Cocos2dxActivity extends NativeActivity {
     // ===========================================================
     // Fields
     // ===========================================================
-    private Cocos2dxVideoHelper mVideoHelper = null;
-    private Cocos2dxWebViewHelper mWebViewHelper = null;
     private boolean hasFocus = false;
     private boolean paused = true;
-
-    // ===========================================================
-    // Inner class
-    // ===========================================================
-
-
-    // ===========================================================
-    // Member methods
-    // ===========================================================
 
     // ===========================================================
     // Override functions
@@ -87,16 +76,6 @@ public abstract class Cocos2dxActivity extends NativeActivity {
         Cocos2dxHelper.init(this);
         CanvasRenderingContext2DImpl.init(this);
 
-
-        //TODO
-//        if (mVideoHelper == null) {
-//            mVideoHelper = new Cocos2dxVideoHelper(this, mFrameLayout);
-//        }
-//
-//        if(mWebViewHelper == null){
-//            mWebViewHelper = new Cocos2dxWebViewHelper(mFrameLayout);
-//        }
-
         this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
     }
@@ -107,7 +86,6 @@ public abstract class Cocos2dxActivity extends NativeActivity {
         paused = false;
         super.onResume();
         Utils.hideVirtualButton();
-       	resumeIfHasFocus();
     }
 
     @Override

@@ -69,19 +69,16 @@ public class Cocos2dxHelper {
     // Fields
     // ===========================================================
 
-    private static String sPackageName;
-    private static String sFileDirectory;
     private static Activity sActivity;
     private static Vibrator sVibrateService;
-    private static String sVersion = "";
     private static BatteryReceiver sBatteryReceiver = new BatteryReceiver();
 
     public static final int NETWORK_TYPE_NONE = 0;
     public static final int NETWORK_TYPE_LAN  = 1;
     public static final int NETWORK_TYPE_WWAN = 2;
 
-    // The absolute path to the OBB if it exists, else the absolute path to the APK.
-    private static String sAssetsPath = "";
+    // The absolute path to the OBB if it exists.
+    private static String sObbFilePath = "";
     
     // The OBB file
     private static ZipResourceFile sOBBFile = null;
@@ -147,32 +144,18 @@ public class Cocos2dxHelper {
     public static void init(final Activity activity) {
         sActivity = activity;
         if (!sInited) {
-            final ApplicationInfo applicationInfo = activity.getApplicationInfo();
-            Cocos2dxHelper.sPackageName = applicationInfo.packageName;
-
-            Cocos2dxHelper.sFileDirectory = activity.getFilesDir().getAbsolutePath();
             Cocos2dxHelper.sVibrateService = (Vibrator)activity.getSystemService(Context.VIBRATOR_SERVICE);
-            Cocos2dxHelper.initAssetsPath();
-            Cocos2dxHelper.initializeVersion();
+            Cocos2dxHelper.initObbFilePath();
             Cocos2dxHelper.initializeOBBFile();
 
             sInited = true;
         }
     }
 
-    public static float getBatteryLevel() {
-        return sBatteryReceiver.sBatteryLevel;
-    }
-    public static String getAssetsPath() { return Cocos2dxHelper.sAssetsPath; }
-    public static ZipResourceFile getObbFile()
-    {
-        return Cocos2dxHelper.sOBBFile;
-    }
-    public static String getPackageName() {
-        return Cocos2dxHelper.sPackageName;
-    }
+    public static float getBatteryLevel() { return sBatteryReceiver.sBatteryLevel; }
+    public static String getObbFilePath() { return Cocos2dxHelper.sObbFilePath; }
     public static String getWritablePath() {
-        return Cocos2dxHelper.sFileDirectory;
+        return sActivity.getFilesDir().getAbsolutePath();
     }
     public static String getCurrentLanguage() {
         return Locale.getDefault().getLanguage();
@@ -182,10 +165,6 @@ public class Cocos2dxHelper {
     }
     public static String getDeviceModel(){
         return Build.MODEL;
-    }
-    public static String getVersion() { return sVersion; }
-    public static int getSDKVersion() {
-        return Build.VERSION.SDK_INT;
     }
     public static String getSystemVersion() {
         return Build.VERSION.RELEASE;
@@ -265,18 +244,6 @@ public class Cocos2dxHelper {
         return array;
     }
 
-    public static byte[] conversionEncoding(byte[] text, String fromCharset,String newCharset)
-    {
-        try {
-            String str = new String(text,fromCharset);
-            return str.getBytes(newCharset);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
     public static int getDeviceRotation() {
         try {
             Display display = ((WindowManager) sActivity.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
@@ -293,33 +260,26 @@ public class Cocos2dxHelper {
 
     // Initialize asset path:
     // - absolute path to the OBB if it exists,
-    // - else the absolute path to the APK.
-    private static void initAssetsPath() {
+    // - else empty string.
+    private static void initObbFilePath() {
         int versionCode = 1;
+        final ApplicationInfo applicationInfo = sActivity.getApplicationInfo();
         try {
-            versionCode = Cocos2dxHelper.sActivity.getPackageManager().getPackageInfo(Cocos2dxHelper.sPackageName, 0).versionCode;
+            versionCode = Cocos2dxHelper.sActivity.getPackageManager().getPackageInfo(applicationInfo.packageName, 0).versionCode;
         } catch (NameNotFoundException e) {
             e.printStackTrace();
         }
-        String pathToOBB = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Android/obb/" + Cocos2dxHelper.sPackageName + "/main." + versionCode + "." + Cocos2dxHelper.sPackageName + ".obb";
+        String pathToOBB = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Android/obb/" + applicationInfo.packageName + "/main." + versionCode + "." + applicationInfo.packageName + ".obb";
         File obbFile = new File(pathToOBB);
         if (obbFile.exists())
-            Cocos2dxHelper.sAssetsPath = pathToOBB;
-        else
-            Cocos2dxHelper.sAssetsPath = Cocos2dxHelper.sActivity.getApplicationInfo().sourceDir;
-    }
-
-    private static void initializeVersion() {
-        try {
-            sVersion = sActivity.getPackageManager().getPackageInfo(sActivity.getPackageName(), 0).versionName;
-        } catch(Exception e) {
-        }
+            Cocos2dxHelper.sObbFilePath = pathToOBB;
     }
 
     private static void initializeOBBFile() {
         int versionCode = 1;
+        final ApplicationInfo applicationInfo = sActivity.getApplicationInfo();
         try {
-            versionCode = sActivity.getPackageManager().getPackageInfo(Cocos2dxHelper.getPackageName(), 0).versionCode;
+            versionCode = sActivity.getPackageManager().getPackageInfo(applicationInfo.packageName, 0).versionCode;
         } catch (NameNotFoundException e) {
             e.printStackTrace();
         }

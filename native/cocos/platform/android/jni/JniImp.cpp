@@ -30,67 +30,19 @@
 #define  JNI_IMP_LOG_TAG    "JniImp"
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,JNI_IMP_LOG_TAG,__VA_ARGS__)
 
-#ifndef ORG_ACTIVITY_CLASS_NAME
-#define ORG_ACTIVITY_CLASS_NAME org_cocos2dx_lib_Cocos2dxActivity
-#endif
-#define JNI_ACTIVITY(FUNC) JNI_METHOD1(ORG_ACTIVITY_CLASS_NAME,FUNC)
-
-#ifndef ORG_HELPER_CLASS_NAME
-#define ORG_HELPER_CLASS_NAME org_cocos2dx_lib_Cocos2dxHelper
-#endif
-#define JNI_HELPER(FUNC) JNI_METHOD1(ORG_HELPER_CLASS_NAME,FUNC)
-
-#ifndef ORG_AUDIOFOCUS_CLASS_NAME
-#define ORG_AUDIOFOCUS_CLASS_NAME org_cocos2dx_lib_Cocos2dxAudioFocusManager
-#endif
-#define JNI_AUDIO(FUNC) JNI_METHOD1(ORG_AUDIOFOCUS_CLASS_NAME,FUNC)
-
 #ifndef JCLS_HELPER
 #define JCLS_HELPER "org/cocos2dx/lib/Cocos2dxHelper"
 #endif
 
 using namespace cocos2d;
 
-namespace
-{
-    std::string g_apkPath;
-    int g_width = 0;
-    int g_height = 0;
-    int g_SDKInt = 0;
-}
-
-extern "C"
-{
-    void getSDKInt(JNIEnv* env)
-    {
-        if (env && g_SDKInt == 0)
-        {
-            // VERSION is a nested class within android.os.Build (hence "$" rather than "/")
-            jclass versionClass = env->FindClass("android/os/Build$VERSION");
-            if (NULL == versionClass)
-                return;
-
-            jfieldID sdkIntFieldID = env->GetStaticFieldID(versionClass, "SDK_INT", "I");
-            if (NULL == sdkIntFieldID)
-                return;
-
-            g_SDKInt = env->GetStaticIntField(versionClass, sdkIntFieldID);
-        }
-    }
-} // end of extern "C"
-
 /***********************************************************
  * Functions invoke from cpp to Java.
  ***********************************************************/
 
-std::string getApkPathJNI() 
+std::string getObbFilePathJNI() 
 {
-    return JniHelper::callStaticStringMethod(JCLS_HELPER, "getAssetsPath");
-}
-
-std::string getPackageNameJNI() 
-{
-    return JniHelper::callStaticStringMethod(JCLS_HELPER, "getPackageName");
+    return JniHelper::callStaticStringMethod(JCLS_HELPER, "getObbFilePath");
 }
 
 int getObbAssetFileDescriptorJNI(const std::string& path, long* startOffset, long* size) 
@@ -121,30 +73,6 @@ int getObbAssetFileDescriptorJNI(const std::string& path, long* startOffset, lon
     return fd;
 }
 
-void convertEncodingJNI(const std::string& src, int byteSize, const std::string& fromCharset, std::string& dst, const std::string& newCharset)
-{
-    JniMethodInfo methodInfo;
-
-    if (JniHelper::getStaticMethodInfo(methodInfo, JCLS_HELPER, "conversionEncoding", "([BLjava/lang/String;Ljava/lang/String;)[B"))
-    {
-        jbyteArray strArray = methodInfo.env->NewByteArray(byteSize);
-        methodInfo.env->SetByteArrayRegion(strArray, 0, byteSize, reinterpret_cast<const jbyte*>(src.c_str()));
-
-        jstring stringArg1 = methodInfo.env->NewStringUTF(fromCharset.c_str());
-        jstring stringArg2 = methodInfo.env->NewStringUTF(newCharset.c_str());
-
-        jbyteArray newArray = (jbyteArray)methodInfo.env->CallStaticObjectMethod(methodInfo.classID, methodInfo.methodID, strArray, stringArg1, stringArg2);
-        jsize theArrayLen = methodInfo.env->GetArrayLength(newArray);
-        methodInfo.env->GetByteArrayRegion(newArray, 0, theArrayLen, (jbyte*)dst.c_str());
-
-        methodInfo.env->DeleteLocalRef(strArray);
-        methodInfo.env->DeleteLocalRef(stringArg1);
-        methodInfo.env->DeleteLocalRef(stringArg2);
-        methodInfo.env->DeleteLocalRef(newArray);
-        methodInfo.env->DeleteLocalRef(methodInfo.classID);
-    }
-}
-
 std::string getCurrentLanguageJNI()
 {
     return JniHelper::callStaticStringMethod(JCLS_HELPER, "getCurrentLanguage");
@@ -169,10 +97,3 @@ void copyTextToClipboardJNI(const std::string& text)
 {
     JniHelper::callStaticVoidMethod(JCLS_HELPER, "copyTextToClipboard", text);
 }
-
-int getAndroidSDKInt()
-{
-    return g_SDKInt;
-}
-
-

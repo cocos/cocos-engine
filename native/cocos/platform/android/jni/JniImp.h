@@ -26,18 +26,10 @@
 
 #include <string>
 
-typedef void (*EditTextCallback)(const std::string& text, void* ctx);
-
-extern bool getApplicationExited();
-
-extern std::string getApkPathJNI();
-extern std::string getPackageNameJNI();
+extern std::string getObbFilePathJNI();
 extern int getObbAssetFileDescriptorJNI(const std::string& path, long* startOffset, long* size);
-extern void convertEncodingJNI(const std::string& src, int byteSize, const std::string& fromCharset, std::string& dst, const std::string& newCharset);
-
 extern std::string getCurrentLanguageJNI();
 extern std::string getCurrentLanguageCodeJNI();
 extern std::string getSystemVersionJNI();
 extern bool openURLJNI(const std::string& url);
 extern void copyTextToClipboardJNI(const std::string& text);
-extern int getAndroidSDKInt();

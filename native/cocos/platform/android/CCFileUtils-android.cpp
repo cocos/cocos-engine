@@ -91,7 +91,7 @@ bool FileUtilsAndroid::init()
 {
     _defaultResRootPath = ASSETS_FOLDER_NAME;
     
-    std::string assetsPath(getApkPathJNI());
+    std::string assetsPath(getObbFilePathJNI());
     if (assetsPath.find("/obb/") != std::string::npos)
     {
         obbfile = new ZipFile(assetsPath);
