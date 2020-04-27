@@ -25,7 +25,7 @@ public:
     
 private:
     static bool matchSamplerName(const char* argumentName, const std::string& samplerName);
-    void createMTLDepthStencilState();
+    bool createMTLDepthStencilState();
     bool createGPUPipelineState();
     bool createMTLRenderPipelineState();
     void setVertexDescriptor(MTLRenderPipelineDescriptor*);

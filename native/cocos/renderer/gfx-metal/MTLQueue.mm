@@ -156,10 +156,13 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                     [encoder setDepthClipMode:gpuPipelineState->depthClipMode];
                     [encoder setTriangleFillMode:gpuPipelineState->fillMode];
                     [encoder setRenderPipelineState:gpuPipelineState->mtlRenderPipelineState];
-                    [encoder setStencilFrontReferenceValue:gpuPipelineState->stencilRefFront
-                                        backReferenceValue:gpuPipelineState->stencilRefBack];
+                    
                     if (gpuPipelineState->mtlDepthStencilState)
+                    {
+                        [encoder setStencilFrontReferenceValue:gpuPipelineState->stencilRefFront
+                                            backReferenceValue:gpuPipelineState->stencilRefBack];
                         [encoder setDepthStencilState:gpuPipelineState->mtlDepthStencilState];
+                    }
                     
                     for (const auto& block : *(gpuPipelineState->vertexUniformBlocks) )
                         [encoder setVertexBuffer:block.buffer offset:0 atIndex:block.mtlBinding];

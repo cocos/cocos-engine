@@ -30,9 +30,13 @@ bool CCMTLPipelineState::initialize(const GFXPipelineStateInfo& info)
     _layout = info.layout;
     _renderPass = info.renderPass;
     
+    if(!createGPUPipelineState())
+    {
+        _status = GFXStatus::FAILED;
+        return false;
+    }
     _status = GFXStatus::SUCCESS;
-    
-    return createGPUPipelineState();
+    return true;
 }
 
 void CCMTLPipelineState::destroy()
@@ -119,12 +123,16 @@ void CCMTLPipelineState::updateBindingBlocks(const GFXBindingLayout* bl)
 bool CCMTLPipelineState::createGPUPipelineState()
 {
     _GPUPipelieState = CC_NEW(CCMTLGPUPipelineState);
-    if (!_GPUPipelieState) return false;
+    if (!_GPUPipelieState)
+    {
+        CC_LOG_ERROR("CCMTLPipelineState: CC_NEW CCMTLGPUPipelineState failed.");
+        return false;
+    }
     
     if (!createMTLRenderPipelineState() ) return false;
     
     // Application can run with wrong depth/stencil state.
-    createMTLDepthStencilState();
+    if(!createMTLDepthStencilState()) return false;
 
     _GPUPipelieState->mtlDepthStencilState = _mtlDepthStencilState;
     _GPUPipelieState->mtlRenderPipelineState = _mtlRenderPipelineState;
@@ -145,24 +153,22 @@ bool CCMTLPipelineState::createGPUPipelineState()
     return true;
 }
 
-void CCMTLPipelineState::createMTLDepthStencilState()
+bool CCMTLPipelineState::createMTLDepthStencilState()
 {
-    if (!_depthStencilState.depthTest &&
-        !_depthStencilState.depthWrite &&
-        !_depthStencilState.stencilTestFront &&
-        !_depthStencilState.stencilTestBack)
-    {
-        return;
-    }
-    
     MTLDepthStencilDescriptor* descriptor = [[MTLDepthStencilDescriptor alloc] init];
+    if(descriptor == nil)
+    {
+        CC_LOG_ERROR("CCMTLPipelineState: MTLDepthStencilDescriptor could not be allocated.");
+        return false;
+    }
+
     descriptor.depthWriteEnabled = _depthStencilState.depthWrite;
-    
+       
     if (!_depthStencilState.depthTest)
-        descriptor.depthCompareFunction = MTLCompareFunctionAlways;
+       descriptor.depthCompareFunction = MTLCompareFunctionAlways;
     else
-        descriptor.depthCompareFunction = mu::toMTLCompareFunction(_depthStencilState.depthFunc);
-    
+       descriptor.depthCompareFunction = mu::toMTLCompareFunction(_depthStencilState.depthFunc);
+     
     if (_depthStencilState.stencilTestFront)
     {
         descriptor.frontFaceStencil.stencilCompareFunction = mu::toMTLCompareFunction(_depthStencilState.stencilFuncFront);
@@ -174,12 +180,7 @@ void CCMTLPipelineState::createMTLDepthStencilState()
     }
     else
     {
-        descriptor.frontFaceStencil.stencilCompareFunction = MTLCompareFunctionAlways;
-        descriptor.frontFaceStencil.readMask = _depthStencilState.stencilReadMaskFront;
-        descriptor.frontFaceStencil.writeMask = _depthStencilState.stencilWriteMaskFront;
-        descriptor.frontFaceStencil.stencilFailureOperation = MTLStencilOperationKeep;
-        descriptor.frontFaceStencil.depthFailureOperation = MTLStencilOperationKeep;
-        descriptor.frontFaceStencil.depthStencilPassOperation = MTLStencilOperationKeep;
+        descriptor.frontFaceStencil = nil;
     }
     
     if (_depthStencilState.stencilTestBack)
@@ -193,24 +194,29 @@ void CCMTLPipelineState::createMTLDepthStencilState()
     }
     else
     {
-        descriptor.backFaceStencil.stencilCompareFunction = MTLCompareFunctionAlways;
-        descriptor.backFaceStencil.readMask = _depthStencilState.stencilReadMaskBack;
-        descriptor.backFaceStencil.writeMask = _depthStencilState.stencilWriteMaskBack;
-        descriptor.backFaceStencil.stencilFailureOperation = MTLStencilOperationKeep;
-        descriptor.backFaceStencil.depthFailureOperation = MTLStencilOperationKeep;
-        descriptor.backFaceStencil.depthStencilPassOperation = MTLStencilOperationKeep;
+        descriptor.backFaceStencil = nil;
     }
     
     id<MTLDevice> mtlDevice = id<MTLDevice>( ((CCMTLDevice*)_device)->getMTLDevice() );
     _mtlDepthStencilState = [mtlDevice newDepthStencilStateWithDescriptor:descriptor];
     
-    if (!_mtlDepthStencilState)  CC_LOG_ERROR("Failed to create MTLDepthStencilState.");
+    if (!_mtlDepthStencilState)
+    {
+        CC_LOG_ERROR("Failed to create MTLDepthStencilState.");
+        return false;
+    }
+    return true;
 }
 
 bool CCMTLPipelineState::createMTLRenderPipelineState()
 {
     bool ret = true;
     MTLRenderPipelineDescriptor* descriptor = [[MTLRenderPipelineDescriptor alloc] init];
+    if(descriptor == nil)
+    {
+        CC_LOG_ERROR("CCMTLPipelineState: MTLRenderPipelineDescriptor could not be allocated.");
+        return false;
+    }
     setMTLFunctions(descriptor);
     setVertexDescriptor(descriptor);
     setFormats(descriptor);
