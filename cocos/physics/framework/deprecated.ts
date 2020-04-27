@@ -8,11 +8,19 @@ import { BoxColliderComponent } from "./components/collider/box-collider-compone
 import { SphereColliderComponent } from "./components/collider/sphere-collider-component";
 import { CapsuleColliderComponent } from "./components/collider/capsule-collider-component";
 import { RigidBodyComponent } from "./components/rigid-body-component";
+import { ColliderComponent } from "./components/collider/collider-component";
 
 replaceProperty(PhysicsSystem, 'PhysicsSystem', [
     {
         "name": "ins",
         "newName": "instance"
+    }
+]);
+
+replaceProperty(ColliderComponent.prototype, 'ColliderComponent.prototype', [
+    {
+        "name": "attachedRigidbody",
+        "newName": "attachedRigidBody"
     }
 ]);
 

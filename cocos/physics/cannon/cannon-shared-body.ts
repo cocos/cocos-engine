@@ -22,7 +22,7 @@ const CollisionEventObject = {
 };
 
 /**
- * sharedbody, node : sharedbody = 1 : 1
+ * node : shared-body = 1 : 1
  * static
  */
 export class CannonSharedBody {

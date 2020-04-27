@@ -12,7 +12,7 @@ const v3_cannon0 = new CANNON.Vec3();
 const v3_cannon1 = new CANNON.Vec3();
 
 /**
- * wraped shared body
+ * wrapped shared body
  * dynamic
  * kinematic
  */

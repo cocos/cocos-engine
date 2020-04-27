@@ -32,7 +32,7 @@ import { PHYSICS_BUILTIN } from 'internal:constants';
 @executeInEditMode
 export class ConstantForce extends Component {
 
-    private _rigidbody: RigidBodyComponent | null = null;
+    private _rigidBody: RigidBodyComponent | null = null;
 
     @property
     private readonly _force: Vec3 = new Vec3();
@@ -126,7 +126,7 @@ export class ConstantForce extends Component {
 
     public onLoad () {
         if (!PHYSICS_BUILTIN) {
-            this._rigidbody = this.node.getComponent(RigidBodyComponent);
+            this._rigidBody = this.node.getComponent(RigidBodyComponent);
             this._maskUpdate(this._force, 1);
             this._maskUpdate(this._localForce, 2);
             this._maskUpdate(this._torque, 4);
@@ -136,22 +136,22 @@ export class ConstantForce extends Component {
 
     public lateUpdate (dt: number) {
         if (!PHYSICS_BUILTIN) {
-            if (this._rigidbody != null && this._mask != 0) {
+            if (this._rigidBody != null && this._mask != 0) {
 
                 if (this._mask & 1) {
-                    this._rigidbody.applyForce(this._force);
+                    this._rigidBody.applyForce(this._force);
                 }
 
                 if (this._mask & 2) {
-                    this._rigidbody.applyLocalForce(this.localForce);
+                    this._rigidBody.applyLocalForce(this.localForce);
                 }
 
                 if (this._mask & 4) {
-                    this._rigidbody.applyTorque(this._torque);
+                    this._rigidBody.applyTorque(this._torque);
                 }
 
                 if (this._mask & 8) {
-                    this._rigidbody.applyLocalTorque(this._localTorque);
+                    this._rigidBody.applyLocalTorque(this._localTorque);
                 }
 
             }

@@ -5,14 +5,6 @@
 import { Vec3 } from '../../core/math';
 import { IVec3Like, IQuatLike } from '../../core/math/type-define';
 
-export function stringfyVec3 (value: IVec3Like): string {
-    return `(x: ${value.x}, y: ${value.y}, z: ${value.z})`;
-}
-
-export function stringfyQuat (value: IQuatLike): string {
-    return `(x: ${value.x}, y: ${value.y}, z: ${value.z}, w: ${value.w})`;
-}
-
 interface IWrapped<T> {
     __cc_wrapper__: T;
 }

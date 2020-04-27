@@ -244,7 +244,7 @@ export class AmmoSharedBody {
     }
 
     /**
-     * TODO: use motionstate
+     * TODO: use motion state
      */
     syncPhysicsToScene () {
         if (this.body.isStaticObject() || !this.body.isActive()) {

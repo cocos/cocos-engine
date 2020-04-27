@@ -264,7 +264,7 @@ export class RigidBodyComponent extends Component {
 
     /**
      * @en
-     * Gets the wrapper object, through which the lowlevel instance can be accessed.
+     * Gets the wrapper object, through which the lowLevel instance can be accessed.
      * @zh
      * 获取封装对象，通过此对象可以访问到底层实例。
      */
