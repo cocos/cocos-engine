@@ -203,7 +203,11 @@ export class ModelComponent extends RenderableComponent {
 
     @property({
         visible: function (this: ModelComponent) {
-            return !!(this.mesh && this.mesh.struct.morph);
+            return !!(
+                this.mesh &&
+                this.mesh.struct.morph &&
+                this.mesh.struct.morph.subMeshMorphs.some((subMeshMorph) => !!subMeshMorph)
+            );
         },
     })
     get enableMorph () {
