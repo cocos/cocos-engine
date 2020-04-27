@@ -16,8 +16,8 @@
 #include "MTLTexture.h"
 #include "MTLTextureView.h"
 #include "MTLSampler.h"
-
 #import <MetalKit/MTKView.h>
+#include "MTLUtils.h"
 
 NS_CC_BEGIN
 
@@ -55,6 +55,54 @@ bool CCMTLDevice::initialize(const GFXDeviceInfo& info)
     _depthBits = 24;
     _stencilBits = 8;
     //TODO: other information
+    
+    _mtlFeatureSet = mu::highestSupportedFeatureSet(id<MTLDevice>(_mtlDevice));
+    auto gpuFamily = mu::getGPUFamily(MTLFeatureSet(_mtlFeatureSet));
+    _maxVertexAttributes = mu::getMaxVertexAttributes(gpuFamily);
+    _maxTextureUnits = mu::getMaxEntriesInTextureArgumentTable(gpuFamily);
+    _maxTextureSize = mu::getMaxTexture2DWidthHeight(gpuFamily);
+    _maxCubeMapTextureSize = mu::getMaxCubeMapTextureWidthHeight(gpuFamily);
+    if([id<MTLDevice>(_mtlDevice) isDepth24Stencil8PixelFormatSupported])
+    {
+        _depthBits = 24;
+        _stencilBits = 8;
+        _features[(int)GFXFeature::FORMAT_D24S8] = true;
+    }
+    
+    _features[static_cast<int>(GFXFeature::COLOR_FLOAT)] = mu::isColorBufferFloatSupported(gpuFamily);
+    _features[static_cast<int>(GFXFeature::COLOR_HALF_FLOAT)] = mu::isColorBufferHalfFloatSupported(gpuFamily);
+    _features[static_cast<int>(GFXFeature::TEXTURE_FLOAT_LINEAR)] = mu::isLinearTextureSupported(gpuFamily);
+    _features[static_cast<int>(GFXFeature::TEXTURE_HALF_FLOAT_LINEAR)] = mu::isLinearTextureSupported(gpuFamily);
+    
+    String compressedFormats;
+    if(mu::isPVRTCSuppported(gpuFamily))
+    {
+        _features[static_cast<int>(GFXFeature::FORMAT_PVRTC)] = true;
+        compressedFormats += "pvrtc ";
+    }
+    if(mu::isEAC_ETCCSuppported(gpuFamily))
+    {
+        _features[static_cast<int>(GFXFeature::FORMAT_ETC2)] = true;
+        compressedFormats += "etc2 ";
+    }
+    if(mu::isASTCSuppported(gpuFamily))
+    {
+        _features[static_cast<int>(GFXFeature::FORMAT_ASTC)] = true;
+        compressedFormats += "astc ";
+    }
+    if(mu::isBCSupported(gpuFamily))
+    {
+        _features[static_cast<int>(GFXFeature::FORMAT_ASTC)] = true;
+        compressedFormats += "dxt ";
+    }
+    
+    _features[(int)GFXFeature::TEXTURE_FLOAT] = true;
+    _features[(int)GFXFeature::TEXTURE_HALF_FLOAT] = true;
+    _features[(int)GFXFeature::FORMAT_R11G11B10F] = true;
+    _features[(int)GFXFeature::MSAA] = true;
+    _features[(int)GFXFeature::INSTANCED_ARRAYS] = true;
+    
+    CC_LOG_INFO("Metal Feature Set: %s", mu::featureSetToString(MTLFeatureSet(_mtlFeatureSet)).c_str());
     
     return true;
 }

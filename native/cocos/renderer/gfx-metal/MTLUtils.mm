@@ -5,6 +5,21 @@
 #include <vector>
 
 NS_CC_BEGIN
+namespace {
+    //See more details at https://developer.apple.com/documentation/metal/mtlfeatureset
+    enum class GPUFamily : uint
+    {
+        Apple1, // A7,
+        Apple2, // A8
+        Apple3, // A9, A10
+        Apple4, // A11
+        Apple5, // A12
+        Apple6, // A13
+        
+        Mac1,
+        Mac2,
+    };
+}
 
 namespace mu
 {
@@ -543,6 +558,514 @@ namespace mu
         
         return out;
     }
+
+    NSUInteger highestSupportedFeatureSet(id<MTLDevice> device)
+    {
+        NSUInteger maxKnownFeatureSet;
+        NSUInteger defaultFeatureSet;
+#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+        defaultFeatureSet = MTLFeatureSet_iOS_GPUFamily1_v1;
+        if(@available(iOS 12.0, *)) {
+            maxKnownFeatureSet = MTLFeatureSet_iOS_GPUFamily4_v2;
+        }
+        else if(@available(iOS 11.0, *)) {
+            maxKnownFeatureSet = MTLFeatureSet_iOS_GPUFamily4_v1;
+        }
+        else if(@available(iOS 10.0, *)) {
+            maxKnownFeatureSet = MTLFeatureSet_iOS_GPUFamily3_v2;
+        }
+        else if(@available(iOS 9.0, *)) {
+            maxKnownFeatureSet = MTLFeatureSet_iOS_GPUFamily3_v1;
+        }
+        else {
+            maxKnownFeatureSet = MTLFeatureSet_iOS_GPUFamily2_v1;
+        }
+#else
+        defaultFeatureSet = MTLFeatureSet_macOS_GPUFamily1_v1;
+        if (@available(macOS 10.14, *)) {
+            maxKnownFeatureSet = MTLFeatureSet_macOS_GPUFamily2_v1;
+        }
+        else if(@available(macOS 10.13, *)) {
+            maxKnownFeatureSet = MTLFeatureSet_macOS_GPUFamily1_v3;
+        }
+        else if(@available(macOS 10.12, *)) {
+            maxKnownFeatureSet = MTLFeatureSet_macOS_GPUFamily1_v2;
+        }
+        else {
+            maxKnownFeatureSet = MTLFeatureSet_macOS_GPUFamily1_v1;
+        }
+#endif
+        for (auto featureSet = maxKnownFeatureSet; featureSet >= 0; --featureSet)
+        {
+            if ([device supportsFeatureSet:MTLFeatureSet(featureSet)])
+            {
+                return featureSet;
+            }
+        }
+        return defaultFeatureSet;
+    }
+
+#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+    String getIOSFeatureSetToString(MTLFeatureSet featureSet)
+    {
+        if(@available(iOS 8.0, *))
+        {
+            switch (featureSet) {
+            case MTLFeatureSet_iOS_GPUFamily1_v1:
+                return "MTLFeatureSet_iOS_GPUFamily1_v1";
+            case MTLFeatureSet_iOS_GPUFamily2_v1:
+                return "MTLFeatureSet_iOS_GPUFamily2_v1";
+            default:
+                break;
+            }
+        }
+        if(@available(iOS 9.0, *))
+        {
+            switch (featureSet) {
+            case MTLFeatureSet_iOS_GPUFamily1_v2:
+                return "MTLFeatureSet_iOS_GPUFamily1_v2";
+            case MTLFeatureSet_iOS_GPUFamily2_v2:
+                return "MTLFeatureSet_iOS_GPUFamily2_v2";
+            case MTLFeatureSet_iOS_GPUFamily3_v1:
+                return "MTLFeatureSet_iOS_GPUFamily3_v1";
+            default:
+                break;
+            }
+        }
+        if(@available(iOS 10.0, *))
+        {
+            switch (featureSet) {
+            case MTLFeatureSet_iOS_GPUFamily1_v3:
+                return "MTLFeatureSet_iOS_GPUFamily1_v3";
+            case MTLFeatureSet_iOS_GPUFamily2_v3:
+                return "MTLFeatureSet_iOS_GPUFamily2_v3";
+            case MTLFeatureSet_iOS_GPUFamily3_v2:
+                return "MTLFeatureSet_iOS_GPUFamily3_v2";
+            default:
+                break;
+            }
+        }
+        if(@available(iOS 11.0, *))
+        {
+            switch (featureSet) {
+            case MTLFeatureSet_iOS_GPUFamily1_v4:
+                return "MTLFeatureSet_iOS_GPUFamily2_v4";
+            case MTLFeatureSet_iOS_GPUFamily2_v3:
+                return "MTLFeatureSet_iOS_GPUFamily2_v3";
+            case MTLFeatureSet_iOS_GPUFamily3_v3:
+                return "MTLFeatureSet_iOS_GPUFamily3_v3";
+            case MTLFeatureSet_iOS_GPUFamily4_v1:
+                return "MTLFeatureSet_iOS_GPUFamily4_v1";
+            default:
+                break;
+            }
+        }
+        if(@available(iOS 12.0, *))
+        {
+            switch (featureSet) {
+            case MTLFeatureSet_iOS_GPUFamily1_v5:
+                return "MTLFeatureSet_iOS_GPUFamily1_v5";
+            case MTLFeatureSet_iOS_GPUFamily2_v5:
+                return "MTLFeatureSet_iOS_GPUFamily2_v5";
+            case MTLFeatureSet_iOS_GPUFamily3_v4:
+                return "MTLFeatureSet_iOS_GPUFamily3_v4";
+            case MTLFeatureSet_iOS_GPUFamily4_v2:
+                return "MTLFeatureSet_iOS_GPUFamily4_v2";
+            default:
+                break;
+            }
+        }
+        return "Invalid metal feature set";
+    }
+
+    GPUFamily getIOSGPUFamily(MTLFeatureSet featureSet)
+    {
+        if(@available(iOS 12.0, *)) {
+            switch (featureSet) {
+                case MTLFeatureSet_iOS_GPUFamily1_v5:
+                    return GPUFamily::Apple1;
+                case MTLFeatureSet_iOS_GPUFamily2_v5:
+                    return GPUFamily::Apple2;
+                case MTLFeatureSet_iOS_GPUFamily3_v4:
+                    return GPUFamily::Apple3;
+                case MTLFeatureSet_iOS_GPUFamily4_v2:
+                    return GPUFamily::Apple4;
+                default:
+                   break;
+            }
+        }
+        if(@available(iOS 11.0, *)) {
+            switch (featureSet) {
+                case MTLFeatureSet_iOS_GPUFamily1_v4:
+                    return GPUFamily::Apple1;
+                case MTLFeatureSet_iOS_GPUFamily2_v4:
+                    return GPUFamily::Apple2;
+                case MTLFeatureSet_iOS_GPUFamily3_v3:
+                    return GPUFamily::Apple3;
+                case MTLFeatureSet_iOS_GPUFamily4_v1:
+                    return GPUFamily::Apple4;
+                default:
+                    break;
+            }
+        }
+        if(@available(iOS 10.0, *)) {
+            switch (featureSet) {
+                case MTLFeatureSet_iOS_GPUFamily1_v3:
+                    return GPUFamily::Apple1;
+                case MTLFeatureSet_iOS_GPUFamily2_v3:
+                    return GPUFamily::Apple2;
+                case MTLFeatureSet_iOS_GPUFamily3_v2:
+                    return GPUFamily::Apple3;
+                default:
+                    break;
+            }
+        }
+        if(@available(iOS 9.0, *)) {
+            switch (featureSet) {
+                case MTLFeatureSet_iOS_GPUFamily1_v2:
+                    return GPUFamily::Apple1;
+                case MTLFeatureSet_iOS_GPUFamily2_v2:
+                    return GPUFamily::Apple2;
+                case MTLFeatureSet_iOS_GPUFamily3_v1:
+                    return GPUFamily::Apple3;
+                default:
+                    break;
+            }
+        }
+        if (@available(iOS 8.0, *)) {
+            switch (featureSet) {
+                case MTLFeatureSet_iOS_GPUFamily1_v1:
+                    return GPUFamily::Apple1;
+                case MTLFeatureSet_iOS_GPUFamily2_v1:
+                    return GPUFamily::Apple2;
+                default:
+                    break;
+            }
+        }
+        return GPUFamily::Apple1;
+    }
+#else
+    String getMacFeatureSetToString(MTLFeatureSet featureSet)
+    {
+        if(@available(macOS 10.11, *))
+        {
+            switch (featureSet) {
+            case MTLFeatureSet_macOS_GPUFamily1_v1:
+                return "MTLFeatureSet_macOS_GPUFamily1_v1";
+            default:
+                break;
+            }
+        }
+        if(@available(macOS 10.12, *))
+        {
+            switch (featureSet) {
+            case MTLFeatureSet_macOS_GPUFamily1_v2:
+                return "MTLFeatureSet_macOS_GPUFamily1_v2";
+            default:
+                break;
+            }
+        }
+        if(@available(macOS 10.13, *))
+        {
+            switch (featureSet) {
+            case MTLFeatureSet_macOS_GPUFamily1_v3:
+                return "MTLFeatureSet_macOS_GPUFamily1_v3";
+            default:
+                break;
+            }
+        }
+        if(@available(macOS 10.14, *))
+        {
+            switch (featureSet) {
+            case MTLFeatureSet_macOS_GPUFamily1_v4:
+                return "MTLFeatureSet_macOS_GPUFamily1_v4";
+            case MTLFeatureSet_macOS_GPUFamily2_v1:
+                return "MTLFeatureSet_macOS_GPUFamily2_v1";
+            default:
+                break;
+            }
+        }
+        return "Invalid metal feature set";
+    }
+
+    GPUFamily getMacGPUFamily(MTLFeatureSet featureSet)
+    {
+        if(@available(macOS 10.14, *)) {
+            if (MTLFeatureSet_macOS_GPUFamily2_v1 <= featureSet) {
+                return GPUFamily::Mac2;
+            }
+        }
+        return GPUFamily::Mac1;
+    }
+#endif
+
+    uint getGPUFamily(MTLFeatureSet featureSet)
+    {
+#if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+        return static_cast<uint>(getIOSGPUFamily(featureSet));
+#else
+        return static_cast<uint>(getMacGPUFamily(featureSet));
+#endif
+    }
+    
+    int getMaxVertexAttributes(uint family)
+    {
+        switch (static_cast<GPUFamily>(family)) {
+            case GPUFamily::Apple1:
+            case GPUFamily::Apple2:
+            case GPUFamily::Apple3:
+            case GPUFamily::Apple4:
+            case GPUFamily::Apple5:
+            case GPUFamily::Apple6:
+            case GPUFamily::Mac1:
+            case GPUFamily::Mac2:
+                return 31;
+            default:
+                return 31;
+        }
+    }
+
+    int getMaxEntriesInBufferArgumentTable(uint family)
+    {
+        switch (static_cast<GPUFamily>(family)) {
+            case GPUFamily::Apple1:
+            case GPUFamily::Apple2:
+            case GPUFamily::Apple3:
+            case GPUFamily::Apple4:
+            case GPUFamily::Apple5:
+            case GPUFamily::Apple6:
+            case GPUFamily::Mac1:
+            case GPUFamily::Mac2:
+                return 31;
+            default:
+                return 31;
+        }
+    }
+
+    int getMaxEntriesInTextureArgumentTable(uint family)
+    {
+        switch (static_cast<GPUFamily>(family)) {
+            case GPUFamily::Apple1:
+            case GPUFamily::Apple2:
+            case GPUFamily::Apple3:
+                return 31;
+            case GPUFamily::Apple4:
+            case GPUFamily::Apple5:
+                return 96;
+            case GPUFamily::Apple6:
+            case GPUFamily::Mac1:
+            case GPUFamily::Mac2:
+                return 128;
+            default:
+                return 31;
+        }
+    }
+
+    int getMaxEntriesInSamplerStateArgumentTable(uint family)
+    {
+        switch (static_cast<GPUFamily>(family)) {
+            case GPUFamily::Apple1:
+            case GPUFamily::Apple2:
+            case GPUFamily::Apple3:
+            case GPUFamily::Apple4:
+            case GPUFamily::Apple5:
+            case GPUFamily::Apple6:
+            case GPUFamily::Mac1:
+            case GPUFamily::Mac2:
+                return 16;
+            default:
+                return 16;
+        }
+    }
+
+    int getMaxTexture2DWidthHeight(uint family)
+    {
+        switch (static_cast<GPUFamily>(family)) {
+            case GPUFamily::Apple1:
+            case GPUFamily::Apple2:
+                return 8192;
+            case GPUFamily::Apple3:
+            case GPUFamily::Apple4:
+            case GPUFamily::Apple5:
+            case GPUFamily::Apple6:
+            case GPUFamily::Mac1:
+            case GPUFamily::Mac2:
+                return 16384;
+            default:
+                return 8192;
+        }
+    }
+
+    int getMaxCubeMapTextureWidthHeight(uint family)
+    {
+        switch (static_cast<GPUFamily>(family)) {
+            case GPUFamily::Apple1:
+            case GPUFamily::Apple2:
+                return 8192;
+            case GPUFamily::Apple3:
+            case GPUFamily::Apple4:
+            case GPUFamily::Apple5:
+            case GPUFamily::Apple6:
+            case GPUFamily::Mac1:
+            case GPUFamily::Mac2:
+                return 16384;
+            default:
+                return 8192;
+        }
+    }
+
+    int getMaxColorRenderTarget(uint family)
+    {
+        switch (static_cast<GPUFamily>(family)) {
+            case GPUFamily::Apple1:
+                return 4;
+            case GPUFamily::Apple2:
+            case GPUFamily::Apple3:
+            case GPUFamily::Apple4:
+            case GPUFamily::Apple5:
+            case GPUFamily::Apple6:
+            case GPUFamily::Mac1:
+            case GPUFamily::Mac2:
+                return 8;
+            default:
+                return 4;
+        }
+    }
+
+    bool isPVRTCSuppported(uint family)
+    {
+        switch (static_cast<GPUFamily>(family)) {
+            case GPUFamily::Apple1:
+            case GPUFamily::Apple2:
+            case GPUFamily::Apple3:
+            case GPUFamily::Apple4:
+            case GPUFamily::Apple5:
+            case GPUFamily::Apple6:
+                return true;
+            case GPUFamily::Mac1:
+            case GPUFamily::Mac2:
+                return false;
+            default:
+                return false;
+        }
+    }
+
+    bool isEAC_ETCCSuppported(uint family)
+    {
+        switch (static_cast<GPUFamily>(family)) {
+            case GPUFamily::Apple1:
+            case GPUFamily::Apple2:
+            case GPUFamily::Apple3:
+            case GPUFamily::Apple4:
+            case GPUFamily::Apple5:
+            case GPUFamily::Apple6:
+                return true;
+            case GPUFamily::Mac1:
+            case GPUFamily::Mac2:
+                return false;
+            default:
+                return false;
+        }
+    }
+
+    bool isASTCSuppported(uint family)
+    {
+        switch (static_cast<GPUFamily>(family)) {
+            case GPUFamily::Apple1:
+                return false;
+            case GPUFamily::Apple2:
+            case GPUFamily::Apple3:
+            case GPUFamily::Apple4:
+            case GPUFamily::Apple5:
+            case GPUFamily::Apple6:
+                return true;
+            case GPUFamily::Mac1:
+            case GPUFamily::Mac2:
+                return false;
+            default:
+                return false;
+        }
+    }
+
+    bool isBCSupported(uint family)
+    {
+        switch (static_cast<GPUFamily>(family)) {
+            case GPUFamily::Apple1:
+            case GPUFamily::Apple2:
+            case GPUFamily::Apple3:
+            case GPUFamily::Apple4:
+            case GPUFamily::Apple5:
+            case GPUFamily::Apple6:
+                return false;
+            case GPUFamily::Mac1:
+            case GPUFamily::Mac2:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    bool isColorBufferFloatSupported(uint family)
+    {
+        switch (static_cast<GPUFamily>(family)) {
+            case GPUFamily::Apple1:
+            case GPUFamily::Apple2:
+            case GPUFamily::Apple3:
+            case GPUFamily::Apple4:
+            case GPUFamily::Apple5:
+            case GPUFamily::Apple6:
+            case GPUFamily::Mac1:
+            case GPUFamily::Mac2:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    bool isColorBufferHalfFloatSupported(uint family)
+    {
+        switch (static_cast<GPUFamily>(family)) {
+            case GPUFamily::Apple1:
+            case GPUFamily::Apple2:
+            case GPUFamily::Apple3:
+            case GPUFamily::Apple4:
+            case GPUFamily::Apple5:
+            case GPUFamily::Apple6:
+            case GPUFamily::Mac1:
+            case GPUFamily::Mac2:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    bool isLinearTextureSupported(uint family)
+    {
+        switch (static_cast<GPUFamily>(family)) {
+            case GPUFamily::Apple1:
+            case GPUFamily::Apple2:
+            case GPUFamily::Apple3:
+            case GPUFamily::Apple4:
+            case GPUFamily::Apple5:
+            case GPUFamily::Apple6:
+            case GPUFamily::Mac1:
+            case GPUFamily::Mac2:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    
+    String featureSetToString(MTLFeatureSet featureSet)
+    {
+    #if CC_PLATFORM == CC_PLATFORM_MAC_IOS
+        return getIOSFeatureSetToString(featureSet);
+    #else
+        return getMacFeatureSetToString(featureSet);
+    #endif
+    }
+
 } //namespace mu
 
 NS_CC_END

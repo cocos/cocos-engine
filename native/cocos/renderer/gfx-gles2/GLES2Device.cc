@@ -135,7 +135,6 @@ bool GLES2Device::initialize(const GFXDeviceInfo& info)
     glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &_maxCubeMapTextureSize);
     glGetIntegerv(GL_DEPTH_BITS, &_depthBits);
     glGetIntegerv(GL_STENCIL_BITS, &_stencilBits);
-    glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &_maxCubeMapTextureSize);
 
     return true;
 }

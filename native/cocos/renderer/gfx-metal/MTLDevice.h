@@ -39,6 +39,7 @@ private:
     void* _mtkView= nullptr;
     void* _mtlDevice = nullptr;
     CCMTLStateCache* _stateCache = nullptr;
+    unsigned long _mtlFeatureSet = 0;
 };
 
 NS_CC_END

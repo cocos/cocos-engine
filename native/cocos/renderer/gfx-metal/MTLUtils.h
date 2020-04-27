@@ -43,6 +43,23 @@ namespace mu
     std::string compileGLSLShader2Mtl(const std::string& src, bool isVertexShader);
     uint8_t* convertRGB8ToRGBA8(uint8_t* source, uint length);
     uint8_t* convertRGB32FToRGBA32F(uint8_t* source, uint length);
+    NSUInteger highestSupportedFeatureSet(id<MTLDevice> device);
+    uint getGPUFamily(MTLFeatureSet featureSet);
+    int getMaxVertexAttributes(uint family);
+    int getMaxEntriesInBufferArgumentTable(uint family);
+    int getMaxEntriesInTextureArgumentTable(uint family);
+    int getMaxEntriesInSamplerStateArgumentTable(uint family);
+    int getMaxTexture2DWidthHeight(uint family);
+    int getMaxCubeMapTextureWidthHeight(uint family);
+    int getMaxColorRenderTarget(uint family);
+    bool isPVRTCSuppported(uint family);
+    bool isEAC_ETCCSuppported(uint family);
+    bool isASTCSuppported(uint family);
+    bool isBCSupported(uint family);
+    bool isColorBufferFloatSupported(uint family);
+    bool isColorBufferHalfFloatSupported(uint family);
+    bool isLinearTextureSupported(uint family);
+    String featureSetToString(MTLFeatureSet featureSet);
 }
 
 NS_CC_END
