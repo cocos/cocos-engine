@@ -6,6 +6,8 @@
 #include "MTLPipelineState.h"
 #include "MTLInputAssembler.h"
 #include "MTLBindingLayout.h"
+#include "MTLBuffer.h"
+#include "MTLTexture.h"
 
 #import <Metal/MTLRenderCommandEncoder.h>
 
@@ -230,15 +232,43 @@ void CCMTLCommandBuffer::draw(GFXInputAssembler* ia)
 
 void CCMTLCommandBuffer::updateBuffer(GFXBuffer* buff, void* data, uint size, uint offset)
 {
-    
+    if ((_type == GFXCommandBufferType::PRIMARY && _isInRenderPass) ||
+        (_type == GFXCommandBufferType::SECONDARY))
+    {
+        if (buff) {
+            CCMTLCmdUpdateBuffer* cmd = _MTLCommandAllocator->_updateBufferCmdPool.alloc();
+            cmd->gpuBuffer = static_cast<CCMTLBuffer*>(buff);
+            cmd->buffer = (uint8_t*)data;
+            cmd->size = size;
+            cmd->offset = offset;
+
+            _commandPackage->updateBufferCmds.push(cmd);
+            _commandPackage->commandTypes.push(GFXCmdType::UPDATE_BUFFER);
+        }
+    }
+    else{
+        CC_LOG_ERROR("Command 'updateBuffer' must be recorded inside a render pass.");
+    }
 }
 
 void CCMTLCommandBuffer::copyBufferToTexture(GFXBuffer* src, GFXTexture* dst, GFXTextureLayout layout, const GFXBufferTextureCopyList& regions)
 {
-    if ( (_type == GFXCommandBufferType::PRIMARY && _isInRenderPass) ||
-         (_type == GFXCommandBufferType::SECONDARY) )
+    if ((_type == GFXCommandBufferType::PRIMARY && _isInRenderPass) ||
+        (_type == GFXCommandBufferType::SECONDARY))
     {
-        
+        if (src && dst) {
+            CCMTLCmdCopyBufferToTexture* cmd = _MTLCommandAllocator->_copyBufferToTextureCmdPool.alloc();
+            cmd->gpuBuffer = static_cast<CCMTLBuffer*>(src);
+            cmd->gpuTexture = static_cast<CCMTLTexture*>(dst);
+            cmd->dstLayout = layout;
+            cmd->regions.resize(regions.size());
+            std::copy(regions.begin(), regions.end(), cmd->regions.begin());
+
+            _commandPackage->copyBufferToTextureCmds.push(cmd);
+            _commandPackage->commandTypes.push(GFXCmdType::COPY_BUFFER_TO_TEXTURE);
+        }
+    } else {
+        CC_LOG_ERROR("Command 'copyBufferToTexture' must be recorded inside a render pass.");
     }
 }
 

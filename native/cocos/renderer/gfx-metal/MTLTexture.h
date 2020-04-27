@@ -7,6 +7,7 @@ NS_CC_BEGIN
 class CCMTLTexture : public GFXTexture
 {
     friend class CCMTLDevice;
+    friend class CCMTLQueue;
 public:
     CCMTLTexture(GFXDevice* device);
     ~CCMTLTexture();

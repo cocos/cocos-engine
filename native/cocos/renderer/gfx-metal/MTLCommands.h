@@ -9,6 +9,8 @@ struct CCMTLGPUPipelineState;
 class CCMTLInputAssembler;
 class CCMTLBindingLayout;
 class CCMTLPipelineState;
+class CCMTLBuffer;
+class CCMTLTexture;
 
 struct CCMTLDepthBias
 {
@@ -73,12 +75,22 @@ public:
 class CCMTLCmdCopyBufferToTexture : public GFXCmd
 {
 public:
+    CCMTLBuffer* gpuBuffer = nullptr;
+    CCMTLTexture* gpuTexture = nullptr;
+    GFXTextureLayout dstLayout;
+    GFXBufferTextureCopyList regions;
+    
     CCMTLCmdCopyBufferToTexture(): GFXCmd(GFXCmdType::COPY_BUFFER_TO_TEXTURE) {}
-    virtual void clear() override {}
+    virtual void clear() override {
+        gpuBuffer = nullptr;
+        gpuTexture = nullptr;
+        regions.clear();
+    }
 };
 
 class CCMTLCmdUpdateBuffer : public GFXCmd {
 public:
+    CCMTLBuffer* gpuBuffer = nullptr;
     uint8_t* buffer = nullptr;
     uint size = 0;
     uint offset = 0;
@@ -87,6 +99,7 @@ public:
     
     void clear() {
         buffer = nullptr;
+        gpuBuffer = nullptr;
     }
 };
 

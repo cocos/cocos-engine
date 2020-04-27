@@ -11,6 +11,7 @@
 #include "MTLInputAssembler.h"
 #include "MTLBuffer.h"
 #include "MTLShader.h"
+#include "MTLTexture.h"
 #include "MTLPipelineState.h"
 #include "platform/mac/CCView.h"
 
@@ -305,7 +306,17 @@ void CCMTLQueue::executeCommands(const CCMTLCommandPackage* commandPackage, id<M
                 }
                 break;
             }
-            
+            case GFXCmdType::UPDATE_BUFFER:
+            {
+                CCMTLCmdUpdateBuffer* cmd = commandPackage->updateBufferCmds[cmdIdx];
+                cmd->gpuBuffer->update(cmd->buffer, cmd->offset, cmd->size);
+            }
+            case GFXCmdType::COPY_BUFFER_TO_TEXTURE:
+            {
+                CCMTLCmdCopyBufferToTexture* cmd = commandPackage->copyBufferToTextureCmds[cmdIdx];
+                auto buffer = cmd->gpuBuffer->getBufferView();
+                cmd->gpuTexture->update(&buffer, cmd->regions[0]);
+            }
             default:
                 break;
         }

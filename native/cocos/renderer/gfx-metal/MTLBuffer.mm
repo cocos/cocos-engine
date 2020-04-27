@@ -39,7 +39,7 @@ bool CCMTLBuffer::initialize(const GFXBufferInfo& info)
             case 4: _indexType = MTLIndexTypeUInt32; break;
             case 2: _indexType = MTLIndexTypeUInt16; break;
             default:
-                CC_LOG_ERROR("Illegal index buffer stride.");
+                CC_LOG_ERROR("CCMTLBuffer:: Illegal index buffer stride.");
                 break;
         }
     }
@@ -50,7 +50,11 @@ bool CCMTLBuffer::initialize(const GFXBufferInfo& info)
         if (_buffer)
             _device->getMemoryStatus().bufferSize += _size;
         else
-            CCLOG("Failed to create backup buffer.");
+        {
+            _status = GFXStatus::FAILED;
+            CC_LOG_ERROR("CCMTLBuffer: Failed to create backup buffer.");
+            return false;
+        }
     }
     
     if (_usage & GFXBufferUsage::VERTEX ||
@@ -64,6 +68,7 @@ bool CCMTLBuffer::initialize(const GFXBufferInfo& info)
                                                                                               options:_mtlResourceOptions];
             if (_mtlBuffer == nil)
             {
+                _status = GFXStatus::FAILED;
                 CCASSERT(false, "Failed to create MTLBuffer.");
                 return false;
             }
@@ -73,12 +78,13 @@ bool CCMTLBuffer::initialize(const GFXBufferInfo& info)
     {
         _indirects.resize(_count);
     }
-    else if (_usage & GFXBufferUsageBit::TRANSFER_DST ||
-             _usage & GFXBufferUsageBit::TRANSFER_SRC)
+    else if (_usage & GFXBufferUsageBit::TRANSFER_SRC ||
+            _usage & GFXBufferUsageBit::TRANSFER_DST)
     {
         _transferBuffer = (uint8_t*)CC_MALLOC(_size);
         if (!_transferBuffer)
         {
+            _status = GFXStatus::FAILED;
             CCASSERT(false, "CCMTLBuffer: failed to create memory for transfer buffer.");
             return false;
         }
@@ -86,6 +92,7 @@ bool CCMTLBuffer::initialize(const GFXBufferInfo& info)
     }
     else
     {
+        _status = GFXStatus::FAILED;
         CCASSERT(false, "Unsupported GFXBufferType, create buffer failed.");
         return false;
     }
@@ -133,6 +140,7 @@ void CCMTLBuffer::resize(uint size)
                                                                                           options:_mtlResourceOptions];
         if (!_mtlBuffer)
         {
+            _status = GFXStatus::FAILED;
             CC_LOG_ERROR("Failed to resize buffer for metal buffer.");
             return;
         }
@@ -144,44 +152,58 @@ void CCMTLBuffer::resize(uint size)
     resizeBuffer(&_transferBuffer, _size, oldSize);
     resizeBuffer(&_buffer, _size, oldSize);
     _indirects.resize(_count);
+    _status = GFXStatus::SUCCESS;
 }
 
 void CCMTLBuffer::resizeBuffer(uint8_t** buffer, uint size, uint oldSize)
 {
-    if (!(*buffer) )
+    if (!(*buffer))
         return;
     
     GFXMemoryStatus& status = _device->getMemoryStatus();
-    const uint8_t* oldBuff = *buffer;
-    *buffer = (uint8_t*)CC_MALLOC(size);
-    if (*buffer)
+    const uint8_t* oldBuffer = *buffer;
+    uint8_t* temp = (uint8_t*)CC_MALLOC(size);
+    if (temp)
     {
-        memcpy(*buffer, oldBuff, std::min(oldSize, size) );
+        memcpy(temp, oldBuffer, std::min(oldSize, size) );
+        *buffer = temp;
         status.bufferSize += size;
     }
     else
     {
+        _status = GFXStatus::FAILED;
         CC_LOG_ERROR("Failed to resize buffer.");
+        return;
     }
     
-    CC_FREE(oldBuff);
+    CC_FREE(oldBuffer);
     status.bufferSize -= oldSize;
+    _status = GFXStatus::SUCCESS;
 }
 
 void CCMTLBuffer::update(void* buffer, uint offset, uint size)
 {
-    if (_mtlBuffer)
+    if (_buffer)
+        memcpy(_buffer + offset, buffer, size);
+
+    if (_usage & GFXBufferUsageBit::INDIRECT)
+    {
+        memcpy((uint8_t*)_indirects.data() + offset, buffer, size);
+        return;
+    }
+
+    if(_mtlBuffer)
     {
         uint8_t* dst = (uint8_t*)(_mtlBuffer.contents) + offset;
         memcpy(dst, buffer, size);
+        return;
     }
-    if (_transferBuffer)
-        memcpy(_transferBuffer + offset, buffer, size);
-    if (_buffer)
-        memcpy(_buffer + offset, buffer, size);
     
-    if(_usage & GFXBufferUsageBit::INDIRECT)
-        memcpy((uint8_t*)_indirects.data() + offset, buffer, size);
+    if(_transferBuffer)
+    {
+        memcpy(_transferBuffer + offset, buffer, size);
+        return;
+    }
 }
 
 NS_CC_END
