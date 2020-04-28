@@ -757,10 +757,10 @@ export default class Vec4 extends ValueType {
     constructor (x: number | Vec4 = 0, y: number = 0, z: number = 0, w: number = 0) {
         super();
         if (x && typeof x === 'object') {
-            this.w = x.w;
-            this.z = x.z;
-            this.y = x.y;
             this.x = x.x;
+            this.y = x.y;
+            this.z = x.z;
+            this.w = x.w;
         } else {
             this.x = x as number;
             this.y = y;

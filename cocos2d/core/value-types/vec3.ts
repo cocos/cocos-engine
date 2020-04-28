@@ -1041,9 +1041,9 @@ export default class Vec3 extends ValueType {
     constructor (x: Vec3 | number = 0, y: number = 0, z: number = 0) {
         super();
         if (x && typeof x === 'object') {
-            this.z = x.z;
-            this.y = x.y;
             this.x = x.x;
+            this.y = x.y;
+            this.z = x.z;
         }
         else {
             this.x = x as number;

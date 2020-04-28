@@ -54,7 +54,7 @@ const BUILTIN_NAME = cc.Enum({
      * @type {String}
      */
     UNLIT: 'unlit',
-})
+});
 
 
 /**
