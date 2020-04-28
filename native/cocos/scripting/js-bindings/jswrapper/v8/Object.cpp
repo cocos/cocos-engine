@@ -30,10 +30,14 @@
 #include "ScriptEngine.hpp"
 #include "../MappingUtils.hpp"
 
+#include <memory>
+#include <unordered_map>
+
 namespace se {
 
-    std::unordered_map<Object*, void*> __objectMap; // Currently, the value `void*` is always nullptr
-    
+
+    std::unique_ptr<std::unordered_map<Object*, void*>> __objectMap; // Currently, the value `void*` is always nullptr
+
     namespace {
         v8::Isolate* __isolate = nullptr;
     }
@@ -53,11 +57,9 @@ namespace se {
         {
             _obj.unref();
         }
-
-        auto iter = __objectMap.find(this);
-        if (iter != __objectMap.end())
-        {
-            __objectMap.erase(iter);
+        
+        if(__objectMap){
+            __objectMap->erase(this);
         }
     }
 
@@ -94,6 +96,11 @@ namespace se {
     void Object::setIsolate(v8::Isolate* isolate)
     {
         __isolate = isolate;
+    }
+
+    void Object::setup()
+    {
+        __objectMap.reset(new std::unordered_map<Object*, void*>());
     }
 
     /* static */
@@ -135,26 +142,28 @@ namespace se {
         NativePtrToObjectMap::clear();
         NonRefNativePtrCreatedByCtorMap::clear();
 
-        std::vector<Object*> toReleaseObjects;
-        for (const auto& e : __objectMap)
-        {
-            obj = e.first;
-            cls = obj->_getClass();
-            obj->_obj.persistent().Reset();
-            obj->_rootCount = 0;
-
-            if (cls != nullptr && cls->_name == "__PrivateData")
+        if(__objectMap){
+            std::vector<Object*> toReleaseObjects;
+            for (const auto& e : *__objectMap)
             {
-                toReleaseObjects.push_back(obj);
+                obj = e.first;
+                cls = obj->_getClass();
+                obj->_obj.persistent().Reset();
+                obj->_rootCount = 0;
+
+                if (cls != nullptr && cls->_name == "__PrivateData")
+                {
+                    toReleaseObjects.push_back(obj);
+                }
+            }
+            for (auto e : toReleaseObjects)
+            {
+                e->decRef();
             }
         }
 
-        for (auto e : toReleaseObjects)
-        {
-            e->decRef();
-        }
 
-        __objectMap.clear();
+        __objectMap.reset();
         __isolate = nullptr;
     }
 
@@ -301,8 +310,10 @@ namespace se {
         _obj.init(obj);
         _obj.setFinalizeCallback(nativeObjectFinalizeHook);
 
-        assert(__objectMap.find(this) == __objectMap.end());
-        __objectMap.emplace(this, nullptr);
+        if(__objectMap){
+            assert(__objectMap->find(this) == __objectMap->end());
+            __objectMap->emplace(this, nullptr);
+        }
 
         return true;
     }

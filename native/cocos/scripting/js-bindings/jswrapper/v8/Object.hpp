@@ -33,6 +33,8 @@
 #include "../Value.hpp"
 #include "ObjectWrap.h"
 
+#include <memory>
+
 namespace se {
 
     class Class;
@@ -373,6 +375,7 @@ namespace se {
         static void nativeObjectFinalizeHook(void* nativeObj);
         static void setIsolate(v8::Isolate* isolate);
         static void cleanup();
+        static void setup();
 
         Object();
         virtual ~Object();
@@ -390,7 +393,7 @@ namespace se {
         friend class ScriptEngine;
     };
 
-    extern std::unordered_map<Object*, void*> __objectMap; // Currently, the value `void*` is always nullptr
+    extern std::unique_ptr<std::unordered_map<Object*, void*>> __objectMap; // Currently, the value `void*` is always nullptr
 
 } // namespace se {
 
