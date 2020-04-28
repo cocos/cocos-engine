@@ -19,9 +19,7 @@ import { RenderView } from '../render-view';
 import { UIFlow } from '../ui/ui-flow';
 import { ForwardFlow } from './forward-flow';
 import { ToneMapFlow } from '../ppfx/tonemap-flow';
-import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit } from '../../gfx/define';
-import { GFXDevice } from '../../gfx/device';
-import { GFXPipelineState } from '../../gfx/pipeline-state';
+import { GFXBufferUsageBit, GFXMemoryUsageBit } from '../../gfx/define';
 
 const _vec4Array = new Float32Array(4);
 const _sphere = sphere.create(0, 0, 0, 1);
@@ -166,10 +164,11 @@ export class ForwardPipeline extends RenderPipeline {
 
         const exposure = view.camera.exposure;
 
-        // Keep LightGFXBuffer.length and ValidLights.length consistent
-        if(this._validLights.length > this._lightBuffers.length)
+        // Fill UBOForwardLight, And update LightGFXBuffer[light_index]
+        for(let l = 0; l < this._validLights.length; ++l)
         {
-            for(let l = 0; l < this._validLights.length - this._lightBuffers.length; ++l)
+            // Keep LightGFXBuffer.length and ValidLights.length consistent
+            if(!this._lightBuffers[l])
             {
                 let lightBuffer : GFXBuffer = this._device.createBuffer({
                     usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
@@ -177,13 +176,9 @@ export class ForwardPipeline extends RenderPipeline {
                     size: UBOForwardLight.SIZE,
                     stride: UBOForwardLight.SIZE,
                 });
-                this._lightBuffers?.push(lightBuffer);
+                this._lightBuffers.push(lightBuffer);
             }
-        }
 
-        // Fill UBOForwardLight, And update LightGFXBuffer[light_index]
-        for(let l = 0; l < this._validLights.length; ++l)
-        {
             this._uboLight.view.fill(0);
             const light = this._validLights[l];
             if (light) {
@@ -244,7 +239,7 @@ export class ForwardPipeline extends RenderPipeline {
                 }
             }
             this._lightBuffers[l]!.update(this._uboLight.view);
-        }       
+        }
     }
 
     /**
@@ -255,6 +250,7 @@ export class ForwardPipeline extends RenderPipeline {
     public sceneCulling (view: RenderView) {
         super.sceneCulling(view);
         this._validLights.length = 0;
+        this._lightBuffers.length = 0;
         const sphereLights = view.camera.scene!.sphereLights;
         for (let i = 0; i < sphereLights.length; i++) {
             const light = sphereLights[i];
