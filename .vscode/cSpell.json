@@ -15,6 +15,7 @@
         "IGFX",
         "lerp",
         "lerpable",
+        "lightmap",
         "mipmaps",
         "octree",
         "OPENGL",

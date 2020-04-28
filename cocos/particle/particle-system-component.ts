@@ -297,14 +297,14 @@ export class ParticleSystemComponent extends RenderableComponent {
     public rateOverDistance = new CurveRange();
 
     /**
-     * @zh 设定在指定时间发射指定数量的粒子的 Brust 的数量。
+     * @zh 设定在指定时间发射指定数量的粒子的 burst 的数量。
      */
     @property({
         type: [Burst],
         displayOrder: 16,
         tooltip:'在某个时间点发射给定数量的粒子'
     })
-    public bursts = new Array();
+    public bursts: Burst[] = new Array();
 
     @property({
         type: Material,
@@ -334,7 +334,7 @@ export class ParticleSystemComponent extends RenderableComponent {
     })
     public colorOverLifetimeModule = new ColorOverLifetimeModule();
 
-    // shpae module
+    // Shape module
     /**
      * @zh 粒子发射器模块。
      */
@@ -539,7 +539,7 @@ export class ParticleSystemComponent extends RenderableComponent {
         this.textureAnimationModule.bindTarget(this.processor!);
     }
 
-    // TODO: fastforward current particle system by simulating particles over given period of time, then pause it.
+    // TODO: Fast forward current particle system by simulating particles over given period of time, then pause it.
     // simulate(time, withChildren, restart, fixedTimeStep) {
 
     // }
@@ -653,7 +653,7 @@ export class ParticleSystemComponent extends RenderableComponent {
         if (this._isPlaying) {
             this._time += scaledDeltaTime;
 
-            // excute emission
+            // Execute emission
             this._emit(scaledDeltaTime);
 
             // simulation, update particles.
@@ -671,7 +671,7 @@ export class ParticleSystemComponent extends RenderableComponent {
         }
     }
 
-    protected _onVisiblityChange (val) {
+    protected _onVisibilityChange (val) {
         // @ts-ignore
         if (this.processor._model) {
             // @ts-ignore

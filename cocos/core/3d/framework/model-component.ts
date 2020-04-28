@@ -366,7 +366,7 @@ export class ModelComponent extends RenderableComponent {
         return builtinResMgr.get<Material>('missing-material');
     }
 
-    protected _onVisiblityChange (val: number) {
+    protected _onVisibilityChange (val: number) {
         if (!this._model) { return; }
         this._model.visFlags = val;
     }
