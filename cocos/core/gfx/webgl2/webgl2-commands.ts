@@ -2137,21 +2137,10 @@ export function WebGL2CmdFuncBindStates (
                 (target0Cache.blendAlphaEq !== target0.blendAlphaEq)) {
 
                 gl.blendEquationSeparate(WebGLBlendOps[target0.blendEq], WebGLBlendOps[target0.blendAlphaEq]);
-
-                        const target0 = bs.targets[0];
-                        const target0Cache = cache.bs.targets[0];
                 target0Cache.blendEq = target0.blendEq;
                 target0Cache.blendAlphaEq = target0.blendAlphaEq;
             }
 
-                        if (target0Cache.blend !== target0.blend) {
-                            if (target0.blend) {
-                                gl.enable(gl.BLEND);
-                            } else {
-                                gl.disable(gl.BLEND);
-                            }
-                            target0Cache.blend = target0.blend;
-                        }
             if ((target0Cache.blendSrc !== target0.blendSrc) ||
                 (target0Cache.blendDst !== target0.blendDst) ||
                 (target0Cache.blendSrcAlpha !== target0.blendSrcAlpha) ||
