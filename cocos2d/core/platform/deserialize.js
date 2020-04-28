@@ -1,6 +1,6 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -109,14 +109,13 @@ Details.pool.get = function () {
 // IMPLEMENT OF DESERIALIZATION
 
 var _Deserializer = (function () {
-    function _Deserializer(result, target, classFinder, customEnv, ignoreEditorOnly) {
+    function _Deserializer(result, classFinder, customEnv, ignoreEditorOnly) {
         this.result = result;
         this.customEnv = customEnv;
         this.deserializedList = [];
         this.deserializedData = null;
         this._classFinder = classFinder;
         if (CC_DEV) {
-            this._target = target;
             this._ignoreEditorOnly = ignoreEditorOnly;
         }
         this._idList = [];
@@ -160,8 +159,7 @@ var _Deserializer = (function () {
             for (var i = 0; i < refCount; i++) {
                 if (jsonArray[i]) {
                     if (CC_EDITOR || CC_TEST) {
-                        var mainTarget = (i === 0 && this._target);
-                        this.deserializedList[i] = this._deserializeObject(jsonArray[i], mainTarget, this.deserializedList, '' + i);
+                        this.deserializedList[i] = this._deserializeObject(jsonArray[i], this.deserializedList, '' + i);
                     }
                     else {
                         this.deserializedList[i] = this._deserializeObject(jsonArray[i]);
@@ -180,7 +178,7 @@ var _Deserializer = (function () {
         else {
             this.deserializedList.length = 1;
             if (CC_EDITOR || CC_TEST) {
-                this.deserializedData = jsonObj ? this._deserializeObject(jsonObj, this._target, this.deserializedList, '0') : null;
+                this.deserializedData = jsonObj ? this._deserializeObject(jsonObj, this.deserializedList, '0') : null;
             }
             else {
                 this.deserializedData = jsonObj ? this._deserializeObject(jsonObj) : null;
@@ -201,11 +199,10 @@ var _Deserializer = (function () {
 
     ///**
     // * @param {Object} serialized - The obj to deserialize, must be non-nil
-    // * @param {Object} [target=null] - editor only
     // * @param {Object} [owner] - debug only
     // * @param {String} [propName] - debug only
     // */
-    prototype._deserializeObject = function (serialized, target, owner, propName) {
+    prototype._deserializeObject = function (serialized, owner, propName) {
         var prop;
         var obj = null;     // the obj to return
         var klass = null;
@@ -231,24 +228,15 @@ var _Deserializer = (function () {
                 return null;
             }
 
-            if ((CC_EDITOR || CC_TEST) && target) {
-                // use target
-                if ( !(target instanceof klass) ) {
-                    cc.warnID(5300, js.getClassName(target), klass);
-                }
-                obj = target;
-            }
-            else {
-                // instantiate a new object
-                obj = new klass();
-            }
+            // instantiate a new object
+            obj = new klass();
 
             if (obj._deserialize) {
                 obj._deserialize(serialized.content, this);
                 return obj;
             }
             if (cc.Class._isCCClass(klass)) {
-                _deserializeFireClass(this, obj, serialized, klass, target);
+                _deserializeFireClass(this, obj, serialized, klass);
             }
             else {
                 this._deserializeTypedObject(obj, serialized, klass);
@@ -258,30 +246,19 @@ var _Deserializer = (function () {
 
             // embedded primitive javascript object
 
-            obj = ((CC_EDITOR || CC_TEST) && target) || {};
+            obj = {};
             this._deserializePrimitiveObject(obj, serialized);
         }
         else {
 
             // Array
 
-            if ((CC_EDITOR || CC_TEST) && target) {
-                target.length = serialized.length;
-                obj = target;
-            }
-            else {
-                obj = new Array(serialized.length);
-            }
+            obj = new Array(serialized.length);
 
             for (let i = 0; i < serialized.length; i++) {
                 prop = serialized[i];
                 if (typeof prop === 'object' && prop) {
-                    if (CC_EDITOR || CC_TEST) {
-                        this._deserializeObjField(obj, prop, '' + i, target && obj);
-                    }
-                    else {
-                        this._deserializeObjField(obj, prop, '' + i, null);
-                    }
+                    this._deserializeObjField(obj, prop, '' + i);
                 }
                 else {
                     obj[i] = prop;
@@ -292,25 +269,16 @@ var _Deserializer = (function () {
     };
 
     // 和 _deserializeObject 不同的地方在于会判断 id 和 uuid
-    prototype._deserializeObjField = function (obj, jsonObj, propName, target) {
+    prototype._deserializeObjField = function (obj, jsonObj, propName) {
         var id = jsonObj.__id__;
         if (id === undefined) {
             var uuid = jsonObj.__uuid__;
             if (uuid) {
-                //if (ENABLE_TARGET) {
-                    //这里不做任何操作，因为有可能调用者需要知道依赖哪些 asset。
-                    //调用者使用 uuidList 时，可以判断 obj[propName] 是否为空，为空则表示待进一步加载，
-                    //不为空则只是表明依赖关系。
-                //    if (target && target[propName] && target[propName]._uuid === uuid) {
-                //        console.assert(obj[propName] === target[propName]);
-                //        return;
-                //    }
-                // }
                 this.result.push(obj, propName, uuid);
             }
             else {
                 if (CC_EDITOR || CC_TEST) {
-                    obj[propName] = this._deserializeObject(jsonObj, target && target[propName], obj, propName);
+                    obj[propName] = this._deserializeObject(jsonObj, obj, propName);
                 }
                 else {
                     obj[propName] = this._deserializeObject(jsonObj);
@@ -331,7 +299,6 @@ var _Deserializer = (function () {
     };
 
     prototype._deserializePrimitiveObject = function (instance, serialized) {
-        var self = this;
         for (var propName in serialized) {
             if (serialized.hasOwnProperty(propName)) {
                 var prop = serialized[propName];
@@ -342,12 +309,7 @@ var _Deserializer = (function () {
                 }
                 else {
                     if (prop) {
-                        if (CC_EDITOR || CC_TEST) {
-                            self._deserializeObjField(instance, prop, propName, self._target && instance);
-                        }
-                        else {
-                            self._deserializeObjField(instance, prop, propName);
-                        }
+                        this._deserializeObjField(instance, prop, propName);
                     }
                     else {
                         instance[propName] = null;
@@ -429,12 +391,7 @@ var _Deserializer = (function () {
                 instance[propName] = value;
             }
             else if (value) {
-                if (CC_EDITOR || CC_TEST) {
-                    this._deserializeObjField(instance, value, propName, this._target && instance);
-                }
-                else {
-                    this._deserializeObjField(instance, value, propName);
-                }
+                this._deserializeObjField(instance, value, propName);
             }
             else {
                 instance[propName] = null;
@@ -458,7 +415,6 @@ var _Deserializer = (function () {
             sources.push('if(prop){');
                 sources.push('s._deserializeObjField(o,prop,' +
                                  propNameLiteralToSet +
-                                 ((CC_EDITOR || CC_TEST) ? ',t&&o' : ',null') +
                              ');');
             sources.push('}else o' + accessorToSet + '=null;');
         }
@@ -472,7 +428,7 @@ var _Deserializer = (function () {
         var attrs = Attr.getClassAttrs(klass);
 
         var props = klass.__values__;
-        // self, obj, serializedData, klass, target
+        // self, obj, serializedData, klass
         var sources = [
             'var prop;'
         ];
@@ -556,7 +512,7 @@ var _Deserializer = (function () {
             // parse the serialized data as primitive javascript object, so its __id__ will be dereferenced
             sources.push('s._deserializePrimitiveObject(o._$erialized,d);');
         }
-        return Function('s', 'o', 'd', 'k', 't', sources.join(''));
+        return Function('s', 'o', 'd', 'k', sources.join(''));
     } : function (self, klass) {
         var fastMode = misc.BUILTIN_CLASSID_RE.test(js._getClassId(klass));
         var shouldCopyId = cc.js.isChildClassOf(klass, cc._BaseNode) || cc.js.isChildClassOf(klass, cc.Component);
@@ -620,7 +576,7 @@ var _Deserializer = (function () {
             }
         })();
 
-        return function (s, o, d, k, t) {
+        return function (s, o, d, k) {
             for (let i = 0; i < simpleProps.length; ++i) {
                 let prop = d[simplePropsToRead[i]];
                 if (prop !== undefined) {
@@ -649,12 +605,7 @@ var _Deserializer = (function () {
                     }
                     else {
                         if (prop) {
-                            s._deserializeObjField(
-                                o,
-                                prop,
-                                propName,
-                                (CC_EDITOR || CC_TEST) ? (t && o) : null,
-                            );
+                            s._deserializeObjField(o, prop, propName);
                         }
                         else {
                             o[propName] = null;
@@ -692,7 +643,7 @@ var _Deserializer = (function () {
         }
     }
 
-    function _deserializeFireClass (self, obj, serialized, klass, target) {
+    function _deserializeFireClass (self, obj, serialized, klass) {
         var deserialize;
         if (klass.hasOwnProperty('__deserialize__')) {
             deserialize = klass.__deserialize__;
@@ -704,7 +655,7 @@ var _Deserializer = (function () {
             // }
             js.value(klass, '__deserialize__', deserialize, true);
         }
-        deserialize(self, obj, serialized, klass, target);
+        deserialize(self, obj, serialized, klass);
         // if preview or build worker
         if (CC_PREVIEW || (CC_EDITOR && self._ignoreEditorOnly)) {
             if (klass === cc._PrefabInfo && !obj.sync) {
@@ -719,28 +670,24 @@ var _Deserializer = (function () {
         obj.deserializedList.length = 0;
         obj.deserializedData = null;
         obj._classFinder = null;
-        if (CC_DEV) {
-            obj._target = null;
-        }
         obj._idList.length = 0;
         obj._idObjList.length = 0;
         obj._idPropList.length = 0;
     }, 1);
 
-    _Deserializer.pool.get = function (result, target, classFinder, customEnv, ignoreEditorOnly) {
+    _Deserializer.pool.get = function (result, classFinder, customEnv, ignoreEditorOnly) {
         var cache = this._get();
         if (cache) {
             cache.result = result;
             cache.customEnv = customEnv;
             cache._classFinder = classFinder;
             if (CC_DEV) {
-                cache._target = target;
                 cache._ignoreEditorOnly = ignoreEditorOnly;
             }
             return cache;
         }
         else {
-            return new _Deserializer(result, target, classFinder, customEnv, ignoreEditorOnly);
+            return new _Deserializer(result, classFinder, customEnv, ignoreEditorOnly);
         }
     };
 
@@ -755,9 +702,6 @@ var _Deserializer = (function () {
  * !#en Deserialize json to cc.Asset
  * !#zh 将 JSON 反序列化为对象实例。
  *
- * 当指定了 target 选项时，如果 target 引用的其它 asset 的 uuid 不变，则不会改变 target 对 asset 的引用，
- * 也不会将 uuid 保存到 result 对象中。
- *
  * @method deserialize
  * @param {String|Object} data - the serialized cc.Asset json string or json object.
  * @param {Details} [details] - additional loading result
@@ -768,7 +712,6 @@ cc.deserialize = function (data, details, options) {
     options = options || {};
     var classFinder = options.classFinder || js._getClassById;
     var createAssetRefs = options.createAssetRefs || cc.sys.platform === cc.sys.EDITOR_CORE;
-    var target = (CC_EDITOR || CC_TEST) && options.target;
     var customEnv = options.customEnv;
     var ignoreEditorOnly = options.ignoreEditorOnly;
 
@@ -784,7 +727,7 @@ cc.deserialize = function (data, details, options) {
 
     var tempDetails = !details;
     details = details || Details.pool.get();
-    var deserializer = _Deserializer.pool.get(details, target, classFinder, customEnv, ignoreEditorOnly);
+    var deserializer = _Deserializer.pool.get(details, classFinder, customEnv, ignoreEditorOnly);
 
     cc.game._isCloning = true;
     var res = deserializer.deserialize(data);
