@@ -964,6 +964,15 @@ var ParticleSystem = cc.Class({
     resetSystem: function () {
         this._stopped = false;
         this._simulator.reset();
+        let assembler = this._assembler;
+        if (assembler) {
+            let buffer = assembler.getBuffer()
+            if (buffer) {
+                buffer.reset()
+                buffer.uploadData();
+                assembler._ia._count = 0
+            }
+        }
         this.markForRender(true);
     },
 
