@@ -25,11 +25,11 @@
  THE SOFTWARE.
  */
 
-import { EDITOR } from 'internal:constants';
-
 /**
  * @category loader
  */
+
+import { EDITOR } from 'internal:constants';
 
 /**
  * A SAX Parser

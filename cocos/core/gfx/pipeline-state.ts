@@ -171,7 +171,7 @@ export abstract class GFXPipelineState extends GFXObject {
      * @en Get current shader.
      * @zh GFX 着色器。
      */
-    public get shader (): GFXShader {
+    get shader (): GFXShader {
         return  this._shader as GFXShader;
     }
 
@@ -179,7 +179,7 @@ export abstract class GFXPipelineState extends GFXObject {
      * @en Get current primitve mode.
      * @zh GFX 图元模式。
      */
-    public get primitive (): GFXPrimitiveMode {
+    get primitive (): GFXPrimitiveMode {
         return this._primitive;
     }
 
@@ -187,7 +187,7 @@ export abstract class GFXPipelineState extends GFXObject {
      * @en Get current rasterizer state.
      * @zh GFX 光栅化状态。
      */
-    public get rasterizerState (): GFXRasterizerState {
+    get rasterizerState (): GFXRasterizerState {
         return  this._rs as GFXRasterizerState;
     }
 
@@ -195,7 +195,7 @@ export abstract class GFXPipelineState extends GFXObject {
      * @en Get current depth stencil state.
      * @zh GFX 深度模板状态。
      */
-    public get depthStencilState (): GFXDepthStencilState {
+    get depthStencilState (): GFXDepthStencilState {
         return  this._dss as GFXDepthStencilState;
     }
 
@@ -203,7 +203,7 @@ export abstract class GFXPipelineState extends GFXObject {
      * @en Get current blend state.
      * @zh GFX 混合状态。
      */
-    public get blendState (): GFXBlendState {
+    get blendState (): GFXBlendState {
         return  this._bs as GFXBlendState;
     }
 
@@ -211,7 +211,7 @@ export abstract class GFXPipelineState extends GFXObject {
      * @en Get current input state.
      * @zh GFX 输入状态。
      */
-    public get inputState (): GFXInputState {
+    get inputState (): GFXInputState {
         return this._is as GFXInputState;
     }
 
@@ -219,7 +219,7 @@ export abstract class GFXPipelineState extends GFXObject {
      * @en Get current dynamic states.
      * @zh GFX 动态状态数组。
      */
-    public get dynamicStates (): GFXDynamicState[] {
+    get dynamicStates (): GFXDynamicState[] {
         return this._dynamicStates;
     }
 
@@ -227,7 +227,7 @@ export abstract class GFXPipelineState extends GFXObject {
      * @en Get current pipeline layout.
      * @zh GFX 管线布局。
      */
-    public get pipelineLayout (): GFXPipelineLayout {
+    get pipelineLayout (): GFXPipelineLayout {
         return this._layout as GFXPipelineLayout;
     }
 
@@ -235,7 +235,7 @@ export abstract class GFXPipelineState extends GFXObject {
      * @en Get current render pass.
      * @zh GFX 渲染过程。
      */
-    public get renderPass (): GFXRenderPass {
+    get renderPass (): GFXRenderPass {
         return this._renderPass as GFXRenderPass;
     }
 
@@ -243,7 +243,7 @@ export abstract class GFXPipelineState extends GFXObject {
      * @en Get current hash.
      * @zh 此管线状态的 hash。
      */
-    public get hash (): number {
+    get hash (): number {
         return this._hash;
     }
 

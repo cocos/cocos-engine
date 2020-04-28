@@ -28,7 +28,7 @@
  */
 
 import { SkinningModelComponent } from '../3d/framework/skinning-model-component';
-import { ccclass, executeInEditMode, executionOrder, menu, property } from '../data/class-decorator';
+import { ccclass, executeInEditMode, executionOrder, help, menu, property } from '../data/class-decorator';
 import { Mat4 } from '../math';
 import { DataPoolManager } from '../renderer/data-pool-manager';
 import { Node } from '../scene-graph/node';
@@ -87,6 +87,7 @@ function collectRecursively (node: Node, prefix = '', out: string[] = []) {
  * * 提供骨骼挂点功能：通过在动画根节点下创建挂点节点，并在骨骼动画组件上配置 socket 列表，挂点节点的 Transform 就能与骨骼保持同步。
  */
 @ccclass('cc.SkeletalAnimationComponent')
+@help('i18n:cc.SkeletalAnimationComponent')
 @executionOrder(99)
 @executeInEditMode
 @menu('Components/SkeletalAnimation')
@@ -130,7 +131,6 @@ export class SkeletalAnimationComponent extends AnimationComponent {
     }
     set useBakedAnimation (val) {
         this._useBakedAnimation = val;
-        this.stop();
         const comps = this.node.getComponentsInChildren(SkinningModelComponent);
         for (let i = 0; i < comps.length; ++i) {
             const comp = comps[i];

@@ -62,34 +62,28 @@ export interface IWebGLStencilCompareMask {
 export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
 
     public cmdPackage: WebGLCmdPackage = new WebGLCmdPackage();
-    private _webGLAllocator: WebGLGFXCommandAllocator | null = null;
-    private _isInRenderPass: boolean = false;
-    private _curGPUPipelineState: WebGLGPUPipelineState | null = null;
-    private _curGPUBindingLayout: WebGLGPUBindingLayout | null = null;
-    private _curGPUInputAssembler: IWebGLGPUInputAssembler | null = null;
-    private _curViewport: IGFXViewport | null = null;
-    private _curScissor: IGFXRect | null = null;
-    private _curLineWidth: number | null = null;
-    private _curDepthBias: IWebGLDepthBias | null = null;
-    private _curBlendConstants: number[] = [];
-    private _curDepthBounds: IWebGLDepthBounds | null = null;
-    private _curStencilWriteMask: IWebGLStencilWriteMask | null = null;
-    private _curStencilCompareMask: IWebGLStencilCompareMask | null = null;
-    private _isStateInvalied: boolean = false;
-
-    constructor (device: GFXDevice) {
-        super(device);
-    }
+    protected _webGLAllocator: WebGLGFXCommandAllocator | null = null;
+    protected _isInRenderPass: boolean = false;
+    protected _curGPUPipelineState: WebGLGPUPipelineState | null = null;
+    protected _curGPUBindingLayout: WebGLGPUBindingLayout | null = null;
+    protected _curGPUInputAssembler: IWebGLGPUInputAssembler | null = null;
+    protected _curViewport: IGFXViewport | null = null;
+    protected _curScissor: IGFXRect | null = null;
+    protected _curLineWidth: number | null = null;
+    protected _curDepthBias: IWebGLDepthBias | null = null;
+    protected _curBlendConstants: number[] = [];
+    protected _curDepthBounds: IWebGLDepthBounds | null = null;
+    protected _curStencilWriteMask: IWebGLStencilWriteMask | null = null;
+    protected _curStencilCompareMask: IWebGLStencilCompareMask | null = null;
+    protected _isStateInvalied: boolean = false;
 
     public initialize (info: IGFXCommandBufferInfo): boolean {
 
-        if (!info.allocator) {
-            return false;
-        }
-
         this._allocator = info.allocator;
-        this._webGLAllocator = this._allocator as WebGLGFXCommandAllocator;
         this._type = info.type;
+
+        this._webGLAllocator = this._allocator as WebGLGFXCommandAllocator;
+
         this._status = GFXStatus.SUCCESS;
 
         return true;
@@ -98,9 +92,9 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
     public destroy () {
         if (this._webGLAllocator) {
             this._webGLAllocator.clearCmds(this.cmdPackage);
-            this._allocator = null;
             this._webGLAllocator = null;
         }
+        this._allocator = null;
         this._status = GFXStatus.UNREADY;
     }
 
@@ -202,11 +196,6 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
                 this._curViewport.maxDepth = viewport.maxDepth;
                 this._isStateInvalied = true;
             }
-        }
-
-        if (this._curViewport !== viewport) {
-            this._curViewport = viewport;
-            this._isStateInvalied = true;
         }
     }
 
@@ -342,9 +331,16 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
                 this.bindStates();
             }
 
-            const cmd = ( this._allocator as WebGLGFXCommandAllocator).
+            const cmd = (this._allocator as WebGLGFXCommandAllocator).
                         drawCmdPool.alloc(WebGLCmdDraw);
-            (inputAssembler as WebGLGFXInputAssembler).extractCmdDraw(cmd);
+            // cmd.drawInfo = inputAssembler;
+            cmd.drawInfo.vertexCount = inputAssembler.vertexCount;
+            cmd.drawInfo.firstVertex = inputAssembler.firstVertex;
+            cmd.drawInfo.indexCount = inputAssembler.indexCount;
+            cmd.drawInfo.firstIndex = inputAssembler.firstIndex;
+            cmd.drawInfo.vertexOffset = inputAssembler.vertexOffset;
+            cmd.drawInfo.instanceCount = inputAssembler.instanceCount;
+            cmd.drawInfo.firstInstance = inputAssembler.firstInstance;
             this.cmdPackage.drawCmds.push(cmd);
 
             this.cmdPackage.cmds.push(WebGLCmd.DRAW);
@@ -479,7 +475,7 @@ export class WebGLGFXCommandBuffer extends GFXCommandBuffer {
         return this._device as WebGLGFXDevice;
     }
 
-    private bindStates () {
+    protected bindStates () {
         const bindStatesCmd = this._webGLAllocator!.bindStatesCmdPool.alloc(WebGLCmdBindStates);
 
         if (bindStatesCmd) {

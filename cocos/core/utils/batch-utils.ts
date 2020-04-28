@@ -4,12 +4,10 @@ import { Mat4 } from '../math/mat4';
 import { Node } from '../scene-graph/node';
 
 function checkMaterialisSame (comp1: ModelComponent, comp2: ModelComponent): boolean {
-    // @ts-ignore
-    if (comp1._materials.length !== comp2._materials.length) {
+    const matNum = comp1.sharedMaterials.length;
+    if (matNum !== comp2.sharedMaterials.length) {
         return false;
     }
-    // @ts-ignore
-    const matNum = comp1._materials.length;
     for (let i = 0; i < matNum; i++) {
         if (comp1.getRenderMaterial(i) !== comp2.getRenderMaterial(i)) {
             return false;
@@ -20,13 +18,16 @@ function checkMaterialisSame (comp1: ModelComponent, comp2: ModelComponent): boo
 
 export class BatchingUtility {
     /**
-     * This method collect all models under staticModelRoot,and batch them into one mesh attached to batchedRoot.
-     * Once the models batched,changes of transforms of these models are not valid,but changing the transform of batchedRoot is effective.
-     * Because this method can cause large overhead in runtime,you shouldn't call it frequently.
-     * @param staticModelRoot root of static models to batch
-     * @param batchedRoot batched root node
+     * Collect the ModelComponents under `staticModelRoot`,
+     * merge all the meshes statically into one (while disabling each component),
+     * and attach it to a new ModelComponent on `batchedRoot`.
+     * The world transform of each model is guaranteed to be preserved.
+     *
+     * For a more fine-grained controll over the process, use `Mesh.merge` directly.
+     * @param staticModelRoot root of all the static models to be batched
+     * @param batchedRoot the target output node
      */
-    public static batchStaticModel (staticModelRoot: Node, batchedRoot: Node): boolean {
+    public static batchStaticModel (staticModelRoot: Node, batchedRoot: Node) {
         const modelComponents = staticModelRoot.getComponentsInChildren(ModelComponent);
         if (modelComponents.length < 2) {
             console.error('the number of static models to batch is less than 2,it needn\'t batch.');
@@ -42,20 +43,38 @@ export class BatchingUtility {
                 return false;
             }
         }
-        const batchedMesh: Mesh = new Mesh();
+        const batchedMesh = new Mesh();
         const worldMat = new Mat4();
         const rootWorldMatInv = new Mat4();
         staticModelRoot.getWorldMatrix(rootWorldMatInv);
         Mat4.invert(rootWorldMatInv, rootWorldMatInv);
         for (let i = 0; i < modelComponents.length; i++) {
-            modelComponents[i].node.getWorldMatrix(worldMat);
+            const comp = modelComponents[i];
+            comp.node.getWorldMatrix(worldMat);
             Mat4.multiply(worldMat, rootWorldMatInv, worldMat);
             batchedMesh.merge(modelComponents[i].mesh!, worldMat);
+            comp.enabled = false;
         }
         const batchedModelComponent = batchedRoot.addComponent(ModelComponent)!;
         batchedModelComponent.mesh = batchedMesh;
-        // @ts-ignore
-        batchedModelComponent.sharedMaterials = modelComponents[0]._materials;
+        batchedModelComponent.sharedMaterials = modelComponents[0].sharedMaterials;
+        return true;
+    }
+
+    /**
+     * Undoes everything `batchStaticModel` did.
+     *
+     * @param staticModelRoot root of all the static models to be batched
+     * @param batchedRoot the target output node
+     */
+    public static unbatchStaticModel (staticModelRoot: Node, batchedRoot: Node) {
+        const modelComponents = staticModelRoot.getComponentsInChildren(ModelComponent);
+        for (let i = 0; i < modelComponents.length; i++) {
+            const comp = modelComponents[i];
+            comp.enabled = true;
+        }
+        const batchedModelComponent = batchedRoot.getComponent(ModelComponent);
+        if (batchedModelComponent) { batchedModelComponent.destroy(); }
         return true;
     }
 }

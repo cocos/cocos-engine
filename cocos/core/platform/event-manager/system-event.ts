@@ -46,11 +46,6 @@ let mouseListener: EventListener | null = null;
 * @en
 * The System event, it currently supports keyboard events and accelerometer events.<br/>
 * You can get the SystemEvent instance with cc.systemEvent.<br/>
-* @example
-* ```
-* cc.systemEvent.on(cc.SystemEvent.EventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
-* cc.systemEvent.off(cc.SystemEvent.EventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
-* ```
 * @zh
 * 系统事件，它目前支持按键事件和重力感应事件。<br/>
 * 你可以通过 cc.systemEvent 获取到 SystemEvent 的实例。<br/>
@@ -59,8 +54,6 @@ let mouseListener: EventListener | null = null;
 * cc.systemEvent.on(cc.SystemEvent.EventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
 * cc.systemEvent.off(cc.SystemEvent.EventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
 * ```
-* @class SystemEvent
-* @extends EventTarget
 */
 
 export class SystemEvent extends EventTarget {
@@ -70,29 +63,33 @@ export class SystemEvent extends EventTarget {
     }
     /**
      * @en
-     * whether enable accelerometer event.
+     * Sets whether to enable the accelerometer event listener or not.
      *
      * @zh
      * 是否启用加速度计事件。
-     *
-     * @param {Boolean} isEnable
      */
-    public setAccelerometerEnabled (isEnable: boolean) {
+    public setAccelerometerEnabled (isEnabled: boolean) {
         if (EDITOR) {
             return;
         }
-        inputManager.setAccelerometerEnabled(isEnable);
+
+        // for iOS 13+
+        if (isEnabled && window.DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === 'function') {
+            DeviceMotionEvent.requestPermission().then(response => {
+                console.log(`Device Motion Event request permission: ${response}`);
+                inputManager.setAccelerometerEnabled(response === 'granted');
+            });
+        } else {
+            inputManager.setAccelerometerEnabled(isEnabled);
+        }
     }
 
     /**
      * @en
-     * set accelerometer interval value.
+     * Sets the accelerometer interval value.
      *
      * @zh
      * 设置加速度计间隔值。
-     *
-     * @method setAccelerometerInterval
-     * @param {Number} interval
      */
     public setAccelerometerInterval (interval: number) {
         if (EDITOR) {
@@ -109,12 +106,14 @@ export class SystemEvent extends EventTarget {
                callback: (touch?: Touch, event?: EventTouch) => void, target?: Object);
     public on (type: SystemEventType.DEVICEMOTION, callback: (event?: EventAcceleration) => void, target?: Object);
     /**
+     * @en
+     * Register an callback of a specific system event type.
      * @zh
-     * 系统事件注册。
+     * 注册特定事件类型回调。
      *
-     * @param type - 事件名。
-     * @param callback - 事件回调。
-     * @param target - 接收事件目标。
+     * @param type - The event type
+     * @param callback - The event listener's callback
+     * @param target - The event listener's target and callee
      */
     public on (type: string, callback: Function, target?: Object) {
         if (EDITOR) {
@@ -219,12 +218,15 @@ export class SystemEvent extends EventTarget {
     }
 
     /**
+     * @en
+     * Removes the listeners previously registered with the same type, callback, target and or useCapture,
+     * if only type is passed as parameter, all listeners registered with that type will be removed.
      * @zh
-     * 注销事件。
+     * 删除之前用同类型，回调，目标或 useCapture 注册的事件监听器，如果只传递 type，将会删除 type 类型的所有事件监听器。
      *
-     * @param type - 事件名。
-     * @param callback - 事件回调。
-     * @param target - 回调接收对象。
+     * @param type - A string representing the event type being removed.
+     * @param callback - The callback to remove.
+     * @param target - The target (this object) to invoke the callback, if it's not given, only callback without target will be removed
      */
     public off (type: string, callback?: Function, target?: Object) {
         if (EDITOR) {
@@ -282,7 +284,8 @@ cc.SystemEvent = SystemEvent;
  */
 
 /**
- * 系统事件单例，方便全局使用。
+ * @en The singleton of the SystemEvent, there should only be one instance to be used globally
+ * @zh 系统事件单例，方便全局使用。
  */
 export const systemEvent = new SystemEvent();
 cc.systemEvent = systemEvent;

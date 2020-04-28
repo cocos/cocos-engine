@@ -29,7 +29,7 @@
  */
 
 import { BitmapFont, Font, ImageAsset, SpriteFrame, Texture2D } from '../../core/assets';
-import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { ccenum } from '../../core/value-types/enum';
 import { UI } from '../../core/renderer/ui/ui';
 import { FontAtlas } from '../assembler/label/bmfontUtils';
@@ -37,7 +37,7 @@ import { CanvasPool, ISharedLabelData } from '../assembler/label/font-utils';
 import { LetterRenderTexture } from '../assembler/label/letter-font';
 import { UIRenderComponent } from '../../core/components/ui-base/ui-render-component';
 import { warnID } from '../../core/platform/debug';
-import sys from '../../core/platform/sys';
+import { sys } from '../../core/platform/sys';
 import { EDITOR } from 'internal:constants';
 
 /**
@@ -187,6 +187,7 @@ ccenum(CacheMode);
  * 文字标签组件。
  */
 @ccclass('cc.LabelComponent')
+@help('i18n:cc.LabelComponent')
 @executionOrder(110)
 @menu('UI/Render/Label')
 export class LabelComponent extends UIRenderComponent {
@@ -747,7 +748,7 @@ export class LabelComponent extends UIRenderComponent {
 
         if (force) {
             this._flushAssembler();
-            this._applyFontTexture(force);
+            this._applyFontTexture();
         }
     }
 
@@ -800,22 +801,25 @@ export class LabelComponent extends UIRenderComponent {
         this._updateMaterial(this._material);
     }
 
-    protected _applyFontTexture (force: boolean) {
+    protected _applyFontTexture () {
         const font = this._font;
         if (font instanceof BitmapFont) {
             const spriteFrame = font.spriteFrame;
-            const self = this;
             const onBMFontTextureLoaded = () => {
                 // TODO: old texture in material have been released by loader
-                self._texture = spriteFrame;
-                self._flushMaterial();
-                if (force && this._renderFlag && this._assembler && this._renderData) {
+                this._texture = spriteFrame;
+                this._flushMaterial();
+                if (this._assembler) {
                     this._assembler!.updateRenderData(this);
                 }
             };
             // cannot be activated if texture not loaded yet
-            if (spriteFrame && spriteFrame.loaded) {
-                onBMFontTextureLoaded();
+            if (spriteFrame) {
+                if (spriteFrame.loaded || spriteFrame.textureLoaded) {
+                    onBMFontTextureLoaded();
+                } else {
+                    spriteFrame.once('load', onBMFontTextureLoaded, this);
+                }
             }
         } else {
             if (this.cacheMode === CacheMode.CHAR && sys.browserType !== sys.BROWSER_TYPE_WECHAT_GAME_SUB) {
@@ -835,10 +839,9 @@ export class LabelComponent extends UIRenderComponent {
             }
 
             this._flushMaterial();
-        }
-
-        if (force && this._renderFlag && this._assembler && this._renderData) {
-           this._assembler!.updateRenderData(this);
+            if (this._assembler) {
+                this._assembler!.updateRenderData(this);
+            }
         }
     }
 }

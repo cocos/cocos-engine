@@ -1,3 +1,7 @@
+/**
+ * @hidden
+ */
+
 import { removeProperty, replaceProperty } from '../utils';
 import { Mesh } from './mesh';
 

@@ -1,6 +1,5 @@
 /*
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -41,5 +40,9 @@ export function applyMixins (derivedCtor: any, baseCtors: any[]) {
     });
 }
 
-export interface IEventTarget extends EventTarget{
+/**
+ * @en Interface for all classes that self implement the EventTarget protocol, they are normally not sub class of EventTarget
+ * @zh 所有自己实现 EventTarget 功能的类都实现了这个 Interface，他们可能无法直接继承自 EventTarget
+ */
+export interface IEventTarget extends EventTarget {
 }

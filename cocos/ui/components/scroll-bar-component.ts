@@ -29,7 +29,7 @@
  */
 
 import { Component } from '../../core/components';
-import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { Color, Size, Vec2, Vec3, size } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { clamp01 } from '../../core/math/utils';
@@ -83,6 +83,7 @@ ccenum(Direction);
  * 滚动条组件。
  */
 @ccclass('cc.ScrollBarComponent')
+@help('i18n:cc.ScrollBarComponent')
 @executionOrder(110)
 @menu('UI/ScrollBar')
 export class ScrollBarComponent extends Component {

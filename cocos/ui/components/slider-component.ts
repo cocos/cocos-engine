@@ -29,7 +29,7 @@
  */
 
 import { Component, EventHandler } from '../../core/components';
-import { ccclass, executionOrder, menu, property } from '../../core/data/class-decorator';
+import { ccclass, help, executionOrder, menu, property } from '../../core/data/class-decorator';
 import { EventTouch, SystemEventType, Touch } from '../../core/platform';
 import { Vec3 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
@@ -74,6 +74,7 @@ ccenum(Direction);
  * 滑动器组件。
  */
 @ccclass('cc.SliderComponent')
+@help('i18n:cc.SliderComponent')
 @executionOrder(110)
 @menu('UI/Slider')
 export class SliderComponent extends Component {

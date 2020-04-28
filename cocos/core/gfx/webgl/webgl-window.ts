@@ -1,23 +1,18 @@
 import {
     GFXFormat,
     GFXLoadOp,
-    GFXStatus,
     GFXStoreOp,
     GFXTextureFlagBit,
     GFXTextureLayout,
     GFXTextureType,
     GFXTextureUsageBit,
     GFXTextureViewType,
+    GFXStatus,
 } from '../define';
-import { GFXDevice } from '../device';
 import { GFXTextureView } from '../texture-view';
 import { GFXWindow, IGFXWindowInfo } from '../window';
 
 export class WebGLGFXWindow extends GFXWindow {
-
-    constructor (device: GFXDevice) {
-        super(device);
-    }
 
     public initialize (info: IGFXWindowInfo): boolean {
 
@@ -164,10 +159,13 @@ export class WebGLGFXWindow extends GFXWindow {
     }
 
     public resize (width: number, height: number) {
+
         this._width = width;
         this._height = height;
+
         if (width > this._nativeWidth ||
             height > this._nativeHeight) {
+
             this._nativeWidth = width;
             this._nativeHeight = height;
 

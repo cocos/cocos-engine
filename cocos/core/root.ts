@@ -501,6 +501,8 @@ export class Root {
             if (m.scene) {
                 m.scene.removeModel(m);
             }
+        } else {
+            console.warn(`'${m.constructor.name}'is not in the model pool and cannot be destroyed by destroyModel.`);
         }
     }
 

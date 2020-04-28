@@ -28,15 +28,14 @@
  * @hidden
  */
 
-import { game, Game } from '../../game';
 import { Vec2 } from '../../math/index';
 import { rect } from '../../math/rect';
 import { macro } from '../macro';
-import sys from '../sys';
+import { sys } from '../sys';
 import eventManager from './event-manager';
 import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './events';
 import { Touch } from './touch';
-import { EDITOR } from 'internal:constants';
+import { JSB, RUNTIME_BASED } from 'internal:constants';
 
 const TOUCH_TIMEOUT = macro.TOUCH_TIMEOUT;
 
@@ -82,6 +81,7 @@ class Acceleration {
         this.timestamp = timestamp;
     }
 }
+cc.internal.Acceleration = Acceleration;
 
 /**
  *  This class manages all events of input. include: touch, mouse, accelerometer, keyboard
@@ -112,14 +112,11 @@ class InputManager {
 
     private _glView: IView | null = null;
 
-    private _minus = 0;
-
     private _pointLocked = false;
 
     public handleTouchesBegin (touches: Touch[]) {
         const handleTouches: Touch[] = [];
         const locTouchIntDict = this._touchesIntegerDict;
-        const now = sys.now();
         for (let i = 0; i < touches.length; ++i) {
             const touch = touches[i];
             const touchID = touch.getID();
@@ -134,18 +131,18 @@ class InputManager {
                     continue;
                 }
                 // curTouch = this._touches[unusedIndex] = touch;
-                const curTouch = new Touch(touch._point.x, touch._point.y, touch.getID());
+                touch.getLocation(_vec2);
+                const curTouch = new Touch(_vec2.x, _vec2.y, touchID);
                 this._touches[unusedIndex] = curTouch;
-                curTouch._lastModified = now;
-                curTouch._setPrevPoint(touch._prevPoint);
+                touch.getPreviousLocation(_vec2);
+                curTouch.setPrevPoint(_vec2);
                 locTouchIntDict[touchID] = unusedIndex;
                 handleTouches.push(curTouch);
             }
         }
         if (handleTouches.length > 0) {
             // this._glView!._convertTouchesWithScale(handleTouches);
-            const touchEvent = new EventTouch(handleTouches);
-            touchEvent._eventCode = EventTouch.BEGAN;
+            const touchEvent = new EventTouch(handleTouches, false, EventTouch.BEGAN);
             eventManager.dispatchEvent(touchEvent);
         }
     }
@@ -153,7 +150,6 @@ class InputManager {
     public handleTouchesMove (touches: Touch[]) {
         const handleTouches: Touch[] = [];
         const locTouches = this._touches;
-        const now = sys.now();
         for (let i = 0; i < touches.length; ++i) {
             const touch = touches[i];
             const touchID = touch.getID();
@@ -166,16 +162,16 @@ class InputManager {
                 continue;
             }
             if (locTouches[index]) {
-                locTouches[index]._setPoint(touch._point);
-                locTouches[index]._setPrevPoint(touch._prevPoint);
-                locTouches[index]._lastModified = now;
+                touch.getLocation(_vec2);
+                locTouches[index].setPoint(_vec2);
+                touch.getPreviousLocation(_vec2);
+                locTouches[index].setPrevPoint(_vec2);
                 handleTouches.push(locTouches[index]);
             }
         }
         if (handleTouches.length > 0) {
             // this._glView!._convertTouchesWithScale(handleTouches);
-            const touchEvent = new EventTouch(handleTouches);
-            touchEvent._eventCode = EventTouch.MOVED;
+            const touchEvent = new EventTouch(handleTouches, false, EventTouch.MOVED);
             eventManager.dispatchEvent(touchEvent);
         }
     }
@@ -184,8 +180,7 @@ class InputManager {
         const handleTouches = this.getSetOfTouchesEndOrCancel(touches);
         if (handleTouches.length > 0) {
             // this._glView!._convertTouchesWithScale(handleTouches);
-            const touchEvent = new EventTouch(handleTouches);
-            touchEvent._eventCode = EventTouch.ENDED;
+            const touchEvent = new EventTouch(handleTouches, false, EventTouch.ENDED);
             eventManager.dispatchEvent(touchEvent);
         }
         this._preTouchPool.length = 0;
@@ -195,8 +190,7 @@ class InputManager {
         const handleTouches = this.getSetOfTouchesEndOrCancel(touches);
         if (handleTouches.length > 0) {
             // this._glView!._convertTouchesWithScale(handleTouches);
-            const touchEvent = new EventTouch(handleTouches);
-            touchEvent._eventCode = EventTouch.CANCELLED;
+            const touchEvent = new EventTouch(handleTouches, false, EventTouch.CANCELLED);
             eventManager.dispatchEvent(touchEvent);
         }
         this._preTouchPool.length = 0;
@@ -218,8 +212,10 @@ class InputManager {
                 continue;
             }
             if (locTouches[index]) {
-                locTouches[index]._setPoint(touch._point);
-                locTouches[index]._setPrevPoint(touch._prevPoint);
+                touch.getLocation(_vec2);
+                locTouches[index].setPoint(_vec2);
+                touch.getPreviousLocation(_vec2);
+                locTouches[index].setPrevPoint(_vec2);
                 handleTouches.push(locTouches[index]);
                 this._removeUsedIndexBit(index);
                 delete locTouchesIntDict[touchID];
@@ -315,17 +311,17 @@ class InputManager {
             location.y = locPreTouch.y - event.movementY;
         }
         const touch = new Touch(location.x,  location.y, 0);
-        touch._setPrevPoint(locPreTouch.x, locPreTouch.y);
+        touch.setPrevPoint(locPreTouch.x, locPreTouch.y);
         locPreTouch.x = location.x;
         locPreTouch.y = location.y;
         return touch;
     }
 
     public getMouseEvent (
-        location: { x: number; y: number; }, pos: IHTMLElementPosition, eventType: number): EventMouse {
+        location: { x: number; y: number; }, pos: IHTMLElementPosition, eventType: number): EventMouse 
+    {
         const locPreMouse = this._prevMousePoint;
-        const mouseEvent = new EventMouse(eventType);
-        mouseEvent._setPrevCursor(locPreMouse.x, locPreMouse.y);
+        const mouseEvent = new EventMouse(eventType, false, locPreMouse);
         locPreMouse.x = location.x;
         locPreMouse.y = location.y;
         // this._glView!._convertMouseToLocationInView(locPreMouse, pos);
@@ -374,11 +370,11 @@ class InputManager {
                 touch = new Touch(location.x, location.y, changedTouch.identifier);
                 // use Touch Pool
                 this.getPreTouch(touch).getLocation(_preLocation);
-                touch._setPrevPoint(_preLocation.x, _preLocation.y);
+                touch.setPrevPoint(_preLocation.x, _preLocation.y);
                 this.setPreTouch(touch);
             } else {
                 touch = new Touch(location.x, location.y);
-                touch._setPrevPoint(locPreTouch.x, locPreTouch.y);
+                touch.setPrevPoint(locPreTouch.x, locPreTouch.y);
             }
             locPreTouch.x = location.x;
             locPreTouch.y = location.y;
@@ -445,6 +441,11 @@ class InputManager {
             this._unregisterAccelerometerEvent();
             this._accelCurTime = 0;
             scheduler.unscheduleUpdate(this);
+        }
+
+        if (JSB || RUNTIME_BASED) {
+            // @ts-ignore
+            jsb.device.setMotionEnabled(isEnable);
         }
     }
 
@@ -522,12 +523,19 @@ class InputManager {
     public setAccelerometerInterval (interval) {
         if (this._accelInterval !== interval) {
             this._accelInterval = interval;
+
+            if (JSB || RUNTIME_BASED) {
+                // @ts-ignore
+                if (jsb.device && jsb.device.setMotionInterval) {
+                    jsb.device.setMotionInterval(interval);
+                }
+            }
         }
     }
 
     private _getUnUsedIndex () {
         let temp = this._indexBitsUsed;
-        const now = cc.sys.now();
+        const now = cc.director.getCurrentTime();
 
         for (let i = 0; i < this._maxTouches; i++) {
             if (!(temp & 0x00000001)) {
@@ -535,7 +543,7 @@ class InputManager {
                 return i;
             } else {
                 const touch = this._touches[i];
-                if (now - touch._lastModified > TOUCH_TIMEOUT) {
+                if (now - touch.lastModified > TOUCH_TIMEOUT) {
                     this._removeUsedIndexBit(i);
                     const touchID = touch.getID();
                     if (touchID !== null) {
@@ -657,7 +665,7 @@ class InputManager {
             listenDOMMouseEvent('mousemove', EventMouse.MOVE, (event, mouseEvent, location, pos) => {
                 this.handleTouchesMove([this.getTouchByXY(event, location.x, location.y, pos)]);
                 if (!this._mousePressed) {
-                    mouseEvent.setButton(null);
+                    mouseEvent.setButton(EventMouse.BUTTON_MISSING);
                 }
                 if (event.movementX !== undefined && event.movementY !== undefined) {
                     mouseEvent.movementX = event.movementX;
@@ -799,10 +807,6 @@ class InputManager {
             // TODO
             // @ts-ignore
             this._accelDeviceEvent === window.DeviceMotionEvent ? 'devicemotion' : 'deviceorientation';
-        const ua = navigator.userAgent;
-        if (/Android/.test(ua) || (/Adr/.test(ua) && cc.sys.browserType === cc.BROWSER_TYPE_UC)) {
-            this._minus = -1;
-        }
 
         // @ts-ignore
         _didAccelerateFun = (...args: any[]) => this.didAccelerate(...args);

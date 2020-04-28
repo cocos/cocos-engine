@@ -1,20 +1,15 @@
-import { GFXStatus } from '../define';
-import { GFXDevice } from '../device';
 import { GFXTextureView, IGFXTextureViewInfo } from '../texture-view';
 import { WebGLGPUTextureView } from './webgl-gpu-objects';
 import { WebGLGFXTexture } from './webgl-texture';
+import { GFXStatus } from '../define';
 
 export class WebGLGFXTextureView extends GFXTextureView {
 
-    public get gpuTextureView (): WebGLGPUTextureView {
+    get gpuTextureView (): WebGLGPUTextureView {
         return  this._gpuTextureView as WebGLGPUTextureView;
     }
 
     private _gpuTextureView: WebGLGPUTextureView | null = null;
-
-    constructor (device: GFXDevice) {
-        super(device);
-    }
 
     public initialize (info: IGFXTextureViewInfo): boolean {
 

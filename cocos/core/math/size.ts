@@ -63,12 +63,12 @@ export class Size extends ValueType {
     /**
      * 宽度。
      */
-    public width: number;
+    public declare width: number;
 
     /**
      * 高度。
      */
-    public height: number;
+    public declare height: number;
 
     /**
      * 构造与指定尺寸相等的尺寸。

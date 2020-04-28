@@ -1,10 +1,6 @@
 import { GFXCommandBuffer } from '../command-buffer';
-import { GFXStatus } from '../define';
-import { GFXDevice } from '../device';
 import { GFXQueue, IGFXQueueInfo } from '../queue';
-import { WebGLGFXCommandBuffer } from './webgl-command-buffer';
-import { WebGLCmdFuncExecuteCmds } from './webgl-commands';
-import { WebGLGFXDevice } from './webgl-device';
+import { GFXStatus } from '../define';
 
 export class WebGLGFXQueue extends GFXQueue {
 
@@ -14,13 +10,10 @@ export class WebGLGFXQueue extends GFXQueue {
 
     private _isAsync: boolean = false;
 
-    constructor (device: GFXDevice) {
-        super(device);
-    }
-
     public initialize (info: IGFXQueueInfo): boolean {
 
         this._type = info.type;
+
         this._status = GFXStatus.SUCCESS;
 
         return true;
@@ -37,7 +30,7 @@ export class WebGLGFXQueue extends GFXQueue {
             const len = cmdBuffs.length;
             for (let i = 0; i < len; i++) {
                 const cmdBuff = cmdBuffs[i];
-                WebGLCmdFuncExecuteCmds( this._device as WebGLGFXDevice, (cmdBuff as WebGLGFXCommandBuffer).cmdPackage);
+                // WebGLCmdFuncExecuteCmds( this._device as WebGLGFXDevice, (cmdBuff as WebGLGFXCommandBuffer).cmdPackage); // opted out
                 this.numDrawCalls += cmdBuff.numDrawCalls;
                 this.numInstances += cmdBuff.numInstances;
                 this.numTris += cmdBuff.numTris;

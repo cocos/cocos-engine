@@ -30,7 +30,7 @@
 import { CCObject } from '../data/object';
 import { array, Pool } from '../utils/js';
 import { tryCatchFunctor_EDITOR } from '../utils/misc';
-import ComponentScheduler from './component-scheduler';
+import { invokeOnEnable, createInvokeImpl, createInvokeImplJit, OneOffInvoker, LifeCycleInvoker } from './component-scheduler';
 import { EDITOR, DEV, TEST, SUPPORT_JIT } from 'internal:constants';
 
 const MAX_POOL_SIZE = 4;
@@ -45,21 +45,23 @@ const IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
 const Deactivating = CCObject.Flags.Deactivating;
 
 const callPreloadInTryCatch = EDITOR && tryCatchFunctor_EDITOR('__preload');
-const callOnLoadInTryCatch = EDITOR && tryCatchFunctor_EDITOR('onLoad', null,
-        'target._objFlags |= ' + IsOnLoadCalled + '; arg(target);', _onLoadInEditor);
+const callOnLoadInTryCatch = EDITOR && function (c) {
+    try {
+        c.onLoad();
+    }
+    catch (e) {
+        cc._throw(e);
+    }
+    c._objFlags |= IsOnLoadCalled;
+    _onLoadInEditor(c);
+};
 const callOnDestroyInTryCatch = EDITOR && tryCatchFunctor_EDITOR('onDestroy');
 const callResetInTryCatch = EDITOR && tryCatchFunctor_EDITOR('resetInEditor');
 const callOnFocusInTryCatch = EDITOR && tryCatchFunctor_EDITOR('onFocusInEditor');
 const callOnLostFocusInTryCatch = EDITOR && tryCatchFunctor_EDITOR('onLostFocusInEditor');
 
-const callPreload = SUPPORT_JIT ? 'c.__preload();' : (c) => { c.__preload(); };
-const callOnLoad = SUPPORT_JIT ? ('c.onLoad();c._objFlags|=' + IsOnLoadCalled) : (c) => {
-    c.onLoad();
-    c._objFlags |= IsOnLoadCalled;
-};
-
 // for __preload: used internally, no sort
-class UnsortedInvoker extends ComponentScheduler.LifeCycleInvoker {
+class UnsortedInvoker extends LifeCycleInvoker {
     public add (comp) {
         this._zero.array.push(comp);
     }
@@ -67,7 +69,7 @@ class UnsortedInvoker extends ComponentScheduler.LifeCycleInvoker {
         this._zero.fastRemove(comp);
     }
     public cancelInactive (flagToClear) {
-        ComponentScheduler.LifeCycleInvoker.stableRemoveInactive(this._zero, flagToClear);
+        LifeCycleInvoker.stableRemoveInactive(this._zero, flagToClear);
     }
     public invoke () {
         this._invoke(this._zero);
@@ -75,19 +77,39 @@ class UnsortedInvoker extends ComponentScheduler.LifeCycleInvoker {
     }
 }
 
-const invokePreload = ComponentScheduler.createInvokeImpl(
-    EDITOR ? callPreloadInTryCatch : callPreload,
-);
-const invokeOnLoad = ComponentScheduler.createInvokeImpl(
-    EDITOR ? callOnLoadInTryCatch : callOnLoad,
-);
+const invokePreload = SUPPORT_JIT ? createInvokeImplJit('c.__preload();') :
+    createInvokeImpl(
+        function (c) { c.__preload(); }, 
+        function (iterator) {
+            var array = iterator.array;
+            for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+                array[iterator.i].__preload();
+            }
+        }
+    );
+const invokeOnLoad = SUPPORT_JIT ? createInvokeImplJit('c.onLoad();c._objFlags|=' + IsOnLoadCalled, false, IsOnLoadCalled) :
+    createInvokeImpl(
+        function (c) {
+            c.onLoad();
+            c._objFlags |= IsOnLoadCalled;
+        },
+        function (iterator) {
+            var array = iterator.array;
+            for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+                let comp = array[iterator.i];
+                comp.onLoad();
+                comp._objFlags |= IsOnLoadCalled;
+            }
+        },
+        IsOnLoadCalled
+    );
 
 const activateTasksPool = new Pool(MAX_POOL_SIZE);
 activateTasksPool.get = function getActivateTask () {
     const task: any = this._get() || {
         preload: new UnsortedInvoker(invokePreload),
-        onLoad: new ComponentScheduler.OneOffInvoker(invokeOnLoad),
-        onEnable: new ComponentScheduler.OneOffInvoker(ComponentScheduler.invokeOnEnable),
+        onLoad: new OneOffInvoker(invokeOnLoad),
+        onEnable: new OneOffInvoker(invokeOnEnable),
     };
 
     // reset index to -1 so we can skip invoked component in cancelInactive
@@ -122,12 +144,12 @@ function _onLoadInEditor (comp) {
         // @ts-ignore
         const focused = Editor.Selection.curActivate('node') === comp.node.uuid;
         if (focused) {
-            if (comp.onFocusInEditor) {
+            if (comp.onFocusInEditor && callOnFocusInTryCatch) {
                 callOnFocusInTryCatch(comp);
             }
         }
         else {
-            if (comp.onLostFocusInEditor) {
+            if (comp.onLostFocusInEditor && callOnLostFocusInTryCatch) {
                 callOnLostFocusInTryCatch(comp);
             }
         }
@@ -319,7 +341,7 @@ if (EDITOR) {
                     if (preloadInvoker) {
                         preloadInvoker.add(comp);
                     }
-                    else {
+                    else if (callPreloadInTryCatch) {
                         callPreloadInTryCatch(comp);
                     }
                 }
@@ -330,7 +352,7 @@ if (EDITOR) {
                     if (onLoadInvoker) {
                         onLoadInvoker.add(comp);
                     }
-                    else {
+                    else if (callOnLoadInTryCatch) {
                         callOnLoadInTryCatch(comp);
                     }
                 }
@@ -355,13 +377,13 @@ if (EDITOR) {
 
         if (comp.onDestroy && (comp._objFlags & IsOnLoadCalled)) {
             if (cc.engine._isPlaying || comp.constructor._executeInEditMode) {
-                callOnDestroyInTryCatch(comp);
+                callOnDestroyInTryCatch && callOnDestroyInTryCatch(comp);
             }
         }
     };
 
     NodeActivator.prototype.resetComp = (comp) => {
-        if (comp.resetInEditor) {
+        if (comp.resetInEditor && callResetInTryCatch) {
             callResetInTryCatch(comp);
         }
     };

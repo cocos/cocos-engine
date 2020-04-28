@@ -18,7 +18,7 @@ import { GFXTexture } from './gfx/texture';
 import { GFXTextureView } from './gfx/texture-view';
 import { clamp01 } from './math/utils';
 import { COCOSPLAY, XIAOMI, JSB } from 'internal:constants';
-import sys from './platform/sys';
+import { sys } from './platform/sys';
 import { GFXSampler } from './gfx';
 
 export type SplashEffectType = 'NONE' | 'FADE-INOUT';
@@ -224,11 +224,11 @@ export class SplashScreen {
             let u_p = easing.cubicOut(PERCENT);
             if (this.setting.effect == 'NONE') u_p = 1.0;
             this.material.setProperty('u_precent', u_p);
-            this.material.passes[0].update(time);
+            this.material.passes[0].update();
 
             if (this.setting.displayWatermark && this.textMaterial) {
                 this.textMaterial.setProperty('u_precent', u_p);
-                this.textMaterial.passes[0].update(time);
+                this.textMaterial.passes[0].update();
             }
 
             this.frame(time);

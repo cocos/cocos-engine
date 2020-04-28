@@ -55,7 +55,7 @@ export class CannonCyliderShape extends CannonShape implements ICylinderShape {
 
     constructor (radius = 0.5, height = 2, direction = EAxisDirection.Y_AXIS) {
         super();
-        this._shape = new CANNON.Cylinder(radius, radius, height, 18);
+        this._shape = new CANNON.Cylinder(radius, radius, height, 18, direction == EAxisDirection.Y_AXIS);
     }
 
     onLoad () {

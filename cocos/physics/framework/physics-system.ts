@@ -14,12 +14,16 @@ import { PhysicsRayResult } from './physics-ray-result';
 import { EDITOR, PHYSICS_BUILTIN, DEBUG, PHYSICS_CANNON, PHYSICS_AMMO } from 'internal:constants';
 
 /**
+ * @en
+ * Physics system.
  * @zh
  * 物理系统。
  */
 export class PhysicsSystem extends System {
 
     /**
+     * @en
+     * Gets or sets whether the physical system is enabled, which can be used to pause or continue running the physical system.
      * @zh
      * 获取或设置是否启用物理系统，可以用于暂停或继续运行物理系统。
      */
@@ -27,12 +31,15 @@ export class PhysicsSystem extends System {
         return this._enable;
     }
     set enable (value: boolean) {
+        if (!value) this._timeReset = true;
         this._enable = value;
     }
 
     /**
      * @zh
-     * 获取或设置物理系统是否允许自动休眠，默认为 true
+     * Gets or sets whether the physical system allows automatic sleep, which defaults to true.
+     * @zh
+     * 获取或设置物理系统是否允许自动休眠，默认为 true。
      */
     get allowSleep (): boolean {
         return this._allowSleep;
@@ -44,20 +51,9 @@ export class PhysicsSystem extends System {
         }
     }
 
-    // shielding for alpha version
-    // /**
-    //  * @zh
-    //  * 获取或设置是否只运行一步。
-    //  * @param {boolean} b
-    //  */
-    // get singleStep () {
-    //     return this._singleStep;
-    // }
-    // set singleStep (b: boolean) {
-    //     this._singleStep = b;
-    // }
-
     /**
+     * @en
+     * Gets or sets the maximum number of simulated substeps per frame.
      * @zh
      * 获取或设置每帧模拟的最大子步数。
      */
@@ -70,6 +66,8 @@ export class PhysicsSystem extends System {
     }
 
     /**
+     * @en
+     * Gets or sets the fixed time consumed by each simulation step.
      * @zh
      * 获取或设置每步模拟消耗的固定时间。
      */
@@ -82,6 +80,8 @@ export class PhysicsSystem extends System {
     }
 
     /**
+     * @en
+     * Gets or sets whether to simulate with a fixed time step, which defaults to true.
      * @zh
      * 获取或设置是否使用固定的时间步长进行模拟，默认为 true。
      */
@@ -94,8 +94,10 @@ export class PhysicsSystem extends System {
     }
 
     /**
+     * @en
+     * Gets or sets the value of gravity in the physical world, which defaults to (0, -10, 0).
      * @zh
-     * 获取或设置物理世界的重力数值，默认为 (0, -10, 0)
+     * 获取或设置物理世界的重力数值，默认为 (0, -10, 0)。
      */
     get gravity (): Vec3 {
         return this._gravity;
@@ -108,37 +110,59 @@ export class PhysicsSystem extends System {
     }
 
     /**
+     * @en
+     * Gets the global default physical material.
      * @zh
-     * 获取全局的默认物理材质，注意：builtin 时为 null
+     * 获取全局的默认物理材质。
      */
-    get defaultMaterial (): PhysicMaterial | null {
+    get defaultMaterial (): PhysicMaterial {
         return this._material;
     }
 
-    // shielding for alpha version
-    // /**
-    //  * @zh
-    //  * 获取或设置物理每秒模拟的帧率。
-    //  */
-    // get frameRate () {
-    //     return this._frameRate;
-    // }
-    // set frameRate (value: number) {
-    //     this._frameRate = value;
-    //     this._deltaTime = 1 / this._frameRate;
-    // }
+    /**
+     * @en
+     * Gets the wrappered object of the physical world through which you can access the actual underlying object.
+     * @zh
+     * 获取物理世界的封装对象，通过它你可以访问到实际的底层对象。
+     */
+    readonly physicsWorld: IPhysicsWorld;
 
-    private static readonly _instance: PhysicsSystem;
-    static get instance () {
+    /**
+     * @en
+     * Gets the raycastClosest test result.
+     * @zh
+     * 获取 raycastClosest 的检测结果。
+     */
+    readonly raycastClosestResult = new PhysicsRayResult();
+
+    /**
+     * @en
+     * Gets the raycast test results.
+     * @zh
+     * 获取 raycast 的检测结果。
+     */
+    readonly raycastResults: PhysicsRayResult[] = [];
+
+    /**
+     * @en
+     * Gets the ID of the system.
+     * @zh
+     * 获取此系统的ID。
+     */
+    static readonly ID = 'PHYSICS';
+
+    /**
+     * @en
+     * Gets the physical system instance.
+     * @zh
+     * 获取物理系统实例。
+     */
+    static get instance (): PhysicsSystem {
         if (DEBUG && checkPhysicsModule(PhysicsSystem._instance)) { return null as any; }
         return PhysicsSystem._instance;
     }
 
-    static readonly ID: 'physics';
-
-    readonly physicsWorld: IPhysicsWorld;
-    readonly raycastClosestResult = new PhysicsRayResult();
-    readonly raycastResults: PhysicsRayResult[] = [];
+    private static readonly _instance: PhysicsSystem;
 
     private _enable = true;
     private _allowSleep = true;
@@ -146,10 +170,8 @@ export class PhysicsSystem extends System {
     private _maxSubStep = 1;
     private _deltaTime = 1.0 / 60.0;
     private _useFixedTime = true;
-
-    // private _frameRate = 60;
-    // private _singleStep = false;
-
+    private _timeSinceLastUpdate = 0;
+    private _timeReset = true;
     private readonly _material!: PhysicMaterial;
 
     private readonly raycastOptions: IRaycastOptions = {
@@ -166,18 +188,18 @@ export class PhysicsSystem extends System {
     private constructor () {
         super();
         this.physicsWorld = createPhysicsWorld();
-        if (!PHYSICS_BUILTIN) {
-            this.gravity = this._gravity;
-            this.allowSleep = this._allowSleep;
-            this._material = new PhysicMaterial();
-            this._material.friction = 0.5;
-            this._material.restitution = 0.0;
-            this._material.on('physics_material_update', this._updateMaterial, this);
-            this.physicsWorld.setDefaultMaterial(this._material);
-        }
+        this.gravity = this._gravity;
+        this.allowSleep = this._allowSleep;
+        this._material = new PhysicMaterial();
+        this._material.friction = 0.5;
+        this._material.restitution = 0.1;
+        this._material.on('physics_material_update', this._updateMaterial, this);
+        this.physicsWorld.setDefaultMaterial(this._material);
     }
 
     /**
+     * @en
+     * Perform a simulation of the physics system, which will now be performed automatically on each frame.
      * @zh
      * 执行一次物理系统的模拟，目前将在每帧自动执行一次。
      * @param deltaTime 与上一次执行相差的时间，目前为每帧消耗时间
@@ -186,27 +208,29 @@ export class PhysicsSystem extends System {
         if (EDITOR && !this._executeInEditMode) {
             return;
         }
+
         if (!this._enable) {
+            this.physicsWorld.syncSceneToPhysics();
             return;
         }
 
+        this._timeSinceLastUpdate = this._timeReset ? 0 : deltaTime;
+        this.physicsWorld.emitEvents();
         director.emit(Director.EVENT_BEFORE_PHYSICS);
-
+        this.physicsWorld.syncSceneToPhysics();
         if (this._useFixedTime) {
             this.physicsWorld.step(this._deltaTime);
         } else {
-            this.physicsWorld.step(this._deltaTime, deltaTime, this._maxSubStep);
+            this.physicsWorld.step(this._deltaTime, this._timeSinceLastUpdate, this._maxSubStep);
         }
-        // if (this._singleStep) {
-        //     this._enable = false;
-        // }
-
         director.emit(Director.EVENT_AFTER_PHYSICS);
     }
 
     /**
+     * @en
+     * Collision detect all collider, and record all the detected results, through PhysicsSystem.Instance.RaycastResults access to the results.
      * @zh
-     * 检测所有的碰撞盒，并记录所有被检测到的结果，通过 PhysicsSystem.instance.raycastResults 访问结果
+     * 检测所有的碰撞盒，并记录所有被检测到的结果，通过 PhysicsSystem.instance.raycastResults 访问结果。
      * @param worldRay 世界空间下的一条射线
      * @param mask 掩码，默认为 0xffffffff
      * @param maxDistance 最大检测距离，默认为 10000000，目前请勿传入 Infinity 或 Number.MAX_VALUE
@@ -223,8 +247,10 @@ export class PhysicsSystem extends System {
     }
 
     /**
+     * @en
+     * Collision detect all collider, and record and ray test results with the shortest distance by PhysicsSystem.Instance.RaycastClosestResult access to the results.
      * @zh
-     * 检测所有的碰撞盒，并记录与射线距离最短的检测结果，通过 PhysicsSystem.instance.raycastClosestResult 访问结果
+     * 检测所有的碰撞盒，并记录与射线距离最短的检测结果，通过 PhysicsSystem.instance.raycastClosestResult 访问结果。
      * @param worldRay 世界空间下的一条射线
      * @param mask 掩码，默认为 0xffffffff
      * @param maxDistance 最大检测距离，默认为 10000000，目前请勿传入 Infinity 或 Number.MAX_VALUE
