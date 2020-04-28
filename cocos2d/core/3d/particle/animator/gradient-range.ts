@@ -12,6 +12,14 @@ const GRADIENT_RANGE_MODE_RANDOM_COLOR = 2;
 const GRADIENT_RANGE_MODE_GRADIENT = 3;
 const GRADIENT_RANGE_MODE_TWO_GRADIENT = 4;
 
+const SerializableTable = CC_EDITOR && [
+    [ "_mode", "color" ],
+    [ "_mode", "gradient" ],
+    [ "_mode", "colorMin", "colorMax" ],
+    [ "_mode", "gradientMin", "gradientMax"],
+    [ "_mode", "gradient" ]
+];
+
 const Mode = Enum({
     Color: 0,
     Gradient: 1,
@@ -20,6 +28,11 @@ const Mode = Enum({
     RandomColor: 4,
 });
 
+/**
+ * !#en The gradient range of color.
+ * !#zh 颜色值的渐变范围
+ * @class GradientRange
+ */
 @ccclass('cc.GradientRange')
 export default class GradientRange {
 
@@ -110,7 +123,7 @@ export default class GradientRange {
     gradientMax = new Gradient();
 
     evaluate (time, rndRatio) {
-        switch (this.mode) {
+        switch (this._mode) {
             case Mode.Color:
                 return this.color;
             case Mode.TwoColors:
@@ -128,5 +141,7 @@ export default class GradientRange {
         }
     }
 }
+
+CC_EDITOR && (GradientRange.prototype._onBeforeSerialize = function(props){return SerializableTable[this._mode];});
 
 cc.GradientRange = GradientRange;

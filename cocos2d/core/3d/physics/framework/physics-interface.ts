@@ -92,7 +92,7 @@ export interface IContactEquation {
      * !#en
      * The collision point A in the collision information.
      * !#zh
-     * 碰撞信息中的碰撞点A。
+     * 碰撞信息中的碰撞点 A。
      * @property {Vec3} contactA
      * @readonly
      */
@@ -102,7 +102,7 @@ export interface IContactEquation {
      * !#en
      * Collision point B in collision information.
      * !#zh
-     * 碰撞信息中的碰撞点B。
+     * 碰撞信息中的碰撞点 B。
      * @property {Vec3} contactB
      * @readonly
      */

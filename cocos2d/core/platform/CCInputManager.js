@@ -222,7 +222,7 @@ let inputManager = {
         if (handleTouches.length > 0) {
             this._glView._convertTouchesWithScale(handleTouches);
             let touchEvent = new cc.Event.EventTouch(handleTouches);
-            touchEvent._eventCode = cc.Event.EventTouch.CANCELLED;
+            touchEvent._eventCode = cc.Event.EventTouch.CANCELED;
             eventManager.dispatchEvent(touchEvent);
         }
         this._preTouchPool.length = 0;
@@ -533,8 +533,8 @@ let inputManager = {
                     if (!event.changedTouches) return;
                     let body = document.body;
 
-                    canvasBoundingRect.adjustedLeft = canvasBoundingRect.left - (body.scrollLeft || 0);
-                    canvasBoundingRect.adjustedTop = canvasBoundingRect.top - (body.scrollTop || 0);
+                    canvasBoundingRect.adjustedLeft = canvasBoundingRect.left - (body.scrollLeft || window.scrollX || 0);
+                    canvasBoundingRect.adjustedTop = canvasBoundingRect.top - (body.scrollTop || window.scrollY || 0);
                     handler(selfPointer.getTouchesByEvent(event, canvasBoundingRect));
                     event.stopPropagation();
                     event.preventDefault();

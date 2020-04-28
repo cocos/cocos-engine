@@ -38,6 +38,11 @@ const Animation = Enum({
     SingleRow: 1,
 });
 
+/**
+ * !#en The texture animation module of 3d particle.
+ * !#zh 3D 粒子的贴图动画模块
+ * @class TextureAnimationModule
+ */
 @ccclass('cc.TextureAnimationModule')
 export default class TextureAnimationModule {
 

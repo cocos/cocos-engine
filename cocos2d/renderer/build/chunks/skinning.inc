@@ -25,10 +25,10 @@
 
         y = dy * (y + 0.5);
 
-        vec4 v1 = texture2D(jointsTexture, vec2(dx * (x + 0.5), y));
-        vec4 v2 = texture2D(jointsTexture, vec2(dx * (x + 1.5), y));
-        vec4 v3 = texture2D(jointsTexture, vec2(dx * (x + 2.5), y));
-        vec4 v4 = texture2D(jointsTexture, vec2(dx * (x + 3.5), y));
+        vec4 v1 = texture(jointsTexture, vec2(dx * (x + 0.5), y));
+        vec4 v2 = texture(jointsTexture, vec2(dx * (x + 1.5), y));
+        vec4 v3 = texture(jointsTexture, vec2(dx * (x + 2.5), y));
+        vec4 v4 = texture(jointsTexture, vec2(dx * (x + 3.5), y));
 
         return mat4(v1, v2, v3, v4);
       }
@@ -51,10 +51,10 @@
 
       vec4 decodevec4 (float dx, float x, float y) {
         return decodevec4(
-          texture2D(jointsTexture, vec2(dx * (x + 0.5), y)),
-          texture2D(jointsTexture, vec2(dx * (x + 1.5), y)),
-          texture2D(jointsTexture, vec2(dx * (x + 2.5), y)),
-          texture2D(jointsTexture, vec2(dx * (x + 3.5), y))
+          texture(jointsTexture, vec2(dx * (x + 0.5), y)),
+          texture(jointsTexture, vec2(dx * (x + 1.5), y)),
+          texture(jointsTexture, vec2(dx * (x + 2.5), y)),
+          texture(jointsTexture, vec2(dx * (x + 3.5), y))
         );
       }
 

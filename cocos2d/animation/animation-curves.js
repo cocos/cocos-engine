@@ -168,7 +168,14 @@ var DynamicAnimCurve = cc.Class({
         };
     })(),
 
-    _lerpVector: (function () {
+    _lerpVector2: (function () {
+        let out = cc.v2();
+        return function (from, to, t) {
+            return from.lerp(to, t, out);
+        };
+    })(),
+
+    _lerpVector3: (function () {
         let out = cc.v3();
         return function (from, to, t) {
             return from.lerp(to, t, out);

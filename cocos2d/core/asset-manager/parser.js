@@ -156,6 +156,7 @@ var parser = {
         const PVR_HEADER_METADATA = 12;
     
         return function (file, options, onComplete) {
+            let err = null, out = null;
             try {
                 let buffer = file instanceof ArrayBuffer ? file : file.buffer;
                 // Get a view of the arrayBuffer that represents the DDS header.
@@ -172,17 +173,18 @@ var parser = {
                 let dataOffset = header[PVR_HEADER_METADATA] + 52;
                 let pvrtcData = new Uint8Array(buffer, dataOffset);
     
-                pvrAsset = {
+                out = {
                     _data: pvrtcData,
                     _compressed: true,
                     width: width,
                     height: height,
                 };
-                onComplete && onComplete(null, pvrAsset);
+                
             }
             catch (e) {
-                onComplete && onComplete(e, null);
+                err = e;
             }
+            onComplete && onComplete(err, out);
         };
     })(),
 
@@ -228,6 +230,7 @@ var parser = {
             return (header[offset] << 8) | header[offset+1];
         }
         return function (file, options, onComplete) {
+            let err = null, out = null;
             try {
                 let buffer = file instanceof ArrayBuffer ? file : file.buffer;
                 let header = new Uint8Array(buffer);
@@ -240,17 +243,18 @@ var parser = {
                 let encodedWidth = readBEUint16(header, ETC_PKM_ENCODED_WIDTH_OFFSET);
                 let encodedHeight = readBEUint16(header, ETC_PKM_ENCODED_HEIGHT_OFFSET);
                 let etcData = new Uint8Array(buffer, ETC_PKM_HEADER_SIZE);
-                let etcAsset = {
+                out = {
                     _data: etcData,
                     _compressed: true,
                     width: width,
                     height: height
                 };
-                onComplete && onComplete(null, etcAsset);
+                
             }
             catch (e) {
-                onComplete && onComplete(e, null);
+                err = e;
             }
+            onComplete && onComplete(err, out);
         }
     })(),
 

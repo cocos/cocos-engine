@@ -193,12 +193,19 @@ sp.Skeleton = cc.Class({
          */
         _defaultSkinIndex: {
             get () {
-                if (this.skeletonData && this.defaultSkin) {
+                if (this.skeletonData) {
                     var skinsEnum = this.skeletonData.getSkinsEnum();
-                    if (skinsEnum) {
-                        var skinIndex = skinsEnum[this.defaultSkin];
-                        if (skinIndex !== undefined) {
-                            return skinIndex;
+                    if(skinsEnum) {
+                        if(this.defaultSkin === "") {
+                            if(skinsEnum.hasOwnProperty(0)) {
+                                this._defaultSkinIndex = 0;
+                                return 0;
+                            }
+                        } else {
+                            var skinIndex = skinsEnum[this.defaultSkin];
+                            if (skinIndex !== undefined) {
+                                return skinIndex;
+                            }
                         }
                     }
                 }

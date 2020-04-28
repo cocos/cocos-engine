@@ -282,7 +282,6 @@ function _getSharedOptions () {
     }
     _images.length = 0;
     _sharedOpts.images = _images;
-    _sharedOpts.flipY = false;
     return _sharedOpts;
 }
 
@@ -305,8 +304,8 @@ var Texture2D = cc.Class({
                 return this._image;
             },
             set (data) {
-                if (data.data) {
-                    this.initWithData(data.data, this._format, data.width, data.height);
+                if (data._data) {
+                    this.initWithData(data._data, this._format, data.width, data.height);
                 }
                 else {
                     this.initWithElement(data);
@@ -322,6 +321,8 @@ var Texture2D = cc.Class({
         _mipFilter: Filter.LINEAR,
         _wrapS: WrapMode.CLAMP_TO_EDGE,
         _wrapT: WrapMode.CLAMP_TO_EDGE,
+
+        _isAlphaAtlas: false,
 
         _genMipmaps: false,
         /**
@@ -574,9 +575,7 @@ var Texture2D = cc.Class({
                 options.images.push(options.image);
             }
 
-            if (options.images && options.images.length > 0) {
-                this._texture.update(options);
-            }
+            this._texture && this._texture.update(options);
 
             this._hashDirty = true;
         }
@@ -646,6 +645,7 @@ var Texture2D = cc.Class({
         this.width = pixelsWidth;
         this.height = pixelsHeight;
 
+        this._updateFormat();
         this._checkPackable();
 
         this.loaded = true;
@@ -713,6 +713,10 @@ var Texture2D = cc.Class({
         return this._premultiplyAlpha || false;
     },
 
+    isAlphaAtlas () {
+        return this._isAlphaAtlas;
+    },
+
     /**
      * !#en
      * Handler of texture loaded event.
@@ -749,6 +753,7 @@ var Texture2D = cc.Class({
             this._texture.update(opts);
         }
 
+        this._updateFormat();
         this._checkPackable();
 
         //dispatch load event to listener.
@@ -852,6 +857,13 @@ var Texture2D = cc.Class({
         }
     },
 
+    _updateFormat () {
+        this._isAlphaAtlas = this._format === PixelFormat.RGBA_ETC1 || this._format === PixelFormat.RGB_A_PVRTC_4BPPV1 || this._format === PixelFormat.RGB_A_PVRTC_2BPPV1;
+        if (CC_JSB) {
+            this._texture.setAlphaAtlas(this._isAlphaAtlas);
+        }
+    },
+
     _checkPackable () {
         let dynamicAtlas = cc.dynamicAtlasManager;
         if (!dynamicAtlas) return;
@@ -947,7 +959,7 @@ var Texture2D = cc.Class({
         return asset;
     },
 
-    _deserialize: function (data) {
+    _deserialize: function (data, handle) {
         let fields = data.split(',');
         // decode extname
         let extIdStr = fields[0];

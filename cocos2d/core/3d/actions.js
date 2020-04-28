@@ -121,9 +121,9 @@ cc.Rotate3DBy = cc.Class({
     extends: cc.ActionInterval,
 
     ctor: function (duration, deltaAngleX, deltaAngleY, deltaAngleZ) {
-        this._angle = cc.v3();
-        this._quat = cc.quat();
-        this._lastDt = 0;
+        this._startQuat = cc.quat();
+        this._dstQuat = cc.quat();
+        this._deltaAngle = cc.v3();
 		deltaAngleX !== undefined && this.initWithDuration(duration, deltaAngleX, deltaAngleY, deltaAngleZ);
     },
 
@@ -146,7 +146,8 @@ cc.Rotate3DBy = cc.Class({
                 deltaAngleY = deltaAngleY || 0;
                 deltaAngleZ = deltaAngleZ || 0;
             }
-            Vec3.set(this._angle, deltaAngleX, deltaAngleY, deltaAngleZ);
+
+            Vec3.set(this._deltaAngle, deltaAngleX, deltaAngleY, deltaAngleZ);
             return true;
         }
         return false;
@@ -161,8 +162,12 @@ cc.Rotate3DBy = cc.Class({
 
     startWithTarget:function (target) {
         cc.ActionInterval.prototype.startWithTarget.call(this, target);
-        this._quat.set(target.quat);
-        this._lastDt = 0;
+        
+        let startAngle = target.eulerAngles;
+        let deltaAngle = this._deltaAngle;
+        Quat.fromEuler(this._dstQuat, startAngle.x + deltaAngle.x, startAngle.y + deltaAngle.y, startAngle.z + deltaAngle.z);
+
+        this._startQuat.set(target.quat);
     },
 
     update: (function(){
@@ -170,16 +175,8 @@ cc.Rotate3DBy = cc.Class({
         return function (dt) {
             dt = this._computeEaseTime(dt);
             if (this.target) {
-                let angle = this._angle;
-                let dstQuat = this._quat;
-                let delta = dt - this._lastDt;
-                let angleX = angle.x, angleY = angle.y, angleZ = angle.z;
-                if (angleX) Quat.rotateX(dstQuat, dstQuat, angleX * RAD * delta);
-                if (angleY) Quat.rotateY(dstQuat, dstQuat, angleY * RAD * delta);
-                if (angleZ) Quat.rotateZ(dstQuat, dstQuat, angleZ * RAD * delta);
-                this.target.setRotation(dstQuat);
-                
-                this._lastDt = dt;
+                Quat.slerp(_quat_tmp, this._startQuat, this._dstQuat, dt);
+                this.target.setRotation(_quat_tmp);
             }
         }
     })(),
