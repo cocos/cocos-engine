@@ -135,8 +135,7 @@ var loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                 if (!options.reload && assets.has(uuid)) {
                     var asset = assets.get(uuid);
                     if (options.__asyncLoadAssets__ || !asset.__asyncLoadAssets__) {
-                        item.content = asset;
-                        asset.addRef();
+                        item.content = asset.addRef();
                         task.dispatch('progress', ++progress.finish, progress.total, item);
                         done();
                     }

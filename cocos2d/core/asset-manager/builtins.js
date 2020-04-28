@@ -52,8 +52,7 @@ var builtins = {
             else {
                 for (let i = 0; i < assets.length; i++) {
                     var asset = assets[i];
-                    asset.addRef();
-                    builtin.add(asset.name, asset);
+                    builtin.add(asset.name, asset.addRef());
                 }
             }
 

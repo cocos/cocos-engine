@@ -296,12 +296,14 @@ cc.Asset = cc.Class({
      * 增加资源的引用
      * 
      * @method addRef
+     * @return {Asset} itself
      * 
      * @typescript
-     * addRef(): void
+     * addRef(): cc.Asset
      */
     addRef () {
         this._ref++;
+        return this;
     },
 
     /**
@@ -312,13 +314,15 @@ cc.Asset = cc.Class({
      * 减少资源的引用并尝试进行自动释放。
      * 
      * @method decRef
+     * @return {Asset} itself
      * 
      * @typescript
-     * decRef(): void
+     * decRef(): cc.Asset
      */
     decRef (autoRelease) {
         this._ref--;
         autoRelease !== false && cc.assetManager._releaseManager.tryRelease(this);
+        return this;
     }
 });
 
