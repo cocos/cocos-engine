@@ -21,7 +21,7 @@ export interface IPhysicsWorld {
     setAllowSleep: (v: boolean) => void;
     setDefaultMaterial: (v: PhysicMaterial) => void;
     step (deltaTime: number, ...args: any): void;
-    raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, resultes: PhysicsRayResult[]): boolean
+    raycast (worldRay: ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean
     raycastClosest (worldRay: ray, options: IRaycastOptions, out: PhysicsRayResult): boolean;
     emitEvents (): void;
     syncSceneToPhysics (): void;
